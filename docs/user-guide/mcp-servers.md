@@ -88,10 +88,6 @@ Details: [Default setup: codegraph](mcp-installation.md#default-setup-codegraph)
 **Requirements**: Node.js 16+, MORPH_API_KEY
 
 ```bash
-# Automatic activation
-/sc:improve legacy-codebase/ --focus maintainability
-# → Applies consistent patterns across files
-
 # API key setup
 export MORPH_API_KEY="your_key_here"
 ```

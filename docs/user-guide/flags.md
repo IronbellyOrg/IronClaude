@@ -72,14 +72,6 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 | `--format` | Explanation style | `text`, `examples`, `interactive` |
 | `--context` | Domain context | Any domain (e.g., `react`, `security`) |
 
-### Improve Command Flags (`/sc:improve`)
-
-| Flag | Purpose | Values |
-|------|---------|--------|
-| `--type` | Improvement focus | `quality`, `performance`, `maintainability`, `style` |
-| `--safe` | Conservative approach | Boolean |
-| `--interactive` | User guidance | Boolean |
-
 ### Task Command Flags (`/sc:task`)
 
 | Flag | Purpose | Values |

@@ -128,7 +128,7 @@ keyword_extraction:
 category_mapping:
   ml_category:
     primary_commands: ["/sc:sc:analyze --c7", "/sc:sc:design --ultrathink"]
-    secondary_commands: ["/sc:sc:implement --type feature --with-tests", "/sc:sc:improve --performance"]
+    secondary_commands: ["/sc:sc:implement --type feature --with-tests"]
     mcp_servers: ["--c7"]
     personas: ["--persona-analyzer", "--persona-architect"]
     flags: ["--think-hard", "--evidence", "--profile"]
@@ -149,21 +149,21 @@ category_mapping:
 
   debug_category:
     primary_commands: ["/sc:sc:troubleshoot --investigate", "/sc:sc:analyze --code"]
-    secondary_commands: ["/sc:sc:scan --security", "/sc:sc:improve --quality"]
+    secondary_commands: ["/sc:sc:scan --security"]
     mcp_servers: ["--all-mcp"]
     personas: ["--persona-analyzer", "--persona-security"]
     flags: ["--evidence", "--think-hard", "--profile"]
 
   performance_category:
     primary_commands: ["/sc:sc:analyze --performance --pup --profile", "/sc:sc:troubleshoot"]
-    secondary_commands: ["/sc:sc:improve --performance --iterate"]
+    secondary_commands: []
     mcp_servers: ["--pup"]
     personas: ["--persona-performance", "--persona-analyzer"]
     flags: ["--profile", "--monitoring", "--benchmark"]
 
   security_category:
     primary_commands: ["/sc:sc:scan --security --owasp --deps", "/sc:sc:analyze --security"]
-    secondary_commands: ["/sc:sc:improve --security --harden", "/sc:sc:troubleshoot --investigate"]
+    secondary_commands: ["/sc:sc:troubleshoot --investigate"]
     personas: ["--persona-security", "--persona-analyzer"]
     flags: ["--strict", "--validate", "--owasp"]
 
@@ -176,13 +176,13 @@ category_mapping:
 
   test_category:
     primary_commands: ["/sc:sc:test --coverage --e2e --pup", "/sc:sc:scan --validate"]
-    secondary_commands: ["/sc:sc:improve --quality", "/sc:sc:troubleshoot --investigate"]
+    secondary_commands: ["/sc:sc:troubleshoot --investigate"]
     mcp_servers: ["--pup"]
     personas: ["--persona-qa", "--persona-performance"]
     flags: ["--validate", "--coverage", "--monitoring"]
 
   improve_category:
-    primary_commands: ["/sc:sc:improve --quality --iterate", "/sc:sc:cleanup --code --all"]
+    primary_commands: ["/sc:sc:cleanup --code --all"]
     secondary_commands: ["/sc:sc:analyze --code", "/sc:sc:refactor --quality"]
     personas: ["--persona-refactorer", "--persona-mentor"]
     flags: ["--threshold", "--iterate", "--profile"]
@@ -265,10 +265,7 @@ User: /sc:sc:recommend "my site is very slow, what should I do?"
 2. /sc:sc:troubleshoot --investigate --persona-analyzer
    "Investigate issue with root cause analysis"
 
-3. /sc:sc:improve --performance --iterate --persona-performance
-   "Data-driven performance improvements"
-
-4. /sc:sc:test --coverage --e2e --pup --persona-qa
+3. /sc:sc:test --coverage --e2e --pup --persona-qa
    "Tests validating improvements"
 
 🔧 Recommended MCP Servers: --pup
@@ -302,9 +299,6 @@ User: /sc:sc:recommend "Need to secure API with authentication and authorization
 
 4. /sc:sc:implement --type feature --with-tests --persona-backend
    "Implement security features with test-driven development"
-
-5. /sc:sc:improve --security --harden --persona-security
-   "Security hardening and production-ready configurations"
 
 💡 Advanced Security Options:
 --token-based-auth --role-based-access --rate-limiting
@@ -462,9 +456,6 @@ project_detection:
 2. /sc:sc:analyze --security --persona-security
    "JWT and authentication pattern analysis"
 
-3. /sc:sc:improve --security --harden --persona-backend
-   "Security hardening and production configs"
-
 💡 Project-Specific Flags:
 --jwt-validation (JWT token validation)
 --rate-limiting (API rate limiting)
@@ -495,7 +486,7 @@ streaming_mode:
       next_phase_trigger: "testing_complete"
 
     phase_4: Deployment & Monitoring
-      commands: ["/sc:sc:deploy", "/sc:sc:improve"]
+      commands: ["/sc:sc:deploy"]
       project_complete: true
 ```
 
@@ -754,7 +745,7 @@ smart_flag_engine:
 - High traffic: --benchmark --profile
 
 💡 RECOMMENDED COMMAND:
-/sc:sc:improve --performance --optimize --profile --monitoring --validate
+/sc:sc:analyze --performance --pup --profile --persona-performance
 
 🔧 ADDITIONAL FLAG OPTIONS:
 --memory-optimization (if RAM usage is high)
@@ -806,7 +797,6 @@ community_patterns:
         - "/sc:sc:analyze --c7 --persona-mentor"
         - "/sc:sc:design --ultrathink --persona-architect"
         - "/sc:sc:implement --type feature --with-tests --persona-frontend"
-        - "/sc:sc:improve --performance --iterate"
       success_rate: "82%"
       user_feedback: "Great for ML beginners"
 
@@ -814,12 +804,10 @@ community_patterns:
     security_focused:
       - "/sc:sc:scan --security --owasp"
       - "/sc:sc:analyze --security"
-      - "/sc:sc:improve --security --harden"
       usage_frequency: "45% of production projects"
 
     performance_optimization:
       - "/sc:sc:analyze --performance --pup --profile"
-      - "/sc:sc:improve --performance --iterate"
       - "/sc:sc:test --coverage --benchmark"
       usage_frequency: "38% of optimization projects"
 

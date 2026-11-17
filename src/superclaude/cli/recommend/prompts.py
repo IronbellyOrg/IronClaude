@@ -192,7 +192,7 @@ Level 4 needs explicit MDTM intent or exceptionally complex, long-running phased
 work with a stated research/checklist/phase-reviewer machinery need. File count,
 sessions, an existing spec/PRD/TDD, risk, auditability, drift and resume alone
 never justify MDTM. No numerical workflow capacity guarantee is invented.
-The contained-folder cleanup/improve exception retains checkpoint and final diff
+The contained-folder cleanup exception retains checkpoint and final diff
 review; structural migrations remain planned work. Explicit selection cannot
 waive these safeguards or increase authority.
 

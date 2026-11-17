@@ -1,0 +1,4 @@
+# T4 checks
+AC1 improve in WORKER-CONTRACT: 0
+AC2 never-as-worker list unchanged (diff vs HEAD limited to lines 330-331):
+@@ -330,2 +330,2 @@ Slot rules:

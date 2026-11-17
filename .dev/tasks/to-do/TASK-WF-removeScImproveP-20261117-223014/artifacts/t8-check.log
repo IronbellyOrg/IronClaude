@@ -1,0 +1,7 @@
+# T8 checks
+AC1 pytest tests/skills/test_worker_contract.py:
+........................................................................ [ 98%]
+.........                                                                [100%]
+============================= 729 passed in 1.27s ==============================
+grep '"improve"' in file: 0
+AC2 sets: P1=15 P2=13 UNATTENDED_EXPECT=28 (asserted by _check_p1_set/_check_p2_set)

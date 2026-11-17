@@ -136,4 +136,4 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
 - Performance issues
 - Recommendations
 
-**Next Step**: After review, use `/sc:improve` to apply recommended fixes or `/sc:cleanup` for dead code removal.
+**Next Step**: After review, use `/sc:cleanup` for dead code removal.

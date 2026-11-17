@@ -192,5 +192,4 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
 | `/sc:roadmap` | Multi-spec/multi-roadmap modes | `/sc:roadmap --specs spec1.md,spec2.md` |
 | `/sc:design` | Compare architectural designs | `/sc:adversarial --compare design-a.md,design-b.md` |
 | `/sc:spec-panel` | Augment panel with adversarial review | Invoke adversarial post-panel |
-| `/sc:improve` | Compare improvement approaches | Generate competing plans, merge best |
 | `/sc:tasklist` | Pipeline output as sprint input | Generate tasklist from pipeline merged output |

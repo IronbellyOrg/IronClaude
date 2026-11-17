@@ -1,0 +1,6 @@
+# T6 checks
+AC1 pytest routing + recommend + routing contract: 385 passed in 6.43s (baseline: no failures in these files)
+AC2 grep in the two test files and fixture:
+30:    "contained-folder": "A self-contained fixture folder suitable for contained improvement",
+121:      "side_effects": "tool-owned audit reports and checkpoints; no source deletion, improvement or commit",
+686:    {"name": "improve", "history": "Active; F+D", "disposition": "CHANGE", "requirements_tests": "FR-01/02/04/05; S0

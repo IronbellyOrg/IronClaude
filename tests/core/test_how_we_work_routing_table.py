@@ -80,7 +80,6 @@ _EXPECTED_IDS = {
     "focused-design",
     "technical-design-document",
     "cleanup-audit-only",
-    "contained-improve",
     "auggie-review-only",
     "context-audit",
     "cli-eval-create",
@@ -497,7 +496,7 @@ def test_inspection_breadth_does_not_require_an_implementation_plan():
 def test_contained_cleanup_exception_retains_safeguards_not_structural_migration():
     """T13: the folder exception preserves its checkpoint and diff boundary."""
     block = _block(_text(), _LEVEL_BEGIN, _LEVEL_END)
-    assert "contained `/sc:cleanup` and `/sc:improve` work on a folder" in block
+    assert "contained `/sc:cleanup` work on a folder" in block
     assert "commit first and review `git diff` afterwards" in block
     assert "This exception does not cover structural migrations" in block
     cleanup = _block(_text(), "### 3.7 ", "### 3.8 ")
@@ -641,18 +640,7 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
             [
                 "exclusion floor",
                 "hidden-only targets are not exhaustively covered",
-                "no cleanup, improve or commit",
-            ],
-        ),
-        (
-            "S05",
-            "contained-improve",
-            {"sc:improve"},
-            ["<target>", "type/safe/interactive"],
-            [
-                "automatic edits",
-                "no compulsory cleanup/deletions",
-                "structural migration stays planned",
+                "no cleanup or commit",
             ],
         ),
         (
@@ -871,8 +859,8 @@ def test_adversarial_generation_comparison_and_pipeline_remain_exclusive():
     assert "no one-file comparison or product execution" in row["notes"]
 
 
-def test_cleanup_audit_and_improvement_have_separate_authority_boundaries():
-    """S04/S05: reporting cannot acquire deletion, improvement or a commit."""
+def test_cleanup_audit_has_report_only_authority_boundary():
+    """S04: reporting cannot acquire deletion or a commit."""
     rows = {r["id"]: r for r in _routing_rows()}
     audit = rows["cleanup-audit-only"]
     assert audit["changes_files"] == "no"
@@ -881,11 +869,6 @@ def test_cleanup_audit_and_improvement_have_separate_authority_boundaries():
     assert "default surface, not forced all" in audit["notes"]
     assert "later passes need earlier context" in audit["notes"]
     assert "hidden/BMAD paths are an unremovable exclusion floor" in audit["notes"]
-    improve = rows["contained-improve"]
-    assert _TOKEN_RE.findall(improve["steps"]) == ["sc:improve"]
-    assert "checkpoint commit" in improve["steps"] and "git diff" in improve["steps"]
-    assert "sc:cleanup" not in _TOKEN_RE.findall(improve["steps"])
-    assert "sc:improve" not in _TOKEN_RE.findall(rows["cleanup"]["steps"])
 
 
 def test_previews_documentation_and_suite_runs_disclose_actual_writes():

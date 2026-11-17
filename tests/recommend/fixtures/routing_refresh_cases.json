@@ -119,34 +119,14 @@
       "stop": "audit reports/checkpoints",
       "authority": "report-only",
       "side_effects": "tool-owned audit reports and checkpoints; no source deletion, improvement or commit",
-      "guide_phrases": ["<target>", "pass/focus/batch-size", "exclusion floor", "hidden-only targets are not exhaustively covered", "no cleanup, improve or commit"],
-      "negative": {"competitors": ["sc:cleanup", "sc:improve", "sc:git"], "must_not": "cleanup, improve, commit or full-pass escalation"},
+      "guide_phrases": ["<target>", "pass/focus/batch-size", "exclusion floor", "hidden-only targets are not exhaustively covered", "no cleanup or commit"],
+      "negative": {"competitors": ["sc:cleanup", "sc:git"], "must_not": "cleanup, commit or full-pass escalation"},
       "activation": {"sc:cleanup-audit": "sc:cleanup-audit-protocol"},
       "repeats": [
         {"request": "Audit {fixture:hidden-config-dir} exhaustively for dead code.", "targets": ["sc:cleanup-audit"], "mode_flags": [], "expected": "disclose the hidden-path exclusion floor and reject an exhaustive coverage claim"}
       ],
       "variants": {
         "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:cleanup-audit", "expected": "not installed: sc:cleanup-audit; no substitution by sc:cleanup"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "cleanup-audit", "candidate": "/sc:cleanup", "envelope": "Run: /sc:cleanup src/legacy --type all"}, "expected": "guide route matched; cache not consulted; cached /sc:cleanup never emitted"}
-      }
-    },
-    {
-      "id": "S05",
-      "request": "Improve maintainability in {fixture:contained-folder}, safely and interactively.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "contained-improve"},
-      "targets": ["sc:improve"],
-      "mode_flags": ["--type maintainability", "--safe", "--interactive"],
-      "retained_inputs": ["{fixture:contained-folder}"],
-      "stop": "reviewed git diff of the contained improvement",
-      "authority": "mutating-with-approval",
-      "side_effects": "source edits inside the contained folder after an authorized checkpoint commit; diff review required",
-      "guide_phrases": ["<target>", "type/safe/interactive", "automatic edits", "no compulsory cleanup/deletions", "structural migration stays planned"],
-      "negative": {"competitors": ["sc:cleanup", "task-builder"], "must_not": "compulsory cleanup/deletions; structural migration stays planned work"},
-      "activation": {"sc:improve": "self-contained"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:improve", "expected": "not installed: sc:improve; no substitution by sc:cleanup"},
         "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "cleanup-audit", "candidate": "/sc:cleanup", "envelope": "Run: /sc:cleanup src/legacy --type all"}, "expected": "guide route matched; cache not consulted; cached /sc:cleanup never emitted"}
       }
     },
@@ -183,7 +163,7 @@
       "authority": "read-only",
       "side_effects": "none; dry run writes nothing and creates no output directory",
       "guide_phrases": ["--context-optimized", "project-root/output", "dry-run` writes nothing", "scaffold` is opt-in", "never context inputs"],
-      "negative": {"competitors": ["sc:workflow", "sc:improve"], "must_not": "context-input rewrite or generic implementation planner"},
+      "negative": {"competitors": ["sc:workflow"], "must_not": "context-input rewrite or generic implementation planner"},
       "activation": {"sc:init-lite": "sc:init-lite-protocol"},
       "repeats": [
         {"request": "Audit project context size and write the advisory scaffold.", "targets": ["sc:init-lite"], "mode_flags": ["--context-optimized", "--scaffold"], "mandatory_flags": ["1: `--context-optimized`"], "expected": "scaffold retained with its actual owned-artifact write boundary"}
@@ -575,7 +555,7 @@
       "authority": "read-only",
       "side_effects": "none",
       "guide_phrases": ["--level <basic/intermediate/advanced> --format <text/examples/interactive> --context <domain>"],
-      "negative": {"competitors": ["sc:workflow", "sc:improve"], "must_not": "implementation plan from inspection breadth or unwanted code fixes"},
+      "negative": {"competitors": ["sc:workflow"], "must_not": "implementation plan from inspection breadth or unwanted code fixes"},
       "activation": {"sc:explain": "self-contained"},
       "repeats": [],
       "variants": {

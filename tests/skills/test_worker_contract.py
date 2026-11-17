@@ -397,7 +397,7 @@ RULE_PHRASES = {
     "flag-drops": (
         None,
         [
-            "skip every approval-required item and list it as not applied",
+            "skips every approval-required item and lists it as not applied",
             "`/sc:test` ends `succeeded` even when its suite fails",
             "`/sc:research` is forced to `--strategy planning`",
             "`/sc:workflow` skips `--handoff implement`",
@@ -490,12 +490,11 @@ P1_COMMANDS = (
     "test",
 )
 
-# The fifteen commands that get an `## Unattended mode` section in P2, in the order
+# The thirteen commands that get an `## Unattended mode` section in P2, in the order
 # of the P2 static plan. UNATTENDED_EXPECT gains their entries one task at a time.
 P2_COMMANDS = (
     "auggie-review",
     "cleanup",
-    "improve",
     "cli-eval",
     "cli-portify",
     "recommend",
@@ -618,20 +617,6 @@ UNATTENDED_EXPECT: dict = {
             "every changed file",
             "left out (WC-4)",
             'every item under "Approval Required" is listed as not applied',
-        ],
-        "nested": [],
-    },
-    "improve": {
-        "flags": ["--interactive", "--force", "--output"],
-        "phrases": [
-            "Approval Required",
-            "not applied",
-            "improve-report.md",
-            "partial when changes were applied and a validation failed or did not run",
-            "every changed file",
-            "left out (WC-4)",
-            'every item under "Approval Required" is listed as not applied',
-            "`--force` is refused",
         ],
         "nested": [],
     },
@@ -1627,14 +1612,14 @@ def test_nested_lists_match_the_p2_nesting():
 
 
 def _check_p2_set(p1, p2, expect) -> None:
-    assert len(p2) == 14, f"P2 lists {len(p2)} commands, not 14"
-    assert len(set(p2)) == 14, "P2_COMMANDS has a duplicate"
+    assert len(p2) == 13, f"P2 lists {len(p2)} commands, not 13"
+    assert len(set(p2)) == 13, "P2_COMMANDS has a duplicate"
     assert set(p1).isdisjoint(p2), f"P1 and P2 share {sorted(set(p1) & set(p2))}"
     both = set(p1) | set(p2)
     assert set(expect) == both, (
         f"UNATTENDED_EXPECT differs from P1 + P2: {sorted(set(expect) ^ both)}"
     )
-    assert len(expect) == 29, f"UNATTENDED_EXPECT has {len(expect)} entries, not 29"
+    assert len(expect) == 28, f"UNATTENDED_EXPECT has {len(expect)} entries, not 28"
     for name in (*p1, *p2):
         assert (Path(_THIS.COMMANDS_DIR) / f"{name}.md").exists(), f"{name}: no file"
 
@@ -1752,8 +1737,6 @@ def test_reflect_skill_passes_the_nested_impact_directory():
 _CLEANUP_GATE = 'every item under "Approval Required" is listed as not applied'
 P2_GATES = [
     ("cleanup", _CLEANUP_GATE, "not applied", "applied"),
-    ("improve", _CLEANUP_GATE, "not applied", "applied"),
-    ("improve", "`--force` is refused", "refused", "honoured"),
     (
         "research",
         "an explicit `--strategy intent` or `--strategy unified` is refused",

@@ -219,7 +219,7 @@ Steps:
 
 ### Pattern: Iterative Refinement
 
-Found in: implement, improve
+Found in: implement
 
 Steps:
 
