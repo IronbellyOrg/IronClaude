@@ -877,22 +877,6 @@ rows:
     old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with specific fixes and locations)"
     new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes and locations); MINOR issues alone are listed as notes and do not fail"
     occurrences: 1
-  - id: S-107
-    file: src/superclaude/cli/prd/prompts.py
-    lines: [1278, 1279]
-    group: verdict
-    finding: B3-07
-    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found with specific fixes listed"
-    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found with specific fixes listed; MINOR issues alone are listed as notes and do not fail"
-    occurrences: 1
-  - id: S-108
-    file: src/superclaude/cli/prd/prompts.py
-    lines: [1331, 1332]
-    group: verdict
-    finding: B3-07
-    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with fixes, note which were fixed in-place)"
-    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with fixes, note which were fixed in-place); MINOR issues alone are listed as notes and do not fail"
-    occurrences: 1
   - id: S-109
     file: src/superclaude/skills/operational-guide/SKILL.md
     lines: [1028, 1029]

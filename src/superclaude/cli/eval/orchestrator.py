@@ -6,10 +6,7 @@ The orchestrator is the single component that turns a sequence of
 expanded :class:`EvalSpec` rows into a sequence of :class:`EvalOutcome`
 rows by scheduling per-spec :class:`EvalRunner` workers through
 ``concurrent.futures.ThreadPoolExecutor + as_completed`` — the AC6
-pattern the design-spec pins for cliEval. The implementation deliberately
-mirrors the shape used by ``src/superclaude/cli/prd/executor.py:774-802``
-so a reader switching between the PRD pipeline and the eval harness sees
-the same scheduling skeleton.
+pattern the design-spec pins for cliEval.
 
 Responsibilities
 ================

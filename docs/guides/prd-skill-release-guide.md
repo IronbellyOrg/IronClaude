@@ -132,20 +132,6 @@ Key areas: frontend/app/wizard/, the stage configs, and the Zustand store slices
 /prd Write a PRD for the platform.
 ```
 
-### `superclaude prd` (headless CLI)
-
-The `superclaude prd` command runs the PRD pipeline headlessly from a terminal, without an interactive Claude session:
-
-```bash
-superclaude prd run "<request>" [--tier lightweight|standard|heavyweight] [--dry-run]
-superclaude prd resume <STEP_ID>
-```
-
-- `prd run` takes the request as its argument; `--dry-run` validates the configuration without launching the pipeline. Other options: `--product`, `--where`, `--spec`, `--output`, `--max-turns`, `--model`, `--debug`.
-- `prd resume` continues an interrupted run from a step such as `parse-request` or `investigation-3`. If the original run used a non-default `--output`, pass the same `--output`, `--product` and `--tier`.
-- Research and synthesis fix cycles default to 2 each.
-- Run `superclaude prd run --help` and `superclaude prd resume --help` for the full option list.
-
 ---
 
 ## 3) The 7-Phase Multi-Agent Pipeline

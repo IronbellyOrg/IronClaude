@@ -1,0 +1,6 @@
+$ json.load PROJECT_INDEX.json
+json-valid
+$ git grep -n \"prd\" PROJECT_INDEX.json
+PROJECT_INDEX.json:110:      "notable": ["sc-recommend", "co
+$ git grep -F prd-with-eval PROJECT_INDEX.md
+none

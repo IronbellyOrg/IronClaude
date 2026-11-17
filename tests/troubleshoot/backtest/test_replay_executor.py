@@ -78,17 +78,17 @@ def test_backtest_executor_raising_invoker_folds_into_error() -> None:
 
 def test_backtest_resolve_callable_module_level_function() -> None:
     """``resolve_callable`` on a MODULE-LEVEL function: not class-bound, signature read."""
-    from superclaude.cli.prd import gates
+    from superclaude.cli.pipeline import gates
 
-    resolved = resolve_callable(gates, "_check_parallel_instructions")
+    resolved = resolve_callable(gates, "gate_passed")
 
     assert resolved.is_class_bound is False
     assert resolved.owning_class is None
-    assert resolved.qualname == "_check_parallel_instructions"
+    assert resolved.qualname == "gate_passed"
     assert resolved.signature is not None
     assert isinstance(resolved.signature, inspect.Signature)
-    # The real signature was read from the live module (one positional ``content`` param).
-    assert "content" in resolved.signature.parameters
+    # The real signature was read from the live module (``output_file`` is the first parameter).
+    assert "output_file" in resolved.signature.parameters
 
 
 class _LocalOwner:

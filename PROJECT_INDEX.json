@@ -43,7 +43,7 @@
       "command": "superclaude",
       "source": "src/superclaude/cli/main.py:main",
       "commands": ["install", "mcp", "update", "install-skill", "doctor", "version"],
-      "groups": ["sprint", "roadmap", "tasklist", "cli-portify", "prd", "eval", "swarm", "recommend", "init-lite", "reflect"]
+      "groups": ["sprint", "roadmap", "tasklist", "cli-portify", "eval", "swarm", "recommend", "init-lite", "reflect"]
     },
     "ic": {
       "command": "ic",
@@ -91,7 +91,7 @@
       "path": "src/superclaude/cli/",
       "installers": ["install_core.py", "install_commands.py", "install_agents.py", "install_skills.py", "install_skill.py", "install_hooks.py", "install_mcp.py", "install_templates.py", "install_user_setup.py", "install_ccsession.py"],
       "other_files": ["main.py", "ic.py", "doctor.py", "init_lite.py", "prompt_policy.py", "vocabulary.py"],
-      "subpackages": ["sprint", "roadmap", "tasklist", "cli_portify", "audit", "prd", "eval", "swarm", "recommend", "reflect", "pipeline"]
+      "subpackages": ["sprint", "roadmap", "tasklist", "cli_portify", "audit", "eval", "swarm", "recommend", "reflect", "pipeline"]
     },
     "pr_submit": {
       "path": "src/superclaude/pr_submit/",

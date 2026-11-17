@@ -33,7 +33,7 @@ scripts/                  # Build, eval, sync, verification helpers
 
 - CLI: `superclaude` -> `src/superclaude/cli/main.py:main`
   - Commands: `install`, `mcp`, `update`, `install-skill`, `doctor`, `version`
-  - Groups: `sprint`, `roadmap`, `tasklist`, `cli-portify`, `prd`, `eval`, `swarm`, `recommend`, `init-lite`, `reflect`
+  - Groups: `sprint`, `roadmap`, `tasklist`, `cli-portify`, `eval`, `swarm`, `recommend`, `init-lite`, `reflect`
 - CLI: `ic` -> `src/superclaude/cli/ic.py:main`
 - Pytest plugin: `superclaude.pytest_plugin` (entry point `pytest11`)
 
