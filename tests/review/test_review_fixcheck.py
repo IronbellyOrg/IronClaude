@@ -40,6 +40,21 @@ def test_escaped_pipe_passes(tmp_path):
     assert [r.ok for r in fc.run_checks(doc, [3])] == [True]
 
 
+def test_an_edited_header_is_checked_against_the_separator_not_itself(tmp_path):
+    base = write(tmp_path, "| a | b |\n|---|---|\n| 1 | 2 |\n", "base.md")
+    doc = write(tmp_path, "| a | b | c |\n|---|---|\n| 1 | 2 |\n")
+    edited = fc.edited_lines(
+        base.read_text(encoding="utf-8"), doc.read_text(encoding="utf-8")
+    )
+    assert edited == [1]
+    (result,) = fc.run_checks(doc, edited)
+    assert (result.check, result.line, result.ok) == ("pipe", 1, False)
+    assert "4 unescaped pipes, separator row has 3" in result.detail
+    # a header edit that keeps the width matching the separator still passes
+    ok = write(tmp_path, "| x | y |\n|---|---|\n| 1 | 2 |\n", "ok.md")
+    assert [r.ok for r in fc.run_checks(ok, [1])] == [True]
+
+
 def test_quote_check_finds_and_misses_cited_text(tmp_path):
     source = write(tmp_path, "one\nthe exact words here\n", "src.md")
     doc = write(

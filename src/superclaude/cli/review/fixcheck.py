@@ -84,15 +84,21 @@ def run_checks(path: str | Path, line_numbers: list[int]) -> list[CheckResult]:
             continue
         idx, row = number - 1, lines[number - 1]
         if row.lstrip().startswith("|"):
-            first, _last = _table_block(lines, idx)
-            want, got = _pipes(lines[first]), _pipes(row)
+            first, last = _table_block(lines, idx)
+            got = _pipes(row)
+            if idx == first and last > first:
+                # The edited row is the header: compare it with the separator row
+                # below it, not with itself.
+                want, against = _pipes(lines[first + 1]), "separator row"
+            else:
+                want, against = _pipes(lines[first]), "header row"
             results.append(
                 CheckResult(
                     "pipe",
                     name,
                     number,
                     got == want,
-                    f"{got} unescaped pipes, header row has {want}",
+                    f"{got} unescaped pipes, {against} has {want}",
                 )
             )
         for quote, cite, cited_line in _QUOTE_CITE.findall(row):
