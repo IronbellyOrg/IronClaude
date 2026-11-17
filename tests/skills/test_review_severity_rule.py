@@ -176,7 +176,7 @@ def test_a_no_any_severity_wording_in_tracked_primitives():
     assert not hits, "any-severity wording survives:\n" + "\n".join(hits)
 
 
-# --- (c) S1-S3 / S5 copies in the ten-file set -----------------------------
+# --- (c) S1-S3 / S5 copies in the eleven-file set ---------------------------
 
 S1_S3_FILES = (
     "src/superclaude/agents/rf-qa.md",
@@ -189,6 +189,7 @@ S1_S3_FILES = (
     "src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md",
     "src/superclaude/rules/prompts/documentation_expert_qa_prompt.md",
     "src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md",
+    "src/superclaude/agents/reflect-reviewer.md",
 )
 S5_FILES = S1_S3_FILES[:6]
 
