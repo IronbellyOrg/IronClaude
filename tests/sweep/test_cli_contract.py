@@ -1139,7 +1139,19 @@ def test_a_captured_running_worker_is_reported_as_working(env):
     assert (row["class"], row["rule"]) == ("working", "working")
     assert payload["summary"]["counts"]["working"] == 1
     text = Path(payload["report_path"]).read_text("utf-8")
-    assert row_id in _section(text, "## Sessions (1/1)")
+    sessions = _section(text, "## Sessions (1/1)")
+    assert row_id in sessions
+    # The report prints the row's own class, not only the row.
+    table = [
+        [cell.strip() for cell in ln.strip().strip("|").split("|")]
+        for ln in sessions.splitlines()
+        if ln.startswith("|")
+    ]
+    header, (printed,) = table[0], [r for r in table[2:] if r[0] == row_id]
+    assert (printed[header.index("Class")], printed[header.index("Rule")]) == (
+        "working",
+        "working",
+    )
     # The sweep read the worker through the allowed worker-show call; nothing new was run.
     asked = [c["args"] for c in env.orca.calls]
     assert _worker_show(row_id.removeprefix("orca:")) in asked

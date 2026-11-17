@@ -1687,6 +1687,22 @@ def test_agent_wait_is_read_from_observation_then_terminal():
         assert obs.agent_wait_since is None  # no captured field names a wait time
 
 
+def test_a_null_observation_agent_wait_wins_over_a_non_null_terminal_one():
+    # A live worker: the observation says "not waiting" (present, null), so the terminal
+    # block's stale non-null value must not be read as a wait.
+    result = _captured("captured-worker-show-running.json")["result"]
+    show = {
+        **result,
+        "observation": {**result["observation"], "agentWait": None},
+        "terminal": {**result.get("terminal", {}), "agentWait": "term-value"},
+    }
+
+    obs = probes.parse_worker_show(RUN, {"dispatchId": "ctx_6c922cf310da"}, show)
+
+    assert obs.agent_wait_present is True
+    assert obs.agent_wait is None
+
+
 def test_a_non_null_agent_wait_is_kept_as_found():
     # What a waiting worker really shows was never captured (UNVERIFIED): this dict is a
     # made-up stand-in that only proves the value is passed through, not its meaning.
