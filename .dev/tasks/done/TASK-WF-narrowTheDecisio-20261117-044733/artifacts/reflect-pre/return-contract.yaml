@@ -1,0 +1,9 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: ./artifacts/reflect-pre/REPORT.md
+confidence_calibrated: 0.90
+calibration: inline-fallback
+coverage_pct: 0.67
+unmapped_requirements: [repo-wide-search-report-only]
