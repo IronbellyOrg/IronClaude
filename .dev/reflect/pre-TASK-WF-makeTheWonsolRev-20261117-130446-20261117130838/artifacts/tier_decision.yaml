@@ -1,0 +1,10 @@
+selected_tier: 2
+fired_rule_number: 0   # table-wide pre-filter coverage_degraded (D13); no STOP row may fire
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6
+per_signal_breakdown: {scope_size: 1, task_count: 1, blast_radius: 2, spec_density: 1, ambiguity_signals: 1}
+escalation_reason: "Step 1B.2b: inferred_count 14 > parsed_count 0 (prose source with no labeled IDs); Tier 1 stop forbidden"
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null

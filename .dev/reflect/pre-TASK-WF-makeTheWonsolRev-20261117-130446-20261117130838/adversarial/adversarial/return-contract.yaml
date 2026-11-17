@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: adversarial/adversarial/merged-output.md
+  convergence_score: 0.94
+  artifacts_dir: adversarial/adversarial
+  status: partial
+  base_variant: "reviewer-3 (refactorer, opus)"
+  unresolved_conflicts: 1
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []
+  notes: "partial because the 30-criterion rubric and position-bias dual pass were not run (fallback), Round 2 and the Round 2.5 invariant probe were skipped by --depth quick, and A-002 stayed split"

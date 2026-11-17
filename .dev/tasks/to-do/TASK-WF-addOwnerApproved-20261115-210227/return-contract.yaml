@@ -1,0 +1,16 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-addOwnerApproved-20261115-210227
+plan_path: ./TASK-WF-addOwnerApproved-20261115-210227.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/reflect/pre-TASK-WF-addOwnerApproved-20261115-210227-20261115211034/REPORT.md
+unresolved:
+  - "Plan review model rule (owner instruction for this run): reviewers, calibrator and debaters were Sonnet or Haiku class only. The protocol would have used an Opus-class model as calibrator and third reviewer; Haiku calibrated and the third reviewer was dropped. Tier 2 could not run (executor class sonnet leaves one eligible class, below the floor of 2), so the review ran at Tier 1 and is partial."
+  - "Review finding B1 (blocking, advisory, plan not edited): Task 8 edits existing DESIGN.md text although the owner order allows additions only. See REPORT.md."
+  - "Review finding M1 to M4 and notes N1, N2 are minor or owner decisions; see REPORT.md."
