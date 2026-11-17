@@ -211,6 +211,23 @@ def test_c_no_inventory_labels_or_annotation(rel):
     assert "contains the canonical cap text" not in text, rel
 
 
+def test_c_reflect_reviewer_grade_bullets_pinned():
+    flat = _flat(_read("src/superclaude/agents/reflect-reviewer.md"))
+    for needle in (
+        "is a label, not the grade",
+        "`Blocking (Decision):`",
+        "`Blocking (Missing):`",
+        "`Blocking (Safety):`",
+        "`Medium:`",
+        "`Note:`",
+        "also name the affected action",
+        "`consumer-unknown`",
+        "stays in the Correctness gaps table",
+        "the orchestrator still makes the gating decision",
+    ):
+        assert _flat(needle) in flat, needle
+
+
 # --- (d) canonical cap text and at-cap clause -------------------------------
 
 CANONICAL_CAP_TEXT = "at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings"
