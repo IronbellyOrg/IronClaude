@@ -250,6 +250,7 @@ from tests.observe.conftest import (  # noqa: E402
     QRUN,
     make_question_envelope,
     make_question_rows,
+    question_payload,
     routed_runner_responses,
 )
 
@@ -282,6 +283,53 @@ def test_the_record_lists_every_question_with_its_full_id_and_no_escape(fake_clo
     assert any(ln.startswith("retention reset at ") for ln in lines)
     assert "[bold]loud[/bold]" in text  # literal text, as on the screen
     assert not any(ord(ch) in range(0x80, 0xA0) for ch in text)
+
+
+ASK = "Distinctive question text DQ-4711?"
+
+
+def linked_question_view(rows, clock, link=True):
+    from superclaude.cli.observe.view import Session, build_view
+
+    worker = (0, json.dumps(make_envelope(make_rows(3, 1), total=3)))
+    message = (0, json.dumps(make_question_envelope(rows)))
+    runner = FakeRunner([], [routed_runner_responses(worker, message)])
+    collector = Collector(
+        LiveSource(runner, FakeDiscover([])),
+        clock,
+        run_id=QRUN,
+        questions=True,
+        link=link,
+    )
+    return build_view(collector.run_once(), Session(), clock)
+
+
+def test_the_record_question_line_carries_the_dispatch_id_and_link_but_never_the_text(
+    fake_clock,
+):
+    rows = make_question_rows(2, payload=question_payload("w-001", ASK))
+    rows += make_question_rows(1, start=2)  # a question with no payload
+    text = record_text(linked_question_view(rows, fake_clock))
+    question_lines = [ln for ln in text.splitlines() if ln.startswith("msg_")]
+    assert len(question_lines) == 3
+    linked = [ln for ln in question_lines if ln.endswith("link=linked")]
+    assert len(linked) == 2
+    for ln in linked:
+        assert re.fullmatch(r"msg_\w+ \| .* \| dispatchId=w-001 \| link=linked", ln)
+    (bare,) = [ln for ln in question_lines if "link=no payload" in ln]
+    assert bare.endswith("| dispatchId=unknown | link=no payload")
+    assert "DQ-4711" not in text and ASK not in text  # screen-only
+    # every worker line also starts with dispatchId=, so the question line is what is checked
+    assert any(ln.startswith("dispatchId=w-001 |") for ln in text.splitlines())
+
+
+def test_with_the_link_off_the_record_question_lines_are_unchanged(fake_clock):
+    rows = make_question_rows(2, payload=question_payload("w-001", ASK))
+    text = record_text(linked_question_view(rows, fake_clock, link=False))
+    question_lines = [ln for ln in text.splitlines() if ln.startswith("msg_")]
+    assert len(question_lines) == 2
+    assert all(ln.endswith("reason unknown") for ln in question_lines)
+    assert "link=" not in text and "DQ-4711" not in text
 
 
 def test_the_record_with_questions_off_has_no_question_lines(fake_clock):

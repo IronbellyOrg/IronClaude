@@ -22,12 +22,19 @@ from superclaude.cli.observe.terminal import (
     glyph,
 )
 from superclaude.cli.observe.view import (
+    DESK_HIDDEN,
+    DESK_SELECTED_HIDDEN,
+    DESK_TEXT_LINES,
+    DESK_TITLE,
     INSPECTOR_ABOVE_TEXT,
     INSPECTOR_BELOW_TEXT,
     INSPECTOR_HELP,
     INSPECTOR_TITLE,
     NO_MATCH_TEXT,
+    QUESTIONS_REASON,
     CountsToken,
+    DeskView,
+    QuestionLine,
     QuestionsPanel,
     RowView,
     View,
@@ -301,10 +308,62 @@ def _help_lines(view: View, policy: TerminalPolicy) -> list[str]:
     return wrap(view.help_line, policy.width, policy)
 
 
+def _question_line(q: QuestionLine, policy: TerminalPolicy) -> str:
+    """One question line. With the link off it is ``text`` clipped as in R2; with it on the
+    age, the bracketed state and ``reason unknown`` stay and only the question text is cut."""
+    width = policy.width
+    if not q.link:
+        return clip(q.text, width, policy)
+    mark = glyph("selected", policy) + " " if q.selected else "  "
+    head = ascii_safe(mark + q.lead + "  ") if policy.ascii else mark + q.lead + "  "
+    tail = "  " + QUESTIONS_REASON
+    room = max(width - cell_len(head) - cell_len(tail), 1)
+    text = ascii_safe(q.shown) if policy.ascii else q.shown
+    if (
+        cell_len(text) > room and room > 3
+    ):  # a cut question text ends in a visible "..."
+        text = text[: _prefix_length(text, room - 3)] + "..."
+    return clip(head + clip(text, room, policy) + tail, width, policy)
+
+
+def _desk_lines(desk: DeskView, policy: TerminalPolicy) -> list[str]:
+    """The Decision Desk block: title, id and age, the question text (at most 4 lines, cut
+    with ``...``), the linked session fields, then each note. Everything wraps; nothing is cut."""
+    width = policy.width
+    lines = wrap(DESK_TITLE, width, policy)
+    lines += wrap(
+        f"{desk.qid}  age {desk.age_text}" if desk.age_text else desk.qid,
+        width,
+        policy,
+    )
+    if desk.ask:
+        text = wrap(desk.ask, width, policy)
+        if len(text) > DESK_TEXT_LINES:
+            last = text[DESK_TEXT_LINES - 1]
+            text = text[: DESK_TEXT_LINES - 1] + [
+                last[: _prefix_length(last, max(width - 3, 1))] + "..."
+            ]
+        lines += text
+    for label, value in desk.session_fields:
+        first, *rest = wrap(f"{label}: {value}", width, policy)
+        lines.append(first)
+        for continuation in rest:  # continuation lines are indented two cells
+            lines += [
+                "  " + part for part in wrap(continuation, max(width - 2, 1), policy)
+            ]
+    for note in desk.notes:
+        lines += wrap(note, width, policy)
+    return lines
+
+
 def _panel_lines(
-    panel: QuestionsPanel, policy: TerminalPolicy, capacity: int | None
+    panel: QuestionsPanel,
+    policy: TerminalPolicy,
+    capacity: int | None,
+    desk: list[str] | None = None,
 ) -> list[str]:
-    """The coordinator-questions block: header lines, up to ``capacity`` questions, notes."""
+    """The coordinator-questions block: header lines, up to ``capacity`` questions, then the
+    desk block (when given), notes."""
     width = policy.width
     lines = wrap(panel.title, width, policy)
     lines += wrap(panel.run_line, width, policy)
@@ -314,9 +373,14 @@ def _panel_lines(
     lines += wrap(panel.counts_line, width, policy)
     lines += wrap(panel.caveat_line, width, policy)
     shown, cut = panel.window(capacity)
-    lines += [clip(q.text, width, policy) for q in shown]
+    lines += [_question_line(q, policy) for q in shown]
     if cut:
         lines += wrap(cut, width, policy)
+    if any(q.selected for q in panel.lines) and not any(q.selected for q in shown):
+        lines += wrap(
+            DESK_SELECTED_HIDDEN, width, policy
+        )  # the owner's oldest-first window
+    lines += desk or []
     for text in (panel.empty_text, panel.window_full_text, *panel.notes):
         if text:
             lines += wrap(text, width, policy)
@@ -379,11 +443,38 @@ def screen_lines(
         )
         # The questions win on a short terminal (owner decision, 2026-11-12): the ledger keeps
         # its title, one row and its overflow line, and the cut line of the list is budgeted.
+        selected_note = 1 if any(q.selected for q in panel.lines) else 0
         spare = policy.height - (
-            len(head) + len(tail) + base + footer_height + ledger_fixed + 1 + 1 + 1
+            len(head)
+            + len(tail)
+            + base
+            + footer_height
+            + ledger_fixed
+            + 1
+            + 1
+            + 1
+            + selected_note
         )
-        if spare >= 1:
-            gap_part = _panel_lines(panel, policy, spare)
+        desk = _desk_lines(view.desk, policy) if view.desk is not None else None
+        notice = wrap(DESK_HIDDEN, width, policy)
+        if desk is None:
+            panel_part: list[str] | None = (
+                _panel_lines(panel, policy, spare) if spare >= 1 else None
+            )
+        elif spare - len(desk) >= 1:  # the desk is sized first; the list keeps a line
+            panel_part = _panel_lines(panel, policy, spare - len(desk), desk)
+        elif (
+            spare - len(notice) >= 1
+        ):  # the desk gives way to its notice, never the list
+            panel_part = _panel_lines(panel, policy, spare - len(notice), notice)
+        else:
+            panel_part = None
+        if panel_part is not None:
+            gap_part = panel_part
+        elif (
+            desk is not None
+        ):  # no room for the panel: the summary names the hidden desk
+            gap_part = wrap(f"{view.gap_notice}; {DESK_HIDDEN}", width, policy)
         else:  # no room for the panel: its one-line summary stands in for it
             gap_part = wrap(view.gap_notice, width, policy)
     else:

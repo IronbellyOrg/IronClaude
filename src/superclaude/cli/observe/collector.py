@@ -141,6 +141,7 @@ class Collector:
         max_backoff: float = MAX_BACKOFF,
         run_id: str | None = None,
         questions: bool = False,
+        link: bool = False,
     ) -> None:
         self._source = source
         self._clock = clock
@@ -149,6 +150,7 @@ class Collector:
         self._max_backoff = max_backoff
         self._run_id = run_id
         self._questions = bool(questions and run_id)  # one named Run only
+        self._link = bool(link and self._questions)  # read the payload link (R3)
         self._wait = interval
         self._lock = threading.Lock()  # guards the published reference
         self._cycle_lock = threading.Lock()  # one cycle at a time
@@ -215,7 +217,7 @@ class Collector:
         if reply.state == "OK" and reply.pages:
             try:
                 parsed = parse_questions(
-                    reply.pages[0], namespace, number, self._run_id
+                    reply.pages[0], namespace, number, self._run_id, link=self._link
                 )
             except ShapeError:
                 code = "shape"

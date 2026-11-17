@@ -175,7 +175,7 @@ flowchart LR
 
 - **Binds:** CAP-11, CAP-12; R2, R3, R4 gates
 - **Prevents:** stage B or C rewriting the adapter or breaking snapshot v1, and the Go reader coupling to Python internals.
-- **Rule:** Stage B (after QUESTION-OBSERVATION, sample and acquisition permission, CD-9) adds the candidate message verb from `release-gates.md` to `adapter.py` as one more literal template (the only place `check` may appear, with `--peek`/`--all` and never with `--ack`, `--wait` or `--retry-request`), proven non-consuming by T51 first, its own freshness cell (shown as `messages UNVERIFIED (not read)` until then), a `questions.py` retention store bounded at 1,000 records whose eviction never lowers the open total, and an optional `questions` field group in the snapshot. Stage C (after QUESTION-LINK) adds a `links.py` module and an optional field group. R4 adds `--include-remote` to the allow-list. A TUIBBS or other reader consumes only the snapshot file under AD-12 and shares no code; a licence opinion comes first. Each extension adds forbidden-prefix entries if needed and never removes one.
+- **Rule:** Stage B (after QUESTION-OBSERVATION, sample and acquisition permission, CD-9) adds the candidate message verb from `release-gates.md` to `adapter.py` as one more literal template (the only place `check` may appear, with `--peek`/`--all` and never with `--ack`, `--wait` or `--retry-request`), proven non-consuming by T51 first, its own freshness cell (shown as `messages UNVERIFIED (not read)` until then), a `questions.py` retention store bounded at 1,000 records whose eviction never lowers the open total, and an optional `questions` field group in the snapshot. Stage C (after QUESTION-LINK, built as R3) reads the question payload in `parse.py` and joins it to the worker row in `view.py`; it adds no `links.py` module and no snapshot field group. R4 adds `--include-remote` to the allow-list. A TUIBBS or other reader consumes only the snapshot file under AD-12 and shares no code; a licence opinion comes first. Each extension adds forbidden-prefix entries if needed and never removes one.
 
 ### AD-19 — One pure merge owns the row set across pages and cycles [ADOPTED]
 
@@ -282,7 +282,7 @@ tests/observe/
 | CAP-9 text record export | `export.py`, `commands.py` | AD-10, AD-11, AD-20; CD-6 |
 | CAP-10 JSON snapshot v1 | `export.py`, `snapshot.schema.json` | AD-12, AD-20; CD-2, CD-3, CD-6 |
 | CAP-11 R2 retained questions | later `questions.py`, adapter template, snapshot field group | AD-18; CD-9, CD-14 |
-| CAP-12 R3 Decision Desk | later `links.py`, snapshot field group | AD-18 |
+| CAP-12 R3 Decision Desk | `parse.py` payload read, `view.py` join (no `links.py`, no snapshot field group) | AD-18 |
 | Read-only boundary and exclusions | `adapter.py`, whole package | AD-4, AD-17; CD-13 |
 | Later Go or TUIBBS reader | snapshot file only | AD-12, AD-18; CD-12 |
 

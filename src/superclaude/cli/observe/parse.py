@@ -415,8 +415,11 @@ QUESTION_TYPE = "question"
 @dataclass(frozen=True)
 class Question:
     """One coordinator question row. Identity is the Run plus ``message.id``, never a
-    ``dispatchId``. ``body``, ``payload`` and ``to_handle`` are not kept; every other
-    value is a sanitized source value or ``UNKNOWN``."""
+    ``dispatchId``. ``body`` and ``to_handle`` are never kept and neither is the raw
+    ``payload``; only with the link switch on, ``ask`` (the sanitized payload question
+    text), ``dispatch_id`` (a verified, sender-matching id) and ``link`` (the state or the
+    reason it is unlinked) are read from it. Every other value is a sanitized source value
+    or ``UNKNOWN``."""
 
     qid: Any = UNKNOWN
     run_id: Any = UNKNOWN
@@ -428,6 +431,9 @@ class Question:
     created_at: Any = UNKNOWN
     created_epoch: Any = UNKNOWN  # epoch seconds, or UNKNOWN when unparsable
     flags: tuple[str, ...] = ()
+    ask: Any = UNKNOWN  # payload question text (link switch on), else UNKNOWN
+    dispatch_id: Any = UNKNOWN  # set only when ``link == LINKED``
+    link: str = ""  # "" when the link switch is off
 
     @property
     def identity_unknown(self) -> bool:
@@ -458,8 +464,52 @@ _QUESTION_FIELDS: tuple[tuple[str, str], ...] = (
 )
 
 
+# Link states (R3, QUESTION-LINK): the value of ``Question.link`` with the link switch on.
+LINKED = "linked"
+LINK_NO_PAYLOAD = "no payload"
+LINK_NOT_READABLE = "payload not readable"
+LINK_NO_DISPATCH = "payload has no dispatchId"
+LINK_SENDER_MISMATCH = "sender mismatch"
+
+PAYLOAD_CAP = 64 * 1024  # a payload string longer than this is not parsed
+ASK_CAP = 400  # characters of question text kept; a cut text ends in "..."
+_DISPATCH_ID = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.:-]{0,127}")
+
+
+def _read_payload(payload: Any, sender: Any) -> tuple[Any, Any, str]:
+    """``(ask, dispatch_id, link)`` from one question payload; never raises, never keeps it."""
+    if payload is None or (isinstance(payload, str) and not payload.strip()):
+        return UNKNOWN, UNKNOWN, LINK_NO_PAYLOAD
+    data = payload
+    if isinstance(payload, str):
+        if len(payload) > PAYLOAD_CAP:
+            return UNKNOWN, UNKNOWN, LINK_NOT_READABLE
+        try:
+            data = json.loads(payload)
+        except (ValueError, RecursionError):
+            return UNKNOWN, UNKNOWN, LINK_NOT_READABLE
+    if not isinstance(data, dict):
+        return UNKNOWN, UNKNOWN, LINK_NOT_READABLE
+    ask: Any = UNKNOWN
+    question = data.get("question")
+    if isinstance(question, str):
+        text = sanitize(question, "line").strip()
+        if text:
+            ask = text if len(text) <= ASK_CAP else text[: ASK_CAP - 3] + "..."
+    dispatch = data.get("dispatchId")
+    if not isinstance(dispatch, str) or not _DISPATCH_ID.fullmatch(dispatch):
+        return ask, UNKNOWN, LINK_NO_DISPATCH
+    if sender != f"dispatch:{dispatch}":
+        return ask, UNKNOWN, LINK_SENDER_MISMATCH
+    return ask, dispatch, LINKED
+
+
 def parse_questions(
-    obj: Any, namespace: str, cycle: int, run_id: str | None = None
+    obj: Any,
+    namespace: str,
+    cycle: int,
+    run_id: str | None = None,
+    link: bool = False,
 ) -> ParsedQuestions:
     """Parse one decoded message-read envelope; raise ``ShapeError`` on a broken one.
 
@@ -467,6 +517,8 @@ def parse_questions(
     skipped; a row whose ``type`` is not ``question`` or whose ``run_id`` differs from the
     Run read is dropped and counted as contradictory; a row with no usable ``id`` has no
     identity. ``run_id`` is the requested Run; without it ``result.runId`` stands in.
+    With ``link`` the row's payload is read once for ``ask``, ``dispatch_id`` and ``link``
+    (``adapter-contract.md``, message rows); without it nothing from the payload is read.
     """
     result = obj.get("result") if isinstance(obj, dict) else None
     if not isinstance(result, dict):
@@ -520,12 +572,19 @@ def parse_questions(
         else:
             seen.add(qid)
         epoch = parse_timestamp(raw.get("created_at"))
+        linked: dict[str, Any] = {}
+        if link:
+            ask, dispatch, state = _read_payload(
+                raw.get("payload"), values["from_handle"]
+            )
+            linked = {"ask": ask, "dispatch_id": dispatch, "link": state}
         rows.append(
             Question(
                 namespace=namespace,
                 created_epoch=UNKNOWN if epoch is None else epoch,
                 flags=flags,
                 **values,
+                **linked,
             )
         )
     return ParsedQuestions(

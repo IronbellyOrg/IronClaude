@@ -63,7 +63,7 @@ Pain to solve. One human supervising 5-10 Orca orchestrators and 50-100 sessions
   - **success:** Marking never lowers the open count; source loss never closes a question; the panel is labelled "bounded best effort; coverage unknown" (T10-T12, T19, T46, T51).
 - **CAP-12**
   - **intent:** After QUESTION-LINK passes (R3), a supervisor can see, for one selected question, the affected sessions with their worker-list evidence (Decision Desk).
-  - **success:** Affected rows come only from an authoritative message-to-`dispatchId`/`worktreeId` mapping verified on this host; otherwise the desk reads "affected scope unknown".
+  - **success:** Affected rows come only from an authoritative message-to-`dispatchId`/`worktreeId` mapping verified on this host; otherwise the desk reads "affected scope unknown". The built desk shows the one linked session and reads "affected scope unknown" for any question it cannot link.
 
 ## Constraints
 

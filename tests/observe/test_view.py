@@ -1098,3 +1098,286 @@ def test_questions_pending_summary_is_one_line(fake_clock, n):
     pending = questions_collector(question_pair([]), fake_clock).latest()
     summary = panel_of(pending, fake_clock).questions.summary
     assert "\n" not in summary and QRUN in summary
+
+
+# -- R3: the question link and the Decision Desk (T58, T59, T63) -----------------------------------------
+
+from superclaude.cli.observe.parse import Coverage  # noqa: E402
+from superclaude.cli.observe.view import (  # noqa: E402
+    DESK_EVICTED,
+    DESK_NO_READ,
+    DESK_NO_TEXT,
+    DESK_NOT_FOUND,
+    DESK_NOT_REOBSERVED,
+    DESK_PARTIAL,
+    DESK_UNKNOWN_SCOPE,
+    DESK_WORKTREE_NOTE,
+    QUESTIONS_KEYS_LINE,
+    QUESTIONS_LINK_KEYS_LINE,
+)
+from tests.observe.conftest import question_payload  # noqa: E402
+
+DESK_LABELS = (
+    "dispatchId",
+    "workerState",
+    "dispatchStatus",
+    "terminalState",
+    "outcome",
+    "nextAction.kind",
+    "liveness",
+    "evidence age",
+    "resource.worktreeId",
+)
+
+
+def r3_workers(dispatches=("w-001", "w-002"), worktree="wt-1", terminal="active"):
+    rows = make_rows(len(dispatches), 1)
+    for row, dispatch in zip(rows, dispatches):
+        row["dispatchId"] = dispatch
+        row["terminalState"] = terminal
+        if worktree is not None:
+            row["resource"] = {"worktreeId": worktree}
+    return rows_reply(rows, total=len(rows))
+
+
+def r3_questions(*specs):
+    """One reply holding a question per ``(dispatch, text)`` spec, oldest first."""
+    rows = []
+    for index, (dispatch, text) in enumerate(specs):
+        rows += make_question_rows(
+            1, start=index, payload=question_payload(dispatch, text)
+        )
+    return question_pair(rows)
+
+
+def r3_result(message, clock, worker=None, link=True, cycles=1):
+    runner = FakeRunner(
+        [],
+        [routed_runner_responses(r3_workers() if worker is None else worker, message)],
+    )
+    collector = Collector(
+        LiveSource(runner, FakeDiscover([], "/opt/fake/orca")),
+        clock,
+        run_id=QRUN,
+        questions=True,
+        link=link,
+    )
+    for _ in range(cycles):
+        result = collector.run_once()
+    return result
+
+
+def select_next(result, clock, session=None):
+    session = session or Session()
+    view = build_view(result, session, clock)
+    session, _ = apply_key(session, Key("text", "n"), view, clock)
+    return session, build_view(result, session, clock)
+
+
+def test_r3_screen_text_shows_the_question_and_falls_back_to_the_subject(fake_clock):
+    message = question_pair(
+        make_question_rows(1, payload=question_payload("w-001", "Ship on Friday?"))
+        + make_question_rows(1, start=1, payload=question_payload("w-001", "   "))
+        + make_question_rows(1, start=2)
+    )
+    panel = build_view(r3_result(message, fake_clock), Session(), fake_clock).questions
+    shown, blank, plain = panel.lines
+    assert shown.ask == "Ship on Friday?" and "Ship on Friday?" in shown.screen_text
+    assert "synthetic question" not in shown.screen_text
+    assert shown.text.endswith("reason unknown") and "Ship on Friday?" not in shown.text
+    assert (
+        blank.ask == "" and "synthetic question 1" in blank.screen_text
+    )  # the subject stays
+    assert plain.link == "no payload" and "synthetic question 2" in plain.screen_text
+    assert all(line.screen_text.endswith("reason unknown") for line in panel.lines)
+
+
+def test_r3_with_the_link_off_the_lines_carry_no_link_data(fake_clock):
+    message = r3_questions(("w-001", "Ship on Friday?"))
+    view = build_view(r3_result(message, fake_clock, link=False), Session(), fake_clock)
+    (line,) = view.questions.lines
+    assert (line.ask, line.dispatch_id, line.link) == ("", "", "")
+    assert line.screen_text == line.text and view.help_line == QUESTIONS_KEYS_LINE
+    assert view.desk is None and view.questions.link_on is False
+
+
+def test_r3_a_linked_question_gives_exactly_nine_labelled_fields_and_the_worktree_note(
+    fake_clock,
+):
+    result = r3_result(r3_questions(("w-002", "Ship on Friday?")), fake_clock)
+    _, view = select_next(result, fake_clock)
+    desk = view.desk
+    assert [label for label, _ in desk.session_fields] == list(DESK_LABELS)
+    fields = dict(desk.session_fields)
+    assert fields["dispatchId"] == "w-002" and fields["resource.worktreeId"] == "wt-1"
+    assert fields["workerState"] == "idle" and fields["terminalState"] == "active"
+    assert DESK_WORKTREE_NOTE in desk.notes and desk.link == "linked"
+    assert desk.ask == "Ship on Friday?" and desk.qid == "msg_000000000000"
+    assert DESK_UNKNOWN_SCOPE not in desk.notes
+    assert [q for q in view.questions.lines if q.selected] == [view.questions.lines[0]]
+    assert view.help_line == QUESTIONS_LINK_KEYS_LINE
+
+
+def test_r3_missing_worker_fields_read_unknown_and_an_absent_worktree_says_so(
+    fake_clock,
+):
+    rows = make_rows(1, 1)
+    rows[0]["projection"] = {}  # no outcome, next action, liveness or evidence
+    result = r3_result(
+        r3_questions(("w-001", "q?")), fake_clock, worker=rows_reply(rows, total=1)
+    )
+    _, view = select_next(result, fake_clock)
+    fields = dict(view.desk.session_fields)
+    assert fields["resource.worktreeId"] == ABSENT_IN_SOURCE
+    for label in ("outcome", "nextAction.kind", "evidence age"):
+        assert fields[label] == "unknown", label
+    assert all(value.strip() for value in fields.values())  # never blank
+
+
+def test_r3_a_stale_or_failed_worker_read_adds_the_stale_note(fake_clock):
+    result = r3_result(r3_questions(("w-001", "q?")), fake_clock)
+    fake_clock.advance(50)
+    _, view = select_next(result, fake_clock)
+    assert any(
+        n.startswith("worker list STALE; values as of ") for n in view.desk.notes
+    )
+    failed = r3_result(
+        r3_questions(("w-001", "q?")),
+        fake_clock,
+        worker=[r3_workers(), (1, json.dumps({"ok": False, "error": {"code": "x"}}))],
+        cycles=2,
+    )
+    _, view = select_next(failed, fake_clock)
+    assert any(
+        n.startswith("worker list FAILED; values as of ") for n in view.desk.notes
+    )
+    assert dict(view.desk.session_fields)["dispatchId"] == "w-001"  # last good rows
+
+
+def test_r3_a_joined_row_that_was_not_reobserved_says_so(fake_clock):
+    result = r3_result(
+        r3_questions(("w-001", "q?")),
+        fake_clock,
+        worker=[r3_workers(("w-001", "w-002")), r3_workers(("w-002",))],
+        cycles=2,
+    )
+    _, view = select_next(result, fake_clock)
+    assert DESK_NOT_REOBSERVED in view.desk.notes
+    assert dict(view.desk.session_fields)["dispatchId"] == "w-001"
+
+
+def test_r3_a_hidden_or_filtered_worker_still_joins(fake_clock):
+    result = r3_result(
+        r3_questions(("w-001", "q?")),
+        fake_clock,
+        worker=r3_workers(("w-001", "w-002"), terminal="released"),
+    )
+    _, view = select_next(result, fake_clock)
+    assert (
+        view.visible_rows == () and view.desk.session_fields
+    )  # released rows are hidden
+    session, _ = select_next(result, fake_clock, Session(filter_text="zzz-no-match"))
+    view = build_view(result, session, fake_clock)
+    assert (
+        view.visible_rows == ()
+        and dict(view.desk.session_fields)["dispatchId"] == "w-001"
+    )
+    assert DESK_NOT_FOUND not in view.desk.notes
+
+
+def test_r3_a_dispatch_missing_from_the_rows_says_not_found_and_partial_adds_the_rest(
+    fake_clock,
+):
+    result = r3_result(r3_questions(("w-999", "q?")), fake_clock)
+    _, view = select_next(result, fake_clock)
+    assert view.desk.session_fields == () and DESK_NOT_FOUND in view.desk.notes
+    assert DESK_PARTIAL not in view.desk.notes
+    partial = dataclasses.replace(
+        result, coverage=dataclasses.replace(result.coverage, stopped_by_cap=True)
+    )
+    assert isinstance(partial.coverage, Coverage)
+    _, view = select_next(partial, fake_clock)
+    assert DESK_NOT_FOUND in view.desk.notes and DESK_PARTIAL in view.desk.notes
+
+
+def test_r3_no_worker_read_yet_is_not_reported_as_not_found(fake_clock):
+    bad = (1, json.dumps({"ok": False, "error": {"code": "x"}}))
+    result = r3_result(r3_questions(("w-001", "q?")), fake_clock, worker=bad)
+    assert result.snapshot is None
+    _, view = select_next(result, fake_clock)
+    assert DESK_NO_READ in view.desk.notes and DESK_NOT_FOUND not in view.desk.notes
+
+
+@pytest.mark.parametrize(
+    ("payload", "sender", "reason"),
+    [
+        (None, "dispatch:w-001", "no payload"),
+        ("{bad", "dispatch:w-001", "payload not readable"),
+        (json.dumps({"question": "q?"}), "dispatch:w-001", "payload has no dispatchId"),
+        (question_payload("w-001", "q?"), "term_other", "sender mismatch"),
+    ],
+)
+def test_r3_each_unlinked_reason_reads_affected_scope_unknown(
+    fake_clock, payload, sender, reason
+):
+    message = question_pair(make_question_rows(1, payload=payload, from_handle=sender))
+    _, view = select_next(r3_result(message, fake_clock), fake_clock)
+    desk = view.desk
+    assert desk.session_fields == () and desk.link == reason
+    assert desk.notes[:2] == (DESK_UNKNOWN_SCOPE, reason)
+    assert "dispatchId" not in repr(desk.session_fields)
+
+
+def test_r3_a_linked_question_with_no_text_says_so(fake_clock):
+    _, view = select_next(
+        r3_result(r3_questions(("w-001", "")), fake_clock), fake_clock
+    )
+    assert view.desk.ask == DESK_NO_TEXT and view.desk.session_fields
+
+
+def test_r3_a_dispatch_id_of_unknown_never_joins_a_row_with_an_absent_id(fake_clock):
+    rows = make_rows(1, 1)
+    del rows[0]["dispatchId"]
+    result = r3_result(
+        r3_questions(("unknown", "q?")), fake_clock, worker=rows_reply(rows, total=1)
+    )
+    _, view = select_next(result, fake_clock)
+    assert view.desk.session_fields == () and DESK_NOT_FOUND in view.desk.notes
+
+
+def test_r3_two_questions_sharing_a_worktree_each_show_only_their_own_session(
+    fake_clock,
+):
+    result = r3_result(
+        r3_questions(("w-001", "first?"), ("w-002", "second?")), fake_clock
+    )
+    session, first = select_next(result, fake_clock)
+    session, _ = apply_key(session, Key("text", "n"), first, fake_clock)
+    second = build_view(result, session, fake_clock)
+    first_fields, second_fields = (
+        dict(first.desk.session_fields),
+        dict(second.desk.session_fields),
+    )
+    assert (first_fields["dispatchId"], second_fields["dispatchId"]) == (
+        "w-001",
+        "w-002",
+    )
+    assert first_fields["resource.worktreeId"] == second_fields["resource.worktreeId"]
+    assert "w-002" not in repr(first.desk) and "w-001" not in repr(second.desk)
+    assert len(first.desk.session_fields) == len(second.desk.session_fields) == 9
+
+
+def test_r3_an_evicted_selection_reads_no_longer_in_source_window(fake_clock):
+    result = r3_result(r3_questions(("w-001", "q?")), fake_clock)
+    view = build_view(result, Session(selected_question=(QRUN, "msg_gone")), fake_clock)
+    assert view.desk.notes == (DESK_EVICTED.format(qid="msg_gone"),)
+    assert view.desk.session_fields == ()
+
+
+def test_r3_the_desk_is_none_with_the_link_off_or_no_question_selected(fake_clock):
+    linked = r3_result(r3_questions(("w-001", "q?")), fake_clock)
+    assert build_view(linked, Session(), fake_clock).desk is None
+    selected = Session(selected_question=(QRUN, "msg_000000000000"))
+    off = r3_result(r3_questions(("w-001", "q?")), fake_clock, link=False)
+    assert build_view(off, selected, fake_clock).desk is None
+    assert build_view(linked, selected, fake_clock).desk is not None

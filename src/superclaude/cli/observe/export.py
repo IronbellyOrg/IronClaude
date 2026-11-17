@@ -98,7 +98,17 @@ def _question_lines(view: View) -> list[str]:
     lines.append(panel.disclosure)
     lines.append(panel.counts_line)
     lines.append(panel.caveat_line)
-    lines.extend(f"{q.qid} | {q.text}" for q in panel.lines)  # every question, none cut
+    # every question, none cut; with the link switch on the line ends in its dispatch id and
+    # link state, and never carries the question text (screen-only)
+    lines.extend(
+        f"{q.qid} | {q.text}"
+        + (
+            f" | dispatchId={q.dispatch_id or 'unknown'} | link={q.link}"
+            if q.link
+            else ""
+        )
+        for q in panel.lines
+    )
     lines.extend(
         text
         for text in (panel.empty_text, panel.window_full_text, *panel.notes)

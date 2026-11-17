@@ -14,7 +14,16 @@ import pytest
 import superclaude.cli.observe.collector as collector_module
 from superclaude.cli.observe.adapter import LiveSource
 from superclaude.cli.observe.collector import Collector, CycleResult, FixtureSource
-from tests.observe.conftest import FakeDiscover, FakeRunner, make_envelope, make_rows
+from superclaude.cli.observe.parse import UNKNOWN
+from tests.observe.conftest import (
+    FakeDiscover,
+    FakeRunner,
+    make_envelope,
+    make_question_envelope,
+    make_question_rows,
+    make_rows,
+    question_payload,
+)
 
 ORCA = "/opt/fake/orca"
 
@@ -664,3 +673,44 @@ def test_a_fixture_source_has_no_question_fixture(fake_clock):
     result = plain.run_once()
     assert result.state == "OK" and result.question_state == "FAILED"
     assert result.question_code == "no-question-fixture"
+
+
+# -- R3: the payload link switch -------------------------------------------------------------------------
+
+
+def linked_reply():
+    rows = make_question_rows(
+        2, run=QRUN, payload=question_payload("disp_linked", "Ship it on Friday?")
+    )
+    return 0, json.dumps(make_question_envelope(rows, run=QRUN))
+
+
+def test_link_on_sets_ask_and_dispatch_id_from_the_payload(fake_clock, argv_log):
+    collector, _, _ = questions_on(
+        [routed(reply(), linked_reply())], fake_clock, argv_log, link=True
+    )
+    records = collector.run_once().questions.records
+    assert len(records) == 2
+    for record in records:
+        q = record.question
+        assert (q.ask, q.dispatch_id, q.link) == (
+            "Ship it on Friday?",
+            "disp_linked",
+            "linked",
+        )
+
+
+def test_link_off_leaves_the_payload_unread(fake_clock, argv_log):
+    collector, _, _ = questions_on(
+        [routed(reply(), linked_reply())], fake_clock, argv_log
+    )
+    records = collector.run_once().questions.records
+    assert len(records) == 2
+    assert {
+        (r.question.ask, r.question.dispatch_id, r.question.link) for r in records
+    } == {(UNKNOWN, UNKNOWN, "")}
+
+
+def test_link_without_questions_is_off(fake_clock, argv_log):
+    collector, _, _ = live([reply()], fake_clock, argv_log, run_id=QRUN, link=True)
+    assert collector._link is False

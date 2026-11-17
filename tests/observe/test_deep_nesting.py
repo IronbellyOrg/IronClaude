@@ -27,6 +27,16 @@ def test_a_reply_nested_beyond_the_recursion_limit_is_a_json_failure(fake_clock)
     assert (result.state, result.code, result.pages) == ("FAILED", "json", ())
 
 
+def test_a_deeply_nested_question_payload_is_unlinked_and_the_list_still_parses():
+    from superclaude.cli.observe.parse import parse_questions
+    from tests.observe.conftest import QRUN, make_question_envelope, make_question_rows
+
+    rows = make_question_rows(2, payload="[" * 100_000, from_handle="dispatch:disp_a")
+    parsed = parse_questions(make_question_envelope(rows), "orca-a", 1, QRUN, link=True)
+    assert len(parsed.rows) == 2
+    assert {q.link for q in parsed.rows} == {"payload not readable"}
+
+
 def test_the_snapshot_survives_a_deeply_nested_scope_and_counts(fake_clock):
     envelope = make_envelope(make_rows(2, 1), total=2)
     envelope["result"]["scope"] = _nested(DEPTH)
