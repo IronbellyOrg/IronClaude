@@ -84,7 +84,9 @@ class StageStatus:
     plan_reply_id: int | None
     plan_hash: str | None
     record_id: str | None
-    key: tuple[int, str, str] | None  # (issue, stage, plan hash); the same for both channels
+    key: (
+        tuple[int, str, str] | None
+    )  # (issue, stage, plan hash); the same for both channels
     label: ChannelResult
     comment: ChannelResult
     approved: bool
@@ -113,16 +115,27 @@ def _closed_plan(reason: str, plan_reply_id: int | None = None) -> StageStatus:
     )
 
 
-def latest_plan_reply(comments: Iterable[CommentFact], host_login: str) -> CommentFact | None:
+def latest_plan_reply(
+    comments: Iterable[CommentFact], host_login: str
+) -> CommentFact | None:
     """The latest comment by the host login that carries the plan marker."""
-    candidates = [c for c in comments if c.author_login == host_login and c.plan_marker is not None]
+    candidates = [
+        c
+        for c in comments
+        if c.author_login == host_login and c.plan_marker is not None
+    ]
     return max(candidates, key=lambda c: (c.created_at, c.id), default=None)
 
 
 def _is_allowed_actor(
-    login: str | None, account_id: int | None, assignees: Collection[str], approvers: Collection[int]
+    login: str | None,
+    account_id: int | None,
+    assignees: Collection[str],
+    approvers: Collection[int],
 ) -> bool:
-    return (login is not None and login in assignees) or (account_id is not None and account_id in approvers)
+    return (login is not None and login in assignees) or (
+        account_id is not None and account_id in approvers
+    )
 
 
 def _edit_of(edits: EditEvidence, comment_id: int) -> CommentEdit | None:
@@ -138,23 +151,40 @@ def _label_channel(
     host_login: str,
 ) -> tuple[ChannelResult, bool]:
     relevant = sorted(
-        (e for e in events if e.label == approval_label and e.event in ("labeled", "unlabeled")),
+        (
+            e
+            for e in events
+            if e.label == approval_label and e.event in ("labeled", "unlabeled")
+        ),
         key=lambda e: (e.created_at, e.id),
     )
-    applied_after = [e for e in relevant if e.event == "labeled" and e.created_at > reply.created_at]
+    applied_after = [
+        e for e in relevant if e.event == "labeled" and e.created_at > reply.created_at
+    ]
     if not applied_after:
-        reason = "label-before-plan" if any(e.event == "labeled" for e in relevant) else "no-label"
+        reason = (
+            "label-before-plan"
+            if any(e.event == "labeled" for e in relevant)
+            else "no-label"
+        )
         return ChannelResult(False, reason), False
     latest = applied_after[-1]
-    removed = any(e.event == "unlabeled" and (e.created_at, e.id) > (latest.created_at, latest.id) for e in relevant)
+    removed = any(
+        e.event == "unlabeled" and (e.created_at, e.id) > (latest.created_at, latest.id)
+        for e in relevant
+    )
     if removed:
         return ChannelResult(False, "label-removed", latest.id, latest.actor_id), True
     if latest.actor_type != "User":
         return ChannelResult(False, "actor-not-user", latest.id, latest.actor_id), False
     if not _is_allowed_actor(latest.actor_login, latest.actor_id, assignees, approvers):
-        return ChannelResult(False, "actor-not-allowed", latest.id, latest.actor_id), False
+        return ChannelResult(
+            False, "actor-not-allowed", latest.id, latest.actor_id
+        ), False
     return (
-        ChannelResult(True, "ok", latest.id, latest.actor_id, latest.actor_login == host_login),
+        ChannelResult(
+            True, "ok", latest.id, latest.actor_id, latest.actor_login == host_login
+        ),
         False,
     )
 
@@ -168,7 +198,9 @@ def _comment_channel(
     host_login: str,
 ) -> ChannelResult:
     assert reply.plan_marker is not None
-    first_reason: str | None = None  # why the latest candidate failed, when none is accepted
+    first_reason: str | None = (
+        None  # why the latest candidate failed, when none is accepted
+    )
     for comment in sorted(comments, key=lambda c: (c.created_at, c.id), reverse=True):
         if comment.approval_form is None:
             continue
@@ -182,11 +214,19 @@ def _comment_channel(
         if failure is not None:
             first_reason = first_reason or failure
             continue
-        return ChannelResult(True, "ok", comment.id, comment.author_id, comment.author_login == host_login)
+        return ChannelResult(
+            True,
+            "ok",
+            comment.id,
+            comment.author_id,
+            comment.author_login == host_login,
+        )
     return ChannelResult(False, first_reason or "no-comment")
 
 
-def _comment_failure(comment: CommentFact, reply: CommentFact, edits: EditEvidence) -> str | None:
+def _comment_failure(
+    comment: CommentFact, reply: CommentFact, edits: EditEvidence
+) -> str | None:
     """The closed reason an otherwise allowed approving comment does not count, or None."""
     assert reply.plan_marker is not None
     if comment.created_at <= reply.created_at:
@@ -229,9 +269,13 @@ def evaluate(
         return _closed_plan("plan-reply-edited", reply.id)
     marker = reply.plan_marker
     changed = plan_hash_now is None or plan_hash_now != marker.plan_hash
-    label, revoked = _label_channel(reply, events, approval_label, assignees, approvers, host_login)
+    label, revoked = _label_channel(
+        reply, events, approval_label, assignees, approvers, host_login
+    )
     comment = _comment_channel(reply, comments, edits, assignees, approvers, host_login)
-    status_seen = any(e.event == STATUS_EVENT and e.created_at > reply.created_at for e in events)
+    status_seen = any(
+        e.event == STATUS_EVENT and e.created_at > reply.created_at for e in events
+    )
     approved = (label.accepted or comment.accepted) and not changed
     if changed:
         state = "plan-changed"

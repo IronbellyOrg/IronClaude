@@ -24,7 +24,9 @@ def _hash(report: Path, *names: str) -> str:
 
 
 def test_cli_prints_ordered_list_and_a_64_hex_hash(report: Path) -> None:
-    result = CliRunner().invoke(issue_pipeline_group, ["plan-hash", str(report), "b.md", "a.md"])
+    result = CliRunner().invoke(
+        issue_pipeline_group, ["plan-hash", str(report), "b.md", "a.md"]
+    )
     assert result.exit_code == 0
     lines = result.output.splitlines()
     assert lines[:2] == ["file: a.md", "file: b.md"]
@@ -71,19 +73,25 @@ def test_adding_a_file_changes_the_hash(report: Path) -> None:
         ("none", "a.md", "duplicate-name"),
     ],
 )
-def test_refusals_exit_non_zero_with_a_closed_reason(report: Path, make: str, name: str, reason: str) -> None:
+def test_refusals_exit_non_zero_with_a_closed_reason(
+    report: Path, make: str, name: str, reason: str
+) -> None:
     secret = report.parent / "outside-secret.txt"
     secret.write_text("CANARY-FILE-TEXT")
     if make == "symlink":
         (report / "link.md").symlink_to(secret)
     names = ["a.md", name] if reason == "duplicate-name" else [name]
-    result = CliRunner().invoke(issue_pipeline_group, ["plan-hash", str(report), *names])
+    result = CliRunner().invoke(
+        issue_pipeline_group, ["plan-hash", str(report), *names]
+    )
     assert result.exit_code != 0
     assert result.output.strip() == f"refused:{reason}"
     assert "CANARY" not in result.output
 
 
-def test_a_symlinked_directory_component_is_refused(report: Path, tmp_path_factory: pytest.TempPathFactory) -> None:
+def test_a_symlinked_directory_component_is_refused(
+    report: Path, tmp_path_factory: pytest.TempPathFactory
+) -> None:
     other = tmp_path_factory.mktemp("other")
     (other / "x.md").write_text("x")
     (report / "sub").symlink_to(other)

@@ -41,7 +41,9 @@ def _run_record(action: Callable[[], dict[str, Any]]) -> None:
 _DIR = click.argument("approvals_dir", type=click.Path())
 _ISSUE = click.option("--issue", type=click.IntRange(min=1), required=True)
 _STAGE = click.option("--stage", default="plan", show_default=True)
-_PLAN_HASH = click.option("--plan-hash", "plan_hash_value", required=True, help="64 lowercase hex.")
+_PLAN_HASH = click.option(
+    "--plan-hash", "plan_hash_value", required=True, help="64 lowercase hex."
+)
 
 
 @click.group(name="issue-pipeline")
@@ -68,8 +70,15 @@ def plan_hash_command(report_dir: str, names: tuple[str, ...]) -> None:
 @click.argument("report_dir", type=click.Path())
 @click.argument("names", nargs=-1)
 @click.option("--line", "line", required=True, help="The approval text, matched whole.")
-@click.option("--issue", type=click.IntRange(min=1), default=None, help="Also require this issue number in the record id.")
-def check_approval_command(report_dir: str, names: tuple[str, ...], line: str, issue: int | None) -> None:
+@click.option(
+    "--issue",
+    type=click.IntRange(min=1),
+    default=None,
+    help="Also require this issue number in the record id.",
+)
+def check_approval_command(
+    report_dir: str, names: tuple[str, ...], line: str, issue: int | None
+) -> None:
     """Print ok or a closed refusal for the approval LINE against the plan files."""
     result = approval_line.check(report_dir, list(names), line, issue)
     click.echo(result)
@@ -104,9 +113,15 @@ def adopt_create_command(approvals_dir: str, issue: int, stage: str) -> None:
 @_STAGE
 @click.option("--state", type=click.Choice(["started", "uncertain"]), required=True)
 @click.option("--dispatch-id", default=None, help="Required for `started`.")
-def adopt_mark_command(approvals_dir: str, issue: int, stage: str, state: str, dispatch_id: str | None) -> None:
+def adopt_mark_command(
+    approvals_dir: str, issue: int, stage: str, state: str, dispatch_id: str | None
+) -> None:
     """Mark the adoption row `started` (with the Dispatch id) or `uncertain`."""
-    _run_record(lambda: approval_record.adopt_mark(approvals_dir, issue, stage, state, dispatch_id))
+    _run_record(
+        lambda: approval_record.adopt_mark(
+            approvals_dir, issue, stage, state, dispatch_id
+        )
+    )
 
 
 @issue_pipeline_group.command("record-create")
@@ -114,15 +129,25 @@ def adopt_mark_command(approvals_dir: str, issue: int, stage: str, state: str, d
 @_ISSUE
 @_STAGE
 @_PLAN_HASH
-@click.option("--channel", type=click.Choice(list(approval_record.CHANNELS)), required=True)
+@click.option(
+    "--channel", type=click.Choice(list(approval_record.CHANNELS)), required=True
+)
 @click.option("--evidence-id", required=True, help="Event, comment or message id.")
 @click.option("--actor", required=True, help="Actor id.")
 def record_create_command(
-    approvals_dir: str, issue: int, stage: str, plan_hash_value: str, channel: str, evidence_id: str, actor: str
+    approvals_dir: str,
+    issue: int,
+    stage: str,
+    plan_hash_value: str,
+    channel: str,
+    evidence_id: str,
+    actor: str,
 ) -> None:
     """Create the approval row, or append evidence to the existing one."""
     _run_record(
-        lambda: approval_record.record_create(approvals_dir, issue, stage, plan_hash_value, channel, evidence_id, actor)
+        lambda: approval_record.record_create(
+            approvals_dir, issue, stage, plan_hash_value, channel, evidence_id, actor
+        )
     )
 
 
@@ -131,9 +156,17 @@ def record_create_command(
 @_ISSUE
 @_STAGE
 @_PLAN_HASH
-def record_show_command(approvals_dir: str, issue: int, stage: str, plan_hash_value: str) -> None:
+def record_show_command(
+    approvals_dir: str, issue: int, stage: str, plan_hash_value: str
+) -> None:
     """Print the approval row."""
-    _run_record(lambda: {"row": approval_record.record_show(approvals_dir, issue, stage, plan_hash_value)})
+    _run_record(
+        lambda: {
+            "row": approval_record.record_show(
+                approvals_dir, issue, stage, plan_hash_value
+            )
+        }
+    )
 
 
 @issue_pipeline_group.command("record-mark")
@@ -141,10 +174,20 @@ def record_show_command(approvals_dir: str, issue: int, stage: str, plan_hash_va
 @_ISSUE
 @_STAGE
 @_PLAN_HASH
-@click.option("--state", type=click.Choice(list(approval_record.APPROVAL_STATES[1:])), required=True)
-def record_mark_command(approvals_dir: str, issue: int, stage: str, plan_hash_value: str, state: str) -> None:
+@click.option(
+    "--state",
+    type=click.Choice(list(approval_record.APPROVAL_STATES[1:])),
+    required=True,
+)
+def record_mark_command(
+    approvals_dir: str, issue: int, stage: str, plan_hash_value: str, state: str
+) -> None:
     """Move the approval row forward (`instructed`, `acked`) or to `revoked`."""
-    _run_record(lambda: approval_record.record_mark(approvals_dir, issue, stage, plan_hash_value, state))
+    _run_record(
+        lambda: approval_record.record_mark(
+            approvals_dir, issue, stage, plan_hash_value, state
+        )
+    )
 
 
 # --- stage-status: read-only -------------------------------------------------
@@ -175,12 +218,16 @@ def _channel(result: stage_predicates.ChannelResult) -> dict[str, Any]:
     }
 
 
-def _row_facts(approvals_dir: Path | None, issue: int, key: tuple[int, str, str] | None) -> tuple[str | None, int | None, str | None]:
+def _row_facts(
+    approvals_dir: Path | None, issue: int, key: tuple[int, str, str] | None
+) -> tuple[str | None, int | None, str | None]:
     """Adoption state, approval-row state and its evidence count, read without writing."""
     if approvals_dir is None:
         return None, None, None
     try:
-        adoption = approval_record.adopt_show(approvals_dir, issue, stage_predicates.STAGE)["state"]
+        adoption = approval_record.adopt_show(
+            approvals_dir, issue, stage_predicates.STAGE
+        )["state"]
     except approval_record.ApprovalError:
         adoption = None
     if key is None:
@@ -241,7 +288,10 @@ def _stage_status(
         "plan_hash": status.plan_hash,
         "record_id": status.record_id,
         "plan_files_checked": checked,
-        "approvals": {"label": _channel(status.label), "comment": _channel(status.comment)},
+        "approvals": {
+            "label": _channel(status.label),
+            "comment": _channel(status.comment),
+        },
         "approved": status.approved,
         "label_revoked": status.label_revoked,
         "status_seen": status.status_seen,
@@ -260,11 +310,37 @@ class _StatusRefused(Exception):
 
 @issue_pipeline_group.command("stage-status")
 @click.argument("issue", type=click.IntRange(min=1))
-@click.option("--json", "as_json", is_flag=True, help="Accepted for symmetry; the output is always JSON.")
-@click.option("--config", "config_path", type=click.Path(path_type=Path), default="~/.config/superclaude/issue-watch.json", show_default=True)
-@click.option("--approvals-dir", type=click.Path(path_type=Path), default=None, help="Read the adoption and approval rows here.")
-@click.option("--plan-dir", type=click.Path(path_type=Path), default=None, help="Report directory holding the plan files.")
-@click.option("--plan-file", "plan_files", multiple=True, help="A plan file name under --plan-dir (repeat).")
+@click.option(
+    "--json",
+    "as_json",
+    is_flag=True,
+    help="Accepted for symmetry; the output is always JSON.",
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default="~/.config/superclaude/issue-watch.json",
+    show_default=True,
+)
+@click.option(
+    "--approvals-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Read the adoption and approval rows here.",
+)
+@click.option(
+    "--plan-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Report directory holding the plan files.",
+)
+@click.option(
+    "--plan-file",
+    "plan_files",
+    multiple=True,
+    help="A plan file name under --plan-dir (repeat).",
+)
 def stage_status_command(
     issue: int,
     as_json: bool,
@@ -280,7 +356,15 @@ def stage_status_command(
         click.echo(f"refused:{exc.reason}")
         raise SystemExit(_EXIT_CONFIG) from None
     try:
-        result = _stage_status(issue, _make_runner(), label, approvers, approvals_dir, plan_dir, list(plan_files))
+        result = _stage_status(
+            issue,
+            _make_runner(),
+            label,
+            approvers,
+            approvals_dir,
+            plan_dir,
+            list(plan_files),
+        )
     except _StatusRefused as exc:
         click.echo(f"refused:{exc.reason}")
         raise SystemExit(_EXIT_REFUSED) from None

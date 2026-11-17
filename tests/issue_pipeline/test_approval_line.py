@@ -67,24 +67,40 @@ def _good_line(plan_dir: Path, issue: int = 9) -> str:
 def test_check_ok_for_the_matching_long_form(plan_dir: Path) -> None:
     line = _good_line(plan_dir)
     assert approval_line.check(plan_dir, ["plan.md", "design.md"], line) == "ok"
-    assert approval_line.check(plan_dir, ["plan.md", "design.md"], line, issue=9) == "ok"
+    assert (
+        approval_line.check(plan_dir, ["plan.md", "design.md"], line, issue=9) == "ok"
+    )
 
 
 def test_check_refuses_after_one_byte_changes(plan_dir: Path) -> None:
     line = _good_line(plan_dir)
     (plan_dir / "plan.md").write_text("the plaN")
-    assert approval_line.check(plan_dir, ["plan.md", "design.md"], line) == "refused:mismatch"
+    assert (
+        approval_line.check(plan_dir, ["plan.md", "design.md"], line)
+        == "refused:mismatch"
+    )
 
 
 def test_check_refuses_a_bare_approved_from_the_worker(plan_dir: Path) -> None:
-    assert approval_line.check(plan_dir, ["plan.md", "design.md"], "approved") == "refused:bare"
+    assert (
+        approval_line.check(plan_dir, ["plan.md", "design.md"], "approved")
+        == "refused:bare"
+    )
 
 
 def test_check_refuses_a_wrong_issue_and_a_foreign_prefix(plan_dir: Path) -> None:
     digest = plan_hash.compute(plan_dir, ["plan.md", "design.md"])[1]
-    assert approval_line.check(plan_dir, ["plan.md", "design.md"], _good_line(plan_dir), issue=10) == "refused:mismatch"
+    assert (
+        approval_line.check(
+            plan_dir, ["plan.md", "design.md"], _good_line(plan_dir), issue=10
+        )
+        == "refused:mismatch"
+    )
     bad_prefix = _long(rid="ap-9-plan-ffffffffffff", h=digest)
-    assert approval_line.check(plan_dir, ["plan.md", "design.md"], bad_prefix) == "refused:mismatch"
+    assert (
+        approval_line.check(plan_dir, ["plan.md", "design.md"], bad_prefix)
+        == "refused:mismatch"
+    )
 
 
 def test_check_closed_words_for_malformed_and_plan_errors(plan_dir: Path) -> None:
@@ -94,9 +110,22 @@ def test_check_closed_words_for_malformed_and_plan_errors(plan_dir: Path) -> Non
 
 def test_cli_exit_codes_and_closed_output(plan_dir: Path) -> None:
     runner = CliRunner()
-    ok = runner.invoke(issue_pipeline_group, ["check-approval", str(plan_dir), "plan.md", "design.md", "--line", _good_line(plan_dir)])
+    ok = runner.invoke(
+        issue_pipeline_group,
+        [
+            "check-approval",
+            str(plan_dir),
+            "plan.md",
+            "design.md",
+            "--line",
+            _good_line(plan_dir),
+        ],
+    )
     assert (ok.exit_code, ok.output.strip()) == (0, "ok")
-    bare = runner.invoke(issue_pipeline_group, ["check-approval", str(plan_dir), "plan.md", "design.md", "--line", "approved"])
+    bare = runner.invoke(
+        issue_pipeline_group,
+        ["check-approval", str(plan_dir), "plan.md", "design.md", "--line", "approved"],
+    )
     assert (bare.exit_code, bare.output.strip()) == (1, "refused:bare")
 
 

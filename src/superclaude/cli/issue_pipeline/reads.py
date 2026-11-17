@@ -98,7 +98,9 @@ def _comment_fact(item: dict) -> CommentFact:
         approval_form=form,
         approval_record_id=record_id,
         approval_hash=digest,
-        plan_marker=PlanMarker(marker_id, marker_hash) if marker_id and marker_hash else None,
+        plan_marker=PlanMarker(marker_id, marker_hash)
+        if marker_id and marker_hash
+        else None,
     )
 
 

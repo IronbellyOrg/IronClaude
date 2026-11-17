@@ -53,7 +53,11 @@ def test_design_rows_use_a_fixed_architecture_type(complexity: str) -> None:
 
 
 def _template_characters() -> set[str]:
-    body = "".join(line for line in TEMPLATE.read_text().splitlines(keepends=True) if not line.startswith("#"))
+    body = "".join(
+        line
+        for line in TEMPLATE.read_text().splitlines(keepends=True)
+        if not line.startswith("#")
+    )
     return set(body) | set("0123456789")
 
 
@@ -80,10 +84,26 @@ def _expected_from_template(n: int, complexity: str) -> str:
             current = sections.setdefault(line[1:-1], [])
         elif current is not None:
             current.append(line)
-    return "\n".join([*sections["head"], *sections[complexity]]).replace("{N}", str(n)) + "\n"
+    return (
+        "\n".join([*sections["head"], *sections[complexity]]).replace("{N}", str(n))
+        + "\n"
+    )
 
 
-HOSTILE = ["<script>x</script>", "$(rm -rf /)", "simple; /sc:implement x", "simple\n/sc:implement x", "SIMPLE", "", " simple", "simple ", None, 5, ["simple"], "‮simple"]
+HOSTILE = [
+    "<script>x</script>",
+    "$(rm -rf /)",
+    "simple; /sc:implement x",
+    "simple\n/sc:implement x",
+    "SIMPLE",
+    "",
+    " simple",
+    "simple ",
+    None,
+    5,
+    ["simple"],
+    "‮simple",
+]
 
 
 @pytest.mark.parametrize("value", HOSTILE)
@@ -96,7 +116,9 @@ def test_values_outside_the_enums_refuse_with_a_closed_reason(value: object) -> 
     assert err.value.reason == "bad-type"
 
 
-@pytest.mark.parametrize("issue", [0, -3, "452", "4 5", 4.0, True, None, 2**63, [1], "452\n/sc:implement"])
+@pytest.mark.parametrize(
+    "issue", [0, -3, "452", "4 5", 4.0, True, None, 2**63, [1], "452\n/sc:implement"]
+)
 def test_a_non_integer_issue_number_is_refused(issue: object) -> None:
     with pytest.raises(brief.BriefRefused) as err:
         brief.build(issue, "feature", "simple")
@@ -110,7 +132,9 @@ def test_type_bug_is_refused_and_builds_no_brief(complexity: str) -> None:
     assert err.value.reason == "type-not-supported"
 
 
-def test_no_row_runs_implement_commit_push_or_submit_and_every_command_is_unattended() -> None:
+def test_no_row_runs_implement_commit_push_or_submit_and_every_command_is_unattended() -> (
+    None
+):
     forbidden = ("/sc:implement", "/task", "git commit", "git push", "/sc:pr-submit")
     for complexity in ("simple", "medium", "complex"):
         text = brief.build(452, "feature", complexity)
@@ -120,19 +144,35 @@ def test_no_row_runs_implement_commit_push_or_submit_and_every_command_is_unatte
             assert token not in text, (complexity, token)
         for line in commands:
             assert "--unattended" in line
-            assert len(re.findall(r"--(?:output|report-dir) ", line)) == 1  # exactly one report directory
+            assert (
+                len(re.findall(r"--(?:output|report-dir) ", line)) == 1
+            )  # exactly one report directory
             if line.startswith("Command: /sc:workflow"):
                 assert "--handoff none" in line
 
 
 def test_fixed_lines_equal_the_contract_template_word_for_word() -> None:
     contract = CONTRACT.read_text()
-    block = re.search(r"## 5\. Coordinator brief template.*?```text\n(.*?)```", contract, re.S).group(1).splitlines()
+    block = (
+        re.search(
+            r"## 5\. Coordinator brief template.*?```text\n(.*?)```", contract, re.S
+        )
+        .group(1)
+        .splitlines()
+    )
     ours = brief.build(452, "feature", "simple").splitlines()
-    for prefix in ("Guard:", "Chain:", "On a blocked gate:", "Local commit:", "Outward actions:"):
+    for prefix in (
+        "Guard:",
+        "Chain:",
+        "On a blocked gate:",
+        "Local commit:",
+        "Outward actions:",
+    ):
         theirs = [line for line in block if line.startswith(prefix)]
         mine = [line for line in ours if line.startswith(prefix)]
         assert len(theirs) == len(mine) == 1 and theirs == mine, prefix
     # the one deliberate difference: the Worktree slot
-    assert next(line for line in block if line.startswith("Worktree:")).startswith("Worktree: <shared feature worktree")
+    assert next(line for line in block if line.startswith("Worktree:")).startswith(
+        "Worktree: <shared feature worktree"
+    )
     assert "Worktree: path:<existing worktree>" in ours

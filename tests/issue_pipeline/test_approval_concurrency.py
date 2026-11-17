@@ -26,7 +26,13 @@ def _retry(fn):
 
 def _create_worker(directory: str, n: int, start, out) -> None:
     start.wait()
-    out.put(_retry(lambda: ar.record_create(directory, 9, "plan", H, "comment", f"c{n}", f"u{n}", T))["result"])
+    out.put(
+        _retry(
+            lambda: ar.record_create(
+                directory, 9, "plan", H, "comment", f"c{n}", f"u{n}", T
+            )
+        )["result"]
+    )
 
 
 def _adopt_worker(directory: str, start, out) -> None:

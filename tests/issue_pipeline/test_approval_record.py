@@ -47,7 +47,20 @@ def test_record_create_before_init_fails_with_a_closed_reason(tmp_path: Path) ->
     d.mkdir()
     result = CliRunner().invoke(
         issue_pipeline_group,
-        ["record-create", str(d), "--issue", "9", "--plan-hash", H1, "--channel", "label", "--evidence-id", "e1", "--actor", "u1"],
+        [
+            "record-create",
+            str(d),
+            "--issue",
+            "9",
+            "--plan-hash",
+            H1,
+            "--channel",
+            "label",
+            "--evidence-id",
+            "e1",
+            "--actor",
+            "u1",
+        ],
     )
     assert result.exit_code == 1 and result.output.strip() == "refused:not-initialized"
     assert "Traceback" not in result.output
@@ -117,12 +130,16 @@ def test_record_mark_allows_only_forward_moves_and_revoke(adir: Path) -> None:
 
 
 @pytest.mark.parametrize("prefix", [[], ["instructed"], ["instructed", "acked"]])
-def test_revoke_from_every_state_and_re_approval_reopens_the_same_row(adir: Path, prefix: list[str]) -> None:
+def test_revoke_from_every_state_and_re_approval_reopens_the_same_row(
+    adir: Path, prefix: list[str]
+) -> None:
     _adopt_started(adir)
     _create(adir, "label", "e1")
     for state in prefix:
         ar.record_mark(adir, 9, "plan", H1, state, T)
-    assert ar.record_mark(adir, 9, "plan", H1, "revoked", T)["row"]["state"] == "revoked"
+    assert (
+        ar.record_mark(adir, 9, "plan", H1, "revoked", T)["row"]["state"] == "revoked"
+    )
     again = _create(adir, "comment", "c9")
     assert again["result"] == "exists" and again["row"]["state"] == "recorded"
     assert len(list(adir.glob("approval-*.json"))) == 1
@@ -138,7 +155,10 @@ def test_adoption_reserve_start_and_uncertain_paths(adir: Path) -> None:
         ar.adopt_create(adir, 5, "plan", T)
     assert err.value.reason == "uncertain-launch"
     # a person settles an uncertain row after reading worker-list
-    assert ar.adopt_mark(adir, 5, "plan", "started", "ctx_1", T)["row"]["dispatch_id"] == "ctx_1"
+    assert (
+        ar.adopt_mark(adir, 5, "plan", "started", "ctx_1", T)["row"]["dispatch_id"]
+        == "ctx_1"
+    )
     with pytest.raises(ar.ApprovalError) as err:
         ar.adopt_create(adir, 5, "plan", T)
     assert err.value.reason == "already-started"
@@ -168,7 +188,15 @@ def test_started_needs_a_valid_dispatch_id(adir: Path) -> None:
 )
 def test_stored_values_must_match_fixed_patterns(adir: Path, kwargs: dict) -> None:
     _adopt_started(adir)
-    args = {"issue": 9, "stage": "plan", "plan_hash": H1, "channel": "label", "evidence_id": "e1", "actor": "u1", "now": T}
+    args = {
+        "issue": 9,
+        "stage": "plan",
+        "plan_hash": H1,
+        "channel": "label",
+        "evidence_id": "e1",
+        "actor": "u1",
+        "now": T,
+    }
     args.update(kwargs)
     with pytest.raises(ar.ApprovalError):
         ar.record_create(adir, **args)
@@ -197,18 +225,43 @@ def test_a_symlinked_row_is_refused(adir: Path, tmp_path: Path) -> None:
 def test_cli_round_trip_prints_closed_json(adir: Path) -> None:
     run = CliRunner()
     base = [str(adir), "--issue", "9"]
-    assert json.loads(run.invoke(issue_pipeline_group, ["adopt-create", *base]).output)["result"] == "created"
-    run.invoke(issue_pipeline_group, ["adopt-mark", *base, "--state", "started", "--dispatch-id", "ctx_1"])
+    assert (
+        json.loads(run.invoke(issue_pipeline_group, ["adopt-create", *base]).output)[
+            "result"
+        ]
+        == "created"
+    )
+    run.invoke(
+        issue_pipeline_group,
+        ["adopt-mark", *base, "--state", "started", "--dispatch-id", "ctx_1"],
+    )
     made = run.invoke(
         issue_pipeline_group,
-        ["record-create", *base, "--plan-hash", H1, "--channel", "label", "--evidence-id", "e1", "--actor", "u1"],
+        [
+            "record-create",
+            *base,
+            "--plan-hash",
+            H1,
+            "--channel",
+            "label",
+            "--evidence-id",
+            "e1",
+            "--actor",
+            "u1",
+        ],
     )
     assert json.loads(made.output)["row"]["state"] == "recorded"
-    marked = run.invoke(issue_pipeline_group, ["record-mark", *base, "--plan-hash", H1, "--state", "instructed"])
+    marked = run.invoke(
+        issue_pipeline_group,
+        ["record-mark", *base, "--plan-hash", H1, "--state", "instructed"],
+    )
     assert json.loads(marked.output)["row"]["state"] == "instructed"
     shown = run.invoke(issue_pipeline_group, ["record-show", *base, "--plan-hash", H1])
     assert json.loads(shown.output)["row"]["state"] == "instructed"
-    again = run.invoke(issue_pipeline_group, ["record-mark", *base, "--plan-hash", H1, "--state", "instructed"])
+    again = run.invoke(
+        issue_pipeline_group,
+        ["record-mark", *base, "--plan-hash", H1, "--state", "instructed"],
+    )
     assert (again.exit_code, again.output.strip()) == (1, "refused:bad-move")
 
 
@@ -221,7 +274,20 @@ def test_lock_held_reports_retry_with_exit_75(adir: Path) -> None:
         fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         result = CliRunner().invoke(
             issue_pipeline_group,
-            ["record-create", str(adir), "--issue", "9", "--plan-hash", H1, "--channel", "label", "--evidence-id", "e1", "--actor", "u1"],
+            [
+                "record-create",
+                str(adir),
+                "--issue",
+                "9",
+                "--plan-hash",
+                H1,
+                "--channel",
+                "label",
+                "--evidence-id",
+                "e1",
+                "--actor",
+                "u1",
+            ],
         )
     finally:
         os.close(fd)
@@ -234,7 +300,14 @@ def test_the_watcher_record_module_is_not_edited() -> None:
     import subprocess
 
     out = subprocess.run(
-        ["git", "diff", "--stat", "HEAD", "--", "src/superclaude/cli/issue_watch/record.py"],
+        [
+            "git",
+            "diff",
+            "--stat",
+            "HEAD",
+            "--",
+            "src/superclaude/cli/issue_watch/record.py",
+        ],
         capture_output=True,
         text=True,
         check=True,

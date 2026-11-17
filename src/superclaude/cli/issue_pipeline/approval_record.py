@@ -115,14 +115,18 @@ class _Guard:
         except LockHeld:
             raise ApprovalError("lock-held") from None
         except LockError as exc:
-            raise ApprovalError("not-initialized" if exc.reason == "lock_missing" else "lock-invalid") from None
+            raise ApprovalError(
+                "not-initialized" if exc.reason == "lock_missing" else "lock-invalid"
+            ) from None
 
     def __exit__(self, *exc_info: Any) -> bool | None:
         return self._cm.__exit__(*exc_info)
 
 
 def _adoption_path(directory: Path, issue: int, stage: str) -> Path:
-    return directory / f"adoption-{_issue(issue)}-{_need(_STAGE, stage, 'bad-stage')}.json"
+    return (
+        directory / f"adoption-{_issue(issue)}-{_need(_STAGE, stage, 'bad-stage')}.json"
+    )
 
 
 def _approval_path(directory: Path, issue: int, stage: str, plan_hash: str) -> Path:
@@ -141,7 +145,10 @@ def _read_row(path: Path) -> dict[str, Any] | None:
         row = json.loads(path.read_bytes())
     except (OSError, ValueError):
         raise ApprovalError("row-invalid") from None
-    if not isinstance(row, dict) or row.get("state") not in (*ADOPTION_STATES, *APPROVAL_STATES):
+    if not isinstance(row, dict) or row.get("state") not in (
+        *ADOPTION_STATES,
+        *APPROVAL_STATES,
+    ):
         raise ApprovalError("row-invalid")
     return row
 
@@ -156,7 +163,9 @@ def _write_row(path: Path, row: dict[str, Any]) -> None:
 # --- adoption rows ------------------------------------------------------------
 
 
-def adopt_create(directory: str | Path, issue: int, stage: str, now: str | None = None) -> dict[str, Any]:
+def adopt_create(
+    directory: str | Path, issue: int, stage: str, now: str | None = None
+) -> dict[str, Any]:
     """Reserve (issue, stage). Only the caller that gets ``created`` may start a worker.
 
     An existing ``reserved`` or ``uncertain`` row refuses with ``uncertain-launch``
@@ -168,7 +177,11 @@ def adopt_create(directory: str | Path, issue: int, stage: str, now: str | None 
     with _Guard(d):
         existing = _read_row(path)
         if existing is not None:
-            raise ApprovalError("already-started" if existing["state"] == "started" else "uncertain-launch")
+            raise ApprovalError(
+                "already-started"
+                if existing["state"] == "started"
+                else "uncertain-launch"
+            )
         stamp = _need(_TIME, now or _now(), "bad-time")
         row = {
             "kind": "adoption",
@@ -202,7 +215,11 @@ def adopt_mark(
         row = _read_row(path)
         if row is None or row.get("kind") != "adoption":
             raise ApprovalError("no-row")
-        if (row["state"], state) not in (("reserved", "started"), ("reserved", "uncertain"), ("uncertain", "started")):
+        if (row["state"], state) not in (
+            ("reserved", "started"),
+            ("reserved", "uncertain"),
+            ("uncertain", "started"),
+        ):
             raise ApprovalError("bad-move")
         row["state"] = state
         if state == "started":
@@ -248,7 +265,12 @@ def record_create(
     with _Guard(d):
         if _read_row(_adoption_path(d, issue, stage)) is None:
             raise ApprovalError("no-adoption")
-        evidence = {"channel": channel, "id": evidence_id, "actor": actor, "time": stamp}
+        evidence = {
+            "channel": channel,
+            "id": evidence_id,
+            "actor": actor,
+            "time": stamp,
+        }
         row = _read_row(path)
         if row is None:
             row = {
@@ -273,7 +295,9 @@ def record_create(
         return {"result": "exists", "row": row}
 
 
-def record_show(directory: str | Path, issue: int, stage: str, plan_hash: str) -> dict[str, Any]:
+def record_show(
+    directory: str | Path, issue: int, stage: str, plan_hash: str
+) -> dict[str, Any]:
     row = _read_row(_approval_path(Path(directory), issue, stage, plan_hash))
     if row is None:
         raise ApprovalError("no-row")
@@ -299,7 +323,9 @@ def record_mark(
         if row is None or row.get("kind") != "approval":
             raise ApprovalError("no-row")
         current = row["state"]
-        allowed = (state == "revoked" and current != "revoked") or _FORWARD.get(current) == state
+        allowed = (state == "revoked" and current != "revoked") or _FORWARD.get(
+            current
+        ) == state
         if not allowed:
             raise ApprovalError("bad-move")
         row["state"] = state

@@ -16,7 +16,9 @@ from pathlib import Path
 from .plan_hash import PlanHashError, compute
 
 SHORT = "approved"
-_LONG = re.compile(r"approved (ap-([1-9][0-9]*)-plan-([0-9a-f]{12})) plan-sha256=([0-9a-f]{64})")
+_LONG = re.compile(
+    r"approved (ap-([1-9][0-9]*)-plan-([0-9a-f]{12})) plan-sha256=([0-9a-f]{64})"
+)
 
 OK = "ok"
 REFUSED_BARE = "refused:bare"
@@ -38,7 +40,9 @@ def parse(text: str) -> tuple[str, str | None, str | None]:
     return ("none", None, None)
 
 
-def check(report_dir: str | Path, names: list[str], line: str, issue: int | None = None) -> str:
+def check(
+    report_dir: str | Path, names: list[str], line: str, issue: int | None = None
+) -> str:
     """Return one closed result word for the worker's approval line."""
     kind, rid, claimed = parse(line)
     if kind == "none":

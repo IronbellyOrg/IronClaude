@@ -27,7 +27,11 @@ class BriefRefused(Exception):
 
 
 def _sections() -> dict[str, list[str]]:
-    text = resources.files(__package__).joinpath("templates/worker-brief.txt").read_text(encoding="utf-8")
+    text = (
+        resources.files(__package__)
+        .joinpath("templates/worker-brief.txt")
+        .read_text(encoding="utf-8")
+    )
     sections: dict[str, list[str]] = {}
     current: list[str] | None = None
     for line in text.splitlines():
