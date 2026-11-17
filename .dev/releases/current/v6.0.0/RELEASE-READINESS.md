@@ -22,9 +22,9 @@ State key: NOT STARTED, RUNNING (agent working), GREEN (agent stopped, checks gr
 
 | Wave | PR item | Branch | State | PR link | Tests before / after | Merged |
 |---|---|---|---|---|---|---|
-| 1 | 1: `prd` command-line pipeline (`cli/prd`) | `clayphi/v6-prd-cli` | NOT STARTED | | | |
-| 1 | 2: cleanup-audit runner (`cli/cleanup_audit`) | `clayphi/v6-cleanup-audit-runner` | NOT STARTED | | | |
-| 1 | 5: `/sc:spawn` | `clayphi/v6-spawn` | NOT STARTED | | | |
+| 1 | 1: `prd` command-line pipeline (`cli/prd`) | `clayphi/v6-prd-cli` | RUNNING (agent started 2026-11-17 19:50Z) | | | |
+| 1 | 2: cleanup-audit runner (`cli/cleanup_audit`) | `clayphi/v6-cleanup-audit-runner` | RUNNING (agent started 2026-11-17 19:50Z) | | | |
+| 1 | 5: `/sc:spawn` | `clayphi/v6-spawn` | RUNNING (agent started 2026-11-17 19:50Z) | | | |
 | 2 | 6: `/sc:save` and `/sc:load` | `clayphi/v6-save-load` | NOT STARTED | | | |
 | 2 | 7: `/sc:build` | `clayphi/v6-build` | NOT STARTED | | | |
 | 2 | 10: `/sc:review-translation` (move to `ironbelly/IronClaudeV5`, then remove) | `clayphi/v6-review-translation` | NOT STARTED | | | |
@@ -50,7 +50,7 @@ Dropped: PR 3 (swarm), by Ryan on 2026-11-17 13:06.
 
 | Before | Result | Time |
 |---|---|---|
-| Wave 1 | PENDING | |
+| Wave 1 | Merged, GitHub 201, `integration` now `c873befec` (was `8c21ac41f`) | 2026-11-17 19:49Z |
 
 ## 5. Waves reported
 

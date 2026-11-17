@@ -1,0 +1,116 @@
+{
+  "id": "48c25110-393b-433d-8bb5-26fce384e240",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-cleanup-audit-runner",
+      "identity": {
+        "key": "wt2:local:c1ae2ad8-5904-4c6a-9c21-0c03f7bb8deb",
+        "executionHostId": "local",
+        "instanceId": "c1ae2ad8-5904-4c6a-9c21-0c03f7bb8deb"
+      },
+      "instanceId": "c1ae2ad8-5904-4c6a-9c21-0c03f7bb8deb",
+      "repoId": "e8e07d51-c261-4936-815e-06aeceeb5bf8",
+      "projectId": "github:superclaude-org/superclaude_framework",
+      "hostId": "local",
+      "projectHostSetupId": "e8e07d51-c261-4936-815e-06aeceeb5bf8",
+      "creatorProvenance": {
+        "kind": "host"
+      },
+      "path": "/home/coder/workspaces/worktrees/IronClaude/v6-cleanup-audit-runner",
+      "head": "c873befec8a79a0abde3e87b2460e59ccd4e179f",
+      "branch": "refs/heads/clayphi/v6-cleanup-audit-runner",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "v6-cleanup-audit-runner",
+      "displayNameMode": "fixed",
+      "comment": "6.0.0 PR 2 cleanup-audit headless runner; PR into integration; stop when green",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "linkedWorkItem": null,
+      "linkedTaskSourceContext": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1794945021979,
+      "lastActivityAt": 1794945021979,
+      "createdAt": 1794945021979,
+      "createdWithAgent": "claude",
+      "cliProvenance": {
+        "kind": "created-by-cli",
+        "createdAt": 1794945014733,
+        "callerTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+        "startupAgent": "claude"
+      },
+      "baseRef": "refs/remotes/origin/integration",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "childWorktreeIds": [],
+      "lineage": {
+        "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-cleanup-audit-runner",
+        "worktreeInstanceId": "c1ae2ad8-5904-4c6a-9c21-0c03f7bb8deb",
+        "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+        "parentWorktreeInstanceId": "6e42315e-ec88-477d-b67f-8abd24fabaa2",
+        "origin": "cli",
+        "capture": {
+          "source": "env-workspace",
+          "confidence": "inferred"
+        },
+        "createdByTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+        "createdAt": 1794945021979
+      },
+      "git": {
+        "path": "/home/coder/workspaces/worktrees/IronClaude/v6-cleanup-audit-runner",
+        "head": "c873befec8a79a0abde3e87b2460e59ccd4e179f",
+        "branch": "refs/heads/clayphi/v6-cleanup-audit-runner",
+        "isBare": false,
+        "isMainWorktree": false
+      },
+      "linkedItems": []
+    },
+    "lineage": {
+      "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-cleanup-audit-runner",
+      "worktreeInstanceId": "c1ae2ad8-5904-4c6a-9c21-0c03f7bb8deb",
+      "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "parentWorktreeInstanceId": "6e42315e-ec88-477d-b67f-8abd24fabaa2",
+      "origin": "cli",
+      "capture": {
+        "source": "env-workspace",
+        "confidence": "inferred"
+      },
+      "createdByTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+      "createdAt": 1794945021979
+    },
+    "workspaceLineage": null,
+    "launch": {
+      "outcome": {
+        "kind": "terminal",
+        "handle": "term_b9f782e0-be94-40b2-9136-b60d8ccf01d2",
+        "paneKey": "ffb64358-a180-4302-8c11-42f766318610:7609ba23-9696-44a9-8bd8-84421a33bd0f"
+      },
+      "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-cleanup-audit-runner",
+      "receipt": {
+        "mode": "terminal",
+        "preferred": "terminal",
+        "reason": "user_default",
+        "detail": "Started a terminal agent, the default for new agent tabs in your settings."
+      },
+      "prompt": {
+        "delivery": "submit",
+        "outcome": "handed-to-terminal"
+      },
+      "operationId": "1794945014729-70545ee41d284c11a45f69d0aa216b2c"
+    }
+  },
+  "_meta": {
+    "runtimeId": "bba2834a-030a-46d1-9df4-c209fe806804"
+  }
+}
