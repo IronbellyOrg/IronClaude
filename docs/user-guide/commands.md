@@ -92,7 +92,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 | [`/sc:index-repo`](#scindex-repo---repository-indexing) | Repository indexing | `index-repo.md` | Yes (writes `PROJECT_INDEX.md` and `PROJECT_INDEX.json` into your repo) |
 | `/sc:index` | Project documentation and knowledge base | `index.md` | Yes (generates project documentation in your repo) |
 | `/sc:post-release` | Sync docs and install surface after release | `post-release.md` | Yes |
-| `/sc:review-translation` | Localization review with quality scoring | `review-translation.md` | Yes |
 
 ### 7. EXPERT PANELS
 
@@ -562,37 +561,6 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 ```
 
 **MCP servers:** context7
-
----
-
-### `/sc:review-translation` - Localization Quality Review
-
-**When to use:** Review translation files for linguistic and cultural quality, with adversarial validation, real-world usage evidence and a scored, prioritized report. It implements fixes only on your explicit request and does not replace a professional human translator for high-stakes content.
-
-**Syntax:**
-
-```
-/sc:review-translation [source-file] [translation-files...] [flags]
-```
-
-**Options:**
-
-| Flag | Default | What it does |
-|------|---------|--------------|
-| `--strict` | off | Strict validation mode |
-| `--depth quick\|standard\|deep` | `standard` | Review depth |
-| `--tone-matrix` | off | Score tone on a measured scale |
-| `--platform steam\|playstation\|mobile\|web\|enterprise` | auto | Apply that platform's conventions |
-| `--export` | off | Also write a team handoff file |
-
-**Examples:**
-
-```bash
-/sc:review-translation english.json de_DE.json fr_FR.json es_ES.json
-/sc:review-translation source.json translations/*.json --depth deep --tone-matrix
-```
-
-**MCP servers:** tavily, context7
 
 ---
 

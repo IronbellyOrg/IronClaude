@@ -1,0 +1,19 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: ./REPORT.md
+confidence_calibrated: null
+calibration: inline-fallback
+evidence_validator_ran: false
+coverage_pct: 1.0
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+degraded_components:
+  - evidence-validator
+  - subagents-not-permitted
+needs_human_decision: false
+notes: Tier 1 inline advisory pass; the user's standing rule forbids launching subagents, so no reviewer ensemble or validator agent ran.

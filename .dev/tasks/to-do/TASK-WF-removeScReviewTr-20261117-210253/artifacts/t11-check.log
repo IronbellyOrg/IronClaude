@@ -1,0 +1,23 @@
+# T11 checks
+AC1: grep in docs/generated (expect none):
+  (end)
+AC2: table-of-contents anchors that fail to match a heading:
+  none unmatched
+AC2: mermaid blocks, subgraph vs end counts:
+  block ending line 70: subgraph=0 end=0
+  block ending line 108: subgraph=0 end=0
+  block ending line 157: subgraph=3 end=3
+  block ending line 167: subgraph=0 end=0
+  block ending line 190: subgraph=0 end=0
+  block ending line 232: subgraph=0 end=0
+  block ending line 287: subgraph=0 end=0
+  block ending line 331: subgraph=2 end=2
+  block ending line 363: subgraph=0 end=0
+  block ending line 389: subgraph=0 end=0
+  block ending line 417: subgraph=0 end=0
+  block ending line 441: subgraph=0 end=0
+  block ending line 468: subgraph=2 end=2
+  block ending line 487: subgraph=0 end=0
+  block ending line 498: subgraph=0 end=0
+  block ending line 534: subgraph=0 end=0
+  block ending line 557: subgraph=0 end=0

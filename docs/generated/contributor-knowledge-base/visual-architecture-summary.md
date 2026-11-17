@@ -25,7 +25,7 @@ If older prose elsewhere in the repo conflicts with the current tree, prefer the
 - [Roadmap and adversarial integration flow](#roadmap-and-adversarial-integration-flow)
 - [Adversarial workflow as a reusable protocol](#adversarial-workflow-as-a-reusable-protocol)
 - [Task, roadmap, and tasklist compliance alignment](#task-roadmap-and-tasklist-compliance-alignment)
-- [Audit, recommendation, and review-translation orchestration family](#audit-recommendation-and-review-translation-orchestration-family)
+- [Audit and recommendation orchestration family](#audit-and-recommendation-orchestration-family)
 - [PM and validation support flows](#pm-and-validation-support-flows)
 - [Task-surface deprecation map](#task-surface-deprecation-map)
 - [Choosing the right change surface](#choosing-the-right-change-surface)
@@ -305,9 +305,8 @@ flowchart LR
         C4[/sc:adversarial]
         C5[/sc:cleanup-audit]
         C6[/sc:recommend]
-        C7[/sc:review-translation]
-        C8[/sc:pm]
-        C9[/sc:validate-tests]
+        C7[/sc:pm]
+        C8[/sc:validate-tests]
     end
 
     subgraph Skills[Backing skills / protocols]
@@ -317,9 +316,8 @@ flowchart LR
         S4[sc:adversarial-protocol]
         S5[sc:cleanup-audit-protocol]
         S6[sc-recommend]
-        S7[sc:review-translation-protocol]
-        S8[sc:pm-protocol]
-        S9[sc:validate-tests-protocol]
+        S7[sc:pm-protocol]
+        S8[sc:validate-tests-protocol]
     end
 
     C1 --> S1
@@ -330,7 +328,6 @@ flowchart LR
     C6 --> S6
     C7 --> S7
     C8 --> S8
-    C9 --> S9
 ```
 
 ### Important note
@@ -443,13 +440,12 @@ flowchart LR
     J --> N[EXEMPT -> no verification overhead]
 ```
 
-## Audit, recommendation, and review-translation orchestration family
+## Audit and recommendation orchestration family
 
-These flows are all skill-backed (`/sc:recommend` by the `sc-recommend` skill, the other two by `-protocol` skills), but they operate at different layers:
+These flows are both skill-backed (`/sc:recommend` by the `sc-recommend` skill, the other by a `-protocol` skill), but they operate at different layers:
 
 - `/sc:recommend` reads the routing table in the How We Work guide first and, when a row matches, returns that row's ordered steps and mandatory flags; only when no row matches does it enumerate the installed commands and skills, rank them with auggie, and Read-verify each candidate. It does not execute them
 - `/sc:cleanup-audit` is a read-only multi-pass audit that writes reports only
-- `/sc:review-translation` is a staged localization review system with a confirmation gate and adversarial validation
 
 ```mermaid
 flowchart TD
@@ -468,15 +464,6 @@ flowchart TD
         A4 --> A5[Pass 3: cross-cutting comparison]
         A5 --> A6[Validator + consolidator]
         A6 --> A7[.claude-audit reports]
-    end
-
-    subgraph Translation[Localization review flow]
-        T1["/sc:review-translation"] --> T2[sc:review-translation-protocol]
-        T2 --> T3[Phase 0: file detection + validation]
-        T3 --> T4[Phase 1: context analysis + user confirmation gate]
-        T4 --> T5[Phase 3: parallel per-language review]
-        T5 --> T6[Phase 4: adversarial validation + evidence search]
-        T6 --> T7[Phase 5-7: reports + summary + implementation options]
     end
 ```
 
@@ -603,5 +590,5 @@ Authoring guidance used in this generated bundle:
 - Current package metadata identifies `superclaude` version `4.2.0` with Python `>=3.10`.
 - Current executable entry points are the CLI (`superclaude.cli.main:main`) and pytest plugin (`superclaude.pytest_plugin`).
 - Current code shows a larger CLI tree than some older docs imply, including `sprint`, `roadmap`, `pipeline`, and `audit` subsystems.
-- Current protocol-backed command families include roadmap, tasklist, task, adversarial, cleanup-audit, review-translation, pm, and validate-tests; recommend is backed by the sc-recommend skill (no -protocol suffix).
+- Current protocol-backed command families include roadmap, tasklist, task, adversarial, cleanup-audit, pm, and validate-tests; recommend is backed by the sc-recommend skill (no -protocol suffix).
 - For conflicts between older architecture prose and the present tree, prefer `src/superclaude/`, `pyproject.toml`, `CLAUDE.md`, and `Makefile`.

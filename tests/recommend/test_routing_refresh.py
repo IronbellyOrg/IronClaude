@@ -1,7 +1,8 @@
 """Static checks for the routing-refresh fixture (fixtures/routing_refresh_cases.json).
 
-The fixture defines the S01-S29 recommendation-generation cases (S25 and S27,
-which routed to the removed save, load and /sc:spawn commands, are retired), the T01-T76
+The fixture defines the S01-S29 recommendation-generation cases (S07, S25 and
+S27, which routed to the removed localization review, save, load and /sc:spawn
+commands, are retired), the T01-T76
 traceability map and the 47-command dispositions from the approved spec. These
 tests are static: they validate the fixture against the repository's current
 guide, commands and skills. They run no model, execute no recommended command
@@ -33,9 +34,9 @@ _PACKAGE = "TASK-RESEARCH-recommend-refresh-20261024-044336"
 # compared minus these additions.
 _POST_REFRESH_ADDITIONS = {"graph", "impact", "issue", "sweep"}
 # Commands removed after the frozen package was written: /sc:spawn (replaced by
-# Orca), save and load went in 6.0.0. The frozen command record still lists
-# them as active.
-_POST_REFRESH_REMOVALS = {"spawn", "save", "load"}
+# Orca), save, load and review-translation (moved to the snapshot fork) went in
+# 6.0.0. The frozen command record still lists them as active.
+_POST_REFRESH_REMOVALS = {"spawn", "save", "load", "review-translation"}
 
 _TOKEN_RE = re.compile(r"`/([a-z][a-z0-9:-]*)")
 _FLAG_RE = re.compile(r"--[a-z][a-z0-9-]*")
@@ -138,8 +139,8 @@ def test_fixture_schema_and_completeness():
     assert "Task 8" in data["evidence_class"]
     ids = [case["id"] for case in data["cases"]]
     assert ids == [
-        f"S{n:02d}" for n in range(1, 30) if n not in (25, 27)
-    ]  # S25, S27 retired
+        f"S{n:02d}" for n in range(1, 30) if n not in (7, 25, 27)
+    ]  # S07, S25, S27 retired
     assert list(data["checks"]) == [f"T{n:02d}" for n in range(1, 77)]
     assert len(data["commands"]) == 47
     defined = set(data["fixture_inputs"])

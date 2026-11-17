@@ -1,0 +1,16 @@
+# T7 checks
+AC1: tests/recommend:
+  tests/recommend/test_telemetry.py .........                              [100%]
+
+  ============================= 296 passed in 4.56s ==============================
+AC2: JSON valid:
+  valid
+AC2: grep sc:review-translation in tests/recommend (expect none):
+  (end)
+remaining names of the item in tests/recommend (the frozen record and the removals set, intended):
+  tests/recommend/fixtures/routing_refresh_cases.json:740:    {"name": "review-translation", "history": "Active; F+D", "disposition": "CHANGE", "require
+  tests/recommend/test_routing_refresh.py:37:# (replaced by Orca) and review-translation went in 6.0.0 (moved to the snapshot
+  tests/recommend/test_routing_refresh.py:39:_POST_REFRESH_REMOVALS = {"spawn", "review-translation"}
+  All checks passed!
+  10 files already formatted
+pass count of tests/recommend: baseline 304, now 296

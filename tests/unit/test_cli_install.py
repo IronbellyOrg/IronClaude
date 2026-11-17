@@ -115,7 +115,7 @@ brainstorm.md build.md business-panel.md cleanup-audit.md cleanup.md cli-eval.md
 cli-portify.md design.md document.md explain.md git.md graph.md help.md impact.md implement.md
 improve.md index-repo.md index.md init-lite.md pm.md post-release.md
 pr-submit.md recommend.md reflect.md release-split.md research.md
-review-translation.md roadmap.md spec-panel.md swarm-wizard.md
+roadmap.md spec-panel.md swarm-wizard.md
 task.md tasklist.md tdd.md test.md troubleshoot.md validate-roadmap.md
 validate-tests.md workflow.md
 """
@@ -285,7 +285,7 @@ sc-release-split-protocol/__init__.py
 sc-release-split-protocol/refs/adversarial-integration.md
 sc-release-split-protocol/refs/phase-templates.md
 sc-release-split-protocol/refs/verification-protocol.md
-sc-review-translation-protocol/SKILL.md sc-roadmap-protocol/SKILL.md
+sc-roadmap-protocol/SKILL.md
 sc-roadmap-protocol/__init__.py sc-roadmap-protocol/refs/adversarial-integration.md
 sc-roadmap-protocol/refs/extraction-pipeline.md sc-roadmap-protocol/refs/scoring.md
 sc-roadmap-protocol/refs/templates.md sc-roadmap-protocol/refs/validation.md
