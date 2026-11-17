@@ -1,0 +1,10 @@
+input_tree_sha256: computed-over-file_list-below
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-makeTheWonsolRev-20261117-130446/TASK-WF-makeTheWonsolRev-20261117-130446.md
+    sha256: 619eac22c7bb7a450bc808caf2b1b035307805e68e29de7d3c283c912ea56cf2
+  - path: .dev/tasks/to-do/TASK-WF-makeTheWonsolRev-20261117-130446/artifacts/codegraph-grounding.md
+    sha256: 64e817fc66350fde1291ce947e03d99be217b84b1e0ea920b3be739339ed258a
+  - path: .dev/tasks/to-do/TASK-WF-makeTheWonsolRev-20261117-130446/source.md
+    sha256: 1b82cfb57837d334d6d76800e36395153f3704b4cba8fc8edc27bcc5716308f0
+file_count: 3
+output_root_exclusion: .dev/reflect/pre-TASK-WF-makeTheWonsolRev-20261117-130446-20261117130838 (outside the work-unit tree; exclusion is a no-op)

@@ -1,0 +1,54 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/reflect/pre-TASK-WF-makeTheWonsolRev-20261117-130446-20261117130838/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/reflect/pre-TASK-WF-makeTheWonsolRev-20261117-130446-20261117130838/audit.log
+confidence_calibrated: 0.71
+escalation_rule_matched: null
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.96
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-011-partial]
+best_practice_grade: null
+input_sha256: {tasklist: 619eac22c7bb7a450bc808caf2b1b035307805e68e29de7d3c283c912ea56cf2, spec: 1b82cfb57837d334d6d76800e36395153f3704b4cba8fc8edc27bcc5716308f0}
+input_tree_file_count: 3
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/reflect/pre-TASK-WF-makeTheWonsolRev-20261117-130446-20261117130838/artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_total: 41
+citations_revalidated: 41
+citations_dropped: 2
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+reviewer_cards: [reviewer-cards/reviewer-1-card.md, reviewer-cards/reviewer-2-card.md, reviewer-cards/reviewer-3-card.md]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/reflect/pre-TASK-WF-makeTheWonsolRev-20261117-130446-20261117130838/adversarial/adversarial
+adversarial_convergence_score: 0.94
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: true   # blocking findings F1, F2, F4 and the unresolved assumption A-002
+user_decision_required: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+budget_check_skipped: true
+promotion_action: not-applicable
+telemetry:
+  executor_class_resolved: false
+  executor_class_source: unknown
+  fallback_mode_adversarial: true
+  t2_engine_requested: legacy
+  t2_engine_effective: legacy
+  degraded_components: ["adversarial-rubric-fallback", "calibrator-diversity"]
