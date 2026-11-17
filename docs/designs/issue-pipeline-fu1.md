@@ -103,16 +103,17 @@ Run them in this order. For each: the step, the value to record, and what a fail
 
 ## 6. Record
 
-The owner replaces each `PENDING:` line below with `RECORDED: <letter> <measured value>`, adding the Orca build string from `orca-ide --version` and the date inside each value, and, when the run is done, adds one closing line in the form `RUN BY OWNER: <name>` (the owner's name). Plan B Task 20 checks this section.
+The agent that runs the test replaces each `PENDING:` line below with `RECORDED: <letter> <measured value>`, adding the Orca build string from `orca-ide --version` and the date inside each value. The owner's go and the written acceptance of section 2 are given in chat; the owner never has to write a file. When the run is done, the agent adds one closing line in the form `RUN BY OWNER: <name>`, with the name the owner gave in chat. Plan B Task 20 checks this section.
 
-PENDING: a worker-start argv and permission flags
-PENDING: b worker-start on an existing worktree, one terminal
-PENDING: c ask and reply round trip
-PENDING: d launch receipt and Dispatch id
-PENDING: e plan hash identical on both sides
-PENDING: f guard interaction under G1
-PENDING: g ask timeout and resume by message id
-PENDING: h worker stays in ask while the coordinator is down
-PENDING: i worktree reuse when the claim runs twice
-PENDING: j GitHub stage facts
-PENDING: k web-editor comment round trip and edit time
+RECORDED: a argv `claude --dangerously-skip-permissions --allowedTools=Grep --settings {...}` (permission checks off); `CCSESSION_PERMISSIONS` and `CC_CLAUDE_FLAGS` not set in the worker's environment; Orca 1.4.245-aidev02.9cfecdd30b2a, 2026-11-17, run by an agent on the owner's direct instruction (throwaway issue 452)
+RECORDED: b `worker-start --worktree path:/home/coder/workspaces/worktrees/IronClaude/issue-452` reused the existing worktree and created exactly one terminal (25 before, 26 after); Orca 1.4.245-aidev02.9cfecdd30b2a, 2026-11-17
+RECORDED: c reply body `pong` reached the worker exactly; the stored type of the reply is `status` (so a narrow `--types question` filter would miss it); Orca 1.4.245-aidev02.9cfecdd30b2a, 2026-11-17
+RECORDED: d receipt result keys `dispatchId, effects, launch, mode, mutation, prompt, residualResources, runId, setup, stage, state, taskId, timeoutMs, turnStart, warning`; the terminal handle is in `effects[kind=terminal].id`; state `ready`, turnStart `observed`; Orca 1.4.245-aidev02.9cfecdd30b2a, 2026-11-17
+RECORDED: e hashes identical (coordinator and worker `472a3bed65842388c3f182b0e7792b21e316458a98916aae5d9895cade1381b6`); check-approval `ok`, bare `approved` `refused:bare`; 2026-11-17
+RECORDED: f no launch-level session entry was created or changed after the worker started (no entry newer than the start time); the worker's `ask` and `send` were not blocked; the worker's session id lookup for G2 was not attempted; Orca 1.4.245-aidev02.9cfecdd30b2a, 2026-11-17
+RECORDED: g timeout text `ask timeout after 5000ms; question is still pending (messageId: msg_...). Resume waiting; do not ask again:`; resume `orca orchestration ask --from <handle> --resume <message id> --timeout-ms 900000` returned `resumed`; Orca 1.4.245-aidev02.9cfecdd30b2a, 2026-11-17
+RECORDED: h with no coordinator wait for about 100 seconds the worker stayed `workerState=ready`, `terminalState=active` in `worker-list`, then received the reply; the coordinator was not stopped for longer than that; Orca 1.4.245-aidev02.9cfecdd30b2a, 2026-11-17
+RECORDED: i the claim script's worktree step run a second time returned `reused` (match key `marker`), one `issue-452` worktree before and after; Orca 1.4.245-aidev02.9cfecdd30b2a, 2026-11-17
+RECORDED: j a label added and removed on #452 gave `labeled` then `unlabeled` events whose actor is `ironbelly`, id 7361222, type `User` (same login as the host, Decision 4), with `label.name`, `created_at` and keys `actor,commit_id,commit_url,created_at,event,id,intent,label,node_id,performed_via_github_app,url`; the code's projection fields match; moving #452's Project Status Done to Ready and back to Done (with the `project` scope granted by the owner in the browser) gave one `project_v2_item_status_changed` event per move in the issue events, each with actor `ironbelly`, type `User` and the keys of any event, so a Status move by a person is readable with its actor (earlier automatic moves show actor `github-project-automation[bot]`, type `Bot`), and the code's `status_seen` can rely on the event; the Status was restored to Done and the temporary label deleted; Orca 1.4.245-aidev02.9cfecdd30b2a, 2026-11-17
+RECORDED: k a comment typed in the GitHub web editor on #452 came back from the REST comments call with the body exactly `approved` (the edit history of the comment holds `approved` at the creation time 02:55:50Z, so no extra characters or newline were added by the editor); after one edit in the web page (`approved, full stop`) the comment's `lastEditedAt` changed from null to the edit time (02:56:14Z, equal to REST `updated_at`) and the edit history kept the original body, so an edited approval is detectable by `lastEditedAt` and the exact-match rule is safe; author type `User`; Orca 1.4.245-aidev02.9cfecdd30b2a, 2026-11-17
+RUN BY OWNER: ironbelly (steps a to j run by an agent on the owner's chat instruction; k posted and edited by the owner in the browser)

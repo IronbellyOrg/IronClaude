@@ -719,7 +719,7 @@ Rows marked "via" in Sections 4.1 to 4.3 rest on a research file and were not re
 
 | Contract line | Gate |
 |---|---|
-| `WORKER-CONTRACT.md:57` | A Ruling halt (`E-HALT-QA`, `E-NO-RULING`) is never asked; the person gives the Ruling in their own session or writes the Ruling line themselves after the worker has settled (D2); a Ruling written or drafted by the coordinator or by any worker is "executor-invented approval". |
+| `WORKER-CONTRACT.md:57` | A Ruling halt (`E-HALT-QA`, `E-NO-RULING`) is never asked; the person gives the Ruling in chat, in their own session or the coordinator's, and the agent in that session records the Ruling line from that confirmation (D2, amended 2026-11-17: the person never has to write a file); a Ruling recorded by the coordinator or a worker without the person's own chat confirmation of that exact scope is "executor-invented approval". |
 | `:108` | A `decision_gate` goes to the person; a `question` is answered with `reply --id` or forwarded to the person; `merge_ready` merges only on the person's instruction. |
 | `:221` | `--setup run`, `make sync-dev` or any other repository target, script or hook only when the user's instruction names that step, confirmed with the person at the moment of action unless that instruction is in the coordinator's live conversation. |
 | `:229` | Every git and GitHub outward action, and every install, VM or paid run, only when the user's instruction names that action (same confirmation rule). |
