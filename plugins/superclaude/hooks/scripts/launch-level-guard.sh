@@ -89,7 +89,7 @@ ll_say() {
         y='Do the work here (local subagents are allowed), or ask the person to start it.' ;;
     LL-TURN)
         b='scheduling a turn (a cron job or a wake-up) before the plan is approved.'
-        w='Its prompt text arrives later as a new turn and could look like a person replying approved.'
+        w='Its prompt text arrives later as a new turn and could look like a person typing a release prompt.'
         y='Wait until the person approves the plan, or use a background task or a monitor instead.' ;;
     LL-TAMPER)
         b='touching the launch-level state, the Claude Code settings or hooks, a git configuration file or the git pre-push hook, or reinstalling the hooks.'
