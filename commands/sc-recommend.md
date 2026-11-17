@@ -156,7 +156,7 @@ category_mapping:
 
   performance_category:
     primary_commands: ["/sc:sc:analyze --performance --pup --profile", "/sc:sc:troubleshoot"]
-    secondary_commands: ["/sc:sc:improve --performance --iterate", "/sc:sc:implement"]
+    secondary_commands: ["/sc:sc:improve --performance --iterate"]
     mcp_servers: ["--pup"]
     personas: ["--persona-performance", "--persona-analyzer"]
     flags: ["--profile", "--monitoring", "--benchmark"]
