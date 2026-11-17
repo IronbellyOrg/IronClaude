@@ -29,8 +29,8 @@ State key: NOT STARTED, RUNNING (agent working), GREEN (agent stopped, checks gr
 | 2 | 7: `/sc:build` | `clayphi/v6-build` | MERGED | [#622](https://github.com/IronbellyOrg/IronClaude/pull/622) | 27637 passed, 3 failed (agent baseline, machine load 25 to 100) / 27632 passed, 2 failed (6 tests removed; the failures are timing tests that pass alone). Taken before the rebase; CI `Test on Python 3.10` passed on the final head | 2026-11-17 22:16Z, `551d5ad38` |
 | 2 | 10: `/sc:review-translation` (move to `ironbelly/IronClaudeV5`, then remove) | `clayphi/v6-review-translation` | MERGED | [#621](https://github.com/IronbellyOrg/IronClaude/pull/621) | 27631 passed, 9 failed (agent baseline, load-sensitive) / 27567 passed, 5 failed (68 tests removed; 4 of the 5 pass alone, the 5th is the known `test_install_keep` failure). Taken before the rebase; CI `Test on Python 3.10` passed on the rebased head. The fork `ironbelly/IronClaudeV5` holds the command and skill (checked) | 2026-11-17 21:50Z, `7dbabd045` |
 | 3 | 8: `/sc:improve` (with the improve half of 506) | `clayphi/v6-improve` | RUNNING (agent started 2026-11-17 22:18Z) | | | |
-| 3 | Small-fix PR A: 505, 506 (cleanup half), 510, 536, 545 | `clayphi/v6-help-text-fixes` | RUNNING (agent started 2026-11-17 22:18Z) | | | |
-| 3 | Small-fix PR B: 542, 543, 544 | `clayphi/v6-ic-launcher-fixes` | RUNNING (agent started 2026-11-17 22:18Z) | | | |
+| 3 | Small-fix PR A: 505, 506 (cleanup half), 510, 536, 545 | `clayphi/v6-help-text-fixes` | MERGED | [#626](https://github.com/IronbellyOrg/IronClaude/pull/626) (`Closes` 505, 506, 510, 536, 545) | 27553 passed, 3 failed (agent baseline) / 27576 passed, 1 failed (21 new tests, none removed; the failure was already failing before; each new test shown failing on the old code). CI `Test on Python 3.10`: success | 2026-11-17 22:57Z, `3e2b5dd45` |
+| 3 | Small-fix PR B: 542, 543, 544 | `clayphi/v6-ic-launcher-fixes` | MERGED | [#625](https://github.com/IronbellyOrg/IronClaude/pull/625) (`Closes` 542, 543, 544) | 27553 passed, 3 failed (agent baseline) / 27596 passed, 1 failed (new tests, none removed). CI `Test on Python 3.10`: success | 2026-11-17 22:57Z, `ff52d57ab` |
 | 4 | 4: cli-portify | `clayphi/v6-cli-portify` | NOT STARTED | | | |
 | 5 | 9: `/sc:index` and `/sc:index-repo` | `clayphi/v6-index` | NOT STARTED | | | |
 | 5 | 11: roadmap, tasklist, sprint | `clayphi/v6-roadmap-family` | NOT STARTED | | | |
@@ -89,3 +89,5 @@ The orchestrator deletes no worktree. Finished, for Clay to remove later (`orca 
 | `v6-save-load` | `/home/coder/workspaces/worktrees/IronClaude/v6-save-load` | #620 |
 | `v6-review-translation` | `/home/coder/workspaces/worktrees/IronClaude/v6-review-translation` | #621 |
 | `v6-build` | `/home/coder/workspaces/worktrees/IronClaude/v6-build` | #622 |
+| `v6-help-text-fixes` | `/home/coder/workspaces/worktrees/IronClaude/v6-help-text-fixes` | #626 |
+| `v6-ic-launcher-fixes` | `/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes` | #625 |
