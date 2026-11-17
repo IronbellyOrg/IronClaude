@@ -136,7 +136,7 @@ Recommendations are not decisions. Q20, Q22, Q29 and Q30 stay deferred by agent 
 
 ## 2. Owner cards (open, shrunk, trimmed and deferred)
 
-**Only Q7, Q24 and Q41 need you today.** The cards for the trimmed and deferred questions are kept below unchanged as history; each carries a "Triage 2026-11-16" line saying what applies now. Those lines are agent recommendations, not owner answers.
+**No question waits for an answer today; one thing waits for the owner (Q8, see the block above).** Q7, Q24 and Q41 were answered on 2026-11-16. The cards below are kept as history; those answered since carry an "ANSWERED" banner, and the trimmed and deferred ones carry a "Triage 2026-11-16" line saying what applies now. Those Triage lines are agent recommendations, not owner answers.
 
 Each card was written for a reader who has never seen the project. "Update since the card was written" lines were added on 2026-11-15 where events changed a fact.
 

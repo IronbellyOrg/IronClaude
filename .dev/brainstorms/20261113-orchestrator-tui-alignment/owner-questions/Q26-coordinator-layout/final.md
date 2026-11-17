@@ -160,14 +160,14 @@ Each rule names how to check it. None of these checks exists as a hook or script
 
 1. **One shared branch.** `git ls-remote origin 'refs/heads/coordinators*'` shows exactly `refs/heads/coordinators` and nothing under `coordinators/`.
 2. **Every folder name follows the grammar.** `git ls-tree -r --name-only origin/coordinators -- .dev/coordinators` lists only `README.md`, `claims/<file>`, and paths under `<kind>-<slug>/` with `<kind>` in `epic`, `release`, `adhoc` and a coordinator folder `<dev>` or `<dev>--<N>`.
-3. **Each commit stays in its lane.** In `git log --name-only origin/coordinators`, every commit (except a recorded bootstrap merge) touches only one coordinator folder plus `claims/`, `decisions/` files or a new `scope.md` naming that coordinator.
+3. **Each commit stays in its lane.** In `git log --name-only origin/master..origin/coordinators`, every commit (except a recorded bootstrap merge) touches only one coordinator folder plus `claims/`, `decisions/` files or a new `scope.md` naming that coordinator.
 4. **Shared files are never edited.** `git log --diff-filter=M --name-only origin/coordinators -- .dev/coordinators/claims '.dev/coordinators/*/decisions' '.dev/coordinators/*/scope.md' '.dev/coordinators/*/*/grants'` prints nothing (claims may be deleted by the coordinator named in them; nothing is modified).
 5. **No dispatch without a pushed claim.** For every brief `briefs/<item>.md`, a claim naming the same coordinator was on `origin/coordinators` in an earlier commit than the brief.
 6. **No force push.** The `origin/coordinators` you fetched yesterday is an ancestor of today's: `git merge-base --is-ancestor <yesterday's revision> origin/coordinators` succeeds.
 7. **Identity comes from GitHub.** Every `coordinator.md` records a handle equal to its folder name (without `--<N>`) and to that developer's `gh api user --jq .login`; no name is taken from `git config user.name`.
 8. **Every grant is citable and owned.** Every grant a ledger row cites by `<coordinator id>/<grant id>` resolves to exactly one file in that coordinator's own `grants/` folder.
 9. **Worktrees come from Orca with an agent.** `orca worktree list` on each host shows each coordinator worktree named `coord-<dev>-<kind>-<slug>` with its agent; none sits under `.dev/worktrees/` or `.claude/worktrees/`.
-10. **Nothing private is pushed, and the old ledger home is retired.** A search of `.dev/coordinators/` on `origin/coordinators` for tokens, secrets, host names or contact details finds none; no new coordinator ledger appears under `.dev/tasks/`; nothing under `.claude/` is ever on the branch.
+10. **Nothing private is pushed, and the old ledger home is retired.** A search of `.dev/coordinators/` on `origin/coordinators` for tokens, secrets, host names or contact details finds none; no new coordinator ledger appears under `.dev/tasks/`; the branch adds nothing under `.claude/` of its own: `git diff --name-only origin/master origin/coordinators -- .claude/` prints nothing (the inherited `.claude/settings.json` is expected).
 
 ## What to decide later
 
