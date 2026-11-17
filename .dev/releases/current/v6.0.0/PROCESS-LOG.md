@@ -106,6 +106,14 @@ One entry per step. Each entry: date and time (UTC), the step, the commands or s
 - **Got in the way:** the rebase of the last PR came after the second merge, which made it the slowest (about 25 minutes from nudge to green, with a new review round). Three PRs per wave on the same shared files means the last to merge pays twice.
 - **Change next time:** for removals that share docs and tests, run two per wave, or give the third agent the merge order so it starts from the state after the first two.
 
+### 17. Wave 2 reported; wave 3 started (2026-11-17 22:17Z to 22:20Z)
+- **Step:** posted the wave 2 comment on issue 571 (https://github.com/IronbellyOrg/IronClaude/issues/571#issuecomment-6962595146); sent the summary to `GeneralIronFlow`; master into `integration` returned 204 (already up to date, `integration` at `551d5ad38`); read issues 505, 506, 510, 536, 542, 543, 544 and 545 with Clay's comments; wrote three prompts: PR 8 `improve`, small-fix PR A `help-text-fixes` (#505, #506 cleanup half, #510, #536, #545), small-fix PR B `ic-launcher-fixes` (#542, #543, #544); created three worktrees and agents; started three watches.
+- **Time:** about 9 minutes, most of it reading the eight issues to write exact scopes.
+- **Judgment call, to confirm with Clay:** Clay's comment on #510 says to correct the checklist's classification, but that checklist is `docs/testing/v5.0.0/impact-validation/william.md`, and the release rules say `docs/testing/v5.0.0/` is a historical record that is never edited. I told the PR A agent to leave the checklist (and `docs/releases/v5.0.0.md`) alone and to say so in the PR body. If Clay wants the checklist corrected after all, it is a one-line follow-up.
+- **#506:** the improve half is dropped (PR 8 deletes `improve.md`); PR A fixes the cleanup half and says `Closes #506`; PR 8 says `Refs #506`.
+- **Reporting error I made:** my message to `GeneralIronFlow` said "6 of the 12 removal PRs". With PR 3 dropped, the plan has PRs 1, 2 and 4 to 11 (10 removal PRs) plus PR 12, the retire step. Six removal PRs are merged (1, 2, 5, 6, 7, 10); remaining are 4, 8, 9, 11 and the retire step. Corrected in my next report.
+- **Change next time:** the release-plan issue should hold, for each small fix, the exact approved scope in its own row (the issue, Clay's decision, the files), so the prompt can be filled mechanically.
+
 ## Out of scope, for later
 - The task and documentation bundle (Part B of issue 571) and the agents evaluation (issue 572).
 - Ryan's request of 2026-11-17 14:40 to fold the eight analysis documents (`sweep`, `observe`, `review-safety-scan`, `review-fixcheck-and-consequence-rule`, `shadow-run-and-review-panel`, `issue-pipeline`, `launch-level-guard`, `ccsession-retention`) into the docs and processes.

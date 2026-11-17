@@ -28,9 +28,9 @@ State key: NOT STARTED, RUNNING (agent working), GREEN (agent stopped, checks gr
 | 2 | 6: `/sc:save` and `/sc:load` | `clayphi/v6-save-load` | MERGED | [#620](https://github.com/IronbellyOrg/IronClaude/pull/620) | 27638 passed, 2 failed (agent baseline) / 27629 passed, 1 failed (10 tests removed; the failure was already failing before). CI `Test on Python 3.10`: success | 2026-11-17 21:38Z, `c106d7165` |
 | 2 | 7: `/sc:build` | `clayphi/v6-build` | MERGED | [#622](https://github.com/IronbellyOrg/IronClaude/pull/622) | 27637 passed, 3 failed (agent baseline, machine load 25 to 100) / 27632 passed, 2 failed (6 tests removed; the failures are timing tests that pass alone). Taken before the rebase; CI `Test on Python 3.10` passed on the final head | 2026-11-17 22:16Z, `551d5ad38` |
 | 2 | 10: `/sc:review-translation` (move to `ironbelly/IronClaudeV5`, then remove) | `clayphi/v6-review-translation` | MERGED | [#621](https://github.com/IronbellyOrg/IronClaude/pull/621) | 27631 passed, 9 failed (agent baseline, load-sensitive) / 27567 passed, 5 failed (68 tests removed; 4 of the 5 pass alone, the 5th is the known `test_install_keep` failure). Taken before the rebase; CI `Test on Python 3.10` passed on the rebased head. The fork `ironbelly/IronClaudeV5` holds the command and skill (checked) | 2026-11-17 21:50Z, `7dbabd045` |
-| 3 | 8: `/sc:improve` (with the improve half of 506) | `clayphi/v6-improve` | NOT STARTED | | | |
-| 3 | Small-fix PR A: 505, 506 (cleanup half), 510, 536, 545 | `clayphi/v6-help-text-fixes` | NOT STARTED | | | |
-| 3 | Small-fix PR B: 542, 543, 544 | `clayphi/v6-ic-launcher-fixes` | NOT STARTED | | | |
+| 3 | 8: `/sc:improve` (with the improve half of 506) | `clayphi/v6-improve` | RUNNING (agent started 2026-11-17 22:18Z) | | | |
+| 3 | Small-fix PR A: 505, 506 (cleanup half), 510, 536, 545 | `clayphi/v6-help-text-fixes` | RUNNING (agent started 2026-11-17 22:18Z) | | | |
+| 3 | Small-fix PR B: 542, 543, 544 | `clayphi/v6-ic-launcher-fixes` | RUNNING (agent started 2026-11-17 22:18Z) | | | |
 | 4 | 4: cli-portify | `clayphi/v6-cli-portify` | NOT STARTED | | | |
 | 5 | 9: `/sc:index` and `/sc:index-repo` | `clayphi/v6-index` | NOT STARTED | | | |
 | 5 | 11: roadmap, tasklist, sprint | `clayphi/v6-roadmap-family` | NOT STARTED | | | |
@@ -52,12 +52,14 @@ Dropped: PR 3 (swarm), by Ryan on 2026-11-17 13:06.
 |---|---|---|
 | Wave 1 | Merged, GitHub 201, `integration` now `c873befec` (was `8c21ac41f`) | 2026-11-17 19:49Z |
 | Wave 2 | Merged, GitHub 201, `integration` now `783832f11` (was `5b7d13e73`; 5 master commits) | 2026-11-17 20:50Z |
+| Wave 3 | Already up to date (GitHub 204); `integration` at `551d5ad38` | 2026-11-17 22:17Z |
 
 ## 5. Waves reported
 
 | Wave | Comment on issue 571 | Message to GeneralIronFlow |
 |---|---|---|
 | Wave 1 | https://github.com/IronbellyOrg/IronClaude/issues/571#issuecomment-6960631380 | sent 2026-11-17 20:50Z |
+| Wave 2 | https://github.com/IronbellyOrg/IronClaude/issues/571#issuecomment-6962595146 | sent 2026-11-17 22:17Z |
 
 ## 6. Gate on the release PR's merge commit (G1 to G9)
 
