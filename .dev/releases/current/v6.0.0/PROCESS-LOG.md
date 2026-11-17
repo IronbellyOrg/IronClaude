@@ -79,6 +79,12 @@ One entry per step. Each entry: date and time (UTC), the step, the commands or s
 - **What took longest:** each agent's full test baseline and after-run (about 9 and 6 minutes) and the CI test job (about 13 minutes); the human-visible waits were the reviews (about 5 minutes) and the CI.
 - **Change next time (for the template):** take one baseline on `integration` per wave and give it to every agent; put the Generator-Constraint section, the venv setup line and the no-subagent rule in the prompt template; tell agents not to `rm -rf` a command-substitution path.
 
+### 13. Wave 1 reported; wave 2 started (2026-11-17 20:50Z to 20:52Z)
+- **Step:** posted the wave 1 comment on issue 571 (https://github.com/IronbellyOrg/IronClaude/issues/571#issuecomment-6960631380); sent the same summary to `GeneralIronFlow` with SendMessage; merged master into `integration` (201, now `783832f11`); wrote the wave 2 prompts (PR 6 `save-load`, PR 7 `build`, PR 10 `review-translation`) with a "Notes from wave 1" section appended (venv setup line, known failing tests, the Generator-Constraint body section, the rebase note, literal-path `rm`, no subagents); created three worktrees and agents; started three watches.
+- **Time:** about 4 minutes for the prompts and launch.
+- **Went well:** wave 1's lessons went straight into the prompts; the PR 10 precondition (command and skill present in `ironbelly/IronClaudeV5`, same file ids) was checked before launch.
+- **Change next time:** the notes section should be part of the standard prompt template, not appended by hand.
+
 ## Out of scope, for later
 - The task and documentation bundle (Part B of issue 571) and the agents evaluation (issue 572).
 - Ryan's request of 2026-11-17 14:40 to fold the eight analysis documents (`sweep`, `observe`, `review-safety-scan`, `review-fixcheck-and-consequence-rule`, `shadow-run-and-review-panel`, `issue-pipeline`, `launch-level-guard`, `ccsession-retention`) into the docs and processes.
