@@ -406,7 +406,7 @@ if [ "$LL_BRANCH" = tool ]; then
         LL_N=${LL_N#sc-}
         LL_N=${LL_N%-protocol}
         case $LL_N in
-        implement | task | cleanup) LL_CLASSES+='IMPL ' ;;
+        implement | task | improve | cleanup) LL_CLASSES+='IMPL ' ;; # improve: retired in 6.0.0; kept until installed copies are retired
         pr-submit) LL_CLASSES+='SUBMIT ' ;;
         issue) LL_CLASSES+='ESCAPE ' ;;
         '') LL_CLASSES+='SKILL ' ;;

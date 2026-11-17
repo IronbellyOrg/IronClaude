@@ -70,8 +70,8 @@ stay byte-identical to the source copy.
 | Path:line | Change |
 |---|---|
 | `src/superclaude/hooks/scripts/launch-level-guard.sh:43` | "starting /sc:implement, /task, /sc:improve or /sc:cleanup (or their skills)." becomes "starting /sc:implement, /task or /sc:cleanup (or their skills)." |
-| `src/superclaude/hooks/scripts/launch-level-guard.sh:409` | `case` list: drop `improve` from `implement \| task \| improve \| cleanup` |
-| `plugins/superclaude/hooks/scripts/launch-level-guard.sh:43,409` | same two edits (mirror; the two files stay identical) |
+| `src/superclaude/hooks/scripts/launch-level-guard.sh:409` | `case` list: planned to drop `improve`; REVISED after the PR 627 reviews: `improve` stays in the list (trailing comment) until the retire step (PR 12) removes installed copies, because an upgraded workspace keeps the old installed `improve.md` and its Skill call would otherwise skip the worktree-level approval gate. `IMPL_SPELLINGS` keeps `sc:improve`; the IMPL row of the architecture reference names the retired `improve`. |
+| `plugins/superclaude/hooks/scripts/launch-level-guard.sh:43,409` | same edits as the source copy (mirror; the two files stay identical) |
 
 ## 5. Tests
 

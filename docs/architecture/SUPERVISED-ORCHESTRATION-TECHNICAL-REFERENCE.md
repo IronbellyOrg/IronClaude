@@ -1602,7 +1602,7 @@ Classes are checked in this order and the first blocked class supplies the messa
 | PUSHFORM | A push that is not `git push [-u\|--set-upstream] origin <branch>[:<dest>]`, or whose destination is `HEAD` (`:661-667`) | W, WA, F, FS | `LL-PUSH-FORM` |
 | COMMIT | `git commit`, `cherry-pick`, `revert`, `am`, `commit-tree`, or `update-ref` on `HEAD`, with `--stdin` or on `refs/heads` (`:530-531`, `:642-646`) | W, WA, F | `LL-COMMIT` |
 | TURN | A Cron or Schedule tool call (`:684-685`) | W | `LL-TURN` |
-| IMPL | Skill `implement`, `task` or `cleanup` (`:412`) | W | `LL-IMPL` |
+| IMPL | Skill `implement`, `task`, `cleanup` or the retired `improve` (`:412`; `improve` stays until installed copies are retired) | W | `LL-IMPL` |
 | SKILL | A Skill call with an empty name (`:415`) | W, WA, F | `LL-SKILL` |
 
 The decision table is at `:722-742`; a class and level pair it does not list ends in `LL-BROKEN` (`:740`).

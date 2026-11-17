@@ -915,6 +915,9 @@ IMPL_SPELLINGS = [
     "task",
     "sc:task",
     "sc:task-protocol",
+    # Retired in 6.0.0, but an upgraded workspace keeps the old installed copy, so the
+    # guard keeps classifying it until the retire step removes installed copies.
+    "sc:improve",
     "sc:cleanup",
     "SC:IMPLEMENT",
     "/sc:implement args",
