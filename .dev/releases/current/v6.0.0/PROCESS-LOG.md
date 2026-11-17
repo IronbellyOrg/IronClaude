@@ -85,6 +85,13 @@ One entry per step. Each entry: date and time (UTC), the step, the commands or s
 - **Went well:** wave 1's lessons went straight into the prompts; the PR 10 precondition (command and skill present in `ironbelly/IronClaudeV5`, same file ids) was checked before launch.
 - **Change next time:** the notes section should be part of the standard prompt template, not appended by hand.
 
+### 14. Wave 2 PRs opened; PR 6 verified and merged; PR 10 rebase nudge (2026-11-17 21:25Z to 21:40Z)
+- **Opened:** #620 (PR 6, 21:25Z), #621 (PR 10, 21:25Z), #622 (PR 7, 21:29Z); the agents took about 34 to 38 minutes from launch to open, against about 25 minutes in wave 1 (the prompts now carry more notes and each agent builds a venv first).
+- **PR 6 merged:** #620 on head `090c1eb98`: 6 of 6 checks SUCCESS, merge CLEAN, Augment completed with 0 suggestions on that head (its one earlier finding, a file-count mismatch in the PR text, is resolved), Codex code and security reviews completed with no findings, 0 unresolved threads. Merged as `c106d7165`. Tests (agent's run, base `783832f11`): 27638 passed, 2 failed before; 27629 passed, 1 failed after; 10 tests removed (8 routing checks for retired case S25, 2 in `tests/skills/test_worker_contract.py`); the failure left is the known `test_install_keep` one. Install into a throwaway HOME: 44 commands (was 46), `doctor` healthy.
+- **PR 10 conflict:** after #620 merged, #621 became DIRTY (`tests/recommend/test_routing_refresh.py`, `tests/unit/test_cli_install.py`: the same shared test files again). The agent was idle at its prompt. I sent one rebase instruction (first nudge on this agent).
+- **Tool:** wrote `/tmp/ic6-gen/verify.sh <pr> <suffix>`, which prints the latest check results, reviews with commit ids, the Codex state line, review threads and the agent's evidence folder in one call. Not committed.
+- **Change next time:** shared test files (`test_routing_refresh.py`, `test_cli_install.py`, `test_how_we_work_routing_table.py`) are edited by almost every removal PR, so a wave of three always produces at least one rebase. Option for the template: tell agents of a wave the merge order up front, and let the last one rebase once.
+
 ## Out of scope, for later
 - The task and documentation bundle (Part B of issue 571) and the agents evaluation (issue 572).
 - Ryan's request of 2026-11-17 14:40 to fold the eight analysis documents (`sweep`, `observe`, `review-safety-scan`, `review-fixcheck-and-consequence-rule`, `shadow-run-and-review-panel`, `issue-pipeline`, `launch-level-guard`, `ccsession-retention`) into the docs and processes.
