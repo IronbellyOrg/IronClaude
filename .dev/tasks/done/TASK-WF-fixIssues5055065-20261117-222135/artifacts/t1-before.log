@@ -1,0 +1,12 @@
+E    +  where '' = _help_description(PosixPath('/home/coder/workspaces/worktrees/IronClaude/v6-help-text-fixes/plugins/superclaude/commands/business-panel.md'))
+_ test_business_panel_supplies_a_description_the_help_listing_reads[commands/sc-business-panel.md] _
+tests/commands/test_help_text_fixes.py:32: in test_business_panel_supplies_a_description_the_help_listing_reads
+    assert _help_description(path), f"{relative}: /sc:help finds no description"
+E   AssertionError: commands/sc-business-panel.md: /sc:help finds no description
+E   assert ''
+E    +  where '' = _help_description(PosixPath('/home/coder/workspaces/worktrees/IronClaude/v6-help-text-fixes/commands/sc-business-panel.md'))
+=========================== short test summary info ============================
+FAILED tests/commands/test_help_text_fixes.py::test_business_panel_supplies_a_description_the_help_listing_reads[src/superclaude/commands/business-panel.md]
+FAILED tests/commands/test_help_text_fixes.py::test_business_panel_supplies_a_description_the_help_listing_reads[plugins/superclaude/commands/business-panel.md]
+FAILED tests/commands/test_help_text_fixes.py::test_business_panel_supplies_a_description_the_help_listing_reads[commands/sc-business-panel.md]
+============================== 3 failed in 2.64s ===============================

@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-fixIssues5055065-20261117-222135
+plan_path: ./TASK-WF-fixIssues5055065-20261117-222135.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/v6-help-text-fixes/.dev/reflect/pre-fixIssues5055065-20261117222330/REPORT.md
+unresolved:
+  - "Reflect ran inline at Tier 1 without launching agents (standing user rule): no blind calibration, no evidence-validator agent. One advisory gap: 0 new test failures, lint, format and git diff --check are not stated by any task; the regression gate of the prompt covers them."

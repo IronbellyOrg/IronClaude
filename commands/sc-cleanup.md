@@ -17,8 +17,10 @@ personas: [architect, quality, security]
 
 ## Usage
 ```
-/sc:sc:cleanup [target] [--type code|imports|files|all] [--safe|--aggressive] [--interactive]
+/sc:sc:cleanup [target] [--type code|imports|files|all] [--safe|--aggressive] [--interactive] [--preview]
 ```
+
+`--preview` shows what would change and edits nothing.
 
 ## Behavioral Flow
 1. **Analyze**: Assess cleanup opportunities and safety considerations across target scope

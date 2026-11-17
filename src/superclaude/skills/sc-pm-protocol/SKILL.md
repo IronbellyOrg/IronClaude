@@ -13,7 +13,7 @@ sc:pm-protocol is invoked ONLY by the `sc:pm` command via `Skill sc:pm-protocol`
 Activation conditions:
 
 - User runs `/sc:pm [request]` in Claude Code
-- PM Agent auto-activates at session start for context restoration
+- Context restoration (below) runs only when `/sc:pm` is invoked; nothing starts PM Agent at session start
 - Any `--strategy` or `--verbose` flags are passed through from the command
 
 Do NOT invoke this skill directly. Use the `sc:pm` command.
@@ -22,7 +22,7 @@ Do NOT invoke this skill directly. Use the `sc:pm` command.
 
 Memory is plain markdown in `<project>/.superclaude/memory/<key>.md`, with subfolders for topics. `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git: one store per worktree. On the first write, if `<project>/.superclaude/.gitignore` is absent, create it with the single line `*`. Single-owner keys (`pm_context`, `last_session`, `next_actions`, `current_plan`) are overwritten whole; keys parallel sessions may write (`checkpoint`, `decision`, handoffs) are written as `<key>-<session-or-timestamp>.md` and never edited in place.
 
-### Session Start Protocol (Auto-Executes Every Time)
+### Start-of-Run Protocol (Runs When `/sc:pm` Is Invoked)
 
 1. Context Restoration:
    - Glob `.superclaude/memory/**/*.md` → Check for existing PM Agent state

@@ -1,0 +1,14 @@
+E   assert []
+_ test_cleanup_says_plainly_that_preview_edits_nothing[commands/sc-cleanup.md] _
+tests/commands/test_help_text_fixes.py:75: in test_cleanup_says_plainly_that_preview_edits_nothing
+    assert sentences, f"{relative}: no sentence explains --preview"
+E   AssertionError: commands/sc-cleanup.md: no sentence explains --preview
+E   assert []
+=========================== short test summary info ============================
+FAILED tests/commands/test_help_text_fixes.py::test_cleanup_usage_lists_every_option_its_examples_use[src/superclaude/commands/cleanup.md]
+FAILED tests/commands/test_help_text_fixes.py::test_cleanup_usage_lists_every_option_its_examples_use[plugins/superclaude/commands/cleanup.md]
+FAILED tests/commands/test_help_text_fixes.py::test_cleanup_usage_lists_every_option_its_examples_use[commands/sc-cleanup.md]
+FAILED tests/commands/test_help_text_fixes.py::test_cleanup_says_plainly_that_preview_edits_nothing[src/superclaude/commands/cleanup.md]
+FAILED tests/commands/test_help_text_fixes.py::test_cleanup_says_plainly_that_preview_edits_nothing[plugins/superclaude/commands/cleanup.md]
+FAILED tests/commands/test_help_text_fixes.py::test_cleanup_says_plainly_that_preview_edits_nothing[commands/sc-cleanup.md]
+======================= 6 failed, 3 deselected in 0.10s ========================
