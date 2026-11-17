@@ -455,6 +455,19 @@ def _first(*values: object) -> object | None:
     return next((v for v in values if v is not None), None)
 
 
+def _agent_wait(show: object | None) -> tuple[bool, object | None]:
+    """(key present, value) of ``agentWait`` in ``observation``, else in ``terminal``.
+
+    Captured 2026-11-16 (a running worker): the key is present with value null in both
+    places. A non-null value was never captured, so its meaning is UNVERIFIED.
+    """
+    for place in ("observation", "terminal"):
+        block = _get(show, place)
+        if isinstance(block, dict) and "agentWait" in block:
+            return True, block["agentWait"]
+    return False, None
+
+
 def parse_worker_show(
     run: str, list_row: object, show: object | None
 ) -> OrcaObservation:
@@ -465,9 +478,8 @@ def parse_worker_show(
     determine (WC-10) and counts toward ``bound_reached``.
     """
     dispatch = _text(_first(_get(list_row, "dispatchId"), _get(show, "dispatch", "id")))
-    # No agentWait field is read: its live name was not captured (step 1.0a, open item 6),
-    # so ``agent_wait``, ``agent_wait_present`` and ``agent_wait_since`` keep their model
-    # defaults until a read-only capture records the names.
+    # ``agent_wait_since`` stays unset: no captured field names a wait time.
+    wait_present, wait = _agent_wait(show)
     return OrcaObservation(
         dispatch=dispatch or "",
         run=run,
@@ -478,6 +490,8 @@ def parse_worker_show(
         liveness_verdict=_text(_get(show, "projection", "liveness", "verdict")),
         status=_text(_get(show, "dispatch", "status")),
         outcome=_text(_get(show, "projection", "outcome")),
+        agent_wait=wait,
+        agent_wait_present=wait_present,
         parent=_text(
             _first(
                 _get(show, "projection", "parent"),

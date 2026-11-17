@@ -94,7 +94,9 @@ class OrcaObservation:
     liveness_verdict: str | None = None  # live, unverifiable, exited or None
     status: str | None = None
     outcome: str | None = None
-    # Reserved: no code sets these two while the agentWait lookup is off (DESIGN open item 6).
+    # Set by parse_worker_show from worker-show ``observation.agentWait``, else
+    # ``terminal.agentWait``. Captured: present and null for a running worker. A non-null
+    # value was never captured, so its meaning is UNVERIFIED (DESIGN open item 6).
     agent_wait: object | None = None
     agent_wait_present: bool = False  # null versus absent (GQ-58)
     parent: str | None = None
@@ -106,7 +108,7 @@ class OrcaObservation:
     worker_done_seen: bool | None = None
     fenced_evidence: str = "unreadable"  # present, absent or unreadable
     task_spec_text: str | None = None
-    # Reserved: the agentWait time. No code sets it while the lookup is off (DESIGN open item 6).
+    # Reserved: the agentWait time. No code sets it: no captured field names a wait time.
     agent_wait_since: datetime | None = None
 
 

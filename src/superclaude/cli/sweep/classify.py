@@ -226,7 +226,7 @@ def _rule_fenced(row: SessionRow, ctx: SweepContext) -> Classification | None:
 def _rule_waiting_signal(row: SessionRow, ctx: SweepContext) -> Classification | None:
     orca, contract = row.orca, row.contract
     if orca is not None and orca.agent_wait is not None:
-        since = orca.agent_wait_since  # reserved: set by nothing yet (open item 6)
+        since = orca.agent_wait_since  # reserved: no captured field names a wait time
         notes: tuple[str, ...] = ()
         evidence = "agent_wait is non-null (worker-show agentWait)"
         if since is not None and since > ctx.now:
@@ -249,11 +249,23 @@ def _rule_waiting_signal(row: SessionRow, ctx: SweepContext) -> Classification |
 
 
 def _rule_working(row: SessionRow, ctx: SweepContext) -> Classification | None:
-    # Rule 5 cannot match in Phase 1 (DESIGN open item 6): the live names of the
-    # ``agentWait`` field and of the ``live`` and ``in_progress`` values were never
-    # captured, so a row that would reach it falls to the fallback. Once a read-only
-    # capture records them, restore the four conditions of DESIGN 7.2 (SP-24):
-    # liveness_verdict "live", status "in_progress", agent_wait_present True, agent_wait None.
+    # The four conditions of DESIGN 7.2 (SP-24), with the names captured from a running
+    # worker on 2026-11-16: projection.liveness.verdict "live", projection.outcome
+    # "in_progress" (dispatch.status is "dispatched", so ``status`` is not tested), and
+    # agentWait present with value null. A non-null agentWait never gets here: rule 4
+    # takes it first. What a non-null agentWait means is UNVERIFIED (never captured).
+    orca = row.orca
+    if (
+        orca is not None
+        and orca.liveness_verdict == "live"
+        and orca.outcome == "in_progress"
+        and orca.agent_wait_present is True
+        and orca.agent_wait is None
+    ):
+        evidence = (
+            "liveness_verdict live, outcome in_progress, agentWait present and null"
+        )
+        return _classification(C_WORKING, "working", evidence)
     return None
 
 
