@@ -24,7 +24,7 @@ State key: NOT STARTED, RUNNING (agent working), GREEN (agent stopped, checks gr
 |---|---|---|---|---|---|---|
 | 1 | 1: `prd` command-line pipeline (`cli/prd`) | `clayphi/v6-prd-cli` | MERGED | [#616](https://github.com/IronbellyOrg/IronClaude/pull/616) | 27914 passed, 3 failed (agent baseline) / 27687 passed, 1 failed (229 tests removed; the failure was already failing before). CI `Test on Python 3.10`: success | 2026-11-17 20:41Z, `b637fd0d8` |
 | 1 | 2: cleanup-audit runner (`cli/cleanup_audit`) | `clayphi/v6-cleanup-audit-runner` | MERGED | [#615](https://github.com/IronbellyOrg/IronClaude/pull/615) | 27912 passed, 5 failed (agent baseline) / 27875 passed, 4 failed (38 tests removed; the failures are pre-existing or concurrent-run collisions, see PROCESS-LOG entry 7). CI `Test on Python 3.10`: success | 2026-11-17 20:25Z, `049dcbbf0` |
-| 1 | 5: `/sc:spawn` | `clayphi/v6-spawn` | RUNNING (agent started 2026-11-17 19:50Z) | | | |
+| 1 | 5: `/sc:spawn` | `clayphi/v6-spawn` | MERGED | [#617](https://github.com/IronbellyOrg/IronClaude/pull/617) | 27914 passed, 3 failed (agent baseline) / 27905 passed, 1 failed (11 tests removed; the failure was already failing before). CI `Test on Python 3.10`: success on the re-run (first run failed on the timing test `test_debit_constant_time`, unrelated) | 2026-11-17 20:49Z, `5b7d13e73` |
 | 2 | 6: `/sc:save` and `/sc:load` | `clayphi/v6-save-load` | NOT STARTED | | | |
 | 2 | 7: `/sc:build` | `clayphi/v6-build` | NOT STARTED | | | |
 | 2 | 10: `/sc:review-translation` (move to `ironbelly/IronClaudeV5`, then remove) | `clayphi/v6-review-translation` | NOT STARTED | | | |
@@ -56,7 +56,7 @@ Dropped: PR 3 (swarm), by Ryan on 2026-11-17 13:06.
 
 | Wave | Comment on issue 571 | Message to GeneralIronFlow |
 |---|---|---|
-| (none yet) | | |
+| Wave 1 | (posted after this commit; link in PROCESS-LOG entry 12) | sent |
 
 ## 6. Gate on the release PR's merge commit (G1 to G9)
 
@@ -76,4 +76,10 @@ Filled at the release PR. G8 is set by the plan as: (a) a search finds no file n
 
 ## 7. Finished worktrees (for Clay to remove later)
 
-None yet. The orchestrator deletes no worktree.
+The orchestrator deletes no worktree. Finished, for Clay to remove later (`orca worktree rm --worktree name:<name>`):
+
+| Worktree | Path | PR |
+|---|---|---|
+| `v6-prd-cli` | `/home/coder/workspaces/worktrees/IronClaude/v6-prd-cli` | #616 |
+| `v6-cleanup-audit-runner` | `/home/coder/workspaces/worktrees/IronClaude/v6-cleanup-audit-runner` | #615 |
+| `v6-spawn` | `/home/coder/workspaces/worktrees/IronClaude/v6-spawn` | #617 |
