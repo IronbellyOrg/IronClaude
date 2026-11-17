@@ -55,6 +55,25 @@ def test_an_edited_header_is_checked_against_the_separator_not_itself(tmp_path):
     assert [r.ok for r in fc.run_checks(ok, [1])] == [True]
 
 
+def test_optional_outer_pipes_are_normalized_before_comparing_widths(tmp_path):
+    doc = write(tmp_path, "| a | b |\n|---|---|\n| x | y\n| x | y | z\n")
+    got = [(r.line, r.ok) for r in fc.run_checks(doc, [3, 4])]
+    assert got == [(3, True), (4, False)]
+
+
+def test_a_line_outside_the_file_is_reported_not_skipped(tmp_path):
+    doc = write(tmp_path, "one\ntwo\n")
+    got = [(r.check, r.line, r.ok) for r in fc.run_checks(doc, [2, 9])]
+    assert got == [("range", 9, False)]
+    assert "outside the file (2 lines)" in fc.run_checks(doc, [9])[0].detail
+
+
+def test_link_paths_are_percent_decoded_before_the_existence_check(tmp_path):
+    write(tmp_path, "x", "my file.md")
+    doc = write(tmp_path, "[guide](my%20file.md) [gone](no%20such.md)\n")
+    assert [r.ok for r in fc.run_checks(doc, [1])] == [True, False]
+
+
 def test_quote_check_finds_and_misses_cited_text(tmp_path):
     source = write(tmp_path, "one\nthe exact words here\n", "src.md")
     doc = write(

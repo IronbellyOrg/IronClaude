@@ -3,7 +3,9 @@
 Read-only: it opens files to read and writes nothing. It returns one result per check it ran,
 passes included, so the fix log is complete. Checks:
 
-- pipe: a markdown table row has as many unescaped pipes as the table's header row.
+- pipe: a markdown table row has as many unescaped pipes as the table's header row (an edited
+  header is compared with the separator row); the optional outer pipes are normalized.
+- range: a requested line number outside the file is reported, not skipped.
 - quote: `"quoted text"` followed by a `path:line` cite is byte-present on that cited line.
 - count: a line saying `N rows` right above a table matches the table's data row count.
 - link: a relative markdown link `[text](path)` points at a file or folder that exists.
@@ -15,6 +17,7 @@ import difflib
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import unquote
 
 _PIPE = re.compile(r"(?<!\\)\|")
 _QUOTE_CITE = re.compile(r"\"([^\"\n]{8,})\"\s*\(?\s*`?([\w./-]+\.\w+):(\d+)")
@@ -62,7 +65,14 @@ def _table_block(lines: list[str], n: int) -> tuple[int, int]:
 
 
 def _pipes(row: str) -> int:
-    return len(_PIPE.findall(row))
+    """Unescaped pipes the row would hold with both optional outer pipes present."""
+    text = row.strip()
+    inner = len(_PIPE.findall(text))
+    if _PIPE.match(text):
+        inner -= 1  # leading pipe
+    if len(text) > 1 and re.search(r"(?<!\\)\|$", text):
+        inner -= 1  # trailing pipe
+    return inner + 2
 
 
 def _cited_text(cite: str, line: int, base: Path) -> str | None:
@@ -81,6 +91,15 @@ def run_checks(path: str | Path, line_numbers: list[int]) -> list[CheckResult]:
     results: list[CheckResult] = []
     for number in sorted(set(line_numbers)):
         if not 1 <= number <= len(lines):
+            results.append(
+                CheckResult(
+                    "range",
+                    name,
+                    number,
+                    False,
+                    f"line {number} is outside the file ({len(lines)} lines)",
+                )
+            )
             continue
         idx, row = number - 1, lines[number - 1]
         if row.lstrip().startswith("|"):
@@ -136,7 +155,7 @@ def run_checks(path: str | Path, line_numbers: list[int]) -> list[CheckResult]:
         for target in _LINK.findall(row):
             if "://" in target or target.startswith(("#", "mailto:")):
                 continue
-            bare = target.split("#", 1)[0]
+            bare = unquote(target.split("#", 1)[0])
             exists = bool(bare) and (file.parent / bare).exists()
             results.append(
                 CheckResult(
