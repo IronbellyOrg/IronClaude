@@ -105,11 +105,33 @@ def test_arguments_after_double_dash_are_not_help(tmp_path):
     assert "ic <alias-or-model>" not in proc.stdout
 
 
-def test_option_value_named_help_is_not_help(tmp_path):
-    proc = run_ic(tmp_path, ["-H", "--help"])
+@pytest.mark.parametrize(
+    "option,slot",
+    [
+        ("-H", "HAIKU"),
+        ("--haiku", "HAIKU"),
+        ("-S", "SONNET"),
+        ("--sonnet", "SONNET"),
+        ("-O", "OPUS"),
+        ("--opus", "OPUS"),
+    ],
+)
+def test_option_value_named_help_is_not_help(tmp_path, option, slot):
+    proc = run_ic(tmp_path, [option, "--help"])
     assert proc.returncode == 0, proc.stderr
-    assert "HAIKU=--help" in proc.stdout.splitlines()
+    assert f"{slot}=--help" in proc.stdout.splitlines()
     assert "ic <alias-or-model>" not in proc.stdout
+
+
+@pytest.mark.parametrize("option", ["-p", "--preset"])
+def test_preset_name_given_as_help_is_not_help(tmp_path, option):
+    # The preset option takes the next argument as the preset name, so the help
+    # scan must skip it. What `ic` then does with a name that is not a valid
+    # variable suffix is outside #544, so only "no help, no launch" is checked.
+    proc = run_ic(tmp_path, [option, "--help"])
+    assert proc.returncode != 0
+    assert "ic <alias-or-model>" not in proc.stdout
+    assert not stub_ran(proc)
 
 
 # ---------------------------------------------------------------------------
