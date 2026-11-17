@@ -1,5 +1,7 @@
 # Decisions only you can make (21 questions)
 
+> **Context for a reader arriving cold.** This file belongs to the "orchestrator, observer and issue watcher alignment" program of the IronClaude repository (a chain of tools so AI coding sessions can work on many issues while a person stays on top from one dashboard). **Start with `open-decisions.md` in this folder:** it explains the program, defines the terms and lists what is still open. This file is the ORIGINAL set of 21 owner cards written on 2026-11-14, kept for history and for the full debate detail. Many cards are now answered (see `owner-answers.md`), some were overtaken by events (PR #539 merged on 2026-11-14), and a few carry an older state. For current status always use `open-decisions.md`. Agents may explain and recommend but never answer a card for the owner.
+
 You do not need to have followed this project to use this file. Each card is self-contained. Read the glossary once, then answer the cards in the order given. You can answer a few at a time; nothing needs all 21 at once. For each card the reply format is one line, for example `Q2: option 1, yes`. "Reply with the default" is always allowed: the card says what happens if you say nothing.
 
 ## Glossary (the ten terms the cards use)
