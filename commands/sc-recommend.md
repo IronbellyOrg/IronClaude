@@ -128,20 +128,20 @@ keyword_extraction:
 category_mapping:
   ml_category:
     primary_commands: ["/sc:sc:analyze --c7", "/sc:sc:design --ultrathink"]
-    secondary_commands: ["/sc:sc:implement --feature --tdd", "/sc:sc:improve --performance"]
+    secondary_commands: ["/sc:sc:implement --type feature --with-tests", "/sc:sc:improve --performance"]
     mcp_servers: ["--c7"]
     personas: ["--persona-analyzer", "--persona-architect"]
     flags: ["--think-hard", "--evidence", "--profile"]
 
   web_category:
-    primary_commands: ["/sc:sc:implement --feature --magic", "/sc:sc:design --api"]
+    primary_commands: ["/sc:sc:implement --type feature", "/sc:sc:design --api"]
     secondary_commands: ["/sc:sc:test --coverage --e2e --pup", "/sc:sc:analyze --code"]
     mcp_servers: ["--magic", "--c7", "--pup"]
     personas: ["--persona-frontend", "--persona-qa"]
     flags: ["--react", "--tdd", "--validate"]
 
   api_category:
-    primary_commands: ["/sc:sc:design --api --ddd", "/sc:sc:implement --feature --tdd"]
+    primary_commands: ["/sc:sc:design --api --ddd", "/sc:sc:implement --type feature --with-tests"]
     secondary_commands: ["/sc:sc:scan --security --owasp", "/sc:sc:analyze --performance --pup"]
     mcp_servers: ["--c7", "--pup"]
     personas: ["--persona-backend", "--persona-security"]
@@ -156,7 +156,7 @@ category_mapping:
 
   performance_category:
     primary_commands: ["/sc:sc:analyze --performance --pup --profile", "/sc:sc:troubleshoot"]
-    secondary_commands: ["/sc:sc:improve --performance --iterate", "/sc:sc:implement --optimize"]
+    secondary_commands: ["/sc:sc:improve --performance --iterate", "/sc:sc:implement"]
     mcp_servers: ["--pup"]
     personas: ["--persona-performance", "--persona-analyzer"]
     flags: ["--profile", "--monitoring", "--benchmark"]
@@ -168,7 +168,7 @@ category_mapping:
     flags: ["--strict", "--validate", "--owasp"]
 
   create_category:
-    primary_commands: ["/sc:sc:implement --feature --tdd", "/sc:sc:design --ultrathink"]
+    primary_commands: ["/sc:sc:implement --type feature --with-tests", "/sc:sc:design --ultrathink"]
     secondary_commands: ["/sc:sc:analyze --code --c7", "/sc:sc:test --coverage --e2e"]
     mcp_servers: ["--magic", "--c7", "--pup"]
     personas: ["--persona-frontend", "--persona-backend", "--persona-architect"]
@@ -233,7 +233,7 @@ User: /sc:sc:recommend "I'm new, I want to do machine learning"
 2. /sc:sc:design --ultrathink --persona-architect
    "Design simple but scalable ML architecture"
 
-3. /sc:sc:implement --feature --tdd --persona-frontend
+3. /sc:sc:implement --type feature --with-tests --persona-frontend
    "Create ML pipeline with TDD"
 
 4. /sc:sc:test --coverage --e2e --pup --persona-qa
@@ -246,7 +246,7 @@ User: /sc:sc:recommend "I'm new, I want to do machine learning"
 - Performance: /sc:sc:analyze --performance --pup (after model training)
 
 🚀 Quick Start (optional):
-/sc:sc:implement --feature --magic --react --persona-frontend
+/sc:sc:implement --type feature --framework react --persona-frontend
 ```
 
 ### Example 2: Web Performance Optimization
@@ -300,7 +300,7 @@ User: /sc:sc:recommend "Need to secure API with authentication and authorization
 3. /sc:sc:design --api --ddd --ultrathink --persona-architect
    "Secure API architecture with proper authentication patterns"
 
-4. /sc:sc:implement --feature --tdd --persona-backend
+4. /sc:sc:implement --type feature --with-tests --persona-backend
    "Implement security features with test-driven development"
 
 5. /sc:sc:improve --security --harden --persona-security
@@ -327,7 +327,7 @@ User: /sc:sc:recommend "I'm going to create a new user profile component"
 1. /sc:sc:design --api --persona-architect
    "Component interface and props design"
 
-2. /sc:sc:implement --feature --magic --react --persona-frontend
+2. /sc:sc:implement --type feature --framework react --persona-frontend
    "Create accessible React component with Magic"
 
 3. /sc:sc:test --coverage --e2e --pup --persona-qa
@@ -376,21 +376,21 @@ project_detection:
     react_project:
       indicators: ["package.json with react", "src/App.jsx", "public/", "node_modules/react"]
       detection_commands:
-        primary: ["/sc:sc:implement --feature --magic --react", "/sc:sc:test --coverage --e2e --pup"]
+        primary: ["/sc:sc:implement --type feature --framework react", "/sc:sc:test --coverage --e2e --pup"]
         personas: ["--persona-frontend", "--persona-qa"]
         mcp: ["--magic", "--c7", "--pup"]
 
     vue_project:
       indicators: ["package.json with vue", "src/App.vue", "vue.config.js"]
       detection_commands:
-        primary: ["/sc:sc:implement --feature --magic", "/sc:sc:analyze --code --c7"]
+        primary: ["/sc:sc:implement --type feature", "/sc:sc:analyze --code --c7"]
         personas: ["--persona-frontend"]
         mcp: ["--magic", "--c7"]
 
     node_api_project:
       indicators: ["package.json with express", "server.js", "routes/", "controllers/"]
       detection_commands:
-        primary: ["/sc:sc:design --api --ddd", "/sc:sc:implement --feature --tdd"]
+        primary: ["/sc:sc:design --api --ddd", "/sc:sc:implement --type feature --with-tests"]
         personas: ["--persona-backend", "--persona-security"]
         mcp: ["--c7"]
 
@@ -433,7 +433,7 @@ project_detection:
 🎭 Persona: --persona-frontend + --persona-qa
 
 ✅ Context-Aware Recommendations:
-1. /sc:sc:implement --feature --magic --react --persona-frontend
+1. /sc:sc:implement --type feature --framework react --persona-frontend
    "New component compatible with existing design system"
 
 2. /sc:sc:test --coverage --e2e --pup --persona-qa
@@ -514,7 +514,7 @@ streaming_mode:
 
 🔄 Next Steps (when completed):
 1. /sc:sc:design --api --ddd --ultrathink --persona-architect
-2. /sc:sc:implement --feature --magic --react --persona-frontend
+2. /sc:sc:implement --type feature --framework react --persona-frontend
 
 --- STREAM CONTINUING ---
 ```
@@ -551,21 +551,21 @@ alternative_engine:
 🎯 PROJECT ANALYSIS: Blog site development
 
 ⭐ BEST RECOMMENDATION:
-/sc:sc:implement --feature --magic --nextjs --persona-frontend
+/sc:sc:implement --type feature --persona-frontend
    "Modern, SEO-friendly blog with Next.js"
 
 🔧 ALTERNATIVES:
-1. /sc:sc:implement --feature --react --static --persona-frontend
+1. /sc:sc:implement --type feature --framework react --persona-frontend
    ✅ Advantage: Simpler learning curve
    ❌ Disadvantage: Less SEO optimization
    👥 Users: 35% prefer this
 
-2. /sc:sc:implement --feature --vue --nuxt --persona-frontend
+2. /sc:sc:implement --type feature --framework vue --persona-frontend
    ✅ Advantage: Great developer experience
    ❌ Disadvantage: Smaller community
    👥 Users: 20% prefer this
 
-3. /sc:sc:implement --feature --gatsby --static --persona-frontend
+3. /sc:sc:implement --type feature --persona-frontend
    ✅ Advantage: Excellent performance and SEO
    ❌ Disadvantage: More complex configuration
    👥 Users: 15% prefer this
@@ -777,7 +777,7 @@ smart_flag_engine:
 - Accessibility required: --a11y --wcag
 
 💡 RECOMMENDED COMMAND:
-/sc:sc:implement --feature --magic --react --tutorial --examples --persona-frontend
+/sc:sc:implement --type feature --framework react --persona-frontend
 
 🔧 ADDITIONAL LEARNING FLAGS:
 --guided-development (step-by-step guidance)
@@ -796,7 +796,7 @@ community_patterns:
       most_successful_flow:
         - "/sc:sc:analyze --code --c7"
         - "/sc:sc:design --api"
-        - "/sc:sc:implement --feature --magic --tdd"
+        - "/sc:sc:implement --type feature --with-tests"
         - "/sc:sc:test --coverage --e2e --pup"
       success_rate: "87%"
       user_feedback: "Highly recommended for React projects"
@@ -805,7 +805,7 @@ community_patterns:
       most_successful_flow:
         - "/sc:sc:analyze --c7 --persona-mentor"
         - "/sc:sc:design --ultrathink --persona-architect"
-        - "/sc:sc:implement --feature --tdd --persona-frontend"
+        - "/sc:sc:implement --type feature --with-tests --persona-frontend"
         - "/sc:sc:improve --performance --iterate"
       success_rate: "82%"
       user_feedback: "Great for ML beginners"
@@ -893,11 +893,11 @@ recommend_command_implementation:
    "E-commerce domain architecture and system design"
 
 2. 🎨 FRONTEND DEVELOPMENT
-   /sc:sc:implement --feature --magic --nextjs --persona-frontend
+   /sc:sc:implement --type feature --persona-frontend
    "Modern, SEO-friendly e-commerce frontend"
 
 3. 🔒 SECURITY AND BACKEND
-   /sc:sc:implement --feature --tdd --persona-security
+   /sc:sc:implement --type feature --with-tests --persona-security
    "Secure payment system and user management"
 
 🔧 SMART FLAG RECOMMENDATIONS
