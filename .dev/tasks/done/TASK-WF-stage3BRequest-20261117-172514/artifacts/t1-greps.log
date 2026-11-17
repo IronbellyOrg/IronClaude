@@ -1,0 +1,12 @@
+## T1 greps on src/superclaude/agents/reflect-reviewer.md
+^## Review severity rule => 1
+is a label, not the grade => 1
+Blocking (Decision): => 2
+| Medium:  => 1
+consumer-unknown => 2
+also name the affected action => 1
+heading anchored => 1
+## frontmatter diff (lines 1-10)
+@@ -71 +71 @@ The brief carries **pre-computed evidence only** — supplied hunks, matrices, a
+@@ -86,2 +86,2 @@ The brief carries **pre-computed evidence only** — supplied hunks, matrices, a
+@@ -116,0 +117,7 @@ These findings are RAISED FOR TRIAGE by the orchestrator; they MUST NOT set `reg
