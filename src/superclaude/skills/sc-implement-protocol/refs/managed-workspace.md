@@ -59,6 +59,14 @@ Archive gate, **every attempt** (N=1, resume, retry; an earlier FINAL never coun
 FINAL: <pass|issues> evidence=<ev-list> state=<sha256>
 ```
 
+**Follow-up print (record and print only).** When the final review appended `FINAL: pass`, the executor prints the follow-up lines and runs the safety scan before the helper moves the package, with this call:
+
+```
+superclaude review safety-scan <notes file>
+```
+
+On `FINAL: issues` it does neither. What is printed, and the "no notes file for T<id>" line, are the ones the Done section of the skill describes.
+
 6. `pass` → run the helper in archive mode (no extra flag). It appends its own `ARCHIVE: start id=<id> token=<hex>` line after FINAL and moves the package; there is no later "complete" record (location is the archive state). `issues` → STOP `E-ARCHIVE-BLOCKED`; the package stays in `to-do/`; do not reopen completed tasks unless the operator says, except the recovery's own re-review of a saved-prompt task. Before that stop, when every `issues` item of the FINAL concerns a saved prompt (a template difference, a superseded prompt with no later passing saved prompt, or a missing README), the executor runs "Defective saved prompt (recovery)" from `refs/qa.md` in the same invocation and then repeats the archive gate from step 1; the recovery is idempotent (it finishes a half-done move, writes a missing README and runs a missing re-review), and the stop applies only if the recovery cannot finish or the new FINAL still returns `issues`.
 
 `<skill base>` is the base directory the loaded skill announces (the directory holding this skill's `SKILL.md`); never hardcode a repository `src/` path. A FINAL pass is not a commit, PR, merge, release or human approval.

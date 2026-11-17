@@ -191,6 +191,14 @@ Extra `fail` does not change the spec verdict. A task MUST NOT be marked `compli
 
 Every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus operator Ruling). Print the ledger path. A `compliant` line may carry a `notes@` token (complete with notes, `refs/qa.md`). When no FINAL that can block ran (any legacy run, including N=1 and `--skip-final-review`), the final summary also prints lines 2 to m of each task's notes file with their checklist answers, informational only, asking the user nothing. The final summary also prints every `family-fallback:` header line of an `advice-3-b.md` (`refs/retry.md`, Model ladder). Suggest `/sc:test` and `/sc:git` only as optional next steps, not gates.
 
+**Follow-up print (record and print only).** At the final review step the executor prints every non-superseded minor line of every task's `<retries>/T<id>/notes.md` (lines 2 to m, the lines counted above) and runs the safety scan over each notes file with this call:
+
+```
+superclaude review safety-scan <notes file>
+```
+
+A scan hit prints first, before the minor lines, and stays blocking; it is not turned into a follow-up. A task whose notes file is missing prints the line "no notes file for T<id>" (a clean task writes no notes file, so that line says only that no file exists, never that nothing was found). A legacy run adds the scan to the printing described above; a managed package prints and scans in its archive gate, so each run prints once. It asks the user nothing, makes no offer (the offer belongs to the top-level session), and changes no verdict, no final-review result and no archive outcome. It adds no stop code: a missing `superclaude` command or a non-zero exit is printed as one line and the run continues.
+
 Legacy: if all tasks already `complete` on invoke: STOP `already complete: <ledger path>`.
 
 Managed: done means the helper reported `archived` (print its actual `done/` path) or `already-archived`. All tasks complete but not archived is **archive-blocked**, not complete.
