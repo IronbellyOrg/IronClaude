@@ -1,0 +1,48 @@
+== search 1 (runner names): 4 hits
+tests/core/test_how_we_work_routing_table.py:895:def test_cleanup_audit_and_improvement_have_separate_authority_boundaries():
+tests/skills/test_codegraph_adoption.py:101:def test_cleanup_audit_and_auggie_review_name_codegraph(path):
+tests/skills/test_model_alias_policy.py:199:def test_cleanup_audit_docs_match_the_audit_scanner_pin() -> None:
+tests/skills/test_worker_contract.py:1307:def test_cleanup_audit_names_final_report_and_contract_write_exception():
+== search 2 (cleanup-audit, by file):
+docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md:2
+docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:4
+docs/generated/contributor-knowledge-base/architecture-guide.md:2
+docs/generated/contributor-knowledge-base/cli-api-inventory.md:1
+docs/generated/contributor-knowledge-base/components-guide.md:2
+docs/generated/contributor-knowledge-base/visual-architecture-summary.md:5
+docs/generated/sprint-cli/06-artifacts-output.md:1
+docs/onboarding/ironclaude-onboarding.html:1
+docs/user-guide/codegraph.md:1
+docs/user-guide/commands.md:4
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:5
+plugins/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md:3
+scripts/run-fidelity-batch-refactored.sh:3
+scripts/run-fidelity-batch.sh:1
+src/superclaude/agents/reuse-auditor.md:2
+src/superclaude/cli/audit/auto_config.py:1
+src/superclaude/cli/eval/suites/audit_wiring_guard.yaml:4
+src/superclaude/cli/recommend/prompts.py:2
+src/superclaude/commands/auggie-review.md:1
+src/superclaude/commands/cleanup-audit.md:10
+src/superclaude/commands/cli-portify.md:2
+src/superclaude/core/HOW-WE-WORK.md:5
+src/superclaude/core/WORKER-CONTRACT.md:3
+src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md:7
+src/superclaude/skills/sc-cleanup-audit-protocol/__init__.py:1
+src/superclaude/skills/sc-cleanup-audit-protocol/scripts/repo-inventory.sh:1
+src/superclaude/skills/sc-cli-portify-protocol/refs/analysis-protocol.md:1
+src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md:3
+tests/core/test_how_we_work_routing_table.py:5
+tests/hooks/test_launch_level_guard.py:1
+tests/recommend/fixtures/routing_refresh_cases.json:8
+tests/skills/test_codegraph_adoption.py:3
+tests/skills/test_model_alias_policy.py:3
+tests/skills/test_repo_inventory_nongit.py:1
+tests/skills/test_sc_recommend_routing_contract.py:1
+tests/skills/test_worker_contract.py:5
+tests/unit/test_cli_install.py:13
+note: search 1 hits above (4) are test function names for the kept skill and /sc:cleanup-audit command docs, not the runner. Search 2 lists only skill, slash command, cli/audit helpers, eval suite text and the release-folder script names; none names the removed runner.
+make sync-dev exit=0
+make verify-sync exit=0 : ✅ All components in sync.
+git diff --check exit=0
+git diff --cached --check exit=0

@@ -14,15 +14,12 @@ PipelineConfig (pipeline/models.py:169)
   +-> RoadmapConfig (roadmap/models.py:95)
   +-> ValidateConfig (roadmap/models.py:120)
   +-> TasklistValidateConfig (tasklist/models.py)
-  +-> CleanupAuditConfig (cleanup_audit/models.py)
 
 Step (pipeline/models.py:77)
   +-> SprintStep (sprint/models.py:420)
-  +-> CleanupAuditStep (cleanup_audit/models.py)
 
 StepResult (pipeline/models.py:92)
   +-> PhaseResult (sprint/models.py:430)
-  +-> CleanupAuditStepResult (cleanup_audit/models.py)
 ```
 
 ## Pipeline Base Models (`cli/pipeline/models.py`)

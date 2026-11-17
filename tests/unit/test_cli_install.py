@@ -69,7 +69,7 @@ technical-writer.md
     ),
     "cli": _names(
         """
-audit/wiring_whitelist.yaml cleanup_audit/portify-summary.md eval/pty/CHECKLIST.md
+audit/wiring_whitelist.yaml eval/pty/CHECKLIST.md
 eval/pty/PROVENANCE.md eval/schemas/summary.schema.json eval/suites/README.md
 eval/suites/adversarial_merge_consistency.yaml
 eval/suites/agent_grounding_drift.yaml eval/suites/audit_wiring_guard.yaml

@@ -216,7 +216,6 @@ flowchart TB
     CLI --> CLI_INSTALL[install_core.py<br/>install_commands.py<br/>install_agents.py<br/>install_skill.py<br/>install_skills.py<br/>install_mcp.py]
     CLI --> CLI_SPRINT[sprint/]
     CLI --> CLI_ROADMAP[roadmap/]
-    CLI --> CLI_CLEANUP[cleanup_audit/]
     CLI --> CLI_PIPELINE[pipeline/]
     CLI --> CLI_AUDIT[audit/]
 
@@ -248,7 +247,6 @@ flowchart TD
     B --> H[version]
     B --> I[sprint group]
     B --> J[roadmap group]
-    B --> K[cleanup-audit group]
 
     C --> C1[install_core.py]
     C --> C2[install_commands.py]
@@ -284,15 +282,8 @@ flowchart TD
     J1 --> J4[validate_executor.py]
     J1 --> J5[models.py / gates.py / prompts.py]
 
-    K --> K1[src/superclaude/cli/cleanup_audit/]
-    K1 --> K2[commands.py]
-    K1 --> K3[executor.py]
-    K1 --> K4[config.py / models.py / gates.py / prompts.py / monitor.py / tui.py]
-    K1 --> K5[audit/ support library]
-
     I1 --> P[pipeline/ shared execution surface]
     J1 --> P
-    K1 --> P
 ```
 
 ## Protocol-backed command relationships
@@ -611,6 +602,6 @@ Authoring guidance used in this generated bundle:
 
 - Current package metadata identifies `superclaude` version `4.2.0` with Python `>=3.10`.
 - Current executable entry points are the CLI (`superclaude.cli.main:main`) and pytest plugin (`superclaude.pytest_plugin`).
-- Current code shows a larger CLI tree than some older docs imply, including `sprint`, `roadmap`, `cleanup_audit`, `pipeline`, and `audit` subsystems.
+- Current code shows a larger CLI tree than some older docs imply, including `sprint`, `roadmap`, `pipeline`, and `audit` subsystems.
 - Current protocol-backed command families include roadmap, tasklist, task, adversarial, cleanup-audit, review-translation, pm, and validate-tests; recommend is backed by the sc-recommend skill (no -protocol suffix).
 - For conflicts between older architecture prose and the present tree, prefer `src/superclaude/`, `pyproject.toml`, `CLAUDE.md`, and `Makefile`.

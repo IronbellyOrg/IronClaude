@@ -15,7 +15,7 @@ When older hand-written docs and current code differ, prefer the code. In partic
 | Console entry point | `pyproject.toml` → `superclaude = "superclaude.cli.main:main"` | The Click root group lives in `src/superclaude/cli/main.py`. |
 | Root package export | `src/superclaude/cli/__init__.py` exports `main` | Importing `superclaude.cli` exposes the top-level Click entry point. |
 | CLI style | Click command groups and subcommands | Top-level commands are defined in `main.py`; larger workflow CLIs live in subpackages. |
-| Major subsystems | install/update flows, MCP installation, health checks, sprint, roadmap, cleanup-audit, shared pipeline helpers, audit helpers | `pipeline/` and `audit/` are support libraries; `sprint/`, `roadmap/`, and `cleanup_audit/` expose subcommand groups. |
+| Major subsystems | install/update flows, MCP installation, health checks, sprint, roadmap, shared pipeline helpers, audit helpers | `pipeline/` and `audit/` are support libraries; `sprint/` and `roadmap/` expose subcommand groups. |
 
 ## Directory map
 
@@ -31,7 +31,6 @@ src/superclaude/cli/
 ├── install_skill.py
 ├── install_skills.py
 ├── audit/
-├── cleanup_audit/
 ├── pipeline/
 ├── roadmap/
 └── sprint/
@@ -57,14 +56,13 @@ src/superclaude/cli/
 | `superclaude version` | `version` | package `__version__` | Print framework version. |
 | `superclaude sprint ...` | `sprint_group` added via `main.add_command(...)` | `src/superclaude/cli/sprint/` | Multi-phase sprint execution workflow. |
 | `superclaude roadmap ...` | `roadmap_group` added via `main.add_command(...)` | `src/superclaude/cli/roadmap/` | Roadmap generation and validation workflow. |
-| `superclaude cleanup-audit ...` | `cleanup_audit_group` added via `main.add_command(...)` | `src/superclaude/cli/cleanup_audit/` | Read-only cleanup audit workflow. |
 
 ## Top-level module inventory
 
 | Module | Key symbols observed | Contributor notes |
 | --- | --- | --- |
 | `src/superclaude/cli/__init__.py` | `main` | Minimal re-export of the root CLI entry point. |
-| `src/superclaude/cli/main.py` | `main`, `install`, `mcp`, `update`, `install_skill`, `doctor`, `version` | First file to read when tracing command registration. Also manually registers the `sprint`, `roadmap`, and `cleanup-audit` groups. |
+| `src/superclaude/cli/main.py` | `main`, `install`, `mcp`, `update`, `install_skill`, `doctor`, `version` | First file to read when tracing command registration. Also manually registers the `sprint` and `roadmap` groups. |
 | `src/superclaude/cli/doctor.py` | `run_doctor`, `_check_pytest_plugin`, `_check_agents_installed`, `_check_skills_installed`, `_check_configuration` | Health-check implementation used by the `doctor` command. |
 | `src/superclaude/cli/install_core.py` | `install_core_files`, `list_core_files`, `list_installed_core_files` | Handles installation/listing of core framework files. |
 | `src/superclaude/cli/install_commands.py` | `install_commands`, `list_available_commands`, `list_installed_commands` | Handles slash command asset installation. |
@@ -142,35 +140,6 @@ Implements the `superclaude roadmap` command group. Current code describes this 
 | `prompts.py`, `validate_prompts.py` | files present | Prompt/template material used by roadmap subprocess steps. |
 | `__init__.py` | `roadmap_group` | Public export surface. |
 
-## `cleanup_audit/` subpackage
-
-### Purpose
-
-Implements the `superclaude cleanup-audit` command group. Current package docstring says it was portified from `sc-cleanup-audit-protocol` and exposes the cleanup-audit CLI group.
-
-### Public command group
-
-| Symbol | File | Role |
-| --- | --- | --- |
-| `cleanup_audit_group` | `src/superclaude/cli/cleanup_audit/commands.py` | Click subcommand group, re-exported by `src/superclaude/cli/cleanup_audit/__init__.py`. |
-
-### Command structure
-
-| CLI command | Python function | What it does |
-| --- | --- | --- |
-| `superclaude cleanup-audit run` | `run` | Loads audit config, optionally prints a dry run, executes the cleanup-audit pipeline, and exits non-zero on unsuccessful outcome. |
-
-### Important modules
-
-| Module | Key API surface observed | Why it matters |
-| --- | --- | --- |
-| `commands.py` | `cleanup_audit_group`, `run`, `_print_dry_run` | User-facing CLI entry layer. |
-| `config.py` | `load_cleanup_audit_config`, `discover_files`, `batch_files`; constants `SUPPORTED_PASSES`, `SUPPORTED_FOCUS` | Audit target discovery and batching. |
-| `models.py` | `CleanupAuditConfig`, `CleanupAuditResult`, `CleanupAuditStep`, `CleanupAuditStepResult`, `CleanupAuditStatus`, `CleanupAuditOutcome`, `AuditPassType`, `CleanupAuditMonitorState` | Typed model layer for audit execution. |
-| `executor.py` | `execute_cleanup_audit`, `_build_steps`, `_determine_status` | Pipeline orchestration. |
-| `gates.py`, `prompts.py`, `process.py`, `monitor.py`, `tui.py`, `diagnostics.py`, `logging_.py` | files present | Supporting validation, prompting, runtime, monitoring, and diagnostics pieces. |
-| `portify-summary.md` | generated summary file in package directory | Historical/generated support artifact; useful for understanding portification context, but current code should take precedence. |
-
 ## `pipeline/` subpackage
 
 ### Purpose
@@ -228,10 +197,9 @@ Support library for cleanup/audit-oriented analysis. The package docstring calls
 | --- | --- |
 | Root group | `superclaude` |
 | Root commands | `install`, `mcp`, `update`, `install-skill`, `doctor`, `version` |
-| Root subgroups | `sprint`, `roadmap`, `cleanup-audit` |
+| Root subgroups | `sprint`, `roadmap` |
 | Sprint subcommands | `run`, `attach`, `status`, `logs`, `kill` |
 | Roadmap subcommands | `run`, `validate` |
-| Cleanup-audit subcommands | `run` |
 
 ## Contributor navigation tips
 
@@ -243,7 +211,7 @@ That file owns:
 
 - the root Click group
 - top-level commands
-- manual registration of `sprint`, `roadmap`, and `cleanup-audit`
+- manual registration of `sprint` and `roadmap`
 
 ### If you need to change installation behavior
 
@@ -260,7 +228,7 @@ Read these in order:
 
 Use this split:
 
-- `sprint/`, `roadmap/`, `cleanup_audit/` for user-facing workflow CLIs
+- `sprint/` and `roadmap/` for user-facing workflow CLIs
 - `pipeline/` for shared execution, gate, process, and analysis primitives
 - `audit/` for lower-level audit analysis and reporting support
 
@@ -271,7 +239,7 @@ Prefer the current package code.
 Examples from the current tree:
 
 - the active console-script target is `superclaude.cli.main:main`
-- the currently registered root workflow groups are `sprint`, `roadmap`, and `cleanup-audit`
+- the currently registered root workflow groups are `sprint` and `roadmap`
 - `pipeline/__init__.py` exports a larger shared API surface than older high-level docs usually summarize
 
 ## Fast start reading order for contributors
@@ -280,8 +248,7 @@ Examples from the current tree:
 2. `src/superclaude/cli/main.py` — root command graph
 3. One workflow package:
    - `src/superclaude/cli/sprint/commands.py`, or
-   - `src/superclaude/cli/roadmap/commands.py`, or
-   - `src/superclaude/cli/cleanup_audit/commands.py`
+   - `src/superclaude/cli/roadmap/commands.py`
 4. Matching `models.py` and `executor.py`
 5. `src/superclaude/cli/pipeline/__init__.py` and `pipeline/models.py`
 6. `src/superclaude/cli/audit/` if the change touches cleanup/audit internals

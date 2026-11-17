@@ -51,10 +51,6 @@ Contains sprint-oriented operational code such as:
 
 Contains roadmap-related models, prompts, executors, commands, and validation helpers.
 
-#### `src/superclaude/cli/cleanup_audit/`
-
-Contains audit-oriented command, executor, model, prompt, diagnostics, process, and TUI support.
-
 #### `src/superclaude/cli/pipeline/`
 
 Contains pipeline analysis and verification modules such as:

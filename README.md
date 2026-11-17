@@ -139,7 +139,7 @@ Key workflow areas include:
 - sprint execution
 - roadmap generation and validation
 - tasklist generation
-- audit and cleanup audit flows
+- audit flows
 - MCP installation and diagnostics
 
 ### 2. Pytest plugin
