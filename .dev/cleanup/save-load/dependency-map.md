@@ -14,9 +14,9 @@ What stays: the `sc-crash-recovery` skill, the `<project>/.superclaude/memory/` 
 
 Also remove the gitignored dev copies `.claude/commands/sc/save.md` and `.claude/commands/sc/load.md` by hand: `make sync-dev` copies but never prunes, and `make verify-sync` and the parity tests would otherwise see them. They are never staged.
 
-## B. Edit outside the deleted files (18 files; the plan counted 19: 2 tests, 11 docs, 7 other)
+## B. Edit outside the deleted files (23 files: 5 tests, 11 docs, 7 other primitives)
 
-Re-measured (the roadmap skill also had a sixth clause at line 234, and the architecture reference a third count at line 196, both found while editing): 5 test files (the plan said 2), 11 docs, 7 other primitives. The plan missed `tests/unit/test_cli_install.py`, `tests/recommend/*` and `tests/skills/test_worker_contract.py` and counted `plugins/` copies with their source. Totals: 23 edited files, 2 of them byte-copies (`plugins/.../HOW-WE-WORK.md`, `plugins/.../RULES.md`). Confirmed at the end by `git diff HEAD --stat`: 29 files changed, 6 deleted and 23 edited.
+Re-measured (the roadmap skill also had a sixth clause at line 234, and the architecture reference a third count at line 196, both found while editing): 5 test files, 11 docs and 7 other primitives, 23 edited files in all, 2 of them byte-copies (`plugins/.../HOW-WE-WORK.md`, `plugins/.../RULES.md`). The plan counted 19 edited files, and its own breakdown (2 tests, 11 docs, 7 other) adds up to 20; it missed `tests/unit/test_cli_install.py`, `tests/recommend/*` and `tests/skills/test_worker_contract.py`. Confirmed at the end by `git diff HEAD --stat`: 29 files changed, 6 deleted and 23 edited.
 
 ### B1. Primitives and core files (7)
 
