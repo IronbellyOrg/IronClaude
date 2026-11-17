@@ -501,7 +501,6 @@ P2_COMMANDS = (
     "cli-portify",
     "recommend",
     "research",
-    "review-translation",
     "spec-panel",
     "task",
     "tasklist",
@@ -673,19 +672,6 @@ UNATTENDED_EXPECT: dict = {
             "recommendation.md",
             ".claude/cache/",
             "the one clarifying question resolves as blocked",
-        ],
-        "nested": [],
-    },
-    "review-translation": {
-        "flags": ["--context"],
-        "phrases": [
-            "context-summary.md",
-            "(the path itself, never the pattern)",
-            "blocked_question",
-            "SKIP IMPLEMENTATION",
-            "reports/localization/",
-            "Phase 1 without `--context` resolves as blocked",
-            "Phase 7 resolves to SKIP IMPLEMENTATION",
         ],
         "nested": [],
     },
@@ -1003,7 +989,6 @@ P2_NEW_BRIEF_ROWS = (
     "auggie-review",
     "cli-eval",
     "cli-portify",
-    "review-translation",
     "spec-panel",
 )
 NESTED_RESULT_PHRASES = (
@@ -1654,14 +1639,14 @@ def test_nested_lists_match_the_p2_nesting():
 
 
 def _check_p2_set(p1, p2, expect) -> None:
-    assert len(p2) == 15, f"P2 lists {len(p2)} commands, not 15"
-    assert len(set(p2)) == 15, "P2_COMMANDS has a duplicate"
+    assert len(p2) == 14, f"P2 lists {len(p2)} commands, not 14"
+    assert len(set(p2)) == 14, "P2_COMMANDS has a duplicate"
     assert set(p1).isdisjoint(p2), f"P1 and P2 share {sorted(set(p1) & set(p2))}"
     both = set(p1) | set(p2)
     assert set(expect) == both, (
         f"UNATTENDED_EXPECT differs from P1 + P2: {sorted(set(expect) ^ both)}"
     )
-    assert len(expect) == 31, f"UNATTENDED_EXPECT has {len(expect)} entries, not 31"
+    assert len(expect) == 30, f"UNATTENDED_EXPECT has {len(expect)} entries, not 30"
     for name in (*p1, *p2):
         assert (Path(_THIS.COMMANDS_DIR) / f"{name}.md").exists(), f"{name}: no file"
 
@@ -1798,18 +1783,6 @@ P2_GATES = [
         "the one clarifying question resolves as blocked",
         "blocked",
         "asked",
-    ),
-    (
-        "review-translation",
-        "Phase 1 without `--context` resolves as blocked",
-        "blocked",
-        "confirmed",
-    ),
-    (
-        "review-translation",
-        "Phase 7 resolves to SKIP IMPLEMENTATION",
-        "SKIP IMPLEMENTATION",
-        "IMPLEMENT FIXES",
     ),
     (
         "release-split",

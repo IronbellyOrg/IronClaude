@@ -50,7 +50,9 @@ _COLUMNS = [
 _LEVEL_HEADER = ["Level", "Use this when", "What you run", "What you end up with"]
 
 # Row ids are stable keys: /sc:recommend cites them and the live run uses them.
-# A row may be added; none of these may be renamed or removed.
+# A row may be added; none of these may be renamed or removed. The one row that left
+# on purpose is the localization review row, which went in 6.0.0 when its command
+# moved to the snapshot fork.
 _EXPECTED_IDS = {
     "ask",
     "small-change",
@@ -81,7 +83,6 @@ _EXPECTED_IDS = {
     "cleanup-audit-only",
     "contained-improve",
     "auggie-review-only",
-    "localization-review",
     "context-audit",
     "cli-eval-create",
     "cli-eval-run",
@@ -300,7 +301,6 @@ def test_other_commands_membership_and_live_references():
         "sc:cli-portify",
         "sc:init-lite",
         "sc:post-release",
-        "sc:review-translation",
         "sc:tdd",
         "sc:validate-roadmap",
         "sc:validate-tests",
@@ -668,17 +668,6 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
             ],
         ),
         (
-            "S07",
-            "localization-review",
-            {"sc:review-translation"},
-            ["<source-file>", "<translation-files...>"],
-            [
-                "confirm context before review",
-                "separate consent",
-                "not runtime troubleshooting",
-            ],
-        ),
-        (
             "S08",
             "context-audit",
             {"sc:init-lite"},
@@ -831,7 +820,7 @@ def test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_fir
 
 
 def test_reports_keep_specialist_objective_instead_of_generic_competitor():
-    """T15-T17/S07/S29: artifact labels and errors do not determine the objective."""
+    """T15-T17/S29: artifact labels and errors do not determine the objective."""
     rows = {r["id"]: r for r in _routing_rows()}
     business = rows["business-strategy"]
     assert "even when input is a PRD" in business["intent"]
@@ -845,12 +834,6 @@ def test_reports_keep_specialist_objective_instead_of_generic_competitor():
     assert "target-release clarification" in critique["notes"]
     assert "consent before input edits" in critique["notes"]
     assert "not raw PRD/TDD authoring, business viability" in critique["notes"]
-    locale = rows["localization-review"]
-    assert locale["changes_files"] == "no"
-    assert "not runtime troubleshooting" in locale["notes"]
-    assert not {"sc:troubleshoot", "sc:analyze"} & set(
-        _TOKEN_RE.findall(locale["steps"])
-    )
 
 
 def test_requested_analysis_research_explain_modes_are_not_forced_defaults():

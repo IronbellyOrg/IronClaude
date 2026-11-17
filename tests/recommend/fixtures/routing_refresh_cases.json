@@ -29,8 +29,6 @@
     "hidden-config-dir": "A fixture folder whose only contents are hidden configuration paths",
     "contained-folder": "A self-contained fixture folder suitable for contained improvement",
     "pr-number": "A fixture pull-request number; never a live PR",
-    "source-strings": "A fixture source-language strings file",
-    "locale-files": "Fixture translation files with placeholder mistakes",
     "suite-name": "A fixture cliEval suite stem",
     "eval-design": "A fixture eval design document",
     "eval-id": "A fixture eval identifier inside the suite",
@@ -170,26 +168,6 @@
       "variants": {
         "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:auggie-review", "expected": "not installed: sc:auggie-review; no substitution by a posting review"},
         "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "adversarial-review", "candidate": "/sc:adversarial", "envelope": "Run: /sc:adversarial --compare docs/a.md,docs/b.md"}, "expected": "guide route matched; cache not consulted; cached /sc:adversarial never emitted"}
-      }
-    },
-    {
-      "id": "S07",
-      "request": "Review {fixture:source-strings} and {fixture:locale-files} for placeholder mistakes; report only.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "localization-review"},
-      "targets": ["sc:review-translation"],
-      "mode_flags": [],
-      "retained_inputs": ["{fixture:source-strings}", "{fixture:locale-files}"],
-      "stop": "language/project reports",
-      "authority": "report-only",
-      "side_effects": "tool-owned localization reports; translation edits need separate consent",
-      "guide_phrases": ["<source-file>", "<translation-files...>", "confirm context before review", "separate consent", "not runtime troubleshooting"],
-      "negative": {"competitors": ["sc:troubleshoot", "sc:analyze"], "must_not": "runtime troubleshooting, generic code analysis or automatic localization edits"},
-      "activation": {"sc:review-translation": "sc:review-translation-protocol"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:review-translation", "expected": "not installed: sc:review-translation; no substitution by sc:troubleshoot"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "troubleshoot-debug", "candidate": "/sc:troubleshoot", "envelope": "Run: /sc:troubleshoot \"placeholder error\""}, "expected": "guide route matched; cache not consulted; cached /sc:troubleshoot never emitted"}
       }
     },
     {

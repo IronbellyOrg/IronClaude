@@ -1,0 +1,9 @@
+# T10 checks
+AC1: grep in docs/developer-guide and docs/architecture (expect none):
+  (end)
+AC2: developer guide converted-command line:
+  docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:976:- All 30 converted commands have an `## Unattended mode` section (16 from phase 1, 14 from phase 2), and `UNATTENDED_EXPECT` in `tests/skills/test_worker_contract.py` holds exactly
+diff stat:
+   docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md   | 6 +++---
+   .../SuperClaude-Developer-Guide-Commands-Skills-Agents.md           | 2 +-
+   2 files changed, 4 insertions(+), 4 deletions(-)
