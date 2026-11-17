@@ -1,0 +1,7 @@
+## test_review_severity_rule
+
+============================== 62 passed in 3.47s ==============================
+## tests/audit red files (plan allows these until Task 8)
+      3 FAILED tests/audit/test_invariant_preservation_NFR_6_through_10.py
+      5 FAILED tests/audit/test_nfr_conv_9_zero_trust.py
+      4 FAILED tests/audit/test_severity_floor_unweakened.py

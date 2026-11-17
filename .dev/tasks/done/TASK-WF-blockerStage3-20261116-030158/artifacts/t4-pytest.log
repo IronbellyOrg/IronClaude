@@ -1,0 +1,13 @@
+## test_review_severity_rule + task_builder_merge
+....................................                                     [100%]
+
+============================= 130 passed in 3.47s ==============================
+## tests/audit (the plan allows two red until Task 8)
+FAILED tests/audit/test_nfr_conv_9_zero_trust.py::TestPassFailBulletsByteIdentical::test_pass_bullet_present_in_source
+FAILED tests/audit/test_nfr_conv_9_zero_trust.py::TestPassFailBulletsByteIdentical::test_fail_bullet_present_in_source
+FAILED tests/audit/test_nfr_conv_9_zero_trust.py::TestPassFailBulletsByteIdentical::test_pass_bullet_present_in_mirror
+FAILED tests/audit/test_nfr_conv_9_zero_trust.py::TestPassFailBulletsByteIdentical::test_fail_bullet_present_in_mirror
+FAILED tests/audit/test_nfr_conv_9_zero_trust.py::TestPassFailBulletsByteIdentical::test_pass_and_fail_bullets_are_adjacent
+============ 8 failed, 1151 passed, 1 skipped, 5 warnings in 3.82s =============
+      3 FAILED tests/audit/test_invariant_preservation_NFR_6_through_10.py
+      5 FAILED tests/audit/test_nfr_conv_9_zero_trust.py

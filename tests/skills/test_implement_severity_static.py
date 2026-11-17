@@ -485,12 +485,11 @@ def test_retry_repair_round_rules():
 def test_p1_output_style_exempts_implement_severity_model():
     # S1-S5 come from the helper shared with tests/skills/test_review_severity_rule.py.
     _s1, s2, _s3, s4, _s5 = canonical_rule_bullets()
-    assert s2 == (
-        "- Minor findings never fail a review: the reviewer records them in its "
-        "report as notes, the verdict is PASS (with notes), and work proceeds. "
-        "Minor findings are not rechecked in later rounds and never trigger a "
-        "fix pass on their own. Only blocking findings produce FAIL."
-    )
+    # S2 changed wording in stage 3; pin its consequences, not the old sentence.
+    assert s2.startswith("- Minor findings never fail a review:")
+    assert "never starts a fix pass" in s2
+    assert "Medium and Note findings are not rechecked in later rounds" in s2
+    assert "Only blocking findings produce FAIL." in s2
     assert s4 == (
         "- A protocol that defines its own severity model, such as "
         "`/sc:implement` (`~/.claude/skills/sc-implement-protocol/refs/qa.md`), "

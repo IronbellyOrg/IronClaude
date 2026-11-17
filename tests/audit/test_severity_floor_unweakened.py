@@ -51,13 +51,19 @@ BASELINE_SLICE_SHA = "770f439517cab45a605f0e098561946f04485d406393567fa8bbeaba9d
 # findings. All blocking findings must be resolved; minor findings are
 # recorded as notes." (cap-edits.yaml row C-003). Rules 1-9 and 11,
 # including Rule 6, are unchanged.
-BASELINE_BLOCK_SHA = "be18e2cf2194b3232c83c77ee6d08c30ad707d10304ff592e5d7e78872e46b1b"  # pragma: allowlist secret
+# Re-pinned 2026-11-17 (stage 3 of issue 552): Rule 6 now grades a
+# contradiction by the review severity rule (a decision basis stays
+# Blocking), Rule 9 carries "Unknown is not no", and Rule 10 carries the
+# three choices at the cap. The 10-line window hash above is unchanged.
+BASELINE_BLOCK_SHA = "e505e83ee712743081088af011e43a714d2ec6cb0e8984a7e068be9cc8c806e7"  # pragma: allowlist secret
 
 # Rule #6 verbatim text (the explicit severity floor).
 RULE_6_TEXT = (
-    "**Contradictions are always IMPORTANT or CRITICAL** — If two sections "
-    "say different things about the same topic, that's never minor. Always "
-    "surface contradictions."
+    "**A contradiction a decision rests on stays Blocking** — If two sections "
+    "say different things about the same topic, always surface it. A "
+    "contradiction nothing rests on is a follow-up; a contradiction that "
+    "touches a decision basis, a quoted number or a required deliverable "
+    "stays Blocking under the Decision condition."
 )
 
 CRITICAL_RULES_HEADER = "## Critical Rules"

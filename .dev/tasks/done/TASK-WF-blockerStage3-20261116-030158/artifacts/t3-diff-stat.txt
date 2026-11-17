@@ -1,0 +1,12 @@
+Paths under src/superclaude and plugins that differ between the Task 3 start snapshot (b1bca508ac1a10dd653d623a966cd452bd39152f) and the tree now (1bcc10b321ff2b0f77204d099744bba4ad21f803), untracked files included (a plain git diff against a tree shows an untracked file of the start tree as deleted, so this uses two trees):
+ src/superclaude/agents/rf-qa-qualitative.md                         | 6 +++---
+ src/superclaude/agents/rf-qa.md                                     | 6 +++---
+ src/superclaude/rules/prompts/automated_qa_workflow_qa_prompt.md    | 4 ++--
+ src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md         | 4 ++--
+ src/superclaude/rules/prompts/documentation_expert_qa_prompt.md     | 4 ++--
+ src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md        | 4 ++--
+ src/superclaude/templates/documents/agent_template_qa.md            | 6 +++---
+ src/superclaude/templates/documents/skill_template.md               | 6 +++---
+ src/superclaude/templates/workflow/01_mdtm_template_generic_task.md | 6 +++---
+ src/superclaude/templates/workflow/02_mdtm_template_complex_task.md | 6 +++---
+ 10 files changed, 26 insertions(+), 26 deletions(-)
