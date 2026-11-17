@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-blockerStage4-20261117-170451
+plan_path: ./TASK-WF-blockerStage4-20261117-170451.md
+source_path: ./source.md
+source_origin: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/stage-requests/stage4-request.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage4-20261117-170451-20261117171500/REPORT.md
+unresolved:
+  - "This contract was written by the stage 0 to 3 worker session on 2026-11-17. The package is a hand copy of TASK-WF-blockerStage4-20261116-030206 with surgical edits (owner decision of 2026-11-17: hold stage 4, revise without regenerating); it is not a fresh /sc:workflow run. The old package is superseded and is not to be run."
+  - "Pre-execution review (/sc:reflect --mode pre, Tier 1, calibrated 0.85): 0 Blocking, 6 Medium, 2 Note, 36 citation units re-read (31 verified, 0 dropped, 5 misstated and corrected). Status partial because the deterministic requirement extraction (Step 1B.0) was not run and the reviewer did not run pytest."
+  - "After the review the plan and source.md were edited again to fix the Medium findings F1, F4 and F6, and then the reflect reviewer task (the plan's Task 4 at review time, with its findings F2 and F3) was removed and moved to the separate package TASK-WF-stage3BRequest-20261117-172514 by the owner's decision of 2026-11-17 (the request's Revision 5 lists all of it). The plan now has 4 tasks with the old numbering; the review covered a 5-task version. Those edits were not re-reviewed; Medium findings are not rechecked. The review's input hash (e130c120a8b61b52e79ebe98a6cb59e4e5f26f56692e37dabca24e18b11fb4f1) therefore no longer matches the files."
+  - "The plan's Task 1 entry gate is in force: it halts until the stage 4 'Owner go' cell of the stage ledger holds a date and an owner statement naming RT1. The owner has not given a stage 4 go (decision on 2026-11-17: hold)."

@@ -1,0 +1,8 @@
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 64 items
+
+tests/skills/test_review_severity_rule.py .............................. [ 46%]
+..................................                                       [100%]
+
+============================== 64 passed in 3.44s ==============================
