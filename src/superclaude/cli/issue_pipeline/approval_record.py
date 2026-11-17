@@ -134,7 +134,79 @@ def _approval_path(directory: Path, issue: int, stage: str, plan_hash: str) -> P
     return directory / name
 
 
-def _read_row(path: Path) -> dict[str, Any] | None:
+_ADOPTION_KEYS = frozenset(
+    {"kind", "issue", "stage", "state", "dispatch_id", "created_at", "updated_at"}
+)
+_APPROVAL_KEYS = frozenset(
+    {
+        "kind",
+        "record_id",
+        "issue",
+        "stage",
+        "plan_hash",
+        "state",
+        "evidence",
+        "created_at",
+        "updated_at",
+    }
+)
+_EVIDENCE_KEYS = frozenset({"channel", "id", "actor", "time"})
+
+
+def _matches(pattern: re.Pattern[str], value: object) -> bool:
+    return isinstance(value, str) and pattern.fullmatch(value) is not None
+
+
+def _valid_evidence(entries: object) -> bool:
+    if not isinstance(entries, list) or not entries:
+        return False
+    seen: set[tuple[str, str]] = set()
+    for e in entries:
+        if not isinstance(e, dict) or set(e) != _EVIDENCE_KEYS:
+            return False
+        if e["channel"] not in CHANNELS or not _matches(_ID, e["id"]):
+            return False
+        if not _matches(_ID, e["actor"]) or not _matches(_TIME, e["time"]):
+            return False
+        if (e["channel"], e["id"]) in seen:
+            return False
+        seen.add((e["channel"], e["id"]))
+    return True
+
+
+def _row_is_valid(
+    row: object, kind: str, issue: int, stage: str, plan_hash: str | None
+) -> bool:
+    """Structural check: exact keys, fixed patterns, and the row names its own file's key."""
+    if not isinstance(row, dict):
+        return False
+    keys = _ADOPTION_KEYS if kind == "adoption" else _APPROVAL_KEYS
+    if set(row) != keys or row["kind"] != kind:
+        return False
+    if row["issue"] != issue or type(row["issue"]) is not int or row["stage"] != stage:
+        return False
+    if not _matches(_TIME, row["created_at"]) or not _matches(_TIME, row["updated_at"]):
+        return False
+    if kind == "adoption":
+        state, dispatch = row["state"], row["dispatch_id"]
+        if state not in ADOPTION_STATES:
+            return False
+        if dispatch is not None and not _matches(_ID, dispatch):
+            return False
+        return (state == "started") == (dispatch is not None) or state == "uncertain"
+    return (
+        row["state"] in APPROVAL_STATES
+        and plan_hash is not None
+        and row["plan_hash"] == plan_hash
+        and row["record_id"] == record_id(issue, plan_hash)
+        and _valid_evidence(row["evidence"])
+    )
+
+
+def _read_row(
+    path: Path, kind: str, issue: int, stage: str, plan_hash: str | None = None
+) -> dict[str, Any] | None:
+    """Read one row; a row that is not exactly the expected shape is ``row-invalid``."""
     try:
         st = os.lstat(path)
     except FileNotFoundError:
@@ -145,10 +217,7 @@ def _read_row(path: Path) -> dict[str, Any] | None:
         row = json.loads(path.read_bytes())
     except (OSError, ValueError):
         raise ApprovalError("row-invalid") from None
-    if not isinstance(row, dict) or row.get("state") not in (
-        *ADOPTION_STATES,
-        *APPROVAL_STATES,
-    ):
+    if not _row_is_valid(row, kind, issue, stage, plan_hash):
         raise ApprovalError("row-invalid")
     return row
 
@@ -175,7 +244,7 @@ def adopt_create(
     d = Path(directory)
     path = _adoption_path(d, issue, stage)
     with _Guard(d):
-        existing = _read_row(path)
+        existing = _read_row(path, "adoption", issue, stage)
         if existing is not None:
             raise ApprovalError(
                 "already-started"
@@ -212,8 +281,8 @@ def adopt_mark(
     if state == "started":
         _need(_ID, dispatch_id or "", "bad-dispatch-id")
     with _Guard(d):
-        row = _read_row(path)
-        if row is None or row.get("kind") != "adoption":
+        row = _read_row(path, "adoption", issue, stage)
+        if row is None:
             raise ApprovalError("no-row")
         if (row["state"], state) not in (
             ("reserved", "started"),
@@ -230,7 +299,9 @@ def adopt_mark(
 
 
 def adopt_show(directory: str | Path, issue: int, stage: str) -> dict[str, Any]:
-    row = _read_row(_adoption_path(Path(directory), issue, stage))
+    row = _read_row(
+        _adoption_path(Path(directory), issue, stage), "adoption", issue, stage
+    )
     if row is None:
         raise ApprovalError("no-row")
     return row
@@ -263,7 +334,7 @@ def record_create(
     _need(_ID, actor, "bad-actor")
     stamp = _need(_TIME, now or _now(), "bad-time")
     with _Guard(d):
-        if _read_row(_adoption_path(d, issue, stage)) is None:
+        if _read_row(_adoption_path(d, issue, stage), "adoption", issue, stage) is None:
             raise ApprovalError("no-adoption")
         evidence = {
             "channel": channel,
@@ -271,7 +342,7 @@ def record_create(
             "actor": actor,
             "time": stamp,
         }
-        row = _read_row(path)
+        row = _read_row(path, "approval", issue, stage, plan_hash)
         if row is None:
             row = {
                 "kind": "approval",
@@ -286,10 +357,15 @@ def record_create(
             }
             _write_row(path, row)
             return {"result": "created", "row": row}
-        if evidence not in row["evidence"]:
-            row["evidence"].append(evidence)
+        # The same GitHub event or comment is one piece of evidence, whatever time a
+        # retry records it at: a replay changes nothing, and so cannot undo a revoke.
+        if any(
+            (e["channel"], e["id"]) == (channel, evidence_id) for e in row["evidence"]
+        ):
+            return {"result": "exists", "row": row}
+        row["evidence"].append(evidence)
         if row["state"] == "revoked":
-            row["state"] = "recorded"
+            row["state"] = "recorded"  # only genuinely new approval evidence reopens
         row["updated_at"] = stamp
         _write_row(path, row)
         return {"result": "exists", "row": row}
@@ -298,7 +374,13 @@ def record_create(
 def record_show(
     directory: str | Path, issue: int, stage: str, plan_hash: str
 ) -> dict[str, Any]:
-    row = _read_row(_approval_path(Path(directory), issue, stage, plan_hash))
+    row = _read_row(
+        _approval_path(Path(directory), issue, stage, plan_hash),
+        "approval",
+        issue,
+        stage,
+        plan_hash,
+    )
     if row is None:
         raise ApprovalError("no-row")
     return row
@@ -319,8 +401,8 @@ def record_mark(
         raise ApprovalError("bad-move")
     stamp = _need(_TIME, now or _now(), "bad-time")
     with _Guard(d):
-        row = _read_row(path)
-        if row is None or row.get("kind") != "approval":
+        row = _read_row(path, "approval", issue, stage, plan_hash)
+        if row is None:
             raise ApprovalError("no-row")
         current = row["state"]
         allowed = (state == "revoked" and current != "revoked") or _FORWARD.get(

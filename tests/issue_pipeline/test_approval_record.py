@@ -313,3 +313,112 @@ def test_the_watcher_record_module_is_not_edited() -> None:
         check=True,
     ).stdout
     assert out.strip() == ""
+
+
+# --- review findings of PR 584: stable evidence identity, revoke, row shape -----
+
+
+def test_the_same_evidence_at_a_later_time_is_not_appended_again(adir: Path) -> None:
+    _adopt_started(adir)
+    ar.record_create(
+        adir, 9, "plan", H1, "label", "evt-1", "u_1", "2026-11-16T10:00:01Z"
+    )
+    again = ar.record_create(
+        adir, 9, "plan", H1, "label", "evt-1", "u_1", "2026-11-16T10:09:59Z"
+    )
+    row = ar.record_show(adir, 9, "plan", H1)
+    assert again["result"] == "exists" and len(row["evidence"]) == 1
+    assert (
+        row["evidence"][0]["time"] == "2026-11-16T10:00:01Z"
+    )  # the first recording stands
+
+
+def test_replaying_old_evidence_does_not_reopen_a_revoked_row(adir: Path) -> None:
+    _adopt_started(adir)
+    _create(adir, "label", "evt-1")
+    ar.record_mark(adir, 9, "plan", H1, "revoked", T)
+    replay = ar.record_create(
+        adir, 9, "plan", H1, "label", "evt-1", "u_1", "2026-11-16T11:00:00Z"
+    )
+    assert replay["row"]["state"] == "revoked"
+    with pytest.raises(ar.ApprovalError) as err:
+        ar.record_mark(
+            adir, 9, "plan", H1, "instructed", T
+        )  # still no continuation without fresh evidence
+    assert err.value.reason == "bad-move"
+    fresh = ar.record_create(adir, 9, "plan", H1, "comment", "c-new", "u_1", T)
+    assert fresh["row"]["state"] == "recorded"  # genuinely new evidence reopens it
+
+
+def _row_path(adir: Path, kind: str) -> Path:
+    return next(adir.glob(f"{kind}-*.json"))
+
+
+@pytest.mark.parametrize(
+    "damage",
+    [
+        lambda r: r.pop("evidence"),
+        lambda r: r.update(junk="x"),
+        lambda r: r.update(evidence=[]),
+        lambda r: r.update(evidence="nope"),
+        lambda r: r.update(evidence=[{"channel": "label", "id": "e1"}]),
+        lambda r: r.update(kind="adoption"),
+        lambda r: r.update(issue=10),
+        lambda r: r.update(plan_hash="b" * 64),
+        lambda r: r.update(record_id="ap-9-plan-ffffffffffff"),
+        lambda r: r.update(state="bogus"),
+        lambda r: r.update(updated_at="yesterday"),
+        lambda r: r.update(evidence=r["evidence"] * 2),  # the same evidence twice
+    ],
+)
+def test_a_structurally_damaged_approval_row_is_a_closed_refusal(
+    adir: Path, damage
+) -> None:
+    _adopt_started(adir)
+    _create(adir, "label", "e1")
+    path = _row_path(adir, "approval")
+    row = json.loads(path.read_text())
+    damage(row)
+    path.write_text(json.dumps(row))
+    for call in (
+        lambda: ar.record_show(adir, 9, "plan", H1),
+        lambda: _create(adir, "comment", "c1"),
+        lambda: ar.record_mark(adir, 9, "plan", H1, "instructed", T),
+    ):
+        with pytest.raises(ar.ApprovalError) as err:
+            call()
+        assert err.value.reason == "row-invalid"
+    shown = CliRunner().invoke(
+        issue_pipeline_group,
+        ["record-show", str(adir), "--issue", "9", "--plan-hash", H1],
+    )
+    assert (shown.exit_code, shown.output.strip()) == (1, "refused:row-invalid")
+
+
+@pytest.mark.parametrize(
+    "damage",
+    [
+        lambda r: r.pop("dispatch_id"),
+        lambda r: r.update(extra=1),
+        lambda r: r.update(state="started", dispatch_id=None),
+        lambda r: r.update(state="reserved", dispatch_id="ctx_1"),
+        lambda r: r.update(stage="other"),
+        lambda r: r.update(kind="approval"),
+    ],
+)
+def test_a_structurally_damaged_adoption_row_is_a_closed_refusal(
+    adir: Path, damage
+) -> None:
+    ar.adopt_create(adir, 9, "plan", T)
+    path = _row_path(adir, "adoption")
+    row = json.loads(path.read_text())
+    damage(row)
+    path.write_text(json.dumps(row))
+    for call in (
+        lambda: ar.adopt_show(adir, 9, "plan"),
+        lambda: ar.adopt_create(adir, 9, "plan", T),
+        lambda: ar.adopt_mark(adir, 9, "plan", "started", "ctx_2", T),
+    ):
+        with pytest.raises(ar.ApprovalError) as err:
+            call()
+        assert err.value.reason == "row-invalid"
