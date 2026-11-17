@@ -478,13 +478,16 @@ _DISPATCH_ID = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.:-]{0,127}")
 
 def _read_payload(payload: Any, sender: Any) -> tuple[Any, Any, str]:
     """``(ask, dispatch_id, link)`` from one question payload; never raises, never keeps it."""
+    # A string longer than the cap in characters is longer in bytes too (a character is at
+    # least one byte), so the huge case is refused before any copy of it is made.
+    if isinstance(payload, str) and len(payload) > PAYLOAD_CAP:
+        return UNKNOWN, UNKNOWN, LINK_NOT_READABLE
     if payload is None or (isinstance(payload, str) and not payload.strip()):
         return UNKNOWN, UNKNOWN, LINK_NO_PAYLOAD
     data = payload
     if isinstance(payload, str):
-        if (
-            len(payload.encode("utf-8", "surrogatepass")) > PAYLOAD_CAP
-        ):  # bytes, not characters
+        # at most PAYLOAD_CAP characters here, so this copy is at most 4 times the cap
+        if len(payload.encode("utf-8", "surrogatepass")) > PAYLOAD_CAP:  # bytes
             return UNKNOWN, UNKNOWN, LINK_NOT_READABLE
         try:
             data = json.loads(payload)

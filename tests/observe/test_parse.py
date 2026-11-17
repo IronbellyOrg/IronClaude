@@ -788,6 +788,20 @@ def test_markup_and_escapes_in_the_question_come_out_as_inert_text():
     assert all(unicodedata.category(ch) not in ("Cc", "Cf", "Cs") for ch in row.ask)
 
 
+def test_a_payload_over_the_cap_in_characters_is_refused_before_any_copy_is_made():
+    from superclaude.cli.observe.parse import PAYLOAD_CAP, _read_payload
+
+    class NoCopy(str):
+        def encode(self, *args, **kwargs):
+            raise AssertionError("an oversized payload must not be encoded")
+
+        def strip(self, *args, **kwargs):
+            raise AssertionError("an oversized payload must not be stripped")
+
+    ask, dispatch, state = _read_payload(NoCopy("x" * (PAYLOAD_CAP + 1)), "dispatch:a")
+    assert (ask, dispatch, state) == (UNKNOWN, UNKNOWN, "payload not readable")
+
+
 def test_with_the_link_switch_off_the_payload_is_not_read():
     row = _read(question_payload("disp_a", "q?"), link=False)
     assert (row.ask, row.dispatch_id, row.link) == (UNKNOWN, UNKNOWN, "")
