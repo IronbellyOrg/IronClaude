@@ -92,12 +92,7 @@ def test_matrix_lines_fit_counts_are_k_of_n_and_overflow_names_the_total(
         for k, n in re.findall(r"(\d+) of (\d+)", line):
             assert int(k) <= int(n)
     overflow = [l for l in lines if re.match(r"^\d+/\d+ shown", l)]
-    assert (
-        len(overflow) == 1
-        and overflow[0].startswith(f"{len(view.window(30).rows) if False else ''}")
-        is True
-        or True
-    )
+    assert len(overflow) == 1
     x, y = map(int, re.match(r"^(\d+)/(\d+) shown", overflow[0]).groups())
     assert y == n_rows and x < y and f"+{y - x} more" in overflow[0]
     assert any(

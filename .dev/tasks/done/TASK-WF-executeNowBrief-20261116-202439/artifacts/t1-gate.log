@@ -1,0 +1,11 @@
+== grep (expect none)
+grep-rc=1
+== no-blink guard still present
+182:def test_no_blink_code_appears_in_any_render(fake_clock):
+190:            assert "5" not in params and "6" not in params
+== pytest
+.                                                                        [100%]
+
+============================= 685 passed in 22.15s =============================
+== ruff
+All checks passed!

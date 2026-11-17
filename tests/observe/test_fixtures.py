@@ -14,12 +14,20 @@ import pytest
 from superclaude.cli.observe.parse import (
     FIXTURE_PACKAGE,
     VARIANTS,
+    apply_frozen,
     load_fixture,
     parse_page,
 )
 from tests.observe.conftest import FakeClock, argv_allowed
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def parse_cycle(fixture, index, namespace, cycle, source_rank_base=0):
+    """Parse a non-failing fixture cycle with ``parse_page``, then mark its frozen rows."""
+    entry = fixture.cycle(index)
+    parsed = parse_page(entry.envelope, namespace, cycle, source_rank_base)
+    return apply_frozen(parsed, entry.frozen, source_rank_base)
 
 
 def fixture_files():
@@ -41,7 +49,7 @@ def test_every_variant_loads_and_every_cycle_parses(variant):
         if cycle.fail is not None:
             assert cycle.envelope is None and cycle.fail
             continue
-        page = fixture.parse(index, f"fixture:{variant}", index + 1)
+        page = parse_cycle(fixture, index, f"fixture:{variant}", index + 1)
         assert page.raw_count == len(cycle.envelope["result"]["workers"])
 
 
@@ -138,7 +146,7 @@ def test_duplicate_variant_has_duplicates_untimed_rows_and_a_backward_timestamp(
 
 def test_a_frozen_fixture_row_comes_out_of_the_loader_with_fixture_frozen_true():
     fixture = load_fixture("base")
-    page = fixture.parse(0, "fixture:base", 1)
+    page = parse_cycle(fixture, 0, "fixture:base", 1)
     frozen = [r.dispatch_id for r in page.rows if r.fixture_frozen]
     assert frozen == ["w-003"]
     assert "fixtureOnly" not in fixture.cycle(0).envelope["result"]["workers"][2]
@@ -146,7 +154,7 @@ def test_a_frozen_fixture_row_comes_out_of_the_loader_with_fixture_frozen_true()
     # source-rank offsets are honoured
     assert [
         r.dispatch_id
-        for r in fixture.parse(0, "fixture:base", 1, 100).rows
+        for r in parse_cycle(fixture, 0, "fixture:base", 1, 100).rows
         if r.fixture_frozen
     ] == ["w-003"]
 

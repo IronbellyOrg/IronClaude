@@ -659,20 +659,8 @@ def test_exactly_100_rows_sets_window_full_in_the_retained_state(fake_clock, arg
     assert collector.run_once().questions.window_full is False
 
 
-def test_a_fixture_source_has_no_question_fixture_unless_one_is_supplied(fake_clock):
+def test_a_fixture_source_has_no_question_fixture(fake_clock):
     plain = Collector(FixtureSource("base"), fake_clock, run_id=QRUN, questions=True)
     result = plain.run_once()
     assert result.state == "OK" and result.question_state == "FAILED"
     assert result.question_code == "no-question-fixture"
-    synthetic = [json.loads(question_reply((1, 2))[1]), {"fail": "timeout"}]
-    supplied = Collector(
-        FixtureSource("base", question_fixture=synthetic),
-        fake_clock,
-        run_id=QRUN,
-        questions=True,
-    )
-    first = supplied.run_once()
-    assert first.question_state == "OK" and first.questions.retained == 2
-    second = supplied.run_once()
-    assert (second.question_state, second.question_code) == ("FAILED", "timeout")
-    assert second.questions is first.questions

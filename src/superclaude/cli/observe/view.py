@@ -206,7 +206,6 @@ class QuestionsPanel:
     counts_line: str
     caveat_line: str  # the source has no read marker
     header_cell: str  # the freshness-strip cell, with the same state words
-    count_text: str  # the count as a phrase, never a bare number when it may be partial
     lines: tuple[QuestionLine, ...]  # oldest created first
     empty_text: str | None
     window_full_text: str | None
@@ -729,7 +728,6 @@ def _questions_panel(result: Any, clock: Any) -> QuestionsPanel | None:
         counts_line=counts_line,
         caveat_line=QUESTIONS_NO_MARKER,
         header_cell=header_cell,
-        count_text=open_text,
         lines=lines,
         empty_text=empty_text,
         window_full_text=QUESTIONS_WINDOW_FULL if window_full else None,

@@ -22,7 +22,6 @@ RETENTION_BOUND = 1000
 WINDOW_ROWS = 100  # one read returning exactly this many rows may have lost older ones
 NO_LONGER_IN_WINDOW = "no longer in source window"
 RETENTION_EXCEEDED = "unknown (retention exceeded)"
-CLOSURE_EVIDENCE = "unavailable (no source)"
 
 
 @dataclass(frozen=True)
@@ -66,14 +65,6 @@ class QuestionState:
     @property
     def open_total_text(self) -> str:
         return RETENTION_EXCEEDED if self.evicted else str(len(self.records))
-
-    @property
-    def closure_evidence(self) -> str:
-        return CLOSURE_EVIDENCE
-
-    @property
-    def never_read(self) -> bool:
-        return self.last_read_cycle == 0
 
 
 def _order(record: QuestionRecord) -> tuple:

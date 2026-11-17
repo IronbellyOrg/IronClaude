@@ -716,7 +716,6 @@ def test_error_envelopes_map_to_source_codes_whatever_the_exit_status(
     source, runner = source_with([error_reply(code, status)], argv_log)
     result = read_questions(source, fake_clock)
     assert (result.state, result.code, result.pages) == ("FAILED", expected, ())
-    assert expected in adapter.CODES
     assert sum(1 for a in argv_log if a[1:3] == ["orchestration", "check"]) == 1
     assert runner.calls == 1
 

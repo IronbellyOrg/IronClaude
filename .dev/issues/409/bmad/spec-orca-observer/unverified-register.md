@@ -24,7 +24,7 @@ The MVP (R0, R1) needs exactly one live source.
 
 ## Candidate message verb (behind QUESTION-OBSERVATION only)
 
-`check --all --types question --run <runId> --json`, for one named Run, is a candidate, never an available source, until the open items in `release-gates.md` (QUESTION-OBSERVATION: not passed) are recorded. Not used in R0 or R1: `check --peek`, the candidate `check --all`, `inbox`. Unfiltered `check --all` and `--peek` are not allowed in any R2 argv; plain `check`, `--ack` and `run-use` are never run.
+`check --all --types question --run <runId> --json`, for one named Run, is an available source only under the owner-written record `.dev/issues/409/owner-pass-record-20261112.md` (QUESTION-OBSERVATION: passed 2026-11-12; the open items in `release-gates.md` stay open). Not used in R0 or R1: `check --peek`, the candidate `check --all`, `inbox`. Unfiltered `check --all` and `--peek` are not allowed in any R2 argv; plain `check`, `--ack` and `run-use` are never run.
 
 ## Seen on probe Runs and the coordinator's own Run only
 

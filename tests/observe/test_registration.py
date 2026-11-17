@@ -35,7 +35,12 @@ def test_observe_help_lists_every_option():
     assert "never runs run-use" in " ".join(result.output.split())
 
 
-def test_questions_through_the_shipped_cli_is_refused_while_the_gate_guard_is_off():
+def test_questions_through_the_shipped_cli_is_refused_while_the_gate_guard_is_off(
+    monkeypatch,
+):
+    import superclaude.cli.observe.commands as commands
+
+    monkeypatch.setattr(commands, "QUESTION_GATE_PASSED", False)
     result = CliRunner().invoke(
         main, ["observe", "--once", "--run", "run_x", "--questions"]
     )

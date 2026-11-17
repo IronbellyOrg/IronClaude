@@ -94,14 +94,11 @@ class FixtureSource:
 
     mode = "fixture"
 
-    def __init__(self, variant: str, question_fixture: list | None = None) -> None:
+    def __init__(self, variant: str) -> None:
         self.variant = variant
         self._fixture = load_fixture(variant)
         self._index = 0
         self.frozen_positions: frozenset = frozenset()  # of the cycle read last
-        # SYNTHETIC question cycles: each an envelope dict or ``{"fail": <code>}``.
-        self._question_fixture = question_fixture
-        self._question_index = 0
 
     @property
     def available(self) -> bool:
@@ -128,16 +125,8 @@ class FixtureSource:
     def read_questions(
         self, clock: Any, budget_deadline: float, run_id: str
     ) -> SourceResult:
-        """Replay the supplied synthetic question cycles, else fail with a plain code."""
-        if not self._question_fixture:
-            return SourceResult("FAILED", code="no-question-fixture")
-        entry = self._question_fixture[
-            min(self._question_index, len(self._question_fixture) - 1)
-        ]
-        self._question_index += 1
-        if isinstance(entry, dict) and "fail" in entry and "result" not in entry:
-            return SourceResult("FAILED", code=str(entry["fail"]))
-        return SourceResult("OK", pages=(entry,), calls=1)
+        """A fixture source has no question fixture: fail with a plain code."""
+        return SourceResult("FAILED", code="no-question-fixture")
 
 
 class Collector:

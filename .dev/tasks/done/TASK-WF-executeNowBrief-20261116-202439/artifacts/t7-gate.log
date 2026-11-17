@@ -1,0 +1,18 @@
+== grep (each pattern expected to match nothing)
+none: count_text
+== pytest
+.                                                                        [100%]
+
+============================= 685 passed in 22.50s =============================
+== ruff
+All checks passed!
+== open_text still used (counts line and header cell)
+649:        open_text = "unknown (no question read yet)"
+655:        open_text = retained.open_total_text
+657:            open_text += f" (retained {retained.retained})"
+660:            open_text = f"{retained.open_total}+ (window full)"
+662:            open_text = QUESTIONS_EMPTY_COUNT
+692:    counts_line = f"{QUESTIONS_COUNT_LABEL}: {open_text} | {QUESTIONS_CLOSED}"
+717:        f"coordinator questions: {QUESTIONS_COUNT_LABEL} {open_text}; {status}; "
+== golden file diff (expect empty)
+(end)

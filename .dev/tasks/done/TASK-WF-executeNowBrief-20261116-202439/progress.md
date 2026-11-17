@@ -1,0 +1,28 @@
+# implement ledger — source: ./TASK-WF-executeNowBrief-20261116-202439.md — created: 2026-11-16T21:46:35Z
+PLAN: sha256=99fb15fb7d7ce4e152d181f3e079a3e87ddeaeb87c8d8a414cd36420bf1b8200 source_sha256=0a3d81a3dab64165ee0b26f2fd254959124e0efcf6ecc9b0ea9ef59a94a66ccf
+T1: start sha=5660b16cdd9e54e06b65f186020f0844ce495e19
+T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3,T1.AC4 evidence=T1.AC1@src/superclaude/cli/observe/terminal.py:123,T1.AC2@tests/observe/test_render.py:182,T1.AC3@./artifacts/t1-gate.log:9,T1.AC4@./artifacts/baseline-status.txt:1 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/observe/terminal.py,tests/observe/test_terminal.py,.dev/tasks/to-do/TASK-WF-executeNowBrief-20261116-202439/artifacts/baseline-status.txt
+T2: start sha=7980f38fe2c522e8932969aab8b44e68fe32d8ad
+T2: complete verdict=compliant ac=T2.AC1,T2.AC2,T2.AC3 evidence=T2.AC1@src/superclaude/cli/observe/adapter.py:65,T2.AC2@tests/observe/test_adapter.py:718,T2.AC3@./artifacts/t2-gate.log:6 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/observe/adapter.py,tests/observe/test_adapter.py
+T3: start sha=9865e9e9d8118b38b379c1ff6e51dae26c9b52ca
+T3: complete verdict=compliant ac=T3.AC1,T3.AC2,T3.AC3 evidence=T3.AC1@src/superclaude/cli/observe/parse.py:714,T3.AC2@tests/observe/test_fixtures.py:26,T3.AC3@./artifacts/t3-gate.log:7 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/observe/parse.py,tests/observe/test_fixtures.py
+T4: start sha=760423ddaf15875c0573b3b054184d2fa0961607
+T4: complete verdict=compliant ac=T4.AC1,T4.AC2,T4.AC3 evidence=T4.AC1@src/superclaude/cli/observe/commands.py:14,T4.AC2@tests/observe/test_questions.py:46,T4.AC3@./artifacts/t4-gate.log:10 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/observe/questions.py,src/superclaude/cli/observe/commands.py,tests/observe/test_questions.py
+T5: start sha=736b212197b8efab08d1fff3876cb6759f53d3f8
+T5: complete verdict=compliant ac=T5.AC1,T5.AC2,T5.AC3 evidence=T5.AC1@src/superclaude/cli/observe/collector.py:129,T5.AC2@src/superclaude/cli/observe/collector.py:125,T5.AC3@./artifacts/t5-gate.log:11 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/observe/collector.py,tests/observe/test_collector.py
+T6: start sha=081cf949ba9dd6b478f54815fe09167cc50cf6fa
+T6: complete verdict=compliant ac=T6.AC1,T6.AC2,T6.AC3 evidence=T6.AC1@src/superclaude/cli/observe/parse.py:155,T6.AC2@tests/observe/test_parse.py:188,T6.AC3@./artifacts/t6-gate.log:8 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/observe/parse.py
+T7: start sha=36388c552504064bbc9ae8e4d38a3117fefe3ef4
+T7: complete verdict=compliant ac=T7.AC1,T7.AC2,T7.AC3 evidence=T7.AC1@src/superclaude/cli/observe/view.py:692,T7.AC2@src/superclaude/cli/observe/export.py:165,T7.AC3@./artifacts/t7-gate.log:6 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/observe/view.py
+T8: start sha=67bc121890a07fa3adaf6fa0a7803f63948c1a54
+T8: complete verdict=compliant ac=T8.AC1,T8.AC2,T8.AC3 evidence=T8.AC1@tests/observe/conftest.py:26,T8.AC2@tests/observe/test_snapshot_schema.py:59,T8.AC3@./artifacts/t8-gate.log:7 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/observe/export.py,tests/observe/conftest.py,tests/observe/test_commands.py,tests/observe/test_snapshot_schema.py
+T9: start sha=d172849bf407ec62836f7c8de0f9a0829bd27faf
+T9: complete verdict=compliant ac=T9.AC1,T9.AC2,T9.AC3,T9.AC4 evidence=T9.AC1@tests/observe/test_render.py:95,T9.AC2@tests/observe/test_question_quiet_scope.py:137,T9.AC3@tests/observe/test_golden_contract.py:213,T9.AC4@./artifacts/t9-gate.log:7 extras=lint:pass,typecheck:skip,test:pass files=tests/observe/test_render.py,tests/observe/test_question_quiet_scope.py,tests/observe/test_golden_contract.py
+T10: start sha=da7febe1d0d070ec09a74c6ec15a00ecda21ef54
+T10: complete verdict=compliant ac=T10.AC1,T10.AC2,T10.AC3 evidence=T10.AC1@src/superclaude/cli/observe/commands.py:69,T10.AC2@tests/observe/test_commands.py:755,T10.AC3@./artifacts/t10-gate.log:5 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/observe/commands.py,.dev/issues/409/bmad/prd-orca-observer/prd.md,.dev/issues/409/bmad/spec-orca-observer/unverified-register.md,.dev/issues/409/bmad/spec-orca-observer/adapter-contract.md,.dev/issues/409/bmad/spec-orca-observer/rendering-rules.md
+T11: start sha=555688d0d4fcc758d3cb236581f152029bf5675b
+T11: complete verdict=compliant ac=T11.AC1,T11.AC2,T11.AC3 evidence=T11.AC1@.dev/issues/409/bmad/spec-orca-observer/SPEC.md:104,T11.AC2@.dev/issues/409/bmad/spec-orca-observer/owner-decisions-and-risks.md:22,T11.AC3@./artifacts/t11-gate.log:5 extras=lint:pass,typecheck:skip,test:pass files=.dev/issues/409/bmad/spec-orca-observer/SPEC.md,.dev/issues/409/bmad/spec-orca-observer/owner-decisions-and-risks.md,.dev/issues/409/bmad/prd-orca-observer/prd.md
+T12: start sha=d439ffdf0cf3ceb3bacf1bc5f191ebb59a07f74f
+T12: complete verdict=compliant ac=T12.AC1,T12.AC2,T12.AC3 evidence=T12.AC1@.dev/issues/409/bmad/spec-orca-observer/acceptance-tests.md:25,T12.AC2@.dev/issues/409/bmad/spec-orca-observer/acceptance-tests.md:51,T12.AC3@./artifacts/t12-gate.log:5 extras=lint:pass,typecheck:skip,test:pass files=.dev/issues/409/bmad/spec-orca-observer/acceptance-tests.md
+FINAL: pass evidence=src/superclaude/cli/observe/terminal.py:123,tests/observe/conftest.py:26,.dev/issues/409/bmad/spec-orca-observer/acceptance-tests.md:25,./artifacts/t12-gate.log:5 state=6376c3969901138be0bfcf7665b7b3f2fd9796fc1c59f8748e8d8c2c738b2abb
+ARCHIVE: start id=TASK-WF-executeNowBrief-20261116-202439 token=8f49ee5a96048e49

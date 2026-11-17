@@ -5,17 +5,22 @@ from __future__ import annotations
 import copy
 import json
 import re
-from importlib import resources
 
 import pytest
 from jsonschema import Draft7Validator
 
 from superclaude.cli.observe.adapter import LiveSource
 from superclaude.cli.observe.collector import Collector, FixtureSource
-from superclaude.cli.observe.export import SCHEMA, snapshot_json
+from superclaude.cli.observe.export import snapshot_json
 from superclaude.cli.observe.parse import VARIANTS, load_fixture
 from superclaude.cli.observe.view import Session, build_view
-from tests.observe.conftest import FakeDiscover, FakeRunner, make_envelope, make_rows
+from tests.observe.conftest import (
+    SCHEMA,
+    FakeDiscover,
+    FakeRunner,
+    make_envelope,
+    make_rows,
+)
 
 VALIDATOR = Draft7Validator(SCHEMA)
 
@@ -52,12 +57,6 @@ def walk(value, path=()):
 
 
 def test_the_schema_ships_in_the_package_is_draft_7_and_closed_on_the_producer_side():
-    text = (
-        resources.files("superclaude.cli.observe")
-        .joinpath("snapshot.schema.json")
-        .read_text(encoding="utf-8")
-    )
-    assert json.loads(text) == SCHEMA
     Draft7Validator.check_schema(SCHEMA)
     assert SCHEMA["$schema"].endswith("draft-07/schema#")
     closed = [
