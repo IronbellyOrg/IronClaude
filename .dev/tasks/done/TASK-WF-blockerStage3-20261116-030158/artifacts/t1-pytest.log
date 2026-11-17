@@ -1,0 +1,18 @@
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 12 items
+
+tests/review/test_review_fixcheck.py::test_run2_unescaped_pipe_in_backticked_command_is_detected PASSED [  8%]
+tests/review/test_review_fixcheck.py::test_escaped_pipe_passes PASSED    [ 16%]
+tests/review/test_review_fixcheck.py::test_quote_check_finds_and_misses_cited_text PASSED [ 25%]
+tests/review/test_review_fixcheck.py::test_count_check_compares_stated_rows_with_the_table_below PASSED [ 33%]
+tests/review/test_review_fixcheck.py::test_link_check_skips_urls_and_anchors PASSED [ 41%]
+tests/review/test_review_fixcheck.py::test_every_check_that_ran_is_reported_including_passes PASSED [ 50%]
+tests/review/test_review_fixcheck.py::test_edited_lines_from_a_base_copy PASSED [ 58%]
+tests/review/test_review_fixcheck.py::test_command_prints_one_line_per_check_and_totals_and_exits_zero PASSED [ 66%]
+tests/review/test_review_fixcheck.py::test_command_with_base_and_several_files PASSED [ 75%]
+tests/review/test_review_fixcheck.py::test_it_edits_no_file PASSED       [ 83%]
+tests/review/test_review_fixcheck.py::test_usage_errors_exit_two PASSED  [ 91%]
+tests/review/test_review_fixcheck.py::test_help_exits_zero_and_review_help_lists_every_subcommand PASSED [100%]
+
+============================== 12 passed in 0.35s ==============================
