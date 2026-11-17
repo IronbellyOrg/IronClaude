@@ -417,6 +417,7 @@ from tests.observe.conftest import (  # noqa: E402
     make_question_envelope,
     make_question_error,
     make_question_rows,
+    question_payload,
     routed_runner_responses,
 )
 
@@ -442,6 +443,40 @@ def ok_pair(rows):
 def questions_snapshot(message, clock, cycles=1):
     _, result = question_cycle(message, clock, cycles)
     return json.loads(snapshot_json(build_view(result, Session(), clock)))
+
+
+def linked_snapshot(clock, link):
+    """Snapshot text of a view whose questions link to a worker that is among the rows."""
+    rows = make_question_rows(
+        2, payload=question_payload("w-001", "Distinctive question text DQ-4711?")
+    )
+    _, result = question_cycle(ok_pair(rows), clock, link=link)
+    return snapshot_json(build_view(result, Session(), clock))
+
+
+def test_the_snapshot_of_a_linked_question_has_no_text_and_no_question_dispatch_id(
+    fake_clock,
+):
+    text = linked_snapshot(fake_clock, True)
+    snapshot = json.loads(text)
+    assert "DQ-4711" not in text and "Distinctive" not in text
+    assert not list(VALIDATOR.iter_errors(snapshot))
+    group = json.dumps(snapshot["questions"])
+    assert "w-001" not in group and "dispatchId" not in group  # nothing from the link
+    # the legitimate worker rows keep their ids, including the linked worker's
+    assert "w-001" in [row["dispatchId"] for row in snapshot["rows"]]
+    assert set(snapshot["questions"]["items"][0]) == {
+        "id",
+        "createdAt",
+        "ageSeconds",
+        "inWindow",
+    }
+
+
+def test_the_snapshot_with_the_link_on_is_byte_identical_to_the_link_off_snapshot(
+    fake_clock,
+):
+    assert linked_snapshot(fake_clock, True) == linked_snapshot(fake_clock, False)
 
 
 def test_a_snapshot_with_questions_on_validates_and_keeps_schema_version_1(fake_clock):

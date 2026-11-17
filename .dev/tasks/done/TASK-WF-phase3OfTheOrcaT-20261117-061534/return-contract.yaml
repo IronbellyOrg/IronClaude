@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-phase3OfTheOrcaT-20261117-061534
+plan_path: ./TASK-WF-phase3OfTheOrcaT-20261117-061534.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-phase3OfTheOrcaT-20261117062037/REPORT.md
+unresolved:
+  - "Advisory reflect verdict FAIL: 3 blocking findings (C-001 --once path misses link switch, C-002 keys line changes link-off screen, C-003 snapshot check cannot pass) and 2 open high invariants (INV-008, INV-021). Plan was not edited. Apply the edits in the reflect REPORT.md before /sc:implement."

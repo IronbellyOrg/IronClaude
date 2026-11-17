@@ -836,3 +836,187 @@ def test_the_latest_empty_read_is_said_when_older_rows_are_listed(fake_clock):
     assert "latest read returned 0 questions; the rows below are older" in flat
     assert flat.count("reason unknown") == 2 and "no questions" not in flat.lower()
     assert dataclasses.is_dataclass(result)
+
+
+# -- R3: the question text and the Decision Desk on screen (T60, T61, T66) ---------------------------------
+
+from superclaude.cli.observe.view import (  # noqa: E402
+    DESK_HIDDEN,
+    DESK_SELECTED_HIDDEN,
+    DESK_TITLE,
+    DESK_UNKNOWN_SCOPE,
+    QUESTIONS_LINK_KEYS_LINE,
+)
+from tests.observe.conftest import question_payload  # noqa: E402
+
+
+def r3_rows(specs, start=0):
+    rows = []
+    for index, (dispatch, text) in enumerate(specs, start):
+        rows += make_question_rows(
+            1, start=index, payload=question_payload(dispatch, text)
+        )
+    return rows
+
+
+def r3_screen(
+    clock,
+    rows,
+    selected=0,
+    width=160,
+    height=40,
+    ascii=False,
+    no_color=False,
+    workers=3,
+):
+    """(lines, view) of a link-on questions screen with question ``selected`` chosen."""
+    worker = (0, json.dumps(make_envelope(make_rows(workers, 1), total=workers)))
+    runner = FakeRunner([], [routed_runner_responses(worker, ok_message(rows))])
+    result = Collector(
+        LiveSource(runner, FakeDiscover([])),
+        clock,
+        run_id=QRUN,
+        questions=True,
+        link=True,
+    ).run_once()
+    session = Session(
+        selected_question=None if selected is None else (QRUN, f"msg_{selected:012x}")
+    )
+    view = build_view(result, session, clock)
+    policy = policy_for(width, height=height, ascii=ascii, no_color=no_color)
+    return screen_lines(view, policy), view
+
+
+@pytest.mark.parametrize("width", WIDTHS)
+def test_r3_the_selected_question_has_the_selected_glyph_and_the_desk_follows(
+    fake_clock, width
+):
+    lines, view = r3_screen(
+        fake_clock, r3_rows([("w-001", "first?"), ("w-002", "second?")]), 1, width
+    )
+    marked = [ln for ln in lines if ln.startswith("▸ ")]
+    assert len(marked) == 1 and "second?" in marked[0]
+    assert all(cell_len(ln) <= width for ln in lines)
+    assert DESK_TITLE in lines and view.desk.ask == "second?"
+    flat = flat_of(lines)
+    assert "dispatchId: w-002" in flat and "resource.worktreeId:" in flat
+    ascii_lines, _ = r3_screen(
+        fake_clock, r3_rows([("w-001", "first?")]), 0, width, ascii=True
+    )
+    assert any(ln.startswith("@ ") for ln in ascii_lines)
+    assert "\n".join(ascii_lines).isascii()
+
+
+@pytest.mark.parametrize(
+    ("payload", "sender", "reason"),
+    [
+        (None, "dispatch:w-001", "no payload"),
+        ("{bad", "dispatch:w-001", "payload not readable"),
+        (json.dumps({"question": "q?"}), "dispatch:w-001", "payload has no dispatchId"),
+        (question_payload("w-001", "q?"), "term_x", "sender mismatch"),
+    ],
+)
+def test_r3_each_unlinked_text_shows_in_the_desk(fake_clock, payload, sender, reason):
+    rows = make_question_rows(1, payload=payload, from_handle=sender)
+    for width in WIDTHS:
+        lines, _ = r3_screen(fake_clock, rows, 0, width)
+        flat = flat_of(lines)
+        assert DESK_TITLE in lines and DESK_UNKNOWN_SCOPE in flat and reason in flat
+        assert "dispatchId:" not in flat  # no session fields without a link
+        assert all(cell_len(ln) <= width for ln in lines)
+
+
+@pytest.mark.parametrize("width", (116, 80))
+def test_r3_every_linked_question_line_keeps_age_state_and_reason_unknown(
+    fake_clock, width
+):
+    rows = r3_rows([("w-001", "x" * 300), ("w-002", "short?")])
+    lines, _ = r3_screen(fake_clock, rows, None, width, height=60)
+    question_lines = [ln for ln in lines if "reason unknown" in ln]
+    assert len(question_lines) == 2
+    for ln in question_lines:
+        assert ln.endswith("reason unknown") and cell_len(ln) <= width
+    assert "..." in question_lines[0] or "x" * 20 in question_lines[0]
+    assert re.match(r"^\s*\d+[smh]  ", question_lines[0])  # the age stays
+
+
+def test_r3_a_long_question_shows_a_visible_mark_in_the_desk_and_on_the_list(
+    fake_clock,
+):
+    rows = r3_rows([("w-001", "word " * 200)])
+    lines, view = r3_screen(fake_clock, rows, 0, 160, height=60)
+    listed = [ln for ln in lines if ln.endswith("reason unknown")]
+    assert listed and "..." in listed[0]
+    desk = lines[lines.index(DESK_TITLE) :]
+    text_lines = desk[
+        2 : next(i for i, ln in enumerate(desk) if ln.startswith("dispatchId:"))
+    ]
+    assert 1 <= len(text_lines) <= 4 and text_lines[-1].endswith("...")
+    assert all(cell_len(ln) <= 160 for ln in lines)
+
+
+def test_r3_the_desk_text_is_bounded_to_four_lines_with_a_mark_at_80_columns(
+    fake_clock,
+):
+    rows = r3_rows([("w-001", "word " * 200)])
+    lines, _ = r3_screen(fake_clock, rows, 0, 80, height=70)
+    desk = lines[lines.index(DESK_TITLE) :]
+    end = next(i for i, ln in enumerate(desk) if ln.startswith("dispatchId:"))
+    text_lines = desk[2:end]
+    assert len(text_lines) == 4 and text_lines[-1].endswith("...")
+    assert all(cell_len(ln) <= 80 for ln in lines)
+
+
+def test_r3_a_hostile_question_text_is_inert_on_screen(fake_clock):
+    hostile = "[bold]x[/bold] \x1b[31mred 日本語の質問 😀 \x9b0m end"
+    for width in WIDTHS:
+        lines, _ = r3_screen(fake_clock, r3_rows([("w-001", hostile)]), 0, width)
+        text = "\n".join(lines)
+        assert bad_chars(text) == [] and "[bold]x[/bold]" in text
+        assert all(cell_len(ln) <= width for ln in lines)
+        assert "\x1b" not in printed(
+            r3_screen(
+                fake_clock, r3_rows([("w-001", hostile)]), 0, width, no_color=True
+            )[1],
+            policy_for(width, no_color=True),
+        )
+
+
+def test_r3_no_color_output_has_no_escape_code(fake_clock):
+    _, view = r3_screen(fake_clock, r3_rows([("w-001", "q?")]), 0, no_color=True)
+    assert "\x1b" not in printed(view, policy_for(160, no_color=True))
+
+
+def test_r3_the_desk_gives_way_to_its_notice_and_the_list_is_kept(fake_clock):
+    rows = r3_rows([("w-001", "first?"), ("w-002", "second?")])
+    seen = {"desk": 0, "notice": 0, "collapsed": 0}
+    for height in range(8, 61):
+        lines, _ = r3_screen(fake_clock, rows, 0, 116, height=height)
+        flat = flat_of(lines)
+        listed = sum("reason unknown" in ln for ln in lines)
+        if DESK_TITLE in lines:
+            seen["desk"] += 1
+            assert listed >= 1 and DESK_HIDDEN not in flat  # the list keeps a line
+        elif DESK_HIDDEN in flat and listed:
+            seen["notice"] += 1
+            assert listed >= 1 and DESK_TITLE not in lines
+        elif DESK_HIDDEN in flat:
+            seen["collapsed"] += 1  # the one-line summary names the hidden desk
+            assert "coordinator questions:" in flat
+    assert all(seen.values()), seen
+
+
+def test_r3_a_selection_beyond_the_shown_window_is_signalled(fake_clock):
+    rows = r3_rows([("w-001", f"q{i}?") for i in range(20)])
+    lines, _ = r3_screen(fake_clock, rows, 19, 120, height=26)
+    flat = flat_of(lines)
+    assert DESK_SELECTED_HIDDEN in lines and "questions shown" in flat
+    assert not any(ln.startswith("▸ ") for ln in lines)
+
+
+def test_r3_the_link_on_keys_line_is_shown_only_with_the_link_on(fake_clock):
+    lines, view = r3_screen(
+        fake_clock, r3_rows([("w-001", "q?")]), None, 160, height=60
+    )
+    assert view.help_line == QUESTIONS_LINK_KEYS_LINE
+    assert any("n/p question" in ln for ln in lines)

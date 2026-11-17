@@ -236,18 +236,54 @@ def console_factory():
 QRUN = "run_14cfcbd8edf2"
 
 
+def question_payload(
+    dispatch_id: str = "disp_synthetic01",
+    question: str = "synthetic question text",
+    **extra,
+) -> str:
+    """A payload JSON string in the observed shape (dispatchId, taskId, question, options)."""
+    body = {
+        "dispatchId": dispatch_id,
+        "taskId": "task_synthetic01",
+        "question": question,
+        "options": ["yes", "no"],
+    }
+    body.update(extra)
+    return json.dumps(body)
+
+
+def _payload_dispatch(payload) -> str | None:
+    """The ``dispatchId`` of a payload given as a dict or a JSON string, else None."""
+    if isinstance(payload, str):
+        try:
+            payload = json.loads(payload)
+        except ValueError:
+            return None
+    found = payload.get("dispatchId") if isinstance(payload, dict) else None
+    return found if isinstance(found, str) and found else None
+
+
 def make_question_rows(
     n: int,
     run: str = QRUN,
     start: int = 0,
     newest_first: bool = True,
     subject=None,
+    payload=None,
+    from_handle=None,
 ) -> list[dict]:
     """``n`` synthetic ``question`` message rows with the recorded key names, no real values.
 
     Row ``i`` is created ``i`` seconds after a fixed base, so a higher id is a newer question;
     ``newest_first`` returns them in the order ``check --all`` gives them (REPORT, evidence 14).
+    ``payload`` is used as given for every row. Without ``from_handle`` the sender is the
+    observed shape ``dispatch:<dispatchId>`` when the payload names a dispatch, else
+    ``term_synthetic``.
     """
+    sender = from_handle
+    if sender is None:
+        dispatch = _payload_dispatch(payload)
+        sender = f"dispatch:{dispatch}" if dispatch else "term_synthetic"
     rows = []
     for i in range(start, start + n):
         created = BASE_TIME - timedelta(seconds=3600) + timedelta(seconds=i)
@@ -256,14 +292,14 @@ def make_question_rows(
                 "id": f"msg_{i:012x}",
                 "run_id": run,
                 "delivery_contract": "current_delivery",
-                "from_handle": "term_synthetic",
+                "from_handle": sender,
                 "to_handle": f"run:{run}",
                 "subject": f"synthetic question {i}" if subject is None else subject,
                 "body": "synthetic body",
                 "type": "question",
                 "priority": "normal",
                 "thread_id": None,
-                "payload": None,
+                "payload": payload,
                 "created_at": created.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "delivered_at": None,
             }
