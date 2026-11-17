@@ -3798,7 +3798,10 @@ def test_apr_plain_approved_releases_nothing(tmp_path, text):
 
 def test_apr_ob_h1_item5_fixture_releases_nothing(tmp_path):
     # The OB-H1 item 5 fixture (a Monitor line "approved") stays a valid input.
-    fixture = Path(__file__).parent / "fixtures/launch_level/ob_h1/item5-monitor-approved-line.json"
+    fixture = (
+        Path(__file__).parent
+        / "fixtures/launch_level/ob_h1/item5-monitor-approved-line.json"
+    )
     prompt = json.loads(fixture.read_text())["prompt"]
     _bind(tmp_path, "worktree")
     _approve(tmp_path, prompt)
