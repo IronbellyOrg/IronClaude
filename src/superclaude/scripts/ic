@@ -83,6 +83,15 @@ apply_preset() {
 claude_args=()
 yolo=1   # default: launch with --dangerously-skip-permissions
 while [[ $# -gt 0 ]]; do
+  # An option that takes a value must have one (reading a missing $2 under
+  # `set -u` would stop with Bash's "$2: unbound variable" instead).
+  case "$1" in
+    -p|--preset|-H|--haiku|-S|--sonnet|-O|--opus)
+      if [[ $# -lt 2 ]]; then
+        echo "ic: option $1 requires a value" >&2
+        exit 2
+      fi ;;
+  esac
   case "$1" in
     -p|--preset)   apply_preset "$2"; shift 2 ;;
     -H|--haiku)    ANTHROPIC_DEFAULT_HAIKU_MODEL="$(resolve "$2")";  shift 2 ;;

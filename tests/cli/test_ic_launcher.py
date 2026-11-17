@@ -110,3 +110,40 @@ def test_option_value_named_help_is_not_help(tmp_path):
     assert proc.returncode == 0, proc.stderr
     assert "HAIKU=--help" in proc.stdout.splitlines()
     assert "ic <alias-or-model>" not in proc.stdout
+
+
+# ---------------------------------------------------------------------------
+# #543: an option that needs a value gives a clear message when it has none
+# ---------------------------------------------------------------------------
+
+VALUE_OPTIONS = ["-p", "--preset", "-H", "--haiku", "-S", "--sonnet", "-O", "--opus"]
+
+
+@pytest.mark.parametrize("option", VALUE_OPTIONS)
+def test_option_without_value_prints_a_clear_message(tmp_path, option):
+    proc = run_ic(tmp_path, [option])
+    assert proc.returncode == 2
+    assert f"ic: option {option} requires a value" in proc.stderr
+    assert "unbound variable" not in proc.stderr
+    assert not stub_ran(proc)
+
+
+def test_option_without_value_after_other_arguments(tmp_path):
+    proc = run_ic(tmp_path, ["--no-yolo", "-S"])
+    assert proc.returncode == 2
+    assert "ic: option -S requires a value" in proc.stderr
+    assert not stub_ran(proc)
+
+
+def test_preset_with_a_value_still_sets_every_slot(tmp_path):
+    aienv = 'export IC_PRESET_coding="opus=o-model sonnet=s-model haiku=h-model"\n'
+    proc = run_ic(tmp_path, ["-p", "coding"], aienv=aienv)
+    assert proc.returncode == 0, proc.stderr
+    lines = proc.stdout.splitlines()
+    assert {"OPUS=o-model", "SONNET=s-model", "HAIKU=h-model"} <= set(lines)
+
+
+def test_unknown_preset_still_exits_2(tmp_path):
+    proc = run_ic(tmp_path, ["-p", "nosuchpreset"])
+    assert proc.returncode == 2
+    assert "unknown preset 'nosuchpreset'" in proc.stderr
