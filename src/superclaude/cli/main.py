@@ -494,9 +494,15 @@ def doctor(verbose: bool):
         status_symbol = "✅" if check["passed"] else "❌"
         click.echo(f"{status_symbol} {check['name']}")
 
-        if verbose and check.get("details"):
-            for detail in check["details"]:
-                click.echo(f"    {detail}")
+        # Warnings always print; the other details only with --verbose.
+        warnings = check.get("warnings", [])
+        for warning in warnings:
+            click.echo(f"    {warning}")
+
+        if verbose:
+            for detail in check.get("details", []):
+                if detail not in warnings:
+                    click.echo(f"    {detail}")
 
     # Summary
     click.echo()

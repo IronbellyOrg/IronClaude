@@ -19,9 +19,11 @@ personas: [architect, quality, security]
 ## Usage
 
 ```
-/sc:cleanup [target] [--type code|imports|files|all] [--safe|--aggressive] [--interactive]
+/sc:cleanup [target] [--type code|imports|files|all] [--safe|--aggressive] [--interactive] [--preview]
 /sc:cleanup [target] [--output <file>] [--unattended] [--report-dir <dir>]
 ```
+
+`--preview` shows what would change and edits nothing.
 
 `--output <file>` writes the cleanup summary to that file; a run without `--unattended` writes a file only when the caller passes it.
 

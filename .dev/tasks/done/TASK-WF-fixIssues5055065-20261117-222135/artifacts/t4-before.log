@@ -1,0 +1,22 @@
+    assert not found, f"{relative} still promises: {found}"
+E   AssertionError: src/superclaude/commands/pm.md still promises: ['runs automatically at every session start', 'Session Start (MANDATORY)', 'ALWAYS activates to restore', 'no command needed', 'never need to manually invoke', '(Always Active)']
+    assert not found, f"{relative} still promises: {found}"
+E   AssertionError: src/superclaude/agents/pm-agent.md still promises: ['Auto-Executes Every Time', 'EVERY Claude Code session start', 'Session Start (MANDATORY)', 'ALWAYS activates to restore']
+    assert not found, f"{relative} still promises: {found}"
+E   AssertionError: src/superclaude/skills/sc-pm-protocol/SKILL.md still promises: ['Auto-Executes Every Time', 'auto-activates at session start']
+    assert not found, f"{relative} still promises: {found}"
+E   AssertionError: plugins/superclaude/commands/pm.md still promises: ['runs automatically at every session start', 'Session Start (MANDATORY)', 'ALWAYS activates to restore', 'no command needed', 'never need to manually invoke', '(Always Active)']
+    assert not found, f"{relative} still promises: {found}"
+E   AssertionError: plugins/superclaude/agents/pm-agent.md still promises: ['Auto-Executes Every Time', 'EVERY Claude Code session start', 'Session Start (MANDATORY)', 'ALWAYS activates to restore']
+    assert not found, f"{relative} still promises: {found}"
+E   AssertionError: commands/sc-pm.md still promises: ['runs automatically at every session start', 'Auto-Executes Every Time', 'Session Start (MANDATORY)', 'ALWAYS activates to restore', 'no command needed', 'never need to manually invoke', '(Always Active)']
+    assert not found, f"{relative} still promises: {found}"
+E   AssertionError: agents/sc-pm-agent.md still promises: ['Auto-Executes Every Time', 'EVERY Claude Code session start', 'Session Start (MANDATORY)', 'ALWAYS activates to restore']
+FAILED tests/commands/test_help_text_fixes.py::test_pm_text_does_not_promise_to_start_or_restore_memory_by_itself[src/superclaude/commands/pm.md]
+FAILED tests/commands/test_help_text_fixes.py::test_pm_text_does_not_promise_to_start_or_restore_memory_by_itself[src/superclaude/agents/pm-agent.md]
+FAILED tests/commands/test_help_text_fixes.py::test_pm_text_does_not_promise_to_start_or_restore_memory_by_itself[src/superclaude/skills/sc-pm-protocol/SKILL.md]
+FAILED tests/commands/test_help_text_fixes.py::test_pm_text_does_not_promise_to_start_or_restore_memory_by_itself[plugins/superclaude/commands/pm.md]
+FAILED tests/commands/test_help_text_fixes.py::test_pm_text_does_not_promise_to_start_or_restore_memory_by_itself[plugins/superclaude/agents/pm-agent.md]
+FAILED tests/commands/test_help_text_fixes.py::test_pm_text_does_not_promise_to_start_or_restore_memory_by_itself[commands/sc-pm.md]
+FAILED tests/commands/test_help_text_fixes.py::test_pm_text_does_not_promise_to_start_or_restore_memory_by_itself[agents/sc-pm-agent.md]
+================== 7 failed, 1 passed, 9 deselected in 0.10s ===================

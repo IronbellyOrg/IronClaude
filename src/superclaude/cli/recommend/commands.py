@@ -38,7 +38,7 @@ def recommend_group() -> None:
     Backs the ``sc-recommend`` skill's hot/cold-path dispatch with file and
     eval operations a Haiku subagent cannot perform (writing files, hashing,
     aggregation). The skill shells to these subcommands via
-    ``Bash(uv run python -m superclaude.cli.recommend ...)``.
+    ``Bash(uv run superclaude recommend ...)``.
 
     Examples:
         superclaude recommend cache get spec-generation

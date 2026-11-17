@@ -19,8 +19,10 @@ personas: [architect, quality, security]
 ## Usage
 
 ```
-/sc:cleanup [target] [--type code|imports|files|all] [--safe|--aggressive] [--interactive]
+/sc:cleanup [target] [--type code|imports|files|all] [--safe|--aggressive] [--interactive] [--preview]
 ```
+
+`--preview` shows what would change and edits nothing.
 
 ## Behavioral Flow
 

@@ -589,12 +589,16 @@ def test_unmatched_cache_hints_are_consulted_then_rejected():
 
 
 def test_example_only_flags_are_not_declared_or_routed():
-    """T44: cleanup --preview is an example; the guide never routes design --output."""
+    """T44 (name kept: routing_refresh_cases.json lists it).
+
+    Since issue 506, cleanup declares --preview in usage; the guide still never routes
+    it, nor design --output.
+    """
     for name, flag in (("cleanup", "--preview"),):
         source = (_COMMANDS / f"{name}.md").read_text(encoding="utf-8")
         usage = _section(source, "## Usage", "\n## ")
         examples = _section(source, "## Examples", "\n## ")
-        assert flag not in usage and flag in examples, name
+        assert flag in usage and flag in examples, name
     # P1 gave design an optional `--output <file>` for the worker report file; the
     # routing loop below still pins that the guide does not route it.
     design = (_COMMANDS / "design.md").read_text(encoding="utf-8")
