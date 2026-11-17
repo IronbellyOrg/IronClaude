@@ -4,6 +4,7 @@
 
 Status: Complete (merged spec; requirements and design options only, no code)
 Date: 2026-11-15. Branch `ironbelly/shadow-runs`.
+Version 1 scope: see cuts-debate/final-cuts.md in this folder
 
 ## 0. How to read this spec
 
@@ -517,6 +518,8 @@ Six decisive questions feed the truth table. Each is one yes-or-no statement phr
 
 The S wording adds "that the task did not ask for": as written in `jev-uses.md` ("would delete, overwrite or expose data"), a recipe that deliberately deletes its own temporary directory would score yes [J].
 
+M, C and E can be answered only when code supplies their inputs (the required-item list for M, the constraint lines for C, the verified-or-not mark on the excerpt for E): with only a description and a context line they were at chance in the text-only variant of the 5-run test (`08-test/results.md`).
+
 **Optional explanation questions.** `jev-uses.md` section 3 also lists T (true in substance, only the pointer wrong), F (only form), I (intent inferable) and G (a suggestion, not a defect). They feed no cell of the truth table. They may run in shadow mode only, to help explain why a row is on the ledger, and they never cancel S, M or C.
 
 **Option Q for upstream gates.** D needs a decision basis that does not exist for research inputs (section 4.3). Option Q replaces D with a statement the finding record can answer alone: "the finding names a specific later reader or step that uses the quoted text". Code then checks that the named consumer exists. A failed lookup reads as UNSET, never as N. The property tests in section 7.3 apply to either version.
@@ -569,7 +572,7 @@ The owner asked for a confidence score. Three facts constrain it: a Noul returns
 
 - **Honest bounds.** For a BLOCKING verdict reached by W and D, `min(pW, pD)` is an upper bound on the chance both hold, so it flatters a confirm. The spec reports the dependence-safe lower bound `max(0, pW + pD - 1)` instead, overriding `jev-uses.md:195`. For a non-blocking verdict, `1 minus min(1, pS + pM + pC + min(pW, pD))` is a union bound that collapses to zero when four mid-sized terms are added; it is reported, never used as a gate. Neither number is a calibrated probability.
 - **Bands.** Report an ordinal band until a reliability table exists: `high` (every decisive question is outside the unsettled band in at least 2 of 3 replicates and the verdict is the same in all 3), `medium`, `low`. Print the raw probabilities and the replicate spread beside it. Numbers replace bands only after the calibration step shows the bins are reliable. Confidence is null for SHOW_USER, UNDETERMINED and the reviewer-only fallback, and raw confidence is never compared across judges.
-- **Thresholds.** The asymmetry stays: a downgrade needs a higher bar than a confirm (placeholders `tau_down` 0.85 and `tau_block` 0.70 from `jev-uses.md`), fitted on one half of the scored table and checked on the other half. With 30 to 40 rows the held-out half is 15 to 20 rows, so report counts, not percentages alone. In version 1 the thresholds route nothing, because the classifier has no authority (section 7.5); they are measured for OD4.
+- **Thresholds.** The asymmetry stays: a downgrade needs a higher bar than a confirm (placeholders `tau_down` 0.85 and `tau_block` 0.70 from `jev-uses.md`), fitted on the scored table (318 rows, panel threshold 4) with no held-out set, so the fit and the check use the same rows; report counts, not percentages alone. In version 1 the thresholds route nothing, because the classifier has no authority (section 7.5); they are measured for OD4.
 - **Replicates.** Pin the model id (`jev-1.14.0`, not an alias) and send 3 requests per finding. Because the vendor may cache identical requests [U], vary the field order between replicates so the spread measures real sensitivity. Take the median; a spread above 0.20 counts as U (the 0.20 is a guess [E]).
 
 ### 7.5 Judges, shadow mode, authority and the key dependency
@@ -601,12 +604,12 @@ The owner asked for a confidence score. Three facts constrain it: a Noul returns
 
 | Item | Requirement |
 |---|---|
-| Table | at least 30 past blocking findings, each scored blind 1 to 5 by three independent agents, averaged, with a minimum blocking threshold [per `00-issue-description.md`] |
+| Table | the scored table exists: 318 past blocking findings (`04-historical/master-table.md`), each scored blind 1 to 5 by three independent agents and averaged (`05-scoring/consensus.md`), with a minimum blocking threshold of 4 (mean 4.0 or higher; 82 blockers) |
 | Five runs | the same table, five times, per judge; report per-finding flip rate across runs |
 | Reported | agreement with the validated label, Cohen's kappa, the full confusion matrix with counts, recall on validated blockers (the costly error is calling a validated blocker non-blocking), per deliverable kind (tasklist, spec), the band reliability table, and the spread of the three scorers |
 | Contested rows | rows where the three scorers differ by 2 or more are reported separately, not folded into the average |
 | Intervals | with n = 30 and 27 agreements (90 percent), the 95 percent Wilson interval is about 74 to 96 percent [computed]. Do not claim a point figure |
-| Missing table | the scored table is produced by another program step and was empty when this spec's inputs were written (`seed-brief.md:25`). If it does not exist at stage 0, steps 0a and 0c are skipped and every classifier stage waits; the rule and loop changes do not depend on it (section 12) |
+| Missing table | not applicable: the table exists and scored 318 findings with threshold 4 (`05-scoring/consensus.md`), so steps 0a and 0c are not skipped; the rule and loop changes do not depend on it (section 12) |
 
 Three weaknesses in the validation design to fix before the runs:
 
@@ -941,10 +944,10 @@ No stage starts before its entry condition is met and the owner has seen the num
 
 | Stage | Entry condition | What happens | Exit condition | Rollback |
 |---|---|---|---|---|
-| 0. Measure (this program, offline) | this spec reviewed | 0a: the scored table and five runs with a fixture or approved judge, only if the table exists. 0b: the retrospective escape test on run 2 (section 8.4). 0c: three blind agents that did not write the rule re-grade the table under the old and the new text, paired, only if the table exists. Inventory freeze: every Grep of section 10 re-run, including the frozen FAIL-trigger Grep (REQ-30), with results stored | a written result: escape estimate with its interval; when the table exists, how many old-blocking rows become non-blocking and the confusion matrix | nothing changed |
+| 0. Measure (this program, offline) | this spec reviewed | 0a: the scored table (it exists: 318 rows) and five runs with a fixture or approved judge. 0b: the retrospective escape test on run 2 (section 8.4). 0c: three blind agents that did not write the rule re-grade the table under the old and the new text, paired (the table exists). Inventory freeze: every Grep of section 10 re-run, including the frozen FAIL-trigger Grep (REQ-30), with results stored | a written result: escape estimate with its interval; how many old-blocking rows become non-blocking and the confusion matrix | nothing changed |
 | 1. Offline scaffold | stage 0 result written; owner go | the skill folder with registry rows all `legacy` (T1 and T2 accept the legacy text in registered rows); the ledger reader and writer with the codec; ledger adapters; the fixture judge; property tests; crash, reconcile and consent tests; the install check. No carrier is edited | T1 to T4, T6 to T8, T11 to T13 and T17 green offline | delete the new files |
 | 2. Shadow beside the old rule | stage 1 exit | the task skill and tech-research gates write the ledger and make the per-run offer (it replaces the output style's "once per loop" ask for that run); reviewers emit `rests_on` while the old definition still decides; the classifier runs in shadow; the safety route GR12 is live; the final-gate sweep GR7 is built; `core/WORKER-CONTRACT.md` gains the three keys (REQ-12) | at least 5 shadow runs observed; ledger volume and `consumer-unknown` share known; offers answered; shadow agreement reported; zero safety misses and no capture failure | stop writing the ledger; restore the old carrier text by the three-step revert (section 9.4) |
-| 3. Pilot | 0b result written; at least 5 shadow runs observed with zero safety misses and no capture failure (an observation minimum, not a safety claim); seeded recall (section 8.3) met; 0c as well when the table exists; owner go | `pragmatic.md`, `rf-qa.md` and `rf-qa-qualitative.md` move to digest v2 together; the stage 3 merge-rule lines of section 10.3 (task skill, rf-qa, rf-qa-qualitative, rf-analyst; L1); L2 fix-pass checks; L6 for rf-qa, and Rule 6 if OD16 chooses (b), with its test re-pinned in the same change; the cadence pins move | one audit window (section 8.2) with no revert trigger tripped; M12 reported | the three-step revert of the pilot rows to `legacy` |
+| 3. Pilot | 0b result written; at least 5 shadow runs observed with zero safety misses and no capture failure (an observation minimum, not a safety claim); seeded recall (section 8.3) met; 0c as well when the table exists; owner go | `pragmatic.md`, `rf-qa.md` and `rf-qa-qualitative.md` move to digest v2 together; the stage 3 merge-rule lines of section 10.3 (task skill, rf-qa, rf-qa-qualitative, rf-analyst; L1); L2 fix-pass checks; L6 for rf-qa, and Rule 6 if OD16 chooses (b), with its test re-pinned in the same change; the cadence pins move | one audit window (section 8.2) with RT1 not tripped | the three-step revert of the pilot rows to `legacy` |
 | 4. Propagate | stage 3 exit; owner go | templates, rule prompts, builders and researchers to v2; the stage 4 lines of section 10.3; the spec-panel narrowing; the plugin mirror and parity test; T2 becomes strict (no legacy definition sentence in `src/` or `plugins/`) | drift tests green and strict; a second audit window clear | per-row three-step revert |
 
 Why shadow comes before the pilot: the whole design rests on reviewers being able to name a consumer honestly. Stage 2 measures that while the old definition still decides, so a failure costs nothing.
@@ -982,7 +985,7 @@ A revert means: restore the previous digest for the stage in force through the t
 
 | # | Trigger | Detects | Note on power |
 |---|---|---|---|
-| RT1 | Any safety-class escape in the audit or the seeded set, or any confirmed safety finding that ended as a plain follow-up | a Safety finding graded Medium or Note | a single event; needs no sample size; acts through the three-step revert |
+| RT1 | Any real blocker found in a Medium list | a real blocker graded Medium | a single event; needs no sample size; acts through the three-step revert |
 | RT2 | In an audit window, the 95 percent Wilson lower bound on the escape rate of the simple random sample exceeds 2 percent | a rate that is confidently above 2 percent | at n = 60 this is 4 or more escapes (3 of 60 gives a lower bound of about 1.7 percent; 4 of 60 about 2.6 percent) [computed]. Oversampled strata never feed this trigger. Two escapes in a window is a yellow flag: the owner reviews each one |
 | RT3 | Seeded recall of decision-bearing or missing items falls more than 5 points below the old rule, or safety recall falls below it | a rule that is simply too loose | the planted set must be large enough to see 5 points; size it in the plan |
 | RT4 | The owner reports a decision-bearing defect that shipped from the ledger | escape type (c) | counts as an escape in M4 |
@@ -1008,14 +1011,14 @@ Likelihood and impact are judgments [J] on a three-step scale (low, medium, high
 | RK5 | An unattended run records the ledger and the coordinator never opens it. | medium | medium | a ledger listed in `artifacts` is not read automatically [E: `WORKER-CONTRACT.md` reading rule] | the three contract keys and the coordinator duties name them (REQ-12); capture failure makes the run `partial` |
 | RK6 | The classifier lends authority to a downgrade. | low | high | a number looks like a measurement | no authority in version 1 (REQ-22); bands not numbers until calibrated; OD4 requires evidence from the same judge |
 | RK7 | Privacy, availability and cost of Jev. | medium | high | `legal.md` zero data retention only for enterprise [E]; no key [E] | OD3 before any key; privacy denial skips every external judge (REQ-23); the classifier has no authority, so an outage costs nothing |
-| RK8 | Over-fitting the classifier to 30 to 40 rows; circular rubric. | medium | medium | section 7.6 | held-out half; independent scoring rubric; contested rows reported apart |
+| RK8 | Over-fitting the classifier to the 318 scored rows (the fit and the check use the same rows); circular rubric. | medium | medium | section 7.6 | counts reported with the fit rows named; independent scoring rubric; contested rows reported apart |
 | RK9 | Test churn is large: the S1 to S5 pins, 161 plus 139 edit-table rows, byte-exact bullets in audit tests, the Critical Rules hash. | high | low | section 11.1 | stage the work; move pins to the digest; retire the edit tables deliberately |
 | RK10 | Install drift: an existing install keeps old copies of changed files unless refreshed, while new files are copied, so one machine can hold a new skill folder and an old `pragmatic.md`. | high | medium | installers skip existing files (section 9.4) [V]; stale `pragmatic.md.bak.*` under `~/.claude/output-styles/` [E] | release notes name the refresh command; the install check (REQ-27); ledger headers record digest versions |
 | RK11 | "Medium" stays overloaded outside this rule. | high | low | the PR router's Medium routes to `--fix` [E]; the tasklist's Medium blocks [V] | glossary line; scale map; OD7 |
 | RK12 | The L2 checks exist only for some structure types. | medium | medium | the checks used in run 2 were ad hoc scripts [E] | start with table shape, quote presence and recounts; say plainly what is not covered |
 | RK13 | The benefit is smaller in minutes than the issue says. | high | low | cycle 2 took about 4.5 minutes by file times [V] | argue the case on avoided wrong halts, regression risk and decision quality, not on minutes |
 | RK14 | A revert, including the safety revert RT1, does not reach machines that were not refreshed; there is no immediate brake. | medium | high | installers skip existing files [V]; no shipped file reads the run-2 grading-override file [E: plan review] | the three-step revert (REQ-26); release note; install check; OD17 if a brake is wanted |
-| RK15 | During stage 3 one reviewer context holds two definitions (the v2 output style and a legacy carrier, or the reverse on a stale install) and the model blends them. | certain during stage 3 | medium | the output style is injected into every subagent [V: LC-09] | precedence sentence (REQ-03); `pragmatic.md` and the rf-qa family switch together; M10b |
+| RK15 | During stage 3 one reviewer context holds two definitions (the v2 output style and a legacy carrier, or the reverse on a stale install) and the model blends them. | certain during stage 3 | medium | the output style is injected into every subagent [V: LC-09] | precedence sentence (REQ-03); `pragmatic.md` and the rf-qa family switch together |
 | RK16 | The installed-only spec-panel variants never change and never fail a test while the broadcast moves to v2. | high | medium | they exist only under `~/.claude/commands/sc/` [V: LC-16] | registry rows marked `installed-only`; OD10 decides align or retire |
 | RK17 | The tasklist loop and reflect promotion are not reached by stages 1 to 4, so their over-blocking continues. | certain | medium | tasklist Medium blocks on 7 lines; reflect Drift blocks promotion [V] | named in the scale map; OD6 and OD7 |
 | RK18 | The debate that produced this spec reached a majority on every point, which is weak evidence of real agreement. | medium | low | with three voters a point lacks a majority only when all three differ; several unanimous rows hid different content [E: invariant probe INV-021] | every repository fact here is labelled by evidence; the plan re-runs the Greps |
@@ -1105,7 +1108,7 @@ Live-check totals: 18 spot checks by the base author (17.1), 22 checks made for 
 - The loop line numbers marked [E] in section 10.5 (rf-qa 398 to 415 and 549, rf-qa-qualitative 110, 809, 994, rf-task-builder, task-builder 875, tech-research, readme, roadmap, `HOW-WE-WORK.md:65`), rf-qa lines 494 and 548, `spec-panel.md:372`, and `cli/roadmap/validate_prompts.py`.
 - Whether the value-inventory step in run 2 parses ledger tables by column position (this decides NEW-1) [U].
 - Whether any recommendation in the final run-2 report rests on the 175 or 185 spawn-line figure [U: not a full read of a report of several thousand lines].
-- The 44-defect ledger artifact named as a recall candidate; whether a calibration table of 30 or more scored findings will exist in time; whether templates expose required sections in a form code can read; whether the output-style hook is registered in every environment.
+- The 44-defect ledger artifact named as a recall candidate; whether templates expose required sections in a form code can read; whether the output-style hook is registered in every environment.
 - GitHub's issue body size limit (about 65,536 characters) [U].
 - Where the `sc-review-ledger` skill lives (no copy under `src/superclaude/skills/`) [U].
 - Every verdict in section 5 and every classification in section 2.3 is an application of a proposed rule, not a measurement, and no classifier has been run.

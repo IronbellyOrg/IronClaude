@@ -1,0 +1,2 @@
+A review finding is blocking only if following the quoted text, or running the code it quotes, would delete, overwrite or expose data or a secret, break a safety boundary, or act outside the declared scope, in a way the task did not ask for.
+Every other finding is not blocking, whatever it is labelled and whatever wrong result or missing item it names: a wrong result, a false claim, a missing deliverable, a contradiction or an unclear step does not make a finding blocking unless it also meets the sentence above.

@@ -1,0 +1,5 @@
+5f35226f41288607acaa748abc7df78d13118ee24eb4c9993587db7216205ebd  .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/artifacts/stage0c-work/in/rule-A.txt
+7cfd6c873a091e11fa06b70975cb7c1b693f1c53c69aa053d78d2050fc8c87da  .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/artifacts/stage0c-work/in/rule-B.txt
+9637c9e4db2b89663ce537940d0913be66c940288cd89167b5ef91f118c37a5e  .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/artifacts/stage0c-work/in/table-1.md
+b3a9e6210216d4d1f2245799150a4b0ba17e52e0973ece861514f9f85c857606  .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/artifacts/stage0c-work/in/table-2.md
+196e84614b4161b4e7c8e4258a689d810cf85b92d2091f82474caaa7bc8762c2  .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/artifacts/stage0c-work/in/table-3.md
