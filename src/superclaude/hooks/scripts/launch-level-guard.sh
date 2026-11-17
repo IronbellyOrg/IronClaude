@@ -340,11 +340,11 @@ if [ "$LL_BRANCH" = prompt ]; then
         [ "$LL_USABLE" = 1 ] && rm -f -- "$LL_PEND/$LL_NONCE" 2>/dev/null
         # Release (FR-L-15 to FR-L-17): only at worktree (an invalid word
         # included), never at full or full-submit. Only a first line, leading
-        # whitespace removed, that starts /sc:implement, /sc:task or /task as a
+        # whitespace removed, that starts /sc:implement or /task as a
         # whole word releases; a plain typed word no longer does. The
         # [[:space:]] after the command name also matches the newline that ends
         # the first line.
-        LL_RE_APR='^[[:space:]]*/(sc:implement|sc:task|task)([[:space:]]|$)'
+        LL_RE_APR='^[[:space:]]*/(sc:implement|task)([[:space:]]|$)'
         LL_APR=0
         if [ "$LL_LEVEL" = W ]; then
             [[ $LL_PROMPT =~ $LL_RE_APR ]] && LL_APR=1

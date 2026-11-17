@@ -395,7 +395,7 @@ def test_direct_change_threshold_and_written_plan_requirement():
     assert "one source file (plus its test file)" in direct[1]
     assert "five edits or fewer" in direct[1]
     assert "already know exactly" in direct[1]
-    assert "/sc:task" in direct[2]
+    assert "/sc:implement" in direct[2]
     assert "more than 5 edits or touches more than one source file" in block
     assert "one block of consecutive changed lines" in block
     assert "8 places is 8 edits and requires a written plan" in block

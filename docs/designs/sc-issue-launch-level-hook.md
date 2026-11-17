@@ -55,7 +55,7 @@ first prompt (UserPromptSubmit)    consume nonce; publish sid without replacemen
   v
 each matched call (PreToolUse)     no bound id: exit 0 | jq -> level -> classes -> grid -> exit 0 or 2  FR-L-10
   v
-typed prompt (UserPromptSubmit)    /sc:implement /sc:task /task at W: touch <sid>.ok  FR-L-15
+typed prompt (UserPromptSubmit)    /sc:implement /task at W: touch <sid>.ok  FR-L-15
   v
 release                            a person runs rm sessions/<sid> sessions/<sid>.ok  FR-L-07
 ```
@@ -186,7 +186,7 @@ No match: PUSHFORM. Match: destination is capture 5, else 3, minus one `refs/hea
 ## 6. Human approval and human versus agent
 
 - **Event:** UserPromptSubmit only (O-4).
-- **Match (FR-L-16):** only the first line matching `^/(sc:implement|sc:task|task)([[:space:]]|$)` releases. `/task-builder`, `/tasks`, `/sc:implement-protocol`, `approved`, `please approved`, `approved, but`, `/sc:pr-submit` do not. Amended: the plain `approved` route (a whole prompt `approved`, `approved.` or `approved!`) was removed for every worktree-level claim (owner decision Q39).
+- **Match (FR-L-16):** only the first line matching `^/(sc:implement|task)([[:space:]]|$)` releases. `/task-builder`, `/tasks`, `/sc:implement-protocol`, `approved`, `please approved`, `approved, but`, `/sc:pr-submit` do not. Amended: the plain `approved` route (a whole prompt `approved`, `approved.` or `approved!`) was removed for every worktree-level claim (owner decision Q39).
 - **Where (FR-L-15):** bound session, no `agent_id`, level `worktree` (or invalid word). Nothing at `F`, `FS`.
 - **Effect (FR-L-17):** `touch .ok`; `W` becomes `WA`. It unlocks IMPL (the grid also allows TURN at `WA`), never COMMIT, PUSH, SUBMIT or MERGE. A failed `touch` shows later as LL-IMPL. Lasts until a person deletes the files (O-6).
 - **Order (FR-L-18):** the prompt event runs before expansion, so `.ok` exists before Skill `sc:implement-protocol`. OB-H1 item 4 checks; fallback is UserPromptExpansion with exact `command_name`.
