@@ -1,0 +1,21 @@
+# T10 checks
+AC1 sc:spawn in the guide: 0
+AC1 archetype now:
+  
+  #### Archetype 2: Meta-Orchestrator
+  
+  Commands that decompose work and delegate to sub-agents without directly executing.
+  
+  - **Examples**: `/sc:adversarial`
+  - **Characteristics**: Task tool for delegation, defines stop conditions, produces task hierarchies or coordin
+  - **Key pattern**: Explicit "STOP AFTER" boundary preventing the command from executing what it plans
+  - **Worker fit**: `/sc:adversarial` is in the contract's ready-with-brief-constraints table. Such a command ma
+  
+  #### Archetype 3: Unified Executor
+  
+  Commands that handle the full lifecycle from classification through execution to verification.
+AC2 contract list:
+  385:A command that accepts `--unattended` needs no entry in any worker list, because the coordinator decides from whether the command file has an `## Unattended mode` section (the "Orca coordination" section of `~/.claude/HOW-WE-W
+  982:- The never-as-worker list (`~/.claude/WORKER-CONTRACT.md`, section 1): `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:sweep` and `/sc:swarm-wizard`, plus `/sc:pr-submit` while decision D3 keeps it off workers
+  contract: - **Never-as-worker list**: `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:sweep` and `/sc:swarm-wizard`, plus `/sc:pr-submit` while the answer to decisi
+  diff-check rc=0

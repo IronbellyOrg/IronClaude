@@ -1,6 +1,7 @@
 """Static checks for the routing-refresh fixture (fixtures/routing_refresh_cases.json).
 
-The fixture defines the S01-S29 recommendation-generation cases, the T01-T76
+The fixture defines the S01-S29 recommendation-generation cases (S27, which
+routed to the removed /sc:spawn command, is retired), the T01-T76
 traceability map and the 47-command dispositions from the approved spec. These
 tests are static: they validate the fixture against the repository's current
 guide, commands and skills. They run no model, execute no recommended command
@@ -31,6 +32,9 @@ _PACKAGE = "TASK-RESEARCH-recommend-refresh-20261024-044336"
 # issue #302 adds /sc:issue. The package is frozen, so the shipped set is
 # compared minus these additions.
 _POST_REFRESH_ADDITIONS = {"graph", "impact", "issue", "sweep"}
+# Commands removed after the frozen package was written: /sc:spawn went in 6.0.0
+# (replaced by Orca). The frozen command record still lists it as active.
+_POST_REFRESH_REMOVALS = {"spawn"}
 
 _TOKEN_RE = re.compile(r"`/([a-z][a-z0-9:-]*)")
 _FLAG_RE = re.compile(r"--[a-z][a-z0-9-]*")
@@ -132,7 +136,7 @@ def test_fixture_schema_and_completeness():
     assert data["evidence_class"].startswith("static definitions")
     assert "Task 8" in data["evidence_class"]
     ids = [case["id"] for case in data["cases"]]
-    assert ids == [f"S{n:02d}" for n in range(1, 30)]
+    assert ids == [f"S{n:02d}" for n in range(1, 30) if n != 27]  # S27 retired
     assert list(data["checks"]) == [f"T{n:02d}" for n in range(1, 77)]
     assert len(data["commands"]) == 47
     defined = set(data["fixture_inputs"])
@@ -645,7 +649,7 @@ def test_command_dispositions_trace_appendix_c_and_inventory():
     active = {c["name"] for c in commands if c["history"].startswith("Active")}
     assert (len(active), len(names - active)) == (43, 4)
     shipped = {p.stem for p in _COMMANDS.glob("*.md") if p.name != "README.md"}
-    assert shipped - _POST_REFRESH_ADDITIONS == active
+    assert shipped - _POST_REFRESH_ADDITIONS == active - _POST_REFRESH_REMOVALS
     for command in commands:
         if command["name"] in _RETIRED:
             assert "R" in command["history"].split("; ", 1)[1].split("+")

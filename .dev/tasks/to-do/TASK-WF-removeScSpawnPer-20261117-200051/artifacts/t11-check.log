@@ -1,0 +1,6 @@
+# T11 checks
+AC1 sc:spawn or the IMPL list text: 0
+AC2 list at 714:
+  5. **Never-as-worker list** (`:23`): `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:swarm-wizard`, plus `/sc:pr-submit` while decision D3 keeps it off workers. Seven entries, pinned by `NEVER_AS_WORKER` (`tests/skills/test_worker_contract.py:3
+  names counted: agent, git, help, issue, pm, swarm-wizard, pr-submit = 7
+  diff-check rc=0

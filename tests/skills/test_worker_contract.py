@@ -86,7 +86,7 @@ RULE_PHRASES = {
     "never-as-worker": (
         "**Never-as-worker list**",
         [
-            "`/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn`, `/sc:sweep` and "
+            "`/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:sweep` and "
             "`/sc:swarm-wizard`, plus `/sc:pr-submit` while the answer to decision D3 keeps it off workers"
         ],
     ),
@@ -465,7 +465,6 @@ NEVER_AS_WORKER = (
     "/sc:help",
     "/sc:issue",
     "/sc:pm",
-    "/sc:spawn",
     "/sc:swarm-wizard",
     "/sc:pr-submit",
     "/sc:sweep",
@@ -1452,7 +1451,6 @@ NOT_CONVERTED_IN_P1 = (
     "git",
     "help",
     "pm",
-    "spawn",
     "swarm-wizard",
     "issue",
 )

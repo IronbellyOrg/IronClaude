@@ -74,6 +74,14 @@ def _design_section_9() -> str:
     return text.split("## 9. Block messages", 1)[1].split("## 10.", 1)[0]
 
 
+# The design is a historical record and is not edited. Commands removed after it
+# was written drop out of the printed text, so the expected text applies each
+# removal here (6.0.0 removed /sc:spawn).
+_REMOVED_COMMAND_TEXT = (
+    ("/sc:cleanup, /sc:spawn or /sc:build", "/sc:cleanup or /sc:build"),
+)
+
+
 def _design_table() -> dict[str, tuple[str, str, str]]:
     rows = {}
     for line in _design_section_9().splitlines():
@@ -81,6 +89,8 @@ def _design_table() -> dict[str, tuple[str, str, str]]:
         if m:
             # Amendment marks such as [B-7] are not printed (DD-3).
             cells = [re.sub(r" ?\[B-\d+\]", "", c) for c in m.groups()[1:]]
+            for old, new in _REMOVED_COMMAND_TEXT:
+                cells = [c.replace(old, new) for c in cells]
             rows[m.group(1)] = tuple(cells)
     return rows
 
@@ -904,7 +914,6 @@ IMPL_SPELLINGS = [
     "sc:task-protocol",
     "sc:improve",
     "sc:cleanup",
-    "sc:spawn",
     "sc:build",
     "SC:IMPLEMENT",
     "/sc:implement args",

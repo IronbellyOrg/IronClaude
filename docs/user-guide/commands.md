@@ -36,7 +36,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 | Command | Purpose | File | Changes files? |
 |---------|---------|------|----------------|
 | [`/sc:pm`](#scpm---project-manager-agent) | Project Manager agent | `pm.md` | Yes |
-| [`/sc:spawn`](#scspawn---meta-system-task-orchestration) | Decomposition Epic → Task | `spawn.md` | Report only (stops after the task breakdown; see its Critical Boundaries) |
 | [`/sc:task`](#sctask---enhanced-task-management) | One small, direct change (level 2) | `task.md` | Yes |
 | [`/sc:workflow`](#scworkflow---implementation-plan-generator) | Checked implementation plan (level 3, the default for planned work) | `workflow.md` | Only with `--handoff implement` |
 | `/sc:agent` | Session controller for investigate, build, review | `agent.md` | Yes |
@@ -663,37 +662,6 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 ```
 
 **MCP servers:** none
-
----
-
-### `/sc:spawn` - Meta-System Task Orchestration
-
-**When to use:** Break a large job into parts with dependencies; it stops after the task breakdown. For work that changes code, use `/sc:workflow` then `/sc:implement` instead (level 3 in [How We Work](how-we-work.md)).
-
-**What it does:**
-
-- Breaks down Epic → Story → Task → Subtask
-- Selects strategy: sequential/parallel/adaptive
-- Coordinates dependencies between tasks
-
-**Syntax:**
-
-```
-/sc:spawn [complex-task] [--strategy sequential|parallel|adaptive] [--depth normal|deep]
-```
-
-**Examples:**
-
-```bash
-# Decompose a large job into a task hierarchy (no code is changed)
-/sc:spawn "plan the move of the reporting jobs to the new scheduler" --strategy adaptive --depth deep
-# Breakdown: Epic → Story → Task → Subtask, with dependencies
-```
-
-**Difference from `/sc:task`:**
-
-- spawn = decomposition (breaking down)
-- task = execution (doing work)
 
 ---
 

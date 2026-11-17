@@ -608,26 +608,6 @@
       }
     },
     {
-      "id": "S27",
-      "request": "Decompose {fixture:architecture-work} into a task hierarchy; do not execute it.",
-      "environment": "checkout",
-      "guide_route": {"block": "other", "command": "sc:spawn"},
-      "targets": ["sc:spawn"],
-      "mode_flags": ["--strategy", "--depth"],
-      "retained_inputs": ["{fixture:architecture-work}"],
-      "stop": "task hierarchy only",
-      "authority": "plan-only",
-      "side_effects": "decomposition output only; no source edits or downstream implementation",
-      "guide_phrases": ["critical stop is a task hierarchy only", "no source edits or downstream implementation", "Branch tracing is limited"],
-      "negative": {"competitors": ["task-builder", "sc:implement"], "must_not": "downstream implementation, unrestricted branch exploration or MDTM from breadth alone"},
-      "activation": {"sc:spawn": "self-contained"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:spawn", "expected": "not installed: sc:spawn; no substitution by task-builder"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "parallel-agent-fanout", "candidate": "/task-builder", "envelope": "Run: /task-builder \"build the architecture\""}, "expected": "no routing row matched; if dispatch hits parallel-agent-fanout: cache hint consulted, cached /task-builder rejected by current verification and request binding (miss_validation_stale); on a miss (classifier unknown -> no_key, or no row): cache row unused; either way live discovery selects /sc:spawn from Other commands; no hit telemetry; cached /task-builder never emitted"}
-      }
-    },
-    {
       "id": "S28",
       "request": "Explain {fixture:module} to a beginner using examples, without edits.",
       "environment": "checkout",

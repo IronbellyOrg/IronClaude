@@ -157,13 +157,6 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 | `--type task --analyze` | Pre-execution analysis audit | `--mode pre` |
 | `--type task --validate` | Post-execution validation audit | `--mode post` |
 
-### Spawn Command Flags (`/sc:spawn`)
-
-| Flag | Purpose | Values |
-|------|---------|--------|
-| `--strategy` | Coordination approach | `sequential`, `parallel`, `adaptive` |
-| `--depth` | Analysis depth | `normal`, `deep` |
-
 ### Git Command Flags (`/sc:git`)
 
 | Flag | Purpose | Values |

@@ -330,19 +330,10 @@ personas: [analyzer, architect]
 
 Commands that decompose work and delegate to sub-agents without directly executing.
 
-- **Examples**: `/sc:spawn`, `/sc:adversarial`
+- **Examples**: `/sc:adversarial`
 - **Characteristics**: Task tool for delegation, defines stop conditions, produces task hierarchies or coordination artifacts
 - **Key pattern**: Explicit "STOP AFTER" boundary preventing the command from executing what it plans
-- **Worker fit**: `/sc:spawn` is a never-as-worker command (section 7.7); `/sc:adversarial` is in the contract's ready-with-brief-constraints table. Such a command may fan out with the Agent tool (WC-7) but never calls `worker-start`, `dispatch` or `task-create` (WC-8). See [section 7.7](#77-orca-orchestration-commands-as-workers).
-
-Example from `/sc:spawn`:
-
-```text
-## CRITICAL BOUNDARIES
-- STOP AFTER TASK DECOMPOSITION
-- Output is task hierarchy only
-- Will NOT execute tasks or modify code
-```
+- **Worker fit**: `/sc:adversarial` is in the contract's ready-with-brief-constraints table. Such a command may fan out with the Agent tool (WC-7) but never calls `worker-start`, `dispatch` or `task-create` (WC-8). See [section 7.7](#77-orca-orchestration-commands-as-workers).
 
 #### Archetype 3: Unified Executor
 
@@ -988,7 +979,7 @@ Orca can run IronClaude commands as workers under an Orca coordinator (the `/orc
 
 #### Deciding whether a new command can be a worker
 
-- The never-as-worker list (`~/.claude/WORKER-CONTRACT.md`, section 1): `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn`, `/sc:sweep` and `/sc:swarm-wizard`, plus `/sc:pr-submit` while decision D3 keeps it off workers. These commands are never dispatched as workers and get no `--unattended` mode.
+- The never-as-worker list (`~/.claude/WORKER-CONTRACT.md`, section 1): `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:sweep` and `/sc:swarm-wizard`, plus `/sc:pr-submit` while decision D3 keeps it off workers. These commands are never dispatched as workers and get no `--unattended` mode.
 - Per the rollout plan, these are commands whose purpose is orchestration, a conversation with a human, or an outward action that must be authorized, so making them workers would remove their purpose.
 - Adding a command to the list is a maintainer edit of `src/superclaude/core/WORKER-CONTRACT.md` and of `NEVER_AS_WORKER` in `tests/skills/test_worker_contract.py`.
 - Any other command gets `--unattended` only after each of its gates has an unattended resolution (WC-2).
