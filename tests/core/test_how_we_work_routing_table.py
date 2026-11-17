@@ -1154,7 +1154,7 @@ def test_explicit_cleanup_controls_and_pr_attachment_do_not_gain_default_actions
     assert cleanup["mandatory_flags"] == "-"
     assert "--type <code/imports/files/all>" in cleanup["notes"]
     assert "never overwrite supported explicit choices" in cleanup["notes"]
-    assert "attachment skips shipping steps 1-5" in rows["review-pr"]["notes"]
+    assert "attachment skips shipping steps 1-2" in rows["review-pr"]["notes"]
 
 
 def test_grouped_required_flags_still_use_exact_flag_tokens():
