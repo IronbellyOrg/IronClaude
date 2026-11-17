@@ -1,0 +1,3 @@
+# T11 checks
+AC1 git grep sc:improve in docs/architecture docs/developer-guide: 0
+AC2 converted count: 28 (edited counts say 28; P1 15 + P2 13)

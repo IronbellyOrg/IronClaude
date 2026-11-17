@@ -1,0 +1,9 @@
+# T7 checks
+AC1 pytest tests/hooks/test_launch_level_guard.py:
+..........................................................               [100%]
+
+======================= 3835 passed in 388.33s (0:06:28) =======================
+AC2 grep sc:improve in guard test:
+79:# removal here (6.0.0 removed /sc:spawn, /sc:build and /sc:improve). The entries
+83:    ("/sc:improve, /sc:cleanup or /sc:build", "/sc:improve or /sc:cleanup"),
+84:    ("/task, /sc:improve or /sc:cleanup", "/task or /sc:cleanup"),

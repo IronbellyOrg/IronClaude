@@ -76,10 +76,12 @@ def _design_section_9() -> str:
 
 # The design is a historical record and is not edited. Commands removed after it
 # was written drop out of the printed text, so the expected text applies each
-# removal here (6.0.0 removed /sc:spawn and /sc:build). The entries apply in order.
+# removal here (6.0.0 removed /sc:spawn, /sc:build and /sc:improve). The entries
+# apply in order.
 _REMOVED_COMMAND_TEXT = (
     ("/sc:cleanup, /sc:spawn or /sc:build", "/sc:cleanup or /sc:build"),
     ("/sc:improve, /sc:cleanup or /sc:build", "/sc:improve or /sc:cleanup"),
+    ("/task, /sc:improve or /sc:cleanup", "/task or /sc:cleanup"),
 )
 
 
@@ -913,6 +915,8 @@ IMPL_SPELLINGS = [
     "task",
     "sc:task",
     "sc:task-protocol",
+    # Retired in 6.0.0, but an upgraded workspace keeps the old installed copy, so the
+    # guard keeps classifying it until the retire step removes installed copies.
     "sc:improve",
     "sc:cleanup",
     "SC:IMPLEMENT",

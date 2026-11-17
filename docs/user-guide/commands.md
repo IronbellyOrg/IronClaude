@@ -79,7 +79,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 
 | Command | Purpose | File | Changes files? |
 |---------|---------|------|----------------|
-| [`/sc:improve`](#scimprove---code-improvement) | Refactoring, optimization | `improve.md` | Yes |
 | [`/sc:cleanup`](#sccleanup---code-cleanup) | Dead code, unused imports | `cleanup.md` | Yes |
 
 ### 6. DOCUMENTATION
@@ -1033,34 +1032,6 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 ```
 
 **MCP servers:** auggie, codegraph, context7, tavily
-
----
-
-### `/sc:improve` - Code Improvement
-
-**When to use:** Code works, but you want to make it better in a small, contained area. Commit first and review `git diff` afterwards; for a large or structural refactor, write a spec, run `/sc:workflow`, then `/sc:implement` (see [How We Work](how-we-work.md), section 3.7).
-
-**What it does:**
-
-- Quality refactoring
-- Performance optimization
-- Maintainability improvements
-- Technical debt reduction
-
-**Syntax:**
-
-```
-/sc:improve [target] [--type quality|performance|maintainability|style] [--safe] [--interactive]
-```
-
-**Examples:**
-
-```bash
-/sc:improve src/ --type quality --safe
-/sc:improve api-endpoints --type performance --interactive
-```
-
-**MCP servers:** context7
 
 ---
 

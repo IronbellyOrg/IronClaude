@@ -1,0 +1,10 @@
+# T3 checks
+AC1 diff twin: []
+improve hits (HOW-WE-WORK, core CLAUDE.md):
+src/superclaude/core/HOW-WE-WORK.md:364:| cleanup | requested contained cleanup; not report-only audit or improvement-only intent | - | 1. establish an authorized checkpoint commit<br>2. `/sc:cleanup
+AC2 level-table block equal:
+True
+# T3 checks (final)
+AC1 diff twin: []
+improve hits in HOW-WE-WORK and core CLAUDE.md: src/superclaude/core/HOW-WE-WORK.md:0 src/superclaude/core/CLAUDE.md:0
+AC2 level-table block equal: True (checked before the last edit; the edit is outside the level table)

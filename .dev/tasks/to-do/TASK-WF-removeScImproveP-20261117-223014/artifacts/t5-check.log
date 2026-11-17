@@ -1,0 +1,4 @@
+# T5 checks
+AC1 diff twin: []
+improve count src: 0 plugin: 0
+AC2 bash -n exit 0

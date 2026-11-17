@@ -315,12 +315,12 @@
   <p class="eyebrow"><b>05</b> · Choosing the process · HOW-WE-WORK section 1</p>
   <h2 id="s5-h">Pick your level</h2>
   <p>The six levels set how much process a change gets. Match the outcome you want first, and any command you named or plan that already exists. Most planned implementation uses level 3; level 4 is only for an explicit or exceptional need for its task-file machinery.</p>
-  <p><strong>Hard limit:</strong> if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: normally level 3, not automatic level 4. The one exception is contained <code>/sc:cleanup</code> and <code>/sc:improve</code> work on a folder (guide 3.7): commit first and review <code>git diff</code> afterwards. It does not cover structural migrations. Naming a command directly does not waive the written plan.</p>
+  <p><strong>Hard limit:</strong> if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: normally level 3, not automatic level 4. The one exception is contained <code>/sc:cleanup</code> work on a folder (guide 3.7): commit first and review <code>git diff</code> afterwards. It does not cover structural migrations. Naming a command directly does not waive the written plan.</p>
   <div class="term"><b>Spec:</b> a short written description of what changes, which files, and how you will know it works (guide 3.2).</div>
   <figure class="diagram mid">
     <svg viewBox="0 0 760 426" role="img" aria-labelledby="d3-t d3-d">
       <title id="d3-t">Level ladder</title>
-      <desc id="d3-d">Six levels from ask a question at the bottom to write a full specification at the top. The hard limit sits between level 2 and level 3: above it, work needs a written plan, normally level 3 and not automatically level 4, and naming a command directly does not waive it. The one exception is contained /sc:cleanup and /sc:improve work on a folder, not structural migrations.</desc>
+      <desc id="d3-d">Six levels from ask a question at the bottom to write a full specification at the top. The hard limit sits between level 2 and level 3: above it, work needs a written plan, normally level 3 and not automatically level 4, and naming a command directly does not waive it. The one exception is contained /sc:cleanup work on a folder, not structural migrations.</desc>
       <rect class="d-box" x="20" y="18" width="720" height="48" rx="8"/>
       <text class="d-tb" x="36" y="48">6 · Write a full specification</text><text class="d-tm" x="440" y="48">/prd → /tdd</text>
       <rect class="d-box" x="20" y="74" width="720" height="48" rx="8"/>
@@ -332,13 +332,13 @@
       <path class="d-line-warn" d="M20,252 L740,252"/>
       <text class="d-tw" x="36" y="274">Hard limit: more than 5 edits, or more than one source file (its test file does not count),</text>
       <text class="d-tw" x="36" y="292">needs a written plan: normally level 3, not automatic level 4. Naming a command does not waive it.</text>
-      <text class="d-tw" x="36" y="310">The one exception: contained /sc:cleanup and /sc:improve work on a folder, not structural migrations</text>
+      <text class="d-tw" x="36" y="310">The one exception: contained /sc:cleanup work on a folder, not structural migrations</text>
       <rect class="d-box" x="20" y="322" width="720" height="44" rx="8"/>
       <text class="d-tb" x="36" y="350">2 · Make a small, direct change</text><text class="d-tm" x="440" y="350">/sc:implement, or a plain edit</text>
       <rect class="d-box" x="20" y="374" width="720" height="44" rx="8"/>
       <text class="d-tb" x="36" y="402">1 · Ask a question</text><text class="d-tm" x="440" y="402">ask, or /sc:explain</text>
     </svg>
-    <figcaption class="cap">The six levels. Above the hard limit (which does not apply to contained <code>/sc:cleanup</code> and <code>/sc:improve</code> work on a folder, other than structural migrations), a written plan is normally level 3, not automatically level 4.</figcaption>
+    <figcaption class="cap">The six levels. Above the hard limit (which does not apply to contained <code>/sc:cleanup</code> work on a folder, other than structural migrations), a written plan is normally level 3, not automatically level 4.</figcaption>
   </figure>
   <p>Level 4 is for an explicit choice of the task-file (MDTM) format, an existing MDTM task, or an exceptionally complex, long-running phased program that needs its research, checklist and phase-reviewer machinery. File count, sessions, an existing spec, PRD or TDD (product and design documents), risk or drift alone never make work level 4. After the level 6 documents, ordinary planning is level 3 (<code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution); <code>/roadmap</code> only if you explicitly choose it or have the exceptional level 4 need (guide 3.1).</p>
 </section>

@@ -1,0 +1,14 @@
+# T12 checks
+AC1 git grep in commands docs/generated:
+none
+AC2 diff stat:
+ commands/sc-analyze.md      |  2 +-
+ commands/sc-help.md         |  1 -
+ commands/sc-recommend.md    | 30 +++++++++---------------------
+ commands/sc-troubleshoot.md |  2 +-
+ 4 files changed, 11 insertions(+), 24 deletions(-)
+remaining improve words in sc-recommend.md:
+117:    - "refactor|cleanup|improve|quality" → improve_category + --persona-refactorer
+184:  improve_category:
+269:   "Tests validating improvements"
+732:/sc:sc:recommend "performance improvement"
