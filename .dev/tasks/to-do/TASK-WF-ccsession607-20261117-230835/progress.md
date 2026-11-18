@@ -18,3 +18,11 @@ T6: complete verdict=compliant ac=T6.AC1,T6.AC2 evidence=T6.AC1@./artifacts/stag
 T7: complete verdict=compliant ac=T7.AC1,T7.AC2 evidence=T7.AC1@tests/unit/test_ccsession_tag.py:5240,T7.AC2@tests/unit/test_ccsession_tag.py:5298 extras=lint:pass,typecheck:skip,test:pass files=tests/unit/test_ccsession_tag.py
 T8: complete verdict=compliant ac=T8.AC1,T8.AC2 evidence=T8.AC1@tests/unit/test_ccsession_tag.py:5346,T8.AC2@tests/unit/test_ccsession_tag.py:5372 extras=lint:pass,typecheck:skip,test:pass files=tests/unit/test_ccsession_tag.py
 T9: complete verdict=compliant ac=T9.AC1,T9.AC2 evidence=T9.AC1@tests/unit/test_ccsession_tag.py:5383,T9.AC2@tests/unit/test_ccsession_tag.py:5449 extras=lint:pass,typecheck:skip,test:pass files=tests/unit/test_ccsession_tag.py
+T10: start sha=fcfedf9cf5689d041117f52b4030442381f0dd7c
+T11: start sha=fcfedf9cf5689d041117f52b4030442381f0dd7c
+T12: start sha=fcfedf9cf5689d041117f52b4030442381f0dd7c
+T13: start sha=fcfedf9cf5689d041117f52b4030442381f0dd7c
+T10: complete verdict=compliant ac=T10.AC1,T10.AC2,T10.AC3 evidence=T10.AC1@tests/unit/test_ccsession_tag.py:5715,T10.AC2@./artifacts/stage2-helper-timing.md:1,T10.AC3@tests/unit/test_ccsession_tag.py:5762 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/skills/ccsession-tag/scan_sessions.py,tests/unit/test_ccsession_tag.py
+T11: complete verdict=compliant ac=T11.AC1,T11.AC2,T11.AC3 evidence=T11.AC1@tests/unit/test_ccsession_tag.py:5612,T11.AC2@./artifacts/stage2-timing.md:1,T11.AC3@tests/unit/test_ccsession_tag.py:5667 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/skills/ccsession-tag/ccsession
+T12: complete verdict=compliant ac=T12.AC1,T12.AC2 evidence=T12.AC1@tests/unit/test_ccsession_tag.py:5612,T12.AC2@tests/unit/test_ccsession_tag.py:5612 extras=lint:pass,typecheck:skip,test:pass files=tests/unit/test_ccsession_tag.py
+T13: complete verdict=compliant ac=T13.AC1,T13.AC2 evidence=T13.AC1@tests/unit/test_ccsession_tag.py:5762,T13.AC2@tests/unit/test_ccsession_tag.py:5828 extras=lint:pass,typecheck:skip,test:pass files=tests/unit/test_ccsession_tag.py

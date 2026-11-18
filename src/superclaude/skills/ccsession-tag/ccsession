@@ -1655,6 +1655,45 @@ find_transcript() {
   fi
 }
 
+scan_topics() {
+  # <topics folder> <filter>: reads the session id of every topic file of the list
+  # (SCAN_UUID, in glob order, one per file that list_sessions will list). For the
+  # worktree view, which has to find where each session was started, it also asks
+  # scan_sessions.py, once for the whole list, for each session's transcript and
+  # start folder (SCAN_PATH, SCAN_STATUS, SCAN_HOME): that is a few processes per
+  # session in the shell code above, and the other views need no start folder.
+  # SCAN_OK=1 only when the helper ran and answered for every session; otherwise
+  # (python3 missing, an error, a different number of records) SCAN_OK stays 0 and
+  # list_sessions does all of it with the code above, row by row. A record whose
+  # status is not empty is worked out by that code too. The helper writes nothing.
+  local f u out line rest us=$'\x1f' n=0 i=0
+  SCAN_UUID=() SCAN_PATH=() SCAN_STATUS=() SCAN_HOME=()
+  SCAN_OK=0 SCAN_I=0
+  for f in "$1"/*.txt; do
+    [ -f "$f" ] || continue
+    # An unreadable file gives no id (not the previous row's).
+    u=""
+    IFS= read -r u < "$f" || true
+    SCAN_UUID[n]=$u
+    n=$((n + 1))
+  done
+  [ "$n" -gt 0 ] || return 0
+  [ "$2" = worktree ] || return 0
+  [ -f "$CCSESSION_DIR/scan_sessions.py" ] || return 0
+  out=$(python3 "$CCSESSION_DIR/scan_sessions.py" "$PROJECTS_DIR" "${1%/*}" \
+    "${SCAN_UUID[@]}" 2>/dev/null) || return 0
+  while IFS= read -r line; do
+    [ "$i" -lt "$n" ] || return 0
+    SCAN_PATH[i]=${line%%"$us"*}
+    rest=${line#*"$us"}
+    SCAN_STATUS[i]=${rest%%"$us"*}
+    SCAN_HOME[i]=${rest#*"$us"}
+    i=$((i + 1))
+  done < <(printf '%s\n' "$out")
+  [ "$i" = "$n" ] && SCAN_OK=1
+  return 0
+}
+
 format_duration() {
   local secs="$1"
   [ "$secs" -lt 0 ] && secs=0
@@ -1711,21 +1750,30 @@ list_sessions() {
           echo ""
           echo "$heading"
         fi
+        # Where each session's transcript is and where it was started, for the
+        # whole list at once (the heading above is still printed only for a list
+        # with rows).
+        scan_topics "$ws_dir" "$filter"
       fi
       local topic uuid jsonl start_ts last_ts start_str last_str dur_str range
-      local row place="here" was=""
+      local row place="here" was="" ri=$SCAN_I
+      SCAN_I=$((SCAN_I + 1))
       topic=${topic_file##*/}
       topic=$(file_to_name "${topic%.txt}")
-      # The first line is the session id; an unreadable file gives no id (not the
-      # previous row's), so its row reads "(transcript missing)".
-      uuid=""
-      IFS= read -r uuid < "$topic_file" || true
-      jsonl="${ws_dir%/*}/$uuid.jsonl"
-      # Claude Code keeps the conversation under the folder it ran in, which
-      # is not where a repo's name list lives; take the newest copy.
-      if [ ! -f "$jsonl" ]; then
-        find_transcript "$uuid"
-        jsonl=$FOUND_JSONL
+      # The session id: the first line of the file (read by scan_topics; an
+      # unreadable file gives no id, not the previous row's, so its row reads
+      # "(transcript missing)").
+      uuid=${SCAN_UUID[ri]}
+      if [ "$SCAN_OK" = 1 ] && [ -z "${SCAN_STATUS[ri]}" ]; then
+        jsonl=${SCAN_PATH[ri]}
+      else
+        jsonl="${ws_dir%/*}/$uuid.jsonl"
+        # Claude Code keeps the conversation under the folder it ran in, which
+        # is not where a repo's name list lives; take the newest copy.
+        if [ ! -f "$jsonl" ]; then
+          find_transcript "$uuid"
+          jsonl=$FOUND_JSONL
+        fi
       fi
 
       if [ ! -f "$jsonl" ]; then
@@ -1733,7 +1781,11 @@ list_sessions() {
           "$dim" "(transcript missing)" "${uuid:0:8}" "$off"
       else
         if [ "$filter" = worktree ]; then
-          was=$(session_home "$jsonl")
+          if [ "$SCAN_OK" = 1 ] && [ -z "${SCAN_STATUS[ri]}" ]; then
+            was=${SCAN_HOME[ri]}
+          else
+            was=$(session_home "$jsonl")
+          fi
           place=$(session_place "$was" "$jsonl")
           # A session of another worktree is only counted: its times and row
           # would be built and thrown away.
