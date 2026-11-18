@@ -25,3 +25,9 @@ One entry per step, with times and what should change. The 6.0.0 log is `../v6.0
 - **Time:** 9 minutes from the rebased head to the merge.
 - **Went well:** the merge of `master` before the rebase meant no conflict.
 - **Got in the way:** a stacked pull request shows DIRTY on its old base until the agent retargets it; the watch on it reports that as a change, which is expected, not a problem.
+
+### 5. #656 merged (2026-11-18 21:31Z to 21:57Z)
+- **Step:** the agent rebased #656 onto `integration` (`2ca022bf7`) and pushed head `607c24566` at about 21:38Z. On that head Augment found one Medium issue: `ib_agent_core.md` still named `/taskbuilder` at lines 857 and 934 (I read the lines at the head: true). I did not merge; the agent fixed it in `5cf2df7a5` (the protocol text, the "Creating a New Task" option and the quick-reference list now point at `/sc:workflow` then `/sc:implement`) and resolved the thread. Verified on GitHub on `5cf2df7a5`: 6 of 6 checks, merge CLEAN, Codex code and security completed with no findings, Augment "0 suggestions", 2 threads resolved. I read the file list (78 files: the three skill folders, the eval suite and its script, one reference doc, the tests that read them; no kept item removed) and the retire-data edit (the three new skill names with their hashes). Squash merge pinned to the head as `a3edd84db` at 21:56:55Z.
+- **Time:** 25 minutes from the rebase to the merge, one fix round.
+- **Got in the way:** Augment's first review of the rebased head came after the checks were green, so I could not merge on "checks green"; I had to wait for its review to see the open thread. The rule (both reviewers finished on the final head, no open thread) caught it.
+- **Leftover for issue 572:** two other rules files name the old `/rf:taskbuilder` command (see readiness section 2). Out of scope in issue 647.
