@@ -428,6 +428,11 @@ write_origin() {
   # <list> <session id> <human|agent>: replace the marker atomically. The
   # caller holds the list's lock.
   local d="$1/.origin" f
+  # A linked .origin would send the marker to wherever the link points.
+  if [ -L "$d" ]; then
+    echo "ccsession: $d is a symlink; no marker written" >&2
+    return 1
+  fi
   mkdir -p "$d" || return 1
   f=$(mktemp "$d/.ccsession-origin.XXXXXX") || return 1
   printf '%s\n' "$3" > "$f" && mv -f "$f" "$d/$2" || { rm -f "$f"; return 1; }

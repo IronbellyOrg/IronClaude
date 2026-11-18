@@ -608,18 +608,69 @@ def test_a_transcript_that_cannot_be_removed_keeps_its_name_and_marker(
     assert (orca_dir(projects) / "pane1").is_file()
 
 
-def test_a_list_whose_lock_is_held_keeps_its_name_for_the_next_run(
+def test_a_session_whose_list_is_locked_is_kept_whole_for_the_next_run(
     projects: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    # The lists that name a session are locked from the last look until its names
+    # are gone (ccsession --mark takes the same lock), so a busy list keeps the
+    # whole session, transcript included.
     monkeypatch.setattr(keep, "LOCK_WAIT", 0.2)
     session = make(projects, 1, "agent-busy", age_days=90)
     lock = projects / REPO / "topics" / ".ccsession-lock"
     with open(lock, "a") as held:
         fcntl.flock(held, fcntl.LOCK_EX)
         result = run(projects, apply=True)
-    assert not (projects / "-work-a" / f"{session}.jsonl").exists()
+    assert result.deleted == 0
+    assert (projects / "-work-a" / f"{session}.jsonl").is_file()
+    assert (projects / "-work-a" / session / "tool.txt").is_file()
     assert (projects / REPO / "topics" / "agent-busy.txt").is_file()
     assert any("busy" in line for line in result.skipped)
+
+
+def test_a_linked_file_history_is_never_deleted_through(
+    projects: Path, tmp_path: Path
+) -> None:
+    session = make(projects, 1, "agent-old", age_days=90)
+    home = projects.parent.parent
+    real = home / ".claude" / "file-history" / session
+    outside = tmp_path / "elsewhere"
+    outside.mkdir()
+    shutil.move(str(real), str(outside / session))
+    (home / ".claude" / "file-history").rmdir()
+    (home / ".claude" / "file-history").symlink_to(outside)
+    result = run(projects, apply=True)
+    assert result.candidates == [] and len(result.skipped) == 1
+    assert (outside / session / "v1").read_text() == "z" * 20
+    assert (projects / "-work-a" / f"{session}.jsonl").is_file()
+
+
+def test_a_tab_record_replaced_after_the_plan_is_not_deleted(projects: Path) -> None:
+    make(projects, 1, "alive", age_days=1, origin=None)
+    tabs = orca_dir(projects)
+    tabs.mkdir(parents=True)
+    record = tabs / "pane"
+    record.write_text(f"{sid(25)}\n/w\nt\n")
+    os.utime(record, (NOW - 3 * DAY,) * 2)
+    result = run(projects)
+    assert result.stale_tabs == [record]
+    # A live session starts in the tab and replaces the record before the delete.
+    record.write_text(f"{sid(1)}\n/w\nterm-new\n")
+    keep.apply_plan(result, projects, projects.parent.parent, tabs)
+    assert record.read_text().startswith(sid(1))
+
+
+def test_a_marker_whose_session_got_a_name_after_the_plan_is_not_deleted(
+    projects: Path,
+) -> None:
+    make(projects, 1, "alive", age_days=1, origin=None)
+    mark(projects, REPO, sid(24), "agent")
+    gone = projects / REPO / "topics" / ".origin" / sid(24)
+    os.utime(gone, (NOW - 3 * DAY,) * 2)
+    result = run(projects)
+    assert result.stale_markers == [gone]
+    save(projects, REPO, "named-meanwhile", sid(24))
+    keep.apply_plan(result, projects, projects.parent.parent, orca_dir(projects))
+    assert gone.is_file()
 
 
 @pytest.mark.parametrize("days", [0, 1, 29, -5, True, "29", "abc", 30.0])

@@ -426,6 +426,7 @@ class Pruned:
     stale_names: list[NameFile] = field(default_factory=list)
     stale_markers: list[Path] = field(default_factory=list)
     stale_tabs: list[Path] = field(default_factory=list)
+    stale_tab_sessions: dict[Path, str] = field(default_factory=dict)  # as planned
     deleted: int = 0  # agent sessions removed (apply only)
     removed_stale: int = 0  # stale names, markers and tab records removed
 
@@ -565,6 +566,9 @@ def plan(
             unsafe += [
                 p for p in tab_files if orca_dir is None or not inside(p, orca_dir)
             ]
+            if history.is_symlink() and any(p.parent == history for p in folders):
+                # A linked file-history would make its target the boundary.
+                unsafe.append(history)
             if unsafe:
                 result.skipped.append(
                     "%s: %s is not a plain file under the saved sessions; left alone"
@@ -617,6 +621,7 @@ def plan(
                 and inside(path, orca_dir)
             ):
                 result.stale_tabs.append(path)
+                result.stale_tab_sessions[path] = session
     return result
 
 
@@ -637,6 +642,58 @@ def remove_file(path: Path, root: Path, result: Pruned, what: str) -> bool:
     return True
 
 
+def prune_one(
+    cand: Candidate, result: Pruned, projects_dir: Path, history: Path, cutoff: float
+) -> bool:
+    """Delete one candidate; the caller holds the lock of every list that names it.
+    True when the session is gone, with its names and marker."""
+    label = cand.label
+    # Seen again right before the delete: a copy that changed meanwhile is a
+    # session in use.
+    if any(mtime_of(p, missing=0.0) > cutoff for p in cand.transcripts):
+        result.skipped.append("%s: changed while pruning; kept" % label)
+        return False
+    # So is a session that was renamed or marked since the plan: it must still
+    # have exactly the names it had, every one marked agent.
+    now_rows = by_session(projects_dir).get(cand.session, [])
+    if {r.path for r in now_rows} != {n.path for n in cand.names} or any(
+        marker(r.list_dir, cand.session) != "agent" for r in now_rows
+    ):
+        result.skipped.append("%s: renamed or marked while pruning; kept" % label)
+        return False
+    clean = True
+    for path in cand.transcripts:
+        clean &= remove_file(path, projects_dir, result, "transcript")
+    if not clean:
+        return False  # a conversation that stays keeps everything else of the session
+    for folder in cand.folders:
+        root = history if folder.parent == history else projects_dir
+        if not inside(folder, root) or (root == history and history.is_symlink()):
+            result.skipped.append(
+                "%s: not a plain folder under %s; left alone" % (folder, root)
+            )
+            clean = False
+            continue
+        try:
+            shutil.rmtree(folder)
+        except FileNotFoundError:
+            pass
+        except OSError as exc:
+            result.skipped.append("folder %s: %s" % (folder, exc))
+            clean = False
+    if not clean:
+        return False
+    # The conversation is gone; now its names and marker.
+    for row in cand.names:
+        if first_line(row.path) == cand.session:
+            remove_file(row.path, projects_dir, result, "name")
+    for list_dir in sorted({n.list_dir for n in cand.names}):
+        marker_file = list_dir / ORIGIN / cand.session
+        if marker_file.is_file() or marker_file.is_symlink():
+            remove_file(marker_file, projects_dir, result, "marker")
+    return True
+
+
 def apply_plan(
     result: Pruned, projects_dir: Path, home: Path, orca_dir: Path | None
 ) -> None:
@@ -646,61 +703,22 @@ def apply_plan(
     history = home / ".claude" / "file-history"
     cutoff = result.now - result.days * DAY
     for cand in result.candidates:
-        label = cand.label
-        # Seen again right before the delete: a copy that changed meanwhile is a
-        # session in use.
-        if any(mtime_of(p, missing=0.0) > cutoff for p in cand.transcripts):
-            result.skipped.append("%s: changed while pruning; kept" % label)
+        # Every list that names the session is locked from the last look at its
+        # names and markers until they are gone: ccsession --mark and the hook take
+        # the same lock, so a promotion cannot slip in between the look and the delete.
+        try:
+            with contextlib.ExitStack() as stack:
+                for folder in sorted({n.list_dir for n in cand.names}):
+                    stack.enter_context(locked(folder))
+                removed = prune_one(cand, result, projects_dir, history, cutoff)
+        except Busy as exc:
+            result.skipped.append(
+                "%s: list is busy (%s); kept for the next run" % (cand.label, exc)
+            )
             continue
-        # So is a session that was renamed or marked since the plan: it must still
-        # have exactly the names it had, every one marked agent.
-        now_rows = by_session(projects_dir).get(cand.session, [])
-        if {r.path for r in now_rows} != {n.path for n in cand.names} or any(
-            marker(r.list_dir, cand.session) != "agent" for r in now_rows
-        ):
-            result.skipped.append("%s: renamed or marked while pruning; kept" % label)
-            continue
-        clean = True
-        for path in cand.transcripts:
-            clean &= remove_file(path, projects_dir, result, "transcript")
-        if not clean:
-            continue  # a conversation that stays keeps everything else of the session
-        for folder in cand.folders:
-            root = history if folder.parent == history else projects_dir
-            if not inside(folder, root):
-                result.skipped.append(
-                    "%s: not a plain folder under %s; left alone" % (folder, root)
-                )
-                clean = False
-                continue
-            try:
-                shutil.rmtree(folder)
-            except FileNotFoundError:
-                pass
-            except OSError as exc:
-                result.skipped.append("folder %s: %s" % (folder, exc))
-                clean = False
-        if not clean:
-            continue
-        # The conversation is gone; now its names, marker and tab record.
-        for list_dir in sorted({n.list_dir for n in cand.names}):
-            try:
-                with locked(list_dir):
-                    for row in cand.names:
-                        if (
-                            row.list_dir == list_dir
-                            and first_line(row.path) == cand.session
-                        ):
-                            remove_file(row.path, projects_dir, result, "name")
-                    marker_file = list_dir / ORIGIN / cand.session
-                    if marker_file.is_file() or marker_file.is_symlink():
-                        remove_file(marker_file, projects_dir, result, "marker")
-            except Busy as exc:
-                result.skipped.append(
-                    "%s: list is busy; name left for the next run" % exc
-                )
-        remove_tabs(cand.tabs, cand.session, orca_dir, result)
-        result.deleted += 1
+        if removed:
+            remove_tabs(cand.tabs, cand.session, orca_dir, result)
+            result.deleted += 1
     # Stale names, markers and tab records, each checked again under the lock: the
     # name still holds the id and no conversation has appeared for it.
     now_copies = transcripts(projects_dir)
@@ -726,18 +744,31 @@ def apply_plan(
     for path in result.stale_markers:
         try:
             with locked(path.parent.parent):
-                result.removed_stale += remove_file(
-                    path, projects_dir, result, "marker"
-                )
+                if path.name not in now_copies and not any(
+                    r.session == path.name for r in names(path.parent.parent)
+                ):
+                    result.removed_stale += remove_file(
+                        path, projects_dir, result, "marker"
+                    )
         except (Busy, OSError) as exc:
             result.skipped.append("%s: %s" % (path, exc))
     if result.stale_tabs and orca_dir is not None:
         try:
             with locked(orca_dir):
                 for path in result.stale_tabs:
-                    result.removed_stale += remove_file(
-                        path, orca_dir, result, "tab record"
-                    )
+                    # The record may have been replaced since the plan: it goes only
+                    # while it still names the planned session, that session still
+                    # has no conversation, and it is still older than the grace.
+                    planned = result.stale_tab_sessions.get(path, "")
+                    if (
+                        planned
+                        and first_line(path) == planned
+                        and planned not in now_copies
+                        and mtime_of(path) < result.now - GRACE
+                    ):
+                        result.removed_stale += remove_file(
+                            path, orca_dir, result, "tab record"
+                        )
         except (Busy, OSError) as exc:
             result.skipped.append("%s: %s" % (orca_dir, exc))
 

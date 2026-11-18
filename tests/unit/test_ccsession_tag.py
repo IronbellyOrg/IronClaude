@@ -6995,3 +6995,32 @@ def test_a_hidden_session_still_reopens_in_its_orca_tab(tmp_path: Path) -> None:
     (tabs / "tab-1+leaf-1").write_text(f"{session}\n{main.resolve()}\nterm_old\n")
     env = {**env, "ORCA_PANE_KEY": "tab-1:leaf-1", "ORCA_TERMINAL_HANDLE": "term_new"}
     assert _ccs(main, env, "--orca-tab-reopen").stdout == f"{session}\tagent old\n"
+
+
+def test_a_linked_origin_folder_is_never_written_through(tmp_path: Path) -> None:
+    # An .origin that is a symlink would send the marker to the link's target:
+    # --mark says so and the hook's write is skipped, writing nothing outside.
+    main, _, projects, env = _named_repo(tmp_path)
+    topics = projects / ORIGIN_LIST / "topics"
+    topics.mkdir(parents=True)
+    (topics / "demo.txt").write_text(f"{SESSION_ID}\n")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (topics / ".origin").symlink_to(outside)
+    marked = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--mark", "demo", "human"],
+        cwd=main,
+        env=env,
+        text=True,
+        capture_output=True,
+    )
+    assert marked.returncode == 1 and "symlink" in marked.stderr
+    _sync(
+        main,
+        env,
+        OTHER_SESSION,
+        "auto-one",
+        *_sync_opts("SessionStart", "startup", "agent"),
+    )
+    assert (topics / "auto-one.txt").is_file()  # the name itself is still saved
+    assert list(outside.iterdir()) == []
