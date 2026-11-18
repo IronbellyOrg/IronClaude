@@ -111,10 +111,10 @@ uv run python script.py          # Execute scripts
 
 ## 📂 Project Structure
 
-**Current v5.0.0 Architecture**: Python package with slash commands
+**Current v6.0.0 Architecture**: Python package with slash commands
 
 ```text
-# Claude Code Configuration (v5.0.0)
+# Claude Code Configuration (v6.0.0)
 .claude/
 ├── settings.json        # User settings
 ├── commands/sc/         # Dev copies of the slash commands, synced from src/ by `make sync-dev`
@@ -248,13 +248,13 @@ Registered via `pyproject.toml` entry point, automatically available after insta
 - Automatic dependency analysis
 - Example: [Read files in parallel] → Analyze → [Edit files in parallel]
 
-### Slash Commands (v5.0.0)
+### Slash Commands (v6.0.0)
 
 - Install via: `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` (the PyPI `superclaude` package is the upstream project, not this fork)
 - Commands installed to: `~/.claude/commands/sc/`
 - Available: run `/sc:help` to list every installed command and skill
 
-> **Note**: A TypeScript plugin system is planned for a later release; it is not part of 5.0.0.
+> **Note**: A TypeScript plugin system is planned for a later release; it is not part of 6.0.0.
 
 ## 🧪 Testing with PM Agent
 
@@ -400,7 +400,7 @@ superclaude mcp  # Interactive install, gateway is default (requires Docker)
 
 ## 🚀 Development & Installation
 
-### Current Installation Method (v5.0.0)
+### Current Installation Method (v6.0.0)
 
 **Standard Installation**:
 
@@ -437,13 +437,13 @@ make verify
 
 ### Plugin System (Not Yet Available)
 
-The TypeScript plugin system (`.claude-plugin/`, marketplace) is planned for a later release; 5.0.0 does not include it.
+The TypeScript plugin system (`.claude-plugin/`, marketplace) is planned for a later release; 6.0.0 does not include it.
 See `docs/plugin-reorg.md` for details.
 
 ## 📊 Package Information
 
 **Package name**: `superclaude`
-**Version**: 5.0.0 (see `version` in `pyproject.toml`)
+**Version**: 6.0.0 (see `version` in `pyproject.toml`)
 **Python**: >=3.10
 **Build system**: hatchling (PEP 517)
 
