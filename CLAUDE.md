@@ -254,7 +254,7 @@ Registered via `pyproject.toml` entry point, automatically available after insta
 - Commands installed to: `~/.claude/commands/sc/`
 - Available: run `/sc:help` to list every installed command and skill
 
-> **Note**: A TypeScript plugin system is planned for a later release; it is not part of 5.0.0.
+> **Note**: A TypeScript plugin system is planned for a later release; it is not part of 6.0.0.
 
 ## 🧪 Testing with PM Agent
 
@@ -400,7 +400,7 @@ superclaude mcp  # Interactive install, gateway is default (requires Docker)
 
 ## 🚀 Development & Installation
 
-### Current Installation Method (v5.0.0)
+### Current Installation Method (v6.0.0)
 
 **Standard Installation**:
 
@@ -437,7 +437,7 @@ make verify
 
 ### Plugin System (Not Yet Available)
 
-The TypeScript plugin system (`.claude-plugin/`, marketplace) is planned for a later release; 5.0.0 does not include it.
+The TypeScript plugin system (`.claude-plugin/`, marketplace) is planned for a later release; 6.0.0 does not include it.
 See `docs/plugin-reorg.md` for details.
 
 ## 📊 Package Information
