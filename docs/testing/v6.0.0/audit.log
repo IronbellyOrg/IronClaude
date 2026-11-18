@@ -1,0 +1,22 @@
+<!-- SC:POST-RELEASE:RUN
+version: v6.0.0
+previous_tag: v5.0.0
+run_mode: additive
+install_surface_class: package
+output_dir: /home/coder/workspaces/worktrees/IronClaude/v6-post-release/docs/testing/v6.0.0
+report_path: pending
+manifest_path: pending
+caller: /sc:post-release
+mcps_available: context7|tavily
+-->
+<!-- SC:POST-RELEASE:RESULT
+status: partial
+run_mode: additive
+install_surface_class: package
+report_path: /home/coder/workspaces/worktrees/IronClaude/v6-post-release/docs/testing/v6.0.0/post-release-report.md
+manifest_path: /home/coder/workspaces/worktrees/IronClaude/v6-post-release/docs/testing/v6.0.0/post-release-manifest.json
+workstream_results: {"A":{"updated":14,"created":1,"gaps":5,"verified":true},"B":{"updated":6,"created":0,"gaps":5,"verified":true},"C":{"updated":0,"created":2,"gaps":3,"verified":true},"D":{"updated":0,"created":0,"gaps":1,"verified":false},"E":{"updated":0,"created":0,"gaps":1,"verified":false}}
+c_e2e_result: green
+gap_list: [{"workstream":"A","gap":"observe, review and issue-pipeline have a listing only","evidence":"docs/user-guide/cli-groups.md","remedy":"write a guide per group"},{"workstream":"A","gap":"docs for /sc:issue, ccsession changes, Ponytail, pr-submit conflicts not checked line by line","evidence":"manifest present-unverified cells","remedy":"follow-up check"},{"workstream":"A","gap":"/sc:code-review, /sc:create, /sc:review named in docs but not shipped (same at v5.0.0)","evidence":"docs/swarm/README.md:67; docs/user-guide/agents.md:912,928","remedy":"replace or mark as examples"},{"workstream":"A","gap":"CHANGELOG 6.0.0 lacks entries for observe, review, issue-watch, issue-pipeline, /sc:issue","evidence":"CHANGELOG.md [6.0.0]","remedy":"owner to approve entries"},{"workstream":"A","gap":"release notes manual-validation numbers differ from this run; Known Issues says upgrading.md is stale","evidence":"docs/releases/v6.0.0.md; transcript 1197-1199, 1537-1539","remedy":"orchestrator to correct or accept"},{"workstream":"B","gap":"no technical doc for superclaude observe","evidence":"src/superclaude/cli/observe/","remedy":"write a design or reference note"},{"workstream":"B","gap":"orchestration reference: 120 citations differ between tags, baseline unknown","evidence":"check_citations.py output","remedy":"re-verify against its own baseline"},{"workstream":"B","gap":"nfr-conv-2 note: 3 moved citations, pre-existing","evidence":"docs/reference/nfr-conv-2-prose-determinism.md:131,152,156","remedy":"re-anchor or retire"},{"workstream":"B","gap":"git-standards-protocols.md is another project's doc (v5.0.0 item 71)","evidence":"docs/developer-guide/git-standards-protocols.md","remedy":"remove or replace"},{"workstream":"B","gap":"root VERSION file says 3.7, pyproject says 6.0.0","evidence":"VERSION; scripts/build_superclaude_plugin.py:25","remedy":"update or delete"},{"workstream":"C","gap":"retention write branch shown only with CCSESSION_MANAGED_SETTINGS_DIR (host managed value 90)","evidence":"transcript 860-878","remedy":"none needed"},{"workstream":"C","gap":"installer exits 1 when claude is replaced by its auto-updater mid-run; rerun succeeds","evidence":"evidence c-e2e-run*-transcript.txt","remedy":"optional installer retry"},{"workstream":"C","gap":"offline install and upgrade not tried","evidence":"scope","remedy":"try in a later release"},{"workstream":"D","gap":"no hand-test guides for 6.0.0 changes; v5.0.0 guides D10, D11, D13 describe removed commands","evidence":"decision 6.6","remedy":"deferred by decision"},{"workstream":"E","gap":"no sysop guides for observe, issue-watch, issue-pipeline, launch-level hooks, WORKER-CONTRACT.md","evidence":"decision 6.6","remedy":"deferred by decision"}]
+duration_sec: 2889
+-->
