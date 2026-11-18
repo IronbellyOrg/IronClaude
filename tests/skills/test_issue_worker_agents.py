@@ -28,6 +28,19 @@ WORKERS = {
 _GH_WRITE_FAMILY = re.compile(r"\bgh\s+(issue|pr|label)\b")
 _CODE_SPAN = re.compile(r"`([^`\n]+)`")
 
+# The one rule sentence for the three required plan sections (issue 651). It is
+# written verbatim in refs/create.md and in each worker's Wave 4 body job;
+# test_issue_protocol.py imports it to pin refs/create.md.
+PLAN_SECTIONS_RULE = (
+    "At every depth (quick, standard and deep) the worker fills `## Priority`, "
+    "`## Fix approach` and `## Test plan` from its `/sc:analyze` pass; "
+    '"Not known yet" is not allowed in these three sections; where the pass '
+    "leaves a gap, the worker states its assumption in the section and lists it "
+    'in `draft-notes.md`; every other section keeps the "Not known yet" rule.'
+)
+_PLAN_CARVE_OUT = "does not apply to the three required plan sections"
+_PLAN_HEADINGS = ("## Priority", "## Fix approach", "## Test plan")
+
 
 def gh_lines_missing_repo(text: str) -> list[str]:
     """Return every gh issue/pr/label mention that does not carry ``--repo``.
@@ -499,3 +512,48 @@ def test_checks_flag_pre_fix_text(tmp_path):
     text = old.read_text(encoding="utf-8")
     assert blocked_names(text) == ["summary.md"]
     assert old_summary_refs(text) == ["<D>/summary.md", "`summary.md`"]
+
+
+def plan_rule_problems(text: str) -> list[str]:
+    """Return one message per missing part of the required-plan-sections rule.
+
+    A worker file must carry the shared rule sentence, name the three required
+    headings, and carve them out of its "No invented facts" rule (issue 651).
+    """
+    problems = []
+    if PLAN_SECTIONS_RULE not in text:
+        problems.append("shared plan-sections rule sentence is missing")
+    problems.extend(
+        f"{heading} is not named" for heading in _PLAN_HEADINGS if heading not in text
+    )
+    if _PLAN_CARVE_OUT not in text:
+        problems.append('"No invented facts" does not carve out the plan sections')
+    return problems
+
+
+@pytest.mark.parametrize("name", sorted(WORKERS))
+def test_worker_states_required_plan_sections_rule(name):
+    _, body = split_frontmatter(AGENTS / f"{name}.md")
+    assert plan_rule_problems(body) == []
+
+
+@pytest.mark.parametrize("name", sorted(WORKERS))
+def test_plan_rule_check_fails_when_the_sentence_is_removed(name, tmp_path):
+    """Negative case: a temporary copy without the rule sentence fails the check."""
+    text = (AGENTS / f"{name}.md").read_text(encoding="utf-8")
+    assert text.count(PLAN_SECTIONS_RULE) == 1
+    mutated = tmp_path / f"{name}.md"
+    mutated.write_text(text.replace(PLAN_SECTIONS_RULE, ""), encoding="utf-8")
+    problems = plan_rule_problems(mutated.read_text(encoding="utf-8"))
+    assert problems == ["shared plan-sections rule sentence is missing"]
+
+
+@pytest.mark.parametrize("name", sorted(WORKERS))
+def test_plan_rule_check_fails_when_the_carve_out_is_removed(name, tmp_path):
+    """Negative case: a copy whose "No invented facts" rule has no carve-out fails."""
+    text = (AGENTS / f"{name}.md").read_text(encoding="utf-8")
+    assert text.count(_PLAN_CARVE_OUT) == 1
+    mutated = tmp_path / f"{name}.md"
+    mutated.write_text(text.replace(_PLAN_CARVE_OUT, "applies to all sections"))
+    problems = plan_rule_problems(mutated.read_text(encoding="utf-8"))
+    assert problems == ['"No invented facts" does not carve out the plan sections']

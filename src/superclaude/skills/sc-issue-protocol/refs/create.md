@@ -54,7 +54,30 @@ Mode selects feature or bug; depth selects simple or complex:
 | standard | `issue-worker-t2` | `/sc:analyze` (no `--depth`) |
 | deep | `issue-worker-t1` | `/sc:analyze --depth deep` |
 
-At deep depth the `issue-worker-t1` spawn falls back to `issue-worker-t2` as described in Wave 2. The worker fills the chosen template into `<D>/issue-body.md`, keeping every heading and writing "Not known yet" where the description and the codebase pass give nothing (no invented facts). It lists, in `<D>/draft-notes.md` (from `templates/draft-notes.md`), any new material it added beyond the description and any contradiction between the description and the code.
+At deep depth the `issue-worker-t1` spawn falls back to `issue-worker-t2` as described in Wave 2. The worker fills the chosen template into `<D>/issue-body.md`, keeping every heading and writing "Not known yet" where the description and the codebase pass give nothing (no invented facts), except in the three required plan sections defined in the next subsection. It lists, in `<D>/draft-notes.md` (from `templates/draft-notes.md`), any new material it added beyond the description and any contradiction between the description and the code.
+
+### Required plan sections (Priority, Fix approach, Test plan)
+
+The three sections `## Priority`, `## Fix approach` and `## Test plan` are the last three headings of every issue-body template, in that order, so an issue arrives with its plan already written and whoever picks it up only executes.
+
+At every depth (quick, standard and deep) the worker fills `## Priority`, `## Fix approach` and `## Test plan` from its `/sc:analyze` pass; "Not known yet" is not allowed in these three sections; where the pass leaves a gap, the worker states its assumption in the section and lists it in `draft-notes.md`; every other section keeps the "Not known yet" rule.
+
+- **Priority**: exactly one of Urgent, High, Medium or Low, then a one-line reason that names the trigger of the rule it follows from the rule set below. Never blank.
+- **Fix approach**: the ordered steps to do the work; for each step the files or components it touches (taken from the `/sc:analyze` pass); the SC commands or skills to run in order (for example `/sc:workflow`, then `/sc:implement`, then `/sc:pr-submit --monitor 3`); and the repo and the base branch.
+- **Test plan**: the tests to add or change, the regression gate (the full suite, lint and sync checks), and how a reviewer verifies the result.
+
+An assumption the worker makes where the pass leaves a gap goes under "New material" in `draft-notes.md`, one line per assumption, starting with "Assumption:", so the contradiction prompt rule below applies to it.
+
+The Priority rule set is defined once, here; the templates and the workers point at it.
+
+| Level | Trigger |
+|---|---|
+| Urgent | Data loss, a security exposure, or a broken release or gate with no workaround. |
+| High | A documented command or gate fails, or other work is blocked. |
+| Medium | Degraded behaviour with a workaround, or a planned feature. |
+| Low | Cosmetic, wording, or docs only. |
+
+Choose the highest level whose trigger the issue meets.
 
 ### Contradiction prompt rule (default D14)
 
