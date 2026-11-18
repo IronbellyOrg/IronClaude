@@ -1,0 +1,20 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: ./REPORT.md
+audit_log_path: ./audit.log
+confidence_calibrated: null
+escalation_rule_matched: null
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: true
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+citations_total: 5
+citations_dropped: 0
+evidence_validator_ran: false
+degraded_components: ["subagents-disallowed", "calibration-inline", "evidence-validator-inline"]
+needs_human_decision: false
+regression_present: false

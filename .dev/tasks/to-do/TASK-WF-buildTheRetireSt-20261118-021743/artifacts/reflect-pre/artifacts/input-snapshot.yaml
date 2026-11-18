@@ -1,0 +1,7 @@
+input_tree_sha256: n/a-single-pass-advisory
+file_list:
+  - path: source.md
+    sha256: 4aea69c5ded9671ccce466a69d3f45556df2efd533764fb3b740f6120a1e5848
+  - path: TASK-WF-buildTheRetireSt-20261118-021743.md
+    sha256: fac04fac80a6996c9627b4ce3c355cbbe24a1300d927e6872e5654a7fc19dcff
+file_count: 2
