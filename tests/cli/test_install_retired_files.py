@@ -26,6 +26,7 @@ from superclaude.cli.main import main
 
 REPO = Path(__file__).resolve().parents[2]
 TAG = "v5.0.0"
+TAG_6_0_0 = "v6.0.0"
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 
 
@@ -49,6 +50,11 @@ def _has_tag(tag: str = TAG) -> bool:
 requires_tag = pytest.mark.skipif(
     not _has_tag(),
     reason=f"git tag {TAG} is not present (shallow clone or no tags fetched); "
+    "run `git fetch --tags` to enable the tests that read it",
+)
+requires_tag_6_0_0 = pytest.mark.skipif(
+    not _has_tag(TAG_6_0_0),
+    reason=f"git tag {TAG_6_0_0} is not present (shallow clone or no tags fetched); "
     "run `git fetch --tags` to enable the tests that read it",
 )
 
@@ -502,12 +508,11 @@ def test_a_skill_file_edited_after_the_first_delete_is_never_removed(
 # ---- the upgrade from an installed 5.0.0 ------------------------------------------
 
 
-@pytest.fixture(scope="module")
-def release_5_0_0(tmp_path_factory):
-    """The commands, skills and agents folders of the v5.0.0 tag, as shipped."""
-    if not _has_tag():
-        pytest.skip(f"git tag {TAG} is not present")
-    dest = tmp_path_factory.mktemp("v5.0.0")
+def _release_folders(tmp_path_factory, tag: str) -> Path:
+    """The commands, skills and agents folders of a release tag, as shipped."""
+    if not _has_tag(tag):
+        pytest.skip(f"git tag {tag} is not present")
+    dest = tmp_path_factory.mktemp(tag)
     archive = subprocess.run(
         [
             "git",
@@ -515,7 +520,7 @@ def release_5_0_0(tmp_path_factory):
             str(REPO),
             "archive",
             "--format=tar",
-            TAG,
+            tag,
             "src/superclaude/commands",
             "src/superclaude/skills",
             "src/superclaude/agents",
@@ -525,6 +530,16 @@ def release_5_0_0(tmp_path_factory):
     ).stdout
     subprocess.run(["tar", "-x", "-C", str(dest)], input=archive, check=True)
     return dest / "src" / "superclaude"
+
+
+@pytest.fixture(scope="module")
+def release_5_0_0(tmp_path_factory):
+    return _release_folders(tmp_path_factory, TAG)
+
+
+@pytest.fixture(scope="module")
+def release_6_0_0(tmp_path_factory):
+    return _release_folders(tmp_path_factory, TAG_6_0_0)
 
 
 def _install_5_0_0(home: Path, release: Path) -> None:
@@ -661,6 +676,84 @@ def test_upgrade_from_an_installed_5_0_0(home, release_5_0_0, monkeypatch, comma
     assert _snapshot(claude) == before
     assert "Removed" not in again.output.split("Retiring commands")[-1]
     assert "⚠️" not in again.output.split("Retiring commands")[-1]
+
+
+@requires_tag_6_0_0
+@pytest.mark.parametrize("command", ["install", "update"])
+def test_upgrade_from_an_installed_6_0_0(home, release_6_0_0, monkeypatch, command):
+    """What 6.1.0 removed is dropped from an installed 6.0.0; the rest stays."""
+    _install_5_0_0(home, release_6_0_0)  # a plain copy of the tag's folders
+    claude = _claude(home)
+    commands = claude / "commands" / "sc"
+    skills = claude / "skills"
+    agents = claude / "agents"
+    src = REPO / "src" / "superclaude"
+    # what a release after 6.0.0 removed (the 5.0.0 removals are not shipped by 6.0.0)
+    gone_commands = sorted(set(data.RETIRED_COMMANDS) - set(RETIRED_COMMANDS_5_0_0))
+    gone_skills = sorted(set(data.RETIRED_SKILLS) - set(RETIRED_SKILLS_5_0_0))
+    gone_agents = sorted(data.RETIRED_AGENTS)
+    assert gone_commands and gone_skills
+    assert all((commands / f"{n}.md").exists() for n in gone_commands)
+    assert all((skills / n / "SKILL.md").exists() for n in gone_skills)
+    assert all((agents / f"{n}.md").exists() for n in gone_agents)
+    # one customized command and one skill folder with an extra file are kept
+    custom_name = gone_commands[0]
+    custom = commands / f"{custom_name}.md"
+    custom.write_text(custom.read_text() + "\nmy own tweak\n")
+    extra_name = gone_skills[0]
+    extra = skills / extra_name / "my-notes.md"
+    extra.write_text("my notes")
+    user_command = commands / "my-own-command.md"
+    user_command.write_text("mine")
+    _stub_risky_installers(monkeypatch)
+
+    result = CliRunner().invoke(
+        main, [command, *(["--force"] if command == "install" else [])]
+    )
+
+    assert result.exit_code == 0, result.output
+    assert [n for n in gone_commands[1:] if (commands / f"{n}.md").exists()] == []
+    assert [n for n in gone_skills[1:] if (skills / n).exists()] == []
+    assert [n for n in gone_agents if (agents / f"{n}.md").exists()] == []
+    assert custom.exists() and "my own tweak" in custom.read_text()
+    assert extra.exists() and (skills / extra_name / "SKILL.md").exists()
+    assert f"Kept /sc:{custom_name}" in result.output
+    assert f"Kept skill {extra_name}" in result.output
+    assert user_command.read_text() == "mine"
+    # an item this release still ships is installed and equal to the shipped copy
+    assert (commands / "implement.md").read_bytes() == (
+        src / "commands" / "implement.md"
+    ).read_bytes()
+    assert (skills / "sc-implement-protocol" / "SKILL.md").read_bytes() == (
+        src / "skills" / "sc-implement-protocol" / "SKILL.md"
+    ).read_bytes()
+
+    # a second run changes nothing and is not alarming
+    before = _snapshot(claude)
+    again = CliRunner().invoke(
+        main, [command, *(["--force"] if command == "install" else [])]
+    )
+    assert again.exit_code == 0, again.output
+    assert _snapshot(claude) == before
+    assert "Removed" not in again.output.split("Retiring commands")[-1]
+
+
+@requires_tag_6_0_0
+def test_upgrade_from_an_installed_6_0_0_removes_everything_when_nothing_is_customized(
+    home, release_6_0_0, monkeypatch
+):
+    _install_5_0_0(home, release_6_0_0)
+    claude = _claude(home)
+    _stub_risky_installers(monkeypatch)
+    result = CliRunner().invoke(main, ["install", "--force"])
+    assert result.exit_code == 0, result.output
+    for name in set(data.RETIRED_COMMANDS) - set(RETIRED_COMMANDS_5_0_0):
+        assert not (claude / "commands" / "sc" / f"{name}.md").exists(), name
+    for name in set(data.RETIRED_SKILLS) - set(RETIRED_SKILLS_5_0_0):
+        assert not (claude / "skills" / name).exists(), name
+    for name in data.RETIRED_AGENTS:
+        assert not (claude / "agents" / f"{name}.md").exists(), name
+    assert "Kept" not in result.output.split("Retiring commands")[-1]
 
 
 @requires_tag
