@@ -30,7 +30,8 @@ Applied from the 6.0.0 retrospective, before the release pull request is opened.
 | 1 | Documentation skills removed | `clayphi/v61-pr1-doc-skills` | MERGED (squash) | [#650](https://github.com/IronbellyOrg/IronClaude/pull/650) | Agent's run on the final head: 22638 passed, 1 failed (`test_ccsession_tiers::test_upgraded_code_starts_a_new_shim_and_keeps_the_old`, passes alone), 70 skipped; 76 files, +1070 -13954. CI 6 of 6, Codex completed, Augment 0 suggestions, 0 open threads | 2026-11-18 21:17Z, `430eaa87f` |
 | 2 | Re-point the MDTM routes | `clayphi/v61-pr3-mdtm-routes` | MERGED (squash) | [#653](https://github.com/IronbellyOrg/IronClaude/pull/653) | Agent's run on the final head: 22850 passed, 3 failed (two real-claude PTY tests and a shared-scratch-folder test that pass alone); 45 files, +591 -784. CI 6 of 6, Codex completed, Augment 0 suggestions, 5 threads all resolved | 2026-11-18 21:31Z, `2ca022bf7` |
 | 3 | Remove the MDTM pair and `roadmap` | `clayphi/v61-pr4-mdtm` | MERGED (squash) | [#656](https://github.com/IronbellyOrg/IronClaude/pull/656) | Agent's run: 22583 passed, 4 failed (scratch-folder tests that fail under parallel load; 34 pass alone); 78 files, +217 -14049; throwaway-home install and `doctor` pass with `task`, `task-builder` and `roadmap` not installed. CI 6 of 6, Codex completed, Augment 0 suggestions, 2 threads resolved | 2026-11-18 21:56Z, `a3edd84db` |
-| 4 | Retire step data, version, changelog, release notes, upgrade guide (stacked on #656) | `clayphi/v61-pr5-release` | OPEN | [#657](https://github.com/IronbellyOrg/IronClaude/pull/657) | | |
+| 4 | Version 6.1.0, changelog (with #641 and #646), release notes, upgrade guide (the retire data was already regenerated in #656) | `clayphi/v61-pr5-release` | MERGED (squash) | [#657](https://github.com/IronbellyOrg/IronClaude/pull/657) | Agent's run on the previous head: 22584 passed, 3 failed (scratch-folder tests and one worktree-count test that fail under parallel load; pass alone); a throwaway-home upgrade from a genuine `v6.0.0` install removed exactly the 9 skills and `tdd.md`, kept `/sc:task`, `/sc:validate-tests` and all 8 `rf-*` agents, a second run printed "No retired commands, skills or agents present", `doctor` passed. CI 6 of 6, Codex completed, Augment 0 suggestions, 1 thread resolved | 2026-11-18 22:16Z, `5772d21ad` |
+| Release | Release PR, `integration` to `master` (merge commit required) | `integration` | OPEN | [#658](https://github.com/IronbellyOrg/IronClaude/pull/658) | see section 3 | opened 2026-11-18 22:18Z |
 
 Baseline on `847cccc1a` (from issue 647): 22691 passed, 10 failed, 70 skipped, 1 xpassed. The test that was in that list as order dependent, `test_install_keep::...`, was fixed by #646.
 
@@ -40,7 +41,7 @@ Known leftover (for issue 572, not in this release): `src/superclaude/rules/cont
 
 ## 3. Gate on the release PR's merge commit (G1 to G9)
 
-Not started.
+Run on a temporary clone of `integration` (`/tmp/ic61-gate`, head `5772d21ad`), whose tree id `3f0647805a37bd89039cb5766d7b60be00aa2f00` equals the tree of `refs/pull/658/merge` (checked). In progress; results are filled in below when the run ends. Changelog completeness check (every pull request merged since `v6.0.0`): #641, #646, #650, #653, #656, #657 are in `[6.1.0]`; #649 is named as excluded (documentation only). #639/#640 belong to 6.0.0.
 
 ## 4. Tag and release
 
