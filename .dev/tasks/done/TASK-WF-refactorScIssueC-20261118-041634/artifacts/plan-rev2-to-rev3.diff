@@ -1,0 +1,31 @@
+--- TASK-WF-refactorScIssueC-20261118-041634-before/TASK-WF-refactorScIssueC-20261118-041634.md	2026-11-18 04:53:58.187244011 +0000
++++ TASK-WF-refactorScIssueC-20261118-041634/TASK-WF-refactorScIssueC-20261118-041634.md	2026-11-18 04:57:26.103454194 +0000
+@@ -40,10 +40,10 @@
+ 
+ Depends on: Task 1
+ 
+-In `tests/skills/test_issue_protocol.py`, change `test_brainstorm_steps_have_no_handoff_and_use_default_models` so it expects 2 brainstorm steps across the 6 rows (it asserts 3 today). Add a new test next to it that finds the `Feature, simple` row of `src/superclaude/skills/sc-issue-protocol/refs/chains.md` and asserts it has no `/sc:brainstorm`, contains `/sc:workflow <S> --depth quick --handoff none` and contains `/sc:implement <plan path printed by step 1>`.
++In `tests/skills/test_issue_protocol.py`, change `test_brainstorm_steps_have_no_handoff_and_use_default_models` so it expects 2 brainstorm steps across the 6 rows (it asserts 3 today). Add a new test next to it that finds the `Feature, simple` row of `src/superclaude/skills/sc-issue-protocol/refs/chains.md` and asserts it has no `/sc:brainstorm`, contains `/sc:workflow <S> --depth quick --handoff none` and contains `/sc:implement <plan path printed by step 1>`. Also change `test_issue_chains_use_the_default_brainstorm_models` in `tests/skills/test_model_alias_policy.py` (lines 191-196), which asserts at least 3 `/sc:brainstorm` spans in `chains.md`, to assert at least 2; keep its check that no span carries `--models`.
+ 
+ Acceptance criteria:
+-- `uv run pytest tests/skills/test_issue_protocol.py -v` passes.
++- `uv run pytest tests/skills/test_issue_protocol.py tests/skills/test_model_alias_policy.py -v` passes.
+ - Restoring the old brainstorm step into the row makes the new test and the 2-step count fail.
+ 
+ ## Phase 2: Default level full in the command and the protocol
+@@ -60,13 +60,13 @@
+ 
+ ## Task 4: State the default in the protocol, the claim steps and the next-steps template
+ 
+-In `src/superclaude/skills/sc-issue-protocol/SKILL.md`: in the claim-mode summary (line 17) move "(default)" from `worktree` to `full`; in the error-handling table change the `E-SUBMIT-NEEDS-FULL` condition to match Task 3; in the return contract section say `pipeline_level` holds the level requested in this run, `full` when `--pipeline` was omitted, and that an `already_launched` result keeps the level its running agent was launched with, which is read from the `launch` entry of `.dev/issues/<N>/worktree.json` because the helper's `already_launched` output carries no level. In `src/superclaude/skills/sc-issue-protocol/refs/claim.md` Wave 5 step 4, change "where `<L>` is the `--pipeline` value" to "where `<L>` is the `--pipeline` value, or `full` when the flag was omitted", adding words only. In the same file add "the same `<L>` as in Wave 5" to Wave 8 where `--level <L>` is passed (and likewise to Wave 8 in SKILL.md, line 92), and in the final-output item for `launched` (line 142) make the sentence "It stops at the plan boundary and waits; run the printed implement command ... to let it continue." apply to level `worktree` only, keeping the separate sentence for `full`. In `src/superclaude/skills/sc-issue-protocol/templates/next-steps.md` line 7, replace "(up to the plan boundary at the default level)" with "(up to the plan boundary at level `worktree`, to the last step at the default level `full`)".
++In `src/superclaude/skills/sc-issue-protocol/SKILL.md`: in the claim-mode summary (line 17) move "(default)" from `worktree` to `full`; in the error-handling table change the `E-SUBMIT-NEEDS-FULL` condition to match Task 3; in the return contract section say `pipeline_level` holds the level requested in this run, `full` when `--pipeline` was omitted, and that an `already_launched` result keeps the level its running agent was launched with, which is read from the `launch` entry of `.dev/issues/<N>/worktree.json` because the helper's `already_launched` output carries no level. In `src/superclaude/skills/sc-issue-protocol/refs/claim.md` Wave 5 step 4, change "where `<L>` is the `--pipeline` value" to "where `<L>` is the `--pipeline` value, or `full` when the flag was omitted", adding words only. In the same file add a sentence after the `orca_worktree.py launch ... --level <L>` command line of Wave 8 saying `<L>` is the same level as in Wave 5, leaving that command line exactly as it is (`test_st9_prompt_is_written_before_wave_7_and_wave_8_skips_none` pins it), and add the same sentence to Wave 8 in SKILL.md (line 92), and in the final-output item for `launched` (line 142) make the sentence "It stops at the plan boundary and waits; run the printed implement command ... to let it continue." apply to level `worktree` only, keeping the separate sentence for `full`. In `src/superclaude/skills/sc-issue-protocol/templates/next-steps.md` line 7, replace "(up to the plan boundary at the default level)" with "(up to the plan boundary at level `worktree`, to the last step at the default level `full`)".
+ 
+ Acceptance criteria:
+ - SKILL.md names `full` as the default and no longer calls `worktree` the default; the Wave 5 and Wave 8 sentences pinned by `test_st7_plan_boundary_line_and_the_k_rule` and `test_st9_prompt_is_written_before_wave_7_and_wave_8_skips_none` still appear verbatim.
+ - The `next-steps.md` template still starts with a `/model ` line and still contains `Plan boundary: after step <K>`.
+ - The `E-SUBMIT-NEEDS-FULL` wording in SKILL.md and in the command file describes the same condition, including the case of no `--pipeline`.
+-- In `refs/claim.md` the `launched` text puts "run the printed implement command" under level `worktree` only, and Wave 8 says `<L>` is the same level as in Wave 5.
++- In `refs/claim.md` the `launched` text puts "run the printed implement command" under level `worktree` only, and Wave 8 says `<L>` is the same level as in Wave 5 in a sentence after the unchanged `orca_worktree.py launch ... --level <L>` command line.
+ - SKILL.md says an `already_launched` result keeps the level of the running agent and names the `launch` entry of `worktree.json` as where it is read.
+ 
+ ## Task 5: Pin the new default in the command tests

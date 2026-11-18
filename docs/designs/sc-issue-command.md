@@ -41,7 +41,7 @@ Every row is binding. "Owner" is the issue author's comments of 2026-10-30; "Com
 | B14 | Brainstorm and implement work after a claim runs on T1 or T2 by complexity. | Owner, 2026-10-30 14:15 |
 | B15 | Order of work for this feature: `/sc:design`, then `/sc:workflow`, then `/sc:implement` (the issue body's "before invoking Brainstorm" is superseded). | Coordinator brief carrying the owner instruction |
 | B16 | After `next-steps.md` is written and both comments are posted, the claim creates (or reuses) an Orca worktree `issue-<N>` and copies `.dev/issues/<N>/` into it. Orca is required (`E-ORCA-REQUIRED`); every later failure is a warning and the claim stays a success. | Owner, 2026-11-05; `docs/designs/sc-issue-claim-pipeline-flag.md` |
-| B17 | Launch levels through `--pipeline`: `worktree` (default, plans and waits for approval), `full` (also implements, no commit or push), `none` (no worktree and no agent; amended 2026-11-08, it was "worktree only, no agent" before every worktree needed an agent; amended 2026-11-17, the claim still makes no worktree and no agent, and a coordinator that owns the issue may then create the worktree and start a worker, see "Coordinator handoff for `--pipeline none`" in `src/superclaude/commands/issue.md`). For `worktree` and `full` the agent starts behind the ccsession shim through `orca agent launch --surface terminal`. | Owner, 2026-11-05; `docs/designs/sc-issue-claim-pipeline-flag.md` |
+| B17 | Launch levels through `--pipeline`: `worktree` (default, plans and waits for approval), `full` (also implements, no commit or push), `none` (no worktree and no agent; amended 2026-11-08, it was "worktree only, no agent" before every worktree needed an agent; amended 2026-11-17, the claim still makes no worktree and no agent, and a coordinator that owns the issue may then create the worktree and start a worker, see "Coordinator handoff for `--pipeline none`" in `src/superclaude/commands/issue.md`). For `worktree` and `full` the agent starts behind the ccsession shim through `orca agent launch --surface terminal`. Amended 2026-11-18: the default is now `full` for a person who types the command, and the issue watcher always passes `--pipeline none`. Amended 2026-11-18 (second): the default is now picked from the issue (a bug or a simple or medium feature of 16 hours or less gets `full`; a complex feature, a feature over 16 hours or an issue that cannot be classified gets `worktree`; an explicit `--pipeline` always wins; the issue watcher always passes `--pipeline none`). | Owner, 2026-11-05; `docs/designs/sc-issue-claim-pipeline-flag.md` |
 | B18 | `--submit` (with `--pipeline full` only) turns on the commit, the push of a feature branch and `/sc:pr-submit --monitor 3`. Nothing merges at any level; humans only review and merge. | Owner, 2026-11-05; `docs/designs/sc-issue-claim-pipeline-flag.md` |
 
 ## 3. Corrections to the issue text
@@ -62,6 +62,10 @@ Every row is binding. "Owner" is the issue author's comments of 2026-10-30; "Com
 ## 4. Command interface
 
 > **Amended 2026-11-07:** `--claim` also takes `--pipeline worktree|full|none` (default `worktree`) and `--submit`; their STOP rules (`E-CLAIM-ONLY-FLAG`, `E-SUBMIT-NEEDS-FULL`) follow the existing ones. See `docs/designs/sc-issue-claim-pipeline-flag.md` section 4.
+
+> **Amended 2026-11-18:** the `--pipeline` default is `full` when a person types the command (not `worktree`); the issue watcher always passes `--pipeline none`. A `--submit` with no `--pipeline` still stops with `E-SUBMIT-NEEDS-FULL`.
+
+> **Amended 2026-11-18 (second):** with no `--pipeline` the level is picked from the issue: a bug or a simple or medium feature of 16 hours or less gets `full`; a complex feature, a feature over 16 hours or an issue that cannot be classified gets `worktree`. An explicit `--pipeline` always wins, and the issue watcher always passes `--pipeline none`. The rule lives in `refs/claim.md` Wave 5 of the skill.
 
 ```text
 /sc:issue --claim <number|url>
@@ -246,6 +250,7 @@ Notes:
 - `--depth quick` with `--fix` is a STOP in `/sc:troubleshoot`, so the simple bug row has no `--fix` and hands the report to `/sc:implement` (issue body: "Hand the output directly off ... /sc:implement").
 - `/sc:troubleshoot --depth deep` STOPs on a description under 10 words without `--scope`; the rows always pass `--scope`.
 - `/sc:brainstorm --models` defaults to `opus,sonnet,haiku`, rotated across proposals, and takes aliases only. Every brainstorm row passes `--models opus,sonnet` so no proposal runs on the `haiku` alias, which on this workspace resolves to `glm-5.3` (section 6), below T2 (B14). Aliases cannot name a picker ID, so this is the closest the chain can get to B14 inside a brainstorm; the session tier itself is pinned by the `/model` line (default D25). Superseded by #384: the chains use the default models; see `docs/reference/model-aliases.md`.
+- Superseded 2026-11-18: the Feature, simple row no longer starts with `/sc:brainstorm`; it is `/sc:workflow <S> --depth quick --handoff none`, then `/sc:implement <plan path printed by step 1>`, because the issue summary already states the requirements.
 - `/sc:design --type` is chosen per issue by `/sc:recommend` from the four values the command accepts.
 
 ## 10. Output files and templates
@@ -491,7 +496,7 @@ Checked on 2026-11-04 against the installed files `~/.claude/commands/sc/<name>.
 
 > **Amended 2026-11-07:** criterion 1 below now ends with the worktree and the launched agent instead of "stops"; the new criteria are in `docs/designs/sc-issue-claim-pipeline-flag.md` section 17.
 
-1. `/sc:issue --claim <N>` on an open, unassigned issue of the origin repo: the T3 worker runs first; the issue is assigned to the current user; `.dev/issues/<N>/` holds `scout.md`, `clickup.json`, `accuracy-check.md`, `issue-summary.md` (with an hours estimate), `recommend.md`, `next-steps.md`, `claim-comment.md`; two marked comments are posted; the skill itself runs no next-step command (with the default `--pipeline worktree` the launched agent plans and waits for approval).
+1. `/sc:issue --claim <N>` on an open, unassigned issue of the origin repo: the T3 worker runs first; the issue is assigned to the current user; `.dev/issues/<N>/` holds `scout.md`, `clickup.json`, `accuracy-check.md`, `issue-summary.md` (with an hours estimate), `recommend.md`, `next-steps.md`, `claim-comment.md`; two marked comments are posted; the skill itself runs no next-step command (with `--pipeline worktree` the launched agent plans and waits for approval).
 2. Running the same claim again edits both comments; the comment count on the issue does not grow.
 3. A closed issue, or one assigned to someone else, stops with the stated message and makes no GitHub or ClickUp write.
 4. A claim URL for any repo other than origin stops with `E-FOREIGN-REPO`; no `gh` call is made without `--repo <origin repo>`.
