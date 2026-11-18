@@ -34,12 +34,10 @@ list) or ``cue`` (rules 3-7, from the path or the text).
                refs/reflection-rubric.md (it says calibrator_diversity is emitted into reflection-card.yaml);
    validator - src/superclaude/cli/reflect/contract.py (derive_verdict, _degraded_reason);
    consumer  - the section 9.3 map rows that have a file in this repository (sc-troubleshoot-protocol,
-               sc-task-protocol and sc-workflow-protocol SKILL.md, task-builder SKILL.md with
-               EV-4, refs/promotion-adapters.md for the Wave 7 adapters, the CI grader
+               sc-task-protocol and sc-workflow-protocol SKILL.md,
+               refs/promotion-adapters.md for the Wave 7 adapters, the CI grader
                .dev/eval-workspaces/sc-reflect/grader.py),
-               refs/ops-integration.md (PromQL label list), and from the review fix the two files whose text opens
-               return-contract.yaml and fails the gate on adversarial_convergence_score < 0.80:
-               src/superclaude/skills/task/SKILL.md (the sc-task row).
+               refs/ops-integration.md (PromQL label list).
                sc-task-protocol/SKILL.md stays listed and shows "no match" when it names none of the words.
 2. PREFIX_ROLES: tests/cli/reflect/ is consumer (deferred list item 9: fixtures and tests that carry merge_method).
 3. A path with a component containing "roadmap" (any letter case) is "not in scope": the roadmap skill uses the
@@ -139,19 +137,10 @@ NAMED_ROLES = {
         "producer",
         "review fix: says calibrator_diversity is emitted into reflection-card.yaml",
     ),
-    "src/superclaude/skills/task/SKILL.md": (
-        "consumer",
-        "section 9.3 sc-task row (review fix): opens return-contract.yaml, "
-        "fails the gate on adversarial_convergence_score < 0.80",
-    ),
     f"{_SKILL}/refs/ops-integration.md": ("consumer", "PromQL label list"),
     f"{_SKILL}/refs/promotion-adapters.md": (
         "consumer",
         "section 9.3 Wave 7 promotion adapters",
-    ),
-    "src/superclaude/skills/task-builder/SKILL.md": (
-        "consumer",
-        "section 9.3 row, EV-4",
     ),
     "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md": (
         "consumer",
@@ -159,7 +148,7 @@ NAMED_ROLES = {
     ),
     "src/superclaude/skills/sc-task-protocol/SKILL.md": (
         "consumer",
-        "section 9.3 sc-task row as first mapped; the gate text is in skills/task/SKILL.md",
+        "section 9.3 sc-task row as first mapped",
     ),
     "src/superclaude/skills/sc-workflow-protocol/SKILL.md": (
         "consumer",

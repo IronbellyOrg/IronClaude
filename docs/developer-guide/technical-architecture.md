@@ -36,13 +36,15 @@ The lists below give counts rather than every file name. Run `superclaude instal
 ├── RESEARCH_CONFIG.md              # Deep-research configuration
 ├── BUSINESS_SYMBOLS.md             # Business-panel symbols
 ├── BUSINESS_PANEL_EXAMPLES.md      # Business-panel examples
-│                                   # (11 core files in all)
-├── agents/                         # 45 agent files, e.g. backend-architect.md,
-│                                   # pm-agent.md, rf-qa.md, technical-writer.md
+├── WORKER-CONTRACT.md              # Rules for running /sc: commands as Orca workers (read by commands and skills)
+│                                   # (12 core files in all)
+├── agents/                         # 48 agent files, e.g. backend-architect.md,
+│                                   # pm-agent.md, rf-qa.md, technical-writer.md,
+│                                   # issue-worker-t1.md (spawned by /sc:issue)
 ├── commands/
-│   └── sc/                         # 45 slash commands (/sc:<name>), e.g. implement.md,
+│   └── sc/                         # 35 slash commands (/sc:<name>), e.g. implement.md,
 │                                   # workflow.md, impact.md (/sc:impact), graph.md (/sc:graph)
-├── skills/                         # 38 skill folders (SKILL.md plus refs/, rules/,
+├── skills/                         # 35 skill folders (SKILL.md plus refs/, rules/,
 │                                   # templates/, scripts/), e.g. sc-implement-protocol/,
 │                                   # sc-graph-protocol/, sc-impact-protocol/, ccsession-tag/
 │   └── ccsession-tag/
@@ -68,6 +70,11 @@ The lists below give counts rather than every file name. Run `superclaude instal
 │   ├── codegraph-session-start.sh  # SessionStart (startup): one detached `codegraph init --yes`
 │   │                               # in a git checkout with no .codegraph/codegraph.db (5.0.0)
 │   ├── auggie-flag-clear.sh        # PostToolUse after an auggie MCP call
+│   ├── block-bare-python.sh        # PreToolUse(Bash): blocks bare python, python3, pip, pip3 (exit 2); use uv
+│   ├── require-orca-worktree-agent.sh # PreToolUse(Bash): blocks `orca worktree create` without --agent
+│   ├── launch-level-guard.sh       # UserPromptSubmit + PreToolUse: governs only a session /sc:issue --claim launched
+│   ├── launch-job-identity.sh      # PreToolUse(Bash): tells a governed job from an ordinary one (Linux)
+│   ├── launch-level-pre-push.sh    # Copied, not in hooks.json: /sc:issue --claim installs it as a git pre-push hook
 │   ├── pragmatic-subagent.js       # SubagentStart: injects output-styles/pragmatic.md (needs node)
 │   ├── reject-workspace-writes.sh  # Copied; registered only by this repo's .claude/settings.json
 │   └── sc-recommend-phase0.sh      # Copied; registered only by this repo's .claude/settings.json

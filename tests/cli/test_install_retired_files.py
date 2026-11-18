@@ -132,30 +132,53 @@ def test_committed_data_equals_the_generator_output():
     ).read_text(encoding="utf-8")
 
 
+# Names that a release stopped shipping, by release. Each 6.1.0 removal pull request
+# adds its names here; the data is generated from the v5.0.0 and v6.0.0 tags.
+_REMOVED_IN_6_0_0_COMMANDS = (
+    "build",
+    "cli-portify",
+    "improve",
+    "index",
+    "index-repo",
+    "load",
+    "review-translation",
+    "roadmap",
+    "save",
+    "spawn",
+    "tasklist",
+    "validate-roadmap",
+)
+_REMOVED_IN_6_0_0_SKILLS = (
+    "sc-cli-portify-protocol",
+    "sc-review-translation-protocol",
+    "sc-roadmap-protocol",
+    "sc-tasklist-protocol",
+    "sc-validate-roadmap-protocol",
+)
+_REMOVED_IN_6_1_0_COMMANDS = ("tdd",)
+_REMOVED_IN_6_1_0_SKILLS = (
+    "operational-guide",
+    "prd",
+    "readme",
+    "roadmap",
+    "task",
+    "task-builder",
+    "tdd",
+    "tech-reference",
+    "tech-research",
+)
+_REMOVED_IN_6_1_0_AGENTS: tuple = ()
+
+
 @requires_tag
-def test_5_0_0_retired_names_are_the_twelve_commands_and_five_skills():
-    assert sorted(data.RETIRED_COMMANDS) == [
-        "build",
-        "cli-portify",
-        "improve",
-        "index",
-        "index-repo",
-        "load",
-        "review-translation",
-        "roadmap",
-        "save",
-        "spawn",
-        "tasklist",
-        "validate-roadmap",
-    ]
-    assert sorted(data.RETIRED_SKILLS) == [
-        "sc-cli-portify-protocol",
-        "sc-review-translation-protocol",
-        "sc-roadmap-protocol",
-        "sc-tasklist-protocol",
-        "sc-validate-roadmap-protocol",
-    ]
-    assert data.RETIRED_AGENTS == {}
+def test_retired_names_are_what_the_releases_removed():
+    assert sorted(data.RETIRED_COMMANDS) == sorted(
+        _REMOVED_IN_6_0_0_COMMANDS + _REMOVED_IN_6_1_0_COMMANDS
+    )
+    assert sorted(data.RETIRED_SKILLS) == sorted(
+        _REMOVED_IN_6_0_0_SKILLS + _REMOVED_IN_6_1_0_SKILLS
+    )
+    assert sorted(data.RETIRED_AGENTS) == sorted(_REMOVED_IN_6_1_0_AGENTS)
 
 
 # ---- the generator, on a throwaway git repository (no dependency on the tag) -----

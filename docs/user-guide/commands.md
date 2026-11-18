@@ -54,14 +54,13 @@ This page is the per-command reference: exact syntax, options, and what each com
 |---------|---------|------|----------------|
 | [`/sc:implement`](#scimplement---feature-implementation) | Write code | `implement.md` | Yes |
 | [`/sc:design`](#scdesign---system-and-component-design) | Architecture, API, schemas | `design.md` | Report only |
-| `/sc:tdd` | Create or populate a Technical Design Document | `tdd.md` | Yes (writes the TDD into your repo, `docs/<domain>/TDD_<COMPONENT>.md` by default, or the `--output` path) |
 
 ### 4. QUALITY
 
 | Command | Purpose | File | Changes files? |
 |---------|---------|------|----------------|
 | [`/sc:analyze`](#scanalyze---code-analysis) | Code analysis (quality/security/perf) | `analyze.md` | Report only |
-| [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` offers a `/sc:workflow` plan you run with `/sc:implement`; `--fix --depth deep` offers a `/task-builder` task file you run with `/task`) |
+| [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` offers a `/sc:workflow` plan you run with `/sc:implement`) |
 | [`/sc:impact`](#scimpact---change-impact-report) | What depends on a symbol or a diff, from the code graph | `impact.md` | Report only |
 | [`/sc:test`](#sctest---testing) | Tests + coverage | `test.md` | Only with `--fix` |
 | `/sc:adversarial` | Adversarial debate, compare, merge of artifacts | `adversarial.md` | Report only |
@@ -374,7 +373,7 @@ The task is found by the issue URL in its description or a custom field, or else
 
 **Status:** A command. It runs only when you invoke it; nothing activates it automatically.
 
-**When to use:** Agent-coordinated work when you want the PM agent's PDCA cycle. For choosing a workflow, prefer the levels in [How We Work](how-we-work.md): a vague idea goes to `/sc:brainstorm`, multi-file work to `/sc:workflow` then `/sc:implement`, and a new product or major feature to `/prd`, `/tdd`, then `/sc:workflow`.
+**When to use:** Agent-coordinated work when you want the PM agent's PDCA cycle. For choosing a workflow, prefer the levels in [How We Work](how-we-work.md): a vague idea goes to `/sc:brainstorm`, multi-file work to `/sc:workflow` then `/sc:implement`, and a new product or major feature to the full-specification workflow in How We Work (section 3.1), then `/sc:workflow`.
 
 **What it does:**
 
@@ -612,37 +611,6 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 
 ---
 
-### `/sc:tdd` - Technical Design Document Creator
-
-**When to use:** Create or populate a Technical Design Document for a component, service or system, researched from the actual codebase and optionally translated from a PRD. It designs only; it does not implement the system.
-
-**Syntax:**
-
-```
-/sc:tdd <component> [options]
-```
-
-**Options:**
-
-| Flag | Default | What it does |
-|------|---------|--------------|
-| `--from-prd <path>` (alias `--prd`) | - | PRD to translate into engineering specifications |
-| `--tier lightweight\|standard\|heavyweight` | `standard` | Design depth |
-| `--focus <dirs or files>` | all | Comma-separated places to investigate |
-| `--output <path>` | auto | Path for the finished TDD |
-| `--resume <task file>` | - | Continue an interrupted TDD session |
-
-**Examples:**
-
-```bash
-/sc:tdd "canvas roadmap" --from-prd docs/product/PRD_ROADMAP_CANVAS.md --tier standard --focus frontend/app/roadmap/
-/sc:tdd --resume .dev/tasks/to-do/TASK-TDD-20260401-143022/TASK-TDD-20260401-143022.md
-```
-
-**MCP servers:** context7, `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)
-
----
-
 ### `/sc:validate-tests` - Behavioral Test Validation
 
 **When to use:** Validate tier classification behavior against YAML test specifications and report pass and fail counts. It does not modify the test specifications or the classification algorithm.
@@ -679,14 +647,14 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 
 ### `/sc:workflow` - Implementation Plan Generator
 
-**When to use:** Any change that needs a written plan, including work across many files or several sessions, with or without a spec, PRD or TDD (level 3 in [How We Work](how-we-work.md), the ordinary default for planned work). The default is `--depth standard`; use `--depth quick` for a smaller checked plan. It writes a phased plan (`<id>.md`, named like its package directory). Use `/task-builder` only when you explicitly select MDTM or have an exceptional need for its machinery (level 4).
+**When to use:** Any change that needs a written plan, including work across many files or several sessions, with or without a spec, PRD or TDD (level 3 in [How We Work](how-we-work.md), the ordinary default for planned work). The default is `--depth standard`; use `--depth quick` for a smaller checked plan. It writes a phased plan (`<id>.md`, named like its package directory).
 
 **What it does:**
 
 - Parses a PRD, spec, or inline prompt
 - Creates a new package `.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/` (`<subject>` = lower camelCase, max 16 chars, e.g. `authLogin`) with `<id>.md` (schema `workflow-plan/1.2`), a `source.md` snapshot and `return-contract.yaml`; never overwrites an existing package
 - Checks the plan against your request when it is written (`/sc:reflect --mode pre`, advisory) and prints the result with the plan path
-- Run it with `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (not MDTM `/task`); on completion `/sc:implement` archives the package to `.dev/tasks/done/` on Linux; on any other system (including macOS) the archive is refused on purpose, the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand
+- Run it with `/sc:implement .dev/tasks/to-do/<id>/<id>.md`; on completion `/sc:implement` archives the package to `.dev/tasks/done/` on Linux; on any other system (including macOS) the archive is refused on purpose, the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand
 - **Does NOT implement code**
 
 **Syntax:**
@@ -717,10 +685,10 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 **What it does:**
 
 - Runs a depth-tiered Socratic dialogue → `seed-brief.md`
-- Auto-routes codebase + research enrichment (`/sc:analyze`, `/sc:research`, `tech-research`)
+- Auto-routes codebase + research enrichment (`/sc:analyze`, `/sc:research`)
 - Composes a `--agents` spec spanning 3 model aliases × domain-detected personas (in a ccsession tier workspace the launcher sets each `ANTHROPIC_DEFAULT_*_MODEL` for a tier the owner may use, so the matching aliases `opus`, `sonnet` and `haiku` map to `claude-gw-tier1a`, `claude-gw-tier1b` and `claude-gw-tier2`; see [model-aliases](../reference/model-aliases.md))
 - Delegates to `/sc:adversarial` for N parallel proposals + debate + merge → `merged-requirements.md`
-- Optionally hands off to `/sc:design` or `/task-builder`
+- Optionally hands off to `/sc:design`
 
 **Syntax:**
 
@@ -730,7 +698,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
   [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
   [--personas p1,p2,...] [--models opus,sonnet,haiku] \
   [--blind] [--convergence FLOAT] [--interactive] \
-  [--handoff none|design|task] [--output DIR] \
+  [--handoff none|design] [--output DIR] \
   [--dry-run] [--resume-from PATH] [--force-stale]
 ```
 
@@ -743,8 +711,8 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 # Deep incident post-mortem
 /sc:brainstorm "deployment broke staging at 3am" --depth deep --strategy systematic
 
-# Product idea with research + full handoff to a task file
-/sc:brainstorm "AI-powered changelog summarizer" --strategy agile --handoff task
+# Product idea with research + a design handoff
+/sc:brainstorm "AI-powered changelog summarizer" --strategy agile --handoff design
 
 # Blind multi-model comparison (strips model identity before scoring)
 /sc:brainstorm "consolidate three duplicate auth modules" --depth deep --blind --proposals 4
@@ -826,7 +794,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 
 ### `/sc:design` - System and Component Design
 
-**When to use:** Need to draft one design (an API, a component, a schema) in a single pass, without implementing it. When other people will build against the design, use `/tdd` instead (see [How We Work](how-we-work.md), section 5).
+**When to use:** Need to draft one design (an API, a component, a schema) in a single pass, without implementing it. When other people will build against the design, save it as a document and have it critiqued with `/sc:spec-panel` (see [How We Work](how-we-work.md), section 3.1).
 
 **What it does:**
 
@@ -893,7 +861,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 - Stack trace examination
 - Log analysis
 - Suggests fixes
-- `--fix` offers a `/sc:workflow` plan you run with `/sc:implement`; `--fix --depth deep` offers a `/task-builder` task file you run with `/task`. Code changes never apply automatically
+- `--fix` offers a `/sc:workflow` plan you run with `/sc:implement`. Code changes never apply automatically
 
 **Syntax:**
 
@@ -1229,7 +1197,7 @@ TALEB: "The real question: does this benefit from uncertainty?"
 /sc:reflect --type task --validate   # maps to --mode post
 ```
 
-> The post-mapped legacy form (`--type task --validate`) still requires `--diff` or `--task-log`; `/sc:troubleshoot` Wave 6 supplies these, so standalone callers must add `--diff <ref>`.
+> The post-mapped legacy form (`--type task --validate`) still requires `--diff` or `--task-log`, so standalone callers must add `--diff <ref>`.
 
 **MCP servers:** auggie, codegraph, context7, tavily
 
@@ -1249,12 +1217,12 @@ superclaude reflect run <tasklist> [--fix/--no-fix] [--max-fix-iterations N] [--
 
 | Flag | Default | Purpose |
 |------|---------|---------|
-| `--fix` / `--no-fix` | `--no-fix` | Run the bounded audit → apply → re-verify auto-fix loop. By default the wrapper reads the skill's `remediation_plan_path` and applies `/sc:implement <remediation_plan_path>`; only with `--depth deep` it reads `remediation_task_path` and runs `/task <remediation_task_path>`. |
+| `--fix` / `--no-fix` | `--no-fix` | Run the bounded audit → apply → re-verify auto-fix loop. By default the wrapper reads the skill's `remediation_plan_path` and applies `/sc:implement <remediation_plan_path>`, at every `--depth`. |
 | `--max-fix-iterations N` | `2` | Max apply → verify cycles before a terminal HALT. |
 | `--base <ref>` | (none) | Explicit audit base ref (single ref vs. working tree). Highest precedence — overrides frontmatter `start_commit` + merge-base. |
 | `--promote` / `--no-promote` | `--promote` | Allow reflect's gated Wave-7 promotion. The default is now **on**; pass `--no-promote` to suppress it. |
 
-**Headless auto-authoring:** Because the wrapper launches the skill under `claude --print` (no TTY), the skill's `--remediate` handoff **auto-accepts and authors** the corrective artifact without the interactive yes/no prompt (a `/sc:workflow` plan, emitted as `remediation_plan_path`; with `--depth deep`, an MDTM task file, emitted as `remediation_task_path`) — but only for AUTO-FIXABLE registers (Drift / Necessary). HUMAN-REQUIRED registers (any Regression, or `needs_human_decision: true`) author nothing auto-runnable, and the wrapper terminal-HALTs rather than auto-applying a human-decision change. The skill never runs `/sc:implement` or `/task` itself; the wrapper's auto-fix loop is the sole consumer that runs the authored path. The loop reads only these contract fields (`remediation_plan_path` was added in contract 1.8.0) — it never guesses a "newest `TASK-RF-*`" directory.
+**Headless auto-authoring:** Because the wrapper launches the skill under `claude --print` (no TTY), the skill's `--remediate` handoff **auto-accepts and authors** the corrective artifact without the interactive yes/no prompt (a `/sc:workflow` plan, emitted as `remediation_plan_path`, at every depth) — but only for AUTO-FIXABLE registers (Drift / Necessary). HUMAN-REQUIRED registers (any Regression, or `needs_human_decision: true`) author nothing auto-runnable, and the wrapper terminal-HALTs rather than auto-applying a human-decision change. The skill never runs `/sc:implement` itself; the wrapper's auto-fix loop is the sole consumer that runs the authored path. The loop reads only `remediation_plan_path` (the older `remediation_task_path` field stays in the contract so old reports load, but it is ignored) — it never guesses a plan directory.
 
 **Examples:**
 

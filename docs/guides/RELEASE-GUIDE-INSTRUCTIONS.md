@@ -9,7 +9,7 @@ Instructions for creating consistent, comprehensive release guides for SuperClau
 Create a release guide when:
 
 - A new CLI subcommand group ships (e.g., `superclaude reflect`, `superclaude swarm`)
-- A new skill ships or an existing skill undergoes major refactoring (e.g., `/prd`, `/tdd`)
+- A new skill ships or an existing skill undergoes major refactoring
 - A component's architecture changes significantly enough that existing documentation is misleading
 
 Do NOT create a release guide for:

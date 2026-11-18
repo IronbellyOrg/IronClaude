@@ -19,7 +19,7 @@ Mode files under `src/superclaude/modes/` are not installed or loaded automatica
 
 ## Getting Started (2-Minute Overview)
 
-**Modes are a style you ask for, not a loaded file** - no installed context file defines modes in 5.0.0 (the `MODES.md` core file is no longer shipped, and the files under `src/superclaude/modes/` are not installed). Claude may adopt a mode's behaviors when your request fits it or when you pass a mode flag as a hint.
+**Modes are a style you ask for, not a loaded file** - no installed context file defines modes (since 5.0.0 the `MODES.md` core file is no longer shipped, and the files under `src/superclaude/modes/` are not installed). Claude may adopt a mode's behaviors when your request fits it or when you pass a mode flag as a hint.
 
 **Quick Examples:**
 

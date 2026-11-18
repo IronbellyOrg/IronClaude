@@ -4,12 +4,52 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+## [6.1.0] - 2026-11-18
+
+The task and documentation bundle is removed: nine skills (`prd`, `tdd`, `tech-research`, `tech-reference`, `operational-guide`, `readme`, `task`, `task-builder`, `roadmap`), the `/sc:tdd` command, one eval suite and levels 4, 5 and 6 of the routing guide. Every route that offered the task-file (MDTM) route now has one route: `/sc:workflow` writes the plan and `/sc:implement` runs it. Read the [6.1.0 release notes](docs/releases/v6.1.0.md) for the full list, the replacements and the upgrade steps. The project's changelog rule counts a removed skill as a breaking change, which normally means a major version; the owner chose 6.1.0 for this release.
+
+### Breaking: the task and documentation bundle is removed (IronClaude issue 571, tracking issue 647)
+
+#### Removed (6.1.0 cleanup)
+
+- **Skills (9):** `prd`, `tdd`, `tech-research`, `tech-reference`, `operational-guide`, `readme` (the document skills; each built a task file with `task-builder` and ran `/task`), and `task`, `task-builder` and `roadmap` (the task-file route itself). Typing `/task`, `/task-builder` or `/roadmap` no longer does anything; use `/sc:workflow` then `/sc:implement`.
+- **Slash command (1):** `/sc:tdd`.
+- **Eval suite (1):** `workflow_vs_task_builder`, with `scripts/eval_workflow_vs_task_builder.py` and its test. `uv run superclaude eval list` now shows 15 suites and 59 evals.
+- **Routing guide:** level 4 (explicit or exceptional task-file work) and the old levels 5 and 6 (research first, full specification) are gone, with the `task-file`, `research-first`, `full-spec` and technical-design-document routes. The scale is now three levels: ask, small direct change, checked plan. `/sc:recommend`, `core/CLAUDE.md` and the onboarding deck follow.
+- **Flag values and routes:** `/sc:brainstorm --handoff task` (it ran `task-builder`) is now a STOP that names the replacement; `--handoff` takes `none` or `design`, and `handoff_action` is `none | design`. The MDTM route of `/sc:reflect --remediate --depth deep` and of `/sc:troubleshoot --fix --depth deep` is removed: both take the plan route at every depth, and `--depth deep` only sets the review depth. `/sc:reflect` no longer writes `reflect/handoff-*.md` files.
+- **Command-line wrapper:** `superclaude reflect run --fix` always applies a corrective plan with `/sc:implement <remediation_plan_path>`. It no longer runs `/task` and ignores `remediation_task_path`; an old report that carries only that pointer ends as a terminal HALT.
+- **Reference and guides:** `docs/reference/nfr-conv-2-prose-determinism.md`, `docs/guides/prd-skill-release-guide.md` and `docs/guides/tdd-skill-release-guide.md`.
+- The pull requests: #650 (document skills and `/sc:tdd`), #653 (routes), #656 (`task`, `task-builder`, `roadmap`, level 4) and #657 (release). An earlier pull request that removed `/sc:task` was closed unmerged.
+
+Kept on purpose: `/sc:task` and `sc-task-protocol`, `/sc:validate-tests` and `sc-validate-tests-protocol`, the eval suite `task_classification_contract`, all eight `rf-*` agents (`rf-analyst`, `rf-assembler`, `rf-qa`, `rf-qa-qualitative`, `rf-task-builder`, `rf-task-executor`, `rf-task-researcher`, `rf-team-lead`; their future is Part C, issue 572, and is undecided), the launch-level guard and issue prohibition lists (they still deny `/task`), and the installed document templates.
+
+Known leftover for issue 572: `rules/contextual/context_embedding.md` and `rules/prompts/agent_library.md` still name the old `/rf:taskbuilder` command, and some installed templates still describe the task-file flow.
+
+#### Changed
+
+- **Contract fields:** `remediation_task_path`, `handoff_memory_key`, `handoff_memory_written`, `handoff_payload_size_bytes`, `handoff_persist_failed` and troubleshoot's `task_file_path` stay in the schemas so older reports load, and are always null, false or 0.
+- **`sc-crash-recovery`:** it still detects roadmap and task files from earlier releases but no longer prints `/task` or `/roadmap` resume commands; it says to copy the open items of an old file into a new list and run `/sc:implement <list>`.
+- **Brainstorm deep research** calls `/sc:research --depth deep`.
+
+### Installer: the retire step also removes the nine skills and `/sc:tdd`
+
+#### Changed (retire data)
+
+- `src/superclaude/cli/install_retired_data.py` is regenerated from the `v5.0.0` and `v6.0.0` tags. `superclaude install` and `superclaude update` now also remove the nine skills and `tdd.md` from an upgraded workspace, but only when every file is byte-identical to the shipped one; an edited copy is kept with the reason and the exact `rm` command. No agent is removed.
+
 ### ccsession: tell human-saved sessions from agent-saved ones, and keep them for different times (#638)
 
 - ccsession now records, when a name is saved, who chose it: a marker file `<list>/.origin/<session id>` holding `human` or `agent`. A name typed at the new-tab question, `ccsession <name>` on a terminal, or `/rename` is `human`; an automatic name, `CCSESSION_NAME`, Claude's `--name` and a launch from inside Claude Code or with no terminal are `agent`. Only a new session is ever marked `agent`; a resume writes no marker, and every session saved before this change is unmarked, which counts as human (shown, never pruned).
 - `ccsession --list`, `--here` and the new-tab question hide agent sessions and end with `N agent sessions hidden: <command>`. `--agents` shows them (`+` at the question). New `ccsession --mark <name> agent|human` sets one marker, and `ccsession --classify [--apply]` marks the older sessions whose every name is an exact automatic name as `agent` (a dry run without `--apply`).
 - New `ccsession --prune [--apply] [--days N]` (new file `session_keep.py`) deletes sessions an agent saved that have not changed in more than N days (30 by default, never fewer than 30; `CCSESSION_AGENT_KEEP_DAYS` sets it), with their transcript, session folder, file history, names, marker and Orca tab record, and names whose conversation is gone. It is a dry run unless `--apply` is given, never touches an unmarked or human session or the running one, and prints a `LOWERS THE LIMIT:` line when it would delete sessions Claude Code keeps longer. `--list` and `--here` add one line when agent sessions are past the days.
 - **Lowers a limit:** the installer's Claude Code retention target (`retention.py` `MIN_DAYS`) goes from 365 to 90 days. It never lowers a value already set (a 365 stays 365) and never writes where managed settings decide; a machine with no value goes from Claude Code's 30 to 90. `ccsession --list` and `--here` now warn only below 90.
+
+### Fixed: the installer's file comparison no longer returns a stale "identical" answer (#646)
+
+#### Fixed
+
+- `same_content` in `src/superclaude/cli/install_keep.py` now clears `filecmp`'s cache before it compares two files. `filecmp` remembers each answer by the two paths and their size and modification time, so a file rewritten with the same size inside one timestamp tick was reported as identical to its old self when the same process compared the pair again. `src/superclaude/cli/install_core.py` had its own copy of that cached comparison and now uses the shared `same_content`. A one-shot `superclaude install` or `update` behaves as before; the change matters when one process compares, edits or copies, and compares the same pair again.
+
 ## [6.0.0] - 2026-11-18
 
 Major release: the command-line pipelines for roadmaps, tasklists, sprints, PRDs, cleanup audits and cli-portify, twelve slash commands and five skills are removed, and the installer now removes them from an upgraded workspace. Read the [6.0.0 release notes](docs/releases/v6.0.0.md) for the full list, the replacements and the upgrade steps. It also fixes eight reported help-text, doctor and `ic` launcher problems and carries every change merged to `master` since 5.0.0 (the entries below the breaking-changes entry).
@@ -33,6 +73,16 @@ Kept on purpose: swarm and its skills, the interactive `prd` skill, `/sc:cleanup
 - `superclaude install` and `superclaude update` (and `./update.sh`) now end with a retire step that removes, from `~/.claude/commands/sc/`, `~/.claude/skills/` and `~/.claude/agents/`, the commands, skills and agents a release no longer ships, but only files whose content is byte-identical to what an earlier release shipped (the sha256 of each file at the `v5.0.0` tag). A skill folder is removed only when every file in it matches and nothing else is in it.
 - An edited file, a skill folder with an extra file, a link or an unreadable item is kept, and the installer prints one line with the reason and the exact `rm` command. Nothing else is touched, a second run changes nothing, and the install exit code never changes. While a kept, customized copy of a removed command exists, `superclaude doctor` reports the command as missing its skill; remove the copy with the printed command.
 - The names and hashes are generated by `scripts/gen_retired_install_data.py --tag <previous tag>` into `src/superclaude/cli/install_retired_data.py`; the release procedure says to regenerate them for each release.
+
+### Installer: name kept files that differ and save them before a forced overwrite (#480, issue #346)
+
+#### Added (kept-file notes and backups for commands, rules and output styles)
+
+- `superclaude install` still keeps an existing command, rule or output-style file, but a kept file that differs from this version's copy is now named in the output (`N kept command(s) differ from this version and were NOT updated`), so a stale or edited file no longer stays in place unnoticed. Core files already did this (#419).
+- `superclaude install --force` and `superclaude update` save a differing command, rule or output-style file next to itself as `<name>.bak.<UTC time>` (for example `analyze.md.bak.20261118T170000Z`; a `-2`, `-3` suffix is added when that name is taken within the same second) before they overwrite it, and list the saved copies (`Saved N changed command(s) before overwriting`). The time-stamp suffix keeps the copy out of Claude Code's `.md` loaders. A file identical to the shipped one is never saved. When the copy cannot be made, that file is left untouched and reported as a failure, so the run is not ok.
+- A file from an older release and a file you edited look the same to the installer, so both are saved: every forced upgrade leaves backups for the files that changed upstream. Nothing deletes old backups; remove them by hand when you do not need them.
+- Not covered: core files, agents, skills, hooks and templates are overwritten without a backup, as before.
+- New `src/superclaude/cli/install_keep.py` (`same_content`, `backup_if_differs`) and `tests/cli/test_install_keep.py`.
 
 ### Fixed: help text, doctor, PM wording and the `ic` launcher (#505, #506, #510, #536, #542, #543, #544, #545)
 

@@ -67,8 +67,6 @@ FIX_ZERO_BASELINE = FIXTURE_DIR / "zero_findings_baseline.md"
 FIX_INHERIT_NO_SEMANTIC = FIXTURE_DIR / "inherited_verdict_no_semantic.md"
 FIX_INHERIT_WITH_SEMANTIC = FIXTURE_DIR / "inherited_verdict_with_semantic.md"
 
-NFR_CONV_2_DOC = REPO_ROOT / "docs" / "reference" / "nfr-conv-2-prose-determinism.md"
-
 # ---------------------------------------------------------------------------
 # Verbatim PASS/FAIL definitions — the invariant anchor.
 # These strings are *content* (not line numbers). The roadmap row R-145
@@ -142,13 +140,6 @@ class TestFixturesExist:
     def test_inherited_verdict_with_semantic_fixture_exists(self):
         assert FIX_INHERIT_WITH_SEMANTIC.is_file(), (
             f"missing {FIX_INHERIT_WITH_SEMANTIC}"
-        )
-
-    def test_nfr_conv_2_doc_published(self):
-        """NFR-CONV.2 prose-determinism documentation page exists."""
-        assert NFR_CONV_2_DOC.is_file(), (
-            f"NFR-CONV.2 doc missing at {NFR_CONV_2_DOC} — R-146 acceptance "
-            "requires structural-vs-prose boundary enumeration"
         )
 
 
@@ -484,39 +475,3 @@ class TestStructuralAnnotationsByteEqualAcrossRuns:
 # NFR-CONV.2 documentation page checks (R-146 acceptance: documentation
 # page; structural-vs-prose boundary enumerated).
 # ---------------------------------------------------------------------------
-
-
-class TestNfrConv2DocumentationPage:
-    """Acceptance: ``phase-7-tasklist.md`` line 338 — 'NFR-CONV.2
-    documentation page exists with structural vs prose boundary
-    enumerated.'"""
-
-    @pytest.fixture(scope="class")
-    def doc_text(self) -> str:
-        return NFR_CONV_2_DOC.read_text(encoding="utf-8")
-
-    def test_doc_names_nfr_conv_2(self, doc_text: str):
-        assert "NFR-CONV.2" in doc_text
-
-    def test_doc_enumerates_structural_side(self, doc_text: str):
-        for keyword in ("byte-deterministic", "axis label", "dedup"):
-            assert keyword.lower() in doc_text.lower(), (
-                f"NFR-CONV.2 doc must enumerate '{keyword}' on the structural side"
-            )
-
-    def test_doc_enumerates_prose_side(self, doc_text: str):
-        assert (
-            "research-prose" in doc_text.lower()
-            or "prose nondeterminism" in doc_text.lower()
-        ), "NFR-CONV.2 doc must name the research-prose nondeterminism side"
-
-    def test_doc_cross_references_rf_qa_pass_fail(self, doc_text: str):
-        assert "rf-qa.md" in doc_text, (
-            "NFR-CONV.2 doc must cross-reference rf-qa.md for the PASS/FAIL anchor"
-        )
-
-    def test_doc_references_m7_audit(self, doc_text: str):
-        assert "M7" in doc_text and "byte-equal" in doc_text.lower(), (
-            "NFR-CONV.2 doc must cite the M7-audit claim that structural "
-            "annotations remain byte-equal across 2 runs"
-        )

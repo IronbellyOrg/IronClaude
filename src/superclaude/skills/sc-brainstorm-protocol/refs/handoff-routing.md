@@ -42,7 +42,7 @@ Loaded in Wave 2A. Defines the matrix of enrichment options and quality-tier fal
 - `--research light`, OR
 - Auto-detect: topic mentions framework/library/tool names not present in project (cross-check via Glob)
 
-**Tier 1 (primary)**: `Skill sc:research-protocol` (the protocol behind `/sc:research`)
+**Tier 1 (primary)**: `/sc:research`
 
 - Invoke with: `<topic-as-research-query> --depth quick`
 - Output: `enrichment/research-light.md` (~1000-2000 tokens)
@@ -63,15 +63,10 @@ Loaded in Wave 2A. Defines the matrix of enrichment options and quality-tier fal
 - `--research deep`, OR
 - Auto-detect: `--strategy enterprise` AND topic mentions novel external technology
 
-**Tier 1 (primary)**: `Skill tech-research`
+**Tier 1 (primary)**: `/sc:research` with `--depth deep`
 
-- Heavier research workflow with structured output
 - Output: `enrichment/research-deep.md` (~3000-5000 tokens)
 - quality_tier: `primary`
-
-**Tier 2 (fallback_1)**: `Skill sc:research-protocol` with `--depth deep`
-
-- quality_tier: `fallback_1`
 
 **Final fallback**: degrade to research-light tier 1 (with INFO log); quality_tier inherits.
 
@@ -176,49 +171,3 @@ from brainstorm. The merged requirements are ready as input.)
 ```
 
 Set `handoff_action: design`, `handoff_output_path: null`. Exit.
-
-### `task`
-
-**Pre-invoke validation**:
-
-- Open `<output>/merged-requirements.md` and count enumerated requirements (regex: bullet-list items in sections like "Functional Requirements", "Acceptance Criteria", or numbered items). If count < 3 → STOP: `"--handoff task requires merged-requirements.md to have ≥3 enumerated requirements. Found <N>. Brainstorm output may be too abstract — re-run with --depth deep or narrower topic."`
-
-**Template detection** (from `merged-requirements.md` frontmatter `domain` field — falls back to brainstorm state `domain`):
-
-| Domain | Template |
-|--------|----------|
-| `code` | `feature-template` |
-| `incident` | `bugfix-template` |
-| `architecture` | `migration-template` |
-| `product` | `feature-template` |
-| `process` | `documentation-template` |
-| `research` | `decision-record-template` |
-
-If detected template is unavailable in task-builder skill → STOP with: `"task-builder does not have template <X> for domain <Y>. Available templates: <list>."`
-
-**Invoke**: `Skill task-builder` with arguments:
-
-```
---source <output>/merged-requirements.md
---template <detected-template>
---output <output>/tasks/
-```
-
-**Consume return**: Extract task file path(s). Append to brainstorm return contract as `handoff_output_path` (single file or list).
-
-Set `handoff_action: task`. Exit.
-
-## §Domain-Template-Mapping
-
-Authoritative mapping used by `--handoff task` template detection (also referenced from SKILL.md Wave 4):
-
-| Domain | Template name | Rationale |
-|--------|---------------|-----------|
-| `code` | `feature-template` | Code work is typically additive feature/refactor |
-| `incident` | `bugfix-template` | Incident work needs root-cause + fix + prevention |
-| `architecture` | `migration-template` | Arch changes involve migration paths and rollout |
-| `product` | `feature-template` | Product features map to feature template |
-| `process` | `documentation-template` | Process changes are largely documentation + comms |
-| `research` | `decision-record-template` | Research output → ADR format |
-
-**Update protocol**: When new templates are added to `task-builder`, update this table AND `Domain-Template-Mapping` table in SKILL.md Wave 4. Both must stay in sync.

@@ -28,7 +28,6 @@ _SKILL = _REPO / "src/superclaude/skills/sc-recommend/SKILL.md"
 _HELP = _REPO / "src/superclaude/commands/help.md"
 _COMMAND = _REPO / "src/superclaude/commands/recommend.md"
 _HOOK = _REPO / "src/superclaude/hooks/scripts/sc-recommend-phase0.sh"
-_TDD_TEMPLATE = _REPO / "src/superclaude/skills/tdd/refs/build-request-template.md"
 
 _NOT_FOUND = (
     "Routing guide not found. pipx/pip install: run superclaude update. "
@@ -146,7 +145,6 @@ def test_verification_follows_actual_activation_and_relevant_dependencies():
         assert "self-contained" in text
         assert "Skill Invocation" in text
         assert "backing skill" in text
-        assert "tdd" in text
         assert "contract gap" in text.lower()
         assert "not installed" in text
     assert "Commands are thin dispatchers" not in source
@@ -197,8 +195,7 @@ def test_live_and_no_guide_fallbacks_keep_workflow_first_policy():
     rubric = (_SKILL.parent / "refs/delegation-vs-native-heuristics.md").read_text()
     for text in (phase1, rubric):
         assert "level 3" in text
-        assert "explicit MDTM" in text
-        assert "long-running" in text
+        assert "level 4" not in text.lower()
         assert "standard" in text.lower()
         assert "quick" in text.lower()
         assert "structural migrations" in text
@@ -255,7 +252,6 @@ def test_cold_worker_preserves_verification_and_implementation_boundaries():
         "contract gap",
         "decision-relevant dependencies",
         "level 3",
-        "explicit mdtm intent",
         "file count",
         "structural migrations",
         "current-request",
@@ -307,19 +303,6 @@ def test_optional_cache_insertion_never_bypasses_parent_validation():
     ):
         assert rule in cold
     assert "Surface the recommendation verbatim" not in cold
-
-
-def test_tdd_followup_offers_workflow_and_task_only_for_existing_mdtm():
-    line = next(
-        line
-        for line in _TDD_TEMPLATE.read_text(encoding="utf-8").splitlines()
-        if "Suggest downstream workflow" in line
-    )
-    assert "/sc:workflow docs/[domain]/TDD_[COMPONENT-NAME].md" in line
-    assert "/sc:implement" in line
-    assert "only executes an MDTM task file that already exists" in line
-    assert "create implementation tasks using the `/task` skill" not in line
-    assert "invoke the task skill" not in line
 
 
 def test_recommend_command_summary_is_accurate_and_flags_unchanged():

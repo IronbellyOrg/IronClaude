@@ -1,6 +1,6 @@
 ---
 name: sc-crash-recovery
-description: Post-crash work-state recovery. Fans parallel subagents across pipeline artifacts (.dev/releases, manifest.json, execution-log.jsonl, .roadmap-state.json), recent Claude Code session logs, project memory (`.superclaude/memory/`), git status, and auggie semantic sweeps to produce a structured "where was I, what's in-flight, what to resume" report with concrete resume commands. Use this skill whenever the user mentions a server crash, reboot, machine restart, lost session, dropped pipelines, "where was I", "what was I working on", "what's in flight", "resume", "pick up where I left off", "recover state", or logs back in after an outage — even when they don't explicitly say "crash recovery". Also use after `/sc:implement`, `/sc:task` or `/roadmap` runs fail or get interrupted, when investigating stalled work, or when starting a fresh session on a project that has unfinished pipeline runs. Supports a single project (default, current cwd) or fleet sweep across all workspaces with `--all`.
+description: Post-crash work-state recovery. Fans parallel subagents across pipeline artifacts (.dev/releases, manifest.json, execution-log.jsonl, .roadmap-state.json), recent Claude Code session logs, project memory (`.superclaude/memory/`), git status, and auggie semantic sweeps to produce a structured "where was I, what's in-flight, what to resume" report with concrete resume commands. Use this skill whenever the user mentions a server crash, reboot, machine restart, lost session, dropped pipelines, "where was I", "what was I working on", "what's in flight", "resume", "pick up where I left off", "recover state", or logs back in after an outage — even when they don't explicitly say "crash recovery". Also use after `/sc:implement` or `/sc:task` runs fail or get interrupted, when investigating stalled work, or when starting a fresh session on a project that has unfinished pipeline runs. Supports a single project (default, current cwd) or fleet sweep across all workspaces with `--all`.
 allowed-tools: Read, Glob, Grep, Bash(ls *), Bash(find *), Bash(wc *), Bash(cat *), Bash(head *), Bash(tail *), Bash(stat *), Bash(git status *), Bash(git diff *), Bash(git log *), Bash(git stash *), Bash(git branch *), Bash(git ls-files *), Bash(~/.claude/skills/sc-crash-recovery/scripts/*), Bash(~/workspace/IronClaude/.claude/skills/sc-crash-recovery/scripts/*), Task
 metadata:
   type: workflow
@@ -101,7 +101,7 @@ If the user follows up with "go ahead, run #2", do it then — but each command 
 Codebase search is the primary tool for the `auggie-semantic` investigator, and also useful as a secondary check in `pipeline-artifacts` when manifest data is ambiguous. Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep. Specific queries to use:
 
 - *"What files contain in-progress markers (TODO-WIP, FIXME-RECENT, status fields like 🟡 InProgress) modified in the last 72 hours?"*
-- *"Where are recovery or resume instructions documented for the roadmap, task, or workflow pipelines?"*
+- *"Where are recovery or resume instructions documented for the workflow pipelines?"*
 - *"What's the most recently touched feature work, by file mtime and content recency?"*
 
 Do not use auggie as a substitute for reading manifest.json or execution-log.jsonl directly — those are exact, auggie is semantic. Use auggie when you need to find work-status signals scattered across the tree that no manifest will catch.
@@ -110,12 +110,8 @@ Do not use auggie as a substitute for reading manifest.json or execution-log.jso
 
 The skill leans on hard-coded knowledge of these pipelines. See `refs/pipelines.md` for exact layouts, state-file locations, and resume commands per pipeline:
 
-- **PRD** — `task-builder` skill, `.dev/tasks/to-do/TASK-PRD-*/`
-- **TDD** — `tdd` skill, `.dev/tasks/{to-do,done}/TASK-TDD-*/`, often paired with `research/` subdir
-- **Spec / Tech Reference / Tech Research** — `.dev/research/`, `claudedocs/`
-- **Roadmap** — `roadmap` skill → `.dev/tasks/to-do/TASK-ROADMAP-*/` with `.roadmap-state.json`
 - **Workflow package** — `/sc:workflow` + `/sc:implement` → `.dev/tasks/{to-do,done}/TASK-WF-*/` with `progress.md`
-- **Task (MDTM)** — single .md with frontmatter `status: 🟢 Done | 🟡 InProgress | 🔴 Blocked`, lives in `.dev/tasks/{to-do,done}/`
+- **Older task files** (earlier releases; finish by copying the open items into a new list and running `/sc:implement <list>`) — single .md with frontmatter `status: 🟢 Done | 🟡 InProgress | 🔴 Blocked`, lives in `.dev/tasks/{to-do,done}/`
 
 Each pipeline has a canonical *resume* idiom that the synthesis report should surface. The references file documents these — keep it open when generating the "Suggested next actions" block.
 
