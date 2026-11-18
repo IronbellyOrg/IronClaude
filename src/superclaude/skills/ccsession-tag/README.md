@@ -22,7 +22,8 @@ Neither one changes anything on your gateway. Both run entirely on your machine.
 | `local-gateway-alias-proxy.py` | The shim, a small local proxy |
 | `ccsession-models.json` | Profiles and the curated model list (data only) |
 | `models.py` | Checks for, validates, and caches the latest model data |
-| `retention.py` | Keeps Claude Code from deleting named sessions after 30 days: raises `cleanupPeriodDays` at install and warns in `--list` (see "How long sessions are kept") |
+| `retention.py` | Keeps Claude Code from deleting named sessions after 30 days: raises `cleanupPeriodDays` to 90 at install and warns in `--list` (see "How long sessions are kept") |
+| `session_keep.py` | `ccsession --classify`, `--prune` and the older-than line of `--list` and `--here`: tells sessions an agent saved from a person's and prunes the agent ones, as a dry run unless `--apply` |
 | `install.sh` | Standalone fallback when you only have this skill folder |
 | `ccsession.env.example` | Template for your gateway address and key |
 | `hooks/session-start.sh` | Records each session's ID so names can resume it |
@@ -245,11 +246,14 @@ reads `(transcript missing)`. This was checked against Claude Code's settings
 documentation and the 2.1.325 build on 2026-11-16.
 
 `superclaude install` and `install.sh` therefore set `cleanupPeriodDays` to
-**365** in `~/.claude/settings.json` when it is absent or lower (a copy of an
+**90** in `~/.claude/settings.json` when it is absent or lower (a copy of an
 existing file is saved first as `settings.json.bak.<time>`). A larger value you
-chose is never lowered, a file that is not valid JSON or holds a non-number is
-left alone, and everything else in the file is kept. A year keeps a named session
-through any normal pause and is still a limit; disk is not the constraint.
+chose, such as 365, is never lowered, a file that is not valid JSON or holds a
+non-number is left alone, and everything else in the file is kept. Ninety days
+keeps a person's named session through a normal pause. Earlier versions set 365;
+a machine that already has 365 keeps it. Claude Code has one value for every
+session, so a shorter time for sessions an agent saved is not this setting: it
+is `ccsession --prune` (next section).
 
 **Managed settings win.** Claude Code applies managed settings
 (`/etc/claude-code/managed-settings.json` and `managed-settings.d/*.json` on
@@ -259,13 +263,13 @@ Where a managed value exists, such as the Coder workspace image's
 `managed-settings.d/10-retention.json`, a value in your user file is ignored:
 the installer then writes nothing, and ccsession never edits the managed folder.
 Only whoever manages the machine can change that value. Whenever the installer
-cannot raise the value (a managed value below 365, a settings file that is not
+cannot raise the value (a managed value below 90, a settings file that is not
 valid JSON, or a value that is not a whole number) it says so: `install.sh`
 prints the line and `superclaude install` adds it to its result as a warning. A
-managed value of 365 or more needs nothing, so it is not a warning.
+managed value of 90 or more needs nothing, so it is not a warning.
 
 `ccsession --list` and `ccsession --here` print one line on stderr (the rows on
-stdout do not change) when the value Claude Code will use is below 365, naming
+stdout do not change) when the value Claude Code will use is below 90, naming
 the days and where the value comes from: its default of 30, your settings file,
 or a managed file. It reads the managed files and `~/.claude/settings.json` only,
 not a project's `.claude/settings*.json`, `--settings` or an MDM or
@@ -275,6 +279,101 @@ managed folder.
 ccsession does not touch transcript files to keep them young: `last` in the
 list is each file's change time, so touching would make every session look
 active.
+
+### Sessions a person named and sessions an agent saved
+
+Most saved sessions were never named by a person: an orchestrator starts a worker
+with `CCSESSION_NAME`, Claude Code is started with `--name`, or ccsession made an
+automatic name (`<folder>-<words>-<MMDD>-<HHMMSS>-<4 hex digits>`). ccsession now
+records, when a name is saved, who chose it, in a small file
+`<list>/.origin/<session id>` that holds `human` or `agent`:
+
+- **human**: a name typed at the new-tab question, `ccsession <name>` typed on a
+  terminal outside Claude Code, or a name given with `/rename` (in a session
+  started by ccsession or not).
+- **agent**: an automatic name, including when you pressed Enter at the question
+  (no one chose it; `/rename` or `ccsession --mark <name> human` makes it
+  yours), `CCSESSION_NAME`, Claude's `--name`, and any `ccsession` launch run
+  from inside Claude Code or with no terminal. Only a new session is marked
+  `agent`, at its start. Resuming a session never writes a marker.
+- **unmarked**: every session saved before this version, and any session that was
+  only resumed. Unmarked counts as human everywhere: it is listed and never
+  pruned. If it is wrongly counted as human the cost is one extra row; if it were
+  wrongly counted as an agent it could be deleted.
+
+What that changes:
+
+- `ccsession --list`, `ccsession --here` and the new-tab question hide agent
+  sessions and end with `N agent sessions hidden: <command>`. `--agents` shows
+  them (`ccsession --here --agents`, `ccsession --list --agents`, with or without
+  `--all`); typing `+` at the question lists them too. Hiding is display only:
+  `ccsession <name>`, `--rm` and a reopened Orca tab work on any session.
+- `ccsession --mark <name> agent|human` sets the marker of the session saved under
+  that name in this repo's list. It is the only command that can lower a `human`
+  marker.
+- `ccsession --classify` is for the sessions saved before the markers existed. It
+  marks as `agent` the unmarked sessions whose every saved name, in every list,
+  ends in an exact automatic-name stamp. It marks nothing for a session with a
+  `human` marker or with any other name in any list (a person's rename). Without
+  `--apply` it only prints the counts and the names it would mark and writes
+  nothing.
+- `ccsession --prune [--apply] [--days N]` deletes the sessions an agent saved
+  that have not changed in more than N days (default 30, or
+  `CCSESSION_AGENT_KEEP_DAYS` from the environment; `ccsession.env` is not read
+  here) together with their transcript, session folder, file history, names,
+  marker and Orca tab record, and the names whose conversation is already gone.
+  A session saved in any list without an `agent` marker is never touched, and
+  neither is the running session (`CLAUDE_SESSION_ID`).
+
+**Nothing is deleted unless you run `ccsession --prune --apply`.** `--prune` on its
+own is a dry run: it lists each session it would delete (name, last change, age,
+size), the totals, and ends with the line `Dry run: nothing was deleted. Run with
+--apply to delete.` No setting, environment variable or hook turns deletion on,
+and ccsession never runs it by itself. `--list` and `--here` add one line when
+agent sessions are past the days: `N agent sessions are older than D days:
+ccsession --prune shows what would be removed`.
+
+The limit changes, each on its own line:
+
+- **LOWERS NO LIMIT BY ITSELF (installer):** `retention.py` now raises
+  `cleanupPeriodDays` to 90 instead of 365. It never lowers a value already set (a
+  365 stays 365) and never writes where managed settings decide. A machine with no
+  value goes from Claude Code's 30 to 90, which keeps more, not less.
+- **LOWERS THE AGENT LIMIT, ONLY WHEN YOU RUN `ccsession --prune --apply`:** on a
+  machine whose Claude Code limit is above 30, agent-saved sessions between 30 days
+  and that limit are deleted at that moment, and only those. The dry run prints
+  this on its own line first, as `LOWERS THE LIMIT: Claude Code keeps sessions N
+  days here; this removes M agent sessions that are between D and N days old (S
+  bytes).`, with the count and size.
+- **THE AGENT LIMIT CANNOT BE LOWERED BELOW 30 DAYS:** `--days N` and
+  `CCSESSION_AGENT_KEEP_DAYS` with a value below 30, or that is not a whole number,
+  are refused (exit 2, nothing deleted); a larger value only keeps agent sessions
+  longer. Where Claude Code's own limit is 30 days or less, `--prune` says Claude
+  Code already deletes at that point and deletes no agent session.
+- **DELETES STALE NAMES, ONLY WITH `--apply`:** a saved name whose conversation is
+  gone (and whose file is more than 2 days old) is removed from its list, whatever
+  its origin. The session itself is already gone. When no conversation exists
+  anywhere under `~/.claude/projects` nothing is called stale.
+
+A transcript that cannot be removed keeps its name and marker, a path that is a
+symlink or that resolves outside `~/.claude/projects` and `~/.claude/file-history`
+is skipped and reported, and the lock of every list that names the session is held
+from the last look at its names, markers and transcript copies until they are
+deleted. When a folder, a list, a name file or a marker cannot be read, nothing is
+called old or gone and nothing is removed. One window cannot be closed: Claude Code
+takes no lock on a transcript, so a session that is resumed in the milliseconds
+between prune's last look at its file and the delete (after being idle for more
+than the days) can still lose that file.
+Transcripts that have no saved name (a `claude -p` run, for example) are not
+covered: they follow Claude Code's own limit.
+
+**Known limits.** A session that a person typed a name for is `human`, but a few
+agent paths end `human` too, which is the safe direction (shown, never pruned): a
+`/resume` inside a launched session, a `/clear`, a launch whose first name could
+not be saved because the list was busy, and an agent session whose folder moves
+into another repo (its copy in that repo has no marker; `ccsession --classify
+--apply` marks it). A line an orchestrator sends into a tab at the name question
+counts as typed by a person.
 
 ---
 
@@ -810,7 +909,8 @@ shim by itself, because other sessions may be using it.
 | A new model or profile has not appeared | Run `ccsession --models-status`; `ccsession --refresh-models` checks immediately |
 | "input exceeds the context window" | The size you set is larger than the model truly accepts. Lower the profile number |
 | Image errors on some models | Certain models accept text only. Use a different model for conversations containing screenshots |
-| A named session says it cannot be found, or its row reads `(transcript missing)` | The conversation was deleted, usually by Claude Code's cleanup after `cleanupPeriodDays` (30 by default; see "How long sessions are kept"), or the transcript is on another computer. `ccsession --rm <name>` clears the stale name |
+| A named session says it cannot be found, or its row reads `(transcript missing)` | The conversation was deleted, usually by Claude Code's cleanup after `cleanupPeriodDays` (30 by default, 90 after install; see "How long sessions are kept"), or the transcript is on another computer. `ccsession --rm <name>` clears the stale name, and `ccsession --prune --apply` clears every stale name at once (a dry run without `--apply`) |
+| A session is missing from `--list` or `--here` and the last line says `N agent sessions hidden` | An agent saved it (an automatic name, `CCSESSION_NAME`, `--name`). `ccsession --here --agents` shows it; `ccsession --mark <name> human` makes it a person's |
 | `API Error: 502 ccsession: gateway unreachable at http://127.0.0.1:<port>` | The shim's upstream is another shim's address, saved in `~/.claude/ccsession.env` or `~/.env` (older installers saved the shell's `ANTHROPIC_BASE_URL`, which inside a session is the shim). Set `ANTHROPIC_BASE_URL` there to the gateway, stop the broken shim (`curl -s http://127.0.0.1:<port>/__ccsession_shim` shows its `pid`), and start a new session. ccsession now refuses such an address before starting a shim |
 | `ccsession: gateway unreachable at <gateway>` | The gateway itself refused or dropped the connection: check that it is up on that host and port (a ping only proves the host is up) |
 
@@ -840,6 +940,9 @@ or the names will not line up.
   names whichever worktree wrote last, so it is not the list's heading. The
   `.repo` file beside it holds the repo's name (the heading), for a list keyed
   by a network origin.
+- `.origin/<session id>` beside them holds `human` or `agent`: who chose the
+  session's name (see "Sessions a person named and sessions an agent saved").
+  No file means unmarked, which counts as human.
 - `.ccsession-lock` beside them is locked (`flock`) while a name is saved, so
   two sessions saving at once take turns. The lock goes with the process that
   held it, so a killed run never leaves the list locked.

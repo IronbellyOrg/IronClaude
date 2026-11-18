@@ -327,7 +327,7 @@ def test_fallback_does_not_claim_user_hook_mentioning_script(home):
 
 @pytest.mark.parametrize(
     "before, after",
-    [(None, 365), (30, 365), (365, 365), (3650, 3650)],
+    [(None, 90), (30, 90), (89, 90), (90, 90), (365, 365), (3650, 3650)],
 )
 def test_wire_sets_session_retention_only_when_absent_or_lower(home, before, after):
     # Claude Code deletes a conversation 30 days after its last change and has
@@ -380,7 +380,7 @@ def test_wire_reports_when_managed_settings_keep_retention_short(home, monkeypat
     _with_retention(home)
     managed = home / "managed"
     managed.mkdir()
-    (managed / "managed-settings.json").write_text('{"cleanupPeriodDays": 90}')
+    (managed / "managed-settings.json").write_text('{"cleanupPeriodDays": 60}')
     monkeypatch.setenv("CCSESSION_MANAGED_SETTINGS_DIR", str(managed))
     ok, msg = wire_ccsession(home)
     assert ok and "warning" in msg.lower()
@@ -402,12 +402,15 @@ def test_wire_stays_quiet_when_retention_is_raised(home):
     assert ok and "warning" not in msg.lower()
 
 
-def test_wire_stays_quiet_when_managed_retention_is_long_enough(home, monkeypatch):
-    # A managed value of a year or more already keeps sessions long enough.
+@pytest.mark.parametrize("days", [90, 365])
+def test_wire_stays_quiet_when_managed_retention_is_long_enough(
+    home, monkeypatch, days
+):
+    # A managed value of 90 days or more already keeps sessions long enough.
     _with_retention(home)
     managed = home / "managed"
     managed.mkdir()
-    (managed / "managed-settings.json").write_text('{"cleanupPeriodDays": 365}')
+    (managed / "managed-settings.json").write_text('{"cleanupPeriodDays": %d}' % days)
     monkeypatch.setenv("CCSESSION_MANAGED_SETTINGS_DIR", str(managed))
     ok, msg = wire_ccsession(home)
     assert ok and "warning" not in msg.lower()
