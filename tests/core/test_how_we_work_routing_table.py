@@ -50,12 +50,12 @@ _LEVEL_HEADER = ["Level", "Use this when", "What you run", "What you end up with
 # A row may be added; none of these may be renamed or removed. The one row that left
 # on purpose are the localization review row (6.0.0, its command moved to the
 # snapshot fork) and the research-first, full-spec and technical-design-document
-# rows (6.1.0, their skills were removed).
+# rows and the task-file row (6.1.0, their skills were removed, and level 4 went with the
+# task skill).
 _EXPECTED_IDS = {
     "ask",
     "small-change",
     "simple-plan",
-    "task-file",
     "feature-existing",
     "shape-idea",
     "bug",
@@ -164,7 +164,7 @@ def test_level_table_block():
     assert _cells(rows[0]) == _LEVEL_HEADER
     assert set(rows[1].replace("|", "").strip()) <= {"-", " "}
     data = rows[2:]
-    assert len(data) == 4
+    assert len(data) == 3
     for n, row in enumerate(data, 1):
         cells = _cells(row)
         assert len(cells) == 4, row
@@ -195,7 +195,7 @@ def test_ids_unique_kebab_and_stable():
 
 def test_level_and_changes_files_vocabulary():
     for r in _routing_rows():
-        assert re.fullmatch(r"[1-4]|-", r["level"]), r["id"]
+        assert re.fullmatch(r"[1-3]|-", r["level"]), r["id"]
         assert r["changes_files"] in {"no", "yes", "asks first"}, r["id"]
 
 
@@ -396,27 +396,11 @@ def test_ordinary_routes_plan_with_workflow_then_implement(row_id):
     assert row["level"] == "3"
 
 
-@pytest.mark.parametrize(
-    "reason",
-    [
-        "File count",
-        "multiple sessions",
-        "existing spec/PRD/TDD",
-        "risk",
-        "auditability",
-        "drift concerns",
-        "resume",
-    ],
-)
-def test_mdtm_cannot_be_selected_by_a_proxy_alone(reason):
-    """T03/T06/T07/T08: size, specs, sessions and assurance are not MDTM gates."""
+def test_level_scale_ends_at_three_and_proxies_do_not_change_the_level():
+    """T03/T06/T07/T08: size, specs and sessions do not move ordinary work off level 3."""
     block = _block(_text(), _LEVEL_BEGIN, _LEVEL_END)
-    exclusion = next(
-        line for line in block.splitlines() if line.startswith("File count")
-    )
-    assert reason in exclusion
-    assert "alone never select level 4" in exclusion
-    assert "twelve-file feature across several sessions still uses level 3" in exclusion
+    assert "level 4" not in block.lower()
+    assert "twelve-file feature across several sessions still uses level 3" in block
     ordinary = _cells(_table_rows(block)[4])
     assert "Ordinary implementation" in ordinary[1]
     assert "many files or several sessions" in ordinary[1]
@@ -425,19 +409,13 @@ def test_mdtm_cannot_be_selected_by_a_proxy_alone(reason):
     assert "one or two sessions" not in ordinary[1]
 
 
-def test_explicit_mdtm_creation_or_existing_task_execution_is_preserved():
-    """T04: MDTM remains available for explicit or exceptional machinery needs."""
-    row = next(r for r in _routing_rows() if r["id"] == "task-file")
-    assert row["level"] == "4"
-    assert "explicit MDTM" in row["intent"]
-    assert "exceptionally complex long-running" in row["intent"]
-    assert "research/checklist/phase-panel machinery need" in row["intent"]
-    steps = _steps(row)
-    assert "task-builder" in _TOKEN_RE.findall(steps["1a"])
-    assert "existing MDTM task" in steps["1b"]
-    assert "without rebuilding" in steps["1b"]
-    assert _TOKEN_RE.findall(steps["3"]) == ["task"]
-    assert "only when execution is requested" in steps["3"]
+def test_task_file_route_and_level_four_are_gone():
+    """6.1.0: the task-file route, `/task`, `/task-builder` and level 4 left the guide."""
+    assert "task-file" not in {r["id"] for r in _routing_rows()}
+    text = _text()
+    for removed in ("/task-builder", "/task ", "level 4", "Level 4"):
+        assert removed not in text, removed
+    assert not re.search(r"`/task\b", text)
 
 
 def test_existing_approved_plan_and_explicit_executor_keep_their_identity():
@@ -449,14 +427,11 @@ def test_existing_approved_plan_and_explicit_executor_keep_their_identity():
     )
     assert "do not rebuild it" in block
     assert "Managed workflow packages use `/sc:implement`" in block
-    assert "existing MDTM execution uses `/task`" in block
     assert (
         "Explicit `/sc:implement` selection retains that executor's own semantics"
         in block
     )
-    assert (
-        "not MDTM checklist/phase execution, even if the source resembles MDTM" in block
-    )
+    assert "even if the source resembles a task-file checklist" in block
     resume = next(r for r in _routing_rows() if r["id"] == "resume")
     assert "rerun the same command" in resume["steps"]
     assert "sc:implement" in _TOKEN_RE.findall(resume["steps"])
@@ -520,11 +495,11 @@ def test_standard_planning_default_and_conditional_quick_are_consistent():
     assert "for this smaller checked plan, quick is appropriate" in section
 
 
-def test_bug_planning_and_brainstorm_follow_on_do_not_use_size_to_choose_mdtm():
+def test_bug_planning_and_brainstorm_follow_on_use_workflow():
     bug = next(r for r in _routing_rows() if r["id"] == "bug")
     steps = _steps(bug)
     assert _TOKEN_RE.findall(steps["3b"]) == ["sc:workflow", "sc:implement"]
-    assert "only explicit or exceptionally justified MDTM" in steps["3c"]
+    assert "3c" not in steps
     assert "--depth quick" not in bug["mandatory_flags"]
     assert (
         "deep diagnosis without fix can feed separate ordinary workflow planning"
@@ -689,7 +664,7 @@ def test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_fir
     assert "actual callable command/skill and relevant dependencies" in section
     assert "contract gap**, not a union of both interfaces" in section
     assert "new suite or a supervised existing-suite run" in section
-    assert "checked workflow plan from an MDTM checklist" in section
+    assert "checked workflow plan from a plain checklist" in section
     unsure = next(r for r in _routing_rows() if r["id"] == "unsure")
     assert "one useful clarification" in unsure["steps"]
     assert "sc:recommend" not in _TOKEN_RE.findall(unsure["steps"])
@@ -802,16 +777,16 @@ def test_diagnosis_reflection_and_review_preserve_remediation_coupling():
     assert "standard `/sc:troubleshoot --fix` offers workflow planning" in bug["notes"]
     assert "after supported diagnosis and acceptance" in bug["notes"]
     assert "--depth quick --fix` is invalid" in bug["notes"]
-    assert "--depth deep --fix` couples to MDTM" in bug["notes"]
+    assert "--depth deep --fix` offers the same workflow planning" in bug["notes"]
     assert (
         "deep diagnosis without fix can feed separate ordinary workflow planning"
         in bug["notes"]
     )
     reflect = rows["confirm-built"]["notes"]
     assert (
-        "standard `/sc:reflect --remediate` offers workflow after acceptance" in reflect
+        "`/sc:reflect --remediate` offers workflow after acceptance at every depth"
+        in reflect
     )
-    assert "explicit deep remediation couples to MDTM" in reflect
     assert "--tier 2 --depth standard --remediate" in reflect
     assert "legacy task analyze/validate aliases remain supported" in reflect
     assert "no headless auto-fix substitution" in reflect
@@ -820,8 +795,7 @@ def test_diagnosis_reflection_and_review_preserve_remediation_coupling():
     assert "carried hardening blockers" in section
     assert "consume it rather than repeat it" in section
     review = rows["auggie-review-only"]["notes"]
-    assert "accepted deep offer currently selects MDTM" in review
-    assert "ordinary review offer uses workflow" in review
+    assert "an accepted offer uses workflow at every depth" in review
     assert (
         "deep plus ordinary later planning suppresses offer and plans separately"
         in review
@@ -897,7 +871,7 @@ def test_pr_attachment_monitor_log_resume_and_silence_are_not_new_shipping():
     assert "--resume <run-log.jsonl>" in steps["1a"]
     assert "--pr <number>" in steps["1b"]
     assert "recorded ceiling, not task execution or PR recreation" in resume["notes"]
-    assert "no task-builder rebuild from resume alone" in resume["notes"]
+    assert "no rebuild from resume alone" in resume["notes"]
     local = rows["auggie-review-only"]["notes"]
     assert "PR posting defaults on, local-only uses" in local
     assert "--no-post-pr --no-remediation-offer" in local

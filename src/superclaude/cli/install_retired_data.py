@@ -46,6 +46,9 @@ RETIRED_SKILLS = {
     "readme": {
         "SKILL.md": ("7825123de22c3135526aa5806b37de9fe02bcce676eb49626147d5a222aa952a", "efcbcc2e77db2cfaa774fb9df1d34d94b84a22bdbe964a4f8e89dd0369bb4d0e",),
     },
+    "roadmap": {
+        "SKILL.md": ("5f3d3b77bc2982630125006dbbdf673690a052d03757a1457dbe76e3204dfad6", "8d7b17a0477d3aefe59da154acff4e5ce3210055e17f2e596ec88d5dd3011598",),
+    },
     "sc-cli-portify-protocol": {
         "SKILL.md": ("bfd11d2c28bca5f22c6c09db04dc7af3a272e6921988f7b3c861937f689f9530",),
         "__init__.py": ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",),
@@ -76,6 +79,12 @@ RETIRED_SKILLS = {
     },
     "sc-validate-roadmap-protocol": {
         "SKILL.md": ("b423ad2a8da9480e6fb459b5ef518e1fc086b1ddf70f17da69eefcd273d155de",),
+    },
+    "task": {
+        "SKILL.md": ("2a3edaabec765a5ab9c4c7a42fca4ec5b2baa9799b4babc5763e3450dd8628d7", "a4e51b0d3cb10c2289d824ac9b6500c978a60cb03e8621580ed47c1ce53d94f2",),
+    },
+    "task-builder": {
+        "SKILL.md": ("1dde4e095e5c55efdd7f0475100013ad0692cc26f0713bc76299e23e048ae422", "5ebb8b9c99365aae180082fcf15507a8dc6919447688340bb3cec31016a4ec5b",),
     },
     "tdd": {
         "SKILL.md": ("c3e46525f1db5a095bbfca104d8f75c0149ece7d5c30786305358811aeb6cbdc", "e576e4368c61231e51c8325666831350ea2929e0d37dac4145dfba0c38e6cfd6",),

@@ -301,7 +301,7 @@
       <path class="d-line-acc" d="M290,143 L440,240" marker-end="url(#aha2)"/>
       <rect class="d-box" x="444" y="70" width="296" height="38" rx="6"/><text class="d-tm" x="458" y="94">sc:adversarial-protocol</text>
       <rect class="d-box" x="444" y="120" width="296" height="38" rx="6"/><text class="d-tm" x="458" y="144">sc:workflow-protocol</text>
-      <rect class="d-box" x="444" y="170" width="296" height="38" rx="6"/><text class="d-tm" x="458" y="194">task-builder</text>
+      <rect class="d-box" x="444" y="170" width="296" height="38" rx="6"/><text class="d-tm" x="458" y="194">sc:impact-protocol</text>
       <rect class="d-box" x="444" y="220" width="296" height="38" rx="6"/><text class="d-tm" x="458" y="244">/sc:reflect</text>
       <text class="d-ts" x="444" y="290">Skills are interconnected: one skill is</text>
       <text class="d-ts" x="444" y="308">often used by several others.</text>
@@ -314,40 +314,38 @@
 <section class="slide" id="s5" aria-labelledby="s5-h">
   <p class="eyebrow"><b>05</b> · Choosing the process · HOW-WE-WORK section 1</p>
   <h2 id="s5-h">Pick your level</h2>
-  <p>The four levels set how much process a change gets. Match the outcome you want first, and any command you named or plan that already exists. Most planned implementation uses level 3; level 4 is only for an explicit or exceptional need for its task-file machinery.</p>
-  <p><strong>Hard limit:</strong> if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: normally level 3, not automatic level 4. The one exception is contained <code>/sc:cleanup</code> work on a folder (guide 3.7): commit first and review <code>git diff</code> afterwards. It does not cover structural migrations. Naming a command directly does not waive the written plan.</p>
+  <p>The three levels set how much process a change gets. Match the outcome you want first, and any command you named or plan that already exists. Most planned implementation uses level 3.</p>
+  <p><strong>Hard limit:</strong> if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan (level 3). The one exception is contained <code>/sc:cleanup</code> work on a folder (guide 3.7): commit first and review <code>git diff</code> afterwards. It does not cover structural migrations. Naming a command directly does not waive the written plan.</p>
   <div class="term"><b>Spec:</b> a short written description of what changes, which files, and how you will know it works (guide 3.2).</div>
   <figure class="diagram mid">
-    <svg viewBox="0 0 760 314" role="img" aria-labelledby="d3-t d3-d">
+    <svg viewBox="0 0 760 258" role="img" aria-labelledby="d3-t d3-d">
       <title id="d3-t">Level ladder</title>
-      <desc id="d3-d">Four levels from ask a question at the bottom to explicit task-file work at the top. The hard limit sits between level 2 and level 3: above it, work needs a written plan, normally level 3 and not automatically level 4, and naming a command directly does not waive it. The one exception is contained /sc:cleanup work on a folder, not structural migrations.</desc>
-      <rect class="d-box-warn" x="20" y="18" width="720" height="48" rx="8"/>
-      <text class="d-tb" x="36" y="48">4 · Explicit or exceptional task-file work</text><text class="d-tm" x="440" y="48">/task-builder → /task</text>
-      <rect class="d-box-acc" x="20" y="74" width="720" height="48" rx="8"/>
-      <text class="d-tb" x="36" y="104">3 · Follow a checked implementation plan</text><text class="d-tm" x="440" y="104">/sc:workflow → /sc:implement</text>
-      <path class="d-line-warn" d="M20,140 L740,140"/>
-      <text class="d-tw" x="36" y="162">Hard limit: more than 5 edits, or more than one source file (its test file does not count),</text>
-      <text class="d-tw" x="36" y="180">needs a written plan: normally level 3, not automatic level 4. Naming a command does not waive it.</text>
-      <text class="d-tw" x="36" y="198">The one exception: contained /sc:cleanup work on a folder, not structural migrations</text>
-      <rect class="d-box" x="20" y="210" width="720" height="44" rx="8"/>
-      <text class="d-tb" x="36" y="238">2 · Make a small, direct change</text><text class="d-tm" x="440" y="238">/sc:implement, or a plain edit</text>
-      <rect class="d-box" x="20" y="262" width="720" height="44" rx="8"/>
-      <text class="d-tb" x="36" y="290">1 · Ask a question</text><text class="d-tm" x="440" y="290">ask, or /sc:explain</text>
+      <desc id="d3-d">Three levels from ask a question at the bottom to a checked implementation plan at the top. The hard limit sits between level 2 and level 3: above it, work needs a written plan (level 3), and naming a command directly does not waive it. The one exception is contained /sc:cleanup work on a folder, not structural migrations.</desc>
+      <rect class="d-box-acc" x="20" y="18" width="720" height="48" rx="8"/>
+      <text class="d-tb" x="36" y="48">3 · Follow a checked implementation plan</text><text class="d-tm" x="440" y="48">/sc:workflow → /sc:implement</text>
+      <path class="d-line-warn" d="M20,84 L740,84"/>
+      <text class="d-tw" x="36" y="106">Hard limit: more than 5 edits, or more than one source file (its test file does not count),</text>
+      <text class="d-tw" x="36" y="124">needs a written plan (level 3). Naming a command does not waive it.</text>
+      <text class="d-tw" x="36" y="142">The one exception: contained /sc:cleanup work on a folder, not structural migrations</text>
+      <rect class="d-box" x="20" y="154" width="720" height="44" rx="8"/>
+      <text class="d-tb" x="36" y="182">2 · Make a small, direct change</text><text class="d-tm" x="440" y="182">/sc:implement, or a plain edit</text>
+      <rect class="d-box" x="20" y="206" width="720" height="44" rx="8"/>
+      <text class="d-tb" x="36" y="234">1 · Ask a question</text><text class="d-tm" x="440" y="234">ask, or /sc:explain</text>
     </svg>
-    <figcaption class="cap">The four levels. Above the hard limit (which does not apply to contained <code>/sc:cleanup</code> work on a folder, other than structural migrations), a written plan is normally level 3, not automatically level 4.</figcaption>
+    <figcaption class="cap">The three levels. Above the hard limit (which does not apply to contained <code>/sc:cleanup</code> work on a folder, other than structural migrations), a written plan (level 3) is needed.</figcaption>
   </figure>
-  <p>Level 4 is for an explicit choice of the task-file (MDTM) format, an existing MDTM task, or an exceptionally complex, long-running phased program that needs its research, checklist and phase-reviewer machinery. File count, sessions, an existing spec, PRD or TDD (product and design documents), risk or drift alone never make work level 4. Before level 3 you may write a specification first (guide 3.1); ordinary planning is then level 3 (<code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution).</p>
+  <p>File count, sessions, an existing spec, PRD or TDD (product and design documents), risk or drift do not change the level: ordinary planned work stays level 3. Before level 3 you may write a specification first (guide 3.1); ordinary planning is then level 3 (<code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution).</p>
 </section>
 
 <section class="slide" id="s6" aria-labelledby="s6-h">
   <p class="eyebrow"><b>06</b> · Planning · HOW-WE-WORK sections 1, 3.12 and 5</p>
-  <h2 id="s6-h">Two planners</h2>
-  <p class="lead"><code>/sc:workflow</code> with <code>/sc:implement</code> is the ordinary default for planned implementation. <code>/task-builder</code> with <code>/task</code> is for explicit or exceptional task-file (MDTM) work, level 4.</p>
+  <h2 id="s6-h">The planner</h2>
+  <p class="lead"><code>/sc:workflow</code> with <code>/sc:implement</code> is the planner and executor for planned implementation (level 3).</p>
   <p><code>/sc:workflow</code> writes a plan in which every step has acceptance criteria: a written definition of "done" for that step.</p>
   <figure class="diagram mid">
-    <svg viewBox="0 0 760 330" role="img" aria-labelledby="d4-t d4-d">
-      <title id="d4-t">Two planner pairs</title>
-      <desc id="d4-d">Left, the ordinary default: /sc:workflow writes a plan folder; /sc:implement runs it step by step with compliance checks, then a final independent review, and on Linux moves the folder to done (elsewhere it stays in to-do on purpose). Right, explicit or exceptional: /task-builder writes a task file checklist; /task runs it with reviewer panels after each phase except setup, then tests and a final audit.</desc>
+    <svg viewBox="0 0 380 330" role="img" aria-labelledby="d4-t d4-d">
+      <title id="d4-t">The planner pair</title>
+      <desc id="d4-d">/sc:workflow writes a plan folder; /sc:implement runs it step by step with compliance checks, then a final independent review, and on Linux moves the folder to done (elsewhere it stays in to-do on purpose).</desc>
       <defs>
         <marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head" d="M0,0 L10,5 L0,10 z"/></marker>
         <marker id="aha4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head-acc" d="M0,0 L10,5 L0,10 z"/></marker>
@@ -365,26 +363,13 @@
       <text class="d-ts" x="36" y="260">progress.md: one line per step;</text>
       <text class="d-ts" x="36" y="280">step checks, then a final independent</text>
       <text class="d-ts" x="36" y="300">review; on Linux, moves to done/</text>
-      <text class="d-tw" x="400" y="24">EXPLICIT OR EXCEPTIONAL · level 4</text>
-      <rect class="d-box-warn" x="400" y="36" width="340" height="40" rx="8"/><text class="d-tm" x="416" y="61">/task-builder</text>
-      <path class="d-line" d="M570,76 L570,96" marker-end="url(#ah4)"/>
-      <rect class="d-box" x="400" y="100" width="340" height="52" rx="8"/>
-      <text class="d-ts" x="416" y="120">Researches the code and writes a</text>
-      <text class="d-ts" x="416" y="140">task file: a checklist in .dev/tasks/to-do/</text>
-      <path class="d-line" d="M570,152 L570,172" marker-end="url(#ah4)"/>
-      <rect class="d-box-warn" x="400" y="176" width="340" height="40" rx="8"/><text class="d-tm" x="416" y="201">/task</text>
-      <path class="d-line" d="M570,216 L570,236" marker-end="url(#ah4)"/>
-      <rect class="d-box" x="400" y="240" width="340" height="72" rx="8"/>
-      <text class="d-ts" x="416" y="260">A reviewer panel after each phase but</text>
-      <text class="d-ts" x="416" y="280">setup; then tests and a final audit.</text>
-      <text class="d-ts" x="416" y="300">Resume with the same executor.</text>
-    </svg>
-    <figcaption class="cap">What each pair leaves on disk.</figcaption>
+          </svg>
+    <figcaption class="cap">What the plan and its run leave on disk.</figcaption>
   </figure>
   <ul>
-    <li><strong>Run each plan with its own executor.</strong> Folders named <code>TASK-WF-*</code> are <code>/sc:workflow</code> plans: run them with <code>/sc:implement</code>, never with <code>/task</code>. An existing MDTM task file goes directly to <code>/task</code>, without rebuilding it.</li>
+    <li><strong>Run each plan with its own executor.</strong> Folders named <code>TASK-WF-*</code> are <code>/sc:workflow</code> plans: run them with <code>/sc:implement</code>.</li>
   </ul>
-  <p class="story">In the meeting <code>/sc:workflow</code> was described as "task builder light": faster and cheaper. It assumes you have done your homework, or lets you tell it plainly in a prompt what to plan. The rule of thumb given there: a plan made by an <code>sc:</code> command is followed up by an <code>sc:</code> command, and a plan from a plain slash command, for the most part, by a plain one. The guide's rule wins: when an approved plan already exists, use its own executor and do not rebuild it. A <code>/sc:workflow</code> package runs with <code>/sc:implement</code>; an existing MDTM task file runs with <code>/task</code>.</p>
+  <p class="story">In the meeting <code>/sc:workflow</code> was described as faster and cheaper than the older task builder, which has since been removed. It assumes you have done your homework, or lets you tell it plainly in a prompt what to plan. The guide's rule: when an approved plan already exists, use its own executor and do not rebuild it. A <code>/sc:workflow</code> package runs with <code>/sc:implement</code>.</p>
 </section>
 
 <section class="slide" id="s7" aria-labelledby="s7-h">
@@ -392,7 +377,7 @@
   <h2 id="s7-h">From idea to merged PR</h2>
   <p>Most features follow the same path, from an idea to an open pull request (PR). Skip the steps you do not need: brainstorm only if the idea is vague, research only if you do not know how the current code works. Each later step runs only when you ask for it: a plan does not start the implementation, and implementing does not ship anything.</p>
   <figure class="diagram wide">
-    <svg viewBox="0 0 1170 250" role="img" aria-labelledby="d5-t d5-d">
+    <svg viewBox="0 0 1170 230" role="img" aria-labelledby="d5-t d5-d">
       <title id="d5-t">Idea to merged PR</title>
       <desc id="d5-d">Seven steps in order, each taken only when you ask for it: shape the idea, research, spec, plan, implement, review, open the PR. The spec track covers the first three steps; the execution track covers the last four.</desc>
       <defs>
@@ -424,7 +409,6 @@
       <path class="d-line" d="M994,118 L1004,118" marker-end="url(#ah5)"/>
       <text class="d-ts" x="10" y="196">A new product, component or major feature others build against: write the requirements and design documents,</text>
       <text class="d-ts" x="10" y="216">critique them with /sc:spec-panel, then Plan and Implement as usual (guide 3.1).</text>
-      <text class="d-ts" x="10" y="238">Explicit or exceptional task-file (MDTM) work swaps Plan and Implement for /task-builder and /task (guide section 1, level 4; 3.2 step 5).</text>
     </svg>
     <figcaption class="cap">The guide's feature path (3.2, with brainstorm from 3.1 and the review steps from 3.11), with the two tracks from the onboarding split overlaid.</figcaption>
   </figure>
@@ -440,7 +424,7 @@
     <div class="card"><h3>Check it is not already built</h3><p><code class="long"><span class="nw">/sc:recommend</span> <span class="nw">"&lt;goal&gt;"</span> <span class="nw">--plugin</span></code> searches the Claude plugin marketplaces and community skill repositories instead of the local commands.</p><p class="story">The meeting's advice: before you build anything, look for someone who already built it, then fork it or use it.</p></div>
     <div class="card"><h3>Get an expert critique</h3><p><code>/sc:spec-panel</code> has a panel of named requirements experts critique a spec. It only reports; you decide what to apply.</p></div>
   </div>
-  <p><strong>When is a full specification warranted?</strong> A new product, a new component, or a major feature other people will build against: write the requirements and design documents and have them critiqued with <code>/sc:spec-panel</code> (guide 3.1). For a feature on an existing system, write a short spec and plan it with <code>/sc:workflow</code> (guide 3.2). An existing spec, many files or several sessions do not by themselves make it level 4; <code>/task-builder</code> and <code>/task</code> are only for explicit task-file (MDTM) work or an exceptionally complex, long-running program (guide 3.2 steps 3 and 5).</p>
+  <p><strong>When is a full specification warranted?</strong> A new product, a new component, or a major feature other people will build against: write the requirements and design documents and have them critiqued with <code>/sc:spec-panel</code> (guide 3.1). For a feature on an existing system, write a short spec and plan it with <code>/sc:workflow</code> (guide 3.2).</p>
 </section>
 
 <section class="slide" id="s9" aria-labelledby="s9-h">
@@ -524,7 +508,7 @@
   <div class="grid2">
     <div class="card"><h3>Work is written to files</h3><p>Plans, research and findings are saved to files, most under <code>.dev/</code>, not only into the chat. If a session dies, the files are what survives.</p></div>
     <div class="card"><h3><code>superclaude update</code> overwrites</h3><p>It overwrites every file it ships, including an edited <code>~/.claude/CLAUDE.md</code>, keeps no backup, and deletes and re-copies each shipped skill folder, so any file you added inside one is lost. Copy any file you changed or added before you run it.</p></div>
-    <div class="card"><h3>Resume after a crash</h3><p>Before you need it, name the conversation with <code>/rename &lt;name&gt;</code> and send one more message (or quit) so ccsession records it; later, from a terminal in the same folder, run <code>ccsession &lt;name&gt;</code>.</p><p>This always works: run the same command again on the work's own files, <code>/sc:implement</code> on the plan or <code>/task</code> on the task file.</p></div>
+    <div class="card"><h3>Resume after a crash</h3><p>Before you need it, name the conversation with <code>/rename &lt;name&gt;</code> and send one more message (or quit) so ccsession records it; later, from a terminal in the same folder, run <code>ccsession &lt;name&gt;</code>.</p><p>This always works: run the same command again on the work's own files, <code>/sc:implement</code> on the plan.</p></div>
   </div>
 </section>
 
@@ -552,13 +536,10 @@
   <div class="tablewrap">
     <table>
       <tbody>
-        <tr><td><code>/task</code></td><td><code>/sc:implement</code></td></tr>
-        <tr><td><code>/sc:workflow</code> + <code>/sc:implement</code></td><td><code>/task-builder</code> + <code>/task</code></td></tr>
         <tr><td><code>/sc:cleanup-audit</code></td><td><code>/sc:cleanup</code></td></tr>
       </tbody>
     </table>
   </div>
-  <div class="trap"><b>Choosing level 4 for the wrong reason.</b> The guide's rule: use <code>/task-builder</code> and <code>/task</code> only when you explicitly select the task-file (MDTM) format, or have an exceptionally complex, long-running phased program that needs their research, checklist and phase-reviewer machinery; an existing MDTM task goes straight to <code>/task</code>. File count, several sessions, an existing spec, risk, auditability, drift or resume alone never select them (guide sections 1 and 5).</div>
   <p class="story">The sign, as described in the meeting: a long run starts and many reviewer or quality-check (QA) helper agents, called subagents, start in the background without you asking for them.</p>
 </section>
 
@@ -567,7 +548,7 @@
   <h2 id="s14-h">When unsure</h2>
   <div class="grid2">
     <div class="card"><h3>Ask for a recommendation</h3><p><code class="long"><span class="nw">/sc:recommend</span> <span class="nw">"&lt;what</span> <span class="nw">you</span> <span class="nw">want</span> <span class="nw">to</span> <span class="nw">do,</span> <span class="nw">and</span> <span class="nw">why&gt;"</span></code> picks the right command and writes a ready-to-paste prompt.</p></div>
-    <div class="card"><h3>See what is installed</h3><p><code>/sc:help</code> lists the installed commands and skills and shows the four levels.</p></div>
+    <div class="card"><h3>See what is installed</h3><p><code>/sc:help</code> lists the installed commands and skills and shows the three levels.</p></div>
     <div class="card"><h3>Ask your lead</h3><p>Before starting anything large, or whenever this deck and the guide leave you unsure. If you work alone, read "your lead" as yourself.</p></div>
   </div>
 </section>
@@ -582,7 +563,6 @@
         <tr><td>1 · Ask a question</td><td>Ask in plain English, or <code>/sc:explain</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#35-investigate-how-something-works-or-whether-an-idea-is-feasible">3.5</a></td></tr>
         <tr><td>2 · Make a small, direct change</td><td><code>/sc:implement</code>, or a plain edit, then run the test</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#33-make-a-small-well-defined-change">3.3</a></td></tr>
         <tr><td>3 · Follow a checked implementation plan</td><td><code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#32-add-a-feature-to-an-existing-system-no-prd-needed">3.2</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#33-make-a-small-well-defined-change">3.3</a></td></tr>
-        <tr><td>4 · Explicit or exceptional task-file work</td><td><code>/task-builder</code> → <code>/task</code>; an existing MDTM task goes straight to <code>/task</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#31-build-a-new-product-or-major-feature-full-specification">3.1</a></td></tr>
         <tr><td>Fix a bug</td><td><code>/sc:troubleshoot</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#34-fix-a-bug">3.4</a></td></tr>
         <tr><td>Review only, or ship</td><td>Review only: <code>/sc:auggie-review</code> with <code>--no-post-pr --no-remediation-offer</code>. Ship when requested and authorized: <code>/sc:pr-submit</code> with the one <code>--monitor</code> ceiling (0 to 3) you chose</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#311-review-only-or-deliberately-ship-and-open-a-pull-request">3.11</a></td></tr>
         <tr><td>Resume</td><td>The same command again, or <code>ccsession &lt;name&gt;</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#312-resume-after-a-crash-or-a-lost-session">3.12</a></td></tr>

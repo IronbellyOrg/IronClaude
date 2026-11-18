@@ -35,7 +35,7 @@ def _tree(root: Path) -> None:
     _write(root, "src/superclaude/cli/reflect/ensemble.py", "reviewer_cards = []\n")
     _write(
         root,
-        "src/superclaude/skills/task-builder/SKILL.md",
+        "src/superclaude/skills/sc-workflow-protocol/SKILL.md",
         "merge_method: adversarial\n",
     )
     _write(root, "tests/cli/reflect/fixtures/c.yaml", "citations_dropped: 0\n")
@@ -77,7 +77,10 @@ def test_classification_rules() -> None:
     )
     assert inv.classify("src/superclaude/cli/reflect/ensemble.py")[0] == "producer"
     assert inv.classify("src/superclaude/cli/reflect/contract.py")[0] == "validator"
-    assert inv.classify("src/superclaude/skills/task-builder/SKILL.md")[0] == "consumer"
+    assert (
+        inv.classify("src/superclaude/skills/sc-workflow-protocol/SKILL.md")[0]
+        == "consumer"
+    )
     assert (
         inv.classify(
             "src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md"
@@ -91,10 +94,6 @@ def test_classification_rules() -> None:
     refs = "src/superclaude/skills/sc-reflect-protocol/refs/"
     assert inv.classify(refs + "input-resolution.md")[:2] == ("producer", "named")
     assert inv.classify(refs + "reflection-rubric.md")[:2] == ("producer", "named")
-    assert inv.classify("src/superclaude/skills/task/SKILL.md")[:2] == (
-        "consumer",
-        "named",
-    )
     assert inv.classify("src/superclaude/skills/sc-task-protocol/SKILL.md")[:2] == (
         "consumer",
         "named",
@@ -123,7 +122,7 @@ def test_report_roles_counts_and_lines(tmp_path: Path) -> None:
     assert skill[3 + words.index("contract_version")] == "1"
     assert rows["src/superclaude/cli/reflect/contract.py"][0] == "validator"
     assert rows["src/superclaude/cli/reflect/ensemble.py"][0] == "producer"
-    assert rows["src/superclaude/skills/task-builder/SKILL.md"][0] == "consumer"
+    assert rows["src/superclaude/skills/sc-workflow-protocol/SKILL.md"][0] == "consumer"
     assert rows["tests/cli/reflect/fixtures/c.yaml"][0] == "consumer"
     assert rows["tests/roadmap/test_merge.py"][0] == "not in scope"
     assert rows["src/superclaude/skills/roadmap/SKILL.md"][0] == "not in scope"

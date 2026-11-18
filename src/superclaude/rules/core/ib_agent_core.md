@@ -213,22 +213,6 @@ timeout 300 bash .claude/scripts/automated_qa_workflow.sh TASK-NAME.md 3 0
 run_in_background: true  # NEVER DO THIS WITHOUT EXPLICIT REQUEST
 ```
 
-#### Using the `/task` Command (Recommended)
-
-**MANDATORY FIRST STEP:** When instructed to run a task workflow:
-
-1. **ALWAYS recommend `/task` to the user**
-   - Provides interactive workflow execution
-   - Ensures correct parameters and safe execution
-   - Automatic validation and setup
-
-2. **If user declines `/task`:**
-   - You MUST read and follow `.claude/commands/rf/task.md` completely
-   - DO NOT run workflows without following task.md guidelines
-   - Script location: `.claude/scripts/automated_qa_workflow.sh`
-
-**CRITICAL:** All workflow execution MUST follow task.md specifications. No exceptions.
-
 #### Direct Script Usage
 
 **Script Location:** `.claude/scripts/automated_qa_workflow.sh`
@@ -853,11 +837,7 @@ These prefixes enable automated parsing and routing by the orchestrator.
 ### Running the Demo Task
 
 ```bash
-/task
-# When prompted:
-# Task: TASK-SAMPLE-DEMO
-# Batch size: 4
-# Iterations: 0
+bash .claude/scripts/automated_qa_workflow.sh TASK-SAMPLE-DEMO.md 4 0
 ```
 
 For direct script usage, see examples in Section 1 "Automated QA Workflow Execution" above.
@@ -877,7 +857,7 @@ For direct script usage, see examples in Section 1 "Automated QA Workflow Execut
 1. Use the template from `.claude/templates/workflow/01_mdtm_template_generic_task__gfdoc.md`
 2. Follow all template guidelines for granular breakdown
 3. Save to `.dev/tasks/`
-4. Run with `/task` or direct script call
+4. Run with a direct script call
 
 ### Resuming After Interruption
 
@@ -950,9 +930,6 @@ When the workflow completes or encounters issues, you'll see special markers:
 ## APPENDIX A: Quick Reference Commands
 
 ```bash
-# Start interactive workflow (recommended)
-/task
-
 # Create a new task interactively
 /taskbuilder
 

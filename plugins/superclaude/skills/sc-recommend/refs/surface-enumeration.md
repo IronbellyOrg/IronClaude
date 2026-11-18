@@ -96,4 +96,4 @@ Include only verified fields and exact interface values. Current source/dependen
 
 Carry at most three candidates into output construction: one primary, at most two genuinely distinct net-value alternatives. A matched routing row is one candidate, but every selected step is verified. Do not add alternatives merely for option variations.
 
-If the complete objective remains ambiguous, ask one useful question about the desired deliverable or input format. Artifact labels alone do not choose the evaluation objective. Never send a user already inside recommendation back to recommend, or choose heavier MDTM process to avoid resolving ambiguity.
+If the complete objective remains ambiguous, ask one useful question about the desired deliverable or input format. Artifact labels alone do not choose the evaluation objective. Never send a user already inside recommendation back to recommend, or choose a heavier process to avoid resolving ambiguity.

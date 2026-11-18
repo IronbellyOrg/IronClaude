@@ -271,7 +271,6 @@ def test_qa_agents_use_the_independent_stance(rel):
 @pytest.mark.parametrize(
     "rel",
     [
-        "src/superclaude/skills/task/SKILL.md",
         "src/superclaude/templates/workflow/01_mdtm_template_generic_task.md",
         "src/superclaude/templates/workflow/02_mdtm_template_complex_task.md",
     ],

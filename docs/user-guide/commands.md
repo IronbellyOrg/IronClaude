@@ -647,14 +647,14 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 
 ### `/sc:workflow` - Implementation Plan Generator
 
-**When to use:** Any change that needs a written plan, including work across many files or several sessions, with or without a spec, PRD or TDD (level 3 in [How We Work](how-we-work.md), the ordinary default for planned work). The default is `--depth standard`; use `--depth quick` for a smaller checked plan. It writes a phased plan (`<id>.md`, named like its package directory). Use `/task-builder` only when you explicitly select MDTM or have an exceptional need for its machinery (level 4).
+**When to use:** Any change that needs a written plan, including work across many files or several sessions, with or without a spec, PRD or TDD (level 3 in [How We Work](how-we-work.md), the ordinary default for planned work). The default is `--depth standard`; use `--depth quick` for a smaller checked plan. It writes a phased plan (`<id>.md`, named like its package directory).
 
 **What it does:**
 
 - Parses a PRD, spec, or inline prompt
 - Creates a new package `.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/` (`<subject>` = lower camelCase, max 16 chars, e.g. `authLogin`) with `<id>.md` (schema `workflow-plan/1.2`), a `source.md` snapshot and `return-contract.yaml`; never overwrites an existing package
 - Checks the plan against your request when it is written (`/sc:reflect --mode pre`, advisory) and prints the result with the plan path
-- Run it with `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (not MDTM `/task`); on completion `/sc:implement` archives the package to `.dev/tasks/done/` on Linux; on any other system (including macOS) the archive is refused on purpose, the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand
+- Run it with `/sc:implement .dev/tasks/to-do/<id>/<id>.md`; on completion `/sc:implement` archives the package to `.dev/tasks/done/` on Linux; on any other system (including macOS) the archive is refused on purpose, the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand
 - **Does NOT implement code**
 
 **Syntax:**

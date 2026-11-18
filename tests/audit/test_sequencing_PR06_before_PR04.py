@@ -62,7 +62,6 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 RF_QA_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa.md"
 RF_QA_MIRROR = REPO_ROOT / ".claude" / "agents" / "rf-qa.md"
-SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
 
 # Bounded-region heading the orchestrator MUST search for (SKILL.md
 # §A.10.5 step 2). Identical to TEST-010's helper.
@@ -219,11 +218,6 @@ def rf_qa_canonical_pre_sha(rf_qa_canonical_text: str) -> str:
     return hashlib.sha256(rf_qa_canonical_text.encode("utf-8")).hexdigest()
 
 
-@pytest.fixture(scope="module")
-def skill_canonical_pre_sha() -> str:
-    return hashlib.sha256(SKILL_SRC.read_bytes()).hexdigest()
-
-
 @pytest.fixture
 def sequencing_scenario(tmp_path: Path, rf_qa_canonical_text: str):
     """Run the K-007 sequencing-inversion scenario and return per-state
@@ -273,73 +267,6 @@ def sequencing_scenario(tmp_path: Path, rf_qa_canonical_text: str):
 # ---------------------------------------------------------------------------
 # Static schema / source guards — the K-007 mitigation prose stays put.
 # ---------------------------------------------------------------------------
-
-
-class TestK007MitigationDocumented:
-    """Pre-flight: the SKILL.md §A.10.5 step 8 *auto-richening
-    invariant* — the documented K-007 mitigation — exists and names
-    R-069 explicitly. If this regresses, the fixture has nothing to
-    verify; assert presence before exercising the helpers.
-    """
-
-    def test_rf_qa_src_exists(self):
-        assert RF_QA_SRC.is_file(), f"missing source rf-qa.md at {RF_QA_SRC}"
-
-    def test_rf_qa_mirror_exists(self):
-        assert RF_QA_MIRROR.is_file(), f"missing mirror rf-qa.md at {RF_QA_MIRROR}"
-
-    def test_skill_src_exists(self):
-        assert SKILL_SRC.is_file(), f"missing source SKILL.md at {SKILL_SRC}"
-
-    def test_skill_names_k_007_explicitly(self):
-        skill_text = SKILL_SRC.read_text(encoding="utf-8")
-        assert "K-007" in skill_text, (
-            "SKILL.md no longer references K-007 — the mitigation prose "
-            "for the PR-04 / PR-06 sequencing inversion has regressed"
-        )
-
-    def test_skill_names_r_069_explicitly(self):
-        skill_text = SKILL_SRC.read_text(encoding="utf-8")
-        assert "R-069" in skill_text, (
-            "SKILL.md no longer references R-069 — the auto-richening "
-            "invariant has lost its roadmap pointer"
-        )
-
-    def test_skill_auto_richening_invariant_present(self):
-        skill_text = SKILL_SRC.read_text(encoding="utf-8")
-        assert "Auto-richening invariant" in skill_text, (
-            "SKILL.md no longer contains the 'Auto-richening invariant' "
-            "header — the K-007 mitigation step 8 has been deleted/renamed"
-        )
-
-    def test_skill_zero_edits_clause_present(self):
-        """The mitigation explicitly forbids SKILL.md edits when the
-        catalogue grows — the 'zero edits to this SKILL.md' clause
-        is the load-bearing wording. A reword would invalidate the
-        K-007 mitigation; lock it via grep.
-        """
-        skill_text = SKILL_SRC.read_text(encoding="utf-8")
-        assert "zero edits" in skill_text, (
-            "SKILL.md no longer contains the 'zero edits' clause — the "
-            "K-007 mitigation has been weakened. The invariant requires "
-            "that catalogue activation in rf-qa.md triggers auto-richening "
-            "WITHOUT any SKILL.md edits."
-        )
-
-    def test_skill_inv_010_label_present(self):
-        skill_text = SKILL_SRC.read_text(encoding="utf-8")
-        assert "INV-010" in skill_text, (
-            "SKILL.md no longer references INV-010 — the dynamic catalogue "
-            "lookup mechanism that mitigates K-007 has been deleted"
-        )
-
-    def test_rf_qa_src_and_mirror_byte_identical(self):
-        src_bytes = RF_QA_SRC.read_bytes()
-        mirror_bytes = RF_QA_MIRROR.read_bytes()
-        assert src_bytes == mirror_bytes, (
-            "rf-qa.md source and `.claude/` mirror diverged — run "
-            "`make sync-dev` before continuing"
-        )
 
 
 # ---------------------------------------------------------------------------
@@ -522,47 +449,6 @@ class TestCatalogueActivationAutoRichens:
 # ---------------------------------------------------------------------------
 # SKILL.md byte-stability under catalogue activation.
 # ---------------------------------------------------------------------------
-
-
-class TestSkillByteIdenticalAcrossActivation:
-    """The K-007 mitigation's load-bearing claim: catalogue activation
-    in rf-qa.md MUST require ZERO edits to SKILL.md. Verify this
-    directly by hashing SKILL.md before any helper runs and after both
-    inverted + activated state assembly — the hash MUST be identical.
-    """
-
-    def test_skill_bytes_unchanged_after_inverted_run(
-        self, sequencing_scenario, skill_canonical_pre_sha: str
-    ):
-        # sequencing_scenario already constructed the inverted state.
-        post = hashlib.sha256(SKILL_SRC.read_bytes()).hexdigest()
-        assert post == skill_canonical_pre_sha, (
-            "K-007 mitigation broken: SKILL.md mutated during inverted-"
-            f"state construction. pre={skill_canonical_pre_sha[:16]} "
-            f"post={post[:16]}"
-        )
-
-    def test_skill_bytes_unchanged_after_activated_run(
-        self, sequencing_scenario, skill_canonical_pre_sha: str
-    ):
-        # sequencing_scenario also constructed the activated state.
-        post = hashlib.sha256(SKILL_SRC.read_bytes()).hexdigest()
-        assert post == skill_canonical_pre_sha, (
-            "K-007 mitigation broken: SKILL.md mutated during activated-"
-            f"state construction. pre={skill_canonical_pre_sha[:16]} "
-            f"post={post[:16]}"
-        )
-
-    def test_skill_bytes_unchanged_at_module_exit(self, skill_canonical_pre_sha: str):
-        """Final guard — independent of any fixture. The canonical
-        SKILL.md surface MUST be untouched by the entire test module.
-        """
-        post = hashlib.sha256(SKILL_SRC.read_bytes()).hexdigest()
-        assert post == skill_canonical_pre_sha, (
-            "K-007 mitigation broken: SKILL.md mutated by the TEST-024 "
-            f"module. pre={skill_canonical_pre_sha[:16]} "
-            f"post={post[:16]}"
-        )
 
 
 # ---------------------------------------------------------------------------
