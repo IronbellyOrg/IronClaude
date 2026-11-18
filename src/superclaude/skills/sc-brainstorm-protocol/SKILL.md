@@ -37,9 +37,9 @@ Orchestrate parallel brainstorming via:
 2. Optional codebase + research enrichment (parallel, partial-OK)
 3. Composed agent-spec (3 active models × N personas)
 4. Delegation to `sc-adversarial-protocol` for parallel proposal generation + debate + merge
-5. Optional handoff to `/sc:design` or `/task-builder`
+5. Optional handoff to `/sc:design`
 
-**Pipeline Position**: `topic → /sc:brainstorm → seed-brief + merged-requirements → (optional handoff) → task files`
+**Pipeline Position**: `topic → /sc:brainstorm → seed-brief + merged-requirements → (optional handoff)`
 
 **Core Capabilities**:
 
@@ -104,9 +104,7 @@ Orchestrate parallel brainstorming via:
 4. Validate `--models` (if provided): non-empty after trim. STOP on empty similarly. Default model set: `opus, sonnet, haiku`.
 5. Verify `sc-adversarial-protocol` skill exists (Read tool) at `~/.claude/skills/sc-adversarial-protocol/SKILL.md` (installed) or `.claude/skills/sc-adversarial-protocol/SKILL.md` (project copy from `make sync-dev`); either satisfies the check. Record the path found, preferring the installed copy (Claude Code loads a personal skill over a project skill of the same name). STOP if neither exists: `"sc:adversarial skill not installed. Required by /sc:brainstorm v2. Install via: superclaude install"`
 6. **Skill version compatibility check**: Read first 30 lines of the `SKILL.md` found in step 5. Look for `version:` field. If present, require `>= 1.0.0`. If absent → assume compatible (legacy mode) + INFO log. If too low → STOP.
-7. **Handoff prereq validation** (no silent downgrade):
-   - If `--handoff task` AND `task-builder` skill missing → STOP: `"task-builder skill missing. Re-run with --handoff design (text-only)."`
-   - Under `--unattended` this step is skipped: the `task` handoff is skipped in Wave 4, so its skill is not needed.
+7. **Handoff value check**: `--handoff` takes `none` or `design`. `--handoff task` (removed in 6.1.0) → STOP: `"--handoff task was removed in 6.1.0. Use --handoff design, or run /sc:workflow @<output>/merged-requirements.md after the brainstorm."` Under `--unattended` the same STOP is a failed worker contract with that message in `reason`.
 8. Create output directory (default `.dev/brainstorms/<ts>-<slug>/`). If exists and non-empty, append `-N` suffix. Cap N at 99 (STOP on N=100); WARN at N≥10.
    - Under `--unattended`, a directory the caller passes (`--output` or `--report-dir`) is used exactly as passed: no `-N` suffix, and one that already holds a `return-contract.yaml` was refused before step 1.
 9. Validate model aliases: read env vars `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`. An unset variable is not an error: the alias resolves to Claude Code's built-in model for `opus`/`sonnet`/`haiku` (Coder workspaces no longer set these, Coder issue #270). If `--models` provided, validate each alias resolves to one of the known aliases.
@@ -185,7 +183,7 @@ Orchestrate parallel brainstorming via:
    |-----------|--------|--------|
    | `domain ∈ {code, architecture, incident}` AND NOT `--no-codebase` | Invoke `/sc:analyze <relevant-paths> --focus quality --depth quick` OR `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) for quick scan | `enrichment/codebase-context.md` |
    | `--codebase` (forced) | Same as above regardless of domain | Same |
-   | `--research light` OR (auto: topic mentions framework/library names not in project) | Invoke `Skill sc-research-protocol` with `--depth quick` (or `/sc:research` if standalone) | `enrichment/research-light.md` |
+   | `--research light` OR (auto: topic mentions framework/library names not in project) | Invoke `/sc:research` with `--depth quick` | `enrichment/research-light.md` |
    | `--research deep` OR (auto: `--strategy enterprise` + novel topic) | Invoke `/sc:research` with `--depth deep` and the topic | `enrichment/research-deep.md` |
    | Otherwise | Skip enrichment | — |
 
@@ -332,20 +330,6 @@ Based on `--handoff` value:
 
 - **`design`**: Print recommendation: `"To design the architecture: /sc:design @<output>/merged-requirements.md"`. Do NOT invoke (design is interactive — user-initiated only). Set `handoff_action: design`, `handoff_output_path: null`.
 
-- **`task`**:
-  1. Validate `merged-requirements.md` has ≥3 enumerated requirements (regex check for bullets, numbered items, or headings). If not → STOP: `"--handoff task requires merged-requirements.md to have ≥3 enumerated requirements. Found <N>."`
-  2. Detect template from domain (per `refs/handoff-routing.md` §Domain-Template-Mapping):
-     - `code` → `feature-template`
-     - `incident` → `bugfix-template`
-     - `architecture` → `migration-template`
-     - `product` → `feature-template`
-     - `process` → `documentation-template`
-     - `research` → `decision-record-template`
-  3. Invoke `Skill task-builder` with `--source <output>/merged-requirements.md --template <detected>`
-  4. Capture task file path(s). Append to return contract.
-
-- **Under `--unattended`**: `task` is skipped (its skill does not accept the flag at this phase). Invoke nothing, set `handoff_action: none` and `handoff_output_path: null`, set `status: partial`, and add one line to `unresolved_conflicts` naming the skipped handoff. `design` and `none` behave as above.
-
 **Exit Criteria**: Handoff complete (or skipped). Return contract finalized. Emit: `"Wave 4 complete: handoff=<value>. Output: <path>."`
 
 ## 4. Return Contract
@@ -366,7 +350,7 @@ proposal_count: <int>
 enrichment_used:
   - source: codebase | research-light | research-deep
     quality_tier: primary | fallback_1 | skipped
-handoff_action: none | design | task
+handoff_action: none | design
 handoff_output_path: <path> | null
 unresolved_conflicts: [<list of strings>]
 ```
@@ -415,7 +399,7 @@ enrichment_artifact_sizes:
 |----------|----------|----------|
 | Empty topic | STOP with usage hint | None |
 | `sc-adversarial-protocol` missing | STOP with install instruction | None |
-| `--handoff task` skill missing | STOP (no silent downgrade) | User must choose alternate handoff |
+| `--handoff task` (removed in 6.1.0) | STOP | User must choose `design` or `none` |
 | Codebase enrichment fails (Auggie down) | WARN, fall back to codegraph, then native Glob/Grep (quality_tier=fallback_1; `refs/handoff-routing.md` Tier 2) | Skip (quality_tier=skipped) |
 | Research enrichment fails (Tavily down) | WARN, fall back to WebSearch (quality_tier=fallback_1; WebSearch fallback loses 0.2.x depth/map/crawl features) | Skip (quality_tier=skipped) |
 | Adversarial returns `convergence < 0.50` | FAIL Wave 3, skip Wave 4 | None |

@@ -720,7 +720,6 @@ UNATTENDED_EXPECT: dict = {
             "AUTO-FIXABLE",
             "stopped-precondition",
             "review snapshot",
-            "task-builder",
             "the absolute path of the `REPORT.md` this run wrote",
             "`--remediate` is answered by the headless auto-accept rule",
         ],

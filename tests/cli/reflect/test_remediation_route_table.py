@@ -1,7 +1,8 @@
 """Structural pin on the sc:reflect Tier 3 remediation route table.
 
-``--remediate`` -> sc:workflow -> /sc:implement (default); ``--remediate --depth deep``
--> task-builder -> /task. Reads the SOURCE files (not the ``.claude/`` mirror).
+There is one route: ``--remediate`` -> sc:workflow -> /sc:implement, at every depth.
+The MDTM route (task-builder -> /task for ``--depth deep``) was removed in 6.1.0.
+Reads the SOURCE files (not the ``.claude/`` mirror).
 """
 
 from __future__ import annotations
@@ -21,25 +22,28 @@ def _row(prefix: str) -> str:
     return next(ln for ln in _REF.splitlines() if ln.startswith(prefix))
 
 
-def test_route_table_pins_both_routes_and_headless_follows_depth():
+def test_route_table_pins_the_single_plan_route():
     assert "Route selection" in _REF
-    plan = _row("| `--remediate` (depth")
+    plan = _row("| `--remediate` (any depth)")
     assert "sc:workflow-protocol" in plan and "/sc:implement" in plan
-    mdtm = _row("| `--remediate --depth deep`")
-    assert "task-builder" in mdtm and "/task" in mdtm
-    # Headless follows the same depth rule (no exception): plan by default, MDTM on deep.
     headless = [ln for ln in _REF.splitlines() if ln.startswith("| headless")]
-    assert len(headless) == 2
-    plan_h = next(ln for ln in headless if "--depth deep" not in ln)
-    deep_h = next(ln for ln in headless if "--depth deep" in ln)
-    assert "remediation_plan_path" in plan_h and "/sc:implement" in plan_h
-    assert "remediation_task_path" in deep_h and "/task" in deep_h
+    assert len(headless) == 1
+    assert "remediation_plan_path" in headless[0] and "/sc:implement" in headless[0]
+    assert "--depth deep" not in headless[0]
     assert "regardless of depth" not in _REF
 
 
-def test_state_section_and_build_request_schema_present():
+def test_no_task_file_route_is_left_in_the_reflect_files():
+    for name, text in (("ref", _REF), ("skill", _SKILL), ("command", _CMD)):
+        assert "task-builder" not in text, name
+        assert "BUILD_REQUEST:" not in text, name
+        assert not re.search(r"(?<![\w:/])/task\b(?!s)", text), name
+    assert "MDTM route" not in _CMD
+    assert "**MDTM route**" not in _REF
+
+
+def test_state_section_present():
     assert "Reflect Verdict State" in _REF
-    assert "BUILD_REQUEST:" in _REF  # M1 schema preserved for the deep route
 
 
 def test_handoff_implement_only_appears_as_a_prohibition():

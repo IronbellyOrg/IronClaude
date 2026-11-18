@@ -49,10 +49,10 @@ _FRONTMATTER_RE = re.compile(r"^---[ \t]*\n(.*?)\n---[ \t]*$", re.MULTILINE | re
 _REFLECT_POST_KEY_RE = re.compile(r"^reflect_post\s*:")
 
 # FR-2 / contract Section 3.1 recursion breaker. Exported == "1" into EVERY child
-# the wrapper spawns inside the fix subtree (the audit AND the auto-run /task), so
+# the wrapper spawns inside the fix subtree (the audit AND the auto-run /sc:implement), so
 # any nested ``superclaude reflect run`` terminal gate self-suppresses (exits 0).
 # The audit is ``/sc:reflect`` (NOT ``superclaude reflect run``) so it does NOT
-# self-suppress; only the auto-run ``/task``'s OWN terminal gate does.
+# self-suppress; only the auto-run ``/sc:implement``'s OWN terminal gate does.
 _WRAPPER_MARKER = "SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE"
 
 # Unchecked MDTM checklist item (``- [ ]``) -- the phase-incompleteness signal for
@@ -461,7 +461,7 @@ class ReflectRunner:
             parts.append("--no-reachability")
         # Pass <BASE> as a SINGLE ref (not <BASE>..HEAD) so reflect diffs it
         # against the current WORKING TREE -- this captures uncommitted/staged
-        # task work (the usual /task outcome), which a commit-range silently
+        # task work (the usual /sc:implement outcome), which a commit-range silently
         # misses (#153). <BASE> is start_commit when present, else merge-base
         # (config._resolve_base) -- the tightest correct scope, de-ranged but
         # NOT downgraded to unconditional merge-base.
@@ -470,10 +470,9 @@ class ReflectRunner:
         if config.spec_path is not None:
             parts += ["--spec", str(config.spec_path)]
         parts += ["--depth", config.depth]
-        # FR-1: under --fix, reflect AUTHORS (never runs) the corrective artifact and
-        # emits its path; the wrapper auto-runs it. Route keyed on `--depth`:
-        # deep -> MDTM (`remediation_task_path`, run via /task); otherwise ->
-        # sc:workflow plan (`remediation_plan_path`, run via /sc:implement).
+        # FR-1: under --fix, reflect AUTHORS (never runs) the corrective sc:workflow
+        # plan and emits its path (`remediation_plan_path`); the wrapper auto-runs it
+        # via /sc:implement. One route at every depth.
         if config.fix:
             parts.append("--remediate")
         if config.executor_model:
@@ -580,22 +579,18 @@ class ReflectRunner:
         result.contract_path = str(config.contract_path)
         return result
 
-    def _apply_remediation(
-        self, remediation_path: str, iteration: int, *, plan: bool = False
-    ) -> int:
-        """Auto-run the corrective artifact as a SECOND top-level ClaudeProcess (FR-1/D3).
+    def _apply_remediation(self, remediation_path: str, iteration: int) -> int:
+        """Auto-run the corrective plan as a SECOND top-level ClaudeProcess (FR-1/D3).
 
-        Launches ``/task <remediation_path>`` (MDTM route) or, with ``plan=True``,
-        ``/sc:implement <remediation_path>`` (sc:workflow plan route), with the
+        Launches ``/sc:implement <remediation_path>`` (the sc:workflow plan), with the
         recursion-breaker marker exported (== "1"), so a corrective tasklist's OWN
         terminal ``superclaude reflect run`` gate self-suppresses. THINNESS (NFR-1):
         this launches ONLY via ``ClaudeProcess`` -- never a raw ``subprocess.run`` /
         ``Popen``. Returns the child rc; the loop fails closed on a non-zero rc.
         """
         config = self.config
-        verb = "/sc:implement" if plan else "/task"
         proc = ClaudeProcess(
-            prompt=f"{verb} {remediation_path}",
+            prompt=f"/sc:implement {remediation_path}",
             output_file=config.output_dir / f"fix-{iteration}-stdout.json",
             error_file=config.output_dir / f"fix-{iteration}-stderr.log",
             model=config.model,
@@ -765,22 +760,18 @@ class ReflectRunner:
                 if classify_fix(contract or {}, result.deviations) != "auto-fixable":
                     break  # human-required / none -> terminal HALT, NO apply, NO promote.
                 # Need a remediation pointer to repair (FR-8 consume; never guess a dir).
-                # MDTM pointer wins if both are somehow set (back-compat); else the plan.
-                use_plan = not result.remediation_task_path
-                remediation = (
-                    result.remediation_task_path or result.remediation_plan_path
-                )
+                # The plan pointer is the only one; an old report's `remediation_task_path`
+                # still loads but is ignored (the MDTM route was removed in 6.1.0).
+                remediation = result.remediation_plan_path
                 if not remediation:
                     break  # cannot repair -> terminal HALT (merged-requirements:182-184).
                 # FR-3 bound: at most `max` apply->verify cycles.
                 if iteration > max_iters:
                     break
                 # (B) APPLY the corrective artifact as a SECOND top-level subprocess.
-                apply_rc = self._apply_remediation(
-                    remediation, iteration, plan=use_plan
-                )
+                apply_rc = self._apply_remediation(remediation, iteration)
                 if apply_rc != 0:
-                    # Fail-closed: a failed /task apply must NOT be re-audited (it would
+                    # Fail-closed: a failed /sc:implement apply must NOT be re-audited (it would
                     # score partial/garbage state and risk a misleading verdict). Leave
                     # `result` at its HALTED verdict (NEVER PASS); surface WHY in the
                     # sidecar reason (write_sidecar serializes `reason`). This breaks

@@ -1,11 +1,8 @@
-"""NFR-7 no-nesting guard (two layers).
+"""NFR-7 no-nesting guard.
 
-Layer A: the ``POST_REFLECT_MODE: wrapper`` branch in the task-builder SKILL
-SOURCE (not the ``.claude/`` mirror) shells out via Bash (``superclaude reflect
-run`` + ``--depth``) and contains NO Agent/Task nesting tokens.
-
-Layer B: the wrapper module ``runner.py`` launches reflect ONLY via the
-``ClaudeProcess`` subprocess primitive -- no agent-surface imports.
+The wrapper module ``runner.py`` launches reflect ONLY via the ``ClaudeProcess``
+subprocess primitive -- no agent-surface imports. (Layer A, which read the
+task-builder skill's terminal gate, went with that skill in 6.1.0.)
 """
 
 from __future__ import annotations
@@ -13,11 +10,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-import pytest
-
 # Repo root = four parents up from this file (tests/cli/reflect/<file>).
 _REPO_ROOT = Path(__file__).resolve().parents[3]
-_SKILL_SRC = _REPO_ROOT / "src/superclaude/skills/task-builder/SKILL.md"
 _REFLECT_PKG = _REPO_ROOT / "src/superclaude/cli/reflect"
 _RUNNER_SRC = _REFLECT_PKG / "runner.py"
 # FR-RH2.8 / NFR-RH2.1: the swarm-driven Tier-2 driver. NFR-7 reconciliation
@@ -51,60 +45,9 @@ _IMPORT_SUBPROCESS_RE = re.compile(
     r"^\s*(?:import\s+subprocess|from\s+subprocess\b)", re.MULTILINE
 )
 
-# Actual agent-routing tokens (a real Agent/Task invocation). Prose tokens like
-# "via Agent" are intentionally NOT included: the Mode-2 Action legitimately reads
-# "NEVER via Agent/Task" as a prohibition, which must not trip the no-nesting guard.
-_NESTING_TOKENS = ("Task(", "subagent_type")
-
-
-def _extract_wrapper_branch(text: str) -> str:
-    """Return the O1 terminal reflect-gate block from the task-builder SKILL.
-
-    Anchored on the flat wrapper-shell-out item heading (the exact literal the
-    builder emits for the penultimate final-phase item) and bounded at the next
-    checklist bullet (``- [ ] **N.X`` -- the Update-status-to-Done item). The
-    block carries the SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE skip-guard + the
-    ``superclaude reflect run ... --depth deep --fix --promote`` Bash shell-out.
-
-    Fence-agnostic: ``str.index`` matches the unique substring regardless of any
-    surrounding ``` fences or ``---`` rules in the templated MDTM example.
-    """
-    anchor = "Independent post-execution reflection gate (wrapper shell-out)"
-    start = text.index(anchor)
-    # Bound at the next checklist item (the Update-status-to-Done bullet).
-    end = text.index("- [ ] **N.X", start)
-    return text[start:end]
-
-
-@pytest.mark.xfail(
-    reason=(
-        "The Layer-A marker was migrated from the abandoned `Mode 2` / "
-        "`auto-resolved-2` (§6.3) dial taxonomy (PR #157 closed) to the flat "
-        "`superclaude reflect run` contract shape. The helper now anchors on the "
-        "O1 wrapper-shell-out item heading emitted by THIS worktree's "
-        "task-builder/SKILL.md and the test passes against the live O1 emission, "
-        "so it reports XPASS. Kept strict=False (OQ-1) to record the stale-marker "
-        "migration without going red on a half-wired tree."
-    ),
-    strict=False,
-)
-def test_layer_a_wrapper_branch_is_bash_shellout() -> None:
-    """O1 terminal gate is a guarded Bash CLI shell-out (contract §2 / §3.2)."""
-    text = _SKILL_SRC.read_text(encoding="utf-8")
-    branch = _extract_wrapper_branch(text)
-    # POSITIVE -- the flat O1 shell-out (contract §2):
-    assert "superclaude reflect run" in branch
-    assert "--depth deep" in branch
-    assert "--fix" in branch
-    # POSITIVE -- the recursion-breaker skip-guard marker (contract §3.2):
-    assert "SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE" in branch
-    # NEGATIVE: must NOT route through the Agent/Task tool surface (NFR-7).
-    for token in _NESTING_TOKENS:
-        assert token not in branch, f"NFR-7 violation: nesting token {token!r}"
-
 
 def test_layer_b_wrapper_module_has_no_agent_imports() -> None:
-    """Layer B: no `Task(`/`subagent`/`anthropic` imports in `runner.py`, passes,
+    """No `Task(`/`subagent`/`anthropic` imports in `runner.py`, passes,
     including for the new driver module.
 
     FR-RH2.8: the agent-surface ban is asserted over BOTH `runner.py` and the
@@ -148,16 +91,17 @@ def test_no_async_await_anywhere_in_reflect_pkg() -> None:
 
 
 def test_apply_remediation_launches_only_via_claudeprocess() -> None:
-    """AC-8: the /task apply (and audit) launch ONLY via ClaudeProcess in runner.py.
+    """AC-8: the /sc:implement apply (and audit) launch ONLY via ClaudeProcess in runner.py.
 
     Scoped to runner.py (NOT a package-wide subprocess grep -- commands.py:267-274
     legitimately uses subprocess.run for --tmux). runner.py must NOT import or call
-    raw subprocess.run / Popen; the apply is a ClaudeProcess `/task` launch.
+    raw subprocess.run / Popen; the apply is a ClaudeProcess `/sc:implement` launch.
     """
     src = _RUNNER_SRC.read_text(encoding="utf-8")
     assert "ClaudeProcess" in src
     assert "_apply_remediation" in src
-    assert "/task " in src  # the apply prompt is a /task launch
+    assert "/sc:implement " in src  # the apply prompt is a /sc:implement launch
+    assert "/task " not in src
     # Anchored on real CALLS / imports so the docstring prose does not false-positive.
     m = _RAW_SUBPROCESS_CALL_RE.search(src)
     assert m is None, f"raw subprocess call leaked into runner.py: {m.group(0)!r}"

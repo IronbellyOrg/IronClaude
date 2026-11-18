@@ -13,7 +13,7 @@ These are the default rows passed to `/sc:recommend` as the suggested route. `/s
 | Feature, complex | `/model claude-gw-tier1b` | 1. `/sc:brainstorm "<topic> @<S>" --depth deep --research deep --codebase --blind`<br>2. `/sc:design <merged-requirements.md> --type <...> --format spec`<br>3. `/sc:workflow <design doc> --depth deep --handoff none`<br>4. `/sc:implement <plan path>` |
 | Bug, simple | `/model claude-gw-tier2` | 1. `/sc:troubleshoot "<symptom>" --depth quick --context <S> --scope <scope>`<br>2. `/sc:implement <REPORT.md path printed by step 1>` |
 | Bug, medium | `/model claude-gw-tier1b` | 1. `/sc:troubleshoot "<symptom>" --fix --context <S> --scope <scope>` (plan route: after the report it offers to build the `/sc:workflow` package; the user accepts, and it then prints the `/sc:implement` command)<br>2. `/sc:implement <plan path printed by step 1>` |
-| Bug, complex | `/model claude-gw-tier1b` | 1. `/sc:troubleshoot "<symptom>" --depth deep --fix --context <S> --scope <scope>` (MDTM route: after the report it offers to build the task file with `task-builder`; the user accepts, and it then prints the `/task` command)<br>2. `/task <task file path printed by step 1>` |
+| Bug, complex | `/model claude-gw-tier1b` | 1. `/sc:troubleshoot "<symptom>" --depth deep --fix --context <S> --scope <scope>` (after the report it offers to build the `/sc:workflow` package; the user accepts, and it then prints the `/sc:implement` command)<br>2. `/sc:implement <plan path printed by step 1>` |
 
 Notes:
 - `--depth quick` with `--fix` is a STOP in `/sc:troubleshoot`, so the simple bug row has no `--fix` and hands the report to `/sc:implement` (issue body: "Hand the output directly off ... /sc:implement").
@@ -22,7 +22,7 @@ Notes:
 - `/sc:design --type` is chosen per issue by `/sc:recommend` from the four values the command accepts.
 - The simple feature row has no brainstorm step: the issue summary already states the requirements, so the row plans directly from it with `/sc:workflow`.
 
-No brainstorm step carries a handoff flag: the `task` handoff feeds `/task-builder`, not `/sc:workflow`, and the design handoff only prints a suggestion (B11), so `/sc:workflow` and `/sc:design` run as their own steps.
+No brainstorm step carries a handoff flag: the design handoff only prints a suggestion (B11), so `/sc:workflow` and `/sc:design` run as their own steps.
 
 ## Goal sent to `/sc:recommend` (claim Wave 5 step 1)
 

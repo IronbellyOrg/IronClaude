@@ -4,46 +4,11 @@ Reference for the `crash-recovery` skill. Each pipeline has a distinct artifact 
 
 A project can have multiple of these in flight simultaneously. Do not assume a single "active" pipeline — enumerate every layout that has recent activity.
 
-## Roadmap skill (`/roadmap`)
+## Older task files (`TASK-*` from earlier releases)
 
-**Created by:** the `roadmap` skill (an MDTM roadmap composer; it builds phase task files with `task-builder`).
-**Layout:**
-
-```text
-.dev/tasks/to-do/TASK-ROADMAP-<...>/
-├── TASK-ROADMAP-<...>.md         # MDTM task file for the roadmap build
-├── .roadmap-state.json           # input hash, roadmap status, build requests generated
-├── ROADMAP-<PROJECT>.md          # the roadmap document
-├── build-requests/               # BUILD_REQUEST-phase-NN-*.md
-├── research/                     # research notes (research-notes.md has `Status:`)
-└── qa/                           # QA reports
-```
-
-**Status signal:** the task file's checklist (`- [ ]` open, `- [x]` done) and `.roadmap-state.json`. `research/research-notes.md` with `Status: In Progress` means scope discovery was interrupted.
-**Recovery:**
-
-```bash
-# The roadmap skill reads the task file and the state file and picks up at the first unchecked item.
-/roadmap <original input>
-# or resume the task file directly:
-/task .dev/tasks/to-do/TASK-ROADMAP-<...>/TASK-ROADMAP-<...>.md
-```
-
-## Task (MDTM) — individual task files
-
-**Created by:** `task-builder`, or any of the *_TASK_ skills.
-**Layout:**
-
-- `.dev/tasks/to-do/<TASK-ID>.md` or `.dev/tasks/to-do/<TASK-ID>/<TASK-ID>.md`
-- `.dev/tasks/done/<TASK-ID>.md` for completed
-**Status signal:** YAML frontmatter `status:`. Checklist items use `- [ ]` (open), `- [x]` (done), `- [-]` (skipped).
-**Recovery:**
-
-```bash
-# task skill picks up at first unchecked item
-/sc:task .dev/tasks/to-do/<TASK-ID>.md
-# or natural-language: "resume the task at <path>"
-```
+**Created by:** the `task-builder` and `roadmap` skills of earlier releases (a task file `.dev/tasks/to-do/<TASK-ID>.md`, or a `TASK-ROADMAP-*` folder with `.roadmap-state.json`), run with `/task`. Those skills were removed in 6.1.0, so nothing resumes such a file by its old loop any more.
+**Status signal:** YAML frontmatter `status:`; checklist items `- [ ]` (open), `- [x]` (done), `- [-]` (skipped); for a roadmap folder also `.roadmap-state.json`. Detect and report them as before.
+**Recovery:** finish an old task file with `/sc:implement <task file>`: it reads the file as a plain checklist source and works the open items (it does not continue the old `/task` loop). This skill never deletes or moves such files.
 
 ## Workflow task packages (`TASK-WF-*`, `/sc:workflow` + `/sc:implement`)
 

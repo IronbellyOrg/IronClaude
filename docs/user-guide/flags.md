@@ -95,7 +95,7 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--type` | Issue category | `bug`, `build`, `performance`, `deployment`, `security`, `test` |
-| `--fix` | After a diagnosis, offers a remediation plan (`/sc:workflow` → you run `/sc:implement`; an MDTM task file for `/task` with `--depth deep`); never applies fixes itself | Boolean |
+| `--fix` | After a diagnosis, offers a remediation plan (`/sc:workflow` → you run `/sc:implement`); never applies fixes itself | Boolean |
 
 ### Cleanup Command Flags (`/sc:cleanup`)
 
@@ -126,7 +126,7 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 
 **CLI wrapper:** The `superclaude reflect run` CLI wrapper layers auto-fix flags on top of this skill surface — `--fix/--no-fix`, `--max-fix-iterations`, and `--base` — and flips `--promote` on by default. See [docs/guides/reflect-cli-tools-guide.md](../guides/reflect-cli-tools-guide.md) for the full CLI surface.
 
-**Legacy grammar (preserved for `/sc:troubleshoot` Wave 6 and other v1 callers):**
+**Legacy grammar (preserved for v1 callers):**
 
 | Flag | Purpose | Maps to |
 |------|---------|---------|
