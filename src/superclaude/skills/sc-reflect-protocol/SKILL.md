@@ -89,7 +89,7 @@ The skill MUST resolve a mode (UC-1 or UC-2) before any wave runs.
 - `--coverage-floor <float>` — optional override of the T1 coverage stop floor (default 0.90; high-safety profile may set to 0.95)
 - `--no-mcp`, `--no-evidence-validator` (debug only; auto-warns), `--remediate` (offer Tier 3: plan route by default, task-builder route with `--depth deep`)
 - `--no-verify` — disable the UC-2 Bash verification run (§6.1 steps 5 and 5.5). Default is *default-on*: in UC-2, scoped non-mutating verification (tests/linters/type-checkers/build) runs behind the §6.1 safety envelope and feeds the §10.4 Regression detector. When set, sets `verification_skip_reason: --no-verify` and degrades Regression detection to the task-log claim with a Grounding Gap entry. (Subsumes the deprecated `--rerun-tests` alias, which now maps to "verification on" = the default; see §10.4.)
-- `--budget-remaining <int>` *(P5)* — caller-side budget hint (typically `TurnLedger.available()` from a sprint context). When provided, reflect cross-checks against the §15 cost profile and may auto-degrade tier; emits `budget_forced_tier_downgrade: true` in the contract when this happens. See §4.0 step 0.9.
+- `--budget-remaining <int>` *(P5)* — caller-side budget hint (typically the caller's remaining budget). When provided, reflect cross-checks against the §15 cost profile and may auto-degrade tier; emits `budget_forced_tier_downgrade: true` in the contract when this happens. See §4.0 step 0.9.
 - **Promotion gate flags (UC-2 only — see §14.5):**
   - `--no-promote` — suppress Wave 7 promotion. Default is *default-on*: when the §14.5.2 strict gate passes, the validated work-unit folder moves to its `done` destination.
   - `--promote-anyway` — override `status: partial` gate condition (all other 7 conditions still apply). No effect on `status: failed`.
@@ -704,12 +704,12 @@ Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-pr
 
 **Consumer-side field-name remap (`artifacts_dir` → `adversarial_artifacts_dir`).** When reflect Wave 4 consumes sc-adversarial-protocol's output, the producer emits its result-directory path under the field name `artifacts_dir` (sourced from `sc-adversarial-protocol/SKILL.md:435,453,2097`). Reflect's own return contract, however, exposes that same path under the field name `adversarial_artifacts_dir` (per §9.1 stable contract). Reflect MUST perform a mechanical key-rename at the parse boundary: read `artifacts_dir` from the sc-adversarial JSON, then write `adversarial_artifacts_dir` into the merged return contract. This is a concrete consumer-side remap, NOT an open question or a producer-side rename request — sc-adversarial's emitted field name is the source-of-truth and reflect adapts to it.
 
-**Null `convergence_score` handling (F3 path / adversarial-unavailable).** When `adversarial_unavailable: true` (Wave 5 step 5.0 F3 path), `convergence_score: null` enters the return contract. Downstream consumers (sprint, sc-troubleshoot, task) and the §14.5.2 promotion gate MUST treat `null` as a distinct state, NOT silently route as `< 0.60` or `≥ 0.75`:
+**Null `convergence_score` handling (F3 path / adversarial-unavailable).** When `adversarial_unavailable: true` (Wave 5 step 5.0 F3 path), `convergence_score: null` enters the return contract. Downstream consumers (sc-troubleshoot, task) and the §14.5.2 promotion gate MUST treat `null` as a distinct state, NOT silently route as `< 0.60` or `≥ 0.75`:
 
 - The contract requires consumers to route on `merge_method` FIRST: if `merge_method == single-reviewer-fallback`, treat `convergence_score` as inapplicable and use the single-reviewer verdict's calibrated confidence as the routing input instead.
 - A null comparison (`null < 0.60`, `null ≥ 0.75`, etc.) is undefined behavior — implementations MUST guard against it explicitly.
 - For the promotion gate: per §14.5.2 condition 9, `tier_reached == 2 AND convergence_score == null` blocks promotion regardless of other conditions. A Tier 2 run with no merged adversarial verdict cannot promote.
-- For non-promotion routing (e.g., sprint executor.py status routing): null `convergence_score` translates to `status: partial` AND `next_action: halt-phase-for-review`. Consumers MUST NOT route a null as a default-PASS or default-FAIL.
+- For non-promotion routing (e.g., a caller's status routing): null `convergence_score` translates to `status: partial` AND `next_action: halt-phase-for-review`. Consumers MUST NOT route a null as a default-PASS or default-FAIL.
 
 **Wave 4 runtime exit STOP (ORCHESTRATOR-VERIFIES-ON-DISK) [EV-1].** This applies ONLY when Wave 4 runs (Tier 2; Tier-1 runs have no Wave 4 and no `adversarial/` dir, so the STOP does not apply to them). When Wave 4 runs, it is NOT complete until EITHER (a) the orchestrator reads disk (Glob/Bash, NOT a self-written field) and confirms `<output>/adversarial/merged-verdict.yaml` exists with `merge_method: adversarial` AND `<output>/reviewer-cards/` holds at least the resolved `--reviewers` count of blind-calibrated cards (minimum 2 per the §7.1 N=2 T2 floor, one card per reviewer), OR (b) a loud fallback legitimately fired and is corroborated on disk: `adversarial_unavailable: true` is set AND an audit.log F-step entry records the F2/F3 path (and `merge_method == single-reviewer-fallback` when the F2 path was taken). (RATIONALE: a real adversarial merge writes `merged-verdict.yaml` plus one calibrated card per reviewer; a raw file-count threshold is NOT used because a genuine merge legitimately writes only ~3 files into `adversarial/` -- the load-bearing evidence is the merged verdict + per-reviewer cards, not a fixed count.) The STOP catches the failure mode where a Wave-4 adversarial-merge attempt is reported complete but neither (a) the real merge artifacts are on disk nor (b) a corroborated loud fallback fired: that state is MALFORMED. On MALFORMED, do NOT advance past Wave 4 as if a merge succeeded AND do NOT halt-and-end: write a MALFORMED audit.log row and REMEDIATE -- re-run Wave 3-4 up to 2 additional times, or route to the loud F2/F3 fallback; HALT only if it remains MALFORMED after those bounded retries. (This STOP does NOT block the legitimate fallback path; it blocks silently treating an empty `adversarial/` dir, a missing `merged-verdict.yaml`, an illegal `merge_method`, or fewer reviewer-cards than reviewers as a successful merge.) The §12 eval-matrix detector (in the testability map) stays as belt-and-suspenders; this exit condition is the runtime gate.
 
@@ -995,10 +995,7 @@ The §9.1 stable contract has 60+ fields. Each downstream consumer reads a small
 | Consumer | Surface | Load-bearing fields (3-5) | Routing semantics |
 |----------|---------|---------------------------|-------------------|
 | **`sc-troubleshoot-protocol` Wave 6 (Phase B/D)** | Skill-to-skill invocation | `status`, `tier_reached`, `confidence_calibrated`, `regression_present`, `needs_human_decision` | `status: failed` halts troubleshoot; `regression_present: true` forces Tier-3 troubleshoot path; `needs_human_decision: true` surfaces to user before continuing. |
-| **`superclaude sprint run` (executor.py TurnLedger)** | CLI consumer of return-contract.yaml | `status`, `per_task_verdicts[].status`, `per_task_verdicts[].per_task_validation_strength`, `per_task_verdicts[].deviation_class`, `budget_forced_tier_downgrade` | `status: partial OR failed` halts the phase; `per_task_validation_strength < 0.70` flags task for re-execution; `deviation_class == regression` triggers TurnLedger rollback; `budget_forced_tier_downgrade: true` adjusts subsequent reflect-call budget. |
 | **`sc-task-protocol` end-of-task hook** | Inline post-execution | `status`, `tier_reached`, `deviation_count_by_class`, `confidence_calibrated`, `needs_human_decision` | `status: success AND confidence_calibrated ≥ 0.85` → mark task done; `deviation_count_by_class.regression > 0` → escalate to troubleshoot; `needs_human_decision: true` → surface Grounding Gaps to user. |
-| **`sc:roadmap` validation gate** | Roadmap pipeline post-step | `status`, `coverage_pct`, `unmapped_requirements`, `best_practice_grade` | `coverage_pct < 0.90 OR unmapped_requirements != []` → roadmap re-runs spec coverage; `best_practice_grade < 3` → flag for review. |
-| **`sc:tasklist` generator gate** | Tasklist pipeline post-step | `status`, `coverage_pct`, `unmapped_requirements`, `coverage_undefined` | `coverage_undefined: true` → tasklist generator emits "spec is too sparse for tasklist generation; provide more detail"; `coverage_pct < 0.90` → emit warning. |
 | **Any UC-1 consumer (advisory, D13)** | Optional read | `coverage_degraded`, `coverage_pct_union`, `unmapped_requirements_union` | NON-GATING advisory: `coverage_degraded: "parsed-sparse"` MAY be surfaced as a "spec labeling is sparse; coverage was inference-assisted" warning; the union fields give the inference-inclusive view. Existing consumers need no change (their fields kept parsed-only semantics at 1.5.0). |
 | **Any UC-2 consumer (advisory, FR-RSR)** | Optional read | `runtime_surface_requirements`, `runtime_surface_sweep_ran`, `runtime_surface_ledger_path`, `runtime_surface_unreached`, `runtime_surface_degraded`, `unreached_surfaces` | NON-GATING advisory: runtime-surface fields MAY be surfaced for reachability diagnostics, but existing consumers need no load-bearing change; consumers that ignore unknown fields remain conforming under §9.4 read-and-ignore forward compatibility. |
 | **Any UC-2 consumer (advisory, FR-RH1)** | Optional read | `reachability_gate_ran`, `reachability_ledger_path`, `reachability_requirements_scanned`, `reachability_unreachable`, `reachability_unproven`, `reachability_real_boot_ran`, `reachability_skip_reason` | NON-GATING advisory: the contracted-sink reachability fields ride the EXISTING `regression_present` / `needs_human_decision` gating fields (NO new consumer field is required) — `reachability_unreachable > 0` already sets `regression_present`, and `reachability_unproven > 0` already sets `needs_human_decision`; the `reachability_*` fields MAY be surfaced for diagnostics, but existing consumers need no load-bearing change and remain conforming under §9.4 read-and-ignore forward compatibility. |
@@ -1421,14 +1418,14 @@ For final ship-acceptance, an optional 3-model LLM jury (opus + sonnet + qwen) a
 
 ## 13. Build Path Decision
 
-**Pick: hybrid — skill-creator plugin for the draft/iterate loop, then local `grader.py` for deterministic assertions, then sprint CLI only after the skill ships.**
+**Pick: hybrid — skill-creator plugin for the draft/iterate loop, then local `grader.py` for deterministic assertions.**
 
 ### 13.1 Rationale
 
 Three concrete forces shape the pick:
 
-1. **Eval-driven nature of the skill.** Reflection quality is judged by graders running on representative inputs; this is precisely what skill-creator 2.0 ships out of the box (`run_loop.py`, `eval-viewer/generate_review.py`, comparator/grader/analyzer sub-agents). Building the iteration harness from scratch with `superclaude sprint` would duplicate machinery skill-creator already provides.
-2. **Cross-model verification.** Tier 2 needs to call heterogeneous models in parallel. Sprint CLI's `executor.py` is built for single-Claude-subprocess sprint execution against a tasklist; it is not optimised for parallel multi-model fan-out within one wave. Skill-creator's parallel sub-agent pattern fits the actual workload better.
+1. **Eval-driven nature of the skill.** Reflection quality is judged by graders running on representative inputs; this is precisely what skill-creator 2.0 ships out of the box (`run_loop.py`, `eval-viewer/generate_review.py`, comparator/grader/analyzer sub-agents). Building the iteration harness from scratch would duplicate machinery skill-creator already provides.
+2. **Cross-model verification.** Tier 2 needs to call heterogeneous models in parallel. Skill-creator's parallel sub-agent pattern fits the actual workload.
 3. **CLAUDE.md plugin-override on workspace location.** The skill-creator plugin defaults to `.claude/skills/<name>-workspace/`; the project overrides this to `.dev/eval-workspaces/<name>/`. The override is hook-enforced and gitignored; the override means we can use skill-creator's workflow without inheriting its workspace-location footgun.
 
 ### 13.2 Sequenced build
@@ -1440,14 +1437,11 @@ Three concrete forces shape the pick:
 | Deterministic assertion gate | Local `grader.py` (copy from sc-brainstorm; extend per `refs/grader-extensions.md`) | Per-iteration `grading.json` |
 | Iteration 2 (9-12 evals) | Same harness, expanded matrix | Convergence check; ship at <5% improvement |
 | Iteration 3 (hardening) | Same harness + `T2-convergence-wrong-answer` falsifier (§12.5) | Final pre-ship gate |
-| Production execution | `superclaude sprint run` against tasklists that *use* sc-reflect | Only after skill ships and is stable |
 | Real-process eval at scale | `superclaude eval ...` with PTY isolation | Optional, defer until pilot reflect runs are producing reliable artifact shapes |
 
-`superclaude sprint` is *not* the build path; it is the *execution* path for skills already built. Conflating the two is the trap.
 
 ### 13.3 What is NOT used
 
-- Sprint CLI for the build loop (wrong shape).
 - `superclaude eval ...` for v1 (overkill until artifacts stabilise).
 - Skill-creator's default sibling-workspace path (forbidden by project hook).
 
@@ -1517,7 +1511,7 @@ Three concrete forces shape the pick:
 
 ## 14.5 Post-Verdict Promotion Mutation (UC-2 only — Wave 7)
 
-Reflect is the **final QA gate** between the executor and the archive. When UC-2 verification passes strictly, the validated work-unit folder moves from its in-progress location to its completed location, closing the loop with `/task-builder` → `/task` → `/sc:reflect` → archive and the analogous loop for `superclaude sprint run`.
+Reflect is the **final QA gate** between the executor and the archive. When UC-2 verification passes strictly, the validated work-unit folder moves from its in-progress location to its completed location, closing the loop with `/task-builder` → `/task` → `/sc:reflect` → archive.
 
 **SRP boundary (architectural).** Wave 7 is the **only** wave that mutates repository state outside `<output>/`. Every preceding wave (0-6) is read-only with respect to the repository — they read source files, write artifacts under `<output>/`, and never modify the work-unit tree. Wave 7 is a structural sibling to the review waves, not an extension; it inherits a different correctness regime (atomicity, rollback, partial-state recovery) than the read-only waves. Implementations SHOULD treat Wave 7 as a separately-gated code path: any change to Wave 7's mutation steps (7.4 mv, 7.3.5/7.3.6 pre-writes, 7.5 SHA verification) requires the §14.5.7 acceptance assertions to re-pass; changes to Waves 0-6 do not. The §14.5.2 9-condition gate is the boundary that separates the two regimes.
 
@@ -1841,7 +1835,7 @@ The `.dev/reflect/runs.jsonl` file is **append-only** and used by:
 | `refs/ops-integration.md` | (build-time) | Makefile targets (`make sync-dev`, `make verify-sync`, `make reflect-eval`), CI cadence, PreToolUse hook redirect message body, vendor-heterogeneity WARN body (per §4 Wave 0 step 0.6) |
 | `refs/grader-extensions.md` | (eval-time) | Python implementation sketch for `citation_resolves` with fixture-root remapping + the 6 grader DSL semantic types + new `path_exists` / `path_does_not_exist` assertion types (per §14.5.7) |
 | `refs/promotion-adapters.md` | Wave 7 | Full adapter table (`task`, `sprint-release`, operator-added); collision-rule mechanics body; `mv` invocation template; rollback command template (per §14.5) |
-| `refs/cost-profile.yaml` | (pre-invocation) | **(P7)** Static, machine-readable mirror of the §15 Token Cost Profile table. Callers (sprint TurnLedger, CI) read this BEFORE invoking reflect to pre-flight budget. Reflect itself never reads this at runtime — the file is for caller-side discovery only. Updated in lockstep with §15 by a `make sync-cost-profile` target (see `refs/ops-integration.md`). |
+| `refs/cost-profile.yaml` | (pre-invocation) | **(P7)** Static, machine-readable mirror of the §15 Token Cost Profile table. Callers (budget ledgers, CI) read this BEFORE invoking reflect to pre-flight budget. Reflect itself never reads this at runtime — the file is for caller-side discovery only. Updated in lockstep with §15 by a `make sync-cost-profile` target (see `refs/ops-integration.md`). |
 
 Refs loaded by the wave that needs them; never pre-loaded. Session-start footprint: SKILL.md only (~50 tokens via Claude Code skill loader).
 

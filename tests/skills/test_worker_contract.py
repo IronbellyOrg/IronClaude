@@ -498,7 +498,6 @@ P2_COMMANDS = (
     "research",
     "spec-panel",
     "task",
-    "tasklist",
     "reflect",
     "release-split",
     "tdd",
@@ -741,21 +740,6 @@ UNATTENDED_EXPECT: dict = {
             "`--remediate` is answered by the headless auto-accept rule",
         ],
         "nested": ["adversarial", "workflow", "impact"],
-    },
-    "tasklist": {
-        "flags": ["--output", "--no-reflect"],
-        "phrases": [
-            "tasklist-index.md",
-            "in the tasklist output directory, never a bare file name",
-            "validation/ValidationReport.md",
-            "validation/gate-results.txt",
-            "validation/PatchChecklist.md",
-            "blocked_question",
-            "--compliance strict --unattended --report-dir <report-dir>/nested/task-<n>/",
-            "the unresolved High or Medium HALT resolves as blocked",
-            "the `needs_human_decision` HALT resolves as blocked",
-        ],
-        "nested": ["reflect", "task"],
     },
 }
 
@@ -1565,7 +1549,6 @@ EXPECTED_NESTING = {
     "task": ["impact", "troubleshoot"],
     "cli-eval": ["spec-panel", "adversarial", "document"],
     "reflect": ["adversarial", "workflow", "impact"],
-    "tasklist": ["reflect", "task"],
 }
 
 
@@ -1578,14 +1561,14 @@ def test_nested_lists_match_the_p2_nesting():
 
 
 def _check_p2_set(p1, p2, expect) -> None:
-    assert len(p2) == 12, f"P2 lists {len(p2)} commands, not 12"
-    assert len(set(p2)) == 12, "P2_COMMANDS has a duplicate"
+    assert len(p2) == 11, f"P2 lists {len(p2)} commands, not 11"
+    assert len(set(p2)) == 11, "P2_COMMANDS has a duplicate"
     assert set(p1).isdisjoint(p2), f"P1 and P2 share {sorted(set(p1) & set(p2))}"
     both = set(p1) | set(p2)
     assert set(expect) == both, (
         f"UNATTENDED_EXPECT differs from P1 + P2: {sorted(set(expect) ^ both)}"
     )
-    assert len(expect) == 25, f"UNATTENDED_EXPECT has {len(expect)} entries, not 25"
+    assert len(expect) == 24, f"UNATTENDED_EXPECT has {len(expect)} entries, not 24"
     for name in (*p1, *p2):
         assert (Path(_THIS.COMMANDS_DIR) / f"{name}.md").exists(), f"{name}: no file"
 
@@ -1632,7 +1615,6 @@ def test_expected_nesting_is_the_spec_nesting():
     assert EXPECTED_NESTING == {
         "brainstorm": ["analyze", "adversarial", "research"],
         "workflow": ["reflect"],
-        "tasklist": ["reflect", "task"],
         "reflect": ["adversarial", "workflow", "impact"],
         "release-split": ["brainstorm", "adversarial"],
         "task": ["impact", "troubleshoot"],
@@ -1788,18 +1770,6 @@ P2_GATES = [
         "a TDD that is already complete resolves as blocked",
         "blocked",
         "re-run",
-    ),
-    (
-        "tasklist",
-        "the unresolved High or Medium HALT resolves as blocked",
-        "blocked",
-        "escalated",
-    ),
-    (
-        "tasklist",
-        "the `needs_human_decision` HALT resolves as blocked",
-        "blocked",
-        "escalated",
     ),
     (
         "reflect",

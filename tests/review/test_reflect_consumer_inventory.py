@@ -40,9 +40,7 @@ def _tree(root: Path) -> None:
     )
     _write(root, "tests/cli/reflect/fixtures/c.yaml", "citations_dropped: 0\n")
     _write(root, "tests/roadmap/test_merge.py", "convergence_score = 1\n")
-    _write(
-        root, "src/superclaude/skills/sc-roadmap-protocol/SKILL.md", "merge_method\n"
-    )
+    _write(root, "src/superclaude/skills/roadmap/SKILL.md", "merge_method\n")
     _write(root, "docs/notes.md", "adversarial_convergence_score: 0.9\n")
     _write(root, "scripts/other.py", "print('nothing here')\n")
     _write(
@@ -86,7 +84,6 @@ def test_classification_rules() -> None:
         )[0]
         == "consumer"
     )
-    assert inv.classify("src/superclaude/cli/sprint/executor.py")[0] == "consumer"
     assert inv.classify(".dev/eval-workspaces/sc-reflect/grader.py")[0] == "consumer"
     assert inv.classify("tests/cli/reflect/fixtures/any.yaml")[0] == "consumer"
     assert inv.classify("tests/roadmap/test_x.py")[0] == "not in scope"
@@ -98,9 +95,6 @@ def test_classification_rules() -> None:
         "consumer",
         "named",
     )
-    assert inv.classify(
-        "src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md"
-    )[:2] == ("consumer", "named")
     assert inv.classify("src/superclaude/skills/sc-task-protocol/SKILL.md")[:2] == (
         "consumer",
         "named",
@@ -113,10 +107,7 @@ def test_classification_rules() -> None:
     )
     # First match wins: the tests/cli/reflect/ prefix rule comes before the roadmap rule.
     assert inv.classify("tests/cli/reflect/roadmap_case.yaml")[0] == "consumer"
-    assert (
-        inv.classify("src/superclaude/skills/sc-roadmap-protocol/SKILL.md")[0]
-        == "not in scope"
-    )
+    assert inv.classify("src/superclaude/skills/roadmap/SKILL.md")[0] == "not in scope"
 
 
 def test_report_roles_counts_and_lines(tmp_path: Path) -> None:
@@ -135,9 +126,7 @@ def test_report_roles_counts_and_lines(tmp_path: Path) -> None:
     assert rows["src/superclaude/skills/task-builder/SKILL.md"][0] == "consumer"
     assert rows["tests/cli/reflect/fixtures/c.yaml"][0] == "consumer"
     assert rows["tests/roadmap/test_merge.py"][0] == "not in scope"
-    assert (
-        rows["src/superclaude/skills/sc-roadmap-protocol/SKILL.md"][0] == "not in scope"
-    )
+    assert rows["src/superclaude/skills/roadmap/SKILL.md"][0] == "not in scope"
     notes = rows["docs/notes.md"]
     assert notes[:2] == ["consumer", "cue"]  # key outside a fenced block: no write cue
     # convergence_score counts include adversarial_convergence_score occurrences.
@@ -304,7 +293,6 @@ def test_grader_missing_is_unverified(tmp_path: Path) -> None:
         "- Missing scan roots: `tests/`, `scripts/`, `.dev/eval-workspaces/`, `docs/`."
         in text
     )
-    assert "| `src/superclaude/cli/sprint/executor.py` | consumer |" in text
     assert "| no (UNVERIFIED) | no match |" in text
 
 

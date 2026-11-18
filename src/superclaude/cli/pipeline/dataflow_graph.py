@@ -11,7 +11,7 @@ Features:
 - Dead write warnings (write with no subsequent read)
 - 100-deliverable performance warning
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations

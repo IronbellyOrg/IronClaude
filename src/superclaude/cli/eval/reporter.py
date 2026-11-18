@@ -26,12 +26,8 @@ relies on the underlying renderers so that a single
 acceptance criteria require the guard to fire "before any emitter
 writes output" — which is exactly what the module-level renderers do.
 
-Pattern reference: ``src/superclaude/cli/sprint/executor.py:190-335``
-(``AggregatedPhaseReport``). The cliEval reporter mirrors that
-class's shape (frozen dataclass-like wrapper, ``to_yaml``/``to_markdown``
-methods) but operates on a :class:`RunSummary` instead of a list of
-``TaskResult`` rows. The probe test in T03.14 pins the upstream shape
-read-only so refactors there fail loudly.
+The cliEval reporter is a frozen dataclass-like wrapper with
+``to_yaml``/``to_markdown`` methods that operates on a :class:`RunSummary`.
 
 Feature gating of JUnit XML
 ---------------------------

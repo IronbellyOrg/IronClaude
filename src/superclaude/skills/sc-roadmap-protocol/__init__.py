@@ -1,1 +1,0 @@
-# sc-roadmap skill package

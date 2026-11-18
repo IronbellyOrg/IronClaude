@@ -33,24 +33,6 @@ src/superclaude/
 
 ### Important CLI subpackages
 
-#### `src/superclaude/cli/sprint/`
-
-Contains sprint-oriented operational code such as:
-
-- config
-- models
-- commands
-- executor
-- monitor
-- diagnostics
-- tui
-- tmux integration
-- KPI/logging helpers
-
-#### `src/superclaude/cli/roadmap/`
-
-Contains roadmap-related models, prompts, executors, commands, and validation helpers.
-
 #### `src/superclaude/cli/pipeline/`
 
 Contains pipeline analysis and verification modules such as:
@@ -160,7 +142,6 @@ If a feature is framed around “how work should be executed” rather than “w
 - `task-unified.md`
 - `research.md`
 - `cleanup-audit.md`
-- `roadmap.md`
 - `recommend.md`
 - `pm.md`
 
@@ -177,7 +158,6 @@ These are part of the framework surface shipped to users. If you are changing co
 ### Notable skill families observed
 
 - confidence check
-- roadmap protocol
 - task-unified protocol
 - cleanup-audit protocol
 - adversarial protocol

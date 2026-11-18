@@ -15,7 +15,7 @@ When older hand-written docs and current code differ, prefer the code. In partic
 | Console entry point | `pyproject.toml` → `superclaude = "superclaude.cli.main:main"` | The Click root group lives in `src/superclaude/cli/main.py`. |
 | Root package export | `src/superclaude/cli/__init__.py` exports `main` | Importing `superclaude.cli` exposes the top-level Click entry point. |
 | CLI style | Click command groups and subcommands | Top-level commands are defined in `main.py`; larger workflow CLIs live in subpackages. |
-| Major subsystems | install/update flows, MCP installation, health checks, sprint, roadmap, shared pipeline helpers, audit helpers | `pipeline/` and `audit/` are support libraries; `sprint/` and `roadmap/` expose subcommand groups. |
+| Major subsystems | install/update flows, MCP installation, health checks, shared pipeline helpers, audit helpers | `pipeline/` and `audit/` are support libraries. |
 
 ## Directory map
 
@@ -31,9 +31,7 @@ src/superclaude/cli/
 ├── install_skill.py
 ├── install_skills.py
 ├── audit/
-├── pipeline/
-├── roadmap/
-└── sprint/
+└── pipeline/
 ```
 
 ## Top-level entry points
@@ -54,15 +52,13 @@ src/superclaude/cli/
 | `superclaude install-skill <name>` | `install_skill` | `install_skill` | Install one skill into the Claude Code skills directory. |
 | `superclaude doctor` | `doctor` | `doctor.run_doctor` | Run installation/configuration checks and return non-zero on failure. |
 | `superclaude version` | `version` | package `__version__` | Print framework version. |
-| `superclaude sprint ...` | `sprint_group` added via `main.add_command(...)` | `src/superclaude/cli/sprint/` | Multi-phase sprint execution workflow. |
-| `superclaude roadmap ...` | `roadmap_group` added via `main.add_command(...)` | `src/superclaude/cli/roadmap/` | Roadmap generation and validation workflow. |
 
 ## Top-level module inventory
 
 | Module | Key symbols observed | Contributor notes |
 | --- | --- | --- |
 | `src/superclaude/cli/__init__.py` | `main` | Minimal re-export of the root CLI entry point. |
-| `src/superclaude/cli/main.py` | `main`, `install`, `mcp`, `update`, `install_skill`, `doctor`, `version` | First file to read when tracing command registration. Also manually registers the `sprint` and `roadmap` groups. |
+| `src/superclaude/cli/main.py` | `main`, `install`, `mcp`, `update`, `install_skill`, `doctor`, `version` | First file to read when tracing command registration. Also manually registers the later subcommand groups. |
 | `src/superclaude/cli/doctor.py` | `run_doctor`, `_check_pytest_plugin`, `_check_agents_installed`, `_check_skills_installed`, `_check_configuration` | Health-check implementation used by the `doctor` command. |
 | `src/superclaude/cli/install_core.py` | `install_core_files`, `list_core_files`, `list_installed_core_files` | Handles installation/listing of core framework files. |
 | `src/superclaude/cli/install_commands.py` | `install_commands`, `list_available_commands`, `list_installed_commands` | Handles slash command asset installation. |
@@ -73,78 +69,11 @@ src/superclaude/cli/
 
 ## Subpackage inventory
 
-## `sprint/` subpackage
-
-### Purpose
-
-Implements the `superclaude sprint` command group for orchestrating multi-phase Claude Code sprint execution.
-
-### Public command group
-
-| Symbol | File | Role |
-| --- | --- | --- |
-| `sprint_group` | `src/superclaude/cli/sprint/commands.py` | Click subcommand group, re-exported by `src/superclaude/cli/sprint/__init__.py`. |
-
-### Command structure
-
-| CLI command | Python function | What it does |
-| --- | --- | --- |
-| `superclaude sprint run` | `run` | Loads sprint config, discovers phases, and either dry-runs, launches in tmux, or executes directly. |
-| `superclaude sprint attach` | `attach` | Reattaches to a running sprint tmux session. |
-| `superclaude sprint status` | `status` | Reads sprint execution status from logs. |
-| `superclaude sprint logs` | `logs` | Tails the sprint execution log, optionally following output. |
-| `superclaude sprint kill` | `kill` | Stops a running sprint, with optional force mode. |
-
-### Important modules
-
-| Module | Key API surface observed | Why it matters |
-| --- | --- | --- |
-| `commands.py` | `sprint_group`, `run`, `attach`, `status`, `logs`, `kill`, `_print_dry_run` | User-facing CLI layer. |
-| `config.py` | `discover_phases`, `validate_phases`, `load_sprint_config`, `parse_tasklist`, `parse_tasklist_file` | Phase discovery and config loading. |
-| `models.py` | `SprintConfig`, `Phase`, `TaskResult`, `PhaseResult`, `SprintResult`, `SprintStep`, `TaskStatus`, `PhaseStatus`, `SprintOutcome`, `MonitorState`, `TurnLedger`, `ShadowGateMetrics` | Main typed data model for sprint state and outputs. |
-| `executor.py` | `execute_sprint`, `execute_phase_tasks`, `aggregate_task_results`, `setup_isolation`, `check_budget_guard`, `SprintGatePolicy`, `IsolationLayers`, `AggregatedPhaseReport` | Core runtime orchestration. |
-| `process.py` | file present | Sprint-specific process helpers. |
-| `tmux.py` | file present | Session launch/attach/kill integration. |
-| `monitor.py`, `tui.py` | files present | Status display and live UI surfaces. |
-| `logging_.py`, `debug_logger.py` | files present | Execution logging and debug output. |
-| `diagnostics.py`, `kpi.py`, `notify.py` | files present | Diagnostics, metrics, and notifications. |
-
-## `roadmap/` subpackage
-
-### Purpose
-
-Implements the `superclaude roadmap` command group. Current code describes this as an 8-step roadmap generation pipeline built on the shared `pipeline/` foundation, with a separate validation command.
-
-### Public command group
-
-| Symbol | File | Role |
-| --- | --- | --- |
-| `roadmap_group` | `src/superclaude/cli/roadmap/commands.py` | Click subcommand group, re-exported by `src/superclaude/cli/roadmap/__init__.py`. |
-
-### Command structure
-
-| CLI command | Python function | What it does |
-| --- | --- | --- |
-| `superclaude roadmap run` | `run` | Parses agent specs, builds `RoadmapConfig`, and executes the roadmap pipeline. |
-| `superclaude roadmap validate` | `validate` | Builds `ValidateConfig`, runs validation, and prints blocking/warning/info counts. |
-
-### Important modules
-
-| Module | Key API surface observed | Why it matters |
-| --- | --- | --- |
-| `commands.py` | `roadmap_group`, `run`, `validate` | CLI entry layer for roadmap flows. |
-| `models.py` | `AgentSpec`, `RoadmapConfig`, `ValidateConfig` | Core config and agent-spec parsing types. |
-| `executor.py` | `execute_roadmap`, `roadmap_run_step`, `_build_steps`, state helpers, decomposition/validation helpers | Main roadmap pipeline orchestration. |
-| `validate_executor.py` | `execute_validate`, `validate_run_step`, input validation helpers, single-/multi-agent step builders | Post-run validation execution path. |
-| `gates.py`, `validate_gates.py` | files present | File and gate validation logic. |
-| `prompts.py`, `validate_prompts.py` | files present | Prompt/template material used by roadmap subprocess steps. |
-| `__init__.py` | `roadmap_group` | Public export surface. |
-
 ## `pipeline/` subpackage
 
 ### Purpose
 
-Shared pipeline foundation used by workflow-oriented CLIs. The package docstring explicitly describes it as the shared base for sprint and roadmap commands, and its `__all__` exposes a broad reusable API.
+Shared pipeline foundation used by workflow-oriented CLIs. The package docstring explicitly describes it as the shared base for CLI pipeline runners, and its `__all__` exposes a broad reusable API.
 
 ### Exported/public surface from `pipeline/__init__.py`
 
@@ -197,9 +126,6 @@ Support library for cleanup/audit-oriented analysis. The package docstring calls
 | --- | --- |
 | Root group | `superclaude` |
 | Root commands | `install`, `mcp`, `update`, `install-skill`, `doctor`, `version` |
-| Root subgroups | `sprint`, `roadmap` |
-| Sprint subcommands | `run`, `attach`, `status`, `logs`, `kill` |
-| Roadmap subcommands | `run`, `validate` |
 
 ## Contributor navigation tips
 
@@ -211,7 +137,6 @@ That file owns:
 
 - the root Click group
 - top-level commands
-- manual registration of `sprint` and `roadmap`
 
 ### If you need to change installation behavior
 
@@ -228,7 +153,6 @@ Read these in order:
 
 Use this split:
 
-- `sprint/` and `roadmap/` for user-facing workflow CLIs
 - `pipeline/` for shared execution, gate, process, and analysis primitives
 - `audit/` for lower-level audit analysis and reporting support
 
@@ -239,16 +163,13 @@ Prefer the current package code.
 Examples from the current tree:
 
 - the active console-script target is `superclaude.cli.main:main`
-- the currently registered root workflow groups are `sprint` and `roadmap`
 - `pipeline/__init__.py` exports a larger shared API surface than older high-level docs usually summarize
 
 ## Fast start reading order for contributors
 
 1. `pyproject.toml` — console-script wiring
 2. `src/superclaude/cli/main.py` — root command graph
-3. One workflow package:
-   - `src/superclaude/cli/sprint/commands.py`, or
-   - `src/superclaude/cli/roadmap/commands.py`
-4. Matching `models.py` and `executor.py`
+3. One workflow package, for example `src/superclaude/cli/reflect/commands.py`
+4. Its matching `models.py` and runner module
 5. `src/superclaude/cli/pipeline/__init__.py` and `pipeline/models.py`
 6. `src/superclaude/cli/audit/` if the change touches cleanup/audit internals

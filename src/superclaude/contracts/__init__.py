@@ -26,9 +26,8 @@ R1.1 (Phase 6 in the task) extends this module with:
 - :data:`RETURN_CONTRACTS` — per-skill return-type registry per BUILD-REQUEST
   §MVR §5 example ``RETURN_CONTRACTS = {"sc:adversarial": AdversarialReturn}``.
 - :data:`THRESHOLDS` — full registry of behavioral float thresholds previously
-  inlined as default args / in-function literals across
-  ``cli/roadmap/fingerprint.py``, ``cli/roadmap/spec_structural_audit.py``,
-  and ``cli/roadmap/gates.py``.
+  inlined as default args / in-function literals across the former
+  roadmap runner's fingerprint, structural-audit and gate modules.
 
 The R0.3 constants are unchanged in R1.1; only the ``__all__`` export list and
 the docstring grow. Arch-lint extends to the new names automatically via the
@@ -47,8 +46,7 @@ from typing import Final
 # Deviation from BUILD-REQUEST §MVR §5 illustrative shape (intentional, logged
 # in phase-outputs/discovery/contracts-consumer-sites.md §E):
 #   * G-family added — required to honor Contract #8 against the pre-existing
-#     extractor at `cli/roadmap/spec_parser.py:328` (Phase 2 D1 informational
-#     deviation).
+#     spec-ID extractor (Phase 2 D1 informational deviation).
 #   * NFR pattern is the broader `r"NFR-\d+(?:\.\d+)?"` (BUILD-REQUEST is
 #     `r"NFR-\d+"`). The broader pattern preserves existing spec corpora
 #     that legitimately use `NFR-N.M` sub-IDs (e.g., sc-reflect spec).
@@ -80,10 +78,8 @@ ID_PATTERNS: Final[dict[str, str]] = {
 # CONVERGENCE_THRESHOLDS — per-skill ``(high, low)`` convergence threshold pair.
 #
 # Per BUILD-REQUEST §MVR §5 example. R0.3 lands the registry as a
-# forward-looking SoT entry (no consumer currently reads the pair — adjacent
-# scalars like `min_coverage_ratio` and `threshold` live in
-# `cli/roadmap/fingerprint.py` / `spec_structural_audit.py`). R1.1 reconciles
-# the adjacent scalars via :data:`THRESHOLDS` (below). The convergence pair
+# forward-looking SoT entry (no consumer currently reads the pair). R1.1
+# reconciles the adjacent scalars via :data:`THRESHOLDS` (below). The convergence pair
 # itself remains a forward-looking entry awaiting a consumer.
 #
 # Semantics (per §MVR §5):
@@ -91,7 +87,6 @@ ID_PATTERNS: Final[dict[str, str]] = {
 #   * second element = low-bound (regression floor)
 # ---------------------------------------------------------------------------
 CONVERGENCE_THRESHOLDS: Final[dict[str, tuple[float, float]]] = {
-    "sc:roadmap": (0.7, 0.5),
     "sc:release-split": (0.7, 0.5),
 }
 
@@ -99,7 +94,7 @@ CONVERGENCE_THRESHOLDS: Final[dict[str, tuple[float, float]]] = {
 # GATE_FIELD_NAMES — canonical frontmatter field names that gate predicates
 # consume. Centralizing these names eliminates the
 # ``ambiguous_count``/``ambiguous_deviations`` field-mismatch class of bug
-# documented at `cli/roadmap/gates.py:18` (B-1).
+# documented in the former roadmap gate module (B-1).
 # ---------------------------------------------------------------------------
 GATE_FIELD_NAMES: Final[dict[str, dict[str, str]]] = {
     "deviation_analysis": {
@@ -115,12 +110,11 @@ GATE_FIELD_NAMES: Final[dict[str, dict[str, str]]] = {
 # future-extensible without nested dicts.
 #
 # Current entries (per phase-outputs/discovery/return-contracts-scope.md §E):
-#   * "fingerprint.coverage_min" — was `min_coverage_ratio: float = 0.7` at
-#     `cli/roadmap/fingerprint.py:171,205` and `>= 0.7` literal at
-#     `cli/roadmap/gates.py:375` (Phase 6 D3 finding — missed by Phase 4
-#     inventory).
-#   * "structural_audit.adequacy_min" — was `threshold: float = 0.5` at
-#     `cli/roadmap/spec_structural_audit.py:91`.
+#   * "fingerprint.coverage_min" — was `min_coverage_ratio: float = 0.7` and a
+#     `>= 0.7` literal in the former roadmap runner (Phase 6 D3 finding —
+#     missed by Phase 4 inventory).
+#   * "structural_audit.adequacy_min" — was `threshold: float = 0.5` in the
+#     former roadmap structural audit.
 #
 # Distinct from :data:`CONVERGENCE_THRESHOLDS` (per-skill ``(high, low)`` pair):
 # THRESHOLDS holds single-scalar tunables used as default arguments or gate
@@ -235,9 +229,8 @@ ROADMAP_ENTITY_ID_FAMILIES: Final[dict[str, str]] = {
 # ---------------------------------------------------------------------------
 # TOOL_WRITE_ROADMAP_ID_FAMILIES — per-tool-write-step ordered ENTITY prefixes.
 #
-# Each of the four roadmap tool-write JSON schemas
-# (``cli/roadmap/templates/tool_schemas/{extract,extract_tdd,generate,merge}``
-# ``.schema.json``) accepts a per-step family set in
+# Each of the four former roadmap tool-write JSON schemas
+# (``{extract,extract_tdd,generate,merge}.schema.json``) accepted a per-step family set in
 # ``roadmap_ids.items.pattern``. The per-step differences are INTENTIONAL
 # semantics — each set tracks the typed inventories that step structurally
 # produces or consumes — NOT drift (TASK-RF-20260602-162259 research/02

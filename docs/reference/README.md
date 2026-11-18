@@ -15,7 +15,6 @@ This folder holds reference material: troubleshooting guides, diagnostic procedu
 
 | Document | What it defines |
 |---|---|
-| [deviation-report-format.md](./deviation-report-format.md) | The deviation report schema that pipeline gates and CLI commands read |
 | [nfr-conv-2-prose-determinism.md](./nfr-conv-2-prose-determinism.md) | Where task-builder output must be deterministic and where prose may vary |
 | [pm-agent-autonomous-reflection.md](./pm-agent-autonomous-reflection.md) | How the PM agent reflects on its own work and saves tokens |
 | [claude-code-history-management.md](./claude-code-history-management.md) | How Claude Code stores conversation history and how to rotate it |

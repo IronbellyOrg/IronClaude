@@ -39,8 +39,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 | [`/sc:task`](#sctask---enhanced-task-management) | One small, direct change (level 2) | `task.md` | Yes |
 | [`/sc:workflow`](#scworkflow---implementation-plan-generator) | Checked implementation plan (level 3, the default for planned work) | `workflow.md` | Only with `--handoff implement` |
 | `/sc:agent` | Session controller for investigate, build, review | `agent.md` | Yes |
-| `/sc:roadmap` | Roadmap artifacts from spec, TDD, PRD | `roadmap.md` | Report only |
-| `/sc:tasklist` | Sprint-ready tasklist bundles from roadmaps | `tasklist.md` | Report only |
 | `/sc:release-split` | Two-phase release split analysis | `release-split.md` | Report only |
 
 ### 2. DISCOVERY
@@ -70,7 +68,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 | `/sc:auggie-review` | Auggie code review of PRs and diffs | `auggie-review.md` | Report only |
 | `/sc:cleanup-audit` | Read-only multi-pass repository cleanup audit | `cleanup-audit.md` | Report only |
 | `/sc:swarm-wizard` | Plain-language guide to the swarm CLI | `swarm-wizard.md` | Report only |
-| `/sc:validate-roadmap` | Validate roadmap pipeline outputs | `validate-roadmap.md` | Report only |
 | `/sc:validate-tests` | Validate tier classification against YAML specs | `validate-tests.md` | Report only |
 | `/sc:cli-eval` | Author or run cliEval eval suites | `cli-eval.md` | Yes |
 
@@ -529,42 +526,6 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 
 ---
 
-### `/sc:roadmap` - Roadmap Generator
-
-**When to use:** Generate roadmap pipeline artifacts from one to three markdown inputs (spec, TDD and/or PRD), mirroring the `superclaude roadmap run` CLI. It does not generate tasklists, execute implementation, or modify the source files. It belongs to the separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`). For ordinary planning use `/sc:workflow`; `/roadmap` is the MDTM composer for when you explicitly select it (see [How We Work](how-we-work.md), section 5).
-
-**Syntax:**
-
-```
-/sc:roadmap [OPTIONS] INPUT_FILES...
-```
-
-`INPUT_FILES` is 1-3 markdown files (at most one spec, one TDD and one PRD), in any order.
-
-**Options:**
-
-| Flag | Default | What it does |
-|------|---------|--------------|
-| `--output <dir>` | folder of the first input | Where all artifacts go |
-| `--agents <specs>` | `opus:architect,sonnet:architect` | Agents for the generate and debate steps (`model[:persona]`) |
-| `--depth quick\|standard\|deep` | `standard` | Debate rounds (1, 2 or 3) |
-| `--resume` | off | Skip steps whose outputs already pass their gates |
-| `--dry-run` | off | Print the step plan and gate criteria, then exit |
-| `--no-validate` | off | Skip the validation step at the end |
-
-Full option list: `~/.claude/commands/sc/roadmap.md`.
-
-**Examples:**
-
-```bash
-/sc:roadmap spec.md tdd.md prd.md --output .dev/releases/current/example-release/
-/sc:roadmap spec.md --dry-run
-```
-
-**MCP servers:** none
-
----
-
 ### `/sc:swarm-wizard` - Guided Swarm Launcher
 
 **When to use:** Run the `superclaude swarm` multi-model review without being a swarm expert: it interviews you about what to review and why, picks the lens and flags, proves the pipeline with a stub dry-run, then asks before launching a real run and summarizes the outcome. It never launches a real-model run without your go-ahead and a passing dry-run.
@@ -648,22 +609,6 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 
 ---
 
-### `/sc:tasklist` - Tasklist Generator
-
-**When to use:** Turn a roadmap into a deterministic, Sprint CLI-compatible tasklist bundle and validate it against the source roadmap. It does not modify the roadmap or run `superclaude sprint run`.
-
-**Syntax:**
-
-```
-/sc:tasklist <roadmap-path> [--spec <spec-path>] [--output <output-dir>] [--no-reflect]
-```
-
-**Review loop:** only High and Medium validation findings are blocking and get patched; Low findings are listed as notes and are never patched or re-checked. The patch loop runs at most one re-patch pass, then stops and escalates any open blocking findings to you instead of shipping them.
-
-**MCP servers:** context7
-
----
-
 ### `/sc:tdd` - Technical Design Document Creator
 
 **When to use:** Create or populate a Technical Design Document for a component, service or system, researched from the actual codebase and optionally translated from a PRD. It designs only; it does not implement the system.
@@ -692,43 +637,6 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 ```
 
 **MCP servers:** context7, `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)
-
----
-
-### `/sc:validate-roadmap` - Roadmap Pipeline Output Validator
-
-**When to use:** Validate the `roadmap.md`, `test-strategy.md` and `extraction.md` produced by a prior `superclaude roadmap run`, with single-agent reflection or, for two or more agents, an adversarial merge. It writes only to `<OUTPUT_DIR>/validate/`, never modifies the inputs, and always exits 0 with findings printed to the console.
-
-**Syntax:**
-
-```
-/sc:validate-roadmap <roadmap-path> --specs <spec1.md,spec2.md,...> [options]
-```
-
-The command hands its arguments to the `sc-validate-roadmap-protocol` skill, which needs the roadmap file and the spec files it was built from. It is a read-only audit and writes its findings to `<roadmap-dir>/validation/` unless you pass `--output`.
-
-**Options:**
-
-| Flag | Default | What it does |
-|------|---------|--------------|
-| `--specs <files>` | required | Comma-separated spec files the roadmap must satisfy (1-10) |
-| `--output <dir>` | `<roadmap-dir>/validation/` | Where the validation artifacts go |
-| `--depth quick\|standard\|deep` | `standard` | How thorough the analysis is |
-| `--exclude <domains>` | none | Comma-separated domains to leave out |
-| `--max-agents <n>` | `20` | Maximum parallel agents (4-20) |
-| `--skip-adversarial` | off | Skip the adversarial pass |
-| `--skip-remediation` | off | Skip the remediation plan |
-| `--report <path>` | none | Also write a summary to this path |
-| `--prior-taxonomy <file>` | none | Seed domain clustering from a prior `00-domain-taxonomy.md` |
-
-**Examples:**
-
-```bash
-/sc:validate-roadmap .dev/releases/current/v2/roadmap.md --specs docs/specs/billing-tdd.md
-/sc:validate-roadmap ./roadmap.md --specs spec-a.md,spec-b.md --depth deep
-```
-
-**MCP servers:** auggie, codegraph
 
 ---
 
@@ -776,12 +684,12 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 - Creates a new package `.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/` (`<subject>` = lower camelCase, max 16 chars, e.g. `authLogin`) with `<id>.md` (schema `workflow-plan/1.2`), a `source.md` snapshot and `return-contract.yaml`; never overwrites an existing package
 - Checks the plan against your request when it is written (`/sc:reflect --mode pre`, advisory) and prints the result with the plan path
 - Run it with `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (not MDTM `/task`); on completion `/sc:implement` archives the package to `.dev/tasks/done/` on Linux; on any other system (including macOS) the archive is refused on purpose, the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand
-- **Does NOT implement code** and does **not** emit sprint tasklists
+- **Does NOT implement code**
 
 **Syntax:**
 
 ```
-/sc:workflow <path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement|tasklist]
+/sc:workflow <path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement]
 ```
 
 `--depth shallow|normal`, `--parallel` and the retired `--output` are `E-LEGACY` (use `quick|standard`, omit `--parallel`; every plan goes to a new `.dev/tasks/to-do/<id>/` package, there is no destination override).
@@ -809,7 +717,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 - Auto-routes codebase + research enrichment (`/sc:analyze`, `/sc:research`, `tech-research`)
 - Composes a `--agents` spec spanning 3 model aliases × domain-detected personas (in a ccsession tier workspace the launcher sets each `ANTHROPIC_DEFAULT_*_MODEL` for a tier the owner may use, so the matching aliases `opus`, `sonnet` and `haiku` map to `claude-gw-tier1a`, `claude-gw-tier1b` and `claude-gw-tier2`; see [model-aliases](../reference/model-aliases.md))
 - Delegates to `/sc:adversarial` for N parallel proposals + debate + merge → `merged-requirements.md`
-- Optionally hands off to `/sc:design`, `/sc:tasklist`, or `/task-builder`
+- Optionally hands off to `/sc:design` or `/task-builder`
 
 **Syntax:**
 
@@ -819,7 +727,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
   [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
   [--personas p1,p2,...] [--models opus,sonnet,haiku] \
   [--blind] [--convergence FLOAT] [--interactive] \
-  [--handoff none|design|tasklist|task] [--output DIR] \
+  [--handoff none|design|task] [--output DIR] \
   [--dry-run] [--resume-from PATH] [--force-stale]
 ```
 
@@ -832,8 +740,8 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 # Deep incident post-mortem
 /sc:brainstorm "deployment broke staging at 3am" --depth deep --strategy systematic
 
-# Product idea with research + full handoff to sprint planning
-/sc:brainstorm "AI-powered changelog summarizer" --strategy agile --handoff tasklist
+# Product idea with research + full handoff to a task file
+/sc:brainstorm "AI-powered changelog summarizer" --strategy agile --handoff task
 
 # Blind multi-model comparison (strips model identity before scoring)
 /sc:brainstorm "consolidate three duplicate auth modules" --depth deep --blind --proposals 4
@@ -1324,7 +1232,7 @@ TALEB: "The real question: does this benefit from uncertainty?"
 
 #### `superclaude reflect run` (CLI auto-fix wrapper)
 
-**When to use:** Run the post-execution reflect gate non-interactively (CI, sprint hooks, headless pipelines) when you want a fail-closed exit code and, optionally, a bounded auto-fix loop. This is the CLI **engine**, distinct from the `/sc:reflect` **skill** above.
+**When to use:** Run the post-execution reflect gate non-interactively (CI, hooks, headless pipelines) when you want a fail-closed exit code and, optionally, a bounded auto-fix loop. This is the CLI **engine**, distinct from the `/sc:reflect` **skill** above.
 
 **Engine vs. skill:** The wrapper does not re-implement reflection. It launches `/sc:reflect --mode post` as a **top-level `claude --print` subprocess** (so Tier-2 heterogeneous fan-out is preserved — a nested call would collapse it), parses the resulting `return-contract.yaml`, derives a fail-closed 4-state verdict, and writes a `reflect_post:` block back into the task file's frontmatter. The process exit code is the verdict code: **pass `0`, halted `10`, degraded `11`, blocked `2`**. Only a clean, full, non-degraded Tier-2 pass exits `0`.
 

@@ -1,8 +1,7 @@
-"""Pipeline data models -- shared dataclasses consumed by sprint and roadmap.
+"""Pipeline data models -- shared dataclasses consumed by CLI pipeline runners.
 
-This module has zero imports from superclaude.cli.sprint or
-superclaude.cli.roadmap (NFR-007). All types here are generic pipeline
-primitives that both consumers extend.
+This module has zero imports from CLI runner packages (NFR-007). All types
+here are generic pipeline primitives that consumers extend.
 """
 
 from __future__ import annotations
@@ -15,7 +14,7 @@ from typing import Callable, Literal, Optional, Protocol
 
 
 class CosmeticRemediator(Protocol):
-    """Pluggable cosmetic-failure remediator (see cli/roadmap/cosmetic_remediator.py).
+    """Pluggable cosmetic-failure remediator.
 
     Consumers of the generic pipeline executor may inject one via
     ``PipelineConfig.cosmetic_remediator``. The executor calls it after a gate
@@ -106,11 +105,11 @@ class CodeAssertion:
     BUILD-REQUEST §MVR §2 verbatim contract.
 
     ``PipelineEnvelope`` and ``Finding`` are referenced as string forward
-    refs to preserve NFR-007 (``pipeline.*`` MUST NOT import from
-    ``roadmap.*`` or ``sprint.*``). At runtime ``check_fn`` receives a
-    ``PipelineEnvelope`` (defined in ``cli/roadmap/envelope.py``) and a
+    refs to preserve NFR-007 (``pipeline.*`` MUST NOT import from CLI
+    runner packages). At runtime ``check_fn`` receives a
+    ``PipelineEnvelope`` (defined by the consuming runner) and a
     repository-root ``Path``; it returns ``None`` on PASS or a typed
-    ``Finding`` (defined in ``cli/roadmap/findings.py``) on FAIL with
+    ``Finding`` (defined by the consuming runner) on FAIL with
     ``severity``/``description``/``location`` populated for downstream
     gate reporters.
 
@@ -182,7 +181,7 @@ class StepResult:
     """Outcome of executing a single pipeline step.
 
     ``remediated`` and ``remediations`` are populated when the cosmetic-failure
-    auto-remediation lane (see ``cli/roadmap/cosmetic_remediator.py``) rewrote
+    auto-remediation lane rewrote
     a gate-failing output into a gate-passing one. The step's ``status`` stays
     ``PASS`` so existing pattern-matching keeps working; downstream consumers
     that care about remediation (audit log, halt formatter, certify prompt)
@@ -266,12 +265,12 @@ class Deliverable:
 
 @dataclass
 class PipelineConfig:
-    """Configuration shared by both sprint and roadmap pipelines.
+    """Configuration shared by CLI pipeline runners.
 
     ``allow_cosmetic_remediation`` enables the cosmetic-failure auto-remediation
     lane in the generic executor: when a gate fails and the failure can be
     classified as purely cosmetic (heading shape, dash variant, whitespace,
-    etc. -- see ``cli/roadmap/cosmetic_remediator.py``), the output is
+    etc.), the output is
     deterministically rewritten and re-checked before the step is marked FAIL.
     Defaults True for user-friendly behavior; set False (or pass
     ``--strict-no-remediation`` on the CLI) to preserve strict halt-on-any-

@@ -6,7 +6,7 @@ Validates step outputs against GateCriteria with tier-proportional checks:
   STANDARD -> + min lines + YAML frontmatter fields
   STRICT  -> + semantic checks (if defined)
 
-NFR-003: No subprocess import. NFR-007: No sprint/roadmap imports.
+NFR-003: No subprocess import. NFR-007: No imports from CLI runner packages.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ def gate_passed(
     parameters consumed by ``criteria.code_assertions``. They are typed
     as ``object`` / ``Path | None`` rather than the precise
     ``PipelineEnvelope`` because ``cli/pipeline/*`` must not import from
-    ``cli/roadmap/*`` (NFR-007). When either is ``None`` and the criteria
+    CLI runner packages (NFR-007). When either is ``None`` and the criteria
     define code_assertions, the assertions are skipped -- this skip-path is
     PRESERVED (R1.6 CI-vs-runtime split decision): it is the CORRECT behavior
     for CI-only/source-tree assertions on a pipx-installed package (which has

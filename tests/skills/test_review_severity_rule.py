@@ -285,7 +285,7 @@ def test_e_every_cap_edits_row_holds():
 
 def test_j_every_sweep_edits_row_holds():
     rows = _rows("review_severity_sweep_edits.yaml")
-    assert len(rows) == 137
+    assert len(rows) == 125
     bad = _failing_rows("review_severity_sweep_edits.yaml")
     assert not bad, "sweep-edits rows not applied:\n" + "\n".join(bad)
 

@@ -84,9 +84,6 @@ _EXPECTED_IDS = {
     "cli-eval-run",
     "release-boundary",
     "post-release",
-    "roadmap-artifacts",
-    "sprint-tasklist-bundle",
-    "roadmap-fidelity",
     "tier-validation",
 }
 
@@ -296,7 +293,6 @@ def test_other_commands_membership_and_live_references():
         "sc:init-lite",
         "sc:post-release",
         "sc:tdd",
-        "sc:validate-roadmap",
         "sc:validate-tests",
     }
     for token in set(_TOKEN_RE.findall(block)):
@@ -699,36 +695,6 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
             ],
         ),
         (
-            "S14",
-            "roadmap-artifacts",
-            {"sc:roadmap"},
-            ["supplied documents", "requested controls"],
-            ["contract gap", "no combined interface", "not MDTM roadmap substitution"],
-        ),
-        (
-            "S15",
-            "sprint-tasklist-bundle",
-            {"sc:tasklist"},
-            ["<roadmap-path>", "supplied spec/output"],
-            [
-                "readable non-empty roadmap",
-                "writable output parent",
-                "no unsupported source flag",
-                "no automatic Sprint/task execution",
-            ],
-        ),
-        (
-            "S16",
-            "roadmap-fidelity",
-            {"sc:validate-roadmap"},
-            ["roadmap/spec sources", "supplied output directory"],
-            [
-                "command/protocol contract gap",
-                "explicitly denies CLI equivalence",
-                "exit zero is not clean validation",
-            ],
-        ),
-        (
             "S17",
             "tier-validation",
             {"sc:validate-tests"},
@@ -747,7 +713,7 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
 def test_specialist_static_targets_inputs_and_stops(
     case, row_id, targets, inputs, boundaries
 ):
-    """Static S01-S17 contracts; these are not model-generation evaluations."""
+    """Static specialist contracts (S01-S13, S17); not model-generation evaluations."""
     row = next(r for r in _routing_rows() if r["id"] == row_id)
     assert targets <= set(_TOKEN_RE.findall(row["steps"])), case
     assert "3.13" in row["section"].split(", "), case
@@ -780,10 +746,7 @@ def test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_fir
     assert "actual callable command/skill and relevant dependencies" in section
     assert "contract gap**, not a union of both interfaces" in section
     assert "new suite or a supervised existing-suite run" in section
-    assert (
-        "checked workflow plan, an MDTM checklist and a roadmap-to-Sprint bundle"
-        in section
-    )
+    assert "checked workflow plan from an MDTM checklist" in section
     unsure = next(r for r in _routing_rows() if r["id"] == "unsure")
     assert "one useful clarification" in unsure["steps"]
     assert "sc:recommend" not in _TOKEN_RE.findall(unsure["steps"])
@@ -1039,13 +1002,6 @@ def test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces():
         assert not {"sc:estimate", "sc:sc", "sc:select-tool", "sc:task-mcp"} & set(
             _TOKEN_RE.findall(row["steps"] + row["notes"])
         )
-    rows = {r["id"]: r for r in _routing_rows()}
-    for row_id in ("roadmap-artifacts", "roadmap-fidelity"):
-        assert "contract gap" in rows[row_id]["steps"]
-        assert "asks first" == rows[row_id]["changes_files"]
-        assert not {"--specs", "--agents", "--template", "--depth"} & set(
-            _FLAG_RE.findall(rows[row_id]["steps"])
-        ), "No runnable union of the conflicting command/protocol interfaces"
     assert (
         "Command and protocol disagree on missing-proxy STOP versus stub fallback"
         in guide

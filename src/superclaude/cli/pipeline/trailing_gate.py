@@ -5,7 +5,7 @@ Provides three components for non-blocking gate evaluation:
 - GateResultQueue: thread-safe result collection from concurrent gate evaluations
 - DeferredRemediationLog: persistent log of gate failures requiring remediation
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations
@@ -242,9 +242,9 @@ class TrailingGateRunner:
 class TrailingGatePolicy(Protocol):
     """Consumer-owned hooks for remediation step construction and file tracking.
 
-    The sprint runner implements this protocol to build remediation steps
-    and detect file changes, decoupling gate infrastructure from sprint-specific
-    logic.
+    A pipeline runner implements this protocol to build remediation steps
+    and detect file changes, decoupling gate infrastructure from
+    runner-specific logic.
 
     Methods:
         build_remediation_step: Construct a focused remediation Step from a gate failure.

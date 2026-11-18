@@ -48,7 +48,6 @@ Generic, reusable command implementing a structured adversarial debate, comparis
 
 - Explicit: `/sc:adversarial --compare ...` or `/sc:adversarial --source ...`
 - Keywords: "adversarial debate", "compare variants", "merge best of"
-- Integration: Called by `/sc:roadmap` in multi-spec/multi-roadmap modes
 
 ## Dual Input Modes
 
@@ -2087,7 +2086,7 @@ artifact_assembly_step_5:
 
 ```yaml
 return_contract:
-  purpose: "Enable programmatic integration with other commands (sc:roadmap, sc:design)"
+  purpose: "Enable programmatic integration with other commands (sc:design)"
   file: "<output>/adversarial/return-contract.yaml (every invocation, failures included; the fields sit under a return_contract: block)"
 
   fields:

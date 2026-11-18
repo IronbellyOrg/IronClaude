@@ -37,9 +37,6 @@ EXPECTED_TOP_LEVEL_COMMANDS: frozenset[str] = frozenset(
         "install-skill",
         "mcp",
         "recommend",
-        "roadmap",
-        "sprint",
-        "tasklist",
         "update",
         "version",
     }

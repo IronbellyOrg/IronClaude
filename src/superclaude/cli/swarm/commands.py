@@ -3,7 +3,7 @@
 This module hosts the real Click subcommands that replace the
 ``__init__.py`` placeholders one at a time as the Phase 2 / Phase 3
 tasks land. The ``swarm_group`` itself remains in
-``cli/swarm/__init__.py`` (divergence from sprint, documented there);
+``cli/swarm/__init__.py``;
 this file only declares the per-subcommand callables and lets
 ``__init__.py`` register them with ``swarm_group.add_command(...)`` so
 the import order stays acyclic:

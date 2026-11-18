@@ -11,7 +11,7 @@ source_path: ./source.md | null
 source_origin: <original path or "inline">   # informational only; never used for lookup
 strategy: systematic | agile | enterprise
 depth: quick | standard | deep
-handoff_action: none | design | implement | tasklist
+handoff_action: none | design | implement
 handoff_output_path: ./progress.md | null
 reflect_status: success | partial | failed | skipped   # Wave 4 `/sc:reflect --mode pre`; advisory only
 reflect_report_path: <abs path to reflect REPORT.md> | null
@@ -24,7 +24,7 @@ unresolved: []
 
 | Situation | status | plan_path |
 |-----------|--------|-----------|
-| Plan gated; handoff `none`/`design`/`tasklist` text emitted, or `implement` accepted | `success` | `./<id>.md` |
+| Plan gated; handoff `none`/`design` text emitted, or `implement` accepted | `success` | `./<id>.md` |
 | Plan gated but the `--handoff implement` invocation failed (skill missing, implement STOP) | `partial` | `./<id>.md` — the plan stays valid and executable; list the reason in `unresolved` |
 | Package exists but generation failed (`E-NO-PHASES`, `E-GATE`, write error) | `failed` | `null` (`source_path` `./source.md` if the snapshot was written, else `null`) |
 

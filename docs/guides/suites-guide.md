@@ -45,7 +45,6 @@ each suite below; see also §"Troubleshooting".
 | 4 | `freshness_blocks_unread_edit` | 3 | One-off baseline | Pre-edit freshness gate end-to-end |
 | 5 | `task_classification_contract` | 2 | One-off baseline | `/sc:task` first-output HTML marker |
 | 6 | `audit_wiring_guard` | 2 | One-off baseline | Audit pipeline never deletes wired files |
-| 7 | `tasklist_deterministic_shape` | 1 | One-off baseline | `/sc:tasklist` shape contract + renumbering |
 | 8 | `eval_smoke` | 3 | One-off / smoke | Meta-canary for the eval CLI itself |
 | 9 | `installer_sync_drift` | 1 | Recurring CI/nightly | `make verify-sync` doesn't regress |
 | 10 | `hook_latency_drift` | 3 | Recurring nightly | Hook telemetry schema + latency budgets |
@@ -256,27 +255,6 @@ uv run superclaude eval run --suite audit_wiring_guard --no-mcp
 
 **Cadence:** one-off; re-run after touching any audit agent prompt.
 `timeout_sec: 300` per eval.
-
----
-
-### 7. `tasklist_deterministic_shape.yaml` — `/sc:tasklist` shape contract
-
-**Hypothesis:** the same seeded roadmap (with a deliberate Phase 1 → Phase 3
-gap) produces a canonical Sprint-compatible bundle: `tasklist-index.md` +
-sequentially-renumbered `phase-1-tasklist.md`, `phase-2-tasklist.md`
-(NOT `phase-3-tasklist.md`), each ending with `Checkpoint: End of Phase`.
-
-**1 eval (E1):** invokes `/sc:tasklist @<seeded>/roadmap.md` and asserts
-on 8 file-shape predicates plus exit 0.
-
-**Sample invocation:**
-
-```bash
-uv run superclaude eval run --suite tasklist_deterministic_shape --no-mcp
-```
-
-**Cadence:** one-off baseline; re-run on edits to
-`.claude/skills/sc-tasklist-protocol/**`. `timeout_sec: 600` (LLM-heavy).
 
 ---
 

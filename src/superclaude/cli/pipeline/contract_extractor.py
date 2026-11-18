@@ -10,7 +10,7 @@ R-013 acknowledged: implicit contract extraction from natural language has
 fundamental reliability limits. UNSPECIFIED below 60% with mandatory human
 review is the mitigation.
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations

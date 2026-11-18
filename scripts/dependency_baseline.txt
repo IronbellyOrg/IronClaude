@@ -66,10 +66,9 @@ typing-extensions
 pexpect
 ptyprocess
 
-# --- R1.4 tool-write templating (approved addition) ---
-# jinja2 renders the deterministic markdown artifacts from the structured
-# tool-write JSON in src/superclaude/cli/roadmap/tool_writer.py (render_tool_output).
-# markupsafe is jinja2's hard runtime dependency (auto-installed with it).
+# --- Templating dependency (declared in pyproject.toml) ---
+# jinja2 is a declared runtime dependency. markupsafe is its hard runtime
+# dependency (auto-installed with it).
 jinja2
 markupsafe
 

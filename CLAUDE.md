@@ -128,7 +128,7 @@ src/superclaude/         # Pytest plugin + CLI tools
 ├── pytest_plugin.py     # Auto-loaded pytest integration
 ├── pm_agent/            # confidence.py, self_check.py, reflexion.py
 ├── execution/           # parallel.py, reflection.py, self_correction.py
-├── cli/                 # Python CLI: sprint, roadmap, tasklist, audit, pipeline
+├── cli/                 # Python CLI: audit, eval, reflect, swarm, pipeline
 ├── agents/              # Agent definition source files (.md)
 └── skills/              # Skill packages (SKILL.md + rules/ + templates/ + scripts/)
 
@@ -165,9 +165,7 @@ make sync-dev         # Copy src/superclaude/{skills,agents,commands,hooks,templ
 make verify-sync      # Check src/ and .claude/ are in sync (CI-friendly)
 
 # Pipelines
-superclaude sprint run <tasklist-index.md>   # Execute sprint pipeline
-superclaude roadmap run <spec.md>            # Generate roadmap pipeline
-superclaude roadmap validate <output-dir>    # Validate roadmap artifacts
+superclaude reflect run <tasklist.md> --fix   # Run the reflect gate
 
 # MCP Servers
 superclaude mcp                              # Interactive install (gateway default)
@@ -313,7 +311,7 @@ worktree location, outside the main checkout; `orca worktree current --json` (fr
 - Never create a project worktree with raw `git worktree add`, under the retired `.dev/worktrees/` location, or under `.claude/worktrees/`.
 - Do **not** use the `EnterWorktree` tool: it hardcodes `.claude/worktrees/`, which is gitignored sync-dev territory.
 - Never pass Orca link flags (`--issue`, `--pr`) for this repo; the fork rule above (`## ABSOLUTE RULE: PR Target = Fork`) governs them.
-- **Exception — internal temporary checkouts:** a CLI, script or test that creates and removes its own checkout keeps using `git worktree add` directly and must work without Orca. The five cases are: the reflect `--isolate-reviewers` review snapshot; the troubleshoot backtest replay; test fixtures in a pytest temporary directory; `scripts/eval_runner.py`'s temporary master checkout; and the optional read-only release-tag checkout in `/sc:post-release`, removed after the scan.
+- **Exception — internal temporary checkouts:** a CLI, script or test that creates and removes its own checkout keeps using `git worktree add` directly and must work without Orca. The four cases are: the reflect `--isolate-reviewers` review snapshot; the troubleshoot backtest replay; test fixtures in a pytest temporary directory; and the optional read-only release-tag checkout in `/sc:post-release`, removed after the scan.
 - **Existing checkouts under the retired `.dev/worktrees/` location** may stay until their branch is merged, then are removed with `git worktree remove <path>`; no new checkout may be created there.
 
 ```bash

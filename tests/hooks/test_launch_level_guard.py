@@ -933,9 +933,7 @@ def test_impl_name_spellings(tmp_path, name):
     _assert_decision(_run(_skill(name), tmp_path), tmp_path, "LL-IMPL", "W")
 
 
-@pytest.mark.parametrize(
-    "name", ["sc:cleanup-audit-protocol", "task-builder", "sc:tasklist-protocol"]
-)
+@pytest.mark.parametrize("name", ["sc:cleanup-audit-protocol", "task-builder"])
 def test_lookalike_skill_names_stay_none(tmp_path, name):
     # T-SKL-1: names that only resemble an IMPL skill are NONE.
     _bind(tmp_path, "worktree")

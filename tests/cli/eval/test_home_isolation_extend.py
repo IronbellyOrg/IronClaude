@@ -3,8 +3,7 @@
 This module owns the COMP-006 extension of :class:`HomeIsolation` — the
 four methods (`setup`, `env`, `teardown`, `state_path`) that bolt a
 per-eval HOME, ``CLAUDE_SESSION_ID`` stamp, and optional
-``CLAUDE_FAKE_TIME_OFFSET`` onto the DM-006 record without disturbing
-the four existing ``IsolationLayers`` guarantees (T02.05 probe).
+``CLAUDE_FAKE_TIME_OFFSET`` onto the DM-006 record.
 
 Test invariants:
 
@@ -18,15 +17,10 @@ Test invariants:
   keeping the OQ-8 gate from blocking adoption.
 * ``state_path()`` refuses to escape ``home_path`` via absolute paths
   or ``..`` components (defense layered on top of T02.08).
-* The upstream ``IsolationLayers`` probe (T02.05) still passes — proven
-  by import-time co-residence here.
-
 Cross-links:
 
 * DM-006 frozen-record tests live in
   ``tests/cli/eval/test_isolation_dataclass.py`` (T02.04).
-* COMP-012 probe lives in
-  ``tests/cli/eval/test_isolation_layers_probe.py`` (T02.05).
 * Containment guard tests land in ``test_path_containment.py`` (T02.08).
 * Atomic-setup wrapper tests land in ``test_atomic_setup.py`` (T02.13).
 * Hook-adapter idempotency lives in ``test_hook_adapter.py`` (T02.14).
@@ -288,8 +282,8 @@ def test_env_returns_a_fresh_dict_each_call(
 def test_env_return_type_is_str_to_str(
     scratch_root: Path, permissive_config: EvalConfig
 ) -> None:
-    """``dict[str, str]`` is the contract IsolationLayers.env_vars also
-    uses; pin it here so a callsite can merge both without coercion."""
+    """``dict[str, str]`` is the env contract; pin it here so a callsite
+    can merge it into a child environment without coercion."""
 
     iso = _build(scratch_root, time_offset_sec=42)
     iso.setup(config=permissive_config)
@@ -507,61 +501,6 @@ def test_is_set_up_flag(scratch_root: Path, permissive_config: EvalConfig) -> No
     assert iso.is_set_up is True
     iso.teardown(keep=False)
     assert iso.is_set_up is False
-
-
-# ---------------------------------------------------------------------------
-# IsolationLayers probe (T02.05) re-verification
-# ---------------------------------------------------------------------------
-
-
-def test_isolation_layers_probe_still_passes_after_extension() -> None:
-    """COMP-012 probe (T02.05) must keep passing — HomeIsolation
-    extension does not (and must not) touch the upstream
-    ``cli/sprint/executor.IsolationLayers`` shape. Re-import the probe
-    asserts here so a regression here surfaces in this module first."""
-
-    import tests.cli.eval.test_isolation_layers_probe as probe  # type: ignore[import-untyped]
-
-    probe.test_isolation_layers_is_dataclass()
-    probe.test_isolation_layers_lives_in_sprint_executor_module()
-    probe.test_isolation_layers_field_names_and_order()
-    probe.test_isolation_layers_env_vars_is_property()
-    probe.test_isolation_layers_env_vars_return_annotation_is_str_dict()
-    probe.test_isolation_layers_layers_active_is_property()
-    probe.test_isolation_layers_layers_active_return_annotation_is_list_str()
-    probe.test_setup_isolation_module_path()
-
-
-def test_home_isolation_env_does_not_collide_with_isolation_layers_keys(
-    scratch_root: Path, permissive_config: EvalConfig
-) -> None:
-    """HomeIsolation.env() and IsolationLayers.env_vars are merged at
-    the orchestrator; assert the key sets are disjoint so neither
-    overrides the other silently."""
-
-    from superclaude.cli.sprint.executor import IsolationLayers
-
-    iso = _build(scratch_root, time_offset_sec=10)
-    iso.setup(config=permissive_config)
-    home_keys = set(iso.env().keys())
-
-    isolation_layers_keys = {
-        "CLAUDE_WORK_DIR",
-        "GIT_CEILING_DIRECTORIES",
-        "CLAUDE_PLUGIN_DIR",
-        "CLAUDE_SETTINGS_DIR",
-    }
-
-    # Sanity: the upstream shape still produces the four expected keys.
-    layers = IsolationLayers(
-        scoped_work_dir=scratch_root,
-        git_boundary=scratch_root,
-        plugin_dir=scratch_root,
-        settings_dir=scratch_root,
-    )
-    assert set(layers.env_vars.keys()) == isolation_layers_keys
-
-    assert home_keys.isdisjoint(isolation_layers_keys)
 
 
 # ---------------------------------------------------------------------------

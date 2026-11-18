@@ -536,7 +536,7 @@ class TestExecutorBranchLogic:
 
 
 class TestTrailingGatePolicy:
-    """TrailingGatePolicy protocol definition and sprint consumer compliance."""
+    """TrailingGatePolicy protocol definition and conformance."""
 
     def test_protocol_is_importable(self):
         """TrailingGatePolicy is importable from pipeline module."""
@@ -552,73 +552,18 @@ class TestTrailingGatePolicy:
             TrailingGatePolicy, "_is_runtime_protocol"
         )
 
-    def test_sprint_consumer_satisfies_protocol(self):
-        """SprintGatePolicy satisfies the TrailingGatePolicy protocol."""
+    def test_conforming_class_satisfies_protocol(self):
+        """A class with the two protocol methods satisfies the protocol."""
         from superclaude.cli.pipeline.trailing_gate import TrailingGatePolicy
-        from superclaude.cli.sprint.executor import SprintGatePolicy
-        from superclaude.cli.sprint.models import SprintConfig
 
-        config = SprintConfig(index_path=Path("test.md"))
-        policy = SprintGatePolicy(config)
-        assert isinstance(policy, TrailingGatePolicy)
+        class ConformingPolicy:
+            def build_remediation_step(self, gate_result):
+                raise NotImplementedError
 
-    def test_build_remediation_step_returns_step(self, tmp_path):
-        """build_remediation_step returns a Step with remediation prompt."""
-        from superclaude.cli.sprint.executor import SprintGatePolicy
-        from superclaude.cli.sprint.models import SprintConfig
+            def files_changed(self, result):
+                return set()
 
-        config = SprintConfig(index_path=Path("test.md"), work_dir=tmp_path)
-        policy = SprintGatePolicy(config)
-        gate_result = TrailingGateResult(
-            step_id="task-1",
-            passed=False,
-            evaluation_ms=50.0,
-            failure_reason="Missing required field 'title'",
-        )
-        step = policy.build_remediation_step(gate_result)
-        assert step.id == "task-1_remediation"
-        assert "Missing required field 'title'" in step.prompt
-        assert "REMEDIATION" in step.prompt
-
-    def test_files_changed_with_existing_output(self, tmp_path):
-        """files_changed returns output file when it exists."""
-        from superclaude.cli.sprint.executor import SprintGatePolicy
-        from superclaude.cli.sprint.models import SprintConfig
-
-        config = SprintConfig(index_path=Path("test.md"), work_dir=tmp_path)
-        policy = SprintGatePolicy(config)
-
-        output_file = tmp_path / "output.md"
-        output_file.write_text("content")
-        step = Step(
-            id="s1",
-            prompt="test",
-            output_file=output_file,
-            gate=None,
-            timeout_seconds=60,
-        )
-        result = StepResult(step=step, status=StepStatus.PASS)
-        changed = policy.files_changed(result)
-        assert output_file in changed
-
-    def test_files_changed_empty_when_no_output(self, tmp_path):
-        """files_changed returns empty set when output file doesn't exist."""
-        from superclaude.cli.sprint.executor import SprintGatePolicy
-        from superclaude.cli.sprint.models import SprintConfig
-
-        config = SprintConfig(index_path=Path("test.md"), work_dir=tmp_path)
-        policy = SprintGatePolicy(config)
-
-        step = Step(
-            id="s1",
-            prompt="test",
-            output_file=tmp_path / "nonexistent.md",
-            gate=None,
-            timeout_seconds=60,
-        )
-        result = StepResult(step=step, status=StepStatus.FAIL)
-        changed = policy.files_changed(result)
-        assert len(changed) == 0
+        assert isinstance(ConformingPolicy(), TrailingGatePolicy)
 
     def test_non_conforming_class_fails_isinstance(self):
         """A class missing protocol methods does NOT satisfy the protocol."""

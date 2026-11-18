@@ -47,9 +47,9 @@ def test_skill_check_resolves_direct_and_namespaced_dependencies(tmp_path):
     skills_dir = tmp_path / "skills"
     commands_dir = tmp_path / "commands" / "sc"
     _write_command(commands_dir, "recommend", "sc-recommend")
-    _write_command(commands_dir, "roadmap", "sc:roadmap-protocol")
+    _write_command(commands_dir, "reflect", "sc:reflect-protocol")
     _write_skill(skills_dir, "sc-recommend")
-    _write_skill(skills_dir, "sc-roadmap-protocol")
+    _write_skill(skills_dir, "sc-reflect-protocol")
 
     result = _check_skills_installed(skills_dir=skills_dir, commands_dir=commands_dir)
 

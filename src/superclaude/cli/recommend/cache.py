@@ -1,9 +1,8 @@
 """sc-recommend lookup-cache reader/writer.
 
-YAML adaptation of ``roadmap/convergence.py::DeviationRegistry`` (atomic
-``tmp + os.replace`` write, hash-reset-on-mismatch load) swapping the JSON codec
-for ``yaml.safe_dump``/``yaml.safe_load`` and the ``spec_hash`` reset key for
-``surface_hash``. The atomic writer uses a randomized same-directory temp name
+YAML lookup cache (atomic ``tmp + os.replace`` write, hash-reset-on-mismatch
+load) using ``yaml.safe_dump``/``yaml.safe_load`` and a ``surface_hash`` reset
+key. The atomic writer uses a randomized same-directory temp name
 (per ``install_hooks._atomic_write_json``) with a ``finally`` cleanup so a crash
 mid-``os.replace`` never leaves a partial target or a stray temp file
 (spec Risk #12 worktree-concurrency mitigation).

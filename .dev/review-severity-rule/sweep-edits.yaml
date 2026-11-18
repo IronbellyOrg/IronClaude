@@ -20,13 +20,12 @@
 #   - Not covered here (owned by other tasks): prd/refs/build-request-template.md:157, tdd/refs/build-request-template.md:152,
 #     task-builder/SKILL.md:1600, task/SKILL.md:347, every line in inventory.md sections 2.2-2.5, and the pm-agent example
 #     lines (agents/sc-pm-agent.md:541, src/superclaude/agents/pm-agent.md:564, plugins/superclaude/agents/pm-agent.md:564).
-# Groups (fixloop 96, verdict 14, halt 2, template-qa 1, reflect-gate 5, tasklist 12, zero-tolerance 5):
+# Groups (fixloop 96, verdict 14, halt 2, template-qa 1, reflect-gate 5, zero-tolerance 5):
 #   fixloop        fix passes and repeat triggers carry blocking findings only (finding B3-03 for its 8 site sets, else sweep)
 #   verdict        "FAIL: Issues found" -> "FAIL: Blocking issues found"; PASS allows MINOR notes (B3-07)
 #   halt           rf-qa HALT-MONOTONICITY counts blocking issues only (B3-01)
 #   template-qa    agent_template_qa.md Fix Cycle rechecks previously failed blocking items only (B3-02)
 #   reflect-gate   task-builder POST reflect gate: Regression / unauthorized Drift is remediated or HALTs and escalates (B3-04)
-#   tasklist       sc-tasklist-protocol Stages 8-10: Low findings are notes; open High/Medium findings HALT at the cap (B3-10)
 #   zero-tolerance QA prompt intros: zero tolerance applies to blocking errors (sweep)
 rows:
   - id: S-001
@@ -956,102 +955,6 @@ rows:
     finding: B3-04
     old: "any flagged deviations were remediated or logged to Open Questions."
     new: "every flagged Regression or unauthorized Drift deviation was remediated (otherwise the task HALTed and escalated it to the user); only Authorized or Necessary deviations and minor findings were logged as notes to Open Questions."
-    occurrences: 1
-  - id: S-119
-    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
-    line: 1439
-    group: tasklist
-    finding: B3-10
-    old: "If Stage 7 produced zero findings across all agents, write a clean `ValidationReport.md` containing:"
-    new: "If Stage 7 produced zero High or Medium (blocking) findings across all agents, write a clean `ValidationReport.md` containing (any Low findings are listed after it as notes; they are not patched or re-validated):"
-    occurrences: 1
-  - id: S-120
-    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
-    line: 1445
-    group: tasklist
-    finding: B3-10
-    old: "Result: CLEAN — no drift detected across N phases and M tasks."
-    new: "Result: CLEAN — no blocking drift detected across N phases and M tasks (Low findings, if any, listed as notes)."
-    occurrences: 1
-  - id: S-121
-    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
-    line: 1450
-    group: tasklist
-    finding: B3-10
-    old: "the genuine zero-finding short-circuit (no real findings AND no synthetic findings)"
-    new: "the genuine zero-finding short-circuit (no real High or Medium findings AND no synthetic findings)"
-    occurrences: 1
-  - id: S-122
-    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
-    line: 1481
-    group: tasklist
-    finding: B3-10
-    old: "### Low Severity\n"
-    new: "### Low Severity (notes: not patched, not re-validated)\n"
-    occurrences: 1
-  - id: S-123
-    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
-    line: 1531
-    group: tasklist
-    finding: B3-10
-    old: "Only real, patchable findings produce PatchChecklist items."
-    new: "Only real, patchable High or Medium (blocking) findings produce PatchChecklist items; Low findings stay as notes in `ValidationReport.md` and produce none."
-    occurrences: 1
-  - id: S-124
-    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
-    line: 1537
-    group: tasklist
-    finding: B3-10
-    old: "**Purpose**: Apply all corrections from the PatchChecklist to the generated phase files."
-    new: "**Purpose**: Apply all blocking (High and Medium) corrections from the PatchChecklist to the generated phase files; Low findings stay as notes and are not patched."
-    occurrences: 1
-  - id: S-125
-    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
-    line: 1561
-    group: tasklist
-    finding: B3-10
-    old: "**Purpose**: Re-verify only the specific findings from Stage 7 to confirm patches were applied correctly."
-    new: "**Purpose**: Re-verify only the specific High and Medium (blocking) findings from Stage 7 to confirm patches were applied correctly; Low findings are notes and are not re-verified."
-    occurrences: 1
-  - id: S-126
-    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
-    line: 1565
-    group: tasklist
-    finding: B3-10
-    old: "For each finding in `ValidationReport.md`:"
-    new: "For each High or Medium finding in `ValidationReport.md`:"
-    occurrences: 1
-  - id: S-127
-    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
-    line: 1583
-    group: tasklist
-    finding: B3-10
-    old: "| L1 | UNRESOLVED | Cross-phase wording still inconsistent in T03.06 |"
-    new: "| M3 | UNRESOLVED | Cross-phase dependency still inconsistent in T03.06 |"
-    occurrences: 1
-  - id: S-128
-    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
-    line: 1602
-    group: tasklist
-    finding: B3-10
-    old: "failing findings: it EXCLUDES"
-    new: "failing findings (High and Medium, i.e. blocking, only; Low findings are notes and are never counted, patched or re-validated): it EXCLUDES"
-    occurrences: 1
-  - id: S-129
-    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
-    line: 1604
-    group: tasklist
-    finding: B3-10
-    old: "if any patchable item that PASSED at pass `k` is FAILing at pass `k+1`,"
-    new: "if any patchable item that PASSED at pass `k` is FAILing with a High or Medium (blocking) finding at pass `k+1`,"
-    occurrences: 1
-  - id: S-130
-    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
-    line: 1608
-    group: tasklist
-    finding: B3-10
-    old: "Findings that remain `UNRESOLVED` at termination are logged for human review (the bundle still ships; the loop is an advisory remediation, not a hard blocker)."
-    new: "High or Medium (blocking) findings that remain `UNRESOLVED` at termination HALT the skill: escalate them to the user as the open blocking findings in `ValidationReport.md` (the bundle does not ship as clean); Low findings stay as notes."
     occurrences: 1
   - id: S-131
     file: src/superclaude/rules/prompts/automated_qa_workflow_qa_prompt.md

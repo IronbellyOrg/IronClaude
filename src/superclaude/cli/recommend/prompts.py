@@ -198,7 +198,7 @@ Within those boundaries, delegate only when its verified specialized capability
 earns its overhead versus a bounded native sequence. Do not replace a requested
 specialist lifecycle or structured document merely because it writes many files.
 Do not turn raw document authoring, populated-document derivation, reflection,
-comparison, Sprint bundles and roadmap artifacts into interchangeable targets.
+comparison and roadmap artifacts into interchangeable targets.
 </PHASE-1>
 
 <PHASE-2 - CURRENT-REQUEST HANDOFF>

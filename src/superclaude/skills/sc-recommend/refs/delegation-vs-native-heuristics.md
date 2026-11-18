@@ -50,7 +50,7 @@ If the user wants free-form prose, native usually wins — skills add overhead, 
 
 ### 4. Token budget vs. value
 
-Skills with large protocol bodies (`/sc:adversarial`, `/sc:roadmap`, `/sc:cleanup-audit`) cost real tokens just to load. For a small task, the loading cost dwarfs the work. Rule of thumb: if the user's task is < ~500 tokens of actual work, do not invoke a skill whose protocol is > ~2000 tokens to load.
+Skills with large protocol bodies (`/sc:adversarial`, `/sc:cleanup-audit`) cost real tokens just to load. For a small task, the loading cost dwarfs the work. Rule of thumb: if the user's task is < ~500 tokens of actual work, do not invoke a skill whose protocol is > ~2000 tokens to load.
 
 ### 5. Repeatability and discipline
 
