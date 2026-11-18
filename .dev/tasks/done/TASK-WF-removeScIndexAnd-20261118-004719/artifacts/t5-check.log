@@ -1,0 +1,17 @@
+== AC1 grep in commands/ (expect none)
+NO MATCH
+== AC2 neighbouring lines
+
+- **agent.md** - Specialized AI agents
+- **recommend.md** - Command recommendations
+- **research.md** - Deep web research with parallel search
+
+| `/sc:sc:help` | List all available /sc:sc commands and their functionality |
+| `/sc:sc:implement` | Feature and code implementation with intelligent persona activation
+| `/sc:sc:select-tool` | Intelligent MCP tool selection based on complexity scoring and op
+| `/sc:sc:spec-panel` | Multi-expert specification review and improvement using renowned s
+== diff
+ commands/sc-README.md | 1 -
+ commands/sc-help.md   | 1 -
+ 2 files changed, 2 deletions(-)
+diff --check clean

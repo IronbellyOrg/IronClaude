@@ -1,0 +1,43 @@
+== SWEEP leftover references outside historical records and .dev (expect only frozen records)
+tests/recommend/fixtures/routing_refresh_cases.json:643:    {"name": "index-repo", "history": "Active; F", "disposition": "CHANGE", "requirements_test
+tests/recommend/test_routing_refresh.py:5:index-repo, save, load and /sc:spawn commands, are retired), the T01-T76
+tests/recommend/test_routing_refresh.py:37:# Orca), build, save, load, improve, cli-portify, index, index-repo and
+tests/recommend/test_routing_refresh.py:49:    "index-repo",
+tests/recommend/test_routing_refresh.py:681:        "index-repo",
+== historical records untouched (expect no output)
+== kept items present
+PROJECT_INDEX.json
+PROJECT_INDEX.md
+plugins/superclaude/agents/repo-index.md
+src/superclaude/agents/repo-index.md
+src/superclaude/commands/graph.md
+index-repo,index
+== staged/changed .claude paths (expect none)
+none
+== plan constraint: command removal only, no CHANGELOG
+22
+== delivery file list vs git status (tracked changes)
+D  commands/sc-index-repo.md
+D  commands/sc-index.md
+D  plugins/superclaude/commands/index-repo.md
+D  plugins/superclaude/commands/index.md
+D  src/superclaude/commands/index-repo.md
+D  src/superclaude/commands/index.md
+M commands/sc-README.md
+M commands/sc-help.md
+M docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md
+M docs/generated/contributor-knowledge-base/architecture-guide.md
+M docs/generated/contributor-knowledge-base/components-guide.md
+M docs/user-guide/commands.md
+M docs/user-guide/flags.md
+M plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+M src/superclaude/core/HOW-WE-WORK.md
+M src/superclaude/core/WORKER-CONTRACT.md
+M tests/core/test_how_we_work_routing_table.py
+M tests/recommend/fixtures/routing_refresh_cases.json
+M tests/recommend/test_routing_refresh.py
+M tests/skills/test_codegraph_adoption.py
+M tests/skills/test_worker_contract.py
+M tests/unit/test_cli_install.py
+== deleted six; D count
+6

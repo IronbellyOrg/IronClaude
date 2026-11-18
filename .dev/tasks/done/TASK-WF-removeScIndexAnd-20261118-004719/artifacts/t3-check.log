@@ -1,0 +1,6 @@
+== AC1 cmp
+IDENTICAL
+== AC2 grep in sc-recommend
+NO MATCH
+== diff names
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md

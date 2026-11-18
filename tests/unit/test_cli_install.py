@@ -113,7 +113,7 @@ swarm/lenses/templates/troubleshoot-hypothesis-output.md user_settings_defaults.
 README.md __init__.py adversarial.md agent.md analyze.md auggie-review.md
 brainstorm.md business-panel.md cleanup-audit.md cleanup.md cli-eval.md
 design.md document.md explain.md git.md graph.md help.md impact.md implement.md
-index-repo.md index.md init-lite.md pm.md post-release.md
+init-lite.md pm.md post-release.md
 pr-submit.md recommend.md reflect.md release-split.md research.md
 roadmap.md spec-panel.md swarm-wizard.md
 task.md tasklist.md tdd.md test.md troubleshoot.md validate-roadmap.md
@@ -397,7 +397,7 @@ system-architect.md technical-writer.md
         """
 __init__.py agent.md analyze.md brainstorm.md business-panel.md cleanup.md
 design.md document.md explain.md git.md help.md implement.md
-index-repo.md index.md pm.md recommend.md reflect.md research.md
+pm.md recommend.md reflect.md research.md
 spec-panel.md task.md test.md troubleshoot.md workflow.md
 """
     ),
@@ -522,7 +522,7 @@ class TestInstallCommands:
         assert isinstance(commands, list)
         assert len(commands) > 0
         assert "research" in commands
-        assert "index-repo" in commands
+        assert "agent" in commands
 
     def test_install_commands_to_temp_dir(self, tmp_path):
         """Test installing commands to a temporary directory"""
@@ -540,7 +540,7 @@ class TestInstallCommands:
 
         # Verify specific commands
         assert (target_dir / "research.md").exists()
-        assert (target_dir / "index-repo.md").exists()
+        assert (target_dir / "agent.md").exists()
 
     def test_install_commands_skip_existing(self, tmp_path):
         """Test that existing commands are skipped without --force"""
@@ -636,7 +636,7 @@ class TestInstallCommands:
         """Test that all expected commands are available"""
         commands = list_available_commands()
 
-        expected = ["agent", "index-repo", "recommend", "research"]
+        expected = ["agent", "recommend", "research", "workflow"]
 
         for expected_cmd in expected:
             assert expected_cmd in commands, (

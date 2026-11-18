@@ -240,8 +240,6 @@ This tree contains a large set of markdown-defined commands, including:
 - `research.md`
 - `task-unified.md`
 - `cleanup-audit.md`
-- `index.md`
-- `index-repo.md`
 - `roadmap.md`
 - and many others
 

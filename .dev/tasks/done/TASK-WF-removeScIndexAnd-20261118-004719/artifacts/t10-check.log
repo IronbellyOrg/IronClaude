@@ -1,0 +1,16 @@
+== AC1 pytest tests/recommend
+........................................................................ [ 54%]
+........................................................................ [ 81%]
+.................................................                        [100%]
+============================= 265 passed in 4.48s ==============================
+== AC2 grep (allowed: frozen commands records only)
+tests/recommend/fixtures/routing_refresh_cases.json:643:    {"name": "index-repo", "history": "Active; F", "disposition": "CHANGE"
+tests/recommend/fixtures/routing_refresh_cases.json:644:    {"name": "index", "history": "Active; F+D", "disposition": "CHANGE", "
+tests/recommend/test_routing_refresh.py:3:The fixture defines the S01-S29 recommendation-generation cases (S05, S07, S11, S24,
+tests/recommend/test_routing_refresh.py:154:    ]  # S05, S07, S11, S24, S25, S27 retired
+== fixture still valid JSON, case ids
+S01 S02 S03 S04 S06 S08 S09 S10 S12 S13 S14 S15 S16 S17 S18 S19 S20 S21 S22 S23 S26 S28 S29
+== ruff
+All checks passed!
+1 file already formatted
+diff --check clean

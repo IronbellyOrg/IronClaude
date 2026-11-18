@@ -1,0 +1,21 @@
+== AC1 six paths absent from git ls-files
+absent src/superclaude/commands/index.md
+absent src/superclaude/commands/index-repo.md
+absent plugins/superclaude/commands/index.md
+absent plugins/superclaude/commands/index-repo.md
+absent commands/sc-index.md
+absent commands/sc-index-repo.md
+== AC2 project dev commands folder after make sync-dev
+0
+count above is 0 when no index file exists
+0
+count above is 0 when no .claude path shows in status
+== AC3 verify-sync
+✅ All components in sync.
+== diff vs start (names)
+D	commands/sc-index-repo.md
+D	commands/sc-index.md
+D	plugins/superclaude/commands/index-repo.md
+D	plugins/superclaude/commands/index.md
+D	src/superclaude/commands/index-repo.md
+D	src/superclaude/commands/index.md

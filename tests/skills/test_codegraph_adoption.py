@@ -255,7 +255,6 @@ _ISSUE_504_COMMANDS = [
         "design.md",
         "implement.md",
         "workflow.md",
-        "index-repo.md",
         "document.md",
     )
 ]
@@ -277,7 +276,7 @@ def test_issue_504_commands_list_codegraph_and_one_readiness_check(path):
 
 
 _OWN_CHECK_COMMANDS = [
-    _SRC / "commands" / name for name in ("analyze.md", "index-repo.md", "document.md")
+    _SRC / "commands" / name for name in ("analyze.md", "document.md")
 ]
 
 

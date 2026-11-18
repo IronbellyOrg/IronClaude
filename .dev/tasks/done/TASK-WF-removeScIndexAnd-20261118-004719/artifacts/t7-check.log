@@ -1,0 +1,21 @@
+== AC1 bullets (expect none)
+NO MATCH
+== AC2 neighbouring lists
+- `research.md`
+- `task-unified.md`
+- `cleanup-audit.md`
+- `roadmap.md`
+- and many others
+..
+- `research.md`
+- `cleanup-audit.md`
+- `roadmap.md`
+- `recommend.md`
+- `pm.md`
+== diff
+ docs/generated/contributor-knowledge-base/architecture-guide.md | 2 --
+ docs/generated/contributor-knowledge-base/components-guide.md   | 2 --
+ 2 files changed, 4 deletions(-)
+diff --check clean
+== repository-overview.md untouched
+unchanged

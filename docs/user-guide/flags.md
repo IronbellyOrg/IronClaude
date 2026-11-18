@@ -105,13 +105,6 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 | `--safe` / `--aggressive` | Cleanup intensity | Boolean |
 | `--interactive` | User guidance | Boolean |
 
-### Index Command Flags (`/sc:index`)
-
-| Flag | Purpose | Values |
-|------|---------|--------|
-| `--type` | Index target | `docs`, `api`, `structure`, `readme` |
-| `--format` | Output format | `md`, `json`, `yaml` |
-
 ### Reflect Command Flags (`/sc:reflect`)
 
 | Flag | Purpose | Values |

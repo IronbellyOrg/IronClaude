@@ -470,7 +470,7 @@ NEVER_AS_WORKER = (
     "/sc:sweep",
 )
 
-# The fifteen commands that get an `## Unattended mode` section in P1, in the order
+# The thirteen commands that get an `## Unattended mode` section in P1, in the order
 # of the spec's phase table.
 P1_COMMANDS = (
     "adversarial",
@@ -478,7 +478,6 @@ P1_COMMANDS = (
     "cleanup-audit",
     "graph",
     "impact",
-    "index-repo",
     "init-lite",
     "workflow",
     "analyze",
@@ -486,7 +485,6 @@ P1_COMMANDS = (
     "design",
     "document",
     "explain",
-    "index",
     "test",
 )
 
@@ -551,11 +549,6 @@ UNATTENDED_EXPECT: dict = {
         ],
         "nested": [],
     },
-    "index-repo": {
-        "flags": [],
-        "phrases": ["PROJECT_INDEX.md", "PROJECT_INDEX.json", "mode=update"],
-        "nested": [],
-    },
     "init-lite": {
         "flags": ["--output", "--dry-run"],
         "phrases": ["the one write besides the report", "Safety Invariants 2 and 3"],
@@ -599,11 +592,6 @@ UNATTENDED_EXPECT: dict = {
     "document": {
         "flags": ["--output", "--type"],
         "phrases": ["every file edited", "inline"],
-        "nested": [],
-    },
-    "index": {
-        "flags": ["--output", "--type"],
-        "phrases": ["knowledge-base mode", "index-report.md", "consent is never given"],
         "nested": [],
     },
     "cleanup": {
@@ -1264,12 +1252,6 @@ def test_cleanup_audit_names_final_report_and_contract_write_exception():
         ), path.name
 
 
-def test_index_repo_output_format_states_where_the_files_land():
-    text = (Path(_THIS.COMMANDS_DIR) / "index-repo.md").read_text(encoding="utf-8")
-    section = text.split("## Output Format", 1)[1].split("\n## ", 1)[0]
-    assert "root of the repository" in section
-
-
 def test_init_lite_contract_exception_and_pass_through_are_documented():
     skill = (_REPO / "src/superclaude/skills/sc-init-lite-protocol/SKILL.md").read_text(
         encoding="utf-8"
@@ -1397,8 +1379,8 @@ _WORKER_CONTRACT_HEADING = "## Worker contract (`--unattended`)"
 
 
 def _check_p1_set(commands, expect) -> None:
-    assert len(commands) == 15, f"P1 lists {len(commands)} commands, not 15"
-    assert len(set(commands)) == 15, "P1_COMMANDS has a duplicate"
+    assert len(commands) == 13, f"P1 lists {len(commands)} commands, not 13"
+    assert len(set(commands)) == 13, "P1_COMMANDS has a duplicate"
     # The P2 entries arrive one task at a time, so `expect` may also hold any of
     # P2_COMMANDS; a name outside both sets, or a missing P1 name, fails.
     assert set(commands) <= set(expect) <= set(commands) | set(P2_COMMANDS), (
@@ -1603,7 +1585,7 @@ def _check_p2_set(p1, p2, expect) -> None:
     assert set(expect) == both, (
         f"UNATTENDED_EXPECT differs from P1 + P2: {sorted(set(expect) ^ both)}"
     )
-    assert len(expect) == 27, f"UNATTENDED_EXPECT has {len(expect)} entries, not 27"
+    assert len(expect) == 25, f"UNATTENDED_EXPECT has {len(expect)} entries, not 25"
     for name in (*p1, *p2):
         assert (Path(_THIS.COMMANDS_DIR) / f"{name}.md").exists(), f"{name}: no file"
 
