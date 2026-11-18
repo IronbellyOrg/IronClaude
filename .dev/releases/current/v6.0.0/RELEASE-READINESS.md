@@ -33,7 +33,7 @@ State key: NOT STARTED, RUNNING (agent working), GREEN (agent stopped, checks gr
 | 3 | Small-fix PR B: 542, 543, 544 | `clayphi/v6-ic-launcher-fixes` | MERGED | [#625](https://github.com/IronbellyOrg/IronClaude/pull/625) (`Closes` 542, 543, 544) | 27553 passed, 3 failed (agent baseline) / 27596 passed, 1 failed (new tests, none removed). CI `Test on Python 3.10`: success | 2026-11-17 22:57Z, `ff52d57ab` |
 | 4 | 4: cli-portify | `clayphi/v6-cli-portify` | MERGED | [#629](https://github.com/IronbellyOrg/IronClaude/pull/629) | 27598 passed, 1 failed (agent baseline) / 26702 passed, 1 failed (896 tests removed: 868 in `tests/cli_portify`, 3 `PortifyProcess` tests, 25 worker-contract and routing cases; the failure was already failing before). CI `Test on Python 3.10`: success | 2026-11-18 00:25Z, `956f49642` |
 | 5 | 9: `/sc:index` and `/sc:index-repo` | `clayphi/v6-index` | MERGED | [#631](https://github.com/IronbellyOrg/IronClaude/pull/631) | 26703 passed, 0 failed (agent baseline) / 26677 passed, 3 failed (23 tests removed on purpose; the 3 failures are the known `test_install_keep` one and two load-sensitive tests that pass alone). CI `Test on Python 3.10`: success | 2026-11-18 01:22Z, `f7af90156` |
-| 5 | 11: roadmap, tasklist, sprint | `clayphi/v6-roadmap-family` | RUNNING (agent started 2026-11-18 00:27Z) | | | |
+| 5 | 11: roadmap, tasklist, sprint | `clayphi/v6-roadmap-family` | MERGED | [#632](https://github.com/IronbellyOrg/IronClaude/pull/632) | 26702 passed, 1 failed (agent baseline) / 22607 passed, 1 failed (4112 tests removed, 17 added; the failure was already failing before; 605 files changed, +2487 -148187). CI `Test on Python 3.10`: success | 2026-11-18 02:05Z, `af5fb69eb` |
 | 6 | 12: the retire step (new code) | `clayphi/v6-retire-step` | NOT STARTED | | | |
 | Release | Release preparation (version, changelog, release notes) into `integration` | `clayphi/release-6.0.0` | NOT STARTED | | | |
 | Release | Release PR, `integration` to `master` | `integration` | NOT STARTED | | | |
@@ -98,3 +98,4 @@ The orchestrator deletes no worktree. Finished, for Clay to remove later (`orca 
 | `v6-improve` | `/home/coder/workspaces/worktrees/IronClaude/v6-improve` | #627 |
 | `v6-cli-portify` | `/home/coder/workspaces/worktrees/IronClaude/v6-cli-portify` | #629 |
 | `v6-index` | `/home/coder/workspaces/worktrees/IronClaude/v6-index` | #631 |
+| `v6-roadmap-family` | `/home/coder/workspaces/worktrees/IronClaude/v6-roadmap-family` | #632 |
