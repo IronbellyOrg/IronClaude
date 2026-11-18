@@ -1,0 +1,116 @@
+{
+  "id": "0d081b5d-ee80-41c6-9980-e1521518e890",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-merge-master",
+      "identity": {
+        "key": "wt2:local:eabca4a2-aa53-41df-a18c-0f218477b01f",
+        "executionHostId": "local",
+        "instanceId": "eabca4a2-aa53-41df-a18c-0f218477b01f"
+      },
+      "instanceId": "eabca4a2-aa53-41df-a18c-0f218477b01f",
+      "repoId": "e8e07d51-c261-4936-815e-06aeceeb5bf8",
+      "projectId": "github:superclaude-org/superclaude_framework",
+      "hostId": "local",
+      "projectHostSetupId": "e8e07d51-c261-4936-815e-06aeceeb5bf8",
+      "creatorProvenance": {
+        "kind": "host"
+      },
+      "path": "/home/coder/workspaces/worktrees/IronClaude/v6-merge-master",
+      "head": "741a0e1302412deb1ef02515ebc273eb0a471cf5",
+      "branch": "refs/heads/clayphi/v6-merge-master",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "v6-merge-master",
+      "displayNameMode": "fixed",
+      "comment": "6.0.0 merge master into integration (routing guide conflict); PR into integration; stop when green",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "linkedWorkItem": null,
+      "linkedTaskSourceContext": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1795013576646,
+      "lastActivityAt": 1795013576646,
+      "createdAt": 1795013576646,
+      "createdWithAgent": "claude",
+      "cliProvenance": {
+        "kind": "created-by-cli",
+        "createdAt": 1795013572771,
+        "callerTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+        "startupAgent": "claude"
+      },
+      "baseRef": "refs/remotes/origin/integration",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "childWorktreeIds": [],
+      "lineage": {
+        "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-merge-master",
+        "worktreeInstanceId": "eabca4a2-aa53-41df-a18c-0f218477b01f",
+        "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+        "parentWorktreeInstanceId": "6e42315e-ec88-477d-b67f-8abd24fabaa2",
+        "origin": "cli",
+        "capture": {
+          "source": "env-workspace",
+          "confidence": "inferred"
+        },
+        "createdByTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+        "createdAt": 1795013576646
+      },
+      "git": {
+        "path": "/home/coder/workspaces/worktrees/IronClaude/v6-merge-master",
+        "head": "741a0e1302412deb1ef02515ebc273eb0a471cf5",
+        "branch": "refs/heads/clayphi/v6-merge-master",
+        "isBare": false,
+        "isMainWorktree": false
+      },
+      "linkedItems": []
+    },
+    "lineage": {
+      "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-merge-master",
+      "worktreeInstanceId": "eabca4a2-aa53-41df-a18c-0f218477b01f",
+      "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "parentWorktreeInstanceId": "6e42315e-ec88-477d-b67f-8abd24fabaa2",
+      "origin": "cli",
+      "capture": {
+        "source": "env-workspace",
+        "confidence": "inferred"
+      },
+      "createdByTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+      "createdAt": 1795013576646
+    },
+    "workspaceLineage": null,
+    "launch": {
+      "outcome": {
+        "kind": "terminal",
+        "handle": "term_3d52f995-4f6f-4d06-b47b-b8cd3700af31",
+        "paneKey": "5ff7b639-ebe8-40a5-96a6-fb04495f224f:d0fc7d63-a567-4974-afad-a0497cda1abc"
+      },
+      "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-merge-master",
+      "receipt": {
+        "mode": "terminal",
+        "preferred": "terminal",
+        "reason": "user_default",
+        "detail": "Started a terminal agent, the default for new agent tabs in your settings."
+      },
+      "prompt": {
+        "delivery": "submit",
+        "outcome": "handed-to-terminal"
+      },
+      "operationId": "1795013572765-46d5d8cc05884d439a5e683b2bf19d00"
+    }
+  },
+  "_meta": {
+    "runtimeId": "bba2834a-030a-46d1-9df4-c209fe806804"
+  }
+}
