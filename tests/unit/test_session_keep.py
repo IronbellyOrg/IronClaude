@@ -1091,3 +1091,23 @@ def test_a_marker_that_cannot_be_read_is_never_replaced_or_counted_as_agent(
     assert unreadable.read_text().strip() == "human"
     assert result.candidates == [] and result.deleted == 0
     assert (projects / "-work-a" / f"{agent_elsewhere}.jsonl").is_file()
+
+
+def test_a_new_copy_of_a_candidate_made_after_the_plan_keeps_the_whole_session(
+    projects: Path,
+) -> None:
+    # The session is resumed in another worktree between the plan and the delete: its
+    # new transcript is not in the plan, so the copies are listed again.
+    session = make(projects, 1, "agent-old", age_days=90)
+    result = run(projects)
+    assert [c.session for c in result.candidates] == [session]
+    fresh = projects / "-work-b" / f"{session}.jsonl"
+    fresh.parent.mkdir()
+    fresh.write_text("resumed just now")
+    os.utime(fresh, (NOW, NOW))
+    keep.apply_plan(result, projects, projects.parent.parent, orca_dir(projects))
+    assert result.deleted == 0 and fresh.is_file()
+    assert (projects / "-work-a" / f"{session}.jsonl").is_file()
+    assert (projects / REPO / "topics" / "agent-old.txt").is_file()
+    assert (projects.parent.parent / ".claude" / "file-history" / session).is_dir()
+    assert any("changed while pruning" in s for s in result.skipped)

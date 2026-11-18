@@ -41,6 +41,7 @@ import importlib.util
 import os
 import re
 import shutil
+import stat
 import sys
 import tempfile
 import time
@@ -437,6 +438,31 @@ def transcripts(projects_dir: Path) -> Transcripts:
     return found
 
 
+def copies_of(projects_dir: Path, session: str) -> Transcripts:
+    """The copies of one session as they are now (see transcripts)."""
+    found = Transcripts()
+    try:
+        folders = list(os.scandir(projects_dir))
+    except OSError:
+        found.complete = False
+        return found
+    for folder in folders:
+        try:
+            if folder.name.startswith(".") or folder.is_symlink():
+                continue
+            target = os.path.join(folder.path, session + ".jsonl")
+            info = os.lstat(target)
+        except FileNotFoundError:
+            continue
+        except OSError:
+            found.complete = False
+            continue
+        found.setdefault(session, []).append(
+            Copy(Path(target), info.st_mtime, info.st_size, stat.S_ISLNK(info.st_mode))
+        )
+    return found
+
+
 def has_conversation(projects_dir: Path, session: str) -> bool:
     """True when any <projects-dir>/<folder>/<session>.jsonl exists now. Anything
     that cannot be read counts as "yes": only a clear absence deletes a record."""
@@ -734,9 +760,17 @@ def prune_one(
     """Delete one candidate; the caller holds the lock of every list that names it.
     True when the session is gone, with its names and marker."""
     label = cand.label
-    # Seen again right before the delete: a copy that changed meanwhile is a
-    # session in use.
-    if any(mtime_of(p, missing=0.0) > cutoff for p in cand.transcripts):
+    # Seen again right before the delete: a copy that changed meanwhile, or a new
+    # copy (the session resumed in another worktree), is a session in use. The copies
+    # are listed again, not taken from the plan; an unreadable folder keeps it too.
+    now_copies = copies_of(projects_dir, cand.session)
+    if not now_copies.complete:
+        result.skipped.append("%s: a folder could not be read; kept" % label)
+        return False
+    seen = now_copies.get(cand.session, [])
+    if {c.path for c in seen} != set(cand.transcripts) or any(
+        c.mtime > cutoff for c in seen
+    ):
         result.skipped.append("%s: changed while pruning; kept" % label)
         return False
     # So is a session that was renamed or marked since the plan: it must still
