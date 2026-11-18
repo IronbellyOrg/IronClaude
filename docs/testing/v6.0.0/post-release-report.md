@@ -124,7 +124,7 @@ Since `v5.0.0`: installer files `install_keep.py`, `install_retired_*.py`, `inst
 
 ### E2E transcript
 
-The full transcript is `docs/testing/v6.0.0/c-e2e-transcript.txt` (2,201 lines; run it again with `bash docs/testing/v6.0.0/c-e2e-run.sh` from the repository root). Scenario markers: scenario 1 at line 10, scenario 2 at line 921, scenario 3 at line 1884, summary at line 2200.
+The full transcript is `docs/testing/v6.0.0/c-e2e-transcript.txt` (2,202 lines; run it again with `bash docs/testing/v6.0.0/c-e2e-run.sh` from the repository root). Scenario markers: scenario 1 at line 10, scenario 2 at line 921, scenario 3 at line 1884, summary at line 2200, final line `RESULT: GREEN`. The script exits 0 only when every step ended as designed (a review of this pull request found that the first version always exited 0; it now compares each step's exit code with the expected one and exits 1 with a `RESULT: RED` line otherwise). The transcript was regenerated after that change; it is the last of five full runs.
 
 ## Workstream D — User-facing e2e test guides
 

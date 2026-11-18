@@ -1,6 +1,6 @@
 ROOT=/tmp/ic6-e2e.<random>
 pinned claude: 2.1.327 (Claude Code)
-=== real-home baseline 2026-11-18T17:18:05Z
+=== real-home baseline 2026-11-18T18:04:42Z
 claude commands/agents/skills: 2bebf16fcdf30531
 codegraph versions:
 local bin: 891b192ae1d8d73f
@@ -307,7 +307,7 @@ ccsession installed; warning: cleanupPeriodDays is 90 in the managed settings fi
 ✅ Rules: 21 installed, 0 kept, in /tmp/ic6-e2e.<random>/new-user/home/.claude/rules (never auto-loaded)
 ✅ Output styles: 1 installed, 0 kept, in /tmp/ic6-e2e.<random>/new-user/home/.claude/output-styles
 ✅ Settings defaults: added 24 (outputStyle, model, effortLevel, alwaysThinkingEnabled, verbose, teammateMode, agentPushNotifEnabled, skipDangerousModePermissionPrompt, env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, env.CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION, env.PONYTAIL_DEFAULT_MODE, modelSettings.gpt-6-astra, modelSettings.gpt-6.1-sol, modelSettings.gpt-6-sol, modelSettings.gpt-5.6-sol, enabledPlugins.frontend-design@claude-plugins-official, enabledPlugins.playwright@claude-plugins-official, enabledPlugins.notion@claude-plugins-official, enabledPlugins.dropbox@claude-plugins-official, enabledPlugins.google-cloud-storage@claude-plugins-official, enabledPlugins.understand-anything@understand-anything, enabledPlugins.ponytail@ironclaude, extraKnownMarketplaces.claude-plugins-official, extraKnownMarketplaces.understand-anything)
-💾 Backup: /tmp/ic6-e2e.<random>/new-user/home/.claude/settings.json.bak.20261118T171944Z
+💾 Backup: /tmp/ic6-e2e.<random>/new-user/home/.claude/settings.json.bak.20261118T180612Z
 ⏭️  Orca skills: Orca CLI not found; skipped
 ✅ Plugins: installed frontend-design@claude-plugins-official, playwright@claude-plugins-official, notion@claude-plugins-official, dropbox@claude-plugins-official, google-cloud-storage@claude-plugins-official, understand-anything@understand-anything, ponytail@ironclaude
 
@@ -771,7 +771,7 @@ ccsession installed; warning: cleanupPeriodDays is 90 in the managed settings fi
    - session-init.sh
 
 📋 settings.json merge: events=7 added=0 skipped-existing=18
-💾 Backup: /tmp/ic6-e2e.<random>/new-user/home/.claude/settings.json.bak.20261118T172011Z
+💾 Backup: /tmp/ic6-e2e.<random>/new-user/home/.claude/settings.json.bak.20261118T180638Z
 
 ⏭️  Preserved 1 existing data file(s):
    - auggie-projects.txt (user-edited; not overwritten)
@@ -855,7 +855,7 @@ Registration: exact user stdio entry verified (codegraph 1.6.2 at /tmp/ic6-e2e.<
    No retired commands, skills or agents present.
 [exit=0]
 --- saved copies new in the second install (settings.json is backed up on every run):
-~/.claude/settings.json.bak.20261118T172011Z
+~/.claude/settings.json.bak.20261118T180638Z
 --- conversation retention (docs/getting-started/installation.md): this host's managed settings set cleanupPeriodDays, so they win
 cleanupPeriodDays in the throwaway settings.json after the install: null  (null = the installer wrote nothing)
 managed value on this host: 90
@@ -876,7 +876,7 @@ after 7: 365
 WARNING: ~/bad.json is not valid JSON; cleanupPeriodDays left unset. Add "cleanupPeriodDays": 365 yourself.
 [exit=3]
 bad.json after: { not json
-saved copies of settings.json now: 4
+saved copies of settings.json now: 3
 --- smoke: removed groups are gone, new groups exist
 + superclaude roadmap --help
 Usage: superclaude [OPTIONS] COMMAND [ARGS]...
@@ -1182,7 +1182,7 @@ ccsession wired at /tmp/ic6-e2e.<random>/upgrade/home/.local/bin/ccsession
 ✅ Rules: 20 installed, 0 kept, in /tmp/ic6-e2e.<random>/upgrade/home/.claude/rules (never auto-loaded)
 ✅ Output styles: 1 installed, 0 kept, in /tmp/ic6-e2e.<random>/upgrade/home/.claude/output-styles
 ✅ Settings defaults: added 22 (outputStyle, model, effortLevel, alwaysThinkingEnabled, verbose, teammateMode, agentPushNotifEnabled, skipDangerousModePermissionPrompt, env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, env.CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION, modelSettings.gpt-6-astra, modelSettings.gpt-6.1-sol, modelSettings.gpt-6-sol, modelSettings.gpt-5.6-sol, enabledPlugins.frontend-design@claude-plugins-official, enabledPlugins.playwright@claude-plugins-official, enabledPlugins.notion@claude-plugins-official, enabledPlugins.dropbox@claude-plugins-official, enabledPlugins.google-cloud-storage@claude-plugins-official, enabledPlugins.understand-anything@understand-anything, extraKnownMarketplaces.claude-plugins-official, extraKnownMarketplaces.understand-anything)
-💾 Backup: /tmp/ic6-e2e.<random>/upgrade/home/.claude/settings.json.bak.20261118T172026Z
+💾 Backup: /tmp/ic6-e2e.<random>/upgrade/home/.claude/settings.json.bak.20261118T180653Z
 ⏭️  Orca skills: Orca CLI not found; skipped
 ✅ Plugins: installed frontend-design@claude-plugins-official, playwright@claude-plugins-official, notion@claude-plugins-official, dropbox@claude-plugins-official, google-cloud-storage@claude-plugins-official, understand-anything@understand-anything
 
@@ -1279,33 +1279,33 @@ SuperClaude, version 6.0.0
    - /workflow
 
 💾 Saved 27 changed command(s) before overwriting:
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/adversarial.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/analyze.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/auggie-review.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/brainstorm.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/business-panel.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/cleanup-audit.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/cleanup.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/cli-eval.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/design.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/document.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/explain.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/graph.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/impact.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/implement.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/init-lite.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/pm.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/pr-submit.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/recommend.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/reflect.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/release-split.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/research.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/spec-panel.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/task.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/tdd.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/test.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/troubleshoot.md.bak.20261118T172248Z
-   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/workflow.md.bak.20261118T172248Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/adversarial.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/analyze.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/auggie-review.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/brainstorm.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/business-panel.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/cleanup-audit.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/cleanup.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/cli-eval.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/design.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/document.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/explain.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/graph.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/impact.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/implement.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/init-lite.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/pm.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/pr-submit.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/recommend.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/reflect.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/release-split.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/research.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/spec-panel.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/task.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/tdd.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/test.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/troubleshoot.md.bak.20261118T180836Z
+   - /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc/workflow.md.bak.20261118T180836Z
 
 📁 Installation directory: /tmp/ic6-e2e.<random>/upgrade/home/.claude/commands/sc
 
@@ -1431,7 +1431,7 @@ ccsession installed; warning: cleanupPeriodDays is 90 in the managed settings fi
    - session-init.sh
 
 📋 settings.json merge: events=7 added=5 replaced=13
-💾 Backup: /tmp/ic6-e2e.<random>/upgrade/home/.claude/settings.json.bak.20261118T172248Z
+💾 Backup: /tmp/ic6-e2e.<random>/upgrade/home/.claude/settings.json.bak.20261118T180836Z
 
 ⏭️  Preserved 1 existing data file(s):
    - auggie-projects.txt (user-edited; not overwritten)
@@ -1498,11 +1498,11 @@ ccsession installed; warning: cleanupPeriodDays is 90 in the managed settings fi
 📦 Installing rules, output styles, settings defaults, Orca skills...
 
 ✅ Rules: 21 installed, 0 kept, in /tmp/ic6-e2e.<random>/upgrade/home/.claude/rules (never auto-loaded)
-💾 Saved 5 changed rule file(s) before overwriting: /tmp/ic6-e2e.<random>/upgrade/home/.claude/rules/core/changelog_maintenance.md.bak.20261118T172248Z, /tmp/ic6-e2e.<random>/upgrade/home/.claude/rules/prompts/automated_qa_workflow_qa_prompt.md.bak.20261118T172248Z, /tmp/ic6-e2e.<random>/upgrade/home/.claude/rules/prompts/doc_code_analyst_qa_prompt.md.bak.20261118T172248Z, /tmp/ic6-e2e.<random>/upgrade/home/.claude/rules/prompts/documentation_expert_qa_prompt.md.bak.20261118T172248Z, /tmp/ic6-e2e.<random>/upgrade/home/.claude/rules/prompts/recruiting_expert_qa_prompt.md.bak.20261118T172248Z
+💾 Saved 5 changed rule file(s) before overwriting: /tmp/ic6-e2e.<random>/upgrade/home/.claude/rules/core/changelog_maintenance.md.bak.20261118T180836Z, /tmp/ic6-e2e.<random>/upgrade/home/.claude/rules/prompts/automated_qa_workflow_qa_prompt.md.bak.20261118T180836Z, /tmp/ic6-e2e.<random>/upgrade/home/.claude/rules/prompts/doc_code_analyst_qa_prompt.md.bak.20261118T180836Z, /tmp/ic6-e2e.<random>/upgrade/home/.claude/rules/prompts/documentation_expert_qa_prompt.md.bak.20261118T180836Z, /tmp/ic6-e2e.<random>/upgrade/home/.claude/rules/prompts/recruiting_expert_qa_prompt.md.bak.20261118T180836Z
 ✅ Output styles: 1 installed, 0 kept, in /tmp/ic6-e2e.<random>/upgrade/home/.claude/output-styles
-💾 Saved 1 changed output style(s) before overwriting: /tmp/ic6-e2e.<random>/upgrade/home/.claude/output-styles/pragmatic.md.bak.20261118T172248Z
+💾 Saved 1 changed output style(s) before overwriting: /tmp/ic6-e2e.<random>/upgrade/home/.claude/output-styles/pragmatic.md.bak.20261118T180836Z
 ✅ Settings defaults: added 2 (env.PONYTAIL_DEFAULT_MODE, enabledPlugins.ponytail@ironclaude)
-💾 Backup: /tmp/ic6-e2e.<random>/upgrade/home/.claude/settings.json.bak.20261118T172248Z
+💾 Backup: /tmp/ic6-e2e.<random>/upgrade/home/.claude/settings.json.bak.20261118T180836Z
 ⏭️  Orca skills: Orca CLI not found; skipped
 ✅ Plugins: installed frontend-design@claude-plugins-official, playwright@claude-plugins-official, notion@claude-plugins-official, dropbox@claude-plugins-official, google-cloud-storage@claude-plugins-official, understand-anything@understand-anything, ponytail@ironclaude
 
@@ -1541,41 +1541,41 @@ hooks: 18   templates: 3   rules: 3   output-styles: 1
 core md files (12): BASH_INSPECTION_POLICY.md BUSINESS_PANEL_EXAMPLES.md BUSINESS_SYMBOLS.md CLAUDE.md CODEGRAPH.md HOW-WE-WORK.md ISSUE-BACKLOG.md ISSUE-HANDOFF.md PRINCIPLES.md RESEARCH_CONFIG.md RULES.md WORKER-CONTRACT.md
 saved copies (*.bak.*) under ~/.claude: 35
 --- saved copies created by the upgrade
-~/.claude/commands/sc/adversarial.md.bak.20261118T172248Z
-~/.claude/commands/sc/analyze.md.bak.20261118T172248Z
-~/.claude/commands/sc/auggie-review.md.bak.20261118T172248Z
-~/.claude/commands/sc/brainstorm.md.bak.20261118T172248Z
-~/.claude/commands/sc/business-panel.md.bak.20261118T172248Z
-~/.claude/commands/sc/cleanup-audit.md.bak.20261118T172248Z
-~/.claude/commands/sc/cleanup.md.bak.20261118T172248Z
-~/.claude/commands/sc/cli-eval.md.bak.20261118T172248Z
-~/.claude/commands/sc/design.md.bak.20261118T172248Z
-~/.claude/commands/sc/document.md.bak.20261118T172248Z
-~/.claude/commands/sc/explain.md.bak.20261118T172248Z
-~/.claude/commands/sc/graph.md.bak.20261118T172248Z
-~/.claude/commands/sc/impact.md.bak.20261118T172248Z
-~/.claude/commands/sc/implement.md.bak.20261118T172248Z
-~/.claude/commands/sc/init-lite.md.bak.20261118T172248Z
-~/.claude/commands/sc/pm.md.bak.20261118T172248Z
-~/.claude/commands/sc/pr-submit.md.bak.20261118T172248Z
-~/.claude/commands/sc/recommend.md.bak.20261118T172248Z
-~/.claude/commands/sc/reflect.md.bak.20261118T172248Z
-~/.claude/commands/sc/release-split.md.bak.20261118T172248Z
-~/.claude/commands/sc/research.md.bak.20261118T172248Z
-~/.claude/commands/sc/spec-panel.md.bak.20261118T172248Z
-~/.claude/commands/sc/task.md.bak.20261118T172248Z
-~/.claude/commands/sc/tdd.md.bak.20261118T172248Z
-~/.claude/commands/sc/test.md.bak.20261118T172248Z
-~/.claude/commands/sc/troubleshoot.md.bak.20261118T172248Z
-~/.claude/commands/sc/workflow.md.bak.20261118T172248Z
-~/.claude/output-styles/pragmatic.md.bak.20261118T172248Z
-~/.claude/rules/core/changelog_maintenance.md.bak.20261118T172248Z
-~/.claude/rules/prompts/automated_qa_workflow_qa_prompt.md.bak.20261118T172248Z
-~/.claude/rules/prompts/doc_code_analyst_qa_prompt.md.bak.20261118T172248Z
-~/.claude/rules/prompts/documentation_expert_qa_prompt.md.bak.20261118T172248Z
-~/.claude/rules/prompts/recruiting_expert_qa_prompt.md.bak.20261118T172248Z
-~/.claude/settings.json.bak.20261118T172026Z
-~/.claude/settings.json.bak.20261118T172248Z
+~/.claude/commands/sc/adversarial.md.bak.20261118T180836Z
+~/.claude/commands/sc/analyze.md.bak.20261118T180836Z
+~/.claude/commands/sc/auggie-review.md.bak.20261118T180836Z
+~/.claude/commands/sc/brainstorm.md.bak.20261118T180836Z
+~/.claude/commands/sc/business-panel.md.bak.20261118T180836Z
+~/.claude/commands/sc/cleanup-audit.md.bak.20261118T180836Z
+~/.claude/commands/sc/cleanup.md.bak.20261118T180836Z
+~/.claude/commands/sc/cli-eval.md.bak.20261118T180836Z
+~/.claude/commands/sc/design.md.bak.20261118T180836Z
+~/.claude/commands/sc/document.md.bak.20261118T180836Z
+~/.claude/commands/sc/explain.md.bak.20261118T180836Z
+~/.claude/commands/sc/graph.md.bak.20261118T180836Z
+~/.claude/commands/sc/impact.md.bak.20261118T180836Z
+~/.claude/commands/sc/implement.md.bak.20261118T180836Z
+~/.claude/commands/sc/init-lite.md.bak.20261118T180836Z
+~/.claude/commands/sc/pm.md.bak.20261118T180836Z
+~/.claude/commands/sc/pr-submit.md.bak.20261118T180836Z
+~/.claude/commands/sc/recommend.md.bak.20261118T180836Z
+~/.claude/commands/sc/reflect.md.bak.20261118T180836Z
+~/.claude/commands/sc/release-split.md.bak.20261118T180836Z
+~/.claude/commands/sc/research.md.bak.20261118T180836Z
+~/.claude/commands/sc/spec-panel.md.bak.20261118T180836Z
+~/.claude/commands/sc/task.md.bak.20261118T180836Z
+~/.claude/commands/sc/tdd.md.bak.20261118T180836Z
+~/.claude/commands/sc/test.md.bak.20261118T180836Z
+~/.claude/commands/sc/troubleshoot.md.bak.20261118T180836Z
+~/.claude/commands/sc/workflow.md.bak.20261118T180836Z
+~/.claude/output-styles/pragmatic.md.bak.20261118T180836Z
+~/.claude/rules/core/changelog_maintenance.md.bak.20261118T180836Z
+~/.claude/rules/prompts/automated_qa_workflow_qa_prompt.md.bak.20261118T180836Z
+~/.claude/rules/prompts/doc_code_analyst_qa_prompt.md.bak.20261118T180836Z
+~/.claude/rules/prompts/documentation_expert_qa_prompt.md.bak.20261118T180836Z
+~/.claude/rules/prompts/recruiting_expert_qa_prompt.md.bak.20261118T180836Z
+~/.claude/settings.json.bak.20261118T180653Z
+~/.claude/settings.json.bak.20261118T180836Z
 --- by kind: commands=27 rules=5 output-styles=1 settings.json=2 core-files=0 agents=0 skills=0
 --- edited core file was overwritten without a saved copy: yes-overwritten; CLAUDE.md copies: 0
 + superclaude install --list
@@ -1843,7 +1843,7 @@ Retired MCP registrations (user scope):
 📦 Retiring commands, skills and agents this release no longer ships...
    No retired commands, skills or agents present.
 saved copies before=35 after=36; new:
-~/.claude/settings.json.bak.20261118T172254Z
+~/.claude/settings.json.bak.20261118T180843Z
 📦 Retiring commands, skills and agents this release no longer ships...
    No retired commands, skills or agents present.
 --- the documented clean-up of saved copies (docs/getting-started/upgrading.md): list, delete, doctor still healthy
@@ -2147,7 +2147,7 @@ ccsession installed; warning: cleanupPeriodDays is 90 in the managed settings fi
 ✅ Rules: 21 installed, 0 kept, in /tmp/ic6-e2e.<random>/clone-update/home/.claude/rules (never auto-loaded)
 ✅ Output styles: 1 installed, 0 kept, in /tmp/ic6-e2e.<random>/clone-update/home/.claude/output-styles
 ✅ Settings defaults: added 24 (outputStyle, model, effortLevel, alwaysThinkingEnabled, verbose, teammateMode, agentPushNotifEnabled, skipDangerousModePermissionPrompt, env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, env.CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION, env.PONYTAIL_DEFAULT_MODE, modelSettings.gpt-6-astra, modelSettings.gpt-6.1-sol, modelSettings.gpt-6-sol, modelSettings.gpt-5.6-sol, enabledPlugins.frontend-design@claude-plugins-official, enabledPlugins.playwright@claude-plugins-official, enabledPlugins.notion@claude-plugins-official, enabledPlugins.dropbox@claude-plugins-official, enabledPlugins.google-cloud-storage@claude-plugins-official, enabledPlugins.understand-anything@understand-anything, enabledPlugins.ponytail@ironclaude, extraKnownMarketplaces.claude-plugins-official, extraKnownMarketplaces.understand-anything)
-💾 Backup: /tmp/ic6-e2e.<random>/clone-update/home/.claude/settings.json.bak.20261118T172324Z
+💾 Backup: /tmp/ic6-e2e.<random>/clone-update/home/.claude/settings.json.bak.20261118T180910Z
 ⏭️  Orca skills: Orca CLI not found; skipped
 ✅ Plugins: installed frontend-design@claude-plugins-official, playwright@claude-plugins-official, notion@claude-plugins-official, dropbox@claude-plugins-official, google-cloud-storage@claude-plugins-official, understand-anything@understand-anything, ponytail@ironclaude
 
@@ -2199,3 +2199,4 @@ pipx:
 REAL_HOME_UNCHANGED
 SUMMARY s1_pipx=0 s1_install=0 s1_doctor=0 s1_second=0 s1_retention_install=0 s1_removed_group_exit=2 s2_v5_seed=0 s2_pipx=0 s2_install=0 s2_doctor_while_kept=1 s2_doctor_after_rm=0 s2_second=0 s2_update=0 s2_doctor_after_cleanup=0 s3_update_sh=0
 ROOT=/tmp/ic6-e2e.<random> (not deleted; remove it with a literal path)
+RESULT: GREEN

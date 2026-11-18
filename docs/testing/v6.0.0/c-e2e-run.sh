@@ -190,6 +190,18 @@ echo "--- surface"; counts "$S3"
 echo "--- update.sh ran make sync-dev inside the clone: $(ls "$S3/clone/.claude" 2>/dev/null | tr '\n' ' ')"
 
 echo; echo "=== real-home after"; real_state > "$ROOT/after.txt"; cat "$ROOT/after.txt"
-if diff -q "$ROOT/before.txt" "$ROOT/after.txt" >/dev/null; then echo "REAL_HOME_UNCHANGED"; else echo "REAL_HOME_CHANGED"; diff "$ROOT/before.txt" "$ROOT/after.txt"; fi
+if diff -q "$ROOT/before.txt" "$ROOT/after.txt" >/dev/null; then echo "REAL_HOME_UNCHANGED"; REAL=unchanged; else echo "REAL_HOME_CHANGED"; diff "$ROOT/before.txt" "$ROOT/after.txt"; REAL=changed; fi
 echo "SUMMARY s1_pipx=$S1_PIPX s1_install=$S1_INSTALL s1_doctor=$S1_DOCTOR s1_second=$S1_SECOND s1_retention_install=$S1_RET s1_removed_group_exit=$S1_RM s2_v5_seed=$S2_V5 s2_pipx=$S2_PIPX s2_install=$S2_INSTALL s2_doctor_while_kept=$S2_DOCTOR_KEPT s2_doctor_after_rm=$S2_DOCTOR s2_second=$S2_SECOND s2_update=$S2_UPDATE s2_doctor_after_cleanup=$S2_DOCTOR_FINAL s3_update_sh=$S3_UPDATE"
 echo "ROOT=$ROOT (not deleted; remove it with a literal path)"
+
+# Exit status: 0 only when every step ended as designed. The two non-zero values below are expected:
+# doctor while a kept removed command exists (1) and the removed `roadmap` group (2).
+FAILS=""
+chk() { [ "$2" = "$3" ] || FAILS="$FAILS $1(want $2, got $3)"; }
+chk s1_pipx 0 "$S1_PIPX"; chk s1_install 0 "$S1_INSTALL"; chk s1_doctor 0 "$S1_DOCTOR"; chk s1_second 0 "$S1_SECOND"
+chk s1_retention_install 0 "$S1_RET"; chk s1_removed_group_exit 2 "$S1_RM"; chk s2_v5_seed 0 "$S2_V5"; chk s2_pipx 0 "$S2_PIPX"
+chk s2_install 0 "$S2_INSTALL"; chk s2_doctor_while_kept 1 "$S2_DOCTOR_KEPT"; chk s2_doctor_after_rm 0 "$S2_DOCTOR"
+chk s2_second 0 "$S2_SECOND"; chk s2_update 0 "$S2_UPDATE"; chk s2_doctor_after_cleanup 0 "$S2_DOCTOR_FINAL"
+chk s3_update_sh 0 "$S3_UPDATE"; chk real_home unchanged "$REAL"
+if [ -n "$FAILS" ]; then echo "RESULT: RED:$FAILS"; exit 1; fi
+echo "RESULT: GREEN"; exit 0
