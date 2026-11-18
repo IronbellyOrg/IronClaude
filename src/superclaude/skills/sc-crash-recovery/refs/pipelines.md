@@ -71,7 +71,7 @@ mv .dev/tasks/to-do/TASK-PRD-<ts> .dev/tasks/done/
 # The roadmap skill reads the task file and the state file and picks up at the first unchecked item.
 /roadmap <original input>
 # or resume the task file directly:
-/sc:task .dev/tasks/to-do/TASK-ROADMAP-<...>/TASK-ROADMAP-<...>.md
+/task .dev/tasks/to-do/TASK-ROADMAP-<...>/TASK-ROADMAP-<...>.md
 ```
 
 ## Task (MDTM) — individual task files

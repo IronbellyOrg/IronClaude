@@ -86,7 +86,7 @@ _Numbered, copy-pasteable. SAFE = idempotent / read-only. REVIEW = changes state
 3. **REVIEW** — Resume an interrupted MDTM task (picks up at the first unchecked item):
 
    ```bash
-   /sc:task .dev/tasks/to-do/<TASK-ID>/<TASK-ID>.md
+   /task .dev/tasks/to-do/<TASK-ID>/<TASK-ID>.md
    ```
 
 4. **REVIEW** — Move the completed PRD task out of to-do/:
