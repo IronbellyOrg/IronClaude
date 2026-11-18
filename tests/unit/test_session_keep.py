@@ -1111,3 +1111,23 @@ def test_a_new_copy_of_a_candidate_made_after_the_plan_keeps_the_whole_session(
     assert (projects / REPO / "topics" / "agent-old.txt").is_file()
     assert (projects.parent.parent / ".claude" / "file-history" / session).is_dir()
     assert any("changed while pruning" in s for s in result.skipped)
+
+
+def test_a_transcript_that_changes_just_before_its_unlink_is_kept(
+    projects: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Looked at again file by file: a copy that was appended to after the copies
+    # were listed is not deleted, nor is anything else of the session.
+    session = make(projects, 1, "agent-old", age_days=90)
+    result = run(projects)
+    transcript = projects / "-work-a" / f"{session}.jsonl"
+    real = keep.mtime_of
+    monkeypatch.setattr(
+        keep,
+        "mtime_of",
+        lambda path, missing=None: NOW if path == transcript else real(path, missing),
+    )
+    keep.apply_plan(result, projects, projects.parent.parent, orca_dir(projects))
+    assert result.deleted == 0 and transcript.is_file()
+    assert (projects / REPO / "topics" / "agent-old.txt").is_file()
+    assert (projects / "-work-a" / session / "tool.txt").is_file()

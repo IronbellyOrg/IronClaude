@@ -357,7 +357,13 @@ The limit changes, each on its own line:
 
 A transcript that cannot be removed keeps its name and marker, a path that is a
 symlink or that resolves outside `~/.claude/projects` and `~/.claude/file-history`
-is skipped and reported, and each list's lock is held while its files change.
+is skipped and reported, and the lock of every list that names the session is held
+from the last look at its names, markers and transcript copies until they are
+deleted. When a folder, a list, a name file or a marker cannot be read, nothing is
+called old or gone and nothing is removed. One window cannot be closed: Claude Code
+takes no lock on a transcript, so a session that is resumed in the milliseconds
+between prune's last look at its file and the delete (after being idle for more
+than the days) can still lose that file.
 Transcripts that have no saved name (a `claude -p` run, for example) are not
 covered: they follow Claude Code's own limit.
 

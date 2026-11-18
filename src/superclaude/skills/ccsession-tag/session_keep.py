@@ -785,8 +785,15 @@ def prune_one(
     ):
         result.skipped.append("%s: renamed or marked while pruning; kept" % label)
         return False
+    # The window that is left, from the last look to the unlink of each file, is as
+    # short as it can be made: Claude Code takes no lock on a transcript, so ccsession
+    # cannot close it. A session idle for more than the days is the only one here.
     clean = True
     for path in cand.transcripts:
+        if mtime_of(path, missing=0.0) > cutoff:  # looked at again, file by file
+            result.skipped.append("%s: changed while pruning; kept" % path)
+            clean = False
+            break
         clean &= remove_file(path, projects_dir, result, "transcript")
     if not clean:
         return False  # a conversation that stays keeps everything else of the session
