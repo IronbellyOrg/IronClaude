@@ -129,22 +129,35 @@ def first_line(path: Path) -> str:
         return ""
 
 
-def names(list_dir: Path) -> list[NameFile]:
+class Names(list):
+    """The names of a list. `complete` is False when the list or one of its name
+    files could not be read: a name (and the session it protects) may be missing."""
+
+    complete: bool = True
+
+
+def names(list_dir: Path) -> Names:
     """The saved names of one list: a regular <name>.txt whose first line is a session id."""
-    found = []
+    found = Names()
     try:
         entries = sorted(os.scandir(list_dir), key=lambda e: e.name)
     except OSError:
-        return []
+        found.complete = False
+        return found
     for entry in entries:
-        if (
-            entry.name.startswith(".")
-            or not entry.name.endswith(".txt")
-            or entry.is_symlink()
-            or not entry.is_file()
-        ):
+        try:
+            if (
+                entry.name.startswith(".")
+                or not entry.name.endswith(".txt")
+                or entry.is_symlink()
+                or not entry.is_file()
+            ):
+                continue
+            with open(entry.path, encoding="utf-8", errors="replace") as handle:
+                session = handle.readline().rstrip("\r\n")
+        except OSError:
+            found.complete = False
             continue
-        session = first_line(Path(entry.path))
         if is_session_id(session):
             found.append(
                 NameFile(
@@ -214,10 +227,21 @@ def key_of(folder: Path) -> str:
     return folder.parent.name
 
 
-def by_session(projects_dir: Path) -> dict[str, list[NameFile]]:
-    found: dict[str, list[NameFile]] = {}
-    for folder in lists(projects_dir):
-        for row in names(folder):
+class BySession(dict):
+    """Names by session id. `complete` is False when a list or a name file could not
+    be read, so a session may have a name (a human one, say) that is not in it."""
+
+    complete: bool = True
+
+
+def by_session(projects_dir: Path) -> BySession:
+    found = BySession()
+    listing = lists(projects_dir)
+    found.complete = listing.complete
+    for folder in listing:
+        rows = names(folder)
+        found.complete = found.complete and rows.complete
+        for row in rows:
             found.setdefault(row.session, []).append(row)
     return found
 
@@ -243,7 +267,15 @@ def classify(projects_dir: Path, apply: bool = False) -> Classified:
     never changed and a name never is. Nothing is written unless apply is true.
     """
     result = Classified()
-    for session, rows in sorted(by_session(projects_dir).items()):
+    inventory = by_session(projects_dir)
+    if not inventory.complete:
+        # A name or a human marker in the part that could not be read would change
+        # the answer for its session: mark nothing.
+        apply = False
+        result.skipped.append(
+            "a saved-name list could not be read: nothing is marked this run"
+        )
+    for session, rows in sorted(inventory.items()):
         marks = {row.list_dir: marker(row.list_dir, session) for row in rows}
         pending = sorted(folder for folder, mark in marks.items() if not mark)
         if not pending:
@@ -557,9 +589,9 @@ def plan(
     result.store_empty = not copies
     # An unreadable folder may hold a newer copy of a session, or the conversation
     # of a name: with the inventory incomplete nothing is called old or gone.
-    result.scan_incomplete = not copies.complete or not lists(projects_dir).complete
     tabs = tab_records(orca_dir)
     all_names = by_session(projects_dir)
+    result.scan_incomplete = not copies.complete or not all_names.complete
     cutoff = now - days * DAY
 
     if not result.claude_deletes_first and not result.scan_incomplete:
@@ -698,7 +730,11 @@ def prune_one(
         return False
     # So is a session that was renamed or marked since the plan: it must still
     # have exactly the names it had, every one marked agent.
-    now_rows = by_session(projects_dir).get(cand.session, [])
+    inventory = by_session(projects_dir)
+    now_rows = inventory.get(cand.session, [])
+    if not inventory.complete:
+        result.skipped.append("%s: a list could not be read; kept" % label)
+        return False
     if {r.path for r in now_rows} != {n.path for n in cand.names} or any(
         marker(r.list_dir, cand.session) != "agent" for r in now_rows
     ):
@@ -775,7 +811,10 @@ def apply_plan(
                         row.path, projects_dir, result, "name"
                     )
                     # The last name of a session in this list takes its marker too.
-                    if not any(r.session == row.session for r in names(row.list_dir)):
+                    left = names(row.list_dir)
+                    if left.complete and not any(
+                        r.session == row.session for r in left
+                    ):
                         gone = row.list_dir / ORIGIN / row.session
                         if gone.is_file() or gone.is_symlink():
                             result.removed_stale += remove_file(
@@ -786,8 +825,11 @@ def apply_plan(
     for path in result.stale_markers:
         try:
             with locked(path.parent.parent):
-                if not has_conversation(projects_dir, path.name) and not any(
-                    r.session == path.name for r in names(path.parent.parent)
+                left = names(path.parent.parent)
+                if (
+                    left.complete
+                    and not has_conversation(projects_dir, path.name)
+                    and not any(r.session == path.name for r in left)
                 ):
                     result.removed_stale += remove_file(
                         path, projects_dir, result, "marker"

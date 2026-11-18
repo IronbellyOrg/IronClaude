@@ -1040,3 +1040,27 @@ def test_a_conversation_that_appears_after_the_plan_keeps_its_stale_records(
         (projects / "-work-a" / f"{sid(n)}.jsonl").write_text("back")
     keep.apply_plan(result, projects, projects.parent.parent, tabs)
     assert old_name.is_file() and marker_file.is_file() and tab.is_file()
+
+
+@pytest.mark.skipif(os.geteuid() == 0, reason="root reads every file")
+@pytest.mark.parametrize("what", ["list folder", "name file"])
+def test_a_name_list_that_cannot_be_read_keeps_every_session_it_may_protect(
+    projects: Path, capsys: pytest.CaptureFixture[str], what: str
+) -> None:
+    # The session is agent in one list and a person's in another; the second list
+    # (or just its name file) cannot be read, so the protection cannot be checked.
+    session = make(projects, 1, "agent-here", age_days=90)
+    human_name = save(projects, "-other", "my-name-for-it", session)
+    blocked = human_name.parent if what == "list folder" else human_name
+    blocked.chmod(0o000)
+    try:
+        result = run(projects, apply=True)
+        keep.print_prune(result, apply=True)
+        classified = keep.classify(projects, apply=True)
+    finally:
+        blocked.chmod(0o700 if what == "list folder" else 0o600)
+    assert result.scan_incomplete and result.candidates == []
+    assert (projects / "-work-a" / f"{session}.jsonl").is_file()
+    assert (projects / REPO / "topics" / "agent-here.txt").is_file()
+    assert "could not be read" in capsys.readouterr().out
+    assert classified.marked == 0 and classified.skipped
