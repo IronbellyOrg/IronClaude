@@ -991,3 +991,52 @@ def test_a_session_marked_or_renamed_after_the_plan_is_kept(projects: Path) -> N
     assert sum("renamed or marked while pruning" in s for s in result.skipped) == 2
     assert (projects / REPO / "topics" / "agent-marked.txt").is_file()
     assert (projects / REPO / "topics" / "agent-renamed.txt").is_file()
+
+
+@pytest.mark.skipif(os.geteuid() == 0, reason="root reads every folder")
+def test_nothing_is_called_old_or_gone_when_a_project_folder_cannot_be_read(
+    projects: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # A name whose conversation sits in an unreadable folder looks like a name with
+    # no conversation, and a newer copy there would make an old session look old.
+    make(projects, 1, "agent-old", age_days=90)
+    human = make(projects, 2, "my-own-name", age_days=1, origin=None, folder="-work-b")
+    name = projects / REPO / "topics" / "my-own-name.txt"
+    os.utime(name, (NOW - 10 * DAY,) * 2)
+    blocked = projects / "-work-b"
+    blocked.chmod(0o000)
+    try:
+        result = run(projects, apply=True)
+        keep.print_prune(result, apply=True)
+    finally:
+        blocked.chmod(0o700)
+    assert result.scan_incomplete
+    assert result.candidates == [] and result.stale_names == []
+    assert name.is_file()
+    assert (projects / "-work-a" / f"{sid(1)}.jsonl").is_file()
+    assert (blocked / f"{human}.jsonl").is_file()
+    assert "could not be read" in capsys.readouterr().out
+
+
+def test_a_conversation_that_appears_after_the_plan_keeps_its_stale_records(
+    projects: Path,
+) -> None:
+    make(projects, 1, "alive", age_days=1, origin=None)
+    old_name = save(projects, REPO, "came-back", sid(22))
+    os.utime(old_name, (NOW - 10 * DAY,) * 2)
+    mark(projects, REPO, sid(24), "agent")
+    marker_file = projects / REPO / "topics" / ".origin" / sid(24)
+    os.utime(marker_file, (NOW - 10 * DAY,) * 2)
+    tabs = orca_dir(projects)
+    tabs.mkdir(parents=True)
+    tab = tabs / "pane"
+    tab.write_text(f"{sid(25)}\n/w\nt\n")
+    os.utime(tab, (NOW - 10 * DAY,) * 2)
+    result = run(projects)
+    assert (len(result.stale_names), len(result.stale_markers)) == (1, 1)
+    assert result.stale_tabs == [tab]
+    # All three sessions get a conversation after the plan was made.
+    for n in (22, 24, 25):
+        (projects / "-work-a" / f"{sid(n)}.jsonl").write_text("back")
+    keep.apply_plan(result, projects, projects.parent.parent, tabs)
+    assert old_name.is_file() and marker_file.is_file() and tab.is_file()

@@ -91,22 +91,33 @@ def is_session_id(value: str) -> bool:
     return SESSION_ID.match(value) is not None
 
 
-def lists(projects_dir: Path) -> list[Path]:
+class Listing(list):
+    """The lists found. `complete` is False when a folder could not be read, so a
+    list (and a human marker in it) may be missing from it."""
+
+    complete: bool = True
+
+
+def lists(projects_dir: Path) -> Listing:
     """Every <projects-dir>/<key>/topics folder, the old per-folder lists included.
 
     A hidden key and a symlinked folder are not lists.
     """
-    found = []
+    found = Listing()
     try:
         keys = sorted(os.scandir(projects_dir), key=lambda e: e.name)
     except OSError:
-        return []
+        found.complete = False
+        return found
     for key in keys:
-        if key.name.startswith(".") or key.is_symlink():
-            continue
         topics = Path(key.path) / "topics"
-        if topics.is_dir() and not topics.is_symlink():
-            found.append(topics)
+        try:
+            if key.name.startswith(".") or key.is_symlink():
+                continue
+            if topics.is_dir() and not topics.is_symlink():
+                found.append(topics)
+        except OSError:  # a folder that cannot be read may hold a list
+            found.complete = False
     return found
 
 
@@ -339,19 +350,32 @@ class Copy(NamedTuple):
     is_link: bool
 
 
-def transcripts(projects_dir: Path) -> dict[str, list[Copy]]:
+class Transcripts(dict):
+    """Copies by session id. `complete` is False when any folder or file could not be
+    read: then a session missing from it may only be unreadable, never "gone"."""
+
+    complete: bool = True
+
+
+def transcripts(projects_dir: Path) -> Transcripts:
     """Every <projects-dir>/<folder>/<session id>.jsonl, by session id."""
-    found: dict[str, list[Copy]] = {}
+    found = Transcripts()
     try:
         folders = sorted(os.scandir(projects_dir), key=lambda e: e.name)
     except OSError:
+        found.complete = False
         return found
     for folder in folders:
-        if folder.name.startswith(".") or folder.is_symlink() or not folder.is_dir():
-            continue
         try:
+            if (
+                folder.name.startswith(".")
+                or folder.is_symlink()
+                or not folder.is_dir()
+            ):
+                continue
             entries = list(os.scandir(folder.path))
         except OSError:
+            found.complete = False
             continue
         for entry in entries:
             if not entry.name.endswith(".jsonl"):
@@ -362,11 +386,26 @@ def transcripts(projects_dir: Path) -> dict[str, list[Copy]]:
             try:
                 info = entry.stat(follow_symlinks=False)
             except OSError:
+                found.complete = False
                 continue
             found.setdefault(session, []).append(
                 Copy(Path(entry.path), info.st_mtime, info.st_size, entry.is_symlink())
             )
     return found
+
+
+def has_conversation(projects_dir: Path, session: str) -> bool:
+    """True when any <projects-dir>/<folder>/<session>.jsonl exists now. Anything
+    that cannot be read counts as "yes": only a clear absence deletes a record."""
+    try:
+        for folder in os.scandir(projects_dir):
+            if folder.name.startswith(".") or folder.is_symlink():
+                continue
+            if os.path.lexists(os.path.join(folder.path, session + ".jsonl")):
+                return True
+    except OSError:
+        return True
+    return False
 
 
 def tree_size(path: Path) -> int:
@@ -423,6 +462,7 @@ class Pruned:
     skipped: list[str] = field(default_factory=list)  # unsafe, busy or failed
     claude_deletes_first: bool = False  # limit is at or below days: nothing to do
     store_empty: bool = False  # no conversation anywhere: stale names stay
+    scan_incomplete: bool = False  # a folder or file could not be read: nothing goes
     stale_names: list[NameFile] = field(default_factory=list)
     stale_markers: list[Path] = field(default_factory=list)
     stale_tabs: list[Path] = field(default_factory=list)
@@ -515,11 +555,14 @@ def plan(
     result.claude_deletes_first = result.limit <= days
     copies = transcripts(projects_dir)
     result.store_empty = not copies
+    # An unreadable folder may hold a newer copy of a session, or the conversation
+    # of a name: with the inventory incomplete nothing is called old or gone.
+    result.scan_incomplete = not copies.complete or not lists(projects_dir).complete
     tabs = tab_records(orca_dir)
     all_names = by_session(projects_dir)
     cutoff = now - days * DAY
 
-    if not result.claude_deletes_first:
+    if not result.claude_deletes_first and not result.scan_incomplete:
         for session, rows in sorted(all_names.items()):
             marks = {row.list_dir: marker(row.list_dir, session) for row in rows}
             if "agent" not in marks.values():
@@ -583,7 +626,7 @@ def plan(
     # Names, markers and tab records whose conversation is gone, whatever their
     # origin. Nothing is called stale when no conversation exists anywhere: an
     # unreadable or missing store must not take every name with it.
-    if not result.store_empty:
+    if not result.store_empty and not result.scan_incomplete:
         grace = now - GRACE
         for session, rows in all_names.items():
             if session in copies or session == current_session:
@@ -720,14 +763,13 @@ def apply_plan(
             remove_tabs(cand.tabs, cand.session, orca_dir, result)
             result.deleted += 1
     # Stale names, markers and tab records, each checked again under the lock: the
-    # name still holds the id and no conversation has appeared for it.
-    now_copies = transcripts(projects_dir)
+    # name still holds the id and no conversation has appeared for it (looked for
+    # again at that moment, with the lock held, not from the plan's inventory).
     for row in result.stale_names:
         try:
             with locked(row.list_dir):
-                if (
-                    first_line(row.path) == row.session
-                    and row.session not in now_copies
+                if first_line(row.path) == row.session and not has_conversation(
+                    projects_dir, row.session
                 ):
                     result.removed_stale += remove_file(
                         row.path, projects_dir, result, "name"
@@ -744,7 +786,7 @@ def apply_plan(
     for path in result.stale_markers:
         try:
             with locked(path.parent.parent):
-                if path.name not in now_copies and not any(
+                if not has_conversation(projects_dir, path.name) and not any(
                     r.session == path.name for r in names(path.parent.parent)
                 ):
                     result.removed_stale += remove_file(
@@ -763,7 +805,7 @@ def apply_plan(
                     if (
                         planned
                         and first_line(path) == planned
-                        and planned not in now_copies
+                        and not has_conversation(projects_dir, planned)
                         and mtime_of(path) < result.now - GRACE
                     ):
                         result.removed_stale += remove_file(
@@ -850,6 +892,11 @@ def print_prune(result: Pruned, apply: bool) -> None:
         )
     for line in result.kept:
         print("kept: %s" % line)
+    if result.scan_incomplete:
+        print(
+            "Some saved conversations could not be read, so nothing was called old "
+            "or gone: no session, name, marker or tab record is removed."
+        )
     if result.store_empty:
         print("No saved conversation found anywhere: stale names are not removed.")
     stale = len(result.stale_names) + len(result.stale_markers) + len(result.stale_tabs)
