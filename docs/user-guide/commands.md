@@ -57,7 +57,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 | [`/sc:implement`](#scimplement---feature-implementation) | Write code | `implement.md` | Yes |
 | [`/sc:design`](#scdesign---system-and-component-design) | Architecture, API, schemas | `design.md` | Report only |
 | `/sc:tdd` | Create or populate a Technical Design Document | `tdd.md` | Yes (writes the TDD into your repo, `docs/<domain>/TDD_<COMPONENT>.md` by default, or the `--output` path) |
-| `/sc:cli-portify` | Port workflows into programmatic CLI pipelines | `cli-portify.md` | Yes |
 
 ### 4. QUALITY
 
@@ -208,22 +207,6 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:cli-eval create [--name <stem>] [--from @<design-or-spec>.md] [--agents opus,sonnet,haiku]
 /sc:cli-eval run    [--suite <name>] [--eval <id>]
 ```
-
-**MCP servers:** context7
-
----
-
-### `/sc:cli-portify` - Workflow to CLI Pipeline Port
-
-**When to use:** Port an inference-based SuperClaude workflow (command, skills and agents) into a programmatic CLI pipeline with supervised execution. It does not modify the source skill files or run the generated pipeline.
-
-**Syntax:**
-
-```
-/sc:cli-portify --workflow <skill-name-or-path> [--name <cli-name>] [--output <dir>] [--dry-run]
-```
-
-**Review loop:** its spec review runs 1 convergence iteration (a focus pass and a critique pass). MINOR findings go to the spec's Open Items and never start another pass; if CRITICAL findings are still unaddressed after that iteration it stops with `status: partial` and escalates them to you.
 
 **MCP servers:** context7
 

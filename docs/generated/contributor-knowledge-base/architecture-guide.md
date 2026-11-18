@@ -253,7 +253,6 @@ The repo includes both user-facing and protocol-style skills, for example:
 
 - `confidence-check/`
 - `sc-task-unified-protocol/`
-- `sc-cli-portify-protocol/`
 - `sc-roadmap-protocol/`
 - `sc-cleanup-audit-protocol/`
 - `sc-adversarial-protocol/`

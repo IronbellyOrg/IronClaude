@@ -112,7 +112,7 @@ swarm/lenses/templates/troubleshoot-hypothesis-output.md user_settings_defaults.
         """
 README.md __init__.py adversarial.md agent.md analyze.md auggie-review.md
 brainstorm.md business-panel.md cleanup-audit.md cleanup.md cli-eval.md
-cli-portify.md design.md document.md explain.md git.md graph.md help.md impact.md implement.md
+design.md document.md explain.md git.md graph.md help.md impact.md implement.md
 index-repo.md index.md init-lite.md pm.md post-release.md
 pr-submit.md recommend.md reflect.md release-split.md research.md
 roadmap.md spec-panel.md swarm-wizard.md
@@ -225,11 +225,7 @@ sc-cli-eval-protocol/refs/eval-contracts.md
 sc-cli-eval-protocol/refs/integration-map.md
 sc-cli-eval-protocol/refs/run-pipeline.md
 sc-cli-eval-protocol/templates/run-report.md
-sc-cli-eval-protocol/templates/suite-manifest.yaml sc-cli-portify-protocol/SKILL.md
-sc-cli-portify-protocol/__init__.py sc-cli-portify-protocol/decisions.yaml
-sc-cli-portify-protocol/refs/analysis-protocol.md
-sc-cli-portify-protocol/refs/code-templates.md
-sc-cli-portify-protocol/refs/pipeline-spec.md sc-crash-recovery/SKILL.md
+sc-cli-eval-protocol/templates/suite-manifest.yaml sc-crash-recovery/SKILL.md
 sc-crash-recovery/refs/investigators.md sc-crash-recovery/refs/pipelines.md
 sc-crash-recovery/refs/report-template.md
 sc-crash-recovery/scripts/bootstrap_scan.sh
@@ -798,8 +794,7 @@ class TestPostReleaseCommandContract:
     def test_post_release_command_activation_text(self):
         """Command Activation section contains the dev-guide handoff tokens.
 
-        Protects both Claude Code command behavior and cli-portify/resolution.py
-        Activation parsing: the ## Activation section must contain BOTH the
+        Protects Claude Code command behavior: the ## Activation section must contain BOTH the
         ``> Skill sc:post-release-protocol`` handoff AND the prohibition sentence.
         """
         text = (PKG / "commands" / "post-release.md").read_text()

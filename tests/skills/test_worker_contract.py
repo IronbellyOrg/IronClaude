@@ -490,13 +490,12 @@ P1_COMMANDS = (
     "test",
 )
 
-# The thirteen commands that get an `## Unattended mode` section in P2, in the order
+# The twelve commands that get an `## Unattended mode` section in P2, in the order
 # of the P2 static plan. UNATTENDED_EXPECT gains their entries one task at a time.
 P2_COMMANDS = (
     "auggie-review",
     "cleanup",
     "cli-eval",
-    "cli-portify",
     "recommend",
     "research",
     "spec-panel",
@@ -665,20 +664,6 @@ UNATTENDED_EXPECT: dict = {
             "both, or neither, is refused before any work",
         ],
         "nested": ["brainstorm", "adversarial"],
-    },
-    "cli-portify": {
-        "flags": ["--resume", "--output"],
-        "phrases": [
-            "portify-analysis.md",
-            "portify-spec.md",
-            "portify-release-spec.md",
-            "resume_phase",
-            "resume_substep",
-            "IronClaude checkout",
-            "blocked_question",
-            "each of the three approval gates resolves as blocked",
-        ],
-        "nested": [],
     },
     "auggie-review": {
         "flags": [
@@ -967,7 +952,6 @@ def test_brief_template_puts_guard_line_before_first_command_line():
 P2_NEW_BRIEF_ROWS = (
     "auggie-review",
     "cli-eval",
-    "cli-portify",
     "spec-panel",
 )
 NESTED_RESULT_PHRASES = (
@@ -1612,14 +1596,14 @@ def test_nested_lists_match_the_p2_nesting():
 
 
 def _check_p2_set(p1, p2, expect) -> None:
-    assert len(p2) == 13, f"P2 lists {len(p2)} commands, not 13"
-    assert len(set(p2)) == 13, "P2_COMMANDS has a duplicate"
+    assert len(p2) == 12, f"P2 lists {len(p2)} commands, not 12"
+    assert len(set(p2)) == 12, "P2_COMMANDS has a duplicate"
     assert set(p1).isdisjoint(p2), f"P1 and P2 share {sorted(set(p1) & set(p2))}"
     both = set(p1) | set(p2)
     assert set(expect) == both, (
         f"UNATTENDED_EXPECT differs from P1 + P2: {sorted(set(expect) ^ both)}"
     )
-    assert len(expect) == 28, f"UNATTENDED_EXPECT has {len(expect)} entries, not 28"
+    assert len(expect) == 27, f"UNATTENDED_EXPECT has {len(expect)} entries, not 27"
     for name in (*p1, *p2):
         assert (Path(_THIS.COMMANDS_DIR) / f"{name}.md").exists(), f"{name}: no file"
 
@@ -1766,12 +1750,6 @@ P2_GATES = [
         "`--r1-scope custom` resolves as blocked",
         "blocked",
         "prompted",
-    ),
-    (
-        "cli-portify",
-        "each of the three approval gates resolves as blocked",
-        "blocked",
-        "approved",
     ),
     (
         "auggie-review",

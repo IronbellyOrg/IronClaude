@@ -6,7 +6,7 @@ Tests cover:
 3. Coverage ratio computation (FR-MOD3.3)
 4. Threshold boundary (0.7 pass/fail edge) (FR-MOD3.4)
 5. Empty-fingerprint passthrough (FR-MOD3.4)
-6. cli-portify regression case SC-004
+6. dispatch-table regression case SC-004
 
 All tests use real content fixtures, no mocks.
 """
@@ -90,7 +90,7 @@ Set up project structure.
 Build the executor.
 """
 
-CLI_PORTIFY_SPEC = """\
+DISPATCH_TABLE_SPEC = """\
 Three-way dispatch: `_run_programmatic_step()`, `_run_claude_step()`, `_run_convergence_step()`
 
 The `PROGRAMMATIC_RUNNERS` dictionary maps step IDs to Python functions.
@@ -105,7 +105,7 @@ PROGRAMMATIC_RUNNERS = {
 ```
 """
 
-CLI_PORTIFY_BAD_ROADMAP = """\
+DISPATCH_TABLE_BAD_ROADMAP = """\
 ## Phase 1: Foundation
 Set up project structure and configuration.
 
@@ -302,12 +302,12 @@ class TestEmptyFingerprintPassthrough:
         assert fingerprint_gate_passed(spec, EMPTY_ROADMAP, 0.7)
 
 
-class TestCliPortifyRegression:
+class TestDispatchTableRegression:
     """SC-004: Detects missing identifiers at >= 95% confidence."""
 
     def test_detects_missing_identifiers(self):
         total, found, missing, ratio = check_fingerprint_coverage(
-            CLI_PORTIFY_SPEC, CLI_PORTIFY_BAD_ROADMAP
+            DISPATCH_TABLE_SPEC, DISPATCH_TABLE_BAD_ROADMAP
         )
         # Should detect missing: _run_programmatic_step, PROGRAMMATIC_RUNNERS,
         # test_programmatic_step_routing
@@ -318,12 +318,12 @@ class TestCliPortifyRegression:
 
     def test_gate_fails_on_bad_roadmap(self):
         assert not fingerprint_gate_passed(
-            CLI_PORTIFY_SPEC, CLI_PORTIFY_BAD_ROADMAP, 0.7
+            DISPATCH_TABLE_SPEC, DISPATCH_TABLE_BAD_ROADMAP, 0.7
         )
 
     def test_low_coverage_ratio(self):
         total, found, missing, ratio = check_fingerprint_coverage(
-            CLI_PORTIFY_SPEC, CLI_PORTIFY_BAD_ROADMAP
+            DISPATCH_TABLE_SPEC, DISPATCH_TABLE_BAD_ROADMAP
         )
         assert ratio < 0.5  # Very low coverage expected
 

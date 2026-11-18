@@ -278,7 +278,7 @@ def _failing_rows(fixture: str) -> list[str]:
 
 def test_e_every_cap_edits_row_holds():
     rows = _rows("review_severity_cap_edits.yaml")
-    assert len(rows) == 160
+    assert len(rows) == 140
     bad = _failing_rows("review_severity_cap_edits.yaml")
     assert not bad, "cap-edits rows not applied:\n" + "\n".join(bad)
 
