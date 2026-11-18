@@ -939,7 +939,7 @@ Personas are labels, not switches. They appear in command frontmatter (`personas
 
 ### 7.5 Thinking Depth Flags (advisory)
 
-These flags are advisory hints only. No installed core file defines them in 5.0.0 (the file that did was removed), so no command parses them or enforces a token budget or MCP choice; `/sc:business-panel` only notes that it works alongside them. The table records the conventional meaning, not installed behavior:
+These flags are advisory hints only. No installed core file defines them (the file that did was removed in 5.0.0), so no command parses them or enforces a token budget or MCP choice; `/sc:business-panel` only notes that it works alongside them. The table records the conventional meaning, not installed behavior:
 
 | Flag | Token Budget (hint) | When to Use | MCP (hint) |
 |------|-------------|-------------|-----|
@@ -1140,7 +1140,7 @@ git commit -m "feat: add /sc:my-command with agent and skill"
 
 ### 8.5 Plugin Build Workflow (Future)
 
-The plugin system is planned for v5.0. When available:
+The plugin system is planned for a later release; it is not part of 6.0.0. When available:
 
 ```bash
 # Build plugin artifacts
