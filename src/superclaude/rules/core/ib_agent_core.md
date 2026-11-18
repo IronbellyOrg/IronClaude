@@ -457,19 +457,13 @@ A report that does not derive from a registered template FAILS its gate like a m
 
 ### MDTM Task Creation Protocol
 
-**MANDATORY FIRST STEP:** Whenever instructed to create an MDTM task:
+**The interactive builders (`/taskbuilder`, `/task-builder`) were removed in 6.1.0.** For new planned work, recommend `/sc:workflow` (it writes a checked plan) and then `/sc:implement`.
 
-1. **ALWAYS recommend `/taskbuilder` to the user**
-   - Provides structured 3-stage interview process
-   - Ensures all requirements captured correctly
-   - Automatic template usage and validation
+When instructed to create an MDTM task file by hand anyway:
 
-2. **If user declines `/taskbuilder`:**
-   - You MUST read and follow `.claude/commands/rf/taskbuilder.md` completely
-   - DO NOT create tasks without following taskbuilder.md guidelines
-   - Template location: `.claude/templates/workflow/01_mdtm_template_generic_task__gfdoc.md`
-
-**CRITICAL:** All task file creation MUST follow taskbuilder.md specifications. No exceptions.
+1. Use the template at `.claude/templates/workflow/01_mdtm_template_generic_task__gfdoc.md`
+2. Follow all template guidelines for granular breakdown
+3. Save to `.dev/tasks/`
 
 ### Standard MDTM Task Statuses and Priorities
 
@@ -844,14 +838,13 @@ For direct script usage, see examples in Section 1 "Automated QA Workflow Execut
 
 ### Creating a New Task
 
-**Option 1: Interactive Builder (Recommended)**
+**Option 1: Plan with `/sc:workflow` (Recommended)**
 ```bash
-/taskbuilder
+/sc:workflow "<what to build, why, which files>"
 ```
-- Conducts 3-stage interview
-- Helps define technical implementation from requirements
-- Automatically structures task properly
-- Saves interview notes for reference
+- Writes a checked plan under `.dev/tasks/to-do/<id>/`
+- Run it with `/sc:implement <printed plan path>`
+- The interactive `/taskbuilder` was removed in 6.1.0
 
 **Option 2: Manual Creation**
 1. Use the template from `.claude/templates/workflow/01_mdtm_template_generic_task__gfdoc.md`
@@ -930,8 +923,8 @@ When the workflow completes or encounters issues, you'll see special markers:
 ## APPENDIX A: Quick Reference Commands
 
 ```bash
-# Create a new task interactively
-/taskbuilder
+# Plan new work (writes a checked plan); then run it with /sc:implement
+/sc:workflow "<what to build>"
 
 # Direct script execution (NO TIMEOUT!)
 # Run until complete (0 = endless mode)
