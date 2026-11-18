@@ -1,0 +1,3 @@
+# Item 7 decision (Task 6)
+
+The trace before the change showed 1.2 s of stat and 2.5 s of date work (scale store) for rows that `--here` later discards as `other` (375 of the 477 rows on the scale store). The reorder was made: in the worktree view a row whose place is `other` is counted and skipped (`continue`) before its stat, date and row text are built (`src/superclaude/skills/ccsession-tag/ccsession`, in `list_sessions`). Measured effect on `--here`: 10.3 s to 7.9 s. Output for `--here`, `--here --all`, `--list` and `--ask` stayed byte-identical to before (stdout, stderr and exit code; see `.dev/issues/607/after-stage1-scale/`).

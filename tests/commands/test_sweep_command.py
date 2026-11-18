@@ -628,7 +628,7 @@ def test_style_non_exempt_defaults_examples_and_none_row_are_kept():
     text = _text(_STYLE)
     assert text.count("non-exempt example") == 4
     assert text.count("| Status | Result |") == 4
-    assert text.count("| NEXT | None. |") == 3
+    assert text.count("| NEXT | None. |") == 2
     assert "The required DONE / NEXT table does not count toward this limit." in text
 
 

@@ -18,7 +18,7 @@ Today `/sc:issue --claim` assigns the issue, checks its accuracy, writes `next-s
 
 | Level | Flag | What happens after the claim's Waves 0-6 | Agent stops at |
 |---|---|---|---|
-| `worktree` (default) | `--pipeline worktree` or nothing | An Orca worktree `issue-<N>` is created (or reused) and a Claude Code agent is launched in it. It runs `next-steps.md` up to the plan boundary. | An approved plan: it prints the plan path and "Waiting for approval" until a human approves |
+| `worktree` (default) | `--pipeline worktree` or nothing | An Orca worktree `issue-<N>` is created (or reused) and a Claude Code agent is launched in it. It runs `next-steps.md` up to the plan boundary. | An approved plan: it prints the plan path and "Waiting for approval" until a human approves. Amended 2026-11-18: `worktree` is no longer the default; a person who types the command with no `--pipeline` gets `full`, and the issue watcher always passes `--pipeline none`. Amended 2026-11-18 (second): the default is now picked from the issue (a bug or a simple or medium feature of 16 hours or less gets `full`; a complex feature, a feature over 16 hours or an issue that cannot be classified gets `worktree`; an explicit `--pipeline` always wins; the issue watcher always passes `--pipeline none`) |
 | `full` | `--pipeline full` | Same, but the agent runs every step including `/sc:implement` or `/task`. | Finished implementation, unstaged, uncommitted, unpushed |
 | `full` + `--submit` | `--pipeline full --submit` | Same, then the agent commits, pushes a feature branch to `origin` and runs `/sc:pr-submit --monitor 3`. | A pushed branch with an open PR on the fork |
 | `none` | `--pipeline none` | The claim ends after the comments (amended 2026-11-08): no worktree is created, no agent is launched. | The claim itself runs nothing. Without a coordinator, the user runs `next-steps.md` from the main checkout's `.dev/issues/<N>/`. With a coordinator that owns the issue (amended 2026-11-17), the coordinator creates the worktree with `orca_worktree.py worktree` and starts a worker in it with `worker-start`; see the "Coordinator handoff for `--pipeline none`" paragraph of `src/superclaude/commands/issue.md` |
@@ -40,9 +40,9 @@ No level merges anything. Humans only review and merge; nobody opens a PR by han
 | # | Decision | Source |
 |---|---|---|
 | P1 | Orca is a dependency. No code, warning, option or document text exists only for a project without Orca. | Owner, AD 1.2 |
-| P2 | One flag, `--pipeline worktree\|full\|none`, default `worktree`. The `--worktree` flag of MR does not exist. | Owner, AD 1.6 |
+| P2 | One flag, `--pipeline worktree\|full\|none`, default `worktree`. The `--worktree` flag of MR does not exist. Amended 2026-11-18: the default is `full` when a person types the command, and the issue watcher always passes `--pipeline none`. Amended 2026-11-18 (second): the default is now picked from the issue (a bug or a simple or medium feature of 16 hours or less gets `full`; a complex feature, a feature over 16 hours or an issue that cannot be classified gets `worktree`; an explicit `--pipeline` always wins; the issue watcher always passes `--pipeline none`). | Owner, AD 1.6; owner, 2026-11-18 |
 | P3 | `--submit` is a second flag, valid with `--pipeline full` only. It turns on commit, push of a feature branch and `/sc:pr-submit --monitor 3`. It never merges. | Owner, AD 1.4 |
-| P4 | The default stop is an approved plan. `full` adds implementation. `none` launches no agent. Amended 2026-11-08: `none` also creates no worktree, because every worktree gets an agent. | Owner, AD 1.3; owner, 2026-11-08 |
+| P4 | The default stop is an approved plan. `full` adds implementation. `none` launches no agent. Amended 2026-11-08: `none` also creates no worktree, because every worktree gets an agent. Amended 2026-11-18 (second): the default stop is no longer always an approved plan; with no `--pipeline` the level is picked from the issue (a bug or a simple or medium feature of 16 hours or less gets `full`; a complex feature, a feature over 16 hours or an issue that cannot be classified gets `worktree`, which stops at an approved plan; an explicit `--pipeline` always wins; the issue watcher always passes `--pipeline none`). | Owner, AD 1.3; owner, 2026-11-08 |
 | P5 | The launched agent is Claude Code behind the ccsession shim, always. | Owner, AD 1.5 |
 | P6 | **B2 is rewritten (new text below).** B16 (worktree after `next-steps.md`), B17 (launch levels) and B18 (`--submit`) are new design decisions in `docs/designs/sc-issue-command.md`. | Owner, AD 1.1 and 3 |
 | P7 | The agent is started with `orca agent launch --agent claude --surface terminal`, a Claude CLI session. Never a plain terminal, and never `--surface chat` (a chat is not behind the shim). | #412 (merged), AD FR-22 |
@@ -63,7 +63,7 @@ No level merges anything. Humans only review and merge; nobody opens a PR by han
 | Create JSON shape | MR R2 UNVERIFIED | AD observed `result.worktree.{id, path, branch, ...}`. FR-20 (path from a row-id difference) stays; the field is not relied on. | The set difference works with an opaque create result. |
 | `worktree_warning` holds one code | MR open item | The code that set the status wins; any other goes in `detail`. Launch codes use their own field `launch_warning`. | Two independent steps can each warn. |
 | Statuses | MR: `created \| reused \| skipped \| failed` | `created \| reused \| failed` | AD 4.2 and 4.4: `skipped` existed only for a missing `orca`. |
-| Unflagged claim | MR FR-3: byte-identical to today | Dropped. An unflagged claim is `--pipeline worktree`. | AD 4.3. |
+| Unflagged claim | MR FR-3: byte-identical to today | Dropped. An unflagged claim is `--pipeline worktree`. Amended 2026-11-18: an unflagged claim typed by a person is now `--pipeline full`; the issue watcher always passes `--pipeline none`. Amended 2026-11-18 (second): the default is now picked from the issue (a bug or a simple or medium feature of 16 hours or less gets `full`; a complex feature, a feature over 16 hours or an issue that cannot be classified gets `worktree`; an explicit `--pipeline` always wins; the issue watcher always passes `--pipeline none`). | AD 4.3. |
 | `--worktree` with `--create` | MR FR-2 | `--pipeline` or `--submit` with `--create`: STOP `E-CLAIM-ONLY-FLAG`. | AD section 2. |
 
 ## 4. Command interface
@@ -75,7 +75,7 @@ No level merges anything. Humans only review and merge; nobody opens a PR by han
 
 | Flag | Mode | Default | Values | Meaning |
 |---|---|---|---|---|
-| `--pipeline` | claim | `worktree` | `worktree`, `full`, `none` | How far the launched agent goes (section 1). `worktree` and `full` create the worktree and launch an agent; `none` creates no worktree and launches no agent |
+| `--pipeline` | claim | `worktree` | `worktree`, `full`, `none` | How far the launched agent goes (section 1). `worktree` and `full` create the worktree and launch an agent; `none` creates no worktree and launches no agent. Amended 2026-11-18: the default is now `full` for a person; the issue watcher always passes `--pipeline none`. Amended 2026-11-18 (second): the default is now picked from the issue (a bug or a simple or medium feature of 16 hours or less gets `full`; a complex feature, a feature over 16 hours or an issue that cannot be classified gets `worktree`; an explicit `--pipeline` always wins; the issue watcher always passes `--pipeline none`) |
 | `--submit` | claim | off | no value | With `--pipeline full` only: after implementation the agent commits, pushes the feature branch to `origin` and runs `/sc:pr-submit --monitor 3`. Never merges |
 
 STOP rules added to the command file, checked in this order after the existing ones (before Activation, no external call):
@@ -84,7 +84,7 @@ STOP rules added to the command file, checked in this order after the existing o
 2. A `--pipeline` value that is not one of the three: STOP, list `worktree`, `full`, `none`. `--pipeline` with no value: the same STOP.
 3. `--submit` with a value, or with `--pipeline worktree` or `--pipeline none` or no `--pipeline`: STOP `E-SUBMIT-NEEDS-FULL` ("--submit needs --pipeline full").
 
-Examples: `/sc:issue --claim 302` (worktree level), `/sc:issue --claim 302 --pipeline none`, `/sc:issue --claim 302 --pipeline full`, `/sc:issue --claim 302 --pipeline full --submit`.
+Examples: `/sc:issue --claim 302` (worktree level; amended 2026-11-18: now the `full` level when a person types it, and the issue watcher always passes `--pipeline none`; amended 2026-11-18 (second): the level is now picked from the issue, `full` for a bug or a simple or medium feature of 16 hours or less and `worktree` otherwise), `/sc:issue --claim 302 --pipeline none`, `/sc:issue --claim 302 --pipeline full`, `/sc:issue --claim 302 --pipeline full --submit`.
 
 `commands/issue.md` gets `version: "1.1.0"` (8 of 47 commands carry one; the claim behaviour changes for every user). `argument-hint`, Usage, Options table, Examples, Outputs, Boundaries and the claim paragraph are updated. Boundaries, Will Not: replace "Run any next-step command" with "Run `/sc:implement`, `/task`, a commit, a push or `/sc:pr-submit` itself (the launched agent may, at the level the user chose)", and add "Pass an Orca link flag" and "Merge anything". `SKILL.md` Will / Will Not mirror this.
 
@@ -271,7 +271,7 @@ New STOPs:
 |---|---|
 | `E-ORCA-REQUIRED` | Wave 0: `orca_worktree.py preflight` returns `ok: false` |
 | `E-CLAIM-ONLY-FLAG` | `--pipeline` or `--submit` with `--create` |
-| `E-SUBMIT-NEEDS-FULL` | `--submit` without `--pipeline full` |
+| `E-SUBMIT-NEEDS-FULL` | `--submit` without `--pipeline full`. Amended 2026-11-18: a `--submit` with no `--pipeline` also stops, because the default is now `full` but `--submit` still needs `--pipeline full` written out. Amended 2026-11-18 (second): the default is now picked from the issue; that changes nothing here, because a `--submit` with no `--pipeline` still stops |
 
 Warnings (the claim `status` stays `success` for all of them). `W-ORCA-MISSING` and the `skipped` status of MR no longer exist.
 

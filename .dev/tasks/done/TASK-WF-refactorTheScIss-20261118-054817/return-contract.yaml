@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-refactorTheScIss-20261118-054817
+plan_path: ./TASK-WF-refactorTheScIss-20261118-054817.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/RefactorIssueClaimPipeline/.dev/reflect/pre-refactorTheScIss-20261118055116/REPORT.md
+unresolved:
+  - "The advisory review (verdict PASS-WITH-GAPS, five must-fix points) ran on the first revision; the plan was then revised once (see artifacts/plan-rev1-to-rev2.diff) and the revision has had no further review."
+  - "No reviewer ran a test; test outcomes in the plan and in the review are predictions from reading."

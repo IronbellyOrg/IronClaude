@@ -20,6 +20,7 @@ import termios
 import threading
 import time
 import urllib.request
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -5171,3 +5172,659 @@ def test_retention_ensure_accepts_a_managed_value_that_is_long_enough(
     assert result.returncode == 0
     assert "at least 365" in result.stdout and "managed settings file" in result.stdout
     assert not settings.exists()
+
+
+# The list is built in time that does not grow in processes started per saved name
+# beyond a few fixed ones (issue 607). Counting shims stand first on PATH and log
+# every call, then run the real tool; the tests run the real entry points.
+
+_COUNTED_TOOLS = ("date", "stat", "head", "ls", "basename", "dirname", "grep", "awk")
+_LISTINGS = (("--here",), ("--here", "--all"), ("--list",))
+
+
+def _shims(
+    tmp_path: Path, tools: tuple[str, ...] = _COUNTED_TOOLS
+) -> tuple[Path, Path]:
+    """Shims for the given tools, first on PATH: each appends
+    "<tool> <LC_ALL or <unset>>|<arguments>" to the log, then runs the real tool."""
+    shims = tmp_path / "shims"
+    shims.mkdir()
+    log = tmp_path / "shim-calls"
+    log.touch()
+    for tool in tools:
+        real = shutil.which(tool)
+        assert real, tool
+        shim = shims / tool
+        shim.write_text(
+            "#!/bin/sh\n"
+            f'printf \'%s %s|%s\\n\' {tool} "${{LC_ALL-<unset>}}" "$*" >> {log}\n'
+            f'exec {real} "$@"\n'
+        )
+        shim.chmod(0o755)
+    return shims, log
+
+
+def _calls(log: Path) -> list[str]:
+    return log.read_text().splitlines()
+
+
+def _many_sessions(
+    tmp_path: Path, n: int, *, transcripts: bool = True
+) -> tuple[Path, Path, dict[str, str]]:
+    """N saved names in the repo's list; each session's transcript sits under a
+    per-folder store (three folders), not under the repo-keyed folder."""
+    main, _, projects, env = _named_repo(tmp_path)
+    env.pop("LC_ALL", None)
+    topics = projects / "github.com-Org-Repo" / "topics"
+    topics.mkdir(parents=True)
+    for i in range(n):
+        session = f"{i:08x}-0000-0000-0000-000000000000"
+        folder = main / f"d{i % 3}"
+        folder.mkdir(exist_ok=True)
+        if transcripts:
+            _transcript(projects, folder, session)
+        (topics / f"name {i:03d}.txt").write_text(f"{session}\n")
+    return main, projects, env
+
+
+@pytest.mark.parametrize(
+    "args, per_row",
+    [
+        # one head, grep and awk per session find where it was started; the time
+        # work is one stat and one date for each of its two times
+        (("--here",), {"date": 2, "stat": 1, "head": 1, "grep": 1, "awk": 1}),
+        (("--here", "--all"), {"date": 2, "stat": 1}),
+        (("--list",), {"date": 2, "stat": 1}),
+    ],
+)
+def test_listing_starts_a_fixed_number_of_processes_per_saved_name(
+    tmp_path: Path, args: tuple[str, ...], per_row: dict[str, int]
+) -> None:
+    # The shell code, which the list falls back to where python3 is missing.
+    counts: dict[int, Counter] = {}
+    for n in (10, 60):
+        sub = tmp_path / f"n{n}"
+        sub.mkdir()
+        main, _, env = _many_sessions(sub, n)
+        shims, log = _shims(sub)
+        env["PATH"] = f"{shims}:{_python_shim(sub, 'absent')}:{env['PATH']}"
+        _ccs(main, env, *args)
+        counts[n] = Counter(line.split(" ", 1)[0] for line in _calls(log))
+    for tool in _COUNTED_TOOLS:
+        # basename, dirname and ls (the transcript index) start none per name
+        assert counts[60][tool] - counts[10][tool] == 50 * per_row.get(tool, 0), (
+            tool,
+            counts,
+        )
+
+
+def test_the_transcript_index_is_built_once_for_the_whole_list(tmp_path: Path) -> None:
+    main, _, env = _many_sessions(tmp_path, 40)
+    shims, log = _shims(tmp_path)
+    env["PATH"] = f"{shims}:{_python_shim(tmp_path, 'absent')}:{env['PATH']}"
+    rows = _listed(main, env, "--here")
+    assert len(rows) == 40
+    ls_calls = [c for c in _calls(log) if c.startswith("ls ") and ".jsonl" in c]
+    # the one index (every transcript as an argument), and no ls per session
+    assert [c.count(".jsonl") for c in ls_calls] == [40]
+
+
+def test_an_empty_index_leaves_each_name_to_the_per_session_lookup(
+    tmp_path: Path,
+) -> None:
+    main, _, env = _many_sessions(tmp_path, 5, transcripts=False)
+    shims, log = _shims(tmp_path)
+    env["PATH"] = f"{shims}:{_python_shim(tmp_path, 'absent')}:{env['PATH']}"
+    out = _ccs(main, env, "--here").stdout
+    assert out.count("(transcript missing)") == 5
+    # the index (nothing matched) and one lookup for each name
+    assert len([c for c in _calls(log) if c.startswith("ls ") and ".jsonl" in c]) == 6
+
+
+def test_a_failing_ls_for_the_index_does_not_stop_the_listing(tmp_path: Path) -> None:
+    main, _, env = _many_sessions(tmp_path, 4)
+    shims = tmp_path / "failing"
+    shims.mkdir()
+    real = shutil.which("ls")
+    (shims / "ls").write_text(
+        f'#!/bin/sh\ncase "$*" in *.jsonl*) exit 2 ;; esac\nexec {real} "$@"\n'
+    )
+    (shims / "ls").chmod(0o755)
+    env["PATH"] = f"{shims}:{_python_shim(tmp_path, 'absent')}:{env['PATH']}"
+    result = _ccs(main, env, "--here")  # check=True: the exit code is 0 under set -e
+    assert result.stdout.count("(transcript missing)") == 4
+
+
+@pytest.mark.parametrize("user_locale", [None, "POSIX"])
+def test_grep_and_awk_run_in_the_c_locale_whatever_the_users(
+    tmp_path: Path, user_locale: str | None
+) -> None:
+    main, _, env = _many_sessions(tmp_path, 6)
+    if user_locale:
+        env["LC_ALL"] = user_locale
+    shims, log = _shims(tmp_path, ("grep", "awk"))
+    env["PATH"] = f"{shims}:{_python_shim(tmp_path, 'absent')}:{env['PATH']}"
+    _ccs(main, env, "--here")
+    seen = [c.split(" ", 1) for c in _calls(log)]
+    assert len(seen) >= 12  # a grep and an awk for each session
+    assert {rest.split("|")[0] for _, rest in seen} == {"C"}
+
+
+def _date_shim(tmp_path: Path, flavour: str) -> tuple[Path, Path]:
+    """A `date` of another family; its calls (arguments) are logged."""
+    real = shutil.which("date")
+    shims = tmp_path / f"date-{flavour}"
+    shims.mkdir()
+    log = tmp_path / f"date-{flavour}-calls"
+    log.touch()
+    bodies = {
+        # GNU: -r takes a file name, which an epoch is not
+        "gnu": f'exec {real} "$@"\n',
+        # BSD: no --version, no -d @epoch, -r takes the epoch
+        "bsd": (
+            'case "$1" in\n'
+            "  --version) exit 1 ;;\n"
+            f'  -r) shift; e=$1; shift; exec {real} -d "@$e" "$@" ;;\n'
+            "  *) exit 1 ;;\n"
+            "esac\n"
+        ),
+        # busybox: no --version, no -r <epoch>, -d @epoch works
+        "busybox": (
+            'case "$1" in\n'
+            "  --version) exit 1 ;;\n"
+            "  -r) exit 1 ;;\n"
+            f'  -d) exec {real} "$@" ;;\n'
+            "  *) exit 1 ;;\n"
+            "esac\n"
+        ),
+    }
+    (shims / "date").write_text(f'#!/bin/sh\necho "$*" >> {log}\n' + bodies[flavour])
+    (shims / "date").chmod(0o755)
+    return shims, log
+
+
+@pytest.mark.parametrize("flavour", ["gnu", "bsd", "busybox"])
+def test_the_date_text_is_the_same_for_every_date_flavour(
+    tmp_path: Path, flavour: str
+) -> None:
+    main, _, env = _many_sessions(tmp_path, 4)
+    reference = _ccs(main, env, "--here").stdout
+    assert "started 20" in reference
+    shims, log = _date_shim(tmp_path, flavour)
+    env["PATH"] = f"{shims}:{env['PATH']}"
+    assert _ccs(main, env, "--here").stdout == reference
+    calls = _calls(log)
+    flags = [c.split(" ", 1)[0] for c in calls if not c.startswith("--version")]
+    if flavour == "gnu":
+        assert "-r" not in flags  # no failing `date -r <epoch>` first
+        assert flags and set(flags) == {"-d"}
+    elif flavour == "bsd":
+        assert flags and set(flags) == {"-r"}  # the BSD order is kept
+    else:
+        # -r first (it fails), then -d, for every time
+        assert flags and flags[0::2] == ["-r"] * (len(flags) // 2)
+        assert flags[1::2] == ["-d"] * (len(flags) // 2)
+    assert sum(c.startswith("--version") for c in calls) == 1  # probed once
+
+
+@pytest.mark.parametrize(
+    "path", ["/home/u/.claude/projects/-a-b/abc.jsonl", "/p/topics/two words.txt"]
+)
+def test_parameter_expansions_give_what_basename_and_dirname_gave(path: str) -> None:
+    script = (
+        "p=$1; d=${p%/*}; b=${p##*/}; s=${d##*/}\n"
+        '[ "$d" = "$(dirname "$p")" ] || exit 1\n'
+        '[ "$b" = "$(basename "$p")" ] || exit 2\n'
+        '[ "$s" = "$(basename "$(dirname "$p")")" ] || exit 3\n'
+        '[ "${b%.txt}" = "$(basename "$p" .txt)" ] || exit 4\n'
+    )
+    assert subprocess.run(["bash", "-c", script, "x", path]).returncode == 0
+
+
+def test_an_unreadable_topic_file_shows_no_session_and_not_the_previous_one(
+    tmp_path: Path,
+) -> None:
+    if os.geteuid() == 0:
+        pytest.skip("root can read a mode 000 file")
+    main, projects, env = _many_sessions(tmp_path, 3)
+    bad = projects / "github.com-Org-Repo" / "topics" / "name 001.txt"
+    bad.chmod(0)
+    try:
+        result = _ccs(main, env, "--here")  # check=True: exit 0 under set -e
+    finally:
+        bad.chmod(0o644)
+    rows = {
+        line.split("  ")[1].strip(): line
+        for line in result.stdout.splitlines()
+        if line.startswith("  name ")
+    }
+    assert "(transcript missing)" in rows["name 001"]
+    assert "00000000" not in rows["name 001"]  # the row before it
+    assert rows["name 000"].rstrip().endswith("00000000")
+    assert rows["name 002"].rstrip().endswith("00000002")
+
+
+def test_an_empty_list_and_a_one_name_list(tmp_path: Path) -> None:
+    (tmp_path / "empty").mkdir()
+    empty, _, env = _many_sessions(tmp_path / "empty", 0)
+    result = _ccs(empty, env, "--here")  # check=True: exit 0
+    assert "No labeled sessions" in result.stdout
+    (tmp_path / "one").mkdir()
+    one, _, env1 = _many_sessions(tmp_path / "one", 1)
+    assert _listed(one, env1, "--here") == {"name 000": "00000000"}
+
+
+def test_listing_creates_and_changes_no_file_in_home_or_tmp(tmp_path: Path) -> None:
+    main, projects, env = _many_sessions(tmp_path, 6)
+    tmp = tmp_path / "tmpdir"
+    tmp.mkdir()
+    env["TMPDIR"] = str(tmp)
+    home = projects.parent.parent
+    for args in _LISTINGS:
+        _ccs(main, env, *args)  # the first run may mark the migration done
+
+    def snapshot() -> dict[str, tuple[int, int]]:
+        return {
+            str(p): (p.stat().st_size, p.stat().st_mtime_ns)
+            for root in (home, tmp)
+            for p in root.rglob("*")
+            if p.is_file()
+        }
+
+    before = snapshot()
+    for args in _LISTINGS:
+        _ccs(main, env, *args)
+    assert snapshot() == before
+    assert list(tmp.iterdir()) == []
+
+
+_BASH4_CONSTRUCTS = [
+    r"\b(declare|typeset|local)\s+-[a-zA-Z]*A",
+    r"\b(mapfile|readarray|coproc)\b",
+    r"printf\s+['\"]%\(",
+    r"\$\{[^}]*(,,|\^\^)[^}]*\}",
+    r"&>>|\|&|;;&|;&",
+]
+
+
+def test_the_listing_code_uses_no_bash_4_construct() -> None:
+    # macOS ships bash 3.2 and no test runs under it, so the changed code is read.
+    text = (SKILL_DIR / "ccsession").read_text()
+    regions = [
+        ("session_home() {", "git_here() ("),
+        ("probe_date() {", "format_duration() {"),
+        ("list_sessions() {", "retention_warning() {"),
+    ]
+    for start, end in regions:
+        region = text[text.index(start) : text.index(end)]
+        code = "\n".join(
+            line for line in region.splitlines() if not line.lstrip().startswith("#")
+        )
+        for pattern in _BASH4_CONSTRUCTS:
+            assert not re.search(pattern, code), (start, pattern)
+
+
+# Stage 2 of issue 607: scan_sessions.py finds every transcript and start folder of a
+# list in one python3 process. The list must read the same with it, without it (python3
+# not found, or a helper that fails or answers short) and before the helper existed.
+
+HELPER = SKILL_DIR / "scan_sessions.py"
+_HEAD, _TAIL = 262144, 1048576
+
+
+def _python_shim(tmp_path: Path, mode: str) -> Path:
+    """A `python3` first on PATH. A call of the helper is logged. Then it runs the
+    real python3 ("spy"), is not found ("absent", every call), exits 1 ("fails",
+    helper only) or answers one empty record ("short", helper only)."""
+    shims = tmp_path / f"python3-{mode}"
+    shims.mkdir(exist_ok=True)
+    log = tmp_path / f"python3-{mode}-calls"
+    log.touch()
+    real = f'exec {sys.executable} "$@"\n'
+    helper_only = {"fails": "exit 1", "short": "printf '\\037\\037\\n'; exit 0"}
+    body = {"spy": real, "absent": "exit 127\n"}.get(mode) or (
+        f'case "$1" in\n  *scan_sessions.py) {helper_only[mode]} ;;\nesac\n{real}'
+    )
+    (shims / "python3").write_text(
+        f'#!/bin/sh\ncase "$1" in *scan_sessions.py) echo "$*" >> {log} ;; esac\n'
+        + body
+    )
+    (shims / "python3").chmod(0o755)
+    return shims
+
+
+def _quiet_retention(env: dict[str, str]) -> None:
+    """A retention long enough that its warning (printed through python3) stays off,
+    so that stderr can be compared with and without python3."""
+    settings = Path(env["HOME"]) / ".claude" / "settings.json"
+    settings.parent.mkdir(parents=True, exist_ok=True)
+    settings.write_text(json.dumps({"cleanupPeriodDays": 400}))
+
+
+def _run_bytes(cwd: Path, env: dict[str, str], *args: str) -> tuple[bytes, bytes, int]:
+    done = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), *args],
+        cwd=cwd,
+        env=env,
+        capture_output=True,
+        stdin=subprocess.DEVNULL,
+    )
+    return done.stdout, done.stderr, done.returncode
+
+
+def _ask_screen(cwd: Path, env: dict[str, str]) -> str:
+    """What `ccsession --ask` shows (the worktree list) before its question."""
+    question = "Session name (q): "
+    proc, master = _spawn_on_pty(
+        [str(SKILL_DIR / "ccsession"), "--ask", "q"], env, cwd, stdout=subprocess.PIPE
+    )
+    try:
+        shown = _read_pty(master, until=question)
+        os.write(master, b"\r")
+        proc.wait(timeout=60)
+        return shown
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+
+
+def _same_with_and_without_the_helper(
+    tmp_path: Path, cwd: Path, env: dict[str, str], *, rows: bool = True
+) -> dict[tuple[str, ...], bytes]:
+    """Every view, byte for byte (stdout, stderr, exit code), with the helper and with
+    python3 not found; the helper must have been called when there are rows (a list
+    without rows never asks it). Returns the standard output of each view."""
+    _quiet_retention(env)
+    spy = {**env, "PATH": f"{_python_shim(tmp_path, 'spy')}:{env['PATH']}"}
+    gone = {**env, "PATH": f"{_python_shim(tmp_path, 'absent')}:{env['PATH']}"}
+    shown: dict[tuple[str, ...], bytes] = {}
+    for args in _LISTINGS:
+        with_helper = _run_bytes(cwd, spy, *args)
+        assert with_helper == _run_bytes(cwd, gone, *args), args
+        shown[args] = with_helper[0]
+    called = (tmp_path / "python3-spy-calls").read_text().strip()
+    assert bool(called) == rows, "the helper is asked for a list with rows only"
+    assert _ask_screen(cwd, spy) == _ask_screen(cwd, gone)
+    return shown
+
+
+def _put(
+    projects: Path, folder: str, session: str, data: bytes, mtime: int | None = None
+) -> Path:
+    store = projects / folder
+    store.mkdir(parents=True, exist_ok=True)
+    path = store / f"{session}.jsonl"
+    path.write_bytes(data)
+    if mtime is not None:
+        os.utime(path, (mtime, mtime))
+    return path
+
+
+def _row(cwd: bytes | str) -> bytes:
+    """One transcript line the way Claude Code writes it (compact JSON); a bytes cwd
+    goes in as it is, JSON-escaped by hand for quote and backslash only."""
+    if isinstance(cwd, str):
+        cwd = json.dumps(cwd, ensure_ascii=False)[1:-1].encode("utf-8")
+    else:
+        cwd = cwd.replace(b"\\", b"\\\\").replace(b'"', b'\\"')
+    return b'{"type":"user","cwd":"' + cwd + b'","sessionId":"s"}\n'
+
+
+def _filler(n: int) -> bytes:
+    """Exactly n bytes of lines without any folder in them."""
+    return (b'{"p":"' + b"a" * 191 + b'"}\n') * (n // 200) + b"\n" * (n % 200)
+
+
+def _store_name(cwd: bytes | str) -> str:
+    """Claude Code's folder name for a cwd, taken byte by byte as ccsession does."""
+    raw = cwd.encode() if isinstance(cwd, str) else cwd
+    return re.sub(rb"[^A-Za-z0-9]", b"-", raw).decode("ascii")
+
+
+def _sid(i: int) -> str:
+    return f"{i:08x}-0000-0000-0000-000000000000"
+
+
+def _name_list(projects: Path, *names: tuple[str, str]) -> Path:
+    topics = projects / "github.com-Org-Repo" / "topics"
+    topics.mkdir(parents=True, exist_ok=True)
+    for name, session in names:
+        # the file name of a saved name: "%" and "/" escaped (ccsession's name_to_file)
+        fname = name.replace("%", "%25").replace("/", "%2F")
+        (topics / f"{fname}.txt").write_text(f"{session}\n")
+    return topics
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "missing",
+        "other-folder",
+        "two-copies",
+        "repo-folder-wins",
+        "names-with-escapes",
+        "unreadable-topic",
+        "empty-list",
+        "one-name",
+    ],
+)
+def test_the_helper_finds_the_same_transcripts_as_the_shell(
+    tmp_path: Path, case: str
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    here = str(main)
+    names: list[tuple[str, str]] = []
+    if case == "missing":  # a name whose transcript is gone, and one that is there
+        names = [("gone away", _sid(1)), ("present", _sid(2))]
+        _put(projects, "-x", _sid(2), _row(here))
+    elif case == "other-folder":
+        names = [("one", _sid(1))]
+        _put(projects, "-somewhere-else", _sid(1), _row(here))
+    elif case == "two-copies":  # the newest copy is the one that counts
+        names = [("both", _sid(1))]
+        _put(projects, "-old-copy", _sid(1), _row("/nowhere"), mtime=1_700_000_000)
+        _put(projects, "-new-copy", _sid(1), _row(here), mtime=1_790_000_000)
+    elif case == "repo-folder-wins":  # the repo-keyed folder first, though older
+        names = [("both", _sid(1))]
+        _put(projects, "github.com-Org-Repo", _sid(1), _row(here), 1_700_000_000)
+        _put(projects, "-newer-elsewhere", _sid(1), _row("/nowhere"), 1_790_000_000)
+    elif case == "names-with-escapes":
+        names = [
+            ("my work/v2 50%", _sid(1)),
+            ("-dash", _sid(2)),
+            ("two  spaces", _sid(3)),
+        ]
+        for i in (1, 2, 3):
+            _put(projects, "-x", _sid(i), _row(here))
+    elif case == "unreadable-topic":
+        if os.geteuid() == 0:
+            pytest.skip("root can read a mode 000 file")
+        names = [("fine", _sid(1)), ("locked", _sid(2))]
+        for i in (1, 2):
+            _put(projects, "-x", _sid(i), _row(here))
+    elif case == "one-name":
+        names = [("only", _sid(1))]
+        _put(projects, "-x", _sid(1), _row(here))
+    topics = _name_list(projects, *names)
+    if case == "unreadable-topic":
+        (topics / "locked.txt").chmod(0)
+    try:
+        shown = _same_with_and_without_the_helper(
+            tmp_path, main, env, rows=case != "empty-list"
+        )
+    finally:
+        if (topics / "locked.txt").exists():
+            (topics / "locked.txt").chmod(0o644)
+    if case == "empty-list":
+        assert b"No labeled sessions" in shown[("--here",)]
+    elif case == "missing":
+        assert b"(transcript missing)" in shown[("--here",)]
+    elif case in ("two-copies", "repo-folder-wins"):
+        assert b"both" in shown[("--here",)]  # this worktree's, not "/nowhere"'s
+
+
+def test_a_helper_that_fails_or_answers_short_leaves_the_list_unchanged(
+    tmp_path: Path,
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    _quiet_retention(env)
+    for i in (1, 2, 3):
+        _put(projects, "-x", _sid(i), _row(str(main)))
+    _name_list(projects, *[(f"n{i}", _sid(i)) for i in (1, 2, 3)])
+    gone = {**env, "PATH": f"{_python_shim(tmp_path, 'absent')}:{env['PATH']}"}
+    reference = {args: _run_bytes(main, gone, *args) for args in _LISTINGS}
+    for mode in ("fails", "short"):
+        shimmed = {**env, "PATH": f"{_python_shim(tmp_path, mode)}:{env['PATH']}"}
+        for args in _LISTINGS:
+            assert _run_bytes(main, shimmed, *args) == reference[args], (mode, args)
+        assert (tmp_path / f"python3-{mode}-calls").read_text().strip()
+
+
+def test_the_helper_is_one_process_for_the_whole_list(tmp_path: Path) -> None:
+    main, _, env = _many_sessions(tmp_path, 40)
+    shims, log = _shims(tmp_path, ("grep", "awk", "head", "ls"))
+    spy = _python_shim(tmp_path, "spy")
+    env["PATH"] = f"{spy}:{shims}:{env['PATH']}"
+    _ccs(main, env, "--here")
+    assert len((tmp_path / "python3-spy-calls").read_text().splitlines()) == 1
+    seen = Counter(line.split(" ", 1)[0] for line in _calls(log))
+    # no grep, awk or head for a session, and no ls index: the helper did all of it
+    assert seen["grep"] == seen["awk"] == seen["head"] == 0
+    assert not [c for c in _calls(log) if c.startswith("ls ") and ".jsonl" in c]
+
+
+@pytest.mark.parametrize("args", _LISTINGS)
+def test_with_the_helper_a_listing_starts_two_dates_and_a_stat_per_saved_name(
+    tmp_path: Path, args: tuple[str, ...]
+) -> None:
+    counts: dict[int, Counter] = {}
+    for n in (10, 60):
+        sub = tmp_path / f"n{n}"
+        sub.mkdir()
+        main, _, env = _many_sessions(sub, n)
+        shims, log = _shims(sub)
+        env["PATH"] = f"{_python_shim(sub, 'spy')}:{shims}:{env['PATH']}"
+        _ccs(main, env, *args)
+        counts[n] = Counter(line.split(" ", 1)[0] for line in _calls(log))
+    for tool in _COUNTED_TOOLS:
+        per_row = {"date": 2, "stat": 1}.get(tool, 0)
+        assert counts[60][tool] - counts[10][tool] == 50 * per_row, (tool, counts)
+
+
+def test_the_helper_writes_no_file(tmp_path: Path) -> None:
+    main, projects, env = _many_sessions(tmp_path, 8)
+    tmp = tmp_path / "tmpdir"
+    tmp.mkdir()
+    home = projects.parent.parent
+
+    def snapshot() -> dict[str, tuple[int, int]]:
+        return {
+            str(p): (p.stat().st_size, p.stat().st_mtime_ns)
+            for root in (home, tmp)
+            for p in root.rglob("*")
+            if p.is_file()
+        }
+
+    before = snapshot()
+    done = subprocess.run(
+        [
+            sys.executable,
+            str(HELPER),
+            str(projects),
+            str(projects / "github.com-Org-Repo"),
+            *[_sid(i) for i in range(8)],
+        ],
+        env={**env, "TMPDIR": str(tmp)},
+        capture_output=True,
+        check=True,
+    )
+    assert done.stdout.count(b"\n") == 8
+    assert snapshot() == before and list(tmp.iterdir()) == []
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "tail-only",
+        "first-cwd-no-match",
+        "escaped-quote-and-backslash",
+        "non-ascii",
+        "invalid-utf8",
+        "small-file",
+        "unread-middle",
+        "straddles-the-head-cut",
+        "straddles-the-head-cut-big-file",
+        "tail-starts-mid-line",
+        "nul-byte",
+    ],
+)
+def test_the_helper_finds_the_same_start_folder_as_the_shell(
+    tmp_path: Path, case: str
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    target: bytes | str = str(tmp_path / "removed worktree")  # never made: removed
+    store = None
+    if case == "tail-only":  # the folder is only in the last 1 MiB of a long file
+        row = _row(target)
+        data = _row("/not/it") + _filler(1_500_000) + row
+    elif case == "first-cwd-no-match":  # none matches the folder: the first one
+        data = _row("/first/one") + _row("/second/one")
+        store = "-matches-nothing"
+    elif case == "escaped-quote-and-backslash":
+        target = b'/tmp/quote"and\\backslash dir'
+        data = _row(target)
+    elif case == "non-ascii":
+        target = "/tmp/café ünï 日本"
+        data = _row(target)
+    elif case == "invalid-utf8":
+        target = b"/tmp/bad\xff\xfebytes"
+        data = _row(target)
+    elif case == "small-file":
+        data = _row(target)
+    elif case == "unread-middle":  # the middle of a long file is never read
+        data = (
+            _row("/head/cwd")
+            + _filler(400_000)
+            + _row(target)
+            + _filler(1_400_000)
+            + _row("/tail/cwd")
+        )
+    elif case == "straddles-the-head-cut":  # the tail covers the whole short file
+        data = _filler(_HEAD - 30) + _row(target) + _filler(300_000)
+    elif case == "straddles-the-head-cut-big-file":  # out of reach of the tail too
+        data = _row("/head/cwd") + _filler(_HEAD - 30) + _row(target)
+        data += _filler(2_000_000)
+    elif case == "tail-starts-mid-line":
+        row = _row(target)
+        head = _row("/head/cwd") + _filler(500_000)
+        data = head + row + _filler(_TAIL + 18 - len(row))  # the cut is inside the row
+    elif case == "nul-byte":  # grep would call this text binary: the shell decides
+        data = _row(target) + b"\0" + _row("/later")
+    _put(projects, store or _store_name(target), _sid(1), data)
+    _put(projects, "-x", _sid(2), _row(str(main)))  # and a session that is here
+    _name_list(projects, ("probe", _sid(1)), ("here", _sid(2)))
+    shown = _same_with_and_without_the_helper(tmp_path, main, env)
+    assert b"probe" in shown[("--here",)] or case in ("first-cwd-no-match",)
+
+
+def test_a_birth_time_of_zero_still_reads_times_unavailable(tmp_path: Path) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    _put(projects, "-x", _sid(1), _row(str(main)))
+    _name_list(projects, ("old fs", _sid(1)))
+    real = shutil.which("stat")
+    shims = tmp_path / "stat0"
+    shims.mkdir()
+    (shims / "stat").write_text(
+        f'#!/bin/sh\ncase "$*" in\n  *%W*) shift 2; exec {real} -c \'0 %Y\' "$@" ;;\nesac\n'
+        f'exec {real} "$@"\n'
+    )
+    (shims / "stat").chmod(0o755)
+    env["PATH"] = f"{shims}:{env['PATH']}"
+    shown = _same_with_and_without_the_helper(tmp_path, main, env)
+    assert b"(times unavailable)" in shown[("--here",)]
+
+
+def test_scan_sessions_ships_in_the_skill_folder_that_installers_copy() -> None:
+    assert HELPER.is_file() and (SKILL_DIR / "retention.py").is_file()
+    assert HELPER.parent == SKILL_DIR
