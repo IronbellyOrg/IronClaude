@@ -11,9 +11,10 @@ Holds the two prose payloads handed to the ``model: haiku`` subagent(s):
   SKILL.md.
 
 These are prose constants, not executable logic. The classifier mirrors the
-``sc-task-protocol`` compliance-tier classifier (closed enum, weighted scoring,
-top-2 delta in one pass, low-confidence branch); see
-``sc-task-protocol/SKILL.md:56-78`` and ``commands/task.md:71-93``.
+compliance-tier classifier of the ``sc-task-protocol`` skill that shipped until 6.1.0
+(closed enum, weighted scoring, top-2 delta in one pass, low-confidence branch); see
+``git show v6.0.0:src/superclaude/skills/sc-task-protocol/SKILL.md`` (lines 56-78) and
+``git show v6.0.0:src/superclaude/commands/task.md`` (lines 71-93).
 """
 
 from __future__ import annotations

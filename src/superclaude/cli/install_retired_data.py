@@ -22,9 +22,11 @@ RETIRED_COMMANDS = {
     "roadmap": ("709622e169f864d15b77e855039087ae9346b46cce0f457b8f24f48b697d3a21",),
     "save": ("e3f8d4388f7d2f634557907bea6cd1c3b43f687e04bebae4d3ed3e48b8054bab",),
     "spawn": ("962c37cefe6c25d34e441a3ce0b26d725930d4b61438bd6375b3b8869561c1c7",),
+    "task": ("ad4c9cc8117a2e5f1baa42dde4c7a1fc914cedcb1ebe8b2bfd9044c4ad67ed30", "f880d998cfafea07d2f54fc5cef13287650092befb1b42b627baaea78856f77f",),
     "tasklist": ("a4ca4273dd0e4859afe1137b7aefc8c2267808cf888974ed19f1a8a23eefce4d",),
     "tdd": ("0714fb66672a5c3d89cbbd367a821286e425cf836e3202c2b229d6ece587538d", "cabb887f673aaaa96c4cea4f75f96da13592c3cb0f24de3fc742d84844e491fd",),
     "validate-roadmap": ("621312a160e28abcab290a44fcdf3b93508e8beff5df0549e5952be1739da5c0",),
+    "validate-tests": ("9fe322e0e8775f9a52095214d26673455d591b6fdb1798a6f7986ab5ca0455f4",),
 }
 
 # agent name (without .md) -> sha256 of the file at the tag(s)
@@ -66,6 +68,10 @@ RETIRED_SKILLS = {
         "refs/templates.md": ("19f7b7cba97766cfed48e009f5ca37451e7d506c3e6552767fc7401ed9ea56d0",),
         "refs/validation.md": ("d242142ef9e2abed42015ce1788ebc9ecdf63823a2e5f631d9c70d9deb584037",),
     },
+    "sc-task-protocol": {
+        "SKILL.md": ("2c710cb6037f176b8de4750d9e624f128cead2f1de865b875d7e93768c6c5f24", "3c483ffa9a1f494df0486e47ce968f8f614a72b3934685ddc7c94e4e6dbccd79",),
+        "__init__.py": ("a7fd8704a1255b7c2b47c895a04dd9d5e853e417205b0c7a7d3d21d808f73050",),
+    },
     "sc-tasklist-protocol": {
         "SKILL.md": ("54dee4bf537c1ef55f945dc27420916faa7edf0a741b8ee7f9a1dffd209faeff",),
         "__init__.py": ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",),
@@ -76,6 +82,11 @@ RETIRED_SKILLS = {
     },
     "sc-validate-roadmap-protocol": {
         "SKILL.md": ("b423ad2a8da9480e6fb459b5ef518e1fc086b1ddf70f17da69eefcd273d155de",),
+    },
+    "sc-validate-tests-protocol": {
+        "SKILL.md": ("b431c529a1f324456e2cef58db4cb9baaa9a875e33b3f4b6abbda596d5c8ad9d",),
+        "__init__.py": ("b88e87b53e297f191080adb20c399eaf2dc3e504c18ba3d362d1069f324a6977",),
+        "classification-algorithm.yaml": ("ba57280acb9b6946146923c63ed78d8c592246ecadba41383cf9f4586f506813",),
     },
     "tdd": {
         "SKILL.md": ("c3e46525f1db5a095bbfca104d8f75c0149ece7d5c30786305358811aeb6cbdc", "e576e4368c61231e51c8325666831350ea2929e0d37dac4145dfba0c38e6cfd6",),

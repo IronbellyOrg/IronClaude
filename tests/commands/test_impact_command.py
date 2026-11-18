@@ -349,7 +349,6 @@ _IMPACT_CALLERS = [
     ("sc-pr-submit-protocol/refs/troubleshoot-dispatch.md", "sc-pr-submit-protocol"),
     ("sc-troubleshoot-protocol/SKILL.md", "sc-troubleshoot-protocol"),
     ("sc-auggie-review-protocol/SKILL.md", "sc-auggie-review-protocol"),
-    ("sc-task-protocol/SKILL.md", "sc-task-protocol"),
 ]
 
 
@@ -373,7 +372,6 @@ def test_impact_troubleshoot_wave1_does_not_call_impact():
 @pytest.mark.parametrize(
     "rel",
     [
-        "sc-task-protocol/SKILL.md",
         "sc-pr-submit-protocol/SKILL.md",
         "sc-troubleshoot-protocol/SKILL.md",
         "sc-auggie-review-protocol/SKILL.md",

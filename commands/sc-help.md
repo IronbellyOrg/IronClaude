@@ -39,7 +39,6 @@ Here is a complete list of all available SuperClaude (`/sc:sc`) commands.
 | `/sc:sc:implement` | Feature and code implementation with intelligent persona activation and MCP integration |
 | `/sc:sc:select-tool` | Intelligent MCP tool selection based on complexity scoring and operation analysis |
 | `/sc:sc:spec-panel` | Multi-expert specification review and improvement using renowned specification and software engineering experts |
-| `/sc:sc:task` | Execute complex tasks with intelligent workflow management and delegation |
 | `/sc:sc:test` | Execute tests with coverage analysis and automated quality reporting |
 | `/sc:sc:troubleshoot` | Diagnose and resolve issues in code, builds, deployments, and system behavior |
 | `/sc:sc:workflow` | Generate structured implementation workflows from PRDs and feature requirements |
@@ -112,9 +111,6 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
 
 # UI development with Magic and validation
 /sc:sc:implement --magic --validate "Add user dashboard"
-
-# Token-efficient task management
-/sc:sc:task --token-efficient --delegate auto "Refactor authentication system"
 ```
 
 ## Boundaries

@@ -78,7 +78,6 @@ eval/suites/frontier_vs_cheap_combo.yaml eval/suites/hook_latency_drift.yaml
 eval/suites/installer_sync_drift.yaml eval/suites/model_capability_matrix.yaml
 eval/suites/post_release_command_contract.yaml eval/suites/real.yaml
 eval/suites/suite.schema.json eval/suites/suite_schema_guard.yaml
-eval/suites/task_classification_contract.yaml
 eval/suites/workflow_vs_task_builder.yaml
 swarm/lenses/templates/bare-review-output.md
 swarm/lenses/templates/doc-completeness-output.md
@@ -97,8 +96,8 @@ README.md __init__.py adversarial.md agent.md analyze.md auggie-review.md
 brainstorm.md business-panel.md cleanup-audit.md cleanup.md cli-eval.md
 design.md document.md explain.md git.md graph.md help.md impact.md implement.md
 init-lite.md pm.md post-release.md pr-submit.md recommend.md reflect.md
-release-split.md research.md spec-panel.md swarm-wizard.md task.md test.md
-troubleshoot.md validate-tests.md workflow.md
+release-split.md research.md spec-panel.md swarm-wizard.md test.md
+troubleshoot.md workflow.md
 """
     ),
     "core": _names(
@@ -263,8 +262,8 @@ sc-release-split-protocol/refs/verification-protocol.md
 sc-swarm-wizard-protocol/SKILL.md sc-swarm-wizard-protocol/refs/cli-contract.md
 sc-swarm-wizard-protocol/refs/interview.md
 sc-swarm-wizard-protocol/refs/run-monitor-summarize.md
-sc-swarm-wizard-protocol/templates/summary.md sc-task-protocol/SKILL.md
-sc-task-protocol/__init__.py sc-troubleshoot-protocol/SKILL.md
+sc-swarm-wizard-protocol/templates/summary.md
+sc-troubleshoot-protocol/SKILL.md
 sc-troubleshoot-protocol/refs/agent-assertions.md
 sc-troubleshoot-protocol/refs/calibrator-eval-cases.md
 sc-troubleshoot-protocol/refs/contract-enumeration.md
@@ -283,8 +282,6 @@ sc-troubleshoot-protocol/refs/report-template.md
 sc-troubleshoot-protocol/refs/runtime-entrypoint-verification.md
 sc-troubleshoot-protocol/refs/triage-checklist.md
 sc-troubleshoot-protocol/refs/unmask-and-sweep.md
-sc-validate-tests-protocol/SKILL.md sc-validate-tests-protocol/__init__.py
-sc-validate-tests-protocol/classification-algorithm.yaml
 sc-workflow-protocol/SKILL.md
 sc-workflow-protocol/refs/00_mdtm_template_simple_task.md
 sc-workflow-protocol/refs/input-parse.md
@@ -365,7 +362,7 @@ system-architect.md technical-writer.md
 __init__.py agent.md analyze.md brainstorm.md business-panel.md cleanup.md
 design.md document.md explain.md git.md help.md implement.md
 pm.md recommend.md reflect.md research.md
-spec-panel.md task.md test.md troubleshoot.md workflow.md
+spec-panel.md test.md troubleshoot.md workflow.md
 """
     ),
     "core": _names(
@@ -663,7 +660,7 @@ class TestProtocolSkillInstallMapping:
     def test_sample_existing_protocol_skills_not_command_backed(self):
         from superclaude.cli.install_skills import _has_corresponding_command
 
-        for name in ("sc-reflect-protocol", "sc-task-protocol"):
+        for name in ("sc-reflect-protocol", "sc-troubleshoot-protocol"):
             assert _has_corresponding_command(name) is False, name
 
     def test_bare_sc_command_mapping_still_works(self):

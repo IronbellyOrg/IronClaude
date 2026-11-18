@@ -34,13 +34,12 @@ list) or ``cue`` (rules 3-7, from the path or the text).
                refs/reflection-rubric.md (it says calibrator_diversity is emitted into reflection-card.yaml);
    validator - src/superclaude/cli/reflect/contract.py (derive_verdict, _degraded_reason);
    consumer  - the section 9.3 map rows that have a file in this repository (sc-troubleshoot-protocol,
-               sc-task-protocol and sc-workflow-protocol SKILL.md, task-builder SKILL.md with
+               sc-workflow-protocol SKILL.md, task-builder SKILL.md with
                EV-4, refs/promotion-adapters.md for the Wave 7 adapters, the CI grader
                .dev/eval-workspaces/sc-reflect/grader.py),
                refs/ops-integration.md (PromQL label list), and from the review fix the two files whose text opens
                return-contract.yaml and fails the gate on adversarial_convergence_score < 0.80:
                src/superclaude/skills/task/SKILL.md (the sc-task row).
-               sc-task-protocol/SKILL.md stays listed and shows "no match" when it names none of the words.
 2. PREFIX_ROLES: tests/cli/reflect/ is consumer (deferred list item 9: fixtures and tests that carry merge_method).
 3. A path with a component containing "roadmap" (any letter case) is "not in scope": the roadmap skill uses the
    same words for its own merge and contract.
@@ -156,10 +155,6 @@ NAMED_ROLES = {
     "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md": (
         "consumer",
         "section 9.3 row",
-    ),
-    "src/superclaude/skills/sc-task-protocol/SKILL.md": (
-        "consumer",
-        "section 9.3 sc-task row as first mapped; the gate text is in skills/task/SKILL.md",
     ),
     "src/superclaude/skills/sc-workflow-protocol/SKILL.md": (
         "consumer",

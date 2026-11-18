@@ -72,14 +72,6 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 | `--format` | Explanation style | `text`, `examples`, `interactive` |
 | `--context` | Domain context | Any domain (e.g., `react`, `security`) |
 
-### Task Command Flags (`/sc:task`)
-
-| Flag | Purpose | Values |
-|------|---------|--------|
-| `--strategy` | Task approach | `systematic`, `agile`, `enterprise` |
-| `--parallel` | Parallel execution | Boolean |
-| `--delegate` | Sub-agent coordination | Boolean |
-
 ### Workflow Command Flags (`/sc:workflow`)
 
 | Flag | Purpose | Values |

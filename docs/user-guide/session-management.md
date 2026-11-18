@@ -9,7 +9,7 @@ The PM agent and the `sc:pm-protocol` skill, which `/sc:pm` loads, read and writ
 - **At the start**, the PM agent lists `.superclaude/memory/**/*.md` and reads `pm_context.md`, `current_plan.md`, `last_session.md` and `next_actions.md`.
 - **During work**, it writes the goal to `current_plan.md` and progress to `checkpoint-<timestamp>.md`.
 - **At the end**, it writes `last_session.md`, `next_actions.md` and `pm_context.md`.
-- Some skills (`/sc:task`, `/sc:reflect`) keep their own subfolders in the same store. The developer note [File-Based Session Memory](../developer-guide/session-memory.md) lists every writer.
+- Some skills (for example `/sc:reflect`) keep their own subfolders in the same store. The developer note [File-Based Session Memory](../developer-guide/session-memory.md) lists every writer.
 
 You can also read, edit or delete the files by hand: they are plain markdown.
 

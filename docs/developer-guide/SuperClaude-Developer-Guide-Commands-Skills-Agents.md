@@ -286,7 +286,7 @@ personas: [<personas>]         # Descriptive labels only (nothing auto-activates
 **Optional frontmatter fields** (seen in advanced commands):
 
 ```yaml
-version: "2.0.0"              # Explicit spec version (used in /sc:task)
+version: "2.0.0"              # Explicit spec version
 ```
 
 **Markdown Body** (standard sections):
@@ -339,7 +339,7 @@ Commands that decompose work and delegate to sub-agents without directly executi
 
 Commands that handle the full lifecycle from classification through execution to verification.
 
-- **Examples**: `/sc:task`, `/sc:implement`
+- **Examples**: `/sc:implement`
 - **Characteristics**: Multiple MCP servers, many personas, tiered compliance, sub-agent delegation
 - **Worker fit**: outward actions and the command's own commit step are off under `--unattended` (WC-9); per the rollout plan, `/sc:implement` is converted in P4. See [section 7.7](#77-orca-orchestration-commands-as-workers).
 - **Typical frontmatter**:
@@ -623,24 +623,22 @@ The skill defines a scoring rubric (5 checks), a threshold (>= 90% to proceed), 
 
 A `SKILL.md` with tool allowlisting and structured execution flows. May include tiered compliance or delegation.
 
-**Example**: `sc-task-protocol` (backs `/sc:task`)
+**Example**: `sc-graph-protocol` (backs `/sc:graph`)
 
 ```text
-src/superclaude/skills/sc-task-protocol/
-  SKILL.md              # ~400 lines: execution flow for STANDARD and STRICT tiers
+src/superclaude/skills/sc-graph-protocol/
+  SKILL.md              # ~165 lines: readiness report and a read-only preflight
 ```
 
 ```yaml
 ---
-name: sc:task-protocol
-description: Unified task execution with intelligent workflow management,
-  MCP compliance enforcement, and multi-agent delegation.
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill,
-  mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
+name: sc:graph-protocol
+description: "Readiness report for this worktree's code-graph index and the read-only preflight for /sc:graph init."
+allowed-tools: Read, Write, Edit, Bash(codegraph --version), Bash(codegraph status), Bash(git rev-parse --show-toplevel)
 ---
 ```
 
-Key features: Four compliance tiers (STRICT/STANDARD/LIGHT/EXEMPT). The `/sc:task` command file classifies the tier (keyword and compound-phrase rules) and emits the machine-readable header; the skill then runs the execution flow for STANDARD and STRICT tasks.
+Key features: a narrow `allowed-tools` list that names each shell command the skill may run, and a fixed report that the skill must print.
 
 #### Tier 3: Complex (SKILL.md + refs/ + agents + multi-phase)
 
@@ -699,7 +697,6 @@ Do NOT pre-load refs from later waves.
 Skills prefixed with `sc-` have a special relationship with commands:
 
 - `sc-adversarial-protocol` skill backs the `/sc:adversarial` command
-- `sc-task-protocol` skill backs the `/sc:task` command
 - `sc-cleanup-audit-protocol` skill backs the `/sc:cleanup-audit` command
 
 These protocol skills are installed to `~/.claude/skills/` like any other skill; the command activates its skill by name (`Skill sc:<command>-protocol`). The installer skips only a bare `sc-<name>` skill whose `commands/<name>.md` exists; it does not strip the `-protocol` suffix, so protocol skills are never skipped (`src/superclaude/cli/install_skills.py`).
@@ -834,35 +831,7 @@ Wave 4: Validation
 
 ### 6.2 Compliance Tiers
 
-The `/sc:task` command implements tiered compliance enforcement:
-
-| Tier | When | Steps | Verification | Token Cost |
-|------|------|-------|-------------|------------|
-| **STRICT** | Security, auth, database, refactor, multi-file | 11 steps | Sub-agent (quality-engineer) | 3-5K |
-| **STANDARD** | Add, implement, fix, update | 5 steps | Direct test execution | 300-500 |
-| **LIGHT** | Typo, comment, formatting, minor | 4 steps | Skip verification | 0 |
-| **EXEMPT** | Explain, search, git status, brainstorm | 2 steps | Skip verification | 0 |
-
-**Priority order**: STRICT > EXEMPT > LIGHT > STANDARD
-
-**Auto-detection algorithm**:
-
-```text
-1. Check for user override (--compliance flag)
-2. Detect compound phrases (highest priority)
-   - "fix security" -> STRICT (security always wins)
-   - "quick fix" -> LIGHT (overrides "fix" -> STANDARD)
-   - "minor auth change" -> STRICT (auth changes never minor)
-3. Score keywords by tier weight
-4. Apply context boosters:
-   - estimated_files > 2 -> STRICT +0.3
-   - security path detected -> STRICT +0.4
-   - all doc files -> EXEMPT +0.5
-5. Resolve conflicts using priority ordering
-6. If confidence < 0.7 -> prompt user for confirmation
-```
-
----
+The tiered-compliance command was removed in 6.1.0. `/sc:implement` checks each task against its acceptance criteria instead (see its command file and `~/.claude/skills/sc-implement-protocol/SKILL.md`).
 
 ## 7. Integration Patterns
 
@@ -1224,7 +1193,6 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 ### 9.4 Token Management
 
 - Simple skill (confidence-check): ~50 tokens at session start, ~100 tokens on invocation
-- Medium skill (sc-task-protocol): ~50 tokens at start, ~2000 on invocation
 - Complex skill (sc-adversarial-protocol): ~50 tokens at start, ~2000 for SKILL.md + ~500-1500 per ref loaded per wave
 - Commands: ~80-150 lines loaded on invocation
 
@@ -2192,7 +2160,6 @@ All paths are relative to the SuperClaude Framework repository root:
 | **Agent spec** | Mini-language format `model[:persona[:"instruction"]]` for dynamic agent creation |
 | **Brief guard** | The worker session's check, from P1, that each `Command:` line of its brief matches the `## Unattended mode` state of the command file copies it can see ([section 7.7](#77-orca-orchestration-commands-as-workers)) |
 | **CEV protocol** | Claim-Evidence-Verdict format for qualitative scoring |
-| **Compliance tier** | STRICT/STANDARD/LIGHT/EXEMPT classification for task execution depth |
 | **Context-Oriented Configuration** | SuperClaude's architecture: .md files that shape Claude Code behavior |
 | **Coordinator** | The session, opened by hand, that plans Orca work, creates one Task per unit of work and starts one worker per Task ([section 7.7](#77-orca-orchestration-commands-as-workers)) |
 | **Frontmatter** | YAML metadata block at the top of .md files, delimited by `---` |

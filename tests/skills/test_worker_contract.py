@@ -497,7 +497,6 @@ P2_COMMANDS = (
     "recommend",
     "research",
     "spec-panel",
-    "task",
     "reflect",
     "release-split",
     "troubleshoot",
@@ -678,23 +677,6 @@ UNATTENDED_EXPECT: dict = {
             "the `--fix` offer resolves as blocked",
         ],
         "nested": ["adversarial", "workflow"],
-    },
-    "task": {
-        "flags": ["--compliance"],
-        "phrases": [
-            "0.70",
-            "present to user",
-            "FULL STOP",
-            "EXEMPT",
-            "tfep-incident-report.md",
-            "not committed",
-            "task-report.md",
-            "every tier",
-            "confidence below 0.70 resolves as blocked",
-            "every FULL STOP resolves as blocked",
-            "EXEMPT `commit` and `push` are refused",
-        ],
-        "nested": ["impact", "troubleshoot"],
     },
     "cli-eval": {
         "flags": ["--suite", "--output-dir"],
@@ -1531,7 +1513,6 @@ EXPECTED_NESTING = {
     "release-split": ["brainstorm", "adversarial"],
     "auggie-review": ["impact"],
     "troubleshoot": ["adversarial", "workflow"],
-    "task": ["impact", "troubleshoot"],
     "cli-eval": ["spec-panel", "adversarial", "document"],
     "reflect": ["adversarial", "workflow", "impact"],
 }
@@ -1546,14 +1527,14 @@ def test_nested_lists_match_the_p2_nesting():
 
 
 def _check_p2_set(p1, p2, expect) -> None:
-    assert len(p2) == 10, f"P2 lists {len(p2)} commands, not 10"
-    assert len(set(p2)) == 10, "P2_COMMANDS has a duplicate"
+    assert len(p2) == 9, f"P2 lists {len(p2)} commands, not 9"
+    assert len(set(p2)) == 9, "P2_COMMANDS has a duplicate"
     assert set(p1).isdisjoint(p2), f"P1 and P2 share {sorted(set(p1) & set(p2))}"
     both = set(p1) | set(p2)
     assert set(expect) == both, (
         f"UNATTENDED_EXPECT differs from P1 + P2: {sorted(set(expect) ^ both)}"
     )
-    assert len(expect) == 23, f"UNATTENDED_EXPECT has {len(expect)} entries, not 23"
+    assert len(expect) == 22, f"UNATTENDED_EXPECT has {len(expect)} entries, not 22"
     for name in (*p1, *p2):
         assert (Path(_THIS.COMMANDS_DIR) / f"{name}.md").exists(), f"{name}: no file"
 
@@ -1602,7 +1583,6 @@ def test_expected_nesting_is_the_spec_nesting():
         "workflow": ["reflect"],
         "reflect": ["adversarial", "workflow", "impact"],
         "release-split": ["brainstorm", "adversarial"],
-        "task": ["impact", "troubleshoot"],
         "troubleshoot": ["adversarial", "workflow"],
         "auggie-review": ["impact"],
         "cli-eval": ["spec-panel", "adversarial", "document"],
@@ -1724,19 +1704,6 @@ P2_GATES = [
         "blocked",
         "shown",
     ),
-    (
-        "task",
-        "confidence below 0.70 resolves as blocked",
-        "blocked",
-        "reported to the user",
-    ),
-    (
-        "task",
-        "every FULL STOP resolves as blocked",
-        "blocked",
-        "reported to the user",
-    ),
-    ("task", "EXEMPT `commit` and `push` are refused", "refused", "allowed"),
     (
         "cli-eval",
         "`run` without both `--suite` and `--output-dir` resolves as blocked",

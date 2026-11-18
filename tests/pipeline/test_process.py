@@ -123,7 +123,7 @@ class TestClaudeProcessStreamJsonCompat:
 
     def test_stream_json_matches_sprint_flags(self, tmp_path):
         p = ClaudeProcess(
-            prompt="/sc:task-unified test prompt",
+            prompt="/sc:implement test prompt",
             output_file=tmp_path / "out.txt",
             error_file=tmp_path / "err.txt",
             max_turns=50,

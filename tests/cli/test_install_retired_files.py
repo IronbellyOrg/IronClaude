@@ -155,11 +155,13 @@ _REMOVED_IN_6_0_0_SKILLS = (
     "sc-tasklist-protocol",
     "sc-validate-roadmap-protocol",
 )
-_REMOVED_IN_6_1_0_COMMANDS = ("tdd",)
+_REMOVED_IN_6_1_0_COMMANDS = ("task", "tdd", "validate-tests")
 _REMOVED_IN_6_1_0_SKILLS = (
     "operational-guide",
     "prd",
     "readme",
+    "sc-task-protocol",
+    "sc-validate-tests-protocol",
     "tdd",
     "tech-reference",
     "tech-research",

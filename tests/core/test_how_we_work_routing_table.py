@@ -50,7 +50,7 @@ _LEVEL_HEADER = ["Level", "Use this when", "What you run", "What you end up with
 # A row may be added; none of these may be renamed or removed. The one row that left
 # on purpose are the localization review row (6.0.0, its command moved to the
 # snapshot fork) and the research-first, full-spec and technical-design-document
-# rows (6.1.0, their skills were removed).
+# rows and the tier-validation row (6.1.0, their skills and commands were removed).
 _EXPECTED_IDS = {
     "ask",
     "small-change",
@@ -82,7 +82,6 @@ _EXPECTED_IDS = {
     "cli-eval-run",
     "release-boundary",
     "post-release",
-    "tier-validation",
 }
 
 # Claude Code built-in slash commands the guide may name without a source file.
@@ -290,7 +289,6 @@ def test_other_commands_membership_and_live_references():
         "sc:cli-eval",
         "sc:init-lite",
         "sc:post-release",
-        "sc:validate-tests",
     }
     for token in set(_TOKEN_RE.findall(block)):
         _command_text(token)
@@ -637,17 +635,6 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
                 "never fabricated success",
             ],
         ),
-        (
-            "S17",
-            "tier-validation",
-            {"sc:validate-tests"},
-            ["YAML file/directory", "<verified target>"],
-            [
-                "default is absent",
-                "report missing prerequisite",
-                "no code/config repairs or fabricated counts",
-            ],
-        ),
     ],
     ids=lambda value: (
         value if isinstance(value, str) and re.fullmatch(r"S\d+", value) else None
@@ -656,7 +643,7 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
 def test_specialist_static_targets_inputs_and_stops(
     case, row_id, targets, inputs, boundaries
 ):
-    """Static specialist contracts (S01-S13, S17); not model-generation evaluations."""
+    """Static specialist contracts (S01-S13); not model-generation evaluations."""
     row = next(r for r in _routing_rows() if r["id"] == row_id)
     assert targets <= set(_TOKEN_RE.findall(row["steps"])), case
     assert "3.13" in row["section"].split(", "), case
@@ -996,17 +983,17 @@ def test_task_and_implement_verification_claims_are_not_universal_test_guarantee
     small = next(r for r in _routing_rows() if r["id"] == "small-change")
     assert "run the related test if it has not run" in small["steps"]
     assert (
-        "STANDARD permits affected tests or documented manual verification"
+        "say whether the related test ran, a manual check was done or nothing was checked"
         in small["notes"]
     )
-    assert "LIGHT includes scope/sanity checks" in small["notes"]
-    assert "manual verification as an observed test pass" in small["notes"]
+    assert "never report a manual check as an observed test pass" in small["notes"]
     level_block = _block(_text(), _LEVEL_BEGIN, _LEVEL_END)
     direct = _cells(_table_rows(level_block)[3])
     assert (
-        "STANDARD permits affected tests or documented manual verification" in direct[2]
+        "say whether the related test ran, a manual check was done, or nothing was checked"
+        in direct[2]
     )
-    assert "LIGHT includes scope/sanity checks" in direct[2]
+    assert "Do not report a manual check as a test pass" in direct[2]
     assert "Run the related test if it has not run" in direct[2]
     assert "it runs the affected tests itself" not in direct[2]
     assert "it skipped checking" not in direct[2]

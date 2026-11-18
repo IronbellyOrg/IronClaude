@@ -51,7 +51,6 @@ Activation conditions on the command side:
 
 - User runs `/sc:reflect <args>` in Claude Code.
 - Auto-trigger from `sc:troubleshoot-protocol` Wave 6 Phase B (pre-execution review of the workflow tasklist or task-builder output) and Phase D (post-execution validation of `/sc:implement` or `/task` completion).
-- Auto-trigger from `sc:task-protocol` end-of-task hook when configured.
 
 Do NOT invoke this skill directly outside the above paths.
 
@@ -991,7 +990,6 @@ The §9.1 stable contract has 60+ fields. Each downstream consumer reads a small
 | Consumer | Surface | Load-bearing fields (3-5) | Routing semantics |
 |----------|---------|---------------------------|-------------------|
 | **`sc-troubleshoot-protocol` Wave 6 (Phase B/D)** | Skill-to-skill invocation | `status`, `tier_reached`, `confidence_calibrated`, `regression_present`, `needs_human_decision` | `status: failed` halts troubleshoot; `regression_present: true` forces Tier-3 troubleshoot path; `needs_human_decision: true` surfaces to user before continuing. |
-| **`sc-task-protocol` end-of-task hook** | Inline post-execution | `status`, `tier_reached`, `deviation_count_by_class`, `confidence_calibrated`, `needs_human_decision` | `status: success AND confidence_calibrated ≥ 0.85` → mark task done; `deviation_count_by_class.regression > 0` → escalate to troubleshoot; `needs_human_decision: true` → surface Grounding Gaps to user. |
 | **Any UC-1 consumer (advisory, D13)** | Optional read | `coverage_degraded`, `coverage_pct_union`, `unmapped_requirements_union` | NON-GATING advisory: `coverage_degraded: "parsed-sparse"` MAY be surfaced as a "spec labeling is sparse; coverage was inference-assisted" warning; the union fields give the inference-inclusive view. Existing consumers need no change (their fields kept parsed-only semantics at 1.5.0). |
 | **Any UC-2 consumer (advisory, FR-RSR)** | Optional read | `runtime_surface_requirements`, `runtime_surface_sweep_ran`, `runtime_surface_ledger_path`, `runtime_surface_unreached`, `runtime_surface_degraded`, `unreached_surfaces` | NON-GATING advisory: runtime-surface fields MAY be surfaced for reachability diagnostics, but existing consumers need no load-bearing change; consumers that ignore unknown fields remain conforming under §9.4 read-and-ignore forward compatibility. |
 | **Any UC-2 consumer (advisory, FR-RH1)** | Optional read | `reachability_gate_ran`, `reachability_ledger_path`, `reachability_requirements_scanned`, `reachability_unreachable`, `reachability_unproven`, `reachability_real_boot_ran`, `reachability_skip_reason` | NON-GATING advisory: the contracted-sink reachability fields ride the EXISTING `regression_present` / `needs_human_decision` gating fields (NO new consumer field is required) — `reachability_unreachable > 0` already sets `regression_present`, and `reachability_unproven > 0` already sets `needs_human_decision`; the `reachability_*` fields MAY be surfaced for diagnostics, but existing consumers need no load-bearing change and remain conforming under §9.4 read-and-ignore forward compatibility. |

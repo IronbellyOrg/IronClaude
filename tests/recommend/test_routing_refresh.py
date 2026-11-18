@@ -37,7 +37,7 @@ _POST_REFRESH_ADDITIONS = {"graph", "impact", "issue", "sweep"}
 # Commands removed after the frozen package was written: /sc:spawn (replaced by
 # Orca), build, save, load, improve, cli-portify, index, index-repo and
 # review-translation (moved to the snapshot fork) went in 6.0.0, as did the roadmap,
-# tasklist and validate-roadmap commands; /sc:tdd went in 6.1.0. The frozen command record still lists them
+# tasklist and validate-roadmap commands; /sc:tdd, /sc:task and /sc:validate-tests went in 6.1.0. The frozen command record still lists them
 # as active.
 _POST_REFRESH_REMOVALS = {
     "spawn",
@@ -53,6 +53,8 @@ _POST_REFRESH_REMOVALS = {
     "tasklist",
     "validate-roadmap",
     "tdd",
+    "task",
+    "validate-tests",
 }
 
 _TOKEN_RE = re.compile(r"`/([a-z][a-z0-9:-]*)")
@@ -160,9 +162,9 @@ def test_fixture_schema_and_completeness():
         == [
             f"S{n:02d}"
             for n in range(1, 30)
-            if n not in (3, 5, 7, 11, 14, 15, 16, 18, 19, 20, 24, 25, 27)
+            if n not in (3, 5, 7, 11, 14, 15, 16, 17, 18, 19, 20, 24, 25, 27)
         ]
-    )  # S05, S07, S11, S14, S15, S16, S24, S25, S27 retired earlier; S03, S18, S19, S20 in 6.1.0
+    )  # S05, S07, S11, S14, S15, S16, S24, S25, S27 retired earlier; S03, S17, S18, S19, S20 in 6.1.0
     assert list(data["checks"]) == [f"T{n:02d}" for n in range(1, 77)]
     assert len(data["commands"]) == 47
     defined = set(data["fixture_inputs"])

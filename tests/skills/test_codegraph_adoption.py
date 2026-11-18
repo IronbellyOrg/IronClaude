@@ -19,9 +19,6 @@ _BS_SKILL = _SRC / "skills" / "sc-brainstorm-protocol" / "SKILL.md"
 _BS_ROUTING = _SRC / "skills" / "sc-brainstorm-protocol" / "refs" / "handoff-routing.md"
 _BS_CMD = _SRC / "commands" / "brainstorm.md"
 _BS_PLUGIN_CMD = _PLUGIN / "commands" / "brainstorm.md"
-_TASK_SKILL = _SRC / "skills" / "sc-task-protocol" / "SKILL.md"
-_TASK_CMD = _SRC / "commands" / "task.md"
-_TASK_PLUGIN_CMD = _PLUGIN / "commands" / "task.md"
 _CA_SKILL = _SRC / "skills" / "sc-cleanup-audit-protocol" / "SKILL.md"
 _CA_CMD = _SRC / "commands" / "cleanup-audit.md"
 _AR_SKILL = _SRC / "skills" / "sc-auggie-review-protocol" / "SKILL.md"
@@ -32,9 +29,6 @@ _ALL = [
     _BS_ROUTING,
     _BS_CMD,
     _BS_PLUGIN_CMD,
-    _TASK_SKILL,
-    _TASK_CMD,
-    _TASK_PLUGIN_CMD,
     _CA_SKILL,
     _CA_CMD,
     _AR_SKILL,
@@ -65,14 +59,6 @@ def test_brainstorm_tier2_names_codegraph_files_and_search():
     assert "Glob for files matching topic keywords" in tier2, (
         "native Glob/Grep floor must stay"
     )
-
-
-def test_task_protocol_standard_step2_names_codegraph_callers():
-    standard = _section(
-        _text(_TASK_SKILL), "**STANDARD Execution**:", r"^\*\*LIGHT Execution"
-    )
-    step2 = next(ln for ln in standard.splitlines() if ln.startswith("2. "))
-    assert "codegraph_callers" in step2 and "Grep" in step2
 
 
 @pytest.mark.parametrize("path", [_CA_SKILL, _AR_SKILL, _AR_CMD], ids=_rel)
@@ -106,12 +92,6 @@ def test_auggie_review_deep_pass_brief_passes_run_state():
 def test_mcp_servers_gain_codegraph(path):
     line = next(ln for ln in _text(path).splitlines() if ln.startswith("mcp-servers:"))
     assert "codegraph" in line, f"{_rel(path)} mcp-servers lacks codegraph"
-
-
-@pytest.mark.parametrize("path", [_TASK_CMD, _TASK_PLUGIN_CMD], ids=_rel)
-def test_task_command_mcp_servers_unchanged(path):
-    line = next(ln for ln in _text(path).splitlines() if ln.startswith("mcp-servers:"))
-    assert "serena" not in line and "codegraph" not in line
 
 
 @pytest.mark.parametrize("path", _ALL, ids=_rel)

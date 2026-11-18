@@ -18,7 +18,7 @@ Auto-activates whenever a reviewer-side, structurally-independent audit is neede
 
 1. **Direct invocation**: `/sc:reflect --mode pre|post ...` (recommended for non-interactive callers)
 2. **Legacy invocation**: `/sc:reflect --type task --analyze` or `/sc:reflect --type task --validate` — preserved for `sc:troubleshoot-protocol` Wave 6 (Phase B and Phase D) and any other caller already on the v1 grammar. The legacy grammar is mapped onto the new modes (see Usage below).
-3. **Programmatic call**: Another `/sc:*` command invokes the `sc:reflect-protocol` skill directly (e.g., `sc:task-protocol` end-of-task hook when enabled).
+3. **Programmatic call**: Another `/sc:*` command invokes the `sc:reflect-protocol` skill directly (e.g., `sc:troubleshoot-protocol` Wave 6).
 
 ## Required Input
 
@@ -276,6 +276,5 @@ No silent code changes. No auto-execution of the remediation task. No auto-commi
 - **`/sc:troubleshoot`** — Invokes `/sc:reflect --type task --analyze` (Wave 6 Phase B) and `/sc:reflect --type task --validate` (Wave 6 Phase D); the legacy grammar is preserved for this caller.
 - **`/sc:adversarial`** — Invoked by reflect Wave 4 to debate competing reviewer verdicts in Tier 2. Reflect consumes the producer's `artifacts_dir` field and remaps it into its own `adversarial_artifacts_dir` contract field (mechanical resolution; not user-facing).
 - **`task-builder` skill** — Invoked by reflect Wave 6 when `--remediate` is accepted; consumes the M1-frozen BUILD_REQUEST schema documented in `refs/remediation-handoff.md`.
-- **`/sc:task`** — May auto-trigger `/sc:reflect` as an end-of-task hook when configured (deferred per Open Question 2 in the rebuild task file).
 - **`/sc:analyze`** — Complementary; use for read-only quality/security/architecture analysis when there is no spec or diff to reflect against.
 - **`/sc:brainstorm`** — Upstream of `/sc:reflect` when the spec or tasklist itself is genuinely ambiguous and the user wants to scope it first.

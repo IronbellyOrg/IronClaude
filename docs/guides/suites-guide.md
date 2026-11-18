@@ -43,7 +43,6 @@ each suite below; see also §"Troubleshooting".
 | 2 | `frontier_vs_cheap_combo` | 4 | One-off / on-demand | Frontier-vs-combo cost-quality A/B |
 | 3 | `adversarial_merge_consistency` | 3 | Recurring weekly | Inter-judge determinism of `/sc:adversarial` |
 | 4 | `freshness_blocks_unread_edit` | 3 | One-off baseline | Pre-edit freshness gate end-to-end |
-| 5 | `task_classification_contract` | 2 | One-off baseline | `/sc:task` first-output HTML marker |
 | 6 | `audit_wiring_guard` | 2 | One-off baseline | Audit pipeline never deletes wired files |
 | 8 | `eval_smoke` | 3 | One-off / smoke | Meta-canary for the eval CLI itself |
 | 9 | `installer_sync_drift` | 1 | Recurring CI/nightly | `make verify-sync` doesn't regress |
@@ -54,9 +53,9 @@ each suite below; see also §"Troubleshooting".
 | 14 | `suite_schema_guard` | 2 | On-PR + nightly | Every `suites/*.yaml` still loads + schema-validates |
 | 15 | `workflow_vs_task_builder` | 27 | Manual / on-demand | Retrospective planning-quality comparison; companion execution required |
 
-**Current discovery: 87 expanded evals across 17 suites**, including
+**Current discovery: 84 expanded evals across 15 suites**, including
 `real` (17) and `post_release_command_contract` (4), which are not listed
-in this historical table. All 17 suites ship as YAML files in
+in this historical table. All 15 suites ship as YAML files in
 `src/superclaude/cli/eval/suites/`. Verified with `uv run superclaude eval list`.
 (Suites #12–#14 ship with the `/sc:cli-eval` skill.)
 
@@ -200,34 +199,6 @@ uv run superclaude eval run --suite freshness_blocks_unread_edit --no-mcp
 
 **Cadence:** one-off baseline. Re-run after touching
 `src/superclaude/hooks/scripts/freshness-pre-edit.sh`.
-
----
-
-### 5. `task_classification_contract.yaml` — `/sc:task` HTML marker
-
-**Hypothesis:** `/sc:task <prompt>` emits the mandatory
-`<!-- SC:TASK-UNIFIED:CLASSIFICATION -->` block as first output with a
-valid TIER enum (STRICT for security-critical inputs, EXEMPT for
-informational requests).
-
-**2 evals:**
-
-| ID | Input                                                    | Expected TIER |
-|----|----------------------------------------------------------|---------------|
-| E1 | `/sc:task "fix security vulnerability in auth module"`   | STRICT        |
-| E2 | `/sc:task "explain how routing works"`                   | EXEMPT        |
-
-Both assert on PTY-captured stdout containing the HTML marker and the
-tier line.
-
-**Sample invocation:**
-
-```bash
-uv run superclaude eval run --suite task_classification_contract --no-mcp
-```
-
-**Cadence:** one-off baseline; re-run on edits to
-`.claude/commands/sc/task.md` or `.claude/skills/sc-task-protocol/**`.
 
 ---
 

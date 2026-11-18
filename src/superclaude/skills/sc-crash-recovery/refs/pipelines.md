@@ -41,13 +41,13 @@ A project can have multiple of these in flight simultaneously. Do not assume a s
 
 ```bash
 # task skill picks up at first unchecked item
-/sc:task .dev/tasks/to-do/<TASK-ID>.md
+/task .dev/tasks/to-do/<TASK-ID>.md
 # or natural-language: "resume the task at <path>"
 ```
 
 ## Workflow task packages (`TASK-WF-*`, `/sc:workflow` + `/sc:implement`)
 
-**Created by:** `/sc:workflow` (one new package per generation). **Route to `/sc:implement`, never to MDTM `/task` or `/sc:task`.**
+**Created by:** `/sc:workflow` (one new package per generation). **Route to `/sc:implement`, never to MDTM `/task`.**
 **Layout (scan BOTH locations):**
 
 ```text

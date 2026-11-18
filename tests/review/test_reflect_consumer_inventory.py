@@ -95,10 +95,6 @@ def test_classification_rules() -> None:
         "consumer",
         "named",
     )
-    assert inv.classify("src/superclaude/skills/sc-task-protocol/SKILL.md")[:2] == (
-        "consumer",
-        "named",
-    )
     assert inv.classify("tests/cli/reflect/fixtures/any.yaml")[1] == "named"
     # With no text only the path rules can fire; the fallback is a cue-based consumer.
     assert inv.classify("src/superclaude/cli/reflect/runner.py")[:2] == (

@@ -36,7 +36,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 | Command | Purpose | File | Changes files? |
 |---------|---------|------|----------------|
 | [`/sc:pm`](#scpm---project-manager-agent) | Project Manager agent | `pm.md` | Yes |
-| [`/sc:task`](#sctask---enhanced-task-management) | One small, direct change (level 2) | `task.md` | Yes |
 | [`/sc:workflow`](#scworkflow---implementation-plan-generator) | Checked implementation plan (level 3, the default for planned work) | `workflow.md` | Only with `--handoff implement` |
 | `/sc:agent` | Session controller for investigate, build, review | `agent.md` | Yes |
 | `/sc:release-split` | Two-phase release split analysis | `release-split.md` | Report only |
@@ -67,7 +66,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 | `/sc:auggie-review` | Auggie code review of PRs and diffs | `auggie-review.md` | Report only |
 | `/sc:cleanup-audit` | Read-only multi-pass repository cleanup audit | `cleanup-audit.md` | Report only |
 | `/sc:swarm-wizard` | Plain-language guide to the swarm CLI | `swarm-wizard.md` | Report only |
-| `/sc:validate-tests` | Validate tier classification against YAML specs | `validate-tests.md` | Report only |
 | `/sc:cli-eval` | Author or run cliEval eval suites | `cli-eval.md` | Yes |
 
 ### 5. IMPROVEMENT
@@ -583,68 +581,6 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 
 ---
 
-### `/sc:task` - Enhanced Task Management
-
-**When to use:** A small, direct change: one source file plus its test, five edits or fewer, and you know exactly what it should be (level 2 in [How We Work](how-we-work.md)). Work that touches more than one source file or needs more than five edits needs a written plan (`/sc:workflow`, level 3; `/task-builder` only when you explicitly select MDTM).
-
-**What it does:**
-
-- Prints a `Tier:` line at the start (`STRICT`, `STANDARD`, `LIGHT` or `EXEMPT`)
-- `STANDARD` and `STRICT` run the full protocol, including the affected tests
-- `LIGHT` (typos, comments, formatting) and `EXEMPT` (no code change) skip its checks, so run the test yourself afterwards
-
-**Syntax:**
-
-```
-/sc:task [operation] [target] [--strategy systematic|agile|enterprise] [--compliance strict|standard|light|exempt] [--verify] [--skip-compliance] [--force-strict] [--parallel] [--delegate] [--no-escalation]
-```
-
-**Examples:**
-
-```bash
-# One small, direct change (level 2)
-/sc:task "Rename recieved_at to received_at in src/jobs/runner.py and update its tests"
-# Prints its Tier: line, makes the change, and (STANDARD/STRICT) runs the affected tests
-```
-
-**MCP servers:** context7, playwright, morphllm
-
----
-
-### `/sc:validate-tests` - Behavioral Test Validation
-
-**When to use:** Validate tier classification behavior against YAML test specifications and report pass and fail counts. It does not modify the test specifications or the classification algorithm.
-
-**Syntax:**
-
-```
-/sc:validate-tests [target] [flags]
-```
-
-`target` is a test file or folder (default `tests/sc-task/`).
-
-**Options:**
-
-| Flag | What it does |
-|------|--------------|
-| `--all` | Run every test file |
-| `--category <name>` | One category: classification, routing, compound, boosters, comparison, edge, integration |
-| `--verbose` | Detailed trace for each test |
-| `--summary` | Pass/fail counts only (the default) |
-| `--stop-on-fail` | Stop at the first failure |
-| `--report <path>` | Save the report to a file |
-
-**Examples:**
-
-```bash
-/sc:validate-tests --all
-/sc:validate-tests --category classification --verbose
-```
-
-**MCP servers:** none
-
----
-
 ### `/sc:workflow` - Implementation Plan Generator
 
 **When to use:** Any change that needs a written plan, including work across many files or several sessions, with or without a spec, PRD or TDD (level 3 in [How We Work](how-we-work.md), the ordinary default for planned work). The default is `--depth standard`; use `--depth quick` for a smaller checked plan. It writes a phased plan (`<id>.md`, named like its package directory). Use `/task-builder` only when you explicitly select MDTM or have an exceptional need for its machinery (level 4).
@@ -671,10 +607,10 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 /sc:workflow "Add a retry limit to the job runner: stop after 3 failures. Files: src/jobs/runner.py, src/jobs/config.py" --depth standard --handoff none
 ```
 
-**Difference from `/sc:implement` / `/sc:task`:**
+**Difference from `/sc:implement`:**
 
 - workflow = planning (`.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/<id>.md`: one plan folder, and the plan file is named like its folder)
-- implement / task = execution
+- implement = execution
 
 ---
 

@@ -95,7 +95,7 @@ The protocol skill runs exactly one codegraph readiness check per run (Wave 0; r
 - Run `codegraph init`, `codegraph index` or `codegraph sync`
 - Treat a bare `/sc:implement` with no path and no prompt as a source
 - Treat lint or tests as the pass/fail
-- Invoke `/task` or `/sc:task`
+- Invoke `/task`
 - Import MDTM F1, 6-agent phase gates, or `/sc:reflect` as the per-task gate
 - Auto-commit, open PRs, or release (a managed archive is not any of these)
 - Move a package by any means other than the archive helper

@@ -244,29 +244,6 @@
       }
     },
     {
-      "id": "S17",
-      "request": "Validate task-tier YAML expectations in {fixture:tier-yaml} with verbose output, stop on first failure, report to {fixture:report-path}.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "tier-validation"},
-      "targets": ["sc:validate-tests"],
-      "mode_flags": ["--verbose", "--stop-on-fail", "--report"],
-      "retained_inputs": ["{fixture:tier-yaml}", "{fixture:report-path}"],
-      "stop": "classification result and requested report",
-      "authority": "report-only",
-      "side_effects": "requested report file only; no source/configuration repairs",
-      "guide_phrases": ["YAML file/directory", "<verified target>", "default is absent", "report missing prerequisite", "no code/config repairs or fabricated counts"],
-      "contract_gaps": ["C15"],
-      "negative": {"competitors": ["sc:test", "sc:workflow"], "must_not": "sc:test coverage, fabricated fixture counts or automatic implementation planning"},
-      "activation": {"sc:validate-tests": "sc:validate-tests-protocol"},
-      "repeats": [
-        {"request": "Validate the task tiers against the default suite.", "targets": ["sc:validate-tests"], "mode_flags": [], "expected": "report the missing default YAML suite as a prerequisite; no illustrative counts"}
-      ],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:validate-tests", "expected": "not installed: sc:validate-tests; no substitution by sc:test"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "codebase-research", "candidate": "/sc:test", "envelope": "Run: /sc:test tests/"}, "expected": "guide route matched; cache not consulted; cached /sc:test never emitted"}
-      }
-    },
-    {
       "id": "S21",
       "request": "Help choose swarm settings for reviewing {fixture:review-target}; no real-model launch is authorized.",
       "environment": "checkout",
