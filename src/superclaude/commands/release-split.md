@@ -147,5 +147,4 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
 | `/sc:adversarial` | Part 2 validation | Generate competing split variants and merge via adversarial debate |
 | `/sc:design` | Part 3 execution (specs) | Produce release specs if split approved |
 | `/sc:workflow` | Part 3 execution (workflow) | Produce execution workflow if appropriate |
-| `/sc:tasklist` | Part 3 execution (tasklists) | Produce tasklist bundles if appropriate |
 | `/sc:analyze` | Part 4 verification | Deep fidelity and coverage analysis |

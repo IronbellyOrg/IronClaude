@@ -1,0 +1,11 @@
+# T5 checks
+AC1: test_worker_contract.py:
+  ......................................................................   [100%]
+
+  ============================= 753 passed in 1.66s ==============================
+AC1: ruff on the file:
+  All checks passed!
+  1 file already formatted
+AC2: grep in tests/skills (expect none):
+  (end)
+pass count of this file: baseline 768, now 753, difference 15 (the removed review-translation cases)

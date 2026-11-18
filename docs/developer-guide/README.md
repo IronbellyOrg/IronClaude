@@ -53,7 +53,7 @@ This Developer Guide provides documentation for understanding SuperClaude's cont
 ### Technical Notes
 
 - [Codegraph Integration](codegraph-integration.md): pinned codegraph download, MCP registration, the auto-index hook and the MCP retire step
-- [Session Memory](session-memory.md): the file-based `.superclaude/memory/` store behind `/sc:save` and `/sc:load`
+- [Session Memory](session-memory.md): the file-based `.superclaude/memory/` store behind `/sc:pm` and the PM agent
 - [Review Severity Rule](review-severity-rule.md): blocking vs minor findings and the two-fix-cycle limit
 - [Release Procedure](release-procedure.md): go/no-go checks, release notes, tag and GitHub release
 
@@ -61,7 +61,7 @@ This Developer Guide provides documentation for understanding SuperClaude's cont
 
 ### Context Files and the CLI
 
-SuperClaude has two parts. Most of it is `.md` instruction files (core files, commands, agents, skills) that Claude Code reads to change its behavior. The Python package also ships the `superclaude` CLI: `install`, `update`, `doctor` and `mcp` set up and check the installation, and commands such as `sprint`, `roadmap` and `eval` run multi-step pipelines. Run `superclaude --help` for the full list.
+SuperClaude has two parts. Most of it is `.md` instruction files (core files, commands, agents, skills) that Claude Code reads to change its behavior. The Python package also ships the `superclaude` CLI: `install`, `update`, `doctor` and `mcp` set up and check the installation, and commands such as `reflect`, `swarm` and `eval` run multi-step pipelines. Run `superclaude --help` for the full list.
 
 `/sc:` commands are typed in a Claude Code conversation, not in a terminal. `superclaude <command>` is typed in a terminal.
 
@@ -79,7 +79,7 @@ External tools (actual software) that can be configured to provide additional ca
 
 ### Session Memory
 
-`/sc:save` and `/sc:load` keep session context in plain markdown files under `<project>/.superclaude/memory/`, so a later conversation can pick up where an earlier one stopped.
+`/sc:pm` and the PM agent keep session context in plain markdown files under `<project>/.superclaude/memory/`, so a later conversation can read the earlier decisions and notes.
 
 ## What SuperClaude Contains
 

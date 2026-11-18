@@ -1,0 +1,10 @@
+input_tree_sha256: 2785c3f5c94b9122cd75b9bab5b333a0da0adf4542f362d2c1c43d459ec8f34c
+note: UC-1 input tree = the spec snapshot and the tasklist only (no work-unit tree walk and no linked-file following; the plan names repo files that this run does not change). The tree hash is sha256 of the compact JSON list [[path, sha256], ...] sorted by path.
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-removeScIndexAnd-20261118-004719/TASK-WF-removeScIndexAnd-20261118-004719.md
+    sha256: 6785f7c7f0e6bb97fa5863d889bd00b68df407d572ea424f8fb5634f0f0ecb69
+  - path: .dev/tasks/to-do/TASK-WF-removeScIndexAnd-20261118-004719/source.md
+    sha256: 454325b9360922742e431caaae57487a6daf177bc9c0d64ad89f415e5c2dd8f6
+file_count: 2
+output_root: .dev/reflect/pre-TASK-WF-removeScIndexAnd-20261118005023
+output_input_overlap: false

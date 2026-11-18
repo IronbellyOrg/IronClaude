@@ -441,7 +441,7 @@ superclaude reflect run <tasklist.md> --depth deep --fix --promote
   `.dev/tasks/to-do/TASK-* → done/` once the verdict is a clean (or auto-fixed)
   PASS.
 
-### O2 — per-phase (sc:tasklist end-of-phase gate)
+### O2 — per-phase (end-of-phase gate)
 
 ```bash
 superclaude reflect run <phase-N-file.md> --depth deep --fix --no-promote --base <phase-N-start-sha>
@@ -484,7 +484,7 @@ The engine is fail-closed by construction. The following invariants always hold.
   or the frontmatter is missing), a would-be PASS is downgraded to BLOCKED
   (exit 2). The `wrapper-result.yaml` sidecar is **always** written regardless, so
   the verdict signal survives even when the frontmatter write fails.
-- **The `--tmux` sentinel inverts the sprint fail-open posture.** A missing or
+- **The `--tmux` sentinel is fail-closed.** A missing or
   garbage `.reflect-exitcode` sentinel is treated as `blocked` (exit 2), never
   success.
 - **No-launch paths leave no artifacts.** `--dry-run` and `--print-command`

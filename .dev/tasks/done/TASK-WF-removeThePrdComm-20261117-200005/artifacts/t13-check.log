@@ -1,0 +1,6 @@
+$ grep -n -w prd technical-architecture.md (line 315 only)
+0
+$ git diff --stat
+ docs/developer-guide/technical-architecture.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+- **The `superclaude` Python CLI**: `install`, `update`, `doctor` and `mcp` set up and check the installation. The `sprint`, `roadmap`, `tasklist`, `eval`, `swarm`, `reflect`, `cli-portify` and `clean

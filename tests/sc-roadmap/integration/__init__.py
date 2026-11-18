@@ -1,1 +1,0 @@
-# sc-roadmap integration tests

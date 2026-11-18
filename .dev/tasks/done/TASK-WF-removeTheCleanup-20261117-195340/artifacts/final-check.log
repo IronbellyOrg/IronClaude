@@ -1,0 +1,18 @@
+T1 main.py cleanup refs: 0
+T1 --help cleanup-audit lines: 0
+T2 runner dir exists: no
+T2 main imports: ok
+T3 portify reserved names: 6 ['audit', 'main', 'pipeline', 'roadmap', 'sprint', 'tasklist']
+T4 structure test exists: no
+T5 test_cli_registration cleanup-audit: 0
+T6 swarm test cleanup-audit: 0
+T7 portify-summary in install test: 0
+T8 tech-arch l315 cleanup-audit: 0
+T9 README l142: - audit flows
+T10 json valid+clean: ok / 0
+T11 index md hits: 0
+T12-T16 runner-name hits (cleanup_audit|CleanupAudit|superclaude cleanup-audit) in generated docs: 0
+T17 search1 hits outside test fn names: 0
+kept: skill dir present, command present, audit agents 5, cli/audit 42 py files
+tracked .claude changes: 0
+CHANGELOG changes: 0

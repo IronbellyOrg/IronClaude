@@ -4,7 +4,7 @@
 
 This guide documents how SuperClaude's Context-Oriented Configuration Framework is structured and how Claude Code interprets these context files to modify its behavior.
 
-**Important**: Most of SuperClaude is `.md` instruction files (core files, commands, agents, skills) that Claude Code reads to adopt specialized behaviors. Two parts do run code: the `superclaude` Python CLI (installer, `doctor`, and the `sprint`, `roadmap`, `tasklist`, `eval`, `swarm` and other pipelines) and the hook scripts Claude Code runs on session and tool events. See [What Runs Code](#what-runs-code).
+**Important**: Most of SuperClaude is `.md` instruction files (core files, commands, agents, skills) that Claude Code reads to adopt specialized behaviors. Two parts do run code: the `superclaude` Python CLI (installer, `doctor`, and the `eval`, `swarm`, `reflect` and other pipelines) and the hook scripts Claude Code runs on session and tool events. See [What Runs Code](#what-runs-code).
 
 ## Table of Contents
 
@@ -85,6 +85,8 @@ The lists below give counts rather than every file name. Run `superclaude instal
 Note: Other directories (backups/, projects/, etc.) are Claude Code
 operational directories, not part of SuperClaude framework content.
 ```
+
+`superclaude install` and `superclaude update` also remove, from `~/.claude/commands/sc/`, `~/.claude/skills/` and `~/.claude/agents/`, the commands, skills and agents an earlier release shipped and this one does not. They remove only files whose content matches the file at that release's tag (`src/superclaude/cli/install_retired_files.py`, with the generated list in `install_retired_data.py`); anything else is kept and reported with the command that removes it.
 
 `superclaude install` also writes outside `~/.claude/`. The `versions/`, `current` and `~/.local/bin/codegraph` entries appear only when the installer downloads the pinned codegraph itself, because none was found on `PATH` or in `~/.local/bin`:
 
@@ -312,7 +314,7 @@ There is no way to add a mode that switches on by itself. Modes ship under `src/
 
 ### What Runs Code
 
-- **The `superclaude` Python CLI**: `install`, `update`, `doctor` and `mcp` set up and check the installation. The `sprint`, `roadmap`, `tasklist`, `eval`, `swarm`, `reflect`, `prd`, `cli-portify` and `cleanup-audit` commands are multi-step pipelines: most start Claude Code as a subprocess for each step and check its output in code; `swarm` fans one prompt out to several OpenAI-compatible model workers. Run `superclaude --help` for the full list.
+- **The `superclaude` Python CLI**: `install`, `update`, `doctor` and `mcp` set up and check the installation. The `eval`, `swarm` and `reflect` commands are multi-step pipelines: most start Claude Code as a subprocess for each step and check its output in code; `swarm` fans one prompt out to several OpenAI-compatible model workers. Run `superclaude --help` for the full list.
 - **Hook scripts**: Claude Code runs the scripts in `~/.claude/hooks/` and `~/.claude/skills/ccsession-tag/hooks/` on the events registered in `settings.json`. They track reads, block edits to unread or stale files (`freshness-pre-edit.sh`), and start a background `codegraph init` on the first session in a new checkout (`codegraph-session-start.sh`; opt out with `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`).
 - **MCP servers**: Separate software (codegraph, Context7, Tavily and others) that `superclaude mcp` and `superclaude install` register with Claude Code.
 

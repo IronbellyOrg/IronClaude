@@ -1,4 +1,4 @@
-"""Pipeline module -- shared base for sprint and roadmap CLI commands.
+"""Pipeline module -- shared base for CLI pipeline runners.
 
 Public API surface (42 symbols):
 - PipelineConfig, Step, StepResult, StepStatus, GateCriteria, SemanticCheck  (models)

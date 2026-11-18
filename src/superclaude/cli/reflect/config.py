@@ -5,7 +5,7 @@ Turns CLI args + tasklist frontmatter + git state into a validated
 to a ``blocked`` exit) on any unresolvable input or a preflight STOP.
 
 Isolation guardrails:
-- No imports from ``superclaude.cli.sprint`` or ``superclaude.cli.roadmap``.
+- No imports from other CLI runner packages.
 - Zero ``async def`` / ``await``.
 - Imports nothing from ``commands.py`` / ``runner.py`` / ``contract.py``.
 

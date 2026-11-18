@@ -1,0 +1,6 @@
+# T4 checks
+AC1 spawn in contract and test: src/superclaude/core/WORKER-CONTRACT.md:0 tests/skills/test_worker_contract.py:1 
+AC2 baseline passed in test_worker_contract.py: 770
+  
+  ============================= 768 passed in 1.61s ==============================
+# note: the one remaining 'spawn' on tests/skills/test_worker_contract.py:3059 is the unrelated phrase 'agent-spawn directive'

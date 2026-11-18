@@ -1,0 +1,14 @@
+== AC1 grep sc:index|index-repo in HOW-WE-WORK.md (expect nothing)
+NO MATCH
+== AC2 document-built row steps
+1a. focused output: `/sc:document <target>` with requested type/style
+  1b. template-led output: one of `/tech-reference "<request>"`, `/operational-guide "<request>"`, `/readme "<request>"`
+  2. stop at the requested documentation
+== other 'coordinated project' wording left in the guide
+NO MATCH
+== AC3 level-table copy test
+
+============================== 6 passed in 0.14s ===============================
+== diff stat vs start
+ src/superclaude/core/HOW-WE-WORK.md | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)

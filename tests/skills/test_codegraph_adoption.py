@@ -1,7 +1,7 @@
 """Drift guards for codegraph adoption in skills and commands (issue #323, Phase 3).
 
-Pins the codegraph tier placed above each Phase 1 Grep/Read floor in validate-roadmap,
-brainstorm, task, tasklist, cleanup-audit and auggie-review, the `mcp-servers:`
+Pins the codegraph tier placed above each Phase 1 Grep/Read floor in
+brainstorm, task, cleanup-audit and auggie-review, the `mcp-servers:`
 metadata those primitives gained, the run state handed to the auggie-review deep-pass
 agent, and that no Serena tool name came back. CI-safe: pure file-content assertions.
 """
@@ -15,8 +15,6 @@ _REPO = Path(__file__).resolve().parents[2]
 _SRC = _REPO / "src" / "superclaude"
 _PLUGIN = _REPO / "plugins" / "superclaude"
 
-_VR_SKILL = _SRC / "skills" / "sc-validate-roadmap-protocol" / "SKILL.md"
-_VR_CMD = _SRC / "commands" / "validate-roadmap.md"
 _BS_SKILL = _SRC / "skills" / "sc-brainstorm-protocol" / "SKILL.md"
 _BS_ROUTING = _SRC / "skills" / "sc-brainstorm-protocol" / "refs" / "handoff-routing.md"
 _BS_CMD = _SRC / "commands" / "brainstorm.md"
@@ -24,15 +22,12 @@ _BS_PLUGIN_CMD = _PLUGIN / "commands" / "brainstorm.md"
 _TASK_SKILL = _SRC / "skills" / "sc-task-protocol" / "SKILL.md"
 _TASK_CMD = _SRC / "commands" / "task.md"
 _TASK_PLUGIN_CMD = _PLUGIN / "commands" / "task.md"
-_TASKLIST_SKILL = _SRC / "skills" / "sc-tasklist-protocol" / "SKILL.md"
 _CA_SKILL = _SRC / "skills" / "sc-cleanup-audit-protocol" / "SKILL.md"
 _CA_CMD = _SRC / "commands" / "cleanup-audit.md"
 _AR_SKILL = _SRC / "skills" / "sc-auggie-review-protocol" / "SKILL.md"
 _AR_CMD = _SRC / "commands" / "auggie-review.md"
 
 _ALL = [
-    _VR_SKILL,
-    _VR_CMD,
     _BS_SKILL,
     _BS_ROUTING,
     _BS_CMD,
@@ -40,7 +35,6 @@ _ALL = [
     _TASK_SKILL,
     _TASK_CMD,
     _TASK_PLUGIN_CMD,
-    _TASKLIST_SKILL,
     _CA_SKILL,
     _CA_CMD,
     _AR_SKILL,
@@ -63,15 +57,6 @@ def _rel(path: Path) -> str:
     return str(path.relative_to(_REPO))
 
 
-def test_validate_roadmap_step05_puts_codegraph_above_grep_and_never_skips():
-    step = _section(_text(_VR_SKILL), "#### Step 0.5", r"^#### |^### ")
-    assert "codegraph_search" in step and "Grep" in step
-    assert step.index("codegraph_search") < step.index("call `Grep` for its definition")
-    assert "skip" not in step.lower(), (
-        "Step 0.5 must never skip where the Grep floor exists"
-    )
-
-
 def test_brainstorm_tier2_names_codegraph_files_and_search():
     tier2 = _section(
         _text(_BS_ROUTING), "**Tier 2 (fallback_1)**: codegraph", r"^\*\*Final fallback"
@@ -88,13 +73,6 @@ def test_task_protocol_standard_step2_names_codegraph_callers():
     )
     step2 = next(ln for ln in standard.splitlines() if ln.startswith("2. "))
     assert "codegraph_callers" in step2 and "Grep" in step2
-
-
-def test_tasklist_strict_row():
-    assert (
-        "| STRICT | None | codegraph, Context7 | Yes (recorded) |"
-        in _text(_TASKLIST_SKILL).splitlines()
-    )
 
 
 @pytest.mark.parametrize("path", [_CA_SKILL, _AR_SKILL, _AR_CMD], ids=_rel)
@@ -115,8 +93,6 @@ def test_auggie_review_deep_pass_brief_passes_run_state():
 @pytest.mark.parametrize(
     "path",
     [
-        _VR_CMD,
-        _VR_SKILL,
         _BS_CMD,
         _BS_PLUGIN_CMD,
         _BS_SKILL,
@@ -255,7 +231,6 @@ _ISSUE_504_COMMANDS = [
         "design.md",
         "implement.md",
         "workflow.md",
-        "index-repo.md",
         "document.md",
     )
 ]
@@ -277,7 +252,7 @@ def test_issue_504_commands_list_codegraph_and_one_readiness_check(path):
 
 
 _OWN_CHECK_COMMANDS = [
-    _SRC / "commands" / name for name in ("analyze.md", "index-repo.md", "document.md")
+    _SRC / "commands" / name for name in ("analyze.md", "document.md")
 ]
 
 

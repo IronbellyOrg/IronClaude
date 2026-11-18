@@ -315,12 +315,12 @@
   <p class="eyebrow"><b>05</b> · Choosing the process · HOW-WE-WORK section 1</p>
   <h2 id="s5-h">Pick your level</h2>
   <p>The six levels set how much process a change gets. Match the outcome you want first, and any command you named or plan that already exists. Most planned implementation uses level 3; level 4 is only for an explicit or exceptional need for its task-file machinery.</p>
-  <p><strong>Hard limit:</strong> if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: normally level 3, not automatic level 4. The one exception is contained <code>/sc:cleanup</code> and <code>/sc:improve</code> work on a folder (guide 3.7): commit first and review <code>git diff</code> afterwards. It does not cover structural migrations. Naming a command directly does not waive the written plan.</p>
+  <p><strong>Hard limit:</strong> if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: normally level 3, not automatic level 4. The one exception is contained <code>/sc:cleanup</code> work on a folder (guide 3.7): commit first and review <code>git diff</code> afterwards. It does not cover structural migrations. Naming a command directly does not waive the written plan.</p>
   <div class="term"><b>Spec:</b> a short written description of what changes, which files, and how you will know it works (guide 3.2).</div>
   <figure class="diagram mid">
     <svg viewBox="0 0 760 426" role="img" aria-labelledby="d3-t d3-d">
       <title id="d3-t">Level ladder</title>
-      <desc id="d3-d">Six levels from ask a question at the bottom to write a full specification at the top. The hard limit sits between level 2 and level 3: above it, work needs a written plan, normally level 3 and not automatically level 4, and naming a command directly does not waive it. The one exception is contained /sc:cleanup and /sc:improve work on a folder, not structural migrations.</desc>
+      <desc id="d3-d">Six levels from ask a question at the bottom to write a full specification at the top. The hard limit sits between level 2 and level 3: above it, work needs a written plan, normally level 3 and not automatically level 4, and naming a command directly does not waive it. The one exception is contained /sc:cleanup work on a folder, not structural migrations.</desc>
       <rect class="d-box" x="20" y="18" width="720" height="48" rx="8"/>
       <text class="d-tb" x="36" y="48">6 · Write a full specification</text><text class="d-tm" x="440" y="48">/prd → /tdd</text>
       <rect class="d-box" x="20" y="74" width="720" height="48" rx="8"/>
@@ -332,13 +332,13 @@
       <path class="d-line-warn" d="M20,252 L740,252"/>
       <text class="d-tw" x="36" y="274">Hard limit: more than 5 edits, or more than one source file (its test file does not count),</text>
       <text class="d-tw" x="36" y="292">needs a written plan: normally level 3, not automatic level 4. Naming a command does not waive it.</text>
-      <text class="d-tw" x="36" y="310">The one exception: contained /sc:cleanup and /sc:improve work on a folder, not structural migrations</text>
+      <text class="d-tw" x="36" y="310">The one exception: contained /sc:cleanup work on a folder, not structural migrations</text>
       <rect class="d-box" x="20" y="322" width="720" height="44" rx="8"/>
       <text class="d-tb" x="36" y="350">2 · Make a small, direct change</text><text class="d-tm" x="440" y="350">/sc:implement, or a plain edit</text>
       <rect class="d-box" x="20" y="374" width="720" height="44" rx="8"/>
       <text class="d-tb" x="36" y="402">1 · Ask a question</text><text class="d-tm" x="440" y="402">ask, or /sc:explain</text>
     </svg>
-    <figcaption class="cap">The six levels. Above the hard limit (which does not apply to contained <code>/sc:cleanup</code> and <code>/sc:improve</code> work on a folder, other than structural migrations), a written plan is normally level 3, not automatically level 4.</figcaption>
+    <figcaption class="cap">The six levels. Above the hard limit (which does not apply to contained <code>/sc:cleanup</code> work on a folder, other than structural migrations), a written plan is normally level 3, not automatically level 4.</figcaption>
   </figure>
   <p>Level 4 is for an explicit choice of the task-file (MDTM) format, an existing MDTM task, or an exceptionally complex, long-running phased program that needs its research, checklist and phase-reviewer machinery. File count, sessions, an existing spec, PRD or TDD (product and design documents), risk or drift alone never make work level 4. After the level 6 documents, ordinary planning is level 3 (<code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution); <code>/roadmap</code> only if you explicitly choose it or have the exceptional level 4 need (guide 3.1).</p>
 </section>
@@ -529,7 +529,6 @@
     <div class="card"><h3>Work is written to files</h3><p>Plans, research and findings are saved to files, most under <code>.dev/</code>, not only into the chat. If a session dies, the files are what survives.</p></div>
     <div class="card"><h3><code>superclaude update</code> overwrites</h3><p>It overwrites every file it ships, including an edited <code>~/.claude/CLAUDE.md</code>, keeps no backup, and deletes and re-copies each shipped skill folder, so any file you added inside one is lost. Copy any file you changed or added before you run it.</p></div>
     <div class="card"><h3>Resume after a crash</h3><p>Before you need it, name the conversation with <code>/rename &lt;name&gt;</code> and send one more message (or quit) so ccsession records it; later, from a terminal in the same folder, run <code>ccsession &lt;name&gt;</code>.</p><p>This always works: run the same command again on the work's own files, <code>/sc:implement</code> on the plan or <code>/task</code> on the task file.</p></div>
-    <div class="card"><h3>Not a resume method</h3><p><code>/sc:save</code> and <code>/sc:load</code> store and load Serena project memory (project notes). They do not resume a task or a plan.</p></div>
   </div>
 </section>
 
@@ -560,7 +559,6 @@
         <tr><td><code>/task</code></td><td><code>/sc:implement</code></td></tr>
         <tr><td><code>/sc:workflow</code> + <code>/sc:implement</code></td><td><code>/task-builder</code> + <code>/task</code></td></tr>
         <tr><td><code>/sc:design</code></td><td><code>/tdd</code></td></tr>
-        <tr><td><code>/roadmap</code></td><td><code>/sc:roadmap</code></td></tr>
         <tr><td><code>/tech-reference</code></td><td><code>/sc:document</code></td></tr>
         <tr><td><code>/tech-research</code></td><td><code>/sc:research</code></td></tr>
         <tr><td><code>/sc:cleanup-audit</code></td><td><code>/sc:cleanup</code></td></tr>
@@ -569,7 +567,6 @@
   </div>
   <div class="trap"><b>Choosing level 4 for the wrong reason.</b> The guide's rule: use <code>/task-builder</code> and <code>/task</code> only when you explicitly select the task-file (MDTM) format, or have an exceptionally complex, long-running phased program that needs their research, checklist and phase-reviewer machinery; an existing MDTM task goes straight to <code>/task</code>. File count, several sessions, an existing spec, risk, auditability, drift or resume alone never select them (guide sections 1 and 5).</div>
   <p class="story">The sign, as described in the meeting: a long run starts and many reviewer or quality-check (QA) helper agents, called subagents, start in the background without you asking for them.</p>
-  <div class="trap"><b><code>/sc:save</code> is not a way to resume.</b> Use the steps on slide 11.</div>
 </section>
 
 <section class="slide" id="s14" aria-labelledby="s14-h">

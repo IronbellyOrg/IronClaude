@@ -1,12 +1,12 @@
 """Pipeline process management -- subprocess lifecycle for claude -p invocations.
 
-Extracted from sprint/process.py. This version is generic: it accepts
-PipelineConfig-compatible parameters and an output_format flag.
+This version is generic: it accepts PipelineConfig-compatible parameters and
+an output_format flag.
 
-  output_format="stream-json"  ->  Sprint backward-compatible (NDJSON on stdout)
-  output_format="text"         ->  Roadmap gate-compatible (plain text)
+  output_format="stream-json"  ->  NDJSON on stdout
+  output_format="text"         ->  gate-compatible plain text
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations
@@ -145,7 +145,7 @@ class ClaudeProcess:
         # L1b (design (a)): the restricted reviewer profile drops the blanket
         # --dangerously-skip-permissions bypass AND the write-capable `--tools
         # default` surface for reflect REVIEW children. The default profile
-        # (every existing sprint/roadmap caller) emits both, byte-identical to
+        # (every non-reviewer caller) emits both, byte-identical to
         # before. --no-session-persistence is KEPT in both profiles.
         if not self.reviewer_profile:
             cmd.append(self.permission_flag)

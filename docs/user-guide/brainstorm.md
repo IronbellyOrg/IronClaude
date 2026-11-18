@@ -13,7 +13,7 @@ For which tool to use when, see [How We Work](how-we-work.md).
 | Merge mechanism | None — dialogue produced one doc | Adversarial debate + scoring + provenance-annotated merge |
 | Codebase context | Single Auggie shot | Auto-routed `/sc:analyze` or Auggie quick scan, gated by domain; falls back to codegraph, then Glob/Grep |
 | Research | Mentioned, not wired | Auto-invokes `/sc:research` (light) or `tech-research` (deep) |
-| Handoff | Text suggestion only | Flag-gated invocation of `/sc:design`, `/sc:tasklist`, or `/task-builder` |
+| Handoff | Text suggestion only | Flag-gated invocation of `/task-builder`, or a text suggestion for `/sc:design` |
 | MCP servers | context7, magic, playwright, morphllm, auggie-mcp | `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`), codegraph, tavily |
 | Personas | 7-persona auto-activation soup | 3 personas auto-selected per detected domain |
 
@@ -35,7 +35,7 @@ A topic string. File references via `@<path>` are supported. Empty topic STOPs t
   [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
   [--personas p1,p2,...] [--models opus,sonnet,haiku] \
   [--blind] [--convergence FLOAT] [--interactive] \
-  [--handoff none|design|tasklist|task] [--output DIR] \
+  [--handoff none|design|task] [--output DIR] \
   [--dry-run] [--resume-from PATH] [--force-stale]
 ```
 
@@ -53,7 +53,7 @@ A topic string. File references via `@<path>` are supported. Empty topic STOPs t
 | `--blind` | `false` | Strip model identity before scoring (prevents model bias). |
 | `--convergence` | `0.75` | Adversarial convergence threshold for PASS routing. |
 | `--interactive` | `false` | Pause for user input at Socratic + adversarial decision points. |
-| `--handoff` | `none` | Post-merge action: `none`, `design` (text recommend), `tasklist` (invoke), `task` (invoke task-builder). |
+| `--handoff` | `none` | Post-merge action: `none`, `design` (text recommend), `task` (invoke task-builder). |
 | `--output` | auto | Output directory (default `.dev/brainstorms/<ts>-<slug>/`). |
 | `--dry-run` | `false` | Run Waves 0-2B (dialogue + enrichment + agent-spec). Skip adversarial. Print preview. |
 | `--resume-from` | — | Resume from a saved `seed-brief.md`. |
@@ -64,7 +64,7 @@ A topic string. File references via `@<path>` are supported. Empty topic STOPs t
 - `--strategy enterprise` implies `--depth deep` unless overridden.
 - `--depth quick` caps `--proposals` at 2.
 - `--depth deep` allows up to 7 proposals.
-- `--handoff task` requires `task-builder` skill; `--handoff tasklist` requires `sc-tasklist-protocol`. Brainstorm STOPs rather than silently downgrading.
+- `--handoff task` requires the `task-builder` skill. Brainstorm STOPs rather than silently downgrading.
 
 ## Behavioral Flow (5 Waves)
 
@@ -73,7 +73,7 @@ A topic string. File references via `@<path>` are supported. Empty topic STOPs t
 3. **Wave 2A — Enrichment (partial-OK)**: parallel `/sc:analyze` (codebase), `/sc:research` (light), or `tech-research` (deep). Failures degrade quality but do not abort: if Auggie is down, codebase enrichment falls back to codegraph, then native Glob/Grep, and records `quality_tier: fallback_1` (research falls back to WebSearch).
 4. **Wave 2B — Agent-Spec Composition**: select personas per domain, round-robin assign models, validate via adversarial parser, run token-budget pre-flight.
 5. **Wave 3 — Adversarial Delegation**: invoke `Skill sc-adversarial-protocol` with `--generate spec`. Route by convergence score: ≥0.65 PASS, ≥0.50 PARTIAL, <0.50 FAIL.
-6. **Wave 4 — Handoff (flag-gated)**: invoke `/sc:tasklist` or `/task-builder`, or print text recommendation for `/sc:design`.
+6. **Wave 4 — Handoff (flag-gated)**: invoke `/task-builder`, or print text recommendation for `/sc:design`.
 
 ## Output Artifacts
 
@@ -126,10 +126,10 @@ Tavily research enrichment; architect/frontend/scribe personas; product-style re
 
 ```bash
 /sc:brainstorm "redesign error handling across worker pool" \
-  --depth deep --proposals 5 --handoff tasklist
+  --depth deep --proposals 5 --handoff task
 ```
 
-Codebase + research enrichment; 5 proposals × 3 models; deep debate; merged requirements feed `sc:tasklist` invocation.
+Codebase + research enrichment; 5 proposals × 3 models; deep debate; merged requirements feed a `task-builder` invocation.
 
 ### Blind multi-model comparison
 
@@ -170,7 +170,6 @@ Skips Wave 1 dialogue. STOPs if topic re-classifies to a different domain (overr
 |-------------|--------|----------------|
 | `none` (default) | STOP after `merged-requirements.md` | — |
 | `design` | Print recommendation to run `/sc:design` (dialogue-heavy — user invokes manually) | — |
-| `tasklist` | Invoke `Skill sc-tasklist-protocol` with `merged-requirements.md` | `sc-tasklist-protocol` |
 | `task` | Invoke `Skill task-builder` with domain-detected template | `task-builder` |
 
 Missing handoff skills cause STOP (no silent downgrade) — re-run with a different `--handoff` value.
@@ -184,7 +183,6 @@ Missing handoff skills cause STOP (no silent downgrade) — re-run with a differ
 | `/sc:research` | Wave 2A light research enrichment |
 | `tech-research` (skill) | Wave 2A deep research enrichment |
 | `/sc:design` | Wave 4 text-only handoff recommendation |
-| `/sc:tasklist` | Wave 4 invoked handoff |
 | `/task-builder` | Wave 4 invoked handoff |
 
 ## Boundaries
@@ -223,7 +221,6 @@ topic (user)
    └── --handoff:
         ├── none      → STOP (default)
         ├── design    → recommend /sc:design (text only)
-        ├── tasklist  → invoke /sc:tasklist
         └── task      → invoke /task-builder
 ```
 

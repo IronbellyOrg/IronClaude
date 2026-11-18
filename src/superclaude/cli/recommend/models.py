@@ -1,9 +1,8 @@
 """Recommend data models -- RecommendConfig.
 
-Path configuration for the sc-recommend lookup-cache feature. Unlike the
-tasklist/roadmap configs, the recommend module is not a claude-subprocess
-pipeline (its LLM work is Agent-spawned from skill prose), so this config does
-NOT extend ``PipelineConfig`` -- it carries only the cache/telemetry/eval-run
+Path configuration for the sc-recommend lookup-cache feature. The recommend
+module is not a claude-subprocess pipeline (its LLM work is Agent-spawned from
+skill prose), so this config does NOT extend ``PipelineConfig`` -- it carries only the cache/telemetry/eval-run
 filesystem paths. All fields default so the config constructs without arguments
 in tests.
 """

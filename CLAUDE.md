@@ -94,7 +94,7 @@ Commands, skills, agents, hooks and core files are copied to `~/.claude/` by `su
 
 - Package code (`src/superclaude/cli/`, `pm_agent/`, `contracts/`) and `src/superclaude/examples/` are NOT installed to `~/.claude/`. Do not add new references to them from a primitive; reach package behavior through the `superclaude` CLI.
 - **Dual surface:** when a primitive looks up another installed primitive, name both the installed copy and the project `.claude/` copy (created by `make sync-dev` in a dev checkout). For an existence check either one satisfies it. When the agent must read ONE file, follow Claude Code's own precedence: agents read project `.claude/agents/` first, then `~/.claude/agents/`; skills read `~/.claude/skills/` first, then `.claude/skills/`.
-- **Allowed:** maintainer instructions about editing this repo ("edit `src/superclaude/...`, then `make sync-dev`"), commands that operate on this repo's own source by design (for example `/sc:cli-portify`), and a clearly labelled in-checkout fallback listed AFTER the global path.
+- **Allowed:** maintainer instructions about editing this repo ("edit `src/superclaude/...`, then `make sync-dev`"), commands that operate on this repo's own source by design, and a clearly labelled in-checkout fallback listed AFTER the global path.
 - **Check before committing a new or edited primitive:** `grep -rn 'src/superclaude' src/superclaude/{commands,skills,agents,core,hooks}` and justify every hit against the list above. `tests/skills/test_primitive_dual_surface_lookup.py` pins the adversarial-skill and rf-qa lookups.
 
 **Rationale:** 25 `src/superclaude/...` references in installed primitives broke them outside a checkout; they were rewritten in PR #278, and the first rewrite then dropped the project `.claude/` copy, which is why the dual-surface rule exists.
@@ -111,10 +111,10 @@ uv run python script.py          # Execute scripts
 
 ## 📂 Project Structure
 
-**Current v5.0.0 Architecture**: Python package with slash commands
+**Current v6.0.0 Architecture**: Python package with slash commands
 
 ```text
-# Claude Code Configuration (v5.0.0)
+# Claude Code Configuration (v6.0.0)
 .claude/
 ├── settings.json        # User settings
 ├── commands/sc/         # Dev copies of the slash commands, synced from src/ by `make sync-dev`
@@ -128,7 +128,7 @@ src/superclaude/         # Pytest plugin + CLI tools
 ├── pytest_plugin.py     # Auto-loaded pytest integration
 ├── pm_agent/            # confidence.py, self_check.py, reflexion.py
 ├── execution/           # parallel.py, reflection.py, self_correction.py
-├── cli/                 # Python CLI: sprint, roadmap, tasklist, audit, pipeline
+├── cli/                 # Python CLI: audit, eval, reflect, swarm, pipeline
 ├── agents/              # Agent definition source files (.md)
 └── skills/              # Skill packages (SKILL.md + rules/ + templates/ + scripts/)
 
@@ -165,9 +165,7 @@ make sync-dev         # Copy src/superclaude/{skills,agents,commands,hooks,templ
 make verify-sync      # Check src/ and .claude/ are in sync (CI-friendly)
 
 # Pipelines
-superclaude sprint run <tasklist-index.md>   # Execute sprint pipeline
-superclaude roadmap run <spec.md>            # Generate roadmap pipeline
-superclaude roadmap validate <output-dir>    # Validate roadmap artifacts
+superclaude reflect run <tasklist.md> --fix   # Run the reflect gate
 
 # MCP Servers
 superclaude mcp                              # Interactive install (gateway default)
@@ -250,13 +248,13 @@ Registered via `pyproject.toml` entry point, automatically available after insta
 - Automatic dependency analysis
 - Example: [Read files in parallel] → Analyze → [Edit files in parallel]
 
-### Slash Commands (v5.0.0)
+### Slash Commands (v6.0.0)
 
 - Install via: `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` (the PyPI `superclaude` package is the upstream project, not this fork)
 - Commands installed to: `~/.claude/commands/sc/`
 - Available: run `/sc:help` to list every installed command and skill
 
-> **Note**: A TypeScript plugin system is planned for a later release; it is not part of 5.0.0.
+> **Note**: A TypeScript plugin system is planned for a later release; it is not part of 6.0.0.
 
 ## 🧪 Testing with PM Agent
 
@@ -313,7 +311,7 @@ worktree location, outside the main checkout; `orca worktree current --json` (fr
 - Never create a project worktree with raw `git worktree add`, under the retired `.dev/worktrees/` location, or under `.claude/worktrees/`.
 - Do **not** use the `EnterWorktree` tool: it hardcodes `.claude/worktrees/`, which is gitignored sync-dev territory.
 - Never pass Orca link flags (`--issue`, `--pr`) for this repo; the fork rule above (`## ABSOLUTE RULE: PR Target = Fork`) governs them.
-- **Exception — internal temporary checkouts:** a CLI, script or test that creates and removes its own checkout keeps using `git worktree add` directly and must work without Orca. The five cases are: the reflect `--isolate-reviewers` review snapshot; the troubleshoot backtest replay; test fixtures in a pytest temporary directory; `scripts/eval_runner.py`'s temporary master checkout; and the optional read-only release-tag checkout in `/sc:post-release`, removed after the scan.
+- **Exception — internal temporary checkouts:** a CLI, script or test that creates and removes its own checkout keeps using `git worktree add` directly and must work without Orca. The four cases are: the reflect `--isolate-reviewers` review snapshot; the troubleshoot backtest replay; test fixtures in a pytest temporary directory; and the optional read-only release-tag checkout in `/sc:post-release`, removed after the scan.
 - **Existing checkouts under the retired `.dev/worktrees/` location** may stay until their branch is merged, then are removed with `git worktree remove <path>`; no new checkout may be created there.
 
 ```bash
@@ -402,7 +400,7 @@ superclaude mcp  # Interactive install, gateway is default (requires Docker)
 
 ## 🚀 Development & Installation
 
-### Current Installation Method (v5.0.0)
+### Current Installation Method (v6.0.0)
 
 **Standard Installation**:
 
@@ -439,13 +437,13 @@ make verify
 
 ### Plugin System (Not Yet Available)
 
-The TypeScript plugin system (`.claude-plugin/`, marketplace) is planned for a later release; 5.0.0 does not include it.
+The TypeScript plugin system (`.claude-plugin/`, marketplace) is planned for a later release; 6.0.0 does not include it.
 See `docs/plugin-reorg.md` for details.
 
 ## 📊 Package Information
 
 **Package name**: `superclaude`
-**Version**: 5.0.0 (see `version` in `pyproject.toml`)
+**Version**: 6.0.0 (see `version` in `pyproject.toml`)
 **Python**: >=3.10
 **Build system**: hatchling (PEP 517)
 

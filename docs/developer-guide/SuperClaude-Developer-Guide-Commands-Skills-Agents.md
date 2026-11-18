@@ -111,7 +111,7 @@ Rules:
 1. **Accept the project copy too.** In a dev checkout `make sync-dev` creates `.claude/skills/` and `.claude/agents/`, and the installed copy may be missing or older. An existence check should name both (`~/.claude/skills/<name>/SKILL.md` or `.claude/skills/<name>/SKILL.md`; either satisfies it) and STOP only when neither exists.
 2. **When one file must be read, follow Claude Code's precedence**, which differs by type: same-name agents resolve project `.claude/agents/` over `~/.claude/agents/`; same-name skills resolve `~/.claude/skills/` over `.claude/skills/`. Read the winning copy first and say so in the text.
 3. **Do not point at what is not installed.** Package code (`src/superclaude/cli/`, `pm_agent/`, `contracts/`) and `src/superclaude/examples/` are not copied to `~/.claude/`. Reach package behavior through the `superclaude` CLI instead of a file path.
-4. **`src/superclaude/...` is fine only** in maintainer instructions ("edit `src/superclaude/...`, then `make sync-dev`"), in commands that work on this repo's own source by design (such as `/sc:cli-portify`), and as an in-checkout fallback listed after the global path.
+4. **`src/superclaude/...` is fine only** in maintainer instructions ("edit `src/superclaude/...`, then `make sync-dev`"), in commands that work on this repo's own source by design, and as an in-checkout fallback listed after the global path.
 5. **Before committing**, run `grep -rn 'src/superclaude' src/superclaude/{commands,skills,agents,core,hooks}` and justify every remaining hit against rule 4.
 
 ### Context Loading Sequence
@@ -330,25 +330,16 @@ personas: [analyzer, architect]
 
 Commands that decompose work and delegate to sub-agents without directly executing.
 
-- **Examples**: `/sc:spawn`, `/sc:adversarial`
+- **Examples**: `/sc:adversarial`
 - **Characteristics**: Task tool for delegation, defines stop conditions, produces task hierarchies or coordination artifacts
 - **Key pattern**: Explicit "STOP AFTER" boundary preventing the command from executing what it plans
-- **Worker fit**: `/sc:spawn` is a never-as-worker command (section 7.7); `/sc:adversarial` is in the contract's ready-with-brief-constraints table. Such a command may fan out with the Agent tool (WC-7) but never calls `worker-start`, `dispatch` or `task-create` (WC-8). See [section 7.7](#77-orca-orchestration-commands-as-workers).
-
-Example from `/sc:spawn`:
-
-```text
-## CRITICAL BOUNDARIES
-- STOP AFTER TASK DECOMPOSITION
-- Output is task hierarchy only
-- Will NOT execute tasks or modify code
-```
+- **Worker fit**: `/sc:adversarial` is in the contract's ready-with-brief-constraints table. Such a command may fan out with the Agent tool (WC-7) but never calls `worker-start`, `dispatch` or `task-create` (WC-8). See [section 7.7](#77-orca-orchestration-commands-as-workers).
 
 #### Archetype 3: Unified Executor
 
 Commands that handle the full lifecycle from classification through execution to verification.
 
-- **Examples**: `/sc:task`, `/sc:implement`, `/sc:build`
+- **Examples**: `/sc:task`, `/sc:implement`
 - **Characteristics**: Multiple MCP servers, many personas, tiered compliance, sub-agent delegation
 - **Worker fit**: outward actions and the command's own commit step are off under `--unattended` (WC-9); per the rollout plan, `/sc:implement` is converted in P4. See [section 7.7](#77-orca-orchestration-commands-as-workers).
 - **Typical frontmatter**:
@@ -982,13 +973,13 @@ Orca can run IronClaude commands as workers under an Orca coordinator (the `/orc
 
 #### Rollout state
 
-- All 31 converted commands have an `## Unattended mode` section (16 from phase 1, 15 from phase 2), and `UNATTENDED_EXPECT` in `tests/skills/test_worker_contract.py` holds exactly those 31 entries.
-- A coordinator puts `--unattended` and one report directory on the 16 phase 1 commands by default; the phase 2 commands join that default after a phase 2 live check passes. It decides by the two-copy test in `~/.claude/WORKER-CONTRACT.md` ("Before the first task-create for a command"), not by a list in this guide. A command gains `--unattended` and its section in the phase that converts its gates, so no command accepts the flag while it can still stop for a human.
+- All 28 converted commands have an `## Unattended mode` section (15 from phase 1, 13 from phase 2), and `UNATTENDED_EXPECT` in `tests/skills/test_worker_contract.py` holds exactly those 28 entries.
+- A coordinator puts `--unattended` and one report directory on the 15 phase 1 commands by default; the phase 2 commands join that default after a phase 2 live check passes. It decides by the two-copy test in `~/.claude/WORKER-CONTRACT.md` ("Before the first task-create for a command"), not by a list in this guide. A command gains `--unattended` and its section in the phase that converts its gates, so no command accepts the flag while it can still stop for a human.
 - Per the rollout plan (SA-1), without `--unattended` every command behaves exactly as it does today: the same prompts, approval gates, default values, output paths and outward defaults.
 
 #### Deciding whether a new command can be a worker
 
-- The never-as-worker list (`~/.claude/WORKER-CONTRACT.md`, section 1): `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn`, `/sc:sweep` and `/sc:swarm-wizard`, plus `/sc:pr-submit` while decision D3 keeps it off workers. These commands are never dispatched as workers and get no `--unattended` mode.
+- The never-as-worker list (`~/.claude/WORKER-CONTRACT.md`, section 1): `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:sweep` and `/sc:swarm-wizard`, plus `/sc:pr-submit` while decision D3 keeps it off workers. These commands are never dispatched as workers and get no `--unattended` mode.
 - Per the rollout plan, these are commands whose purpose is orchestration, a conversation with a human, or an outward action that must be authorized, so making them workers would remove their purpose.
 - Adding a command to the list is a maintainer edit of `src/superclaude/core/WORKER-CONTRACT.md` and of `NEVER_AS_WORKER` in `tests/skills/test_worker_contract.py`.
 - Any other command gets `--unattended` only after each of its gates has an unattended resolution (WC-2).

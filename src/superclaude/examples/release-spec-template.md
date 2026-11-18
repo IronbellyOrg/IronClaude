@@ -225,13 +225,13 @@ quality_scores:
 
 ## 10. Downstream Inputs
 
-> What this spec feeds into. How downstream consumers (sc:roadmap, sc:tasklist, etc.) use the output.
+> What this spec feeds into. How downstream consumers use the output.
 
-### For sc:roadmap
+### For roadmap generation
 
 {{SC_PLACEHOLDER:themes_and_milestones}}
 
-### For sc:tasklist
+### For task breakdown
 
 {{SC_PLACEHOLDER:task_breakdown_guidance}}
 
@@ -245,7 +245,7 @@ quality_scores:
 
 ## 12. Brainstorm Gap Analysis
 
-> Auto-populated by `sc:cli-portify` Phase 3c embedded brainstorm pass. For manually created specs, use `/sc:brainstorm` to identify gaps.
+> Use `/sc:brainstorm` to identify gaps.
 
 | Gap ID | Description | Severity | Affected Section | Persona |
 |--------|-------------|----------|-----------------|---------|

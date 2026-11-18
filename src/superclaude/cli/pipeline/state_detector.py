@@ -12,7 +12,7 @@ Detection categories:
 
 Low-confidence detections are flagged for human review (R-004 mitigation).
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations

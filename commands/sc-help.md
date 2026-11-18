@@ -28,7 +28,6 @@ Here is a complete list of all available SuperClaude (`/sc:sc`) commands.
 |---|---|
 | `/sc:sc:analyze` | Comprehensive code analysis across quality, security, performance, and architecture domains |
 | `/sc:sc:brainstorm` | Interactive requirements discovery through Socratic dialogue and systematic exploration |
-| `/sc:sc:build` | Build, compile, and package projects with intelligent error handling and optimization |
 | `/sc:sc:business-panel` | Multi-expert business analysis with adaptive interaction modes |
 | `/sc:sc:cleanup` | Systematically clean up code, remove dead code, and optimize project structure |
 | `/sc:sc:design` | Design system architecture, APIs, and component interfaces with comprehensive specifications |
@@ -38,10 +37,7 @@ Here is a complete list of all available SuperClaude (`/sc:sc`) commands.
 | `/sc:sc:git` | Git operations with intelligent commit messages and workflow optimization |
 | `/sc:sc:help` | List all available /sc:sc commands and their functionality |
 | `/sc:sc:implement` | Feature and code implementation with intelligent persona activation and MCP integration |
-| `/sc:sc:improve` | Apply systematic improvements to code quality, performance, and maintainability |
-| `/sc:sc:index` | Generate comprehensive project documentation and knowledge base with intelligent organization |
 | `/sc:sc:select-tool` | Intelligent MCP tool selection based on complexity scoring and operation analysis |
-| `/sc:sc:spawn` | Meta-system task orchestration with intelligent breakdown and delegation |
 | `/sc:sc:spec-panel` | Multi-expert specification review and improvement using renowned specification and software engineering experts |
 | `/sc:sc:task` | Execute complex tasks with intelligent workflow management and delegation |
 | `/sc:sc:test` | Execute tests with coverage analysis and automated quality reporting |
@@ -119,9 +115,6 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
 
 # Token-efficient task management
 /sc:sc:task --token-efficient --delegate auto "Refactor authentication system"
-
-# Safe production deployment
-/sc:sc:build --safe-mode --validate --focus security
 ```
 
 ## Boundaries

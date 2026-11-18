@@ -1,0 +1,9 @@
+# T3 checks
+AC1: grep in the two guide files (expect none; the plan's wider core/ grep also lists WORKER-CONTRACT.md, which is Task 4's file, still unedited here):
+  (end)
+AC2: diff source vs plugin copy (expect none):
+  (end)
+AC3: guide diff size:
+   plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md | 2 --
+   src/superclaude/core/HOW-WE-WORK.md                         | 2 --
+   2 files changed, 4 deletions(-)

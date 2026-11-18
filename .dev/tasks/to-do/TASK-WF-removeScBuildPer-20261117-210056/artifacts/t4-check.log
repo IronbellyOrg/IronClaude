@@ -1,0 +1,6 @@
+# T4 checks
+329:- Put `--unattended` and exactly one
+The default set is the 15 commands converted in P1 (adversarial, brainstorm, cleanup-audit, graph, impact, index-repo, init-lite, workflow, analyze, business-panel, design, document, explain, index, test)
+names listed: 15
+never-as-worker line unchanged: 0
+0

@@ -10,7 +10,7 @@ Signal 2: Independent no-error-path detection. Computation returns value without
 
 Dual signal prevents circular dependency on M2 registry completeness.
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations

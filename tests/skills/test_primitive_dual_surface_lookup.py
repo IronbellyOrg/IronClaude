@@ -16,8 +16,6 @@ _ADV_PROJECT = re.compile(r"(?<!~/)\.claude/skills/sc-adversarial-protocol/SKILL
 _ADV_SITES = [
     "sc-brainstorm-protocol/SKILL.md",
     "sc-release-split-protocol/SKILL.md",
-    "sc-roadmap-protocol/SKILL.md",
-    "sc-roadmap-protocol/refs/adversarial-integration.md",
 ]
 
 

@@ -1,0 +1,14 @@
+# T9 checks
+AC1: grep in docs/user-guide (expect none):
+  (end)
+AC2: lines around the join (expect release-split MCP line, rule, blank, roadmap heading):
+  |
+  | **MCP servers:** context7
+  |
+  | ---
+  |
+  | ### `/sc:roadmap` - Roadmap Generator
+AC2: separator lines count between release-split and roadmap headings:
+  rules=1
+make lint:
+  All checks passed!

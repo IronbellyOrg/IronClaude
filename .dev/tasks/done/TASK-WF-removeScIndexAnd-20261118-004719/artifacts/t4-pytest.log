@@ -1,0 +1,17 @@
+FAILED tests/skills/test_worker_contract.py::test_unattended_sections_match_the_listed_commands
+FAILED tests/skills/test_worker_contract.py::test_unattended_section_content[index]
+FAILED tests/skills/test_worker_contract.py::test_unattended_section_content[index-repo]
+FAILED tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[index:phrase:knowledge-base mode]
+FAILED tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[index:phrase:index-report.md]
+FAILED tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[index:phrase:consent is never given]
+FAILED tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[index-repo:phrase:PROJECT_INDEX.md]
+FAILED tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[index-repo:phrase:PROJECT_INDEX.json]
+FAILED tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[index-repo:phrase:mode=update]
+FAILED tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[index:flag:--output]
+FAILED tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[index:flag:--type]
+FAILED tests/skills/test_worker_contract.py::test_p1_command_set_is_complete
+FAILED tests/skills/test_worker_contract.py::test_index_repo_output_format_states_where_the_files_land
+FAILED tests/skills/test_worker_contract.py::test_p2_command_set_is_complete
+FAILED tests/skills/test_worker_contract.py::test_nested_propagation_text_matches_the_nested_list[index]
+FAILED tests/skills/test_worker_contract.py::test_nested_propagation_text_matches_the_nested_list[index-repo]
+======================== 16 failed, 697 passed in 1.41s ========================

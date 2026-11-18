@@ -154,7 +154,7 @@ Task Analysis →
 
 **Expertise**: Self-improvement workflow executor that documents implementations, analyzes mistakes, and maintains knowledge base continuously
 
-**Activation**: `/sc:pm` or explicit delegation only (for example `@agent-pm-agent "document what we just built"`). Nothing activates it automatically: `/sc:implement`, `/sc:build` and `/sc:improve` do not call it.
+**Activation**: `/sc:pm` or explicit delegation only (for example `@agent-pm-agent "document what we just built"`). Nothing activates it automatically: `/sc:implement` does not call it.
 
 **Good times to invoke it**:
 
@@ -843,7 +843,6 @@ These keywords are hints for you; no installed file matches keywords (see "Deleg
 | `/sc:implement` | Domain architects (frontend, backend) | security-engineer, quality-engineer |
 | `/sc:analyze` | quality-engineer, security-engineer | performance-engineer, root-cause-analyst |
 | `/sc:troubleshoot` | root-cause-analyst | Domain specialists, performance-engineer |
-| `/sc:improve` | refactoring-expert | quality-engineer, performance-engineer |
 | `/sc:document` | technical-writer | Domain specialists, learning-guide |
 | `/sc:design` | system-architect | Domain architects, requirements-analyst |
 | `/sc:test` | quality-engineer | security-engineer, performance-engineer |

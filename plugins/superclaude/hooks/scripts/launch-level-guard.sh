@@ -40,7 +40,7 @@ ll_say() {
     fi
     case $id in
     LL-IMPL)
-        b='starting /sc:implement, /task, /sc:improve, /sc:cleanup, /sc:spawn or /sc:build (or their skills).'
+        b='starting /sc:implement, /task or /sc:cleanup (or their skills).'
         w='At the worktree level the agent stops at a plan until a person approves it.'
         y='Read the plan, then type /sc:implement or /task in this session.' ;;
     LL-COMMIT)
@@ -406,7 +406,7 @@ if [ "$LL_BRANCH" = tool ]; then
         LL_N=${LL_N#sc-}
         LL_N=${LL_N%-protocol}
         case $LL_N in
-        implement | task | improve | cleanup | spawn | build) LL_CLASSES+='IMPL ' ;;
+        implement | task | cleanup) LL_CLASSES+='IMPL ' ;;
         pr-submit) LL_CLASSES+='SUBMIT ' ;;
         issue) LL_CLASSES+='ESCAPE ' ;;
         '') LL_CLASSES+='SKILL ' ;;

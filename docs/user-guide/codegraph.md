@@ -117,12 +117,11 @@ Source: `src/superclaude/commands/impact.md` lines 13, 20-38, 47-64; `src/superc
 
 ## Which commands use codegraph
 
-- **Ask codegraph first, Grep/Read as fallback:** `/sc:troubleshoot`, `/sc:reflect`, `/sc:validate-roadmap`, `/sc:brainstorm`, `/sc:cleanup-audit`, `/sc:auggie-review`, `/sc:task`, `/sc:tasklist`, and the agents `auggie-reviewer`, `reflect-reviewer`, `reuse-auditor` and `troubleshoot-analyst`.
+- **Ask codegraph first, Grep/Read as fallback:** `/sc:troubleshoot`, `/sc:reflect`, `/sc:brainstorm`, `/sc:cleanup-audit`, `/sc:auggie-review`, `/sc:task`, and the agents `auggie-reviewer`, `reflect-reviewer`, `reuse-auditor` and `troubleshoot-analyst`.
 - **`/sc:explain`:** for a code target, adds a one-hop view of the symbol's direct callers and callees.
 - **Call `/sc:impact` for context only:** `/sc:implement`, `/sc:pr-submit`, `/sc:troubleshoot --fix`, `/sc:auggie-review`, `/sc:task` (STRICT tier) and `/sc:reflect`. The impact report adds warnings and references; it never changes a gate, severity or verdict.
-- **`/sc:load`:** ends its summary by telling you to type `/sc:graph status`; it never runs `/sc:graph` itself.
 
-Source: `CHANGELOG.md` lines 84-86; `src/superclaude/commands/explain.md` line 51; `src/superclaude/commands/load.md` line 53.
+Source: `CHANGELOG.md` lines 84-86; `src/superclaude/commands/explain.md` line 51.
 
 ## Switches
 

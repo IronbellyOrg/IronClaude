@@ -6,7 +6,7 @@ prioritizing degenerate cases (empty, zero, null, boundary).
 R-007 mitigation: 8-domain limit prevents combinatorial explosion.
 Configurable via max_domains parameter (maps to --max-fmea-domains).
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations

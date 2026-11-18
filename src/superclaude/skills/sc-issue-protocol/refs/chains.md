@@ -22,7 +22,7 @@ Notes:
 - `/sc:design --type` is chosen per issue by `/sc:recommend` from the four values the command accepts.
 - The simple feature row has no brainstorm step: the issue summary already states the requirements, so the row plans directly from it with `/sc:workflow`.
 
-No brainstorm step carries a handoff flag: the tasklist handoff feeds `/sc:tasklist`, not `/sc:workflow`, and the design handoff only prints a suggestion (B11), so `/sc:workflow` and `/sc:design` run as their own steps.
+No brainstorm step carries a handoff flag: the `task` handoff feeds `/task-builder`, not `/sc:workflow`, and the design handoff only prints a suggestion (B11), so `/sc:workflow` and `/sc:design` run as their own steps.
 
 ## Goal sent to `/sc:recommend` (claim Wave 5 step 1)
 

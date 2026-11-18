@@ -14,6 +14,7 @@ gate, remediation, conflict review, and diagnostic chain logic is exercised.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -36,12 +37,38 @@ from superclaude.cli.pipeline.trailing_gate import (
     attempt_remediation,
     build_remediation_prompt,
 )
-from superclaude.cli.sprint.models import (
-    SprintConfig,
-    TaskEntry,
-    TurnLedger,
-    build_resume_output,
-)
+
+
+@dataclass
+class TurnLedger:
+    """Minimal turn-budget ledger used as the budget callbacks of
+    ``attempt_remediation`` (``can_remediate`` and ``debit``).
+
+    Local to this test module: the pipeline package takes plain callables and
+    does not depend on any runner's ledger class.
+    """
+
+    initial_budget: int
+    consumed: int = 0
+    reimbursed: int = 0
+    reimbursement_rate: float = 0.8
+    minimum_allocation: int = 5
+    minimum_remediation_budget: int = 3
+
+    def available(self) -> int:
+        return self.initial_budget - self.consumed + self.reimbursed
+
+    def debit(self, turns: int) -> None:
+        self.consumed += turns
+
+    def credit(self, turns: int) -> None:
+        self.reimbursed += turns
+
+    def can_launch(self) -> bool:
+        return self.available() >= self.minimum_allocation
+
+    def can_remediate(self) -> bool:
+        return self.available() >= self.minimum_remediation_budget
 
 
 def _make_step(step_id: str, tmp_path: Path, gate: GateCriteria | None = None) -> Step:
@@ -225,23 +252,6 @@ class TestFullFlowIntegration:
         assert diagnostic.is_complete
         assert diagnostic.stages_completed == 4
 
-        # Resume output generated
-        remaining = [
-            TaskEntry(task_id="T07.04", title="Conflict review"),
-            TaskEntry(task_id="T07.05", title="Diagnostic chain"),
-        ]
-        config = SprintConfig(index_path=Path("sprint.md"), work_dir=tmp_path)
-        resume = build_resume_output(
-            config=config,
-            halt_task_id="T07.04",
-            remaining_tasks=remaining,
-            diagnostic_path=str(tmp_path / "diagnostic.md"),
-            ledger=ledger,
-        )
-        assert "--resume T07.04" in resume
-        assert "2" in resume  # remaining count
-        assert "diagnostic.md" in resume
-
     # -----------------------------------------------------------------------
     # Scenario 4: Low budget → skip remediation → HALT
     # -----------------------------------------------------------------------
@@ -289,18 +299,6 @@ class TestFullFlowIntegration:
         assert ledger.consumed == 12
 
         # No diagnostic chain for budget-specific halt (Gap 2, R-011)
-        # Resume output includes budget info
-        config = SprintConfig(index_path=Path("sprint.md"), work_dir=tmp_path)
-        remaining = [TaskEntry(task_id="T07.05", title="Next task")]
-        resume = build_resume_output(
-            config=config,
-            halt_task_id="T07.05",
-            remaining_tasks=remaining,
-            ledger=ledger,
-        )
-        assert "--resume T07.05" in resume
-        assert "3" in resume  # available turns
-        assert "12" in resume  # consumed turns
 
     # -----------------------------------------------------------------------
     # Cross-scenario: Budget accounting consistency
@@ -334,306 +332,3 @@ class TestFullFlowIntegration:
         assert ledger.consumed == 25
         assert ledger.reimbursed == expected_reimbursed
         assert ledger.available() == 200 - 25 + expected_reimbursed
-
-
-# ---------------------------------------------------------------------------
-# Anti-instinct gate full pipeline flow tests
-# ---------------------------------------------------------------------------
-
-from unittest.mock import patch  # noqa: E402,I001  # late import for test section grouping (anti-instinct gate suite)
-
-from superclaude.cli.sprint.executor import (  # noqa: E402  # late import for test section grouping
-    execute_phase_tasks,
-    run_post_task_anti_instinct_hook,
-)
-from superclaude.cli.sprint.models import (  # noqa: E402  # late import for test section grouping
-    GateOutcome,
-    Phase,
-    ShadowGateMetrics,
-)
-from superclaude.cli.sprint.models import (  # noqa: E402  # late import for test section grouping
-    TaskEntry as SprintTaskEntry,
-)
-from superclaude.cli.sprint.models import (  # noqa: E402  # late import for test section grouping
-    TaskResult as SprintTaskResult,
-)
-from superclaude.cli.sprint.models import (  # noqa: E402  # late import for test section grouping
-    TaskStatus as SprintTaskStatus,
-)
-
-
-def _make_sprint_config(tmp_path: Path, gate_rollout_mode: str = "off"):
-    pf = tmp_path / "phase-1.md"
-    pf.write_text("# Phase 1\n")
-    return SprintConfig(
-        index_path=tmp_path / "idx.md",
-        release_dir=tmp_path,
-        phases=[Phase(number=1, file=pf)],
-        gate_rollout_mode=gate_rollout_mode,
-        wiring_gate_mode="off",
-    )
-
-
-class TestAntiInstinctFullFlow:
-    """Full pipeline flow tests for anti-instinct gate reimbursement paths."""
-
-    @patch("superclaude.cli.pipeline.gates.gate_passed", return_value=(True, None))
-    def test_reimbursement_path_credit_on_pass(self, mock_gate, tmp_path):
-        """Credit path: gate PASS credits ledger via reimbursement_rate."""
-        config = _make_sprint_config(tmp_path, "soft")
-        phase = config.phases[0]
-        ledger = TurnLedger(initial_budget=100)
-        metrics = ShadowGateMetrics()
-        tasks = [SprintTaskEntry(task_id="T01.01", title="Task 1")]
-
-        def _factory(task, cfg, ph):
-            return (0, 10, 100)
-
-        results, remaining, _gate_results = execute_phase_tasks(
-            tasks,
-            config,
-            phase,
-            ledger=ledger,
-            _subprocess_factory=_factory,
-            shadow_metrics=metrics,
-        )
-
-        assert len(results) == 1
-        assert results[0].status == SprintTaskStatus.PASS
-        assert results[0].gate_outcome == GateOutcome.PASS
-        assert results[0].reimbursement_amount == 8  # int(10 * 0.8)
-        assert ledger.reimbursed >= 8  # at least the anti-instinct credit
-
-    @patch("superclaude.cli.pipeline.gates.gate_passed", return_value=(False, "fail"))
-    def test_remediation_path_budget_exhausted(self, mock_gate, tmp_path):
-        """Remediation path: gate FAIL + insufficient budget → BUDGET_EXHAUSTED.
-
-        Uses run_post_task_anti_instinct_hook directly since execute_phase_tasks
-        constructs TaskResult without output_path (subprocess-level concern).
-        """
-        config = _make_sprint_config(tmp_path, "full")
-        (tmp_path / "output.md").write_text("test output")
-        ledger = TurnLedger(initial_budget=2, minimum_remediation_budget=10)
-        metrics = ShadowGateMetrics()
-
-        result = SprintTaskResult(
-            task=SprintTaskEntry(task_id="T01.01", title="Task 1"),
-            status=SprintTaskStatus.PASS,
-            turns_consumed=5,
-            output_path=str(tmp_path / "output.md"),
-        )
-
-        result, gate_result = run_post_task_anti_instinct_hook(
-            result.task,
-            config,
-            result,
-            ledger=ledger,
-            shadow_metrics=metrics,
-        )
-
-        assert result.gate_outcome == GateOutcome.FAIL
-        assert result.status == SprintTaskStatus.FAIL_TERMINAL  # full mode fails task
-
-    @patch(
-        "superclaude.cli.pipeline.gates.gate_passed",
-        return_value=(False, "undischarged"),
-    )
-    def test_full_mode_fail_sets_task_result_fail(self, mock_gate, tmp_path):
-        """Full mode: gate FAIL → TaskResult.status = FAIL."""
-        config = _make_sprint_config(tmp_path, "full")
-        (tmp_path / "output.md").write_text("test output")
-        ledger = TurnLedger(initial_budget=100)
-        metrics = ShadowGateMetrics()
-
-        result = SprintTaskResult(
-            task=SprintTaskEntry(task_id="T01.01", title="Task 1"),
-            status=SprintTaskStatus.PASS,
-            turns_consumed=10,
-            output_path=str(tmp_path / "output.md"),
-        )
-
-        result, gate_result = run_post_task_anti_instinct_hook(
-            result.task,
-            config,
-            result,
-            ledger=ledger,
-            shadow_metrics=metrics,
-        )
-
-        assert result.status == SprintTaskStatus.FAIL_TERMINAL
-        assert result.gate_outcome == GateOutcome.FAIL
-        assert metrics.failed == 1
-
-
-# ---------------------------------------------------------------------------
-# Wiring budget scenario integration tests (T04.02, D-0022)
-# ---------------------------------------------------------------------------
-
-from superclaude.cli.sprint.executor import run_post_task_wiring_hook  # noqa: E402,I001  # late import for wiring section grouping
-
-
-def _make_wiring_sprint_config(
-    tmp_path: Path,
-    wiring_gate_mode: str = "shadow",
-    wiring_analysis_turns: int = 1,
-    remediation_cost: int = 2,
-):
-    """Create a SprintConfig with wiring gate enabled."""
-    pf = tmp_path / "phase-1.md"
-    pf.write_text("# Phase 1\n")
-    return SprintConfig(
-        index_path=tmp_path / "idx.md",
-        release_dir=tmp_path,
-        phases=[Phase(number=1, file=pf)],
-        gate_rollout_mode="off",
-        wiring_gate_mode=wiring_gate_mode,
-        wiring_analysis_turns=wiring_analysis_turns,
-        remediation_cost=remediation_cost,
-    )
-
-
-class TestWiringBudgetScenarios:
-    """Wiring budget integration tests: Scenarios 5-8 (D-0022).
-
-    Validates credit/debit flows, floor-to-zero arithmetic (SC-012),
-    BLOCKING remediation, null-ledger compatibility (SC-014), and
-    shadow deferred logging.
-    """
-
-    # -----------------------------------------------------------------------
-    # Scenario 5: Credit floor-to-zero (SC-012)
-    # -----------------------------------------------------------------------
-
-    def test_scenario_5_credit_floor_to_zero(self):
-        """credit_wiring(1, 0.8) returns 0 credits due to int() floor.
-
-        SC-012: debit/credit correctness — int(1 * 0.8) == 0, so no credits
-        are returned. This is the design intent per R7.
-        """
-        ledger = TurnLedger(initial_budget=100)
-        initial_available = ledger.available()
-
-        # Debit 1 turn for wiring analysis
-        ledger.debit_wiring(1)
-        assert ledger.wiring_turns_used == 1
-        assert ledger.available() == initial_available - 1
-
-        # Credit with floor-to-zero: int(1 * 0.8) == 0
-        credited = ledger.credit_wiring(1, 0.8)
-        assert credited == 0, f"Expected 0 credits (floor-to-zero), got {credited}"
-        assert ledger.wiring_turns_credited == 0
-        assert ledger.reimbursed == 0
-
-        # Available decreased by 1 with no reimbursement
-        assert ledger.available() == initial_available - 1
-
-    # -----------------------------------------------------------------------
-    # Scenario 6: BLOCKING remediation debits budget, BUDGET_EXHAUSTED on depletion
-    # -----------------------------------------------------------------------
-
-    def test_scenario_6_blocking_remediation_budget_exhausted(self, tmp_path):
-        """Full mode: blocking findings trigger remediation debit;
-        budget depletion prevents further remediation.
-        """
-        config = _make_wiring_sprint_config(
-            tmp_path,
-            wiring_gate_mode="full",
-            wiring_analysis_turns=1,
-            remediation_cost=2,
-        )
-        # Tight budget: just enough for analysis + one remediation
-        ledger = TurnLedger(
-            initial_budget=10,
-            minimum_remediation_budget=5,
-        )
-
-        task = SprintTaskEntry(task_id="T01.01", title="Wiring task")
-        result = SprintTaskResult(
-            task=task,
-            status=SprintTaskStatus.PASS,
-            turns_consumed=5,
-        )
-
-        # Run wiring hook — analysis runs against tmp_path (no Python files
-        # means no findings, but we test the budget debit-before-analysis path)
-        result = run_post_task_wiring_hook(task, config, result, ledger=ledger)
-
-        # Budget was debited for wiring analysis
-        assert ledger.wiring_turns_used == 1
-        # With no findings (empty dir), credits should be returned
-        assert ledger.available() >= ledger.initial_budget - 1
-
-        # Now deplete budget to test exhaustion guard
-        ledger.debit(ledger.available() - 2)  # leave only 2 turns
-        assert not ledger.can_run_wiring_gate()
-
-        # Second wiring hook should be skipped due to budget exhaustion
-        result2 = SprintTaskResult(
-            task=SprintTaskEntry(task_id="T01.02", title="Task 2"),
-            status=SprintTaskStatus.PASS,
-            turns_consumed=1,
-        )
-        result2 = run_post_task_wiring_hook(
-            result2.task, config, result2, ledger=ledger
-        )
-        # Task status unchanged (skipped due to budget)
-        assert result2.status == SprintTaskStatus.PASS
-
-    # -----------------------------------------------------------------------
-    # Scenario 7: Null-ledger compatibility (SC-014)
-    # -----------------------------------------------------------------------
-
-    def test_scenario_7_null_ledger_compatibility(self, tmp_path):
-        """ledger=None path: no budget operations, no crashes (SC-014).
-
-        When ledger is None, wiring hook must still run analysis but
-        skip all budget operations without raising exceptions.
-        """
-        config = _make_wiring_sprint_config(
-            tmp_path,
-            wiring_gate_mode="shadow",
-        )
-
-        task = SprintTaskEntry(task_id="T01.01", title="Task 1")
-        result = SprintTaskResult(
-            task=task,
-            status=SprintTaskStatus.PASS,
-            turns_consumed=5,
-        )
-
-        # Pass ledger=None — must not crash
-        result = run_post_task_wiring_hook(task, config, result, ledger=None)
-
-        # Task status unchanged (shadow mode never blocks)
-        assert result.status == SprintTaskStatus.PASS
-
-    # -----------------------------------------------------------------------
-    # Scenario 8: Shadow mode defers finding log without modifying status
-    # -----------------------------------------------------------------------
-
-    def test_scenario_8_shadow_deferred_log(self, tmp_path):
-        """Shadow mode: findings logged but task status unchanged."""
-        config = _make_wiring_sprint_config(
-            tmp_path,
-            wiring_gate_mode="shadow",
-            wiring_analysis_turns=1,
-        )
-        ledger = TurnLedger(initial_budget=100)
-
-        task = SprintTaskEntry(task_id="T01.01", title="Task 1")
-        result = SprintTaskResult(
-            task=task,
-            status=SprintTaskStatus.PASS,
-            turns_consumed=5,
-        )
-
-        # Run shadow hook
-        result = run_post_task_wiring_hook(task, config, result, ledger=ledger)
-
-        # Shadow mode: status always unchanged regardless of findings
-        assert result.status == SprintTaskStatus.PASS
-
-        # Budget: debited then credited back (shadow never blocks)
-        assert ledger.wiring_turns_used == 1
-        # Credit returned (shadow always credits back)
-        assert ledger.wiring_turns_credited >= 0

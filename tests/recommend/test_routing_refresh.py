@@ -1,6 +1,9 @@
 """Static checks for the routing-refresh fixture (fixtures/routing_refresh_cases.json).
 
-The fixture defines the S01-S29 recommendation-generation cases, the T01-T76
+The fixture defines the S01-S29 recommendation-generation cases (S05, S07, S11,
+S14, S15, S16, S24, S25 and S27, which routed to the removed improve, localization
+review, workflow-to-CLI, roadmap, tasklist, validate-roadmap, index-repo, save, load
+and /sc:spawn commands, are retired), the T01-T76
 traceability map and the 47-command dispositions from the approved spec. These
 tests are static: they validate the fixture against the repository's current
 guide, commands and skills. They run no model, execute no recommended command
@@ -31,6 +34,25 @@ _PACKAGE = "TASK-RESEARCH-recommend-refresh-20261024-044336"
 # issue #302 adds /sc:issue. The package is frozen, so the shipped set is
 # compared minus these additions.
 _POST_REFRESH_ADDITIONS = {"graph", "impact", "issue", "sweep"}
+# Commands removed after the frozen package was written: /sc:spawn (replaced by
+# Orca), build, save, load, improve, cli-portify, index, index-repo and
+# review-translation (moved to the snapshot fork) went in 6.0.0, as did the roadmap,
+# tasklist and validate-roadmap commands. The frozen command record still lists them
+# as active.
+_POST_REFRESH_REMOVALS = {
+    "spawn",
+    "build",
+    "save",
+    "load",
+    "review-translation",
+    "improve",
+    "cli-portify",
+    "index",
+    "index-repo",
+    "roadmap",
+    "tasklist",
+    "validate-roadmap",
+}
 
 _TOKEN_RE = re.compile(r"`/([a-z][a-z0-9:-]*)")
 _FLAG_RE = re.compile(r"--[a-z][a-z0-9-]*")
@@ -132,7 +154,9 @@ def test_fixture_schema_and_completeness():
     assert data["evidence_class"].startswith("static definitions")
     assert "Task 8" in data["evidence_class"]
     ids = [case["id"] for case in data["cases"]]
-    assert ids == [f"S{n:02d}" for n in range(1, 30)]
+    assert ids == [
+        f"S{n:02d}" for n in range(1, 30) if n not in (5, 7, 11, 14, 15, 16, 24, 25, 27)
+    ]  # S05, S07, S11, S14, S15, S16, S24, S25, S27 retired
     assert list(data["checks"]) == [f"T{n:02d}" for n in range(1, 77)]
     assert len(data["commands"]) == 47
     defined = set(data["fixture_inputs"])
@@ -288,15 +312,8 @@ def test_case_mode_flags_are_declared_by_their_target(case):
 
 def test_flag_value_check_rejects_undeclared_enumerated_value():
     explain = (_COMMANDS / "explain.md").read_text(encoding="utf-8")
-    improve = (_COMMANDS / "improve.md").read_text(encoding="utf-8")
     assert _mode_declared("--level basic", explain)
     assert not _mode_declared("--level beginner", explain)
-    # improve --preview appears only in an example, so it is not declared.
-    assert "--preview" in improve
-    assert not _mode_declared("--preview", improve)
-    index_repo = (_COMMANDS / "index-repo.md").read_text(encoding="utf-8")
-    assert _mode_declared("mode=quick", index_repo)
-    assert not _mode_declared("mode=full", index_repo)
 
 
 def _entries(case: dict):
@@ -331,11 +348,11 @@ def test_other_command_routes_are_not_named_by_a_routing_row(case):
 
 def test_route_check_rejects_other_route_for_a_routed_command():
     old = {
-        "request": "Generate coordinated project documentation.",
-        "targets": ["sc:index"],
+        "request": "Generate documentation for a module.",
+        "targets": ["sc:document"],
     }
-    assert _route_problems(old, {"block": "other", "command": "sc:index"}) == [
-        "sc:index"
+    assert _route_problems(old, {"block": "other", "command": "sc:document"}) == [
+        "sc:document"
     ]
     fixed = {"block": "routing", "row": "document-built"}
     assert _route_problems(old, fixed) == []
@@ -581,23 +598,25 @@ def test_unmatched_cache_hints_are_consulted_then_rejected():
 
 
 def test_example_only_flags_are_not_declared_or_routed():
-    """T44: build --validate and cleanup --preview are examples; the guide never routes design --output."""
-    for name, flag in (("build", "--validate"), ("cleanup", "--preview")):
+    """T44 (name kept: routing_refresh_cases.json lists it).
+
+    Since issue 506, cleanup declares --preview in usage; the guide still never routes
+    it, nor design --output.
+    """
+    for name, flag in (("cleanup", "--preview"),):
         source = (_COMMANDS / f"{name}.md").read_text(encoding="utf-8")
         usage = _section(source, "## Usage", "\n## ")
         examples = _section(source, "## Examples", "\n## ")
-        assert flag not in usage and flag in examples, name
+        assert flag in usage and flag in examples, name
     # P1 gave design an optional `--output <file>` for the worker report file; the
     # routing loop below still pins that the guide does not route it.
     design = (_COMMANDS / "design.md").read_text(encoding="utf-8")
     assert "--output" in _section(design, "## Usage", "\n## ")
     for route, flag in (
-        ({"block": "other", "command": "sc:build"}, "--validate"),
         ({"block": "routing", "row": "cleanup"}, "--preview"),
         ({"block": "routing", "row": "focused-design"}, "--output"),
     ):
         assert flag not in _FLAG_RE.findall(_route(route)[1]), (route, flag)
-    assert "/sc:tasklist --source" not in _GUIDE.read_text(encoding="utf-8")
 
 
 def test_retired_identities_have_no_shipped_command():
@@ -645,7 +664,7 @@ def test_command_dispositions_trace_appendix_c_and_inventory():
     active = {c["name"] for c in commands if c["history"].startswith("Active")}
     assert (len(active), len(names - active)) == (43, 4)
     shipped = {p.stem for p in _COMMANDS.glob("*.md") if p.name != "README.md"}
-    assert shipped - _POST_REFRESH_ADDITIONS == active
+    assert shipped - _POST_REFRESH_ADDITIONS == active - _POST_REFRESH_REMOVALS
     for command in commands:
         if command["name"] in _RETIRED:
             assert "R" in command["history"].split("; ", 1)[1].split("+")

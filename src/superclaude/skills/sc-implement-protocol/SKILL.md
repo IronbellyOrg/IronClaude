@@ -207,7 +207,7 @@ Managed: done means the helper reported `archived` (print its actual `done/` pat
 
 - Empty `/sc:implement` with no path and no prompt
 - Growing scope past the given prompt / informal notes
-- Generating the spec (`/sc:brainstorm`, `/sc:workflow`, `/sc:tasklist`)
+- Generating the spec (`/sc:brainstorm`, `/sc:workflow`)
 - `/task` MDTM execution, `/sc:task` compliance tiers, `/sc:tdd`
 - `/sc:test`, `/sc:git`, `/sc:reflect` as required steps
 - Dual-mode pitch UX, `--reviewer`, `--force`, `--fresh`, `--no-extras`

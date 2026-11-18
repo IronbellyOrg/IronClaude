@@ -32,7 +32,7 @@ spec land, the literal invocation cannot succeed (the suite resolver
 exits 2 with ``SuiteNotFound``), and until T04.10's helper functions are
 materialised the command crashes with ``NameError`` before reaching the
 suite resolver. This test detects both preconditions and emits a clear
-``pytest.skip`` with the missing-dependency reason so a sprint runner
+``pytest.skip`` with the missing-dependency reason so a runner
 sees a green skip rather than a red failure that does not reflect this
 task's deliverable.
 """

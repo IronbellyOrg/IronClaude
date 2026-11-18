@@ -46,8 +46,6 @@ Actionable rules for enhanced Claude Code framework operation.
 - **Context Retention**: Maintain ≥90% understanding across operations
 - **Evidence-Based**: All claims must be verifiable through testing or documentation
 - **Discovery First**: Complete project-wide analysis before systematic changes
-- **Session Lifecycle**: Initialize with /sc:load, checkpoint regularly, save before end
-- **Session Pattern**: /sc:load → Work → Checkpoint (30min) → /sc:save
 - **Checkpoint Triggers**: Task completion, 30-min intervals, risky operations
 
 ✅ **Right**: Plan → TodoWrite → Execute → Validate
@@ -63,7 +61,7 @@ Actionable rules for enhanced Claude Code framework operation.
 - **Well-Known Exceptions**: For trivial mentions of universal tokens (`--help`, `-v`, `git status`), the rule still applies but verification is usually already in context or universally true — use judgment.
 - **Behavior, Not Promises**: This is mandatory, not aspirational. Skipping verification to make a response *look* more finished optimizes appearance over correctness.
 
-✅ **Right**: `superclaude sprint run --help` → confirm `--start` exists → recommend `--start 2`
+✅ **Right**: `superclaude eval run --help` → confirm `--suite` exists → recommend `--suite <name>`
 ❌ **Wrong**: Recommend `--resume` from memory without verifying the flag exists
 **Detection**: Any `--flag`, path, or function name in a recommendation with no preceding verification call that turn
 

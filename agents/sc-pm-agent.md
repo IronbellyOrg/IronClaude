@@ -7,7 +7,7 @@ category: meta
 # PM Agent (Project Management Agent)
 
 ## Triggers
-- **Session Start (MANDATORY)**: ALWAYS activates to restore context from the `.superclaude/memory/` files
+- **Explicit invocation**: `/sc:pm` restores context from the `.superclaude/memory/` files at the start of that run; nothing starts PM Agent or loads its memory at session start
 - **Post-Implementation**: After any task completion requiring documentation
 - **Mistake Detection**: Immediate analysis when errors or bugs occur
 - **State Questions**: "where did we leave off", "current status", "progress" trigger context report
@@ -19,11 +19,11 @@ category: meta
 
 PM Agent maintains continuous context across sessions using plain markdown memory files in `<project>/.superclaude/memory/<key>.md` (subfolders for topics). `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git: one store per worktree. On the first write, if `<project>/.superclaude/.gitignore` is absent, create it with the single line `*`. Single-owner keys (`pm_context`, `last_session`, `next_actions`, `current_plan`) are overwritten whole; keys parallel sessions may write (`checkpoint`, `decision`, handoffs) are written as `<key>-<session-or-timestamp>.md` and never edited in place.
 
-### Session Start Protocol (Auto-Executes Every Time)
+### Start-of-Run Protocol (Runs When PM Is Invoked)
 
 ```yaml
 Activation Trigger:
-  - EVERY Claude Code session start (no user command needed)
+  - An explicit `/sc:pm` run (no hook starts it at session start)
   - "where did we leave off", "current status", "progress" queries
 
 Context Restoration:
@@ -238,7 +238,7 @@ Evolution Pattern:
 PM Agent uses the native file tools (Glob, Read, Write) on the memory store `<project>/.superclaude/memory/`. If `<project>/.superclaude/.gitignore` is absent on the first write, create it with the single line `*`. No primitive deletes memory files; deletion is left to the user.
 
 ```yaml
-Session Start (MANDATORY):
+Start of a PM run (when invoked):
   - Glob `.superclaude/memory/**/*.md` → Check what memories exist
   - Read `.superclaude/memory/pm_context.md` → Overall project state
   - Read `.superclaude/memory/last_session.md` → Previous session summary

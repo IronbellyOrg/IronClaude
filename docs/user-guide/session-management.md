@@ -1,76 +1,29 @@
 # Session Management Guide
 
-SuperClaude keeps project memory (decisions, patterns, and notes) across Claude Code conversations as plain markdown files under `<project>/.superclaude/memory/`. `<project>` is the git top-level of the current directory (the current directory outside git), so each worktree has its own store. The first save creates `<project>/.superclaude/.gitignore` containing `*`, so the files stay out of version control. Project memory is not a way to resume work: to pick up a task, a plan, or a lost conversation, see [Resuming Existing Work](#resuming-existing-work-cross-conversation) below.
+SuperClaude keeps project memory (decisions, patterns, and notes) across Claude Code conversations as plain markdown files under `<project>/.superclaude/memory/`. `<project>` is the git top-level of the current directory (the current directory outside git), so each worktree has its own store. The first write creates `<project>/.superclaude/.gitignore` containing `*`, so the files stay out of version control. Project memory is not a way to resume work: to pick up a task, a plan, or a lost conversation, see [Resuming Existing Work](#resuming-existing-work-cross-conversation) below.
 
-## Core Session Commands with Persistent Memory
+## Who Reads and Writes Project Memory
 
-### `/sc:load` - Context Loading with Persistent Memory
+The PM agent and the `sc:pm-protocol` skill, which `/sc:pm` loads, read and write the memory files. Nothing else reads them for you at the start of a conversation, and no command is dedicated to saving or loading them.
 
-**Purpose**: Initialize session with project context and persistent memory from previous sessions  
-**Storage**: Reads the markdown files in `.superclaude/memory/`  
-**Syntax**: `/sc:load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]`
+- **At the start**, the PM agent lists `.superclaude/memory/**/*.md` and reads `pm_context.md`, `current_plan.md`, `last_session.md` and `next_actions.md`.
+- **During work**, it writes the goal to `current_plan.md` and progress to `checkpoint-<timestamp>.md`.
+- **At the end**, it writes `last_session.md`, `next_actions.md` and `pm_context.md`.
+- Some skills (`/sc:task`, `/sc:reflect`) keep their own subfolders in the same store. The developer note [File-Based Session Memory](../developer-guide/session-memory.md) lists every writer.
 
-**What Happens**:
-
-- The memory files from previous sessions are read
-- Project context is restored from stored memories
-- Previous decisions and patterns are loaded as notes (task and plan progress is not; see [Resuming Existing Work](#resuming-existing-work-cross-conversation))
-- It ends by pointing you to `/sc:graph status`, which reports whether this worktree's code-graph index is ready; `/sc:load` does not run it for you
-
-**Use Cases**:
-
-```bash
-# Load existing project context from persistent memory
-/sc:load src/
-
-# Load stored memory about a specific project (this does not resume a task or a plan)
-/sc:load "authentication-system"
-
-# Initialize with codebase analysis and previous insights
-/sc:load . --analyze
-```
+You can also read, edit or delete the files by hand: they are plain markdown.
 
 ### Upgrading from Serena memory (5.0.0)
 
-Before 5.0.0, `/sc:save`, `/sc:load` and `/sc:pm` kept memories through Serena in `<project>/.serena/memories/`. 5.0.0 removes Serena and keeps memory in `<project>/.superclaude/memory/`. To keep your old memories, copy them across from the project root:
+Before 5.0.0, memories were kept through Serena in `<project>/.serena/memories/`. 5.0.0 removed Serena and keeps memory in `<project>/.superclaude/memory/`. 6.0.0 removed the memory save and load commands and the read-only fallback to `.serena/memories/`, so nothing reads the old folder any more. To keep your old memories, copy them across from the project root:
 
 ```bash
 mkdir -p .superclaude/memory
 cp -Rn .serena/memories/. .superclaude/memory/
+[ -e .superclaude/.gitignore ] || printf '*\n' > .superclaude/.gitignore
 ```
 
-For 5.0.0 only, `/sc:load` still reads `.serena/memories/<key>.md` when `.superclaude/memory/<key>.md` is absent. It never writes there and tells you that folder is read-only history. This fallback ends in the next release, so copy the files now. The next `/sc:save` creates `<project>/.superclaude/.gitignore` if it is missing; until then, the copied files are not ignored by git.
-
-### `/sc:save` - Session Persistence to Memory
-
-**Purpose**: Save current session state and decisions to persistent memory  
-**Storage**: Writes markdown files in `.superclaude/memory/`  
-**Syntax**: `/sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]`
-
-The command takes no description argument. It decides what to record from the current conversation; say in the conversation what you want remembered before you run it.
-
-**What Happens**:
-
-- Current context and decisions are written to the memory files
-- Project notes are kept across conversations
-- Key insights and patterns are stored for future sessions
-- Session summary is created with timestamp for retrieval
-
-**Use Cases**:
-
-```bash
-# Save what this session discovered
-/sc:save
-
-# Checkpoint during complex work (everything, plus a recovery checkpoint)
-/sc:save --type all --checkpoint
-
-# Store only new patterns and decisions
-/sc:save --type learnings
-
-# Write a session summary
-/sc:save --summarize
-```
+The last line adds the `.gitignore` that the PM agent creates on its first write, so the copied files stay out of version control.
 
 ## Persistent Memory Architecture
 
@@ -85,7 +38,7 @@ The command takes no description argument. It decides what to record from the cu
 
 **Cross-Session Continuity**:
 
-- Stored project memory available in new conversations after `/sc:load` (task and plan progress lives in the work's own files, not in memory)
+- Stored project memory available in new conversations once the PM agent reads it (task and plan progress lives in the work's own files, not in memory)
 - Decisions and rationale preserved and accessible across conversations
 - Learning from past patterns and solutions maintained
 - Consistent project understanding maintained indefinitely
@@ -105,14 +58,11 @@ The command takes no description argument. It decides what to record from the cu
 # 1. Start fresh project
 /sc:brainstorm "e-commerce platform requirements"
 
-# 2. Save initial decisions to persistent memory
-/sc:save --type learnings
-
-# 3. Begin implementation planning
+# 2. Begin implementation planning
 /sc:workflow "user authentication system" --depth quick
 
-# 4. Save architectural decisions permanently
-/sc:save --type learnings
+# 3. Ask the PM agent to record the architectural decisions in project memory
+/sc:pm
 ```
 
 ### Resuming Existing Work (Cross-Conversation)
@@ -122,18 +72,12 @@ To pick up work in a new conversation, use section 3.12 ("Resume after a crash o
 1. **Reopen the conversation.** This only works if the conversation had a name before you lost it: start it with `ccsession <name>`, or inside Claude Code run `/rename <name>` and send one more message (or quit) so ccsession records it. Later, from a terminal in any worktree or copy of the same repo (outside git, the same folder), run `ccsession <name>` (quote a name with spaces). `ccsession --here` lists the names for this worktree (and for removed ones); `ccsession --here --all` lists every worktree's. `~/.local/bin` must be on your `PATH`.
 2. **Rerun the same command on the work's own files.** This always works: `/task <path to the task file>` for a task file, or `/sc:implement .dev/tasks/to-do/<id>/<id>.md` for a plan.
 
-`/sc:load` restores project memory from the `.superclaude/memory/` files, which helps Claude remember project decisions, but it does not resume a task or a plan.
+Project memory in the `.superclaude/memory/` files helps Claude remember project decisions, but it does not resume a task or a plan.
 
 ### Long-Term Project Management
 
 ```bash
-# Weekly checkpoint pattern with persistence
-/sc:load project-name
-# ... work on features ...
-/sc:save --summarize
-
-# Phase completion pattern with memory
-/sc:save --type all --checkpoint
+# Phase completion pattern
 /sc:workflow "Phase 2: payment and order processing" --depth standard --handoff none
 # then run the plan it prints: /sc:implement <printed plan path>
 ```
@@ -175,11 +119,11 @@ files not Read in this session within the last 30 minutes — see
 
 When starting a new Claude Code conversation, the project memory files allow:
 
-1. **Loading project memory**
+1. **Reading project memory**
 
    ```bash
-   /sc:load src/
-   # Loads stored project memory (decisions and notes); it does not resume a task or a plan
+   /sc:pm
+   # The PM agent reads the stored project memory (decisions and notes); it does not resume a task or a plan
    ```
 
 2. **Earlier decisions at hand**
@@ -189,7 +133,7 @@ When starting a new Claude Code conversation, the project memory files allow:
    - To continue unfinished work, use [Resuming Existing Work](#resuming-existing-work-cross-conversation) instead
 
 3. **Intelligent Context Building**
-   - `/sc:load` reads the memories relevant to current work
+   - The PM agent reads the memories relevant to current work
    - Past solutions and patterns inform new implementations
    - Project evolution is tracked and understood
 
@@ -220,13 +164,13 @@ When starting a new Claude Code conversation, the project memory files allow:
 
 ### Session Start Protocol
 
-1. To continue unfinished work, follow [Resuming Existing Work](#resuming-existing-work-cross-conversation); use `/sc:load` only to load project memory
+1. To continue unfinished work, follow [Resuming Existing Work](#resuming-existing-work-cross-conversation); project memory does not resume it
 2. Plan work based on stored decisions and patterns
 3. Build on previous decisions and architectural choices
 
 ### Session End Protocol
 
-1. Save key decisions with `/sc:save` as project memory
+1. Have the PM agent record key decisions as project memory
 2. Document next steps and open questions in memory
 3. Keep unfinished work in its own files (a task file or a plan) so it can be resumed; project memory does not resume it
 
@@ -272,8 +216,8 @@ Memory is plain markdown files that Claude reads and writes with its file tools;
 
 **Context Loss Between Sessions**:  
 
-- To resume a task, a plan, or a lost conversation, follow [Resuming Existing Work](#resuming-existing-work-cross-conversation); `/sc:save` and `/sc:load` only keep project memory
-- Use `/sc:save` before ending sessions to keep decisions as project memory
+- To resume a task, a plan, or a lost conversation, follow [Resuming Existing Work](#resuming-existing-work-cross-conversation); project memory does not resume work
+- Have the PM agent record decisions as project memory before ending sessions
 - Backup important memory files periodically
 
 **Memory Conflicts**:

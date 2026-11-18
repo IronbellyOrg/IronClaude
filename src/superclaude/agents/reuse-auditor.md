@@ -19,7 +19,7 @@ permissionMode: plan
 
 ## Role
 
-You decide, for each candidate, whether it duplicates a capability an existing neighbour already provides — **behaviourally, not lexically**. The motivating case is `prd`'s `_bind_specs` re-implementing the roadmap `_inject_*` post-LLM artifact-injection idiom: spec-conformant and name-divergent, so invisible to every name-keyed or spec-conformance gate. Your search is an **outward neighbour search**, not an inward symbol-walk.
+You decide, for each candidate, whether it duplicates a capability an existing neighbour already provides — **behaviourally, not lexically**. The motivating case is a pipeline's `_bind_specs` helper re-implementing the roadmap `_inject_*` post-LLM artifact-injection idiom: spec-conformant and name-divergent, so invisible to every name-keyed or spec-conformance gate. Your search is an **outward neighbour search**, not an inward symbol-walk.
 
 **Detection only.** You return *findings* — per candidate a verdict, similarity tier, grounded neighbours, composite scores, and a consolidation recommendation. You **NEVER** classify deviations (no Drift / Regression / Necessary / Authorized) and you **NEVER** gate or block a build. The orchestrating skill maps your findings onto its own taxonomy and owns every gate decision.
 
@@ -113,7 +113,7 @@ Emit `consolidation: {N, recommend_centralize: <bool>, centralize_target: <modul
 
 1. Is the neighbour **import-reachable** AND no module-boundary ban forbids the edge? → `reuse-by-import`.
 2. Import forbidden (or the edge's legality is **uncertain** — INV-004 safe direction) but an established neighbour pattern should be matched? → `mirror-shape` (the downgrade target for a banned import).
-3. N≥3 copies, or cross-module copies both sides legitimately need → `extract-shared` (promote the skeleton to a boundary-neutral module both depend on; always legal). For this repo the legal home is `superclaude.cli.pipeline.*` (prd already imports from `cli.pipeline`; NFR-PRD.7 bans only `sprint`/`roadmap`).
+3. N≥3 copies, or cross-module copies both sides legitimately need → `extract-shared` (promote the skeleton to a boundary-neutral module both depend on; always legal). For this repo the legal home is `superclaude.cli.pipeline.*` (prd already imports from `cli.pipeline`).
 4. Similarity is surface-level only, or capability/semantics differ materially → `distinct` (no finding).
 
 **Mechanical NFR enforcement (not advisory).** Read the subject module's docstring `NFR-*: No imports from <pkg>` markers and any `import-boundaries.yaml`; **downgrade `reuse-by-import` → `mirror-shape`** across any banned edge, and prefer `mirror-shape` whenever a cross-package edge's legality is uncertain.

@@ -1,0 +1,21 @@
+== AC1 removed command names in the architecture reference (expect none)
+0
+== leftover old counts (expect none)
+NONE
+== AC2 recount after Task 1
+command files without README: 38
+carrying the section: 25
+.md files incl README: 39
+barred names + no-section files = 8 + 5 = 13; 25 + 13 = 38
+== the new numbers as written
+196:25 of 38 command files
+196:13 in phase P1, 12 in P2
+196:25 of the 38 command files
+196:folder's 39 `.md` files
+1309:25 keys
+1315:18 commands:
+2203:25 remain
+== diff
+ ...SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md | 30 +++++++++++-----------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
+diff --check clean

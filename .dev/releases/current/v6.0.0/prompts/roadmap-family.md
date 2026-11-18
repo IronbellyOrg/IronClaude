@@ -1,0 +1,45 @@
+# IronClaude 6.0.0, PR 11: remove the roadmap, tasklist and sprint family
+
+Clay (user clayphi) authorized this pull request on 2026-11-17 as part of the 6.0.0 release (IronClaude issue 571). Your orchestrator is the ic6-orchestrator session. Do the work below in this worktree only, open ONE pull request into `integration`, answer every review finding, make every check green, then STOP. Do NOT merge.
+
+## Scope
+Plan item PR 11, the roadmap, tasklist and sprint family. It is the largest and most entangled removal, so it is ONE pull request: the three runners import each other (`cli/roadmap` imports `cli/sprint`, `cli/tasklist` imports `cli/roadmap`, `cli/sprint` imports `cli/roadmap`). Remove:
+- the command-line pipelines `src/superclaude/cli/roadmap`, `src/superclaude/cli/tasklist` and `src/superclaude/cli/sprint` (about 893, 30 and 622 KB) and their registrations in `cli/main.py` (`superclaude roadmap`, `superclaude tasklist`, `superclaude sprint`);
+- the commands `/sc:roadmap`, `/sc:validate-roadmap` and `/sc:tasklist`;
+- the skills `sc-roadmap-protocol`, `sc-validate-roadmap-protocol` and `sc-tasklist-protocol` (about 370 KB with their refs, rules, templates and scripts);
+- their tests (over 2.5 MB; `tests/v3.3` (about 297 KB) and `compression.py` (about 38 KB) probably go with it: verify with codegraph and search that nothing kept uses them before removing), mirrors (`.claude`, `plugins/superclaude`, root `commands/`), install-list entries, docs, hook and CI mentions.
+Known references to fix in kept files: `sc-crash-recovery` (resume commands), `sc-troubleshoot-protocol` (`sprint rerun-tasks`), `/sc:workflow` (1 mention), `sc-reflect-protocol` (sprint mentions), `HOW-WE-WORK.md` (both copies), `WORKER-CONTRACT.md`, `core/CLAUDE.md`, `docs/user-guide/commands.md`, the routing tests. `cli/sprint/aienv.py` imports `swarm.config`: swarm stays, that import simply goes away with sprint. Re-measure; the plan counted 397 files deleted and 150 edited outside, and several shared files changed since (PRs 1, 2, 4 to 8, 10 and the small fixes are merged into `integration`).
+What STAYS (do not remove): the plain `roadmap` skill (a different skill from `sc-roadmap-protocol`), the skills `task`, `task-builder`, `tdd`, `prd`, `readme`, `tech-reference`, `tech-research`, `operational-guide` (a separate later bundle), `/sc:workflow`, `/sc:implement`, `/sc:task`, `/sc:tdd`, `cli/pipeline` (the shared runner), `reflect`, swarm, `cli/audit`, the eval harness, `ccsession`, `observe`, `sweep` and `issue_watch`. If any kept module imports from `cli/roadmap`, `cli/tasklist` or `cli/sprint` (or `compression.py`), STOP and tell the orchestrator with the import line: do not rewrite kept modules to make this removal fit.
+Gate and review notes: this PR will delete files named `gates.py`, validators and checkers, so put a `## Generator-Constraint Considered` section in the PR body when you open it. The PR is very large, so Augment can take 15 minutes or more; wait for it. Keep your dependency map line-level for the routing and worker-contract tests, which pin command counts and routing rows.
+Part of wave 5, with PR 9 (`/sc:index` and `/sc:index-repo`, a small PR that should merge first) running in parallel in another worktree; rebase on `origin/integration` when told.
+
+Read issue 571 (body and comments) for the rules: `gh issue view 571 --repo IronbellyOrg/IronClaude --comments`. Swarm and everything in "Kept for now" stays. Do not edit historical records (docs/releases/, docs/testing/v5.0.0/, docs/designs/, past CHANGELOG.md entries); do not add a CHANGELOG.md entry (the release PR does that).
+
+## Steps (the plan's "One flow for every item")
+1. Dependency map (read-only): with codegraph (callers, impact) and search, find every command, skill (including refs/), agent, hook, doc, test, install-code entry and mirror (`.claude`, `plugins/superclaude`) that names the item. Write `.dev/cleanup/roadmap-family/dependency-map.md`, each reference as path:line with the change it needs. Re-measure: the plan's counts were taken at d4d1662a8 and several shared files changed since.
+2. Plan: `/sc:workflow "Remove <item> per .dev/cleanup/roadmap-family/dependency-map.md. Acceptance: superclaude roadmap, superclaude tasklist and superclaude sprint are gone from superclaude --help; the three commands and three skills are not installed; the plain roadmap skill and every other kept item still install and their tests pass; no kept module imports a removed one; no file outside the historical records names the removed items; 0 new test failures and the pass count drops only by the removed tests; lint, format, verify-sync and git diff --check stay green" --depth standard --handoff none`.
+3. Implement: `/sc:implement <the plan path it printed>`. Source of truth is `src/superclaude/`; run `make sync-dev` for the mirrors; never stage `.claude/` (except `.claude/settings.json`). Update HOW-WE-WORK.md (both copies), WORKER-CONTRACT.md, core/CLAUDE.md, docs/user-guide/commands.md and the routing tests where they name the item.
+4. Regression gate, recorded under `.dev/issues/v6-roadmap-family/` (do not commit that folder):
+   - Before your first edit, run the full test suite as the `test` job of `.github/workflows/test.yml` runs it (without --maxfail), plus `make lint` and `uv run ruff format --check src/ tests/`. Save pass, fail and skip counts and failing test ids as the baseline.
+   - After: the same commands. 0 new failures; the pass count drops only by the tests you removed; every lint, format, `make verify-sync` and `git diff --check` check that was green stays green.
+   - A search finds no remaining file that names the removed item, outside the historical records.
+   - `superclaude install` into a throwaway HOME succeeds and `superclaude doctor` passes there. Never touch the real ~/.claude.
+5. Commit on your branch (conventional message, for example `refactor(cli): remove the roadmap, tasklist and sprint family (6.0.0)`), push only your branch `clayphi/v6-roadmap-family`. Stage `.dev/tasks` too if the plan package was created there (the repo rule: `.dev/tasks/` is always staged).
+6. Open the PR: `/sc:pr-submit --base integration --head clayphi/v6-roadmap-family --monitor 3 --repo IronbellyOrg/IronClaude`. Body in plain English: what was removed and what stays, the before and after test counts, the leftover-reference search result, `Refs #571`.
+7. Answer every Augment and Codex finding (fix, or reply with evidence) and resolve threads. If the monitor keeps "polling" long after Augment posted a finished review, read it with `gh api` and carry on. If Codex shows its usage-limit notice, say so; it is not a clean review.
+8. When every check is green, both reviewers have finished on the final head and no thread is open: STOP. Do not merge. Do not comment to anyone on the PR.
+
+## Process notes for the orchestrator
+Keep `.dev/issues/v6-roadmap-family/PROCESS-NOTES.md`: one line per step with roughly how long it took, what got in the way, and what would make the step easier next release.
+
+## Finish
+End with a plain-English report: the DONE / NEXT table, then What I did, How, Where it stands, What's next, My recommendation. Include the PR link, the before and after test counts, and the state of every check and reviewer on the final head.
+Never log or commit credentials. No paid model calls beyond your own session. Update the Orca comment at checkpoints: `orca worktree set --worktree active --comment "<short status>"`.
+
+## Notes from wave 1 (orchestrator, 2026-11-17)
+- A new worktree has no virtualenv. Run first: `uv venv --python 3.10 && uv pip install -e '.[dev]' 'pytest-xdist>=3.5,<4' && make sync-dev`.
+- Known failing tests on `integration` before any edit (they are not yours): `tests/cli/test_install_keep.py::test_same_content_is_true_only_for_identical_readable_files`; and under load, timing or shared-folder tests such as `tests/cli/test_claude_process_adapter*`, `tests/sprint/test_nfr_benchmarks.py` (credit and debit constant-time) and `tests/cli/eval/test_schema_id_rejection.py` (shared `/tmp/eval-runs`). Still take your own baseline, and re-run a failing test alone before calling it new.
+- If your PR deletes or edits a file named `gates.py`, `structural_checkers.py` or `*_validator.py`, put a `## Generator-Constraint Considered` section in the PR body when you open it (a CI check fails without it).
+- The other PRs of this wave merge first or after yours and touch the same shared files (`PROJECT_INDEX.*`, `docs/developer-guide/technical-architecture.md`, the routing guide). If yours conflicts after another merges, the orchestrator will tell you to rebase on `origin/integration`; keep every removal that is already there.
+- Delete your throwaway HOME with a literal path (for example `rm -rf /tmp/throwaway-home.XXXX`), never `rm -rf "$(cat file)"`: that form stops at a permission prompt that nobody answers.
+- Do not launch subagents (standing user rule); do the skill steps inline and say so in the PR body and notes.

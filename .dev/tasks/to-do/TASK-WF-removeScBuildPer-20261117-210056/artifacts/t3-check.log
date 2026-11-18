@@ -1,0 +1,7 @@
+# T3 checks
+AC1 diff of the two guide copies (expect empty):
+AC1 sc:build mentions: 0
+twin diff stat:
+ plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md | 3 +--
+ src/superclaude/core/HOW-WE-WORK.md                         | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)

@@ -29,8 +29,6 @@
     "hidden-config-dir": "A fixture folder whose only contents are hidden configuration paths",
     "contained-folder": "A self-contained fixture folder suitable for contained improvement",
     "pr-number": "A fixture pull-request number; never a live PR",
-    "source-strings": "A fixture source-language strings file",
-    "locale-files": "Fixture translation files with placeholder mistakes",
     "suite-name": "A fixture cliEval suite stem",
     "eval-design": "A fixture eval design document",
     "eval-id": "A fixture eval identifier inside the suite",
@@ -121,34 +119,14 @@
       "stop": "audit reports/checkpoints",
       "authority": "report-only",
       "side_effects": "tool-owned audit reports and checkpoints; no source deletion, improvement or commit",
-      "guide_phrases": ["<target>", "pass/focus/batch-size", "exclusion floor", "hidden-only targets are not exhaustively covered", "no cleanup, improve or commit"],
-      "negative": {"competitors": ["sc:cleanup", "sc:improve", "sc:git"], "must_not": "cleanup, improve, commit or full-pass escalation"},
+      "guide_phrases": ["<target>", "pass/focus/batch-size", "exclusion floor", "hidden-only targets are not exhaustively covered", "no cleanup or commit"],
+      "negative": {"competitors": ["sc:cleanup", "sc:git"], "must_not": "cleanup, commit or full-pass escalation"},
       "activation": {"sc:cleanup-audit": "sc:cleanup-audit-protocol"},
       "repeats": [
         {"request": "Audit {fixture:hidden-config-dir} exhaustively for dead code.", "targets": ["sc:cleanup-audit"], "mode_flags": [], "expected": "disclose the hidden-path exclusion floor and reject an exhaustive coverage claim"}
       ],
       "variants": {
         "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:cleanup-audit", "expected": "not installed: sc:cleanup-audit; no substitution by sc:cleanup"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "cleanup-audit", "candidate": "/sc:cleanup", "envelope": "Run: /sc:cleanup src/legacy --type all"}, "expected": "guide route matched; cache not consulted; cached /sc:cleanup never emitted"}
-      }
-    },
-    {
-      "id": "S05",
-      "request": "Improve maintainability in {fixture:contained-folder}, safely and interactively.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "contained-improve"},
-      "targets": ["sc:improve"],
-      "mode_flags": ["--type maintainability", "--safe", "--interactive"],
-      "retained_inputs": ["{fixture:contained-folder}"],
-      "stop": "reviewed git diff of the contained improvement",
-      "authority": "mutating-with-approval",
-      "side_effects": "source edits inside the contained folder after an authorized checkpoint commit; diff review required",
-      "guide_phrases": ["<target>", "type/safe/interactive", "automatic edits", "no compulsory cleanup/deletions", "structural migration stays planned"],
-      "negative": {"competitors": ["sc:cleanup", "task-builder"], "must_not": "compulsory cleanup/deletions; structural migration stays planned work"},
-      "activation": {"sc:improve": "self-contained"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:improve", "expected": "not installed: sc:improve; no substitution by sc:cleanup"},
         "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "cleanup-audit", "candidate": "/sc:cleanup", "envelope": "Run: /sc:cleanup src/legacy --type all"}, "expected": "guide route matched; cache not consulted; cached /sc:cleanup never emitted"}
       }
     },
@@ -173,26 +151,6 @@
       }
     },
     {
-      "id": "S07",
-      "request": "Review {fixture:source-strings} and {fixture:locale-files} for placeholder mistakes; report only.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "localization-review"},
-      "targets": ["sc:review-translation"],
-      "mode_flags": [],
-      "retained_inputs": ["{fixture:source-strings}", "{fixture:locale-files}"],
-      "stop": "language/project reports",
-      "authority": "report-only",
-      "side_effects": "tool-owned localization reports; translation edits need separate consent",
-      "guide_phrases": ["<source-file>", "<translation-files...>", "confirm context before review", "separate consent", "not runtime troubleshooting"],
-      "negative": {"competitors": ["sc:troubleshoot", "sc:analyze"], "must_not": "runtime troubleshooting, generic code analysis or automatic localization edits"},
-      "activation": {"sc:review-translation": "sc:review-translation-protocol"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:review-translation", "expected": "not installed: sc:review-translation; no substitution by sc:troubleshoot"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "troubleshoot-debug", "candidate": "/sc:troubleshoot", "envelope": "Run: /sc:troubleshoot \"placeholder error\""}, "expected": "guide route matched; cache not consulted; cached /sc:troubleshoot never emitted"}
-      }
-    },
-    {
       "id": "S08",
       "request": "Audit project context size; print a dry run and change nothing.",
       "environment": "checkout",
@@ -205,7 +163,7 @@
       "authority": "read-only",
       "side_effects": "none; dry run writes nothing and creates no output directory",
       "guide_phrases": ["--context-optimized", "project-root/output", "dry-run` writes nothing", "scaffold` is opt-in", "never context inputs"],
-      "negative": {"competitors": ["sc:workflow", "sc:improve"], "must_not": "context-input rewrite or generic implementation planner"},
+      "negative": {"competitors": ["sc:workflow"], "must_not": "context-input rewrite or generic implementation planner"},
       "activation": {"sc:init-lite": "sc:init-lite-protocol"},
       "repeats": [
         {"request": "Audit project context size and write the advisory scaffold.", "targets": ["sc:init-lite"], "mode_flags": ["--context-optimized", "--scaffold"], "mandatory_flags": ["1: `--context-optimized`"], "expected": "scaffold retained with its actual owned-artifact write boundary"}
@@ -260,28 +218,6 @@
       }
     },
     {
-      "id": "S11",
-      "request": "Analyze how {fixture:workflow-skill} could become a CLI; dry run only.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "cli-portification-spec"},
-      "targets": ["sc:cli-portify"],
-      "mode_flags": ["--workflow", "--dry-run"],
-      "mandatory_flags": ["2: `--workflow <skill-name-or-path>`"],
-      "retained_inputs": ["{fixture:workflow-skill}"],
-      "stop": "Phase 0-2 contracts",
-      "authority": "artifact-only",
-      "side_effects": "dry run writes Phase 0-2 artifacts; not zero-write and no generated code",
-      "guide_phrases": ["--workflow <skill-name-or-path>", "name/output/dry-run", "Phase 0-2", "no full spec synthesis or panel artifacts", "no-direct-code-files", "contract gap/unavailable"],
-      "contract_gaps": ["C04"],
-      "negative": {"competitors": ["sc:implement", "sc:workflow"], "must_not": "implemented CLI code, full reviewed release spec or a zero-write promise"},
-      "activation": {"sc:cli-portify": "sc:cli-portify-protocol"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:cli-portify", "expected": "not installed: sc:cli-portify; no substitution by sc:implement"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "cli-portify", "candidate": "/sc:workflow", "envelope": "Run: /sc:workflow \"port the workflow\""}, "expected": "guide route matched; cache not consulted; cached /sc:workflow never emitted"}
-      }
-    },
-    {
       "id": "S12",
       "request": "Assess whether {fixture:release-spec} should split; an intact release is acceptable.",
       "environment": "checkout",
@@ -294,7 +230,7 @@
       "authority": "artifact-only",
       "side_effects": "release-boundary artifacts and fidelity evidence; no product implementation or Git",
       "guide_phrases": ["<release-artifact>", "supplied controls", "--no-split --resume-from <validated proposal>", "no-split is valid", "no product execution or Git"],
-      "negative": {"competitors": ["sc:roadmap", "roadmap", "sc:implement"], "must_not": "automatic roadmap/product execution or a forced split"},
+      "negative": {"competitors": ["roadmap", "sc:implement"], "must_not": "automatic roadmap/product execution or a forced split"},
       "activation": {"sc:release-split": "sc:release-split-protocol"},
       "repeats": [
         {"request": "Keep {fixture:release-spec} intact; do not split it.", "targets": ["sc:release-split"], "mode_flags": ["--no-split"], "retained_inputs": ["{fixture:release-spec}"], "positionals": {"<spec-file-path>": "{fixture:release-spec}"}, "expected": "explicit no-split retained"},
@@ -325,69 +261,6 @@
       "variants": {
         "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:post-release", "expected": "not installed: sc:post-release; no substitution by sc:document"},
         "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/sc:document", "envelope": "Run: /sc:document docs/"}, "expected": "guide route matched; cache not consulted; cached /sc:document never emitted"}
-      }
-    },
-    {
-      "id": "S14",
-      "request": "Use /sc:roadmap to produce release-pipeline roadmap artifacts from {fixture:spec} and {fixture:tdd}.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "roadmap-artifacts"},
-      "targets": ["sc:roadmap"],
-      "mode_flags": [],
-      "retained_inputs": ["{fixture:spec}", "{fixture:tdd}"],
-      "stop": "contract-gap report before any runnable handoff",
-      "authority": "artifact-only",
-      "side_effects": "none until the command/protocol activation contract is reconciled",
-      "guide_phrases": ["supplied documents", "requested controls", "contract gap", "no combined interface", "not MDTM roadmap substitution"],
-      "contract_gaps": ["C01"],
-      "negative": {"competitors": ["roadmap", "sc:workflow", "task-builder"], "must_not": "silent MDTM /roadmap, ordinary workflow or a combined incompatible interface"},
-      "activation": {"sc:roadmap": "sc:roadmap-protocol"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:roadmap", "expected": "not installed: sc:roadmap; no substitution by /roadmap"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "roadmap-generation", "candidate": "/roadmap", "envelope": "Run: /roadmap docs/spec.md"}, "expected": "guide route matched; cache not consulted; cached /roadmap never emitted"}
-      }
-    },
-    {
-      "id": "S15",
-      "request": "Convert {fixture:roadmap} to a Sprint-compatible tasklist bundle using spec {fixture:spec} and output {fixture:output-dir}.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "sprint-tasklist-bundle"},
-      "targets": ["sc:tasklist"],
-      "mode_flags": ["--spec", "--output"],
-      "retained_inputs": ["{fixture:roadmap}", "{fixture:spec}", "{fixture:output-dir}"],
-      "positionals": {"<roadmap-path>": "{fixture:roadmap}"},
-      "stop": "generated bundle; no Sprint or task execution",
-      "authority": "artifact-only",
-      "side_effects": "tasklist bundle files in the output directory",
-      "guide_phrases": ["<roadmap-path>", "supplied spec/output", "readable non-empty roadmap", "writable output parent", "no unsupported source flag", "no automatic Sprint/task execution"],
-      "negative": {"competitors": ["task-builder", "sc:workflow", "task"], "must_not": "generic plan creation, MDTM generation or unsupported source flag"},
-      "activation": {"sc:tasklist": "sc:tasklist-protocol"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:tasklist", "expected": "not installed: sc:tasklist; no substitution by task-builder"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "task-file-generation", "candidate": "/task-builder", "envelope": "Run: /task-builder \"Create an MDTM task from docs/spec.md\""}, "expected": "guide route matched; cache not consulted; cached /task-builder never emitted"}
-      }
-    },
-    {
-      "id": "S16",
-      "request": "Audit roadmap fidelity of {fixture:roadmap} against {fixture:spec} through the roadmap validator.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "roadmap-fidelity"},
-      "targets": ["sc:validate-roadmap"],
-      "mode_flags": [],
-      "retained_inputs": ["{fixture:roadmap}", "{fixture:spec}"],
-      "stop": "requested validation objective with the contract gap disclosed",
-      "authority": "report-only",
-      "side_effects": "validation report only; no implementation",
-      "guide_phrases": ["roadmap/spec sources", "supplied output directory", "command/protocol contract gap", "explicitly denies CLI equivalence", "exit zero is not clean validation"],
-      "contract_gaps": ["C02", "C03"],
-      "negative": {"competitors": ["sc:reflect"], "must_not": "reflect merely because a plan is mentioned; mixed input grammar; zero exit equals clean"},
-      "activation": {"sc:validate-roadmap": "sc-validate-roadmap-protocol"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:validate-roadmap", "expected": "not installed: sc:validate-roadmap; no substitution by sc:reflect"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "adversarial-review", "candidate": "/sc:reflect", "envelope": "Run: /sc:reflect --mode pre --spec docs/previous.md"}, "expected": "guide route matched; cache not consulted; cached /sc:reflect never emitted"}
       }
     },
     {
@@ -542,50 +415,6 @@
       }
     },
     {
-      "id": "S24",
-      "request": "Produce a compact repo map in quick mode.",
-      "environment": "checkout",
-      "guide_route": {"block": "other", "command": "sc:index-repo"},
-      "targets": ["sc:index-repo"],
-      "mode_flags": ["mode=quick"],
-      "retained_inputs": [],
-      "stop": "PROJECT_INDEX.md and PROJECT_INDEX.json",
-      "authority": "artifact-only",
-      "side_effects": "writes the two index files; no measured savings claim",
-      "guide_phrases": ["mode=quick or mode=update", "PROJECT_INDEX.md and PROJECT_INDEX.json", "no measured token-savings promise"],
-      "negative": {"competitors": ["sc:index"], "must_not": "interchanging the compact map with coordinated docs; measured savings"},
-      "activation": {"sc:index-repo": "self-contained", "sc:index": "self-contained"},
-      "repeats": [
-        {"request": "Generate coordinated project documentation for {fixture:project}.", "targets": ["sc:index"], "mode_flags": [], "guide_route": {"block": "routing", "row": "document-built"}, "guide_phrases": ["1b. coordinated project documentation: `/sc:index <target>` with requested type/format"], "cache_expected": "document-built row matched; cache not consulted; the seeded /sc:index envelope is never replayed", "expected": "coordinated documentation with disclosed writes"}
-      ],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:index-repo", "expected": "not installed: sc:index-repo; no substitution by sc:index"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "codebase-research", "candidate": "/sc:index", "envelope": "Run: /sc:index ."}, "expected": "no routing row matched; if dispatch hits codebase-research: cache hint consulted, cached /sc:index rejected by current verification and request binding (miss_validation_stale); on a miss (classifier unknown -> no_key, or no row): cache row unused; either way live discovery selects /sc:index-repo from Other commands; no hit telemetry; cached /sc:index never emitted"}
-      }
-    },
-    {
-      "id": "S25",
-      "request": "Save the project memory for this session.",
-      "environment": "checkout",
-      "guide_route": {"block": "other", "command": "sc:save"},
-      "targets": ["sc:save"],
-      "mode_flags": [],
-      "retained_inputs": [],
-      "stop": "memory written",
-      "authority": "memory-write",
-      "side_effects": ".superclaude/memory file writes only; not task execution state",
-      "guide_phrases": ["writes memory; not durable task execution state"],
-      "negative": {"competitors": ["sc:implement", "task"], "must_not": "executor continuation or undeclared checkpoint examples"},
-      "activation": {"sc:save": "self-contained", "sc:load": "self-contained"},
-      "repeats": [
-        {"request": "Load and refresh the saved project context.", "targets": ["sc:load"], "mode_flags": ["--refresh"], "guide_route": {"block": "other", "command": "sc:load"}, "guide_phrases": ["Not executor resume"], "expected": "context load/refresh only; a task-package resume uses its own executor"}
-      ],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:save", "expected": "not installed: sc:save; no MCP server prerequisite to disclose"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "codebase-research", "candidate": "/sc:implement", "envelope": "Run: /sc:implement .dev/tasks/to-do/previous/previous.md"}, "expected": "no routing row matched; if dispatch hits codebase-research: cache hint consulted, cached /sc:implement rejected by current verification and request binding (miss_validation_stale); on a miss (classifier unknown -> no_key, or no row): cache row unused; either way live discovery selects /sc:save from Other commands; no hit telemetry; cached /sc:implement never emitted"}
-      }
-    },
-    {
       "id": "S26",
       "request": "Explicitly start the session controller and wait for my task.",
       "environment": "checkout",
@@ -608,26 +437,6 @@
       }
     },
     {
-      "id": "S27",
-      "request": "Decompose {fixture:architecture-work} into a task hierarchy; do not execute it.",
-      "environment": "checkout",
-      "guide_route": {"block": "other", "command": "sc:spawn"},
-      "targets": ["sc:spawn"],
-      "mode_flags": ["--strategy", "--depth"],
-      "retained_inputs": ["{fixture:architecture-work}"],
-      "stop": "task hierarchy only",
-      "authority": "plan-only",
-      "side_effects": "decomposition output only; no source edits or downstream implementation",
-      "guide_phrases": ["critical stop is a task hierarchy only", "no source edits or downstream implementation", "Branch tracing is limited"],
-      "negative": {"competitors": ["task-builder", "sc:implement"], "must_not": "downstream implementation, unrestricted branch exploration or MDTM from breadth alone"},
-      "activation": {"sc:spawn": "self-contained"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:spawn", "expected": "not installed: sc:spawn; no substitution by task-builder"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "parallel-agent-fanout", "candidate": "/task-builder", "envelope": "Run: /task-builder \"build the architecture\""}, "expected": "no routing row matched; if dispatch hits parallel-agent-fanout: cache hint consulted, cached /task-builder rejected by current verification and request binding (miss_validation_stale); on a miss (classifier unknown -> no_key, or no row): cache row unused; either way live discovery selects /sc:spawn from Other commands; no hit telemetry; cached /task-builder never emitted"}
-      }
-    },
-    {
       "id": "S28",
       "request": "Explain {fixture:module} to a beginner using examples, without edits.",
       "environment": "checkout",
@@ -639,7 +448,7 @@
       "authority": "read-only",
       "side_effects": "none",
       "guide_phrases": ["--level <basic/intermediate/advanced> --format <text/examples/interactive> --context <domain>"],
-      "negative": {"competitors": ["sc:workflow", "sc:improve"], "must_not": "implementation plan from inspection breadth or unwanted code fixes"},
+      "negative": {"competitors": ["sc:workflow"], "must_not": "implementation plan from inspection breadth or unwanted code fixes"},
       "activation": {"sc:explain": "self-contained"},
       "repeats": [],
       "variants": {
@@ -714,7 +523,7 @@
     "T41": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_verification_follows_actual_activation_and_relevant_dependencies", "tests/core/test_how_we_work_routing_table.py::test_other_operations_preserve_requested_authority_and_owned_state", "tests/recommend/test_routing_refresh.py::test_case_activation_matches_command_source"]},
     "T42": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_verification_follows_actual_activation_and_relevant_dependencies", "tests/core/test_how_we_work_routing_table.py::test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_first", "tests/recommend/test_routing_refresh.py::test_case_activation_matches_command_source", "tests/recommend/test_routing_refresh.py::test_variants_name_real_primitives_and_wrong_cache_rows"]},
     "T43": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_verification_follows_actual_activation_and_relevant_dependencies", "tests/recommend/test_routing_refresh.py::test_case_activation_matches_command_source"]},
-    "T44": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_interface_evidence_accepts_declarations_not_conflicting_examples", "tests/commands/test_workflow_command.py::test_tasklist_referral_uses_positional_roadmap", "tests/recommend/test_routing_refresh.py::test_example_only_flags_are_not_declared_or_routed"]},
+    "T44": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_interface_evidence_accepts_declarations_not_conflicting_examples", "tests/commands/test_workflow_command.py::test_overlap_routing_names_only_kept_neighbors", "tests/recommend/test_routing_refresh.py::test_example_only_flags_are_not_declared_or_routed"]},
     "T45": {"static": ["tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces", "tests/skills/test_sc_recommend_routing_contract.py::test_verification_follows_actual_activation_and_relevant_dependencies"]},
     "T46": {"static": ["tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces", "tests/skills/test_sc_recommend_routing_contract.py::test_retirement_checks_provenance_without_excluding_custom_commands", "tests/recommend/test_routing_refresh.py::test_retired_identities_have_no_shipped_command"]},
     "T47": {"static": ["tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces"], "behavioral": "Task8"},

@@ -1,0 +1,1 @@
+Remove /sc:build per .dev/cleanup/build/dependency-map.md. Acceptance: /sc:build is gone from commands, mirrors, docs, routing guide, hook scripts and routing tests; the routing table checks pass; no file outside the historical records names /sc:build; 0 new test failures and the pass count drops only by the removed tests; lint, format, verify-sync and git diff --check stay green

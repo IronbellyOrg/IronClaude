@@ -1,0 +1,43 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: /home/coder/workspaces/worktrees/IronClaude/v6-index/.dev/reflect/pre-TASK-WF-removeScIndexAnd-20261118005023/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/v6-index/.dev/reflect/pre-TASK-WF-removeScIndexAnd-20261118005023/audit.log
+confidence_calibrated: 0.85
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.67
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-007, INF-008, INF-009]
+best_practice_grade: null
+input_tree_sha256: 2785c3f5c94b9122cd75b9bab5b333a0da0adf4542f362d2c1c43d459ec8f34c
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/v6-index/.dev/reflect/pre-TASK-WF-removeScIndexAnd-20261118005023/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 9
+citations_revalidated: 9
+citations_dropped: 0
+citations_inferred: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: false
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+remediation_offered: false
+remediation_accepted: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+needs_human_decision: false
+regression_present: false
+per_task_verdicts: []
+telemetry:
+  degraded_components: [calibrator-inline-fallback, evidence-validator-inline-fallback]
+  calibration: inline-fallback
+  note: Tier 2 not run; --depth quick pin and the session rule that bars subagents and extra paid model calls

@@ -1,0 +1,10 @@
+== AC1 pytest installer tests
+........................................................................ [ 75%]
+........................                                                 [100%]
+============================== 96 passed in 1.12s ==============================
+== AC2 grep (expect none)
+tests/unit/test_cli_install.py:63:reflect-reviewer.md repo-index.md requirements-analyst.md reuse-auditor.md
+tests/unit/test_cli_install.py:391:quality-engineer.md refactoring-expert.md repo-index.md requirements-analyst.md
+== ruff
+All checks passed!
+1 file already formatted
