@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
+import pytest
 import yaml
 
 from superclaude.cli.reflect.config import resolve_config
@@ -40,7 +41,7 @@ def test_convergence_exit0_three_launches(
     factory = make_claude_process_sequence(
         [
             ("autofixable_drift.yaml", 0),  # audit #1 -> HALTED auto-fixable
-            (None, 0),  # apply #1 (/task) -> writes no contract
+            (None, 0),  # apply #1 (/sc:implement) -> writes no contract
             ("postfix_pass.yaml", 0),  # audit #2 -> PASS (converged)
         ]
     )
@@ -51,10 +52,10 @@ def test_convergence_exit0_three_launches(
     assert result.fix_converged is True
     assert result.fix_iterations == 1
     assert mock_cls.call_count == 3  # (N+1)=2 audits + N=1 apply
-    # AC: the APPLY launch carries the recursion marker and a /task prompt.
+    # AC: the APPLY launch carries the recursion marker and a /sc:implement prompt.
     apply_kwargs = mock_cls.call_args_list[1].kwargs
     assert apply_kwargs["env_vars"] == {_MARKER: "1"}
-    assert apply_kwargs["prompt"].startswith("/task ")
+    assert apply_kwargs["prompt"].startswith("/sc:implement ")
     # The audit launch ALSO carries the marker (contract 3.1).
     assert mock_cls.call_args_list[0].kwargs["env_vars"] == {_MARKER: "1"}
     sc = _sidecar(config)
@@ -91,7 +92,7 @@ def test_non_convergence_exit10_five_launches(
 def test_cannot_repair_absent_path_halts_no_apply(
     temp_tasklist, patch_git, patch_runner_env, make_claude_process_sequence
 ) -> None:
-    """AUTO-FIXABLE verdict with remediation_task_path: null -> terminal HALT, no /task."""
+    """AUTO-FIXABLE verdict with remediation_task_path: null -> terminal HALT, no apply."""
     config = _config(temp_tasklist, fix=True)
     factory = make_claude_process_sequence([("autofixable_drift_no_path.yaml", 0)])
     with patch(_PATCH_TARGET, side_effect=factory) as mock_cls:
@@ -105,7 +106,7 @@ def test_cannot_repair_absent_path_halts_no_apply(
 def test_human_required_halts_no_apply(
     temp_tasklist, patch_git, patch_runner_env, make_claude_process_sequence
 ) -> None:
-    """AC-3 e2e: needs_human_decision -> terminal HALT exit 10, NO /task, NO promote."""
+    """AC-3 e2e: needs_human_decision -> terminal HALT exit 10, NO apply, NO promote."""
     config = _config(temp_tasklist, fix=True)
     factory = make_claude_process_sequence([("human_required_needs_decision.yaml", 0)])
     with patch(_PATCH_TARGET, side_effect=factory) as mock_cls:
@@ -147,7 +148,7 @@ def test_blocked_with_drift_never_autofixed(
 def test_failed_apply_fails_closed_no_reaudit(
     temp_tasklist, patch_git, patch_runner_env, make_claude_process_sequence
 ) -> None:
-    """Falsifier (f): a failed /task apply (rc!=0) must NOT re-audit; stays HALTED, never PASS."""
+    """Falsifier (f): a failed /sc:implement apply (rc!=0) must NOT re-audit; stays HALTED, never PASS."""
     config = _config(temp_tasklist, fix=True)
     factory = make_claude_process_sequence(
         [
@@ -191,10 +192,10 @@ def test_plan_route_applies_via_sc_implement(
     assert apply_kwargs["env_vars"] == {_MARKER: "1"}
 
 
-def test_task_path_wins_when_both_pointers_set(
+def test_stale_task_pointer_is_ignored_when_both_pointers_set(
     temp_tasklist, patch_git, patch_runner_env, make_claude_process_sequence
 ) -> None:
-    """Back-compat: if a contract carries both pointers, the MDTM `/task` apply is used."""
+    """An old report may carry both pointers; the removed MDTM pointer is ignored."""
     config = _config(temp_tasklist, fix=True)
     factory = make_claude_process_sequence(
         [
@@ -205,4 +206,40 @@ def test_task_path_wins_when_both_pointers_set(
     )
     with patch(_PATCH_TARGET, side_effect=factory) as mock_cls:
         ReflectRunner(config).run()
-    assert mock_cls.call_args_list[1].kwargs["prompt"].startswith("/task ")
+    prompt = mock_cls.call_args_list[1].kwargs["prompt"]
+    assert prompt.startswith("/sc:implement ")
+    assert "TASK-WF-fixAuth" in prompt
+    assert "TASK-RF-remediation" not in prompt
+
+
+def test_task_pointer_alone_is_not_applied(
+    temp_tasklist, patch_git, patch_runner_env, make_claude_process_sequence
+) -> None:
+    """An old report with only the removed MDTM pointer cannot be repaired: terminal HALT."""
+    config = _config(temp_tasklist, fix=True)
+    factory = make_claude_process_sequence([("autofixable_drift_task_only.yaml", 0)])
+    with patch(_PATCH_TARGET, side_effect=factory) as mock_cls:
+        result = ReflectRunner(config).run()
+    assert result.verdict is Verdict.HALTED
+    assert mock_cls.call_count == 1  # one audit, NO apply
+    assert result.fix_iterations == 0
+
+
+@pytest.mark.parametrize("depth", ["quick", "standard", "deep"])
+def test_apply_prompt_is_sc_implement_at_every_depth(
+    depth, temp_tasklist, patch_git, patch_runner_env, make_claude_process_sequence
+) -> None:
+    """One route: whatever `--depth` was requested, the apply launch is /sc:implement."""
+    config = _config(temp_tasklist, fix=True, depth=depth)
+    factory = make_claude_process_sequence(
+        [
+            ("autofixable_drift.yaml", 0),
+            (None, 0),
+            ("postfix_pass.yaml", 0),
+        ]
+    )
+    with patch(_PATCH_TARGET, side_effect=factory) as mock_cls:
+        ReflectRunner(config).run()
+    prompt = mock_cls.call_args_list[1].kwargs["prompt"]
+    assert prompt.startswith("/sc:implement ")
+    assert "/task " not in prompt

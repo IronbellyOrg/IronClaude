@@ -2,6 +2,8 @@
 
 Measured 2026-11-18 on branch `clayphi/v61-part-b-map` at `847cccc1a` (head of `origin/integration`; its tree is identical to `origin/master` `3f3b34a26`, the 6.0.0 release commit: `git diff origin/integration origin/master` is empty, confirmed by GeneralIronFlow). Read-only: codegraph (`codegraph_status`, `codegraph_node` on `cli/reflect/runner.py`, `codegraph_callers` on `_apply_remediation`), `git grep` over the whole tree, a full-suite baseline and a full-suite trial removal (section 9). Companion files in this folder: `retention.md` (where every removed item stays retrievable) and `reference-index.md` (every file outside the bundle that names a bundle item, with line numbers, generated).
 
+> **Corrected 2026-11-18 (Clay's decision, relayed by GeneralIronFlow).** Wherever this map says a thing is removed, the following are **kept in 6.1.0** instead: `/sc:task` (`commands/task.md`, the plugin copy, the legacy `commands/sc-task.md`) and `sc-task-protocol`; `/sc:validate-tests` and `sc-validate-tests-protocol`; the suite `task_classification_contract`; and the six agents `rf-analyst`, `rf-assembler`, `rf-task-builder`, `rf-task-executor`, `rf-task-researcher`, `rf-team-lead` (issue 572 decides their future; text that names them stays as it is, so the seven `rf-qa`/`rf-qa-qualitative` lines are not reworded). `/sc:task` was never on Clay's list; the "Ryan's list" line that named it could not be verified. PR 2 is withdrawn (#652 closed), D2 is dropped. Still removed: 9 skills (`prd`, `tdd`, `tech-research`, `tech-reference`, `operational-guide`, `readme`, `task`, `task-builder`, `roadmap`), 1 command (`/sc:tdd`), 1 suite (`workflow_vs_task_builder` with its script and test), the nfr reference, level 4 and the task-file routes. Rows below that still say otherwise are the first scope and are superseded by this note.
+
 Historical records, NOT edited (same rule as 6.0.0): `docs/releases/`, `docs/testing/v5.0.0/`, `docs/designs/`, past `CHANGELOG.md` entries, `.dev/`, `docs/memory/`, `docs/generated/` (CLI pipeline artifacts).
 
 ## 0. The bundle, and what the map decides
@@ -13,9 +15,9 @@ Historical records, NOT edited (same rule as 6.0.0): `docs/releases/`, `docs/tes
 | skill | `tdd`, `tech-research`, `operational-guide`, `roadmap` | remove | Clay's list |
 | skill | `prd`, `readme`, `tech-reference` | **remove** | Each has a Stage A that builds a task file with `task-builder` (`prd` and `tdd` spawn the `rf-task-builder` agent directly) and a Stage B that runs `/task`: `prd/SKILL.md:143-168,414-416`, `readme/SKILL.md:172-206,643-656`, `tech-reference/SKILL.md:14,165-199,564-573`. Without `task` and `task-builder` they cannot run, so they go with the bundle. |
 | command | `/sc:tdd` (`commands/tdd.md`, activates the `tdd` skill) | remove | Clay's list |
-| command | `/sc:task` (`commands/task.md`) and skill `sc-task-protocol` | remove | Clay's list. A different thing from the MDTM `/task` skill: it classifies a request into a compliance tier (STRICT, STANDARD, LIGHT, EXEMPT). Nothing in `task` or `task-builder` uses it (matrix below). |
-| command + skill | `/sc:validate-tests` and `sc-validate-tests-protocol` | **remove (proposed, Clay may drop it)** | They validate `/sc:task` tier classification against YAML specs; the default target `tests/sc-task/` does not exist in the tree (`ls tests`), and the skill text says "for /sc:task command testing" (`sc-validate-tests-protocol/SKILL.md:3,32,426`). With `/sc:task` gone they have no subject. |
-| agent | `rf-analyst`, `rf-assembler`, `rf-task-builder`, `rf-task-executor`, `rf-task-researcher`, `rf-team-lead` | **remove** | No live user outside the bundle: a search of `src/superclaude` excluding the bundle and templates finds only `rf-task-builder` in the reflect MDTM route (`sc-reflect-protocol/SKILL.md:847`, `refs/remediation-handoff.md:116-120`), and that route goes in PR 3. |
+| command | `/sc:task` (`commands/task.md`) and skill `sc-task-protocol` | **keep (corrected)** | Not on Clay's list. A different thing from the MDTM `/task` skill: it classifies a request into a compliance tier (STRICT, STANDARD, LIGHT, EXEMPT). Nothing in `task` or `task-builder` uses it (matrix below), so keeping it blocks no removal. |
+| command + skill | `/sc:validate-tests` and `sc-validate-tests-protocol` | **keep (corrected)** | They validate `/sc:task` tier classification and stay with it. |
+| agent | `rf-analyst`, `rf-assembler`, `rf-task-builder`, `rf-task-executor`, `rf-task-researcher`, `rf-team-lead` | **keep (corrected): issue 572 decides** | Clay's decision. The first-scope evidence (only `rf-task-builder` in the reflect MDTM route, `sc-reflect-protocol/SKILL.md:847`, `refs/remediation-handoff.md:116-120`, which PR 3 removes) stays valid. Text that names these agents is left unchanged. |
 | agent | `rf-qa`, `rf-qa-qualitative` | **keep for now (issue 572 decides)** | `/sc:reflect` uses both as Wave 3B reviewers: `commands/reflect.md:172` (tool grant), `sc-reflect-protocol/SKILL.md:632-633,1466`, `refs/remediation-handoff.md:144`; the eval suite `agent_grounding_drift.yaml:4-37` watches both; `spec-panel.md:262` names rf-qa. Seven lines name removed siblings and are edited (section 4). |
 
 Internal references among the bundle (mentions of the row item inside the column item's files; `grep -rP` over `src/superclaude/skills/<column>`):
@@ -29,7 +31,7 @@ Internal references among the bundle (mentions of the row item inside the column
 
 Reading: the six documentation skills and `roadmap` reference each other almost never (0 to 2 mentions), and all of them lean on `task` and `task-builder` (6 to 40 mentions each). `sc-task-protocol` is independent of the MDTM pair.
 
-Consequence for the order: remove the documentation skills first (leaves), then the `/sc:task` family (independent), then re-point the routes that offer MDTM, then delete `task`, `task-builder`, `roadmap` and the six agents. See the plan.
+Consequence for the order: remove the documentation skills first (leaves), then re-point the routes that offer MDTM (PR 3), then delete `task`, `task-builder` and `roadmap` (PR 4). The `/sc:task` family and the six agents stay (PR 2 withdrawn). See the plan.
 
 ## 1. Files deleted (tracked) and mirrors
 
@@ -37,11 +39,11 @@ Consequence for the order: remove the documentation skills first (leaves), then 
 |---|---|---|
 | Documentation skills | `src/superclaude/skills/prd/` (SKILL.md + 5 refs), `tdd/` (SKILL.md + 5 refs), `tech-research/SKILL.md`, `tech-reference/SKILL.md`, `operational-guide/SKILL.md`, `readme/SKILL.md` | 15 |
 | `/sc:tdd` | `src/superclaude/commands/tdd.md` (no plugin copy; checked with `git ls-files plugins`) | 1 |
-| `/sc:task` family | `src/superclaude/commands/task.md`, `plugins/superclaude/commands/task.md`, `commands/sc-task.md` (legacy root copy), `src/superclaude/skills/sc-task-protocol/` (SKILL.md, `__init__.py`) | 5 |
-| `/sc:validate-tests` family (proposed) | `src/superclaude/commands/validate-tests.md`, `src/superclaude/skills/sc-validate-tests-protocol/` (SKILL.md, `__init__.py`, `classification-algorithm.yaml`) | 4 |
+| `/sc:task` family (kept, corrected) | `src/superclaude/commands/task.md`, `plugins/superclaude/commands/task.md`, `commands/sc-task.md`, `src/superclaude/skills/sc-task-protocol/`: not deleted | 0 |
+| `/sc:validate-tests` family (kept, corrected) | `src/superclaude/commands/validate-tests.md`, `src/superclaude/skills/sc-validate-tests-protocol/`: not deleted | 0 |
 | MDTM pair and roadmap | `src/superclaude/skills/task/SKILL.md`, `task-builder/SKILL.md`, `roadmap/SKILL.md` | 3 |
-| Agents | `src/superclaude/agents/rf-{analyst,assembler,task-builder,task-executor,task-researcher,team-lead}.md` | 6 |
-| Eval | `src/superclaude/cli/eval/suites/task_classification_contract.yaml`, `workflow_vs_task_builder.yaml`, `scripts/eval_workflow_vs_task_builder.py`, `tests/cli/eval/test_workflow_vs_task_builder_companion.py` | 4 |
+| Agents (kept, corrected) | `src/superclaude/agents/rf-{analyst,assembler,task-builder,task-executor,task-researcher,team-lead}.md`: not deleted; issue 572 decides | 0 |
+| Eval | `src/superclaude/cli/eval/suites/workflow_vs_task_builder.yaml`, `scripts/eval_workflow_vs_task_builder.py`, `tests/cli/eval/test_workflow_vs_task_builder_companion.py` (`task_classification_contract.yaml` is kept, corrected) | 3 |
 | Docs | `docs/guides/prd-skill-release-guide.md`, `docs/guides/tdd-skill-release-guide.md`, `docs/reference/nfr-conv-2-prose-determinism.md` (about task-builder output) | 3 |
 | Tests | see section 9 | about 20 |
 
@@ -78,9 +80,9 @@ Level numbers used by other text: `cli/recommend/prompts.py:189`, `sc-recommend/
 
 Skills that match only by false positive (no change): `skills/ccsession-tag/MODEL-TIERS.md` (`$/task` price column), `skills/sc-issue-protocol/scripts/clickup_claim.py` (ClickUp `/task` API path), `cli/sweep/models.py:32` (an example folder `.dev/tdd/auth-1/`), `cli/audit/dead_code.py:48`, `cli/review/telemetry.py:50`.
 
-## 4. Kept agents: seven lines edited
+## 4. Kept agents: no edit (corrected)
 
-`rf-qa.md:84,146,309,339,349,420` and `rf-qa-qualitative.md:85` name `rf-analyst`, `rf-team-lead's Fix Cycles rule`, `task-builder` or `tech-research`. PR 4 rewords them to name only what remains (the two-fix-cycle cap and the DNSP wrapper bullets). `tests/audit/` pins the byte text of some of these (for example "rf-team-lead's Fix Cycles rule" in the DNSP tests): the same PR updates or removes those tests (section 9).
+All eight `rf-*` agents stay in 6.1.0 (issue 572 decides). The seven lines of `rf-qa.md` (84, 146, 309, 339, 349, 420) and `rf-qa-qualitative.md` (85) that name `rf-analyst`, `rf-team-lead's Fix Cycles rule`, `task-builder` or `tech-research` are **left unchanged**: text that names the agents stays valid, and a line that names a removed skill is part of issue 572's research. `tests/audit/` keeps every case that reads an agent; only the cases that read the `task-builder` skill are deleted in PR 4.
 
 ## 5. Hook: launch-level guard (security relevant)
 
@@ -137,12 +139,12 @@ Trial removal (all bundle files and mirrors deleted, nothing else edited, then t
 | Failures | Test file | Reads | Disposition |
 |---:|---|---|---|
 | 40 | `tests/skills/test_worker_contract.py` | `commands/task.md`, `commands/tdd.md`, task-builder skill | edit: drop the removed commands from the list of converted commands |
-| 39 | `tests/skills/test_task_builder_merge.py` | task-builder skill, `rf-analyst/rf-task-builder/rf-qa*` | delete (PR 4) |
+| 39 | `tests/skills/test_task_builder_merge.py` | task-builder skill, `rf-analyst/rf-task-builder/rf-qa*` | delete (PR 4): it tests the removed skill's merge step |
 | 32 | `tests/recommend/test_routing_refresh.py` | the guide rows and skills `tdd`, `prd`, `roadmap`, `task-builder` (cases S02, S03, S09, S10, S12, S18-S20, S29) | edit with the guide; frozen record `tests/recommend/fixtures/routing_refresh_cases.json` (11 hits) kept as a record, cases for removed routes marked removed |
-| 16 + 12 + 11 + 9 + 9 + 7 + 6 + 5 + 4 + 4 + 4 + 2 | `tests/audit/test_dnsp_*`, `test_inherited_verdict_*`, `test_sequencing_PR06_before_PR04`, `test_synthetic_dnsp_dedup_not_regression`, `test_regression_halt_pass1_fail2`, `test_monotonicity_halt_F_5_5_5`, `test_hidden_input_guard`, `test_dynamic_enumeration_inv_010`, `test_slow_shrink_continues` (13 files, about 100) | `rf-analyst.md`, task-builder skill (the "four wrapper sites") | delete the cases that read removed files; keep and reduce the ones that also cover `rf-qa` and `rf-qa-qualitative`; fixtures under `tests/audit/fixtures/` follow their tests |
+| 16 + 12 + 11 + 9 + 9 + 7 + 6 + 5 + 4 + 4 + 4 + 2 | `tests/audit/test_dnsp_*`, `test_inherited_verdict_*`, `test_sequencing_PR06_before_PR04`, `test_synthetic_dnsp_dedup_not_regression`, `test_regression_halt_pass1_fail2`, `test_monotonicity_halt_F_5_5_5`, `test_hidden_input_guard`, `test_dynamic_enumeration_inv_010`, `test_slow_shrink_continues` (13 files) | the task-builder skill (the "four wrapper sites") | corrected: delete only the cases that read the task-builder skill (PR 4); every case that reads `rf-analyst`, `rf-team-lead`, `rf-qa` or `rf-qa-qualitative` stays, with its fixtures |
 | 10 | `tests/unit/test_cli_install.py` | pinned baseline lists of installed members: 6 agents, 21 skill files, 2 commands, 2 eval suites, templates | edit the lists |
 | 9 | `tests/skills/test_review_severity_rule.py` (+3 `test_review_prompt_overrides.py`) | the skills and refs that carry the review rule | edit the file lists (and the fixtures `tests/skills/fixtures/review_severity_{cap,sweep}_edits.yaml`, 181 hits, which record edits to those files) |
-| 6 | `tests/skills/test_codegraph_adoption.py` | `sc-task-protocol/SKILL.md` | edit (PR 2) |
+| 6 | `tests/skills/test_codegraph_adoption.py` | `sc-task-protocol/SKILL.md` | none (corrected: `sc-task-protocol` stays) |
 | 2 | `tests/core/test_how_we_work_routing_table.py` | `/task-builder is neither a built-in nor a skill` | edit with the guide: more cases fail once the guide text changes (15 pins at lines 295-1030) |
 | 2 + 1 + 1 + 1 | `tests/commands/test_impact_command.py:352-376`, `tests/skills/test_sc_recommend_routing_contract.py:31`, `tests/skills/test_primitive_dual_surface_lookup.py:51-56`, `tests/cli/test_install_retired_files.py` | `sc-task-protocol`, `tdd/refs/build-request-template.md`, the task-builder lookup line | edit or delete the case |
 | baseline | ccsession (8), schema_validate, `test_install_keep.py::test_same_content_is_true_only_for_identical_readable_files` (1) | | not mine: that last one passed in the baseline run and failed in the trial run, and it also fails when run alone on the clean tree (`pytest tests/cli/test_install_keep.py`: 1 failed, 13 passed), so it is order dependent; the 6.0.0 retire-step map already lists it as failing on integration |
@@ -156,12 +158,12 @@ Expected pass-count change: baseline 22691; the trial lost 238 passes. The real 
 | # | Decision | Applied default | Used by |
 |---|---|---|---|
 | D1 | `prd`, `readme`, `tech-reference` | Removed with the bundle (they cannot run without `task` and `task-builder`) | PR 1 |
-| D2 | `/sc:validate-tests` and its skill | Removed with `/sc:task` (no subject left) | PR 2 |
-| D3 | `rf-qa`, `rf-qa-qualitative` | Kept; issue 572 decides; seven lines reworded | PR 4 |
+| D2 | Dropped (Clay, 2026-11-18): `/sc:task`, `/sc:validate-tests` and their skills stay | none | none |
+| D3 | All eight `rf-*` agents | Kept in 6.1.0; issue 572 decides; their text is left unchanged | none |
 | D4 | Launch-level guard and the issue prohibition lists keep `task` and `/task` | Kept as deny-list entries | PR 3, 4 |
 | D5 | The 52 installed templates | Kept; follow-up issue | none |
 | D6 | What replaces levels 5 and 6 | The scale ends at level 3; research-first points at `/sc:analyze`, `/sc:research`, `/sc:brainstorm`; no replacement for full-specification | PR 1, 4 |
-| D7 | The eval suites `task_classification_contract` and `workflow_vs_task_builder` | Removed with the script and its test; the harness stays | PR 2, 4 |
+| D7 | The eval suite `workflow_vs_task_builder` | Removed with the script and its test; the harness and `task_classification_contract` stay | PR 4 |
 | D8 | Flag values removed: `/sc:brainstorm --handoff task`; the MDTM route of `/sc:reflect --remediate --depth deep` and `/sc:troubleshoot --fix --depth deep` (both now take the plan route) | Removed; listed in the changelog as breaking | PR 3 |
 | D9 | Version 6.1.0 | Clay's decision 6.3. Recorded: `changelog_maintenance.md` treats a removed command or skill as breaking, which is a major version; 6.0.0 followed that rule | PR 5 |
 

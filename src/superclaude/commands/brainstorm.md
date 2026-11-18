@@ -36,7 +36,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
   [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
   [--personas p1,p2,...] [--models opus,sonnet,haiku] \
   [--blind] [--convergence FLOAT] [--interactive] \
-  [--handoff none|design|task] [--output DIR] \
+  [--handoff none|design] [--output DIR] \
   [--dry-run] [--resume-from PATH] [--force-stale]
 /sc:brainstorm "<topic>" --unattended --report-dir DIR   # worker mode, see Unattended mode
 ```
@@ -58,7 +58,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
 | `--blind` | | `false` | Pass-through to `/sc:adversarial --blind` |
 | `--convergence` | | `0.75` | Pass-through to `/sc:adversarial --convergence` |
 | `--interactive` | `-i` | `false` | Pause for user input at Socratic + adversarial decision points |
-| `--handoff` | | `none` | Post-merge action: `none`, `design`, `task` |
+| `--handoff` | | `none` | Post-merge action: `none`, `design` (`task` was removed in 6.1.0) |
 | `--output` | `-o` | auto | Output directory (default: `.dev/brainstorms/<ts>-<slug>/`) |
 | `--dry-run` | | `false` | Execute Waves 0–2B, skip 3-4, print agent-spec preview |
 | `--resume-from` | | — | Resume from a saved seed-brief, skipping Socratic dialogue |
@@ -71,7 +71,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
 - `--strategy enterprise` implies `--depth deep` unless overridden
 - `--depth quick` caps `--proposals` at 2 (cost guardrail)
 - `--depth deep` allows up to 7 proposals
-- `--handoff task` requires the task-builder skill installed
+- `--handoff task` was removed in 6.1.0 and is refused; once a run has written `merged-requirements.md`, plan from it with `/sc:workflow @<output>/merged-requirements.md`
 
 ## Examples
 
@@ -99,14 +99,14 @@ Analyzer/devops personas; 5+ proposals; merge emphasizes observability + rollbac
 
 Tavily research enrichment; architect/frontend/scribe personas; product-style requirements output.
 
-### Cross-domain redesign with full handoff
+### Cross-domain redesign with a design handoff
 
 ```bash
 /sc:brainstorm "redesign error handling across worker pool" \
-  --depth deep --proposals 5 --handoff task
+  --depth deep --proposals 5 --handoff design
 ```
 
-Codebase + research enrichment; 5 proposals × 3 models; deep debate; merged requirements feed a task-builder invocation.
+Codebase + research enrichment; 5 proposals × 3 models; deep debate; the run ends by recommending `/sc:design` on the merged requirements.
 
 ### Blind multi-model comparison
 
@@ -134,7 +134,7 @@ Executes dialogue + enrichment + agent-spec composition; prints the composed --a
 3. Wave 2A: parallel enrichment via `/sc:analyze` + `/sc:research`
 4. Wave 2B: agent-spec composition + token-budget pre-flight
 5. Wave 3: delegate to `Skill sc-adversarial-protocol` with `--generate spec`
-6. Wave 4: flag-gated handoff to `/sc:design` or `/task-builder`
+6. Wave 4: flag-gated handoff to `/sc:design`
 
 Produces a versioned return contract with stable + telemetry blocks.
 
@@ -155,7 +155,7 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
 - **Person-mode flags.** `--interactive` and its short form `-i` are refused before any work (contract `worker_status: failed`, the flag in `reason`). The Socratic dialogue proceeds on the best available context, and there is no other gate.
 - **Research.** Under `--unattended`, the research-light route (automatic, or an explicit `--research light`) invokes `/sc:research` with `--unattended --strategy planning --depth quick --report-dir <report-dir>/nested/research-<n>/`, and its contract is listed in `artifacts`, also when the call failed; the research-deep route (automatic, or an explicit `--research deep`) is not run under `--unattended` (deep research has no Unattended route here), so research-deep is skipped and recorded in `enrichment_used` with `quality_tier: skipped`.
 - **Nested invocations.** The `/sc:analyze` codebase enrichment receives `--unattended --report-dir <report-dir>/nested/analyze-<n>/`, and the Wave 3 adversarial call receives `--unattended --output <report-dir>/nested/adversarial-<n>/` in place of `<output>/adversarial/`. `adversarial_artifacts_dir` and the nested contracts are listed in `artifacts`. `<n>` starts at 1 for each nested command, and the one retry of a nested call (the adversarial `F1` retry) uses the next number, so a nested directory is never reused. A codebase scan through `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) or through the `fallback_1` tier (codegraph, then Glob and Grep) is not a nested command and writes no nested directory and no nested contract, so `nested/analyze-<n>/` is written only by a `/sc:analyze` call; `enrichment_used` records the scan's tier, which does not show whether that directory exists.
-- **Handoffs.** The `task` handoff is skipped and recorded: `status: partial` with one line in `unresolved_conflicts` (its skill does not accept the flag at this phase), and the Wave 0 check that its skill is installed is skipped too. The `design` and `none` handoffs are unchanged.
+- **Handoffs.** `--handoff task` is refused in Wave 0 (contract `worker_status: failed`, the flag value in `reason`), as it is without `--unattended`. The `design` and `none` handoffs are unchanged.
 - **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
@@ -166,7 +166,7 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
 - Orchestrate parallel proposal generation via `/sc:adversarial` (Mode B)
 - Auto-detect and invoke codebase + research enrichment when valuable
 - Compose model × persona agent-specs across 3 active aliases (opus/sonnet/haiku)
-- Hand off merged requirements to `/sc:design` or `/task-builder` (flag-gated)
+- Hand off merged requirements to `/sc:design` (flag-gated)
 - Produce a versioned return contract for composability with downstream commands
 
 **Will Not:**
@@ -187,7 +187,6 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
 | `/sc:research` | Enrichment — Wave 2A invokes for light research | `--research light` or auto when topic mentions external frameworks |
 | `/sc:research --depth deep` | Enrichment — Wave 2A invokes for deep research | `--research deep` or auto for enterprise/novel topics |
 | `/sc:design` | Handoff (text-only) | `--handoff design` prints recommendation; user runs separately |
-| `/task-builder` | Handoff (invoked) | `--handoff task` invokes `Skill task-builder` with domain-detected template |
 
 ## CRITICAL BOUNDARIES
 

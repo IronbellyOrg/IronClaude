@@ -60,7 +60,7 @@ This page is the per-command reference: exact syntax, options, and what each com
 | Command | Purpose | File | Changes files? |
 |---------|---------|------|----------------|
 | [`/sc:analyze`](#scanalyze---code-analysis) | Code analysis (quality/security/perf) | `analyze.md` | Report only |
-| [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` offers a `/sc:workflow` plan you run with `/sc:implement`; `--fix --depth deep` offers a `/task-builder` task file you run with `/task`) |
+| [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` offers a `/sc:workflow` plan you run with `/sc:implement`) |
 | [`/sc:impact`](#scimpact---change-impact-report) | What depends on a symbol or a diff, from the code graph | `impact.md` | Report only |
 | [`/sc:test`](#sctest---testing) | Tests + coverage | `test.md` | Only with `--fix` |
 | `/sc:adversarial` | Adversarial debate, compare, merge of artifacts | `adversarial.md` | Report only |
@@ -688,7 +688,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 - Auto-routes codebase + research enrichment (`/sc:analyze`, `/sc:research`)
 - Composes a `--agents` spec spanning 3 model aliases × domain-detected personas (in a ccsession tier workspace the launcher sets each `ANTHROPIC_DEFAULT_*_MODEL` for a tier the owner may use, so the matching aliases `opus`, `sonnet` and `haiku` map to `claude-gw-tier1a`, `claude-gw-tier1b` and `claude-gw-tier2`; see [model-aliases](../reference/model-aliases.md))
 - Delegates to `/sc:adversarial` for N parallel proposals + debate + merge → `merged-requirements.md`
-- Optionally hands off to `/sc:design` or `/task-builder`
+- Optionally hands off to `/sc:design`
 
 **Syntax:**
 
@@ -698,7 +698,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
   [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
   [--personas p1,p2,...] [--models opus,sonnet,haiku] \
   [--blind] [--convergence FLOAT] [--interactive] \
-  [--handoff none|design|task] [--output DIR] \
+  [--handoff none|design] [--output DIR] \
   [--dry-run] [--resume-from PATH] [--force-stale]
 ```
 
@@ -711,8 +711,8 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 # Deep incident post-mortem
 /sc:brainstorm "deployment broke staging at 3am" --depth deep --strategy systematic
 
-# Product idea with research + full handoff to a task file
-/sc:brainstorm "AI-powered changelog summarizer" --strategy agile --handoff task
+# Product idea with research + a design handoff
+/sc:brainstorm "AI-powered changelog summarizer" --strategy agile --handoff design
 
 # Blind multi-model comparison (strips model identity before scoring)
 /sc:brainstorm "consolidate three duplicate auth modules" --depth deep --blind --proposals 4
@@ -861,7 +861,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 - Stack trace examination
 - Log analysis
 - Suggests fixes
-- `--fix` offers a `/sc:workflow` plan you run with `/sc:implement`; `--fix --depth deep` offers a `/task-builder` task file you run with `/task`. Code changes never apply automatically
+- `--fix` offers a `/sc:workflow` plan you run with `/sc:implement`. Code changes never apply automatically
 
 **Syntax:**
 
@@ -1197,7 +1197,7 @@ TALEB: "The real question: does this benefit from uncertainty?"
 /sc:reflect --type task --validate   # maps to --mode post
 ```
 
-> The post-mapped legacy form (`--type task --validate`) still requires `--diff` or `--task-log`; `/sc:troubleshoot` Wave 6 supplies these, so standalone callers must add `--diff <ref>`.
+> The post-mapped legacy form (`--type task --validate`) still requires `--diff` or `--task-log`, so standalone callers must add `--diff <ref>`.
 
 **MCP servers:** auggie, codegraph, context7, tavily
 
@@ -1217,12 +1217,12 @@ superclaude reflect run <tasklist> [--fix/--no-fix] [--max-fix-iterations N] [--
 
 | Flag | Default | Purpose |
 |------|---------|---------|
-| `--fix` / `--no-fix` | `--no-fix` | Run the bounded audit → apply → re-verify auto-fix loop. By default the wrapper reads the skill's `remediation_plan_path` and applies `/sc:implement <remediation_plan_path>`; only with `--depth deep` it reads `remediation_task_path` and runs `/task <remediation_task_path>`. |
+| `--fix` / `--no-fix` | `--no-fix` | Run the bounded audit → apply → re-verify auto-fix loop. By default the wrapper reads the skill's `remediation_plan_path` and applies `/sc:implement <remediation_plan_path>`, at every `--depth`. |
 | `--max-fix-iterations N` | `2` | Max apply → verify cycles before a terminal HALT. |
 | `--base <ref>` | (none) | Explicit audit base ref (single ref vs. working tree). Highest precedence — overrides frontmatter `start_commit` + merge-base. |
 | `--promote` / `--no-promote` | `--promote` | Allow reflect's gated Wave-7 promotion. The default is now **on**; pass `--no-promote` to suppress it. |
 
-**Headless auto-authoring:** Because the wrapper launches the skill under `claude --print` (no TTY), the skill's `--remediate` handoff **auto-accepts and authors** the corrective artifact without the interactive yes/no prompt (a `/sc:workflow` plan, emitted as `remediation_plan_path`; with `--depth deep`, an MDTM task file, emitted as `remediation_task_path`) — but only for AUTO-FIXABLE registers (Drift / Necessary). HUMAN-REQUIRED registers (any Regression, or `needs_human_decision: true`) author nothing auto-runnable, and the wrapper terminal-HALTs rather than auto-applying a human-decision change. The skill never runs `/sc:implement` or `/task` itself; the wrapper's auto-fix loop is the sole consumer that runs the authored path. The loop reads only these contract fields (`remediation_plan_path` was added in contract 1.8.0) — it never guesses a "newest `TASK-RF-*`" directory.
+**Headless auto-authoring:** Because the wrapper launches the skill under `claude --print` (no TTY), the skill's `--remediate` handoff **auto-accepts and authors** the corrective artifact without the interactive yes/no prompt (a `/sc:workflow` plan, emitted as `remediation_plan_path`, at every depth) — but only for AUTO-FIXABLE registers (Drift / Necessary). HUMAN-REQUIRED registers (any Regression, or `needs_human_decision: true`) author nothing auto-runnable, and the wrapper terminal-HALTs rather than auto-applying a human-decision change. The skill never runs `/sc:implement` itself; the wrapper's auto-fix loop is the sole consumer that runs the authored path. The loop reads only `remediation_plan_path` (the older `remediation_task_path` field stays in the contract so old reports load, but it is ignored) — it never guesses a plan directory.
 
 **Examples:**
 
