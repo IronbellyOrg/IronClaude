@@ -717,6 +717,9 @@ def test_default_level_rule_is_bug_full_complex_feature_worktree():
         "is over 16 hours"
     ) in rule
     assert "an explicit value always wins" in rule
+    # Wave 5 only holds the Level line; the Final output prints it (once).
+    assert "Hold one line and print nothing yet" in rule
+    assert "Print one line" not in rule
     lines = claim.splitlines()
     launched = next(ln for ln in lines if "- `launched`:" in ln)
     assert "Print the `Level:` line of Wave 5 with this result." in launched
