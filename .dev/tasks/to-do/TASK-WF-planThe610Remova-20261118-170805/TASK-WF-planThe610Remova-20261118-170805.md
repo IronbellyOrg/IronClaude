@@ -12,14 +12,14 @@ created_date: "2026-11-18"
 # Remove the task and documentation bundle (IronClaude 6.1.0, issue 571 Part B)
 
 Source: ./source.md
-Goal: Five pull requests into the `integration` branch remove the skills `task`, `task-builder`, `tdd`, `tech-research`, `operational-guide`, `roadmap`, `prd`, `readme`, `tech-reference`, the commands `/sc:task` and `/sc:tdd`, `/sc:validate-tests` with its skill, six `rf-*` agents, and the two eval suites about them; every route that offered the task-file (MDTM) route points at `/sc:workflow` then `/sc:implement`; an upgrade of an installed 6.0.0 removes the shipped files; the version is 6.1.0.
+Goal (corrected 2026-11-18, Clay's decision): Four pull requests (PR 2 is withdrawn) into the `integration` branch remove the skills `task`, `task-builder`, `tdd`, `tech-research`, `operational-guide`, `roadmap`, `prd`, `readme`, `tech-reference`, the command `/sc:tdd` and the eval suite `workflow_vs_task_builder` (`/sc:task`, `sc-task-protocol`, `/sc:validate-tests`, `sc-validate-tests-protocol`, the suite `task_classification_contract` and the six `rf-*` agents stay); every route that offered the task-file (MDTM) route points at `/sc:workflow` then `/sc:implement`; an upgrade of an installed 6.0.0 removes the shipped files; the version is 6.1.0.
 
 ## Constraints
 
 - The map `.dev/cleanup/bundle/dependency-map.md` (sections 0 to 11) is the authority for every path and line; read the live lines before editing, because earlier PRs move lines. `.dev/cleanup/bundle/reference-index.md` lists every file that names a bundle item. `.dev/cleanup/bundle/retention.md` records where the removed items stay retrievable (the snapshot fork `ironbelly/IronClaudeV5` and IronFlow).
-- Each PR is its own branch off `origin/integration` and its own pull request into `integration` with `/sc:pr-submit --monitor 3 --repo IronbellyOrg/IronClaude`. Never touch master and never the real home folder `~/.claude`. The order is PR 1, then PR 2, then PR 3, then PR 4, then PR 5; each merges before the next starts, because they share the routing guide, the recommend fixtures and the install test lists.
+- Each PR is its own branch off `origin/integration` and its own pull request into `integration` with `/sc:pr-submit --monitor 3 --repo IronbellyOrg/IronClaude`. Never touch master and never the real home folder `~/.claude`. The order is PR 1, then PR 3, then PR 4, then PR 5 (PR 2 is withdrawn); each merges before the next starts, because they share the routing guide, the recommend fixtures and the install test lists.
 - Source of truth is `src/superclaude/`; the plugin mirror files under `plugins/superclaude/` are edited by hand where the map names them; the gitignored dev mirrors are refreshed with `make sync-dev` and never staged.
-- Decisions applied by default (map section 10, Clay may overrule): D1 `prd`, `readme`, `tech-reference` go; D2 `/sc:validate-tests` goes; D3 `rf-qa` and `rf-qa-qualitative` stay; D4 the launch-level guard and the issue prohibition lists keep `task` and `/task` as deny-list entries; D5 the 52 installed templates stay; D6 the level scale ends at level 3; D7 the two eval suites go; D8 `/sc:brainstorm --handoff task` and the MDTM route of reflect and troubleshoot are removed; D9 the version is 6.1.0.
+- Decisions applied by default (map section 10, Clay may overrule): D1 `prd`, `readme`, `tech-reference` go; D2 dropped (`/sc:task` and `/sc:validate-tests` stay); D3 all eight `rf-*` agents stay (issue 572 decides); D4 the launch-level guard and the issue prohibition lists keep `task` and `/task` as deny-list entries; D5 the 52 installed templates stay; D6 the level scale ends at level 3; D7 the suite `workflow_vs_task_builder` goes; D8 `/sc:brainstorm --handoff task` and the MDTM route of reflect and troubleshoot are removed; D9 the version is 6.1.0.
 - Gate for every PR (run by the executor, evidence under `./artifacts/`): the full suite as `.github/workflows/test.yml` runs it (`pytest -n auto --ignore=tests/cli/test_verify_sync_hooks.py`) shows 0 failures beyond the 10 known baseline failures (eight in `tests/unit/test_ccsession_tag.py`, `tests/cli/eval/test_schema_validate.py::test_rejection_does_not_write_to_default_scratch_root`, `tests/hooks/test_launch_level_guard.py::test_speed_large_commands[backslash-lines-64KB]`; `tests/cli/test_install_keep.py::test_same_content_is_true_only_for_identical_readable_files` is order dependent) and a pass count equal to 22691 minus the tests the PR removed, both numbers written in the PR body; `make lint`; `uv run ruff format --check src/ tests/`; `make sync-dev` then `make verify-sync`; `git diff --check`; a `superclaude install` into a throwaway HOME followed by `superclaude doctor` passing; and a clean search for the names the PR removes, over the whole tree except `.dev/`, `docs/releases/`, `docs/testing/v5.0.0/`, `docs/designs/`, `docs/memory/`, `docs/generated/`, `CHANGELOG.md`, `src/superclaude/templates/` (decision D5) and the allow-list of the PR.
 - Allow-list kept in every search from PR 3 on (decision D4): `src/superclaude/hooks/scripts/launch-level-guard.sh`, `plugins/superclaude/hooks/scripts/launch-level-guard.sh`, `tests/hooks/test_launch_level_guard.py`, and the issue prohibition lists in `src/superclaude/commands/issue.md`, `src/superclaude/skills/sc-issue-protocol/SKILL.md`, `src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md`, `src/superclaude/cli/issue_pipeline/brief.py` with their tests; `commands/sc-help.md` style legacy root copies are edited, not allow-listed.
 - Not in scope: IronFlow is never edited; the retired-name list is generated by the existing script, not edited by hand; the `/rf:` namespace text in the files under `src/superclaude/rules/` other than `ib_agent_core.md` stays (map section 7).
@@ -65,36 +65,26 @@ Acceptance criteria:
 - All gate commands of the Constraints section pass, with the throwaway-HOME install showing none of the six skills nor `tdd.md` installed and `superclaude doctor` passing.
 - The PR is opened with `/sc:pr-submit --monitor 3 --repo IronbellyOrg/IronClaude` against base `integration`, and is left when green, both reviewers finished and no thread open.
 
-## Phase 2: PR 2 removes /sc:task with its skill and /sc:validate-tests
+## Phase 2: PR 2 is withdrawn (Clay, 2026-11-18): /sc:task, /sc:validate-tests and their skills stay
 
-## Task 5: Delete the /sc:task and /sc:validate-tests files and the task-tier eval suite
+## Task 5: Delete the /sc:task and /sc:validate-tests files and the task-tier eval suite (withdrawn)
 
-Delete `src/superclaude/commands/task.md`, `plugins/superclaude/commands/task.md`, `commands/sc-task.md`, `src/superclaude/skills/sc-task-protocol/` (SKILL.md and `__init__.py`), `src/superclaude/commands/validate-tests.md`, `src/superclaude/skills/sc-validate-tests-protocol/` (SKILL.md, `__init__.py`, `classification-algorithm.yaml`) and `src/superclaude/cli/eval/suites/task_classification_contract.yaml`. Branch `clayphi/v61-pr2-sc-task` off `origin/integration` after PR 1 merged. Delete the stale gitignored dev-mirror copies by hand.
-
-Acceptance criteria:
-- None of the listed paths exists; `git ls-files commands/sc-task.md` prints nothing.
-- No installed-file list in `tests/unit/test_cli_install.py` still names the deleted commands, skills or the suite.
-
-## Task 6: Edit every file that names /sc:task, sc-task-protocol or the task-tier suite
-
-Depends on: Task 5
-
-Edit `src/superclaude/commands/reflect.md` (lines 21 and 317) and `src/superclaude/skills/sc-reflect-protocol/SKILL.md` (lines 54 and 998, the end-of-task hook rows), `src/superclaude/cli/recommend/prompts.py` (docstring lines 14-16: the classifier code stays, the citation of the deleted files goes), `commands/sc-help.md` (lines 42 and 117), `docs/user-guide/commands.md` (the `/sc:task` row at 39, the section at 587-633 and the `/sc:validate-tests` section near 656), `docs/user-guide/flags.md` (75-98), `docs/user-guide/codegraph.md` (120-122), `docs/user-guide/session-management.md` (12), `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` (289, 342, 626-643, 702, 837, 1227: use `/sc:implement` and `sc-implement-protocol` as the worked examples), `docs/developer-guide/session-memory.md` (26, 78), `docs/guides/suites-guide.md` (46 and 206-230), `src/superclaude/cli/eval/suites/README.md` (the `task_classification_contract` row), `src/superclaude/core/WORKER-CONTRACT.md` (drop `task` from the list at 330 and from the count at 330 and 334), `scripts/reflect_consumer_inventory.py` (rows at 142-162 for the `sc-task-protocol` skill) and `tests/review/test_reflect_consumer_inventory.py` (38-129, the `sc-task-protocol` rows only).
+Withdrawn on 2026-11-18 (Clay's decision): `/sc:task`, `sc-task-protocol`, `/sc:validate-tests`, `sc-validate-tests-protocol` and the suite `task_classification_contract` are kept. Nothing to do; PR #652 was closed.
 
 Acceptance criteria:
-- A search for `sc:task`, `sc-task`, `sc:validate-tests`, `validate-tests` over the clean-search scope finds nothing (the `/sc:task-unified` prompt string in `tests/pipeline/test_process.py:126` is a sample string and is renamed to a neutral one).
-- `src/superclaude/commands/reflect.md` and the reflect protocol no longer mention an end-of-task hook.
+- None: the files stay.
+## Task 6: Edit every file that names /sc:task, sc-task-protocol or the task-tier suite (withdrawn)
 
-## Task 7: Edit the tests that read the removed command and skill, and run the PR 2 gate
-
-Depends on: Task 6
-
-Edit `tests/skills/test_codegraph_adoption.py` (the `sc-task-protocol` entry at line 22 and its cases), `tests/commands/test_impact_command.py` (352-376, the `sc-task-protocol` rows), `tests/skills/test_worker_contract.py` (remove `task` entries at 500, 683, 1549, 1620, 1743-1754), `tests/unit/test_cli_install.py` (the commands, skills and eval suite lists), `tests/cli/eval/` cases that count the shipped suites if any, `tests/hooks/test_launch_level_guard.py` is not edited (decision D4).
+Withdrawn on 2026-11-18 (Clay's decision): `/sc:task`, `sc-task-protocol`, `/sc:validate-tests`, `sc-validate-tests-protocol` and the suite `task_classification_contract` are kept. Nothing to do; PR #652 was closed.
 
 Acceptance criteria:
-- The full suite shows 0 failures beyond the known baseline; the PR body states the pass count and the removed tests.
-- All gate commands pass, the throwaway-HOME install lists no `task` command and no `sc-task-protocol`, `superclaude doctor` passes, and the PR is opened with `/sc:pr-submit --monitor 3 --repo IronbellyOrg/IronClaude` against base `integration`.
+- None: the files stay.
+## Task 7: Edit the tests that read the removed command and skill, and run the PR 2 gate (withdrawn)
 
+Withdrawn on 2026-11-18 (Clay's decision): `/sc:task`, `sc-task-protocol`, `/sc:validate-tests`, `sc-validate-tests-protocol` and the suite `task_classification_contract` are kept. Nothing to do; PR #652 was closed.
+
+Acceptance criteria:
+- None: the files stay.
 ## Phase 3: PR 3 re-points every MDTM route to the plan route
 
 ## Task 8: Remove the MDTM route from the reflect command, protocol and handoff reference
@@ -136,14 +126,14 @@ Acceptance criteria:
 - The issue prohibition lists named in the Constraints allow-list are unchanged and their tests pass.
 - The full suite shows 0 failures beyond the known baseline; the PR body lists `--handoff task` and the MDTM route of reflect and troubleshoot as removed behavior; all gate commands pass; the PR is opened with `/sc:pr-submit --monitor 3 --repo IronbellyOrg/IronClaude` against base `integration`.
 
-## Phase 4: PR 4 deletes task, task-builder, roadmap and six rf agents
+## Phase 4: PR 4 deletes task, task-builder and roadmap (the six rf agents stay)
 
-## Task 12: Delete the MDTM skills, the roadmap skill and the six agents
+## Task 12: Delete the MDTM skills and the roadmap skill
 
-Delete `src/superclaude/skills/task/SKILL.md`, `src/superclaude/skills/task-builder/SKILL.md`, `src/superclaude/skills/roadmap/SKILL.md`, and `src/superclaude/agents/rf-analyst.md`, `rf-assembler.md`, `rf-task-builder.md`, `rf-task-executor.md`, `rf-task-researcher.md`, `rf-team-lead.md`. Delete the stale gitignored dev-mirror copies by hand. Branch `clayphi/v61-pr4-mdtm` off `origin/integration` after PR 3 merged.
+Delete `src/superclaude/skills/task/SKILL.md`, `src/superclaude/skills/task-builder/SKILL.md`, and `src/superclaude/skills/roadmap/SKILL.md`. The six `rf-*` agents stay (issue 572 decides). Delete the stale gitignored dev-mirror copies by hand. Branch `clayphi/v61-pr4-mdtm` off `origin/integration` after PR 3 merged.
 
 Acceptance criteria:
-- None of the listed paths exists; `rf-qa.md` and `rf-qa-qualitative.md` still exist.
+- None of the listed paths exists; all eight `rf-*` agents still exist.
 
 ## Task 13: Remove level 4 and every remaining mention of the MDTM pair and roadmap from the guide and recommend text
 
@@ -155,16 +145,12 @@ Acceptance criteria:
 - The guide's level scale ends at level 3 and no file in the clean-search scope names `/task`, `/task-builder`, `/roadmap` outside the Constraints allow-list.
 - `tests/core/test_how_we_work_routing_table.py`, `tests/docs/test_onboarding_deck.py` and `tests/recommend/` pass after their pins for level 4 are edited.
 
-## Task 14: Reword the seven lines in rf-qa and rf-qa-qualitative that name removed siblings
+## Task 14: Reword the seven lines in rf-qa and rf-qa-qualitative that name removed siblings (withdrawn)
 
-Depends on: Task 12
-
-Edit `src/superclaude/agents/rf-qa.md` lines 84, 146, 309, 339, 349, 420 and `src/superclaude/agents/rf-qa-qualitative.md` line 85 so they name only what remains (the two-fix-cycle cap, the wrapper bullets of the two kept agents); no other line of the two agents changes.
+Withdrawn on 2026-11-18 (Clay's decision): the six `rf-*` agents stay and text that names them stays valid; the two kept agents are not edited (issue 572).
 
 Acceptance criteria:
-- A search of the two agent files for `rf-analyst`, `rf-team-lead`, `rf-assembler`, `task-builder`, `tech-research` finds nothing.
-- `git diff --stat` for the two files shows only the seven edited lines.
-
+- `git diff --stat` shows no change to `src/superclaude/agents/`.
 ## Task 15: Remove the workflow-versus-task-builder eval suite and the nfr reference
 
 Depends on: Task 12
@@ -179,21 +165,21 @@ Acceptance criteria:
 
 Depends on: Task 12, Task 14
 
-Delete `tests/skills/test_task_builder_merge.py`. In `tests/audit/` delete the cases that read `rf-analyst.md` or the task-builder skill and keep or reduce the cases that cover `rf-qa.md` and `rf-qa-qualitative.md`: `test_dnsp_all_agents_fail_bypass.py`, `test_dnsp_does_not_serialize_cohort.py`, `test_dnsp_twice_exhaust.py`, `test_dnsp_dedup_collapse.py`, `test_inherited_verdict_present.py`, `test_inherited_verdict_freshness_inv_002.py`, `test_sequencing_PR06_before_PR04.py`, `test_synthetic_dnsp_dedup_not_regression.py`, `test_regression_halt_pass1_fail2.py`, `test_monotonicity_halt_F_5_5_5.py`, `test_hidden_input_guard.py`, `test_dynamic_enumeration_inv_010.py`, `test_slow_shrink_continues.py`, with the fixtures under `tests/audit/fixtures/` that only they use; edit the pinned text in `tests/audit/` for the reworded `rf-qa` lines; edit `tests/skills/test_review_severity_rule.py` and `test_review_prompt_overrides.py` (skill file entries for `task` and `task-builder`), `tests/skills/test_worker_contract.py`, `tests/unit/test_cli_install.py` (6 agent files, 3 skill files) and `tests/review/test_reflect_consumer_inventory.py` (task and task-builder rows) plus `scripts/reflect_consumer_inventory.py` (rows at 142-162).
+Delete `tests/skills/test_task_builder_merge.py`. In `tests/audit/` delete only the cases that read the task-builder skill and keep every case that reads an `rf-*` agent: `test_dnsp_all_agents_fail_bypass.py`, `test_dnsp_does_not_serialize_cohort.py`, `test_dnsp_twice_exhaust.py`, `test_dnsp_dedup_collapse.py`, `test_inherited_verdict_present.py`, `test_inherited_verdict_freshness_inv_002.py`, `test_sequencing_PR06_before_PR04.py`, `test_synthetic_dnsp_dedup_not_regression.py`, `test_regression_halt_pass1_fail2.py`, `test_monotonicity_halt_F_5_5_5.py`, `test_hidden_input_guard.py`, `test_dynamic_enumeration_inv_010.py`, `test_slow_shrink_continues.py`, with the fixtures under `tests/audit/fixtures/` that only they use; edit `tests/skills/test_review_severity_rule.py` and `test_review_prompt_overrides.py` (skill file entries for `task` and `task-builder`), `tests/skills/test_worker_contract.py`, `tests/unit/test_cli_install.py` (3 skill files) and `tests/review/test_reflect_consumer_inventory.py` (task and task-builder rows) plus `scripts/reflect_consumer_inventory.py` (rows at 142-162).
 
 Acceptance criteria:
 - The full suite shows 0 failures beyond the known baseline; the PR body states the pass count and the number of tests removed; the audit tests that remain still cover both kept agents.
-- All gate commands pass, the throwaway-HOME install lists no `task`, `task-builder`, `roadmap` skill and no deleted agent, `rf-qa` and `rf-qa-qualitative` are installed, `superclaude doctor` passes, and the PR is opened with `/sc:pr-submit --monitor 3 --repo IronbellyOrg/IronClaude` against base `integration`.
+- All gate commands pass, the throwaway-HOME install lists no `task`, `task-builder`, `roadmap` skill, and all eight `rf-*` agents and the `/sc:task` family are installed, `superclaude doctor` passes, and the PR is opened with `/sc:pr-submit --monitor 3 --repo IronbellyOrg/IronClaude` against base `integration`.
 
 ## Phase 5: PR 5 retire step data, version 6.1.0, changelog and upgrade text
 
 ## Task 17: Regenerate the retired-install data from both release tags and update its test
 
-Edit `src/superclaude/cli/install_retired_data.py` by running `uv run python scripts/gen_retired_install_data.py --tag v5.0.0 --tag v6.0.0` (generated file, never edited by hand) after PRs 1 to 4 are merged, then `--check`. Edit `tests/cli/test_install_retired_files.py`: the pinned list test at line 136 (`test_5_0_0_retired_names_are_the_twelve_commands_and_five_skills`) gains the 6.1.0 names (commands `task`, `tdd`, `validate-tests`; skills `prd`, `readme`, `roadmap`, `sc-task-protocol`, `sc-validate-tests-protocol`, `task`, `task-builder`, `tdd`, `tech-reference`, `tech-research`, `operational-guide`; agents the six removed) and a new upgrade case installs the `v6.0.0` tag into a throwaway HOME and runs the step. Branch `clayphi/v61-pr5-release` off `origin/integration` after PR 4 merged. The byte-identical rule stays: a customized file is kept with the reason printed.
+Edit `src/superclaude/cli/install_retired_data.py` by running `uv run python scripts/gen_retired_install_data.py --tag v5.0.0 --tag v6.0.0` (generated file, never edited by hand) after PRs 1 to 4 are merged, then `--check`. Edit `tests/cli/test_install_retired_files.py`: the pinned list test at line 136 (`test_5_0_0_retired_names_are_the_twelve_commands_and_five_skills`) gains the 6.1.0 names (command `tdd`; skills `prd`, `readme`, `roadmap`, `task`, `task-builder`, `tdd`, `tech-reference`, `tech-research`, `operational-guide`; no agent) and a new upgrade case installs the `v6.0.0` tag into a throwaway HOME and runs the step. Branch `clayphi/v61-pr5-release` off `origin/integration` after PR 4 merged. The byte-identical rule stays: a customized file is kept with the reason printed.
 
 Acceptance criteria:
-- `uv run python scripts/gen_retired_install_data.py --tag v5.0.0 --tag v6.0.0 --check` exits 0 and the data lists no `rf-qa`, `rf-qa-qualitative` and no swarm name.
-- An upgrade test from an installed 6.0.0 into a throwaway HOME removes every byte-identical removed file, keeps an edited copy with the printed `rm` command, and leaves `rf-qa` and `rf-qa-qualitative` installed; the real home folder is never touched.
+- `uv run python scripts/gen_retired_install_data.py --tag v5.0.0 --tag v6.0.0 --check` exits 0 and the data lists no `rf-*` agent, no `task` command and no swarm name.
+- An upgrade test from an installed 6.0.0 into a throwaway HOME removes every byte-identical removed file, keeps an edited copy with the printed `rm` command, and leaves the `/sc:task` family and every `rf-*` agent installed; the real home folder is never touched.
 
 ## Task 18: Bump the version to 6.1.0 and write the changelog entry, release notes and upgrade section
 
@@ -212,5 +198,5 @@ Depends on: Task 18
 On the PR 5 branch rebased on `origin/integration`, run the full gate of the Constraints section, and in a throwaway HOME install 6.0.0 from the `v6.0.0` tag, run `superclaude update` from this tree, then `superclaude doctor`, `superclaude install --list` and a search of the installed folders for every removed name. The PR is opened with `/sc:pr-submit --monitor 3 --repo IronbellyOrg/IronClaude` against base `integration` and left when green, both reviewers finished and no thread open.
 
 Acceptance criteria:
-- The upgraded throwaway HOME contains none of the removed commands, skills or agents, contains `rf-qa` and `rf-qa-qualitative`, and `superclaude doctor` passes.
+- The upgraded throwaway HOME contains none of the removed commands or skills, still contains the `/sc:task` family and every `rf-*` agent, and `superclaude doctor` passes.
 - The full suite shows 0 failures beyond the known baseline and a pass count equal to 22691 minus the total of tests removed in PRs 1 to 4 plus the tests added in PR 5, with all four numbers written in the PR body.

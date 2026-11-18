@@ -1,6 +1,8 @@
 # Reference index: every file outside the bundle that names a bundle item (generated)
 
 Generated 2026-11-18 at `847cccc1a` (origin/integration, tree identical to master `3f3b34a26`).
+> **Corrected 2026-11-18:** this index was built for the first scope. The rows for `commands/validate-tests.md`, `sc-validate-tests-protocol`, the suite `task_classification_contract` and every mention of `/sc:task` or the six `rf-*` agents are no longer removal targets (kept by Clay's decision).
+
 Method: `git grep -nP` for the names listed in the dependency map section 0, over the whole tree except `.dev/`, the historical records (`docs/releases/`, `docs/testing/v5.0.0/`, `docs/designs/`, `CHANGELOG.md`) and the bundle's own files; union of two passes (`/task`, `task-builder`, `tech-research`, `operational-guide`, `tech-reference`, six `rf-*` agent names, `sc:tdd`, `/tdd`, `sc:task`, `sc-task`; then `/roadmap`, `/prd`, `/readme`, `<name> skill`, `skills/<name>`). Each row: hit count, file, line numbers (first 30). Some hits are false positives (for example `$/task` in a model price table); the map in `dependency-map.md` classifies them.
 
 | Hits | File | Lines |
