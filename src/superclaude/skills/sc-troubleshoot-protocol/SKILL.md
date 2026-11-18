@@ -661,7 +661,7 @@ The table describes orchestrator capabilities. Bash execution, metadata capture 
 | All Tier 2 agents fail | Downgrade to Tier 1 result; report `partial`; recommend rerun | None |
 | `sc:adversarial-protocol` fails in Wave 4 | Pick the highest-confidence Tier 2 fix proposal as the chosen fix; note in audit and report header | None |
 | `self-review` flags blocker on adversarial merge | STOP at Wave 5 with `partial` status; report includes the blocker; recommend rerun with `--depth deep` or different focus | None |
-| `sc:workflow-protocol` unavailable or STOPs in Wave 6 (plan route) | Surface the fix proposal path and the STOP code; recommend manual planning or `--depth deep`; don't fail the whole skill | None |
+| `sc:workflow-protocol` unavailable or STOPs in Wave 6 (plan route) | Surface the fix proposal path and the STOP code; recommend manual planning; don't fail the whole skill | None |
 | User declines remediation offer | Return success; report stands | None |
 | `--depth deep` requested on under-specified input | STOP at Wave 0; ask user to add detail | None |
 | `evidence-validator` agent fails (subprocess crash, timeout, or malformed report) | Inline-validate citations in the orchestrator context (the original Wave 5 step 3 behavior); add a Grounding Gap entry noting the validator was unavailable; do not assign `status` (common-epilogue merge decides) | None — the inline path is the fallback |

@@ -83,10 +83,10 @@ _Numbered, copy-pasteable. SAFE = idempotent / read-only. REVIEW = changes state
    /sc:implement .dev/tasks/to-do/<TASK-ID>/<TASK-ID>.md
    ```
 
-3. **REVIEW** — Finish an older task file from an earlier release (read as a checklist; works the open items):
+3. **REVIEW** — Finish an older task file from an earlier release: first copy its open `- [ ]` items into a new plain list (`/sc:implement` would also list the checked items as tasks), then run:
 
    ```bash
-   /sc:implement .dev/tasks/to-do/<TASK-ID>/<TASK-ID>.md
+   /sc:implement <path of the new list holding the open items>
    ```
 
 4. **REVIEW** — Move a completed task folder out of to-do/:

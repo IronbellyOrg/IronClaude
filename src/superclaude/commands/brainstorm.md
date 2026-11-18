@@ -71,7 +71,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
 - `--strategy enterprise` implies `--depth deep` unless overridden
 - `--depth quick` caps `--proposals` at 2 (cost guardrail)
 - `--depth deep` allows up to 7 proposals
-- `--handoff task` was removed in 6.1.0 and is refused; run `/sc:workflow @<output>/merged-requirements.md` afterwards
+- `--handoff task` was removed in 6.1.0 and is refused; once a run has written `merged-requirements.md`, plan from it with `/sc:workflow @<output>/merged-requirements.md`
 
 ## Examples
 

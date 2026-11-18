@@ -64,7 +64,7 @@ A topic string. File references via `@<path>` are supported. Empty topic STOPs t
 - `--strategy enterprise` implies `--depth deep` unless overridden.
 - `--depth quick` caps `--proposals` at 2.
 - `--depth deep` allows up to 7 proposals.
-- `--handoff task` was removed in 6.1.0: Brainstorm STOPs. Run `/sc:workflow @<output>/merged-requirements.md` after the brainstorm instead.
+- `--handoff task` was removed in 6.1.0: Brainstorm STOPs. Once a run has written `merged-requirements.md`, plan from it with `/sc:workflow @<output>/merged-requirements.md`.
 
 ## Behavioral Flow (5 Waves)
 

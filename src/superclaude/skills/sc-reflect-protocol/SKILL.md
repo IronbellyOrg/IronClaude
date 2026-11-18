@@ -828,7 +828,7 @@ remediation_accepted: bool | null
 task_file_path: <path> | null
 remediation_task_path: null   # FR-8, retired in 6.1.0: the MDTM route is gone, so this is always null. Kept in the schema so older reports still load.
 remediation_plan_path: <abs path> | null   # 1.8.0: absolute path of the sc:workflow tasklist `.dev/tasks/to-do/<slug>/<slug>.md` built in Wave 6 (the only route); null when no plan was built. The wrapper auto-fix loop READS this to auto-run /sc:implement.
-handoff_memory_key: <memory-key> | null   # FR-3 (reflect/handoff-{slug}-{timestamp}, file `.superclaude/memory/<key>.md`; null when no Tier 3)
+handoff_memory_key: null   # FR-3, retired in 6.1.0: always null, no handoff file is written. Kept in the schema so older reports still load.
 
 # Asymmetric-cost flags (downstream automation must respect these)
 cannot_validate_without_user_input: bool

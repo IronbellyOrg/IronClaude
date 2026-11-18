@@ -111,7 +111,7 @@ Do not use auggie as a substitute for reading manifest.json or execution-log.jso
 The skill leans on hard-coded knowledge of these pipelines. See `refs/pipelines.md` for exact layouts, state-file locations, and resume commands per pipeline:
 
 - **Workflow package** — `/sc:workflow` + `/sc:implement` → `.dev/tasks/{to-do,done}/TASK-WF-*/` with `progress.md`
-- **Older task files** (earlier releases; finish with `/sc:implement <file>`) — single .md with frontmatter `status: 🟢 Done | 🟡 InProgress | 🔴 Blocked`, lives in `.dev/tasks/{to-do,done}/`
+- **Older task files** (earlier releases; finish by copying the open items into a new list and running `/sc:implement <list>`) — single .md with frontmatter `status: 🟢 Done | 🟡 InProgress | 🔴 Blocked`, lives in `.dev/tasks/{to-do,done}/`
 
 Each pipeline has a canonical *resume* idiom that the synthesis report should surface. The references file documents these — keep it open when generating the "Suggested next actions" block.
 

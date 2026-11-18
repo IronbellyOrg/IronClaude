@@ -8,7 +8,7 @@ A project can have multiple of these in flight simultaneously. Do not assume a s
 
 **Created by:** the `task-builder` and `roadmap` skills of earlier releases (a task file `.dev/tasks/to-do/<TASK-ID>.md`, or a `TASK-ROADMAP-*` folder with `.roadmap-state.json`), run with `/task`. Those skills were removed in 6.1.0, so nothing resumes such a file by its old loop any more.
 **Status signal:** YAML frontmatter `status:`; checklist items `- [ ]` (open), `- [x]` (done), `- [-]` (skipped); for a roadmap folder also `.roadmap-state.json`. Detect and report them as before.
-**Recovery:** finish an old task file with `/sc:implement <task file>`: it reads the file as a plain checklist source and works the open items (it does not continue the old `/task` loop). This skill never deletes or moves such files.
+**Recovery:** `/sc:implement` cannot import the old completion state: it lists every checkbox, checked or not, as a task and skips only tasks its own ledger shows complete. To finish an old file, copy its open items (`- [ ]`) into a new plain list and run `/sc:implement <that list>` (or plan them with `/sc:workflow`). This skill never deletes or moves such files.
 
 ## Workflow task packages (`TASK-WF-*`, `/sc:workflow` + `/sc:implement`)
 
