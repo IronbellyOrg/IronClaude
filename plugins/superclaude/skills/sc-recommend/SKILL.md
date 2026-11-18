@@ -32,7 +32,7 @@ Every successful invocation emits one of:
 3. **Plugin-search result** (`--plugin` only) — one or more plugin/skill candidates with capability summary, install command, repo URL, and citations.
 4. **Ordered workflow** - when Step 0 matches: selected applicable steps in guide order, with verified inputs/options, level, actual effects and guide section. Conditions and the requested stopping point are resolved before output (Phase 2).
 
-Use one recommended path when the objective is clear. Multiple prompt blocks are only for genuinely different requested outcomes or justified machinery needs, each with a one-line disambiguator. Do not add a heavier MDTM alternative merely because it could perform the same ordinary work.
+Use one recommended path when the objective is clear. Multiple prompt blocks are only for genuinely different requested outcomes or justified machinery needs, each with a one-line disambiguator.
 
 The skill never restates the target's internal logic (see Rule R3).
 
@@ -57,9 +57,9 @@ When the guide is found, add its path to `verified_sources` and extract three bl
 
 **Match the whole requested outcome to one routing row.** Resolve the requested deliverable, explicit command or existing artifact, compatible mode/depth/output preferences, and authorization ceiling before implementation-size heuristics. Intent phrases are discovery hints, not an any-one-phrase decision rule. A row fits only when its objective, inputs and stopping point fit the complete request. Prefer the specialist objective over a generic phrase: business viability of a PRD is not requirements critique, a localization placeholder error is not a runtime exception, and compiling existing code is not building a feature. Inspection breadth and report-artifact count are not implementation size.
 
-Preserve explicit command/executor selection after Step C verifies its availability and contract; do not replace it merely because another row is broader or heavier. Explicit selection cannot waive the written-plan limit or grant extra authority. An adequate approved plan goes to its existing executor without rebuilding. Distinguish a workflow plan from an MDTM file before choosing a tasklist route. The `unsure` row is an inbound pointer, never a candidate that sends the user back to `/sc:recommend`. If the objective or tasklist format genuinely remains ambiguous, ask one clarifying question and stop; never break a tie by automatically escalating to MDTM.
+Preserve explicit command/executor selection after Step C verifies its availability and contract; do not replace it merely because another row is broader or heavier. Explicit selection cannot waive the written-plan limit or grant extra authority. An adequate approved plan goes to its existing executor without rebuilding. Distinguish a workflow plan from a plain checklist before choosing a tasklist route. The `unsure` row is an inbound pointer, never a candidate that sends the user back to `/sc:recommend`. If the objective or tasklist format genuinely remains ambiguous, ask one clarifying question and stop.
 
-- **A row matches:** set `guide_status: matched` and record the row `id`. Skip the Hot-Path Cache Lookup and the Cold-Path Write-Back: a cache row holds one hand-off target and cannot carry an ordered workflow. In matched mode, skip Phase 0 Step B. Resolve the row's conditions and scope before Step C verifies its selected commands/skills, whether or not auggie would rank them. Then use the ordered-workflow template in Phase 2. For actual implementation above five edits or one source file plus its matching test, use `simple-plan` (level 3) by default; `task-file` (level 4) requires explicit MDTM intent or the exceptional complex, long-running machinery need described by the guide. Report-only work does not acquire a plan from how many files it reads.
+- **A row matches:** set `guide_status: matched` and record the row `id`. Skip the Hot-Path Cache Lookup and the Cold-Path Write-Back: a cache row holds one hand-off target and cannot carry an ordered workflow. In matched mode, skip Phase 0 Step B. Resolve the row's conditions and scope before Step C verifies its selected commands/skills, whether or not auggie would rank them. Then use the ordered-workflow template in Phase 2. For actual implementation above five edits or one source file plus its matching test, use `simple-plan` (level 3) by default. Report-only work does not acquire a plan from how many files it reads.
 - **No row matches:** set `guide_status: no_match` and continue with the Hot-Path Cache Lookup as written. The level table and the hard limit still apply in Phase 1.
 
 ## Hot-Path Cache Lookup (try the amortized cache before the cold path)
@@ -93,7 +93,7 @@ Under the resolved **Option P** layering, the `cli/recommend/` Python module own
      - Cached brainstorm hint, current design-document request: reject; the requested artifact differs.
      - Cached brainstorm hint, current existing-spec critique: reject; never rewrite the spec under review.
      - Cached retired-target hint with a valid source hash: reject; lifecycle evidence outranks the hash.
-   - `outcome: "native"` - Apply the same current-goal/explicit-choice and Phase 1 direct-change checks before recommending native tooling. Above the limit, ordinary implementation needs workflow/implement, not an unchecked native edit or automatic MDTM. No cold-path insert and no telemetry event: native has no cache-event enum.
+   - `outcome: "native"` - Apply the same current-goal/explicit-choice and Phase 1 direct-change checks before recommending native tooling. Above the limit, ordinary implementation needs workflow/implement, not an unchecked native edit. No cold-path insert and no telemetry event: native has no cache-event enum.
    - `outcome: "miss"` with `miss_no_key`, `miss_low_confidence` or `miss_validation_stale` - Run the cold path and preserve the miss reason. A `miss_budget_exceeded` result must not reuse the row or bypass the budget; disclose the limit and use the bounded live/native fallback under Phase 1, without an additional cold-worker spawn.
 
 The classifier is the only mandatory hot-path Agent. A cold worker is spawned for a supported miss or rejected hint only when the availability gate permits it. Both paths emit the same Return Contract. Matched rows still bypass cache entirely; no-guide, unavailable-helper and non-checkout handling remain live-only. Telemetry is best-effort and occurs once for the actual accepted hit or cold outcome, never as a substitute for verification. After an accepted, reconstructed hit use `uv run superclaude recommend telemetry append --mode delegate --cache-result hit --classification-key <key> --duration-ms <ms>`; a telemetry failure does not turn the handoff into a failure or justify another event.
@@ -166,10 +166,9 @@ Verification is **exempt** for built-in tools (`Read`, `Grep`, `Glob`, `Edit`, `
 
 - Level 1 answers and bounded level 2 edits may use native tooling. Explicit verified specialist selection and existing executor identity still take precedence over a net-value default.
 - The guide's **hard limit overrides native first.** If actual work needs more than 5 edits or touches more than one source file (its matching test file does not count), recommend a written plan, normally level 3: `/sc:workflow` at ordinary standard depth, then `/sc:implement` only when execution is requested. Quick is appropriate for a smaller checked plan, not a universal mandate.
-- Level 4 needs explicit MDTM creation/execution or exceptional complex, long-running phased work with a stated research/checklist/phase-reviewer machinery need. File count, sessions, an existing specification, risk, auditability, drift or resume alone do not justify it. No new capacity ceiling is invented.
 - The contained-folder cleanup exception retains the checkpoint commit and final `git diff` review; structural migrations still need a plan. Reading many files, generating reports or using an explicitly requested document skill does not become product implementation by output count.
 
-**No guide:** skip cache helpers and apply the same whole-outcome, explicit-choice, direct-change and workflow-first rules above through live verification. Do not restore a broad MDTM escalation or replace report-only work with planning. An adequate existing plan goes straight to its executor; memory save/load is not executor recovery.
+**No guide:** skip cache helpers and apply the same whole-outcome, explicit-choice, direct-change and workflow-first rules above through live verification. Do not replace report-only work with planning. An adequate existing plan goes straight to its executor; memory save/load is not executor recovery.
 
 For **every** surviving candidate, answer explicitly before recommending:
 
@@ -191,7 +190,7 @@ See `refs/delegation-vs-native-heuristics.md` for the full rubric (when commands
 
 Build the prompt as a **hand-off envelope**, not a specification. The prompt carries:
 
-- the target invocation (`/sc:<command>`, a skill's own slash name such as `/task-builder` or `/task` (`/<skill>`), `Skill <skill-name>`, `Agent <agent-name>`, or a native tool sequence)
+- the target invocation (`/sc:<command>`, a skill's own slash name such as `/confidence-check` (`/<skill>`), `Skill <skill-name>`, `Agent <agent-name>`, or a native tool sequence)
 - the user's verified parameters / file paths / flags
 - the expected deliverable shape (what the user wants back)
 - worktree-aware paths (resolved under `git rev-parse --show-toplevel`, which is the worktree's root when cwd is inside a linked worktree)

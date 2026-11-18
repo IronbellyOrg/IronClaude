@@ -79,7 +79,6 @@ eval/suites/installer_sync_drift.yaml eval/suites/model_capability_matrix.yaml
 eval/suites/post_release_command_contract.yaml eval/suites/real.yaml
 eval/suites/suite.schema.json eval/suites/suite_schema_guard.yaml
 eval/suites/task_classification_contract.yaml
-eval/suites/workflow_vs_task_builder.yaml
 swarm/lenses/templates/bare-review-output.md
 swarm/lenses/templates/doc-completeness-output.md
 swarm/lenses/templates/edge-case-hunt-output.md
@@ -173,7 +172,7 @@ ccsession-tag/hooks/session-start.sh ccsession-tag/install.sh
 ccsession-tag/local-gateway-alias-proxy.py ccsession-tag/models.py
 ccsession-tag/unseed-env.py confidence-check/SKILL.md
 confidence-check/__init__.py confidence-check/confidence.ts
-roadmap/SKILL.md sc-adversarial-protocol/SKILL.md
+sc-adversarial-protocol/SKILL.md
 sc-adversarial-protocol/__init__.py sc-adversarial-protocol/refs/agent-specs.md
 sc-adversarial-protocol/refs/artifact-templates.md
 sc-adversarial-protocol/refs/debate-protocol.md
@@ -291,7 +290,7 @@ sc-workflow-protocol/refs/input-parse.md
 sc-workflow-protocol/refs/overlap-routing.md
 sc-workflow-protocol/refs/phase-templates.md
 sc-workflow-protocol/refs/quality-gates.md
-sc-workflow-protocol/refs/return-contract.md task-builder/SKILL.md task/SKILL.md
+sc-workflow-protocol/refs/return-contract.md
 """
     ),
     "templates": _names(

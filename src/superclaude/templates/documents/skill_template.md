@@ -1,4 +1,5 @@
 <!-- CLASSIFICATION: SUBSTITUTE -->
+<!-- NOTE (6.1.0): the skills /task, /task-builder and /roadmap that this template names were removed in 6.1.0. Plan with /sc:workflow and run the plan with /sc:implement instead. The steps below still describe the removed task-file flow and are kept as written until the templates are reworked. -->
 ---
 name: [skill-name]
 description: "[One sentence: what it does. When to use it. Trigger phrases.]"

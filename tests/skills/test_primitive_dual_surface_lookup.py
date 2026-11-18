@@ -3,7 +3,7 @@
 A skill or agent can live at ``~/.claude/...`` (``superclaude install``) or at the project's
 ``.claude/...`` (``make sync-dev`` in a dev checkout). PR #278 first rewrote ``src/superclaude/...``
 paths to a home-only path, which broke dev checkouts. Skills and agents resolve in opposite
-orders (personal skill beats project skill; project agent beats user agent), so the rf-qa lookup
+orders (personal skill beats project skill; project agent beats user agent), so an agent lookup
 must name the project copy first. CI-safe, no network.
 """
 
@@ -43,18 +43,3 @@ def test_persona_check_accepts_both_surfaces():
         re.search(r"(?<!~/)\.claude/agents/<persona>\.md", line)
         and "~/.claude/agents/<persona>.md" in line
     )
-
-
-def test_rf_qa_lookup_is_project_first():
-    (line,) = [
-        ln
-        for ln in _lines("task-builder/SKILL.md")
-        if ln.startswith("1. **Locate `rf-qa.md`.**")
-    ]
-    project = re.search(r"(?<!~/)\.claude/agents/rf-qa\.md", line)
-    home = line.find("~/.claude/agents/rf-qa.md")
-    assert project and home != -1, "both rf-qa surfaces must be named"
-    assert project.start() < home, (
-        "project copy must be read first (project agent beats user agent)"
-    )
-    assert "authoritative" not in line

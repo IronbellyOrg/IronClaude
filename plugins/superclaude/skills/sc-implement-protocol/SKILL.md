@@ -14,7 +14,7 @@ Middleweight executor. Source is a spec/PRD/tasklist path, an informal notes fil
 
 Codegraph usage rules (readiness check, closed `graph:*` token list, call-site procedure) are in `~/.claude/CODEGRAPH.md`; read it once per run.
 
-Load `refs/qa.md` for Q3–Q5. Load `refs/ledger.md` for ledger I/O and resume. Also load `refs/retry.md` when A2 (the Q5 fix pass) still fails review, or when resume finds a `retry` or `halt` record in the ledger. Do not load reflect-protocol. Do not invoke `/task`, `/sc:task`, or `sc:task-protocol`.
+Load `refs/qa.md` for Q3–Q5. Load `refs/ledger.md` for ledger I/O and resume. Also load `refs/retry.md` when A2 (the Q5 fix pass) still fails review, or when resume finds a `retry` or `halt` record in the ledger. Do not load reflect-protocol. Do not invoke `/sc:task` or `sc:task-protocol`.
 
 **Managed packages.** If Wave 0 step 3 finds a `workflow-plan/1.2` plan (a workflow-owned `TASK-WF-*` package), also load `refs/managed-workspace.md`: it replaces the ledger location, resume dispatch, whole-list review and completion rules for that run only. Every other source runs the legacy rules below, unchanged.
 
@@ -208,7 +208,7 @@ Managed: done means the helper reported `archived` (print its actual `done/` pat
 - Empty `/sc:implement` with no path and no prompt
 - Growing scope past the given prompt / informal notes
 - Generating the spec (`/sc:brainstorm`, `/sc:workflow`)
-- `/task` MDTM execution, `/sc:task` compliance tiers
+- `/sc:task` compliance tiers
 - `/sc:test`, `/sc:git`, `/sc:reflect` as required steps
 - Dual-mode pitch UX, `--reviewer`, `--force`, `--fresh`, `--no-extras`
 - Python CLI, JSON/YAML ledger, 6-agent phase gates, TDD as pass/fail

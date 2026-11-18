@@ -76,7 +76,7 @@ Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `ref
 | Skill | Use of the store | Source |
 |---|---|---|
 | `sc-task-protocol` | Reads relevant memories before work; saves session state to `task/session-<timestamp>.md` | `sc-task-protocol/SKILL.md:92,316,331` |
-| `sc-reflect-protocol` | Reads and writes `reflect/` files; the `--remediate` MDTM route writes a handoff file whose key task-builder reads | `sc-reflect-protocol/SKILL.md:262,376-378,590-600` |
+| `sc-reflect-protocol` | Reads and writes `reflect/` files (older versions also wrote a `reflect/handoff-*.md` file for a removed route) | `sc-reflect-protocol/SKILL.md:262,376-378,590-600` |
 | `sc-crash-recovery` | Counts memory files and spawns a project-memory investigator only when the store has files | `sc-crash-recovery/SKILL.md:62,79`, `sc-crash-recovery/scripts/bootstrap_scan.sh:153-154` |
 
 ## Why files and not an MCP server

@@ -6,6 +6,5 @@
 |----------|----|--------|
 | `/sc:implement` | `--handoff implement` → `Skill sc:implement-protocol` with `<pkg>/<id>.md`. Missing skill or implement STOP → contract `partial` (plan stays valid, handoff failed); never silently skip, never `failed` | write product code |
 | `/sc:design` | print `/sc:design @<pkg>/<id>.md` | invoke design |
-| `/task` (MDTM) | nothing — a `TASK-WF-*` package is an implement package, not an MDTM task file | route a package to `/task` |
 
 `--handoff none` (default): print next-step strings only, including `/sc:implement <pkg>/<id>.md`. Never print or accept `--output`.

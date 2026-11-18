@@ -195,8 +195,7 @@ def test_live_and_no_guide_fallbacks_keep_workflow_first_policy():
     rubric = (_SKILL.parent / "refs/delegation-vs-native-heuristics.md").read_text()
     for text in (phase1, rubric):
         assert "level 3" in text
-        assert "explicit MDTM" in text
-        assert "long-running" in text
+        assert "level 4" not in text.lower()
         assert "standard" in text.lower()
         assert "quick" in text.lower()
         assert "structural migrations" in text
@@ -253,7 +252,6 @@ def test_cold_worker_preserves_verification_and_implementation_boundaries():
         "contract gap",
         "decision-relevant dependencies",
         "level 3",
-        "explicit mdtm intent",
         "file count",
         "structural migrations",
         "current-request",
