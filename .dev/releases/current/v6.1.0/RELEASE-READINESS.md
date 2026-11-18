@@ -41,7 +41,21 @@ Known leftover (for issue 572, not in this release): `src/superclaude/rules/cont
 
 ## 3. Gate on the release PR's merge commit (G1 to G9)
 
-Run on a temporary clone of `integration` (`/tmp/ic61-gate`, head `5772d21ad`), whose tree id `3f0647805a37bd89039cb5766d7b60be00aa2f00` equals the tree of `refs/pull/658/merge` (checked). In progress; results are filled in below when the run ends. Changelog completeness check (every pull request merged since `v6.0.0`): #641, #646, #650, #653, #656, #657 are in `[6.1.0]`; #649 is named as excluded (documentation only). #639/#640 belong to 6.0.0.
+Run on a temporary clone of `integration` (`/tmp/ic61-gate`, head `5772d21ad`), whose tree id `3f0647805a37bd89039cb5766d7b60be00aa2f00` equals the tree of `refs/pull/658/merge` (checked). **Run 1** (tree `3f0647805`, before #659; evidence in `.dev/issues/v61-release-gate/run1/`, not committed):
+
+| # | Check | Result |
+|---|---|---|
+| G1 | Fork target | `origin` is `https://github.com/IronbellyOrg/IronClaude`; every `gh` call passes `--repo IronbellyOrg/IronClaude`: pass |
+| G2 | CI on the exact commit | After the merge (not yet): the release PR's own checks (6 of 6) are green on `5772d21ad` |
+| G3 | Version consistency | `pyproject.toml` 6.1.0, `__init__.py` 6.1.0, `superclaude --version` prints `SuperClaude, version 6.1.0`: pass |
+| G4 | Changelog cut | `## [Unreleased]` is empty and followed by `## [6.1.0] - 2026-11-18`: pass |
+| G5 | `make test` | **22594 passed, 0 failed, 69 skipped** in 24 min 31 s: pass. `make lint`, `make verify-sync`, `make lint-architecture`, `ruff format --check` (pinned 0.15.20): exit 0. `make verify-deps`: exit 2 in my local `uv pip install -e '.[dev]'` venv (it ignores `uv.lock`; the newest `pytest-benchmark` needs `py-cpuinfo2`, and I had also installed `pytest-xdist`), **exit 0 run as CI runs it** (`UV_PROJECT_ENVIRONMENT=<separate venv> make verify-deps`, `.github/workflows/test.yml:118-123`): pass, with the explanation recorded |
+| G6 | Package builds | `uv build` built `superclaude-6.1.0-py3-none-any.whl` and `superclaude-6.1.0.tar.gz`; nothing uploaded: pass |
+| G7 / G8 (d) | Upgrade from a genuine 6.0.0 install (source from the `v6.0.0` tag, throwaway home, real home untouched) | 6.0.0 install: 35 commands, 48 agents. `install --force` with 6.1.0: `Removed /sc:tdd` and the 9 skills (`operational-guide`, `prd`, `readme`, `roadmap`, `task`, `task-builder`, `tdd`, `tech-reference`, `tech-research`), nothing else; kept `/sc:task`, `/sc:validate-tests`, `workflow`, `implement`, `reflect`, `troubleshoot`, `brainstorm`, their protocol skills and all 8 `rf-*` agents; `doctor` healthy; `install --list` exit 0; second run printed `No retired commands, skills or agents present.`; `update` variant removes the same and `doctor` is healthy. The 6 `*.md.bak.<time>` saved copies in `commands/sc/` are #480's backups of changed commands, as documented: pass |
+| G8 | Release-specific: acceptance of issue 647 | The removed items do not exist in the shipped tree and the kept ones do (G7 above); the leftover search for the removed names is in section 3b |
+| G9 | No open PR meant for this release | Only #658 (this one) and the small fix #659 are open: pass |
+
+Run 2 is on the final tree after #659 and is recorded below. Changelog completeness check (every pull request merged since `v6.0.0`): #641, #646, #650, #653, #656, #657 are in `[6.1.0]`; #649 is named as excluded (documentation only). #639/#640 belong to 6.0.0.
 
 ## 4. Tag and release
 
