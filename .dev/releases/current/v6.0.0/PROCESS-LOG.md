@@ -151,6 +151,12 @@ One entry per step. Each entry: date and time (UTC), the step, the commands or s
 - **Time:** about 6 minutes, mostly the PR 11 scope text.
 - **Expectation:** PR 9 is small and should merge first; PR 11 (about 400 deleted files) will need a rebase after it.
 
+### 23. PR 9 agent never started; relaunched (2026-11-18 00:39Z)
+- **What happened:** the PR 9 agent's terminal showed `exec: /opt/nvm/versions/node/v24.22.2/bin/claude: not found` right after launch (00:27Z). Claude Code replaced its own binary during an update (the symlink in `/opt/nvm/versions/node/v24.22.2/bin/claude` has a 00:35Z timestamp; version now 2.1.327, was 2.1.326), and the launch fell in that window. The PR 11 agent, started in the same minute, was running normally. My watch reported "screen unchanged for 12 minutes" at 00:39Z (the 12-minute rule caught it); the 4-minute reading had not flagged a failed start because nothing in the watch looks for a failed launch.
+- **Fix:** `orca agent launch --agent claude --worktree path:<v6-index worktree> --surface terminal --prompt "<same prompt file reading line plus a note that nothing is done yet>" --json`; the worktree held no changes (`git status` clean at `956f49642`). New terminal `term_0e9844ce-baa7-45a0-a432-0d8c4cbe4f1b`, reply saved in `launches/index-relaunch.json`. This is the first restart of this agent (not counted as a stuck-after-restart case). The old watch was stopped and a new one started.
+- **Cost:** about 12 minutes lost on PR 9.
+- **Change next time:** the watch should treat a terminal whose last lines contain `not found`, `command not found`, `No such file` or `exec:` within the first minutes after launch as a failed start and report it at once; and a coordinator should not start agents while Claude Code is mid-update (or retry the launch once automatically).
+
 ## Out of scope, for later
 - The task and documentation bundle (Part B of issue 571) and the agents evaluation (issue 572).
 - Ryan's request of 2026-11-17 14:40 to fold the eight analysis documents (`sweep`, `observe`, `review-safety-scan`, `review-fixcheck-and-consequence-rule`, `shadow-run-and-review-panel`, `issue-pipeline`, `launch-level-guard`, `ccsession-retention`) into the docs and processes.
