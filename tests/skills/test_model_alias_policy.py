@@ -192,7 +192,7 @@ def test_issue_chains_use_the_default_brainstorm_models() -> None:
     """The /sc:issue chains pass no --models flag to /sc:brainstorm."""
     text = (SRC / "skills/sc-issue-protocol/refs/chains.md").read_text(encoding="utf-8")
     steps = re.findall(r"`(/sc:brainstorm[^`]*)`", text)
-    assert len(steps) >= 3
+    assert len(steps) >= 2
     assert [step for step in steps if "--models" in step] == []
 
 

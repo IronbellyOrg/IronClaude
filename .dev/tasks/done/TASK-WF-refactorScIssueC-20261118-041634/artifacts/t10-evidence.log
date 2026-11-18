@@ -1,0 +1,8 @@
+# T10 evidence (orchestrator ran these)
+make verify-sync:
+
+✅ All components in sync.
+exit=0
+staged paths under .claude/: 0
+staged .dev/tasks files: 37
+unstaged .dev/tasks changes (after staging this log): 0

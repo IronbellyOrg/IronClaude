@@ -659,12 +659,72 @@ def test_brainstorm_steps_have_no_handoff_and_use_default_models():
         for s in _COMMAND_SPAN.findall(row)
         if s.startswith("/sc:brainstorm")
     ]
-    assert len(steps) == 3
+    assert len(steps) == 2
     for step in steps:
         assert "--handoff tasklist" not in step and "--handoff design" not in step
         assert "--models" not in step
     text = _text(REFS / "chains.md")
     assert "--handoff tasklist" not in text and "--handoff design" not in text
+
+
+def test_feature_simple_row_plans_directly_from_the_summary():
+    row = next(
+        r
+        for r in chain_rows(_text(REFS / "chains.md"))
+        if r.startswith("| Feature, simple |")
+    )
+    assert "/sc:brainstorm" not in row
+    assert "`/sc:workflow <S> --depth quick --handoff none`" in row
+    assert "`/sc:implement <plan path printed by step 1>`" in row
+
+
+def test_default_level_is_full_and_only_worktree_waits_for_a_person():
+    skill = _text(SKILL)
+    assert "`full` also implements without a commit or a push" in skill
+    assert "`full` (default)" not in skill
+    claim = _text(REFS / "claim.md")
+    wave5 = _wave(claim, 5)
+    assert "(explicit)" in wave5 and "(default: " in wave5 and "16 hours" in wave5
+    assert "`<L>` is the same level as in Wave 5." in _wave(claim, 8)
+    next_steps = _text(TEMPLATES / "next-steps.md")
+    assert "at level `full`" in next_steps and "default level `full`" not in next_steps
+    launched = next(ln for ln in claim.splitlines() if "- `launched`:" in ln)
+    before, rest = launched.split("For `worktree`:", 1)
+    worktree, full = rest.split("For `full`:", 1)
+    assert "run the printed implement command" in worktree
+    assert "run the printed implement command" not in before + full
+
+
+def test_default_level_rule_is_bug_full_complex_feature_worktree():
+    claim = _text(REFS / "claim.md")
+    wave5 = _wave(claim, 5)
+    next_steps = wave5.index("Write `<D>/next-steps.md`")
+    start = wave5.index("Resolve the level `<L>`")
+    boundary = wave5.index("Set the plan boundary")
+    assert next_steps < start < boundary
+    rule = wave5[start:boundary]
+    for token in ("`Type`", "`Complexity`", "`Effort estimate`", "issue-summary.md"):
+        assert token in rule
+    assert rule.index("cannot be read") < rule.index("`full` for a bug")
+    assert "`<L>` is `worktree` and no other check runs" in rule
+    assert "also gets `worktree`" in rule
+    assert (
+        "`full` for a feature whose complexity is `simple` or `medium` and whose "
+        "effort is 16 hours or less"
+    ) in rule
+    assert (
+        "`worktree` for a feature whose complexity is `complex` or whose effort "
+        "is over 16 hours"
+    ) in rule
+    assert "an explicit value always wins" in rule
+    lines = claim.splitlines()
+    launched = next(ln for ln in lines if "- `launched`:" in ln)
+    assert "Print the `Level:` line of Wave 5 with this result." in launched
+    already = next(ln for ln in lines if "- `already_launched`:" in ln)
+    assert "`Level: <stored level> (stored)`" in already
+    assert "the stored level wins" in already
+    failed = next(ln for ln in lines if ln.lstrip().startswith("- Failed worktree"))
+    assert "print no `Level:` line" in failed
 
 
 # --- fork safety (design section 13, section 20 item 4) ---------------------------

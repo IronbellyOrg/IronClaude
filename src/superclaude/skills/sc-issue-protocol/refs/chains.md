@@ -8,7 +8,7 @@ These are the default rows passed to `/sc:recommend` as the suggested route. `/s
 
 | Type / complexity | Tier line | Chain |
 |---|---|---|
-| Feature, simple | `/model claude-gw-tier2` | 1. `/sc:brainstorm "<topic> @<S>" --depth quick` (no `--handoff`)<br>2. `/sc:workflow <brainstorm dir>/merged-requirements.md --depth quick --handoff none`<br>3. `/sc:implement <plan path printed by step 2>` |
+| Feature, simple | `/model claude-gw-tier2` | 1. `/sc:workflow <S> --depth quick --handoff none`<br>2. `/sc:implement <plan path printed by step 1>` |
 | Feature, medium | `/model claude-gw-tier1b` | 1. `/sc:brainstorm "<topic> @<S>" --blind`<br>2. `/sc:design <brainstorm dir>/merged-requirements.md --type <architecture\|api\|component\|database> --format spec`<br>3. `/sc:workflow <design doc> --depth standard --handoff none`<br>4. `/sc:implement <plan path>` |
 | Feature, complex | `/model claude-gw-tier1b` | 1. `/sc:brainstorm "<topic> @<S>" --depth deep --research deep --codebase --blind`<br>2. `/sc:design <merged-requirements.md> --type <...> --format spec`<br>3. `/sc:workflow <design doc> --depth deep --handoff none`<br>4. `/sc:implement <plan path>` |
 | Bug, simple | `/model claude-gw-tier2` | 1. `/sc:troubleshoot "<symptom>" --depth quick --context <S> --scope <scope>`<br>2. `/sc:implement <REPORT.md path printed by step 1>` |
@@ -20,6 +20,7 @@ Notes:
 - `/sc:troubleshoot --depth deep` STOPs on a description under 10 words without `--scope`; the rows always pass `--scope`.
 - The brainstorm model list defaults to `opus,sonnet,haiku`, rotated across proposals, and takes aliases only; the brainstorm rows use these defaults. In a ccsession tier workspace the launcher sets each `ANTHROPIC_DEFAULT_*_MODEL` for a tier the owner may use, so those aliases map to the `tier1a`, `tier1b` and `tier2` picker ids (`claude-gw-` prefix); an alias for a tier the owner may not use keeps its inherited value, and outside a tier workspace the aliases keep Claude Code's meaning (`docs/reference/model-aliases.md`). The session tier itself is pinned by the `/model` line (default D25).
 - `/sc:design --type` is chosen per issue by `/sc:recommend` from the four values the command accepts.
+- The simple feature row has no brainstorm step: the issue summary already states the requirements, so the row plans directly from it with `/sc:workflow`.
 
 No brainstorm step carries a handoff flag: the tasklist handoff feeds `/sc:tasklist`, not `/sc:workflow`, and the design handoff only prints a suggestion (B11), so `/sc:workflow` and `/sc:design` run as their own steps.
 

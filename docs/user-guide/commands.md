@@ -365,16 +365,18 @@ When codegraph, the index or its lookup tools are not usable, it falls back to G
 | `--depth quick\|standard\|deep` | create | `quick` | How hard the command checks your flags and fills the body; `deep` uses the complex template |
 | `--mode feature\|bug` | create | chosen by a worker | Picks the feature or bug template, the Feature or Bug issue type and the `enhancement` or `bug` label |
 | `--type <type>` | create | chosen by a worker | Area of the change: `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install` or `other`; a feature in `tests` gets the issue type Test, otherwise the area is recorded in `flags.md` and no label is applied for it |
-| `--pipeline worktree\|full\|none` | claim | `worktree` | How far the launched agent goes (see the levels below); `worktree` and `full` create the worktree and launch an agent, `none` creates no worktree and launches no agent |
+| `--pipeline worktree\|full\|none` | claim | `full` or `worktree`, picked from the issue | How far the launched agent goes (see the levels below); omitted means the level is picked from the issue: a bug or a simple or medium feature of 16 hours or less gets `full`, a complex feature, a feature over 16 hours or an issue that cannot be classified gets `worktree`; `worktree` and `full` create the worktree and launch an agent, `none` creates no worktree and launches no agent |
 | `--submit` | claim | off | Only with `--pipeline full`: the agent also commits, pushes a feature branch and opens a PR through `/sc:pr-submit --monitor 3`. Takes no value |
 
-`--depth`, `--mode` and `--type` work with `--create` only; `--pipeline` and `--submit` work with `--claim` only (`E-CLAIM-ONLY-FLAG`), and `--submit` without `--pipeline full` stops with `E-SUBMIT-NEEDS-FULL`. There is no repository option: the repository is always `origin`.
+`--depth`, `--mode` and `--type` work with `--create` only; `--pipeline` and `--submit` work with `--claim` only (`E-CLAIM-ONLY-FLAG`), and `--submit` with `--pipeline worktree`, with `--pipeline none` or with no `--pipeline` stops with `E-SUBMIT-NEEDS-FULL` (write `--pipeline full --submit`). An explicit `--pipeline` always wins over the picked level. The issue watcher never relies on the default: it always passes `--pipeline none`. There is no repository option: the repository is always `origin`.
 
 **Claim levels (`--pipeline`):**
 
+With no `--pipeline` the claim picks `full` or `worktree` from the issue (see the options table above); an explicit `--pipeline` always wins.
+
 | Level | What the launched agent does | Commit, push, PR |
 |-------|------------------------------|------------------|
-| `worktree` (default) | Runs the steps of `next-steps.md` up to the plan boundary, prints the plan path and `Waiting for approval`, then waits until you run the printed implement command (a plain `approved` reply no longer releases it) | No |
+| `worktree` | Runs the steps of `next-steps.md` up to the plan boundary, prints the plan path and `Waiting for approval`, then waits until you run the printed implement command (a plain `approved` reply no longer releases it) | No |
 | `full` | Runs every step, implementation included, and leaves the changes in the working tree, nothing staged | No |
 | `full` with `--submit` | Does the same, then commits, pushes a feature branch to `origin` and opens a PR through `/sc:pr-submit --monitor 3` | Yes; never merges |
 | `none` | Stops after the comments: no worktree, no agent. You run `.dev/issues/<N>/next-steps.md` yourself from this checkout | No |
@@ -385,6 +387,7 @@ No level merges anything: people review and merge. The agent starts behind the c
 
 ```bash
 /sc:issue --claim 302
+/sc:issue --claim 302 --pipeline worktree
 /sc:issue --claim 302 --pipeline none
 /sc:issue --claim 302 --pipeline full
 /sc:issue --claim 302 --pipeline full --submit
