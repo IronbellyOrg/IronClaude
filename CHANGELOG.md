@@ -44,6 +44,12 @@ Known leftover for issue 572: `rules/contextual/context_embedding.md` and `rules
 - New `ccsession --prune [--apply] [--days N]` (new file `session_keep.py`) deletes sessions an agent saved that have not changed in more than N days (30 by default, never fewer than 30; `CCSESSION_AGENT_KEEP_DAYS` sets it), with their transcript, session folder, file history, names, marker and Orca tab record, and names whose conversation is gone. It is a dry run unless `--apply` is given, never touches an unmarked or human session or the running one, and prints a `LOWERS THE LIMIT:` line when it would delete sessions Claude Code keeps longer. `--list` and `--here` add one line when agent sessions are past the days.
 - **Lowers a limit:** the installer's Claude Code retention target (`retention.py` `MIN_DAYS`) goes from 365 to 90 days. It never lowers a value already set (a 365 stays 365) and never writes where managed settings decide; a machine with no value goes from Claude Code's 30 to 90. `ccsession --list` and `--here` now warn only below 90.
 
+### Fixed: the installer's file comparison no longer returns a stale "identical" answer (#646)
+
+#### Fixed
+
+- `same_content` in `src/superclaude/cli/install_keep.py` now clears `filecmp`'s cache before it compares two files. `filecmp` remembers each answer by the two paths and their size and modification time, so a file rewritten with the same size inside one timestamp tick was reported as identical to its old self when the same process compared the pair again. `src/superclaude/cli/install_core.py` had its own copy of that cached comparison and now uses the shared `same_content`. A one-shot `superclaude install` or `update` behaves as before; the change matters when one process compares, edits or copies, and compares the same pair again.
+
 ## [6.0.0] - 2026-11-18
 
 Major release: the command-line pipelines for roadmaps, tasklists, sprints, PRDs, cleanup audits and cli-portify, twelve slash commands and five skills are removed, and the installer now removes them from an upgraded workspace. Read the [6.0.0 release notes](docs/releases/v6.0.0.md) for the full list, the replacements and the upgrade steps. It also fixes eight reported help-text, doctor and `ic` launcher problems and carries every change merged to `master` since 5.0.0 (the entries below the breaking-changes entry).
