@@ -64,7 +64,7 @@ The 5.0.0 changelog lists the scope (`CHANGELOG.md:29-33`). Representative sites
 |---|---|---|
 | Pragmatic output style | S1-S5 replace "any issue of ANY severity fails" | `src/superclaude/output-styles/pragmatic.md:225-229` |
 | rf-qa, rf-qa-qualitative, rf-analyst, rf-team-lead agents; QA and skill templates; both MDTM templates | PASS allows minor findings as notes; FAIL needs a blocking finding; fix agents receive, apply and recheck blocking findings only | `CHANGELOG.md:30`; copies pinned by `test_review_severity_rule.py:181-203` |
-| prd, tdd, tech-reference, tech-research, readme, operational-guide, task, task-builder skills | Same rule; task-builder's gate passes with minor findings as notes and HALTs at the cap | `src/superclaude/skills/task-builder/SKILL.md:865,873` |
+| task, task-builder skills | Same rule; task-builder's gate passes with minor findings as notes and HALTs at the cap | `src/superclaude/skills/task-builder/SKILL.md:865,873` |
 | At-cap behaviour everywhere | HALT and escalate the open blocking findings instead of turning them into Open Questions and proceeding | `CHANGELOG.md:31` |
 
 ## The `/sc:implement` exception

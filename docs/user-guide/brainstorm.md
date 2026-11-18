@@ -12,7 +12,7 @@ For which tool to use when, see [How We Work](how-we-work.md).
 | Proposal generation | Single-agent multi-persona dialogue | N parallel proposals across HAIKU/SONNET/OPUS |
 | Merge mechanism | None — dialogue produced one doc | Adversarial debate + scoring + provenance-annotated merge |
 | Codebase context | Single Auggie shot | Auto-routed `/sc:analyze` or Auggie quick scan, gated by domain; falls back to codegraph, then Glob/Grep |
-| Research | Mentioned, not wired | Auto-invokes `/sc:research` (light) or `tech-research` (deep) |
+| Research | Mentioned, not wired | Auto-invokes `/sc:research` (light or deep) |
 | Handoff | Text suggestion only | Flag-gated invocation of `/task-builder`, or a text suggestion for `/sc:design` |
 | MCP servers | context7, magic, playwright, morphllm, auggie-mcp | `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`), codegraph, tavily |
 | Personas | 7-persona auto-activation soup | 3 personas auto-selected per detected domain |
@@ -47,7 +47,7 @@ A topic string. File references via `@<path>` are supported. Empty topic STOPs t
 | `--depth` | `standard` | `quick` (3-5 questions, ~500 tok), `standard` (6-10 questions, ~2K tok), `deep` (10-20 questions, ~5K tok). Pass-through to `/sc:adversarial`. |
 | `--strategy` | `auto` | `systematic`, `agile`, `enterprise`, or heuristic-detected from topic. |
 | `--codebase` / `--no-codebase` | auto | Force or skip codebase enrichment. Auto-detects for `code`/`architecture`/`incident` domains. |
-| `--research` | auto | `light` (Tavily), `deep` (`tech-research` skill), `none`. |
+| `--research` | auto | `light` (Tavily), `deep` (`/sc:research --depth deep`), `none`. |
 | `--personas` | auto | Override domain-aware persona selection with a literal comma list. |
 | `--models` | `opus,sonnet,haiku` | Model aliases rotated across proposals (`ANTHROPIC_DEFAULT_*_MODEL` env vars override them; unset ones use Claude Code's built-in models). In a ccsession tier workspace the launcher sets each of those variables for a tier the owner may use, so the matching aliases `opus`, `sonnet` and `haiku` map to `claude-gw-tier1a`, `claude-gw-tier1b` and `claude-gw-tier2`, and an alias for a tier the owner may not use keeps its inherited value; see [model-aliases](../reference/model-aliases.md). |
 | `--blind` | `false` | Strip model identity before scoring (prevents model bias). |
@@ -70,7 +70,7 @@ A topic string. File references via `@<path>` are supported. Empty topic STOPs t
 
 1. **Wave 0 — Prerequisites**: validate flags, model env vars, sc-adversarial-protocol skill version, handoff prereqs, create output dir.
 2. **Wave 1 — Socratic Dialogue**: depth-tiered question batches → `seed-brief.md` with `topic`/`domain`/`strategy`/`depth` frontmatter.
-3. **Wave 2A — Enrichment (partial-OK)**: parallel `/sc:analyze` (codebase), `/sc:research` (light), or `tech-research` (deep). Failures degrade quality but do not abort: if Auggie is down, codebase enrichment falls back to codegraph, then native Glob/Grep, and records `quality_tier: fallback_1` (research falls back to WebSearch).
+3. **Wave 2A — Enrichment (partial-OK)**: parallel `/sc:analyze` (codebase), `/sc:research` (light), or `/sc:research --depth deep`. Failures degrade quality but do not abort: if Auggie is down, codebase enrichment falls back to codegraph, then native Glob/Grep, and records `quality_tier: fallback_1` (research falls back to WebSearch).
 4. **Wave 2B — Agent-Spec Composition**: select personas per domain, round-robin assign models, validate via adversarial parser, run token-budget pre-flight.
 5. **Wave 3 — Adversarial Delegation**: invoke `Skill sc-adversarial-protocol` with `--generate spec`. Route by convergence score: ≥0.65 PASS, ≥0.50 PARTIAL, <0.50 FAIL.
 6. **Wave 4 — Handoff (flag-gated)**: invoke `/task-builder`, or print text recommendation for `/sc:design`.
@@ -181,7 +181,7 @@ Missing handoff skills cause STOP (no silent downgrade) — re-run with a differ
 | `/sc:adversarial` | Core delegate — Wave 3 invokes via `Skill sc-adversarial-protocol` |
 | `/sc:analyze` | Wave 2A enrichment for code-related topics |
 | `/sc:research` | Wave 2A light research enrichment |
-| `tech-research` (skill) | Wave 2A deep research enrichment |
+| `/sc:research --depth deep` | Wave 2A deep research enrichment |
 | `/sc:design` | Wave 4 text-only handoff recommendation |
 | `/task-builder` | Wave 4 invoked handoff |
 
@@ -210,7 +210,7 @@ topic (user)
    ↓
 /sc:brainstorm
    ↓
-   ├── enrichment: /sc:analyze | /sc:research | tech-research (optional, parallel)
+   ├── enrichment: /sc:analyze | /sc:research (light or deep; optional, parallel)
    ↓
    ├── seed-brief.md (Socratic dialogue output)
    ↓

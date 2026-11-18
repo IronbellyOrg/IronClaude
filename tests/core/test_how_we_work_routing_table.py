@@ -48,16 +48,15 @@ _LEVEL_HEADER = ["Level", "Use this when", "What you run", "What you end up with
 
 # Row ids are stable keys: /sc:recommend cites them and the live run uses them.
 # A row may be added; none of these may be renamed or removed. The one row that left
-# on purpose is the localization review row, which went in 6.0.0 when its command
-# moved to the snapshot fork.
+# on purpose are the localization review row (6.0.0, its command moved to the
+# snapshot fork) and the research-first, full-spec and technical-design-document
+# rows (6.1.0, their skills were removed).
 _EXPECTED_IDS = {
     "ask",
     "small-change",
     "simple-plan",
     "task-file",
     "feature-existing",
-    "research-first",
-    "full-spec",
     "shape-idea",
     "bug",
     "external-research",
@@ -76,7 +75,6 @@ _EXPECTED_IDS = {
     "unsure",
     "installed-inventory",
     "focused-design",
-    "technical-design-document",
     "cleanup-audit-only",
     "auggie-review-only",
     "context-audit",
@@ -166,7 +164,7 @@ def test_level_table_block():
     assert _cells(rows[0]) == _LEVEL_HEADER
     assert set(rows[1].replace("|", "").strip()) <= {"-", " "}
     data = rows[2:]
-    assert len(data) == 6
+    assert len(data) == 4
     for n, row in enumerate(data, 1):
         cells = _cells(row)
         assert len(cells) == 4, row
@@ -197,7 +195,7 @@ def test_ids_unique_kebab_and_stable():
 
 def test_level_and_changes_files_vocabulary():
     for r in _routing_rows():
-        assert re.fullmatch(r"[1-6]|-", r["level"]), r["id"]
+        assert re.fullmatch(r"[1-4]|-", r["level"]), r["id"]
         assert r["changes_files"] in {"no", "yes", "asks first"}, r["id"]
 
 
@@ -292,7 +290,6 @@ def test_other_commands_membership_and_live_references():
         "sc:cli-eval",
         "sc:init-lite",
         "sc:post-release",
-        "sc:tdd",
         "sc:validate-tests",
     }
     for token in set(_TOKEN_RE.findall(block)):
@@ -388,9 +385,7 @@ def test_direct_change_threshold_and_written_plan_requirement():
     assert "Direct command selection does not waive" in block
 
 
-@pytest.mark.parametrize(
-    "row_id", ["simple-plan", "feature-existing", "research-first"]
-)
+@pytest.mark.parametrize("row_id", ["simple-plan", "feature-existing"])
 def test_ordinary_routes_plan_with_workflow_then_implement(row_id):
     """T03/T06/T07: static route contract, not generated recommendations."""
     row = next(r for r in _routing_rows() if r["id"] == row_id)
@@ -398,10 +393,7 @@ def test_ordinary_routes_plan_with_workflow_then_implement(row_id):
     assert commands.index("sc:workflow") < commands.index("sc:implement")
     assert not {"task-builder", "task"} & set(commands)
     assert "--depth quick" not in row["mandatory_flags"]
-    if row_id != "research-first":
-        assert row["level"] == "3"
-    else:
-        assert "research-only requests stop after step 1" in row["notes"]
+    assert row["level"] == "3"
 
 
 @pytest.mark.parametrize(
@@ -501,56 +493,19 @@ def test_contained_cleanup_exception_retains_safeguards_not_structural_migration
     assert "exception does not cover an architectural migration" in cleanup
 
 
-def test_full_spec_ordinary_post_document_planning_is_workflow_first():
-    """S18: static full-spec branch contract; no model-generation run implied."""
-    row = next(r for r in _routing_rows() if r["id"] == "full-spec")
-    steps = _steps(row)
-    assert "only for requested ordinary planning" in steps["7a"]
-    assert _TOKEN_RE.findall(steps["7a"]) == ["sc:workflow"]
-    assert "accepted PRD/TDD paths and constraints" in steps["7a"]
-    assert _TOKEN_RE.findall(steps["8a"]) == ["sc:implement"]
-    assert "only for requested execution of 7a" in steps["8a"]
-    assert "new components and existing specs do not justify MDTM" in row["notes"]
+def test_full_specification_workflow_plans_with_workflow_first():
+    """Section 3.1 (6.1.0, no PRD or TDD generator): static contract only."""
     section = _block(_text(), "### 3.1 ", "### 3.2 ")
-    assert "Ordinary post-document planning uses workflow" in section
     assert "--depth standard --handoff none" in section
-
-
-def test_document_only_full_spec_stops_without_downstream_planning():
-    """T09/S19: static document-only stop, preserving document-owned machinery."""
-    row = next(r for r in _routing_rows() if r["id"] == "full-spec")
-    assert (
-        "documents-only requests stop after the requested documents and reviews"
-        in row["notes"]
-    )
-    assert "without a roadmap or phase tasks" in row["notes"]
-    section = _block(_text(), "### 3.1 ", "### 3.2 ")
+    assert section.index("/sc:workflow") < section.index("/sc:implement")
+    assert "/sc:design billing-service --type architecture --format spec" in section
     stop = section.index(
         "For documents only, stop after the requested documents and reviews"
     )
     assert stop < section.index("1. **Shape the idea")
-    assert "do not append a roadmap, phase tasks, implementation or shipping" in section
-    assert "PRD and TDD skills keep their own document-generation machinery" in section
-
-
-def test_explicit_roadmap_preserves_its_composer_and_phase_task_outputs():
-    """S20: static explicit-roadmap branch, not a substitute for generation evals."""
-    row = next(r for r in _routing_rows() if r["id"] == "full-spec")
-    steps = _steps(row)
-    assert (
-        "only for explicit composer selection or exceptional level-4 machinery needs"
-        in steps["7b"]
-    )
-    assert _TOKEN_RE.findall(steps["7b"]) == ["roadmap"]
-    assert "supplied documents" in steps["7b"]
-    assert _TOKEN_RE.findall(steps["8b"]) == ["task"]
-    assert "only for requested execution" in steps["8b"]
-    assert "uses task-builder/task internally" in row["notes"]
-    assert "full setting creates phase task files" in row["notes"]
-    section = _block(_text(), "### 3.1 ", "### 3.2 ")
-    assert "exceptionally complex, long-running phased program" in section
-    assert "composer internally uses `/task-builder` and `/task`" in section
-    assert "not permission to implement product phases" in section
+    assert "do not append planning, implementation or shipping" in section
+    for removed in ("/prd", "/tdd", "/roadmap", "/task-builder", "/task "):
+        assert removed not in section, removed
 
 
 def test_standard_planning_default_and_conditional_quick_are_consistent():
@@ -611,17 +566,6 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
             {"sc:design"},
             ["<target>", "type/format"],
             ["code format is design guidance", "no declared output flag"],
-        ),
-        (
-            "S03",
-            "technical-design-document",
-            {"tdd", "sc:tdd"},
-            ["supplied PRD/stub", "code paths", "output", "tier"],
-            [
-                "Technical Design Document",
-                "document-owned MDTM machinery",
-                "verify template/agents/tools",
-            ],
         ),
         (
             "S04",
@@ -834,12 +778,7 @@ def test_previews_documentation_and_suite_runs_disclose_actual_writes():
     assert "needs explicit repair intent" in tests["notes"]
     assert "new tests are authoring, YAML tier validation is separate" in tests["notes"]
     docs = rows["document-built"]
-    assert {
-        "sc:document",
-        "tech-reference",
-        "operational-guide",
-        "readme",
-    } <= set(_TOKEN_RE.findall(docs["steps"]))
+    assert {"sc:document"} == set(_TOKEN_RE.findall(docs["steps"]))
     assert (
         "--type <inline/external/api/guide> --style <brief/detailed>" in docs["notes"]
     )

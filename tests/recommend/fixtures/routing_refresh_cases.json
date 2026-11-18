@@ -76,7 +76,7 @@
       "authority": "artifact-only",
       "side_effects": "design output only; no source edits",
       "guide_phrases": ["<target>", "type/format", "code format is design guidance", "no declared output flag"],
-      "negative": {"competitors": ["tdd", "sc:implement"], "must_not": "full TDD by default or working feature implementation"},
+      "negative": {"competitors": ["sc:implement"], "must_not": "full TDD by default or working feature implementation"},
       "activation": {"sc:design": "self-contained"},
       "repeats": [
         {"request": "Draft the architecture design for {fixture:component}.", "targets": ["sc:design"], "mode_flags": ["--type architecture"], "expected": "design architecture type; stop at design"},
@@ -84,28 +84,8 @@
         {"request": "Draft the database design for {fixture:component}.", "targets": ["sc:design"], "mode_flags": ["--type database"], "expected": "design database type; stop at design"}
       ],
       "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:design", "expected": "not installed: sc:design; no substitution by tdd"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/tdd", "envelope": "Run: /tdd docs/previous.md"}, "expected": "guide route matched; cache not consulted; cached /tdd never emitted"}
-      }
-    },
-    {
-      "id": "S03",
-      "request": "Create a full Technical Design Document from the populated PRD {fixture:prd}.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "technical-design-document"},
-      "targets": ["tdd"],
-      "mode_flags": [],
-      "retained_inputs": ["{fixture:prd}"],
-      "stop": "the requested TDD",
-      "authority": "documents-only",
-      "side_effects": "TDD document and its document-owned research/review artifacts",
-      "guide_phrases": ["supplied PRD/stub", "Technical Design Document", "document-owned MDTM machinery"],
-      "negative": {"competitors": ["sc:design", "sc:test", "task"], "must_not": "test-driven development, focused design-only output or automatic product task execution"},
-      "activation": {"sc:tdd": "tdd"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "tdd", "expected": "not installed: tdd; no substitution by sc:design"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/prd", "envelope": "Run: /prd docs/raw.md"}, "expected": "guide route matched; cache not consulted; cached /prd never emitted"}
+        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:design", "expected": "not installed: sc:design; no substitution by sc:workflow"},
+        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/sc:workflow", "envelope": "Run: /sc:workflow docs/previous.md"}, "expected": "guide route matched; cache not consulted; cached /sc:workflow never emitted"}
       }
     },
     {
@@ -186,12 +166,12 @@
       "side_effects": "suite manifest, fixtures and documentation; the suite is not run",
       "guide_phrases": ["create", "supplied name/from/agents", "schema-validated suite", "no automatic suite run"],
       "forbidden_step_text": ["`/sc:cli-eval run"],
-      "negative": {"competitors": ["sc:test", "prd", "task-builder"], "must_not": "cli-eval run, ordinary unit testing, new PRD generation or task-builder"},
+      "negative": {"competitors": ["sc:test", "task-builder"], "must_not": "cli-eval run, ordinary unit testing, new PRD generation or task-builder"},
       "activation": {"sc:cli-eval": "sc:cli-eval-protocol"},
       "repeats": [],
       "variants": {
         "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:cli-eval", "expected": "not installed: sc:cli-eval; no substitution by sc:test"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/prd", "envelope": "Run: /prd docs/raw.md"}, "expected": "guide route matched; cache not consulted; cached /prd never emitted"}
+        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/sc:workflow", "envelope": "Run: /sc:workflow docs/raw.md"}, "expected": "guide route matched; cache not consulted; cached /sc:workflow never emitted"}
       }
     },
     {
@@ -255,7 +235,7 @@
       "authority": "mutating-with-approval",
       "side_effects": "owned mutating lifecycle with its consolidated-plan gate and separate outward-action approval",
       "guide_phrases": ["<existing release tag>", "supplied output", "tagged commit", "consolidated-plan gate", "separate outward-action approval", "never fabricated success"],
-      "negative": {"competitors": ["sc:document", "readme"], "must_not": "generic document-only generation or unapproved external installation"},
+      "negative": {"competitors": ["sc:document"], "must_not": "generic document-only generation or unapproved external installation"},
       "activation": {"sc:post-release": "sc:post-release-protocol"},
       "repeats": [],
       "variants": {
@@ -284,69 +264,6 @@
       "variants": {
         "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:validate-tests", "expected": "not installed: sc:validate-tests; no substitution by sc:test"},
         "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "codebase-research", "candidate": "/sc:test", "envelope": "Run: /sc:test tests/"}, "expected": "guide route matched; cache not consulted; cached /sc:test never emitted"}
-      }
-    },
-    {
-      "id": "S18",
-      "request": "A new bounded component needs a reviewed PRD and TDD, followed by ordinary implementation planning.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "full-spec"},
-      "targets": ["prd", "sc:spec-panel", "tdd", "sc:workflow"],
-      "flag_target": "sc:workflow",
-      "mode_flags": ["--depth standard", "--handoff none"],
-      "mandatory_flags": ["3: `--mode critique --focus requirements`", "5: `--mode critique --focus architecture,testing`"],
-      "retained_inputs": ["accepted PRD path", "accepted TDD path"],
-      "stop": "printed workflow plan; execution only when requested",
-      "authority": "plan-only",
-      "side_effects": "PRD/TDD documents, review output and a workflow plan package",
-      "guide_phrases": ["only for requested ordinary planning", "accepted PRD/TDD paths and constraints", "new components and existing specs do not justify MDTM"],
-      "negative": {"competitors": ["roadmap", "task-builder"], "absent_from_route": false, "must_not": "automatic /roadmap or task-builder because the component is new"},
-      "activation": {"sc:workflow": "sc:workflow-protocol", "sc:spec-panel": "self-contained"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "prd", "expected": "not installed: prd; document step stays visible, no substitution"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "task-file-generation", "candidate": "/task-builder", "envelope": "Run: /task-builder \"Create an MDTM task from docs/spec.md\""}, "expected": "guide route matched; cache not consulted; cached /task-builder never emitted"}
-      }
-    },
-    {
-      "id": "S19",
-      "request": "Write and review a PRD and TDD for {fixture:component} only; no implementation plan.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "full-spec"},
-      "targets": ["prd", "sc:spec-panel", "tdd"],
-      "mode_flags": [],
-      "mandatory_flags": ["3: `--mode critique --focus requirements`", "5: `--mode critique --focus architecture,testing`"],
-      "retained_inputs": ["{fixture:component}"],
-      "stop": "requested documents and reviews",
-      "authority": "documents-only",
-      "side_effects": "PRD/TDD documents with their own document machinery; no roadmap, phase tasks or source edits",
-      "guide_phrases": ["documents-only requests stop after the requested documents and reviews", "without a roadmap or phase tasks"],
-      "negative": {"competitors": ["roadmap", "sc:workflow", "task"], "absent_from_route": false, "must_not": "automatic roadmap, phase tasks, source implementation or shipping"},
-      "activation": {"sc:spec-panel": "self-contained"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "tdd", "expected": "not installed: tdd; no substitution by sc:design"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "roadmap-generation", "candidate": "/roadmap", "envelope": "Run: /roadmap docs/spec.md"}, "expected": "guide route matched; cache not consulted; cached /roadmap never emitted"}
-      }
-    },
-    {
-      "id": "S20",
-      "request": "Explicitly use /roadmap to create the full roadmap and phase task files from {fixture:prd} and {fixture:tdd}.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "full-spec"},
-      "targets": ["roadmap"],
-      "mode_flags": [],
-      "retained_inputs": ["{fixture:prd}", "{fixture:tdd}"],
-      "stop": "roadmap outputs and phase task files; phase execution only when requested",
-      "authority": "artifact-only",
-      "side_effects": "roadmap document, BUILD_REQUEST files and phase task files created through internal task-builder/task use",
-      "guide_phrases": ["only for explicit composer selection or exceptional level-4 machinery needs", "uses task-builder/task internally", "full setting creates phase task files"],
-      "negative": {"competitors": ["sc:workflow"], "absent_from_route": false, "must_not": "rewriting the explicitly selected composer or presenting it as workflow-plan-only"},
-      "activation": {},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "roadmap", "expected": "not installed: roadmap; explicit selection preserved, no substitution by sc:workflow"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "roadmap-generation", "candidate": "/sc:workflow", "envelope": "Run: /sc:workflow docs/prd.md"}, "expected": "guide route matched; cache not consulted; cached /sc:workflow never emitted"}
       }
     },
     {
@@ -468,14 +385,14 @@
       "authority": "report-only",
       "side_effects": "review output; input edits need consent",
       "guide_phrases": ["without a supported explicit mode", "discussion/socratic", "consent before input edits", "not raw PRD/TDD authoring, business viability"],
-      "negative": {"competitors": ["prd", "tdd"], "must_not": "forced critique over Socratic intent or raw PRD/TDD authoring"},
+      "negative": {"competitors": ["sc:document"], "must_not": "forced critique over Socratic intent or raw PRD/TDD authoring"},
       "activation": {"sc:spec-panel": "self-contained"},
       "repeats": [
         {"request": "Derive a scoped spec from the populated TDD {fixture:tdd}.", "targets": ["sc:spec-panel"], "mode_flags": [], "expected": "explicit derivation with release clarification and consent before input edits"}
       ],
       "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:spec-panel", "expected": "not installed: sc:spec-panel; no substitution by prd"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/prd", "envelope": "Run: /prd docs/raw.md"}, "expected": "guide route matched; cache not consulted; cached /prd never emitted"}
+        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:spec-panel", "expected": "not installed: sc:spec-panel; no substitution by sc:document"},
+        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/sc:workflow", "envelope": "Run: /sc:workflow docs/raw.md"}, "expected": "guide route matched; cache not consulted; cached /sc:workflow never emitted"}
       }
     }
   ],
@@ -488,7 +405,7 @@
     "T06": {"static": ["tests/core/test_how_we_work_routing_table.py::test_ordinary_routes_plan_with_workflow_then_implement", "tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone"]},
     "T07": {"static": ["tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone"]},
     "T08": {"static": ["tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone"]},
-    "T09": {"static": ["tests/core/test_how_we_work_routing_table.py::test_document_only_full_spec_stops_without_downstream_planning"]},
+    "T09": {"static": ["tests/core/test_how_we_work_routing_table.py::test_full_specification_workflow_plans_with_workflow_first"]},
     "T10": {"static": ["tests/core/test_how_we_work_routing_table.py::test_existing_approved_plan_and_explicit_executor_keep_their_identity", "tests/skills/test_sc_recommend_routing_contract.py::test_live_and_no_guide_fallbacks_keep_workflow_first_policy"]},
     "T11": {"static": ["tests/core/test_how_we_work_routing_table.py::test_existing_approved_plan_and_explicit_executor_keep_their_identity"]},
     "T12": {"static": ["tests/core/test_how_we_work_routing_table.py::test_inspection_breadth_does_not_require_an_implementation_plan", "tests/skills/test_sc_recommend_routing_contract.py::test_live_and_no_guide_fallbacks_keep_workflow_first_policy"]},

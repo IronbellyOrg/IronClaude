@@ -24,8 +24,6 @@ Use, in order:
 3. **Tavily MCP directly** (`mcp__litellm__Tavily-tavily_search` (else `mcp__tavily__tavily_search`), `mcp__litellm__Tavily-tavily_extract` (else `mcp__tavily__tavily_extract`)) — when the search is shallow and `/sc:research` overhead is not justified.
 4. **WebFetch / WebSearch** — last-resort fallback. Tavily generally has better signal-to-noise for plugin discovery.
 
-Never use `/tech-research` for this search: it investigates the local codebase, not the web.
-
 The skill itself does **not** run the search inline. It generates the refined prompt that delegates the search, following the same hand-off discipline as Phase 2.
 
 ## Query patterns

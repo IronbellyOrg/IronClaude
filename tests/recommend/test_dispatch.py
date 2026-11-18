@@ -231,13 +231,13 @@ _COLLISION_CASES = [
         id="T52-comparison-is-not-local-PR-review",
     ),
     pytest.param(
-        "Create a Technical Design Document from docs/prd.md",
+        "Write a design document from docs/requirements.md",
         "spec-generation",
-        "/prd",
-        "Run: /prd docs/raw.md",
+        "/sc:brainstorm",
+        "Run: /sc:brainstorm docs/raw.md",
         "objective",
-        "Cached PRD-authoring hint",
-        "current TDD request",
+        "Cached brainstorm hint",
+        "current design-document request",
         "reject",
         "rejection",
         id="T53-PRD-authoring-is-not-TDD",
@@ -245,10 +245,10 @@ _COLLISION_CASES = [
     pytest.param(
         "Critique the existing spec docs/specs/current-spec.md without rewriting it",
         "spec-generation",
-        "/prd",
-        "Run: /prd docs/raw.md",
+        "/sc:brainstorm",
+        "Run: /sc:brainstorm docs/raw.md",
         "objective",
-        "Cached PRD-authoring hint",
+        "Cached brainstorm hint",
         "current existing-spec critique",
         "reject",
         "rejection",
@@ -361,7 +361,9 @@ def test_semantic_cache_collisions_require_consumer_guards(
 
     # The hazard is real in this fixture's data, and dispatch cannot see it.
     if hazard == "objective":
-        tokens = {"--compare", "/prd", "/task-builder"} & set(envelope.split())
+        tokens = {"--compare", "/sc:brainstorm", "/task-builder"} & set(
+            envelope.split()
+        )
         assert len(tokens) == 1, envelope
         assert tokens.pop() not in current_request.split()
     elif hazard == "path":

@@ -97,7 +97,7 @@ README.md __init__.py adversarial.md agent.md analyze.md auggie-review.md
 brainstorm.md business-panel.md cleanup-audit.md cleanup.md cli-eval.md
 design.md document.md explain.md git.md graph.md help.md impact.md implement.md
 init-lite.md pm.md post-release.md pr-submit.md recommend.md reflect.md
-release-split.md research.md spec-panel.md swarm-wizard.md task.md tdd.md test.md
+release-split.md research.md spec-panel.md swarm-wizard.md task.md test.md
 troubleshoot.md validate-tests.md workflow.md
 """
     ),
@@ -173,9 +173,6 @@ ccsession-tag/hooks/session-start.sh ccsession-tag/install.sh
 ccsession-tag/local-gateway-alias-proxy.py ccsession-tag/models.py
 ccsession-tag/unseed-env.py confidence-check/SKILL.md
 confidence-check/__init__.py confidence-check/confidence.ts
-operational-guide/SKILL.md prd/SKILL.md prd/refs/agent-prompts.md
-prd/refs/build-request-template.md prd/refs/operational-guidance.md
-prd/refs/synthesis-mapping.md prd/refs/validation-checklists.md readme/SKILL.md
 roadmap/SKILL.md sc-adversarial-protocol/SKILL.md
 sc-adversarial-protocol/__init__.py sc-adversarial-protocol/refs/agent-specs.md
 sc-adversarial-protocol/refs/artifact-templates.md
@@ -295,9 +292,6 @@ sc-workflow-protocol/refs/overlap-routing.md
 sc-workflow-protocol/refs/phase-templates.md
 sc-workflow-protocol/refs/quality-gates.md
 sc-workflow-protocol/refs/return-contract.md task-builder/SKILL.md task/SKILL.md
-tdd/SKILL.md tdd/refs/agent-prompts.md tdd/refs/build-request-template.md
-tdd/refs/operational-guidance.md tdd/refs/synthesis-mapping.md
-tdd/refs/validation-checklists.md tech-reference/SKILL.md tech-research/SKILL.md
 """
     ),
     "templates": _names(

@@ -96,5 +96,4 @@ def test_always_loaded_policy_keeps_workflow_default_and_mdtm_boundary():
     assert "research, checklist and phase-reviewer machinery" in exceptional
     assert "alone never select level 4" in block
     assert "normally level 3, not automatic level 4" in block
-    assert "Stop after the requested documents for document-only work" in block
     assert "Managed workflow packages use `/sc:implement`" in block

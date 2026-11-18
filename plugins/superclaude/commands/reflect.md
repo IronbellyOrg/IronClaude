@@ -159,7 +159,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - **`mcp__litellm__context7-resolve-library-id` / `query-docs`** (else `mcp__context7__resolve-library-id` / `query-docs`): external library grounding (Tier 2)
 - **`mcp__litellm__Tavily-tavily_search`** (else `mcp__tavily__tavily_search`): targeted web search (Tier 2, rate-limited)
 - **`Task`**: spawn `root-cause-analyst`, `self-review`, `requirements-analyst`, `confidence-calibrator`, `rf-qa`, `rf-qa-qualitative`, `audit-validator`, `evidence-validator`, `socratic-mentor`
-- **`Skill`**: invoke `sc:adversarial-protocol` (Wave 4 merge debate), `task-builder` (Wave 6 remediation), `confidence-check` / `tech-research` (auxiliary)
+- **`Skill`**: invoke `sc:adversarial-protocol` (Wave 4 merge debate), `task-builder` (Wave 6 remediation), `confidence-check` (auxiliary)
 - **`Read` / `Grep` / `Glob`**: native fallback when MCPs are unavailable; file:line re-Read for evidence-validator
 - **`Bash`**: diff resolution, git ref expansion, output-dir creation
 - **`Write`**: REPORT.md, hypothesis cards, calibration reports, tier_decision.yaml, promotion-log.yaml, telemetry artifacts
