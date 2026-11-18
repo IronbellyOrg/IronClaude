@@ -186,7 +186,7 @@ Orchestrate parallel brainstorming via:
    | `domain ∈ {code, architecture, incident}` AND NOT `--no-codebase` | Invoke `/sc:analyze <relevant-paths> --focus quality --depth quick` OR `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) for quick scan | `enrichment/codebase-context.md` |
    | `--codebase` (forced) | Same as above regardless of domain | Same |
    | `--research light` OR (auto: topic mentions framework/library names not in project) | Invoke `Skill sc-research-protocol` with `--depth quick` (or `/sc:research` if standalone) | `enrichment/research-light.md` |
-   | `--research deep` OR (auto: `--strategy enterprise` + novel topic) | Invoke `Skill sc-research-protocol` with `--depth deep` and the topic | `enrichment/research-deep.md` |
+   | `--research deep` OR (auto: `--strategy enterprise` + novel topic) | Invoke `/sc:research` with `--depth deep` and the topic | `enrichment/research-deep.md` |
    | Otherwise | Skip enrichment | — |
 
    Research depth/params are owned by `/sc:research` — see RESEARCH_CONFIG.md; brainstorm selects the route only.
