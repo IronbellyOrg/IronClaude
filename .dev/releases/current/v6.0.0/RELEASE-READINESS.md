@@ -31,7 +31,7 @@ State key: NOT STARTED, RUNNING (agent working), GREEN (agent stopped, checks gr
 | 3 | 8: `/sc:improve` (with the improve half of 506) | `clayphi/v6-improve` | MERGED | [#627](https://github.com/IronbellyOrg/IronClaude/pull/627) (`Refs` 571, 506) | 27552 passed, 4 failed (agent baseline) / 27528 passed, 1 failed (27 tests gone net; the failure was already failing before). The rebased run (27596 passed, 2 failed) was also clean. CI `Test on Python 3.10`: success. `improve` stays in the launch-level guard's list until PR 12 (see PROCESS-LOG entry 19) | 2026-11-17 23:52Z, `da12c4d76` |
 | 3 | Small-fix PR A: 505, 506 (cleanup half), 510, 536, 545 | `clayphi/v6-help-text-fixes` | MERGED | [#626](https://github.com/IronbellyOrg/IronClaude/pull/626) (`Closes` 505, 506, 510, 536, 545) | 27553 passed, 3 failed (agent baseline) / 27576 passed, 1 failed (21 new tests, none removed; the failure was already failing before; each new test shown failing on the old code). CI `Test on Python 3.10`: success | 2026-11-17 22:57Z, `3e2b5dd45` |
 | 3 | Small-fix PR B: 542, 543, 544 | `clayphi/v6-ic-launcher-fixes` | MERGED | [#625](https://github.com/IronbellyOrg/IronClaude/pull/625) (`Closes` 542, 543, 544) | 27553 passed, 3 failed (agent baseline) / 27596 passed, 1 failed (new tests, none removed). CI `Test on Python 3.10`: success | 2026-11-17 22:57Z, `ff52d57ab` |
-| 4 | 4: cli-portify | `clayphi/v6-cli-portify` | RUNNING (agent started 2026-11-17 23:54Z) | | | |
+| 4 | 4: cli-portify | `clayphi/v6-cli-portify` | MERGED | [#629](https://github.com/IronbellyOrg/IronClaude/pull/629) | 27598 passed, 1 failed (agent baseline) / 26702 passed, 1 failed (896 tests removed: 868 in `tests/cli_portify`, 3 `PortifyProcess` tests, 25 worker-contract and routing cases; the failure was already failing before). CI `Test on Python 3.10`: success | 2026-11-18 00:25Z, `956f49642` |
 | 5 | 9: `/sc:index` and `/sc:index-repo` | `clayphi/v6-index` | NOT STARTED | | | |
 | 5 | 11: roadmap, tasklist, sprint | `clayphi/v6-roadmap-family` | NOT STARTED | | | |
 | 6 | 12: the retire step (new code) | `clayphi/v6-retire-step` | NOT STARTED | | | |
@@ -94,3 +94,4 @@ The orchestrator deletes no worktree. Finished, for Clay to remove later (`orca 
 | `v6-help-text-fixes` | `/home/coder/workspaces/worktrees/IronClaude/v6-help-text-fixes` | #626 |
 | `v6-ic-launcher-fixes` | `/home/coder/workspaces/worktrees/IronClaude/v6-ic-launcher-fixes` | #625 |
 | `v6-improve` | `/home/coder/workspaces/worktrees/IronClaude/v6-improve` | #627 |
+| `v6-cli-portify` | `/home/coder/workspaces/worktrees/IronClaude/v6-cli-portify` | #629 |
