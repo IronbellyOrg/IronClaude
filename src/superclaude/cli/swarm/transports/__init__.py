@@ -1,7 +1,6 @@
 """Swarm transports -- Transport Protocol + concrete worker drivers.
 
-Swarm-specific divergence from ``cli/sprint/`` (which shells out via
-``process.py``). Swarm fans a prompt across heterogeneous
+Swarm fans a prompt across heterogeneous
 OpenAI-compatible workers, so the network I/O is abstracted behind a
 ``typing.Protocol``.
 

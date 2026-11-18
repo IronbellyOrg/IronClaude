@@ -4,7 +4,7 @@
 
 This guide provides procedures for diagnosing issues with SuperClaude context files and configurations. Most of SuperClaude is text files that Claude Code reads, so these diagnostics focus on file verification and configuration checking.
 
-**Important**: SuperClaude is not only text files. Its hooks run as processes on Claude Code events, the codegraph SessionStart hook (`~/.claude/hooks/codegraph-session-start.sh`) starts a background `codegraph init` for the project, and the `superclaude` CLI pipelines (sprint, roadmap, tasklist, and others) start `claude` subprocesses that call the model API over the network. This guide does not cover monitoring those processes; it checks that the installed files are present and valid.
+**Important**: SuperClaude is not only text files. Its hooks run as processes on Claude Code events, the codegraph SessionStart hook (`~/.claude/hooks/codegraph-session-start.sh`) starts a background `codegraph init` for the project, and the `superclaude` CLI pipelines (reflect, swarm, and others) start `claude` subprocesses that call the model API over the network. This guide does not cover monitoring those processes; it checks that the installed files are present and valid.
 
 ## Quick Diagnostics
 
@@ -311,7 +311,7 @@ These diagnostics check installed files only. They do not monitor the parts of S
 
 - **Hooks**: shell and Node scripts that Claude Code runs on session start and end, prompt submit, file reads and edits, and subagent start and stop
 - **Codegraph**: the SessionStart hook starts a detached background `codegraph init` that indexes the project
-- **CLI pipelines**: `superclaude sprint`, `superclaude roadmap` and the other pipeline commands start `claude` subprocesses, which call the model API over the network
+- **CLI pipelines**: `superclaude reflect`, `superclaude swarm` and the other pipeline commands start `claude` subprocesses, which call the model API over the network
 - **MCP servers**: run as separate processes and may use the network
 
 ### Focus on What Matters

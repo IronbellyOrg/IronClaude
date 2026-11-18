@@ -1,0 +1,116 @@
+{
+  "id": "52267d21-cdfd-4d7a-be33-cfca4bf8ad25",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-cli-portify",
+      "identity": {
+        "key": "wt2:local:546473ce-8c54-4848-8d65-bca87311c20e",
+        "executionHostId": "local",
+        "instanceId": "546473ce-8c54-4848-8d65-bca87311c20e"
+      },
+      "instanceId": "546473ce-8c54-4848-8d65-bca87311c20e",
+      "repoId": "e8e07d51-c261-4936-815e-06aeceeb5bf8",
+      "projectId": "github:superclaude-org/superclaude_framework",
+      "hostId": "local",
+      "projectHostSetupId": "e8e07d51-c261-4936-815e-06aeceeb5bf8",
+      "creatorProvenance": {
+        "kind": "host"
+      },
+      "path": "/home/coder/workspaces/worktrees/IronClaude/v6-cli-portify",
+      "head": "da12c4d766cb85d4046576207dcccf0c44821033",
+      "branch": "refs/heads/clayphi/v6-cli-portify",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "v6-cli-portify",
+      "displayNameMode": "fixed",
+      "comment": "6.0.0 PR 4 cli-portify; PR into integration; stop when green",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "linkedWorkItem": null,
+      "linkedTaskSourceContext": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1794959644896,
+      "lastActivityAt": 1794959644896,
+      "createdAt": 1794959644896,
+      "createdWithAgent": "claude",
+      "cliProvenance": {
+        "kind": "created-by-cli",
+        "createdAt": 1794959641280,
+        "callerTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+        "startupAgent": "claude"
+      },
+      "baseRef": "refs/remotes/origin/integration",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "childWorktreeIds": [],
+      "lineage": {
+        "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-cli-portify",
+        "worktreeInstanceId": "546473ce-8c54-4848-8d65-bca87311c20e",
+        "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+        "parentWorktreeInstanceId": "6e42315e-ec88-477d-b67f-8abd24fabaa2",
+        "origin": "cli",
+        "capture": {
+          "source": "env-workspace",
+          "confidence": "inferred"
+        },
+        "createdByTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+        "createdAt": 1794959644896
+      },
+      "git": {
+        "path": "/home/coder/workspaces/worktrees/IronClaude/v6-cli-portify",
+        "head": "da12c4d766cb85d4046576207dcccf0c44821033",
+        "branch": "refs/heads/clayphi/v6-cli-portify",
+        "isBare": false,
+        "isMainWorktree": false
+      },
+      "linkedItems": []
+    },
+    "lineage": {
+      "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-cli-portify",
+      "worktreeInstanceId": "546473ce-8c54-4848-8d65-bca87311c20e",
+      "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "parentWorktreeInstanceId": "6e42315e-ec88-477d-b67f-8abd24fabaa2",
+      "origin": "cli",
+      "capture": {
+        "source": "env-workspace",
+        "confidence": "inferred"
+      },
+      "createdByTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+      "createdAt": 1794959644896
+    },
+    "workspaceLineage": null,
+    "launch": {
+      "outcome": {
+        "kind": "terminal",
+        "handle": "term_f65ccb83-c474-4b92-a9e1-d5a3dc2b046e",
+        "paneKey": "fa3b8133-8cb9-4e2c-bf20-08869f5a052a:0f04381d-66cc-4728-a54c-fa4fceebf9fa"
+      },
+      "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-cli-portify",
+      "receipt": {
+        "mode": "terminal",
+        "preferred": "terminal",
+        "reason": "user_default",
+        "detail": "Started a terminal agent, the default for new agent tabs in your settings."
+      },
+      "prompt": {
+        "delivery": "submit",
+        "outcome": "handed-to-terminal"
+      },
+      "operationId": "1794959641274-aae9501c056747c8917dfdfc6721e35c"
+    }
+  },
+  "_meta": {
+    "runtimeId": "bba2834a-030a-46d1-9df4-c209fe806804"
+  }
+}

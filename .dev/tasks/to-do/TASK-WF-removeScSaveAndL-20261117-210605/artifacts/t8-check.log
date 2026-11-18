@@ -1,0 +1,13 @@
+# T8 checks (re-run)
+AC1 mentions in the six docs (expect none):
+  none
+AC1 repo-wide, outside the historical records (expect none):
+  none
+AC2 diff --check:
+  clean
+AC2 ruff check:
+All checks passed!
+AC2 ruff format:
+1347 files already formatted
+docs tests:
+============================= 307 passed in 15.90s =============================

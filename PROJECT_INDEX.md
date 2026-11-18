@@ -33,7 +33,7 @@ scripts/                  # Build, eval, sync, verification helpers
 
 - CLI: `superclaude` -> `src/superclaude/cli/main.py:main`
   - Commands: `install`, `mcp`, `update`, `install-skill`, `doctor`, `version`
-  - Groups: `sprint`, `roadmap`, `cleanup-audit`, `tasklist`, `cli-portify`, `prd`, `eval`, `swarm`, `recommend`, `init-lite`, `reflect`
+  - Groups: `eval`, `swarm`, `recommend`, `init-lite`, `reflect`
 - CLI: `ic` -> `src/superclaude/cli/ic.py:main`
 - Pytest plugin: `superclaude.pytest_plugin` (entry point `pytest11`)
 
@@ -65,7 +65,7 @@ Exactly 8 files on disk:
 ### cli (`src/superclaude/cli/`)
 - `install_core.py`, `install_commands.py`, `install_agents.py`, `install_skills.py`, `install_skill.py`, `install_hooks.py`, `install_mcp.py`, `install_templates.py`, `install_user_setup.py`, `install_ccsession.py` - installers
 - `doctor.py` - health checks
-- Subpackages: `sprint/`, `roadmap/`, `tasklist/`, `cli_portify/`, `cleanup_audit/`, `audit/`, `prd/`, `eval/`, `swarm/`, `recommend/`, `reflect/`, `pipeline/`
+- Subpackages: `audit/`, `prd/`, `eval/`, `swarm/`, `recommend/`, `reflect/`, `pipeline/`
 
 ### pr_submit (`src/superclaude/pr_submit/`)
 - `fsm.py`, `classifier.py`, `severity_router.py`, `loop_guard.py`, `recovery.py`, `ci.py` - PR-review monitor state machine
@@ -94,7 +94,7 @@ Including `sc-recommend`, `confidence-check`, `task`, `task-builder`, `roadmap`,
 
 - 727 `test_*.py` files under `tests/`
 - `tests/unit/` (20 files, auto-marked `unit`), `tests/integration/` (12 files, auto-marked `integration`)
-- Feature suites: `sprint/`, `roadmap/`, `tasklist/`, `swarm/`, `recommend/`, `pr_submit/`, `cli_portify/`, `audit/`, `pipeline/`, `skills/`, `hooks/`, and others
+- Feature suites: `swarm/`, `recommend/`, `pr_submit/`, `audit/`, `pipeline/`, `skills/`, `hooks/`, and others
 
 ## Key Dependencies
 

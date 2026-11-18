@@ -1,0 +1,7 @@
+# T5 checks
+AC1 routing tests (table test, recommend suite, plugin parity):
+============================= 380 passed in 5.73s ==============================
+AC2 frozen save/load rows still in fixture:
+2
+case ids around the retired ones:
+['S23', 'S24', 'S26', 'S28', 'S29']

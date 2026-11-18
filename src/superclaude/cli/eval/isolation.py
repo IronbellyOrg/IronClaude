@@ -1,22 +1,9 @@
 """Per-eval HOME isolation record + FR-ISO1 methods (DM-006 + COMP-006).
 
 This module defines :class:`HomeIsolation`, the per-eval isolation primitive
-the cliEval harness uses to layer a private ``HOME`` on top of the four
-``IsolationLayers`` guarantees that already exist in
-``superclaude.cli.sprint.executor``:
-
-* ``scoped_work_dir`` (CLAUDE_WORK_DIR)
-* ``git_boundary``    (GIT_CEILING_DIRECTORIES)
-* ``plugin_dir``      (CLAUDE_PLUGIN_DIR)
-* ``settings_dir``    (CLAUDE_SETTINGS_DIR)
-
-``HomeIsolation`` does NOT mutate or replace ``IsolationLayers``; it sits
-beside it, contributing one additional layer (``HOME``) plus the session
-stamp (``CLAUDE_SESSION_ID``) and optional simulated wall-clock offset
-(``CLAUDE_FAKE_TIME_OFFSET``). The COMP-012 probe at
-``tests/cli/eval/test_isolation_layers_probe.py`` (Task T02.05) must keep
-passing after this extension, which it does because nothing in
-``cli/sprint/executor.py`` is touched.
+the cliEval harness uses to give each eval a private ``HOME``, plus the
+session stamp (``CLAUDE_SESSION_ID``) and optional simulated wall-clock
+offset (``CLAUDE_FAKE_TIME_OFFSET``).
 
 DM-006 record (T02.04) — the four immutable fields
 ====================================================

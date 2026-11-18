@@ -1,0 +1,20 @@
+# T2 checks
+AC1 grep spawn in adversarial skill:
+  1058:    action: "For each advocate, spawn Task agent with advocate prompt + variant data"
+  2210:    action: "For each agent spec, spawn Task agent to generate variant"
+AC1 branch-trace sentences:
+  1203:      evidence_preference: "If a Stage 1 `branch-trace.md` artifact exists, the fault-finder MUST consult it and cite the specific branch(es) the fix does or does not handle. If no branch-trace exists, the fault-finder must produce an inline source-file enumeration in the EVIDENCE field."
+  1204-
+  --
+  1225:    "fix X greens test Y" claim and MUST cite Stage 1 branch-trace.md
+  1226-    artifacts when they exist.
+  --
+  1261:    - If a `branch-trace.md` artifact exists (Stage 1), cite specific
+  1262-      branch line numbers in EVIDENCE.
+  --
+  1287:      evidence: "Specific transcript/diff reference supporting the finding. For sufficiency_challenge, MUST include branch-trace line citations (if a branch-trace.md artifact exists) or an inline source-file branch enumeration."
+  1288-
+AC2 pytest:
+  tests/skills/test_worker_contract.py .........................           [100%]
+  
+  ===================== 38 passed, 2123 deselected in 0.87s ======================

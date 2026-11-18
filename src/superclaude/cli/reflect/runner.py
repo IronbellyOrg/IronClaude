@@ -6,7 +6,7 @@ duplication): derive -> preflight -> build prompt + ``ClaudeProcess`` -> launch
 race-safe frontmatter write-back (FR-6) + ``wrapper-result.yaml`` sidecar (FR-7).
 
 Isolation guardrails:
-- No imports from ``superclaude.cli.sprint`` or ``superclaude.cli.roadmap``.
+- No imports from other CLI runner packages.
 - Zero ``async def`` / ``await``.
 - The only reflect-launch path is ``ClaudeProcess`` (subprocess) -- never an
   Agent/Task surface (NFR-7).
@@ -319,14 +319,13 @@ def _phase_incomplete_blocker(tasklist_path: Path) -> str | None:
     the leading frontmatter so a ``- [ ]`` inside frontmatter cannot false-trigger,
     and locates the FIRST OCCURRENCE (character offset) of the boundary token
     (``_WRAPPER_MARKER`` or the substring ``superclaude reflect run``). If no boundary
-    token is found (sprint
-    ``### T`` shapes / advisory runs carry no in-file completion marker), returns
+    token is found (``### T`` shapes / advisory runs carry no in-file completion marker), returns
     ``None`` (fail-open). Otherwise returns ``"phase-incomplete"`` iff any ``- [ ]``
     item exists in the body region BEFORE that boundary. The gate item itself and the
     trailing Done-transition item sit AT/AFTER the boundary and are positionally
     excluded, so a legitimate gate run never self-blocks. Frontmatter ``status`` is
-    NEVER consulted (it is ``Doing`` by construction at gate time). No sprint parser
-    is imported (reflect isolation guardrail).
+    NEVER consulted (it is ``Doing`` by construction at gate time). No other
+    runner's parser is imported (reflect isolation guardrail).
     """
     try:
         text = tasklist_path.read_text(encoding="utf-8")

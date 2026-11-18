@@ -1,0 +1,9 @@
+# T2 checks
+AC1 git grep sc:build in skills: 0
+AC2 list tail:
+
+## Related Commands
+
+- `/sc:implement` — General feature implementation
+- `/sc:design` — System architecture design
+- `/sc:analyze` — Code analysis for understanding workflows

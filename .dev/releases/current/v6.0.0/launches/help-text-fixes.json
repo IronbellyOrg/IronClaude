@@ -1,0 +1,116 @@
+{
+  "id": "9067b087-f8cc-4ddb-9956-5564fb232564",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-help-text-fixes",
+      "identity": {
+        "key": "wt2:local:5fe01a16-5ba3-4e70-9a8e-fc2d1ca76e8e",
+        "executionHostId": "local",
+        "instanceId": "5fe01a16-5ba3-4e70-9a8e-fc2d1ca76e8e"
+      },
+      "instanceId": "5fe01a16-5ba3-4e70-9a8e-fc2d1ca76e8e",
+      "repoId": "e8e07d51-c261-4936-815e-06aeceeb5bf8",
+      "projectId": "github:superclaude-org/superclaude_framework",
+      "hostId": "local",
+      "projectHostSetupId": "e8e07d51-c261-4936-815e-06aeceeb5bf8",
+      "creatorProvenance": {
+        "kind": "host"
+      },
+      "path": "/home/coder/workspaces/worktrees/IronClaude/v6-help-text-fixes",
+      "head": "551d5ad38c736c8199cad053153126a297c95d10",
+      "branch": "refs/heads/clayphi/v6-help-text-fixes",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "v6-help-text-fixes",
+      "displayNameMode": "fixed",
+      "comment": "6.0.0 small-fix PR A (#505 #506 cleanup #510 #536 #545); PR into integration; stop when green",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "linkedWorkItem": null,
+      "linkedTaskSourceContext": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1794953894063,
+      "lastActivityAt": 1794953894063,
+      "createdAt": 1794953894063,
+      "createdWithAgent": "claude",
+      "cliProvenance": {
+        "kind": "created-by-cli",
+        "createdAt": 1794953890101,
+        "callerTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+        "startupAgent": "claude"
+      },
+      "baseRef": "refs/remotes/origin/integration",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "childWorktreeIds": [],
+      "lineage": {
+        "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-help-text-fixes",
+        "worktreeInstanceId": "5fe01a16-5ba3-4e70-9a8e-fc2d1ca76e8e",
+        "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+        "parentWorktreeInstanceId": "6e42315e-ec88-477d-b67f-8abd24fabaa2",
+        "origin": "cli",
+        "capture": {
+          "source": "env-workspace",
+          "confidence": "inferred"
+        },
+        "createdByTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+        "createdAt": 1794953894063
+      },
+      "git": {
+        "path": "/home/coder/workspaces/worktrees/IronClaude/v6-help-text-fixes",
+        "head": "551d5ad38c736c8199cad053153126a297c95d10",
+        "branch": "refs/heads/clayphi/v6-help-text-fixes",
+        "isBare": false,
+        "isMainWorktree": false
+      },
+      "linkedItems": []
+    },
+    "lineage": {
+      "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-help-text-fixes",
+      "worktreeInstanceId": "5fe01a16-5ba3-4e70-9a8e-fc2d1ca76e8e",
+      "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "parentWorktreeInstanceId": "6e42315e-ec88-477d-b67f-8abd24fabaa2",
+      "origin": "cli",
+      "capture": {
+        "source": "env-workspace",
+        "confidence": "inferred"
+      },
+      "createdByTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+      "createdAt": 1794953894063
+    },
+    "workspaceLineage": null,
+    "launch": {
+      "outcome": {
+        "kind": "terminal",
+        "handle": "term_3cf3afcd-b094-4453-93c0-3b28b072ed11",
+        "paneKey": "0f68b71d-c16e-4908-a04c-b6ff3c5ffa06:674462aa-b566-4201-a9c8-31eafdc36899"
+      },
+      "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-help-text-fixes",
+      "receipt": {
+        "mode": "terminal",
+        "preferred": "terminal",
+        "reason": "user_default",
+        "detail": "Started a terminal agent, the default for new agent tabs in your settings."
+      },
+      "prompt": {
+        "delivery": "submit",
+        "outcome": "handed-to-terminal"
+      },
+      "operationId": "1794953890099-dc86c957a8d74fa1bfdbf5829466b996"
+    }
+  },
+  "_meta": {
+    "runtimeId": "bba2834a-030a-46d1-9df4-c209fe806804"
+  }
+}

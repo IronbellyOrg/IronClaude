@@ -148,6 +148,8 @@ def _check_codegraph(home: Path | None = None) -> Dict[str, Any]:
 
     Fails only when the registered command is not an executable: codegraph tools
     would be missing from every session. Everything else is a detail line.
+    A missing registration still passes; its line is also returned under
+    ``warnings`` so ``superclaude doctor`` prints it without ``--verbose``.
     ``./update.sh`` runs doctor only after ``install`` exited 0, so presence is
     already enforced there.
     """
@@ -155,13 +157,16 @@ def _check_codegraph(home: Path | None = None) -> Dict[str, Any]:
 
     home = Path.home() if home is None else Path(home)
     details = []
+    warnings = []
     passed = True
 
     known, entry = install_mcp.read_user_mcp_entry("codegraph")
     if not known:
         details.append("unknown: the user MCP configuration could not be read")
     elif entry is None:
-        details.append("no codegraph registration; run `superclaude install`")
+        line = "no codegraph registration; run `superclaude install`"
+        details.append(line)
+        warnings.append(line)
     else:
         command = entry.get("command")
         resolved = (
@@ -211,7 +216,12 @@ def _check_codegraph(home: Path | None = None) -> Dict[str, Any]:
         details.append(
             f"Ready for Serena retirement: no (check failed: {type(exc).__name__})"
         )
-    return {"name": "codegraph MCP registration", "passed": passed, "details": details}
+    return {
+        "name": "codegraph MCP registration",
+        "passed": passed,
+        "details": details,
+        "warnings": warnings,
+    }
 
 
 def _check_retired_mcp() -> Dict[str, Any]:

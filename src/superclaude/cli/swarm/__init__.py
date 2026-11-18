@@ -6,53 +6,34 @@ T01.08; the Click group itself is intentionally minimal here so the
 registration test (T01.02) can lock in top-level placement before the
 Click adoption task (T01.04) wires real options.
 
-Module shape mirrors ``cli/sprint/`` (AC-003 / NFR-015) so operators
-who know the sprint layout can navigate the swarm tree without a
-second mental model. Counterparts:
+Module layout. Top-level files and what each one owns:
 
-    cli/sprint/commands.py    -> cli/swarm/commands.py
-    cli/sprint/config.py      -> cli/swarm/config.py
-    cli/sprint/models.py      -> cli/swarm/models.py
-    cli/sprint/logging_.py    -> cli/swarm/logging_.py
-    cli/sprint/tmux.py        -> cli/swarm/tmux.py
-    cli/sprint/tui.py         -> cli/swarm/tui.py
-    cli/sprint/preflight.py   -> cli/swarm/preflight.py
-        (T02.02 -- shared name, divergent concrete roles. Sprint:
-        phase-step subprocess executor. Swarm: Wave 0 gate that runs
-        schema validation, lens resolution + materialization, and the
-        §11.5 / IMM-4 / INV-005 / INV-007 guards before emitting the
-        Manifest. Both share the "pre-execution validation" abstract
-        role so they occupy the same counterpart slot.)
-
-Documented divergences (swarm-specific, no sprint analogue):
-
+* ``commands.py``, ``config.py``, ``models.py``, ``logging_.py``,
+  ``tmux.py``, ``tui.py`` -- the Click surface, frozen run config, shared
+  models, run logging, tmux session lifecycle and the TUI.
+* ``preflight.py`` -- Wave 0 gate that runs schema validation, lens
+  resolution + materialization, and the §11.5 / IMM-4 / INV-005 /
+  INV-007 guards before emitting the Manifest (T02.02).
 * ``state.py`` -- carries DM-014 ``SwarmState`` and DM-015
-  ``EventRecord`` persistence. Sprint folds run-state into
-  ``executor.py``; swarm separates it because resume (M6) reads it
-  independently.
+  ``EventRecord`` persistence; resume (M6) reads it independently.
 * ``schema.py`` -- DM-001 JobSpec JSON Schema + §11.5 cross-field
-  validators (Wave 0 preflight gate; COMP-005 / T02.01). Sprint has
-  no equivalent because its tasklist surface is bespoke MDTM, not a
-  schema-validated job spec.
+  validators (Wave 0 preflight gate; COMP-005 / T02.01).
 * ``dispatch.py`` -- COMP-007 Wave 1 dispatcher (T03.01 wiring +
   reference body; T03.02 replaces with the
   :class:`ParallelExecutor`-driven fan-out per AC-004 / NFR-001 /
-  IMM-3). Sprint routes phases sequentially through ``executor.py``,
-  so there is no parity file.
+  IMM-3).
 * ``normalize.py`` -- COMP-008 Wave 2 normalize dispatcher (T04.01).
   Selects a recipe from ``recipes.REGISTRY`` per
   ``NormalizationSpec.recipe``, applies it per worker, writes the
   normalized body atomically to ``final_path`` and the provenance
-  meta sidecar to ``meta_path``. Sprint has no amalgamation step, so
-  there is no parity file.
+  meta sidecar to ``meta_path``.
 * ``reduce.py`` -- COMP-009 Wave 3 reduce orchestrator (T05.01).
   Runs IMM-5 success-first status determination, dispatches over the
   three :data:`AmalgamationMode` values (raw / normalize /
   normalize+merge), invokes the mechanical merge module (T05.02) on
   ``normalize+merge`` runs when M >= ``StatusPolicy.floor``, and emits
   the final :class:`ResultContract` (DM-012) to ``return-contract.yaml``
-  atomically. Sprint has no reduce/contract step, so there is no
-  parity file.
+  atomically.
 * ``merge.py`` -- COMP-010 mechanical merge module (T05.02 / FR-012).
   ``normalize+merge`` mode's sole concat surface: orders ``WorkerResult``
   sections by slot index and prepends one ``## From {model_label}
@@ -60,29 +41,20 @@ Documented divergences (swarm-specific, no sprint analogue):
   <=30 LOC (NFR-008 / T05.08) and protected by four structural guards
   (docstring contract, LOC ceiling test, PR-review discipline,
   3-worker boundary test -- see ``merge.py`` docstring). All scoring /
-  ranking / dedup / rewrite stays in ``/sc:adversarial``; sprint has
-  no merge counterpart.
+  ranking / dedup / rewrite stays in ``/sc:adversarial``.
 * ``atomic.py`` -- shared tmp file + fsync + ``os.replace`` byte write
   used by ``normalize.py`` and ``reduce.py`` (IMM-6); callers prepare the
-  parent directory and encoding. Sprint has no equivalent writer.
+  parent directory and encoding.
+
+Sub-packages:
+
 * ``transports/`` -- swarm fans a prompt across heterogeneous workers,
   so a Transport Protocol + concrete impls (openai_compat, stub) live
-  in a sub-package. Sprint shells out via ``process.py`` instead.
-* ``lenses/`` -- swarm registers the eight LensEntry records (DM-010);
-  sprint has no lens concept.
-* ``recipes/`` -- normalization recipe modules (DM-006); sprint has no
-  amalgamation step.
+  in a sub-package.
+* ``lenses/`` -- swarm registers the eight LensEntry records (DM-010).
+* ``recipes/`` -- normalization recipe modules (DM-006).
 
-Documented sprint-only files with no swarm analogue (and why):
-
-* ``executor.py`` -- swarm uses a fan-out worker pool driven by the
-  transport layer, not a phased step executor.
-* ``monitor.py``, ``summarizer.py``, ``checkpoints.py``,
-  ``retrospective.py``, ``classifiers.py``, ``diagnostics.py``,
-  ``debug_logger.py``, ``kpi.py``, ``notify.py``, ``process.py`` --
-  sprint-specific phasing / KPI / shell-out concerns that the swarm
-  ResultContract (DM-012), Manifest (DM-016), and DoneSentinel
-  (DM-017) replace end-to-end.
+The layout above is pinned by ``tests/swarm/test_module_shape.py``.
 """
 
 from __future__ import annotations

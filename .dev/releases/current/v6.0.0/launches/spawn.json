@@ -1,0 +1,116 @@
+{
+  "id": "73792ead-87ce-4cb5-91dd-fe44b79fbe8f",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-spawn",
+      "identity": {
+        "key": "wt2:local:e8f1848a-b83c-46d1-b2b6-939b18abfa34",
+        "executionHostId": "local",
+        "instanceId": "e8f1848a-b83c-46d1-b2b6-939b18abfa34"
+      },
+      "instanceId": "e8f1848a-b83c-46d1-b2b6-939b18abfa34",
+      "repoId": "e8e07d51-c261-4936-815e-06aeceeb5bf8",
+      "projectId": "github:superclaude-org/superclaude_framework",
+      "hostId": "local",
+      "projectHostSetupId": "e8e07d51-c261-4936-815e-06aeceeb5bf8",
+      "creatorProvenance": {
+        "kind": "host"
+      },
+      "path": "/home/coder/workspaces/worktrees/IronClaude/v6-spawn",
+      "head": "c873befec8a79a0abde3e87b2460e59ccd4e179f",
+      "branch": "refs/heads/clayphi/v6-spawn",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "v6-spawn",
+      "displayNameMode": "fixed",
+      "comment": "6.0.0 PR 5 /sc:spawn; PR into integration; stop when green",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "linkedWorkItem": null,
+      "linkedTaskSourceContext": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1794945027009,
+      "lastActivityAt": 1794945027009,
+      "createdAt": 1794945027009,
+      "createdWithAgent": "claude",
+      "cliProvenance": {
+        "kind": "created-by-cli",
+        "createdAt": 1794945022361,
+        "callerTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+        "startupAgent": "claude"
+      },
+      "baseRef": "refs/remotes/origin/integration",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "childWorktreeIds": [],
+      "lineage": {
+        "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-spawn",
+        "worktreeInstanceId": "e8f1848a-b83c-46d1-b2b6-939b18abfa34",
+        "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+        "parentWorktreeInstanceId": "6e42315e-ec88-477d-b67f-8abd24fabaa2",
+        "origin": "cli",
+        "capture": {
+          "source": "env-workspace",
+          "confidence": "inferred"
+        },
+        "createdByTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+        "createdAt": 1794945027009
+      },
+      "git": {
+        "path": "/home/coder/workspaces/worktrees/IronClaude/v6-spawn",
+        "head": "c873befec8a79a0abde3e87b2460e59ccd4e179f",
+        "branch": "refs/heads/clayphi/v6-spawn",
+        "isBare": false,
+        "isMainWorktree": false
+      },
+      "linkedItems": []
+    },
+    "lineage": {
+      "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-spawn",
+      "worktreeInstanceId": "e8f1848a-b83c-46d1-b2b6-939b18abfa34",
+      "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "parentWorktreeInstanceId": "6e42315e-ec88-477d-b67f-8abd24fabaa2",
+      "origin": "cli",
+      "capture": {
+        "source": "env-workspace",
+        "confidence": "inferred"
+      },
+      "createdByTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+      "createdAt": 1794945027009
+    },
+    "workspaceLineage": null,
+    "launch": {
+      "outcome": {
+        "kind": "terminal",
+        "handle": "term_67d8dd4a-ee97-426a-a2aa-dcdba378e683",
+        "paneKey": "c605e827-2a58-419a-be8b-2c2768ca186b:468227c2-7e3e-4519-b5f2-7cd4bc80e53d"
+      },
+      "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-spawn",
+      "receipt": {
+        "mode": "terminal",
+        "preferred": "terminal",
+        "reason": "user_default",
+        "detail": "Started a terminal agent, the default for new agent tabs in your settings."
+      },
+      "prompt": {
+        "delivery": "submit",
+        "outcome": "handed-to-terminal"
+      },
+      "operationId": "1794945022357-60ea96042f384c7f8bd5368ab1bb182b"
+    }
+  },
+  "_meta": {
+    "runtimeId": "bba2834a-030a-46d1-9df4-c209fe806804"
+  }
+}

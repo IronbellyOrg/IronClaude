@@ -1,0 +1,8 @@
+# T12 checks
+AC1 spawn in commands/sc-help.md: 0
+  | `/sc:sc:index` | Generate comprehensive project documentation and kn
+  | `/sc:sc:select-tool` | Intelligent MCP tool selection based on compl
+  | `/sc:sc:spec-panel` | Multi-expert specification review and improvem
+  | `/sc:sc:task` | Execute complex tasks with intelligent workflow mana
+  | `/sc:sc:test` | Execute tests with coverage analysis and automated q
+  diff-check rc=0

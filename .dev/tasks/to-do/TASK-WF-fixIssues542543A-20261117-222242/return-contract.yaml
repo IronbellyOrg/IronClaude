@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-fixIssues542543A-20261117-222242
+plan_path: ./TASK-WF-fixIssues542543A-20261117-222242.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: skipped
+reflect_report_path: null
+unresolved:
+  - "Advisory /sc:reflect --mode pre was not run: its protocol spawns calibrator and evidence-validator subagents, which the standing user rule (no subagents) forbids. An inline coverage check was done instead: every source requirement (the three fixes, a failing-before test for each, 0 new failures, lint/format/verify-sync/diff-check green) maps to Tasks 1 to 4 or to the acceptance criteria of Task 4."

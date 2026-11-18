@@ -1,6 +1,6 @@
 ---
 name: sc-crash-recovery
-description: Post-crash work-state recovery. Fans parallel subagents across pipeline artifacts (.dev/releases, manifest.json, execution-log.jsonl, .roadmap-state.json), recent Claude Code session logs, project memory (`.superclaude/memory/`), git status, and auggie semantic sweeps to produce a structured "where was I, what's in-flight, what to resume" report with concrete resume commands. Use this skill whenever the user mentions a server crash, reboot, machine restart, lost session, dropped pipelines, "where was I", "what was I working on", "what's in flight", "resume", "pick up where I left off", "recover state", or logs back in after an outage — even when they don't explicitly say "crash recovery". Also use after `superclaude sprint`, `superclaude roadmap`, or `/sc:task` pipelines fail or get interrupted, when investigating stalled work, or when starting a fresh session on a project that has unfinished pipeline runs. Supports a single project (default, current cwd) or fleet sweep across all workspaces with `--all`.
+description: Post-crash work-state recovery. Fans parallel subagents across pipeline artifacts (.dev/releases, manifest.json, execution-log.jsonl, .roadmap-state.json), recent Claude Code session logs, project memory (`.superclaude/memory/`), git status, and auggie semantic sweeps to produce a structured "where was I, what's in-flight, what to resume" report with concrete resume commands. Use this skill whenever the user mentions a server crash, reboot, machine restart, lost session, dropped pipelines, "where was I", "what was I working on", "what's in flight", "resume", "pick up where I left off", "recover state", or logs back in after an outage — even when they don't explicitly say "crash recovery". Also use after `/sc:implement`, `/sc:task` or `/roadmap` runs fail or get interrupted, when investigating stalled work, or when starting a fresh session on a project that has unfinished pipeline runs. Supports a single project (default, current cwd) or fleet sweep across all workspaces with `--all`.
 allowed-tools: Read, Glob, Grep, Bash(ls *), Bash(find *), Bash(wc *), Bash(cat *), Bash(head *), Bash(tail *), Bash(stat *), Bash(git status *), Bash(git diff *), Bash(git log *), Bash(git stash *), Bash(git branch *), Bash(git ls-files *), Bash(~/.claude/skills/sc-crash-recovery/scripts/*), Bash(~/workspace/IronClaude/.claude/skills/sc-crash-recovery/scripts/*), Task
 metadata:
   type: workflow
@@ -14,7 +14,7 @@ The output is read-only diagnosis. The `allowed-tools` field enforces this — n
 
 ## The multi-initiative reality
 
-A typical project has **3–7 work initiatives in different states simultaneously** — one sprint mid-run, two PRD tasks in `to-do/`, a recent research bundle, a backlog item, a resurrection contract. The user knows this; they need to see **all of them**, not your guess at "the active one".
+A typical project has **3–7 work initiatives in different states simultaneously** — one workflow package mid-run, two PRD tasks in `to-do/`, a recent research bundle, a backlog item, a resurrection contract. The user knows this; they need to see **all of them**, not your guess at "the active one".
 
 Every investigator, and the final synthesis, must enumerate every initiative it finds. Order them by attention-priority (errored → in-progress → idle-but-recent), but never filter. The user picks where to focus; your job is to surface the full inventory accurately. Collapsing to a single "current task" is the most common failure mode — avoid it.
 
@@ -66,7 +66,7 @@ Before fanning out, run `scripts/bootstrap_scan.sh <project>` for each project. 
 
 The bootstrap output tells you which investigators to actually spawn — skip ones whose signal source doesn't exist. There's no point fanning out a `project-memory` agent if `.superclaude/memory/` is empty.
 
-Show the user a one-line summary per project after bootstrap (e.g. `tracel3t: 3 .dev/releases/current, 1 stalled sprint, 2 recent sessions, dirty git`). This gives them feedback while the heavy fan-out runs.
+Show the user a one-line summary per project after bootstrap (e.g. `tracel3t: 3 .dev/releases/current, 1 stalled task package, 2 recent sessions, dirty git`). This gives them feedback while the heavy fan-out runs.
 
 ### Step 3: Fan out parallel investigators (parallel)
 
@@ -86,7 +86,7 @@ Each investigator returns a structured fragment (see `refs/report-template.md`) 
 
 ### Step 4: Synthesize the report (sequential)
 
-Once all investigators return, merge their fragments into the canonical report (see `refs/report-template.md`). The synthesis is *yours* to do — don't farm it out. You're the one who can see across investigators to spot a cascade failure (e.g. roadmap pipeline failed because the haiku agent silently produced nothing → debate then ran two identical files → flagged as no convergence).
+Once all investigators return, merge their fragments into the canonical report (see `refs/report-template.md`). The synthesis is *yours* to do — don't farm it out. You're the one who can see across investigators to spot a cascade failure (e.g. a research step silently produced nothing → the next step ran on an empty file → the package looks stalled).
 
 Always end the report with a **"Suggested next actions"** block: numbered, copy-pasteable shell commands. No filler. Mark each as `SAFE` (idempotent, read-only or trivially reversible) or `REVIEW` (changes state, user should read first).
 
@@ -101,7 +101,7 @@ If the user follows up with "go ahead, run #2", do it then — but each command 
 Codebase search is the primary tool for the `auggie-semantic` investigator, and also useful as a secondary check in `pipeline-artifacts` when manifest data is ambiguous. Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep. Specific queries to use:
 
 - *"What files contain in-progress markers (TODO-WIP, FIXME-RECENT, status fields like 🟡 InProgress) modified in the last 72 hours?"*
-- *"Where are recovery or resume instructions documented for the sprint, roadmap, or task pipelines?"*
+- *"Where are recovery or resume instructions documented for the roadmap, task, or workflow pipelines?"*
 - *"What's the most recently touched feature work, by file mtime and content recency?"*
 
 Do not use auggie as a substitute for reading manifest.json or execution-log.jsonl directly — those are exact, auggie is semantic. Use auggie when you need to find work-status signals scattered across the tree that no manifest will catch.
@@ -113,9 +113,8 @@ The skill leans on hard-coded knowledge of these pipelines. See `refs/pipelines.
 - **PRD** — `task-builder` skill, `.dev/tasks/to-do/TASK-PRD-*/`
 - **TDD** — `tdd` skill, `.dev/tasks/{to-do,done}/TASK-TDD-*/`, often paired with `research/` subdir
 - **Spec / Tech Reference / Tech Research** — `.dev/research/`, `claudedocs/`
-- **Roadmap** — `superclaude roadmap run` → `docs/generated/<...>/.roadmap-state.json` or `.dev/research/roadmap-*/`
-- **Tasklist** — `superclaude tasklist` → multi-file bundle per release in `.dev/releases/current/<release>/phase-N-tasklist.md` + `tasklist-index.md`
-- **Sprint (task execution)** — `superclaude sprint run` → `.dev/releases/current/<release>/manifest.json` + `execution-log.jsonl` + `.sprint-exitcode`
+- **Roadmap** — `roadmap` skill → `.dev/tasks/to-do/TASK-ROADMAP-*/` with `.roadmap-state.json`
+- **Workflow package** — `/sc:workflow` + `/sc:implement` → `.dev/tasks/{to-do,done}/TASK-WF-*/` with `progress.md`
 - **Task (MDTM)** — single .md with frontmatter `status: 🟢 Done | 🟡 InProgress | 🔴 Blocked`, lives in `.dev/tasks/{to-do,done}/`
 
 Each pipeline has a canonical *resume* idiom that the synthesis report should surface. The references file documents these — keep it open when generating the "Suggested next actions" block.
@@ -124,17 +123,17 @@ Each pipeline has a canonical *resume* idiom that the synthesis report should su
 
 The synthesis output should match the canonical structure in `refs/report-template.md`. The user has seen this format before and reads it quickly. Don't reformat creatively.
 
-For multi-project (`--all`) runs: one section per project, sorted by "most likely to need attention first" — i.e., projects with `status: error` in execution-log.jsonl, dirty git with no recent commit, or `.sprint-exitcode != 0` rise to the top.
+For multi-project (`--all`) runs: one section per project, sorted by "most likely to need attention first" — i.e., projects with a failed or blocked initiative, or dirty git with no recent commit, rise to the top.
 
 Keep prose minimal. Tables, file paths, exit codes, suggested commands. The user is fresh off a crash; they want signal, not narrative.
 
 ## Edge cases (data-level)
 
 - **No artifacts found anywhere**: say so plainly. "No in-flight pipeline state detected. Most recent activity: <last git commit / last session log timestamp>." Don't fabricate work.
-- **Conflicting signals** (e.g. task frontmatter says Done but `.sprint-exitcode = 1`): surface the conflict explicitly. Do not pick a side; the user will decide.
+- **Conflicting signals** (e.g. task frontmatter says Done but the file is still in `to-do/`): surface the conflict explicitly. Do not pick a side; the user will decide.
 - **Stale claude-session logs that reference deleted files**: note the discrepancy — usually means files were cleaned up or moved during recovery.
 - **`--all` with one obviously-busted project**: still report on all projects, but lead with the busted one and explain why it's first.
-- **Pipeline still running** (a process holding `.sprint-exitcode` open, or recent execution-log entry within the last few minutes): flag explicitly — the user may be inspecting an active run, not a crashed one. Recommend they confirm before resuming.
+- **Pipeline still running** (a live process in the project, or a ledger or log entry within the last few minutes): flag explicitly — the user may be inspecting an active run, not a crashed one. Recommend they confirm before resuming.
 
 ## Tool-failure fallbacks
 
@@ -154,4 +153,3 @@ The synthesis report must surface every `unscanned:` marker in a "What I could n
 - It does not run recovery commands. It proposes them.
 - It does not modify any files. Pure read-only — enforced by `allowed-tools`.
 - It does not make judgment calls about whether to abandon vs. resume work — that's the user's call, informed by your diagnosis.
-- It does not replace `/sc:load` (project-context loader). They're complementary: `/sc:load` loads project context into the session; this skill diagnoses outstanding work.

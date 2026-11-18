@@ -38,7 +38,7 @@ Score the candidate delegation across these five axes. The candidate wins only i
 - Choose the requested outcome and explicit command/executor before implementation-size heuristics. Reading many files for analysis, explanation, localization or other reports does not require an implementation plan. A specialist operation keeps its documented lifecycle, even when it writes many artifacts.
 - For actual implementation, the routing guide's hard limit decides (`~/.claude/HOW-WE-WORK.md`, section 1): more than 5 edits or more than one source file plus its matching test requires a written plan, normally level 3 (`/sc:workflow` then `/sc:implement`). Standard is the ordinary workflow depth; quick is for a smaller checked plan, not a universal requirement.
 - Level 4 (`/task-builder` then `/task`) needs explicit MDTM intent or an exceptionally complex, long-running phased program with a stated research/checklist/phase-reviewer machinery need. File count, sessions, an existing spec/PRD/TDD, risk, auditability, drift and resume alone do not justify it. No numerical workflow capacity ceiling is invented.
-- Preserve the contained-folder `/sc:cleanup` and `/sc:improve` exception with a checkpoint commit and final `git diff` review; it does not exempt structural migrations. Explicit selection cannot waive the written-plan limit or add authority.
+- Preserve the contained-folder `/sc:cleanup` exception with a checkpoint commit and final `git diff` review; it does not exempt structural migrations. Explicit selection cannot waive the written-plan limit or add authority.
 - Existing approved plans go directly to their executor. Workflow packages use implement; existing MDTM execution uses task; explicit implement retains its own semantics. Do not rebuild a plan or treat memory save/load as executor resume.
 - Cross-domain static assessment can use `/sc:analyze`; cleanup evidence can use `/sc:cleanup-audit`; concrete broken behavior can use `/sc:troubleshoot`. Distinguish the objective rather than routing every broad request to debugging or implementation. Unknown current behavior may justify `/tech-research`, but a research-only request stops at its report.
 
@@ -50,7 +50,7 @@ If the user wants free-form prose, native usually wins — skills add overhead, 
 
 ### 4. Token budget vs. value
 
-Skills with large protocol bodies (`/sc:adversarial`, `/sc:roadmap`, `/sc:cleanup-audit`) cost real tokens just to load. For a small task, the loading cost dwarfs the work. Rule of thumb: if the user's task is < ~500 tokens of actual work, do not invoke a skill whose protocol is > ~2000 tokens to load.
+Skills with large protocol bodies (`/sc:adversarial`, `/sc:cleanup-audit`) cost real tokens just to load. For a small task, the loading cost dwarfs the work. Rule of thumb: if the user's task is < ~500 tokens of actual work, do not invoke a skill whose protocol is > ~2000 tokens to load.
 
 ### 5. Repeatability and discipline
 

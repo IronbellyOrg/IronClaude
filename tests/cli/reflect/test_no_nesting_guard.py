@@ -35,8 +35,8 @@ _AGENT_SURFACE_SRCS = (_RUNNER_SRC, _ENSEMBLE_SRC)
 _REFLECT_PY = sorted(p for p in _REFLECT_PKG.glob("*.py") if p.name != "__init__.py")
 
 # Import statements pulling in the heavy sibling subcommand packages (NFR-1).
-# Anchored on `from`/`import` so the guardrail DOCSTRING prose
-# ("No imports from ``superclaude.cli.sprint``") never false-positives.
+# Anchored on `from`/`import` so guardrail DOCSTRING prose never
+# false-positives.
 _SPRINT_ROADMAP_IMPORT_RE = re.compile(
     r"^\s*(?:from|import)\s+\S*(?:sprint|roadmap)", re.MULTILINE
 )
@@ -125,7 +125,7 @@ def test_layer_b_wrapper_module_has_no_agent_imports() -> None:
 
 
 def test_no_sprint_or_roadmap_import_anywhere_in_reflect_pkg() -> None:
-    """AC-8: NO cli.sprint / cli.roadmap import in any cli/reflect/*.py (NFR-1)."""
+    """AC-8: NO sprint/roadmap-named import in any cli/reflect/*.py (NFR-1)."""
     assert _REFLECT_PY, "expected to find reflect package source files"
     for path in _REFLECT_PY:
         src = path.read_text(encoding="utf-8")

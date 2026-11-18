@@ -1,0 +1,1 @@
+Fix issues 542, 543 and 544 per .dev/cleanup/ic-launcher-fixes/dependency-map.md. Acceptance: each of the three issues is fixed as the issue describes and nothing more; each fix has a test that fails before the change and passes after; 0 new test failures; lint, format, verify-sync and git diff --check stay green

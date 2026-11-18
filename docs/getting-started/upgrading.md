@@ -226,7 +226,7 @@ claude mcp remove serena --scope user
 
 ### Files 5.0.0 no longer ships
 
-The installer never deletes files. Copies of the retired core files
+The installer never deletes core files. Copies of the retired core files
 (`ORCHESTRATOR.md`, `COMMANDS.md`, `PERSONAS.md`, `MODES.md`, `FLAGS.md`,
 `MCP.md`) stay in `~/.claude/`, and an old `~/.claude/commands/sc/README.md`
 keeps showing a `/sc:README` command. Nothing loads the retired core files; delete
@@ -236,16 +236,59 @@ them if you like:
 cd ~/.claude && rm -f ORCHESTRATOR.md COMMANDS.md PERSONAS.md MODES.md FLAGS.md MCP.md commands/sc/README.md
 ```
 
+Commands, skills and agents are different: from 6.0.0 the installer retires the
+ones a release stops shipping. See
+[Commands, skills and agents a release no longer ships](#commands-skills-and-agents-a-release-no-longer-ships).
+
+### Commands, skills and agents a release no longer ships
+
+An upgraded workspace would otherwise keep dead commands: a `/sc:roadmap` left in
+`~/.claude/commands/sc/` calls a `superclaude roadmap run` that no longer exists.
+From 6.0.0, `superclaude install` (with or without `--force`) and
+`superclaude update` end with a retire step that removes them, but only files
+IronClaude can prove it wrote.
+
+- **Proof.** A command or agent file is removed only when its SHA-256 equals the
+  file as shipped at an earlier release tag (the list and hashes are generated
+  from the `v5.0.0` tag into `src/superclaude/cli/install_retired_data.py`). A
+  skill is a folder: it is removed only when every file in it is a shipped file
+  with a matching hash and nothing else is in it.
+- **Removed from 5.0.0.** 12 commands: `build`, `cli-portify`, `improve`,
+  `index-repo`, `index`, `load`, `review-translation`, `roadmap`, `save`, `spawn`,
+  `tasklist`, `validate-roadmap`. 5 skills: `sc-cli-portify-protocol`,
+  `sc-review-translation-protocol`, `sc-roadmap-protocol`, `sc-tasklist-protocol`,
+  `sc-validate-roadmap-protocol`. No agent is removed in 6.0.0.
+- **Kept and explained.** A file you edited, a skill folder with a file or folder
+  you added (including a `__pycache__` a skill script created), a link, or
+  anything unreadable is kept. The installer prints one line for each, with the
+  reason and the exact command that removes it, for example
+  ``Kept /sc:roadmap: its content differs ... Remove it yourself with `rm ~/.claude/commands/sc/roadmap.md` ``.
+  `superclaude doctor` fails with `Missing command-required skill(s)` while a kept
+  command still asks for a removed skill; removing the kept item clears it.
+- **Never touched.** Any name not on the generated list, and anything outside
+  `~/.claude/commands/sc/` (or the folder you passed to `--target`),
+  `~/.claude/skills/` and `~/.claude/agents/`.
+- **Safe to repeat.** A second run changes nothing and prints "No retired
+  commands, skills or agents present." (plus the kept lines while you keep
+  anything). It works when `~/.claude` does not exist, and nothing in it changes
+  the exit code of `install` or `update`.
+- **Older than 5.0.0.** Files installed by an earlier release than the tag the
+  list was generated from differ in content, so they are kept and reported the
+  same way.
+
+Restart running Claude Code sessions afterwards so the removed commands and skills
+disappear from them.
+
 ## Step 5: Move your session memories
 
-`/sc:save`, `/sc:load` and `/sc:pm` now keep session memory in
+`/sc:pm` and the PM agent keep session memory in
 `<project>/.superclaude/memory/<key>.md`, where `<project>` is the top folder of
-the git checkout (one store per worktree). For this release only, `/sc:load`
-still reads `.serena/memories/<key>.md` when the new file is absent; it never
-writes there.
+the git checkout (one store per worktree). Nothing reads `.serena/memories/`
+any more: 6.0.0 removed the memory save and load commands, and with them the
+read-only fallback to the old Serena folder.
 
 To keep your Serena memories, copy them in each project (or worktree). The
-second line adds the `.gitignore` that `/sc:save` creates on its first write, so
+second line adds the `.gitignore` that the PM agent creates on its first write, so
 the store is not committed:
 
 ```bash
@@ -260,7 +303,6 @@ mkdir -p .superclaude/memory && cp -Rn .serena/memories/. .superclaude/memory/
 | `/sc:pr-submit --yes` | `--yes` is removed; drop it. With no `--monitor`, `/sc:pr-submit` now runs level 3 and pushes review and CI fixes; pass `--monitor 2` to stop before pushing. |
 | `superclaude mcp --uninstall` or `--yes` | Both options are removed; drop them. |
 | `superclaude mcp --servers serena` | Serena is no longer a registry server; the command reports an unknown selection. |
-| `superclaude sprint run <index>` in CI | With no `--start`/`--end` it auto-resumes and asks for confirmation. Add `--yes` (or set `CI=1`), or pass `--start 1` for the old start-from-phase-1 behaviour. |
 | `superclaude reflect run` | Promotes by default; pass `--no-promote` for the old behaviour. |
 | `/sc:reflect --onboard` or `--with-hierarchy` | Removed; drop them. |
 | `/ccsession-tag` | Removed; use `/rename`. |

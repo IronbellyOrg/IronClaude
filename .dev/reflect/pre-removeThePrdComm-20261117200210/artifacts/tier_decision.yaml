@@ -1,0 +1,15 @@
+selected_tier: 1            # Tier 1 is what ran; the rubric called for Tier 2 (see escalation_reason)
+fired_rule_number: 8        # no STOP row may fire under the coverage_degraded pre-filter; the pre-filter itself routes to Tier 2
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 4          # recording only
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 0
+  spec_density: 0
+  ambiguity_signals: 0
+escalation_reason: "Step 1B.2b: parsed requirement IDs = 0, inferred rows = 5 (inferred > parsed), so the Tier 1 stop is forbidden (rubric 5.3 pre-filter). Tier 2 was NOT run: it needs heterogeneous reviewer sub-agents, and this session is under a standing instruction not to start sub-agents. The run is therefore recorded as partial."
+t2_engine_requested: null
+t2_engine_effective: null
+panel_fallback_reason: null

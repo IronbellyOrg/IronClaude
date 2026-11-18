@@ -1,0 +1,11 @@
+cleanup matches: 2
+- KPI/logging helpers
+
+#### `src/superclaude/cli/roadmap/`
+
+Contains roadmap-related models, prompts, executors, commands, and validation helpers.
+
+#### `src/superclaude/cli/pipeline/`
+
+Contains pipeline analysis and verification modules such as:
+note: the 2 matches above are components-guide.md:163 (`cleanup-audit.md`, the slash-command file) and :186 ("cleanup-audit protocol", the skill). Both name things that stay (plan Constraints). The plan's "neither cleanup_audit nor cleanup-audit" wording is stricter than its intent; the runner package entry itself is gone.

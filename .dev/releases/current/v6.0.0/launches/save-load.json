@@ -1,0 +1,116 @@
+{
+  "id": "cc97102e-1ecc-47b4-a6d7-37f2322fe212",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-save-load",
+      "identity": {
+        "key": "wt2:local:c910e7bd-b5b9-46f4-a00f-ae3398f231d9",
+        "executionHostId": "local",
+        "instanceId": "c910e7bd-b5b9-46f4-a00f-ae3398f231d9"
+      },
+      "instanceId": "c910e7bd-b5b9-46f4-a00f-ae3398f231d9",
+      "repoId": "e8e07d51-c261-4936-815e-06aeceeb5bf8",
+      "projectId": "github:superclaude-org/superclaude_framework",
+      "hostId": "local",
+      "projectHostSetupId": "e8e07d51-c261-4936-815e-06aeceeb5bf8",
+      "creatorProvenance": {
+        "kind": "host"
+      },
+      "path": "/home/coder/workspaces/worktrees/IronClaude/v6-save-load",
+      "head": "783832f11fa6186c4c242d898c4e8adb09080c93",
+      "branch": "refs/heads/clayphi/v6-save-load",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "v6-save-load",
+      "displayNameMode": "fixed",
+      "comment": "6.0.0 PR 6 /sc:save and /sc:load; PR into integration; stop when green",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "linkedWorkItem": null,
+      "linkedTaskSourceContext": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1794948684518,
+      "lastActivityAt": 1794948684517,
+      "createdAt": 1794948684517,
+      "createdWithAgent": "claude",
+      "cliProvenance": {
+        "kind": "created-by-cli",
+        "createdAt": 1794948679871,
+        "callerTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+        "startupAgent": "claude"
+      },
+      "baseRef": "refs/remotes/origin/integration",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "childWorktreeIds": [],
+      "lineage": {
+        "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-save-load",
+        "worktreeInstanceId": "c910e7bd-b5b9-46f4-a00f-ae3398f231d9",
+        "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+        "parentWorktreeInstanceId": "6e42315e-ec88-477d-b67f-8abd24fabaa2",
+        "origin": "cli",
+        "capture": {
+          "source": "env-workspace",
+          "confidence": "inferred"
+        },
+        "createdByTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+        "createdAt": 1794948684518
+      },
+      "git": {
+        "path": "/home/coder/workspaces/worktrees/IronClaude/v6-save-load",
+        "head": "783832f11fa6186c4c242d898c4e8adb09080c93",
+        "branch": "refs/heads/clayphi/v6-save-load",
+        "isBare": false,
+        "isMainWorktree": false
+      },
+      "linkedItems": []
+    },
+    "lineage": {
+      "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-save-load",
+      "worktreeInstanceId": "c910e7bd-b5b9-46f4-a00f-ae3398f231d9",
+      "parentWorktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "parentWorktreeInstanceId": "6e42315e-ec88-477d-b67f-8abd24fabaa2",
+      "origin": "cli",
+      "capture": {
+        "source": "env-workspace",
+        "confidence": "inferred"
+      },
+      "createdByTerminalHandle": "term_a8ee52a3-9b06-4e49-8bcf-ffd79182a08e",
+      "createdAt": 1794948684518
+    },
+    "workspaceLineage": null,
+    "launch": {
+      "outcome": {
+        "kind": "terminal",
+        "handle": "term_5d2bcda6-5fe2-4238-be6a-18e438d5d011",
+        "paneKey": "433e1393-b0d8-43b0-9185-461aeafe97b1:eb1c0779-bd16-4b11-8f4f-a0b75eff09c2"
+      },
+      "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-save-load",
+      "receipt": {
+        "mode": "terminal",
+        "preferred": "terminal",
+        "reason": "user_default",
+        "detail": "Started a terminal agent, the default for new agent tabs in your settings."
+      },
+      "prompt": {
+        "delivery": "submit",
+        "outcome": "handed-to-terminal"
+      },
+      "operationId": "1794948679863-d82a199d10864514af182a7f5a44bf42"
+    }
+  },
+  "_meta": {
+    "runtimeId": "bba2834a-030a-46d1-9df4-c209fe806804"
+  }
+}

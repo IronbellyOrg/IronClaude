@@ -8,7 +8,7 @@ Cross-links invariant entries to fmea_test deliverables. Idempotent.
 
 Pipeline position: after M1 decomposition, before M3 guard analysis.
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations

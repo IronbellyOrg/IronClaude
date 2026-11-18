@@ -34,16 +34,15 @@ list) or ``cue`` (rules 3-7, from the path or the text).
                refs/reflection-rubric.md (it says calibrator_diversity is emitted into reflection-card.yaml);
    validator - src/superclaude/cli/reflect/contract.py (derive_verdict, _degraded_reason);
    consumer  - the section 9.3 map rows that have a file in this repository (sc-troubleshoot-protocol,
-               sc-task-protocol, sc-tasklist-protocol and sc-workflow-protocol SKILL.md, task-builder SKILL.md with
+               sc-task-protocol and sc-workflow-protocol SKILL.md, task-builder SKILL.md with
                EV-4, refs/promotion-adapters.md for the Wave 7 adapters, the CI grader
-               .dev/eval-workspaces/sc-reflect/grader.py, the sprint executor src/superclaude/cli/sprint/executor.py),
+               .dev/eval-workspaces/sc-reflect/grader.py),
                refs/ops-integration.md (PromQL label list), and from the review fix the two files whose text opens
                return-contract.yaml and fails the gate on adversarial_convergence_score < 0.80:
-               src/superclaude/skills/task/SKILL.md (the sc-task row) and
-               src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md (the sc:tasklist row).
+               src/superclaude/skills/task/SKILL.md (the sc-task row).
                sc-task-protocol/SKILL.md stays listed and shows "no match" when it names none of the words.
 2. PREFIX_ROLES: tests/cli/reflect/ is consumer (deferred list item 9: fixtures and tests that carry merge_method).
-3. A path with a component containing "roadmap" (any letter case) is "not in scope": the roadmap pipeline uses the
+3. A path with a component containing "roadmap" (any letter case) is "not in scope": the roadmap skill uses the
    same words for its own merge and contract.
 4. Test cue: a directory component named tests, test or fixtures, or a file name test_*, *_test.py or conftest.py
    is consumer.
@@ -59,7 +58,7 @@ list) or ``cue`` (rules 3-7, from the path or the text).
 7. Everything else is consumer.
 For a cue-based row, ``consumer`` means "references the field; not proof it is read at runtime", and producer or
 validator means the file text matched that cue, not that its code was traced. Named items with no file in the
-repository (the meta-eval runs.jsonl aggregator and the sc:roadmap validation gate) are listed as UNVERIFIED;
+repository (the meta-eval runs.jsonl aggregator) are listed as UNVERIFIED;
 Python files under the scan roots that name runs.jsonl are listed as aggregator candidates (the listing does not
 change their role).
 
@@ -145,11 +144,6 @@ NAMED_ROLES = {
         "section 9.3 sc-task row (review fix): opens return-contract.yaml, "
         "fails the gate on adversarial_convergence_score < 0.80",
     ),
-    "src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md": (
-        "consumer",
-        "section 9.3 sc:tasklist row (review fix): opens return-contract.yaml, "
-        "fails the gate on adversarial_convergence_score < 0.80",
-    ),
     f"{_SKILL}/refs/ops-integration.md": ("consumer", "PromQL label list"),
     f"{_SKILL}/refs/promotion-adapters.md": (
         "consumer",
@@ -167,17 +161,9 @@ NAMED_ROLES = {
         "consumer",
         "section 9.3 sc-task row as first mapped; the gate text is in skills/task/SKILL.md",
     ),
-    "src/superclaude/skills/sc-tasklist-protocol/SKILL.md": (
-        "consumer",
-        "section 9.3 sc:tasklist gate",
-    ),
     "src/superclaude/skills/sc-workflow-protocol/SKILL.md": (
         "consumer",
         "section 9.3 row, deferred item 10",
-    ),
-    "src/superclaude/cli/sprint/executor.py": (
-        "consumer",
-        "section 9.3 sprint executor, deferred item 8",
     ),
     GRADER: ("consumer", "section 9.3 CI grader"),
 }
@@ -188,10 +174,6 @@ UNVERIFIED_ITEMS = (
     (
         "meta-eval runs.jsonl aggregator (section 9.3, deferred item 7)",
         "no file in this repository is named as the aggregator; see the candidate list",
-    ),
-    (
-        "sc:roadmap validation gate (section 9.3)",
-        "no reflect-contract reader located; roadmap files are not in scope",
     ),
 )
 _EQUALITY = (

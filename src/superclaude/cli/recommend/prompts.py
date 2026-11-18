@@ -35,7 +35,6 @@ CLASSIFICATION_KEYS = (
     "cleanup-audit",  # surface-derived (no iteration-1 eval coverage)
     "troubleshoot-debug",  # surface-derived (no iteration-1 eval coverage)
     "web-research",  # surface-derived (no iteration-1 eval coverage)
-    "cli-portify",  # surface-derived (no iteration-1 eval coverage)
 )
 
 
@@ -65,7 +64,6 @@ If none fits or a tasklist's artifact type is unclear, return unknown.
   cleanup-audit         - report-only dead-code, structural or sprawl audit
   troubleshoot-debug    - diagnose concrete broken behavior, not proactive assessment
   web-research          - current external evidence, not codebase investigation
-  cli-portify           - existing workflow-to-CLI specification, not generated code
 </CLOSED-ENUM-KEYS>
 
 <FEW-SHOT-EXAMPLES>
@@ -192,7 +190,7 @@ Level 4 needs explicit MDTM intent or exceptionally complex, long-running phased
 work with a stated research/checklist/phase-reviewer machinery need. File count,
 sessions, an existing spec/PRD/TDD, risk, auditability, drift and resume alone
 never justify MDTM. No numerical workflow capacity guarantee is invented.
-The contained-folder cleanup/improve exception retains checkpoint and final diff
+The contained-folder cleanup exception retains checkpoint and final diff
 review; structural migrations remain planned work. Explicit selection cannot
 waive these safeguards or increase authority.
 
@@ -200,7 +198,7 @@ Within those boundaries, delegate only when its verified specialized capability
 earns its overhead versus a bounded native sequence. Do not replace a requested
 specialist lifecycle or structured document merely because it writes many files.
 Do not turn raw document authoring, populated-document derivation, reflection,
-comparison, Sprint bundles and roadmap artifacts into interchangeable targets.
+comparison and roadmap artifacts into interchangeable targets.
 </PHASE-1>
 
 <PHASE-2 - CURRENT-REQUEST HANDOFF>

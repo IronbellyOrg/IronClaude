@@ -4,22 +4,21 @@ Before R1.6 the pipeline carried two divergent frontmatter parsers that
 could return *different* parses of the same artifact and therefore *different*
 gate verdicts:
 
-- ``roadmap/gates.py:_parse_frontmatter`` -- required ``---`` at the start of
-  the (lstripped) content, split top-level ``key: value`` lines into a
-  quote-stripped ``dict[str, str]``, used by the 23 STRICT-tier semantic
-  checks to read field *values*.
+- a gate-layer parser that required ``---`` at the start of the (lstripped)
+  content, split top-level ``key: value`` lines into a quote-stripped
+  ``dict[str, str]``, and was used by the STRICT-tier semantic checks to read
+  field *values*.
 - ``pipeline/gates.py:_check_frontmatter`` -- a preamble-tolerant regex scan
   that accepted the first ``---`` ... ``---`` block containing a top-level
   ``key:`` line and validated *required field presence* (keys only).
 
 That divergence is exactly the Contract #6 brittleness driver. This module
-collapses both into ONE parser. It lives under ``pipeline/`` (not
-``roadmap/``) so that BOTH ``pipeline/gates.py`` and ``roadmap/gates.py`` can
-import it without violating the import-direction invariants:
+collapses both into ONE parser. It lives under ``pipeline/`` so that any gate
+layer can import it without violating the import-direction invariants:
 
-- **NFR-007**: ``pipeline/`` must not import ``roadmap/`` -- this module
-  imports nothing from ``roadmap/`` (or ``sprint/``).
-- **NFR-005**: ``roadmap/gates.py`` must not import ``pipeline/gates.py``
+- **NFR-007**: ``pipeline/`` must not import CLI runner packages -- this
+  module imports nothing from them.
+- **NFR-005**: a consumer's gate layer must not import ``pipeline/gates.py``
   enforcement code -- it imports this pure-parsing module instead, which is
   not the gate-enforcement module.
 
@@ -93,8 +92,7 @@ def extract_frontmatter(content: str) -> dict[str, str] | None:
     Returns a dict of top-level ``key -> value`` (values stripped of
     whitespace and matching outer YAML quotes), or ``None`` if no frontmatter
     block is found. This is the single canonical frontmatter parser
-    (Contract #6) -- every gate-layer caller in ``pipeline/`` and ``roadmap/``
-    routes through this function.
+    (Contract #6) -- every gate-layer caller routes through this function.
     """
     # Normalize line endings before matching. The old roadmap parser used
     # ``str.splitlines()`` (which treats CRLF/CR as line breaks), so a CRLF

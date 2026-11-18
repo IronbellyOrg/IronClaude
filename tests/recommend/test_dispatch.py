@@ -255,18 +255,6 @@ _COLLISION_CASES = [
         id="T53-PRD-authoring-is-not-existing-spec-critique",
     ),
     pytest.param(
-        "Create a Sprint bundle from docs/roadmap.md",
-        "task-file-generation",
-        "/task-builder",
-        'Run: /task-builder "Create an MDTM task from docs/spec.md"',
-        "objective",
-        "Cached MDTM or roadmap hint",
-        "current Sprint artifacts request",
-        "reject",
-        "rejection",
-        id="T54-MDTM-is-not-Sprint-artifacts",
-    ),
-    pytest.param(
         "Assess effort without resurrecting a retired command",
         "spec-generation",
         "/sc:estimate",
@@ -416,5 +404,5 @@ def test_collision_case_clauses_map_one_to_one():
         [int(_names_case(line, case[5], case[6])) for line in lines] for case in cases
     ]
     size = len(cases)
-    assert size == 8
+    assert size == 7
     assert matrix == [[int(i == j) for j in range(size)] for i in range(size)]

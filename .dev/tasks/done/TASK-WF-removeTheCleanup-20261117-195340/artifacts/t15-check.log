@@ -1,0 +1,9 @@
+refs to K, K1..K5, CLI_CLEANUP: 12
+cleanup_audit matches: 0
+remaining cleanup-audit lines (command/skill names):
+306:        C5[/sc:cleanup-audit]
+318:        S5[sc:cleanup-audit-protocol]
+451:- `/sc:cleanup-audit` is a read-only multi-pass audit that writes reports only
+465:        A1["/sc:cleanup-audit"] --> A2[sc:cleanup-audit-protocol]
+606:- Current protocol-backed command families include roadmap, tasklist, task, adversarial, cleanup-audit, re
+note: the 12 on line 1 are other diagrams' own K nodes (lines 54, 64, 92, 102, 388 etc.: mirror-sync and wave flows). Lines 235-290 (the CLI runner diagram) hold no K, K1..K5 or CLI_CLEANUP reference. The remaining cleanup-audit lines name the slash command and skill, which stay.

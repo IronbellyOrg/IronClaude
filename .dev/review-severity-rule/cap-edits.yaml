@@ -1,8 +1,7 @@
 # cap-edits.yaml: literal, mechanically checkable edit table for review-loop caps and at-cap rules.
 #
 # Date: 2026-11-02. Branch: fix/review-severity-rule (src unchanged from f90877be; line numbers verified on disk today).
-# Inputs: .dev/review-severity-rule/cap-sites.md (every IN row), inventory.md sections 3.1 and 4 (item 3a: cli-portify
-# default = 1 iteration = 2 review passes, 4a and 4c; corrected after PR #343 review),.dev/reflect/pre-removeTheAnyIssu-20261102042426/REPORT.md P2-B1..P2-B7.
+# Inputs: .dev/review-severity-rule/cap-sites.md (every IN row), inventory.md sections 3.1 and 4 (corrected after PR #343 review),.dev/reflect/pre-removeTheAnyIssu-20261102042426/REPORT.md P2-B1..P2-B7.
 # Rule: a review loop runs at most 2 fix cycles (3 reviews), then escalates to the user with the open blocking findings.
 # Canonical at-cap clause: "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings".
 # Open-Questions-and-proceed at-cap rules become "HALT and escalate to the user with the open blocking findings; minor
@@ -17,8 +16,7 @@
 #   - Rows whose `occurrences` > 1 list every site in `lines`; apply them with replace-all.
 #   - Multi-line `old` (one test row) uses YAML "\n" escapes; its uniqueness is anchored by a unique line inside it.
 # Groups: agents | templates | skills-a (operational-guide, readme, roadmap, tech-reference, tech-research, prd/tdd
-# build-request templates) | skills-b (task, task-builder) | portify (cli_portify code, sc-cli-portify-protocol,
-# tests/cli_portify/test_convergence.py) | prd-core (cli/prd/models.py, rules/core/ib_agent_core.md).
+# build-request templates) | skills-b (task, task-builder) | prd-core (rules/core/ib_agent_core.md).
 rows:
   # ---------------------------------------------------------------- agents
   - id: C-001
@@ -1089,179 +1087,7 @@ rows:
     new: "phase-gate QA failing 2 fix cycles"
     kind: cap
     occurrences: 1
-  # ---------------------------------------------------------------- portify
-  - id: C-132
-    file: src/superclaude/cli/cli_portify/convergence.py
-    line: 149
-    group: portify
-    old: "engine = ConvergenceEngine(max_iterations=3)"
-    new: "engine = ConvergenceEngine(max_iterations=1)"
-    kind: cap
-    occurrences: 1
-  - id: C-133
-    file: src/superclaude/cli/cli_portify/convergence.py
-    line: 150
-    group: portify
-    old: "for i in range(1, 4):"
-    new: "for i in range(1, 2):"
-    kind: cap
-    occurrences: 1
-  - id: C-134
-    file: src/superclaude/cli/cli_portify/convergence.py
-    line: 165
-    group: portify
-    old: "max_iterations: int = 3,"
-    new: "max_iterations: int = 1,"
-    kind: cap
-    occurrences: 1
-  - id: C-135
-    file: src/superclaude/cli/cli_portify/steps/panel_review.py
-    line: 352
-    group: portify
-    old: "ConvergenceEngine(max_iterations=3)"
-    new: "ConvergenceEngine(max_iterations=1)"
-    kind: cap
-    occurrences: 1
-  - id: C-136
-    file: src/superclaude/cli/cli_portify/commands.py
-    line: 100
-    group: portify
-    old: "default=3,"
-    new: "default=1,"
-    kind: cap
-    occurrences: 1
-  - id: C-137
-    file: src/superclaude/cli/cli_portify/commands.py
-    line: 101
-    group: portify
-    old: "(default: 3)"
-    new: "(default: 1; follows the 2-fix-cycle cap)"
-    kind: cap
-    occurrences: 1
-  - id: C-138
-    file: src/superclaude/cli/cli_portify/config.py
-    line: 53
-    group: portify
-    old: "max_convergence: int = 3"
-    new: "max_convergence: int = 1"
-    kind: cap
-    occurrences: 1
-  - id: C-139
-    file: src/superclaude/cli/cli_portify/models.py
-    line: 583
-    group: portify
-    old: "max_convergence: int = 3"
-    new: "max_convergence: int = 1"
-    kind: cap
-    occurrences: 1
-  - id: C-140
-    file: src/superclaude/cli/cli_portify/prompts.py
-    line: 68
-    group: portify
-    old: "max_convergence: int = 3"
-    new: "max_convergence: int = 1"
-    kind: cap
-    occurrences: 1
-  - id: C-141
-    file: src/superclaude/cli/cli_portify/resume.py
-    line: 136
-    group: portify
-    old: "max_convergence: int = 3"
-    new: "max_convergence: int = 1"
-    kind: cap
-    occurrences: 1
-  - id: C-142
-    file: tests/cli_portify/test_convergence.py
-    line: 78
-    group: portify
-    old: "def test_default_max_iterations_is_3(self):"
-    new: "def test_default_max_iterations_is_1(self):"
-    kind: cap
-    occurrences: 1
-  - id: C-143
-    file: tests/cli_portify/test_convergence.py
-    line: 81
-    lines: [81, 82, 83, 84, 85]
-    group: portify
-    old: "        assert not engine.is_done\n        engine.submit(IterationResult(iteration=2, unaddressed_criticals=3))\n        assert not engine.is_done\n        engine.submit(IterationResult(iteration=3, unaddressed_criticals=1))\n        assert engine.is_done\n"
-    new: "        assert engine.is_done\n"
-    kind: cap
-    occurrences: 1
-    note: "multi-line old (8-space indent); unique because its line 84 'engine.submit(IterationResult(iteration=3, unaddressed_criticals=1))' occurs once in the file. Result: with the default of 1 the first submit (iteration=1, 5 CRITICALs) is terminal and line 86 'assert engine.state == ConvergenceState.ESCALATED' still holds"
-  - id: C-144
-    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
-    line: 355
-    group: portify
-    old: "Terminal state: 3 iterations exhausted"
-    new: "Terminal state: 1 iteration exhausted"
-    kind: cap
-    occurrences: 1
-  - id: C-145
-    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
-    line: 363
-    group: portify
-    old: "iteration < 3)"
-    new: "iteration < max_iterations)"
-    kind: cap
-    occurrences: 1
-  - id: C-146
-    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
-    line: 364
-    group: portify
-    old: "iteration >= 3)"
-    new: "iteration >= max_iterations)"
-    kind: cap
-    occurrences: 1
-  - id: C-147
-    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
-    line: 367
-    group: portify
-    old: "Hard cap: `max_iterations = 3`"
-    new: "Hard cap: `max_iterations = 1` (one iteration = 2 review passes, 4a focus and 4c critique, each followed by step 4b or 4d, within the 2-fix-cycle cap)"
-    kind: cap
-    occurrences: 1
-  - id: C-148
-    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
-    line: 374
-    group: portify
-    old: "— 3 iterations exhausted with"
-    new: "— 1 iteration exhausted with"
-    kind: cap
-    occurrences: 1
-  - id: C-149
-    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
-    line: 534
-    group: portify
-    old: "Maximum convergence iterations (3) reached"
-    new: "Maximum convergence iterations (1) reached"
-    kind: cap
-    occurrences: 1
-  - id: C-150
-    file: src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml
-    line: 121
-    group: portify
-    old: "Max 3 iterations."
-    new: "Max 1 iteration (2 review passes, 4a and 4c, each followed by step 4b or 4d)."
-    kind: cap
-    occurrences: 1
-  - id: C-151
-    file: src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml
-    line: 123
-    group: portify
-    old: "ESCALATED = 3 iterations exhausted"
-    new: "ESCALATED = 1 iteration exhausted"
-    kind: cap
-    occurrences: 1
   # ---------------------------------------------------------------- prd-core
-  - id: C-152
-    file: src/superclaude/cli/prd/models.py
-    line: 203
-    group: prd-core
-    old: "max_research_fix_cycles: int = 3"
-    new: "max_research_fix_cycles: int = 2"
-    kind: cap
-    occurrences: 1
-    note: "executor.py runs range(max_cycles + 1) = initial QA + N fix cycles, so 2 gives 3 QA runs"
   - id: C-153
     file: src/superclaude/rules/core/ib_agent_core.md
     line: 574
@@ -1383,16 +1209,15 @@ flagged_for_decision:   # RESOLVED 2026-11-02 by the orchestrator under rule B1:
     why: "already flagged OUT in cap-sites.md section 17 (schema-loader fix loop, not a review); listed again so the decision is not lost"
 
 totals:
-  rows: 161
+  rows: 140
   by_group:
     agents: 17
     templates: 37
     skills-a: 51
     skills-b: 31
-    portify: 20
-    prd-core: 5
+    prd-core: 4
   by_kind:
-    cap: 111
+    cap: 90
     at-cap: 23
     both: 27
-  multi_site_rows: [C-071, C-072, C-143]
+  multi_site_rows: [C-071, C-072]

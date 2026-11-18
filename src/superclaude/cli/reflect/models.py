@@ -6,7 +6,7 @@ shared vocabulary between ``config.py`` (input resolution), ``contract.py``
 (verdict derivation), and ``runner.py`` (orchestration).
 
 Isolation guardrails (NFR-1 thinness, Risk Section 10):
-- No imports from ``superclaude.cli.sprint`` or ``superclaude.cli.roadmap``.
+- No imports from other CLI runner packages.
 - Zero ``async def`` / ``await`` anywhere in the package.
 - This module imports nothing from ``commands.py`` / ``runner.py`` /
   ``config.py`` / ``contract.py`` -- it is types only.

@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-removeScImproveP-20261117-223014
+plan_path: ./TASK-WF-removeScImproveP-20261117-223014.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/v6-improve/.dev/issues/v6-improve/reflect-pre/REPORT.md
+unresolved:
+  - "Reflect pre-check ran as an inline Tier 1 pass: Tier 2 reviewers, the blind calibrator and the evidence-validator agent did not run because this session launches no sub-agents."

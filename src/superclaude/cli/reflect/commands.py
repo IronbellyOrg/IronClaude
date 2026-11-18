@@ -6,8 +6,8 @@ are lazy inside the command body (house convention). Exit codes are wired to
 ``Verdict.exit_code`` (pass 0 / halted 10 / degraded 11 / blocked 2) -- never
 hardcoded a second time.
 
-The ``--tmux`` opt-in reuses the sprint detached-window + sentinel idiom but
-INVERTS its fail-open posture: a missing/garbage ``.reflect-exitcode`` sentinel
+The ``--tmux`` opt-in uses a detached-window + sentinel idiom with a
+fail-closed posture: a missing/garbage ``.reflect-exitcode`` sentinel
 is treated as ``blocked`` (exit 2), never success. The ``is_tmux_available`` /
 session-name helpers are copied locally (no cross-subcommand-package import).
 """
@@ -519,7 +519,7 @@ def _build_inner_command(config) -> list[str]:
         "run",
         str(config.tasklist_path),
         # Forward the SAME pinned --output so the inner writer and outer reader
-        # agree on the .reflect-exitcode path (the sprint desync footgun).
+        # agree on the .reflect-exitcode path.
         "--output",
         str(config.output_dir),
         "--depth",
@@ -561,8 +561,8 @@ def _build_inner_command(config) -> list[str]:
 def _launch_tmux(config) -> int:
     """Run the wrapper inside a detached single tmux window; return its exit code.
 
-    Reuses the sprint ``new-session -d`` + ``attach`` + sentinel-readback shape
-    (ONE window only -- no 3-pane TUI). Inverts the sprint fail-open posture:
+    Uses a ``new-session -d`` + ``attach`` + sentinel-readback shape
+    (ONE window only -- no 3-pane TUI) with a fail-closed posture:
     a missing/garbage ``.reflect-exitcode`` is ``blocked`` (exit 2), not success.
     """
     name = _session_name(config.output_dir)

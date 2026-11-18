@@ -9,7 +9,7 @@ Under the hood, much of the package and CLI surface still uses the historical `s
 IronClaude provides a working framework for:
 
 - structured Claude Code commands, skills, and agents
-- repeatable CLI pipelines for roadmap, tasklist, sprint, audit, and related workflows
+- repeatable CLI pipelines for audit, reflect, swarm, eval, and related workflows
 - pytest-based validation and evaluation patterns
 - evidence-first development with confidence checks and self-checking patterns
 - MCP-assisted codebase analysis, research, and orchestration
@@ -32,7 +32,7 @@ The README reflects the product/function of the repo first, while preserving the
 
 ## Highlights
 
-- **CLI-driven workflows** for roadmap, tasklist, sprint, audit, and validation
+- **CLI-driven workflows** for audit, reflect, swarm, eval, and validation
 - **Claude Code asset distribution** through commands, agents, and skills
 - **PM-agent patterns** for confidence, self-check, and reflexion
 - **MCP-aware development** with codegraph (installed and registered by default) and optional integrations such as Auggie, Tavily, and Context7
@@ -97,7 +97,7 @@ Not sure which command to use? Read [How We Work](docs/user-guide/how-we-work.md
 
 - `/sc:impact` lists the definitions of a symbol (or of the symbols a diff touches) and their production and test dependents from the code graph. See [codegraph](docs/user-guide/codegraph.md).
 - `/sc:graph` shows whether the current checkout's code-graph index is ready; `/sc:graph init` builds it. See [codegraph](docs/user-guide/codegraph.md).
-- Session memory lives in `<project>/.superclaude/memory/` as markdown files that `/sc:save` writes and `/sc:load` reads. See [Session management](docs/user-guide/session-management.md).
+- Session memory lives in `<project>/.superclaude/memory/` as markdown files that `/sc:pm` and the PM agent read and write. See [Session management](docs/user-guide/session-management.md).
 
 ### Core CLI commands
 
@@ -108,13 +108,9 @@ superclaude install
 superclaude mcp --list
 ```
 
-### Run workflow pipelines
+### Run the reflect gate
 
 ```bash
-superclaude sprint run <tasklist-index.md>
-superclaude roadmap run <spec.md>
-superclaude roadmap validate <output-dir>
-superclaude tasklist validate <output-dir> --roadmap-file <roadmap.md>
 superclaude reflect run <tasklist.md> --fix
 ```
 
@@ -136,10 +132,8 @@ The active CLI entry point is `superclaude`, implemented in `src/superclaude/cli
 
 Key workflow areas include:
 
-- sprint execution
-- roadmap generation and validation
-- tasklist generation
-- audit and cleanup audit flows
+- audit flows
+- reflect, swarm and eval runs
 - MCP installation and diagnostics
 
 ### 2. Pytest plugin
@@ -275,7 +269,7 @@ The `superclaude eval` real-eval harness (the `eval doctor`, `eval list`,
 - **macOS / Windows:** Non-goal for v1. `eval doctor` refuses non-Linux
   hosts with a friendly error message citing AC1 (R-109) and exits 2
   *before* running any capability gates; the rest of the `superclaude`
-  CLI (sprint, roadmap, tasklist, audit, etc.) is unaffected.
+  CLI (audit, reflect, swarm, eval, etc.) is unaffected.
 - **CI:** Non-goal for v1 — the harness ships no GitHub Actions workflow
   and no `--ci` flag. v1 ships as a developer-machine tool; CI integration
   is deferred to v2 with a documented revisit trigger.

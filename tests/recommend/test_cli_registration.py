@@ -37,3 +37,12 @@ def test_recommend_eval_run_exposes_mode_choice(runner: CliRunner) -> None:
     assert "--mode" in result.output
     for mode in ("none", "quick", "normal", "deep"):
         assert mode in result.output
+
+
+def test_recommend_help_shows_the_form_that_runs(runner: CliRunner) -> None:
+    """Issue 545: the package has no __main__.py, so `python -m` cannot run it."""
+    result = runner.invoke(main, ["recommend", "--help"])
+    assert result.exit_code == 0, result.output
+    help_text = " ".join(result.output.split())
+    assert "uv run superclaude recommend" in help_text
+    assert "python -m superclaude.cli.recommend" not in help_text

@@ -1,0 +1,15 @@
+# T7 checks
+AC1 mirror diff (expect empty):
+AC1 git diff of the script (changed lines):
+  -        b='starting /sc:implement, /task, /sc:improve, /sc:cleanup, /sc:spawn or /sc:build (or their skills).'
+  +        b='starting /sc:implement, /task, /sc:improve, /sc:cleanup or /sc:build (or their skills).'
+  -        implement | task | improve | cleanup | spawn | build) LL_CLASSES+='IMPL ' ;;
+  +        implement | task | improve | cleanup | build) LL_CLASSES+='IMPL ' ;;
+note: the first run had 51 failures: the test builds the expected LL-IMPL text from docs/designs/sc-issue-launch-level-hook.md (a historical record, not edited); fixed by a removal mapping in the test (_REMOVED_COMMAND_TEXT)
+AC2 baseline passed in this test file: 3838
+  ........................................................................ [ 99%]
+  .....................                                                    [100%]
+  ======================= 3837 passed in 291.44s (0:04:51) =======================
+AC3 verify-sync:
+  
+  ✅ All components in sync.

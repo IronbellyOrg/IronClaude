@@ -1,7 +1,7 @@
 """CLI smoke tests for ``superclaude reflect`` -- help/flags/dry-run/print-command.
 
-Mirrors ``tests/cli/prd/test_cli_smoke.py``. The dry-run and print-command paths
-must never construct ``ClaudeProcess`` (FR-12), asserted via ``assert_not_called``.
+The dry-run and print-command paths must never construct ``ClaudeProcess`` (FR-12),
+asserted via ``assert_not_called``.
 """
 
 from __future__ import annotations

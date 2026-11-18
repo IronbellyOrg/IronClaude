@@ -44,7 +44,16 @@ One PR on the fork carries the version bump, the changelog cut and the release n
    - `uv run superclaude --version` then prints `SuperClaude, version X.Y.Z`
 2. **Changelog cut.** In `CHANGELOG.md`, move every entry under `## [Unreleased]` into a new `## [X.Y.Z] - YYYY-MM-DD` section directly below it, and leave `## [Unreleased]` empty above it (gate check G4). Add a link to the release notes in the new section, as the 5.0.0 section does.
 3. **Release notes.** Write `docs/releases/vX.Y.Z.md`, starting from the template `~/.claude/templates/workflow/changelog_template.md` (in a dev checkout also `.claude/templates/workflow/changelog_template.md` after `make sync-dev`). The file is tracked and is the body of the GitHub release (decision 7.3). Do not save release notes under `.claude/`: that folder is git-ignored. A detailed notes file is required for every major or minor version, for breaking changes and for 10 or more changed files (`changelog_maintenance.md:88-96`).
-4. **Open the PR** with `/sc:pr-submit --monitor 3` in Claude Code. Fallback when that command cannot run:
+4. **Retire data.** `superclaude install` and `superclaude update` remove the commands, skills and agents an earlier release shipped and this one does not, but only files whose SHA-256 matches the shipped file. The list is generated, not edited by hand. Regenerate it from the previous release's tag and commit the result:
+
+   ```bash
+   git fetch --tags
+   uv run python scripts/gen_retired_install_data.py --tag vPREVIOUS   # add --tag for every older release still worth retiring from
+   uv run python scripts/gen_retired_install_data.py --tag vPREVIOUS --check
+   ```
+
+   The script writes `src/superclaude/cli/install_retired_data.py` (`scripts/gen_retired_install_data.py:1-23`). It reads names and file hashes with `git ls-tree` and `git cat-file` against each tag and compares them with the working tree. A workspace that skips a release only keeps retiring older names if every older tag is passed too.
+5. **Open the PR** with `/sc:pr-submit --monitor 3` in Claude Code. Fallback when that command cannot run:
 
    ```bash
    gh pr create --repo IronbellyOrg/IronClaude --base master --head <branch> --title "chore(release): X.Y.Z" --body-file <body-file>

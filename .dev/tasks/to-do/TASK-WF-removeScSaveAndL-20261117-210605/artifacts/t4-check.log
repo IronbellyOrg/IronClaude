@@ -1,0 +1,17 @@
+# T4 checks
+AC1 mentions in both skills (expect none):
+  none
+AC2 crash-recovery tree intact (files):
+6
+ 1 file changed, 1 deletion(-)
+AC3 roadmap save points / schema / resume still present:
+3
+tests touching these skills:
+
+============================ no tests ran in 0.15s =============================
+verify-sync:
+✅ All components in sync.
+
+tests/skills and tests/audit (the skill text is pinned there if anywhere):
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 3314 passed, 3 skipped, 5 warnings in 31.84s =================

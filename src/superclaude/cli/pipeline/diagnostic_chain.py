@@ -13,7 +13,7 @@ Runner-side execution: diagnostic chain invocations do NOT consume TurnLedger
 turns (Gap 2 compliance). Budget-specific halts skip the diagnostic chain
 entirely (Gap 2, R-011).
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations

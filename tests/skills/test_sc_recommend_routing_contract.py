@@ -277,7 +277,6 @@ def test_classifier_keys_do_not_force_ordinary_planning_into_mdtm():
         "cleanup-audit",
         "troubleshoot-debug",
         "web-research",
-        "cli-portify",
     )
     classifier = " ".join(CLASSIFIER_PROMPT.split())
     for rule in (

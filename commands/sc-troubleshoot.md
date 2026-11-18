@@ -117,4 +117,4 @@ This command is DIAGNOSIS-FIRST by default.
 
 **Next Step**: User reviews diagnosis, then either:
 - Re-run with `--fix` flag to apply recommended fix
-- Use `/sc:sc:improve` for broader refactoring
+- Use `/sc:sc:implement` for broader refactoring

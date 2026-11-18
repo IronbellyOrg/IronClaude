@@ -74,6 +74,17 @@ def _design_section_9() -> str:
     return text.split("## 9. Block messages", 1)[1].split("## 10.", 1)[0]
 
 
+# The design is a historical record and is not edited. Commands removed after it
+# was written drop out of the printed text, so the expected text applies each
+# removal here (6.0.0 removed /sc:spawn, /sc:build and /sc:improve). The entries
+# apply in order.
+_REMOVED_COMMAND_TEXT = (
+    ("/sc:cleanup, /sc:spawn or /sc:build", "/sc:cleanup or /sc:build"),
+    ("/sc:improve, /sc:cleanup or /sc:build", "/sc:improve or /sc:cleanup"),
+    ("/task, /sc:improve or /sc:cleanup", "/task or /sc:cleanup"),
+)
+
+
 def _design_table() -> dict[str, tuple[str, str, str]]:
     rows = {}
     for line in _design_section_9().splitlines():
@@ -81,6 +92,8 @@ def _design_table() -> dict[str, tuple[str, str, str]]:
         if m:
             # Amendment marks such as [B-7] are not printed (DD-3).
             cells = [re.sub(r" ?\[B-\d+\]", "", c) for c in m.groups()[1:]]
+            for old, new in _REMOVED_COMMAND_TEXT:
+                cells = [c.replace(old, new) for c in cells]
             rows[m.group(1)] = tuple(cells)
     return rows
 
@@ -902,10 +915,7 @@ IMPL_SPELLINGS = [
     "task",
     "sc:task",
     "sc:task-protocol",
-    "sc:improve",
     "sc:cleanup",
-    "sc:spawn",
-    "sc:build",
     "SC:IMPLEMENT",
     "/sc:implement args",
     "superclaude:sc-implement-protocol",
@@ -921,10 +931,12 @@ def test_impl_name_spellings(tmp_path, name):
 
 
 @pytest.mark.parametrize(
-    "name", ["sc:cleanup-audit-protocol", "task-builder", "sc:tasklist-protocol"]
+    "name", ["sc:cleanup-audit-protocol", "task-builder", "sc:improve"]
 )
 def test_lookalike_skill_names_stay_none(tmp_path, name):
-    # T-SKL-1: names that only resemble an IMPL skill are NONE.
+    # T-SKL-1: names that only resemble an IMPL skill are NONE. 6.0.0 removed
+    # /sc:improve and the retire step removes installed copies; the old command
+    # never activated a skill, so a kept customized copy never reaches this branch.
     _bind(tmp_path, "worktree")
     _assert_decision(_run(_skill(name), tmp_path), tmp_path, None, "W")
 

@@ -36,12 +36,9 @@ This page is the per-command reference: exact syntax, options, and what each com
 | Command | Purpose | File | Changes files? |
 |---------|---------|------|----------------|
 | [`/sc:pm`](#scpm---project-manager-agent) | Project Manager agent | `pm.md` | Yes |
-| [`/sc:spawn`](#scspawn---meta-system-task-orchestration) | Decomposition Epic → Task | `spawn.md` | Report only (stops after the task breakdown; see its Critical Boundaries) |
 | [`/sc:task`](#sctask---enhanced-task-management) | One small, direct change (level 2) | `task.md` | Yes |
 | [`/sc:workflow`](#scworkflow---implementation-plan-generator) | Checked implementation plan (level 3, the default for planned work) | `workflow.md` | Only with `--handoff implement` |
 | `/sc:agent` | Session controller for investigate, build, review | `agent.md` | Yes |
-| `/sc:roadmap` | Roadmap artifacts from spec, TDD, PRD | `roadmap.md` | Report only |
-| `/sc:tasklist` | Sprint-ready tasklist bundles from roadmaps | `tasklist.md` | Report only |
 | `/sc:release-split` | Two-phase release split analysis | `release-split.md` | Report only |
 
 ### 2. DISCOVERY
@@ -58,7 +55,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 | [`/sc:implement`](#scimplement---feature-implementation) | Write code | `implement.md` | Yes |
 | [`/sc:design`](#scdesign---system-and-component-design) | Architecture, API, schemas | `design.md` | Report only |
 | `/sc:tdd` | Create or populate a Technical Design Document | `tdd.md` | Yes (writes the TDD into your repo, `docs/<domain>/TDD_<COMPONENT>.md` by default, or the `--output` path) |
-| `/sc:cli-portify` | Port workflows into programmatic CLI pipelines | `cli-portify.md` | Yes |
 
 ### 4. QUALITY
 
@@ -68,12 +64,10 @@ This page is the per-command reference: exact syntax, options, and what each com
 | [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` offers a `/sc:workflow` plan you run with `/sc:implement`; `--fix --depth deep` offers a `/task-builder` task file you run with `/task`) |
 | [`/sc:impact`](#scimpact---change-impact-report) | What depends on a symbol or a diff, from the code graph | `impact.md` | Report only |
 | [`/sc:test`](#sctest---testing) | Tests + coverage | `test.md` | Only with `--fix` |
-| [`/sc:build`](#scbuild---project-building) | Build project | `build.md` | Yes |
 | `/sc:adversarial` | Adversarial debate, compare, merge of artifacts | `adversarial.md` | Report only |
 | `/sc:auggie-review` | Auggie code review of PRs and diffs | `auggie-review.md` | Report only |
 | `/sc:cleanup-audit` | Read-only multi-pass repository cleanup audit | `cleanup-audit.md` | Report only |
 | `/sc:swarm-wizard` | Plain-language guide to the swarm CLI | `swarm-wizard.md` | Report only |
-| `/sc:validate-roadmap` | Validate roadmap pipeline outputs | `validate-roadmap.md` | Report only |
 | `/sc:validate-tests` | Validate tier classification against YAML specs | `validate-tests.md` | Report only |
 | `/sc:cli-eval` | Author or run cliEval eval suites | `cli-eval.md` | Yes |
 
@@ -81,7 +75,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 
 | Command | Purpose | File | Changes files? |
 |---------|---------|------|----------------|
-| [`/sc:improve`](#scimprove---code-improvement) | Refactoring, optimization | `improve.md` | Yes |
 | [`/sc:cleanup`](#sccleanup---code-cleanup) | Dead code, unused imports | `cleanup.md` | Yes |
 
 ### 6. DOCUMENTATION
@@ -90,10 +83,7 @@ This page is the per-command reference: exact syntax, options, and what each com
 |---------|---------|------|----------------|
 | [`/sc:explain`](#scexplain---code-explanation) | Code explanation | `explain.md` | No |
 | [`/sc:document`](#scdocument---documentation-generation) | Generate documentation | `document.md` | Yes |
-| [`/sc:index-repo`](#scindex-repo---repository-indexing) | Repository indexing | `index-repo.md` | Yes (writes `PROJECT_INDEX.md` and `PROJECT_INDEX.json` into your repo) |
-| `/sc:index` | Project documentation and knowledge base | `index.md` | Yes (generates project documentation in your repo) |
 | `/sc:post-release` | Sync docs and install surface after release | `post-release.md` | Yes |
-| `/sc:review-translation` | Localization review with quality scoring | `review-translation.md` | Yes |
 
 ### 7. EXPERT PANELS
 
@@ -108,8 +98,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 |---------|---------|------|----------------|
 | [`/sc:git`](#scgit---git-operations) | Git + smart commits | `git.md` | Yes |
 | [`/sc:reflect`](#screflect---tiered-reflection) | Pre/post-execution audit | `reflect.md` | Only with `--mode post` (moves the work folder on a pass unless you add `--no-promote`) |
-| `/sc:load` | Load project memory from `.superclaude/memory/` (not a resume method) | `load.md` | No |
-| `/sc:save` | Save project memory to `.superclaude/memory/` (not a resume method) | `save.md` | Report only |
 | `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
 | [`/sc:graph`](#scgraph---code-graph-index-status) | Code-graph index status; builds the index only on `init` | `graph.md` | Only with `init` |
 | [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt, then an Orca worktree and a launched agent) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
@@ -219,22 +207,6 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 
 ---
 
-### `/sc:cli-portify` - Workflow to CLI Pipeline Port
-
-**When to use:** Port an inference-based SuperClaude workflow (command, skills and agents) into a programmatic CLI pipeline with supervised execution. It does not modify the source skill files or run the generated pipeline.
-
-**Syntax:**
-
-```
-/sc:cli-portify --workflow <skill-name-or-path> [--name <cli-name>] [--output <dir>] [--dry-run]
-```
-
-**Review loop:** its spec review runs 1 convergence iteration (a focus pass and a critique pass). MINOR findings go to the spec's Open Items and never start another pass; if CRITICAL findings are still unaddressed after that iteration it stops with `status: partial` and escalates them to you.
-
-**MCP servers:** context7
-
----
-
 ### `/sc:graph` - Code-Graph Index Status
 
 **When to use:** Check whether this worktree's code-graph index is ready (codegraph version, pin match, index state, worktree relation, counts, pending files, telemetry and one next action). The session-start hook already starts indexing in every new checkout; type `/sc:graph init` only when it did not cover this worktree: a nested worktree that answers from its parent's index, the hook switched off with `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`, or an init that failed or was interrupted.
@@ -317,20 +289,6 @@ When codegraph, the index or its lookup tools are not usable, it falls back to G
 
 ---
 
-### `/sc:index` - Project Documentation
-
-**When to use:** Generate project documentation and a knowledge base with intelligent organization and cross-referencing. It does not override existing manual documentation without explicit permission.
-
-**Syntax:**
-
-```
-/sc:index [target] [--type docs|api|structure|readme] [--format md|json|yaml]
-```
-
-**MCP servers:** context7
-
----
-
 ### `/sc:init-lite` - Safe Context Audit
 
 **When to use:** Audit the project-local SuperClaude context surfaces (`CLAUDE.md`, `.mcp.json`, `.claude/` settings, commands, skills, agents), estimate their context weight, and write a non-destructive report under `.dev/superclaude/`. It never modifies those context inputs and writes nothing with `--dry-run`.
@@ -409,23 +367,6 @@ It posts directly to GitHub, without showing the comment or the issue body for a
 The task is found by the issue URL in its description or a custom field, or else by `#<N>` in its title, and is assigned only when exactly one task matches. The ClickUp result appears in the claim comment and never stops the claim: `not found`, `ambiguous (<count> candidates)`, `already assigned` and `error (<reason>)` all leave the GitHub assignment in place. `error (page_cap)` means the search reached `CLICKUP_MAX_PAGES` before it saw every task, so nothing was assigned; raise `CLICKUP_MAX_PAGES` or set `CLICKUP_LIST_IDS` and claim again.
 
 **MCP servers:** auggie, codegraph
-
----
-
-### `/sc:load` - Project Context Loading
-
-**When to use:** Load project memory from the `.superclaude/memory/` files (project context, memories and checkpoints) at the start of a session. It is not a way to resume work: to continue a task, rerun `/task <task file>` or `/sc:implement <plan path>`, or reopen a tagged session with `ccsession <name>` (see [How We Work](how-we-work.md), section 3.12). It does not modify project structure or configuration, or override existing session context without a checkpoint.
-
-- For 5.0.0 only, when `<project>/.superclaude/memory/<key>.md` is absent it reads the old `<project>/.serena/memories/<key>.md` instead, read-only: it never writes there and tells you that folder is read-only history.
-- It ends its summary by pointing you to `/sc:graph status` to see whether this worktree's code-graph index is ready; it never runs `/sc:graph` itself.
-
-**Syntax:**
-
-```
-/sc:load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]
-```
-
-**MCP servers:** none
 
 ---
 
@@ -588,118 +529,6 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 
 ---
 
-### `/sc:review-translation` - Localization Quality Review
-
-**When to use:** Review translation files for linguistic and cultural quality, with adversarial validation, real-world usage evidence and a scored, prioritized report. It implements fixes only on your explicit request and does not replace a professional human translator for high-stakes content.
-
-**Syntax:**
-
-```
-/sc:review-translation [source-file] [translation-files...] [flags]
-```
-
-**Options:**
-
-| Flag | Default | What it does |
-|------|---------|--------------|
-| `--strict` | off | Strict validation mode |
-| `--depth quick\|standard\|deep` | `standard` | Review depth |
-| `--tone-matrix` | off | Score tone on a measured scale |
-| `--platform steam\|playstation\|mobile\|web\|enterprise` | auto | Apply that platform's conventions |
-| `--export` | off | Also write a team handoff file |
-
-**Examples:**
-
-```bash
-/sc:review-translation english.json de_DE.json fr_FR.json es_ES.json
-/sc:review-translation source.json translations/*.json --depth deep --tone-matrix
-```
-
-**MCP servers:** tavily, context7
-
----
-
-### `/sc:roadmap` - Roadmap Generator
-
-**When to use:** Generate roadmap pipeline artifacts from one to three markdown inputs (spec, TDD and/or PRD), mirroring the `superclaude roadmap run` CLI. It does not generate tasklists, execute implementation, or modify the source files. It belongs to the separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`). For ordinary planning use `/sc:workflow`; `/roadmap` is the MDTM composer for when you explicitly select it (see [How We Work](how-we-work.md), section 5).
-
-**Syntax:**
-
-```
-/sc:roadmap [OPTIONS] INPUT_FILES...
-```
-
-`INPUT_FILES` is 1-3 markdown files (at most one spec, one TDD and one PRD), in any order.
-
-**Options:**
-
-| Flag | Default | What it does |
-|------|---------|--------------|
-| `--output <dir>` | folder of the first input | Where all artifacts go |
-| `--agents <specs>` | `opus:architect,sonnet:architect` | Agents for the generate and debate steps (`model[:persona]`) |
-| `--depth quick\|standard\|deep` | `standard` | Debate rounds (1, 2 or 3) |
-| `--resume` | off | Skip steps whose outputs already pass their gates |
-| `--dry-run` | off | Print the step plan and gate criteria, then exit |
-| `--no-validate` | off | Skip the validation step at the end |
-
-Full option list: `~/.claude/commands/sc/roadmap.md`.
-
-**Examples:**
-
-```bash
-/sc:roadmap spec.md tdd.md prd.md --output .dev/releases/current/example-release/
-/sc:roadmap spec.md --dry-run
-```
-
-**MCP servers:** none
-
----
-
-### `/sc:save` - Session Context Persistence
-
-**When to use:** Save session context, learnings and checkpoints to project memory in `.superclaude/memory/` so a later session can read them with `/sc:load`. It is not a way to resume work (see [How We Work](how-we-work.md), section 3.12). It does not override existing session context without checkpoint preservation.
-
-**Syntax:**
-
-```
-/sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]
-```
-
-**MCP servers:** none
-
----
-
-### `/sc:spawn` - Meta-System Task Orchestration
-
-**When to use:** Break a large job into parts with dependencies; it stops after the task breakdown. For work that changes code, use `/sc:workflow` then `/sc:implement` instead (level 3 in [How We Work](how-we-work.md)).
-
-**What it does:**
-
-- Breaks down Epic → Story → Task → Subtask
-- Selects strategy: sequential/parallel/adaptive
-- Coordinates dependencies between tasks
-
-**Syntax:**
-
-```
-/sc:spawn [complex-task] [--strategy sequential|parallel|adaptive] [--depth normal|deep]
-```
-
-**Examples:**
-
-```bash
-# Decompose a large job into a task hierarchy (no code is changed)
-/sc:spawn "plan the move of the reporting jobs to the new scheduler" --strategy adaptive --depth deep
-# Breakdown: Epic → Story → Task → Subtask, with dependencies
-```
-
-**Difference from `/sc:task`:**
-
-- spawn = decomposition (breaking down)
-- task = execution (doing work)
-
----
-
 ### `/sc:swarm-wizard` - Guided Swarm Launcher
 
 **When to use:** Run the `superclaude swarm` multi-model review without being a swarm expert: it interviews you about what to review and why, picks the lens and flags, proves the pipeline with a stub dry-run, then asks before launching a real run and summarizes the outcome. It never launches a real-model run without your go-ahead and a passing dry-run.
@@ -783,22 +612,6 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 
 ---
 
-### `/sc:tasklist` - Tasklist Generator
-
-**When to use:** Turn a roadmap into a deterministic, Sprint CLI-compatible tasklist bundle and validate it against the source roadmap. It does not modify the roadmap or run `superclaude sprint run`.
-
-**Syntax:**
-
-```
-/sc:tasklist <roadmap-path> [--spec <spec-path>] [--output <output-dir>] [--no-reflect]
-```
-
-**Review loop:** only High and Medium validation findings are blocking and get patched; Low findings are listed as notes and are never patched or re-checked. The patch loop runs at most one re-patch pass, then stops and escalates any open blocking findings to you instead of shipping them.
-
-**MCP servers:** context7
-
----
-
 ### `/sc:tdd` - Technical Design Document Creator
 
 **When to use:** Create or populate a Technical Design Document for a component, service or system, researched from the actual codebase and optionally translated from a PRD. It designs only; it does not implement the system.
@@ -827,43 +640,6 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 ```
 
 **MCP servers:** context7, `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)
-
----
-
-### `/sc:validate-roadmap` - Roadmap Pipeline Output Validator
-
-**When to use:** Validate the `roadmap.md`, `test-strategy.md` and `extraction.md` produced by a prior `superclaude roadmap run`, with single-agent reflection or, for two or more agents, an adversarial merge. It writes only to `<OUTPUT_DIR>/validate/`, never modifies the inputs, and always exits 0 with findings printed to the console.
-
-**Syntax:**
-
-```
-/sc:validate-roadmap <roadmap-path> --specs <spec1.md,spec2.md,...> [options]
-```
-
-The command hands its arguments to the `sc-validate-roadmap-protocol` skill, which needs the roadmap file and the spec files it was built from. It is a read-only audit and writes its findings to `<roadmap-dir>/validation/` unless you pass `--output`.
-
-**Options:**
-
-| Flag | Default | What it does |
-|------|---------|--------------|
-| `--specs <files>` | required | Comma-separated spec files the roadmap must satisfy (1-10) |
-| `--output <dir>` | `<roadmap-dir>/validation/` | Where the validation artifacts go |
-| `--depth quick\|standard\|deep` | `standard` | How thorough the analysis is |
-| `--exclude <domains>` | none | Comma-separated domains to leave out |
-| `--max-agents <n>` | `20` | Maximum parallel agents (4-20) |
-| `--skip-adversarial` | off | Skip the adversarial pass |
-| `--skip-remediation` | off | Skip the remediation plan |
-| `--report <path>` | none | Also write a summary to this path |
-| `--prior-taxonomy <file>` | none | Seed domain clustering from a prior `00-domain-taxonomy.md` |
-
-**Examples:**
-
-```bash
-/sc:validate-roadmap .dev/releases/current/v2/roadmap.md --specs docs/specs/billing-tdd.md
-/sc:validate-roadmap ./roadmap.md --specs spec-a.md,spec-b.md --depth deep
-```
-
-**MCP servers:** auggie, codegraph
 
 ---
 
@@ -911,12 +687,12 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 - Creates a new package `.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/` (`<subject>` = lower camelCase, max 16 chars, e.g. `authLogin`) with `<id>.md` (schema `workflow-plan/1.2`), a `source.md` snapshot and `return-contract.yaml`; never overwrites an existing package
 - Checks the plan against your request when it is written (`/sc:reflect --mode pre`, advisory) and prints the result with the plan path
 - Run it with `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (not MDTM `/task`); on completion `/sc:implement` archives the package to `.dev/tasks/done/` on Linux; on any other system (including macOS) the archive is refused on purpose, the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand
-- **Does NOT implement code** and does **not** emit sprint tasklists
+- **Does NOT implement code**
 
 **Syntax:**
 
 ```
-/sc:workflow <path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement|tasklist]
+/sc:workflow <path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement]
 ```
 
 `--depth shallow|normal`, `--parallel` and the retired `--output` are `E-LEGACY` (use `quick|standard`, omit `--parallel`; every plan goes to a new `.dev/tasks/to-do/<id>/` package, there is no destination override).
@@ -944,7 +720,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 - Auto-routes codebase + research enrichment (`/sc:analyze`, `/sc:research`, `tech-research`)
 - Composes a `--agents` spec spanning 3 model aliases × domain-detected personas (in a ccsession tier workspace the launcher sets each `ANTHROPIC_DEFAULT_*_MODEL` for a tier the owner may use, so the matching aliases `opus`, `sonnet` and `haiku` map to `claude-gw-tier1a`, `claude-gw-tier1b` and `claude-gw-tier2`; see [model-aliases](../reference/model-aliases.md))
 - Delegates to `/sc:adversarial` for N parallel proposals + debate + merge → `merged-requirements.md`
-- Optionally hands off to `/sc:design`, `/sc:tasklist`, or `/task-builder`
+- Optionally hands off to `/sc:design` or `/task-builder`
 
 **Syntax:**
 
@@ -954,7 +730,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
   [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
   [--personas p1,p2,...] [--models opus,sonnet,haiku] \
   [--blind] [--convergence FLOAT] [--interactive] \
-  [--handoff none|design|tasklist|task] [--output DIR] \
+  [--handoff none|design|task] [--output DIR] \
   [--dry-run] [--resume-from PATH] [--force-stale]
 ```
 
@@ -967,8 +743,8 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 # Deep incident post-mortem
 /sc:brainstorm "deployment broke staging at 3am" --depth deep --strategy systematic
 
-# Product idea with research + full handoff to sprint planning
-/sc:brainstorm "AI-powered changelog summarizer" --strategy agile --handoff tasklist
+# Product idea with research + full handoff to a task file
+/sc:brainstorm "AI-powered changelog summarizer" --strategy agile --handoff task
 
 # Blind multi-model comparison (strips model identity before scoring)
 /sc:brainstorm "consolidate three duplicate auth modules" --depth deep --blind --proposals 4
@@ -1137,34 +913,6 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 
 ---
 
-### `/sc:improve` - Code Improvement
-
-**When to use:** Code works, but you want to make it better in a small, contained area. Commit first and review `git diff` afterwards; for a large or structural refactor, write a spec, run `/sc:workflow`, then `/sc:implement` (see [How We Work](how-we-work.md), section 3.7).
-
-**What it does:**
-
-- Quality refactoring
-- Performance optimization
-- Maintainability improvements
-- Technical debt reduction
-
-**Syntax:**
-
-```
-/sc:improve [target] [--type quality|performance|maintainability|style] [--safe] [--interactive]
-```
-
-**Examples:**
-
-```bash
-/sc:improve src/ --type quality --safe
-/sc:improve api-endpoints --type performance --interactive
-```
-
-**MCP servers:** context7
-
----
-
 ### `/sc:cleanup` - Code Cleanup
 
 **When to use:** Need to remove dead code and unused imports. Run `/sc:cleanup-audit` first, commit, then clean up and review `git diff` afterwards (see [How We Work](how-we-work.md), section 3.7).
@@ -1223,35 +971,6 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 
 ---
 
-### `/sc:build` - Project Building
-
-**When to use:** Need to build the project.
-
-**What it does:**
-
-- Compilation
-- Bundling
-- Optimization
-- Error analysis
-
-**Syntax:**
-
-```
-/sc:build [target] [--type dev|prod|test] [--clean] [--optimize] [--verbose]
-```
-
-**Examples:**
-
-```bash
-/sc:build
-/sc:build --type prod --clean --optimize
-/sc:build frontend --verbose
-```
-
-**MCP servers:** playwright
-
----
-
 ### `/sc:explain` - Code Explanation
 
 **When to use:** Need to understand how code works.
@@ -1304,32 +1023,6 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 /sc:document src/auth/login.js --type inline
 /sc:document src/api --type api --style detailed
 /sc:document payment-module --type guide --style brief
-```
-
----
-
-### `/sc:index-repo` - Repository Indexing
-
-**When to use:** Starting work with a large repository.
-
-**What it does:**
-
-- Creates `PROJECT_INDEX.md` (3KB instead of 58KB)
-- 94% token savings
-- Entry points, modules, tests, dependencies
-
-**Syntax:**
-
-```
-/sc:index-repo [mode=update|quick]
-```
-
-**Examples:**
-
-```bash
-/sc:index-repo                # Full indexing
-/sc:index-repo mode=update    # Update existing
-/sc:index-repo mode=quick     # Quick (without tests)
 ```
 
 ---
@@ -1542,7 +1235,7 @@ TALEB: "The real question: does this benefit from uncertainty?"
 
 #### `superclaude reflect run` (CLI auto-fix wrapper)
 
-**When to use:** Run the post-execution reflect gate non-interactively (CI, sprint hooks, headless pipelines) when you want a fail-closed exit code and, optionally, a bounded auto-fix loop. This is the CLI **engine**, distinct from the `/sc:reflect` **skill** above.
+**When to use:** Run the post-execution reflect gate non-interactively (CI, hooks, headless pipelines) when you want a fail-closed exit code and, optionally, a bounded auto-fix loop. This is the CLI **engine**, distinct from the `/sc:reflect` **skill** above.
 
 **Engine vs. skill:** The wrapper does not re-implement reflection. It launches `/sc:reflect --mode post` as a **top-level `claude --print` subprocess** (so Tier-2 heterogeneous fan-out is preserved — a nested call would collapse it), parses the resulting `return-contract.yaml`, derives a fail-closed 4-state verdict, and writes a `reflect_post:` block back into the task file's frontmatter. The process exit code is the verdict code: **pass `0`, halted `10`, degraded `11`, blocked `2`**. Only a clean, full, non-degraded Tier-2 pass exits `0`.
 

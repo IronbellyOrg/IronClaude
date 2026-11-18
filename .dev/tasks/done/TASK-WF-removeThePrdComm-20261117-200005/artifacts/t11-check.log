@@ -1,0 +1,13 @@
+$ git grep -n "superclaude prd" guide
+none
+$ context around the cut
+# Minimal — topic only (broader, less actionable output)
+/prd Write a PRD for the platform.
+```
+
+---
+
+## 3) The 7-Phase Multi-Agent Pipeline
+
+$ grep heading
+137:## 3) The 7-Phase Multi-Agent Pipeline

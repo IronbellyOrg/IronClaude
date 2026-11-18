@@ -1,6 +1,6 @@
 """Git-worktree replay helper for the E1-E5 differential backtest.
 
-Mirrors the ``src/superclaude/cli/sprint/process.py`` subprocess seam: ``subprocess`` is
+Subprocess seam: ``subprocess`` is
 imported module-top as ``_subprocess`` so unit tests can patch
 ``tests.troubleshoot.backtest.git_replay._subprocess.run`` and exercise the
 checkout -> yield -> guaranteed-teardown control flow with zero real git side effects.

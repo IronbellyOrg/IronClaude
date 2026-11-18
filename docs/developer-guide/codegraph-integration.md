@@ -61,10 +61,11 @@ For the user-facing view, see [codegraph user guide](../user-guide/codegraph.md)
 
 ## Sequencing inside `superclaude install`
 
-- codegraph is step 8 of `superclaude install`, after the framework steps 1 to 7 (`main.py:239-253`). The `--help` text states it is a required user-level phase and that `--force` is not forwarded to it (`main.py:50-52`).
-- A failure, or any exception in the phase, keeps the framework work already done, still runs the retire step, and makes the command exit 1 (`main.py:247-253,269-280`).
-- Step 9 is the retire step; it counts codegraph as ready only when step 8 passed in this run and `codegraph_ready()` agrees (`main.py:255-267`).
-- `superclaude update` does not run the codegraph phase or change any MCP registration; it only prints the retire notice when something is removable (`main.py:334-429`, notice at `main.py:407-415`).
+- codegraph is step 8 of `superclaude install`, after the framework steps 1 to 7 (`main.py:241-255`). The `--help` text states it is a required user-level phase and that `--force` is not forwarded to it (`main.py:50-52`).
+- A failure, or any exception in the phase, keeps the framework work already done, still runs the retire step, and makes the command exit 1 (`main.py:249-255,285-296`).
+- Step 9 is the MCP retire step; it counts codegraph as ready only when step 8 passed in this run and `codegraph_ready()` agrees (`main.py:257-269`).
+- Step 10 retires commands, skills and agents a release no longer ships (`install_retired_files.py`, data from `install_retired_data.py`); it is non-fatal in the same way (`main.py:271-283`) and `superclaude update` runs it too (`main.py:427-437`).
+- `superclaude update` does not run the codegraph phase or change any MCP registration; it only prints the retire notice when something is removable (`main.py:350-461`, notice at `main.py:439-447`).
 
 ## SessionStart auto-index hook
 
@@ -98,7 +99,7 @@ For the user-facing view, see [codegraph user guide](../user-guide/codegraph.md)
 The retire step removes old MCP registrations IronClaude can prove it wrote (`install_retired_mcp.py:1-10`).
 
 - **Scope and bounds.** Only top-level user-scope entries are read and removed, with `claude mcp remove <name> --scope user`; 10 s per `claude` call and 15 s for the whole step (`install_retired_mcp.py:34-35,393-395`; `install_mcp.py:809-851`). Each entry is re-read and re-matched right before removal and checked again after; nothing is retried (`install_mcp.py:816-823`).
-- **Exit code.** No outcome changes the install exit code; the caller wraps the step in `try/except` (`main.py:255-267`; `install_retired_mcp.py:391`).
+- **Exit code.** No outcome changes the install exit code; the caller wraps the step in `try/except` (`main.py:257-269`; `install_retired_mcp.py:391`).
 - **Tier R (provable shapes).** Three Serena argv rows that only IronClaude or its pre-fork ancestor wrote are always removed (`install_retired_mcp.py:54-89,190-192`). A codebase-memory-mcp entry counts when its command is an absolute path named `codebase-memory-mcp`, with stdio, no args and no `env` or `headers` (`install_retired_mcp.py:151-175`).
 - **Tier K (kept).** Any other plain Serena launcher, including the current-pin `serena-agent==1.7.0` registration, is kept with the removal command printed, until codegraph is ready (`install_retired_mcp.py:91-95,193-195`; `CHANGELOG.md:113`). Entries with non-empty `env` or `headers` are kept as customised (`install_retired_mcp.py:147-148,188-189`).
 - **When codegraph is ready.** Removal widens to any plain Serena launcher, every renamed launcher except `serena-local`, and the kind-B codebase-memory registration whose binary still exists; the binary and its companions stay (`install_retired_mcp.py:27-30,163-171,259-290`).

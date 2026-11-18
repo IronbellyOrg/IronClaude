@@ -4,8 +4,7 @@ Exposes the deterministic-helper surface the ``sc-recommend`` skill shells out
 to between Agent calls: lookup-cache read/write (``cache get`` / ``cache put``),
 telemetry append (``telemetry append``), and the opt-in ``--eval`` pipeline
 (``eval run``). Heavy imports are deferred inside each command body to keep
-``superclaude --help`` fast, mirroring the ``cli/tasklist`` precedent
-(``commands.py:96``). The hot/cold dispatch orchestration itself lives in skill
+``superclaude --help`` fast. The hot/cold dispatch orchestration itself lives in skill
 prose; this module owns only the file/eval operations.
 
 The precise subcommand set that *owns dispatch* is contingent on the Phase 2
@@ -38,7 +37,7 @@ def recommend_group() -> None:
     Backs the ``sc-recommend`` skill's hot/cold-path dispatch with file and
     eval operations a Haiku subagent cannot perform (writing files, hashing,
     aggregation). The skill shells to these subcommands via
-    ``Bash(uv run python -m superclaude.cli.recommend ...)``.
+    ``Bash(uv run superclaude recommend ...)``.
 
     Examples:
         superclaude recommend cache get spec-generation

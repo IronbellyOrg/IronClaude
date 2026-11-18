@@ -1,0 +1,26 @@
+{
+  "id": "d0faaa29-d28a-484e-83fe-bfc9f885dac8",
+  "ok": true,
+  "result": {
+    "outcome": {
+      "kind": "terminal",
+      "handle": "term_0e9844ce-baa7-45a0-a432-0d8c4cbe4f1b",
+      "paneKey": "4de1ce6f-a5a6-4ff4-ac91-730aa4a46af0:c5eb5b39-8bfc-43a5-a08d-8ffe64d8def3"
+    },
+    "worktreeId": "e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/v6-index",
+    "receipt": {
+      "mode": "terminal",
+      "preferred": "terminal",
+      "reason": "requested",
+      "detail": "Started a terminal agent, as requested."
+    },
+    "prompt": {
+      "delivery": "submit",
+      "outcome": "handed-to-terminal"
+    },
+    "operationId": "1794962382968-57c6f48c15d14a9082c80c7f3a40abf2"
+  },
+  "_meta": {
+    "runtimeId": "bba2834a-030a-46d1-9df4-c209fe806804"
+  }
+}

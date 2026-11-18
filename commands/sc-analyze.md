@@ -95,4 +95,4 @@ Key behaviors:
 - Performance issues
 - Recommendations
 
-**Next Step**: After review, use `/sc:sc:improve` to apply recommended fixes or `/sc:sc:cleanup` for dead code removal.
+**Next Step**: After review, use `/sc:sc:cleanup` for dead code removal.

@@ -1,0 +1,7 @@
+$ cmp cap fixture vs .dev copy; cmp sweep fixture vs .dev copy
+cmp-identical
+$ row counts
+cap rows 160
+sweep rows 137
+$ git grep -n cli/prd (fixtures and copies)
+none

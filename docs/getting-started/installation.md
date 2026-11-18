@@ -67,6 +67,12 @@ See [Upgrading](upgrading.md) for the full steps. Do not use `superclaude update
 for this: it refreshes the files but never installs codegraph or retires old MCP
 registrations.
 
+Both commands (and `./update.sh`, which runs `superclaude install --force`) also
+remove the commands, skills and agents the release no longer ships, but only
+copies IronClaude can prove it wrote (byte-identical to the file a release
+shipped). Anything you edited or added is kept, and the installer prints the reason
+and the command that removes it. Details: [Upgrading](upgrading.md#commands-skills-and-agents-a-release-no-longer-ships).
+
 The refresh preserves unrelated user hook registrations, refreshes
 framework-owned hooks by command identity, and makes SubagentStart policy
 injection synchronous. Start a new Claude Code session after installing or
@@ -279,7 +285,7 @@ From a source checkout, `superclaude` lives in `.venv`. Prefix it with `uv run`
 
 | Option | Command | Description |
 |--------|---------|-------------|
-| `--target <dir>` | `superclaude install --target <dir>` | Where to install commands (default: `~/.claude/commands/sc`) |
+| `--target <dir>` | `superclaude install --target <dir>` | Where to install commands (default: `~/.claude/commands/sc`); the retire step cleans this folder |
 | `--force` | `superclaude install --force` | Overwrite existing files |
 | `--list` | `superclaude install --list` | List available and installed components |
 
