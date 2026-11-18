@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-refactorScIssueC-20261118-041634
+plan_path: ./TASK-WF-refactorScIssueC-20261118-041634.md
+source_path: ./source.md
+source_origin: inline, amended 2026-11-18 after the advisory review (revision 2)
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/RefactorIssueClaimPipeline/.dev/reflect/pre-refactorScIssueC-20261118042013/REPORT.md
+unresolved:
+  - "Revision 4 (2026-11-18) is the plan: it applies the three medium findings and the notes of a third fresh checker (artifacts/rev4-check.md; revision 3 is artifacts/plan-rev3-before-checker-c.md, change set artifacts/plan-rev3-to-rev4.diff). Revision 4 itself has no further check. Earlier history: revision 3 was the plan. Revision 2 applied recommendations R-001 to R-005 of the advisory review of revision 1 (reflect_report_path, verdict FAIL: one blocking finding, four medium); revision 1 is artifacts/plan-rev1-before-review.md and its change set artifacts/plan-rev1-to-rev2.diff. Revision 3 fixes the two defects a second fresh checker found in revision 2 (artifacts/rev3-check.md; revision 2 is artifacts/plan-rev2-before-checker-b.md, change set artifacts/plan-rev2-to-rev3.diff). The review report describes revision 1. Checks after it were targeted, not full reflect runs; revision 3 itself has no third check."

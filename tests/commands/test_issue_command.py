@@ -110,7 +110,7 @@ def test_option_defaults():
         rows[f][1] == "create" for f in ("--create", "--depth", "--mode", "--type")
     )
     assert rows["--pipeline"][1] == rows["--submit"][1] == "claim"
-    assert rows["--pipeline"][2] == "`worktree`"
+    assert rows["--pipeline"][2] == "`full` or `worktree`, picked from the issue"
     assert rows["--submit"][2] == "off"
     assert rows["--submit"][3] == "no value"
     assert "`--pipeline full`" in rows["--submit"][4]
@@ -177,6 +177,24 @@ def test_claim_outputs_and_examples_cover_the_new_flags():
     ):
         assert example in text.splitlines()
     assert "E-ORCA-REQUIRED" in text
+
+
+def test_default_level_is_for_a_person_and_the_watcher_stays_explicit():
+    text = _text()
+    assert "always passes `--pipeline none`" in text
+    assert "/sc:issue --claim 302 --pipeline worktree" in text.splitlines()
+    assert "an explicit `--pipeline` always wins" in text
+    assert "`refs/claim.md`" in text
+    assert "even though `full` is the default" not in text
+
+
+def test_submit_rule_stops_a_bare_submit_and_keeps_its_message():
+    text = _text()
+    stops = text.index("## STOP rules")
+    rules = text[stops : text.index("\n## ", stops + 1)]
+    rule = next(ln for ln in rules.splitlines() if "E-SUBMIT-NEEDS-FULL" in ln)
+    assert "no `--pipeline`" in rule
+    assert '"--submit needs --pipeline full"' in rule
 
 
 def test_activation_names_the_skill():

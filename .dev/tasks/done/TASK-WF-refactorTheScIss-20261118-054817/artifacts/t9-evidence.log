@@ -1,0 +1,16 @@
+# T9 evidence (orchestrator ran these)
+make sync-dev:
+   Hooks:     17 files
+   Templates: 52 files
+make verify-sync:
+
+✅ All components in sync.
+verify-sync exit=0
+tests:
+
+============================ 3604 passed in 24.96s =============================
+staging:
+staged paths under .claude/: 0
+staged .dev/tasks files for this package: 27
+unstaged .dev/tasks changes: 0
+tests command (run before the staging block above): PYTHONDONTWRITEBYTECODE=1 uv run pytest -q tests/commands/test_issue_command.py tests/skills/test_issue_protocol.py tests/skills/test_model_alias_policy.py tests/skills/test_worker_contract.py tests/issue_watch

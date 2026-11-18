@@ -1,0 +1,1 @@
+A2 fix pass for F1.1: restored the original B17 text and appended "Amended 2026-11-18: ..." inside the same cell of docs/designs/sc-issue-command.md. Family probe (amend-vs-rewrite): every other line removed by the T8 diff only gained appended text, except line 494 whose rewording the task requires.
