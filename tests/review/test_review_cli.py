@@ -129,6 +129,7 @@ def test_panel_resolve_default_falls_back_to_classic_when_a_tier_file_lacks_tier
     assert res.exit_code == 0, res.output
     assert "does not define tier5a, tier5b, tier5c" in res.output
     assert "Falling back to the 'classic' panel" in res.output
+    assert '"template_id": "classic"' in res.output
     # An explicit template is never replaced: it still fails.
     explicit = run(
         "review",
