@@ -34,7 +34,7 @@ State key: NOT STARTED, RUNNING (agent working), GREEN (agent stopped, checks gr
 | 4 | 4: cli-portify | `clayphi/v6-cli-portify` | MERGED | [#629](https://github.com/IronbellyOrg/IronClaude/pull/629) | 27598 passed, 1 failed (agent baseline) / 26702 passed, 1 failed (896 tests removed: 868 in `tests/cli_portify`, 3 `PortifyProcess` tests, 25 worker-contract and routing cases; the failure was already failing before). CI `Test on Python 3.10`: success | 2026-11-18 00:25Z, `956f49642` |
 | 5 | 9: `/sc:index` and `/sc:index-repo` | `clayphi/v6-index` | MERGED | [#631](https://github.com/IronbellyOrg/IronClaude/pull/631) | 26703 passed, 0 failed (agent baseline) / 26677 passed, 3 failed (23 tests removed on purpose; the 3 failures are the known `test_install_keep` one and two load-sensitive tests that pass alone). CI `Test on Python 3.10`: success | 2026-11-18 01:22Z, `f7af90156` |
 | 5 | 11: roadmap, tasklist, sprint | `clayphi/v6-roadmap-family` | MERGED | [#632](https://github.com/IronbellyOrg/IronClaude/pull/632) | 26702 passed, 1 failed (agent baseline) / 22607 passed, 1 failed (4112 tests removed, 17 added; the failure was already failing before; 605 files changed, +2487 -148187). CI `Test on Python 3.10`: success | 2026-11-18 02:05Z, `af5fb69eb` |
-| 6 | 12: the retire step (new code) | `clayphi/v6-retire-step` | NOT STARTED | | | |
+| 6 | 12: the retire step (new code) | `clayphi/v6-retire-step` | RUNNING (agent started 2026-11-18 02:07Z) | | | |
 | Release | Release preparation (version, changelog, release notes) into `integration` | `clayphi/release-6.0.0` | NOT STARTED | | | |
 | Release | Release PR, `integration` to `master` | `integration` | NOT STARTED | | | |
 
@@ -55,6 +55,7 @@ Dropped: PR 3 (swarm), by Ryan on 2026-11-17 13:06.
 | Wave 3 | Already up to date (GitHub 204); `integration` at `551d5ad38` | 2026-11-17 22:17Z |
 | Wave 4 | Already up to date (GitHub 204); `integration` at `da12c4d76` | 2026-11-17 23:54Z |
 | Wave 5 | Already up to date (GitHub 204); `integration` at `956f49642` | 2026-11-18 00:26Z |
+| Wave 6 | Merged, GitHub 201, `integration` now `15d4180b7` (was `af5fb69eb`) | 2026-11-18 02:06Z |
 
 ## 5. Waves reported
 
@@ -64,6 +65,7 @@ Dropped: PR 3 (swarm), by Ryan on 2026-11-17 13:06.
 | Wave 2 | https://github.com/IronbellyOrg/IronClaude/issues/571#issuecomment-6962595146 | sent 2026-11-17 22:17Z |
 | Wave 3 | https://github.com/IronbellyOrg/IronClaude/issues/571#issuecomment-6964532968 | sent 2026-11-17 23:54Z |
 | Wave 4 | https://github.com/IronbellyOrg/IronClaude/issues/571#issuecomment-6965128936 | sent 2026-11-18 00:26Z |
+| Wave 5 | https://github.com/IronbellyOrg/IronClaude/issues/571#issuecomment-6966824624 | sent 2026-11-18 02:07Z |
 
 ## 6. Gate on the release PR's merge commit (G1 to G9)
 
