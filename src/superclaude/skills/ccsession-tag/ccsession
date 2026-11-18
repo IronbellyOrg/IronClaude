@@ -29,6 +29,26 @@
 #                             repo's other worktrees (names are shared by every
 #                             worktree, branch and copy of a repo)
 #   ccsession --here --all    List the sessions of every worktree of this repo
+#   ccsession --list --agents, ccsession --here --agents [--all]
+#                             --list, --here and the new-tab question hide the
+#                             sessions an agent named (an auto-name, CCSESSION_NAME,
+#                             a worker's launch) and end with "N agent sessions
+#                             hidden"; --agents shows them ("+" at the question)
+#   ccsession --mark <name> <agent|human>
+#                             Set who named the session saved under <name> in this
+#                             repo's list (the only way to change a "human" marker)
+#   ccsession --classify [--apply]
+#                             Sessions saved before the markers existed are unmarked
+#                             (shown, never pruned). Mark as agent those whose every
+#                             name ends in the --auto-name stamp (-MMDD-HHMMSS-xxxx);
+#                             a dry run that prints the counts unless --apply
+#   ccsession --prune [--apply] [--days N]
+#                             Delete agent-saved sessions not changed in more than N
+#                             days (CCSESSION_AGENT_KEEP_DAYS, else 30; never fewer
+#                             than 30) with their names, and names whose conversation
+#                             is gone. Lists what it would delete and deletes nothing
+#                             unless --apply. Never touches an unmarked or human
+#                             session or the running one (CLAUDE_SESSION_ID)
 #   ccsession --rm <topic>    Delete a label (does NOT delete the underlying JSONL)
 #   ccsession --key           Print the name-list key for this folder
 #   ccsession --migrate-names Copy names saved per folder (older versions) into
@@ -389,6 +409,84 @@ session_saved() {
   compgen -G "$PROJECTS_DIR/*/$1.jsonl" >/dev/null
 }
 
+# Who chose a session's name: <list>/.origin/<session id> holds one line, "human"
+# or "agent". Only the hook's --sync-name (new session at startup, or a rename)
+# and --mark and --classify write one; a session with no file is unmarked and
+# counts as human everywhere (listed, never pruned).
+read_origin() {
+  # <list> <session id>: sets ORIGIN_READ to human, agent or "" (a shell
+  # builtin only, so a listing can call it per row without a process).
+  local f="$1/.origin/$2"
+  ORIGIN_READ=""
+  [ -f "$f" ] || return 0
+  IFS= read -r ORIGIN_READ < "$f" 2>/dev/null || true
+  case "$ORIGIN_READ" in human | agent) ;; *) ORIGIN_READ="" ;; esac
+  return 0
+}
+
+write_origin() {
+  # <list> <session id> <human|agent>: replace the marker atomically. The
+  # caller holds the list's lock.
+  local d="$1/.origin" f
+  # A linked .origin would send the marker to wherever the link points.
+  if [ -L "$d" ]; then
+    echo "ccsession: $d is a symlink; no marker written" >&2
+    return 1
+  fi
+  mkdir -p "$d" || return 1
+  f=$(mktemp "$d/.ccsession-origin.XXXXXX") || return 1
+  printf '%s\n' "$3" > "$f" && mv -f "$f" "$d/$2" || { rm -f "$f"; return 1; }
+}
+
+name_known_elsewhere() {
+  # <session id> <name file base> <this list>: true when the session already
+  # has this name in another list (<base>.txt, or <base>-N.txt for a name taken
+  # when it was saved), by the session id inside the file. Used only on the
+  # rare path where a new name reaches the hook at a prompt or at session end.
+  local d f line n
+  for d in "$PROJECTS_DIR"/*/topics; do
+    [ -d "$d" ] && [ "$d" != "$3" ] || continue
+    for f in "$d/$2.txt" "$d/$2"-{2..20}.txt; do
+      [ -f "$f" ] || continue
+      line=""
+      IFS= read -r line < "$f" 2>/dev/null || true
+      [ "$line" = "$1" ] && return 0
+    done
+  done
+  return 1
+}
+
+mark_session() {
+  # ccsession --mark <name> <agent|human>: set the marker of the session saved
+  # under <name> in this repo's list. The only command that can lower human.
+  local name="${1:-}" value="${2:-}" dir file session
+  case "$value" in agent | human) ;; *)
+    echo "Usage: ccsession --mark <name> <agent|human>" >&2
+    return 2
+    ;;
+  esac
+  validate_label "$name" >/dev/null || return 2
+  dir="$PROJECTS_DIR/$(name_key)/topics"
+  file="$dir/$(name_to_file "$name").txt"
+  if [ ! -f "$file" ]; then
+    echo "No label '$name' in this workspace." >&2
+    return 1
+  fi
+  session=""
+  IFS= read -r session < "$file" 2>/dev/null || true
+  case "$session" in '' | *[!A-Za-z0-9_-]*)
+    echo "ccsession: the name '$name' does not hold a valid session id" >&2
+    return 2
+    ;;
+  esac
+  lock_list "$dir" || return 1
+  write_origin "$dir" "$session" "$value"
+  local status=$?
+  exec 9>&-  # releases the lock
+  [ "$status" = 0 ] && echo "Marked '$name' as $value."
+  return "$status"
+}
+
 note_repo() {
   # <list folder>: keep the repo's name in <list>/.repo, next to .cwd, so
   # --list can head the list with it even after the worktree that wrote .cwd is
@@ -403,8 +501,13 @@ note_repo() {
   return 0
 }
 
+# What the hook says about this call (set by the --sync-name dispatch below; the
+# empty default keeps every other caller, which writes no marker, as it was).
+SYNC_EVENT="" SYNC_SOURCE="" SYNC_ORIGIN=""
+
 sync_name() {
-  # ccsession --sync-name <session id> <name> [--keep-others|--check-others]:
+  # ccsession --sync-name <session id> <name> [--keep-others|--check-others]
+  #   [-- --event <E> [--source <S>] [--origin <human|agent>]]:
   # make <name> the session's name in the list of the repo in the current
   # folder. Called by the hooks whenever Claude Code reports a name
   # (ccsession's own --name, or /rename). When the name is new, the session's
@@ -462,7 +565,7 @@ while True:
 }
 
 sync_name_locked() {
-  local session="$1" name="$2" keep="$3" dir="$4" base file f other n changed=0
+  local session="$1" name="$2" keep="$3" dir="$4" base file f other n changed=0 saved_here=0
   base=$(name_to_file "$name")
   file="$base"
   n=1
@@ -479,6 +582,30 @@ sync_name_locked() {
     printf '%s\n' "$session" > "$f" && mv -f "$f" "$dir/$file.txt" ||
       { rm -f "$f"; return 1; }
     changed=1
+  else
+    saved_here=1  # decided before this call wrote anything
+  fi
+  # The marker, only for the hook's call (it gives --event). Two writes, and
+  # nothing else ever writes agent: a new session (SessionStart, source startup)
+  # takes the launch's origin; a name that is new for the session at a prompt or
+  # at its end is a person's /rename and is human, whichever list holds an older
+  # name. A resume, a name the session already has, and every call without
+  # --event write nothing. The clean-up of older names below never decides it.
+  if [ -n "$SYNC_EVENT" ]; then
+    read_origin "$dir" "$session"
+    case "$SYNC_EVENT" in
+      SessionStart)
+        if [ "$SYNC_SOURCE" = startup ] && [ -n "$SYNC_ORIGIN" ] && [ -z "$ORIGIN_READ" ]; then
+          write_origin "$dir" "$session" "$SYNC_ORIGIN" || true
+        fi
+        ;;
+      UserPromptSubmit | SessionEnd)
+        if [ "$saved_here" = 0 ] && [ "$ORIGIN_READ" != human ] &&
+          ! name_known_elsewhere "$session" "$base" "$dir"; then
+          write_origin "$dir" "$session" human || true
+        fi
+        ;;
+    esac
   fi
   if [ "$keep" != --keep-others ] && { [ "$changed" = 1 ] || [ "$keep" = --check-others ]; }; then
     for f in "$dir"/*.txt; do
@@ -743,8 +870,57 @@ case "${1:-}" in
     [ -f "$CLAUDE_NAMES_IMPORTED" ] || import_claude_names 2>/dev/null || true
     exit 0
     ;;
+  --mark)
+    mark_session "${2:-}" "${3:-}"
+    exit $?
+    ;;
+  --classify)
+    # [--apply]: mark as agent the unmarked sessions whose every name is an exact
+    # --auto-name label. A dry run unless --apply. Names are never migrated here.
+    shift
+    if [ ! -f "$CCSESSION_DIR/session_keep.py" ]; then
+      echo "ccsession: session_keep.py is missing next to ccsession" >&2
+      exit 1
+    fi
+    exec python3 "$CCSESSION_DIR/session_keep.py" classify "$@" "$PROJECTS_DIR"
+    ;;
+  --prune)
+    # [--apply] [--days N]: delete the sessions an agent saved that have not
+    # changed in more than N days (CCSESSION_AGENT_KEEP_DAYS, else 30; never fewer
+    # than 30), with the names that point at them. A dry run unless --apply. The
+    # running session (CLAUDE_SESSION_ID) is skipped. Names are never migrated here.
+    shift
+    if [ ! -f "$CCSESSION_DIR/session_keep.py" ]; then
+      echo "ccsession: session_keep.py is missing next to ccsession" >&2
+      exit 1
+    fi
+    exec python3 "$CCSESSION_DIR/session_keep.py" prune "$@" "$PROJECTS_DIR" "$HOME" "$ORCA_TABS_DIR"
+    ;;
   --sync-name)
-    _synced=$(sync_name "${2:-}" "${3:-}" "${4:-}") || exit $?
+    # <id> <name> [keep flag] [-- options]: the options follow a literal "--"
+    # so an older ccsession, which reads only the fourth argument, ignores them.
+    _sn_session="${2:-}" _sn_name="${3:-}" _sn_keep=""
+    [ "$#" -ge 3 ] && shift 3 || shift "$#"
+    while [ "$#" -gt 0 ]; do
+      case "$1" in
+        --keep-others | --check-others) _sn_keep=$1 ;;
+        --event)
+          case "${2:-}" in SessionStart | UserPromptSubmit | SessionEnd) SYNC_EVENT=$2 ;; esac
+          [ "$#" -gt 1 ] && shift
+          ;;
+        --source)
+          case "${2:-}" in startup | resume | clear | compact) SYNC_SOURCE=$2 ;; esac
+          [ "$#" -gt 1 ] && shift
+          ;;
+        --origin)
+          case "${2:-}" in human | agent) SYNC_ORIGIN=$2 ;; esac
+          [ "$#" -gt 1 ] && shift
+          ;;
+        *) : ;;
+      esac
+      shift
+    done
+    _synced=$(sync_name "$_sn_session" "$_sn_name" "$_sn_keep") || exit $?
     if [ -n "$_synced" ]; then
       printf '%s\n' "$_synced"
       orca_tab_name "$_synced"
@@ -1720,6 +1896,11 @@ list_sessions() {
   # Row colours, set by ask_session_name; plain text otherwise.
   local on="${LIST_NAME_ON-}" dim="${LIST_DETAIL_ON-}" off="${LIST_OFF-}"
   local found=0 heading="" other_n=0 here_rows=() gone_rows=()
+  # Rows whose session an agent named (origin marker "agent") are left out unless
+  # SHOW_AGENTS is 1; they are only counted, and the count ends the output with
+  # the command that shows them. Display only: nothing else reads this.
+  local hidden_n=0 heading_pending=0 show_agents="${SHOW_AGENTS:-0}"
+  local agents_hint="${LIST_AGENTS_HINT:-ccsession --list --agents}"
   # The list of the repo this folder is in, whose heading may be read live.
   local LIST_HERE_KEY LIST_HEADING
   LIST_HERE_KEY=$(name_key)
@@ -1746,10 +1927,9 @@ list_sessions() {
         list_heading "$ws_dir" "$ws_slug" "$filter"
         heading=$LIST_HEADING
         first=0
-        if [ "$filter" != worktree ]; then
-          echo ""
-          echo "$heading"
-        fi
+        # A list whose rows are all hidden gets no heading: it is printed with
+        # the first row that is shown.
+        [ "$filter" = worktree ] || heading_pending=1
         # Where each session's transcript is and where it was started, for the
         # whole list at once (the heading above is still printed only for a list
         # with rows).
@@ -1764,6 +1944,15 @@ list_sessions() {
       # unreadable file gives no id, not the previous row's, so its row reads
       # "(transcript missing)").
       uuid=${SCAN_UUID[ri]}
+      # The marker is read with a shell builtin: no process per row. A hidden row
+      # costs nothing more (no place, no times) and is not an "other worktree".
+      if [ "$show_agents" != 1 ]; then
+        read_origin "$ws_dir" "$uuid"
+        if [ "$ORIGIN_READ" = agent ]; then
+          hidden_n=$((hidden_n + 1))
+          continue
+        fi
+      fi
       if [ "$SCAN_OK" = 1 ] && [ -z "${SCAN_STATUS[ri]}" ]; then
         jsonl=${SCAN_PATH[ri]}
       else
@@ -1819,7 +2008,16 @@ list_sessions() {
       found=1
       case "$place" in
         here)
-          if [ "$filter" = worktree ]; then here_rows+=("$row"); else printf '%s\n' "$row"; fi
+          if [ "$filter" = worktree ]; then
+            here_rows+=("$row")
+          else
+            if [ "$heading_pending" = 1 ]; then
+              echo ""
+              echo "$heading"
+              heading_pending=0
+            fi
+            printf '%s\n' "$row"
+          fi
           ;;
         gone) gone_rows+=("$row  ${dim}(was ${was/#"$HOME"/\~})${off}") ;;
         *) other_n=$((other_n + 1)) ;;
@@ -1840,7 +2038,7 @@ list_sessions() {
       echo "${dim}${other_n} more session$s in other worktrees of this repo: ${LIST_MORE_HINT:-ccsession --here --all}${off}"
     fi
   fi
-  if [ $found = 0 ]; then
+  if [ $found = 0 ] && [ "$hidden_n" = 0 ]; then
     if [ -n "$scope_slug" ]; then
       echo "No labeled sessions in this workspace yet."
     else
@@ -1848,6 +2046,10 @@ list_sessions() {
     fi
     echo "Start one with: ccsession <topic>"
     echo "Or name an open session from inside Claude Code: /rename <topic>"
+  fi
+  # Where every row is hidden this line stands in for "No labeled sessions yet".
+  if [ "$hidden_n" -gt 0 ]; then
+    echo "${dim}${hidden_n} agent sessions hidden: ${agents_hint}${off}"
   fi
 }
 
@@ -1863,6 +2065,17 @@ retention_warning() {
   [ -f "$CCSESSION_DIR/retention.py" ] || return 0
   line=$(python3 "$CCSESSION_DIR/retention.py" check 2>/dev/null) || return 0
   [ -z "$line" ] || printf '%s\n' "$line" >&2
+  return 0
+}
+
+agent_prune_hint() {
+  # One line after --list and --here when sessions an agent saved are older than
+  # the days --prune would use (CCSESSION_AGENT_KEEP_DAYS when valid, else 30); the
+  # helper prints it or nothing. Read-only. Silent when python3 or the helper is
+  # missing; never fails and never reports a bad CCSESSION_AGENT_KEEP_DAYS.
+  [ -f "$CCSESSION_DIR/session_keep.py" ] || return 0
+  command -v python3 >/dev/null 2>&1 || return 0
+  python3 "$CCSESSION_DIR/session_keep.py" hint "$PROJECTS_DIR" "$HOME" 2>/dev/null || true
   return 0
 }
 
@@ -1903,11 +2116,22 @@ ask_session_name() {
   fi
   show_saved() {
     # <filter> <title>: print list_sessions' rows under a title, to stderr.
-    local sessions line n=0
+    local sessions line n=0 agents_hint="type + to list them"
+    # The "*" view is not the one "+" lists, so it names the command instead.
+    [ -z "$1" ] && agents_hint="ccsession --list --agents"
     sessions=$(LIST_NAME_ON="$accent" LIST_DETAIL_ON="$dim" LIST_OFF="$reset" \
-      LIST_MORE_HINT="type * to list them" list_sessions "$key" "$1")
+      LIST_MORE_HINT="type * to list them" LIST_AGENTS_HINT="$agents_hint" \
+      list_sessions "$key" "$1")
     case "$sessions" in
       ''|'No labeled sessions'*|$'\n''No labeled sessions'*) return 0 ;;
+    esac
+    # Only agent sessions here: a single line, the count and how to list them.
+    case "$sessions" in
+      *$'\n'*) ;;
+      *)
+        printf '\n%s\n\n' "$sessions" >&2
+        return 0
+        ;;
     esac
     printf '\n%s%s (type a name to resume it):%s\n' "$bold" "$2" "$reset" >&2
     # list_sessions prints a blank line and a folder heading first; the title
@@ -1958,6 +2182,12 @@ ask_session_name() {
     esac
     if [ "$name" = "*" ]; then
       show_saved "" "Saved sessions in every worktree of this repo"
+      continue
+    fi
+    # "+" lists the agent sessions too, in this worktree's view. Like "*", it is
+    # never a session name.
+    if [ "$name" = "+" ]; then
+      SHOW_AGENTS=1 show_saved worktree "Saved sessions in ${PWD/#"$HOME"/\~}, with agent sessions"
       continue
     fi
     # More text arriving right behind the line is a paste (several lines).
@@ -2067,20 +2297,28 @@ case "${1:-}" in
     python3 "$CCSESSION_MODELS" status
     exit 0
     ;;
-  --list)
+  --list | --here)
+    # --agents shows the rows of agent-named sessions (hidden by default);
+    # --here also takes --all. Either, in any order; anything else is ignored.
+    _view=$1 _all=0 _agents=0
+    shift
+    for _a in "$@"; do
+      case "$_a" in
+        --all) _all=1 ;;
+        --agents) _agents=1 ;;
+      esac
+    done
+    [ "$_agents" = 1 ] && SHOW_AGENTS=1
     ensure_names_migrated
-    list_sessions ""
-    retention_warning
-    exit 0
-    ;;
-  --here)
-    ensure_names_migrated
-    if [ "${2:-}" = --all ]; then
-      list_sessions "$(name_key)"
+    if [ "$_view" = --list ]; then
+      LIST_AGENTS_HINT="ccsession --list --agents" list_sessions ""
+    elif [ "$_all" = 1 ]; then
+      LIST_AGENTS_HINT="ccsession --here --all --agents" list_sessions "$(name_key)"
     else
-      list_sessions "$(name_key)" worktree
+      LIST_AGENTS_HINT="ccsession --here --agents" list_sessions "$(name_key)" worktree
     fi
     retention_warning
+    agent_prune_hint
     exit 0
     ;;
   --ask)
@@ -2177,6 +2415,23 @@ export CCSESSION_LAUNCH_ID
 # hooks' own folder follows Claude Code when it changes directory).
 CCSESSION_LAUNCH_CWD=$(pwd -P)
 export CCSESSION_LAUNCH_CWD
+
+# Who chose this launch's name, for the hook's new-session marker (R2.2). A launch
+# rule only: --sync-name and the other fast-path commands exit above this point,
+# which matters because Claude Code sets CLAUDECODE for its hook processes too.
+# Inside Claude Code the launch is an agent's; else a value ccsession-orca handed
+# over is kept; else a person on a terminal, and an agent with none.
+if [ -n "${CLAUDECODE:-}" ]; then
+  CCSESSION_ORIGIN=agent
+else
+  case "${CCSESSION_ORIGIN:-}" in
+    human | agent) ;;
+    *)
+      if [ -t 0 ] && [ -t 1 ]; then CCSESSION_ORIGIN=human; else CCSESSION_ORIGIN=agent; fi
+      ;;
+  esac
+fi
+export CCSESSION_ORIGIN
 
 # No topic (bare --shim and/or --profile) starts a normal untagged session.
 if [ "$NAME_GIVEN" != 1 ] && { [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; }; then

@@ -21,7 +21,9 @@
 
 PAYLOAD=$(cat)
 
-# One field per NUL-ended line: session id, folder, event, name, end reason.
+# One field per NUL-ended line: session id, folder, event, name, end reason,
+# and (at SessionStart) the source: startup for a new session, resume for a
+# resumed one (observed with Claude Code in print mode and in a terminal).
 read_payload='
 import json, sys
 
@@ -59,7 +61,14 @@ event = p.get("hook_event_name") or ""
 name = p.get("session_title")
 if event == "SessionEnd":
     name = newest_name(p.get("transcript_path"))
-fields = [p.get("session_id"), p.get("cwd"), event, name, p.get("reason")]
+fields = [
+    p.get("session_id"),
+    p.get("cwd"),
+    event,
+    name,
+    p.get("reason"),
+    p.get("source"),
+]
 fields = [f if isinstance(f, str) else "" for f in fields]
 sys.stdout.write("".join(f.replace("\0", "") + "\0" for f in fields))
 '
@@ -69,6 +78,7 @@ sys.stdout.write("".join(f.replace("\0", "") + "\0" for f in fields))
   IFS= read -r -d '' EVENT
   IFS= read -r -d '' NAME
   IFS= read -r -d '' REASON
+  IFS= read -r -d '' SOURCE
 } < <(printf '%s' "$PAYLOAD" | python3 -c "$read_payload" 2>/dev/null)
 
 [ -n "${SESSION_ID:-}" ] || exit 0
@@ -198,7 +208,25 @@ for _ccs in "$(dirname "$_self")/../ccsession" \
     # and at the start and end of a session; not on every prompt.
     _check=--check-others
     [ "$EVENT" = UserPromptSubmit ] && _check=""
-    (cd "$CWD" 2>/dev/null && "$_ccs" --sync-name "$SESSION_ID" "$NAME" $_check) \
+    # What ccsession needs to write the origin marker (see ccsession's
+    # sync_name_locked): the event always, the source at SessionStart, and the
+    # launch's origin only when ccsession handed one over. Given only for the
+    # launch's own Claude Code (OWNER, which is also true for a Claude Code that
+    # ccsession did not start, so a /rename there is still seen). After a literal
+    # "--" so an older ccsession, which reads only its fourth argument, ignores
+    # them. This never reads CLAUDECODE: Claude Code sets it for hook processes.
+    _opts=()
+    if [ "$OWNER" = 1 ] && [ -n "$EVENT" ]; then
+      _opts=(-- --event "$EVENT")
+      if [ "$EVENT" = SessionStart ] && [ -n "${SOURCE:-}" ]; then
+        _opts+=(--source "$SOURCE")
+      fi
+      case "${CCSESSION_ORIGIN:-}" in
+        human | agent) _opts+=(--origin "$CCSESSION_ORIGIN") ;;
+      esac
+    fi
+    (cd "$CWD" 2>/dev/null &&
+      "$_ccs" --sync-name "$SESSION_ID" "$NAME" $_check ${_opts[@]+"${_opts[@]}"}) \
       >/dev/null 2>&1 || true
   fi
   # In the folder ccsession launched it in (Claude Code's own one can move).

@@ -12,9 +12,10 @@
 #   4. Registers the SessionStart, UserPromptSubmit and SessionEnd hooks in
 #      ~/.claude/settings.json (idempotent merge — preserves existing hooks,
 #      backs up before writing, safe on invalid JSON).
-#   5. Sets cleanupPeriodDays to 365 in ~/.claude/settings.json when it is
+#   5. Sets cleanupPeriodDays to 90 in ~/.claude/settings.json when it is
 #      absent or lower (Claude Code's default of 30 days would delete named
-#      sessions; a larger value you chose is kept; see retention.py).
+#      sessions; a larger value you chose, such as 365, is kept; see
+#      retention.py).
 #
 # Re-running is safe — files get refreshed, your env file is left untouched,
 # and the hook is only added once.
@@ -169,7 +170,7 @@ PYEOF
 echo ""
 
 # Claude Code deletes saved conversations 30 days after their last change and
-# has no exemption for a named one. Raise cleanupPeriodDays to a year when it is
+# has no exemption for a named one. Raise cleanupPeriodDays to 90 days when it is
 # absent or lower (a larger value is kept; managed settings, which win, are not
 # touched). See retention.py.
 if [ -f "$TARGET_SKILL_DIR/retention.py" ]; then

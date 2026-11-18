@@ -78,6 +78,9 @@ def _offline_model_data(monkeypatch, tmp_path_factory):
         # makes ccsession exit 2).
         "CCSESSION_PERMISSIONS",
         "CC_CLAUDE_FLAGS",
+        # --prune skips the running session and reads its days from these.
+        "CLAUDE_SESSION_ID",
+        "CCSESSION_AGENT_KEEP_DAYS",
     ):
         monkeypatch.delenv(name, raising=False)
     for name in (
@@ -1830,6 +1833,7 @@ def _orca_env(tmp_path: Path, **extra: str) -> dict[str, str]:
         "with open(os.environ['FAKE_CLAUDE_RECORD'], 'w') as f:\n"
         "    json.dump({'argv': sys.argv[1:], 'icanon': icanon,\n"
         "               'topic': os.environ.get('CLAUDE_TOPIC'),\n"
+        "               'origin': os.environ.get('CCSESSION_ORIGIN'),\n"
         "               'base_url': os.environ.get('ANTHROPIC_BASE_URL'),\n"
         "               'env_names': sorted(os.environ),\n"
         "               'set': {k: bool(os.environ.get(k)) for k in keys}}, f)\n"
@@ -1850,6 +1854,7 @@ def _orca_env(tmp_path: Path, **extra: str) -> dict[str, str]:
             "CCSESSION_AUTOSTART",
             "CCSESSION_ASK_TIMEOUT",
             "CCSESSION_NAME",
+            "CCSESSION_ORIGIN",
             "CLAUDE_TOPIC",
         )
     }
@@ -2860,6 +2865,9 @@ def test_auto_name_check_name_judges_names_and_help_lists_the_new_options(
     ).stdout
     for text in ("--auto-name", "--check-name", "@LIMIT@", "130 Ctrl+C"):
         assert text in help_text, text
+    # The commands that tell agent sessions from a person's (issue 638).
+    for text in ("--agents", "--classify", "--mark", "--prune"):
+        assert text in help_text, text
 
 
 # ccsession --ask on a terminal: the naming question and its exit codes.
@@ -3534,7 +3542,13 @@ def _git_env(home: Path) -> dict[str, str]:
         k: v
         for k, v in os.environ.items()
         if not k.startswith("GIT_")
-        and k not in ("CLAUDE_TOPIC", "CCSESSION_TOPIC_CWD", "CLAUDE_ENV_FILE")
+        and k
+        not in (
+            "CLAUDE_TOPIC",
+            "CCSESSION_TOPIC_CWD",
+            "CLAUDE_ENV_FILE",
+            "CCSESSION_ORIGIN",
+        )
     }
     env["HOME"] = str(home)
     return env
@@ -4975,10 +4989,11 @@ def _user_settings(tmp_path: Path, content: object | None) -> Path:
 @pytest.mark.parametrize(
     "before, after",
     [
-        ({"theme": "dark"}, 365),  # key absent
-        ({"theme": "dark", "cleanupPeriodDays": 30}, 365),  # lower
-        ({"theme": "dark", "cleanupPeriodDays": 364}, 365),
-        ({"theme": "dark", "cleanupPeriodDays": 365}, 365),  # equal
+        ({"theme": "dark"}, 90),  # key absent
+        ({"theme": "dark", "cleanupPeriodDays": 30}, 90),  # lower
+        ({"theme": "dark", "cleanupPeriodDays": 89}, 90),
+        ({"theme": "dark", "cleanupPeriodDays": 90}, 90),  # equal
+        ({"theme": "dark", "cleanupPeriodDays": 365}, 365),  # higher: kept
         ({"theme": "dark", "cleanupPeriodDays": 3650}, 3650),  # higher: kept
     ],
 )
@@ -5004,7 +5019,7 @@ def test_retention_ensure_creates_the_settings_file_when_there_is_none(
 ) -> None:
     settings = _user_settings(tmp_path, None)
     assert _retention(tmp_path, "ensure", str(settings)).returncode == 0
-    assert json.loads(settings.read_text()) == {"cleanupPeriodDays": 365}
+    assert json.loads(settings.read_text()) == {"cleanupPeriodDays": 90}
 
 
 @pytest.mark.parametrize(
@@ -5031,10 +5046,10 @@ def test_retention_ensure_never_writes_where_managed_settings_win(
         tmp_path,
         "ensure",
         str(settings),
-        managed={"managed-settings.d/10-retention.json": {"cleanupPeriodDays": 90}},
+        managed={"managed-settings.d/10-retention.json": {"cleanupPeriodDays": 60}},
     )
     assert result.returncode == 3
-    assert "managed settings file" in result.stdout and "90" in result.stdout
+    assert "managed settings file" in result.stdout and "60" in result.stdout
     assert not settings.exists()
 
 
@@ -5049,10 +5064,11 @@ def test_retention_check_names_the_source_of_a_low_value(tmp_path: Path) -> None
         tmp_path,
         "check",
         str(settings),
-        managed={"managed-settings.d/10-retention.json": {"cleanupPeriodDays": 90}},
+        managed={"managed-settings.d/10-retention.json": {"cleanupPeriodDays": 60}},
     ).stdout
-    assert "after 90 days" in managed
+    assert "after 60 days" in managed
     assert "10-retention.json" in managed and "cannot override" in managed
+    assert "90 or more" in managed  # the target the advice names
 
 
 def test_retention_check_is_silent_when_the_value_in_force_is_long_enough(
@@ -5061,11 +5077,14 @@ def test_retention_check_is_silent_when_the_value_in_force_is_long_enough(
     settings = _user_settings(tmp_path, {"cleanupPeriodDays": 3650})
     assert _retention(tmp_path, "check", str(settings)).stdout == ""
     # A managed value wins over a larger user value, in either direction.
-    low_managed = {"managed-settings.json": {"cleanupPeriodDays": 90}}
+    low_managed = {"managed-settings.json": {"cleanupPeriodDays": 60}}
     assert (
-        "after 90 days"
+        "after 60 days"
         in _retention(tmp_path, "check", str(settings), managed=low_managed).stdout
     )
+    # A managed 90 is the target itself: nothing to warn about.
+    target = {"managed-settings.json": {"cleanupPeriodDays": 90}}
+    assert _retention(tmp_path, "check", str(settings), managed=target).stdout == ""
     settings.write_text(json.dumps({"cleanupPeriodDays": 30}))
     long_managed = {"managed-settings.json": {"cleanupPeriodDays": 400}}
     assert (
@@ -5099,14 +5118,17 @@ def test_list_warns_on_stderr_only_and_only_when_retention_is_short(
         short = _ccs(main, env, *args)
         assert "Claude Code deletes saved sessions after 30 days" in short.stderr
         assert "days" not in short.stdout  # the rows are as before
-    settings.write_text(json.dumps({"cleanupPeriodDays": 365}))
-    assert _ccs(main, env, "--list").stderr == ""
-    assert _ccs(worktree, env, "--here").stderr == ""
+    settings.write_text(json.dumps({"cleanupPeriodDays": 89}))
+    assert "after 89 days" in _ccs(main, env, "--list").stderr
+    for days in (90, 365):  # the target and above: silent
+        settings.write_text(json.dumps({"cleanupPeriodDays": days}))
+        assert _ccs(main, env, "--list").stderr == ""
+        assert _ccs(worktree, env, "--here").stderr == ""
 
 
 @pytest.mark.parametrize(
     "before, after",
-    [(None, 365), (30, 365), (3650, 3650)],
+    [(None, 90), (30, 90), (89, 90), (90, 90), (365, 365), (3650, 3650)],
 )
 def test_install_sh_sets_retention_only_when_absent_or_lower(
     tmp_path: Path, before: int | None, after: int
@@ -5139,7 +5161,7 @@ def test_install_sh_leaves_user_settings_alone_where_managed_settings_win(
     home = tmp_path / "home"
     managed = tmp_path / "managed"
     managed.mkdir()
-    (managed / "managed-settings.json").write_text('{"cleanupPeriodDays": 90}')
+    (managed / "managed-settings.json").write_text('{"cleanupPeriodDays": 60}')
     env = {
         **os.environ,
         "HOME": str(home),
@@ -5157,21 +5179,28 @@ def test_install_sh_leaves_user_settings_alone_where_managed_settings_win(
     assert "managed settings file" in run.stdout
 
 
+@pytest.mark.parametrize("days", [90, 365])
 def test_retention_ensure_accepts_a_managed_value_that_is_long_enough(
-    tmp_path: Path,
+    tmp_path: Path, days: int
 ) -> None:
-    # Managed settings win and already keep sessions for a year: nothing to
-    # raise and nothing to warn about (exit 0), and the user file is not created.
+    # Managed settings win and already keep sessions long enough (the 90-day
+    # target or more): nothing to raise and nothing to warn about (exit 0), and
+    # the user file is not created.
     settings = _user_settings(tmp_path, None)
     result = _retention(
         tmp_path,
         "ensure",
         str(settings),
-        managed={"managed-settings.json": {"cleanupPeriodDays": 365}},
+        managed={"managed-settings.json": {"cleanupPeriodDays": days}},
     )
     assert result.returncode == 0
-    assert "at least 365" in result.stdout and "managed settings file" in result.stdout
+    assert "at least 90" in result.stdout and "managed settings file" in result.stdout
     assert not settings.exists()
+
+
+def test_retention_target_is_90_days() -> None:
+    # The installer's target and the warning threshold, in one place.
+    assert re.search(r"^MIN_DAYS = 90$", RETENTION.read_text(), re.MULTILINE)
 
 
 # The list is built in time that does not grow in processes started per saved name
@@ -5828,3 +5857,1170 @@ def test_a_birth_time_of_zero_still_reads_times_unavailable(tmp_path: Path) -> N
 def test_scan_sessions_ships_in_the_skill_folder_that_installers_copy() -> None:
     assert HELPER.is_file() and (SKILL_DIR / "retention.py").is_file()
     assert HELPER.parent == SKILL_DIR
+
+
+# --- origin marker (issue 638) ------------------------------------------------
+# Who chose a session's name is written next to the name list, when the name is
+# saved: <list>/.origin/<session id> holds "human" or "agent". Only the hook's
+# --sync-name (given --event) and --mark write one. "agent" is written in exactly
+# one place: a new session (SessionStart, source startup) from an agent launch.
+
+ORIGIN_LIST = "github.com-Org-Repo"
+OTHER_SESSION = "def67890-0000-0000-0000-000000000000"
+
+
+def _marker(
+    projects: Path, session: str = SESSION_ID, list_name: str = ORIGIN_LIST
+) -> str | None:
+    path = projects / list_name / "topics" / ".origin" / session
+    return path.read_text().strip() if path.is_file() else None
+
+
+def _sync(
+    cwd: Path,
+    env: dict[str, str],
+    session: str,
+    name: str,
+    *opts: str,
+    keep: str = "",
+) -> subprocess.CompletedProcess:
+    """ccsession --sync-name as the hook runs it: options after a literal --."""
+    args = ["--sync-name", session, name]
+    if keep:
+        args.append(keep)
+    if opts:
+        args += ["--", *opts]
+    return _ccs(cwd, env, *args)
+
+
+def _sync_opts(event: str, source: str | None, origin: str | None) -> list[str]:
+    opts = ["--event", event]
+    if source:
+        opts += ["--source", source]
+    if origin:
+        opts += ["--origin", origin]
+    return opts
+
+
+def test_sync_name_without_an_event_writes_no_marker(tmp_path: Path) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    # The import and dot-label paths call sync_name with no --event: whatever
+    # CCSESSION_ORIGIN holds in the environment, no marker is written.
+    agent_env = {**env, "CCSESSION_ORIGIN": "agent"}
+    _sync(main, agent_env, SESSION_ID, "demo")
+    assert _marker(projects) is None
+    assert (projects / ORIGIN_LIST / "topics" / "demo.txt").is_file()
+
+
+@pytest.mark.parametrize(
+    ("event", "source", "origin", "expected"),
+    [
+        ("SessionStart", "startup", "agent", "agent"),
+        ("SessionStart", "startup", "human", "human"),
+        ("SessionStart", "startup", None, None),
+        ("SessionStart", "resume", "agent", None),
+        ("SessionStart", "resume", "human", None),
+        ("SessionStart", "clear", "agent", None),
+        ("SessionStart", "compact", "agent", None),
+        ("SessionStart", None, "agent", None),
+        ("UserPromptSubmit", None, "agent", "human"),
+        ("UserPromptSubmit", None, None, "human"),
+        ("SessionEnd", None, "agent", "human"),
+        ("SessionEnd", None, None, "human"),
+    ],
+)
+def test_agent_is_written_in_one_place_only(
+    tmp_path: Path,
+    event: str,
+    source: str | None,
+    origin: str | None,
+    expected: str | None,
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    # A session with a name that is new for it, and no marker yet.
+    _sync(main, env, SESSION_ID, "demo", *_sync_opts(event, source, origin))
+    assert _marker(projects) == expected
+
+
+@pytest.mark.parametrize(
+    ("event", "source", "origin", "expected"),
+    [
+        ("SessionStart", "startup", "human", "agent"),  # a marker is never replaced
+        ("SessionStart", "resume", "human", "agent"),
+        ("SessionStart", "resume", "agent", "agent"),
+        ("UserPromptSubmit", None, "human", "agent"),  # same name: nothing new
+        ("SessionEnd", None, "human", "agent"),
+    ],
+)
+def test_an_existing_marker_is_not_changed_by_a_name_it_already_has(
+    tmp_path: Path, event: str, source: str | None, origin: str | None, expected: str
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    _sync(
+        main, env, SESSION_ID, "demo", *_sync_opts("SessionStart", "startup", "agent")
+    )
+    assert _marker(projects) == "agent"
+    _sync(main, env, SESSION_ID, "demo", *_sync_opts(event, source, origin))
+    assert _marker(projects) == expected
+
+
+def test_a_rename_writes_human_over_agent_and_the_same_name_again_changes_nothing(
+    tmp_path: Path,
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    _sync(
+        main, env, SESSION_ID, "auto", *_sync_opts("SessionStart", "startup", "agent")
+    )
+    assert _marker(projects) == "agent"
+    # /rename: a name that is new for the session, seen at a prompt, with no origin
+    # at all (a Claude Code that ccsession did not start gives none).
+    _sync(main, env, SESSION_ID, "mine", "--event", "UserPromptSubmit")
+    assert _marker(projects) == "human"
+    # The same name again, even over a marker set back to agent, changes nothing.
+    _ccs(main, env, "--mark", "mine", "agent")
+    _sync(main, env, SESSION_ID, "mine", "--event", "UserPromptSubmit")
+    assert _marker(projects) == "agent"
+
+
+def test_a_list_clean_up_alone_never_decides_a_marker(tmp_path: Path) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    topics = projects / ORIGIN_LIST / "topics"
+    _sync(
+        main, env, SESSION_ID, "demo", *_sync_opts("SessionStart", "startup", "agent")
+    )
+    # A second name file of the same session (what migration can leave behind):
+    # --check-others removes it, and that is not a rename.
+    (topics / "old-copy.txt").write_text(SESSION_ID + "\n")
+    _sync(
+        main,
+        env,
+        SESSION_ID,
+        "demo",
+        *_sync_opts("SessionStart", "resume", "agent"),
+        keep="--check-others",
+    )
+    assert not (topics / "old-copy.txt").exists()
+    assert _marker(projects) == "agent"
+
+
+def test_a_rename_in_another_repos_list_is_human_and_the_first_list_is_untouched(
+    tmp_path: Path,
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    (tmp_path / "b").mkdir()
+    other_main, _ = _repo_with_worktree(tmp_path / "b", "https://github.com/Org/Other")
+    other_list = "github.com-Org-Other"
+    _transcript(projects, main, SESSION_ID)
+    _sync(
+        main, env, SESSION_ID, "auto", *_sync_opts("SessionStart", "startup", "agent")
+    )
+    # The folder moved into repo B and the person renamed the session there.
+    _sync(other_main, env, SESSION_ID, "mine", "--event", "UserPromptSubmit")
+    assert _marker(projects, list_name=other_list) == "human"
+    assert _marker(projects) == "agent"
+    # Seen again from the first repo's folder, the name is one the session already
+    # has in the other list: no write, so the human marker is not undone.
+    _sync(main, env, SESSION_ID, "mine", "--event", "UserPromptSubmit")
+    assert _marker(projects, list_name=other_list) == "human"
+    assert _marker(projects) == "agent"
+
+
+def test_a_collision_suffixed_own_name_in_another_list_is_not_new(
+    tmp_path: Path,
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    (tmp_path / "b").mkdir()
+    other_main, _ = _repo_with_worktree(tmp_path / "b", "https://github.com/Org/Other")
+    other_list = projects / "github.com-Org-Other" / "topics"
+    _transcript(projects, main, SESSION_ID)
+    _transcript(projects, other_main, OTHER_SESSION)
+    # Repo B already has "mine" for another session, so this session's own copy
+    # there is "mine-2".
+    _sync(other_main, env, OTHER_SESSION, "mine")
+    _sync(other_main, env, SESSION_ID, "mine")
+    assert (other_list / "mine-2.txt").read_text().strip() == SESSION_ID
+    _sync(
+        main, env, SESSION_ID, "auto", *_sync_opts("SessionStart", "startup", "agent")
+    )
+    # In repo A the title "mine" is new for the list but the session already has
+    # it (as mine-2) in repo B: not a rename.
+    _sync(main, env, SESSION_ID, "mine", "--event", "UserPromptSubmit")
+    assert _marker(projects) == "agent"
+
+
+def test_mark_sets_a_marker_both_ways_and_reports_its_errors(tmp_path: Path) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    _sync(main, env, SESSION_ID, "demo")
+    assert _ccs(main, env, "--mark", "demo", "human").stdout.strip() == (
+        "Marked 'demo' as human."
+    )
+    assert _marker(projects) == "human"
+    _ccs(main, env, "--mark", "demo", "agent")
+    assert _marker(projects) == "agent"
+
+    def run(*args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "--mark", *args],
+            cwd=main,
+            env=env,
+            text=True,
+            capture_output=True,
+        )
+
+    assert run("nothing-by-that-name", "human").returncode == 1
+    assert run("demo", "maybe").returncode == 2
+    assert run("demo").returncode == 2
+    assert _marker(projects) == "agent"
+    # The command adds only the .origin folder to the list: the name file is
+    # untouched and no other name file appears.
+    topics = projects / ORIGIN_LIST / "topics"
+    assert {p.name for p in topics.glob("*.txt")} == {"demo.txt"}
+    assert (topics / ".origin").is_dir()
+
+
+def test_an_origin_folder_does_not_change_what_a_listing_shows(tmp_path: Path) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    _transcript(projects, main, SESSION_ID)
+    _sync(main, env, SESSION_ID, "demo")
+    before = _ccs(main, env, "--here", "--all").stdout
+    _ccs(main, env, "--mark", "demo", "human")
+    assert (projects / ORIGIN_LIST / "topics" / ".origin" / SESSION_ID).is_file()
+    assert _ccs(main, env, "--here", "--all").stdout == before
+
+
+def test_import_and_migration_paths_write_no_marker(tmp_path: Path) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    # A name given with /rename before ccsession kept names: a custom-title line.
+    _transcript(projects, main, SESSION_ID, "given-by-a-person")
+    agent_env = {**env, "CCSESSION_ORIGIN": "agent"}
+    _ccs(main, agent_env, "--migrate-names")
+    assert (projects / ORIGIN_LIST / "topics" / "given-by-a-person.txt").is_file()
+    assert _marker(projects) is None
+
+
+def test_a_session_saved_before_the_upgrade_stays_unmarked_when_an_agent_launch_resumes_it(
+    tmp_path: Path,
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    _transcript(projects, main, SESSION_ID)
+    # Saved by an older ccsession: a name file and no marker.
+    _sync(main, env, SESSION_ID, "mine")
+    # A worker started with CCSESSION_NAME equal to the saved name resumes it; so
+    # does /resume inside an agent launch. SessionStart reports source "resume".
+    for origin in ("agent", "human"):
+        _sync(
+            main, env, SESSION_ID, "mine", *_sync_opts("SessionStart", "resume", origin)
+        )
+        _sync(main, env, SESSION_ID, "mine", "--event", "UserPromptSubmit")
+    assert _marker(projects) is None
+    assert _listed(main, env) == {"mine": SESSION_ID[:8]}
+
+
+# --- who chose the name, handed to the hook (issue 638, Task 2) ---------------
+
+
+def test_orca_hands_a_typed_name_over_as_human(tmp_path: Path) -> None:
+    _, record = _orca_tty(tmp_path, keys="mine-by-hand\r")
+    assert record["topic"] == "mine-by-hand"
+    assert record["origin"] == "human"
+
+
+def test_orca_enter_at_the_question_is_an_agent_name(tmp_path: Path) -> None:
+    _, record = _orca_tty(tmp_path, keys="\r")
+    assert AUTO_LABEL.match(record["topic"]), record["topic"]
+    assert record["origin"] == "agent"
+
+
+def test_orca_ccsession_name_and_a_carried_name_are_agent_names(tmp_path: Path) -> None:
+    _, record = _orca_no_tty(tmp_path, CCSESSION_NAME="worker-a")
+    assert record["topic"] == "worker-a"
+    assert record["origin"] == "agent"
+    _, record = _orca_no_tty(tmp_path, "--name", "carried-name")
+    assert record["origin"] == "agent"
+
+
+def test_orca_untagged_start_is_agent(tmp_path: Path) -> None:
+    _, record = _orca_no_tty(tmp_path, CCSESSION_AUTOSTART="0")
+    assert record["topic"] is None
+    assert record["origin"] == "agent"
+
+
+def test_orca_resume_hands_no_origin_over(tmp_path: Path) -> None:
+    # An origin left in the environment (a person's, from an earlier launch) is
+    # dropped by a resume; ccsession then falls back to its own default, which on
+    # a launch with no terminal is agent. A resume writes no marker either way.
+    _, record = _orca_no_tty(tmp_path, "--resume", SESSION_ID, CCSESSION_ORIGIN="human")
+    assert record["origin"] == "agent"
+
+
+def _origin_fake(tmp_path: Path, env: dict[str, str]) -> dict[str, str]:
+    fake = tmp_path / "claude-origin"
+    fake.write_text(
+        "#!/usr/bin/env python3\nimport os\n"
+        "print('ORIGIN=' + os.environ.get('CCSESSION_ORIGIN', 'unset'))\n"
+    )
+    fake.chmod(0o700)
+    return {**env, "CLAUDE_BIN": str(fake)}
+
+
+def test_ccsession_launch_origin_follows_terminal_and_claudecode(
+    tmp_path: Path,
+) -> None:
+    main, _, _, env = _named_repo(tmp_path)
+    env = _origin_fake(tmp_path, env)
+    # No terminal: an agent's launch.
+    assert "ORIGIN=agent" in _ccs(main, env, "demo").stdout
+    # An origin handed over (by ccsession-orca) is kept when valid.
+    assert (
+        "ORIGIN=human"
+        in _ccs(main, {**env, "CCSESSION_ORIGIN": "human"}, "demo").stdout
+    )
+    # An invalid one is ignored.
+    assert (
+        "ORIGIN=agent"
+        in _ccs(main, {**env, "CCSESSION_ORIGIN": "bogus"}, "demo").stdout
+    )
+
+    def on_terminal(extra: dict[str, str]) -> str:
+        proc, master = _spawn_on_pty(
+            [str(SKILL_DIR / "ccsession"), "demo"], {**env, **extra}, main
+        )
+        try:
+            output = _read_pty(master)
+            assert proc.wait(timeout=60) == 0, output
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+            os.close(master)
+        return output
+
+    # A person on a terminal.
+    assert "ORIGIN=human" in on_terminal({})
+    # An origin handed over stays whatever the terminal says.
+    assert "ORIGIN=agent" in on_terminal({"CCSESSION_ORIGIN": "agent"})
+    # Inside Claude Code, even on a terminal, and whatever was handed over.
+    assert "ORIGIN=agent" in on_terminal({"CLAUDECODE": "1"})
+    assert "ORIGIN=agent" in on_terminal(
+        {"CLAUDECODE": "1", "CCSESSION_ORIGIN": "human"}
+    )
+
+
+def test_sync_name_with_claudecode_set_still_writes_the_given_origin(
+    tmp_path: Path,
+) -> None:
+    # Claude Code sets CLAUDECODE for its hook processes, so --sync-name always
+    # runs with it set: the launch rule must never reach this path.
+    main, _, projects, env = _named_repo(tmp_path)
+    env = {**env, "CLAUDECODE": "1"}
+    _sync(
+        main, env, SESSION_ID, "demo", *_sync_opts("SessionStart", "startup", "human")
+    )
+    assert _marker(projects) == "human"
+    _sync(main, env, SESSION_ID, "renamed", "--event", "UserPromptSubmit")
+    assert _marker(projects) == "human"
+    _sync(
+        main,
+        env,
+        OTHER_SESSION,
+        "auto-one",
+        *_sync_opts("SessionStart", "startup", "agent"),
+    )
+    assert _marker(projects, OTHER_SESSION) == "agent"
+
+
+# --- the hook hands the origin to ccsession (issue 638, task 3) ---------------
+# The hook passes the event, the source and the launch's origin after a literal
+# "--", only for the Claude Code ccsession launched (or one it did not start).
+# It never reads CLAUDECODE: Claude Code sets that for every hook process.
+
+
+def _owner_env(env: dict[str, str], origin: str | None = None) -> dict[str, str]:
+    """The environment of a hook run by the Claude Code ccsession launched."""
+    out = {**env, "CCSESSION_LAUNCH_ID": f"{os.getpid()}.1"}
+    if origin:
+        out["CCSESSION_ORIGIN"] = origin
+    return out
+
+
+def test_hook_source_never_reads_claudecode() -> None:
+    lines = (SKILL_DIR / "hooks" / "session-name.sh").read_text().splitlines()
+    code = [x for x in lines if not x.lstrip().startswith("#")]
+    assert not [x for x in code if "CLAUDECODE" in x]
+
+
+@pytest.mark.parametrize("claudecode", [False, True])
+@pytest.mark.parametrize("form", ["native", "standalone"])
+@pytest.mark.parametrize("origin", ["agent", "human"])
+def test_hook_new_session_of_the_launch_gets_the_launch_origin(
+    tmp_path: Path, origin: str, form: str, claudecode: bool
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    env = _owner_env(env, origin)
+    if claudecode:
+        env["CLAUDECODE"] = "1"  # Claude Code sets it for hook processes
+    topic = {**env, "CLAUDE_TOPIC": "auto-name", "CCSESSION_TOPIC_CWD": str(main)}
+    _hook(topic, main, SESSION_ID, "SessionStart", form=form, source="startup")
+    assert _marker(projects) == origin
+
+
+@pytest.mark.parametrize("source", ["resume", "clear", "compact"])
+def test_hook_start_that_is_not_a_new_session_writes_no_marker(
+    tmp_path: Path, source: str
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    env = _owner_env(env, "agent")
+    _hook(env, main, SESSION_ID, "SessionStart", source=source, session_title="demo")
+    assert _marker(projects) is None
+    assert (projects / ORIGIN_LIST / "topics" / "demo.txt").is_file()
+
+
+def test_hook_start_without_a_source_writes_no_marker(tmp_path: Path) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    _hook(
+        _owner_env(env, "agent"),
+        main,
+        SESSION_ID,
+        "SessionStart",
+        session_title="demo",
+    )
+    assert _marker(projects) is None
+
+
+@pytest.mark.parametrize("claudecode", [False, True])
+def test_hook_of_a_nested_claude_writes_no_marker(
+    tmp_path: Path, claudecode: bool
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    env = _owner_env(env, "agent")
+    if claudecode:
+        env["CLAUDECODE"] = "1"
+    # A claude started inside the launch is another process: not the owner.
+    _hook(
+        env,
+        main,
+        SESSION_ID,
+        "SessionStart",
+        nested=True,
+        source="startup",
+        session_title="inner",
+    )
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", nested=True, session_title="in2")
+    assert _marker(projects) is None
+
+
+@pytest.mark.parametrize("claudecode", [False, True])
+def test_hook_rename_after_an_untagged_start_marks_human(
+    tmp_path: Path, claudecode: bool
+) -> None:
+    # Route 1: CCSESSION_AUTOSTART=0 starts the session with no name and no
+    # marker; the person's /rename is picked up at the next prompt.
+    main, _, projects, env = _named_repo(tmp_path)
+    env = _owner_env(env, "agent")
+    if claudecode:
+        env["CLAUDECODE"] = "1"
+    _hook(env, main, SESSION_ID, "SessionStart", source="startup")
+    assert _marker(projects) is None
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="mine")
+    assert _marker(projects) == "human"
+
+
+@pytest.mark.parametrize("event", ["UserPromptSubmit", "SessionEnd"])
+def test_hook_rename_of_an_agent_session_marks_it_human(
+    tmp_path: Path, event: str
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    env = _owner_env(env, "agent")
+    topic = {**env, "CLAUDE_TOPIC": "auto-name", "CCSESSION_TOPIC_CWD": str(main)}
+    _hook(topic, main, SESSION_ID, "SessionStart", source="startup")
+    assert _marker(projects) == "agent"
+    fields = {"session_title": "my own name"}
+    if event == "SessionEnd":
+        fields = {
+            "transcript_path": str(
+                _transcript(projects, main, SESSION_ID, "my own name")
+            )
+        }
+    _hook(env, main, SESSION_ID, event, **fields)
+    assert _marker(projects) == "human"
+    # A later prompt with the same name changes nothing.
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="my own name")
+    assert _marker(projects) == "human"
+
+
+def test_hook_rename_in_plain_claude_with_no_launch_marks_human(
+    tmp_path: Path,
+) -> None:
+    # Claude Code not started by ccsession: no launch id, no origin. A rename is
+    # still seen (OWNER is 1), and only a person renames.
+    main, _, projects, env = _named_repo(tmp_path)
+    assert "CCSESSION_LAUNCH_ID" not in env
+    assert "CCSESSION_ORIGIN" not in env
+    _hook(env, main, SESSION_ID, "SessionStart", source="startup")
+    assert _marker(projects) is None
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="renamed")
+    assert _marker(projects) == "human"
+
+
+def test_hook_plain_claude_start_with_a_name_given_writes_no_origin(
+    tmp_path: Path,
+) -> None:
+    # `claude --name x` outside ccsession: startup, a title, no origin handed over.
+    main, _, projects, env = _named_repo(tmp_path)
+    _hook(env, main, SESSION_ID, "SessionStart", source="startup", session_title="x")
+    assert _marker(projects) is None
+    assert (projects / ORIGIN_LIST / "topics" / "x.txt").is_file()
+
+
+def test_hook_resume_keeps_the_marker_and_leaves_an_unmarked_session_alone(
+    tmp_path: Path,
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    # An agent session resumed: stays agent, whatever the resume's launch says.
+    first = _owner_env(env, "agent")
+    topic = {**first, "CLAUDE_TOPIC": "auto-name", "CCSESSION_TOPIC_CWD": str(main)}
+    _hook(topic, main, SESSION_ID, "SessionStart", source="startup")
+    _hook(
+        _owner_env(env, "human"),
+        main,
+        SESSION_ID,
+        "SessionStart",
+        source="resume",
+        session_title="auto-name",
+    )
+    assert _marker(projects) == "agent"
+    # A session saved before the upgrade (no marker) resumed: still no marker.
+    topics = projects / ORIGIN_LIST / "topics"
+    (topics / "old.txt").write_text(f"{OTHER_SESSION}\n")
+    _hook(
+        _owner_env(env, "agent"),
+        main,
+        OTHER_SESSION,
+        "SessionStart",
+        source="resume",
+        session_title="old",
+    )
+    assert _marker(projects, OTHER_SESSION) is None
+
+
+def test_hook_tab_reopen_without_an_origin_changes_no_marker(tmp_path: Path) -> None:
+    # An Orca tab reopens its session: a resume, and ccsession-orca hands no
+    # origin over. The marker stays as it was.
+    main, _, projects, env = _named_repo(tmp_path)
+    _orca_launch_env(tmp_path, env)
+    topic = {
+        **env,
+        "CCSESSION_ORIGIN": "agent",
+        "CLAUDE_TOPIC": "tab-name",
+        "CCSESSION_TOPIC_CWD": str(main),
+    }
+    _hook(topic, main, SESSION_ID, "SessionStart", source="startup")
+    assert _marker(projects) == "agent"
+    reopened = {k: v for k, v in env.items() if k != "CCSESSION_ORIGIN"}
+    _hook(reopened, main, SESSION_ID, "SessionStart", source="resume")
+    assert _marker(projects) == "agent"
+
+
+def test_hook_keeps_a_marker_set_by_mark(tmp_path: Path) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    env = _owner_env(env, "agent")
+    topic = {**env, "CLAUDE_TOPIC": "auto-name", "CCSESSION_TOPIC_CWD": str(main)}
+    _hook(topic, main, SESSION_ID, "SessionStart", source="startup")
+    assert _marker(projects) == "agent"
+    _ccs(main, env, "--mark", "auto-name", "human")
+    assert _marker(projects) == "human"
+    # Neither the same name again nor a new start with an agent origin undoes it.
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="auto-name")
+    _hook(topic, main, SESSION_ID, "SessionStart", source="startup")
+    assert _marker(projects) == "human"
+
+
+@pytest.mark.parametrize("claudecode", [False, True])
+def test_hook_rename_seen_from_another_repos_folder_marks_human_there_only(
+    tmp_path: Path, claudecode: bool
+) -> None:
+    # B1 route 2: an agent session saved under an auto-name in repo A; its folder
+    # moved into repo B, where the person renamed it.
+    main, _, projects, env = _named_repo(tmp_path)
+    (tmp_path / "b").mkdir()
+    other_main, _ = _repo_with_worktree(tmp_path / "b", "https://github.com/Org/Other")
+    env = _owner_env(env, "agent")
+    if claudecode:
+        env["CLAUDECODE"] = "1"
+    topic = {**env, "CLAUDE_TOPIC": "auto-name", "CCSESSION_TOPIC_CWD": str(main)}
+    _hook(topic, main, SESSION_ID, "SessionStart", source="startup")
+    assert _marker(projects) == "agent"
+    other = "github.com-Org-Other"
+    _hook(env, other_main, SESSION_ID, "UserPromptSubmit", session_title="mine")
+    assert _marker(projects, list_name=other) == "human"
+    assert _marker(projects) == "agent"
+    # The same title seen again from repo A's folder is one the session already
+    # has: nothing is written, and neither marker changes.
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="mine")
+    assert _marker(projects, list_name=other) == "human"
+    assert _marker(projects) == "agent"
+
+
+def test_hook_same_name_again_in_plain_claude_writes_nothing_new(
+    tmp_path: Path,
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="renamed")
+    marker = projects / ORIGIN_LIST / "topics" / ".origin" / SESSION_ID
+    assert marker.read_text().strip() == "human"
+    before = marker.stat().st_mtime_ns
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="renamed")
+    assert marker.stat().st_mtime_ns == before
+
+
+# --- agent rows hidden in the lists (issue 638, tasks 4 and 5) -----------------
+# A session whose marker is "agent" is left out of --list, --here and the new-tab
+# question unless --agents (or "+" at the question) asks for it. Display only.
+
+
+def _mark_session(env: dict[str, str], n: int, origin: str = "agent") -> None:
+    """Write the origin marker for a session made by _add_session (same n)."""
+    session = f"{n}{n}{n}{n}0000-0000-0000-0000-000000000000"
+    folder = Path(env["HOME"]) / ".claude" / "projects" / ORIGIN_LIST / "topics"
+    (folder / ".origin").mkdir(exist_ok=True)
+    (folder / ".origin" / session).write_text(origin + "\n")
+
+
+def _mixed_sessions(
+    tmp_path: Path,
+) -> tuple[Path, dict[str, str]]:
+    """main with three sessions in its folder: agent, human and unmarked."""
+    main, _, projects, env = _named_repo(tmp_path)
+    (projects / ORIGIN_LIST / "topics").mkdir(parents=True)
+    _add_session(env, main, 1, "auto one", "")
+    _add_session(env, main, 2, "my work", "")
+    _add_session(env, main, 3, "old one", "")
+    _mark_session(env, 1, "agent")
+    _mark_session(env, 2, "human")
+    return main, env
+
+
+@pytest.mark.parametrize(
+    ("args", "command"),
+    [
+        (("--list",), "ccsession --list --agents"),
+        (("--here",), "ccsession --here --agents"),
+        (("--here", "--all"), "ccsession --here --all --agents"),
+    ],
+)
+def test_lists_hide_agent_rows_and_say_how_many(
+    tmp_path: Path, args: tuple[str, ...], command: str
+) -> None:
+    main, env = _mixed_sessions(tmp_path)
+    out = _ccs(main, env, *args).stdout
+    assert set(_listed(main, env, *args)) == {"my work", "old one"}
+    assert out.rstrip().splitlines()[-1] == f"1 agent sessions hidden: {command}"
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("--list", "--agents"),
+        ("--here", "--agents"),
+        ("--here", "--all", "--agents"),
+        ("--here", "--agents", "--all"),
+    ],
+)
+def test_agents_flag_shows_every_row_and_no_count_line(
+    tmp_path: Path, args: tuple[str, ...]
+) -> None:
+    main, env = _mixed_sessions(tmp_path)
+    out = _ccs(main, env, *args).stdout
+    assert set(_listed(main, env, *args)) == {"auto one", "my work", "old one"}
+    assert "hidden" not in out
+
+
+def test_here_all_gives_the_same_output_in_either_flag_order(tmp_path: Path) -> None:
+    main, env = _mixed_sessions(tmp_path)
+    one = _ccs(main, env, "--here", "--all", "--agents").stdout
+    two = _ccs(main, env, "--here", "--agents", "--all").stdout
+    assert one == two
+
+
+def test_a_list_without_markers_prints_as_before(tmp_path: Path) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    (projects / ORIGIN_LIST / "topics").mkdir(parents=True)
+    _add_session(env, main, 1, "one", "")
+    _add_session(env, main, 2, "two", "")
+    out = _ccs(main, env, "--here").stdout
+    assert "hidden" not in out
+    assert set(_listed(main, env, "--here")) == {"one", "two"}
+
+
+@pytest.mark.parametrize("args", [("--list",), ("--here",), ("--here", "--all")])
+def test_all_rows_hidden_prints_no_heading_and_the_count_instead(
+    tmp_path: Path, args: tuple[str, ...]
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    (projects / ORIGIN_LIST / "topics").mkdir(parents=True)
+    _add_session(env, main, 1, "auto one", "")
+    _add_session(env, main, 2, "auto two", "")
+    _mark_session(env, 1)
+    _mark_session(env, 2)
+    out = _ccs(main, env, *args).stdout
+    lines = [x for x in out.splitlines() if x.strip()]
+    assert len(lines) == 1
+    assert lines[0].startswith("2 agent sessions hidden: ccsession ")
+    assert "No labeled sessions" not in out
+
+
+def test_a_list_of_only_agent_rows_gets_no_heading_while_others_keep_theirs(
+    tmp_path: Path,
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    other = projects / "github.com-Org-Other" / "topics"
+    other.mkdir(parents=True)
+    _transcript(projects, main, OTHER_SESSION)
+    (other / "bot.txt").write_text(f"{OTHER_SESSION}\n")
+    (other / ".origin").mkdir()
+    (other / ".origin" / OTHER_SESSION).write_text("agent\n")
+    (projects / ORIGIN_LIST / "topics").mkdir(parents=True)
+    _add_session(env, main, 1, "mine", "")
+    out = _ccs(main, env, "--list").stdout
+    assert "Other" not in out and "bot" not in out
+    assert "mine" in out
+    assert out.rstrip().splitlines()[-1] == (
+        "1 agent sessions hidden: ccsession --list --agents"
+    )
+    shown = _ccs(main, env, "--list", "--agents").stdout
+    assert "bot" in shown
+
+
+def test_a_hidden_agent_row_of_another_worktree_is_not_an_other_worktree_session(
+    tmp_path: Path,
+) -> None:
+    main, b, _, env = _three_worktrees(tmp_path)
+    before = _ccs(b, env, "--here").stdout
+    assert "2 more sessions in other worktrees of this repo" in before
+    _mark_session(env, 1)  # "main work", a session of the other worktree
+    after = _ccs(b, env, "--here").stdout
+    assert "1 more session in other worktrees of this repo" in after
+    assert "1 agent sessions hidden: ccsession --here --agents" in after
+    # The agent view counts it again as another worktree's session.
+    shown = _ccs(b, env, "--here", "--agents").stdout
+    assert "2 more sessions in other worktrees of this repo" in shown
+
+
+def test_a_hidden_session_still_resumes_by_name_and_can_be_removed(
+    tmp_path: Path,
+) -> None:
+    main, env = _mixed_sessions(tmp_path)
+    assert "auto one" not in _listed(main, env, "--here")
+    assert _launched(main, env, "auto one")[-2:] == [
+        "--resume",
+        "11110000-0000-0000-0000-000000000000",
+    ]
+    _ccs(main, env, "--rm", "auto one")
+    assert "auto one" not in _listed(main, env, "--here", "--agents")
+
+
+def test_hiding_agent_rows_starts_no_process_per_row(tmp_path: Path) -> None:
+    counts: dict[int, Counter] = {}
+    for n in (10, 60):
+        sub = tmp_path / f"n{n}"
+        sub.mkdir()
+        main, projects, env = _many_sessions(sub, n)
+        origin = projects / ORIGIN_LIST / "topics" / ".origin"
+        origin.mkdir()
+        for i in range(0, n, 2):  # half of them are agent sessions
+            (origin / f"{i:08x}-0000-0000-0000-000000000000").write_text("agent\n")
+        shims, log = _shims(sub)
+        env["PATH"] = f"{shims}:{_python_shim(sub, 'absent')}:{env['PATH']}"
+        assert len(_listed(main, env, "--list")) == n // 2
+        counts[n] = Counter(line.split(" ", 1)[0] for line in _calls(log))
+    # The 25 more hidden rows cost nothing; the 25 more shown rows cost what a
+    # shown row always did (two dates and one stat).
+    assert counts[60]["date"] - counts[10]["date"] == 25 * 2
+    assert counts[60]["stat"] - counts[10]["stat"] == 25 * 1
+    for tool in ("head", "grep", "awk", "basename", "dirname"):
+        assert counts[60][tool] == counts[10][tool], (tool, counts)
+
+
+def test_name_question_hides_agent_rows_and_plus_lists_them(tmp_path: Path) -> None:
+    _, b, _, env = _three_worktrees(tmp_path)
+    _mark_session(env, 3)  # "b work"
+    _mark_session(env, 1)  # "main work", another worktree's
+    question = "Session name (q): "
+    proc, master = _spawn_on_pty(
+        [str(SKILL_DIR / "ccsession"), "--ask", "q"], env, b, stdout=subprocess.PIPE
+    )
+    try:
+        first = _read_pty(master, until=question)
+        assert "removed work" in first
+        assert "b work" not in first
+        assert "2 agent sessions hidden: type + to list them" in first
+        assert "1 more session in other worktrees of this repo" in first
+        os.write(master, b"+\r")
+        more = _read_pty(master, until=question)
+        assert "b work" in more and "removed work" in more
+        assert "hidden" not in more
+        # "+" is never a name: the question was asked again. A hidden session's
+        # name still resumes it.
+        os.write(master, b"b work\r")
+        assert proc.wait(timeout=60) == 0
+        assert proc.stdout.read() == b"b work\n"
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+
+
+def test_name_question_with_only_agent_rows_shows_the_count_line_alone(
+    tmp_path: Path,
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    (projects / ORIGIN_LIST / "topics").mkdir(parents=True)
+    _add_session(env, main, 1, "auto one", "")
+    _mark_session(env, 1)
+    question = "Session name (q): "
+    proc, master = _spawn_on_pty(
+        [str(SKILL_DIR / "ccsession"), "--ask", "q"], env, main, stdout=subprocess.PIPE
+    )
+    try:
+        first = _read_pty(master, until=question)
+        assert "1 agent sessions hidden: type + to list them" in first
+        assert "Saved sessions in" not in first
+        os.write(master, b"\r")
+        assert proc.wait(timeout=60) == 0
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+
+
+# --- ccsession --classify (issue 638, task 7) ----------------------------------
+
+CLASSIFY_LABEL = "demo-run-1118-150248-ab12"  # what --auto-name makes
+
+
+def _tree(root: Path) -> dict[str, object]:
+    """Every path under root with its content and time: a change shows."""
+    seen: dict[str, object] = {}
+    for path in sorted(root.rglob("*")):
+        rel = str(path.relative_to(root))
+        if path.is_symlink():
+            seen[rel] = ("link", os.readlink(path))
+        elif path.is_dir():
+            seen[rel] = "dir"
+        else:
+            seen[rel] = (path.read_bytes(), path.stat().st_mtime_ns)
+    return seen
+
+
+def _classify_tree(tmp_path: Path) -> tuple[Path, dict[str, str]]:
+    main, _, projects, env = _named_repo(tmp_path)
+    topics = projects / ORIGIN_LIST / "topics"
+    topics.mkdir(parents=True)
+    old = projects / "-home-me-old-folder" / "topics"  # an old per-folder list
+    old.mkdir(parents=True)
+    (topics / f"{CLASSIFY_LABEL}.txt").write_text(f"{SESSION_ID}\n")
+    (old / f"{CLASSIFY_LABEL}.txt").write_text(f"{SESSION_ID}\n")
+    (topics / "fix-1118-notes.txt").write_text(f"{OTHER_SESSION}\n")
+    return main, env
+
+
+def test_classify_dry_run_leaves_the_whole_home_untouched_and_prints_counts(
+    tmp_path: Path,
+) -> None:
+    main, env = _classify_tree(tmp_path)
+    home = Path(env["HOME"])
+    before = _tree(home)
+    out = _ccs(main, env, "--classify").stdout
+    assert _tree(home) == before  # not even a migration stamp
+    assert "Would mark agent: 2 session names" in out
+    assert "Auto-named sessions: 1." in out and "not an auto-name): 1." in out
+    assert "Dry run: nothing was written. Run with --apply to write the markers." in out
+
+
+def test_classify_apply_marks_the_auto_named_session_everywhere_once(
+    tmp_path: Path,
+) -> None:
+    main, env = _classify_tree(tmp_path)
+    projects = Path(env["HOME"]) / ".claude" / "projects"
+    out = _ccs(main, env, "--classify", "--apply").stdout
+    assert "Marked agent: 2 session names" in out
+    assert _marker(projects) == "agent"
+    assert _marker(projects, list_name="-home-me-old-folder") == "agent"
+    assert _marker(projects, OTHER_SESSION) is None  # a person's name: left alone
+    before = _tree(Path(env["HOME"]))
+    again = _ccs(main, env, "--classify", "--apply").stdout
+    assert "Marked agent: 0 session names" in again
+    assert _tree(Path(env["HOME"])) == before
+
+
+def test_classified_sessions_leave_the_lists_until_agents_is_given(
+    tmp_path: Path,
+) -> None:
+    main, env = _classify_tree(tmp_path)
+    (Path(env["HOME"]) / ".claude" / "projects" / ORIGIN_LIST / "topics").mkdir(
+        exist_ok=True
+    )
+    projects = Path(env["HOME"]) / ".claude" / "projects"
+    _transcript(projects, main, SESSION_ID)
+    _transcript(projects, main, OTHER_SESSION)
+    assert set(_listed(main, env, "--here")) == {CLASSIFY_LABEL, "fix-1118-notes"}
+    _ccs(main, env, "--classify", "--apply")
+    assert set(_listed(main, env, "--here")) == {"fix-1118-notes"}
+    assert set(_listed(main, env, "--here", "--agents")) == {
+        CLASSIFY_LABEL,
+        "fix-1118-notes",
+    }
+
+
+def test_classify_refuses_options_it_does_not_know(tmp_path: Path) -> None:
+    main, env = _classify_tree(tmp_path)
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--classify", "--bogus"],
+        cwd=main,
+        env=env,
+        text=True,
+        capture_output=True,
+    )
+    assert result.returncode == 2 and "usage" in result.stderr
+
+
+# --- ccsession --prune and the older-than hint (issue 638, task 8) -------------
+# The pruner's own rules are in tests/unit/test_session_keep.py; these run it
+# through the command, in a throwaway HOME.
+
+
+def _agent_session(
+    env: dict[str, str],
+    folder: Path,
+    n: int,
+    name: str,
+    days: float,
+    origin: str | None = "agent",
+) -> Path:
+    """A saved session whose transcript last changed `days` days ago."""
+    _add_session(env, folder, n, name, "")
+    if origin:
+        _mark_session(env, n, origin)
+    session = f"{n}{n}{n}{n}0000-0000-0000-0000-000000000000"
+    projects = Path(env["HOME"]) / ".claude" / "projects"
+    (transcript,) = projects.glob(f"*/{session}.jsonl")
+    when = time.time() - days * 86400
+    os.utime(transcript, (when, when))
+    return transcript
+
+
+def _keep_a_year(env: dict[str, str]) -> None:
+    """The limit Claude Code uses in the owner's workspace: 365 days."""
+    settings = Path(env["HOME"]) / ".claude" / "settings.json"
+    settings.parent.mkdir(parents=True, exist_ok=True)
+    settings.write_text(json.dumps({"cleanupPeriodDays": 365}))
+
+
+def _prune_tree(tmp_path: Path) -> tuple[Path, dict[str, str], dict[str, Path]]:
+    main, _, projects, env = _named_repo(tmp_path)
+    (projects / ORIGIN_LIST / "topics").mkdir(parents=True)
+    _keep_a_year(env)
+    sessions = {
+        "agent old": _agent_session(env, main, 1, "agent old", 60),
+        "agent new": _agent_session(env, main, 2, "agent new", 5),
+        "mine old": _agent_session(env, main, 3, "mine old", 200, origin=None),
+        "human old": _agent_session(env, main, 4, "human old", 200, origin="human"),
+    }
+    return main, env, sessions
+
+
+def test_prune_dry_run_lists_candidates_and_writes_nothing_at_all(
+    tmp_path: Path,
+) -> None:
+    main, env, sessions = _prune_tree(tmp_path)
+    before = _tree(Path(env["HOME"]))
+    out = _ccs(main, env, "--prune").stdout
+    assert _tree(Path(env["HOME"])) == before  # no migration stamp, no lock file
+    assert "  agent old  last change " in out and "60 days old" in out
+    assert "agent new" not in out and "mine old" not in out and "human old" not in out
+    assert "Would delete 1 agent session " in out
+    lines = out.splitlines()
+    assert lines[-2].startswith(
+        "LOWERS THE LIMIT: Claude Code keeps sessions 365 days here; this removes 1 "
+        "agent sessions that are between 30 and 365 days old ("
+    )
+    assert lines[-1] == "Dry run: nothing was deleted. Run with --apply to delete."
+    assert all(path.is_file() for path in sessions.values())
+
+
+def test_prune_apply_deletes_only_the_old_agent_session_and_its_name(
+    tmp_path: Path,
+) -> None:
+    main, env, sessions = _prune_tree(tmp_path)
+    projects = Path(env["HOME"]) / ".claude" / "projects"
+    out = _ccs(main, env, "--prune", "--apply").stdout
+    assert "Deleted 1 agent session " in out and "Dry run" not in out
+    assert not sessions["agent old"].exists()
+    assert not (projects / ORIGIN_LIST / "topics" / "agent old.txt").exists()
+    assert _marker(projects, "11110000-0000-0000-0000-000000000000") is None
+    for survivor in ("agent new", "mine old", "human old"):
+        assert sessions[survivor].is_file()
+        assert (projects / ORIGIN_LIST / "topics" / f"{survivor}.txt").is_file()
+    again = _ccs(main, env, "--prune", "--apply").stdout
+    assert "Deleted 0 agent sessions" in again
+
+
+def test_prune_skips_the_running_session(tmp_path: Path) -> None:
+    main, env, sessions = _prune_tree(tmp_path)
+    running = "11110000-0000-0000-0000-000000000000"
+    out = _ccs(main, {**env, "CLAUDE_SESSION_ID": running}, "--prune", "--apply").stdout
+    assert "kept: agent old: this is the running session" in out
+    assert sessions["agent old"].is_file()
+
+
+@pytest.mark.parametrize(
+    ("args", "env_days", "code"),
+    [
+        (["--days", "0"], None, 2),
+        (["--days", "abc"], None, 2),
+        (["--days", "29"], None, 2),
+        ([], "abc", 2),
+        ([], "29", 2),
+        (["--days", "45"], "29", 2),
+        (["--days", "30"], None, 0),
+        (["--days", "45"], None, 0),
+        ([], "45", 0),
+    ],
+)
+def test_prune_refuses_days_below_30_and_deletes_nothing(
+    tmp_path: Path, args: list[str], env_days: str | None, code: int
+) -> None:
+    main, env, sessions = _prune_tree(tmp_path)
+    if env_days is not None:
+        env["CCSESSION_AGENT_KEEP_DAYS"] = env_days
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--prune", "--apply", *args],
+        cwd=main,
+        env=env,
+        text=True,
+        capture_output=True,
+    )
+    assert result.returncode == code, result.stderr
+    if code == 2:
+        assert "at least 30" in result.stderr and "nothing was deleted" in result.stderr
+        assert all(path.is_file() for path in sessions.values())
+    else:
+        assert not sessions["agent old"].exists()  # 60 days is past 30 and 45
+
+
+def test_prune_with_a_claude_code_limit_of_30_says_claude_code_deletes_first(
+    tmp_path: Path,
+) -> None:
+    main, env, sessions = _prune_tree(tmp_path)
+    (Path(env["HOME"]) / ".claude" / "settings.json").unlink()  # the default, 30
+    out = _ccs(main, env, "--prune", "--apply").stdout
+    assert "Claude Code already deletes saved sessions after 30 days here" in out
+    assert "LOWERS THE LIMIT" not in out
+    assert all(path.is_file() for path in sessions.values())
+
+
+def test_listings_say_when_agent_sessions_are_past_the_days(tmp_path: Path) -> None:
+    main, env, _ = _prune_tree(tmp_path)
+    hint = (
+        "1 agent sessions are older than 30 days: ccsession --prune shows what "
+        "would be removed"
+    )
+    for args in (("--list",), ("--here",), ("--here", "--all")):
+        out = _ccs(main, env, *args).stdout
+        assert out.rstrip().splitlines()[-1] == hint, args
+    # With nothing marked agent past the days the listings print what they always did.
+    _ccs(main, env, "--mark", "agent old", "human")
+    for args in (("--list",), ("--here",)):
+        assert "older than" not in _ccs(main, env, *args).stdout
+
+
+@pytest.mark.parametrize("bad", ["29", "abc", "0", "-4"])
+def test_listings_and_the_question_never_fail_on_a_bad_keep_days(
+    tmp_path: Path, bad: str
+) -> None:
+    main, env, _ = _prune_tree(tmp_path)
+    env["CCSESSION_AGENT_KEEP_DAYS"] = bad
+    for args in (("--list",), ("--here",), ("--here", "--all")):
+        done = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), *args],
+            cwd=main,
+            env=env,
+            text=True,
+            capture_output=True,
+        )
+        assert done.returncode == 0 and done.stderr == "", (args, done.stderr)
+        assert "older than 30 days" in done.stdout  # an invalid value counts as 30
+    status, stdout, shown, _, _ = _ask_on_pty(
+        tmp_path,
+        [(0.3, b"\r")],
+        env=_orca_env(tmp_path, CCSESSION_AGENT_KEEP_DAYS=bad),
+    )
+    assert (status, stdout) == (0, b"\n") and "rror" not in shown
+
+
+def test_listings_are_unchanged_where_the_helper_is_missing(tmp_path: Path) -> None:
+    main, env, _ = _prune_tree(tmp_path)
+    plain = _ccs(main, env, "--here").stdout
+    copy = tmp_path / "skill-copy"
+    shutil.copytree(SKILL_DIR, copy, ignore=shutil.ignore_patterns("__pycache__"))
+    (copy / "session_keep.py").unlink()
+    done = subprocess.run(
+        [str(copy / "ccsession"), "--here"],
+        cwd=main,
+        env=env,
+        text=True,
+        capture_output=True,
+    )
+    assert done.returncode == 0 and done.stderr == ""
+    assert done.stdout == plain.replace(
+        "1 agent sessions are older than 30 days: ccsession --prune shows what "
+        "would be removed\n",
+        "",
+    )
+    missing = subprocess.run(
+        [str(copy / "ccsession"), "--prune"],
+        cwd=main,
+        env=env,
+        text=True,
+        capture_output=True,
+    )
+    assert missing.returncode == 1 and "session_keep.py is missing" in missing.stderr
+
+
+def test_a_hidden_session_still_reopens_in_its_orca_tab(tmp_path: Path) -> None:
+    main, env, _ = _prune_tree(tmp_path)
+    session = "11110000-0000-0000-0000-000000000000"
+    assert "agent old" not in _listed(main, env, "--here")  # hidden
+    tabs = Path(env["HOME"]) / ".local" / "state" / "ccsession" / "orca-tabs"
+    tabs.mkdir(parents=True)
+    (tabs / "tab-1+leaf-1").write_text(f"{session}\n{main.resolve()}\nterm_old\n")
+    env = {**env, "ORCA_PANE_KEY": "tab-1:leaf-1", "ORCA_TERMINAL_HANDLE": "term_new"}
+    assert _ccs(main, env, "--orca-tab-reopen").stdout == f"{session}\tagent old\n"
+
+
+def test_a_linked_origin_folder_is_never_written_through(tmp_path: Path) -> None:
+    # An .origin that is a symlink would send the marker to the link's target:
+    # --mark says so and the hook's write is skipped, writing nothing outside.
+    main, _, projects, env = _named_repo(tmp_path)
+    topics = projects / ORIGIN_LIST / "topics"
+    topics.mkdir(parents=True)
+    (topics / "demo.txt").write_text(f"{SESSION_ID}\n")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (topics / ".origin").symlink_to(outside)
+    marked = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--mark", "demo", "human"],
+        cwd=main,
+        env=env,
+        text=True,
+        capture_output=True,
+    )
+    assert marked.returncode == 1 and "symlink" in marked.stderr
+    _sync(
+        main,
+        env,
+        OTHER_SESSION,
+        "auto-one",
+        *_sync_opts("SessionStart", "startup", "agent"),
+    )
+    assert (topics / "auto-one.txt").is_file()  # the name itself is still saved
+    assert list(outside.iterdir()) == []
