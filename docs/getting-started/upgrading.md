@@ -271,7 +271,8 @@ IronClaude can prove it wrote.
 
 - **Proof.** A command or agent file is removed only when its SHA-256 equals the
   file as shipped at an earlier release tag (the list and hashes are generated
-  from the `v5.0.0` tag into `src/superclaude/cli/install_retired_data.py`). A
+  from the `v5.0.0` and `v6.0.0` tags into
+  `src/superclaude/cli/install_retired_data.py`). A
   skill is a folder: it is removed only when every file in it is a shipped file
   with a matching hash and nothing else is in it.
 - **Removed from 5.0.0.** 12 commands: `build`, `cli-portify`, `improve`,
@@ -279,6 +280,11 @@ IronClaude can prove it wrote.
   `tasklist`, `validate-roadmap`. 5 skills: `sc-cli-portify-protocol`,
   `sc-review-translation-protocol`, `sc-roadmap-protocol`, `sc-tasklist-protocol`,
   `sc-validate-roadmap-protocol`. No agent is removed in 6.0.0.
+- **Removed from 6.0.0 (in 6.1.0).** 1 command: `tdd`. 9 skills: `operational-guide`,
+  `prd`, `readme`, `roadmap`, `task`, `task-builder`, `tdd`, `tech-reference`,
+  `tech-research`. No agent is removed in 6.1.0, and `/sc:task`,
+  `/sc:validate-tests` and the eight `rf-*` agents are kept. A workspace upgraded
+  straight from 5.0.0 to 6.1.0 gets both lists in one run.
 - **Kept and explained.** A file you edited, a skill folder with a file or folder
   you added (including a `__pycache__` a skill script created), a link, or
   anything unreadable is kept. The installer prints one line for each, with the
