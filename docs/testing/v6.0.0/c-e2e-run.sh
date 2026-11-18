@@ -14,6 +14,7 @@
 # Usage:  bash docs/testing/v6.0.0/c-e2e-run.sh        (run from the repository root, tag v6.0.0 present)
 set -u -o pipefail
 umask 077
+FAILS=""   # steps that did not end as expected; the exit status at the end reads this
 WT=$(pwd)
 ROOT=$(mktemp -d /tmp/ic6-e2e.XXXXXXXX) || { echo "FATAL: mktemp failed" >&2; exit 1; }
 [ -n "$ROOT" ] && [ -d "$ROOT" ] || { echo "FATAL: ROOT=[$ROOT] is not a directory" >&2; exit 1; }
@@ -46,7 +47,12 @@ run() {  # $1 = scenario dir, rest = command (printed, run with a clean environm
   echo "+ $*"
   env -i HOME="$E/home" PATH="$E/home/.local/bin:$E/shims:/usr/bin:/bin" LANG=C.UTF-8 TERM=dumb \
     PIPX_HOME="$E/home/.local/share/pipx" PIPX_BIN_DIR="$E/home/.local/bin" GIT_TERMINAL_PROMPT=0 "$@"
-  local rc=$?; echo "[exit=$rc]"; return $rc
+  local rc=$?; echo "[exit=$rc]"
+  # Every step is tracked against an expected exit code (default 0; set EXPECT_RC=<n> before the call for
+  # the steps that are meant to end non-zero; set NOTRACK=1 for a step that is retried). A step run inside
+  # $( ... ) cannot update FAILS and is informational only.
+  if [ -z "${NOTRACK:-}" ] && [ "$rc" != "${EXPECT_RC:-0}" ]; then FAILS="$FAILS [$* exit=$rc want ${EXPECT_RC:-0}]"; fi
+  return $rc
 }
 real_state() {  # read-only listing of the real home areas the task forbids touching
   echo "claude commands/agents/skills: $(ls -l --time-style=+%s "$HOME/.claude/commands/sc" "$HOME/.claude/agents" "$HOME/.claude/skills" 2>/dev/null | sha256sum | cut -c1-16)"
@@ -115,11 +121,11 @@ run "$S1" env CCSESSION_MANAGED_SETTINGS_DIR="$S1/home/no-managed" python3 "$RET
 jq '.cleanupPeriodDays=7' "$S1/home/.claude/settings.json" > "$S1/home/s.json" && cp "$S1/home/s.json" "$S1/home/.claude/settings.json"
 run "$S1" env CCSESSION_MANAGED_SETTINGS_DIR="$S1/home/no-managed" python3 "$RET" ensure "$S1/home/.claude/settings.json"; echo "after 7: $(jq -c '.cleanupPeriodDays' "$S1/home/.claude/settings.json")"
 printf '{ not json' > "$S1/home/bad.json"
-run "$S1" env CCSESSION_MANAGED_SETTINGS_DIR="$S1/home/no-managed" python3 "$RET" ensure "$S1/home/bad.json"; echo "bad.json after: $(cat "$S1/home/bad.json")"
+EXPECT_RC=3 run "$S1" env CCSESSION_MANAGED_SETTINGS_DIR="$S1/home/no-managed" python3 "$RET" ensure "$S1/home/bad.json"; echo "bad.json after: $(cat "$S1/home/bad.json")"
 echo "saved copies of settings.json now: $(ls "$S1/home/.claude" | grep -c '^settings.json.bak')"
 echo "--- smoke: removed groups are gone, new groups exist"
-run "$S1" superclaude roadmap --help; S1_RM=$?
-run "$S1" superclaude sprint --help
+EXPECT_RC=2 run "$S1" superclaude roadmap --help; S1_RM=$?
+EXPECT_RC=2 run "$S1" superclaude sprint --help
 run "$S1" superclaude sweep --help
 run "$S1" ic --help
 
@@ -133,8 +139,8 @@ echo "--- lay down 5.0.0 (its own installer, forced; retried up to 3 times becau
 S2_V5=1
 for attempt in 1 2 3; do
   wait_claude "$S2"
-  run "$S2" claude --version || { sleep 5; continue; }
-  run "$S2" "$VENV_PY" -I -c "import sys; sys.path.insert(0, '$V500'); from superclaude.cli.main import main; main(['install','--force'])"; S2_V5=$?
+  NOTRACK=1 run "$S2" claude --version || { sleep 5; continue; }
+  NOTRACK=1 run "$S2" "$VENV_PY" -I -c "import sys; sys.path.insert(0, '$V500'); from superclaude.cli.main import main; main(['install','--force'])"; S2_V5=$?
   [ "$S2_V5" -eq 0 ] && break
   echo "5.0.0 seed install attempt $attempt exited $S2_V5; retrying"; sleep 5
 done
@@ -159,7 +165,7 @@ echo "--- saved copies created by the upgrade"; find "$H2" -name '*.bak.*' | sed
 echo "--- by kind: commands=$(find "$H2/commands" -name '*.bak.*' | wc -l) rules=$(find "$H2/rules" -name '*.bak.*' | wc -l) output-styles=$(find "$H2/output-styles" -name '*.bak.*' | wc -l) settings.json=$(find "$H2" -maxdepth 1 -name 'settings.json.bak.*' | wc -l) core-files=$(find "$H2" -maxdepth 1 -name '*.md.bak.*' | wc -l) agents=$(find "$H2/agents" -name '*.bak.*' | wc -l) skills=$(find "$H2/skills" -name '*.bak.*' | wc -l)"
 echo "--- edited core file was overwritten without a saved copy: $(cmp -s "$H2/CLAUDE.md" "$S2/CLAUDE.md.edited" && echo NO-still-the-edited-copy || echo yes-overwritten); CLAUDE.md copies: $(find "$H2" -maxdepth 1 -name 'CLAUDE.md.bak.*' | wc -l)"
 run "$S2" superclaude install --list
-run "$S2" superclaude doctor --verbose; S2_DOCTOR_KEPT=$?
+EXPECT_RC=1 run "$S2" superclaude doctor --verbose; S2_DOCTOR_KEPT=$?
 echo "--- run the exact rm commands the installer printed for the kept items (only paths under the throwaway ~/.claude)"
 grep -o '`rm [^`]*`' "$ROOT/s2-upgrade-output.txt" | tr -d '`' | sort -u | while read -r line; do
   case "$line" in "rm $S2/home/.claude/"*|"rm -r $S2/home/.claude/"*|"rm -rf $S2/home/.claude/"*) echo "+ $line"; bash -c "$line"; echo "[exit=$?]";; *) echo "SKIPPED (path outside the throwaway home): $line";; esac
@@ -194,9 +200,10 @@ if diff -q "$ROOT/before.txt" "$ROOT/after.txt" >/dev/null; then echo "REAL_HOME
 echo "SUMMARY s1_pipx=$S1_PIPX s1_install=$S1_INSTALL s1_doctor=$S1_DOCTOR s1_second=$S1_SECOND s1_retention_install=$S1_RET s1_removed_group_exit=$S1_RM s2_v5_seed=$S2_V5 s2_pipx=$S2_PIPX s2_install=$S2_INSTALL s2_doctor_while_kept=$S2_DOCTOR_KEPT s2_doctor_after_rm=$S2_DOCTOR s2_second=$S2_SECOND s2_update=$S2_UPDATE s2_doctor_after_cleanup=$S2_DOCTOR_FINAL s3_update_sh=$S3_UPDATE"
 echo "ROOT=$ROOT (not deleted; remove it with a literal path)"
 
-# Exit status: 0 only when every step ended as designed. The two non-zero values below are expected:
-# doctor while a kept removed command exists (1) and the removed `roadmap` group (2).
-FAILS=""
+# Exit status: 0 only when every step ended as designed. `run` has already tracked every step against its
+# expected exit code; the named checks below repeat the key ones. Expected non-zero steps: the retention
+# check on a file that is not JSON (3), the removed `roadmap` and `sprint` groups (2) and doctor while a
+# kept removed command exists (1).
 chk() { [ "$2" = "$3" ] || FAILS="$FAILS $1(want $2, got $3)"; }
 chk s1_pipx 0 "$S1_PIPX"; chk s1_install 0 "$S1_INSTALL"; chk s1_doctor 0 "$S1_DOCTOR"; chk s1_second 0 "$S1_SECOND"
 chk s1_retention_install 0 "$S1_RET"; chk s1_removed_group_exit 2 "$S1_RM"; chk s2_v5_seed 0 "$S2_V5"; chk s2_pipx 0 "$S2_PIPX"
