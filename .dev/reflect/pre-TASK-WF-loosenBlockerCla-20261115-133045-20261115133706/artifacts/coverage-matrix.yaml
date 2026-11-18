@@ -1,0 +1,21 @@
+coverage_matrix:
+  - requirement_id: INF-001
+    source: inferred
+    matched_task_ids: []
+    match_method: none
+    best_ratio: 0.222
+  - requirement_id: INF-002
+    source: inferred
+    matched_task_ids: []
+    match_method: none
+    best_ratio: 0.385
+  - requirement_id: INF-003
+    source: inferred
+    matched_task_ids: []
+    match_method: none
+    best_ratio: 0.25
+  - requirement_id: INF-004
+    source: inferred
+    matched_task_ids: []
+    match_method: none
+    best_ratio: 0.579

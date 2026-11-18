@@ -25,19 +25,13 @@ _OTHER_BEGIN, _OTHER_END = "<!-- other-commands:v1 -->", "<!-- /other-commands -
 
 # Additional operations and explicit coordination, not an Other-only namespace.
 _OTHER_COMMANDS = {
-    "sc:build",
     "sc:git",
     "sc:graph",
     "sc:impact",
     "sc:issue",
-    "sc:spawn",
     "sc:sweep",
-    "sc:index",
-    "sc:index-repo",
     "sc:agent",
     "sc:pm",
-    "sc:save",
-    "sc:load",
 }
 
 _COLUMNS = [
@@ -53,7 +47,9 @@ _COLUMNS = [
 _LEVEL_HEADER = ["Level", "Use this when", "What you run", "What you end up with"]
 
 # Row ids are stable keys: /sc:recommend cites them and the live run uses them.
-# A row may be added; none of these may be renamed or removed.
+# A row may be added; none of these may be renamed or removed. The one row that left
+# on purpose is the localization review row, which went in 6.0.0 when its command
+# moved to the snapshot fork.
 _EXPECTED_IDS = {
     "ask",
     "small-change",
@@ -82,18 +78,12 @@ _EXPECTED_IDS = {
     "focused-design",
     "technical-design-document",
     "cleanup-audit-only",
-    "contained-improve",
     "auggie-review-only",
-    "localization-review",
     "context-audit",
     "cli-eval-create",
     "cli-eval-run",
-    "cli-portification-spec",
     "release-boundary",
     "post-release",
-    "roadmap-artifacts",
-    "sprint-tasklist-bundle",
-    "roadmap-fidelity",
     "tier-validation",
 }
 
@@ -300,12 +290,9 @@ def test_other_commands_membership_and_live_references():
     assert not members & {
         "sc:help",
         "sc:cli-eval",
-        "sc:cli-portify",
         "sc:init-lite",
         "sc:post-release",
-        "sc:review-translation",
         "sc:tdd",
-        "sc:validate-roadmap",
         "sc:validate-tests",
     }
     for token in set(_TOKEN_RE.findall(block)):
@@ -395,7 +382,7 @@ def test_direct_change_threshold_and_written_plan_requirement():
     assert "one source file (plus its test file)" in direct[1]
     assert "five edits or fewer" in direct[1]
     assert "already know exactly" in direct[1]
-    assert "/sc:task" in direct[2]
+    assert "/sc:implement" in direct[2]
     assert "more than 5 edits or touches more than one source file" in block
     assert "one block of consecutive changed lines" in block
     assert "8 places is 8 edits and requires a written plan" in block
@@ -501,7 +488,7 @@ def test_inspection_breadth_does_not_require_an_implementation_plan():
 def test_contained_cleanup_exception_retains_safeguards_not_structural_migration():
     """T13: the folder exception preserves its checkpoint and diff boundary."""
     block = _block(_text(), _LEVEL_BEGIN, _LEVEL_END)
-    assert "contained `/sc:cleanup` and `/sc:improve` work on a folder" in block
+    assert "contained `/sc:cleanup` work on a folder" in block
     assert "commit first and review `git diff` afterwards" in block
     assert "This exception does not cover structural migrations" in block
     cleanup = _block(_text(), "### 3.7 ", "### 3.8 ")
@@ -645,18 +632,7 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
             [
                 "exclusion floor",
                 "hidden-only targets are not exhaustively covered",
-                "no cleanup, improve or commit",
-            ],
-        ),
-        (
-            "S05",
-            "contained-improve",
-            {"sc:improve"},
-            ["<target>", "type/safe/interactive"],
-            [
-                "automatic edits",
-                "no compulsory cleanup/deletions",
-                "structural migration stays planned",
+                "no cleanup or commit",
             ],
         ),
         (
@@ -668,17 +644,6 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
                 "--no-post-pr --no-remediation-offer",
                 "internal reviewer only",
                 "default prism-b",
-            ],
-        ),
-        (
-            "S07",
-            "localization-review",
-            {"sc:review-translation"},
-            ["<source-file>", "<translation-files...>"],
-            [
-                "confirm context before review",
-                "separate consent",
-                "not runtime troubleshooting",
             ],
         ),
         (
@@ -707,18 +672,6 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
             ],
         ),
         (
-            "S11",
-            "cli-portification-spec",
-            {"sc:cli-portify"},
-            ["--workflow <skill-name-or-path>", "name/output/dry-run"],
-            [
-                "Phase 0-2",
-                "no full spec synthesis or panel artifacts",
-                "no-direct-code-files",
-                "contract gap/unavailable",
-            ],
-        ),
-        (
             "S12",
             "release-boundary",
             {"sc:release-split"},
@@ -742,36 +695,6 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
             ],
         ),
         (
-            "S14",
-            "roadmap-artifacts",
-            {"sc:roadmap"},
-            ["supplied documents", "requested controls"],
-            ["contract gap", "no combined interface", "not MDTM roadmap substitution"],
-        ),
-        (
-            "S15",
-            "sprint-tasklist-bundle",
-            {"sc:tasklist"},
-            ["<roadmap-path>", "supplied spec/output"],
-            [
-                "readable non-empty roadmap",
-                "writable output parent",
-                "no unsupported source flag",
-                "no automatic Sprint/task execution",
-            ],
-        ),
-        (
-            "S16",
-            "roadmap-fidelity",
-            {"sc:validate-roadmap"},
-            ["roadmap/spec sources", "supplied output directory"],
-            [
-                "command/protocol contract gap",
-                "explicitly denies CLI equivalence",
-                "exit zero is not clean validation",
-            ],
-        ),
-        (
             "S17",
             "tier-validation",
             {"sc:validate-tests"},
@@ -790,7 +713,7 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
 def test_specialist_static_targets_inputs_and_stops(
     case, row_id, targets, inputs, boundaries
 ):
-    """Static S01-S17 contracts; these are not model-generation evaluations."""
+    """Static specialist contracts (S01-S13, S17); not model-generation evaluations."""
     row = next(r for r in _routing_rows() if r["id"] == row_id)
     assert targets <= set(_TOKEN_RE.findall(row["steps"])), case
     assert "3.13" in row["section"].split(", "), case
@@ -823,10 +746,7 @@ def test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_fir
     assert "actual callable command/skill and relevant dependencies" in section
     assert "contract gap**, not a union of both interfaces" in section
     assert "new suite or a supervised existing-suite run" in section
-    assert (
-        "checked workflow plan, an MDTM checklist and a roadmap-to-Sprint bundle"
-        in section
-    )
+    assert "checked workflow plan from an MDTM checklist" in section
     unsure = next(r for r in _routing_rows() if r["id"] == "unsure")
     assert "one useful clarification" in unsure["steps"]
     assert "sc:recommend" not in _TOKEN_RE.findall(unsure["steps"])
@@ -834,7 +754,7 @@ def test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_fir
 
 
 def test_reports_keep_specialist_objective_instead_of_generic_competitor():
-    """T15-T17/S07/S29: artifact labels and errors do not determine the objective."""
+    """T15-T17/S29: artifact labels and errors do not determine the objective."""
     rows = {r["id"]: r for r in _routing_rows()}
     business = rows["business-strategy"]
     assert "even when input is a PRD" in business["intent"]
@@ -848,12 +768,6 @@ def test_reports_keep_specialist_objective_instead_of_generic_competitor():
     assert "target-release clarification" in critique["notes"]
     assert "consent before input edits" in critique["notes"]
     assert "not raw PRD/TDD authoring, business viability" in critique["notes"]
-    locale = rows["localization-review"]
-    assert locale["changes_files"] == "no"
-    assert "not runtime troubleshooting" in locale["notes"]
-    assert not {"sc:troubleshoot", "sc:analyze"} & set(
-        _TOKEN_RE.findall(locale["steps"])
-    )
 
 
 def test_requested_analysis_research_explain_modes_are_not_forced_defaults():
@@ -892,8 +806,8 @@ def test_adversarial_generation_comparison_and_pipeline_remain_exclusive():
     assert "no one-file comparison or product execution" in row["notes"]
 
 
-def test_cleanup_audit_and_improvement_have_separate_authority_boundaries():
-    """S04/S05: reporting cannot acquire deletion, improvement or a commit."""
+def test_cleanup_audit_has_report_only_authority_boundary():
+    """S04: reporting cannot acquire deletion or a commit."""
     rows = {r["id"]: r for r in _routing_rows()}
     audit = rows["cleanup-audit-only"]
     assert audit["changes_files"] == "no"
@@ -902,11 +816,6 @@ def test_cleanup_audit_and_improvement_have_separate_authority_boundaries():
     assert "default surface, not forced all" in audit["notes"]
     assert "later passes need earlier context" in audit["notes"]
     assert "hidden/BMAD paths are an unremovable exclusion floor" in audit["notes"]
-    improve = rows["contained-improve"]
-    assert _TOKEN_RE.findall(improve["steps"]) == ["sc:improve"]
-    assert "checkpoint commit" in improve["steps"] and "git diff" in improve["steps"]
-    assert "sc:cleanup" not in _TOKEN_RE.findall(improve["steps"])
-    assert "sc:improve" not in _TOKEN_RE.findall(rows["cleanup"]["steps"])
 
 
 def test_previews_documentation_and_suite_runs_disclose_actual_writes():
@@ -914,9 +823,6 @@ def test_previews_documentation_and_suite_runs_disclose_actual_writes():
     rows = {r["id"]: r for r in _routing_rows()}
     section = _block(_text(), "### 3.6 ", "### 3.7 ")
     assert "brainstorm dry run can write preparatory artifacts" in section
-    portify = rows["cli-portification-spec"]["notes"]
-    assert "dry-run writes Phase 0-2 artifacts" in portify
-    assert "no full spec synthesis or panel artifacts" in portify
     context = rows["context-audit"]
     assert "--context-optimized" in context["mandatory_flags"]
     assert "dry-run` writes nothing and creates no output directory" in context["notes"]
@@ -931,7 +837,6 @@ def test_previews_documentation_and_suite_runs_disclose_actual_writes():
     docs = rows["document-built"]
     assert {
         "sc:document",
-        "sc:index",
         "tech-reference",
         "operational-guide",
         "readme",
@@ -1064,27 +969,14 @@ def test_pr_attachment_monitor_log_resume_and_silence_are_not_new_shipping():
 
 
 def test_other_operations_preserve_requested_authority_and_owned_state():
-    """S23-S27/T19/T72: utility operations are not generic implementation."""
+    """S23, S26/T19/T72 (S24, S25 and S27 retired): utility operations are not generic implementation."""
     other = _block(_text(), _OTHER_BEGIN, _OTHER_END)
     assert "Status-only stays inspection" in other
     assert "a commit needs authorization" in other
     assert "Do not append push, merge or PR creation" in other
-    assert "Compile/package existing code" in other
-    assert "not new-feature implementation" in other
-    assert "Broken compilation needs diagnosis" in other
-    assert "mode=quick or mode=update" in other
-    assert "PROJECT_INDEX.md and PROJECT_INDEX.json" in other
-    assert "Coordinated project docs/API/structure/README" in other
-    assert "needs no MCP server" in other
-    assert ".superclaude/memory/" in other
-    assert "writes memory; not durable task execution state" in other
-    assert "Not executor resume" in other
     assert "inspect status, orient, then wait" in other
     assert "self-contained, not a missing protocol" in other
     assert "Not a default planner, automatic-start guarantee" in other
-    assert "critical stop is a task hierarchy only" in other
-    assert "no source edits or downstream implementation" in other
-    assert "Branch tracing is limited" in other
 
 
 def test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces():
@@ -1110,13 +1002,6 @@ def test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces():
         assert not {"sc:estimate", "sc:sc", "sc:select-tool", "sc:task-mcp"} & set(
             _TOKEN_RE.findall(row["steps"] + row["notes"])
         )
-    rows = {r["id"]: r for r in _routing_rows()}
-    for row_id in ("roadmap-artifacts", "roadmap-fidelity"):
-        assert "contract gap" in rows[row_id]["steps"]
-        assert "asks first" == rows[row_id]["changes_files"]
-        assert not {"--specs", "--agents", "--template", "--depth"} & set(
-            _FLAG_RE.findall(rows[row_id]["steps"])
-        ), "No runnable union of the conflicting command/protocol interfaces"
     assert (
         "Command and protocol disagree on missing-proxy STOP versus stub fallback"
         in guide

@@ -1,0 +1,12 @@
+# sc:adversarial own contract (Mode B, unattended). Written by the orchestrating session.
+return_contract:
+  merged_output_path: ".dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/02-brainstorm/nested/adversarial-1/merged-output.md"
+  convergence_score: 1.0          # majority rule, 61 of 61 points (Round 1: 0.902); see debate-transcript.md for the conformity caveat
+  artifacts_dir: ".dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/02-brainstorm/nested/adversarial-1/adversarial/"
+  status: "partial"               # convergence gate BLOCKED_BY_INVARIANTS at depth standard (no Round 3); the 9 HIGH items were resolved through the refactoring plan and re-checked in the merged spec, not re-debated
+  base_variant: "sonnet:analyzer"  # chosen by tiebreaker level 1 (debate points won 19 vs 9); numeric leader was opus:architect (0.921 vs 0.883)
+  unresolved_conflicts: 0
+  fallback_mode: true             # unattended resolution of invariant-probe HIGH items by plan and merge instead of a further debate round
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []      # all 9 HIGH items (INV-001, 007, 008, 009, 015, 023, 026, 027, 034) have a requirement or owner decision in the merged spec appendix

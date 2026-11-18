@@ -1,0 +1,17 @@
+$ bash -n
+syntax-ok
+$ tail -n1
+exit 0
+$ skill-creator workspace path -> expect exit 2
+exit=2
+$ repo-root prd-demo path -> expect exit 0
+exit=0
+$ make sync-dev
+   Hooks:     17 files
+   Templates: 52 files
+$ make verify-sync
+
+✅ All components in sync.
+$ pytest install hooks + verify_sync_hooks
+
+============================= 56 passed in 15.94s ==============================

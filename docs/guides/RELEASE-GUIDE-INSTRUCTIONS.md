@@ -8,7 +8,7 @@ Instructions for creating consistent, comprehensive release guides for SuperClau
 
 Create a release guide when:
 
-- A new CLI subcommand group ships (e.g., `superclaude roadmap`, `superclaude sprint`)
+- A new CLI subcommand group ships (e.g., `superclaude reflect`, `superclaude swarm`)
 - A new skill ships or an existing skill undergoes major refactoring (e.g., `/prd`, `/tdd`)
 - A component's architecture changes significantly enough that existing documentation is misleading
 
@@ -28,8 +28,6 @@ docs/guides/[component-name]-release-guide.md
 
 Examples:
 
-- `roadmap-cli-tools-release-guide.md` — CLI tool group
-- `sprint-cli-tools-release-guide.md` — CLI tool group
 - `prd-skill-release-guide.md` — Skill
 - `tdd-skill-release-guide.md` — Skill
 

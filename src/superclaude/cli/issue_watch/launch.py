@@ -30,7 +30,7 @@ ORCA_AGENT = "claude"
 MAX_ISSUE_NUMBER = 999_999_999
 """Largest issue number ``build_claim_prompt`` accepts (FR-012)."""
 
-PROMPT_PATTERN = re.compile(r"^/sc:issue --claim [1-9][0-9]{0,8}$")
+PROMPT_PATTERN = re.compile(r"^/sc:issue --claim [1-9][0-9]{0,8} --pipeline none$")
 """Every prompt ``build_claim_prompt`` can return, and nothing else."""
 
 OPERATION_ID_PATTERN = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
@@ -82,14 +82,14 @@ def _check_timeout(timeout: object) -> float:
 
 
 def build_claim_prompt(n: object) -> str:
-    """Return ``/sc:issue --claim <n>`` for an ``int`` in 1..999999999.
+    """Return ``/sc:issue --claim <n> --pipeline none`` for an ``int`` in 1..999999999.
 
     A ``bool``, a ``str``, a ``float`` or an out-of-range ``int`` raises
     ``ValueError`` (FR-012, design 9.3).
     """
     if type(n) is not int or not 1 <= n <= MAX_ISSUE_NUMBER:
         raise ValueError("issue number must be an int in 1..999999999")
-    return f"/sc:issue --claim {n}"
+    return f"/sc:issue --claim {n} --pipeline none"
 
 
 def launch_argv(orca: str, worktree: Path | str, prompt: str) -> list[str]:

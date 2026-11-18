@@ -10,8 +10,8 @@
 #   ic --no-yolo                # launch claude WITHOUT --dangerously-skip-permissions
 #   ic <alias> -- <claude-args> # forward args after -- to claude
 #
-# Resolution: each model value is looked up in $IC_ALIASES (declared in ~/.aienv);
-# if no alias matches, the literal value is passed through to claude.
+# Resolution: a model value that is a lowercase name (kimi, qwen) becomes the value of
+# the variable of that name from ~/.aienv; any other value is passed to claude as is.
 #
 # ~/.aienv should define (in addition to existing exports):
 #   export kimi=kimi-k2.6
@@ -21,6 +21,19 @@
 #   export IC_PRESET_fast="opus=claude-opus-4-7 sonnet=claude-sonnet haiku=glm-5-turbo"
 
 set -euo pipefail
+
+# Handle -h/--help before sourcing $AIENV: a failing line in that file must not
+# block help. Walk the arguments like the parser below does: an option that takes
+# a value skips it, and `--` ends the scan (everything after it is for claude).
+for ((i = 1; i <= $#; i++)); do
+  case "${!i}" in
+    -p|--preset|-H|--haiku|-S|--sonnet|-O|--opus) i=$((i + 1)) ;;
+    --) break ;;
+    -h|--help)
+      sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0 ;;
+  esac
+done
 
 AIENV="${AIENV:-$HOME/.aienv}"
 if [[ -f "$AIENV" ]]; then
@@ -32,13 +45,14 @@ fi
 
 # Resolve a token through ~/.aienv exports; fall back to literal value.
 # Looks up $<key> via indirect expansion — e.g. resolve kimi → $kimi → kimi-k2.6.
-# Only treats the env var as an alias if its name is a "safe" shape (avoids
-# accidentally resolving PATH, HOME, etc. if a user passes those literally).
+# Only a name that starts with a lowercase letter can be an alias, as in the header
+# examples (kimi, qwen). That keeps environment variables such as PATH, HOME or
+# LITELLM_API_KEY from being picked up when a user passes those names literally.
 resolve() {
   local key="$1"
-  # Only attempt indirect expansion if key is a valid bash identifier
+  # Only attempt indirect expansion for an alias-shaped name
   # (literal model IDs like "qwen3.6-plus" contain "." / "-" and fall through).
-  if [[ "$key" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]] && [[ -n "${!key:-}" ]]; then
+  if [[ "$key" =~ ^[a-z][a-zA-Z0-9_]*$ ]] && [[ -n "${!key:-}" ]]; then
     printf '%s' "${!key}"
   else
     printf '%s' "$key"
@@ -70,6 +84,15 @@ apply_preset() {
 claude_args=()
 yolo=1   # default: launch with --dangerously-skip-permissions
 while [[ $# -gt 0 ]]; do
+  # An option that takes a value must have one (reading a missing $2 under
+  # `set -u` would stop with Bash's "$2: unbound variable" instead).
+  case "$1" in
+    -p|--preset|-H|--haiku|-S|--sonnet|-O|--opus)
+      if [[ $# -lt 2 ]]; then
+        echo "ic: option $1 requires a value" >&2
+        exit 2
+      fi ;;
+  esac
   case "$1" in
     -p|--preset)   apply_preset "$2"; shift 2 ;;
     -H|--haiku)    ANTHROPIC_DEFAULT_HAIKU_MODEL="$(resolve "$2")";  shift 2 ;;
@@ -77,9 +100,6 @@ while [[ $# -gt 0 ]]; do
     -O|--opus)     ANTHROPIC_DEFAULT_OPUS_MODEL="$(resolve "$2")";   shift 2 ;;
     --no-yolo)     yolo=0; shift ;;
     --)            shift; claude_args+=("$@"); break ;;
-    -h|--help)
-      sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'
-      exit 0 ;;
     -*)
       # Unknown flag — forward to claude.
       claude_args+=("$1"); shift ;;

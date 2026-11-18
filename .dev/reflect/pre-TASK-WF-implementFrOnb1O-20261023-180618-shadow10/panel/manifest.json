@@ -1,0 +1,141 @@
+{
+  "attempts": [
+    {
+      "attempt_id": "1",
+      "completion": "complete",
+      "payload_sha256": "83115a12ea951bbf97f80119687fea6954a0ceebee13823da5689e47c0a516b2",
+      "reviewer_id": "t1b-1",
+      "stage": "collected"
+    },
+    {
+      "attempt_id": "1",
+      "completion": "complete",
+      "payload_sha256": "83115a12ea951bbf97f80119687fea6954a0ceebee13823da5689e47c0a516b2",
+      "reviewer_id": "t4-1",
+      "stage": "collected"
+    },
+    {
+      "attempt_id": "1",
+      "completion": "complete",
+      "payload_sha256": "83115a12ea951bbf97f80119687fea6954a0ceebee13823da5689e47c0a516b2",
+      "reviewer_id": "t1a-1",
+      "stage": "collected"
+    }
+  ],
+  "frozen": {
+    "brief_template_sha256": "6aa657c667995bfbac492647d54681104ac7b5fd2de431413536a62a7b706355",
+    "input_tree_sha256": "45b662cfd9edbd8d1fcdabc2cf80ab441b9f92cea2f4f8d7ce1b97194b409625",
+    "schema_ids": [
+      "review-panel/1",
+      "findings-v2"
+    ],
+    "snapshot_ref": "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-implementFrOnb1O-20261023-180618-shadow10/artifacts/input-snapshot.yaml",
+    "snapshot_sha256": "d6f8e52ddef6c1de9180e193ca2cffb70602c23facfd1f24dffe079d3dcd8fd1",
+    "template_sha256": "d8156ae38041992ba036afadcda14bc001941fdd759ffe0ca607d83942fb765e",
+    "tiers_sha256": "a35908fa6d4019ea3f01d7842b2090ac6432d40a36cdeb9a08c6f0b1f50f05be"
+  },
+  "history": [],
+  "input_tree_sha256": "45b662cfd9edbd8d1fcdabc2cf80ab441b9f92cea2f4f8d7ce1b97194b409625",
+  "invocation": 1,
+  "policy_sha256": "dae4ed2ac33080652f57924984a3e9d3296ddbbb810ed01883a346e5458912dc",
+  "reviewers_complete": 3,
+  "reviewers_requested": 3,
+  "reviewers_resolved": 3,
+  "run_id": "pre-TASK-WF-implementFrOnb1O-20261023-180618-shadow10",
+  "schema": "review-panel-manifest/1",
+  "stages": {
+    "calibrated": {
+      "deps": {
+        "input_tree_sha256": "45b662cfd9edbd8d1fcdabc2cf80ab441b9f92cea2f4f8d7ce1b97194b409625",
+        "policy_sha256": "dae4ed2ac33080652f57924984a3e9d3296ddbbb810ed01883a346e5458912dc",
+        "prev": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "clustered": {
+      "deps": {
+        "input_tree_sha256": "45b662cfd9edbd8d1fcdabc2cf80ab441b9f92cea2f4f8d7ce1b97194b409625",
+        "policy_sha256": "dae4ed2ac33080652f57924984a3e9d3296ddbbb810ed01883a346e5458912dc",
+        "prev": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "collected": {
+      "deps": {
+        "input_tree_sha256": "45b662cfd9edbd8d1fcdabc2cf80ab441b9f92cea2f4f8d7ce1b97194b409625",
+        "policy_sha256": "dae4ed2ac33080652f57924984a3e9d3296ddbbb810ed01883a346e5458912dc",
+        "prev": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "debated": {
+      "deps": {
+        "input_tree_sha256": "45b662cfd9edbd8d1fcdabc2cf80ab441b9f92cea2f4f8d7ce1b97194b409625",
+        "policy_sha256": "dae4ed2ac33080652f57924984a3e9d3296ddbbb810ed01883a346e5458912dc",
+        "prev": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "dispatched": {
+      "deps": {
+        "input_tree_sha256": "45b662cfd9edbd8d1fcdabc2cf80ab441b9f92cea2f4f8d7ce1b97194b409625",
+        "policy_sha256": "dae4ed2ac33080652f57924984a3e9d3296ddbbb810ed01883a346e5458912dc",
+        "prev": "0ff117082f8ea59f30dbd77fb0d15e80f0c611a80a9481d8754bce607b3bdfc6"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "frozen": {
+      "deps": {},
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "e07091fce2c97e64b5af12f6543b9e9ccd2c4d3f292d8b8dbde6d231b0b19b5e"
+    },
+    "published": {
+      "deps": {
+        "input_tree_sha256": "45b662cfd9edbd8d1fcdabc2cf80ab441b9f92cea2f4f8d7ce1b97194b409625",
+        "policy_sha256": "dae4ed2ac33080652f57924984a3e9d3296ddbbb810ed01883a346e5458912dc",
+        "prev": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "invocation": 1,
+      "outputs": {
+        "REPORT.md": "b338377b2c1d56f584bb581e5de1f287fe6b7f006a5c22728408945a7b830572",
+        "audit.log": "9337ab76d027f1ed019e7276c03dee9d66fa175d74d6244b624b1ccaa573f598",
+        "return-contract.yaml": "00630d1ccb6d36ab5385a42e44e2839d174a8f7df297d302d9e01fc21efc96b9"
+      },
+      "payload_sha256": "cc45ab76bbc29608174b601e9f07bc37026f0951d0ab0dc19b67b56ce56fab77"
+    },
+    "resolved": {
+      "deps": {
+        "input_tree_sha256": "45b662cfd9edbd8d1fcdabc2cf80ab441b9f92cea2f4f8d7ce1b97194b409625",
+        "policy_sha256": "dae4ed2ac33080652f57924984a3e9d3296ddbbb810ed01883a346e5458912dc",
+        "prev": "e07091fce2c97e64b5af12f6543b9e9ccd2c4d3f292d8b8dbde6d231b0b19b5e"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "0ff117082f8ea59f30dbd77fb0d15e80f0c611a80a9481d8754bce607b3bdfc6"
+    },
+    "validated": {
+      "deps": {
+        "input_tree_sha256": "45b662cfd9edbd8d1fcdabc2cf80ab441b9f92cea2f4f8d7ce1b97194b409625",
+        "policy_sha256": "dae4ed2ac33080652f57924984a3e9d3296ddbbb810ed01883a346e5458912dc",
+        "prev": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    }
+  },
+  "state": "published",
+  "t2_engine_effective": "shadow",
+  "t2_engine_requested": "shadow"
+}

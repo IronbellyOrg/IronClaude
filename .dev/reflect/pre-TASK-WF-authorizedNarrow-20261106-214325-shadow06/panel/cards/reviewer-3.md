@@ -1,0 +1,23 @@
+persona: refactorer
+model_class: opus
+model: claude-opus-5-5
+
+## Findings block
+
+```findings-v2
+{"id": "F1", "severity": "MAJOR", "blocking": false, "category": "missing-requirement", "lens": "reflect-pre", "claim": "Task 3's instruction lists only make sync-dev and src-side edits, yet its AC requires the hand-maintained plugin mirror (plugins/superclaude/hooks/scripts and plugins/superclaude/hooks/hooks.json), which make sync-dev never writes; no step names those files.", "citations": [{"role": "plan", "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md", "line_start": 61, "line_end": 61, "quote": "Append one PreToolUse Bash registration in src/superclaude/hooks/hooks.json, retaining all current hooks."}, {"role": "plan", "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md", "line_start": 64, "line_end": 64, "quote": "The exact executable script distributes to the normal installed hooks directory and source/plugin mirror surfaces according to this checkout's real build convention."}, {"role": "spec", "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/source.md", "line_start": 5, "line_end": 5, "quote": "Use existing hook/launcher distribution and no new dependencies or services."}]}
+{"id": "F2", "severity": "MAJOR", "blocking": false, "category": "other", "lens": "reflect-pre", "claim": "Task 3's blanket 'do not stage mirrors' is broader than the constraint 'Never stage generated .claude mirrors' and, read literally, forbids staging the tracked plugin mirror that must ship with the change.", "citations": [{"role": "plan", "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md", "line_start": 61, "line_end": 61, "quote": "Run make sync-dev and make verify-sync; do not stage mirrors."}, {"role": "plan", "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md", "line_start": 25, "line_end": 25, "quote": "Never stage generated .claude mirrors."}]}
+{"id": "F3", "severity": "MINOR", "blocking": false, "category": "other", "lens": "reflect-pre", "claim": "Task 1 adds a new src/superclaude/hooks/scripts/*.sh but its _FRESHNESS_SCRIPTS listing and sync are deferred to Task 3, so make verify-sync's Installer Registration and Hooks checks fail during Tasks 1-2 and the plan does not declare that interim drift as expected.", "citations": [{"role": "plan", "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md", "line_start": 31, "line_end": 31, "quote": "Add the proposed standalone src/superclaude/hooks/scripts/launch-job-identity.sh and tests/hooks/test_launch_job_identity.py."}, {"role": "plan", "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md", "line_start": 59, "line_end": 61, "quote": "Add the new shell script to src/superclaude/cli/install_hooks.py _FRESHNESS_SCRIPTS and the fake-source fixture in tests/cli/test_install_hooks.py."}]}
+{"id": "F4", "severity": "MINOR", "blocking": false, "category": "other", "lens": "reflect-pre", "claim": "The spec authorizes launcher/harness identity integration, but no plan task makes an existing launcher write the governed session record that activates the adapter; the launcher side is only documented, and the plan does not say whether 'launcher/harness' means both halves or either one.", "citations": [{"role": "spec", "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/source.md", "line_start": 1, "line_end": 1, "quote": "authorized narrowly scoped launcher/harness identity integration so jobs retain their originating session identity across resets and background execution, without restricting human pushes."}, {"role": "plan", "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md", "line_start": 46, "line_end": 46, "quote": "Only a positively governed session record in the existing launch-level store authorizes creation of a per-call one-use request."}, {"role": "plan", "path": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md", "line_start": 79, "line_end": 79, "quote": "The documented contract tells the future claim launcher how to create a governed session record and how release affects jobs."}]}
+
+```
+```yaml
+calibration:
+  per_finding:
+    F1: 0.85
+    F2: 0.80
+    F3: 0.65
+    F4: 0.60
+```
+
+reviewer_model_self_report: claude-gw-tier1a (Claude, 1M context)

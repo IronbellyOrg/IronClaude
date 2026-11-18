@@ -1,0 +1,9 @@
+# blind calibrator (confidence-calibrator agent, opus class; read only the card and the rubric)
+calibrated_confidence: 0.73
+per_dimension: {citation_grounding: 0.82, coverage_completeness: 0.72, deviation_classification_clarity: 0.72, risk_surface_coverage: 0.75, recommendation_actionability: 0.62}
+self_reported_confidence_in_card: 0.80
+adjustment_vs_self_report: -0.07
+escalation_recommendation: escalate-to-T2
+calibrator_model_class: opus
+calibrator_diversity: degraded
+calibrator_model_self_report: claude-gw-tier1a (Anthropic Claude model served via gateway alias)

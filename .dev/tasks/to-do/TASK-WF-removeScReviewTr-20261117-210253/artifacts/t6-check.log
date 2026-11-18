@@ -1,0 +1,10 @@
+# T6 checks
+AC1: routing table test:
+  ...................................................                      [100%]
+
+  ============================== 78 passed in 0.41s ==============================
+AC2: grep in tests/core (expect none):
+  (end)
+  All checks passed!
+  1 file already formatted
+pass count of this file: baseline 79, now 78 (the removed S07 case)

@@ -5,7 +5,6 @@ This directory contains slash commands that are installed to `~/.claude/commands
 ## Available Commands
 
 - **agent.md** - Specialized AI agents
-- **index-repo.md** - Repository indexing for context optimization
 - **recommend.md** - Command recommendations
 - **research.md** - Deep web research with parallel search
 

@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboD-r2/adversarial/merged-output.md"
+  convergence_score: 0.9524
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboD-r2/adversarial/adversarial"
+  status: "partial"
+  base_variant: "reviewer-1:analyzer:sonnet"
+  unresolved_conflicts: 1
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: "INV-001", category: "interaction_effects", assumption: "Per-cycle applied_edits == 0 is always a safe release proof", severity: "HIGH"}

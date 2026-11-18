@@ -1,0 +1,22 @@
+== grep (each pattern expected to match nothing)
+== pytest
+.                                                                        [100%]
+
+============================= 684 passed in 23.68s =============================
+== ruff
+All checks passed!
+== labels still resolve (open owner decision 6 / 8, OQ-5)
+.dev/issues/409/bmad/spec-orca-observer/SPEC.md:104:- Decided 2026-11-11 (`.dev/issues/409/owner-decisions-20261111.md`): sample c
+.dev/issues/409/bmad/spec-orca-observer/SPEC.md:106:- Decided 2026-11-11 (`.dev/issues/409/owner-decisions-20261111.md`): what ide
+.dev/issues/409/bmad/prd-orca-observer/prd.md:423:- **OQ-5.** Decided 2026-11-11 (`.dev/issues/409/owner-decisions-20261111.md`): 
+.dev/issues/409/bmad/prd-orca-observer/prd.md:469:6. **Sample capture and acquisition permission. Decided 2026-11-11 in `.dev/issu
+== rows changed (git diff vs task start, line counts)
+ .dev/issues/409/bmad/prd-orca-observer/prd.md                        | 4 ++--
+ .dev/issues/409/bmad/spec-orca-observer/SPEC.md                      | 4 ++--
+ .dev/issues/409/bmad/spec-orca-observer/owner-decisions-and-risks.md | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
+== decision 5 (fallback date) rows unchanged
+.dev/issues/409/bmad/spec-orca-observer/owner-decisions-and-risks.md:21:5. **Fallback deadline.** Date by which QUESTION
+.dev/issues/409/bmad/spec-orca-observer/SPEC.md:103:- Fallback date for QUESTION-OBSERVATION?
+.dev/issues/409/bmad/prd-orca-observer/prd.md:422:- **OQ-4.** Fallback date for QUESTION-OBSERVATION?
+.dev/issues/409/bmad/prd-orca-observer/prd.md:468:5. **Fallback deadline.** Date by which QUESTION-OBSERVATION must pass

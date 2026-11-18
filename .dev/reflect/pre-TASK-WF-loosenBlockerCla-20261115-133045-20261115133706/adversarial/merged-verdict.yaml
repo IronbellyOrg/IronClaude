@@ -1,0 +1,14 @@
+merge_method: adversarial
+verdict: NEEDS-REVISION
+convergence_score: 0.83
+base_variant: opus:qa
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+merged_review_card: adversarial/merged-review-card.md
+adversarial_return_contract: adversarial/adversarial/return-contract.yaml
+merged_findings:
+  total: 17
+  blocking: 12
+  non_blocking: 5
+unaddressed_invariants_carried_as_findings: [INV-001, INV-002]

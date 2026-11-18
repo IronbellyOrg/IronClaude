@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-addTheSharedCode-20261111-193909-shadow04/adversarial/merged-verdict.md
+  convergence_score: 1.0
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-addTheSharedCode-20261111-193909-shadow04/adversarial/
+  status: success
+  base_variant: sonnet:analyzer
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []
+  notes: >-
+    Judge identity: sonnet-class inline orchestrator (this skill session). Convergence 12/12 after Round 2
+    (V2 flipped LOW->MEDIUM on the fallback evidence). Round 2.5 probe returned 0 HIGH-unaddressed
+    (gate passed); MEDIUM INV-006 applied as a severity-rationale correction, not a blocker.

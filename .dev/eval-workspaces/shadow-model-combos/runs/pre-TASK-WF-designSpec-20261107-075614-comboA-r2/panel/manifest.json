@@ -1,0 +1,141 @@
+{
+  "attempts": [
+    {
+      "attempt_id": "1",
+      "completion": "complete",
+      "payload_sha256": "83115a12ea951bbf97f80119687fea6954a0ceebee13823da5689e47c0a516b2",
+      "reviewer_id": "t1b-1",
+      "stage": "collected"
+    },
+    {
+      "attempt_id": "1",
+      "completion": "complete",
+      "payload_sha256": "83115a12ea951bbf97f80119687fea6954a0ceebee13823da5689e47c0a516b2",
+      "reviewer_id": "t4-1",
+      "stage": "collected"
+    },
+    {
+      "attempt_id": "1",
+      "completion": "complete",
+      "payload_sha256": "83115a12ea951bbf97f80119687fea6954a0ceebee13823da5689e47c0a516b2",
+      "reviewer_id": "t1a-1",
+      "stage": "collected"
+    }
+  ],
+  "frozen": {
+    "brief_template_sha256": "b1032d6175d6a759e98a008f22f8c6bdcc1e9ce7d075403b13822372791d277c",
+    "input_tree_sha256": "53a70facf88577bd1334e6ac20805570803a9bd5d4ff151dfac977e068e81daf",
+    "schema_ids": [
+      "review-panel/1",
+      "findings-v2"
+    ],
+    "snapshot_ref": ".dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboA-r2/artifacts/input-snapshot.yaml",
+    "snapshot_sha256": "0150cb26802087bffc87f6adaf9db392d6379cc5da7419c5c34835a02250d079",
+    "template_sha256": "d8156ae38041992ba036afadcda14bc001941fdd759ffe0ca607d83942fb765e",
+    "tiers_sha256": "a35908fa6d4019ea3f01d7842b2090ac6432d40a36cdeb9a08c6f0b1f50f05be"
+  },
+  "history": [],
+  "input_tree_sha256": "53a70facf88577bd1334e6ac20805570803a9bd5d4ff151dfac977e068e81daf",
+  "invocation": 1,
+  "policy_sha256": "361f611d5e422aeb30d9a1d8487766f8f1a8e059b296b980f4ba970e2fe94d6b",
+  "reviewers_complete": 3,
+  "reviewers_requested": 3,
+  "reviewers_resolved": 3,
+  "run_id": "pre-TASK-WF-designSpec-20261107-075614-comboA-r2",
+  "schema": "review-panel-manifest/1",
+  "stages": {
+    "calibrated": {
+      "deps": {
+        "input_tree_sha256": "53a70facf88577bd1334e6ac20805570803a9bd5d4ff151dfac977e068e81daf",
+        "policy_sha256": "361f611d5e422aeb30d9a1d8487766f8f1a8e059b296b980f4ba970e2fe94d6b",
+        "prev": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "clustered": {
+      "deps": {
+        "input_tree_sha256": "53a70facf88577bd1334e6ac20805570803a9bd5d4ff151dfac977e068e81daf",
+        "policy_sha256": "361f611d5e422aeb30d9a1d8487766f8f1a8e059b296b980f4ba970e2fe94d6b",
+        "prev": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "collected": {
+      "deps": {
+        "input_tree_sha256": "53a70facf88577bd1334e6ac20805570803a9bd5d4ff151dfac977e068e81daf",
+        "policy_sha256": "361f611d5e422aeb30d9a1d8487766f8f1a8e059b296b980f4ba970e2fe94d6b",
+        "prev": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "debated": {
+      "deps": {
+        "input_tree_sha256": "53a70facf88577bd1334e6ac20805570803a9bd5d4ff151dfac977e068e81daf",
+        "policy_sha256": "361f611d5e422aeb30d9a1d8487766f8f1a8e059b296b980f4ba970e2fe94d6b",
+        "prev": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "dispatched": {
+      "deps": {
+        "input_tree_sha256": "53a70facf88577bd1334e6ac20805570803a9bd5d4ff151dfac977e068e81daf",
+        "policy_sha256": "361f611d5e422aeb30d9a1d8487766f8f1a8e059b296b980f4ba970e2fe94d6b",
+        "prev": "0ff117082f8ea59f30dbd77fb0d15e80f0c611a80a9481d8754bce607b3bdfc6"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "frozen": {
+      "deps": {},
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "1cd86a13472feae344a69590e2aac9180e31c0e56f02070c805ab01d73789c44"
+    },
+    "published": {
+      "deps": {
+        "input_tree_sha256": "53a70facf88577bd1334e6ac20805570803a9bd5d4ff151dfac977e068e81daf",
+        "policy_sha256": "361f611d5e422aeb30d9a1d8487766f8f1a8e059b296b980f4ba970e2fe94d6b",
+        "prev": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "invocation": 1,
+      "outputs": {
+        "REPORT.md": "0c1b917ddb494d32ab67ff770164faf2d2affbc7914fd979567b4866f3e0dcd9",
+        "audit.log": "88e04c6f456ee0630d4db9d0c0172920a1cd595ef7df66354bb14f0a6e9d3642",
+        "return-contract.yaml": "d735f1d57ed90406a20b5ca95c62608ce64f5a7754e067b9e06335b1adc24b06"
+      },
+      "payload_sha256": "b1f7be749ea4ea37e83e1135ce0d86ae1a49b9a3a4c163e24748dcff567d92d5"
+    },
+    "resolved": {
+      "deps": {
+        "input_tree_sha256": "53a70facf88577bd1334e6ac20805570803a9bd5d4ff151dfac977e068e81daf",
+        "policy_sha256": "361f611d5e422aeb30d9a1d8487766f8f1a8e059b296b980f4ba970e2fe94d6b",
+        "prev": "1cd86a13472feae344a69590e2aac9180e31c0e56f02070c805ab01d73789c44"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "0ff117082f8ea59f30dbd77fb0d15e80f0c611a80a9481d8754bce607b3bdfc6"
+    },
+    "validated": {
+      "deps": {
+        "input_tree_sha256": "53a70facf88577bd1334e6ac20805570803a9bd5d4ff151dfac977e068e81daf",
+        "policy_sha256": "361f611d5e422aeb30d9a1d8487766f8f1a8e059b296b980f4ba970e2fe94d6b",
+        "prev": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "invocation": 1,
+      "outputs": {},
+      "payload_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    }
+  },
+  "state": "published",
+  "t2_engine_effective": "shadow",
+  "t2_engine_requested": "shadow"
+}

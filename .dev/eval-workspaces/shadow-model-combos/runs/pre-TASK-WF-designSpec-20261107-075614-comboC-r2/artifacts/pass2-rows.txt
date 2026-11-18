@@ -1,0 +1,86 @@
+6|6|default on at `--monitor 3` via `--merge-guard {draft,off}`
+6|6|release when the fix push is confirmed on the PR head, before replies and the re-trigger
+6|6|an unreadable timeline or an exit with unpublished fixes keeps the PR draft and reports
+6|6|draft not label; engage at the first verified Medium-or-higher finding routed to a fix
+51|51|Rule: the core DECIDES and the SKILL performs, the same split as the push triad and the re-trigger (NFR-6). No new `MonitorState`.
+57|57|Nothing mutates. A held guard found in the log is reported with the clear command.
+58|58|Wave 0 loads the ref (Resume and Exit report) before Wave 1: unsettled requests are reconciled before any edit, release or re-trigger
+59|59|Wave 0 prints once: "Remediation is unprotected: --merge-guard off." No draft call is made.
+60|60|The final report prints "PR #N is still mergeable; this run's fixes are local only."
+61|61|Read, decide, request, `--to draft`, settle. Print the clear command once.
+62|62|Settle `skipped/already_draft`, phase `disabled`, never mutate.
+63|63|Release, cause `no_edits`.
+64|64|Script `--read` must show `state == OPEN`; otherwise halt `pr_not_open`, push nothing.
+65|65|Release, cause `pushed`, before reply, resolve and the S5a re-trigger.
+66|66|Settle `skipped/user_override`, phase `disabled`, no more draft calls, keep pushing, report.
+67|67|Do not release; report `held (timeline unreadable)`; keep pushing.
+68|68|Halt before any edit: `terminal_halted`, reason `draft_guard_unavailable`.
+69|69|PR stays draft; report `held` with the clear command.
+75|75|No `gh` or `git` word on any line, comments included (F6). Imports only `enum`, `dataclasses`, `re`, `.conflicts.is_conflict_cycle`.
+101|101|`ValueError` otherwise or when `n < 1`. Never collides with `CONFLICT_CYCLE_PREFIXES`.
+102|102|1 + the highest `<kind>-<n>` seen in any event's `cycle_id`; 1 when none.
+104|104|Guard requests with no matching settle, matched by `idempotency_key`
+107|107|so a zero-edit cycle after a fixing cycle still releases with `no_edits`
+108|108|whether written by the push triad or synthesized by recovery (`recovered: true`)
+109|109|a test imports both modules and asserts equality, because the core cannot import `recovery`.
+112|112|phase `DISABLED` with cause `already_draft` gives `off` (the PR was a draft before the run, nothing is guarded)
+127|127|`failed_mutations` keeps a call that failed on the client but landed on the server from being read as a user action
+133|133|`mode == OFF`, or `ordinal < 3`, or `is_conflict_cycle(cycle_id)`
+137|137|`RETRY_RELEASE` (release first, then re-decide)
+140|140|`HALT_UNAVAILABLE(timeline_unreadable)`
+143|143|`ENGAGE`; `notes` carries `auto_merge_armed` when set
+156|156|`push_completed` and `read.head_sha == target_sha`
+157|157|`HOLD(head_mismatch or push_not_completed)`
+164|164|`(ordinal < 3 or mode == OFF)` and phase not in (`RELEASED`, `DISABLED`)
+165|165|`RECONCILE`, with `reason` one of `resume_reconciled`, `not_applied`, `ambiguous`
+166|166|re-enter `release_decision` with `push_completed=True`
+175|175|43 to 45, update the docstring and the `models.py:3,24` count, and the 43 text at `run_log.py:117`
+178|178|appended and fsynced BEFORE the draft/ready call
+184|184|`idempotency_key` = `guard:<run_id>:<cycle_id>:<to>:a<k>`
+187|187|`run_log.rebuild_state()` stores it as `state["draft_guard"]` (default `None`, added to `_NEW_KEY_DEFAULTS`)
+201|201|For a draft request that was the first guard record, the whole record is erased
+208|208|`original_is_draft` is never read from GitHub after the first record
+215|215|`SkillArgs.merge_guard: str = DEFAULT_MERGE_GUARD`
+216|216|Effective only at `--monitor 3`; accepted and inert below.
+217|217|`RunConfig` and `run_skill` do not change (F5)
+221|221|`set -euo pipefail`, same `die`, same `--repo` resolution from the origin remote, numeric `--pr` check, exit 127 when `gh` or `jq` is missing.
+230|230|`gh pr view "$PR" --repo "$REPO" --json state,isDraft,headRefOid,autoMergeRequest`
+231|231|`gh pr ready "$PR" --repo "$REPO" --undo`
+234|234|Exit codes: 0 success; 1 `gh` failure or failed verification (the JSON line is still printed with `ok:false`); 2 usage; 127 missing dependency.
+234|234|A verification mismatch after a mutation is `ok:false, error:"verify_failed"`
+240|240|Loaded lazily at L3 Wave 3, Wave 6 and Wave 8.
+241|241|The Wave 0 bullet is a flat line placed before the Wave 1 bullet and contains no L3 or `draft` condition
+241|241|it must not contain the words `evidence-validator` or `conflict-intent.md`
+241|241|No new python fence
+242|242|update it to 45 and name `draft_guard_requested` and `draft_guard_settled`, without the words `gh` or `git`
+243|243|Respect the wait-only sentences pinned at `test_static_grep.py:791`.
+244|244|`--merge-guard {draft,off}` in the argument-hint and the Options table
+247|247|A `held` report always carries the reason and `gh pr ready <N> --repo <REPO>`
+251|251|uses the same id as the `cycle_id` of the push triad (`push_idempotency_key`) and of `rereview_requested`
+251|251|With `--merge-guard off` nothing changes.
+255|255|each new line that contains `gh pr`, `gh api` or a git write verb is a hit of `WRITE_VERB_RE` and needs one entry in `WRITE_VERB_CLASSIFICATION`
+270|270|Acceptance trace (must appear in this order in the run log)
+274|274|Message names `--merge-guard off` and prints the clear command.
+275|275|phase stays `HELD`; report `merge_guard: held` plus the clear command.
+276|276|W6 blocks the push (INV-016 predicate 5), `release_decision=RELEASE(no_edits)`.
+277|277|`classify_toggles == foreign` -> `settled(skipped, user_override)` -> phase `DISABLED`; the push and reply continue; report `user_override`.
+278|278|the request settles `skipped/not_applied`, the phase returns to `phase_before_request`, and the next cycle engages normally.
+279|279|`not_landed` keeps the PR draft (row 5); `ambiguous` holds (row 6).
+280|280|The SKILL passes `published = held_cycle_published(events, guard)`, which is true; row 4 releases first
+281|281|`state != OPEN` -> halt `pr_not_open`, nothing pushed, report the local commit `<target_sha>`.
+299|299|count 43 to 45 at `test_run_log.py:171-175` and `test_codex_reviews.py:441`
+301|301|Record `make lint`, `uv run ruff format --check src/ tests/` and the full-suite result
+301|301|Never stage `.claude/`.
+301|301|Unchanged and must still pass: `test_idempotency.py:89` (7 sets), the one-python-fence tests
+318|318|never injected strings
+322|322|A static test asserts `merge_guard.py` has no `gh` or `git` word.
+322|322|the script test for a missing `jq` (exit 127)
+326|326|No task makes a live PR call, and the run that opens the PR must not enable the feature (`--merge-guard off`).
+326|326|The user guide states that draft behaviour is unverified until then, and the PR body states the gate plainly.
+362|362|never bare line number
+363|363|one `Depends on:` line per dependency
+364|364|The protocol wiring covers the Wave 0 resume and `off` hook as well as Waves 3, 6 and 8 (section 4.5), with a test for each bullet.
+369|369|Protocol prose written by the plan never carries `file:NNN` pointers
+377|377|scenario tests import only helpers and fixtures from `test_set_draft_state.py`, never `test_*` functions
+377|377|"no push after a `pr_not_open` halt" is asserted on `RunLog.read_events()`
+374|374|its acceptance criterion is a test that the literal line is in `SKILL.md`

@@ -1,0 +1,20 @@
+# /sc:adversarial Mode A return contract (written by the debate-orchestrator)
+# Compare of run 1 vs run 2 research reports on the unified central Review Panel.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/COMPARE-review-panel-run1-vs-run2-20261114/MERGED-review-panel-unification.md"
+  convergence_score: 0.94            # strict: 220 of 234 debate points resolved (0.966 if the 6 both-open points count as agreement; 0.825 after Round 1; threshold 0.80)
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/COMPARE-review-panel-run1-vs-run2-20261114/adversarial"
+  status: "partial"                  # pipeline completed; convergence blocked by 7 HIGH UNADDRESSED invariants (BLOCKED_BY_INVARIANTS); depth standard has no Round 3
+  base_variant: "variant-2 (run 2 report, RESEARCH-REPORT-review-panel-unification-run2.md)"   # chosen by debate tiebreaker level 1 (combined score run 1 0.8845 vs run 2 0.8620, margin below 5%)
+  unresolved_conflicts: 14           # 8 points where the advocates still differ (C-005, C-076, X-051, C-053, C-065, S-044, C-014, C-025) + 6 both-open points (X-040, X-056, X-058, C-060, X-041, X-057)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:            # HIGH-severity UNADDRESSED items of the Round 2.5 probe (ids as in adversarial/invariant-probe.md; cited in the merged document as R25-INV-nnn)
+    - {id: "INV-003", category: "state_variables", assumption: "Keeping schema string review-ledger/1 while changing its semantics is safe because new keys are optional and old readers tolerate them", severity: "HIGH"}
+    - {id: "INV-006", category: "guard_conditions", assumption: "--tools / --restricted (or --disallowedTools Bash) make a raw-id claude -p reviewer read-only (MCP servers stay available; --strict-mcp-config also needed)", severity: "HIGH"}
+    - {id: "INV-018", category: "collection_boundaries", assumption: "Merging the gate lists as V1 form plus V2 G17-G27 keeps every no-regression gate (it drops V2 G1-G16 items and mis-binds gate references)", severity: "HIGH"}
+    - {id: "INV-024", category: "interaction_effects", assumption: "Carrying V1 clustering remedy is a local choice between v2 engine only and both engines (it reopens C-01, C-05, X-15, C26 via trigger T-c)", severity: "HIGH"}
+    - {id: "INV-027", category: "sufficiency_challenge", assumption: "V1 48 migration steps can be carried re-based on the merged design and still feed /sc:workflow (13 conflict with adopted outcomes, 14 partly)", severity: "HIGH"}
+    - {id: "INV-028", category: "sufficiency_challenge", assumption: "The adjudicated outcomes carried as the recommended design are V2 debated results (five were changed or reopened by the compare without a new debate)", severity: "HIGH"}
+    - {id: "INV-029", category: "sufficiency_challenge", assumption: "C-01 governing shape holds because trigger T-c has not fired (T-c is met by the agreed defect D6 unless the owner accepts the v1 over-merge)", severity: "HIGH"}

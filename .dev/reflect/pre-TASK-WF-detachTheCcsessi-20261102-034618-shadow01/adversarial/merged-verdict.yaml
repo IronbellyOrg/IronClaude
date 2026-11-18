@@ -1,0 +1,10 @@
+merge_method: adversarial
+merged_output_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/adversarial/merged-verdict.md
+adversarial_return_contract: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/adversarial/adversarial/return-contract.yaml
+convergence_score: 0.80
+verdict: PASS
+blocking: 0
+medium: 3
+minor_or_nonblocking: 8
+base_variant: variant-3
+reviewer_cards: 3

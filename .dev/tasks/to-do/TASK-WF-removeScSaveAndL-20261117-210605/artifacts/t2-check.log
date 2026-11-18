@@ -1,0 +1,7 @@
+# T2 checks (re-run after Task 5 updated the routing tests)
+AC1 guide copies identical:
+  identical
+AC3 mentions in either copy (expect none):
+  none
+AC2 routing tests:
+============================== 84 passed in 0.27s ==============================

@@ -1,0 +1,671 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-b
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 4543 items
+
+tests/hooks/test_auggie_first.py .......                                 [  0%]
+tests/hooks/test_auggie_flag_clear_mcp_prefix.py ........                [  0%]
+tests/hooks/test_block_bare_python.py .................................. [  1%]
+........................................................................ [  2%]
+........................                                                 [  3%]
+tests/hooks/test_freshness_pre_edit_create_case.py ...                   [  3%]
+tests/hooks/test_freshness_subagent_start_policy.py .....                [  3%]
+tests/hooks/test_launch_job_identity.py FFFFFFFFFFFFFFF.....FFFF........ [  4%]
+.......FFFFFFFFFFFFFFF.......F..FF...................................FFF [  5%]
+FFFFFFFFFFF.....FF.....................FFFFFFF.                          [  6%]
+tests/hooks/test_launch_level_guard.py ................................. [  7%]
+........................................................................ [  9%]
+........................................................................ [ 10%]
+........................................................................ [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 15%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 20%]
+........................................................................ [ 21%]
+........................................................................ [ 23%]
+........................................................................ [ 24%]
+........................................................................ [ 26%]
+........................................................................ [ 28%]
+........................................................................ [ 29%]
+........................................................................ [ 31%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+........................................................................ [ 35%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 40%]
+........................................................................ [ 42%]
+........................................................................ [ 43%]
+........................................................................ [ 45%]
+........................................................................ [ 47%]
+........................................................................ [ 48%]
+........................................................................ [ 50%]
+........................................................................ [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 54%]
+........................................................................ [ 56%]
+........................................................................ [ 58%]
+........................................................................ [ 59%]
+........................................................................ [ 61%]
+........................................................................ [ 62%]
+........................................................................ [ 64%]
+........................................................................ [ 66%]
+........................................................................ [ 67%]
+........................................................................ [ 69%]
+........................................................................ [ 70%]
+........................................................................ [ 72%]
+........................................................................ [ 73%]
+........................................................................ [ 75%]
+........................................................................ [ 77%]
+........................................................................ [ 78%]
+........................................................................ [ 80%]
+........................................................................ [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 86%]
+........................................................................ [ 88%]
+........................................................................ [ 89%]
+.............................................................            [ 91%]
+tests/hooks/test_launch_level_guard_l2_tokens.py ....................... [ 91%]
+........................................................................ [ 93%]
+............................................                             [ 94%]
+tests/hooks/test_launch_level_guard_registration.py ............         [ 94%]
+tests/hooks/test_launch_level_guard_with_identity.py FFF...              [ 94%]
+tests/hooks/test_launch_level_observations.py .....ssssssssssss          [ 95%]
+tests/hooks/test_launch_level_pre_push.py FFFF..FFFF..FFFF..FFFF..FFFF.. [ 95%]
+FFFF..FF.FFFF..FFFF..FFFF..FFFF..FFFF..FFFF..FFFFFFFFFFFFFFsFF.......... [ 97%]
+.....FF.FFFFFFFFF........FF......FFFFFF                                  [ 98%]
+tests/hooks/test_launch_level_pre_push_records.py ...................... [ 98%]
+...                                                                      [ 98%]
+tests/hooks/test_require_orca_worktree_agent.py ........................ [ 99%]
+....................................                                     [ 99%]
+tests/hooks/test_require_orca_worktree_agent_governed.py .               [100%]
+
+=================================== FAILURES ===================================
+E   AssertionError: assert 2 == 7
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...ity.sh', 'run', '5ae826b4d6d04ae5a012ec4d260d80cc'], returncode=2, stdout='', stderr='launch job: supervisor failed\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:125: AssertionError: assert 2 == 7
+E   AssertionError: assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...ity.sh', 'run', 'b7123f1e3ca84eb487724fe9af703320'], returncode=2, stdout='', stderr='launch job: supervisor failed\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:148: AssertionError: assert 2 == 0
+E   assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...n 1; printf \'producer=%s\\n\' "${PIPESTATUS[0]}"'], returncode=2, stdout='', stderr='launch job: supervisor failed\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:148: assert 2 == 0
+E   AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+      
+      At index 0 diff: 2 != 0
+      Use -v to get more diff
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:172: AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+E   AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+      
+      At index 0 diff: 2 != 0
+      Use -v to get more diff
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:172: AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+E   AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+      
+      At index 0 diff: 2 != 0
+      Use -v to get more diff
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:172: AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+E   AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+      
+      At index 0 diff: 2 != 0
+      Use -v to get more diff
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:172: AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+E   AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+      
+      At index 0 diff: 2 != 0
+      Use -v to get more diff
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:172: AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+E   AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+      
+      At index 0 diff: 2 != 0
+      Use -v to get more diff
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:172: AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+E   AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+      
+      At index 0 diff: 2 != 0
+      Use -v to get more diff
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:172: AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+E   AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+      
+      At index 0 diff: 2 != 0
+      Use -v to get more diff
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:172: AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+E   AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+      
+      At index 0 diff: 2 != 0
+      Use -v to get more diff
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:172: AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+E   AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+      
+      At index 0 diff: 2 != 0
+      Use -v to get more diff
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:172: AssertionError: assert (2, '', 'laun...sor failed\n') == (0, 'request-ok', '')
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:182: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:182: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...ity.sh', 'run', 'c6bc2ee9a6c946ac8b4de09ea9e4bc45'], returncode=2, stdout='', stderr='launch job: supervisor failed\n').returncode
+     +    where CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...ity.sh', 'run', 'c6bc2ee9a6c946ac8b4de09ea9e4bc45'], returncode=2, stdout='', stderr='launch job: supervisor failed\n') = call('run', 'c6bc2ee9a6c946ac8b4de09ea9e4bc45')
+     +      where call = <tests.hooks.test_launch_job_identity.Harness object at 0x7aa2674fa690>.call
+     +      and   'c6bc2ee9a6c946ac8b4de09ea9e4bc45' = <built-in method strip of str object at 0x7aa266a7ee50>()
+     +        where <built-in method strip of str object at 0x7aa266a7ee50> = 'c6bc2ee9a6c946ac8b4de09ea9e4bc45\n'.strip
+     +          where 'c6bc2ee9a6c946ac8b4de09ea9e4bc45\n' = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...dentity.sh', 'prepare', 'old', 'true', 'tool_1'], returncode=0, stdout='c6bc2ee9a6c946ac8b4de09ea9e4bc45\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:220: AssertionError: assert 2 == 0
+E   AssertionError: assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...ity.sh', 'run', '339568b45c674e49a1a2d914a3b55410'], returncode=2, stdout='', stderr='launch job: supervisor failed\n').returncode
+     +    where CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...ity.sh', 'run', '339568b45c674e49a1a2d914a3b55410'], returncode=2, stdout='', stderr='launch job: supervisor failed\n') = call('run', '339568b45c674e49a1a2d914a3b55410')
+     +      where call = <tests.hooks.test_launch_job_identity.Harness object at 0x7aa26699bfd0>.call
+     +      and   '339568b45c674e49a1a2d914a3b55410' = <built-in method strip of str object at 0x7aa26698e310>()
+     +        where <built-in method strip of str object at 0x7aa26698e310> = '339568b45c674e49a1a2d914a3b55410\n'.strip
+     +          where '339568b45c674e49a1a2d914a3b55410\n' = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...dentity.sh', 'prepare', 'old', 'true', 'tool_1'], returncode=0, stdout='339568b45c674e49a1a2d914a3b55410\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:220: AssertionError: assert 2 == 0
+E   AssertionError: assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...ity.sh', 'run', 'afb7c49938794b7c926d5e3c4e4b2d57'], returncode=2, stdout='', stderr='launch job: supervisor failed\n').returncode
+     +    where CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...ity.sh', 'run', 'afb7c49938794b7c926d5e3c4e4b2d57'], returncode=2, stdout='', stderr='launch job: supervisor failed\n') = call('run', 'afb7c49938794b7c926d5e3c4e4b2d57')
+     +      where call = <tests.hooks.test_launch_job_identity.Harness object at 0x7aa2674f0390>.call
+     +      and   'afb7c49938794b7c926d5e3c4e4b2d57' = <built-in method strip of str object at 0x7aa26698c030>()
+     +        where <built-in method strip of str object at 0x7aa26698c030> = 'afb7c49938794b7c926d5e3c4e4b2d57\n'.strip
+     +          where 'afb7c49938794b7c926d5e3c4e4b2d57\n' = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...dentity.sh', 'prepare', 'old', 'true', 'tool_1'], returncode=0, stdout='afb7c49938794b7c926d5e3c4e4b2d57\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:220: AssertionError: assert 2 == 0
+E   AssertionError: assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...ity.sh', 'run', '6cec0f5338794157a0d0bcf2b1a73c83'], returncode=2, stdout='', stderr='launch job: supervisor failed\n').returncode
+     +    where CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...ity.sh', 'run', '6cec0f5338794157a0d0bcf2b1a73c83'], returncode=2, stdout='', stderr='launch job: supervisor failed\n') = call('run', '6cec0f5338794157a0d0bcf2b1a73c83')
+     +      where call = <tests.hooks.test_launch_job_identity.Harness object at 0x7aa2669da7d0>.call
+     +      and   '6cec0f5338794157a0d0bcf2b1a73c83' = <built-in method strip of str object at 0x7aa2674f4f90>()
+     +        where <built-in method strip of str object at 0x7aa2674f4f90> = '6cec0f5338794157a0d0bcf2b1a73c83\n'.strip
+     +          where '6cec0f5338794157a0d0bcf2b1a73c83\n' = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...dentity.sh', 'prepare', 'old', 'true', 'tool_1'], returncode=0, stdout='6cec0f5338794157a0d0bcf2b1a73c83\n', stderr='').stdout
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:220: AssertionError: assert 2 == 0
+E   assert [2, 2] == [0, 2]
+      
+      At index 0 diff: 2 != 0
+      Use -v to get more diff
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:314: assert [2, 2] == [0, 2]
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/tmp/pytest-of-coder/pytest-747/test_hook_actual_self_location0/hook alias'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:629: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   assert 0 == 2
+     +  where 0 = len([])
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:1418: assert 0 == 2
+E   AssertionError: launch job: supervisor failed
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks...ity.sh', 'run', '733ab432d5b94cb08ed8b2a31877b92f'], returncode=2, stdout='', stderr='launch job: supervisor failed\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:1448: AssertionError: launch job: supervisor failed
+E   AssertionError: timed out waiting for job event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_job_identity.py:28: AssertionError: timed out waiting for job event
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_guard_with_identity.py:108: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/tmp/pytest-of-coder/pytest-747/test_guard_must_see_the_origin0/home/.claude/hooks/launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_guard_with_identity.py:108: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: launch job: governed Bash call cannot be wrapped safely
+      
+    assert 2 == 0
+     +  where 2 = CompletedProcess(args=['/bin/bash', '/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/src/superclaude/hooks.../launch-job-identity.sh'], returncode=2, stdout='', stderr='launch job: governed Bash call cannot be wrapped safely\n').returncode
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_guard_with_identity.py:108: AssertionError: launch job: governed Bash call cannot be wrapped safely
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   OSError: [Errno 107] Transport endpoint is not connected: '/proc/sys/kernel/random/boot_id'
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/pathlib.py:1044: OSError: [Errno 107] Transport endpoint is not connected: '/proc/sys/kernel/random/boot_id'
+E   OSError: [Errno 107] Transport endpoint is not connected: '/proc/sys/kernel/random/boot_id'
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/pathlib.py:1044: OSError: [Errno 107] Transport endpoint is not connected: '/proc/sys/kernel/random/boot_id'
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+E   AssertionError: timed out waiting for fixture event
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/hooks/test_launch_level_pre_push.py:74: AssertionError: timed out waiting for fixture event
+=========================== short test summary info ============================
+FAILED tests/hooks/test_launch_job_identity.py::test_output_status_stdin_environment_and_cwd
+FAILED tests/hooks/test_launch_job_identity.py::test_child_restores_python_ignored_signals[run]
+FAILED tests/hooks/test_launch_job_identity.py::test_child_restores_python_ignored_signals[execute]
+FAILED tests/hooks/test_launch_job_identity.py::test_maximum_command_survives_json_expansion[emoji-run]
+FAILED tests/hooks/test_launch_job_identity.py::test_maximum_command_survives_json_expansion[emoji-execute]
+FAILED tests/hooks/test_launch_job_identity.py::test_maximum_command_survives_json_expansion[bmp-run]
+FAILED tests/hooks/test_launch_job_identity.py::test_maximum_command_survives_json_expansion[bmp-execute]
+FAILED tests/hooks/test_launch_job_identity.py::test_maximum_command_survives_json_expansion[control-run]
+FAILED tests/hooks/test_launch_job_identity.py::test_maximum_command_survives_json_expansion[control-execute]
+FAILED tests/hooks/test_launch_job_identity.py::test_maximum_command_survives_json_expansion[quote-run]
+FAILED tests/hooks/test_launch_job_identity.py::test_maximum_command_survives_json_expansion[quote-execute]
+FAILED tests/hooks/test_launch_job_identity.py::test_maximum_command_survives_json_expansion[slash-run]
+FAILED tests/hooks/test_launch_job_identity.py::test_maximum_command_survives_json_expansion[slash-execute]
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_unicode_command_survives_request_serialization[emoji]
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_unicode_command_survives_request_serialization[bmp]
+FAILED tests/hooks/test_launch_job_identity.py::test_allowed_levels_and_tool_id[worktree]
+FAILED tests/hooks/test_launch_job_identity.py::test_allowed_levels_and_tool_id[full]
+FAILED tests/hooks/test_launch_job_identity.py::test_allowed_levels_and_tool_id[full-submit]
+FAILED tests/hooks/test_launch_job_identity.py::test_allowed_levels_and_tool_id[full-submit\n]
+FAILED tests/hooks/test_launch_job_identity.py::test_atomic_concurrent_consumption
+FAILED tests/hooks/test_launch_job_identity.py::test_old_orphan_keeps_origin_new_ordinary_and_forged_environment_do_not
+FAILED tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[pid]
+FAILED tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[start]
+FAILED tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[boot]
+FAILED tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[json]
+FAILED tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[sid]
+FAILED tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[mode]
+FAILED tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[zombie_or_dead]
+FAILED tests/hooks/test_launch_job_identity.py::test_release_live_job_and_invalid_bound_state
+FAILED tests/hooks/test_launch_job_identity.py::test_signal_cancellation_cleans_ordinary_descendants_only[15]
+FAILED tests/hooks/test_launch_job_identity.py::test_signal_cancellation_cleans_ordinary_descendants_only[2]
+FAILED tests/hooks/test_launch_job_identity.py::test_signal_cancellation_cleans_ordinary_descendants_only[1]
+FAILED tests/hooks/test_launch_job_identity.py::test_main_shell_status_survives_cancellation_during_background_wait
+FAILED tests/hooks/test_launch_job_identity.py::test_intentional_new_session_escape_explicitly_unselected
+FAILED tests/hooks/test_launch_job_identity.py::test_invalid_and_symlinked_job_registry_unknown
+FAILED tests/hooks/test_launch_job_identity.py::test_cancellation_escalates_for_uncooperative_child
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_replaces_whole_input_without_approval_and_executes
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_literal_shell_content_is_not_reparsed_or_evaluated[printf '%s' 'literal $(touch NEVER_EXECUTE) `false` ; & | < >'-literal $(touch NEVER_EXECUTE) `false` ; & | < >]
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_literal_shell_content_is_not_reparsed_or_evaluated[printf '%s' "quotes ' and \\"double\\""\nprintf '\\nline two\\n'-quotes ' and "double"\nline two\n]
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_literal_shell_content_is_not_reparsed_or_evaluated[printf '%s' $'it\\'s\\na Bash literal'-it's\na Bash literal]
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_literal_shell_content_is_not_reparsed_or_evaluated[printf '%s' 'Unicode caf\xe9'-Unicode caf\xe9]
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_origin_and_background_lifetime_survive_new_event_and_release
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_top_level_subagent_session_only_and_no_parent_inference
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_release_before_execution_creates_no_replayable_ticket
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_refuses_conflicting_wrapper_without_second_ticket
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_actual_self_location_with_spaces_and_symlink
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_failed_startup_creates_no_ticket_to_replay[uv]
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_failed_startup_creates_no_ticket_to_replay[interpreter]
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_cleanup_does_not_overwrite_outer_exit_trap_or_status
+FAILED tests/hooks/test_launch_job_identity.py::test_execution_never_follows_symlinked_request_directory
+FAILED tests/hooks/test_launch_job_identity.py::test_hook_fresh_shell_cwd_contract_is_explicit_and_repeatable
+FAILED tests/hooks/test_launch_job_identity.py::test_withheld_hook_rewrite_leaves_no_authorization_ticket_or_job
+FAILED tests/hooks/test_launch_job_identity.py::test_accepted_execution_creates_and_consumes_exactly_one_runtime_request
+FAILED tests/hooks/test_launch_job_identity.py::test_real_git_old_governed_background_human_same_clone_reset_and_release[main]
+FAILED tests/hooks/test_launch_job_identity.py::test_real_git_old_governed_background_human_same_clone_reset_and_release[master]
+FAILED tests/hooks/test_launch_job_identity.py::test_real_git_test_policy_only_refuses_exact_protected_refs[feature/main]
+FAILED tests/hooks/test_launch_job_identity.py::test_real_git_test_policy_only_refuses_exact_protected_refs[main-extra]
+FAILED tests/hooks/test_launch_job_identity.py::test_real_git_controlled_resume_same_logical_id_new_job_not_live_cli_resume
+FAILED tests/hooks/test_launch_job_identity.py::test_real_git_deliberate_setsid_escape_is_unselected_not_retained
+FAILED tests/hooks/test_launch_job_identity.py::test_real_git_killed_supervisor_is_unknown_not_proven_human
+FAILED tests/hooks/test_launch_level_guard_with_identity.py::test_full_submit_allowed_command_guard_allows_identity_rewrites_only_command
+FAILED tests/hooks/test_launch_level_guard_with_identity.py::test_guard_must_see_the_original_command_not_the_installed_rewrite
+FAILED tests/hooks/test_launch_level_guard_with_identity.py::test_worktree_blocked_command_guard_blocks_identity_still_rewrites
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t01_create_protected_ref[governed-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t01_create_protected_ref[governed-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t01_create_protected_ref[unknown-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t01_create_protected_ref[unknown-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t02_fast_forward_update[governed-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t02_fast_forward_update[governed-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t02_fast_forward_update[unknown-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t02_fast_forward_update[unknown-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t03_delete[governed-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t03_delete[governed-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t03_delete[unknown-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t03_delete[unknown-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t04_force[governed-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t04_force[governed-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t04_force[unknown-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t04_force[unknown-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t05_configured_mapping[governed-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t05_configured_mapping[governed-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t05_configured_mapping[unknown-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t05_configured_mapping[unknown-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t06_mixed_and_atomic[governed-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t06_mixed_and_atomic[governed-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t06_mixed_and_atomic[unknown-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t06_mixed_and_atomic[unknown-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t07_exact_name_edges_allowed[governed]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t07_exact_name_edges_allowed[unknown]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t08_empty_stream[governed-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t08_empty_stream[governed-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t08_empty_stream[unknown-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t08_empty_stream[unknown-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t09_fetch_first[governed-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t09_fetch_first[governed-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t09_fetch_first[unknown-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t09_fetch_first[unknown-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t10_six_field_source[governed-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t10_six_field_source[governed-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t10_six_field_source[unknown-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t10_six_field_source[unknown-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t11_sha256_repository[governed-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t11_sha256_repository[governed-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t11_sha256_repository[unknown-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t11_sha256_repository[unknown-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t12_dry_run[governed-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t12_dry_run[governed-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t12_dry_run[unknown-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t12_dry_run[unknown-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t13_linked_worktree[governed-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t13_linked_worktree[governed-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t13_linked_worktree[unknown-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t13_linked_worktree[unknown-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t14_agent_and_human_same_linked_worktree[main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t14_agent_and_human_same_linked_worktree[master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t15_release_while_job_live[main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t15_release_while_job_live[master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t16_stale_record[main-start]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t16_stale_record[main-boot]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t16_stale_record[master-start]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t16_stale_record[master-boot]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t16a_killed_supervisor_orphaned[main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t16a_killed_supervisor_orphaned[master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t16b_sibling_session_beside_governed_job[main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t16b_sibling_session_beside_governed_job[master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t16c_group_writable_record_unreadable[main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t16c_group_writable_record_unreadable[master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t_stale_1_planted_record_then_rm[main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t_stale_1_planted_record_then_rm[master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t19_t19a_malformed_stdin[governed]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t19_t19a_malformed_stdin[unknown]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t20_selector_lines_pinned_and_mapped
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t21_hardened_selector_call[governed-main-a-bash-env]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t21_hardened_selector_call[governed-main-b-bash-func]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t21_hardened_selector_call[governed-main-c-uv-env]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t21_hardened_selector_call[governed-main-d-worktree-uv]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t21_hardened_selector_call[governed-master-a-bash-env]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t21_hardened_selector_call[governed-master-b-bash-func]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t21_hardened_selector_call[governed-master-c-uv-env]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t21_hardened_selector_call[governed-master-d-worktree-uv]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t22_pusher_home_elsewhere[governed-main]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_t22_pusher_home_elsewhere[governed-master]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_fr101_bypass_reaches_remote_under_governed_actor[LIM-4 --no-verify]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_fr101_bypass_reaches_remote_under_governed_actor[LIM-4 -c core.hooksPath]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_fr101_bypass_reaches_remote_under_governed_actor[LIM-4 --config-env]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_fr101_bypass_reaches_remote_under_governed_actor[LIM-4 GIT_CONFIG_COUNT]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_fr101_bypass_reaches_remote_under_governed_actor[LIM-6 config.worktree hooksPath]
+FAILED tests/hooks/test_launch_level_pre_push.py::test_fr101_bypass_reaches_remote_under_governed_actor[LIM-7 git send-pack]
+========== 148 failed, 4382 passed, 13 skipped in 2314.65s (0:38:34) ===========
+done

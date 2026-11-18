@@ -1,0 +1,8 @@
+## pre-TASK-WF-designSpec-20261107-075614-comboB-r3 (UC-1, shadow panel; entry NOT written to docs/memory because the experiment froze that file)
+- Plan-defect class (new): a spec decision function whose row says "re-enter another decision function" while its signature omits that function's inputs (resume_decision row 4 vs release_decision rows 7-8); the plan copies the signature and writes an AC that names no returned action. Check every "re-enter/delegate to X" row for the inputs X needs.
+- Plan-defect class (recurring): ACs stated as grep of a token against a heading whose planned spelling differs (Task 12 "merge-guard" vs "Merge guard"); conditional ACs that pass vacuously when a judgment call goes one way (_RESOLUTION_SCRIPTS).
+- Spec-gap class: fold/effect tables that do not set a field the status mapping reads (user_override -> disabled_cause; cycle_id on a second cycle).
+- Process: fault-finder (opus class) reported 2 HIGH items that a 1-agent verification round downgraded (reachability under conditions); always trace the HIGH claim through the spec's own flow rows before letting it block convergence.
+- Process: the brief told reviewers to cite repo-relative paths; the snapshot lists bare names, so verify-citations flagged 34/34 not-in-snapshot. Brief should tell reviewers to cite snapshot-relative names (source.md, <plan>.md).
+- Identity: reviewer 2 (haiku pin) self-reported OpenAI GPT (mismatch suspected); reviewers 1 and 3 self-reported gateway aliases. Dispatch with explicit model classes worked: no dispatch collapse (3 distinct classes dispatched).
+- Reflect mechanics: one-sentence specs give 0 Pass-1 IDs here too (labels F/G/O/FR do not match ID_REGEX) => parsed-sparse => tier 2.

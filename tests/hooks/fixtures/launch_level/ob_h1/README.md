@@ -12,7 +12,7 @@ What a real observation must capture, per item (design section 11, OB-H1):
 | 2 | item2-skill-keys.json | the input keys of a Skill call and the form of the skill name (`skill` or `name`, with or without `sc:`) |
 | 3 | item3-agent-isolation.json | the tool name for an Agent or Task call and the `isolation` key |
 | 4 | item4-typed-implement-prompt.json | the exact prompt of a typed `/sc:implement x`, and whether the prompt event runs before expansion |
-| 5 | item5-monitor-approved-line.json | the exact prompt of a Monitor line `approved` and of background-Bash and background-subagent notices |
+| 5 | item5-monitor-approved-line.json | the exact prompt of a Monitor line `approved` and of background-Bash and background-subagent notices. The prompt `approved` stays a valid input; since the plain `approved` route was removed, `test_apr_ob_h1_item5_fixture_releases_nothing` asserts it releases nothing |
 | 6 | item6-taskcreate.json | whether `TaskCreate` matches the anchored tool matcher |
 | 7 | item7-sendmessage-mcp.json | the tool names of SendMessage and of MCP tools |
 | 8 | item8-claude-no-p.json | a `claude` command without `-p` |

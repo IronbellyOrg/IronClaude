@@ -63,7 +63,7 @@ _REAL_BUILD_DEPS = cli.build_deps
 SENT = "PWNED-TITLE"
 STEM = "PWNED"  # a shorter needle also catches a truncated or re-cased copy
 HOSTILE_PAD = "x" * 600
-PROMPT_SHAPE = re.compile(r"^/sc:issue --claim [1-9][0-9]{0,8}$")
+PROMPT_SHAPE = re.compile(r"^/sc:issue --claim [1-9][0-9]{0,8} --pipeline none$")
 LOCAL_MOUNTINFO = "1 0 0:1 / / rw - ext4 /dev/sda1 rw\n"
 FILLER = "#"  # first character of the padding line the rotation test writes
 
@@ -462,7 +462,9 @@ def _build_scenarios() -> list[Scenario]:
 
 
 def _orca_reply(world: GhWorld, reply: CommandResult) -> None:
-    argv = launch.launch_argv(ORCA_PATH, world.config.worktree, "/sc:issue --claim 7")
+    argv = launch.launch_argv(
+        ORCA_PATH, world.config.worktree, "/sc:issue --claim 7 --pipeline none"
+    )
     world.runner.script[tuple(argv)] = reply
 
 
@@ -555,9 +557,9 @@ def test_a_launching_cycle_records_the_prompt_and_stays_clean(
     out = run.once()
     run.status()
     assert out.exit_code == 0 and "cycle: cycle_complete" in out.output
-    assert [c[2] for c in run.launcher.calls] == ["/sc:issue --claim 7"]
+    assert [c[2] for c in run.launcher.calls] == ["/sc:issue --claim 7 --pipeline none"]
     assert run.launcher.argvs[0][run.launcher.argvs[0].index("--prompt") + 1] == (
-        "/sc:issue --claim 7"
+        "/sc:issue --claim 7 --pipeline none"
     )
     assert run.spy.canary_served()
     run.check()

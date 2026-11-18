@@ -1,0 +1,23 @@
+persona: refactorer
+model_class: opus
+model: claude-opus-5-5
+
+## Findings block
+
+```findings-v2
+{"id": "F1", "severity": "MAJOR", "blocking": false, "category": "contradiction", "lens": "reflect-pre", "claim": "Task 4 fixes the old `_thread_findings` signature without A1's `completed_at` keyword or A6's `reviews` input, so Task 7 has no way to pass Codex its later-of completion time; shipped classifier.py:355-363 added both outside the plan.", "citations": [{"role": "plan", "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md", "line_start": 61, "line_end": 61, "quote": "`_thread_findings(threads, contract, completed, identities=None)` uses the given identity set"}, {"role": "spec", "path": ".dev/pr-submit-codex/design/pr-submit-codex-design.md", "line_start": 441, "line_end": 443, "quote": "receives it through an explicit keyword `completed_at`, so a Codex root created after the"}]}
+{"id": "F2", "severity": "MAJOR", "blocking": false, "category": "contradiction", "lens": "reflect-pre", "claim": "Task 8's wait-outcome signatures lack A2's already-absent input, and its AC keeps an inactive Codex pending until Augment settles or the silence deadline, contradicting A2 (absent or no-identity reviewer is absent at once); shipped code added `absent` (reviewers.py:337, 375).", "citations": [{"role": "plan", "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md", "line_start": 102, "line_end": 106, "quote": "An inactive Codex is `absent` as soon as Augment is settled, and before that only at the silence deadline."}, {"role": "spec", "path": ".dev/pr-submit-codex/design/pr-submit-codex-design.md", "line_start": 444, "line_end": 446, "quote": "The wait outcomes take the set of reviewers already absent as an"}]}
+{"id": "F3", "severity": "MAJOR", "blocking": false, "category": "missing-requirement", "lens": "reflect-pre", "claim": "No task carries Amendment A4: the `timestamp` field on `rereview_requested`, the resume watermark from it, reuse of the dangling push's `cycle_id`, and `pending_retriggers` on every S5a/S5 resume. Task 12 says only 'per-reviewer watermark', so a resume could post re-triggers twice.", "citations": [{"role": "plan", "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md", "line_start": 147, "line_end": 147, "quote": "Wave 6 re-triggers each present reviewer via `pending_retriggers` and `retrigger_phrase` with a per-reviewer watermark"}, {"role": "spec", "path": ".dev/pr-submit-codex/design/pr-submit-codex-design.md", "line_start": 453, "line_end": 458, "quote": "`rereview_requested{cycle_id, reviewer, timestamp}` where `timestamp` is the UTC time taken"}]}
+{"id": "F4", "severity": "MINOR", "blocking": false, "category": "unpassable-check", "lens": "reflect-pre", "claim": "Task 1 names a test that no longer exists and Tasks 1, 10 and 14 fix absolute counts of 41; the repo now has 45 (test_run_log.py:171-175, refs/loop-guard.md:86). Run today these ACs fail or push the executor to lower the count; check +2 from baseline instead.", "citations": [{"role": "plan", "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md", "line_start": 32, "line_end": 35, "quote": "Update tests/pr_submit/test_run_log.py test_eventtype_is_39_members_with_silence_events to assert 41 members"}, {"role": "spec", "path": ".dev/pr-submit-codex/design/pr-submit-codex-design.md", "line_start": 284, "line_end": 284, "quote": "- Add two `EventType` members (39 → 41): `reviewer_absent` (`{reviewer}`; fail-open, sticky,"}]}
+{"id": "F5", "severity": "MINOR", "blocking": false, "category": "other", "lens": "reflect-pre", "claim": "Task 12's grep AC checks only SKILL.md and says 'no new hit' with no recorded baseline. The design bans `src/superclaude/` paths in every installed primitive, but Tasks 13 and 14 edit refs and commands/pr-submit.md with no equivalent check.", "citations": [{"role": "plan", "path": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md", "line_start": 150, "line_end": 150, "quote": "`grep -n 'src/superclaude' src/superclaude/skills/sc-pr-submit-protocol/SKILL.md` finds no new hit."}, {"role": "spec", "path": ".dev/pr-submit-codex/design/pr-submit-codex-design.md", "line_start": 378, "line_end": 379, "quote": "`src/superclaude/` path (the refs keep referring to the `superclaude.pr_submit` package)."}]}
+```
+
+```yaml
+calibration:
+  per_finding:
+    F1: 0.85
+    F2: 0.85
+    F3: 0.78
+    F4: 0.45
+    F5: 0.55
+```

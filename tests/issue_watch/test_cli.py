@@ -237,7 +237,7 @@ def retry_argv(orca: str, n: int, cwd: str, op: str) -> list[str]:
         "--surface",
         "terminal",
         "--prompt",
-        f"/sc:issue --claim {n}",
+        f"/sc:issue --claim {n} --pipeline none",
         "--retry-launch",
         op,
         "--json",
@@ -601,10 +601,14 @@ def test_build_deps_wires_the_real_dependencies_from_the_config(config, monkeypa
     # The launcher is the Orca launcher and runs through a SubprocessRunner, with
     # the worktree as the working directory (the one call that passes cwd).
     assert isinstance(deps.launcher, launch.OrcaLauncher)
-    deps.launcher.launch("orca-x", config.worktree, "/sc:issue --claim 9", 30.0)
+    deps.launcher.launch(
+        "orca-x", config.worktree, "/sc:issue --claim 9 --pipeline none", 30.0
+    )
     assert seen == [
         (
-            launch.launch_argv("orca-x", config.worktree, "/sc:issue --claim 9"),
+            launch.launch_argv(
+                "orca-x", config.worktree, "/sc:issue --claim 9 --pipeline none"
+            ),
             30.0,
             str(config.worktree),
         )

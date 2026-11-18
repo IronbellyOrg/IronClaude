@@ -1,0 +1,1 @@
+Remove /sc:spawn per .dev/cleanup/spawn/dependency-map.md. Acceptance: /sc:spawn is gone from commands, mirrors, docs, routing guide and the routing tests; the routing table checks pass; no file outside the historical records names /sc:spawn; 0 new test failures and the pass count drops only by the removed tests; lint, format, verify-sync and git diff --check stay green

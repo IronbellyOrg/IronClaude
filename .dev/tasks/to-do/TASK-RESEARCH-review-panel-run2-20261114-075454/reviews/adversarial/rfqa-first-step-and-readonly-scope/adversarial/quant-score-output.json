@@ -1,0 +1,237 @@
+{
+  "inputs": {
+    "A": {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/rfqa-first-step-and-readonly-scope/adversarial/variant-1-original.md",
+      "sha256": "9e4069687ce569f3d857607be8c4dfda69d4c091170bca09a9eef8eb03b562fe"
+    },
+    "B": {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/rfqa-first-step-and-readonly-scope/adversarial/variant-2-original.md",
+      "sha256": "99a22f2a3f092af3b84f2cef780a797830fca7319737eaa9da62612bf7399f8c"
+    }
+  },
+  "protocol": "sc-adversarial-protocol refs/scoring-protocol.md section A.1",
+  "requirement_ids": [
+    "CO-30",
+    "CO-31",
+    "FX-8",
+    "FX-20",
+    "INV-G",
+    "INV-J",
+    "INV-N",
+    "INV-K",
+    "GQ-181"
+  ],
+  "requirement_phrases": [
+    "read-only",
+    "behavioural oracle",
+    "eight lens",
+    "Q3"
+  ],
+  "variants": {
+    "A": {
+      "file": "variant-1-original.md",
+      "metrics": {
+        "DC": {
+          "denominator": 13,
+          "detail": "internal references=13, resolved=13, external excluded=14; heading numbers present=['0', '1', '2', '3', '3.1', '3.2', '3.3', '3.4', '3.5', '4', '4.1', '4.2', '5', '6', '7', '8']",
+          "external_refs_excluded": [
+            "line 22: r13 section 5",
+            "line 35: r13 section 3",
+            "line 39: (r13 section 4.2",
+            "line 55: r13 section 5",
+            "line 59: r13 section 5",
+            "line 68: r13 section 2.2",
+            "line 74: r13 section 5",
+            "line 75: (r13 section 5",
+            "line 123: (r13 section 5",
+            "line 127: r13 section 8",
+            "line 127: r13 section 7",
+            "line 127: (r13 section 9",
+            "line 129: (r13 section 4.3",
+            "line 129: (r13 section 4.2"
+          ],
+          "internal_refs": [
+            "line 31: section 5 -> resolved",
+            "line 81: of section 0 -> resolved",
+            "line 90: check, section 5 -> resolved",
+            "line 93: | section 0 -> resolved",
+            "line 95: section 3.2 -> resolved",
+            "line 102: separable, section 7 -> resolved",
+            "line 103: section 3.2 -> resolved",
+            "line 137: section 4.2 -> resolved",
+            "line 137: section 5 -> resolved",
+            "line 139: of section 0 -> resolved",
+            "line 145: of section 5 -> resolved",
+            "line 149: section 0 -> resolved",
+            "line 151: in section 2 -> resolved"
+          ],
+          "numerator": 13,
+          "value": 1.0
+        },
+        "IC": {
+          "contradiction_ids": [
+            "X-007"
+          ],
+          "denominator": 106,
+          "detail": "total_claims=106 (units with a file:line citation or a standalone number, vague-phrase units excluded); intra-variant contradictions=1 ['X-007'] from diff-analysis.md Contradictions table; cross-variant X-rows not counted",
+          "numerator": 105,
+          "total_claims": 106,
+          "value": 0.990566
+        },
+        "RC": {
+          "denominator": 13,
+          "detail": "matched 10 of 13 requirements (ids 6, phrases 4)",
+          "how": {
+            "CO-30": "id x2",
+            "CO-31": "id x2",
+            "FX-20": "id x2",
+            "FX-8": "id x4",
+            "GQ-181": "id x1",
+            "INV-G": "id x1",
+            "Q3": "exact-token",
+            "behavioural oracle": "phrase",
+            "eight lens": "phrase",
+            "read-only": "phrase"
+          },
+          "matched": [
+            "CO-30",
+            "CO-31",
+            "FX-8",
+            "FX-20",
+            "INV-G",
+            "GQ-181",
+            "read-only",
+            "behavioural oracle",
+            "eight lens",
+            "Q3"
+          ],
+          "numerator": 10,
+          "unmatched": [
+            "INV-J",
+            "INV-N",
+            "INV-K"
+          ],
+          "value": 0.769231
+        },
+        "SC": {
+          "denominator": 9,
+          "detail": "H2 count 9 / max H2 count 9",
+          "numerator": 9,
+          "value": 1.0
+        },
+        "SR": {
+          "concrete_units": 142,
+          "denominator": 142,
+          "detail": "concrete units=142 (number, file:line, path, code identifier or named id), vague units=0; a unit can count in both",
+          "numerator": 142,
+          "vague_hits": [],
+          "vague_units": 0,
+          "value": 1.0
+        }
+      },
+      "quant_score": 0.9284
+    },
+    "B": {
+      "file": "variant-2-original.md",
+      "metrics": {
+        "DC": {
+          "denominator": 9,
+          "detail": "internal references=9, resolved=9, external excluded=10; heading numbers present=['1', '2', '3', '3.1', '3.2', '3.3', '3.4', '4', '5', '6', '7', '8', '9']",
+          "external_refs_excluded": [
+            "line 15: r13 section 8",
+            "line 22: (r13 section 5",
+            "line 28: r13 section 5",
+            "line 32: (r13 section 5",
+            "line 32: r13 section 5",
+            "line 37: r13 section 8",
+            "line 43: r13 section 4.1",
+            "line 48: r13 section 4.3",
+            "line 94: (r13 section 7.1",
+            "line 96: (`r13` section 4.2"
+          ],
+          "internal_refs": [
+            "line 33: section 6 -> resolved",
+            "line 49: section 6 -> resolved",
+            "line 72: of section 2 -> resolved",
+            "line 77: in section 6 -> resolved",
+            "line 90: in section 4 -> resolved",
+            "line 96: section 3.2 -> resolved",
+            "line 105: section 3.1 -> resolved",
+            "line 107: in section 7 -> resolved",
+            "line 109: in section 3 -> resolved"
+          ],
+          "numerator": 9,
+          "value": 1.0
+        },
+        "IC": {
+          "contradiction_ids": [],
+          "denominator": 62,
+          "detail": "total_claims=62 (units with a file:line citation or a standalone number, vague-phrase units excluded); intra-variant contradictions=0 [] from diff-analysis.md Contradictions table; cross-variant X-rows not counted",
+          "numerator": 62,
+          "total_claims": 62,
+          "value": 1.0
+        },
+        "RC": {
+          "denominator": 13,
+          "detail": "matched 13 of 13 requirements (ids 9, phrases 4)",
+          "how": {
+            "CO-30": "id x2",
+            "CO-31": "id x1",
+            "FX-20": "id x1",
+            "FX-8": "id x2",
+            "GQ-181": "id x3",
+            "INV-G": "id x4",
+            "INV-J": "id x2",
+            "INV-K": "id x3",
+            "INV-N": "id x2",
+            "Q3": "exact-token",
+            "behavioural oracle": "phrase",
+            "eight lens": "phrase",
+            "read-only": "phrase"
+          },
+          "matched": [
+            "CO-30",
+            "CO-31",
+            "FX-8",
+            "FX-20",
+            "INV-G",
+            "INV-J",
+            "INV-N",
+            "INV-K",
+            "GQ-181",
+            "read-only",
+            "behavioural oracle",
+            "eight lens",
+            "Q3"
+          ],
+          "numerator": 13,
+          "unmatched": [],
+          "value": 1.0
+        },
+        "SC": {
+          "denominator": 9,
+          "detail": "H2 count 9 / max H2 count 9",
+          "numerator": 9,
+          "value": 1.0
+        },
+        "SR": {
+          "concrete_units": 110,
+          "denominator": 110,
+          "detail": "concrete units=110 (number, file:line, path, code identifier or named id), vague units=0; a unit can count in both",
+          "numerator": 110,
+          "vague_hits": [],
+          "vague_units": 0,
+          "value": 1.0
+        }
+      },
+      "quant_score": 1.0
+    }
+  },
+  "weights": {
+    "DC": 0.15,
+    "IC": 0.25,
+    "RC": 0.3,
+    "SC": 0.15,
+    "SR": 0.15
+  }
+}

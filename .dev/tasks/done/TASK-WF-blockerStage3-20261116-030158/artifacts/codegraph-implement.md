@@ -1,0 +1,1 @@
+codegraph: index_state=fresh access=mcp checked_at=2026-11-17T00:49:50Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel projectPath=/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel

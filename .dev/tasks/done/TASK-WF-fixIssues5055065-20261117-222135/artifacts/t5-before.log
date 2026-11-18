@@ -1,0 +1,2 @@
+E   AssertionError: assert 'uv run superclaude recommend' in 'Usage: main recommend [OPTIONS] COMMAND [ARGS]... sc-recommend lookup-cache deterministic helpers. Backs the ``sc-rec...al Per-row / plugi
+========================= 1 failed, 3 passed in 0.37s ==========================

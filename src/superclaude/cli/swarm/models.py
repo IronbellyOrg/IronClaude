@@ -1,7 +1,7 @@
 """Swarm data models -- DM-001..DM-020 dataclass aggregator.
 
 This module is the **aggregator** that re-exports every dataclass the
-swarm pipeline serializes. It mirrors ``cli/sprint/models.py`` in role.
+swarm pipeline serializes.
 
 Scope split (T01.10 vs T01.13..T01.28):
     T01.10 (this task) lands the *scaffolding*: minimal ``@dataclass``

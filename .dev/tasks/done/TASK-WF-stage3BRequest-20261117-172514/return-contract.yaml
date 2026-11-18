@@ -1,0 +1,16 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-stage3BRequest-20261117-172514
+plan_path: ./TASK-WF-stage3BRequest-20261117-172514.md
+source_path: ./source.md
+source_origin: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/stage-requests/stage3b-request.md
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage3BRequest-20261117-172514-20261117173200/REPORT.md
+unresolved:
+  - "Pre-execution review (/sc:reflect --mode pre, Tier 1, calibrated 0.88): 0 Blocking, 2 Medium, 1 Note, 23 citation units re-read (22 verified, 0 dropped, 1 misstated and corrected). Status partial because the deterministic requirement extraction (Step 1B.0) was not run and the reviewer ran no tests."
+  - "After the review, the plan, the request and source.md were edited once to fix Medium finding F2 (a Blocking grade also names the affected action; the new acceptance check is `grep -c \"also name the affected action\"` prints 1). That edit was not re-reviewed. Finding F1 (the stage 4 package's Task 4 overlap) was closed by removing that task from the stage 4 package. The review's input hash (0c1ae5d65445b2b2ac80568710cda7c55d28643b3934d98d5678674b1011621c) therefore no longer matches the files."
+  - "Do not run /sc:implement on this package until the owner says go in chat (owner decision of 2026-11-17: separate package; no go to run it has been given)."

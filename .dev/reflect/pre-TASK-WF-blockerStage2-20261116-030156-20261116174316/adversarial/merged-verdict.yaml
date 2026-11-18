@@ -1,0 +1,14 @@
+merge_method: adversarial
+verdict: NEEDS-REVISION
+convergence_score: 0.90
+base_variant: "variant-3 (reviewer card 3, refactorer, opus-class reviewer)"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+merged_output_path: adversarial/merged-review-card.md
+artifacts_dir: adversarial/adversarial
+blocking_findings: [MB-1, MB-2, MB-3, MB-4]
+non_blocking_findings: [MN-1, MN-2, MN-3, MN-4, MN-5, MN-6, MN-7, MN-8, MN-9, MN-10, MN-11, MN-12, MN-13, MN-14, MN-15]
+unresolved_conflicts: 2   # C-004, C-005 (split on grading)
+unaddressed_invariants: []  # no HIGH unaddressed

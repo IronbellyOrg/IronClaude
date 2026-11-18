@@ -1,0 +1,12 @@
+# T1 checks
+AC1: tracked paths naming review-translation outside .dev/ (expect none under src, plugins, commands, skills, agents):
+  none
+AC1: mirror paths (expect none):
+  ls: cannot access '.claude/commands/sc/review-translation.md': No such file or directory
+  ls: cannot access '.claude/skills/sc-review-translation-protocol': No such file or directory
+AC2: staged .claude paths (expect 0):
+0
+AC3: make verify-sync:
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.

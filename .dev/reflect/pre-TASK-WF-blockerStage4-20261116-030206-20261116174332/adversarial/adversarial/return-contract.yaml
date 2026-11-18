@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116174332/adversarial/merged-review-card.md"
+  convergence_score: 0.75
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116174332/adversarial/adversarial/"
+  status: success
+  base_variant: "V3 (reviewer 3, refactorer, opus class)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []

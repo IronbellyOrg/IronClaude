@@ -86,7 +86,7 @@ RULE_PHRASES = {
     "never-as-worker": (
         "**Never-as-worker list**",
         [
-            "`/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn`, `/sc:sweep` and "
+            "`/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:sweep` and "
             "`/sc:swarm-wizard`, plus `/sc:pr-submit` while the answer to decision D3 keeps it off workers"
         ],
     ),
@@ -397,7 +397,7 @@ RULE_PHRASES = {
     "flag-drops": (
         None,
         [
-            "skip every approval-required item and list it as not applied",
+            "skips every approval-required item and lists it as not applied",
             "`/sc:test` ends `succeeded` even when its suite fails",
             "`/sc:research` is forced to `--strategy planning`",
             "`/sc:workflow` skips `--handoff implement`",
@@ -420,6 +420,37 @@ RULE_PHRASES = {
             "A refusal is report-only: the worker never installs or refreshes a command copy and never rewrites its own brief",
         ],
     ),
+    "issue-pipeline-duties": (
+        None,
+        [
+            "### Issue pipeline duties",
+            'Route B adds no exception to "never answer a person prompt"',
+            "only a `created` result may start a worker",
+            "Never start again for an `uncertain` row",
+            "worker-start --worktree path:<exact path it printed>",
+            "Create the plan-hash approval row (`record-create`) only when the worker's `ask` carries the plan hash",
+            "act on a Status move alone",
+            "post an issue write without that issue's grant row",
+        ],
+    ),
+    "wc17-plan-approval": (
+        None,
+        [
+            "**WC-17. Plan approval is the reply to the worker's own ask.**",
+            "(1) runs `superclaude issue-pipeline plan-hash",
+            "(4) runs `superclaude issue-pipeline check-approval",
+            "(5) sends `ack <message_id> applied` or `ack <message_id> refused`",
+            "(6) continues only on `applied`",
+            "`ask` and `send` commands carry no `--to`",
+            "the launch-level guard blocks any `--to` from a bound worker",
+            "never treats a bare `approved`, or any text that is not the reply to its own ask, as approval",
+            "A mismatch is refused and reported, not retried silently",
+        ],
+    ),
+    "brief-worktree-path-slot": (
+        None,
+        ["| path:<existing worktree>>"],
+    ),
 }
 
 GUARD_LINE = (
@@ -434,13 +465,12 @@ NEVER_AS_WORKER = (
     "/sc:help",
     "/sc:issue",
     "/sc:pm",
-    "/sc:spawn",
     "/sc:swarm-wizard",
     "/sc:pr-submit",
     "/sc:sweep",
 )
 
-# The sixteen commands that get an `## Unattended mode` section in P1, in the order
+# The thirteen commands that get an `## Unattended mode` section in P1, in the order
 # of the spec's phase table.
 P1_COMMANDS = (
     "adversarial",
@@ -448,33 +478,26 @@ P1_COMMANDS = (
     "cleanup-audit",
     "graph",
     "impact",
-    "index-repo",
     "init-lite",
     "workflow",
     "analyze",
-    "build",
     "business-panel",
     "design",
     "document",
     "explain",
-    "index",
     "test",
 )
 
-# The fifteen commands that get an `## Unattended mode` section in P2, in the order
+# The twelve commands that get an `## Unattended mode` section in P2, in the order
 # of the P2 static plan. UNATTENDED_EXPECT gains their entries one task at a time.
 P2_COMMANDS = (
     "auggie-review",
     "cleanup",
-    "improve",
     "cli-eval",
-    "cli-portify",
     "recommend",
     "research",
-    "review-translation",
     "spec-panel",
     "task",
-    "tasklist",
     "reflect",
     "release-split",
     "tdd",
@@ -525,11 +548,6 @@ UNATTENDED_EXPECT: dict = {
         ],
         "nested": [],
     },
-    "index-repo": {
-        "flags": [],
-        "phrases": ["PROJECT_INDEX.md", "PROJECT_INDEX.json", "mode=update"],
-        "nested": [],
-    },
     "init-lite": {
         "flags": ["--output", "--dry-run"],
         "phrases": ["the one write besides the report", "Safety Invariants 2 and 3"],
@@ -548,11 +566,6 @@ UNATTENDED_EXPECT: dict = {
     "analyze": {
         "flags": ["--output"],
         "phrases": ["analyze-report.md", "no gate", "consent is never given"],
-        "nested": [],
-    },
-    "build": {
-        "flags": ["--output"],
-        "phrases": ["build-report.md", "no gate"],
         "nested": [],
     },
     "design": {
@@ -580,11 +593,6 @@ UNATTENDED_EXPECT: dict = {
         "phrases": ["every file edited", "inline"],
         "nested": [],
     },
-    "index": {
-        "flags": ["--output", "--type"],
-        "phrases": ["knowledge-base mode", "index-report.md", "consent is never given"],
-        "nested": [],
-    },
     "cleanup": {
         "flags": ["--interactive", "--output"],
         "phrases": [
@@ -595,20 +603,6 @@ UNATTENDED_EXPECT: dict = {
             "every changed file",
             "left out (WC-4)",
             'every item under "Approval Required" is listed as not applied',
-        ],
-        "nested": [],
-    },
-    "improve": {
-        "flags": ["--interactive", "--force", "--output"],
-        "phrases": [
-            "Approval Required",
-            "not applied",
-            "improve-report.md",
-            "partial when changes were applied and a validation failed or did not run",
-            "every changed file",
-            "left out (WC-4)",
-            'every item under "Approval Required" is listed as not applied',
-            "`--force` is refused",
         ],
         "nested": [],
     },
@@ -646,19 +640,6 @@ UNATTENDED_EXPECT: dict = {
         ],
         "nested": [],
     },
-    "review-translation": {
-        "flags": ["--context"],
-        "phrases": [
-            "context-summary.md",
-            "(the path itself, never the pattern)",
-            "blocked_question",
-            "SKIP IMPLEMENTATION",
-            "reports/localization/",
-            "Phase 1 without `--context` resolves as blocked",
-            "Phase 7 resolves to SKIP IMPLEMENTATION",
-        ],
-        "nested": [],
-    },
     "release-split": {
         "flags": ["--output", "-o", "--interactive", "-i", "--r1-scope custom"],
         "phrases": [
@@ -670,20 +651,6 @@ UNATTENDED_EXPECT: dict = {
             "both, or neither, is refused before any work",
         ],
         "nested": ["brainstorm", "adversarial"],
-    },
-    "cli-portify": {
-        "flags": ["--resume", "--output"],
-        "phrases": [
-            "portify-analysis.md",
-            "portify-spec.md",
-            "portify-release-spec.md",
-            "resume_phase",
-            "resume_substep",
-            "IronClaude checkout",
-            "blocked_question",
-            "each of the three approval gates resolves as blocked",
-        ],
-        "nested": [],
     },
     "auggie-review": {
         "flags": [
@@ -773,21 +740,6 @@ UNATTENDED_EXPECT: dict = {
             "`--remediate` is answered by the headless auto-accept rule",
         ],
         "nested": ["adversarial", "workflow", "impact"],
-    },
-    "tasklist": {
-        "flags": ["--output", "--no-reflect"],
-        "phrases": [
-            "tasklist-index.md",
-            "in the tasklist output directory, never a bare file name",
-            "validation/ValidationReport.md",
-            "validation/gate-results.txt",
-            "validation/PatchChecklist.md",
-            "blocked_question",
-            "--compliance strict --unattended --report-dir <report-dir>/nested/task-<n>/",
-            "the unresolved High or Medium HALT resolves as blocked",
-            "the `needs_human_decision` HALT resolves as blocked",
-        ],
-        "nested": ["reflect", "task"],
     },
 }
 
@@ -972,8 +924,6 @@ def test_brief_template_puts_guard_line_before_first_command_line():
 P2_NEW_BRIEF_ROWS = (
     "auggie-review",
     "cli-eval",
-    "cli-portify",
-    "review-translation",
     "spec-panel",
 )
 NESTED_RESULT_PHRASES = (
@@ -1286,12 +1236,6 @@ def test_cleanup_audit_names_final_report_and_contract_write_exception():
         ), path.name
 
 
-def test_index_repo_output_format_states_where_the_files_land():
-    text = (Path(_THIS.COMMANDS_DIR) / "index-repo.md").read_text(encoding="utf-8")
-    section = text.split("## Output Format", 1)[1].split("\n## ", 1)[0]
-    assert "root of the repository" in section
-
-
 def test_init_lite_contract_exception_and_pass_through_are_documented():
     skill = (_REPO / "src/superclaude/skills/sc-init-lite-protocol/SKILL.md").read_text(
         encoding="utf-8"
@@ -1361,12 +1305,6 @@ def test_unattended_artifacts_list_only_files_the_run_wrote():
         assert "as each file is written" in clause or "as it is written" in clause, (
             clause
         )
-    build = _artifacts_clause(_unattended_section("build"))
-    assert "git check-ignore" in build and "paths git ignores are left out" in build, (
-        build
-    )
-    assert "WC-4" in build and "git refuses" not in build, build
-    assert not WRITE_VERB_RE.search(build), build
     test = _artifacts_clause(_unattended_section("test"))
     assert "paths git ignores are left out" in test and "WC-4" in test, test
     assert "`[]`" in test and not WRITE_VERB_RE.search(test), test
@@ -1396,14 +1334,6 @@ def test_business_panel_frontmatter_is_not_inside_a_code_fence():
     assert not re.search(r"^```yaml", head, re.M)
 
 
-def test_load_usage_line_declares_checkpoint_and_load_is_not_converted():
-    text = (Path(_THIS.COMMANDS_DIR) / "load.md").read_text(encoding="utf-8")
-    usage = text.split("## Usage", 1)[1].split("\n## ", 1)[0]
-    assert "--checkpoint <name>" in usage
-    assert "load" not in UNATTENDED_COMMANDS
-    assert "sweep" not in UNATTENDED_COMMANDS
-
-
 def test_unattended_section_check_forbids_nested_text_without_a_nested_list():
     text = _SYNTHETIC_SECTION
     with pytest.raises(AssertionError):
@@ -1415,13 +1345,11 @@ def test_unattended_section_check_forbids_nested_text_without_a_nested_list():
 # Commands that never get the section in P1 (later phases extend the converted set;
 # the set-equality test above already fails for any other command with a section).
 NOT_CONVERTED_IN_P1 = (
-    "load",
     "pr-submit",
     "agent",
     "git",
     "help",
     "pm",
-    "spawn",
     "swarm-wizard",
     "issue",
 )
@@ -1435,8 +1363,8 @@ _WORKER_CONTRACT_HEADING = "## Worker contract (`--unattended`)"
 
 
 def _check_p1_set(commands, expect) -> None:
-    assert len(commands) == 16, f"P1 lists {len(commands)} commands, not 16"
-    assert len(set(commands)) == 16, "P1_COMMANDS has a duplicate"
+    assert len(commands) == 13, f"P1 lists {len(commands)} commands, not 13"
+    assert len(set(commands)) == 13, "P1_COMMANDS has a duplicate"
     # The P2 entries arrive one task at a time, so `expect` may also hold any of
     # P2_COMMANDS; a name outside both sets, or a missing P1 name, fails.
     assert set(commands) <= set(expect) <= set(commands) | set(P2_COMMANDS), (
@@ -1570,12 +1498,10 @@ def test_no_section_check_fails_when_an_unconverted_command_has_one(
 ):
     cmds = tmp_path / "commands"
     cmds.mkdir()
-    (cmds / "load.md").write_text(
-        "# load\n\n## Unattended mode\n\nx\n", encoding="utf-8"
-    )
+    (cmds / "pm.md").write_text("# pm\n\n## Unattended mode\n\nx\n", encoding="utf-8")
     monkeypatch.setattr(_THIS, "COMMANDS_DIR", cmds)
     with pytest.raises(AssertionError):
-        _check_no_section_in(["load"])
+        _check_no_section_in(["pm"])
     # A command whose file does not exist is skipped.
     _check_no_section_in(["issue"])
 
@@ -1623,7 +1549,6 @@ EXPECTED_NESTING = {
     "task": ["impact", "troubleshoot"],
     "cli-eval": ["spec-panel", "adversarial", "document"],
     "reflect": ["adversarial", "workflow", "impact"],
-    "tasklist": ["reflect", "task"],
 }
 
 
@@ -1636,14 +1561,14 @@ def test_nested_lists_match_the_p2_nesting():
 
 
 def _check_p2_set(p1, p2, expect) -> None:
-    assert len(p2) == 15, f"P2 lists {len(p2)} commands, not 15"
-    assert len(set(p2)) == 15, "P2_COMMANDS has a duplicate"
+    assert len(p2) == 11, f"P2 lists {len(p2)} commands, not 11"
+    assert len(set(p2)) == 11, "P2_COMMANDS has a duplicate"
     assert set(p1).isdisjoint(p2), f"P1 and P2 share {sorted(set(p1) & set(p2))}"
     both = set(p1) | set(p2)
     assert set(expect) == both, (
         f"UNATTENDED_EXPECT differs from P1 + P2: {sorted(set(expect) ^ both)}"
     )
-    assert len(expect) == 31, f"UNATTENDED_EXPECT has {len(expect)} entries, not 31"
+    assert len(expect) == 24, f"UNATTENDED_EXPECT has {len(expect)} entries, not 24"
     for name in (*p1, *p2):
         assert (Path(_THIS.COMMANDS_DIR) / f"{name}.md").exists(), f"{name}: no file"
 
@@ -1690,7 +1615,6 @@ def test_expected_nesting_is_the_spec_nesting():
     assert EXPECTED_NESTING == {
         "brainstorm": ["analyze", "adversarial", "research"],
         "workflow": ["reflect"],
-        "tasklist": ["reflect", "task"],
         "reflect": ["adversarial", "workflow", "impact"],
         "release-split": ["brainstorm", "adversarial"],
         "task": ["impact", "troubleshoot"],
@@ -1761,8 +1685,6 @@ def test_reflect_skill_passes_the_nested_impact_directory():
 _CLEANUP_GATE = 'every item under "Approval Required" is listed as not applied'
 P2_GATES = [
     ("cleanup", _CLEANUP_GATE, "not applied", "applied"),
-    ("improve", _CLEANUP_GATE, "not applied", "applied"),
-    ("improve", "`--force` is refused", "refused", "honoured"),
     (
         "research",
         "an explicit `--strategy intent` or `--strategy unified` is refused",
@@ -1782,18 +1704,6 @@ P2_GATES = [
         "asked",
     ),
     (
-        "review-translation",
-        "Phase 1 without `--context` resolves as blocked",
-        "blocked",
-        "confirmed",
-    ),
-    (
-        "review-translation",
-        "Phase 7 resolves to SKIP IMPLEMENTATION",
-        "SKIP IMPLEMENTATION",
-        "IMPLEMENT FIXES",
-    ),
-    (
         "release-split",
         "the tasklist-input warning resolves as blocked",
         "blocked",
@@ -1804,12 +1714,6 @@ P2_GATES = [
         "`--r1-scope custom` resolves as blocked",
         "blocked",
         "prompted",
-    ),
-    (
-        "cli-portify",
-        "each of the three approval gates resolves as blocked",
-        "blocked",
-        "approved",
     ),
     (
         "auggie-review",
@@ -1866,18 +1770,6 @@ P2_GATES = [
         "a TDD that is already complete resolves as blocked",
         "blocked",
         "re-run",
-    ),
-    (
-        "tasklist",
-        "the unresolved High or Medium HALT resolves as blocked",
-        "blocked",
-        "escalated",
-    ),
-    (
-        "tasklist",
-        "the `needs_human_decision` HALT resolves as blocked",
-        "blocked",
-        "escalated",
     ),
     (
         "reflect",
@@ -3315,3 +3207,41 @@ def test_audit_fails_on_unclassified_write_verb(tmp_path, monkeypatch):
     ]
     with pytest.raises(AssertionError, match="unclassified"):
         _check_all_classified()
+
+
+# --- Issue pipeline duties (Plan B Task 9) -----------------------------------
+
+
+def _adoption_bullet(text: str) -> str:
+    bullets = [
+        ln for ln in text.splitlines() if ln.startswith("- **Adopt from sources")
+    ]
+    assert len(bullets) == 1, "expected one adoption bullet"
+    return bullets[0]
+
+
+def _check_adoption_sources(text: str) -> None:
+    bullet = _adoption_bullet(text)
+    assert "worktree.json" not in bullet, "adoption names worktree.json as a source"
+    assert "dispatch.json" in bullet
+    assert ".dev/issues/<N>/issue-summary.md" in bullet
+
+
+def test_adoption_names_only_sources_that_exist_after_pipeline_none():
+    _check_adoption_sources(_contract())
+
+
+def test_adoption_check_fails_when_worktree_json_is_named(tmp_path, monkeypatch):
+    text = _contract().replace(
+        "writes no worktree record",
+        "writes no `worktree.json`, but read `worktree.json`",
+    )
+    _patched_copy(tmp_path, monkeypatch, text)
+    with pytest.raises(AssertionError):
+        _check_adoption_sources(_contract())
+
+
+def test_issue_pipeline_duties_allow_no_typing_into_a_worker_prompt():
+    section = _contract().split("### Issue pipeline duties", 1)[1].split("\n### ", 1)[0]
+    assert "terminal send" not in section
+    assert "types nothing into a worker's terminal" in section

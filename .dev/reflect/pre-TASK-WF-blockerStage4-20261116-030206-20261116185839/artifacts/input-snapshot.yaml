@@ -1,0 +1,47 @@
+input_tree_sha256: fda3e513c47aa16be34bccc1bc3c434310609f11a43303d4c449c151942f8546
+file_list:
+  - path: .claude/settings.json
+    sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage4-20261116-030206/TASK-WF-blockerStage4-20261116-030206.md
+    sha256: 798d9bb0d378d5cd5c04e0373c7990e16221bf97b9cf4f0b5f1a3bd933431cd1
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage4-20261116-030206/artifacts/codegraph-grounding.md
+    sha256: 2c5561baa03e3ac9a321c76aed3b7fc5f3c94a379774a8d377a408edb1ca0bdb
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage4-20261116-030206/source.md
+    sha256: 70fb649a97175aedc5c6c36dbbb4fd7bbc40482bfaeed52aaf4608ae9fe60b86
+  - path: plugins/superclaude/commands/spec-panel.md
+    sha256: ac2a64b1f1528dc8d1bd147522869aead0cb2ee9de7d51e62978f843c3aef250
+  - path: plugins/superclaude/rules/prompts/document_review_loop_prompts.md
+    sha256: 75a29b95a21a7113f236d82da71d7ea3b4e43e729bff5be654c08cbc16e93f84
+  - path: src/superclaude/agents/rf-qa-qualitative.md
+    sha256: c205eff2c1e80bef31ba0778b2705177e756d6f9a949cbb05cfe71d3445005f8
+  - path: src/superclaude/agents/rf-task-builder.md
+    sha256: 0da901a0c7b7985b6655a4981dc14c756005ea20f7dc81032381f284210e815d
+  - path: src/superclaude/cli/doctor.py
+    sha256: 1708ff8dbfaaf48e3e2b8a27f7833e2232ef9d594b406f01aa250c5b9ef16922
+  - path: src/superclaude/cli/review/ledger.py
+    sha256: 2908549846e1a6c63f692d18c7e4c375e257590eb4671a17dba1b315218b8179
+  - path: src/superclaude/commands/spec-panel.md
+    sha256: e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494
+  - path: src/superclaude/skills/operational-guide/SKILL.md
+    sha256: e212e9a8a9d7cecc00deb38f84de83b165aa2f62bf35f8ad7bcc4437b2aaed97
+  - path: src/superclaude/skills/readme/SKILL.md
+    sha256: 7825123de22c3135526aa5806b37de9fe02bcce676eb49626147d5a222aa952a
+  - path: src/superclaude/skills/sc-implement-protocol/refs/qa.md
+    sha256: 93e232f5d49207624c24da25bc6f2e9a0686b4f7f7ca99a38e4b95f56edaf004
+  - path: src/superclaude/skills/tdd/refs/build-request-template.md
+    sha256: d5d14a55e14de37f252c65984c07d893ec277a06c41ec068d9f6e40fddd43f72
+  - path: src/superclaude/skills/tech-reference/SKILL.md
+    sha256: 82bca4bbd3c5215120961225a97d1bfcecfae199ddd1b5d15d04af5cc04f1bfc
+  - path: tests/audit/test_severity_floor_unweakened.py
+    sha256: 3a657c078884ad6015505b9d0b18549587c411dc32102ed0866b18e06b1fc1f7
+  - path: tests/review/test_review_rules_text.py
+    sha256: d28b6fd30858e105c28a8706b8688df9da1c8c8f7cfc8e953ffa0c98b8da98b6
+  - path: tests/skills/test_review_brief_placement.py
+    sha256: f4d25b8b87c7c16cdcdc97cfcb4315f2d56939a6e2665a5e26a23dcf97325d54
+  - path: tests/skills/test_review_severity_mapping.py
+    sha256: 3d053c668ac5ada012ba5129ef84a8083c166cc937c4affe07ba04827e8293f8
+  - path: tests/skills/test_task_builder_merge.py
+    sha256: 107aa094e8860e5e99f043e0850212c55bddc331910b6325cc8a3af702c02355
+  - path: tests/skills/test_worker_contract.py
+    sha256: 563aec4ae87af837230348277eec84220d48309258fa97a7fdf73e65a6d3ab49
+file_count: 22

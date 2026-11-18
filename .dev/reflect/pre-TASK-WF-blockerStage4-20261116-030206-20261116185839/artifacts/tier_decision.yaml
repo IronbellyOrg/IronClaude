@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6.0
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 2
+  spec_density: 1
+  ambiguity_signals: 1
+escalation_reason: "coverage_degraded parsed-sparse is a table-wide pre-filter (no STOP row may fire); S_domains >= 3 (docs, tests, config) also fires rule 4"
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null

@@ -856,3 +856,44 @@ def test_command_and_skill_agree_on_the_new_create_boundaries():
     assert "issue types, issue fields" in command
     assert "an issue type, an issue field" in skill
     assert "fixed set" not in command
+
+
+HANDOFF_START = "Coordinator handoff for `--pipeline none`:"
+
+
+def _handoff_paragraph(path: Path) -> str:
+    paragraphs = [p for p in _text(path).split("\n\n") if p.startswith(HANDOFF_START)]
+    assert len(paragraphs) == 1, f"{path.name}: expected one handoff paragraph"
+    return paragraphs[0]
+
+
+HANDOFF_FILES = [COMMANDS / "issue.md", SKILL, REFS / "claim.md"]
+
+
+def test_the_coordinator_handoff_is_the_same_paragraph_in_all_three_files():
+    paragraphs = {_handoff_paragraph(path) for path in HANDOFF_FILES}
+    assert len(paragraphs) == 1
+
+
+@pytest.mark.parametrize(
+    "needle",
+    [
+        "the claim leaves its files in the checkout that ran it",
+        "it runs the `worktree` step of `orca_worktree.py` (the repository, the issue number, the base branch and that folder as its arguments)",
+        "worker-start --worktree path:<the printed path>",
+        "The script creates the worktree with no agent",
+        "it must copy `.dev/issues/<N>/` into the worktree before any agent starts",
+        "the coordinator must run `worker-start` straight after it",
+        "the worktree stays empty, with no agent and no terminal",
+        "adoption row still `reserved`: a start may or may not have happened, so it never starts again by itself",
+        "a worker in that worktree settles the row as `started` with its Dispatch id",
+        "reuses the existing worktree through the script's reuse lookup (marker, record, basename, branch)",
+        "orca worktree ps",
+    ],
+)
+def test_the_coordinator_handoff_paragraph_states(needle):
+    assert needle in _handoff_paragraph(COMMANDS / "issue.md")
+
+
+def test_the_claim_still_writes_no_worktree_record_for_pipeline_none():
+    assert "no `<D>/worktree.json` is written" in _text(REFS / "claim.md")

@@ -1,0 +1,12 @@
+# T1 checks
+AC1: existing paths among the four (expect none):
+  ls: cannot access 'src/superclaude/commands/spawn.md': No such file or directory
+  ls: cannot access 'plugins/superclaude/commands/spawn.md': No such file or directory
+  ls: cannot access 'commands/sc-spawn.md': No such file or directory
+  ls: cannot access '.claude/commands/sc/spawn.md': No such file or directory
+AC1: spawn files under src/superclaude/commands: 0
+AC2: tracked changes for this task:
+  D  commands/sc-spawn.md
+  D  plugins/superclaude/commands/spawn.md
+  D  src/superclaude/commands/spawn.md
+AC2: staged .claude paths: 0

@@ -40,9 +40,9 @@ ll_say() {
     fi
     case $id in
     LL-IMPL)
-        b='starting /sc:implement, /task, /sc:improve, /sc:cleanup, /sc:spawn or /sc:build (or their skills).'
+        b='starting /sc:implement, /task or /sc:cleanup (or their skills).'
         w='At the worktree level the agent stops at a plan until a person approves it.'
-        y='Read the plan, then type /sc:implement or /task, or reply approved, in this session.' ;;
+        y='Read the plan, then type /sc:implement or /task in this session.' ;;
     LL-COMMIT)
         b='creating a commit (git commit, cherry-pick, revert, am, or moving a branch with update-ref).'
         w='Only a launch with --pipeline full --submit lets the agent commit.'
@@ -89,7 +89,7 @@ ll_say() {
         y='Do the work here (local subagents are allowed), or ask the person to start it.' ;;
     LL-TURN)
         b='scheduling a turn (a cron job or a wake-up) before the plan is approved.'
-        w='Its prompt text arrives later as a new turn and could look like a person replying approved.'
+        w='Its prompt text arrives later as a new turn and could look like a person typing a release prompt.'
         y='Wait until the person approves the plan, or use a background task or a monitor instead.' ;;
     LL-TAMPER)
         b='touching the launch-level state, the Claude Code settings or hooks, a git configuration file or the git pre-push hook, or reinstalling the hooks.'
@@ -338,19 +338,16 @@ if [ "$LL_BRANCH" = prompt ]; then
     if [ "$LL_GOVERNED" = 1 ]; then
         # B8: already bound; the level never changes, a supplied record is consumed.
         [ "$LL_USABLE" = 1 ] && rm -f -- "$LL_PEND/$LL_NONCE" 2>/dev/null
-        # Approval (FR-L-15 to FR-L-17): only at worktree (an invalid word
-        # included), never at full or full-submit. The whole prompt trimmed and
-        # lower-cased is approved, approved. or approved!; or the first line,
-        # leading whitespace removed, starts /sc:implement, /sc:task or /task
-        # as a whole word. The [[:space:]] after the command name also matches
-        # the newline that ends the first line.
-        LL_RE_APR='^[[:space:]]*/(sc:implement|sc:task|task)([[:space:]]|$)'
+        # Release (FR-L-15 to FR-L-17): only at worktree (an invalid word
+        # included), never at full or full-submit. Only a first line, leading
+        # whitespace removed, that starts /sc:implement or /task as a
+        # whole word releases; a plain typed word no longer does. The
+        # [[:space:]] after the command name also matches the newline that ends
+        # the first line.
+        LL_RE_APR='^[[:space:]]*/(sc:implement|task)([[:space:]]|$)'
         LL_APR=0
         if [ "$LL_LEVEL" = W ]; then
             [[ $LL_PROMPT =~ $LL_RE_APR ]] && LL_APR=1
-            LL_P=${LL_PROMPT#"${LL_PROMPT%%[![:space:]]*}"}
-            LL_P=${LL_P%"${LL_P##*[![:space:]]}"}
-            [[ ${LL_P,,} =~ ^approved[.!]?$ ]] && LL_APR=1
         fi
         if [ "$LL_APR" = 1 ]; then
             # No-replace create of a regular file in the owned sessions
@@ -409,7 +406,7 @@ if [ "$LL_BRANCH" = tool ]; then
         LL_N=${LL_N#sc-}
         LL_N=${LL_N%-protocol}
         case $LL_N in
-        implement | task | improve | cleanup | spawn | build) LL_CLASSES+='IMPL ' ;;
+        implement | task | cleanup) LL_CLASSES+='IMPL ' ;;
         pr-submit) LL_CLASSES+='SUBMIT ' ;;
         issue) LL_CLASSES+='ESCAPE ' ;;
         '') LL_CLASSES+='SKILL ' ;;
@@ -441,7 +438,13 @@ if [ "$LL_BRANCH" = tool ]; then
             # so install_hooks is looked for in T.
             LL_TT=$T
             case $T in *install_hooks*) LL_CLASSES+='TAMPER ' ;; esac
-            LL_CL=0 LL_CF=0 # a claude word; a claude launch flag word (whole command)
+            # G2: the coordinator-side issue-pipeline commands write the approval rows and the
+            # worker's release (.ok) file; a bound worker must not run them (plan-hash and
+            # check-approval stay allowed: the worker needs them).
+            case $T in *release-worker* | *release_worker* | *issue-pipeline*adopt-* | *issue-pipeline*record-* | *issue_pipeline*release* | *issue_pipeline*approval_record*) LL_CLASSES+='TAMPER ' ;; esac
+            LL_CL=0 LL_CF=0 LL_SA=0 # a claude word; a claude launch flag word (whole command); an orca send or ask word
+            LL_GLOB=0 # once per command: a glob character in the text
+            case $T in *[\*\?\[\{]*) LL_GLOB=1 ;; esac
             for seg in "${segs[@]}"; do
                 ws=($seg)
                 LL_SC=0 # a superclaude word earlier in this segment
@@ -456,12 +459,19 @@ if [ "$LL_BRANCH" = tool ]; then
                     superclaude | superclaude.*) LL_SC=1 ;;
                     ccsession* | tmux | screen | xdotool | ydotool) LL_CLASSES+='ESCAPE ' ;;
                     orca)
-                        # w1, w2: the next two non-option words; --version counts as w1.
+                        # w1, w2: the next two non-option words. G2: an option that comes before the verb
+                        # words and is followed by another word may take that word as its value, so the
+                        # verb Orca runs is unknown (w1 and w2 are "-"); the loop stops there, so its cost
+                        # does not grow with the later words. Only --version as the last word counts as w1.
                         LL_W1= LL_W2=
                         for ((j = i + 1; j < ${#ws[@]}; j++)); do
                             case ${ws[j]} in
-                            --version) [ -n "$LL_W1" ] || { LL_W1=--version && break; } ;;
-                            -*) ;;
+                            -*)
+                                if [ $((j + 1)) -lt ${#ws[@]} ]; then
+                                    case $LL_W1 in status | help) ;; *) LL_W1=- LL_W2=- && break ;; esac
+                                elif [ -z "$LL_W1" ] && [ "${ws[j]}" = --version ]; then
+                                    LL_W1=--version
+                                fi ;;
                             *)
                                 if [ -z "$LL_W1" ]; then
                                     LL_W1=${ws[j]}
@@ -472,14 +482,62 @@ if [ "$LL_BRANCH" = tool ]; then
                             esac
                         done
                         case "$LL_W1 $LL_W2" in
-                        'status '* | 'help '* | '--version '* | 'worktree current' | 'worktree list' | 'worktree show' | 'terminal list' | 'terminal show' | 'terminal read') ;;
-                        'orchestration check' | 'orchestration inbox' | 'orchestration run-current' | 'orchestration task-list' | 'orchestration worker-show') ;;
-                        *) case ${ws[${#ws[@]} - 1]} in --help | -h) ;; *) LL_CLASSES+='ESCAPE ' ;; esac ;;
+                        'status '* | 'help '* | '--version '* | 'worktree current' | 'worktree list' | 'worktree show' | 'terminal list' | 'terminal show' | 'terminal read' | \
+                            'orchestration check' | 'orchestration inbox' | 'orchestration run-current' | 'orchestration task-list' | 'orchestration worker-show')
+                            # the word view drops * ? [ {, so a glob could be an option the guard never saw
+                            [ "$LL_GLOB" = 0 ] || LL_CLASSES+='ESCAPE ' ;;
+                        'orchestration send' | 'orchestration ask') LL_SA=1 ;; # G2: decided on the raw command after the word loops
+                        '- -') LL_CLASSES+='ESCAPE ' ;;
+                        *) case ${ws[${#ws[@]} - 1]} in
+                            --help | -h) { [ "$LL_GLOB" = 0 ] && [ $((${#ws[@]} - i)) -le 4 ]; } || LL_CLASSES+='ESCAPE ' ;; # help only on a short call: orca, two verb words, help
+                            *) LL_CLASSES+='ESCAPE ' ;;
+                            esac ;;
                         esac ;;
                     esac
                 done
             done
             [ "$LL_CL$LL_CF" = 11 ] && LL_CLASSES+='ESCAPE '
+            # G2 (issue-pipeline-guard-g2.md section 5): a bound worker passes no --to, so Orca
+            # sends to the worker's own coordinator Run (its default). ws is not the real argument list (quotes are gone, a quoted ; | ( starts
+            # a segment), so the raw command must be one orca send|ask call of plain words and quoted
+            # strings with no expansion, and every argument an option or an option's value.
+            if [ "$LL_SA" = 1 ]; then
+                LL_RE_TOK='([A-Za-z0-9_.:=@/+-]+|"[^"$`\\]*"|'\''[^'\'']*'\'')'
+                LL_RE_CALL="^ *([A-Za-z0-9_.@+/-]*/)?orca +orchestration +(send|ask)(( +${LL_RE_TOK})*) *\$"
+                LL_RE_ARG="^ +${LL_RE_TOK}( .*|)\$"
+                LL_SBAD=1
+                # shortcut: 8192 bytes and 64 arguments at most, so the check ends inside the hook's 5 s limit; raise only with a timing test.
+                if [ "${#cmd}" -le 8192 ] && [[ $cmd != *$'\n'* ]] && [[ $cmd =~ $LL_RE_CALL ]]; then
+                    LL_SBAD=0 LL_WANT= LL_K=0 LL_SREST=${BASH_REMATCH[3]}
+                    while [ "$LL_SBAD" = 0 ] && [ -n "$LL_SREST" ]; do
+                        LL_K=$((LL_K + 1))
+                        if [ "$LL_K" -gt 64 ] || ! [[ $LL_SREST =~ $LL_RE_ARG ]]; then
+                            LL_SBAD=1
+                            break
+                        fi
+                        LL_A=${BASH_REMATCH[1]} LL_SREST=${BASH_REMATCH[2]}
+                        case $LL_A in \"* | \'*) LL_A=${LL_A:1:${#LL_A}-2} ;; esac
+                        if [ "$LL_WANT" = value ] && [[ $LL_A != -* ]]; then
+                            LL_WANT=
+                            continue
+                        fi
+                        LL_L=${LL_A,,} # an option name in any case is read as its lower-case form
+                        LL_WANT= LL_SN=${LL_L%%=*}
+                        case $LL_L in
+                        --to* | --run* | --environment* | --pairing-code*) LL_SBAD=1 ;; # any address, another run or another Orca server
+                        --?*)
+                            # a name Orca could read as --to or --run (--=, --t, --r, --ru) is ESCAPE
+                            if [[ "--to" == "$LL_SN"* || "--run" == "$LL_SN"* ]]; then
+                                LL_SBAD=1
+                            elif [ "$LL_L" = "$LL_SN" ] && [ "$LL_L" != --json ]; then
+                                LL_WANT=value
+                            fi ;;
+                        *) LL_SBAD=1 ;; # a bare word, a short -x option, or a lone --
+                        esac
+                    done
+                fi
+                [ "$LL_SBAD" = 1 ] && LL_CLASSES+='ESCAPE '
+            fi
             # Git (FR-L-28 to FR-L-34) and gh (FR-L-35 to FR-L-39): G1, G2 and
             # H2 test G; G3, G4, H1, H3, H4 and H5 read the words of each
             # segment; then the canonical push check on raw cmd.

@@ -1,0 +1,23 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/ledger-clearing-and-verdict-authority/merged-ledger-clearing-and-verdict-authority.md"
+  convergence_score: 0.955   # 21 of 22 diff points (S + C + X + A); threshold 0.80 met; convergence BLOCKED by the invariant-probe gate (status BLOCKED_BY_INVARIANTS)
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/ledger-clearing-and-verdict-authority/adversarial"
+  status: "partial"   # all 5 steps ran, merge applied 10 of 10 changes, post-merge validation PASS; partial because 3 HIGH UNADDRESSED invariants block convergence at depth standard
+  base_variant: "Variant B (variant-2-original.md, proposal-b.md); selected by tiebreaker level 2 (correctness criteria 3 vs 2); combined scores A 0.9000, B 0.9148"
+  unresolved_conflicts: 1   # S-002 (tag-discipline split, Low); residual open point inside converged C-001: --resolution-absent fallback
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-001"
+      category: "collection_boundaries"
+      assumption: "need = min(Q, requested) assumes requested is at least 1 and Q is at least 1; an empty reviewers list in --resolution (accepted by merge_cmd.py:73-83) would make need 0 and re-open the silence clear"
+      severity: "HIGH"
+    - id: "INV-002"
+      category: "interaction_effects"
+      assumption: "A valid-reviewer prior open dissent always keeps the row in brief_ids, verify_ids or held_ids; a same-round non-blocking re-find (ledger.py:213-218, :235-238) leaves a regressed non-blocking row in none of the lists"
+      severity: "HIGH"
+    - id: "INV-003"
+      category: "sufficiency_challenge"
+      assumption: "Keeping REVISE (exit 10) for empty brief_ids with non-empty verify_ids plus a next field in ledger verdict JSON introduces no new defect; exit-code-only callers run an empty reviser and an empty-diff re-review regresses fixed rows"
+      severity: "HIGH"

@@ -1,0 +1,17 @@
+== grep (each pattern expected to match nothing)
+== pytest
+.                                                                        [100%]
+
+============================= 684 passed in 22.82s =============================
+== ruff
+All checks passed!
+== test ids before and after the edit
+before: rows=24 T-ids=56
+after:  rows=24 T-ids=56
+== the four ids and the schema section
+28:T17: `uneven` per-owner counts sum to the global count (not built / no automated test: no test cites T17
+66:- Validates every R1 snapshot against `snapshot-export-schema.md`; rejects an
+0
+== OQ-13 / AC-S references intact
+51:| T45 | Default view chosen at start-up, never switches mid-session
+56:| T50 | R0 renders of A, B, C at 160/116/80 each carry "synthetic f

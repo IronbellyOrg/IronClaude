@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-shadow05/adversarial/merged-verdict.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-shadow05/adversarial/"
+  status: success
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []

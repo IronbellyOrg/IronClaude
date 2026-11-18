@@ -431,3 +431,120 @@ def test_session_defaults_are_the_start_up_state():
     )
     with pytest.raises(Exception):
         session.focus = "filter"  # frozen
+    assert session.selected_question is None
+
+
+# -- R3: n, p and Esc select a question, per focus (T63) -------------------------------------------------
+
+from tests.observe.conftest import (  # noqa: E402
+    QRUN,
+    make_question_envelope,
+    make_question_rows,
+    question_payload,
+    routed_runner_responses,
+)
+
+
+def question_result(clock, count=3, link=True):
+    rows = []
+    for index in range(count):
+        rows += make_question_rows(
+            1, start=index, payload=question_payload(f"w-{index + 1:03d}", f"q{index}?")
+        )
+    worker = reply(make_rows(count, 1))
+    message = (0, json.dumps(make_question_envelope(rows)))
+    runner = FakeRunner([], [routed_runner_responses(worker, message)])
+    collector = Collector(
+        LiveSource(runner, FakeDiscover([])),
+        clock,
+        run_id=QRUN,
+        questions=True,
+        link=link,
+    )
+    return collector.run_once()
+
+
+def qid(i):
+    return (QRUN, f"msg_{i:012x}")
+
+
+def test_n_selects_the_oldest_then_moves_on_and_stops_at_the_newest(fake_clock):
+    result = question_result(fake_clock)
+    session = Session()
+    seen = []
+    for _ in range(5):
+        session, effect = press(session, text("n"), result, fake_clock)
+        seen.append(session.selected_question)
+        assert effect is Effect.NONE
+    assert seen == [qid(0), qid(1), qid(2), qid(2), qid(2)]
+
+
+def test_p_selects_the_newest_then_moves_back_and_stops_at_the_oldest(fake_clock):
+    result = question_result(fake_clock)
+    session = Session()
+    seen = []
+    for _ in range(5):
+        session, _ = press(session, text("p"), result, fake_clock)
+        seen.append(session.selected_question)
+    assert seen == [qid(2), qid(1), qid(0), qid(0), qid(0)]
+
+
+def test_escape_in_list_focus_clears_the_question_selection(fake_clock):
+    result = question_result(fake_clock)
+    session, _ = press(Session(), text("n"), result, fake_clock)
+    cleared, effect = press(session, Key("escape"), result, fake_clock)
+    assert cleared.selected_question is None and effect is Effect.NONE
+    assert session.selected_question == qid(0)  # the input was not mutated
+
+
+def test_in_filter_focus_n_is_typed_and_escape_leaves_the_filter_only(fake_clock):
+    result = question_result(fake_clock)
+    selected, _ = press(Session(), text("n"), result, fake_clock)
+    typing = Session(focus="filter", selected_question=selected.selected_question)
+    after, _ = press(typing, text("n"), result, fake_clock)
+    assert after.filter_text == "n" and after.selected_question == qid(0)
+    left, _ = press(after, Key("escape"), result, fake_clock)
+    assert left.focus == "list" and left.selected_question == qid(0)
+
+
+def test_in_inspector_focus_n_and_p_do_nothing_and_escape_keeps_the_selection(
+    fake_clock,
+):
+    result = question_result(fake_clock)
+    session = Session(
+        focus="inspector",
+        selected=build_view(result, Session(), fake_clock).all_rows[0].identity,
+        selected_question=qid(1),
+    )
+    for char in ("n", "p"):
+        after, _ = press(session, text(char), result, fake_clock)
+        assert after.selected_question == qid(1) and after.focus == "inspector"
+    back, _ = press(session, Key("escape"), result, fake_clock)
+    assert back.focus == "list" and back.selected_question == qid(1)
+
+
+def test_with_the_link_off_n_p_and_escape_never_select_a_question(fake_clock):
+    result = question_result(fake_clock, link=False)
+    for key in (text("n"), text("p"), Key("escape")):
+        after, _ = press(Session(), key, result, fake_clock)
+        assert after.selected_question is None
+
+
+def test_an_evicted_selection_restarts_at_the_end_the_key_names(fake_clock):
+    result = question_result(fake_clock)
+    gone = Session(selected_question=(QRUN, "msg_gone"))
+    first, _ = press(gone, text("n"), result, fake_clock)
+    last, _ = press(gone, text("p"), result, fake_clock)
+    assert (first.selected_question, last.selected_question) == (qid(0), qid(2))
+
+
+def test_question_keys_never_reach_the_adapter_or_the_collector_and_return_new_sessions(
+    fake_clock,
+):
+    result = question_result(fake_clock)
+    session = Session()
+    snapshot = copy.deepcopy(session)
+    for key in (text("n"), text("p"), Key("escape")):
+        new, effect = press(session, key, result, fake_clock)
+        assert isinstance(new, Session) and effect is Effect.NONE
+        assert new is not session and session == snapshot

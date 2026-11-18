@@ -176,7 +176,7 @@ def test_a_no_any_severity_wording_in_tracked_primitives():
     assert not hits, "any-severity wording survives:\n" + "\n".join(hits)
 
 
-# --- (c) S1-S3 / S5 copies in the ten-file set -----------------------------
+# --- (c) S1-S3 / S5 copies in the eleven-file set ---------------------------
 
 S1_S3_FILES = (
     "src/superclaude/agents/rf-qa.md",
@@ -189,6 +189,7 @@ S1_S3_FILES = (
     "src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md",
     "src/superclaude/rules/prompts/documentation_expert_qa_prompt.md",
     "src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md",
+    "src/superclaude/agents/reflect-reviewer.md",
 )
 S5_FILES = S1_S3_FILES[:6]
 
@@ -208,6 +209,23 @@ def test_c_no_inventory_labels_or_annotation(rel):
     text = _read(rel)
     assert not re.search(r"\(S[1-5]\)", text), rel
     assert "contains the canonical cap text" not in text, rel
+
+
+def test_c_reflect_reviewer_grade_bullets_pinned():
+    flat = _flat(_read("src/superclaude/agents/reflect-reviewer.md"))
+    for needle in (
+        "is a label, not the grade",
+        "`Blocking (Decision):`",
+        "`Blocking (Missing):`",
+        "`Blocking (Safety):`",
+        "`Medium:`",
+        "`Note:`",
+        "also name the affected action",
+        "`consumer-unknown`",
+        "stays in the Correctness gaps table, never the Deviations table, and never gates on its own",
+        "the orchestrator still makes the gating decision",
+    ):
+        assert _flat(needle) in flat, needle
 
 
 # --- (d) canonical cap text and at-cap clause -------------------------------
@@ -260,14 +278,14 @@ def _failing_rows(fixture: str) -> list[str]:
 
 def test_e_every_cap_edits_row_holds():
     rows = _rows("review_severity_cap_edits.yaml")
-    assert len(rows) == 161
+    assert len(rows) == 140
     bad = _failing_rows("review_severity_cap_edits.yaml")
     assert not bad, "cap-edits rows not applied:\n" + "\n".join(bad)
 
 
 def test_j_every_sweep_edits_row_holds():
     rows = _rows("review_severity_sweep_edits.yaml")
-    assert len(rows) == 139
+    assert len(rows) == 125
     bad = _failing_rows("review_severity_sweep_edits.yaml")
     assert not bad, "sweep-edits rows not applied:\n" + "\n".join(bad)
 

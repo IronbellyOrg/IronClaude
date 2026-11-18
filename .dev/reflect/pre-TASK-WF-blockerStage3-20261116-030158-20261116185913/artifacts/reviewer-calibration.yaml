@@ -1,0 +1,20 @@
+# Wave 3C blind calibration of each reviewer card (confidence-calibrator agent, sonnet class, one fresh instance per card, spawned in parallel; card path and rubric only)
+calibrator_model_class: sonnet
+reviewer_model_classes: [haiku, opus]
+calibrator_diversity: full
+cards:
+  - card: reviewer-cards/reviewer-1-card.md
+    persona: analyzer
+    model_class: haiku
+    self_reported_confidence: 0.88
+    dimensions: {citation_grounding: 0.92, coverage_completeness: 0.82, deviation_classification_clarity: 0.88, risk_surface_coverage: 0.85, recommendation_actionability: 0.93}
+    calibrated_confidence: 0.88
+    spot_checks: "plan lines 91, 96, 113, 132, 140, stage 0 plan line 106, README line 45 and verify_cmd.py:76 matched"
+  - card: reviewer-cards/reviewer-2-card.md
+    persona: qa
+    model_class: opus
+    self_reported_confidence: 0.82
+    dimensions: {citation_grounding: 0.82, coverage_completeness: 0.80, deviation_classification_clarity: 0.85, risk_surface_coverage: 0.85, recommendation_actionability: 0.90}
+    calibrated_confidence: 0.84
+    spot_checks: "rf-qa-qualitative.md lines 593, 611, 616 and 918 matched; PLAN, SPEC, S0, S4 and SRC aliases not resolved by the calibrator (it had only the card)"
+mean_calibrated_confidence: 0.86

@@ -1,0 +1,12 @@
+# T1 checks
+AC1 paths gone:
+gone src/superclaude/commands/improve.md
+gone plugins/superclaude/commands/improve.md
+gone commands/sc-improve.md
+gone .claude/commands/sc/improve.md
+ls src commands grep -c: 0
+AC2 git status:
+D  commands/sc-improve.md
+D  plugins/superclaude/commands/improve.md
+D  src/superclaude/commands/improve.md
+staged .claude paths: 0

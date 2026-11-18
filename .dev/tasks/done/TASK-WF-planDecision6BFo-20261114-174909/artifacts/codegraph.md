@@ -1,0 +1,1 @@
+codegraph: index_state=fresh access=mcp checked_at=2026-11-16T21:51:31Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b projectPath=/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b

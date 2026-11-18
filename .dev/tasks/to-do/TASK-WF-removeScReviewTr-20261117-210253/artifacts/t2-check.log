@@ -1,0 +1,9 @@
+# T2 checks
+AC1: file gone:
+  ls: cannot access 'tests/unit/test_review_translation.py': No such file or directory
+AC1: tests/unit collect-only:
+          <Function test_token_budget_no_marker>
+
+  ========================= 756 tests collected in 0.51s =========================
+AC2: tests the deleted file collected at HEAD (removed from the pass count):
+  44 tests collected

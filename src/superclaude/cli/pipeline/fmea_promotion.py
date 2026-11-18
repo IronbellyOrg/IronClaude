@@ -6,7 +6,7 @@ High-severity findings trigger Release Gate Rule 1 (block downstream progression
 
 R-008 mitigation: Release Gate Rule 1 ensures FMEA findings are acted on.
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations

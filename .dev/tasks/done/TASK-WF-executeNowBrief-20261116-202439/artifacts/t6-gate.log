@@ -1,0 +1,18 @@
+== grep (each pattern expected to match nothing)
+none: page\.unrecognised_keys
+none: coverage\.unrecognised_keys
+none: sum\(.*unrecognised_keys
+== pytest
+.                                                                        [100%]
+
+============================= 685 passed in 22.65s =============================
+== ruff
+All checks passed!
+== remaining unrecognised_keys uses (per-row field, call, inspector line, per-row test reads)
+src/superclaude/cli/observe/parse.py:155:    unrecognised_keys: int = 0
+src/superclaude/cli/observe/parse.py:354:        unrecognised_keys=_count_unexpected(raw, _KNOWN),
+src/superclaude/cli/observe/view.py:407:        ("unrecognised keys", f"{row.unrecognised_keys} unrecognised keys"),
+tests/observe/test_parse.py:188:    assert row.unrecognised_keys == 5
+tests/observe/test_parse.py:198:    assert page([worker()]).rows[0].unrecognised_keys == 0
+tests/observe/test_fixtures.py:153:    assert page.rows[2].unrecognised_keys == 0
+tests/observe/test_fixtures.py:174:        page.rows[2].unrecognised_keys == 1

@@ -16,23 +16,23 @@ Each investigator is a parallel subagent spawned by the `crash-recovery` skill. 
 You are investigating pipeline artifacts in <PROJECT_PATH>. The user just survived a server crash and needs to know what was in flight.
 
 Scan ALL of these locations and report on every artifact bundle (do not collapse to one):
-- .dev/releases/current/*/ — sprint runs (look for manifest.json, execution-log.jsonl, .sprint-exitcode, tasklist-index.md, phase-*.md)
+- .dev/releases/current/*/ — release folders (look for manifest.json, execution-log.jsonl, phase-*.md)
 - .dev/releases/backlog/ and .dev/releases/complete/ — only check mtimes; flag anything modified in last 72h
 - .dev/tasks/to-do/*/ and .dev/tasks/to-do/*.md — MDTM tasks; read frontmatter `status:` field. EXCEPT `TASK-WF-*/` packages: those are workflow task packages — read `progress.md` (T/FINAL/ARCHIVE lines), not frontmatter, and route to `/sc:implement` (see pipelines.md "Workflow task packages")
 - .dev/tasks/done/ — only check most recent (last 5 by mtime); these should be settled but flag if frontmatter says InProgress. Also list `TASK-WF-*/` here and flag any id that also exists in to-do/ (conflict)
 - .dev/research/*/ — research bundles
-- docs/generated/*/ and any *.roadmap-state.json found in tree — roadmap runs
+- any *.roadmap-state.json found in tree — `/roadmap` skill runs
 - .dev/resurrection-contracts/ — explicit recovery contracts
 
 For each artifact bundle, return:
 - name and full path
-- pipeline type (sprint | roadmap | task | research | resurrection-contract | other)
+- pipeline type (roadmap | task | research | resurrection-contract | other)
 - status (pass | fail | in-progress | unknown) with evidence (exit code, last log event, frontmatter field)
 - last activity timestamp
-- next-step hint (e.g. "phase 6 failed, see phase-6-tasklist.md")
+- next-step hint (e.g. "T6 blocked, see progress.md")
 
-For sprints: tail execution-log.jsonl and report the last phase_complete event verbatim.
-For roadmaps: read .roadmap-state.json and report per-step status.
+For release folders with an execution-log.jsonl: tail it and report the last event verbatim.
+For roadmap-skill runs: read .roadmap-state.json and report its status fields.
 For tasks: report frontmatter `status:` and count of checked vs unchecked checklist items.
 
 Return as a markdown table grouped by pipeline type. Be terse — paths, statuses, timestamps. No prose.

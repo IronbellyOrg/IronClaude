@@ -1,0 +1,25 @@
+== grep (each pattern expected to match nothing)
+none: or True
+none: test_t51_the_backend_refuses_every_consuming_argv
+== pytest
+.                                                                        [100%]
+
+============================= 684 passed in 23.01s =============================
+== ruff
+All checks passed!
+== matrix cases kept (expect 27)
+
+=============== 27/104 tests collected (77 deselected) in 0.15s ================
+== SENSITIVE uses
+tests/observe/test_fixtures.py:180:SENSITIVE = {
+tests/observe/test_fixtures.py:198:    for what, pattern in SENSITIVE.items():
+== kept rules in test_golden_contract.py
+212:    assert "\x1b" not in text and text.isascii()
+213:    assert not re.search(r"[A-Za-z0-9_+=-]{32,}", text.replace("redacted", ""))
+514:    assert "\x1b" not in text and text.isascii()
+515:    assert not re.search(r"run_[0-9a-f]{12}|term_|msg_[0-9a-f]*[a-f][0-9a-f]*\b", text)
+== T5 test list in quiet-scope file
+137:def test_t51_repeated_reads_on_a_quiet_scope_leave_ids_order_and_mailbox_unchanged():
+148:def test_t51_the_observer_never_sends_a_consuming_or_narrowing_argv():
+174:def test_t51_a_consuming_fake_makes_the_same_check_fail_so_the_test_can_detect_it():
+182:def test_t51_the_check_is_sensitive_to_a_new_question_so_quiet_means_no_sender_write():

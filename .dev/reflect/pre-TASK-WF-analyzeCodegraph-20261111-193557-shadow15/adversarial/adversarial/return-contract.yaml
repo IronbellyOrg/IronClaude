@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/adversarial/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/adversarial/adversarial"
+  status: "success"
+  base_variant: "haiku:qa"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

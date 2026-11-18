@@ -1,0 +1,20 @@
+# T9 checks
+AC1 spawn in the two docs: docs/user-guide/commands.md:0 docs/user-guide/flags.md:0 
+AC1 separators around the removed section:
+  ```
+  /sc:save [--type session|learnings|context|all] [--summarize] [--check
+  ```
+  
+  **MCP servers:** none
+  
+  ---
+  
+  ### `/sc:swarm-wizard` - Guided Swarm Launcher
+  
+  **When to use:** Run the `superclaude swarm` multi-model review withou
+  
+  **Syntax:**
+AC1 anchors to the removed section: 0
+AC2 git diff --check:
+  rc=0
+tests that read these docs: 

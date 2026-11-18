@@ -1,0 +1,14 @@
+merge_method: adversarial
+verdict: NEEDS-REVISION
+convergence_score: 0.95
+convergence_status: BLOCKED_BY_INVARIANTS   # one HIGH UNADDRESSED invariant (INV-001) carried into the card as blocking F3; depth standard has no Round 3
+base_variant: "variant-2-original.md (reviewer-2, qa, opus)"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+merged_card: adversarial/merged-review-card.md
+judge_class: opus (two scoring judges); advocates sonnet; reviewers haiku and opus; orchestrator and fault-finder sonnet
+findings:
+  total: 15
+  blocking: 3      # F1 R1b outcome word, F2 unequal-panel threshold, F3 fix-pass route after a failed gate
+  non_blocking: 12 # F4 to F8 medium (follow-up candidates), F9 to F15 minor

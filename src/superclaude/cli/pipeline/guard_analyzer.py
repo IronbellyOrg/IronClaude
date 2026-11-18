@@ -11,7 +11,7 @@ Bool->int type changes always trigger transition analysis regardless of ambiguit
 R-009 mitigation: @no-ambiguity-check annotation suppresses detection with documented rationale.
 R-010 mitigation: seed with known archetypes for guard patterns.
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations

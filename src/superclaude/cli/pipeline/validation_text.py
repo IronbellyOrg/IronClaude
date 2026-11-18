@@ -1,4 +1,4 @@
-"""Text helpers shared by the tasklist and roadmap validation executors.
+"""Text helpers for pipeline validation executors.
 
 Stdlib-only leaf: callers keep their own runners, process seams and loggers.
 """

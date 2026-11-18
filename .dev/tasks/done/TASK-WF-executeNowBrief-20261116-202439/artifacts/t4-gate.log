@@ -1,0 +1,12 @@
+== grep (each pattern expected to match nothing)
+none: \.closure_evidence
+none: \.never_read\b
+none: CLOSURE_EVIDENCE
+none: extra: dict
+none: Deps\(.*extra
+== pytest
+.                                                                        [100%]
+
+============================= 685 passed in 23.67s =============================
+== ruff
+All checks passed!

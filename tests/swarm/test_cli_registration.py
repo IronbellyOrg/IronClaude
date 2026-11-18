@@ -4,7 +4,7 @@ Enforces AC-002 and COMP-001 from the MultiModelSwarm roadmap:
 
 - ``swarm_group`` is imported and registered on ``superclaude.cli.main:main``.
 - ``superclaude swarm`` resolves as a top-level verb -- never nested
-  under ``sprint`` / ``roadmap`` / ``cleanup-audit`` / ``tasklist``.
+  under ``sprint`` / ``roadmap`` / ``tasklist``.
 - ``superclaude swarm --help`` exits 0 and lists all eight placeholder
   subcommands (run / status / logs / attach / kill / scaffold /
   validate / validate-lenses) per T01.08.
@@ -82,11 +82,9 @@ def test_swarm_group_is_top_level_command() -> None:
 
 
 def test_swarm_not_nested_under_other_groups() -> None:
-    """AC-002 forbids nesting ``swarm`` under sprint/roadmap/etc."""
-    forbidden_parents = ("sprint", "roadmap", "cleanup-audit", "tasklist")
-    for parent in forbidden_parents:
-        parent_group = main.commands.get(parent)
-        if parent_group is None:
+    """AC-002 forbids nesting ``swarm`` under any other command group."""
+    for parent, parent_group in main.commands.items():
+        if parent == "swarm":
             continue
         children = getattr(parent_group, "commands", {})
         assert "swarm" not in children, (

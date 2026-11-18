@@ -15,10 +15,8 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import IO
 
-from rich import box
 from rich.cells import cell_len
 from rich.console import Console
-from rich.style import Style
 
 MIN_WIDTH = 80  # below this every view shows "terminal too narrow (min 80)"
 MIN_ROWS = 8  # PROPOSED (CD-4): two header lines, COUNTS strip, gap notice, one ledger row, footer
@@ -30,27 +28,10 @@ TOO_SMALL_TEXT = f"terminal too small (min {MIN_ROWS} rows)"  # PROPOSED wording
 
 # Glyph table: name -> (unicode form, ASCII form). Everything else non-ASCII maps to "?".
 GLYPHS: dict[str, tuple[str, str]] = {
-    "sep": ("·", "."),
     "selected": ("▸", "@"),
     "truncate": (">", ">"),
     "hrule": ("─", "-"),
-    "vrule": ("│", "|"),
-    "cross": ("┼", "+"),
 }
-
-# Palette table (CD-8): empty, so every style is plain text and meaning lives in words.
-PALETTE: dict[str, str] = {}
-
-# Style attributes the observer never uses; the background is never painted either.
-_FORBIDDEN_ATTRS = (
-    "blink",
-    "blink2",
-    "dim",
-    "italic",
-    "underline",
-    "underline2",
-    "conceal",
-)
 
 
 @dataclass(frozen=True)
@@ -68,10 +49,6 @@ class TerminalPolicy:
     @property
     def too_small(self) -> bool:
         return self.height < MIN_ROWS
-
-    @property
-    def box_style(self) -> box.Box:
-        return box.ASCII if self.ascii else box.SQUARE
 
 
 def _is_utf8(encoding: str | None) -> bool:
@@ -156,20 +133,6 @@ def glyph(name: str, policy: TerminalPolicy) -> str:
 def ascii_safe(text: str) -> str:
     """Map every non-ASCII character to ``?`` (PROPOSED rule for ASCII mode)."""
     return text.encode("ascii", errors="replace").decode("ascii")
-
-
-def palette_style(name: str) -> Style:
-    """A palette entry as a ``Style``; refuses blink, faint, italic, underline and backgrounds."""
-    spec = PALETTE.get(name, "")
-    style = Style.parse(spec) if spec else Style.null()
-    for attr in _FORBIDDEN_ATTRS:
-        if getattr(style, attr):
-            raise ValueError(
-                f"palette style {name!r} uses forbidden attribute {attr!r}"
-            )
-    if style.bgcolor is not None:
-        raise ValueError(f"palette style {name!r} paints a background")
-    return style
 
 
 def clip(text: str, width: int, policy: TerminalPolicy) -> str:

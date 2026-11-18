@@ -1,0 +1,58 @@
+# Variant 3 (haiku, qa): test and regression risk
+
+Persisted by the main session from the agent's messages (its rules bar it from writing files). Parts arrive in order; nothing is edited.
+
+## Evidence key
+
+All paths are under the repository root `/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/`. "Planned tests" are acceptance requirements, not observed passes.
+
+- **E1, existing copy test:** `tests/skills/test_review_severity_rule.py:181-203`. Ten carriers, including both MDTM templates and four rule prompts, must match canonical severity bullets.
+- **E2, existing notes behavior:** `src/superclaude/skills/sc-implement-protocol/refs/qa.md:198-225`. Notes survive reverts; unwritable notes stop completion. The explicit print-every-minor guarantee at line 225 applies when no blocking final review runs, not universally.
+- **E3, owner requirements:** `.dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/OPEN-QUESTIONS.md:60-115`. Preserve existing ledger version, mirror CI, installed-path checks, active-workflow QA and run-log integrity. Plugin-parity removal is not approved. Final-review record-and-print carrier is approved.
+- **E4, measurement reconciliation:** `.dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/TASK-WF-blockerStage0-20261116-021044.md:126-151`. Spec corrections and owner summary currently depend on tasks proposed for deletion.
+- **E5, safety and registry:** `.dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/TASK-WF-blockerStage1-20261116-030154.md:202-241`. Planned safety tests prohibit lowering grades and require attended/unattended routing; registry tests also contain installed-path checks.
+- **E6, approved carrier implementation:** `.dev/tasks/to-do/TASK-WF-blockerStage2-20261116-030156/TASK-WF-blockerStage2-20261116-030156.md:72-89`. Names static-severity, lifecycle, archive, mirror and worker-contract tests; forbids changing QA rules or archive outcomes.
+- **E7, discovery experiment:** `.dev/tasks/to-do/TASK-WF-blockerStage3-20261116-030158/TASK-WF-blockerStage3-20261116-030158.md:78-118`. Distinguishes finding defects from grading supplied findings, documents injection contamination, and makes any planted safety miss fail regardless of sample size.
+- **E8, rollout dependencies:** `.dev/tasks/to-do/TASK-WF-blockerStage4-20261116-030206/TASK-WF-blockerStage4-20261116-030206.md:42-69`. Entry requires stage 3 completion, its summary and an audit-window ruling; prompts and templates share canonical text and pinned twins.
+
+## Cut decisions
+
+Rewards overlap and must not be added together.
+
+| Proposal | Verdict | Risk, evidence and check remaining | Reward | Do not make the cut when |
+|---|---|---|---|---|
+| **C1: classifier** | **CUT** the version-1 classifier machinery. Retain the Jev investigation separately. | Removes an advisory signal, not an established review gate. Keep reviewer grading and the safety scan; rewrite planned safety tests to remove classifier-only cases without deleting monotonicity or routing checks [E5]. | About eight listed tasks; classifier and input modules, CLI and evaluation fixtures avoided. | A surviving task still requires classifier answers, populations or CLI output. External evaluation still needs privacy authorization. |
+| **C2: follow-up tooling** | **SHRINK** to plain list, reliable capture, safety routing and once-per-run offer. | Nine states are unnecessary, but capture failure and protected-risk escalation must survive. Stage 1:206-212 (E5) requires no grade lowering and attended/unattended routing. Keep capture and read-back smoke and safety-hit checks. | Most of roughly nine listed tasks; codec, filing machine, sweep and summary machinery avoided. | Safety hits become ordinary deferred rows, or missing output is called no findings. |
+| **C3: implement carrier** | **KEEP** the carrier; **CUT** the sweep dependency. | The existing print guarantee is scoped to runs without a blocking FINAL (E2:225), not universal. The approved record-and-print carrier remains (E3:111). Stage 2:80-89 (E6) lists static severity, lifecycle, archive, mirror and contract checks; keep them. | Sweep CLI and promotion switch avoided; bounded carrier edits and pinned twins remain. | The replacement is only legacy-summary behavior, or the approved final-step carrier disappears. |
+| **C4: folder and registry** | **SHRINK** to the existing canonical carrier, the copy test and a reverse scan. | The existing ten-file equality test detects copy drift (E1:181-203). Retain installed-path protection separately (E3:72; E5:234-237). Source equality does NOT detect stale installed copies. | Most of six listed tasks; new skill references, registry and doctor extension avoided. | Any surviving pointer names the deleted folder, or installed-path coverage vanishes with the registry tests. |
+| **C5: exemptions and twins** | **SHRINK** the mechanism, not the coverage. | Use an explicit test-local path tuple with retirement reasons. Do not blanket-exempt MDTM templates: the copy test includes both (E1:186-187) and shared use is recorded (E3:114). Keep pinned twins. | Registry and exemption machinery and unneeded plugin expansion avoided; no proven template-task saving. | Reachability remains unresolved, templates fail the canonical pin, or parity tests are deleted merely to pass. |
+
+| **C6: seeded recall** | **SHRINK** to bounded discovery checks, not wholesale deletion. | Regrading supplied findings cannot reveal failures to discover defects. Keep planted safety, missing-item and decision-bearing cases, no statistical recall claim, and no silent safety miss. Stage 3:80-96 (E7) documents injection contamination and makes safety misses fail at any sample size. | Large sample construction and statistical machinery reduced; small fixture and results remain. | The replacement only reads historical lost-blocker rows, hides contamination, or treats planted safety misses as advisory. |
+| **C7: shadow stage** | **SHRINK**: remove classifier shadowing and the five-run gate, retain an active-flow smoke test. | Prove a non-empty list reaches the implement final step and capture failure stays visible. Stage 2:76-88 (E6) names carrier behavior and static and archive tests. Tech-research-only evidence does not prove implement behavior. | Most shadow evaluation and summary work; not all eight tasks, because capture and carrier survive. | One empty-list run is presented as evidence of capture or blocker recall. |
+| **C8: audit window and baselines** | **SHRINK** to first-five-run review plus explicit safety rollback. | Five runs are surveillance, not prevalence evidence. Stage 4:42-44 (E8) also requires RT2, audit window and the stage 3 summary. Replace those contracts explicitly before deleting their inputs. | Baseline task and large summary reduced to short evidence entries. | Stage 4 still demands deleted metrics, summary or window ruling. |
+| **C9: stage 0 measurement** | **SHRINK**: retain inventory, regrade, a small discovery check and reconciliation. | Drop classifier-only split and input populations and duplicate reporting. Stage 0:128-137 (E4) proves stale-spec correction also reconciles rollout contracts; keep it and remove dependencies on cut populations. | Several measurement scripts, populations and reports avoided; small reconciliation remains. | The spec promises deleted experiments or still says the scored table is missing. |
+| **C10: summaries and rulings** | **SHRINK** to linked evidence and explicit owner decisions. | Git history does not establish which result the owner approved. Keep hash binding wherever mutable results control a gate (E7:98-117); the stage 4 summary input remains (E8:44). | Repeated prose reduced; summary filenames may remain as short entry records. | A downstream gate reads a deleted summary, or approval survives changed evidence. |
+| **C11: merge rollout packages** | **KEEP** boundaries until sequencing is expressly revised. | Stage 4 requires completed stage 3 and a later audit-window ruling (E8:42-44). A merged list cannot satisfy the unchanged contract; atomic rollout requires explicit replacement sequencing. | No immediate saving; later consolidation may remove bookkeeping. | The merged package depends on its own predecessor's completion or window, or the earlier owner sequencing remains binding. |
+| **C12: defer prompts and templates** | **KEEP** pending reachability evidence. | The existing ten-carrier copy test includes four prompts and both MDTM templates (E1:181-203). Stage 4:61-69 (E8) also removes independent doubt-means-fail rules. Authoring output can regenerate old grading. Keep mechanical checklist gates distinct. | No justified task or file saving yet. | Deferral lacks proof of no active consumer, or pins are weakened rather than correctly scoped. |
+| **C13: Review Panel** | **SHRINK** as proposed, except preserve existing integrity checks and verify launcher suitability. | Two reports alone are insufficient with obvious failure (E3:65). Existing run log, durability and identity checks stay (E3:78); launcher reuse requires verification (E3:70). Malformed-report policy remains undecided. | New launcher, telemetry expansion, verifier, seat keys, old-engine work and salvage avoided; outside the 54-task count. | Existing run integrity is deleted, failed seats are silently ignored, or launcher isolation is assumed. |
+| **C14: open questions** | **SHRINK** into pending, decided and out-of-v1 sections. | Do not turn proposals into owner answers. E3:64-78,96 preserves privacy, plugin reassessment, malformed-report and over-cap questions where applicable. Keep "no classifier authority" as a non-goal. | Shorter decision document; no executable task saving. | Deferred questions disappear as if settled, or filing or external sharing gains implied consent. |
+
+## Missed keeps and consistency checks
+
+1. Keep capture-failure handling: the plain-list simplification must not weaken durable notes or silently discard safety findings (E2:200-207; E5:206-212).
+2. Keep test strength, not old literals: replace changed pins with consequence, review-cap, no-new-stop-path and copy-equality checks. Do not delete tests wholesale.
+3. Do not automatically cut the post-fix helper with the ledger tooling. Mechanical defect checking serves another purpose; equivalence was not established within this eight-fact review.
+4. Repair the whole dependency graph: classifier cuts leave safety dependencies; registry cuts leave counts and pointers; shadow cuts leave entry gates; summary cuts break stage 4. Update task numbers, dependencies, goals, acceptance checks and stage-request names together.
+5. No exact new task total yet: proposals overlap and narrowed replacements still need tasks.
+
+## Final cuts, ordered by reward over risk
+
+1. Remove version-1 classifier machinery; keep the separately authorized Jev investigation.
+2. Replace structured follow-up machinery with reliable plain-list capture and safety routing.
+3. Remove new-folder and registry machinery while retaining copy, reverse-scan and installed-path checks.
+4. Remove classifier shadow evaluation; retain actual active-flow capture and print checks.
+5. Remove classifier-only stage 0 populations and duplicate reporting; retain reconciliation.
+6. Reduce seeded testing to bounded discovery checks, with explicit limitations and no silent safety miss.
+7. Compress summaries, audit bookkeeping and questions without erasing decisions or surviving gate inputs.
+
+Rewards are overlapping, not additive. Proposed safety and registry tests were read as plan requirements, not observed passes. No source code or tests ran; Review Panel implementation was not independently audited.

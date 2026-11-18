@@ -1,0 +1,137 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/audit.log
+confidence_calibrated: 0.80
+escalation_rule_matched: null   # hard pin --tier 2 (§5.1 override); parsed-sparse pre-filter would independently route to T2
+onboarding_ran: false
+
+# UC-1 specific
+coverage_pct: null              # parsed-only denominator is 0 (spec labels R1..R7, unparseable by ID_REGEX)
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 4
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# Input integrity
+input_sha256:
+  tasklist: 674f7eb859158e25665c4915047233eac392eff1f1d94e9311d9833e640b4e0e
+  spec: d858001568de5a658f7e1f428762861a2412dabe724c42f4567b76f93e165572
+input_tree_sha256: cdac5316d835956f9fb7b6556f37de773a6cca14a0a4f8cfbacfee970135b605
+input_tree_file_count: 10
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 13
+citations_revalidated: 13
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false   # Wave 6 did not run
+
+# Tier 2 artifacts
+reviewer_cards:
+  - .dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/panel/cards/reviewer-1.md
+  - .dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/panel/cards/reviewer-2.md
+  - .dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/panel/cards/reviewer-3.md
+adversarial_artifacts_dir: .dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/adversarial/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded   # disjoint set empty: all three classes seated as reviewers
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+# UC-2 blocks (mode pre — emitted per contract shape with null/empty values)
+tasklist_completion_pct: null
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null
+hunk_to_declaration_map_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null   # UC-1: verification run is a UC-2 mechanism; not applicable
+runtime_surface_requirements: []
+runtime_surface_sweep_ran: false
+runtime_surface_ledger_path: null
+runtime_surface_unreached: 0
+runtime_surface_degraded: false
+unreached_surfaces: []
+reachability_gate_ran: false
+reachability_ledger_path: null
+reachability_requirements_scanned: 0
+reachability_unreachable: 0
+reachability_unproven: 0
+reachability_real_boot_ran: false
+reachability_skip_reason: null
+reuse_sweep_ran: false
+reuse_audit_path: null
+reuse_miss_blocking: 0
+reuse_miss_advisory: 0
+reuse_verdict_count_by_type: {reuse_by_import: 0, mirror_shape: 0, extract_shared: 0, distinct: 0}
+reuse_grounding_gap_count: 0
+neighbour_search_sampled: false
+neighbour_search_degraded: false
+max_overlap_score: null
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+# Budget pre-flight
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion (UC-2 only; mode pre)
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false

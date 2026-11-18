@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-loosenBlockerCla-20261115-133045
+plan_path: ./TASK-WF-loosenBlockerCla-20261115-133045.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-loosenBlockerCla-20261115-133045-20261115133706/REPORT.md
+unresolved:
+  - "reflect pre-check verdict NEEDS-REVISION (12 blocking, 5 non-blocking findings; run status partial because the validator dropped 2 of 126 citations); advisory, the plan is unchanged. See the report's Recommendations R-001 to R-007."

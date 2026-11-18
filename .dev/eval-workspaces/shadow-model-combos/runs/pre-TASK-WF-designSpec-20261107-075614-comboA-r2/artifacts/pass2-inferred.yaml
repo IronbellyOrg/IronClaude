@@ -1,0 +1,186 @@
+# Step 1B.0 Pass 2 (quote-pinned inference) over source.md
+# Spec: "Design Spec: pr-submit merge guard (issue #375)" — FR-1..FR-23 carry no MUST-body
+# text of their own; the requirement substance lives in the sections the section 9 traceability
+# table points at (3, 4.1-4.7, 5, 6, 7, 8) plus the section 10 plan-authoring requirements.
+inferred_count: 45
+rows:
+  - id: INF-001
+    quote: "Owner decisions (accepted 2026-11-07, relayed by the coordinator): draft not label; engage at the first verified Medium-or-higher finding routed to a fix; default on at `--monitor 3` via `--merge-guard {draft,off}`; release when the fix push is confirmed on the PR head, before replies and the re-trigger; an unreadable timeline or an exit with unpublished fixes keeps the PR draft and reports."
+    citation: "source.md:6"
+    requirement_shape: constraint
+  - id: INF-002
+    quote: "Every `gh` line in a protocol script or ref must be repo-scoped (`--repo`, or a `gh api repos/...` path)."
+    citation: "source.md:23"
+    requirement_shape: imperative
+  - id: INF-003
+    quote: "Rule: the core DECIDES and the SKILL performs, the same split as the push triad and the re-trigger (NFR-6). No new `MonitorState`."
+    citation: "source.md:51"
+    requirement_shape: constraint
+  - id: INF-004
+    quote: "| Ordinal < 3, `--merge-guard off`, or a conflict-merge cycle | Nothing mutates. A held guard found in the log is reported with the clear command. |"
+    citation: "source.md:57"
+    requirement_shape: contract
+  - id: INF-005
+    quote: "| `--resume` at any ordinal and in either mode, or a run log that already holds guard events | Wave 0 loads the ref (Resume and Exit report) before Wave 1: unsettled requests are reconciled before any edit, release or re-trigger; a held guard is reported with the clear command. |"
+    citation: "source.md:58"
+    requirement_shape: contract
+  - id: INF-006
+    quote: "| End of Wave 3 at L3: at least one verified, Medium-or-higher finding routed to a fix (review-fix cycle, or CI-fix cycle from Wave 8) | Read, decide, request, `--to draft`, settle. Print the clear command once. |"
+    citation: "source.md:61"
+    requirement_shape: contract
+  - id: INF-007
+    quote: "| Pre-push head guard (Wave 6) | Script `--read` must show `state == OPEN`; otherwise halt `pr_not_open`, push nothing. |"
+    citation: "source.md:64"
+    requirement_shape: imperative
+  - id: INF-008
+    quote: "| Any exit after engage with no confirmed push and no zero-edit proof | PR stays draft; report `held` with the clear command. |"
+    citation: "source.md:69"
+    requirement_shape: contract
+  - id: INF-009
+    quote: "No `gh` or `git` word on any line, comments included (F6). Imports only `enum`, `dataclasses`, `re`, `.conflicts.is_conflict_cycle`."
+    citation: "source.md:75"
+    requirement_shape: constraint
+  - id: INF-010
+    quote: "`applied_edits` is THIS cycle's count of applied edits; it is not the run-wide `applied_edits` output field (which counts the whole run), so a zero-edit cycle after a fixing cycle still releases with `no_edits`."
+    citation: "source.md:107"
+    requirement_shape: contract
+  - id: INF-011
+    quote: "`True` when `guard` is not `None` and the log holds a `push_completed` event whose `cycle_id` equals `guard.cycle_id`, whether written by the push triad or synthesized by recovery (`recovered: true`); `False` otherwise. The SKILL passes the result as `published`."
+    citation: "source.md:108"
+    requirement_shape: contract
+  - id: INF-012
+    quote: "`dangling_branch` is `None` or one of the module constants `BRANCH_LANDED = \"landed\"`, `BRANCH_NOT_LANDED = \"not_landed\"`, `BRANCH_AMBIGUOUS = \"ambiguous\"`, which equal the `recovery.py` strings (F13); a test imports both modules and asserts equality, because the core cannot import `recovery`."
+    citation: "source.md:109"
+    requirement_shape: contract
+  - id: INF-013
+    quote: "`guard_status(guard, mode, ordinal)` maps, first match wins: `mode == OFF` or `ordinal < 3` with no guard record gives `off`; no guard record gives `released`; phase `HELD` gives `held`; phase `ENGAGE_PENDING` or `RELEASE_PENDING` gives `held` when `owned_draft` is true, else `unavailable`; phase `DISABLED` with cause `user_override` gives `user_override`; phase `DISABLED` with cause `already_draft` gives `off` (the PR was a draft before the run, nothing is guarded); phase `RELEASED` gives `released`. A halt with reason `draft_guard_unavailable` reports `unavailable`."
+    citation: "source.md:112"
+    requirement_shape: contract
+  - id: INF-014
+    quote: "`RECONCILE`, with `reason` one of `resume_reconciled`, `not_applied`, `ambiguous`: live draft state and `classify_toggles` decide; live state matching the request's direction and `observed == run_toggles + 1` settles `confirmed, changed: true, cause: resume_reconciled`; live state not matching settles `skipped, cause: not_applied`; anything else is `ambiguous` and holds. Each reason has its own test."
+    citation: "source.md:165"
+    requirement_shape: acceptance-criterion
+  - id: INF-015
+    quote: "Add to `EventType` in `models.py` (43 to 45, update the docstring and the `models.py:3,24` count, and the 43 text at `run_log.py:117`):"
+    citation: "source.md:175"
+    requirement_shape: deliverable
+  - id: INF-016
+    quote: "# appended and fsynced BEFORE the draft/ready call"
+    citation: "source.md:178"
+    requirement_shape: contract
+  - id: INF-017
+    quote: "`fold_draft_guard(events)` returns `None` or this dict, and `run_log.rebuild_state()` stores it as `state[\"draft_guard\"]` (default `None`, added to `_NEW_KEY_DEFAULTS`):"
+    citation: "source.md:187"
+    requirement_shape: deliverable
+  - id: INF-018
+    quote: "the pending key is cleared and the phase returns to `phase_before_request`; `owned_draft` and the toggle counters are unchanged. For a draft request that was the first guard record, the whole record is erased (the fold returns `None`, including `baseline` and `original_is_draft`), so the next request is a first request again and takes a fresh baseline and a fresh `original_is_draft`; this is safe because `not_applied` means no toggle landed."
+    citation: "source.md:201"
+    requirement_shape: contract
+  - id: INF-019
+    quote: "`original_is_draft` is never read from GitHub after the first record, so a resumed run cannot mistake its own draft for an original one."
+    citation: "source.md:208"
+    requirement_shape: constraint
+  - id: INF-020
+    quote: "Effective only at `--monitor 3`; accepted and inert below. `off` makes the skill print one line: \"Remediation is unprotected: --merge-guard off.\""
+    citation: "source.md:216"
+    requirement_shape: contract
+  - id: INF-021
+    quote: "Exit codes: 0 success; 1 `gh` failure or failed verification (the JSON line is still printed with `ok:false`); 2 usage; 127 missing dependency. `--to` is idempotent, so a retry or a resume re-issue is safe."
+    citation: "source.md:234"
+    requirement_shape: contract
+  - id: INF-022
+    quote: "The procedure of sections 3 and 4.1 to 4.4 as protocol steps (read, decide, request, mutate, settle) for Engage, Pre-push, Release, Exit report and Resume. Loaded lazily at L3 Wave 3, Wave 6 and Wave 8."
+    citation: "source.md:240"
+    requirement_shape: deliverable
+  - id: INF-023
+    quote: "One short bullet under each of Wave 0, Wave 3, Wave 6 and Wave 8, written as new sentences after, never inside, the pinned sentences."
+    citation: "source.md:241"
+    requirement_shape: constraint
+  - id: INF-024
+    quote: "the Wave 3 bullet states that engage happens at the end of Wave 3 only when at least one verified finding of Medium severity or higher is routed to a fix, and once per cycle id (it must not contain the words `evidence-validator` or `conflict-intent.md`, which a line-content test allows only on lines that also say \"Tier 2\"); the Wave 6 bullet states that Pre-push runs at the pre-push head guard step before `push_decision` and Release runs after `push_completed` before reply, resolve and the re-trigger; the Wave 8 bullet states that a CI-fix cycle engages with kind `ci` and releases after `push_completed` before the CI re-poll."
+    citation: "source.md:241"
+    requirement_shape: contract
+  - id: INF-025
+    quote: "Also one `--merge-guard {draft,off}` row in the Required Input flag table beside `--conflict-max-tier`; one row `merge_guard` in the output table, which also carries the literal L2 line \"PR #N is still mergeable; this run's fixes are local only.\" so that a fresh L2 run prints it without loading the ref; one line in the wave structure list."
+    citation: "source.md:241"
+    requirement_shape: deliverable
+  - id: INF-026
+    quote: "`--merge-guard {draft,off}` in the argument-hint and the Options table; a short \"Merge guard\" section next to \"Merge-conflict handling\"."
+    citation: "source.md:244"
+    requirement_shape: deliverable
+  - id: INF-027
+    quote: "Flag row and a paragraph: what it does, the clear command, `held` meaning, default on."
+    citation: "source.md:245"
+    requirement_shape: deliverable
+  - id: INF-028
+    quote: "Output field `merge_guard`: `off`, `released`, `held`, `user_override`, `unavailable`. A `held` report always carries the reason and `gh pr ready <N> --repo <REPO>` (formatted by the SKILL, never by the core, because the core cannot contain `gh`)."
+    citation: "source.md:247"
+    requirement_shape: contract
+  - id: INF-029
+    quote: "The SKILL mints it at the end of Wave 3 and uses the same id as the `cycle_id` of the push triad (`push_idempotency_key`) and of `rereview_requested`, so the guard, the push and the re-trigger of one cycle share a key. With `--merge-guard off` nothing changes."
+    citation: "source.md:251"
+    requirement_shape: contract
+  - id: INF-030
+    quote: "Every new line under `src/superclaude/skills/`, `src/superclaude/commands/` or `src/superclaude/agents/` that contains `gh pr`, `gh api` or a git write verb is a hit of `WRITE_VERB_RE` and needs one entry in `WRITE_VERB_CLASSIFICATION` in `tests/skills/test_worker_contract.py`: the key is the repo-relative path, the verb text (`gh pr`, `gh api`) and the exact stripped line; the value is category `never-worker` with the standard pr-submit reason text used by the neighbouring entries (the pr-submit monitor is on the never-as-worker list)."
+    citation: "source.md:255"
+    requirement_shape: imperative
+  - id: INF-031
+    quote: "The entries are added after the text of each file is final, as the last step of the task that writes the file, because a later edit of a classified line makes the entry stale and fails `test_classification_table_has_no_stale_entries`."
+    citation: "source.md:255"
+    requirement_shape: constraint
+  - id: INF-032
+    quote: "Acceptance trace (must appear in this order in the run log): `draft_guard_requested(draft)`, `draft_guard_settled(confirmed)`, `fix_applied`, `push_completed`, `draft_guard_requested(ready)`, `draft_guard_settled(confirmed)`, `rereview_requested`."
+    citation: "source.md:270"
+    requirement_shape: acceptance-criterion
+  - id: INF-033
+    quote: "No dangling window (`detect_crash_window` returns `None`), so there is no branch. The SKILL passes `published = held_cycle_published(events, guard)`, which is true; row 4 releases first, then the S5a logic runs."
+    citation: "source.md:280"
+    requirement_shape: contract
+  - id: INF-034
+    quote: "Run `make sync-dev` at the end of every task that edits a file under `src/superclaude/skills/` or `src/superclaude/commands/`, because `tests/cli/test_verify_sync_hooks.py` runs `make verify-sync` inside the full suite; the final task also runs `uv run pytest tests/cli/test_verify_sync_hooks.py tests/unit/test_cli_install.py -q`. A repo-wide pin (F12) escaped two reviews because only `tests/pr_submit` was run, so the final task runs the FULL suite (`uv run pytest -q tests`) and compares its failures with the base-commit record."
+    citation: "source.md:301"
+    requirement_shape: imperative
+  - id: INF-035
+    quote: "The twelve minimum tests of the requirements, mapped to what they assert:"
+    citation: "source.md:305"
+    requirement_shape: deliverable
+  - id: INF-036
+    quote: "crash before and after each request and settle; the `landed`, `not_landed` and `ambiguous` branches produced by the real `detect_crash_window` and `resolve_crash_window` over a real `RunLog` (never injected strings); a crash after a normal `push_completed` (no dangling window, `published` true) releases before the re-trigger; engage, crash, resume with live draft true stays `held`, never `disabled` (FR-7, FR-21)"
+    citation: "source.md:318"
+    requirement_shape: acceptance-criterion
+  - id: INF-037
+    quote: "Owner decision (2026-11-07, relayed by the coordinator): the build proceeds now with no GitHub calls (tests use a fake `gh`). Gates G1 (live token and plan check), G2 (live ordering and pagination), G4, G5 and G6 are a RELEASE gate, not a build gate: the owner runs them on a disposable fork PR before the feature is merged or turned on by default."
+    citation: "source.md:326"
+    requirement_shape: constraint
+  - id: INF-038
+    quote: "The user guide states that draft behaviour is unverified until then, and the PR body states the gate plainly. No task makes a live PR call, and the run that opens the PR must not enable the feature (`--merge-guard off`)."
+    citation: "source.md:326"
+    requirement_shape: imperative
+  - id: INF-039
+    quote: "**O4** The extra `retrigger` guard: the S5a text must stay unchanged; release is placed before it by a new sentence, not by editing the pinned one."
+    citation: "source.md:342"
+    requirement_shape: constraint
+  - id: INF-040
+    quote: "Cite tests and constants by symbol name (for example `_NEW_KEY_DEFAULTS`, `_RESOLUTION_SCRIPTS`, the test that asserts the event count), never by bare line number: earlier tasks edit the same files and line numbers drift."
+    citation: "source.md:362"
+    requirement_shape: imperative
+  - id: INF-041
+    quote: "Declare dependencies completely, one `Depends on:` line per dependency: a task depends on every earlier task whose output it imports or consumes (the run-log wiring task and the scenario-test task both need the decision functions; the protocol tasks need the pre-build record)."
+    citation: "source.md:363"
+    requirement_shape: imperative
+  - id: INF-042
+    quote: "The fold, `guard_status`, resume-reason and per-cycle `applied_edits` rules of sections 3 and 4.1 each get an acceptance criterion that a wrong implementation would fail."
+    citation: "source.md:366"
+    requirement_shape: acceptance-criterion
+  - id: INF-043
+    quote: "Protocol prose written by the plan never carries `file:NNN` pointers and never contains the words `evidence-validator` or `conflict-intent.md` on a new SKILL.md line."
+    citation: "source.md:369"
+    requirement_shape: constraint
+  - id: INF-044
+    quote: "Test hygiene: scenario tests import only helpers and fixtures from `test_set_draft_state.py`, never `test_*` functions (pytest would collect them twice); \"no push after a `pr_not_open` halt\" is asserted on `RunLog.read_events()` (no `push_initiated` or `push_completed` after the halt), because the fake `gh` log cannot see a `git push`; the byte-identical checks for the pinned S5a and Wave 6 pre-push sentences compare against literal string constants taken from the existing pins, not against `git show HEAD:`; the repo-pin proof for the new script is the recorded fake-`gh` argument log plus a static scan inside `test_set_draft_state.py` that every `gh` line carries `--repo` or a `repos/` path (the `test_t105_runtime_repo_pin` test covers only the poll script)."
+    citation: "source.md:377"
+    requirement_shape: constraint
+  - id: INF-045
+    quote: "The Wave 3 and Wave 0 bullet acceptance criteria assert wording and position, not headings: the Wave 3 bullet names the routed-finding trigger and \"once per cycle\"; the Wave 0 bullet sits before the Wave 1 bullet and has no L3 or `draft` condition."
+    citation: "source.md:378"
+    requirement_shape: acceptance-criterion

@@ -75,14 +75,6 @@
 # Technical analysis followed by business expert panel review
 ```
 
-### Combined with /improve  
-
-```bash
-/improve @strategy_doc.md --business-panel --iterative
-
-# Iterative improvement with business expert validation
-```
-
 ### Combined with /design
 
 ```bash
@@ -165,7 +157,7 @@
 ## Integration Workflows
 
 **Strategy Development**: discussion @market_research → debate @competitive → socratic synthesis → /design strategy
-**Innovation Pipeline**: /sc:business-panel --focus innovation → /improve roadmap → /analyze opportunities --think
+**Innovation Pipeline**: /sc:business-panel --focus innovation → /analyze opportunities --think
 **Risk Review**: /sc:business-panel --experts taleb,meadows,porter → debate assumptions → /implement mitigation --validate
 
 ## Customization Options

@@ -1,0 +1,4 @@
+# Wave 3C blind calibration (disjoint set empty -> calibrator_diversity: degraded; highest-cap class not used by most reviewers)
+reviewer-1: {C: 0.85, recommendation: borderline, calibrator_class: tier1b}
+reviewer-2: {C: 0.86, recommendation: borderline, calibrator_class: tier1b}
+reviewer-3: {C: 0.82, recommendation: escalate, calibrator_class: tier1b}

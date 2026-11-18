@@ -1,0 +1,26 @@
+point_id	taxonomy_level	r1_w	r2_w	r3_w	majority_winner	agreed	unanimous
+S-001	L1	none/all/none	-	-	none	true	false
+S-002	L1	1/2/1	-	-	1	true	false
+S-003	L1	2/2/none	-	-	2	true	false
+C-001	L2	1/1/1	-	-	1	true	true
+C-002	L2	3/2/3	-	-	3	true	false
+C-003	L2	2/2/2	-	-	2	true	true
+C-004	L3	1/1/1	-	-	1	true	true
+C-005	L3	1/1/1	-	-	1	true	true
+C-006	L2	1/1/1	-	-	1	true	true
+C-007	L2	1/1/1	-	-	1	true	true
+C-008	L1	all/all/3	-	-	all	true	false
+C-009	L3	3/3/3	-	-	3	true	true
+C-010	L2	3/3/3	-	-	3	true	true
+C-011	L2	3/3/3	-	-	3	true	true
+C-012	L1	2/2/2	-	-	2	true	true
+C-013	L1	all/all/all	-	-	all	true	true
+X-001	L3	1/1/1	-	-	1	true	true
+X-002	L3	3/2/3	-	-	3	true	false
+X-003	L3	2/2/1	-	-	2	true	false
+X-004	L2	1/2/1	-	-	1	true	false
+X-005	L1	none/none/none	-	-	none	true	true
+A-001	L3	QUALIFY/QUALIFY/QUALIFY	-	-	QUALIFY	true	true
+A-002	L2	QUALIFY/ACCEPT/ACCEPT	-	-	ACCEPT	true	false
+A-003	L3	ACCEPT/QUALIFY/QUALIFY	-	-	QUALIFY	true	false
+A-004	L1	STATED (not debated)	-	-	n/a	true	true

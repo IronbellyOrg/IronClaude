@@ -7,7 +7,6 @@ import re
 from pathlib import Path
 
 import pytest
-from rich import box
 from rich.cells import cell_len
 from rich.text import Text
 
@@ -17,7 +16,6 @@ from superclaude.cli.observe.terminal import (
     MIN_ROWS,
     clip,
     make_console,
-    palette_style,
     resolve_policy,
 )
 
@@ -51,35 +49,6 @@ def test_no_color_unset_or_empty_keeps_colour_available(env):
     pol = policy(env)
     assert pol.no_color is False
     assert "31" in [p for m in SGR.findall(render(pol, "red")) for p in m.split(";")]
-
-
-def test_colour_only_where_the_palette_sets_it():
-    assert terminal.PALETTE == {}  # CD-8: empty palette, plain text
-    assert not palette_style("anything")  # a null style
-    assert "\x1b" not in render(policy(), palette_style("anything"))
-
-
-# -- T28: no blink, faint, italic, underline ------------------------------------
-
-
-@pytest.mark.parametrize("env", [{}, {"NO_COLOR": "1"}])
-def test_no_blink_code_in_any_console_output(env):
-    for style in ("bold", "red", "green on black", "reverse"):
-        out = render(policy(env), style)
-        params = [p for m in SGR.findall(out) for p in m.split(";")]
-        assert "5" not in params and "6" not in params
-
-
-@pytest.mark.parametrize("spec", ["blink", "dim", "italic", "underline", "on red"])
-def test_palette_refuses_forbidden_styles(monkeypatch, spec):
-    monkeypatch.setitem(terminal.PALETTE, "bad", spec)
-    with pytest.raises(ValueError):
-        palette_style("bad")
-
-
-def test_palette_accepts_plain_colour_and_bold(monkeypatch):
-    monkeypatch.setitem(terminal.PALETTE, "ok", "bold red")
-    assert palette_style("ok").bold
 
 
 # -- width classes, height, ASCII -----------------------------------------------
@@ -123,14 +92,12 @@ def test_too_small_below_min_rows():
 def test_ascii_mode_from_flag_or_non_utf8_encoding(encoding, flags, expected):
     pol = policy(encoding=encoding, flags=flags)
     assert pol.ascii is expected
-    assert pol.box_style is (box.ASCII if expected else box.SQUARE)
 
 
 def test_glyph_table_maps_to_ascii():
     ascii_pol = policy(flags={"ascii": True})
     utf_pol = policy()
-    assert terminal.glyph("sep", utf_pol) == "·"
-    assert terminal.glyph("sep", ascii_pol) == "."
+    assert terminal.glyph("selected", utf_pol) == "▸"
     assert terminal.glyph("selected", ascii_pol) == "@"
     assert all(terminal.glyph(name, ascii_pol).isascii() for name in terminal.GLYPHS)
 

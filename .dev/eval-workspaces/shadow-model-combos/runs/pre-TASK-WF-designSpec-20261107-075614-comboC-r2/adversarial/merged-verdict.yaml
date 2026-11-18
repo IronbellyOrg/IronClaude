@@ -1,0 +1,212 @@
+# merged-output.yaml (adversarial merge, Step 5). Base: reviewer-2 (qa, claude-haiku-5-5) findings-v2 block.
+# Provenance: V1=reviewer-1 (analyzer, sonnet), V2=reviewer-2 (qa, haiku), V3=reviewer-3 (refactorer, opus); INV-nnn = invariant-probe.md.
+merge_method: adversarial
+base_variant: "reviewer-2 (qa, claude-haiku-5-5)"
+source_cards: [reviewer-1, reviewer-2, reviewer-3]
+verdict: not_ready
+verdict_reason: "two blocking spec-origin findings M-1 and M-2"
+convergence_score: 1.0
+blocking_findings: [M-1, M-2]
+findings:
+  # M-1: from V2:F1
+  - id: M-1
+    severity: MAJOR
+    blocking: true
+    origin: "spec"
+    category: missing-requirement
+    claim: "resume_decision row 4 re-enters release_decision but gets no target_sha or this cycle's applied_edits, and the folded state holds neither, so the row-4 test cannot be written as specified."
+    sources: ["V2:F1"]
+    citations:
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 107, "line_end": 109}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 166, "line_end": 166}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 190, "line_end": 191}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 70, "line_end": 70}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 77, "line_end": 77}
+  # M-2: from V2:F2, V1:F2
+  - id: M-2
+    severity: MAJOR
+    blocking: true
+    origin: "spec + plan"
+    category: missing-requirement
+    claim: "FR-16 release retry (retry once, already_in_state counts as confirmed, release_pending) has a test name but no table row, fold rule or criterion; the script never prints already_in_state."
+    sources: ["V2:F2", "V1:F2"]
+    citations:
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 147, "line_end": 157}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 228, "line_end": 234}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 315, "line_end": 315}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 124, "line_end": 124}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 166, "line_end": 166}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 169, "line_end": 169}
+  # M-3: from V2:F3, V1:F3
+  - id: M-3
+    severity: MAJOR
+    blocking: false
+    origin: "plan"
+    category: missing-requirement
+    claim: "No criterion ties the guard, the push triad and rereview_requested to one cycle_id, nor checks that --merge-guard off leaves the push-triad id unchanged."
+    sources: ["V2:F3", "V1:F3"]
+    citations:
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 251, "line_end": 251}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 37, "line_end": 37}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 127, "line_end": 127}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 170, "line_end": 170}
+  # M-4: from V2:F4
+  - id: M-4
+    severity: MAJOR
+    blocking: false
+    origin: "plan"
+    category: unpassable-check
+    claim: "Task 10 says an unconditional engage fails its Wave 3 test, but the test only checks that the Medium-or-higher and once-per-cycle phrases appear, so an unconditional sentence holding both passes."
+    sources: ["V2:F4"]
+    citations:
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 153, "line_end": 153}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 241, "line_end": 241}
+  # M-5: from V1:F5, V2:F7
+  - id: M-5
+    severity: MAJOR
+    blocking: false
+    origin: "plan"
+    category: unpassable-check
+    claim: "Task 11 only requires test names for tests with no assertion bullet, so stubs pass; its case list also omits a moved head (FR-10), an unreadable timeline (FR-14) and each FR-17 exit."
+    sources: ["V1:F5", "V2:F7"]
+    citations:
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 166, "line_end": 169}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 305, "line_end": 320}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 313, "line_end": 313}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 317, "line_end": 317}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 319, "line_end": 319}
+  # M-6: from V1:F4, V2:F12
+  - id: M-6
+    severity: MINOR
+    blocking: false
+    origin: "spec"
+    category: missing-requirement
+    claim: "After a failed draft settle the fold is RELEASE_PENDING with owned_draft false, so a later engage returns HOLD(ownership_unproven) and no document says what the SKILL does on that HOLD (resume path only)."
+    sources: ["V1:F4", "V2:F12"]
+    citations:
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 138, "line_end": 138}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 199, "line_end": 199}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 60, "line_end": 60}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 70, "line_end": 70}
+  # M-7: from V2:F5, V1:F1
+  - id: M-7
+    severity: MINOR
+    blocking: false
+    origin: "spec"
+    category: contradiction
+    claim: "Task 9 rejects 'an L3 or draft condition' in the Wave 0 bullet while the same bullet must say 'at L3 with off'; reword the test to target the ref-load gate."
+    sources: ["V2:F5", "V1:F1"]
+    citations:
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 241, "line_end": 241}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 137, "line_end": 140, "quote": "carries no L3 or `draft` condition"}
+  # M-8: from V2:F8
+  - id: M-8
+    severity: MINOR
+    blocking: false
+    origin: "spec + plan"
+    category: unpassable-check
+    claim: "gh returns autoMergeRequest as an object or null; no text converts it to the boolean of spec 230 and no criterion tests the values or the transitions count (it feeds only the auto_merge_armed note)."
+    sources: ["V2:F8"]
+    citations:
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 111, "line_end": 111}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 230, "line_end": 230}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 143, "line_end": 143}
+  # M-9: from V1:F7
+  - id: M-9
+    severity: MINOR
+    blocking: false
+    origin: "plan"
+    category: missing-requirement
+    claim: "The PR body and the opening run's --merge-guard off have no producing task; Task 1 only records the decision."
+    sources: ["V1:F7"]
+    citations:
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 33, "line_end": 33}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 326, "line_end": 326}
+  # M-10: from V1:F6
+  - id: M-10
+    severity: MINOR
+    blocking: false
+    origin: "plan"
+    category: missing-requirement
+    claim: "A not_applied ready request returning to RELEASE_PENDING after a failed release has no criterion; only the return to HELD is tested."
+    sources: ["V1:F6"]
+    citations:
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 60, "line_end": 60}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 201, "line_end": 201}
+  # M-11: from V3:F4, V2:F6
+  - id: M-11
+    severity: MINOR
+    blocking: false
+    origin: "spec"
+    category: unpassable-check
+    claim: "The byte-identical check for the S5a and Wave 6 pre-push sentences compares only the recorded start text, so edits later in a sentence pass; the existing pins are fragments."
+    sources: ["V3:F4", "V2:F6"]
+    citations:
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 154, "line_end": 154, "quote": "asserted byte-identical by comparing the live text with string constants (the literal start text recorded in `./artifacts/pre-build-gate.md`"}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 33, "line_end": 33}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 342, "line_end": 342}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 377, "line_end": 377}
+  # M-12: from INV-011
+  - id: M-12
+    severity: MAJOR
+    blocking: false
+    origin: "plan"
+    category: safety
+    claim: "The fsync-request-before-call order (append and fsync draft_guard_requested before --to) exists only as ref prose; tests check phrases and a driver that encodes the order itself, so a ref with the call first passes."
+    sources: ["INV-011"]
+    citations:
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 178, "line_end": 179}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 262, "line_end": 262}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 124, "line_end": 124}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 128, "line_end": 129}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 166, "line_end": 166}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 170, "line_end": 170}
+  # M-13: from V3:F6, V2:F10
+  - id: M-13
+    severity: MINOR
+    blocking: false
+    origin: "plan"
+    category: other
+    claim: "Depends-on lines are incomplete: Tasks 9, 10, 12 and 13 consume Task 1's pre-build-gate.md without declaring Task 1; Task 10 extends Task 8's files but lists only Task 9."
+    sources: ["V3:F6", "V2:F10"]
+    citations:
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 148, "line_end": 150}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 134, "line_end": 137}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 179, "line_end": 182}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 190, "line_end": 195}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 363, "line_end": 363, "quote": "a task depends on every earlier task whose output it imports or consumes"}
+  # M-14: from V3:F1, V3:F2, V3:F3, V3:F5, V3:F7, V3:F8, V2:F11
+  - id: M-14
+    severity: MINOR
+    blocking: false
+    origin: "plan or spec"
+    category: other
+    claim: "Hygiene: non-goals label is plan-invented, git status wording, Phase string values undefined, file:NNN ban unchecked, Wave 8 test weaker than Wave 6, git write verbs missing from classification steps, fold test list incomplete."
+    sources: ["V3:F1", "V3:F2", "V3:F3", "V3:F5", "V3:F7", "V3:F8", "V2:F11"]
+    citations:
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 25, "line_end": 25}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 90, "line_end": 90}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 124, "line_end": 124}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 153, "line_end": 153}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 200, "line_end": 200}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 196, "line_end": 206}
+  # M-15: from INV-001, INV-003, INV-004, INV-009
+  - id: M-15
+    severity: MINOR
+    blocking: false
+    origin: "spec"
+    category: other
+    claim: "Spec-origin warnings: guard.cycle_id never advances, a zero-edit release can cover an unpublished earlier fix, a landed branch is not matched to the guard's cycle, and drafting silently disarms auto-merge."
+    sources: ["INV-001", "INV-003", "INV-004", "INV-009"]
+    citations:
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 194, "line_end": 206}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 155, "line_end": 156}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 75, "line_end": 75}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 166, "line_end": 166}
+      - {"role": "plan", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md", "line_start": 76, "line_end": 77}
+      - {"role": "spec", "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/source.md", "line_start": 143, "line_end": 143}
+unresolved_notes:
+  - "C-005 (M-5): resolved 2 of 3 for V1 (plan 169 names-only for tests without a behaviour bullet). One advocate dissented."
+  - "X-004 (M-5): resolved 2 of 3 for V1 (stubs pass for tests with no assertion bullet, narrowed from all twelve)."
+  - "M-12 was adopted from the invariant probe (INV-011), not debated; no extra round exists at depth standard."
+  - "M-15 items are probe warnings (MEDIUM), not debated."

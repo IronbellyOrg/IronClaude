@@ -32,7 +32,7 @@ Evaluate whether a planned release should remain intact or be split into two seq
 
 **Core Objective**: Identify whether a small, low-lift, high-leverage subset of work exists that can (a) provide real value on its own, (b) improve confidence in the second half, (c) be tested in real-world usage, and (d) allow iteration based on those results.
 
-**Pipeline Position**: `release artifact → sc:release-split → split specs/tasklists + fidelity audit → (user decides) → sc:roadmap / sc:tasklist`
+**Pipeline Position**: `release artifact → sc:release-split → split specs/tasklists + fidelity audit → (user decides)`
 
 **What "split" means here**: Not dividing a sprint by size or effort. It means finding a natural seam where Release 1 delivers independently testable, independently valuable functionality that Release 2 builds on.
 
@@ -103,7 +103,7 @@ The protocol executes 4 sequential parts. Each part has entry criteria, delegate
 Prerequisites: Validate inputs           → (inline)
 Part 1: Discovery & Proposal             → /sc:brainstorm
 Part 2: Adversarial Variant Generation   → /sc:adversarial (Mode B)
-Part 3: Execution                        → /sc:design | /sc:workflow | /sc:tasklist
+Part 3: Execution                        → /sc:design | /sc:workflow
 Part 4: Fidelity Verification            → /sc:analyze
 ```
 
@@ -223,7 +223,7 @@ Part 4: Fidelity Verification            → /sc:analyze
    - `fallback_mode` — whether adversarial used its own fallback
    - `failure_stage` — where failure occurred (if failed)
    - `invocation_method` — how adversarial was invoked
-7. Apply convergence routing (aligned with sc:roadmap thresholds):
+7. Apply convergence routing:
    - `convergence_score >= 0.6` → PASS: proceed with merged proposal
    - `convergence_score 0.5-0.59` → PARTIAL: if `--interactive`, prompt user to confirm or abort. If not `--interactive`, abort: "Adversarial convergence XX% is below 60% threshold. Use --interactive to approve low-convergence results."
    - `convergence_score < 0.5` → FAIL: abort with "Adversarial pipeline failed (convergence: X.XX). Agent proposals too divergent for reliable merge."
@@ -273,10 +273,9 @@ Part 4: Fidelity Verification            → /sc:analyze
 |---------|-----------|-----------------|
 | Split approved, need release specs | Design two specs | `/sc:design` |
 | Split approved, need execution workflow | Workflow planning | `/sc:workflow` |
-| Split approved, need tasklists | Sprint planning | `/sc:tasklist` |
 | No split, need updated spec | Single spec update | `/sc:design` |
 
-**Do NOT** use `/sc:roadmap` or `/sc:tasklist` unless the approved proposal explicitly says they are appropriate at this stage. Default to `/sc:design` for producing release specs.
+**Do NOT** produce roadmaps or tasklists unless the approved proposal explicitly says they are appropriate at this stage. Default to `/sc:design` for producing release specs.
 
 Under `--unattended`, Part 3 produces the specs inline with the Write tool (the fallback of the Error Handling table) and makes no nested command call.
 

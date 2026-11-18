@@ -132,20 +132,6 @@ Key areas: frontend/app/wizard/, the stage configs, and the Zustand store slices
 /prd Write a PRD for the platform.
 ```
 
-### `superclaude prd` (headless CLI)
-
-The `superclaude prd` command runs the PRD pipeline headlessly from a terminal, without an interactive Claude session:
-
-```bash
-superclaude prd run "<request>" [--tier lightweight|standard|heavyweight] [--dry-run]
-superclaude prd resume <STEP_ID>
-```
-
-- `prd run` takes the request as its argument; `--dry-run` validates the configuration without launching the pipeline. Other options: `--product`, `--where`, `--spec`, `--output`, `--max-turns`, `--model`, `--debug`.
-- `prd resume` continues an interrupted run from a step such as `parse-request` or `investigation-3`. If the original run used a non-default `--output`, pass the same `--output`, `--product` and `--tier`.
-- Research and synthesis fix cycles default to 2 each.
-- Run `superclaude prd run --help` and `superclaude prd resume --help` for the full option list.
-
 ---
 
 ## 3) The 7-Phase Multi-Agent Pipeline
@@ -551,7 +537,6 @@ Give that one commit, not a `..HEAD` range: a single commit is compared with you
 
 Commit locally first. Run `/security-review` only if login, permissions, secrets, user input, or file paths changed. Push only after your lead approves, then run `/sc:pr-submit`. It fixes the confirmed review findings of Medium severity or higher and failing CI checks, and pushes those fixes to your branch without asking (use `--monitor 2` to stop before pushing). It needs `gh` logged in and the Augment Code review app or the Codex review connector on the repository; without either use `--monitor 0`, which only opens the PR. Full steps: section 3.11 of [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md) (installed as `~/.claude/HOW-WE-WORK.md`); the whole pipeline above is its workflow 3.1.
 
-The CLI pipeline (`superclaude roadmap run` -> `/sc:tasklist` -> `superclaude sprint run`) is a separate release pipeline; see [roadmap-cli-tools-release-guide.md](roadmap-cli-tools-release-guide.md). For which tool to use when, see [How We Work](../user-guide/how-we-work.md).
 
 ---
 

@@ -9,7 +9,7 @@ guard_test deliverables in correct milestones, and gate warnings.
 
 Pipeline order: decomposition (M1) -> invariant+FMEA (M2) -> guard analysis (M3) -> data flow (M4).
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations

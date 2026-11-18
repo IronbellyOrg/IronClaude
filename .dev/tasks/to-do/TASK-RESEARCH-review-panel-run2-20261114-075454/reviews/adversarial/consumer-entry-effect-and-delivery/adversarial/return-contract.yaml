@@ -1,0 +1,43 @@
+# sc:adversarial return contract (slot C-05, consumer-entry-effect-and-delivery)
+# Mode A (--compare), depth standard, focus correctness,risk,test-coverage; no --merge, no --interactive.
+# Convergence detail: 24 of 24 diff points agreed (100%) against an 80% threshold; convergence status BLOCKED_BY_INVARIANTS
+# (7 HIGH-severity UNADDRESSED invariants from the Round 2.5 probe; standard depth has no Round 3).
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/consumer-entry-effect-and-delivery/merged-output.md"
+  convergence_score: 1.00
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/consumer-entry-effect-and-delivery/adversarial/"
+  status: "partial"
+  base_variant: "variant-1 (Proposal A; default model, default persona)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-001"
+      category: "guard_conditions"
+      assumption: "Effect advisory at Wave 4 / Stage 10.5; no generation-time halt is reachable (Stage 10.5 halts on needs_human_decision and ends blocked when unattended)"
+      severity: "HIGH"
+    - id: "INV-002"
+      category: "interaction_effects"
+      assumption: "Stage 10.5 is a read-only review whose only output is a verdict (it always passes --remediate, a write path that can nest reflect, workflow and reflect)"
+      severity: "HIGH"
+    - id: "INV-003"
+      category: "interaction_effects"
+      assumption: "The depth-policy remedy for the reach gap is a pure reach fix (it changes the remediation route and forces Tier 2 under the legacy engine at Wave 4)"
+      severity: "HIGH"
+    - id: "INV-005"
+      category: "collection_boundaries"
+      assumption: "The reach share can be measured from existing shadow runs or consumer-call contracts (the only aggregator cannot see phases that never reach the panel or tasklist output directories)"
+      severity: "HIGH"
+    - id: "INV-007"
+      category: "count_divergence"
+      assumption: "A panel result reaches consumers only as status, coverage_pct and tier_reached (consumers read more fields; two of the three cannot carry a panel benefit)"
+      severity: "HIGH"
+    - id: "INV-013"
+      category: "sufficiency_challenge"
+      assumption: "The replay decides the disputed points (no ground-truth scorer, no engine selector for arm R, harness denies Bash/Agent/Task, no numeric threshold)"
+      severity: "HIGH"
+    - id: "INV-014"
+      category: "sufficiency_challenge"
+      assumption: "The consensus alone gives consumers the panel's benefit without a second entry and with no consumer pin changes (no visible benefit path, no panel-to-status map, reflect-owned pins change)"
+      severity: "HIGH"

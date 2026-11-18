@@ -1,0 +1,23 @@
+calibrator_class: opus   # agent confidence-calibrator, model alias opus (claude-gw-tier1a), one blind instance per card; all three classes are reviewer classes so calibrator_diversity is degraded
+calibrator_diversity: degraded
+blind: true   # inputs were the card path and the rubric path only
+cards:
+  reviewer-1:   # analyzer, sonnet class (claude-gw-tier1b)
+    calibrated_confidence: 0.80
+    per_dimension: {citation_grounding: 0.90, coverage_completeness: 0.85, deviation_classification_clarity: 0.80, risk_surface_coverage: 0.85, recommendation_actionability: 0.60}
+    citations_checked: 31
+    citations_held: 30   # the one miss is in the Checked section: "G4 is removed by the plugin decision at plan line 87" (the plugin decision is at plan lines 23 and 91)
+    self_reported_confidence: 0.72
+  reviewer-2:   # qa, haiku class (claude-gw-tier2); self-reported an OpenAI model (identity mismatch suspected)
+    calibrated_confidence: 0.80
+    per_dimension: {citation_grounding: 0.92, coverage_completeness: 0.78, deviation_classification_clarity: 0.88, risk_surface_coverage: 0.78, recommendation_actionability: 0.65}
+    citations_checked: 17
+    citations_held: 17
+    self_reported_confidence: 0.91
+  reviewer-3:   # refactorer, opus class (claude-gw-tier1a)
+    calibrated_confidence: 0.84
+    per_dimension: {citation_grounding: 0.90, coverage_completeness: 0.85, deviation_classification_clarity: 0.88, risk_surface_coverage: 0.85, recommendation_actionability: 0.70}
+    citations_checked: 31
+    citations_held: 31
+    self_reported_confidence: 0.80
+    calibrator_note: "F8 paraphrase overstates spec line 867 (tech-research appears there with line numbers, not under cap lines); F3 count of ten grep hits not re-run by the calibrator"

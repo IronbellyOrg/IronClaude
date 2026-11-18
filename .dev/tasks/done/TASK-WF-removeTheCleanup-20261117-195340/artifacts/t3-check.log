@@ -1,0 +1,4 @@
+names: ['audit', 'main', 'pipeline', 'roadmap', 'sprint', 'tasklist'] 6
+tests/cli_portify/test_validate_config.py .............................  [100%]
+
+============================= 868 passed in 12.86s =============================

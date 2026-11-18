@@ -1,0 +1,34 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/pr-review-wire-format-and-slot/merged-output.md"
+  # 44 of 49 diff points agreed in content = 0.8980, reported as 0.90; by label alone 49 of 49 (1.00); Round 1 was 33 of 49
+  convergence_score: 0.90
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/pr-review-wire-format-and-slot/adversarial"
+  # partial: debate status BLOCKED_BY_INVARIANTS (5 HIGH UNADDRESSED probe findings), content-unresolved points, post-merge validation PASS
+  status: "partial"
+  base_variant: "variant-1 (Proposal A; default model, default persona)"
+  # content-unresolved: C-001, C-002, C-006, S-004, S-008 (label Hybrid in both Round 2 tables, but Variant B's amendments AM-1 to AM-6 were not answered by Variant A); owner items C-008, A-005, A-006 are open in both advocates' files and are not counted here
+  unresolved_conflicts: 5
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-002"
+      category: "state_variables"
+      assumption: "Panel standing, reviewed SHA and dropped list survive --resume and the absent fold."
+      severity: "HIGH"
+    - id: "INV-007"
+      category: "count_divergence"
+      assumption: "The number of reviewers the panel owes (requested) is the same quantity as the number dispatched."
+      severity: "HIGH"
+    - id: "INV-008"
+      category: "count_divergence"
+      assumption: "A complete panel that finds nothing reads present (AM-4 zero-cluster case)."
+      severity: "HIGH"
+    - id: "INV-011"
+      category: "collection_boundaries"
+      assumption: "An empty requested set cannot read present."
+      severity: "HIGH"
+    - id: "INV-012"
+      category: "collection_boundaries"
+      assumption: "Splitting a cluster by category (AM-1) is enough to stop a maximum severity pairing with the wrong claim."
+      severity: "HIGH"

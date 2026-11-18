@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: "adversarial/merged-findings.md"
+  convergence_score: 1.0
+  artifacts_dir: "adversarial/"
+  status: "partial"
+  base_variant: "variant-3 (reviewer-3)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes: "status partial: base-selection abbreviated (estimated quant metrics, dimension-level rubric, no reverse-order pass); advocates and probe ran as agents; merge by merge-executor"

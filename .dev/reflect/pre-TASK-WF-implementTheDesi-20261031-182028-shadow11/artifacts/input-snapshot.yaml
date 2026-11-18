@@ -1,0 +1,9 @@
+input_tree_sha256: ba079d8fd74234d48049bdce23418edf9ace5a2ac64a4f029a320ab04ac1bcda
+file_list:
+  - path: .dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/source.md
+    sha256: 6c0dbc3fe56607ba242e6dea871c0f6469f62dac25d3e33c7417dc0b93c62397
+  - path: .dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md
+    sha256: 1f84077e475af7358384ebaf383d03500bc6d6e46b9a85e8a977a67a18341e0a
+  - path: .dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/progress.md
+    sha256: 73b60d830022a8d5dc810867c361ff05250e6ad4a40b6213f5d4dc574e9b7a97
+file_count: 3

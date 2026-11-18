@@ -1,19 +1,17 @@
 """Swarm tmux integration -- detachable session management.
 
-Mirrors ``cli/sprint/tmux.py`` in role: provide tmux session lifecycle
+Provides tmux session lifecycle
 helpers so ``superclaude swarm run --detached`` (RuntimeSpec.mode =
 'detached', T07.11) can launch a background job and ``swarm attach`` /
 ``swarm kill`` (T07.07 / T07.08) can later reattach or terminate it.
 
-Surface vs. sprint
-==================
+Surface
+=======
 
-The sprint variant builds a 3-pane Rich/TUI layout because sprint
-execution is an interactive operator surface (live phase summaries +
-tail). Swarm detached mode is the opposite: the operator dispatches a
-fan-out job, walks away, and reattaches only on demand. So this module
-deliberately omits the pane-split / TUI machinery and ships a small set
-of lifecycle primitives only:
+Swarm detached mode: the operator dispatches a fan-out job, walks away,
+and reattaches only on demand. So this module deliberately omits any
+pane-split / TUI machinery and ships a small set of lifecycle primitives
+only:
 
 * :func:`is_tmux_available` -- tmux installed AND we are NOT already
   inside an outer tmux session.
@@ -95,7 +93,7 @@ class TmuxSessionMissingError(LookupError):
 def is_tmux_available() -> bool:
     """Return True if tmux is installed and we are not nested inside tmux.
 
-    Nested-session check mirrors the sprint variant: launching a
+    Nested-session check: launching a
     detached session from inside another tmux session is technically
     legal but produces a confusing operator experience (the new session
     is hidden behind the current one) and is not part of the M7 detached

@@ -1,0 +1,3 @@
+cleanup matches: 2
+dangling node refs (Q or CLEANUP*): 0
+note: the 2 matches counted on line 1 are architecture-guide.md:243 (`cleanup-audit.md`, the command file) and :259 (`sc-cleanup-audit-protocol/`, the skill folder). Both stay (plan Constraints). No `cleanup_audit` package name and no node `Q` or `CLEANUP*` remains.

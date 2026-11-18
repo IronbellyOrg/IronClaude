@@ -1,0 +1,5 @@
+matches cleanup: 0
+  - Groups: `sprint`, `roadmap`, `tasklist`, `cli-portify`, `prd`, `eval`, `swarm`, `recommend`, `init-lite`, `reflect`
+- Subpackages: `sprint/`, `roadmap/`, `tasklist/`, `cli_portify/`, `audit/`, `prd/`, `eval/`, `swarm/`, `recommend/`, `reflect/`, `pipeline/`
+46:      "groups": ["sprint", "roadmap", "tasklist", "cli-portify", "prd", "eval", "swarm", "recommend", "init-lite", "reflect"]
+94:      "subpackages": ["sprint", "roadmap", "tasklist", "cli_portify", "audit", "prd", "eval", "swarm", "recommend", "reflect", "pipeline"]

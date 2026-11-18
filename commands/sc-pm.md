@@ -7,13 +7,13 @@ mcp-servers: [context7, magic, playwright, morphllm, tavily, chrome-devtools]
 personas: [pm-agent]
 ---
 
-# /sc:sc:sc:pm - Project Manager Agent (Always Active)
+# /sc:sc:sc:pm - Project Manager Agent
 
-> **Always-Active Foundation Layer**: PM Agent is NOT a mode - it's the DEFAULT operating foundation that runs automatically at every session start. Users never need to manually invoke it; PM Agent seamlessly orchestrates all interactions with continuous context preservation across sessions.
+> **Runs when invoked**: PM Agent does not start by itself at session start and does not restore saved memory by itself. It runs when you invoke `/sc:pm`, and only then reads the `.superclaude/memory/` files of the current project to pick up where the last run left off.
 
-## Auto-Activation Triggers
-- **Session Start (MANDATORY)**: ALWAYS activates to restore context from the `.superclaude/memory/` files
-- **All User Requests**: Default entry point for all interactions unless explicit sub-agent override
+## Triggers
+- **Explicit invocation**: `/sc:pm` restores context from the `.superclaude/memory/` files at the start of that run
+- **Requests handed to PM**: Entry point for the requests you pass to `/sc:pm`, unless an explicit sub-agent override is given
 - **State Questions**: "where did we leave off", "current status", "progress" trigger context report
 - **Vague Requests**: "I want to build", "I want to implement", "how do I" trigger discovery mode
 - **Multi-Domain Tasks**: Cross-functional coordination requiring multiple specialists
@@ -21,10 +21,10 @@ personas: [pm-agent]
 
 ## Context Trigger Pattern
 ```
-# Default (no command needed - PM Agent handles all interactions)
-"Build authentication system for my app"
+# Hand a request to PM Agent (it runs only when invoked)
+/sc:sc:pm "Build authentication system for my app"
 
-# Explicit PM Agent invocation (optional)
+# With options
 /sc:sc:pm [request] [--strategy brainstorm|direct|wave] [--verbose]
 
 # Override to specific sub-agent (optional)
@@ -35,7 +35,7 @@ personas: [pm-agent]
 
 Memory is plain markdown in `<project>/.superclaude/memory/<key>.md`, with subfolders for topics. `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git: one store per worktree. On the first write, if `<project>/.superclaude/.gitignore` is absent, create it with the single line `*`. Single-owner keys (`pm_context`, `last_session`, `next_actions`, `current_plan`) are overwritten whole; keys parallel sessions may write (`checkpoint`, `decision`, handoffs) are written as `<key>-<session-or-timestamp>.md` and never edited in place.
 
-### Session Start Protocol (Auto-Executes Every Time)
+### Start-of-Run Protocol (Runs When PM Is Invoked)
 ```yaml
 1. Context Restoration:
    - Glob `.superclaude/memory/**/*.md` → Check for existing PM Agent state
@@ -221,17 +221,17 @@ Output: Production-ready real-time chat with video
 - **Read/Grep/Glob**: Context gathering for sub-agent coordination
 
 ## Key Patterns
-- **Default Orchestration**: PM Agent handles all user interactions by default
+- **Orchestration**: Once invoked, PM Agent orchestrates the requests handed to it
 - **Auto-Delegation**: Intelligent sub-agent selection without manual routing
 - **Phase-Based MCP**: Dynamic tool loading/unloading for resource efficiency
 - **Self-Improvement**: Continuous documentation of implementations and patterns
 
 ## Examples
 
-### Default Usage (No Command Needed)
+### Plain Request
 ```
-# User simply describes what they want
-User: "Need to add payment processing to the app"
+# User describes what they want and invokes PM
+User: /sc:sc:pm "Need to add payment processing to the app"
 
 # PM Agent automatically handles orchestration
 PM Agent: Analyzing requirements...
@@ -566,7 +566,7 @@ Regular documentation health:
 - Skip documentation or self-improvement recording steps
 
 **User Control:**
-- Default: PM Agent auto-delegates (seamless)
+- Default: once invoked, PM Agent delegates to specialists for you
 - Override: Explicit `--agent [name]` for direct sub-agent access
 - Both options available simultaneously (no user downside)
 

@@ -1,0 +1,14 @@
+# Invariant Probe Results (Round 2.5 — fault-finder, haiku class, disjoint from both MEDIUM-side advocates)
+
+| ID | Category | Assumption | Status | Severity | Evidence |
+|----|----------|------------|--------|----------|----------|
+| INV-001 | state_variables | The ten current files contain the required wording | ADDRESSED | LOW | rg inspection: Constraints sentence present in all nine engineering agents incl. self-review; technical-writer carries sanctioned variant. Also corrects overstatement: ACs are not solely grep counts — they also require a restricted diff and no tools line (plan:19,31,87,94) |
+| INV-002 | guard_conditions | All four reference agents explicitly contain the returns-nothing fallback | UNADDRESSED | LOW | Explicit in 3 of 4: reflect-reviewer.md:64, troubleshoot-analyst.md:27, auggie-reviewer.md:79. reuse-auditor.md:50 gates on freshness without naming empty results. Comparison must be limited to three reference agents |
+| INV-003 | count_divergence | "14 agents, two versions" accurately describes the wording | UNADDRESSED | LOW | 14 distinct files confirmed; NOT two literal wordings: nine targets share one sentence, technical-writer a second, the four references have individually different paragraphs. "Two freshness-gate families" is the defensible phrasing |
+| INV-004 | collection_boundaries | Every target requires identical wording and placement | ADDRESSED | LOW | Plan explicitly permits self-review's own list style and technical-writer's narrower applicability (plan:82-94); both exceptions implemented; prose-only work needs no codegraph |
+| INV-005 | interaction_effects | Plugin divergence and dev-copy verification are the same sync boundary | ADDRESSED | LOW | Separate boundaries: Makefile:165-225 (verify-sync, source vs dev copies) vs build script copies plugin assets separately (build_superclaude_plugin.py:74-77); unrelated dev-copy drift can fail verify-sync independently of the plugin advisory |
+| INV-006 | sufficiency_challenge | Omitting the fallback sentence locally establishes a lost behavioral safeguard sufficient for MEDIUM severity | UNADDRESSED | MEDIUM | Falsifying condition present: the pasted rule incorporates the shared guide by reference, and ~/.claude/CODEGRAPH.md:32 requires continuing on the native floor when a lookup fails or returns nothing, :70 forbids reading empty results as absence, :76 preserves the Grep/Read floor. Local sentence omission real; effective fallback loss NOT established. Retain the inaccurate-attribution finding but do not rest severity on demonstrated behavioral loss |
+
+## Summary
+- Total findings: 6 — ADDRESSED 3, UNADDRESSED 3 (HIGH 0, MEDIUM 1, LOW 2)
+- Gate: count(HIGH + UNADDRESSED) == 0 → convergence NOT blocked. INV-006 (MEDIUM) logged as warning and applied as a rationale correction in the merged verdict.

@@ -1,0 +1,2 @@
+line 315 cleanup-audit matches: 0
+- **The `superclaude` Python CLI**: `install`, `update`, `doctor` and `mcp` set up and check the installation. The `sprint`, `roadmap`, `tasklist`, `eval`, `swarm`, `reflect`, `prd` and `cli-portify` commands are multi-step pipelines: most start Claude Code as

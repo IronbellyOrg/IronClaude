@@ -1,0 +1,74 @@
+# Coverage matrix — UC-1 pre audit (two-pass extraction, D13)
+# Pass 1 (ID_REGEX): 0 parsed IDs — source.md is one unlabeled paragraph
+# Pass 2 (inference): 9 requirement rows, each quote-pinned below
+parsed_count: 0
+inferred_count: 9
+coverage_pct: null            # parsed-only denominator is 0 (parsed-sparse)
+coverage_pct_union: 0.89      # 8/9 full; INF-006 partial
+coverage_degraded: parsed-sparse
+s_dev_density_union: 0.11     # 1 partial row of 9
+
+rows:
+  - id: INF-001
+    source: inferred
+    quote: "Add an explicit globally loaded rule in src/superclaude/core/CLAUDE.md and matching src/superclaude/skills/ccsession-tag/README.md guidance: new ccsession-backed Claude sessions use Claude (CLI), never New Terminal; programmatic creation uses the version-matched Orca agent launch or worktree create --agent, explicit terminal surface when CLI required. Reserve terminal create for shells."
+    citation: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md:1"
+    matched_to: Task 1 AC1
+    status: covered
+    evidence: src/superclaude/core/CLAUDE.md:45-53; src/superclaude/skills/ccsession-tag/README.md:228-237; artifacts/t1-tests.log (red 2 failed -> green 23 passed)
+  - id: INF-002
+    source: inferred
+    quote: "Preserve supervised worker-start/dispatch-preamble rules and internal Agent-tool subagents."
+    citation: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md:1"
+    matched_to: Task 1 AC2
+    status: covered
+    evidence: core/CLAUDE.md:52-53; README:236-237; test pins "supervised workers"/"worker-start"/"dispatch preamble"/"internal Agent-tool subagents"
+  - id: INF-003
+    source: inferred
+    quote: "Repair src/superclaude/cli/install_user_setup.py so install_user_setup(force=True) requests safe refresh even with existing Orca guides; ordinary nonforce setup still skips existing copies."
+    citation: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md:1"
+    matched_to: Task 2 AC1
+    status: covered
+    evidence: install_user_setup.py:279-288 (force bypasses short-circuit), :505 (propagation), test 313-370
+  - id: INF-004
+    source: inferred
+    quote: "Do not forward --force to Orca or overwrite edited guides; show meaningful skipped/warning output rather than claiming refresh succeeded."
+    citation: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md:1"
+    matched_to: Task 2 AC1 + AC2
+    status: covered
+    evidence: install_user_setup.py:292-294 (no --force in command), :313-327 (stdout/stderr relayed, no success claim), test asserts "--force" not in calls[0] and "refreshed" not in message
+  - id: INF-005
+    source: inferred
+    quote: "Add minimal regression checks in tests/cli/test_install_user_setup.py and tests/core/test_orca_session_launch_guidance.py with observed pre-fix failures, force propagation, default skip and nonfatal absent/failing Orca."
+    citation: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md:1"
+    matched_to: Task 1 AC3 + Task 2 AC3
+    status: covered
+    evidence: t1-tests.log (2 failed pre-edit); t2-tests.log (9 failed pre-fix, 157 passed after); default-skip test exists
+  - id: INF-006
+    source: inferred
+    quote: "Canonical edits only then make sync-dev and make verify-sync; never stage .claude mirrors, stage .dev/tasks."
+    citation: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md:1"
+    matched_to: Task 2 AC3 (sync half only)
+    status: partial
+    evidence: sync.log tail "All components in sync"; staging discipline (never stage .claude mirrors / stage .dev/tasks) carried by Constraints bullet 3 with no task AC
+  - id: INF-007
+    source: inferred
+    quote: "No commit/push/PR, global install or other repo edits."
+    citation: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md:1"
+    matched_to: Constraints bullet 2 (no AC)
+    status: partial
+    evidence: constraint without matching AC; post-hoc: progress.md shows no commit token; archived via ARCHIVE start only
+  - id: INF-008
+    source: inferred
+    quote: "Issue412 already contains verified refresh-introducing PR245 and intentional Orca CLI-label PR29074, not shell-causation proof. Actual failing agent transcript and a historical New Terminal semantic-change PR remain unverified; preserve boundary. Current diagnosis independent validation returned partial with static findings verified; runtime cause UNDETERMINED."
+    citation: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md:1"
+    matched_to: Task 1 AC3 + Constraints bullet 1
+    status: covered
+    evidence: t1-tests.log "not a UI reproduction" honesty note; final-review T1.AC1 "selection instructions, not a claim that shell startup changed"
+  - id: INF-009
+    source: inferred
+    quote: "Two-phase bounded plan, no verification-only task."
+    citation: ".dev/tasks/done/TASK-WF-fixIssue412SVeri-20261106-215543/source.md:1"
+    matched_to: Plan structure (Phase 1 -> Phase 2, Task 2 depends on Task 1)
+    status: covered
+    evidence: tasklist:26,39,43 (phases + dependency)

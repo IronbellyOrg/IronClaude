@@ -1,0 +1,29 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 7.0
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 1
+  spec_density: 1
+  ambiguity_signals: 1
+escalation_reason: "S_domains >= 3 (code under src/superclaude/cli and tests, skill Markdown refs, registry YAML and JSON config) fires rule 4; rules 5 (S_dev_density 0.3276 > 0.20) and 6 (C 0.60 < 0.85) also match; the Step 1B.2b parse-density guard (inferred 49 > parsed 9) is a table-wide pre-filter that forbids a Tier-1 stop"
+confidence_calibrated: 0.60
+S_scope: 16
+S_domains: 4
+S_dev_density: 0.3276
+coverage_pct: 0.1111
+coverage_pct_union: 0.6724
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null
+executor_class: null
+executor_class_source: unknown
+executor_class_resolved: false
+reviewer_classes: [sonnet, haiku, opus]
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+calibrator_class: opus
+calibrator_diversity: degraded

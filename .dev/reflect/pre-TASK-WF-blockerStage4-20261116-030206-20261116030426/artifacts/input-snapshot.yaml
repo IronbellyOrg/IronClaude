@@ -1,0 +1,52 @@
+input_tree_sha256: 90593fa7247e4cfc1ffec22b624b7f83cb2203dfb866ec9ffdd96e9fafb5ddc7
+file_list:
+  - path: .claude/settings.json
+    sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage4-20261116-030206/TASK-WF-blockerStage4-20261116-030206.md
+    sha256: 1b03fa0e473edc91b43177cff55ce9b28e123fbf379050739d2cb17205c1ca9c
+  - path: .dev/tasks/to-do/TASK-WF-blockerStage4-20261116-030206/source.md
+    sha256: eddda52ded40efa477a6aa1f4def7039caa67dfe384b77520cecee0d3f470e58
+  - path: plugins/superclaude/commands/spec-panel.md
+    sha256: ac2a64b1f1528dc8d1bd147522869aead0cb2ee9de7d51e62978f843c3aef250
+  - path: plugins/superclaude/rules/prompts/document_review_loop_prompts.md
+    sha256: 75a29b95a21a7113f236d82da71d7ea3b4e43e729bff5be654c08cbc16e93f84
+  - path: src/superclaude/agents/rf-task-builder.md
+    sha256: 0da901a0c7b7985b6655a4981dc14c756005ea20f7dc81032381f284210e815d
+  - path: src/superclaude/commands/spec-panel.md
+    sha256: e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494
+  - path: src/superclaude/rules/prompts/automated_qa_workflow_qa_prompt.md
+    sha256: ff6b492f834ac016407afdca520b002076c91ae66a848e410c6d7c58557db1b7
+  - path: src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md
+    sha256: b0d4a975bba0f20e436491a6415c2016ec3763f8291085acecb0602ae3b40c51
+  - path: src/superclaude/rules/prompts/document_review_loop_prompts.md
+    sha256: 75a29b95a21a7113f236d82da71d7ea3b4e43e729bff5be654c08cbc16e93f84
+  - path: src/superclaude/rules/prompts/documentation_expert_qa_prompt.md
+    sha256: 936e119e218c1c9eb132e04c9e895d4a1dcb6d5f5bfe54a1ef6778348d6937f1
+  - path: src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md
+    sha256: fc36bea33a59565bb121915fb166082aa7c8dbbf6a145df2c75b11686daf74e8
+  - path: src/superclaude/skills/operational-guide/SKILL.md
+    sha256: e212e9a8a9d7cecc00deb38f84de83b165aa2f62bf35f8ad7bcc4437b2aaed97
+  - path: src/superclaude/skills/readme/SKILL.md
+    sha256: 7825123de22c3135526aa5806b37de9fe02bcce676eb49626147d5a222aa952a
+  - path: src/superclaude/skills/sc-implement-protocol/refs/qa.md
+    sha256: 93e232f5d49207624c24da25bc6f2e9a0686b4f7f7ca99a38e4b95f56edaf004
+  - path: src/superclaude/skills/task-builder/SKILL.md
+    sha256: 41b41e6b4a4f8618612d8473e9c54beaadc220b39fcb32ca61fbde67827ef845
+  - path: src/superclaude/skills/tdd/refs/build-request-template.md
+    sha256: d5d14a55e14de37f252c65984c07d893ec277a06c41ec068d9f6e40fddd43f72
+  - path: src/superclaude/skills/tech-reference/SKILL.md
+    sha256: 82bca4bbd3c5215120961225a97d1bfcecfae199ddd1b5d15d04af5cc04f1bfc
+  - path: src/superclaude/templates/documents/agent_template_analysis.md
+    sha256: 49821b43d8415390f31aff44e0f468d74183e95f5f6124f70ce79978df13ea52
+  - path: src/superclaude/templates/documents/agent_template_qa.md
+    sha256: 80763f9cf2934229cf1b5648f1ff346b132a10fd9d382a0e0ec3e46d6b1f17bb
+  - path: src/superclaude/templates/documents/skill_template.md
+    sha256: a15f9efe080281be0501be638daa45b45cd179eb1f7c05177f66c1ec7f1f147a
+  - path: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    sha256: 778d174148e1fa34acce852955df120596226450f4c19c89ac6d416d0d5a002d
+  - path: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    sha256: 2eff71d4cbb208435b3576f29e80b04d8321597d4f21f722a4517b9bb1f73637
+  - path: tests/review/test_review_rules_text.py
+    sha256: d28b6fd30858e105c28a8706b8688df9da1c8c8f7cfc8e953ffa0c98b8da98b6
+file_count: 24
+missing_referenced_paths: []

@@ -1,0 +1,17 @@
+# T10 checks
+AC1 git grep in docs/user-guide and docs/onboarding:
+none
+anchors in docs/: 0
+AC2 mcp-servers Morphllm section:
+### morphllm-fast-apply 🔄
+
+**Purpose**: Efficient pattern-based code transformations
+**Triggers**: Multi-file edits, refactoring, framework migrations
+**Requirements**: Node.js 16+, MORPH_API_KEY
+
+```bash
+# API key setup
+export MORPH_API_KEY="your_key_here"
+```
+
+### tavily 🔍

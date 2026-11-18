@@ -1,0 +1,17 @@
+# sc:adversarial return contract (Mode A, --depth standard, --focus correctness,risk,test-coverage), slot C-09 panel-resolution-and-tier-source
+# status is "partial": all 5 steps ran, the merge applied 14 of 14 planned changes and post-merge validation passed,
+# and convergence is CONVERGED (diff-point agreement 24 of 25 = 0.96, above the 0.80 threshold; taxonomy levels L1, L2, L3 all covered;
+# 0 HIGH UNADDRESSED invariants from Round 2.5). It is "partial" and not "success" because one diff point stays unresolved
+# (C-007, the sort key of the scarcest-first slot order) and the invariant probe left 8 MEDIUM and 5 LOW UNADDRESSED findings (see invariant-probe.md).
+# Flagged for user review per the no_convergence / unresolved-conflict handling.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/panel-resolution-and-tier-source/merged-panel-resolution-and-tier-source.md"
+  convergence_score: 0.96
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/panel-resolution-and-tier-source/adversarial"
+  status: "partial"
+  base_variant: "variant-2 (Proposal B; default model, default persona), selected by tiebreaker level 1 (debate performance: B 6 pure wins, A 2); scores A 0.8969, B 0.8767, margin 0.0202"
+  unresolved_conflicts: 1   # C-007 (sort key of the scarcest-first slot order: A len(aliases[tier].models) vs B servable-candidate count); B's slot_order key and library helper functions (inside C-004) and B's R2 section 4 (g) additions are unanswered by A
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants: []   # no HIGH-severity UNADDRESSED item; the 13 UNADDRESSED findings are 8 MEDIUM (INV-001, 005, 009, 010, 012, 019, 021, 026) and 5 LOW (INV-003, 004, 011, 017, 018), listed in invariant-probe.md

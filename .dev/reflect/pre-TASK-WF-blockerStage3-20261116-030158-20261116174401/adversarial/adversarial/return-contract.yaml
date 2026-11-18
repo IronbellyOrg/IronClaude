@@ -1,0 +1,13 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116174401/adversarial/merged-review-card.md"
+  convergence_score: 0.889
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116174401/adversarial/adversarial/"
+  status: "partial"          # two HIGH UNADDRESSED invariants carried into the card instead of debated in a Round 3 (depth standard)
+  base_variant: "variant-2-original.md (reviewer-2, qa, opus)"
+  unresolved_conflicts: 1    # X-001: the two advocates split after Round 2; settled by evidence (SKILL.md:131 before :140; retry.md:109, :158)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-001, category: sufficiency_challenge, assumption: "Rewriting the Task 5 acceptance lines makes the seeded-recall gate sound", severity: HIGH}
+    - {id: INV-003, category: collection_boundaries, assumption: "The with-and-without recall variants are computable", severity: HIGH}

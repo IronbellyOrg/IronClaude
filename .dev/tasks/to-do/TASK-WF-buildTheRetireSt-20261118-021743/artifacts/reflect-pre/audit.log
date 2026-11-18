@@ -1,0 +1,8 @@
+{wave: 0, step: 1, timestamp: 2026-11-18T02:19:03Z, outcome: ok, evidence_ref: null}   # mode pre (explicit), tier pin 1, --no-promote (UC-2 only, ignored)
+{wave: 0, step: 4, timestamp: 2026-11-18T02:19:03Z, outcome: ok, evidence_ref: ./artifacts/input-snapshot.yaml}
+{wave: 0, step: 5, timestamp: 2026-11-18T02:19:03Z, outcome: skip, evidence_ref: null}   # --tier 1 pin: aliases not needed; no Tier 2
+{wave: 0, step: 7, timestamp: 2026-11-18T02:19:03Z, outcome: skip, evidence_ref: null}   # memory hydrate skipped: no reflect memory files for this slug
+{wave: 1, step: 1B.0, timestamp: 2026-11-18T02:19:03Z, outcome: ok, evidence_ref: ./REPORT.md}
+{wave: 1, step: 1D, timestamp: 2026-11-18T02:19:03Z, outcome: warn, evidence_ref: null}   # calibration: inline-fallback (no subagents allowed in this session by standing user rule)
+{wave: 2, step: gate, timestamp: 2026-11-18T02:19:03Z, outcome: ok, evidence_ref: null}   # --tier 1 hard override
+{wave: 5, step: validator, timestamp: 2026-11-18T02:19:03Z, outcome: warn, evidence_ref: null}   # evidence-validator replaced by inline re-Read; status partial

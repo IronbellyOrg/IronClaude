@@ -1,10 +1,10 @@
 """Pipeline executor -- generic step sequencer with retry, gates, and parallel dispatch.
 
-Composition-via-callable design: consumers (sprint, roadmap) inject their own
+Composition-via-callable design: consumers inject their own
 StepRunner and callbacks. The executor handles step ordering, retry logic,
 parallel dispatch, and state management.
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations
@@ -277,8 +277,7 @@ def _execute_single_step(
             on_step_complete(step, result)
             return result
 
-        # Cosmetic-failure auto-remediation lane (see
-        # cli/roadmap/cosmetic_remediator.py). Activated when the consumer
+        # Cosmetic-failure auto-remediation lane. Activated when the consumer
         # registered a remediator via PipelineConfig and the flag is on.
         # The remediator rewrites the file in place; we re-check the gate
         # against the rewritten content. On success we record PASS with

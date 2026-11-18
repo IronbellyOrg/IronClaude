@@ -1,0 +1,31 @@
+# T2 checks
+AC1 grep (expect only routing-guide, handled by T3):
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:22:**Hard limit:** if the work needs more than 5 e
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:172:   `/sc:cleanup src/billing/ --type code --saf
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:250:| Contained improvement | `/sc:improve <folder
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:365:| cleanup | requested contained cleanup; not r
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:377:| contained-improve | explicitly improve quali
+AC3 BPE context:
+159-**Strategy Development**: discussion @market_research → debate @competitive → socratic synthesis → /design strategy
+160:**Innovation Pipeline**: /sc:business-panel --focus innovation → /analyze opportunities --think
+161-**Risk Review**: /sc:business-panel --experts taleb,meadows,porter → debate assumptions → /implement mitigation --validate
+162-
+163-## Customization Options
+### Combined with /analyze
+
+```bash
+/analyze @business_model.md --business-panel
+
+# Technical analysis followed by business expert panel review
+```
+
+### Combined with /design
+
+```bash
+/design business-model --business-panel --experts "drucker,porter,kim_mauborgne"
+
+198:### Innovation Pipeline Assessment
+199-
+200-```yaml
+201-workflow_stages:
+202-  stage_1: "/sc:business-panel @innovation_portfolio.xlsx --focus innovation"

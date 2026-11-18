@@ -75,14 +75,6 @@
 # Technical analysis followed by business expert panel review
 ```
 
-### Combined with /improve  
-
-```bash
-/improve @strategy_doc.md --business-panel --iterative
-
-# Iterative improvement with business expert validation
-```
-
 ### Combined with /design
 
 ```bash
@@ -208,8 +200,7 @@ workflow_stages:
 ```yaml
 workflow_stages:
   stage_1: "/sc:business-panel @innovation_portfolio.xlsx --focus innovation"
-  stage_2: "/improve @product_roadmap.md --business-panel"
-  stage_3: "/analyze @market_opportunities.pdf --business-panel --think"
+  stage_2: "/analyze @market_opportunities.pdf --business-panel --think"
 ```
 
 ### Risk Management Review

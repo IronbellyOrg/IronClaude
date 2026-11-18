@@ -1,0 +1,6 @@
+T2 checks
+grep_rc=1
+docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md:722:| `WORKER-
+......                                                                   [100%]
+
+============================= 884 passed in 3.42s ==============================

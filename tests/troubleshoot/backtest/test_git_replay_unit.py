@@ -1,7 +1,6 @@
 """Unit tests for the git-replay helper -- subprocess-mocked, zero real git side effects.
 
-Patches the MODULE-ALIASED ``git_replay._subprocess.run`` (mirroring
-``tests/sprint/test_process.py``'s ``patch("...process._subprocess.run")`` convention) so the
+Patches the MODULE-ALIASED ``git_replay._subprocess.run`` so the
 checkout -> yield -> guaranteed-teardown control flow runs in milliseconds. Function names are
 prefixed ``test_backtest_*`` to stay distinct from the impl suite's ``test_hardening_*`` nodeids.
 """

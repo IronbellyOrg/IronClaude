@@ -1,0 +1,15 @@
+parsed_count: 0
+inferred_count: 6
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+S_dev_density: 0.0
+rows:
+  - {requirement_id: INF-001, source: inferred, quote: "Implement FR-ONB.1 only (Part A)", citation: ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/source.md:1", matched_task_ids: [Task 1, Task 2, Task 3], match_method: containment}
+  - {requirement_id: INF-002, source: inferred, quote: "every bullet and acceptance criterion in FR-ONB.1", citation: ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/source.md:1", matched_task_ids: [Task 1, Task 2, Task 3, Task 4, Task 5, Task 6, Task 7], match_method: containment}
+  - {requirement_id: INF-003, source: inferred, quote: "the Part A rows of section 4.2 (all FR-ONB.1 wording is approved by the user on 2026-10-23, including the level 5 re-point)", citation: ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/source.md:1", matched_task_ids: [Task 1], match_method: containment}
+  - {requirement_id: INF-004, source: inferred, quote: "Work in the current repository (this worktree)", citation: ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/source.md:1", matched_task_ids: [Task 3], match_method: containment}
+  - {requirement_id: INF-005, source: inferred, quote: "Do not build the onboarding deck (FR-ONB.2-7) or file issues", citation: ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/source.md:1", matched_task_ids: [Constraints], match_method: containment}
+  - {requirement_id: INF-006, source: inferred, quote: "Keep src/superclaude/core/HOW-WE-WORK.md, its byte-for-byte copy plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md, and the level-table copy in src/superclaude/core/CLAUDE.md in sync; run make sync-dev; never stage .claude/", citation: ".dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/source.md:1", matched_task_ids: [Task 3, Task 4], match_method: containment}

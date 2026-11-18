@@ -21,7 +21,7 @@ Notes:
 - The brainstorm model list defaults to `opus,sonnet,haiku`, rotated across proposals, and takes aliases only; the brainstorm rows use these defaults. In a ccsession tier workspace the launcher sets each `ANTHROPIC_DEFAULT_*_MODEL` for a tier the owner may use, so those aliases map to the `tier1a`, `tier1b` and `tier2` picker ids (`claude-gw-` prefix); an alias for a tier the owner may not use keeps its inherited value, and outside a tier workspace the aliases keep Claude Code's meaning (`docs/reference/model-aliases.md`). The session tier itself is pinned by the `/model` line (default D25).
 - `/sc:design --type` is chosen per issue by `/sc:recommend` from the four values the command accepts.
 
-No brainstorm step carries a handoff flag: the tasklist handoff feeds `/sc:tasklist`, not `/sc:workflow`, and the design handoff only prints a suggestion (B11), so `/sc:workflow` and `/sc:design` run as their own steps.
+No brainstorm step carries a handoff flag: the `task` handoff feeds `/task-builder`, not `/sc:workflow`, and the design handoff only prints a suggestion (B11), so `/sc:workflow` and `/sc:design` run as their own steps.
 
 ## Goal sent to `/sc:recommend` (claim Wave 5 step 1)
 

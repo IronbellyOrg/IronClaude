@@ -47,9 +47,9 @@ def test_skill_check_resolves_direct_and_namespaced_dependencies(tmp_path):
     skills_dir = tmp_path / "skills"
     commands_dir = tmp_path / "commands" / "sc"
     _write_command(commands_dir, "recommend", "sc-recommend")
-    _write_command(commands_dir, "roadmap", "sc:roadmap-protocol")
+    _write_command(commands_dir, "reflect", "sc:reflect-protocol")
     _write_skill(skills_dir, "sc-recommend")
-    _write_skill(skills_dir, "sc-roadmap-protocol")
+    _write_skill(skills_dir, "sc-reflect-protocol")
 
     result = _check_skills_installed(skills_dir=skills_dir, commands_dir=commands_dir)
 
@@ -330,3 +330,34 @@ def test_run_doctor_includes_the_codegraph_check(cg_home):
     assert any(
         c["name"] == "codegraph MCP registration" for c in run_doctor()["checks"]
     )
+
+
+_MISSING_LINE = "no codegraph registration; run `superclaude install`"
+
+
+def _doctor_output(*args):
+    from click.testing import CliRunner
+
+    from superclaude.cli.main import main
+
+    return CliRunner().invoke(main, ["doctor", *args]).output
+
+
+def test_doctor_prints_the_missing_codegraph_registration_without_verbose(cg_home):
+    output = _doctor_output()
+    lines = output.splitlines()
+    heading = lines.index("✅ codegraph MCP registration")
+    assert lines[heading + 1].strip() == _MISSING_LINE
+    # The other detail lines stay behind --verbose.
+    assert "Ready for Serena retirement" not in output
+
+
+def test_doctor_prints_the_missing_registration_once_with_verbose(cg_home):
+    output = _doctor_output("--verbose")
+    assert output.count(_MISSING_LINE) == 1
+    assert "Ready for Serena retirement" in output
+
+
+def test_doctor_prints_no_missing_line_when_codegraph_is_registered(cg_home):
+    _register(cg_home, _stub(cg_home.tmp / "good" / "codegraph"))
+    assert _MISSING_LINE not in _doctor_output()

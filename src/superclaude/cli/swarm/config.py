@@ -1,8 +1,7 @@
 """Swarm configuration -- SwarmConfig dataclass + path resolution.
 
 T01.09 (COMP-003): immutable runtime configuration for the
-``superclaude swarm`` CLI verb. Mirrors the role of
-``cli/sprint/config.py::SprintConfig`` but enforces ``frozen=True``
+``superclaude swarm`` CLI verb. It enforces ``frozen=True``
 semantics so downstream pipeline stages (manifest snapshot DM-016,
 dispatch M3, ResultContract emit DM-012) read from a single source of
 truth: in-place mutation would silently break INV-001 / INV-016

@@ -1,0 +1,9 @@
+card: t1-card.md
+calibrator_agent: confidence-calibrator (opus class; blind: card only)
+calibrated_C: 0.66
+self_reported: 0.78
+dimensions: {citation_grounding: 0.88, coverage_completeness: 0.80, deviation_classification_clarity: 0.45, risk_surface_coverage: 0.70, recommendation_actionability: 0.45}
+citations_spot_checked: 32
+citations_matched: 31
+mismatch: "H1 quote at P4:114 'a registered `digest` row' is not verbatim on that line (the point it supports holds)"
+escalation: ESCALATE (C < 0.85); coverage_degraded parsed-sparse forces Tier 2 as well

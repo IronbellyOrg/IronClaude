@@ -78,20 +78,21 @@ NFR_CONV_2_DOC = REPO_ROOT / "docs" / "reference" / "nfr-conv-2-prose-determinis
 # index.
 # ---------------------------------------------------------------------------
 PASS_BULLET = (
-    "- **PASS** — No CRITICAL or IMPORTANT gaps; any MINOR gaps are listed "
+    "- **PASS** — No blocking gap exists; any Medium or Note gaps are listed "
     "as notes. Green light for synthesis."
 )
 FAIL_BULLET = (
-    "- **FAIL** — Any CRITICAL or IMPORTANT gap exists. List each with a "
+    "- **FAIL** — Any blocking gap exists. List each with a "
     "specific remediation action. All blocking gaps must be resolved before "
-    "proceeding; MINOR gaps never fail the gate."
+    "proceeding; Medium and Note gaps never fail the gate."
 )
 
 # Roadmap anchor — the CRITICAL / IMPORTANT / MINOR scale the research-gate
 # verdict rule grades against.
 SEVERITY_TRIPLE = ("CRITICAL", "IMPORTANT", "MINOR")
 
-# Blocking severities under the review severity rule: only these fail the gate.
+# Label scale of this test's sample-report scorer; it does not define the grade
+# (the scorer reads labels in a fixture report).
 BLOCKING_SEVERITIES = frozenset({"CRITICAL", "IMPORTANT"})
 
 

@@ -1,0 +1,283 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-b
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 293 items
+
+tests/skills/test_issue_protocol.py .................................... [ 12%]
+........................................................................ [ 36%]
+...........                                                              [ 40%]
+tests/skills/test_issue_orca_worktree.py ............................... [ 51%]
+.................................................FFFFFFFFFF.FFFFFFFFFFFF [ 75%]
+F.FFFFFF..FF.F.FFFFFF.......................F.............FFFF.FF......  [100%]
+
+=================================== FAILURES ===================================
+E   AssertionError: assert ('failed' == 'launched'
+      
+      - launched
+      + failed)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1333: AssertionError: assert ('failed' == 'launched'
+E   ValueError: not enough values to unpack (expected 1, got 0)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1374: ValueError: not enough values to unpack (expected 1, got 0)
+E   ValueError: not enough values to unpack (expected 1, got 0)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1374: ValueError: not enough values to unpack (expected 1, got 0)
+E   ValueError: not enough values to unpack (expected 1, got 0)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1374: ValueError: not enough values to unpack (expected 1, got 0)
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-coder/pytest-746/test_la2_launch_nonce_is_fresh0/home/.claude/state/launch-level/pending'
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/pathlib.py:931: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-coder/pytest-746/test_la2_launch_nonce_is_fresh0/home/.claude/state/launch-level/pending'
+E   AssertionError: assert ('failed' == 'failed'
+      
+        failed and 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-FAILED'
+      
+      - W-LAUNCH-FAILED
+      + W-ENFORCEMENT-ABSENT)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1442: AssertionError: assert ('failed' == 'failed'
+E   AssertionError: assert ('failed' == 'failed'
+      
+        failed and 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-FAILED'
+      
+      - W-LAUNCH-FAILED
+      + W-ENFORCEMENT-ABSENT)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1442: AssertionError: assert ('failed' == 'failed'
+E   AssertionError: assert ('failed' == 'failed'
+      
+        failed and 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-FAILED'
+      
+      - W-LAUNCH-FAILED
+      + W-ENFORCEMENT-ABSENT)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1442: AssertionError: assert ('failed' == 'failed'
+E   AssertionError: assert ('failed' == 'failed'
+      
+        failed and 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-FAILED'
+      
+      - W-LAUNCH-FAILED
+      + W-ENFORCEMENT-ABSENT)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1442: AssertionError: assert ('failed' == 'failed'
+E   AssertionError: assert ('failed' == 'failed'
+      
+        failed and 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-FAILED'
+      
+      - W-LAUNCH-FAILED
+      + W-ENFORCEMENT-ABSENT)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1460: AssertionError: assert ('failed' == 'failed'
+E   AssertionError: assert ('failed' == 'launched'
+      
+      - launched
+      + failed)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1492: AssertionError: assert ('failed' == 'launched'
+E   AssertionError: assert ('failed' == 'launched'
+      
+      - launched
+      + failed)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1506: AssertionError: assert ('failed' == 'launched'
+E   AssertionError: assert ('failed' == 'launched'
+      
+      - launched
+      + failed)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1530: AssertionError: assert ('failed' == 'launched'
+E   AssertionError: assert ('failed' == 'launched'
+      
+      - launched
+      + failed)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1530: AssertionError: assert ('failed' == 'launched'
+E   AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-L2-ABSENT'
+      
+      - W-L2-ABSENT
+      + W-ENFORCEMENT-ABSENT
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1542: AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-L2-ABSENT'
+E   AssertionError: assert ('failed' == 'launched'
+      
+      - launched
+      + failed)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1560: AssertionError: assert ('failed' == 'launched'
+E   AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+      
+      - W-LAUNCH-NOT-CCSESSION
+      + W-ENFORCEMENT-ABSENT
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1595: AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+E   AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+      
+      - W-LAUNCH-NOT-CCSESSION
+      + W-ENFORCEMENT-ABSENT
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1595: AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+E   AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+      
+      - W-LAUNCH-NOT-CCSESSION
+      + W-ENFORCEMENT-ABSENT
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1595: AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+E   AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+      
+      - W-LAUNCH-NOT-CCSESSION
+      + W-ENFORCEMENT-ABSENT
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1595: AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+E   AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+      
+      - W-LAUNCH-NOT-CCSESSION
+      + W-ENFORCEMENT-ABSENT
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1595: AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+E   AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+      
+      - W-LAUNCH-NOT-CCSESSION
+      + W-ENFORCEMENT-ABSENT
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1595: AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+E   AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+      
+      - W-LAUNCH-NOT-CCSESSION
+      + W-ENFORCEMENT-ABSENT
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1595: AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-LAUNCH-NOT-CCSESSION'
+E   AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-L2-ABSENT'
+      
+      - W-L2-ABSENT
+      + W-ENFORCEMENT-ABSENT
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1633: AssertionError: assert 'W-ENFORCEMENT-ABSENT' == 'W-L2-ABSENT'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1652: AssertionError: assert 'failed' == 'launched'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1652: AssertionError: assert 'failed' == 'launched'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1652: AssertionError: assert 'failed' == 'launched'
+E   AssertionError: assert ('failed' == 'launched'
+      
+      - launched
+      + failed)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1664: AssertionError: assert ('failed' == 'launched'
+E   AssertionError: assert None == 'term_deep'
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1679: AssertionError: assert None == 'term_deep'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1721: AssertionError: assert 'failed' == 'launched'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1721: AssertionError: assert 'failed' == 'launched'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1746: AssertionError: assert 'failed' == 'launched'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1826: AssertionError: assert 'failed' == 'launched'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1826: AssertionError: assert 'failed' == 'launched'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1826: AssertionError: assert 'failed' == 'launched'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1826: AssertionError: assert 'failed' == 'launched'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1826: AssertionError: assert 'failed' == 'launched'
+E   AssertionError: assert ('failed' == 'launched'
+      
+      - launched
+      + failed)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:1845: AssertionError: assert ('failed' == 'launched'
+E   AssertionError: assert ['this host l... Linux only)'] == []
+      
+      Left contains one more item: 'this host lacks /proc/sys/kernel/random/boot_id, which the job identity hook needs (governed launches are Linux only)'
+      Use -v to get more diff
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:2062: AssertionError: assert ['this host l... Linux only)'] == []
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:2266: AssertionError: assert 'failed' == 'launched'
+E   assert 0 == 1
+     +  where 0 = len([])
+     +    where [] = launch_calls(<tests.skills.test_issue_orca_worktree.FakeOrca object at 0x7983bfe67350>)
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:2276: assert 0 == 1
+E   AssertionError: assert 'failed' == 'already_launched'
+      
+      - already_launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:2304: AssertionError: assert 'failed' == 'already_launched'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:2319: AssertionError: assert 'failed' == 'launched'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:2356: AssertionError: assert 'failed' == 'launched'
+E   AssertionError: assert 'failed' == 'launched'
+      
+      - launched
+      + failed
+/home/coder/workspaces/worktrees/IronClaude/claim-handoff-b/tests/skills/test_issue_orca_worktree.py:2378: AssertionError: assert 'failed' == 'launched'
+=========================== short test summary info ============================
+FAILED tests/skills/test_issue_orca_worktree.py::test_la1_launch_argument_list_is_exact
+FAILED tests/skills/test_issue_orca_worktree.py::test_la2_launch_record_is_private_and_published_before_the_launch[worktree-False-worktree]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la2_launch_record_is_private_and_published_before_the_launch[full-False-full]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la2_launch_record_is_private_and_published_before_the_launch[full-True-full-submit]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la2_launch_nonce_is_fresh_for_every_launch
+FAILED tests/skills/test_issue_orca_worktree.py::test_la3_launch_failure_removes_the_record_and_prints_a_hand_command[nonzero]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la3_launch_failure_removes_the_record_and_prints_a_hand_command[ok-false]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la3_launch_failure_removes_the_record_and_prints_a_hand_command[not-json]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la3_launch_failure_removes_the_record_and_prints_a_hand_command[timeout]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la3_launch_with_an_unwritable_record_store_makes_no_launch_call
+FAILED tests/skills/test_issue_orca_worktree.py::test_la4_launch_record_update_failure_never_says_to_rerun_the_claim
+FAILED tests/skills/test_issue_orca_worktree.py::test_la4_launch_entry_is_written_even_when_the_shim_check_fails
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_passes_on_either_text[tag]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_passes_on_either_text[question]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_retries_up_to_five_times
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_passes_on_the_session_name_in_the_tab_title
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_ignores_a_title_that_is_not_ccsessions[other]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_ignores_a_title_that_is_not_ccsessions[no-stamp]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_ignores_a_title_that_is_not_ccsessions[no-clock]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_ignores_a_title_that_is_not_ccsessions[nonce-not-hex]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_ignores_a_title_that_is_not_ccsessions[stamp-too-long]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_ignores_a_title_that_is_not_ccsessions[none]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_ignores_a_title_that_is_not_ccsessions[int]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_title_may_appear_on_a_later_try
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_failure_keeps_the_launch_and_warns[no-match]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_failure_keeps_the_launch_and_warns[unreadable]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_shim_check_failure_keeps_the_launch_and_warns[no-tail]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_without_a_terminal_handle_warns_and_reads_nothing
+FAILED tests/skills/test_issue_orca_worktree.py::test_la5_launch_handle_is_found_anywhere_in_the_result
+FAILED tests/skills/test_issue_orca_worktree.py::test_la6_launch_with_the_hook_installed_has_only_the_l2_warning[default]
+FAILED tests/skills/test_issue_orca_worktree.py::test_la6_launch_with_the_hook_installed_has_only_the_l2_warning[config-dir-same]
+FAILED tests/skills/test_issue_orca_worktree.py::test_ir6_launched_result_states_the_release_and_both_layers
+FAILED tests/skills/test_issue_orca_worktree.py::test_ir6_l2_status_follows_the_git_hook_path[no-file-absent]
+FAILED tests/skills/test_issue_orca_worktree.py::test_ir6_l2_status_follows_the_git_hook_path[not-executable-absent]
+FAILED tests/skills/test_issue_orca_worktree.py::test_ir6_l2_status_follows_the_git_hook_path[foreign-executable-absent]
+FAILED tests/skills/test_issue_orca_worktree.py::test_ir6_l2_status_follows_the_git_hook_path[hooks-path-unsupported]
+FAILED tests/skills/test_issue_orca_worktree.py::test_ir6_l2_status_follows_the_git_hook_path[hooks-path-elsewhere-unsupported]
+FAILED tests/skills/test_issue_orca_worktree.py::test_ir7_l2_absent_warns_and_the_launch_proceeds
+FAILED tests/skills/test_issue_orca_worktree.py::test_ir4_non_linux_host_is_refused
+FAILED tests/skills/test_issue_orca_worktree.py::test_pr425_launch_record_never_follows_a_planted_temp_symlink
+FAILED tests/skills/test_issue_orca_worktree.py::test_pr425_launch_is_remembered_when_the_issue_is_reclaimed_inside_the_worktree
+FAILED tests/skills/test_issue_orca_worktree.py::test_pr425_launch_is_remembered_in_the_worktree_for_a_later_main_checkout_claim
+FAILED tests/skills/test_issue_orca_worktree.py::test_pr425_a_replacement_worktree_does_not_inherit_the_old_launch_entry
+FAILED tests/skills/test_issue_orca_worktree.py::test_pr425_round2_prompt_of_a_live_launch_is_kept
+FAILED tests/skills/test_issue_orca_worktree.py::test_pr425_round2_prompt_is_rendered_again_for_a_replacement_worktree
+======================= 45 failed, 248 passed in 36.40s ========================
+done

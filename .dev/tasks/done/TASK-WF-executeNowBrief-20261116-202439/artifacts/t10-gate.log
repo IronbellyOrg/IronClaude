@@ -1,0 +1,25 @@
+== grep (each pattern expected to match nothing)
+== pytest
+.                                                                        [100%]
+
+============================= 684 passed in 22.75s =============================
+== ruff
+All checks passed!
+== remaining 'not passed' wording near QUESTION-OBSERVATION in the task's files (expect only QUESTION_GATE_TEXT at commands.py)
+src/superclaude/cli/observe/commands.py:69:    "question read not enabled: QUESTION-OBSERVATION has not passed"  # PROPOSED wording
+.dev/issues/409/bmad/prd-orca-observer/prd.md:464:1. **Visual direction (DIRECTION-SELECTED).** Dated, owner-written selection record (never an agent): (a) default while no question rows exi
+== guard-test strings still in commands.py
+64:# the owner gave a record that QUESTION-OBSERVATION passed (release-gates.md, "Agents
+65:# cite the owner's statement"); plan Task 18 flipped it only against that
+== help tests
+
+============================== 40 passed in 1.69s ==============================
+== files changed
+ tests/observe/test_fixtures.py                     | 14 ++++++--
+ tests/observe/test_golden_contract.py              |  5 ---
+ tests/observe/test_question_quiet_scope.py         | 14 --------
+ tests/observe/test_questions.py                    |  4 +--
+ tests/observe/test_render.py                       |  7 +---
+ tests/observe/test_snapshot_schema.py              | 17 +++++-----
+ tests/observe/test_terminal.py                     | 35 +-------------------
+ 23 files changed, 61 insertions(+), 214 deletions(-)

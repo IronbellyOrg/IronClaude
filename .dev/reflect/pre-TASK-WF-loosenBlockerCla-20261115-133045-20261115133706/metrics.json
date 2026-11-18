@@ -1,0 +1,51 @@
+{
+  "metrics_schema_version": "1.0",
+  "run_id": "2026-11-15T14:34:06Z-reflect-pre",
+  "skill": "sc-reflect",
+  "skill_version": "1.8.0",
+  "mode": "pre",
+  "tier_reached": 2,
+  "status": "partial",
+  "calibration": {
+    "calibrator_diversity": "full",
+    "calibrated_confidence_initial": 0.68,
+    "calibrated_confidence_final": 0.81,
+    "calibration_delta": 0.13
+  },
+  "ensemble": {
+    "t2_model_class_diversity": "degraded",
+    "t2_vendor_diversity": "single",
+    "t2_effective_diversity": "none",
+    "reviewer_count": 2,
+    "executor_class_resolved": true,
+    "executor_exclusion_degraded": false
+  },
+  "evidence_validator": {
+    "ran": true,
+    "citations_total": 135,
+    "citations_revalidated": 126,
+    "citations_dropped": 2,
+    "citations_dropped_extrapolated": 2,
+    "drop_rate": 0.0159,
+    "budget_policy": "sampled"
+  },
+  "adversarial": {
+    "convergence_score": 0.83,
+    "merge_method": "adversarial",
+    "adversarial_unavailable": false,
+    "fallback_path": null
+  },
+  "promotion": {
+    "action": "not-applicable",
+    "gate_conditions_passed": 0,
+    "gate_conditions_total": 9,
+    "cross_fs": false
+  },
+  "degraded_components": [
+    "executor_class_inferred",
+    "t2_vendor_single",
+    "t2_model_class_degraded"
+  ],
+  "input_drift_detected": false,
+  "needs_human_decision": false
+}

@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-removeScIndexAnd-20261118-004719
+plan_path: ./TASK-WF-removeScIndexAnd-20261118-004719.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/v6-index/.dev/reflect/pre-TASK-WF-removeScIndexAnd-20261118005023/REPORT.md
+unresolved:
+  - "Reflect ran at Tier 1 only (--depth quick, no subagents): spec labeling is sparse (coverage_degraded parsed-sparse), union coverage 0.67; the three unmapped rows are the whole-run checks the executor verifies."

@@ -1,0 +1,17 @@
+merge_method: adversarial
+verdict: "revise"
+convergence_score: 0.8947
+base_variant: "variant-1 (analyzer, sonnet class)"
+source_cards:
+  - "reviewer-cards/reviewer-1-card.md"
+  - "reviewer-cards/reviewer-2-card.md"
+  - "reviewer-cards/reviewer-3-card.md"
+judge_identity: "claude-gw-tier1b[1m] (orchestrator model; not a reviewer pin, not Fable, not Tier 0)"
+judge_class_collision: false
+debate_skipped_similar: false
+adversarial_artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboE-r1/adversarial/adversarial"
+merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboE-r1/adversarial/merged-output.md"
+merged_findings:
+  blocking: ["M1", "M2"]
+  major_non_blocking: ["M3", "M5", "M6"]
+  minor: ["M4", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15"]

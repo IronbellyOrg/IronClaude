@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-blockerStage3-20261116-030158
+plan_path: ./TASK-WF-blockerStage3-20261116-030158.md
+source_path: ./source.md
+source_origin: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/stage-requests/stage3-request.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: skipped
+reflect_report_path: null
+unresolved:
+  - "This contract was written by the stage 0 and 1 worker session on 2026-11-17 because the package had none and /sc:implement refuses a managed plan without one. The plan was generated and trimmed to 10 tasks on 2026-11-16 by the planning session; this file does not record a fresh /sc:workflow run."
+  - "The pre-execution /sc:reflect review of the trimmed plan was never run (the stage ledger says 'reviewer pass owed'); reflect_status is skipped. The owner said 'Start stage 3' in chat on 2026-11-17 without it."

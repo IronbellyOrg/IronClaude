@@ -1,0 +1,104 @@
+contract_version: "1.8.0"
+status: partial                 # reflect protocol: success (0 citations dropped, validator ran); forced to partial here because REPORT.md could not be written (see report_blocked)
+mode: pre
+tier_reached: 2
+report_path: null
+report_blocked: "The Write tool refused REPORT.md: 'Subagents should return findings as text, not write report files.' No other route to the same file was tried. The findings, with all 76 card citations, are in findings_path and in the run's final message."
+findings_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116030420/adversarial/merged-review-card.md"
+audit_log_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116030420/audit.log"
+confidence_calibrated: 0.81     # mean of the two reviewer-card calibrations (0.83 and 0.79); T1 card calibrated 0.79
+escalation_rule_matched: 4
+onboarding_ran: false
+verdict: NEEDS-REVISION
+coverage_pct: null
+coverage_pct_union: 0.72
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-004, INF-006, INF-008, INF-010, INF-019, INF-023, INF-025]   # mechanical; a manual read maps all but INF-019 (partial) and INF-023 (absent)
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 920d9e781eb58c7cf24d715b91cf94b66a11f03e409be2d38cb247f48c1d3b81
+  spec: 7534cda1abccab5d31f136f801214e0f09f31581c5fcc74ef55f276eb00371ef
+input_tree_sha256: 764d88199c4e1b1a6d3e74397f2fa435f513748610d0e5ba348af255a9f5db72
+input_tree_file_count: 31
+input_tree_snapshot_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116030420/artifacts/input-snapshot.yaml"
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 126
+citations_revalidated: 126
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [reviewer-cards/reviewer-1-card.md, reviewer-cards/reviewer-2-card.md]
+adversarial_artifacts_dir: ".dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116030420/adversarial/adversarial/"
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: full
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+findings: {total: 15, blocking: 7, non_blocking: 8}
+blocking_titles:
+  F1: "Task 1's 5-run entry check reads a stage 2 summary that cannot show 5 runs, and its entry checks run after the spawn"
+  F2: "Seeded-recall measurement carries the old rule in both passes (hook injection), reviewers not matched"
+  F3: "Task 3 gate has no outcome for an advisory class, a zero cosmetic base or a small n"
+  F4: "Switch steps after the repository edit (release, refresh, install check) are never stated or checked"
+  F5: "Registry drift test omitted from Task 8; Tasks 4 and 5 do not check the row reads v2"
+  F6: "Task 11 must state that no revert trigger can be judged, but RT1 (seeded set) and RT3 can be"
+  F7: "Task 11 names M12 but nothing produces its stage 2 baseline (or the M10b and M1 baselines)"
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+telemetry:
+  reviewer_models: [haiku, opus]
+  reviewer_personas: [analyzer, qa]
+  reviewer_vendors: [anthropic, anthropic]
+  degraded_components: [env-aliases-partial]
+  fallback_path: null
+  executor_class_source: log-heuristic
+  executor_class_resolved: true
+  executor_exclusion_degraded: false
+  memory_hits: 2
+  memory_misses: 1
+  t2_engine_requested: null
+  t2_engine_effective: legacy
+  reviewer_briefs_materialized: 2
+  zero_drop_flag: true

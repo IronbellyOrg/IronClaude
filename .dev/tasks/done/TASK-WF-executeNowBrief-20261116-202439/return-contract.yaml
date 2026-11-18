@@ -1,0 +1,16 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-executeNowBrief-20261116-202439
+plan_path: ./TASK-WF-executeNowBrief-20261116-202439.md
+source_path: ./source.md
+source_origin: .dev/issues/409/ponytail-review-20261116/cuts-debate/execute-now-brief.md
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: null
+unresolved:
+  - "reflect --mode pre ended partial: no REPORT.md was written (the harness refused a subagent write); findings and the contract are in .dev/reflect/pre-executeNowBrief-20261116204114/ (return-contract.yaml, t1-card.md, adversarial/merged-verdict.yaml)"
+  - "2026-11-16, before any task ran and with the owner's approval (reply 'Edit in place'), the 8 defects below were corrected in the plan file by hand, a deliberate departure from the rule that workflow never edits the plan from reflect findings; no ledger existed yet, so no pinned hash changed"
+  - "reflect found 8 plan defects (now corrected in the plan, see the line above): Task 4 and Task 5 acceptance greps match test names; Task 10 may drop the strings release-gates.md and Task 18 that tests/observe/test_commands.py requires in the commands.py comment; Task 8 import wording would drop snapshot_json; Task 3 needs an apply_frozen import; Tasks 5 and 12 cite commands.py:177-178, which Task 4 shifts; source lines 52 and 53 (run-use grep, git status check) have no plan item; two orphan comments (terminal.py:41, collector.py:102)"

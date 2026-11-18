@@ -1,0 +1,530 @@
+{
+  "agreement_clusters": [],
+  "blocking_clusters": 0,
+  "calibration_coverage": {
+    "calibrated_findings": 12,
+    "clustered_findings": 12
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [],
+  "citations": {
+    "malformed": 0,
+    "resolved": 0,
+    "unresolved": 38
+  },
+  "cluster_agreement": 1.0,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "No task assigns the conversion of the --read JSON (isDraft, headRefOid, autoMergeRequest) into the GuardRead dataclass; Task 3 creates only the type, so Task 11's driver or the SKILL prose must invent the mapping.",
+      "cluster_id": "C1",
+      "disputed": true,
+      "member_scores": [
+        0.75
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": null,
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 52,
+            "line_start": 52,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.3191489361702127,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 7 criterion 3 requires the script to pass the _RESOLUTION_SCRIPTS tests, but the same task adds it to that list only after Task 1 O2 confirms the list's purpose; if O2 says not to add it, the criterion cannot be met.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.65
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": null,
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 108,
+            "line_start": 108,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.2765957446808511,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Tasks 9 and 12 consume Task 1's pre-build record without declaring Task 1 dependencies, contrary to the explicit producer-consumer dependency rule. Transitive paths preserve ordering, so no execution failure is established.",
+      "cluster_id": "C3",
+      "disputed": true,
+      "member_scores": [
+        0.85
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": null,
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 137,
+            "line_start": 134,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.36170212765957444,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 13 gives the flags guide only a values/default row; the specified explanatory paragraph, clear command and held meaning are assigned only to the commands guide. Its acceptance criterion permits the flags-guide omission.",
+      "cluster_id": "C4",
+      "disputed": true,
+      "member_scores": [
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": null,
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 198,
+            "line_start": 195,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.2553191489361702,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The coverage matrix omits the requested/settled event-payload contracts and complete-dependency instruction. A builder using it as a completion checklist could miss malformed event construction or missing dependency edges; its percentage is not full-spec coverage.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": null,
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 62,
+            "line_start": 56,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.23404255319148937,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "No task writes or tests the conversion of the camelCase --read JSON (isDraft, headRefOid, autoMergeRequest) into the snake_case GuardRead; Task 3 makes only the dataclass, so the ref prose and the Task 11 driver each invent their own unchecked mapping.",
+      "cluster_id": "C6",
+      "disputed": true,
+      "member_scores": [
+        0.75
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": null,
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 56,
+            "line_start": 56,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.3191489361702127,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "A guard held from cycle fix-1 keeps cycle_id fix-1 when fix-2 gets NOOP(already_held); on a crash before fix-2 pushes, held_cycle_published returns true from fix-1's push and resume row 4 readies the PR with unpublished fixes. Nothing says what updates cycle_id and no test covers it.",
+      "cluster_id": "C7",
+      "disputed": true,
+      "member_scores": [
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": null,
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 4,
+            "line_end": 77,
+            "line_start": 77,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.2553191489361702,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 7 adds the script to _RESOLUTION_SCRIPTS only if Task 1 O2 allows it, yet its acceptance criterion unconditionally requires passing the _RESOLUTION_SCRIPTS resolution tests; if O2 says no, the criterion is vacuous or cannot be passed.",
+      "cluster_id": "C8",
+      "disputed": true,
+      "member_scores": [
+        0.45
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.45,
+          "fp": null,
+          "id": "F3",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 108,
+            "line_start": 108,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.19148936170212766,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Release needs this cycle's applied-edit count, not the run-wide field, but the plan names no source (no core helper, no protocol test), so the ref is likely to pass the run-wide applied_edits that the spec warns against.",
+      "cluster_id": "C9",
+      "disputed": true,
+      "member_scores": [
+        0.7
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": null,
+          "id": "F4",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 124,
+            "line_start": 124,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F4",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.2978723404255319,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Scenario tests run a driver written in Task 11, not the SKILL/ref steps; Task 8 only checks phrases, so ref prose whose order or arguments disagree with the driver still passes.",
+      "cluster_id": "C10",
+      "disputed": true,
+      "member_scores": [
+        0.5
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.5,
+          "fp": null,
+          "id": "F5",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 166,
+            "line_start": 166,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F5",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.2127659574468085,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The PR-body release-gate statement and the --merge-guard off rule for the PR-opening run are only recorded in Task 1's artifact; Task 13 does not carry them into final-checks, and Task 12 puts a PR-body remark into the user-facing command doc.",
+      "cluster_id": "C11",
+      "disputed": true,
+      "member_scores": [
+        0.65
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.65,
+          "fp": null,
+          "id": "F6",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 33,
+            "line_start": 33,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F6",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.2765957446808511,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The guard record type is inconsistent: the spec's fold returns a dict and Task 5 reads it with ['phase'], while the rules Task 4 copies 'exactly' use guard.baseline and guard.phase attribute access, which crashes on the real fold output.",
+      "cluster_id": "C12",
+      "disputed": true,
+      "member_scores": [
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": null,
+          "id": "F7",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 2,
+            "line_end": 70,
+            "line_start": 70,
+            "path": ".dev/eval-workspaces/shadow-model-combos/input/TASK-WF-designSpec-20261107-075614/TASK-WF-designSpec-20261107-075614.md",
+            "role": "plan",
+            "status": "unresolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F7",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-3"
+      ],
+      "support": 0.2553191489361702,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

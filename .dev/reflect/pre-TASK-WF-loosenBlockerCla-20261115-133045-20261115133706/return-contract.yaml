@@ -1,0 +1,57 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-loosenBlockerCla-20261115-133045-20261115133706/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-loosenBlockerCla-20261115-133045-20261115133706/audit.log
+confidence_calibrated: 0.81
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-002, INF-003, INF-004]
+input_tree_sha256: 0b00697265d75b8b2d0e168548e7b4ce547e27fef4fc0d21d67eb612fc935c89
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-loosenBlockerCla-20261115-133045-20261115133706/artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_total: 135
+citations_revalidated: 126
+citations_dropped: 2
+citations_dropped_extrapolated: 2
+citations_inferred: 0
+citation_budget_policy: sampled
+evidence_validator_ran: true
+reviewer_cards: [reviewer-cards/reviewer-1-card.md, reviewer-cards/reviewer-2-card.md]
+adversarial_artifacts_dir: adversarial/adversarial/
+adversarial_convergence_score: 0.83
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: full
+remediation_offered: false
+remediation_accepted: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+budget_check_skipped: true
+promotion_action: not-applicable
+telemetry:
+  reviewer_models: [claude-gw-tier2, claude-gw-tier1a]
+  reviewer_personas: [analyzer, qa]
+  executor_class_source: log-heuristic
+  executor_class_resolved: true
+  executor_exclusion_degraded: false
+  degraded_components: [executor_class_inferred, t2_vendor_single, t2_model_class_degraded]

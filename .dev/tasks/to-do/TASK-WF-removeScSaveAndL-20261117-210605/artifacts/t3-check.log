@@ -1,0 +1,7 @@
+# T3 checks (re-run after Task 6)
+AC1 RULES copies identical:
+  identical
+AC1/AC2 mentions in RULES x2 and WORKER-CONTRACT (expect none):
+  none
+tests:
+============================= 995 passed in 3.83s ==============================

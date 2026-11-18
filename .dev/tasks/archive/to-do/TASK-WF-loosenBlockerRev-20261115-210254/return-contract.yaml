@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-loosenBlockerRev-20261115-210254
+plan_path: ./TASK-WF-loosenBlockerRev-20261115-210254.md
+source_path: ./source.md
+source_origin: file
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-loosenBlockerRev-20261115-210254-20261115211007/REPORT.md
+unresolved:
+  - "reflect pre-check verdict NEEDS-REVISION (8 blocking, 7 non-blocking findings; run status success, 115 of 115 citations validated); advisory, the plan is unchanged by reflect. See the report's Recommendations R-001 to R-007."
+  - "the workflow pre-check edited the plan once before the reflect call (three factual corrections of the generator's own; recorded in artifacts/codegraph-grounding.md under Pre-check)."

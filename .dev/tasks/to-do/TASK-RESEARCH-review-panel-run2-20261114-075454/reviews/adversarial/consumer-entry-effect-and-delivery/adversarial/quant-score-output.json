@@ -1,0 +1,38 @@
+{
+ "A": {
+  "RC": 1.0,
+  "RC_hits": 27,
+  "RC_total": 27,
+  "RC_missing": [],
+  "claims": 29,
+  "contra": 1,
+  "IC": 0.9655172413793104,
+  "concrete": 508,
+  "vague": 0,
+  "SR": 1.0,
+  "refs_total": 12,
+  "refs_resolved": 11,
+  "DC": 0.9166666666666666,
+  "sections": 9,
+  "SC": 1.0,
+  "quant": 0.9788793103448276
+ },
+ "B": {
+  "RC": 1.0,
+  "RC_hits": 27,
+  "RC_total": 27,
+  "RC_missing": [],
+  "claims": 39,
+  "contra": 3,
+  "IC": 0.9230769230769231,
+  "concrete": 505,
+  "vague": 0,
+  "SR": 1.0,
+  "refs_total": 67,
+  "refs_resolved": 67,
+  "DC": 1.0,
+  "sections": 9,
+  "SC": 1.0,
+  "quant": 0.9807692307692308
+ }
+}

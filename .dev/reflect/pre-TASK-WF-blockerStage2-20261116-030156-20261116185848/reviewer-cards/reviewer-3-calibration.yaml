@@ -1,0 +1,13 @@
+calibrator_model_class: opus
+calibrator_diversity: degraded
+card: reviewer-3-card.md
+citation_grounding: 0.92
+coverage_completeness: 0.90
+deviation_classification_clarity: 0.80
+risk_surface_coverage: 0.88
+recommendation_actionability: 0.80
+C: 0.86
+citations_checked: 26
+citations_unfounded: 0
+per_finding_grade_ok: {R3-1: true, R3-2: true, R3-3: true, R3-4: true, R3-5: true, R3-6: true, R3-7: true, R3-8: true, R3-9: true, R3-10: false, R3-11: false, R3-12: true, R3-13: true}
+note: "calibrator: R3-4 overstates (plan:135 does name `superclaude review classify`); R3-10 and R3-11 are behaviour gaps (medium), not minor"

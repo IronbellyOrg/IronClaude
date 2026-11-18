@@ -1,0 +1,99 @@
+# Pass 2 (requirements-analyst): requirement-shaped items extracted from source.md only.
+# Source: .dev/tasks/to-do/TASK-WF-blockerStage1-20261116-030154/source.md (read independently of the plan).
+rows:
+  - id: INF-001
+    quote: 'Generate it only after the owner has read the stage 0 package''s `./artifacts/stage0-summary-for-owner.md` and said go in chat, and after the stage ledger row for stage 0 has the package id.'
+    citation: 'source.md:3'
+    requirement: 'The plan is generated only after the owner read the stage 0 summary and said go in chat, and the stage 0 ledger row has the package id; the plan must record this gate.'
+  - id: INF-002
+    quote: 'This stage creates new files only (the skill folder, new CLI modules, new tests, one doctor check); it edits no review-loop carrier.'
+    citation: 'source.md:3'
+    requirement: 'Plan creates only new files (skill folder, new CLI modules, new tests, one doctor check) and edits no review-loop carrier.'
+  - id: INF-003
+    quote: 'Reuse Tasks 11 to 25 of the revised 46-task plan `TASK-WF-loosenBlockerRev-20261115-210254` (Phase 2, stage 1; found by that folder name under `.dev/tasks/to-do/`), renumbered 1 onward.'
+    citation: 'source.md:7'
+    requirement: 'Plan reuses Tasks 11 to 25 of the base plan TASK-WF-loosenBlockerRev-20261115-210254, renumbered from 1.'
+  - id: INF-004
+    quote: 'Read its `## Constraints` and carry over what applies to stage 1: spec and PF naming, owner-decision defaults, the not-built list, the classifier facts (M, C and E run only with code-supplied inputs; the "M or C is Y gives BLOCKING" row is never enabled; confidence is an ordinal band), pins by content, `src/superclaude/` as source of truth with `make sync-dev`, UV only.'
+    citation: 'source.md:7'
+    requirement: 'Plan carries over the applicable base-plan constraints: spec/PF naming, owner-decision defaults, not-built list, classifier facts (code-supplied M/C/E inputs, "M or C is Y gives BLOCKING" row never enabled, ordinal confidence band), pins by content, src/superclaude as source of truth with make sync-dev, UV only.'
+  - id: INF-005
+    quote: 'The stage 0 package''s evidence (inventory freeze, availability counts, spec reconciliation) is read by package id.'
+    citation: 'source.md:7'
+    requirement: 'Plan reads the stage 0 package evidence (inventory freeze, availability counts, spec reconciliation) by package id.'
+  - id: INF-006
+    quote: 'State this package is stage 1: new files only, no carrier edited, every registry `digest` row stays `legacy`.'
+    citation: 'source.md:11'
+    requirement: 'Constraints section states this is stage 1: new files only, no carrier edited, every registry digest row stays legacy.'
+  - id: INF-007
+    quote: 'The next package (stage 2) starts only after the owner''s go in chat.'
+    citation: 'source.md:11'
+    requirement: 'Constraints state that stage 2 starts only after the owner''s go in chat.'
+  - id: INF-008
+    quote: 'Drop the base plan''s Phase 3 to 5 gate prose.'
+    citation: 'source.md:11'
+    requirement: 'Plan omits the base plan''s Phase 3 to 5 gate prose.'
+  - id: INF-009
+    quote: 'The "Merge-rule allow-list" section lists files by path and never writes the three merge-rule phrases or the old definition sentence.'
+    citation: 'source.md:12'
+    requirement: 'Task 13 scale map: the Merge-rule allow-list section lists files by path only and never writes the three merge-rule phrases or the old definition sentence.'
+  - id: INF-010
+    quote: 'At stage 1 it lists the auggie file, `refs/rule.md` and the six stage 4 files.'
+    citation: 'source.md:12'
+    requirement: 'Task 13 allow-list at stage 1 lists exactly the auggie file, refs/rule.md and the six stage 4 files.'
+  - id: INF-011
+    quote: 'Say in the task that the plugin mirror is added in stage 4, not here.'
+    citation: 'source.md:12'
+    requirement: 'Task 13 text states the plugin mirror is added in stage 4, not in this package.'
+  - id: INF-012
+    quote: '`refs/rule.md` holds the GR5 sentence with the phrase `highest severity` (allow-listed) but never quotes the old definition sentence "Grade every review finding as blocking or minor" outside the digest''s own fence history; state this as an acceptance line (`grep` of the old sentence over the skill folder prints nothing).'
+    citation: 'source.md:13'
+    requirement: 'Task 12: refs/rule.md holds the GR5 sentence with "highest severity" and never quotes the old definition sentence outside the digest fence history; acceptance line is a grep of the old sentence over the skill folder printing nothing.'
+  - id: INF-013
+    quote: 'No file under `src/superclaude/skills/sc-review-severity/` cites a `.dev/` or `./artifacts/` path (acceptance: `grep -rn "\.dev/\|artifacts/" src/superclaude/skills/sc-review-severity` prints nothing).'
+    citation: 'source.md:14'
+    requirement: 'Task 15 and all refs: no file under sc-review-severity cites a .dev/ or ./artifacts/ path; acceptance is the stated grep printing nothing.'
+  - id: INF-014
+    quote: 'State the M, C and E input rule in words.'
+    citation: 'source.md:14'
+    requirement: 'Task 15 states the M, C and E input rule in plain words.'
+  - id: INF-015
+    quote: 'Keep exactly 11 `digest` rows, 1 `canonical`, 2 `pointer-only`, 5 `installed-only` (19 rows).'
+    citation: 'source.md:15'
+    requirement: 'Task 16 registry has exactly 19 rows: 11 digest, 1 canonical, 2 pointer-only, 5 installed-only.'
+  - id: INF-016
+    quote: 'Say the analysis template is not a carrier row (merge-rule text only in stage 4).'
+    citation: 'source.md:15'
+    requirement: 'Task 16 states the analysis template is not a carrier row and that merge-rule text goes in only at stage 4.'
+  - id: INF-017
+    quote: 'T3''s `src/superclaude` check applies to `digest` and `canonical` rows only; `pointer-only` and `installed-only` rows are checked for pointer order only, and a `pointer-only` row only once its pointer is present; the test never reads `~/.claude`.'
+    citation: 'source.md:16'
+    requirement: 'Task 25 T3 checks src/superclaude only for digest and canonical rows; pointer-only and installed-only rows get pointer-order checks only (pointer-only only once its pointer is present); the test never reads ~/.claude.'
+  - id: INF-018
+    quote: 'T2 is non-strict (strict only in stage 4).'
+    citation: 'source.md:16'
+    requirement: 'Task 25 T2 runs non-strict in this package; strict mode only in stage 4.'
+  - id: INF-019
+    quote: 'Acceptance includes a temporary-tree test of each exemption.'
+    citation: 'source.md:16'
+    requirement: 'Task 25 acceptance includes a temporary-tree test for each exemption.'
+  - id: INF-020
+    quote: '**Acceptance lines inside this package** that a later task of the same package makes false get an end point ("until Task N").'
+    citation: 'source.md:17'
+    requirement: 'Any acceptance line that a later task in the same package makes false carries an end point of the form "until Task N".'
+  - id: INF-021
+    quote: 'Write `./artifacts/stage1-summary-for-owner.md`: for each task its artifact or file and its observed test result (the commands run and their pass counts), the list of files created, a statement that no carrier was edited (`git diff --stat` over carriers is empty), the open items, and the sentence that the owner''s go for stage 2 is given in chat and not by this file.'
+    citation: 'source.md:18'
+    requirement: 'New final task writes ./artifacts/stage1-summary-for-owner.md with per-task artifact and observed test result (commands and pass counts), files created, no-carrier-edited statement backed by empty git diff --stat, open items, and the sentence that the owner''s go for stage 2 is given in chat, not by the file.'
+  - id: INF-022
+    quote: 'No edit of any carrier (`pragmatic.md`, agents, templates, rule prompts, task skill, tech-research, WORKER-CONTRACT) and no stage 2 to 4 task.'
+    citation: 'source.md:22'
+    requirement: 'Plan contains no edit of any carrier (pragmatic.md, agents, templates, rule prompts, task skill, tech-research, WORKER-CONTRACT) and no stage 2 to 4 task.'
+  - id: INF-023
+    quote: 'Do not change `sc-implement-protocol/refs/qa.md`, the own-scale primitives, the cap of 2 fix cycles or the 35 percent target.'
+    citation: 'source.md:22'
+    requirement: 'Plan does not change sc-implement-protocol/refs/qa.md, the own-scale primitives, the cap of 2 fix cycles or the 35 percent target.'
+  - id: INF-024
+    quote: 'No Jev call, key or account.'
+    citation: 'source.md:22'
+    requirement: 'Plan makes no Jev call and uses no Jev key or account.'

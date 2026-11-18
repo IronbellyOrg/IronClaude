@@ -1,11 +1,11 @@
-"""Integration test: cli-portify fixture reproducing the step_runner=None no-op bug.
+"""Integration test: fixture reproducing the step_runner=None no-op bug.
 
 Validates SC-010 behavioral contract: analyze_unwired_callables() must detect
 exactly 1 WiringFinding(unwired_callable) when a class declares an
 Optional[Callable] constructor parameter with default None that is never wired.
 
-This fixture models the original cli-portify defect pattern where
-PortifyExecutor.__init__(step_runner: Optional[Callable] = None) was declared
+This fixture models a defect pattern where
+PipelineExecutor.__init__(step_runner: Optional[Callable] = None) was declared
 but no call site ever passed step_runner=<something>.
 
 Deliverable: D-0021
@@ -26,7 +26,7 @@ from superclaude.cli.audit.wiring_gate import (
 
 
 @pytest.fixture
-def cli_portify_fixture(tmp_path: Path) -> Path:
+def noop_step_runner_fixture(tmp_path: Path) -> Path:
     """Create a minimal package reproducing the step_runner=None no-op bug.
 
     Structure:
@@ -44,7 +44,7 @@ def cli_portify_fixture(tmp_path: Path) -> Path:
         textwrap.dedent("""\
         from typing import Callable, Optional
 
-        class PortifyExecutor:
+        class PipelineExecutor:
             def __init__(
                 self,
                 workdir: str,
@@ -62,11 +62,11 @@ def cli_portify_fixture(tmp_path: Path) -> Path:
 
     (pkg / "main.py").write_text(
         textwrap.dedent("""\
-        from .executor import PortifyExecutor
+        from .executor import PipelineExecutor
 
         def main():
             # BUG: step_runner never wired — executor silently no-ops
-            executor = PortifyExecutor("/tmp/work")
+            executor = PipelineExecutor("/tmp/work")
             return executor.run()
         """)
     )
@@ -74,11 +74,11 @@ def cli_portify_fixture(tmp_path: Path) -> Path:
     return pkg
 
 
-class TestCliPortifyWiringIntegration:
-    """SC-010: cli-portify fixture must produce exactly 1 unwired_callable finding."""
+class TestNoopStepRunnerWiringIntegration:
+    """SC-010: the no-op step_runner fixture must produce exactly 1 unwired_callable finding."""
 
     def test_analyze_unwired_callables_detects_noop_bug(
-        self, cli_portify_fixture: Path
+        self, noop_step_runner_fixture: Path
     ):
         """analyze_unwired_callables returns exactly 1 finding for the fixture."""
         config = WiringConfig(
@@ -86,7 +86,7 @@ class TestCliPortifyWiringIntegration:
             rollout_mode="shadow",
         )
 
-        findings = analyze_unwired_callables(config, cli_portify_fixture)
+        findings = analyze_unwired_callables(config, noop_step_runner_fixture)
 
         # SC-010: exactly 1 finding
         assert len(findings) == 1, (
@@ -97,22 +97,22 @@ class TestCliPortifyWiringIntegration:
         finding = findings[0]
         assert finding.finding_type == "unwired_callable"
         assert "step_runner" in finding.symbol_name
-        assert "PortifyExecutor" in finding.symbol_name
+        assert "PipelineExecutor" in finding.symbol_name
         assert finding.severity == "critical"
         assert "Optional[Callable]" in finding.detail or "never wired" in finding.detail
 
-    def test_run_wiring_analysis_full_report(self, cli_portify_fixture: Path):
+    def test_run_wiring_analysis_full_report(self, noop_step_runner_fixture: Path):
         """Full analysis pipeline produces report with exactly 1 unwired callable."""
         config = WiringConfig(
             exclude_patterns=["__init__.py"],
             rollout_mode="shadow",
         )
 
-        report = run_wiring_analysis(config, cli_portify_fixture)
+        report = run_wiring_analysis(config, noop_step_runner_fixture)
 
         # Report metadata
         assert report.files_analyzed >= 2  # executor.py + main.py
-        assert report.target_dir == str(cli_portify_fixture)
+        assert report.target_dir == str(noop_step_runner_fixture)
 
         # Exactly 1 unwired callable
         assert len(report.unwired_callables) == 1
@@ -122,19 +122,21 @@ class TestCliPortifyWiringIntegration:
         # Total findings includes only the unwired callable
         assert report.total_findings >= 1
 
-    def test_finding_references_original_noop_pattern(self, cli_portify_fixture: Path):
+    def test_finding_references_original_noop_pattern(
+        self, noop_step_runner_fixture: Path
+    ):
         """Finding detail references the specific unwired callable (step_runner)."""
         config = WiringConfig(
             exclude_patterns=["__init__.py"],
             rollout_mode="shadow",
         )
 
-        findings = analyze_unwired_callables(config, cli_portify_fixture)
+        findings = analyze_unwired_callables(config, noop_step_runner_fixture)
         assert len(findings) == 1
 
         finding = findings[0]
         # Must reference the specific symbol
-        assert finding.symbol_name == "PortifyExecutor.step_runner"
+        assert finding.symbol_name == "PipelineExecutor.step_runner"
         # Must reference the file containing the declaration
         assert "executor.py" in finding.file_path
         # Line number must be positive
@@ -150,7 +152,7 @@ class TestCliPortifyWiringIntegration:
             textwrap.dedent("""\
             from typing import Callable, Optional
 
-            class PortifyExecutor:
+            class PipelineExecutor:
                 def __init__(
                     self,
                     workdir: str,
@@ -163,14 +165,14 @@ class TestCliPortifyWiringIntegration:
 
         (pkg / "main.py").write_text(
             textwrap.dedent("""\
-            from .executor import PortifyExecutor
+            from .executor import PipelineExecutor
 
             def _real_runner():
                 return 42
 
             def main():
                 # FIXED: step_runner properly wired
-                executor = PortifyExecutor("/tmp/work", step_runner=_real_runner)
+                executor = PipelineExecutor("/tmp/work", step_runner=_real_runner)
                 return executor.run()
             """)
         )

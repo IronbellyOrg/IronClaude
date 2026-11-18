@@ -1,0 +1,28 @@
+merge_method: adversarial
+verdict: "no blocking defect; 14 merged findings (2 MAJOR non-blocking, 12 MINOR)"
+convergence_score: 1.0
+base_variant: "reviewer-1 analyzer (sonnet pin)"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+judge_identity: unknown
+judge_class_collision: unknown
+debate_skipped_similar: false
+merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboE-r3/adversarial/merged-output.md"
+adversarial_artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/eval-workspaces/shadow-model-combos/runs/pre-TASK-WF-designSpec-20261107-075614-comboE-r3/adversarial/adversarial"
+findings:
+  - {id: M-001, severity: MAJOR, blocking: false, category: missing-requirement}
+  - {id: M-002, severity: MAJOR, blocking: false, category: missing-requirement}
+  - {id: M-003, severity: MINOR, blocking: false, category: missing-requirement}
+  - {id: M-004, severity: MINOR, blocking: false, category: unpassable-check}
+  - {id: M-005, severity: MINOR, blocking: false, category: unpassable-check}
+  - {id: M-006, severity: MINOR, blocking: false, category: missing-requirement}
+  - {id: M-007, severity: MINOR, blocking: false, category: missing-requirement}
+  - {id: M-008, severity: MINOR, blocking: false, category: contradiction}
+  - {id: M-009, severity: MINOR, blocking: false, category: missing-requirement}
+  - {id: M-010, severity: MINOR, blocking: false, category: unpassable-check}
+  - {id: M-011, severity: MINOR, blocking: false, category: missing-requirement}
+  - {id: M-012, severity: MINOR, blocking: false, category: other}
+  - {id: M-013, severity: MINOR, blocking: false, category: contradiction}
+  - {id: M-014, severity: MINOR, blocking: false, category: other}

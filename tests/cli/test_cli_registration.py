@@ -30,19 +30,13 @@ from superclaude.cli.main import main
 # command should force a deliberate test update.
 EXPECTED_TOP_LEVEL_COMMANDS: frozenset[str] = frozenset(
     {
-        "cleanup-audit",
-        "cli-portify",
         "doctor",
         "eval",
         "init-lite",
         "install",
         "install-skill",
         "mcp",
-        "prd",
         "recommend",
-        "roadmap",
-        "sprint",
-        "tasklist",
         "update",
         "version",
     }
@@ -104,6 +98,23 @@ def test_pre_existing_command_help_still_invokable(runner: CliRunner) -> None:
         assert result.exit_code == 0, (
             f"`{name} --help` exited {result.exit_code}:\n{result.output}"
         )
+
+
+def test_removed_prd_command_is_not_registered(runner: CliRunner) -> None:
+    """The `prd` command-line pipeline was removed in 6.0.0 and must stay gone.
+
+    The roster test above only checks that listed commands still work; this
+    one checks the absence, so a stale `prd` registration cannot pass.
+    """
+    assert "prd" not in main.commands
+
+    result = runner.invoke(main, ["prd"])
+    assert result.exit_code != 0
+    assert "No such command" in result.output
+
+    help_result = runner.invoke(main, ["--help"])
+    assert help_result.exit_code == 0, help_result.output
+    assert "\n  prd " not in help_result.output
 
 
 def test_top_level_help_lists_init_lite(runner: CliRunner) -> None:

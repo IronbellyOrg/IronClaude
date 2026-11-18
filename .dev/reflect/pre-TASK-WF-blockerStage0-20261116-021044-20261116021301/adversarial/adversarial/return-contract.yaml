@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-blockerStage0-20261116-021044-20261116021301/adversarial/merged-review-card.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-blockerStage0-20261116-021044-20261116021301/adversarial/adversarial/"
+  status: "success"
+  base_variant: "haiku:analyzer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"  # orchestrator ran steps 1 to 4 and the scoring coordination; advocates, fault-finder, two scorers and the merge-executor were spawned agents
+  unaddressed_invariants:
+    - {id: "INV-006", category: "interaction_effects", assumption: "an agent grading under the new rule text holds only the new text; the SubagentStart hook injects the old rule", severity: "HIGH", resolution: "merged card F2"}

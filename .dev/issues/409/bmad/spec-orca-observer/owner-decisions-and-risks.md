@@ -19,9 +19,9 @@
 3. **Command name and placement.** Recommend `superclaude observe`, registered in `cli/main.py` (deferred import, then `add_command`). Name is the owner's.
 4. **Production-integration boundary.** Reading 1 (V1) or reading 2 (V3), both UNVERIFIED; stricter applies until confirmed (`release-gates.md`).
 5. **Fallback deadline.** Date by which QUESTION-OBSERVATION must pass; expiry triggers re-confirmation, never a switch. Recommend A on the same adapter as the re-confirm option.
-6. **Sample capture and acquisition permission.** Permission to capture one non-empty redacted sample from the candidate `check --all` read; acquisition permission must cover the actual read scope before any message call, separate from display and export. Recommend yes, owner sets redaction rules. Unblocks B's headline panel.
+6. **Sample capture and acquisition permission. Decided 2026-11-11 in `.dev/issues/409/owner-decisions-20261111.md`: "Permission granted, proceed" for one named Run, `--types question`, never `run-use`.** Permission to capture one non-empty redacted sample from the candidate `check --all` read; acquisition permission must cover the actual read scope before any message call, separate from display and export. Recommend yes, owner sets redaction rules. Unblocks B's headline panel.
 7. **Message-content exposure.** What may be displayed and what exported; kept as separate permissions; no recommendation beyond that.
-8. **Question-type choices.** What makes a message a "human question", which `type` values count, which handle or Run carries it. Needs the owner or Orca. Recommend an explicit message type, never text inference.
+8. **Question-type choices. Decided 2026-11-11 in `.dev/issues/409/owner-decisions-20261111.md`: "coordinator questions only", messages of type `question`.** What makes a message a "human question", which `type` values count, which handle or Run carries it. Needs the owner or Orca. Recommend an explicit message type, never text inference.
 9. **Multi-observer restriction.** Caps are per process, no singleton. Recommend disclosure only.
 10. **Still open from owner-decisions-20261108.md:** write-back stage (summary decision 3), TUIBBS licence opinion (decision 4), TUIBBS as staff platform (decision 5).
 
@@ -63,4 +63,4 @@
 
 - Invariant probe recorded 16 MEDIUM findings; Round 3 advocate texts refer to the 14 left after Round 2. Both counts are correct for what they describe.
 - X-001: the design prototype does not match the seed brief's claim that Signal Bridge collapses at 116 columns; the prototype is visual reference only.
-- DIRECTION-SELECTED is not shown to have passed; owner to say (owner-decisions-20261108.md item 1). The INV-019 design defect is resolved but no owner selection record exists in the source; until the owner says, the stricter reading applies.
+- DIRECTION-SELECTED passed 2026-11-16 on the owner-written record `.dev/issues/409/owner-direction-record-20261116.md`; the stricter production-integration reading no longer applies.

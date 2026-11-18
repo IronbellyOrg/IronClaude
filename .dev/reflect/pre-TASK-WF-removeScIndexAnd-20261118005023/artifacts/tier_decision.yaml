@@ -1,0 +1,20 @@
+selected_tier: 1
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 7
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 1
+  spec_density: 2
+  ambiguity_signals: 0
+escalation_reason: >-
+  Rule 4 (three domains: user docs, tests, shipped guide and contract text) and rule 5
+  (S_dev_density 0.33 over the union set) would route to Tier 2, and the parse-density guard
+  (parsed 0 rows, inferred 9 rows) forbids a Tier 1 stop. The caller pinned --depth quick
+  (section 5.1 hard override), so the run stayed at Tier 1 with a loud WARN. Tier 2 was not
+  run in any case: the session rule bars subagents and extra paid model calls.
+t2_engine_requested: null
+t2_engine_effective: null
+panel_fallback_reason: null

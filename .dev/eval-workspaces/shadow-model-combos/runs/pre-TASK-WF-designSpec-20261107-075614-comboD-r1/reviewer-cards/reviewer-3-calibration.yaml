@@ -1,0 +1,4 @@
+calibrator_model: claude-gw-tier1b (Sonnet class, self-report)
+C: 0.48
+dimensions: {citation_grounding: 0.60, coverage_completeness: 0.40, classification_clarity: 0.40, risk_surface: 0.45, actionability: 0.55}
+citations_checked_and_wrong: ["F3 plan citation lines 363-365 (plan has 200 lines)", "F3 plan citation 2: malformed nested path"]

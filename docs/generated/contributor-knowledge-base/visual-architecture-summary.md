@@ -21,11 +21,8 @@ If older prose elsewhere in the repo conflicts with the current tree, prefer the
 - [Major component map](#major-component-map)
 - [CLI runner and subsystem map](#cli-runner-and-subsystem-map)
 - [Protocol-backed command relationships](#protocol-backed-command-relationships)
-- [Release pipeline (`/sc:roadmap`)](#release-pipeline-scroadmap)
-- [Roadmap and adversarial integration flow](#roadmap-and-adversarial-integration-flow)
 - [Adversarial workflow as a reusable protocol](#adversarial-workflow-as-a-reusable-protocol)
-- [Task, roadmap, and tasklist compliance alignment](#task-roadmap-and-tasklist-compliance-alignment)
-- [Audit, recommendation, and review-translation orchestration family](#audit-recommendation-and-review-translation-orchestration-family)
+- [Audit and recommendation orchestration family](#audit-and-recommendation-orchestration-family)
 - [PM and validation support flows](#pm-and-validation-support-flows)
 - [Task-surface deprecation map](#task-surface-deprecation-map)
 - [Choosing the right change surface](#choosing-the-right-change-surface)
@@ -214,9 +211,6 @@ flowchart TB
     CLI --> CLI_MAIN[main.py<br/>root Click group]
     CLI --> CLI_DOCTOR[doctor.py]
     CLI --> CLI_INSTALL[install_core.py<br/>install_commands.py<br/>install_agents.py<br/>install_skill.py<br/>install_skills.py<br/>install_mcp.py]
-    CLI --> CLI_SPRINT[sprint/]
-    CLI --> CLI_ROADMAP[roadmap/]
-    CLI --> CLI_CLEANUP[cleanup_audit/]
     CLI --> CLI_PIPELINE[pipeline/]
     CLI --> CLI_AUDIT[audit/]
 
@@ -246,9 +240,6 @@ flowchart TD
     B --> F[install-skill]
     B --> G[doctor]
     B --> H[version]
-    B --> I[sprint group]
-    B --> J[roadmap group]
-    B --> K[cleanup-audit group]
 
     C --> C1[install_core.py]
     C --> C2[install_commands.py]
@@ -273,26 +264,6 @@ flowchart TD
 
     H --> H1[package __version__]
 
-    I --> I1[src/superclaude/cli/sprint/]
-    I1 --> I2[commands.py]
-    I1 --> I3[executor.py]
-    I1 --> I4[config.py / models.py / tmux.py / monitor.py / tui.py]
-
-    J --> J1[src/superclaude/cli/roadmap/]
-    J1 --> J2[commands.py]
-    J1 --> J3[executor.py]
-    J1 --> J4[validate_executor.py]
-    J1 --> J5[models.py / gates.py / prompts.py]
-
-    K --> K1[src/superclaude/cli/cleanup_audit/]
-    K1 --> K2[commands.py]
-    K1 --> K3[executor.py]
-    K1 --> K4[config.py / models.py / gates.py / prompts.py / monitor.py / tui.py]
-    K1 --> K5[audit/ support library]
-
-    I1 --> P[pipeline/ shared execution surface]
-    J1 --> P
-    K1 --> P
 ```
 
 ## Protocol-backed command relationships
@@ -308,101 +279,38 @@ For contributors, the key distinction is:
 ```mermaid
 flowchart LR
     subgraph Commands[Protocol-backed /sc commands]
-        C1[/sc:roadmap]
-        C2[/sc:tasklist]
         C3[/sc:task]
         C4[/sc:adversarial]
         C5[/sc:cleanup-audit]
         C6[/sc:recommend]
-        C7[/sc:review-translation]
-        C8[/sc:pm]
-        C9[/sc:validate-tests]
+        C7[/sc:pm]
+        C8[/sc:validate-tests]
     end
 
     subgraph Skills[Backing skills / protocols]
-        S1[sc:roadmap-protocol]
-        S2[sc:tasklist-protocol]
         S3[sc:task-protocol]
         S4[sc:adversarial-protocol]
         S5[sc:cleanup-audit-protocol]
         S6[sc-recommend]
-        S7[sc:review-translation-protocol]
-        S8[sc:pm-protocol]
-        S9[sc:validate-tests-protocol]
+        S7[sc:pm-protocol]
+        S8[sc:validate-tests-protocol]
     end
 
-    C1 --> S1
-    C2 --> S2
     C3 -->|STANDARD / STRICT| S3
     C4 --> S4
     C5 --> S5
     C6 --> S6
     C7 --> S7
     C8 --> S8
-    C9 --> S9
 ```
 
 ### Important note
 
 `/sc:task` is special: the command performs tier classification first, then only STANDARD and STRICT paths invoke `sc:task-protocol`; LIGHT and EXEMPT remain command-handled.
 
-## Release pipeline (`/sc:roadmap`)
-
-The default planning route is not this pipeline: for a full specification it is `/prd`, then `/tdd`, then `/roadmap`, then `/task` on each phase task file; see [How We Work](../../user-guide/how-we-work.md) (level 6 and section 5). The `/sc:roadmap` pipeline below is a separate release pipeline. It is staged, not automatic: `sc:roadmap-protocol` produces planning artifacts, the user then runs `/sc:tasklist`, and then `superclaude sprint run <tasklist-index.md>`, which runs each phase file as a `/sc:task ... --compliance strict` session.
-
-```mermaid
-flowchart TD
-    A["Specification file(s)"] --> B["/sc:roadmap"]
-    B --> C[sc:roadmap-protocol]
-
-    C --> C1[Wave 0: prerequisites]
-    C1 --> C2[Wave 1A: spec consolidation optional]
-    C2 --> C3[Wave 1B: extraction + scoring]
-    C3 --> C4[Wave 2: planning + template selection]
-    C4 --> C5[Wave 3: generate roadmap artifacts]
-    C5 --> C6[Wave 4: validation]
-
-    C6 --> D[roadmap.md + extraction.md + test-strategy.md]
-
-    D --> E["/sc:tasklist"]
-    E --> F[sc:tasklist-protocol]
-    F --> G[tasklist-index.md + phase-N-tasklist.md bundle]
-
-    G --> H["superclaude sprint run tasklist-index.md"]
-    H --> I["Each phase file runs as /sc:task --compliance strict"]
-    I --> L[sc:task-protocol]
-    L --> M[Tiered execution + verification routing]
-```
-
-## Roadmap and adversarial integration flow
-
-`sc:roadmap-protocol` can call `sc:adversarial-protocol` in two different places: for multi-spec consolidation and for multi-roadmap generation.
-
-```mermaid
-flowchart TD
-    A[/sc:roadmap] --> B[sc:roadmap-protocol]
-
-    B --> C{Mode?}
-    C -->|Single spec| D[Wave 1B extraction]
-    C -->|--specs| E[Wave 1A invoke sc:adversarial-protocol<br/>for spec consolidation]
-    C -->|--multi-roadmap or --agents| F[Wave 2 invoke sc:adversarial-protocol<br/>for roadmap variant generation + merge]
-
-    E --> G[Unified spec]
-    G --> D
-
-    D --> H[Template selection / milestone planning]
-    F --> I[Merged roadmap source]
-    I --> J[Skip template-based generation path]
-
-    H --> K[Wave 3 generation]
-    J --> K
-    K --> L[Wave 4 validation]
-    L --> M[roadmap.md / extraction.md / test-strategy.md]
-```
-
 ## Adversarial workflow as a reusable protocol
 
-`sc:adversarial-protocol` is best understood as a reusable merge-and-pressure-test engine. The standalone `/sc:adversarial` command is one entry point, but the protocol also supports higher-level workflows such as roadmap generation.
+`sc:adversarial-protocol` is best understood as a reusable merge-and-pressure-test engine. The standalone `/sc:adversarial` command is one entry point, but the protocol also supports higher-level workflows such as brainstorm and release-split.
 
 ```mermaid
 flowchart TD
@@ -423,42 +331,15 @@ flowchart TD
     J --> K[Step 5: merge-log.md + merged output]
 
     K --> L[Reusable output for calling workflows]
-    L --> M[roadmap multi-spec / multi-roadmap]
-    L --> N[tasklist sprint input]
     L --> O[design/spec comparison families]
 ```
 
-## Task, roadmap, and tasklist compliance alignment
+## Audit and recommendation orchestration family
 
-`/sc:tasklist` and `/sc:task` should be understood as adjacent but distinct compliance surfaces. If contributors change task tier logic, they should think about both the emitted tasklists and the downstream execution rules.
-
-```mermaid
-flowchart LR
-    A[roadmap.md] --> B[/sc:tasklist]
-    B --> C[sc:tasklist-protocol]
-
-    C --> D[Deterministic phase/task generation]
-    D --> E[Tier classification per task]
-    E --> F[Verification method per tier]
-    F --> G[Sprint-compatible tasklist bundle]
-
-    G --> H[/sc:task]
-    H --> I[Command classification header]
-    I --> J[Tier-specific execution path]
-
-    J --> K[STRICT -> sub-agent verification]
-    J --> L[STANDARD -> direct test execution]
-    J --> M[LIGHT -> quick sanity check]
-    J --> N[EXEMPT -> no verification overhead]
-```
-
-## Audit, recommendation, and review-translation orchestration family
-
-These flows are all skill-backed (`/sc:recommend` by the `sc-recommend` skill, the other two by `-protocol` skills), but they operate at different layers:
+These flows are both skill-backed (`/sc:recommend` by the `sc-recommend` skill, the other by a `-protocol` skill), but they operate at different layers:
 
 - `/sc:recommend` reads the routing table in the How We Work guide first and, when a row matches, returns that row's ordered steps and mandatory flags; only when no row matches does it enumerate the installed commands and skills, rank them with auggie, and Read-verify each candidate. It does not execute them
 - `/sc:cleanup-audit` is a read-only multi-pass audit that writes reports only
-- `/sc:review-translation` is a staged localization review system with a confirmation gate and adversarial validation
 
 ```mermaid
 flowchart TD
@@ -477,15 +358,6 @@ flowchart TD
         A4 --> A5[Pass 3: cross-cutting comparison]
         A5 --> A6[Validator + consolidator]
         A6 --> A7[.claude-audit reports]
-    end
-
-    subgraph Translation[Localization review flow]
-        T1["/sc:review-translation"] --> T2[sc:review-translation-protocol]
-        T2 --> T3[Phase 0: file detection + validation]
-        T3 --> T4[Phase 1: context analysis + user confirmation gate]
-        T4 --> T5[Phase 3: parallel per-language review]
-        T5 --> T6[Phase 4: adversarial validation + evidence search]
-        T6 --> T7[Phase 5-7: reports + summary + implementation options]
     end
 ```
 
@@ -611,6 +483,6 @@ Authoring guidance used in this generated bundle:
 
 - Current package metadata identifies `superclaude` version `4.2.0` with Python `>=3.10`.
 - Current executable entry points are the CLI (`superclaude.cli.main:main`) and pytest plugin (`superclaude.pytest_plugin`).
-- Current code shows a larger CLI tree than some older docs imply, including `sprint`, `roadmap`, `cleanup_audit`, `pipeline`, and `audit` subsystems.
-- Current protocol-backed command families include roadmap, tasklist, task, adversarial, cleanup-audit, review-translation, pm, and validate-tests; recommend is backed by the sc-recommend skill (no -protocol suffix).
+- Current code shows a larger CLI tree than some older docs imply, including `pipeline` and `audit` subsystems.
+- Current protocol-backed command families include task, adversarial, cleanup-audit, pm, and validate-tests; recommend is backed by the sc-recommend skill (no -protocol suffix).
 - For conflicts between older architecture prose and the present tree, prefer `src/superclaude/`, `pyproject.toml`, `CLAUDE.md`, and `Makefile`.

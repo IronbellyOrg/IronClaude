@@ -1,0 +1,352 @@
+{
+  "agreement_clusters": [],
+  "blocking_clusters": 0,
+  "calibration_coverage": {
+    "calibrated_findings": 10,
+    "clustered_findings": 10
+  },
+  "cards": [
+    {
+      "block_state": "complete",
+      "card": "reviewer-1.md",
+      "errors": [],
+      "reviewer_id": "reviewer-1",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-2.md",
+      "errors": [],
+      "reviewer_id": "reviewer-2",
+      "state": "complete"
+    },
+    {
+      "block_state": "complete",
+      "card": "reviewer-3.md",
+      "errors": [],
+      "reviewer_id": "reviewer-3",
+      "state": "complete"
+    }
+  ],
+  "chained": [
+    "C1"
+  ],
+  "citations": {
+    "malformed": 0,
+    "resolved": 19,
+    "unresolved": 0
+  },
+  "cluster_agreement": 1.0,
+  "clusters": [
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": true,
+      "claim": "The tasklist's byte-exact early-section text names `summary.md`, omits the Write-block sentence, and adds the 'does not apply' clause, so it no longer matches the agent files or test constants (which use `issue-summary.md`); executing it byte-for-byte would fail the pinned tests.",
+      "cluster_id": "C1",
+      "disputed": false,
+      "member_scores": [
+        0.6,
+        0.7,
+        0.85,
+        0.75,
+        0.7,
+        0.6
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "c14e872309a16e7ce1d1796ef44246f4b3303c02ed3f77e9d157cc21ccc8309d",
+          "id": "F1",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 26,
+            "line_start": 26,
+            "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "c14e872309a16e7ce1d1796ef44246f4b3303c02ed3f77e9d157cc21ccc8309d",
+          "id": "F2",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 20,
+            "line_start": 20,
+            "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.85,
+          "fp": "c14e872309a16e7ce1d1796ef44246f4b3303c02ed3f77e9d157cc21ccc8309d",
+          "id": "F1",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 26,
+            "line_start": 26,
+            "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.75,
+          "fp": "c14e872309a16e7ce1d1796ef44246f4b3303c02ed3f77e9d157cc21ccc8309d",
+          "id": "F2",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 45,
+            "line_start": 45,
+            "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.7,
+          "fp": "c14e872309a16e7ce1d1796ef44246f4b3303c02ed3f77e9d157cc21ccc8309d",
+          "id": "F3",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 20,
+            "line_start": 20,
+            "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        },
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.6,
+          "fp": "c14e872309a16e7ce1d1796ef44246f4b3303c02ed3f77e9d157cc21ccc8309d",
+          "id": "F4",
+          "ordinal": 3,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 22,
+            "line_start": 22,
+            "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-3"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-3"
+      },
+      "reviewers": [
+        "reviewer-1",
+        "reviewer-3"
+      ],
+      "support": 0.738095238095238,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Task 2's acceptance criteria require every pre-existing test plus the Task 1 agent tests to pass but are silent on the new SKILL.md positive test, which fails until Task 3; the gate is only coherent read as covering the agent tests alone.",
+      "cluster_id": "C2",
+      "disputed": true,
+      "member_scores": [
+        0.3
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.3,
+          "fp": "c14e872309a16e7ce1d1796ef44246f4b3303c02ed3f77e9d157cc21ccc8309d",
+          "id": "F3",
+          "ordinal": 1,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 66,
+            "line_start": 66,
+            "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-1"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-1"
+      },
+      "reviewers": [
+        "reviewer-1"
+      ],
+      "support": 0.14285714285714285,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "Coverage matrix row INF-003 (file scope) does not record that Task 3 edits SKILL.md and Task 1 adds an early section, neither asked for by the spec's four-file list; the matrix hides a scope expansion that has no spec row.",
+      "cluster_id": "C3",
+      "disputed": true,
+      "member_scores": [
+        0.55
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.55,
+          "fp": "0029e37fb99a6121e8050881135f2cbae9a19cdba872033e9b2ac4d273ed3953",
+          "id": "F1",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 20,
+            "line_start": 20,
+            "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-003"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F1",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.2619047619047619,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "INF-001 bundles several spec spans (rationale, consumers gh --body-file and /sc:recommend, failure marker E-WORKER-NO-OUTPUT) into one row; no acceptance criterion states the test asserts them individually, so the one-row mapping overstates how directly each span is verified.",
+      "cluster_id": "C4",
+      "disputed": true,
+      "member_scores": [
+        0.45
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.45,
+          "fp": "9cb3eec6b48374754458106ffffd91a89d2c04ad787f754f71c7ce721e1618eb",
+          "id": "F2",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 1,
+            "line_end": 45,
+            "line_start": 45,
+            "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [
+            "INF-001"
+          ],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F2",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.21428571428571427,
+      "uncalibrated": false
+    },
+    {
+      "blocking_all": false,
+      "blocking_any": false,
+      "chained": false,
+      "claim": "The red-first log tail cited in evidence shows rc=1 and one spawn-rule failure, but the per-file red failures and the SKILL.md negative test are not visible in the cited lines alone; evidence holds only if the fuller log is read.",
+      "cluster_id": "C5",
+      "disputed": true,
+      "member_scores": [
+        0.5
+      ],
+      "members": [
+        {
+          "blocking": false,
+          "deviation_class": null,
+          "finding_confidence": 0.5,
+          "fp": "c14e872309a16e7ce1d1796ef44246f4b3303c02ed3f77e9d157cc21ccc8309d",
+          "id": "F3",
+          "ordinal": 2,
+          "primary_citation": {
+            "index": 0,
+            "line_end": 54,
+            "line_start": 54,
+            "path": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+            "role": "plan",
+            "status": "resolved"
+          },
+          "refs_norm": [],
+          "reviewer_id": "reviewer-2"
+        }
+      ],
+      "representative": {
+        "id": "F3",
+        "reviewer_id": "reviewer-2"
+      },
+      "reviewers": [
+        "reviewer-2"
+      ],
+      "support": 0.23809523809523808,
+      "uncalibrated": false
+    }
+  ],
+  "complete_reviewers": [
+    "reviewer-1",
+    "reviewer-2",
+    "reviewer-3"
+  ],
+  "invalid_reviewers": [],
+  "problems": [],
+  "uncalibrated": [],
+  "uncalibrated_findings": [],
+  "valid_blocks": 3
+}

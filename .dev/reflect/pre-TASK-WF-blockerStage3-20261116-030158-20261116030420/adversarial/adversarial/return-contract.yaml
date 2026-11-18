@@ -1,0 +1,14 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116030420/adversarial/merged-review-card.md"
+  convergence_score: 1.0            # 21 of 21 diff points agreed after Round 2 (Round 1: 17 of 21 = 0.81; the disagreements C-006, U-006, A-002, A-004 were settled in Round 2)
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-blockerStage3-20261116-030158-20261116030420/adversarial/adversarial/"
+  status: "success"
+  base_variant: "opus:qa"           # variant 2 (reviewer-2 card); advocate for V1 ran as haiku, advocate for V2 ran as opus; scorers, calibrators and fault-finder ran as sonnet
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"  # the orchestrator ran steps 1, 4 and the scoring coordination itself; advocates, fault-finder, two scorers and the merge-executor were spawned agents
+  unaddressed_invariants:           # HIGH UNADDRESSED probe items; each is carried into the merged card, none accepted as risk
+    - {id: "INV-001", category: "state_variables", assumption: "regenerating the stage 2 summary inside this package satisfies 'the owner has read it'", severity: "HIGH", resolution: "merged card F1"}
+    - {id: "INV-002", category: "guard_conditions", assumption: "a failed acceptance line halts and nothing rewrites the evidence file", severity: "HIGH (graded MEDIUM after refs/qa.md:249 was read)", resolution: "merged card F1 and F3 (no-rewrite clause)"}
+    - {id: "INV-003", category: "collection_boundaries", assumption: "the Task 3 gate can be passed on the seeded set", severity: "HIGH", resolution: "merged card F3"}

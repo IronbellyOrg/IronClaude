@@ -1,0 +1,9 @@
+input_tree_sha256: 302837fe4d6f7e63159abb8c513e31df4164b70216595b2be7709356aa2f0645
+file_list:
+  - path: .dev/cleanup/prd-cli/dependency-map.md
+    sha256: ae9125a668a7327c62c8c8d484f461dae77c8fe8da7c96ad000da858f5b2a2fd
+  - path: .dev/tasks/to-do/TASK-WF-removeThePrdComm-20261117-200005/TASK-WF-removeThePrdComm-20261117-200005.md
+    sha256: 165aa8ff8c65d81041d301bc12ab0f928ddb266915aa74d5643e6a54f05fc946
+  - path: .dev/tasks/to-do/TASK-WF-removeThePrdComm-20261117-200005/source.md
+    sha256: e9c815e500f7963200b1e690182cff243822c0da6c11a2be4c03c157c2d2fc07
+file_count: 3

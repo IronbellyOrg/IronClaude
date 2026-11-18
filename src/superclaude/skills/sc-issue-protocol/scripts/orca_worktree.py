@@ -3,7 +3,10 @@
 
 Standard library only. Called by the claim flow as
 ``orca_worktree.py <subcommand> ...`` (subcommands ``preflight``, ``worktree``,
-``prompt``, ``launch``); the skill reads the one JSON object printed on stdout.
+``prompt``, ``launch``, ``pending``); the skill reads the one JSON object printed
+on stdout. ``pending --level worktree|full|full-submit`` writes one launch record
+(``publish_pending``) and prints ``{"ok": true, "nonce": "<32 hex>", "level": ...}``
+so a coordinator can bind the worker it starts to the launch-level guard.
 
 Every runtime outcome exits 0 with a JSON object; exit code 2 is reserved for
 bad command-line arguments (argparse). Every subprocess runs without a shell,
@@ -1509,6 +1512,17 @@ def publish_pending(word: str) -> tuple[str, Path]:
     return nonce, base / nonce
 
 
+def cmd_pending(args: argparse.Namespace) -> int:
+    """Write one ``pending/<nonce>`` record for a coordinator-started worker (G2)."""
+    try:
+        nonce, _path = publish_pending(args.level)
+    except OSError as exc:
+        return emit(
+            {"ok": False, "detail": f"could not write the launch record: {exc}"}
+        )
+    return emit({"ok": True, "nonce": nonce, "level": args.level})
+
+
 def find_handle(node: object) -> str | None:
     """First string value under a key named ``handle``, by a recursive walk."""
     if isinstance(node, dict):
@@ -1869,6 +1883,14 @@ def build_parser() -> argparse.ArgumentParser:
     la.add_argument("--level", required=True, choices=["worktree", "full"])
     la.add_argument("--submit", action="store_true")
     la.set_defaults(func=cmd_launch)
+    pe = sub.add_parser(
+        "pending",
+        help="write one launch record and print its nonce (coordinator-started worker)",
+    )
+    pe.add_argument(
+        "--level", required=True, choices=["worktree", "full", "full-submit"]
+    )
+    pe.set_defaults(func=cmd_pending)
     return parser
 
 

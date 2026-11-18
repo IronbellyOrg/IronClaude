@@ -1,0 +1,14 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 4 items
+
+tests/skills/test_review_old_rule_scan.py::test_the_old_sentence_is_in_no_markdown_file PASSED [ 25%]
+tests/skills/test_review_old_rule_scan.py::test_a_markdown_file_holding_the_old_sentence_fails_the_scan PASSED [ 50%]
+tests/skills/test_review_old_rule_scan.py::test_a_python_file_under_cli_holding_the_old_sentence_passes PASSED [ 75%]
+tests/skills/test_review_old_rule_scan.py::test_a_file_with_only_the_opening_sentence_passes PASSED [100%]
+
+============================== 4 passed in 0.12s ===============================

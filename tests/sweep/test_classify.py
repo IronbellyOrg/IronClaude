@@ -275,12 +275,12 @@ def assert_no_sp16(result) -> None:
 
 
 def _rule_cases(now: datetime) -> dict[str, tuple[SessionRow, str, str | None]]:
-    # Rule 5 (working) cannot match while the live agentWait, `live` and `in_progress`
-    # names are uncaptured (DESIGN open item 6): its case holds all four conditions and
-    # is expected to fall to the fallback rule.
+    # Rule 5 (working) holds the four conditions captured from a running worker on
+    # 2026-11-16: liveness `live`, outcome `in_progress`, agentWait present and null.
     live_unwaiting = orca(
         liveness_verdict="live",
-        status="in_progress",
+        status="dispatched",
+        outcome="in_progress",
         agent_wait_present=True,
         agent_wait=None,
     )
@@ -317,7 +317,7 @@ def _rule_cases(now: datetime) -> dict[str, tuple[SessionRow, str, str | None]]:
             WAITING,
             "a",
         ),
-        "working": (row(orca=live_unwaiting), UNKNOWN, None),
+        "working": (row(orca=live_unwaiting), WORKING, None),
         "finished": (
             row(
                 orca=orca(outcome="succeeded"),
@@ -365,15 +365,14 @@ RULE_NAMES = [
 def test_rule_case_per_rule_1_to_9(now, rule):
     case_row, class_name, kind = _rule_cases(now)[rule]
     cls = classify(case_row, make_ctx(now))
-    matched = "fallback" if rule == "working" else rule  # rule 5 cannot match (item 6)
-    assert (cls.rule, cls.class_name, cls.waiting_kind) == (matched, class_name, kind)
+    assert (cls.rule, cls.class_name, cls.waiting_kind) == (rule, class_name, kind)
 
 
-def test_every_class_name_but_working_is_reached(now):
+def test_every_class_name_is_reached(now):
     reached = {
         classify(r, make_ctx(now)).class_name for r, _, _ in _rule_cases(now).values()
     }
-    assert reached == set(CLASSES) - {WORKING}  # no row is working in Phase 1
+    assert reached == set(CLASSES)
 
 
 def test_rules_order_pin():
@@ -433,25 +432,57 @@ def test_policy_of_is_independent_of_the_class(case_row, expected):
     assert policy_of(case_row) == expected
 
 
-def test_rule_5_never_matches_while_the_agent_wait_names_are_uncaptured(now):
-    full = dict(
-        liveness_verdict="live",
-        status="in_progress",
-        agent_wait_present=True,
-        agent_wait=None,
-    )
-    ctx = make_ctx(now)
-    # All four conditions of DESIGN 7.2 hold, and the row still falls to the fallback.
-    cls = classify(row(orca=orca(**full)), ctx)
-    assert (cls.rule, cls.class_name) == ("fallback", UNKNOWN)  # open item 6
-    for broken in (
+FULL_WORKING = dict(
+    liveness_verdict="live",
+    status="dispatched",
+    outcome="in_progress",
+    agent_wait_present=True,
+    agent_wait=None,
+)
+
+
+def test_rule_5_matches_a_live_in_progress_row_with_a_null_agent_wait(now):
+    cls = classify(row(orca=orca(**FULL_WORKING)), make_ctx(now))
+    assert (cls.rule, cls.class_name, cls.waiting_kind) == ("working", WORKING, None)
+    assert "outcome in_progress" in cls.evidence
+
+
+@pytest.mark.parametrize(
+    "broken",
+    [
         {"liveness_verdict": "unverifiable"},
-        {"status": "pending"},
+        {"liveness_verdict": "exited"},
+        {"liveness_verdict": None},
+        {"outcome": "succeeded"},
+        {"outcome": None},
         {"agent_wait_present": False},
-        {"agent_wait": {"since": "x"}},  # a non-null wait is rule 4, not working
-    ):
-        cls = classify(row(orca=orca(**{**full, **broken})), ctx)
-        assert cls.class_name != WORKING, broken
+    ],
+)
+def test_rule_5_needs_every_condition(now, broken):
+    cls = classify(row(orca=orca(**{**FULL_WORKING, **broken})), make_ctx(now))
+    assert cls.class_name != WORKING
+
+
+def test_rule_5_does_not_test_dispatch_status(now):
+    # dispatch.status is `dispatched` for a running worker; the word in_progress is the
+    # outcome. A row with status in_progress but no outcome is therefore not working.
+    only_status = {**FULL_WORKING, "status": "in_progress", "outcome": None}
+    cls = classify(row(orca=orca(**only_status)), make_ctx(now))
+    assert (cls.rule, cls.class_name) == ("fallback", UNKNOWN)
+    other_status = {**FULL_WORKING, "status": "pending"}
+    assert classify(row(orca=orca(**other_status)), make_ctx(now)).class_name == WORKING
+
+
+def test_a_non_null_agent_wait_is_waiting_never_working(now):
+    # What a non-null agentWait looks like is UNVERIFIED (never captured); this stand-in
+    # only shows that any non-null value stops rule 5 and reaches rule 4.
+    waiting = {**FULL_WORKING, "agent_wait": {"since": "x"}}
+    cls = classify(row(orca=orca(**waiting)), make_ctx(now))
+    assert (cls.rule, cls.class_name, cls.waiting_kind) == (
+        "waiting_signal",
+        WAITING,
+        "a",
+    )
 
 
 # ===========================================================================================
@@ -520,7 +551,8 @@ def test_future_transcript_gets_no_age(now):
         pytest.param(
             orca(
                 liveness_verdict="unverifiable",
-                status="in_progress",
+                status="dispatched",
+                outcome="in_progress",
                 agent_wait_present=True,
             ),
             id="unverifiable",
@@ -528,13 +560,19 @@ def test_future_transcript_gets_no_age(now):
         pytest.param(
             orca(
                 liveness_verdict="live",
-                status="in_progress",
+                status="dispatched",
+                outcome="in_progress",
                 agent_wait_present=False,
             ),
             id="late-heartbeat",
         ),
         pytest.param(
-            orca(liveness_verdict=None, status="in_progress", agent_wait_present=True),
+            orca(
+                liveness_verdict=None,
+                status="dispatched",
+                outcome="in_progress",
+                agent_wait_present=True,
+            ),
             id="stale-liveStatus",
         ),
         pytest.param(orca(), id="missing-worker-show-row"),
@@ -638,7 +676,8 @@ def test_no_contract_note_is_only_for_a_settled_row_with_no_contract(now, case_r
 def _live(**kw) -> OrcaObservation:
     base = dict(
         liveness_verdict="live",
-        status="in_progress",
+        status="dispatched",
+        outcome="in_progress",
         agent_wait_present=True,
         agent_wait=None,
     )

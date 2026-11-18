@@ -1,0 +1,2 @@
+run state (Wave 0 step 9): index_state=fresh access=mcp checked_at=2026-11-17T21:06:12Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/v6-review-translation projectPath=/home/coder/workspaces/worktrees/IronClaude/v6-review-translation
+Note: the plan-time check at 21:02:53Z (codegraph-grounding.md) found the same state. Markdown, JSON and the doc targets are not indexed, so the floor (Grep, Read) serves every task here; no graph:* token.

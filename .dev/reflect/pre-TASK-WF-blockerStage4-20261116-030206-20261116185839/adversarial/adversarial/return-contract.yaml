@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116185839/adversarial/merged-review-card.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-blockerStage4-20261116-030206-20261116185839/adversarial/adversarial"
+  status: "success"
+  base_variant: "V1 (analyzer, sonnet class; original variant-1)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+# notes: the skill call was made directly with --compare of three card files, depth standard; no separate help probe was made (the skill load proved it exists).

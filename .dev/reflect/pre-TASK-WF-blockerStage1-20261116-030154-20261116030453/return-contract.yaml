@@ -1,0 +1,127 @@
+contract_version: 1.8.0
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage1-20261116-030154-20261116030453/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage1-20261116-030154-20261116030453/audit.log
+confidence_calibrated: 0.76
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.6667
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union:
+- INF-002
+- INF-003
+- INF-004
+- INF-005
+- INF-008
+- INF-020
+- INF-023
+- INF-024
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 8a065f9c2a0b8f297f810bb606eb829d817b7defe2fae7aa8c998bfcd1fbd1e7
+  spec: e32f6c86bd67cc5c1094a1de7b2d2744c14d80cbdc5686b02dd7ff90cf56fe40
+input_tree_sha256: 8d1f41f1cb3d77ddd62a6a176cd3bfcada5d97314f1022194f130379ffc8e6dd
+input_tree_file_count: 35
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-blockerStage1-20261116-030154-20261116030453/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 87
+citations_revalidated: 87
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+- reviewer-cards/reviewer-1-card.md
+- reviewer-cards/reviewer-2-card.md
+- reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: adversarial/adversarial/
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+findings_total: 9
+findings_blocking: 2
+verdict: NEEDS-REVISION
+blocking_findings:
+- F1 Task 7 grep acceptance line (PLAN:115) false after Tasks 10 and 12, no until-Task-N end point
+- F2 stoprule/finding-grader scale-map row has no defining file in the repository (PLAN:62, PLAN:87, PLAN:209)
+telemetry:
+  reviewer_models:
+  - sonnet (observed claude-gw-tier1b[1m])
+  - haiku (self-reported OpenAI model; mismatch suspected)
+  - opus (observed claude-gw-tier1a)
+  reviewer_personas:
+  - analyzer
+  - qa
+  - refactorer
+  reviewer_vendors:
+  - anthropic
+  - anthropic
+  - anthropic
+  degraded_components:
+  - executor_class_unknown
+  - t2_vendor_single
+  - calibrator_diversity_degraded
+  - judge_class_collision
+  - reviewer_identity_mismatch_suspected
+  fallback_path: null
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  t2_engine_requested: legacy
+  t2_engine_effective: legacy
+  reviewer_isolation: disabled
+  identity_source: requested-pinned
+  verification_ran: false
+  verification_skip_reason: not applicable (UC-1)
+  memory_hits: 2
+  memory_misses: 0
+  memory_retention_actions: 0
+  references_extended_info_used: false
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  findings_total: 9
+  debate_points: 16
+  debate_unanimous: 13
+  debate_majority: 3
+  invariant_findings: 5
+  invariant_high_unaddressed: 0

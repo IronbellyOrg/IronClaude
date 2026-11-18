@@ -2,8 +2,8 @@
 
 These tests pin the controls of design section 9.1 that cut across modules:
 
-- T1, NFR-001, AC-7: the only text after ``--prompt`` is ``/sc:issue --claim <n>``
-  for an ``int`` in 1..999999999, whatever GitHub, the config or the login holds.
+- T1, NFR-001, AC-7: the only text after ``--prompt`` is
+  ``/sc:issue --claim <n> --pipeline none`` for an ``int`` in 1..999999999, whatever GitHub, the config or the login holds.
 - T5, T9, NFR-002, NFR-003, AC-20: every argv the runner sees is one of the
   allowed forms, never names the upstream repository, ``{owner}``, a title or a
   body, and every REST path call carries ``--method GET`` (DF-28).
@@ -64,7 +64,7 @@ FORK = "IronbellyOrg/IronClaude"
 
 # Every prompt a launch may carry. ``fullmatch`` (not ``$``) so a trailing newline
 # fails too.
-_PROMPT_RE = re.compile(r"/sc:issue --claim [1-9][0-9]{0,8}")
+_PROMPT_RE = re.compile(r"/sc:issue --claim [1-9][0-9]{0,8} --pipeline none")
 _TEXT_FIELD = re.compile(r"(?i)\b(?:title|body\w*)\b")
 _REST_PATH = re.compile(
     r"repos/IronbellyOrg/IronClaude/issues/[1-9][0-9]{0,8}(?:/(?:events|comments))?"
@@ -90,6 +90,17 @@ HOSTILE = [
 # Strings that look like a claim prompt but are not one.
 PROMPT_ATTACKS = [
     "",
+    # the old claim prompt, without the level, is no longer a claim prompt
+    "/sc:issue --claim 1",
+    "/sc:issue --claim 9",
+    "/sc:issue --claim 9 --pipeline worktree",
+    "/sc:issue --claim 9 --pipeline full",
+    "/sc:issue --claim 9 --pipeline none ",
+    "/sc:issue --claim 9 --pipeline none\n",
+    "/sc:issue --claim 9 --pipeline  none",
+    "/sc:issue --claim 9 --pipeline none --pipeline full",
+    "/sc:issue --claim 9 --pipeline NONE",
+    "/sc:issue --pipeline none --claim 9",
     "/sc:issue --claim 0",
     "/sc:issue --claim 09",
     "/sc:issue --claim 1000000000",
@@ -214,7 +225,7 @@ def _literal_launch(orca: str, worktree: object, n: int) -> tuple[str, ...]:
         "--surface",
         "terminal",
         "--prompt",
-        f"/sc:issue --claim {n}",
+        f"/sc:issue --claim {n} --pipeline none",
         "--json",
     )
 
@@ -290,7 +301,7 @@ def classify_argv(argv: object, worktree: object) -> str:
     assert len(argv) == 12 and argv[1:3] == ["agent", "launch"], shown
     prompt = argv[10]
     assert is_claim_prompt(prompt), shown
-    assert tuple(argv) == _literal_launch(argv[0], worktree, int(prompt.split()[-1])), (
+    assert tuple(argv) == _literal_launch(argv[0], worktree, int(prompt.split()[2])), (
         shown
     )
     return "launch"
@@ -466,7 +477,7 @@ def test_prompt_regex_property(tmp_path):
         if is_claim_number(value):
             valid["valid"] += 1
             prompt = build_claim_prompt(value)
-            assert prompt == f"/sc:issue --claim {value}", where
+            assert prompt == f"/sc:issue --claim {value} --pipeline none", where
             assert is_claim_prompt(prompt), where
             argv = launch_argv(ORCA_PATH, worktree, prompt)
             assert len(argv) == 12 and argv[10] == prompt, where
@@ -508,7 +519,9 @@ def test_prompt_regex_property(tmp_path):
     for k, n in enumerate(numbers):
         ran = run_world(tmp_path / f"cycle-{k}", lambda w, n=n: w.issue(n))
         assert (ran.result.exit_code, ran.result.launched_issue) == (0, n), n
-        assert ran.prompts == [f"/sc:issue --claim {n}"], f"cycle {k}: issue {n}"
+        assert ran.prompts == [f"/sc:issue --claim {n} --pipeline none"], (
+            f"cycle {k}: issue {n}"
+        )
         assert all(is_claim_prompt(p) for p in ran.prompts), n
         assert ran.store.load().entries[n].launches == 1, n
 
@@ -555,7 +568,9 @@ def test_hostile_labels_logins_and_commenters_never_reach_the_prompt(tmp_path, h
     ran = run_world(tmp_path, build)
     assert ran.result.exit_code == 0 and ran.result.reason == "cycle_complete"
     assert ran.result.launched_issue == 9
-    assert ran.prompts == ["/sc:issue --claim 9"], f"hostile: {hostile!r:.100}"
+    assert ran.prompts == ["/sc:issue --claim 9 --pipeline none"], (
+        f"hostile: {hostile!r:.100}"
+    )
     assert ran.forms == list(SCENARIOS["eligible"].forms)
     for argv in ran.argvs:
         assert not any(hostile in arg for arg in argv), (
@@ -590,7 +605,7 @@ def test_hostile_config_labels_stay_one_argv_element_and_never_reach_the_prompt(
         config_over={"trigger_label": trigger, "approval_label": approval},
     )
     assert (ran.result.exit_code, ran.result.launched_issue) == (0, 9)
-    assert ran.prompts == ["/sc:issue --claim 9"]
+    assert ran.prompts == ["/sc:issue --claim 9 --pipeline none"]
     holders = [argv for argv in ran.argvs if any(trigger in arg for arg in argv)]
     assert len(holders) == 1 and holders[0][:3] == ("gh", "issue", "list"), holders
     assert holders[0][holders[0].index("--label") + 1] == trigger  # one element
@@ -919,7 +934,7 @@ def test_both_graphql_constants_name_the_literal_repository_and_only_read(name):
     ],
 )
 def test_launch_argv_is_the_twelve_element_list_with_no_extra_flag(orca, worktree):
-    argv = launch_argv(orca, worktree, "/sc:issue --claim 9")
+    argv = launch_argv(orca, worktree, "/sc:issue --claim 9 --pipeline none")
     assert argv == [
         orca,
         "agent",
@@ -931,7 +946,7 @@ def test_launch_argv_is_the_twelve_element_list_with_no_extra_flag(orca, worktre
         "--surface",
         "terminal",
         "--prompt",
-        "/sc:issue --claim 9",
+        "/sc:issue --claim 9 --pipeline none",
         "--json",
     ]
     assert len(argv) == 12
@@ -956,7 +971,7 @@ def test_the_launch_the_cycle_makes_is_the_literal_argv_in_the_worktree(tmp_path
             "--surface",
             "terminal",
             "--prompt",
-            "/sc:issue --claim 9",
+            "/sc:issue --claim 9 --pipeline none",
             "--json",
         )
     ]
@@ -966,3 +981,33 @@ def test_the_launch_the_cycle_makes_is_the_literal_argv_in_the_worktree(tmp_path
     ]
     # Only the launch carries the prompt flag; no gh or git argv has one.
     assert [a for a in ran.argvs if "--prompt" in a] == ran.launches
+
+
+# The keys of a dispatch.json entry are unchanged by the longer claim prompt
+# (Plan B Task 11); this list is written out here, not imported.
+_DISPATCH_ENTRY_KEYS = {
+    "issue",
+    "state",
+    "attempts",
+    "launches",
+    "operation_id",
+    "approver_id",
+    "approval_event_id",
+    "approved_at",
+    "launch_cwd",
+    "launch_login",
+    "launch_account_id",
+    "consumed_at",
+    "pending_at",
+    "created_at",
+    "updated_at",
+    "lease_expires_at",
+    "last_reason",
+}
+
+
+def test_dispatch_json_entries_keep_their_keys_with_the_pipeline_none_prompt(tmp_path):
+    ran = run_world(tmp_path, lambda w: w.issue(9))
+    assert ran.prompts == ["/sc:issue --claim 9 --pipeline none"]
+    raw = json.loads((ran.store.state_dir / "dispatch.json").read_text("utf-8"))
+    assert set(raw["entries"]["9"]) == _DISPATCH_ENTRY_KEYS

@@ -1,0 +1,7 @@
+# Wave 1A grounding (UC-1)
+
+- codegraph run state: index_state=fresh (0 added, 0 modified, 0 removed), checked_at=2026-11-16T03:10:16Z, worktree_root=/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel, access=mcp. The index holds python and yaml only; every file this plan edits is Markdown or a test not yet created, so grounding used Grep and Read (the permanent floor, no degraded token).
+- Batch greps (two chunks, read-only) over the 24 plan-referenced files: see `artifacts/input-snapshot.yaml`. Files the plan creates or that earlier stages create do not exist yet: `src/superclaude/skills/sc-review-severity/`, `tests/skills/test_review_merge_rule_scan.py`, `tests/skills/test_review_severity_plugin_parity.py`, `tests/skills/test_review_severity_registry.py`.
+- Old definition sentence `Grade every review finding as blocking or minor`: 11 carrier files under src/superclaude (4 templates, 4 rule prompts, rf-qa, rf-qa-qualitative, pragmatic), none under plugins/superclaude.
+- Merge-rule phrases (`highest severity`, `more severe rating`, `higher severity`): hits in the four builder skills (tech-reference:510,513; readme:542,547; tdd build-request-template:122; operational-guide:511), `agent_template_qa.md:85`, `agent_template_analysis.md:466`, plus stage 3 files.
+- Tasks 41 to 46 of the base plan read at OLD:486-552; Task 40 at OLD:473-482; stage 1 plan lines 59, 96-100, 209-214; stage 3 plan lines 20, 37, 158-162.

@@ -1,0 +1,41 @@
+{
+ "A": {
+  "RC": 0.9090909090909091,
+  "RC_hits": 20,
+  "RC_total": 22,
+  "RC_missing": [
+   "R13 research 06 cited",
+   "R17 research 17 cited"
+  ],
+  "claims": 53,
+  "contra": 1,
+  "IC": 0.9811320754716981,
+  "concrete": 434,
+  "vague": 0,
+  "SR": 1.0,
+  "refs_total": 14,
+  "refs_resolved": 14,
+  "DC": 1.0,
+  "sections": 7,
+  "SC": 1.0,
+  "quant": 0.9680102915951972
+ },
+ "B": {
+  "RC": 1.0,
+  "RC_hits": 22,
+  "RC_total": 22,
+  "RC_missing": [],
+  "claims": 39,
+  "contra": 2,
+  "IC": 0.9487179487179487,
+  "concrete": 371,
+  "vague": 0,
+  "SR": 1.0,
+  "refs_total": 59,
+  "refs_resolved": 58,
+  "DC": 0.9830508474576272,
+  "sections": 7,
+  "SC": 1.0,
+  "quant": 0.9846371142981313
+ }
+}

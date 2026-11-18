@@ -1,0 +1,7 @@
+# T9 checks
+AC1 git grep sc:build|scbuild in docs/user-guide: 0
+AC2 anchor scbuild---project-building in docs/: 0
+ docs/user-guide/agents.md   |  2 +-
+ docs/user-guide/commands.md | 30 ------------------------------
+ docs/user-guide/flags.md    |  9 ---------
+ 3 files changed, 1 insertion(+), 40 deletions(-)

@@ -1,0 +1,162 @@
+coverage_matrix:
+- requirement_id: INF-001
+  source: inferred
+  quote: One package, one stage.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:13
+  best_task: 7
+  best_ratio: 1.0
+  matched_task_ids:
+  - 7
+  match_method: containment-0.6
+- requirement_id: INF-002
+  source: inferred
+  quote: no task here checks or records that go
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:13
+  best_task: 0
+  best_ratio: 1.0
+  matched_task_ids: []
+  match_method: containment-0.6
+- requirement_id: INF-003
+  source: inferred
+  quote: the second evaluation on this population is run by the stage 2 package's classifier-evaluation task
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:14
+  best_task: 6
+  best_ratio: 1.0
+  matched_task_ids:
+  - 6
+  match_method: containment-0.6
+- requirement_id: INF-004
+  source: inferred
+  quote: The sizing must state a minimum n per gating class (safety, decision-bearing, missing) with the Wilson arithmetic
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:15
+  best_task: 7
+  best_ratio: 1.0
+  matched_task_ids:
+  - 7
+  match_method: containment-0.6
+- requirement_id: INF-005
+  source: inferred
+  quote: State the rule that stage 3 runs each pass with fresh agent spawns and alternated order.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:15
+  best_task: 7
+  best_ratio: 0.7
+  matched_task_ids:
+  - 7
+  match_method: containment-0.6
+- requirement_id: INF-006
+  source: inferred
+  quote: Keep the answer key separate.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:15
+  best_task: 7
+  best_ratio: 1.0
+  matched_task_ids:
+  - 7
+  match_method: containment-0.6
+- requirement_id: INF-007
+  source: inferred
+  quote: for owner acceptance at the stage 1 go
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:16
+  best_task: 7
+  best_ratio: 1.0
+  matched_task_ids:
+  - 7
+  match_method: containment-0.6
+- requirement_id: INF-008
+  source: inferred
+  quote: the stage 2 exit numbers
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:16
+  best_task: 9
+  best_ratio: 1.0
+  matched_task_ids:
+  - 9
+  match_method: containment-0.6
+- requirement_id: INF-009
+  source: inferred
+  quote: the stage 3 audit-window numbers
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:16
+  best_task: 9
+  best_ratio: 1.0
+  matched_task_ids:
+  - 9
+  match_method: containment-0.6
+- requirement_id: INF-010
+  source: inferred
+  quote: the merge-rule allow-list lists files by path only and the plugin mirror joins it only in stage 4
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:16
+  best_task: 9
+  best_ratio: 1.0
+  matched_task_ids:
+  - 9
+  match_method: containment-0.6
+- requirement_id: INF-011
+  source: inferred
+  quote: '`agent_template_analysis.md` gets the merge-rule text only and the registry keeps exactly 11 `digest` rows'
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:16
+  best_task: 9
+  best_ratio: 1.0
+  matched_task_ids:
+  - 9
+  match_method: containment-0.6
+- requirement_id: INF-012
+  source: inferred
+  quote: T3's `src/superclaude` check applies to `digest` and `canonical` rows only
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:16
+  best_task: 9
+  best_ratio: 1.0
+  matched_task_ids:
+  - 9
+  match_method: containment-0.6
+- requirement_id: INF-013
+  source: inferred
+  quote: Each edit is listed in `./artifacts/spec-reconciliation.md` with its old and new text.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:16
+  best_task: 9
+  best_ratio: 0.875
+  matched_task_ids:
+  - 9
+  match_method: containment-0.6
+- requirement_id: INF-014
+  source: inferred
+  quote: the stage ledger of `stage-requests/README.md`
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:17
+  best_task: 10
+  best_ratio: 1.0
+  matched_task_ids:
+  - 10
+  match_method: containment-0.6
+- requirement_id: INF-015
+  source: inferred
+  quote: It still ends with the sentence that the owner's go for stage 1 is given in chat and not by this file.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:17
+  best_task: 10
+  best_ratio: 0.875
+  matched_task_ids:
+  - 10
+  match_method: containment-0.6
+- requirement_id: INF-016
+  source: inferred
+  quote: No Jev call, key or account.
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:21
+  best_task: 0
+  best_ratio: 1.0
+  matched_task_ids: []
+  match_method: containment-0.6
+- requirement_id: INF-017
+  source: inferred
+  quote: Do not change the cap of 2 fix cycles
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:21
+  best_task: 0
+  best_ratio: 1.0
+  matched_task_ids: []
+  match_method: containment-0.6
+- requirement_id: INF-018
+  source: inferred
+  quote: the owner can read one file
+  citation: .dev/tasks/to-do/TASK-WF-blockerStage0-20261116-021044/source.md:9
+  best_task: 7
+  best_ratio: 1.0
+  matched_task_ids:
+  - 7
+  match_method: containment-0.6
+parsed_count: 0
+inferred_count: 18

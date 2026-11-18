@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 
 import pytest
+from review_panel_golden import golden_panel
 
 from superclaude.cli.review import panel as pnl
 
@@ -59,7 +60,7 @@ def test_no_exclusion_is_byte_identical_to_golden(frozen_tiers, key, explicit):
     name, env, kind = key.split("|")
     extra = {"hard_exclude": (), "strict_distinct": False} if explicit else {}
     res = pnl.resolve(
-        pnl.packaged_panel(name),
+        golden_panel(name),
         frozen_tiers,
         env,
         "golden-run",

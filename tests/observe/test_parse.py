@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import json
 
 import pytest
 
@@ -18,6 +19,7 @@ from superclaude.cli.observe.parse import (
     parse_questions,
     parse_timestamp,
 )
+from tests.observe.conftest import question_payload
 
 T0 = "2026-11-08T12:00:00Z"
 T1 = "2026-11-08T12:00:10Z"
@@ -584,11 +586,36 @@ def test_markup_in_a_subject_stays_literal_text():
 
 
 def test_no_parsed_object_keeps_a_body_payload_or_recipient():
-    parsed = parse_questions(qenvelope([qrow(1)]), "orca-a", 1, QRUN)
-    (row,) = parsed.rows
-    for name in ("body", "payload", "to_handle", "dispatch_id", "delivered_at"):
-        assert not hasattr(row, name) and not hasattr(parsed, name), name
-    assert "SECRET" not in repr(parsed) and "run:" not in repr(parsed)
+    # the row carries a distinctive body and to_handle (qrow), and the payload carries a
+    # task id and an extra key that must not survive the link read either
+    payload = question_payload("disp_x", "visible ask", extra_secret="OPTSECRET")
+    for link in (False, True):
+        parsed = parse_questions(
+            qenvelope([qrow(1, payload=payload, from_handle="dispatch:disp_x")]),
+            "orca-a",
+            1,
+            QRUN,
+            link=link,
+        )
+        (row,) = parsed.rows
+        for name in (
+            "body",
+            "payload",
+            "to_handle",
+            "options",
+            "task_id",
+            "delivered_at",
+        ):
+            assert not hasattr(row, name) and not hasattr(parsed, name), name
+        text = repr(parsed)
+        for secret in ("SECRET BODY", "run:", "OPTSECRET", "task_synthetic01"):
+            assert secret not in text, secret
+        if link:  # only ask and dispatch_id carry payload-derived text
+            assert (row.ask, row.dispatch_id) == ("visible ask", "disp_x")
+            assert text.count("visible ask") == 1
+        else:
+            assert (row.ask, row.dispatch_id, row.link) == (UNKNOWN, UNKNOWN, "")
+            assert "visible ask" not in text  # (the sender text itself is a kept field)
 
 
 INJECTIONS = [
@@ -644,3 +671,137 @@ def test_a_non_ascii_deeply_nested_subject_becomes_text_not_an_error():
         qenvelope([qrow(1, subject=nested)]), "orca-a", 1, QRUN
     ).rows
     assert isinstance(row.subject, str) and "é" in row.subject
+
+
+# -- R3: the payload link (T57) ---------------------------------------------------------
+
+
+def _read(payload, sender="dispatch:disp_a", link=True):
+    envelope = qenvelope([qrow(1, payload=payload, from_handle=sender)])
+    (row,) = parse_questions(envelope, "orca-a", 1, QRUN, link=link).rows
+    return row
+
+
+def test_a_linked_payload_gives_the_question_text_and_dispatch_id():
+    row = _read(question_payload("disp_a", "Which database do we use?"))
+    assert (row.ask, row.dispatch_id, row.link) == (
+        "Which database do we use?",
+        "disp_a",
+        "linked",
+    )
+    assert row.subject == "probe question 1"  # the subject is untouched
+
+
+def test_a_dict_payload_is_read_like_a_json_string():
+    row = _read({"dispatchId": "disp_a", "question": "q?"})
+    assert (row.ask, row.dispatch_id, row.link) == ("q?", "disp_a", "linked")
+
+
+@pytest.mark.parametrize(
+    ("payload", "sender", "reason", "ask"),
+    [
+        (None, "dispatch:disp_a", "no payload", UNKNOWN),
+        ("  ", "dispatch:disp_a", "no payload", UNKNOWN),
+        ("{not json", "dispatch:disp_a", "payload not readable", UNKNOWN),
+        ("[1, 2]", "dispatch:disp_a", "payload not readable", UNKNOWN),
+        ("42", "dispatch:disp_a", "payload not readable", UNKNOWN),
+        ([1], "dispatch:disp_a", "payload not readable", UNKNOWN),
+        ("[" * 100_000, "dispatch:disp_a", "payload not readable", UNKNOWN),
+        ("[" * 60_000, "dispatch:disp_a", "payload not readable", UNKNOWN),  # in cap
+        (  # 30,000 characters but about 90,000 bytes: over the 64 KiB cap
+            '{"dispatchId": "disp_a", "question": "' + "日" * 30_000 + '"}',
+            "dispatch:disp_a",
+            "payload not readable",
+            UNKNOWN,
+        ),
+        (  # a hidden format character in the source sender is not a clean sender
+            question_payload("disp_a", "kept?"),
+            "dispatch:disp_a​",
+            "sender mismatch",
+            "kept?",
+        ),
+        (
+            "{" + " " * (70 * 1024) + '"dispatchId": "disp_a"}',
+            "dispatch:disp_a",
+            "payload not readable",
+            UNKNOWN,
+        ),
+        (
+            json.dumps({"question": "kept?"}),
+            "dispatch:disp_a",
+            "payload has no dispatchId",
+            "kept?",
+        ),
+        (
+            json.dumps({"dispatchId": 7, "question": "kept?"}),
+            "dispatch:disp_a",
+            "payload has no dispatchId",
+            "kept?",
+        ),
+        (
+            json.dumps({"dispatchId": "bad id!", "question": "kept?"}),
+            "dispatch:disp_a",
+            "payload has no dispatchId",
+            "kept?",
+        ),
+        (
+            question_payload("disp_a", "kept?"),
+            "dispatch:disp_other",
+            "sender mismatch",
+            "kept?",
+        ),
+        (
+            question_payload("disp_a", "kept?"),
+            "term_synthetic",
+            "sender mismatch",
+            "kept?",
+        ),
+    ],
+)
+def test_each_unlinked_reason_has_its_exact_text_and_never_raises(
+    payload, sender, reason, ask
+):
+    row = _read(payload, sender)
+    assert row.link == reason
+    assert row.ask == ask
+    assert row.dispatch_id is UNKNOWN  # an unlinked question never carries a join key
+
+
+def test_a_blank_or_escape_only_question_leaves_the_subject_in_place():
+    for text in ("", "   ", "\x1b[31m\x1b[0m", "\x07"):
+        row = _read(question_payload("disp_a", text))
+        assert row.ask is UNKNOWN and row.link == "linked"
+
+
+def test_a_long_question_is_cut_at_400_characters_with_a_visible_mark():
+    row = _read(question_payload("disp_a", "x" * 1000))
+    assert len(row.ask) == 400 and row.ask.endswith("...")
+    exact = _read(question_payload("disp_a", "y" * 400))
+    assert exact.ask == "y" * 400
+
+
+def test_markup_and_escapes_in_the_question_come_out_as_inert_text():
+    import unicodedata
+
+    row = _read(question_payload("disp_a", "[bold]hi\x1b[31m\x9b0m ‮end[/bold]\nnext"))
+    assert "[bold]hi" in row.ask and "\n" not in row.ask
+    assert all(unicodedata.category(ch) not in ("Cc", "Cf", "Cs") for ch in row.ask)
+
+
+def test_a_payload_over_the_cap_in_characters_is_refused_before_any_copy_is_made():
+    from superclaude.cli.observe.parse import PAYLOAD_CAP, _read_payload
+
+    class NoCopy(str):
+        def encode(self, *args, **kwargs):
+            raise AssertionError("an oversized payload must not be encoded")
+
+        def strip(self, *args, **kwargs):
+            raise AssertionError("an oversized payload must not be stripped")
+
+    ask, dispatch, state = _read_payload(NoCopy("x" * (PAYLOAD_CAP + 1)), "dispatch:a")
+    assert (ask, dispatch, state) == (UNKNOWN, UNKNOWN, "payload not readable")
+
+
+def test_with_the_link_switch_off_the_payload_is_not_read():
+    row = _read(question_payload("disp_a", "q?"), link=False)
+    assert (row.ask, row.dispatch_id, row.link) == (UNKNOWN, UNKNOWN, "")

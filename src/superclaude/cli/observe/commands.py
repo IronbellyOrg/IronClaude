@@ -11,7 +11,7 @@ import io
 import os
 import sys
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
@@ -60,11 +60,14 @@ REDRAW_SECONDS = (
 )
 WIDTHS = ("160", "116", "80")
 
-# The live coordinator-questions read is guarded by this one constant. It stays False until
-# the owner has written a record that QUESTION-OBSERVATION passed (release-gates.md, "Agents
-# cite the owner's statement, never write it"); plan Task 18 may flip it only against that
-# record, cited by path. While False, ``--questions`` makes no Orca call, not even discovery.
-QUESTION_GATE_PASSED = False
+# The live coordinator-questions read is guarded by this one constant. It is True because
+# the owner gave a record that QUESTION-OBSERVATION passed (release-gates.md, "Agents
+# cite the owner's statement"); plan Task 18 flipped it only against that
+# record, cited by path. When False, ``--questions`` makes no Orca call, not even discovery.
+QUESTION_GATE_PASSED = True  # owner record: .dev/issues/409/owner-pass-record-20261112.md  # fmt: skip
+# The question-to-session link (payload text, dispatch join, Decision Desk) is guarded by this
+# second constant: True because release-gates.md, section QUESTION-LINK, records the pass.
+QUESTION_LINK_PASSED = True  # gate record: .dev/issues/409/bmad/spec-orca-observer/release-gates.md QUESTION-LINK  # fmt: skip
 QUESTION_GATE_TEXT = (
     "question read not enabled: QUESTION-OBSERVATION has not passed"  # PROPOSED wording
 )
@@ -84,12 +87,15 @@ snapshot. It never writes to Orca: no key and no option maps to an Orca call.
 Poll caps (one read every 15 s, at most 5 calls per read) are per observer process; several
 observers running at once multiply the load on Orca.
 
-Coordinator questions (--questions, off until the owner records that QUESTION-OBSERVATION
-passed): with --run <runId> the observer lists the messages of type question of that one
+Coordinator questions (--questions; QUESTION-OBSERVATION passed on 2026-11-12, owner
+record .dev/issues/409/owner-pass-record-20261112.md): with --run <runId> the observer
+lists the messages of type question of that one
 named Run, from one read per cycle. Run it from the terminal that already holds the Run: the
 observer never runs run-use and never binds to a Run. The list is bounded best effort;
 coverage unknown; bursts over 100 rows between reads may be lost. Message bodies are
-received by this process; subjects are shown, bodies are not kept.
+received by this process; subjects are shown, bodies are not kept. With QUESTION-LINK on
+(release-gates.md) the question text from the payload is shown on screen in place of the
+subject and n and p select a question; it is not written to the record or snapshot.
 """
 
 
@@ -139,7 +145,6 @@ class Deps:
     state_directory: Path | None = None
     stdout: Any = None
     interval: float | None = None
-    extra: dict = field(default_factory=dict)
 
 
 def _policy_maker(options: Options, deps: Deps) -> Callable[[], Any]:
@@ -168,6 +173,11 @@ def _build_source(options: Options, deps: Deps) -> Any:
 def _questions_on(options: Options) -> bool:
     """True only when ``--questions`` is asked for and the gate guard is open."""
     return bool(options.questions and QUESTION_GATE_PASSED)
+
+
+def _link_on(options: Options) -> bool:
+    """True only when the questions are on and the QUESTION-LINK guard is open."""
+    return bool(_questions_on(options) and QUESTION_LINK_PASSED)
 
 
 def _question_refusal(options: Options) -> tuple[int, str] | None:
@@ -216,7 +226,11 @@ def run_once(options: Options, deps: Deps) -> int:
     clock = deps.clock or SystemClock()
     source = _build_source(options, deps)
     collector = Collector(
-        source, clock, run_id=options.run_id, questions=_questions_on(options)
+        source,
+        clock,
+        run_id=options.run_id,
+        questions=_questions_on(options),
+        link=_link_on(options),
     )
     result = collector.run_once()
     session = apply_cycle(Session(), result, clock)
@@ -353,6 +367,7 @@ def run_interactive(options: Options, deps: Deps) -> int:
             interval=deps.interval if deps.interval is not None else 15.0,
             run_id=options.run_id,
             questions=_questions_on(options),
+            link=_link_on(options),
         )
         directory = deps.state_directory or state_dir()
         live = not options.fixture
@@ -450,7 +465,10 @@ def _check_run(
     "questions",
     is_flag=True,
     help="List the coordinator questions (message type question) of the one Run named by "
-    "--run. Needs --run and a live source; refused until QUESTION-OBSERVATION has passed.",
+    "--run. Needs --run and a live source; QUESTION-OBSERVATION passed on 2026-11-12 "
+    "(owner record .dev/issues/409/owner-pass-record-20261112.md). With QUESTION-LINK on, "
+    "the question text from the payload is shown on screen in place of the subject and "
+    "n and p select a question; the text is not written to the record or snapshot.",
 )
 @click.pass_context
 def observe_group(

@@ -20,7 +20,7 @@ This updated design is authoritative for **new planning**. `merged-requirements.
 
 ## 1. Purpose and scope
 
-One script, `launch-level-guard.sh`, enforces the level that `/sc:issue --claim --pipeline <level>` gives a launched agent. Only sessions the claim script launched are governed; every other session is ordinary and never blocked.
+One script, `launch-level-guard.sh`, enforces the level that `/sc:issue --claim --pipeline <level>` gives a launched agent. Only sessions the claim script launched are governed; every other session is ordinary and never blocked. A worker that a coordinator starts after a `--pipeline none` claim (the coordinator handoff, amended 2026-11-17) is not launched by the claim script, so this guard does not govern it.
 
 | Level | Short | Allowed |
 |---|---|---|
@@ -55,7 +55,7 @@ first prompt (UserPromptSubmit)    consume nonce; publish sid without replacemen
   v
 each matched call (PreToolUse)     no bound id: exit 0 | jq -> level -> classes -> grid -> exit 0 or 2  FR-L-10
   v
-typed prompt (UserPromptSubmit)    "approved" or /sc:implement /sc:task /task at W: touch <sid>.ok  FR-L-15
+typed prompt (UserPromptSubmit)    /sc:implement /task at W: touch <sid>.ok  FR-L-15
   v
 release                            a person runs rm sessions/<sid> sessions/<sid>.ok  FR-L-07
 ```
@@ -186,7 +186,7 @@ No match: PUSHFORM. Match: destination is capture 5, else 3, minus one `refs/hea
 ## 6. Human approval and human versus agent
 
 - **Event:** UserPromptSubmit only (O-4).
-- **Match (FR-L-16):** whole prompt trimmed and lower-cased matches `^approved[.!]?$`, or first line matches `^/(sc:implement|sc:task|task)([[:space:]]|$)`. `/task-builder`, `/tasks`, `/sc:implement-protocol`, `please approved`, `approved, but`, `/sc:pr-submit` do not.
+- **Match (FR-L-16):** only the first line matching `^/(sc:implement|task)([[:space:]]|$)` releases. `/task-builder`, `/tasks`, `/sc:implement-protocol`, `approved`, `please approved`, `approved, but`, `/sc:pr-submit` do not. Amended: the plain `approved` route (a whole prompt `approved`, `approved.` or `approved!`) was removed for every worktree-level claim (owner decision Q39).
 - **Where (FR-L-15):** bound session, no `agent_id`, level `worktree` (or invalid word). Nothing at `F`, `FS`.
 - **Effect (FR-L-17):** `touch .ok`; `W` becomes `WA`. It unlocks IMPL (the grid also allows TURN at `WA`), never COMMIT, PUSH, SUBMIT or MERGE. A failed `touch` shows later as LL-IMPL. Lasts until a person deletes the files (O-6).
 - **Order (FR-L-18):** the prompt event runs before expansion, so `.ok` exists before Skill `sc:implement-protocol`. OB-H1 item 4 checks; fallback is UserPromptExpansion with exact `command_name`.
@@ -233,7 +233,7 @@ To stderr, then exit 2. Header: `Launch-level guard: this session was started by
 
 | Id | Blocked: | Why: | You can: |
 |---|---|---|---|
-| LL-IMPL | starting /sc:implement, /task, /sc:improve, /sc:cleanup, /sc:spawn or /sc:build (or their skills). | At the worktree level the agent stops at a plan until a person approves it. | Read the plan, then type /sc:implement or /task, or reply approved, in this session. |
+| LL-IMPL | starting /sc:implement, /task, /sc:improve, /sc:cleanup, /sc:spawn or /sc:build (or their skills). | At the worktree level the agent stops at a plan until a person approves it. | Read the plan, then type /sc:implement or /task in this session. |
 | LL-COMMIT | creating a commit (git commit, cherry-pick, revert, am, or moving a branch with update-ref). | Only a launch with --pipeline full --submit lets the agent commit. | Review the changes and commit them yourself, or claim the issue again with --pipeline full --submit. |
 | LL-PUSH | a git push. | Only a launch with --pipeline full --submit lets the agent push. | Push the branch yourself after review, or claim the issue again with --pipeline full --submit. |
 | LL-PUSH-FORM | a push that is not one plain git push command, or a command that names git and push together. | The guard can check a push only when the whole command is git push [-u] origin <branch> (or <source>:<branch>), with nothing before or after it; other forms (force, --all, another remote, variables, backticks, line continuations, chained or piped commands) can reach another remote or the main branch. | Run the push as its own command, exactly: git push origin <branch> or git push -u origin <branch>, with the branch name written out. |
@@ -245,7 +245,7 @@ To stderr, then exit 2. Header: `Launch-level guard: this session was started by
 | LL-UNKNOWN | a git or gh command the guard does not recognise (an unknown subcommand, a git alias definition, or a subcommand built from a variable or a substitution), or a line continuation inside a word [B-1]. | In a launched session only known git and gh commands may run, so a renamed command or an alias cannot commit, push or merge. | Use the standard command written out (for example git status, git diff, git add), or ask the person to run it. Write the command on one line [B-1]. |
 | LL-MCP | a GitHub write through an MCP tool. | The guard cannot check where an MCP write lands, so a launched session writes to GitHub only through git and gh. | Use git or gh for this step. |
 | LL-ESCAPE | starting or messaging another agent or session (claude, ccsession, orca, SendMessage, /sc:issue, a remote subagent, a workflow, a remote trigger) or typing into a terminal (tmux, screen, xdotool). | That work would run outside this session's launch level. | Do the work here (local subagents are allowed), or ask the person to start it. |
-| LL-TURN | scheduling a turn (a cron job or a wake-up) before the plan is approved. | Its prompt text arrives later as a new turn and could look like a person replying approved. | Wait until the person approves the plan, or use a background task or a monitor instead. |
+| LL-TURN | scheduling a turn (a cron job or a wake-up) before the plan is approved. | Its prompt text arrives later as a new turn and could look like a person typing a release prompt. | Wait until the person approves the plan, or use a background task or a monitor instead. |
 | LL-TAMPER | touching the launch-level state, the Claude Code settings or hooks, a git configuration file or the git pre-push hook, or reinstalling the hooks. | The session must not change its own limits. | Ask the person. To release this session they run, in their own terminal: rm "{store}/sessions/{sid}" "{store}/sessions/{sid}.ok" |
 | LL-SKILL | a skill call whose name the guard cannot read. | The guard cannot tell whether the skill is allowed at this level. | Report it (the hook input format may have changed); the person can release the session. |
 | LL-BIG | a command longer than 64 KB. | The guard cannot check a command that long in time. | Write the content to a file with the Write tool, then run a short command. |

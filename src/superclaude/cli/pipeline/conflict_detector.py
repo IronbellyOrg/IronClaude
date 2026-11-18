@@ -9,7 +9,7 @@ Conflict categories:
 Cross-references M2 invariant predicates and failure mode tables.
 Extensible synonym dictionary (R-014 mitigation).
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations

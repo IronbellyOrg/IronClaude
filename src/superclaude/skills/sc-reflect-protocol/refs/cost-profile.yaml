@@ -1,7 +1,7 @@
 # sc-reflect-protocol cost profile
 # ---------------------------------------------------------------------------
 # Mirrors §15 of the merged requirements spec (single source of truth).
-# Consumed PRE-INVOCATION by callers (sprint TurnLedger, CI) to pre-flight
+# Consumed PRE-INVOCATION by callers (budget ledgers, CI) to pre-flight
 # budget before invoking reflect. Reflect itself never reads this at runtime.
 #
 # Schema (top-level keys, all REQUIRED):

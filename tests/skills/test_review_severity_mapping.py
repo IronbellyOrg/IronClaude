@@ -125,7 +125,10 @@ def test_medium_tier_follows_the_untouched_s1_s5_bullets():
     )
     assert "is Medium" in flat and "never fails a review" in flat
     assert "never appears in a reviser brief" in flat
-    assert "asks the user once per loop whether to open an issue" in flat
+    assert (
+        "asks the user once per run, and again at any escalation halt, "
+        "whether to open an issue"
+    ) in flat
     assert "no issue is created without the user's answer" in flat
     assert "only records the list" in flat
     flat = _flat(scale)

@@ -57,15 +57,6 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 | `--depth` | Analysis thoroughness | `quick`, `deep` |
 | `--format` | Output format | `text`, `json`, `report` |
 
-### Build Command Flags (`/sc:build`)
-
-| Flag | Purpose | Values |
-|------|---------|--------|
-| `--type` | Build configuration | `dev`, `prod`, `test` |
-| `--clean` | Clean before build | Boolean |
-| `--optimize` | Enable optimizations | Boolean |
-| `--verbose` | Detailed output | Boolean |
-
 ### Design Command Flags (`/sc:design`)
 
 | Flag | Purpose | Values |
@@ -81,14 +72,6 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 | `--format` | Explanation style | `text`, `examples`, `interactive` |
 | `--context` | Domain context | Any domain (e.g., `react`, `security`) |
 
-### Improve Command Flags (`/sc:improve`)
-
-| Flag | Purpose | Values |
-|------|---------|--------|
-| `--type` | Improvement focus | `quality`, `performance`, `maintainability`, `style` |
-| `--safe` | Conservative approach | Boolean |
-| `--interactive` | User guidance | Boolean |
-
 ### Task Command Flags (`/sc:task`)
 
 | Flag | Purpose | Values |
@@ -103,7 +86,7 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 |------|---------|--------|
 | `--strategy` | Workflow approach | `systematic`, `agile`, `enterprise` |
 | `--depth` | Analysis depth | `quick`, `standard`, `deep` |
-| `--handoff` | Next command | `none`, `design`, `implement`, `tasklist` |
+| `--handoff` | Next command | `none`, `design`, `implement` |
 
 `--output` is retired (`E-LEGACY`): plans are always written to a new `.dev/tasks/to-do/TASK-WF-…/` package.
 
@@ -121,13 +104,6 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 | `--type` | Cleanup target | `code`, `imports`, `files`, `all` |
 | `--safe` / `--aggressive` | Cleanup intensity | Boolean |
 | `--interactive` | User guidance | Boolean |
-
-### Index Command Flags (`/sc:index`)
-
-| Flag | Purpose | Values |
-|------|---------|--------|
-| `--type` | Index target | `docs`, `api`, `structure`, `readme` |
-| `--format` | Output format | `md`, `json`, `yaml` |
 
 ### Reflect Command Flags (`/sc:reflect`)
 
@@ -156,13 +132,6 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 |------|---------|---------|
 | `--type task --analyze` | Pre-execution analysis audit | `--mode pre` |
 | `--type task --validate` | Post-execution validation audit | `--mode post` |
-
-### Spawn Command Flags (`/sc:spawn`)
-
-| Flag | Purpose | Values |
-|------|---------|--------|
-| `--strategy` | Coordination approach | `sequential`, `parallel`, `adaptive` |
-| `--depth` | Analysis depth | `normal`, `deep` |
 
 ### Git Command Flags (`/sc:git`)
 
@@ -260,13 +229,9 @@ Like the flags at the top of this page, the flags under Scope and Focus and Exec
 | `--version` | `superclaude --version` | Show the installed version |
 | `--help` | `superclaude --help`, or `superclaude <subcommand> --help` | Show the options of the command or subcommand |
 | `--verbose` | `superclaude doctor --verbose` | Show detailed diagnostic information |
-| `--dry-run` | `superclaude mcp --dry-run`, `superclaude sprint run ... --dry-run` | Show what would happen without doing it |
+| `--dry-run` | `superclaude mcp --dry-run` | Show what would happen without doing it |
 | `--force` | `superclaude install --force`, `superclaude install-skill <name> --force` | Reinstall even if the files already exist. `install --force` is required for the 5.0.0 upgrade, because a plain `install` skips existing files; it overwrites edited core files, commands and agents in `~/.claude/` without a backup and re-copies skill folders |
 | `--list` | `superclaude install --list` | List the framework components without installing |
-| `--resume <task_id>` | `superclaude sprint run ... --resume <task_id>` | Resume from a task id, skipping tasks that already passed |
-| `--task-parallelism K` | `superclaude sprint run ... --task-parallelism K` | Run K tasks of a phase at once (default `1`, sequential) |
-| `--handoff` / `--no-handoff` | `superclaude sprint run ...` | Turn per-task handoff records on (default) or off |
-| `--yes` / `-y` | `superclaude sprint run ... --yes`, `superclaude sprint rerun-tasks ... --yes` | Answer yes to the sprint confirmation prompts; on `sprint run` it allows non-interactive auto-resume (also `CI=1` or `SUPERCLAUDE_SPRINT_ASSUME_YES=1`) |
 
 ## Flag Interactions
 

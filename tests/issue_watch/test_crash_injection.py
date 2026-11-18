@@ -35,7 +35,7 @@ from .conftest import (
 ISSUE = 9
 RERUNS = 5
 GAP_S = 300  # the clock moves 5 minutes before each run, as a timer would
-PROMPT = f"/sc:issue --claim {ISSUE}"
+PROMPT = f"/sc:issue --claim {ISSUE} --pipeline none"
 USER_ARGV = tuple(github.argv_user())
 
 

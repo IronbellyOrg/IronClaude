@@ -1,0 +1,7 @@
+# T6 checks
+AC1 tests:
+
+============================= 862 passed in 2.79s ==============================
+AC2 removed tests: test_load_usage_line_declares_checkpoint_and_load_is_not_converted (1) plus the 'load' case of test_unconverted_command_has_no_unattended_section (1)
+collected counts now vs baseline-before:
+========================= 766 tests collected in 0.10s =========================

@@ -1,0 +1,11 @@
+# T6 checks (second run after removing the three build phrase asserts)
+........................................................................ [ 90%]
+...............................                                          [100%]
+============================= 319 passed in 2.16s ==============================
+....................................                                     [100%]
+============================= 180 passed in 1.74s ==============================
+AC2 git grep sc:build in tests (4 hits, all the removal-rewrite strings and comments that must name the removed command to match the historical design doc):
+tests/hooks/test_launch_level_guard.py:79:# removal here (6.0.0 removed /sc:spawn and /sc:build). Th
+tests/hooks/test_launch_level_guard.py:81:    ("/sc:cleanup, /sc:spawn or /sc:build", "/sc:cleanup o
+tests/hooks/test_launch_level_guard.py:82:    ("/sc:improve, /sc:cleanup or /sc:build", "/sc:improve
+tests/recommend/test_routing_refresh.py:36:# Orca) and /sc:build went in 6.0.0. The frozen command r

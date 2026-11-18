@@ -157,9 +157,6 @@ Current top-level command functions exported from `main.py` include:
 
 The CLI tree also contains larger workflow subsystems:
 
-- `sprint/`
-- `roadmap/`
-- `cleanup_audit/`
 - `pipeline/`
 - `audit/`
 
@@ -237,14 +234,10 @@ This tree contains a large set of markdown-defined commands, including:
 
 - `implement.md`
 - `analyze.md`
-- `build.md`
 - `document.md`
 - `research.md`
 - `task-unified.md`
 - `cleanup-audit.md`
-- `index.md`
-- `index-repo.md`
-- `roadmap.md`
 - and many others
 
 ### Skills
@@ -255,11 +248,8 @@ The repo includes both user-facing and protocol-style skills, for example:
 
 - `confidence-check/`
 - `sc-task-unified-protocol/`
-- `sc-cli-portify-protocol/`
-- `sc-roadmap-protocol/`
 - `sc-cleanup-audit-protocol/`
 - `sc-adversarial-protocol/`
-- `sc-review-translation-protocol/`
 
 Many skill packages include a mix of:
 
@@ -297,9 +287,6 @@ flowchart TD
     F --> L[install-skill]
     F --> M[doctor]
     F --> N[version]
-    F --> O[sprint group]
-    F --> P[roadmap group]
-    F --> Q[cleanup-audit group]
 ```
 
 A second useful view is the CLI subsystem structure:
@@ -310,15 +297,9 @@ flowchart TB
     CLI --> MAIN[main.py]
     CLI --> DOCTOR[doctor.py]
     CLI --> INSTALLERS[install_*.py]
-    CLI --> SPRINT[sprint/]
-    CLI --> ROADMAP[roadmap/]
-    CLI --> CLEANUP[cleanup_audit/]
     CLI --> PIPELINE[pipeline/]
     CLI --> AUDIT[audit/]
 
-    SPRINT --> SPRINT_PARTS[commands / executor / config / models / tmux / tui]
-    ROADMAP --> ROADMAP_PARTS[commands / executor / validate_executor / gates / prompts / models]
-    CLEANUP --> CLEANUP_PARTS[commands / executor / config / models / prompts / gates / tui]
     PIPELINE --> PIPELINE_PARTS[shared runners / gates / passes / process / diagnostics]
     AUDIT --> AUDIT_PARTS[classification / validation / duplication / reports / orchestration]
 ```

@@ -1,0 +1,12 @@
+# T6 checks
+baseline passed in tests/recommend: 312
+  tests/core/test_how_we_work_routing_table.py ........................... [ 85%]
+  ....................................................                     [ 97%]
+  tests/core/test_orca_session_launch_guidance.py .....                    [ 99%]
+  tests/core/test_research_config.py ....                                  [100%]
+  
+  ============================= 416 passed in 7.70s ==============================
+sc:spawn in fixture: 0
+  767:    {"name": "spawn", "history": "Active; M+F", "disposition": "CHANGE", "requirements_tests": "FR-04/05; S27/T40/T45", "report": "analy
+fixture json parses
+note: baseline tests/recommend 312 passed, now 304; the 8 missing are exactly the 8 [S27] cases (listed in the baseline log)

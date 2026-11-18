@@ -1,0 +1,27 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/limits-repair-policy/merged-output.md"
+  convergence_score: 0.8571   # 24 of 28 diff points agreed (threshold 0.80); status BLOCKED_BY_INVARIANTS
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/TASK-RESEARCH-review-panel-run2-20261114-075454/reviews/adversarial/limits-repair-policy/adversarial/"
+  status: "partial"   # pipeline completed all 5 steps; convergence blocked by 4 HIGH UNADDRESSED invariants; 4 diff points unresolved
+  base_variant: "variant-2 (Proposal B; default model, default persona)"
+  unresolved_conflicts: 4   # C-001 (claim part), C-002, C-009, C-012
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:   # HIGH-severity UNADDRESSED items from the Round 2.5 invariant probe
+    - id: "INV-001"
+      category: "state_variables"
+      assumption: "The dropped-blocking refusal makes a PASS that rests on a lost blocking-or-unknown line impossible; it is stated only for the current round, and the ledger keeps no cross-round list of unresolved dropped lines."
+      severity: "HIGH"
+    - id: "INV-017"
+      category: "interaction_effects"
+      assumption: "A cut anchor still locates uniquely with the same first span; a 200-character prefix can match more than one place, annotate takes the first, and anchor_ambiguous is read nowhere, so a new blocking defect can be absorbed by a deferred row and pass with nothing dropped."
+      severity: "HIGH"
+    - id: "INV-018"
+      category: "interaction_effects"
+      assumption: "In reflect the re-ask can be triggered from the repaired parse state, recorded as attempt 2 before the collected commit, and the first-pass rate read from first_pass_state; cluster_cmd and verify_cmd run at step 6, after the collected commit of steps 3-4."
+      severity: "HIGH"
+    - id: "INV-023"
+      category: "sufficiency_challenge"
+      assumption: "Cutting the three location fields plus itemise plus a refusal closes the PASS-by-loss defect and the v2 loss unit; a cross-round forgotten drop, a prefix absorbed by a deferred row, and a truncated block each falsify it alone."
+      severity: "HIGH"

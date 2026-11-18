@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-implementTheDesi-20261031-182028-shadow11/adversarial/adversarial/merged-verdict.yaml"
+  convergence_score: 1.00
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-implementTheDesi-20261031-182028-shadow11/adversarial/adversarial"
+  status: "success"
+  base_variant: "haiku:qa"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  judge_identity: "orchestrator-inline (similarity path; no separate judge agent spawned)"

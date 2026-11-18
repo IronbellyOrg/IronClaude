@@ -1,0 +1,357 @@
+{
+ "parsed_count": 0,
+ "inferred_count": 32,
+ "matched": 24,
+ "total": 32,
+ "coverage_pct": null,
+ "coverage_pct_union": 0.75,
+ "coverage_degraded": "parsed-sparse",
+ "unmapped_requirements_union": [
+  "INF-004",
+  "INF-011",
+  "INF-013",
+  "INF-014",
+  "INF-015",
+  "INF-019",
+  "INF-026",
+  "INF-032"
+ ],
+ "rows": [
+  {
+   "id": "INF-001",
+   "source": "inferred",
+   "quote": "engage at the first verified Medium-or-higher finding routed to a fix",
+   "citation": "source.md:6",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 0.875,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-002",
+   "source": "inferred",
+   "quote": "release when the fix push is confirmed on the PR head, before replies and the re-trigger",
+   "citation": "source.md:6",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 0.889,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-003",
+   "source": "inferred",
+   "quote": "an unreadable timeline or an exit with unpublished fixes keeps the PR draft and reports",
+   "citation": "source.md:6",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 0.778,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-004",
+   "source": "inferred",
+   "quote": "No `gh` or `git` word on any line, comments included (F6).",
+   "citation": "source.md:75",
+   "matched_task_ids": [],
+   "ratio": 0.571,
+   "match_method": "none"
+  },
+  {
+   "id": "INF-005",
+   "source": "inferred",
+   "quote": "Never collides with `CONFLICT_CYCLE_PREFIXES`.",
+   "citation": "source.md:101",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "ratio": 0.667,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-006",
+   "source": "inferred",
+   "quote": "It is the only way resume learns that a held cycle's push completed normally (F13).",
+   "citation": "source.md:108",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 0.7,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-007",
+   "source": "inferred",
+   "quote": "A halt with reason `draft_guard_unavailable` reports `unavailable`.",
+   "citation": "source.md:112",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 0.8,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-008",
+   "source": "inferred",
+   "quote": "`failed_mutations` keeps a call that failed on the client but landed on the server from being read as a user action",
+   "citation": "source.md:127",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "ratio": 0.6,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-009",
+   "source": "inferred",
+   "quote": "`NOOP` (reason `mode_off`, `ordinal`, `conflict_cycle`)",
+   "citation": "source.md:133",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "ratio": 0.6,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-010",
+   "source": "inferred",
+   "quote": "43 to 45, update the docstring",
+   "citation": "source.md:175",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "ratio": 1.0,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-011",
+   "source": "inferred",
+   "quote": "It is NOT `DISABLED`, so a crash before the call does not leave later cycles unguarded.",
+   "citation": "source.md:201",
+   "matched_task_ids": [],
+   "ratio": 0.429,
+   "match_method": "none"
+  },
+  {
+   "id": "INF-012",
+   "source": "inferred",
+   "quote": "`original_is_draft` is never read from GitHub after the first record",
+   "citation": "source.md:208",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "ratio": 0.833,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-013",
+   "source": "inferred",
+   "quote": "Effective only at `--monitor 3`; accepted and inert below.",
+   "citation": "source.md:216",
+   "matched_task_ids": [],
+   "ratio": 0.5,
+   "match_method": "none"
+  },
+  {
+   "id": "INF-014",
+   "source": "inferred",
+   "quote": "`RunConfig` and `run_skill` do not change (F5): the guard is SKILL-orchestrated.",
+   "citation": "source.md:217",
+   "matched_task_ids": [],
+   "ratio": 0.429,
+   "match_method": "none"
+  },
+  {
+   "id": "INF-015",
+   "source": "inferred",
+   "quote": "`--to` is idempotent, so a retry or a resume re-issue is safe.",
+   "citation": "source.md:234",
+   "matched_task_ids": [],
+   "ratio": 0.5,
+   "match_method": "none"
+  },
+  {
+   "id": "INF-016",
+   "source": "inferred",
+   "quote": "Loaded lazily at L3 Wave 3, Wave 6 and Wave 8.",
+   "citation": "source.md:240",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 0.857,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-017",
+   "source": "inferred",
+   "quote": "No new python fence",
+   "citation": "source.md:241",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "ratio": 1.0,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-018",
+   "source": "inferred",
+   "quote": "A `held` report always carries the reason and",
+   "citation": "source.md:247",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 0.8,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-019",
+   "source": "inferred",
+   "quote": "keep exactly one source for it (open item O1)",
+   "citation": "source.md:251",
+   "matched_task_ids": [],
+   "ratio": 0.571,
+   "match_method": "none"
+  },
+  {
+   "id": "INF-020",
+   "source": "inferred",
+   "quote": "The `read-only` category is not used for these calls",
+   "citation": "source.md:255",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "ratio": 0.75,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-021",
+   "source": "inferred",
+   "quote": "Acceptance trace (must appear in this order in the run log)",
+   "citation": "source.md:270",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "ratio": 0.833,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-022",
+   "source": "inferred",
+   "quote": "Run `make sync-dev` at the end of every task that edits a file under",
+   "citation": "source.md:301",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 0.875,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-023",
+   "source": "inferred",
+   "quote": "the run that opens the PR must not enable the feature (`--merge-guard off`)",
+   "citation": "source.md:326",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "ratio": 0.875,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-024",
+   "source": "inferred",
+   "quote": "A static test asserts `merge_guard.py` has no `gh` or `git` word.",
+   "citation": "source.md:322",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "ratio": 1.0,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-025",
+   "source": "inferred",
+   "quote": "Cite tests and constants by symbol name",
+   "citation": "source.md:362",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "ratio": 0.6,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-026",
+   "source": "inferred",
+   "quote": "Protocol prose written by the plan never carries `file:NNN` pointers",
+   "citation": "source.md:369",
+   "matched_task_ids": [],
+   "ratio": 0.556,
+   "match_method": "none"
+  },
+  {
+   "id": "INF-027",
+   "source": "inferred",
+   "quote": "The L2 line is written into the SKILL.md output table",
+   "citation": "source.md:374",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "ratio": 1.0,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-028",
+   "source": "inferred",
+   "quote": "a settled `not_applied` of either direction returns to `phase_before_request`",
+   "citation": "source.md:376",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "ratio": 0.833,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-029",
+   "source": "inferred",
+   "quote": "Script `--read` must show `state == OPEN`; otherwise halt `pr_not_open`, push nothing.",
+   "citation": "source.md:64",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 1.0,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-030",
+   "source": "inferred",
+   "quote": "Release, cause `pushed`, before reply, resolve and the S5a re-trigger.",
+   "citation": "source.md:65",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 0.75,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-031",
+   "source": "inferred",
+   "quote": "Halt before any edit: `terminal_halted`, reason `draft_guard_unavailable`.",
+   "citation": "source.md:68",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 1.0,
+   "match_method": "containment"
+  },
+  {
+   "id": "INF-032",
+   "source": "inferred",
+   "quote": "Settle `skipped/user_override`, phase `disabled`, no more draft calls, keep pushing, report.",
+   "citation": "source.md:66",
+   "matched_task_ids": [],
+   "ratio": 0.545,
+   "match_method": "none"
+  }
+ ]
+}
