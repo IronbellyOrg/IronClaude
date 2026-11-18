@@ -417,7 +417,7 @@
       <rect class="d-box-acc" x="674" y="70" width="154" height="96" rx="8"/>
       <text class="d-tb" x="684" y="94">Implement</text><text class="d-tm d-tm-s" x="684" y="118">/sc:implement</text>
       <rect class="d-box" x="840" y="70" width="154" height="96" rx="8"/>
-      <text class="d-tb" x="850" y="94">Review</text><text class="d-tm d-tm-s" x="850" y="118">/code-review</text><text class="d-tm d-tm-s" x="850" y="140">/sc:auggie-review</text>
+      <text class="d-tb" x="850" y="94">Review</text><text class="d-ts" x="850" y="140">automatic on the PR</text>
       <rect class="d-box" x="1006" y="70" width="154" height="96" rx="8"/>
       <text class="d-tb" x="1016" y="94">Open PR</text><text class="d-tm d-tm-s" x="1016" y="118">/sc:pr-submit</text>
       <path class="d-line" d="M164,118 L174,118" marker-end="url(#ah5)"/>
@@ -476,8 +476,6 @@
   <p><strong>Ship only when it is requested and authorized</strong>, in this order:</p>
   <ul>
     <li><strong>Commit locally</strong> on your feature branch, only when authorized.</li>
-    <li><strong>Bug review:</strong> <code>/code-review</code>. <strong>Security review</strong> if you touched login, permissions, secrets, user input or file paths: <code>/security-review</code>. Authorize and record any fixes before the branch review.</li>
-    <li><strong>Branch review:</strong> <code class="long"><span class="nw">/sc:auggie-review</span> <span class="nw">--diff origin/&lt;main branch&gt;...HEAD</span> <span class="nw">--no-post-pr</span> <span class="nw">--no-remediation-offer</span></code>.</li>
     <li><strong>Push only with your lead's approval.</strong></li>
     <li><strong>Open the PR</strong> with <code>/sc:pr-submit</code> and the one monitor ceiling you chose (below).</li>
   </ul>
@@ -598,7 +596,7 @@
         <tr><td>5 · Research first</td><td><code>/tech-research</code>; stop at the report, or plan with <code>/sc:workflow</code> if you decide to build</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#35-investigate-how-something-works-or-whether-an-idea-is-feasible">3.5</a></td></tr>
         <tr><td>6 · Write a full specification</td><td><code>/prd</code> → <code>/tdd</code>; then <code>/sc:workflow</code> → <code>/sc:implement</code> if implementation is requested (<code>/roadmap</code> only if explicitly chosen or exceptionally justified)</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#31-build-a-new-product-or-major-feature-full-specification">3.1</a></td></tr>
         <tr><td>Fix a bug</td><td><code>/sc:troubleshoot</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#34-fix-a-bug">3.4</a></td></tr>
-        <tr><td>Review only, or ship</td><td>Review only: <code>/sc:auggie-review</code> with <code>--no-post-pr --no-remediation-offer</code>. Ship when requested and authorized: <code>/code-review</code>, <code>/sc:auggie-review</code>, then <code>/sc:pr-submit</code> with the one <code>--monitor</code> ceiling (0 to 3) you chose</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#311-review-only-or-deliberately-ship-and-open-a-pull-request">3.11</a></td></tr>
+        <tr><td>Review only, or ship</td><td>Review only: <code>/sc:auggie-review</code> with <code>--no-post-pr --no-remediation-offer</code>. Ship when requested and authorized: <code>/sc:pr-submit</code> with the one <code>--monitor</code> ceiling (0 to 3) you chose</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#311-review-only-or-deliberately-ship-and-open-a-pull-request">3.11</a></td></tr>
         <tr><td>Resume</td><td>The same command again, or <code>ccsession &lt;name&gt;</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#312-resume-after-a-crash-or-a-lost-session">3.12</a></td></tr>
         <tr><td>Unsure</td><td><code>/sc:recommend</code>, <code>/sc:help</code>, your lead</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#4-rules-everyone-follows">4</a></td></tr>
       </tbody>
