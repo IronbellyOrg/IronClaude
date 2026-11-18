@@ -145,6 +145,12 @@ One entry per step. Each entry: date and time (UTC), the step, the commands or s
 - **From the agent's notes:** the baseline run blocks all edits for about 7 minutes (the agent waited), so run it in a copy of the tree; routing and worker-contract tests pin counts (12 commands, 15 brief rows), so edits need a line-level map; a byte-twin of the cap-edits fixture under `.dev/` must change with the original (a test compares them).
 - **Observation for the template:** a wave of one PR needed no rebase and merged 31 minutes after agent start; waves of three took 60 to 94 minutes, so each PR waited longer, but three PRs per 60 to 94 minutes is still better throughput than one per 31. The overhead of parallel waves is rebases (one or two per wave) and test-run contention (baselines failing different load-sensitive tests); it is not a reason to run PRs one at a time.
 
+### 22. Wave 4 reported; wave 5 started (2026-11-18 00:26Z to 00:28Z)
+- **Step:** posted the wave 4 comment on issue 571 (https://github.com/IronbellyOrg/IronClaude/issues/571#issuecomment-6965128936); sent the summary to `GeneralIronFlow`; master into `integration` returned 204 (`integration` at `956f49642`); wrote the PR 9 `index` and PR 11 `roadmap-family` prompts; created two worktrees and agents; started two watches.
+- **Check before launch:** I confirmed with `git grep` on `origin/integration` that the only kept file importing `cli/roadmap`, `cli/tasklist` or `cli/sprint` is `cli/main.py` (registrations), that `compression.py` is used only by `cli/roadmap/executor.py`, and that the plain `roadmap` skill, `task`, `task-builder`, `tdd` and the other documentation skills exist separately from the three `sc-*-protocol` skills being removed. The PR 11 prompt says what stays and tells the agent to STOP if any kept module imports a removed one.
+- **Time:** about 6 minutes, mostly the PR 11 scope text.
+- **Expectation:** PR 9 is small and should merge first; PR 11 (about 400 deleted files) will need a rebase after it.
+
 ## Out of scope, for later
 - The task and documentation bundle (Part B of issue 571) and the agents evaluation (issue 572).
 - Ryan's request of 2026-11-17 14:40 to fold the eight analysis documents (`sweep`, `observe`, `review-safety-scan`, `review-fixcheck-and-consequence-rule`, `shadow-run-and-review-panel`, `issue-pipeline`, `launch-level-guard`, `ccsession-retention`) into the docs and processes.
