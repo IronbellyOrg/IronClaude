@@ -220,6 +220,13 @@ def _removal_command(finding: Finding) -> str:
     return f"{verb} {shlex.quote(str(finding.path))}"
 
 
+def _still_proven(path: Path, hashes: tuple) -> bool:
+    try:
+        return _is_regular(path) and _sha256(path) in hashes
+    except OSError:
+        return False
+
+
 def _remove(finding: Finding, commands_dir: Path | None) -> str:
     """Re-check the proof right before deleting; returns removed | kept | failed."""
     fresh = _classify_one(finding.kind, finding.name, commands_dir)
@@ -227,7 +234,19 @@ def _remove(finding: Finding, commands_dir: Path | None) -> str:
         return "kept"
     try:
         if fresh.kind == "skill":
+            files = data.RETIRED_SKILLS[fresh.name]
             for path in fresh.files:
+                # Proof again for every file, right before it goes: the classification
+                # above ran before the first delete, and a file may change meanwhile.
+                rel = path.relative_to(fresh.path).as_posix()
+                if not _still_proven(path, files[rel]):
+                    click.echo(
+                        f"   Kept the rest of {_label(fresh)}: {rel} changed while "
+                        "this step ran (the files removed before it were unchanged). "
+                        f"Remove it yourself with `{_removal_command(fresh)}` if "
+                        "you want it gone."
+                    )
+                    return "kept"
                 path.unlink()
             for root, _dirs, _files in os.walk(fresh.path, topdown=False):
                 os.rmdir(root)

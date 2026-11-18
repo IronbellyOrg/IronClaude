@@ -447,6 +447,33 @@ def test_a_file_edited_between_the_check_and_the_delete_is_kept(
     assert path.read_bytes() == OLD_CMD + b"late edit\n"
 
 
+def test_a_skill_file_edited_after_the_first_delete_is_never_removed(
+    home, synthetic, monkeypatch, capsys
+):
+    """Each file is proven again right before it goes, not once for the folder."""
+    folder = _claude(home) / "skills" / "gone-skill"
+    _lay_skill(folder)
+    real_unlink = Path.unlink
+    removed = []
+
+    def edit_the_rest_after_the_first_delete(self, *args, **kwargs):
+        real_unlink(self, *args, **kwargs)
+        removed.append(self)
+        if len(removed) == 1:
+            for left in folder.rglob("*"):
+                if left.is_file():
+                    left.write_bytes(left.read_bytes() + b"my late edit\n")
+
+    monkeypatch.setattr(Path, "unlink", edit_the_rest_after_the_first_delete)
+    assert retire.run_retire_files_step() == {"skill:gone-skill": "kept"}
+    out = capsys.readouterr().out
+    assert len(removed) == 1
+    survivors = [p for p in folder.rglob("*") if p.is_file()]
+    assert len(survivors) == len(SKILL_FILES) - 1
+    assert all(p.read_bytes().endswith(b"my late edit\n") for p in survivors)
+    assert "changed while this step ran" in out and f"rm -r {folder}" in out
+
+
 # ---- the upgrade from an installed 5.0.0 ------------------------------------------
 
 
