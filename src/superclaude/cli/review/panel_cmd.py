@@ -77,6 +77,25 @@ def resolve_cmd(
         panel = pnl.load_panel(template)
         tiers = pnl.load_tiers(tiers_path)
         errors = pnl.validate_panel(panel, tiers, sequence=sequence)
+        # Only the packaged default falls back, and only for tiers a custom tier file lacks.
+        if (
+            errors
+            and not template
+            and pnl.find_path("panel") is None
+            and all("is not defined in the tier file" in e for e in errors)
+        ):
+            missing = sorted(
+                {s["tier"] for s in panel["slots"]} - set(tiers["aliases"])
+            )
+            click.echo(
+                f"warning: your tier file does not define {', '.join(missing)}, which the default "
+                f"panel '{panel['template_id']}' needs. Falling back to the 'classic' panel. To use "
+                f"'{panel['template_id']}', add those tiers to your tier file (see "
+                "review-tiers.default.json for the format).",
+                err=True,
+            )
+            panel = pnl.packaged_panel("classic")
+            errors = pnl.validate_panel(panel, tiers, sequence=sequence)
         if errors:
             raise ValueError("invalid panel template: " + "; ".join(errors))
         class_map = tiers.get("classes", {})
