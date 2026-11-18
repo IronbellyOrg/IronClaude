@@ -125,3 +125,4 @@ The orchestrator deletes no worktree. Finished, for Clay to remove later (`orca 
 | `v6-roadmap-family` | `/home/coder/workspaces/worktrees/IronClaude/v6-roadmap-family` | #632 |
 | `v6-retire-step` | `/home/coder/workspaces/worktrees/IronClaude/v6-retire-step` | #633 |
 | `v6-merge-master` | `/home/coder/workspaces/worktrees/IronClaude/v6-merge-master` | #639 |
+| `v6-fix-install-keep-test` | `/home/coder/workspaces/worktrees/IronClaude/v6-fix-install-keep-test` | #646 |
