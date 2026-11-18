@@ -427,7 +427,7 @@ def test_a_failed_delete_is_reported_and_never_raised(
 
 
 def test_a_file_edited_between_the_check_and_the_delete_is_kept(
-    home, synthetic, monkeypatch
+    home, synthetic, monkeypatch, capsys
 ):
     path = _claude(home) / "commands" / "sc" / "gone-cmd.md"
     path.parent.mkdir(parents=True)
@@ -445,6 +445,8 @@ def test_a_file_edited_between_the_check_and_the_delete_is_kept(
     monkeypatch.setattr(retire, "_classify_one", edit_after_first_look)
     assert retire.run_retire_files_step() == {"command:gone-cmd": "kept"}
     assert path.read_bytes() == OLD_CMD + b"late edit\n"
+    out = capsys.readouterr().out
+    assert out.count("Kept /sc:gone-cmd") == 1 and f"rm {path}" in out
 
 
 def test_a_skill_file_edited_after_the_first_delete_is_never_removed(
@@ -472,6 +474,7 @@ def test_a_skill_file_edited_after_the_first_delete_is_never_removed(
     assert len(survivors) == len(SKILL_FILES) - 1
     assert all(p.read_bytes().endswith(b"my late edit\n") for p in survivors)
     assert "changed while this step ran" in out and f"rm -r {folder}" in out
+    assert out.count("Kept") == 1  # one line per item, not a second generic one
 
 
 # ---- the upgrade from an installed 5.0.0 ------------------------------------------

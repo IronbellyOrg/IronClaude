@@ -231,6 +231,11 @@ def _remove(finding: Finding, commands_dir: Path | None) -> str:
     """Re-check the proof right before deleting; returns removed | kept | failed."""
     fresh = _classify_one(finding.kind, finding.name, commands_dir)
     if fresh.verdict != "remove":
+        # Every "kept" return prints its own single line, so the caller prints none.
+        click.echo(
+            f"   Kept {_label(fresh)}: it changed while this step ran. Remove it "
+            f"yourself with `{_removal_command(fresh)}` if you want it gone."
+        )
         return "kept"
     try:
         if fresh.kind == "skill":
@@ -293,8 +298,6 @@ def run_retire_files_step(commands_dir: Path | None = None) -> dict[str, str]:
                 f"   Removed {_label(finding)} (this release no longer ships it; "
                 f"{finding.reason})"
             )
-        elif outcome == "kept":
-            click.echo(f"   Kept {_label(finding)}: it changed while this step ran")
     if removed_any:
         click.echo(
             "   Restart running Claude Code sessions so the removed commands "
