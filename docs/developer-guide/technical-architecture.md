@@ -86,6 +86,8 @@ Note: Other directories (backups/, projects/, etc.) are Claude Code
 operational directories, not part of SuperClaude framework content.
 ```
 
+`superclaude install` and `superclaude update` also remove, from `~/.claude/commands/sc/`, `~/.claude/skills/` and `~/.claude/agents/`, the commands, skills and agents an earlier release shipped and this one does not. They remove only files whose content matches the file at that release's tag (`src/superclaude/cli/install_retired_files.py`, with the generated list in `install_retired_data.py`); anything else is kept and reported with the command that removes it.
+
 `superclaude install` also writes outside `~/.claude/`. The `versions/`, `current` and `~/.local/bin/codegraph` entries appear only when the installer downloads the pinned codegraph itself, because none was found on `PATH` or in `~/.local/bin`:
 
 ```text

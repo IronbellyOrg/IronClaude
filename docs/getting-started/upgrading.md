@@ -226,7 +226,7 @@ claude mcp remove serena --scope user
 
 ### Files 5.0.0 no longer ships
 
-The installer never deletes files. Copies of the retired core files
+The installer never deletes core files. Copies of the retired core files
 (`ORCHESTRATOR.md`, `COMMANDS.md`, `PERSONAS.md`, `MODES.md`, `FLAGS.md`,
 `MCP.md`) stay in `~/.claude/`, and an old `~/.claude/commands/sc/README.md`
 keeps showing a `/sc:README` command. Nothing loads the retired core files; delete
@@ -235,6 +235,49 @@ them if you like:
 ```bash
 cd ~/.claude && rm -f ORCHESTRATOR.md COMMANDS.md PERSONAS.md MODES.md FLAGS.md MCP.md commands/sc/README.md
 ```
+
+Commands, skills and agents are different: from 6.0.0 the installer retires the
+ones a release stops shipping. See
+[Commands, skills and agents a release no longer ships](#commands-skills-and-agents-a-release-no-longer-ships).
+
+### Commands, skills and agents a release no longer ships
+
+An upgraded workspace would otherwise keep dead commands: a `/sc:roadmap` left in
+`~/.claude/commands/sc/` calls a `superclaude roadmap run` that no longer exists.
+From 6.0.0, `superclaude install` (with or without `--force`) and
+`superclaude update` end with a retire step that removes them, but only files
+IronClaude can prove it wrote.
+
+- **Proof.** A command or agent file is removed only when its SHA-256 equals the
+  file as shipped at an earlier release tag (the list and hashes are generated
+  from the `v5.0.0` tag into `src/superclaude/cli/install_retired_data.py`). A
+  skill is a folder: it is removed only when every file in it is a shipped file
+  with a matching hash and nothing else is in it.
+- **Removed from 5.0.0.** 12 commands: `build`, `cli-portify`, `improve`,
+  `index-repo`, `index`, `load`, `review-translation`, `roadmap`, `save`, `spawn`,
+  `tasklist`, `validate-roadmap`. 5 skills: `sc-cli-portify-protocol`,
+  `sc-review-translation-protocol`, `sc-roadmap-protocol`, `sc-tasklist-protocol`,
+  `sc-validate-roadmap-protocol`. No agent is removed in 6.0.0.
+- **Kept and explained.** A file you edited, a skill folder with a file or folder
+  you added (including a `__pycache__` a skill script created), a link, or
+  anything unreadable is kept. The installer prints one line for each, with the
+  reason and the exact command that removes it, for example
+  ``Kept /sc:roadmap: its content differs ... Remove it yourself with `rm ~/.claude/commands/sc/roadmap.md` ``.
+  `superclaude doctor` fails with `Missing command-required skill(s)` while a kept
+  command still asks for a removed skill; removing the kept item clears it.
+- **Never touched.** Any name not on the generated list, and anything outside
+  `~/.claude/commands/sc/` (or the folder you passed to `--target`),
+  `~/.claude/skills/` and `~/.claude/agents/`.
+- **Safe to repeat.** A second run changes nothing and prints "No retired
+  commands, skills or agents present." (plus the kept lines while you keep
+  anything). It works when `~/.claude` does not exist, and nothing in it changes
+  the exit code of `install` or `update`.
+- **Older than 5.0.0.** Files installed by an earlier release than the tag the
+  list was generated from differ in content, so they are kept and reported the
+  same way.
+
+Restart running Claude Code sessions afterwards so the removed commands and skills
+disappear from them.
 
 ## Step 5: Move your session memories
 

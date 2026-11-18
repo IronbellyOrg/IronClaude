@@ -49,7 +49,9 @@ def install(target: str, force: bool, list_only: bool):
 
     Installs the framework to ~/.claude/ and, as a required user-level phase,
     the pinned, checksum-verified codegraph binary registered as a user-scope
-    MCP server (a failure there exits 1; --force is not forwarded to it).
+    MCP server (a failure there exits 1; --force is not forwarded to it). It then
+    retires stale MCP registrations and the commands, skills and agents this release
+    no longer ships, removing only what IronClaude can prove it installed.
 
     Examples:
         superclaude install
@@ -266,6 +268,20 @@ def install(target: str, force: bool, list_only: bool):
             f"   ⚠️  Retire step skipped ({type(exc).__name__}); install is complete."
         )
 
+    # Step 10: retire commands, skills and agents this release no longer ships, but
+    # only files whose content proves IronClaude installed them. Non-fatal by design.
+    click.echo(
+        "\n📦 Retiring commands, skills and agents this release no longer ships..."
+    )
+    try:
+        from .install_retired_files import run_retire_files_step
+
+        run_retire_files_step(target_path)
+    except Exception as exc:
+        click.echo(
+            f"   ⚠️  Retire step skipped ({type(exc).__name__}); install is complete."
+        )
+
     if (
         not core_success
         or not cmd_success
@@ -342,7 +358,9 @@ def update(target: str):
     Update SuperClaude to latest version
 
     Re-installs core framework files, slash commands, agents, skills, session
-    setup, hooks, templates, and user setup to match the current package version.
+    setup, hooks, templates, and user setup to match the current package version,
+    and removes the commands, skills and agents this release no longer ships when
+    IronClaude can prove it installed them.
 
     Example:
         superclaude update
@@ -403,6 +421,20 @@ def update(target: str):
     click.echo("📦 Updating rules, output styles, settings defaults, Orca skills...")
     setup_success, setup_message = install_user_setup(force=True)
     click.echo(setup_message)
+
+    # Retire commands, skills and agents this release no longer ships (proven files
+    # only). Non-fatal by design: nothing here may change the exit code.
+    click.echo(
+        "\n📦 Retiring commands, skills and agents this release no longer ships..."
+    )
+    try:
+        from .install_retired_files import run_retire_files_step
+
+        run_retire_files_step(target_path)
+    except Exception as exc:
+        click.echo(
+            f"   ⚠️  Retire step skipped ({type(exc).__name__}); update is complete."
+        )
 
     # Read-only: update never touches MCP registrations.
     try:

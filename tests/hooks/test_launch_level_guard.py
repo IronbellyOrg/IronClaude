@@ -915,9 +915,6 @@ IMPL_SPELLINGS = [
     "task",
     "sc:task",
     "sc:task-protocol",
-    # Retired in 6.0.0, but an upgraded workspace keeps the old installed copy, so the
-    # guard keeps classifying it until the retire step removes installed copies.
-    "sc:improve",
     "sc:cleanup",
     "SC:IMPLEMENT",
     "/sc:implement args",
@@ -933,9 +930,13 @@ def test_impl_name_spellings(tmp_path, name):
     _assert_decision(_run(_skill(name), tmp_path), tmp_path, "LL-IMPL", "W")
 
 
-@pytest.mark.parametrize("name", ["sc:cleanup-audit-protocol", "task-builder"])
+@pytest.mark.parametrize(
+    "name", ["sc:cleanup-audit-protocol", "task-builder", "sc:improve"]
+)
 def test_lookalike_skill_names_stay_none(tmp_path, name):
-    # T-SKL-1: names that only resemble an IMPL skill are NONE.
+    # T-SKL-1: names that only resemble an IMPL skill are NONE. 6.0.0 removed
+    # /sc:improve and the retire step removes installed copies; the old command
+    # never activated a skill, so a kept customized copy never reaches this branch.
     _bind(tmp_path, "worktree")
     _assert_decision(_run(_skill(name), tmp_path), tmp_path, None, "W")
 
