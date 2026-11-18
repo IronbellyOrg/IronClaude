@@ -1113,6 +1113,28 @@ def test_a_new_copy_of_a_candidate_made_after_the_plan_keeps_the_whole_session(
     assert any("changed while pruning" in s for s in result.skipped)
 
 
+def test_one_active_copy_among_several_leaves_every_copy_in_place(
+    projects: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    session = make(projects, 1, "agent-old", age_days=90)
+    second = projects / "-work-b" / f"{session}.jsonl"
+    second.parent.mkdir()
+    second.write_text("older copy")
+    os.utime(second, (NOW - 90 * DAY,) * 2)
+    result = run(projects)
+    assert len(result.candidates[0].transcripts) == 2
+    real = keep.mtime_of
+    # The later copy (in -work-b) turns active after the listing.
+    monkeypatch.setattr(
+        keep,
+        "mtime_of",
+        lambda path, missing=None: NOW if path == second else real(path, missing),
+    )
+    keep.apply_plan(result, projects, projects.parent.parent, orca_dir(projects))
+    assert result.deleted == 0
+    assert second.is_file() and (projects / "-work-a" / f"{session}.jsonl").is_file()
+
+
 def test_a_transcript_that_changes_just_before_its_unlink_is_kept(
     projects: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
