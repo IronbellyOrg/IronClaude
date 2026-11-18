@@ -19,3 +19,9 @@ One entry per step, with times and what should change. The 6.0.0 log is `../v6.0
 - **Master into integration:** `gh api -X POST .../merges` returned a merge commit `0f92aa687`, clean (parents `430eaa87f`, `89dc403d4`). #641's files are on `integration` (`session_keep.py` present) and its changelog entry sits under `[Unreleased]`, to be moved into `[6.1.0]` by #657.
 - **Told:** the bundle agent (rebase #653 onto the new head, retarget to `integration`) and GeneralIronFlow.
 - **Went well:** doing the master merge between the first and second pull requests, instead of at the end, means the later three rebase once on top of it.
+
+### 4. #653 merged (2026-11-18 21:18Z to 21:31Z)
+- **Step:** the bundle agent rebased #653 onto `integration` (`0f92aa687`, no conflict), retargeted it to `integration` and pushed head `5ac79b8a1` at about 21:22Z. I verified on GitHub: 6 of 6 checks, merge CLEAN, Codex code and security completed on that head with no findings, Augment 0 suggestions on that head, 5 threads (Codex 1, Augment 4, from the earlier heads) all resolved. Read the changed-file list: reflect, troubleshoot, brainstorm, crash-recovery, issue and pr-submit text, the reflect wrapper and their tests; no file deleted from the shipped set. Squash merge pinned to the head as `2ca022bf7` at 21:31Z.
+- **Time:** 9 minutes from the rebased head to the merge.
+- **Went well:** the merge of `master` before the rebase meant no conflict.
+- **Got in the way:** a stacked pull request shows DIRTY on its old base until the agent retargets it; the watch on it reports that as a change, which is expected, not a problem.
