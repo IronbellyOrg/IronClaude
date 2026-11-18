@@ -1064,3 +1064,30 @@ def test_a_name_list_that_cannot_be_read_keeps_every_session_it_may_protect(
     assert (projects / REPO / "topics" / "agent-here.txt").is_file()
     assert "could not be read" in capsys.readouterr().out
     assert classified.marked == 0 and classified.skipped
+
+
+@pytest.mark.skipif(os.geteuid() == 0, reason="root reads every file")
+def test_a_marker_that_cannot_be_read_is_never_replaced_or_counted_as_agent(
+    projects: Path,
+) -> None:
+    # It may hold "human": classify must not write agent over it and prune must not
+    # treat the session as an agent's.
+    save(projects, REPO, AUTO, sid(1))
+    mark(projects, REPO, sid(1), "human")
+    unreadable = projects / REPO / "topics" / ".origin" / sid(1)
+    unreadable.chmod(0o000)
+    try:
+        assert keep.marker(projects / REPO / "topics", sid(1)) == keep.UNREADABLE
+        classified = keep.classify(projects, apply=True)
+        agent_elsewhere = make(projects, 2, "agent-old", age_days=90)
+        save(projects, "-other", "same-session", agent_elsewhere)
+        mark(projects, "-other", agent_elsewhere, "agent")
+        (projects / REPO / "topics" / ".origin" / sid(2)).chmod(0o000)
+        result = run(projects, apply=True)
+    finally:
+        unreadable.chmod(0o600)
+        (projects / REPO / "topics" / ".origin" / sid(2)).chmod(0o600)
+    assert classified.marked == 0
+    assert unreadable.read_text().strip() == "human"
+    assert result.candidates == [] and result.deleted == 0
+    assert (projects / "-work-a" / f"{agent_elsewhere}.jsonl").is_file()

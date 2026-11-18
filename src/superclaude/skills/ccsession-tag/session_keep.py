@@ -52,6 +52,7 @@ LOCK = ".ccsession-lock"  # the file ccsession's shell code flocks (lock_list)
 ORIGIN = ".origin"  # <list>/.origin/<session id>
 LOCK_WAIT = 4.0  # seconds, as lock_list waits
 VALUES = ("human", "agent")
+UNREADABLE = "unreadable"  # what marker() says of a marker file it cannot read
 SESSION_ID = re.compile(r"[A-Za-z0-9_-]+\Z")  # what ccsession accepts as an id
 # What `ccsession --auto-name` ends a label with: month day, time with seconds, four
 # lowercase hex digits; "-N" is added when the label was already taken.
@@ -171,10 +172,20 @@ def names(list_dir: Path) -> Names:
 
 
 def marker(list_dir: Path, session: str) -> str:
-    """ "human", "agent" or "" (unmarked, or a file that holds anything else)."""
+    """ "human", "agent", "" (unmarked, or a file that holds anything else) or
+    UNREADABLE (a marker file is there but cannot be read: it may say human, so it is
+    never replaced and never counts as agent)."""
     if not is_session_id(session):
         return ""
-    value = first_line(list_dir / ORIGIN / session)
+    try:
+        with open(
+            list_dir / ORIGIN / session, encoding="utf-8", errors="replace"
+        ) as handle:
+            value = handle.readline().rstrip("\r\n")
+    except FileNotFoundError:
+        return ""
+    except OSError:
+        return UNREADABLE
     return value if value in VALUES else ""
 
 
