@@ -359,15 +359,17 @@ registered, and only the verbose output shows that line.
 
 **Conversation retention.** Claude Code deletes a saved conversation whose file
 is older than `cleanupPeriodDays` days (30 by default) and exempts no named
-session. `superclaude install` raises `cleanupPeriodDays` to 365 in
-`~/.claude/settings.json` when the key is absent or lower. A larger value you set
-is never lowered, a settings file that is not valid JSON is left untouched, and
-the file is copied to `settings.json.bak.<UTC time>` first. A value set by
-managed settings (on Linux, `/etc/claude-code/managed-settings.d/*.json`) wins
-over your file: the installer then writes nothing and prints one warning line
-that names the managed file. While the value in force is below 365,
-`ccsession --list` and `ccsession --here` print one warning line on standard
-error.
+session. `superclaude install` raises `cleanupPeriodDays` to 90 in
+`~/.claude/settings.json` when the key is absent or lower, so a machine with no
+value goes from 30 to 90 days (releases before 6.1.0 used 365). A larger value
+you set (365, for example) is never lowered, a settings file that is not valid
+JSON is left untouched, and the file is copied to `settings.json.bak.<UTC time>`
+first. A value set by managed settings (on Linux,
+`/etc/claude-code/managed-settings.d/*.json`) wins over your file: the installer
+then writes nothing and prints one warning line that names the managed file.
+While the value in force is below 90, `ccsession --list` and `ccsession --here`
+print one warning line on standard error. How long sessions an agent saved are
+kept is ccsession's own pruning (`ccsession --prune`), not this setting.
 
 `superclaude install` also installs the default Claude Code plugins listed in
 its settings defaults (including `playwright`, `frontend-design` and `ponytail`)
