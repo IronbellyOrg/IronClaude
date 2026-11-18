@@ -6,7 +6,9 @@ Measured 2026-11-18. Three copies were compared for every item: the IronClaude c
 
 All 20 items (10 skills, 2 commands, 8 agents) exist in all three places. The fork snapshot equals IronClaude master for every item except four files that IronClaude changed after the snapshot (the task-builder skill, `rf-analyst`, `rf-qa`, `rf-qa-qualitative`: pull requests 582 and 632, 2026-11-16 and 11-17). IronFlow's copies **all differ from IronClaude's**. In 10 of the 20 items IronFlow's copy of the main file (`SKILL.md`, the command file or the agent file) is an older, otherwise untouched version of IronClaude's (a byte-identical match to an IronClaude commit between 2026-05-27 and 2026-07-05); in the other 10 IronFlow has edits of its own (the file matches no IronClaude commit). So IronClaude is newer in every item by commit date (IronFlow's last change is 2026-06-23 to 2026-10-19; IronClaude's is 2026-11-08 to 2026-11-17), but for the 10 items marked "own edits" neither copy contains the other.
 
-Removal loses nothing that is only here: the fork keeps the IronClaude side up to 2026-11-14, and git history keeps the rest. The IronClaude-only changes that IronFlow does not have are listed below for Clay to port to IronFlow if wanted.
+**The `v6.0.0` tag (`3f3b34a26`) holds the latest version of every removed item** (all 20 items, plus `sc-validate-tests-protocol` and `validate-tests.md`, exist at that tag: checked with `git cat-file -e`). It is newer than the fork snapshot (2026-11-14) and than IronFlow. Restore one file with `git show v6.0.0:<path>` (for example `git show v6.0.0:src/superclaude/skills/task-builder/SKILL.md`) or into the working tree with `git checkout v6.0.0 -- <path>` (a skill folder: `git checkout v6.0.0 -- src/superclaude/skills/task-builder`).
+
+Removal loses nothing that is only here: the `v6.0.0` tag keeps the latest IronClaude side, the fork keeps it up to 2026-11-14, and git history keeps the rest. The IronClaude-only changes that IronFlow does not have are listed below for Clay to port to IronFlow if wanted.
 
 ## Table
 
