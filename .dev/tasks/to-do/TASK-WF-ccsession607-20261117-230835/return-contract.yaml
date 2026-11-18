@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-ccsession607-20261117-230835
+plan_path: ./TASK-WF-ccsession607-20261117-230835.md
+source_path: ./source.md
+source_origin: .dev/issues/607/ccsession607.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/ccsession-list-speed-607/.dev/reflect/pre-ccsession607-20261117232328/REPORT.md
+unresolved:
+  - "reflect Tier 2 not run (owner's no-sub-agent rule); advisory review is Tier 1 only; 2 Medium follow-ups in REPORT.md (F-1, F-2)"

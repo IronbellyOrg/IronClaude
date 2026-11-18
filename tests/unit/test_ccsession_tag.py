@@ -20,6 +20,7 @@ import termios
 import threading
 import time
 import urllib.request
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -5171,3 +5172,292 @@ def test_retention_ensure_accepts_a_managed_value_that_is_long_enough(
     assert result.returncode == 0
     assert "at least 365" in result.stdout and "managed settings file" in result.stdout
     assert not settings.exists()
+
+
+# The list is built in time that does not grow in processes started per saved name
+# beyond a few fixed ones (issue 607). Counting shims stand first on PATH and log
+# every call, then run the real tool; the tests run the real entry points.
+
+_COUNTED_TOOLS = ("date", "stat", "head", "ls", "basename", "dirname", "grep", "awk")
+_LISTINGS = (("--here",), ("--here", "--all"), ("--list",))
+
+
+def _shims(
+    tmp_path: Path, tools: tuple[str, ...] = _COUNTED_TOOLS
+) -> tuple[Path, Path]:
+    """Shims for the given tools, first on PATH: each appends
+    "<tool> <LC_ALL or <unset>>|<arguments>" to the log, then runs the real tool."""
+    shims = tmp_path / "shims"
+    shims.mkdir()
+    log = tmp_path / "shim-calls"
+    log.touch()
+    for tool in tools:
+        real = shutil.which(tool)
+        assert real, tool
+        shim = shims / tool
+        shim.write_text(
+            "#!/bin/sh\n"
+            f'printf \'%s %s|%s\\n\' {tool} "${{LC_ALL-<unset>}}" "$*" >> {log}\n'
+            f'exec {real} "$@"\n'
+        )
+        shim.chmod(0o755)
+    return shims, log
+
+
+def _calls(log: Path) -> list[str]:
+    return log.read_text().splitlines()
+
+
+def _many_sessions(
+    tmp_path: Path, n: int, *, transcripts: bool = True
+) -> tuple[Path, Path, dict[str, str]]:
+    """N saved names in the repo's list; each session's transcript sits under a
+    per-folder store (three folders), not under the repo-keyed folder."""
+    main, _, projects, env = _named_repo(tmp_path)
+    env.pop("LC_ALL", None)
+    topics = projects / "github.com-Org-Repo" / "topics"
+    topics.mkdir(parents=True)
+    for i in range(n):
+        session = f"{i:08x}-0000-0000-0000-000000000000"
+        folder = main / f"d{i % 3}"
+        folder.mkdir(exist_ok=True)
+        if transcripts:
+            _transcript(projects, folder, session)
+        (topics / f"name {i:03d}.txt").write_text(f"{session}\n")
+    return main, projects, env
+
+
+@pytest.mark.parametrize(
+    "args, per_row",
+    [
+        # one head, grep and awk per session find where it was started; the time
+        # work is one stat and one date for each of its two times
+        (("--here",), {"date": 2, "stat": 1, "head": 1, "grep": 1, "awk": 1}),
+        (("--here", "--all"), {"date": 2, "stat": 1}),
+        (("--list",), {"date": 2, "stat": 1}),
+    ],
+)
+def test_listing_starts_a_fixed_number_of_processes_per_saved_name(
+    tmp_path: Path, args: tuple[str, ...], per_row: dict[str, int]
+) -> None:
+    counts: dict[int, Counter] = {}
+    for n in (10, 60):
+        sub = tmp_path / f"n{n}"
+        sub.mkdir()
+        main, _, env = _many_sessions(sub, n)
+        shims, log = _shims(sub)
+        env["PATH"] = f"{shims}:{env['PATH']}"
+        _ccs(main, env, *args)
+        counts[n] = Counter(line.split(" ", 1)[0] for line in _calls(log))
+    for tool in _COUNTED_TOOLS:
+        # basename, dirname and ls (the transcript index) start none per name
+        assert counts[60][tool] - counts[10][tool] == 50 * per_row.get(tool, 0), (
+            tool,
+            counts,
+        )
+
+
+def test_the_transcript_index_is_built_once_for_the_whole_list(tmp_path: Path) -> None:
+    main, _, env = _many_sessions(tmp_path, 40)
+    shims, log = _shims(tmp_path)
+    env["PATH"] = f"{shims}:{env['PATH']}"
+    rows = _listed(main, env, "--here")
+    assert len(rows) == 40
+    ls_calls = [c for c in _calls(log) if c.startswith("ls ") and ".jsonl" in c]
+    # the one index (every transcript as an argument), and no ls per session
+    assert [c.count(".jsonl") for c in ls_calls] == [40]
+
+
+def test_an_empty_index_leaves_each_name_to_the_per_session_lookup(
+    tmp_path: Path,
+) -> None:
+    main, _, env = _many_sessions(tmp_path, 5, transcripts=False)
+    shims, log = _shims(tmp_path)
+    env["PATH"] = f"{shims}:{env['PATH']}"
+    out = _ccs(main, env, "--here").stdout
+    assert out.count("(transcript missing)") == 5
+    # the index (nothing matched) and one lookup for each name
+    assert len([c for c in _calls(log) if c.startswith("ls ") and ".jsonl" in c]) == 6
+
+
+def test_a_failing_ls_for_the_index_does_not_stop_the_listing(tmp_path: Path) -> None:
+    main, _, env = _many_sessions(tmp_path, 4)
+    shims = tmp_path / "failing"
+    shims.mkdir()
+    real = shutil.which("ls")
+    (shims / "ls").write_text(
+        f'#!/bin/sh\ncase "$*" in *.jsonl*) exit 2 ;; esac\nexec {real} "$@"\n'
+    )
+    (shims / "ls").chmod(0o755)
+    env["PATH"] = f"{shims}:{env['PATH']}"
+    result = _ccs(main, env, "--here")  # check=True: the exit code is 0 under set -e
+    assert result.stdout.count("(transcript missing)") == 4
+
+
+@pytest.mark.parametrize("user_locale", [None, "POSIX"])
+def test_grep_and_awk_run_in_the_c_locale_whatever_the_users(
+    tmp_path: Path, user_locale: str | None
+) -> None:
+    main, _, env = _many_sessions(tmp_path, 6)
+    if user_locale:
+        env["LC_ALL"] = user_locale
+    shims, log = _shims(tmp_path, ("grep", "awk"))
+    env["PATH"] = f"{shims}:{env['PATH']}"
+    _ccs(main, env, "--here")
+    seen = [c.split(" ", 1) for c in _calls(log)]
+    assert len(seen) >= 12  # a grep and an awk for each session
+    assert {rest.split("|")[0] for _, rest in seen} == {"C"}
+
+
+def _date_shim(tmp_path: Path, flavour: str) -> tuple[Path, Path]:
+    """A `date` of another family; its calls (arguments) are logged."""
+    real = shutil.which("date")
+    shims = tmp_path / f"date-{flavour}"
+    shims.mkdir()
+    log = tmp_path / f"date-{flavour}-calls"
+    log.touch()
+    bodies = {
+        # GNU: -r takes a file name, which an epoch is not
+        "gnu": f'exec {real} "$@"\n',
+        # BSD: no --version, no -d @epoch, -r takes the epoch
+        "bsd": (
+            'case "$1" in\n'
+            "  --version) exit 1 ;;\n"
+            f'  -r) shift; e=$1; shift; exec {real} -d "@$e" "$@" ;;\n'
+            "  *) exit 1 ;;\n"
+            "esac\n"
+        ),
+        # busybox: no --version, no -r <epoch>, -d @epoch works
+        "busybox": (
+            'case "$1" in\n'
+            "  --version) exit 1 ;;\n"
+            "  -r) exit 1 ;;\n"
+            f'  -d) exec {real} "$@" ;;\n'
+            "  *) exit 1 ;;\n"
+            "esac\n"
+        ),
+    }
+    (shims / "date").write_text(f'#!/bin/sh\necho "$*" >> {log}\n' + bodies[flavour])
+    (shims / "date").chmod(0o755)
+    return shims, log
+
+
+@pytest.mark.parametrize("flavour", ["gnu", "bsd", "busybox"])
+def test_the_date_text_is_the_same_for_every_date_flavour(
+    tmp_path: Path, flavour: str
+) -> None:
+    main, _, env = _many_sessions(tmp_path, 4)
+    reference = _ccs(main, env, "--here").stdout
+    assert "started 20" in reference
+    shims, log = _date_shim(tmp_path, flavour)
+    env["PATH"] = f"{shims}:{env['PATH']}"
+    assert _ccs(main, env, "--here").stdout == reference
+    calls = _calls(log)
+    flags = [c.split(" ", 1)[0] for c in calls if not c.startswith("--version")]
+    if flavour == "gnu":
+        assert "-r" not in flags  # no failing `date -r <epoch>` first
+        assert flags and set(flags) == {"-d"}
+    elif flavour == "bsd":
+        assert flags and set(flags) == {"-r"}  # the BSD order is kept
+    else:
+        # -r first (it fails), then -d, for every time
+        assert flags and flags[0::2] == ["-r"] * (len(flags) // 2)
+        assert flags[1::2] == ["-d"] * (len(flags) // 2)
+    assert sum(c.startswith("--version") for c in calls) == 1  # probed once
+
+
+@pytest.mark.parametrize(
+    "path", ["/home/u/.claude/projects/-a-b/abc.jsonl", "/p/topics/two words.txt"]
+)
+def test_parameter_expansions_give_what_basename_and_dirname_gave(path: str) -> None:
+    script = (
+        "p=$1; d=${p%/*}; b=${p##*/}; s=${d##*/}\n"
+        '[ "$d" = "$(dirname "$p")" ] || exit 1\n'
+        '[ "$b" = "$(basename "$p")" ] || exit 2\n'
+        '[ "$s" = "$(basename "$(dirname "$p")")" ] || exit 3\n'
+        '[ "${b%.txt}" = "$(basename "$p" .txt)" ] || exit 4\n'
+    )
+    assert subprocess.run(["bash", "-c", script, "x", path]).returncode == 0
+
+
+def test_an_unreadable_topic_file_shows_no_session_and_not_the_previous_one(
+    tmp_path: Path,
+) -> None:
+    if os.geteuid() == 0:
+        pytest.skip("root can read a mode 000 file")
+    main, projects, env = _many_sessions(tmp_path, 3)
+    bad = projects / "github.com-Org-Repo" / "topics" / "name 001.txt"
+    bad.chmod(0)
+    try:
+        result = _ccs(main, env, "--here")  # check=True: exit 0 under set -e
+    finally:
+        bad.chmod(0o644)
+    rows = {
+        line.split("  ")[1].strip(): line
+        for line in result.stdout.splitlines()
+        if line.startswith("  name ")
+    }
+    assert "(transcript missing)" in rows["name 001"]
+    assert "00000000" not in rows["name 001"]  # the row before it
+    assert rows["name 000"].rstrip().endswith("00000000")
+    assert rows["name 002"].rstrip().endswith("00000002")
+
+
+def test_an_empty_list_and_a_one_name_list(tmp_path: Path) -> None:
+    (tmp_path / "empty").mkdir()
+    empty, _, env = _many_sessions(tmp_path / "empty", 0)
+    result = _ccs(empty, env, "--here")  # check=True: exit 0
+    assert "No labeled sessions" in result.stdout
+    (tmp_path / "one").mkdir()
+    one, _, env1 = _many_sessions(tmp_path / "one", 1)
+    assert _listed(one, env1, "--here") == {"name 000": "00000000"}
+
+
+def test_listing_creates_and_changes_no_file_in_home_or_tmp(tmp_path: Path) -> None:
+    main, projects, env = _many_sessions(tmp_path, 6)
+    tmp = tmp_path / "tmpdir"
+    tmp.mkdir()
+    env["TMPDIR"] = str(tmp)
+    home = projects.parent.parent
+    for args in _LISTINGS:
+        _ccs(main, env, *args)  # the first run may mark the migration done
+
+    def snapshot() -> dict[str, tuple[int, int]]:
+        return {
+            str(p): (p.stat().st_size, p.stat().st_mtime_ns)
+            for root in (home, tmp)
+            for p in root.rglob("*")
+            if p.is_file()
+        }
+
+    before = snapshot()
+    for args in _LISTINGS:
+        _ccs(main, env, *args)
+    assert snapshot() == before
+    assert list(tmp.iterdir()) == []
+
+
+_BASH4_CONSTRUCTS = [
+    r"\b(declare|typeset|local)\s+-[a-zA-Z]*A",
+    r"\b(mapfile|readarray|coproc)\b",
+    r"printf\s+['\"]%\(",
+    r"\$\{[^}]*(,,|\^\^)[^}]*\}",
+    r"&>>|\|&|;;&|;&",
+]
+
+
+def test_the_listing_code_uses_no_bash_4_construct() -> None:
+    # macOS ships bash 3.2 and no test runs under it, so the changed code is read.
+    text = (SKILL_DIR / "ccsession").read_text()
+    regions = [
+        ("session_home() {", "git_here() ("),
+        ("probe_date() {", "format_duration() {"),
+        ("list_sessions() {", "retention_warning() {"),
+    ]
+    for start, end in regions:
+        region = text[text.index(start) : text.index(end)]
+        code = "\n".join(
+            line for line in region.splitlines() if not line.lstrip().startswith("#")
+        )
+        for pattern in _BASH4_CONSTRUCTS:
+            assert not re.search(pattern, code), (start, pattern)

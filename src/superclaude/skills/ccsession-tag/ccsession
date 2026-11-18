@@ -1380,8 +1380,15 @@ session_home() {
   # Only the start and the end of the file are read (transcripts can be
   # gigabytes); a session copied from another machine records that machine's
   # folders first, and this machine's ones later.
+  # The locale is set for grep and awk on their own command lines below: a local
+  # LC_ALL that the caller had not exported never reaches a child process, and
+  # grep in a UTF-8 locale takes twice as long over these files.
   local store want cwd first="" LC_ALL=C
-  store=$(basename "$(dirname "$1")")
+  # The name of the transcript's folder (what basename and dirname gave).
+  case "$1" in
+    */*) store=${1%/*}; store=${store##*/} ;;
+    *) store=. ;;
+  esac
   while IFS= read -r cwd; do
     cwd=${cwd#\"cwd\":\"}
     cwd=${cwd%\"}
@@ -1394,7 +1401,7 @@ session_home() {
       return 0
     fi
   done < <({ head -c 262144 "$1"; echo; tail -c 1048576 "$1"; } 2>/dev/null |
-    grep -oE '"cwd":"([^"\\]|\\.)*"' | awk '!seen[$0]++')
+    LC_ALL=C grep -oE '"cwd":"([^"\\]|\\.)*"' | LC_ALL=C awk '!seen[$0]++')
   printf '%s' "$first"
 }
 
@@ -1402,7 +1409,7 @@ session_branch() {
   # <transcript> -> the git branch the session started on, or nothing.
   local b LC_ALL=C
   [ -f "$1" ] || return 0
-  b=$(head -c 262144 "$1" 2>/dev/null | grep -oE '"gitBranch":"[^"\\]*"' | head -n 1) || true
+  b=$(head -c 262144 "$1" 2>/dev/null | LC_ALL=C grep -oE '"gitBranch":"[^"\\]*"' | head -n 1) || true
   b=${b#\"gitBranch\":\"}
   printf '%s' "${b%\"}"
 }
@@ -1536,6 +1543,118 @@ format_epoch() {
     || date -d "@$epoch" '+%Y-%m-%d %H:%M' 2>/dev/null
 }
 
+# The helpers below are what list_sessions uses for each row. They set named
+# variables and print nothing, so the row loop calls them without $(...): a
+# command substitution forks a shell for every call, and a cache or variable set
+# inside one is lost when it ends. The functions above stay for the resume path
+# and as the reference for what these must give.
+
+probe_date() {
+  # Sets LIST_DATE_GNU once per list: 1 for GNU date, whose -r takes a file name
+  # (so "date -r <epoch>" always fails there); 0 for BSD, busybox and the rest.
+  LIST_DATE_GNU=0
+  if date --version >/dev/null 2>&1; then LIST_DATE_GNU=1; fi
+}
+
+epoch_to_var() {
+  # <variable> <epoch>: sets the variable to what format_epoch prints, one date
+  # process per call on GNU instead of a failing "date -r" and then "date -d".
+  # Needs probe_date. Fails, with the variable emptied, where format_epoch fails.
+  local __ev_var=$1 __ev_epoch=$2 __ev_text="" __ev_rc=0
+  if [ "$LIST_DATE_GNU" = 1 ]; then
+    __ev_text=$(date -d "@$__ev_epoch" '+%Y-%m-%d %H:%M' 2>/dev/null) ||
+      __ev_text=$(date -r "$__ev_epoch" '+%Y-%m-%d %H:%M' 2>/dev/null) || __ev_rc=1
+  else
+    __ev_text=$(date -r "$__ev_epoch" '+%Y-%m-%d %H:%M' 2>/dev/null) ||
+      __ev_text=$(date -d "@$__ev_epoch" '+%Y-%m-%d %H:%M' 2>/dev/null) || __ev_rc=1
+  fi
+  printf -v "$__ev_var" '%s' "$__ev_text"
+  return $__ev_rc
+}
+
+stat_times() {
+  # <file>: sets LIST_BT (birth time) and LIST_MT (change time), epoch seconds,
+  # either empty where unknown, with the rules of get_btime and get_mtime but one
+  # stat process: GNU "stat -c" first; the BSD form only where that fails.
+  local out=""
+  LIST_BT="" LIST_MT=""
+  if out=$(stat -c '%W %Y' "$1" 2>/dev/null); then
+    LIST_BT=${out%% *}
+    LIST_MT=${out#* }
+    case "$LIST_BT" in ''|0|'?'|'-') LIST_BT="" ;; esac
+  else
+    out=$(stat -f '%B %m' "$1" 2>/dev/null) || out=""
+    LIST_BT=${out%% *}
+    LIST_MT=${out#* }
+    case "$LIST_BT" in ''|0|'-'|*[!0-9]*) LIST_BT="" ;; esac
+  fi
+  case "$LIST_MT" in ''|*[!0-9]*) LIST_MT="" ;; esac
+}
+
+build_transcript_index() {
+  # One "ls -t" over every transcript, read once per list into one variable per
+  # session id: LIST_TR_<id> holds the path of the newest copy ("ls -t" lists the
+  # newest first, so the first path seen for an id stays). bash 3.2 has no
+  # associative array, and searching one long string for each session costs as
+  # much as the processes it saves. The id becomes a variable name with every
+  # character other than a letter or digit turned into "_", so two ids can share
+  # a name: find_transcript checks the stored file name and leaves such a case to
+  # session_transcript. LIST_IDX_N counts the paths read; 0 (no transcript at
+  # all, or an ls that failed) means no index, and every id goes to
+  # session_transcript. A process substitution feeds the loop: its status is not
+  # the script's (set -e), and no temporary file is written for it.
+  local line name
+  LIST_IDX_BUILT=1 LIST_IDX_N=0
+  unset $(compgen -v LIST_TR_) 2>/dev/null || true
+  while IFS= read -r line; do
+    LIST_IDX_N=$((LIST_IDX_N + 1))
+    name=${line##*/}
+    index_var_name "${name%.jsonl}"
+    name=$IDX_VAR
+    [ -n "${!name:-}" ] || printf -v "$name" '%s' "$line"
+  done < <(ls -t "$PROJECTS_DIR"/*/*.jsonl 2>/dev/null)
+}
+
+index_var_name() {
+  # <session id>: sets IDX_VAR to the variable that holds its transcript. Done in
+  # the C locale, so that a letter of the user's alphabet is not kept in a name
+  # (printf -v refuses it); the locale is local and starts no process.
+  local LC_ALL=C
+  IDX_VAR=LIST_TR_$1
+  IDX_VAR=${IDX_VAR//[^A-Za-z0-9_]/_}
+}
+
+find_transcript() {
+  # <session id>: sets FOUND_JSONL to the transcript of the session (its newest
+  # copy), or to nothing, like session_transcript but without a process per
+  # session: it reads the index of build_transcript_index, built once per list in
+  # this shell (never inside a $(...) per row, which would lose it). Without an
+  # index, for an id that is empty or holds a glob character, or where two ids
+  # share a variable name, it asks session_transcript.
+  local name path
+  FOUND_JSONL=""
+  case "$1" in
+    '' | *[\*\?\[]*)
+      FOUND_JSONL=$(session_transcript "$1")
+      return 0
+      ;;
+  esac
+  [ "$LIST_IDX_BUILT" = 1 ] || build_transcript_index
+  if [ "$LIST_IDX_N" = 0 ]; then
+    FOUND_JSONL=$(session_transcript "$1")
+    return 0
+  fi
+  index_var_name "$1"
+  name=$IDX_VAR
+  path=${!name:-}
+  [ -n "$path" ] || return 0  # no copy of it anywhere
+  if [ "${path##*/}" = "$1.jsonl" ]; then
+    FOUND_JSONL=$path
+  else
+    FOUND_JSONL=$(session_transcript "$1")
+  fi
+}
+
 format_duration() {
   local secs="$1"
   [ "$secs" -lt 0 ] && secs=0
@@ -1566,10 +1685,15 @@ list_sessions() {
   local LIST_HERE_KEY LIST_HEADING
   LIST_HERE_KEY=$(name_key)
   [ "$filter" = worktree ] && load_worktrees
+  # Built here, in this shell, and never inside a $(...) that runs per row: what
+  # a command substitution sets is lost when it ends (see find_transcript).
+  probe_date
+  LIST_IDX_BUILT=0 LIST_IDX_N=0
   for ws_dir in "$PROJECTS_DIR"/*/topics; do
     [ -d "$ws_dir" ] || continue
     local ws_slug
-    ws_slug=$(basename "$(dirname "$ws_dir")")
+    ws_slug=${ws_dir%/*}
+    ws_slug=${ws_slug##*/}
     [ -n "$scope_slug" ] && [ "$ws_slug" != "$scope_slug" ] && continue
     # An old per-folder list already copied to its repo's list (never the
     # list this folder reads its names from).
@@ -1590,13 +1714,18 @@ list_sessions() {
       fi
       local topic uuid jsonl start_ts last_ts start_str last_str dur_str range
       local row place="here" was=""
-      topic=$(file_to_name "$(basename "$topic_file" .txt)")
-      uuid=$(head -n 1 "$topic_file")
-      jsonl="$(dirname "$ws_dir")/$uuid.jsonl"
+      topic=${topic_file##*/}
+      topic=$(file_to_name "${topic%.txt}")
+      # The first line is the session id; an unreadable file gives no id (not the
+      # previous row's), so its row reads "(transcript missing)".
+      uuid=""
+      IFS= read -r uuid < "$topic_file" || true
+      jsonl="${ws_dir%/*}/$uuid.jsonl"
       # Claude Code keeps the conversation under the folder it ran in, which
       # is not where a repo's name list lives; take the newest copy.
       if [ ! -f "$jsonl" ]; then
-        jsonl=$(session_transcript "$uuid")
+        find_transcript "$uuid"
+        jsonl=$FOUND_JSONL
       fi
 
       if [ ! -f "$jsonl" ]; then
@@ -1606,15 +1735,23 @@ list_sessions() {
         if [ "$filter" = worktree ]; then
           was=$(session_home "$jsonl")
           place=$(session_place "$was" "$jsonl")
+          # A session of another worktree is only counted: its times and row
+          # would be built and thrown away.
+          if [ "$place" = other ]; then
+            found=1
+            other_n=$((other_n + 1))
+            continue
+          fi
         fi
-        start_ts=$(get_btime "$jsonl")
-        last_ts=$(get_mtime "$jsonl")
+        stat_times "$jsonl"
+        start_ts=$LIST_BT
+        last_ts=$LIST_MT
         if [ -z "$start_ts" ] || [ -z "$last_ts" ]; then
           printf -v row '  %s%-22s%s  %s%s  %s%s' "$on" "$topic" "$off" \
             "$dim" "(times unavailable)" "${uuid:0:8}" "$off"
         else
-          start_str=$(format_epoch "$start_ts")
-          last_str=$(format_epoch "$last_ts")
+          epoch_to_var start_str "$start_ts"
+          epoch_to_var last_str "$last_ts"
           dur_str=$(format_duration $((last_ts - start_ts)))
           # If start and last are on the same day, show last as time-only for
           # compactness; otherwise show full date on both.
