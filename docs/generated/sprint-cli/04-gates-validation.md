@@ -195,4 +195,3 @@ extract
 - `roadmap/validate_gates.py` reuses `_frontmatter_values_non_empty` from roadmap gates
 - `tasklist/gates.py` reuses `_high_severity_count_zero` and `_tasklist_ready_consistent`
 - `roadmap` uses `WIRING_GATE` from `audit/wiring_gate.py` as shared strict gate
-- `cli_portify/gates.py` has large gate registry using same `tuple[bool, str]` convention

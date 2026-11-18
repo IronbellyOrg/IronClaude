@@ -111,7 +111,7 @@ Rules:
 1. **Accept the project copy too.** In a dev checkout `make sync-dev` creates `.claude/skills/` and `.claude/agents/`, and the installed copy may be missing or older. An existence check should name both (`~/.claude/skills/<name>/SKILL.md` or `.claude/skills/<name>/SKILL.md`; either satisfies it) and STOP only when neither exists.
 2. **When one file must be read, follow Claude Code's precedence**, which differs by type: same-name agents resolve project `.claude/agents/` over `~/.claude/agents/`; same-name skills resolve `~/.claude/skills/` over `.claude/skills/`. Read the winning copy first and say so in the text.
 3. **Do not point at what is not installed.** Package code (`src/superclaude/cli/`, `pm_agent/`, `contracts/`) and `src/superclaude/examples/` are not copied to `~/.claude/`. Reach package behavior through the `superclaude` CLI instead of a file path.
-4. **`src/superclaude/...` is fine only** in maintainer instructions ("edit `src/superclaude/...`, then `make sync-dev`"), in commands that work on this repo's own source by design (such as `/sc:cli-portify`), and as an in-checkout fallback listed after the global path.
+4. **`src/superclaude/...` is fine only** in maintainer instructions ("edit `src/superclaude/...`, then `make sync-dev`"), in commands that work on this repo's own source by design, and as an in-checkout fallback listed after the global path.
 5. **Before committing**, run `grep -rn 'src/superclaude' src/superclaude/{commands,skills,agents,core,hooks}` and justify every remaining hit against rule 4.
 
 ### Context Loading Sequence

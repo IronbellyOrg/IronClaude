@@ -213,9 +213,8 @@ class TestDistinctPurposeParsersEnumerated:
         assert "DISTINCT-PURPOSE parser" in src
 
     def test_crosscutting_parsers_are_outside_gate_layer(self):
-        # cli_portify + audit parsers exist but are not the gate parser; they
-        # are flagged for the parser-consistency lint enumeration (Phase 13).
-        assert (_SRC_ROOT / "cli_portify" / "utils.py").exists()
+        # The audit parser exists but is not the gate parser; it is flagged
+        # for the parser-consistency lint enumeration (Phase 13).
         assert (_SRC_ROOT / "audit" / "wiring_gate.py").exists()
 
 

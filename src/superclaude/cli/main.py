@@ -534,10 +534,6 @@ from superclaude.cli.tasklist import tasklist_group  # noqa: E402,I001  # intent
 
 main.add_command(tasklist_group, name="tasklist")
 
-from superclaude.cli.cli_portify.commands import cli_portify_group  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports
-
-main.add_command(cli_portify_group)
-
 from superclaude.cli.eval.commands import eval_group  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports
 
 main.add_command(eval_group, name="eval")

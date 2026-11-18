@@ -1,0 +1,14 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: /home/coder/workspaces/worktrees/IronClaude/v6-cli-portify/.dev/reflect/pre-removeCliPortify-20261117235914/REPORT.md
+confidence_calibrated: 0.86
+coverage_pct: null
+coverage_pct_union: 0.92
+coverage_undefined: true
+unmapped_requirements: []
+unmapped_requirements_union: []
+evidence_validator_ran: false
+degraded_components: [evidence-validator, confidence-calibrator]
+reason: "no subagents launched (standing user rule); citations re-read inline"

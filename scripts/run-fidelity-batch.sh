@@ -26,12 +26,10 @@ echo "=== Fidelity Batch Runner ==="
 echo "Mode: $MODE | Parallel: $BATCH_SIZE | Cooldown: ${COOLDOWN}s"
 echo ""
 
-# --- All releases to process (10 total, 5 batches of 2) ---
+# --- All releases to process (8 total, 4 batches of 2) ---
 RELEASES=(
   "cleanup-audit-v2-UNIFIED-SPEC|cleanup-audit-v2-UNIFIED-SPEC.md|--skip-gate-checks"
   "unified-audit-gating-v2|unified-audit-gating-v2.0-spec.md|--skip-gate-checks"
-  "v2.24-cli-portify-cli-v4|portify-release-spec.md|--skip-gate-checks"
-  "v2.24.1-cli-portify-cli-v5|portify-release-spec.md|--skip-gate-checks"
   "v2.24.2-Accept-Spec-Change|release-spec-accept-spec-change.md|--skip-gate-checks"
   "v2.24.5-SpecFidelity|v2.25.1-release-spec.md|--skip-gate-checks"
   "v2.25.5-PreFlightExecutor|sprint-preflight-executor-spec.md|--skip-gate-checks"

@@ -182,7 +182,7 @@ verbatim were necessary because the spec was internally inconsistent in two
 places: (1) `PROGRAMMATIC_RUNNERS` had to be added as an explicit alternation
 to `DISPATCH_PATTERNS[0]` because `\bRUNNERS\b` and `\b_RUNNERS\b` don't
 match inside `PROGRAMMATIC_RUNNERS` (no word boundary at `_`); without this
-addition, `TestCliPortifyRegression.*` regressed despite §4 asserting they
+addition, `TestDispatchTableRegression.*` regressed despite §4 asserting they
 would pass. (2) Bare `priority` had to be removed from both §2.2 extraction
 and §2.4 Layer 1 `dispatch_family` regexes because Layer 1 matched
 "Implement priority dispatch for logging events" and short-circuited before

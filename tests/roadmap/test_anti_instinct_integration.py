@@ -5,7 +5,7 @@ contract checker, fingerprint coverage, and gate evaluation through gate_passed(
 
 Covers 5 integration scenarios:
 1. End-to-end roadmap pipeline with anti-instinct gate active
-2. Gate blocks on known-bad roadmap (cli-portify regression SC-001)
+2. Gate blocks on known-bad roadmap (dispatch-table regression SC-001)
 3. Gate passes on known-good roadmap
 4. Structural audit emits warning without blocking
 5. anti-instinct-audit.md output format and frontmatter correctness
@@ -124,13 +124,13 @@ class TestAntiInstinctInPipeline:
         assert merge_idx < ai_idx < ts_idx
 
 
-# --- Scenario 2: Gate blocks on known-bad roadmap (SC-001 cli-portify regression) ---
+# --- Scenario 2: Gate blocks on known-bad roadmap (SC-001 dispatch-table regression) ---
 
 
 class TestSC001RegressionBlocks:
-    """SC-001: Anti-instinct gate blocks on cli-portify-style regression cases.
+    """SC-001: Anti-instinct gate blocks on dispatch-table-style regression cases.
 
-    The cli-portify regression was caused by:
+    The dispatch-table regression was caused by:
     - Undischarged scaffolding obligations (mocked steps never replaced)
     - Missing integration contracts (PROGRAMMATIC_RUNNERS dispatch table unwired)
     - Low fingerprint coverage (spec identifiers missing from roadmap)

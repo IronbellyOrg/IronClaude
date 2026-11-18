@@ -4,7 +4,7 @@ Tests cover:
 1. 7-category dispatch pattern detection (FR-MOD2.1)
 2. Wiring task coverage check (FR-MOD2.3)
 3. Mechanism deduplication (FR-MOD2.2)
-4. cli-portify regression case SC-003
+4. dispatch-table regression case SC-003
 
 All tests use real content fixtures, no mocks.
 """
@@ -95,7 +95,7 @@ Implement the executor with sequential execution.
 Add rich output formatting.
 """
 
-CLI_PORTIFY_SPEC = """\
+DISPATCH_TABLE_SPEC = """\
 Three-way dispatch: `_run_programmatic_step()`, `_run_claude_step()`, `_run_convergence_step()`
 
 The `PROGRAMMATIC_RUNNERS` dictionary maps step IDs to Python functions:
@@ -111,7 +111,7 @@ Module dependency graph: `executor.py --> steps/validate_config.py`
 Integration test: `test_programmatic_step_routing`
 """
 
-CLI_PORTIFY_BAD_ROADMAP = """\
+DISPATCH_TABLE_BAD_ROADMAP = """\
 ## Phase 1: Foundation
 
 Set up project structure and configuration.
@@ -278,23 +278,23 @@ class TestNamedMechanismMatching:
     """FR-MOD2.4: Named mechanism identifier matching."""
 
     def test_upper_snake_case_detected(self):
-        contracts = extract_integration_contracts(CLI_PORTIFY_SPEC)
+        contracts = extract_integration_contracts(DISPATCH_TABLE_SPEC)
         evidence_text = " ".join(c.spec_evidence for c in contracts)
         assert "PROGRAMMATIC_RUNNERS" in evidence_text
 
     def test_named_mechanism_in_roadmap_coverage(self):
-        contracts = extract_integration_contracts(CLI_PORTIFY_SPEC)
+        contracts = extract_integration_contracts(DISPATCH_TABLE_SPEC)
         roadmap_with_name = "## Phase 1\nPopulate PROGRAMMATIC_RUNNERS dict."
         result = check_roadmap_coverage(contracts, roadmap_with_name)
         assert result.all_covered
 
 
-class TestCliPortifyRegression:
+class TestDispatchTableRegression:
     """SC-003: Detects PROGRAMMATIC_RUNNERS without wiring task at >= 90%."""
 
     def test_detects_programmatic_runners_without_wiring(self):
-        contracts = extract_integration_contracts(CLI_PORTIFY_SPEC)
-        result = check_roadmap_coverage(contracts, CLI_PORTIFY_BAD_ROADMAP)
+        contracts = extract_integration_contracts(DISPATCH_TABLE_SPEC)
+        result = check_roadmap_coverage(contracts, DISPATCH_TABLE_BAD_ROADMAP)
         assert not result.all_covered
         assert result.uncovered_count >= 1
         # Verify PROGRAMMATIC_RUNNERS specifically is uncovered
@@ -303,7 +303,7 @@ class TestCliPortifyRegression:
         assert "PROGRAMMATIC_RUNNERS" in uncovered_evidence
 
     def test_total_contracts_detected(self):
-        contracts = extract_integration_contracts(CLI_PORTIFY_SPEC)
+        contracts = extract_integration_contracts(DISPATCH_TABLE_SPEC)
         assert len(contracts) >= 1
 
 
@@ -354,10 +354,10 @@ class TestHubDispatchRegression:
         contracts = extract_integration_contracts(DISPATCH_TABLE_SPEC)
         assert any(c.mechanism == "dispatch_table" for c in contracts)
 
-    def test_t5_cli_portify_regression_still_blocks(self):
+    def test_t5_dispatch_table_regression_still_blocks(self):
         """SC-003 regression: PROGRAMMATIC_RUNNERS without wiring still uncovered."""
-        contracts = extract_integration_contracts(CLI_PORTIFY_SPEC)
-        result = check_roadmap_coverage(contracts, CLI_PORTIFY_BAD_ROADMAP)
+        contracts = extract_integration_contracts(DISPATCH_TABLE_SPEC)
+        result = check_roadmap_coverage(contracts, DISPATCH_TABLE_BAD_ROADMAP)
         assert result.uncovered_count >= 1
 
     def test_t6_stem_fallback_with_ident_overlap_covers(self):

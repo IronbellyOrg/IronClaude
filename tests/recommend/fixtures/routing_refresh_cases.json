@@ -218,28 +218,6 @@
       }
     },
     {
-      "id": "S11",
-      "request": "Analyze how {fixture:workflow-skill} could become a CLI; dry run only.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "cli-portification-spec"},
-      "targets": ["sc:cli-portify"],
-      "mode_flags": ["--workflow", "--dry-run"],
-      "mandatory_flags": ["2: `--workflow <skill-name-or-path>`"],
-      "retained_inputs": ["{fixture:workflow-skill}"],
-      "stop": "Phase 0-2 contracts",
-      "authority": "artifact-only",
-      "side_effects": "dry run writes Phase 0-2 artifacts; not zero-write and no generated code",
-      "guide_phrases": ["--workflow <skill-name-or-path>", "name/output/dry-run", "Phase 0-2", "no full spec synthesis or panel artifacts", "no-direct-code-files", "contract gap/unavailable"],
-      "contract_gaps": ["C04"],
-      "negative": {"competitors": ["sc:implement", "sc:workflow"], "must_not": "implemented CLI code, full reviewed release spec or a zero-write promise"},
-      "activation": {"sc:cli-portify": "sc:cli-portify-protocol"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:cli-portify", "expected": "not installed: sc:cli-portify; no substitution by sc:implement"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "cli-portify", "candidate": "/sc:workflow", "envelope": "Run: /sc:workflow \"port the workflow\""}, "expected": "guide route matched; cache not consulted; cached /sc:workflow never emitted"}
-      }
-    },
-    {
       "id": "S12",
       "request": "Assess whether {fixture:release-spec} should split; an intact release is acceptable.",
       "environment": "checkout",

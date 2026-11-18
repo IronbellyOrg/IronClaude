@@ -245,7 +245,7 @@ quality_scores:
 
 ## 12. Brainstorm Gap Analysis
 
-> Auto-populated by `sc:cli-portify` Phase 3c embedded brainstorm pass. For manually created specs, use `/sc:brainstorm` to identify gaps.
+> Use `/sc:brainstorm` to identify gaps.
 
 | Gap ID | Description | Severity | Affected Section | Persona |
 |--------|-------------|----------|-----------------|---------|

@@ -35,7 +35,6 @@ CLASSIFICATION_KEYS = (
     "cleanup-audit",  # surface-derived (no iteration-1 eval coverage)
     "troubleshoot-debug",  # surface-derived (no iteration-1 eval coverage)
     "web-research",  # surface-derived (no iteration-1 eval coverage)
-    "cli-portify",  # surface-derived (no iteration-1 eval coverage)
 )
 
 
@@ -65,7 +64,6 @@ If none fits or a tasklist's artifact type is unclear, return unknown.
   cleanup-audit         - report-only dead-code, structural or sprawl audit
   troubleshoot-debug    - diagnose concrete broken behavior, not proactive assessment
   web-research          - current external evidence, not codebase investigation
-  cli-portify           - existing workflow-to-CLI specification, not generated code
 </CLOSED-ENUM-KEYS>
 
 <FEW-SHOT-EXAMPLES>

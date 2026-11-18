@@ -181,7 +181,6 @@ These are part of the framework surface shipped to users. If you are changing co
 - confidence check
 - roadmap protocol
 - task-unified protocol
-- cli-portify protocol
 - cleanup-audit protocol
 - adversarial protocol
 - validate-tests protocol

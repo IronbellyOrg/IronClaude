@@ -5,7 +5,7 @@ Tests cover:
 2. Cross-milestone discharge matching (FR-MOD1.3, FR-MOD1.5)
 3. `# obligation-exempt` comment parsing (FR-MOD1.7)
 4. Code-block severity demotion to MEDIUM (FR-MOD1.8)
-5. cli-portify regression case SC-002
+5. dispatch-table regression case SC-002
 
 All tests use real content fixtures, no mocks.
 """
@@ -81,7 +81,7 @@ stub_client = StubClient()
 Build the real database layer.
 """
 
-CLI_PORTIFY_REGRESSION = """\
+DISPATCH_TABLE_REGRESSION = """\
 ## M1: Foundation
 
 Set up project structure and configuration.
@@ -331,11 +331,11 @@ Implement real services.
         assert len(objective_obs) == 0
 
 
-class TestCliPortifyRegression:
+class TestDispatchTableRegression:
     """SC-002: Detects 'mocked steps' without discharge at >= 85% confidence."""
 
     def test_detects_mocked_steps_without_discharge(self):
-        report = scan_obligations(CLI_PORTIFY_REGRESSION)
+        report = scan_obligations(DISPATCH_TABLE_REGRESSION)
         # The roadmap mentions "mocked steps" in M2 but never discharges
         assert report.has_undischarged
         undischarged = [
@@ -347,7 +347,7 @@ class TestCliPortifyRegression:
         assert any("mock" in t for t in terms)
 
     def test_undischarged_count_nonzero(self):
-        report = scan_obligations(CLI_PORTIFY_REGRESSION)
+        report = scan_obligations(DISPATCH_TABLE_REGRESSION)
         assert report.undischarged_count >= 1
 
 

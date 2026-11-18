@@ -312,7 +312,7 @@ There is no way to add a mode that switches on by itself. Modes ship under `src/
 
 ### What Runs Code
 
-- **The `superclaude` Python CLI**: `install`, `update`, `doctor` and `mcp` set up and check the installation. The `sprint`, `roadmap`, `tasklist`, `eval`, `swarm`, `reflect` and `cli-portify` commands are multi-step pipelines: most start Claude Code as a subprocess for each step and check its output in code; `swarm` fans one prompt out to several OpenAI-compatible model workers. Run `superclaude --help` for the full list.
+- **The `superclaude` Python CLI**: `install`, `update`, `doctor` and `mcp` set up and check the installation. The `sprint`, `roadmap`, `tasklist`, `eval`, `swarm` and `reflect` commands are multi-step pipelines: most start Claude Code as a subprocess for each step and check its output in code; `swarm` fans one prompt out to several OpenAI-compatible model workers. Run `superclaude --help` for the full list.
 - **Hook scripts**: Claude Code runs the scripts in `~/.claude/hooks/` and `~/.claude/skills/ccsession-tag/hooks/` on the events registered in `settings.json`. They track reads, block edits to unread or stale files (`freshness-pre-edit.sh`), and start a background `codegraph init` on the first session in a new checkout (`codegraph-session-start.sh`; opt out with `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`).
 - **MCP servers**: Separate software (codegraph, Context7, Tavily and others) that `superclaude mcp` and `superclaude install` register with Claude Code.
 

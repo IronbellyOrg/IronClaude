@@ -14,7 +14,7 @@ master_recurrence_row: 9
 
 ## What happened
 
-`v2.24-cli-portify` halted at `spec-fidelity` after exhausting its 2-attempt
+release `v2.24` halted at `spec-fidelity` after exhausting its 2-attempt
 retry budget producing **identical output**, because the retry re-ran the same
 prompt against an **unchanged `roadmap.md`** (`A1b:F-A1b-006`). The retry could
 never converge: nothing about the input changed between attempts, so the

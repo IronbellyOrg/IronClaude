@@ -45,7 +45,6 @@ The rule was a 5.0.0 release blocker decided by the user and recorded in `.dev/r
 | B1 | A review that fails only on minor findings notes them and proceeds: no recheck, no FAIL. Every "any severity" rule is removed and review loops are limited to 2 rounds. At the cap with blocking findings open, stop and escalate; never pass them silently. | `DECISIONS.md:12` |
 | B2 | "2 rounds" means 2 fix cycles, so at most 3 reviews (review, fix, re-review, fix, re-review), then escalate. Existing "Max 2 fix cycles" stay; "Max 3" and uncapped loops drop to 2. | `DECISIONS.md:13` |
 | B3 | Inside `/sc:implement`, the second A2 in-place repair is removed (A1 review, fix, A2 re-review, one repair, re-review = 2 fix cycles). Retry-adviser attempts A3-A5, the halt contract, the saved reviewer prompt and FINAL are unchanged. | `DECISIONS.md:14` |
-| B4 | `/sc:cli-portify` convergence defaults to 1 iteration (one iteration is exactly 2 fix cycles and 3 reviews). Amended 2026-11-02: the `--max-convergence` flag was never wired to the engine, so its help text was reworded to say so and wiring it is a follow-up. | `DECISIONS.md:18` |
 | B5 | When the rule's own plan hit the cap with 10 blocking findings, they were added and implemented without a fourth plan review, with a safeguard: one recorded search for every wording of the old rule (`.dev/review-severity-rule/site-sweep.md`), a static test that fails CI if any wording survives, and text anchors instead of line numbers in acceptance checks. | `DECISIONS.md:19` |
 
 Decision R1 (`DECISIONS.md:17`) only replaced a stalled worker during the implementation; it does not change the rule.
@@ -67,7 +66,6 @@ The 5.0.0 changelog lists the scope (`CHANGELOG.md:29-33`). Representative sites
 | rf-qa, rf-qa-qualitative, rf-analyst, rf-team-lead agents; QA and skill templates; both MDTM templates | PASS allows minor findings as notes; FAIL needs a blocking finding; fix agents receive, apply and recheck blocking findings only | `CHANGELOG.md:30`; copies pinned by `test_review_severity_rule.py:181-203` |
 | prd, tdd, tech-reference, tech-research, readme, operational-guide, task, task-builder skills | Same rule; task-builder's gate passes with minor findings as notes and HALTs at the cap | `src/superclaude/skills/task-builder/SKILL.md:865,873` |
 | `/sc:tasklist` patch loop | Capped at pass `k=2`; open High or Medium (blocking) findings HALT and escalate instead of shipping "logged for human review"; Low findings stay notes | `src/superclaude/skills/sc-tasklist-protocol/SKILL.md:1598,1608` |
-| `/sc:cli-portify` | Convergence engine runs 1 iteration | `src/superclaude/cli/cli_portify/convergence.py:165`; `cli_portify/steps/panel_review.py:352` |
 | At-cap behaviour everywhere | HALT and escalate the open blocking findings instead of turning them into Open Questions and proceeding | `CHANGELOG.md:31` |
 
 ## The `/sc:implement` exception
@@ -90,7 +88,7 @@ uv run pytest tests/skills/test_review_severity_rule.py -v
 | (a) any-severity wording | Phrases such as "any issue of any severity", "regardless of severity", "must still be fixed" in `src/`, `plugins/`, `commands/`, `agents/` | `112-176` |
 | (c) copies | S1-S3 (and S5 where required) not verbatim in the ten-file set | `181-210` |
 | (d) cap text | The canonical cap text or the at-cap HALT clause missing | `215-246` |
-| (e), (j) edit tables | Any of the 160 cap-edit or 137 sweep-edit rows not applied (fixtures in `tests/skills/fixtures/review_severity_cap_edits.yaml` and `review_severity_sweep_edits.yaml`) | `261-283` |
+| (e), (j) edit tables | Any of the 140 cap-edit or 137 sweep-edit rows not applied (fixtures in `tests/skills/fixtures/review_severity_cap_edits.yaml` and `review_severity_sweep_edits.yaml`) | `261-283` |
 | (f) old caps | A review-loop cap above 2 ("Max 3 fix cycles", "after 3 failed cycles", ...) outside `sc-implement-protocol` and two allowlisted lines | `288-339` |
 | (g) verdict suffixes | "Only PASS or FAIL — no conditional pass." removed from the listed skills | `344-365` |
 | (h) plugin twins | `plugins/superclaude/skills/sc-implement-protocol/` not byte-equal to `src/` | `371-385` |
@@ -101,7 +99,6 @@ uv run pytest tests/skills/test_review_severity_rule.py -v
 
 These are known gaps or unclear intent, not rule violations. Each needs an owner decision.
 
-- **`/sc:cli-portify --max-convergence` does nothing.** The option defaults to 1 and its help text says nothing reads it yet (`src/superclaude/cli/cli_portify/commands.py:97-106`); `panel_review.py:352` builds the engine with a fixed `max_iterations=1`, while a failure message still suggests raising the flag (`cli_portify/failures.py:240`). Recorded as a 5.0.0 Known Issue (`docs/releases/v5.0.0.md:229`) and in decision B4 (amended).
 - **Roadmap convergence `max_runs=3`.** The roadmap fidelity gate runs up to 3 checker runs by default (`src/superclaude/cli/roadmap/convergence.py:440`) and remediates only between runs (`convergence.py:632-649`), so it performs at most 2 remediation passes, the same count as S3 if a checker run counts as a review. The changelog scope does not name roadmap convergence (`CHANGELOG.md:29-33`), so whether the rule is meant to cover it is not stated.
 - **`sc-cli-eval-protocol` "max 3 fix loops".** The create pipeline allows 3 fix loops for manifest loader errors before reporting blocked (`src/superclaude/skills/sc-cli-eval-protocol/SKILL.md:204`; `refs/create-pipeline.md:50`). The guard test allowlists both lines as "not a review loop" (`test_review_severity_rule.py:294-304`); whether non-review fix loops should follow the 2-cycle cap is not decided.
 

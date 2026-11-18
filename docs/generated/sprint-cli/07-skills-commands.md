@@ -176,14 +176,6 @@ Specification Document (PRD/TDD/spec)
 
 If a skill name starts with `sc-` and a matching slash command exists in `commands/sc/`, the skill is marked as "served by /sc: command" and **skipped** during standalone install to avoid duplicate entries.
 
-### Command-Skill Link Resolution
-
-**`src/superclaude/cli/cli_portify/resolution.py`**:
-
-- Parses command activation sections (`> Skill sc:<name>`)
-- Resolves command-to-skill links
-- Uses command-first policy when ambiguous
-
 ## Trigger Model Summary
 
 | Component | Trigger | Automatic? |

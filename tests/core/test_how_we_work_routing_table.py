@@ -84,7 +84,6 @@ _EXPECTED_IDS = {
     "context-audit",
     "cli-eval-create",
     "cli-eval-run",
-    "cli-portification-spec",
     "release-boundary",
     "post-release",
     "roadmap-artifacts",
@@ -296,7 +295,6 @@ def test_other_commands_membership_and_live_references():
     assert not members & {
         "sc:help",
         "sc:cli-eval",
-        "sc:cli-portify",
         "sc:init-lite",
         "sc:post-release",
         "sc:tdd",
@@ -680,18 +678,6 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
             ],
         ),
         (
-            "S11",
-            "cli-portification-spec",
-            {"sc:cli-portify"},
-            ["--workflow <skill-name-or-path>", "name/output/dry-run"],
-            [
-                "Phase 0-2",
-                "no full spec synthesis or panel artifacts",
-                "no-direct-code-files",
-                "contract gap/unavailable",
-            ],
-        ),
-        (
             "S12",
             "release-boundary",
             {"sc:release-split"},
@@ -876,9 +862,6 @@ def test_previews_documentation_and_suite_runs_disclose_actual_writes():
     rows = {r["id"]: r for r in _routing_rows()}
     section = _block(_text(), "### 3.6 ", "### 3.7 ")
     assert "brainstorm dry run can write preparatory artifacts" in section
-    portify = rows["cli-portification-spec"]["notes"]
-    assert "dry-run writes Phase 0-2 artifacts" in portify
-    assert "no full spec synthesis or panel artifacts" in portify
     context = rows["context-audit"]
     assert "--context-optimized" in context["mandatory_flags"]
     assert "dry-run` writes nothing and creates no output directory" in context["notes"]
