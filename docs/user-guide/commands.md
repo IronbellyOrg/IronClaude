@@ -585,7 +585,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 
 ### `/sc:task` - Enhanced Task Management
 
-**When to use:** A small, direct change: one source file plus its test, five edits or fewer, and you know exactly what it should be (level 2 in [How We Work](how-we-work.md)). Work that touches more than one source file or needs more than five edits needs a written plan (`/sc:workflow`, level 3; `/task-builder` only when you explicitly select MDTM).
+**When to use:** A small, direct change: one source file plus its test, five edits or fewer, and you know exactly what it should be (level 2 in [How We Work](how-we-work.md)). Work that touches more than one source file or needs more than five edits needs a written plan (`/sc:workflow`, level 3).
 
 **What it does:**
 
