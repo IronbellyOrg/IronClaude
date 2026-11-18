@@ -18,7 +18,7 @@ def tiers():
 
 @pytest.fixture
 def tpl():
-    return pnl.load_panel()
+    return pnl.load_panel("@classic")
 
 
 def test_default_files_validate(tiers, tpl):
@@ -357,7 +357,7 @@ def test_template_lookup_precedence(tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.delenv("SUPERCLAUDE_REVIEW_PANEL", raising=False)
     monkeypatch.chdir(proj)
-    assert pnl.load_panel()["template_id"] == "default"
+    assert pnl.load_panel()["template_id"] == "wonsol"
     write(home / ".superclaude" / "review-panel.json", "from-user")
     assert pnl.load_panel()["template_id"] == "from-user"
     write(proj / ".superclaude" / "review-panel.json", "from-project")
@@ -398,7 +398,7 @@ def test_invalid_template_file_is_rejected(tmp_path):
 
 def test_packaged_defaults_are_read_through_importlib_resources():
     root = Path(pnl.__file__).parent / "data"
-    assert (root / "review-panel.default.json").is_file()
+    assert (root / "review-default.json").is_file()
     assert (root / "review-tiers.default.json").is_file()
 
 

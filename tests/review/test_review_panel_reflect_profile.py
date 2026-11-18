@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
+from review_panel_golden import golden_panel
 
 from superclaude.cli.review import panel as pnl
 from superclaude.cli.review import panel_cmd
@@ -76,7 +77,7 @@ def test_packaged_tiers_hash_and_resolutions_are_pinned(tiers):
     assert pnl.sha256_json(tiers) == golden["tiers_sha256"]
     for name in ("default", "live7"):
         res = pnl.resolve(
-            pnl.packaged_panel(name),
+            golden_panel(name),
             tiers,
             "anthropic-only",
             "golden-run",
