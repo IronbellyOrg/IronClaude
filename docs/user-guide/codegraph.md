@@ -1,6 +1,6 @@
 # Using codegraph
 
-codegraph is the code-graph server that IronClaude 5.0.0 installs by default. This page covers what it does for you while you work, how each checkout gets its index, the two commands that expose it (`/sc:graph` and `/sc:impact`), the two switches, and what to check when it does not answer. For installing and removing codegraph itself, see the [MCP installation guide](mcp-installation.md#default-setup-codegraph).
+codegraph is the code-graph server that IronClaude installs by default (since 5.0.0). This page covers what it does for you while you work, how each checkout gets its index, the two commands that expose it (`/sc:graph` and `/sc:impact`), the two switches, and what to check when it does not answer. For installing and removing codegraph itself, see the [MCP installation guide](mcp-installation.md#default-setup-codegraph).
 
 ## What codegraph does for you
 

@@ -87,15 +87,16 @@ For IronClaude, the branch model is `master` ← `integration` ← `feature/*`, 
 
 ### 📐 Design Notes (5.0.0)
 
-**Purpose**: How the 5.0.0 subsystems work, with every claim tied to the code at tag v5.0.0  
+**Purpose**: How the 5.0.0 subsystems work, with every claim tied to the code (written at tag v5.0.0, re-read at tag v6.0.0)
+
 **Target Audience**: Maintainers who change the installer, hooks, commands, skills or agents
 
 - [codegraph Integration](codegraph-integration.md) - How install sets up and registers codegraph and retires the old Serena and codebase-memory-mcp registrations
-- [File-Based Session Memory](session-memory.md) - The markdown memory store under `<project>/.superclaude/memory/` and its one-release fallback to the old Serena folder
+- [File-Based Session Memory](session-memory.md) - The markdown memory store under `<project>/.superclaude/memory/` and which commands and agents read and write it (6.0.0 removed the fallback to the old Serena folder)
 - [Review Severity and the 2-Fix-Cycle Cap](review-severity-rule.md) - How review findings are graded and why review loops stop after 2 fix cycles
 - [Release Procedure](release-procedure.md) - The steps and the G1-G9 gate for cutting a release
 
-**Related user guides**: [Using codegraph](../user-guide/codegraph.md) and [Upgrading to IronClaude 5.0.0](../getting-started/upgrading.md).
+**Related user guides**: [Using codegraph](../user-guide/codegraph.md) and [Upgrading to IronClaude 6.0.0](../getting-started/upgrading.md).
 
 ---
 
@@ -113,7 +114,7 @@ For IronClaude, the branch model is `master` ← `integration` ← `feature/*`, 
 
 - [Development Setup](contributing-code.md#development-setup) - Prerequisites and configuration
 - [Installation Verification](testing-debugging.md#installation-verification) - File installation check
-- [Upgrading to IronClaude 5.0.0](../getting-started/upgrading.md) - Moving an existing 4.x install to 5.0.0
+- [Upgrading to IronClaude 6.0.0](../getting-started/upgrading.md) - Moving an existing 5.0.0 (or 4.x) install to 6.0.0
 
 ### 🏗️ Architecture & Design
 
