@@ -5,7 +5,11 @@ Claude Code deletes every saved conversation (a transcript file under
 ~/.claude/projects) whose file modification time is older than
 ``cleanupPeriodDays`` days. The default is 30. It has no exemption for a named
 session, so a name in a ccsession list outlives its conversation after 30 days
-and shows "(transcript missing)". The only protection is a larger value.
+and shows "(transcript missing)". The only protection is a larger value. The
+installer's target is 90 days (MIN_DAYS): long enough for a person's named
+session to survive a normal pause. Claude Code has one value for every session,
+so how long an agent's sessions are kept is ccsession's own pruning (see
+session_keep.py), not this setting.
 
 Claude Code reads the value from the first of these that sets it: its managed
 settings (/etc/claude-code on Linux, /Library/Application Support/ClaudeCode on
@@ -52,9 +56,11 @@ import time
 from pathlib import Path
 
 KEY = "cleanupPeriodDays"
-# A year keeps a named session through any normal pause in the work and is still
-# a limit. Disk is not the constraint: transcripts are a few GB at most.
-MIN_DAYS = 365
+# The installer's target and the value below which ccsession warns: 90 days keeps
+# a person's named session through a normal pause (a quarter), and it was 365
+# before ccsession could tell agent sessions from a person's and prune the agent
+# ones itself. A larger value a user chose (365, 3650) is kept and never warned.
+MIN_DAYS = 90
 DEFAULT_DAYS = 30  # Claude Code's own default when no file sets the key
 EXIT_NOT_RAISED = 3  # ensure could not raise the value; the printed line says why
 

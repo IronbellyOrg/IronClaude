@@ -99,7 +99,7 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
             )
         # Claude Code deletes a saved conversation 30 days after its last change
         # and keeps no exception for a named one: raise cleanupPeriodDays in the
-        # user's settings to a year when it is absent or lower. A larger value is
+        # user's settings to 90 days when it is absent or lower. A larger value is
         # kept, managed settings (which win) are never touched, and a plain
         # install can keep an older skill folder without the script.
         retention = skill / "retention.py"

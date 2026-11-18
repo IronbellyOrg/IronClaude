@@ -1,0 +1,18 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-ccsessionHumanVs-20261118-150248
+plan_path: ./TASK-WF-ccsessionHumanVs-20261118-150248.md
+source_path: ./source.md
+source_origin: .dev/specs/ccsession-human-vs-agent-sessions.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/ccsession-saved-sessions/.dev/reflect/pre-ccsessionHumanVs-20261118150511/REPORT.md
+unresolved:
+  - "reflect --mode pre ran as an inline single-author Tier 1 pass: the rubric asked for Tier 2 but the standing no-subagents rule prevented it; calibrated confidence not computed"
+  - "reflect findings M-1 to M-4 (non-blocking, plan not edited): no assertion that imported names get no marker; --rm and --orca-tab-reopen on a hidden session; gate (g) lock; install and doctor checks are PR-gate steps, not task bullets"
+  - "plan and source.md were edited after the reflect pre check to fix independent-review finding B1 and to floor the agent limit at 30; the reflect report and its hashes describe the earlier version (source sha256 93b1515504ff6b90248ef4b52da2b0f767ea517cbc66f8697fe00e8b14689984); the current source.md sha256 is 5b9431e25670491cfcb5d188a5b60ffaada08eedb59af23a136e2c617e080d22"
+  - "second independent review (round 2) fixes applied: agent is written only at SessionStart with source startup from an agent-origin launch; a rename writes human with --event alone; a resume never writes a marker; the agent-limit floor applies to --prune only; classify skips human-marked and renamed sessions. The current source.md sha256 is e2de33afbb41726e7b74efc0074777c00d25681119b785cd4fa2160c518f0e26 (it supersedes the hash named in the line above)"
+  - "third independent review PASS (no blocking finding); text corrections applied (a missed-sync limit and the unmarked copy in another repo added to R2.4, section 8 updated, probe evidence corrected and extended with an interactive /resume observation). Current source.md sha256 is 9d27a638d9df93f12f63184c2de6745ea1eb279c7f0c155474b03361bebf3590"

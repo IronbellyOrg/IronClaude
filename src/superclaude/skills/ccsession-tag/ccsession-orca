@@ -180,7 +180,7 @@ if [ "$ask_ok" = 1 ] && [ -n "${ORCA_PANE_KEY:-}" ] && [ "$name_from_env" = 0 ];
     name=${reopen#*$'\t'}
     # Neither belongs in Claude's environment (an invalid CCSESSION_NAME was
     # dropped above and does not stop a reopen).
-    unset CCSESSION_NAME CCSESSION_ASK_TIMEOUT
+    unset CCSESSION_NAME CCSESSION_ASK_TIMEOUT CCSESSION_ORIGIN
     if [ -n "$name" ]; then
       echo "[ccsession] Reopening this tab's session '$name'" >&2
       exec "$CCSESSION" --name "$name" --shim --claude-args "$@"
@@ -192,6 +192,10 @@ fi
 
 name=""
 message=""
+# Who chose this launch's name, for the hook's new-session marker (R2.1): a
+# person only when they typed it at the question; an auto-name, CCSESSION_NAME,
+# a carried --name and an untagged start are agent.
+origin=agent
 if [ "$name_from_env" = 1 ]; then
   name=$env_name
 elif [ "$ask" = 1 ]; then
@@ -204,7 +208,10 @@ elif [ "$ask" = 1 ]; then
   answer=$("$CCSESSION" --ask "$hint") || rc=$?
   trap - INT
   case "$rc" in
-    0) name=$answer ;; # a name; an empty answer (Enter) is auto-named below
+    0) # a name; an empty answer (Enter) is auto-named below
+      name=$answer
+      if [ -n "$answer" ]; then origin=human; fi
+      ;;
     1) : ;;            # not asked (keys already waiting), timed out, or end of input: auto-named below
     3) message=$answer ;; # not a name (paste, control character, too long): Claude's first message
     130) exit 130 ;;   # Ctrl+C cancels: no Claude, no session record
@@ -240,6 +247,13 @@ fi
 # Neither of these belongs in Claude's environment, or a Claude started from
 # inside this one would inherit the name and the limit.
 unset CCSESSION_NAME CCSESSION_ASK_TIMEOUT
+# A resume names itself and writes no marker, so it carries no origin; any other
+# launch hands its origin to ccsession, which passes it to the hook.
+if [ "$resume_like" = 1 ]; then
+  unset CCSESSION_ORIGIN
+else
+  export CCSESSION_ORIGIN="$origin"
+fi
 
 # In tier mode the shim is always on; --shim asks for it everywhere else.
 if [ -n "$name" ]; then

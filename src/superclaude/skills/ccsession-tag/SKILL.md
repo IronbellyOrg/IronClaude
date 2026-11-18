@@ -26,10 +26,19 @@ Each list in `ccsession --list` is headed by its repo's name, and `ccsession
 --here` adds the current worktree (`IronFlow  (worktree: coordinator)`).
 
 Claude Code deletes a conversation 30 days after its last change by default,
-and a name does not protect it. The installer sets `cleanupPeriodDays` to 365 in
+and a name does not protect it. The installer sets `cleanupPeriodDays` to 90 in
 `~/.claude/settings.json` when it is absent or lower; a managed value (for
 example `/etc/claude-code/managed-settings.d/`) wins over it, and `ccsession
---list` warns when the value in force is below 365.
+--list` warns when the value in force is below 90.
+
+ccsession records who chose each session's name (`human` or `agent`):
+
+- `ccsession --list` and `--here` hide agent sessions; `--agents` shows them.
+- `ccsession --mark <name> agent|human` sets the marker of one saved name.
+- `ccsession --classify [--apply]` marks old sessions whose every name is an
+  automatic name as `agent` (a dry run without `--apply`).
+- `ccsession --prune [--apply] [--days N]` deletes agent sessions not changed in
+  more than N days (30 by default, never fewer); a dry run without `--apply`.
 
 See `~/.claude/skills/ccsession-tag/README.md` for install, names, Orca and
 tiers.

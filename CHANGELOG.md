@@ -4,6 +4,13 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession: tell human-saved sessions from agent-saved ones, and keep them for different times (#638)
+
+- ccsession now records, when a name is saved, who chose it: a marker file `<list>/.origin/<session id>` holding `human` or `agent`. A name typed at the new-tab question, `ccsession <name>` on a terminal, or `/rename` is `human`; an automatic name, `CCSESSION_NAME`, Claude's `--name` and a launch from inside Claude Code or with no terminal are `agent`. Only a new session is ever marked `agent`; a resume writes no marker, and every session saved before this change is unmarked, which counts as human (shown, never pruned).
+- `ccsession --list`, `--here` and the new-tab question hide agent sessions and end with `N agent sessions hidden: <command>`. `--agents` shows them (`+` at the question). New `ccsession --mark <name> agent|human` sets one marker, and `ccsession --classify [--apply]` marks the older sessions whose every name is an exact automatic name as `agent` (a dry run without `--apply`).
+- New `ccsession --prune [--apply] [--days N]` (new file `session_keep.py`) deletes sessions an agent saved that have not changed in more than N days (30 by default, never fewer than 30; `CCSESSION_AGENT_KEEP_DAYS` sets it), with their transcript, session folder, file history, names, marker and Orca tab record, and names whose conversation is gone. It is a dry run unless `--apply` is given, never touches an unmarked or human session or the running one, and prints a `LOWERS THE LIMIT:` line when it would delete sessions Claude Code keeps longer. `--list` and `--here` add one line when agent sessions are past the days.
+- **Lowers a limit:** the installer's Claude Code retention target (`retention.py` `MIN_DAYS`) goes from 365 to 90 days. It never lowers a value already set (a 365 stays 365) and never writes where managed settings decide; a machine with no value goes from Claude Code's 30 to 90. `ccsession --list` and `--here` now warn only below 90.
+
 ### ccsession: lists are headed by the repo name; named sessions are kept for a year
 
 - `ccsession --list` heads each list with its repo's name (the last part of the `origin` path, without `.git`) instead of the folder in `.cwd`, which only names the worktree that wrote the list last. `ccsession --here` shows `<repo>  (worktree: <folder>)`. A list with no network origin, or an old per-folder list, keeps its old heading. The name comes from the folder's own `origin`, else a new `.repo` file beside `.cwd` (written whenever a name is saved or a named session starts), else the checkout in `.cwd`. Listing writes nothing, and no name file is rewritten.
