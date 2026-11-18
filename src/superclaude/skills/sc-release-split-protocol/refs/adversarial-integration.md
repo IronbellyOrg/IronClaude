@@ -109,7 +109,7 @@ on disk (Read tool). If missing, treat as `status: failed, failure_stage: transp
 
 ## Convergence Routing
 
-Thresholds aligned with sc:roadmap for cross-skill consistency:
+Convergence thresholds:
 
 | Score | Action |
 |-------|--------|

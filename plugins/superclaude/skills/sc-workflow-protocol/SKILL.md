@@ -2,7 +2,7 @@
 name: sc:workflow-protocol
 description: "Behavioral protocol for /sc:workflow — PRD/spec to phased tasklist (<id>.md)"
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_callees, mcp__codegraph__codegraph_impact
-argument-hint: "<path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement|tasklist]"
+argument-hint: "<path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement]"
 ---
 
 <!-- Extended metadata (for documentation, not parsed):
@@ -104,4 +104,4 @@ After an `implement` handoff the package may have moved to `done/` (executor-own
 
 **Will:** one new package `.dev/tasks/to-do/<id>/` with `<id>.md`, `source.md`, `return-contract.yaml`; ground the plan in the real code through codegraph when the index is fresh. Never overwrites or reuses an existing package. Run `/sc:reflect --mode pre` (advisory) on the gated plan as the final generation step, before any handoff.
 
-**Will Not:** product code, tasklist files, roadmap CLI, new agents, Task fan-out; modify the plan from reflect findings.
+**Will Not:** product code, new agents, Task fan-out; modify the plan from reflect findings.

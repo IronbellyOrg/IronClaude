@@ -226,18 +226,20 @@ def test_digit_prefix_precedes_final_subject_truncation():
     assert "`1234567890123456` → `plan123456789012`" in parse
 
 
-def test_tasklist_referral_uses_positional_roadmap():
-    usage = (_REPO / "src/superclaude/commands/tasklist.md").read_text(encoding="utf-8")
-    assert "/sc:tasklist <roadmap-path>" in usage and "--source" not in usage
-    row = next(
-        line
+def test_handoff_choices_are_none_design_implement():
+    parse = _ref("input-parse.md")
+    assert "handoff `none|design|implement`." in parse
+    assert "handoff_action: none | design | implement\n" in _ref("return-contract.md")
+    assert "[--handoff none|design|implement]" in _CMD.read_text(encoding="utf-8")
+
+
+def test_overlap_routing_names_only_kept_neighbors():
+    rows = [
+        line.split(" | ")[0]
         for line in _ref("overlap-routing.md").splitlines()
-        if line.startswith("| `/sc:tasklist`")
-    )
-    do, do_not = row.split(" | ")[1:3]
-    assert "`/sc:tasklist <roadmap-path>`" in do
-    assert "--source" not in do and "<id>.md" not in do
-    assert "<id>.md" in do_not and "workflow plan" in do_not
+        if line.startswith("| `/")
+    ]
+    assert rows == ["| `/sc:implement`", "| `/sc:design`", "| `/task` (MDTM)"]
 
 
 def test_wave_4_names_the_nested_reflect_directory_under_unattended():

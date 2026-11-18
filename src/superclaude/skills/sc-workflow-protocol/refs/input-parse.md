@@ -55,6 +55,6 @@ Every generation creates one **new** package under the current checkout: `.dev/t
 | `E-NO-PHASES` | Wave 1 extracted nothing | created → `failed` contract |
 | `E-GATE` | Wave 3 schema/heading fail | created → `failed` contract |
 
-Enums: strategy `systematic|agile|enterprise`; depth `quick|standard|deep`; handoff `none|design|implement|tasklist`.
+Enums: strategy `systematic|agile|enterprise`; depth `quick|standard|deep`; handoff `none|design|implement`.
 
 Bash: only the package `mkdir` (exclusive leaf) and a single `rm` may change the filesystem; read-only helpers (`date -u`, `test -e`/`-L`, `tr`/`sed` for the subject, `grep` for gate checks) are fine. The single `rm` is of the draft `<id>.md` this run wrote when Wave 3 fails (never a directory, never anything else). Write `source.md` and `<id>.md` with the Write tool (a file source's text is read, then written verbatim).

@@ -230,7 +230,7 @@
       "authority": "artifact-only",
       "side_effects": "release-boundary artifacts and fidelity evidence; no product implementation or Git",
       "guide_phrases": ["<release-artifact>", "supplied controls", "--no-split --resume-from <validated proposal>", "no-split is valid", "no product execution or Git"],
-      "negative": {"competitors": ["sc:roadmap", "roadmap", "sc:implement"], "must_not": "automatic roadmap/product execution or a forced split"},
+      "negative": {"competitors": ["roadmap", "sc:implement"], "must_not": "automatic roadmap/product execution or a forced split"},
       "activation": {"sc:release-split": "sc:release-split-protocol"},
       "repeats": [
         {"request": "Keep {fixture:release-spec} intact; do not split it.", "targets": ["sc:release-split"], "mode_flags": ["--no-split"], "retained_inputs": ["{fixture:release-spec}"], "positionals": {"<spec-file-path>": "{fixture:release-spec}"}, "expected": "explicit no-split retained"},
@@ -261,69 +261,6 @@
       "variants": {
         "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:post-release", "expected": "not installed: sc:post-release; no substitution by sc:document"},
         "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/sc:document", "envelope": "Run: /sc:document docs/"}, "expected": "guide route matched; cache not consulted; cached /sc:document never emitted"}
-      }
-    },
-    {
-      "id": "S14",
-      "request": "Use /sc:roadmap to produce release-pipeline roadmap artifacts from {fixture:spec} and {fixture:tdd}.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "roadmap-artifacts"},
-      "targets": ["sc:roadmap"],
-      "mode_flags": [],
-      "retained_inputs": ["{fixture:spec}", "{fixture:tdd}"],
-      "stop": "contract-gap report before any runnable handoff",
-      "authority": "artifact-only",
-      "side_effects": "none until the command/protocol activation contract is reconciled",
-      "guide_phrases": ["supplied documents", "requested controls", "contract gap", "no combined interface", "not MDTM roadmap substitution"],
-      "contract_gaps": ["C01"],
-      "negative": {"competitors": ["roadmap", "sc:workflow", "task-builder"], "must_not": "silent MDTM /roadmap, ordinary workflow or a combined incompatible interface"},
-      "activation": {"sc:roadmap": "sc:roadmap-protocol"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:roadmap", "expected": "not installed: sc:roadmap; no substitution by /roadmap"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "roadmap-generation", "candidate": "/roadmap", "envelope": "Run: /roadmap docs/spec.md"}, "expected": "guide route matched; cache not consulted; cached /roadmap never emitted"}
-      }
-    },
-    {
-      "id": "S15",
-      "request": "Convert {fixture:roadmap} to a Sprint-compatible tasklist bundle using spec {fixture:spec} and output {fixture:output-dir}.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "sprint-tasklist-bundle"},
-      "targets": ["sc:tasklist"],
-      "mode_flags": ["--spec", "--output"],
-      "retained_inputs": ["{fixture:roadmap}", "{fixture:spec}", "{fixture:output-dir}"],
-      "positionals": {"<roadmap-path>": "{fixture:roadmap}"},
-      "stop": "generated bundle; no Sprint or task execution",
-      "authority": "artifact-only",
-      "side_effects": "tasklist bundle files in the output directory",
-      "guide_phrases": ["<roadmap-path>", "supplied spec/output", "readable non-empty roadmap", "writable output parent", "no unsupported source flag", "no automatic Sprint/task execution"],
-      "negative": {"competitors": ["task-builder", "sc:workflow", "task"], "must_not": "generic plan creation, MDTM generation or unsupported source flag"},
-      "activation": {"sc:tasklist": "sc:tasklist-protocol"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:tasklist", "expected": "not installed: sc:tasklist; no substitution by task-builder"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "task-file-generation", "candidate": "/task-builder", "envelope": "Run: /task-builder \"Create an MDTM task from docs/spec.md\""}, "expected": "guide route matched; cache not consulted; cached /task-builder never emitted"}
-      }
-    },
-    {
-      "id": "S16",
-      "request": "Audit roadmap fidelity of {fixture:roadmap} against {fixture:spec} through the roadmap validator.",
-      "environment": "checkout",
-      "guide_route": {"block": "routing", "row": "roadmap-fidelity"},
-      "targets": ["sc:validate-roadmap"],
-      "mode_flags": [],
-      "retained_inputs": ["{fixture:roadmap}", "{fixture:spec}"],
-      "stop": "requested validation objective with the contract gap disclosed",
-      "authority": "report-only",
-      "side_effects": "validation report only; no implementation",
-      "guide_phrases": ["roadmap/spec sources", "supplied output directory", "command/protocol contract gap", "explicitly denies CLI equivalence", "exit zero is not clean validation"],
-      "contract_gaps": ["C02", "C03"],
-      "negative": {"competitors": ["sc:reflect"], "must_not": "reflect merely because a plan is mentioned; mixed input grammar; zero exit equals clean"},
-      "activation": {"sc:validate-roadmap": "sc-validate-roadmap-protocol"},
-      "repeats": [],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:validate-roadmap", "expected": "not installed: sc:validate-roadmap; no substitution by sc:reflect"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "adversarial-review", "candidate": "/sc:reflect", "envelope": "Run: /sc:reflect --mode pre --spec docs/previous.md"}, "expected": "guide route matched; cache not consulted; cached /sc:reflect never emitted"}
       }
     },
     {
@@ -586,7 +523,7 @@
     "T41": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_verification_follows_actual_activation_and_relevant_dependencies", "tests/core/test_how_we_work_routing_table.py::test_other_operations_preserve_requested_authority_and_owned_state", "tests/recommend/test_routing_refresh.py::test_case_activation_matches_command_source"]},
     "T42": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_verification_follows_actual_activation_and_relevant_dependencies", "tests/core/test_how_we_work_routing_table.py::test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_first", "tests/recommend/test_routing_refresh.py::test_case_activation_matches_command_source", "tests/recommend/test_routing_refresh.py::test_variants_name_real_primitives_and_wrong_cache_rows"]},
     "T43": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_verification_follows_actual_activation_and_relevant_dependencies", "tests/recommend/test_routing_refresh.py::test_case_activation_matches_command_source"]},
-    "T44": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_interface_evidence_accepts_declarations_not_conflicting_examples", "tests/commands/test_workflow_command.py::test_tasklist_referral_uses_positional_roadmap", "tests/recommend/test_routing_refresh.py::test_example_only_flags_are_not_declared_or_routed"]},
+    "T44": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_interface_evidence_accepts_declarations_not_conflicting_examples", "tests/commands/test_workflow_command.py::test_overlap_routing_names_only_kept_neighbors", "tests/recommend/test_routing_refresh.py::test_example_only_flags_are_not_declared_or_routed"]},
     "T45": {"static": ["tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces", "tests/skills/test_sc_recommend_routing_contract.py::test_verification_follows_actual_activation_and_relevant_dependencies"]},
     "T46": {"static": ["tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces", "tests/skills/test_sc_recommend_routing_contract.py::test_retirement_checks_provenance_without_excluding_custom_commands", "tests/recommend/test_routing_refresh.py::test_retired_identities_have_no_shipped_command"]},
     "T47": {"static": ["tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces"], "behavioral": "Task8"},

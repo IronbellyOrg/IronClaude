@@ -21,7 +21,7 @@ The skill accepts 20 flags. Semantics:
 - `--no-mcp` — Debug only; auto-warns. Skips MCP-backed grounding.
 - `--no-evidence-validator` — Debug only; auto-warns. Skips the Wave 5 evidence-validator gate.
 - `--remediate` — Offer Tier 3 remediation handoff.
-- `--budget-remaining <int>` (P5) — Caller-side budget hint (typically `TurnLedger.available()` from a sprint context). When provided, reflect cross-checks against the §15 cost profile and may auto-degrade tier; emits `budget_forced_tier_downgrade: true` in the contract when this happens. See §4.0 step 0.9.
+- `--budget-remaining <int>` (P5) — Caller-side budget hint (typically the caller's remaining budget). When provided, reflect cross-checks against the §15 cost profile and may auto-degrade tier; emits `budget_forced_tier_downgrade: true` in the contract when this happens. See §4.0 step 0.9.
 - `--no-promote` — Promotion-gate flag (UC-2 only, see §14.5). Suppresses Wave 7 promotion. Default is *default-on*: when the §14.5.2 strict gate passes, the validated work-unit folder moves to its `done` destination.
 - `--promote-anyway` — Promotion-gate flag. Overrides `status: partial` gate condition (all other 7 conditions still apply). No effect on `status: failed`.
 - `--promote-dry-run` — Promotion-gate flag. Prints the `mv` command + gate evaluation; performs no mutation.

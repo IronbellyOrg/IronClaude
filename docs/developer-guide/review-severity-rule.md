@@ -65,7 +65,6 @@ The 5.0.0 changelog lists the scope (`CHANGELOG.md:29-33`). Representative sites
 | Pragmatic output style | S1-S5 replace "any issue of ANY severity fails" | `src/superclaude/output-styles/pragmatic.md:225-229` |
 | rf-qa, rf-qa-qualitative, rf-analyst, rf-team-lead agents; QA and skill templates; both MDTM templates | PASS allows minor findings as notes; FAIL needs a blocking finding; fix agents receive, apply and recheck blocking findings only | `CHANGELOG.md:30`; copies pinned by `test_review_severity_rule.py:181-203` |
 | prd, tdd, tech-reference, tech-research, readme, operational-guide, task, task-builder skills | Same rule; task-builder's gate passes with minor findings as notes and HALTs at the cap | `src/superclaude/skills/task-builder/SKILL.md:865,873` |
-| `/sc:tasklist` patch loop | Capped at pass `k=2`; open High or Medium (blocking) findings HALT and escalate instead of shipping "logged for human review"; Low findings stay notes | `src/superclaude/skills/sc-tasklist-protocol/SKILL.md:1598,1608` |
 | At-cap behaviour everywhere | HALT and escalate the open blocking findings instead of turning them into Open Questions and proceeding | `CHANGELOG.md:31` |
 
 ## The `/sc:implement` exception
@@ -99,7 +98,6 @@ uv run pytest tests/skills/test_review_severity_rule.py -v
 
 These are known gaps or unclear intent, not rule violations. Each needs an owner decision.
 
-- **Roadmap convergence `max_runs=3`.** The roadmap fidelity gate runs up to 3 checker runs by default (`src/superclaude/cli/roadmap/convergence.py:440`) and remediates only between runs (`convergence.py:632-649`), so it performs at most 2 remediation passes, the same count as S3 if a checker run counts as a review. The changelog scope does not name roadmap convergence (`CHANGELOG.md:29-33`), so whether the rule is meant to cover it is not stated.
 - **`sc-cli-eval-protocol` "max 3 fix loops".** The create pipeline allows 3 fix loops for manifest loader errors before reporting blocked (`src/superclaude/skills/sc-cli-eval-protocol/SKILL.md:204`; `refs/create-pipeline.md:50`). The guard test allowlists both lines as "not a review loop" (`test_review_severity_rule.py:294-304`); whether non-review fix loops should follow the 2-cycle cap is not decided.
 
 ## Changing the rule

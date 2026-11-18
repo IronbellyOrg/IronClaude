@@ -8,7 +8,7 @@ For each mutation site, emits a kind=invariant_check deliverable with:
 
 R-005 mitigation: cap at 5 invariant_check deliverables per variable.
 
-NFR-007: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
+NFR-007: No imports from any CLI runner package (this package stays generic).
 """
 
 from __future__ import annotations

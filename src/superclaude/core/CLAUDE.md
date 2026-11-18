@@ -35,7 +35,7 @@ The Flag column is advisory: these are hints Claude may honour, not options ever
 2. **Parallel by default** — batch independent tool calls; sequential only for true dependencies
 3. **Confidence check** — ≥90% proceed, 70-89% present options, <70% ask. Trigger surface is not just code edits: run it (or its lightweight form — verify the specific token via `--help`/grep/file read/`mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)) BEFORE any reply that suggests an action, emits a command/snippet, or names a specific flag/path/function/version. Recommendation = action.
 4. **Git** — feature branches only; never commit directly to master/main. `.dev/tasks/` is always staged (`git add .dev/tasks`): packages, ledgers and each package's `.dev/tasks/<pkg>/artifacts/` included. Never gitignore it, never leave it untracked. Staging is not committing. The project-root `artifacts/` is a different folder and is never staged
-5. **Output paths** — write files next to their source or to the `--output` dir the CLI command specifies; `docs/generated/` is a roadmap pipeline artifact directory, not a general output sink
+5. **Output paths** — write files next to their source or to the `--output` dir the CLI command specifies; `docs/generated/` holds generated documentation, not a general output sink
 6. **Finish what you start** — no TODO stubs for core logic; if you begin a feature, complete it to working state
 7. **Scope discipline** — build exactly what's asked; no speculative additions
 8. **Auggie first** — call `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) before significant edits to load relevant context

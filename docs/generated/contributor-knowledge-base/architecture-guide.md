@@ -157,8 +157,6 @@ Current top-level command functions exported from `main.py` include:
 
 The CLI tree also contains larger workflow subsystems:
 
-- `sprint/`
-- `roadmap/`
 - `pipeline/`
 - `audit/`
 
@@ -240,7 +238,6 @@ This tree contains a large set of markdown-defined commands, including:
 - `research.md`
 - `task-unified.md`
 - `cleanup-audit.md`
-- `roadmap.md`
 - and many others
 
 ### Skills
@@ -251,7 +248,6 @@ The repo includes both user-facing and protocol-style skills, for example:
 
 - `confidence-check/`
 - `sc-task-unified-protocol/`
-- `sc-roadmap-protocol/`
 - `sc-cleanup-audit-protocol/`
 - `sc-adversarial-protocol/`
 
@@ -291,8 +287,6 @@ flowchart TD
     F --> L[install-skill]
     F --> M[doctor]
     F --> N[version]
-    F --> O[sprint group]
-    F --> P[roadmap group]
 ```
 
 A second useful view is the CLI subsystem structure:
@@ -303,13 +297,9 @@ flowchart TB
     CLI --> MAIN[main.py]
     CLI --> DOCTOR[doctor.py]
     CLI --> INSTALLERS[install_*.py]
-    CLI --> SPRINT[sprint/]
-    CLI --> ROADMAP[roadmap/]
     CLI --> PIPELINE[pipeline/]
     CLI --> AUDIT[audit/]
 
-    SPRINT --> SPRINT_PARTS[commands / executor / config / models / tmux / tui]
-    ROADMAP --> ROADMAP_PARTS[commands / executor / validate_executor / gates / prompts / models]
     PIPELINE --> PIPELINE_PARTS[shared runners / gates / passes / process / diagnostics]
     AUDIT --> AUDIT_PARTS[classification / validation / duplication / reports / orchestration]
 ```

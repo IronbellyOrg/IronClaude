@@ -4,7 +4,7 @@
 
 This guide covers how to verify your SuperClaude installation and troubleshoot common issues with context files and configurations.
 
-**Important**: SuperClaude installs context files (commands, agents, skills, core files) into `~/.claude/`, and it also ships the `superclaude` Python CLI, which has executable pipelines (`sprint`, `roadmap`, `reflect`, `swarm`, `eval` and more) and a pytest suite. This guide focuses on verifying the installed files and the codegraph MCP registration; see [Running the test suite](#running-the-test-suite) for the code tests.
+**Important**: SuperClaude installs context files (commands, agents, skills, core files) into `~/.claude/`, and it also ships the `superclaude` Python CLI, which has executable pipelines (`reflect`, `swarm`, `eval` and more) and a pytest suite. This guide focuses on verifying the installed files and the codegraph MCP registration; see [Running the test suite](#running-the-test-suite) for the code tests.
 
 ## Table of Contents
 
@@ -345,7 +345,7 @@ The context files themselves do not execute, but the repository has a pytest sui
 
 ```bash
 make test                      # runs uv run pytest
-uv run pytest tests/sprint/ -v # one area
+uv run pytest tests/swarm/ -v # one area
 make verify-sync               # src/superclaude/ and .claude/ are in sync
 ```
 

@@ -32,7 +32,6 @@ from superclaude.cli.install_commands import (
     list_available_commands,
     list_installed_commands,
 )
-from superclaude.cli.roadmap.templates import get_template_path
 
 # Resolved location of the imported package (editable: <project>/src/superclaude,
 # wheel: <site-packages>/superclaude).
@@ -69,8 +68,8 @@ technical-writer.md
     ),
     "cli": _names(
         """
-audit/wiring_whitelist.yaml eval/pty/CHECKLIST.md
-eval/pty/PROVENANCE.md eval/schemas/summary.schema.json eval/suites/README.md
+audit/wiring_whitelist.yaml eval/pty/CHECKLIST.md eval/pty/PROVENANCE.md
+eval/schemas/summary.schema.json eval/suites/README.md
 eval/suites/adversarial_merge_consistency.yaml
 eval/suites/agent_grounding_drift.yaml eval/suites/audit_wiring_guard.yaml
 eval/suites/cli_eval_skill_contract.yaml eval/suites/eval_cli_doc_parity.yaml
@@ -80,24 +79,7 @@ eval/suites/installer_sync_drift.yaml eval/suites/model_capability_matrix.yaml
 eval/suites/post_release_command_contract.yaml eval/suites/real.yaml
 eval/suites/suite.schema.json eval/suites/suite_schema_guard.yaml
 eval/suites/task_classification_contract.yaml
-eval/suites/tasklist_deterministic_shape.yaml
-eval/suites/workflow_vs_task_builder.yaml roadmap/templates/certify.md.j2
-roadmap/templates/debate.md.j2 roadmap/templates/diff.md.j2
-roadmap/templates/extract.md.j2 roadmap/templates/extract_tdd.md.j2
-roadmap/templates/generate.md.j2 roadmap/templates/merge.md.j2
-roadmap/templates/reflect.md.j2 roadmap/templates/score.md.j2
-roadmap/templates/spec_fidelity.md.j2 roadmap/templates/test_strategy.md.j2
-roadmap/templates/tool_schemas/certify.schema.json
-roadmap/templates/tool_schemas/debate.schema.json
-roadmap/templates/tool_schemas/diff.schema.json
-roadmap/templates/tool_schemas/extract.schema.json
-roadmap/templates/tool_schemas/extract_tdd.schema.json
-roadmap/templates/tool_schemas/generate.schema.json
-roadmap/templates/tool_schemas/merge.schema.json
-roadmap/templates/tool_schemas/reflect.schema.json
-roadmap/templates/tool_schemas/score.schema.json
-roadmap/templates/tool_schemas/spec_fidelity.schema.json
-roadmap/templates/tool_schemas/test_strategy.schema.json
+eval/suites/workflow_vs_task_builder.yaml
 swarm/lenses/templates/bare-review-output.md
 swarm/lenses/templates/doc-completeness-output.md
 swarm/lenses/templates/edge-case-hunt-output.md
@@ -105,7 +87,8 @@ swarm/lenses/templates/feasibility-probe-output.md
 swarm/lenses/templates/refactor-find-output.md
 swarm/lenses/templates/reflect-review-output.md
 swarm/lenses/templates/spec-completeness-output.md
-swarm/lenses/templates/troubleshoot-hypothesis-output.md user_settings_defaults.json
+swarm/lenses/templates/troubleshoot-hypothesis-output.md
+user_settings_defaults.json
 """
     ),
     "commands": _names(
@@ -113,11 +96,9 @@ swarm/lenses/templates/troubleshoot-hypothesis-output.md user_settings_defaults.
 README.md __init__.py adversarial.md agent.md analyze.md auggie-review.md
 brainstorm.md business-panel.md cleanup-audit.md cleanup.md cli-eval.md
 design.md document.md explain.md git.md graph.md help.md impact.md implement.md
-init-lite.md pm.md post-release.md
-pr-submit.md recommend.md reflect.md release-split.md research.md
-roadmap.md spec-panel.md swarm-wizard.md
-task.md tasklist.md tdd.md test.md troubleshoot.md validate-roadmap.md
-validate-tests.md workflow.md
+init-lite.md pm.md post-release.md pr-submit.md recommend.md reflect.md
+release-split.md research.md spec-panel.md swarm-wizard.md task.md tdd.md test.md
+troubleshoot.md validate-tests.md workflow.md
 """
     ),
     "core": _names(
@@ -128,9 +109,7 @@ CODEGRAPH.md HOW-WE-WORK.md PRINCIPLES.md RESEARCH_CONFIG.md RULES.md __init__.p
     ),
     "examples": _names(
         """
-__init__.py deep_research_workflows.md release-spec-template.md
-roadmap_template.compressed.md roadmap_template.md tasklist_index_template.md
-tasklist_phase_template.md tdd_template.md
+__init__.py deep_research_workflows.md release-spec-template.md tdd_template.md
 """
     ),
     "hooks": _names(
@@ -188,10 +167,11 @@ README.md __init__.py clean_command_names.py ic session-init.sh
     "skills": _names(
         """
 __init__.py ccsession-tag/MODEL-TIERS.md ccsession-tag/README.md
-ccsession-tag/SKILL.md ccsession-tag/ccsession ccsession-tag/ccsession-models.json
-ccsession-tag/ccsession.env.example ccsession-tag/hooks/session-start.sh
-ccsession-tag/install.sh ccsession-tag/local-gateway-alias-proxy.py
-ccsession-tag/models.py ccsession-tag/unseed-env.py confidence-check/SKILL.md
+ccsession-tag/SKILL.md ccsession-tag/ccsession
+ccsession-tag/ccsession-models.json ccsession-tag/ccsession.env.example
+ccsession-tag/hooks/session-start.sh ccsession-tag/install.sh
+ccsession-tag/local-gateway-alias-proxy.py ccsession-tag/models.py
+ccsession-tag/unseed-env.py confidence-check/SKILL.md
 confidence-check/__init__.py confidence-check/confidence.ts
 operational-guide/SKILL.md prd/SKILL.md prd/refs/agent-prompts.md
 prd/refs/build-request-template.md prd/refs/operational-guidance.md
@@ -200,27 +180,29 @@ roadmap/SKILL.md sc-adversarial-protocol/SKILL.md
 sc-adversarial-protocol/__init__.py sc-adversarial-protocol/refs/agent-specs.md
 sc-adversarial-protocol/refs/artifact-templates.md
 sc-adversarial-protocol/refs/debate-protocol.md
-sc-adversarial-protocol/refs/scoring-protocol.md sc-auggie-review-protocol/SKILL.md
-sc-auggie-review-protocol/evals/evals.json
+sc-adversarial-protocol/refs/scoring-protocol.md
+sc-auggie-review-protocol/SKILL.md sc-auggie-review-protocol/evals/evals.json
 sc-auggie-review-protocol/refs/auggie-prompts.md
 sc-auggie-review-protocol/refs/remediation-handoff.md
 sc-auggie-review-protocol/refs/severity-rubric.md sc-bare-review/SKILL.md
-sc-bare-review/refs/templates/bare-review-output.md sc-brainstorm-protocol/SKILL.md
+sc-bare-review/refs/templates/bare-review-output.md
+sc-brainstorm-protocol/SKILL.md
 sc-brainstorm-protocol/refs/agent-spec-builder.md
 sc-brainstorm-protocol/refs/handoff-routing.md
-sc-brainstorm-protocol/refs/socratic-templates.md sc-cleanup-audit-protocol/SKILL.md
-sc-cleanup-audit-protocol/__init__.py
+sc-brainstorm-protocol/refs/socratic-templates.md
+sc-cleanup-audit-protocol/SKILL.md sc-cleanup-audit-protocol/__init__.py
 sc-cleanup-audit-protocol/rules/dynamic-use-checklist.md
 sc-cleanup-audit-protocol/rules/pass1-surface-scan.md
 sc-cleanup-audit-protocol/rules/pass2-structural-audit.md
 sc-cleanup-audit-protocol/rules/pass3-cross-cutting.md
-sc-cleanup-audit-protocol/rules/verification-protocol.md sc-graph-protocol/SKILL.md
-sc-cleanup-audit-protocol/scripts/repo-inventory.sh
+sc-cleanup-audit-protocol/rules/verification-protocol.md
+sc-graph-protocol/SKILL.md sc-cleanup-audit-protocol/scripts/repo-inventory.sh
 sc-cleanup-audit-protocol/templates/batch-report.md
 sc-cleanup-audit-protocol/templates/final-report.md
 sc-cleanup-audit-protocol/templates/finding-profile.md
-sc-cleanup-audit-protocol/templates/pass-summary.md sc-cli-eval-protocol/SKILL.md
-sc-cli-eval-protocol/__init__.py sc-cli-eval-protocol/refs/create-pipeline.md
+sc-cleanup-audit-protocol/templates/pass-summary.md
+sc-cli-eval-protocol/SKILL.md sc-cli-eval-protocol/__init__.py
+sc-cli-eval-protocol/refs/create-pipeline.md
 sc-cli-eval-protocol/refs/eval-contracts.md
 sc-cli-eval-protocol/refs/integration-map.md
 sc-cli-eval-protocol/refs/run-pipeline.md
@@ -230,9 +212,9 @@ sc-crash-recovery/refs/investigators.md sc-crash-recovery/refs/pipelines.md
 sc-crash-recovery/refs/report-template.md
 sc-crash-recovery/scripts/bootstrap_scan.sh
 sc-crash-recovery/scripts/parse_session_log.py sc-impact-protocol/SKILL.md
-sc-implement-protocol/SKILL.md
-sc-implement-protocol/refs/ledger.md sc-implement-protocol/refs/managed-workspace.md
-sc-implement-protocol/refs/qa.md sc-implement-protocol/refs/retry.md
+sc-implement-protocol/SKILL.md sc-implement-protocol/refs/ledger.md
+sc-implement-protocol/refs/managed-workspace.md sc-implement-protocol/refs/qa.md
+sc-implement-protocol/refs/retry.md
 sc-implement-protocol/scripts/archive_workspace.py
 sc-init-lite-protocol/SKILL.md sc-pm-protocol/SKILL.md
 sc-post-release-protocol/SKILL.md sc-post-release-protocol/refs/additive-diff.md
@@ -242,8 +224,8 @@ sc-post-release-protocol/refs/workstream-playbook.md
 sc-post-release-protocol/templates/post-release-manifest.json
 sc-post-release-protocol/templates/post-release-report.md
 sc-post-release-protocol/templates/sysop-test-guide.md
-sc-post-release-protocol/templates/user-test-guide.md sc-pr-submit-protocol/SKILL.md
-sc-pr-submit-protocol/refs/auggie-fallback.md
+sc-post-release-protocol/templates/user-test-guide.md
+sc-pr-submit-protocol/SKILL.md sc-pr-submit-protocol/refs/auggie-fallback.md
 sc-pr-submit-protocol/refs/augment-poll.md sc-pr-submit-protocol/refs/ci-poll.md
 sc-pr-submit-protocol/refs/conflict-intent.md
 sc-pr-submit-protocol/refs/conflict-mechanical.md
@@ -281,19 +263,11 @@ sc-release-split-protocol/__init__.py
 sc-release-split-protocol/refs/adversarial-integration.md
 sc-release-split-protocol/refs/phase-templates.md
 sc-release-split-protocol/refs/verification-protocol.md
-sc-roadmap-protocol/SKILL.md
-sc-roadmap-protocol/__init__.py sc-roadmap-protocol/refs/adversarial-integration.md
-sc-roadmap-protocol/refs/extraction-pipeline.md sc-roadmap-protocol/refs/scoring.md
-sc-roadmap-protocol/refs/templates.md sc-roadmap-protocol/refs/validation.md
 sc-swarm-wizard-protocol/SKILL.md sc-swarm-wizard-protocol/refs/cli-contract.md
 sc-swarm-wizard-protocol/refs/interview.md
 sc-swarm-wizard-protocol/refs/run-monitor-summarize.md
 sc-swarm-wizard-protocol/templates/summary.md sc-task-protocol/SKILL.md
-sc-task-protocol/__init__.py sc-tasklist-protocol/SKILL.md
-sc-tasklist-protocol/__init__.py sc-tasklist-protocol/rules/file-emission-rules.md
-sc-tasklist-protocol/rules/tier-classification.md
-sc-tasklist-protocol/templates/index-template.md
-sc-tasklist-protocol/templates/phase-template.md sc-troubleshoot-protocol/SKILL.md
+sc-task-protocol/__init__.py sc-troubleshoot-protocol/SKILL.md
 sc-troubleshoot-protocol/refs/agent-assertions.md
 sc-troubleshoot-protocol/refs/calibrator-eval-cases.md
 sc-troubleshoot-protocol/refs/contract-enumeration.md
@@ -312,8 +286,7 @@ sc-troubleshoot-protocol/refs/report-template.md
 sc-troubleshoot-protocol/refs/runtime-entrypoint-verification.md
 sc-troubleshoot-protocol/refs/triage-checklist.md
 sc-troubleshoot-protocol/refs/unmask-and-sweep.md
-sc-validate-roadmap-protocol/SKILL.md sc-validate-tests-protocol/SKILL.md
-sc-validate-tests-protocol/__init__.py
+sc-validate-tests-protocol/SKILL.md sc-validate-tests-protocol/__init__.py
 sc-validate-tests-protocol/classification-algorithm.yaml
 sc-workflow-protocol/SKILL.md
 sc-workflow-protocol/refs/00_mdtm_template_simple_task.md
@@ -457,13 +430,6 @@ sc-workflow-protocol/refs/overlap-routing.md
 sc-workflow-protocol/refs/phase-templates.md
 sc-workflow-protocol/refs/quality-gates.md
 sc-workflow-protocol/refs/return-contract.md
-"""
-    ),
-    "templates": _names(
-        """
-roadmaps/documentation-release.md roadmaps/feature-release.md
-roadmaps/migration-release.md roadmaps/performance-release.md
-roadmaps/quality-release.md roadmaps/security-release.md
 """
     ),
 }
@@ -685,8 +651,8 @@ class TestProtocolSkillInstallMapping:
     """F2 regression guard (sc:reflect 2026-06-03): protocol skills stay standalone.
 
     The installer's ``_has_corresponding_command`` strips ONLY the ``sc-`` prefix.
-    Protocol skills are named ``sc-<command>-protocol`` (e.g. sc-roadmap-protocol
-    backing commands/roadmap.md) and are therefore NOT command-backed -- they are
+    Protocol skills are named ``sc-<command>-protocol`` (e.g. sc-reflect-protocol
+    backing commands/reflect.md) and are therefore NOT command-backed -- they are
     installed standalone, which is required because each /sc:<command> command
     activates its skill by name via ``Skill sc:<command>-protocol``.
 
@@ -703,15 +669,15 @@ class TestProtocolSkillInstallMapping:
     def test_sample_existing_protocol_skills_not_command_backed(self):
         from superclaude.cli.install_skills import _has_corresponding_command
 
-        for name in ("sc-roadmap-protocol", "sc-reflect-protocol", "sc-task-protocol"):
+        for name in ("sc-reflect-protocol", "sc-task-protocol"):
             assert _has_corresponding_command(name) is False, name
 
     def test_bare_sc_command_mapping_still_works(self):
         """The strip-``sc-`` behavior is intact: a hypothetical bare sc-<cmd> maps."""
         from superclaude.cli.install_skills import _has_corresponding_command
 
-        # commands/roadmap.md exists, so a bare "sc-roadmap" WOULD be command-backed.
-        assert _has_corresponding_command("sc-roadmap") is True
+        # commands/analyze.md exists, so a bare "sc-analyze" WOULD be command-backed.
+        assert _has_corresponding_command("sc-analyze") is True
         # Non-sc- skills are never command-backed.
         assert _has_corresponding_command("some-other-skill") is False
 
@@ -763,7 +729,7 @@ class TestProtocolSkillInstallMapping:
         assert success is True
 
         available = set(list_available_skills())
-        for name in ("sc-init-lite-protocol", "sc-roadmap-protocol"):
+        for name in ("sc-init-lite-protocol", "sc-reflect-protocol"):
             assert name in available, f"{name} missing from the skill roster"
             assert (target / name).exists(), f"{name} should be installed standalone"
 
@@ -933,10 +899,6 @@ _RESOLVERS = {
     "ic-script": (
         lambda: Path(str(files("superclaude.scripts").joinpath("ic"))),
         "scripts/ic",
-    ),
-    "roadmap-examples": (
-        lambda: get_template_path("roadmap_template.compressed.md"),
-        "examples/roadmap_template.compressed.md",
     ),
 }
 

@@ -71,42 +71,22 @@ _Last 1-3 sessions for this project. The assistant's last reply often hints at t
 ## Suggested next actions
 _Numbered, copy-pasteable. SAFE = idempotent / read-only. REVIEW = changes state._
 
-1. **SAFE** — Inspect the failed sprint phase:
+1. **SAFE** — Inspect the interrupted workflow task package:
 
    ```bash
-   cat .dev/releases/current/<release>/phase-6-tasklist.md
-   tail -5 .dev/releases/current/<release>/execution-log.jsonl
+   cat .dev/tasks/to-do/<TASK-ID>/progress.md
    ```
 
-2. **REVIEW** — Resume the interrupted sprint (auto-detects the failed phase/task from on-disk state):
+2. **REVIEW** — Resume the interrupted workflow task package (the executor resumes from its ledger):
 
    ```bash
-   superclaude sprint run .dev/releases/current/<release>/tasklist-index.md
+   /sc:implement .dev/tasks/to-do/<TASK-ID>/<TASK-ID>.md
    ```
 
-   For unattended recovery:
+3. **REVIEW** — Resume an interrupted MDTM task (picks up at the first unchecked item):
 
    ```bash
-   superclaude sprint run .dev/releases/current/<release>/tasklist-index.md --yes
-   ```
-
-   To re-run only specific failed tasks:
-
-   ```bash
-   superclaude sprint rerun-tasks .dev/releases/current/<release>/tasklist-index.md
-   superclaude sprint rerun-tasks .dev/releases/current/<release>/tasklist-index.md --phase <N> --tasks <task-ids>
-   ```
-
-   To discard prior sprint state and restart clean:
-
-   ```bash
-   superclaude sprint run .dev/releases/current/<release>/tasklist-index.md --fresh
-   ```
-
-3. **SAFE** — Validate the roadmap output:
-
-   ```bash
-   superclaude roadmap validate docs/generated/<run-slug>
+   /sc:task .dev/tasks/to-do/<TASK-ID>/<TASK-ID>.md
    ```
 
 4. **REVIEW** — Move the completed PRD task out of to-do/:
@@ -120,12 +100,12 @@ _Numbered, copy-pasteable. SAFE = idempotent / read-only. REVIEW = changes state
 ## Conflicts and ambiguities
 _Surface anything that doesn't line up — the user decides._
 
-- Task X has `status: 🟢 Done` in frontmatter but `.sprint-exitcode = 1` for its sprint
+- Task X has `status: 🟢 Done` in frontmatter but still sits in `to-do/`
 - Project memory `current_focus.md` says we're on Y; latest session log shows assistant working on Z
 - ...
 
 ## What I could not determine
-- Whether the haiku-architect step would succeed on retry (no error log present)
+- Whether the failed step would succeed on retry (no error log present)
 - ...
 ````
 
@@ -140,7 +120,7 @@ _<N> projects scanned, signals window: <since>_
 ## Fleet summary
 | Project | Errors | In-progress | Idle | Last activity |
 |---|---|---|---|---|
-| IronClaude | 1 sprint failed | 2 tasks | 3 research | 2026-05-17T00:50Z |
+| IronClaude | 1 task package blocked | 2 tasks | 3 research | 2026-05-17T00:50Z |
 | tracel3t | 0 | 0 | 1 task | 2026-05-15T... |
 | ... | | | | |
 
@@ -164,6 +144,6 @@ _Project ordering: errors first, then in-progress count, then activity recency._
 
 - Tables and paths, not paragraphs.
 - Verbatim file paths, exit codes, timestamps. Never paraphrase a status.
-- Diagnose causation when you can (sprint failed → root cause → recommendation). Don't speculate when you can't.
+- Diagnose causation when you can (task blocked → root cause → recommendation). Don't speculate when you can't.
 - Use status markers consistently: 🔴 failed/blocked, 🟡 in-progress, ⚪ idle, 🟢 done.
 - The user reads this fresh-off-a-crash. Signal density matters more than friendliness.

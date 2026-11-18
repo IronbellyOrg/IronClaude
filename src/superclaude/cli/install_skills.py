@@ -11,7 +11,7 @@ to avoid duplicate autocomplete entries. A command that explicitly activates
 its matching skill is not self-contained, so that skill remains installed.
 
 IMPORTANT (protocol-skill install policy): the project's protocol skills are
-named "sc-<command>-protocol" (e.g. sc-roadmap-protocol, backing commands/roadmap.md).
+named "sc-<command>-protocol" (e.g. sc-reflect-protocol, backing commands/reflect.md).
 These are INTENTIONALLY installed standalone, because each /sc:<command> command
 activates its skill by name via `> Skill sc:<command>-protocol`; if they were
 treated as command-backed and removed, that activation would break. The match

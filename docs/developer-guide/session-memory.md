@@ -23,14 +23,14 @@ There is no Python or shell code behind the store. It is a set of instructions i
 | PM command | `src/superclaude/commands/pm.md` |
 | PM agent | `src/superclaude/agents/pm-agent.md` (section "Session Lifecycle", lines 19-35) |
 | PM protocol skill | `src/superclaude/skills/sc-pm-protocol/SKILL.md` (lines 21-54) |
-| Other skills that use the store | `sc-task-protocol`, `sc-reflect-protocol`, `sc-validate-roadmap-protocol`, `sc-crash-recovery` (see [Who reads and writes the store](#who-reads-and-writes-the-store)) |
+| Other skills that use the store | `sc-task-protocol`, `sc-reflect-protocol`, `sc-crash-recovery` (see [Who reads and writes the store](#who-reads-and-writes-the-store)) |
 
 ## Store layout
 
 - **Location.** Each memory is `<project>/.superclaude/memory/<key>.md`, flat markdown, with subfolders allowed for topics (`pm-agent.md:21`).
 - **Project root.** `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory when it is not inside git (`pm-agent.md:21`).
 - **One store per worktree.** `git rev-parse --show-toplevel` returns the root of the worktree you are in, so each git worktree of the same repository has its own `.superclaude/memory/` and does not see the others' memories (`pm-agent.md:21`).
-- **Kept out of git.** On the first write, if `<project>/.superclaude/.gitignore` is absent, the writer creates it with the single line `*` (`pm-agent.md:21`). The whole `.superclaude/` folder, including the `.gitignore` itself, is then ignored. The skills that write their own subfolders repeat this rule before writing (`sc-task-protocol/SKILL.md:319`, `sc-reflect-protocol/SKILL.md:329`, `sc-validate-roadmap-protocol/SKILL.md:129`).
+- **Kept out of git.** On the first write, if `<project>/.superclaude/.gitignore` is absent, the writer creates it with the single line `*` (`pm-agent.md:21`). The whole `.superclaude/` folder, including the `.gitignore` itself, is then ignored. The skills that write their own subfolders repeat this rule before writing (`sc-task-protocol/SKILL.md:319`, `sc-reflect-protocol/SKILL.md:329`).
 
 Example layout after a few sessions:
 
@@ -44,7 +44,6 @@ Example layout after a few sessions:
     ├── checkpoint-20261102-1430.md     # parallel key, written once
     ├── learning/patterns/<name>.md     # PM protocol topic subfolder
     ├── reflect/last-pass-<slug>.md     # /sc:reflect subfolder
-    └── validate-roadmap/<key>.md       # /sc:validate-roadmap subfolder
 ```
 
 ## Keys and write rules
@@ -57,7 +56,7 @@ The rules exist so that several sessions in one worktree can write without overw
 | Single-owner (PM only) | `current_plan` | Overwritten whole | `pm-agent.md:21`, `sc-pm-protocol/SKILL.md:23` |
 | Parallel | `checkpoint`, `decision`, handoffs | Written as `<key>-<session-or-timestamp>.md` and never edited in place | `pm-agent.md:21` |
 
-Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `reflect/last-pass-{slug}.md` whole and writes `reflect/handoff-{slug}-{timestamp}.md` once (`sc-reflect-protocol/SKILL.md:539-541`); `/sc:validate-roadmap` treats its four keys as single-owner (`sc-validate-roadmap-protocol/SKILL.md:981`).
+Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `reflect/last-pass-{slug}.md` whole and writes `reflect/handoff-{slug}-{timestamp}.md` once (`sc-reflect-protocol/SKILL.md:539-541`).
 
 ## Who reads and writes the store
 
@@ -78,7 +77,6 @@ Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `ref
 |---|---|---|
 | `sc-task-protocol` | Reads relevant memories before work; saves session state to `task/session-<timestamp>.md` | `sc-task-protocol/SKILL.md:90,304,319` |
 | `sc-reflect-protocol` | Reads and writes `reflect/` files; the `--remediate` MDTM route writes a handoff file whose key task-builder reads | `sc-reflect-protocol/SKILL.md:259,329-331,537-547` |
-| `sc-validate-roadmap-protocol` | Reads and writes ledger, terminology and pattern files under `validate-roadmap/`; every read and write is fail-open | `sc-validate-roadmap-protocol/SKILL.md:128-129,137,979-981` |
 | `sc-crash-recovery` | Counts memory files and spawns a project-memory investigator only when the store has files | `sc-crash-recovery/SKILL.md:62,79`, `sc-crash-recovery/scripts/bootstrap_scan.sh:153-154` |
 
 ## Why files and not an MCP server

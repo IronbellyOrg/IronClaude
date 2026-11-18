@@ -82,11 +82,9 @@ def test_swarm_group_is_top_level_command() -> None:
 
 
 def test_swarm_not_nested_under_other_groups() -> None:
-    """AC-002 forbids nesting ``swarm`` under sprint/roadmap/etc."""
-    forbidden_parents = ("sprint", "roadmap", "tasklist")
-    for parent in forbidden_parents:
-        parent_group = main.commands.get(parent)
-        if parent_group is None:
+    """AC-002 forbids nesting ``swarm`` under any other command group."""
+    for parent, parent_group in main.commands.items():
+        if parent == "swarm":
             continue
         children = getattr(parent_group, "commands", {})
         assert "swarm" not in children, (

@@ -260,7 +260,6 @@ mkdir -p .superclaude/memory && cp -Rn .serena/memories/. .superclaude/memory/
 | `/sc:pr-submit --yes` | `--yes` is removed; drop it. With no `--monitor`, `/sc:pr-submit` now runs level 3 and pushes review and CI fixes; pass `--monitor 2` to stop before pushing. |
 | `superclaude mcp --uninstall` or `--yes` | Both options are removed; drop them. |
 | `superclaude mcp --servers serena` | Serena is no longer a registry server; the command reports an unknown selection. |
-| `superclaude sprint run <index>` in CI | With no `--start`/`--end` it auto-resumes and asks for confirmation. Add `--yes` (or set `CI=1`), or pass `--start 1` for the old start-from-phase-1 behaviour. |
 | `superclaude reflect run` | Promotes by default; pass `--no-promote` for the old behaviour. |
 | `/sc:reflect --onboard` or `--with-hierarchy` | Removed; drop them. |
 | `/ccsession-tag` | Removed; use `/rename`. |

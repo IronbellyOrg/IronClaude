@@ -160,7 +160,6 @@ return-contract.yaml                <output>/return-contract.yaml
 Print text-only next-step suggestions:
 
 - `/sc:design @<output>/merged-requirements.md` — architecture
-- `/sc:tasklist @<output>/merged-requirements.md` — sprint planning
 - `/sc:implement @<output>/merged-requirements.md` — direct execution
 
 Set `handoff_action: none`, `handoff_output_path: null`. Exit.
@@ -178,26 +177,11 @@ from brainstorm. The merged requirements are ready as input.)
 
 Set `handoff_action: design`, `handoff_output_path: null`. Exit.
 
-### `tasklist`
+### `task`
 
 **Pre-invoke validation**:
 
-- Open `<output>/merged-requirements.md` and count enumerated requirements (regex: bullet-list items in sections like "Functional Requirements", "Acceptance Criteria", or numbered items). If count < 3 → STOP: `"--handoff tasklist requires merged-requirements.md to have ≥3 enumerated requirements. Found <N>. Brainstorm output may be too abstract — re-run with --depth deep or narrower topic."`
-
-**Invoke**: `Skill sc-tasklist-protocol` with arguments:
-
-```
---source <output>/merged-requirements.md
---output <output>/tasklist/
-```
-
-**Consume return**: Extract tasklist artifact path. Append to brainstorm return contract as `handoff_output_path`.
-
-Set `handoff_action: tasklist`. Exit.
-
-### `task`
-
-**Pre-invoke validation**: Same as tasklist.
+- Open `<output>/merged-requirements.md` and count enumerated requirements (regex: bullet-list items in sections like "Functional Requirements", "Acceptance Criteria", or numbered items). If count < 3 → STOP: `"--handoff task requires merged-requirements.md to have ≥3 enumerated requirements. Found <N>. Brainstorm output may be too abstract — re-run with --depth deep or narrower topic."`
 
 **Template detection** (from `merged-requirements.md` frontmatter `domain` field — falls back to brainstorm state `domain`):
 
