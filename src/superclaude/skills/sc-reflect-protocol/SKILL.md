@@ -942,8 +942,8 @@ verify_timeout_hit: <bool>   # FR-4 (a verify invocation hit the timeout → exi
 verify_flaky_suspected: <bool>   # FR-4 (single retry flipped the result → Grounding Gap, not Regression)
 verify_timeout_default: <int>   # FR-4 (the timeout-wrap default in seconds, e.g. 120 — forensic provenance)
 verify_invocations_path: <abs-path>   # FR-4 (M-ARC1 per-invocation array → <output>/verify-logs/invocations.yaml)
-handoff_memory_written: <bool>   # FR-3 (Wave-6 handoff file persisted)
-handoff_payload_size_bytes: <int>   # FR-3 (size of the handoff blob)
+handoff_memory_written: <bool>   # FR-3, retired in 6.1.0: always false, no handoff file is written
+handoff_payload_size_bytes: <int>   # FR-3, retired in 6.1.0: always 0, no handoff blob exists
 handoff_persist_failed: <bool>   # FR-3, retired in 6.1.0: always false, no handoff file is written
 type_hierarchy_invoked: false   # constant false since #323 (the type-hierarchy step was removed; kept so the audit-log shape stays stable)
 summarize_changes_invoked: false   # constant false since #323 (no change-summary corroboration exists)
