@@ -27,12 +27,14 @@ Applied from the 6.0.0 retrospective, before the release pull request is opened.
 
 | Order | Change | Branch | State | Link | Tests | Merged |
 |---|---|---|---|---|---|---|
-| 1 | Documentation skills removed | `clayphi/v61-pr1-doc-skills` | OPEN; conflicts with `integration` after #646 and #649, bundle agent rebasing | [#650](https://github.com/IronbellyOrg/IronClaude/pull/650) | | |
+| 1 | Documentation skills removed | `clayphi/v61-pr1-doc-skills` | MERGED (squash) | [#650](https://github.com/IronbellyOrg/IronClaude/pull/650) | Agent's run on the final head: 22638 passed, 1 failed (`test_ccsession_tiers::test_upgraded_code_starts_a_new_shim_and_keeps_the_old`, passes alone), 70 skipped; 76 files, +1070 -13954. CI 6 of 6, Codex completed, Augment 0 suggestions, 0 open threads | 2026-11-18 21:17Z, `430eaa87f` |
 | 2 | Re-point the MDTM routes (stacked on #650; retargeted to `integration` after it merges) | `clayphi/v61-pr3-mdtm-routes` | OPEN | [#653](https://github.com/IronbellyOrg/IronClaude/pull/653) | | |
 | 3 | Remove the MDTM pair and `roadmap` (stacked on #653) | `clayphi/v61-pr4-mdtm` | OPEN | [#656](https://github.com/IronbellyOrg/IronClaude/pull/656) | | |
 | 4 | Retire step data, version, changelog, release notes, upgrade guide (stacked on #656) | `clayphi/v61-pr5-release` | OPEN | [#657](https://github.com/IronbellyOrg/IronClaude/pull/657) | | |
 
 Baseline on `847cccc1a` (from issue 647): 22691 passed, 10 failed, 70 skipped, 1 xpassed. The test that was in that list as order dependent, `test_install_keep::...`, was fixed by #646.
+
+Master merged into `integration` at 21:17Z as a merge commit `0f92aa687` (parents `430eaa87f` and `89dc403d4`, the 6.0.0 release merge and #641), clean, through `gh api -X POST repos/IronbellyOrg/IronClaude/merges`.
 
 ## 3. Gate on the release PR's merge commit (G1 to G9)
 
