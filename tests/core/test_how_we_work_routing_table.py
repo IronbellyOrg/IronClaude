@@ -30,8 +30,6 @@ _OTHER_COMMANDS = {
     "sc:impact",
     "sc:issue",
     "sc:sweep",
-    "sc:index",
-    "sc:index-repo",
     "sc:agent",
     "sc:pm",
 }
@@ -876,7 +874,6 @@ def test_previews_documentation_and_suite_runs_disclose_actual_writes():
     docs = rows["document-built"]
     assert {
         "sc:document",
-        "sc:index",
         "tech-reference",
         "operational-guide",
         "readme",
@@ -1009,14 +1006,11 @@ def test_pr_attachment_monitor_log_resume_and_silence_are_not_new_shipping():
 
 
 def test_other_operations_preserve_requested_authority_and_owned_state():
-    """S23-S24, S26/T19/T72 (S25 and S27 retired): utility operations are not generic implementation."""
+    """S23, S26/T19/T72 (S24, S25 and S27 retired): utility operations are not generic implementation."""
     other = _block(_text(), _OTHER_BEGIN, _OTHER_END)
     assert "Status-only stays inspection" in other
     assert "a commit needs authorization" in other
     assert "Do not append push, merge or PR creation" in other
-    assert "mode=quick or mode=update" in other
-    assert "PROJECT_INDEX.md and PROJECT_INDEX.json" in other
-    assert "Coordinated project docs/API/structure/README" in other
     assert "inspect status, orient, then wait" in other
     assert "self-contained, not a missing protocol" in other
     assert "Not a default planner, automatic-start guarantee" in other

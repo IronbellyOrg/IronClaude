@@ -161,8 +161,6 @@ If a feature is framed around “how work should be executed” rather than “w
 - `research.md`
 - `cleanup-audit.md`
 - `roadmap.md`
-- `index.md`
-- `index-repo.md`
 - `recommend.md`
 - `pm.md`
 

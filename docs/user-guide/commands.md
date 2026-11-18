@@ -86,8 +86,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 |---------|---------|------|----------------|
 | [`/sc:explain`](#scexplain---code-explanation) | Code explanation | `explain.md` | No |
 | [`/sc:document`](#scdocument---documentation-generation) | Generate documentation | `document.md` | Yes |
-| [`/sc:index-repo`](#scindex-repo---repository-indexing) | Repository indexing | `index-repo.md` | Yes (writes `PROJECT_INDEX.md` and `PROJECT_INDEX.json` into your repo) |
-| `/sc:index` | Project documentation and knowledge base | `index.md` | Yes (generates project documentation in your repo) |
 | `/sc:post-release` | Sync docs and install surface after release | `post-release.md` | Yes |
 
 ### 7. EXPERT PANELS
@@ -291,20 +289,6 @@ It never rebuilds an existing index, never runs `init` while another init or ind
 When codegraph, the index or its lookup tools are not usable, it falls back to Grep, keeps going and reports `status: partial`. See the [codegraph guide](codegraph.md).
 
 **MCP servers:** codegraph
-
----
-
-### `/sc:index` - Project Documentation
-
-**When to use:** Generate project documentation and a knowledge base with intelligent organization and cross-referencing. It does not override existing manual documentation without explicit permission.
-
-**Syntax:**
-
-```
-/sc:index [target] [--type docs|api|structure|readme] [--format md|json|yaml]
-```
-
-**MCP servers:** context7
 
 ---
 
@@ -1128,32 +1112,6 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 /sc:document src/auth/login.js --type inline
 /sc:document src/api --type api --style detailed
 /sc:document payment-module --type guide --style brief
-```
-
----
-
-### `/sc:index-repo` - Repository Indexing
-
-**When to use:** Starting work with a large repository.
-
-**What it does:**
-
-- Creates `PROJECT_INDEX.md` (3KB instead of 58KB)
-- 94% token savings
-- Entry points, modules, tests, dependencies
-
-**Syntax:**
-
-```
-/sc:index-repo [mode=update|quick]
-```
-
-**Examples:**
-
-```bash
-/sc:index-repo                # Full indexing
-/sc:index-repo mode=update    # Update existing
-/sc:index-repo mode=quick     # Quick (without tests)
 ```
 
 ---

@@ -478,28 +478,6 @@
       }
     },
     {
-      "id": "S24",
-      "request": "Produce a compact repo map in quick mode.",
-      "environment": "checkout",
-      "guide_route": {"block": "other", "command": "sc:index-repo"},
-      "targets": ["sc:index-repo"],
-      "mode_flags": ["mode=quick"],
-      "retained_inputs": [],
-      "stop": "PROJECT_INDEX.md and PROJECT_INDEX.json",
-      "authority": "artifact-only",
-      "side_effects": "writes the two index files; no measured savings claim",
-      "guide_phrases": ["mode=quick or mode=update", "PROJECT_INDEX.md and PROJECT_INDEX.json", "no measured token-savings promise"],
-      "negative": {"competitors": ["sc:index"], "must_not": "interchanging the compact map with coordinated docs; measured savings"},
-      "activation": {"sc:index-repo": "self-contained", "sc:index": "self-contained"},
-      "repeats": [
-        {"request": "Generate coordinated project documentation for {fixture:project}.", "targets": ["sc:index"], "mode_flags": [], "guide_route": {"block": "routing", "row": "document-built"}, "guide_phrases": ["1b. coordinated project documentation: `/sc:index <target>` with requested type/format"], "cache_expected": "document-built row matched; cache not consulted; the seeded /sc:index envelope is never replayed", "expected": "coordinated documentation with disclosed writes"}
-      ],
-      "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:index-repo", "expected": "not installed: sc:index-repo; no substitution by sc:index"},
-        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "codebase-research", "candidate": "/sc:index", "envelope": "Run: /sc:index ."}, "expected": "no routing row matched; if dispatch hits codebase-research: cache hint consulted, cached /sc:index rejected by current verification and request binding (miss_validation_stale); on a miss (classifier unknown -> no_key, or no row): cache row unused; either way live discovery selects /sc:index-repo from Other commands; no hit telemetry; cached /sc:index never emitted"}
-      }
-    },
-    {
       "id": "S26",
       "request": "Explicitly start the session controller and wait for my task.",
       "environment": "checkout",

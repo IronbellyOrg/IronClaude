@@ -1,8 +1,8 @@
 """Static checks for the routing-refresh fixture (fixtures/routing_refresh_cases.json).
 
-The fixture defines the S01-S29 recommendation-generation cases (S05, S07, S11,
+The fixture defines the S01-S29 recommendation-generation cases (S05, S07, S11, S24,
 S25 and S27, which routed to the removed improve, localization review, workflow-to-CLI,
-save, load and /sc:spawn commands, are retired), the T01-T76
+index-repo, save, load and /sc:spawn commands, are retired), the T01-T76
 traceability map and the 47-command dispositions from the approved spec. These
 tests are static: they validate the fixture against the repository's current
 guide, commands and skills. They run no model, execute no recommended command
@@ -34,8 +34,9 @@ _PACKAGE = "TASK-RESEARCH-recommend-refresh-20261024-044336"
 # compared minus these additions.
 _POST_REFRESH_ADDITIONS = {"graph", "impact", "issue", "sweep"}
 # Commands removed after the frozen package was written: /sc:spawn (replaced by
-# Orca), build, save, load, improve, cli-portify and review-translation (moved to the
-# snapshot fork) went in 6.0.0. The frozen command record still lists them as active.
+# Orca), build, save, load, improve, cli-portify, index, index-repo and
+# review-translation (moved to the snapshot fork) went in 6.0.0. The frozen command
+# record still lists them as active.
 _POST_REFRESH_REMOVALS = {
     "spawn",
     "build",
@@ -44,6 +45,8 @@ _POST_REFRESH_REMOVALS = {
     "review-translation",
     "improve",
     "cli-portify",
+    "index",
+    "index-repo",
 }
 
 _TOKEN_RE = re.compile(r"`/([a-z][a-z0-9:-]*)")
@@ -147,8 +150,8 @@ def test_fixture_schema_and_completeness():
     assert "Task 8" in data["evidence_class"]
     ids = [case["id"] for case in data["cases"]]
     assert ids == [
-        f"S{n:02d}" for n in range(1, 30) if n not in (5, 7, 11, 25, 27)
-    ]  # S05, S07, S11, S25, S27 retired
+        f"S{n:02d}" for n in range(1, 30) if n not in (5, 7, 11, 24, 25, 27)
+    ]  # S05, S07, S11, S24, S25, S27 retired
     assert list(data["checks"]) == [f"T{n:02d}" for n in range(1, 77)]
     assert len(data["commands"]) == 47
     defined = set(data["fixture_inputs"])
@@ -311,9 +314,6 @@ def test_flag_value_check_rejects_undeclared_enumerated_value():
     # so it is not declared.
     assert "--compliance" in tasklist
     assert not _mode_declared("--compliance", tasklist)
-    index_repo = (_COMMANDS / "index-repo.md").read_text(encoding="utf-8")
-    assert _mode_declared("mode=quick", index_repo)
-    assert not _mode_declared("mode=full", index_repo)
 
 
 def _entries(case: dict):
@@ -348,11 +348,11 @@ def test_other_command_routes_are_not_named_by_a_routing_row(case):
 
 def test_route_check_rejects_other_route_for_a_routed_command():
     old = {
-        "request": "Generate coordinated project documentation.",
-        "targets": ["sc:index"],
+        "request": "Generate documentation for a module.",
+        "targets": ["sc:document"],
     }
-    assert _route_problems(old, {"block": "other", "command": "sc:index"}) == [
-        "sc:index"
+    assert _route_problems(old, {"block": "other", "command": "sc:document"}) == [
+        "sc:document"
     ]
     fixed = {"block": "routing", "row": "document-built"}
     assert _route_problems(old, fixed) == []

@@ -1,0 +1,33 @@
+== AC1 docs/user-guide (expect none)
+NO MATCH
+== other links to the deleted anchors anywhere in docs/ (expect none)
+NO MATCH
+== AC2 removal points
+-- commands.md around the old index section (init-lite follows ---)
+292-
+293----
+294-
+295:### `/sc:init-lite` - Safe Context Audit
+-- commands.md around the old index-repo section
+1116-
+1117----
+1118-
+1119:### `/sc:spec-panel` - Expert Specification Review
+-- commands.md table rows around 87-90
+| [`/sc:explain`](#scexplain---code-explanation) | Code expl
+| [`/sc:document`](#scdocument---documentation-generation) |
+| `/sc:post-release` | Sync docs and install surface after r
+
+-- flags.md around the removed section
+105-| `--safe` / `--aggressive` | Cleanup intensity | Boolean |
+106-| `--interactive` | User guidance | Boolean |
+107-
+108:### Reflect Command Flags (`/sc:reflect`)
+-- double blank lines in the two files (count)
+0
+0
+== diff --check
+clean
+ docs/user-guide/commands.md | 42 ------------------------------------------
+ docs/user-guide/flags.md    |  7 -------
+ 2 files changed, 49 deletions(-)

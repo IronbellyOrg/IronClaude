@@ -1,0 +1,14 @@
+== AC1 mentions of the removed commands in WORKER-CONTRACT.md (expect none)
+45:  - `/sc:implement`'s private-index snapshots, its `refs/superclaude/implement/` refs and its revert stay allowed. A worker that finds `index.lock` in its worktree reports `blocked` with the path.
+47:- **WC-11. Parallel-safe writes.** Two workers in one worktree must never write the same file. Default output paths carry a timestamp or the slug the coordinator passes, and the coordinator gives every Task its own report directory; single-owner shared files (for example memory keys overwritten whole) are not written in unattended mode. Workers share the feature worktree only when they write nothing but their own report directory, which goes under `.dev/`. A worker gets its own child worktree (section 4) when its brief grants local commits; when it runs `/sc:implement` and any other writer (another worker, the coordinator, the person, a taken-over terminal or a hook) may write outside `.dev/` in the same worktree during the run; when it is a parallel experiment to compare or discard; or when its command writes the user index. The coordinator's liveness `stat` reads only the worker's own contract path and report directory.
+66:- **Heartbeats.** The worker session sends heartbeats at the cadence its preamble sets, using the preamble's own command; it sends none while blocked in `ask` or `check --wait`, and a subagent never sends one (WC-7). Each heartbeat carries a progress token, in the heartbeat's subject or phase text, or a `status` body line: the current `Command:` line index and a count that rises only when on-disk progress rises (WC-15), plus `expect_silence_min` before a step expected to outlast the cadence. A heartbeat whose token has not changed is evidence that the process exists, not that the work is progressing. Command steps keep each blocking wait short enough for this (WC-10).
+265:   - No one runs a git command there that changes HEAD, the index or the working tree. The halted worktree is not merged or removed.
+== AC2 brief flag table data rows (expect 14)
+14 rows
+== P1 default set text
+default set is the 13 commands converted in P1 (adversarial, brainstorm, cleanup-audit, graph, impact, init-lite, workflow, analyze, business-panel, design, document, explain, test)
+== brief constraint sentence
+for the 11 commands that are ready with brief constraints. Under `--unattended` the brief passes exactly one report directory (`--report-dir <dir>`, or the command's own directory flag where the row names one); `/sc:init-lite` has no directory flag of its own, so it takes `--report-dir`. The table also lists the three P2 commands with a required brief flag (`/sc:auggie-review`, `/sc:cli-eval`, `/s
+== diff stat
+ src/superclaude/core/WORKER-CONTRACT.md | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
