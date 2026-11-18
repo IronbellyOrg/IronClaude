@@ -108,6 +108,42 @@ def test_panel_resolve_gateway_when_t3model01_is_set(monkeypatch):
     assert json.loads(res.output)["environment"] == "gateway"
 
 
+def test_panel_resolve_default_falls_back_to_classic_when_a_tier_file_lacks_tier5(
+    tmp_path, monkeypatch
+):
+    monkeypatch.delenv("SUPERCLAUDE_REVIEW_PANEL", raising=False)
+    tiers = json.loads(
+        (
+            Path(__file__).parents[2]
+            / "src/superclaude/cli/review/data/review-tiers.default.json"
+        ).read_text()
+    )
+    tiers["aliases"] = {k: v for k, v in tiers["aliases"].items() if "tier5" not in k}
+    for env in tiers.get("environments", {}).values():
+        env["stand_ins"] = {
+            k: v for k, v in env.get("stand_ins", {}).items() if "tier5" not in k
+        }
+    old = tmp_path / "old-tiers.json"
+    old.write_text(json.dumps(tiers))
+    res = run("review", "panel", "resolve", "--run-id", "x", "--tiers", str(old))
+    assert res.exit_code == 0, res.output
+    assert "does not define tier5a, tier5b, tier5c" in res.output
+    assert "Falling back to the 'classic' panel" in res.output
+    # An explicit template is never replaced: it still fails.
+    explicit = run(
+        "review",
+        "panel",
+        "resolve",
+        "--run-id",
+        "x",
+        "--tiers",
+        str(old),
+        "--template",
+        "@wonsol",
+    )
+    assert explicit.exit_code != 0
+
+
 def test_panel_resolve_unknown_environment_fails():
     res = run("review", "panel", "resolve", "--env", "nope", "--run-id", "x")
     assert res.exit_code != 0
