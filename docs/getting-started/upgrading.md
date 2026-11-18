@@ -282,8 +282,9 @@ IronClaude can prove it wrote.
   `sc-validate-roadmap-protocol`. No agent is removed in 6.0.0.
 - **Removed from 6.0.0 (in 6.1.0).** 1 command: `tdd`. 9 skills: `operational-guide`,
   `prd`, `readme`, `roadmap`, `task`, `task-builder`, `tdd`, `tech-reference`,
-  `tech-research`. No agent is removed in 6.1.0. A workspace upgraded straight
-  from 5.0.0 to 6.1.0 gets both lists in one run.
+  `tech-research`. No agent is removed in 6.1.0, and `/sc:task`,
+  `/sc:validate-tests` and the eight `rf-*` agents are kept. A workspace upgraded
+  straight from 5.0.0 to 6.1.0 gets both lists in one run.
 - **Kept and explained.** A file you edited, a skill folder with a file or folder
   you added (including a `__pycache__` a skill script created), a link, or
   anything unreadable is kept. The installer prints one line for each, with the

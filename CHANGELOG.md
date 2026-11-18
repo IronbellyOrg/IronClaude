@@ -19,9 +19,11 @@ The task and documentation bundle is removed: nine skills (`prd`, `tdd`, `tech-r
 - **Flag values and routes:** `/sc:brainstorm --handoff task` (it ran `task-builder`) is now a STOP that names the replacement; `--handoff` takes `none` or `design`, and `handoff_action` is `none | design`. The MDTM route of `/sc:reflect --remediate --depth deep` and of `/sc:troubleshoot --fix --depth deep` is removed: both take the plan route at every depth, and `--depth deep` only sets the review depth. `/sc:reflect` no longer writes `reflect/handoff-*.md` files.
 - **Command-line wrapper:** `superclaude reflect run --fix` always applies a corrective plan with `/sc:implement <remediation_plan_path>`. It no longer runs `/task` and ignores `remediation_task_path`; an old report that carries only that pointer ends as a terminal HALT.
 - **Reference and guides:** `docs/reference/nfr-conv-2-prose-determinism.md`, `docs/guides/prd-skill-release-guide.md` and `docs/guides/tdd-skill-release-guide.md`.
-- The pull requests: #650 (document skills and `/sc:tdd`), #653 (routes), #656 (`task`, `task-builder`, `roadmap`, level 4). An earlier pull request that removed `/sc:task` was closed unmerged.
+- The pull requests: #650 (document skills and `/sc:tdd`), #653 (routes), #656 (`task`, `task-builder`, `roadmap`, level 4) and #657 (release). An earlier pull request that removed `/sc:task` was closed unmerged.
 
-Kept on purpose: `/sc:task` and `sc-task-protocol`, `/sc:validate-tests` and `sc-validate-tests-protocol`, the eval suite `task_classification_contract`, all eight `rf-*` agents (their future is tracked in issue 572), the launch-level guard and issue prohibition lists (they still deny `/task`), and the installed document templates.
+Kept on purpose: `/sc:task` and `sc-task-protocol`, `/sc:validate-tests` and `sc-validate-tests-protocol`, the eval suite `task_classification_contract`, all eight `rf-*` agents (`rf-analyst`, `rf-assembler`, `rf-qa`, `rf-qa-qualitative`, `rf-task-builder`, `rf-task-executor`, `rf-task-researcher`, `rf-team-lead`; their future is Part C, issue 572, and is undecided), the launch-level guard and issue prohibition lists (they still deny `/task`), and the installed document templates.
+
+Known leftover for issue 572: `rules/contextual/context_embedding.md` and `rules/prompts/agent_library.md` still name the old `/rf:taskbuilder` command, and some installed templates still describe the task-file flow.
 
 #### Changed
 
