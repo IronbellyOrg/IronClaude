@@ -4,51 +4,6 @@ Reference for the `crash-recovery` skill. Each pipeline has a distinct artifact 
 
 A project can have multiple of these in flight simultaneously. Do not assume a single "active" pipeline — enumerate every layout that has recent activity.
 
-## PRD pipeline (Product Requirements Documents)
-
-**Created by:** `task-builder` skill, `/sc:pm`, or manual.
-**Layout:**
-
-```text
-.dev/tasks/to-do/TASK-PRD-<timestamp>/
-├── TASK-PRD-<timestamp>.md       # MDTM task file with checklist + frontmatter
-├── BUILD-REQUEST*.md             # original prompt
-└── research/                     # optional, parallel research notes
-```
-
-**Status signal:** YAML frontmatter `status:` field. Values: `🟢 Done`, `🟡 InProgress`, `🔴 Blocked`, `⚪ ToDo`.
-**Recovery:** if `status: 🟡 InProgress`, re-invoke the `task` skill on the same file. It picks up at the first unchecked item.
-
-```bash
-# Resume idiom
-# (from project root)
-/sc:task .dev/tasks/to-do/TASK-PRD-<timestamp>/TASK-PRD-<timestamp>.md
-```
-
-If `status: 🟢 Done` but file is still in `to-do/`, the only thing left is the move:
-
-```bash
-mv .dev/tasks/to-do/TASK-PRD-<ts> .dev/tasks/done/
-```
-
-## TDD pipeline (Technical Design Documents)
-
-**Created by:** `tdd` skill, often fed from a completed PRD.
-**Layout:** identical to PRD but `TASK-TDD-<timestamp>/`. Frequently has a much larger `research/` subdir (10–20+ research notes per topic).
-**Status signal:** same frontmatter `status:` field.
-**Recovery:** same `/sc:task` idiom. If individual research notes are stubbed (file < 200 bytes or has frontmatter `status: stub`), they're regenerable independently — but check the task's checklist first.
-
-## Spec / Tech Reference / Tech Research
-
-**Created by:** `tech-research`, `tech-reference`, or various sc commands.
-**Layout:**
-
-- `.dev/research/<topic-slug>/` — multi-file research bundles, often with `00-extraction.md`, `01-...`, etc.
-- `claudedocs/` — finished tech references and analyses
-- `.dev/research/research-results/` — aggregated results
-**Status signal:** harder to read directly. Look for frontmatter, presence of a `synthesis.md` or `report.md`, and file mtimes. Codebase search (`mcp__litellm__augment_code-augment_code_search`, else `mcp__auggie__codebase-retrieval`) is useful here.
-**Recovery:** typically re-invoke the original skill with the same prompt. There's no formal resume protocol — the work is regenerable.
-
 ## Roadmap skill (`/roadmap`)
 
 **Created by:** the `roadmap` skill (an MDTM roadmap composer; it builds phase task files with `task-builder`).
@@ -76,7 +31,7 @@ mv .dev/tasks/to-do/TASK-PRD-<ts> .dev/tasks/done/
 
 ## Task (MDTM) — individual task files
 
-**Created by:** `task-builder`, `tdd`, `prd`, or any of the *_TASK_ skills.
+**Created by:** `task-builder`, or any of the *_TASK_ skills.
 **Layout:**
 
 - `.dev/tasks/to-do/<TASK-ID>.md` or `.dev/tasks/to-do/<TASK-ID>/<TASK-ID>.md`

@@ -169,7 +169,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 | `/sc:adversarial` | Core delegate — Wave 3 invokes via `Skill sc-adversarial-protocol` | Parallel proposal generation + debate + merge |
 | `/sc:analyze` | Enrichment — Wave 2A invokes for codebase context | `--codebase` or auto for code-related topics |
 | `/sc:research` | Enrichment — Wave 2A invokes for light research | `--research light` or auto when topic mentions external frameworks |
-| `tech-research` (skill) | Enrichment — Wave 2A invokes for deep research | `--research deep` or auto for enterprise/novel topics |
+| `/sc:research --depth deep` | Enrichment — Wave 2A invokes for deep research | `--research deep` or auto for enterprise/novel topics |
 | `/sc:design` | Handoff (text-only) | `--handoff design` prints recommendation; user runs separately |
 | `/task-builder` | Handoff (invoked) | `--handoff task` invokes `Skill task-builder` with domain-detected template |
 

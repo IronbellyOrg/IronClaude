@@ -63,15 +63,10 @@ Loaded in Wave 2A. Defines the matrix of enrichment options and quality-tier fal
 - `--research deep`, OR
 - Auto-detect: `--strategy enterprise` AND topic mentions novel external technology
 
-**Tier 1 (primary)**: `Skill tech-research`
+**Tier 1 (primary)**: `/sc:research` with `--depth deep`
 
-- Heavier research workflow with structured output
 - Output: `enrichment/research-deep.md` (~3000-5000 tokens)
 - quality_tier: `primary`
-
-**Tier 2 (fallback_1)**: `Skill sc:research-protocol` with `--depth deep`
-
-- quality_tier: `fallback_1`
 
 **Final fallback**: degrade to research-light tier 1 (with INFO log); quality_tier inherits.
 

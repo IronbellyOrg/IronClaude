@@ -301,11 +301,11 @@ These duties apply only to an issue that the issue watcher claimed with `/sc:iss
 
 ### Worked example: gate hit, answer, new Task
 
-1. Task T1 brief, in the brief layout above: the guard line, `On a blocked gate: report blocked`, then `Command: /sc:tdd "auth" --unattended --output .dev/tdd/auth-1/tdd.md --report-dir .dev/tdd/auth-1/`.
-2. The bare topic hits tdd's topic-only clarification gate. The command writes `.dev/tdd/auth-1/return-contract.yaml` with `worker_status: blocked` and `blocked_question` set to the gate's own question; the worker sends `worker_done --outcome failed --report-path .dev/tdd/auth-1/return-contract.yaml`.
+1. Task T1 brief, in the brief layout above: the guard line, `On a blocked gate: report blocked`, then `Command: /sc:troubleshoot "login fails" --depth deep --unattended --report-dir .dev/troubleshoot/login-1/`.
+2. The short description hits troubleshoot's short-input STOP (a `--depth deep` run with fewer than 10 words and no `--scope`). The command writes `.dev/troubleshoot/login-1/return-contract.yaml` with `worker_status: blocked` and `blocked_question` set to the gate's own question; the worker sends `worker_done --outcome failed --report-path .dev/troubleshoot/login-1/return-contract.yaml`.
 3. The coordinator reads `blocked_question` and gets the answer (from its own plan, or from the person when the question is theirs to answer).
-4. The coordinator creates Task T2 with `task-create --spec` and a brief in the same layout: the guard line, `replaces T1`, then `Command: /sc:tdd "token-based login service: session issue, refresh and revoke" --unattended --output .dev/tdd/auth-2/tdd.md --report-dir .dev/tdd/auth-2/`. T1's contract stays untouched in `auth-1/`.
-5. T2 ends `succeeded`; anything that needed the TDD is created now, depending on T2.
+4. The coordinator creates Task T2 with `task-create --spec` and a brief in the same layout: the guard line, `replaces T1`, then `Command: /sc:troubleshoot "login with a valid token returns 401 after the 2026-11-10 deploy, session check in src/auth/session.py" --depth deep --scope src/auth/ --unattended --report-dir .dev/troubleshoot/login-2/`. T1's contract stays untouched in `login-1/`.
+5. T2 ends `succeeded`; anything that needed the diagnosis is created now, depending on T2.
 
 ## 5. Coordinator brief template
 
@@ -327,11 +327,11 @@ Slot rules:
 - `On a blocked gate:` is `report blocked` (the default) or `ask the coordinator` (WC-3).
 - `Local commit:` is `not authorized`, or `authorized` followed by the user's instruction naming a local commit for this Task, quoted word for word (WC-9, decision D4).
 - Put `--unattended` and exactly one report directory on every `Command:` line, for each step and never as a session-wide setting, unless the two-copy test in "Before the first task-create for a command" (section 4) fails for that command. `<report-directory-flag>` in the template is the command's own directory flag where its row in the table below names one (for example `--output <dir>`), else `--report-dir <dir>`; the directory is unique to the Task. The default set is the 13 commands converted in P1 (adversarial, brainstorm, cleanup-audit, graph, impact, init-lite, workflow, analyze, business-panel, design, document, explain, test) until a phase 2 live check passes.
-- From P2 the 11 commands converted in P2 accept `--unattended` too, under the same guard test (auggie-review, cleanup, cli-eval, recommend, research, spec-panel, task, reflect, release-split, tdd, troubleshoot). They join the default set only after a phase 2 live check passes; until then the coordinator puts the flag on one of them only when the user's instruction names that command.
+- From P2 the 10 commands converted in P2 accept `--unattended` too, under the same guard test (auggie-review, cleanup, cli-eval, recommend, research, spec-panel, task, reflect, release-split, troubleshoot). They join the default set only after a phase 2 live check passes; until then the coordinator puts the flag on one of them only when the user's instruction names that command.
 - The flag changes what a command does, so the coordinator reads each report and never treats the flag as free: `/sc:cleanup` skips every approval-required item and lists it as not applied; `/sc:test` ends `succeeded` even when its suite fails (the verdict is in its report); `/sc:research` is forced to `--strategy planning`; `/sc:workflow` skips `--handoff implement`; every push, PR, comment and other outward action is off (WC-9).
 - A command is started through its Skill call (WC-7); reading the command file and following it from memory does not satisfy WC-7. A person-in-the-loop run is not a worker: a run that needs a person at a gate belongs in the person's own session.
 
-Flags the brief must pass, for the 11 commands that are ready with brief constraints. Under `--unattended` the brief passes exactly one report directory (`--report-dir <dir>`, or the command's own directory flag where the row names one); `/sc:init-lite` has no directory flag of its own, so it takes `--report-dir`. The table also lists the three P2 commands with a required brief flag (`/sc:auggie-review`, `/sc:cli-eval`, `/sc:spec-panel`), so it has 14 rows.
+Flags the brief must pass, for the 10 commands that are ready with brief constraints. Under `--unattended` the brief passes exactly one report directory (`--report-dir <dir>`, or the command's own directory flag where the row names one); `/sc:init-lite` has no directory flag of its own, so it takes `--report-dir`. The table also lists the three P2 commands with a required brief flag (`/sc:auggie-review`, `/sc:cli-eval`, `/sc:spec-panel`), so it has 13 rows.
 
 | Command | Brief must pass |
 |---|---|
@@ -346,6 +346,5 @@ Flags the brief must pass, for the 11 commands that are ready with brief constra
 | `/sc:reflect` | `--remediate` is allowed under `--unattended` (the headless rule answers it); `--no-promote` when the coordinator owns folder moves |
 | `/sc:release-split` | spec-shaped input; default `--r1-scope`; never `--interactive`; its gates resolve as blocked under `--unattended` |
 | `/sc:spec-panel` | `--report-dir <dir>`; `--target-release <release>` for TDD inputs |
-| `/sc:tdd` | a precise component prompt, not a bare topic; `--output <file>`; its gates resolve as blocked under `--unattended` |
 | `/sc:troubleshoot` | no `--fix` under `--unattended` (the offer resolves as blocked); a short `--depth deep` input resolves as blocked |
 | `/sc:workflow` | `--handoff none`; `--report-dir <dir>`; its `--output` is retired |

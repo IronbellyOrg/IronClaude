@@ -72,7 +72,7 @@ Exactly 8 files on disk:
 
 ## Skills (36)
 
-Including `sc-recommend`, `confidence-check`, `task`, `task-builder`, `roadmap`, `prd`, `tdd`, `tech-research`, `tech-reference`, and the `sc-*-protocol` family (adversarial, brainstorm, implement, pm, reflect, roadmap, tasklist, troubleshoot, workflow, and others).
+Including `sc-recommend`, `confidence-check`, `task`, `task-builder`, `roadmap`, and the `sc-*-protocol` family (adversarial, brainstorm, implement, pm, reflect, roadmap, tasklist, troubleshoot, workflow, and others).
 
 ## Configuration
 
