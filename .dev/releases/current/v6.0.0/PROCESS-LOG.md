@@ -247,6 +247,9 @@ One entry per step. Each entry: date and time (UTC), the step, the commands or s
 - **Fix:** `filecmp.clear_cache()` before the comparison; the test forces the same size and the same modification time with `os.utime`, so it fails on the old code on any machine.
 - **Merged:** #646 squash-merged into `integration` at 17:11Z as `ffb378630`, head `f992888b5`: 6 of 6 checks passed, Augment 0 suggestions, Codex code and security reviews completed, 0 review threads, merge state clean. It is on `integration`, not in the 6.0.0 tag.
 
+### 35. Part B issue number received (2026-11-18 17:13Z)
+- GeneralIronFlow sent the issue for Part B: #647 ("Release 6.1.0: remove the task and documentation bundle (Part B of #571)"), open. The GitHub release body of `v6.0.0` was edited at 17:14Z to say "tracked by issue #647" (checked: one mention, still not a draft, not a pre-release). The post-release agent was told by terminal message to use the same words in `docs/releases/v6.0.0.md`; whether it did is checked when its pull request is reviewed.
+
 ## Out of scope, for later
 - The task and documentation bundle (Part B of issue 571) and the agents evaluation (issue 572).
 - Ryan's request of 2026-11-17 14:40 to fold the eight analysis documents (`sweep`, `observe`, `review-safety-scan`, `review-fixcheck-and-consequence-rule`, `shadow-run-and-review-panel`, `issue-pipeline`, `launch-level-guard`, `ccsession-retention`) into the docs and processes.
