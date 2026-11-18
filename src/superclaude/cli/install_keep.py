@@ -17,6 +17,10 @@ from pathlib import Path
 
 def same_content(a: Path, b: Path) -> bool:
     """True only when both files are readable and byte-identical."""
+    # filecmp remembers each answer by the two paths and their (size, mtime). A
+    # same-size rewrite inside one timestamp tick keeps that signature, so a
+    # repeat call in the same process would return the old answer.
+    filecmp.clear_cache()
     try:
         return filecmp.cmp(a, b, shallow=False)
     except OSError:
