@@ -54,7 +54,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 |---------|---------|------|----------------|
 | [`/sc:implement`](#scimplement---feature-implementation) | Write code | `implement.md` | Yes |
 | [`/sc:design`](#scdesign---system-and-component-design) | Architecture, API, schemas | `design.md` | Report only |
-| `/sc:tdd` | Create or populate a Technical Design Document | `tdd.md` | Yes (writes the TDD into your repo, `docs/<domain>/TDD_<COMPONENT>.md` by default, or the `--output` path) |
 
 ### 4. QUALITY
 
@@ -374,7 +373,7 @@ The task is found by the issue URL in its description or a custom field, or else
 
 **Status:** A command. It runs only when you invoke it; nothing activates it automatically.
 
-**When to use:** Agent-coordinated work when you want the PM agent's PDCA cycle. For choosing a workflow, prefer the levels in [How We Work](how-we-work.md): a vague idea goes to `/sc:brainstorm`, multi-file work to `/sc:workflow` then `/sc:implement`, and a new product or major feature to `/prd`, `/tdd`, then `/sc:workflow`.
+**When to use:** Agent-coordinated work when you want the PM agent's PDCA cycle. For choosing a workflow, prefer the levels in [How We Work](how-we-work.md): a vague idea goes to `/sc:brainstorm`, multi-file work to `/sc:workflow` then `/sc:implement`, and a new product or major feature to the full-specification workflow in How We Work (section 3.1), then `/sc:workflow`.
 
 **What it does:**
 
@@ -612,37 +611,6 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 
 ---
 
-### `/sc:tdd` - Technical Design Document Creator
-
-**When to use:** Create or populate a Technical Design Document for a component, service or system, researched from the actual codebase and optionally translated from a PRD. It designs only; it does not implement the system.
-
-**Syntax:**
-
-```
-/sc:tdd <component> [options]
-```
-
-**Options:**
-
-| Flag | Default | What it does |
-|------|---------|--------------|
-| `--from-prd <path>` (alias `--prd`) | - | PRD to translate into engineering specifications |
-| `--tier lightweight\|standard\|heavyweight` | `standard` | Design depth |
-| `--focus <dirs or files>` | all | Comma-separated places to investigate |
-| `--output <path>` | auto | Path for the finished TDD |
-| `--resume <task file>` | - | Continue an interrupted TDD session |
-
-**Examples:**
-
-```bash
-/sc:tdd "canvas roadmap" --from-prd docs/product/PRD_ROADMAP_CANVAS.md --tier standard --focus frontend/app/roadmap/
-/sc:tdd --resume .dev/tasks/to-do/TASK-TDD-20260401-143022/TASK-TDD-20260401-143022.md
-```
-
-**MCP servers:** context7, `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)
-
----
-
 ### `/sc:validate-tests` - Behavioral Test Validation
 
 **When to use:** Validate tier classification behavior against YAML test specifications and report pass and fail counts. It does not modify the test specifications or the classification algorithm.
@@ -717,7 +685,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 **What it does:**
 
 - Runs a depth-tiered Socratic dialogue → `seed-brief.md`
-- Auto-routes codebase + research enrichment (`/sc:analyze`, `/sc:research`, `tech-research`)
+- Auto-routes codebase + research enrichment (`/sc:analyze`, `/sc:research`)
 - Composes a `--agents` spec spanning 3 model aliases × domain-detected personas (in a ccsession tier workspace the launcher sets each `ANTHROPIC_DEFAULT_*_MODEL` for a tier the owner may use, so the matching aliases `opus`, `sonnet` and `haiku` map to `claude-gw-tier1a`, `claude-gw-tier1b` and `claude-gw-tier2`; see [model-aliases](../reference/model-aliases.md))
 - Delegates to `/sc:adversarial` for N parallel proposals + debate + merge → `merged-requirements.md`
 - Optionally hands off to `/sc:design` or `/task-builder`
@@ -826,7 +794,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 
 ### `/sc:design` - System and Component Design
 
-**When to use:** Need to draft one design (an API, a component, a schema) in a single pass, without implementing it. When other people will build against the design, use `/tdd` instead (see [How We Work](how-we-work.md), section 5).
+**When to use:** Need to draft one design (an API, a component, a schema) in a single pass, without implementing it. When other people will build against the design, save it as a document and have it critiqued with `/sc:spec-panel` (see [How We Work](how-we-work.md), section 3.1).
 
 **What it does:**
 

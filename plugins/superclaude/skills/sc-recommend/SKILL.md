@@ -90,8 +90,8 @@ Under the resolved **Option P** layering, the `cli/recommend/` Python module own
    - If the hint is incompatible, retired, unavailable, contradictory or cannot be resolved, reject it and use live Phase 0-2 discovery; carry the existing `miss_validation_stale` reason into cold-path write-back with an accurate rejection note. Do not log a hit for a rejected hint, add classifier keys, change the dispatch API/schema or delete cache data to hide a mismatch.
      - Cached comparison hint, current plan-adherence audit: reject; a key match never turns comparison into adherence checking.
      - Cached comparison hint, current local PR review with no posting: reject; never inherit compare inputs or posting authority.
-     - Cached PRD-authoring hint, current TDD request: reject; the requested artifact differs.
-     - Cached PRD-authoring hint, current existing-spec critique: reject; never rewrite the spec under review.
+     - Cached brainstorm hint, current design-document request: reject; the requested artifact differs.
+     - Cached brainstorm hint, current existing-spec critique: reject; never rewrite the spec under review.
      - Cached retired-target hint with a valid source hash: reject; lifecycle evidence outranks the hash.
    - `outcome: "native"` - Apply the same current-goal/explicit-choice and Phase 1 direct-change checks before recommending native tooling. Above the limit, ordinary implementation needs workflow/implement, not an unchecked native edit or automatic MDTM. No cold-path insert and no telemetry event: native has no cache-event enum.
    - `outcome: "miss"` with `miss_no_key`, `miss_low_confidence` or `miss_validation_stale` - Run the cold path and preserve the miss reason. A `miss_budget_exceeded` result must not reuse the row or bypass the budget; disclose the limit and use the bounded live/native fallback under Phase 1, without an additional cold-worker spawn.
@@ -141,7 +141,7 @@ Query shape:
 For each candidate auggie returns, **before** it is allowed into the recommendation (in matched mode, for each step's command or skill in the matched routing row, whether or not auggie ranked it):
 
 1. **Direct read and interface evidence** - Read the resolved candidate and actual callable copy. Accept option/argument tables, argument hints, formal Usage or trigger signatures, and documented positional/keyword syntax, including `mode=update` and `mode=quick`. Verify values as well as names. Examples may corroborate a declaration, not add an example-only flag missing from or conflicting with the formal interface.
-2. **Activation and dependencies** - Read the actual backing skill for a mandatory handoff and only decision-relevant references/configuration: required inputs, mode, side effects, prerequisites, return/resume behavior and stopping boundary. Use both installed and project lookup surfaces with the kind-specific precedence in Step A; source-checkout references are research evidence, not unconditional installed dependencies. Follow mandatory instructions under any heading, including `Skill Invocation`. Resolve the actual skill name/frontmatter, including `tdd`; absence of a handoff makes a command self-contained, not broken. Do not recursively audit unrelated dependencies.
+2. **Activation and dependencies** - Read the actual backing skill for a mandatory handoff and only decision-relevant references/configuration: required inputs, mode, side effects, prerequisites, return/resume behavior and stopping boundary. Use both installed and project lookup surfaces with the kind-specific precedence in Step A; source-checkout references are research evidence, not unconditional installed dependencies. Follow mandatory instructions under any heading, including `Skill Invocation`. Resolve the actual skill name/frontmatter; absence of a handoff makes a command self-contained, not broken. Do not recursively audit unrelated dependencies.
 3. **Lifecycle and provenance** - Read deprecated metadata and the guide's current lifecycle guidance. Exclude `deprecated: true` and proven retired framework remnants even if readable or cached. Source absence alone does not prove retirement: independently authored installed-only/custom commands remain eligible. Uncertain ownership of a same-named custom override needs clarification, never automatic deletion or rejection. Verify migration advice against the live replacement rather than copying stale metadata.
 4. **Auggie record** (skip in matched mode) - Record the usage notes, related skills and caveats surfaced in Step B.
 
@@ -267,7 +267,7 @@ In-scope sources (this configuration):
 
 Out-of-scope (this configuration): raw MCP server marketplaces. Do not surface MCP servers under `--plugin` unless the user explicitly asks for one in their request.
 
-Search via (in priority order): `/sc:research "<query>" --depth deep` (web research), the `deep-research` agent, or Tavily MCP directly. WebFetch / WebSearch are last-resort fallbacks. Never use `/tech-research` here: it investigates the local codebase, not the web.
+Search via (in priority order): `/sc:research "<query>" --depth deep` (web research), the `deep-research` agent, or Tavily MCP directly. WebFetch / WebSearch are last-resort fallbacks.
 
 For every candidate, return:
 

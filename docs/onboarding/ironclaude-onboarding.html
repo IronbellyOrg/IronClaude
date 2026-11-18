@@ -314,33 +314,29 @@
 <section class="slide" id="s5" aria-labelledby="s5-h">
   <p class="eyebrow"><b>05</b> · Choosing the process · HOW-WE-WORK section 1</p>
   <h2 id="s5-h">Pick your level</h2>
-  <p>The six levels set how much process a change gets. Match the outcome you want first, and any command you named or plan that already exists. Most planned implementation uses level 3; level 4 is only for an explicit or exceptional need for its task-file machinery.</p>
+  <p>The four levels set how much process a change gets. Match the outcome you want first, and any command you named or plan that already exists. Most planned implementation uses level 3; level 4 is only for an explicit or exceptional need for its task-file machinery.</p>
   <p><strong>Hard limit:</strong> if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: normally level 3, not automatic level 4. The one exception is contained <code>/sc:cleanup</code> work on a folder (guide 3.7): commit first and review <code>git diff</code> afterwards. It does not cover structural migrations. Naming a command directly does not waive the written plan.</p>
   <div class="term"><b>Spec:</b> a short written description of what changes, which files, and how you will know it works (guide 3.2).</div>
   <figure class="diagram mid">
-    <svg viewBox="0 0 760 426" role="img" aria-labelledby="d3-t d3-d">
+    <svg viewBox="0 0 760 314" role="img" aria-labelledby="d3-t d3-d">
       <title id="d3-t">Level ladder</title>
-      <desc id="d3-d">Six levels from ask a question at the bottom to write a full specification at the top. The hard limit sits between level 2 and level 3: above it, work needs a written plan, normally level 3 and not automatically level 4, and naming a command directly does not waive it. The one exception is contained /sc:cleanup work on a folder, not structural migrations.</desc>
-      <rect class="d-box" x="20" y="18" width="720" height="48" rx="8"/>
-      <text class="d-tb" x="36" y="48">6 · Write a full specification</text><text class="d-tm" x="440" y="48">/prd → /tdd</text>
-      <rect class="d-box" x="20" y="74" width="720" height="48" rx="8"/>
-      <text class="d-tb" x="36" y="104">5 · Research first</text><text class="d-tm" x="440" y="104">/tech-research</text>
-      <rect class="d-box-warn" x="20" y="130" width="720" height="48" rx="8"/>
-      <text class="d-tb" x="36" y="160">4 · Explicit or exceptional task-file work</text><text class="d-tm" x="440" y="160">/task-builder → /task</text>
-      <rect class="d-box-acc" x="20" y="186" width="720" height="48" rx="8"/>
-      <text class="d-tb" x="36" y="216">3 · Follow a checked implementation plan</text><text class="d-tm" x="440" y="216">/sc:workflow → /sc:implement</text>
-      <path class="d-line-warn" d="M20,252 L740,252"/>
-      <text class="d-tw" x="36" y="274">Hard limit: more than 5 edits, or more than one source file (its test file does not count),</text>
-      <text class="d-tw" x="36" y="292">needs a written plan: normally level 3, not automatic level 4. Naming a command does not waive it.</text>
-      <text class="d-tw" x="36" y="310">The one exception: contained /sc:cleanup work on a folder, not structural migrations</text>
-      <rect class="d-box" x="20" y="322" width="720" height="44" rx="8"/>
-      <text class="d-tb" x="36" y="350">2 · Make a small, direct change</text><text class="d-tm" x="440" y="350">/sc:implement, or a plain edit</text>
-      <rect class="d-box" x="20" y="374" width="720" height="44" rx="8"/>
-      <text class="d-tb" x="36" y="402">1 · Ask a question</text><text class="d-tm" x="440" y="402">ask, or /sc:explain</text>
+      <desc id="d3-d">Four levels from ask a question at the bottom to explicit task-file work at the top. The hard limit sits between level 2 and level 3: above it, work needs a written plan, normally level 3 and not automatically level 4, and naming a command directly does not waive it. The one exception is contained /sc:cleanup work on a folder, not structural migrations.</desc>
+      <rect class="d-box-warn" x="20" y="18" width="720" height="48" rx="8"/>
+      <text class="d-tb" x="36" y="48">4 · Explicit or exceptional task-file work</text><text class="d-tm" x="440" y="48">/task-builder → /task</text>
+      <rect class="d-box-acc" x="20" y="74" width="720" height="48" rx="8"/>
+      <text class="d-tb" x="36" y="104">3 · Follow a checked implementation plan</text><text class="d-tm" x="440" y="104">/sc:workflow → /sc:implement</text>
+      <path class="d-line-warn" d="M20,140 L740,140"/>
+      <text class="d-tw" x="36" y="162">Hard limit: more than 5 edits, or more than one source file (its test file does not count),</text>
+      <text class="d-tw" x="36" y="180">needs a written plan: normally level 3, not automatic level 4. Naming a command does not waive it.</text>
+      <text class="d-tw" x="36" y="198">The one exception: contained /sc:cleanup work on a folder, not structural migrations</text>
+      <rect class="d-box" x="20" y="210" width="720" height="44" rx="8"/>
+      <text class="d-tb" x="36" y="238">2 · Make a small, direct change</text><text class="d-tm" x="440" y="238">/sc:implement, or a plain edit</text>
+      <rect class="d-box" x="20" y="262" width="720" height="44" rx="8"/>
+      <text class="d-tb" x="36" y="290">1 · Ask a question</text><text class="d-tm" x="440" y="290">ask, or /sc:explain</text>
     </svg>
-    <figcaption class="cap">The six levels. Above the hard limit (which does not apply to contained <code>/sc:cleanup</code> work on a folder, other than structural migrations), a written plan is normally level 3, not automatically level 4.</figcaption>
+    <figcaption class="cap">The four levels. Above the hard limit (which does not apply to contained <code>/sc:cleanup</code> work on a folder, other than structural migrations), a written plan is normally level 3, not automatically level 4.</figcaption>
   </figure>
-  <p>Level 4 is for an explicit choice of the task-file (MDTM) format, an existing MDTM task, or an exceptionally complex, long-running phased program that needs its research, checklist and phase-reviewer machinery. File count, sessions, an existing spec, PRD or TDD (product and design documents), risk or drift alone never make work level 4. After the level 6 documents, ordinary planning is level 3 (<code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution); <code>/roadmap</code> only if you explicitly choose it or have the exceptional level 4 need (guide 3.1).</p>
+  <p>Level 4 is for an explicit choice of the task-file (MDTM) format, an existing MDTM task, or an exceptionally complex, long-running phased program that needs its research, checklist and phase-reviewer machinery. File count, sessions, an existing spec, PRD or TDD (product and design documents), risk or drift alone never make work level 4. Before level 3 you may write a specification first (guide 3.1); ordinary planning is then level 3 (<code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution).</p>
 </section>
 
 <section class="slide" id="s6" aria-labelledby="s6-h">
@@ -409,7 +405,7 @@
       <rect class="d-box" x="10" y="70" width="154" height="96" rx="8"/>
       <text class="d-tb" x="20" y="94">Shape idea</text><text class="d-tm d-tm-s" x="20" y="118">/sc:brainstorm</text><text class="d-ts" x="20" y="140">only if vague</text>
       <rect class="d-box" x="176" y="70" width="154" height="96" rx="8"/>
-      <text class="d-tb" x="186" y="94">Research</text><text class="d-tm d-tm-s" x="186" y="118">/tech-research</text><text class="d-ts" x="186" y="140">if you need to</text>
+      <text class="d-tb" x="186" y="94">Research</text><text class="d-tm d-tm-s" x="186" y="118">/sc:analyze</text><text class="d-ts" x="186" y="140">if you need to</text>
       <rect class="d-box" x="342" y="70" width="154" height="96" rx="8"/>
       <text class="d-tb" x="352" y="94">Spec</text><text class="d-ts" x="352" y="118">write it; your</text><text class="d-ts" x="352" y="138">lead approves it</text>
       <rect class="d-box-acc" x="508" y="70" width="154" height="96" rx="8"/>
@@ -426,8 +422,8 @@
       <path class="d-line" d="M662,118 L672,118" marker-end="url(#ah5)"/>
       <path class="d-line" d="M828,118 L838,118" marker-end="url(#ah5)"/>
       <path class="d-line" d="M994,118 L1004,118" marker-end="url(#ah5)"/>
-      <text class="d-ts" x="10" y="196">Level 6 (a new product, component or major feature others build against): /prd, then /tdd, then Plan and Implement as usual;</text>
-      <text class="d-ts" x="10" y="216">/roadmap only if explicitly chosen or exceptionally justified (guide 3.1).</text>
+      <text class="d-ts" x="10" y="196">A new product, component or major feature others build against: write the requirements and design documents,</text>
+      <text class="d-ts" x="10" y="216">critique them with /sc:spec-panel, then Plan and Implement as usual (guide 3.1).</text>
       <text class="d-ts" x="10" y="238">Explicit or exceptional task-file (MDTM) work swaps Plan and Implement for /task-builder and /task (guide section 1, level 4; 3.2 step 5).</text>
     </svg>
     <figcaption class="cap">The guide's feature path (3.2, with brainstorm from 3.1 and the review steps from 3.11), with the two tracks from the onboarding split overlaid.</figcaption>
@@ -440,11 +436,11 @@
   <p>Your work starts with a goal that still has to become a spec. These are the tools for that.</p>
   <div class="grid2">
     <div class="card"><h3>Shape a vague idea</h3><p><code>/sc:brainstorm</code> asks you questions, has several agents propose approaches, and merges them into requirements. It stops there; you decide the next step.</p></div>
-    <div class="card"><h3>Find out what exists</h3><p><code>/tech-research</code> investigates <em>our</em> codebase. <code>/sc:research</code> searches the web. They look alike; they are not.</p></div>
+    <div class="card"><h3>Find out what exists</h3><p><code>/sc:analyze</code> investigates <em>our</em> codebase. <code>/sc:research</code> searches the web. They look alike; they are not.</p></div>
     <div class="card"><h3>Check it is not already built</h3><p><code class="long"><span class="nw">/sc:recommend</span> <span class="nw">"&lt;goal&gt;"</span> <span class="nw">--plugin</span></code> searches the Claude plugin marketplaces and community skill repositories instead of the local commands.</p><p class="story">The meeting's advice: before you build anything, look for someone who already built it, then fork it or use it.</p></div>
     <div class="card"><h3>Get an expert critique</h3><p><code>/sc:spec-panel</code> has a panel of named requirements experts critique a spec. It only reports; you decide what to apply.</p></div>
   </div>
-  <p><strong>When are <code>/prd</code> and <code>/tdd</code> warranted?</strong> The full <code>/prd</code> then <code>/tdd</code> pipeline is level 6: a new product, a new component, or a major feature other people will build against. For a feature on an existing system, write a short spec and plan it with <code>/sc:workflow</code> (guide 3.2). An existing spec, many files or several sessions do not by themselves make it level 4; <code>/task-builder</code> and <code>/task</code> are only for explicit task-file (MDTM) work or an exceptionally complex, long-running program (guide 3.2 steps 3 and 5). If one part of that spec is a design other people will build against, the guide says: "Use <code>/tdd</code> when other people will build against the design" (guide section 5).</p>
+  <p><strong>When is a full specification warranted?</strong> A new product, a new component, or a major feature other people will build against: write the requirements and design documents and have them critiqued with <code>/sc:spec-panel</code> (guide 3.1). For a feature on an existing system, write a short spec and plan it with <code>/sc:workflow</code> (guide 3.2). An existing spec, many files or several sessions do not by themselves make it level 4; <code>/task-builder</code> and <code>/task</code> are only for explicit task-file (MDTM) work or an exceptionally complex, long-running program (guide 3.2 steps 3 and 5).</p>
 </section>
 
 <section class="slide" id="s9" aria-labelledby="s9-h">
@@ -558,9 +554,6 @@
       <tbody>
         <tr><td><code>/task</code></td><td><code>/sc:implement</code></td></tr>
         <tr><td><code>/sc:workflow</code> + <code>/sc:implement</code></td><td><code>/task-builder</code> + <code>/task</code></td></tr>
-        <tr><td><code>/sc:design</code></td><td><code>/tdd</code></td></tr>
-        <tr><td><code>/tech-reference</code></td><td><code>/sc:document</code></td></tr>
-        <tr><td><code>/tech-research</code></td><td><code>/sc:research</code></td></tr>
         <tr><td><code>/sc:cleanup-audit</code></td><td><code>/sc:cleanup</code></td></tr>
       </tbody>
     </table>
@@ -574,7 +567,7 @@
   <h2 id="s14-h">When unsure</h2>
   <div class="grid2">
     <div class="card"><h3>Ask for a recommendation</h3><p><code class="long"><span class="nw">/sc:recommend</span> <span class="nw">"&lt;what</span> <span class="nw">you</span> <span class="nw">want</span> <span class="nw">to</span> <span class="nw">do,</span> <span class="nw">and</span> <span class="nw">why&gt;"</span></code> picks the right command and writes a ready-to-paste prompt.</p></div>
-    <div class="card"><h3>See what is installed</h3><p><code>/sc:help</code> lists the installed commands and skills and shows the six levels.</p></div>
+    <div class="card"><h3>See what is installed</h3><p><code>/sc:help</code> lists the installed commands and skills and shows the four levels.</p></div>
     <div class="card"><h3>Ask your lead</h3><p>Before starting anything large, or whenever this deck and the guide leave you unsure. If you work alone, read "your lead" as yourself.</p></div>
   </div>
 </section>
@@ -590,8 +583,6 @@
         <tr><td>2 · Make a small, direct change</td><td><code>/sc:implement</code>, or a plain edit, then run the test</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#33-make-a-small-well-defined-change">3.3</a></td></tr>
         <tr><td>3 · Follow a checked implementation plan</td><td><code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#32-add-a-feature-to-an-existing-system-no-prd-needed">3.2</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#33-make-a-small-well-defined-change">3.3</a></td></tr>
         <tr><td>4 · Explicit or exceptional task-file work</td><td><code>/task-builder</code> → <code>/task</code>; an existing MDTM task goes straight to <code>/task</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#31-build-a-new-product-or-major-feature-full-specification">3.1</a></td></tr>
-        <tr><td>5 · Research first</td><td><code>/tech-research</code>; stop at the report, or plan with <code>/sc:workflow</code> if you decide to build</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#35-investigate-how-something-works-or-whether-an-idea-is-feasible">3.5</a></td></tr>
-        <tr><td>6 · Write a full specification</td><td><code>/prd</code> → <code>/tdd</code>; then <code>/sc:workflow</code> → <code>/sc:implement</code> if implementation is requested (<code>/roadmap</code> only if explicitly chosen or exceptionally justified)</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#31-build-a-new-product-or-major-feature-full-specification">3.1</a></td></tr>
         <tr><td>Fix a bug</td><td><code>/sc:troubleshoot</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#34-fix-a-bug">3.4</a></td></tr>
         <tr><td>Review only, or ship</td><td>Review only: <code>/sc:auggie-review</code> with <code>--no-post-pr --no-remediation-offer</code>. Ship when requested and authorized: <code>/sc:pr-submit</code> with the one <code>--monitor</code> ceiling (0 to 3) you chose</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#311-review-only-or-deliberately-ship-and-open-a-pull-request">3.11</a></td></tr>
         <tr><td>Resume</td><td>The same command again, or <code>ccsession &lt;name&gt;</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#312-resume-after-a-crash-or-a-lost-session">3.12</a></td></tr>

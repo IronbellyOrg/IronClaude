@@ -110,9 +110,6 @@ Do not use auggie as a substitute for reading manifest.json or execution-log.jso
 
 The skill leans on hard-coded knowledge of these pipelines. See `refs/pipelines.md` for exact layouts, state-file locations, and resume commands per pipeline:
 
-- **PRD** — `task-builder` skill, `.dev/tasks/to-do/TASK-PRD-*/`
-- **TDD** — `tdd` skill, `.dev/tasks/{to-do,done}/TASK-TDD-*/`, often paired with `research/` subdir
-- **Spec / Tech Reference / Tech Research** — `.dev/research/`, `claudedocs/`
 - **Roadmap** — `roadmap` skill → `.dev/tasks/to-do/TASK-ROADMAP-*/` with `.roadmap-state.json`
 - **Workflow package** — `/sc:workflow` + `/sc:implement` → `.dev/tasks/{to-do,done}/TASK-WF-*/` with `progress.md`
 - **Task (MDTM)** — single .md with frontmatter `status: 🟢 Done | 🟡 InProgress | 🔴 Blocked`, lives in `.dev/tasks/{to-do,done}/`

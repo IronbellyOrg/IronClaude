@@ -517,7 +517,7 @@ For every touched file in UC-2, or every spec-referenced module in UC-1:
 4a. Task(reuse-auditor, candidates=<new/body-changed symbols from 2a/4, ≤12>, stage=post, repo_root, output_path=<output>/artifacts/reuse-audit.yaml, index_state, checked_at, worktree_root, projectPath)  # FR-REUSE.1 — outward reuse/consolidation neighbour search; the four codegraph run-state fields come from the Wave 0 readiness check
     → agent RETURNS findings; orchestrator persists them to output_path, then consumes reuse-audit.yaml
       (per-candidate verdict/tier/neighbours; run-level max_overlap/degraded/sampled). stage=post is fixed here
-      (Wave 1A is the UC-2 post-execution chain); the pre-stage path lives in /tdd step 2a. Path matches
+      (Wave 1A is the UC-2 post-execution chain). Path matches
       `reuse_audit_path` in the output schema below.
     Orchestrator-level (Wave 1A, Tier 1) — NEVER nested inside a spawned subagent.
     Fallback: agent unavailable → inline Grep skeleton-grep degrade, findings CAPPED at advisory L2,
@@ -670,7 +670,7 @@ The four hypothetical new agents discussed in enrichment notes (`coverage-mapper
 
 Rationale: keeping the SKILL.md within the sc-troubleshoot/sc-brainstorm band requires keeping inline logic *only* where the inline logic is templated. Where the work is open-ended hypothesis or judgement, agents stay. Where the work is mechanical mapping, inline stays.
 
-**The one new agent — `reuse-auditor` — clears exactly that bar.** Note `deviation-classifier` was rejected above precisely because deviation classification *is* mechanical mapping (the §10 taxonomy is the classifier). Reuse/consolidation detection is the opposite: deciding "do these two symbols do the same thing despite zero shared name tokens?" is **semantic capability/skeleton equivalence** — open-ended judgement, not a lookup. It is also an `extract-shared` unit by its own §4 N≥2 rule: both `sc:reflect` (Wave 1A) and `/tdd` (Stage A.3) consume it, and skill-packaged refs can't be shared across skills, so the detection algorithm lives in one globally-addressable agent rather than being duplicated into each SKILL (cf. `evidence-validator`, "reusable by any skill"). Introducing it is the feature taking its own advice; the gate integration (§10.8 mapping, §14.5.2) stays inline — the agent relocates *detection*, not *gating*.
+**The one new agent — `reuse-auditor` — clears exactly that bar.** Note `deviation-classifier` was rejected above precisely because deviation classification *is* mechanical mapping (the §10 taxonomy is the classifier). Reuse/consolidation detection is the opposite: deciding "do these two symbols do the same thing despite zero shared name tokens?" is **semantic capability/skeleton equivalence** — open-ended judgement, not a lookup. It is also an `extract-shared` unit by its own §4 N≥2 rule: `sc:reflect` (Wave 1A) consumes it and any skill may, and skill-packaged refs can't be shared across skills, so the detection algorithm lives in one globally-addressable agent rather than being duplicated into each SKILL (cf. `evidence-validator`, "reusable by any skill"). Introducing it is the feature taking its own advice; the gate integration (§10.8 mapping, §14.5.2) stays inline — the agent relocates *detection*, not *gating*.
 
 ---
 
@@ -682,12 +682,8 @@ Rationale: keeping the SKILL.md within the sc-troubleshoot/sc-brainstorm band re
 | `sc-workflow-protocol` | Wave 6 (T3, plan route — default for `--remediate`) | Build a corrective tasklist package from reflection findings with `--handoff none` (workflow runs its own advisory `--mode pre`); the user runs `/sc:implement <pkg>/<slug>.md`; gated on user opt-in. |
 | `task-builder` | Wave 6 (T3, MDTM route only — `--remediate --depth deep`, interactive or headless) | Generate corrective MDTM task file from reflection findings; gated on user opt-in. |
 | `confidence-check` (skill) | Before any actionable recommendation in Wave 5 chat surface | CLAUDE.md global rule 3 — confidence ≥0.90 to proceed, 70-89% present alternatives, <70% ask. |
-| `tech-research` | Wave 1B (optional, `--depth deep` only) | When the spec references frameworks/libraries by name, fetch current best-practice docs (UC-1) or current best-practice patterns to score the implementation against (UC-2). |
 | `evidence-validator` (agent, but skill-level dependency) | Wave 5 | Mandatory final gate (see §11.2). |
 | `sc-troubleshoot-protocol` | (Reverse direction — sc-troubleshoot invokes us in its Wave 6 Phase B/D) | Pre-exec + post-exec validation of `/sc:implement` (plan route) or `/task` (MDTM route) runs. |
-
-Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) the optional Wave 1B `tech-research` call above is skipped and recorded, because `tech-research` has no Unattended mode.
-
 Invocation pattern (all via `Skill <name>`, never `/sc:<command>`):
 
 ```

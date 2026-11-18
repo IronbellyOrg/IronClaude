@@ -107,7 +107,7 @@
     "skills": {
       "path": "src/superclaude/skills/",
       "count": 36,
-      "notable": ["sc-recommend", "confidence-check", "task", "task-builder", "roadmap", "prd", "tdd", "tech-research", "tech-reference"]
+      "notable": ["sc-recommend", "confidence-check", "task", "task-builder", "roadmap"]
     },
     "modes": {"path": "src/superclaude/modes/", "count": 7},
     "mcp": {"path": "src/superclaude/mcp/", "purpose": "MCP server docs (MCP_*.md) and configs/"},
