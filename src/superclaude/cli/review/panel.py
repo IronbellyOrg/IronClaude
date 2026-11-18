@@ -444,6 +444,23 @@ def packaged_panel(name: str) -> dict:
         ) from exc
 
 
+def default_template_name() -> str:
+    """Name of the packaged panel template the pointer file review-default.json selects as the default."""
+    ptr = _default("review-default.json")
+    name = ptr.get("template") if isinstance(ptr, dict) else None
+    if (
+        not isinstance(ptr, dict)
+        or ptr.get("schema") != "review-default/1"
+        or not isinstance(name, str)
+        or not _PACKAGED_NAME.match(name)
+    ):
+        raise ValueError(
+            "invalid review-default.json: need schema 'review-default/1' and a 'template' "
+            f"packaged-panel name (got {ptr!r})"
+        )
+    return name
+
+
 def load_panel(path: str | None = None) -> dict:
     ref = path or os.environ.get("SUPERCLAUDE_REVIEW_PANEL") or ""
     if ref.startswith("@"):
@@ -453,11 +470,14 @@ def load_panel(path: str | None = None) -> dict:
             raise ValueError(f"invalid packaged panel {ref}: " + "; ".join(errors))
         return obj
     found = find_path("panel", path)
-    obj = (
-        json.loads(found.read_text(encoding="utf-8"))
-        if found
-        else _default("review-panel.default.json")
-    )
+    if found:
+        obj = json.loads(found.read_text(encoding="utf-8"))
+    else:
+        name = default_template_name()
+        try:
+            obj = packaged_panel(name)
+        except ValueError as exc:
+            raise ValueError(f"review-default.json names '{name}': {exc}") from exc
     errors = validate_panel(obj)
     if errors:
         raise ValueError(

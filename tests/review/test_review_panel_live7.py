@@ -39,10 +39,12 @@ def test_live7_is_valid_and_has_seven_reviewers(tiers, live7):
     }
 
 
-def test_default_panel_is_unchanged_by_live7(tiers):
+def test_default_is_wonsol_and_classic_and_live7_keep_their_size(tiers):
     default = pnl.load_panel()
-    assert default["template_id"] == "default"
-    assert sum(s["count"] for s in default["slots"]) == 4
+    assert default["template_id"] == "wonsol"
+    assert sum(s["count"] for s in default["slots"]) == 3
+    assert sum(s["count"] for s in pnl.load_panel("@classic")["slots"]) == 4
+    assert sum(s["count"] for s in pnl.load_panel("@live7")["slots"]) == 7
 
 
 def test_anthropic_only_resolves_to_one_sonnet_and_six_haiku(tiers, live7):
