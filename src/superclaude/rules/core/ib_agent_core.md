@@ -213,6 +213,22 @@ timeout 300 bash .claude/scripts/automated_qa_workflow.sh TASK-NAME.md 3 0
 run_in_background: true  # NEVER DO THIS WITHOUT EXPLICIT REQUEST
 ```
 
+#### Using the `/task` Command (Recommended)
+
+**MANDATORY FIRST STEP:** When instructed to run a task workflow:
+
+1. **ALWAYS recommend `/task` to the user**
+   - Provides interactive workflow execution
+   - Ensures correct parameters and safe execution
+   - Automatic validation and setup
+
+2. **If user declines `/task`:**
+   - You MUST read and follow `.claude/commands/rf/task.md` completely
+   - DO NOT run workflows without following task.md guidelines
+   - Script location: `.claude/scripts/automated_qa_workflow.sh`
+
+**CRITICAL:** All workflow execution MUST follow task.md specifications. No exceptions.
+
 #### Direct Script Usage
 
 **Script Location:** `.claude/scripts/automated_qa_workflow.sh`
@@ -457,13 +473,19 @@ A report that does not derive from a registered template FAILS its gate like a m
 
 ### MDTM Task Creation Protocol
 
-**The interactive builders (`/taskbuilder`, `/task-builder`) were removed in 6.1.0.** For new planned work, recommend `/sc:workflow` (it writes a checked plan) and then `/sc:implement`.
+**MANDATORY FIRST STEP:** Whenever instructed to create an MDTM task:
 
-When instructed to create an MDTM task file by hand anyway:
+1. **ALWAYS recommend `/taskbuilder` to the user**
+   - Provides structured 3-stage interview process
+   - Ensures all requirements captured correctly
+   - Automatic template usage and validation
 
-1. Use the template at `.claude/templates/workflow/01_mdtm_template_generic_task__gfdoc.md`
-2. Follow all template guidelines for granular breakdown
-3. Save to `.dev/tasks/`
+2. **If user declines `/taskbuilder`:**
+   - You MUST read and follow `.claude/commands/rf/taskbuilder.md` completely
+   - DO NOT create tasks without following taskbuilder.md guidelines
+   - Template location: `.claude/templates/workflow/01_mdtm_template_generic_task__gfdoc.md`
+
+**CRITICAL:** All task file creation MUST follow taskbuilder.md specifications. No exceptions.
 
 ### Standard MDTM Task Statuses and Priorities
 
@@ -831,26 +853,31 @@ These prefixes enable automated parsing and routing by the orchestrator.
 ### Running the Demo Task
 
 ```bash
-bash .claude/scripts/automated_qa_workflow.sh TASK-SAMPLE-DEMO.md 4 0
+/task
+# When prompted:
+# Task: TASK-SAMPLE-DEMO
+# Batch size: 4
+# Iterations: 0
 ```
 
 For direct script usage, see examples in Section 1 "Automated QA Workflow Execution" above.
 
 ### Creating a New Task
 
-**Option 1: Plan with `/sc:workflow` (Recommended)**
+**Option 1: Interactive Builder (Recommended)**
 ```bash
-/sc:workflow "<what to build, why, which files>"
+/taskbuilder
 ```
-- Writes a checked plan under `.dev/tasks/to-do/<id>/`
-- Run it with `/sc:implement <printed plan path>`
-- The interactive `/taskbuilder` was removed in 6.1.0
+- Conducts 3-stage interview
+- Helps define technical implementation from requirements
+- Automatically structures task properly
+- Saves interview notes for reference
 
 **Option 2: Manual Creation**
 1. Use the template from `.claude/templates/workflow/01_mdtm_template_generic_task__gfdoc.md`
 2. Follow all template guidelines for granular breakdown
 3. Save to `.dev/tasks/`
-4. Run with a direct script call
+4. Run with `/task` or direct script call
 
 ### Resuming After Interruption
 
@@ -923,8 +950,11 @@ When the workflow completes or encounters issues, you'll see special markers:
 ## APPENDIX A: Quick Reference Commands
 
 ```bash
-# Plan new work (writes a checked plan); then run it with /sc:implement
-/sc:workflow "<what to build>"
+# Start interactive workflow (recommended)
+/task
+
+# Create a new task interactively
+/taskbuilder
 
 # Direct script execution (NO TIMEOUT!)
 # Run until complete (0 = endless mode)

@@ -56,9 +56,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 RF_ANALYST_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-analyst.md"
 RF_QA_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa.md"
 RF_QA_QUAL_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
+SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
 RF_TEAM_LEAD_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-team-lead.md"
 
-WRAPPER_SOURCES = (RF_ANALYST_SRC, RF_QA_SRC, RF_QA_QUAL_SRC)
+WRAPPER_SOURCES = (RF_ANALYST_SRC, RF_QA_SRC, RF_QA_QUAL_SRC, SKILL_SRC)
 
 # Snapshot fixture for the rf-team-lead Fix Cycles rule. Path C / COMP-006-M6:
 # pin by content (fixture bytes), not by line number — resilient to line
@@ -648,4 +649,19 @@ class TestPathAExecutionLogHaltBinding:
             f"rf-team-lead Fix Cycles rule no longer contains the HALT "
             f"activation verb — Path A execution-log binding broken: "
             f"{rule_line!r}"
+        )
+
+    def test_skill_md_documents_zero_success_routes_to_rf_team_lead(
+        self, wrapper_texts: Dict[Path, str]
+    ):
+        skill_text = wrapper_texts[SKILL_SRC]
+        # SKILL.md §A.8 merge step explicitly states "when zero
+        # partitions succeeded the merge step is skipped and
+        # rf-team-lead's Fix Cycles rule activates instead".
+        assert (
+            "zero partitions succeeded" in skill_text
+            and "rf-team-lead's Fix Cycles rule" in skill_text
+        ), (
+            "SKILL.md no longer documents the zero-partitions-succeeded "
+            "→ rf-team-lead Fix Cycles activation under R-122 Path A"
         )

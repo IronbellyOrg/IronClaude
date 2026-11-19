@@ -59,8 +59,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 RF_ANALYST_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-analyst.md"
 RF_QA_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa.md"
 RF_QA_QUAL_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
+SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
 
-WRAPPER_SOURCES = (RF_ANALYST_SRC, RF_QA_SRC, RF_QA_QUAL_SRC)
+WRAPPER_SOURCES = (RF_ANALYST_SRC, RF_QA_SRC, RF_QA_QUAL_SRC, SKILL_SRC)
 
 # Named rejection symbol for cohort-level concurrency failures (R-125).
 SYM_COHORT_SERIALIZATION = "INV-021-cohort-serialization-violation"
@@ -691,3 +692,13 @@ class TestNfrConv10ParallelResearchBinding:
         result = check_inv_021_n_minus_1_concurrency(cohort, exhausted_id)
         assert result.ok
         assert len(result.overlapping_siblings) == 4
+
+    def test_skill_md_a8_pins_synthesis_runs_before_merge(self):
+        # SKILL.md §A.8 merge step pinned by R-127 / T06.11; the
+        # within-cycle collapse runs BEFORE gate evaluation, and the
+        # INV-021 wording in the same SKILL.md text binds synthesis
+        # composition BEFORE the merge step. The TEST-021 evidence
+        # binding requires both wordings to coexist.
+        skill_text = SKILL_SRC.read_text(encoding="utf-8")
+        assert "BEFORE the merge step" in skill_text
+        assert "INV-021" in skill_text

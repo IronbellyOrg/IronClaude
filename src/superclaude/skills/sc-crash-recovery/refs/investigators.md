@@ -21,7 +21,7 @@ Scan ALL of these locations and report on every artifact bundle (do not collapse
 - .dev/tasks/to-do/*/ and .dev/tasks/to-do/*.md — MDTM tasks; read frontmatter `status:` field. EXCEPT `TASK-WF-*/` packages: those are workflow task packages — read `progress.md` (T/FINAL/ARCHIVE lines), not frontmatter, and route to `/sc:implement` (see pipelines.md "Workflow task packages")
 - .dev/tasks/done/ — only check most recent (last 5 by mtime); these should be settled but flag if frontmatter says InProgress. Also list `TASK-WF-*/` here and flag any id that also exists in to-do/ (conflict)
 - .dev/research/*/ — research bundles
-- any *.roadmap-state.json found in tree — older roadmap runs
+- any *.roadmap-state.json found in tree — `/roadmap` skill runs
 - .dev/resurrection-contracts/ — explicit recovery contracts
 
 For each artifact bundle, return:

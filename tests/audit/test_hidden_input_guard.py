@@ -9,10 +9,13 @@ Phase-1."
 This module verifies the contract holds at three layers:
 
 1. **Rule-artifact layer (TestRuleArtifactsExcludeDoneReadback)** —
-   `src/superclaude/agents/rf-task-builder.md` contains no
+   `src/superclaude/agents/rf-task-builder.md` and
+   `src/superclaude/skills/task-builder/SKILL.md` contain no
    behaviour-modifying instruction that reads `.dev/tasks/done/`
-   for current-task emission. (The task-builder skill, which this
-   layer also covered, was removed in 6.1.0.)
+   for current-task emission. The single ADVISORY mention in the
+   task-builder SKILL.md TB-Add-2 line is informational
+   (describes the empirical-calibration threshold for TB-Add-2 to
+   promote out of `[ADVISORY]`) and does not read the directory.
 
 2. **Fixture-equivalence layer (TestStructuralOutputByteIdentical)** —
    the `## Execution Context` byte range of `header_empty_done.md`
@@ -61,6 +64,9 @@ EXECUTION_CONTEXT_LEAK_FIXTURE = (
 
 RF_TASK_BUILDER_PATH = (
     REPO_ROOT / "src" / "superclaude" / "agents" / "rf-task-builder.md"
+)
+TB_SKILL_PATH = (
+    REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
 )
 
 EC_HEADING = "## Execution Context"
@@ -128,6 +134,7 @@ class TestFixturesExist:
 
     def test_rule_artifact_paths_exist(self):
         assert RF_TASK_BUILDER_PATH.is_file()
+        assert TB_SKILL_PATH.is_file()
 
 
 # ---------------------------------------------------------------------------
@@ -151,12 +158,34 @@ class TestRuleArtifactsExcludeDoneReadback:
             f"found {len(hits)} occurrences — would re-activate PR-05 risk"
         )
 
+    def test_task_builder_skill_has_no_done_mention(self):
+        """SUPERSEDES `test_task_builder_skill_done_mention_is_advisory_only`.
+        The task-builder SKILL.md now references `.dev/tasks/done/` ZERO times.
+        TB-Add-2's ADVISORY calibration line was the only (informational)
+        mention; 804eb4f4 removed TB-Add-2, so the hidden-input pathway has no
+        foothold at all. `== 0` is STRICTLY STRONGER than the prior `== 1`
+        exception — any new `.dev/tasks/done/` mention now fails immediately,
+        rather than being silently tolerated as "the one advisory line"."""
+        text = TB_SKILL_PATH.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        donelines = [
+            (idx + 1, raw)
+            for idx, raw in enumerate(lines)
+            if DONE_DIR_LITERAL_RE.search(raw)
+        ]
+        assert len(donelines) == 0, (
+            "task-builder SKILL.md must NOT reference `.dev/tasks/done/` "
+            f"(TB-Add-2 removed in 804eb4f4). Found {len(donelines)} mention(s) "
+            f"at line(s) {[ln for ln, _ in donelines]} — would re-activate the "
+            "PR-05 hidden-input pathway."
+        )
+
     def test_no_done_readback_for_header_emission(self):
         """Cross-check: the words ``Read``, ``Glob``, or ``Grep``
         never appear in the same line as `.dev/tasks/done/`. The
         rf-task-builder agent prompt MUST NOT instruct the agent
         to *read* the directory."""
-        for path in (RF_TASK_BUILDER_PATH,):
+        for path in (RF_TASK_BUILDER_PATH, TB_SKILL_PATH):
             text = path.read_text(encoding="utf-8")
             for ln, raw in enumerate(text.splitlines(), start=1):
                 if not DONE_DIR_LITERAL_RE.search(raw):

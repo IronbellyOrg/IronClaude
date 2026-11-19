@@ -48,10 +48,14 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from _halt_emitter import (  # noqa: E402
+    HALT_MONOTONICITY_TEMPLATE,
     CycleState,
     HaltLog,
     run_fix_cycle,
 )
+
+SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
+
 
 # ---------------------------------------------------------------------------
 # Fixtures.
@@ -78,9 +82,50 @@ def halt_log() -> HaltLog:
     return run_fix_cycle(F_555)
 
 
+@pytest.fixture(scope="module")
+def skill_text() -> str:
+    return SKILL_SRC.read_text(encoding="utf-8")
+
+
 # ---------------------------------------------------------------------------
 # Static schema / source guards.
 # ---------------------------------------------------------------------------
+
+
+class TestSkillContractWiringPresent:
+    """Pre-flight: SKILL.md §A.9 API-004 contract row 1 still contains
+    the byte-exact monotonicity wire template. If this regresses,
+    every fix-cycle wrapper's emission silently diverges from what
+    downstream log scanners expect."""
+
+    def test_skill_src_exists(self):
+        assert SKILL_SRC.is_file(), f"missing SKILL.md at {SKILL_SRC}"
+
+    def test_monotonicity_template_present(self, skill_text: str):
+        assert HALT_MONOTONICITY_TEMPLATE in skill_text, (
+            f"SKILL.md missing byte-exact API-004 wire template "
+            f"{HALT_MONOTONICITY_TEMPLATE!r}"
+        )
+
+    def test_monotonicity_byte_exact_no_smart_punctuation(self, skill_text: str):
+        # ASCII pipes around F, ASCII brackets around HALT-MONOTONICITY,
+        # single 0x20 between `]` and `|F|`. Reject smart-quote/em-dash
+        # drift by inspecting bytes within the template span.
+        template_bytes = HALT_MONOTONICITY_TEMPLATE.encode("utf-8")
+        assert all(b < 0x80 for b in template_bytes), (
+            "API-004 monotonicity template contains non-ASCII bytes — "
+            "wire contract requires ASCII only"
+        )
+        assert template_bytes.count(b"|") == 2, (
+            "API-004 monotonicity template must contain exactly two ASCII pipes"
+        )
+
+    def test_precedence_rule_documented(self, skill_text: str):
+        # The 4-step ordering rule must explicitly state that
+        # regression runs BEFORE monotonicity (per T05.05 / D-0058 AC).
+        assert "regression > monotonicity" in skill_text, (
+            "SKILL.md must document 'regression > monotonicity' precedence"
+        )
 
 
 # ---------------------------------------------------------------------------

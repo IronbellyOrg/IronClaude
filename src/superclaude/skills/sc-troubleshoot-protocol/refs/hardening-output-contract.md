@@ -51,7 +51,7 @@ When any required proof is absent, the rendered report uses **`NOT PROVEN`** blo
 
 ## Downstream no-override rule
 
-Downstream `sc:workflow`, `sc:implement`, `sc:reflect`, `sc:adversarial`, and report-rendering stages may append findings, but they may **not** convert `blocked`/`advisory` into `pass`/`success`. If a downstream stage has its own success enum, the rendered result is `success_with_hardening_blocker` or `success_with_hardening_advisory`, never plain `success`, whenever this table returns `blocked` or `advisory`.
+Downstream `task-builder`, `sc:workflow`, `sc:implement`, `sc:reflect`, `sc:adversarial`, and report-rendering stages may append findings, but they may **not** convert `blocked`/`advisory` into `pass`/`success`. If a downstream stage has its own success enum, the rendered result is `success_with_hardening_blocker` or `success_with_hardening_advisory`, never plain `success`, whenever this table returns `blocked` or `advisory`.
 
 The same downstream consumers MUST preserve `blocked-on-authorization` plus its explicit authorization blocker independently of applicability or aggregation. Where a separate success enum must be rendered, use `success_with_hardening_blocker` with the original fifth verdict and refusal reason, never plain `pass`/`success`; the diagnostic status remains blocked or higher-precedence failed. An early authorization exit may precede HC0: default `pipeline_hardening_applicable=false` is not a boundary-scan decision. Render `HC0 not run — applicability unassessed`, retain the tasklist/refusal evidence, and do not fabricate HC cards or a justified not-applicable reason. This pre-aggregation rule does not alter the seven truth-table rows or the waiver latch.
 
@@ -67,7 +67,7 @@ The same downstream consumers MUST preserve `blocked-on-authorization` plus its 
 
 ## Waiver / no-re-greening latch and anti-inflation (FR-12)
 
-- **One-way latch (`waiver_status`).** A waived or absent mandatory runtime probe sets `waiver_status` from `none` to `latched`. The transition is one-way: `latched` never resets to `none`. Once `latched`, `pipeline_hardening_verdict ∈ {blocked, advisory}` and no later `sc:reflect` or `sc:adversarial` stage may upgrade it to `pass`/`success`.
+- **One-way latch (`waiver_status`).** A waived or absent mandatory runtime probe sets `waiver_status` from `none` to `latched`. The transition is one-way: `latched` never resets to `none`. Once `latched`, `pipeline_hardening_verdict ∈ {blocked, advisory}` and no later `task-builder`, `sc:reflect`, or `sc:adversarial` stage may upgrade it to `pass`/`success`.
 - **Set-once applicability.** `pipeline_hardening_applicable` is set exactly once by HC0; if `true`, HC1–HC5 must run or be waived.
 - **Production-facing signoff.** Production-facing pipeline-health signoff FAILs when a mandatory runtime probe is absent or `N/A` without rationale.
 - **Anti-inflation.** An escape ID may appear in `known_escapes_caught` only if a passing wave/card is cited that would catch it (`status=PASS`). An un-earned membership that inflates coverage is a defect.

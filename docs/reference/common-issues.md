@@ -15,7 +15,7 @@ Test: /sc:brainstorm "test" should ask questions
 ### 2. Installation Verification
 
 ```bash
-superclaude --version    # Should print: SuperClaude, version 6.0.0
+superclaude --version    # Should print: SuperClaude, version 5.0.0
 ```
 
 If it prints an older version, or the command is missing, upgrade the package
@@ -28,7 +28,7 @@ superclaude install --force
 
 From an IronClaude clone, check out the release and run `./update.sh` instead.
 Restart your Claude sessions afterwards. The full procedure is in
-[Upgrading to IronClaude 6.0.0](../getting-started/upgrading.md).
+[Upgrading to IronClaude 5.0.0](../getting-started/upgrading.md).
 
 `superclaude update` only re-copies files from the package that is already
 installed. It does not install a newer package, install codegraph or remove
@@ -97,7 +97,7 @@ superclaude install
 
 ## Verification Checklist
 
-- [ ] `superclaude --version` prints `SuperClaude, version 6.0.0`
+- [ ] `superclaude --version` prints `SuperClaude, version 5.0.0`
 - [ ] `/sc:brainstorm "test"` works in Claude Code
 - [ ] `superclaude install --list` shows components
 

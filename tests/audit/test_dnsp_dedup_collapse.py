@@ -53,8 +53,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 RF_ANALYST_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-analyst.md"
 RF_QA_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa.md"
 RF_QA_QUAL_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
+SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
 
-WRAPPER_SOURCES = (RF_ANALYST_SRC, RF_QA_SRC, RF_QA_QUAL_SRC)
+WRAPPER_SOURCES = (RF_ANALYST_SRC, RF_QA_SRC, RF_QA_QUAL_SRC, SKILL_SRC)
 
 # Reuse the canonical fixed values + validator from the TEST-018
 # helper module so a drift in either fixture affects the other.
@@ -233,6 +234,22 @@ class TestR123WrapperTextGuards:
                 f"{p.name} no longer references INV-012 — dedup "
                 "composition pointer lost"
             )
+
+    def test_skill_md_a8_merge_pins_within_cycle_collapse(self):
+        """SKILL.md §A.8 merge paragraph (landed by T06.11) MUST
+        bind the R-123 within-cycle collapse to run BEFORE gate
+        evaluation. This is what makes the cardinality-1 outcome
+        observable at the gate boundary, not just in the emitter."""
+        skill_text = SKILL_SRC.read_text(encoding="utf-8")
+        assert "within-cycle dedup-key collapse" in skill_text, (
+            "SKILL.md missing 'within-cycle dedup-key collapse' clause "
+            "in §A.8 merge step"
+        )
+        # The merge step must run the collapse BEFORE gate evaluation.
+        assert "BEFORE" in skill_text and "gate evaluation" in skill_text, (
+            "SKILL.md no longer specifies that the within-cycle collapse "
+            "runs BEFORE gate evaluation — R-127 merge ordering regressed"
+        )
 
 
 # ---------------------------------------------------------------------------

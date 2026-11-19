@@ -83,16 +83,16 @@ _Numbered, copy-pasteable. SAFE = idempotent / read-only. REVIEW = changes state
    /sc:implement .dev/tasks/to-do/<TASK-ID>/<TASK-ID>.md
    ```
 
-3. **REVIEW** — Finish an older task file from an earlier release: first copy its open `- [ ]` items into a new plain list (`/sc:implement` would also list the checked items as tasks), then run:
+3. **REVIEW** — Resume an interrupted MDTM task (picks up at the first unchecked item):
 
    ```bash
-   /sc:implement <path of the new list holding the open items>
+   /task .dev/tasks/to-do/<TASK-ID>/<TASK-ID>.md
    ```
 
-4. **REVIEW** — Move a completed task folder out of to-do/:
+4. **REVIEW** — Move the completed PRD task out of to-do/:
 
    ```bash
-   mv .dev/tasks/to-do/<TASK-ID> .dev/tasks/done/
+   mv .dev/tasks/to-do/TASK-PRD-<ts> .dev/tasks/done/
    ```
 
 (commands sorted by recommended order: diagnose-then-act, lowest-risk-first)

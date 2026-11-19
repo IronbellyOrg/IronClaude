@@ -1,6 +1,6 @@
 ---
 name: reuse-auditor
-description: Independent reuse/consolidation auditor. For each new or proposed component, fingerprints its behaviour, searches the repo for prior art (name-agnostic), scores a composite similarity signal, and returns reuse findings with a verdict (reuse-by-import | mirror-shape | extract-shared | distinct) + consolidation recommendation. Detection only — never classifies deviations or gates. Reusable by any skill (sc:reflect, cleanup-audit, analyze, code-review).
+description: Independent reuse/consolidation auditor. For each new or proposed component, fingerprints its behaviour, searches the repo for prior art (name-agnostic), scores a composite similarity signal, and returns reuse findings with a verdict (reuse-by-import | mirror-shape | extract-shared | distinct) + consolidation recommendation. Detection only — never classifies deviations or gates. Reusable by any skill (sc:reflect, /tdd, cleanup-audit, analyze, code-review).
 category: analysis
 tools: Read, Grep, Glob, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers
 model: sonnet
@@ -13,6 +13,7 @@ permissionMode: plan
 ## Triggers
 
 - Delegated by `sc-reflect-protocol` in Wave 1A (post-stage: new/body-changed symbols from the diff).
+- Delegated by `/tdd` in Stage A.3 (pre-stage: proposed components during scope discovery).
 - Reusable by any skill (`cleanup-audit`, `analyze`, `code-review`) via `Task` with explicit `candidates`, `stage`, and `output_path`.
 - Never auto-activates from conversational keywords; always invoked via `Task` with explicit inputs scoped by the caller.
 

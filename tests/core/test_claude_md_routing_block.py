@@ -81,7 +81,7 @@ def test_mcp_flag_column_is_advisory():
     assert "| Flag (advisory) |" in text
 
 
-def test_always_loaded_policy_keeps_workflow_default_and_has_no_level_four():
+def test_always_loaded_policy_keeps_workflow_default_and_mdtm_boundary():
     """Pin the policy in the loaded copy as well as its byte-level parity."""
     block = _block(_CLAUDE)
     ordinary = next(line for line in block.splitlines() if line.startswith("| **3."))
@@ -90,7 +90,11 @@ def test_always_loaded_policy_keeps_workflow_default_and_has_no_level_four():
     assert ordinary.index("/sc:workflow") < ordinary.index("/sc:implement")
     assert "few files" not in ordinary
     assert "one or two sessions" not in ordinary
-    assert not any(line.startswith("| **4.") for line in block.splitlines())
-    assert "level 4" not in block.lower()
-    assert "it must go through a written plan (level 3)" in block
+    exceptional = next(line for line in block.splitlines() if line.startswith("| **4."))
+    assert "explicitly select MDTM" in exceptional
+    assert "exceptionally complex, long-running phased program" in exceptional
+    assert "research, checklist and phase-reviewer machinery" in exceptional
+    assert "alone never select level 4" in block
+    assert "normally level 3, not automatic level 4" in block
+    assert "Stop after the requested documents for document-only work" in block
     assert "Managed workflow packages use `/sc:implement`" in block

@@ -57,6 +57,9 @@ from _halt_emitter import (  # noqa: E402
     run_fix_cycle,
 )
 
+SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
+
+
 # ---------------------------------------------------------------------------
 # Fixtures — |F|=5,4 slow shrink + counterfactual |F|=5,5 non-shrink.
 # ---------------------------------------------------------------------------
@@ -144,9 +147,34 @@ def counterfactual_non_shrink_log() -> HaltLog:
     return run_fix_cycle(F_5_5_CYCLES)
 
 
+@pytest.fixture(scope="module")
+def skill_text() -> str:
+    return SKILL_SRC.read_text(encoding="utf-8")
+
+
 # ---------------------------------------------------------------------------
 # Static schema / source guards — SKILL.md X-003 rejection wording.
 # ---------------------------------------------------------------------------
+
+
+class TestSkillX003RejectionDocumented:
+    """SKILL.md §A.9 encodes the X-003 rejection: the monotonicity
+    predicate is binary (``|F_{n+1}| >= |F_n|``), not rate-of-shrink.
+    A regression to a rate threshold would silently halt legitimate
+    slow convergence."""
+
+    def test_skill_src_exists(self):
+        assert SKILL_SRC.is_file(), f"missing SKILL.md at {SKILL_SRC}"
+
+    def test_monotonicity_predicate_is_binary(self, skill_text: str):
+        # The binary predicate text appears verbatim in SKILL.md §A.9.
+        # A rate-of-shrink threshold would have a percentage or
+        # ratio operator instead of the ``>=`` non-shrink predicate.
+        assert "|F_{n+1}| >= |F_n|" in skill_text, (
+            "SKILL.md must encode the binary monotonicity predicate "
+            "'|F_{n+1}| >= |F_n|' — X-003 rejection requires the "
+            "non-shrink comparison, not a rate threshold"
+        )
 
 
 # ---------------------------------------------------------------------------

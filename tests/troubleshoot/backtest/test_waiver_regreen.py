@@ -11,7 +11,7 @@ invariant is unchanged).
 
 The invariant (RELEASE-SPEC FR-12 / §4.5 `waiver_status` / §5.4 truth table): a `waived_with_rationale`
 or absent mandatory probe sets a ONE-WAY `waiver_status` latch (`none` -> `latched`) and forces
-`pipeline_hardening_verdict ∈ {blocked, advisory}`; no later `sc:reflect` /
+`pipeline_hardening_verdict ∈ {blocked, advisory}`; no later `task-builder` / `sc:reflect` /
 `sc:adversarial` / report-render stage may upgrade it to plain `pass` / `success` (a downstream
 success enum renders as `success_with_hardening_blocker` / `success_with_hardening_advisory`, never
 plain `success`). The §4.7-named validator surface documenting this is `refs/hardening-output-contract.md`.

@@ -31,10 +31,11 @@ audit → derive 4-state verdict → classify (auto-fixable vs human-required)
       → [auto-run the corrective artifact → re-verify] (bounded) → promote (gated)
 ```
 
-The corrective artifact is a `/sc:workflow` plan at every `--depth`: reflect
-writes it and the wrapper runs it with `/sc:implement <remediation_plan_path>`.
-(Before 6.1.0, `--depth deep` wrote an MDTM task file run with `/task`; that
-route was removed.)
+The corrective artifact depends on `--depth`. With `--depth standard` (the
+default) reflect writes a `/sc:workflow` plan and the wrapper runs it with
+`/sc:implement <remediation_plan_path>`. Only with `--depth deep` does reflect
+write an MDTM task file, which the wrapper runs with
+`/task <remediation_task_path>`.
 
 The new wrapper surface is intentionally narrow (the heavy reflect logic — waves,
 tiers, the 4-category deviation taxonomy, promotion mechanics — stays inside the
@@ -44,9 +45,9 @@ tiers, the 4-category deviation taxonomy, promotion mechanics — stays inside t
 - the **`SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` recursion breaker**,
 - the **`--base`** per-phase audit-scope override,
 - the **`--promote` default flip** (promotion is now on by default),
-- and consumption of the `remediation_plan_path` contract field (the older
-  `remediation_task_path` field stays in the schema so old reports load, but the
-  wrapper ignores it).
+- and consumption of the `remediation_task_path` contract field. Since return
+  contract 1.8.0 the wrapper also consumes its plan-route sibling,
+  `remediation_plan_path`.
 
 The wrapper consumes `return-contract.yaml`; it never re-derives a verdict from
 raw diffs. Implementation lives in `src/superclaude/cli/reflect/` (`commands.py`,
@@ -66,7 +67,8 @@ raw diffs. Implementation lives in `src/superclaude/cli/reflect/` (`commands.py`
    - `PASS` → converged. Promote if eligible.
    - `HALTED` **auto-fixable** (drift/necessary only) → auto-run the corrective
      artifact (B), then re-verify (back to A):
-     `/sc:implement <remediation_plan_path>`.
+     `/sc:implement <remediation_plan_path>` on the default plan route, or
+     `/task <remediation_task_path>` on the MDTM route (`--depth deep`).
    - `HALTED` **human-required** (regression / human-decision / gaps) → terminal
      HALT, no auto-fix, no promote.
    - `DEGRADED` / `BLOCKED` → audit untrusted, never auto-fixed.
@@ -325,11 +327,14 @@ On `auto-fixable`, the wrapper reads the remediation pointer from the contract
 and runs it as its own top-level subprocess, then re-audits against the same
 base:
 
-- At every `--depth`, reflect writes a `/sc:workflow` plan and sets
-  `remediation_plan_path`; the wrapper runs `/sc:implement <remediation_plan_path>`.
-- `remediation_task_path` (an old report's MDTM pointer) is ignored.
+- With `--depth standard` (the default), reflect writes a `/sc:workflow` plan
+  and sets `remediation_plan_path`; the wrapper runs
+  `/sc:implement <remediation_plan_path>`.
+- With `--depth deep`, reflect writes an MDTM task file and sets
+  `remediation_task_path`; the wrapper runs `/task <remediation_task_path>`.
+- If both pointers are set, the MDTM pointer (`remediation_task_path`) wins.
 
-If `remediation_plan_path` is absent on an auto-fixable verdict, the wrapper
+If **neither** pointer is present on an auto-fixable verdict, the wrapper
 **cannot repair** → terminal HALT (exit 10).
 
 ### `none` → clean
@@ -383,7 +388,7 @@ termination.
 ### 5.1 The recursion breaker — `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE`
 
 When the wrapper spawns a child subprocess inside the fix subtree — both the
-reflect audit AND every auto-run `/sc:implement` — it exports
+reflect audit AND every auto-run `/sc:implement` or `/task` — it exports
 `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE=1` into that child's environment.
 
 If a child's own terminal reflect gate then fires `superclaude reflect run` again,
@@ -424,7 +429,7 @@ The marker kills *nested* gates; `--max-fix-iterations` kills a non-converging
 The engine serves two gate sites with different invocation shapes. The wrapper has
 no O2-detection surface, so the **caller** (generator) selects the shape.
 
-### O1 — whole tasklist (terminal gate)
+### O1 — whole tasklist (task-builder terminal gate)
 
 ```bash
 superclaude reflect run <tasklist.md> --depth deep --fix --promote
@@ -468,7 +473,7 @@ The engine is fail-closed by construction. The following invariants always hold.
   tooling loss) or a blocked audit (crash, timeout, missing/bad contract) is
   terminal — even if its deviation dict carries `drift > 0`.
 - **A failed apply HALTs — never PASSes.** If the auto-run corrective
-  `/sc:implement` returns a non-zero exit code, the loop does **not**
+  `/sc:implement` or `/task` returns a non-zero exit code, the loop does **not**
   re-audit (a partial
   state would score garbage and risk a misleading verdict). The verdict is left at
   its HALTED state, the sidecar `reason` records `fix-apply-failed (rc=...)`, and
@@ -532,7 +537,7 @@ superclaude reflect run <task.md> --allow-single-vendor
   own self-suppress).
 - **Budget for `(N+1)` audits.** A deep Tier-2 audit is the dominant cost; the fix
   loop multiplies it by `(iterations + 1)` audits plus N corrective
-  `/sc:implement` runs. With the
+  `/sc:implement` or `/task` runs. With the
   default `--max-fix-iterations 2`, that is at most three audits.
 - **Treat exit 11 and exit 2 as "do not promote, surface for a human."** Only an
   exit-0 PASS is promotable.

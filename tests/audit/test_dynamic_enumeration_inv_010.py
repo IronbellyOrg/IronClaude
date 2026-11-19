@@ -61,6 +61,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 RF_QA_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa.md"
 RF_QA_MIRROR = REPO_ROOT / ".claude" / "agents" / "rf-qa.md"
+SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
 
 # Bounded-region heading the orchestrator MUST search for (SKILL.md
 # §A.10.5 step 2). The match is the exact bullet heading rf-qa.md uses.
@@ -274,6 +275,119 @@ def two_cycle(workdir: Path, rf_qa_canonical_text: str):
 # ---------------------------------------------------------------------------
 # Static schema / source guards — the wiring stays in place.
 # ---------------------------------------------------------------------------
+
+
+class TestEnumerationWiringPresent:
+    """Pre-flight: the SKILL.md §A.10.5 enumeration block exists in the
+    range it was landed at (T03.07 / D-0031). If this regresses,
+    nothing else this fixture asserts is meaningful."""
+
+    def test_rf_qa_src_exists(self):
+        assert RF_QA_SRC.is_file(), f"missing source rf-qa.md at {RF_QA_SRC}"
+
+    def test_rf_qa_mirror_exists(self):
+        assert RF_QA_MIRROR.is_file(), f"missing mirror rf-qa.md at {RF_QA_MIRROR}"
+
+    def test_skill_src_exists(self):
+        assert SKILL_SRC.is_file(), f"missing source SKILL.md at {SKILL_SRC}"
+
+    def test_structural_gate_heading_present(self, rf_qa_canonical_text: str):
+        assert STRUCTURAL_GATE_HEADING in rf_qa_canonical_text, (
+            f"bounded-region heading missing from {RF_QA_SRC}: "
+            f"{STRUCTURAL_GATE_HEADING!r}"
+        )
+
+    def test_skill_a105_enumeration_block_present(self):
+        skill_text = SKILL_SRC.read_text(encoding="utf-8")
+        assert (
+            "TB-Add catalogue enumeration (INV-010 dynamic catalogue lookup)"
+            in skill_text
+        ), (
+            "SKILL.md §A.10.5 enumeration block heading missing — T03.07 (D-0031) regressed"
+        )
+
+    def test_rf_qa_src_and_mirror_byte_identical(self):
+        src_bytes = RF_QA_SRC.read_bytes()
+        mirror_bytes = RF_QA_MIRROR.read_bytes()
+        assert src_bytes == mirror_bytes, (
+            "rf-qa.md source and `.claude/` mirror diverged — run `make sync-dev`"
+        )
+
+
+class TestNoHardCodedEnumerationInA105:
+    """AC-4 (phase-3-tasklist.md L346) — inside the A.10.5 enumeration
+    block (lines 1213-1224), the only TB-Add-N tokens permitted are
+    the symbolic worked-example references ``TB-Add-1`` and
+    ``TB-Add-3`` from step 4's ``LIVE_TB_ADD = [TB-Add-1, TB-Add-3, …,
+    TB-Add-K]`` illustration. (The example used ``TB-Add-2`` until
+    804eb4f4 intentionally removed TB-Add-2, so the sparse-catalogue
+    illustration now leads with the first two live IDs 1 and 3.) Any
+    other token = hard-coded enumeration regression."""
+
+    def test_only_symbolic_tb_add_tokens_in_block(self):
+        skill_lines = SKILL_SRC.read_text(encoding="utf-8").splitlines()
+        # The byte-offset of the block can drift across future MIG
+        # edits; locate by heading and walk forward to the next ``###``
+        # heading, then assert the symbolic-only constraint over that
+        # span. The static line range is the documented baseline
+        # (D-0031 evidence § 3.3) but we resolve dynamically for
+        # robustness against post-MIG drift.
+        block_start = -1
+        block_end = -1
+        for idx, line in enumerate(skill_lines, start=1):
+            if (
+                "TB-Add catalogue enumeration (INV-010 dynamic catalogue lookup)"
+                in line
+            ):
+                block_start = idx
+                continue
+            if block_start != -1 and line.startswith("### "):
+                block_end = idx - 1
+                break
+        assert block_start != -1, "enumeration block heading not found in SKILL.md"
+        assert block_end != -1, "could not locate end of enumeration block"
+
+        span_lines = skill_lines[block_start - 1 : block_end]
+        span_text = "\n".join(span_lines)
+        tokens = set(re.findall(r"TB-Add-\d+", span_text))
+        # Worked-example IDs in the A.10.5 illustration. Updated 1,2 -> 1,3
+        # after 804eb4f4 removed TB-Add-2 (the sparse example now leads with
+        # the first two live IDs).
+        allowed = {"TB-Add-1", "TB-Add-3"}
+        unexpected = tokens - allowed
+        assert not unexpected, (
+            "AC-4 violated: SKILL.md §A.10.5 enumeration block contains "
+            f"non-symbolic TB-Add tokens {sorted(unexpected)} — hard-coded "
+            "enumeration regression. Only `TB-Add-1` and `TB-Add-3` "
+            "(symbolic worked-example) are permitted in the block."
+        )
+
+    def test_documented_block_range_still_symbolic(self):
+        """Belt-and-braces: the documented static range
+        (D-0031 § 3.3) must also be symbolic-only. This catches the
+        narrow regression where the block heading moves but the
+        static range still references the original location."""
+        skill_lines = SKILL_SRC.read_text(encoding="utf-8").splitlines()
+        if len(skill_lines) < SKILL_A105_BLOCK_END:
+            pytest.skip(
+                f"SKILL.md shrank below {SKILL_A105_BLOCK_END} lines; "
+                "documented range no longer applies — dynamic check above is authoritative"
+            )
+        span = "\n".join(skill_lines[SKILL_A105_BLOCK_START - 1 : SKILL_A105_BLOCK_END])
+        tokens = set(re.findall(r"TB-Add-\d+", span))
+        # 1,3 (not 1,2) — see worked-example update after the 804eb4f4 TB-Add-2 removal.
+        allowed = {"TB-Add-1", "TB-Add-3"}
+        unexpected = tokens - allowed
+        if "TB-Add catalogue enumeration" not in span:
+            pytest.skip(
+                "Documented static range no longer covers the enumeration "
+                "block; dynamic check above is authoritative"
+            )
+        assert not unexpected, (
+            "AC-4 violated (documented range): unexpected TB-Add tokens "
+            f"{sorted(unexpected)} in SKILL.md lines "
+            f"{SKILL_A105_BLOCK_START}-{SKILL_A105_BLOCK_END}."
+        )
 
 
 # ---------------------------------------------------------------------------

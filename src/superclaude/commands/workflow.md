@@ -104,4 +104,4 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
 
 ## CRITICAL BOUNDARIES
 
-Plan only. Next: `/sc:implement .dev/tasks/to-do/<id>/<id>.md`.
+Plan only. Next: `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (not MDTM `/task`).

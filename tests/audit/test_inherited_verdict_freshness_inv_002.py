@@ -37,6 +37,9 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
+SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
+SKILL_MIRROR = REPO_ROOT / ".claude" / "skills" / "task-builder" / "SKILL.md"
+
 BLOCK_HEADER = "## Inherited Structural Verdict (rf-qa A.10 output — DO NOT re-verify)"
 FIX_CYCLE_HEADER = (
     "**Fix-cycle re-entry (INV-002 freshness — stale-verdict rejection):**"
@@ -277,6 +280,61 @@ def two_cycle_artifacts(task_dir: Path) -> dict:
 # Static SKILL.md procedure checks — guards against accidental regression of
 # the A.10.5 fix-cycle re-entry block landed by T03.05 (D-0030).
 # ---------------------------------------------------------------------------
+
+
+class TestFreshnessProcedureWiredInSkill:
+    """SKILL.md §A.10.5 contains the 7-step fix-cycle re-entry block, names
+    INV-002 in the heading, specifies the step-7 log format, and lives in
+    both source-of-truth and ``.claude/`` mirror surfaces."""
+
+    @pytest.fixture(scope="class")
+    def src_text(self) -> str:
+        return SKILL_SRC.read_text(encoding="utf-8")
+
+    @pytest.fixture(scope="class")
+    def mirror_text(self) -> str:
+        return SKILL_MIRROR.read_text(encoding="utf-8")
+
+    def test_fix_cycle_header_present_in_source(self, src_text: str):
+        assert FIX_CYCLE_HEADER in src_text, (
+            f"Fix-cycle re-entry header missing from {SKILL_SRC}"
+        )
+
+    def test_fix_cycle_header_present_in_mirror(self, mirror_text: str):
+        assert FIX_CYCLE_HEADER in mirror_text, (
+            f"Fix-cycle re-entry header missing from {SKILL_MIRROR}"
+        )
+
+    def test_skill_source_mirror_byte_identical(self, src_text: str, mirror_text: str):
+        assert src_text == mirror_text, (
+            "SKILL.md source and mirror diverged; run `make sync-dev`"
+        )
+
+    def test_seven_step_procedure_present(self, src_text: str):
+        """Steps 1..7 numbered, each named with the action verb from D-0030 §2."""
+        required = [
+            "1. **Discard cached state.**",
+            "2. **Re-read the producer artifact from disk.**",
+            '3. **Re-extract the "Items Reviewed" span contiguously.**',
+            "4. **Re-enumerate the TB-Add-* catalogue (INV-010).**",
+            "5. **Re-assemble and re-splice.**",
+            "6. **Stale-verdict-rejection (defense-in-depth).**",
+            "7. **Log the re-extract.**",
+        ]
+        missing = [step for step in required if step not in src_text]
+        assert not missing, f"missing fix-cycle steps in SKILL.md: {missing}"
+
+    def test_inv002_log_format_specified(self, src_text: str):
+        """Step 7 publishes the structured-log token TEST-008 asserts against."""
+        assert INV002_LOG_TOKEN in src_text, (
+            f"INV-002 step-7 log token missing from SKILL.md ({INV002_LOG_TOKEN!r})"
+        )
+
+    def test_test_008_cross_reference_present(self, src_text: str):
+        """The procedure block names TEST-008 / T03.13 as its merge-gate fixture."""
+        assert "TEST-008" in src_text and "T03.13" in src_text, (
+            "TEST-008 / T03.13 cross-reference missing from SKILL.md A.10.5 procedure"
+        )
 
 
 # ---------------------------------------------------------------------------
