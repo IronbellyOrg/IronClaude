@@ -726,13 +726,21 @@ class GhWorld:
         )
         self.runner.matchers.append(
             (
-                lambda a: a[:1] == ("orca",) and a[1:3] == ("worktree", "show"),
+                lambda a: (
+                    a[:4] == ("gh", "api", "--method", "GET") and "/branches/" in a[4]
+                ),
+                self._branch_reply,
+            )
+        )
+        self.runner.matchers.append(
+            (
+                lambda a: a[1:3] == ("worktree", "show"),
                 self._worktree_reply,
             )
         )
         self.runner.matchers.append(
             (
-                lambda a: a[:1] == ("orca",) and a[1:3] == ("reference", "find"),
+                lambda a: a[1:3] == ("reference", "find"),
                 self._reference_reply,
             )
         )
@@ -768,10 +776,6 @@ class GhWorld:
         script[tuple(github.argv_timeline(repo, n))] = self._served(
             "timeline", key, lambda a: self._ok(a, item.timeline)
         )
-        for name, when in item.branches:
-            script[tuple(github.argv_branch_date(repo, name))] = self._served(
-                "branch", key, lambda a, w=when: self._ok(a, {"date": stamp(w)})
-            )
         script[tuple(github.argv_label_get(repo))] = self._served(
             "label_get", repo, self._label_get
         )
@@ -864,7 +868,7 @@ class GhWorld:
             {"total_count": len(items), "incomplete_results": False, "items": items},
         )
 
-    def _info_reply(self, argv: tuple[str, ...]) -> CommandResult:
+    def _info_reply(self, argv, cwd=None) -> CommandResult:
         query = argv[6]
         stream = (
             "mentions"
@@ -933,11 +937,20 @@ class GhWorld:
         item.updated_at = self.clock.now()
         return self._ok(argv, [{"name": x} for x in item.labels])
 
+    def _branch_reply(self, argv, cwd=None) -> CommandResult:
+        repo, _, name = argv[4].removeprefix("repos/").partition("/branches/")
+        self._seen[("branch", None)] = self._seen.get(("branch", None), 0) + 1
+        for item in self.issues.values():
+            for branch, when in item.branches:
+                if item.repo == repo and branch == name:
+                    return self._ok(argv, {"date": stamp(when)})
+        return self._failure("not_found", "branch", tuple(argv))
+
     def _issue_of_selector(self, text: str) -> Issue | None:
         number = int(text.removeprefix("issue:")) if text.startswith("issue:") else None
         return next((i for i in self.issues.values() if i.number == number), None)
 
-    def _worktree_reply(self, argv: tuple[str, ...]) -> CommandResult:
+    def _worktree_reply(self, argv, cwd=None) -> CommandResult:
         item = self._issue_of_selector(argv[argv.index("--worktree") + 1])
         for k in (("worktree", None),):
             self._seen[k] = self._seen.get(k, 0) + 1
@@ -956,7 +969,7 @@ class GhWorld:
             stdout=json.dumps(none["payload"]), returncode=none["exit"], argv=argv
         )
 
-    def _reference_reply(self, argv: tuple[str, ...]) -> CommandResult:
+    def _reference_reply(self, argv, cwd=None) -> CommandResult:
         self._seen[("reference", None)] = self._seen.get(("reference", None), 0) + 1
         return self._ok(argv, {"ok": True, "result": {"matches": []}})
 
@@ -1138,3 +1151,38 @@ def stub_path(tmp_path):
     yield env
     unmatched = [(c["tool"], c["argv"]) for c in read_calls(log) if not c["matched"]]
     assert not unmatched, f"stub saw unscripted argv: {unmatched}"
+
+
+# --- running a cycle ----------------------------------------------------------------------
+
+
+def run(
+    world: GhWorld,
+    tmp_path: Path,
+    tmp_state: FileStore,
+    *,
+    waker: FakeWaker | None = None,
+    dry_run: bool = False,
+    advance: float = 0,
+    **kwargs: object,
+) -> cycle.CycleResult:
+    """Run one cycle over ``world`` (after moving its clock ``advance`` seconds)."""
+    if advance:
+        world.clock.advance(advance)
+    return cycle.run_cycle(
+        world.deps(tmp_path, tmp_state, waker=waker, **kwargs), dry_run
+    )
+
+
+def decisions(res: cycle.CycleResult) -> list[tuple]:
+    """``(reason, repo#issue, state)`` of each decision line of one cycle, in order."""
+    return [
+        (ln["reason"], f"{ln['repo']}#{ln['issue']}", ln.get("state"))
+        for ln in res.lines
+        if ln["kind"] == "decision"
+    ]
+
+
+def reasons(res: cycle.CycleResult) -> list[str]:
+    """The reason of each decision and warning line of one cycle, in order."""
+    return [ln["reason"] for ln in res.lines if ln["kind"] != "cycle"]

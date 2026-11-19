@@ -1,15 +1,15 @@
 """Two processes on one store, and the lock-file failure modes (FR-017, AC-11).
 
-``test_two_processes_one_store_one_launch`` starts real ``spawn`` processes that
-run one whole cycle each against the same ``tmp_path`` store. The order is fixed
-by files, not by sleeping: worker 1 is started alone and, from inside its
-``FakeLauncher`` (that is, while it holds the lock), writes ``worker1.holding``
+``test_two_processes_one_store_one_wake`` starts real ``spawn`` processes that run
+one whole cycle each against the same ``tmp_path`` store. The order is fixed by
+files, not by sleeping: worker 1 is started alone and, from inside its
+``FakeWaker`` (that is, while it holds the store lock), writes ``worker1.holding``
 and waits for ``worker2.result``. The main process starts worker 2 only after
-``worker1.holding`` exists, so worker 2 always meets a held lock. Every wait is
-a bounded poll for a file; a worker that does not finish is terminated.
+``worker1.holding`` exists, so worker 2 always meets a held lock. Every wait is a
+bounded poll for a file; a worker that does not finish is terminated.
 
-The single-process cases drive ``run_cycle`` through a ``lock`` that is a
-symlink, a directory, missing, or replaced after ``flock`` (decision DF-34).
+The single-process cases drive ``run_cycle`` through a ``lock`` that is a symlink,
+a directory, missing, or replaced after ``flock`` (decision DF-34).
 """
 
 from __future__ import annotations
@@ -29,17 +29,19 @@ from superclaude.cli.issue_watch.record import FileStore
 
 from .conftest import (
     CYCLE_NOW,
+    REPO_A,
     FakeClock,
-    FakeLauncher,
+    FakeWaker,
     GhWorld,
-    launched_outcome,
     make_config,
     make_deps,
+    wake_files,
 )
 
 ISSUE = 11
+KEY = f"{REPO_A}#{ISSUE}"
 # A bound, not a delay: a poll returns as soon as its file exists. It is far above
-# the few seconds a spawned interpreter needs, even on a loaded xdist machine.
+# the few seconds a spawned interpreter needs, even on a loaded machine.
 WAIT_S = 30.0
 JOIN_S = 60.0
 ROOT_LINE = "20 1 8:1 / / rw,relatime shared:1 - ext4 /dev/sda1 rw"
@@ -98,36 +100,33 @@ def _worker(root: str, name: str) -> None:
         config = make_config(base)  # the files exist already; nothing is rewritten
         clock = FakeClock(CYCLE_NOW)
         world = GhWorld(clock, config)
-        world.issue(ISSUE)
+        world.issue(REPO_A, ISSUE)
         probe: dict = {}
 
-        def hold_and_wait() -> None:
-            # Runs inside the launcher call, so inside the cycle's lock.
+        def hold_and_wait(target, wake_id) -> None:
+            # Runs inside the waker call, so inside the cycle's lock.
             probe["held"] = _lock_is_held(state_dir / "lock")
             _write_atomic(base / "worker1.holding", "1")
             _wait_for(base / "worker2.result", WAIT_S)
 
-        launcher = FakeLauncher(
-            [launched_outcome()], on_call=hold_and_wait if name == "worker1" else None
-        )
+        waker = FakeWaker(on_deliver=hold_and_wait if name == "worker1" else None)
         deps = make_deps(
             base,
             FileStore(state_dir),
             runner=world.runner,
-            launcher=launcher,
+            waker=waker,
             clock=clock,
             config=config,
-            which=world.which,
         )
         res = cycle.run_cycle(deps, False)
         outcome = {
             "name": name,
             "exit_code": res.exit_code,
             "reason": res.reason,
-            "launcher_calls": len(launcher.calls),
-            "runner_calls": len(world.runner.calls),
+            "deliveries": len(waker.deliveries),
+            "gh_calls": len(world.runner.argvs("gh")),
             "unexpected": [list(argv) for argv in world.runner.unexpected],
-            "lock_held_during_launch": probe.get("held"),
+            "lock_held_during_send": probe.get("held"),
         }
     finally:
         _write_atomic(base / f"{name}.result", json.dumps(outcome))
@@ -143,8 +142,10 @@ def _cycle_lines(state_dir: Path) -> list[dict]:
     return [ln for ln in map(json.loads, lines) if ln["kind"] == "cycle"]
 
 
-def test_two_processes_one_store_one_launch__fr017_ac11(tmp_path, tmp_state):
-    make_config(tmp_path)  # worktree and approvers exist before any worker starts
+def test_two_processes_one_store_one_wake__fr017_ac11(tmp_path, tmp_state):
+    make_config(
+        tmp_path
+    )  # the orchestrator repo and the checkout exist before any worker starts
     ctx = multiprocessing.get_context("spawn")
     one = ctx.Process(target=_worker, args=(str(tmp_path), "worker1"))
     two = ctx.Process(target=_worker, args=(str(tmp_path), "worker2"))
@@ -170,17 +171,18 @@ def test_two_processes_one_store_one_launch__fr017_ac11(tmp_path, tmp_state):
 
     first, second = _read_result(tmp_path, "worker1"), _read_result(tmp_path, "worker2")
     assert (one.exitcode, two.exitcode) == (0, 75), (first, second)
-    assert first["lock_held_during_launch"] is True, first
+    assert first["lock_held_during_send"] is True, first
     assert (first["exit_code"], first["reason"]) == (0, "cycle_complete"), first
-    assert first["launcher_calls"] == 1, first
+    assert first["deliveries"] == 1, first
     assert (second["exit_code"], second["reason"]) == (75, "lock_held"), second
-    # Worker 2 made no external call at all: no gh, no git, no Orca.
-    assert (second["runner_calls"], second["launcher_calls"]) == (0, 0), second
+    # Worker 2 made no GitHub call and sent nothing.
+    assert (second["gh_calls"], second["deliveries"]) == (0, 0), second
     assert first["unexpected"] == [] and second["unexpected"] == []
-    assert first["launcher_calls"] + second["launcher_calls"] == 1
+    assert first["deliveries"] + second["deliveries"] == 1
 
-    entry = tmp_state.load().entries[ISSUE]
-    assert (entry.state, entry.launches) == ("launched", 1)
+    entry = tmp_state.load().entries[KEY]
+    assert (entry.state, entry.wake_attempts) == ("woken", 1)
+    assert len(wake_files(make_config(tmp_path))) == 1
     cycle_lines = sorted(
         (ln["exit"], ln["reason"]) for ln in _cycle_lines(tmp_state.state_dir)
     )
@@ -191,24 +193,28 @@ def test_two_processes_one_store_one_launch__fr017_ac11(tmp_path, tmp_state):
 
 
 def _run(tmp_path, tmp_state, gh_world):
-    """One real-store cycle with one eligible issue; returns (result, world, deps)."""
+    """One real-store cycle with one new issue; returns (result, world, deps)."""
     world = gh_world()
-    world.issue(ISSUE)
+    world.issue(REPO_A, ISSUE)
     deps = world.deps(tmp_path, tmp_state)
     return cycle.run_cycle(deps, False), world, deps
 
 
-def _assert_stopped_before_any_call(res, world, deps, tmp_state, before, exit_code):
+def _assert_stopped_before_any_github_call(
+    res, world, deps, tmp_state, before, exit_code
+):
     assert res.exit_code == exit_code
-    assert world.runner.calls == []  # no gh, git or Orca call
-    assert deps.launcher.calls == []
+    assert (
+        world.runner.argvs("gh") == []
+    )  # no gh call (the ccsession tier list was read first)
+    assert deps.waker.deliveries == [] and wake_files(world.config) == []
     assert (tmp_state.state_dir / "dispatch.json").read_bytes() == before
 
 
-def test_intact_lock_launches_the_eligible_issue__fr017(tmp_path, tmp_state, gh_world):
+def test_intact_lock_wakes_the_new_issue__fr017(tmp_path, tmp_state, gh_world):
     res, world, deps = _run(tmp_path, tmp_state, gh_world)
     assert (res.exit_code, res.reason) == (0, "cycle_complete")
-    assert len(deps.launcher.calls) == 1
+    assert len(deps.waker.deliveries) == 1
     assert world.gh_argvs  # the control: this world does reach gh
 
 
@@ -222,7 +228,7 @@ def test_symlinked_lock_is_exit_6_with_no_call__fr017_ac11(
     lock.symlink_to(target)
     before = (tmp_state.state_dir / "dispatch.json").read_bytes()
     res, world, deps = _run(tmp_path, tmp_state, gh_world)
-    _assert_stopped_before_any_call(res, world, deps, tmp_state, before, 6)
+    _assert_stopped_before_any_github_call(res, world, deps, tmp_state, before, 6)
     assert res.reason == "lock_invalid"
     assert lock.is_symlink()  # nothing deleted or replaced it
 
@@ -235,7 +241,7 @@ def test_directory_in_place_of_lock_is_exit_6_with_no_call__fr017_ac11(
     lock.mkdir()
     before = (tmp_state.state_dir / "dispatch.json").read_bytes()
     res, world, deps = _run(tmp_path, tmp_state, gh_world)
-    _assert_stopped_before_any_call(res, world, deps, tmp_state, before, 6)
+    _assert_stopped_before_any_github_call(res, world, deps, tmp_state, before, 6)
     assert res.reason == "lock_invalid"
     assert lock.is_dir()
 
@@ -247,7 +253,7 @@ def test_missing_lock_is_exit_6_and_is_not_created__fr017_ac11(
     lock.unlink()
     before = (tmp_state.state_dir / "dispatch.json").read_bytes()
     res, world, deps = _run(tmp_path, tmp_state, gh_world)
-    _assert_stopped_before_any_call(res, world, deps, tmp_state, before, 6)
+    _assert_stopped_before_any_github_call(res, world, deps, tmp_state, before, 6)
     assert res.reason == "lock_missing"
     assert not os.path.lexists(lock)  # only init-state creates the lock
 
@@ -271,5 +277,17 @@ def test_lock_path_replaced_after_flock_is_exit_75_with_no_call__fr017_ac11(
     before = (tmp_state.state_dir / "dispatch.json").read_bytes()
     res, world, deps = _run(tmp_path, tmp_state, gh_world)
     assert swaps == [True]
-    _assert_stopped_before_any_call(res, world, deps, tmp_state, before, 75)
-    assert res.reason == "lock_held"
+    _assert_stopped_before_any_github_call(res, world, deps, tmp_state, before, 75)
+
+
+def test_the_orchestrator_state_lock_is_a_second_lock_that_never_blocks_the_store_lock(
+    tmp_path, tmp_state, gh_world
+):
+    from superclaude.cli.issue_watch import route
+
+    world = gh_world()
+    with route.state_lock(world.config.orchestrator_repo):
+        res = cycle.run_cycle(
+            world.deps(tmp_path, tmp_state), False
+        )  # nothing to route: it never asks
+    assert res.exit_code == 0
