@@ -1,0 +1,14 @@
+{
+  "_assumed_shape": true,
+  "source": "orca_term.py:102-107 (terminal send --wait-submit): stages and accepted: UNVERIFIED",
+  "payload": {
+    "ok": true,
+    "result": {
+      "accepted": true,
+      "stages": [
+        "input_accepted",
+        "turn_started"
+      ]
+    }
+  }
+}

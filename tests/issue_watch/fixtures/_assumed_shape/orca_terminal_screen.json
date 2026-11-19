@@ -1,0 +1,15 @@
+{
+  "_assumed_shape": true,
+  "source": "orca_term.py:74-78 (terminal read --screen): tail and draft: UNVERIFIED",
+  "payload": {
+    "ok": true,
+    "result": {
+      "terminal": {
+        "tail": [
+          "$ "
+        ]
+      },
+      "draft": ""
+    }
+  }
+}
