@@ -1,34 +1,38 @@
 ---
 name: issue
 version: "1.1.0"
-description: "Claim a GitHub issue on the origin repo (assign it, check its accuracy, write a summary and a next-step prompt, then create an Orca worktree and launch an agent in it) or create a templated issue with a GitHub issue type, the Complexity issue field and a mode label"
+description: "Claim a GitHub issue on the origin repo (assign it, check its accuracy, write a summary and a next-step prompt, then create an Orca worktree and launch an agent in it), create a templated issue with a GitHub issue type, the Complexity issue field and a mode label, or plan an existing issue (fill its missing Priority, Fix approach and Test plan sections with one body edit)"
 category: workflow
 complexity: advanced
 mcp-servers: [litellm, auggie, codegraph]
 personas: [analyzer]
-argument-hint: "--claim <number|url> [--pipeline worktree|full|none] [--submit] | --create \"<description>\" [--depth quick|standard|deep] [--mode feature|bug] [--type <type>]"
+argument-hint: "--claim <number|url> [--pipeline worktree|full|none] [--submit] | --create \"<description>\" [--depth quick|standard|deep] [--mode feature|bug] [--type <type>] | --plan <number|url> [--depth quick|standard|deep] [--remaining <file>]"
 ---
 
-# /sc:issue: GitHub Issue Claim and Create
+# /sc:issue: GitHub Issue Claim, Create and Plan
 
-Two modes on the repository that `origin` points at:
+Three modes on the repository that `origin` points at:
 
 - `--claim` takes an existing issue: assigns it to you on GitHub and, when one exists, on its ClickUp task; checks whether the issue text is still accurate against today's code and the pull requests merged since it was opened; writes a summary and a next-step prompt under `.dev/issues/<N>/`; posts two marked comments; then, unless `--pipeline none`, creates (or reuses) the Orca worktree `issue-<N>` and launches one Claude Code agent in it at the `--pipeline` level. Orca must be running (STOP `E-ORCA-REQUIRED` otherwise, before anything is assigned or posted). The levels: `worktree` stops at a plan a human approves, `full` also implements without a commit or a push, `full` with `--submit` also commits, pushes a feature branch and opens a PR through `/sc:pr-submit --monitor 3`, and `none` stops after the comments: it creates no worktree and launches no agent. With no `--pipeline` the claim picks `worktree` or `full` from the issue (the rule is in the skill, `refs/claim.md`). Nothing ever merges. When the launch-level guard is missing or not effective the claim refuses the launch with `W-ENFORCEMENT-ABSENT` (no agent starts and no launch record is written); the claim installs the L2 pre-push hook in the clone's shared hooks directory, and when that hook is not in effect it warns with `W-L2-ABSENT` and the launch continues (the IR-7 refusal arrives switched off in the separate last #441 commit, `IR7_REFUSE = False`). No governed claim (`worktree` or `full`) is used on a real issue until OB-H1 item 1 (parent `session_id` in subagent payloads), OB-H2 and OB-H3 have passed. In `sc-issue-launch-level-hook.md`, section 7 (U1) requires item 1 before a `full` or `--submit` claim and OB-H1 item 5 (self-started turns wrapped) before a claim at any level; OB-H2 and OB-H3 come from its sections 11 and 14.
 - `--create` turns a description into a GitHub issue built from one of four templates, with a GitHub issue type, the Complexity issue field and a mode label. GitHub only: no ClickUp task.
+- `--plan` takes an existing issue and fills the plan sections it lacks: `## Priority`, `## Fix approach` and `## Test plan`, each written from a codebase pass of the `--depth` worker (default `quick`). It adds a missing heading, fills an empty section (or one that says only "Not known yet") in place, and leaves every other byte of the issue as it was. Its one GitHub write is a single body edit: no comment, no label, no assignment, no ClickUp call, no worktree and no launch. An issue whose three sections already pass is left alone (`already_planned`). With `--remaining <file>` it instead rewrites `## Fix approach` and `## Test plan` of a plan that exists to the scope that is left (a re-plan).
 
-Both modes post directly to GitHub; nothing is shown for approval first.
+All three modes post directly to GitHub; nothing is shown for approval first.
+
+A session that runs plan mode for another session (the issue orchestrator does) calls this command, as its claim step calls `--claim`, and never loads `sc:issue-protocol` alone: the STOP rules below live in this file and a direct protocol call would skip them.
 
 For issues filed through `/sc:issue --create`, its four templates replace the `ISSUE-HANDOFF.md` / `ISSUE-BACKLOG.md` instruction of rule 10 in the distributed `CLAUDE.md`; rule 10 itself is unchanged and still governs issues filed without `/sc:issue`.
 
 ## Triggers
 
-Explicit only: the user types `/sc:issue --claim ...` or `/sc:issue --create ...`.
+Explicit only: the user types `/sc:issue --claim ...`, `/sc:issue --create ...` or `/sc:issue --plan ...`, or another session runs one of them on purpose.
 
 ## Usage
 
 ```text
 /sc:issue --claim <number|url> [--pipeline worktree|full|none] [--submit]
 /sc:issue --create "<description>" [--depth quick|standard|deep] [--mode feature|bug] [--type <type>]
+/sc:issue --plan <number|url> [--depth quick|standard|deep] [--remaining <file>]
 ```
 
 ## Options
@@ -37,7 +41,9 @@ Explicit only: the user types `/sc:issue --claim ...` or `/sc:issue --create ...
 |---|---|---|---|---|
 | `--claim` | claim | - | issue number (`302`, `#302`) or issue URL on the origin repo | Claim this issue |
 | `--create` | create | - | free text, or `@path` to a file holding the description | Description of the feature or bug |
-| `--depth` | create | `quick` | `quick`, `standard`, `deep` | How hard the command checks the flags and fills the body |
+| `--plan` | plan | - | issue number (`302`, `#302`) or issue URL on the origin repo | Fill the plan sections this existing issue lacks |
+| `--remaining` | plan | - | path of a file: first line `round: <n>` (n is 2 or more), then 1 to 20 lines `- <criterion>` of at most 300 characters | Re-plan: rewrite `## Fix approach` and `## Test plan` to the scope that is left. Only with `--plan` |
+| `--depth` | create, plan | `quick` | `quick`, `standard`, `deep` | How hard the command checks the flags and fills the body (create), or which worker drafts the plan sections (plan) |
 | `--mode` | create | chosen by a worker when omitted | `feature`, `bug` | Picks the feature or bug template, the Feature or Bug issue type and the `enhancement` / `bug` label |
 | `--type` | create | chosen by a worker when omitted | `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install`, `other` | Area of the change; a feature in `tests` gets the issue type Test, otherwise the area is recorded in `flags.md`; no label is applied for it |
 | `--pipeline` | claim | `full` or `worktree`, picked from the issue | `worktree`, `full`, `none` | How far the launched agent goes. Omitted means the level is picked from the issue: a bug or a simple or medium feature of 16 hours or less gets `full`; a complex feature, a feature over 16 hours or an issue that cannot be classified gets `worktree` (the rule is in the skill, `refs/claim.md`). `worktree` and `full` create the worktree and launch an agent; `none` creates no worktree and launches no agent |
@@ -49,14 +55,18 @@ A person who types `--claim` with no `--pipeline` gets the picked level, and an 
 
 ## STOP rules (checked before Activation)
 
-- Exactly one of `--claim` / `--create` is required. Both or neither: STOP and print the Usage block.
-- `--depth`, `--mode` or `--type` together with `--claim`: STOP `E-CREATE-ONLY-FLAG` ("--depth, --mode and --type apply to --create only").
+- Exactly one of `--claim`, `--create` and `--plan` is required. None, or more than one: STOP and print the Usage block.
+- `--depth` together with `--claim`: STOP `E-CREATE-ONLY-FLAG`. `--mode` or `--type` together with `--claim` or `--plan`: STOP `E-CREATE-ONLY-FLAG`. The message is "--mode and --type apply to --create only; --depth applies to --create and --plan".
 - An unknown value for `--depth`, `--mode` or `--type`: STOP and list the allowed values from the Options table.
 - An empty `--create` description (or an `@path` file that is empty or missing): STOP ("--create needs a description").
 - An empty `--claim` argument: STOP and print the Usage block.
-- `--pipeline` or `--submit` together with `--create`: STOP `E-CLAIM-ONLY-FLAG` ("--pipeline and --submit apply to --claim only").
+- An empty `--plan` argument: STOP and print the Usage block.
+- `--pipeline` or `--submit` together with `--create` or `--plan`: STOP `E-CLAIM-ONLY-FLAG` ("--pipeline and --submit apply to --claim only").
+- `--remaining` without `--plan`, or together with `--claim` or `--create`: STOP `E-PLAN-ONLY-FLAG` ("--remaining applies to --plan only").
 - A `--pipeline` value that is not `worktree`, `full` or `none`, or `--pipeline` with no value: STOP and list those three values.
 - `--submit` with a value, without `--pipeline full`, or with no `--pipeline`: STOP `E-SUBMIT-NEEDS-FULL` ("--submit needs --pipeline full").
+
+Plan mode has more stops that need the issue or the `--remaining` file, so the skill raises them in its Wave 0 and lists them in its error table: `E-ISSUE-NOT-FOUND`, `E-PLAN-NOT-AN-ISSUE` (the number is a pull request), `E-PLAN-ISSUE-CLOSED`, `E-PLAN-REPEATED-HEADING`, `E-REMAINING-FILE` and `E-REMAINING-NEEDS-PLAN`. An issue whose three plan sections already pass is not a stop: nothing is written and the result is `already_planned`.
 
 ## Examples
 
@@ -69,6 +79,9 @@ A person who types `--claim` with no `--pipeline` gets the picked level, and an 
 /sc:issue --claim 302 --pipeline full --submit
 /sc:issue --create "The sync check misses deleted skill files" --mode bug --type cli --depth standard
 /sc:issue --create @notes/new-command.md --depth deep
+/sc:issue --plan 302
+/sc:issue --plan 302 --depth standard
+/sc:issue --plan 302 --remaining .dev/issues/302/remaining.md
 ```
 
 ## Outputs
@@ -79,6 +92,7 @@ Every file starts from a template of the skill and stays under `.dev/issues/`:
 |---|---|---|
 | claim | `.dev/issues/<N>/` | `scout.md`, `clickup.json`, `accuracy-check.md` (posted), `issue-summary.md` (effort in hours), `analysis/analyze-<scope>.md` (only when the issue is out of date), `recommend.md`, `next-steps.md`, `launch-prompt.md` (the launched agent's instructions; not written for `--pipeline none`), `claim-comment.md` (posted), `worktree.json` (the worktree path and launch record; never copied into the worktree; not written for `--pipeline none`) |
 | create | `.dev/issues/draft-<YYYYMMDD-HHMMSS>-<slug>/`, renamed to `.dev/issues/<N>/` once the issue exists | `description.md`, `scout.md`, `flags.md`, `issue-body.md` (posted), `draft-notes.md`, and `create-review.md` (posted only when a standard or deep check disagrees with your flags) |
+| plan | `.dev/issues/<N>/` | `plan-input.md`, `plan-sections.md`, `draft-notes.md`, `plan-body.md` (posted: the one body edit; not written when the issue is `already_planned` or a stop comes first), and `plan-before-round-<n>.md` (only with `--remaining`: the replaced sections) |
 
 After a claim, the launched agent works from `.dev/issues/<N>/launch-prompt.md` and `next-steps.md` in the worktree, in order, after the `/model` line `next-steps.md` starts with. With `--pipeline none` no worktree is created and no agent is launched: open `.dev/issues/<N>/next-steps.md` in this checkout and run its commands in your own session.
 
@@ -92,6 +106,7 @@ Coordinator handoff for `--pipeline none`: the claim leaves its files in the che
 - Write every artifact under `.dev/issues/` from a template.
 - On claim: assign the issue, assign the ClickUp task when `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` are set, post or update the accuracy-check and claim comments and, unless `--pipeline none`, create or reuse the Orca worktree `issue-<N>` and launch one agent in it at the chosen level (`--pipeline none` stops after the comments, with no worktree). Nothing is ever merged.
 - On create: set the issue type and the Complexity field, apply only the mode label that already exists in the repo, and list everything it could not set.
+- On plan (`--plan`): read the issue live, draft the missing `## Priority`, `## Fix approach` and `## Test plan` text with the `--depth` worker, and make one body edit (`gh issue edit` with `--body-file`) that changes only those sections. With `--remaining`, replace `## Fix approach` and `## Test plan` in place and save the old text under `.dev/issues/<N>/`.
 
 **Will Not:**
 - Run `/sc:implement`, `/task`, a commit, a push or `/sc:pr-submit` itself (the launched agent may, at the level the user chose).
@@ -100,6 +115,7 @@ Coordinator handoff for `--pipeline none`: the claim leaves its files in the che
 - Stage or commit `.dev/issues/`.
 - Pass an Orca link flag.
 - Merge anything.
+- On plan (`--plan`): post a comment, add or remove a label, assign anyone, touch ClickUp, create a worktree or launch an agent, ask a question, or change any byte of the issue outside the sections it fills.
 
 ## Activation
 
@@ -113,5 +129,4 @@ The full behavioral specification is in `~/.claude/skills/sc-issue-protocol/SKIL
 
 | Command | Difference |
 |---|---|
-| `/sc:recommend` | Picks the next-step chain that a claim writes into `next-steps.md` |
-| `/sc:brainstorm`, `/sc:design`, `/sc:workflow`, `/sc:implement`, `/sc:troubleshoot` | The next-step commands a claim recommends; the launched agent runs them at the chosen level, or you run them from this checkout's `.dev/issues/<N>/` after `--pipeline none` |
+| `/sc:recommend` | Picks the next-step chain that a claim writes into `next-steps.md` || `/sc:brainstorm`, `/sc:design`, `/sc:workflow`, `/sc:implement`, `/sc:troubleshoot` | The next-step commands a claim recommends; the launched agent runs them at the chosen level, or you run them from this checkout's `.dev/issues/<N>/` after `--pipeline none` |
