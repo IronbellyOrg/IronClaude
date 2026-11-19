@@ -289,6 +289,7 @@ Additional operations and explicit coordination choices. These entries can be re
 | Command | When to use it |
 |---|---|
 | `/sc:agent` | Explicit session controller: inspect status, orient, then wait for the task. It is self-contained, not a missing protocol. Startup announcements do not prove automatic activation. |
+| `/sc:closeout` | Settle a pull request that already merged (`/sc:closeout <PR>`, with optional `--issue`, `--dispatch` and `--entry-key`): it checks the merge is real, decides whether the issue is done and closes it or leaves it open with a note of what remains, then settles the work report entry and the worker's Orca task and prints one result block. It starts after a merge and never merges. For a person or a coordinator, never a worker. |
 | `/sc:git` | Requested status, add, local smart commit, branch or merge operations using declared controls. Status-only stays inspection; a commit needs authorization. Do not append push, merge or PR creation. Native tools may be enough. |
 | `/sc:graph` | Check whether this worktree's code-graph index is ready (`/sc:graph status`, the default); `/sc:graph init` is the manual indexing path for a worktree the session-start hook did not index, since the hook indexes new checkouts by default. |
 | `/sc:impact` | Report what depends on named symbols or on a diff (`--diff <base>`), production and test dependents with call-site checks, plus an advisory test list with `--tests`; it writes `impact.md` and `return-contract.yaml` and changes no code. |
