@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Your Work Report</title>
+<meta name="overview-sha256" content="__OVERVIEW_SHA256__">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* The daily report page. Styles and card layout follow Clay's open-work.html (page_template.html in
+   .dev/research/issue-triage-20261028/); "Needs you", sessions, ClickUp and changes are added. */
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --ink: #1b2330; --muted: #5d6878; --line: #dde2ea; --soft: #eef1f5;
+  --accent: #2c5f8f; --accent-soft: #e2ecf6;
+  --ok: #1f7a4d; --ok-bg: #e2f3ea; --warn: #9a5b00; --warn-bg: #fbf0dc; --bad: #b3261e; --bad-bg: #fbe5e3;
+  --plan: #6a3fa0; --plan-bg: #efe7f8; --open: #3d4f66; --open-bg: #e7ecf2; --idle: #6b7280; --idle-bg: #eceef1;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11161d; --surface: #18202a; --ink: #e4e9f0; --muted: #98a3b3; --line: #2a3442; --soft: #1f2833;
+  --accent: #7fb2e5; --accent-soft: #1d3247;
+  --ok: #6fd3a0; --ok-bg: #173226; --warn: #f0b75a; --warn-bg: #3a2c12; --bad: #f28b82; --bad-bg: #3d1d1b;
+  --plan: #c4a2f0; --plan-bg: #2c2140; --open: #a9bbd2; --open-bg: #24303f; --idle: #a0a7b2; --idle-bg: #262c34;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #11161d; --surface: #18202a; --ink: #e4e9f0; --muted: #98a3b3; --line: #2a3442; --soft: #1f2833;
+  --accent: #7fb2e5; --accent-soft: #1d3247;
+  --ok: #6fd3a0; --ok-bg: #173226; --warn: #f0b75a; --warn-bg: #3a2c12; --bad: #f28b82; --bad-bg: #3d1d1b;
+  --plan: #c4a2f0; --plan-bg: #2c2140; --open: #a9bbd2; --open-bg: #24303f; --idle: #a0a7b2; --idle-bg: #262c34;
+  color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-body); margin: 0; padding-block: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 1080px; margin: 0 auto; padding-block: 28px 64px; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); }
+h2 { font-size: 1.25rem; display: flex; gap: 8px; align-items: center; }
+h3 { font-size: 1.05rem; }
+a { color: var(--accent); }
+code { font: 0.86em var(--f-mono); background: var(--soft); padding: 0.05em 0.3em; border-radius: 3px; overflow-wrap: anywhere; }
+.eyebrow { font: 500 0.72rem var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lede { color: var(--muted); max-width: 78ch; margin: 8px 0 0; }
+header { display: grid; gap: 6px; }
+section { display: grid; gap: 12px; min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.alert { border-color: var(--warn); background: var(--warn-bg); color: var(--ink); }
+.tally { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.tally button { all: unset; cursor: pointer; display: grid; gap: 2px; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); }
+.tally button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tally .n { font: 600 1.6rem var(--f-display); font-variant-numeric: tabular-nums; }
+.tally .l { font-size: 0.82rem; color: var(--muted); }
+.tally button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.pill { display: inline-flex; align-items: center; gap: 4px; font: 600 0.68rem var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.s-bad { color: var(--bad); background: var(--bad-bg); }
+.s-warn { color: var(--warn); background: var(--warn-bg); }
+.s-ok { color: var(--ok); background: var(--ok-bg); }
+.s-open { color: var(--open); background: var(--open-bg); }
+.s-plan { color: var(--plan); background: var(--plan-bg); }
+.s-idle { color: var(--idle); background: var(--idle-bg); }
+.pri { font: 600 0.68rem var(--f-mono); letter-spacing: 0.04em; padding: 1px 7px; border-radius: 4px; border: 1px solid currentColor; white-space: nowrap; }
+.pri-Urgent { color: var(--bad); }
+.pri-High { color: var(--warn); }
+.pri-Medium { color: var(--accent); }
+.pri-Low, .pri-Unset { color: var(--muted); }
+.chg { font: 500 0.66rem var(--f-mono); letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); }
+.chg-none { color: var(--muted); }
+.filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.filters label { display: grid; gap: 4px; font-size: 0.78rem; color: var(--muted); }
+.filters input, .filters select { font: inherit; font-size: 0.9rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; min-width: 0; }
+.filters input { width: min(260px, 100%); }
+.count { font-size: 0.85rem; color: var(--muted); margin-left: auto; }
+.group { display: grid; gap: 8px; }
+.group-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.group-head .meta { font-size: 0.82rem; color: var(--muted); }
+/* One item or Needs you entry, laid out by its template; every part shown as a bullet, no click. */
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 8px; min-width: 0; }
+.need { border-left: 4px solid var(--bad); }
+.item-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.item-title { font: 600 1.02rem/1.35 var(--f-body); overflow-wrap: anywhere; }
+.item-title a { font-family: var(--f-mono); font-size: 0.9rem; }
+.people, .next { margin: 0; font-size: 0.9rem; overflow-wrap: anywhere; }
+.people { color: var(--muted); }
+.people strong, .next strong { color: var(--ink); }
+ul.parts { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 86ch; }
+ul.parts > li { overflow-wrap: anywhere; }
+ul.parts ul { margin: 4px 0 0; padding-left: 1.2em; display: grid; gap: 3px; }
+.facts { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 0.84rem; }
+.facts span { color: var(--muted); }
+.activity { font-size: 0.86rem; }
+.act { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.act .panel h3 { margin-bottom: 8px; display: flex; gap: 8px; align-items: center; }
+.act ul, ul.plain { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; font-size: 0.9rem; }
+.why { color: var(--muted); }
+.note { font-size: 0.86rem; color: var(--muted); max-width: 80ch; margin: 0; }
+.empty { color: var(--muted); padding: 16px; text-align: center; }
+@media (max-width: 560px) {
+  .count { margin-left: 0; width: 100%; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Daily work report · <span id="date"></span> · made <span id="gen"></span></div>
+    <h1>Your work</h1>
+    <p class="lede" id="lede"></p>
+    <div id="missed"></div>
+  </header>
+
+  <section aria-labelledby="h-needs">
+    <h2 id="h-needs">Needs you <span class="pill s-bad" id="needs-n"></span></h2>
+    <p class="note">Agent sessions that have stopped with their work not done and are waiting on you to answer, approve or unblock them. Everything else you are asked to do is in its own item below.</p>
+    <div id="needs" style="display:grid;gap:10px"></div>
+  </section>
+
+  <section aria-labelledby="h-status">
+    <h2 id="h-status">Where everything stands</h2>
+    <div class="tally" id="tally"></div>
+    <p class="note" id="changes"></p>
+  </section>
+
+  <section aria-labelledby="h-moved">
+    <h2 id="h-moved">What changed since the previous report</h2>
+    <div class="act" id="moved"></div>
+  </section>
+
+  <section aria-labelledby="h-list">
+    <h2 id="h-list">Your work, by priority</h2>
+    <p class="note">Every open GitHub issue and pull request, ClickUp task and agent session that is yours.</p>
+    <div class="filters panel">
+      <label for="q">Search<input id="q" type="search" placeholder="Title, number, person"></label>
+      <label for="f-change">Change<select id="f-change"><option value="">Everything</option><option value="moved">New or changed</option><option value="New">New</option><option value="Changed">Changed</option></select></label>
+      <label for="f-source">Source<select id="f-source"><option value="">All sources</option><option value="github">GitHub</option><option value="clickup">ClickUp</option><option value="session">Agent sessions</option></select></label>
+      <label for="f-pri">Priority<select id="f-pri"></select></label>
+      <span class="count" id="count" aria-live="polite"></span>
+    </div>
+    <div id="list" style="display:grid;gap:22px"></div>
+  </section>
+
+  <section aria-labelledby="h-likely">
+    <h2 id="h-likely">Likely yours</h2>
+    <p class="note">These name you, but no fixed rule makes them yours.</p>
+    <div class="panel"><ul class="plain" id="likely"></ul></div>
+  </section>
+
+  <section aria-labelledby="h-closed">
+    <h2 id="h-closed">Closed since the previous report, or no longer on your list</h2>
+    <div class="panel"><ul class="plain" id="closed"></ul></div>
+  </section>
+
+  <section aria-labelledby="h-cuonly">
+    <h2 id="h-cuonly">ClickUp tasks with no GitHub issue or pull request <span class="pill s-idle" id="cuonly-n"></span></h2>
+    <p class="note">Your ClickUp tasks that no GitHub issue, pull request or repository is tied to. Many are old and unmanaged, so they are kept here, out of the main list.</p>
+    <div id="cuonly" style="display:grid;gap:22px"></div>
+  </section>
+
+  <section aria-labelledby="h-how">
+    <h2 id="h-how">Not checked, and how this was made</h2>
+    <div class="panel"><h3 style="margin-bottom:6px">Not checked</h3><ul class="plain" id="notchecked"></ul>
+      <h3 style="margin:14px 0 6px">How this was made</h3><ul class="plain" id="how"></ul></div>
+  </section>
+</main>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+__SCRIPT__
+</script>
+</body>
+</html>
