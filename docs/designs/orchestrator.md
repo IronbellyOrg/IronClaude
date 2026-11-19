@@ -888,11 +888,11 @@ Issue 655 lists eleven risks (K1 to K11); each keeps its mitigation as written t
 | K14 (new) | A wake is lost while the session is busy for a long turn | M / M | The mailbox channel and the acknowledgment with 3 attempts; an unread mark after the third; OD6 | DQ2, OD6 |
 | K15 (new) | Switch-on wakes 17 issues already assigned | H / M | Baseline at the first cycle (OD7) and the day cap | 4.3 |
 | K16 (new) | The `wake.py` port duplicates about 100 lines of the report skill's `orca_term.py` | M / L | Accepted for now; after PR C both live in IronClaude and a follow-up makes the report waker call the package module | 4.10 |
-| K20 (new) | Several orchestrator sessions: a count that is wrong lets a repo exceed 3 issues in flight, or a dead session leaves issues unattended | M / M | The count is read from the state files and the poll's own entries and a damaged file counts as in flight; the dead-orchestrator restart with the same tag and Run; the 30-minute idle end; the day cap of 6 new issues a day bounds new orchestrator ids to 6 a day, and the 3-issue limit and the idle end keep the live sessions few | 5.7 |
 | K17 (new) | The orchestrator session starts a Skill inside a Skill (`/sc:issue` from `/sc:orchestrator`) and the claim assumes a repo directory | M / M | The first local end-to-end test checks both; the fallback is a claim run by a worker in the checkout | ADD2, U1, U2 |
 | K18 (new) | The search API shows an assignment late or incompletely | M / L | The next poll finds it; `incomplete_results` is treated as a failed read; the live test measures the delay | ADD3, U8 |
 | K19 (new) | An Orca upgrade changes the verbs the skill names | M / M | A fixture of `orca orchestration --help` pins the verbs and a test fails on a name that is not in it; the Orca version is written into each return contract | 9.1 |
 | K20 (new) | The merge happens, then the issue-closing keyword in the pull request already closed the issue, or the reverse | L / L | Wave 8 reads the issue state first and closes only if open | 5.3 |
+| K21 (new) | Several orchestrator sessions: a count that is wrong lets a repo exceed 3 issues in flight, or a dead session leaves issues unattended | M / M | The count is read from the state files and the poll's own entries and a damaged file counts as in flight; the dead-orchestrator restart with the same tag and Run; the 30-minute idle end; the day cap of 6 new issues a day bounds new orchestrator ids to 6 a day, and the 3-issue limit and the idle end keep the live sessions few | 5.7 |
 
 
 ## 12. UNVERIFIED items
