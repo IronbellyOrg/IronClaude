@@ -1,0 +1,6 @@
+[
+  {"name": "alpha", "archived": false, "private": false},
+  {"name": "beta-private", "archived": false, "private": true},
+  {"name": "old-archived", "archived": true, "private": true},
+  {"name": "quiet", "archived": false, "private": false}
+]

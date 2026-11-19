@@ -1,0 +1,16 @@
+selected_tier: 2                 # what the rubric required
+tier_reached: 1                  # what ran: Tier 2 needs reviewer subagents, which this session's launch rules forbid
+fired_rule_number: 4             # S_domains >= 3 (script, tests, ops definition file)
+coverage_degraded: parsed-sparse # Step 1B.2b: inferred_count 22 > parsed_count 0 (the source carries no labeled requirement IDs); table-wide pre-filter forbids a Tier 1 stop
+surface_unreached: null
+composite_score: 4               # recording only
+per_signal_breakdown:
+  scope_size: 1                  # 6 tasks, 3 new deliverables
+  task_count: 1
+  blast_radius: 0                # no existing symbol is changed
+  spec_density: 1                # prose spec, no requirement IDs
+  ambiguity_signals: 1           # credit-rule edge cases (see REPORT findings)
+escalation_reason: "coverage_degraded parsed-sparse pre-filter plus rule 4 (three domains); Tier 2 not executed under the session rule against launching subagents"
+t2_engine_requested: null        # the flag is read only when the final tier is 2
+t2_engine_effective: null
+panel_fallback_reason: null

@@ -1,0 +1,62 @@
+[
+  {
+    "number": 101,
+    "title": "Add login form",
+    "state": "closed",
+    "html_url": "https://github.com/IronbellyOrg/alpha/pull/101",
+    "user": {"login": "clayphi", "type": "User"},
+    "merged_by": {"login": "ironbelly", "type": "User"},
+    "merged_at": "2026-11-18T15:30:00Z",
+    "updated_at": "2026-11-18T15:31:00Z"
+  },
+  {
+    "number": 103,
+    "title": "Sync generated docs",
+    "state": "closed",
+    "html_url": "https://github.com/IronbellyOrg/alpha/pull/103",
+    "user": {"login": "github-actions[bot]", "type": "Bot"},
+    "merged_by": {"login": "clayphi", "type": "User"},
+    "merged_at": "2026-11-18T03:30:00Z",
+    "updated_at": "2026-11-18T03:31:00Z"
+  },
+  {
+    "number": 102,
+    "title": "Fix resume parser",
+    "state": "closed",
+    "html_url": "https://github.com/IronbellyOrg/alpha/pull/102",
+    "user": {"login": "IB-Lea", "type": "User"},
+    "merged_by": {"login": "IB-Lea", "type": "User"},
+    "merged_at": "2026-11-17T20:00:00Z",
+    "updated_at": "2026-11-17T20:05:00Z"
+  },
+  {
+    "number": 104,
+    "title": "Bump pytest from 8.0 to 8.1",
+    "state": "closed",
+    "html_url": "https://github.com/IronbellyOrg/alpha/pull/104",
+    "user": {"login": "dependabot[bot]", "type": "Bot"},
+    "merged_by": {"login": "clayphi", "type": "User"},
+    "merged_at": "2026-11-12T09:00:00Z",
+    "updated_at": "2026-11-12T09:01:00Z"
+  },
+  {
+    "number": 105,
+    "title": "Try a different cache key",
+    "state": "closed",
+    "html_url": "https://github.com/IronbellyOrg/alpha/pull/105",
+    "user": {"login": "swill-ib", "type": "User"},
+    "merged_by": null,
+    "merged_at": null,
+    "updated_at": "2026-11-10T10:00:00Z"
+  },
+  {
+    "number": 106,
+    "title": "Old change before the window",
+    "state": "closed",
+    "html_url": "https://github.com/IronbellyOrg/alpha/pull/106",
+    "user": {"login": "clayphi", "type": "User"},
+    "merged_by": {"login": "clayphi", "type": "User"},
+    "merged_at": "2026-09-01T10:00:00Z",
+    "updated_at": "2026-09-02T10:00:00Z"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "number": 1,
+    "title": "Initial scaffold",
+    "state": "closed",
+    "html_url": "https://github.com/IronbellyGroup/delta-new/pull/1",
+    "user": {"login": "ironbelly", "type": "User"},
+    "merged_by": {"login": "ironbelly", "type": "User"},
+    "merged_at": "2026-11-18T22:00:00Z",
+    "updated_at": "2026-11-18T22:01:00Z"
+  }
+]
