@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+
+body {
+    color: #000000;
+    background-color: #ffffff;
+}
+</style>
+</head>
+<body>
+    <pre style="font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><code style="font-family:inherit">ORCA OBSERVER  mode=live  scope=all  as of 12:00:00
+worker-list OK 0s  coordinator questions OK 0s (one Run run_14cfcbd8edf2)
+collected 3 / reported 3  scope=all  source counts: unknown  runs seen: 1  SETTLED unavailable (no source)  POLICY FROZEN unavailable (no source)
+cost unavailable
+COORDINATOR QUESTIONS
+one Run only: run_14cfcbd8edf2
+question read: OK 0s
+bounded best effort; coverage unknown; at most 100 rows per read, not 100 questions; bursts over 100 rows between reads may be lost
+seen, not resolved: 5 | closed by evidence: unavailable (no source)
+no read marker in source: answered questions stay listed
+1h  synthetic question 0  reason unknown
+59m  synthetic question 1  reason unknown
+59m  synthetic question 2  reason unknown
+59m  synthetic question 3  reason unknown
+59m  synthetic question 4  reason unknown
+retention reset at 12:00; questions observed before this start are not retained
+worker-reported, not questions
+   dispatchId             run          workerState  dispatchStatus terminalState  outcome      nextAction.kind  liveness               evidence age flags
+── ────────────────────── ──────────── ──────────── ────────────── ────────────── ──────────── ──────────────── ────────────────────── ──────────── ────────────
+   w-001                  run-0        running      active         active         none         wait             alive (terminal)       3s
+   w-002                  run-0        idle         active         active         none         wait             alive (terminal)       6s
+   w-003                  run-0        running      active         active         none         none             alive (terminal)       9s
+Up/Down j/k move workers  Enter detail  Esc back  / filter  h historical  m mark rows  e export all  q quit  shown 3/3 | collected 3 / reported 3
+</code></pre>
+</body>
+</html>

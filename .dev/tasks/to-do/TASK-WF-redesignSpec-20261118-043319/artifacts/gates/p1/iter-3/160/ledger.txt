@@ -1,0 +1,48 @@
+ORCA OBSERVER  mode=fixture  SYNTHETIC FIXTURE base, not Orca data  scope=all  as of 12:00:00
+worker-list OK 0s  messages UNVERIFIED (not read)
+collected 80 / reported 80  scope=all  source counts: active 54 / reclaimable 0 / retained 13 / released 13  runs seen: 8  SETTLED unavailable (no source)
+POLICY FROZEN unavailable (no source)  cost unavailable
+Human questions: source UNVERIFIED, 0 rows interpreted, not "no questions"
+26 historical hidden (h)
+worker-reported, not questions
+   dispatchId             run          workerState  dispatchStatus terminalState  outcome      nextAction.kind  liveness               evidence age flags
+── ────────────────────── ──────────── ──────────── ────────────── ────────────── ──────────── ──────────────── ────────────────────── ──────────── ────────────
+   w-001                  run-b        idle         active         active         none         none             alive (terminal)       10s
+   w-002                  run-c        blocked      blocked        active         none         review           alive (terminal)       13s
+   w-005                  run-f        running      active         active         none         approve          alive (terminal)       22s
+   w-006                  run-g        running      active         active         none         wait             alive (terminal)       25s
+   w-007                  run-h        idle         active         active         none         none             alive (terminal)       28s
+   w-008                  run-a        blocked      blocked        active         none         review           alive (terminal)       31s
+   w-011                  run-d        running      active         active         none         none             alive (terminal)       40s
+   w-012                  run-e        running      active         active         none         wait             alive (terminal)       43s
+   w-013                  run-f        idle         active         active         none         none             alive (terminal)       46s
+   w-014                  run-g        blocked      blocked        active         none         review           alive (terminal)       49s
+   w-017                  run-b        running      active         active         none         none             alive (terminal)       58s
+   w-018                  run-c        running      active         active         none         wait             alive (terminal)       1m
+   w-019                  run-d        idle         active         active         none         none             alive (terminal)       1m
+   w-020                  run-e        blocked      blocked        active         none         review           alive (terminal)       1m
+   w-023                  run-h        running      active         active         none         none             alive (terminal)       1m
+   w-024                  run-a        running      active         active         none         wait             alive (terminal)       1m
+   w-025                  run-b        idle         active         active         none         none             alive (terminal)       1m
+   w-026                  run-c        blocked      blocked        active         none         review           alive (terminal)       1m
+   w-029                  run-f        running      active         active         none         none             alive (terminal)       1m
+   w-030                  run-g        running      active         active         none         wait             alive (terminal)       1m
+   w-031                  run-h        idle         active         active         none         none             alive (terminal)       1m
+   w-032                  run-a        blocked      blocked        active         none         review           alive (terminal)       1m
+   w-035                  run-d        running      active         active         none         none             alive (terminal)       1m
+   w-036                  run-e        running      active         active         none         wait             alive (terminal)       1m
+   w-037                  run-f        idle         active         active         none         none             alive (terminal)       1m
+   w-038                  run-g        blocked      blocked        active         none         review           alive (terminal)       2m
+   w-041                  run-b        running      active         active         none         none             alive (terminal)       2m
+   w-042                  run-c        running      active         active         none         wait             alive (terminal)       2m
+   w-043                  run-d        idle         active         active         none         none             alive (terminal)       2m
+   w-044                  run-e        blocked      blocked        active         none         review           alive (terminal)       2m
+   w-047                  run-h        running      active         active         none         none             alive (terminal)       2m
+   w-048                  run-a        running      active         active         none         wait             alive (terminal)       2m
+   w-049                  run-b        idle         active         active         none         none             alive (terminal)       2m
+   w-050                  run-c        blocked      blocked        active         none         review           alive (terminal)       2m
+   w-053                  run-f        running      active         active         none         none             alive (terminal)       2m
+   w-054                  run-g        running      active         active         none         wait             alive (terminal)       2m
+   w-055                  run-h        idle         active         active         none         none             alive (terminal)       2m
+37/54 shown  +17 more
+Up/Down j/k move  Enter detail  Esc back  / filter  h historical  m mark  e export  q quit  shown 37/54 | collected 80 / reported 80

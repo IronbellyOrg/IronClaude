@@ -1,0 +1,4 @@
+6d7416a6b3f7eee6ad6fdf548fe2fd710af2da58
+A2 r2-2 F2.2 note src/superclaude/cli/observe/render.py:327 ac=T15.AC2 amiss:n,false:n,harm:n,constraint:n a frozen row with the longest possible status triple at 80 columns is cut by the status column cap (7 + 34 cells); the frozen fixture row w-003 renders whole at 80, and frozen rows exist in fixture mode only
+A2 r2-2 F2.3 note tests/observe/test_render.py:1538 ac=T15.AC1 amiss:n,false:n,harm:n,constraint:n the 80 column short form has no liveness column (as before this task), so no non-alive value is spelled out there
+A2 r2-2 F2.4 note .dev/tasks/to-do/TASK-WF-redesignSpec-20261118-043319/TASK-WF-redesignSpec-20261118-043319.md:190 ac=scope amiss:n,false:n,harm:n,constraint:n the plan asks to drop the rule row (Task 15, rubric row RB-28) while rubric row RB-12 asks for a heading and rule at 116 and 80; the heading rule was dropped, the footer rule kept (RB-20); Task 16 gate must record this rubric conflict

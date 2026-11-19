@@ -1,0 +1,34 @@
+[1;96mORCA OBSERVER  mode=live  scope=all  as of 12:00:00[0m
+[37mworker-list OK 0s  coordinator questions OK 0s (one Run run_14cfcbd8edf2)[0m
+[97mcollected 3 / reported 3[0m  [97mscope=all[0m  [97msource counts: [0m[37munknown[0m  [97mruns seen: 1[0m  [97mSETTLED [0m[37munavailable (no source)[0m
+[97mPOLICY FROZEN [0m[37munavailable (no source)[0m  [97mcost [0m[37munavailable[0m
+[1;93mCOORDINATOR QUESTIONS[0m
+[37mone Run only: run_14cfcbd8edf2[0m
+[37mquestion read: OK 0s[0m
+[37mbounded best effort; coverage unknown; at most 100 rows per read, not 100 questions; bursts over 100 rows between[0m
+[37mreads may be lost[0m
+[97mseen, not resolved: 2 | closed by evidence: unavailable (no source)[0m
+[37mno read marker in source: answered questions stay listed[0m
+  [1;93m1h[0m  [1;97mWhich branch should the worker rebase on?[0m[37m  reason unknown[0m
+[1;93m@ 59m  Ship the change now?[0m[37m  reason unknown[0m
+[1;93mDECISION DESK[0m
+[1;93mmsg_000000000001  age 59m[0m
+[1;93mShip the change now?[0m
+[37mdispatchId:[0m[97m w-002[0m
+[37mworkerState:[0m[97m idle[0m
+[37mdispatchStatus:[0m[97m active[0m
+[37mterminalState:[0m[97m active[0m
+[37moutcome:[0m[97m none[0m
+[37mnextAction.kind:[0m[97m wait[0m
+[37mliveness:[0m[32m alive (terminal)[0m
+[37mevidence age:[0m[97m 6s[0m
+[37mresource.worktreeId:[0m[37m unknown (absent in source)[0m
+[37mworktree is evidence for this one session; other sessions in it are not inferred affected[0m
+[37mretention reset at 12:00; questions observed before this start are not retained[0m
+[1;90mworker-reported, not questions[0m
+[97m  [0m [97mwait[0m               [97mw-001[0m                                                [32malive[0m          [97m3s[0m
+[97m  [0m [97mwait[0m               [97mw-002[0m                                                [32malive[0m          [97m6s[0m
+[97m  [0m [97mnone[0m               [97mw-003[0m                                                [32malive[0m          [97m9s[0m
+[37mUp/Down j/k move workers  Enter detail  Esc back  / filter  h historical  m mark rows  e export all  q quit  n/p[0m
+[37mquestion[0m
+[37mshown 3/3 | collected 3 / reported 3[0m

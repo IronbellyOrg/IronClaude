@@ -1,0 +1,28 @@
+[1;96mORCA OBSERVER  scope=all[0m                                                                                                                               [1;93mREAD ONLY[0m
+[37mworker-list OK 0s  questions OK 0s[0m
+[97mcollected 3 / reported 3[0m  [37mno source: settled, frozen, cost[0m
+[1;93mCOORDINATOR QUESTIONS[0m[37m  one Run only: run_14cfcbd8edf2  reasons: none in source[0m
+[37mquestion read: OK 0s[0m
+[97mseen, not resolved: 2 | closed by evidence: [0m[37munavailable[0m
+  [1;93m1h[0m  [1;97mWhich branch should the worker rebase on?[0m
+[1;93m@ 59m  Approve the plan in .de>[0m
+[1;93mDECISION DESK[0m
+[1;93mage 59m[0m
+[1;93mApprove the plan in .dev/plans/observer-visual-parity/plan.md before the worker edits src/superclaude/cli/observe/render.py and[0m
+[1;93msrc/superclaude/cli/observe/terminal.py (plan hash )?[0m
+[37msession  [0m[97mw-002[0m
+[37mstate    [0m[97midle[0m
+[37malive    [0m[32myes (terminal), 6s ago[0m
+[37mnext     [0m[97mwait[0m
+[37mstatus   [0m[32mACTIVE[0m
+[37mworktree [0m[37munknown[0m
+[37mbounded best effort; coverage unknown; at most 100 rows per read, not 100 questions; bursts over 100 rows between reads may be lost[0m
+[37mno read marker in source: answered questions stay listed[0m
+[37mretention reset at 12:00; questions observed before this start are not retained[0m
+[1;90mworker-reported, not questions[0m[37m  o alive; any other state is spelled out[0m
+[37m   dispatchId                                       run          workerState  status nextAction.kind  alive          evidence age[0m
+[97m  [0m [97mw-001[0m                                            [97mrun-0[0m        [32mrunning[0m      [32mACTIVE[0m [97mwait[0m             [32mo[0m              [97m3s[0m
+[97m  [0m [97mw-002[0m                                            [97mrun-0[0m        [97midle[0m         [32mACTIVE[0m [97mwait[0m             [32mo[0m              [97m6s[0m
+[97m  [0m [97mw-003[0m                                            [97mrun-0[0m        [32mrunning[0m      [32mACTIVE[0m [97mnone[0m             [32mo[0m              [97m9s[0m
+[90m----------------------------------------------------------------------------------------------------------------------------------------------------------------[0m
+[37mj/k move  Enter detail  / filter  n/p question  h history  e export  q quit  shown 3/3[0m

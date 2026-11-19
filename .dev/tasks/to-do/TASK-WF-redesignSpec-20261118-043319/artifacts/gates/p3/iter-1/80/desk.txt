@@ -1,0 +1,33 @@
+ORCA OBSERVER  scope=all                                               READ ONLY
+worker-list OK 0s  questions OK 0s
+collected 3 / reported 3  no source: settled, frozen, cost
+ ╭─ COORDINATOR QUESTIONS ────────────────────────────────────────────────────╮
+ │ one Run only: run_14cfcbd8edf2  reasons: none in source                    │
+ │ question read: OK 0s                                                       │
+ │ seen, not resolved: 2 | closed by evidence: unavailable                    │
+ │   1h  Which branch should the worker rebase on?                            │
+ │ ▸ 59m  Ship the change now>                                                │
+ │ bounded best effort; coverage unknown; at most 100 rows per read, not 100  │
+ │ questions; bursts over 100 rows between reads may be lost                  │
+ │ no read marker in source: answered questions stay listed                   │
+ │ retention reset at 12:00; questions observed before this start are not     │
+ │ retained                                                                   │
+ ╰────────────────────────────────────────────────────────────────────────────╯
+ ┏━ DECISION DESK ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+ ┃ age 59m                                                                    ┃
+ ┃ Ship the change now?                                                       ┃
+ ┃ session  w-002                                                             ┃
+ ┃ state    idle                                                              ┃
+ ┃ alive    yes (terminal), 6s ago                                            ┃
+ ┃ next     wait                                                              ┃
+ ┃ status   ACTIVE                                                            ┃
+ ┃ worktree unknown                                                           ┃
+ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+worker-reported, not questions  ● alive; any other state is spelled out
+   kind           dispatchId                                 alive status age
+   wait           w-001                                      ●     ACTIVE 3s
+   wait           w-002                                      ●     ACTIVE 6s
+   none           w-003                                      ●     ACTIVE 9s
+────────────────────────────────────────────────────────────────────────────────
+j/k move  Enter detail  / filter  n/p question  h history  e export  q quit
+shown 3/3

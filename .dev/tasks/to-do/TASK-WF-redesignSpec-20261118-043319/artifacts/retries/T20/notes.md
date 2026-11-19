@@ -1,0 +1,3 @@
+f6effbac955b52b796278cdf09476ba869788cbb
+A2 r2-1 F2.2 note tests/observe/test_render.py:1683 ac=T20.AC2 amiss:n,false:n,harm:n,constraint:n the trigger-height test covers the no-desk case; measured with a selected question (8 questions): at 160 columns RETAIN from 38 rows and the strip from 35, at 116 from 39 and 36; below those the list stands alone, because the desk is kept whole before a pane is kept
+A2 r2-1 F2.3 note .dev/issues/409/visual-parity/rubric/rubric.md:28 ac=scope amiss:n,false:n,harm:n,constraint:n rubric row RB-04 (d) says the full count text with (no source) holds also at 80 columns; Task 20 says 80 columns stays as Phase 4 left it (short form); the plan text was followed and the conflict goes to the Phase 5 gate

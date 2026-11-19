@@ -1,0 +1,44 @@
+ORCA OBSERVER  SYNTHETIC FIXTURE base, not Orca data  scope=all        READ ONLY
+worker-list OK 0s  messages UNVERIFIED (not read)
+collected 80 / reported 80  no source: settled, frozen, cost
+source counts: active 54 / reclaimable 0 / retained 13 / released 13
+Human questions: source UNVERIFIED, 0 rows interpreted, not "no questions"
+26 historical hidden (h)
+worker-reported, not questions  ● alive; any other state is spelled out
+   kind           dispatchId                    alive status              age
+   none           w-001                         ●     ACTIVE              10s
+   review         w-002                         ●     blocked/active/none 13s
+   approve        w-005                         ●     ACTIVE              22s
+   wait           w-006                         ●     ACTIVE              25s
+   none           w-007                         ●     ACTIVE              28s
+   review         w-008                         ●     blocked/active/none 31s
+   none           w-011                         ●     ACTIVE              40s
+   wait           w-012                         ●     ACTIVE              43s
+   none           w-013                         ●     ACTIVE              46s
+   review         w-014                         ●     blocked/active/none 49s
+   none           w-017                         ●     ACTIVE              58s
+   wait           w-018                         ●     ACTIVE              1m
+   none           w-019                         ●     ACTIVE              1m
+   review         w-020                         ●     blocked/active/none 1m
+   none           w-023                         ●     ACTIVE              1m
+   wait           w-024                         ●     ACTIVE              1m
+   none           w-025                         ●     ACTIVE              1m
+   review         w-026                         ●     blocked/active/none 1m
+   none           w-029                         ●     ACTIVE              1m
+   wait           w-030                         ●     ACTIVE              1m
+   none           w-031                         ●     ACTIVE              1m
+   review         w-032                         ●     blocked/active/none 1m
+   none           w-035                         ●     ACTIVE              1m
+   wait           w-036                         ●     ACTIVE              1m
+   none           w-037                         ●     ACTIVE              1m
+   review         w-038                         ●     blocked/active/none 2m
+   none           w-041                         ●     ACTIVE              2m
+   wait           w-042                         ●     ACTIVE              2m
+   none           w-043                         ●     ACTIVE              2m
+   review         w-044                         ●     blocked/active/none 2m
+   none           w-047                         ●     ACTIVE              2m
+   wait           w-048                         ●     ACTIVE              2m
+   none           w-049                         ●     ACTIVE              2m
+   review         w-050                         ●     blocked/active/none 2m
+────────────────────────────────────────────────────────────────────────────────
+j/k move  Enter detail  / filter  h history  e export  q quit  shown 34/54

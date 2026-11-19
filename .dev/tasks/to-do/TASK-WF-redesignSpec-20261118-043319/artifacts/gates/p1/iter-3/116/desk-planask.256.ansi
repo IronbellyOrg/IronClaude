@@ -1,0 +1,36 @@
+[1;38;5;80mORCA OBSERVER  mode=live  scope=all  as of 12:00:00[0m
+[38;5;145mworker-list OK 0s  coordinator questions OK 0s (one Run run_14cfcbd8edf2)[0m
+[38;5;189mcollected 3 / reported 3[0m  [38;5;189mscope=all[0m  [38;5;189msource counts: [0m[38;5;145munknown[0m  [38;5;189mruns seen: 1[0m  [38;5;189mSETTLED [0m[38;5;145munavailable (no source)[0m
+[38;5;189mPOLICY FROZEN [0m[38;5;145munavailable (no source)[0m  [38;5;189mcost [0m[38;5;145munavailable[0m
+[1;38;5;214mCOORDINATOR QUESTIONS[0m
+[38;5;145mone Run only: run_14cfcbd8edf2[0m
+[38;5;145mquestion read: OK 0s[0m
+[38;5;145mbounded best effort; coverage unknown; at most 100 rows per read, not 100 questions; bursts over 100 rows between[0m
+[38;5;145mreads may be lost[0m
+[38;5;189mseen, not resolved: 2 | closed by evidence: [0m[38;5;145munavailable (no source)[0m
+[38;5;145mno read marker in source: answered questions stay listed[0m
+  [1;38;5;214m1h[0m  [1;38;5;189mWhich branch should the worker rebase on?[0m[38;5;145m  reason unknown[0m
+[1;38;5;214m▸ 59m  Approve the plan in .dev/plans/observer-visual-parity/plan.md before the worker edits src/...[0m[38;5;145m  reason unknown[0m
+[1;38;5;214mDECISION DESK[0m
+[1;38;5;214mmsg_000000000001  age 59m[0m
+[1;38;5;214mApprove the plan in .dev/plans/observer-visual-parity/plan.md before the worker edits[0m
+[1;38;5;214msrc/superclaude/cli/observe/render.py and src/superclaude/cli/observe/terminal.py (plan hash[0m
+[1;38;5;214m0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef)?[0m
+[38;5;145mdispatchId:[0m[38;5;189m w-002[0m
+[38;5;145mworkerState:[0m[38;5;189m idle[0m
+[38;5;145mdispatchStatus:[0m[38;5;189m active[0m
+[38;5;145mterminalState:[0m[38;5;189m active[0m
+[38;5;145moutcome:[0m[38;5;189m none[0m
+[38;5;145mnextAction.kind:[0m[38;5;189m wait[0m
+[38;5;145mliveness:[0m[38;5;115m alive (terminal)[0m
+[38;5;145mevidence age:[0m[38;5;189m 6s[0m
+[38;5;145mresource.worktreeId:[0m[38;5;145m unknown (absent in source)[0m
+[38;5;145mworktree is evidence for this one session; other sessions in it are not inferred affected[0m
+[38;5;145mretention reset at 12:00; questions observed before this start are not retained[0m
+[1;38;5;60mworker-reported, not questions[0m
+[38;5;189m  [0m [38;5;189mwait[0m               [38;5;189mw-001[0m                                                [38;5;115malive[0m          [38;5;189m3s[0m
+[38;5;189m  [0m [38;5;189mwait[0m               [38;5;189mw-002[0m                                                [38;5;115malive[0m          [38;5;189m6s[0m
+[38;5;189m  [0m [38;5;189mnone[0m               [38;5;189mw-003[0m                                                [38;5;115malive[0m          [38;5;189m9s[0m
+[38;5;145mUp/Down j/k move workers  Enter detail  Esc back  / filter  h historical  m mark rows  e export all  q quit  n/p[0m
+[38;5;145mquestion[0m
+[38;5;145mshown 3/3 | collected 3 / reported 3[0m

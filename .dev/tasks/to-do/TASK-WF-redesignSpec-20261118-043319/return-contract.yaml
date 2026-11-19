@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-redesignSpec-20261118-043319
+plan_path: ./TASK-WF-redesignSpec-20261118-043319.md
+source_path: ./source.md
+source_origin: .dev/issues/409/visual-parity/REDESIGN-SPEC.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: ./artifacts/reflect-pre/REPORT.md
+unresolved:
+  - "reflect ran as a reduced Tier 1 only (no Tier 2, no calibrator, no evidence-validator); see ./artifacts/reflect-pre/REPORT.md"
+  - "render_current.py and baseline captures are not on this branch; Task 1 rebuilds render_current.py"

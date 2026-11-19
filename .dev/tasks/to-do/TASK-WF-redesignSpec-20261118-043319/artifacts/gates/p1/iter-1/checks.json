@@ -1,0 +1,304 @@
+{
+ "RB-01": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-04": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-05": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-06": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-07": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-08": {
+  "cases": {
+   "ledger@80": {
+    "evidence": [
+     "footer keys are not among the last lines"
+    ],
+    "status": "fail"
+   }
+  },
+  "status": "fail"
+ },
+ "RB-09": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-10": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-13": {
+  "cases": {
+   "desk-planask@116": {
+    "evidence": [
+     "key group not whole: n/p question"
+    ],
+    "status": "fail"
+   },
+   "desk-planask@80": {
+    "evidence": [
+     "key group not whole: m mark rows"
+    ],
+    "status": "fail"
+   },
+   "desk@116": {
+    "evidence": [
+     "key group not whole: n/p question"
+    ],
+    "status": "fail"
+   },
+   "desk@80": {
+    "evidence": [
+     "key group not whole: m mark rows"
+    ],
+    "status": "fail"
+   },
+   "ledger@80": {
+    "evidence": [
+     "key group not whole: e export",
+     "key group not whole: q quit"
+    ],
+    "status": "fail"
+   },
+   "questions@80": {
+    "evidence": [
+     "key group not whole: m mark rows"
+    ],
+    "status": "fail"
+   }
+  },
+  "status": "fail"
+ },
+ "RB-14": {
+  "cases": {
+   "desk-planask@116": {
+    "evidence": [
+     "field values start at 8 different offsets"
+    ],
+    "status": "fail"
+   },
+   "desk-planask@160": {
+    "evidence": [
+     "field values start at 8 different offsets"
+    ],
+    "status": "fail"
+   },
+   "desk-planask@80": {
+    "evidence": [
+     "field values start at 8 different offsets"
+    ],
+    "status": "fail"
+   },
+   "desk@116": {
+    "evidence": [
+     "field values start at 8 different offsets"
+    ],
+    "status": "fail"
+   },
+   "desk@160": {
+    "evidence": [
+     "field values start at 8 different offsets"
+    ],
+    "status": "fail"
+   },
+   "desk@80": {
+    "evidence": [
+     "field values start at 8 different offsets"
+    ],
+    "status": "fail"
+   }
+  },
+  "status": "fail"
+ },
+ "RB-16": {
+  "cases": {
+   "roles": {
+    "evidence": [
+     "needs role spans (plan Phase 2 and Phase 5); checked then"
+    ],
+    "status": "na"
+   }
+  },
+  "status": "na"
+ },
+ "RB-17": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-19": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-20": {
+  "cases": {
+   "desk-planask@116": {
+    "evidence": [
+     "no rule line above the footer",
+     "n/p question split"
+    ],
+    "status": "fail"
+   },
+   "desk-planask@160": {
+    "evidence": [
+     "no rule line above the footer"
+    ],
+    "status": "fail"
+   },
+   "desk-planask@80": {
+    "evidence": [
+     "no rule line above the footer"
+    ],
+    "status": "fail"
+   },
+   "desk@116": {
+    "evidence": [
+     "no rule line above the footer",
+     "n/p question split"
+    ],
+    "status": "fail"
+   },
+   "desk@160": {
+    "evidence": [
+     "no rule line above the footer"
+    ],
+    "status": "fail"
+   },
+   "desk@80": {
+    "evidence": [
+     "no rule line above the footer"
+    ],
+    "status": "fail"
+   },
+   "ledger@116": {
+    "evidence": [
+     "no rule line above the footer"
+    ],
+    "status": "fail"
+   },
+   "ledger@160": {
+    "evidence": [
+     "no rule line above the footer"
+    ],
+    "status": "fail"
+   },
+   "ledger@80": {
+    "evidence": [
+     "no rule line above the footer"
+    ],
+    "status": "fail"
+   },
+   "questions@116": {
+    "evidence": [
+     "no rule line above the footer"
+    ],
+    "status": "fail"
+   },
+   "questions@160": {
+    "evidence": [
+     "no rule line above the footer"
+    ],
+    "status": "fail"
+   },
+   "questions@80": {
+    "evidence": [
+     "no rule line above the footer"
+    ],
+    "status": "fail"
+   }
+  },
+  "status": "fail"
+ },
+ "RB-21": {
+  "cases": {
+   "desk-planask@80": {
+    "evidence": [
+     "cut inside a token: vailable (no source)  cost un>"
+    ],
+    "status": "fail"
+   },
+   "desk@80": {
+    "evidence": [
+     "cut inside a token: vailable (no source)  cost un>"
+    ],
+    "status": "fail"
+   },
+   "ledger@80": {
+    "evidence": [
+     "cut inside a token: d 13 / released 13  runs seen>"
+    ],
+    "status": "fail"
+   },
+   "questions@80": {
+    "evidence": [
+     "cut inside a token: vailable (no source)  cost un>"
+    ],
+    "status": "fail"
+   }
+  },
+  "status": "fail"
+ },
+ "RB-22": {
+  "cases": {
+   "ledger": {
+    "evidence": [
+     "116 cols: blank run 48 > N=18",
+     "80 cols: blank run 34 > N=18"
+    ],
+    "status": "fail"
+   }
+  },
+  "status": "fail"
+ },
+ "RB-27": {
+  "cases": {
+   "desk-planask@116": {
+    "evidence": [
+     "hex run shown: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef)?"
+    ],
+    "status": "fail"
+   },
+   "desk-planask@160": {
+    "evidence": [
+     "hex run shown: src/superclaude/cli/observe/terminal.py (plan hash 0123456789abcdef012"
+    ],
+    "status": "fail"
+   },
+   "desk-planask@80": {
+    "evidence": [
+     "hex run shown: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef)?"
+    ],
+    "status": "fail"
+   }
+  },
+  "status": "fail"
+ }
+}

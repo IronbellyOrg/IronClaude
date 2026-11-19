@@ -1,0 +1,39 @@
+[1;38;5;80mORCA OBSERVER  scope=all[0m                                                                                   [1;38;5;214mREAD ONLY[0m
+[38;5;145mworker-list OK 0s  questions OK 0s[0m
+[38;5;189mcollected 3 / reported 3[0m  [38;5;145mno source: settled, frozen, cost[0m
+ [38;5;80m╭─ [0m[1;38;5;80mSEEN, NOT RESOLVED[0m[38;5;80m ───────────────────────────────────────────────────────────────────────────────────────────╮[0m
+ [38;5;80m│ [0m[1;38;5;214m██ [0m                                                                                                           [38;5;80m │[0m
+ [38;5;80m│ [0m[1;38;5;214m █ [0m  [38;5;189mseen, not resolved: 2 | closed by evidence: [0m[38;5;145munavailable (no source)[0m                                      [38;5;80m │[0m
+ [38;5;80m│ [0m[1;38;5;214m███[0m                                                                                                           [38;5;80m │[0m
+ [38;5;80m╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯[0m
+ [38;5;60m╭─ [0m[1;38;5;60mCOORDINATOR QUESTIONS[0m[38;5;60m ────────────────────────────────────────────────────────────────────────────────────────╮[0m
+ [38;5;60m│ [0m[38;5;145mbounded best effort; coverage unknown; at most 100 rows per read, not 100 questions; bursts over 100 rows[0m     [38;5;60m │[0m
+ [38;5;60m│ [0m[38;5;145mbetween reads may be lost[0m                                                                                     [38;5;60m │[0m
+ [38;5;60m│ [0m  [1;38;5;214m1h[0m  [1;38;5;189mWhich branch should the worker rebase on?[0m                                                               [38;5;60m │[0m
+ [38;5;60m│ [0m[1;38;5;214m▸ 59m  Approve the plan in .de>[0m                                                                               [38;5;60m │[0m
+ [38;5;60m│ [0m[38;5;145mquestion read: OK 0s[0m                                                                                          [38;5;60m │[0m
+ [38;5;60m│ [0m[38;5;145mreasons: none in source[0m                                                                                       [38;5;60m │[0m
+ [38;5;60m╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯[0m
+ [38;5;60m╭─ [0m[1;38;5;60mRETAIN CONTEXT[0m[38;5;60m ───────────────────────────────────────────────────────────────────────────────────────────────╮[0m
+ [38;5;60m│ [0m[38;5;145mone Run only: run_14cfcbd8edf2[0m                                                                                [38;5;60m │[0m
+ [38;5;60m│ [0m[38;5;145mno read marker in source: answered questions stay listed[0m                                                      [38;5;60m │[0m
+ [38;5;60m│ [0m[38;5;145mretention reset at 12:00; questions observed before this start are not retained[0m                               [38;5;60m │[0m
+ [38;5;60m╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯[0m
+ [38;5;214m┏━ [0m[1;38;5;214mDECISION DESK[0m[38;5;214m ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓[0m
+ [38;5;214m┃ [0m[1;38;5;214mage 59m[0m                                                                                                       [38;5;214m ┃[0m
+ [38;5;214m┃ [0m[1;38;5;214mApprove the plan in .dev/plans/observer-visual-parity/plan.md before the worker edits[0m                         [38;5;214m ┃[0m
+ [38;5;214m┃ [0m[1;38;5;214msrc/superclaude/cli/observe/render.py and src/superclaude/cli/observe/terminal.py (plan hash )?[0m               [38;5;214m ┃[0m
+ [38;5;214m┃ [0m[38;5;145msession  [0m[38;5;189mw-002[0m                                                                                                [38;5;214m ┃[0m
+ [38;5;214m┃ [0m[38;5;145mstate    [0m[38;5;189midle[0m                                                                                                 [38;5;214m ┃[0m
+ [38;5;214m┃ [0m[38;5;145malive    [0m[38;5;115myes (terminal), 6s ago[0m                                                                               [38;5;214m ┃[0m
+ [38;5;214m┃ [0m[38;5;145mnext     [0m[38;5;189mwait[0m                                                                                                 [38;5;214m ┃[0m
+ [38;5;214m┃ [0m[38;5;145mstatus   [0m[38;5;115mACTIVE[0m                                                                                               [38;5;214m ┃[0m
+ [38;5;214m┃ [0m[38;5;145mworktree [0m[38;5;145munknown[0m                                                                                              [38;5;214m ┃[0m
+ [38;5;214m┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛[0m
+[1;38;5;60mworker-reported, not questions[0m[38;5;145m  ● alive; any other state is spelled out[0m
+[38;5;145m   kind               dispatchId                                       alive          status age[0m
+[38;5;189m  [0m [38;5;189mwait[0m               [38;5;189mw-001[0m                                            [38;5;115m●[0m              [38;5;115mACTIVE[0m [38;5;189m3s[0m
+[38;5;189m  [0m [38;5;189mwait[0m               [38;5;189mw-002[0m                                            [38;5;115m●[0m              [38;5;115mACTIVE[0m [38;5;189m6s[0m
+[38;5;189m  [0m [38;5;189mnone[0m               [38;5;189mw-003[0m                                            [38;5;115m●[0m              [38;5;115mACTIVE[0m [38;5;189m9s[0m
+[38;5;60m────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;145mj/k move  Enter detail  / filter  n/p question  h history  e export  q quit  shown 3/3[0m
