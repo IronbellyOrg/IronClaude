@@ -78,3 +78,9 @@ Run 2 is on the final tree after #659 and is recorded below. Changelog completen
 None yet. The bundle agent's worktrees are its own.
 
 Finished worktrees of the 6.1.0 work (for Clay to remove later): `v61-merge-master` (closed #663), and the bundle agent's own worktrees (it ran in its own session). `v61-post-release` is running.
+
+## 6. Gate runs on later trees (for the record)
+
+- **Run 2** (tree `b742cbb1b`, `integration` after #659): same results as run 1 except `make test`: 8 failed, 22586 passed, 69 skipped; the 8 are the `tests/unit/test_ccsession_tag.py` PTY tests that fail only on this host because a LiteLLM shim already runs on `127.0.0.1:4555` (they pass alone, 8 passed in 10.8 s).
+- **Run 3** (tree `b31c15229`, `integration` after #660): G3, G4, lint, `verify-sync`, architecture lint, format check and build exit 0; `make test` 8 failed, 22586 passed, 69 skipped (the same 8 host-only tests); G7: the two installs printed `Prerequisites: Claude CLI is unavailable` and exited 1 (Claude Code's own updater replaced the `claude` binary while the run was starting; the same effect was found in the 6.0.0 post-release run; runs 1 and 2 on the same code exited 0), everything else as before: the 9 skills and `tdd.md` removed, nothing else removed, `doctor` healthy, `update` the same, second run a no-op.
+- **The tag** is on `64dfc0e86` (tree `32d105d3a` = run 3's tree plus #661, 12 files). The suite on that exact commit is the `Tests` workflow, run 44439594035: success (G2). Evidence of runs 1 to 3 is under `.dev/issues/v61-release-gate/` (not committed).
