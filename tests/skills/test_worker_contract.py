@@ -3071,6 +3071,14 @@ WRITE_VERB_CLASSIFICATION = {
         "never-worker",
         "/sc:issue is on the never-as-worker list; its type, field and comment writes run only in the coordinator or person session",
     ),
+    (
+        "src/superclaude/skills/agent-work-report/SKILL.md",
+        "git add+git commit",
+        '`python3 run.py close <run>`, then from the orchestrator repo root: `git add .dev/coordinator && git commit -m "chore(coordinator): report <run id>"`. Never push.',
+    ): (
+        "no-command",
+        "the report skill runs only in the coordinator session, never in a worker; Step 14 commits its own state folder in the orchestrator repo and never pushes",
+    ),
 }
 
 
