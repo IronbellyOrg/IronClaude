@@ -1,0 +1,16 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/orchestrator.md (the spec of issue 655) 4.11 E3: the TIMELINE_JQ projection of GET repos/R/issues/N/timeline: UNVERIFIED",
+  "payload": [
+    {
+      "event": "cross-referenced",
+      "created_at": "2026-11-19T10:40:00Z",
+      "pull_request": true
+    },
+    {
+      "event": "connected",
+      "created_at": "2026-11-19T10:41:00Z",
+      "pull_request": false
+    }
+  ]
+}

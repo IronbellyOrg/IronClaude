@@ -1,0 +1,14 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/orchestrator.md (the spec of issue 655) 4.11 row 5: gh issue view N --repo R --json labels: UNVERIFIED",
+  "payload": {
+    "labels": [
+      {
+        "id": "LA_1",
+        "name": "hold:plan",
+        "description": "",
+        "color": "FBCA04"
+      }
+    ]
+  }
+}
