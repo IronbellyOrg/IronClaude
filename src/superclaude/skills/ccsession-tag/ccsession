@@ -42,13 +42,17 @@
 #                             (shown, never pruned). Mark as agent those whose every
 #                             name ends in the --auto-name stamp (-MMDD-HHMMSS-xxxx);
 #                             a dry run that prints the counts unless --apply
-#   ccsession --prune [--apply] [--days N]
+#   ccsession --prune [--apply [--yes]] [--days N]
 #                             Delete agent-saved sessions not changed in more than N
 #                             days (CCSESSION_AGENT_KEEP_DAYS, else 30; never fewer
 #                             than 30) with their names, and names whose conversation
 #                             is gone. Lists what it would delete and deletes nothing
-#                             unless --apply. Never touches an unmarked or human
-#                             session or the running one (CLAUDE_SESSION_ID)
+#                             unless --apply. --apply prints the list, then asks you
+#                             to type the number of things it will delete and deletes
+#                             nothing on any other answer; with no terminal on
+#                             standard input it refuses, unless --yes is given (it
+#                             then deletes without asking). Never touches an unmarked
+#                             or human session or the running one (CLAUDE_SESSION_ID)
 #   ccsession --rm <topic>    Delete a label (does NOT delete the underlying JSONL)
 #   ccsession --key           Print the name-list key for this folder
 #   ccsession --migrate-names Copy names saved per folder (older versions) into

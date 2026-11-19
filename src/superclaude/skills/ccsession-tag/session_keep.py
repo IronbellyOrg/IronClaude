@@ -949,7 +949,19 @@ def human_size(count: int) -> str:
     return "%d B" % count
 
 
-def print_prune(result: Pruned, apply: bool) -> None:
+def stale_count(result: Pruned) -> int:
+    return len(result.stale_names) + len(result.stale_markers) + len(result.stale_tabs)
+
+
+def delete_count(result: Pruned) -> int:
+    """How many things --apply would delete: agent sessions plus stale entries. The
+    person types this number to confirm."""
+    return len(result.candidates) + stale_count(result)
+
+
+def print_prune(result: Pruned, apply: bool, asking: bool = False) -> None:
+    """Print the plan (or, after --apply, what was done). With `asking` the plan is
+    printed as the preview of a deletion that waits for the person's confirmation."""
     days = result.days
     if result.claude_deletes_first:
         print(
@@ -1017,8 +1029,53 @@ def print_prune(result: Pruned, apply: bool) -> None:
     limit_line = result.limit_line()
     if limit_line:
         print(limit_line)
-    if not apply:
+    if not apply and not asking:
         print("Dry run: nothing was deleted. Run with --apply to delete.")
+
+
+CONFIRM_FLAG = "--yes"  # the one way to delete without typing the confirmation
+
+
+def confirm_delete(result: Pruned, assume_yes: bool) -> tuple[int, str]:
+    """The second confirmation before --apply deletes anything.
+
+    Returns (0, "") when the deletion may go ahead, else (exit status, the line that
+    says why it may not): 2 when no terminal can answer, 1 when the answer was no.
+    The plan was printed just before; the person types the number of things it will
+    delete. Without a terminal on standard input nothing can be typed, so it refuses
+    unless --yes was given on the command line (no environment variable or setting
+    stands in for it).
+    """
+    total = delete_count(result)
+    if total == 0 or assume_yes:
+        return 0, ""
+    if not sys.stdin.isatty():
+        return 2, (
+            "ccsession: --apply asks for a typed confirmation and standard input is "
+            "not a terminal, so nothing was deleted. Run it in a terminal, or add "
+            "%s to delete without being asked." % CONFIRM_FLAG
+        )
+    print(
+        "This will delete %d thing%s: %d agent session%s (%s) and %d stale "
+        "entr%s."
+        % (
+            total,
+            "" if total == 1 else "s",
+            len(result.candidates),
+            "" if len(result.candidates) == 1 else "s",
+            human_size(result.total_size),
+            stale_count(result),
+            "y" if stale_count(result) == 1 else "ies",
+        )
+    )
+    try:
+        answer = input("Type %d to delete them, anything else cancels: " % total)
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return 1, "Cancelled: nothing was deleted."
+    if answer.strip() != str(total):
+        return 1, "Cancelled: nothing was deleted."
+    return 0, ""
 
 
 def keep_days(environ: Mapping[str, str], option: str | None) -> int | None:
@@ -1052,7 +1109,7 @@ def hint(projects_dir: Path, home: Path, environ: Mapping[str, str]) -> str:
 
 USAGE = (
     "usage: session_keep.py classify [--apply] <projects-dir>\n"
-    "       session_keep.py prune [--apply] [--days N] <projects-dir> <home> <orca-dir>\n"
+    "       session_keep.py prune [--apply [--yes]] [--days N] <projects-dir> <home> <orca-dir>\n"
     "       session_keep.py hint <projects-dir> <home>"
 )
 
@@ -1064,6 +1121,7 @@ def main(argv: list[str]) -> int:
         return 2
     command, rest = args[0], args[1:]
     apply = False
+    assume_yes = False
     option = None
     positional = []
     i = 0
@@ -1071,6 +1129,8 @@ def main(argv: list[str]) -> int:
         item = rest[i]
         if item == "--apply" and command != "hint":
             apply = True
+        elif item == CONFIRM_FLAG and command == "prune":
+            assume_yes = True
         elif command == "prune" and item == "--days" and i + 1 < len(rest):
             option = rest[i + 1]
             i += 1
@@ -1109,19 +1169,45 @@ def main(argv: list[str]) -> int:
         return 2
     projects_dir, home, orca_dir = (Path(p) for p in positional)
     try:
-        result = prune(
+        result = plan(
             projects_dir,
             home,
             days,
-            apply,
-            os.environ.get("CLAUDE_SESSION_ID", ""),
             orca_dir,
+            os.environ.get("CLAUDE_SESSION_ID", ""),
         )
     except ValueError as exc:
         print("ccsession: %s; nothing was deleted." % exc, file=sys.stderr)
         return 2
-    print_prune(result, apply)
+    if not apply:
+        print_prune(result, False)
+        return 0
+    # --apply: show exactly what will go, ask for the typed number, then delete
+    # that same plan (it is never made again between the question and the delete).
+    print_prune(result, False, asking=True)
+    status, refusal = confirm_delete(result, assume_yes)
+    if status:
+        print(refusal, file=sys.stderr if status == 2 else sys.stdout)
+        return status
+    apply_plan(result, projects_dir, home, orca_dir)
+    print_done(result)
     return 0
+
+
+def print_done(result: Pruned) -> None:
+    """What --apply did, after the plan was shown and confirmed."""
+    print(
+        "Deleted %d agent session%s (%s) and %d stale entr%s."
+        % (
+            result.deleted,
+            "" if result.deleted == 1 else "s",
+            human_size(result.total_size),
+            result.removed_stale,
+            "y" if result.removed_stale == 1 else "ies",
+        )
+    )
+    for line in result.skipped:
+        print("Skipped %s" % line)
 
 
 if __name__ == "__main__":

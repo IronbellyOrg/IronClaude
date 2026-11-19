@@ -329,7 +329,19 @@ What that changes:
 own is a dry run: it lists each session it would delete (name, last change, age,
 size), the totals, and ends with the line `Dry run: nothing was deleted. Run with
 --apply to delete.` No setting, environment variable or hook turns deletion on,
-and ccsession never runs it by itself. `--list` and `--here` add one line when
+and ccsession never runs it by itself.
+
+**`--apply` asks a second time.** It prints the same list (names, ages, sizes) and
+the total ("This will delete 3 things: 2 agent sessions (1.2 GB) and 1 stale
+entry."), then waits for you to type the number it names (`Type 3 to delete them,
+anything else cancels:`). Any other answer, an empty one or end of input deletes
+nothing (exit 1). This guards the case where a session you named yourself with an
+automatic-looking name was marked `agent` by `ccsession --classify --apply`. With
+no terminal on standard input (a script, a pipe, a hook) `--apply` refuses and
+deletes nothing (exit 2), because nobody can answer: add `--yes`
+(`ccsession --prune --apply --yes`) to delete without being asked. Only that flag
+does it: no environment variable or setting can. When there is nothing to delete
+nothing is asked. `--list` and `--here` add one line when
 agent sessions are past the days: `N agent sessions are older than D days:
 ccsession --prune shows what would be removed`.
 
