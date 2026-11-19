@@ -22,7 +22,10 @@ from pathlib import Path
 
 import pytest
 
-from tests.skills.test_issue_worker_agents import gh_lines_missing_repo
+from tests.skills.test_issue_worker_agents import (
+    PLAN_SECTIONS_RULE,
+    gh_lines_missing_repo,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 SKILL_DIR = ROOT / "src/superclaude/skills/sc-issue-protocol"
@@ -36,7 +39,11 @@ AGENTS = [ROOT / f"src/superclaude/agents/issue-worker-t{n}.md" for n in (3, 2, 
 SPAWN_RULE = "never pass the `model` parameter"
 ALLOWED_TOOLS = "Read, Glob, Grep, Write, Edit, Bash, Task, Skill, AskUserQuestion"
 
-BUG_SIMPLE = [
+# The three required plan sections (issue 651): the last three headings of every
+# issue-body template, in this order, before the closing marker line.
+PLAN_SECTIONS = ["Priority", "Fix approach", "Test plan"]
+
+_BUG_SIMPLE_BODY = [
     "Bug Summary",
     "Environment (OS, version)",
     "Current Behavior",
@@ -46,19 +53,23 @@ BUG_SIMPLE = [
     "Error Messages",
     "Codebase Context (from `/sc:analyze`)",
     "Related Issues",
-    "Testing Notes",
 ]
-BUG_COMPLEX = BUG_SIMPLE + [
-    "Frequency",
-    "User Impact",
-    "Business Impact",
-    "Cascading Effects",
-    "Logs and Stack Trace",
-    "Attempted Solutions",
-    "Proposed Solution",
-    "For Development Team (Root Cause Analysis, Fix Approach, Verification Plan)",
-]
-FEATURE_SIMPLE = [
+BUG_SIMPLE = _BUG_SIMPLE_BODY + PLAN_SECTIONS
+BUG_COMPLEX = (
+    _BUG_SIMPLE_BODY
+    + [
+        "Frequency",
+        "User Impact",
+        "Business Impact",
+        "Cascading Effects",
+        "Logs and Stack Trace",
+        "Attempted Solutions",
+        "Proposed Solution",
+        "For Development Team (Root Cause Analysis)",
+    ]
+    + PLAN_SECTIONS
+)
+_FEATURE_SIMPLE_BODY = [
     "Feature Summary",
     "Problem Statement",
     "User Story",
@@ -68,17 +79,21 @@ FEATURE_SIMPLE = [
     "Components Affected (from `/sc:analyze`)",
     "Related Issues/PRs",
 ]
-FEATURE_COMPLEX = FEATURE_SIMPLE + [
-    "Success Metrics",
-    "Architecture Impact",
-    "Dependencies",
-    "Testing Strategy",
-    "Documentation Needs",
-    "Alternatives Considered",
-    "Impact Analysis (Blast Radius, Integration Impact)",
-    "Risks & Mitigation",
-    "Effort Estimate (hours) and Complexity",
-]
+FEATURE_SIMPLE = _FEATURE_SIMPLE_BODY + PLAN_SECTIONS
+FEATURE_COMPLEX = (
+    _FEATURE_SIMPLE_BODY
+    + [
+        "Success Metrics",
+        "Architecture Impact",
+        "Dependencies",
+        "Documentation Needs",
+        "Alternatives Considered",
+        "Impact Analysis (Blast Radius, Integration Impact)",
+        "Risks & Mitigation",
+        "Effort Estimate (hours) and Complexity",
+    ]
+    + PLAN_SECTIONS
+)
 ISSUE_TEMPLATES = {
     "issue-bug-simple": BUG_SIMPLE,
     "issue-bug-complex": BUG_COMPLEX,
@@ -620,6 +635,84 @@ def test_marker_check_fails_when_marker_is_removed(tmp_path):
 @pytest.mark.parametrize(("stem", "expected"), sorted(ISSUE_TEMPLATES.items()))
 def test_issue_template_headings_in_order(stem, expected):
     assert headings(_text(TEMPLATES / f"{stem}.md")) == expected
+
+
+def plan_section_problems(text: str) -> list[str]:
+    """Return one message per problem with the three required plan sections.
+
+    Each of ``## Priority``, ``## Fix approach`` and ``## Test plan`` must appear
+    exactly once with a non-empty body that does not say "Not known yet", and the
+    three must be the last three headings, in that order (issue 651).
+    """
+    lines = text.splitlines()
+    problems = []
+    for name in PLAN_SECTIONS:
+        heading = f"## {name}"
+        count = lines.count(heading)
+        if count != 1:
+            problems.append(f"{heading} appears {count} times, expected 1")
+            continue
+        start = lines.index(heading) + 1
+        end = next(
+            (
+                i
+                for i in range(start, len(lines))
+                if lines[i].startswith(("## ", "<!-- sc:issue:create"))
+            ),
+            len(lines),
+        )
+        body = "\n".join(lines[start:end]).strip()
+        if not body:
+            problems.append(f"{heading} has an empty body")
+        elif "Not known yet" in body:
+            problems.append(f'{heading} says "Not known yet"')
+    if headings(text)[-len(PLAN_SECTIONS) :] != PLAN_SECTIONS:
+        problems.append("the plan sections are not the last three headings, in order")
+    return problems
+
+
+def _mutated_template(stem: str, tmp_path: Path, lines: list[str]) -> str:
+    copy = tmp_path / f"{stem}.md"
+    copy.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return copy.read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize("stem", sorted(ISSUE_TEMPLATES))
+def test_issue_template_has_required_plan_sections(stem):
+    assert plan_section_problems(_text(TEMPLATES / f"{stem}.md")) == []
+
+
+@pytest.mark.parametrize("stem", sorted(ISSUE_TEMPLATES))
+def test_plan_section_check_fails_when_a_heading_is_removed(stem, tmp_path):
+    lines = _text(TEMPLATES / f"{stem}.md").splitlines()
+    kept = [line for line in lines if line != "## Fix approach"]
+    assert len(kept) == len(lines) - 1
+    problems = plan_section_problems(_mutated_template(stem, tmp_path, kept))
+    assert "## Fix approach appears 0 times, expected 1" in problems
+
+
+@pytest.mark.parametrize("stem", sorted(ISSUE_TEMPLATES))
+def test_plan_section_check_fails_when_a_body_is_emptied(stem, tmp_path):
+    lines = _text(TEMPLATES / f"{stem}.md").splitlines()
+    lines[lines.index("## Priority") + 1 : lines.index("## Fix approach")] = [""]
+    problems = plan_section_problems(_mutated_template(stem, tmp_path, lines))
+    assert problems == ["## Priority has an empty body"]
+
+
+@pytest.mark.parametrize("stem", sorted(ISSUE_TEMPLATES))
+def test_plan_section_check_fails_when_a_body_says_not_known_yet(stem, tmp_path):
+    lines = _text(TEMPLATES / f"{stem}.md").splitlines()
+    lines.insert(lines.index("## Test plan") + 1, "Not known yet")
+    problems = plan_section_problems(_mutated_template(stem, tmp_path, lines))
+    assert problems == ['## Test plan says "Not known yet"']
+
+
+def test_create_ref_defines_priority_rule_set_and_required_sections():
+    text = _text(REFS / "create.md")
+    assert PLAN_SECTIONS_RULE in text
+    rows = re.findall(r"(?m)^\| (Urgent|High|Medium|Low) \| (.+) \|$", text)
+    assert [level for level, _ in rows] == ["Urgent", "High", "Medium", "Low"]
+    assert all(trigger.strip() for _, trigger in rows)
 
 
 @pytest.mark.parametrize("stem", sorted(ISSUE_TEMPLATES))

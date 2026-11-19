@@ -1,4 +1,4 @@
-<!-- /sc:issue bug template (complex). Copy to <D>/issue-body.md and fill every placeholder in place. Keep every heading. Write "Not known yet" under a heading when the description and the codebase pass give nothing; never invent a fact. -->
+<!-- /sc:issue bug template (complex). Copy to <D>/issue-body.md and fill every placeholder in place. Keep every heading. Write "Not known yet" under a heading when the description and the codebase pass give nothing; never invent a fact. The exception is ## Priority, ## Fix approach and ## Test plan: fill them at every depth from the codebase pass, never write "Not known yet" there, and state any assumption in the section (rules in refs/create.md). -->
 
 ## Bug Summary
 
@@ -40,10 +40,6 @@
 
 <Related or possibly duplicate issues as #number links, or "Not known yet">
 
-## Testing Notes
-
-<How to confirm the fix, or "Not known yet">
-
 ## Frequency
 
 <Always, intermittent (how often), or once. Write "Not known yet" when nothing is known.>
@@ -74,10 +70,29 @@
 
 <The suggested fix, or "Not known yet">
 
-## For Development Team (Root Cause Analysis, Fix Approach, Verification Plan)
+## For Development Team (Root Cause Analysis)
 
 - Root Cause Analysis: <the mechanism that causes the bug, with path:line evidence, or "Not known yet">
-- Fix Approach: <where and how to fix it, or "Not known yet">
-- Verification Plan: <tests or checks that prove the fix, or "Not known yet">
+
+## Priority
+
+<Exactly one of Urgent, High, Medium or Low, then a colon and a one-line reason that names the trigger of the rule it follows in the Priority rule set of the skill (refs/create.md). Never blank.>
+
+## Fix approach
+
+Repo: <owner/repo>. Base branch: <branch>.
+
+Commands, in order: <the SC commands or skills to run, for example /sc:workflow, then /sc:implement, then /sc:pr-submit --monitor 3>.
+
+Steps, in order:
+
+- Step 1: <what to do, and the files or components it touches (from /sc:analyze)>
+- Step 2: <the next step, with the files or components it touches>
+
+## Test plan
+
+- Tests to add or change: <test files and test names, or the manual check when no automated test fits>
+- Regression gate: <the full test suite, lint and sync checks that must pass>
+- How a reviewer verifies: <the commands to run and what a pass looks like>
 
 <!-- sc:issue:create template=issue-bug-complex -->
