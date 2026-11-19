@@ -482,7 +482,11 @@ class Scratch:
             "rules": [],
         }
         self.save_state()
-        self._make_repositories()
+
+    def ensure_repos(self) -> None:
+        """Build the bare origin, the seed clone and the work clone on first use."""
+        if not self.work.exists():
+            self._make_repositories()
 
     # -- plumbing ---------------------------------------------------------
 
@@ -557,7 +561,7 @@ class Scratch:
     ) -> Result:
         res = subprocess.run(
             [str(BASH), str(script), *args],
-            cwd=cwd or self.work,
+            cwd=cwd or (self.work if self.work.exists() else self.root),
             env=env if env is not None else self.env(),
             input=stdin,
             text=True,
@@ -604,6 +608,7 @@ class Scratch:
         self, number: int, commits: list[dict[str, str | None | tuple[str, str]]]
     ) -> str:
         """Create ``pr-<n>`` from the current base tip and keep ``refs/pull/<n>/head``."""
+        self.ensure_repos()
         branch = f"pr-{number}"
         self.git(self.seed, "checkout", "-q", "-b", branch, "main")
         head = ""
@@ -726,6 +731,7 @@ class Scratch:
         self._write_exec(self.bin_dir / "superclaude", FAKE_SUPERCLAUDE, False)
 
     def status(self) -> str:
+        self.ensure_repos()
         return self.git(self.work, "status", "--porcelain")
 
 
@@ -1524,3 +1530,354 @@ def test_issue_match_differs_wins_over_a_done_verdict(scratch: Scratch) -> None:
     res = run_issue(scratch, "--issue", "12", "--match", "differs")
     _expect_line(res, "ISSUE", 1, why="merge_differs", n="12")
     assert scratch.gh_calls() == []
+
+
+# ---------------------------------------------------------------------------
+# The done-check verdict (test plan rows 15 to 23)
+# ---------------------------------------------------------------------------
+
+UNCLEAR_TEXT = verdict_text(
+    "unclear_escalate",
+    criteria=["- [done_when] The widget works | unknown | none"],
+    unsettled="The behaviour cannot be checked from files.",
+    question="Does the widget work in the field?",
+)
+NOT_DONE_TEXT = verdict_text("not_done", criteria=PARTLY_CRITERIA)
+
+
+def _no_write_and_refused(res: Result, scratch: Scratch) -> None:
+    assert res.code == 1, (res.stdout, res.stderr)
+    assert fields(res.line)["why"] == "no_verdict", res.line
+    assert writes(scratch) == []
+
+
+def test_verdict_shape_accepts_each_closed_word(scratch: Scratch) -> None:
+    make_world(scratch)
+    done = issue_with_verdict(scratch, verdict_text())
+    _expect_line(done, "ISSUE", 0, how="closed_now")
+    make_world(scratch)
+    not_done = issue_with_verdict(scratch, NOT_DONE_TEXT)
+    _expect_line(not_done, "ISSUE", 0, how="left_open", note="posted", remaining="1")
+    make_world(scratch)
+    unclear = issue_with_verdict(scratch, UNCLEAR_TEXT)
+    _expect_line(unclear, "ISSUE", 1, why="unclear", note="none")
+    assert "question: " not in unclear.stdout
+    assert "Does the widget work in the field?" in unclear.stderr
+
+
+def _drop(prefix: str):
+    return lambda text: (
+        "\n".join(ln for ln in text.splitlines() if not ln.startswith(prefix)) + "\n"
+    )
+
+
+MALFORMED = {
+    "no_verdict_key": lambda t: t.split("\n", 1)[1],
+    "a_fourth_word": lambda t: t.replace("verdict: done", "verdict: maybe"),
+    "missing_reason": _drop("reason:"),
+    "reason_of_41_words": lambda t: t.replace(
+        "The change delivers the whole list.", " ".join(["word"] * 41)
+    ),
+    "reason_on_two_lines": lambda t: t + "and a second line\n",
+    "empty_reason": lambda t: t.replace(
+        "reason: The change delivers the whole list.", "reason:"
+    ),
+    "placeholder_reason": lambda t: t.replace(
+        "The change delivers the whole list.", "<one plain sentence>"
+    ),
+    "missing_criteria": lambda t: t.replace(DEFAULT_CRITERIA[0] + "\n", ""),
+    "missing_checked_list": lambda t: (
+        "\n".join(
+            ln
+            for ln in t.splitlines()
+            if not ln.startswith(("checked:", "- [issue", "- [target", "- [other"))
+        )
+        + "\n"
+    ),
+    "delivered_word_outside_the_set": lambda t: t.replace(
+        " | delivered | ", " | finished | "
+    ),
+    "done_with_a_not_delivered": lambda t: t.replace(
+        " | delivered | ", " | not_delivered | "
+    ),
+    "issue_line_differs": lambda t: t.replace("acme/widgets#12", "acme/widgets#13"),
+    "pr_line_differs": lambda t: t.replace("pr: 34", "pr: 35"),
+    "kind_outside_the_set": lambda t: t.replace("[issue_body]", "[the_body]"),
+    "checked_without_what_was_found": lambda t: t.replace(
+        " | The issue lists one done criterion.", ""
+    ),
+    "source_outside_the_set": lambda t: t.replace("[done_when]", "[hunch]"),
+    "pr_not_in_the_fixed_form": lambda t: t.replace(
+        "[target_pr] PR #34", "[target_pr] 34"
+    ),
+    "cited_part_without_files": lambda t: t.replace("PR #34: a.py, b.py", "PR #34"),
+    "delivered_with_none": lambda t: t.replace("PR #34: a.py, b.py", "none"),
+    "unknown_key": lambda t: t + "mood: fine\n",
+    "repeated_key": lambda t: t + "reason: again\n",
+    "text_before_the_first_key": lambda t: "hello\n" + t,
+}
+
+
+@pytest.mark.parametrize("name", sorted(MALFORMED))
+def test_verdict_shape_refuses_a_malformed_file(scratch: Scratch, name: str) -> None:
+    make_world(scratch)
+    res = issue_with_verdict(scratch, MALFORMED[name](verdict_text()))
+    _no_write_and_refused(res, scratch)
+    assert res.stderr.strip(), "the reason of a refusal goes to stderr"
+
+
+@pytest.mark.parametrize("word", ["done", "not_done", "unclear_escalate"])
+@pytest.mark.parametrize(
+    "missing", ["issue_body", "issue_comments", "target_pr", "other_pr"]
+)
+def test_verdict_shape_refuses_a_checked_list_without_a_required_kind(
+    scratch: Scratch, word: str, missing: str
+) -> None:
+    make_world(scratch)
+    checked = [ln for ln in DEFAULT_CHECKED if f"[{missing}]" not in ln]
+    extra = {}
+    if word == "unclear_escalate":
+        extra = {"unsettled": "x", "question": "y"}
+    criteria = PARTLY_CRITERIA if word == "not_done" else None
+    res = issue_with_verdict(
+        scratch, verdict_text(word, checked=checked, criteria=criteria, **extra)
+    )
+    _no_write_and_refused(res, scratch)
+
+
+@pytest.mark.parametrize("omit", ["unsettled", "question"])
+def test_verdict_unclear_needs_unsettled_and_question(
+    scratch: Scratch, omit: str
+) -> None:
+    make_world(scratch)
+    args = {"unsettled": "x", "question": "y"}
+    args[omit] = None  # type: ignore[assignment]
+    res = issue_with_verdict(scratch, verdict_text("unclear_escalate", **args))
+    _no_write_and_refused(res, scratch)
+
+
+def test_verdict_not_done_with_every_criterion_delivered_is_refused(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch)
+    res = issue_with_verdict(scratch, verdict_text("not_done"))
+    _no_write_and_refused(res, scratch)
+
+
+def test_verdict_without_a_usable_dir_is_refused_as_no_verdict(
+    scratch: Scratch, tmp_path: Path
+) -> None:
+    make_world(scratch)
+    directory = get_evidence(scratch)
+    path = write_verdict(directory, verdict_text())
+    _no_write_and_refused(run_issue(scratch, verdict=path), scratch)
+    _no_write_and_refused(
+        run_issue(scratch, verdict=path, directory=tmp_path / "missing"), scratch
+    )
+    empty = tmp_path / "empty-dir"
+    empty.mkdir()
+    _no_write_and_refused(run_issue(scratch, verdict=path, directory=empty), scratch)
+    # An evidence file that names another pull request.
+    text = (directory / "evidence.md").read_text(encoding="utf-8")
+    (directory / "evidence.md").write_text(
+        text.replace("pr: 34", "pr: 35", 1), encoding="utf-8"
+    )
+    _no_write_and_refused(
+        run_issue(scratch, verdict=path, directory=directory), scratch
+    )
+
+
+def test_verdict_refuses_a_quoted_pull_request_title(scratch: Scratch) -> None:
+    make_world(scratch)
+    for text in (
+        verdict_text(reason=f"Delivers the {TITLE.lower()} work."),
+        verdict_text(
+            criteria=[f"- [done_when] {TITLE.upper()} | delivered | PR #34: a.py"]
+        ),
+    ):
+        _no_write_and_refused(issue_with_verdict(scratch, text), scratch)
+    # A --what sentence that holds the title is replaced by the default sentence.
+    res = issue_with_verdict(scratch, verdict_text(), what=f"It is the {TITLE}.")
+    _expect_line(res, "ISSUE", 0, how="closed_now")
+    body = comments_of(scratch)[0]["body"]
+    assert "2 files changed." in body
+    assert TITLE not in body
+
+
+def _place(name: str, where: str) -> Path | str:
+    text = f"Written with {name} in it."
+    if where == "reason":
+        return verdict_text(reason=text)
+    if where == "criterion":
+        return verdict_text(
+            criteria=[f"- [done_when] {text} | delivered | PR #34: a.py"]
+        )
+    if where == "checked":
+        return verdict_text(
+            checked=[DEFAULT_CHECKED[0].replace("The issue lists", text)]
+            + DEFAULT_CHECKED[1:]
+        )
+    return verdict_text(
+        "unclear_escalate",
+        criteria=["- [done_when] The widget works | unknown | none"],
+        unsettled=text if where == "unsettled" else "x",
+        question=text if where == "question" else "y",
+    )
+
+
+@pytest.mark.parametrize(
+    "name", [*deny_names(), "A" + EM_DASH + "B", "A" + EN_DASH + "B"]
+)
+def test_verdict_refuses_an_agent_or_model_name_or_a_dash(
+    scratch: Scratch, name: str
+) -> None:
+    make_world(scratch)
+    directory = get_evidence(scratch)
+    path = directory / "done-verdict.md"
+    for where in ("reason", "criterion", "checked", "unsettled", "question"):
+        for form in {name, name.upper(), name.capitalize()}:
+            path.write_text(_place(form, where), encoding="utf-8")
+            res = run_issue(scratch, verdict=path, directory=directory)
+            _no_write_and_refused(res, scratch)
+    # The same name or dash in the --what sentence is replaced by the default one.
+    path.write_text(verdict_text(), encoding="utf-8")
+    res = run_issue(
+        scratch, verdict=path, directory=directory, what=f"Done by {name} today."
+    )
+    _expect_line(res, "ISSUE", 0, how="closed_now")
+    body = comments_of(scratch)[0]["body"]
+    assert name not in body and "2 files changed." in body
+
+
+def test_verdict_names_inside_a_path_are_not_refused(scratch: Scratch) -> None:
+    make_world(scratch, files=("src/superclaude/skills/x.md", ".claude/settings.json"))
+    criteria = [
+        "- [done_when] The skill file changes | delivered | PR #34: src/superclaude/skills/x.md",
+        "- [acceptance] The settings file changes | delivered | PR #34: .claude/settings.json",
+    ]
+    res = issue_with_verdict(scratch, verdict_text(criteria=criteria))
+    _expect_line(res, "ISSUE", 0, how="closed_now")
+    # A name next to a path, and a hyphenated compound, is still refused.
+    make_world(scratch)
+    scratch.clear_calls()
+    bad = verdict_text(reason=f"See skills/x.md for the {deny_names()[0]}-code change.")
+    _no_write_and_refused(issue_with_verdict(scratch, bad), scratch)
+
+
+def test_done_verdict_goes_on_to_the_two_guarded_writes(scratch: Scratch) -> None:
+    make_world(scratch)
+    criteria = [
+        f"- [done_when] Criterion {i} | delivered | PR #34: a.py" for i in range(1, 13)
+    ]
+    res = issue_with_verdict(scratch, verdict_text(criteria=criteria))
+    _expect_line(res, "ISSUE", 0, how="closed_now", note="posted")
+    comment_args = writes(scratch)[0]
+    body = comment_args[comment_args.index("--body") + 1]
+    assert "Why the issue is done: The change delivers the whole list." in body
+    assert "- Criterion 10 (PR #34)" in body and "Criterion 11" not in body
+    assert "and 2 more" in body
+    assert "The pull request closes this issue with a closing keyword." in body
+    assert [tuple(c[:2]) for c in writes(scratch)] == [
+        ("issue", "comment"),
+        ("issue", "close"),
+    ]
+
+
+def test_not_done_posts_one_marked_note_and_never_closes(scratch: Scratch) -> None:
+    make_world(scratch)
+    directory = get_evidence(scratch)
+    criteria = [
+        "- [done_when] First | delivered | PR #34: a.py",
+        *[f"- [acceptance] Part {i} | not_delivered | none" for i in range(1, 12)],
+        "- [other] Half done | partly | PR #34: b.py",
+    ]
+    path = write_verdict(directory, verdict_text("not_done", criteria=criteria))
+    res = run_issue(scratch, verdict=path, directory=directory)
+    got = _expect_line(res, "ISSUE", 0, how="left_open", note="posted")
+    assert got["remaining"] == "12", "11 not_delivered plus 1 partly"
+    wr = writes(scratch)
+    assert [tuple(c[:2]) for c in wr] == [("issue", "comment")]
+    body = wr[0][wr[0].index("--body") + 1]
+    assert "Part 1 (no pull request yet)" in body
+    assert "Half done (delivered in part by PR #34)" not in body, "cut at ten lines"
+    assert "and 2 more" in body
+    assert "Why: The change delivers the whole list." in body
+    assert body.rstrip().splitlines()[-1] == NOT_DONE_MARKER.format(pr=34)
+    assert "Status: completed" not in body
+    # The verdict file stays in the private directory, outside the repository.
+    assert path.exists() and scratch.work not in path.parents
+    assert scratch.load_state()["issues"]["12"]["state"] == "OPEN"
+    # No worker, no plan and no Dispatch is started.
+    for call in scratch.gh_calls() + scratch.orca_calls_list():
+        assert "worker-start" not in call and "--plan" not in call
+    # A rerun with the marker present records no write and prints note=already_there.
+    scratch.clear_calls()
+    again = run_issue(scratch, verdict=path, directory=directory)
+    _expect_line(
+        again, "ISSUE", 0, how="left_open", note="already_there", remaining="12"
+    )
+    assert writes(scratch) == []
+    # The two markers never match each other.
+    assert DONE_MARKER.format(pr=34) not in NOT_DONE_MARKER.format(pr=34)
+    assert NOT_DONE_MARKER.format(pr=34) not in DONE_MARKER.format(pr=34)
+
+
+def test_not_done_with_a_failed_post_is_note_failed_without_a_hand_back(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch)
+    state = scratch.load_state()
+    state["refuse_comment"] = True
+    scratch.save_state()
+    res = issue_with_verdict(scratch, NOT_DONE_TEXT)
+    _expect_line(res, "ISSUE", 1, why="note_failed")
+    assert "remaining" not in fields(res.line)
+
+
+def test_handback_sentence_is_in_the_settle_reference() -> None:
+    text = (REFS_DIR / "settle.md").read_text(encoding="utf-8")
+    sentence = (
+        "The issue is not done and stays open with one note of what remains. "
+        "The orchestrator takes the rest from here; by hand, run "
+        "`/sc:issue --plan <N>` and start a worker on what remains."
+    )
+    assert sentence in text
+    for name in deny_names():
+        assert not re.search(rf"\b{name}\b", sentence, re.IGNORECASE)
+
+
+def test_unclear_and_missing_verdict_write_nothing(scratch: Scratch) -> None:
+    make_world(scratch)
+    directory = get_evidence(scratch)
+    for call in (
+        run_issue(scratch),
+        run_issue(scratch, verdict=directory / "absent.md", directory=directory),
+        run_issue(scratch, verdict=write_verdict(directory, ""), directory=directory),
+    ):
+        _expect_line(call, "ISSUE", 1, why="no_verdict", n="12", note="none")
+    path = write_verdict(directory, UNCLEAR_TEXT)
+    res = run_issue(scratch, verdict=path, directory=directory)
+    _expect_line(res, "ISSUE", 1, why="unclear", note="none")
+    assert writes(scratch) == []
+    # An already closed issue needs no verdict.
+    make_world(scratch, state="CLOSED")
+    _expect_line(run_issue(scratch), "ISSUE", 0, how="already_closed")
+
+
+def test_a_refs_only_issue_with_a_done_verdict_closes(scratch: Scratch) -> None:
+    make_world(scratch, body="Refs #12", closing=False)
+    res = issue_with_verdict(scratch, verdict_text())
+    _expect_line(res, "ISSUE", 0, links="refs", how="closed_now")
+    assert scratch.load_state()["issues"]["12"]["state"] == "CLOSED"
+    body = comments_of(scratch)[0]["body"]
+    assert "names this issue without closing it" in body
+
+
+def test_a_closes_linked_issue_with_a_not_done_verdict_does_not_close(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch, body="Closes #12")
+    res = issue_with_verdict(scratch, NOT_DONE_TEXT)
+    _expect_line(res, "ISSUE", 0, links="closing", how="left_open")
+    assert [tuple(c[:2]) for c in writes(scratch)] == [("issue", "comment")]
+    assert scratch.load_state()["issues"]["12"]["state"] == "OPEN"
