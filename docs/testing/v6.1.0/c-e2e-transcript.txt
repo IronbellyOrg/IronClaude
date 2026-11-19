@@ -1,11 +1,11 @@
 ROOT=/tmp/ic6-e2e.<ROOT>
 tagged tree v6.1.0: commands=34 agents=48 skills=26;  v6.0.0: commands=35 agents=48 skills=35
 pinned claude: 2.1.328 (Claude Code)
-=== real-home baseline 2026-11-19T02:44:59Z
-claude commands/agents/skills/hooks (every file, name and content): 5b948b631a4f81cb
-claude core files (~/.claude/*.md, content): 4a43421caa38d756
+=== real-home baseline 2026-11-19T02:58:29Z
+claude commands/agents/skills/hooks/rules/output-styles/templates (every file, name and content): c22f8feafe5f5364
+claude top-level files (~/.claude/*.md, settings.json, ccsession.env, content): 3ccae4b5b31bea28
 claude.json mcpServers: 3041d5666a508914
-claude settings.json hooks and cleanupPeriodDays: cee267b75622a4bf
+claude plugin catalog (~/.claude/ironclaude-marketplace, every file, content): de405816fdd3031f
 codegraph versions:
 local bin (files by content, links by target): 77c58827194f79d5
 pipx:
@@ -301,7 +301,7 @@ ccsession wired at /tmp/ic6-e2e.<ROOT>/new-user/home/.local/bin/ccsession
 ✅ Rules: 21 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/new-user/home/.claude/rules (never auto-loaded)
 ✅ Output styles: 1 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/new-user/home/.claude/output-styles
 ✅ Settings defaults: added 24 (outputStyle, model, effortLevel, alwaysThinkingEnabled, verbose, teammateMode, agentPushNotifEnabled, skipDangerousModePermissionPrompt, env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, env.CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION, env.PONYTAIL_DEFAULT_MODE, modelSettings.gpt-6-astra, modelSettings.gpt-6.1-sol, modelSettings.gpt-6-sol, modelSettings.gpt-5.6-sol, enabledPlugins.frontend-design@claude-plugins-official, enabledPlugins.playwright@claude-plugins-official, enabledPlugins.notion@claude-plugins-official, enabledPlugins.dropbox@claude-plugins-official, enabledPlugins.google-cloud-storage@claude-plugins-official, enabledPlugins.understand-anything@understand-anything, enabledPlugins.ponytail@ironclaude, extraKnownMarketplaces.claude-plugins-official, extraKnownMarketplaces.understand-anything)
-💾 Backup: /tmp/ic6-e2e.<ROOT>/new-user/home/.claude/settings.json.bak.20261119T024630Z
+💾 Backup: /tmp/ic6-e2e.<ROOT>/new-user/home/.claude/settings.json.bak.20261119T030045Z
 ⏭️  Orca skills: Orca CLI not found; skipped
 ✅ Plugins: installed frontend-design@claude-plugins-official, playwright@claude-plugins-official, notion@claude-plugins-official, dropbox@claude-plugins-official, google-cloud-storage@claude-plugins-official, understand-anything@understand-anything, ponytail@ironclaude
 
@@ -762,7 +762,7 @@ ccsession wired at /tmp/ic6-e2e.<ROOT>/new-user/home/.local/bin/ccsession
    - session-init.sh
 
 📋 settings.json merge: events=7 added=0 skipped-existing=18
-💾 Backup: /tmp/ic6-e2e.<ROOT>/new-user/home/.claude/settings.json.bak.20261119T024657Z
+💾 Backup: /tmp/ic6-e2e.<ROOT>/new-user/home/.claude/settings.json.bak.20261119T030112Z
 
 ⏭️  Preserved 1 existing data file(s):
    - auggie-projects.txt (user-edited; not overwritten)
@@ -846,7 +846,7 @@ Registration: exact user stdio entry verified (codegraph 1.6.2 at /tmp/ic6-e2e.<
    No retired commands, skills or agents present.
 [exit=0]
 --- saved copies new in the second install (settings.json is backed up on every run):
-~/.claude/settings.json.bak.20261119T024657Z
+~/.claude/settings.json.bak.20261119T030112Z
 --- conversation retention (docs/getting-started/installation.md): this host's managed settings may set cleanupPeriodDays, and then they win
 cleanupPeriodDays in the throwaway settings.json after the install: null  (null = the installer wrote nothing)
 managed value on this host: 90
@@ -1202,7 +1202,7 @@ ccsession installed; warning: cleanupPeriodDays is 90 in the managed settings fi
 ✅ Rules: 21 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/rules (never auto-loaded)
 ✅ Output styles: 1 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/output-styles
 ✅ Settings defaults: added 24 (outputStyle, model, effortLevel, alwaysThinkingEnabled, verbose, teammateMode, agentPushNotifEnabled, skipDangerousModePermissionPrompt, env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, env.CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION, env.PONYTAIL_DEFAULT_MODE, modelSettings.gpt-6-astra, modelSettings.gpt-6.1-sol, modelSettings.gpt-6-sol, modelSettings.gpt-5.6-sol, enabledPlugins.frontend-design@claude-plugins-official, enabledPlugins.playwright@claude-plugins-official, enabledPlugins.notion@claude-plugins-official, enabledPlugins.dropbox@claude-plugins-official, enabledPlugins.google-cloud-storage@claude-plugins-official, enabledPlugins.understand-anything@understand-anything, enabledPlugins.ponytail@ironclaude, extraKnownMarketplaces.claude-plugins-official, extraKnownMarketplaces.understand-anything)
-💾 Backup: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/settings.json.bak.20261119T024714Z
+💾 Backup: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/settings.json.bak.20261119T030129Z
 ⏭️  Orca skills: Orca CLI not found; skipped
 ✅ Plugins: installed frontend-design@claude-plugins-official, playwright@claude-plugins-official, notion@claude-plugins-official, dropbox@claude-plugins-official, google-cloud-storage@claude-plugins-official, understand-anything@understand-anything, ponytail@ironclaude
 
@@ -1303,13 +1303,13 @@ SuperClaude, version 6.1.0
    - /workflow
 
 💾 Saved 7 changed command(s) before overwriting:
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/analyze.md.bak.20261119T024940Z
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/brainstorm.md.bak.20261119T024940Z
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/implement.md.bak.20261119T024940Z
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/recommend.md.bak.20261119T024940Z
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/reflect.md.bak.20261119T024940Z
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/troubleshoot.md.bak.20261119T024940Z
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/workflow.md.bak.20261119T024940Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/analyze.md.bak.20261119T030315Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/brainstorm.md.bak.20261119T030315Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/implement.md.bak.20261119T030315Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/recommend.md.bak.20261119T030315Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/reflect.md.bak.20261119T030315Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/troubleshoot.md.bak.20261119T030315Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/workflow.md.bak.20261119T030315Z
 
 📁 Installation directory: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc
 
@@ -1426,7 +1426,7 @@ ccsession wired at /tmp/ic6-e2e.<ROOT>/upgrade/home/.local/bin/ccsession
    - session-init.sh
 
 📋 settings.json merge: events=7 added=0 replaced=18
-💾 Backup: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/settings.json.bak.20261119T024940Z
+💾 Backup: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/settings.json.bak.20261119T030315Z
 
 ⏭️  Preserved 1 existing data file(s):
    - auggie-projects.txt (user-edited; not overwritten)
@@ -1493,9 +1493,9 @@ ccsession wired at /tmp/ic6-e2e.<ROOT>/upgrade/home/.local/bin/ccsession
 📦 Installing rules, output styles, settings defaults, Orca skills...
 
 ✅ Rules: 21 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/rules (never auto-loaded)
-💾 Saved 1 changed rule file(s) before overwriting: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/rules/core/ib_agent_core.md.bak.20261119T024940Z
+💾 Saved 1 changed rule file(s) before overwriting: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/rules/core/ib_agent_core.md.bak.20261119T030315Z
 ✅ Output styles: 1 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/output-styles
-💾 Saved 1 changed output style(s) before overwriting: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/output-styles/pragmatic.md.bak.20261119T024940Z
+💾 Saved 1 changed output style(s) before overwriting: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/output-styles/pragmatic.md.bak.20261119T030315Z
 ✅ Settings defaults: already present
 ⏭️  Orca skills: Orca CLI not found; skipped
 ✅ Plugins: already installed
@@ -1529,17 +1529,17 @@ core md files (12): BASH_INSPECTION_POLICY.md BUSINESS_PANEL_EXAMPLES.md BUSINES
 saved copies (*.bak.*) under ~/.claude: 11
 [check s2_after_upgrade] commands=35 (want 35) agents=48 (want 48) skills=27 (want 27)
 --- saved copies created by the upgrade
-~/.claude/commands/sc/analyze.md.bak.20261119T024940Z
-~/.claude/commands/sc/brainstorm.md.bak.20261119T024940Z
-~/.claude/commands/sc/implement.md.bak.20261119T024940Z
-~/.claude/commands/sc/recommend.md.bak.20261119T024940Z
-~/.claude/commands/sc/reflect.md.bak.20261119T024940Z
-~/.claude/commands/sc/troubleshoot.md.bak.20261119T024940Z
-~/.claude/commands/sc/workflow.md.bak.20261119T024940Z
-~/.claude/output-styles/pragmatic.md.bak.20261119T024940Z
-~/.claude/rules/core/ib_agent_core.md.bak.20261119T024940Z
-~/.claude/settings.json.bak.20261119T024714Z
-~/.claude/settings.json.bak.20261119T024940Z
+~/.claude/commands/sc/analyze.md.bak.20261119T030315Z
+~/.claude/commands/sc/brainstorm.md.bak.20261119T030315Z
+~/.claude/commands/sc/implement.md.bak.20261119T030315Z
+~/.claude/commands/sc/recommend.md.bak.20261119T030315Z
+~/.claude/commands/sc/reflect.md.bak.20261119T030315Z
+~/.claude/commands/sc/troubleshoot.md.bak.20261119T030315Z
+~/.claude/commands/sc/workflow.md.bak.20261119T030315Z
+~/.claude/output-styles/pragmatic.md.bak.20261119T030315Z
+~/.claude/rules/core/ib_agent_core.md.bak.20261119T030315Z
+~/.claude/settings.json.bak.20261119T030129Z
+~/.claude/settings.json.bak.20261119T030315Z
 --- by kind: commands=7 rules=1 output-styles=1 settings.json=2 core-files=0 agents=0 skills=0
 --- edited core file was overwritten without a saved copy: yes-overwritten; CLAUDE.md copies: 0
 + superclaude install --list
@@ -1806,7 +1806,7 @@ saved copies (*.bak.*) under ~/.claude: 11
 📦 Retiring commands, skills and agents this release no longer ships...
    No retired commands, skills or agents present.
 saved copies before=11 after=12; new:
-~/.claude/settings.json.bak.20261119T024943Z
+~/.claude/settings.json.bak.20261119T030319Z
 📦 Retiring commands, skills and agents this release no longer ships...
    No retired commands, skills or agents present.
 --- the documented clean-up of saved copies (docs/getting-started/upgrading.md): list, delete, doctor still healthy
@@ -1842,7 +1842,7 @@ agents: 48
 skills: 26
 hooks: 18   templates: 3   rules: 3   output-styles: 1
 core md files (12): BASH_INSPECTION_POLICY.md BUSINESS_PANEL_EXAMPLES.md BUSINESS_SYMBOLS.md CLAUDE.md CODEGRAPH.md HOW-WE-WORK.md ISSUE-BACKLOG.md ISSUE-HANDOFF.md PRINCIPLES.md RESEARCH_CONFIG.md RULES.md WORKER-CONTRACT.md
-saved copies (*.bak.*) under ~/.claude: 4
+saved copies (*.bak.*) under ~/.claude: 3
 [check s2_final] commands=34 (want 34) agents=48 (want 48) skills=26 (want 26)
 
 ################ SCENARIO 3: from a clone, ./update.sh ################
@@ -2101,7 +2101,7 @@ ccsession wired at /tmp/ic6-e2e.<ROOT>/clone-update/home/.local/bin/ccsession
 ✅ Rules: 21 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/clone-update/home/.claude/rules (never auto-loaded)
 ✅ Output styles: 1 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/clone-update/home/.claude/output-styles
 ✅ Settings defaults: added 24 (outputStyle, model, effortLevel, alwaysThinkingEnabled, verbose, teammateMode, agentPushNotifEnabled, skipDangerousModePermissionPrompt, env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, env.CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION, env.PONYTAIL_DEFAULT_MODE, modelSettings.gpt-6-astra, modelSettings.gpt-6.1-sol, modelSettings.gpt-6-sol, modelSettings.gpt-5.6-sol, enabledPlugins.frontend-design@claude-plugins-official, enabledPlugins.playwright@claude-plugins-official, enabledPlugins.notion@claude-plugins-official, enabledPlugins.dropbox@claude-plugins-official, enabledPlugins.google-cloud-storage@claude-plugins-official, enabledPlugins.understand-anything@understand-anything, enabledPlugins.ponytail@ironclaude, extraKnownMarketplaces.claude-plugins-official, extraKnownMarketplaces.understand-anything)
-💾 Backup: /tmp/ic6-e2e.<ROOT>/clone-update/home/.claude/settings.json.bak.20261119T025010Z
+💾 Backup: /tmp/ic6-e2e.<ROOT>/clone-update/home/.claude/settings.json.bak.20261119T030356Z
 ⏭️  Orca skills: Orca CLI not found; skipped
 ✅ Plugins: installed frontend-design@claude-plugins-official, playwright@claude-plugins-official, notion@claude-plugins-official, dropbox@claude-plugins-official, google-cloud-storage@claude-plugins-official, understand-anything@understand-anything, ponytail@ironclaude
 
@@ -2147,10 +2147,10 @@ saved copies (*.bak.*) under ~/.claude: 1
 --- update.sh ran make sync-dev inside the clone: agents cache commands hooks settings.json skills templates
 
 === real-home after
-claude commands/agents/skills/hooks (every file, name and content): 5b948b631a4f81cb
-claude core files (~/.claude/*.md, content): 4a43421caa38d756
+claude commands/agents/skills/hooks/rules/output-styles/templates (every file, name and content): c22f8feafe5f5364
+claude top-level files (~/.claude/*.md, settings.json, ccsession.env, content): 3ccae4b5b31bea28
 claude.json mcpServers: 3041d5666a508914
-claude settings.json hooks and cleanupPeriodDays: cee267b75622a4bf
+claude plugin catalog (~/.claude/ironclaude-marketplace, every file, content): de405816fdd3031f
 codegraph versions:
 local bin (files by content, links by target): 77c58827194f79d5
 pipx:

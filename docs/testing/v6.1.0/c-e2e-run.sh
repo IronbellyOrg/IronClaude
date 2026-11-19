@@ -101,12 +101,12 @@ mkenv() {  # $1 = scenario dir
   for s in codegraph orca orca-ide; do printf '#!/bin/sh\nexit 127\n' > "$E/shims/$s"; chmod +x "$E/shims/$s"; done
 }
 real_state() {  # read-only fingerprint of the real home areas the task forbids touching (names, sizes AND file contents)
-  # Not fingerprinted as a whole: ~/.claude.json and ~/.claude/settings.json, because the Claude Code session that
-  # runs this script rewrites them all the time (history, statistics); only the parts an installer writes are hashed.
-  echo "claude commands/agents/skills/hooks (every file, name and content): $(find "$HOME/.claude/commands/sc" "$HOME/.claude/agents" "$HOME/.claude/skills" "$HOME/.claude/hooks" -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | cut -c1-16)"
-  echo "claude core files (~/.claude/*.md, content): $(find "$HOME/.claude" -maxdepth 1 -type f -name '*.md' -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | cut -c1-16)"
+  # ~/.claude.json is hashed only in its mcpServers part (the Claude Code session that runs this script rewrites the rest
+  # all the time: history, statistics); every other file below is hashed whole, settings.json included.
+  echo "claude commands/agents/skills/hooks/rules/output-styles/templates (every file, name and content): $(find "$HOME/.claude/commands/sc" "$HOME/.claude/agents" "$HOME/.claude/skills" "$HOME/.claude/hooks" "$HOME/.claude/rules" "$HOME/.claude/output-styles" "$HOME/.claude/templates" -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | cut -c1-16)"
+  echo "claude top-level files (~/.claude/*.md, settings.json, ccsession.env, content): $(find "$HOME/.claude" -maxdepth 1 -type f \( -name '*.md' -o -name 'settings.json' -o -name 'ccsession.env' \) -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | cut -c1-16)"
   echo "claude.json mcpServers: $(jq -S '.mcpServers' "$HOME/.claude.json" 2>/dev/null | sha256sum | cut -c1-16)"
-  echo "claude settings.json hooks and cleanupPeriodDays: $(jq -S '{hooks, cleanupPeriodDays}' "$HOME/.claude/settings.json" 2>/dev/null | sha256sum | cut -c1-16)"
+  echo "claude plugin catalog (~/.claude/ironclaude-marketplace, every file, content): $(find "$HOME/.claude/ironclaude-marketplace" -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | cut -c1-16)"
   echo "codegraph versions: $(ls "$HOME/.codegraph/versions" 2>/dev/null | tr '\n' ' ')"
   echo "local bin (files by content, links by target): $( { find "$HOME/.local/bin" -maxdepth 1 -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null; find "$HOME/.local/bin" -maxdepth 1 -type l -printf '%f -> %l\n' 2>/dev/null | sort; } | sha256sum | cut -c1-16)"
   echo "pipx: $(pipx list --short 2>/dev/null | tr '\n' ' ')"
