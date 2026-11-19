@@ -891,6 +891,9 @@ def _field_lines(
     at that same cell on every one-line field. A value that does not fit beside its label sits on
     the next line, indented two cells (and is hard-split to ``inner - 2`` when still too wide, with
     nothing lost). ``role`` covers the value; the label is always ``muted``."""
+    # The same conversion as ``wrap`` and ``clip``, before the value is measured.
+    if policy.ascii:
+        value = ascii_safe(value)
     value_room = max(inner - label_width, 1)
     if cell_len(value) <= value_room:
         pad = " " * max(label_width - len(label), 1)

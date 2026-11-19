@@ -1292,6 +1292,33 @@ def test_r3_a_120_character_worktree_id_continues_on_two_cell_indented_lines(
     assert shown == (worktree + note).replace(" ", "")
 
 
+@pytest.mark.parametrize("width", WIDTHS)
+def test_a_short_non_ascii_evidence_value_is_converted_in_ascii_mode(fake_clock, width):
+    workers = make_rows(3, 1)
+    for row in workers:
+        row["resource"] = {"worktreeId": "工作树"}
+    worker = (0, json.dumps(make_envelope(workers, total=3)))
+    message = ok_message(r3_rows([("w-001", "first?"), ("w-002", "second?")]))
+    runner = FakeRunner([], [routed_runner_responses(worker, message)])
+    result = Collector(
+        LiveSource(runner, FakeDiscover([])),
+        fake_clock,
+        run_id=QRUN,
+        questions=True,
+        link=True,
+    ).run_once()
+    session = Session(selected_question=(QRUN, f"msg_{1:012x}"))
+    lines = screen_lines(
+        build_view(result, session, fake_clock),
+        policy_for(width, height=70, ascii=True),
+    )
+    assert all(
+        ln.isascii() for ln in lines
+    )  # the terminal policy holds for every field
+    assert any(ln.startswith("worktree") and "???" in ln for ln in lines)
+    assert all(cell_len(ln) <= width for ln in lines)
+
+
 def test_strip_sgr_removes_colour_codes_and_sgr_params_lists_them():
     coloured = "\x1b[1;38;2;250;178;25mage\x1b[0m plain \x1b[31mred\x1b[0m"
     assert strip_sgr(coloured) == "age plain red"
