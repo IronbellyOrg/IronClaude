@@ -1,10 +1,9 @@
 """Deterministic pins on the plan-route producer contract (remediation source -> sc:workflow).
 
 The end-to-end contract (a generated TASK-WF tasklist exposes the intended tasks to
-``/sc:implement``) needs an LLM run and is covered by the ``workflow_vs_task_builder``
-eval, not here. These tests pin the part that is checkable offline: the source templates
-the handoff refs tell the model to write must themselves satisfy the ``sc:workflow``
-list-syntax gate, must re-include review feedback, and each ref must point the workflow
+``/sc:implement``) needs an LLM run and is not covered here. These tests pin the part that is checkable
+offline: the source templates the handoff refs tell the model to write must themselves
+satisfy the ``sc:workflow`` list-syntax gate, must re-include review feedback, and each ref must point the workflow
 at the file it actually prepares. Reads SOURCE files, not the ``.claude/`` mirror.
 """
 

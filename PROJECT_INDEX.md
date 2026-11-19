@@ -70,9 +70,9 @@ Exactly 8 files on disk:
 ### pr_submit (`src/superclaude/pr_submit/`)
 - `fsm.py`, `classifier.py`, `severity_router.py`, `loop_guard.py`, `recovery.py`, `ci.py` - PR-review monitor state machine
 
-## Skills (36)
+## Skills (26)
 
-Including `sc-recommend`, `confidence-check`, `task`, `task-builder`, `roadmap`, `prd`, `tdd`, `tech-research`, `tech-reference`, and the `sc-*-protocol` family (adversarial, brainstorm, implement, pm, reflect, roadmap, tasklist, troubleshoot, workflow, and others).
+Including `sc-recommend`, `confidence-check`, and the `sc-*-protocol` family (adversarial, brainstorm, implement, pm, reflect, roadmap, tasklist, troubleshoot, workflow, and others).
 
 ## Configuration
 

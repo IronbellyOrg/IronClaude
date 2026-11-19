@@ -32,7 +32,7 @@ The README reflects the product/function of the repo first, while preserving the
 
 ## Highlights
 
-- **CLI-driven workflows** for audit, reflect, swarm, eval, and validation
+- **CLI-driven workflows** for reflect, swarm, eval, and read-only Orca supervision (`sweep`, `observe`)
 - **Claude Code asset distribution** through commands, agents, and skills
 - **PM-agent patterns** for confidence, self-check, and reflexion
 - **MCP-aware development** with codegraph (installed and registered by default) and optional integrations such as Auggie, Tavily, and Context7
@@ -61,18 +61,18 @@ pipx install git+https://github.com/IronbellyOrg/IronClaude
 superclaude install
 ```
 
-This installs the package, then framework assets (core files, commands, agents, skills, ccsession wiring, hooks, templates and user setup), followed by the codegraph phase (a pinned, checksum-verified codegraph registered as a user-level MCP server; a failure there exits 1) and a bounded, non-fatal cleanup of old user-level MCP registrations that IronClaude wrote itself. See the [MCP installation guide](docs/user-guide/mcp-installation.md) for details. Installing from the repository URL needs read access to it.
+This installs the package, then framework assets (core files, commands, agents, skills, ccsession wiring, hooks, templates and user setup), followed by the codegraph phase (a pinned, checksum-verified codegraph registered as a user-level MCP server; a failure there exits 1), a bounded, non-fatal cleanup of old user-level MCP registrations that IronClaude wrote itself, and a non-fatal removal of the commands, skills and agents a release no longer ships (only unchanged copies of files IronClaude installed). See the [MCP installation guide](docs/user-guide/mcp-installation.md) for details. Installing from the repository URL needs read access to it.
 
-### Upgrading to 5.0.0
+### Upgrading to 6.0.0
 
-Back up any file you edited in `~/.claude/` first, then run:
+Back up any core file, agent or skill you edited in `~/.claude/` first (the installer saves a `.bak.<UTC time>` copy of a changed command, rule or output-style file, but overwrites the rest without a copy), then run:
 
 ```bash
-pipx install --force git+https://github.com/IronbellyOrg/IronClaude
+pipx install --force git+https://github.com/IronbellyOrg/IronClaude@v6.0.0
 superclaude install --force
 ```
 
-Restart Claude sessions afterwards. A plain `superclaude install` keeps framework files that already exist, so use `--force` to refresh them. Do not upgrade with `superclaude update`: it never installs codegraph or retires old MCP registrations. See [Upgrading](docs/getting-started/upgrading.md) for the full steps and the [5.0.0 release notes](docs/releases/v5.0.0.md) for what changed.
+Restart Claude sessions afterwards. A plain `superclaude install` keeps framework files that already exist, so use `--force` to refresh them. Do not upgrade with `superclaude update`: it never installs codegraph or retires old MCP registrations. 6.0.0 removes six `superclaude` command groups, twelve slash commands and five skills; the install removes the installed copies of the removed commands and skills and keeps (and explains) any copy you changed. See [Upgrading](docs/getting-started/upgrading.md) for the full steps and the [6.0.0 release notes](docs/releases/v6.0.0.md) for what changed.
 
 ### Install from source for development
 
@@ -132,8 +132,8 @@ The active CLI entry point is `superclaude`, implemented in `src/superclaude/cli
 
 Key workflow areas include:
 
-- audit flows
 - reflect, swarm and eval runs
+- read-only supervision of Orca workers (`superclaude sweep`, `superclaude observe`)
 - MCP installation and diagnostics
 
 ### 2. Pytest plugin
@@ -214,6 +214,7 @@ make clean              # Remove build artifacts
 For deeper context, start with:
 
 - [docs/user-guide/how-we-work.md](docs/user-guide/how-we-work.md) — which command or skill to use for each kind of work, in what order
+- [docs/user-guide/cli-groups.md](docs/user-guide/cli-groups.md) — every `superclaude` command group in 6.0.0 and where it is documented
 - `CLAUDE.md` — repository-specific workflow and contribution rules
 - `KNOWLEDGE.md` — accumulated findings and troubleshooting context
 - `PROJECT_INDEX.md` — high-level repository index
@@ -269,14 +270,15 @@ The `superclaude eval` real-eval harness (the `eval doctor`, `eval list`,
 - **macOS / Windows:** Non-goal for v1. `eval doctor` refuses non-Linux
   hosts with a friendly error message citing AC1 (R-109) and exits 2
   *before* running any capability gates; the rest of the `superclaude`
-  CLI (audit, reflect, swarm, eval, etc.) is unaffected.
+  CLI (reflect, swarm, eval, etc.) is unaffected.
 - **CI:** Non-goal for v1 — the harness ships no GitHub Actions workflow
   and no `--ci` flag. v1 ships as a developer-machine tool; CI integration
   is deferred to v2 with a documented revisit trigger.
 
 The Linux-only v1 commitment, the macOS follow-up plan (owner + target
 date), and the CI deferral are recorded together in
-[`.dev/releases/complete/cliEval/decisions.md`](.dev/releases/complete/cliEval/decisions.md)
+`.dev/releases/complete/cliEval/decisions.md` (removed from the tree by the
+repository cleanup #308; it is in the git history before commit `22eaa0c7c`)
 under the AC1, DOC-OQ9, and AC2 closure sections (Phase-6 tasks T06.07,
 T06.02, T06.05). The v2 platform follow-up roadmap entry under MIG-003
 consolidates both axes.

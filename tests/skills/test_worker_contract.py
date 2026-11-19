@@ -500,7 +500,6 @@ P2_COMMANDS = (
     "task",
     "reflect",
     "release-split",
-    "tdd",
     "troubleshoot",
 )
 
@@ -714,19 +713,6 @@ UNATTENDED_EXPECT: dict = {
         ],
         "nested": ["spec-panel", "adversarial", "document"],
     },
-    "tdd": {
-        "flags": ["--output", "--resume"],
-        "phrases": [
-            "bare topic",
-            "blocked_question",
-            "its two ask-the-user points come back as a question",
-            "does not stage",
-            "reflect gate skipped (unattended)",
-            "a bare topic resolves as blocked",
-            "a TDD that is already complete resolves as blocked",
-        ],
-        "nested": [],
-    },
     "reflect": {
         "flags": ["--output", "--remediate", "--no-promote"],
         "phrases": [
@@ -734,8 +720,6 @@ UNATTENDED_EXPECT: dict = {
             "AUTO-FIXABLE",
             "stopped-precondition",
             "review snapshot",
-            "task-builder",
-            "the Wave 1B tech-research step is skipped",
             "the absolute path of the `REPORT.md` this run wrote",
             "`--remediate` is answered by the headless auto-accept rule",
         ],
@@ -1561,14 +1545,14 @@ def test_nested_lists_match_the_p2_nesting():
 
 
 def _check_p2_set(p1, p2, expect) -> None:
-    assert len(p2) == 11, f"P2 lists {len(p2)} commands, not 11"
-    assert len(set(p2)) == 11, "P2_COMMANDS has a duplicate"
+    assert len(p2) == 10, f"P2 lists {len(p2)} commands, not 10"
+    assert len(set(p2)) == 10, "P2_COMMANDS has a duplicate"
     assert set(p1).isdisjoint(p2), f"P1 and P2 share {sorted(set(p1) & set(p2))}"
     both = set(p1) | set(p2)
     assert set(expect) == both, (
         f"UNATTENDED_EXPECT differs from P1 + P2: {sorted(set(expect) ^ both)}"
     )
-    assert len(expect) == 24, f"UNATTENDED_EXPECT has {len(expect)} entries, not 24"
+    assert len(expect) == 23, f"UNATTENDED_EXPECT has {len(expect)} entries, not 23"
     for name in (*p1, *p2):
         assert (Path(_THIS.COMMANDS_DIR) / f"{name}.md").exists(), f"{name}: no file"
 
@@ -1645,25 +1629,6 @@ def test_nested_call_passes_the_flag_and_a_nested_directory(cmd, name):
     )
     with pytest.raises(AssertionError):
         _check_nested_lines(stripped, name)
-
-
-def test_task_skill_returns_the_qa_halt_to_an_unattended_caller():
-    # PR #422 review: the phase-gate QA halt and the unfixable-FAIL rule also ask a person.
-    text = (_REPO / "src/superclaude/skills/task/SKILL.md").read_text(encoding="utf-8")
-    para = next(
-        p
-        for p in text.split("\n\n")
-        if p.startswith("The same applies to the two other")
-    )
-    for phrase in (
-        "Phase-Gate QA step that halts after the second fix cycle",
-        "Any step FAIL with unfixable issues",
-        "returns the open blocking findings",
-        "writes its blocked worker contract",
-    ):
-        assert phrase in para, phrase
-        with pytest.raises(AssertionError):
-            assert phrase in para.replace(phrase, "")
 
 
 def test_reflect_skill_passes_the_nested_impact_directory():
@@ -1763,13 +1728,6 @@ P2_GATES = [
         "an FR-G5 preflight failure resolves as blocked",
         "blocked",
         "worked around",
-    ),
-    ("tdd", "a bare topic resolves as blocked", "blocked", "re-run"),
-    (
-        "tdd",
-        "a TDD that is already complete resolves as blocked",
-        "blocked",
-        "re-run",
     ),
     (
         "reflect",
@@ -2899,30 +2857,6 @@ WRITE_VERB_CLASSIFICATION = {
     ): (
         "deferred:P1",
         "/sc:workflow is converted in P1; under --unattended the deferral of its .dev/tasks staging to the coordinator is in force (WC-9)",
-    ),
-    (
-        "src/superclaude/skills/task/SKILL.md",
-        "git add",
-        "Under the centralized path convention, each task file lives inside its own folder: `.dev/tasks/to-do/TASK-[ID]/TASK-[ID].md`. All intermediate artifacts (research, synthesis, QA reports) go into typed subfolders within that folder. The task folder is the self-contained workspace for the entire execution. `.dev/tasks/` is always staged (`git add .dev/tasks`); never gitignore it or leave it untracked. Staging is not committing.",
-    ): (
-        "deferred:P2",
-        "the MDTM task skill runs as tdd's nested /task, converted in P2; under --unattended its .dev/tasks staging is left to the coordinator (WC-9); the deferral is in force",
-    ),
-    (
-        "src/superclaude/skills/task-builder/SKILL.md",
-        "git add",
-        "Compute `<subject>` from the goal slug of the user's request using the rules in the Subject Derivation section. If no clean subject is derivable, use `general`. Create the task folder: `.dev/tasks/to-do/TASK-RF-<subject>-YYYYMMDD-HHMMSS/` with subfolders `research/` and `qa/`. For multi-track: `.dev/tasks/to-do/TASK-RF-track-T-YYYYMMDD-HHMMSS/` per track. `.dev/tasks/` is always staged (`git add .dev/tasks`); never gitignore it or leave it untracked. Staging is not committing.",
-    ): (
-        "deferred:P2",
-        "task-builder is reached through tdd, reflect --remediate and troubleshoot --fix, converted in P2; under --unattended its staging is left to the coordinator and its CLI-mode reflect gate (git add -A, --fix, --promote) is skipped (WC-9); the deferral is in force",
-    ),
-    (
-        "src/superclaude/skills/task-builder/SKILL.md",
-        "git add",
-        '- **Action**: Ensure new task artifacts are staged so the working-tree diff is complete (`git add -A`, because the wrapper\'s audit omits never-`git add`-ed files). Then emit the recursion-breaker-guarded wrapper shell-out as a single Bash command: first the §3.2 skip guard `if [ "${SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE:-0}" = "1" ]; then echo "reflect-wrapper recursion breaker: nested gate suppressed"; exit 0; fi`, then `superclaude reflect run {TASK_FILE} --depth deep --fix --promote`. `{TASK_FILE}` is the absolute tasklist path (the wrapper absolutizes its positional). NO `--base` is passed: the wrapper resolves the audit base from frontmatter `start_commit` as a SINGLE ref diffed against the working tree (so uncommitted task edits ARE audited; this is why a single-ref base is correct where a `start_commit..HEAD` range would not be). Base precedence is `--base` > frontmatter `start_commit` > `git merge-base HEAD master` (contract §6). `--depth deep` is fixed (O4 (CLI mode) fixes the POST depth at `deep`, forcing Tier-2 fan-out); `--fix` runs the bounded auto-fix loop; `--promote` lets the `task` adapter move the tasklist dir to `done/` on a clean/auto-fixed PASS. Emit NO `--reflect`, NO `--max-turns`, NO `<base>..HEAD` range, and no agent-spawn directive of any kind (the gate is a flat shell-out, never a subagent, per NFR-7 it carries none of the nesting tokens). Consume the EXIT CODE: only `0` completes the gate (clean OR auto-fixed-and-verified); `10` (halted: human-required deviations / non-convergent fix loop), `11` (degraded: audit untrustworthy), and `2` (blocked: child crash / missing-or-bad contract) all FAIL -> surface the wrapper report and HALT before Update-status-to-Done. The gate uses `superclaude reflect run` and never `/sc:task`; any re-execution uses `/task`.',
-    ): (
-        "deferred:P2",
-        "task-builder is reached through tdd, reflect --remediate and troubleshoot --fix, converted in P2; under --unattended its staging is left to the coordinator and its CLI-mode reflect gate (git add -A, --fix, --promote) is skipped (WC-9); the deferral is in force",
     ),
     (
         "src/superclaude/commands/auggie-review.md",

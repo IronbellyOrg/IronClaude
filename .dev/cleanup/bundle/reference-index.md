@@ -1,0 +1,230 @@
+# Reference index: every file outside the bundle that names a bundle item (generated)
+
+Generated 2026-11-18 at `847cccc1a` (origin/integration, tree identical to master `3f3b34a26`).
+> **Corrected 2026-11-18:** this index was built for the first scope. The rows for `commands/validate-tests.md`, `sc-validate-tests-protocol`, the suite `task_classification_contract` and every mention of `/sc:task` or the six `rf-*` agents are no longer removal targets (kept by Clay's decision).
+
+Method: `git grep -nP` for the names listed in the dependency map section 0, over the whole tree except `.dev/`, the historical records (`docs/releases/`, `docs/testing/v5.0.0/`, `docs/designs/`, `CHANGELOG.md`) and the bundle's own files; union of two passes (`/task`, `task-builder`, `tech-research`, `operational-guide`, `tech-reference`, six `rf-*` agent names, `sc:tdd`, `/tdd`, `sc:task`, `sc-task`; then `/roadmap`, `/prd`, `/readme`, `<name> skill`, `skills/<name>`). Each row: hit count, file, line numbers (first 30). Some hits are false positives (for example `$/task` in a model price table); the map in `dependency-map.md` classifies them.
+
+| Hits | File | Lines |
+|---:|---|---|
+| 1 | `CLAUDE.md` | 98 |
+| 61 | `POST-REFLECT-TASK.md` | 11,37,120,122,140,234,235,236,240,241,242,246,250,262,266,290,291,292,296,297,298,302,306,312,356,357,358,362,363,364 ... |
+| 1 | `PROJECT_INDEX.json` | 110 |
+| 1 | `PROJECT_INDEX.md` | 75 |
+| 2 | `commands/sc-help.md` | 42,117 |
+| 8 | `commands/sc-task.md` | 10,20,58,65,72,97,100,114 |
+| 10 | `docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md` | 1587,2062,2072,2074,2076,2080,2081,2238,2241,2242 |
+| 9 | `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` | 289,342,626,629,635,643,702,837,1227 |
+| 3 | `docs/developer-guide/review-severity-rule.md` | 57,66,67 |
+| 4 | `docs/developer-guide/session-memory.md` | 26,33,78,79 |
+| 1 | `docs/developer-guide/technical-architecture.md` | 41 |
+| 1 | `docs/docs-product/ops/jev-litellm-gateway-operational-guide.md` | 13 |
+| 1 | `docs/generated/contributor-knowledge-base/architecture-guide.md` | 250 |
+| 6 | `docs/generated/contributor-knowledge-base/visual-architecture-summary.md` | 282,291,309,385,389,390 |
+| 4 | `docs/getting-started/upgrading.md` | 245,257,259,265 |
+| 1 | `docs/guides/RELEASE-GUIDE-INSTRUCTIONS.md` | 12 |
+| 58 | `docs/guides/prd-skill-release-guide.md` | 11,32,39,40,47,48,55,63,77,86,90,98,103,121,127,132,151,155,161,178,180,181,195,196,197,198,234,236,247,267 ... |
+| 7 | `docs/guides/reflect-cli-tools-guide.md` | 38,71,334,391,432,476,540 |
+| 12 | `docs/guides/suites-guide.md` | 46,55,206,208,217,218,230,372,375,390,431,437 |
+| 68 | `docs/guides/tdd-skill-release-guide.md` | 11,33,40,41,49,50,57,64,66,81,91,95,104,109,127,133,139,145,164,170,178,195,197,198,213,214,215,216,245,247 ... |
+| 1 | `docs/memory/reflect/deviation-patterns-OrcaCLICommandRefactor-P2.md` | 7 |
+| 27 | `docs/onboarding/ironclaude-onboarding.html` | 304,325,327,329,343,349,354,373,379,389,391,412,429,430,431,443,447,531,559,560,561,562,563,568,592,593,594 |
+| 1 | `docs/reference/README.md` | 18 |
+| 26 | `docs/reference/nfr-conv-2-prose-determinism.md` | 3,5,10,18,21,52,53,54,55,56,57,58,60,61,62,77,78,80,81,82,119,130,131,136,152,156 |
+| 13 | `docs/user-guide/brainstorm.md` | 15,16,50,56,67,73,76,132,173,184,186,213,224 |
+| 2 | `docs/user-guide/codegraph.md` | 120,122 |
+| 22 | `docs/user-guide/commands.md` | 39,57,64,377,587,589,600,607,615,622,638,639,656,682,689,706,720,723,829,896,1252,1257 |
+| 2 | `docs/user-guide/flags.md` | 75,98 |
+| 2 | `docs/user-guide/session-management.md` | 12,73 |
+| 6 | `plugins/superclaude/commands/brainstorm.md` | 71,106,134,153,172,174 |
+| 1 | `plugins/superclaude/commands/implement.md` | 98 |
+| 16 | `plugins/superclaude/commands/reflect.md` | 21,99,135,161,162,200,201,208,209,212,213,253,268,269,278,279 |
+| 1 | `plugins/superclaude/commands/spec-panel.md` | 260 |
+| 11 | `plugins/superclaude/commands/task.md` | 12,19,41,102,108,120,132,144,159,161,185 |
+| 1 | `plugins/superclaude/commands/workflow.md` | 107 |
+| 3 | `plugins/superclaude/hooks/scripts/launch-level-guard.sh` | 43,45,343 |
+| 2 | `plugins/superclaude/skills/sc-implement-protocol/SKILL.md` | 17,211 |
+| 3 | `plugins/superclaude/skills/sc-recommend/SKILL.md` | 144,194,270 |
+| 50 | `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` | 18,19,20,26,34,43,44,45,53,60,69,79,82,83,84,87,93,95,102,112,139,148,189,190,191,194,208,232,233,235 ... |
+| 5 | `plugins/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md` | 27,40,43,64,98 |
+| 1 | `plugins/superclaude/skills/sc-recommend/refs/plugin-ecosystem-sources.md` | 27 |
+| 1 | `plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md` | 51 |
+| 1 | `plugins/superclaude/skills/sc-workflow-protocol/refs/00_mdtm_template_simple_task.md` | 22 |
+| 1 | `plugins/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md` | 9 |
+| 4 | `scripts/eval_workflow_vs_task_builder.py` | 4,84,85,298 |
+| 9 | `scripts/reflect_consumer_inventory.py` | 37,42,43,45,142,144,152,160,162 |
+| 2 | `src/superclaude/agents/reuse-auditor.md` | 3,16 |
+| 5 | `src/superclaude/cli/eval/suites/README.md` | 23,32,44,62,65 |
+| 6 | `src/superclaude/cli/eval/suites/agent_grounding_drift.yaml` | 4,5,16,20,21,37 |
+| 8 | `src/superclaude/cli/eval/suites/task_classification_contract.yaml` | 4,8,27,34,49,62,74,88 |
+| 10 | `src/superclaude/cli/eval/suites/workflow_vs_task_builder.yaml` | 3,4,9,10,18,42,44,60,87,114 |
+| 1 | `src/superclaude/cli/install_retired_data.py` | 54 |
+| 1 | `src/superclaude/cli/install_retired_files.py` | 6 |
+| 1 | `src/superclaude/cli/issue_pipeline/brief.py` | 8 |
+| 2 | `src/superclaude/cli/recommend/prompts.py` | 14,16 |
+| 1 | `src/superclaude/cli/reflect/commands.py` | 45 |
+| 7 | `src/superclaude/cli/reflect/runner.py` | 52,55,464,475,588,596,783 |
+| 1 | `src/superclaude/cli/sweep/models.py` | 32 |
+| 7 | `src/superclaude/commands/brainstorm.md` | 74,109,137,156,169,188,190 |
+| 1 | `src/superclaude/commands/implement.md` | 98 |
+| 1 | `src/superclaude/commands/issue.md` | 97 |
+| 19 | `src/superclaude/commands/reflect.md` | 21,63,68,108,146,172,173,224,225,233,234,237,238,266,290,305,306,316,317 |
+| 1 | `src/superclaude/commands/spec-panel.md` | 262 |
+| 11 | `src/superclaude/commands/troubleshoot.md` | 3,54,79,103,147,149,205,206,216,217,227 |
+| 4 | `src/superclaude/commands/validate-tests.md` | 22,45,133,134 |
+| 1 | `src/superclaude/commands/workflow.md` | 107 |
+| 4 | `src/superclaude/core/CLAUDE.md` | 80,81,82,88 |
+| 50 | `src/superclaude/core/HOW-WE-WORK.md` | 18,19,20,26,34,43,44,45,53,60,69,79,82,83,84,87,93,95,102,112,139,148,189,190,191,194,208,232,233,235 ... |
+| 5 | `src/superclaude/core/WORKER-CONTRACT.md` | 44,304,305,307,349 |
+| 3 | `src/superclaude/hooks/scripts/launch-level-guard.sh` | 43,45,343 |
+| 6 | `src/superclaude/rules/core/ib_agent_core.md` | 216,220,225,856,880,954 |
+| 8 | `src/superclaude/skills/ccsession-tag/MODEL-TIERS.md` | 70,107,119,131,139,171,186,204 |
+| 7 | `src/superclaude/skills/sc-brainstorm-protocol/SKILL.md` | 40,48,108,189,192,194,344 |
+| 4 | `src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md` | 66,197,199,224 |
+| 4 | `src/superclaude/skills/sc-crash-recovery/SKILL.md` | 3,113,114,116 |
+| 1 | `src/superclaude/skills/sc-crash-recovery/refs/investigators.md` | 24 |
+| 14 | `src/superclaude/skills/sc-crash-recovery/refs/pipelines.md` | 9,25,36,39,43,52,54,71,72,74,79,88,89,95 |
+| 1 | `src/superclaude/skills/sc-crash-recovery/refs/report-template.md` | 89 |
+| 2 | `src/superclaude/skills/sc-implement-protocol/SKILL.md` | 17,211 |
+| 1 | `src/superclaude/skills/sc-issue-protocol/SKILL.md` | 189 |
+| 2 | `src/superclaude/skills/sc-issue-protocol/refs/chains.md` | 16,25 |
+| 1 | `src/superclaude/skills/sc-issue-protocol/refs/claim.md` | 82 |
+| 2 | `src/superclaude/skills/sc-issue-protocol/scripts/clickup_claim.py` | 26,190 |
+| 2 | `src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md` | 21,23 |
+| 1 | `src/superclaude/skills/sc-post-release-protocol/refs/fan-out-pattern.md` | 9 |
+| 1 | `src/superclaude/skills/sc-pr-submit-protocol/refs/troubleshoot-dispatch.md` | 54 |
+| 3 | `src/superclaude/skills/sc-recommend/SKILL.md` | 144,194,270 |
+| 5 | `src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md` | 27,40,43,64,98 |
+| 1 | `src/superclaude/skills/sc-recommend/refs/plugin-ecosystem-sources.md` | 27 |
+| 1 | `src/superclaude/skills/sc-recommend/refs/surface-enumeration.md` | 51 |
+| 37 | `src/superclaude/skills/sc-reflect-protocol/SKILL.md` | 3,53,54,90,165,367,368,369,371,373,377,378,379,383,393,520,577,600,632,633,637,673,683,685,687,689,847,965,998,1003 ... |
+| 21 | `src/superclaude/skills/sc-reflect-protocol/refs/remediation-handoff.md` | 1,3,5,15,17,21,24,116,120,144,161,179,216,217,229,234,238,248,258,273,300 |
+| 12 | `src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md` | 3,138,593,596,597,598,599,617,645,647,670,690 |
+| 1 | `src/superclaude/skills/sc-troubleshoot-protocol/refs/diagnosability-audit.md` | 245 |
+| 1 | `src/superclaude/skills/sc-troubleshoot-protocol/refs/effective-input-proof.md` | 3 |
+| 2 | `src/superclaude/skills/sc-troubleshoot-protocol/refs/hardening-output-contract.md` | 54,70 |
+| 16 | `src/superclaude/skills/sc-troubleshoot-protocol/refs/remediation-handoff.md` | 12,22,42,43,58,140,160,179,191,200,211,213,217,221,240,246 |
+| 4 | `src/superclaude/skills/sc-troubleshoot-protocol/refs/report-template.md` | 113,171,173,325 |
+| 1 | `src/superclaude/skills/sc-troubleshoot-protocol/refs/runtime-entrypoint-verification.md` | 34 |
+| 9 | `src/superclaude/skills/sc-validate-tests-protocol/SKILL.md` | 3,24,25,32,47,311,403,426,464 |
+| 1 | `src/superclaude/skills/sc-workflow-protocol/refs/00_mdtm_template_simple_task.md` | 22 |
+| 1 | `src/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md` | 9 |
+| 73 | `src/superclaude/templates/documents/agent_template_analysis.md` | 4,30,32,91,102,117,128,137,138,139,140,144,154,155,156,157,158,160,168,169,170,171,176,191,192,193,207,208,229,231 ... |
+| 19 | `src/superclaude/templates/documents/agent_template_qa.md` | 3,42,56,95,96,102,113,114,135,142,149,169,207,271,276,319,326,332,333 |
+| 26 | `src/superclaude/templates/documents/agent_template_worker.md` | 4,33,35,60,102,113,123,135,189,190,191,192,201,238,239,240,241,301,302,303,304,321,326,331,336,399 |
+| 1 | `src/superclaude/templates/documents/operational_guide_template.md` | 24 |
+| 2 | `src/superclaude/templates/documents/readme_template.md` | 2,85 |
+| 5 | `src/superclaude/templates/documents/roadmap_template.md` | 56,161,194,297,299 |
+| 76 | `src/superclaude/templates/documents/skill_template.md` | 13,33,35,130,167,170,176,189,203,264,286,288,311,326,341,347,377,404,418,420,423,427,428,429,435,481,511,514,517,519 ... |
+| 22 | `src/superclaude/templates/modularization-template-review/INDEX.md` | 11,12,13,14,15,17,18,20,22,24,25,26,27,28,29,31,32,33,34,35,36,37 |
+| 11 | `src/superclaude/templates/modularization-template-review/analyst-completeness_report_template.md` | 5,15,18,22,24,48,58,59,60,64,86 |
+| 11 | `src/superclaude/templates/modularization-template-review/analyst-coverage-matrix_template.md` | 5,15,18,22,24,48,49,59,60,69,71 |
+| 8 | `src/superclaude/templates/modularization-template-review/analyst-cross-validation_report_template.md` | 5,15,18,22,24,48,58,65 |
+| 16 | `src/superclaude/templates/modularization-template-review/analyst-gap-analysis_template.md` | 5,15,18,22,24,25,49,50,60,61,63,64,69,70,77,101 |
+| 12 | `src/superclaude/templates/modularization-template-review/analyst-synthesis-review_report_template.md` | 5,15,18,22,24,48,49,59,60,66,67,69 |
+| 2 | `src/superclaude/templates/modularization-template-review/claim-evidence-matrix_template.md` | 15,19 |
+| 8 | `src/superclaude/templates/modularization-template-review/codebase-research_template.md` | 5,15,18,22,24,31,48,58 |
+| 15 | `src/superclaude/templates/modularization-template-review/pipeline-complete_report_template.md` | 5,15,18,22,24,29,48,58,60,71,95,101,111,119,127 |
+| 3 | `src/superclaude/templates/modularization-template-review/qa-acceptance-methodology-audit_template.md` | 15,19,223 |
+| 9 | `src/superclaude/templates/modularization-template-review/qa-consolidated-findings_template.md` | 4,13,16,23,47,58,59,61,62 |
+| 4 | `src/superclaude/templates/modularization-template-review/qa-cross-source-contradictions_template.md` | 5,15,18,58 |
+| 7 | `src/superclaude/templates/modularization-template-review/qa-fix-summary_template.md` | 13,16,23,24,48,49,62 |
+| 4 | `src/superclaude/templates/modularization-template-review/qa-inventory_report_template.md` | 4,13,16,55 |
+| 16 | `src/superclaude/templates/modularization-template-review/qa-lens_report_template.md` | 5,15,16,24,52,53,54,63,69,85,87,101,173,175,178,190 |
+| 14 | `src/superclaude/templates/modularization-template-review/qa-qualitative-operational_report_template.md` | 5,15,18,23,26,51,63,65,66,78,113,165,180,181 |
+| 15 | `src/superclaude/templates/modularization-template-review/qa-qualitative-sufficiency_report_template.md` | 5,15,18,24,28,29,54,66,77,80,116,151,166,182,183 |
+| 13 | `src/superclaude/templates/modularization-template-review/qa-research-depth_report_template.md` | 5,15,18,23,26,50,60,61,62,70,73,95,137 |
+| 9 | `src/superclaude/templates/modularization-template-review/qa-research-evidence_report_template.md` | 5,15,18,26,50,60,62,90,132 |
+| 11 | `src/superclaude/templates/modularization-template-review/qa-research-gap_report_template.md` | 5,15,18,23,26,50,60,61,62,93,135 |
+| 4 | `src/superclaude/templates/modularization-template-review/qa-source-fidelity_template.md` | 5,15,18,58 |
+| 14 | `src/superclaude/templates/modularization-template-review/qa-task-research-alignment_report_template.md` | 5,15,18,22,25,26,50,60,61,62,68,69,70,74 |
+| 10 | `src/superclaude/templates/modularization-template-review/qa-task-validation-b2_report_template.md` | 5,15,18,23,26,50,60,62,91,133 |
+| 10 | `src/superclaude/templates/modularization-template-review/qa-task-validation-structure_report_template.md` | 5,15,18,23,26,50,60,62,94,132 |
+| 9 | `src/superclaude/templates/modularization-template-review/research-notes_template.md` | 5,15,18,22,24,31,48,58,64 |
+| 3 | `src/superclaude/templates/modularization-template-review/synthetic-dnsp-finding.contract` | 3,13,52 |
+| 12 | `src/superclaude/templates/modularization-template-review/track-scope-map_template.md` | 5,15,18,22,24,29,48,58,60,72,93,99 |
+| 8 | `src/superclaude/templates/modularization-template-review/web-research_template.md` | 5,15,18,22,24,31,48,58 |
+| 1 | `src/superclaude/templates/workflow/00_mdtm_template_simple_task.md` | 22 |
+| 42 | `src/superclaude/templates/workflow/01_mdtm_template_generic_task.md` | 23,24,425,638,693,702,708,722,723,724,728,730,738,739,789,790,804,805,806,808,810,813,814,905,916,924,938,940,944,954 ... |
+| 56 | `src/superclaude/templates/workflow/02_mdtm_template_complex_task.md` | 23,24,429,638,642,644,649,710,719,725,739,740,741,745,747,755,756,806,807,821,822,823,825,827,830,831,1045,1057,1068,1076 ... |
+| 4 | `src/superclaude/templates/workflow/03_component_authoring_template.md` | 65,94,209,271 |
+| 5 | `tests/audit/fixtures/execution_context/evidence_bound_bare_path.md` | 4,15,44,52,60 |
+| 4 | `tests/audit/fixtures/execution_context/evidence_bound_file_line.md` | 4,15,49,57 |
+| 3 | `tests/audit/fixtures/execution_context/evidence_bound_justified_absence.md` | 4,15,50 |
+| 1 | `tests/audit/fixtures/execution_context/fully_populated.md` | 46 |
+| 2 | `tests/audit/fixtures/execution_context/hidden_input_leak.md` | 12,13 |
+| 3 | `tests/audit/fixtures/hidden_input_guard/header_empty_done.md` | 4,31,50 |
+| 3 | `tests/audit/fixtures/hidden_input_guard/header_populated_done.md` | 4,31,53 |
+| 4 | `tests/audit/fixtures/hidden_input_guard/populated_done_inventory.md` | 9,14,15,39 |
+| 6 | `tests/audit/fixtures/nfr_conv_6/full_fields.md` | 15,17,54,62,69,76 |
+| 6 | `tests/audit/fixtures/nfr_conv_6/stripped.md` | 15,17,55,63,69,76 |
+| 9 | `tests/audit/fixtures/nfr_conv_9/inherited_verdict_no_semantic.md` | 8,20,21,33,35,36,40,42,43 |
+| 6 | `tests/audit/fixtures/nfr_conv_9/inherited_verdict_with_semantic.md` | 31,33,34,38,40,41 |
+| 6 | `tests/audit/fixtures/nfr_conv_9/one_important_finding.md` | 3,5,10,11,39,45 |
+| 7 | `tests/audit/fixtures/nfr_conv_9/one_low_finding.md` | 3,5,10,11,42,50,52 |
+| 3 | `tests/audit/fixtures/nfr_conv_9/zero_findings_baseline.md` | 3,5,36 |
+| 5 | `tests/audit/test_axis_column_populated.py` | 4,26,27,144,145 |
+| 43 | `tests/audit/test_dnsp_all_agents_fail_bypass.py` | 1,6,8,9,14,31,39,56,57,58,59,60,64,71,74,136,226,235,246,271,282,292,306,325,326,335,370,390,400,409 ... |
+| 8 | `tests/audit/test_dnsp_dedup_collapse.py` | 8,9,53,54,55,56,159,168 |
+| 10 | `tests/audit/test_dnsp_does_not_serialize_cohort.py` | 9,10,59,60,61,62,228,244,261,272 |
+| 7 | `tests/audit/test_dnsp_twice_exhaust.py` | 40,64,65,66,67,252,257 |
+| 4 | `tests/audit/test_drift_axis_inactive_when_no_goal_baseline.py` | 26,27,87,88 |
+| 21 | `tests/audit/test_dynamic_enumeration_inv_010.py` | 9,14,21,62,63,64,67,84,152,171,172,215,229,230,286,289,313,399,498,509,519 |
+| 4 | `tests/audit/test_evidence_bound_tb_add_8.py` | 11,12,13,122 |
+| 8 | `tests/audit/test_five_axes_overlay.py` | 6,24,25,50,54,59,143,144 |
+| 15 | `tests/audit/test_hidden_input_guard.py` | 12,13,16,40,66,69,89,102,153,157,161,162,163,177,186 |
+| 4 | `tests/audit/test_inherited_verdict_freshness_inv_002.py` | 40,41,43,124 |
+| 8 | `tests/audit/test_inherited_verdict_present.py` | 5,18,33,34,36,158,159,177 |
+| 5 | `tests/audit/test_invariant_preservation_NFR_6_through_10.py` | 45,48,49,315,321 |
+| 1 | `tests/audit/test_monotonicity_halt_F_5_5_5.py` | 57 |
+| 6 | `tests/audit/test_nfr_conv_6_self_contained.py` | 13,32,142,386,401,414 |
+| 22 | `tests/audit/test_nfr_conv_9_zero_trust.py` | 9,12,19,25,26,60,61,75,100,113,156,171,176,204,212,234,258,271,361,408,514,515 |
+| 1 | `tests/audit/test_regression_halt_pass1_fail2.py` | 68 |
+| 31 | `tests/audit/test_self_audit_inv_019.py` | 5,7,10,11,46,47,56,94,95,99,100,101,122,133,134,135,136,137,157,180,220,275,280,329,331,335,354,404,475,487 ... |
+| 31 | `tests/audit/test_sequencing_PR06_before_PR04.py` | 8,14,23,63,64,65,81,86,164,200,233,235,237,243,244,286,289,325,340,359,424,427,529,569,574,584,592,614,623,664 ... |
+| 3 | `tests/audit/test_severity_floor_unweakened.py` | 4,39,40 |
+| 1 | `tests/audit/test_slow_shrink_continues.py` | 60 |
+| 1 | `tests/audit/test_synthetic_dnsp_dedup_not_regression.py` | 76 |
+| 3 | `tests/cli/eval/test_workflow_vs_task_builder_companion.py` | 17,605,1205 |
+| 2 | `tests/cli/reflect/conftest.py` | 149,157 |
+| 7 | `tests/cli/reflect/test_fix_loop.py` | 43,54,57,108,150,197,208 |
+| 7 | `tests/cli/reflect/test_no_nesting_guard.py` | 3,20,61,85,151,155,160 |
+| 3 | `tests/cli/reflect/test_remediation_route_table.py` | 4,29,36 |
+| 1 | `tests/cli/reflect/test_remediation_source_template.py` | 4 |
+| 2 | `tests/cli/test_cli_registration.py` | 104,107 |
+| 9 | `tests/cli/test_install_retired_files.py` | 155,574,589,604,618,622,623,624,626 |
+| 3 | `tests/commands/test_auggie_review_remediation_chain.py` | 8,95,97 |
+| 2 | `tests/commands/test_impact_command.py` | 352,376 |
+| 1 | `tests/commands/test_issue_command.py` | 158 |
+| 1 | `tests/commands/test_workflow_command.py` | 242 |
+| 16 | `tests/core/test_how_we_work_routing_table.py` | 295,399,444,460,471,484,548,552,591,618,723,839,840,961,999,1030 |
+| 5 | `tests/docs/test_onboarding_deck.py` | 65,95,99,104,110 |
+| 13 | `tests/hooks/test_launch_level_guard.py` | 84,916,917,934,3698,3699,3703,3706,3707,3719,3756,3765,3824 |
+| 1 | `tests/issue_pipeline/test_brief.py` | 139 |
+| 1 | `tests/pipeline/test_process.py` | 126 |
+| 20 | `tests/recommend/fixtures/routing_refresh_cases.json` | 88,104,108,145,189,194,210,217,241,242,303,308,329,334,342,343,365,429,478,602 |
+| 1 | `tests/recommend/test_cache.py` | 104 |
+| 5 | `tests/recommend/test_dispatch.py` | 236,237,248,249,364 |
+| 5 | `tests/recommend/test_routing_refresh.py` | 496,501,561,563,564 |
+| 8 | `tests/review/test_reflect_consumer_inventory.py` | 38,43,80,94,98,110,126,129 |
+| 89 | `tests/skills/fixtures/review_severity_cap_edits.yaml` | 18,19,23,31,39,47,55,63,71,79,87,95,103,111,119,127,135,143,151,180,181,452,460,468,476,484,492,501,638,639 ... |
+| 95 | `tests/skills/fixtures/review_severity_sweep_edits.yaml` | 21,26,28,32,40,44,45,48,52,53,56,64,68,69,72,80,88,96,104,112,128,164,165,180,181,212,213,344,352,360 ... |
+| 5 | `tests/skills/test_clickup_claim.py` | 62,138,156,325,424 |
+| 1 | `tests/skills/test_codegraph_adoption.py` | 22 |
+| 1 | `tests/skills/test_issue_orca_worktree.py` | 1105 |
+| 5 | `tests/skills/test_issue_protocol.py` | 10,33,299,439,591 |
+| 6 | `tests/skills/test_primitive_dual_surface_lookup.py` | 6,51,52,54,55,56 |
+| 6 | `tests/skills/test_review_prompt_overrides.py` | 6,259,260,274,275,276 |
+| 10 | `tests/skills/test_review_severity_rule.py` | 182,183,369,370,371,372,373,382,452,463 |
+| 3 | `tests/skills/test_sc_recommend_routing_contract.py` | 31,321,322 |
+| 4 | `tests/skills/test_spec_panel_review_loop.py` | 29,105,136,137 |
+| 29 | `tests/skills/test_task_builder_merge.py` | 1,4,21,22,23,24,26,51,62,86,132,161,203,226,227,245,261,298,315,380,417,418,420,421,422,425,515,538,546 |
+| 11 | `tests/skills/test_worker_contract.py` | 737,738,1652,2904,2909,2912,2917,2920,2922,2925,3055 |
+| 1 | `tests/swarm/test_cli_registration.py` | 7 |
+| 2 | `tests/sweep/test_probes_allowlist.py` | 1749,1754 |
+| 3 | `tests/troubleshoot/backtest/test_backtest_e5.py` | 4,5,32 |
+| 1 | `tests/troubleshoot/backtest/test_waiver_regreen.py` | 14 |
+| 2 | `tests/troubleshoot/e2e-backtest-scenarios.md` | 40,41 |
+| 1 | `tests/troubleshoot/fixtures/regression/sysbox-20260918/Astra-A3/REPORT.md` | 11 |
+| 5 | `tests/troubleshoot/test_hardening_verdict.py` | 94,114,122,126,127 |
+| 9 | `tests/unit/test_cli_install.py` | 63,64,82,176,269,270,297,300,672 |

@@ -278,14 +278,14 @@ def _failing_rows(fixture: str) -> list[str]:
 
 def test_e_every_cap_edits_row_holds():
     rows = _rows("review_severity_cap_edits.yaml")
-    assert len(rows) == 140
+    assert len(rows) == 58
     bad = _failing_rows("review_severity_cap_edits.yaml")
     assert not bad, "cap-edits rows not applied:\n" + "\n".join(bad)
 
 
 def test_j_every_sweep_edits_row_holds():
     rows = _rows("review_severity_sweep_edits.yaml")
-    assert len(rows) == 125
+    assert len(rows) == 25
     bad = _failing_rows("review_severity_sweep_edits.yaml")
     assert not bad, "sweep-edits rows not applied:\n" + "\n".join(bad)
 
@@ -366,21 +366,10 @@ NO_CONDITIONAL_PASS = "Only PASS or FAIL — no conditional pass."
     "rel",
     [
         "src/superclaude/templates/documents/skill_template.md",
-        "src/superclaude/skills/prd/refs/agent-prompts.md",
-        "src/superclaude/skills/tdd/refs/agent-prompts.md",
-        "src/superclaude/skills/tech-reference/SKILL.md",
-        "src/superclaude/skills/tech-research/SKILL.md",
-        "src/superclaude/skills/operational-guide/SKILL.md",
     ],
 )
 def test_g_no_conditional_pass_kept(rel):
     assert NO_CONDITIONAL_PASS in _read(rel)
-
-
-def test_g_readme_remediation_suffix_kept():
-    assert "List each with specific remediation." in _read(
-        "src/superclaude/skills/readme/SKILL.md"
-    )
 
 
 # --- (h) sc-implement-protocol plugin twins ---------------------------------

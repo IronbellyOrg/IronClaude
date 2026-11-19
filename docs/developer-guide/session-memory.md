@@ -1,6 +1,6 @@
 # File-Based Session Memory (Design Note)
 
-This note explains how IronClaude keeps session memory in plain markdown files under `<project>/.superclaude/memory/`, and which commands, agents and skills read and write it. It is for maintainers who change `/sc:pm`, the PM agent or a skill that uses the store. Line numbers were taken at tag v5.0.0 and re-read for the PM agent in 6.0.0, which removed the `save` and `load` commands that used to be part of the store (and with them the read-only fallback to the old Serena folder).
+This note explains how IronClaude keeps session memory in plain markdown files under `<project>/.superclaude/memory/`, and which commands, agents and skills read and write it. It is for maintainers who change `/sc:pm`, the PM agent or a skill that uses the store. Line numbers were taken at tag v5.0.0 and re-read at tag v6.0.0 (the PM agent, `sc-task-protocol` and `sc-reflect-protocol` citations moved). 6.0.0 removed the `save` and `load` commands that used to be part of the store, and with them the read-only fallback to the old Serena folder.
 
 For the user-facing view, see [Session management](../user-guide/session-management.md). For the separate error-learning store under `docs/memory/`, see [Memory system](../user-guide/memory-system.md).
 
@@ -30,7 +30,7 @@ There is no Python or shell code behind the store. It is a set of instructions i
 - **Location.** Each memory is `<project>/.superclaude/memory/<key>.md`, flat markdown, with subfolders allowed for topics (`pm-agent.md:21`).
 - **Project root.** `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory when it is not inside git (`pm-agent.md:21`).
 - **One store per worktree.** `git rev-parse --show-toplevel` returns the root of the worktree you are in, so each git worktree of the same repository has its own `.superclaude/memory/` and does not see the others' memories (`pm-agent.md:21`).
-- **Kept out of git.** On the first write, if `<project>/.superclaude/.gitignore` is absent, the writer creates it with the single line `*` (`pm-agent.md:21`). The whole `.superclaude/` folder, including the `.gitignore` itself, is then ignored. The skills that write their own subfolders repeat this rule before writing (`sc-task-protocol/SKILL.md:319`, `sc-reflect-protocol/SKILL.md:329`).
+- **Kept out of git.** On the first write, if `<project>/.superclaude/.gitignore` is absent, the writer creates it with the single line `*` (`pm-agent.md:21`). The whole `.superclaude/` folder, including the `.gitignore` itself, is then ignored. The skills that write their own subfolders repeat this rule before writing (`sc-task-protocol/SKILL.md:331`, `sc-reflect-protocol/SKILL.md:376`).
 
 Example layout after a few sessions:
 
@@ -56,7 +56,7 @@ The rules exist so that several sessions in one worktree can write without overw
 | Single-owner (PM only) | `current_plan` | Overwritten whole | `pm-agent.md:21`, `sc-pm-protocol/SKILL.md:23` |
 | Parallel | `checkpoint`, `decision`, handoffs | Written as `<key>-<session-or-timestamp>.md` and never edited in place | `pm-agent.md:21` |
 
-Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `reflect/last-pass-{slug}.md` whole and writes `reflect/handoff-{slug}-{timestamp}.md` once (`sc-reflect-protocol/SKILL.md:539-541`).
+Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `reflect/last-pass-{slug}.md` whole and writes `reflect/handoff-{slug}-{timestamp}.md` once (`sc-reflect-protocol/SKILL.md:592-594`).
 
 ## Who reads and writes the store
 
@@ -75,8 +75,8 @@ Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `ref
 
 | Skill | Use of the store | Source |
 |---|---|---|
-| `sc-task-protocol` | Reads relevant memories before work; saves session state to `task/session-<timestamp>.md` | `sc-task-protocol/SKILL.md:90,304,319` |
-| `sc-reflect-protocol` | Reads and writes `reflect/` files; the `--remediate` MDTM route writes a handoff file whose key task-builder reads | `sc-reflect-protocol/SKILL.md:259,329-331,537-547` |
+| `sc-task-protocol` | Reads relevant memories before work; saves session state to `task/session-<timestamp>.md` | `sc-task-protocol/SKILL.md:92,316,331` |
+| `sc-reflect-protocol` | Reads and writes `reflect/` files (older versions also wrote a `reflect/handoff-*.md` file for a removed route) | `sc-reflect-protocol/SKILL.md:262,376-378,590-600` |
 | `sc-crash-recovery` | Counts memory files and spawns a project-memory investigator only when the store has files | `sc-crash-recovery/SKILL.md:62,79`, `sc-crash-recovery/scripts/bootstrap_scan.sh:153-154` |
 
 ## Why files and not an MCP server

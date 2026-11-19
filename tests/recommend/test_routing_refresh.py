@@ -37,7 +37,7 @@ _POST_REFRESH_ADDITIONS = {"graph", "impact", "issue", "sweep"}
 # Commands removed after the frozen package was written: /sc:spawn (replaced by
 # Orca), build, save, load, improve, cli-portify, index, index-repo and
 # review-translation (moved to the snapshot fork) went in 6.0.0, as did the roadmap,
-# tasklist and validate-roadmap commands. The frozen command record still lists them
+# tasklist and validate-roadmap commands; /sc:tdd went in 6.1.0. The frozen command record still lists them
 # as active.
 _POST_REFRESH_REMOVALS = {
     "spawn",
@@ -52,6 +52,7 @@ _POST_REFRESH_REMOVALS = {
     "roadmap",
     "tasklist",
     "validate-roadmap",
+    "tdd",
 }
 
 _TOKEN_RE = re.compile(r"`/([a-z][a-z0-9:-]*)")
@@ -154,9 +155,14 @@ def test_fixture_schema_and_completeness():
     assert data["evidence_class"].startswith("static definitions")
     assert "Task 8" in data["evidence_class"]
     ids = [case["id"] for case in data["cases"]]
-    assert ids == [
-        f"S{n:02d}" for n in range(1, 30) if n not in (5, 7, 11, 14, 15, 16, 24, 25, 27)
-    ]  # S05, S07, S11, S14, S15, S16, S24, S25, S27 retired
+    assert (
+        ids
+        == [
+            f"S{n:02d}"
+            for n in range(1, 30)
+            if n not in (3, 5, 7, 11, 14, 15, 16, 18, 19, 20, 24, 25, 27)
+        ]
+    )  # S05, S07, S11, S14, S15, S16, S24, S25, S27 retired earlier; S03, S18, S19, S20 in 6.1.0
     assert list(data["checks"]) == [f"T{n:02d}" for n in range(1, 77)]
     assert len(data["commands"]) == 47
     defined = set(data["fixture_inputs"])
@@ -463,16 +469,13 @@ def test_case_mandatory_flags_match_the_guide_row(case):
 
 
 def test_mandatory_flag_check_rejects_omitted_or_altered_entries():
-    s19 = next(case for case in _CASES if case["id"] == "S19")
-    route = s19["guide_route"]
-    assert s19["mandatory_flags"] == [
-        "3: `--mode critique --focus requirements`",
-        "5: `--mode critique --focus architecture,testing`",
-    ]
-    assert not _mandatory_problems(s19, route)
-    assert _mandatory_problems({**s19, "mandatory_flags": []}, route)
-    altered = ["3: `--mode discussion --focus requirements`", s19["mandatory_flags"][1]]
-    assert _mandatory_problems({**s19, "mandatory_flags": altered}, route)
+    s08 = next(case for case in _CASES if case["id"] == "S08")
+    route = s08["guide_route"]
+    assert s08["mandatory_flags"] == ["1: `--context-optimized`"]
+    assert not _mandatory_problems(s08, route)
+    assert _mandatory_problems({**s08, "mandatory_flags": []}, route)
+    altered = ["1: `--dry-run`"]
+    assert _mandatory_problems({**s08, "mandatory_flags": altered}, route)
 
 
 @pytest.mark.parametrize("case", _CASES, ids=[case["id"] for case in _CASES])
@@ -490,15 +493,6 @@ def test_case_activation_matches_command_source(case):
         assert refs == [expected], (case["id"], command, refs)
         skill = _primitive(expected)
         assert skill is not None, (case["id"], expected)
-
-
-def test_tdd_activation_uses_the_tdd_skill_not_a_guessed_protocol():
-    """T43: the differently headed directive resolves to skills/tdd, not sc-tdd-protocol."""
-    source = (_COMMANDS / "tdd.md").read_text(encoding="utf-8")
-    assert "## Activation" not in source
-    assert re.findall(r"^> Skill (\S+)$", source, re.M) == ["tdd"]
-    assert (_SKILLS / "tdd/SKILL.md").is_file()
-    assert not (_SKILLS / "sc-tdd-protocol").exists()
 
 
 @pytest.mark.parametrize("case", _CASES, ids=[case["id"] for case in _CASES])

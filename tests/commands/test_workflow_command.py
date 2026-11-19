@@ -239,7 +239,7 @@ def test_overlap_routing_names_only_kept_neighbors():
         for line in _ref("overlap-routing.md").splitlines()
         if line.startswith("| `/")
     ]
-    assert rows == ["| `/sc:implement`", "| `/sc:design`", "| `/task` (MDTM)"]
+    assert rows == ["| `/sc:implement`", "| `/sc:design`"]
 
 
 def test_wave_4_names_the_nested_reflect_directory_under_unattended():

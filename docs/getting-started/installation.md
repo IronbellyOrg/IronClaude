@@ -5,7 +5,7 @@
 ### **Transform Claude Code with commands, agents, skills, and MCP integrations**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-5.0.0-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/version-6.0.0-blue?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/Python-3.10+-green?style=for-the-badge" alt="Python">
   <img src="https://img.shields.io/badge/Platform-Linux%20|%20macOS%20|%20Windows-orange?style=for-the-badge" alt="Platform">
 </p>
@@ -304,7 +304,7 @@ From a source checkout, `superclaude` lives in `.venv`. Prefix it with `uv run`
 ### **Step 1: Check Installation**
 
 ```bash
-# Verify the installed version (prints: SuperClaude, version 5.0.0)
+# Verify the installed version (prints: SuperClaude, version 6.0.0)
 superclaude --version
 
 # List what is installed (read-only)
@@ -356,6 +356,20 @@ registered, and only the verbose output shows that line.
 | codegraph user-scope MCP registration | the `codegraph` entry under `mcpServers` in `~/.claude.json` |
 
 </div>
+
+**Conversation retention.** Claude Code deletes a saved conversation whose file
+is older than `cleanupPeriodDays` days (30 by default) and exempts no named
+session. `superclaude install` raises `cleanupPeriodDays` to 90 in
+`~/.claude/settings.json` when the key is absent or lower, so a machine with no
+value goes from 30 to 90 days (releases before 6.1.0 used 365). A larger value
+you set (365, for example) is never lowered, a settings file that is not valid
+JSON is left untouched, and the file is copied to `settings.json.bak.<UTC time>`
+first. A value set by managed settings (on Linux,
+`/etc/claude-code/managed-settings.d/*.json`) wins over your file: the installer
+then writes nothing and prints one warning line that names the managed file.
+While the value in force is below 90, `ccsession --list` and `ccsession --here`
+print one warning line on standard error. How long sessions an agent saved are
+kept is ccsession's own pruning (`ccsession --prune`), not this setting.
 
 `superclaude install` also installs the default Claude Code plugins listed in
 its settings defaults (including `playwright`, `frontend-design` and `ponytail`)
@@ -594,9 +608,9 @@ claude mcp remove codegraph --scope user
 
 then delete the owned paths `superclaude install --list` printed; see [Removing codegraph](../user-guide/mcp-installation.md#removing-codegraph).
 
-A plain `superclaude install` keeps framework files you already have (it still runs the codegraph phase and the cleanup step); run `superclaude install --force` to refresh them, for example to get the new `~/.claude/CLAUDE.md` and the latest `~/.claude/HOW-WE-WORK.md`. Unlike `superclaude update`, it also installs codegraph and retires old MCP registrations.
+A plain `superclaude install` keeps framework files you already have and names each kept command, rule and output-style file that differs from this version (it still runs the codegraph phase and the cleanup steps); run `superclaude install --force` to refresh them, for example to get the new `~/.claude/CLAUDE.md` and the latest `~/.claude/HOW-WE-WORK.md`. Unlike `superclaude update`, it also installs codegraph and retires old MCP registrations.
 
-> **Warning:** `superclaude install --force` overwrites every file it ships, the same files `superclaude update` overwrites, including `~/.claude/CLAUDE.md` and `~/.claude/RULES.md`, and keeps no backup of them. It also deletes and re-copies each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. If you edited or added any of these files, copy them first (for example `cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.mine`), then re-apply your changes after the upgrade. After refreshing the files it also runs the codegraph phase and the cleanup step; if the codegraph phase fails, the command exits 1 even though the files were already refreshed. Fix the cause and run it again.
+> **Warning:** `superclaude install --force` overwrites every file it ships, the same files `superclaude update` overwrites. For a command, rule or output-style file that differs from the shipped one it first saves a copy next to it as `<name>.bak.<UTC time>` (see [Saved copies](upgrading.md#saved-copies-of-changed-files)). Core files such as `~/.claude/CLAUDE.md` and `~/.claude/RULES.md`, agents and skills are overwritten with no copy, and each shipped skill folder in `~/.claude/skills/` is deleted and re-copied, so any file you added inside one is lost. If you edited or added any of those files, copy them first (for example `cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.mine`), then re-apply your changes after the upgrade. After refreshing the files it also runs the codegraph phase and the cleanup steps; if the codegraph phase fails, the command exits 1 even though the files were already refreshed. Fix the cause and run it again.
 
 ---
 

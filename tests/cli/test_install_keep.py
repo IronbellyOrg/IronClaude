@@ -11,6 +11,7 @@ installer, because only the current shipped bytes are known; both are covered.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -18,6 +19,7 @@ import pytest
 from superclaude.cli import install_keep
 from superclaude.cli import install_user_setup as setup
 from superclaude.cli.install_commands import install_commands
+from superclaude.cli.install_core import install_core_files
 from superclaude.cli.install_keep import backup_if_differs, same_content
 
 STYLE = "pragmatic.md"
@@ -34,14 +36,46 @@ def _baks(directory: Path) -> list[Path]:
 # --- helpers -----------------------------------------------------------------
 
 
+def _rewrite_keeping_stat(path: Path, text: str) -> None:
+    """Rewrite ``path`` and restore its old times, so its size and mtime match
+    what ``filecmp`` cached, as when a rewrite lands in the same timestamp tick."""
+    before = path.stat()
+    path.write_text(text)
+    os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+    assert path.stat().st_mtime == before.st_mtime
+
+
 def test_same_content_is_true_only_for_identical_readable_files(tmp_path: Path):
     a, b = tmp_path / "a", tmp_path / "b"
     a.write_text("x")
     b.write_text("x")
     assert same_content(a, b)
-    b.write_text("y")
+    _rewrite_keeping_stat(b, "y")
     assert not same_content(a, b)
     assert not same_content(a, tmp_path / "missing")
+
+
+def test_same_content_sees_a_rewrite_that_keeps_size_and_mtime(tmp_path: Path):
+    a, b = tmp_path / "a", tmp_path / "b"
+    a.write_text("x")
+    b.write_text("x")
+    assert same_content(a, b)
+    _rewrite_keeping_stat(b, "y")
+    assert not same_content(a, b)
+    _rewrite_keeping_stat(b, "x")
+    assert same_content(a, b)
+
+
+def test_core_install_reports_a_kept_file_rewritten_with_the_same_size_and_mtime(
+    tmp_path: Path,
+):
+    assert install_core_files(target_path=tmp_path)[0]
+    ok, message = install_core_files(target_path=tmp_path)  # compares every file
+    assert ok and "differ" not in message
+    victim = next(tmp_path.glob("*.md"))
+    _rewrite_keeping_stat(victim, "z" * victim.stat().st_size)
+    ok, message = install_core_files(target_path=tmp_path)
+    assert ok and "differ from this version" in message and victim.name in message
 
 
 def test_backup_if_differs_returns_none_for_a_matching_file(tmp_path: Path):

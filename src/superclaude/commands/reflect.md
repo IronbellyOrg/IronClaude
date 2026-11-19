@@ -17,8 +17,8 @@ argument-hint: "[--mode pre|post] [--spec <path>] [--tasklist <path>] [--diff <r
 Auto-activates whenever a reviewer-side, structurally-independent audit is needed against a spec, a tasklist, or a completed work-unit — even without saying "reflect". Activation paths:
 
 1. **Direct invocation**: `/sc:reflect --mode pre|post ...` (recommended for non-interactive callers)
-2. **Legacy invocation**: `/sc:reflect --type task --analyze` or `/sc:reflect --type task --validate` — preserved for `sc:troubleshoot-protocol` Wave 6 (Phase B and Phase D) and any other caller already on the v1 grammar. The legacy grammar is mapped onto the new modes (see Usage below).
-3. **Programmatic call**: Another `/sc:*` command invokes the `sc:reflect-protocol` skill directly (e.g., `sc:task-protocol` end-of-task hook when enabled).
+2. **Legacy invocation**: `/sc:reflect --type task --analyze` or `/sc:reflect --type task --validate` — preserved for any caller already on the v1 grammar. The legacy grammar is mapped onto the new modes (see Usage below).
+3. **Programmatic call**: Another `/sc:*` command invokes the `sc:reflect-protocol` skill directly (e.g., `sc:troubleshoot-protocol` Wave 6, or the `sc:task-protocol` end-of-task hook when enabled).
 
 ## Required Input
 
@@ -60,12 +60,11 @@ Auto-activates whenever a reviewer-side, structurally-independent audit is neede
 # Offer the Tier 3 remediation chain after audit (plan route: sc:workflow -> /sc:implement .dev/tasks/to-do/<slug>/<slug>.md)
 /sc:reflect --mode post --diff HEAD~1..HEAD --remediate
 
-# Same, but via the MDTM route (task-builder -> /task); --depth deep alone does not remediate
+# Deep review plus remediation (--depth deep alone does not remediate; the route is the same at every depth)
 /sc:reflect --mode post --diff HEAD~1..HEAD --depth deep --remediate
 
-# Headless wrapper (superclaude reflect run --fix) follows the same depth rule:
-#   default depth   -> plan route; contract field remediation_plan_path; the wrapper auto-runs /sc:implement <tasklist path>
-#   --depth deep    -> MDTM route; contract field remediation_task_path; the wrapper auto-runs /task <path>
+# Headless wrapper (superclaude reflect run --fix):
+#   plan route at every depth; contract field remediation_plan_path; the wrapper auto-runs /sc:implement <tasklist path>
 # Headless runs auto-accept (AUTO-FIXABLE registers only) and skip the plan-route refactor prompt and execution gate;
 # sc:workflow's built-in advisory pre-review still runs but is not gated on; the wrapper's bounded re-audit is the verification.
 ```
@@ -86,7 +85,7 @@ This path calls `superclaude.pr_submit.contract_setup`, prints readiness/blocker
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--mode` | auto-detect via §3.2 | `pre` (UC-1 coverage/gap audit) or `post` (UC-2 deviation audit). Explicit setting eliminates auto-detect ambiguity. |
-| `--type` | (legacy) | Legacy v1 flag — accepts `task` for backward compatibility with `sc:troubleshoot-protocol` Wave 6. Combined with `--analyze`/`--validate` to resolve mode (see legacy mapping below). |
+| `--type` | (legacy) | Legacy v1 flag — accepts `task` for backward compatibility with v1 callers. Combined with `--analyze`/`--validate` to resolve mode (see legacy mapping below). |
 | `--analyze` | (legacy) | Legacy v1 flag — paired with `--type task`, maps to `--mode pre`. |
 | `--validate` | (legacy) | Legacy v1 flag — paired with `--type task`, maps to `--mode post`. |
 | `--spec` | (none) | Driving spec / PRD / objectives doc. **Required for UC-1.** Recommended for UC-2. |
@@ -105,7 +104,7 @@ This path calls `superclaude.pr_submit.contract_setup`, prints readiness/blocker
 | `--no-doc-discovery` | `false` | Skip Wave 1.5 documentation grounding (records the skip in Grounding Gaps). |
 | `--no-verify` | `false` (UC-2) | Disable the UC-2 verification run (Bash, scoped non-mutating linters/type-checkers/tests/build under the §6.1.1 envelope, §6.1 steps 5 and 5.5). Default-on; when set, degrades §10.4 Regression detection to the task-log claim with a Grounding Gap entry. Subsumes the deprecated `--rerun-tests` alias. |
 | `--no-reachability` | `false` (UC-2) | Disable the §6.1 step-5.6 contracted-sink reachability & oracle-admissibility gate (the operator rollback path). Default-on; when set, records telemetry-only skip state (`reachability_gate_ran: false`, `reachability_skip_reason: --no-reachability`); it does NOT write a Grounding Gap, set needs_human_decision, or force status: partial. |
-| `--remediate` | `false` | After the audit ships, offer the Tier 3 remediation chain. Default (plan route): `sc:workflow` builds the tasklist package `.dev/tasks/to-do/<slug>/<slug>.md` (its built-in `--mode pre` review is surfaced) → operator runs `/sc:implement <pkg>/<slug>.md` → `/sc:reflect --mode post` re-runs as the post-commit gate. With `--depth deep` (MDTM route): `task-builder` → operator runs `/task` → `/sc:reflect --mode post`. `--depth deep` alone does NOT remediate; the route follows the depth you requested, not the tier reached. |
+| `--remediate` | `false` | After the audit ships, offer the Tier 3 remediation chain. Default (plan route): `sc:workflow` builds the tasklist package `.dev/tasks/to-do/<slug>/<slug>.md` (its built-in `--mode pre` review is surfaced) → operator runs `/sc:implement <pkg>/<slug>.md` → `/sc:reflect --mode post` re-runs as the post-commit gate. The route is the same at every depth: `--depth deep` only sets the review depth, and alone it does NOT remediate. |
 | `--budget-remaining` | (none) | Caller-side budget hint (typically the caller's remaining budget). When provided, reflect cross-checks against the §15 cost profile and may auto-degrade tier; emits `budget_forced_tier_downgrade: true` in the contract. |
 | `--no-promote` | `false` (UC-2) | Suppress Wave 7 promotion. Default behavior: when the §14.5.2 strict gate passes, the validated work-unit folder moves to its `done` destination. |
 | `--promote-anyway` | `false` (UC-2) | Override the `status: partial` gate condition. No effect on `status: failed`. |
@@ -117,7 +116,7 @@ This path calls `superclaude.pr_submit.contract_setup`, prints readiness/blocker
 
 ### Legacy grammar mapping
 
-The v1 surface used `--type task --analyze|--validate`. The v2 protocol preserves these flags for `sc:troubleshoot-protocol` Wave 6 and any other caller already on the legacy grammar. The mapping is mechanical:
+The v1 surface used `--type task --analyze|--validate`. The v2 protocol preserves these flags for any caller already on the legacy grammar. The mapping is mechanical:
 
 | Legacy invocation | v2 resolution |
 |-------------------|---------------|
@@ -135,7 +134,7 @@ The full multi-wave protocol lives in the skill. The command file performs only:
 1. **Parse arguments** → resolve `--mode` (apply legacy mapping if `--type task` is present), validate input combinations, normalize paths.
 2. **Validate environment** → MCP availability (or `--no-mcp` set); output dir is writable AND not under `.claude/skills,agents,commands/`.
 3. **Hand off to the skill** via the Activation section below.
-4. **On skill return**, surface: REPORT.md path, mode, tier reached, calibrated confidence, deviation counts per §10 class (UC-2), coverage_pct (UC-1), evidence-validator drop count, Wave 7 promotion verdict (UC-2), and (if `--remediate`) the route-specific Tier 3 remediation offer (plan route by default; MDTM route with `--depth deep`).
+4. **On skill return**, surface: REPORT.md path, mode, tier reached, calibrated confidence, deviation counts per §10 class (UC-2), coverage_pct (UC-1), evidence-validator drop count, Wave 7 promotion verdict (UC-2), and (if `--remediate`) the Tier 3 remediation offer (plan route).
 
 **Three tiers under the hood** (full details in `refs/reflection-rubric.md` and §5):
 
@@ -143,7 +142,7 @@ The full multi-wave protocol lives in the skill. The command file performs only:
 |------|------|--------------|------------|
 | Tier 1 | Always (unless STOP) | Single grounded card from `root-cause-analyst` + `confidence-calibrator`, with auggie plus codegraph plus native Grep/Read grounding. | ~3-6k Claude tokens, 1-3 min |
 | Tier 2 | Auto-escalate on calibrated confidence < threshold, multi-domain, or `--depth deep` / `--tier 2` | 2-3 heterogeneous reviewers (different model classes) fan out in parallel; each card is independently calibrated; competing verdicts merged via `sc:adversarial-protocol`; `evidence-validator` drops unfounded citations. | +15-60k tokens, +4-15 min |
-| Tier 3 | Opt-in via `--remediate` AND user accepts | `--remediate`: `sc:workflow` produces the tasklist package `<slug>.md`; operator runs `/sc:implement <pkg>/<slug>.md` themselves; `/sc:reflect --mode post` re-runs as the post-commit gate. `--remediate --depth deep`: `task-builder` produces an MDTM remediation task file; operator runs `/task` themselves; `/sc:reflect --mode post` re-runs as the gate. | +20-40k tokens, +5-10 min |
+| Tier 3 | Opt-in via `--remediate` AND user accepts | `--remediate`: `sc:workflow` produces the tasklist package `<slug>.md`; operator runs `/sc:implement <pkg>/<slug>.md` themselves; `/sc:reflect --mode post` re-runs as the post-commit gate. | +20-40k tokens, +5-10 min |
 
 ## Activation
 
@@ -170,7 +169,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - **`mcp__litellm__context7-resolve-library-id` / `query-docs`** (else `mcp__context7__resolve-library-id` / `query-docs`): external library grounding (Tier 2)
 - **`mcp__litellm__Tavily-tavily_search`** (else `mcp__tavily__tavily_search`): targeted web search (Tier 2, rate-limited)
 - **`Task`**: spawn `root-cause-analyst`, `self-review`, `requirements-analyst`, `confidence-calibrator`, `rf-qa`, `rf-qa-qualitative`, `audit-validator`, `evidence-validator`, `socratic-mentor`
-- **`Skill`**: invoke `sc:adversarial-protocol` (Wave 4 merge debate), `sc:workflow-protocol` (Wave 6 remediation, plan route — the default), `task-builder` (Wave 6 remediation, MDTM route — only with `--remediate --depth deep`), `confidence-check` / `tech-research` (auxiliary)
+- **`Skill`**: invoke `sc:adversarial-protocol` (Wave 4 merge debate), `sc:workflow-protocol` (Wave 6 remediation), `confidence-check` (auxiliary)
 - **`Read` / `Grep` / `Glob`**: native fallback when MCPs are unavailable; file:line re-Read for evidence-validator
 - **`Bash`**: diff resolution, git ref expansion, output-dir creation
 - **`Write`**: REPORT.md, hypothesis cards, calibration reports, tier_decision.yaml, promotion-log.yaml, telemetry artifacts
@@ -213,29 +212,27 @@ Do NOT proceed with protocol execution using only this command file. The full be
 #   /sc:reflect --mode post re-runs as the post-commit gate
 ```
 
-### Force Tier 2 + MDTM remediation route (`--remediate --depth deep`)
+### Force Tier 2 with remediation (`--remediate --depth deep`)
 
 ```text
 /sc:reflect --mode post --diff HEAD~1..HEAD --depth deep --remediate
 # - --depth deep forces Tier 2 regardless of Tier 1 calibrated confidence
 # - 3 heterogeneous reviewers fan out in parallel; sc:adversarial-protocol merges competing verdicts
 # - evidence-validator runs as final gate
-# - After REPORT.md, the Tier 3 remediation offer is surfaced (Route: mdtm):
-#   "Reflect identified N regression items. Proceed with task-builder? [yes / no]"
-# - User accepts → task file built; operator runs /task; /sc:reflect --mode post re-runs as post-commit gate
+# - After REPORT.md, the Tier 3 remediation offer is surfaced (plan route):
+#   "Reflect identified N regression items. Proceed with sc:workflow? [yes / no]"
+# - User accepts → tasklist package built; operator runs /sc:implement <pkg>/<slug>.md; /sc:reflect --mode post re-runs as post-commit gate
 # - Without --remediate, --depth deep audits at Tier 2 and does NOT remediate
 ```
 
-### Legacy `sc:troubleshoot` Wave 6 invocation (preserved)
+### Legacy `--type task` invocation (preserved)
 
 ```text
 /sc:reflect --type task --analyze   # mapped → --mode pre
-# - sc:troubleshoot Wave 6 Phase B calls this before /task runs
-# - Treated as pre-execution analysis audit of the task-builder output
+# - Older spelling of --mode pre, kept for existing callers
 
 /sc:reflect --type task --validate  # mapped → --mode post
-# - sc:troubleshoot Wave 6 Phase D calls this after /task completes
-# - Treated as post-execution validation audit of the /task work-unit
+# - Older spelling of --mode post, kept for existing callers
 ```
 
 ### Suppress promotion (diagnose-only mode)
@@ -263,7 +260,7 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
 - **Report directory.** Exactly one of `--output <dir>` or `--report-dir <dir>`; both, or neither, is refused before any work and the refusal is printed in chat only. `--report-dir` follows the path rules of `--output`: a directory under the `.claude/` skill, agent or command folders, one inside `.git/` or `.codegraph/`, or one that cannot be created or written counts as no report directory known (refusal printed in chat only).
 - **Contract.** The worker fields are added to the command's own `<output>/return-contract.yaml` beside every existing field; with `--report-dir` instead, the worker contract is a separate `<report-dir>/return-contract.yaml` that lists the own contract in `artifacts`. `report_path` is the absolute path of the `REPORT.md` this run wrote (the same value as the stable contract's `report_path`, never the bare file name). `artifacts` lists every other file the run wrote: the files of its output directory, `docs/memory/reflect/deviation-patterns-<slug>.md` when it wrote it, and the nested contracts; paths git ignores are left out (WC-4), among them `.dev/reflect/runs.jsonl` and `.superclaude/memory/`. The own `status` values `success`, `partial`, `failed`, `dry-run` and `stopped-precondition` map to `succeeded`, `partial`, `failed`, `succeeded` and `failed` (the precondition in `reason`).
 - **Person-mode flags.** None is refused.
-- **Gates.** Under `--unattended`, `--remediate` is answered by the headless auto-accept rule whatever the terminal state: only AUTO-FIXABLE registers are authored, without the yes/no prompt, and HUMAN-REQUIRED registers author nothing auto-runnable. The MDTM route (`--depth deep`) is skipped and recorded, because `task-builder` is not a command. The run creates no review snapshot and runs no git write; the snapshot belongs to the `superclaude reflect run --isolate-reviewers` wrapper, not to this command. The optional `--depth deep` call is dropped too: the Wave 1B tech-research step is skipped and recorded, because `tech-research` has no Unattended mode. Wave 7 promotion is unchanged, and the brief passes `--no-promote` when the coordinator owns folder moves. There is no other gate.
+- **Gates.** Under `--unattended`, `--remediate` is answered by the headless auto-accept rule whatever the terminal state: only AUTO-FIXABLE registers are authored, without the yes/no prompt, and HUMAN-REQUIRED registers author nothing auto-runnable. The run creates no review snapshot and runs no git write; the snapshot belongs to the `superclaude reflect run --isolate-reviewers` wrapper, not to this command. Wave 7 promotion is unchanged, and the brief passes `--no-promote` when the coordinator owns folder moves. There is no other gate.
 - **Nested invocations.** The Wave 4 `sc-adversarial-protocol --compare` merge receives `--unattended --output <report-dir>/nested/adversarial-<n>/`, the plan route's `sc:workflow-protocol` call receives `--unattended --report-dir <report-dir>/nested/workflow-<n>/ --handoff none`, and the UC-2 Step 1B.3 `sc:impact-protocol` call receives `--unattended --output-dir <report-dir>/nested/impact-<n>/` in place of `<output>/artifacts/impact`, each `<n>` counting from 1 per nested command and never reused (a retry takes the next number); each contract is listed in `artifacts`, also when the call failed. A nested contract is read by the nested-result rule of `~/.claude/WORKER-CONTRACT.md`.
 - **Outward actions.** It pushes, commits and stages nothing.
 
@@ -278,7 +275,7 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
 - Run `evidence-validator` as the final gate before REPORT.md ships; drop (not downgrade) unfounded `file:line` citations
 - Classify every UC-2 deviation into one of 4 canonical categories: `authorized` / `necessary` / `drift` / `regression` per §10
 - Default-on Wave 7 promotion mutation for UC-2 when the §14.5.2 strict gate passes; `--no-promote` suppresses
-- Preserve the legacy `--type task --analyze|--validate` grammar for `sc:troubleshoot-protocol` Wave 6 and other v1 callers
+- Preserve the legacy `--type task --analyze|--validate` grammar for v1 callers
 - Write the §9 stable output contract (versioned via `contract_version`) so downstream consumers can parse without ambiguity
 - Stay within the §15 cost profile and emit `budget_forced_tier_downgrade: true` when `--budget-remaining` forces a tier drop
 
@@ -287,7 +284,7 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
 - Trust agent-reported confidence without re-grading via `confidence-calibrator` (single-model self-grading is structurally biased per Mehta, Towards-AI Mar-2026)
 - Ship a REPORT.md whose `file:line` citations have not passed through `evidence-validator` (or its documented fallback when `--no-evidence-validator` is set)
 - Seat a reviewer whose model class collides with the calibrator's model class (Khan ICML 2024 disjoint-set rule — enforced by the `refs/reviewer-spec.md` rotation logic)
-- Auto-execute the Tier 3 remediation chain on either route — `sc:workflow` produces a tasklist package and the operator runs `/sc:implement` themselves; `task-builder` (`--depth deep`) produces a task file and the operator runs `/task` themselves; the skill never runs `/sc:implement` or `/task`
+- Auto-execute the Tier 3 remediation chain — `sc:workflow` produces a tasklist package and the operator runs `/sc:implement` themselves; the skill never runs `/sc:implement`
 - Auto-commit after Tier 3 — `/sc:reflect --mode post` is the post-commit gate the operator re-runs
 - Mutate filesystem for promotion when `--promote-dry-run` is set
 - Write outputs under `.claude/skills,agents,commands/` (CLAUDE.md ABSOLUTE RULE — STOP condition)
@@ -302,18 +299,17 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
 This command is audit-first by default.
 
 - **Default behavior (no `--remediate` flag)**: Run the resolved mode end-to-end, produce REPORT.md, run Wave 7 promotion if UC-2 and the §14.5.2 gate passes, STOP. The operator reviews and either re-runs with `--remediate` or addresses findings manually.
-- **With `--remediate` flag**: After REPORT.md, offer the Tier 3 remediation chain. By default (plan route) `sc:workflow` produces the tasklist package (running its own advisory `--mode pre` review), and the skill **stops and surfaces the literal `/sc:implement <pkg>/<slug>.md` command — the operator runs it, never the skill.** With `--depth deep` (MDTM route) `task-builder` produces the task file and the skill **stops and surfaces the literal `/task <path>` command — the operator runs it, never the skill.** `--depth deep` without `--remediate` never remediates.
-- **After `/sc:implement` (or `/task`) completes**: The operator re-runs `/sc:reflect --mode post --diff <new-diff>` as the post-commit gate.
+- **With `--remediate` flag**: After REPORT.md, offer the Tier 3 remediation chain. By default (plan route) `sc:workflow` produces the tasklist package (running its own advisory `--mode pre` review), and the skill **stops and surfaces the literal `/sc:implement <pkg>/<slug>.md` command — the operator runs it, never the skill.** `--depth deep` without `--remediate` never remediates.
+- **After `/sc:implement` completes**: The operator re-runs `/sc:reflect --mode post --diff <new-diff>` as the post-commit gate.
 
 No silent code changes. No auto-execution of the remediation plan or task. No auto-commit.
 
 ## Related Commands
 
 - **`superclaude reflect contract-status [--validate] --repo <owner/repo> --pr <number>`** — Approved detection-contract readiness surface. It diagnoses/validates existing file-based evidence without running UC-1/UC-2 audit machinery, writing a lock by default, arming Monitor, mutating PR state, or dumping raw payload bodies.
-- **`/sc:troubleshoot`** — Its Tier 3 Wave 6 calls reflect twice. Plan route (`--fix`): the workflow tasklist is pre-reviewed with `--mode pre` (Phase B) and validated with `/sc:reflect --mode post ...` (Phase D). MDTM route (`--fix --depth deep`): the legacy `--type task --analyze` (Phase B) and `--type task --validate` (Phase D), preserved for this caller.
+- **`/sc:troubleshoot`** — Its Tier 3 Wave 6 calls reflect twice. Plan route (`--fix`): the workflow tasklist is pre-reviewed with `--mode pre` (Phase B) and validated with `/sc:reflect --mode post ...` (Phase D).
 - **`/sc:adversarial`** — Invoked by reflect Wave 4 to debate competing reviewer verdicts in Tier 2. Reflect consumes the producer's `artifacts_dir` field and remaps it into its own `adversarial_artifacts_dir` contract field (mechanical resolution; not user-facing).
 - **`/sc:workflow`** → **`/sc:implement`** — Default Tier 3 route with `--remediate`: reflect Wave 6 invokes `sc:workflow-protocol` (with `--handoff none`) to build the tasklist package `.dev/tasks/to-do/<slug>/<slug>.md`; the operator runs `/sc:implement <pkg>/<slug>.md`.
-- **`task-builder` skill** — Only with `--remediate --depth deep`: invoked by reflect Wave 6 when the remediation offer is accepted; consumes the M1-frozen BUILD_REQUEST schema documented in `refs/remediation-handoff.md`.
 - **`/sc:task`** — May auto-trigger `/sc:reflect` as an end-of-task hook when configured (deferred per Open Question 2 in the rebuild task file).
 - **`/sc:analyze`** — Complementary; use for read-only quality/security/architecture analysis when there is no spec or diff to reflect against.
 - **`/sc:brainstorm`** — Upstream of `/sc:reflect` when the spec or tasklist itself is genuinely ambiguous and the user wants to scope it first.

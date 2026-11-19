@@ -17,7 +17,7 @@
       "core_md_files": 8,
       "commands": 43,
       "agents": 43,
-      "skills": 36,
+      "skills": 26,
       "modes": 7
     },
     "dependencies": [
@@ -106,8 +106,8 @@
     "agents": {"path": "src/superclaude/agents/", "count": 43},
     "skills": {
       "path": "src/superclaude/skills/",
-      "count": 36,
-      "notable": ["sc-recommend", "confidence-check", "task", "task-builder", "roadmap", "prd", "tdd", "tech-research", "tech-reference"]
+      "count": 26,
+      "notable": ["sc-recommend", "confidence-check"]
     },
     "modes": {"path": "src/superclaude/modes/", "count": 7},
     "mcp": {"path": "src/superclaude/mcp/", "purpose": "MCP server docs (MCP_*.md) and configs/"},

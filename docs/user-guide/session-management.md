@@ -70,7 +70,7 @@ The last line adds the `.gitignore` that the PM agent creates on its first write
 To pick up work in a new conversation, use section 3.12 ("Resume after a crash or a lost session") of the routing guide, [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md#312-resume-after-a-crash-or-a-lost-session), which `superclaude install` copies to `~/.claude/HOW-WE-WORK.md`. It gives two ways:
 
 1. **Reopen the conversation.** This only works if the conversation had a name before you lost it: start it with `ccsession <name>`, or inside Claude Code run `/rename <name>` and send one more message (or quit) so ccsession records it. Later, from a terminal in any worktree or copy of the same repo (outside git, the same folder), run `ccsession <name>` (quote a name with spaces). `ccsession --here` lists the names for this worktree (and for removed ones); `ccsession --here --all` lists every worktree's. `~/.local/bin` must be on your `PATH`.
-2. **Rerun the same command on the work's own files.** This always works: `/task <path to the task file>` for a task file, or `/sc:implement .dev/tasks/to-do/<id>/<id>.md` for a plan.
+2. **Rerun the same command on the work's own files.** This always works: `/sc:implement .dev/tasks/to-do/<id>/<id>.md` for a plan.
 
 Project memory in the `.superclaude/memory/` files helps Claude remember project decisions, but it does not resume a task or a plan.
 
