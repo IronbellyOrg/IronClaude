@@ -1,0 +1,3 @@
+dfe7c2d807996b5659d578d6bb957a8c50fde1554e6e91af93c9f708709f3cdc  ./TASK-WF-requirements-20261119-012839.md
+ad06802cff823a622905d850a453b013f11e40ddaa14a759dc5001b3ffc4d079  ./artifacts/codegraph-grounding.md
+db70b950ac2863b4645516eeddded2de196a2b128d6900a0f0f1f702fc744431  ./source.md

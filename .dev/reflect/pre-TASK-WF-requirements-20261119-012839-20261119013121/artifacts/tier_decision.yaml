@@ -1,0 +1,5 @@
+selected_tier: 2
+fired_rule_number: 4
+escalation_reason: "S_domains >= 3; 24 tasks"
+t2_engine_effective: legacy
+t2_vendor_diversity: single

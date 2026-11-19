@@ -1,0 +1,5 @@
+input_tree_sha256_files:
+  - path: .dev/tasks/to-do/TASK-WF-requirements-20261119-140750/source.md
+    sha256: 208ca33ee100c0c437e3c176342371f8e7488cab6f3756b67635931d28e78201
+  - path: .dev/tasks/to-do/TASK-WF-requirements-20261119-140750/TASK-WF-requirements-20261119-140750.md
+    sha256: 6d9eeb6468f823886600ab90d40307c36aaad34bf80b266f9cb18a94e1ee0e05

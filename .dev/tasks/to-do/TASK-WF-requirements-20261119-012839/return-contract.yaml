@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-requirements-20261119-012839
+plan_path: ./TASK-WF-requirements-20261119-012839.md
+source_path: ./source.md
+source_origin: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/releases/backlog/issue-watcher-zero-setup/requirements.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-012839-20261119013121/REPORT.md
+unresolved:
+  - "reflect Q-1: the guard allows gh issue create, edit and comment at Full Submit, so the coordinator-only write rule is not enforced there and a Full Submit agent could approve another issue"
+  - "reflect Q-2: the documented ship gate for governed launch levels (claim.md:133) is neither checked nor mentioned; owner decision"
+  - "reflect Q-3: Task 3 does not prove that a Pipeline or Status change moves the Project item's update time; owner-run observation needed"
+  - "reflect Q-4: Task 4 and Task 6 name different reasons (edited_after_approval and revalidation_failed) for the same reread"

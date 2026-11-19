@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-requirements-20261118-233559
+plan_path: ./TASK-WF-requirements-20261118-233559.md
+source_path: ./source.md
+source_origin: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/releases/backlog/issue-watcher-zero-setup/requirements.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261118-233559-20261118234500/REPORT.md
+unresolved:
+  - "reflect M-1: Tasks 14-15 stop rule misses an unknown launch outcome (cycle.py:1106-1109)"
+  - "reflect M-2: Task 5 builds the prompt from the examined Status and Pipeline, not the revalidated ones (cycle.py:1054, 1058)"
+  - "reflect M-3: Task 13 omits the lock and restart tests that R18 names"
+  - "reflect M-5: Task 6 'approval record' from claim-time ids fits only a plan-hash row; name the record and add a refusal test"

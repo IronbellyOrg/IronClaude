@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-requirements-20261119-010910
+plan_path: ./TASK-WF-requirements-20261119-010910.md
+source_path: ./source.md
+source_origin: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/releases/backlog/issue-watcher-zero-setup/requirements.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-010910-20261119011330/REPORT.md
+unresolved:
+  - "reflect P-1: the completion write by a launched agent bypasses the launch-level guard and the coordinator-only write rule; owner decision needed"
+  - "reflect P-2: Task 10 breaks tests/issue_watch/test_security_invariants.py lines 911-919 while the plan says it still passes"
+  - "reflect P-3: a child killed after launching leaves no launched line, so a second issue can launch in one sweep"
+  - "reflect P-4: nothing proves who set the Pipeline field or when; owner decision needed"

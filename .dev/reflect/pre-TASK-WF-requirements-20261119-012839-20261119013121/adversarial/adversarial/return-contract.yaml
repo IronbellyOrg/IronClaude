@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: "../merged-output.md"
+  convergence_score: 0.875
+  artifacts_dir: "adversarial/adversarial"
+  status: "partial"
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes: "depth quick: no Round 2, invariant probe or position-bias pass; scores estimated; A-002 qualified"

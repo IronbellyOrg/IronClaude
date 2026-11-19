@@ -1,0 +1,16 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-requirements-20261119-143917
+plan_path: ./TASK-WF-requirements-20261119-143917.md
+source_path: ./source.md
+source_origin: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/releases/backlog/issue-watcher-zero-setup/requirements.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: skipped
+reflect_report_path: null
+unresolved:
+  - "the advisory /sc:reflect --mode pre review was not run on this plan version; the fourth review (merged register P4-1 to P4-22) was run on plan v4 and is at .dev/reflect/pre-TASK-WF-requirements-20261119-140750-20261119141121/adversarial/merged-output.md"
+  - "plan v5 fixes only the five blocking findings P4-1 to P4-5 (requirement R34); the medium findings P4-6 to P4-11 and the notes P4-12 to P4-22 of that register are not addressed"
+  - "plan v5 adds one design choice that the register left to Task 6: Debug at level none runs /sc:troubleshoot without --fix"

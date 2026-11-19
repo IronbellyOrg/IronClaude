@@ -1,0 +1,13 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: null
+surface_unreached: null
+composite_score: 6
+per_signal_breakdown: {scope_size: 2, task_count: 2, blast_radius: 1, spec_density: 1, ambiguity_signals: 0}
+escalation_reason: "S_domains >= 3 (code, tests, docs); S_scope = 20 tasks; coverage_pct 0.957 below the 0.90 stop only by rule order, rows 1 and 2 fail on scope"
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+executor_class_source: unknown
