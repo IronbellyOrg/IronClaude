@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-refactorTheScIss-20261118055116/merged-output.md"
+  convergence_score: 0.882
+  artifacts_dir: ".dev/reflect/pre-refactorTheScIss-20261118055116/adversarial"
+  status: "success"
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 2           # C-001 and X-001 (severity framing of one unanimous finding), settled by the merge as medium and must-fix
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []        # Round 2.5 skipped at --depth quick
+  departures:
+    - "merge-executor agent not dispatched; the orchestrator applied refactor-plan.md (logged in merge-log.md)"
+    - "Round 2 and Round 2.5 skipped by depth quick"
+    - "advocates, calibrators and scoring agents were general-purpose and reflect-reviewer/confidence-calibrator agents chosen by the orchestrator, not a debate-orchestrator agent"

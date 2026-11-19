@@ -1,0 +1,61 @@
+# Tier 1 reflection card (UC-1) for TASK-WF-refactorScIssueC-20261118-041634
+mode: pre
+spec: .dev/tasks/to-do/TASK-WF-refactorScIssueC-20261118-041634/source.md
+tasklist: .dev/tasks/to-do/TASK-WF-refactorScIssueC-20261118-041634/TASK-WF-refactorScIssueC-20261118-041634.md
+hypothesis_source: orchestrator-inline (root-cause-analyst not spawned: UC-1 coverage pass, no deviation candidates)
+
+requirements:
+  pass_1_parsed: []          # no PREFIX-NNN ids in an inline prompt
+  pass_2_inferred:
+    - id: INF-001
+      quote: "(1) remove /sc:brainstorm from the simple feature row of refs/chains.md so it becomes /sc:workflow --depth quick then /sc:implement"
+      citation: source.md:1
+      matched_tasks: [Task 1, Task 2]
+    - id: INF-002
+      quote: "(2) default --pipeline to full when a person types the command"
+      citation: source.md:1
+      matched_tasks: [Task 3, Task 4, Task 5, Task 6, Task 7, Task 8, Task 9]
+    - id: INF-003
+      quote: "leaving the issue watcher on its explicit --pipeline none"
+      citation: source.md:1
+      matched_tasks: [Constraints bullet 2, Task 5 acceptance]
+    - id: INF-004
+      quote: "Code: src/superclaude/commands/issue.md, src/superclaude/skills/sc-issue-protocol/, tests/commands/test_issue_command.py, tests/issue_watch/test_launch.py."
+      citation: source.md:1
+      matched_tasks: [Task 3, Task 4, Task 5]
+      note: tests/issue_watch/test_launch.py is named in the source but the plan deliberately does not edit it (it already pins the explicit none prompt); Task 5 runs it unchanged.
+    - id: INF-005
+      quote: "claim-handoff-planb edits the same files."
+      citation: source.md:1
+      matched_tasks: [Constraints bullet 4]
+
+coverage_pct: null                 # parsed-only denominator is 0
+coverage_pct_union: 1.0            # 5 of 5 inferred rows mapped
+coverage_degraded: parsed-sparse   # inferred_count (5) > parsed_count (0): Step 1B.2b, table-wide T1-stop pre-filter
+unmapped_requirements: []
+unmapped_requirements_union: []
+
+structural_signals:
+  S_scope: 17            # files the tasks name
+  S_domains: 4           # code-adjacent markdown (command/protocol), tests, docs, plugin mirror
+  S_dev_density: 0.0     # unmapped requirements / total, union
+
+candidate_findings:
+  - id: C-1
+    summary: Task 3 makes a bare --submit run at full (relaxes the E-SUBMIT-NEEDS-FULL STOP). The source asked only for a default level; the relaxation is a derived consequence, not an authorized requirement.
+    class: necessary-derived
+    evidence: tasklist Task 3 body; src/superclaude/commands/issue.md:57
+  - id: C-2
+    summary: The ship-gate sentence (no governed claim, worktree or full, on a real issue until OB-H1/H2/H3 pass) stays unchanged while full becomes the default; the plan does not say whether the gate still stands.
+    class: open-question
+    evidence: tasklist Constraints bullet 3; src/superclaude/commands/issue.md:16
+  - id: C-3
+    summary: Final-output text of refs/claim.md for a launched agent opens with "It stops at the plan boundary and waits", which is wrong for the new default level full; Task 4 does not touch it.
+    class: gap
+    evidence: src/superclaude/skills/sc-issue-protocol/refs/claim.md:142
+  - id: C-4
+    summary: Task 5 uses the watcher tests as acceptance but does not edit them, although the source lists tests/issue_watch/test_launch.py as code; the omission is explained in the task.
+    class: authorized-reading
+    evidence: tests/issue_watch/test_launch.py:929-939
+
+confidence_self_reported: 0.82

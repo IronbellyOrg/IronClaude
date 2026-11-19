@@ -1,0 +1,268 @@
+# Provenance: produced by /sc:adversarial (reflect Wave 4)
+# Base: Variant 3 (reviewer 3, refactorer)
+# Merge date: 2026-11-18
+merge_method: adversarial
+verdict: fail
+convergence_score: 1.0
+base_variant: variant-3 (reviewer 3, refactorer, opus)
+source_cards:
+  - reviewer-1-card.yaml
+  - reviewer-2-card.yaml
+  - reviewer-3-card.yaml
+unresolved_conflicts: 0
+unaddressed_invariants: []
+position_bias_passes: 1
+convergence_note: >-
+  15 of 15 diff points agreed after round 2 (A-002 and A-003 agreed with qualification).
+  The two MEDIUM invariant items INV-002 and INV-005 are carried as findings M5 and M1.
+verdict_reason: >-
+  One blocking finding (M1, safety): the plan would let a bare --submit commit, push and open a PR,
+  which the spec never asked for and the design record forbids.
+
+findings:
+  - id: M1
+    severity: blocking
+    class: scope-creep
+    tag: grounded
+    provenance: [v1, v2, v3, probe]
+    claim: >-
+      Task 3 relaxes the E-SUBMIT-NEEDS-FULL stop rule so a bare --submit would commit, push and open a PR.
+      The spec asks only for the default level to become full. The design record says a --submit with no
+      --pipeline must STOP. Following the plan text would act outside the declared scope (safety).
+    evidence:
+      - >-
+        src/superclaude/commands/issue.md:57 - the current rule reads "--submit with a value, or without --pipeline full: STOP E-SUBMIT-NEEDS-FULL"
+      - >-
+        src/superclaude/skills/sc-issue-protocol/SKILL.md:154 - same rule in the error table
+      - >-
+        docs/user-guide/commands.md:371 - same rule in the user guide
+      - >-
+        docs/designs/sc-issue-claim-pipeline-flag.md:85 - design record: "--submit with a value, or with --pipeline worktree or --pipeline none or no --pipeline: STOP E-SUBMIT-NEEDS-FULL"
+      - >-
+        src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:1900-1901 - the script checks only the resolved level (args.level != "full"), so the Markdown rule is the only guard against a bare --submit
+    plan_change: >-
+      Keep the rule at issue.md:57, SKILL.md:154 and commands.md:371, and copy the design wording
+      "or no `--pipeline`" into all three, because once the table says "Omitted means full" the old wording
+      "without --pipeline full" reads as satisfied (probe INV-005). Task 5 asserts that phrase and that a
+      bare --submit still stops. Task 7 changes accordingly.
+
+  - id: M2
+    severity: medium
+    class: missed-site
+    tag: grounded
+    provenance: [v1, v2, v3]
+    claim: >-
+      The launched-agent message opens with the worktree-level sentence for every level ("It stops at the plan
+      boundary and waits; run the printed implement command") and then adds the full-level sentence, so at the
+      new default of full it reads as a contradiction and could prompt a second /sc:implement. V2 downgraded its
+      blocking grade to medium after round 2 (ambiguous, not observed wrong; it already affects explicit full claims).
+    evidence:
+      - >-
+        src/superclaude/skills/sc-issue-protocol/refs/claim.md:142 - the launched text opens with the worktree sentence, then 'For full: "It runs every step and stops after implementation."'
+    plan_change: >-
+      Task 4 restricts "It stops at the plan boundary and waits; run the printed implement command" to the
+      worktree level and adds a test that the full branch does not carry it.
+
+  - id: M3
+    severity: medium
+    class: missed-site
+    tag: grounded
+    provenance: [v2, v3]
+    claim: >-
+      Task 10 says "Stage only" the src/, tests/, docs/ and plugins/ side, which leaves out .dev/tasks/.
+      The project rule says .dev/tasks/ is always staged.
+    evidence:
+      - >-
+        CLAUDE.md:35-37 - "ABSOLUTE RULE: .dev/tasks/ Is Always Staged" (git add .dev/tasks)
+    plan_change: >-
+      Task 10 adds .dev/tasks/ to the staged paths and an acceptance check that .dev/tasks/ is staged.
+
+  - id: M4
+    severity: medium
+    class: missed-site
+    tag: grounded
+    provenance: [v3]
+    claim: >-
+      The architecture reference still states the old default (worktree) and the old E-SUBMIT condition, and no task updates it.
+    evidence:
+      - >-
+        docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md:1557 - "--pipeline: worktree; --submit: off"
+      - >-
+        docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md:1635 - "--submit with a value or without --pipeline full"
+    plan_change: >-
+      Add both lines to Task 7. The :1635 wording follows the kept rule of M1.
+
+  - id: M5
+    severity: medium
+    class: interaction-effect
+    tag: grounded
+    provenance: [probe]
+    claim: >-
+      A person's bare /sc:issue --claim N on an issue a coordinator already owns starts a second agent in the
+      reused worktree, now at full, because a coordinator-started worker writes only a pending nonce and only
+      cmd_launch writes the launch entry that already_launched reads. Plan B requires plan approval before that.
+    evidence:
+      - >-
+        src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:1515-1523 - cmd_pending writes one pending record only
+      - >-
+        src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:1619-1631 - record_launch writes the launch entry
+      - >-
+        src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:1703-1708 - already_launched reads only the launch entry
+      - >-
+        src/superclaude/skills/sc-issue-protocol/refs/claim.md:43 - re-claim by the same login is allowed
+      - >-
+        src/superclaude/skills/sc-issue-protocol/refs/claim.md:95 - Wave 7 reuses the issue worktree when a coordinator owns the issue
+      - >-
+        docs/designs/issue-watcher.md:43 - Plan B: two inputs approve the plan, read by the coordinator
+    plan_change: >-
+      Record as a known risk, or add one sentence in Task 3 or Task 4: do not bare-claim an issue a coordinator owns.
+
+  - id: M6
+    severity: note
+    class: missed-site
+    tag: grounded
+    provenance: [v3, v1, probe]
+    claim: >-
+      Design-record lines still state the old default or the old chain, and Task 8 names only decision P2
+      and the levels-table row.
+    evidence:
+      - >-
+        docs/designs/sc-issue-claim-pipeline-flag.md:66 - "An unflagged claim is --pipeline worktree."
+      - >-
+        docs/designs/sc-issue-claim-pipeline-flag.md:78 - options table gives worktree as the default
+      - >-
+        docs/designs/sc-issue-claim-pipeline-flag.md:87 - example "/sc:issue --claim 302 (worktree level)"
+      - >-
+        docs/designs/sc-issue-command.md:44 - B17 "worktree (default, plans and waits for approval)"
+      - >-
+        docs/designs/sc-issue-command.md:238 - old Feature, simple row with /sc:brainstorm
+      - >-
+        docs/designs/sc-issue-command.md:248 - existing "Superseded by" note, the pattern to follow
+    plan_change: >-
+      Add to Task 8: amend flag.md:66, :78 and :87, amend sc-issue-command.md:44, and add a superseded line
+      under the row at sc-issue-command.md:238, as :248 does. (flag.md:85 stays, per M1.)
+
+  - id: M7
+    severity: note
+    class: out-of-scope-record
+    tag: INFERRED
+    provenance: [v3, v1, v2, probe]
+    claim: >-
+      The coordinator worker brief still starts the simple chain with /sc:brainstorm, so a person-claimed simple
+      feature skips brainstorm and a watcher-claimed one does not. The owner-run fixture-capture rows in the
+      watcher setup guide launch a bare claim prompt and will inherit full. The spec names only refs/chains.md,
+      so both stay out of scope, but the plan must name them.
+    evidence:
+      - >-
+        src/superclaude/cli/issue_pipeline/templates/worker-brief.txt:17-19 - [simple] chain begins with /sc:brainstorm
+      - >-
+        docs/designs/issue-watcher-setup.md:616-619 - four rows launch agent with --prompt '/sc:issue --claim <test issue>' and no --pipeline
+    plan_change: >-
+      Name both files in the plan's out-of-scope list (see out_of_scope_records).
+
+  - id: M8
+    severity: low
+    class: reporting
+    tag: grounded
+    provenance: [probe]
+    claim: >-
+      Task 4 makes pipeline_level full when the flag is omitted, but an already_launched result keeps the level of
+      the running agent, so the return contract would misreport the level.
+    evidence:
+      - >-
+        src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:770-777 - an existing prompt file is kept
+      - >-
+        src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:1626 - the launch entry stores the level
+      - >-
+        src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:1705-1721 - already_launched is returned whatever the requested level
+    plan_change: >-
+      For already_launched, pipeline_level is the requested level or is read from the record.
+
+  - id: M9
+    severity: low
+    class: ambiguity
+    tag: grounded
+    provenance: [probe]
+    claim: >-
+      Wave 8 and SKILL.md use <L> with no definition; Task 4 defines the default only at Wave 5.
+    evidence:
+      - >-
+        src/superclaude/skills/sc-issue-protocol/refs/claim.md:120 - Wave 8 launch command uses --level <L>
+      - >-
+        src/superclaude/skills/sc-issue-protocol/SKILL.md:92 - Wave 8 summary uses --level <L>
+      - >-
+        src/superclaude/skills/sc-issue-protocol/refs/claim.md:82 - the only place the default level is defined
+    plan_change: >-
+      Add "the same <L> as Wave 5" to Wave 8.
+
+  - id: M10
+    severity: low
+    class: wording
+    tag: grounded
+    provenance: [probe]
+    claim: >-
+      The simple-feature row is only the suggested route; /sc:recommend makes the final pick, and tests pin chains.md only.
+    evidence:
+      - >-
+        src/superclaude/skills/sc-issue-protocol/refs/chains.md:7 - default rows are passed as the suggested route; /sc:recommend makes the final pick
+      - >-
+        src/superclaude/skills/sc-issue-protocol/refs/claim.md:79 - the default chain row is the suggested route
+    plan_change: >-
+      The plan goal says "the default simple-feature row".
+
+  - id: M11
+    severity: note
+    class: version
+    tag: grounded
+    provenance: [probe]
+    claim: >-
+      The command version stays 1.1.0 although the design bumped it when claim behaviour changed.
+    evidence:
+      - >-
+        docs/designs/sc-issue-claim-pipeline-flag.md:89 - version 1.1.0 "the claim behaviour changes for every user"
+      - >-
+        tests/commands/test_issue_command.py:80-81 - test pins version 1.1.0
+    plan_change: null
+
+  - id: M12
+    severity: note
+    class: process
+    tag: grounded
+    provenance: [probe]
+    claim: >-
+      Task 9 copies HOW-WE-WORK.md byte for byte, so after rebasing onto claim-handoff-planb the copy must be redone, not merged by hand.
+    evidence:
+      - >-
+        CLAUDE.md (Key Documentation Files section) - HOW-WE-WORK.md is copied byte-for-byte to plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md and tests check both
+    plan_change: >-
+      Redo the Task 9 copy after rebasing onto claim-handoff-planb; do not hand-merge.
+
+assumptions:
+  - id: A-001
+    status: STATED
+    outcome: accepted
+  - id: A-002
+    status: UNSTATED
+    outcome: accepted with qualification
+    qualification: >-
+      Only the Markdown resolves the default; orca_worktree.py requires --level
+      (orca_worktree.py:1873, :1883), so the tests must pin the Markdown (Tasks 5 and 6).
+  - id: A-003
+    status: STATED
+    outcome: accepted with qualification
+    qualification: >-
+      The code also rejects any prompt not of the --pipeline none form and /sc:issue is never dispatched to workers,
+      so preserving the watcher does not rest on a single guard.
+  - id: A-004
+    status: CONTRADICTED
+    outcome: documented bare launches exist (docs/designs/issue-watcher-setup.md:616-619)
+
+out_of_scope_records:
+  - location: src/superclaude/cli/issue_pipeline/templates/worker-brief.txt:17-19
+    reason: >-
+      The spec names only refs/chains.md; the worker brief belongs to the coordinator path and keeps /sc:brainstorm
+      for the simple chain. Left as is, and named in the plan's out-of-scope list.
+  - location: docs/designs/issue-watcher-setup.md:616-619
+    reason: >-
+      Owner-run fixture-capture launch rows, not a production caller. Their bare prompts inherit full; update them
+      (add --pipeline none) before reuse if capture must stay claim-only.

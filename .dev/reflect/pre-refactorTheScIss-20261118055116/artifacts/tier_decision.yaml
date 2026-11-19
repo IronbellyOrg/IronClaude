@@ -1,0 +1,17 @@
+selected_tier: 2
+fired_rule_number: 6          # C < 0.85 (calibrated 0.30); the table-wide coverage_degraded pre-filter independently forbids any T1 stop
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6.0
+per_signal_breakdown:
+  scope_size: 2        # 16 files named
+  task_count: 1        # 9 tasks
+  blast_radius: 1      # prose and tests only, no product code symbols
+  spec_density: 2      # one prose paragraph, 0 labeled IDs, 16 inferred rows
+  ambiguity_signals: 0
+escalation_reason: "calibrated confidence 0.30 < 0.85 (runtime-check dimension scored 0 because the T1 card declared no claim class); coverage_degraded parsed-sparse (16 inferred rows > 0 parsed) forbids the Tier 1 stop"
+confidence_self_reported: 0.86
+confidence_calibrated: 0.30
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null
