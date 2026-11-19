@@ -5,7 +5,7 @@ is loaded from the checkout by path under a private module name that is never
 put into ``sys.modules``. One table drives both parsers (design row C3, AC-16).
 The one intended difference is pinned: both parsers keep the host case-sensitive
 and keep the owner and repo case; only the poller's ``check_origin`` compares
-the result lower-cased with ``ironbellyorg/ironclaude``.
+the result lower-cased with the repo the caller expects (``expected_repo``).
 """
 
 from __future__ import annotations
@@ -60,6 +60,8 @@ PARITY_TABLE: list[tuple[str, str | None]] = [
     ("https://github.com/IRONBELLYORG/IRONCLAUDE", "IRONBELLYORG/IRONCLAUDE"),
     ("https://github.com/ironbellyorg/ironclaude.git", "ironbellyorg/ironclaude"),
 ]
+
+EXPECTED = "IronbellyOrg/IronClaude"
 
 
 @pytest.fixture(scope="module")
@@ -154,11 +156,11 @@ def test_ac16_both_parsers_are_case_sensitive_on_host__fr025(original, url):
 def test_ac16_only_check_origin_compares_lower_case__fr025(original, fake_runner, url):
     """AC-16 FR-025: the poller accepts any case; the script's value keeps it."""
     runner = fake_runner({GIT_ARGV: _git_reply(url)})
-    assert check_origin(runner, WORKTREE, 5) is None
+    assert check_origin(runner, WORKTREE, EXPECTED, 5) is None
     parsed = original.parse_origin_url(url)
     assert parsed is not None
     assert launch.parse_origin(url) == parsed
-    assert parsed.lower() == launch.ORIGIN_REPO
+    assert parsed.lower() == EXPECTED.lower()
     assert not hasattr(original, "ORIGIN_REPO")
 
 
@@ -176,4 +178,13 @@ def test_ac16_check_origin_rejects_what_parse_rejects_or_foreign__fr025(
 ):
     """AC-16 FR-025: a host in the wrong case or a foreign repo is a mismatch."""
     runner = fake_runner({GIT_ARGV: _git_reply(url)})
-    assert check_origin(runner, WORKTREE, 5) == ORIGIN_MISMATCH
+    assert check_origin(runner, WORKTREE, EXPECTED, 5) == ORIGIN_MISMATCH
+
+
+def test_check_origin_expects_the_repo_it_is_given__fr025(fake_runner):
+    """Design 4.4: the expected repo is a parameter, so one checkout check serves every repo."""
+    runner = fake_runner(
+        {GIT_ARGV: _git_reply("https://github.com/IronbellyGroup/example.git")}
+    )
+    assert check_origin(runner, WORKTREE, "IronbellyGroup/example", 5) is None
+    assert check_origin(runner, WORKTREE, EXPECTED, 5) == ORIGIN_MISMATCH

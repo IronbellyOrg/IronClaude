@@ -2,7 +2,8 @@
 
 Part 1: the group, the shared ``--config`` option, ``build_deps`` and the verbs
 ``once``, ``status``, ``check-config`` and ``init-state``. Part 2: ``reset``
-(design 4.1, DF-03, DF-04, DF-57). This module only
+(design 4.1, DF-03, DF-04, DF-57). The orchestrator's own verbs are the
+separate group ``superclaude orchestrator`` (decision ADD6), not here. This module only
 sequences calls into the package and maps results to exit codes; it holds no
 business logic and never imports ``subprocess`` (every command runs through
 ``runner.SubprocessRunner``). It never catches ``SystemExit`` or
@@ -12,7 +13,6 @@ business logic and never imports ``subprocess`` (every command runs through
 from __future__ import annotations
 
 import json
-import shlex
 import shutil
 import socket
 import sys
@@ -23,8 +23,7 @@ from uuid import uuid4
 
 import click
 
-from . import audit, cycle, record
-from .launch import MAX_ISSUE_NUMBER, OrcaLauncher
+from . import audit, cycle, predicates, record, wake
 from .record import FileStore, LockError, LockHeld, StoreError
 from .runner import SubprocessRunner
 
@@ -65,7 +64,7 @@ def build_deps(config: cycle.Config) -> cycle.Deps:
     return cycle.Deps(
         runner=runner,
         store=FileStore(config.state_dir),
-        launcher=OrcaLauncher(runner),
+        waker=wake.Waker(runner),
         clock=cycle.SystemClock(),
         audit=audit.AuditLog(config.state_dir),
         config=config,
@@ -93,7 +92,7 @@ def _load_config(config_path: Path, *, platform: bool = True) -> cycle.Config:
 
 @click.group("issue-watch")
 def issue_watch_group():
-    """Poll GitHub for approved issues and start one Orca claim session each.
+    """Poll GitHub for issues assigned to you and wake the orchestrator of their repo.
 
     Run `once` from a timer. `status` and `check-config` are read-only;
     `init-state` creates the state directory; `reset` forfeits a guarantee.
@@ -112,7 +111,7 @@ def issue_watch_group():
 @click.option(
     "--dry-run",
     is_flag=True,
-    help="Read and decide, but write no store and never call Orca.",
+    help="Read and decide, but write no label, wake file or store and never call Orca.",
 )
 @_config_option
 def once_command(dry_run: bool, config_path: Path) -> None:
@@ -130,10 +129,10 @@ def once_command(dry_run: bool, config_path: Path) -> None:
     click.echo(f"cycle: {result.reason}")
     click.echo(f"exit: {result.exit_code}")
     if dry_run:
-        if result.probe is not None:
-            click.echo(f"probe: {result.probe}")
-        if result.would_launch is not None:
-            click.echo(f"would_launch: {result.would_launch}")
+        for name in ("would_wake", "would_hold", "would_release", "would_request"):
+            keys = getattr(result, name)
+            if keys:
+                click.echo(f"{name}: {', '.join(keys)}")
     sys.exit(result.exit_code)
 
 
@@ -144,7 +143,12 @@ def _print_status(report: dict) -> None:
     click.echo(f"last completed cycle age: {'never' if age is None else f'{age}s'}")
     click.echo(f"disabled since: {report['disabled_since'] or 'no'}")
     click.echo(f"next permitted at: {report['next_permitted_at'] or 'now'}")
+    click.echo(f"rate-limit streak: {report['rate_streak']}")
     click.echo(f"day cap used: {report['day_cap_used']}")
+    if report["baseline_pending"]:
+        click.echo(
+            "baseline: pending (the first completed cycle records the assigned issues)"
+        )
     counts = report["counts"]
     click.echo(
         "counts: " + (", ".join(f"{k}={counts[k]}" for k in sorted(counts)) or "none")
@@ -155,17 +159,21 @@ def _print_status(report: dict) -> None:
             f"  issue {item['issue']} {item['state']} {item['last_reason']}"
             f" updated {item['updated_at']}"
         )
-    click.echo(f"retry: {len(report['retry'])}")
-    for item in report["retry"]:
-        click.echo(f"  issue {item['issue']}: run from {item['cwd']}")
-        click.echo(f"    {shlex.join(item['argv'])}")
+    click.echo(f"held: {len(report['held'])}")
+    for item in report["held"]:
+        signal = item["signal"] or "none"
+        click.echo(
+            f"  issue {item['issue']} {item['state']} since {item['first_held_at']}"
+            f" quiet since {item['quiet_since']} signal {signal}"
+            f" plan request {item['plan_request'] or 'none'}"
+        )
 
 
 @issue_watch_group.command("status")
 @click.option("--json", "as_json", is_flag=True, help="Print the report as JSON.")
 @_config_option
 def status_command(as_json: bool, config_path: Path) -> None:
-    """Report health, counts, stale entries and retry commands (read-only)."""
+    """Report health, counts, stale entries and held issues (read-only)."""
     config = _load_config(config_path, platform=False)
     clock = cycle.SystemClock()
     try:
@@ -185,26 +193,59 @@ def status_command(as_json: bool, config_path: Path) -> None:
 @issue_watch_group.command("check-config")
 @_config_option
 def check_config_command(config_path: Path) -> None:
-    """Validate the configuration, worktree and approvers file; write nothing."""
+    """Validate the configuration, the orchestrator repo and repos.yaml; write nothing."""
     config = _load_config(config_path)
+    runner = SubprocessRunner()
     try:
-        cycle.validate_setup(config)
-        mtime, count = cycle.approvers_summary(config.approvers_file)
+        rdoc = cycle.validate_setup(config, runner)
     except cycle.ConfigError as exc:
         _config_exit(exc)
     click.echo("configuration is valid")
     click.echo(f"state_dir: {config.state_dir}")
-    click.echo(f"approvers_file mtime: {mtime}")
-    click.echo(f"approvers_file entries: {count}")
+    click.echo(f"orchestrator_repo: {config.orchestrator_repo}")
+    click.echo(
+        f"repos: {len(rdoc.repos)} in {len(rdoc.orgs)} orgs, tiers {', '.join(rdoc.tiers)}"
+    )
+    try:
+        preview = cycle.routing_preview(
+            config, rdoc, FileStore(config.state_dir), cycle.SystemClock().now()
+        )
+    except cycle.route.RegistryError:
+        audit.stderr_fallback("registry_invalid", _EXIT_CONFIG)
+        click.echo(
+            "issue-watch: registry_invalid: the orchestrator registry cannot be read",
+            err=True,
+        )
+        sys.exit(_EXIT_CONFIG)
+    for item in preview:
+        click.echo(
+            f"  {item['repo']} ({'enabled' if item['enabled'] else 'disabled'}, "
+            f"max {item['max_in_flight']} in flight, tier {item['orchestrator_tier']}): "
+            f"next issue goes to {item['next_issue_goes_to']}"
+        )
+        for orch in item["orchestrators"]:
+            click.echo(f"    {orch['id']} {orch['status']} holds {orch['in_flight']}")
 
 
 @issue_watch_group.command("init-state")
+@click.option(
+    "--no-baseline",
+    is_flag=True,
+    help="Do not record the issues already assigned as seen: wake each of them.",
+)
 @_config_option
-def init_state_command(config_path: Path) -> None:
-    """Create the state directory, store and lock; refuse if a store exists."""
+def init_state_command(no_baseline: bool, config_path: Path) -> None:
+    """Create the state directory, store and lock; refuse if a store exists.
+
+    By default the first completed cycle records every issue already assigned,
+    and every item already in the information streams, as seen without waking
+    anyone (design 4.3 rule 5).
+    """
     config = _load_config(config_path)
     try:
-        record.init_state(config.state_dir, cycle.SystemClock().now())
+        record.init_state(
+            config.state_dir, cycle.SystemClock().now(), baseline=not no_baseline
+        )
     except record.StateExists:
         click.echo("issue-watch: a store already exists; nothing changed", err=True)
         sys.exit(_EXIT_STORE)
@@ -230,7 +271,7 @@ def _save(store: FileStore, doc: record.StoreDoc) -> None:
 
 
 def _reset_locked(
-    store: FileStore, issue: int | None, now: datetime
+    store: FileStore, issue: str | None, now: datetime
 ) -> tuple[str, int]:
     """Load, check, change and save under the lock (DF-57 order).
 
@@ -255,7 +296,7 @@ def _reset_locked(
 def _write_reset(
     log: audit.AuditLog,
     stamp: dict,
-    issue: int | None,
+    issue: str | None,
     reason: str,
     code: int,
     *,
@@ -266,11 +307,13 @@ def _write_reset(
         audit.stderr_fallback(reason, code, ts=stamp["ts"], host=stamp["host"])
         return
     if reason == "operator_reset" and issue is not None:
-        line = audit.decision_line(**stamp, reason=reason, issue=issue)
+        repo, number = predicates.split_issue_key(issue)
+        line = audit.decision_line(**stamp, reason=reason, repo=repo, issue=number)
+    elif reason == "reset_refused" and issue is not None:
+        repo, number = predicates.split_issue_key(issue)
+        line = audit.warning_line(**stamp, reason=reason, repo=repo, issue=number)
     else:
-        line = audit.warning_line(
-            **stamp, reason=reason, issue=issue if reason == "reset_refused" else None
-        )
+        line = audit.warning_line(**stamp, reason=reason)
     try:
         if rotate:
             log.rotate_if_needed()
@@ -280,11 +323,11 @@ def _write_reset(
 
 
 @issue_watch_group.command("reset")
-@click.argument("issue", type=click.IntRange(1, MAX_ISSUE_NUMBER), required=False)
+@click.argument("issue", required=False)
 @click.option(
     "--forfeit-guarantee",
     is_flag=True,
-    help="Required with ISSUE: allow that issue to be launched a second time.",
+    help="Required with ISSUE: allow that issue to be woken a second time.",
 )
 @click.option(
     "--rate-limit",
@@ -293,24 +336,30 @@ def _write_reset(
 )
 @_config_option
 def reset_command(
-    issue: int | None, forfeit_guarantee: bool, rate_limit: bool, config_path: Path
+    issue: str | None, forfeit_guarantee: bool, rate_limit: bool, config_path: Path
 ) -> None:
-    """Forfeit the launch guarantee of one issue, or clear the rate limit.
+    """Forfeit the wake guarantee of one issue, or clear the rate limit.
 
-    Use `reset ISSUE --forfeit-guarantee` (only for an abandoned or unknown
-    issue) or `reset --rate-limit`, never both and never neither.
+    ISSUE is `owner/repo#N`. Use `reset ISSUE --forfeit-guarantee` (only for an
+    abandoned or unknown issue) or `reset --rate-limit`, never both and never
+    neither.
 
     Examples:
 
     \b
-        superclaude issue-watch reset 42 --forfeit-guarantee
+        superclaude issue-watch reset IronbellyOrg/IronClaude#42 --forfeit-guarantee
         superclaude issue-watch reset --rate-limit
     """
     by_issue = issue is not None
     if by_issue == rate_limit:
         _refuse_reset("reset needs ISSUE --forfeit-guarantee or --rate-limit, not both")
+    if by_issue:
+        try:
+            predicates.split_issue_key(issue)
+        except ValueError:
+            _refuse_reset("ISSUE must be owner/repo#N")
     if by_issue and not forfeit_guarantee:
-        _refuse_reset(f"reset {issue} needs --forfeit-guarantee")
+        _refuse_reset("reset ISSUE needs --forfeit-guarantee")
     config = _load_config(config_path)
     store = FileStore(config.state_dir)
     log = audit.AuditLog(config.state_dir)
@@ -334,12 +383,12 @@ def reset_command(
         _write_reset(log, stamp, issue, reason, code, rotate=False)
     if code == 0:
         if by_issue:
-            click.echo(f"issue {issue} may now be launched a second time")
+            click.echo(f"issue {issue} may now be woken a second time")
         else:
             click.echo("rate limit cleared")
     elif reason == "reset_refused":
         click.echo(
-            f"issue-watch: reset refused: issue {issue} has no abandoned or "
+            f"issue-watch: reset refused: {issue} has no abandoned or "
             "unknown entry; nothing changed",
             err=True,
         )
