@@ -99,7 +99,7 @@ This page is the per-command reference: exact syntax, options, and what each com
 | [`/sc:reflect`](#screflect---tiered-reflection) | Pre/post-execution audit | `reflect.md` | Only with `--mode post` (moves the work folder on a pass unless you add `--no-promote`) |
 | `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
 | [`/sc:graph`](#scgraph---code-graph-index-status) | Code-graph index status; builds the index only on `init` | `graph.md` | Only with `init` |
-| [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt, then an Orca worktree and a launched agent) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
+| [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt, then an Orca worktree and a launched agent), create a templated issue, or plan an existing issue (fill its missing Priority, Fix approach and Test plan sections) | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
 | [`/sc:sweep`](#scsweep---read-only-run-worktree-and-session-report) | Read-only snapshot of a Run, its worktrees and person sessions | `sweep.md` | Report only (writes `.dev/sweeps/`) |
 | `/sc:recommend` | Paste-ready prompt for the right command | `recommend.md` | Report only (inside an IronClaude checkout it writes its cache and telemetry under `.claude/cache/`) |
 | `/sc:init-lite` | Safe audit of project-local context surfaces | `init-lite.md` | Report only |
@@ -304,13 +304,14 @@ When codegraph, the index or its lookup tools are not usable, it falls back to G
 
 ### `/sc:issue` - GitHub Issue Claim and Create
 
-**When to use:** Take an existing GitHub issue on the repository `origin` points at, or file a new one. `--claim` assigns the issue to you, checks whether its text is still accurate against today's code and the pull requests merged since it was opened, writes a summary (with an effort estimate in hours) and a next-step prompt under `.dev/issues/<N>/`, posts an accuracy-check comment and a claim comment, then creates (or reuses) an Orca worktree named `issue-<N>` and launches one Claude Code agent in it. How far that agent goes is the `--pipeline` level (below); nothing ever merges. Orca must be running: without it the claim stops with `E-ORCA-REQUIRED` before it assigns or posts anything. `--create` turns a description into an issue built from one of four templates (feature or bug, simple or complex). It sets the GitHub issue type (Feature, Bug or Test) and the Complexity issue field of your organization (Simple, Medium or Complex, from `--depth`), and applies the `enhancement` or `bug` label when the repository has it. Anything it could not set is listed in the final output.
+**When to use:** Take an existing GitHub issue on the repository `origin` points at, or file a new one. `--claim` assigns the issue to you, checks whether its text is still accurate against today's code and the pull requests merged since it was opened, writes a summary (with an effort estimate in hours) and a next-step prompt under `.dev/issues/<N>/`, posts an accuracy-check comment and a claim comment, then creates (or reuses) an Orca worktree named `issue-<N>` and launches one Claude Code agent in it. How far that agent goes is the `--pipeline` level (below); nothing ever merges. Orca must be running: without it the claim stops with `E-ORCA-REQUIRED` before it assigns or posts anything. `--create` turns a description into an issue built from one of four templates (feature or bug, simple or complex). It sets the GitHub issue type (Feature, Bug or Test) and the Complexity issue field of your organization (Simple, Medium or Complex, from `--depth`), and applies the `enhancement` or `bug` label when the repository has it. Anything it could not set is listed in the final output. `--plan` takes an existing issue and fills the plan sections it lacks (`## Priority`, `## Fix approach` and `## Test plan`) from a codebase pass of the `--depth` worker, with one edit of the issue body and nothing else: no comment, label, assignment, ClickUp call, worktree or launch.
 
 **Syntax:**
 
 ```
 /sc:issue --claim <number|url> [--pipeline worktree|full|none] [--submit]
 /sc:issue --create "<description>" [--depth quick|standard|deep] [--mode feature|bug] [--type <type>]
+/sc:issue --plan <number|url> [--depth quick|standard|deep] [--remaining <file>]
 ```
 
 **Options:**
@@ -319,13 +320,15 @@ When codegraph, the index or its lookup tools are not usable, it falls back to G
 |------|------|---------|--------------|
 | `--claim <number\|url>` | claim | - | The issue to claim: a number (`302`, `#302`) or an issue URL on the origin repo |
 | `--create "<description>"` | create | - | The feature or bug description, as text or `@path` to a file |
-| `--depth quick\|standard\|deep` | create | `quick` | How hard the command checks your flags and fills the body; `deep` uses the complex template |
+| `--plan <number\|url>` | plan | - | The existing issue to plan: a number (`302`, `#302`) or an issue URL on the origin repo. Adds a missing plan heading, fills an empty section (or one that says only "Not known yet") in place, and leaves every other byte of the issue as it was; an issue whose three sections already pass is left alone (`already_planned`) |
+| `--remaining <file>` | plan | - | Re-plan: rewrite `## Fix approach` and `## Test plan` of an issue that already has a plan to the scope that is left. The file starts with `round: <n>` (n is 2 or more) and holds 1 to 20 lines `- <criterion>` of at most 300 characters. Only with `--plan` |
+| `--depth quick\|standard\|deep` | create, plan | `quick` | How hard the command checks your flags and fills the body (`deep` uses the complex template), or which worker drafts the plan sections |
 | `--mode feature\|bug` | create | chosen by a worker | Picks the feature or bug template, the Feature or Bug issue type and the `enhancement` or `bug` label |
 | `--type <type>` | create | chosen by a worker | Area of the change: `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install` or `other`; a feature in `tests` gets the issue type Test, otherwise the area is recorded in `flags.md` and no label is applied for it |
 | `--pipeline worktree\|full\|none` | claim | `full` or `worktree`, picked from the issue | How far the launched agent goes (see the levels below); omitted means the level is picked from the issue: a bug or a simple or medium feature of 16 hours or less gets `full`, a complex feature, a feature over 16 hours or an issue that cannot be classified gets `worktree`; `worktree` and `full` create the worktree and launch an agent, `none` creates no worktree and launches no agent |
 | `--submit` | claim | off | Only with `--pipeline full`: the agent also commits, pushes a feature branch and opens a PR through `/sc:pr-submit --monitor 3`. Takes no value |
 
-`--depth`, `--mode` and `--type` work with `--create` only; `--pipeline` and `--submit` work with `--claim` only (`E-CLAIM-ONLY-FLAG`), and `--submit` with `--pipeline worktree`, with `--pipeline none` or with no `--pipeline` stops with `E-SUBMIT-NEEDS-FULL` (write `--pipeline full --submit`). An explicit `--pipeline` always wins over the picked level. The issue watcher never relies on the default: it always passes `--pipeline none`. There is no repository option: the repository is always `origin`.
+Pass exactly one of `--claim`, `--create` and `--plan`. `--mode` and `--type` work with `--create` only (`E-CREATE-ONLY-FLAG`, also for `--plan`), and `--depth` works with `--create` and `--plan` (with `--claim` it is `E-CREATE-ONLY-FLAG`). `--remaining` works with `--plan` only (`E-PLAN-ONLY-FLAG`). `--pipeline` and `--submit` work with `--claim` only (`E-CLAIM-ONLY-FLAG`, also for `--create` and `--plan`), and `--submit` with `--pipeline worktree`, with `--pipeline none` or with no `--pipeline` stops with `E-SUBMIT-NEEDS-FULL` (write `--pipeline full --submit`). An explicit `--pipeline` always wins over the picked level. The issue watcher never relies on the default: it always passes `--pipeline none`. There is no repository option: the repository is always `origin`.
 
 **Claim levels (`--pipeline`):**
 
@@ -350,7 +353,12 @@ No level merges anything: people review and merge. The agent starts behind the c
 /sc:issue --claim 302 --pipeline full --submit
 /sc:issue --create "The sync check misses deleted skill files" --mode bug --type cli --depth standard
 /sc:issue --create @notes/new-command.md --depth deep
+/sc:issue --plan 302
+/sc:issue --plan 302 --depth standard
+/sc:issue --plan 302 --remaining .dev/issues/302/remaining.md
 ```
+
+Plan mode stops, writing nothing, when the issue is not found (`E-ISSUE-NOT-FOUND`), is a pull request (`E-PLAN-NOT-AN-ISSUE`) or is closed (`E-PLAN-ISSUE-CLOSED`), or when one of the three plan headings occurs twice (`E-PLAN-REPEATED-HEADING`). If the issue body changes twice while the command runs it stops with `E-PLAN-RACE`, and a body edit that fails or does not read back as written is `E-PLAN-WRITE-FAILED`. `--remaining` also stops on a missing, empty or over-limit file (`E-REMAINING-FILE`) and on an issue that has no plan yet (`E-REMAINING-NEEDS-PLAN`: run plain `--plan` first).
 
 It posts directly to GitHub, without showing the comment or the issue body for approval first. It never creates labels, issue types or issue fields: a mode label that the repository does not have, and an issue type or Complexity field it cannot set, are skipped and listed in the final output. On claim it also assigns the matching ClickUp task, only when `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` are set; `--create` never touches ClickUp. The claim itself never runs a step of `.dev/issues/<N>/next-steps.md`: the launched agent does, at the level you chose (with `--pipeline none` there is no worktree and you run them yourself from this checkout). A re-claim reuses the existing worktree and does not launch a second agent, also when you re-claim from inside the worktree; the claim output names the two files that hold the launch (`.dev/issues/<N>/worktree.json` and a file in the worktree's git directory), and removing the `launch` entry from both launches again. Worktree or launch problems are warnings: the issue stays assigned and the comments stay posted.
 

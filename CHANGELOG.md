@@ -12,6 +12,10 @@ All notable changes to IronClaude are documented in this file.
 
 - The `superclaude issue-pipeline` command group and its plan-approval flow are removed: the worker contract no longer has rule WC-17 or the "Issue pipeline duties" section, and the launch-level guard no longer blocks those commands. The guard still lets a bound worker run `orchestration send` and `ask` without `--to`, and the person's typed `/sc:implement` still releases it.
 
+### `/sc:issue --plan` fills the plan sections of an existing issue (issue 655)
+
+- `/sc:issue --plan <number|url> [--depth quick|standard|deep]` adds the missing `## Priority`, `## Fix approach` and `## Test plan` sections to an issue that already exists, with one edit of its body and nothing else (no comment, label, assignment or worktree); `--remaining <file>` rewrites the Fix approach and Test plan of a plan that exists to the scope that is left.
+
 ## [6.1.0] - 2026-11-18
 
 The task and documentation bundle is removed: nine skills (`prd`, `tdd`, `tech-research`, `tech-reference`, `operational-guide`, `readme`, `task`, `task-builder`, `roadmap`), the `/sc:tdd` command, one eval suite and levels 4, 5 and 6 of the routing guide. Every route that offered the task-file (MDTM) route now has one route: `/sc:workflow` writes the plan and `/sc:implement` runs it. Read the [6.1.0 release notes](docs/releases/v6.1.0.md) for the full list, the replacements and the upgrade steps. The project's changelog rule counts a removed skill as a breaking change, which normally means a major version; the owner chose 6.1.0 for this release.
