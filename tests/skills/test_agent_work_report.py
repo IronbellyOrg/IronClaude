@@ -3472,3 +3472,102 @@ def test_a_refreshed_page_lists_what_the_orchestrator_closed_and_drops_held_bloc
         HELD
     ) == 1  # the old daily block is not shown twice
     assert any("COMPLETED" in line and "Gone" in line for line in data["closed"])
+
+
+def refreshed_page(root):
+    shared = (root / ".dev" / "coordinator" / "report.html").read_text()
+    return json.loads(
+        re.search(
+            r'<script id="data" type="application/json">(.*?)</script>', shared, re.S
+        ).group(1)
+    )
+
+
+def test_an_issue_claimed_and_closed_since_the_last_daily_report_is_not_shown_live(
+    root, monkeypatch
+):
+    daily = closed_daily_run(root)  # issue 1 is a block of this report
+    assert HELD in (daily / "overview.md").read_text()
+    # Claimed and closed before the next daily run: the entry is already in closed/ (report-entry --closed)...
+    put_entry(
+        root,
+        "IronbellyOrg__Coder__1",
+        held_entry(
+            1,
+            close_reason="COMPLETED",
+            closed_at=datetime.now(timezone.utc).isoformat(),
+        ),
+        sub="closed",
+    )
+    fake_gh(monkeypatch, {})
+    runmod.refresh()
+    d = refreshed_page(root)
+    assert HELD not in [
+        i["url"] for i in d["items"]
+    ]  # ...so the old block is not live work
+    assert any("COMPLETED" in line for line in d["closed"])
+    # ...and so is one that reconcile closes during this very refresh.
+    put_entry(root, "IronbellyOrg__Coder__11", held_entry(11))
+    fake_gh(
+        monkeypatch,
+        {11: {"state": "CLOSED", "stateReason": "COMPLETED", "assignees": []}},
+    )
+    runmod.refresh()
+    assert HELD_TWO not in [i["url"] for i in refreshed_page(root)["items"]]
+    # A closed entry older than the report (a reopened issue the daily run lists again) hides nothing.
+    old = (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()
+    put_entry(
+        root,
+        "IronbellyOrg__Coder__5",
+        held_entry(1, url=f"{U}issues/5", closed_at=old, close_reason="COMPLETED"),
+        sub="closed",
+    )
+    runmod.refresh()
+    assert f"{U}issues/5" in [i["url"] for i in refreshed_page(root)["items"]]
+
+
+def test_an_information_entry_for_a_held_issue_makes_no_second_card(root, monkeypatch):
+    put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))
+    for n in ("a", "b"):
+        put_entry(
+            root,
+            f"mention__{n}",
+            held_entry(1, url=HELD, kind="info:mentions", state="Not started"),
+            sub="info",
+        )
+    fake_gh(monkeypatch, {1: OPEN_MINE})
+    runmod.refresh()
+    cards = [i for i in refreshed_page(root)["items"] if i["url"] == HELD]
+    assert (
+        len(cards) == 1 and cards[0]["state"] == "In progress"
+    )  # the orchestrated one
+
+
+def test_opened_by_is_the_author_field_never_the_assignee(root):
+    cmp_ = {"new": [], "changed": {}, "carried": [], "closed": {}, "unchanged": []}
+    ctx = {
+        "template": render.item_template(),
+        "notes": {},
+        "to_write": set(),
+        "statuses": {},
+        "prev_date": "",
+    }
+    for e, want in (
+        (held_entry(1, author="ryan"), "**Opened by:** ryan ·"),
+        (held_entry(1), "**Opened by:** Unknown ·"),
+    ):
+        item_, cls_, _ = runmod.entry_record(HELD, e, "k", False, "")
+        block = render.entry(HELD, item_, cls_, cmp_, ctx, filed=e)
+        assert (
+            want in header_line(block)
+            and "clayphi ·" not in header_line(block).split("**Assigned")[0]
+        )
+
+
+def test_a_link_that_is_not_web_or_orca_is_shown_as_text_only():
+    bad = page.md("[open it](javascript:alert(1)) and [data](data:text/html,x)")
+    assert "<a " not in bad and "open it" in bad and "javascript" not in bad
+    good = page.md(
+        "[a](https://github.com/x/y/issues/1) [s](orca://session/abc) [h](HTTP://x.y)"
+    )
+    assert good.count("<a href=") == 3

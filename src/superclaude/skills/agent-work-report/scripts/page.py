@@ -54,6 +54,7 @@ KIND = {
     "task": "ClickUp task",
     "session": "Agent session",
 }
+SAFE_URL = re.compile(r"(?:https?|orca)://", re.I)
 LINK = re.compile(r"\[([^\]]*(?:\[[^\]]*\][^\]]*)*)\]\(([^)\s]+)\)")
 
 
@@ -66,7 +67,12 @@ def md(text):
         out.append(_inline(text[last : m.start()]))
         # A plain link: Orca's browser blocks links that open a new window, so they did nothing when clicked
         # (VERIFIED 2026-11-05); this one opens in the same tab, and Back returns to the report.
-        out.append(f'<a href="{html.escape(m.group(2))}">{_inline(m.group(1))}</a>')
+        # Only web and Orca session links become links: a `javascript:` or `data:` url copied from item text
+        # would run script in the report's own page, so such a link is shown as its text alone.
+        if SAFE_URL.match(m.group(2)):
+            out.append(f'<a href="{html.escape(m.group(2))}">{_inline(m.group(1))}</a>')
+        else:
+            out.append(_inline(m.group(1)))
         last = m.end()
     return "".join(out) + _inline(text[last:])
 

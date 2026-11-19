@@ -461,9 +461,7 @@ def entry_time(path, data):
 def move_to_closed(path, entry, reason):
     closed = orchestrated_dir() / "closed"
     closed.mkdir(parents=True, exist_ok=True)
-    entry = dict(
-        entry, closed_at=now().isoformat(timespec="seconds"), close_reason=reason
-    )
+    entry = dict(entry, closed_at=now().isoformat(), close_reason=reason)
     write_json(closed / path.name, entry)
     path.unlink()
 
@@ -544,7 +542,7 @@ def entry_record(url, e, key, info, base_started):
         "kind": "issue",
         "title": e.get("title") or key,
         "url": url,
-        "author": e.get("human_assignee") or (assignees[0] if assignees else ""),
+        "author": e.get("author") or "",  # who opened the issue: never the assignee
         "assignees": assignees,
         "labels": [],
         "created": "",
@@ -640,6 +638,21 @@ def refresh(run=None):
     for path, e in held_entries.items():
         held |= {entry_issue_url(e, path).lower(), (e.get("pr_url") or "").lower()}
         held |= {(SESSION_URL + sid).lower() for sid in entry_session_ids(e)}
+    started = meta.get("started") or ""
+    # An issue that was in the last daily report, was claimed and then closed (or unassigned) since: its entry
+    # is in `closed/` already (reconcile_entries or `report-entry --closed` moved it), so it is not held, but
+    # the baseline block would still show it as live work next to its closed line. Drop it too.
+    if base is not None and started:
+        began = datetime.fromisoformat(started)
+        if began.tzinfo is None:
+            began = began.replace(tzinfo=timezone.utc)
+        for path, e in entry_files(orchestrated_dir() / "closed").items():
+            if entry_time(path, e) > began:
+                held |= {
+                    entry_issue_url(e, path).lower(),
+                    (e.get("pr_url") or "").lower(),
+                }
+                held |= {(SESSION_URL + sid).lower() for sid in entry_session_ids(e)}
     held.discard("")
     # What the orchestrator holds is not a block of the page's other half (a daily run already left it out).
     text = replace_section(
@@ -660,8 +673,8 @@ def refresh(run=None):
         "statuses": {},
         "prev_date": "",
     }
-    started = meta.get("started") or ""
     mine, other = [], []
+    emitted = set()  # one card per url: the orchestrated entry is made first and wins over an information one
     for info, entries in ((False, held_entries), (True, info_entries)):
         for path, e in sorted(entries.items()):
             url = entry_issue_url(e, path) if not info else (e.get("url") or "")
@@ -672,6 +685,9 @@ def refresh(run=None):
                 info and f"]({url})" in text
             ):  # a block of the daily report already lists it (FR-28)
                 continue
+            if url.lower() in emitted:
+                continue
+            emitted.add(url.lower())
             item, c, changed = entry_record(url, e, path.stem, info, started)
             if changed:
                 cmp_["changed"][url] = {

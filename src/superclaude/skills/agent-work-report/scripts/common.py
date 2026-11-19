@@ -127,6 +127,7 @@ def answered_since(since):
 # `session_status` maps a session id to "<status>: <reason>" (a status of SESSION_STATUSES). The fixed fields:
 #   url            the issue's url (else made from the file name)       title, kind, group, priority
 #   assignees      logins                                                human_assignee   a login
+#   author         the login that opened the issue ("Opened by"; never the assignee; "Unknown" when absent)
 #   orchestrator   {"id", "tag", "session_id", "link", "tier"}           (link: orca://session/<session id>)
 #   worker         {"session_ids": [...], "link", "title", "branch", "tier"}
 #   pr_url         the worker's pull request, once there is one          last_update      ISO time (UTC)
