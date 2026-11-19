@@ -1,0 +1,20 @@
+.dev/issues/442/scripts/evidence.sh:20:SECRET_RE='gh[pousr]_[A-Za-z0-9]{20,}|github_pat_|sk-[A-Za-z0-9]|CLICKU
+.dev/issues/442/scripts/evidence.sh:21:# The word "task-notification" holds "sk-n"; neutralise it before a mat
+.dev/issues/442/scripts/evidence.sh:22:neutral() { sed -E 's/task-notification/task\x01notification/g'; }
+.dev/issues/442/scripts/evidence.sh:53:redact() { neutral | sed -E "s/.*($SECRET_RE).*/[line withheld: secret 
+.dev/issues/442/scripts/evidence.sh:54:run_text() {  # run_text <command text> [L]: run extracted text, redact
+.dev/issues/442/scripts/evidence.sh:55:  L="${2:-}" MAIN="${MAIN_ID:-}" OB="$OB" command timeout "$T" bash -c 
+.dev/issues/442/scripts/evidence.sh:265:          printf '# launch preflight and inode records\n'; grep -E ' b
+.dev/issues/442/scripts/evidence.sh:305:  OUT=$({ for t in T3 T4; do for n in 5 6 7 8; do printf '# F%s %s\n' 
+.dev/issues/442/scripts/evidence.sh:330:  OUT=$(run_text "$CMD"; printf '# session B step 4 records\n'; grep -
+.dev/issues/442/scripts/evidence.sh:377:    [ "${e#*:}" = "$sel" ] || [ "${e%%:*}" = "OB-H1 item $sel" ] && { 
+.dev/issues/442/scripts/evidence.sh:390:} | redact > "$TMP" && mv "$TMP" "$RESULTS"
+.dev/issues/442/scripts/evidence.sh:395:  neutral < "$f" | grep -nIE "$SECRET_RE" | cut -d: -f1 | sed "s|^|$f:
+.dev/issues/442/scripts/evidence-selftest.sh:45:    printf '{"hook_event_name":"UserPromptSubmit","session_id"
+.dev/issues/442/scripts/evidence-selftest.sh:185:# the quoted sk- pattern still matches inside another word, s
+.dev/issues/442/scripts/evidence-selftest.sh:187:printf '{"hook_event_name":"UserPromptSubmit","session_id":"x
+.dev/issues/442/scripts/evidence-selftest.sh:188:ev all; ck secret-sk-rc "$RC" 3
+.dev/issues/442/scripts/evidence-selftest.sh:189:hasnt secret-sk-not-in-report "$(cat "$S/results.md")" 'xsk-a
+.dev/issues/442/scripts/evidence-selftest.sh:194:# the word task-notification is not a secret
+192:    | if any($n[]; (startswith("mcp__")|not) and (test("send_?message";"i")) and . != "SendMessage") then 
+193:      elif any($n[]; contains("__") and (startswith("mcp__")|not)) then "FAIL|an MCP tool arrives in a for

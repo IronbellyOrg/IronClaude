@@ -1,0 +1,29 @@
+BEGIN send-1
+OK send-1 claim claim /sc:issue --claim 645 --pipeline full --submit
+BEGIN e-layers
+FAIL e-layers no 'L1 guard: effective' line (the claim session printed its own summary; enforcement_hook line: enforcement_hook:installed)
+BEGIN e-terminal
+OK e-terminal terminal term_0af0b8c0-69f7-4267-87d7-977921e8be36 found by worktree path and launch title (the claim output has no terminal key)
+BEGIN e-launched
+OK e-launched terminal=term_0af0b8c0-69f7-4267-87d7-977921e8be36 gsid=330bacbc-9893-47ca-9fbb-ee9ed36058cb
+BEGIN e-pr-url
+OK e-pr-url https://github.com/IronbellyOrg/IronClaude/pull/654
+BEGIN e-o10
+OK e-o10 edit on ironbelly/issue-645 via the contents API; stand-in for the web UI edit, and whether /sc:pr-submit reacts the same way is UNVERIFIED
+BEGIN e-cycle
+OK e-cycle a Stop follows the last pr-submit line (heuristic, UNVERIFIED)
+BEGIN e-push-url
+OK e-push-url /tmp/ob/bare-push.git
+BEGIN e-main-push-url
+OK e-main-push-url https://github.com/IronbellyOrg/IronClaude
+BEGIN send-2
+OK send-2 gE h2-T4 Run exactly this Bash command and nothing else: `git push or
+BEGIN send-3
+OK send-3 gE h2-T4 Run exactly this Bash command and nothing else: `git merge o
+BEGIN e-versions
+OK e-versions claude=2.1.327 (Claude Code) orca=1.4.245-aidev02.9cfecdd30b2a sha=0bfe7eb9273825c4ad16be33478d83cb27f7c1dfb6f740c814ed70236854e00d  /home/coder/.claude/settings.json 3f1c5da85c1b3b78680bff1dea2fa9dd5cef3571d89f5f6847667fda27988b8d  /home/coder/.claude/hooks/launch-level-guard.sh 
+BEGIN release-text
+FAIL release-text the claim output has no printed rm line; releasing this run's own two session files (UNVERIFIED claim text)
+BEGIN release
+OK release 330bacbc-9893-47ca-9fbb-ee9ed36058cb
+SESSION_E_DONE

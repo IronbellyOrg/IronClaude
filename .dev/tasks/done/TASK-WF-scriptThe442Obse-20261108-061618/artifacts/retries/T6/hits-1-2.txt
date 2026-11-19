@@ -1,0 +1,18 @@
+.dev/issues/442/scripts/session-gov.sh:96:wait_first_stop() {  # wait_first_stop <label> <secs>: the agent's first turn has ended
+.dev/issues/442/scripts/session-gov.sh:134:launch_real() {  # launch_real <T1..T4> <flags> <session name> [first-stop wait secs; absent or 0
+.dev/issues/442/scripts/session-gov.sh:155:  [ "${4:-0}" = 0 ] || wait_first_stop "$label" "$4" || pending "reason=no-first-stop label=$labe
+.dev/issues/442/scripts/session-gov.sh:234:  launch_real T1 "--pipeline worktree" gB "${OB_INITIAL_WAIT_S:-900}"
+.dev/issues/442/scripts/session-gov.sh:270:  launch_real T2 "--pipeline worktree" gC "${OB_INITIAL_WAIT_S:-900}"
+.dev/issues/442/scripts/session-gov.sh:300:  launch_real T3 "--pipeline full" gD
+.dev/issues/442/scripts/session-gov.sh:355:  launch_real T4 "--pipeline full --submit" gE
+.dev/issues/442/scripts/session-gov-selftest.sh:129:        OB_POLL_S=0 OB_LAUNCH_WAIT_S=2 OB_INITIAL_WAIT_S=2 OB_D_WAIT_S=2 OB_E_WAIT_S=2 O
+.dev/issues/442/scripts/session-gov-selftest.sh:294:runsub d STUB_STOP_ONLY=claim OB_INITIAL_WAIT_S=0
+.dev/issues/442/scripts/session-gov-selftest.sh:300:runsub e STUB_STOP_ONLY=claim OB_INITIAL_WAIT_S=0
+.dev/issues/442/scripts/session-gov-selftest.sh:306:runsub c STUB_STOP_ONLY=claim OB_INITIAL_WAIT_S=1
+314:find_pr_url() {  # first pull request URL in the h2-T4 log or on the governed screen
+328:fire_o10() {  # O-10: stand-in for the web UI edit, via the contents API (path first, then flags)
+330:  br=$(gh_fork pr view "$num" --json headRefName -q .headRefName 2>/dev/null) || br=""
+338:  sha=$(gh_fork api "repos/IronbellyOrg/IronClaude/contents/ob-442/T4.txt?ref=$br" --jq .sha 2>/dev/null) || sha=""
+341:  if gh_fork api repos/IronbellyOrg/IronClaude/contents/ob-442/T4.txt "${args[@]}" >/dev/null 2>&1; then
+359:    [ -n "$url" ] || url=$(find_pr_url)
+365:      fire_o10 "$url"; o10=1

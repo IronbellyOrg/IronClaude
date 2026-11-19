@@ -1,0 +1,31 @@
+BEGIN b-backup
+OK b-backup /tmp/ob/t1-local.json
+BEGIN b-pending-before
+OK b-pending-before 0
+BEGIN send-1
+OK send-1 claim claim /sc:issue --claim 642 --pipeline worktree
+BEGIN b-badjson-claim
+FAIL b-badjson-claim status=failed screen=/tmp/ob/screens/claim-184902-2439.json
+BEGIN b-badjson-pending
+OK b-badjson-pending count 0
+BEGIN b-badjson-no-mirror
+OK b-badjson-no-mirror /home/coder/workspaces/IronClaude/.git/worktrees/issue-642/sc-issue-launch-642.json absent
+BEGIN b-badjson-no-record
+OK b-badjson-no-record "none"
+BEGIN send-2
+OK send-2 claim claim /sc:issue --claim 642 --pipeline worktree
+BEGIN b-nohooks-claim
+FAIL b-nohooks-claim status=failed screen=/tmp/ob/screens/claim-185631-2540.json
+BEGIN b-nohooks-pending
+OK b-nohooks-pending count 0
+BEGIN b-nohooks-no-mirror
+OK b-nohooks-no-mirror /home/coder/workspaces/IronClaude/.git/worktrees/issue-642/sc-issue-launch-642.json absent
+BEGIN b-nohooks-no-record
+OK b-nohooks-no-record "none"
+BEGIN b-restore
+OK b-restore byte-equal to the backup
+BEGIN send-3
+OK send-3 claim claim /sc:issue --claim 642 --pipeline worktree
+BEGIN b-layers
+FAIL b-layers no 'L1 guard: effective' line
+PENDING reason=terminal-handle-missing screen=/tmp/ob/screens/claim-185936-2591.json (full record in /home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/.dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/artifacts/t10-run-log.md)

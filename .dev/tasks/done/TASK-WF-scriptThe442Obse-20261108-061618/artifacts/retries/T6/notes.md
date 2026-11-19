@@ -1,0 +1,5 @@
+A1 r1-1 F6.3 minor .dev/issues/442/scripts/session-gov.sh:222 ac=scope n n n n: a stale t1-local.json can satisfy the -s test when settings.local.json is missing; remove the backup first or test the exit status of cp.
+A1 r1-1 F6.4 minor .dev/issues/442/scripts/session-gov.sh:147 ac=scope n n n n: MAIN is unset for c and d, so the no-terminal fallback reads worktree.json from the current directory; set MAIN once at entry.
+A1 r1-1 F6.5 minor .dev/issues/442/scripts/session-gov-selftest.sh:23 ac=scope n n n n: session e runs the real claude --version in the self-test (read only, temp HOME); add a claude stub.
+A1 r1-2 F6.6 note .dev/issues/442/scripts/session-gov.sh:314 ac=scope n n n n: find_pr_url takes the first pull request URL in the h2-T4 log; the O-10 branch check stops a wrong write, but a wrong first URL would skip O-10 (recorded FAIL); the live run should read the printed URL.
+A1 r1-1 F6.7 note .dev/issues/442/scripts/session-gov.sh:296 ac=scope n n n n: sleep 241 in session b may exit before the final identify (runbook timing, UNVERIFIED); the script records PENDING no-process rather than FAIL.

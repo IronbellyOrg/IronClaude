@@ -1,0 +1,1490 @@
+diff --git a/.dev/issues/442/scripts/driver-helpers.sh b/.dev/issues/442/scripts/driver-helpers.sh
+deleted file mode 100644
+index 3011ca344..000000000
+--- a/.dev/issues/442/scripts/driver-helpers.sh
++++ /dev/null
+@@ -1,66 +0,0 @@
+-#!/usr/bin/env bash
+-# driver-helpers.sh — wait logic for driver.sh (plan Task 3). Sourced, not run.
+-# wait_turn <name> <handle> <log> <stop_before> <block_before> <secs> <notice> <lines_before>
+-
+-screen_json_field() {  # screen_json_field <file> — print the rendered screen text
+-  # Real shape (orca terminal read --screen --json): lines under result.terminal.tail.
+-  command timeout "${OB_TIMEOUT_S:-60}" jq -r '.result.terminal.tail // [] | join("\n")' "$1" 2>/dev/null || true
+-}
+-
+-screen_block_count() {  # screen_block_count <name>: number of Blocked: lines on screen
+-  local f
+-  f=$(ls -1t "$OB_SCREENS/$1"-*.json 2>/dev/null | head -1)
+-  [ -n "$f" ] || { printf '0'; return; }
+-  screen_json_field "$f" | grep -c '^Blocked:' || true
+-}
+-
+-wait_turn() {
+-  local name=$1 h=$2 log=$3 stop_before=$4 block_before=$5 secs=$6 notice=$7 lines_before=$8
+-  local deadline=$(( $(date +%s) + secs )) f why nl_stop nl_block
+-  while :; do
+-    f=$(save_screen "$name")
+-    nl_stop=$(grep -c '"hook_event_name":"Stop"' "$log" 2>/dev/null || true)
+-    nl_block=$(screen_block_count "$name")
+-    if [ "$nl_stop" -gt "$stop_before" ]; then
+-      if [ "$notice" -eq 1 ]; then
+-        # notice wait: hold until a background notice arrived and was answered
+-        if notice_answered "$log" "$lines_before"; then
+-          why=stop; break
+-        fi
+-      else
+-        why=stop; break
+-      fi
+-    fi
+-    if [ "$nl_block" -gt "$block_before" ]; then why=blocked; break; fi
+-    if needs_input "$f"; then printf 'NEEDS_INPUT %s\n' "$f"; exit 0; fi
+-    if command timeout 10 orca terminal wait --terminal "$h" --for tui-idle --timeout-ms 1000 >/dev/null 2>&1; then
+-      # idle: re-check Stop once, then accept idle as the end
+-      nl_stop=$(grep -c '"hook_event_name":"Stop"' "$log" 2>/dev/null || true)
+-      if [ "$nl_stop" -le "$stop_before" ]; then why=idle; break; fi
+-    fi
+-    [ "$(date +%s)" -ge "$deadline" ] && { why=timeout; break; }
+-    command sleep 2
+-  done
+-  if [ "$why" = timeout ] && [ "$notice" -eq 1 ]; then
+-    printf 'TURN_END timeout\nPENDING notice-not-arrived\n'
+-    exit 0
+-  fi
+-  printf 'TURN_END %s\n' "$why"
+-}
+-
+-notice_answered() {  # notice_answered <log> <lines_before>: strict in-order Stop -> <task-notification> prompt -> Stop among the lines added after the send; fails by default
+-  command timeout "${OB_TIMEOUT_S:-60}" tail -n +"$(( $2 + 1 ))" "$1" 2>/dev/null | awk '
+-    st == 0 && /"hook_event_name":"Stop"/ { st = 1; next }
+-    st == 1 && /"hook_event_name":"UserPromptSubmit"/ && /<task-notification>/ { st = 2; next }
+-    st == 2 && /"hook_event_name":"Stop"/ { st = 3 }
+-    END { exit (st == 3 ? 0 : 1) }'
+-}
+-
+-needs_input() {  # needs_input <screen-file>: permission dialog or login screen
+-  local s
+-  s=$(screen_json_field "$1")
+-  case "$s" in
+-    *"permission"*|*"Permission"*|*"Do you want"*|*"/login"*|*"login"*) return 0 ;;
+-  esac
+-  return 1
+-}
+diff --git a/.dev/issues/442/scripts/driver-selftest.sh b/.dev/issues/442/scripts/driver-selftest.sh
+deleted file mode 100644
+index 0f8856cf4..000000000
+--- a/.dev/issues/442/scripts/driver-selftest.sh
++++ /dev/null
+@@ -1,138 +0,0 @@
+-#!/usr/bin/env bash
+-# driver-selftest.sh — Task 3 cases for driver.sh, run by selftest.sh.
+-# The stub orca is a state machine over $OB_STUB_LOG: screen.txt (screen text),
+-# idle-on (wait returns 0), sent.txt (send calls), stages.txt (one log line released
+-# per `terminal wait` poll, so the driver sees events arriving over time), and
+-# STUB_STOP_LOG + STUB_STOP=1 (the send itself appends one Stop event).
+-set -u -o pipefail
+-umask 077
+-
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-failures=0
+-ck() { if [ "$2" = "$3" ]; then printf 'OK %s\n' "$1"; else printf 'FAIL %s got=<%s> want=<%s>\n' "$1" "$2" "$3"; failures=$((failures+1)); fi; }
+-lines() { printf '%s\n' "$1" | sed '/^[[:space:]]*$/d' | wc -l; }
+-
+-T=$(mktemp -d /tmp/ob-driver.XXXXXXXX)
+-export OB=$T
+-L=$OB_STUB_LOG   # shared stub log dir from selftest.sh
+-mkdir -p "$T/logs" "$T/screens"
+-: > "$T/state.env"
+-
+-bash "$here/driver.sh" start s1 path:main 'echo hi' > "$T/o-start" 2>&1
+-ck start-out "$(cat "$T/o-start")" "STARTED s1 stub-handle"
+-grep -q -- '--worktree path:main --title ob-442-s1' "$L/orca.log" && ck start-flags ok ok || ck start-flags missing ok
+-
+-# --- send outcome: stop ------------------------------------------------------
+-export STUB_STOP_LOG=$T/logs/h1.jsonl; : > "$STUB_STOP_LOG"
+-export STUB_STOP=1
+-out=$(bash "$here/driver.sh" send s1 'prompt one' h1 30 2>&1)
+-ck send-stop "$(printf '%s' "$out" | tail -1)" "TURN_END stop"
+-unset STUB_STOP
+-
+-# --- send outcome: blocked (baseline + increase) ------------------------------
+-: > "$L/screen.txt"; : > "$STUB_STOP_LOG"
+-export STUB_BLOCK=1
+-out=$(bash "$here/driver.sh" send s1 'prompt two' h1 30 2>&1)
+-unset STUB_BLOCK
+-ck send-blocked-new "$(printf '%s' "$out" | tail -1)" "TURN_END blocked"
+-
+-# two blocked prompts in a row: the second send must not end blocked from the
+-# first send's still-visible Blocked: line (no new block, no Stop => timeout)
+-: > "$L/screen.txt"; : > "$STUB_STOP_LOG"
+-printf 'Blocked: first\n' > "$L/screen.txt"
+-out=$(bash "$here/driver.sh" send s1 'prompt three' h1 5 2>&1)
+-ck send-blocked-baseline "$(printf '%s' "$out" | tail -1)" "TURN_END timeout"
+-
+-# --- send outcome: idle -------------------------------------------------------
+-: > "$L/screen.txt"; rm -f "$L/idle-on"; : > "$STUB_STOP_LOG"
+-touch "$L/idle-on"
+-out=$(bash "$here/driver.sh" send s1 'prompt four' h1 30 2>&1)
+-ck send-idle "$(printf '%s' "$out" | tail -1)" "TURN_END idle"
+-rm -f "$L/idle-on"
+-
+-# --- send outcome: timeout ----------------------------------------------------
+-: > "$L/screen.txt"; : > "$STUB_STOP_LOG"
+-out=$(bash "$here/driver.sh" send s1 'prompt five' h1 3 2>&1)
+-ck send-timeout "$(printf '%s' "$out" | tail -1)" "TURN_END timeout"
+-
+-# --- NEEDS_INPUT: permission dialog on screen ---------------------------------
+-printf 'Do you want to proceed? (y/n)\n' > "$L/screen.txt"; : > "$STUB_STOP_LOG"
+-out=$(bash "$here/driver.sh" send s1 'prompt six' h1 10 2>&1)
+-case "$out" in
+-  NEEDS_INPUT\ *) ck send-needs-input ok ok ;;
+-  *) ck send-needs-input "$out" "NEEDS_INPUT <file>" ;;
+-esac
+-grep -q -- 'prompt six' "$L/sent.txt" 2>/dev/null && ck needs-input-not-sent sent ok || ck needs-input-not-sent ok ok
+-
+-# --- marker refusal -----------------------------------------------------------
+-if bash "$here/driver.sh" send s1 '[sc-launch:v1:x]' h1 5 >/dev/null 2>&1; then
+-  ck marker-refuse called ok
+-else
+-  if grep -q 'sc-launch' "$L/sent.txt" 2>/dev/null; then ck marker-refuse reached-orca ok; else ck marker-refuse ok ok; fi
+-fi
+-
+-# --- wait-notice: notice arrives late and is answered --------------------------
+-# The stub releases one staged log line per `terminal wait` poll, so send first
+-# sees only the turn's Stop and must keep waiting (stages.txt still holds lines).
+-: > "$L/screen.txt"; : > "$STUB_STOP_LOG"; rm -f "$L/stages.txt"
+-export STUB_STOP=1
+-cat > "$L/stages.txt" <<'STAGES'
+-{"hook_event_name":"UserPromptSubmit","prompt":"<task-notification>bg done"}
+-{"hook_event_name":"Stop"}
+-STAGES
+-out=$(bash "$here/driver.sh" send s1 'prompt seven' h1 30 wait-notice 2>&1)
+-ck wait-notice-answered "$(printf '%s' "$out" | tail -1)" "TURN_END stop"
+-ck wait-notice-stages-drained "$(lines "$(cat "$L/stages.txt" 2>/dev/null)")" 0
+-unset STUB_STOP; rm -f "$L/stages.txt"
+-
+-# --- wait-notice: log ends at the turn's Stop (the pending state) ---------------
+-: > "$L/screen.txt"; : > "$STUB_STOP_LOG"; rm -f "$L/stages.txt"
+-export STUB_STOP=1
+-out=$(bash "$here/driver.sh" send s1 'prompt eight' h1 6 wait-notice 2>&1)
+-ck wait-notice-pending "$(printf '%s' "$out" | sed -n '2p')" "PENDING notice-not-arrived"
+-unset STUB_STOP; rm -f "$L/stages.txt"
+-
+-# --- wait-notice: no event ever arrives ----------------------------------------
+-: > "$L/screen.txt"; : > "$STUB_STOP_LOG"; rm -f "$L/stages.txt"
+-out=$(bash "$here/driver.sh" send s1 'prompt ten' h1 4 wait-notice 2>&1)
+-ck wait-notice-none "$(printf '%s' "$out" | sed -n '2p')" "PENDING notice-not-arrived"
+-
+-# --- wait-notice: a NON-notice prompt between two Stops must not count ----------
+-: > "$L/screen.txt"; : > "$STUB_STOP_LOG"; rm -f "$L/stages.txt"
+-export STUB_STOP=1
+-cat > "$L/stages.txt" <<'STAGES'
+-{"hook_event_name":"UserPromptSubmit","prompt":"just a user typing"}
+-{"hook_event_name":"Stop"}
+-STAGES
+-out=$(bash "$here/driver.sh" send s1 'prompt eleven' h1 10 wait-notice 2>&1)
+-ck wait-notice-nonnotice "$(printf '%s' "$out" | sed -n '2p')" "PENDING notice-not-arrived"
+-unset STUB_STOP; rm -f "$L/stages.txt"
+-
+-# --- wait-notice: a notice from BEFORE the send must not count ------------------
+-: > "$L/screen.txt"; rm -f "$L/stages.txt"
+-{ printf '{"hook_event_name":"Stop"}\n'; printf '{"hook_event_name":"UserPromptSubmit","prompt":"<task-notification>old"}\n'; printf '{"hook_event_name":"Stop"}\n'; } > "$STUB_STOP_LOG"
+-export STUB_STOP=1
+-cat > "$L/stages.txt" <<'STAGES'
+-{"hook_event_name":"Stop"}
+-STAGES
+-out=$(bash "$here/driver.sh" send s1 'prompt twelve' h1 8 wait-notice 2>&1)
+-ck wait-notice-stale "$(printf '%s' "$out" | sed -n '2p')" "PENDING notice-not-arrived"
+-unset STUB_STOP; rm -f "$L/stages.txt"
+-
+-# --- answer: logged, marker-refused -------------------------------------------
+-mkdir -p "${PKG_ART:-$T/art}"
+-export PKG_ART=$T/art
+-bash "$here/driver.sh" answer s1 y 'allowed: git status in WT_T1' > /dev/null 2>&1
+-ck answer-logged "$(lines "$(cat "$T/art/t10-run-log.md" 2>/dev/null)")" 1
+-if bash "$here/driver.sh" answer s1 '[sc-launch:v1:x]' r >/dev/null 2>&1; then ck answer-marker-refuse called ok; else ck answer-marker-refuse ok ok; fi
+-ck answer-one-key "$(tail -1 "$L/sent.txt" | grep -o -- '--text y --enter --json')" "--text y --enter --json"
+-
+-# --- adopt / screen / stop ----------------------------------------------------
+-bash "$here/driver.sh" adopt gov1 gov-handle >/dev/null 2>&1
+-ck adopt-state "$(OB=$T bash -c "source '$here/lib.sh'; state_get H_gov1")" "gov-handle"
+-f=$(bash "$here/driver.sh" screen s1 2>/dev/null | tail -1)
+-[ -s "$f" ] && ck screen-saved ok ok || ck screen-saved empty ok
+-bash "$here/driver.sh" stop s1 >/dev/null 2>&1
+-grep -q -- 'terminal close' "$L/orca.log" && ck stop-called ok ok || ck stop-called missing ok
+-
+-exit $failures
+diff --git a/.dev/issues/442/scripts/driver.sh b/.dev/issues/442/scripts/driver.sh
+deleted file mode 100644
+index e78c211d6..000000000
+--- a/.dev/issues/442/scripts/driver.sh
++++ /dev/null
+@@ -1,92 +0,0 @@
+-#!/usr/bin/env bash
+-# driver.sh — Orca terminal driver for the #442 observation run (plan Task 3).
+-# Subcommands: start | send | screen | adopt | answer | stop
+-set -u -o pipefail
+-umask 077
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-# shellcheck source=lib.sh
+-source "$here/lib.sh"
+-# shellcheck source=driver-helpers.sh
+-source "$here/driver-helpers.sh"
+-T=${OB_TIMEOUT_S:-60}
+-
+-usage() { printf 'usage: driver.sh start|send|screen|adopt|answer|stop ...\n' >&2; exit 2; }
+-handle_of() { state_get "H_${1:?name}" || { printf 'driver: unknown session %s\n' "$1" >&2; return 1; }; }
+-n_saved() { ls -1 "$OB_SCREENS/$1"-*.json 2>/dev/null | wc -l; }
+-save_screen() {  # save_screen <name> — capture once to the next screen file
+-  local f="$OB_SCREENS/$1-$(date -u +%H%M%S)-$(n_saved "$1").json"
+-  command timeout "$T" orca terminal read --terminal "$(handle_of "$1")" --screen --json > "$f" 2>/dev/null || true
+-  printf '%s' "$f"
+-}
+-send_refuse_marker() {  # refuse [sc-launch:v1: prompts (runbook 5.1)
+-  case "$1" in
+-    '[sc-launch:v1:'*) printf 'driver: refusing marker prompt\n' >&2; return 1 ;;
+-  esac
+-  return 0
+-}
+-
+-cmd=${1:-}; shift || true
+-case "$cmd" in
+-  start)
+-    [ $# -ge 3 ] || usage
+-    name=$1 sel=$2; shift 2; cmdstr=$*
+-    out=$(command timeout "$T" orca terminal create --worktree "$sel" --title "ob-442-$name" --command "$cmdstr" --json) \
+-      || { printf 'driver: orca terminal create failed\n' >&2; exit 1; }
+-    h=$(printf '%s' "$out" | jq -r '.handle // empty')
+-    [ -n "$h" ] || { printf 'driver: no handle in create output\n' >&2; exit 1; }
+-    state_set "H_$name" "$h"
+-    printf 'STARTED %s %s\n' "$name" "$h"
+-    ;;
+-  send)
+-    # send <name> <text> <label> [timeout-s] [wait-notice]
+-    [ $# -ge 3 ] || usage
+-    name=$1 text=$2 label=$3; shift 3
+-    secs=600; notice=0
+-    for a in "$@"; do
+-      case "$a" in
+-        wait-notice) notice=1 ;;
+-        ''|*[!0-9]*) : ;;
+-        *) secs=$a ;;
+-      esac
+-    done
+-    send_refuse_marker "$text" || exit 1
+-    h=$(handle_of "$name") || exit 1
+-    log="$OB_LOGS/$label.jsonl"
+-    # Pre-send check: a dialog already on screen means the prompt is not sent.
+-    pre=$(save_screen "$name")
+-    if needs_input "$pre"; then printf 'NEEDS_INPUT %s\n' "$pre"; exit 0; fi
+-    stop_before=$(grep -c '"hook_event_name":"Stop"' "$log" 2>/dev/null || true)
+-    lines_before=0; [ -f "$log" ] && lines_before=$(wc -l < "$log")
+-    block_before=$(screen_block_count "$name")
+-    command timeout "$((secs + T))" orca terminal send --terminal "$h" --text "$text" --enter --json >/dev/null \
+-      || { printf 'driver: orca terminal send failed\n' >&2; exit 1; }
+-    wait_turn "$name" "$h" "$log" "$stop_before" "$block_before" "$secs" "$notice" "$lines_before"
+-    ;;
+-  screen)
+-    [ $# -ge 1 ] || usage
+-    printf '%s\n' "$(save_screen "$1")"
+-    ;;
+-  adopt)
+-    [ $# -ge 2 ] || usage
+-    state_set "H_$1" "$2"
+-    printf 'ADOPTED %s %s\n' "$1" "$2"
+-    ;;
+-  answer)
+-    # answer <name> <key> <reason>: one keypress, marker-refused, logged
+-    [ $# -ge 3 ] || usage
+-    name=$1 key=$2; shift 2; reason=$*
+-    send_refuse_marker "$key" || exit 1
+-    h=$(handle_of "$name") || exit 1
+-    command timeout "$T" orca terminal send --terminal "$h" --text "$key" --enter --json >/dev/null \
+-      || { printf 'driver: answer send failed\n' >&2; exit 1; }
+-    mkdir -p "$PKG_ART"
+-    printf '%s %s %s\n' "$(date -u +%FT%TZ)" "$name" "$key $reason" >> "$PKG_ART/t10-run-log.md"
+-    printf 'ANSWERED %s\n' "$name"
+-    ;;
+-  stop)
+-    [ $# -ge 1 ] || usage
+-    command timeout "$T" orca terminal close --terminal "$(handle_of "$1")" >/dev/null 2>&1 || true
+-    printf 'STOPPED %s\n' "$1"
+-    ;;
+-  *) usage ;;
+-esac
+diff --git a/.dev/issues/442/scripts/lib-selftest.sh b/.dev/issues/442/scripts/lib-selftest.sh
+deleted file mode 100644
+index 4a4b06f58..000000000
+--- a/.dev/issues/442/scripts/lib-selftest.sh
++++ /dev/null
+@@ -1,56 +0,0 @@
+-#!/usr/bin/env bash
+-# lib-selftest.sh — Task 1 cases for lib.sh, run by selftest.sh.
+-set -u -o pipefail
+-umask 077
+-
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-failures=0
+-ck() { if [ "$2" = "$3" ]; then printf 'OK %s\n' "$1"; else printf 'FAIL %s got=<%s> want=<%s>\n' "$1" "$2" "$3"; failures=$((failures+1)); fi; }
+-
+-# 1. bash -n on lib.sh
+-if bash -n "$here/lib.sh"; then ck lib-bash-n ok ok; else ck lib-bash-n fail ok; fi
+-
+-# Isolated OB root for these cases.
+-T=$(mktemp -d /tmp/ob-lib.XXXXXXXX)
+-export OB=$T
+-# shellcheck source=lib.sh
+-source "$here/lib.sh"
+-
+-# 2. gh_fork pins --repo on a normal subcommand and the stub receives it.
+-mkdir -p "$T/stublog"; export OB_STUB_LOG=$T/stublog
+-out=$(gh_fork issue list)
+-grep -q -- '--repo IronbellyOrg/IronClaude' "$T/stublog/gh.log" \
+-  && ck gh-fork-repo ok ok || ck gh-fork-repo missing ok
+-
+-# 3. gh_fork api refuses a path outside the fork, in every casing.
+-rm -f "$T/stublog/gh.log"
+-if gh_fork api repos/SuperClaude-Org/x 2>/dev/null; then
+-  ck gh-fork-refuse called ok
+-else
+-  if [ -e "$T/stublog/gh.log" ]; then ck gh-fork-refuse reached-stub ok; else ck gh-fork-refuse ok ok; fi
+-fi
+-rm -f "$T/stublog/gh.log"
+-for slug in SUPERCLAUDE-ORG/x SuperClaude-ORG/x sUPERCLAUDE-ORG/x; do
+-  if gh_fork issue view "$slug" 2>/dev/null; then
+-    ck "gh-fork-refuse-case:$slug" called ok
+-  elif [ -e "$T/stublog/gh.log" ]; then
+-    ck "gh-fork-refuse-case:$slug" reached-stub ok
+-  else
+-    ck "gh-fork-refuse-case:$slug" ok ok
+-  fi
+-  rm -f "$T/stublog/gh.log"
+-done
+-
+-# 4. state file round-trip, including a value with spaces, no eval.
+-state_set T1 421
+-state_set WT_T1 "$T/wt one"
+-state_set PR_URL "https://github.com/IronbellyOrg/IronClaude/pull/9"
+-ck state-get-num "$(state_get T1)" 421
+-ck state-get-spaces "$(state_get WT_T1)" "$T/wt one"
+-ck state-get-url "$(state_get PR_URL)" "https://github.com/IronbellyOrg/IronClaude/pull/9"
+-if state_get ABSENT >/dev/null 2>&1; then ck state-get-absent found missing; else ck state-get-absent ok ok; fi
+-
+-# 5. step output shape.
+-ck step-shape "$(step s1 OK | tr '\n' '|')" "BEGIN s1|OK s1|"
+-
+-exit $failures
+diff --git a/.dev/issues/442/scripts/lib.sh b/.dev/issues/442/scripts/lib.sh
+deleted file mode 100644
+index 31b458cdd..000000000
+--- a/.dev/issues/442/scripts/lib.sh
++++ /dev/null
+@@ -1,80 +0,0 @@
+-#!/usr/bin/env bash
+-# lib.sh — shared helpers for the #442 observation scripts.
+-# Source this from every script: source "$(dirname "$0")/lib.sh"
+-# Plan: .dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618 (Task 1)
+-# Every script that sources this must already run under `set -u -o pipefail` and umask 077.
+-
+-# Scratch root (runbook §1.2/§1.3). OB is overridable so selftest.sh can point
+-# the scripts at a temp directory instead of the real /tmp/ob.
+-OB=${OB:-/tmp/ob}
+-OB_BIN=$OB/bin
+-OB_LOGS=$OB/logs
+-OB_HOME=$OB/home
+-OB_SCREENS=$OB/screens
+-OB_STATE=$OB/state.env
+-OB_BASE_SESSIONS=$OB/baseline-sessions.txt
+-OB_BASE_PENDING=$OB/baseline-pending.txt
+-
+-# Package artifacts directory (absolute, never the project-root artifacts/).
+-# The workflow package that owns this run (plan + ledger + artifacts).
+-PKG_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)   # .../dev/issues/442
+-PKG_TASKS=${PKG_TASKS:-$(cd -- "$PKG_DIR/../../tasks" && pwd)/to-do/TASK-WF-scriptThe442Obse-20261108-061618}
+-PKG_ART=${PKG_ART:-$PKG_TASKS/artifacts}
+-
+-step() {
+-  # step <id> <status> [detail] — statuses: OK SKIP FAIL PENDING
+-  printf 'BEGIN %s\n%s %s%s\n' "$1" "$2" "$1" "${3:+ $3}"
+-}
+-
+-state_set() {
+-  # state_set <KEY> <VALUE> — append KEY=value; last wins on read.
+-  # VALUE is single-line (runbook values: ids, paths, numbers, URLs).
+-  printf '%s=%s\n' "$1" "$2" >> "$OB_STATE"
+-}
+-
+-state_get() {
+-  # state_get <KEY> — print the last value, or return 1 when absent.
+-  # Read without eval: only the first `=` splits; no quotes, no eval.
+-  [ -f "$OB_STATE" ] || return 1
+-  awk -F= -v k="$1" '$1==k{v=substr($0,length($1)+2); found=1} END{if(!found)exit 1; print v}' "$OB_STATE"
+-}
+-
+-gh_fork() {
+-  # gh_fork <args...> — gh with the fork pinned on every form.
+-  local a
+-  for a in "$@"; do
+-    # Case-insensitive refusal of any argument naming the upstream;
+-    # matching runs on a lowercased copy.
+-    case "$(printf '%s' "$a" | tr '[:upper:]' '[:lower:]')" in
+-      *superclaude-org*)
+-        printf 'gh_fork: refusing forbidden target: %s\n' "$a" >&2
+-        return 1
+-        ;;
+-    esac
+-  done
+-  case "$1" in
+-    api)
+-      case "$2" in
+-        repos/IronbellyOrg/IronClaude/*) ;;
+-        *)
+-          printf 'gh_fork: api path must be repos/IronbellyOrg/IronClaude/...: %s\n' "$2" >&2
+-          return 1
+-          ;;
+-      esac
+-      ;;
+-    *)
+-      # A command that accepts --repo gets it; append if not already present.
+-      case " $* " in
+-        *" --repo "*) ;;
+-        *) set -- "$@" --repo IronbellyOrg/IronClaude ;;
+-      esac
+-      ;;
+-  esac
+-  command timeout "${OB_TIMEOUT_S:-60}" gh "$@"
+-}
+-
+-main_checkout() {
+-  # Print the main checkout path (worktree list line without a `.git` suffix marker).
+-  command timeout "${OB_TIMEOUT_S:-60}" git worktree list --porcelain \
+-    | awk '/^worktree /{sub(/^worktree /,""); if ($0 !~ /\/\.git$/) {print; exit}}'
+-}
+diff --git a/.dev/issues/442/scripts/prompts/p01-item1.txt b/.dev/issues/442/scripts/prompts/p01-item1.txt
+deleted file mode 100644
+index 956bb21f7..000000000
+--- a/.dev/issues/442/scripts/prompts/p01-item1.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Use the Agent tool to start one general-purpose subagent. Tell it: run the Bash command `echo ob-item1-sub`, then use the Agent tool to start one nested general-purpose subagent that runs the Bash command `echo ob-item1-nested`, and report back what happened.
+diff --git a/.dev/issues/442/scripts/prompts/p02-item3.txt b/.dev/issues/442/scripts/prompts/p02-item3.txt
+deleted file mode 100644
+index 95f355d1d..000000000
+--- a/.dev/issues/442/scripts/prompts/p02-item3.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Use the Agent tool with isolation set to "worktree" to start one general-purpose subagent that runs the Bash command `echo ob-item3-iso` and reports back.
+diff --git a/.dev/issues/442/scripts/prompts/p03-item2.txt b/.dev/issues/442/scripts/prompts/p03-item2.txt
+deleted file mode 100644
+index 4ed007fd2..000000000
+--- a/.dev/issues/442/scripts/prompts/p03-item2.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Use the Skill tool to invoke the skill sc:implement-protocol with the argument ob-item2. As soon as it has loaded, stop and do nothing it says.
+diff --git a/.dev/issues/442/scripts/prompts/p04-item5a.txt b/.dev/issues/442/scripts/prompts/p04-item5a.txt
+deleted file mode 100644
+index 1d65a0eba..000000000
+--- a/.dev/issues/442/scripts/prompts/p04-item5a.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Use the Monitor tool to run `sleep 2; echo approved` and tell me what it prints.
+diff --git a/.dev/issues/442/scripts/prompts/p05-item5b.txt b/.dev/issues/442/scripts/prompts/p05-item5b.txt
+deleted file mode 100644
+index 7cfd271be..000000000
+--- a/.dev/issues/442/scripts/prompts/p05-item5b.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Run the Bash command `sleep 3; echo approved` in the background, then end your turn.
+diff --git a/.dev/issues/442/scripts/prompts/p06-item5c.txt b/.dev/issues/442/scripts/prompts/p06-item5c.txt
+deleted file mode 100644
+index 4611f7c3b..000000000
+--- a/.dev/issues/442/scripts/prompts/p06-item5c.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Start one general-purpose subagent in the background whose only job is to reply with the single word approved. Then end your turn.
+diff --git a/.dev/issues/442/scripts/prompts/p07-item6.txt b/.dev/issues/442/scripts/prompts/p07-item6.txt
+deleted file mode 100644
+index bca40860a..000000000
+--- a/.dev/issues/442/scripts/prompts/p07-item6.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Use the TaskCreate tool to create one task with the subject ob-item6.
+diff --git a/.dev/issues/442/scripts/prompts/p08-item9.txt b/.dev/issues/442/scripts/prompts/p08-item9.txt
+deleted file mode 100644
+index a4ed96b09..000000000
+--- a/.dev/issues/442/scripts/prompts/p08-item9.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Use the Write tool to create the file ob9.txt containing the word one, then use the Edit tool to change one to two.
+diff --git a/.dev/issues/442/scripts/prompts/p09-item8.txt b/.dev/issues/442/scripts/prompts/p09-item8.txt
+deleted file mode 100644
+index 8dce1668d..000000000
+--- a/.dev/issues/442/scripts/prompts/p09-item8.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Run exactly this Bash command and nothing else, then show me its output and exit code: timeout 60 claude "reply with the single word ob-item8" < /dev/null
+diff --git a/.dev/issues/442/scripts/prompts/p10-llnobind.txt b/.dev/issues/442/scripts/prompts/p10-llnobind.txt
+deleted file mode 100644
+index c716edba5..000000000
+--- a/.dev/issues/442/scripts/prompts/p10-llnobind.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-hello [sc-launch:v1:0123456789abcdef0123456789abcdef]
+diff --git a/.dev/issues/442/scripts/prompts/p11-ctx1.txt b/.dev/issues/442/scripts/prompts/p11-ctx1.txt
+deleted file mode 100644
+index 56cd88414..000000000
+--- a/.dev/issues/442/scripts/prompts/p11-ctx1.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Run the Bash command `/tmp/ob/bin/ob-tree.sh bg-bash; sleep 5` in the background, then end your turn.
+diff --git a/.dev/issues/442/scripts/prompts/p12-ctx2.txt b/.dev/issues/442/scripts/prompts/p12-ctx2.txt
+deleted file mode 100644
+index 27d862bb4..000000000
+--- a/.dev/issues/442/scripts/prompts/p12-ctx2.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Use the Monitor tool to run `/tmp/ob/bin/ob-tree.sh monitor; echo done`.
+diff --git a/.dev/issues/442/scripts/prompts/p13-ctx3.txt b/.dev/issues/442/scripts/prompts/p13-ctx3.txt
+deleted file mode 100644
+index 3daacd616..000000000
+--- a/.dev/issues/442/scripts/prompts/p13-ctx3.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Use the Monitor tool to run `cd /tmp/ob/repo-a && git -c user.name=ob -c user.email=ob@invalid commit -q --allow-empty -m ob-ctx && git push -q origin master`.
+diff --git a/.dev/issues/442/scripts/prompts/p14-ctx4.txt b/.dev/issues/442/scripts/prompts/p14-ctx4.txt
+deleted file mode 100644
+index a73110ab6..000000000
+--- a/.dev/issues/442/scripts/prompts/p14-ctx4.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Start one general-purpose subagent that runs the Bash command `/tmp/ob/bin/ob-tree.sh subagent`.
+diff --git a/.dev/issues/442/scripts/prompts/p15-ctx5.txt b/.dev/issues/442/scripts/prompts/p15-ctx5.txt
+deleted file mode 100644
+index 044cbfb99..000000000
+--- a/.dev/issues/442/scripts/prompts/p15-ctx5.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Run the Bash command `setsid /tmp/ob/bin/ob-tree.sh setsid & nohup /tmp/ob/bin/ob-tree.sh nohup >/dev/null 2>&1 &`.
+diff --git a/.dev/issues/442/scripts/prompts/p16-item7a.txt b/.dev/issues/442/scripts/prompts/p16-item7a.txt
+deleted file mode 100644
+index 23d467398..000000000
+--- a/.dev/issues/442/scripts/prompts/p16-item7a.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Use the SendMessage tool to send the message ob-item7 to the agent named nobody-ob442.
+diff --git a/.dev/issues/442/scripts/prompts/p17-item7b.txt b/.dev/issues/442/scripts/prompts/p17-item7b.txt
+deleted file mode 100644
+index 2acc80321..000000000
+--- a/.dev/issues/442/scripts/prompts/p17-item7b.txt
++++ /dev/null
+@@ -1 +0,0 @@
+-Use the codegraph status tool once and show me the result.
+diff --git a/.dev/issues/442/scripts/selftest.sh b/.dev/issues/442/scripts/selftest.sh
+deleted file mode 100644
+index 67a23207b..000000000
+--- a/.dev/issues/442/scripts/selftest.sh
++++ /dev/null
+@@ -1,124 +0,0 @@
+-#!/usr/bin/env bash
+-# selftest.sh — harness for the #442 observation scripts.
+-# Later tasks append their cases to the case list below.
+-set -u -o pipefail
+-umask 077
+-
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-failures=0
+-
+-# --- harness primitives -----------------------------------------------------
+-
+-begin() { printf 'BEGIN %s\n' "$1"; }
+-pass()  { printf 'OK %s\n' "$1"; }
+-fail()  { printf 'FAIL %s %s\n' "$1" "$2"; failures=$((failures+1)); }
+-skip()  { printf 'SKIP %s\n' "$1"; }
+-
+-# Stub orca, gh, claude and uv: they log their arguments and print canned output.
+-# claude answers --version and -p; uv stands in for the P6 preflight.
+-setup_stubs() {
+-  STUB_DIR=$(mktemp -d /tmp/ob-selftest.XXXXXXXX)
+-  mkdir -p "$STUB_DIR/bin"
+-  cat > "$STUB_DIR/bin/orca" <<'STUB'
+-#!/usr/bin/env bash
+-L=${OB_STUB_LOG:-/tmp/ob-stub-disabled}
+-printf '%s\n' "$*" >> "$L/orca.log"
+-case "$1 $2" in
+-  'terminal create') printf '{"status":"ok","handle":"stub-handle"}\n' ;;
+-  'terminal read')
+-    s=$(cat "$L/screen.txt" 2>/dev/null || printf 'ok')
+-    # Real shape: lines under result.terminal.tail (see artifacts/t3-orca-help.txt).
+-    printf '{"result":{"terminal":{"tail":[%s]}}}\n' "$(printf '%s' "$s" | jq -Rs .)" ;;
+-  'terminal send')
+-    printf '%s\n' "${*:4}" >> "$L/sent.txt"
+-    if [ "${STUB_BLOCK:-0}" = 1 ]; then
+-      printf 'Blocked: new block\n' >> "$L/screen.txt" 2>/dev/null || printf 'Blocked: new block\n' > "$L/screen.txt"
+-    fi
+-    if [ -n "${STUB_STOP_LOG:-}" ] && [ "${STUB_STOP:-0}" = 1 ]; then
+-      printf '{"hook_event_name":"Stop"}\n' >> "$STUB_STOP_LOG"
+-      if [ "${STUB_NOTICE:-0}" = 1 ]; then
+-        # stage the notice pair: released one line per later wait poll, so a
+-        # wait-notice send first sees only its Stop and must keep waiting
+-        printf '%s\n%s\n' \
+-          '{"hook_event_name":"UserPromptSubmit","prompt":"<task-notification>approved"}' \
+-          '{"hook_event_name":"Stop"}' >> "$L/stages.txt"
+-      fi
+-    fi
+-    printf '{"status":"ok"}\n' ;;
+-  'terminal wait')
+-    # Release one staged log line per poll, so the driver sees events arriving
+-    # over time (stages.txt), then apply the idle-on signal.
+-    if [ -s "$L/stages.txt" ] && [ -n "${STUB_STOP_LOG:-}" ]; then
+-      head -1 "$L/stages.txt" >> "$STUB_STOP_LOG"
+-      tail -n +2 "$L/stages.txt" > "$L/stages.tmp" 2>/dev/null || : > "$L/stages.tmp"
+-      mv "$L/stages.tmp" "$L/stages.txt"
+-    fi
+-    [ -e "$L/idle-on" ] && exit 0
+-    exit 1 ;;
+-  *) printf '{"status":"ok"}\n' ;;
+-esac
+-STUB
+-  cat > "$STUB_DIR/bin/gh" <<'STUB'
+-#!/usr/bin/env bash
+-L=${OB_STUB_LOG:-/tmp/ob-stub-disabled}
+-printf '%s\n' "$*" >> "$L/gh.log"
+-case "$1 $2" in
+-  'issue create')
+-    n=$(( $(cat "$L/issue-n" 2>/dev/null || echo 420) + 1 )); printf '%s' "$n" > "$L/issue-n"
+-    printf 'https://github.com/IronbellyOrg/IronClaude/issues/%s\n' "$n" ;;
+-  *)  case "$1" in
+-        --version) printf 'gh version 0.0.0-stub\n' ;;
+-        issue) printf '{"number":421}\n' ;;
+-        api)  printf '{"protected":false}\n' ;;
+-        *)    printf '{"status":"ok"}\n' ;;
+-      esac ;;
+-esac
+-STUB
+-  cat > "$STUB_DIR/bin/claude" <<'STUB'
+-#!/usr/bin/env bash
+-printf '%s\n' "$*" >> "${OB_STUB_LOG:-/dev/null}/claude.log"
+-case "$1" in
+-  --version) printf '0.0.0-stub (Claude Code)\n' ;;
+-  -p) printf 'ok\n' ;;
+-  *) printf 'ok\n' ;;
+-esac
+-STUB
+-  cat > "$STUB_DIR/bin/uv" <<'STUB'
+-#!/usr/bin/env bash
+-printf '%s\n' "$*" >> "${OB_STUB_LOG:-/dev/null}/uv.log"
+-printf '[]\n'
+-STUB
+-  chmod 0755 "$STUB_DIR/bin/"*
+-  PATH="$STUB_DIR/bin:$PATH"
+-  export PATH
+-}
+-
+-# --- case list (later tasks append before the summary) ----------------------
+-
+-setup_stubs
+-T=${OB_STUB_LOG:-$STUB_DIR}
+-export OB_STUB_LOG=$T
+-
+-# T1 cases: lib.sh (bounded, per the plan's timeout constraint)
+-timeout 60 bash "$here/lib-selftest.sh" || fail lib "lib-selftest exited $?"
+-
+-# T2 cases: setup.sh under a fake HOME and a temp OB
+-timeout 120 bash "$here/setup-selftest.sh" || fail setup "setup-selftest exited $?"
+-
+-# T3 cases: driver.sh against the state-machine stub (staged log releases)
+-timeout 120 bash "$here/driver-selftest.sh" || fail driver "driver-selftest exited $?"
+-
+-# T4 cases: session A and A2 scripts
+-timeout 180 bash "$here/session-a-selftest.sh" || fail sessa "session-a-selftest exited $?"
+-
+-# T5 cases: setup-github.sh
+-timeout 180 bash "$here/setup-github-selftest.sh" || fail sg "setup-github-selftest exited $?"
+-
+-# --- summary ----------------------------------------------------------------
+-
+-if [ "$failures" -eq 0 ]; then
+-  printf 'SELFTEST_OK\n'
+-  exit 0
+-fi
+-printf 'SELFTEST_FAILED failures=%d\n' "$failures"
+-exit 1
+diff --git a/.dev/issues/442/scripts/session-a-selftest.sh b/.dev/issues/442/scripts/session-a-selftest.sh
+deleted file mode 100644
+index 5ac88c2ce..000000000
+--- a/.dev/issues/442/scripts/session-a-selftest.sh
++++ /dev/null
+@@ -1,113 +0,0 @@
+-#!/usr/bin/env bash
+-# session-a-selftest.sh — Task 4 cases, run by selftest.sh.
+-# Uses the stub orca; driver.sh send writes one Stop per call (STUB_STOP=1), so
+-# each scripted prompt "ends its turn" and the send order is observable in
+-# the stub's sent.txt log.
+-set -u -o pipefail
+-umask 077
+-
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-RB=$(cd -- "$here/.." && pwd)/observation-runbook.md
+-failures=0
+-ck() { if [ "$2" = "$3" ]; then printf 'OK %s\n' "$1"; else printf 'FAIL %s got=<%s> want=<%s>\n' "$1" "$2" "$3"; failures=$((failures+1)); fi; }
+-
+-T=$(mktemp -d /tmp/ob-sessa.XXXXXXXX)
+-export OB=$T
+-L=$OB_STUB_LOG
+-mkdir -p "$T/logs" "$T/screens" "$T/bin" "$T/repo-a"
+-: > "$T/state.env"
+-# minimal repo-a so the own-shell git steps no-op safely
+-git init -q -b master "$T/repo-a" 2>/dev/null
+-git -C "$T/repo-a" -c user.name=ob -c user.email=ob@invalid commit -q --allow-empty -m init 2>/dev/null
+-git -C "$T/repo-a" remote add origin "$T/bare.git" 2>/dev/null || true
+-
+-export STUB_STOP_LOG=$T/logs/h1.jsonl; : > "$STUB_STOP_LOG"
+-export STUB_STOP=1 STUB_NOTICE=1
+-
+-out=$(timeout 120 bash "$here/session-a.sh" 2>&1); rc=$?
+-ck sessa-rc "$rc" 0
+-ck sessa-done "$(printf '%s' "$out" | tail -1)" "SESSION_A_DONE"
+-
+-# 1. every text block extracted byte-for-byte (17 files, 0 bytes difference)
+-extract_count=0; byte_ok=0
+-for f in "$here"/prompts/p*.txt; do extract_count=$((extract_count+1)); done
+-ck prompts-count "$extract_count" 17
+-# re-extract independently and compare each file
+-n=0; infence=0; rm -f "$T"/want-*.txt
+-while IFS= read -r line; do
+-  if [ "$infence" = 0 ]; then
+-    [ "$line" = '```text' ] && infence=1
+-  else
+-    if [ "$line" = '```' ]; then infence=0; n=$((n+1)); else printf '%s\n' "$line" >> "$T/want-$n.txt"; fi
+-  fi
+-done < <(sed -n '228,472p' "$RB")
+-want_total=$n
+-byte_ok=0
+-for k in $(seq 0 $((want_total - 1))); do
+-  pf=$(ls "$here"/prompts/p*.txt | sed -n "$((k+1))p")
+-  if cmp -s "$T/want-$k.txt" "$pf"; then byte_ok=$((byte_ok+1)); fi
+-done
+-ck prompts-bytes "$byte_ok" "$want_total"
+-
+-# 2. no prompt file starts with the launch marker; only p10 (LL-NOBIND) contains it
+-bad_marker=0
+-for f in "$here"/prompts/p*.txt; do
+-  case "$(head -1 "$f")" in '[sc-launch:v1:'*) bad_marker=$((bad_marker+1));; esac
+-done
+-ck prompts-no-marker-start "$bad_marker" 0
+-grep -l 'sc-launch:v1' "$here"/prompts/p*.txt | wc -l | grep -qx 1 && ck prompts-marker-only-llnobind ok ok || ck prompts-marker-only-llnobind wrong ok
+-
+-# 3. runbook order: strictly increasing FIRST-occurrence positions for the
+-# single-occurrence keys, in runbook order (duplicate keys -- /exit x3, say ok x2 --
+-# cannot use first-occurrence ordering, so their counts are asserted instead).
+-order_ok=0; order_bad=""
+-prev=0
+-order_keys=(-- '--text /hooks' 'ob-item1-sub' 'ob-item3-iso' '--text /sc:implement x' \
+-  'ob-item2' 'Monitor tool to run `sleep 2' 'sleep 3; echo approved' \
+-  'single word approved' 'subject ob-item6' 'ob9.txt' 'ob-item8' 'sc-launch:v1' \
+-  'ob-tree.sh bg-bash' 'ob-tree.sh monitor' 'git -c user.name=ob' 'ob-tree.sh subagent' \
+-  'setsid /tmp/ob/bin/ob-tree.sh' 'nobody-ob442' '--text /exit' '--text say ok' '--text /clear')
+-for key in "${order_keys[@]}"; do
+-  pos=$(grep -n -F -- "$key" "$L/sent.txt" | head -1 | cut -d: -f1)
+-  if [ -z "$pos" ] || [ "$pos" -le "$prev" ]; then
+-    order_bad="$order_bad [$key@$pos]"; order_ok=$((order_ok+1))
+-  fi
+-  prev=${pos:-0}
+-done
+-if [ "$order_ok" -eq 0 ]; then ck order-full ok ok; else ck order-full "out-of-order:$order_bad" "strictly increasing"; fi
+-# duplicate-key counts: /exit sent 3x (end of A, end of resume leg, end of fork leg), say ok 2x
+-ck count-exit "$(grep -c -F -- '--text /exit' "$L/sent.txt")" 3
+-ck count-sayok "$(grep -c -F -- '--text say ok' "$L/sent.txt")" 2
+-
+-# 4. the wait-notice prompts were sent with the notice wait (they appear before
+-#    their turn ends only via staged events; with the stub they simply send)
+-grep -q 'ob-item1-sub' "$L/sent.txt" && ck item1-sent ok ok || ck item1-sent missing ok
+-
+-# 5. MAIN state recorded from the log
+-ck main-state "$(OB=$T bash -c "source '$here/lib.sh'; state_get MAIN")" "none"
+-
+-# 6. NEEDS_INPUT stop: script a permission dialog at the LL-NOBIND step
+-: > "$L/sent.txt"; : > "$STUB_STOP_LOG"
+-printf 'Do you want to proceed?\n' > "$L/screen.txt"
+-out=$(timeout 60 bash "$here/session-a.sh" 2>&1)
+-case "$out" in
+-  PENDING\ step=*) ck sessa-needs-input ok ok ;;
+-  *) ck sessa-needs-input "$(printf '%s' "$out" | head -1)" "PENDING step=..." ;;
+-esac
+-
+-# 7. session-a2: h1m empty => PENDING probe (log absent)
+-: > "$L/sent.txt"; rm -f "$T/logs/h1m.jsonl"
+-out=$(timeout 60 bash "$here/session-a2.sh" 2>&1)
+-case "$out" in
+-  PENDING\ step=1*) ck sessa2-pending-probe ok ok ;;
+-  *) ck sessa2-pending-probe "$(printf '%s' "$out" | head -1)" "PENDING step=1..." ;;
+-esac
+-# h1m present => sends the MCP prompt and exits 0
+-: > "$L/screen.txt"   # clear case 6's dialog so the pre-send check passes
+-export STUB_STOP_LOG=$T/logs/h1m.jsonl; : > "$STUB_STOP_LOG"
+-printf '{"hook_event_name":"SessionStart","session_id":"x"}\n' > "$T/logs/h1m.jsonl"
+-out=$(timeout 60 bash "$here/session-a2.sh" 2>&1)
+-ck sessa2-rc "$?" 0
+-grep -q 'codegraph status' "$L/sent.txt" && ck sessa2-mcp-sent ok ok || ck sessa2-mcp-sent missing ok
+-
+-exit $failures
+diff --git a/.dev/issues/442/scripts/session-a.sh b/.dev/issues/442/scripts/session-a.sh
+deleted file mode 100644
+index 8462562c4..000000000
+--- a/.dev/issues/442/scripts/session-a.sh
++++ /dev/null
+@@ -1,105 +0,0 @@
+-#!/usr/bin/env bash
+-# session-a.sh — runbook §2.1 session A (isolated HOME, label h1) via the driver.
+-# Plan Task 4. Prompt files are extracted byte-for-byte from the runbook's text
+-# blocks into prompts/ at start; control strings (/hooks, /exit, ...) are inline.
+-set -u -o pipefail
+-umask 077
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-# shellcheck source=lib.sh
+-source "$here/lib.sh"
+-RB=$(cd -- "$here/.." && pwd)/observation-runbook.md
+-P=$here/prompts
+-mkdir -p "$P" "$OB_SCREENS"
+-rm -f "$P"/p*.txt   # idempotent: extraction is the single source of the prompt files
+-
+-# --- extract every fenced ```text block in runbook lines 228-472 ----------------
+-names=(p01-item1 p02-item3 p03-item2 p04-item5a p05-item5b p06-item5c p07-item6 \
+-       p08-item9 p09-item8 p10-llnobind p11-ctx1 p12-ctx2 p13-ctx3 p14-ctx4 \
+-       p15-ctx5 p16-item7a p17-item7b)
+-i=0; infence=0
+-while IFS= read -r line; do
+-  if [ "$infence" = 0 ]; then
+-    [ "$line" = '```text' ] && infence=1 || :
+-  else
+-    if [ "$line" = '```' ]; then
+-      infence=0; i=$((i+1))
+-    else
+-      printf '%s\n' "$line" >> "$P/${names[$i]:-unnamed}.txt"
+-    fi
+-  fi
+-done < <(sed -n '228,472p' "$RB")
+-[ "$i" -eq 17 ] || { printf 'session-a: expected 17 text blocks, got %d\n' "$i" >&2; exit 1; }
+-
+-# --- session start ---------------------------------------------------------------
+-# F05: `orca terminal create` has no directory flag (artifacts/t3-orca-help.txt),
+-# so the cd runs inside the terminal shell via --command; the worktree selector
+-# is the main checkout.
+-MAIN_WT=$(main_checkout)
+-START_CMD="cd $OB/repo-a && HOME=$OB/home CLAUDE_CONFIG_DIR=$OB/home/.claude claude"
+-bash "$here/driver.sh" start sA "path:$MAIN_WT" "$START_CMD" >/dev/null
+-
+-step_id=0
+-last_screen() { ls -1t "$OB_SCREENS"/sA-*.json 2>/dev/null | head -1; }
+-send_file() {  # send_file <file> <label> [wait-notice]
+-  step_id=$((step_id+1))
+-  local out f=$1 lbl=$2; shift 2
+-  out=$(bash "$here/driver.sh" send sA "$(cat "$f")" "$lbl" 600 "$@" 2>&1)
+-  case "$out" in
+-    NEEDS_INPUT\ *) printf 'PENDING step=%d file=%s screen=%s\n' "$step_id" "$f" "${out#NEEDS_INPUT }"; exit 0 ;;
+-    TURN_END\ timeout*) printf 'PENDING step=%d file=%s reason=timeout screen=%s\n' "$step_id" "$f" "$(last_screen)"; exit 0 ;;
+-    *PENDING*) printf 'PENDING step=%d file=%s reason=notice screen=%s\n' "$step_id" "$f" "$(last_screen)"; exit 0 ;;
+-  esac
+-  printf 'SEND step=%d file=%s %s\n' "$step_id" "$(basename "$f")" "$(printf '%s' "$out" | tail -1)"
+-}
+-send_str() {  # send_str <text> <label> [wait-notice]
+-  step_id=$((step_id+1))
+-  local out t=$1 lbl=$2; shift 2
+-  out=$(bash "$here/driver.sh" send sA "$t" "$lbl" 600 "$@" 2>&1)
+-  case "$out" in
+-    NEEDS_INPUT\ *) printf 'PENDING step=%d text=%s screen=%s\n' "$step_id" "$t" "${out#NEEDS_INPUT }"; exit 0 ;;
+-    TURN_END\ timeout*) printf 'PENDING step=%d text=%s reason=timeout screen=%s\n' "$step_id" "$t" "$(last_screen)"; exit 0 ;;
+-    *PENDING*) printf 'PENDING step=%d text=%s reason=notice screen=%s\n' "$step_id" "$t" "$(last_screen)"; exit 0 ;;
+-  esac
+-  printf 'SEND step=%d text=%s %s\n' "$step_id" "$t" "$(printf '%s' "$out" | tail -1)"
+-}
+-
+-send_str '/hooks' h1                                    # runbook line 168
+-send_file "$P/p01-item1.txt" h1
+-send_file "$P/p02-item3.txt" h1
+-# item 4: the literal command, then Esc once the Skill call shows (runbook line 270)
+-send_str '/sc:implement x' h1
+-bash "$here/driver.sh" answer sA $'\033' 'item4: stop the turn after the Skill call shows' >/dev/null
+-send_file "$P/p03-item2.txt" h1
+-send_file "$P/p04-item5a.txt" h1 wait-notice
+-send_file "$P/p05-item5b.txt" h1 wait-notice
+-send_file "$P/p06-item5c.txt" h1 wait-notice
+-send_file "$P/p07-item6.txt" h1
+-send_file "$P/p08-item9.txt" h1
+-send_file "$P/p09-item8.txt" h1
+-send_file "$P/p10-llnobind.txt" h1
+-send_file "$P/p11-ctx1.txt" h1
+-send_file "$P/p12-ctx2.txt" h1
+-send_file "$P/p13-ctx3.txt" h1
+-send_file "$P/p14-ctx4.txt" h1
+-send_file "$P/p15-ctx5.txt" h1
+-# own-shell steps (runbook lines 224-225, 424-425): MAIN id, human tree, human push
+-MAIN=$(command timeout "${OB_TIMEOUT_S:-60}" jq -r 'select(.hook_event_name=="SessionStart") | .session_id' "$OB_LOGS/h1.jsonl" 2>/dev/null | head -1)
+-state_set MAIN "${MAIN:-none}"
+-command timeout "${OB_TIMEOUT_S:-60}" "$OB_BIN/ob-tree.sh" human >/dev/null 2>&1 || true
+-( cd "$OB/repo-a" && command timeout "${OB_TIMEOUT_S:-60}" git -c user.name=ob -c user.email=ob@invalid commit -q --allow-empty -m human \
+-  && command timeout "${OB_TIMEOUT_S:-60}" git push -q origin master ) >/dev/null 2>&1 || true
+-# item 7 part 1 stays in session A (runbook line 442-446)
+-send_file "$P/p16-item7a.txt" h1
+-# end A, restart with --resume, /clear, say ok; exit; restart --continue --fork-session, say ok
+-send_str '/exit' h1
+-bash "$here/driver.sh" stop sA >/dev/null
+-bash "$here/driver.sh" start sA "path:$MAIN_WT" "$START_CMD --resume" >/dev/null
+-send_str 'say ok' h1
+-send_str '/clear' h1
+-send_str '/exit' h1
+-bash "$here/driver.sh" stop sA >/dev/null
+-bash "$here/driver.sh" start sA "path:$MAIN_WT" "$START_CMD --continue --fork-session" >/dev/null
+-send_str 'say ok' h1
+-send_str '/exit' h1
+-bash "$here/driver.sh" stop sA >/dev/null
+-printf 'SESSION_A_DONE\n'
+diff --git a/.dev/issues/442/scripts/session-a2.sh b/.dev/issues/442/scripts/session-a2.sh
+deleted file mode 100644
+index 1632a8816..000000000
+--- a/.dev/issues/442/scripts/session-a2.sh
++++ /dev/null
+@@ -1,49 +0,0 @@
+-#!/usr/bin/env bash
+-# session-a2.sh — runbook §2.1b session A2 (label h1m) via the driver.
+-# The item-7 first prompt is sent by session-a.sh inside session A; this script
+-# only starts A2 and sends the MCP prompt. Plan Task 4.
+-set -u -o pipefail
+-umask 077
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-# shellcheck source=lib.sh
+-source "$here/lib.sh"
+-P=$here/prompts
+-# self-sufficient: extract prompt 17 (the A2 MCP prompt) if session-a.sh has not run
+-if [ ! -f "$P/p17-item7b.txt" ]; then
+-  RB=$(cd -- "$here/.." && pwd)/observation-runbook.md
+-  mkdir -p "$P"
+-  n=0; infence=0
+-  while IFS= read -r line; do
+-    if [ "$infence" = 0 ]; then
+-      [ "$line" = '```text' ] && infence=1
+-    else
+-      if [ "$line" = '```' ]; then infence=0; n=$((n+1)); else [ "$n" -eq 16 ] && printf '%s\n' "$line" >> "$P/p17-item7b.txt"; fi
+-    fi
+-  done < <(sed -n '228,472p' "$RB")
+-fi
+-
+-MAIN_WT=$(main_checkout)
+-START_CMD="cd $OB/repo-a && claude --settings $OB/settings-a2.json"
+-bash "$here/driver.sh" start sA2 "path:$MAIN_WT" "$START_CMD" >/dev/null
+-
+-# probe loaded? (runbook line 455)
+-if [ ! -s "$OB_LOGS/h1m.jsonl" ]; then
+-  sleep 3
+-fi
+-if [ ! -s "$OB_LOGS/h1m.jsonl" ]; then
+-  printf 'PENDING step=1 text=probe reason=h1m-log-empty\n'
+-  bash "$here/driver.sh" stop sA2 >/dev/null
+-  exit 0
+-fi
+-
+-out=$(bash "$here/driver.sh" send sA2 "$(cat "$P/p17-item7b.txt")" h1m 600 2>&1)
+-case "$out" in
+-  NEEDS_INPUT\ *) printf 'PENDING step=2 file=%s screen=%s\n' "$P/p17-item7b.txt" "${out#NEEDS_INPUT }";;
+-  TURN_END\ timeout*) printf 'PENDING step=2 file=%s reason=timeout screen=%s\n' "$P/p17-item7b.txt" "$(ls -1t "$OB_SCREENS"/sA2-*.json 2>/dev/null | head -1)";;
+-  *PENDING*) printf 'PENDING step=2 file=%s reason=notice screen=%s\n' "$P/p17-item7b.txt" "$(ls -1t "$OB_SCREENS"/sA2-*.json 2>/dev/null | head -1)";;
+-  *) printf 'SEND step=2 file=p17-item7b.txt %s\n' "$(printf '%s' "$out" | tail -1)";;
+-esac
+-# End A2 with /exit (runbook line 470); a 5s bound, the wait is futile once it exits.
+-bash "$here/driver.sh" send sA2 '/exit' h1m 5 >/dev/null 2>&1
+-bash "$here/driver.sh" stop sA2 >/dev/null
+-printf 'SESSION_A2_DONE\n'
+diff --git a/.dev/issues/442/scripts/setup-github-selftest.sh b/.dev/issues/442/scripts/setup-github-selftest.sh
+deleted file mode 100644
+index 4da15ff00..000000000
+--- a/.dev/issues/442/scripts/setup-github-selftest.sh
++++ /dev/null
+@@ -1,130 +0,0 @@
+-#!/usr/bin/env bash
+-# setup-github-selftest.sh — Task 5 cases, run by selftest.sh.
+-set -u -o pipefail
+-umask 077
+-
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-failures=0
+-ck() { if [ "$2" = "$3" ]; then printf 'OK %s\n' "$1"; else printf 'FAIL %s got=<%s> want=<%s>\n' "$1" "$2" "$3"; failures=$((failures+1)); fi; }
+-
+-T=$(mktemp -d /tmp/ob-sg.XXXXXXXX)
+-export OB=$T
+-L=$OB_STUB_LOG
+-mkdir -p "$T/logs" "$T/screens" "$T/wts"
+-: > "$T/state.env"
+-
+-# the stub gh prints the issue URL on create (real gh prints it on stdout)
+-cat > "$L/ghstub" <<'EOF'
+-EOF
+-
+-# 1. full run with scripted Worktree screens
+-i=0
+-for t in T1 T2 T3 T4; do
+-  i=$((i+1))
+-  mkdir -p "$T/wts/$t/.claude"
+-done
+-# stub screens: driver.sh send saves a screen per call; we pre-place them by
+-# intercepting: simplest is to let the driver write screens from the stub read
+-# arm; we script the read arm's screen.txt per send via sent.txt count is fragile,
+-# so instead we run setup-github.sh with a helper that stages the screen before
+-# each claim send through the stub's wait arm (screen.txt constant).
+-# Constant screen holding all four Worktree lines works because the script
+-# greps the newest screen per t and we rotate the stub screen on each wait poll.
+-cat > "$L/screen-queue" <<'EOF'
+-EOF
+-for t in T1 T2 T3 T4; do printf 'Worktree: %s/wts/%s (created)\n' "$T" "$t" >> "$L/screen-queue"; done
+-# extend the stub: terminal wait releases one screen-queue line into screen.txt
+-mkdir -p "$L/bin2"
+-cat > "$L/bin2/orca" <<STUB
+-#!/usr/bin/env bash
+-L2=$L
+-if [ "\$1 \$2" = "terminal read" ]; then
+-  s=\$(cat "\$L2/screen.txt" 2>/dev/null || printf 'ok')
+-  printf '{"result":{"terminal":{"tail":[%s]}}}\n' "\$(printf '%s' "\$s" | jq -Rs .)"
+-  exit 0
+-fi
+-if [ "\$1 \$2" = "terminal wait" ]; then
+-  [ -e "\$L2/idle-on" ] && exit 0
+-  exit 1
+-fi
+-printf '%s\n' "\$*" >> "\$L2/orca.log"
+-case "\$1 \$2" in
+-  'terminal create') printf '{"status":"ok","handle":"stub-handle"}\n' ;;
+-  'terminal send')
+-    printf '%s\n' "\${*:4}" >> "\$L2/sent.txt"
+-    # each send advances the scripted screen: pop the next Worktree line
+-    if [ -s "\$L2/screen-queue" ]; then
+-      head -1 "\$L2/screen-queue" > "\$L2/screen.txt"
+-      tail -n +2 "\$L2/screen-queue" > "\$L2/q.tmp" 2>/dev/null || : > "\$L2/q.tmp"
+-      mv "\$L2/q.tmp" "\$L2/screen-queue"
+-    fi
+-    if [ -n "\${STUB_STOP_LOG:-}" ] && [ "\${STUB_STOP:-0}" = 1 ]; then
+-      printf '{"hook_event_name":"Stop"}\n' >> "\$STUB_STOP_LOG"
+-    fi
+-    printf '{"status":"ok"}\n' ;;
+-  *) printf '{"status":"ok"}\n' ;;
+-esac
+-STUB
+-chmod 0755 "$L/bin2/orca"
+-export STUB_ORCA="$L/bin2/orca"
+-export STUB_STOP_LOG=$T/logs/claim.jsonl; : > "$STUB_STOP_LOG"
+-export STUB_STOP=1
+-# the driver calls `orca` from PATH; selftest.sh already put a stub first, so
+-# we shadow it for this case by exporting PATH with bin2 in front
+-PATH="$L/bin2:$PATH" timeout 120 bash "$here/setup-github.sh" > "$T/out1" 2>&1; rc1=$?
+-ck sg-rc "$rc1" 0
+-ck sg-done "$(tail -1 "$T/out1")" "SETUP_GITHUB_OK"
+-
+-# 2. four issue-create calls, each --repo pinned and --body-file used, no rerun set
+-grep -c -- '--repo IronbellyOrg/IronClaude' "$L/gh.log" | grep -qx 4 && ck sg-four-creates ok ok || ck sg-four-creates "$(grep -c -- '--repo IronbellyOrg/IronClaude' "$L/gh.log")" 4
+-grep -c -- '--body-file' "$L/gh.log" | grep -qx 4 && ck sg-bodyfile ok ok || ck sg-bodyfile "$(grep -c -- '--body-file' "$L/gh.log")" 4
+-# template filled: no placeholder angle-brackets in any body file the stub saw (stub gh logs args only;
+-# check the temp template content indirectly: the create succeeded, and our sed filled all four sections)
+-grep -c 'issue create' "$L/gh.log" | grep -qx 4 && ck sg-create-count ok ok || ck sg-create-count "$(grep -c 'issue create' "$L/gh.log")" 4
+-
+-# 3. rerun refused: state holds numbers, so no second create set
+-before=$(grep -c 'issue create' "$L/gh.log")
+-PATH="$L/bin2:$PATH" timeout 60 bash "$here/setup-github.sh" > "$T/out2" 2>&1; rc2=$?
+-after=$(grep -c 'issue create' "$L/gh.log")
+-ck sg-rerun-no-new-creates "$after" "$before"
+-ck sg-rerun-skip-line "$(head -1 "$T/out2")" "SKIP issues: state already holds T1=$(OB=$T bash -c "source '$here/lib.sh'; state_get T1")"
+-
+-# 4. state recorded T1..T4 numbers, WT paths, and the probe settings were generated
+-for t in T1 T2 T3 T4; do
+-  v=$(OB=$T bash -c "source '$here/lib.sh'; state_get $t")
+-  [ -n "$v" ] && ck "sg-state-$t" ok ok || ck "sg-state-$t" empty ok
+-  w=$(OB=$T bash -c "source '$here/lib.sh'; state_get WT_$t")
+-  [ "$w" = "$T/wts/$t" ] && ck "sg-wt-$t" ok ok || ck "sg-wt-$t" "$w" "$T/wts/$t"
+-  [ -f "$T/wts/$t/.claude/settings.local.json" ] && ck "sg-probe-$t" ok ok || ck "sg-probe-$t" missing ok
+-done
+-
+-# 5. generated settings equal the runbook line-197 generator output (labels h2-T*)
+-for t in T1 T2 T3 T4; do
+-  command timeout 10 jq -n --arg c "/tmp/ob/bin/ob-probe.sh h2-$t" \
+-    '{hooks: ((["UserPromptSubmit","UserPromptExpansion","SessionStart","SubagentStop","Stop"] | map({key: ., value: [{hooks: [{type: "command", command: $c, timeout: 10}]}]}) | from_entries) + {PreToolUse: [{matcher: "*", hooks: [{type: "command", command: $c, timeout: 10}]}], PostToolUse: [{matcher: "*", hooks: [{type: "command", command: $c, timeout: 10}]}]})}' \
+-    > "$T/want-$t.json"
+-  # the script used $OB/bin/ob-probe.sh; rewrite expected to match that root
+-  sed "s|/tmp/ob/bin/ob-probe.sh|$T/bin/ob-probe.sh|" "$T/want-$t.json" > "$T/want2-$t.json"
+-  cmp -s "$T/want2-$t.json" "$T/wts/$t/.claude/settings.local.json" && ck "sg-gen-eq-$t" ok ok || ck "sg-gen-eq-$t" differ ok
+-done
+-
+-# 6. EXISTS refusal: fresh state, worktrees whose settings.local.json already
+-# exist (copied from case 1's output), and a screen queue pointing at those paths.
+-T3=$(mktemp -d /tmp/ob-sg2.XXXXXXXX)
+-mkdir -p "$T3/logs" "$T3/screens" "$T3/wts"
+-for t in T1 T2 T3 T4; do
+-  mkdir -p "$T3/wts/$t/.claude"
+-  cp "$T/wts/$t/.claude/settings.local.json" "$T3/wts/$t/.claude/settings.local.json"
+-done
+-: > "$T3/state.env"
+-: > "$L/screen-queue"
+-for t in T1 T2 T3 T4; do printf 'Worktree: %s/wts/%s (created)\n' "$T3" "$t" >> "$L/screen-queue"; done
+-export STUB_STOP_LOG=$T3/logs/claim.jsonl; : > "$STUB_STOP_LOG"
+-OB=$T3 PATH="$L/bin2:$PATH" timeout 60 bash "$here/setup-github.sh" > "$T3/out" 2>&1; rc3=$?
+-case "$(cat "$T3/out")" in
+-  *EXISTS*) ck sg-exits-refused ok ok ;;
+-  *) ck sg-exits-refused "$(tail -1 "$T3/out")" "EXISTS: merge by hand" ;;
+-esac
+-rm -rf "$T3"
+-
+-exit $failures
+diff --git a/.dev/issues/442/scripts/setup-github.sh b/.dev/issues/442/scripts/setup-github.sh
+deleted file mode 100644
+index e1fd9226b..000000000
+--- a/.dev/issues/442/scripts/setup-github.sh
++++ /dev/null
+@@ -1,78 +0,0 @@
+-#!/usr/bin/env bash
+-# setup-github.sh — runbook §1.4: four disposable issues, the claim session,
+-# worktree paths, probe settings. Plan Task 5.
+-set -u -o pipefail
+-umask 077
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-# shellcheck source=lib.sh
+-source "$here/lib.sh"
+-T=${OB_TIMEOUT_S:-60}
+-RB=$(cd -- "$here/.." && pwd)/observation-runbook.md
+-
+-# --- 1. four disposable issues (gh_fork pins the repo on every form) ------------
+-if state_get T1 >/dev/null 2>&1 && [ -n "$(state_get T1)" ]; then
+-  printf 'SKIP issues: state already holds T1=%s\n' "$(state_get T1)"
+-else
+-  for t in T1 T2 T3 T4; do
+-    # Copy the handoff template to a temp file and fill every section, per the
+-    # issue rule (never edit the installed template itself).
+-    tpl=$(mktemp)
+-    cp "$HOME/.claude/ISSUE-HANDOFF.md" "$tpl"
+-    sed -i \
+-      -e "s|<what has been tried so far, and what happened>|Nothing yet: this is a disposable target for the #442 live observations ($t).|" \
+-      -e "s|<paths, links, branches, pull requests>|ob-442/$t.txt (to be created)|" \
+-      -e "s|<the condition that means this work is finished>|ob-442/$t.txt exists holding the single line: ob-442 $t|" \
+-      -e "s|<the person or agent this is handed to>|The observation run's governed sessions ($t)|" \
+-      "$tpl"
+-    n=$(gh_fork issue create --title "[ob-442 disposable $t] launch-level observation target" --body-file "$tpl" 2>&1 \
+-      | grep -oE 'https://github\.com/IronbellyOrg/IronClaude/issues/[0-9]+' | grep -oE '[0-9]+$' | head -1) \
+-      || true
+-    [ -n "${n:-}" ] || { printf 'FAIL issue-create %s: no issue URL in output\n' "$t" >&2; exit 1; }
+-    state_set "$t" "$n"
+-    printf 'ISSUE %s=%s\n' "$t" "$n"
+-  done
+-fi
+-
+-# --- 2. the claim session --------------------------------------------------------
+-MAIN=$(main_checkout)
+-if state_get H_claim >/dev/null 2>&1 && [ -n "$(state_get H_claim)" ]; then
+-  printf 'SKIP claim session: handle %s\n' "$(state_get H_claim)"
+-else
+-  bash "$here/driver.sh" start claim "path:$MAIN" "env -u CLICKUP_API_TOKEN claude" >/dev/null
+-fi
+-
+-# --- 3. claims + worktree paths --------------------------------------------------
+-for t in T1 T2 T3 T4; do
+-  n=$(state_get "$t")
+-  if state_get "WT_$t" >/dev/null 2>&1 && [ -n "$(state_get "WT_$t")" ]; then
+-    printf 'SKIP claim %s: WT already %s\n' "$t" "$(state_get "WT_$t")"
+-    continue
+-  fi
+-  out=$(bash "$here/driver.sh" send claim "/sc:issue --claim $n --pipeline none" claim 900 2>&1)
+-  case "$out" in
+-    NEEDS_INPUT\ *) printf 'NEEDS_INPUT claim %s screen=%s\n' "$t" "${out#NEEDS_INPUT }"; exit 0 ;;
+-    TURN_END\ timeout*|*PENDING*) printf 'PENDING claim %s\n' "$t"; exit 0 ;;
+-  esac
+-  # read Worktree: <path> (created) from the newest claim-session screen
+-  f=$(ls -1t "$OB_SCREENS"/claim-*.json 2>/dev/null | head -1)
+-  wt=$(command timeout "$T" jq -r '.result.terminal.tail // [] | join("\n")' "$f" 2>/dev/null \
+-    | grep -oE 'Worktree: [^ ]+ \(created\)' | head -1 | sed 's/^Worktree: //; s/ (created)$//') || true
+-  [ -n "$wt" ] || { printf 'FAIL claim %s: no "Worktree: <path> (created)" on screen\n' "$t" >&2; exit 1; }
+-  state_set "WT_$t" "$wt"
+-  printf 'WORKTREE %s=%s\n' "$t" "$wt"
+-done
+-
+-# --- 4. probe settings (runbook line 197 generator, labels h2-T1..h2-T4) --------
+-for t in T1 T2 T3 T4; do
+-  wt=$(state_get "WT_$t"); L="h2-$t"
+-  if [ -e "$wt/.claude/settings.local.json" ]; then
+-    printf 'EXISTS: merge by hand (%s)\n' "$t" >&2
+-    exit 3
+-  fi
+-  command timeout "$T" jq -n --arg c "$OB/bin/ob-probe.sh $L" \
+-    '{hooks: ((["UserPromptSubmit","UserPromptExpansion","SessionStart","SubagentStop","Stop"] | map({key: ., value: [{hooks: [{type: "command", command: $c, timeout: 10}]}]}) | from_entries) + {PreToolUse: [{matcher: "*", hooks: [{type: "command", command: $c, timeout: 10}]}], PostToolUse: [{matcher: "*", hooks: [{type: "command", command: $c, timeout: 10}]}]})}' \
+-    > "$wt/.claude/settings.local.json" || { printf 'FAIL probe-settings %s\n' "$t" >&2; exit 1; }
+-  printf 'PROBE %s -> %s/.claude/settings.local.json\n' "$L" "$wt"
+-done
+-
+-printf 'SETUP_GITHUB_OK\n'
+diff --git a/.dev/issues/442/scripts/setup-selftest.sh b/.dev/issues/442/scripts/setup-selftest.sh
+deleted file mode 100644
+index 9e99e159b..000000000
+--- a/.dev/issues/442/scripts/setup-selftest.sh
++++ /dev/null
+@@ -1,90 +0,0 @@
+-#!/usr/bin/env bash
+-# setup-selftest.sh — Task 2 cases for setup.sh, run by selftest.sh.
+-set -u -o pipefail
+-umask 077
+-
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-root=$(cd -- "$here/../../../.." && pwd)   # scripts -> 442 -> issues -> .dev -> worktree root
+-RB=$root/.dev/issues/442/observation-runbook.md
+-failures=0
+-ck() { if [ "$2" = "$3" ]; then printf 'OK %s\n' "$1"; else printf 'FAIL %s got=<%s> want=<%s>\n' "$1" "$2" "$3"; failures=$((failures+1)); fi; }
+-
+-# Fake HOME so the script copies stub commands/skills/agents, not the real ones.
+-FAKE=$(mktemp -d /tmp/ob-setup-fake.XXXXXXXX)
+-export HOME=$FAKE
+-mkdir -p "$FAKE/.claude/hooks" "$FAKE/.claude/commands" "$FAKE/.claude/skills" "$FAKE/.claude/agents" "$FAKE/.claude/state/launch-level/sessions" "$FAKE/.claude/state/launch-level/pending"
+-printf '# launch-level-guard-version: 1\n' > "$FAKE/.claude/hooks/launch-level-guard.sh"
+-printf 'guard-body\n' >> "$FAKE/.claude/hooks/launch-level-guard.sh"
+-cp "$FAKE/.claude/hooks/launch-level-guard.sh" "$FAKE/.claude/hooks/launch-job-identity.sh"
+-printf 'cmd\n' > "$FAKE/.claude/commands/x.md"
+-printf 'skill\n' > "$FAKE/.claude/skills/x.md"
+-printf 'agent\n' > "$FAKE/.claude/agents/x.md"
+-printf 'old-session\n' > "$FAKE/.claude/state/launch-level/sessions/oldsid"
+-
+-# Temp OB (created by setup.sh itself) and a separate stub-log dir.
+-T=$(mktemp -d /tmp/ob-setup.XXXXXXXX)
+-rmdir "$T"
+-export OB=$T
+-STUBLOG=$(mktemp -d /tmp/ob-setup-stub.XXXXXXXX)
+-export OB_STUB_LOG=$STUBLOG
+-
+-# Before-snapshot of the fake HOME/.claude (for case 5), kept outside $OB.
+-find "$FAKE/.claude" -printf '%P\n' | LC_ALL=C sort > "$STUBLOG/fake-before-list.txt"
+-find "$FAKE/.claude" -type f -exec md5sum {} + | LC_ALL=C sort > "$STUBLOG/fake-before-digest.txt"
+-
+-out=$(bash "$here/setup.sh" 2>&1); rc=$?
+-ck setup-rc "$rc" 0
+-ck setup-ok "$(printf '%s' "$out" | tail -1)" "SETUP_OK"
+-
+-# 1. layout under the test OB
+-for p in bin bin/log-only-probe.sh logs home/.claude/hooks home/.claude/hooks/launch-level-guard.sh home/.claude/commands home/.claude/skills home/.claude/agents screens repo-a repo-push settings-a2.json baseline-sessions.txt baseline-pending.txt preconditions.txt; do
+-  if [ -e "$T/$p" ] || [ -L "$T/$p" ]; then ck "layout:$p" ok ok; else ck "layout:$p" missing ok; fi
+-done
+-[ -x "$T/bin/log-only-probe.sh" ] && ck probe-executable ok ok || ck probe-executable missing ok
+-grep -q 'oldsid' "$T/baseline-sessions.txt" && ck baseline-sessions ok ok || ck baseline-sessions missing ok
+-
+-# 2. refusal without --resume
+-if bash "$here/setup.sh" >/dev/null 2>&1; then ck rerun-refused called ok; else ck rerun-refused ok ok; fi
+-# --resume passes the guard
+-out2=$(bash "$here/setup.sh" --resume 2>&1); rc2=$?
+-ck rerun-resume-rc "$rc2" 0
+-
+-# 3. probe files byte-for-byte vs the runbook blocks
+-extract() {  # extract <start-line> <end-line>: lines between the fences, from the runbook
+-  sed -n "$1,$2p" "$RB"
+-}
+-# ob-probe.sh: runbook lines 62-86; ob-tree.sh: 97-110; settings.json: 121-136.
+-sed -n '62,86p' "$RB" > "$T/want-probe.sh"; diff -q "$T/want-probe.sh" "$T/bin/ob-probe.sh" >/dev/null && ck probe-bytes ok ok || ck probe-bytes differ ok
+-sed -n '97,110p' "$RB" > "$T/want-tree.sh"; diff -q "$T/want-tree.sh" "$T/bin/ob-tree.sh" >/dev/null && ck tree-bytes ok ok || ck tree-bytes differ ok
+-sed -n '121,136p' "$RB" > "$T/want-settings.json"; diff -q "$T/want-settings.json" "$T/home/.claude/settings.json" >/dev/null && ck settings-bytes ok ok || ck settings-bytes differ ok
+-
+-# 4. A2 settings: guard removed, label h1m
+-jq -e '(.hooks.UserPromptSubmit[0].hooks | length) == 1 and (.hooks.UserPromptSubmit[0].hooks[0].command | test("h1m$")) and ((.hooks[][]?.hooks[].command // "") | test("launch-level-guard") | not)' \
+-  "$T/settings-a2.json" >/dev/null && ck a2-settings ok ok || ck a2-settings wrong ok
+-
+-# 5. nothing written outside OB: the fake HOME/.claude is byte-identical before/after
+-find "$FAKE/.claude" -printf '%P\n' | LC_ALL=C sort > "$STUBLOG/fake-after-list.txt"
+-find "$FAKE/.claude" -type f -exec md5sum {} + | LC_ALL=C sort > "$STUBLOG/fake-after-digest.txt"
+-if diff -q "$STUBLOG/fake-before-list.txt" "$STUBLOG/fake-after-list.txt" >/dev/null \
+-  && diff -q "$STUBLOG/fake-before-digest.txt" "$STUBLOG/fake-after-digest.txt" >/dev/null; then
+-  ck fake-claude-clean ok ok
+-else
+-  ck fake-claude-clean changed ok
+-  diff "$STUBLOG/fake-before-list.txt" "$STUBLOG/fake-after-list.txt" | sed 's/^/    /'
+-  diff "$STUBLOG/fake-before-digest.txt" "$STUBLOG/fake-after-digest.txt" | sed 's/^/    /'
+-fi
+-
+-# 6. the login check ran through the stub claude with the isolated HOME
+-grep -q -- '-p' "$OB_STUB_LOG/claude.log" && ck login-stub-called ok ok || ck login-stub-called missing ok
+-
+-# 7. repos built: side branch on repo-push, pre-push hook installed
+-timeout 10 git -C "$T/repo-push" rev-parse --verify -q refs/heads/side >/dev/null && ck repo-push-side ok ok || ck repo-push-side missing ok
+-[ -x "$T/repo-a/.git/hooks/pre-push" ] && ck prepush-hook ok ok || ck prepush-hook missing ok
+-
+-# 8. preconditions recorded every check
+-for id in P1a P2 P3 P4 P5 P6 P7 P8; do
+-  grep -q "^== $id" "$T/preconditions.txt" && ck "prec:$id" ok ok || ck "prec:$id" missing ok
+-done
+-
+-rm -rf "$FAKE"
+-exit $failures
+diff --git a/.dev/issues/442/scripts/setup.sh b/.dev/issues/442/scripts/setup.sh
+deleted file mode 100644
+index 984b97e45..000000000
+--- a/.dev/issues/442/scripts/setup.sh
++++ /dev/null
+@@ -1,172 +0,0 @@
+-#!/usr/bin/env bash
+-# setup.sh — runbook §1.1-§1.3: preconditions, baselines, session A's isolated HOME.
+-# Plan Task 2. OB overrides the scratch root (self-test); all writes stay under $OB.
+-set -u -o pipefail
+-umask 077
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-# shellcheck source=lib.sh
+-source "$here/lib.sh"
+-T=${OB_TIMEOUT_S:-60}
+-
+-resume=0
+-case "${1:-}" in
+-  --resume) resume=1 ;;
+-  "") ;;
+-  *) printf 'usage: setup.sh [--resume]\n' >&2; exit 2 ;;
+-esac
+-if [ -e "$OB" ] && [ "$resume" -ne 1 ]; then
+-  printf 'REFUSE: %s already exists (rerun with --resume)\n' "$OB" >&2
+-  exit 2
+-fi
+-
+-timeout "$T" mkdir -p "$OB_BIN" "$OB_LOGS" "$OB_HOME/.claude/hooks" "$OB_SCREENS"
+-MAIN=$(main_checkout)
+-ROOT=$(cd -- "$here/../../../.." && pwd)   # this script's own checkout (holds the fixtures)
+-PRE=$OB/preconditions.txt
+-: > "$PRE"
+-
+-run_check() {  # run_check <id> <cmd...> — append command output + rc to preconditions
+-  local id=$1; shift
+-  printf '== %s\n' "$id" >> "$PRE"
+-  timeout "$T" "$@" >> "$PRE" 2>&1
+-  printf 'rc=%s\n' "$?" >> "$PRE"
+-}
+-
+-# --- §1.1 P1-P8 -------------------------------------------------------------
+-run_check P1a timeout "$T" claude --version
+-run_check P1b timeout "$T" orca --version
+-run_check P1c timeout "$T" git --version
+-run_check P1d timeout "$T" jq --version
+-run_check P1e timeout "$T" uv --version
+-gh_fork --version >> "$PRE" 2>&1 || true
+-printf 'rc=%s\n' "$?" >> "$PRE"
+-run_check P2 grep -m1 launch-level-guard-version "$HOME/.claude/hooks/launch-level-guard.sh"
+-printf '== P3\n' >> "$PRE"
+-{ timeout "$T" cmp "$HOME/.claude/hooks/launch-level-guard.sh" "$MAIN/src/superclaude/hooks/scripts/launch-level-guard.sh" \
+-  && timeout "$T" cmp "$HOME/.claude/hooks/launch-job-identity.sh" "$MAIN/src/superclaude/hooks/scripts/launch-job-identity.sh" \
+-  && printf 'same\n'; printf 'rc=%s\n' "$?"; } >> "$PRE" 2>&1
+-run_check P4 jq -c '[.hooks|to_entries[]|{e:.key,m:[.value[]|select(any(.hooks[];.command|test("launch-level-guard|launch-job-identity")))|.matcher]}|select(.m|length>0)]' "$HOME/.claude/settings.json"
+-{ printf '== P5\n'; printenv CLAUDE_CONFIG_DIR; printf 'rc=%s\n' "$?"; } >> "$PRE"
+-printf '== P6\n' >> "$PRE"
+-( cd "$MAIN/src/superclaude/skills/sc-issue-protocol/scripts" \
+-  && timeout 120 uv run --no-project python -I -c "import sys; sys.path.insert(0,'.'); import orca_worktree as o; print(o.enforcement_preflight('$MAIN'))" ) >> "$PRE" 2>&1
+-printf 'rc=%s\n' "$?" >> "$PRE"
+-printf '== P7\n' >> "$PRE"
+-gh_fork repo view IronbellyOrg/IronClaude --json nameWithOwner -q .nameWithOwner >> "$PRE" 2>&1
+-printf 'rc=%s\n' "$?" >> "$PRE"
+-timeout "$T" git remote get-url origin >> "$PRE" 2>&1
+-printf 'rc=%s\n' "$?" >> "$PRE"
+-printf '== P8\n' >> "$PRE"
+-gh_fork api repos/IronbellyOrg/IronClaude/branches/master --jq '{protected}' >> "$PRE" 2>&1
+-printf 'rc=%s\n' "$?" >> "$PRE"
+-
+-# --- §1.2 baselines (read-only) ----------------------------------------------
+-timeout "$T" mkdir -p "$OB_LOGS"
+-timeout "$T" ls -A "$HOME/.claude/state/launch-level/sessions" > "$OB_BASE_SESSIONS" 2>>"$PRE" || true
+-timeout "$T" ls -A "$HOME/.claude/state/launch-level/pending" > "$OB_BASE_PENDING" 2>>"$PRE" || true
+-
+-# --- §1.3 isolated HOME -------------------------------------------------------
+-# The log-only probe comes from THIS repo (runbook:50-51), whose checkout root
+-# is $ROOT; the main checkout may be on a branch without the fixture.
+-timeout "$T" install -m 0755 "$ROOT/tests/hooks/fixtures/launch_level/ob_h1/log-only-probe.sh" "$OB_BIN/" \
+-  || { printf 'setup: log-only probe not found under %s\n' "$ROOT" >&2; exit 1; }
+-timeout "$T" install -m 0755 "$HOME/.claude/hooks/launch-level-guard.sh" "$OB_HOME/.claude/hooks/" \
+-  || { printf 'setup: guard copy failed\n' >&2; exit 1; }
+-timeout "$T" cp -r "$HOME/.claude/commands" "$HOME/.claude/skills" "$HOME/.claude/agents" "$OB_HOME/.claude/"
+-
+-cat > "$OB_BIN/ob-probe.sh" <<'EOF'
+-#!/bin/bash
+-# ob-probe.sh <label>: log-only hook for issue 442. Never prints, never blocks, always exits 0.
+-OB=${OB_DIR:-/tmp/ob}
+-label=${1:-unlabelled}
+-input=$(cat 2>/dev/null) || exit 0
+-{
+-    tree= p=$PPID n=0
+-    while [ -n "$p" ] && [ "$p" -gt 1 ] && [ "$n" -lt 12 ]; do
+-        tree+=$(ps -o pid=,ppid=,pgid=,sid=,lstart=,comm= -p "$p")$'\n'
+-        p=$(ps -o ppid= -p "$p" | tr -d ' ') n=$((n + 1))
+-    done
+-    sid=$(printf '%s' "$input" | jq -r '.session_id // empty')
+-    level='<no-sid>'
+-    if [[ $sid =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$ ]]; then
+-        f="$HOME/.claude/state/launch-level/sessions/$sid"
+-        if [ -f "$f" ]; then level=$(head -c 64 "$f" | tr -d '\n'); else level='<no-session-file>'; fi
+-        [ -e "$f.ok" ] && level+=' +ok'
+-    fi
+-    jq -cn --arg label "$label" --arg home "${HOME-}" --arg ccd "${CLAUDE_CONFIG_DIR-<unset>}" \
+-        --arg pid "$$" --arg tree "$tree" --arg at "$(date -u +%FT%T.%3NZ)" --arg level "$level" \
+-        '{probe_env:{label:$label,at:$at,HOME:$home,CLAUDE_CONFIG_DIR:$ccd,hook_pid:$pid,session_file:$level,ancestors:$tree}}' \
+-        >> "$OB/logs/$label.env.jsonl"
+-    printf '%s' "$input" | LAUNCH_LEVEL_PROBE_LOG="$OB/logs/$label.jsonl" "$OB/bin/log-only-probe.sh"
+-} 2>/dev/null
+-exit 0
+-EOF
+-timeout "$T" chmod 0755 "$OB_BIN/ob-probe.sh"
+-
+-cat > "$OB_BIN/ob-tree.sh" <<'EOF'
+-#!/bin/bash
+-# ob-tree.sh <label>: appends this process's ancestor chain to $OB_DIR/logs/tree-<label>.txt. Never prints, exits 0.
+-OB=${OB_DIR:-/tmp/ob}
+-label=${1:-unlabelled}
+-{
+-    printf '== %s at %s pid=%s\n' "$label" "$(date -u +%FT%T.%3NZ)" "$$"
+-    p=$$ n=0
+-    while [ -n "$p" ] && [ "$p" -gt 0 ] && [ "$n" -lt 16 ]; do
+-        ps -o pid=,ppid=,pgid=,sid=,lstart=,comm= -p "$p"
+-        [ "$p" -eq 1 ] && break
+-        p=$(ps -o ppid= -p "$p" | tr -d ' ') n=$((n + 1))
+-    done
+-} 2>/dev/null >> "$OB/logs/tree-$label.txt"
+-exit 0
+-EOF
+-timeout "$T" chmod 0755 "$OB_BIN/ob-tree.sh"
+-
+-cat > "$OB_HOME/.claude/settings.json" <<'EOF'
+-{
+-  "hooks": {
+-    "UserPromptSubmit": [
+-      {"hooks": [
+-        {"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10},
+-        {"type": "command", "command": "/tmp/ob/home/.claude/hooks/launch-level-guard.sh", "timeout": 5}
+-      ]}
+-    ],
+-    "UserPromptExpansion": [{"hooks": [{"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10}]}],
+-    "PreToolUse": [{"matcher": "*", "hooks": [{"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10}]}],
+-    "PostToolUse": [{"matcher": "*", "hooks": [{"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10}]}],
+-    "SessionStart": [{"hooks": [{"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10}]}],
+-    "SubagentStop": [{"hooks": [{"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10}]}],
+-    "Stop": [{"hooks": [{"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10}]}]
+-  }
+-}
+-EOF
+-
+-# Session A2 settings: the A settings without the guard, label h1m (runbook §2.1b generator).
+-timeout "$T" jq '.hooks.UserPromptSubmit[0].hooks |= map(select(.command|test("launch-level-guard")|not)) | (.hooks[][].hooks[].command) |= sub(" h1$";" h1m")' \
+-  "$OB_HOME/.claude/settings.json" > "$OB/settings-a2.json"
+-
+-# --- §1.3 disposable repositories --------------------------------------------
+-export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
+-for r in a push; do
+-  timeout "$T" git init -q --bare "$OB/bare-$r.git"
+-  timeout "$T" git init -q -b master "$OB/repo-$r"
+-  timeout "$T" git -C "$OB/repo-$r" -c user.name=ob -c user.email=ob@invalid commit -q --allow-empty -m init
+-  timeout "$T" git -C "$OB/repo-$r" remote add origin "$OB/bare-$r.git"
+-  timeout "$T" git -C "$OB/repo-$r" push -q origin master
+-done
+-printf '#!/bin/bash\ncat >/dev/null\nexec /tmp/ob/bin/ob-tree.sh pre-push\n' > "$OB/repo-a/.git/hooks/pre-push"
+-# The hook execs the probe by its fixed /tmp/ob path; in a relocated OB the
+-# exec falls through to a missing file and the push continues (fail-open by design).
+-timeout "$T" chmod 0755 "$OB/repo-a/.git/hooks/pre-push"
+-timeout "$T" git -C "$OB/repo-push" checkout -q -b side
+-timeout "$T" git -C "$OB/repo-push" -c user.name=ob -c user.email=ob@invalid commit -q --allow-empty -m side
+-timeout "$T" git -C "$OB/repo-push" checkout -q master
+-
+-# --- login check (isolated HOME; never copies credentials) --------------------
+-printf '== login-check\n' >> "$PRE"
+-if HOME="$OB_HOME" CLAUDE_CONFIG_DIR="$OB_HOME/.claude" timeout 120 claude -p "Reply with the word ok" >> "$PRE" 2>&1; then
+-  printf 'login OK\n'
+-else
+-  printf 'BLOCKED login-isolated-home\n'
+-  exit 3
+-fi
+-printf 'SETUP_OK\n'

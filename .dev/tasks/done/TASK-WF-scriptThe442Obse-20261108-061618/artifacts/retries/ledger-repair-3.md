@@ -1,0 +1,1 @@
+note: T11/notes.md held the raw text of the passing T11 review (I wrote it under the wrong name); the safety scan hit the word "delete" in it. Moved unchanged to reviewer-return-1.md (not deleted). T11 has no minor or note finding of its own (the reviewer note was only to restage the ledger), so it has no notes file and its complete line has no notes@ token.

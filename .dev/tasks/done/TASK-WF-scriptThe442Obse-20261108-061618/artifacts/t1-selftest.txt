@@ -1,0 +1,13 @@
+OK lib-bash-n
+OK gh-fork-repo
+OK gh-fork-refuse
+OK gh-fork-refuse-case:SUPERCLAUDE-ORG/x
+OK gh-fork-refuse-case:SuperClaude-ORG/x
+OK gh-fork-refuse-case:sUPERCLAUDE-ORG/x
+OK state-get-num
+OK state-get-spaces
+OK state-get-url
+OK state-get-absent
+OK step-shape
+SELFTEST_OK
+exit=0

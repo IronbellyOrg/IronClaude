@@ -1,0 +1,491 @@
+diff --git a/.dev/issues/442/scripts/lib-selftest.sh b/.dev/issues/442/scripts/lib-selftest.sh
+deleted file mode 100644
+index 4a4b06f58..000000000
+--- a/.dev/issues/442/scripts/lib-selftest.sh
++++ /dev/null
+@@ -1,56 +0,0 @@
+-#!/usr/bin/env bash
+-# lib-selftest.sh — Task 1 cases for lib.sh, run by selftest.sh.
+-set -u -o pipefail
+-umask 077
+-
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-failures=0
+-ck() { if [ "$2" = "$3" ]; then printf 'OK %s\n' "$1"; else printf 'FAIL %s got=<%s> want=<%s>\n' "$1" "$2" "$3"; failures=$((failures+1)); fi; }
+-
+-# 1. bash -n on lib.sh
+-if bash -n "$here/lib.sh"; then ck lib-bash-n ok ok; else ck lib-bash-n fail ok; fi
+-
+-# Isolated OB root for these cases.
+-T=$(mktemp -d /tmp/ob-lib.XXXXXXXX)
+-export OB=$T
+-# shellcheck source=lib.sh
+-source "$here/lib.sh"
+-
+-# 2. gh_fork pins --repo on a normal subcommand and the stub receives it.
+-mkdir -p "$T/stublog"; export OB_STUB_LOG=$T/stublog
+-out=$(gh_fork issue list)
+-grep -q -- '--repo IronbellyOrg/IronClaude' "$T/stublog/gh.log" \
+-  && ck gh-fork-repo ok ok || ck gh-fork-repo missing ok
+-
+-# 3. gh_fork api refuses a path outside the fork, in every casing.
+-rm -f "$T/stublog/gh.log"
+-if gh_fork api repos/SuperClaude-Org/x 2>/dev/null; then
+-  ck gh-fork-refuse called ok
+-else
+-  if [ -e "$T/stublog/gh.log" ]; then ck gh-fork-refuse reached-stub ok; else ck gh-fork-refuse ok ok; fi
+-fi
+-rm -f "$T/stublog/gh.log"
+-for slug in SUPERCLAUDE-ORG/x SuperClaude-ORG/x sUPERCLAUDE-ORG/x; do
+-  if gh_fork issue view "$slug" 2>/dev/null; then
+-    ck "gh-fork-refuse-case:$slug" called ok
+-  elif [ -e "$T/stublog/gh.log" ]; then
+-    ck "gh-fork-refuse-case:$slug" reached-stub ok
+-  else
+-    ck "gh-fork-refuse-case:$slug" ok ok
+-  fi
+-  rm -f "$T/stublog/gh.log"
+-done
+-
+-# 4. state file round-trip, including a value with spaces, no eval.
+-state_set T1 421
+-state_set WT_T1 "$T/wt one"
+-state_set PR_URL "https://github.com/IronbellyOrg/IronClaude/pull/9"
+-ck state-get-num "$(state_get T1)" 421
+-ck state-get-spaces "$(state_get WT_T1)" "$T/wt one"
+-ck state-get-url "$(state_get PR_URL)" "https://github.com/IronbellyOrg/IronClaude/pull/9"
+-if state_get ABSENT >/dev/null 2>&1; then ck state-get-absent found missing; else ck state-get-absent ok ok; fi
+-
+-# 5. step output shape.
+-ck step-shape "$(step s1 OK | tr '\n' '|')" "BEGIN s1|OK s1|"
+-
+-exit $failures
+diff --git a/.dev/issues/442/scripts/lib.sh b/.dev/issues/442/scripts/lib.sh
+deleted file mode 100644
+index 31b458cdd..000000000
+--- a/.dev/issues/442/scripts/lib.sh
++++ /dev/null
+@@ -1,80 +0,0 @@
+-#!/usr/bin/env bash
+-# lib.sh — shared helpers for the #442 observation scripts.
+-# Source this from every script: source "$(dirname "$0")/lib.sh"
+-# Plan: .dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618 (Task 1)
+-# Every script that sources this must already run under `set -u -o pipefail` and umask 077.
+-
+-# Scratch root (runbook §1.2/§1.3). OB is overridable so selftest.sh can point
+-# the scripts at a temp directory instead of the real /tmp/ob.
+-OB=${OB:-/tmp/ob}
+-OB_BIN=$OB/bin
+-OB_LOGS=$OB/logs
+-OB_HOME=$OB/home
+-OB_SCREENS=$OB/screens
+-OB_STATE=$OB/state.env
+-OB_BASE_SESSIONS=$OB/baseline-sessions.txt
+-OB_BASE_PENDING=$OB/baseline-pending.txt
+-
+-# Package artifacts directory (absolute, never the project-root artifacts/).
+-# The workflow package that owns this run (plan + ledger + artifacts).
+-PKG_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)   # .../dev/issues/442
+-PKG_TASKS=${PKG_TASKS:-$(cd -- "$PKG_DIR/../../tasks" && pwd)/to-do/TASK-WF-scriptThe442Obse-20261108-061618}
+-PKG_ART=${PKG_ART:-$PKG_TASKS/artifacts}
+-
+-step() {
+-  # step <id> <status> [detail] — statuses: OK SKIP FAIL PENDING
+-  printf 'BEGIN %s\n%s %s%s\n' "$1" "$2" "$1" "${3:+ $3}"
+-}
+-
+-state_set() {
+-  # state_set <KEY> <VALUE> — append KEY=value; last wins on read.
+-  # VALUE is single-line (runbook values: ids, paths, numbers, URLs).
+-  printf '%s=%s\n' "$1" "$2" >> "$OB_STATE"
+-}
+-
+-state_get() {
+-  # state_get <KEY> — print the last value, or return 1 when absent.
+-  # Read without eval: only the first `=` splits; no quotes, no eval.
+-  [ -f "$OB_STATE" ] || return 1
+-  awk -F= -v k="$1" '$1==k{v=substr($0,length($1)+2); found=1} END{if(!found)exit 1; print v}' "$OB_STATE"
+-}
+-
+-gh_fork() {
+-  # gh_fork <args...> — gh with the fork pinned on every form.
+-  local a
+-  for a in "$@"; do
+-    # Case-insensitive refusal of any argument naming the upstream;
+-    # matching runs on a lowercased copy.
+-    case "$(printf '%s' "$a" | tr '[:upper:]' '[:lower:]')" in
+-      *superclaude-org*)
+-        printf 'gh_fork: refusing forbidden target: %s\n' "$a" >&2
+-        return 1
+-        ;;
+-    esac
+-  done
+-  case "$1" in
+-    api)
+-      case "$2" in
+-        repos/IronbellyOrg/IronClaude/*) ;;
+-        *)
+-          printf 'gh_fork: api path must be repos/IronbellyOrg/IronClaude/...: %s\n' "$2" >&2
+-          return 1
+-          ;;
+-      esac
+-      ;;
+-    *)
+-      # A command that accepts --repo gets it; append if not already present.
+-      case " $* " in
+-        *" --repo "*) ;;
+-        *) set -- "$@" --repo IronbellyOrg/IronClaude ;;
+-      esac
+-      ;;
+-  esac
+-  command timeout "${OB_TIMEOUT_S:-60}" gh "$@"
+-}
+-
+-main_checkout() {
+-  # Print the main checkout path (worktree list line without a `.git` suffix marker).
+-  command timeout "${OB_TIMEOUT_S:-60}" git worktree list --porcelain \
+-    | awk '/^worktree /{sub(/^worktree /,""); if ($0 !~ /\/\.git$/) {print; exit}}'
+-}
+diff --git a/.dev/issues/442/scripts/selftest.sh b/.dev/issues/442/scripts/selftest.sh
+deleted file mode 100644
+index ae45e56d1..000000000
+--- a/.dev/issues/442/scripts/selftest.sh
++++ /dev/null
+@@ -1,82 +0,0 @@
+-#!/usr/bin/env bash
+-# selftest.sh — harness for the #442 observation scripts.
+-# Later tasks append their cases to the case list below.
+-set -u -o pipefail
+-umask 077
+-
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-failures=0
+-
+-# --- harness primitives -----------------------------------------------------
+-
+-begin() { printf 'BEGIN %s\n' "$1"; }
+-pass()  { printf 'OK %s\n' "$1"; }
+-fail()  { printf 'FAIL %s %s\n' "$1" "$2"; failures=$((failures+1)); }
+-skip()  { printf 'SKIP %s\n' "$1"; }
+-
+-# Stub orca, gh, claude and uv: they log their arguments and print canned output.
+-# claude answers --version and -p; uv stands in for the P6 preflight.
+-setup_stubs() {
+-  STUB_DIR=$(mktemp -d /tmp/ob-selftest.XXXXXXXX)
+-  mkdir -p "$STUB_DIR/bin"
+-  cat > "$STUB_DIR/bin/orca" <<'STUB'
+-#!/usr/bin/env bash
+-printf '%s\n' "$*" >> "${OB_STUB_LOG:-/dev/null}/orca.log"
+-case "$1" in
+-  terminal) case "$2" in
+-    create) printf '{"status":"ok","handle":"stub-handle"}\n' ;;
+-    read)   printf '{"screen":"ok"}\n' ;;
+-    *)      printf '{"status":"ok"}\n' ;;
+-  esac ;;
+-  *) printf '{"status":"ok"}\n' ;;
+-esac
+-STUB
+-  cat > "$STUB_DIR/bin/gh" <<'STUB'
+-#!/usr/bin/env bash
+-printf '%s\n' "$*" >> "${OB_STUB_LOG:-/dev/null}/gh.log"
+-case "$1" in
+-  --version) printf 'gh version 0.0.0-stub\n' ;;
+-  issue) printf '{"number":421}\n' ;;
+-  api)  printf '{"protected":false}\n' ;;
+-  *)    printf '{"status":"ok"}\n' ;;
+-esac
+-STUB
+-  cat > "$STUB_DIR/bin/claude" <<'STUB'
+-#!/usr/bin/env bash
+-printf '%s\n' "$*" >> "${OB_STUB_LOG:-/dev/null}/claude.log"
+-case "$1" in
+-  --version) printf '0.0.0-stub (Claude Code)\n' ;;
+-  -p) printf 'ok\n' ;;
+-  *) printf 'ok\n' ;;
+-esac
+-STUB
+-  cat > "$STUB_DIR/bin/uv" <<'STUB'
+-#!/usr/bin/env bash
+-printf '%s\n' "$*" >> "${OB_STUB_LOG:-/dev/null}/uv.log"
+-printf '[]\n'
+-STUB
+-  chmod 0755 "$STUB_DIR/bin/"*
+-  PATH="$STUB_DIR/bin:$PATH"
+-  export PATH
+-}
+-
+-# --- case list (later tasks append before the summary) ----------------------
+-
+-setup_stubs
+-T=${OB_STUB_LOG:-$STUB_DIR}
+-export OB_STUB_LOG=$T
+-
+-# T1 cases: lib.sh (bounded, per the plan's timeout constraint)
+-timeout 60 bash "$here/lib-selftest.sh" || fail lib "lib-selftest exited $?"
+-
+-# T2 cases: setup.sh under a fake HOME and a temp OB
+-timeout 120 bash "$here/setup-selftest.sh" || fail setup "setup-selftest exited $?"
+-
+-# --- summary ----------------------------------------------------------------
+-
+-if [ "$failures" -eq 0 ]; then
+-  printf 'SELFTEST_OK\n'
+-  exit 0
+-fi
+-printf 'SELFTEST_FAILED failures=%d\n' "$failures"
+-exit 1
+diff --git a/.dev/issues/442/scripts/setup-selftest.sh b/.dev/issues/442/scripts/setup-selftest.sh
+deleted file mode 100644
+index fbbe6d2d4..000000000
+--- a/.dev/issues/442/scripts/setup-selftest.sh
++++ /dev/null
+@@ -1,76 +0,0 @@
+-#!/usr/bin/env bash
+-# setup-selftest.sh — Task 2 cases for setup.sh, run by selftest.sh.
+-set -u -o pipefail
+-umask 077
+-
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-root=$(cd -- "$here/../../../.." && pwd)   # scripts -> 442 -> issues -> .dev -> worktree root
+-RB=$root/.dev/issues/442/observation-runbook.md
+-failures=0
+-ck() { if [ "$2" = "$3" ]; then printf 'OK %s\n' "$1"; else printf 'FAIL %s got=<%s> want=<%s>\n' "$1" "$2" "$3"; failures=$((failures+1)); fi; }
+-
+-# Fake HOME so the script copies stub commands/skills/agents, not the real ones.
+-FAKE=$(mktemp -d /tmp/ob-setup-fake.XXXXXXXX)
+-export HOME=$FAKE
+-mkdir -p "$FAKE/.claude/hooks" "$FAKE/.claude/commands" "$FAKE/.claude/skills" "$FAKE/.claude/agents" "$FAKE/.claude/state/launch-level/sessions" "$FAKE/.claude/state/launch-level/pending"
+-printf '# launch-level-guard-version: 1\n' > "$FAKE/.claude/hooks/launch-level-guard.sh"
+-printf 'guard-body\n' >> "$FAKE/.claude/hooks/launch-level-guard.sh"
+-cp "$FAKE/.claude/hooks/launch-level-guard.sh" "$FAKE/.claude/hooks/launch-job-identity.sh"
+-printf 'cmd\n' > "$FAKE/.claude/commands/x.md"
+-printf 'skill\n' > "$FAKE/.claude/skills/x.md"
+-printf 'agent\n' > "$FAKE/.claude/agents/x.md"
+-printf 'old-session\n' > "$FAKE/.claude/state/launch-level/sessions/oldsid"
+-
+-# Temp OB (created by setup.sh itself) and a separate stub-log dir.
+-T=$(mktemp -d /tmp/ob-setup.XXXXXXXX)
+-rmdir "$T"
+-export OB=$T
+-STUBLOG=$(mktemp -d /tmp/ob-setup-stub.XXXXXXXX)
+-export OB_STUB_LOG=$STUBLOG
+-
+-out=$(bash "$here/setup.sh" 2>&1); rc=$?
+-ck setup-rc "$rc" 0
+-ck setup-ok "$(printf '%s' "$out" | tail -1)" "SETUP_OK"
+-
+-# 1. layout under the test OB
+-for p in bin logs home/.claude/hooks screens repo-a repo-push settings-a2.json baseline-sessions.txt baseline-pending.txt preconditions.txt; do
+-  if [ -e "$T/$p" ] || [ -L "$T/$p" ]; then ck "layout:$p" ok ok; else ck "layout:$p" missing ok; fi
+-done
+-grep -q 'oldsid' "$T/baseline-sessions.txt" && ck baseline-sessions ok ok || ck baseline-sessions missing ok
+-
+-# 2. refusal without --resume
+-if bash "$here/setup.sh" >/dev/null 2>&1; then ck rerun-refused called ok; else ck rerun-refused ok ok; fi
+-# --resume passes the guard
+-out2=$(bash "$here/setup.sh" --resume 2>&1); rc2=$?
+-ck rerun-resume-rc "$rc2" 0
+-
+-# 3. probe files byte-for-byte vs the runbook blocks
+-extract() {  # extract <start-line> <end-line>: lines between the fences, from the runbook
+-  sed -n "$1,$2p" "$RB"
+-}
+-# ob-probe.sh: runbook lines 62-86; ob-tree.sh: 97-110; settings.json: 121-136.
+-sed -n '62,86p' "$RB" > "$T/want-probe.sh"; diff -q "$T/want-probe.sh" "$T/bin/ob-probe.sh" >/dev/null && ck probe-bytes ok ok || ck probe-bytes differ ok
+-sed -n '97,110p' "$RB" > "$T/want-tree.sh"; diff -q "$T/want-tree.sh" "$T/bin/ob-tree.sh" >/dev/null && ck tree-bytes ok ok || ck tree-bytes differ ok
+-sed -n '121,136p' "$RB" > "$T/want-settings.json"; diff -q "$T/want-settings.json" "$T/home/.claude/settings.json" >/dev/null && ck settings-bytes ok ok || ck settings-bytes differ ok
+-
+-# 4. A2 settings: guard removed, label h1m
+-jq -e '(.hooks.UserPromptSubmit[0].hooks | length) == 1 and (.hooks.UserPromptSubmit[0].hooks[0].command | test("h1m$")) and ((.hooks[][]?.hooks[].command // "") | test("launch-level-guard") | not)' \
+-  "$T/settings-a2.json" >/dev/null && ck a2-settings ok ok || ck a2-settings wrong ok
+-
+-# 5. nothing written outside OB and the fake HOME: fake .claude unchanged
+-ck fake-claude-clean "$(ls "$FAKE/.claude/commands" | wc -l)" 1
+-
+-# 6. the login check ran through the stub claude with the isolated HOME
+-grep -q -- '-p' "$OB_STUB_LOG/claude.log" && ck login-stub-called ok ok || ck login-stub-called missing ok
+-
+-# 7. repos built: side branch on repo-push, pre-push hook installed
+-timeout 10 git -C "$T/repo-push" rev-parse --verify -q refs/heads/side >/dev/null && ck repo-push-side ok ok || ck repo-push-side missing ok
+-[ -x "$T/repo-a/.git/hooks/pre-push" ] && ck prepush-hook ok ok || ck prepush-hook missing ok
+-
+-# 8. preconditions recorded every check
+-for id in P1a P4 P5 P6 P7 P8; do
+-  grep -q "^== $id" "$T/preconditions.txt" && ck "prec:$id" ok ok || ck "prec:$id" missing ok
+-done
+-
+-rm -rf "$FAKE"
+-exit $failures
+diff --git a/.dev/issues/442/scripts/setup.sh b/.dev/issues/442/scripts/setup.sh
+deleted file mode 100644
+index 6f0376044..000000000
+--- a/.dev/issues/442/scripts/setup.sh
++++ /dev/null
+@@ -1,167 +0,0 @@
+-#!/usr/bin/env bash
+-# setup.sh — runbook §1.1-§1.3: preconditions, baselines, session A's isolated HOME.
+-# Plan Task 2. OB overrides the scratch root (self-test); all writes stay under $OB.
+-set -u -o pipefail
+-umask 077
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-# shellcheck source=lib.sh
+-source "$here/lib.sh"
+-T=${OB_TIMEOUT_S:-60}
+-
+-resume=0
+-case "${1:-}" in
+-  --resume) resume=1 ;;
+-  "") ;;
+-  *) printf 'usage: setup.sh [--resume]\n' >&2; exit 2 ;;
+-esac
+-if [ -e "$OB" ] && [ "$resume" -ne 1 ]; then
+-  printf 'REFUSE: %s already exists (rerun with --resume)\n' "$OB" >&2
+-  exit 2
+-fi
+-
+-mkdir -p "$OB_BIN" "$OB_LOGS" "$OB_HOME/.claude/hooks" "$OB_SCREENS"
+-MAIN=$(main_checkout)
+-PRE=$OB/preconditions.txt
+-: > "$PRE"
+-
+-run_check() {  # run_check <id> <cmd...> — append command output + rc to preconditions
+-  local id=$1; shift
+-  printf '== %s\n' "$id" >> "$PRE"
+-  timeout "$T" "$@" >> "$PRE" 2>&1
+-  printf 'rc=%s\n' "$?" >> "$PRE"
+-}
+-
+-# --- §1.1 P1-P8 -------------------------------------------------------------
+-run_check P1a timeout "$T" claude --version
+-run_check P1b timeout "$T" orca --version
+-run_check P1c timeout "$T" git --version
+-run_check P1d timeout "$T" jq --version
+-run_check P1e timeout "$T" uv --version
+-gh_fork --version >> "$PRE" 2>&1 || true
+-printf 'rc=%s\n' "$?" >> "$PRE"
+-run_check P2 grep -m1 launch-level-guard-version "$HOME/.claude/hooks/launch-level-guard.sh"
+-{ timeout "$T" cmp "$HOME/.claude/hooks/launch-level-guard.sh" "$MAIN/src/superclaude/hooks/scripts/launch-level-guard.sh" \
+-  && timeout "$T" cmp "$HOME/.claude/hooks/launch-job-identity.sh" "$MAIN/src/superclaude/hooks/scripts/launch-job-identity.sh" \
+-  && printf 'same\n'; printf 'rc=%s\n' "$?"; } >> "$PRE" 2>&1
+-printf '== P3\n' >> "$PRE"  # (order note: P2 line above, P3 output here)
+-run_check P4 jq -c '[.hooks|to_entries[]|{e:.key,m:[.value[]|select(any(.hooks[];.command|test("launch-level-guard|launch-job-identity")))|.matcher]}|select(.m|length>0)]' "$HOME/.claude/settings.json"
+-{ printf '== P5\n'; printenv CLAUDE_CONFIG_DIR; printf 'rc=%s\n' "$?"; } >> "$PRE"
+-printf '== P6\n' >> "$PRE"
+-( cd "$MAIN/src/superclaude/skills/sc-issue-protocol/scripts" \
+-  && timeout 120 uv run --no-project python -I -c "import sys; sys.path.insert(0,'.'); import orca_worktree as o; print(o.enforcement_preflight('$MAIN'))" ) >> "$PRE" 2>&1
+-printf 'rc=%s\n' "$?" >> "$PRE"
+-printf '== P7\n' >> "$PRE"
+-gh_fork repo view IronbellyOrg/IronClaude --json nameWithOwner -q .nameWithOwner >> "$PRE" 2>&1
+-printf 'rc=%s\n' "$?" >> "$PRE"
+-timeout "$T" git remote get-url origin >> "$PRE" 2>&1
+-printf 'rc=%s\n' "$?" >> "$PRE"
+-printf '== P8\n' >> "$PRE"
+-gh_fork api repos/IronbellyOrg/IronClaude/branches/master --jq '{protected}' >> "$PRE" 2>&1
+-printf 'rc=%s\n' "$?" >> "$PRE"
+-
+-# --- §1.2 baselines (read-only) ----------------------------------------------
+-mkdir -p "$OB_LOGS"
+-timeout "$T" ls -A "$HOME/.claude/state/launch-level/sessions" > "$OB_BASE_SESSIONS" 2>>"$PRE" || true
+-timeout "$T" ls -A "$HOME/.claude/state/launch-level/pending" > "$OB_BASE_PENDING" 2>>"$PRE" || true
+-
+-# --- §1.3 isolated HOME -------------------------------------------------------
+-install -m 0755 "$MAIN/tests/hooks/fixtures/launch_level/ob_h1/log-only-probe.sh" "$OB_BIN/"
+-install -m 0755 "$HOME/.claude/hooks/launch-level-guard.sh" "$OB_HOME/.claude/hooks/"
+-cp -r "$HOME/.claude/commands" "$HOME/.claude/skills" "$HOME/.claude/agents" "$OB_HOME/.claude/"
+-
+-cat > "$OB_BIN/ob-probe.sh" <<'EOF'
+-#!/bin/bash
+-# ob-probe.sh <label>: log-only hook for issue 442. Never prints, never blocks, always exits 0.
+-OB=${OB_DIR:-/tmp/ob}
+-label=${1:-unlabelled}
+-input=$(cat 2>/dev/null) || exit 0
+-{
+-    tree= p=$PPID n=0
+-    while [ -n "$p" ] && [ "$p" -gt 1 ] && [ "$n" -lt 12 ]; do
+-        tree+=$(ps -o pid=,ppid=,pgid=,sid=,lstart=,comm= -p "$p")$'\n'
+-        p=$(ps -o ppid= -p "$p" | tr -d ' ') n=$((n + 1))
+-    done
+-    sid=$(printf '%s' "$input" | jq -r '.session_id // empty')
+-    level='<no-sid>'
+-    if [[ $sid =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$ ]]; then
+-        f="$HOME/.claude/state/launch-level/sessions/$sid"
+-        if [ -f "$f" ]; then level=$(head -c 64 "$f" | tr -d '\n'); else level='<no-session-file>'; fi
+-        [ -e "$f.ok" ] && level+=' +ok'
+-    fi
+-    jq -cn --arg label "$label" --arg home "${HOME-}" --arg ccd "${CLAUDE_CONFIG_DIR-<unset>}" \
+-        --arg pid "$$" --arg tree "$tree" --arg at "$(date -u +%FT%T.%3NZ)" --arg level "$level" \
+-        '{probe_env:{label:$label,at:$at,HOME:$home,CLAUDE_CONFIG_DIR:$ccd,hook_pid:$pid,session_file:$level,ancestors:$tree}}' \
+-        >> "$OB/logs/$label.env.jsonl"
+-    printf '%s' "$input" | LAUNCH_LEVEL_PROBE_LOG="$OB/logs/$label.jsonl" "$OB/bin/log-only-probe.sh"
+-} 2>/dev/null
+-exit 0
+-EOF
+-chmod 0755 "$OB_BIN/ob-probe.sh"
+-
+-cat > "$OB_BIN/ob-tree.sh" <<'EOF'
+-#!/bin/bash
+-# ob-tree.sh <label>: appends this process's ancestor chain to $OB_DIR/logs/tree-<label>.txt. Never prints, exits 0.
+-OB=${OB_DIR:-/tmp/ob}
+-label=${1:-unlabelled}
+-{
+-    printf '== %s at %s pid=%s\n' "$label" "$(date -u +%FT%T.%3NZ)" "$$"
+-    p=$$ n=0
+-    while [ -n "$p" ] && [ "$p" -gt 0 ] && [ "$n" -lt 16 ]; do
+-        ps -o pid=,ppid=,pgid=,sid=,lstart=,comm= -p "$p"
+-        [ "$p" -eq 1 ] && break
+-        p=$(ps -o ppid= -p "$p" | tr -d ' ') n=$((n + 1))
+-    done
+-} 2>/dev/null >> "$OB/logs/tree-$label.txt"
+-exit 0
+-EOF
+-chmod 0755 "$OB_BIN/ob-tree.sh"
+-
+-cat > "$OB_HOME/.claude/settings.json" <<'EOF'
+-{
+-  "hooks": {
+-    "UserPromptSubmit": [
+-      {"hooks": [
+-        {"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10},
+-        {"type": "command", "command": "/tmp/ob/home/.claude/hooks/launch-level-guard.sh", "timeout": 5}
+-      ]}
+-    ],
+-    "UserPromptExpansion": [{"hooks": [{"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10}]}],
+-    "PreToolUse": [{"matcher": "*", "hooks": [{"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10}]}],
+-    "PostToolUse": [{"matcher": "*", "hooks": [{"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10}]}],
+-    "SessionStart": [{"hooks": [{"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10}]}],
+-    "SubagentStop": [{"hooks": [{"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10}]}],
+-    "Stop": [{"hooks": [{"type": "command", "command": "/tmp/ob/bin/ob-probe.sh h1", "timeout": 10}]}]
+-  }
+-}
+-EOF
+-
+-# Session A2 settings: the A settings without the guard, label h1m (runbook §2.1b generator).
+-timeout "$T" jq '.hooks.UserPromptSubmit[0].hooks |= map(select(.command|test("launch-level-guard")|not)) | (.hooks[][].hooks[].command) |= sub(" h1$";" h1m")' \
+-  "$OB_HOME/.claude/settings.json" > "$OB/settings-a2.json"
+-
+-# --- §1.3 disposable repositories --------------------------------------------
+-export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
+-for r in a push; do
+-  timeout "$T" git init -q --bare "$OB/bare-$r.git"
+-  timeout "$T" git init -q -b master "$OB/repo-$r"
+-  timeout "$T" git -C "$OB/repo-$r" -c user.name=ob -c user.email=ob@invalid commit -q --allow-empty -m init
+-  timeout "$T" git -C "$OB/repo-$r" remote add origin "$OB/bare-$r.git"
+-  timeout "$T" git -C "$OB/repo-$r" push -q origin master
+-done
+-printf '#!/bin/bash\ncat >/dev/null\nexec /tmp/ob/bin/ob-tree.sh pre-push\n' > "$OB/repo-a/.git/hooks/pre-push"
+-# The hook execs the probe by its fixed /tmp/ob path; in a relocated OB the
+-# exec falls through to a missing file and the push continues (fail-open by design).
+-chmod 0755 "$OB/repo-a/.git/hooks/pre-push"
+-timeout "$T" git -C "$OB/repo-push" checkout -q -b side
+-timeout "$T" git -C "$OB/repo-push" -c user.name=ob -c user.email=ob@invalid commit -q --allow-empty -m side
+-timeout "$T" git -C "$OB/repo-push" checkout -q master
+-
+-# --- login check (isolated HOME; never copies credentials) --------------------
+-printf '== login-check\n' >> "$PRE"
+-if HOME="$OB_HOME" CLAUDE_CONFIG_DIR="$OB_HOME/.claude" timeout 120 claude -p "Reply with the word ok" >> "$PRE" 2>&1; then
+-  printf 'login OK\n'
+-else
+-  printf 'BLOCKED login-isolated-home\n'
+-  exit 3
+-fi
+-printf 'SETUP_OK\n'

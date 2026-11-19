@@ -1,0 +1,24 @@
+Delta from the previously reviewed tree (rebuilt from the fix pass edits; paths under .dev/issues/442/scripts/)
+
+session-gov.sh
+- launch_real signature comment now reads: launch_real <T1..T4> <flags> <session name> [first-stop wait secs; absent or 0 = do not wait]
+- last line of launch_real changed:
+-   wait_first_stop "$label" "${OB_INITIAL_WAIT_S:-900}" || pending "reason=no-first-stop label=$label"
++   # b and c wait for the plan boundary; d and e own longer waits of their own
++   [ "${4:-0}" = 0 ] || wait_first_stop "$label" "$4" || pending "reason=no-first-stop label=$label"
+- run_b: launch_real T1 "--pipeline worktree" gB  ->  launch_real T1 "--pipeline worktree" gB "${OB_INITIAL_WAIT_S:-900}"
+- run_c: launch_real T2 "--pipeline worktree" gC  ->  launch_real T2 "--pipeline worktree" gC "${OB_INITIAL_WAIT_S:-900}"
+- run_d and run_e calls unchanged (no fourth argument, so no first-stop wait)
+- fire_o10: local list gains wtbr; after the "no head branch" check:
++   wtbr=$(tgit -C "$WT4" rev-parse --abbrev-ref HEAD 2>/dev/null)
++   if [ "$br" != "$wtbr" ]; then
++     rec e-o10 FAIL "pull request $num head branch $br is not the T4 worktree branch ${wtbr:-unknown}; no write made"
++     state_set O10 skipped; return 0
++   fi
+
+session-gov-selftest.sh
+- stub orca: the Stop-appending loop honours STUB_STOP_ONLY=<label> (only that log gets a Stop)
+- stub gh: pr view prints ${STUB_PR_BRANCH:-ob-442-t4-branch}
+- mkenv: the T4 test worktree is checked out on branch ob-442-t4-branch
+- new case group 9b: e5, head branch some-other-branch gives "FAIL e-o10 pull request 77 head branch some-other-branch is not the T4 worktree branch ob-442-t4-branch", no PUT, run ends SESSION_E_DONE
+- new case group 9c: d3 (d reaches its own 90-minute wait, no no-first-stop), e6 (e reaches PENDING cycle-not-ended, no no-first-stop), c4 (c still stops with PENDING reason=no-first-stop label=h2-T2); all with STUB_STOP_ONLY=claim

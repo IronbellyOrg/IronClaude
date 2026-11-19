@@ -1,0 +1,19 @@
+BEGIN send-1
+OK send-1 claim claim /sc:issue --claim 643 --pipeline worktree
+BEGIN c-layers
+FAIL c-layers no 'L1 guard: effective' line (the claim session printed its own summary; enforcement_hook line: enforcement_hook:installed)
+BEGIN c-terminal
+OK c-terminal terminal term_565ab447-a65c-42d4-8328-c1c71c6941af found by worktree path and launch title (the claim output has no terminal key)
+BEGIN c-launched
+OK c-launched terminal=term_565ab447-a65c-42d4-8328-c1c71c6941af gsid=081730f1-a4b8-4e44-8983-934daa257683
+BEGIN send-2
+OK send-2 gC h2-T2 /sc:implement .dev/issues/643/issue-summary.md
+BEGIN c-implement-ok
+OK c-implement-ok /home/coder/.claude/state/launch-level/sessions/081730f1-a4b8-4e44-8983-934daa257683.ok exists
+BEGIN send-3
+OK send-3 gC h2-T2 Run the Bash command `git -c user.name=ob -c user.email=ob@i
+BEGIN release-text
+FAIL release-text the claim output has no printed rm line; releasing this run's own two session files (UNVERIFIED claim text)
+BEGIN release
+OK release 081730f1-a4b8-4e44-8983-934daa257683
+SESSION_C_DONE

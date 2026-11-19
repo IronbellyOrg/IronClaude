@@ -1,0 +1,3 @@
+A1 r1-2 F8.3 minor .dev/issues/442/scripts/cleanup.sh:148 ac=scope n n n n: when the PR URL is outside IronbellyOrg/IronClaude, step 5 prints the refusal and counts it (exit 5, step 7 refused) but its own line still reads STEP 5 OK.
+A1 r1-2 F8.4 note .dev/issues/442/scripts/cleanup-selftest.sh:101 ac=T8.AC5 n n n n: the gh pin check compares the pinned count with the fixed number 5 and with the total gh call count (also 5), so an extra unpinned call would change the total and fail the other check.
+A1 r1-1 F8.5 note .dev/issues/442/scripts/cleanup.sh:40 ac=scope n n n n: the stub pgrep does not log, so "pgrep first" in step 1 is shown only by the code, not by the call order.

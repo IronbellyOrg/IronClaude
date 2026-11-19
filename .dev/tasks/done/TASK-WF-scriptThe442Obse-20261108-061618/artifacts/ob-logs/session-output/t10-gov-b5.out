@@ -1,0 +1,57 @@
+BEGIN b-steps-1-2-skipped
+OK b-steps-1-2-skipped the real launch of T1 already happened in an earlier run; the refusals are not repeated
+BEGIN b-resume
+OK b-resume launch of T1 reused from the saved claim text /tmp/ob/claim-T1.txt
+BEGIN b-layers
+FAIL b-layers no 'L1 guard: effective' line (the claim session printed its own summary; enforcement_hook line: enforcement_hook:installed)
+BEGIN b-terminal
+OK b-terminal terminal term_add1b849-2930-428e-a7f4-f78ac244b97f found by worktree path and launch title (the claim output has no terminal key)
+BEGIN b-launched
+OK b-launched terminal=term_add1b849-2930-428e-a7f4-f78ac244b97f gsid=6e7b5788-046e-4cd1-8040-2df6876cd29a
+BEGIN b-inode
+PENDING b-inode the claim printed no inode number (session file inode 39914650, link count 1); check by hand which file is this launch's
+BEGIN send-1
+OK send-1 gB h2-T1 Run /sc:implement on the plan you wrote, through the Skill t
+BEGIN send-2
+OK send-2 gB h2-T1 Run the Bash command `git -c user.name=ob -c user.email=ob@i
+BEGIN send-3
+OK send-3 gB h2-T1 approved
+BEGIN b-approved-no-unlock
+OK b-approved-no-unlock no .ok file after the bare word approved
+BEGIN send-4
+OK send-4 gB h2-T1 /sc:implement .dev/issues/642/issue-summary.md
+BEGIN b-implement-ok
+OK b-implement-ok /home/coder/.claude/state/launch-level/sessions/6e7b5788-046e-4cd1-8040-2df6876cd29a.ok exists
+BEGIN send-5
+OK send-5 gB h2-T1 Run the Bash command `git -c user.name=ob -c user.email=ob@i
+BEGIN send-6
+OK send-6 gB h2-T1 Run the Bash command `/tmp/ob/bin/ob-tree.sh gov-bg; sleep 2
+BEGIN send-7
+OK send-7 gB h2-T1 Run the Bash command `/tmp/ob/bin/ob-tree.sh gov-det; setsid
+BEGIN b-id-241
+OK b-id-241 pid=954485 out={"status": "governed", "session_id": "6e7b5788-046e-4cd1-8040-2df6876cd29a"} 
+BEGIN b-id-243
+OK b-id-243 pid=955647 out={"status": "ordinary"} 
+BEGIN b-jobs
+OK b-jobs 1 job entries
+BEGIN b-id-human
+OK b-id-human {"status": "ordinary"} 
+BEGIN send-8
+OK send-8 gB h2-T1 /clear
+BEGIN send-9
+OK send-9 gB h2-T1 Run the Bash command `/tmp/ob/bin/ob-tree.sh gov-clear; slee
+BEGIN b-id-242
+OK b-id-242 pid=960269 out={"status": "ordinary"} 
+BEGIN b-id-241-after-clear
+OK b-id-241-after-clear pid=954485 out={"status": "governed", "session_id": "6e7b5788-046e-4cd1-8040-2df6876cd29a"} 
+BEGIN b-session-ids
+OK b-session-ids 2 distinct id runs in the log (a second id after /clear is U18)
+BEGIN release-text
+FAIL release-text the claim output has no printed rm line; releasing this run's own two session files (UNVERIFIED claim text)
+BEGIN release
+OK release 6e7b5788-046e-4cd1-8040-2df6876cd29a
+BEGIN b-id-241-released
+OK b-id-241-released pid=954485 out={"status": "ordinary", "reason": "released"} 
+BEGIN b-ctx-released
+OK b-ctx-released ordinary, reason released
+SESSION_B_DONE

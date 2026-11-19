@@ -1,0 +1,153 @@
+BEGIN b-backup
+OK b-backup /tmp/ob/t1-local.json
+BEGIN b-pending-before
+OK b-pending-before 0
+BEGIN b-backup
+OK b-backup /tmp/ob/t1-local.json
+BEGIN b-pending-before
+OK b-pending-before 0
+BEGIN send-1
+OK send-1 claim claim /sc:issue --claim 642 --pipeline worktree
+BEGIN b-badjson-claim
+FAIL b-badjson-claim status=failed screen=/tmp/ob/screens/claim-184902-2439.json
+BEGIN b-badjson-pending
+OK b-badjson-pending count 0
+BEGIN b-badjson-no-mirror
+OK b-badjson-no-mirror /home/coder/workspaces/IronClaude/.git/worktrees/issue-642/sc-issue-launch-642.json absent
+BEGIN b-badjson-no-record
+OK b-badjson-no-record "none"
+BEGIN send-2
+OK send-2 claim claim /sc:issue --claim 642 --pipeline worktree
+BEGIN b-nohooks-claim
+FAIL b-nohooks-claim status=failed screen=/tmp/ob/screens/claim-185631-2540.json
+BEGIN b-nohooks-pending
+OK b-nohooks-pending count 0
+BEGIN b-nohooks-no-mirror
+OK b-nohooks-no-mirror /home/coder/workspaces/IronClaude/.git/worktrees/issue-642/sc-issue-launch-642.json absent
+BEGIN b-nohooks-no-record
+OK b-nohooks-no-record "none"
+BEGIN b-restore
+OK b-restore byte-equal to the backup
+BEGIN send-3
+OK send-3 claim claim /sc:issue --claim 642 --pipeline worktree
+BEGIN b-layers
+FAIL b-layers no 'L1 guard: effective' line
+PENDING reason=terminal-handle-missing screen=/tmp/ob/screens/claim-185936-2591.json (full record in /home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/.dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/artifacts/t10-run-log.md)
+BEGIN b-steps-1-2-skipped
+OK b-steps-1-2-skipped the real launch of T1 already happened in an earlier run; the refusals are not repeated
+BEGIN b-resume
+OK b-resume launch of T1 reused from the saved claim text /tmp/ob/claim-T1.txt
+BEGIN b-layers
+FAIL b-layers no 'L1 guard: effective' line (the claim session printed its own summary; enforcement_hook line: enforcement_hook:installed)
+BEGIN b-terminal
+OK b-terminal terminal term_add1b849-2930-428e-a7f4-f78ac244b97f found by worktree path and launch title (the claim output has no terminal key)
+BEGIN b-launched
+OK b-launched terminal=term_add1b849-2930-428e-a7f4-f78ac244b97f gsid=6e7b5788-046e-4cd1-8040-2df6876cd29a
+BEGIN b-inode
+PENDING b-inode the claim printed no inode number (session file inode 39914650, link count 1); check by hand which file is this launch's
+BEGIN send-1
+OK send-1 gB h2-T1 Run /sc:implement on the plan you wrote, through the Skill t
+BEGIN send-2
+OK send-2 gB h2-T1 Run the Bash command `git -c user.name=ob -c user.email=ob@i
+BEGIN send-3
+OK send-3 gB h2-T1 approved
+BEGIN b-approved-no-unlock
+OK b-approved-no-unlock no .ok file after the bare word approved
+BEGIN send-4
+OK send-4 gB h2-T1 /sc:implement .dev/issues/642/issue-summary.md
+BEGIN b-implement-ok
+OK b-implement-ok /home/coder/.claude/state/launch-level/sessions/6e7b5788-046e-4cd1-8040-2df6876cd29a.ok exists
+BEGIN send-5
+OK send-5 gB h2-T1 Run the Bash command `git -c user.name=ob -c user.email=ob@i
+BEGIN send-6
+OK send-6 gB h2-T1 Run the Bash command `/tmp/ob/bin/ob-tree.sh gov-bg; sleep 2
+BEGIN send-7
+OK send-7 gB h2-T1 Run the Bash command `/tmp/ob/bin/ob-tree.sh gov-det; setsid
+BEGIN b-id-241
+OK b-id-241 pid=954485 out={"status": "governed", "session_id": "6e7b5788-046e-4cd1-8040-2df6876cd29a"} 
+BEGIN b-id-243
+OK b-id-243 pid=955647 out={"status": "ordinary"} 
+BEGIN b-jobs
+OK b-jobs 1 job entries
+BEGIN b-id-human
+OK b-id-human {"status": "ordinary"} 
+BEGIN send-8
+OK send-8 gB h2-T1 /clear
+BEGIN send-9
+OK send-9 gB h2-T1 Run the Bash command `/tmp/ob/bin/ob-tree.sh gov-clear; slee
+BEGIN b-id-242
+OK b-id-242 pid=960269 out={"status": "ordinary"} 
+BEGIN b-id-241-after-clear
+OK b-id-241-after-clear pid=954485 out={"status": "governed", "session_id": "6e7b5788-046e-4cd1-8040-2df6876cd29a"} 
+BEGIN b-session-ids
+OK b-session-ids 2 distinct id runs in the log (a second id after /clear is U18)
+BEGIN release-text
+FAIL release-text the claim output has no printed rm line; releasing this run's own two session files (UNVERIFIED claim text)
+BEGIN release
+OK release 6e7b5788-046e-4cd1-8040-2df6876cd29a
+BEGIN b-id-241-released
+OK b-id-241-released pid=954485 out={"status": "ordinary", "reason": "released"} 
+BEGIN b-ctx-released
+OK b-ctx-released ordinary, reason released
+BEGIN send-1
+OK send-1 claim claim /sc:issue --claim 643 --pipeline worktree
+BEGIN c-layers
+FAIL c-layers no 'L1 guard: effective' line (the claim session printed its own summary; enforcement_hook line: enforcement_hook:installed)
+BEGIN c-terminal
+OK c-terminal terminal term_565ab447-a65c-42d4-8328-c1c71c6941af found by worktree path and launch title (the claim output has no terminal key)
+BEGIN c-launched
+OK c-launched terminal=term_565ab447-a65c-42d4-8328-c1c71c6941af gsid=081730f1-a4b8-4e44-8983-934daa257683
+BEGIN send-2
+OK send-2 gC h2-T2 /sc:implement .dev/issues/643/issue-summary.md
+BEGIN c-implement-ok
+OK c-implement-ok /home/coder/.claude/state/launch-level/sessions/081730f1-a4b8-4e44-8983-934daa257683.ok exists
+BEGIN send-3
+OK send-3 gC h2-T2 Run the Bash command `git -c user.name=ob -c user.email=ob@i
+BEGIN release-text
+FAIL release-text the claim output has no printed rm line; releasing this run's own two session files (UNVERIFIED claim text)
+BEGIN release
+OK release 081730f1-a4b8-4e44-8983-934daa257683
+BEGIN send-1
+OK send-1 claim claim /sc:issue --claim 644 --pipeline full
+BEGIN d-layers
+FAIL d-layers no 'L1 guard: effective' line (the claim session printed its own summary; enforcement_hook line: enforcement_hook:installed)
+BEGIN d-terminal
+OK d-terminal terminal term_32dd6189-60f6-418c-8f7a-2e1d1b2a79b5 found by worktree path and launch title (the claim output has no terminal key)
+BEGIN d-launched
+OK d-launched terminal=term_32dd6189-60f6-418c-8f7a-2e1d1b2a79b5 gsid=dfd3e9ed-53cb-4591-8208-426a4e46eec1
+BEGIN d-final-status
+OK d-final-status agent ended with git status --short
+BEGIN send-2
+OK send-2 gD h2-T3 Run the Bash command `git -c user.name=ob -c user.email=ob@i
+BEGIN release-text
+FAIL release-text the claim output has no printed rm line; releasing this run's own two session files (UNVERIFIED claim text)
+BEGIN release
+OK release dfd3e9ed-53cb-4591-8208-426a4e46eec1
+BEGIN send-1
+OK send-1 claim claim /sc:issue --claim 645 --pipeline full --submit
+BEGIN e-layers
+FAIL e-layers no 'L1 guard: effective' line (the claim session printed its own summary; enforcement_hook line: enforcement_hook:installed)
+BEGIN e-terminal
+OK e-terminal terminal term_0af0b8c0-69f7-4267-87d7-977921e8be36 found by worktree path and launch title (the claim output has no terminal key)
+BEGIN e-launched
+OK e-launched terminal=term_0af0b8c0-69f7-4267-87d7-977921e8be36 gsid=330bacbc-9893-47ca-9fbb-ee9ed36058cb
+BEGIN e-pr-url
+OK e-pr-url https://github.com/IronbellyOrg/IronClaude/pull/654
+BEGIN e-o10
+OK e-o10 edit on ironbelly/issue-645 via the contents API; stand-in for the web UI edit, and whether /sc:pr-submit reacts the same way is UNVERIFIED
+BEGIN e-cycle
+OK e-cycle a Stop follows the last pr-submit line (heuristic, UNVERIFIED)
+BEGIN e-push-url
+OK e-push-url /tmp/ob/bare-push.git
+BEGIN e-main-push-url
+OK e-main-push-url https://github.com/IronbellyOrg/IronClaude
+BEGIN send-2
+OK send-2 gE h2-T4 Run exactly this Bash command and nothing else: `git push or
+BEGIN send-3
+OK send-3 gE h2-T4 Run exactly this Bash command and nothing else: `git merge o
+BEGIN e-versions
+OK e-versions claude=2.1.327 (Claude Code) orca=1.4.245-aidev02.9cfecdd30b2a sha=0bfe7eb9273825c4ad16be33478d83cb27f7c1dfb6f740c814ed70236854e00d  /home/coder/.claude/settings.json 3f1c5da85c1b3b78680bff1dea2fa9dd5cef3571d89f5f6847667fda27988b8d  /home/coder/.claude/hooks/launch-level-guard.sh 
+BEGIN release-text
+FAIL release-text the claim output has no printed rm line; releasing this run's own two session files (UNVERIFIED claim text)
+BEGIN release
+OK release 330bacbc-9893-47ca-9fbb-ee9ed36058cb

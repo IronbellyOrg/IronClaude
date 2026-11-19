@@ -1,0 +1,7 @@
+MOVED ./artifacts/t5-selftest.txt -> .dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/artifacts/retries/T5/artifacts-2/t5-selftest.txt
+SWEEP refs/superclaude/implement/TASK-WF-scriptThe442Obse-20261108-061618/retry/T5/sweep-2-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+RESTORED .dev/issues/442/scripts/selftest.sh
+DELETED .dev/issues/442/scripts/setup-github-selftest.sh
+DELETED .dev/issues/442/scripts/setup-github.sh
+DONE
