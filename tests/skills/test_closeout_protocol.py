@@ -1046,3 +1046,481 @@ def test_truth_never_prints_a_secret(scratch: Scratch) -> None:
     out = scratch.run(BRANCH_LANDED, "59")
     for canary in ("canary-gh-token-0001", "canary-clickup-token-0002"):
         assert canary not in out.stdout and canary not in out.stderr
+
+
+# ---------------------------------------------------------------------------
+# settle.sh: a shared world for the issue, evidence and verdict tests
+# ---------------------------------------------------------------------------
+
+MERGE_SHA = "abcdef0123456789abcdef0123456789abcdef01"
+ISSUE_N = 12
+PR_N = 34
+TITLE = "Distinctive Title Text"
+OLD = "2026-11-19T09:00:00Z"
+WRITE_VERBS = (
+    ("issue", "comment"),
+    ("issue", "close"),
+    ("issue", "edit"),
+    ("issue", "reopen"),
+)
+
+DEFAULT_CHECKED = [
+    "- [issue_body] #12 | The issue lists one done criterion.",
+    "- [issue_comments] #12 | No comment changes the criteria.",
+    "- [target_pr] PR #34 | Merged and changes a.py and b.py.",
+    "- [other_pr] none found | No other pull request names the issue.",
+]
+DEFAULT_CRITERIA = ["- [done_when] The widget works | delivered | PR #34: a.py, b.py"]
+PARTLY_CRITERIA = [
+    "- [done_when] The widget works | delivered | PR #34: a.py",
+    "- [acceptance] The widget is documented | partly | PR #34: b.py",
+]
+
+
+def comment(
+    body: str, login: str = "maint", assoc: str = "MEMBER", at: str = OLD
+) -> dict:
+    return {
+        "body": body,
+        "author": {"login": login} if login else None,
+        "authorAssociation": assoc,
+        "createdAt": at,
+    }
+
+
+def make_world(
+    s: Scratch,
+    *,
+    body: str = "Fixes #12",
+    closing: bool = True,
+    files: tuple[str, ...] = ("a.py", "b.py"),
+    title: str = TITLE,
+    state: str = "OPEN",
+    comments: list[dict] | None = None,
+    timeline: list[dict] | None = None,
+    by: str | None = "octo",
+) -> None:
+    s.add_pr(
+        PR_N,
+        merge=MERGE_SHA,
+        head="f" * 40,
+        by=by,
+        files=list(files),
+        title=title,
+        body=body,
+        closing=[(REPO_SLUG, ISSUE_N)] if closing else None,
+    )
+    s.state["issues"][str(ISSUE_N)] = {
+        "state": state,
+        "stateReason": "COMPLETED" if state == "CLOSED" else "",
+        "title": "Widget issue",
+        "body": "## Done when\n- The widget works",
+        "comments": comments or [],
+        "timeline": timeline or [],
+    }
+    s.state["users"]["octo"] = "Octo Cat"
+    s.state["pr_search"] = [
+        {
+            "number": PR_N,
+            "state": "MERGED",
+            "mergedAt": "2026-11-19T12:00:00Z",
+            "baseRefName": "main",
+        }
+    ]
+    s.save_state()
+
+
+def verdict_text(
+    word: str = "done",
+    *,
+    issue: str = f"{REPO_SLUG}#{ISSUE_N}",
+    pr: str = str(PR_N),
+    checked: list[str] | None = None,
+    criteria: list[str] | None = None,
+    reason: str | None = "The change delivers the whole list.",
+    unsettled: str | None = None,
+    question: str | None = None,
+) -> str:
+    lines = [f"verdict: {word}", f"issue: {issue}", f"pr: {pr}"]
+    if checked is not None or word:
+        lines.append("checked:")
+        lines.extend(DEFAULT_CHECKED if checked is None else checked)
+    lines.append("criteria:")
+    lines.extend(DEFAULT_CRITERIA if criteria is None else criteria)
+    if unsettled is not None:
+        lines.append(f"unsettled: {unsettled}")
+    if question is not None:
+        lines.append(f"question: {question}")
+    if reason is not None:
+        lines.append(f"reason: {reason}")
+    return "\n".join(lines) + "\n"
+
+
+def get_evidence(s: Scratch, *extra: str) -> Path:
+    res = s.run(SETTLE, "evidence", str(PR_N), "--issue", str(ISSUE_N), *extra)
+    assert res.code == 0, (res.stdout, res.stderr)
+    return Path(fields(res.line)["dir"])
+
+
+def write_verdict(directory: Path, text: str) -> Path:
+    path = directory / "done-verdict.md"
+    path.write_text(text, encoding="utf-8")
+    return path
+
+
+def run_issue(
+    s: Scratch,
+    *args: str,
+    verdict: Path | None = None,
+    directory: Path | None = None,
+    what: str | None = None,
+) -> Result:
+    argv = [str(PR_N), *args]
+    if verdict is not None:
+        argv += ["--verdict", str(verdict)]
+    if directory is not None:
+        argv += ["--dir", str(directory)]
+    if what is not None:
+        argv += ["--what", what]
+    return s.run(SETTLE, "issue", *argv)
+
+
+def issue_with_verdict(
+    s: Scratch, text: str, *args: str, what: str | None = None
+) -> Result:
+    """The two-step flow of the skill: the real evidence step, then the verdict."""
+    directory = get_evidence(s)
+    path = write_verdict(directory, text)
+    return run_issue(s, *args, verdict=path, directory=directory, what=what)
+
+
+def writes(s: Scratch) -> list[list[str]]:
+    return [c for c in s.gh_calls() if tuple(c[:2]) in WRITE_VERBS]
+
+
+def comments_of(s: Scratch) -> list[dict]:
+    return s.load_state()["issues"][str(ISSUE_N)]["comments"]
+
+
+def deny_names() -> list[str]:
+    names = []
+    for raw in DENY_NAMES.read_text(encoding="utf-8").splitlines():
+        text = raw.strip()
+        if text and not text.startswith("#"):
+            names.append(text)
+    return names
+
+
+# ---------------------------------------------------------------------------
+# settle.sh: the source scan
+# ---------------------------------------------------------------------------
+
+
+def test_settle_script_source_scan() -> None:
+    text = SETTLE.read_text(encoding="utf-8")
+    for word in FORBIDDEN_IN_SCRIPT:
+        assert word not in text, word
+    for word in (
+        "worker-release",
+        "worker-stop",
+        "worker-abandon",
+        "orchestration send",
+        "gh pr merge",
+        "git push",
+        "git commit",
+        "git add",
+        "gh issue reopen",
+        "gh issue edit",
+        "gh api -X",
+        "--method",
+    ):
+        assert word not in text, word
+    assert EM_DASH not in text and EN_DASH not in text
+    assert "/home/" not in text and "/Users/" not in text
+    assert "src/superclaude" not in text
+    assert os.access(SETTLE, os.X_OK)
+    for line in text.splitlines():
+        if re.search(r"\borca\b", line) and "orchestration" in line:
+            assert " --pr" not in line and " --issue" not in line, line
+    # orca is called from settle.sh only.
+    assert "orca " not in BRANCH_LANDED.read_text(encoding="utf-8")
+    for gh_line in re.findall(r"gh (?:issue|pr) [^\n]*", text):
+        if gh_line.lstrip().startswith("#"):
+            continue
+        assert "--repo" in gh_line or "gh issue comment" in gh_line, gh_line
+
+
+# ---------------------------------------------------------------------------
+# Issue handling (test plan row 3)
+# ---------------------------------------------------------------------------
+
+
+def test_issue_closed_is_already_final_and_never_closed_twice(scratch: Scratch) -> None:
+    make_world(scratch, state="CLOSED")
+    res = run_issue(scratch)
+    got = _expect_line(
+        res, "ISSUE", 0, n="12", links="closing", how="already_closed", note="none"
+    )
+    assert got["reason"] == "COMPLETED"
+    assert res.line.split()[1] == "already_final"
+    assert writes(scratch) == []
+    _check_gh_calls_name_the_origin_repo(scratch.gh_calls())
+
+
+def test_issue_open_with_a_done_verdict_comments_then_closes(scratch: Scratch) -> None:
+    make_world(scratch)
+    res = issue_with_verdict(scratch, verdict_text(), what="Adds the widget files.")
+    _expect_line(res, "ISSUE", 0, how="closed_now", note="posted", links="closing")
+    assert res.line.split()[1] == "settled"
+    calls = scratch.gh_calls()
+    kinds = [tuple(c[:2]) for c in calls]
+    wr = writes(scratch)
+    assert [tuple(c[:2]) for c in wr] == [("issue", "comment"), ("issue", "close")]
+    comment_args, close_args = wr
+    assert comment_args[:5] == ["issue", "comment", "12", "--repo", REPO_SLUG]
+    assert close_args == [
+        "issue",
+        "close",
+        "12",
+        "--repo",
+        REPO_SLUG,
+        "--reason",
+        "completed",
+    ]
+    assert "--comment" not in close_args
+    body = comment_args[comment_args.index("--body") + 1]
+    assert "Octo Cat" in body and "#34" in body and "abcdef0" in body
+    assert "Adds the widget files." in body
+    assert body.rstrip().splitlines()[-1] == DONE_MARKER.format(pr=34)
+    assert "Status: completed (merged)." in body
+    assert "deployed" not in body.lower()
+    # Each write is preceded by a state read (the note also by the marker read).
+    i_comment = kinds.index(("issue", "comment"))
+    i_close = kinds.index(("issue", "close"))
+    assert ("issue", "view") in kinds[:i_comment]
+    assert ("issue", "view") in kinds[i_comment:i_close]
+    assert ("issue", "view") in kinds[i_close:]
+    assert len(comments_of(scratch)) == 1
+    assert scratch.load_state()["issues"]["12"]["state"] == "CLOSED"
+
+
+@pytest.mark.parametrize(
+    ("kind", "body", "closing", "extra"),
+    [
+        ("closing", "Fixes #12", True, []),
+        ("closing", "Closes #12", False, []),
+        ("refs", "Refs #12", False, []),
+        ("refs", "Part of the work, see #12", False, []),
+        ("none", "", False, ["--issue", "12"]),
+    ],
+)
+def test_issue_links_are_read_as_data(
+    scratch: Scratch, kind: str, body: str, closing: bool, extra: list[str]
+) -> None:
+    make_world(scratch, body=body, closing=closing)
+    res = run_issue(scratch, *extra)
+    got = _expect_line(res, "ISSUE", 1, why="no_verdict", n="12")
+    assert got["links"] == kind
+    assert writes(scratch) == []
+
+
+def test_issue_no_issue_several_issues_and_the_pull_requests_own_number(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch, body="", closing=False)
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="no_issue_named", note="none")
+    assert "n" not in fields(res.line)
+    # The pull request's own number is dropped without a call.
+    scratch.load_state()
+    scratch.state["prs"]["34"]["body"] = "Refs #34"
+    scratch.save_state()
+    scratch.clear_calls()
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="no_issue_named")
+    assert not [c for c in scratch.gh_calls() if c[:1] == ["api"]]
+    res = run_issue(scratch, "--issue", "34")
+    _expect_line(res, "ISSUE", 1, why="not_an_issue")
+    # Two same-repository issues.
+    scratch.load_state()
+    scratch.state["prs"]["34"]["body"] = "Fixes #12 and Refs #13"
+    for n in ("12", "13"):
+        scratch.state["issues"][n] = {
+            "state": "OPEN",
+            "stateReason": "",
+            "comments": [],
+            "timeline": [],
+        }
+    scratch.save_state()
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="several_issues")
+    assert writes(scratch) == []
+
+
+def test_issue_filters_the_repository_and_issue_versus_pull_request(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch, body="", closing=False)
+    state = scratch.load_state()
+    # A closing row of another repository is ignored (so is the body that follows).
+    state["prs"]["34"]["closingIssuesReferences"] = [
+        {
+            "number": 5,
+            "repository": {"name": "other-repo", "owner": {"login": "other-org"}},
+        }
+    ]
+    state["prs"]["34"]["body"] = "Closes other-org/other-repo#5"
+    scratch.save_state()
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="no_issue_named")
+    assert not [c for c in scratch.gh_calls() if c[:1] == ["api"]]
+    # A bare number whose object has a pull_request key is dropped.
+    state = scratch.load_state()
+    state["prs"]["34"]["body"] = "Refs #40"
+    state["pulls"] = ["40"]
+    scratch.save_state()
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="no_issue_named")
+    # A bare number whose object has no such key is the issue.
+    state = scratch.load_state()
+    state["prs"]["34"]["body"] = "Refs #12"
+    scratch.save_state()
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="no_verdict", n="12", links="refs")
+    # --issue with a pull request number.
+    res = run_issue(scratch, "--issue", "40")
+    _expect_line(res, "ISSUE", 1, why="not_an_issue")
+    # A failed read of the object.
+    state = scratch.load_state()
+    state["rules"] = [{"match": "api repos/acme/widgets/issues/12", "exit": 1}]
+    scratch.save_state()
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="issue_lookup_failed")
+    # One same-repository and one other-repository issue: the same-repository one.
+    state = scratch.load_state()
+    state["rules"] = []
+    state["prs"]["34"]["body"] = "Fixes other-org/other-repo#9 and Refs #12"
+    scratch.save_state()
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="no_verdict", n="12")
+    assert writes(scratch) == []
+
+
+def test_issue_second_run_on_a_closed_issue_writes_nothing(scratch: Scratch) -> None:
+    make_world(scratch)
+    first = issue_with_verdict(scratch, verdict_text())
+    _expect_line(first, "ISSUE", 0, how="closed_now")
+    scratch.clear_calls()
+    second = run_issue(scratch)
+    _expect_line(second, "ISSUE", 0, how="already_closed", note="none")
+    assert writes(scratch) == []
+
+
+@pytest.mark.parametrize("variant", ["close_fails", "close_noop"])
+def test_issue_failed_close_rerun_posts_no_second_note(
+    scratch: Scratch, variant: str
+) -> None:
+    make_world(scratch)
+    state = scratch.load_state()
+    state[variant] = True
+    scratch.save_state()
+    first = issue_with_verdict(scratch, verdict_text())
+    _expect_line(first, "ISSUE", 1, why="close_failed", note="posted")
+    assert [tuple(c[:2]) for c in writes(scratch)] == [
+        ("issue", "comment"),
+        ("issue", "close"),
+    ]
+    state = scratch.load_state()
+    state[variant] = False
+    scratch.save_state()
+    scratch.clear_calls()
+    second = run_issue(scratch)
+    _expect_line(second, "ISSUE", 0, how="closed_now", note="already_there")
+    assert [tuple(c[:2]) for c in writes(scratch)] == [("issue", "close")]
+    assert len(comments_of(scratch)) == 1
+
+
+def test_issue_refused_post_is_note_failed_and_never_closes(scratch: Scratch) -> None:
+    make_world(scratch)
+    state = scratch.load_state()
+    state["refuse_comment"] = True
+    scratch.save_state()
+    res = issue_with_verdict(scratch, verdict_text())
+    _expect_line(res, "ISSUE", 1, why="note_failed", note="none")
+    assert [tuple(c[:2]) for c in writes(scratch)] == [("issue", "comment")]
+
+
+def test_issue_post_accepted_but_marker_not_read_back_is_note_failed(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch)
+    state = scratch.load_state()
+    state["comment_not_stored"] = True
+    scratch.save_state()
+    res = issue_with_verdict(scratch, verdict_text())
+    _expect_line(res, "ISSUE", 1, why="note_failed")
+    assert ("issue", "close") not in [tuple(c[:2]) for c in writes(scratch)]
+
+
+def test_issue_closed_by_someone_between_the_read_and_the_guard(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch)
+    state = scratch.load_state()
+    state["rules"] = [
+        {
+            "match": "issue comment 12",
+            "when": "after",
+            "effect": {"close": "12"},
+        }
+    ]
+    scratch.save_state()
+    res = issue_with_verdict(scratch, verdict_text())
+    _expect_line(res, "ISSUE", 0, how="already_closed", note="posted")
+    assert res.line.split()[1] == "already_final"
+    assert ("issue", "close") not in [tuple(c[:2]) for c in writes(scratch)]
+
+
+def test_issue_marker_for_another_pull_request_does_not_count(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch, comments=[comment(DONE_MARKER.format(pr=35))])
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="no_verdict", note="none")
+    make_world(scratch, comments=[comment(NOT_DONE_MARKER.format(pr=34))])
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="no_verdict", note="none")
+    assert writes(scratch) == []
+
+
+def test_issue_note_value_of_each_case(scratch: Scratch) -> None:
+    # (a) closed: none; (b) closed now: posted; (f) rerun: posted then already_there;
+    # (h) closed in between: posted; (g) refused: none; (d) no issue: none.
+    make_world(scratch, state="CLOSED")
+    assert fields(run_issue(scratch).line)["note"] == "none"
+    make_world(scratch)
+    assert fields(issue_with_verdict(scratch, verdict_text()).line)["note"] == "posted"
+    make_world(scratch)
+    state = scratch.load_state()
+    state["close_fails"] = True
+    scratch.save_state()
+    assert fields(issue_with_verdict(scratch, verdict_text()).line)["note"] == "posted"
+    state = scratch.load_state()
+    state["close_fails"] = False
+    scratch.save_state()
+    assert fields(run_issue(scratch).line)["note"] == "already_there"
+    make_world(scratch, body="", closing=False)
+    assert fields(run_issue(scratch).line)["note"] == "none"
+
+
+def test_issue_match_differs_wins_over_a_done_verdict(scratch: Scratch) -> None:
+    make_world(scratch)
+    directory = get_evidence(scratch)
+    path = write_verdict(directory, verdict_text())
+    scratch.clear_calls()
+    res = run_issue(scratch, "--match", "differs", verdict=path, directory=directory)
+    _expect_line(res, "ISSUE", 1, why="merge_differs")
+    assert scratch.gh_calls() == []
+    res = run_issue(scratch, "--issue", "12", "--match", "differs")
+    _expect_line(res, "ISSUE", 1, why="merge_differs", n="12")
+    assert scratch.gh_calls() == []
