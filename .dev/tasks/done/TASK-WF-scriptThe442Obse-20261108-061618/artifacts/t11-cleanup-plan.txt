@@ -1,0 +1,36 @@
+CLEANUP plan only: nothing is deleted (run with --apply)
+  running: none
+  WOULD command timeout 60 pkill -xf sleep 241
+  WOULD command timeout 60 pkill -xf sleep 242
+  WOULD command timeout 60 pkill -xf sleep 243
+STEP 1 OK sleep 241, 242 and 243 stopped if running (plan only, nothing done)
+  sessions diff:
+  (none)
+  pending diff:
+  (none)
+  jobs and requests (listed, never removed): /home/coder/.claude/state/launch-level/jobs:  /home/coder/.claude/state/launch-level/requests: 
+STEP 2 OK nothing to remove (plan only, nothing done)
+STEP 3 OK worktreeConfigPre=unset: the key and the push URL are undone (plan only, nothing done)
+  WOULD orca worktree rm --worktree path:/home/coder/workspaces/worktrees/IronClaude/issue-642
+  WOULD orca worktree rm --worktree path:/home/coder/workspaces/worktrees/IronClaude/issue-643
+  WOULD orca worktree rm --worktree path:/home/coder/workspaces/worktrees/IronClaude/issue-644
+  WOULD orca worktree rm --worktree path:/home/coder/workspaces/worktrees/IronClaude/issue-645
+STEP 4 OK worktrees handled (plan only, nothing done)
+  WOULD gh_fork pr close 654 --delete-branch
+  WOULD gh_fork issue close 642 --reason not planned
+  WOULD gh_fork issue close 643 --reason not planned
+  WOULD gh_fork issue close 644 --reason not planned
+  WOULD gh_fork issue close 645 --reason not planned
+  note: the other claim branches may remain locally; list them with git branch --list (not deleted here)
+STEP 5 OK pull request and issues handled (plan only, nothing done)
+  left in place for the owner: /home/coder/workspaces/IronClaude/.dev/issues/642 /home/coder/workspaces/IronClaude/.dev/issues/643 /home/coder/workspaces/IronClaude/.dev/issues/644 /home/coder/workspaces/IronClaude/.dev/issues/645
+  L2 hook file /home/coder/workspaces/IronClaude/.git/hooks/pre-push: present now; before the run: present
+  L2 hook file /home/coder/workspaces/IronClaude/.git/hooks/pre-push.launch-level: present now; before the run: present
+  the L2 hook files above are not removed here: the owner decides whether to keep them
+STEP 6 OK nothing removed (plan only, nothing done)
+  WOULD diff both store folders again and refuse while a > line remains or /home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/.dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/artifacts/ob-logs is missing
+  WOULD rm -rf -- /tmp/ob
+STEP 7 OK /tmp/ob would be removed once the gate passes (plan only, nothing done)
+  present, not deleted (they belong to the earlier verification worker): none
+STEP 8 OK listed (plan only, nothing done)
+CLEANUP_PLAN_DONE

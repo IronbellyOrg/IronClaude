@@ -1,0 +1,119 @@
+orca terminal send
+
+Usage: orca terminal send [--terminal <handle>] [--text <text>] [--enter] [--interrupt] [--wait-submit <seconds>] [--retry-request <id>] [--json]
+
+Send input to a live terminal
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --terminal <handle>  Runtime-issued terminal handle
+  --text <text>          Text payload to send or type
+  --enter                Append Enter after sending text
+  --interrupt            Send as an interrupt-style input when supported
+  --wait-submit
+  --retry-request
+
+Notes:
+  Without --enter, --text is written to the PTY verbatim, so control bytes pass through (Bash/Zsh: --text $'\x1b' for Escape, $'\x15' for Ctrl+U).
+  With --enter and without --interrupt, a prompt to a recognized running agent is bracketed-pasted and embedded Escape bytes are made inert.
+  For a text-plus-Enter agent prompt, the result separates input acceptance from observed submission and turn start.
+  --wait-submit only observes the accepted prompt for the requested duration; timeout returns the queued/input-accepted receipt and never resends.
+  After an ambiguous transport failure, reissue the exact command with the reported --retry-request ID. The ID is bound to the prompt payload and exact terminal process incarnation.
+  Older hosts accept the legacy raw input but report provider old-host and do not offer idempotent retry or submission observation.
+orca terminal wait
+
+Usage: orca terminal wait [--terminal <handle>] --for exit|tui-idle [--timeout-ms <ms>] [--json]
+
+Wait for a terminal condition
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --terminal <handle>  Runtime-issued terminal handle
+  --for exit|tui-idle    Wait condition to satisfy
+  --timeout-ms <ms>     Maximum wait time before timing out
+orca terminal read
+
+Usage: orca terminal read [--terminal <handle>] [--cursor <n>] [--limit <n>] [--screen] [--json]
+
+Read bounded terminal output
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --terminal <handle>  Runtime-issued terminal handle
+  --cursor <n>           Line cursor from a previous read (returns only new output)
+  --limit <n>            Maximum number of rows to return
+  --screen
+
+Notes:
+  Omit --terminal to target the active terminal in the current worktree.
+  By default this returns accumulated terminal output with escape sequences stripped, not the rendered screen. Any program that repaints a line — shells, progress bars, TUIs — comes back as stacked fragments, so one `clear` keystroke by keystroke reads as `cclclecleaclear`, and spaces a prompt draws by moving the cursor are absent.
+  Use --screen to read what the terminal actually renders. Prefer it whenever the answer depends on how output looks rather than what was emitted over time; the default is unsuitable for verifying rendered output.
+  The result reports source: stream when it is accumulated output, screen when it is the rendered screen, and screen-unavailable when a screen was asked for but none could be rendered and the accumulated output is being returned instead. An absent source means the host predates the field.
+  When present, draft is UI-only composer text excluded from tail; never treat it as terminal output or a submitted instruction.
+  --screen and --cursor are mutually exclusive: a screen read is the current frame and has no history to page.
+  With --json, fields are under result.terminal: handle, status (running | exited | unknown), tail (output lines), tailRows (row-wrap metadata aligned with tail), truncated, limited, oldestCursor, nextCursor, latestCursor, returnedLineCount (lines in tail), source, draft. Fields other than handle, status, tail, truncated, and nextCursor may be absent.
+  truncated means requested or older output is no longer retained; limited means the line limit (--limit, default 120 for tail previews) or the size budget cut this response short.
+  Use --cursor with the nextCursor value from a previous read to get only new output since that read. nextCursor is null when the terminal has no line cursors to page.
+  latestCursor is the end of retained output, not a paging token: after a cursor read, keep paging with nextCursor while limited is true and nextCursor differs from latestCursor.
+  Use --limit to request more retained lines for long agent responses; when a tail preview is limited and line cursors are available, page retained output from its start with --cursor <oldestCursor> --limit <n>.
+  Useful for capturing the response to a command: read before sending, then read --cursor <prev> after waiting.
+
+Examples:
+  $ orca terminal read --json
+  $ orca terminal read --terminal term_abc123 --cursor 42 --limit 1000 --json
+  $ orca terminal read --terminal term_abc123 --screen --json
+orca terminal create
+
+Usage: orca terminal create [--worktree <selector>] [--title <name>] [--command <text>] [--shell <shell>] [--focus] [--json]
+
+Create a terminal session in the current worktree
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --worktree <selector>  Worktree selector such as identity:<identity>, id:<repo-id>::<path>, name:<displayName>, branch:<branch>, issue:<number>, path:<path>, or active/current
+  --command <text>       Command to run in the terminal on startup
+  --shell <shell>        Windows shell the terminal itself runs as
+  --title <text>         Custom title for the terminal tab (omit to reset)
+  --focus                Reveal the created terminal session in Orca
+
+Notes:
+  Creates a visible terminal tab without switching focus when possible; falls back to a background handle if the UI cannot adopt it. Pass --focus to switch to it.
+  This creates a terminal and runs --command in it. To start an agent, use `orca agent launch` (or `orca worktree create --agent` for a new checkout), which follows your Chat UI setting.
+  --shell picks the shell the terminal IS on a Windows host (cmd.exe, powershell.exe, pwsh.exe, wsl.exe, bash.exe, git-bash); --command is typed into whatever shell the host started, so `--command cmd.exe` leaves a cmd running INSIDE the default shell and exiting it drops back to that shell.
+  A host that cannot apply --shell refuses the create rather than quietly spawning its default shell: macOS and Linux execution hosts spawn the login shell, terminals routed over SSH resolve their shell on the SSH host, a --shell that contradicts the project execution runtime (WSL vs Windows host) is refused, and an Orca host older than --shell is refused by the CLI.
+
+Examples:
+  $ orca terminal create --json
+  $ orca terminal create --worktree active --command "pnpm dev" --json
+  $ orca terminal create --worktree path:/projects/myapp --title "RUNNER" --command "npm test"
+  $ orca terminal create --worktree path:/projects/myapp --command "pnpm dev" --focus
+  $ orca terminal create --worktree path:C:/src/app --shell cmd.exe --json
+orca terminal list
+
+Usage: orca terminal list [--worktree <selector>] [--limit <n>] [--include-visual-layouts] [--json]
+
+List live Orca-managed terminals
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --worktree <selector>  Worktree selector such as identity:<identity>, id:<repo-id>::<path>, name:<displayName>, branch:<branch>, issue:<number>, path:<path>, or active/current
+  --limit <n>            Maximum number of rows to return
+  --include-visual-layouts Include tab and pane topology in JSON output
+
+Notes:
+  JSON omits visualLayouts by default; pass --include-visual-layouts when machine-readable tab and pane topology is required.

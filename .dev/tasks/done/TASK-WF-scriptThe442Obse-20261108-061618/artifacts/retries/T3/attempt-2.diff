@@ -1,0 +1,337 @@
+diff --git a/.dev/issues/442/scripts/driver-helpers.sh b/.dev/issues/442/scripts/driver-helpers.sh
+new file mode 100644
+index 000000000..68a11dd25
+--- /dev/null
++++ b/.dev/issues/442/scripts/driver-helpers.sh
+@@ -0,0 +1,66 @@
++#!/usr/bin/env bash
++# driver-helpers.sh — wait logic for driver.sh (plan Task 3). Sourced, not run.
++# wait_turn <name> <handle> <log> <stop_before> <block_before> <secs> <notice>
++
++screen_json_field() {  # screen_json_field <file> — print the rendered screen text
++  # Real shape (orca terminal read --screen --json): lines under result.terminal.tail.
++  command timeout "${OB_TIMEOUT_S:-60}" jq -r '.result.terminal.tail // [] | join("\n")' "$1" 2>/dev/null || true
++}
++
++screen_block_count() {  # screen_block_count <name>: number of Blocked: lines on screen
++  local f
++  f=$(ls -1t "$OB_SCREENS/$1"-*.json 2>/dev/null | head -1)
++  [ -n "$f" ] || { printf '0'; return; }
++  screen_json_field "$f" | grep -c '^Blocked:' || true
++}
++
++wait_turn() {
++  local name=$1 h=$2 log=$3 stop_before=$4 block_before=$5 secs=$6 notice=$7
++  local deadline=$(( $(date +%s) + secs )) f why nl_stop nl_block elapsed_ms
++  while :; do
++    f=$(save_screen "$name")
++    nl_stop=$(grep -c '"hook_event_name":"Stop"' "$log" 2>/dev/null || true)
++    nl_block=$(screen_block_count "$name")
++    if [ "$nl_stop" -gt "$stop_before" ]; then
++      if [ "$notice" -eq 1 ]; then
++        # notice wait: a prompt event after our Stop, then a further Stop
++        if notice_answered "$log" "$stop_before"; then
++          why=stop; break
++        fi
++      else
++        why=stop; break
++      fi
++    fi
++    if [ "$nl_block" -gt "$block_before" ]; then why=blocked; break; fi
++    if needs_input "$f"; then printf 'NEEDS_INPUT %s\n' "$f"; exit 0; fi
++    if command timeout 10 orca terminal wait --terminal "$h" --for tui-idle --timeout-ms 1000 >/dev/null 2>&1; then
++      # idle: re-check Stop once, then accept idle as the end
++      nl_stop=$(grep -c '"hook_event_name":"Stop"' "$log" 2>/dev/null || true)
++      if [ "$nl_stop" -le "$stop_before" ]; then why=idle; break; fi
++    fi
++    [ "$(date +%s)" -ge "$deadline" ] && { why=timeout; break; }
++    command sleep 2
++  done
++  if [ "$why" = timeout ] && [ "$notice" -eq 1 ]; then
++    printf 'TURN_END timeout\nPENDING notice-not-arrived\n'
++    exit 0
++  fi
++  printf 'TURN_END %s\n' "$why"
++}
++
++notice_answered() {  # notice_answered <log> <stop_before>: a <task-notification> prompt strictly between our new Stop and a further Stop
++  local log=$1 stop_before=$2
++  awk -v a=$((stop_before + 1)) '
++    /"hook_event_name":"UserPromptSubmit"/ { prompt = $0 }
++    /"hook_event_name":"Stop"/ { s++; if (s == a) prompt = ""; if (s > a) { exit (seen_notice ? 0 : 1) } }
++    prompt ~ /<task-notification>/ { seen_notice = 1 }' "$log"
++}
++
++needs_input() {  # needs_input <screen-file>: permission dialog or login screen
++  local s
++  s=$(screen_json_field "$1")
++  case "$s" in
++    *"permission"*|*"Permission"*|*"Do you want"*|*"/login"*|*"login"*) return 0 ;;
++  esac
++  return 1
++}
+diff --git a/.dev/issues/442/scripts/driver-selftest.sh b/.dev/issues/442/scripts/driver-selftest.sh
+new file mode 100644
+index 000000000..7ef658438
+--- /dev/null
++++ b/.dev/issues/442/scripts/driver-selftest.sh
+@@ -0,0 +1,109 @@
++#!/usr/bin/env bash
++# driver-selftest.sh — Task 3 cases for driver.sh, run by selftest.sh.
++# The stub orca is a state machine: $OB_STUB_LOG holds screen.txt, idle-on, sent.txt;
++# STUB_STOP_LOG names a log the send appends Stop events to; STUB_NOTICE adds the
++# notice pair (UserPromptSubmit + two more Stops) after the first Stop.
++set -u -o pipefail
++umask 077
++
++here=$(cd -- "$(dirname -- "$0")" && pwd)
++failures=0
++ck() { if [ "$2" = "$3" ]; then printf 'OK %s\n' "$1"; else printf 'FAIL %s got=<%s> want=<%s>\n' "$1" "$2" "$3"; failures=$((failures+1)); fi; }
++lines() { printf '%s\n' "$1" | sed '/^[[:space:]]*$/d' | wc -l; }
++
++T=$(mktemp -d /tmp/ob-driver.XXXXXXXX)
++export OB=$T
++L=$OB_STUB_LOG   # shared stub log dir from selftest.sh
++mkdir -p "$T/logs" "$T/screens"
++: > "$T/state.env"
++
++bash "$here/driver.sh" start s1 path:main 'echo hi' > "$T/o-start" 2>&1
++ck start-out "$(cat "$T/o-start")" "STARTED s1 stub-handle"
++grep -q -- '--worktree path:main --title ob-442-s1' "$L/orca.log" && ck start-flags ok ok || ck start-flags missing ok
++
++# --- send outcome: stop ------------------------------------------------------
++export STUB_STOP_LOG=$T/logs/h1.jsonl; : > "$STUB_STOP_LOG"
++export STUB_STOP=1
++out=$(bash "$here/driver.sh" send s1 'prompt one' h1 30 2>&1)
++ck send-stop "$(printf '%s' "$out" | tail -1)" "TURN_END stop"
++unset STUB_STOP
++
++# --- send outcome: blocked (baseline + increase) ------------------------------
++: > "$L/screen.txt"; : > "$STUB_STOP_LOG"
++export STUB_BLOCK=1
++out=$(bash "$here/driver.sh" send s1 'prompt two' h1 30 2>&1)
++unset STUB_BLOCK
++ck send-blocked-new "$(printf '%s' "$out" | tail -1)" "TURN_END blocked"
++
++# two blocked prompts in a row: first send blocked; screen still holds the old
++# block; second send must NOT end blocked from it (no new block => ends stop/idle/timeout)
++: > "$L/screen.txt"; : > "$STUB_STOP_LOG"
++printf 'Blocked: first\n' > "$L/screen.txt"
++out=$(bash "$here/driver.sh" send s1 'prompt three' h1 5 2>&1)   # no Stop written, no idle => timeout at 5s? no: block counted before send = 1? screen shows 1 line before send
++# screen.txt has 1 Blocked line BEFORE this send => block_before=1; during wait the
++# screen still shows 1 => no increase; no Stop events; wait returns non-idle; deadline 5s
++ck send-blocked-baseline "$(printf '%s' "$out" | tail -1)" "TURN_END timeout"
++
++# --- send outcome: idle -------------------------------------------------------
++: > "$L/screen.txt"; rm -f "$L/idle-on"; : > "$STUB_STOP_LOG"
++touch "$L/idle-on"
++out=$(bash "$here/driver.sh" send s1 'prompt four' h1 30 2>&1)
++ck send-idle "$(printf '%s' "$out" | tail -1)" "TURN_END idle"
++rm -f "$L/idle-on"
++
++# --- send outcome: timeout ----------------------------------------------------
++: > "$L/screen.txt"; : > "$STUB_STOP_LOG"
++out=$(bash "$here/driver.sh" send s1 'prompt five' h1 3 2>&1)
++ck send-timeout "$(printf '%s' "$out" | tail -1)" "TURN_END timeout"
++
++# --- NEEDS_INPUT: permission dialog on screen ---------------------------------
++printf 'Do you want to proceed? (y/n)\n' > "$L/screen.txt"; : > "$STUB_STOP_LOG"
++out=$(bash "$here/driver.sh" send s1 'prompt six' h1 10 2>&1)
++case "$out" in
++  NEEDS_INPUT\ *) ck send-needs-input ok ok ;;
++  *) ck send-needs-input "$out" "NEEDS_INPUT <file>" ;;
++esac
++grep -q -- 'prompt six' "$L/sent.txt" 2>/dev/null && ck needs-input-not-sent sent ok || ck needs-input-not-sent ok ok
++
++# --- marker refusal -----------------------------------------------------------
++if bash "$here/driver.sh" send s1 '[sc-launch:v1:x]' h1 5 >/dev/null 2>&1; then
++  ck marker-refuse called ok
++else
++  if grep -q 'sc-launch' "$L/sent.txt" 2>/dev/null; then ck marker-refuse reached-orca ok; else ck marker-refuse ok ok; fi
++fi
++
++# --- wait-notice: notice arrives and is answered ------------------------------
++: > "$L/screen.txt"; : > "$STUB_STOP_LOG"
++export STUB_STOP=1 STUB_NOTICE=1
++out=$(bash "$here/driver.sh" send s1 'prompt seven' h1 30 wait-notice 2>&1)
++ck wait-notice-answered "$(printf '%s' "$out" | tail -1)" "TURN_END stop"
++unset STUB_NOTICE STUB_STOP
++
++# --- wait-notice: never arrives => PENDING ------------------------------------
++: > "$L/screen.txt"; : > "$STUB_STOP_LOG"
++out=$(bash "$here/driver.sh" send s1 'prompt eight' h1 4 wait-notice 2>&1)
++ck wait-notice-pending "$(printf '%s' "$out" | sed -n '2p')" "PENDING notice-not-arrived"
++
++# --- wait-notice negative: a NON-notice prompt between two Stops must not count --
++: > "$L/screen.txt"
++{ printf '{"hook_event_name":"Stop"}\n'; printf '{"hook_event_name":"UserPromptSubmit","prompt":"just a user typing"}\n'; printf '{"hook_event_name":"Stop"}\n'; } > "$STUB_STOP_LOG"
++out=$(bash "$here/driver.sh" send s1 'prompt nine' h1 4 wait-notice 2>&1)
++ck wait-notice-nonnotice "$(printf '%s' "$out" | sed -n '2p')" "PENDING notice-not-arrived"
++
++# --- answer: logged, marker-refused -------------------------------------------
++mkdir -p "${PKG_ART:-$T/art}"
++export PKG_ART=$T/art
++bash "$here/driver.sh" answer s1 y 'allowed: git status in WT_T1' > /dev/null 2>&1
++ck answer-logged "$(lines "$(cat "$T/art/t10-run-log.md" 2>/dev/null)")" 1
++if bash "$here/driver.sh" answer s1 '[sc-launch:v1:x]' r >/dev/null 2>&1; then ck answer-marker-refuse called ok; else ck answer-marker-refuse ok ok; fi
++ck answer-one-key "$(tail -1 "$L/sent.txt" | grep -o -- '--text y --enter --json')" "--text y --enter --json"
++
++# --- adopt / screen / stop ----------------------------------------------------
++bash "$here/driver.sh" adopt gov1 gov-handle >/dev/null 2>&1
++ck adopt-state "$(OB=$T bash -c "source '$here/lib.sh'; state_get H_gov1")" "gov-handle"
++f=$(bash "$here/driver.sh" screen s1 2>/dev/null | tail -1)
++[ -s "$f" ] && ck screen-saved ok ok || ck screen-saved empty ok
++bash "$here/driver.sh" stop s1 >/dev/null 2>&1
++grep -q -- 'terminal close' "$L/orca.log" && ck stop-called ok ok || ck stop-called missing ok
++
++exit $failures
+diff --git a/.dev/issues/442/scripts/driver.sh b/.dev/issues/442/scripts/driver.sh
+new file mode 100644
+index 000000000..cad8d9ef2
+--- /dev/null
++++ b/.dev/issues/442/scripts/driver.sh
+@@ -0,0 +1,91 @@
++#!/usr/bin/env bash
++# driver.sh — Orca terminal driver for the #442 observation run (plan Task 3).
++# Subcommands: start | send | screen | adopt | answer | stop | list-handles
++set -u -o pipefail
++umask 077
++here=$(cd -- "$(dirname -- "$0")" && pwd)
++# shellcheck source=lib.sh
++source "$here/lib.sh"
++# shellcheck source=driver-helpers.sh
++source "$here/driver-helpers.sh"
++T=${OB_TIMEOUT_S:-60}
++
++usage() { printf 'usage: driver.sh start|send|screen|adopt|answer|stop ...\n' >&2; exit 2; }
++handle_of() { state_get "H_${1:?name}" || { printf 'driver: unknown session %s\n' "$1" >&2; return 1; }; }
++n_saved() { ls -1 "$OB_SCREENS/$1"-*.json 2>/dev/null | wc -l; }
++save_screen() {  # save_screen <name> — capture once to the next screen file
++  local f="$OB_SCREENS/$1-$(date -u +%H%M%S)-$(n_saved "$1").json"
++  command timeout "$T" orca terminal read --terminal "$(handle_of "$1")" --screen --json > "$f" 2>/dev/null || true
++  printf '%s' "$f"
++}
++send_refuse_marker() {  # refuse [sc-launch:v1: prompts (runbook 5.1)
++  case "$1" in
++    '[sc-launch:v1:'*) printf 'driver: refusing marker prompt\n' >&2; return 1 ;;
++  esac
++  return 0
++}
++
++cmd=${1:-}; shift || true
++case "$cmd" in
++  start)
++    [ $# -ge 3 ] || usage
++    name=$1 sel=$2; shift 2; cmdstr=$*
++    out=$(command timeout "$T" orca terminal create --worktree "$sel" --title "ob-442-$name" --command "$cmdstr" --json) \
++      || { printf 'driver: orca terminal create failed\n' >&2; exit 1; }
++    h=$(printf '%s' "$out" | jq -r '.handle // empty')
++    [ -n "$h" ] || { printf 'driver: no handle in create output\n' >&2; exit 1; }
++    state_set "H_$name" "$h"
++    printf 'STARTED %s %s\n' "$name" "$h"
++    ;;
++  send)
++    # send <name> <text> <label> [timeout-s] [wait-notice]
++    [ $# -ge 3 ] || usage
++    name=$1 text=$2 label=$3; shift 3
++    secs=600; notice=0
++    for a in "$@"; do
++      case "$a" in
++        wait-notice) notice=1 ;;
++        ''|*[!0-9]*) : ;;
++        *) secs=$a ;;
++      esac
++    done
++    send_refuse_marker "$text" || exit 1
++    h=$(handle_of "$name") || exit 1
++    log="$OB_LOGS/$label.jsonl"
++    # Pre-send check: a dialog already on screen means the prompt is not sent.
++    pre=$(save_screen "$name")
++    if needs_input "$pre"; then printf 'NEEDS_INPUT %s\n' "$pre"; exit 0; fi
++    stop_before=$(grep -c '"hook_event_name":"Stop"' "$log" 2>/dev/null || true)
++    block_before=$(screen_block_count "$name")
++    command timeout "$((secs + T))" orca terminal send --terminal "$h" --text "$text" --enter --json >/dev/null \
++      || { printf 'driver: orca terminal send failed\n' >&2; exit 1; }
++    wait_turn "$name" "$h" "$log" "$stop_before" "$block_before" "$secs" "$notice"
++    ;;
++  screen)
++    [ $# -ge 1 ] || usage
++    printf '%s\n' "$(save_screen "$1")"
++    ;;
++  adopt)
++    [ $# -ge 2 ] || usage
++    state_set "H_$1" "$2"
++    printf 'ADOPTED %s %s\n' "$1" "$2"
++    ;;
++  answer)
++    # answer <name> <key> <reason>: one keypress, marker-refused, logged
++    [ $# -ge 3 ] || usage
++    name=$1 key=$2; shift 2; reason=$*
++    send_refuse_marker "$key" || exit 1
++    h=$(handle_of "$name") || exit 1
++    command timeout "$T" orca terminal send --terminal "$h" --text "$key" --enter --json >/dev/null \
++      || { printf 'driver: answer send failed\n' >&2; exit 1; }
++    mkdir -p "$PKG_ART"
++    printf '%s %s %s\n' "$(date -u +%FT%TZ)" "$name" "$key $reason" >> "$PKG_ART/t10-run-log.md"
++    printf 'ANSWERED %s\n' "$name"
++    ;;
++  stop)
++    [ $# -ge 1 ] || usage
++    command timeout "$T" orca terminal close --terminal "$(handle_of "$1")" >/dev/null 2>&1 || true
++    printf 'STOPPED %s\n' "$1"
++    ;;
++  *) usage ;;
++esac
+diff --git a/.dev/issues/442/scripts/selftest.sh b/.dev/issues/442/scripts/selftest.sh
+index ae45e56d1..f97f59bdf 100644
+--- a/.dev/issues/442/scripts/selftest.sh
++++ b/.dev/issues/442/scripts/selftest.sh
+@@ -21,13 +21,31 @@ setup_stubs() {
+   mkdir -p "$STUB_DIR/bin"
+   cat > "$STUB_DIR/bin/orca" <<'STUB'
+ #!/usr/bin/env bash
+-printf '%s\n' "$*" >> "${OB_STUB_LOG:-/dev/null}/orca.log"
+-case "$1" in
+-  terminal) case "$2" in
+-    create) printf '{"status":"ok","handle":"stub-handle"}\n' ;;
+-    read)   printf '{"screen":"ok"}\n' ;;
+-    *)      printf '{"status":"ok"}\n' ;;
+-  esac ;;
++L=${OB_STUB_LOG:-/tmp/ob-stub-disabled}
++printf '%s\n' "$*" >> "$L/orca.log"
++case "$1 $2" in
++  'terminal create') printf '{"status":"ok","handle":"stub-handle"}\n' ;;
++  'terminal read')
++    s=$(cat "$L/screen.txt" 2>/dev/null || printf 'ok')
++    # Real shape: lines under result.terminal.tail (see artifacts/t3-orca-help.txt).
++    printf '{"result":{"terminal":{"tail":[%s]}}}\n' "$(printf '%s' "$s" | jq -Rs .)" ;;
++  'terminal send')
++    printf '%s\n' "${*:4}" >> "$L/sent.txt"
++    if [ "${STUB_BLOCK:-0}" = 1 ]; then
++      printf 'Blocked: new block\n' >> "$L/screen.txt" 2>/dev/null || printf 'Blocked: new block\n' > "$L/screen.txt"
++    fi
++    if [ -n "${STUB_STOP_LOG:-}" ] && [ "${STUB_STOP:-0}" = 1 ]; then
++      printf '{"hook_event_name":"Stop"}\n' >> "$STUB_STOP_LOG"
++      if [ "${STUB_NOTICE:-0}" = 1 ]; then
++        printf '{"hook_event_name":"UserPromptSubmit","prompt":"<task-notification>x"}\n' >> "$STUB_STOP_LOG"
++        printf '{"hook_event_name":"Stop"}\n' >> "$STUB_STOP_LOG"
++        printf '{"hook_event_name":"Stop"}\n' >> "$STUB_STOP_LOG"
++      fi
++    fi
++    printf '{"status":"ok"}\n' ;;
++  'terminal wait')
++    [ -e "$L/idle-on" ] && exit 0
++    exit 1 ;;
+   *) printf '{"status":"ok"}\n' ;;
+ esac
+ STUB
+@@ -72,6 +90,9 @@ timeout 60 bash "$here/lib-selftest.sh" || fail lib "lib-selftest exited $?"
+ # T2 cases: setup.sh under a fake HOME and a temp OB
+ timeout 120 bash "$here/setup-selftest.sh" || fail setup "setup-selftest exited $?"
+ 
++# T3 cases: driver.sh against the scriptable stub
++timeout 120 bash "$here/driver-selftest.sh" || fail driver "driver-selftest exited $?"
++
+ # --- summary ----------------------------------------------------------------
+ 
+ if [ "$failures" -eq 0 ]; then

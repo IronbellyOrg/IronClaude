@@ -1,0 +1,132 @@
+diff --git a/.dev/issues/442/handoff-runbook.md b/.dev/issues/442/handoff-runbook.md
+index a143514c4..4946f19de 100644
+--- a/.dev/issues/442/handoff-runbook.md
++++ b/.dev/issues/442/handoff-runbook.md
+@@ -58,3 +58,5 @@ Not built, so the runbook cannot observe it: the L2 pre-push layer. The runbook
+ ## What is left
+ 
+ A person runs the runbook at a real terminal, in order. They record results in `.dev/issues/442/observation-results.md`, then do the cleanup in section 5.2. No governed claim on a real issue may run until OB-H2 and OB-H3 both pass (runbook section 3).
++
++The scripts now exist in `.dev/issues/442/scripts/` (runbook section 6 names each one and the order to run them). The live run against the real Orca and GitHub, on the four disposable issues only, is Task 10 of the plan `.dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md`, and its cleanup is Task 11. Until that run is made, every item of the results file stays pending.
+diff --git a/.dev/issues/442/observation-runbook.md b/.dev/issues/442/observation-runbook.md
+index 001e3aee3..5a2f1919b 100644
+--- a/.dev/issues/442/observation-runbook.md
++++ b/.dev/issues/442/observation-runbook.md
+@@ -761,12 +761,12 @@ Copy the evidence lines into the results file before cleanup. Cleanup deletes `/
+ 
+ ### 4.2 What needs a person, and why
+ 
+-- **Starting the sessions.** The task that produced this runbook forbids an agent from starting a Claude session for an observation, registering a hook in the real `~/.claude`, or running a governed claim. Every session here is started by you.
+-- **The prompts themselves.** Hook payloads carry no field that says where a prompt came from (design V6 and R15). A test harness that injects prompts would therefore not show how a typed prompt, an approval or a self-started turn really arrives. Items 4 and 5, the `approved` and `/sc:implement` unlocks, and the LL-NOBIND prompt must be typed by a person.
+-- **Seeing the block message.** Whether a blocked prompt's message is visible in the tab (U20) and how one live block message reads (AC-7) can only be judged on screen.
+-- **The GitHub web UI edit** for the O-10 conflict, made during the `/sc:pr-submit` monitoring window.
+-- **Judging retries** in F7 and F8: whether the next command is a reworded retry of a blocked one is a reading, not a filter.
+-- **The release.** The claim's `release` line is an `rm` that a person runs in their own terminal (`refs/claim.md` line 119). The guard blocks an agent that touches the launch-level state (LL-TAMPER).
++- **Starting the sessions.** Owner authorization of 2026-11-08: an agent may start Claude sessions for these observations and run governed claims on the four disposable issues T1 to T4, and on nothing else. It may not register a hook in the real `~/.claude`, and no governed claim on a real issue runs until the gate in section 3 is met. The scripted path in section 6 runs under that authorization.
++- **The prompts themselves.** Hook payloads carry no field that says where a prompt came from (design V6 and R15). A prompt sent with `orca terminal send` reaches the hooks as the same `UserPromptSubmit` payload as a typed one, so injected prompts are representative of typed ones. An agent that sends `approved` is the R15 risk the design names, and it is allowed here only on T1 to T4. Items 4 and 5, the `approved` and `/sc:implement` unlocks and the LL-NOBIND prompt may therefore be sent by the driver (`scripts/driver.sh`).
++- **Seeing the block message.** Whether a blocked prompt's message is visible in the tab (U20) and how one live block message reads (AC-7) can only be judged on screen. The scripts save the screens, and the reading is recorded with `evidence.sh --reading`.
++- **The O-10 conflict edit** during the `/sc:pr-submit` monitoring window. `session-gov.sh e` makes it with `gh_fork api repos/IronbellyOrg/IronClaude/contents/ob-442/T4.txt -X PUT ...` on the pull request's branch, only when that branch is the T4 worktree's branch, not in the GitHub web UI. Whether `/sc:pr-submit` reacts to it the same way is UNVERIFIED, and the step's result says so.
++- **Judging retries** in F7 and F8: whether the next command is a reworded retry of a blocked one is a reading, not a filter. It is recorded with `evidence.sh --reading retry-f7-f8`.
++- **The release.** The claim's `release` line is an `rm`. The LL-TAMPER block applies to a governed session, not to the driving agent's own shell, so `session-gov.sh` runs the release from that shell, and only for this run's recorded session id and its `.ok` file (`refs/claim.md` line 119). The guard still blocks a governed agent that touches the launch-level state (LL-TAMPER).
+ 
+ ## 5. Safety and cleanup
+ 
+@@ -834,6 +834,30 @@ rm -rf /tmp/ob
+ 
+ 8. The scratch folders this worker made while checking the runbook can also be removed: `rm -rf /tmp/ob-test.mSMoo6s9 /tmp/ob-nobind.KAee2L /tmp/ob-lvl.8OJgpT /tmp/ob-pf.N24iNc /tmp/ob-bl.uOMnH8 /tmp/ob-h2.2pa53gkJ /tmp/ob-wtc.CCf1E9vU /tmp/ob-b1.OzYPZX`.
+ 
++## 6. Scripted path
++
++The scripts in `.dev/issues/442/scripts/` run sections 1 to 5 for an agent, under the owner authorization in section 4.2. Their working state, logs and screens are under `/tmp/ob` (override with `OB`). Run them in this order (the order of section 3.1):
++
++| Order | Script | What it does |
++|---|---|---|
++| 1 | `setup.sh` | Sections 1.1 to 1.3: preconditions, baselines, the isolated HOME, the probe and the repositories. |
++| 2 | `session-a.sh` | Session A (section 2.1), through the driver. |
++| 3 | `session-a2.sh` | Session A2 (section 2.1b, item 7). |
++| 4 | `evidence.sh all` | Drafts `.dev/issues/442/observation-results.md` and copies logs, screens and state to the package's `artifacts/ob-logs/` only when a secret scan finds nothing. |
++| 5 | `setup-github.sh` | Section 1.4: the four disposable issues, the claim session, the worktrees and the probe settings. |
++| 6 | `session-gov.sh b`, `c`, `d`, `e` | Sessions B to E (section 2.2). Every subcommand refuses unless OB-H1 item 5 is PASS in the results file, and `d` and `e` also need item 1 (section 3.3). |
++| 7 | `evidence.sh all` | Run again after each session. A part that needs a person stays `pending` until `evidence.sh --reading <u20\|retry-f7-f8\|ac7> <text> [screen file]` records it. |
++| 8 | `cleanup.sh` | Section 5.2. Without `--apply` it prints the plan and deletes nothing. `--apply` refuses while the results file is missing, and step 7 refuses while `ob-logs/` is missing or a new store entry remains. |
++
++The helpers are `lib.sh`, `driver.sh` and `driver-helpers.sh`. The tests are `lib-selftest.sh`, `setup-selftest.sh`, `driver-selftest.sh`, `session-a-selftest.sh`, `setup-github-selftest.sh`, `session-gov-selftest.sh`, `evidence-selftest.sh`, `cleanup-selftest.sh` and `runbook-selftest.sh`, all run by `selftest.sh`. The tests use stub commands in temporary directories and do not start a live session. The prompt files are in `scripts/prompts/`.
++
++Two stops need the owner or the driving agent:
++
++- `NEEDS_INPUT <screen file>`: the driver found a permission or login dialog on a session's screen. If it was there before a prompt, nothing was sent; if it appeared while the driver waited for the turn to end, the prompt had already been sent, so do not send it again. `session-a.sh`, `session-a2.sh` and `session-gov.sh` print this stop as a `PENDING` line (`screen=<file>`, or `reason=needs-input`), and `setup-github.sh` prints `NEEDS_INPUT claim <T> screen=<file>`. Read the saved screen. Answer with `driver.sh answer <name> <key> <reason>` only when the dialog is about a target of this run's disposable set, and answer nothing else. The answer is logged.
++- `BLOCKED login-isolated-home` (exit 3 of `setup.sh`): `claude -p` failed in the isolated HOME, usually because it could not authenticate. That is the owner's decision. The scripts never copy credential files.
++
++A `PENDING` line from a session script means the script stopped without recording that step; the line gives the reason, and some of these lines name a saved screen file. A gated skip (session `d` or `e` refused by the stop rules) is a valid recorded outcome: record it, run no further governed session, and go to the cleanup.
++
+ ## Appendix: commands verified and not verified
+ 
+ All checks below were made by this worker on 2026-11-08 in this worktree. None of them is an observation: no governed claim was run, no Claude session was started, and nothing was registered in the real `~/.claude`.
+diff --git a/.dev/issues/442/scripts/runbook-selftest.sh b/.dev/issues/442/scripts/runbook-selftest.sh
+new file mode 100644
+index 000000000..3072cddb9
+--- /dev/null
++++ b/.dev/issues/442/scripts/runbook-selftest.sh
+@@ -0,0 +1,48 @@
++#!/usr/bin/env bash
++# runbook-selftest.sh — Task 9 cases, run by selftest.sh.
++# The runbook wording the scripted path changed, section 6 against the scripts folder,
++# and the fixed line anchors that other self-tests read.
++set -u -o pipefail
++umask 077
++
++here=$(cd -- "$(dirname -- "$0")" && pwd)
++RB=$(cd -- "$here/.." && pwd)/observation-runbook.md
++failures=0
++ck() { if [ "$2" = "$3" ]; then printf 'OK %s\n' "$1"; else printf 'FAIL %s got=<%s> want=<%s>\n' "$1" "$2" "$3"; failures=$((failures+1)); fi; }
++
++# 1. the old wording is gone, and the new statement is there (the last check fails on the old text)
++ck old-not-representative "$(grep -c 'not representative' "$RB" || true)" 0
++ck old-typed-by-a-person "$(grep -c 'must be.*typed by a person' "$RB" || true)" 0
++ck new-orca-terminal-send "$([ "$(grep -c 'orca terminal send' "$RB")" -ge 1 ] && echo yes)" yes
++ck new-release-from-agent-shell "$(grep -c 'runs the release from that shell' "$RB" || true)" 1
++ck sec6-no-overclaim "$(sed -n '/^## 6\. Scripted path/,/^## Appendix/p' "$RB" | grep -c 'Every script is bash\|Each script has a test' || true)" 0
++ck sec6-needs-input-after-send "$(sed -n '/^## 6\. Scripted path/,/^## Appendix/p' "$RB" | grep -c 'prompt had already been sent, so do not send it again' || true)" 1
++ck sec6-pending-wording "$(sed -n '/^## 6\. Scripted path/,/^## Appendix/p' "$RB" | grep -c 'stopped without recording that step' || true)" 1
++ck sec6-no-universal-claims "$(sed -n '/^## 6\. Scripted path/,/^## Appendix/p' "$RB" | grep -c 'keeps its scratch\|bounds every\|never run a live' || true)" 0
++ck new-authorization "$(grep -c 'Owner authorization of 2026-11-08' "$RB" || true)" 1
++
++# 2. section 6 names every script file in the folder, and names no file that is missing
++sec=$(sed -n '/^## 6\. Scripted path/,/^## Appendix/p' "$RB")
++ck sec6-present "$([ -n "$sec" ] && echo yes)" yes
++missing=""
++for f in "$here"/*.sh; do
++  b=$(basename "$f")
++  printf '%s\n' "$sec" | grep -qF "\`$b" || missing="$missing $b"
++done
++ck sec6-names-every-script "${missing:-none}" none
++ghost=""
++for b in $(printf '%s\n' "$sec" | grep -oE '`[a-z0-9-]+\.sh' | tr -d '`' | sort -u); do
++  [ -f "$here/$b" ] || ghost="$ghost $b"
++done
++ck sec6-names-no-missing-script "${ghost:-none}" none
++ck sec6-stops "$(printf '%s\n' "$sec" | grep -c 'NEEDS_INPUT\|BLOCKED login-isolated-home')" 2
++ck sec6-apply-rule "$(printf '%s\n' "$sec" | grep -c -- '--apply')" 1
++
++# 3. the line anchors other self-tests read (session A 228-472, filters 505-520, sessions B to E 536-697)
++ck anchor-session-a "$(sed -n '228p' "$RB" | cut -c1-16)" '### 2.1 Session '
++ck anchor-filters "$(sed -n '505p' "$RB" | cut -c1-5)" '# F1:'
++ck anchor-filters-end "$(sed -n '520p' "$RB" | cut -c1-13)" "jq -sr '(map("
++ck anchor-session-b "$(sed -n '536p' "$RB" | cut -c1-14)" '#### 2.2.1 Ses'
++ck anchor-section-3 "$(sed -n '698p' "$RB" | cut -c1-5)" '## 3.'
++
++exit $failures
+diff --git a/.dev/issues/442/scripts/selftest.sh b/.dev/issues/442/scripts/selftest.sh
+index 7490f480a..5393a7dbb 100644
+--- a/.dev/issues/442/scripts/selftest.sh
++++ b/.dev/issues/442/scripts/selftest.sh
+@@ -129,6 +129,9 @@ timeout 300 bash "$here/evidence-selftest.sh" || fail evidence "evidence-selftes
+ # T8 cases: cleanup.sh
+ timeout 300 bash "$here/cleanup-selftest.sh" || fail cleanup "cleanup-selftest exited $?"
+ 
++# T9 cases: the runbook text and section 6
++timeout 60 bash "$here/runbook-selftest.sh" || fail runbook "runbook-selftest exited $?"
++
+ # --- summary ----------------------------------------------------------------
+ 
+ if [ "$failures" -eq 0 ]; then

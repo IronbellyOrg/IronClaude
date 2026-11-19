@@ -1,0 +1,1 @@
+lint:skip typecheck:skip test:skip (selftest run recorded in artifacts/t3-selftest.txt)

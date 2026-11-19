@@ -1,0 +1,4 @@
+6fdae45fcfb2d8f73b7acb9b87a530ab57ee0517
+reviewed=2bdf9978e6b51e0ad88a7de46086a53321e2da53 ref=r3-1
+F5.2 sev=blocking trigger=B4 ac=scope at=.dev/issues/442/scripts/setup-github.sh:22 anchor="fills every section with the runbook's title and body text for that issue (line 177 and line 178)" chk=amiss:n,false:n,harm:n,constraint:y family=body-text-fidelity fix="Fill the template sections with the runbook's body text verbatim, including 'The only change wanted: create the file ob-442/$t.txt holding the single line ob-442 $t. Touch nothing else. Close without merging anything.'" covers="fills every section with the runbook's title and body text for that issue (line 177 and line 178)" first=A1 origin=new: the filled body paraphrases the runbook body and drops "The only change wanted... Touch nothing else. Close without merging anything."
+applied tree=388eecdd36dae3dedb22a96f27e4c206d338fa40

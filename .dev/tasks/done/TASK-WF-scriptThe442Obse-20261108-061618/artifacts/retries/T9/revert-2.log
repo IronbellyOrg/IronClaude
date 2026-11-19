@@ -1,0 +1,8 @@
+SWEEP refs/superclaude/implement/TASK-WF-scriptThe442Obse-20261108-061618/retry/T9/sweep-2-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+RESTORED .dev/issues/442/handoff-runbook.md
+RESTORED .dev/issues/442/observation-runbook.md
+DELETED .dev/issues/442/scripts/runbook-selftest.sh
+RESTORED .dev/issues/442/scripts/selftest.sh
+DONE
+EXIT=0
