@@ -1,6 +1,6 @@
 ---
 name: sc:issue-protocol
-description: "Behavioral protocol for /sc:issue: --claim assigns an existing GitHub issue on the origin repo (and its ClickUp task), checks its accuracy, writes a summary and a next-step prompt, then creates an Orca worktree and launches an agent in it at the --pipeline level; --create files a templated GitHub issue with a GitHub issue type, the Complexity issue field and a mode label. Spawns tier-pinned worker agents for every lookup and draft; the orchestrator makes every GitHub and ClickUp write."
+description: "Behavioral protocol for /sc:issue: --claim assigns an existing GitHub issue on the origin repo (and its ClickUp task), checks its accuracy, writes a summary and a next-step prompt, then creates an Orca worktree and launches an agent in it at the --pipeline level; --create files a templated GitHub issue with a GitHub issue type, the Complexity issue field and a mode label; --plan fills the Priority, Fix approach and Test plan sections an existing issue lacks with one body edit (--remaining re-plans a plan that exists). Spawns tier-pinned worker agents for every lookup and draft; the orchestrator makes every GitHub and ClickUp write."
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, Skill, AskUserQuestion
 ---
 
@@ -12,10 +12,13 @@ mcp-servers: [litellm, auggie, codegraph]
 
 # /sc:issue protocol
 
-Two modes, chosen by the command (`~/.claude/commands/sc/issue.md`), which has already validated the flags:
+Three modes, chosen by the command (`~/.claude/commands/sc/issue.md`), which has already validated the flags:
 
 - **`--claim <number|url>`**: assign an existing issue of the origin repo to the current user on GitHub and, when one exists, on its ClickUp task; check whether the issue text is still accurate; write a summary cheatsheet and the next-step prompt; post two marked comments; then, unless `--pipeline none` (which creates no worktree, launches no agent and ends after the comments), create or reuse the Orca worktree `issue-<N>`, copy `.dev/issues/<N>/` into it and launch one agent there at the level `--pipeline` names: `worktree` plans and waits for approval, `full` also implements without a commit or a push, `full` with `--submit` also commits, pushes a feature branch and opens a PR through `/sc:pr-submit --monitor 3`. With no `--pipeline` the claim picks `full` or `worktree` from the issue (the rule is in `refs/claim.md`, Wave 5). Nothing ever merges. This skill never runs a step of `next-steps.md` itself (B2).
 - **`--create "<description>"`**: turn a description into a GitHub issue built from one of four templates, with a GitHub issue type, the Complexity issue field and a mode label, and post it. GitHub only: no ClickUp task and no self-assignment (B6).
+- **`--plan <number|url>`** (with `--depth quick|standard|deep`, default `quick`, and the option `--remaining <file>`): read an existing issue of the origin repo and fill the plan sections it lacks, `## Priority`, `## Fix approach` and `## Test plan`, from the codebase pass of the `--depth` worker. An absent heading is appended, an empty section (or one that says only "Not known yet") is filled in place, and every other byte of the issue stays. The one GitHub write is one body edit: no comment, no label, no assignment, no ClickUp call, no worktree and no launch, and no question is asked. An issue whose three sections already pass is left alone (`already_planned`). With `--remaining` it rewrites `## Fix approach` and `## Test plan` to the scope that is left (the Re-plan section of `refs/plan.md`).
+
+A session that wants a mode reaches it through the command (the `sc:issue` skill call), as the issue orchestrator's claim step reaches `--claim`, and does not load this skill alone: the command's STOP rules run first. Plan mode's Wave 0 applies its own stops again, so a call that skips the command still stops on them.
 
 For issues filed through `/sc:issue --create`, its four templates replace the `ISSUE-HANDOFF.md` / `ISSUE-BACKLOG.md` instruction of rule 10 in the distributed `CLAUDE.md`; rule 10 itself is unchanged and still governs issues filed without `/sc:issue`.
 
@@ -27,9 +30,10 @@ For issues filed through `/sc:issue --create`, its four templates replace the `I
 |---|---|
 | `refs/claim.md` | at the start of claim mode: Waves 0-8 in detail, the effort and complexity rubric, marker handling |
 | `refs/create.md` | at the start of create mode: Waves 0-5, flag-settling table, depth-to-worker table, contradiction prompt rule, the Priority rule set and the three required plan sections |
+| `refs/plan.md` | at the start of plan mode: the plan check, Waves 0 and 4 and 5 in detail, the return contract and the Re-plan rules of `--remaining` |
 | `refs/chains.md` | claim Wave 5: the six default next-step chains and the `/sc:recommend` goal format |
 | `refs/labels.md` | create Wave 5: the mode labels, the issue type and Complexity field rules, the output lines and the maintainer's one-time label creation lines |
-| `refs/tiers.md` | before the first worker spawn of either mode: tier map, pinning rule, `E-TIER-UNAVAILABLE` |
+| `refs/tiers.md` | before the first worker spawn of any mode: tier map, pinning rule, `E-TIER-UNAVAILABLE` |
 | `scripts/origin_repo.py` | Wave 0 of both modes: prints `owner/repo` from `origin`; with `--claim` also checks the claim argument against it |
 | `scripts/clickup_claim.py` | claim Wave 3: assigns the matching ClickUp task |
 | `scripts/orca_worktree.py` | claim Wave 0 (`preflight`), Wave 5 (`prompt`), Wave 7 (`worktree`) and Wave 8 (`launch`): the only file that calls `orca` |
@@ -46,10 +50,10 @@ For issues filed through `/sc:issue --create`, its four templates replace the `I
 | `templates/issue-feature-complex.md` | `issue-body.md` (create, feature, deep; ends with the required Priority, Fix approach and Test plan sections) |
 | `templates/issue-bug-simple.md` | `issue-body.md` (create, bug, quick or standard; ends with the required Priority, Fix approach and Test plan sections) |
 | `templates/issue-bug-complex.md` | `issue-body.md` (create, bug, deep; ends with the required Priority, Fix approach and Test plan sections) |
-| `templates/draft-notes.md` | `draft-notes.md` (create) |
+| `templates/draft-notes.md` | `draft-notes.md` (create, plan) |
 | `templates/create-review-comment.md` | `create-review.md` (create, posted when needed) |
 
-Every output file starts as a copy of its template (stub first) and is filled in place. `clickup.json` has no template: it is the script's machine output (default D15).
+Every output file starts as a copy of its template (stub first) and is filled in place. `clickup.json` has no template: it is the script's machine output (default D15). Plan mode adds no template: `plan-input.md` and `plan-body.md` are written by the calling session, and `plan-sections.md` holds only the heading lines and section text that the heading block ending every issue template already defines (`refs/plan.md`).
 
 ## Workers and the spawn rule
 
@@ -71,9 +75,9 @@ Every spawn prompt names each exact path the job must write under `.dev/issues/`
 
 - `<R>` is the `origin` repo, printed by `uv run --no-project python "<skill base>/scripts/origin_repo.py"`. Nothing else is consulted: not `gh repo set-default`, not gh's fork-parent default, not a `--repo` flag (B10). There is no `--repo` option on the command.
 - Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or spells `repos/<R>/...`, never a brace placeholder. The one exception is the T3 lookup worker's read-only GET of `orgs/<owner of R>/issue-fields` (`<owner>` is the part of `<R>` before the slash; no other `orgs/` path is allowed, and the orchestrator and the T1 and T2 workers keep the old rule).
-- The orchestrator (this skill) is the only place that writes to GitHub or ClickUp: `gh issue edit <N> --repo <R> --add-assignee @me`, `gh issue comment <N> --repo <R> --body-file <file>`, `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<file>`, `gh issue create --repo <R> ...` (create mode adds `--type <name>`), `gh api -X POST repos/<R>/issues/<N>/issue-field-values --input <file>` and `scripts/clickup_claim.py`. Workers never write to either.
+- The orchestrator (this skill) is the only place that writes to GitHub or ClickUp: `gh issue edit <N> --repo <R> --add-assignee @me`, `gh issue comment <N> --repo <R> --body-file <file>`, `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<file>`, `gh issue create --repo <R> ...` (create mode adds `--type <name>`), `gh api -X POST repos/<R>/issues/<N>/issue-field-values --input <file>`, `gh issue edit <N> --repo <R> --body-file <D>/plan-body.md` (plan mode's one write, a body edit) and `scripts/clickup_claim.py`. Workers never write to either.
 - `git fetch origin` is the only fetch; no other remote is added or fetched.
-- Posts go up directly (B1); the full body or comment is never shown for approval. The only user prompt is the create-mode contradiction question (`refs/create.md`, default D14).
+- Posts go up directly (B1); the full body or comment is never shown for approval. The only user prompt is the create-mode contradiction question (`refs/create.md`, default D14); plan mode asks nothing.
 - `.dev/issues/` is never staged or committed by this skill (default D24).
 - `CLICKUP_API_TOKEN` is never printed, echoed or inlined.
 
@@ -102,13 +106,23 @@ Load `refs/create.md` now. `<D>` = `.dev/issues/draft-<YYYYMMDD-HHMMSS>-<slug>/`
 5. **Wave 4, draft the body** with the depth's worker into `<D>/issue-body.md` and `<D>/draft-notes.md`. At every depth the worker fills `## Priority`, `## Fix approach` and `## Test plan` from the `/sc:analyze` pass and never writes "Not known yet" there (rules in `refs/create.md`). Ask one question only when `draft-notes.md` lists new material or a contradiction.
 6. **Wave 5, post.** Load `refs/labels.md`. Apply only the mode label, and only when it exists in `<R>`; `gh issue create --repo <R> --title "[FEATURE] <title>"` or `"[BUG] <title>"` with `--body-file <D>/issue-body.md` and `--type "<name>"` when the wanted issue type is listed in `scout.md` (failure STOP `E-CREATE-FAILED`); rename `<D>` to `.dev/issues/<N>/`; read the issue type back; set the Complexity field with the POST of `refs/labels.md` (`gh api -X POST repos/<R>/issues/<N>/issue-field-values --input .dev/issues/<N>/complexity-field.json`); post the pushback comment from `templates/create-review-comment.md` when Wave 2 found a disagreement at standard or deep. Print the issue URL, the directory, the labels not applied and every `not set` line. A failed type or field never stops the run once the issue exists. No ClickUp call (B6).
 
+## Plan mode
+
+Load `refs/plan.md` now. `<N>` is the issue number, `<D>` = `.dev/issues/<N>/`. Waves 1 to 3 do not run, and plan mode is an exception to B13: no lookup worker runs.
+
+1. **Wave 0, prerequisites.** `origin_repo.py --claim "<argument>"` resolves `<R>` and `<N>` (exit 1 STOP `E-NO-ORIGIN`, exit 3 STOP `E-FOREIGN-REPO`, exit 4 STOP `E-PLAN-NOT-AN-ISSUE`); `gh auth status` (else STOP `E-GH-AUTH`); read the issue live; stop on an issue that is not found (`E-ISSUE-NOT-FOUND`), is a pull request (`E-PLAN-NOT-AN-ISSUE`) or is closed (`E-PLAN-ISSUE-CLOSED`); apply the plan check of `refs/plan.md` (a heading that occurs twice is STOP `E-PLAN-REPEATED-HEADING`; three sections that pass are `already_planned`, nothing written); write `<D>/plan-input.md`.
+2. **Wave 4, draft.** The worker of the depth (`issue-worker-t3` quick, `issue-worker-t2` standard, `issue-worker-t1` deep, with the T1 -> T2 fallback) writes `<D>/plan-sections.md` for each section that is absent, empty or only "Not known yet", and `<D>/draft-notes.md`. It asks no question.
+3. **Wave 5, write.** The calling session re-reads the body (one change since Wave 0 is merged, a second is STOP `E-PLAN-RACE`), appends or fills exactly those sections, adds `<!-- sc:issue:plan -->` once, runs the one `gh issue edit <N> --repo <R> --body-file <D>/plan-body.md`, and reads the body back (a failed edit or a failed check is STOP `E-PLAN-WRITE-FAILED`).
+
+With `--remaining <file>` the same waves run as a re-plan of `## Fix approach` and `## Test plan` (`refs/plan.md`, "Re-plan"; stops `E-REMAINING-FILE` and `E-REMAINING-NEEDS-PLAN`). Nothing in plan mode touches a comment, a label, an assignee, ClickUp, a worktree or an agent launch.
+
 ## Return contract
 
-Print this return contract last, in both modes, including after a STOP (fields that do not apply are `null`). The block below is printed first; the mode's added fields follow it. `labels_applied` and `labels_missing` cover the mode label only:
+Print this return contract last, in every mode, including after a STOP (fields that do not apply are `null`). The block below is printed first; the mode's added fields follow it. `labels_applied` and `labels_missing` cover the mode label only (plan mode prints `[]` for both and `null` for `clickup_status` and `next_steps_path`; its `dir` is `.dev/issues/<N>/`):
 
 ```yaml
 status: success | stopped | failed
-mode: claim | create
+mode: claim | create | plan
 issue_number: <N or null>
 issue_url: <url or null>
 dir: <.dev/issues/<N>/ or the draft directory>
@@ -147,13 +161,34 @@ complexity_field: <option name read back from the issue, or null>
 classification_missing: [<each "not set" line without its prefix>, ...]
 ```
 
+Plan mode adds these five fields after the first block (claim and create modes print none of them; on a STOP the fields that do not apply are `null`). Plan mode's `status` is `success` or `stopped` only. `already_planned` is its own field, so the closed `status` list stays true: an issue that needed nothing is `status: success` with `already_planned: true`:
+
+```yaml
+already_planned: true | false
+sections_added: [priority | fix_approach | test_plan, ...]
+sections_replaced: [fix_approach | test_plan, ...]
+assumptions: <count of Assumption: lines in draft-notes.md>
+depth: quick | standard | deep
+```
+
+`sections_replaced` is `[]` unless `--remaining` ran.
+
 On a STOP, also print the STOP code and its message.
 
 ## Error handling
 
 | Scenario | Behavior |
 |---|---|
-| Both or neither of `--claim` / `--create`; bad flag value; empty description; `--depth`, `--mode` or `--type` with `--claim` (`E-CREATE-ONLY-FLAG`); `--pipeline` or `--submit` with `--create` (`E-CLAIM-ONLY-FLAG`); `--submit` with a value, without `--pipeline full`, or with no `--pipeline` (`E-SUBMIT-NEEDS-FULL`) | The command STOPs with usage before Activation |
+| None or more than one of `--claim` / `--create` / `--plan`; bad flag value; empty description or empty `--plan` argument; `--depth` with `--claim`, or `--mode` or `--type` with `--claim` or `--plan` (`E-CREATE-ONLY-FLAG`); `--pipeline` or `--submit` with `--create` or `--plan` (`E-CLAIM-ONLY-FLAG`); `--remaining` without `--plan` (`E-PLAN-ONLY-FLAG`); `--submit` with a value, without `--pipeline full`, or with no `--pipeline` (`E-SUBMIT-NEEDS-FULL`) | The command STOPs with usage before Activation |
+| Plan mode: the issue is not found or the read fails (`gh issue view <N> --repo <R>` fails) | STOP `E-ISSUE-NOT-FOUND` with the first line of the `gh` error; nothing written |
+| Plan mode: the number is a pull request (also the exit 4 of `origin_repo.py`) | STOP `E-PLAN-NOT-AN-ISSUE`; nothing written |
+| Plan mode: the issue is closed (at the Wave 0 read or the Wave 5 re-read) | STOP `E-PLAN-ISSUE-CLOSED`; nothing written |
+| Plan mode: one of `## Priority`, `## Fix approach`, `## Test plan` occurs twice | STOP `E-PLAN-REPEATED-HEADING` naming the heading; nothing written, whatever the other two sections hold |
+| Plan mode: the body changed a second time between Wave 0 and the edit | STOP `E-PLAN-RACE`; nothing written (the first change is merged once) |
+| Plan mode: `gh issue edit <N> --repo <R> --body-file` fails, or the read-back fails a check | STOP `E-PLAN-WRITE-FAILED` naming the check; the issue keeps what was written and the earlier body is in `<D>/plan-input.md` |
+| `--remaining` is given without `--plan`, or with `--claim` or `--create` | STOP `E-PLAN-ONLY-FLAG` ("--remaining applies to --plan only") |
+| `--remaining` file missing, empty, over 20 criterion lines, a line over 300 characters, or no `round:` line | STOP `E-REMAINING-FILE`; the list is never cut |
+| `--remaining` on an issue whose three sections do not pass the plan check | STOP `E-REMAINING-NEEDS-PLAN`; run plain `--plan` first |
 | No `origin`, or `origin` is not GitHub | STOP `E-NO-ORIGIN` |
 | Claim URL on another repo | STOP `E-FOREIGN-REPO` |
 | `gh auth status` fails | STOP `E-GH-AUTH` |
@@ -179,10 +214,11 @@ On a STOP, also print the STOP code and its message.
 ## Will
 
 - Resolve the repo from `origin` only and pass it explicitly on every GitHub call.
-- Spawn the T3 worker before any lookup of its own, and pin every worker by `subagent_type`.
+- Spawn the T3 worker before any lookup of its own (plan mode has no lookup worker and reads the issue itself), and pin every worker by `subagent_type`.
 - Write every artifact under `.dev/issues/` from its template.
 - Post directly, and edit an earlier marked comment instead of posting a duplicate.
 - After the comments, and unless `--pipeline none`, create or reuse the Orca worktree `issue-<N>` and launch one agent in it at the chosen level through `scripts/orca_worktree.py`; `--pipeline none` stops after the comments with no worktree.
+- On plan: read the issue live, make one body edit that changes only the plan sections it fills (or, with `--remaining`, replaces), read the body back, and return `already_planned` without a write when the three sections already pass.
 
 ## Will Not
 
@@ -195,3 +231,4 @@ On a STOP, also print the STOP code and its message.
 - Touch any repository other than `origin`, or fetch any other remote.
 - Stage or commit `.dev/issues/`, or edit source code.
 - Print the ClickUp token.
+- On plan: post a comment, add or remove a label, assign anyone, touch ClickUp, create a worktree, launch an agent, ask a question, or change any byte of the issue outside the sections it fills.
