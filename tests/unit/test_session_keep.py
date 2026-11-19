@@ -722,6 +722,7 @@ def test_main_checks_the_days_and_deletes_nothing_when_they_are_not_valid(
         "session_keep.py",
         "prune",
         "--apply",
+        "--yes",
         *args,
         str(projects),
         str(projects.parent.parent),
@@ -1153,3 +1154,174 @@ def test_a_transcript_that_changes_just_before_its_unlink_is_kept(
     assert result.deleted == 0 and transcript.is_file()
     assert (projects / REPO / "topics" / "agent-old.txt").is_file()
     assert (projects / "-work-a" / session / "tool.txt").is_file()
+
+
+# --- the second confirmation before --apply deletes (issue 638 follow-up) --------
+
+
+class FakeTerminal:
+    """A standard input that is (or is not) a terminal and answers with one line."""
+
+    def __init__(self, answer: str | None, tty: bool = True) -> None:
+        self.lines = [] if answer is None else [answer + "\n"]
+        self.tty = tty
+
+    def isatty(self) -> bool:
+        return self.tty
+
+    def readline(self) -> str:
+        return self.lines.pop(0) if self.lines else ""
+
+
+def _apply_argv(projects: Path, *extra: str) -> list[str]:
+    return [
+        "session_keep.py",
+        "prune",
+        "--apply",
+        *extra,
+        str(projects),
+        str(projects.parent.parent),
+        str(orca_dir(projects)),
+    ]
+
+
+def _two_old_agent_sessions(projects: Path) -> list[Path]:
+    make(projects, 1, "agent-one", age_days=60)
+    make(projects, 2, "agent-two", age_days=70)
+    return [projects / "-work-a" / f"{sid(n)}.jsonl" for n in (1, 2)]
+
+
+def test_the_typed_number_confirms_and_the_deletion_goes_ahead(
+    projects: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    files = _two_old_agent_sessions(projects)
+    monkeypatch.setattr(sys, "stdin", FakeTerminal("2"))
+    assert keep.main(_apply_argv(projects)) == 0
+    out = capsys.readouterr().out
+    # The plan is printed first: count, size and the names.
+    assert "  agent-one  last change" in out and "  agent-two  last change" in out
+    assert "This will delete 2 things: 2 agent sessions (" in out
+    assert "Type 2 to delete them" in out
+    assert "Deleted 2 agent sessions" in out
+    assert not any(f.exists() for f in files)
+
+
+@pytest.mark.parametrize("answer", ["1", "3", "yes", "y", "", "two", "2 2", "02x"])
+def test_any_other_answer_deletes_nothing(
+    projects: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    answer: str,
+) -> None:
+    files = _two_old_agent_sessions(projects)
+    home = projects.parent.parent
+    monkeypatch.setattr(sys, "stdin", FakeTerminal(answer))
+    before = snapshot(home)
+    assert keep.main(_apply_argv(projects)) == 1
+    assert "Cancelled: nothing was deleted." in capsys.readouterr().out
+    assert snapshot(home) == before  # no lock file, nothing touched at all
+    assert all(f.is_file() for f in files)
+
+
+def test_end_of_input_at_the_question_deletes_nothing(
+    projects: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    files = _two_old_agent_sessions(projects)
+    monkeypatch.setattr(sys, "stdin", FakeTerminal(None))
+    assert keep.main(_apply_argv(projects)) == 1
+    assert all(f.is_file() for f in files)
+
+
+def test_without_a_terminal_apply_refuses_and_deletes_nothing(
+    projects: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    files = _two_old_agent_sessions(projects)
+    # Even a line waiting on a pipe is not an answer: no terminal, no deletion.
+    monkeypatch.setattr(sys, "stdin", FakeTerminal("2", tty=False))
+    assert keep.main(_apply_argv(projects)) == 2
+    err = capsys.readouterr().err
+    assert "standard input is not a terminal" in err and "--yes" in err
+    assert all(f.is_file() for f in files)
+
+
+def test_the_yes_flag_deletes_without_a_terminal_or_a_question(
+    projects: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    files = _two_old_agent_sessions(projects)
+    monkeypatch.setattr(sys, "stdin", FakeTerminal(None, tty=False))
+    assert keep.main(_apply_argv(projects, "--yes")) == 0
+    out = capsys.readouterr().out
+    assert "Type " not in out and "Deleted 2 agent sessions" in out
+    assert not any(f.exists() for f in files)
+
+
+def test_no_environment_variable_stands_in_for_the_yes_flag(
+    projects: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    files = _two_old_agent_sessions(projects)
+    for name in ("CCSESSION_YES", "CCSESSION_ASSUME_YES", "YES", "CI", "FORCE"):
+        monkeypatch.setenv(name, "1")
+    monkeypatch.setattr(sys, "stdin", FakeTerminal(None, tty=False))
+    assert keep.main(_apply_argv(projects)) == 2
+    assert all(f.is_file() for f in files)
+
+
+def test_nothing_to_delete_asks_nothing_even_without_a_terminal(
+    projects: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    make(projects, 1, "agent-recent", age_days=3)
+    monkeypatch.setattr(sys, "stdin", FakeTerminal(None, tty=False))
+    assert keep.main(_apply_argv(projects)) == 0
+    assert "Deleted 0 agent sessions" in capsys.readouterr().out
+
+
+def test_the_confirmed_number_counts_stale_entries_too(
+    projects: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    make(projects, 1, "agent-old", age_days=60)
+    make(projects, 3, "alive", age_days=1, origin=None)
+    gone = save(projects, REPO, "gone-old", sid(22))
+    os.utime(gone, (time.time() - 10 * DAY,) * 2)
+    monkeypatch.setattr(sys, "stdin", FakeTerminal("2"))
+    assert keep.main(_apply_argv(projects)) == 0
+    out = capsys.readouterr().out
+    assert (
+        "This will delete 2 things: 1 agent session (" in out and "1 stale entry" in out
+    )
+    assert not gone.exists()
+
+
+def test_the_dry_run_never_asks(
+    projects: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    files = _two_old_agent_sessions(projects)
+    monkeypatch.setattr(sys, "stdin", FakeTerminal(None, tty=False))
+    argv = [a for a in _apply_argv(projects) if a != "--apply"]
+    assert keep.main(argv) == 0
+    out = capsys.readouterr().out
+    assert out.rstrip().splitlines()[-1].startswith("Dry run: nothing was deleted.")
+    assert all(f.is_file() for f in files)
+
+
+def test_the_preview_names_every_stale_entry_the_confirmation_covers(
+    projects: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    make(projects, 1, "alive", age_days=1, origin=None)
+    old = time.time() - 10 * DAY
+    name = save(projects, REPO, "gone-human-name", sid(22))
+    mark(projects, REPO, sid(24), "agent")
+    marker_file = projects / REPO / "topics" / ".origin" / sid(24)
+    tabs = orca_dir(projects)
+    tabs.mkdir(parents=True)
+    tab = tabs / "pane-9"
+    tab.write_text(f"{sid(25)}\n/w\nt\n")
+    for path in (name, marker_file, tab):
+        os.utime(path, (old, old))
+    monkeypatch.setattr(sys, "stdin", FakeTerminal("no"))
+    assert keep.main(_apply_argv(projects)) == 1
+    out = capsys.readouterr().out
+    assert "  name: gone-human-name  (list github.com-Org-Repo)" in out
+    assert f"  marker: {sid(24)}  (list github.com-Org-Repo)" in out
+    assert "  tab record: pane-9" in out
+    assert "Type 3 to delete them" in out
+    assert name.is_file() and tab.is_file()

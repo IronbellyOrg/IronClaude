@@ -6852,7 +6852,7 @@ def test_prune_apply_deletes_only_the_old_agent_session_and_its_name(
 ) -> None:
     main, env, sessions = _prune_tree(tmp_path)
     projects = Path(env["HOME"]) / ".claude" / "projects"
-    out = _ccs(main, env, "--prune", "--apply").stdout
+    out = _ccs(main, env, "--prune", "--apply", "--yes").stdout
     assert "Deleted 1 agent session " in out and "Dry run" not in out
     assert not sessions["agent old"].exists()
     assert not (projects / ORIGIN_LIST / "topics" / "agent old.txt").exists()
@@ -6860,14 +6860,16 @@ def test_prune_apply_deletes_only_the_old_agent_session_and_its_name(
     for survivor in ("agent new", "mine old", "human old"):
         assert sessions[survivor].is_file()
         assert (projects / ORIGIN_LIST / "topics" / f"{survivor}.txt").is_file()
-    again = _ccs(main, env, "--prune", "--apply").stdout
+    again = _ccs(main, env, "--prune", "--apply", "--yes").stdout
     assert "Deleted 0 agent sessions" in again
 
 
 def test_prune_skips_the_running_session(tmp_path: Path) -> None:
     main, env, sessions = _prune_tree(tmp_path)
     running = "11110000-0000-0000-0000-000000000000"
-    out = _ccs(main, {**env, "CLAUDE_SESSION_ID": running}, "--prune", "--apply").stdout
+    out = _ccs(
+        main, {**env, "CLAUDE_SESSION_ID": running}, "--prune", "--apply", "--yes"
+    ).stdout
     assert "kept: agent old: this is the running session" in out
     assert sessions["agent old"].is_file()
 
@@ -6893,7 +6895,7 @@ def test_prune_refuses_days_below_30_and_deletes_nothing(
     if env_days is not None:
         env["CCSESSION_AGENT_KEEP_DAYS"] = env_days
     result = subprocess.run(
-        [str(SKILL_DIR / "ccsession"), "--prune", "--apply", *args],
+        [str(SKILL_DIR / "ccsession"), "--prune", "--apply", "--yes", *args],
         cwd=main,
         env=env,
         text=True,
@@ -6912,7 +6914,7 @@ def test_prune_with_a_claude_code_limit_of_30_says_claude_code_deletes_first(
 ) -> None:
     main, env, sessions = _prune_tree(tmp_path)
     (Path(env["HOME"]) / ".claude" / "settings.json").unlink()  # the default, 30
-    out = _ccs(main, env, "--prune", "--apply").stdout
+    out = _ccs(main, env, "--prune", "--apply", "--yes").stdout
     assert "Claude Code already deletes saved sessions after 30 days here" in out
     assert "LOWERS THE LIMIT" not in out
     assert all(path.is_file() for path in sessions.values())
@@ -7024,3 +7026,76 @@ def test_a_linked_origin_folder_is_never_written_through(tmp_path: Path) -> None
     )
     assert (topics / "auto-one.txt").is_file()  # the name itself is still saved
     assert list(outside.iterdir()) == []
+
+
+# --- ccsession --prune --apply asks for a typed confirmation -------------------
+
+
+def _prune_apply_on_pty(
+    main: Path, env: dict[str, str], answer: str | None, *extra: str
+) -> tuple[int, str]:
+    proc, master = _spawn_on_pty(
+        [str(SKILL_DIR / "ccsession"), "--prune", "--apply", *extra], env, main
+    )
+    try:
+        shown = _read_pty(master, until="anything else cancels: ")
+        if answer is not None:
+            os.write(master, (answer + "\r").encode())
+        shown += _read_pty(master, timeout=20)
+        return proc.wait(timeout=60), shown
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+
+
+def test_prune_apply_on_a_terminal_shows_the_plan_and_deletes_on_the_typed_number(
+    tmp_path: Path,
+) -> None:
+    main, env, sessions = _prune_tree(tmp_path)
+    status, shown = _prune_apply_on_pty(main, env, "1")
+    assert status == 0, shown
+    assert "agent old  last change" in shown and "60 days old" in shown
+    assert "This will delete 1 thing: 1 agent session (" in shown
+    assert "Type 1 to delete them, anything else cancels: " in shown
+    assert not sessions["agent old"].exists()
+    assert all(sessions[n].is_file() for n in ("agent new", "mine old", "human old"))
+
+
+def test_prune_apply_on_a_terminal_deletes_nothing_on_a_wrong_answer(
+    tmp_path: Path,
+) -> None:
+    main, env, sessions = _prune_tree(tmp_path)
+    before = _tree(Path(env["HOME"]))
+    status, shown = _prune_apply_on_pty(main, env, "yes")
+    assert status == 1 and "Cancelled: nothing was deleted." in shown
+    assert _tree(Path(env["HOME"])) == before
+
+
+def test_prune_apply_without_a_terminal_refuses_unless_yes_is_given(
+    tmp_path: Path,
+) -> None:
+    main, env, sessions = _prune_tree(tmp_path)
+    before = _tree(Path(env["HOME"]))
+    refused = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--prune", "--apply"],
+        cwd=main,
+        env=env,
+        text=True,
+        capture_output=True,
+        input="1\n",  # a pipe: an answer typed there is not a person's
+    )
+    assert refused.returncode == 2
+    assert "not a terminal" in refused.stderr and "--yes" in refused.stderr
+    assert _tree(Path(env["HOME"])) == before
+    allowed = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--prune", "--apply", "--yes"],
+        cwd=main,
+        env=env,
+        text=True,
+        capture_output=True,
+        stdin=subprocess.DEVNULL,
+    )
+    assert allowed.returncode == 0, allowed.stderr
+    assert "Deleted 1 agent session " in allowed.stdout
+    assert not sessions["agent old"].exists()
