@@ -71,3 +71,18 @@ def test_the_link_off_keys_line_is_the_pinned_literal(fake_clock):
 def test_the_link_off_questions_screen_equals_the_reference(fake_clock, scenario):
     golden = json.loads(GOLDEN.read_text(encoding="utf-8"))
     assert capture(fake_clock)[scenario] == golden[scenario]
+
+
+@pytest.mark.parametrize("width", WIDTHS)
+def test_the_link_off_questions_screen_never_shows_a_plan_hash(fake_clock, width):
+    """D-6: a run of 32 or more hexadecimal characters is not shown on the questions screen,
+    with the link off as with it on; the rest of the subject stays."""
+    plan_hash = "a1b2c3d4" * 8
+    view = _view(
+        fake_clock, make_question_rows(2, subject=f"Approve plan {plan_hash}?")
+    )
+    lines = screen_lines(
+        view, resolve_policy({}, "utf-8", {"ascii": False}, width, HEIGHT)
+    )
+    assert not any(plan_hash in line for line in lines)
+    assert any("Approve plan" in line for line in lines)

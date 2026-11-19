@@ -809,7 +809,7 @@ def _questions_panel(
                 QuestionLine(
                     qid=text_of(q.qid),
                     text="  ".join(lead + [text_of(q.subject), QUESTIONS_REASON]),
-                    row_text="  ".join(lead + [text_of(q.subject)]),
+                    row_text="  ".join(lead + [strip_hex(text_of(q.subject))]),
                     created_at=q.created_at,
                     age_seconds=seconds,
                     in_window=record.in_window,
