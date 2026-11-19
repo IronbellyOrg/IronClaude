@@ -8,6 +8,19 @@ length (``login`` without whitespace), so a caller can still put arbitrary text
 there. No issue title, body, label or stderr text has a key or a typed slot on
 a line. This module imports nothing from the package and never reads the wall
 clock for a decision.
+
+The table has 62 reasons (design 4.7). ``origin_mismatch`` has ONE meaning, one
+kind and one exit code (finding F4 of issue 665): the ``origin`` of a listed
+repository's checkout does not name that repository (or the orchestrator
+repository's own ``origin`` does not). It is a cycle reason with exit 2. For one
+repository's checkout the issue is skipped, the cycle goes on and the exit code
+is 2, so the owner sees it; an orchestrator that finds the same fault at wave 1
+reports it to the poll only as the free text of its acknowledgment, never as
+this reason. The acknowledgment skip reasons of an orchestrator (for example
+``claimed_elsewhere``, ``malformed_item`` and ``co_assigned``) are NOT rows of
+this table (finding F3 of issue 665): the poll stores them as the free
+``ack_reason`` text of the entry, after a pattern check, and they never reach a
+``reason`` key.
 """
 
 from __future__ import annotations
@@ -26,24 +39,27 @@ from typing import Any
 REASON_TABLE: dict[str, tuple[str, int]] = {
     # Cycle reasons, exit 2.
     "config_invalid": ("cycle", 2),
-    "approvers_invalid": ("cycle", 2),
     "platform_unsupported": ("cycle", 2),
-    "worktree_invalid": ("cycle", 2),
     "origin_mismatch": ("cycle", 2),
     "orca_not_found": ("cycle", 2),
     "account_id_mismatch": ("cycle", 2),
+    "repos_invalid": ("cycle", 2),
+    "orchestrator_repo_invalid": ("cycle", 2),
+    "registry_invalid": ("cycle", 2),
     # Cycle reasons, exit 6.
     "store_invalid": ("cycle", 6),
     "store_missing": ("cycle", 6),
     "lock_missing": ("cycle", 6),
     "lock_invalid": ("cycle", 6),
     "state_dir_unwritable": ("cycle", 6),
+    "wake_write_failed": ("cycle", 6),
+    # Cycle reason, exit 7: a plan call taken and not finished in time (4.11).
+    "plan_stuck": ("cycle", 7),
     # Cycle reasons, exit 3.
     "login_invalid": ("cycle", 3),
     "gh_auth_failed": ("cycle", 3),
     "gh_timeout": ("cycle", 3),
     "gh_non_json": ("cycle", 3),
-    "project_read_failed": ("cycle", 3),
     # Cycle reasons, exit 4.
     "truncated": ("cycle", 4),
     "discovery_duplicate": ("cycle", 4),
@@ -52,25 +68,17 @@ REASON_TABLE: dict[str, tuple[str, int]] = {
     "rate_limit_clamped": ("cycle", 5),
     # Cycle reason, exit 75.
     "lock_held": ("cycle", 75),
-    # Cycle reason, exit 1. [PROPOSAL] (Gate C fix C-3, executor decision): an
-    # unexpected exception out of ``run_cycle``, written by ``once`` only.
+    # Cycle reason, exit 1: an unexpected exception out of ``run_cycle``,
+    # written by ``once`` only.
     "cycle_crashed": ("cycle", 1),
     # Cycle reasons, exit 0.
     "disabled": ("cycle", 0),
     "disabled_mid_cycle": ("cycle", 0),
     "not_enabled": ("cycle", 0),
-    # [PROPOSAL] (Gate C fix C-2, executor decision): a cycle that ran to its end
-    # with no stop; its cycle line names this, never a skip or entry reason.
+    # A cycle that ran to its end with no stop; its cycle line names this,
+    # never a skip or entry reason.
     "cycle_complete": ("cycle", 0),
     # Skip reasons, exit 0.
-    "not_approved": ("skip", 0),
-    "approval_before_trigger": ("skip", 0),
-    "approval_before_init": ("skip", 0),
-    "events_incomplete": ("skip", 0),
-    "events_unreadable": ("skip", 0),
-    "edited_after_approval": ("skip", 0),
-    "project_mismatch": ("skip", 0),
-    "project_unreadable": ("skip", 0),
     "unassigned": ("skip", 0),
     "assigned_other": ("skip", 0),
     "already_dispatched": ("skip", 0),
@@ -78,25 +86,35 @@ REASON_TABLE: dict[str, tuple[str, int]] = {
     "day_cap": ("skip", 0),
     "budget_exhausted": ("skip", 0),
     "revalidation_failed": ("skip", 0),
-    "marker_unreadable": ("skip", 0),
-    "edits_unreadable": ("skip", 0),
+    "repo_not_listed": ("skip", 0),
+    "repo_disabled": ("skip", 0),
+    "checkout_missing": ("skip", 0),
+    "held_incomplete": ("skip", 0),
+    "held_backlog": ("skip", 0),
+    "hold_removed_by_hand": ("skip", 0),
     # Entry reasons.
-    "prompt_invalid": ("entry", 7),
+    "wake_line_invalid": ("entry", 7),
     "revalidation_transient": ("entry", 7),
-    "attempts_exhausted": ("entry", 0),
+    "attempts_exhausted": ("entry", 7),
     "spawn_error": ("entry", 7),
-    "launch_unknown": ("entry", 7),
-    "pending_orphan": ("entry", 0),
-    "claim_not_observed": ("entry", 0),
-    "launched": ("entry", 0),
-    "claimed": ("entry", 0),
-    # Decision note, used only as the value of a ``note`` key.
-    "re-approved": ("note", 0),
+    "wake_unknown": ("entry", 7),
+    "no_session": ("entry", 7),
+    "ack_not_observed": ("entry", 7),
+    "pending_orphan": ("entry", 0),  # means "resend", never "abandon"
+    "woken": ("entry", 0),
+    "acked": ("entry", 0),
+    # Hold notes (exit 0): the value of a ``note`` key, or the reason of a
+    # decision line that has no skip reason of its own.
+    "hold_applied": ("note", 0),
+    "hold_released": ("note", 0),
+    "plan_requested": ("note", 0),
     # Warning reasons.
     "discovery_count": ("warning", 0),
     "clock_skew": ("warning", 0),
     "dry_run_shadow_reset": ("warning", 0),
     "reset_refused": ("warning", 2),
+    "mailbox_unavailable": ("warning", 0),
+    "hold_write_failed": ("warning", 0),
     # Operator reset: decision line for an entry, warning line for the rate limit.
     "operator_reset": ("skip/warning", 0),
 }
@@ -165,12 +183,12 @@ _KEYS: dict[str, tuple[frozenset[str], frozenset[str]]] = {
         frozenset({"discovery_count", "clock_skew_s"}),
     ),
     "decision": (
-        _COMMON | {"issue", "approver_id", "approval_event_id", "approved_at"},
-        frozenset({"state", "note"}),
+        _COMMON | {"repo", "issue"},
+        frozenset({"state", "note", "orchestrator", "wake_id", "stages"}),
     ),
     "warning": (
         _COMMON,
-        frozenset({"issue", "discovery_count", "clock_skew_s"}),
+        frozenset({"repo", "issue", "discovery_count", "clock_skew_s"}),
     ),
 }
 
@@ -186,11 +204,12 @@ _TYPES: dict[str, tuple[type, bool]] = {
     "reason": (str, False),
     "gh_calls": (int, False),
     "duration_ms": (int, False),
+    "repo": (str, False),
     "issue": (int, False),
     "state": (str, False),
-    "approver_id": (int, True),
-    "approval_event_id": (int, True),
-    "approved_at": (str, True),
+    "orchestrator": (str, False),
+    "wake_id": (str, False),
+    "stages": (str, False),
     "discovery_count": (int, False),
     "clock_skew_s": (int, False),
     "note": (str, False),
@@ -202,7 +221,16 @@ _UTC_TS_SHAPE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{
 _CYCLE_ID_SHAPE = re.compile(r"[0-9a-f]{32}")  # uuid4().hex
 _MAX_ISSUE = 999_999_999  # the same bound as predicates.MAX_ISSUE_NUMBER
 _ENTRY_STATES = frozenset(
-    {"pending", "launched", "unknown", "failed", "abandoned", "claimed"}
+    {"pending", "woken", "acked", "unknown", "failed", "abandoned"}
+)
+# The same patterns as ``predicates.REPO_PATTERN``, ``launch.WAKE_ID_PATTERN`` and
+# ``route.ORCHESTRATOR_ID_PATTERN`` (this module imports nothing from the
+# package; a test pins the copies equal).
+_REPO_SHAPE = re.compile(r"[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9._-]{1,100}")
+_WAKE_ID_SHAPE = re.compile(r"[0-9]{8}T[0-9]{6}Z-[0-9a-f]{8}")
+_ORCHESTRATOR_SHAPE = re.compile(r"[a-z0-9]{1,12}-[1-9][0-9]{0,5}")
+_STAGES_SHAPE = re.compile(
+    r"(input_accepted|turn_started)(,(input_accepted|turn_started)){0,1}"
 )
 
 
@@ -228,14 +256,15 @@ def _is_token(value: str, longest: int) -> bool:
 # 348), so a rejected login can still be written. Every other key is closed.
 _RULES: dict[str, Callable[[Any], bool]] = {
     "ts": _is_utc_ts,
-    "approved_at": _is_utc_ts,
+    "repo": lambda v: _REPO_SHAPE.fullmatch(v) is not None,
+    "orchestrator": lambda v: _ORCHESTRATOR_SHAPE.fullmatch(v) is not None,
+    "wake_id": lambda v: _WAKE_ID_SHAPE.fullmatch(v) is not None,
+    "stages": lambda v: _STAGES_SHAPE.fullmatch(v) is not None,
     "cycle_id": lambda v: _CYCLE_ID_SHAPE.fullmatch(v) is not None,
     "state": lambda v: v in _ENTRY_STATES,
     "host": lambda v: _is_token(v, 255),
     "login": lambda v: _is_token(v, 100) and not any(c.isspace() for c in v),
     "issue": lambda v: 1 <= v <= _MAX_ISSUE,
-    "approver_id": lambda v: v > 0,
-    "approval_event_id": lambda v: v > 0,
     "exit": lambda v: 0 <= v <= 255,
     "gh_calls": lambda v: v >= 0,
     "duration_ms": lambda v: v >= 0,
@@ -277,7 +306,11 @@ def line(kind: str, **fields: object) -> dict:
     for key, value in out.items():
         _check_value(key, value)
     reason = out["reason"]
-    if reason not in REASONS or REASON_TABLE[reason][0] == "note":
+    if reason not in REASONS:
+        raise ValueError(f"unknown audit reason {reason!r}")
+    # A note is the value of a ``note`` key; only a decision line may also use
+    # one as its reason (the hold notes of design 4.11 have no skip reason).
+    if REASON_TABLE[reason][0] == "note" and kind != "decision":
         raise ValueError(f"unknown audit reason {reason!r}")
     note = out.get("note")
     if note is not None and REASON_TABLE.get(note, ("",))[0] != "note":
@@ -327,12 +360,13 @@ def decision_line(
     cycle_id: str,
     dry_run: bool,
     reason: str,
+    repo: str,
     issue: int,
     state: str | None = None,
-    approver_id: int | None = None,
-    approval_event_id: int | None = None,
-    approved_at: str | None = None,
     note: str | None = None,
+    orchestrator: str | None = None,
+    wake_id: str | None = None,
+    stages: str | None = None,
 ) -> dict:
     """Build a ``decision`` line; ``state`` only when an entry was written."""
     return line(
@@ -343,11 +377,15 @@ def decision_line(
         cycle_id=cycle_id,
         dry_run=dry_run,
         reason=reason,
+        repo=repo,
         issue=issue,
-        approver_id=approver_id,
-        approval_event_id=approval_event_id,
-        approved_at=approved_at,
-        **_optional(state=state, note=note),
+        **_optional(
+            state=state,
+            note=note,
+            orchestrator=orchestrator,
+            wake_id=wake_id,
+            stages=stages,
+        ),
     )
 
 
@@ -359,6 +397,7 @@ def warning_line(
     cycle_id: str,
     dry_run: bool,
     reason: str,
+    repo: str | None = None,
     issue: int | None = None,
     discovery_count: int | None = None,
     clock_skew_s: int | None = None,
@@ -373,7 +412,10 @@ def warning_line(
         dry_run=dry_run,
         reason=reason,
         **_optional(
-            issue=issue, discovery_count=discovery_count, clock_skew_s=clock_skew_s
+            repo=repo,
+            issue=issue,
+            discovery_count=discovery_count,
+            clock_skew_s=clock_skew_s,
         ),
     )
 
