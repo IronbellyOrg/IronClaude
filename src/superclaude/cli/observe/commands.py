@@ -222,6 +222,25 @@ def _write_snapshot(view: Any, target: Path) -> str | None:
 # -- --once ----------------------------------------------------------------------------------------------
 
 
+def _stdout_is_tty(deps: Deps) -> bool:
+    """True when the stream ``_emit`` writes to is a terminal (a piped one-shot stays plain)."""
+    stream = deps.stdout if deps.stdout is not None else sys.stdout
+    try:
+        return bool(stream.isatty())
+    except (AttributeError, ValueError, OSError):
+        return False
+
+
+def _screen_text(view: Any, policy: Any, *, styled: bool) -> str:
+    """The screen as text through a recorded console: with its colour and weight escapes when
+    ``styled`` (the bytes a terminal would receive), else the plain text.
+
+    ``export_text(styles=True)`` is never used: it ignores the colour switch and the colour depth."""
+    console = make_console(policy, file=io.StringIO(), record=True)
+    console.print(render(view, policy))
+    return console.file.getvalue() if styled else console.export_text()
+
+
 def run_once(options: Options, deps: Deps) -> int:
     clock = deps.clock or SystemClock()
     source = _build_source(options, deps)
@@ -237,9 +256,8 @@ def run_once(options: Options, deps: Deps) -> int:
     view = build_view(result, session, clock)
     if options.width is not None:  # the width-bound screen, through a recorded console
         policy = _policy_maker(options, deps)()
-        console = make_console(policy, file=io.StringIO(), record=True)
-        console.print(render(view, policy))
-        text = console.export_text()
+        styled = policy.color_system is not None and _stdout_is_tty(deps)
+        text = _screen_text(view, policy, styled=styled)
     else:
         text = record_text(view)
     _emit(text, deps)
@@ -262,7 +280,13 @@ class LiveScreen:
         self._shape: tuple | None = None
 
     def draw(self, view: Any, policy: Any, message: str | None) -> None:
-        shape = (policy.width, policy.height, policy.ascii, policy.no_color)
+        shape = (
+            policy.width,
+            policy.height,
+            policy.ascii,
+            policy.no_color,
+            policy.color_system,
+        )
         group = render(view, policy, message)
         if self._live is None or shape != self._shape:
             self.close()

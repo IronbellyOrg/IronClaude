@@ -8,6 +8,7 @@ turns the ``UNKNOWN`` sentinel into screen words.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from enum import Enum
@@ -62,7 +63,18 @@ QUESTIONS_NOT_HELD = (
 )
 QUESTIONS_EMPTY = "no observed questions in this source window; not proof none exist"
 QUESTIONS_REASON = "reason unknown"  # no verified reason field exists (PROPOSED)
+# On screen the per-row "reason unknown" is replaced by this one title note: the source has no
+# reason field, so "none in source" is a statement about the source, not about the world.
+QUESTIONS_REASONS_NOTE = "reasons: none in source"
+RETAIN_TITLE = (
+    "RETAIN CONTEXT"  # the pane that holds the run, caveat and retention lines
+)
 QUESTIONS_CLOSED = "closed by evidence: unavailable (no source)"
+# The 80 column list line (no strip there) uses two short forms of the same two phrases, 10
+# characters each, plain ASCII (owner ruling 2026-11-18): "seen, not resolved" -> "seen !done",
+# "closed by evidence" -> "proof-done". The record and the 160 and 116 strip keep the full words.
+QUESTIONS_COUNT_SHORT = "seen !done"
+QUESTIONS_CLOSED_SCREEN = "proof-done: unavailable (no source)"
 QUESTIONS_RETENTION = (
     "retention reset at {hhmm}; questions observed before this start are not retained"
 )
@@ -75,12 +87,12 @@ QUESTIONS_ACTION = "start the observer in the terminal that holds {run} (inferre
 QUESTIONS_LATEST_EMPTY = "latest read returned 0 questions; the rows below are older"
 QUESTIONS_EMPTY_COUNT = "0 (source window only; not proof none exist)"
 QUESTIONS_AGE_SKEW = "age unknown (clock skew)"
-QUESTIONS_KEYS_LINE = (
-    "Up/Down j/k move workers  Enter detail  Esc back  / filter  h historical  "
-    "m mark rows  e export all  q quit"
+# The shown key list names the keys most used; the dropped ones (Up/Down, Esc, m, d/u) still work.
+QUESTIONS_KEYS_LINE = "j/k move  Enter detail  / filter  h history  e export  q quit"
+# With the R3 question link on the keys line also names n/p.
+QUESTIONS_LINK_KEYS_LINE = (
+    "j/k move  Enter detail  / filter  n/p question  h history  e export  q quit"
 )
-# With the R3 question link on the keys line also names n/p (the link-off line is unchanged).
-QUESTIONS_LINK_KEYS_LINE = QUESTIONS_KEYS_LINE + "  n/p question"
 # R3 Decision Desk (one stacked block under the question list); literals defined once.
 DESK_TITLE = "DECISION DESK"
 DESK_UNKNOWN_SCOPE = "affected scope unknown"
@@ -97,12 +109,20 @@ DESK_EVICTED = "selected {qid} no longer in source window"
 DESK_HIDDEN = "decision desk hidden: terminal too short"
 DESK_SELECTED_HIDDEN = "selected question not shown"
 DESK_TEXT_LINES = 4  # the question text wraps to at most this many desk lines
+DESK_EVIDENCE_TITLE = "LINKED SESSION"  # the title of the evidence pane (D-8)
 UNAVAILABLE = "unavailable (no source)"
 ABSENT_IN_SOURCE = "unknown (absent in source)"
 PARTIAL_CAP_TEXT = (
     "newest first; oldest rows not read; long-running active workers may be among them"
 )
-KEYS_LINE = "Up/Down j/k move  Enter detail  Esc back  / filter  h historical  m mark  e export  q quit"
+KEYS_LINE = QUESTIONS_KEYS_LINE
+LEDGER_LEGEND = "{dot} alive; any other state is spelled out"
+NO_SOURCE_TOKEN = (
+    "no source: settled, frozen, cost"  # one dim token for the three unavailable ones
+)
+READ_ONLY_BADGE = (
+    "READ ONLY"  # right-aligned on the title bar; screen only, never in the record
+)
 FROZEN_MARKER = "FROZEN"  # fixture mode only; no other state overrides it (T34)
 INSPECTOR_TITLE = "INSPECTOR"
 INSPECTOR_HELP = "Esc back  j/k move  d/u scroll  e export  q quit"
@@ -152,6 +172,7 @@ class Session:
 class CountsToken:
     text: str
     protected: bool  # protected tokens are never truncated
+    dim: bool = False  # the whole token reads in the muted role (a note, not a figure)
 
 
 @dataclass(frozen=True)
@@ -223,6 +244,10 @@ class QuestionLine:
     age_text: str = ""  # "5s", "unknown" ...
     lead: str = ""  # age and, when the question left the window, the bracketed state
     shown: str = ""  # the question text shown on screen: ``ask``, else the subject
+    # Screen only: the row without the per-row "reason unknown" (the record keeps ``text``), and
+    # the reason when the source gave one (it has no such field today, so this stays "").
+    row_text: str = ""
+    reason: str = ""
 
 
 @dataclass(frozen=True)
@@ -264,6 +289,13 @@ class QuestionsPanel:
     retained: int
     evicted: int
     window_full: bool
+    # Screen only (the record keeps ``header_cell`` and ``counts_line`` unchanged): the strip cell
+    # without the Run id, and the count without the ``(no source)`` tail (the 80 column list line).
+    screen_cell: str = ""
+    screen_counts_line: str = ""
+    # Render only: the figure of ``counts_line`` alone (``5``, ``100+``, or a word such as
+    # ``unknown``), for the big-digit strip. The record and the snapshot never read it.
+    count_figure: str = ""
 
     @property
     def link_on(self) -> bool:
@@ -337,6 +369,13 @@ class View:
     desk: DeskView | None = (
         None  # None unless the link is on and a question is selected
     )
+    # Screen only: the freshness strip with the questions cell stripped of its Run id (the
+    # panel title carries the Run once). ``header2`` stays as the record reads it.
+    screen_header2: str = ""
+    # Screen only: the title without ``mode=`` and ``as of``, and the strip without the second
+    # scope, the unknown source counts, ``runs seen`` and the three unavailable tokens.
+    screen_header1: str = ""
+    screen_counts_tokens: tuple[CountsToken, ...] = ()
 
     def window(self, capacity: int | None) -> Window:
         """The rows that fit ``capacity`` lines, always including the selected visible row."""
@@ -364,8 +403,8 @@ class View:
         )
 
     def footer_counts(self, window: Window) -> str:
-        """The footer literal ``shown x/y | collected n / reported T`` ("x/y shown" is the overflow text)."""
-        return f"shown {window.shown}/{window.total} | {self.collected_text}"
+        """The footer literal ``shown x/y``; ``collected n / reported T`` is in the counts strip."""
+        return f"shown {window.shown}/{window.total}"
 
     def footer(self, window: Window) -> str:
         return f"{self.help_line}  {self.footer_counts(window)}"
@@ -383,6 +422,16 @@ def text_of(value: Any) -> str:
     if isinstance(value, str):
         return f'"{value}"' if value.strip().lower() == "unknown" else value
     return str(value)
+
+
+_HEX_RUN = re.compile(r"( ?)[0-9a-fA-F]{32,}( ?)")
+
+
+def strip_hex(text: str) -> str:
+    """``text`` without any run of 32 or more hexadecimal characters (a plan hash): nothing is
+    left in its place, and the space on each side collapses to one. Display text only: the
+    record and the snapshot never read the result."""
+    return _HEX_RUN.sub(lambda m: " " if m[1] and m[2] else m[1] or m[2], text)
 
 
 def aggregate(count: int, unknown: int) -> str:
@@ -460,9 +509,26 @@ def _inspector(row: Row, result: Any, snapshot: Any) -> tuple[tuple[str, str], .
         ("projection.stage.detail (worker-reported)", _field(row, "stage_detail")),
         ("unrecognised keys", f"{row.unrecognised_keys} unrecognised keys"),
     ]
+    if getattr(result, "question_state", "OFF") != "OFF":
+        # With the questions on the desk shows the worktree short; the full note lives here.
+        lines.insert(9, ("worktree note", DESK_WORKTREE_NOTE))
     flags = row.flags + (() if row.reobserved else ("not reobserved",))
     if flags:
         lines.append(("flags", ", ".join(flags)))
+    # The strip no longer carries these two (decision D-16): they live with the row detail.
+    runs = (
+        {r.run_id for r in snapshot.rows if r.run_id is not UNKNOWN}
+        if snapshot
+        else set()
+    )
+    unknown_runs = (
+        sum(1 for r in snapshot.rows if r.run_id is UNKNOWN) if snapshot else 0
+    )
+    lines.append(
+        ("source counts", _source_counts_text(snapshot)[len("source counts: ") :])
+    )
+    if snapshot is not None:
+        lines.append(("runs seen", aggregate(len(runs), unknown_runs)))
     lines.extend((fact, UNAVAILABLE) for fact in UNAVAILABLE_FACTS)
     if snapshot is not None:
         lines.extend(("source warning", warning) for warning in snapshot.warnings)
@@ -700,6 +766,7 @@ def _questions_panel(
         status = f"last read {cell_state}"
         cell = cell_state
     header_cell = f"coordinator questions {cell} (one Run {run})"
+    screen_cell = f"questions {cell}"
 
     if retained is None:
         open_total: Any = UNKNOWN
@@ -737,11 +804,12 @@ def _questions_panel(
                 lead.append(f"[{record.status_text}]")
             # R3: the payload question replaces the subject on screen only (text stays subject).
             ask = q.ask if isinstance(q.ask, str) and q.ask.strip() else ""
-            shown = ask or text_of(q.subject)
+            shown = strip_hex(ask or text_of(q.subject))
             built.append(
                 QuestionLine(
                     qid=text_of(q.qid),
                     text="  ".join(lead + [text_of(q.subject), QUESTIONS_REASON]),
+                    row_text="  ".join(lead + [text_of(q.subject)]),
                     created_at=q.created_at,
                     age_seconds=seconds,
                     in_window=record.in_window,
@@ -759,6 +827,9 @@ def _questions_panel(
             )
         lines = tuple(built)
     counts_line = f"{QUESTIONS_COUNT_LABEL}: {open_text} | {QUESTIONS_CLOSED}"
+    screen_counts_line = (
+        f"{QUESTIONS_COUNT_SHORT}: {open_text} | {QUESTIONS_CLOSED_SCREEN}"
+    )
 
     notes: list[str] = []
     read = result.question_read
@@ -808,6 +879,9 @@ def _questions_panel(
         retained=count_retained,
         evicted=evicted,
         window_full=window_full,
+        screen_cell=screen_cell,
+        screen_counts_line=screen_counts_line,
+        count_figure=open_text.split(" ", 1)[0],
     )
 
 
@@ -867,7 +941,7 @@ def _desk(
     return DeskView(
         qid=line.qid,
         age_text=line.age_text,
-        ask=line.ask or DESK_NO_TEXT,
+        ask=strip_hex(line.ask).strip() or DESK_NO_TEXT,
         link=line.link,
         session_fields=fields,
         notes=tuple(notes),
@@ -919,6 +993,12 @@ def build_view(result: Any, session: Session, clock: Any) -> View:
         header_parts.append("one Run only")
     header_parts.append(f"as of {as_of}")
     header1 = "  ".join(header_parts)
+    # Screen only: no ``mode=`` and no ``as of`` (the strip says how fresh each source is).
+    screen_header1 = "  ".join(
+        part
+        for part in header_parts
+        if not part.startswith("mode=") and not part.startswith("as of ")
+    )
 
     fresh_cell, age = _freshness(result, clock, state)
     panel = _questions_panel(result, clock, session.selected_question)
@@ -930,6 +1010,12 @@ def build_view(result: Any, session: Session, clock: Any) -> View:
     if result.code == "overrun":
         cells.append(f"cycle overran ({int(result.duration)}s)")
     header2 = "  ".join(cells)
+    screen_header2 = "  ".join(
+        [
+            panel.screen_cell if panel is not None and c == messages_cell else c
+            for c in cells
+        ]
+    )
 
     collected_text = _collected_text(coverage)
     tokens = [CountsToken(collected_text, True)]
@@ -947,6 +1033,13 @@ def build_view(result: Any, session: Session, clock: Any) -> View:
     tokens.append(CountsToken(f"SETTLED {UNAVAILABLE}", False))
     tokens.append(CountsToken(f"POLICY FROZEN {UNAVAILABLE}", False))
     tokens.append(CountsToken("cost unavailable", False))
+    screen_tokens = [CountsToken(collected_text, True)]
+    if partial:
+        screen_tokens.append(CountsToken(partial, True))
+    screen_tokens.append(CountsToken(NO_SOURCE_TOKEN, False, dim=True))
+    source_counts = _source_counts_text(snapshot)
+    if not source_counts.endswith("unknown"):  # unknown counts are in the inspector
+        screen_tokens.append(CountsToken(source_counts, False))
 
     flagged, changed_k = _changes(rows, session)
     changes_line = None
@@ -1047,6 +1140,9 @@ def build_view(result: Any, session: Session, clock: Any) -> View:
         if panel is None
         else (QUESTIONS_LINK_KEYS_LINE if panel.link_on else QUESTIONS_KEYS_LINE),
         inspector_scroll=session.inspector_scroll,
+        screen_header2=screen_header2,
+        screen_header1=screen_header1,
+        screen_counts_tokens=tuple(screen_tokens),
         questions=panel,
         desk=_desk(
             panel,

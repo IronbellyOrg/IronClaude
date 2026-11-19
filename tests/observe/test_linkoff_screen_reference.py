@@ -31,10 +31,8 @@ from tests.observe.conftest import (
 GOLDEN = Path(__file__).parent / "golden_questions_linkoff.json"
 HEIGHT = 40
 WIDTHS = (160, 116, 80)
-KEYS_LITERAL = (
-    "Up/Down j/k move workers  Enter detail  Esc back  / filter  h historical  "
-    "m mark rows  e export all  q quit"
-)
+# The shown key list (Task 15): the dropped keys (Up/Down, Esc, m, d/u) still work.
+KEYS_LITERAL = "j/k move  Enter detail  / filter  h history  e export  q quit"
 
 
 def _view(clock, rows):
@@ -65,7 +63,7 @@ def capture(clock):
 
 
 def test_the_link_off_keys_line_is_the_pinned_literal(fake_clock):
-    assert QUESTIONS_KEYS_LINE == KEYS_LITERAL and len(KEYS_LITERAL) == 107
+    assert QUESTIONS_KEYS_LINE == KEYS_LITERAL and len(KEYS_LITERAL) == 61
     assert _view(fake_clock, make_question_rows(2)).help_line == KEYS_LITERAL
 
 

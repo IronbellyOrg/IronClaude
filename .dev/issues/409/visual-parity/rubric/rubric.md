@@ -1,0 +1,60 @@
+# Fixed rubric for every render gate (observer visual parity, issue 606)
+
+Written once in plan Phase 1. The wording is frozen: no later task edits it. Source: spec section 8.4 (RB-01 to RB-23), Part C section C.3 (RB-24 to RB-29; RB-27 replaces RB-19), section 8.3 (geometry) and the palette of 04 section 2 as quoted in RB-01.
+
+## Palette (RGB, from RB-01)
+
+base 225,233,238; muted 165,182,194; slate 82,108,128; amber 250,178,25; cyan 112,205,226; green 139,215,175; red 240,141,150; violet 194,173,242.
+
+## Geometry and height budgets (spec section 8.3)
+
+| Screen | 160 | 116 | 80 |
+|---|---|---|---|
+| Questions screen | stacked at every width (owner ruling D-1, AD-8): panes `width - 2` wide with margin 1; at 160 and 116 three panes (count strip, list, RETAIN CONTEXT) | same | one column, panes 78 wide, no strip and no RETAIN pane |
+| Decision Desk | left 76 (question over list), right 80 (session evidence) (1+76+2+80+1=160) | question 114 full width over 66 + 46 (1+66+2+46+1=116) | three stacked panes 78 wide |
+| Ledger | table keeps all 160 cells today (render.py:159-192); a border-only frame needs `flags` to give 2 cells | `line` layout, frame 114 | `short` layout, frame 78 |
+| Inner width of a framed pane | pane width minus 4 (border plus one cell padding each side) | same | same |
+| Frame row cost | 2 rows per frame (top and bottom border) | 2 | 2 |
+| Harness height for scoring | 48 (mockup frame height) | 42 | 42 |
+| Extra height matrix (text only) | 44, 40, 24, 12, 8 | same | same |
+
+## Rows RB-01 to RB-23 (spec section 8.4, verbatim)
+
+| ID | Criterion | Severity | Findings | Checked by | In scope from |
+|---|---|---|---|---|---|
+| RB-01 | Colour roles, measured on the truecolour `.ansi` by mapping each SGR foreground RGB to a role (palette: base 225,233,238; muted 165,182,194; slate 82,108,128; amber 250,178,25; cyan 112,205,226; green 139,215,175; red 240,141,150; violet 194,173,242; 04 section 2). Pass only if all hold: (a) every foreground colour in the file is one of the eight triples; (b) the `header1` title text is cyan and bold; (c) every question age (in the list and in the desk) is amber and bold, and every question-text line in the desk is amber and bold; in the list the question subject text is base colour and bold (`body_bold`, step 1.4, RB-16(a); 04 line 57: amber question text in the desks, base bold in the 160 ledger), never amber; the one selected list row is scored under the `selected` role (marker and line bold amber, step 1.4; an unverified design choice, no mockup shows a selected row) and is exempt from the base-colour subject rule but not from the amber-age rule; (d) the `header2` freshness line, the keys hint and the footer text are muted; (e) every secondary-pane border glyph and the footer rule is slate (not applicable before P3, when no border exists); (f) ledger cells that carry no state or absent value are base. One counter-example, quoted with its line number, fails the row | High | M-01 | Script (`checks.json` role census for (a)) plus Reviewer for (b) to (f) | P1 |
+| RB-02 | Every pane the mockup frames has a titled border with the title inset in the top border: heavy amber for the attention pane, rounded slate for secondary panes, cyan for the count strip | High | M-02 | Reviewer | P3 (questions, desk), P6 (ledger) |
+| RB-03 | Layout structure matches 8.3: the Decision Desk is two columns at 160 and 116 and stacked at 80; the questions screen is stacked at every width (strip, list, RETAIN CONTEXT in that order at 160 and 116; list only at 80) | High | M-04 (desk); M-03 is closed by AD-8 | Reviewer | P4 (questions order), P5 (desk) |
+| RB-04 | Count strip, at 160 and 116 only (none at 80). Pass only if all hold: (a) the strip frame's border glyphs carry the cyan role and its top border holds the title `QUESTIONS_COUNT_LABEL.upper()`; (b) when the figure is drawable (digits or `+`) and fits, the figure occupies 3 consecutive rows made of the block glyph (`█`, ASCII `#`), otherwise it is one bold amber figure; either way the figure is the tallest text on the screen; (c) the plain pass contains `seen, not resolved: N \| closed by evidence: unavailable (no source)` whole on one line, with N equal to the figure; (d) at 80 columns no strip frame exists and (c) still holds | High | M-05 | Script for (a) border role, (c) and (d); Reviewer for (b) | P4 |
+| RB-05 | Required literals intact and uncut: gap notice, counts tokens without a mid-token cut, `PARTIAL (...)` text, the disclosure, `reason unknown`, desk title, retention line, `nextAction.kind` verbatim | High | guards RR 20, 31, 32, 47, 49 | Script (substring list) | every phase |
+| RB-06 | NO_COLOR pass: zero ESC bytes; text equals the coloured pass after SGR removal; hierarchy is carried by text and glyphs | High | G-1 | Script | every phase |
+| RB-07 | ASCII pass: output is pure ASCII; borders are `+ - |`; no `?` where a border should be | High | G-1 | Script | P3, and every phase for the ASCII text part |
+| RB-08 | Fit: every line at most the width in cells; rows at most the height; the footer keys are the last lines; no SGR 5 or 6 (blink); no mouse sequences | High | AD-5, standing constraints | Script | every phase |
+| RB-09 | 16-colour pass: the eight roles map to eight distinct ANSI colours (no two roles share an index) | High | G-2 | Script (theme table test plus SGR read) | P1 |
+| RB-10 | State words follow the fixed `STATE_ROLE` table of step 1.4 (D-7 default). Pass only if all hold: (a) every `workerState`, `dispatchStatus` or liveness cell, desk field or flags cell whose raw value is in the table carries exactly the table's role in the `.ansi`; (b) every other value (and `terminalState`, `nextAction.kind`) carries the `body` role, never a state role; (c) the word is printed in the plain pass in every case; (d) the table is non-empty: `T/test_theme.py` asserts that the tuple keys `("workerState", "running")`, `("workerState", "succeeded")`, `("workerState", "failed")`, `("dispatchStatus", "completed")` and `("liveness", "alive")` are in `STATE_ROLE` and that `FROZEN_ROLE == "state_frozen"`, so the row cannot pass on an empty table; (e) at the `standard` depth the four state roles have four different SGR codes | Medium | M-09 | Script (`.ansi` census against the table, `T/test_theme.py`) | P1 (desk fields P5) |
+| RB-11 | Absent values (`unknown`, `unavailable (no source)`, `reason unknown`) are muted; plain under NO_COLOR | Medium | M-08 | Reviewer | P1 |
+| RB-12 | A column heading and rule appear at 116 and 80 whenever rows are visible | Medium | M-10 | Reviewer plus script | P2 |
+| RB-13 | The 80-column key list is not cut and no key pair is split across lines | Medium | M-11 | Script | P2 |
+| RB-14 | Desk, measured on the plain and `.ansi` passes of `desk` and `desk-planask`. Pass only if all hold: (a) the question text leads: the first body line of the first pane after `DESK_TITLE` is `qid  age`, and all question-text lines (at most `DESK_TEXT_LINES`) come before any `label: value` line; (b) question-text lines carry the amber role and bold; (c) in the evidence pane every one-line field starts its value at the same cell offset (`label_width` = longest label plus its colon), measured as the column of the first character after the label on each such line; (d) a value that does not fit beside its label sits on the next line indented two cells, and no line exceeds the width | Medium | M-12 | Script for (a), (c), (d); Reviewer for (b) | P5 |
+| RB-15 | Title bar: the left title and a right `READ ONLY` badge (OPEN-3, gating until ruled) | Medium | M-13 | Reviewer | P2 |
+| RB-16 | Question list hierarchy (OPEN-1, gating until ruled). Pass only if all hold in the `.ansi`: (a) every question row line is bold, and its subject text carries the `body_bold` role (base colour); the one selected row is accepted with its marker and line in the bold amber `selected` role (step 1.4) and is not counted against this clause; (b) every run, state, caveat and retention line carries the `muted` role and no bold; (c) at 160 and 116 the first line inside the list pane after the disclosure is a question row (the caveat lines sit in the RETAIN CONTEXT pane, step 4.4), and at 80 the row lines carry strictly more bold characters than the caveat lines (0) | Medium | M-07 | Script (role census per line class) | P4 |
+| RB-17 | RETAIN CONTEXT grouping at 160 and 116 (OPEN-2, gating until ruled). Pass only if all hold: (a) when a frame whose top border contains `RETAIN CONTEXT` is drawn, it is slate-bordered, full pane width, below the list pane, and its body contains each of `run_line`, `caveat_line` and `retention_line` exactly once; (b) none of those three strings occurs anywhere else on the screen; (c) when the degrade rule of step 4.5 dropped the pane (small height), no such frame exists and each of the three strings still occurs exactly once, in the list pane; (d) at 80 columns no RETAIN CONTEXT frame exists | Medium | M-14 | Script (string census on the plain pass) | P4 |
+| RB-18 | Ledger screen: observation and attention content is in titled panes, with no invented owner, requester, mapped-tree or SIGNALS content (AD-1 to AD-4) | Medium | M-06 | Reviewer | P6 |
+| RB-19 | Q7: for the `PLAN_ASK` fixture (hash inside the first four wrapped lines) the 64-hex hash is whole on one line in the 80-column desk, nothing is lost, no line exceeds 80 cells; the trailing-hash fixture still ends its fourth line with `...` (D-6) | Medium | Q7 | Script | P3 |
+| RB-20 | A rule line precedes the footer and the key pair `n/p question` is intact | Low | M-15 | Script | P2 |
+| RB-21 | The 80-column counts strip is not cut inside a token | Low | M-16 | Script | P2 |
+| RB-22 | No wide blank band after the id column at 116 and 80: the longest run of consecutive spaces between two non-space characters inside a ledger row line, on the `base` fixture, is at most N, where N is the same measure on the 160-column rows of the same fixture, recorded in `VP/scores/baseline.md` in step 0.8 (a number measured at the current commit, not assumed) | Low | M-17 | Script | P2 |
+| RB-23 | The selected question has a role style in addition to the glyph | Low | M-18 | Reviewer | P1 |
+
+A phase closes only when every High and Medium row that is in scope for it passes; Low rows are recorded and may be deferred with a log line. A reviewer scores only the rows in scope for the phase, and marks later rows `N/A (scheduled P<n>)`.
+
+## Rows RB-24 to RB-29 (spec Part C section C.3, verbatim; RB-27 replaces RB-19)
+
+| ID | Criterion | Severity | Checked by | In scope from |
+|---|---|---|---|---|
+| RB-24 | No fact is printed twice on a screen: for the `desk` and `questions` fixtures at each width, the question text, the Run id, the count words and the freshness state of a source each occur once (header and panel state line excepted as RR 45 requires). | Medium | Script (string census) | Phase 2 |
+| RB-25 | Reasons: no `reason unknown` suffix on any question row when no reason is given; the title carries `reasons: none in source`; a row with a reason shows it. | Medium | Script | Phase 2 |
+| RB-26 | Status: dispatch, terminal and outcome show as one `ACTIVE` badge only when they are `active`, `active`, `none`; any other combination, including an absent value (`unknown`), shows three separate raw rows. | High (safety: unknown is not none) | Script | Phase 2 |
+| RB-27 | Hash: no run of 32 or more hexadecimal characters appears on the questions screen or the Decision Desk at any width; the rest of the ask is intact; both canaries pass. (Replaces RB-19.) | High | Script | Phase 2 |
+| RB-28 | Ledger: no `flags` column, no rule row, no `+N more` row above a `shown n/N` footer; liveness is a dot with a legend, and any non-alive value is spelled out, also under NO_COLOR. | Medium | Script plus Reviewer | Phase 2 |
+| RB-29 | Order and labels: question rows lead the list pane; desk labels are plain words with one aligned value column; no internal `msg_` id and no raw field name on the desk except in an expanded status row. | Medium | Reviewer | Phase 2 |

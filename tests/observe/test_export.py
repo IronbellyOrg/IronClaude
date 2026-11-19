@@ -243,6 +243,11 @@ def test_export_does_not_import_render_parse_or_adapter_or_use_a_console():
     )
 
 
+def test_export_never_reads_the_render_only_count_figure():
+    text = Path(export_module.__file__).read_text(encoding="utf-8")
+    assert "count_figure" not in text
+
+
 # -- R2: the record export carries the same question lines as the screen ---------------------------------------------------
 
 from superclaude.cli.observe.view import QUESTIONS_DISCLOSURE  # noqa: E402

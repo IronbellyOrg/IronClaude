@@ -1,0 +1,21 @@
+{
+  "phase": "plan Phase 5 (spec Phase 4): count strip and RETAIN CONTEXT pane on the stacked questions screen",
+  "iteration": 2,
+  "gate_dir": ".dev/tasks/to-do/TASK-WF-redesignSpec-20261118-043319/artifacts/gates/p4/iter-2",
+  "route": "text and ANSI tier (the PNG route is unavailable, see ../../png-route.md)",
+  "passes_present": {"no_color": true, "ascii": "borders + - |, block figure #, no ? on a border"},
+  "owner_ruling": "scores/p4/ruling.md: at 80 columns RB-04 (c) and (d) are read with the short forms seen !done and proof-done",
+  "widths": {
+    "160": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred)"}},
+    "116": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred)"}},
+    "80": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred)"}}
+  },
+  "scorecards": ".dev/tasks/to-do/TASK-WF-redesignSpec-20261118-043319/artifacts/gates/p4/iter-2/reviewer-outputs/summary.md",
+  "script_rows": "artifacts/gates/p4/iter-2/checks.json: every row passes except RB-22",
+  "trigger_heights_measured": {
+    "no_desk_3_questions": {"160": {"strip_from": 24, "retain_from": 27}, "116": {"strip_from": 25, "retain_from": 28}},
+    "with_desk_8_questions": {"160": {"strip_from": 35, "retain_from": 38}, "116": {"strip_from": 36, "retain_from": 39}}
+  },
+  "iteration_1": {"failed": {"80": ["RB-04"]}, "fix": "owner ruling on the 80 column wording"},
+  "result": "PASS for every in-scope High and Medium row; RB-22 (Low) failing and deferred"
+}

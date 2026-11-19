@@ -31,6 +31,8 @@ from tests.observe.conftest import (
     make_question_rows,
     make_rows,
     routed_runner_responses,
+    unframe,
+    unframed,
 )
 
 
@@ -74,8 +76,10 @@ def test_a_100_row_reply_sets_window_full_and_the_panel_says_so(fake_clock, argv
     assert result.question_state == "OK" and result.questions.window_full is True
     view, lines = screen(result, fake_clock)
     assert view.questions.window_full_text == QUESTIONS_WINDOW_FULL
-    assert "window full: older questions may be missing" in lines
-    flat = " ".join(" ".join(lines).split())
+    assert "window full: older questions may be missing" in [
+        unframe(ln) for ln in lines
+    ]
+    flat = " ".join(" ".join(unframed(lines)).split())
     assert QUESTIONS_DISCLOSURE in flat
     assert "bounded best effort; coverage unknown" in flat
     assert "seen, not resolved: 100+ (window full) |" in flat
@@ -118,7 +122,9 @@ def test_a_moved_window_keeps_the_dropped_questions_and_the_open_total_does_not_
         "seen, not resolved: 110+ (window full) |"
     )
     assert sum("no longer in source window" in line for line in lines) == 10
-    assert "window full: older questions may be missing" in lines
+    assert "window full: older questions may be missing" in [
+        unframe(ln) for ln in lines
+    ]
 
 
 def test_the_panel_never_prints_a_total_taken_from_result_count(fake_clock, argv_log):

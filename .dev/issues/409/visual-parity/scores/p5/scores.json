@@ -1,0 +1,17 @@
+{
+  "phase": "plan Phase 6 (spec Phase 5): the Decision Desk as a question pane and an evidence pane, two columns at 160 and 116, stacked at 80",
+  "iteration": 2,
+  "gate_dir": ".dev/tasks/to-do/TASK-WF-redesignSpec-20261118-043319/artifacts/gates/p5/iter-2",
+  "route": "text and ANSI tier (the PNG route is unavailable, see ../../png-route.md)",
+  "passes_present": {"no_color": true, "ascii": "borders + - |, no ? on a border"},
+  "widths": {
+    "160": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred)"}},
+    "116": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred)"}},
+    "80": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred)"}}
+  },
+  "newly_scored": ["RB-03 (desk)", "RB-10 (desk fields)", "RB-14", "RB-27"],
+  "scorecards": ".dev/tasks/to-do/TASK-WF-redesignSpec-20261118-043319/artifacts/gates/p5/iter-2/reviewer-outputs/summary.md",
+  "script_rows": "artifacts/gates/p5/iter-2/checks.json: every script row passes except RB-22; RB-16 and RB-19 are na by design",
+  "iteration_1": "RB-29 failed at 116 and 80 (disclosure above the question rows in the narrow list pane; the worker table headings read as desk labels). Fix: next to an open desk the question rows lead the list pane. Also fixed before the reviewers ran: the harness read the two-column desk as one column (render_compare.py _split_panes).",
+  "status": "PASS: no High or Medium row fails at any width"
+}

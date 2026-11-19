@@ -370,7 +370,10 @@ from tests.observe import record_golden_questions  # noqa: E402
 from tests.observe.conftest import (  # noqa: E402
     make_envelope,
     make_rows,
+    question_rows,
     routed_runner_responses,
+    title_of,
+    unframed,
 )
 
 QUESTION_GOLDEN = (
@@ -428,8 +431,8 @@ def test_t55_the_success_sample_parses_to_its_two_questions_at_every_width(fake_
     for width in (160, 116, 80):
         lines = screen_lines(view, policy(width))
         assert all(cell_len(line) <= width for line in lines)
-        assert "COORDINATOR QUESTIONS" in lines
-        assert sum("reason unknown" in line for line in lines) == 2
+        assert any(t.startswith("COORDINATOR QUESTIONS") for t in title_of(lines))
+        assert len(question_rows(unframed(lines))) == 2
 
 
 def test_t55_the_missing_sample_fails_by_shape_then_by_no_active_terminal_and_keeps_questions(
