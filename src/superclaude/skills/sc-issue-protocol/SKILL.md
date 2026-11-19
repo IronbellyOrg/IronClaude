@@ -26,7 +26,7 @@ For issues filed through `/sc:issue --create`, its four templates replace the `I
 | Path (skill-relative) | Loaded or used |
 |---|---|
 | `refs/claim.md` | at the start of claim mode: Waves 0-8 in detail, the effort and complexity rubric, marker handling |
-| `refs/create.md` | at the start of create mode: Waves 0-5, flag-settling table, depth-to-worker table, contradiction prompt rule |
+| `refs/create.md` | at the start of create mode: Waves 0-5, flag-settling table, depth-to-worker table, contradiction prompt rule, the Priority rule set and the three required plan sections |
 | `refs/chains.md` | claim Wave 5: the six default next-step chains and the `/sc:recommend` goal format |
 | `refs/labels.md` | create Wave 5: the mode labels, the issue type and Complexity field rules, the output lines and the maintainer's one-time label creation lines |
 | `refs/tiers.md` | before the first worker spawn of either mode: tier map, pinning rule, `E-TIER-UNAVAILABLE` |
@@ -42,10 +42,10 @@ For issues filed through `/sc:issue --create`, its four templates replace the `I
 | `templates/launch-prompt.md` | `launch-prompt.md` (claim, not for `--pipeline none`): four blocks that `scripts/orca_worktree.py prompt` assembles |
 | `templates/description.md` | `description.md` (create) |
 | `templates/flags-decision.md` | `flags.md`, `flags-user.md`, `flags-t1.md` (create) |
-| `templates/issue-feature-simple.md` | `issue-body.md` (create, feature, quick or standard) |
-| `templates/issue-feature-complex.md` | `issue-body.md` (create, feature, deep) |
-| `templates/issue-bug-simple.md` | `issue-body.md` (create, bug, quick or standard) |
-| `templates/issue-bug-complex.md` | `issue-body.md` (create, bug, deep) |
+| `templates/issue-feature-simple.md` | `issue-body.md` (create, feature, quick or standard; ends with the required Priority, Fix approach and Test plan sections) |
+| `templates/issue-feature-complex.md` | `issue-body.md` (create, feature, deep; ends with the required Priority, Fix approach and Test plan sections) |
+| `templates/issue-bug-simple.md` | `issue-body.md` (create, bug, quick or standard; ends with the required Priority, Fix approach and Test plan sections) |
+| `templates/issue-bug-complex.md` | `issue-body.md` (create, bug, deep; ends with the required Priority, Fix approach and Test plan sections) |
 | `templates/draft-notes.md` | `draft-notes.md` (create) |
 | `templates/create-review-comment.md` | `create-review.md` (create, posted when needed) |
 
@@ -99,7 +99,7 @@ Load `refs/create.md` now. `<D>` = `.dev/issues/draft-<YYYYMMDD-HHMMSS>-<slug>/`
 2. **Wave 1, lookup.** Load `refs/tiers.md`. Spawn `issue-worker-t3` first (B13): repo labels, repo issue types, the Complexity field of the organization and possible duplicates into `<D>/scout.md`.
 3. **Wave 2, settle the flags** by the depth table of `refs/create.md`; complexity follows depth and the `Issue type` row follows from the mode and the area; the result goes to `<D>/flags.md` from `templates/flags-decision.md`. Deep with all flags given runs `Skill sc:adversarial-protocol` with `--compare <D>/flags-user.md,<D>/flags-t1.md --depth quick`.
 4. **Wave 3, pick the template**: mode selects feature or bug; `quick`/`standard` select the simple template, `deep` the complex one.
-5. **Wave 4, draft the body** with the depth's worker into `<D>/issue-body.md` and `<D>/draft-notes.md`. Ask one question only when `draft-notes.md` lists new material or a contradiction.
+5. **Wave 4, draft the body** with the depth's worker into `<D>/issue-body.md` and `<D>/draft-notes.md`. At every depth the worker fills `## Priority`, `## Fix approach` and `## Test plan` from the `/sc:analyze` pass and never writes "Not known yet" there (rules in `refs/create.md`). Ask one question only when `draft-notes.md` lists new material or a contradiction.
 6. **Wave 5, post.** Load `refs/labels.md`. Apply only the mode label, and only when it exists in `<R>`; `gh issue create --repo <R> --title "[FEATURE] <title>"` or `"[BUG] <title>"` with `--body-file <D>/issue-body.md` and `--type "<name>"` when the wanted issue type is listed in `scout.md` (failure STOP `E-CREATE-FAILED`); rename `<D>` to `.dev/issues/<N>/`; read the issue type back; set the Complexity field with the POST of `refs/labels.md` (`gh api -X POST repos/<R>/issues/<N>/issue-field-values --input .dev/issues/<N>/complexity-field.json`); post the pushback comment from `templates/create-review-comment.md` when Wave 2 found a disagreement at standard or deep. Print the issue URL, the directory, the labels not applied and every `not set` line. A failed type or field never stops the run once the issue exists. No ClickUp call (B6).
 
 ## Return contract

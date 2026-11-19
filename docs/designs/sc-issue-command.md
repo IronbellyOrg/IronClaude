@@ -220,7 +220,7 @@ Complexity follows depth, as the issue body pairs them: `quick` = Simple, `stand
 | standard | `issue-worker-t2` | `/sc:analyze` (no `--depth`) |
 | deep | `issue-worker-t1` | `/sc:analyze --depth deep` |
 
-The worker fills the chosen template into `<D>/issue-body.md`, keeping every heading and writing "Not known yet" where the description and the codebase pass give nothing (no invented facts). It lists, in `<D>/draft-notes.md`, any **new material** it added beyond the description and any **contradiction** between the description and the code.
+The worker fills the chosen template into `<D>/issue-body.md`, keeping every heading and writing "Not known yet" where the description and the codebase pass give nothing (no invented facts), except in the `Priority`, `Fix approach` and `Test plan` sections: at every depth the worker fills those three from its `/sc:analyze` pass, "Not known yet" is not allowed in them, and where the pass leaves a gap the worker states its assumption in the section and lists it in `<D>/draft-notes.md`. The Priority rule set (Urgent, High, Medium and Low, each with its trigger) is defined once in `refs/create.md`. It lists, in `<D>/draft-notes.md`, any **new material** it added beyond the description and any **contradiction** between the description and the code.
 
 If `draft-notes.md` lists new material or a contradiction, the orchestrator asks the user one question (AskUserQuestion) naming each item, with choices "keep all", "drop the new material", "edit" (issue body: "result in a prompt to the user to confirm"). If it lists nothing, the issue is posted without any prompt. The full body is never shown for approval (B1; default D14 explains how the two rules fit together).
 
@@ -278,12 +278,14 @@ Note (2026-11-04): the claim summary was renamed from `summary.md` to `issue-sum
 
 The four issue-body templates, adapted from GFxAI `.dev/proj_mgmt/clickup-integration/templates/ISSUE_TEMPLATE/{bug_report,feature_request}.md` (IronbellyGroup/GFxAI, read 2026-11-04). The adaptation drops the ClickUp sections (B6: no ClickUp task exists to reference), the GPU/hardware fields and the "Automatic Labels" footer (labels come from section 11), and replaces "Person-weeks" with hours (B3):
 
-| Template | Sections kept from GFxAI, in order |
+| Template | Sections, in order |
 |---|---|
-| `issue-bug-simple.md` | Bug Summary; Environment (OS, version); Current Behavior; Expected Behavior; Steps to Reproduce; Impact Assessment (Severity, Blast Radius); Error Messages; Codebase Context (from `/sc:analyze`); Related Issues; Testing Notes |
-| `issue-bug-complex.md` | all of the simple sections, plus Frequency; User Impact; Business Impact; Cascading Effects; Logs and Stack Trace; Attempted Solutions; Proposed Solution; For Development Team (Root Cause Analysis, Fix Approach, Verification Plan) |
-| `issue-feature-simple.md` | Feature Summary; Problem Statement; User Story; Proposed Solution; Acceptance Criteria; Out of Scope; Components Affected (from `/sc:analyze`); Related Issues/PRs |
-| `issue-feature-complex.md` | all of the simple sections, plus Success Metrics; Architecture Impact; Dependencies; Testing Strategy; Documentation Needs; Alternatives Considered; Impact Analysis (Blast Radius, Integration Impact); Risks & Mitigation; Effort Estimate (hours) and Complexity |
+| `issue-bug-simple.md` | Bug Summary; Environment (OS, version); Current Behavior; Expected Behavior; Steps to Reproduce; Impact Assessment (Severity, Blast Radius); Error Messages; Codebase Context (from `/sc:analyze`); Related Issues; Priority; Fix approach; Test plan |
+| `issue-bug-complex.md` | all of the simple sections before Priority, plus Frequency; User Impact; Business Impact; Cascading Effects; Logs and Stack Trace; Attempted Solutions; Proposed Solution; For Development Team (Root Cause Analysis); then Priority; Fix approach; Test plan |
+| `issue-feature-simple.md` | Feature Summary; Problem Statement; User Story; Proposed Solution; Acceptance Criteria; Out of Scope; Components Affected (from `/sc:analyze`); Related Issues/PRs; Priority; Fix approach; Test plan |
+| `issue-feature-complex.md` | all of the simple sections before Priority, plus Success Metrics; Architecture Impact; Dependencies; Documentation Needs; Alternatives Considered; Impact Analysis (Blast Radius, Integration Impact); Risks & Mitigation; Effort Estimate (hours) and Complexity; then Priority; Fix approach; Test plan |
+
+The last three sections of all four templates, Priority, Fix approach and Test plan, are not from GFxAI: they are required at every depth so that an issue arrives with its plan already written and whoever picks it up only executes (issue 651). The rules for them are in `refs/create.md`.
 
 Every posted template ends with its hidden marker line (`<!-- sc:issue:claim -->`, `<!-- sc:issue:accuracy-check -->`, `<!-- sc:issue:create-review -->`, `<!-- sc:issue:create template=<name> -->`).
 
