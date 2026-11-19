@@ -19,7 +19,7 @@ Delivery files (code, tests, docs) use repo-relative paths and stay canonical in
 No bulk tasks ("update all handlers"); name each file or component.
 For multi-item work, list every item explicitly in the plan; do not leave discovery to the executor.
 Keep outputs and acceptance criteria inside each Task; no plan-wide Outputs/Success Criteria/Verification sections.
-This is not a task-file checklist; /sc:implement handles per-task review and the progress ledger. -->
+This is not an MDTM /task checklist; /sc:implement handles per-task review and the progress ledger. -->
 
 Source: [PRD/spec path or feature request]
 Goal: [Observable result the workflow delivers]

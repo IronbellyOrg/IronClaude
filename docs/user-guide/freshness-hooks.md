@@ -30,19 +30,6 @@ set. Leave them in place when you remove freshness entries:
   checkout that has no code-graph index yet. Set
   `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` to turn off this hook only.
 - `~/.claude/hooks/auggie-flag-clear.sh` (PostToolUse on Auggie tool calls).
-- `~/.claude/hooks/block-bare-python.sh` (PreToolUse on Bash): blocks a Bash
-  call that runs bare `python`, `python3`, `pip` or `pip3` as a command word
-  (exit 2) and tells the agent to use `uv run python`, `uv pip` or `uvx`. It
-  also fires for subagent Bash calls. It allows the command when it cannot judge
-  it, and it needs `jq`: without `jq` it allows every command.
-- `~/.claude/hooks/require-orca-worktree-agent.sh` (PreToolUse on Bash): blocks
-  `orca worktree create` without `--agent` (exit 2) and names the form to use.
-  It allows the command when it cannot judge it.
-- `~/.claude/hooks/launch-level-guard.sh` (UserPromptSubmit and PreToolUse) and
-  `~/.claude/hooks/launch-job-identity.sh` (PreToolUse on Bash): govern only a
-  session that `/sc:issue --claim` launched; every other session is ordinary and
-  is never blocked. `launch-level-pre-push.sh` is copied too but is not
-  registered here: the claim installs it as a git `pre-push` hook.
 - `node "$HOME/.claude/hooks/pragmatic-subagent.js"` (SubagentStart).
 - `~/.claude/skills/ccsession-tag/hooks/session-start.sh` and
   `session-name.sh` (SessionStart, UserPromptSubmit and SessionEnd).

@@ -58,7 +58,8 @@ def assert_runtime_profiles(text: str) -> None:
 
 def review_fallbacks(text: str) -> list[str]:
     wave6 = section(text, "### Wave 6:", "## Tool Coordination Summary")
-    plan = section(wave6, "   - **Plan route", "\n4. On decline")
+    plan = section(wave6, "   - **Plan route", "   - **MDTM route")
+    mdtm = wave6.split("   - **MDTM route", 1)[1]
     return [
         next(
             line
@@ -66,6 +67,7 @@ def review_fallbacks(text: str) -> list[str]:
             if "`reflect_status: skipped|failed`" in line
         ),
         next(line for line in plan.splitlines() if "**Phase D" in line),
+        next(line for line in mdtm.splitlines() if "**Phase D" in line),
     ]
 
 
@@ -127,7 +129,7 @@ def assert_persistence(text: str) -> None:
         assert write in block and consume in block, start
     wave6 = section(text, "### Wave 6:", "## Tool Coordination Summary")
     assert "persists the returned review" in wave6
-    assert wave6.count("persists its returned review before consuming it") == 1
+    assert wave6.count("persists its returned review before consuming it") == 2
     contract = section(text, "## Native diagnostic delegation", "## Required Input")
     assert "The worker returns complete data" in contract
     assert "never host-shell heredoc assembly" in contract
@@ -225,7 +227,7 @@ def test_persistence_guard_kills_lost_receipt(start: str, end: str, write: str) 
         assert_persistence(mutant)
 
 
-@pytest.mark.parametrize("index", [0, 1])
+@pytest.mark.parametrize("index", [0, 1, 2])
 def test_review_fallback_guard_kills_unrestricted_mutants(index: int) -> None:
     text = (SKILL_DIR / "SKILL.md").read_text()
     line = review_fallbacks(text)[index]
@@ -250,7 +252,7 @@ def assert_reference_contract(name: str, text: str) -> None:
     assert "subagent_type=troubleshoot-analyst" in text
     if name == "remediation-handoff.md":
         lines = [line for line in text.splitlines() if "subagent_type=" in line]
-        assert len(lines) == 1
+        assert len(lines) == 2
         for line in lines:
             assert "subagent_type=troubleshoot-analyst" in line
             assert "lens_name=self-review" in line
@@ -287,7 +289,7 @@ def test_reference_guard_kills_lost_persistence(name: str) -> None:
         )
 
 
-@pytest.mark.parametrize("index", [0])
+@pytest.mark.parametrize("index", [0, 1])
 def test_handoff_guard_checks_each_native_fallback(index: int) -> None:
     name = "remediation-handoff.md"
     text = (SKILL_DIR / "refs" / name).read_text()

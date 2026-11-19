@@ -183,11 +183,13 @@ implementation plan from file/output count. Preserve adequate existing plans and
 explicit executor identity; memory save/load is not executor recovery.
 
 For actual implementation, more than 5 edits or more than one source file plus
-its matching test requires a written plan (level 3): workflow then
+its matching test requires a written plan, normally level 3: workflow then
 implement only when execution is requested. Standard is the ordinary planning
 depth; quick is for a smaller checked plan, not a universal requirement.
-File count, sessions, an existing spec/PRD/TDD, risk, auditability, drift and
-resume alone do not change the level. No numerical workflow capacity guarantee is invented.
+Level 4 needs explicit MDTM intent or exceptionally complex, long-running phased
+work with a stated research/checklist/phase-reviewer machinery need. File count,
+sessions, an existing spec/PRD/TDD, risk, auditability, drift and resume alone
+never justify MDTM. No numerical workflow capacity guarantee is invented.
 The contained-folder cleanup exception retains checkpoint and final diff
 review; structural migrations remain planned work. Explicit selection cannot
 waive these safeguards or increase authority.

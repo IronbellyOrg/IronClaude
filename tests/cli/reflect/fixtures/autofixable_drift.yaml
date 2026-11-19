@@ -24,5 +24,4 @@ unauthorized_deviation_present: false
 needs_human_decision: false
 user_decision_required: false
 degraded_components: []
-remediation_task_path: null
-remediation_plan_path: /abs/path/to/.dev/tasks/to-do/TASK-WF-fixAuth-20261001-063000/TASK-WF-fixAuth-20261001-063000.md
+remediation_task_path: /abs/path/to/TASK-RF-remediation/file.md

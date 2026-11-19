@@ -242,7 +242,7 @@ Row fired: <S1 | S2 | ... | S13 | S14>. Reason: <evidence for S14's disputed-dat
 
 ## Section 7: Tasklist generation rules + hard constraints
 
-When the verdict triggers tasklist emission (verdict ∈ {partial, insufficient} on any complexity, plus the hard-stop branch under `insufficient + non-trivial + NOT --no-escalate`), the orchestrator writes a standalone tasklist at `<output-dir>/diagnosability-tasklist.md`. The tasklist file is ALWAYS standalone (a markdown artifact the user reads and applies manually). The opt-in `--diagnosability-handoff` flag additionally packages the tasklist as a phased workflow tasklist package (`.dev/tasks/to-do/<id>/<id>.md`) via `Skill sc:workflow-protocol` (see **Handoff packaging** below).
+When the verdict triggers tasklist emission (verdict ∈ {partial, insufficient} on any complexity, plus the hard-stop branch under `insufficient + non-trivial + NOT --no-escalate`), the orchestrator writes a standalone tasklist at `<output-dir>/diagnosability-tasklist.md`. The tasklist file is ALWAYS standalone (a markdown artifact the user reads and applies manually). The opt-in `--diagnosability-handoff` flag additionally packages the tasklist as a phased workflow tasklist package (`.dev/tasks/to-do/<id>/<id>.md`) via `Skill sc:workflow-protocol` (see **Handoff packaging** below); it never invokes `task-builder` or `/task`.
 
 **Handoff packaging.** With `--diagnosability-handoff` and a tasklist on disk:
 

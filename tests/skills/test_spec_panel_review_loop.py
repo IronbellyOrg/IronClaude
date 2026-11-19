@@ -24,7 +24,10 @@ HOW_WE_WORK = (
     "src/superclaude/core/HOW-WE-WORK.md",
     "plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md",
 )
-RELEASE_GUIDES = ()  # the prd and tdd release guides were removed in 6.1.0
+RELEASE_GUIDES = (
+    "docs/guides/prd-skill-release-guide.md",
+    "docs/guides/tdd-skill-release-guide.md",
+)
 HEADING = "## Review Loop"
 BULLET_NAMES = (
     "Mode",

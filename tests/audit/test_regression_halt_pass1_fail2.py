@@ -65,6 +65,9 @@ from _halt_emitter import (  # noqa: E402
     run_fix_cycle,
 )
 
+SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
+
+
 # Byte-exact wire template frozen by API-004-M5 (SKILL.md §A.9, row 2
 # of the halt-message table). The em-dash is U+2014 (``e2 80 94``),
 # NOT an ASCII hyphen-minus.
@@ -130,9 +133,56 @@ def non_shrinking_log() -> HaltLog:
     return run_fix_cycle(F_PASS1_FAIL2_NON_SHRINKING)
 
 
+@pytest.fixture(scope="module")
+def skill_text() -> str:
+    return SKILL_SRC.read_text(encoding="utf-8")
+
+
 # ---------------------------------------------------------------------------
 # Static schema / source guards.
 # ---------------------------------------------------------------------------
+
+
+class TestSkillContractWiringPresent:
+    """SKILL.md §A.9 API-004 contract row 2 still contains the
+    byte-exact regression wire template, including the em-dash."""
+
+    def test_skill_src_exists(self):
+        assert SKILL_SRC.is_file(), f"missing SKILL.md at {SKILL_SRC}"
+
+    def test_regression_template_present(self, skill_text: str):
+        assert REGRESSION_HALT_TEMPLATE in skill_text, (
+            "SKILL.md missing byte-exact API-004 regression wire template"
+        )
+
+    def test_regression_template_uses_em_dash(self):
+        # The template must encode the em-dash with the UTF-8 byte
+        # sequence `e2 80 94`. A regression to ASCII `--` or hyphen
+        # would silently break every downstream consumer.
+        template_bytes = REGRESSION_HALT_TEMPLATE.encode("utf-8")
+        assert EM_DASH_BYTES in template_bytes, (
+            "API-004 regression template missing U+2014 em-dash byte sequence"
+        )
+        # Exactly one em-dash in the template per the SKILL.md L1040
+        # invariant ("the em-dash ... is part of the wire string").
+        assert template_bytes.count(EM_DASH_BYTES) == 1, (
+            f"expected exactly one em-dash in template, got "
+            f"{template_bytes.count(EM_DASH_BYTES)}"
+        )
+
+    def test_precedence_rule_documented(self, skill_text: str):
+        assert "regression > monotonicity" in skill_text, (
+            "SKILL.md must document 'regression > monotonicity' precedence"
+        )
+
+    def test_do_not_consult_subsequent_steps_documented(self, skill_text: str):
+        # The "Do NOT consult subsequent steps" clause at SKILL.md:1054
+        # is the load-bearing wire-level invariant that makes the
+        # precedence rule actionable.
+        assert "Do NOT consult subsequent steps" in skill_text, (
+            "SKILL.md missing 'Do NOT consult subsequent steps' "
+            "invariant — precedence rule is unenforceable without it"
+        )
 
 
 # ---------------------------------------------------------------------------

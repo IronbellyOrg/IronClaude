@@ -36,7 +36,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
   [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
   [--personas p1,p2,...] [--models opus,sonnet,haiku] \
   [--blind] [--convergence FLOAT] [--interactive] \
-  [--handoff none|design] [--output DIR] \
+  [--handoff none|design|task] [--output DIR] \
   [--dry-run] [--resume-from PATH] [--force-stale]
 ```
 
@@ -57,7 +57,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
 | `--blind` | | `false` | Pass-through to `/sc:adversarial --blind` |
 | `--convergence` | | `0.75` | Pass-through to `/sc:adversarial --convergence` |
 | `--interactive` | `-i` | `false` | Pause for user input at Socratic + adversarial decision points |
-| `--handoff` | | `none` | Post-merge action: `none`, `design` (`task` was removed in 6.1.0) |
+| `--handoff` | | `none` | Post-merge action: `none`, `design`, `task` |
 | `--output` | `-o` | auto | Output directory (default: `.dev/brainstorms/<ts>-<slug>/`) |
 | `--dry-run` | | `false` | Execute Waves 0–2B, skip 3-4, print agent-spec preview |
 | `--resume-from` | | — | Resume from a saved seed-brief, skipping Socratic dialogue |
@@ -68,7 +68,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
 - `--strategy enterprise` implies `--depth deep` unless overridden
 - `--depth quick` caps `--proposals` at 2 (cost guardrail)
 - `--depth deep` allows up to 7 proposals
-- `--handoff task` was removed in 6.1.0 and is refused; once a run has written `merged-requirements.md`, plan from it with `/sc:workflow @<output>/merged-requirements.md`
+- `--handoff task` requires the task-builder skill installed
 
 ## Examples
 
@@ -96,14 +96,14 @@ Analyzer/devops personas; 5+ proposals; merge emphasizes observability + rollbac
 
 Tavily research enrichment; architect/frontend/scribe personas; product-style requirements output.
 
-### Cross-domain redesign with a design handoff
+### Cross-domain redesign with full handoff
 
 ```bash
 /sc:brainstorm "redesign error handling across worker pool" \
-  --depth deep --proposals 5 --handoff design
+  --depth deep --proposals 5 --handoff task
 ```
 
-Codebase + research enrichment; 5 proposals × 3 models; deep debate; the run ends by recommending `/sc:design` on the merged requirements.
+Codebase + research enrichment; 5 proposals × 3 models; deep debate; merged requirements feed a task-builder invocation.
 
 ### Blind multi-model comparison
 
@@ -131,7 +131,7 @@ Executes dialogue + enrichment + agent-spec composition; prints the composed --a
 3. Wave 2A: parallel enrichment via `/sc:analyze` + `/sc:research`
 4. Wave 2B: agent-spec composition + token-budget pre-flight
 5. Wave 3: delegate to `Skill sc-adversarial-protocol` with `--generate spec`
-6. Wave 4: flag-gated handoff to `/sc:design`
+6. Wave 4: flag-gated handoff to `/sc:design` or `/task-builder`
 
 Produces a versioned return contract with stable + telemetry blocks.
 
@@ -150,7 +150,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - Orchestrate parallel proposal generation via `/sc:adversarial` (Mode B)
 - Auto-detect and invoke codebase + research enrichment when valuable
 - Compose model × persona agent-specs across 3 active aliases (opus/sonnet/haiku)
-- Hand off merged requirements to `/sc:design` (flag-gated)
+- Hand off merged requirements to `/sc:design` or `/task-builder` (flag-gated)
 - Produce a versioned return contract for composability with downstream commands
 
 **Will Not:**
@@ -169,8 +169,9 @@ Do NOT proceed with protocol execution using only this command file. The full be
 | `/sc:adversarial` | Core delegate — Wave 3 invokes via `Skill sc-adversarial-protocol` | Parallel proposal generation + debate + merge |
 | `/sc:analyze` | Enrichment — Wave 2A invokes for codebase context | `--codebase` or auto for code-related topics |
 | `/sc:research` | Enrichment — Wave 2A invokes for light research | `--research light` or auto when topic mentions external frameworks |
-| `/sc:research --depth deep` | Enrichment — Wave 2A invokes for deep research | `--research deep` or auto for enterprise/novel topics |
+| `tech-research` (skill) | Enrichment — Wave 2A invokes for deep research | `--research deep` or auto for enterprise/novel topics |
 | `/sc:design` | Handoff (text-only) | `--handoff design` prints recommendation; user runs separately |
+| `/task-builder` | Handoff (invoked) | `--handoff task` invokes `Skill task-builder` with domain-detected template |
 
 ## CRITICAL BOUNDARIES
 

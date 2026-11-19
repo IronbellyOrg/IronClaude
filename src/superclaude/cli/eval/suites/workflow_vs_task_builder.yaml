@@ -1,0 +1,137 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# workflow_vs_task_builder — retrospective comparison of three historical
+# /task-builder MDTM task documents against 27 current /sc:workflow plans
+# (3 cases x 3 model slots x 3 effort levels), judged against the same
+# frozen, source-grounded requirement rubric.
+#
+# Design (authoritative): .dev/eval-workspaces/cli-eval/design/
+#   workflow_vs_task_builder-debate/merged-output.md (FR1-FR10).
+# Frozen corpus: .dev/eval-workspaces/cli-eval/workflow_vs_task_builder/
+#   corpus/corpus.json (case ids WF1/WF2/WF3 match the eval ids below).
+#
+# AUTHORITY: this manifest is NOT authoritative on its own. The core
+# `superclaude eval run` path currently uses a null lifecycle executor and
+# the declarative `expects` below are not wired to a real generation, so a
+# core-run PASS proves nothing about execution. The ONLY authoritative
+# executor is the headless companion script
+# (scripts/eval_workflow_vs_task_builder.py), which loads this suite via
+# SuiteLoader, binds each expanded ordinal (WFn.1..WFn.9) to its explicit
+# parameterize row, stages the frozen corpus input.md bytes as
+# inputs/source.md, enforces confinement, and performs the real package /
+# return-contract / Skill-trace / rubric checks (merged design §4-§7).
+#
+# OUTPUT SHAPE: /sc:workflow writes one new managed package per run,
+# .dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/ (tasklist <id>.md,
+# source.md, return-contract.yaml) and runs its own /sc:reflect --mode pre.
+# The id is timestamped, so a declarative `file:` expect cannot name it; the
+# companion discovers and validates the package, and the only declarative
+# expect left here is the exit code. The retired --output flag is not used.
+#
+# MATRIX: each eval carries the same nine explicit rows crossing
+# model_slot {1,2,3} x effort {low,medium,high}. model_slot is an ordinal,
+# not a model id: the companion binds the three explicitly pinned IDs from
+# the operator config, without tier fallback or automatic substitution.
+# Live preflight records actual transport/capability evidence (FR2).
+# The loader does not substitute row values into prompts, so the
+# rows are consumed by the companion only; the schema has no model/effort
+# fields and none are invented here.
+#
+# no_pty is deliberately absent: the companion drives `claude` headless
+# (stream-json), not through a PTY.
+name: workflow_vs_task_builder
+version: "1.0"
+description: "Non-authoritative manifest: 3 cases x 9 (model_slot x effort) /sc:workflow plans vs historical /task-builder baselines. Core run uses a null executor with unwired expects; scripts/eval_workflow_vs_task_builder.py is the only authoritative executor."
+
+defaults:
+  per_eval_timeout_sec: 1800
+  per_eval_memory_mb: 1024
+  capture_tty: false
+  keep_home_on_success: true
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: WF1
+    title: "prd-local-file-delivery"
+    category: workflow-vs-task-builder
+    requires: []
+    timeout_sec: 1800
+    isolation:
+      home_strategy: seeded
+      # Placeholder only: the companion replaces this with the frozen
+      # corpus bytes prd-local-file-delivery/input.md before spawning.
+      seed_state:
+        - path: inputs/source.md
+          content: "Frozen source packet for case WF1 (prd-local-file-delivery); staged by the companion from corpus.json.\n"
+    inputs:
+      - prompt: "/sc:workflow inputs/source.md --strategy systematic --depth standard --handoff none"
+    expects:
+      - exit_code: { equals: 0 }
+    parameterize:
+      - { model_slot: 1, effort: low }
+      - { model_slot: 1, effort: medium }
+      - { model_slot: 1, effort: high }
+      - { model_slot: 2, effort: low }
+      - { model_slot: 2, effort: medium }
+      - { model_slot: 2, effort: high }
+      - { model_slot: 3, effort: low }
+      - { model_slot: 3, effort: medium }
+      - { model_slot: 3, effort: high }
+
+  - id: WF2
+    title: "detection-contract-setup"
+    category: workflow-vs-task-builder
+    requires: []
+    timeout_sec: 1800
+    isolation:
+      home_strategy: seeded
+      # Placeholder only: the companion replaces this with the frozen
+      # corpus bytes detection-contract-setup/input.md before spawning.
+      seed_state:
+        - path: inputs/source.md
+          content: "Frozen source packet for case WF2 (detection-contract-setup); staged by the companion from corpus.json.\n"
+    inputs:
+      - prompt: "/sc:workflow inputs/source.md --strategy systematic --depth standard --handoff none"
+    expects:
+      - exit_code: { equals: 0 }
+    parameterize:
+      - { model_slot: 1, effort: low }
+      - { model_slot: 1, effort: medium }
+      - { model_slot: 1, effort: high }
+      - { model_slot: 2, effort: low }
+      - { model_slot: 2, effort: medium }
+      - { model_slot: 2, effort: high }
+      - { model_slot: 3, effort: low }
+      - { model_slot: 3, effort: medium }
+      - { model_slot: 3, effort: high }
+
+  - id: WF3
+    title: "reflect-integration"
+    category: workflow-vs-task-builder
+    requires: []
+    timeout_sec: 1800
+    isolation:
+      home_strategy: seeded
+      # Placeholder only: the companion replaces this with the frozen
+      # corpus bytes reflect-integration/input.md before spawning.
+      seed_state:
+        - path: inputs/source.md
+          content: "Frozen source packet for case WF3 (reflect-integration); staged by the companion from corpus.json.\n"
+    inputs:
+      - prompt: "/sc:workflow inputs/source.md --strategy systematic --depth standard --handoff none"
+    expects:
+      - exit_code: { equals: 0 }
+    parameterize:
+      - { model_slot: 1, effort: low }
+      - { model_slot: 1, effort: medium }
+      - { model_slot: 1, effort: high }
+      - { model_slot: 2, effort: low }
+      - { model_slot: 2, effort: medium }
+      - { model_slot: 2, effort: high }
+      - { model_slot: 3, effort: low }
+      - { model_slot: 3, effort: medium }
+      - { model_slot: 3, effort: high }

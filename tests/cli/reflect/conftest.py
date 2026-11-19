@@ -146,7 +146,7 @@ def make_claude_process_sequence():
 
         factory = make_claude_process_sequence([
             ("autofixable_drift.yaml", 0),   # audit #1
-            (None, 0),                        # apply #1 (a /sc:implement launch -> writes NO contract)
+            (None, 0),                        # apply #1 (a /task launch -> writes NO contract)
             ("postfix_pass.yaml", 0),         # audit #2 (re-verify)
         ])
         with patch("superclaude.cli.reflect.runner.ClaudeProcess", side_effect=factory):
@@ -154,7 +154,7 @@ def make_claude_process_sequence():
 
     Each successive ``ClaudeProcess(**kwargs)`` construction pops the next
     ``(fixture_name, rc)`` step. ``fixture_name=None`` writes NO
-    ``return-contract.yaml`` (the apply ``/sc:implement`` launch case) -- so a FRESH
+    ``return-contract.yaml`` (the apply ``/task`` launch case) -- so a FRESH
     contract is written ONLY by audit steps, per-``.wait()`` (U9: the re-audit
     reads the post-fix contract, never a stale one). When the sequence is
     exhausted, further constructions default to ``(None, 0)``.

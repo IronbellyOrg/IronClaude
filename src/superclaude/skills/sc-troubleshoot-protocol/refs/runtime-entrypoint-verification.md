@@ -31,7 +31,7 @@ Forbidden-interpretation examples the negative witness must expose:
 
 - a local path treated as a cloud `--file`;
 - an `advisory` semantic check treated as fatal;
-- dirty `/sc:implement` work omitted from the reviewed surface;
+- dirty `/task` work omitted from the reviewed surface;
 - an empty artifact accepted as valid;
 - a non-executable heading treated as executable.
 

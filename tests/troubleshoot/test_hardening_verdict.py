@@ -86,11 +86,12 @@ def test_downstream_success_cannot_override_latched_hardening_verdict() -> None:
     §5.4 L411 downstream-no-override rule, the rendered downstream result is
     success_with_hardening_blocker / success_with_hardening_advisory (never plain success)
     whenever the table returns blocked/advisory, and remediation-handoff.md carries
-    pipeline_hardening_verdict + waiver_status into the workflow source."""
+    pipeline_hardening_verdict + waiver_status into BUILD_REQUEST."""
     low = OC.lower()
     # (a) §5.4 L411 no-override rule names the downstream stages and forbids conversion
     assert "not** convert" in low, "no-override rule (may NOT convert) not documented"
     for stage in (
+        "task-builder",
         "sc:workflow",
         "sc:implement",
         "sc:reflect",
@@ -102,25 +103,25 @@ def test_downstream_success_cannot_override_latched_hardening_verdict() -> None:
     assert "success_with_hardening_blocker" in OC
     assert "success_with_hardening_advisory" in OC
     assert "never plain `success`" in low
-    # (c) the handoff carries the latched verdict + waiver_status into the workflow source
-    assert "## pipeline hardening" in HANDOFF.lower()
+    # (c) the handoff carries the latched verdict + waiver_status into BUILD_REQUEST
+    assert "build_request" in HANDOFF.lower()
     assert "pipeline_hardening_verdict" in HANDOFF
     assert "waiver_status" in HANDOFF
 
 
-def test_tier3_single_plan_route_and_never_auto_executes() -> None:
-    """Tier 3 routing: `--fix` -> sc:workflow/sc:implement at every depth (the MDTM route
-    for `--fix --depth deep` was removed in 6.1.0). The plan route carries the hardening
-    latch and never hands off to sc:implement itself (the executor stays user-initiated)."""
+def test_tier3_route_keyed_on_depth_and_never_auto_executes() -> None:
+    """Tier 3 routing: `--fix` -> sc:workflow/sc:implement; `--fix --depth deep` ->
+    task-builder//task. The plan route carries the hardening latch and never hands off
+    to sc:implement itself (the executor stays user-initiated)."""
     skill = (REFS.parent / "SKILL.md").read_text(encoding="utf-8")
     command = (REPO_ROOT / "src/superclaude/commands/troubleshoot.md").read_text(
         encoding="utf-8"
     )
     for doc in (HANDOFF, skill, command):
         assert "sc:workflow" in doc and "sc:implement" in doc
-        assert "task-builder" not in doc
-        assert "BUILD_REQUEST" not in doc
+        assert "--depth deep" in doc and "task-builder" in doc
     # plan route: latch carried in the workflow source, never --handoff implement
     assert "## Pipeline Hardening" in HANDOFF
     assert "Never** pass `--handoff implement`" in HANDOFF
-    assert "/task <abs-path>" not in HANDOFF
+    # MDTM route keeps its BUILD_REQUEST latch (covered above) and /task gate
+    assert "/task <abs-path>" in HANDOFF

@@ -48,15 +48,16 @@ _LEVEL_HEADER = ["Level", "Use this when", "What you run", "What you end up with
 
 # Row ids are stable keys: /sc:recommend cites them and the live run uses them.
 # A row may be added; none of these may be renamed or removed. The one row that left
-# on purpose are the localization review row (6.0.0, its command moved to the
-# snapshot fork) and the research-first, full-spec and technical-design-document
-# rows and the task-file row (6.1.0, their skills were removed, and level 4 went with the
-# task skill).
+# on purpose is the localization review row, which went in 6.0.0 when its command
+# moved to the snapshot fork.
 _EXPECTED_IDS = {
     "ask",
     "small-change",
     "simple-plan",
+    "task-file",
     "feature-existing",
+    "research-first",
+    "full-spec",
     "shape-idea",
     "bug",
     "external-research",
@@ -75,6 +76,7 @@ _EXPECTED_IDS = {
     "unsure",
     "installed-inventory",
     "focused-design",
+    "technical-design-document",
     "cleanup-audit-only",
     "auggie-review-only",
     "context-audit",
@@ -164,7 +166,7 @@ def test_level_table_block():
     assert _cells(rows[0]) == _LEVEL_HEADER
     assert set(rows[1].replace("|", "").strip()) <= {"-", " "}
     data = rows[2:]
-    assert len(data) == 3
+    assert len(data) == 6
     for n, row in enumerate(data, 1):
         cells = _cells(row)
         assert len(cells) == 4, row
@@ -195,7 +197,7 @@ def test_ids_unique_kebab_and_stable():
 
 def test_level_and_changes_files_vocabulary():
     for r in _routing_rows():
-        assert re.fullmatch(r"[1-3]|-", r["level"]), r["id"]
+        assert re.fullmatch(r"[1-6]|-", r["level"]), r["id"]
         assert r["changes_files"] in {"no", "yes", "asks first"}, r["id"]
 
 
@@ -290,6 +292,7 @@ def test_other_commands_membership_and_live_references():
         "sc:cli-eval",
         "sc:init-lite",
         "sc:post-release",
+        "sc:tdd",
         "sc:validate-tests",
     }
     for token in set(_TOKEN_RE.findall(block)):
@@ -385,7 +388,9 @@ def test_direct_change_threshold_and_written_plan_requirement():
     assert "Direct command selection does not waive" in block
 
 
-@pytest.mark.parametrize("row_id", ["simple-plan", "feature-existing"])
+@pytest.mark.parametrize(
+    "row_id", ["simple-plan", "feature-existing", "research-first"]
+)
 def test_ordinary_routes_plan_with_workflow_then_implement(row_id):
     """T03/T06/T07: static route contract, not generated recommendations."""
     row = next(r for r in _routing_rows() if r["id"] == row_id)
@@ -393,14 +398,33 @@ def test_ordinary_routes_plan_with_workflow_then_implement(row_id):
     assert commands.index("sc:workflow") < commands.index("sc:implement")
     assert not {"task-builder", "task"} & set(commands)
     assert "--depth quick" not in row["mandatory_flags"]
-    assert row["level"] == "3"
+    if row_id != "research-first":
+        assert row["level"] == "3"
+    else:
+        assert "research-only requests stop after step 1" in row["notes"]
 
 
-def test_level_scale_ends_at_three_and_proxies_do_not_change_the_level():
-    """T03/T06/T07/T08: size, specs and sessions do not move ordinary work off level 3."""
+@pytest.mark.parametrize(
+    "reason",
+    [
+        "File count",
+        "multiple sessions",
+        "existing spec/PRD/TDD",
+        "risk",
+        "auditability",
+        "drift concerns",
+        "resume",
+    ],
+)
+def test_mdtm_cannot_be_selected_by_a_proxy_alone(reason):
+    """T03/T06/T07/T08: size, specs, sessions and assurance are not MDTM gates."""
     block = _block(_text(), _LEVEL_BEGIN, _LEVEL_END)
-    assert "level 4" not in block.lower()
-    assert "twelve-file feature across several sessions still uses level 3" in block
+    exclusion = next(
+        line for line in block.splitlines() if line.startswith("File count")
+    )
+    assert reason in exclusion
+    assert "alone never select level 4" in exclusion
+    assert "twelve-file feature across several sessions still uses level 3" in exclusion
     ordinary = _cells(_table_rows(block)[4])
     assert "Ordinary implementation" in ordinary[1]
     assert "many files or several sessions" in ordinary[1]
@@ -409,13 +433,19 @@ def test_level_scale_ends_at_three_and_proxies_do_not_change_the_level():
     assert "one or two sessions" not in ordinary[1]
 
 
-def test_task_file_route_and_level_four_are_gone():
-    """6.1.0: the task-file route, `/task`, `/task-builder` and level 4 left the guide."""
-    assert "task-file" not in {r["id"] for r in _routing_rows()}
-    text = _text()
-    for removed in ("/task-builder", "/task ", "level 4", "Level 4"):
-        assert removed not in text, removed
-    assert not re.search(r"`/task\b", text)
+def test_explicit_mdtm_creation_or_existing_task_execution_is_preserved():
+    """T04: MDTM remains available for explicit or exceptional machinery needs."""
+    row = next(r for r in _routing_rows() if r["id"] == "task-file")
+    assert row["level"] == "4"
+    assert "explicit MDTM" in row["intent"]
+    assert "exceptionally complex long-running" in row["intent"]
+    assert "research/checklist/phase-panel machinery need" in row["intent"]
+    steps = _steps(row)
+    assert "task-builder" in _TOKEN_RE.findall(steps["1a"])
+    assert "existing MDTM task" in steps["1b"]
+    assert "without rebuilding" in steps["1b"]
+    assert _TOKEN_RE.findall(steps["3"]) == ["task"]
+    assert "only when execution is requested" in steps["3"]
 
 
 def test_existing_approved_plan_and_explicit_executor_keep_their_identity():
@@ -427,11 +457,14 @@ def test_existing_approved_plan_and_explicit_executor_keep_their_identity():
     )
     assert "do not rebuild it" in block
     assert "Managed workflow packages use `/sc:implement`" in block
+    assert "existing MDTM execution uses `/task`" in block
     assert (
         "Explicit `/sc:implement` selection retains that executor's own semantics"
         in block
     )
-    assert "even if the source resembles a task-file checklist" in block
+    assert (
+        "not MDTM checklist/phase execution, even if the source resembles MDTM" in block
+    )
     resume = next(r for r in _routing_rows() if r["id"] == "resume")
     assert "rerun the same command" in resume["steps"]
     assert "sc:implement" in _TOKEN_RE.findall(resume["steps"])
@@ -468,19 +501,56 @@ def test_contained_cleanup_exception_retains_safeguards_not_structural_migration
     assert "exception does not cover an architectural migration" in cleanup
 
 
-def test_full_specification_workflow_plans_with_workflow_first():
-    """Section 3.1 (6.1.0, no PRD or TDD generator): static contract only."""
+def test_full_spec_ordinary_post_document_planning_is_workflow_first():
+    """S18: static full-spec branch contract; no model-generation run implied."""
+    row = next(r for r in _routing_rows() if r["id"] == "full-spec")
+    steps = _steps(row)
+    assert "only for requested ordinary planning" in steps["7a"]
+    assert _TOKEN_RE.findall(steps["7a"]) == ["sc:workflow"]
+    assert "accepted PRD/TDD paths and constraints" in steps["7a"]
+    assert _TOKEN_RE.findall(steps["8a"]) == ["sc:implement"]
+    assert "only for requested execution of 7a" in steps["8a"]
+    assert "new components and existing specs do not justify MDTM" in row["notes"]
     section = _block(_text(), "### 3.1 ", "### 3.2 ")
+    assert "Ordinary post-document planning uses workflow" in section
     assert "--depth standard --handoff none" in section
-    assert section.index("/sc:workflow") < section.index("/sc:implement")
-    assert "/sc:design billing-service --type architecture --format spec" in section
+
+
+def test_document_only_full_spec_stops_without_downstream_planning():
+    """T09/S19: static document-only stop, preserving document-owned machinery."""
+    row = next(r for r in _routing_rows() if r["id"] == "full-spec")
+    assert (
+        "documents-only requests stop after the requested documents and reviews"
+        in row["notes"]
+    )
+    assert "without a roadmap or phase tasks" in row["notes"]
+    section = _block(_text(), "### 3.1 ", "### 3.2 ")
     stop = section.index(
         "For documents only, stop after the requested documents and reviews"
     )
     assert stop < section.index("1. **Shape the idea")
-    assert "do not append planning, implementation or shipping" in section
-    for removed in ("/prd", "/tdd", "/roadmap", "/task-builder", "/task "):
-        assert removed not in section, removed
+    assert "do not append a roadmap, phase tasks, implementation or shipping" in section
+    assert "PRD and TDD skills keep their own document-generation machinery" in section
+
+
+def test_explicit_roadmap_preserves_its_composer_and_phase_task_outputs():
+    """S20: static explicit-roadmap branch, not a substitute for generation evals."""
+    row = next(r for r in _routing_rows() if r["id"] == "full-spec")
+    steps = _steps(row)
+    assert (
+        "only for explicit composer selection or exceptional level-4 machinery needs"
+        in steps["7b"]
+    )
+    assert _TOKEN_RE.findall(steps["7b"]) == ["roadmap"]
+    assert "supplied documents" in steps["7b"]
+    assert _TOKEN_RE.findall(steps["8b"]) == ["task"]
+    assert "only for requested execution" in steps["8b"]
+    assert "uses task-builder/task internally" in row["notes"]
+    assert "full setting creates phase task files" in row["notes"]
+    section = _block(_text(), "### 3.1 ", "### 3.2 ")
+    assert "exceptionally complex, long-running phased program" in section
+    assert "composer internally uses `/task-builder` and `/task`" in section
+    assert "not permission to implement product phases" in section
 
 
 def test_standard_planning_default_and_conditional_quick_are_consistent():
@@ -495,11 +565,11 @@ def test_standard_planning_default_and_conditional_quick_are_consistent():
     assert "for this smaller checked plan, quick is appropriate" in section
 
 
-def test_bug_planning_and_brainstorm_follow_on_use_workflow():
+def test_bug_planning_and_brainstorm_follow_on_do_not_use_size_to_choose_mdtm():
     bug = next(r for r in _routing_rows() if r["id"] == "bug")
     steps = _steps(bug)
     assert _TOKEN_RE.findall(steps["3b"]) == ["sc:workflow", "sc:implement"]
-    assert "3c" not in steps
+    assert "only explicit or exceptionally justified MDTM" in steps["3c"]
     assert "--depth quick" not in bug["mandatory_flags"]
     assert (
         "deep diagnosis without fix can feed separate ordinary workflow planning"
@@ -541,6 +611,17 @@ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
             {"sc:design"},
             ["<target>", "type/format"],
             ["code format is design guidance", "no declared output flag"],
+        ),
+        (
+            "S03",
+            "technical-design-document",
+            {"tdd", "sc:tdd"},
+            ["supplied PRD/stub", "code paths", "output", "tier"],
+            [
+                "Technical Design Document",
+                "document-owned MDTM machinery",
+                "verify template/agents/tools",
+            ],
         ),
         (
             "S04",
@@ -664,7 +745,7 @@ def test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_fir
     assert "actual callable command/skill and relevant dependencies" in section
     assert "contract gap**, not a union of both interfaces" in section
     assert "new suite or a supervised existing-suite run" in section
-    assert "checked workflow plan from a plain checklist" in section
+    assert "checked workflow plan from an MDTM checklist" in section
     unsure = next(r for r in _routing_rows() if r["id"] == "unsure")
     assert "one useful clarification" in unsure["steps"]
     assert "sc:recommend" not in _TOKEN_RE.findall(unsure["steps"])
@@ -753,7 +834,12 @@ def test_previews_documentation_and_suite_runs_disclose_actual_writes():
     assert "needs explicit repair intent" in tests["notes"]
     assert "new tests are authoring, YAML tier validation is separate" in tests["notes"]
     docs = rows["document-built"]
-    assert {"sc:document"} == set(_TOKEN_RE.findall(docs["steps"]))
+    assert {
+        "sc:document",
+        "tech-reference",
+        "operational-guide",
+        "readme",
+    } <= set(_TOKEN_RE.findall(docs["steps"]))
     assert (
         "--type <inline/external/api/guide> --style <brief/detailed>" in docs["notes"]
     )
@@ -777,16 +863,16 @@ def test_diagnosis_reflection_and_review_preserve_remediation_coupling():
     assert "standard `/sc:troubleshoot --fix` offers workflow planning" in bug["notes"]
     assert "after supported diagnosis and acceptance" in bug["notes"]
     assert "--depth quick --fix` is invalid" in bug["notes"]
-    assert "--depth deep --fix` offers the same workflow planning" in bug["notes"]
+    assert "--depth deep --fix` couples to MDTM" in bug["notes"]
     assert (
         "deep diagnosis without fix can feed separate ordinary workflow planning"
         in bug["notes"]
     )
     reflect = rows["confirm-built"]["notes"]
     assert (
-        "`/sc:reflect --remediate` offers workflow after acceptance at every depth"
-        in reflect
+        "standard `/sc:reflect --remediate` offers workflow after acceptance" in reflect
     )
+    assert "explicit deep remediation couples to MDTM" in reflect
     assert "--tier 2 --depth standard --remediate" in reflect
     assert "legacy task analyze/validate aliases remain supported" in reflect
     assert "no headless auto-fix substitution" in reflect
@@ -795,7 +881,8 @@ def test_diagnosis_reflection_and_review_preserve_remediation_coupling():
     assert "carried hardening blockers" in section
     assert "consume it rather than repeat it" in section
     review = rows["auggie-review-only"]["notes"]
-    assert "an accepted offer uses workflow at every depth" in review
+    assert "accepted deep offer currently selects MDTM" in review
+    assert "ordinary review offer uses workflow" in review
     assert (
         "deep plus ordinary later planning suppresses offer and plans separately"
         in review
@@ -871,7 +958,7 @@ def test_pr_attachment_monitor_log_resume_and_silence_are_not_new_shipping():
     assert "--resume <run-log.jsonl>" in steps["1a"]
     assert "--pr <number>" in steps["1b"]
     assert "recorded ceiling, not task execution or PR recreation" in resume["notes"]
-    assert "no rebuild from resume alone" in resume["notes"]
+    assert "no task-builder rebuild from resume alone" in resume["notes"]
     local = rows["auggie-review-only"]["notes"]
     assert "PR posting defaults on, local-only uses" in local
     assert "--no-post-pr --no-remediation-offer" in local

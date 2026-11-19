@@ -95,7 +95,7 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--type` | Issue category | `bug`, `build`, `performance`, `deployment`, `security`, `test` |
-| `--fix` | After a diagnosis, offers a remediation plan (`/sc:workflow` → you run `/sc:implement`); never applies fixes itself | Boolean |
+| `--fix` | After a diagnosis, offers a remediation plan (`/sc:workflow` → you run `/sc:implement`; an MDTM task file for `/task` with `--depth deep`); never applies fixes itself | Boolean |
 
 ### Cleanup Command Flags (`/sc:cleanup`)
 
@@ -126,7 +126,7 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 
 **CLI wrapper:** The `superclaude reflect run` CLI wrapper layers auto-fix flags on top of this skill surface — `--fix/--no-fix`, `--max-fix-iterations`, and `--base` — and flips `--promote` on by default. See [docs/guides/reflect-cli-tools-guide.md](../guides/reflect-cli-tools-guide.md) for the full CLI surface.
 
-**Legacy grammar (preserved for v1 callers):**
+**Legacy grammar (preserved for `/sc:troubleshoot` Wave 6 and other v1 callers):**
 
 | Flag | Purpose | Maps to |
 |------|---------|---------|
@@ -230,7 +230,7 @@ Like the flags at the top of this page, the flags under Scope and Focus and Exec
 | `--help` | `superclaude --help`, or `superclaude <subcommand> --help` | Show the options of the command or subcommand |
 | `--verbose` | `superclaude doctor --verbose` | Show detailed diagnostic information |
 | `--dry-run` | `superclaude mcp --dry-run` | Show what would happen without doing it |
-| `--force` | `superclaude install --force`, `superclaude install-skill <name> --force` | Reinstall even if the files already exist. `install --force` is required to refresh existing files (for example in the upgrades to 5.0.0 and 6.0.0), because a plain `install` skips existing files; it saves a differing command, rule or output-style file as `<name>.bak.<UTC time>` first, overwrites edited core files and agents without a copy, and re-copies skill folders |
+| `--force` | `superclaude install --force`, `superclaude install-skill <name> --force` | Reinstall even if the files already exist. `install --force` is required for the 5.0.0 upgrade, because a plain `install` skips existing files; it overwrites edited core files, commands and agents in `~/.claude/` without a backup and re-copies skill folders |
 | `--list` | `superclaude install --list` | List the framework components without installing |
 
 ## Flag Interactions

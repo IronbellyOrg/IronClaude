@@ -73,6 +73,9 @@ from _halt_emitter import (  # noqa: E402
     run_fix_cycle,
 )
 
+SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
+
+
 # Synthetic-dnsp dedup_key per the canonical D-0059 fixture. The
 # helper's Set[str] semantics collapse identical entries — so
 # emitting the same dedup_key string in both cycle 1 and cycle 2
@@ -177,9 +180,53 @@ def non_shrinking_log() -> HaltLog:
     return run_fix_cycle(F_CROSS_CYCLE_DEDUP_NON_SHRINKING)
 
 
+@pytest.fixture(scope="module")
+def skill_text() -> str:
+    return SKILL_SRC.read_text(encoding="utf-8")
+
+
 # ---------------------------------------------------------------------------
 # Static schema / source guards — SKILL.md INV-012 wording.
 # ---------------------------------------------------------------------------
+
+
+class TestSkillInv012Documented:
+    """SKILL.md §A.9 still encodes the INV-012 cross-cycle dedup
+    composition rule + the regression non-emission invariant. A
+    regression to "synthetic-dnsp persistence IS a regression"
+    would silently break this test suite."""
+
+    def test_skill_src_exists(self):
+        assert SKILL_SRC.is_file(), f"missing SKILL.md at {SKILL_SRC}"
+
+    def test_inv_012_label_present(self, skill_text: str):
+        assert "INV-012" in skill_text, (
+            "SKILL.md missing 'INV-012' label — cross-cycle dedup composition "
+            "rule undocumented"
+        )
+
+    def test_inv_012_contributes_one_not_two(self, skill_text: str):
+        # The literal "contributes `1` (not `2`)" appears in
+        # SKILL.md L1065-1067 per the INV-012 operational rule.
+        assert "contributes `1` (not `2`)" in skill_text, (
+            "SKILL.md missing the 'contributes `1` (not `2`)' clause — "
+            "INV-012 cross-cycle dedup composition rule undocumented"
+        )
+
+    def test_regression_non_emission_invariant_present(self, skill_text: str):
+        # The literal "Regression non-emission invariant" appears in
+        # SKILL.md L1077 per the INV-012 wire-level invariant.
+        assert "Regression non-emission invariant" in skill_text, (
+            "SKILL.md missing the 'Regression non-emission invariant' "
+            "clause — cross-cycle synthetic-dnsp behavior undocumented"
+        )
+
+    def test_dedup_key_identity_rule_present(self, skill_text: str):
+        # The dedup-key identity rule appears in SKILL.md L1050.
+        assert "AFTER dedup-key deduplication" in skill_text, (
+            "SKILL.md missing the 'AFTER dedup-key deduplication' clause "
+            "— |F_n| cardinality semantics undocumented"
+        )
 
 
 # ---------------------------------------------------------------------------

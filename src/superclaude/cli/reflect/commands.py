@@ -42,7 +42,7 @@ _EXIT_SENTINEL_NAME = ".reflect-exitcode"
 _BLOCKED_EXIT = 2
 
 # Recursion-breaker (FR-2 / contract Section 3). When the wrapper auto-runs a
-# corrective ``/sc:implement`` (or its audit) as a child ``claude --print`` subprocess,
+# corrective ``/task`` (or its audit) as a child ``claude --print`` subprocess,
 # it exports this env var == "1" into that child. If that child's own terminal
 # reflect gate fires ``superclaude reflect run`` again, this guard makes it
 # immediately exit 0 BEFORE any audit -- breaking the recursion. The truthy

@@ -1,6 +1,6 @@
 # Effective-Input Proof (HC4)
 
-HC4 applies when an independent review / audit / reflect gate consumes an **indirect selector** to choose the surface it reviews. It proves the reviewer actually consumed the runtime-produced surface. It closes **E5** (a POST-reflect selector that audited a range omitting the dirty `/sc:implement` work, possibly including foreign commits). The HC4 status feeds the §5.4 aggregation in [`hardening-output-contract.md`](hardening-output-contract.md).
+HC4 applies when an independent review / audit / reflect gate consumes an **indirect selector** to choose the surface it reviews. It proves the reviewer actually consumed the runtime-produced surface. It closes **E5** (a POST-reflect selector that audited a range omitting the dirty `/task` work, possibly including foreign commits). The HC4 status feeds the §5.4 aggregation in [`hardening-output-contract.md`](hardening-output-contract.md).
 
 ## Fail-closed rule (FR-10)
 
