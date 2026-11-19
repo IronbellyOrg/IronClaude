@@ -72,7 +72,7 @@ Run 2 is on the final tree after #659 and is recorded below. Changelog completen
 | Tag | Annotated tag `v6.1.0` (tag object `d7cbc0238b58ac0010502a6598ca6049083355b5`) on `64dfc0e86`, pushed to `origin` only at 2026-11-19 01:57Z. `git cat-file -t v6.1.0` prints `tag`. |
 | GitHub release | Published 2026-11-19 01:57:25Z, not a draft, not a pre-release, "Latest": https://github.com/IronbellyOrg/IronClaude/releases/tag/v6.1.0 . Body: `docs/releases/v6.1.0.md` without its front matter plus an "Also in this tag" section naming #660 and #661 (in the tag without changelog entries). |
 | `master` back into `integration` | `f7dcf031d` (parents `1a2a5ce39`, `64dfc0e86`), trees identical (`32d105d3a`), 1 ahead, 0 behind. |
-| Issues | #647 left open (`Refs`, not `Closes`); Clay closes it after the post-release steps. #571 stays open. |
+| Issues | #647 was closed by Clay at 2026-11-19 01:57:59Z (completed), one minute after the release went live (the pull requests used `Refs`, not `Closes`). #571 stays open. |
 
 ## 5. Finished worktrees (for Clay to remove later)
 

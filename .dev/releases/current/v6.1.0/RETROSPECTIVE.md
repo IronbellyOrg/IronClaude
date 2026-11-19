@@ -48,7 +48,7 @@ Written by the `ic6-orchestrator` session after the post-release merge. Proposal
 
 ## 4. Open items for the owner (not process changes)
 
-- #647 stays open for Clay to close; #571 stays open.
+- #647 was closed by Clay at 01:57:59Z (my first final comment on it wrongly said it was left open; corrected in a second comment); #571 stays open.
 - #666 (typed confirmation before `ccsession --prune --apply`, Clay's answer to the `--classify` design question) is open and not part of 6.1.0.
 - The two rules files that still name the old `/rf:taskbuilder` command (`rules/contextual/context_embedding.md`, `rules/prompts/agent_library.md`) belong to issue 572.
 - Follow-ups listed in the 6.1.0 post-release report (`docs/testing/v6.1.0/post-release-report.md`, 18 gaps).
