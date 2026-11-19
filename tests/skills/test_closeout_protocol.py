@@ -3405,6 +3405,9 @@ def test_done_check_text_is_in_the_skill() -> None:
         "only after all of the investigation",
         "leaves the issue open with a note",
         "decides nothing",
+        "Decide from what actually happened",
+        "the issue's own plan and done criteria",
+        "context only and can never override that evidence",
     ):
         assert phrase in flat, phrase
     assert "Fixes" in ref and "Closes" in ref and "Refs" in ref
