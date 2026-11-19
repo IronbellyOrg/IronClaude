@@ -1,0 +1,10 @@
+input_tree_sha256: ff21adb285f431757891eeceb8cab4729a91364474e03d150c034cc00f1533b9
+# method: sha256 of json.dumps(sorted [(relative_path, file_sha256)], sort_keys=True); the package's artifacts/ folder is excluded
+# (it holds this pass's own grounding note); the output root .dev/reflect/pre-implementGitHubI-20261119134603 lies outside the package,
+# so the REFLECT_OUTPUT_ROOT exclusion is a no-op. No verification artifacts exist (no verification run).
+file_list:
+  - path: TASK-WF-implementGitHubI-20261119-133641.md
+    sha256: 97b4dc2cee3cf1fb0941c1fe11c15c7ac6b7cd548f35a2a704e88de3b2dba2bf
+  - path: source.md
+    sha256: 0384625f5e8974f3a7b770d95bd7eb588b248a86ff15388509b63da80ade2343
+file_count: 2

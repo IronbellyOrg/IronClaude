@@ -1,0 +1,12 @@
+[
+  {
+    "number": 7,
+    "title": "Tighten retry policy",
+    "state": "closed",
+    "html_url": "https://github.com/IronbellyOrg/beta-private/pull/7",
+    "user": {"login": "contractor-dev", "type": "User"},
+    "merged_by": {"login": "clayphi", "type": "User"},
+    "merged_at": "2026-11-16T14:00:00Z",
+    "updated_at": "2026-11-16T14:02:00Z"
+  }
+]

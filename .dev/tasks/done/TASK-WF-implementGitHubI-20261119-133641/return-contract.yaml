@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-implementGitHubI-20261119-133641
+plan_path: ./TASK-WF-implementGitHubI-20261119-133641.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-669/.dev/reflect/pre-implementGitHubI-20261119134603/REPORT.md
+unresolved:
+  - "Advisory reflect ran as an inline Tier 1 pass only: its rubric required Tier 2, which needs reviewer subagents that this session's launch rules forbid. 0 blocking findings, 3 Medium and 2 Notes are in the report."
