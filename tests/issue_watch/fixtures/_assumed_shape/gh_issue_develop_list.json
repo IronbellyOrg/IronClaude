@@ -1,0 +1,5 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/orchestrator.md (the spec of issue 655) 4.11 E2: gh issue develop --list prints one branch per line, the name first: UNVERIFIED",
+  "stdout": "issue-655-x\thttps://github.com/IronbellyOrg/IronClaude/tree/issue-655-x\n"
+}

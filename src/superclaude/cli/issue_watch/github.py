@@ -1,12 +1,21 @@
-"""Build, run and read every ``gh`` call the issue watcher makes (design section 8).
+"""Build, run and read every ``gh`` call the issue watcher makes (design 4.2, 4.10, 4.11).
 
-Every argv is built here from module constants plus five caller values, each
-checked here before it enters an argv (``ValueError`` otherwise): the issue
-number (``str(n)`` after ``valid_issue_number``), the page number, the paging
-cursor, the trigger label and the login. The repository is the literal
-``REPO``. No argv asks for a title, body or comment text: the only
-body access is ``contains(<marker>)`` inside ``MARKER_JQ``, evaluated by ``gh``'s
-embedded jq, so this process receives a boolean. This module reads no clock.
+Every argv is built here from module constants plus caller values, each checked
+here before it enters an argv (``ValueError`` otherwise): the repository
+(``owner/name``), the issue number (``str(n)`` after ``valid_issue_number``),
+the login, the organisation, the search time and one of four fixed stream names.
+No repository is a constant: the poll searches by ``org:<owner>`` and every
+result row is checked again against the repository list.
+
+The reads carry text of the issue (the S1 ``title`` and ``body``, the re-read
+``body``). It is held in memory for the plan check and for one plan request; no
+audit line, store field or argv carries it. This module reads no clock.
+
+The only writes are the label writes of the hold (4.11 point 2): create the label
+when it is absent, add it, remove it. ``LabelWriter`` builds them from fixed
+argv builders; the only ``DELETE`` it can issue is
+``repos/<R>/issues/<N>/labels/hold:plan``, and an injected ``guard`` may refuse
+any argv before it runs (PR B passes ``limits.refuse``).
 """
 
 from __future__ import annotations
@@ -17,95 +26,79 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
-from typing import TypeVar
 
 from .predicates import (
-    CLAIM_MARKER,
-    CommentEdit,
+    HOLD_LABEL,
     DiscoveredIssue,
-    EditEvidence,
+    InfoItem,
     IssueSnapshot,
-    LabelEvent,
     Login,
-    MarkerEvidence,
-    ProjectItem,
+    format_utc,
     parse_utc,
     valid_issue_number,
+    valid_repo,
 )
 from .runner import CommandResult, Runner
-
-REPO = "IronbellyOrg/IronClaude"
-"""The one repository every argv names (design 8.1, ``R``)."""
 
 PAGE_SIZE = 100
 """REST ``per_page`` value; a full page means another page may follow."""
 
 PAGE_CAP = 5
-"""Most pages one paged read may fetch (REST pages or GraphQL cursors)."""
+"""Most pages one paged read may fetch."""
 
 CALL_CAP = 35
 """Most ``gh`` calls one cycle may make (NFR-009)."""
 
-RESERVED_CALLS = 3
-"""Calls of ``CALL_CAP`` kept for the FR-011 re-read."""
+RESERVED_CALLS = 12
+"""Calls of ``CALL_CAP`` kept for the re-read: ``MAX_CANDIDATES`` (10) plus 2 (4.6)."""
 
-# --- jq projections (design 8.1, G3, G4, G7) --------------------------------
+_HOLD_LABEL_COLOR = "FBCA04"
+_HOLD_LABEL_TEXT = "The issue has no plan yet; set by the issue watcher"
 
-EVENTS_JQ = (
-    "[.[] | {id, event, label: .label.name, actor_id: .actor.id, "
-    "actor_login: .actor.login, actor_type: .actor.type, created_at}]"
+# --- jq projections (design 4.2, 4.11) --------------------------------------
+
+_SEARCH_ROW_JQ = (
+    "repository_url, number, state, updated_at, "
+    "labels: [.labels[].name], assignees: [.assignees[].login], "
+    "pull_request: (.pull_request != null)"
 )
-"""G3 projection of one events page."""
-
-# json.dumps gives a jq string literal, so the marker text is never retyped (DF-21).
-MARKER_JQ = (
-    "[.[] | {id, login: .user.login, created_at, updated_at, "
-    f"marker: (.body | contains({json.dumps(CLAIM_MARKER)}))}}]"
+SEARCH_ASSIGNED_JQ = (
+    "{total_count, incomplete_results, items: [.items[] | {"
+    + _SEARCH_ROW_JQ
+    + ', title, body: (.body // "")}]}'
 )
-"""G4 projection of one comments page: the body becomes a boolean."""
+"""S1 projection: a row carries the title and body the plan check needs."""
 
-REREAD_JQ = "{number, state, labels: [.labels[].name], assignees: [.assignees[].login]}"
-"""G7 projection of the FR-011 issue re-read."""
+SEARCH_INFO_JQ = (
+    "{total_count, incomplete_results, items: [.items[] | "
+    "{repository_url, number, updated_at, pull_request: (.pull_request != null)}]}"
+)
+"""S2 to S4 projection: no text at all."""
 
-# --- GraphQL queries (design 8.1, G5, G6) -----------------------------------
-# [PROPOSAL, UNVERIFIED] drafts from decision DF-14 (research 06, Table 1.5).
-# Field names follow the public schema; reply shapes are unverified (FU-1, FU-3).
+REREAD_JQ = (
+    "{number, state, labels: [.labels[].name], assignees: [.assignees[].login], "
+    'body: (.body // "")}'
+)
+"""The pre-wake issue re-read."""
 
-EDITS_QUERY = """query($number: Int!, $after: String) {
-  repository(owner: "IronbellyOrg", name: "IronClaude") {
-    issue(number: $number) {
-      createdAt
-      lastEditedAt
-      comments(first: 100, after: $after) {
-        nodes { databaseId author { login } createdAt lastEditedAt }
-        pageInfo { hasNextPage endCursor }
-      }
-    }
-  }
-}"""
-"""G5: issue and comment edit timestamps."""
+TIMELINE_JQ = (
+    '[.[] | select(.event == "cross-referenced" or .event == "connected") | '
+    "{event, created_at, pull_request: ((.source.issue.pull_request // null) != null)}]"
+)
+"""E3: the events of an issue's timeline that show a linked or mentioning pull request."""
 
-PROJECT_ITEMS_QUERY = """query($number: Int!, $after: String) {
-  repository(owner: "IronbellyOrg", name: "IronClaude") {
-    issue(number: $number) {
-      projectItems(first: 100, after: $after) {
-        nodes {
-          isArchived
-          project { id }
-          fieldValueByName(name: "Status") {
-            ... on ProjectV2ItemFieldSingleSelectValue { name }
-          }
-        }
-        pageInfo { hasNextPage endCursor }
-      }
-    }
-  }
-}"""
-"""G6: the issue's Project items with their Status value."""
+BRANCH_JQ = "{date: .commit.commit.committer.date}"
+"""E2: the date of a branch's newest commit."""
 
-# --- argv builders (design 8.1, G1 to G7) -----------------------------------
+# --- argv builders ------------------------------------------------------------
 # Every REST path call carries --method GET (gh defaults to POST once parameters
-# are added); the GraphQL calls are POST and carry no --method (DF-28).
+# are added).
+
+_BRANCH_NAME = re.compile(r"[A-Za-z0-9._/-]{1,200}")
+_ORG = re.compile(r"[A-Za-z0-9][A-Za-z0-9-]{0,38}")
+_LOGIN_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9-]{0,38}")
+STREAMS = ("mentions", "could_assign", "affects")
+"""The three information streams S2, S3 and S4."""
 
 
 def _issue_arg(n: object) -> str:
@@ -115,54 +108,11 @@ def _issue_arg(n: object) -> str:
     return str(n)
 
 
-def _page_arg(page: object) -> str:
-    """Return ``str(page)`` for an ``int`` page in 1..``PAGE_CAP``."""
-    if type(page) is not int or not 1 <= page <= PAGE_CAP:
-        raise ValueError("invalid page number")
-    return str(page)
-
-
-# [UNVERIFIED] The cursor alphabet (base64 and URL-safe base64 plus ``:`` and
-# ``.``) is assumed; FU-1 confirms it against a captured ``endCursor``.
-_CURSOR_RE = re.compile(r"[A-Za-z0-9+/=_.:-]{1,256}")
-
-TRIGGER_MAX_CHARS = 50
-"""Longest trigger label the watcher accepts (design 131)."""
-
-# The cycle's login regex (design 348, plan step 6.1); checked here too so no
-# other login string can reach a ``--assignee`` argument.
-_LOGIN_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9-]{0,38}")
-
-
-def _valid_cursor(text: object) -> bool:
-    return isinstance(text, str) and _CURSOR_RE.fullmatch(text) is not None
-
-
-def _cursor_args(after: str | None) -> list[str]:
-    """Return ``["-f", "after=<cursor>"]``, or nothing on the first page."""
-    if after is None:
-        return []
-    if not _valid_cursor(after):
-        raise ValueError("invalid cursor")
-    return ["-f", f"after={after}"]
-
-
-def _trigger_arg(trigger: object) -> str:
-    """Return ``trigger`` when it is safe as one ``--label`` value.
-
-    Non-empty, at most ``TRIGGER_MAX_CHARS`` characters, no control character,
-    no comma (``gh`` splits ``--label`` on commas and ANDs the parts) and no
-    leading dash.
-    """
-    if (
-        not isinstance(trigger, str)
-        or not 0 < len(trigger) <= TRIGGER_MAX_CHARS
-        or trigger.startswith("-")
-        or "," in trigger
-        or any(ord(c) < 32 or ord(c) == 127 for c in trigger)
-    ):
-        raise ValueError("invalid trigger label")
-    return trigger
+def _repo_arg(repo: object) -> str:
+    """Return ``repo`` when it is ``owner/name``, else raise ``ValueError``."""
+    if not valid_repo(repo):
+        raise ValueError("invalid repo")
+    return str(repo)
 
 
 def _login_arg(login: object) -> str:
@@ -172,110 +122,212 @@ def _login_arg(login: object) -> str:
     return login
 
 
+def _org_arg(owner: object) -> str:
+    """Return ``owner`` when it is an organisation or user name, else raise."""
+    if not isinstance(owner, str) or _ORG.fullmatch(owner) is None:
+        raise ValueError("invalid organisation")
+    return owner
+
+
+def _branch_arg(name: object) -> str:
+    """Return ``name`` when it is a branch name that cannot read as an option."""
+    if (
+        not isinstance(name, str)
+        or _BRANCH_NAME.fullmatch(name) is None
+        or name.startswith("-")
+        or ".." in name
+    ):
+        raise ValueError("invalid branch name")
+    return name
+
+
 def argv_user() -> list[str]:
     """G1: own login, account id and the ``Date`` header (FR-002)."""
     return ["gh", "api", "user", "--include"]
 
 
-def argv_discover(trigger: str, login: str) -> list[str]:
-    """G2: open issues carrying ``trigger`` and assigned to ``login`` (FR-003)."""
-    return [
-        "gh",
-        "issue",
-        "list",
-        "--repo",
-        REPO,
-        "--state",
-        "open",
-        "--label",
-        _trigger_arg(trigger),
-        "--assignee",
-        _login_arg(login),
-        "--json",
-        "number,labels,assignees,state",
-        "-L",
-        "100",  # the FR-004 fail-closed bound, not PAGE_SIZE
-    ]
-
-
-def _argv_rest_page(n: object, kind: str, page: object, jq: str) -> list[str]:
-    """One REST page of ``repos/R/issues/N/<kind>`` projected by ``jq``."""
+def _argv_search(query: str, jq: str) -> list[str]:
     return [
         "gh",
         "api",
         "--method",
         "GET",
-        f"repos/{REPO}/issues/{_issue_arg(n)}/{kind}",
+        "search/issues",
+        "-f",
+        f"q={query}",
         "-F",
         f"per_page={PAGE_SIZE}",
-        "-F",
-        f"page={_page_arg(page)}",
         "--jq",
         jq,
     ]
 
 
-def argv_events(n: int, page: int) -> list[str]:
-    """G3: one page of the issue's event history (FR-005, FR-006)."""
-    return _argv_rest_page(n, "events", page, EVENTS_JQ)
+def argv_search_assigned(owner: str, login: str) -> list[str]:
+    """S1: open issues assigned to ``login`` in organisation ``owner`` (the only trigger)."""
+    query = f"is:issue is:open assignee:{_login_arg(login)} org:{_org_arg(owner)}"
+    return _argv_search(query, SEARCH_ASSIGNED_JQ)
 
 
-def argv_comments(n: int, page: int) -> list[str]:
-    """G4: one page of the issue's comments, reduced to marker evidence (FR-009)."""
-    return _argv_rest_page(n, "comments", page, MARKER_JQ)
+def argv_search_info(stream: str, owner: str, login: str, since: datetime) -> list[str]:
+    """S2 to S4: an information stream, limited to items changed since ``since``."""
+    org, who, when = _org_arg(owner), _login_arg(login), format_utc(since)
+    if stream == "mentions":
+        query = f"mentions:{who} updated:>={when} org:{org}"
+    elif stream == "could_assign":
+        query = f"is:issue is:open no:assignee created:>={when} org:{org}"
+    elif stream == "affects":
+        query = f"involves:{who} updated:>={when} org:{org} -assignee:{who}"
+    else:
+        raise ValueError("invalid stream")
+    return _argv_search(query, SEARCH_INFO_JQ)
 
 
-def _argv_graphql(query: str, n: object, after: str | None) -> list[str]:
-    """One GraphQL page; ``-F`` sends ``number`` typed, no ``after`` sends null."""
-    return [
-        "gh",
-        "api",
-        "graphql",
-        "-f",
-        f"query={query}",
-        "-F",
-        f"number={_issue_arg(n)}",
-        *_cursor_args(after),
-    ]
-
-
-def argv_edits(n: int, after: str | None = None) -> list[str]:
-    """G5: one page of issue and comment edit timestamps."""
-    return _argv_graphql(EDITS_QUERY, n, after)
-
-
-def argv_project_items(n: int, after: str | None = None) -> list[str]:
-    """G6: one page of the issue's Project items (FR-007)."""
-    return _argv_graphql(PROJECT_ITEMS_QUERY, n, after)
-
-
-def argv_reread(n: int) -> list[str]:
-    """G7: re-read the issue's number, state, labels and assignees (FR-011)."""
+def argv_reread(repo: str, n: int) -> list[str]:
+    """Re-read one issue of ``repo``: number, state, labels, assignees and body."""
     return [
         "gh",
         "api",
         "--method",
         "GET",
-        f"repos/{REPO}/issues/{_issue_arg(n)}",
+        f"repos/{_repo_arg(repo)}/issues/{_issue_arg(n)}",
         "--jq",
         REREAD_JQ,
     ]
 
 
+def argv_issue_updated(repo: str, n: int) -> list[str]:
+    """One read of the issue's ``updatedAt`` (after the poll's own write, 4.11 E1)."""
+    return [
+        "gh",
+        "issue",
+        "view",
+        _issue_arg(n),
+        "--repo",
+        _repo_arg(repo),
+        "--json",
+        "updatedAt",
+    ]
+
+
+def argv_issue_labels(repo: str, n: int) -> list[str]:
+    """The live label read that confirms a removal by hand (4.11 row 5)."""
+    return [
+        "gh",
+        "issue",
+        "view",
+        _issue_arg(n),
+        "--repo",
+        _repo_arg(repo),
+        "--json",
+        "labels",
+    ]
+
+
+def argv_develop_list(repo: str, n: int) -> list[str]:
+    """E2: the branches linked to the issue."""
+    return [
+        "gh",
+        "issue",
+        "develop",
+        "--list",
+        _issue_arg(n),
+        "--repo",
+        _repo_arg(repo),
+    ]
+
+
+def argv_branch_date(repo: str, name: str) -> list[str]:
+    """E2: the date of the newest commit of a linked branch."""
+    return [
+        "gh",
+        "api",
+        "--method",
+        "GET",
+        f"repos/{_repo_arg(repo)}/branches/{_branch_arg(name)}",
+        "--jq",
+        BRANCH_JQ,
+    ]
+
+
+def argv_timeline(repo: str, n: int) -> list[str]:
+    """E3: the issue's timeline, projected to the events that show a pull request."""
+    return [
+        "gh",
+        "api",
+        "--method",
+        "GET",
+        f"repos/{_repo_arg(repo)}/issues/{_issue_arg(n)}/timeline",
+        "-F",
+        f"per_page={PAGE_SIZE}",
+        "--jq",
+        TIMELINE_JQ,
+    ]
+
+
+def argv_label_get(repo: str) -> list[str]:
+    """Read the hold label of ``repo`` (does it exist yet?)."""
+    return [
+        "gh",
+        "api",
+        "--method",
+        "GET",
+        f"repos/{_repo_arg(repo)}/labels/{HOLD_LABEL}",
+    ]
+
+
+def argv_label_create(repo: str) -> list[str]:
+    """Create the hold label in ``repo`` (the first time the repo needs it)."""
+    return [
+        "gh",
+        "api",
+        "--method",
+        "POST",
+        f"repos/{_repo_arg(repo)}/labels",
+        "-f",
+        f"name={HOLD_LABEL}",
+        "-f",
+        f"color={_HOLD_LABEL_COLOR}",
+        "-f",
+        f"description={_HOLD_LABEL_TEXT}",
+    ]
+
+
+def argv_label_add(repo: str, n: int) -> list[str]:
+    """Add the hold label to issue ``n`` of ``repo``."""
+    return [
+        "gh",
+        "api",
+        "--method",
+        "POST",
+        f"repos/{_repo_arg(repo)}/issues/{_issue_arg(n)}/labels",
+        "-f",
+        f"labels[]={HOLD_LABEL}",
+    ]
+
+
+def argv_label_remove(repo: str, n: int) -> list[str]:
+    """Remove the hold label from issue ``n``: the one ``DELETE`` the poll may issue."""
+    return [
+        "gh",
+        "api",
+        "--method",
+        "DELETE",
+        f"repos/{_repo_arg(repo)}/issues/{_issue_arg(n)}/labels/{HOLD_LABEL}",
+    ]
+
+
 # --- reply classification (design 8.2) --------------------------------------
 
-# [UNVERIFIED] gh stderr text and GraphQL error type names (design line 590,
-# DF-37). Kept in this ONE table so the live test can correct them in one place.
+# [UNVERIFIED] gh stderr text (design 4.6 and 7.1). Kept in this ONE table so the
+# live test can correct it in one place. The Project scope signs are gone: the
+# poll reads no Project and no GraphQL.
 GH_ERROR_SIGNS: dict[str, tuple[str, ...]] = {
     "auth_stderr": ("HTTP 401", "gh auth login"),
-    "scope_types": ("INSUFFICIENT_SCOPES",),
-    "scope_stderr": ("read:project",),
     "rate_status_stderr": ("HTTP 403", "HTTP 429"),
     "rate_text_stderr": ("rate limit",),  # matched case-insensitively
-    "rate_types": ("RATE_LIMITED",),
     "transient_stderr_re": (r"HTTP 5[0-9]{2}",),
 }
-"""Every stderr substring, regex and GraphQL error type ``classify`` matches."""
+"""Every stderr substring and regex ``classify`` matches."""
 
 
 @dataclass(frozen=True)
@@ -324,19 +376,6 @@ def _parse_json(text: str | None) -> tuple[bool, object]:
         return False, None
 
 
-def _graphql_error_types(text: str | None) -> set[str]:
-    """Return the string ``errors[].type`` values of a GraphQL reply body."""
-    ok, value = _parse_json(text)
-    errors = value.get("errors") if ok and isinstance(value, dict) else None
-    if not isinstance(errors, list):
-        return set()
-    return {
-        e["type"]
-        for e in errors
-        if isinstance(e, dict) and isinstance(e.get("type"), str)
-    }
-
-
 def _any_in(signs: str, text: str) -> bool:
     """True when ``text`` contains one of the ``GH_ERROR_SIGNS[signs]`` substrings."""
     return any(s in text for s in GH_ERROR_SIGNS[signs])
@@ -356,15 +395,10 @@ def classify(result: CommandResult, *, include_headers: bool = False) -> Reply:
         ok, value = _parse_json(body)
         return Reply("ok", result, value) if ok else Reply("non_json", result, None)
     stderr = result.stderr
-    types = _graphql_error_types(body)
     if _any_in("auth_stderr", stderr):
         return Reply("auth_failed", result, None)
-    if types & set(GH_ERROR_SIGNS["scope_types"]) or _any_in("scope_stderr", stderr):
-        return Reply("scope_missing", result, None)
     rate_text = any(s in stderr.lower() for s in GH_ERROR_SIGNS["rate_text_stderr"])
-    if (_any_in("rate_status_stderr", stderr) and rate_text) or types & set(
-        GH_ERROR_SIGNS["rate_types"]
-    ):
+    if _any_in("rate_status_stderr", stderr) and rate_text:
         return Reply("rate_limited", result, None)
     if any(re.search(p, stderr) for p in GH_ERROR_SIGNS["transient_stderr_re"]):
         return Reply("transient", result, None)
@@ -484,16 +518,15 @@ class Read:
 # discovery only, ``truncated`` or ``discovery_duplicate``.
 
 DISCOVERY_BOUND = 100
-"""Discovery results at or above this count fail closed (FR-004)."""
+"""A search result at or above this count fails closed for S1 (spec 4.2)."""
 
 _SHARED_REASONS = {
     "timeout": "gh_timeout",
     "transient": "gh_timeout",
     "non_json": "gh_non_json",
     "rate_limited": "rate_limited",
-    "scope_missing": "project_read_failed",
 }
-"""Cycle reason of a failed G1 or G2 reply; anything else is ``gh_auth_failed``."""
+"""Cycle reason of a failed G1 or search reply; anything else is ``gh_auth_failed``."""
 
 
 class _Malformed(Exception):
@@ -628,151 +661,33 @@ def _rest_read(
     return Read(None, incomplete, "incomplete")
 
 
-def _errors_kind(result: CommandResult) -> str:
-    """Kind of an exit-0 GraphQL reply that carries an ``errors`` list."""
-    types = _graphql_error_types(result.stdout)
-    if types & set(GH_ERROR_SIGNS["scope_types"]):
-        return "scope_missing"
-    if types & set(GH_ERROR_SIGNS["rate_types"]):
-        return "rate_limited"
-    return "failed"
-
-
-_I = TypeVar("_I")
-_N = TypeVar("_N")
-
-
-def _graphql_read(
-    runner: Runner,
-    budget: CallBudget,
-    timeout_for: Callable[[], float | None],
-    argv_for_cursor: Callable[[str | None], list[str]],
-    connection: str,
-    parse_issue: Callable[[dict], _I],
-    parse_node: Callable[[object], _N],
-    unreadable: str,
-    reserved: bool,
-) -> Read | tuple[_I, tuple[_N, ...]]:
-    """Page a G5 or G6 read (design line 575, DF-19).
-
-    Returns ``(parse_issue(first page's issue), nodes)``, or a failed ``Read``.
-    Complete only when ``hasNextPage`` is false; every failure gives
-    ``unreadable``.
-    """
-    nodes_out: list[_N] = []
-    first: list[_I] = []  # the first page's issue fields
-    cursors: set[str] = set()
-    after: str | None = None
-    for page in range(1, PAGE_CAP + 1):
-        reply = _call(
-            runner, budget, timeout_for, argv_for_cursor(after), reserved=reserved
-        )
-        if reply is None:
-            return _NO_CALL
-        if reply.kind != "ok":
-            return _failed(reply, unreadable)
-        try:
-            body = _obj(reply.payload)
-            if body.get("errors") is not None:
-                return Read(None, unreadable, _errors_kind(reply.result))
-            issue = _obj(_obj(_obj(body.get("data")).get("repository")).get("issue"))
-            conn = _obj(issue.get(connection))
-            nodes = _list(conn.get("nodes"))
-            _check(len(nodes) <= PAGE_SIZE)
-            info = _obj(conn.get("pageInfo"))
-            more = info.get("hasNextPage")
-            _check(type(more) is bool)
-            cursor = _opt_text(info.get("endCursor"))
-            fields = parse_issue(issue)
-            nodes_out += [parse_node(n) for n in nodes]
-        except _Malformed:
-            return Read(None, unreadable, "non_json")
-        if page == 1:
-            first.append(fields)
-        if cursor and cursor in cursors:
-            return Read(None, unreadable, "incomplete")
-        if not more:
-            return first[0], tuple(nodes_out)
-        if not cursor:
-            return Read(None, unreadable, "incomplete")
-        if not _valid_cursor(cursor):  # it is about to become an argv item
-            return Read(None, unreadable, "non_json")
-        cursors.add(cursor)
-        after = cursor
-    return Read(None, unreadable, "incomplete")
-
-
 # --- typed reads: item parsers (DF-18 null rules) ----------------------------
 
-
-def _event(item: dict) -> LabelEvent:
-    """One G3 item; label and actor fields are required only for (un)labeled."""
-    event = _text(item.get("event"))
-    labelled = event in ("labeled", "unlabeled")
-    text = _text if labelled else _opt_text
-    actor_id = item.get("actor_id")
-    return LabelEvent(
-        id=_pos_int(item.get("id")),
-        event=event,
-        label=text(item.get("label")),
-        actor_id=_pos_int(actor_id) if labelled or actor_id is not None else None,
-        actor_login=text(item.get("actor_login")),
-        actor_type=text(item.get("actor_type")),
-        created_at=_time(item.get("created_at")),
-    )
+_API_REPO = re.compile(r"https://api\.github\.com/repos/(?P<repo>[^/]+/[^/]+)")
 
 
-def _marker(item: dict) -> MarkerEvidence | None:
-    """One G4 item; a null ``login`` is never the own login, so it is dropped."""
-    marker = item.get("marker")
-    _check(type(marker) is bool)
-    value = MarkerEvidence(
-        id=_pos_int(item.get("id")),
-        login=_opt_text(item.get("login")) or "",
-        created_at=_time(item.get("created_at")),
-        updated_at=_time(item.get("updated_at")),
-        marker=bool(marker),
-    )
-    return value if value.login else None
+def _row_repo(item: dict, owner: str) -> str | None:
+    """The repo of a search row; None for a row outside ``owner`` (dropped).
 
-
-def _edited_at(d: dict) -> datetime | None:
-    """``lastEditedAt``: an explicit null is "never edited"; a missing key is not.
-
-    A reply without the key is a shape change, and incomplete evidence must not
-    read as "unchanged" (``predicates.unchanged_since``), so it is malformed.
+    A ``repository_url`` of any other shape is malformed, so a reply that changed
+    shape is never read as "no rows".
     """
-    _check("lastEditedAt" in d)
-    return _opt_time(d["lastEditedAt"])
+    match = _API_REPO.fullmatch(_text(item.get("repository_url")))
+    _check(match is not None and valid_repo(match["repo"]))
+    repo = match["repo"]  # type: ignore[index]
+    return repo if repo.split("/", 1)[0].lower() == owner.lower() else None
 
 
-def _edit_issue(issue: dict) -> tuple[datetime, datetime | None]:
-    return _time(issue.get("createdAt")), _edited_at(issue)
+def _search_items(reply: Reply) -> list:
+    """The ``items`` of a search reply; ``incomplete_results`` true is malformed."""
+    body = _obj(reply.payload)
+    _check(body.get("incomplete_results") is False)
+    return _list(body.get("items"))
 
 
-def _comment_edit(node: object) -> CommentEdit:
-    d = _obj(node)
-    author = d.get("author")
-    return CommentEdit(
-        database_id=_pos_int(d.get("databaseId")),
-        author_login=None if author is None else _text(_obj(author).get("login")),
-        created_at=_time(d.get("createdAt")),
-        last_edited_at=_edited_at(d),
-    )
-
-
-def _project_item(node: object) -> ProjectItem:
-    d = _obj(node)
-    archived = d.get("isArchived")
-    _check(type(archived) is bool)
-    # [UNVERIFIED] reply shape (design 837, FU-1): treated as None when the value
-    # is null or has no name; any other non-object value is malformed.
-    status = d.get("fieldValueByName")
-    return ProjectItem(
-        is_archived=bool(archived),
-        project_id=_text(_obj(d.get("project")).get("id")),
-        status_name=None if status is None else _opt_text(_obj(status).get("name")),
-    )
+def _bool(value: object) -> bool:
+    _check(type(value) is bool)
+    return bool(value)
 
 
 # --- typed reads: public API --------------------------------------------------
@@ -801,40 +716,50 @@ def user(runner: Runner, timeout_for: Callable[[], float | None]) -> Read:
     return Read(value)
 
 
-def discover(
-    runner: Runner, trigger: str, login: str, timeout_for: Callable[[], float | None]
+def search_assigned(
+    runner: Runner, owner: str, login: str, timeout_for: Callable[[], float | None]
 ) -> Read:
-    """G2: a tuple of ``DiscoveredIssue`` (FR-003, FR-004).
+    """S1: a tuple of ``DiscoveredIssue`` for one organisation (spec 4.2).
 
-    ``DISCOVERY_BOUND`` or more results give ``truncated``, a repeated number
-    ``discovery_duplicate`` and any malformed element ``non_json``. Raises
-    ``ValueError`` before any call for a ``trigger`` or ``login`` that is unsafe
-    as a command-line value (the cycle checks both first).
+    ``DISCOVERY_BOUND`` or more rows give ``truncated`` (fail closed), a repeated
+    (repo, number) ``discovery_duplicate`` and any malformed row ``non_json``. A
+    row of another organisation is dropped; a row with a ``pull_request`` key is
+    dropped (it is not an issue). Raises ``ValueError`` before any call for an
+    ``owner`` or ``login`` that is unsafe as a command-line value.
     """
-    reply = _call(runner, None, timeout_for, argv_discover(trigger, login))
+    reply = _call(runner, None, timeout_for, argv_search_assigned(owner, login))
     if reply is None:
         return _SHARED_NO_CALL
     if reply.kind != "ok":
         return _shared_failed(reply)
     issues: list[DiscoveredIssue] = []
-    seen: set[int] = set()
+    seen: set[tuple[str, int]] = set()
     try:
-        items = _list(reply.payload)
-        if len(items) >= DISCOVERY_BOUND:
+        items = _search_items(reply)
+        total = _obj(reply.payload).get("total_count")
+        _check(type(total) is int and total >= 0)
+        if len(items) >= DISCOVERY_BOUND or total >= DISCOVERY_BOUND:
             return Read(None, "truncated", "truncated")
         for item in items:
             d = _obj(item)
+            repo = _row_repo(d, owner)
             number = _pos_int(d.get("number"))
             _check(valid_issue_number(number))
-            if number in seen:
+            if repo is None or _bool(d.get("pull_request")):
+                continue
+            if (repo, number) in seen:
                 return Read(None, "discovery_duplicate", "discovery_duplicate")
-            seen.add(number)
+            seen.add((repo, number))
             issues.append(
                 DiscoveredIssue(
+                    repo=repo,
                     number=number,
-                    labels=_names(d.get("labels"), "name"),
-                    assignees=_names(d.get("assignees"), "login"),
+                    labels=_texts(d.get("labels")),
+                    assignees=_texts(d.get("assignees")),
                     state=_text(d.get("state")),
+                    updated_at=_time(d.get("updated_at")),
+                    title=_text(d.get("title")),
+                    body=_text(d.get("body")),
                 )
             )
     except _Malformed:
@@ -842,104 +767,66 @@ def discover(
     return Read(tuple(issues))
 
 
-def events(
+def search_info(
     runner: Runner,
-    budget: CallBudget,
-    n: int,
+    stream: str,
+    owner: str,
+    login: str,
+    since: datetime,
     timeout_for: Callable[[], float | None],
-    *,
-    reserved: bool = False,
 ) -> Read:
-    """G3 (G3' with ``reserved``): a tuple of ``LabelEvent`` (FR-005, FR-006)."""
-    return _rest_read(
-        runner,
-        budget,
-        timeout_for,
-        lambda page: argv_events(n, page),
-        _event,
-        "events_unreadable",
-        "events_incomplete",
-        reserved,
-    )
+    """S2 to S4: a tuple of ``InfoItem``, cut at ``DISCOVERY_BOUND`` (a warning, not a stop).
 
-
-def marker_comments(
-    runner: Runner, budget: CallBudget, n: int, timeout_for: Callable[[], float | None]
-) -> Read:
-    """G4: a tuple of ``MarkerEvidence`` for comments with a login (FR-009).
-
-    Every failure, including an incomplete read, is ``marker_unreadable`` and
-    never counts as claimed (DF-02).
+    A row of another organisation is dropped. The reply shapes of the three
+    information streams are UNVERIFIED until the live test (U8); the tests pin
+    them with ``_assumed_shape`` fixtures.
     """
-    return _rest_read(
-        runner,
-        budget,
-        timeout_for,
-        lambda page: argv_comments(n, page),
-        _marker,
-        "marker_unreadable",
-        "marker_unreadable",
-        False,
+    reply = _call(
+        runner, None, timeout_for, argv_search_info(stream, owner, login, since)
     )
-
-
-def edits(
-    runner: Runner, budget: CallBudget, n: int, timeout_for: Callable[[], float | None]
-) -> Read:
-    """G5: an ``EditEvidence``; every failure is ``edits_unreadable`` (DF-02)."""
-    out = _graphql_read(
-        runner,
-        budget,
-        timeout_for,
-        lambda after: argv_edits(n, after),
-        "comments",
-        _edit_issue,
-        _comment_edit,
-        "edits_unreadable",
-        False,
-    )
-    if isinstance(out, Read):
-        return out
-    (created, edited), comments = out
-    return Read(EditEvidence(created, edited, comments))
-
-
-def project_items(
-    runner: Runner,
-    budget: CallBudget,
-    n: int,
-    timeout_for: Callable[[], float | None],
-    *,
-    reserved: bool = False,
-) -> Read:
-    """G6 (G6' with ``reserved``): a tuple of ``ProjectItem`` (FR-007).
-
-    Every failure is ``project_unreadable``; a ``scope_missing`` kind tells the
-    cycle to exit 3 ``project_read_failed``.
-    """
-    out = _graphql_read(
-        runner,
-        budget,
-        timeout_for,
-        lambda after: argv_project_items(n, after),
-        "projectItems",
-        lambda issue: None,
-        _project_item,
-        "project_unreadable",
-        reserved,
-    )
-    return out if isinstance(out, Read) else Read(out[1])
+    if reply is None:
+        return _SHARED_NO_CALL
+    if reply.kind != "ok":
+        return _shared_failed(reply)
+    found: list[InfoItem] = []
+    seen: set[tuple[str, int]] = set()
+    try:
+        for item in _search_items(reply)[:DISCOVERY_BOUND]:
+            d = _obj(item)
+            repo = _row_repo(d, owner)
+            number = _pos_int(d.get("number"))
+            _check(valid_issue_number(number))
+            is_pr = _bool(d.get("pull_request"))
+            if repo is None or (repo, number) in seen:
+                continue
+            seen.add((repo, number))
+            found.append(
+                InfoItem(
+                    stream=stream,
+                    repo=repo,
+                    number=number,
+                    kind="pull_request" if is_pr else "issue",
+                    updated_at=_time(d.get("updated_at")),
+                )
+            )
+    except _Malformed:
+        return Read(None, "gh_non_json", "non_json")
+    return Read(tuple(found))
 
 
 def reread(
-    runner: Runner, budget: CallBudget, n: int, timeout_for: Callable[[], float | None]
+    runner: Runner,
+    budget: CallBudget,
+    repo: str,
+    n: int,
+    timeout_for: Callable[[], float | None],
 ) -> Read:
-    """G7: an ``IssueSnapshot`` from one reserved call (FR-011).
+    """An ``IssueSnapshot`` from one reserved call (the pre-wake re-read, 4.5 step 9).
 
     A timeout or 5xx is ``revalidation_transient``; any other failure, or a
     reply for another number, is ``revalidation_failed``.
     """
-    reply = _call(runner, budget, timeout_for, argv_reread(n), reserved=True)
+    reply = _call(runner, budget, timeout_for, argv_reread(repo, n), reserved=True)
     if reply is None:
         return _NO_CALL
     if reply.kind != "ok":
@@ -950,11 +837,233 @@ def reread(
         d = _obj(reply.payload)
         _check(d.get("number") == n and valid_issue_number(d.get("number")))
         value = IssueSnapshot(
+            repo=repo,
             number=n,
             state=_text(d.get("state")),
             labels=_texts(d.get("labels")),
             assignees=_texts(d.get("assignees")),
+            body=_text(d.get("body")),
         )
     except _Malformed:
         return Read(None, "revalidation_failed", "non_json")
     return Read(value)
+
+
+def issue_updated_at(
+    runner: Runner,
+    budget: CallBudget,
+    repo: str,
+    n: int,
+    timeout_for: Callable[[], float | None],
+) -> Read:
+    """The issue's ``updatedAt`` as a ``datetime`` (read once after the poll's own write)."""
+    reply = _call(runner, budget, timeout_for, argv_issue_updated(repo, n))
+    if reply is None:
+        return _NO_CALL
+    if reply.kind != "ok":
+        return _failed(reply, "hold_write_failed")
+    try:
+        return Read(_time(_obj(reply.payload).get("updatedAt")))
+    except _Malformed:
+        return Read(None, "hold_write_failed", "non_json")
+
+
+def issue_labels(
+    runner: Runner,
+    budget: CallBudget,
+    repo: str,
+    n: int,
+    timeout_for: Callable[[], float | None],
+) -> Read:
+    """The live label names of the issue: one read that confirms a removal by hand."""
+    reply = _call(runner, budget, timeout_for, argv_issue_labels(repo, n))
+    if reply is None:
+        return _NO_CALL
+    if reply.kind != "ok":
+        return _failed(reply, "revalidation_failed")
+    try:
+        return Read(_names(_obj(reply.payload).get("labels"), "name"))
+    except _Malformed:
+        return Read(None, "revalidation_failed", "non_json")
+
+
+# --- evidence of plan work elsewhere (4.11 point 5, E2 and E3) -----------------
+
+
+def linked_branches(
+    runner: Runner,
+    budget: CallBudget,
+    repo: str,
+    n: int,
+    timeout_for: Callable[[], float | None],
+) -> Read:
+    """E2: the names of the branches linked to the issue (``gh issue develop --list``).
+
+    The output is text, one branch per line, the name first (tab separated).
+    [UNVERIFIED] until the live test; a line that is not a branch name is
+    ignored. Exit 0 with no output is no branch.
+    """
+    timeout = timeout_for()
+    if timeout is None or not budget.spend():
+        return _NO_CALL
+    result = runner.run(argv_develop_list(repo, n), timeout)
+    if result.returncode != 0 or result.timed_out:
+        return _failed(classify(result), "hold_write_failed")
+    names: list[str] = []
+    for text_line in result.stdout.splitlines():
+        name = text_line.split("\t", 1)[0].strip()
+        if (
+            _BRANCH_NAME.fullmatch(name)
+            and not name.startswith("-")
+            and ".." not in name
+            and name not in names
+        ):
+            names.append(name)
+    return Read(tuple(names))
+
+
+def branch_date(
+    runner: Runner,
+    budget: CallBudget,
+    repo: str,
+    name: str,
+    timeout_for: Callable[[], float | None],
+) -> Read:
+    """E2: the date of the branch's newest commit, as a ``datetime``."""
+    reply = _call(runner, budget, timeout_for, argv_branch_date(repo, name))
+    if reply is None:
+        return _NO_CALL
+    if reply.kind != "ok":
+        return _failed(reply, "hold_write_failed")
+    try:
+        return Read(_time(_obj(reply.payload).get("date")))
+    except _Malformed:
+        return Read(None, "hold_write_failed", "non_json")
+
+
+def timeline_evidence(
+    runner: Runner,
+    budget: CallBudget,
+    repo: str,
+    n: int,
+    timeout_for: Callable[[], float | None],
+) -> Read:
+    """E3: the newest time of a ``connected`` event or a ``cross-referenced`` pull request.
+
+    The value is a ``datetime``, or None when the timeline shows none.
+    """
+    reply = _call(runner, budget, timeout_for, argv_timeline(repo, n))
+    if reply is None:
+        return _NO_CALL
+    if reply.kind != "ok":
+        return _failed(reply, "hold_write_failed")
+    newest: datetime | None = None
+    try:
+        for item in _list(reply.payload):
+            d = _obj(item)
+            event = _text(d.get("event"))
+            linked = event == "connected" or (
+                event == "cross-referenced" and _bool(d.get("pull_request"))
+            )
+            when = _time(d.get("created_at"))
+            if linked and (newest is None or when > newest):
+                newest = when
+    except _Malformed:
+        return Read(None, "hold_write_failed", "non_json")
+    return Read(newest)
+
+
+# --- the label writer (4.11 point 2) ------------------------------------------
+
+
+Guard = Callable[[list[str]], "str | None"]
+"""A refusal check for one argv: the reason text to refuse it, None to allow it."""
+
+
+class LabelWriter:
+    """Create, add and remove the hold label: the poll's only GitHub writes.
+
+    Each write returns a ``Read``: ``Read(True)`` when it is done and, when it is
+    not, a ``Read`` whose ``reason`` is ``hold_write_failed`` (a refusal, a 403, a
+    failed creation) or whose ``kind`` is ``rate_limited`` (the cycle backs off).
+    There is no comment call here and no way to build one. ``guard`` is the
+    injected refusal check of the orchestrator's limits (spec 5.9 N2); a refused
+    argv is not run and counts as ``hold_write_failed``.
+    """
+
+    def __init__(self, runner: Runner, guard: Guard | None = None) -> None:
+        self._runner = runner
+        self._guard = guard
+        self._ready: set[str] = set()
+
+    def _run(
+        self,
+        budget: CallBudget,
+        timeout_for: Callable[[], float | None],
+        argv: list[str],
+    ) -> Reply | None:
+        if self._guard is not None and self._guard(list(argv)) is not None:
+            return Reply(
+                "failed",
+                CommandResult(tuple(argv), None, "", "", False, None, 0.0),
+                None,
+            )
+        return _call(self._runner, budget, timeout_for, argv)
+
+    def _done(self, reply: Reply | None, *, absent_ok: bool = False) -> Read:
+        if reply is None:
+            return _NO_CALL
+        if (
+            absent_ok
+            and reply.result.returncode != 0
+            and "HTTP 404" in reply.result.stderr
+        ):
+            return Read(True)
+        if reply.kind == "ok" or (
+            reply.kind == "non_json" and reply.result.returncode == 0
+        ):
+            return Read(True)  # a write reply is not read; exit 0 is the result
+        return _failed(reply, "hold_write_failed")
+
+    def ensure(
+        self,
+        budget: CallBudget,
+        repo: str,
+        timeout_for: Callable[[], float | None],
+    ) -> Read:
+        """Read the hold label of ``repo``; create it when it is absent (once per cycle)."""
+        if repo in self._ready:
+            return Read(True)
+        reply = self._run(budget, timeout_for, argv_label_get(repo))
+        if reply is None:
+            return _NO_CALL
+        if reply.kind == "ok":
+            self._ready.add(repo)
+            return Read(True)
+        if reply.result.returncode == 0 or "HTTP 404" not in reply.result.stderr:
+            return _failed(reply, "hold_write_failed")
+        made = self._done(self._run(budget, timeout_for, argv_label_create(repo)))
+        if made.reason is None:
+            self._ready.add(repo)
+        return made
+
+    def add(
+        self,
+        budget: CallBudget,
+        repo: str,
+        n: int,
+        timeout_for: Callable[[], float | None],
+    ) -> Read:
+        """Add the hold label to issue ``n`` (the label must exist: call ``ensure`` first)."""
+        return self._done(self._run(budget, timeout_for, argv_label_add(repo, n)))
+
+    def remove(
+        self,
+        budget: CallBudget,
+        repo: str,
+        n: int,
+        timeout_for: Callable[[], float | None],
+    ) -> Read:
+        """Remove the hold label; a label that is already gone (HTTP 404) is done."""
+        reply = self._run(budget, timeout_for, argv_label_remove(repo, n))
+        return self._done(reply, absent_ok=True)

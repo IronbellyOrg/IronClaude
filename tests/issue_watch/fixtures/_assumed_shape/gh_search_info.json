@@ -1,0 +1,16 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/orchestrator.md (the spec of issue 655) 4.2 S2 to S4: the SEARCH_INFO_JQ projection: UNVERIFIED until the live test (U8)",
+  "payload": {
+    "total_count": 1,
+    "incomplete_results": false,
+    "items": [
+      {
+        "repository_url": "https://api.github.com/repos/IronbellyGroup/example",
+        "number": 12,
+        "updated_at": "2026-11-19T10:12:41Z",
+        "pull_request": false
+      }
+    ]
+  }
+}

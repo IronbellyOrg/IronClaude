@@ -1,0 +1,24 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/orchestrator.md (the spec of issue 655) 4.2 S1: the SEARCH_ASSIGNED_JQ projection of GET search/issues (2026-11-19 read-only call showed repository_url, assignees[].login, labels, body, updated_at and no pull_request key); the projected key names are UNVERIFIED",
+  "note": "Projected by gh's embedded jq. The scripted world overrides every field per issue.",
+  "payload": {
+    "total_count": 1,
+    "incomplete_results": false,
+    "items": [
+      {
+        "repository_url": "https://api.github.com/repos/IronbellyOrg/IronClaude",
+        "number": 101,
+        "state": "open",
+        "updated_at": "2026-11-19T10:00:00Z",
+        "labels": [],
+        "assignees": [
+          "owner-login"
+        ],
+        "pull_request": false,
+        "title": "A title",
+        "body": "## Priority\nP2\n\n## Fix approach\nChange the poll.\n\n## Test plan\nRun the tests.\n"
+      }
+    ]
+  }
+}
