@@ -27,4 +27,18 @@ Third-party components
    this distribution, the IronClaude project preserves the original
    copyright notice and permission notice as required by the MIT License.
 
+2. sc-closeout-protocol (adapted files)
+   ------------------------------------
+   Upstream:  https://github.com/Simple-With-Us/AI-Fleet-Coordinator
+   License:   Apache License, Version 2.0 (Apache-2.0)
+   Location:  src/superclaude/skills/sc-closeout-protocol/
+
+   The `/sc:closeout` skill adopts and changes two files written by Jay
+   Wedgeworth (Copyright 2026 Jay Wedgeworth): `skills/closeout/SKILL.md` and
+   `scripts/branch-landed.sh`. The Apache License text is kept verbatim at
+   `src/superclaude/skills/sc-closeout-protocol/LICENSE`, and
+   `src/superclaude/skills/sc-closeout-protocol/PROVENANCE.md` records the
+   source commits, the content hashes and the changes made. The upstream
+   repository has no NOTICE file, so there is no further notice to carry.
+
 ==============================================================================
