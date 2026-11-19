@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -112,3 +113,23 @@ def test_skip_without_force_names_only_stale_files(tmp_path):
     stale_part = message.split("NOT updated")[1]
     assert "RULES.md" in stale_part
     assert "PRINCIPLES.md" not in stale_part
+
+
+def test_same_size_rewrite_with_old_mtime_is_reported_stale(tmp_path):
+    """filecmp caches answers by (size, mtime); a same-size rewrite that keeps
+    its old mtime must still be reported, not answered from the cache."""
+    target = tmp_path / ".claude"
+    shipped = (install_core._get_core_source() / "PRINCIPLES.md").read_bytes()
+    kept = target / "PRINCIPLES.md"
+    _seed(kept, shipped)
+    install_core.install_core_files(target_path=target, force=False)  # primes the cache
+
+    before = kept.stat()
+    kept.write_bytes(bytes([shipped[0] ^ 1]) + shipped[1:])  # same length, one byte differs
+    os.utime(kept, ns=(before.st_atime_ns, before.st_mtime_ns))
+
+    ok, message = install_core.install_core_files(target_path=target, force=False)
+
+    assert ok, message
+    assert "NOT updated" in message, message
+    assert "PRINCIPLES.md" in message.split("NOT updated")[1]

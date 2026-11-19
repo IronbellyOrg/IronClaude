@@ -1,0 +1,10 @@
+merge_method: adversarial
+verdict: accept_plan_no_blocking_findings
+convergence_score: 1.0
+base_variant: "variant-1 (reviewer 1, analyzer, opus-class alias)"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+merged_output_path: merged-reflection-card.md
+combined_scores: { variant_1: 0.961, variant_2: 0.822 }
+invariant_probe: { total: 14, addressed: 8, unaddressed: 6, high_unaddressed: 0, medium_unaddressed: 4 }
