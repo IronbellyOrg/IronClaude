@@ -39,7 +39,7 @@ Explicit only: the user types `/sc:closeout <PR>`, or the orchestrator calls it 
 
 ## STOP rules (checked before Activation)
 
-Print the usage block and stop, with no write, for: no `<PR>`; a `<PR>` that is neither a number nor a URL; an unknown flag; a flag with no value; a repeated flag.
+Print the usage block and stop, with no write, for: no `<PR>`; a `<PR>` that is neither a number nor a URL; an unknown flag; a flag with no value; a repeated flag; an `--entry-key` that holds anything but letters, digits, `_`, `.` and `-` (so a bad key never stops the run after the issue was already settled).
 
 ## Examples
 

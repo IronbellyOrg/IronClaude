@@ -81,6 +81,7 @@ def test_stop_rules_come_before_activation():
         "an unknown flag",
         "a flag with no value",
         "a repeated flag",
+        "an `--entry-key` that holds anything but letters, digits, `_`, `.` and `-`",
     ):
         assert rule in rules
     assert "usage block" in rules and "no write" in rules
