@@ -36,7 +36,7 @@ WAKE_LINE_PATTERN = re.compile(
 
 WAKE_LINE_MAX_BYTES = 64
 
-TAG_PATTERN = re.compile(r"[A-Za-z0-9._-]{1,32}")
+TAG_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,31}")
 """A ccsession tag. [UNVERIFIED, U25] that this is the pattern ccsession applies."""
 
 TIER_PATTERN = re.compile(r"tier[0-9][a-z]?")

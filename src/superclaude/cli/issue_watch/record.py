@@ -741,7 +741,7 @@ def _pending_to(
 
 def mark_woken(doc: StoreDoc, key: str, wake_id: str, now: datetime) -> StoreDoc:
     """``pending`` to ``woken``: one more delivery attempt of wake ``wake_id``."""
-    if WAKE_ID_PATTERN.fullmatch(wake_id) is None:
+    if not isinstance(wake_id, str) or WAKE_ID_PATTERN.fullmatch(wake_id) is None:
         raise ValueError("wake_id must match the wake id pattern")
     entry = doc.entries.get(key)
     attempts = 0 if entry is None else entry.wake_attempts
@@ -776,7 +776,9 @@ def mark_unknown(
         raise ValueError("reason must be wake_unknown or no_session")
     if operation_id is not None and not valid_operation_id(operation_id):
         raise ValueError("operation_id must be None or match the operation-id pattern")
-    if wake_id is not None and WAKE_ID_PATTERN.fullmatch(wake_id) is None:
+    if wake_id is not None and (
+        not isinstance(wake_id, str) or WAKE_ID_PATTERN.fullmatch(wake_id) is None
+    ):
         raise ValueError("wake_id must be None or match the wake id pattern")
     entry = doc.entries.get(key)
     attempts = 0 if entry is None else entry.wake_attempts
