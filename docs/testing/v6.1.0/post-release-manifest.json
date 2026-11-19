@@ -8,7 +8,7 @@
   "previous_tag": "v6.0.0",
   "run_mode": "additive",
   "run_mode_evidence": "prior manifest found: docs/testing/v6.0.0/post-release-manifest.json",
-  "generated_at": "2026-11-19T02:51:46Z",
+  "generated_at": "2026-11-19T03:26:53Z",
   "install_surface_class": "package",
   "coverage_note": "Evolved from the v6.0.0 manifest. Entries not named in a changed_in_v61_note are carried forward unchanged (their start_of_run block is the v6.0.0 end state). Capabilities removed in 6.0.0 or 6.1.0 keep their entry with status 'removed'. 'present-unverified' means a doc exists but this run did not check it against the code. D and E were out of scope (decision 6.1.0-5), so their cells point at the v5.0.0 guides, which are historical records and were not updated.",
   "feature_inventory": [
@@ -2049,7 +2049,8 @@
         "ccsession agent-session hiding and --prune --apply not run with seeded sessions",
         "the retention write branch could only be shown with CCSESSION_MANAGED_SETTINGS_DIR (host managed value 90 equals the target)",
         "plain `superclaude install` exits 1 with 'Claude CLI is unavailable' when claude is replaced by its auto-updater mid-run (6.0.0 run); the script pins a private copy",
-        "offline install and upgrade not tried; 5.0.0 or 4.x straight to 6.1.0 not run"
+        "offline install and upgrade not tried; 5.0.0 or 4.x straight to 6.1.0 not run",
+        "the real-home fingerprint covers only the names (not file contents) under ~/.codegraph/versions; the throwaway HOME and clean environment are the primary protection"
       ],
       "e2e": {
         "ran": true,
