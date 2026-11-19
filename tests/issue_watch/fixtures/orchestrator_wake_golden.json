@@ -1,0 +1,64 @@
+{
+  "assigned": [
+    {
+      "assignees": [
+        "clayphi"
+      ],
+      "checkout_state": "ok",
+      "first_seen_at": "2026-11-19T10:15:00Z",
+      "number": 655,
+      "repo": "IronbellyOrg/IronClaude"
+    }
+  ],
+  "attempt": 1,
+  "created_at": "2026-11-19T10:15:00Z",
+  "info": {
+    "affects": [],
+    "could_assign": [],
+    "mentions": [
+      {
+        "kind": "issue",
+        "number": 12,
+        "repo": "IronbellyGroup/example",
+        "updated_at": "2026-11-19T10:12:41Z"
+      }
+    ]
+  },
+  "plan_requests": [
+    {
+      "held_since": "2026-11-19T09:10:00Z",
+      "missing": [
+        "fix_approach",
+        "test_plan"
+      ],
+      "number": 656,
+      "repo": "IronbellyOrg/IronClaude",
+      "requested_at": "2026-11-19T10:15:00Z",
+      "title": "Add the hold to the poll",
+      "url": "https://github.com/IronbellyOrg/IronClaude/issues/656"
+    }
+  ],
+  "poll": {
+    "cycle_id": "0123456789abcdef0123456789abcdef",
+    "dry_run": false,
+    "gh_calls": 9,
+    "host": "ws-aidev02",
+    "login": "clayphi",
+    "since": "2026-11-19T10:10:00Z"
+  },
+  "schema": "orchestrator-wake/1",
+  "skipped": [
+    {
+      "number": 477,
+      "reason": "repo_not_listed",
+      "repo": "IronbellyOrg/Coder"
+    }
+  ],
+  "target": {
+    "orchestrator": "ironclaude-1",
+    "repo": "IronbellyOrg/IronClaude",
+    "resume": false,
+    "tag": "orchestrator-ironclaude-1"
+  },
+  "wake_id": "20261119T101500Z-3fa9c1d2"
+}

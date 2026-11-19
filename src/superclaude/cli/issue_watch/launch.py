@@ -1,11 +1,13 @@
-"""Find Orca, check the worktree origin and launch one claim session (design 8.4).
+"""Find Orca, check a checkout's origin, build the typed wake line and start a session.
 
-The only text this module can put after ``--prompt`` is the string that
-``build_claim_prompt`` builds from a validated ``int``; ``launch_argv`` refuses
-anything else. Every command runs through the injected ``Runner`` with a real
-timeout. This module writes no state and caches nothing: ``OrcaLauncher.launch``
-returns a ``LaunchOutcome`` and the cycle records it. It imports only the
-standard library, ``runner`` and ``_ORCA_CLIS`` (design 5.3).
+The only text this module can type into a terminal after the session has started
+is the string that ``build_wake_line`` builds from a string that matches the wake
+id pattern; every other input is refused. The text of the session start is built
+by ``session_command`` from a checked tag and a checked tier. Every command runs
+through the injected ``Runner`` with a real timeout. This module writes no state
+and caches nothing: ``OrcaLauncher.start`` returns a ``LaunchOutcome`` and the
+cycle records it. It imports only the standard library, ``runner`` and
+``_ORCA_CLIS`` (design 5.3).
 """
 
 from __future__ import annotations
@@ -14,6 +16,7 @@ import json
 import os
 import re
 import shutil
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -23,37 +26,35 @@ from superclaude.cli.install_user_setup import _ORCA_CLIS
 
 from .runner import CommandResult, Runner
 
-# Orca agent id from the seed brief's launch line (decision DF-11). It names the
-# agent Orca starts, not a model alias, and is deliberately not configurable.
-ORCA_AGENT = "claude"
+WAKE_ID_PATTERN = re.compile(r"[0-9]{8}T[0-9]{6}Z-[0-9a-f]{8}")
+"""A wake id (spec 3.1); ``predicates.WAKE_ID_PATTERN`` is a pinned copy."""
 
-MAX_ISSUE_NUMBER = 999_999_999
-"""Largest issue number ``build_claim_prompt`` accepts (FR-012)."""
-
-PROMPT_PATTERN = re.compile(r"^/sc:issue --claim [1-9][0-9]{0,8} --pipeline none$")
-"""Every prompt ``build_claim_prompt`` can return, and nothing else."""
-
-OPERATION_ID_PATTERN = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
-"""Operation ids that may be stored and printed in a retry command (design 9.2)."""
-
-# [PROPOSAL, UNVERIFIED] key paths of the operation id in Orca's launch reply:
-# the success reply first, then the error reply (design 8.4 line 636, FU-1).
-# Pinned by the two ``_assumed_shape`` fixtures until a real reply is recorded.
-OPERATION_ID_PATHS: tuple[tuple[str, ...], ...] = (
-    ("receipt", "operation_id"),
-    ("error", "operation_id"),
+WAKE_LINE_PATTERN = re.compile(
+    r"^/sc:orchestrator --wake [0-9]{8}T[0-9]{6}Z-[0-9a-f]{8}$"
 )
+"""Every line ``build_wake_line`` can return, and nothing else (spec 3.2)."""
 
-OP_UNKNOWN_TEXT = "agent_session_operation_unknown"
-"""Orca's error code for a launch whose reply was lost (C16, UNVERIFIED)."""
+WAKE_LINE_MAX_BYTES = 64
 
-ORIGIN_REPO = "ironbellyorg/ironclaude"
-"""The only origin ``check_origin`` accepts, compared lower-cased (FR-025)."""
+TAG_PATTERN = re.compile(r"[A-Za-z0-9._-]{1,32}")
+"""A ccsession tag. [UNVERIFIED, U25] that this is the pattern ccsession applies."""
+
+TIER_PATTERN = re.compile(r"tier[0-9][a-z]?")
+
+HANDLE_PATTERN = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
+"""Terminal handles that may be stored; ``predicates.OPERATION_ID_PATTERN`` is a pinned copy."""
 
 ORIGIN_MISMATCH = "origin_mismatch"
 """Reason ``check_origin`` returns for every failed check."""
 
-LaunchKind = Literal["launched", "unknown", "spawn_error"]
+NAME_QUESTION = "Session name"
+"""What a fresh Orca terminal shows when ccsession asks for a name (``waker.py:120``)."""
+
+START_WAIT_S = 120.0
+SHELL_WAIT_S = 30.0
+_PROMPT_LINE = re.compile(r"[$#>❯]\s*$")
+
+LaunchKind = Literal["ready", "unknown", "spawn_error"]
 
 LAUNCH_DETAILS: frozenset[str] = frozenset(
     {
@@ -62,12 +63,23 @@ LAUNCH_DETAILS: frozenset[str] = frozenset(
         "timeout",
         "exit_nonzero",
         "non_json",
-        "no_operation_id",
-        "operation_id_invalid",
-        "op_unknown",
+        "no_handle",
+        "handle_invalid",
+        "not_started",
+        "name_question",
     }
 )
 """The fixed set of ``LaunchOutcome.detail`` values."""
+
+# [UNVERIFIED] key paths of the terminal handle in Orca's ``terminal create`` reply
+# (design 4.5 step 11, U9). Pinned by ``_assumed_shape`` fixtures until a real
+# reply is recorded.
+HANDLE_PATHS: tuple[tuple[str, ...], ...] = (
+    ("result", "terminal", "handle"),
+    ("terminal", "handle"),
+    ("result", "handle"),
+    ("handle",),
+)
 
 
 def _check_timeout(timeout: object) -> float:
@@ -81,55 +93,32 @@ def _check_timeout(timeout: object) -> float:
     return float(timeout)
 
 
-def build_claim_prompt(n: object) -> str:
-    """Return ``/sc:issue --claim <n> --pipeline none`` for an ``int`` in 1..999999999.
+def build_wake_line(wake_id: object) -> str:
+    """Return ``/sc:orchestrator --wake <wake_id>`` for a string that matches the pattern.
 
-    A ``bool``, a ``str``, a ``float`` or an out-of-range ``int`` raises
-    ``ValueError`` (FR-012, design 9.3).
+    The one builder of the typed line (spec 3.2). Anything that is not a ``str``
+    holding exactly a wake id (a bool, an int, a longer text, a text with a
+    newline) raises ``ValueError``, so no text from GitHub can reach a typed line.
     """
-    if type(n) is not int or not 1 <= n <= MAX_ISSUE_NUMBER:
-        raise ValueError("issue number must be an int in 1..999999999")
-    return f"/sc:issue --claim {n} --pipeline none"
+    if not isinstance(wake_id, str) or WAKE_ID_PATTERN.fullmatch(wake_id) is None:
+        raise ValueError("wake_id must match the wake id pattern")
+    line = f"/sc:orchestrator --wake {wake_id}"
+    if len(line.encode("ascii")) > WAKE_LINE_MAX_BYTES:
+        raise ValueError("the wake line is too long")
+    return line
 
 
-def launch_argv(orca: str, worktree: Path | str, prompt: str) -> list[str]:
-    """Return the 12-element ``orca agent launch`` argv (FR-013, design 8.4).
+def session_command(tag: object, tier: object) -> str:
+    """Return ``ccsession <tag> --tier <tier>``, the command that starts an orchestrator.
 
-    Raises ``ValueError`` when ``prompt`` is not a string ``build_claim_prompt``
-    could have returned, so no other text can reach ``--prompt``.
+    ``tag`` must match ``TAG_PATTERN`` and ``tier`` ``TIER_PATTERN``; anything
+    else raises ``ValueError`` (a tag or tier is never text from GitHub).
     """
-    if not isinstance(prompt, str) or not PROMPT_PATTERN.fullmatch(prompt):
-        raise ValueError("prompt must come from build_claim_prompt")
-    return [
-        orca,
-        "agent",
-        "launch",
-        "--agent",
-        ORCA_AGENT,
-        "--worktree",
-        "path:" + str(worktree),
-        "--surface",
-        "terminal",
-        "--prompt",
-        prompt,
-        "--json",
-    ]
-
-
-def retry_argv(
-    orca: str, worktree: Path | str, prompt: str, operation_id: str
-) -> list[str]:
-    """Return ``launch_argv`` with ``--retry-launch <id>`` before ``--json`` (D 741).
-
-    Raises ``ValueError`` when ``operation_id`` fails ``OPERATION_ID_PATTERN``,
-    because ``status`` prints this argv as a shell command.
-    """
-    if not isinstance(operation_id, str) or not OPERATION_ID_PATTERN.fullmatch(
-        operation_id
-    ):
-        raise ValueError("operation_id fails the operation-id pattern")
-    argv = launch_argv(orca, worktree, prompt)
-    return [*argv[:-1], "--retry-launch", operation_id, argv[-1]]
+    if not isinstance(tag, str) or TAG_PATTERN.fullmatch(tag) is None:
+        raise ValueError("tag must match the ccsession tag pattern")
+    if not isinstance(tier, str) or TIER_PATTERN.fullmatch(tier) is None:
+        raise ValueError("tier must match the tier pattern")
+    return f"ccsession {tag} --tier {tier}"
 
 
 def _json_object(text: str) -> dict | None:
@@ -231,70 +220,71 @@ def parse_origin(url: object) -> str | None:
 
 
 def check_origin(
-    runner: Runner, worktree: Path | str, timeout: float | None
+    runner: Runner,
+    checkout: Path | str,
+    expected_repo: str,
+    timeout: float | None,
 ) -> str | None:
-    """Return None when the worktree's origin is IronbellyOrg/IronClaude.
+    """Return None when ``checkout``'s origin names ``expected_repo`` (``owner/name``).
 
-    Otherwise return ``"origin_mismatch"``: a ``timeout`` of None (no process is
-    started), a timed-out or failed ``git``, or an unparseable or foreign URL.
-    The ``-C`` names the directory, so no ``cwd`` is passed (DF-01).
+    Compared case-insensitively. Otherwise return ``"origin_mismatch"``: a
+    ``timeout`` of None (no process is started), a timed-out or failed ``git``,
+    or an unparseable or foreign URL. The ``-C`` names the directory, so no
+    ``cwd`` is passed (DF-01).
     """
     if timeout is None:
         return ORIGIN_MISMATCH
-    argv = ["git", "-C", str(worktree), "remote", "get-url", "origin"]
+    argv = ["git", "-C", str(checkout), "remote", "get-url", "origin"]
     result = runner.run(argv, _check_timeout(timeout))
     if result.timed_out or result.spawn_error is not None or result.returncode != 0:
         return ORIGIN_MISMATCH
     repo = parse_origin(result.stdout)
-    if repo is None or repo.lower() != ORIGIN_REPO:
+    if repo is None or repo.lower() != expected_repo.lower():
         return ORIGIN_MISMATCH
     return None
 
 
 @dataclass(frozen=True)
 class LaunchOutcome:
-    """What one Orca launch gave (design 8.4 outcome table).
+    """What one session start gave (design 4.10: ready, unknown and spawn-error).
 
-    ``operation_id`` is None or a string matching ``OPERATION_ID_PATTERN``;
+    ``handle`` is None or a terminal handle matching ``HANDLE_PATTERN``;
     ``detail`` is one of ``LAUNCH_DETAILS``.
     """
 
     kind: LaunchKind
-    operation_id: str | None
+    handle: str | None
     detail: str
 
     def __post_init__(self) -> None:
-        if self.kind not in ("launched", "unknown", "spawn_error"):
+        if self.kind not in ("ready", "unknown", "spawn_error"):
             raise ValueError("invalid launch kind")
         if self.detail not in LAUNCH_DETAILS:
             raise ValueError("invalid launch detail")
-        if self.operation_id is not None and not _valid_id(self.operation_id):
-            raise ValueError("operation_id fails the operation-id pattern")
-        if self.kind == "launched" and self.operation_id is None:
-            raise ValueError("a launched outcome needs an operation_id")
+        if self.handle is not None and not _valid_handle(self.handle):
+            raise ValueError("handle fails the handle pattern")
+        if self.kind == "ready" and self.handle is None:
+            raise ValueError("a ready outcome needs a handle")
 
 
 class Launcher(Protocol):
-    """Starts one claim session and reports the outcome; writes no state."""
+    """Starts one orchestrator session and reports the outcome; writes no state."""
 
-    def launch(
-        self, orca: str, worktree: Path, prompt: str, timeout: float
+    def start(
+        self, orca: str, workspace: Path, tag: str, tier: str, timeout: float
     ) -> LaunchOutcome:
-        """Launch ``prompt`` in ``worktree`` with ``orca`` within ``timeout``."""
+        """Start ``ccsession <tag> --tier <tier>`` in a new terminal of ``workspace``."""
         ...
 
 
-def _valid_id(value: object) -> bool:
-    """Return True for a ``str`` matching ``OPERATION_ID_PATTERN``."""
-    return isinstance(value, str) and bool(OPERATION_ID_PATTERN.fullmatch(value))
+def _valid_handle(value: object) -> bool:
+    """Return True for a ``str`` matching ``HANDLE_PATTERN``."""
+    return isinstance(value, str) and bool(HANDLE_PATTERN.fullmatch(value))
 
 
-def _first_hit(reply: dict) -> tuple[bool, object]:
-    """Return ``(True, value)`` for the first ``OPERATION_ID_PATHS`` path present.
-
-    A path is present when every key exists and the value is not None.
-    """
-    for path in OPERATION_ID_PATHS:
+def _first_handle(reply: dict) -> tuple[bool, object]:
+    """Return ``(True, value)`` for the first ``HANDLE_PATHS`` path present."""
+    for path in HANDLE_PATHS:
         node: object = reply
         for key in path:
             node = node.get(key) if isinstance(node, dict) else None
@@ -303,68 +293,136 @@ def _first_hit(reply: dict) -> tuple[bool, object]:
     return False, None
 
 
-def _unknown_id(result: CommandResult) -> str | None:
-    """Return a valid operation id from the stdout object, then the stderr object.
-
-    Plain text that is not a JSON object never yields an id (OQ-47).
-    """
-    for text in (result.stdout, result.stderr):
-        reply = _json_object(text)
-        if reply is None:
-            continue
-        hit, value = _first_hit(reply)
-        if hit and isinstance(value, str) and _valid_id(value):
-            return value
-    return None
-
-
-def _unknown(result: CommandResult, detail: str) -> LaunchOutcome:
-    """Return an ``unknown`` outcome keeping a valid id when one was parsed."""
-    return LaunchOutcome("unknown", _unknown_id(result), detail)
-
-
 def outcome_of(result: CommandResult) -> LaunchOutcome:
-    """Map one launch ``CommandResult`` to a ``LaunchOutcome`` (design 629-634).
+    """Map one ``terminal create`` ``CommandResult`` to a ``LaunchOutcome``.
 
-    Anything short of exit 0 with a JSON object carrying a valid operation id is
-    ``unknown``; the ``agent_session_operation_unknown`` text anywhere in stdout
-    or stderr is ``unknown`` even when an id is present (OQ-40).
+    A spawn error is ``spawn_error``. Anything short of exit 0 with a JSON object
+    that carries a valid handle is ``unknown`` (a terminal may exist). Exit 0 and
+    a valid handle is ``ready`` here only in the sense that the terminal exists:
+    ``OrcaLauncher.start`` goes on to type the command and wait for Claude.
     """
     if result.spawn_error is not None:
         return LaunchOutcome("spawn_error", None, "spawn_error")
     if result.timed_out:
-        return _unknown(result, "timeout")
-    if OP_UNKNOWN_TEXT in result.stdout or OP_UNKNOWN_TEXT in result.stderr:
-        return _unknown(result, "op_unknown")
+        return LaunchOutcome("unknown", None, "timeout")
     if result.returncode != 0:
-        return _unknown(result, "exit_nonzero")
+        return LaunchOutcome("unknown", None, "exit_nonzero")
     reply = _json_object(result.stdout)
     if reply is None:
-        return _unknown(result, "non_json")
-    hit, value = _first_hit(reply)
+        return LaunchOutcome("unknown", None, "non_json")
+    hit, value = _first_handle(reply)
     if not hit:
-        return _unknown(result, "no_operation_id")
-    if not isinstance(value, str) or not _valid_id(value):
-        return _unknown(result, "operation_id_invalid")
-    return LaunchOutcome("launched", value, "ok")
+        return LaunchOutcome("unknown", None, "no_handle")
+    if not isinstance(value, str) or not _valid_handle(value):
+        return LaunchOutcome("unknown", None, "handle_invalid")
+    return LaunchOutcome("ready", value, "ok")
 
 
 class OrcaLauncher:
-    """The real ``Launcher``: runs ``launch_argv`` through the runner in the worktree."""
+    """The real ``Launcher``: ``terminal create``, type the command, wait for Claude.
 
-    def __init__(self, runner: Runner) -> None:
+    ``processes`` returns ``{terminal handle: ccsession tag}`` of every running
+    Claude process (``wake.claude_processes``); it is injected because this
+    module reads no ``/proc``. ``sleep`` and ``monotonic`` are injected so a test
+    never waits. A fresh terminal that shows the ccsession name question is
+    answered with the tag alone (it cannot carry a tier): the session then runs
+    on the workspace default tier. [UNVERIFIED, U9] how a fresh Orca terminal of
+    the orchestrator workspace behaves; the live test settles it.
+    """
+
+    def __init__(
+        self,
+        runner: Runner,
+        processes: Callable[[], dict[str, str]] | None = None,
+        *,
+        sleep: Callable[[float], None] = time.sleep,
+        monotonic: Callable[[], float] = time.monotonic,
+    ) -> None:
         self._runner = runner
+        self._processes = processes or (lambda: {})
+        self._sleep = sleep
+        self._monotonic = monotonic
 
-    def launch(
-        self, orca: str, worktree: Path, prompt: str, timeout: float
+    def _run(self, argv: list[str], limit: float, deadline: float) -> CommandResult:
+        left = max(1.0, deadline - self._monotonic())
+        return self._runner.run(argv, min(limit, left))
+
+    def _last_line(self, orca: str, handle: str, deadline: float) -> str:
+        reply = _json_object(
+            self._run(
+                [orca, "terminal", "read", "--terminal", handle, "--screen", "--json"],
+                20.0,
+                deadline,
+            ).stdout
+        )
+        node: object = reply
+        for key in ("result", "terminal"):
+            node = node.get(key, node) if isinstance(node, dict) else node
+        tail = node.get("tail") if isinstance(node, dict) else None
+        lines = (
+            [t for t in tail if isinstance(t, str)] if isinstance(tail, list) else []
+        )
+        return next((t for t in reversed(lines) if t.strip()), "")
+
+    def start(
+        self, orca: str, workspace: Path, tag: str, tier: str, timeout: float
     ) -> LaunchOutcome:
-        """Run the launch argv with ``cwd=worktree`` and map the reply.
-
-        The only call in the package that passes ``cwd`` (DF-01, design 625), so
-        an operator retry from ``launch_cwd`` matches Orca's rule. Raises
-        ``ValueError`` for a prompt ``build_claim_prompt`` could not have built
-        or a timeout that is not a positive number.
-        """
-        argv = launch_argv(orca, worktree, prompt)
+        """Start the session; raises ``ValueError`` for a tag or tier ``session_command`` refuses."""
+        command = session_command(tag, tier)
         seconds = _check_timeout(timeout)
-        return outcome_of(self._runner.run(argv, seconds, cwd=str(worktree)))
+        deadline = self._monotonic() + seconds
+        created = outcome_of(
+            self._run(
+                [
+                    orca,
+                    "terminal",
+                    "create",
+                    "--worktree",
+                    f"path:{workspace}",
+                    "--json",
+                ],
+                30.0,
+                deadline,
+            )
+        )
+        if created.kind != "ready" or created.handle is None:
+            return created
+        handle = created.handle
+        # A new workspace shell shows ccsession's name question once its start-up
+        # finishes; wait for it, or for a plain shell prompt, instead of a delay.
+        end = min(deadline, self._monotonic() + SHELL_WAIT_S)
+        last = ""
+        while self._monotonic() < end:
+            last = self._last_line(orca, handle, deadline)
+            if NAME_QUESTION in last or _PROMPT_LINE.search(last):
+                break
+            self._sleep(1.0)
+        asks_name = NAME_QUESTION in last
+        typed = self._run(
+            [
+                orca,
+                "terminal",
+                "send",
+                "--terminal",
+                handle,
+                "--text",
+                tag if asks_name else command,
+                "--enter",
+                "--wait-submit",
+                "5",
+                "--json",
+            ],
+            30.0,
+            deadline,
+        )
+        if typed.spawn_error is not None:
+            return LaunchOutcome("spawn_error", handle, "spawn_error")
+        if typed.timed_out or typed.returncode != 0:
+            return LaunchOutcome("unknown", handle, "exit_nonzero")
+        while self._monotonic() < deadline:
+            if self._processes().get(handle) == tag:
+                return LaunchOutcome(
+                    "ready", handle, "name_question" if asks_name else "ok"
+                )
+            self._sleep(3.0)
+        return LaunchOutcome("unknown", handle, "not_started")
