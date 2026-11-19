@@ -1,0 +1,108 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/RefactorIssueClaimPipeline/.dev/reflect/pre-refactorScIssueC-20261118042013/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/RefactorIssueClaimPipeline/.dev/reflect/pre-refactorScIssueC-20261118042013/audit.log
+confidence_calibrated: 0.77
+escalation_rule_matched: null        # Tier 2 was forced by the coverage_degraded pre-filter (Step 1B.2b), not by a numbered rule
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null                   # parsed-only denominator is 0 (no labelled requirement IDs)
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# Input integrity
+input_sha256:
+  tasklist: 11117785a4195a32692e72d751abcbe56dcec1ba21a52a71507ca13b9d97818a
+  spec: b9bda439b7dd3f591adcbcefda635d0695948feddaddb36bf99fdf19bb776941
+input_tree_sha256: a2686fbf5faf4973c0319efc6533a0f1e6291cba1409868c71ae18b692deb258
+input_tree_file_count: 17
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/RefactorIssueClaimPipeline/.dev/reflect/pre-refactorScIssueC-20261118042013/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 31
+citations_revalidated: 31
+citations_dropped: 1                 # M5 write-side citation; restored with the exact lines
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards:
+  - .dev/reflect/pre-refactorScIssueC-20261118042013/reviewer-cards/reviewer-1-card.yaml
+  - .dev/reflect/pre-refactorScIssueC-20261118042013/reviewer-cards/reviewer-2-card.yaml
+  - .dev/reflect/pre-refactorScIssueC-20261118042013/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/RefactorIssueClaimPipeline/.dev/reflect/pre-refactorScIssueC-20261118042013/adversarial/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single          # warn-only; alias names are tier ids, vendor not derivable
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_check_skipped: true
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+forced_tier: null
+
+# Plan verdict (UC-1 advisory result carried for the caller)
+plan_verdict: fail
+plan_blocking_findings: [M1]
+plan_medium_findings: [M2, M3, M4, M5]
+
+unresolved:
+  - "Plan verdict FAIL: Task 3 relaxes the E-SUBMIT-NEEDS-FULL stop rule (M1, blocking); Tasks 3, 4, 5, 7, 8, 10 need the changes listed in REPORT.md recommendations R-001 to R-005 before /sc:implement."
+  - "Adversarial merge ran one position-bias pass instead of two (position_bias_passes: 1)."
+  - "Executor class not resolved (executor_class_resolved: false); vendor diversity single (warn-only)."
+  - "Tracked docs/memory/reflect/deviation-patterns file not written; last-pass memory written to the gitignored store."
+
+telemetry:
+  degraded_components: [calibrator-disjoint-set, executor-class-unresolved, vendor-diversity-single, position-bias-single-pass]
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  reviewer_models: [sonnet, haiku, opus]
+  reviewer_personas: [analyzer, qa, refactorer]
+  position_bias_passes: 1
+  memory_hits: 0
+  memory_misses: 2
+  memory_persist_partial: true
+  fallback_path: null
+  t2_engine_requested: legacy
+  t2_engine_effective: legacy
+  reviewer_isolation: disabled
+  codegraph: {index_state: fresh, checked_at: "2026-11-18T04:16:47Z", degraded: none}

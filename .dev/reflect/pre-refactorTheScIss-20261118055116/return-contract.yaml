@@ -1,0 +1,63 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/RefactorIssueClaimPipeline/.dev/reflect/pre-refactorTheScIss-20261118055116/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/RefactorIssueClaimPipeline/.dev/reflect/pre-refactorTheScIss-20261118055116/audit.log
+confidence_calibrated: 0.30        # Tier 1 card; the merged verdict rests on three reviewer cards calibrated 0.70, 0.92 and 0.80
+escalation_rule_matched: 6
+onboarding_ran: false
+coverage_pct: null                 # parsed-only: no labeled requirement IDs in the source
+coverage_pct_union: 1.00           # 16 of 16 inferred rows map to a task; two are only partly covered (see report)
+coverage_undefined: true
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+input_sha256: {tasklist: null, spec: null}
+input_tree_sha256: e6fc92ff2a41b81dfe8b0b1c0c56f1bd2a7e5e078eb06ab2f155d13c550b3077
+input_tree_file_count: 18
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/RefactorIssueClaimPipeline/.dev/reflect/pre-refactorTheScIss-20261118055116/artifacts/input-snapshot.txt
+input_drift_detected: false
+citations_total: 32
+citations_revalidated: 32
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+reviewer_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/RefactorIssueClaimPipeline/.dev/reflect/pre-refactorTheScIss-20261118055116/adversarial
+adversarial_convergence_score: 0.882
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+budget_check_skipped: true
+verdict: PASS-WITH-GAPS
+must_fix_findings: 5               # M1 to M5; the plan needs revising before /sc:implement
+unresolved_points: [C-001, X-001]
+degraded_components:
+  - calibrator-diversity           # all three model classes were reviewers
+  - merge-executor-not-dispatched  # the orchestrator applied refactor-plan.md
+  - advocates-and-scorers-general-purpose
+t2_engine_requested: legacy
+t2_engine_effective: legacy

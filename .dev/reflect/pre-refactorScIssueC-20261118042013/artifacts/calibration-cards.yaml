@@ -1,0 +1,27 @@
+# Blind calibration of the three Tier 2 reviewer cards (agent confidence-calibrator, model alias opus for all three)
+# calibrator_diversity: degraded (the three aliases opus, sonnet, haiku are all reviewer classes; opus was chosen as the highest capability)
+cards:
+  reviewer-1:
+    self_reported: 0.80
+    calibrated: 0.80
+    scores: {citation_grounding: 0.92, coverage_completeness: 0.82, deviation_classification_clarity: 0.75, risk_surface_coverage: 0.85, recommendation_actionability: 0.65}
+    citations_spot_checked: 15 of 15 match
+    escalation: STOP
+  reviewer-2:
+    self_reported: 0.95
+    calibrated: 0.71
+    scores: {citation_grounding: 0.90, coverage_completeness: 0.60, deviation_classification_clarity: 0.65, risk_surface_coverage: 0.60, recommendation_actionability: 0.80}
+    citations_spot_checked: 9 of 9 match
+    note: blocking F1 rests on claim.md:142 text that is ambiguous rather than clearly contradictory; Tasks 7-10 not reviewed
+    escalation: no re-review; verify claim.md:142 before treating F1 as blocking
+  reviewer-3:
+    self_reported: 0.80
+    calibrated: 0.79
+    scores: {citation_grounding: 0.92, coverage_completeness: 0.82, deviation_classification_clarity: 0.75, risk_surface_coverage: 0.70, recommendation_actionability: 0.78}
+    citations_spot_checked: 14 of 14 match
+    note: F1 labelled medium but gates Task 3 on an owner choice; F5 and F6 are tagged INFERRED but verify directly; other bare callers of the claim not searched by the card (the orchestrator grep found none in src/superclaude)
+    escalation: none
+t1_card:
+  self_reported: 0.82
+  calibrated: 0.70
+  file: artifacts/calibration-t1.yaml

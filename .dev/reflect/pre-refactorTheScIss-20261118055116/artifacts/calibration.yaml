@@ -1,0 +1,10 @@
+t1_card:
+  self_reported: 0.86
+  calibrated: 0.30
+  note: runtime-check dimension scored 0 because the card declared no claim class; the calibrator says about 0.83 if static defects are declared
+reviewer_cards:
+  reviewer-1: {class: sonnet, persona: analyzer, self_reported: 0.80, calibrated: 0.70, note: plan-line citations carried no path, so they could not be checked}
+  reviewer-2: {class: haiku, persona: qa, self_reported: 0.90, calibrated: 0.92, note: both findings verified against live files}
+  reviewer-3: {class: opus, persona: refactorer, self_reported: 0.78, calibrated: 0.80, note: the calibrator compared plan-line cites with the archived earlier package by mistake and could not resolve them; every source-file cite verified}
+calibrator_class: sonnet
+calibrator_diversity: degraded   # all three model classes were used by the reviewers, so the calibrator class cannot be disjoint

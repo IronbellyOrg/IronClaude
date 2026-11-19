@@ -1,0 +1,93 @@
+variant-1:
+  completeness.1: {verdict: MET, evidence: "Coverage: all 16 matrix rows map to a task"}
+  completeness.2: {verdict: MET, evidence: "F2 re-claim path; F3 bug with unreadable hours"}
+  completeness.3: {verdict: MET, evidence: "Task order and dependencies hold"}
+  completeness.4: {verdict: MET, evidence: "verdict PASS-WITH-GAPS, confidence 0.80"}
+  completeness.5: {verdict: MET, evidence: "Not read: docs/designs, docs line numbers 1557 and 1635"}
+  correctness.1: {verdict: MET, evidence: "F4 worker_contract selects nothing; confirmed in debate C-007"}
+  correctness.2: {verdict: MET, evidence: "Fixes are small wording and test changes"}
+  correctness.3: {verdict: MET, evidence: "Terms plan, wave, level used consistently"}
+  correctness.4: {verdict: MET, evidence: "No contradictions between findings and verdict"}
+  correctness.5: {verdict: MET, evidence: "F1 cites issue.md:44 and test_issue_command.py:116"}
+  structure.1: {verdict: MET, evidence: "Findings, Coverage, Checked order"}
+  structure.2: {verdict: MET, evidence: "Uniform ## sections, F-items"}
+  structure.3: {verdict: MET, evidence: "Findings separate from Coverage and Checked"}
+  structure.4: {verdict: MET, evidence: "F1-F4 ids with at= locations"}
+  structure.5: {verdict: MET, evidence: "verdict, findings with fix=, coverage, checked"}
+  clarity.1: {verdict: MET, evidence: "F3 states which reading is correct"}
+  clarity.2: {verdict: MET, evidence: "Quotes issue.md:44 clause verbatim"}
+  clarity.3: {verdict: MET, evidence: "Each section labelled by purpose"}
+  clarity.4: {verdict: NOT_MET, evidence: "st7, st9, <D> used without definition"}
+  clarity.5: {verdict: MET, evidence: "Every finding has fix= line"}
+  risk_coverage.1: {verdict: NOT_MET, evidence: "Severity given, no probability per finding"}
+  risk_coverage.2: {verdict: MET, evidence: "fix= on F1-F4"}
+  risk_coverage.3: {verdict: MET, evidence: "F2 re-claim stored level vs printed level"}
+  risk_coverage.4: {verdict: NOT_MET, evidence: "No external dependency failure considered"}
+  risk_coverage.5: {verdict: MET, evidence: "F3 fix: Task 5 test compares sentence index"}
+  invariant_edge_case_coverage.1: {verdict: NOT_MET, evidence: "No empty/single/max collection case"}
+  invariant_edge_case_coverage.2: {verdict: MET, evidence: "F2 printed Level vs stored launch level"}
+  invariant_edge_case_coverage.3: {verdict: MET, evidence: "F3 unreadable check ordering gap"}
+  invariant_edge_case_coverage.4: {verdict: MET, evidence: "Task 2 edits line 89, source says 92"}
+  invariant_edge_case_coverage.5: {verdict: MET, evidence: "F2 new step combined with already_launched"}
+variant-2:
+  completeness.1: {verdict: NOT_MET, evidence: "Claims all 16 covered; misses precedence and re-claim"}
+  completeness.2: {verdict: NOT_MET, evidence: "Only two findings; no edge cases of the rule"}
+  completeness.3: {verdict: MET, evidence: "Tasks 1-2 fail until Task 5 stated"}
+  completeness.4: {verdict: MET, evidence: "verdict PASS-WITH-GAPS, confidence 0.90"}
+  completeness.5: {verdict: MET, evidence: "Design-record target ranges not independently read"}
+  correctness.1: {verdict: MET, evidence: "F1 and F2 verified live in debate"}
+  correctness.2: {verdict: MET, evidence: "Fix keeps STOP message, feasible"}
+  correctness.3: {verdict: MET, evidence: "Terms consistent"}
+  correctness.4: {verdict: MET, evidence: "No contradictions"}
+  correctness.5: {verdict: MET, evidence: "F1 cites test_issue_protocol.py:687-691"}
+  structure.1: {verdict: MET, evidence: "Findings, Coverage, Checked order"}
+  structure.2: {verdict: MET, evidence: "Uniform hierarchy"}
+  structure.3: {verdict: MET, evidence: "Separate Findings and Checked sections"}
+  structure.4: {verdict: MET, evidence: "F1, F2 ids with at= path:line"}
+  structure.5: {verdict: MET, evidence: "verdict, findings with fix=, coverage"}
+  clarity.1: {verdict: MET, evidence: "F1 states removing instruction leaves tests passing"}
+  clarity.2: {verdict: MET, evidence: "Names the test lines and the clause"}
+  clarity.3: {verdict: MET, evidence: "Sections labelled by purpose"}
+  clarity.4: {verdict: MET, evidence: "Few acronyms; Tier 1 card named"}
+  clarity.5: {verdict: MET, evidence: "fix= on both findings"}
+  risk_coverage.1: {verdict: NOT_MET, evidence: "Only two findings, no probability"}
+  risk_coverage.2: {verdict: MET, evidence: "fix= on F1 and F2"}
+  risk_coverage.3: {verdict: NOT_MET, evidence: "No failure mode or recovery path discussed"}
+  risk_coverage.4: {verdict: NOT_MET, evidence: "No external dependency considered"}
+  risk_coverage.5: {verdict: MET, evidence: "F1 fix: add assertion and a mutation check"}
+  invariant_edge_case_coverage.1: {verdict: NOT_MET, evidence: "No collection boundary case"}
+  invariant_edge_case_coverage.2: {verdict: NOT_MET, evidence: "No cross-component state interaction raised"}
+  invariant_edge_case_coverage.3: {verdict: NOT_MET, evidence: "Rule precedence gap not found"}
+  invariant_edge_case_coverage.4: {verdict: NOT_MET, evidence: "No count or line divergence raised"}
+  invariant_edge_case_coverage.5: {verdict: NOT_MET, evidence: "No feature-combination effect raised"}
+variant-3:
+  completeness.1: {verdict: MET, evidence: "Names two partly covered spec units in Coverage"}
+  completeness.2: {verdict: MET, evidence: "F4 failed worktree or failed launch not covered"}
+  completeness.3: {verdict: MET, evidence: "Checked: step renumbering, refs/chains.md:27 reference"}
+  completeness.4: {verdict: MET, evidence: "FAIL, 0.78, one clause in each of two tasks"}
+  completeness.5: {verdict: MET, evidence: "F7 leave out of plan; plugin mirror not checked"}
+  correctness.1: {verdict: MET, evidence: "F7 :118 vs 120 confirmed in debate C-009"}
+  correctness.2: {verdict: MET, evidence: "Fixes are one-clause edits"}
+  correctness.3: {verdict: MET, evidence: "Terms consistent"}
+  correctness.4: {verdict: MET, evidence: "Blocking F1 matches FAIL verdict"}
+  correctness.5: {verdict: MET, evidence: "F1 quotes issue.md:44 and commands.md:371"}
+  structure.1: {verdict: MET, evidence: "Verdict first, Findings, Coverage, Checked"}
+  structure.2: {verdict: MET, evidence: "Uniform F-items"}
+  structure.3: {verdict: MET, evidence: "Coverage separate from Findings"}
+  structure.4: {verdict: MET, evidence: "F1-F7 with at= and plan:line refs"}
+  structure.5: {verdict: MET, evidence: "verdict, findings with fix=, coverage, checked"}
+  clarity.1: {verdict: MET, evidence: "F2 says unreadable check runs first"}
+  clarity.2: {verdict: MET, evidence: "Quotes exact clauses and line numbers"}
+  clarity.3: {verdict: MET, evidence: "Sections labelled by purpose"}
+  clarity.4: {verdict: MET, evidence: "Terms explained in context, few acronyms"}
+  clarity.5: {verdict: MET, evidence: "Every finding has fix= line"}
+  risk_coverage.1: {verdict: NOT_MET, evidence: "Severity given, no probability per finding"}
+  risk_coverage.2: {verdict: MET, evidence: "fix= on F1-F7"}
+  risk_coverage.3: {verdict: MET, evidence: "F4 re-claim and failed launch outputs"}
+  risk_coverage.4: {verdict: MET, evidence: "F4 failed worktree or launch path"}
+  risk_coverage.5: {verdict: MET, evidence: "F1 fix: add test assertion clause is gone"}
+  invariant_edge_case_coverage.1: {verdict: NOT_MET, evidence: "No empty/single/max collection case"}
+  invariant_edge_case_coverage.2: {verdict: MET, evidence: "F4 stored level vs freshly worked-out Level line"}
+  invariant_edge_case_coverage.3: {verdict: MET, evidence: "F2 bug vs unreadable hours, no order"}
+  invariant_edge_case_coverage.4: {verdict: MET, evidence: "F7 cites shifted lines after renumbering"}
+  invariant_edge_case_coverage.5: {verdict: MET, evidence: "F3 thresholds copied across files contradict Constraint"}

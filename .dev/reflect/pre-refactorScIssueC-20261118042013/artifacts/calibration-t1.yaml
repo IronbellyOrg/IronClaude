@@ -1,0 +1,17 @@
+# Blind calibration of the Tier 1 card (agent confidence-calibrator, model alias opus), recorded verbatim in substance
+calibrated_confidence: 0.70
+self_reported_confidence: 0.82
+delta: -0.12
+scores:
+  citation_grounding: 0.85
+  coverage_completeness: 0.85
+  deviation_classification_clarity: 0.75
+  risk_surface_coverage: 0.65
+  recommendation_actionability: 0.40
+escalation_recommendation: ESCALATE (also forced by coverage_degraded: parsed-sparse)
+card_defects_to_fix_in_report:
+  - C-2 evidence cites "Constraints bullet 3"; the ship-gate bullet is bullet 4 (plan line 22).
+  - INF-004 maps only to Tasks 3-5; Tasks 1, 2, 4, 6 also edit files under the named skill folder and its tests.
+  - C-3 predates the plan (claim.md:142 already has a separate "For full:" sentence); the plan only makes it the default path.
+  - Not raised on the card: the default bare claim now carries the U1 precondition of issue.md:16 (OB-H1 item 1 before a full claim); the plan-boundary rule for the two-step simple row was not checked.
+spot_check: {verified: 11 citations, mismatched: 1 (C-2 bullet number), unverifiable: 0}

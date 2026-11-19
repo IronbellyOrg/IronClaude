@@ -1,0 +1,21 @@
+merge_method: adversarial
+verdict: PASS-WITH-GAPS
+convergence_score: 0.882
+base_variant: "opus:refactorer"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+merged_output_path: "../merged-output.md"
+regression_present: false
+merged_findings:
+  - {id: M1, severity: medium, must_fix: true,  topic: "stale 'even though full is the default' clause kept by Tasks 3 and 6"}
+  - {id: M2, severity: medium, must_fix: true,  topic: "order of 'bug gives full' against 'unreadable gives worktree' not stated or pinned"}
+  - {id: M3, severity: medium, must_fix: true,  topic: "Level line on already_launched, failed worktree and failed launch not specified"}
+  - {id: M4, severity: medium, must_fix: true,  topic: "no test pins the Level line in the final output"}
+  - {id: M5, severity: medium, must_fix: true,  topic: "Constraint says thresholds appear once; Tasks 3, 6, 7, 8 copy them (drift risk)"}
+  - {id: M6, severity: note,   must_fix: false, topic: "SKILL.md line 92 left alone, not stated"}
+  - {id: M7, severity: note,   must_fix: false, topic: "-k filter names worker_contract, which selects nothing"}
+  - {id: M8, severity: note,   must_fix: false, topic: "decision P4 needs an amendment note"}
+  - {id: M9, severity: note,   must_fix: false, topic: "architecture cites already stale (follow-up candidate)"}
+unresolved_points: [C-001, X-001]
