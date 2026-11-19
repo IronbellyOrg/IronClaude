@@ -1,8 +1,9 @@
 """Marker contract test for the issue watcher (DF-21, DF-46).
 
-``predicates.CLAIM_MARKER`` is the one marker constant; ``github.MARKER_JQ`` is
-built from it. The skill files that tell the claiming agent to end its comment
-with the marker must carry the same literal. The two tracked ``src/`` copies are
+``predicates.CLAIM_MARKER`` is the one marker constant (the poll no longer reads
+comments, so the orchestrator and the claim skill are its only users). The skill
+files that tell the claiming agent to end its comment with the marker must carry
+the same literal. The two tracked ``src/`` copies are
 required; the project ``.claude/`` copy and the installed ``~/.claude`` copy are
 read only when present (an absent folder passes). Nothing is written and
 ``.dev/`` is never read.
