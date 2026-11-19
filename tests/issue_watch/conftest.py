@@ -1186,3 +1186,46 @@ def decisions(res: cycle.CycleResult) -> list[tuple]:
 def reasons(res: cycle.CycleResult) -> list[str]:
     """The reason of each decision and warning line of one cycle, in order."""
     return [ln["reason"] for ln in res.lines if ln["kind"] != "cycle"]
+
+
+# --- a live orchestrator session for the real ``Waker`` ---------------------------------
+
+
+LIVE_HANDLE = "term_live-0001"
+LIVE_TAG = "orchestrator-ironclaude-1"
+
+
+def fake_proc(tmp_path: Path) -> Path:
+    """A fake ``/proc`` with one Claude process that runs the orchestrator ``ironclaude-1``."""
+    proc = tmp_path / "proc" / "4242"
+    proc.mkdir(parents=True)
+    (proc / "cmdline").write_bytes(b"/usr/local/bin/claude\0")
+    (proc / "environ").write_bytes(
+        f"ORCA_TERMINAL_HANDLE={LIVE_HANDLE}\0CLAUDE_TOPIC={LIVE_TAG}\0".encode()
+    )
+    return tmp_path / "proc"
+
+
+def script_live_session(runner: FakeRunner) -> None:
+    """Answer the Orca calls of a delivery to an idle, live session (with ``fake_proc``)."""
+    terminals = {
+        "terminals": [{"handle": LIVE_HANDLE, "connected": True, "lastOutputAt": 0}]
+    }
+    replies = [
+        (("terminal", "list"), {"result": terminals}),
+        (("terminal", "read"), {"result": {"draft": ""}}),
+        (("terminal", "wait"), {"result": {"satisfied": True}}),
+        (
+            ("terminal", "send"),
+            {"result": {"accepted": True, "stages": ["input_accepted"]}},
+        ),
+        (("orchestration", "send"), {"ok": True}),
+        (("worktree", "set"), {"ok": True}),
+    ]
+    for prefix, body in replies:
+        runner.matchers.append(
+            (
+                lambda a, p=prefix: tuple(a[1:3]) == p,
+                result(stdout=json.dumps(body)),
+            )
+        )
