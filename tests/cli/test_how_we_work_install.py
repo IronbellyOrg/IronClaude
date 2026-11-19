@@ -125,7 +125,8 @@ def test_same_size_rewrite_with_old_mtime_is_reported_stale(tmp_path):
     install_core.install_core_files(target_path=target, force=False)  # primes the cache
 
     before = kept.stat()
-    kept.write_bytes(bytes([shipped[0] ^ 1]) + shipped[1:])  # same length, one byte differs
+    changed = bytes([shipped[0] ^ 1]) + shipped[1:]  # same length, one byte differs
+    kept.write_bytes(changed)
     os.utime(kept, ns=(before.st_atime_ns, before.st_mtime_ns))
 
     ok, message = install_core.install_core_files(target_path=target, force=False)
