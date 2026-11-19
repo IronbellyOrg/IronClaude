@@ -1024,6 +1024,17 @@ def print_prune(result: Pruned, apply: bool, asking: bool = False) -> None:
                     len(result.stale_tabs),
                 )
             )
+        if not apply:
+            # Each entry by name, so what the confirmation covers can be checked.
+            for row in result.stale_names:
+                print("  name: %s  (list %s)" % (row.name, key_of(row.list_dir)))
+            for path in result.stale_markers:
+                print(
+                    "  marker: %s  (list %s)"
+                    % (path.name, path.parent.parent.parent.name)
+                )
+            for path in result.stale_tabs:
+                print("  tab record: %s" % path.name)
     for line in result.skipped:
         print("Skipped %s" % line)
     limit_line = result.limit_line()

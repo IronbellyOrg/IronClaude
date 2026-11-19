@@ -1301,3 +1301,27 @@ def test_the_dry_run_never_asks(
     out = capsys.readouterr().out
     assert out.rstrip().splitlines()[-1].startswith("Dry run: nothing was deleted.")
     assert all(f.is_file() for f in files)
+
+
+def test_the_preview_names_every_stale_entry_the_confirmation_covers(
+    projects: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    make(projects, 1, "alive", age_days=1, origin=None)
+    old = time.time() - 10 * DAY
+    name = save(projects, REPO, "gone-human-name", sid(22))
+    mark(projects, REPO, sid(24), "agent")
+    marker_file = projects / REPO / "topics" / ".origin" / sid(24)
+    tabs = orca_dir(projects)
+    tabs.mkdir(parents=True)
+    tab = tabs / "pane-9"
+    tab.write_text(f"{sid(25)}\n/w\nt\n")
+    for path in (name, marker_file, tab):
+        os.utime(path, (old, old))
+    monkeypatch.setattr(sys, "stdin", FakeTerminal("no"))
+    assert keep.main(_apply_argv(projects)) == 1
+    out = capsys.readouterr().out
+    assert "  name: gone-human-name  (list github.com-Org-Repo)" in out
+    assert f"  marker: {sid(24)}  (list github.com-Org-Repo)" in out
+    assert "  tab record: pane-9" in out
+    assert "Type 3 to delete them" in out
+    assert name.is_file() and tab.is_file()
