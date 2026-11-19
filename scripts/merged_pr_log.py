@@ -70,6 +70,9 @@ CLICKUP_VARS = (
 DEFAULT_TZ = "America/Chicago"
 DEFAULT_LOOKBACK_DAYS = 21
 PAGE_SIZE = 100
+# GitHub returns at most 250 commits for a PR from the commits list, so a list that
+# reaches this size may be cut short.
+COMMITS_LIST_CAP = 250
 USER_AGENT = "merged-pr-log"
 
 # get(path, params=None) -> decoded JSON. Production wiring is make_get(); tests pass a
@@ -111,7 +114,14 @@ def settings(env: Mapping[str, str]) -> tuple[ZoneInfo, int]:
         raise SystemExit(
             f"error: DIGEST_TZ {tz_name!r} is not a known time zone"
         ) from None
-    return tz, env_int(env, "DIGEST_LOOKBACK_DAYS", DEFAULT_LOOKBACK_DAYS)
+    lookback = env_int(env, "DIGEST_LOOKBACK_DAYS", DEFAULT_LOOKBACK_DAYS)
+    if lookback < 0:
+        # A negative value would start the window in the future and publish an empty
+        # digest over the page that is already there.
+        raise SystemExit(
+            f"error: DIGEST_LOOKBACK_DAYS must be 0 or more, got {lookback}"
+        )
+    return tz, lookback
 
 
 def window_start(now: datetime, tz: ZoneInfo, lookback_days: int) -> date:
@@ -271,11 +281,17 @@ def credit_for_pr(get: GetFn, org: str, repo: str, pr: Mapping[str, Any]) -> str
     if login and not is_bot(login, pr.get("user_type")):
         return person_name(login)
     path = f"/repos/{org}/{repo}/pulls/{pr['number']}/commits"
-    for commit in gh_list(get, path, max_pages=3):
+    commits = gh_list(get, path, max_pages=3)
+    for commit in commits:
         author = commit.get("author") or {}
         author_login = author.get("login")
         if author_login and not is_bot(author_login, author.get("type")):
             return person_name(author_login)
+    if len(commits) >= COMMITS_LIST_CAP:
+        raise GitHubError(
+            f"{path} returned {len(commits)} commits, GitHub's limit for this list, "
+            "so the branch author cannot be proven; refusing to credit nobody"
+        )
     return None
 
 

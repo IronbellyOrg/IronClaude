@@ -121,6 +121,28 @@ def test_settings_reject_bad_values():
         mod.settings({"DIGEST_LOOKBACK_DAYS": "three"})
 
 
+@pytest.mark.parametrize("value", ["-1", "-5"])
+def test_settings_reject_a_negative_lookback(value):
+    with pytest.raises(SystemExit, match="DIGEST_LOOKBACK_DAYS") as exc:
+        mod.settings({"DIGEST_LOOKBACK_DAYS": value})
+    assert "0 or more" in str(exc.value)
+
+
+@pytest.mark.parametrize(("value", "days"), [("0", 0), ("7", 7)])
+def test_settings_accept_zero_and_positive_lookback(value, days):
+    assert mod.settings({"DIGEST_LOOKBACK_DAYS": value})[1] == days
+
+
+def test_a_negative_lookback_ends_main_before_any_github_or_clickup_call(tmp_path):
+    env = {**FULL_ENV, "DIGEST_LOOKBACK_DAYS": "-5"}
+    fake, put = FakeGitHub(routes()), FakePut()
+    with pytest.raises(SystemExit, match="DIGEST_LOOKBACK_DAYS"):
+        mod.main(["--out", str(tmp_path)], env=env, get=fake, put=put, now=NOW)
+    assert fake.calls == []
+    assert put.calls == []
+    assert not (tmp_path / "digest.md").exists()
+
+
 def test_window_start_is_lookback_days_before_the_local_today():
     assert mod.window_start(NOW, CHICAGO, 21) == SINCE
 
@@ -354,6 +376,47 @@ def test_pr_made_wholly_by_a_bot_is_credited_to_nobody():
 def test_bot_pr_with_no_person_among_its_commits_is_credited_to_nobody(commits):
     fake = FakeGitHub({"/repos/o/r/pulls/9/commits": commits})
     assert mod.credit_for_pr(fake, "o", "r", opened_by("bot-x[bot]", "Bot")) is None
+
+
+def bot_commit(n=0):
+    return {"sha": f"{n:040d}", "author": {"login": "dependabot[bot]", "type": "Bot"}}
+
+
+def commit_pages(commits):
+    """Serve a commit list through FakeGitHub, which pages by PAGE_SIZE."""
+    return FakeGitHub({"/repos/o/r/pulls/9/commits": commits})
+
+
+def test_a_commit_list_cut_at_githubs_limit_with_no_person_is_an_error():
+    cap = mod.COMMITS_LIST_CAP
+    fake = commit_pages([bot_commit(i) for i in range(cap)])
+    with pytest.raises(mod.GitHubError, match="cannot be proven"):
+        mod.credit_for_pr(fake, "o", "r", opened_by("bot-x[bot]", "Bot"))
+
+
+def test_a_commit_list_just_under_the_limit_with_no_person_is_credited_to_nobody():
+    cap = mod.COMMITS_LIST_CAP
+    fake = commit_pages([bot_commit(i) for i in range(cap - 1)])
+    assert mod.credit_for_pr(fake, "o", "r", opened_by("bot-x[bot]", "Bot")) is None
+
+
+def test_a_person_found_inside_a_full_commit_list_is_still_credited():
+    commits = [bot_commit(i) for i in range(mod.COMMITS_LIST_CAP)]
+    commits[10] = {"sha": "a" * 40, "author": {"login": "clayphi", "type": "User"}}
+    fake = commit_pages(commits)
+    assert mod.credit_for_pr(fake, "o", "r", opened_by("bot-x[bot]", "Bot")) == "Clay"
+
+
+def test_a_cut_commit_list_ends_main_without_publishing(tmp_path, capsys):
+    served = routes()
+    served["/repos/IronbellyOrg/alpha/pulls/104/commits"] = [
+        bot_commit(i) for i in range(mod.COMMITS_LIST_CAP)
+    ]
+    rc, _fake, put = run_main(tmp_path / "site", fake=FakeGitHub(served))
+    assert rc == 1
+    assert put.calls == []
+    assert "cannot be proven" in capsys.readouterr().err
+    assert not (tmp_path / "site" / "digest.md").exists()
 
 
 def test_deleted_opener_falls_back_to_the_branch_commits():
