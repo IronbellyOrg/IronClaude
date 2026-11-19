@@ -831,7 +831,7 @@ class Waker:
         entry is sent again after 10 minutes); ``no_session`` when no session
         could be started; ``spawn_error`` when the start could not even begin.
         """
-        if WAKE_ID_PATTERN.fullmatch(wake_id) is None:
+        if not isinstance(wake_id, str) or WAKE_ID_PATTERN.fullmatch(wake_id) is None:
             raise ValueError("wake_id must match the wake id pattern")
         mailbox = "skipped"
         if target.run_id is not None:
