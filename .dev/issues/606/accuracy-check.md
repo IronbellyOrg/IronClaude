@@ -1,0 +1,67 @@
+## Accuracy check for #606
+
+**Verdict:** out_of_date
+
+Checked against `origin/master` at 3fb35a5ae02c6e6950334c990e3c03878b80b5b8, and the pull requests merged since the issue was opened (21, list truncated: no). Also checked `origin/integration` at ccd724c6b, because 13 of the 21 pull requests merged there, not into master.
+
+In short: every code claim in the body and the four spec comments still matches the code. Nothing under `src/superclaude/cli/observe/` or `tests/observe/` has changed since the issue was opened. The last observer commit is 3206bdb9c (#592), and `git diff origin/master origin/integration` shows no observer change. The issue is out of date on one point: where its evidence trail and Phase 0 inputs are stored. The issue says they are "kept on the research branch", but no branch on GitHub has them. They exist only as untracked files in one local checkout. An agent that starts from `origin/master` cannot follow Phase 0 steps 0.1 and 0.2 or step 7.2 as written.
+
+| # | Claim in the issue (quoted) | Status today (still true / changed / gone) | Evidence (path:line, PR #number or commit) |
+|---|---|---|---|
+| 1 | "Evidence trail (kept on the research branch, not needed to implement): `.dev/tasks/to-do/TASK-RESEARCH-observer-visual-parity-20261117-184800/RESEARCH-REPORT-observer-visual-parity.md`" | changed | After `git fetch origin`, `git log --all` finds no commit with this path. The file exists only as an untracked file in the local checkout `/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/`. That checkout is on branch `docs/409-question-text-decision`, which merged as #598, and `git ls-remote --heads origin` returns no branch with that name. |
+| 2 | "the merged review findings `.dev/issues/409/visual-parity/merged/FINDINGS.md` (finding ids M-01 to M-18)" | changed | The file is not on any branch (`git log --all` finds nothing). It exists only untracked in the same local checkout. Its content is posted in issue comment 1 ("Visual parity findings, merged"), so the finding text can still be found. |
+| 3 | Spec step 0.1: "Make `render_current.py` importable \| `VP/inputs/tools/render_current.py`". Step 0.2: "Loads `render_current.py` by path ... to reuse its view builders". Step 7.2: "Keep `VP/inputs/current/` as the pre-fix baseline" | changed | `VP/inputs/` (with `current/`, `mockups/` and `tools/`) exists only untracked in the local checkout above. It is not on `origin/master`, `origin/integration` or `origin/docs/606-layout-review-images`. Phase 0 cannot be followed from a fresh branch unless these files are first pushed or recreated. |
+| 4 | "Save the whole spec to `.dev/issues/409/visual-parity/REDESIGN-SPEC.md`, unless that file already exists on your branch" and its assembly command with "must equal the sha256 in the comment marker lines" | still true (command); file not on any branch | Running the body's `jq` assembly on today's comments gives sha256 `a5fc4f9b6862432bd46700abaca1be1149591999c718225f7908547c9f9ffbd6` (699 lines), which matches all three part markers. The file is not on any pushed branch. A local copy sits at `VP/spec/REDESIGN-SPEC.md` in the untracked checkout. |
+| 5 | Comment 4: "Prototype script `.dev/issues/409/visual-parity/layout-compare/proto_layouts.py`" and "files under `.dev/issues/409/visual-parity/layout-compare/debate/`" | changed | `origin/docs/606-layout-review-images` holds only the six PNGs (`layout-compare/{questions,desk}-{160,116,80}.png`). The script and `debate/` exist only in the local untracked checkout. |
+| 6 | Findings comment: mockups cited as `mockups/<width>/*.ansi`, `mockups/160/agent-focus-attention-ledger.txt`, `mockups/80/signal-bridge.txt` | changed (path form) | On `origin/master` these files are inside `.dev/issues/409/orca-observer-design-package.zip`, as `orca-observer-20261106/exports/<w>/{signal-bridge,decision-desk}.{ansi,txt,ascii.txt,png,mono.png,svg}` and `orca-observer-20261106/agent-focus/exports/<w>/attention-ledger.*`. The `mockups/<w>/` names are the local extracted copies under the untracked `VP/inputs/mockups/`. |
+| 7 | "Design references: `.dev/issues/409/attachments/{attention-ledger,decision-desk,signal-bridge}.png`, `.dev/issues/409/orca-observer-design-package.zip`, `.dev/issues/409/bmad/spec-orca-observer/rendering-rules.md`" | still true | All five paths are tracked on `origin/master` (`git ls-tree origin/master .dev/issues/409`). The zip holds exports at 160, 116 and 80 columns for all three screens. |
+| 8 | "No colour styling ... a styled export held no escape bytes" (M-01) | still true | `src/superclaude/cli/observe/render.py:524-531`: `render()` wraps each line in a plain `Text(line, no_wrap=True, overflow="crop")` with no style. |
+| 9 | "No boxed, titled panes" (M-02); "Today the only non-ASCII drawing characters are `─` and `▸`" (G-1) | still true | `terminal.py:30-34`: `GLYPHS` has only `selected` (`▸`/`@`), `truncate` and `hrule` (`─`/`-`). |
+| 10 | "No two-column Decision Desk ... the implementation stacks the content" (M-04) | still true | `render.py:383` appends the desk lines inside `_panel_lines`. `rendering-rules.md:43` and `:57` say "one stacked block". |
+| 11 | "No large `SEEN IS NOT RESOLVED` count tile" (M-05) | still true | `view.py:70-72`: `QUESTIONS_COUNT_LABEL = "seen, not resolved"`, printed as a plain line by `render.py:373`. |
+| 12 | "No `RETAIN CONTEXT` panel; the current spec labels it a design reference" (M-14) | still true | `rendering-rules.md:41`: "Right lower `RETAIN CONTEXT` (design reference; not built in R2 ...)". |
+| 13 | "`make_console` pins `color_system="standard"` (terminal.py:121) and nothing reads COLORTERM or TERM" | still true | `terminal.py:121`: `color_system=None if policy.no_color else "standard"`. `git grep -E 'COLORTERM\|\bTERM\b' origin/master -- src/superclaude/cli/observe` finds no match. |
+| 14 | "width-bound one-shot output calls `console.export_text()` without requesting styles, whereas `LiveScreen` draws the renderable directly" (commands.py:238-242, 257-279) | still true | `commands.py:238-242` (`text = console.export_text()`). `commands.py:257-279` is `LiveScreen` with `Live(group, console=make_console(policy), screen=True, ...)`. |
+| 15 | "Existing tests compare colour-enabled and NO_COLOR printed bytes for equality" (test_render.py:250-259) | still true | `tests/observe/test_render.py:250-259` (`printed(view, colour) == printed(view, policy_for(width, no_color=True))`). |
+| 16 | "The release-1 golden surface includes screen lines, printed bytes, plain records and JSON snapshots; the link-off golden pins exact screen lines" | still true | `tests/observe/release1_surface.py:49-60` (`record_text`, `snapshot_json`, `lines_<w>x<h>`, `printed_<w>`). `tests/observe/test_linkoff_screen_reference.py:50-75`. |
+| 17 | "`QUESTION_GATE_PASSED` and `QUESTION_LINK_PASSED` (commands.py:67, 70), the words `release-gates.md` and `Task 18` in commands.py (`T/test_commands.py:747-772`)" | still true | `commands.py:67`, `:70`. `tests/observe/test_commands.py:747-756` and `:762-772`. |
+| 18 | "no `Console(`, `from_markup`, `sorted(`, `.sort(` or adapter, collector, parse import in `render.py`, and `len(group.renderables) == len(screen_lines(...))` (`T/test_render.py:399`)" | still true | `tests/observe/test_render.py:399` and `:400-404`. |
+| 19 | D-4 "keeps `T/test_commands.py:121`" | still true | `tests/observe/test_commands.py:121`: `assert GAP_NOTICE in lines and "\x1b" not in out`. |
+| 20 | "`ascii_safe` (terminal.py:133-135) turns any non-ASCII character into `?`" | still true | `terminal.py:133-135`. |
+| 21 | "The full table uses all 160 cells (render.py:159-192)"; "header only when `policy.width_class == "full"`" (M-10); "`_help_lines` clips the key list when questions are off" (M-11) | still true | `render.py:159-192` (`_columns`, full class). `render.py:497-498` (header only at full width). `render.py:304-308` (`clip` when `view.questions is None`). |
+| 22 | "`DESK_TEXT_LINES = 4`, view.py:99"; "`ASK_CAP = 400` at parse.py:475/503"; "`DESK_HIDDEN` (view.py:97)"; "`LINKED SESSION` ... `linked`, parse.py:468-472" | still true | `view.py:97`, `:99`. `parse.py:468`, `:475`, `:503`. `render.py:341-345` (the 4-line cut with `...`). |
+| 23 | "the owner's rule 'the questions win on a short terminal' (render.py:444-445)"; "`spare` formula" (render.py:447-457); "forced single ledger row at render.py:502" | still true | `render.py:444-457` and `render.py:502` (`capacity = max(policy.height - reserved, 1)`). |
+| 24 | "`record_text` (export.py:76) and `header1`" | still true | `export.py:75-76` (`lines = [view.header1, ...`). |
+| 25 | "`pexpect` is a declared dependency, pyproject.toml:41"; "probed on Rich 15.0.0" | still true | `pyproject.toml:41` `"pexpect>=4.9"`. `pyproject.toml:37` requires `rich>=13.0.0`, and the installed Rich is 15.0.0 (`uv pip show rich`). |
+| 26 | "Zellij 0.44.2 is installed (`/usr/local/bin/zellij`) with ... `~/.config/zellij/config.kdl`, `themes/aidev02.kdl`, `layouts/agent.kdl` and `default.kdl`" | still true | `zellij --version` prints `zellij 0.44.2`. All four config files are present in this workspace. |
+| 27 | "baseline 766 passed on 2026-11-17" (`uv run pytest tests/observe/ -q`) | Not known yet | Not re-run. This check is read-only, and the current checkout (`docs/409-orca-dashboard-designs`) has no `src/superclaude/cli/observe/`. The observer tests have not changed since the baseline date (last change 3206bdb9c), so the count should still hold. |
+| 28 | "Run `/sc:workflow @... --depth standard --handoff none`" ... "`/sc:pr-submit --monitor 3`" ... "Rebase on `origin/master`" | still true | `src/superclaude/commands/workflow.md:7` lists `--depth` and `--handoff none` on master and on integration (integration drops only `tasklist`). `pr-submit.md:8` has `--monitor {0,1,2,3}` on both. |
+| 29 | Parent context: shipped observer work #503, #514, #577, #592, #598 | still true | All five appear as merged in `git log origin/master -- src/superclaude/cli/observe` or the merged pull request list. #598 (10f6ec670) merged at 17:28Z, before the issue was created (17:55Z). |
+
+### Merged pull requests that touch this issue
+
+| PR | Title | Relevant files | Effect on the issue |
+|---|---|---|---|
+| #633 | feat(install): retire commands and skills that 6.0.0 no longer ships (6.0.0) | none in the observer | None. It merged into `integration`, not master. `install_retired_data.py` does not retire `workflow`, `implement`, `pr-submit` or `analyze`. |
+| #632 | refactor(cli): remove the roadmap, tasklist and sprint family (6.0.0) | `src/superclaude/cli/main.py` | None for the observer. It merged into `integration`. `observe_group` is still registered there (`main.py:594-596`). The `/sc:workflow` `--handoff tasklist` value is gone on integration, but the spec uses `--handoff none`. |
+| #631 | refactor(commands): remove /sc:index and /sc:index-repo (6.0.0) | none in the observer | None. It merged into `integration`. |
+| #630 | perf(ccsession): find every transcript and start folder of the worktree list in one process (#607, stage 2) | `src/superclaude/skills/ccsession-tag/*` | None. |
+| #629 | refactor(cli): remove cli-portify (6.0.0) | none in the observer | None. It merged into `integration`. |
+| #628 | perf(ccsession): build the saved-session list without a process per saved name (#607, stage 1) | `src/superclaude/skills/ccsession-tag/*` | None. |
+| #627 | refactor(commands): remove /sc:improve (6.0.0) | `src/superclaude/commands/improve.md` | None. It merged into `integration`. The spec does not use `/sc:improve`. |
+| #626 | fix(help): correct help text and messages (6.0.0) | commands and docs | None. It merged into `integration`. |
+| #625 | fix(ic): launcher alias, preset and help fixes (6.0.0) | launcher | None. It merged into `integration`. |
+| #623 | feat(review): wonsol becomes the provisional default review panel | `src/superclaude/cli/review/*` | None. |
+| #622 | refactor(commands): remove /sc:build (6.0.0) | commands | None. It merged into `integration`. |
+| #621 | refactor(commands): remove /sc:review-translation, moved to the snapshot fork (6.0.0) | commands | None. It merged into `integration`. |
+| #620 | refactor(commands): remove /sc:save and /sc:load (6.0.0) | commands | None. It merged into `integration`. |
+| #619 | docs(how-we-work): drop built-in and local review steps from the shipping flow | `src/superclaude/core/HOW-WE-WORK.md` | None. The spec's route (`/sc:workflow`, then `/sc:implement`, then `/sc:pr-submit --monitor 3`) is unchanged. |
+| #617 | refactor(commands): remove /sc:spawn (6.0.0) | commands | None. It merged into `integration`. |
+| #616 | refactor(cli): remove the prd command-line pipeline (6.0.0) | `src/superclaude/cli/**` | None for the observer. It merged into `integration`. |
+| #615 | refactor(cli): remove the cleanup-audit headless runner (6.0.0) | `src/superclaude/cli/**` | None for the observer. It merged into `integration`. |
+| #614 | docs(plans): wonsol default-panel plan v2 and the surgical-remediation design | docs, `.dev` | None. |
+| #613 | fix: stop recommending /sc:task; it no longer releases a bound worker | core docs, launch-level hook | None. The spec does not use `/sc:task`. |
+| #608 | docs(style): define plain English and give the wrap-up a fixed five-part body | output style | None. |
+| #605 | feat(review): the reflect reviewer carries the review severity rule (issue 552 stage 3b) | `agents/reflect-reviewer.md` | None. |
+
+<!-- sc:issue:accuracy-check -->

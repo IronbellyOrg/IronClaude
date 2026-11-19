@@ -1,0 +1,12 @@
+ORCA OBSERVER  SYNTHETIC FIXTURE base, not Orca data  scope=all        READ ONLY
+worker-list OK 0s  messages UNVERIFIED (not read)
+collected 80 / reported 80  no source: settled, frozen, cost
+source counts: active 54 / reclaimable 0 / retained 13 / released 13
+Human questions: source UNVERIFIED, 0 rows interpreted, not "no questions"
+26 historical hidden (h)
+worker-reported, not questions  ● alive; any other state is spelled out
+   kind           dispatchId                    alive status              age
+   none           w-001                         ●     ACTIVE              10s
+   review         w-002                         ●     blocked/active/none 13s
+────────────────────────────────────────────────────────────────────────────────
+j/k move  Enter detail  / filter  h history  e export  q quit  shown 2/54

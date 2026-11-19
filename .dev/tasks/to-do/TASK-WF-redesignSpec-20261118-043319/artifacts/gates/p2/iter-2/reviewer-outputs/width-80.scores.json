@@ -1,0 +1,29 @@
+{
+  "width": 80,
+  "iteration": 2,
+  "rows": {
+    "RB-01": {"result": "PASS", "evidence": "checks.json pass for (a). desk.truecolor.ansi: title bold cyan (112,205,226), ages bold amber, desk question text bold amber, list subject text bold base, header2 and footer muted (165,182,194), footer rule slate (82,108,128). No counter-example found."},
+    "RB-05": {"result": "PASS", "evidence": "checks.json RB-05 status pass; questions.txt:12-15 disclosure lines intact; desk.txt:9 DECISION DESK"},
+    "RB-06": {"result": "PASS", "evidence": "checks.json pass; nocolor.txt has 0 ESC bytes in all four screens (checked)"},
+    "RB-07": {"result": "PASS", "evidence": "checks.json pass; ascii.txt has 0 non-ASCII bytes in all four screens (checked); desk.ascii.txt:8 uses '@' marker and line 27 is a '-' rule"},
+    "RB-08": {"result": "PASS", "evidence": "checks.json pass; widest line is 80 cells in all four ascii.txt files (checked); manifest.json ledger lines 42 within height 42; footer keys are the last lines (desk.txt:28-29)"},
+    "RB-09": {"result": "PASS", "evidence": "checks.json RB-09 status pass (script row, copied)"},
+    "RB-10": {"result": "PASS", "evidence": "checks.json RB-10 status pass; ledger.truecolor.ansi shows ACTIVE and the alive dot in green (139,215,175), and 'blocked/active/none' in base"},
+    "RB-11": {"result": "PASS", "evidence": "desk.truecolor.ansi: 'worktree unknown' and 'reasons: none in source' and 'unavailable' are muted (165,182,194); ledger 'messages UNVERIFIED (not read)' is muted; text stays in the plain pass"},
+    "RB-12": {"result": "PASS", "evidence": "ledger.txt:8 heading '   kind  dispatchId  alive status  age' sits above the visible rows; questions.txt:17 and desk.txt:23 likewise. No rule under the heading, which RB-28 forbids."},
+    "RB-13": {"result": "PASS", "evidence": "checks.json pass; desk.txt:28 'j/k move  Enter detail  / filter  n/p question  h history  e export  q quit' is whole; 'shown 3/3' on its own line 29"},
+    "RB-15": {"result": "PASS", "evidence": "line 1 of every screen ends with the right-aligned badge, e.g. ledger.txt:1 '...scope=all        READ ONLY'; the badge is bold amber in the ANSI"},
+    "RB-20": {"result": "PASS", "evidence": "checks.json pass; desk.txt:27 rule line precedes footer line 28, which has the intact pair 'n/p question'"},
+    "RB-21": {"result": "PASS", "evidence": "checks.json pass; questions.txt:6 'seen, not resolved: 5 | closed by evidence: unavailable' is whole on one line"},
+    "RB-22": {"result": "N/A", "evidence": "reviewer marked it out of scope; checks.json RB-22 is fail: 80 cols blank run 25 > N=18, 116 cols 44 > 18 (recorded as failing and deferred, Low)"},
+    "RB-23": {"result": "PASS", "evidence": "desk.truecolor.ansi: selected row '▸ 59m  Ship the change now>' is bold amber, while the other row's text is bold base"},
+    "RB-24": {"result": "PASS", "evidence": "checks.json RB-24 status pass (script row, copied); run_14cfcbd8edf2 and the count words each occur once (desk.txt:4, 6)"},
+    "RB-25": {"result": "PASS", "evidence": "checks.json pass; questions.txt:4 'reasons: none in source'; no row has a 'reason unknown' suffix (questions.txt:7-11)"},
+    "RB-26": {"result": "PASS", "evidence": "checks.json pass; ledger.txt:9 'ACTIVE' badge for active/active/none; ledger.txt:10 'blocked/active/none' shown raw for any other combination"},
+    "RB-27": {"result": "PASS", "evidence": "checks.json pass; desk-planask.txt:11-13 contain no run of 32 or more hex characters; ask ends '(plan hash )?'"},
+    "RB-28": {"result": "PASS", "evidence": "checks.json pass; ledger.txt:8 has no flags column; no rule row between heading and rows; footer 'shown 32/54' (ledger.txt:42) with no '+N more'; line 7 legend '● alive; any other state is spelled out'"},
+    "RB-29": {"result": "PASS", "evidence": "The desk pane is desk.txt:9-17. Labels session/state/alive/next/status/worktree are plain words with values all starting at column 10 (desk.txt:12-17). No msg_ id or raw field name. List rows (desk.txt:7-8) come before the pane."}
+  },
+  "other_rows": "RB-02, RB-03, RB-04, RB-14, RB-16, RB-17, RB-18 N/A (scheduled later); RB-19 N/A (replaced by RB-27)",
+  "failing_high_medium": []
+}

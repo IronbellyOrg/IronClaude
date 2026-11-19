@@ -1,0 +1,13 @@
+input_tree_sha256: d6ce5d56843757ed01f9f1504939786b0e483f467a428d134006611caaa67d8a
+file_list:
+  - path: .dev/tasks/done/TASK-WF-makeInstallCoreS-20261119-013812/TASK-WF-makeInstallCoreS-20261119-013812.md
+    sha256: bd1c152e9440c0ef7a597dbbe1bafe5f2cf929f0a465939af8eae83ecca770b1
+  - path: .dev/tasks/done/TASK-WF-makeInstallCoreS-20261119-013812/source.md
+    sha256: 0abe4a9dd8921608279ba15d5261f75ac05169056dc48dfacd9dfb6cc4c9c979
+  - path: src/superclaude/cli/install_core.py
+    sha256: edf8ec9bbbbe16e70154c7d7a05688df0ecaa6bc25e70c4cf47f965e98e2bf2b
+  - path: src/superclaude/cli/install_keep.py
+    sha256: e08713d4b2511060f0d75c409dbf75b76d62f738083bfbe2f13e5f1ce0b1b063
+  - path: tests/cli/test_how_we_work_install.py
+    sha256: 33f4640dcb1e881196210fc1c893f96eb5fa01559bfe279624a82405a0c51631
+file_count: 5

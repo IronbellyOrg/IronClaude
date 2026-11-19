@@ -1,0 +1,90 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-669/.dev/reflect/pre-implementGitHubI-20261119134603/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-669/.dev/reflect/pre-implementGitHubI-20261119134603/audit.log
+confidence_calibrated: 0.85          # inline-fallback self-grade, not a blind calibration
+escalation_rule_matched: 4
+onboarding_ran: false
+
+coverage_pct: null                   # parsed-only: the spec has no labeled requirement IDs
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+input_sha256:
+  tasklist: 97b4dc2cee3cf1fb0941c1fe11c15c7ac6b7cd548f35a2a704e88de3b2dba2bf
+  spec: 0384625f5e8974f3a7b770d95bd7eb588b248a86ff15388509b63da80ade2343
+input_tree_sha256: ff21adb285f431757891eeceb8cab4729a91364474e03d150c034cc00f1533b9
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-669/.dev/reflect/pre-implementGitHubI-20261119134603/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+citations_total: 24
+citations_revalidated: 24
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 3
+citation_budget_policy: sampled
+evidence_validator_ran: false        # inline re-Read of all 24 citations instead of the agent
+
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: null                   # Tier 2 did not run, so no merge happened
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+
+findings_blocking: 0
+findings_medium: 3
+findings_note: 2
+unresolved:
+  - "Tier 2 reviewers were required by the parse-density guard and rule 4 but not run: this session's launch rules forbid subagents. The verdict is a single-reader (Tier 1, inline) review."
+
+telemetry:
+  degraded_components: [reviewer-subagents, evidence-validator, confidence-calibrator]
+  fallback_path: null
+  executor_class_resolved: false
+  memory_hits: 0
+  memory_misses: 2
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  references_extended_info_used: false

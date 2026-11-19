@@ -1,0 +1,12 @@
+[
+  {
+    "number": 3,
+    "title": "Add export job",
+    "state": "closed",
+    "html_url": "https://github.com/IronbellyGroup/gamma/pull/3",
+    "user": {"login": "swill-ib", "type": "User"},
+    "merged_by": {"login": "swill-ib", "type": "User"},
+    "merged_at": "2026-11-19T10:00:00Z",
+    "updated_at": "2026-11-19T10:01:00Z"
+  }
+]

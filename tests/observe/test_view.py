@@ -584,8 +584,8 @@ def test_plus_n_more_never_counts_the_selected_row(fake_clock):
     assert window.shown == 10 and window.total == 80 and window.text == "10/80 shown"
     assert any(rv.selected for rv in window.rows)  # the selected row is kept in view
     assert window.more == 70 and window.more_text == "+70 more"
-    assert view.footer(window).endswith("shown 10/80 | collected 80 / reported 80")
-    assert "shown 80/80 | collected 80 / reported 80" in view.footer(view.window(None))
+    assert view.footer(window).endswith("shown 10/80")  # collected is in the strip
+    assert view.footer(view.window(None)).endswith("shown 80/80")
     # selected row not in the visible set (filtered out): it is not counted in "+N more" either
     row_view = view.selected
     narrowed = build(
@@ -916,6 +916,28 @@ def questions_collector(message, clock, argv_log=None, worker=WORKER):
 
 def panel_of(result, clock, session=None):
     return build_view(result, session or Session(), clock)
+
+
+def test_count_figure_is_the_figure_of_the_count_line_and_defaults_to_empty(fake_clock):
+    import dataclasses
+
+    from superclaude.cli.observe.view import QuestionsPanel
+
+    field = {f.name: f for f in dataclasses.fields(QuestionsPanel)}["count_figure"]
+    assert field.default == ""  # a panel built without it carries no figure
+    two = panel_of(
+        questions_collector(
+            question_pair(make_question_rows(2)), fake_clock
+        ).run_once(),
+        fake_clock,
+    ).questions
+    assert two.count_figure == "2" and two.counts_line.startswith(
+        "seen, not resolved: 2 |"
+    )
+    none = panel_of(
+        questions_collector(question_pair([]), fake_clock).run_once(), fake_clock
+    ).questions
+    assert none.count_figure == "0"  # "0 (source window only; ...)" gives the figure 0
 
 
 def test_t19_the_panel_title_and_disclosure_are_literal_and_the_gap_notice_is_replaced(

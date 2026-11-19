@@ -1,0 +1,12 @@
+ORCA OBSERVER  mode=fixture  SYNTHETIC FIXTURE base, not Orca data  scope=all  as of 12:00:00
+worker-list OK 0s  messages UNVERIFIED (not read)
+collected 80 / reported 80  scope=all  source counts: active 54 / reclaimable 0 / retained 13 / released 13
+runs seen: 8  SETTLED unavailable (no source)  POLICY FROZEN unavailable (no source)  cost unavailable
+Human questions: source UNVERIFIED, 0 rows interpreted, not "no questions"
+26 historical hidden (h)
+worker-reported, not questions
+   none               w-001                                                alive          10s
+   review             w-002                                                alive          13s
+2/54 shown  +52 more
+Up/Down j/k move  Enter detail  Esc back  / filter  h historical  m mark  e export  q quit
+shown 2/54 | collected 80 / reported 80

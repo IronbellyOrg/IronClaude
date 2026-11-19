@@ -1,0 +1,28 @@
+[1;38;2;112;205;226mORCA OBSERVER  scope=all[0m                                                                                                                               [1;38;2;250;178;25mREAD ONLY[0m
+[38;2;165;182;194mworker-list OK 0s  questions OK 0s[0m
+[38;2;225;233;238mcollected 3 / reported 3[0m  [38;2;165;182;194mno source: settled, frozen, cost[0m
+[1;38;2;250;178;25mCOORDINATOR QUESTIONS[0m[38;2;165;182;194m  one Run only: run_14cfcbd8edf2  reasons: none in source[0m
+[38;2;165;182;194mquestion read: OK 0s[0m
+[38;2;225;233;238mseen, not resolved: 2 | closed by evidence: [0m[38;2;165;182;194munavailable[0m
+  [1;38;2;250;178;25m1h[0m  [1;38;2;225;233;238mWhich branch should the worker rebase on?[0m
+[1;38;2;250;178;25m▸ 59m  Approve the plan in .de>[0m
+[1;38;2;250;178;25mDECISION DESK[0m
+[1;38;2;250;178;25mage 59m[0m
+[1;38;2;250;178;25mApprove the plan in .dev/plans/observer-visual-parity/plan.md before the worker edits src/superclaude/cli/observe/render.py and[0m
+[1;38;2;250;178;25msrc/superclaude/cli/observe/terminal.py (plan hash )?[0m
+[38;2;165;182;194msession  [0m[38;2;225;233;238mw-002[0m
+[38;2;165;182;194mstate    [0m[38;2;225;233;238midle[0m
+[38;2;165;182;194malive    [0m[38;2;139;215;175myes (terminal), 6s ago[0m
+[38;2;165;182;194mnext     [0m[38;2;225;233;238mwait[0m
+[38;2;165;182;194mstatus   [0m[38;2;139;215;175mACTIVE[0m
+[38;2;165;182;194mworktree [0m[38;2;165;182;194munknown[0m
+[38;2;165;182;194mbounded best effort; coverage unknown; at most 100 rows per read, not 100 questions; bursts over 100 rows between reads may be lost[0m
+[38;2;165;182;194mno read marker in source: answered questions stay listed[0m
+[38;2;165;182;194mretention reset at 12:00; questions observed before this start are not retained[0m
+[1;38;2;82;108;128mworker-reported, not questions[0m[38;2;165;182;194m  ● alive; any other state is spelled out[0m
+[38;2;165;182;194m   dispatchId                                       run          workerState  status nextAction.kind  alive          evidence age[0m
+[38;2;225;233;238m  [0m [38;2;225;233;238mw-001[0m                                            [38;2;225;233;238mrun-0[0m        [38;2;139;215;175mrunning[0m      [38;2;139;215;175mACTIVE[0m [38;2;225;233;238mwait[0m             [38;2;139;215;175m●[0m              [38;2;225;233;238m3s[0m
+[38;2;225;233;238m  [0m [38;2;225;233;238mw-002[0m                                            [38;2;225;233;238mrun-0[0m        [38;2;225;233;238midle[0m         [38;2;139;215;175mACTIVE[0m [38;2;225;233;238mwait[0m             [38;2;139;215;175m●[0m              [38;2;225;233;238m6s[0m
+[38;2;225;233;238m  [0m [38;2;225;233;238mw-003[0m                                            [38;2;225;233;238mrun-0[0m        [38;2;139;215;175mrunning[0m      [38;2;139;215;175mACTIVE[0m [38;2;225;233;238mnone[0m             [38;2;139;215;175m●[0m              [38;2;225;233;238m9s[0m
+[38;2;82;108;128m────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;2;165;182;194mj/k move  Enter detail  / filter  n/p question  h history  e export  q quit  shown 3/3[0m

@@ -1,0 +1,16 @@
+$ uv run pytest tests/cli/test_how_we_work_install.py -q
+tests/cli/test_how_we_work_install.py .........                          [100%]
+
+============================== 9 passed in 0.48s ===============================
+$ uv run ruff check src/superclaude/cli/install_core.py tests/cli/test_how_we_work_install.py
+All checks passed!
+$ (clear_cache disabled) pytest tests/cli/test_how_we_work_install.py -k same_size
+    assert "PRINCIPLES.md" in message.split("NOT updated")[1]
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   IndexError: list index out of range
+=========================== short test summary info ============================
+FAILED tests/cli/test_how_we_work_install.py::test_same_size_rewrite_with_old_mtime_is_reported_stale
+======================= 1 failed, 8 deselected in 0.46s ========================
+$ uv run pytest tests/cli -q -k install
+
+=============== 352 passed, 1 skipped, 2234 deselected in 5.12s ================

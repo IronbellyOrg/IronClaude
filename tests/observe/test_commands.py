@@ -38,6 +38,7 @@ from tests.observe.conftest import (
     FakeRunner,
     make_envelope,
     make_rows,
+    unframe,
 )
 
 VALIDATOR = Draft7Validator(SCHEMA)
@@ -118,7 +119,8 @@ def test_once_with_width_prints_the_bound_screen_with_the_gap_notice(fake_clock,
     )
     lines = out.splitlines()
     assert code == 0 and lines and all(cell_len(l) <= width for l in lines)
-    assert GAP_NOTICE in lines and "\x1b" not in out
+    # the gap notice shares its row with the historical-hidden note (in the attention pane)
+    assert any(unframe(l).startswith(GAP_NOTICE) for l in lines) and "\x1b" not in out
     assert any("collected 80 / reported 80" in l for l in lines)
     via_click = CliRunner().invoke(
         observe_group, ["--once", "--fixture", "base", "--width", str(width)]
@@ -607,6 +609,7 @@ from tests.observe.conftest import (  # noqa: E402
     make_question_rows,
     question_payload,
     routed_runner_responses,
+    title_of,
 )
 
 
@@ -668,8 +671,10 @@ def test_with_the_guard_open_one_template_message_call_follows_the_worker_list_c
     worker = [a for a in argv_log if a[1:3] == ["orchestration", "worker-list"]]
     assert len(worker) == 1 and "--peek" not in message[0]
     lines = out.splitlines()
-    assert "COORDINATOR QUESTIONS" in lines and f"one Run only: {QRUN}" in lines
-    assert sum("reason unknown" in l for l in lines) == 4
+    assert any(l.startswith("COORDINATOR QUESTIONS") for l in lines)
+    assert f"one Run only: {QRUN}" in lines
+    # The piped text form is the record form: one msg_ row per question, reason kept per row.
+    assert len([ln for ln in lines if ln.startswith("msg_")]) == 4
     assert (
         "seen, not resolved: 4 | closed by evidence: unavailable (no source)" in lines
     )
@@ -688,7 +693,9 @@ def test_with_the_guard_open_and_a_width_the_screen_shows_the_panel(
     code, out = once(Options(once=True, run_id=QRUN, questions=True, width=116), deps)
     lines = out.splitlines()
     assert code == 0 and all(cell_len(l) <= 116 for l in lines)
-    assert "COORDINATOR QUESTIONS" in lines and GAP_NOTICE not in lines
+    # the list is a titled frame: the title is inset in its top border
+    assert any(t.startswith("COORDINATOR QUESTIONS") for t in title_of(lines))
+    assert GAP_NOTICE not in lines
 
 
 def test_questions_without_a_run_or_with_a_fixture_or_a_bad_run_is_refused_with_no_call(

@@ -1,0 +1,32 @@
+ORCA OBSERVER  scope=all                                                                                                                               READ ONLY
+worker-list OK 0s  questions OK 0s
+collected 3 / reported 3  no source: settled, frozen, cost
+ ╭─ SEEN, NOT RESOLVED ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+ │ ██                                                                                                                                                         │
+ │  █   seen, not resolved: 2 | closed by evidence: unavailable (no source)                                                                                   │
+ │ ███                                                                                                                                                        │
+ ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ┏━ DECISION DESK ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ╭─ LINKED SESSION ─────────────────────────────────────────────────────────────╮
+ ┃ age 59m                                                                  ┃  │ session  w-002                                                               │
+ ┃ Ship the change now?                                                     ┃  │ state    idle                                                                │
+ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  │ alive    yes (terminal), 6s ago                                              │
+ ╭─ COORDINATOR QUESTIONS ──────────────────────────────────────────────────╮  │ next     wait                                                                │
+ │ bounded best effort; coverage unknown; at most 100 rows per read, not    │  │ status   ACTIVE                                                              │
+ │ 100 questions; bursts over 100 rows between reads may be lost            │  │ worktree unknown                                                             │
+ │   1h  Which branch should the worker rebase on?                          │  ╰──────────────────────────────────────────────────────────────────────────────╯
+ │ ▸ 59m  Ship the change now>                                              │  
+ │ question read: OK 0s                                                     │  
+ │ reasons: none in source                                                  │  
+ ╰──────────────────────────────────────────────────────────────────────────╯  
+ ╭─ RETAIN CONTEXT ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+ │ one Run only: run_14cfcbd8edf2                                                                                                                             │
+ │ no read marker in source: answered questions stay listed                                                                                                   │
+ │ retention reset at 12:00; questions observed before this start are not retained                                                                            │
+ ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+worker-reported, not questions  ● alive; any other state is spelled out
+   dispatchId                                       run          workerState  status nextAction.kind  alive          evidence age
+   w-001                                            run-0        running      ACTIVE wait             ●              3s
+   w-002                                            run-0        idle         ACTIVE wait             ●              6s
+   w-003                                            run-0        running      ACTIVE none             ●              9s
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+j/k move  Enter detail  / filter  n/p question  h history  e export  q quit  shown 3/3

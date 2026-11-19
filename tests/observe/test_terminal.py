@@ -51,6 +51,50 @@ def test_no_color_unset_or_empty_keeps_colour_available(env):
     assert "31" in [p for m in SGR.findall(render(pol, "red")) for p in m.split(";")]
 
 
+# -- colour depth (D2): none, truecolor, 256-colour, 16-colour floor ---------------
+
+
+@pytest.mark.parametrize(
+    ("env", "expected"),
+    [
+        ({"NO_COLOR": "1"}, None),
+        ({"NO_COLOR": "1", "COLORTERM": "truecolor"}, None),
+        ({"TERM": "dumb"}, None),
+        ({"TERM": "unknown"}, None),
+        ({"COLORTERM": "truecolor", "TERM": "xterm"}, "truecolor"),
+        ({"COLORTERM": "24bit"}, "truecolor"),
+        ({"COLORTERM": "TrueColor"}, "truecolor"),
+        ({"TERM": "xterm-256color"}, "256"),
+        ({"TERM": "xterm"}, "standard"),
+        ({}, "standard"),
+        ({"NO_COLOR": ""}, "standard"),
+    ],
+)
+def test_colour_depth_is_resolved_from_the_environment(env, expected):
+    pol = policy(env)
+    assert pol.color_system == expected
+    assert make_console(pol, file=io.StringIO()).color_system == expected
+
+
+def test_truecolor_beats_256_colour_when_both_are_set():
+    pol = policy({"COLORTERM": "truecolor", "TERM": "xterm-256color"})
+    assert pol.color_system == "truecolor"
+
+
+@pytest.mark.parametrize(
+    ("env", "style", "needle"),
+    [
+        # A different colour per case: Rich caches the ANSI codes on a parsed style, so
+        # reusing one colour string at two depths would show the first depth's codes.
+        ({"COLORTERM": "truecolor"}, "rgb(10,200,30)", "38;2;10;200;30"),
+        ({"TERM": "xterm-256color"}, "rgb(11,201,31)", "38;5;"),
+    ],
+)
+def test_the_chosen_depth_reaches_the_bytes_the_console_writes(env, style, needle):
+    out = render(policy(env), style)
+    assert needle in out
+
+
 # -- width classes, height, ASCII -----------------------------------------------
 
 
@@ -100,6 +144,39 @@ def test_glyph_table_maps_to_ascii():
     assert terminal.glyph("selected", utf_pol) == "▸"
     assert terminal.glyph("selected", ascii_pol) == "@"
     assert all(terminal.glyph(name, ascii_pol).isascii() for name in terminal.GLYPHS)
+
+
+def test_the_block_glyph_is_one_cell_with_the_ascii_form_hash():
+    from rich.cells import cell_len
+
+    assert terminal.glyph("block", policy()) == "█" and cell_len("█") == 1
+    assert terminal.glyph("block", policy(flags={"ascii": True})) == "#"
+
+
+def test_frame_glyph_pairs_are_one_cell_with_the_ascii_forms_plus_dash_bar():
+    from rich.cells import cell_len
+
+    ascii_pol = policy(flags={"ascii": True})
+    utf_pol = policy()
+    pairs = {
+        "box_tl": "╭",
+        "box_tr": "╮",
+        "box_bl": "╰",
+        "box_br": "╯",
+        "box_h": "─",
+        "box_v": "│",
+        "hbox_tl": "┏",
+        "hbox_tr": "┓",
+        "hbox_bl": "┗",
+        "hbox_br": "┛",
+        "hbox_h": "━",
+        "hbox_v": "┃",
+    }
+    for name, glyph_text in pairs.items():
+        assert terminal.glyph(name, utf_pol) == glyph_text
+        assert cell_len(glyph_text) == 1
+        expected = "-" if name.endswith("_h") else "|" if name.endswith("_v") else "+"
+        assert terminal.glyph(name, ascii_pol) == expected
 
 
 def test_console_is_built_with_explicit_width_and_literal_text():

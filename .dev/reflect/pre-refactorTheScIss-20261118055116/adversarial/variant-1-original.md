@@ -1,0 +1,21 @@
+# Reviewer 1 card (persona analyzer, model class sonnet)
+
+verdict: PASS-WITH-GAPS, self-reported calibrated_confidence 0.80
+
+## Findings
+
+F1 severity=medium at=plan:59,95 claim=Tasks 3 and 6 keep the sentence "even though `full` is the default" in three places. Once the default is picked from the issue, that clause is false. Task 3 rewrites line 48 but keeps line 44. Task 6 keeps the `E-SUBMIT-NEEDS-FULL` sentence at commands.md:371 as is. evidence=src/superclaude/commands/issue.md:44 "(an explicit `--pipeline full` is still required, even though `full` is the default)"; docs/user-guide/commands.md:371 "(write `--pipeline full --submit`, even though `full` is the default)". Tests pin only "`--pipeline full`" in the submit row (tests/commands/test_issue_command.py:116), so cutting the clause breaks no test. fix=Add to Task 3 and Task 6: drop or reword the "even though `full` is the default" clause at issue.md:44 and commands.md:371 (for example "an explicit `--pipeline full` is always required"). Keep the quoted STOP message.
+
+F2 severity=medium at=plan:34 claim=The new Wave 5 step prints `Level: <L> (default: ...)` before the claim knows whether the launch is `already_launched`. On a re-claim, the printed level is picked from the issue. The stored level can differ, because issue-summary.md can be rewritten, and the spec says the stored level is still what is reported. The plan keeps the `pipeline_level` sentence but says nothing about the printed line or the `--level <L>` handed to the prompt step. evidence=refs/claim.md:82 (the prompt script keeps an existing prompt only while a launch exists); refs/claim.md:145 (`already_launched` prints the stored launch); SKILL.md:138 (stored level wins for `pipeline_level`). source.md:1: "the already_launched re-claim path still reports the stored level". fix=In Task 1, say the `Level:` line is printed with the launch result only for `launched`, and that for `already_launched` it is replaced by the stored level; add one pinned phrase and test it in Task 5.
+
+F3 severity=note at=plan:34 claim=The order of rules is ambiguous: "bug gives full" is listed before "if Type, Complexity or hours cannot be read gives worktree". The source says all three must be readable, so a bug with no hours gives `worktree`. A model could read the step either way, and the planned test only checks that each sentence exists. evidence=source.md:1 "if type, complexity or hours cannot be read -> worktree"; the template has Type as `<feature | bug>` and hours as `<hours> hours` (templates/issue-summary.md:7-9). fix=Put the unreadable check first in the step text and have the Task 5 test compare the index of the two sentences.
+
+F4 severity=note at=plan:38 claim=The acceptance command `uv run pytest tests/skills/test_issue_protocol.py -k "st7 or st9 or worker_contract"` names one file, so the `worker_contract` term selects nothing from it. The worker-contract check is only in the next bullet. evidence=the test file named in plan:38, and tests/skills/test_worker_contract.py. fix=Drop `worker_contract` from the `-k` expression.
+
+## Coverage
+
+No under-covered requirement. All 16 matrix rows map to a task; the reviewer did not re-derive them. Task 2 edits SKILL.md line 89, where source.md:1 says line 92. Line 92 only says "`<L>` is the same level as in Wave 5." and stays true, so it can be left alone.
+
+## Checked
+
+Plan lines named in Tasks 1-5 against live files: refs/claim.md Wave 5 steps 1-5 (lines 75-83), Wave 8 line 122, the final-output `launched` item at line 144; SKILL.md lines 17, 89, 92 and 138 and the ten-field yaml block at lines 123-134; issue.md lines 16, 43, 44, 48, the STOP rules at 52-59 and the examples; templates/next-steps.md line 7; tests/commands/test_issue_command.py lines 113, 182 and 188; test_default_level_is_full_and_only_worktree_waits_for_a_person at tests/skills/test_issue_protocol.py:681; the pinned st7 and st9 words (lines 431-500). The `launched` item split on "For `worktree`:" and "For `full`:" (test_issue_protocol.py:687-691) survives adding a Level sentence before "For `worktree`", provided it does not contain "run the printed implement command". Task order and dependencies hold. Not read: docs/designs, docs line numbers 1557 and 1635, the HOW-WE-WORK line 328 text (Tasks 6-8 line numbers not claimed).

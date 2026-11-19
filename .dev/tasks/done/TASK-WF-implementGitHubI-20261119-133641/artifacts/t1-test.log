@@ -1,0 +1,30 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-669/.venv/bin/python
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-669
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 19 items
+
+tests/merged_pr_log/test_merged_pr_log.py::test_token_requires_gh_token_and_never_falls_back PASSED [  5%]
+tests/merged_pr_log/test_merged_pr_log.py::test_token_rejects_missing_or_blank[env0] PASSED [ 10%]
+tests/merged_pr_log/test_merged_pr_log.py::test_token_rejects_missing_or_blank[env1] PASSED [ 15%]
+tests/merged_pr_log/test_merged_pr_log.py::test_token_rejects_missing_or_blank[env2] PASSED [ 21%]
+tests/merged_pr_log/test_merged_pr_log.py::test_token_returns_the_value PASSED [ 26%]
+tests/merged_pr_log/test_merged_pr_log.py::test_settings_defaults_and_overrides PASSED [ 31%]
+tests/merged_pr_log/test_merged_pr_log.py::test_settings_reject_bad_values PASSED [ 36%]
+tests/merged_pr_log/test_merged_pr_log.py::test_window_start_is_lookback_days_before_the_local_today PASSED [ 42%]
+tests/merged_pr_log/test_merged_pr_log.py::test_make_get_sends_the_token_only_in_a_header PASSED [ 47%]
+tests/merged_pr_log/test_merged_pr_log.py::test_make_get_turns_http_errors_into_github_error_without_the_token PASSED [ 52%]
+tests/merged_pr_log/test_merged_pr_log.py::test_gh_list_raises_when_pages_run_out_while_still_full PASSED [ 57%]
+tests/merged_pr_log/test_merged_pr_log.py::test_gh_list_raises_on_an_unexpected_shape PASSED [ 63%]
+tests/merged_pr_log/test_merged_pr_log.py::test_list_repos_covers_both_orgs_private_included_archived_excluded PASSED [ 68%]
+tests/merged_pr_log/test_merged_pr_log.py::test_repo_added_after_the_first_run_appears_with_no_edit PASSED [ 73%]
+tests/merged_pr_log/test_merged_pr_log.py::test_archived_repo_is_never_requested PASSED [ 78%]
+tests/merged_pr_log/test_merged_pr_log.py::test_fetch_merged_prs_keeps_the_window_and_drops_unmerged_and_older PASSED [ 84%]
+tests/merged_pr_log/test_merged_pr_log.py::test_repo_with_no_merges_gives_an_empty_list PASSED [ 89%]
+tests/merged_pr_log/test_merged_pr_log.py::test_window_edge_is_the_first_local_day PASSED [ 94%]
+tests/merged_pr_log/test_merged_pr_log.py::test_script_imports_only_the_standard_library_and_has_no_subprocess PASSED [100%]
+
+============================== 19 passed in 0.18s ==============================
+rc=0

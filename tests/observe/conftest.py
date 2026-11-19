@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import io
 import json
+import re
 import subprocess
 from datetime import datetime, timedelta, timezone
 from importlib import resources
@@ -351,3 +352,165 @@ def routed_runner_responses(worker, message):
         return pick(argv, timeout) if callable(pick) else pick
 
     return respond
+
+
+# A question row of the list on screen: an optional marker (selected glyph, its ASCII form or two
+# spaces), then the age and two spaces. With the per-row "reason unknown" gone from the screen
+# (one title note says it once), this is how a test counts question rows.
+QUESTION_ROW = re.compile(
+    r"^(?:[▸@] |  )?(?:\d+[smhd]|unknown|age unknown \(clock skew\))  \S"
+)
+
+
+def question_rows(lines) -> list[str]:
+    """The question-row lines of a screen, in order."""
+    return [ln for ln in lines if QUESTION_ROW.match(ln)]
+
+
+# -- frame-aware helpers (the questions-on screens are framed from the frame phase on) ---------------------
+
+_TOP_ROW = re.compile(
+    r"^ ?[╭┏+][─━-] (.*?) [─━-]*[╮┓+]$"
+)  # corner, rule, title, rule, corner
+_BOTTOM_ROW = re.compile(r"^ ?[╰┗+][─━-]+[╯┛+]$")
+_BODY_ROW = re.compile(r"^ ?[│┃|] (.*) [│┃|]$")
+
+
+_HEAD_PANES = (
+    "COORDINATOR QUESTIONS",
+    "OBSERVATION WINDOW",
+)  # full width, one pad cell
+
+
+def unframe(line: str) -> str:
+    """``line`` without its margin, its left and right border glyph (rounded, heavy or ASCII)
+    and one padding cell on each side; trailing spaces are removed. A top or bottom border row
+    has no body and becomes the empty string (read its title with ``title_of``). A line that is
+    not framed is returned as it is."""
+    if _TOP_ROW.match(line) or _BOTTOM_ROW.match(line):
+        return ""
+    match = _BODY_ROW.match(line)
+    return match.group(1).rstrip() if match else line
+
+
+def title_of(lines) -> list[str]:
+    """The text inset in every top border of ``lines``, in order."""
+    return [m.group(1) for ln in lines if (m := _TOP_ROW.match(ln))]
+
+
+def unframed(lines) -> list[str]:
+    """``lines`` as the plain screen read before the frames: each top border becomes its title
+    row, each body row loses its borders, each bottom border is dropped, other lines stay."""
+    out: list[str] = []
+    border_only = False  # the table pane of the ledger: no margin and no pad cell
+    for ln in lines:
+        if m := _TOP_ROW.match(ln):
+            out.append(m.group(1))
+            border_only = not ln.startswith(" ") and m.group(1) not in _HEAD_PANES
+        elif _BOTTOM_ROW.match(ln):
+            continue
+        elif border_only and ln[:1] in "│┃|" and ln[-1:] in "│┃|":
+            out.append(ln[1:-1].rstrip())
+        else:
+            out.append(unframe(ln))
+    return out
+
+
+def pane_body(lines, title: str, policy=None) -> list[str]:
+    """The unframed body rows of the frame whose top border contains ``title`` (empty when no
+    such frame is drawn): the rows between that top border and the next bottom border.
+    ``policy`` is accepted for the signature the plan names; the border patterns already match
+    the Unicode and the ASCII forms, so it changes nothing."""
+    start = next(
+        (i for i, ln in enumerate(lines) if _TOP_ROW.match(ln) and title in ln), None
+    )
+    if start is None:
+        return []
+    body: list[str] = []
+    for ln in lines[start + 1 :]:
+        if _BOTTOM_ROW.match(ln):
+            break
+        body.append(unframe(ln))
+    return body
+
+
+def split_columns(line: str, left_width: int, gap: int = 2) -> tuple[str, str]:
+    """A two-column screen row as its two panes: the first ``left_width`` cells (the margin and
+    the left pane) and what follows the ``gap``. Both parts are returned as they are drawn, so
+    each can be passed to ``unframe``. The margin of the right pane is the gap's last cell."""
+    return line[:left_width], line[left_width + gap - 1 :]
+
+
+_PANE_END = "╮╯│┓┛┃+|"
+
+
+def split_panes(lines, width: int) -> list[str]:
+    """``lines`` (framed, as drawn at ``width`` columns) with every two-column desk row split into
+    its two panes: for a run of consecutive two-column rows the left panes come first, then the
+    right panes, each with its margin, blank halves dropped. Single-column rows stay as they are.
+    The left pane is ``width - 4 - 80`` cells at 160 columns and above (question and list over
+    the evidence) and ``width - 4 - 46`` at 116 up to 159 (evidence beside the list)."""
+    if width >= 160:
+        left = width - 4 - 80
+    elif width >= 116:
+        left = width - 4 - 46
+    else:
+        return list(lines)
+    cut = 1 + left  # the margin and the left pane
+
+    def two_columns(line: str) -> bool:
+        if len(line) < cut + 2 or line[cut : cut + 2] != "  ":
+            return False
+        if line[:cut].strip():  # a left pane: its right border ends the left half
+            return line[cut - 1] in _PANE_END
+        # a blank left half (the left column is shorter): a pane border follows the gap
+        return len(line) > cut + 2 and line[cut + 2] in "╭╰│┏┗┃+|"
+
+    out: list[str] = []
+    run: list[tuple[str, str]] = []
+
+    def flush() -> None:
+        out.extend(a for a, _ in run if a.strip())
+        out.extend(b for _, b in run if b.strip())
+        run.clear()
+
+    for ln in lines:
+        if two_columns(ln):
+            run.append((ln[:cut].rstrip(), (" " + ln[cut + 2 :]).rstrip()))
+        else:
+            flush()
+            out.append(ln)
+    flush()
+    return out
+
+
+def panes_flat(lines, left_width: int | None = None, gap: int = 2) -> str:
+    """The text of every pane of a screen as one flat string, whitespace collapsed: for a screen
+    with two columns (``left_width`` given) each framed row is split into its two panes and the
+    left panes are read before the right ones; other lines are read as they are."""
+    left: list[str] = []
+    right: list[str] = []
+    for ln in lines:
+        if left_width is not None and len(ln) > left_width + gap:
+            a, b = split_columns(ln, left_width, gap)
+            if _BODY_ROW.match(a) or _TOP_ROW.match(a) or _BOTTOM_ROW.match(a):
+                left.append(unframed([a])[0] if unframed([a]) else "")
+                right.append(unframed([b])[0] if unframed([b]) else "")
+                continue
+        left.append(unframed([ln])[0] if unframed([ln]) else "")
+    return " ".join(" ".join(left + right).split())
+
+
+# -- styled-output helpers (the screen carries SGR from the colour phase on) ------------------------------
+
+_SGR = re.compile(r"\x1b\[([0-9;]*)m")
+
+
+def strip_sgr(text: str) -> str:
+    """``text`` with every SGR (colour and weight) escape sequence removed."""
+    return _SGR.sub("", text)
+
+
+def sgr_params(text: str) -> set[str]:
+    """The parameter strings of every SGR sequence in ``text`` (for example ``"1;38;2;250;178;25"``)."""
+    return set(_SGR.findall(text))

@@ -1,0 +1,43 @@
+# Reflect report (pre-execution): make install_core use the cache-safe same_content
+
+**Mode**: pre (UC-1) | **Tier reached**: 1 | **Status**: partial | **Coverage (union)**: 1.00 (5 of 5 requirements)
+**Spec**: `.dev/tasks/to-do/TASK-WF-makeInstallCoreS-20261119-013812/source.md` | **Tasklist**: `.dev/tasks/to-do/TASK-WF-makeInstallCoreS-20261119-013812/TASK-WF-makeInstallCoreS-20261119-013812.md`
+
+## Why partial
+
+The source is an unlabelled prose request, so the extractor finds zero labelled requirement IDs and five inferred ones. By protocol (Step 1B.2b, `coverage_degraded: parsed-sparse`) that forbids stopping at Tier 1 and routes to Tier 2 (two or more reviewers and an adversarial merge). Tier 2 was not run: this review is the advisory last step of plan generation for a two-task, two-file change, and nobody pinned a tier. The plan is not blocked by this; `partial` records that the required escalation was skipped. Re-run with `--depth deep` for the full ensemble.
+
+## Coverage matrix (inferred requirements, each quote-pinned to `source.md`)
+
+| id | requirement | task | result |
+|---|---|---|---|
+| INF-001 | install_core uses the fixed `install_keep.same_content` | Task 1 | mapped |
+| INF-002 | no answer from filecmp's stale cache | Task 1, Task 2 | mapped |
+| INF-003 | a test in tests/cli for install_core | Task 2 | mapped |
+| INF-004 | same-size same-mtime rewrite reported as different | Task 2 | mapped |
+| INF-005 | existing `tests/cli -k install` stay green | Task 1 | mapped |
+
+Unmapped: none. Dev density: 0.0.
+
+## Evidence
+
+- `src/superclaude/cli/install_core.py:8` — `import filecmp`; its only use is line 123 inside `_same_content` (lines 121-125), so Task 1 can remove the import.
+- `src/superclaude/cli/install_core.py:97` — `n for n in skipped if not _same_content(core_source / n, target_path / n)`; the only caller (no other reference in `src`, `tests` or `docs`).
+- `src/superclaude/cli/install_keep.py:12-15` — imports only `filecmp`, `shutil`, `datetime`, `pathlib`; no cycle with `install_core`.
+- `tests/cli/test_how_we_work_install.py:101` — `def test_skip_without_force_names_only_stale_files(tmp_path):`, the neighbour for Task 2, which uses `install_core._get_core_source() / "PRINCIPLES.md"`; the file has no `import os` (lines 1-12), which Task 2 covers with "add `import os` if the file lacks it".
+- `src/superclaude/core/PRINCIPLES.md` exists (checked with `ls`).
+
+## Findings (none blocking)
+
+- Minor: Task 1 cites bare line numbers (8, 97, 121-125) that shift as soon as its own edits start; locate by symbol. This matches a recurring plan-defect class in `docs/memory/reflect/deviation-patterns-IronClaude.md`.
+- Note: Task 2's "old comparison put back" check disables `filecmp.clear_cache` through a throwaway plugin. That is the right check for the behaviour, since Task 1 deletes `_same_content`.
+- Note: Task 2's design is sound; the first `install_core_files` call fills the stdlib cache with "identical", and the same-length rewrite with the old mtime restored keeps the cache key, so only the fix gives the right answer.
+
+## Grounding Gaps
+
+- Tier 2 (heterogeneous reviewers, adversarial merge) was required by the parse-density guard and not run (see above).
+- Not executed: nothing was run for this pre-check; all checks are reads of the repo and plan.
+
+## Recommendation
+
+Proceed with `/sc:implement` on the plan. No change to the tasklist is needed; the two minor points above are for the implementer.

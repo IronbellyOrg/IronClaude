@@ -1,0 +1,23 @@
+ORCA OBSERVER  scope=all                                                                                                                               READ ONLY
+worker-list OK 0s  questions OK 0s
+collected 3 / reported 3  no source: settled, frozen, cost
+ +- COORDINATOR QUESTIONS  one Run only: run_14cfcbd8edf2 ----------------------------------------------------------------------------------------------------+
+ | 1h  synthetic question 0                                                                                                                                   |
+ | 59m  synthetic question 1                                                                                                                                  |
+ | 59m  synthetic question 2                                                                                                                                  |
+ | 59m  synthetic question 3                                                                                                                                  |
+ | 59m  synthetic question 4                                                                                                                                  |
+ | question read: OK 0s                                                                                                                                       |
+ | seen, not resolved: 5 | closed by evidence: unavailable                                                                                                    |
+ | reasons: none in source                                                                                                                                    |
+ | bounded best effort; coverage unknown; at most 100 rows per read, not 100 questions; bursts over 100 rows between reads may be lost                        |
+ | no read marker in source: answered questions stay listed                                                                                                   |
+ | retention reset at 12:00; questions observed before this start are not retained                                                                            |
+ +------------------------------------------------------------------------------------------------------------------------------------------------------------+
+worker-reported, not questions  o alive; any other state is spelled out
+   dispatchId                                       run          workerState  status nextAction.kind  alive          evidence age
+   w-001                                            run-0        running      ACTIVE wait             o              3s
+   w-002                                            run-0        idle         ACTIVE wait             o              6s
+   w-003                                            run-0        running      ACTIVE none             o              9s
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+j/k move  Enter detail  / filter  h history  e export  q quit  shown 3/3

@@ -31,6 +31,23 @@ GLYPHS: dict[str, tuple[str, str]] = {
     "selected": ("▸", "@"),
     "truncate": (">", ">"),
     "hrule": ("─", "-"),
+    "alive": ("●", "o"),
+    "block": ("█", "#"),  # the big-digit font of the count strip
+    # Frame borders: rounded for the quiet panes, heavy for the one that asks for attention. The
+    # ASCII forms are the same for both weights. A box character is never written as a literal:
+    # ``ascii_safe`` would turn it into ``?``; always go through ``glyph()``.
+    "box_tl": ("╭", "+"),
+    "box_tr": ("╮", "+"),
+    "box_bl": ("╰", "+"),
+    "box_br": ("╯", "+"),
+    "box_h": ("─", "-"),
+    "box_v": ("│", "|"),
+    "hbox_tl": ("┏", "+"),
+    "hbox_tr": ("┓", "+"),
+    "hbox_bl": ("┗", "+"),
+    "hbox_br": ("┛", "+"),
+    "hbox_h": ("━", "-"),
+    "hbox_v": ("┃", "|"),
 }
 
 
@@ -41,6 +58,8 @@ class TerminalPolicy:
     no_color: bool
     ascii: bool
     width_class: str  # "full" | "line" | "short" | "narrow"
+    # Colour depth for the console: None (no colour), "standard" (16), "256" or "truecolor".
+    color_system: str | None = "standard"
 
     @property
     def too_narrow(self) -> bool:
@@ -70,6 +89,18 @@ def width_class(width: int) -> str:
     return "narrow"
 
 
+def _color_system(env: Mapping[str, str], no_color: bool) -> str | None:
+    """Colour depth from the environment: none, truecolor, 256-colour or the 16-colour floor."""
+    term = env.get("TERM", "")
+    if no_color or term in ("dumb", "unknown"):
+        return None
+    if env.get("COLORTERM", "").lower() in ("truecolor", "24bit"):
+        return "truecolor"
+    if term.endswith("256color"):
+        return "256"
+    return "standard"
+
+
 def resolve_policy(
     env: Mapping[str, str],
     encoding: str | None,
@@ -89,6 +120,7 @@ def resolve_policy(
         no_color=no_color,
         ascii=use_ascii,
         width_class=width_class(width),
+        color_system=_color_system(env, no_color),
     )
 
 
@@ -118,7 +150,7 @@ def make_console(
         highlight=False,
         markup=False,
         emoji=False,
-        color_system=None if policy.no_color else "standard",
+        color_system=policy.color_system,
         no_color=policy.no_color,
         safe_box=policy.ascii,
         record=record,

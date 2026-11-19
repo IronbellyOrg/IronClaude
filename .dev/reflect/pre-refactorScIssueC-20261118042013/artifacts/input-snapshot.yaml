@@ -1,0 +1,21 @@
+input_tree_sha256: a2686fbf5faf4973c0319efc6533a0f1e6291cba1409868c71ae18b692deb258
+note: tree-hash = sha256 of the JSON of the sorted (path, sha256) pairs, computed at the Wave 5 drift guard (2026-11-18T04:41Z), after the per-file hashes below were taken at 2026-11-18T04:20:13Z. The guard re-hashed all 17 files and found no change. The file count was first written as 16 by mistake; the list has 17 rows.
+file_count: 17
+file_list:
+  - {path: .dev/tasks/to-do/TASK-WF-refactorScIssueC-20261118-041634/TASK-WF-refactorScIssueC-20261118-041634.md, sha256: 11117785a4195a32692e72d751abcbe56dcec1ba21a52a71507ca13b9d97818a}
+  - {path: .dev/tasks/to-do/TASK-WF-refactorScIssueC-20261118-041634/source.md, sha256: b9bda439b7dd3f591adcbcefda635d0695948feddaddb36bf99fdf19bb776941}
+  - {path: src/superclaude/skills/sc-issue-protocol/refs/chains.md, sha256: 729e2496c63b99c65102f169485c6be7d4b1e68ceb5a2aeefeb8161976cec016}
+  - {path: src/superclaude/skills/sc-issue-protocol/refs/claim.md, sha256: 01f3c7c715a8a7c6fa0c40df7d7aee2ea3559cf9f9b818245cd39dbc863f910c}
+  - {path: src/superclaude/skills/sc-issue-protocol/SKILL.md, sha256: 59a191b4b2a28cdb8d91a3103c01d5f754b660b2bc9c9ceef99d4527e1c54e73}
+  - {path: src/superclaude/skills/sc-issue-protocol/templates/next-steps.md, sha256: 1d6e9e19340815a0c5d4140385f7b9505d9c7e9c3aeb399c9730991d13570b51}
+  - {path: src/superclaude/commands/issue.md, sha256: ca7e172dd8cf3e54b1a50a19f95e3baa9af1a24f5622e5a385e282fb33d96155}
+  - {path: docs/user-guide/commands.md, sha256: c29e4fcb1b289bb487bbb7a8911a70ee646a59cbd5db4aa1a58573c40d6f5931}
+  - {path: docs/designs/sc-issue-claim-pipeline-flag.md, sha256: 5bfd1deefb6f1ea5b777da191768a6c4633d69e7e7f6a2e5df0fbafa2d7d6592}
+  - {path: docs/designs/sc-issue-command.md, sha256: ef0c573ea5a69be5dde0540ce261d465e6f6cfefd25ee3d3846f039561bd57d8}
+  - {path: src/superclaude/core/HOW-WE-WORK.md, sha256: 819fe4c9fbda349a96ce2d6d00556bdc502a042dd0581a41a98a748c09efa9ab}
+  - {path: plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md, sha256: 819fe4c9fbda349a96ce2d6d00556bdc502a042dd0581a41a98a748c09efa9ab}
+  - {path: tests/commands/test_issue_command.py, sha256: 921343bc13bf068a59b7ee0735051dd7b244c395a21c04fded34188019d8e243}
+  - {path: tests/skills/test_issue_protocol.py, sha256: 7f6e77f8e77b078d46ef08f5c0dffefb6c2725f699b4f001bc07ae0d56a8d9de}
+  - {path: tests/issue_watch/test_launch.py, sha256: a4d72e65b45a3e0987956253889cb4f1d2a22688f3b1a2afbdb45ca698a6f095}
+  - {path: tests/issue_watch/test_security_invariants.py, sha256: b591bac714efc918c061b95989a175e04d86e5a6e3fb51791c1a5193d75f6950}
+  - {path: src/superclaude/cli/issue_watch/launch.py, sha256: ba27b77f718fc71916a658f09501be4cc72b1a9fc877793025969237a779e20d}

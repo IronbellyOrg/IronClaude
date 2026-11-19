@@ -1,0 +1,18 @@
+{
+  "phase": "plan Phase 3 (spec Phase 2), sub-gates 2a and 2b run together after Task 16",
+  "iteration": 2,
+  "gate_dir": ".dev/tasks/to-do/TASK-WF-redesignSpec-20261118-043319/artifacts/gates/p2/iter-2",
+  "route": "text and ANSI tier (the PNG route is unavailable, see png-route.md)",
+  "widths": {
+    "160": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred, see notes.md)"}},
+    "116": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred, see notes.md); reviewer marked it out of scope"}},
+    "80": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred, see notes.md); reviewer marked it out of scope"}}
+  },
+  "in_scope_rows": ["RB-01", "RB-05", "RB-06", "RB-07", "RB-08", "RB-09", "RB-10", "RB-11", "RB-12", "RB-13", "RB-15", "RB-20", "RB-21", "RB-22", "RB-23", "RB-24", "RB-25", "RB-26", "RB-27", "RB-28", "RB-29"],
+  "script_rows": "artifacts/gates/p2/iter-2/checks.json: every row passes except RB-22",
+  "iteration_1": {
+    "failed": {"116": ["RB-24", "RB-29"], "80": ["RB-24", "RB-28", "RB-29"], "160": []},
+    "fixes": "80 column liveness dot and legend, id and status columns sized to the widest value, script rows for RB-24/25/26/28, reviewer scope note for RB-29"
+  },
+  "result": "PASS for every in-scope High and Medium row; RB-22 (Low) failing and deferred"
+}

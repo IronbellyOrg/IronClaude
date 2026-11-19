@@ -1,0 +1,42 @@
+{
+ "height": 48,
+ "screens": {
+  "desk": {
+   "depths": {
+    "16": "16",
+    "256": "not-available-before-P1",
+    "truecolor": "not-available-before-P1"
+   },
+   "lines": 33,
+   "widest_cell": 160
+  },
+  "desk-planask": {
+   "depths": {
+    "16": "16",
+    "256": "not-available-before-P1",
+    "truecolor": "not-available-before-P1"
+   },
+   "lines": 34,
+   "widest_cell": 160
+  },
+  "ledger": {
+   "depths": {
+    "16": "16",
+    "256": "not-available-before-P1",
+    "truecolor": "not-available-before-P1"
+   },
+   "lines": 48,
+   "widest_cell": 160
+  },
+  "questions": {
+   "depths": {
+    "16": "16",
+    "256": "not-available-before-P1",
+    "truecolor": "not-available-before-P1"
+   },
+   "lines": 23,
+   "widest_cell": 160
+  }
+ },
+ "width": 160
+}

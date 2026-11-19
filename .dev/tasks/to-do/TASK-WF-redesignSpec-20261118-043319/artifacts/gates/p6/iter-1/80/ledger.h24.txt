@@ -1,0 +1,24 @@
+ORCA OBSERVER  SYNTHETIC FIXTURE base, not Orca data  scope=all        READ ONLY
+┏━ COORDINATOR QUESTIONS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Human questions: source UNVERIFIED, 0 rows interpreted, not "no questions"   ┃
+┃ 26 historical hidden (h)                                                     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+╭─ OBSERVATION WINDOW ─────────────────────────────────────────────────────────╮
+│ worker-list OK 0s  messages UNVERIFIED (not read)                            │
+│ collected 80 / reported 80  no source: settled, frozen, cost                 │
+│ source counts: active 54 / reclaimable 0 / retained 13 / released 13         │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ worker-reported, not questions ─────────────────────────────────────────────╮
+│● alive; any other state is spelled out                                       │
+│   kind           dispatchId                  alive status              age   │
+│   none           w-001                       ●     ACTIVE              10s   │
+│   review         w-002                       ●     blocked/active/none 13s   │
+│   approve        w-005                       ●     ACTIVE              22s   │
+│   wait           w-006                       ●     ACTIVE              25s   │
+│   none           w-007                       ●     ACTIVE              28s   │
+│   review         w-008                       ●     blocked/active/none 31s   │
+│   none           w-011                       ●     ACTIVE              40s   │
+│   wait           w-012                       ●     ACTIVE              43s   │
+╰──────────────────────────────────────────────────────────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────
+j/k move  Enter detail  / filter  h history  e export  q quit  shown 8/54

@@ -1,0 +1,42 @@
+[1;96mORCA OBSERVER  SYNTHETIC FIXTURE base, not Orca data  scope=all[0m        [1;93mREAD ONLY[0m
+[37mworker-list OK 0s  messages UNVERIFIED (not read)[0m
+[97mcollected 80 / reported 80[0m  [37mno source: settled, frozen, cost[0m
+[97msource counts: active 54 / reclaimable 0 / retained 13 / released 13[0m
+[37mHuman questions: source UNVERIFIED, 0 rows interpreted, not "no questions"[0m
+[37m26 historical hidden (h)[0m
+[1;90mworker-reported, not questions[0m[37m  o alive; any other state is spelled out[0m
+[37m   kind           dispatchId                    alive status              age[0m
+[97m  [0m [97mnone[0m           [97mw-001[0m                         [32mo[0m     [32mACTIVE[0m              [97m10s[0m
+[97m  [0m [97mreview[0m         [97mw-002[0m                         [32mo[0m     [97mblocked/active/none[0m [97m13s[0m
+[97m  [0m [97mapprove[0m        [97mw-005[0m                         [32mo[0m     [32mACTIVE[0m              [97m22s[0m
+[97m  [0m [97mwait[0m           [97mw-006[0m                         [32mo[0m     [32mACTIVE[0m              [97m25s[0m
+[97m  [0m [97mnone[0m           [97mw-007[0m                         [32mo[0m     [32mACTIVE[0m              [97m28s[0m
+[97m  [0m [97mreview[0m         [97mw-008[0m                         [32mo[0m     [97mblocked/active/none[0m [97m31s[0m
+[97m  [0m [97mnone[0m           [97mw-011[0m                         [32mo[0m     [32mACTIVE[0m              [97m40s[0m
+[97m  [0m [97mwait[0m           [97mw-012[0m                         [32mo[0m     [32mACTIVE[0m              [97m43s[0m
+[97m  [0m [97mnone[0m           [97mw-013[0m                         [32mo[0m     [32mACTIVE[0m              [97m46s[0m
+[97m  [0m [97mreview[0m         [97mw-014[0m                         [32mo[0m     [97mblocked/active/none[0m [97m49s[0m
+[97m  [0m [97mnone[0m           [97mw-017[0m                         [32mo[0m     [32mACTIVE[0m              [97m58s[0m
+[97m  [0m [97mwait[0m           [97mw-018[0m                         [32mo[0m     [32mACTIVE[0m              [97m1m[0m
+[97m  [0m [97mnone[0m           [97mw-019[0m                         [32mo[0m     [32mACTIVE[0m              [97m1m[0m
+[97m  [0m [97mreview[0m         [97mw-020[0m                         [32mo[0m     [97mblocked/active/none[0m [97m1m[0m
+[97m  [0m [97mnone[0m           [97mw-023[0m                         [32mo[0m     [32mACTIVE[0m              [97m1m[0m
+[97m  [0m [97mwait[0m           [97mw-024[0m                         [32mo[0m     [32mACTIVE[0m              [97m1m[0m
+[97m  [0m [97mnone[0m           [97mw-025[0m                         [32mo[0m     [32mACTIVE[0m              [97m1m[0m
+[97m  [0m [97mreview[0m         [97mw-026[0m                         [32mo[0m     [97mblocked/active/none[0m [97m1m[0m
+[97m  [0m [97mnone[0m           [97mw-029[0m                         [32mo[0m     [32mACTIVE[0m              [97m1m[0m
+[97m  [0m [97mwait[0m           [97mw-030[0m                         [32mo[0m     [32mACTIVE[0m              [97m1m[0m
+[97m  [0m [97mnone[0m           [97mw-031[0m                         [32mo[0m     [32mACTIVE[0m              [97m1m[0m
+[97m  [0m [97mreview[0m         [97mw-032[0m                         [32mo[0m     [97mblocked/active/none[0m [97m1m[0m
+[97m  [0m [97mnone[0m           [97mw-035[0m                         [32mo[0m     [32mACTIVE[0m              [97m1m[0m
+[97m  [0m [97mwait[0m           [97mw-036[0m                         [32mo[0m     [32mACTIVE[0m              [97m1m[0m
+[97m  [0m [97mnone[0m           [97mw-037[0m                         [32mo[0m     [32mACTIVE[0m              [97m1m[0m
+[97m  [0m [97mreview[0m         [97mw-038[0m                         [32mo[0m     [97mblocked/active/none[0m [97m2m[0m
+[97m  [0m [97mnone[0m           [97mw-041[0m                         [32mo[0m     [32mACTIVE[0m              [97m2m[0m
+[97m  [0m [97mwait[0m           [97mw-042[0m                         [32mo[0m     [32mACTIVE[0m              [97m2m[0m
+[97m  [0m [97mnone[0m           [97mw-043[0m                         [32mo[0m     [32mACTIVE[0m              [97m2m[0m
+[97m  [0m [97mreview[0m         [97mw-044[0m                         [32mo[0m     [97mblocked/active/none[0m [97m2m[0m
+[97m  [0m [97mnone[0m           [97mw-047[0m                         [32mo[0m     [32mACTIVE[0m              [97m2m[0m
+[97m  [0m [97mwait[0m           [97mw-048[0m                         [32mo[0m     [32mACTIVE[0m              [97m2m[0m
+[90m--------------------------------------------------------------------------------[0m
+[37mj/k move  Enter detail  / filter  h history  e export  q quit  shown 32/54[0m

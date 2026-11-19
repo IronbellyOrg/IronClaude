@@ -39,6 +39,8 @@ ccsession records who chose each session's name (`human` or `agent`):
   automatic name as `agent` (a dry run without `--apply`).
 - `ccsession --prune [--apply] [--days N]` deletes agent sessions not changed in
   more than N days (30 by default, never fewer); a dry run without `--apply`.
+  `--apply` lists what it will delete and asks you to type the number; with no
+  terminal it refuses unless `--yes` is given.
 
 See `~/.claude/skills/ccsession-tag/README.md` for install, names, Orca and
 tiers.
