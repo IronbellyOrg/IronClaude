@@ -23,6 +23,7 @@ To check that the script itself turns a failing step into a red result (it touch
 ```bash
 bash docs/testing/v6.1.0/c-e2e-run.sh --selftest-red; echo "exit=$?"               # RESULT: RED, exit 1
 bash docs/testing/v6.1.0/c-e2e-run.sh --selftest-expected-nonzero; echo "exit=$?"  # RESULT: GREEN, exit 0
+bash docs/testing/v6.1.0/c-e2e-run.sh --selftest-realstate; echo "exit=$?"         # fake HOME: every one-byte change must change the real-home fingerprint; GREEN, exit 0
 ```
 
 The script never touches the real `~/.claude`, `~/.local`, `~/.codegraph` or pipx, and it deletes nothing: it prints the throwaway root (`ROOT=/tmp/ic6-e2e.<random>`) for you to remove by hand.

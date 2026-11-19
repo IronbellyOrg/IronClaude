@@ -20,6 +20,8 @@
 # Negative check of the harness itself (touches nothing, needs no network; a failing step must give RED, exit 1):
 #         bash docs/testing/v6.1.0/c-e2e-run.sh --selftest-red
 #         bash docs/testing/v6.1.0/c-e2e-run.sh --selftest-expected-nonzero    (a step meant to fail must give GREEN, exit 0)
+# Self-test of the real-home fingerprint (fake HOME; each covered file changed by one byte must change it):
+#         bash docs/testing/v6.1.0/c-e2e-run.sh --selftest-realstate           (GREEN, exit 0 when every change is noticed)
 
 # A variable left over in the caller's shell must not hide a failing step.
 unset NOTRACK EXPECT_RC
@@ -47,8 +49,54 @@ verdict() {
   echo "RESULT: GREEN"; exit 0
 }
 
+real_state() {  # read-only fingerprint of the real home areas the task forbids touching (names, sizes AND file contents)
+  # ~/.claude.json is hashed only in its mcpServers part (the Claude Code session that runs this script rewrites the rest
+  # all the time: history, statistics); every other file below is hashed whole, settings.json included.
+  echo "claude commands/agents/skills/hooks/rules/output-styles/templates (every file, name and content): $(find "$HOME/.claude/commands/sc" "$HOME/.claude/agents" "$HOME/.claude/skills" "$HOME/.claude/hooks" "$HOME/.claude/rules" "$HOME/.claude/output-styles" "$HOME/.claude/templates" -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | cut -c1-16)"
+  echo "claude top-level files (~/.claude/*.md, settings.json, ccsession.env, content): $(find "$HOME/.claude" -maxdepth 1 -type f \( -name '*.md' -o -name 'settings.json' -o -name 'ccsession.env' \) -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | cut -c1-16)"
+  echo "claude.json mcpServers: $(jq -S '.mcpServers' "$HOME/.claude.json" 2>/dev/null | sha256sum | cut -c1-16)"
+  echo "claude plugin catalog (~/.claude/ironclaude-marketplace, every file, content): $(find "$HOME/.claude/ironclaude-marketplace" -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | cut -c1-16)"
+  echo "codegraph versions: $(ls "$HOME/.codegraph/versions" 2>/dev/null | tr '\n' ' ')"
+  echo "local bin (files by content, links by target): $( { find "$HOME/.local/bin" -maxdepth 1 -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null; find "$HOME/.local/bin" -maxdepth 1 -type l -printf '%f -> %l\n' 2>/dev/null | sort; } | sha256sum | cut -c1-16)"
+  echo "pipx: $(pipx list --short 2>/dev/null | tr '\n' ' ')"
+}
+
+# Harness self-test of the real-home fingerprint: builds a fake HOME, changes ONE covered file at a time by one byte
+# (same size, same modification time, so only the content differs) and requires the fingerprint to change each time;
+# it also requires the documented exemption (the non-mcpServers part of ~/.claude.json) to leave it unchanged.
+selftest_realstate() {
+  local T H base now f ref
+  T=$(mktemp -d /tmp/ic6-e2e-selftest.XXXXXXXX) || { echo "FATAL: mktemp failed" >&2; exit 1; }
+  echo "SELFTEST ROOT=$T (not deleted; remove it with a literal path)"
+  export HOME="$T/fakehome"; H=$HOME   # real_state reads $HOME: from here on it looks at the fake one, never the real one
+  mkdir -p "$H/.claude"/{commands/sc,agents,skills/x,hooks,rules,output-styles,templates,ironclaude-marketplace} "$H/.local/bin" "$H/.codegraph/versions/v1"
+  for f in .claude/commands/sc/a.md .claude/agents/a.md .claude/skills/x/SKILL.md .claude/hooks/h.sh .claude/rules/r.md \
+           .claude/output-styles/o.md .claude/templates/t.md .claude/ironclaude-marketplace/m.json .claude/CLAUDE.md \
+           .claude/settings.json .claude/ccsession.env .local/bin/tool; do printf 'a\n' > "$H/$f"; done
+  ln -s tool "$H/.local/bin/link"
+  printf '{"mcpServers":{"a":1},"history":1}\n' > "$H/.claude.json"
+  base=$(real_state); echo "$base" | sed 's/^/base: /'
+  for f in .claude/commands/sc/a.md .claude/agents/a.md .claude/skills/x/SKILL.md .claude/hooks/h.sh .claude/rules/r.md \
+           .claude/output-styles/o.md .claude/templates/t.md .claude/ironclaude-marketplace/m.json .claude/CLAUDE.md \
+           .claude/settings.json .claude/ccsession.env .local/bin/tool; do
+    ref="$T/ref"; touch -r "$H/$f" "$ref"; printf 'b\n' > "$H/$f"; touch -r "$ref" "$H/$f"   # one byte, same size and time
+    now=$(real_state); if [ "$now" = "$base" ]; then FAILS="$FAILS selftest_unnoticed_change($f)"; echo "NOT NOTICED: $f"; else echo "noticed: $f"; fi
+    printf 'a\n' > "$H/$f"; touch -r "$ref" "$H/$f"
+  done
+  printf '{"mcpServers":{"a":2},"history":1}\n' > "$H/.claude.json"
+  now=$(real_state); if [ "$now" = "$base" ]; then FAILS="$FAILS selftest_unnoticed_change(.claude.json mcpServers)"; echo "NOT NOTICED: .claude.json mcpServers"; else echo "noticed: .claude.json mcpServers"; fi
+  printf '{"mcpServers":{"a":1},"history":2}\n' > "$H/.claude.json"
+  now=$(real_state); if [ "$now" != "$base" ]; then FAILS="$FAILS selftest_exempt_part_changed_fingerprint"; echo "UNEXPECTED: history change moved the fingerprint"; else echo "exempt (as documented): .claude.json history"; fi
+  ln -sfn other "$H/.local/bin/link"
+  now=$(real_state); if [ "$now" = "$base" ]; then FAILS="$FAILS selftest_unnoticed_change(link target)"; echo "NOT NOTICED: link target"; else echo "noticed: link target"; fi
+  ln -sfn tool "$H/.local/bin/link"; mkdir "$H/.codegraph/versions/v2"
+  now=$(real_state); if [ "$now" = "$base" ]; then FAILS="$FAILS selftest_unnoticed_change(codegraph version)"; echo "NOT NOTICED: codegraph version"; else echo "noticed: codegraph version"; fi
+  verdict
+}
+
 # Harness self-test: runs only `run` and the verdict, in a throwaway folder; no pipx, no network, no claude.
 case "${1:-}" in
+  --selftest-realstate) selftest_realstate ;;
   --selftest-red|--selftest-expected-nonzero)
     T=$(mktemp -d /tmp/ic6-e2e-selftest.XXXXXXXX) || { echo "FATAL: mktemp failed" >&2; exit 1; }
     mkdir -p "$T/home" "$T/shims"; echo "SELFTEST ROOT=$T (not deleted; remove it with a literal path)"
@@ -99,17 +147,6 @@ mkenv() {  # $1 = scenario dir
   ln -s "$CLAUDE_BIN" "$E/shims/claude"; ln -s "$NODE_BIN" "$E/shims/node"; ln -s "$UV_BIN" "$E/shims/uv"
   ln -s "$GIT_BIN" "$E/shims/git"; ln -s "$PIPX_BIN" "$E/shims/pipx"; ln -s "$MAKE_BIN" "$E/shims/make"
   for s in codegraph orca orca-ide; do printf '#!/bin/sh\nexit 127\n' > "$E/shims/$s"; chmod +x "$E/shims/$s"; done
-}
-real_state() {  # read-only fingerprint of the real home areas the task forbids touching (names, sizes AND file contents)
-  # ~/.claude.json is hashed only in its mcpServers part (the Claude Code session that runs this script rewrites the rest
-  # all the time: history, statistics); every other file below is hashed whole, settings.json included.
-  echo "claude commands/agents/skills/hooks/rules/output-styles/templates (every file, name and content): $(find "$HOME/.claude/commands/sc" "$HOME/.claude/agents" "$HOME/.claude/skills" "$HOME/.claude/hooks" "$HOME/.claude/rules" "$HOME/.claude/output-styles" "$HOME/.claude/templates" -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | cut -c1-16)"
-  echo "claude top-level files (~/.claude/*.md, settings.json, ccsession.env, content): $(find "$HOME/.claude" -maxdepth 1 -type f \( -name '*.md' -o -name 'settings.json' -o -name 'ccsession.env' \) -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | cut -c1-16)"
-  echo "claude.json mcpServers: $(jq -S '.mcpServers' "$HOME/.claude.json" 2>/dev/null | sha256sum | cut -c1-16)"
-  echo "claude plugin catalog (~/.claude/ironclaude-marketplace, every file, content): $(find "$HOME/.claude/ironclaude-marketplace" -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | cut -c1-16)"
-  echo "codegraph versions: $(ls "$HOME/.codegraph/versions" 2>/dev/null | tr '\n' ' ')"
-  echo "local bin (files by content, links by target): $( { find "$HOME/.local/bin" -maxdepth 1 -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null; find "$HOME/.local/bin" -maxdepth 1 -type l -printf '%f -> %l\n' 2>/dev/null | sort; } | sha256sum | cut -c1-16)"
-  echo "pipx: $(pipx list --short 2>/dev/null | tr '\n' ' ')"
 }
 nobak() { grep -vc '\.bak\.' ; }  # count lines that are not saved copies
 cnt() {  # $1 = scenario dir, $2 = commands/sc | agents | skills : how many installed entries (saved copies excluded)
