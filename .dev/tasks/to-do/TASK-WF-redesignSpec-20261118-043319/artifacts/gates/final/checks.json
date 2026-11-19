@@ -1,0 +1,156 @@
+{
+ "RB-01": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-04": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-05": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-06": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-07": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-08": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-09": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-10": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-13": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-14": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-16": {
+  "cases": {
+   "roles": {
+    "evidence": [
+     "needs role spans (plan Phase 2 and Phase 5); checked then"
+    ],
+    "status": "na"
+   }
+  },
+  "status": "na"
+ },
+ "RB-17": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-19": {
+  "cases": {
+   "desk-planask@116": {
+    "evidence": [
+     "replaced by RB-27 (spec step 2.12): the hash is not shown"
+    ],
+    "status": "na"
+   },
+   "desk-planask@160": {
+    "evidence": [
+     "replaced by RB-27 (spec step 2.12): the hash is not shown"
+    ],
+    "status": "na"
+   },
+   "desk-planask@80": {
+    "evidence": [
+     "replaced by RB-27 (spec step 2.12): the hash is not shown"
+    ],
+    "status": "na"
+   }
+  },
+  "status": "na"
+ },
+ "RB-20": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-21": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-22": {
+  "cases": {
+   "ledger": {
+    "evidence": [
+     "116 cols: blank run 44 > N=18",
+     "80 cols: blank run 23 > N=18"
+    ],
+    "status": "fail"
+   }
+  },
+  "status": "fail"
+ },
+ "RB-24": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-25": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-26": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-27": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ },
+ "RB-28": {
+  "cases": {
+   "all": "pass"
+  },
+  "status": "pass"
+ }
+}

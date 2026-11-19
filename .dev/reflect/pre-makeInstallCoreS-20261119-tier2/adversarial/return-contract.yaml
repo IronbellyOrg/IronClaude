@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-makeInstallCoreS-20261119-tier2/merged-reflection-card.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/reflect/pre-makeInstallCoreS-20261119-tier2/adversarial"
+  status: "success"
+  base_variant: "opus-class alias:analyzer (variant 1)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

@@ -1,0 +1,18 @@
+{
+  "phase": "plan Phase 4 (spec Phase 3): frame primitive and single-column titled panes",
+  "iteration": 2,
+  "gate_dir": ".dev/tasks/to-do/TASK-WF-redesignSpec-20261118-043319/artifacts/gates/p3/iter-2",
+  "route": "text and ANSI tier (the PNG route is unavailable, see ../../png-route.md)",
+  "passes_present": {"no_color": true, "ascii": "borders are + - | with no ? on a border"},
+  "widths": {
+    "160": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred)"}},
+    "116": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred)"}},
+    "80": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred)"}}
+  },
+  "in_scope_rows": ["RB-01", "RB-02", "RB-05", "RB-06", "RB-07", "RB-08", "RB-09", "RB-10", "RB-11", "RB-12", "RB-13", "RB-15", "RB-17", "RB-20", "RB-21", "RB-22", "RB-23", "RB-24", "RB-25", "RB-26", "RB-27", "RB-28", "RB-29"],
+  "scorecards": ".dev/tasks/to-do/TASK-WF-redesignSpec-20261118-043319/artifacts/gates/p3/iter-2/reviewer-outputs/summary.md",
+  "script_rows": "artifacts/gates/p3/iter-2/checks.json: every row passes except RB-22",
+  "iteration_1": {"failed": {"160": ["RB-29"], "116": [], "80": []}, "fix": "question rows lead the list pane; Run id in the frame title; state, count and reasons note under the rows"},
+  "known": {"height_8": "a diagnostic height: up to 3 rows over at 80 columns because the one-line panel summary wraps; heights 12 and up all fit"},
+  "result": "PASS for every in-scope High and Medium row; RB-22 (Low) failing and deferred"
+}

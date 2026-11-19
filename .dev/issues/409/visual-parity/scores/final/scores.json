@@ -1,0 +1,30 @@
+{
+  "phase": "final gate matrix (plan Task 29): all rubric rows RB-01 to RB-29 at 160, 116 and 80 columns",
+  "iteration": 1,
+  "gate_dir": ".dev/tasks/to-do/TASK-WF-redesignSpec-20261118-043319/artifacts/gates/final",
+  "command": "uv run python .dev/issues/409/visual-parity/tools/render_compare.py --out <gate_dir> --depth 16,256,truecolor --heights 44,40,24,12,8 --check",
+  "route": "text and ANSI tier (the PNG route is unavailable, see ../../png-route.md)",
+  "passes_present": {
+    "truecolor": true,
+    "256": true,
+    "16": true,
+    "no_color": true,
+    "ascii": "borders + - |, block figure #, alive dot o, no ? on a border"
+  },
+  "height_matrix": "h44, h40, h24, h12, h8 text files per width and screen; no screen exceeds its height at 12 and up; at height 8 the desk and ledger run 1 to 3 rows over (the forced layout, a logged diagnostic overflow accepted by the owner on 2026-11-18)",
+  "pty": "tests/observe/test_live_screen_pty.py (7 tests) passes inside the full observe suite; its last-row test runs at heights 24 and 40",
+  "widths": {
+    "160": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred)"}},
+    "116": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred)"}},
+    "80": {"failing_high_medium": [], "other": {"RB-22": "FAIL (Low, deferred)"}}
+  },
+  "deferred": {
+    "RB-22": "Low. The ledger table keeps a blank band between the dispatchId and the next column (44 cells at 160 and 116, 23 at 80, against 18 in the baseline) because the dispatchId column is sized for long identifiers. Fixing it needs a column-width rule the plan does not contain; deferred."
+  },
+  "na_rows": {
+    "RB-16": "no script row; scored by the reviewers from the ANSI at every width (PASS)",
+    "RB-19": "replaced by RB-27 (PASS at every width)"
+  },
+  "scorecards": ".dev/tasks/to-do/TASK-WF-redesignSpec-20261118-043319/artifacts/gates/final/reviewer-outputs/summary.md",
+  "status": "PASS: no High or Medium row fails at any width; the one Low row (RB-22) is deferred with a reason"
+}

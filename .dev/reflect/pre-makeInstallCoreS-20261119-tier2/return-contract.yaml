@@ -1,0 +1,44 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-606/.dev/reflect/pre-makeInstallCoreS-20261119-tier2/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-606/.dev/reflect/pre-makeInstallCoreS-20261119-tier2/audit.log
+confidence_calibrated: 0.82            # mean of the two reviewer-card calibrations (0.88, 0.75)
+escalation_rule_matched: null          # forced by --depth deep
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-606/.dev/reflect/pre-makeInstallCoreS-20261119-tier2/artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_total: 37
+citations_revalidated: 37
+citations_dropped: 0
+citations_inferred: 3
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+reviewer_cards: [reviewer-cards/reviewer-1-card.md, reviewer-cards/reviewer-2-card.md]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/issue-606/.dev/reflect/pre-makeInstallCoreS-20261119-tier2/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded         # calibrator on the sonnet class, the executor's class; disjoint from reviewers only
+remediation_offered: false
+remediation_task_path: null
+remediation_plan_path: null
+regression_present: false
+needs_human_decision: false
+promotion_action: not-applicable
+telemetry:
+  executor_class_source: unknown
+  executor_class_resolved: false
+  identity_mismatch_suspected: true    # reviewer 2 self-reported "GPT-5" under the haiku alias
+  reviewer_models: [claude-gw-tier1a, claude-gw-tier2]
+  reviewer_personas: [analyzer, qa]
+  degraded_components: [executor-class-unresolved, single-vendor, tier1-calibration-not-rerun, memory-persist-skipped, metrics-json-not-written]

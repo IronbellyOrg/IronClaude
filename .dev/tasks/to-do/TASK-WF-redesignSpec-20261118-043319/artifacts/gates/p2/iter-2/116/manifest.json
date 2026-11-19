@@ -1,0 +1,42 @@
+{
+ "height": 42,
+ "screens": {
+  "desk": {
+   "depths": {
+    "16": "16",
+    "256": "256",
+    "truecolor": "truecolor"
+   },
+   "lines": 28,
+   "widest_cell": 116
+  },
+  "desk-planask": {
+   "depths": {
+    "16": "16",
+    "256": "256",
+    "truecolor": "truecolor"
+   },
+   "lines": 29,
+   "widest_cell": 116
+  },
+  "ledger": {
+   "depths": {
+    "16": "16",
+    "256": "256",
+    "truecolor": "truecolor"
+   },
+   "lines": 42,
+   "widest_cell": 116
+  },
+  "questions": {
+   "depths": {
+    "16": "16",
+    "256": "256",
+    "truecolor": "truecolor"
+   },
+   "lines": 22,
+   "widest_cell": 116
+  }
+ },
+ "width": 116
+}

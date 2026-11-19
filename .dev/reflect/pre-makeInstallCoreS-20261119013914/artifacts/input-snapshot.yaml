@@ -1,0 +1,9 @@
+input_tree_sha256: (see file_list; tree = tasklist, spec/source, linked files depth 1)
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-makeInstallCoreS-20261119-013812/TASK-WF-makeInstallCoreS-20261119-013812.md
+    sha256: bd1c152e9440c0ef7a597dbbe1bafe5f2cf929f0a465939af8eae83ecca770b1
+  - path: .dev/tasks/to-do/TASK-WF-makeInstallCoreS-20261119-013812/source.md
+    sha256: 0abe4a9dd8921608279ba15d5261f75ac05169056dc48dfacd9dfb6cc4c9c979
+  - path: .dev/troubleshoot/test-same-content-20261119/REPORT.md
+    sha256: 24a9edb3f9e5951dea1d809c95907c880103774ef399ca9cdd382cecc2f95cfc
+file_count: 3

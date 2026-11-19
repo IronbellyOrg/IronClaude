@@ -1,0 +1,10 @@
+selected_tier: 2
+fired_rule_number: null          # forced by --depth deep (section 5.1 hard override), no rubric rule evaluated
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: null            # not computed (forced tier)
+per_signal_breakdown: null
+escalation_reason: "forced_by_depth_deep; first run also required Tier 2 (rule 6, C 0.79 < 0.85, and the parse-density guard)"
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null

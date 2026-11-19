@@ -20,7 +20,7 @@ from superclaude.cli.observe.export import record_text, snapshot_json
 from superclaude.cli.observe.render import render, screen_lines
 from superclaude.cli.observe.terminal import make_console, resolve_policy
 from superclaude.cli.observe.view import Session, build_view
-from tests.observe.conftest import FakeClock
+from tests.observe.conftest import FakeClock, strip_sgr
 
 VARIANTS = ("base", "empty", "source-loss", "injection", "missing-fields")
 WIDTHS = (160, 116, 80)
@@ -32,10 +32,12 @@ def _policy(width: int, height: int):
 
 
 def _printed(view, policy) -> str:
+    """The printed text with SGR removed: release 1 wrote none, so the strip changes nothing
+    there, and a golden never holds styled bytes."""
     buffer = io.StringIO()
     console: Console = make_console(policy, file=buffer, record=True)
     console.print(render(view, policy))
-    return buffer.getvalue()
+    return strip_sgr(buffer.getvalue())
 
 
 def surface() -> dict:

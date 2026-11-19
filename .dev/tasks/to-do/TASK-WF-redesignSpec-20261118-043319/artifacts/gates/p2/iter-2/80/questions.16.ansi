@@ -1,0 +1,22 @@
+[1;96mORCA OBSERVER  scope=all[0m                                               [1;93mREAD ONLY[0m
+[37mworker-list OK 0s  questions OK 0s[0m
+[97mcollected 3 / reported 3[0m  [37mno source: settled, frozen, cost[0m
+[1;93mCOORDINATOR QUESTIONS[0m[37m  one Run only: run_14cfcbd8edf2  reasons: none in source[0m
+[37mquestion read: OK 0s[0m
+[97mseen, not resolved: 5 | closed by evidence: [0m[37munavailable[0m
+[1;93m1h[0m[1;97m  synthetic question 0[0m
+[1;93m59m[0m[1;97m  synthetic question 1[0m
+[1;93m59m[0m[1;97m  synthetic question 2[0m
+[1;93m59m[0m[1;97m  synthetic question 3[0m
+[1;93m59m[0m[1;97m  synthetic question 4[0m
+[37mbounded best effort; coverage unknown; at most 100 rows per read, not 100[0m
+[37mquestions; bursts over 100 rows between reads may be lost[0m
+[37mno read marker in source: answered questions stay listed[0m
+[37mretention reset at 12:00; questions observed before this start are not retained[0m
+[1;90mworker-reported, not questions[0m[37m  ● alive; any other state is spelled out[0m
+[37m   kind           dispatchId                                 alive status age[0m
+[97m  [0m [97mwait[0m           [97mw-001[0m                                      [32m●[0m     [32mACTIVE[0m [97m3s[0m
+[97m  [0m [97mwait[0m           [97mw-002[0m                                      [32m●[0m     [32mACTIVE[0m [97m6s[0m
+[97m  [0m [97mnone[0m           [97mw-003[0m                                      [32m●[0m     [32mACTIVE[0m [97m9s[0m
+[90m────────────────────────────────────────────────────────────────────────────────[0m
+[37mj/k move  Enter detail  / filter  h history  e export  q quit  shown 3/3[0m

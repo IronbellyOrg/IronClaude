@@ -1,0 +1,34 @@
+ORCA OBSERVER  mode=live  scope=all  as of 12:00:00
+worker-list OK 0s  coordinator questions OK 0s (one Run run_14cfcbd8edf2)
+collected 3 / reported 3  scope=all  source counts: unknown  runs seen: 1  SETTLED unavailable (no source)
+POLICY FROZEN unavailable (no source)  cost unavailable
+COORDINATOR QUESTIONS
+one Run only: run_14cfcbd8edf2
+question read: OK 0s
+bounded best effort; coverage unknown; at most 100 rows per read, not 100 questions; bursts over 100 rows between
+reads may be lost
+seen, not resolved: 2 | closed by evidence: unavailable (no source)
+no read marker in source: answered questions stay listed
+  1h  Which branch should the worker rebase on?  reason unknown
+@ 59m  Ship the change now?  reason unknown
+DECISION DESK
+msg_000000000001  age 59m
+Ship the change now?
+dispatchId: w-002
+workerState: idle
+dispatchStatus: active
+terminalState: active
+outcome: none
+nextAction.kind: wait
+liveness: alive (terminal)
+evidence age: 6s
+resource.worktreeId: unknown (absent in source)
+worktree is evidence for this one session; other sessions in it are not inferred affected
+retention reset at 12:00; questions observed before this start are not retained
+worker-reported, not questions
+   wait               w-001                                                alive          3s
+   wait               w-002                                                alive          6s
+   none               w-003                                                alive          9s
+Up/Down j/k move workers  Enter detail  Esc back  / filter  h historical  m mark rows  e export all  q quit  n/p
+question
+shown 3/3 | collected 3 / reported 3

@@ -1,0 +1,23 @@
+[1;38;2;112;205;226mORCA OBSERVER  mode=live  scope=all  as of 12:00:00[0m
+[38;2;165;182;194mworker-list OK 0s  coordinator questions OK 0s (one Run run_14cfcbd8edf2)[0m
+[38;2;225;233;238mcollected 3 / reported 3[0m  [38;2;225;233;238mscope=all[0m  [38;2;225;233;238msource counts: [0m[38;2;165;182;194munknown[0m  [38;2;225;233;238mruns seen: 1[0m  [38;2;225;233;238mSETTLED [0m[38;2;165;182;194munavailable (no source)[0m  [38;2;225;233;238mPOLICY FROZEN [0m[38;2;165;182;194munavailable (no source)[0m
+[38;2;225;233;238mcost [0m[38;2;165;182;194munavailable[0m
+[1;38;2;250;178;25mCOORDINATOR QUESTIONS[0m
+[38;2;165;182;194mone Run only: run_14cfcbd8edf2[0m
+[38;2;165;182;194mquestion read: OK 0s[0m
+[38;2;165;182;194mbounded best effort; coverage unknown; at most 100 rows per read, not 100 questions; bursts over 100 rows between reads may be lost[0m
+[38;2;225;233;238mseen, not resolved: 5 | closed by evidence: unavailable (no source)[0m
+[38;2;165;182;194mno read marker in source: answered questions stay listed[0m
+[1;38;2;250;178;25m1h[0m[1;38;2;225;233;238m  synthetic question 0[0m[38;2;165;182;194m  reason unknown[0m
+[1;38;2;250;178;25m59m[0m[1;38;2;225;233;238m  synthetic question 1[0m[38;2;165;182;194m  reason unknown[0m
+[1;38;2;250;178;25m59m[0m[1;38;2;225;233;238m  synthetic question 2[0m[38;2;165;182;194m  reason unknown[0m
+[1;38;2;250;178;25m59m[0m[1;38;2;225;233;238m  synthetic question 3[0m[38;2;165;182;194m  reason unknown[0m
+[1;38;2;250;178;25m59m[0m[1;38;2;225;233;238m  synthetic question 4[0m[38;2;165;182;194m  reason unknown[0m
+[38;2;165;182;194mretention reset at 12:00; questions observed before this start are not retained[0m
+[1;38;2;82;108;128mworker-reported, not questions[0m
+[38;2;165;182;194m   dispatchId             run          workerState  dispatchStatus terminalState  outcome      nextAction.kind  liveness               evidence age flags[0m
+[38;2;82;108;128m── ────────────────────── ──────────── ──────────── ────────────── ────────────── ──────────── ──────────────── ────────────────────── ──────────── ────────────[0m
+[38;2;225;233;238m  [0m [38;2;225;233;238mw-001[0m                  [38;2;225;233;238mrun-0[0m        [38;2;139;215;175mrunning[0m      [38;2;225;233;238mactive[0m         [38;2;225;233;238mactive[0m         [38;2;225;233;238mnone[0m         [38;2;225;233;238mwait[0m             [38;2;139;215;175malive[0m[38;2;225;233;238m (terminal)[0m       [38;2;225;233;238m3s[0m
+[38;2;225;233;238m  [0m [38;2;225;233;238mw-002[0m                  [38;2;225;233;238mrun-0[0m        [38;2;225;233;238midle[0m         [38;2;225;233;238mactive[0m         [38;2;225;233;238mactive[0m         [38;2;225;233;238mnone[0m         [38;2;225;233;238mwait[0m             [38;2;139;215;175malive[0m[38;2;225;233;238m (terminal)[0m       [38;2;225;233;238m6s[0m
+[38;2;225;233;238m  [0m [38;2;225;233;238mw-003[0m                  [38;2;225;233;238mrun-0[0m        [38;2;139;215;175mrunning[0m      [38;2;225;233;238mactive[0m         [38;2;225;233;238mactive[0m         [38;2;225;233;238mnone[0m         [38;2;225;233;238mnone[0m             [38;2;139;215;175malive[0m[38;2;225;233;238m (terminal)[0m       [38;2;225;233;238m9s[0m
+[38;2;165;182;194mUp/Down j/k move workers  Enter detail  Esc back  / filter  h historical  m mark rows  e export all  q quit  shown 3/3 | collected 3 / reported 3[0m

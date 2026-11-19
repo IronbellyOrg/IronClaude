@@ -1,0 +1,4 @@
+31ce0f340734e21fcb37d6767b67487662ee49f0
+A1 r1-1 F1.2 note tests/observe/test_render.py:1988 ac=T21.AC1 amiss:n,false:n,harm:n,constraint:n only the no-desk trigger heights are pinned by a test; the with-desk heights (strip from 35 and 36, RETAIN from 38 and 39) are recorded in scores/p4/scores.json
+A1 r1-1 F1.3 note .dev/tasks/to-do/TASK-WF-redesignSpec-20261118-043319/artifacts/gates/p4/iter-2/reviewer-outputs/summary.md:1 ac=T21.AC2 amiss:n,false:n,harm:n,constraint:n the stacked-layout and invented-content check had no scorecard row; a closing paragraph was added and the grep over the renders is empty
+A1 r1-1 F1.1 note tests/observe/conftest.py:409 ac=scope amiss:n,false:n,harm:n,constraint:n pane_body now takes the policy argument the plan names (it changes nothing); the phrase checks mostly read through unframed

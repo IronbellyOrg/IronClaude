@@ -1,0 +1,48 @@
+ORCA OBSERVER  SYNTHETIC FIXTURE base, not Orca data  scope=all                                                                                        READ ONLY
+worker-list OK 0s  messages UNVERIFIED (not read)
+collected 80 / reported 80  no source: settled, frozen, cost  source counts: active 54 / reclaimable 0 / retained 13 / released 13
+Human questions: source UNVERIFIED, 0 rows interpreted, not "no questions"  26 historical hidden (h)
+worker-reported, not questions  o alive; any other state is spelled out
+   dispatchId                                       run          workerState  status              nextAction.kind  alive          evidence age
+   w-001                                            run-b        idle         ACTIVE              none             o              10s
+   w-002                                            run-c        blocked      blocked/active/none review           o              13s
+   w-005                                            run-f        running      ACTIVE              approve          o              22s
+   w-006                                            run-g        running      ACTIVE              wait             o              25s
+   w-007                                            run-h        idle         ACTIVE              none             o              28s
+   w-008                                            run-a        blocked      blocked/active/none review           o              31s
+   w-011                                            run-d        running      ACTIVE              none             o              40s
+   w-012                                            run-e        running      ACTIVE              wait             o              43s
+   w-013                                            run-f        idle         ACTIVE              none             o              46s
+   w-014                                            run-g        blocked      blocked/active/none review           o              49s
+   w-017                                            run-b        running      ACTIVE              none             o              58s
+   w-018                                            run-c        running      ACTIVE              wait             o              1m
+   w-019                                            run-d        idle         ACTIVE              none             o              1m
+   w-020                                            run-e        blocked      blocked/active/none review           o              1m
+   w-023                                            run-h        running      ACTIVE              none             o              1m
+   w-024                                            run-a        running      ACTIVE              wait             o              1m
+   w-025                                            run-b        idle         ACTIVE              none             o              1m
+   w-026                                            run-c        blocked      blocked/active/none review           o              1m
+   w-029                                            run-f        running      ACTIVE              none             o              1m
+   w-030                                            run-g        running      ACTIVE              wait             o              1m
+   w-031                                            run-h        idle         ACTIVE              none             o              1m
+   w-032                                            run-a        blocked      blocked/active/none review           o              1m
+   w-035                                            run-d        running      ACTIVE              none             o              1m
+   w-036                                            run-e        running      ACTIVE              wait             o              1m
+   w-037                                            run-f        idle         ACTIVE              none             o              1m
+   w-038                                            run-g        blocked      blocked/active/none review           o              2m
+   w-041                                            run-b        running      ACTIVE              none             o              2m
+   w-042                                            run-c        running      ACTIVE              wait             o              2m
+   w-043                                            run-d        idle         ACTIVE              none             o              2m
+   w-044                                            run-e        blocked      blocked/active/none review           o              2m
+   w-047                                            run-h        running      ACTIVE              none             o              2m
+   w-048                                            run-a        running      ACTIVE              wait             o              2m
+   w-049                                            run-b        idle         ACTIVE              none             o              2m
+   w-050                                            run-c        blocked      blocked/active/none review           o              2m
+   w-053                                            run-f        running      ACTIVE              none             o              2m
+   w-054                                            run-g        running      ACTIVE              wait             o              2m
+   w-055                                            run-h        idle         ACTIVE              none             o              2m
+   w-056                                            run-a        blocked      blocked/active/none review           o              2m
+   w-059                                            run-d        running      ACTIVE              none             o              3m
+   w-060                                            run-e        running      ACTIVE              wait             o              3m
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+j/k move  Enter detail  / filter  h history  e export  q quit  shown 40/54
