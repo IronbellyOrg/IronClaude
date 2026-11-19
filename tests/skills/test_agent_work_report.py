@@ -3219,7 +3219,7 @@ def test_refresh_builds_the_shared_page_after_a_daily_run_closes(root, monkeypat
         daily / "report.html"
     ).read_text() == own_page  # <run>/report.html is not touched
     assert runmod.deliverable(daily) == (True, "")  # so the gate still passes
-    assert not (root / ".dev" / "coordinator" / runmod.REFRESH_SCRATCH).exists()
+    assert not list((root / ".dev" / "coordinator").glob(runmod.REFRESH_SCRATCH + "*"))
 
 
 def test_a_refreshed_entry_shows_its_own_text_and_its_session_statuses(
@@ -3506,13 +3506,26 @@ def test_an_issue_claimed_and_closed_since_the_last_daily_report_is_not_shown_li
         i["url"] for i in d["items"]
     ]  # ...so the old block is not live work
     assert any("COMPLETED" in line for line in d["closed"])
-    # ...and so is one that reconcile closes during this very refresh.
+    # ...and so is one that reconcile closes during this very refresh, even within the second the daily
+    # run started in (a close time cut to whole seconds would fall before the start and keep the old block).
+    meta = json.loads((daily / "run.json").read_text())
+    meta["started"] = "2026-11-19T10:00:00.900000+00:00"
+    (daily / "run.json").write_text(json.dumps(meta))
+    monkeypatch.setattr(
+        runmod, "now", lambda: datetime(2026, 11, 19, 10, 0, 0, 950000, timezone.utc)
+    )
     put_entry(root, "IronbellyOrg__Coder__11", held_entry(11))
     fake_gh(
         monkeypatch,
         {11: {"state": "CLOSED", "stateReason": "COMPLETED", "assignees": []}},
     )
     runmod.refresh()
+    closed_file = (
+        root / ".dev/coordinator/orchestrated/closed/IronbellyOrg__Coder__11.json"
+    )
+    assert json.loads(closed_file.read_text())["closed_at"].startswith(
+        "2026-11-19T10:00:00.95"
+    )
     assert HELD_TWO not in [i["url"] for i in refreshed_page(root)["items"]]
     # A closed entry older than the report (a reopened issue the daily run lists again) hides nothing.
     old = (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()
@@ -3571,3 +3584,34 @@ def test_a_link_that_is_not_web_or_orca_is_shown_as_text_only():
         "[a](https://github.com/x/y/issues/1) [s](orca://session/abc) [h](HTTP://x.y)"
     )
     assert good.count("<a href=") == 3
+
+
+def test_a_candidate_that_became_orchestrated_leaves_likely_yours(root, monkeypatch):
+    daily = closed_daily_run(root)
+    seven = f"{U}issues/7"
+    assert (
+        f"]({seven})" in (daily / "overview.md").read_text().split("## Likely yours")[1]
+    )
+    put_entry(root, "IronbellyOrg__Coder__7", held_entry(1, url=seven))
+    fake_gh(monkeypatch, {7: OPEN_MINE})
+    runmod.refresh()
+    d = refreshed_page(root)
+    assert d["likely"] == [] or all("issues/7" not in line for line in d["likely"])
+    assert seven in [i["url"] for i in d["items"]]
+
+
+def test_two_refreshes_never_run_at_once(root, monkeypatch):
+    import fcntl
+    import threading
+
+    put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))
+    fake_gh(monkeypatch, {1: OPEN_MINE})
+    shared = root / ".dev" / "coordinator" / "report.html"
+    with open(root / ".dev" / "coordinator" / "refresh.lock", "w") as held:
+        fcntl.flock(held, fcntl.LOCK_EX)  # another orchestrator is refreshing
+        t = threading.Thread(target=runmod.refresh)
+        t.start()
+        t.join(0.5)
+        assert t.is_alive() and not shared.exists()  # it waits its turn
+    t.join(10)
+    assert not t.is_alive() and shared.exists()

@@ -30,6 +30,7 @@ import json
 import re
 import shutil
 import sys
+import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -596,7 +597,19 @@ def drop_blocks(body, split, held):
 def refresh(run=None):
     """Build the shared page from the last daily report plus the entry files. With `run` (called at the end of
     Step 12, while that run holds the lock) it builds from that run's `overview.md`; without it, from the last
-    completed daily run, and it does nothing while a daily run holds the lock."""
+    completed daily run, and it does nothing while a daily run holds the lock.
+
+    Several orchestrators call this at their own milestones, so one refresh runs at a time (an exclusive lock on
+    `.dev/coordinator/refresh.lock`, held until it ends): two builds would otherwise move the same entry twice
+    and write the shared page over each other."""
+    import fcntl
+
+    with open(state_dir() / "refresh.lock", "w") as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        return _refresh(run)
+
+
+def _refresh(run=None):
     import page
     import render
 
@@ -662,6 +675,16 @@ def refresh(run=None):
         text = replace_section(
             text, heading, lambda b: drop_blocks(b, r"(?m)^(?=#{3,4} )", held)
         )
+    # A candidate that has since become orchestrated is no longer a candidate: its "Likely yours" line goes too.
+    text = replace_section(
+        text,
+        "Likely yours",
+        lambda b: "".join(
+            ln
+            for ln in b.splitlines(keepends=True)
+            if not any(f"]({u})" in ln.lower() for u in held)
+        ),
+    )
     cls["order"] = [u for u in cls["order"] if u.lower() not in held]
     cls["items"] = {u: v for u, v in cls["items"].items() if u.lower() not in held}
     items = [i for i in items if i["url"].lower() not in held]
@@ -731,10 +754,9 @@ def refresh(run=None):
             lambda b: b.rstrip("\n") + "\n" + "\n".join(closed_lines) + "\n",
         )
 
-    scratch = state_dir() / REFRESH_SCRATCH
-    shutil.rmtree(scratch, ignore_errors=True)
+    scratch = Path(tempfile.mkdtemp(prefix=REFRESH_SCRATCH + "-", dir=state_dir()))
     cur = scratch / "cur"
-    cur.mkdir(parents=True)
+    cur.mkdir()
     prev_name = meta.get("previous_completed_run")
     if prev_name and base is not None and (base / "notes.json").exists():
         (scratch / prev_name).mkdir()
