@@ -1,9 +1,11 @@
-"""A bound plan-writing worker can ask and be released (Plan B Task 14, design G2).
+"""A bound worker can ask and send to its own coordinator (design G2, rule 2).
 
 The worker is bound the way the guard binds any session: a first prompt that
 holds ``[sc-launch:v1:<32 hex>]`` and a matching ``pending/<nonce>`` record the
-test writes, never a ``sessions/<id>`` file written by hand. The release is the
-coordinator-side ``release`` helper, which creates the session's ``.ok`` file.
+test writes, never a ``sessions/<id>`` file written by hand. The release is a
+typed user prompt whose first line starts ``/sc:implement``, which the guard
+turns into the session's ``.ok`` file itself. Rule 1 of the same design, a
+TAMPER class for the retired plan-approval commands, is gone.
 """
 
 from __future__ import annotations
@@ -12,7 +14,6 @@ import time
 
 import pytest
 
-from superclaude.cli.issue_pipeline import release
 from tests.hooks.test_launch_level_guard import (
     NONCE,
     SID,
@@ -250,8 +251,10 @@ def test_bound_send_ask_implement_blocked_release_implement_allowed(tmp_path):
     assert _allowed(_run(_bash(HEARTBEAT), tmp_path))
     assert _allowed(_run(_bash(ASK), tmp_path))
     _assert_decision(_run(_skill("sc:implement"), tmp_path), tmp_path, "LL-IMPL", "W")
-    store = _store(tmp_path / "home")
-    assert release.release(SID, store) == "released"
+    # the release is a typed user prompt: its first line starts /sc:implement
+    assert _allowed(_run(_prompt("/sc:implement plan.md"), tmp_path))
+    ok = _store(tmp_path / "home") / "sessions" / f"{SID}.ok"
+    assert ok.is_file() and not ok.is_symlink()
     assert _allowed(_run(_skill("sc:implement"), tmp_path))
     assert _allowed(_run(_bash(HEARTBEAT), tmp_path))
 
@@ -267,39 +270,7 @@ def test_a_forged_release_from_the_workers_own_session_is_blocked_as_tampering(
     _assert_decision(_run(_skill("sc:implement"), tmp_path), tmp_path, "LL-IMPL", "W")
 
 
-@pytest.mark.parametrize(
-    "command",
-    [
-        f"superclaude issue-pipeline release-worker {SID}",
-        f"uv run superclaude issue-pipeline release-worker {SID}",
-        "superclaude issue-pipeline adopt-create 12",
-        "superclaude issue-pipeline record-create x",
-        "superclaude issue-pipeline record-mark x",
-        'python -c "from superclaude.cli.issue_pipeline import release"',
-    ],
-)
-def test_a_bound_worker_cannot_run_the_coordinator_side_pipeline_verbs(
-    tmp_path, command
-):
-    _bind_worker(tmp_path)
-    _assert_decision(
-        _run(_bash(command), tmp_path), tmp_path, "LL-TAMPER", "W", text=True
-    )
-
-
-@pytest.mark.parametrize(
-    "command",
-    [
-        "superclaude issue-pipeline plan-hash plan.md",
-        "superclaude issue-pipeline check-approval 12",
-    ],
-)
-def test_a_bound_worker_may_still_run_plan_hash_and_check_approval(tmp_path, command):
-    _bind_worker(tmp_path)
-    assert _allowed(_run(_bash(command), tmp_path))
-
-
-def test_a_brief_built_with_a_pending_nonce_binds_the_worker_and_one_without_does_not(
+def test_a_prompt_with_a_pending_nonce_binds_the_worker_and_one_without_does_not(
     tmp_path,
 ):
     import json
@@ -307,7 +278,6 @@ def test_a_brief_built_with_a_pending_nonce_binds_the_worker_and_one_without_doe
     import subprocess
     import sys
 
-    from superclaude.cli.issue_pipeline import brief
     from tests.skills.test_issue_orca_worktree import SCRIPT
 
     home = tmp_path / "home"
@@ -321,10 +291,10 @@ def test_a_brief_built_with_a_pending_nonce_binds_the_worker_and_one_without_doe
         check=True,
     ).stdout
     nonce = json.loads(out)["nonce"]
-    governed = brief.build(9, "feature", "simple", nonce)
-    assert _allowed(_run(_prompt(governed), tmp_path))
+    text = "write the plan for issue 9 (feature, simple)"
+    assert _allowed(_run(_prompt(_marker(nonce) + " " + text), tmp_path))
     _assert_bound(tmp_path, SID, "worktree")
     other = tmp_path / "other"
     other.mkdir()
-    assert _allowed(_run(_prompt(brief.build(9, "feature", "simple")), other))
+    assert _allowed(_run(_prompt(text), other))
     assert not (_store(other / "home") / "sessions" / SID).exists()

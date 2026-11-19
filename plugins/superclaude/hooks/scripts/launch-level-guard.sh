@@ -438,10 +438,6 @@ if [ "$LL_BRANCH" = tool ]; then
             # so install_hooks is looked for in T.
             LL_TT=$T
             case $T in *install_hooks*) LL_CLASSES+='TAMPER ' ;; esac
-            # G2: the coordinator-side issue-pipeline commands write the approval rows and the
-            # worker's release (.ok) file; a bound worker must not run them (plan-hash and
-            # check-approval stay allowed: the worker needs them).
-            case $T in *release-worker* | *release_worker* | *issue-pipeline*adopt-* | *issue-pipeline*record-* | *issue_pipeline*release* | *issue_pipeline*approval_record*) LL_CLASSES+='TAMPER ' ;; esac
             LL_CL=0 LL_CF=0 LL_SA=0 # a claude word; a claude launch flag word (whole command); an orca send or ask word
             LL_GLOB=0 # once per command: a glob character in the text
             case $T in *[\*\?\[\{]*) LL_GLOB=1 ;; esac
@@ -497,7 +493,8 @@ if [ "$LL_BRANCH" = tool ]; then
                 done
             done
             [ "$LL_CL$LL_CF" = 11 ] && LL_CLASSES+='ESCAPE '
-            # G2 (issue-pipeline-guard-g2.md section 5): a bound worker passes no --to, so Orca
+            # G2 rule 2 (issue-pipeline-guard-g2.md section 5; the rule 1 text of that design is retired,
+            # the commands it classed as TAMPER no longer exist): a bound worker passes no --to, so Orca
             # sends to the worker's own coordinator Run (its default). ws is not the real argument list (quotes are gone, a quoted ; | ( starts
             # a segment), so the raw command must be one orca send|ask call of plain words and quoted
             # strings with no expansion, and every argument an option or an option's value.
