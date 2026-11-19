@@ -4,7 +4,7 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
-## [6.1.0] - 2026-11-18
+## [6.1.0] - 2026-11-19
 
 The task and documentation bundle is removed: nine skills (`prd`, `tdd`, `tech-research`, `tech-reference`, `operational-guide`, `readme`, `task`, `task-builder`, `roadmap`), the `/sc:tdd` command, one eval suite and levels 4, 5 and 6 of the routing guide. Every route that offered the task-file (MDTM) route now has one route: `/sc:workflow` writes the plan and `/sc:implement` runs it. Read the [6.1.0 release notes](docs/releases/v6.1.0.md) for the full list, the replacements and the upgrade steps. The project's changelog rule counts a removed skill as a breaking change, which normally means a major version; the owner chose 6.1.0 for this release.
 
@@ -49,6 +49,18 @@ Known leftover for issue 572: `rules/contextual/context_embedding.md` and `rules
 #### Fixed
 
 - `same_content` in `src/superclaude/cli/install_keep.py` now clears `filecmp`'s cache before it compares two files. `filecmp` remembers each answer by the two paths and their size and modification time, so a file rewritten with the same size inside one timestamp tick was reported as identical to its old self when the same process compared the pair again. `src/superclaude/cli/install_core.py` had its own copy of that cached comparison and now uses the shared `same_content`. A one-shot `superclaude install` or `update` behaves as before; the change matters when one process compares, edits or copies, and compares the same pair again.
+
+### Changed: the three review seat labels no longer look like gateway aliases (#660)
+
+#### Changed
+
+- In `src/superclaude/cli/review/data/review-tiers.default.json` (now version 1.2.0) the `alias` of the three review-panel seats `tier5a`, `tier5b` and `tier5c` changes from `claude-gw-tier5a[1m]`, `claude-gw-tier5b[1m]` and `claude-gw-tier5c[1m]` to `review-seat-5a`, `review-seat-5b` and `review-seat-5c`. The old strings had the form of the real gateway picker names used by `tier1a` to `tier4`, so they could be read as a gateway dependency that does not exist. The models and seats resolve exactly as before; only the label changes. `docs/reference/review-panel-live7.md` says which alias values are real.
+
+### Changed: every `/sc:issue` template ends with Priority, Fix approach and Test plan (#661, issue #651)
+
+#### Changed
+
+- All four `/sc:issue` templates (bug and feature, simple and complex) now end with `## Priority`, `## Fix approach` and `## Test plan`, in that order. The three sections are required at every depth and never read "Not known yet"; where the analysis leaves a gap, the worker states a labelled assumption in the section and lists it under "New material" in `draft-notes.md`. The earlier Testing Notes, Testing Strategy and the Fix Approach and Verification Plan bullets are folded into them, and the complex bug template's heading is now `For Development Team (Root Cause Analysis)`. `refs/create.md` of `sc-issue-protocol` holds the Priority rule set (Urgent, High, Medium, Low, each with its trigger), and `issue-worker-t1`, `issue-worker-t2` and `issue-worker-t3` state the same rule.
 
 ## [6.0.0] - 2026-11-18
 

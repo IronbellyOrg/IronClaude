@@ -1,0 +1,2081 @@
+{
+  "schema_version": 1,
+  "repo": "IronbellyOrg/IronClaude",
+  "version": "v6.1.0",
+  "tag": "v6.1.0",
+  "tag_commit": "64dfc0e8",
+  "previous_version": "v6.0.0",
+  "previous_tag": "v6.0.0",
+  "run_mode": "additive",
+  "run_mode_evidence": "prior manifest found: docs/testing/v6.0.0/post-release-manifest.json",
+  "generated_at": "2026-11-19T02:34:59Z",
+  "install_surface_class": "package",
+  "coverage_note": "Evolved from the v6.0.0 manifest. Entries not named in a changed_in_v61_note are carried forward unchanged (their start_of_run block is the v6.0.0 end state). Capabilities removed in 6.0.0 or 6.1.0 keep their entry with status 'removed'. 'present-unverified' means a doc exists but this run did not check it against the code. D and E were out of scope (decision 6.1.0-5), so their cells point at the v5.0.0 guides, which are historical records and were not updated.",
+  "feature_inventory": [
+    {
+      "id": "cli-version",
+      "name": "`superclaude --version` / `superclaude version` print 6.1.0",
+      "audience": [
+        "user"
+      ],
+      "source": "`pyproject.toml` (version 6.1.0); transcript `docs/testing/v6.1.0/c-e2e-transcript.txt` lines 29, 1242, 2134",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (version)",
+      "status": "current",
+      "changed_in_v6_note": "version only",
+      "changed_in_v61_note": "version only; 7 pages say 6.1.0 (README, installation, quick-start, common-issues, troubleshooting, upgrading, cli-groups)"
+    },
+    {
+      "id": "cli-install",
+      "name": "`superclaude install [--target] [--force]`: core, commands, agents, skills, ccsession wiring, hooks, templates, user setup (rules, output styles, settings defaults, Orca skills, default plugins), then required codegraph phase, then retire step; exit 1 if any required phase fails",
+      "audience": [
+        "user"
+      ],
+      "source": "`main.py:29-280`; `install_user_setup.py:251-311`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (codegraph phase, retire step, ISSUE-*/CODEGRAPH core files)",
+      "status": "current",
+      "changed_in_v6_note": "ends with a retire step for commands, skills and agents (#633); saves `<name>.bak.<UTC time>` of differing commands, rules and output styles on --force (#480); sets cleanupPeriodDays 365 (retention)",
+      "changed_in_v61_note": "installed surface 12 core files, 34 commands, 48 agents, 26 skills (checked against `git ls-tree v6.1.0` by the run)"
+    },
+    {
+      "id": "cli-install-list",
+      "name": "`superclaude install --list`: installed-vs-available, codegraph block, one line per retired name; read-only",
+      "audience": [
+        "user"
+      ],
+      "source": "`main.py:86-172`; `install_mcp.py:1059-1060`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current"
+    },
+    {
+      "id": "cli-upgrade",
+      "name": "6.1.0 upgrade = `pipx install --force git+https://github.com/IronbellyOrg/IronClaude@v6.1.0` then `superclaude install --force`; retire step removes 8 skills, keeps the edited `/sc:tdd` and a skill folder with an extra file",
+      "audience": [
+        "user"
+      ],
+      "source": "`docs/getting-started/upgrading.md`; run: `docs/testing/v6.1.0/c-e2e-transcript.txt` scenario 2 (line 942)",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current",
+      "changed_in_v61_note": "6.0.0 to 6.1.0 run for real; 5.0.0 or 4.x straight to 6.1.0 not run"
+    },
+    {
+      "id": "cli-update",
+      "name": "`superclaude update`: force-refresh framework steps only; no codegraph, no retire; prints legacy notice",
+      "audience": [
+        "user"
+      ],
+      "source": "`main.py:334-429` (notice `:407-415`)",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (notice; insufficient for 5.0.0)",
+      "status": "current",
+      "changed_in_v6_note": "also runs the retire step for commands, skills and agents",
+      "changed_in_v61_note": "`superclaude update` run in scenario 2: retire step changes nothing on a second run"
+    },
+    {
+      "id": "cli-update-sh",
+      "name": "`./update.sh` from a clone: `pipx install --force ./`, `superclaude install --force`, `make sync-dev`, `superclaude doctor`",
+      "audience": [
+        "user"
+      ],
+      "source": "`update.sh:2-10`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (now includes codegraph via install --force)",
+      "status": "current",
+      "changed_in_v61_note": "`./update.sh` from a clone of the v6.1.0 tag run (scenario 3): 34 / 48 / 26"
+    },
+    {
+      "id": "cli-install-skill",
+      "name": "`superclaude install-skill <name> [--target] [--force]`",
+      "audience": [
+        "user"
+      ],
+      "source": "`main.py:432-468`; `install_skill.py:40-97`",
+      "added_in": "pre-v5.0.0",
+      "changed_in_v5_note": "no",
+      "status": "current"
+    },
+    {
+      "id": "cli-doctor",
+      "name": "`superclaude doctor [--verbose]`: 7 checks incl. codegraph registration (fails only when command not executable) and retired-MCP warning",
+      "audience": [
+        "user"
+      ],
+      "source": "`main.py:471-510`; `doctor.py:17-54`, `:160-175`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current"
+    },
+    {
+      "id": "codegraph-install",
+      "name": "Pinned codegraph 1.6.2: discover / download / SHA-256 / extract / receipt / link / user-scope registration with 7 tools",
+      "audience": [
+        "user"
+      ],
+      "source": "`install_codegraph.py:26-404`; `install_mcp.py:709-1020`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (new)",
+      "status": "current"
+    },
+    {
+      "id": "mcp-retire",
+      "name": "Retire step: removes provably-IronClaude user-scope `serena` / `codebase-memory-mcp` registrations, keeps the rest with reason, `serena-local` exempt, 10 s / 15 s bounds",
+      "audience": [
+        "user"
+      ],
+      "source": "`install_retired_mcp.py:35-494`; `main.py:255-267`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (new)",
+      "status": "current"
+    },
+    {
+      "id": "cli-mcp",
+      "name": "`superclaude mcp [--servers ...] [--list] [--scope] [--dry-run]`; menu Install/Cancel; `--uninstall`/`--yes` and `serena`/`codebase-memory-mcp` removed",
+      "audience": [
+        "user"
+      ],
+      "source": "`main.py:283-331`; `install_mcp.py:42-115`, `:1317-1458`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current"
+    },
+    {
+      "id": "mcp-litellm",
+      "name": "Opt-in LiteLLM MCP gateway entry (`http://ibcore:4000/mcp/`, `${LITELLM_API_KEY}` header)",
+      "audience": [
+        "user"
+      ],
+      "source": "`install_mcp.py:107-115`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (new)",
+      "status": "current"
+    },
+    {
+      "id": "cli-sprint-run",
+      "name": "`superclaude sprint run` incl. default auto-resume, `--fresh/--restart`, `-y/--yes`, `CI`/`SUPERCLAUDE_SPRINT_ASSUME_YES`",
+      "audience": [
+        "user"
+      ],
+      "source": "`cli/sprint/commands.py:323-528`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "removed",
+      "removed_in": "v6.0.0",
+      "removed_note": "`superclaude sprint` group removed (#632)"
+    },
+    {
+      "id": "cli-sprint-pertask",
+      "name": "`--handoff/--no-handoff`, `--resume <task_id>`, `--task-parallelism K`, `handoff/phase-{N}-task-{id}.json`, `task_complete` event",
+      "audience": [
+        "user"
+      ],
+      "source": "`CHANGELOG.md:302-307`; `cli/sprint/handoff.py`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (new)",
+      "status": "removed",
+      "removed_in": "v6.0.0",
+      "removed_note": "`superclaude sprint` group removed (#632)"
+    },
+    {
+      "id": "cli-sprint-aux",
+      "name": "`sprint rerun-tasks` (auto-detect), `verify-checkpoints`, `attach`, `kill`, `status` (stub), `logs` (stub)",
+      "audience": [
+        "user"
+      ],
+      "source": "`sprint/commands.py:727-945`; `sprint/logging_.py:367-378`; `sprint/tmux.py:262-276`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "partly (rerun-tasks auto-detect)",
+      "status": "removed",
+      "removed_in": "v6.0.0",
+      "removed_note": "`superclaude sprint` group removed (#632)"
+    },
+    {
+      "id": "cli-roadmap-tasklist",
+      "name": "`superclaude roadmap run/validate/accept-spec-change`, `superclaude tasklist validate`",
+      "audience": [
+        "user"
+      ],
+      "source": "`cli/roadmap/commands.py:299-513`; `cli/tasklist/commands.py:170-185`",
+      "added_in": "pre-v5.0.0",
+      "changed_in_v5_note": "no",
+      "status": "removed",
+      "removed_in": "v6.0.0",
+      "removed_note": "`superclaude roadmap` and `tasklist` groups removed (#632)"
+    },
+    {
+      "id": "cli-reflect",
+      "name": "`superclaude reflect run` (`--fix`, `--max-fix-iterations`, `--base`, `--promote` default, plan route → `/sc:implement`), `reflect contract-status`, recursion breaker",
+      "audience": [
+        "user"
+      ],
+      "source": "`cli/reflect/commands.py:44-478`; `cli/reflect/runner.py:474-477`, `:597`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current",
+      "changed_in_v61_note": "`superclaude reflect run --fix` always applies a plan with `/sc:implement`; `remediation_task_path` ignored (terminal HALT when it is the only pointer)"
+    },
+    {
+      "id": "cli-prd",
+      "name": "`superclaude prd run/resume` (research fix cycles default 2)",
+      "audience": [
+        "user"
+      ],
+      "source": "`cli/prd/commands.py:115-234`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "removed",
+      "removed_in": "v6.0.0",
+      "removed_note": "`superclaude prd` group removed (#616)"
+    },
+    {
+      "id": "cli-eval",
+      "name": "`superclaude eval list/describe/doctor/run` (null executor WARNING, output root, exit codes 0-3)",
+      "audience": [
+        "user"
+      ],
+      "source": "`cli/eval/commands.py:844-2004`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current"
+    },
+    {
+      "id": "cli-swarm",
+      "name": "`superclaude swarm` 8 subcommands; fresh run now does Wave 2/3 (merged.md, return-contract.yaml); `reflect-review` lens; `run --tui`",
+      "audience": [
+        "user"
+      ],
+      "source": "`cli/swarm/commands.py:2083-2159`; `cli/swarm/lenses/reflect_review.py:33-72`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (in window; not named in changelog headings)",
+      "status": "current"
+    },
+    {
+      "id": "cli-portify",
+      "name": "`superclaude cli-portify run` (convergence 1 iteration; `--max-convergence` not wired)",
+      "audience": [
+        "user"
+      ],
+      "source": "`cli/cli_portify/commands.py:189-227`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "removed",
+      "removed_in": "v6.0.0",
+      "removed_note": "`superclaude cli-portify` group removed (#629)"
+    },
+    {
+      "id": "cli-cleanup-audit",
+      "name": "`superclaude cleanup-audit run`",
+      "audience": [
+        "user"
+      ],
+      "source": "`cli/cleanup_audit/commands.py:85-93`",
+      "added_in": "pre-v5.0.0",
+      "changed_in_v5_note": "no (skill changed)",
+      "status": "removed",
+      "removed_in": "v6.0.0",
+      "removed_note": "`superclaude cleanup-audit` group removed (#615); `/sc:cleanup-audit` stays"
+    },
+    {
+      "id": "cli-init-lite",
+      "name": "`superclaude init-lite --context-optimized`",
+      "audience": [
+        "user"
+      ],
+      "source": "`cli/init_lite.py:247-350`",
+      "added_in": "pre-v5.0.0",
+      "changed_in_v5_note": "no",
+      "status": "current"
+    },
+    {
+      "id": "cli-recommend-helpers",
+      "name": "`superclaude recommend cache/telemetry/eval/dispatch` (plumbing for `sc-recommend`)",
+      "audience": [
+        "user"
+      ],
+      "source": "`cli/recommend/commands.py:57-403`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (key rename, fingerprint)",
+      "status": "current"
+    },
+    {
+      "id": "cli-ic",
+      "name": "`ic` launcher: sources `~/.aienv`, model-slot overrides, `--no-yolo`",
+      "audience": [
+        "user"
+      ],
+      "source": "`pyproject.toml:72`; `cli/ic.py:12-15`; `src/superclaude/scripts/ic:25-110`",
+      "added_in": "pre-v5.0.0",
+      "changed_in_v5_note": "no",
+      "status": "current"
+    },
+    {
+      "id": "sc-graph",
+      "name": "`/sc:graph [status|init] [--worktree-local] [--output-dir]`",
+      "audience": [
+        "user"
+      ],
+      "source": "`src/superclaude/commands/graph.md`; `skills/sc-graph-protocol/SKILL.md`",
+      "added_in": "pre-v5.0.0",
+      "status": "current"
+    },
+    {
+      "id": "sc-impact",
+      "name": "`/sc:impact <symbol>... | --diff [<base>]` with `--depth --limit --tests --test-depth --output-dir --caller`; Grep fallback",
+      "audience": [
+        "user"
+      ],
+      "source": "`src/superclaude/commands/impact.md`; `skills/sc-impact-protocol/SKILL.md`",
+      "added_in": "pre-v5.0.0",
+      "status": "current"
+    },
+    {
+      "id": "codegraph-autoinit-hook",
+      "name": "SessionStart (startup) hook runs one background `codegraph init --yes`; `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`",
+      "audience": [
+        "user"
+      ],
+      "source": "`hooks/hooks.json:23-31`; `hooks/scripts/codegraph-session-start.sh:6-31`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (new)",
+      "status": "current"
+    },
+    {
+      "id": "codegraph-primitives",
+      "name": "Commands/skills/agents use codegraph above Grep/Read per `~/.claude/CODEGRAPH.md`; `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off`; `/sc:explain` one-hop view",
+      "audience": [
+        "user"
+      ],
+      "source": "`core/CODEGRAPH.md:11-34`; `core/CLAUDE.md:28-30`; `commands/explain.md:51`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (new)",
+      "status": "current"
+    },
+    {
+      "id": "memory-files",
+      "name": "`/sc:save`, `/sc:load`, `/sc:pm`, PM agent use `<project>/.superclaude/memory/`; one-release `.serena/memories/` read-only fallback; `/sc:load` points to `/sc:graph status`",
+      "audience": [
+        "user"
+      ],
+      "source": "`commands/save.md:22,42-45`; `commands/load.md:22,42-53`; `commands/pm.md:16,47`; `agents/pm-agent.md:19-35`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (breaking)",
+      "status": "changed",
+      "changed_in_v6_note": "`/sc:save` and `/sc:load` and the read-only `.serena/memories/` fallback removed (#620)"
+    },
+    {
+      "id": "routing-guide",
+      "name": "`~/.claude/HOW-WE-WORK.md`; `/sc:help` prints level table; `/sc:recommend` reads guide first",
+      "audience": [
+        "user"
+      ],
+      "source": "`core/HOW-WE-WORK.md:3,11-28`; `commands/help.md:21-132`; `commands/recommend.md:32-60`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (new)",
+      "status": "current",
+      "changed_in_v61_note": "three levels (ask, small direct change, checked plan); `task-file`, `research-first`, `full-spec` routes gone"
+    },
+    {
+      "id": "core-files",
+      "name": "Shorter `~/.claude/CLAUDE.md` (routing block, Core Rule 10); removed ORCHESTRATOR/COMMANDS/PERSONAS/MODES/FLAGS/MCP.md and `/sc:README`",
+      "audience": [
+        "user"
+      ],
+      "source": "`core/CLAUDE.md`; `CHANGELOG.md:242,248,252`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current",
+      "changed_in_v6_note": "12 core files (WORKER-CONTRACT.md added)",
+      "changed_in_v61_note": "no core file added or removed; `CLAUDE.md`, `HOW-WE-WORK.md` and `WORKER-CONTRACT.md` text changed by the cleanup"
+    },
+    {
+      "id": "issue-templates",
+      "name": "`~/.claude/ISSUE-HANDOFF.md`, `ISSUE-BACKLOG.md` + Core Rule 10 (`gh issue create --body-file`)",
+      "audience": [
+        "user"
+      ],
+      "source": "`cli/install_core.py:21-22`; `core/ISSUE-HANDOFF.md:1-10`; `core/CLAUDE.md:43`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (new)",
+      "status": "current"
+    },
+    {
+      "id": "sc-pr-submit",
+      "name": "`/sc:pr-submit` default `--monitor 3`, `--pr <N>`, origin-first, head check, Codex support, `--yes` removed",
+      "audience": [
+        "user"
+      ],
+      "source": "`commands/pr-submit.md:8,25-66`; `pr_submit/fsm.py:31,33,77`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current"
+    },
+    {
+      "id": "review-severity-cap",
+      "name": "Blocking vs minor; max 2 fix cycles (3 reviews) then escalate; injected via SubagentStart; CI guard",
+      "audience": [
+        "user"
+      ],
+      "source": "`output-styles/pragmatic.md:225-229`; `hooks/hooks.json:120-127`; `tests/skills/test_review_severity_rule.py`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current",
+      "changed_in_v61_note": "rule text unchanged; guard test lost the five document skills and 11 lines; fixture rows 58 and 25 (note corrected)"
+    },
+    {
+      "id": "remediation-routing",
+      "name": "`/sc:troubleshoot --fix`, `/sc:reflect --remediate`, auggie-review offer → `/sc:workflow` plan for `/sc:implement`; MDTM only with `--depth deep`",
+      "audience": [
+        "user"
+      ],
+      "source": "`commands/troubleshoot.md:54`; `CHANGELOG.md:259`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current",
+      "changed_in_v61_note": "`/sc:reflect --remediate` and `/sc:troubleshoot --fix` take the plan route at every `--depth`; the MDTM route is gone"
+    },
+    {
+      "id": "sc-workflow-implement",
+      "name": "Level-3 planning chain `/sc:workflow` (default `--depth standard`) → `/sc:implement` (one A2 repair; calls `/sc:impact`)",
+      "audience": [
+        "user"
+      ],
+      "source": "`commands/workflow.md:38-42`; `commands/implement.md:6`; `core/HOW-WE-WORK.md:17,24`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current",
+      "changed_in_v61_note": "the one planning chain: `/sc:workflow` then `/sc:implement`; replaces `/task`, `/task-builder`, `/roadmap`"
+    },
+    {
+      "id": "sc-reflect",
+      "name": "`/sc:reflect` (`--onboard`/`--with-hierarchy` removed; contract 1.8.0; codegraph)",
+      "audience": [
+        "user"
+      ],
+      "source": "`commands/reflect.md:6,10,93-106`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current",
+      "changed_in_v61_note": "no longer writes `reflect/handoff-*.md`; `--depth deep` only sets review depth"
+    },
+    {
+      "id": "sc-other-commands",
+      "name": "The 34 shipped `/sc:` commands (see `src/superclaude/commands`); `/sc:tdd` removed in 6.1.0, 12 commands removed in 6.0.0, `/sc:issue` and `/sc:sweep` added in 6.0.0",
+      "audience": [
+        "user"
+      ],
+      "source": "`src/superclaude/commands/*.md`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "mostly no (post-release added 2026-07-06, inside the window, not in changelog)",
+      "status": "current",
+      "changed_in_v61_note": "34 shipped commands: `/sc:tdd` removed in 6.1.0"
+    },
+    {
+      "id": "ccsession-naming",
+      "name": "`ccsession <name>` = Claude Code `--name`; `/rename` sync; names per repo; `--key`; `--migrate-names`; `/ccsession-tag` retired",
+      "audience": [
+        "user"
+      ],
+      "source": "`skills/ccsession-tag/ccsession:11-12,127,1606-1608`; `hooks/hooks.json:54-73`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current"
+    },
+    {
+      "id": "ccsession-lists",
+      "name": "`--list`, `--here`, `--here --all`, `--rm`, `--ask` (exit 1 / 130)",
+      "audience": [
+        "user"
+      ],
+      "source": "`ccsession:27-53,1324,1441-1467`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (#347)",
+      "status": "current",
+      "changed_in_v61_note": "`--list`, `--here` and the new-tab question hide agent-saved sessions (#641); see ccsession-agent-sessions"
+    },
+    {
+      "id": "ccsession-orca",
+      "name": "`ccsession-orca` launcher; Orca tab title `<label> · Claude Code`",
+      "audience": [
+        "user"
+      ],
+      "source": "`skills/ccsession-tag/ccsession-orca:19-81`; `ccsession:1512-1528`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (new)",
+      "status": "current"
+    },
+    {
+      "id": "ccsession-tiers",
+      "name": "User side: `--tier`, `--model`, `--models-status`, `--refresh-models`; shim survives terminal (#341). Admin side: `CCSESSION_TIER_RULES` / `CCSESSION_ACCESS` / `T<N>` slots in `/etc/aidev02/aienv.d/defaults.sh`",
+      "audience": [
+        "user",
+        "sysop"
+      ],
+      "source": "`skills/ccsession-tag/models.py:63-104,320-328,454-620`; `ccsession:57-66,798`; `local-gateway-alias-proxy.py:172-203`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes",
+      "status": "current"
+    },
+    {
+      "id": "ccsession-model-data",
+      "name": "Published `ccsession-models.json` fetched from the fork's master on every launch; `CCSESSION_MODELS_URL`, `CCSESSION_MODELS_REFRESH=0`",
+      "audience": [
+        "sysop"
+      ],
+      "source": "`models.py:53-58,296-314`; `ccsession:73-76`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "yes (2026-10-28.1 layout)",
+      "status": "current"
+    },
+    {
+      "id": "freshness-hooks",
+      "name": "Freshness hooks (session-context envelope, pre-edit gate, read tracker, subagent start/stop), auggie flag hook",
+      "audience": [
+        "user"
+      ],
+      "source": "`hooks/hooks.json:13-141`; `hooks/scripts/freshness-pre-edit.sh:15,84-133`",
+      "added_in": "v5.0.0",
+      "changed_in_v5_note": "partly (Serena matcher removed)",
+      "status": "current",
+      "changed_in_v6_note": "four more registered hooks (see the hook entries below)"
+    },
+    {
+      "id": "install-retire-files",
+      "name": "Retire step for commands, skills and agents a release no longer ships (sha256 proof against the v5.0.0 tag)",
+      "audience": [
+        "user"
+      ],
+      "source": "`src/superclaude/cli/install_retired_files.py`, `install_retired_data.py`, `scripts/gen_retired_install_data.py`; `main.py` step 10",
+      "added_in": "v6.0.0",
+      "status": "current",
+      "changed_in_v61_note": "retire data regenerated from v5.0.0 and v6.0.0: also removes nine skills and `tdd.md`; run: 8 removed, 2 kept (edited `tdd.md`, `task-builder` with an extra file), second run removes nothing"
+    },
+    {
+      "id": "install-keep-backups",
+      "name": "Kept files that differ are named; `--force` saves `<name>.bak.<UTC time>` of differing commands, rules and output styles (#480)",
+      "audience": [
+        "user"
+      ],
+      "source": "`src/superclaude/cli/install_keep.py`; `install_commands.py:54-75`; `install_user_setup.py:68-126`",
+      "added_in": "v6.0.0",
+      "status": "current",
+      "changed_in_v61_note": "upgrade 6.0.0 to 6.1.0 saved 7 commands, 1 rule, 1 output style, 2 settings.json copies; an edited core file overwritten without a copy"
+    },
+    {
+      "id": "install-retention",
+      "name": "`superclaude install` raises `cleanupPeriodDays` to 90 (365 before 6.1.0) in `~/.claude/settings.json` unless managed settings set it or a larger value is already there (365 and 500 kept; 7 raised; a file that is not JSON left alone, exit 3)",
+      "audience": [
+        "user"
+      ],
+      "source": "`src/superclaude/skills/ccsession-tag/retention.py`; `install_ccsession.py:100-125`",
+      "added_in": "v6.0.0",
+      "status": "current",
+      "changed_in_v61_note": "target 365 to 90 (#641); run with an empty managed folder: 90 written, 365 and 500 kept, 7 raised"
+    },
+    {
+      "id": "cli-sweep",
+      "name": "`superclaude sweep run` and `/sc:sweep`: read-only Orca Run, worktree and session report",
+      "audience": [
+        "user"
+      ],
+      "source": "`superclaude sweep run --help`; `src/superclaude/cli/sweep/`",
+      "added_in": "v6.0.0",
+      "status": "current"
+    },
+    {
+      "id": "cli-observe",
+      "name": "`superclaude observe`: read-only terminal observer for Orca workers",
+      "audience": [
+        "user",
+        "sysop"
+      ],
+      "source": "`superclaude observe --help`; `src/superclaude/cli/observe/`",
+      "added_in": "v6.0.0",
+      "status": "current"
+    },
+    {
+      "id": "cli-issue-watch",
+      "name": "`superclaude issue-watch` (check-config, init-state, once, status, reset)",
+      "audience": [
+        "user",
+        "sysop"
+      ],
+      "source": "`superclaude issue-watch --help`; `src/superclaude/cli/issue_watch/`",
+      "added_in": "v6.0.0",
+      "status": "current"
+    },
+    {
+      "id": "cli-issue-pipeline",
+      "name": "`superclaude issue-pipeline` approval core (10 subcommands)",
+      "audience": [
+        "sysop"
+      ],
+      "source": "`superclaude issue-pipeline --help`; `src/superclaude/cli/issue_pipeline/`",
+      "added_in": "v6.0.0",
+      "status": "current"
+    },
+    {
+      "id": "cli-review",
+      "name": "`superclaude review` helpers for document review loops (9 subcommands)",
+      "audience": [
+        "user"
+      ],
+      "source": "`superclaude review --help`; `src/superclaude/cli/review/`",
+      "added_in": "v6.0.0",
+      "status": "current"
+    },
+    {
+      "id": "sc-issue",
+      "name": "`/sc:issue` (claim and create) with `issue-worker-t1..t3` agents",
+      "audience": [
+        "user"
+      ],
+      "source": "`src/superclaude/commands/issue.md`; `skills/sc-issue-protocol/`; `agents/issue-worker-t*.md`",
+      "added_in": "v6.0.0",
+      "status": "current",
+      "changed_in_v61_note": "all four issue templates end with Priority, Fix approach, Test plan (#661); see sc-issue-template-sections"
+    },
+    {
+      "id": "worker-contract",
+      "name": "`~/.claude/WORKER-CONTRACT.md`: rules for running `/sc:` commands as Orca workers",
+      "audience": [
+        "sysop"
+      ],
+      "source": "`src/superclaude/core/WORKER-CONTRACT.md`",
+      "added_in": "v6.0.0",
+      "status": "current",
+      "changed_in_v61_note": "command files carrying `## Unattended mode`: 23 of 34 (was 24 of 35); orchestration reference counts and citations re-anchored"
+    },
+    {
+      "id": "hook-block-bare-python",
+      "name": "PreToolUse(Bash) hook blocking bare python, python3, pip, pip3",
+      "audience": [
+        "user"
+      ],
+      "source": "`src/superclaude/hooks/scripts/block-bare-python.sh`; `hooks.json`",
+      "added_in": "v6.0.0",
+      "status": "current"
+    },
+    {
+      "id": "hook-require-orca-agent",
+      "name": "PreToolUse(Bash) hook blocking `orca worktree create` without `--agent`",
+      "audience": [
+        "user"
+      ],
+      "source": "`src/superclaude/hooks/scripts/require-orca-worktree-agent.sh`",
+      "added_in": "v6.0.0",
+      "status": "current"
+    },
+    {
+      "id": "hook-launch-level",
+      "name": "launch-level guard and job-identity hooks for `/sc:issue --claim` sessions",
+      "audience": [
+        "user",
+        "sysop"
+      ],
+      "source": "`launch-level-guard.sh`, `launch-job-identity.sh`, `launch-level-pre-push.sh`; `docs/designs/sc-issue-launch-level-hook.md`",
+      "added_in": "v6.0.0",
+      "status": "current"
+    },
+    {
+      "id": "ccsession-v6-changes",
+      "name": "ccsession: lists headed by repo name, failover env vars, status lines on stderr, `CCSESSION_PERMISSIONS`, automatic names, tier 2b",
+      "audience": [
+        "user",
+        "sysop"
+      ],
+      "source": "`src/superclaude/skills/ccsession-tag/README.md`; CHANGELOG [6.0.0]",
+      "added_in": "v6.0.0",
+      "status": "current"
+    },
+    {
+      "id": "ponytail-plugin",
+      "name": "Pinned Ponytail plugin installed by default (`ponytail@ironclaude`)",
+      "audience": [
+        "user"
+      ],
+      "source": "`docs/getting-started/installation.md`; CHANGELOG #330",
+      "added_in": "v6.0.0",
+      "status": "current"
+    },
+    {
+      "id": "pr-submit-conflicts",
+      "name": "`/sc:pr-submit --conflict-max-tier {0,1,2}` merge-conflict detection",
+      "audience": [
+        "user"
+      ],
+      "source": "`docs/user-guide/commands.md`; `docs/user-guide/flags.md`",
+      "added_in": "v6.0.0",
+      "status": "current"
+    },
+    {
+      "id": "skills-task-bundle-removed",
+      "name": "Nine skills removed: `task`, `task-builder`, `roadmap`, `prd`, `tdd`, `tech-research`, `tech-reference`, `operational-guide`, `readme`; kept: `/sc:task`, `/sc:validate-tests`, eight `rf-*` agents",
+      "audience": [
+        "user"
+      ],
+      "source": "`CHANGELOG.md` `[6.1.0]`; `docs/releases/v6.1.0.md`; `git diff --name-status v6.0.0 v6.1.0` (28 deleted files)",
+      "added_in": "v6.1.0",
+      "status": "removed"
+    },
+    {
+      "id": "sc-tdd-command-removed",
+      "name": "`/sc:tdd` removed; replacement `/sc:design`",
+      "audience": [
+        "user"
+      ],
+      "source": "`src/superclaude/commands/tdd.md` deleted; `docs/releases/v6.1.0.md`",
+      "added_in": "v6.1.0",
+      "status": "removed"
+    },
+    {
+      "id": "eval-workflow-vs-task-builder-removed",
+      "name": "Eval suite `workflow_vs_task_builder` removed; `superclaude eval list` shows 15 suites",
+      "audience": [
+        "user"
+      ],
+      "source": "`src/superclaude/cli/eval/suites/workflow_vs_task_builder.yaml` deleted; transcript line 938 (`superclaude eval list`)",
+      "added_in": "v6.1.0",
+      "status": "removed"
+    },
+    {
+      "id": "ccsession-agent-sessions",
+      "name": "ccsession separates agent-saved from human-saved sessions: `--agents`, `--mark <name> agent|human`, `--classify [--apply]`, `--prune [--apply] [--days N]`, `CCSESSION_AGENT_KEEP_DAYS`",
+      "audience": [
+        "user",
+        "sysop"
+      ],
+      "source": "`src/superclaude/skills/ccsession-tag/ccsession`; `session_keep.py`; `README.md`; `CHANGELOG.md` `[6.1.0]` (#641)",
+      "added_in": "v6.1.0",
+      "status": "current"
+    },
+    {
+      "id": "installer-same-content",
+      "name": "Installer file comparison clears `filecmp`'s cache; `install_core.py` uses the shared `same_content` (#646)",
+      "audience": [
+        "implementer"
+      ],
+      "source": "`src/superclaude/cli/install_keep.py`; `install_core.py`; `CHANGELOG.md` `[6.1.0]`",
+      "added_in": "v6.1.0",
+      "status": "current"
+    },
+    {
+      "id": "review-seat-labels",
+      "name": "Review panel seat labels `tier5a/5b/5c` use `review-seat-5a/5b/5c` (tier file version 1.2.0) (#660)",
+      "audience": [
+        "user",
+        "implementer"
+      ],
+      "source": "`src/superclaude/cli/review/data/review-tiers.default.json`; `docs/reference/review-panel-live7.md`; `CHANGELOG.md` `[6.1.0]`",
+      "added_in": "v6.1.0",
+      "status": "current"
+    },
+    {
+      "id": "sc-issue-template-sections",
+      "name": "Every `/sc:issue` template ends with `## Priority`, `## Fix approach`, `## Test plan`, required at every depth (#661, issue #651)",
+      "audience": [
+        "user"
+      ],
+      "source": "`skills/sc-issue-protocol/refs/create.md`; `templates/issue-*.md`; `agents/issue-worker-t1..t3.md`; `docs/user-guide/commands.md` (What `--create` writes)",
+      "added_in": "v6.1.0",
+      "status": "current"
+    }
+  ],
+  "coverage_checklist": [
+    {
+      "capability": "cli-version",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "present-and-current",
+        "install": "present-and-current",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "present-and-current",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D01-install-upgrade-doctor.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-install",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "present-and-current",
+        "install": "present-and-current",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "present-and-current",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D01-install-upgrade-doctor.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-install-list",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "carried-forward-from-v5.0.0",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D01-install-upgrade-doctor.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-upgrade",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "present-and-current",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "present-and-current",
+      "install": "present-and-current",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D01-install-upgrade-doctor.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-update",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "present-and-current",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "present-and-current",
+      "install": "present-and-current",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D01-install-upgrade-doctor.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-update-sh",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "present-and-current",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "present-and-current",
+      "install": "present-and-current",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D01-install-upgrade-doctor.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-install-skill",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "carried-forward-from-v5.0.0",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "n/a",
+      "install": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D01-install-upgrade-doctor.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-doctor",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "carried-forward-from-v5.0.0",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D01-install-upgrade-doctor.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "codegraph-install",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "carried-forward-from-v5.0.0",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D01-install-upgrade-doctor.md",
+        "docs/testing/v5.0.0/user/D03-codegraph-graph-impact.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "mcp-retire",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "carried-forward-from-v5.0.0",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D01-install-upgrade-doctor.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-mcp",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "carried-forward-from-v5.0.0",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D02-mcp-servers.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "mcp-litellm",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "carried-forward-from-v5.0.0",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "n/a",
+      "install": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D02-mcp-servers.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-sprint-run",
+      "start_of_run": {
+        "user_doc": "removed",
+        "tech_doc": null,
+        "install": null,
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "removed (the v5.0.0 guide is a historical record; not edited)",
+      "sysop_guide": "n/a",
+      "start_of_run_v6": "docs and guides for this capability were deleted or rewritten by the 6.0.0 cleanup PRs",
+      "user_doc": "removed"
+    },
+    {
+      "capability": "cli-sprint-pertask",
+      "start_of_run": {
+        "user_doc": "removed",
+        "tech_doc": null,
+        "install": null,
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "removed (the v5.0.0 guide is a historical record; not edited)",
+      "sysop_guide": "n/a",
+      "start_of_run_v6": "docs and guides for this capability were deleted or rewritten by the 6.0.0 cleanup PRs",
+      "user_doc": "removed"
+    },
+    {
+      "capability": "cli-sprint-aux",
+      "start_of_run": {
+        "user_doc": "removed",
+        "tech_doc": null,
+        "install": null,
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "removed (the v5.0.0 guide is a historical record; not edited)",
+      "sysop_guide": "n/a",
+      "start_of_run_v6": "docs and guides for this capability were deleted or rewritten by the 6.0.0 cleanup PRs",
+      "user_doc": "removed"
+    },
+    {
+      "capability": "cli-roadmap-tasklist",
+      "start_of_run": {
+        "user_doc": "removed",
+        "tech_doc": null,
+        "install": null,
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "removed (the v5.0.0 guide is a historical record; not edited)",
+      "sysop_guide": "n/a",
+      "start_of_run_v6": "docs and guides for this capability were deleted or rewritten by the 6.0.0 cleanup PRs",
+      "user_doc": "removed"
+    },
+    {
+      "capability": "cli-reflect",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "present-and-current",
+      "tech_doc": "n/a",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D12-reflect.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-prd",
+      "start_of_run": {
+        "user_doc": "removed",
+        "tech_doc": null,
+        "install": null,
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "removed (the v5.0.0 guide is a historical record; not edited)",
+      "sysop_guide": "n/a",
+      "start_of_run_v6": "docs and guides for this capability were deleted or rewritten by the 6.0.0 cleanup PRs",
+      "user_doc": "removed"
+    },
+    {
+      "capability": "cli-eval",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D15-eval-harness.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-swarm",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D14-swarm.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-portify",
+      "start_of_run": {
+        "user_doc": "removed",
+        "tech_doc": null,
+        "install": null,
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "removed (the v5.0.0 guide is a historical record; not edited)",
+      "sysop_guide": "n/a",
+      "start_of_run_v6": "docs and guides for this capability were deleted or rewritten by the 6.0.0 cleanup PRs",
+      "user_doc": "removed"
+    },
+    {
+      "capability": "cli-cleanup-audit",
+      "start_of_run": {
+        "user_doc": "removed",
+        "tech_doc": null,
+        "install": null,
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "removed (the v5.0.0 guide is a historical record; not edited)",
+      "sysop_guide": "n/a",
+      "start_of_run_v6": "docs and guides for this capability were deleted or rewritten by the 6.0.0 cleanup PRs",
+      "user_doc": "removed"
+    },
+    {
+      "capability": "cli-init-lite",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "n/a",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D16-init-lite-recommend-ic.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-recommend-helpers",
+      "start_of_run": {
+        "user_doc": "n/a",
+        "tech_doc": "n/a",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "n/a",
+      "tech_doc": "n/a",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D16-init-lite-recommend-ic.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-ic",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "carried-forward-from-v5.0.0",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "n/a",
+      "install": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D16-init-lite-recommend-ic.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "sc-graph",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "carried-forward-from-v5.0.0",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D03-codegraph-graph-impact.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "sc-impact",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "carried-forward-from-v5.0.0",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D03-codegraph-graph-impact.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "codegraph-autoinit-hook",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "carried-forward-from-v5.0.0",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D03-codegraph-graph-impact.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "codegraph-primitives",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "carried-forward-from-v5.0.0",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "carried-forward-from-v5.0.0",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D03-codegraph-graph-impact.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "memory-files",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D04-session-memory.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "routing-guide",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "present-and-current",
+      "tech_doc": "n/a",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D05-routing-core-files-issue-templates.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "core-files",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "present-and-current",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D05-routing-core-files-issue-templates.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "issue-templates",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D05-routing-core-files-issue-templates.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "sc-pr-submit",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "carried-forward-from-v5.0.0",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D07-pr-submit.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "review-severity-cap",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "carried-forward-from-v5.0.0",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "present-and-current",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D06-plan-implement-review-cap.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "remediation-routing",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "present-and-current",
+      "tech_doc": "n/a",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D06-plan-implement-review-cap.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "sc-workflow-implement",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "present-and-current",
+      "tech_doc": "n/a",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D06-plan-implement-review-cap.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "sc-reflect",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D12-reflect.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "sc-other-commands",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "present-and-current",
+      "tech_doc": "n/a",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D05-routing-core-files-issue-templates.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "ccsession-naming",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "n/a",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D08-ccsession.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "ccsession-lists",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "n/a",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D08-ccsession.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "ccsession-orca",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "n/a",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D08-ccsession.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "ccsession-tiers",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 (E skipped, decision 6.6)"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 (E skipped, decision 6.6)",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "n/a",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D08-ccsession.md"
+      ],
+      "v5_sysop_guide": [
+        "docs/testing/v5.0.0/sysop/E01-ccsession-tier-policy.md"
+      ]
+    },
+    {
+      "capability": "ccsession-model-data",
+      "start_of_run": {
+        "user_doc": "carried-forward-from-v5.0.0",
+        "tech_doc": "n/a",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 (E skipped, decision 6.6)"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 (E skipped, decision 6.6)",
+      "user_doc": "carried-forward-from-v5.0.0",
+      "tech_doc": "n/a",
+      "install": "n/a",
+      "v5_user_guide": "n/a",
+      "v5_sysop_guide": [
+        "docs/testing/v5.0.0/sysop/E02-ccsession-model-data-publishing.md"
+      ]
+    },
+    {
+      "capability": "freshness-hooks",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "present-and-current",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "v5.0.0 guide kept as a historical record; not updated for 6.0.0 or 6.1.0 (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a",
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "n/a",
+      "v5_user_guide": [
+        "docs/testing/v5.0.0/user/D09-hooks-freshness-pragmatic.md"
+      ],
+      "v5_sysop_guide": "n/a"
+    },
+    {
+      "capability": "install-retire-files",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "present-and-current",
+        "install": "present-and-current",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "present-and-current",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "install-keep-backups",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "present-and-current",
+        "install": "present-and-current",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "present-and-current",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "install-retention",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "present-unverified",
+        "install": "present-and-current",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "present-and-current",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-sweep",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "present-and-current",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "n/a",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "cli-observe",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "missing",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "out-of-scope-6.6"
+      },
+      "user_doc": "present-and-current",
+      "tech_doc": "missing",
+      "install": "n/a",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "out-of-scope-6.6"
+    },
+    {
+      "capability": "cli-issue-watch",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "present-unverified",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "out-of-scope-6.6"
+      },
+      "user_doc": "present-and-current",
+      "tech_doc": "present-unverified",
+      "install": "n/a",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "out-of-scope-6.6"
+    },
+    {
+      "capability": "cli-issue-pipeline",
+      "start_of_run": {
+        "user_doc": "present-unverified",
+        "tech_doc": "present-unverified",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "out-of-scope-6.6"
+      },
+      "user_doc": "present-unverified",
+      "tech_doc": "present-unverified",
+      "install": "n/a",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "out-of-scope-6.6"
+    },
+    {
+      "capability": "cli-review",
+      "start_of_run": {
+        "user_doc": "present-unverified",
+        "tech_doc": "present-unverified",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_doc": "present-unverified",
+      "tech_doc": "present-unverified",
+      "install": "n/a",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "sc-issue",
+      "start_of_run": {
+        "user_doc": "present-unverified",
+        "tech_doc": "present-unverified",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_doc": "present-unverified",
+      "tech_doc": "present-unverified",
+      "install": "n/a",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "worker-contract",
+      "start_of_run": {
+        "user_doc": "present-unverified",
+        "tech_doc": "present-and-current",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "out-of-scope-6.6"
+      },
+      "user_doc": "present-unverified",
+      "tech_doc": "present-and-current",
+      "install": "n/a",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "out-of-scope-6.6"
+    },
+    {
+      "capability": "hook-block-bare-python",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "present-and-current",
+        "install": "present-and-current",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "present-and-current",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "hook-require-orca-agent",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "present-and-current",
+        "install": "present-and-current",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "present-and-current",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "hook-launch-level",
+      "start_of_run": {
+        "user_doc": "present-and-current",
+        "tech_doc": "present-and-current",
+        "install": "present-and-current",
+        "user_guide": "carried",
+        "sysop_guide": "out-of-scope-6.6"
+      },
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "present-and-current",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "out-of-scope-6.6"
+    },
+    {
+      "capability": "ccsession-v6-changes",
+      "start_of_run": {
+        "user_doc": "present-unverified",
+        "tech_doc": "present-unverified",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "out-of-scope-6.6"
+      },
+      "user_doc": "present-unverified",
+      "tech_doc": "present-unverified",
+      "install": "n/a",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "out-of-scope-6.6"
+    },
+    {
+      "capability": "ponytail-plugin",
+      "start_of_run": {
+        "user_doc": "present-unverified",
+        "tech_doc": "present-unverified",
+        "install": "present-unverified",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_doc": "present-unverified",
+      "tech_doc": "present-unverified",
+      "install": "present-unverified",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "pr-submit-conflicts",
+      "start_of_run": {
+        "user_doc": "present-unverified",
+        "tech_doc": "present-unverified",
+        "install": "n/a",
+        "user_guide": "carried",
+        "sysop_guide": "n/a"
+      },
+      "user_doc": "present-unverified",
+      "tech_doc": "present-unverified",
+      "install": "n/a",
+      "user_guide": "out-of-scope-6.6",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "skills-task-bundle-removed",
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "present-and-current",
+      "note": "upgrading.md, README.md, release notes; run: 8 removed, 2 kept; none installed on a fresh install",
+      "start_of_run": {
+        "user_doc": "missing",
+        "tech_doc": "missing",
+        "install": "n/a",
+        "user_guide": "missing",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "missing (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "sc-tdd-command-removed",
+      "user_doc": "present-and-current",
+      "tech_doc": "n/a",
+      "install": "present-and-current",
+      "note": "upgrading.md Step 6 table; run: edited tdd.md kept with its rm command",
+      "start_of_run": {
+        "user_doc": "missing",
+        "tech_doc": "missing",
+        "install": "n/a",
+        "user_guide": "missing",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "missing (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "eval-workflow-vs-task-builder-removed",
+      "user_doc": "present-and-current",
+      "tech_doc": "n/a",
+      "install": "present-and-current",
+      "note": "release notes and CHANGELOG; run: 15 suites, the removed one absent",
+      "start_of_run": {
+        "user_doc": "missing",
+        "tech_doc": "missing",
+        "install": "n/a",
+        "user_guide": "missing",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "missing (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "ccsession-agent-sessions",
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "present-and-current",
+      "note": "documented in the skill README and SKILL.md only, no docs/ user page (gap 2); run showed the options answer in an empty home, not hiding or pruning (gap 12)",
+      "start_of_run": {
+        "user_doc": "missing",
+        "tech_doc": "missing",
+        "install": "n/a",
+        "user_guide": "missing",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "missing (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "missing (E skipped, decision 6.1.0-5)"
+    },
+    {
+      "capability": "installer-same-content",
+      "user_doc": "n/a",
+      "tech_doc": "present-and-current",
+      "install": "present-and-current",
+      "note": "internal; one-shot install and update behave as before (second run changes nothing)",
+      "start_of_run": {
+        "user_doc": "missing",
+        "tech_doc": "missing",
+        "install": "n/a",
+        "user_guide": "missing",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "missing (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "review-seat-labels",
+      "user_doc": "present-and-current",
+      "tech_doc": "n/a",
+      "install": "present-and-current",
+      "note": "docs/reference/review-panel-live7.md updated by the PR; installed tier file checked in the run",
+      "start_of_run": {
+        "user_doc": "missing",
+        "tech_doc": "missing",
+        "install": "n/a",
+        "user_guide": "missing",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "missing (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a"
+    },
+    {
+      "capability": "sc-issue-template-sections",
+      "user_doc": "present-and-current",
+      "tech_doc": "present-and-current",
+      "install": "present-and-current",
+      "note": "docs/designs/sc-issue-command.md updated by the PR (not touched here); installed templates checked in the run",
+      "start_of_run": {
+        "user_doc": "missing",
+        "tech_doc": "missing",
+        "install": "n/a",
+        "user_guide": "missing",
+        "sysop_guide": "n/a"
+      },
+      "user_guide": "missing (D skipped, decision 6.1.0-5)",
+      "sysop_guide": "n/a"
+    }
+  ],
+  "workstreams": {
+    "A_user_docs": {
+      "scanned": [
+        "README.md",
+        "CHANGELOG.md",
+        "docs/getting-started/",
+        "docs/user-guide/",
+        "docs/reference/",
+        "docs/developer-guide/",
+        "docs/swarm/",
+        "docs/eval/",
+        "docs/mcp/",
+        "docs/releases/v6.1.0.md"
+      ],
+      "updated": [
+        "CHANGELOG.md",
+        "docs/releases/v6.1.0.md",
+        "README.md",
+        "docs/getting-started/upgrading.md",
+        "docs/getting-started/installation.md",
+        "docs/getting-started/quick-start.md",
+        "docs/reference/common-issues.md",
+        "docs/reference/troubleshooting.md",
+        "docs/user-guide/cli-groups.md",
+        "docs/user-guide/agents.md",
+        "docs/user-guide/commands.md",
+        "docs/user-guide/flags.md"
+      ],
+      "created": [],
+      "gaps": [
+        "observe, review and issue-pipeline have a listing only",
+        "the new ccsession options are documented in the skill README only, no docs/ page",
+        "docs for /sc:issue (beyond the template sentence), ccsession 6.0.0 changes, Ponytail, pr-submit conflicts not checked line by line",
+        "/sc:code-review, /sc:create, /sc:review, /sc:close named in docs but not shipped",
+        "CHANGELOG [6.0.0] lacks entries for observe, review, issue-watch, issue-pipeline, /sc:issue",
+        "release notes v6.0.0 manual-validation numbers differ from the 6.0.0 run"
+      ],
+      "plan_items": "inline (no subagents); .dev/issues/v61-post-release/CONSOLIDATED-PLAN.md (not committed); see post-release-report.md"
+    },
+    "B_tech_docs": {
+      "scanned": [
+        "docs/developer-guide/",
+        "docs/architecture/",
+        "docs/reference/",
+        "docs/dev/",
+        "docs/swarm/",
+        "docs/user-guide/",
+        "README.md"
+      ],
+      "updated": [
+        "docs/developer-guide/technical-architecture.md",
+        "docs/developer-guide/review-severity-rule.md",
+        "docs/developer-guide/codegraph-integration.md",
+        "docs/developer-guide/session-memory.md",
+        "docs/developer-guide/documentation-index.md",
+        "docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md",
+        "docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md"
+      ],
+      "created": [],
+      "gaps": [
+        "no technical doc for superclaude observe",
+        "orchestration reference: other citations have an unknown baseline; lines 317 and 2197 keep research-time counts",
+        "git-standards-protocols.md is another project's doc",
+        "root VERSION file says 3.7",
+        "the citation checker lives in a worktree evidence folder and misses CHANGELOG.md and .github citations"
+      ]
+    },
+    "C_install_deploy": {
+      "class": "package",
+      "scanned": [
+        "pyproject.toml",
+        "update.sh",
+        "Makefile (sync-dev)",
+        "src/superclaude/cli/main.py",
+        "src/superclaude/cli/install_*.py",
+        "src/superclaude/cli/doctor.py",
+        "src/superclaude/skills/ccsession-tag/retention.py",
+        "src/superclaude/skills/ccsession-tag/session_keep.py",
+        "docs/getting-started/installation.md",
+        "docs/getting-started/upgrading.md"
+      ],
+      "updated": [],
+      "created": [
+        "docs/testing/v6.1.0/c-e2e-run.sh",
+        "docs/testing/v6.1.0/c-e2e-transcript.txt"
+      ],
+      "gaps": [
+        "ccsession agent-session hiding and --prune --apply not run with seeded sessions",
+        "the retention write branch could only be shown with CCSESSION_MANAGED_SETTINGS_DIR (host managed value 90 equals the target)",
+        "plain `superclaude install` exits 1 with 'Claude CLI is unavailable' when claude is replaced by its auto-updater mid-run (6.0.0 run); the script pins a private copy",
+        "offline install and upgrade not tried; 5.0.0 or 4.x straight to 6.1.0 not run"
+      ],
+      "e2e": {
+        "ran": true,
+        "result": "green",
+        "target": "fresh pipx venv from git+https://github.com/IronbellyOrg/IronClaude@v6.1.0 and throwaway HOMEs under /tmp (env -i, pinned claude copy); three scenarios: new user, upgrade from a genuine 6.0.0, update.sh from a clone",
+        "transcript": "docs/testing/v6.1.0/c-e2e-transcript.txt",
+        "summary": "s1_pipx=0 s1_install=0 s1_doctor=0 s1_second=0 s1_retention_install=0 s1_removed_group_exit=2 s2_v6_seed=0 s2_pipx=0 s2_install=0 s2_doctor_while_kept=1 s2_doctor_after_rm=0 s2_second=0 s2_update=0 s2_doctor_after_cleanup=0 s3_update_sh=0 (transcript line 2152); REAL_HOME_UNCHANGED; RESULT: GREEN (line 2154)",
+        "carried_forward_from": null,
+        "harness_negative_check": "c-e2e-run.sh --selftest-red gives RESULT: RED and exit 1; --selftest-expected-nonzero gives RESULT: GREEN and exit 0"
+      }
+    },
+    "D_user_e2e_guides": {
+      "feature_surface_scanned": [],
+      "created": [],
+      "coverage": "not run: out of scope by decision 6.1.0-5",
+      "gaps": [
+        "no hand-test guides for the 6.0.0 and 6.1.0 changes; v5.0.0 guides D10, D11, D13 describe removed commands"
+      ]
+    },
+    "E_sysop_e2e_guides": {
+      "sysop_capabilities_found": true,
+      "how_determined": "not re-scanned: out of scope by decision 6.1.0-5; the v5.0.0 manifest found 2 (ccsession tier policy, model data publishing); 6.0.0 added observe, issue-watch, issue-pipeline and the launch-level hooks; 6.1.0 adds `ccsession --prune --apply`",
+      "created": [],
+      "gaps": [
+        "no sysop guides for observe, issue-watch, issue-pipeline, launch-level hooks, WORKER-CONTRACT.md, ccsession --prune"
+      ]
+    }
+  }
+}

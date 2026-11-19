@@ -39,7 +39,7 @@ Before using this guide, verify agent selection works:
 
 **Important**: Agents are NOT separate AI models or software - they are context configurations that Claude Code reads to adopt specialized behaviors.
 
-IronClaude 6.0.0 ships 48 agent files (45 in 5.0.0, plus `issue-worker-t1`, `issue-worker-t2` and `issue-worker-t3`). This guide covers the domain specialists you invoke or that Claude may choose; the workflow agents (for example `rf-*`, `audit-*`, `eval-*`, `issue-worker-t*`, `reflect-reviewer` and `troubleshoot-analyst`) are spawned by skills as part of their own steps.
+IronClaude 6.1.0 ships 48 agent files (45 in 5.0.0, plus `issue-worker-t1`, `issue-worker-t2` and `issue-worker-t3`; 6.1.0 removes none, and the eight `rf-*` agents stay). This guide covers the domain specialists you invoke or that Claude may choose; the workflow agents (for example `rf-*`, `audit-*`, `eval-*`, `issue-worker-t*`, `reflect-reviewer` and `troubleshoot-analyst`) are spawned by skills as part of their own steps.
 
 ### Two Ways to Use Agents
 

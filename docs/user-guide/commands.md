@@ -327,6 +327,8 @@ When codegraph, the index or its lookup tools are not usable, it falls back to G
 
 `--depth`, `--mode` and `--type` work with `--create` only; `--pipeline` and `--submit` work with `--claim` only (`E-CLAIM-ONLY-FLAG`), and `--submit` with `--pipeline worktree`, with `--pipeline none` or with no `--pipeline` stops with `E-SUBMIT-NEEDS-FULL` (write `--pipeline full --submit`). An explicit `--pipeline` always wins over the picked level. The issue watcher never relies on the default: it always passes `--pipeline none`. There is no repository option: the repository is always `origin`.
 
+**What `--create` writes (since 6.1.0):** every issue body ends with `## Priority`, `## Fix approach` and `## Test plan`, in that order, at every `--depth`. Priority is one of Urgent, High, Medium or Low with a one-line reason; Fix approach lists the repo and base branch, the commands to run in order and the steps with the files they touch; Test plan lists the tests to add or change, the regression gate and how a reviewer verifies the result. These three sections never read "Not known yet": where the analysis leaves a gap, the section states a labelled assumption and the worker lists it for you to keep or drop before the issue is posted.
+
 **Claim levels (`--pipeline`):**
 
 With no `--pipeline` the claim picks `full` or `worktree` from the issue (see the options table above); an explicit `--pipeline` always wins.

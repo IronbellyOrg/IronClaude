@@ -1140,7 +1140,7 @@ git commit -m "feat: add /sc:my-command with agent and skill"
 
 ### 8.5 Plugin Build Workflow (Future)
 
-The plugin system is planned for a later release; it is not part of 6.0.0. When available:
+The plugin system is planned for a later release; it is not part of 6.1.0. When available:
 
 ```bash
 # Build plugin artifacts

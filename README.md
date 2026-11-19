@@ -63,16 +63,16 @@ superclaude install
 
 This installs the package, then framework assets (core files, commands, agents, skills, ccsession wiring, hooks, templates and user setup), followed by the codegraph phase (a pinned, checksum-verified codegraph registered as a user-level MCP server; a failure there exits 1), a bounded, non-fatal cleanup of old user-level MCP registrations that IronClaude wrote itself, and a non-fatal removal of the commands, skills and agents a release no longer ships (only unchanged copies of files IronClaude installed). See the [MCP installation guide](docs/user-guide/mcp-installation.md) for details. Installing from the repository URL needs read access to it.
 
-### Upgrading to 6.0.0
+### Upgrading to 6.1.0
 
 Back up any core file, agent or skill you edited in `~/.claude/` first (the installer saves a `.bak.<UTC time>` copy of a changed command, rule or output-style file, but overwrites the rest without a copy), then run:
 
 ```bash
-pipx install --force git+https://github.com/IronbellyOrg/IronClaude@v6.0.0
+pipx install --force git+https://github.com/IronbellyOrg/IronClaude@v6.1.0
 superclaude install --force
 ```
 
-Restart Claude sessions afterwards. A plain `superclaude install` keeps framework files that already exist, so use `--force` to refresh them. Do not upgrade with `superclaude update`: it never installs codegraph or retires old MCP registrations. 6.0.0 removes six `superclaude` command groups, twelve slash commands and five skills; the install removes the installed copies of the removed commands and skills and keeps (and explains) any copy you changed. See [Upgrading](docs/getting-started/upgrading.md) for the full steps and the [6.0.0 release notes](docs/releases/v6.0.0.md) for what changed.
+Restart Claude sessions afterwards. A plain `superclaude install` keeps framework files that already exist, so use `--force` to refresh them. Do not upgrade with `superclaude update`: it never installs codegraph or retires old MCP registrations. 6.1.0 removes nine skills (`task`, `task-builder`, `roadmap`, `prd`, `tdd`, `tech-research`, `tech-reference`, `operational-guide`, `readme`) and the `/sc:tdd` command; plan work with `/sc:workflow` then `/sc:implement`. `/sc:task`, `/sc:validate-tests` and the eight `rf-*` agents stay. The install removes the installed copies of the removed commands and skills and keeps (and explains) any copy you changed. See [Upgrading](docs/getting-started/upgrading.md) for the full steps (from 6.0.0, 5.0.0 or 4.x) and the [6.1.0 release notes](docs/releases/v6.1.0.md) for what changed.
 
 ### Install from source for development
 
@@ -214,7 +214,7 @@ make clean              # Remove build artifacts
 For deeper context, start with:
 
 - [docs/user-guide/how-we-work.md](docs/user-guide/how-we-work.md) — which command or skill to use for each kind of work, in what order
-- [docs/user-guide/cli-groups.md](docs/user-guide/cli-groups.md) — every `superclaude` command group in 6.0.0 and where it is documented
+- [docs/user-guide/cli-groups.md](docs/user-guide/cli-groups.md) — every `superclaude` command group in 6.1.0 and where it is documented
 - `CLAUDE.md` — repository-specific workflow and contribution rules
 - `KNOWLEDGE.md` — accumulated findings and troubleshooting context
 - `PROJECT_INDEX.md` — high-level repository index

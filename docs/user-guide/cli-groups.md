@@ -1,6 +1,6 @@
-# The `superclaude` command groups (6.0.0)
+# The `superclaude` command groups (6.1.0)
 
-This page lists every `superclaude` command group that 6.0.0 ships, what it is for, and where it is documented. Every description comes from the command's own `--help` text; run `superclaude <group> --help` for the full list of options. The slash commands (`/sc:...`) are in the [commands reference](commands.md).
+This page lists every `superclaude` command group that 6.1.0 ships (the same set as 6.0.0), what it is for, and where it is documented. Every description comes from the command's own `--help` text; run `superclaude <group> --help` for the full list of options. The slash commands (`/sc:...`) are in the [commands reference](commands.md).
 
 ## The groups
 

@@ -15,7 +15,7 @@ Test: /sc:brainstorm "test" should ask questions
 ### 2. Installation Verification
 
 ```bash
-superclaude --version    # Should print: SuperClaude, version 6.0.0
+superclaude --version    # Should print: SuperClaude, version 6.1.0
 ```
 
 If it prints an older version, or the command is missing, upgrade the package
@@ -97,7 +97,7 @@ superclaude install
 
 ## Verification Checklist
 
-- [ ] `superclaude --version` prints `SuperClaude, version 6.0.0`
+- [ ] `superclaude --version` prints `SuperClaude, version 6.1.0`
 - [ ] `/sc:brainstorm "test"` works in Claude Code
 - [ ] `superclaude install --list` shows components
 

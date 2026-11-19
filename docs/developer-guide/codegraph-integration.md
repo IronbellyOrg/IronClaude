@@ -1,6 +1,6 @@
 # codegraph Integration (Design Note)
 
-This note explains how IronClaude installs, registers and uses codegraph (since 5.0.0), and how the same install run retires the old Serena and codebase-memory-mcp registrations. It is for maintainers who change the installer, the hook or the codegraph rules for commands, skills and agents. It was written for 5.0.0 and re-read at tag v6.0.0, which added the retire step for commands, skills and agents (step 10); line numbers are from tag v6.0.0.
+This note explains how IronClaude installs, registers and uses codegraph (since 5.0.0), and how the same install run retires the old Serena and codebase-memory-mcp registrations. It is for maintainers who change the installer, the hook or the codegraph rules for commands, skills and agents. It was written for 5.0.0 and re-read at tag v6.0.0, which added the retire step for commands, skills and agents (step 10), and checked again against tag v6.1.0 (a citation check found no cited `src/` or `tests/` line that moved between the two tags; the `CHANGELOG.md` citations now point at the `[5.0.0]` entries as they stand after the 6.1.0 entries were added). Line numbers into `src/` and `tests/` are from tag v6.1.0.
 
 For the user-facing view, see [codegraph user guide](../user-guide/codegraph.md) and [MCP installation: default setup](../user-guide/mcp-installation.md#default-setup-codegraph).
 
@@ -57,7 +57,7 @@ For the user-facing view, see [codegraph user guide](../user-guide/codegraph.md)
 - **Owned versus user-managed.** An entry that holds only fields IronClaude writes is "owned" and is replaced when it differs; anything else is "user" and is kept if its command runs, or reported as a failure if it does not, with the removal command to run (`install_mcp.py:877-890,967-999`). A failed add or verification restores the previous entry when possible (`install_mcp.py:905-919,1000-1020`).
 - **No live check.** Success means the entry was read back equal to the expected one; no indexing or MCP handshake is performed, and the message asks the user to restart Claude sessions (`install_mcp.py:962-966`).
 
-**Why `codegraph_explore` is hidden.** `CODEGRAPH_MCP_TOOLS` lists seven narrow tools and leaves out `codegraph_explore`, which added about 1,861 tokens per session in four headless runs (`CHANGELOG.md:92`). A test fails if `explore` is ever added to the list (`tests/cli/test_install_codegraph.py:141`), and the rules file forbids calling it (`core/CODEGRAPH.md:89`).
+**Why `codegraph_explore` is hidden.** `CODEGRAPH_MCP_TOOLS` lists seven narrow tools and leaves out `codegraph_explore`, which added about 1,861 tokens per session in four headless runs (`CHANGELOG.md:399`). A test fails if `explore` is ever added to the list (`tests/cli/test_install_codegraph.py:141`), and the rules file forbids calling it (`core/CODEGRAPH.md:89`).
 
 ## Sequencing inside `superclaude install`
 
@@ -73,7 +73,7 @@ For the user-facing view, see [codegraph user guide](../user-guide/codegraph.md)
 - **Skip rules.** The script exits 0 and does nothing when `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`, `HOME` is unset, no executable codegraph is found (pointer file first, then `command -v codegraph`), the directory is not in a git checkout, the checkout top is `$HOME` or `/`, or `<top>/.codegraph/codegraph.db` exists in any state (`codegraph-session-start.sh:11-25`).
 - **Detached init.** It starts one `nohup <codegraph> init --yes <top>` in the background with every descriptor redirected, so Claude Code does not wait, and logs to `${XDG_STATE_HOME:-$HOME/.local/state}/superclaude/codegraph-init.log` (`codegraph-session-start.sh:27-32`).
 - **What it never runs.** `status`, `index` or `sync`, because each can destroy a concurrent init; two racing inits are harmless (`codegraph-session-start.sh:6-9`).
-- **Cost model.** About 70 KB per indexed file and up to about 1 GB of memory during the first init; the opt-out is recommended for CI and headless pipelines (`CHANGELOG.md:93`).
+- **Cost model.** About 70 KB per indexed file and up to about 1 GB of memory during the first init; the opt-out is recommended for CI and headless pipelines (`CHANGELOG.md:400`).
 
 ## Primitive contract and the primitives switch
 
@@ -83,7 +83,7 @@ For the user-facing view, see [codegraph user guide](../user-guide/codegraph.md)
 - **Closed `graph:*` token list.** Fourteen tokens; no token stops a run (`core/CODEGRAPH.md:28-32`). `tests/core/test_codegraph_guide.py` checks that no other token appears.
 - **Read before cite.** A graph answer locates code but is never a citation; a `file:line` range is re-Read before it is quoted or edited (`core/CODEGRAPH.md:7,68`).
 - **Grep/Read floor.** codegraph steps go above the existing Grep/Read step, which stays; any unusable state falls back to it (`core/CODEGRAPH.md:69,76`).
-- **Primitives switch.** `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` turns off codegraph use in commands, skills and agents only (token `graph:disabled`); `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` turns off only the hook (`core/CODEGRAPH.md:11,26`; `CHANGELOG.md:87`).
+- **Primitives switch.** `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` turns off codegraph use in commands, skills and agents only (token `graph:disabled`); `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` turns off only the hook (`core/CODEGRAPH.md:11,26`; `CHANGELOG.md:394`).
 - **Main-session guidance.** The installed `~/.claude/CLAUDE.md` carries a codegraph block between `SUPERCLAUDE_CODEGRAPH_BEGIN` and `SUPERCLAUDE_CODEGRAPH_END` (`core/CLAUDE.md:28-30`).
 - **`/sc:graph`** reports readiness and is the only manual init path; init runs only when the user's own message starts with `/sc:graph init`, never from a skill or agent (`commands/graph.md:14,44-53,62-66`).
 - **`/sc:impact`** lists definitions and dependents, writes `impact.md` and `return-contract.yaml`, falls back to Grep, and never stops its caller or changes its gate or verdict (`commands/impact.md:13,47-50,60-64`).
@@ -101,7 +101,7 @@ The retire step removes old MCP registrations IronClaude can prove it wrote (`in
 - **Scope and bounds.** Only top-level user-scope entries are read and removed, with `claude mcp remove <name> --scope user`; 10 s per `claude` call and 15 s for the whole step (`install_retired_mcp.py:34-35,393-395`; `install_mcp.py:809-851`). Each entry is re-read and re-matched right before removal and checked again after; nothing is retried (`install_mcp.py:816-823`).
 - **Exit code.** No outcome changes the install exit code; the caller wraps the step in `try/except` (`main.py:257-269`; `install_retired_mcp.py:391`).
 - **Tier R (provable shapes).** Three Serena argv rows that only IronClaude or its pre-fork ancestor wrote are always removed (`install_retired_mcp.py:54-89,190-192`). A codebase-memory-mcp entry counts when its command is an absolute path named `codebase-memory-mcp`, with stdio, no args and no `env` or `headers` (`install_retired_mcp.py:151-175`).
-- **Tier K (kept).** Any other plain Serena launcher, including the current-pin `serena-agent==1.7.0` registration, is kept with the removal command printed, until codegraph is ready (`install_retired_mcp.py:91-95,193-195`; `CHANGELOG.md:113`). Entries with non-empty `env` or `headers` are kept as customised (`install_retired_mcp.py:147-148,188-189`).
+- **Tier K (kept).** Any other plain Serena launcher, including the current-pin `serena-agent==1.7.0` registration, is kept with the removal command printed, until codegraph is ready (`install_retired_mcp.py:91-95,193-195`; `CHANGELOG.md:420`). Entries with non-empty `env` or `headers` are kept as customised (`install_retired_mcp.py:147-148,188-189`).
 - **When codegraph is ready.** Removal widens to any plain Serena launcher, every renamed launcher except `serena-local`, and the kind-B codebase-memory registration whose binary still exists; the binary and its companions stay (`install_retired_mcp.py:27-30,163-171,259-290`).
 - **Receipt and marker files.** `~/.local/bin/.superclaude-codebase-memory.json` and `~/.local/bin/.superclaude-codebase-memory.pending` are deleted only once the codebase-memory-mcp binary is gone, and only when each is a private regular file the user owns in a directory that is not a symlink and not group- or world-writable (`install_retired_mcp.py:31-32,206-248,343-382`).
 - **Never touched.** Binaries, uv tools, indexes, caches and memories; the step prints manual cleanup commands instead (`install_retired_mcp.py:7-9,486-493`).
