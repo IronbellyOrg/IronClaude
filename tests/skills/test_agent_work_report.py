@@ -3607,11 +3607,19 @@ def test_two_refreshes_never_run_at_once(root, monkeypatch):
     put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))
     fake_gh(monkeypatch, {1: OPEN_MINE})
     shared = root / ".dev" / "coordinator" / "report.html"
+    real_flock, reached = fcntl.flock, threading.Event()
+
+    def flock_seen(fd, op):
+        reached.set()  # the second refresh has reached its lock call
+        return real_flock(fd, op)
+
+    monkeypatch.setattr(fcntl, "flock", flock_seen)
     with open(root / ".dev" / "coordinator" / "refresh.lock", "w") as held:
-        fcntl.flock(held, fcntl.LOCK_EX)  # another orchestrator is refreshing
+        real_flock(held, fcntl.LOCK_EX)  # another orchestrator is refreshing
         t = threading.Thread(target=runmod.refresh)
         t.start()
-        t.join(0.5)
-        assert t.is_alive() and not shared.exists()  # it waits its turn
+        assert reached.wait(5)  # it is at the lock, not merely not started yet
+        t.join(0.3)
+        assert t.is_alive() and not shared.exists()  # and it waits there
     t.join(10)
     assert not t.is_alive() and shared.exists()
