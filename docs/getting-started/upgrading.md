@@ -1,25 +1,33 @@
-# Upgrading to IronClaude 6.0.0
+# Upgrading to IronClaude 6.1.0
 
-This page is for anyone who already has IronClaude 5.0.0 installed and wants
-6.0.0. The same steps apply to an older 4.x install (including the untagged
-4.3.5); the parts that only matter there are marked "from 4.x". For a first
-install, see the [Installation Guide](installation.md).
+This page is for anyone who already has IronClaude 6.0.0 installed and wants
+6.1.0. The same steps apply to an older 5.0.0 install and to a 4.x install
+(including the untagged 4.3.5); the parts that only matter there are marked
+"from 5.0.0" or "from 4.x". For a first install, see the
+[Installation Guide](installation.md).
 
-6.0.0 removes what nobody used any more: six `superclaude` command groups
-(`prd`, `cleanup-audit`, `cli-portify`, `roadmap`, `tasklist`, `sprint`), twelve
-slash commands and five skills. The upgrade therefore does more than copy new
-files: the installer removes the installed copies of the removed commands and
-skills, and it saves a copy of a command, rule or output-style file before it
-overwrites one that differs. The full list of changes is in the
-[6.0.0 release notes](../releases/v6.0.0.md).
+6.1.0 removes the task-file route and the document skills built on it: nine
+skills (`task`, `task-builder`, `roadmap`, `prd`, `tdd`, `tech-research`,
+`tech-reference`, `operational-guide`, `readme`) and the `/sc:tdd` command.
+Plan work with `/sc:workflow`, then run the plan with `/sc:implement`. It keeps
+`/sc:task`, `/sc:validate-tests` and all eight `rf-*` agents. The upgrade
+therefore does more than copy new files: the installer removes the installed
+copies of the removed command and skills, and it saves a copy of a command,
+rule or output-style file before it overwrites one that differs. The full list
+of changes is in the [6.1.0 release notes](../releases/v6.1.0.md).
 
-From 4.x you also get the 5.0.0 changes: codegraph replaces
-codebase-memory-mcp and Serena, session memory moves to plain files, and the
-upgrade installs codegraph and removes the old MCP registrations IronClaude
-wrote (see the [5.0.0 release notes](../releases/v5.0.0.md)). The 4.x steps
-below were tested for 5.0.0 and were not re-run for 6.0.0; the 5.0.0 to 6.0.0
-upgrade was run for 6.0.0 (see
-[the end-to-end record](../testing/v6.0.0/post-release-report.md)).
+From 5.0.0 you also get the 6.0.0 changes (six `superclaude` command groups,
+twelve slash commands and five skills removed; see the
+[6.0.0 release notes](../releases/v6.0.0.md)). From 4.x you also get the 5.0.0
+changes: codegraph replaces codebase-memory-mcp and Serena, session memory
+moves to plain files, and the upgrade installs codegraph and removes the old
+MCP registrations IronClaude wrote (see the
+[5.0.0 release notes](../releases/v5.0.0.md)). The 6.0.0 to 6.1.0 upgrade was
+run for 6.1.0 (see
+[the end-to-end record](../testing/v6.1.0/post-release-report.md)). The 5.0.0
+to 6.0.0 upgrade was run for 6.0.0 (see
+[its record](../testing/v6.0.0/post-release-report.md)), and the 4.x steps were
+tested for 5.0.0. Neither was re-run straight to 6.1.0.
 
 ## Before you start
 
@@ -63,11 +71,11 @@ superclaude install --force
 ```
 
 To install exactly this release rather than the latest commit, use
-`git+https://github.com/IronbellyOrg/IronClaude@v6.0.0` in the first command.
+`git+https://github.com/IronbellyOrg/IronClaude@v6.1.0` in the first command.
 
 Use `superclaude install --force`, not the other two install commands:
 
-| Command | Refreshes existing files | Installs codegraph | Retires old MCP registrations | Removes the commands, skills and agents 6.0.0 no longer ships |
+| Command | Refreshes existing files | Installs codegraph | Retires old MCP registrations | Removes the commands, skills and agents 6.1.0 no longer ships |
 |---------|--------------------------|--------------------|-------------------------------|------------------|
 | `superclaude install` | No, skips files that already exist (it names the kept files that differ) | Yes | Yes | Yes |
 | `superclaude update` | Yes | No | No (it only prints a notice when a legacy registration is present) | Yes |
@@ -82,7 +90,7 @@ In an IronClaude clone, check out the release first, then run `./update.sh`:
 
 ```bash
 git fetch origin --tags
-git checkout v6.0.0
+git checkout v6.1.0
 ./update.sh
 ```
 
@@ -96,8 +104,8 @@ without `pipx` it stops at that first command (exit 127). Install pipx with
 
 `superclaude install --force` runs these steps in order:
 
-1. Refreshes the framework files in `~/.claude/`: 12 core files, 35 commands,
-   48 agents, 35 skills, hooks, templates, rules and output styles, and merges
+1. Refreshes the framework files in `~/.claude/`: 12 core files, 34 commands,
+   48 agents, 26 skills, hooks, templates, rules and output styles, and merges
    its hook entries into `~/.claude/settings.json`. A command, rule or
    output-style file that differs from the shipped one is saved as
    `<name>.bak.<UTC time>` first.
@@ -176,7 +184,7 @@ pkill -f local-gateway-alias-proxy.py
 ## Step 4: Check the result
 
 ```bash
-superclaude --version          # prints: SuperClaude, version 6.0.0
+superclaude --version          # prints: SuperClaude, version 6.1.0
 superclaude install --list     # read-only; ends with the codegraph and retired-registration blocks
 superclaude doctor --verbose
 ```
@@ -284,7 +292,8 @@ IronClaude can prove it wrote.
   `prd`, `readme`, `roadmap`, `task`, `task-builder`, `tdd`, `tech-reference`,
   `tech-research`. No agent is removed in 6.1.0, and `/sc:task`,
   `/sc:validate-tests` and the eight `rf-*` agents are kept. A workspace upgraded
-  straight from 5.0.0 to 6.1.0 gets both lists in one run.
+  straight from 5.0.0 to 6.1.0 gets both lists in one run (the retire data holds
+  both; that straight path was not run end to end for 6.1.0).
 - **Kept and explained.** A file you edited, a skill folder with a file or folder
   you added (including a `__pycache__` a skill script created), a link, or
   anything unreadable is kept. The installer prints one line for each, with the
@@ -303,10 +312,34 @@ IronClaude can prove it wrote.
   list was generated from differ in content, so they are kept and reported the
   same way.
 
-In the end-to-end test (a genuine 5.0.0 install upgraded with
-`superclaude install --force`, after an edit to `roadmap.md` and a `my-notes.txt`
-added to `sc-tasklist-protocol`) the step printed, with temporary paths
+In the 6.1.0 end-to-end test (a genuine 6.0.0 install upgraded with
+`superclaude install --force`, after an edit to `tdd.md` and a `my-notes.txt`
+added to the `task-builder` skill folder) the step printed, with temporary paths
 shortened to `~`:
+
+```text
+📦 Retiring commands, skills and agents this release no longer ships...
+   Kept /sc:tdd: its content differs from every copy IronClaude shipped (you edited it, or it came from another source). This release no longer ships it, so it is dead weight. Remove it yourself with `rm ~/.claude/commands/sc/tdd.md`
+   Removed skill operational-guide (this release no longer ships it; unchanged since it was installed)
+   ... 4 more "Removed skill ..." lines (prd, readme, roadmap, task) ...
+   Kept skill task-builder: 1 path(s) in it were added or changed after IronClaude installed it (my-notes.txt). This release no longer ships it, so it is dead weight. Remove it yourself with `rm -r ~/.claude/skills/task-builder`
+   Removed skill tdd (this release no longer ships it; unchanged since it was installed)
+   Removed skill tech-reference (this release no longer ships it; unchanged since it was installed)
+   Removed skill tech-research (this release no longer ships it; unchanged since it was installed)
+   Restart running Claude Code sessions so the removed commands and skills disappear.
+```
+
+The counts went from 35 commands, 48 agents and 35 skills (6.0.0) to 35
+commands (the 34 shipped plus the kept `tdd`), 48 agents and 27 skills (the 26
+shipped plus the kept `task-builder`). `superclaude doctor --verbose` then
+exited 1 with `Missing command-required skill(s): tdd` until the two printed
+`rm` commands were run, and printed `✅ SuperClaude is healthy` after them
+(34 commands, 48 agents, 26 skills). The transcript is
+[`docs/testing/v6.1.0/c-e2e-transcript.txt`](../testing/v6.1.0/c-e2e-transcript.txt).
+
+For 6.0.0 (a genuine 5.0.0 install upgraded the same way, after an edit to
+`roadmap.md` and a `my-notes.txt` added to `sc-tasklist-protocol`) the step
+printed:
 
 ```text
 📦 Retiring commands, skills and agents this release no longer ships...
@@ -337,12 +370,14 @@ disappear from them.
 `superclaude install --force` and `superclaude update` save a copy of every
 command, rule and output-style file that differs from the shipped one before
 they overwrite it. The install output lists the copies, for example
-`Saved 27 changed command(s) before overwriting:` (and the same for `rule
+`Saved 7 changed command(s) before overwriting:` (and the same for `rule
 file(s)` and `output style(s)`).
 
 - **Why so many.** A file from an older release and a file you edited look the
-  same to the installer, so both are saved. An upgrade from 5.0.0 leaves a copy
-  of every command that changed since then, whether you edited it or not.
+  same to the installer, so both are saved. An upgrade leaves a copy of every
+  command that changed since the release you came from, whether you edited it or
+  not: 7 in the 6.0.0 to 6.1.0 test (six commands that 6.1.0 changed and one
+  that the test edited), 27 from 5.0.0 to 6.0.0.
 - **Not loaded.** The copy is named `<name>.bak.<UTC time>` (for example
   `analyze.md.bak.20261118T170151Z`). It ends in a time stamp, not in `.md`, so
   Claude Code does not load it as a command.
@@ -382,13 +417,28 @@ mkdir -p .superclaude/memory && cp -Rn .serena/memories/. .superclaude/memory/
 
 ## Step 6: Update your scripts
 
+### From 6.0.0 to 6.1.0
+
+| Old usage | In 6.1.0 |
+|-----------|----------|
+| `/task`, `/task-builder`, `/roadmap` | Removed. Use `/sc:workflow "<what to build>"`, then `/sc:implement <printed plan path>`. To continue an old task file, copy its unchecked items into a new list and run `/sc:implement <list>`; do not point `/sc:implement` at the old file, because it lists checked items too. |
+| `/prd`, `/tdd`, `/tech-research`, `/tech-reference`, `/operational-guide`, `/readme`, `/sc:tdd` | Removed with no replacement. `/sc:research`, `/sc:analyze` and `/sc:brainstorm` cover the research steps; write requirement and design documents by hand or with `/sc:design`. |
+| `/sc:brainstorm --handoff task` | Stops with a message that names the replacement. `--handoff` takes `none` or `design`; then run `/sc:workflow @<output>/merged-requirements.md`. |
+| `/sc:reflect --remediate --depth deep`, `/sc:troubleshoot --fix --depth deep` | Both take the plan route (`/sc:workflow`, then `/sc:implement`) at every depth; `--depth deep` only sets the review depth. |
+| `superclaude reflect run --fix` with a report that has only `remediation_task_path` | The wrapper ignores that field and the run ends as a terminal HALT. Regenerate the report with `/sc:reflect --remediate`. |
+| `ccsession --list`, `--here` and the new-tab question | Sessions an agent saved are hidden (`ccsession --agents` shows them). New: `ccsession --mark <name> agent\|human`, `ccsession --classify [--apply]` and `ccsession --prune [--apply] [--days N]`; the last two are dry runs without `--apply`. `--classify` infers the agent marker from the `--auto-name` name shape, so read its dry-run list before running `--classify --apply`; `--prune` never touches an unmarked or human-marked session. See the [ccsession README](https://github.com/IronbellyOrg/IronClaude/blob/v6.1.0/src/superclaude/skills/ccsession-tag/README.md). |
+| Claude Code retention (`cleanupPeriodDays`) | The installer's target is 90 days, not 365; it never lowers a value you already set. See [Installation](installation.md). |
+
+Kept, nothing to change: `/sc:task`, `/sc:validate-tests`, the eval suite
+`task_classification_contract` and all eight `rf-*` agents.
+
 ### From 5.0.0 to 6.0.0
 
 | Old usage | In 6.0.0 |
 |-----------|----------|
 | `superclaude prd`, `cleanup-audit`, `cli-portify`, `roadmap`, `tasklist`, `sprint` (any subcommand) | Removed; `superclaude <group>` answers "No such command". Replacements: the interactive `prd` skill, `/sc:cleanup-audit`, and `/sc:workflow` then `/sc:implement`. The per-group table is in the [6.0.0 release notes](../releases/v6.0.0.md#command-line-groups-and-their-flags). If a script or CI job needs one, stay on `v5.0.0`. |
 | `/sc:build`, `/sc:cli-portify`, `/sc:improve`, `/sc:index`, `/sc:index-repo`, `/sc:load`, `/sc:review-translation`, `/sc:roadmap`, `/sc:save`, `/sc:spawn`, `/sc:tasklist`, `/sc:validate-roadmap` | Removed; replacements are in the [release notes](../releases/v6.0.0.md#slash-commands-12). |
-| `/sc:workflow --handoff tasklist`, `/sc:brainstorm --handoff tasklist` | `tasklist` is gone. `/sc:workflow --handoff` takes `none`, `design` or `implement`; `/sc:brainstorm --handoff` takes `none`, `design` or `task`. |
+| `/sc:workflow --handoff tasklist`, `/sc:brainstorm --handoff tasklist` | `tasklist` is gone. `/sc:workflow --handoff` takes `none`, `design` or `implement`; `/sc:brainstorm --handoff` takes `none`, `design` or `task` (6.1.0 removes `task`; see the table above). |
 | A model alias in `~/.aienv` whose name starts with a capital letter (for example `GLM`) | `ic` no longer resolves it and passes the name through as typed. Rename the alias to start with a lowercase letter. |
 
 ### From 4.x (the changes of 5.0.0)
@@ -404,6 +454,8 @@ mkdir -p .superclaude/memory && cp -Rn .serena/memories/. .superclaude/memory/
 
 ## See also
 
+- [6.1.0 release notes](../releases/v6.1.0.md): what is removed, replacements,
+  migration steps and known issues
 - [6.0.0 release notes](../releases/v6.0.0.md): what is removed, replacements,
   migration steps and known issues
 - [5.0.0 release notes](../releases/v5.0.0.md): migration steps, breaking

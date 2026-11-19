@@ -230,7 +230,7 @@ Like the flags at the top of this page, the flags under Scope and Focus and Exec
 | `--help` | `superclaude --help`, or `superclaude <subcommand> --help` | Show the options of the command or subcommand |
 | `--verbose` | `superclaude doctor --verbose` | Show detailed diagnostic information |
 | `--dry-run` | `superclaude mcp --dry-run` | Show what would happen without doing it |
-| `--force` | `superclaude install --force`, `superclaude install-skill <name> --force` | Reinstall even if the files already exist. `install --force` is required to refresh existing files (for example in the upgrades to 5.0.0 and 6.0.0), because a plain `install` skips existing files; it saves a differing command, rule or output-style file as `<name>.bak.<UTC time>` first, overwrites edited core files and agents without a copy, and re-copies skill folders |
+| `--force` | `superclaude install --force`, `superclaude install-skill <name> --force` | Reinstall even if the files already exist. `install --force` is required to refresh existing files (for example in the upgrades to 5.0.0, 6.0.0 and 6.1.0), because a plain `install` skips existing files; it saves a differing command, rule or output-style file as `<name>.bak.<UTC time>` first, overwrites edited core files and agents without a copy, and re-copies skill folders |
 | `--list` | `superclaude install --list` | List the framework components without installing |
 
 ## Flag Interactions

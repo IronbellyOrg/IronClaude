@@ -1,6 +1,6 @@
 # File-Based Session Memory (Design Note)
 
-This note explains how IronClaude keeps session memory in plain markdown files under `<project>/.superclaude/memory/`, and which commands, agents and skills read and write it. It is for maintainers who change `/sc:pm`, the PM agent or a skill that uses the store. Line numbers were taken at tag v5.0.0 and re-read at tag v6.0.0 (the PM agent, `sc-task-protocol` and `sc-reflect-protocol` citations moved). 6.0.0 removed the `save` and `load` commands that used to be part of the store, and with them the read-only fallback to the old Serena folder.
+This note explains how IronClaude keeps session memory in plain markdown files under `<project>/.superclaude/memory/`, and which commands, agents and skills read and write it. It is for maintainers who change `/sc:pm`, the PM agent or a skill that uses the store. Line numbers were taken at tag v5.0.0, re-read at tag v6.0.0 (the PM agent, `sc-task-protocol` and `sc-reflect-protocol` citations moved) and checked again at tag v6.1.0 (a citation check found no moved line; the sentence about `reflect/handoff-*.md` files was corrected, because 6.1.0 stopped writing them). 6.0.0 removed the `save` and `load` commands that used to be part of the store, and with them the read-only fallback to the old Serena folder.
 
 For the user-facing view, see [Session management](../user-guide/session-management.md). For the separate error-learning store under `docs/memory/`, see [Memory system](../user-guide/memory-system.md).
 
@@ -56,7 +56,7 @@ The rules exist so that several sessions in one worktree can write without overw
 | Single-owner (PM only) | `current_plan` | Overwritten whole | `pm-agent.md:21`, `sc-pm-protocol/SKILL.md:23` |
 | Parallel | `checkpoint`, `decision`, handoffs | Written as `<key>-<session-or-timestamp>.md` and never edited in place | `pm-agent.md:21` |
 
-Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `reflect/last-pass-{slug}.md` whole and writes `reflect/handoff-{slug}-{timestamp}.md` once (`sc-reflect-protocol/SKILL.md:592-594`).
+Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `reflect/last-pass-{slug}.md` whole (`sc-reflect-protocol/SKILL.md:581`). It used to write `reflect/handoff-{slug}-{timestamp}.md` once for the task-file route; 6.1.0 removed that route and nothing writes those files now (`sc-reflect-protocol/SKILL.md:588`).
 
 ## Who reads and writes the store
 

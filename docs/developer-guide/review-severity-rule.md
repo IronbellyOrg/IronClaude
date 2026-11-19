@@ -1,6 +1,6 @@
 # Review Severity and the 2-Fix-Cycle Cap (Design Note)
 
-This note explains the review rule IronClaude applies to every review loop (it came in with 5.0.0): how findings are graded, how many fix cycles a loop may run, where the rule is written, how it reaches every agent, which protocol keeps its own model, and the static test that stops the old wording from coming back. It is for maintainers who write or change a review gate in a command, skill, agent, template or CLI pipeline. It was written for 5.0.0 and re-read at tag v6.0.0: the wording of the grading bullets (S1, S2, S5) and the guard test changed after 5.0.0. Every line number below is from tag v6.0.0, except those into 5.0.0 records (`docs/releases/v5.0.0.md`, `.dev/releases/current/v5.0.0/DECISIONS.md`).
+This note explains the review rule IronClaude applies to every review loop (it came in with 5.0.0): how findings are graded, how many fix cycles a loop may run, where the rule is written, how it reaches every agent, which protocol keeps its own model, and the static test that stops the old wording from coming back. It is for maintainers who write or change a review gate in a command, skill, agent, template or CLI pipeline. It was written for 5.0.0 and re-read at tag v6.1.0: the wording of the grading bullets (S1, S2, S5) and the guard test changed after 5.0.0, and 6.1.0 removed the document skills that the guard test used to check (the fixture row counts and the line ranges of the guard test below are from tag v6.1.0). Every line number below is from tag v6.1.0, except those into 5.0.0 records (`docs/releases/v5.0.0.md`, `.dev/releases/current/v5.0.0/DECISIONS.md`).
 
 For the user-facing summary, see the 5.0.0 release notes, "Change 4: review loops stop after 2 fix cycles" (`docs/releases/v5.0.0.md:212-214`).
 
@@ -19,7 +19,7 @@ For the user-facing summary, see the 5.0.0 release notes, "Change 4: review loop
 
 The source of truth is five bullets in the Pragmatic output style, `src/superclaude/output-styles/pragmatic.md:240-244`, placed right after the binary-verdict bullet ("Every review agent MUST produce a binary verdict: PASS or FAIL", `pragmatic.md:239`). The guard test calls them S1-S5 by position. In 5.0.0 they were lines 225-229.
 
-| # | Rule (as of 6.0.0) | Line |
+| # | Rule (as of 6.1.0; unchanged since 6.0.0) | Line |
 |---|---|---|
 | S1 | Grade every finding as blocking or minor, by what changes if the flawed text is corrected. A finding is blocking only when one of three holds, and the finding says which: Decision (correcting the text would change a named decision, recommendation, required behaviour, acceptance check or quoted number that something rests on), Missing (a required deliverable, section or step is absent in substance) or Safety (following the text would lose or expose data or a secret, break a safety boundary or act outside the declared scope; never downgraded). | `pragmatic.md:240` |
 | S2 | Minor findings never fail a review. They are recorded as notes, the verdict is PASS (with notes), and work proceeds. A real defect in substance that nothing named rests on is Medium; a defect of form only (wording, formatting, a wrong label or line number on a true statement) is a Note. The label a reviewer used is information, not the grade. Only blocking findings produce FAIL; Medium and Note findings are not rechecked in later rounds and never start a fix pass. | `pragmatic.md:241` |
@@ -60,19 +60,19 @@ Decision R1 (`DECISIONS.md:17`) only replaced a stalled worker during the implem
 
 ## Where the rule applies
 
-The 5.0.0 changelog lists the scope (`CHANGELOG.md:278-282`, in the `[5.0.0]` section that starts at line 256). Representative sites:
+The 5.0.0 changelog lists the scope (`CHANGELOG.md:336-340`, in the `[5.0.0]` section that starts at line 314). Representative sites:
 
 | Area | What changed | Where to look |
 |---|---|---|
 | Pragmatic output style | S1-S5 replace "any issue of ANY severity fails" | `src/superclaude/output-styles/pragmatic.md:240-244` |
-| rf-qa, rf-qa-qualitative, rf-analyst, rf-team-lead agents; QA and skill templates; both MDTM templates | PASS allows minor findings as notes; FAIL needs a blocking finding; fix agents receive, apply and recheck blocking findings only | `CHANGELOG.md:279`; copies pinned by `test_review_severity_rule.py:181-204` |
-| At-cap behaviour everywhere | HALT and escalate the open blocking findings instead of turning them into Open Questions and proceeding | `CHANGELOG.md:280` |
+| rf-qa, rf-qa-qualitative, rf-analyst, rf-team-lead agents; QA and skill templates; both MDTM templates | PASS allows minor findings as notes; FAIL needs a blocking finding; fix agents receive, apply and recheck blocking findings only | `CHANGELOG.md:337`; copies pinned by `test_review_severity_rule.py:181-204` |
+| At-cap behaviour everywhere | HALT and escalate the open blocking findings instead of turning them into Open Questions and proceeding | `CHANGELOG.md:338` |
 
 ## The `/sc:implement` exception
 
 S4 exists for `/sc:implement`, which grades findings with its own model: the reviewer answers four factual checklist questions per finding, and the parent derives `blocking`, `minor` or `note` mechanically and reads each cited anchor back (`src/superclaude/skills/sc-implement-protocol/refs/qa.md:37-56,81`). Inside `/sc:implement` that model takes precedence over the output style, including the copy the SubagentStart hook injects; only `blocking` findings may fail an attempt, halt or prompt the user (`qa.md:93`).
 
-The 2-fix-cycle cap reaches it through decision B3: an attempt gets at most one in-place repair, and A2 gets one repair at most (`refs/retry.md:141-142`; `qa.md:267`). The retry-adviser attempts A3-A5 are unchanged (`CHANGELOG.md:33`). `tests/skills/test_implement_severity_static.py` pins this model and imports S1-S5 from the guard test (`test_implement_severity_static.py:12`); the guard test's old-cap check skips `sc-implement-protocol` files (`test_review_severity_rule.py:338-343`).
+The 2-fix-cycle cap reaches it through decision B3: an attempt gets at most one in-place repair, and A2 gets one repair at most (`refs/retry.md:141-142`; `qa.md:267`). The retry-adviser attempts A3-A5 are unchanged (`CHANGELOG.md:340`). `tests/skills/test_implement_severity_static.py` pins this model and imports S1-S5 from the guard test (`test_implement_severity_static.py:12`); the guard test's old-cap check skips `sc-implement-protocol` files (`test_review_severity_rule.py:338-343`).
 
 ## The guard test
 
@@ -88,12 +88,12 @@ uv run pytest tests/skills/test_review_severity_rule.py -v
 | (a) any-severity wording | Phrases such as "any issue of any severity", "regardless of severity", "must still be fixed" in `src/`, `plugins/`, `commands/`, `agents/` | `112-176` |
 | (c) copies | S1-S3 (and S5 where required) not verbatim in the eleven-file set; the `reflect-reviewer.md` grade bullets missing | `181-228` |
 | (d) cap text | The canonical cap text or the at-cap HALT clause missing | `233-264` |
-| (e), (j) edit tables | Any of the 140 cap-edit or 125 sweep-edit rows (counted by their `old:` keys; fixtures in `tests/skills/fixtures/review_severity_cap_edits.yaml` and `review_severity_sweep_edits.yaml`) not applied | `279-301` |
+| (e), (j) edit tables | Any of the 58 cap-edit or 25 sweep-edit rows (counted by their `old:` keys; fixtures in `tests/skills/fixtures/review_severity_cap_edits.yaml` and `review_severity_sweep_edits.yaml`) not applied | `279-301` |
 | (f) old caps | A review-loop cap above 2 ("Max 3 fix cycles", "after 3 failed cycles", ...) outside `sc-implement-protocol` and two allowlisted lines | `306-357` |
-| (g) verdict suffixes | "Only PASS or FAIL — no conditional pass." removed from the listed skills | `362-383` |
-| (h) plugin twins | `plugins/superclaude/skills/sc-implement-protocol/` not byte-equal to `src/` | `389-403` |
-| (i) site sweep | Old fix-loop wordings ("If findings exist", "logged for human review", ...) that would send minor findings to a fix pass | `408-482` |
-| (k) zero tolerance | "zero tolerance" without a qualifier such as fabrication, verification or blocking | `487-538` |
+| (g) verdict suffixes | "Only PASS or FAIL — no conditional pass." removed from `skill_template.md` (the only file still listed; the five document skills it used to check were removed in 6.1.0) | `362-373` |
+| (h) plugin twins | `plugins/superclaude/skills/sc-implement-protocol/` not byte-equal to `src/` | `378-392` |
+| (i) site sweep | Old fix-loop wordings ("If findings exist", "logged for human review", ...) that would send minor findings to a fix pass | `397-471` |
+| (k) zero tolerance | "zero tolerance" without a qualifier such as fabrication, verification or blocking | `476-527` |
 
 ## Open questions
 

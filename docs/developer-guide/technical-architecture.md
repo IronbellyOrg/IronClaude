@@ -42,9 +42,9 @@ The lists below give counts rather than every file name. Run `superclaude instal
 │                                   # pm-agent.md, rf-qa.md, technical-writer.md,
 │                                   # issue-worker-t1.md (spawned by /sc:issue)
 ├── commands/
-│   └── sc/                         # 35 slash commands (/sc:<name>), e.g. implement.md,
+│   └── sc/                         # 34 slash commands (/sc:<name>), e.g. implement.md,
 │                                   # workflow.md, impact.md (/sc:impact), graph.md (/sc:graph)
-├── skills/                         # 35 skill folders (SKILL.md plus refs/, rules/,
+├── skills/                         # 26 skill folders (SKILL.md plus refs/, rules/,
 │                                   # templates/, scripts/), e.g. sc-implement-protocol/,
 │                                   # sc-graph-protocol/, sc-impact-protocol/, ccsession-tag/
 │   └── ccsession-tag/

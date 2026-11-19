@@ -7,7 +7,7 @@ Quick fixes to advanced diagnostics for SuperClaude Framework issues.
 **Installation Verification:**
 
 ```bash
-superclaude --version          # Should print: SuperClaude, version 6.0.0
+superclaude --version          # Should print: SuperClaude, version 6.1.0
 superclaude install --list     # List the framework components
 ```
 
@@ -22,7 +22,7 @@ superclaude install --list     # List the framework components
 
 **Resolution Checklist:**
 
-- [ ] `superclaude --version` prints `SuperClaude, version 6.0.0`
+- [ ] `superclaude --version` prints `SuperClaude, version 6.1.0`
 - [ ] `/sc:` commands respond in Claude Code
 - [ ] MCP servers show their install status: `superclaude mcp --list`
 
@@ -39,7 +39,7 @@ superclaude install --force
 
 Install from the IronClaude repository, not from PyPI: the PyPI `superclaude`
 package is the upstream project, not this fork. To move an existing install to
-6.0.0, follow [Upgrading to IronClaude 6.0.0](../getting-started/upgrading.md).
+6.1.0, follow [Upgrading to IronClaude 6.1.0](../getting-started/upgrading.md).
 
 **Permission Denied / PEP 668 Error:**
 
@@ -62,7 +62,7 @@ superclaude install --force    # Reinstall the framework files, overwriting exis
 **Commands Not Recognized:**
 
 1. Restart Claude Code completely
-2. Verify: `superclaude --version` prints `SuperClaude, version 6.0.0`
+2. Verify: `superclaude --version` prints `SuperClaude, version 6.1.0`
 3. Test: `/sc:brainstorm "test"`
 
 **Agents Not Activating:**
