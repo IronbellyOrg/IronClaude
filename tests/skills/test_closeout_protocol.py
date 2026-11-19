@@ -1881,3 +1881,960 @@ def test_a_closes_linked_issue_with_a_not_done_verdict_does_not_close(
     _expect_line(res, "ISSUE", 0, links="closing", how="left_open")
     assert [tuple(c[:2]) for c in writes(scratch)] == [("issue", "comment")]
     assert scratch.load_state()["issues"]["12"]["state"] == "OPEN"
+
+
+# ---------------------------------------------------------------------------
+# The marker gate, the reopen guard and the cross-check (rows 24, 27 and 28)
+# ---------------------------------------------------------------------------
+
+DONE = DONE_MARKER.format(pr=34)
+CLOSED_EVENT = {"event": "closed", "created_at": "2026-11-19T08:00:00Z"}
+REOPENED_EVENT = {"event": "reopened", "created_at": "2026-11-19T09:30:00Z"}
+
+
+def perm_calls(s: Scratch) -> list[list[str]]:
+    return [c for c in s.gh_calls() if c[:1] == ["api"] and "collaborators" in c[1]]
+
+
+def test_rerun_with_the_marker_present_finishes_the_close(scratch: Scratch) -> None:
+    make_world(scratch, comments=[comment(DONE)])
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 0, how="closed_now", note="already_there")
+    assert [tuple(c[:2]) for c in writes(scratch)] == [("issue", "close")]
+
+
+def test_rerun_after_a_reopen_stops_and_writes_nothing(scratch: Scratch) -> None:
+    make_world(
+        scratch,
+        comments=[comment(DONE)],
+        timeline=[CLOSED_EVENT, REOPENED_EVENT],
+    )
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="reopened", note="already_there")
+    assert writes(scratch) == []
+
+
+def test_rerun_reads_the_reopen_past_the_first_timeline_page(scratch: Scratch) -> None:
+    filler = [
+        {"event": "labeled", "created_at": "2026-11-19T07:00:00Z"} for _ in range(150)
+    ]
+    filler[5] = CLOSED_EVENT
+    filler[139] = REOPENED_EVENT
+    make_world(scratch, comments=[comment(DONE)], timeline=filler)
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="reopened", note="already_there")
+    assert writes(scratch) == []
+    timeline_calls = [c for c in scratch.gh_calls() if "timeline" in " ".join(c)]
+    assert len(timeline_calls) == 1
+    call = timeline_calls[0]
+    assert "--paginate" in call and "--jq" in call
+    assert (
+        'select(.event=="closed" or .event=="reopened")' in call[call.index("--jq") + 1]
+    )
+    # A guard that read only one page would not see the reopen: prove the fake pages.
+    probe = subprocess.run(
+        [
+            str(scratch.bin_dir / "gh"),
+            "api",
+            f"repos/{REPO_SLUG}/issues/12/timeline?per_page=100",
+        ],
+        env=scratch.env(),
+        capture_output=True,
+        text=True,
+    )
+    assert probe.returncode == 0 and "reopened" not in probe.stdout
+
+
+def test_rerun_with_a_marker_for_another_pull_request_does_not_count(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch, comments=[comment(DONE_MARKER.format(pr=35))])
+    _expect_line(run_issue(scratch), "ISSUE", 1, why="no_verdict")
+
+
+@pytest.mark.parametrize(
+    "rule",
+    [
+        {"match": "--paginate", "exit": 1, "stderr": "HTTP 502"},
+        {"match": "--paginate", "exit": 0, "stdout": "reopened\n"},
+        {"match": "--paginate", "exit": 0, "stdout": "reopened\t\n"},
+        {"match": "--paginate", "exit": 0, "stdout": "mystery\t2026-11-19T10:00:00Z\n"},
+    ],
+)
+def test_rerun_with_an_unreadable_timeline_stops_and_writes_nothing(
+    scratch: Scratch, rule: dict
+) -> None:
+    make_world(scratch, comments=[comment(DONE)])
+    state = scratch.load_state()
+    state["rules"] = [rule]
+    scratch.save_state()
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="issue_lookup_failed", note="already_there")
+    assert writes(scratch) == []
+
+
+@pytest.mark.parametrize(
+    ("assoc", "perm", "calls"),
+    [
+        ("NONE", "maintain", 0),
+        ("CONTRIBUTOR", "maintain", 0),
+        ("FIRST_TIME_CONTRIBUTOR", "maintain", 0),
+        ("MEMBER", "read", 1),
+        ("MEMBER", "none", 1),
+        ("MEMBER", "", 1),
+        ("MEMBER", {"mode": "http404"}, 1),
+        ("MEMBER", "NOLOGIN", 0),
+    ],
+)
+def test_marker_by_an_author_who_cannot_close_is_absent(
+    scratch: Scratch, assoc: str, perm: object, calls: int
+) -> None:
+    login = "" if perm == "NOLOGIN" else "stranger"
+    make_world(scratch, comments=[comment(DONE, login=login, assoc=assoc)])
+    state = scratch.load_state()
+    state["perms"]["stranger"] = "maintain" if perm == "NOLOGIN" else perm
+    scratch.save_state()
+    # No verdict: nothing is written and no verdict is read.
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 1, why="no_verdict", note="none")
+    assert writes(scratch) == []
+    assert len(perm_calls(scratch)) == calls
+    # A done verdict: the done-check runs and the note is posted although the
+    # planted marker is on the issue.
+    scratch.clear_calls()
+    res = issue_with_verdict(scratch, verdict_text())
+    _expect_line(res, "ISSUE", 0, how="closed_now", note="posted")
+    assert [tuple(c[:2]) for c in writes(scratch)] == [
+        ("issue", "comment"),
+        ("issue", "close"),
+    ]
+
+
+def test_not_done_marker_by_a_read_member_does_not_stop_the_note(
+    scratch: Scratch,
+) -> None:
+    make_world(
+        scratch,
+        comments=[comment(NOT_DONE_MARKER.format(pr=34), login="stranger")],
+    )
+    state = scratch.load_state()
+    state["perms"]["stranger"] = "read"
+    scratch.save_state()
+    res = issue_with_verdict(scratch, NOT_DONE_TEXT)
+    _expect_line(res, "ISSUE", 0, how="left_open", note="posted")
+    assert [tuple(c[:2]) for c in writes(scratch)] == [("issue", "comment")]
+
+
+@pytest.mark.parametrize(
+    ("assoc", "role"),
+    [
+        ("MEMBER", "triage"),
+        ("COLLABORATOR", "write"),
+        ("OWNER", "maintain"),
+        ("MEMBER", "admin"),
+    ],
+)
+def test_marker_by_an_author_who_can_close_counts_whatever_login_runs(
+    scratch: Scratch, assoc: str, role: str
+) -> None:
+    make_world(scratch, comments=[comment(DONE, login="someone", assoc=assoc)])
+    state = scratch.load_state()
+    state["perms"]["someone"] = role
+    state["runner"] = {"login": "another-login", "assoc": "MEMBER"}
+    scratch.save_state()
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 0, how="closed_now", note="already_there")
+    assert [tuple(c[:2]) for c in writes(scratch)] == [("issue", "close")]
+
+
+@pytest.mark.parametrize(
+    "mode",
+    [{"mode": "http500"}, {"mode": "net"}, {"mode": "notjson"}, {"mode": "norole"}],
+)
+@pytest.mark.parametrize("reopened", [True, False])
+def test_marker_lookup_that_fails_without_an_answer_stops_the_item(
+    scratch: Scratch, mode: dict, reopened: bool
+) -> None:
+    make_world(
+        scratch,
+        comments=[comment(DONE, login="flaky")],
+        timeline=[CLOSED_EVENT, REOPENED_EVENT] if reopened else [],
+    )
+    state = scratch.load_state()
+    state["perms"]["flaky"] = mode
+    scratch.save_state()
+    directory = get_evidence(scratch)
+    path = write_verdict(directory, verdict_text())
+    scratch.clear_calls()
+    res = run_issue(scratch, verdict=path, directory=directory)
+    _expect_line(res, "ISSUE", 1, why="issue_lookup_failed", note="already_there")
+    assert writes(scratch) == []
+    # A rerun in which the lookup answers goes on.
+    state = scratch.load_state()
+    state["perms"]["flaky"] = "maintain"
+    scratch.save_state()
+    res = run_issue(scratch)
+    if reopened:
+        _expect_line(res, "ISSUE", 1, why="reopened")
+    else:
+        _expect_line(res, "ISSUE", 0, how="closed_now")
+
+
+def test_marker_lookup_is_once_per_author_and_names_the_origin_repository(
+    scratch: Scratch,
+) -> None:
+    make_world(
+        scratch,
+        comments=[comment(DONE), comment(DONE, at="2026-11-19T09:10:00Z")],
+    )
+    _expect_line(run_issue(scratch), "ISSUE", 0, how="closed_now")
+    calls = perm_calls(scratch)
+    assert len(calls) == 1
+    assert calls[0][1] == f"repos/{REPO_SLUG}/collaborators/maint/permission"
+
+
+def test_a_done_marker_makes_a_passed_verdict_file_irrelevant(scratch: Scratch) -> None:
+    make_world(scratch, comments=[comment(DONE)])
+    res = issue_with_verdict(scratch, NOT_DONE_TEXT)
+    _expect_line(res, "ISSUE", 0, how="closed_now", note="already_there")
+    assert [tuple(c[:2]) for c in writes(scratch)] == [("issue", "close")]
+
+
+def test_the_latest_counting_marker_is_the_one_the_guard_uses(scratch: Scratch) -> None:
+    make_world(
+        scratch,
+        comments=[
+            comment(DONE, at="2026-11-19T08:10:00Z"),
+            comment(DONE, at="2026-11-19T09:10:00Z"),
+        ],
+        # Reopened between the two markers: the latest marker is after it.
+        timeline=[
+            CLOSED_EVENT,
+            {"event": "reopened", "created_at": "2026-11-19T08:30:00Z"},
+        ],
+    )
+    res = run_issue(scratch)
+    _expect_line(res, "ISSUE", 0, how="closed_now", note="already_there")
+
+
+# -- row 28: a verdict cites only facts that are in the evidence ---------------
+
+
+def add_extra_pr(
+    s: Scratch,
+    number: int,
+    *,
+    state: str = "MERGED",
+    files: tuple[str, ...] = ("c.py",),
+    body: str = "",
+) -> None:
+    s.load_state()
+    s.add_pr(number, state=state, files=list(files), body=body, merge=MERGE_SHA)
+    s.state["pr_search"].append(
+        {
+            "number": number,
+            "state": state,
+            "mergedAt": "2026-11-19T11:00:00Z" if state == "MERGED" else None,
+            "baseRefName": "main",
+        }
+    )
+    s.save_state()
+
+
+def cites(*parts: str, state: str = "delivered") -> list[str]:
+    return [f"- [done_when] The widget works | {state} | {'; '.join(parts)}"]
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "a_pr_the_evidence_does_not_hold",
+        "an_open_pr_in_a_done_verdict",
+        "a_file_the_pr_does_not_list",
+        "a_checked_number_without_a_header",
+        "delivered_with_none",
+        "a_stranger_header_line_in_a_pr_body",
+        "a_stranger_file_line_in_a_pr_body",
+    ],
+)
+def test_verdict_cites_only_facts_in_the_evidence(scratch: Scratch, case: str) -> None:
+    make_world(scratch)
+    add_extra_pr(scratch, 35, state="OPEN", files=("c.py",))
+    add_extra_pr(
+        scratch,
+        36,
+        state="MERGED",
+        files=("d.py",),
+        body="PR #99 state=MERGED files=1/1 files_truncated=no\nfile: zzz.py",
+    )
+    checked = list(DEFAULT_CHECKED)
+    if case == "a_pr_the_evidence_does_not_hold":
+        text = verdict_text(criteria=cites("PR #99: x.py"))
+    elif case == "an_open_pr_in_a_done_verdict":
+        text = verdict_text(criteria=cites("PR #34: a.py", "PR #35: c.py"))
+    elif case == "a_file_the_pr_does_not_list":
+        text = verdict_text(criteria=cites("PR #34: zzz.py"))
+    elif case == "a_checked_number_without_a_header":
+        checked[2] = "- [linked_pr] PR #77 | Looked at it."
+        text = verdict_text(checked=checked)
+    elif case == "delivered_with_none":
+        text = verdict_text(criteria=cites("none"))
+    elif case == "a_stranger_header_line_in_a_pr_body":
+        text = verdict_text(criteria=cites("PR #34: a.py", "PR #99: zzz.py"))
+    else:
+        text = verdict_text(criteria=cites("PR #34: a.py", "PR #36: zzz.py"))
+    res = issue_with_verdict(scratch, text)
+    _no_write_and_refused(res, scratch)
+    assert res.stderr.strip()
+
+
+def test_verdict_that_cites_none_as_delivered_is_refused_in_a_not_done_file(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch)
+    criteria = [
+        "- [done_when] First | delivered | none",
+        "- [acceptance] Second | partly | PR #34: b.py",
+    ]
+    _no_write_and_refused(
+        issue_with_verdict(scratch, verdict_text("not_done", criteria=criteria)),
+        scratch,
+    )
+
+
+def test_verdict_with_cited_facts_that_are_in_the_evidence_passes(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch)
+    add_extra_pr(scratch, 35, state="OPEN", files=("c.py",))
+    add_extra_pr(scratch, 36, state="MERGED", files=("d.py",))
+    add_extra_pr(
+        scratch,
+        37,
+        state="MERGED",
+        files=tuple(f"big{i}.py" for i in range(150)),
+    )
+    # A merged linked pull request with files from its list.
+    checked = [*DEFAULT_CHECKED, "- [linked_pr] PR #36 | Delivers the second part."]
+    res = issue_with_verdict(
+        scratch,
+        verdict_text(checked=checked, criteria=cites("PR #34: a.py", "PR #36: d.py")),
+    )
+    _expect_line(res, "ISSUE", 0, how="closed_now")
+    # A file of a pull request whose list is truncated is not checked.
+    make_world(scratch)
+    add_extra_pr(scratch, 37, files=tuple(f"big{i}.py" for i in range(150)))
+    res = issue_with_verdict(
+        scratch, verdict_text(criteria=cites("PR #34: a.py", "PR #37: not-listed.py"))
+    )
+    _expect_line(res, "ISSUE", 0, how="closed_now")
+    # A not_done file may cite an open pull request that is in the evidence.
+    make_world(scratch)
+    add_extra_pr(scratch, 35, state="OPEN", files=("c.py",))
+    criteria = [
+        "- [done_when] First | delivered | PR #34: a.py",
+        "- [acceptance] Second | partly | PR #35: c.py",
+    ]
+    res = issue_with_verdict(scratch, verdict_text("not_done", criteria=criteria))
+    _expect_line(res, "ISSUE", 0, how="left_open", note="posted")
+
+
+# ---------------------------------------------------------------------------
+# The evidence step (row 25), the check step (row 5) and the hand run (row 7)
+# ---------------------------------------------------------------------------
+
+
+def cross_ref(number: int, repo: str = REPO_SLUG) -> dict:
+    return {
+        "event": "cross-referenced",
+        "created_at": "2026-11-19T06:00:00Z",
+        "source": {
+            "issue": {
+                "number": number,
+                "state": "closed",
+                "pull_request": {"merged_at": "2026-11-19T11:00:00Z"},
+                "repository": {"full_name": repo},
+            }
+        },
+    }
+
+
+def big_world(s: Scratch) -> None:
+    make_world(s)
+    s.load_state()
+    issue = s.state["issues"]["12"]
+    issue["comments"] = [comment(f"comment {i}", login="maint") for i in range(45)]
+    events = [cross_ref(n) for n in range(100, 105)] + [cross_ref(900, "other/repo")]
+    events += [{"event": "labeled", "created_at": OLD} for _ in range(144)]
+    events[120] = REOPENED_EVENT
+    issue["timeline"] = events
+    rows = []
+    for n in range(100, 125):
+        s.add_pr(n, files=[f"p{n}.py"], merge=MERGE_SHA)
+        rows.append(
+            {
+                "number": n,
+                "state": "MERGED",
+                "mergedAt": "2026-11-19T11:00:00Z",
+                "baseRefName": "main",
+            }
+        )
+    s.state["pr_search"] = rows
+    s.state["open_search"] = [
+        {"number": n, "baseRefName": "main", "headRefName": f"b{n}"}
+        for n in range(200, 225)
+    ]
+    for n in range(200, 225):
+        s.add_pr(n, state="OPEN", files=[f"o{n}.py"])
+    s.save_state()
+
+
+EXPECTED_EVIDENCE_CALLS = [
+    ["issue", "view", "12", "--repo", REPO_SLUG, "--json", "title,body,state,comments"],
+    [
+        "pr",
+        "view",
+        "34",
+        "--repo",
+        REPO_SLUG,
+        "--json",
+        "body,files,changedFiles,baseRefName,mergedAt,closingIssuesReferences",
+    ],
+    ["api", f"repos/{REPO_SLUG}/issues/12/timeline?per_page=100"],
+    [
+        "pr",
+        "list",
+        "--repo",
+        REPO_SLUG,
+        "--state",
+        "all",
+        "--search",
+        "12",
+        "--limit",
+        "10",
+        "--json",
+        "number,state,mergedAt,baseRefName",
+    ],
+    [
+        "pr",
+        "list",
+        "--repo",
+        REPO_SLUG,
+        "--state",
+        "open",
+        "--search",
+        "12",
+        "--limit",
+        "10",
+        "--json",
+        "number,baseRefName,headRefName",
+    ],
+]
+PAGINATED_TIMELINE = [
+    "api",
+    "--paginate",
+    f"repos/{REPO_SLUG}/issues/12/timeline?per_page=100",
+    "--jq",
+    '.[] | select(.event=="closed" or .event=="reopened") | [.event, .created_at] | @tsv',
+]
+
+
+def test_evidence_step_is_bounded_and_read_only(scratch: Scratch) -> None:
+    big_world(scratch)
+    scratch.ensure_repos()
+    before = scratch.status()
+    scratch.clear_calls()
+    res = scratch.run(SETTLE, "evidence", "34", "--issue", "12")
+    got = _expect_line(res, "EVIDENCE", 0, truncated="yes")
+    directory = Path(got["dir"])
+    calls = scratch.gh_calls()
+    assert calls[:5] == EXPECTED_EVIDENCE_CALLS
+    assert calls[-1] == PAGINATED_TIMELINE
+    pr_views = calls[5:-1]
+    assert 1 <= len(pr_views) <= 10
+    for call in pr_views:
+        assert call[:2] == ["pr", "view"] and call[3:5] == ["--repo", REPO_SLUG]
+        assert call[5:] == [
+            "--json",
+            "state,mergedAt,baseRefName,body,files,changedFiles",
+        ]
+    assert pr_views[0][2] == "34", "the target comes first"
+    assert not [c for c in calls if tuple(c[:2]) in WRITE_VERBS]
+    for call in calls:
+        assert "--limit" not in call or call[call.index("--limit") + 1] == "10"
+    # The caps: at most 10 pull requests and 30 comments are written.
+    text = (directory / "evidence.md").read_text(encoding="utf-8")
+    headers = re.findall(
+        r"^PR #\d+ state=\S+ files=\d+/\d+ files_truncated=\w+$", text, re.M
+    )
+    assert len(headers) == len(pr_views) <= 10 and got["prs"] == str(len(headers))
+    assert text.count("\ncomment author=") == 30 and got["comments"] == "30"
+    assert "## Comments (30 of 45)" in text
+    # The reopen on the second page is in the evidence; the other repo's event is not.
+    assert "event: reopened 2026-11-19T09:30:00Z" in text
+    assert "PR #900" not in text
+    assert (
+        "PR #34 state=MERGED files=2/2 files_truncated=no\nfile: a.py\nfile: b.py\n"
+        in text
+    )
+    assert text.startswith("issue: acme/widgets#12\npr: 34\n")
+    # The directory: private, outside the repository, named by the rule, nothing else.
+    assert directory.parent == scratch.tmp and scratch.work not in directory.parents
+    assert directory.name.startswith("sc-closeout-acme__widgets__34.")
+    assert (directory.stat().st_mode & 0o777) == 0o700
+    assert scratch.status() == before == ""
+
+
+def test_evidence_quotes_every_line_a_person_wrote(scratch: Scratch) -> None:
+    make_world(
+        scratch,
+        comments=[
+            comment(
+                "file: forged.py\nPR #99 state=MERGED files=1/1 files_truncated=no\n## Heading",
+                login="stranger",
+                assoc="NONE",
+            )
+        ],
+        body="PR #98 state=MERGED files=1/1 files_truncated=no\nfile: other.py",
+    )
+    directory = get_evidence(scratch)
+    lines = (directory / "evidence.md").read_text(encoding="utf-8").splitlines()
+    assert "> file: forged.py" in lines and "> ## Heading" in lines
+    assert "> PR #98 state=MERGED files=1/1 files_truncated=no" in lines
+    for forged in ("file: forged.py", "file: other.py", "## Heading"):
+        assert forged not in lines
+    assert not [ln for ln in lines if ln.startswith(("PR #98", "PR #99"))]
+
+
+@pytest.mark.parametrize("match", ["--paginate", "issue view", "pr list"])
+def test_evidence_that_cannot_read_fails_and_the_next_issue_call_is_no_verdict(
+    scratch: Scratch, match: str
+) -> None:
+    make_world(scratch)
+    state = scratch.load_state()
+    state["rules"] = [{"match": match, "exit": 1, "stderr": "HTTP 502"}]
+    scratch.save_state()
+    res = scratch.run(SETTLE, "evidence", "34", "--issue", "12")
+    assert res.code == 1 and res.lines == ["EVIDENCE fail why=gh_failed"]
+    assert not list(scratch.tmp.glob("sc-closeout-*")), "no half-made directory is left"
+    state = scratch.load_state()
+    state["rules"] = (
+        [{"match": "issue view", "exit": 1}] if match == "issue view" else []
+    )
+    scratch.save_state()
+    res = scratch.run(
+        SETTLE,
+        "issue",
+        "34",
+        "--issue",
+        "12",
+        "--verdict",
+        str(scratch.tmp / "gone" / "done-verdict.md"),
+        "--dir",
+        str(scratch.tmp / "gone"),
+    )
+    if match != "issue view":
+        _expect_line(res, "ISSUE", 1, why="no_verdict")
+
+
+def test_evidence_with_a_failing_mktemp_is_a_settle_fail(
+    scratch: Scratch, tmp_path: Path
+) -> None:
+    make_world(scratch)
+    env = scratch.env(TMPDIR=str(tmp_path / "does-not-exist"))
+    res = scratch.run(SETTLE, "evidence", "34", "--issue", "12", env=env)
+    assert res.code == 2 and res.lines == ["SETTLE_FAIL mktemp_failed"]
+
+
+# -- check (row 5) ---------------------------------------------------------------
+
+GOOD_LINES = (
+    "ISSUE settled n=12 links=closing how=closed_now note=posted\n"
+    "ENTRY already_final key=acme__widgets__12 how=issue_open\n"
+    "TASK none_found\n"
+)
+
+
+def test_check_accepts_three_good_lines() -> None:
+    res = _run_check(GOOD_LINES)
+    assert res.code == 0 and res.lines == ["CHECK ok"]
+
+
+def _run_check(stdin: str) -> Result:
+    res = subprocess.run(
+        [str(BASH), str(SETTLE), "check"],
+        input=stdin,
+        text=True,
+        capture_output=True,
+        env={"PATH": "/usr/bin:/bin", "HOME": "/nonexistent"},
+    )
+    return Result(res.stdout, res.stderr, res.returncode)
+
+
+@pytest.mark.parametrize(
+    ("stdin", "item"),
+    [
+        (GOOD_LINES.split("\n", 1)[1], "ISSUE"),
+        (GOOD_LINES.replace("ENTRY already_final", "ENTRY"), "ENTRY"),
+        (GOOD_LINES.replace("TASK none_found", "TASK maybe"), "TASK"),
+        (
+            GOOD_LINES.replace("TASK none_found", "TASK escalated why=no_such_reason"),
+            "TASK",
+        ),
+        (GOOD_LINES.replace("TASK none_found", "TASK escalated"), "TASK"),
+        (
+            GOOD_LINES.replace("ISSUE settled", "ISSUE escalated").replace(
+                "how=closed_now", "how=x"
+            ),
+            "ISSUE",
+        ),
+    ],
+)
+def test_check_fails_an_item_with_no_status_or_an_unknown_why(
+    stdin: str, item: str
+) -> None:
+    res = _run_check(stdin)
+    assert res.code == 2 and res.lines == [f"CHECK_FAIL {item}"]
+
+
+def test_check_knows_every_why_token_of_the_reference() -> None:
+    text = (REFS_DIR / "settle.md").read_text(encoding="utf-8")
+    tokens = re.findall(
+        r"^\| (?:issue|entry|task|all three|any) \| `([a-z_]+)` \|", text, re.M
+    )
+    assert len(tokens) == len(set(tokens)) == 17
+    for token in tokens:
+        line = f"TASK escalated why={token}\n"
+        res = _run_check(GOOD_LINES.replace("TASK none_found\n", line))
+        assert res.code == 0, token
+    for sentence_row in re.findall(
+        r"^\| \w[\w ]* \| `[a-z_]+` \| (.+) \|$", text, re.M
+    ):
+        assert EM_DASH not in sentence_row and EN_DASH not in sentence_row
+
+
+# -- entry and task ----------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("word", "rc", "line"),
+    [
+        ("moved", "0", "ENTRY settled key=k1 how=moved"),
+        ("already_closed", "0", "ENTRY already_final key=k1 how=already_closed"),
+        ("no_entry", "0", "ENTRY none_found key=k1"),
+        ("moved", "1", "ENTRY escalated key=k1 why=entry_command_failed"),
+        ("surprise", "0", "ENTRY escalated key=k1 why=entry_command_failed"),
+    ],
+)
+def test_entry_with_a_fake_report_command(
+    scratch: Scratch, word: str, rc: str, line: str
+) -> None:
+    scratch.install_superclaude()
+    env = scratch.env(FAKE_ENTRY_WORD=word, FAKE_ENTRY_RC=rc)
+    res = scratch.run(SETTLE, "entry", "--key", "k1", env=env)
+    assert res.lines == [line]
+    assert res.code == (1 if "escalated" in line else 0)
+    log = scratch.sc_log.read_text(encoding="utf-8")
+    assert "orchestrator report-entry --key k1 --closed" in log
+
+
+def test_entry_without_the_report_command_is_surface_absent(scratch: Scratch) -> None:
+    res = scratch.run(SETTLE, "entry", "--key", "acme__widgets__12")
+    assert res.code == 1
+    assert res.lines == ["ENTRY escalated key=acme__widgets__12 why=surface_absent"]
+
+
+def test_entry_with_the_issue_open_runs_no_command(scratch: Scratch) -> None:
+    scratch.install_superclaude()
+    res = scratch.run(SETTLE, "entry", "--key", "k1", "--issue-open")
+    assert res.code == 0 and res.lines == ["ENTRY already_final key=k1 how=issue_open"]
+    assert scratch.sc_log.read_text(encoding="utf-8") == ""
+    res = scratch.run(
+        SETTLE, "entry", "--key", "k1", "--issue-open", "--match", "differs"
+    )
+    assert res.lines == ["ENTRY escalated key=k1 why=merge_differs"]
+
+
+TASK_ROW = {"id": "task_1", "title": f"{REPO_SLUG}#12", "status": "dispatched"}
+WORKER_ROW = {"dispatchId": "ctx_1", "taskId": "task_1", "dispatchStatus": "dispatched"}
+
+
+def update_calls(s: Scratch) -> list[list[str]]:
+    return [c for c in s.orca_calls_list() if "task-update" in c]
+
+
+def test_task_without_orca_is_no_orca(scratch: Scratch) -> None:
+    res = scratch.run(SETTLE, "task", "34", "--issue", "12")
+    assert res.code == 1 and res.lines == ["TASK escalated why=no_orca"]
+
+
+def test_task_with_no_run_is_no_orca_run(scratch: Scratch) -> None:
+    scratch.install_orca(run=None)
+    res = scratch.run(SETTLE, "task", "34", "--issue", "12")
+    assert res.code == 1 and res.lines == ["TASK escalated why=no_orca_run"]
+    assert update_calls(scratch) == []
+
+
+@pytest.mark.parametrize("how", ["title", "dispatch"])
+def test_task_found_by_title_or_dispatch_is_set_with_the_exact_update(
+    scratch: Scratch, how: str
+) -> None:
+    scratch.install_orca(tasks=[dict(TASK_ROW)], workers=[dict(WORKER_ROW)])
+    args = ["--issue", "12"] if how == "title" else ["--dispatch", "ctx_1"]
+    res = scratch.run(SETTLE, "task", "34", *args)
+    expected = "TASK settled id=task_1 how=completed"
+    if how == "dispatch":
+        expected += " dispatch=dispatched"
+    assert res.code == 0 and res.lines == [expected]
+    assert update_calls(scratch) == [
+        [
+            "orchestration",
+            "task-update",
+            "--id",
+            "task_1",
+            "--status",
+            "completed",
+            "--result",
+            f"merged {REPO_SLUG}#34",
+        ]
+    ]
+    # Nothing else of the worker or Dispatch is touched, and no link flag is passed.
+    for call in scratch.orca_calls_list():
+        assert call[1] in {"run-current", "worker-list", "task-list", "task-update"}
+        assert "--issue" not in call and "--pr" not in call
+
+
+@pytest.mark.parametrize("status", ["completed", "failed"])
+def test_task_already_completed_or_failed_is_already_final(
+    scratch: Scratch, status: str
+) -> None:
+    scratch.install_orca(tasks=[{**TASK_ROW, "status": status}])
+    res = scratch.run(SETTLE, "task", "34", "--title", f"{REPO_SLUG}#12")
+    assert res.code == 0
+    assert res.lines == [f"TASK already_final id=task_1 how=already_{status}"]
+    assert update_calls(scratch) == []
+
+
+def test_task_with_no_match_is_none_found(scratch: Scratch) -> None:
+    scratch.install_orca(tasks=[{**TASK_ROW, "title": "other/repo#1"}], workers=[])
+    res = scratch.run(SETTLE, "task", "34", "--issue", "12")
+    assert res.code == 0 and res.lines == ["TASK none_found"]
+    res = scratch.run(SETTLE, "task", "34", "--dispatch", "ctx_unknown")
+    assert res.lines == ["TASK none_found"]
+    assert update_calls(scratch) == []
+
+
+@pytest.mark.parametrize(
+    ("rule", "why"),
+    [
+        ({"match": "task-list", "exit": 1}, "task_lookup_failed"),
+        ({"match": "worker-list", "exit": 1}, "task_lookup_failed"),
+        ({"match": "task-update", "exit": 1}, "write_failed"),
+    ],
+)
+def test_task_lookup_and_write_failures(scratch: Scratch, rule: dict, why: str) -> None:
+    scratch.install_orca(
+        tasks=[dict(TASK_ROW)], workers=[dict(WORKER_ROW)], rules=[rule]
+    )
+    args = ["--dispatch", "ctx_1"] if "worker" in rule["match"] else ["--issue", "12"]
+    res = scratch.run(SETTLE, "task", "34", *args)
+    assert res.code == 1 and fields(res.line)["why"] == why
+
+
+def test_task_update_that_does_not_stick_is_write_failed(scratch: Scratch) -> None:
+    scratch.install_orca(tasks=[dict(TASK_ROW)], update_noop=True)
+    res = scratch.run(SETTLE, "task", "34", "--issue", "12")
+    assert res.code == 1 and fields(res.line)["why"] == "write_failed"
+
+
+# -- the hand run (row 7) and the merge guard (F22) -----------------------------------
+
+
+def test_hand_run_with_no_orchestrator_and_no_orca(scratch: Scratch) -> None:
+    make_world(scratch)
+    scratch.ensure_repos()
+    assert scratch.status() == ""
+    scratch.clear_calls()
+    evidence = scratch.run(SETTLE, "evidence", "34", "--issue", "12")
+    got = _expect_line(evidence, "EVIDENCE", 0)
+    directory = Path(got["dir"])
+    assert directory.parent == scratch.tmp and (directory / "evidence.md").is_file()
+    assert scratch.status() == ""
+    path = write_verdict(directory, verdict_text())
+    issue = run_issue(scratch, verdict=path, directory=directory)
+    entry = scratch.run(SETTLE, "entry", "--key", "acme__widgets__12")
+    task = scratch.run(SETTLE, "task", "34", "--issue", "12")
+    assert issue.line.startswith("ISSUE settled ")
+    assert entry.line == "ENTRY escalated key=acme__widgets__12 why=surface_absent"
+    assert task.line == "TASK escalated why=no_orca"
+    check = _run_check("\n".join([issue.line, entry.line, task.line]) + "\n")
+    assert check.lines == ["CHECK ok"]
+    assert scratch.status() == ""
+    # Nothing is created in the checkout.
+    assert sorted(p.name for p in scratch.work.iterdir()) == sorted(
+        [".git", "keep.txt", "old.txt", "gone.txt"]
+    )
+
+
+def test_hand_run_without_a_verdict_leaves_the_issue_alone(scratch: Scratch) -> None:
+    make_world(scratch)
+    scratch.ensure_repos()
+    issue = run_issue(scratch)
+    _expect_line(issue, "ISSUE", 1, why="no_verdict", n="12")
+    entry = scratch.run(SETTLE, "entry", "--key", "k", "--issue-open")
+    assert entry.line == "ENTRY already_final key=k how=issue_open"
+    assert writes(scratch) == []
+    assert scratch.status() == ""
+
+
+def test_match_differs_stops_every_step_and_writes_nothing(scratch: Scratch) -> None:
+    make_world(scratch)
+    scratch.install_orca(tasks=[dict(TASK_ROW)])
+    scratch.install_superclaude()
+    directory = get_evidence(scratch)
+    path = write_verdict(directory, verdict_text())
+    scratch.clear_calls()
+    results = [
+        run_issue(scratch, "--match", "differs", verdict=path, directory=directory),
+        scratch.run(SETTLE, "evidence", "34", "--issue", "12", "--match", "differs"),
+        scratch.run(SETTLE, "entry", "--key", "k", "--match", "differs"),
+        scratch.run(SETTLE, "task", "34", "--issue", "12", "--match", "differs"),
+    ]
+    for res, item in zip(results, ("ISSUE", "EVIDENCE", "ENTRY", "TASK"), strict=True):
+        assert res.code == 1 and res.line.startswith(f"{item} escalated")
+        assert fields(res.line)["why"] == "merge_differs"
+    assert scratch.gh_calls() == [] and scratch.orca_calls_list() == []
+    assert scratch.sc_log.read_text(encoding="utf-8") == ""
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        [],
+        ["frobnicate"],
+        ["issue"],
+        ["issue", "abc"],
+        ["issue", "34", "--match", "maybe"],
+        ["issue", "34", "--issue"],
+        ["issue", "34", "--issue", "1", "--issue", "2"],
+        ["issue", "34", "--bogus", "1"],
+        ["evidence", "34"],
+        ["entry"],
+        ["entry", "--key", "bad key"],
+        ["task", "34"],
+        ["check", "extra"],
+    ],
+)
+def test_bad_arguments_print_settle_fail(scratch: Scratch, argv: list[str]) -> None:
+    res = scratch.run(SETTLE, *argv)
+    assert res.code == 2 and res.line.startswith("SETTLE_FAIL "), res.stdout
+
+
+def test_scripts_never_print_or_write_a_secret(scratch: Scratch) -> None:
+    make_world(scratch)
+    directory = get_evidence(scratch)
+    path = write_verdict(directory, verdict_text())
+    results = [
+        run_issue(scratch, verdict=path, directory=directory),
+        scratch.run(SETTLE, "entry", "--key", "k"),
+        scratch.run(SETTLE, "task", "34", "--issue", "12"),
+    ]
+    for res in results:
+        for canary in ("canary-gh-token-0001", "canary-clickup-token-0002"):
+            assert canary not in res.stdout and canary not in res.stderr
+    for found in directory.rglob("*"):
+        if found.is_file():
+            assert "canary" not in found.read_text(encoding="utf-8")
+    for comment_row in comments_of(scratch):
+        assert "canary" not in comment_row["body"]
+
+
+# ---------------------------------------------------------------------------
+# The files piece 1 ships: templates, deny list and reference
+# ---------------------------------------------------------------------------
+
+
+def _plain(text: str) -> str:
+    return re.sub(r"[A-Za-z0-9_./-]*(/|\.[A-Za-z0-9_])[A-Za-z0-9_./-]*", " ", text)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        TEMPLATES_DIR / "closing-note.md",
+        TEMPLATES_DIR / "not-done-note.md",
+        TEMPLATES_DIR / "done-verdict.md",
+        REFS_DIR / "settle.md",
+        DENY_NAMES,
+    ],
+    ids=lambda p: p.name,
+)
+def test_shipped_files_are_clean(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    assert EM_DASH not in text and EN_DASH not in text
+    assert "/home/" not in text and "/Users/" not in text
+    assert "claude-gw-tier" not in text and "src/superclaude" not in text
+    if path != DENY_NAMES:
+        for name in deny_names():
+            assert not re.search(rf"\b{name}\b", _plain(text), re.IGNORECASE), name
+    assert "deployed" not in text.lower() or path.name == "settle.md"
+
+
+def test_note_templates_end_with_their_marker_and_list_their_slots() -> None:
+    done = (TEMPLATES_DIR / "closing-note.md").read_text(encoding="utf-8")
+    not_done = (TEMPLATES_DIR / "not-done-note.md").read_text(encoding="utf-8")
+    assert done.rstrip().splitlines()[-1] == "<!-- sc:closeout pr={{PR}} -->"
+    assert not_done.rstrip().splitlines()[-1] == (
+        "<!-- sc:closeout pr={{PR}} verdict=not_done -->"
+    )
+    for text in (done, not_done):
+        first = text.splitlines()[0]
+        assert first.startswith("<!-- slots:")
+        used = set(re.findall(r"\{\{([A-Z_]+)\}\}", "\n".join(text.splitlines()[1:])))
+        assert used == set(re.findall(r"\{\{([A-Z_]+)\}\}", first))
+        assert "title" not in text.lower() and "release" not in text.lower()
+    assert "Status: completed (merged)." in done
+
+
+def test_rendered_notes_hold_no_slot_and_no_slot_list(scratch: Scratch) -> None:
+    make_world(scratch)
+    issue_with_verdict(scratch, verdict_text())
+    body = comments_of(scratch)[0]["body"]
+    assert "{{" not in body and "<!-- slots" not in body
+    make_world(scratch)
+    issue_with_verdict(scratch, NOT_DONE_TEXT)
+    body = comments_of(scratch)[0]["body"]
+    assert "{{" not in body and "<!-- slots" not in body
+    assert "The issue stays open." in body
+
+
+def test_a_filled_copy_of_the_verdict_template_passes(scratch: Scratch) -> None:
+    make_world(scratch)
+    filled = []
+    for line in (TEMPLATES_DIR / "done-verdict.md").read_text("utf-8").splitlines():
+        if line.startswith("verdict:"):
+            line = "verdict: done"
+        elif line.startswith("issue:"):
+            line = "issue: acme/widgets#12"
+        elif line.startswith("pr:"):
+            line = "pr: 34"
+        elif line.startswith("- [issue_body]"):
+            line = DEFAULT_CHECKED[0]
+        elif line.startswith("- [issue_comments]"):
+            line = DEFAULT_CHECKED[1]
+        elif line.startswith("- [target_pr]"):
+            line = DEFAULT_CHECKED[2]
+        elif line.startswith("- [other_pr]"):
+            line = DEFAULT_CHECKED[3]
+        elif line.startswith("- [<"):
+            line = DEFAULT_CRITERIA[0]
+        elif line.startswith("reason:"):
+            line = "reason: The change delivers the whole list."
+        filled.append(line)
+    res = issue_with_verdict(scratch, "\n".join(filled) + "\n")
+    _expect_line(res, "ISSUE", 0, how="closed_now")
+    # An unfilled copy is refused.
+    make_world(scratch)
+    scratch.clear_calls()
+    stub = (TEMPLATES_DIR / "done-verdict.md").read_text(encoding="utf-8")
+    _no_write_and_refused(issue_with_verdict(scratch, stub), scratch)

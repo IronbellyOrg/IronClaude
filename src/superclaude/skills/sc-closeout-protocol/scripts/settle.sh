@@ -308,7 +308,7 @@ perm_lookup() {
         if [ "$rc" -eq 0 ]; then
             case "$out" in
                 admin | maintain | write | triage) PERM_RES=yes ;;
-                null) PERM_RES=fail ;;
+                null | *[!A-Za-z0-9_-]*) PERM_RES=fail ;;
                 *) PERM_RES=no ;;
             esac
         elif grep -q 'HTTP 404' "$WORK/perm.err"; then
@@ -750,7 +750,7 @@ cmd_issue() {
         once "$1"
         case "$1" in
             --issue)
-                need_value "$@"
+                need_value "$1" $#
                 is_number "$2" || setfail usage "--issue needs a number"
                 OPT_ISSUE=$((10#$2))
                 shift 2
@@ -847,7 +847,7 @@ cmd_evidence() {
         once "$1"
         case "$1" in
             --issue)
-                need_value "$@"
+                need_value "$1" $#
                 is_number "$2" || setfail usage "--issue needs a number"
                 OPT_ISSUE=$((10#$2))
                 shift 2
@@ -1075,7 +1075,7 @@ cmd_task() {
         once "$1"
         case "$1" in
             --issue)
-                need_value "$@"
+                need_value "$1" $#
                 is_number "$2" || setfail usage "--issue needs a number"
                 OPT_ISSUE=$((10#$2))
                 shift 2
@@ -1112,7 +1112,7 @@ cmd_task() {
         jq -e . >/dev/null 2>&1 <<<"$workers" || task_out escalated why=task_lookup_failed
         wrow=$(jq -c --arg d "$dispatch" '[.. | objects | select(.dispatchId? == $d)] | first // empty' <<<"$workers" 2>/dev/null)
         [ -n "$wrow" ] || task_out none_found
-        DISPATCH_STATE=$(jq -r '.dispatchStatus // ""' <<<"$wrow" | tr -c 'A-Za-z0-9_.-' '_')
+        DISPATCH_STATE=$(jq -r '.dispatchStatus // ""' <<<"$wrow" | tr -d '\n' | tr -c 'A-Za-z0-9_.-' '_')
         task_id=$(jq -r '.taskId // ""' <<<"$wrow")
         [ -n "$task_id" ] || task_out escalated why=task_lookup_failed
     fi
