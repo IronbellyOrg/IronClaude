@@ -15,6 +15,7 @@ The fixtures live in this file only (the build plan allows two test files: this 
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -25,6 +26,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import pytest
+import yaml
+
+from tests.skills.test_issue_worker_agents import gh_lines_missing_repo
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SKILL_DIR = REPO_ROOT / "src" / "superclaude" / "skills" / "sc-closeout-protocol"
@@ -1058,7 +1062,7 @@ def test_truth_never_prints_a_secret(scratch: Scratch) -> None:
 # settle.sh: a shared world for the issue, evidence and verdict tests
 # ---------------------------------------------------------------------------
 
-MERGE_SHA = "abcdef0123456789abcdef0123456789abcdef01"
+MERGE_SHA = "abcdef0123456789abcdef0123456789abcdef01"  # pragma: allowlist secret
 ISSUE_N = 12
 PR_N = 34
 TITLE = "Distinctive Title Text"
@@ -2838,3 +2842,583 @@ def test_a_filled_copy_of_the_verdict_template_passes(scratch: Scratch) -> None:
     scratch.clear_calls()
     stub = (TEMPLATES_DIR / "done-verdict.md").read_text(encoding="utf-8")
     _no_write_and_refused(issue_with_verdict(scratch, stub), scratch)
+
+
+# ---------------------------------------------------------------------------
+# Piece 3: static, words, names, hygiene, fork-safety and notice tests
+# (rows 1 (skill part), 4, 5 (static part), 6, 8, 11, 12, 13, 14 and 26)
+# ---------------------------------------------------------------------------
+
+SKILL_MD = SKILL_DIR / "SKILL.md"
+COMMAND_MD = REPO_ROOT / "src" / "superclaude" / "commands" / "closeout.md"
+NOTICE_FILE = REPO_ROOT / "NOTICE"
+SPEC_FILE = REPO_ROOT / "docs" / "designs" / "sc-closeout.md"
+DEV_GUIDE = (
+    REPO_ROOT
+    / "docs"
+    / "developer-guide"
+    / "SuperClaude-Developer-Guide-Commands-Skills-Agents.md"
+)
+LICENSE_BLOB = "4b14cf3c9bae0ab156f3979e3e5d0048be2f7e23"  # pragma: allowlist secret
+SOURCE_URL = "https://github.com/Simple-With-Us/AI-Fleet-Coordinator"
+STOP_CODES = (
+    "E-NO-ORIGIN",
+    "E-FOREIGN-REPO",
+    "E-GH-AUTH",
+    "E-NO-JQ",
+    "E-NOT-MERGED",
+    "E-NO-ISSUE",
+)
+HANDBACK_WILL_NOT = (
+    "Start the work that a not-done issue still needs (a worker, a plan or a "
+    "Dispatch) or count rounds of hand-backs."
+)
+RELEASED_WORD = "deployed"
+
+
+def _skill_files() -> list[Path]:
+    return sorted(
+        p
+        for p in SKILL_DIR.rglob("*")
+        if p.is_file() and "__pycache__" not in p.parts and p.suffix != ".pyc"
+    )
+
+
+def _skill_and_command_files() -> list[Path]:
+    return [*_skill_files(), COMMAND_MD]
+
+
+def _names_in(text: str) -> list[str]:
+    """Listed names found as whole words, outside path or file-name tokens."""
+    plain = _plain(text)
+    return [
+        name
+        for name in deny_names()
+        if re.search(rf"\b{re.escape(name)}\b", plain, re.IGNORECASE)
+    ]
+
+
+def _section(text: str, start: str, end: str | None) -> str:
+    head = text.index(start)
+    tail = text.index(end, head + len(start)) if end else len(text)
+    return text[head:tail]
+
+
+def _settle_why_tokens() -> list[str]:
+    text = (REFS_DIR / "settle.md").read_text(encoding="utf-8")
+    return re.findall(
+        r"^\| (?:issue|entry|task|all three|any) \| `([a-z_]+)` \|", text, re.M
+    )
+
+
+def _result_block() -> str:
+    text = (TEMPLATES_DIR / "result.md").read_text(encoding="utf-8")
+    found = re.search(r"```yaml\n(.*?)```", text, re.S)
+    assert found, "templates/result.md holds one fenced yaml block"
+    return found.group(1)
+
+
+def _assert_output_is_clean(res: Result) -> None:
+    for stream in (res.stdout, res.stderr):
+        assert EM_DASH not in stream and EN_DASH not in stream, stream
+        assert "canary-gh-token-0001" not in stream, "a secret reached an output"
+        assert "canary-clickup-token-0002" not in stream, "a secret reached an output"
+    assert RELEASED_WORD not in res.stdout.lower(), res.stdout
+    assert _names_in(res.stdout) == [], res.stdout
+
+
+@pytest.fixture(autouse=True)
+def _every_script_output_is_clean(monkeypatch: pytest.MonkeyPatch):
+    """Rows 4, 6 and 8: every script call of every case is scanned at the end.
+
+    No stdout holds the word for "released to production" or a listed name; no
+    stream holds a dash character or a secret (the canary values of ``Scratch.env``).
+    """
+    seen: list[Result] = []
+    original = Scratch.run
+
+    def recording(self: Scratch, script: Path, *args: str, **kwargs):
+        res = original(self, script, *args, **kwargs)
+        seen.append(res)
+        return res
+
+    monkeypatch.setattr(Scratch, "run", recording)
+    yield
+    for res in seen:
+        _assert_output_is_clean(res)
+
+
+# -- row 1: the skill file --------------------------------------------------------
+
+
+def test_skill_frontmatter_headings_and_size() -> None:
+    text = SKILL_MD.read_text(encoding="utf-8")
+    assert text.startswith("---\n")
+    head = text[4:].split("\n---\n", 1)[0]
+    front = dict(
+        (key.strip(), value.strip())
+        for key, _, value in (line.partition(":") for line in head.splitlines())
+    )
+    assert front["name"] == "sc:closeout-protocol"
+    assert front["allowed-tools"] == "Read, Write, Edit, Bash"
+    assert (
+        front["description"]
+        .strip('"')
+        .endswith("Never leave an item silently in progress.")
+    )
+    for heading in ("## Will Do", "## Will Not Do", "## Error handling"):
+        assert re.search(rf"^{re.escape(heading)}$", text, re.M), heading
+    assert len(text.splitlines()) < 500
+
+
+def _table_paths(text: str) -> set[str]:
+    table = _section(text, "## Files of this skill", "## Repository and GitHub")
+    return set(re.findall(r"^\| `([^`]+)` \|", table, re.M))
+
+
+def test_every_named_path_exists_and_every_file_is_named() -> None:
+    text = SKILL_MD.read_text(encoding="utf-8")
+    named = _table_paths(text)
+    on_disk = {
+        str(p.relative_to(SKILL_DIR))
+        for pattern in ("refs/*.md", "templates/*.md", "scripts/*.sh", "scripts/*.txt")
+        for p in SKILL_DIR.glob(pattern)
+    } | {"LICENSE", "PROVENANCE.md"}
+    assert len(on_disk) == 12
+    assert sorted(n for n in named if not (SKILL_DIR / n).is_file()) == []
+    assert sorted(on_disk - named) == []
+    # Nothing else lives in the folder, so the globs miss no file.
+    every = {str(p.relative_to(SKILL_DIR)) for p in _skill_files()} - {"SKILL.md"}
+    assert every == on_disk
+    # A path the waves name in running text is a path of the table too.
+    running = set(re.findall(r"(?:refs|templates|scripts)/[A-Za-z0-9_.-]+\.\w+", text))
+    assert sorted(running - named) == []
+
+
+def test_every_stop_code_and_why_token_is_in_the_error_table_and_the_reverse() -> None:
+    text = SKILL_MD.read_text(encoding="utf-8")
+    table = _section(text, "## Error handling", "## Will Do")
+    why_tokens = _settle_why_tokens()
+    assert len(why_tokens) == 17 and len(set(why_tokens)) == 17
+    for token in why_tokens:
+        assert f"why={token}" in table, token
+    for code in STOP_CODES:
+        assert code in table, code
+    # The reverse: nothing in the skill names a code or a token that does not exist.
+    assert (
+        sorted(set(re.findall(r"E-[A-Z]+(?:-[A-Z]+)*", text)) - set(STOP_CODES)) == []
+    )
+    known = set(why_tokens) | {"gh_failed"}
+    assert sorted(set(re.findall(r"why=([a-z_]+)", text)) - known) == []
+    settle = (REFS_DIR / "settle.md").read_text(encoding="utf-8")
+    assert (
+        sorted(set(re.findall(r"E-[A-Z]+(?:-[A-Z]+)*", settle)) - set(STOP_CODES)) == []
+    )
+
+
+# -- row 4: words -----------------------------------------------------------------------
+
+
+def test_the_word_for_released_is_never_written_and_is_defined() -> None:
+    for name in ("closing-note.md", "not-done-note.md", "result.md", "done-verdict.md"):
+        text = (TEMPLATES_DIR / name).read_text(encoding="utf-8")
+        assert RELEASED_WORD not in text.lower(), name
+    for path in (BRANCH_LANDED, SETTLE):
+        assert RELEASED_WORD not in path.read_text(encoding="utf-8").lower()
+    skill = SKILL_MD.read_text(encoding="utf-8")
+    ref = (REFS_DIR / "settle.md").read_text(encoding="utf-8")
+    for text in (skill, ref):
+        assert "Completed means merged." in text
+        assert "Deployed means verified in the place it runs." in text
+        assert 'never writes the word "deployed"' in text or (
+            "never writes the word" in text
+        )
+    assert "Status: completed (merged)." in (
+        TEMPLATES_DIR / "closing-note.md"
+    ).read_text(encoding="utf-8")
+
+
+def test_rendered_notes_say_completed_merged_and_never_the_released_word(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch)
+    issue_with_verdict(scratch, verdict_text())
+    done_body = comments_of(scratch)[0]["body"]
+    assert "Status: completed (merged)." in done_body
+    make_world(scratch)
+    issue_with_verdict(scratch, NOT_DONE_TEXT)
+    not_done_body = comments_of(scratch)[0]["body"]
+    for body in (done_body, not_done_body):
+        assert RELEASED_WORD not in body.lower()
+
+
+# -- row 5: never in progress (static part) ------------------------------------------------
+
+
+def test_skill_wave_3_runs_check_before_printing_and_sets_not_reached() -> None:
+    text = SKILL_MD.read_text(encoding="utf-8")
+    wave3 = next(
+        line for line in text.splitlines() if "**Wave 3, check and return.**" in line
+    )
+    run_check = wave3.index("settle.sh check")
+    printing = wave3.index("Print the one result block")
+    assert run_check < printing
+    assert "CHECK_FAIL <item>" in wave3
+    assert "escalated why=not_reached" in wave3 and "`partial`" in wave3
+
+
+def _sample_yaml(block: str) -> str:
+    out = []
+    for line in block.splitlines():
+        found = re.match(r"^(\s*)([a-z_]+): (.+)$", line)
+        if not found:
+            out.append(line)
+            continue
+        indent, key, value = found.groups()
+        if value.startswith("["):
+            out.append(f"{indent}{key}: []")
+            continue
+        first = re.split(r" \| ", value.strip().strip("<>"))[0]
+        out.append(f'{indent}{key}: "sample {first}"')
+    return "\n".join(out)
+
+
+def test_result_template_holds_every_field_and_parses() -> None:
+    block = _result_block()
+    top = ("pr", "status", "verdict", "merged_by", "merge_commit", "match")
+    nested = {
+        "issue": (
+            "number",
+            "status",
+            "detail",
+            "note",
+            "handback",
+            "remaining_file",
+            "remaining",
+            "handback_text",
+        ),
+        "entry": ("key", "status", "detail"),
+        "task": ("id", "status", "detail", "dispatch"),
+    }
+    # The shape with the placeholders still in it, and with sample values.
+    for text in (block, _sample_yaml(block)):
+        data = yaml.safe_load(text)
+        assert list(data) == ["closeout"]
+        closeout = data["closeout"]
+        wanted = {*top, "pr_links_issue", *nested, "escalations", "stop"}
+        assert set(closeout) == wanted
+        for key, inner in nested.items():
+            assert set(closeout[key]) == set(inner), key
+    # The closed value sets sit in the placeholders.
+    note_line = next(ln for ln in block.splitlines() if ln.strip().startswith("note:"))
+    for value in ("posted", "already_there", "none", "null"):
+        assert value in note_line
+    back_line = next(
+        ln for ln in block.splitlines() if ln.strip().startswith("handback:")
+    )
+    for value in ("remaining", "none", "null"):
+        assert value in back_line
+    # refs/result.md describes every key of the template.
+    ref = (REFS_DIR / "result.md").read_text(encoding="utf-8")
+    for key in (*top, "pr_links_issue", "escalations", "stop"):
+        assert f"`closeout.{key}`" in ref, key
+    for key, inner in nested.items():
+        assert f"`closeout.{key}`" in ref, key
+        for name in inner:
+            assert f"`{name}`" in ref or f"`{key}.{name}`" in ref, (key, name)
+
+
+# -- row 6: names -------------------------------------------------------------------------
+
+
+def test_the_deny_list_is_read_from_the_data_file_and_is_not_empty() -> None:
+    assert len(deny_names()) >= 5
+
+
+def test_no_file_of_the_skill_or_the_command_names_the_agent_or_the_model() -> None:
+    for path in _skill_and_command_files():
+        if path == DENY_NAMES:
+            continue
+        found = _names_in(path.read_text(encoding="utf-8"))
+        assert found == [], (path.name, found)
+
+
+@pytest.mark.parametrize("merger", ["named", "unnamed", "absent"])
+def test_the_note_credits_a_person_and_never_quotes_the_title_or_a_listed_name(
+    scratch: Scratch, merger: str
+) -> None:
+    title = f"Ask {deny_names()[0]} to fix the widget"
+    make_world(scratch, title=title, by=None if merger == "absent" else "octo")
+    if merger == "unnamed":
+        del scratch.state["users"]["octo"]
+        scratch.save_state()
+    res = issue_with_verdict(scratch, verdict_text())
+    assert res.code == 0, (res.stdout, res.stderr)
+    body = comments_of(scratch)[0]["body"]
+    expected = {
+        "named": "Octo Cat",
+        "unnamed": "octo",
+        "absent": "someone GitHub does not name",
+    }[merger]
+    assert f"by {expected}," in body, body
+    assert title.lower() not in body.lower()
+    assert _names_in(body) == []
+    for line in res.lines:
+        assert _names_in(line) == []
+
+
+# -- row 8: hygiene ------------------------------------------------------------------------
+
+
+def test_no_dash_character_and_no_machine_path_in_any_shipped_file() -> None:
+    for path in _skill_and_command_files():
+        text = path.read_text(encoding="utf-8")
+        assert EM_DASH not in text and EN_DASH not in text, path.name
+    for path in _skill_and_command_files():
+        text = path.read_text(encoding="utf-8")
+        assert "/home/" not in text and "/Users/" not in text, path.name
+
+
+def test_a_full_run_writes_and_prints_no_secret(scratch: Scratch) -> None:
+    """The canary values sit in ``GH_TOKEN`` and ``CLICKUP_API_TOKEN`` for every run."""
+    make_world(scratch)
+    scratch.install_orca(tasks=[dict(TASK_ROW)])
+    scratch.install_superclaude()
+    directory = get_evidence(scratch)
+    path = write_verdict(directory, verdict_text())
+    results = [
+        run_issue(scratch, verdict=path, directory=directory),
+        scratch.run(SETTLE, "entry", "--key", "k", "--issue-open"),
+        scratch.run(SETTLE, "task", "34", "--issue", "12"),
+    ]
+    for res in results:
+        _assert_output_is_clean(res)
+    written = [p for p in directory.rglob("*") if p.is_file()]
+    written += [scratch.state_path, scratch.calls_path, scratch.orca_calls]
+    for found in written:
+        text = found.read_text(encoding="utf-8")
+        assert "canary-gh-token" not in text and "canary-clickup-token" not in text
+    for body in comments_of(scratch):
+        assert "canary" not in body["body"]
+
+
+# -- row 11: the notice ---------------------------------------------------------------------
+
+
+def test_adopted_files_carry_the_notice() -> None:
+    for path in (BRANCH_LANDED, SKILL_MD):
+        text = path.read_text(encoding="utf-8")
+        assert SOURCE_URL in text, path.name
+        assert "Jay Wedgeworth" in text, path.name
+        assert "Apache License, Version 2.0" in text, path.name
+
+
+def test_license_is_the_upstream_file_byte_for_byte() -> None:
+    data = (SKILL_DIR / "LICENSE").read_bytes()
+    blob = hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()  # noqa: S324
+    assert blob == LICENSE_BLOB
+    assert len(data.splitlines()) == 190
+
+
+def _provenance_rows(section: str, end: str | None) -> list[tuple[str, str]]:
+    text = (SKILL_DIR / "PROVENANCE.md").read_text(encoding="utf-8")
+    body = _section(text, section, end)
+    rows = re.findall(
+        r"^\| ([0-9][0-9-]*) \|.*\| (kept as is|changed|dropped) \|", body, re.M
+    )
+    return [(lines, label) for lines, label in rows]
+
+
+def _spec_rows(section: str, end: str) -> list[str]:
+    text = SPEC_FILE.read_text(encoding="utf-8")
+    body = _section(text, section, end)
+    return re.findall(r"^\| ([0-9][0-9-]*) \|", body, re.M)
+
+
+def test_provenance_has_one_labelled_row_for_each_row_of_the_adoption_tables() -> None:
+    skill_rows = _provenance_rows("### 3.1", "### 3.2")
+    script_rows = _provenance_rows("### 3.2", None)
+    assert len(skill_rows) == 24 and len(script_rows) == 12
+    if SPEC_FILE.is_file():
+        assert [lines for lines, _ in skill_rows] == _spec_rows("### 2.1", "### 2.2")
+        assert [lines for lines, _ in script_rows] == _spec_rows("### 2.2", "### 2.3")
+    text = (SKILL_DIR / "PROVENANCE.md").read_text(encoding="utf-8")
+    assert SOURCE_URL in text and "Jay Wedgeworth" in text
+    assert "Apache License, Version 2.0" in text
+    for blob in (
+        "905bfbe5b670b1ebcb22c2e6ee16e189c6b13410",  # pragma: allowlist secret
+        "d18608c2a5f51419fd7e0bbc641a6d31b2c92fcf",  # pragma: allowlist secret
+        LICENSE_BLOB,
+    ):
+        assert blob in text
+
+
+def test_root_notice_has_entry_2() -> None:
+    text = NOTICE_FILE.read_text(encoding="utf-8")
+    entry = _section(text, "2. sc-closeout-protocol", None)
+    assert SOURCE_URL in entry
+    assert "Apache License, Version 2.0" in entry
+    assert "src/superclaude/skills/sc-closeout-protocol/" in entry
+    assert "src/superclaude/skills/sc-closeout-protocol/LICENSE" in entry
+    assert EM_DASH not in text and EN_DASH not in text
+
+
+# -- row 12: fork safety ------------------------------------------------------------------
+
+
+def test_every_gh_call_names_the_origin_repository_and_the_files_carry_repo(
+    scratch: Scratch,
+) -> None:
+    head = scratch.pr_branch(41, [{"keep.txt": "keep 2\n"}, {"new.txt": "new\n"}])
+    merge = scratch.squash(41)
+    _merged_state(scratch, 41, merge, head, commits=2)
+    make_world(scratch)
+    scratch.install_orca(tasks=[dict(TASK_ROW)])
+    scratch.clear_calls()
+    assert scratch.run(BRANCH_LANDED, "41").code == 0
+    directory = get_evidence(scratch)
+    path = write_verdict(directory, verdict_text())
+    assert run_issue(scratch, verdict=path, directory=directory).code == 0
+    scratch.run(SETTLE, "task", "34", "--issue", "12")
+    calls = scratch.gh_calls()
+    assert len(calls) > 10
+    _check_gh_calls_name_the_origin_repo(calls)
+    for path_ in _skill_and_command_files():
+        if path_ == DENY_NAMES or path_.name == "LICENSE":
+            continue
+        text = path_.read_text(encoding="utf-8")
+        assert "SuperClaude-Org" not in text, path_.name
+        if path_.suffix == ".md":
+            # The shared scan counts mentions in prose; script lines are checked by
+            # the recorded calls above and by the source scan of settle.sh.
+            assert gh_lines_missing_repo(text) == [], path_.name
+
+
+# -- row 13: Will Not Do scan --------------------------------------------------------------
+
+NEVER_IN_A_SCRIPT = (
+    "worker-release",
+    "worker-stop",
+    "worker-abandon",
+    "worker-start",
+    "orchestration send",
+    "gh pr merge",
+    "git push",
+    "git commit",
+    "git add",
+    "gh issue reopen",
+    "gh issue edit",
+    "gh api -X",
+    "--method",
+)
+
+
+@pytest.mark.parametrize("script", [BRANCH_LANDED, SETTLE], ids=lambda p: p.name)
+def test_scripts_hold_none_of_the_forbidden_commands(script: Path) -> None:
+    text = script.read_text(encoding="utf-8")
+    for word in NEVER_IN_A_SCRIPT:
+        assert word not in text, word
+    for line in text.splitlines():
+        if re.search(r"\borca\b", line):
+            assert not re.search(r" --(?:issue|pr)\b", line), line
+    # No script starts a model or an agent session: the judgment is the skill's own session.
+    assert not re.search(r"\b(?:claude|codex|aider)\b[^\n]*\s-p\b", text)
+    assert not re.search(r"--agent\b|terminal create", text)
+    assert _names_in(text) == []
+
+
+def test_orca_appears_only_in_settle_sh() -> None:
+    for path in sorted(SCRIPTS_DIR.iterdir()):
+        text = path.read_text(encoding="utf-8")
+        if path == SETTLE:
+            assert re.search(r"\borca\b", text)
+        elif path.suffix == ".sh":
+            assert not re.search(r"\borca\b", text), path.name
+
+
+def test_the_only_writes_of_a_full_run_are_one_note_one_close_and_one_task_update(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch)
+    scratch.install_orca(tasks=[dict(TASK_ROW)])
+    scratch.install_superclaude()
+    scratch.clear_calls()
+    issue_with_verdict(scratch, verdict_text())
+    scratch.run(SETTLE, "entry", "--key", "acme__widgets__12")
+    scratch.run(SETTLE, "task", "34", "--issue", "12")
+    issue_writes = writes(scratch)
+    assert [tuple(c[:2]) for c in issue_writes] == [
+        ("issue", "comment"),
+        ("issue", "close"),
+    ]
+    orca = scratch.orca_calls_list()
+    updates = [c for c in orca if "task-update" in c]
+    assert len(updates) == 1
+    forbidden = ("worker-release", "worker-stop", "worker-abandon", "send")
+    for call in orca:
+        assert not set(call) & set(forbidden), call
+        assert "--issue" not in call and "--pr" not in call, call
+    assert all(c[:2] != ["pr", "merge"] for c in scratch.gh_calls())
+    assert scratch.git_calls() == [] or all(
+        c[0] in ("remote", "fetch") for c in scratch.git_calls()
+    )
+
+
+# -- row 14: the developer guide -------------------------------------------------------------
+
+
+def test_developer_guide_names_closeout_on_the_never_as_worker_list() -> None:
+    lines = [
+        line
+        for line in DEV_GUIDE.read_text(encoding="utf-8").splitlines()
+        if "never-as-worker list" in line and "`/sc:agent`" in line
+    ]
+    assert lines and all("`/sc:closeout`" in line for line in lines)
+
+
+# -- row 26 (design section 10.4): the done-check text --------------------------------------
+
+
+def test_done_check_text_is_in_the_skill() -> None:
+    skill = SKILL_MD.read_text(encoding="utf-8")
+    named = _table_paths(skill)
+    for name in (
+        "refs/done-check.md",
+        "templates/done-verdict.md",
+        "templates/not-done-note.md",
+    ):
+        assert (SKILL_DIR / name).is_file(), name
+        assert name in named, name
+    ref = (REFS_DIR / "done-check.md").read_text(encoding="utf-8")
+    flat = re.sub(r"\s+", " ", ref)
+    for word in ("done", "not_done", "unclear_escalate"):
+        assert f"`{word}`" in ref, word
+    for phrase in (
+        "30 comments",
+        "10 pull requests",
+        "100 file names",
+        "100 timeline events",
+        "truncated=yes",
+        "Parts A, B and C",
+        "Investigate first",
+        "list what was checked in every verdict",
+        "only after all of the investigation",
+        "leaves the issue open with a note",
+        "decides nothing",
+    ):
+        assert phrase in flat, phrase
+    assert "Fixes" in ref and "Closes" in ref and "Refs" in ref
+    command = COMMAND_MD.read_text(encoding="utf-8")
+    assert HANDBACK_WILL_NOT in skill
+    assert HANDBACK_WILL_NOT in command
+    for path in (
+        SKILL_MD,
+        REFS_DIR / "done-check.md",
+        TEMPLATES_DIR / "done-verdict.md",
+        TEMPLATES_DIR / "not-done-note.md",
+        COMMAND_MD,
+    ):
+        text = path.read_text(encoding="utf-8")
+        assert "src/superclaude/" not in text, path.name
+        assert EM_DASH not in text and EN_DASH not in text, path.name
+        assert _names_in(text) == [], path.name
