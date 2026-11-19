@@ -8,7 +8,7 @@
   "previous_tag": "v6.0.0",
   "run_mode": "additive",
   "run_mode_evidence": "prior manifest found: docs/testing/v6.0.0/post-release-manifest.json",
-  "generated_at": "2026-11-19T02:34:59Z",
+  "generated_at": "2026-11-19T02:51:46Z",
   "install_surface_class": "package",
   "coverage_note": "Evolved from the v6.0.0 manifest. Entries not named in a changed_in_v61_note are carried forward unchanged (their start_of_run block is the v6.0.0 end state). Capabilities removed in 6.0.0 or 6.1.0 keep their entry with status 'removed'. 'present-unverified' means a doc exists but this run did not check it against the code. D and E were out of scope (decision 6.1.0-5), so their cells point at the v5.0.0 guides, which are historical records and were not updated.",
   "feature_inventory": [
@@ -18,7 +18,7 @@
       "audience": [
         "user"
       ],
-      "source": "`pyproject.toml` (version 6.1.0); transcript `docs/testing/v6.1.0/c-e2e-transcript.txt` lines 29, 1242, 2134",
+      "source": "`pyproject.toml` (version 6.1.0); transcript `docs/testing/v6.1.0/c-e2e-transcript.txt` lines 32, 1245, 2137",
       "added_in": "v5.0.0",
       "changed_in_v5_note": "yes (version)",
       "status": "current",
@@ -735,7 +735,7 @@
       "audience": [
         "user"
       ],
-      "source": "`src/superclaude/cli/eval/suites/workflow_vs_task_builder.yaml` deleted; transcript line 938 (`superclaude eval list`)",
+      "source": "`src/superclaude/cli/eval/suites/workflow_vs_task_builder.yaml` deleted; transcript line 941 (`superclaude eval list`)",
       "added_in": "v6.1.0",
       "status": "removed"
     },
@@ -2056,7 +2056,7 @@
         "result": "green",
         "target": "fresh pipx venv from git+https://github.com/IronbellyOrg/IronClaude@v6.1.0 and throwaway HOMEs under /tmp (env -i, pinned claude copy); three scenarios: new user, upgrade from a genuine 6.0.0, update.sh from a clone",
         "transcript": "docs/testing/v6.1.0/c-e2e-transcript.txt",
-        "summary": "s1_pipx=0 s1_install=0 s1_doctor=0 s1_second=0 s1_retention_install=0 s1_removed_group_exit=2 s2_v6_seed=0 s2_pipx=0 s2_install=0 s2_doctor_while_kept=1 s2_doctor_after_rm=0 s2_second=0 s2_update=0 s2_doctor_after_cleanup=0 s3_update_sh=0 (transcript line 2152); REAL_HOME_UNCHANGED; RESULT: GREEN (line 2154)",
+        "summary": "s1_pipx=0 s1_install=0 s1_doctor=0 s1_second=0 s1_retention_install=0 s1_removed_group_exit=2 s2_v6_seed=0 s2_pipx=0 s2_install=0 s2_doctor_while_kept=1 s2_doctor_after_rm=0 s2_second=0 s2_update=0 s2_doctor_after_cleanup=0 s3_update_sh=0 (transcript line 2158); REAL_HOME_UNCHANGED (content-based fingerprint, line 2157); RESULT: GREEN (line 2160)",
         "carried_forward_from": null,
         "harness_negative_check": "c-e2e-run.sh --selftest-red gives RESULT: RED and exit 1; --selftest-expected-nonzero gives RESULT: GREEN and exit 0"
       }

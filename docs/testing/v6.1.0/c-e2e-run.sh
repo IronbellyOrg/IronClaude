@@ -100,10 +100,15 @@ mkenv() {  # $1 = scenario dir
   ln -s "$GIT_BIN" "$E/shims/git"; ln -s "$PIPX_BIN" "$E/shims/pipx"; ln -s "$MAKE_BIN" "$E/shims/make"
   for s in codegraph orca orca-ide; do printf '#!/bin/sh\nexit 127\n' > "$E/shims/$s"; chmod +x "$E/shims/$s"; done
 }
-real_state() {  # read-only listing of the real home areas the task forbids touching
-  echo "claude commands/agents/skills: $(ls -l --time-style=+%s "$HOME/.claude/commands/sc" "$HOME/.claude/agents" "$HOME/.claude/skills" 2>/dev/null | sha256sum | cut -c1-16)"
+real_state() {  # read-only fingerprint of the real home areas the task forbids touching (names, sizes AND file contents)
+  # Not fingerprinted as a whole: ~/.claude.json and ~/.claude/settings.json, because the Claude Code session that
+  # runs this script rewrites them all the time (history, statistics); only the parts an installer writes are hashed.
+  echo "claude commands/agents/skills/hooks (every file, name and content): $(find "$HOME/.claude/commands/sc" "$HOME/.claude/agents" "$HOME/.claude/skills" "$HOME/.claude/hooks" -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | cut -c1-16)"
+  echo "claude core files (~/.claude/*.md, content): $(find "$HOME/.claude" -maxdepth 1 -type f -name '*.md' -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null | sha256sum | cut -c1-16)"
+  echo "claude.json mcpServers: $(jq -S '.mcpServers' "$HOME/.claude.json" 2>/dev/null | sha256sum | cut -c1-16)"
+  echo "claude settings.json hooks and cleanupPeriodDays: $(jq -S '{hooks, cleanupPeriodDays}' "$HOME/.claude/settings.json" 2>/dev/null | sha256sum | cut -c1-16)"
   echo "codegraph versions: $(ls "$HOME/.codegraph/versions" 2>/dev/null | tr '\n' ' ')"
-  echo "local bin: $(ls -l --time-style=+%s "$HOME/.local/bin" 2>/dev/null | sha256sum | cut -c1-16)"
+  echo "local bin (files by content, links by target): $( { find "$HOME/.local/bin" -maxdepth 1 -type f -print0 2>/dev/null | sort -z | xargs -0 -r sha256sum 2>/dev/null; find "$HOME/.local/bin" -maxdepth 1 -type l -printf '%f -> %l\n' 2>/dev/null | sort; } | sha256sum | cut -c1-16)"
   echo "pipx: $(pipx list --short 2>/dev/null | tr '\n' ' ')"
 }
 nobak() { grep -vc '\.bak\.' ; }  # count lines that are not saved copies
@@ -149,7 +154,7 @@ run "$S1" superclaude install; S1_INSTALL=$?
 run "$S1" superclaude install --list
 run "$S1" superclaude doctor --verbose > "$ROOT/s1-doctor.txt" 2>&1; S1_DOCTOR=$?; cat "$ROOT/s1-doctor.txt"; chkgrep s1_doctor_healthy "SuperClaude is healthy" "$ROOT/s1-doctor.txt"
 echo "--- codegraph registration in the throwaway ~/.claude.json"
-run "$S1" "$VENV_PY" -I -c 'import json,os;d=json.load(open(os.path.expanduser("~/.claude.json")));c=d.get("mcpServers",{}).get("codegraph");print(json.dumps(c,indent=1) if c else "NO codegraph entry")'
+run "$S1" "$VENV_PY" -I -c 'import json,os;d=json.load(open(os.path.expanduser("~/.claude.json")));c=d.get("mcpServers",{}).get("codegraph");print(json.dumps(c,indent=1) if c else "NO codegraph entry"); raise SystemExit(0 if c else 1)'
 run "$S1" codegraph --version
 echo "--- installed surface (must equal what the tagged tree ships)"; counts "$S1"; chkcounts s1 "$S1" "$EXP_CMD" "$EXP_AGT" "$EXP_SKL"
 echo "--- the nine removed skills and /sc:tdd are not installed on a fresh install"

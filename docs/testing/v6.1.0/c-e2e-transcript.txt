@@ -1,10 +1,13 @@
 ROOT=/tmp/ic6-e2e.<ROOT>
 tagged tree v6.1.0: commands=34 agents=48 skills=26;  v6.0.0: commands=35 agents=48 skills=35
 pinned claude: 2.1.328 (Claude Code)
-=== real-home baseline 2026-11-19T02:15:11Z
-claude commands/agents/skills: 2bebf16fcdf30531
+=== real-home baseline 2026-11-19T02:44:59Z
+claude commands/agents/skills/hooks (every file, name and content): 5b948b631a4f81cb
+claude core files (~/.claude/*.md, content): 4a43421caa38d756
+claude.json mcpServers: 3041d5666a508914
+claude settings.json hooks and cleanupPeriodDays: cee267b75622a4bf
 codegraph versions:
-local bin: 891b192ae1d8d73f
+local bin (files by content, links by target): 77c58827194f79d5
 pipx:
 tag v6.1.0 -> d7cbc0238b58ac0010502a6598ca6049083355b5 (commit 64dfc0e8622281a56d6c4e6826c63d50c6959da8)
 
@@ -298,7 +301,7 @@ ccsession wired at /tmp/ic6-e2e.<ROOT>/new-user/home/.local/bin/ccsession
 ✅ Rules: 21 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/new-user/home/.claude/rules (never auto-loaded)
 ✅ Output styles: 1 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/new-user/home/.claude/output-styles
 ✅ Settings defaults: added 24 (outputStyle, model, effortLevel, alwaysThinkingEnabled, verbose, teammateMode, agentPushNotifEnabled, skipDangerousModePermissionPrompt, env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, env.CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION, env.PONYTAIL_DEFAULT_MODE, modelSettings.gpt-6-astra, modelSettings.gpt-6.1-sol, modelSettings.gpt-6-sol, modelSettings.gpt-5.6-sol, enabledPlugins.frontend-design@claude-plugins-official, enabledPlugins.playwright@claude-plugins-official, enabledPlugins.notion@claude-plugins-official, enabledPlugins.dropbox@claude-plugins-official, enabledPlugins.google-cloud-storage@claude-plugins-official, enabledPlugins.understand-anything@understand-anything, enabledPlugins.ponytail@ironclaude, extraKnownMarketplaces.claude-plugins-official, extraKnownMarketplaces.understand-anything)
-💾 Backup: /tmp/ic6-e2e.<ROOT>/new-user/home/.claude/settings.json.bak.20261119T021713Z
+💾 Backup: /tmp/ic6-e2e.<ROOT>/new-user/home/.claude/settings.json.bak.20261119T024630Z
 ⏭️  Orca skills: Orca CLI not found; skipped
 ✅ Plugins: installed frontend-design@claude-plugins-official, playwright@claude-plugins-official, notion@claude-plugins-official, dropbox@claude-plugins-official, google-cloud-storage@claude-plugins-official, understand-anything@understand-anything, ponytail@ironclaude
 
@@ -537,7 +540,7 @@ Retired MCP registrations (user scope):
 ✅ SuperClaude is healthy
 [exit=0]
 --- codegraph registration in the throwaway ~/.claude.json
-+ <repo>/.venv/bin/python -I -c import json,os;d=json.load(open(os.path.expanduser("~/.claude.json")));c=d.get("mcpServers",{}).get("codegraph");print(json.dumps(c,indent=1) if c else "NO codegraph entry")
++ <repo>/.venv/bin/python -I -c import json,os;d=json.load(open(os.path.expanduser("~/.claude.json")));c=d.get("mcpServers",{}).get("codegraph");print(json.dumps(c,indent=1) if c else "NO codegraph entry"); raise SystemExit(0 if c else 1)
 {
  "type": "stdio",
  "command": "/tmp/ic6-e2e.<ROOT>/new-user/home/.codegraph/versions/v1.6.2/bin/codegraph",
@@ -759,7 +762,7 @@ ccsession wired at /tmp/ic6-e2e.<ROOT>/new-user/home/.local/bin/ccsession
    - session-init.sh
 
 📋 settings.json merge: events=7 added=0 skipped-existing=18
-💾 Backup: /tmp/ic6-e2e.<ROOT>/new-user/home/.claude/settings.json.bak.20261119T021742Z
+💾 Backup: /tmp/ic6-e2e.<ROOT>/new-user/home/.claude/settings.json.bak.20261119T024657Z
 
 ⏭️  Preserved 1 existing data file(s):
    - auggie-projects.txt (user-edited; not overwritten)
@@ -843,7 +846,7 @@ Registration: exact user stdio entry verified (codegraph 1.6.2 at /tmp/ic6-e2e.<
    No retired commands, skills or agents present.
 [exit=0]
 --- saved copies new in the second install (settings.json is backed up on every run):
-~/.claude/settings.json.bak.20261119T021742Z
+~/.claude/settings.json.bak.20261119T024657Z
 --- conversation retention (docs/getting-started/installation.md): this host's managed settings may set cleanupPeriodDays, and then they win
 cleanupPeriodDays in the throwaway settings.json after the install: null  (null = the installer wrote nothing)
 managed value on this host: 90
@@ -1199,9 +1202,9 @@ ccsession installed; warning: cleanupPeriodDays is 90 in the managed settings fi
 ✅ Rules: 21 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/rules (never auto-loaded)
 ✅ Output styles: 1 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/output-styles
 ✅ Settings defaults: added 24 (outputStyle, model, effortLevel, alwaysThinkingEnabled, verbose, teammateMode, agentPushNotifEnabled, skipDangerousModePermissionPrompt, env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, env.CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION, env.PONYTAIL_DEFAULT_MODE, modelSettings.gpt-6-astra, modelSettings.gpt-6.1-sol, modelSettings.gpt-6-sol, modelSettings.gpt-5.6-sol, enabledPlugins.frontend-design@claude-plugins-official, enabledPlugins.playwright@claude-plugins-official, enabledPlugins.notion@claude-plugins-official, enabledPlugins.dropbox@claude-plugins-official, enabledPlugins.google-cloud-storage@claude-plugins-official, enabledPlugins.understand-anything@understand-anything, enabledPlugins.ponytail@ironclaude, extraKnownMarketplaces.claude-plugins-official, extraKnownMarketplaces.understand-anything)
-💾 Backup: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/settings.json.bak.20261119T021759Z
+💾 Backup: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/settings.json.bak.20261119T024714Z
 ⏭️  Orca skills: Orca CLI not found; skipped
-⚠️  Plugins: not installed: Lum1104/Understand-Anything, frontend-design@claude-plugins-official (time limit), playwright@claude-plugins-official (time limit), notion@claude-plugins-official (time limit), dropbox@claude-plugins-official (time limit), google-cloud-storage@claude-plugins-official (time limit), understand-anything@understand-anything (time limit), ponytail@ironclaude (time limit); rerun `superclaude install` to retry
+✅ Plugins: installed frontend-design@claude-plugins-official, playwright@claude-plugins-official, notion@claude-plugins-official, dropbox@claude-plugins-official, google-cloud-storage@claude-plugins-official, understand-anything@understand-anything, ponytail@ironclaude
 
 📦 Installing codegraph (required user-level phase)...
 installed codegraph 1.6.2 (SHA-256 verified) at /tmp/ic6-e2e.<ROOT>/upgrade/home/.codegraph/versions/v1.6.2
@@ -1300,13 +1303,13 @@ SuperClaude, version 6.1.0
    - /workflow
 
 💾 Saved 7 changed command(s) before overwriting:
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/analyze.md.bak.20261119T022117Z
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/brainstorm.md.bak.20261119T022117Z
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/implement.md.bak.20261119T022117Z
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/recommend.md.bak.20261119T022117Z
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/reflect.md.bak.20261119T022117Z
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/troubleshoot.md.bak.20261119T022117Z
-   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/workflow.md.bak.20261119T022117Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/analyze.md.bak.20261119T024940Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/brainstorm.md.bak.20261119T024940Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/implement.md.bak.20261119T024940Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/recommend.md.bak.20261119T024940Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/reflect.md.bak.20261119T024940Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/troubleshoot.md.bak.20261119T024940Z
+   - /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc/workflow.md.bak.20261119T024940Z
 
 📁 Installation directory: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/commands/sc
 
@@ -1423,7 +1426,7 @@ ccsession wired at /tmp/ic6-e2e.<ROOT>/upgrade/home/.local/bin/ccsession
    - session-init.sh
 
 📋 settings.json merge: events=7 added=0 replaced=18
-💾 Backup: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/settings.json.bak.20261119T022117Z
+💾 Backup: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/settings.json.bak.20261119T024940Z
 
 ⏭️  Preserved 1 existing data file(s):
    - auggie-projects.txt (user-edited; not overwritten)
@@ -1490,12 +1493,12 @@ ccsession wired at /tmp/ic6-e2e.<ROOT>/upgrade/home/.local/bin/ccsession
 📦 Installing rules, output styles, settings defaults, Orca skills...
 
 ✅ Rules: 21 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/rules (never auto-loaded)
-💾 Saved 1 changed rule file(s) before overwriting: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/rules/core/ib_agent_core.md.bak.20261119T022117Z
+💾 Saved 1 changed rule file(s) before overwriting: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/rules/core/ib_agent_core.md.bak.20261119T024940Z
 ✅ Output styles: 1 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/output-styles
-💾 Saved 1 changed output style(s) before overwriting: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/output-styles/pragmatic.md.bak.20261119T022117Z
+💾 Saved 1 changed output style(s) before overwriting: /tmp/ic6-e2e.<ROOT>/upgrade/home/.claude/output-styles/pragmatic.md.bak.20261119T024940Z
 ✅ Settings defaults: already present
 ⏭️  Orca skills: Orca CLI not found; skipped
-✅ Plugins: installed frontend-design@claude-plugins-official, playwright@claude-plugins-official, notion@claude-plugins-official, dropbox@claude-plugins-official, google-cloud-storage@claude-plugins-official, understand-anything@understand-anything, ponytail@ironclaude
+✅ Plugins: already installed
 
 📦 Installing codegraph (required user-level phase)...
 using codegraph 1.6.2 at /tmp/ic6-e2e.<ROOT>/upgrade/home/.codegraph/versions/v1.6.2/bin/codegraph
@@ -1526,17 +1529,17 @@ core md files (12): BASH_INSPECTION_POLICY.md BUSINESS_PANEL_EXAMPLES.md BUSINES
 saved copies (*.bak.*) under ~/.claude: 11
 [check s2_after_upgrade] commands=35 (want 35) agents=48 (want 48) skills=27 (want 27)
 --- saved copies created by the upgrade
-~/.claude/commands/sc/analyze.md.bak.20261119T022117Z
-~/.claude/commands/sc/brainstorm.md.bak.20261119T022117Z
-~/.claude/commands/sc/implement.md.bak.20261119T022117Z
-~/.claude/commands/sc/recommend.md.bak.20261119T022117Z
-~/.claude/commands/sc/reflect.md.bak.20261119T022117Z
-~/.claude/commands/sc/troubleshoot.md.bak.20261119T022117Z
-~/.claude/commands/sc/workflow.md.bak.20261119T022117Z
-~/.claude/output-styles/pragmatic.md.bak.20261119T022117Z
-~/.claude/rules/core/ib_agent_core.md.bak.20261119T022117Z
-~/.claude/settings.json.bak.20261119T021759Z
-~/.claude/settings.json.bak.20261119T022117Z
+~/.claude/commands/sc/analyze.md.bak.20261119T024940Z
+~/.claude/commands/sc/brainstorm.md.bak.20261119T024940Z
+~/.claude/commands/sc/implement.md.bak.20261119T024940Z
+~/.claude/commands/sc/recommend.md.bak.20261119T024940Z
+~/.claude/commands/sc/reflect.md.bak.20261119T024940Z
+~/.claude/commands/sc/troubleshoot.md.bak.20261119T024940Z
+~/.claude/commands/sc/workflow.md.bak.20261119T024940Z
+~/.claude/output-styles/pragmatic.md.bak.20261119T024940Z
+~/.claude/rules/core/ib_agent_core.md.bak.20261119T024940Z
+~/.claude/settings.json.bak.20261119T024714Z
+~/.claude/settings.json.bak.20261119T024940Z
 --- by kind: commands=7 rules=1 output-styles=1 settings.json=2 core-files=0 agents=0 skills=0
 --- edited core file was overwritten without a saved copy: yes-overwritten; CLAUDE.md copies: 0
 + superclaude install --list
@@ -1803,7 +1806,7 @@ saved copies (*.bak.*) under ~/.claude: 11
 📦 Retiring commands, skills and agents this release no longer ships...
    No retired commands, skills or agents present.
 saved copies before=11 after=12; new:
-~/.claude/settings.json.bak.20261119T022134Z
+~/.claude/settings.json.bak.20261119T024943Z
 📦 Retiring commands, skills and agents this release no longer ships...
    No retired commands, skills or agents present.
 --- the documented clean-up of saved copies (docs/getting-started/upgrading.md): list, delete, doctor still healthy
@@ -1839,7 +1842,7 @@ agents: 48
 skills: 26
 hooks: 18   templates: 3   rules: 3   output-styles: 1
 core md files (12): BASH_INSPECTION_POLICY.md BUSINESS_PANEL_EXAMPLES.md BUSINESS_SYMBOLS.md CLAUDE.md CODEGRAPH.md HOW-WE-WORK.md ISSUE-BACKLOG.md ISSUE-HANDOFF.md PRINCIPLES.md RESEARCH_CONFIG.md RULES.md WORKER-CONTRACT.md
-saved copies (*.bak.*) under ~/.claude: 3
+saved copies (*.bak.*) under ~/.claude: 4
 [check s2_final] commands=34 (want 34) agents=48 (want 48) skills=26 (want 26)
 
 ################ SCENARIO 3: from a clone, ./update.sh ################
@@ -2098,9 +2101,9 @@ ccsession wired at /tmp/ic6-e2e.<ROOT>/clone-update/home/.local/bin/ccsession
 ✅ Rules: 21 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/clone-update/home/.claude/rules (never auto-loaded)
 ✅ Output styles: 1 installed, 0 kept, in /tmp/ic6-e2e.<ROOT>/clone-update/home/.claude/output-styles
 ✅ Settings defaults: added 24 (outputStyle, model, effortLevel, alwaysThinkingEnabled, verbose, teammateMode, agentPushNotifEnabled, skipDangerousModePermissionPrompt, env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, env.CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION, env.PONYTAIL_DEFAULT_MODE, modelSettings.gpt-6-astra, modelSettings.gpt-6.1-sol, modelSettings.gpt-6-sol, modelSettings.gpt-5.6-sol, enabledPlugins.frontend-design@claude-plugins-official, enabledPlugins.playwright@claude-plugins-official, enabledPlugins.notion@claude-plugins-official, enabledPlugins.dropbox@claude-plugins-official, enabledPlugins.google-cloud-storage@claude-plugins-official, enabledPlugins.understand-anything@understand-anything, enabledPlugins.ponytail@ironclaude, extraKnownMarketplaces.claude-plugins-official, extraKnownMarketplaces.understand-anything)
-💾 Backup: /tmp/ic6-e2e.<ROOT>/clone-update/home/.claude/settings.json.bak.20261119T022203Z
+💾 Backup: /tmp/ic6-e2e.<ROOT>/clone-update/home/.claude/settings.json.bak.20261119T025010Z
 ⏭️  Orca skills: Orca CLI not found; skipped
-⚠️  Plugins: not installed: ponytail@ironclaude; rerun `superclaude install` to retry
+✅ Plugins: installed frontend-design@claude-plugins-official, playwright@claude-plugins-official, notion@claude-plugins-official, dropbox@claude-plugins-official, google-cloud-storage@claude-plugins-official, understand-anything@understand-anything, ponytail@ironclaude
 
 📦 Installing codegraph (required user-level phase)...
 installed codegraph 1.6.2 (SHA-256 verified) at /tmp/ic6-e2e.<ROOT>/clone-update/home/.codegraph/versions/v1.6.2
@@ -2144,9 +2147,12 @@ saved copies (*.bak.*) under ~/.claude: 1
 --- update.sh ran make sync-dev inside the clone: agents cache commands hooks settings.json skills templates
 
 === real-home after
-claude commands/agents/skills: 2bebf16fcdf30531
+claude commands/agents/skills/hooks (every file, name and content): 5b948b631a4f81cb
+claude core files (~/.claude/*.md, content): 4a43421caa38d756
+claude.json mcpServers: 3041d5666a508914
+claude settings.json hooks and cleanupPeriodDays: cee267b75622a4bf
 codegraph versions:
-local bin: 891b192ae1d8d73f
+local bin (files by content, links by target): 77c58827194f79d5
 pipx:
 REAL_HOME_UNCHANGED
 SUMMARY s1_pipx=0 s1_install=0 s1_doctor=0 s1_second=0 s1_retention_install=0 s1_removed_group_exit=2 s2_v6_seed=0 s2_pipx=0 s2_install=0 s2_doctor_while_kept=1 s2_doctor_after_rm=0 s2_second=0 s2_update=0 s2_doctor_after_cleanup=0 s3_update_sh=0
