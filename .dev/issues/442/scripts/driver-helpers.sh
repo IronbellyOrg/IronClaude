@@ -14,14 +14,27 @@ screen_block_count() {  # screen_block_count <name>: number of Blocked: lines on
   screen_json_field "$f" | grep -c '^Blocked:' || true
 }
 
+turn_stops() {  # turn_stops <log> <stop_before> <lines_before>: Stop lines that ended the driven turn since the send
+  # The driven session is the one whose UserPromptSubmit is the first prompt line after the send, so a nested
+  # claude command writing to the same log cannot end the parent's wait. Before that prompt line exists, count every Stop.
+  local sid new
+  sid=$(command timeout "${OB_TIMEOUT_S:-60}" tail -n +"$(( $3 + 1 ))" "$1" 2>/dev/null | grep -F -m1 '"hook_event_name":"UserPromptSubmit"' | command timeout "${OB_TIMEOUT_S:-60}" jq -r '.session_id // empty' 2>/dev/null)
+  if [ -n "$sid" ]; then
+    new=$(command timeout "${OB_TIMEOUT_S:-60}" tail -n +"$(( $3 + 1 ))" "$1" 2>/dev/null | grep -F '"hook_event_name":"Stop"' | grep -Fc "\"session_id\":\"$sid\"" || true)
+  else
+    new=$(( $(grep -c '"hook_event_name":"Stop"' "$1" 2>/dev/null || true) - $2 ))
+  fi
+  printf '%s' "$(( new > 0 ? new : 0 ))"
+}
+
 wait_turn() {
   local name=$1 h=$2 log=$3 stop_before=$4 block_before=$5 secs=$6 notice=$7 lines_before=$8
   local deadline=$(( $(date +%s) + secs )) f why nl_stop nl_block
   while :; do
     f=$(save_screen "$name")
-    nl_stop=$(grep -c '"hook_event_name":"Stop"' "$log" 2>/dev/null || true)
+    nl_stop=$(turn_stops "$log" "$stop_before" "$lines_before")
     nl_block=$(screen_block_count "$name")
-    if [ "$nl_stop" -gt "$stop_before" ]; then
+    if [ "$nl_stop" -gt 0 ]; then
       if [ "$notice" -eq 1 ]; then
         # notice wait: hold until a background notice arrived and was answered
         if notice_answered "$log" "$lines_before"; then
@@ -35,9 +48,9 @@ wait_turn() {
     if needs_input "$f"; then printf 'NEEDS_INPUT %s\n' "$f"; exit 0; fi
     if command timeout 10 orca terminal wait --terminal "$h" --for tui-idle --timeout-ms 1000 >/dev/null 2>&1; then
       # idle: re-check Stop once, then accept idle as the end
-      nl_stop=$(grep -c '"hook_event_name":"Stop"' "$log" 2>/dev/null || true)
+      nl_stop=$(turn_stops "$log" "$stop_before" "$lines_before")
       # a notice wait never ends on idle: it continues until the notice is answered or the timeout path below
-      if [ "$notice" -ne 1 ] && [ "$nl_stop" -le "$stop_before" ]; then why=idle; break; fi
+      if [ "$notice" -ne 1 ] && [ "$nl_stop" -eq 0 ]; then why=idle; break; fi
     fi
     [ "$(date +%s)" -ge "$deadline" ] && { why=timeout; break; }
     command sleep 2

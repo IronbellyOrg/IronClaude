@@ -207,9 +207,11 @@ rm -rf "$OB"
 mkenv force
 mkdir -p "$S/wts/T2/ob-442"; printf new > "$S/wts/T2/ob-442/T2.txt"   # untracked, and a path the run creates
 printf mine > "$S/wts/T1/notes.txt"                            # untracked but not a path the run creates: the owner's
+mkdir -p "$S/wts/T4/.claude"; printf mine > "$S/wts/T4/.claude/notes.txt"   # the owner's file inside an accepted folder: still refused
 printf change > "$S/wts/T3/file.txt"; "$REAL_GIT" -C "$S/wts/T3" add file.txt; "$REAL_GIT" -C "$S/wts/T3" -c user.name=o -c user.email=o@i commit -q -m f
 printf changed > "$S/wts/T3/file.txt"                          # a modified tracked file: someone's work
-run env STUB_RM_FAIL="$S/wts/T1 $S/wts/T2 $S/wts/T3" timeout 120 bash "$here/cleanup.sh" --apply
+run env STUB_RM_FAIL="$S/wts/T1 $S/wts/T2 $S/wts/T3 $S/wts/T4" timeout 120 bash "$here/cleanup.sh" --apply
+has force-refused-t4-owner-file-in-claude-dir "$OUT" "REFUSED $S/wts/T4: local changes"
 ck force-once "$(grep -c -- '--force' "$CALLS")" 1
 has force-on-t2 "$(grep -- '--force' "$CALLS")" "path:$S/wts/T2 --force"
 has force-refused-t3 "$OUT" "REFUSED $S/wts/T3: local changes"

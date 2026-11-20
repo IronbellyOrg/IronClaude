@@ -42,7 +42,12 @@ good_h1() {
     fx item4-typed-implement-prompt.json '.'
     fx item2-skill-keys.json '.'
     fx item2-skill-keys.json '.tool_input={"skill":"sc:implement-protocol","args":"ob-item2"}'
-    for n in p04-item5a p05-item5b p06-item5c; do jq -nc --rawfile p "$here/prompts/$n.txt" '{hook_event_name:"UserPromptSubmit",session_id:"parent-session-0001",prompt:$p}'; done
+    for n in p04-item5a p05-item5b p06-item5c; do   # each probe: its prompt, a Stop, the notice prompt, a Stop
+      jq -nc --rawfile p "$here/prompts/$n.txt" '{hook_event_name:"UserPromptSubmit",session_id:"parent-session-0001",prompt:$p}'
+      printf '{"hook_event_name":"Stop","session_id":"parent-session-0001"}\n'
+      printf '{"hook_event_name":"UserPromptSubmit","session_id":"parent-session-0001","prompt":"<task-notification>%s done</task-notification>"}\n' "$n"
+      printf '{"hook_event_name":"Stop","session_id":"parent-session-0001"}\n'
+    done
     printf '{"hook_event_name":"UserPromptSubmit","session_id":"parent-session-0001","prompt":"<task-notification>done</task-notification>"}\n'
     fx item9-tool-names.json '.'
     fx item9-tool-names.json '.tool_name="Write"'
@@ -83,6 +88,12 @@ has item5-fail-reason "$(part_of 'OB-H1 item 5' 'bare Approved')" 'FAIL'
 mkenv noprobes; good_h1
 jq -c 'select((.prompt // "") | test("sleep [23]; echo approved|general-purpose subagent") | not)' "$O/logs/h1.jsonl" > "$O/logs/h1.new" && mv "$O/logs/h1.new" "$O/logs/h1.jsonl"
 ev all; ck item5-missing-probes-pending "$(res 'OB-H1 item 5')" pending
+mkenv nonotice; good_h1
+jq -c 'select((.prompt // "") | test("^<task-notification>p0") | not)' "$O/logs/h1.jsonl" > "$O/logs/h1.new" && mv "$O/logs/h1.new" "$O/logs/h1.jsonl"
+ev all; ck item5-probe-without-notice-pending "$(res 'OB-H1 item 5')" pending
+mkenv nodown4; good_h1
+jq -c 'select(.tool_name != "Skill" and .hook_event_name != "UserPromptExpansion")' "$O/logs/h1.jsonl" > "$O/logs/h1.new" && mv "$O/logs/h1.new" "$O/logs/h1.jsonl"
+ev all; ck item4-no-downstream-pending "$(res 'OB-H1 item 4')" pending
 mkenv bad1; good_h1
 jq -c 'if .tool_input.command? == "echo ob-item1-nested" then .session_id="someone-else" else . end' "$O/logs/h1.jsonl" > "$O/logs/h1.new" && mv "$O/logs/h1.new" "$O/logs/h1.jsonl"
 ev all; ck item1-wrong-parent-fail "$(res 'OB-H1 item 1')" FAIL

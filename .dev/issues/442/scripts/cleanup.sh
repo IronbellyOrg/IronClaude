@@ -43,15 +43,17 @@ MAIN=${OB_MAIN:-$(main_checkout)}
 
 # --- step 1: leftover background jobs ----------------------------------------------------
 step1() {
-  local out n pid et age
+  local out n pid et age bt
   out=$(pgrep -af 'sleep 24[123]$' 2>/dev/null || true)
   printf '  running: %s\n' "${out:-none}"
   # only a job that started after this run's baseline file was written: an unrelated "sleep 241" of the same user stays
   for n in 241 242 243; do
     for pid in $(pgrep -xf "sleep $n" 2>/dev/null || true); do
       # process age (ps etimes, seconds) against the baseline file's age: a pid's /proc mtime is not its start time
-      et=$(ps -o etimes= -p "$pid" 2>/dev/null | tr -d ' '); age=$(( $(date +%s) - $(stat -c %Y "$OB_BASE_SESSIONS" 2>/dev/null || echo 0) ))
-      if [ -n "$et" ] && [ "$et" -lt "$age" ]; then act_soft command timeout "$T" kill "$pid"
+      # no baseline file or no readable age means nothing is killed
+      et=$(ps -o etimes= -p "$pid" 2>/dev/null | tr -d ' '); bt=$(stat -c %Y "$OB_BASE_SESSIONS" 2>/dev/null || true); age=""
+      [ -z "$bt" ] || age=$(( $(date +%s) - bt ))
+      if [ -n "$et" ] && [ -n "$age" ] && [ "$et" -lt "$age" ]; then act_soft command timeout "$T" kill "$pid"
       else printf '  SKIP pid %s (sleep %s): started before this run, not ours\n' "$pid" "$n"; fi
     done
   done
@@ -116,13 +118,21 @@ step3() {
 
 # --- step 4: the worktrees, through Orca ----------------------------------------------------------
 rm_worktree() {  # rm_worktree <path>
-  local wt=$1 st
+  local wt=$1 st l ours=1
   if [ "$APPLY" = 0 ]; then printf '  WOULD orca worktree rm --worktree path:%s\n' "$wt"; return 0; fi
   if command timeout "$T" orca worktree rm --worktree "path:$wt" >/dev/null 2>&1; then printf '  removed %s\n' "$wt"; return 0; fi
-  st=$(tgit -C "$wt" status --short 2>/dev/null)
-  # --force only when every entry is untracked AND is a path this run or its claim creates:
-  # ob-442/ (the disposable file), .claude/ (probe settings), .dev/issues/<n>/ (the claim's copy). Anything else may be the owner's.
-  if [ -n "$st" ] && ! printf '%s\n' "$st" | grep -qvE '^\?\? (ob-442/|\.claude/|\.dev/issues/[0-9]+/)'; then
+  st=$(tgit -C "$wt" status --short --untracked-files=all 2>/dev/null)
+  # --force only when every entry is an untracked file this run or its claim creates: ob-442/T<n>.txt (the disposable file),
+  # .claude/settings.local.json (probe settings), or a .dev/issues/<n>/ file that also exists in the main checkout (the claim's copy).
+  # Any other file, even inside those folders, may be the owner's.
+  while IFS= read -r l; do
+    case "$l" in
+      "?? ob-442/T"[1-4]".txt"|"?? .claude/settings.local.json") ;;
+      "?? .dev/issues/"[0-9]*/*) [ -e "$MAIN/${l#\?\? }" ] || ours=0 ;;
+      *) ours=0 ;;
+    esac
+  done <<< "$st"
+  if [ -n "$st" ] && [ "$ours" = 1 ]; then
     command timeout "$T" orca worktree rm --worktree "path:$wt" --force >/dev/null 2>&1 && { printf '  removed %s (only untracked files, --force)\n' "$wt"; return 0; }
   fi
   printf '  REFUSED %s: local changes, look at git -C %s status --short\n' "$wt" "$wt"

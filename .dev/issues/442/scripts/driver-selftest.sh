@@ -76,6 +76,16 @@ ck notice-task-notification "$(na '<task-notification>x')" yes
 ck notice-agent-message "$(na '<agent-message from=a>x')" yes
 ck notice-typed-prompt "$(na 'typed words')" no
 
+# --- turn_stops: a nested session's Stop does not end the driven session's turn ---------------------------------
+ts() { (source "$here/lib.sh"; source "$here/driver-helpers.sh"; turn_stops "$T/ts.jsonl" "$1" "$2"); }
+printf '%s\n' '{"session_id":"P","hook_event_name":"Stop"}' > "$T/ts.jsonl"                       # an earlier turn: 1 line before the send
+printf '%s\n' '{"session_id":"P","hook_event_name":"UserPromptSubmit","prompt":"go"}' '{"session_id":"C","hook_event_name":"Stop"}' >> "$T/ts.jsonl"
+ck turn-stops-child-ignored "$(ts 1 1)" 0
+printf '%s\n' '{"session_id":"P","hook_event_name":"Stop"}' >> "$T/ts.jsonl"
+ck turn-stops-parent-counts "$(ts 1 1)" 1
+printf '%s\n' '{"session_id":"P","hook_event_name":"Stop"}' > "$T/ts.jsonl"
+ck turn-stops-no-prompt-falls-back "$(ts 0 0)" 1
+
 # --- marker refusal -----------------------------------------------------------
 if bash "$here/driver.sh" send s1 '[sc-launch:v1:x]' h1 5 >/dev/null 2>&1; then
   ck marker-refuse called ok

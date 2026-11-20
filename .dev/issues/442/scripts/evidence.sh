@@ -144,6 +144,7 @@ item_4() {
     | [$e[]|select(.value.hook_event_name=="PreToolUse" and .value.tool_name=="Skill" and ((.value.tool_input.skill // .value.tool_input.name // "")|test("implement")))|.key] as $s
     | if ($u|length)==0 then (if ($x|length)>0 then "FAIL|the UserPromptSubmit prompt is not the typed line but an expansion event fired (record its command_name; design fallback FR-L-18)" else "pending|no /sc:implement x prompt line" end)
       elif (any($x[]; . < $u[0]) or any($s[]; . < $u[0])) then "FAIL|an expansion or Skill line comes before the prompt line"
+      elif ((([$e[]|select(.key > $u[0] and .value.hook_event_name=="UserPromptSubmit")|.key]|first // 1e9) as $nx | (($x + $s)|any(. > $u[0] and . < $nx)))|not) then "pending|the prompt line is there, but no expansion or Skill line follows it before the next prompt (the turn may have been interrupted)"
       else "PASS|the first prompt line is /sc:implement x and it precedes the expansion and Skill lines" end')"
 }
 item_5() {
@@ -151,14 +152,18 @@ item_5() {
   CMD=$(section_block '^#### OB-H1 item 5:' '^Evidence'); SESSION=A; LOGREF="$f: lines $(first_lines "$f" 'UserPromptSubmit')"
   OUT=$(run_text "$CMD"); [ -s "$f" ] || { part log pending "log file missing: $f"; return; }
   from_rule "self-started turns carry no bare Approved" "$(jqs "$f" '
-    [.[]|select(.hook_event_name=="UserPromptSubmit")
+    . as $all | [range(0; length)] as $ix
+    | [.[]|select(.hook_event_name=="UserPromptSubmit")
       |((.prompt // "")|gsub("^\\s+|\\s+$";"")) as $p
       |{p:$p, b:($p|ascii_downcase|test("^approved[.!]?$")), i:((.prompt // "")|split("\n")[0]|test("^\\s*/(sc:implement|sc:task|task)(\\s|$)"))}] as $l
     | [$l[]|select(.p as $p | ($typed|any(.[]; . == $p))|not)] as $u
     | if ($l|length)==0 then "pending|no UserPromptSubmit lines"
       elif any($u[]; .b) then "FAIL|a prompt that was not typed is a bare Approved: a self-started turn would approve a worktree-level session (no claim at any level; design O-17 applies; report to the owner)"
       elif any($u[]; .i) then "FAIL|a prompt that was not typed starts with an implement command"
-      elif ($probes|any(.[]; . as $x | ($l|any(.p == $x))|not)) then "pending|the three background-notice probes (prompts p04, p05, p06) did not all run, so self-started turns were not exercised"
+      elif (($probes|all(.[]; . as $x
+              | ([$ix[]|select($all[.].hook_event_name=="UserPromptSubmit" and (($all[.].prompt // "")|gsub("^\\s+|\\s+$";"")) == $x)]|first // null) as $i
+              | $i != null and (([$ix[]|select(. > $i and $all[.].hook_event_name=="UserPromptSubmit")]|first // null) as $j
+                | $j != null and (($all[$j].prompt // "")|test("<task-notification>|<agent-message")) and any($ix[]; . > $j and $all[.].hook_event_name=="Stop"))))|not) then "pending|each of the three background-notice probes (prompts p04, p05, p06) needs its prompt, then its notice prompt, then a Stop, in that order; at least one did not complete, so self-started turns were not fully exercised"
       else "PASS|"+($u|length|tostring)+" prompt line(s) not typed by the run, none a bare Approved or an implement line"+(if ($u|length)==0 then " (no prompt event fires for notices)" else "" end) end' --argjson typed "$(typed_json)" --argjson probes "$(for n in p04-item5a p05-item5b p06-item5c; do command timeout "$T" jq -Rs 'sub("\\s+$";"")' "$here/prompts/$n.txt"; done | command timeout "$T" jq -s .)")"
 }
 item_6() {
