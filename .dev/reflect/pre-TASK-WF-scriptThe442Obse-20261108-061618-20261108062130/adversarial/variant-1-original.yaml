@@ -1,0 +1,240 @@
+# Reviewer card 1 of 2 — Tier 2 reflect ensemble (UC-1 pre)
+# persona: analyzer | model alias: sonnet (claude-gw-tier1b[1m]) | brief: reviewer-briefs/reviewer-1.md
+# received via teammate message 2026-11-08T18:20:19Z (R1-F01..R1-F03, truncated) + 18:21:0xZ resend (R1-F04..R1-F14, verdict, self_audit); assembled by orchestrator verbatim.
+findings:
+  - id: R1-F01
+    category: gap
+    severity: blocking
+    claim: >
+      The driver's "Blocked:" stop condition has no baseline. For Stop events the count is taken before
+      the send. For the "Blocked:" line the plan says only "the screen shows a Blocked: line". An earlier
+      block message is still visible on the screen when the next prompt goes out. In session B step 3 the
+      LL-IMPL block is followed by the commit prompt, and session E sends the push prompt and then the
+      merge prompt. The second and later sends would therefore see the old "Blocked:" text and return
+      TURN_END blocked immediately. The script would then type the next prompt while the agent is still
+      mid-turn, which corrupts the observation order the runbook requires ("one per turn", runbook:216).
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:70-75"
+    recommendation: >
+      Say that `send` counts "Blocked:" lines on the screen before sending and treats only an increase
+      (or a new line below the last send) as a block. Add a self-test case that sends two blocked prompts
+      in a row and shows the second waits for its own block.
+
+  - id: R1-F02
+    category: gap
+    severity: blocking
+    claim: >
+      Task 8 says it does "steps 1 to 8" of runbook 5.2, but its bullets cover only steps 2, 4, 5, 6
+      and 7. Step 1 (pkill of the `sleep 241/242/243` jobs, runbook:789-794), step 3 (undo the session E
+      push URL and `extensions.worktreeConfig`, runbook:806) and step 8 (named scratch folders,
+      runbook:835) have no behaviour. Step 3 matters most. Session E sets a config key in the shared
+      repository config, runbook:669. If the script dies between set and restore, only cleanup step 3
+      undoes it. That requires the state file to record whether the script set `extensions.worktreeConfig`
+      (it must unset it only if it set it), and no task says to record that. The Task 11 acceptance
+      criterion "every step of 5.2 as done or listed" cannot hold for the unspecified steps.
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:153-162; .dev/issues/442/observation-runbook.md:789-806,835"
+    recommendation: >
+      Add bullets for step 1 (exact `pkill -xf` forms), step 3 (read the push URL and config state; undo
+      only what the run set, using a state key that session `e` writes before it sets the flag) and step
+      8 (either drop it, since those scratch folders belong to the earlier worker, or make it list-only).
+      Add matching acceptance cases.
+
+  - id: R1-F03
+    category: gap
+    severity: blocking
+    claim: >
+      T1-F1 is confirmed. The store-versus-baseline diff in Task 11's acceptance criteria is not built
+      into any script, and `--apply` runs steps 1 to 8 in one call. The baseline lives in /tmp/ob, which
+      step 7 deletes, so the operator has no point to run the check. This is also the only safety check on
+      removal of entries in the owner's real launch store. The runbook's second diff, for `pending`
+      (runbook:800), is also absent from the acceptance criteria.
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:155,162,215; .dev/issues/442/observation-runbook.md:799-800"
+    recommendation: >
+      Make `cleanup.sh` run both diffs itself right after step 2 and again before step 7. It should print
+      the result and refuse step 7 if any `>` line remains. Change the acceptance criterion to read the
+      script's printed result.
+
+  - id: R1-F04
+    category: gap
+    severity: blocking
+    claim: >
+      Session B step 4 is incomplete against the runbook. The runbook releases the session in the middle
+      of step 4 (runbook:635) and then runs the post-release `identify` on `sleep 241`, expecting
+      "ordinary with reason released" (runbook:638). The OB-CTX PASS rule needs every case recorded
+      (runbook:641). The plan runs `identify` only at lines 616-620 and 629-633, and says release happens
+      "at the end" of each subcommand. Line 638 and the mid-step release are not covered. OB-CTX can
+      therefore never reach PASS from this script, and the post-release identify would run after
+      `sleep 241` is no longer governed.
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:99,111; .dev/issues/442/observation-runbook.md:635-641"
+    recommendation: >
+      Put the guarded release and the line-638 identify into session `b` step 4, in the runbook's order.
+      Reduce the "each subcommand ends with release" rule to subcommands c, d and e, or make it idempotent.
+
+  - id: R1-F05
+    category: gap
+    severity: blocking
+    claim: >
+      Session A and A2 cannot start where the runbook requires. The runbook starts A with
+      `cd /tmp/ob/repo-a && HOME=... claude` (runbook:163) and A2 with `cd /tmp/ob/repo-a && claude
+      --settings ...` (runbook:452). Several prompts depend on that directory, for example the OB-CTX
+      git push at runbook:410. The driver's `start` takes an Orca `<worktree-selector>` and passes it to
+      `orca terminal create --worktree` (plan:64). /tmp/ob/repo-a is a plain git repository, not an
+      Orca worktree. Task 4 gives the start command without a directory (plan:97-98), and Task 2 does not
+      say it registers repo-a with Orca. As written, the terminal would open in some other worktree, or
+      `create` would fail.
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:64,96-98; .dev/issues/442/observation-runbook.md:163,452"
+    recommendation: >
+      Confirm with `orca terminal create --help` how to set a working directory. Then either make the
+      command `cd /tmp/ob/repo-a && HOME=... claude` run inside an existing worktree terminal, or state
+      the supported flag. Add the chosen form to the Task 3 self-test.
+
+  - id: R1-F06
+    category: gap
+    severity: blocking
+    claim: >
+      Session E has no stated trigger for the O-10 edit and no stated end of the pull-request cycle.
+      The plan says the edit happens "during monitoring" (plan:107) and that the push prompt follows "after
+      the cycle" (plan:108), but defines no condition to detect either. The runbook edit must land inside
+      the `/sc:pr-submit --monitor 3` window, and the push and merge prompts must wait until the cycle has
+      ended (runbook:661-665). A script that waits for a Stop event would either edit after the cycle (so
+      O-10 is wrongly pending) or send the protected-push prompt mid-cycle. The protected push is the one
+      dangerous step: the fork's master is unprotected (P8, runbook:28-30), and the push URL guard
+      (plan:108) is the only barrier.
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:105-108; .dev/issues/442/observation-runbook.md:659-665,28-30"
+    recommendation: >
+      Specify observable triggers. The edit fires once the PR URL appears in the governed screen or log.
+      The cycle ends when a `Stop` event follows the pr-submit final report, with a bounded timeout and
+      `pending` on timeout. Make the push-URL assertion in the script an inline check immediately before
+      the `send`, not only a self-test.
+
+  - id: R1-F07
+    category: risk
+    severity: blocking
+    claim: >
+      The permission-dialog rule in Task 10 cannot be applied and has no mechanism. The plan allows
+      answering a dialog "only for a command the runbook prompt itself asked for" (plan:243). For the
+      claim session, the only prompt is `/sc:issue --claim <T>`. Every dialog in that session is for a
+      command the skill chose (gh comments, orca worktree create, and so on), so none satisfies the rule.
+      That leaves a deadlock or an agent judgement call (T1-F3). The driver also has no subcommand that
+      answers a dialog: `send` types text with Enter and refuses to send at NEEDS_INPUT, and the
+      subcommand list has no key-press command (plan:63-68). The agent would call `orca terminal send`
+      directly and bypass the `[sc-launch:v1:` refusal (plan:81).
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:63-75,81,243"
+    recommendation: >
+      Add a `driver.sh answer <name> <key> <reason>` subcommand that logs to the run log and shares the
+      marker refusal. Define the rule for the claim session explicitly, for example: answer only dialogs
+      whose command targets T1 to T4 or the plan's scripts, and stop otherwise.
+
+  - id: R1-F08
+    category: gap
+    severity: minor
+    claim: >
+      T1-F4 is confirmed as a plan gap, though the source exists. The runbook backs up the file with
+      `cp "$WT_T1/.claude/settings.local.json" /tmp/ob/t1-local.json` as the first command of session B
+      step 1 (runbook:541). The plan restores from that file (plan:95) but never says the script makes
+      the copy, or that it does so before overwriting the probe.
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:95; .dev/issues/442/observation-runbook.md:541,563"
+    recommendation: >
+      Add "copy to /tmp/ob/t1-local.json first and refuse to continue if the copy is missing or empty"
+      to Task 6 step 1. Add a self-test that the restore is byte-equal to the original.
+
+  - id: R1-F09
+    category: gap
+    severity: minor
+    claim: >
+      The plan leaves "which field holds the governed terminal handle" as UNVERIFIED to be confirmed on
+      the first launch, but the source answers it. The claim result has a `terminal` key
+      (orca_worktree.py:49, 1313), and the handle is found by a recursive search for a key named `handle`
+      (orca_worktree.py:1031-1043, 1289). The self-test can therefore be written against the real shape,
+      and `adopt` need not wait for a live run.
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:96; src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:49,1031,1289,1313"
+    recommendation: >
+      Replace the UNVERIFIED label with the verified location. Keep the fallback only for the case where
+      the claim output lacks `terminal`.
+
+  - id: R1-F10
+    category: drift
+    severity: minor
+    claim: >
+      Task 9's runbook edit is mis-cited and its check is vacuous. The two wrong statements are at
+      runbook:765 (prompts not representative) and runbook:769 (the release `rm` run by a person), but
+      the plan cites lines 764-765. Line 764 is the "Starting the sessions" bullet that the plan changes
+      separately (plan:179). The acceptance criterion `grep -n 'not representative'` prints nothing today:
+      the phrase is not in the runbook, so the check passes before the edit and proves nothing. Lines
+      767-768 (web-UI edit and retry judgement as human-only) become partly false too, because the plan
+      replaces the web UI edit with `gh api -X PUT`. The plan does not update them.
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:178-186; .dev/issues/442/observation-runbook.md:764-769"
+    recommendation: >
+      Cite lines 765 and 769 and add line 767. Replace the grep with a check that fails today, for
+      example a grep for the new wording, and a grep showing 'must be typed by a person' is gone.
+
+  - id: R1-F11
+    category: gap
+    severity: minor
+    claim: >
+      ./artifacts/ is ambiguous. The plan sets `source: ./source.md` relative to the package folder, so
+      ./artifacts/ reads as the package's artifacts folder. But `evidence.sh` and `cleanup.sh` are
+      scripts under .dev/issues/442/scripts/ and run from an arbitrary directory. Run from the repo
+      root, ./artifacts/ob-logs/ is the project-root artifacts/ folder, which the global rules say is
+      never staged. The step-7 delete gate (plan:208) would then check the wrong directory.
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:185,208,214"
+    recommendation: >
+      Define `PKG_ART` once in `lib.sh` as the absolute package artifacts path and use it in
+      evidence.sh, cleanup.sh and the acceptance criteria.
+
+  - id: R1-F12
+    category: risk
+    severity: minor
+    claim: >
+      T1-F5 holds, and the staging rule makes it worse. `ob-logs` (full screen captures and probe logs)
+      goes under the package artifacts folder, which `git add .dev/tasks` always stages. The secret scan
+      covers four token patterns and not .env-style values, home paths, or issue/comment bodies. The
+      probe logs record HOME and CLAUDE_CONFIG_DIR (runbook:779), and screens can show anything the
+      agent printed.
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:185,259"
+    recommendation: >
+      Widen the scan (`Bearer `, `Authorization:`, `-----BEGIN`, `_TOKEN=`, `_KEY=`), and say in Task 11
+      that the owner reviews `ob-logs` before any commit. The plan only stages.
+
+  - id: R1-F13
+    category: risk
+    severity: minor
+    claim: >
+      T1-F2 holds as an authorization ambiguity. The owner line (plan:19) authorizes "start Claude
+      sessions" and "governed claims on the four disposable issues T1 to T4", which the source phrases as
+      "the four disposable issues" (source.md:1) as if they already exist. Creating those four issues
+      (Task 5) and opening a pull request (session E) are outward writes on the fork. The runbook itself
+      lists them (runbook:172-182), so this is low risk, but the authorization is silent on it.
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:19,114"
+    recommendation: >
+      State in the Constraints that creating the four issues and the one disposable PR on
+      IronbellyOrg/IronClaude is within the authorization, or ask the owner to confirm before Task 10.
+
+  - id: R1-F14
+    category: gap
+    severity: minor
+    claim: >
+      A smaller gap: the plan names `evidence.sh all` after each session, but the stop rules read OB-H1
+      item 5 "PASS" from the results file (plan:114). Item 5 is a three-prompt `approved` and Monitor
+      item whose PASS may depend on a `needs reading` mark (plan:139). If item 5 stays `pending` for a
+      reading, `b` refuses and Task 10 stalls with no stated way to record the reading mid-run.
+    citation: ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:114,139,199"
+    recommendation: >
+      State whether item 5 has any `needs reading` part. If it does, add a step that lets the agent
+      record the reading before `b`.
+
+verdict: FAIL
+
+self_audit: >
+  Checked against the real files, not the card. (1) Runbook 5.2 lines 785-835 against Task 8 and Task 11:
+  found steps 1, 3 and 8 uncovered and the baseline diff unplaced. (2) Runbook 1.4 and 2.2.1 to 2.2.4
+  against Tasks 5 and 6: found the missing backup step, the missing mid-step release and identify at
+  runbook:635-638, and the unspecified O-10 trigger. (3) Runbook 1.3 and 2.1b against Tasks 3 and 4:
+  found the working-directory problem. (4) Runbook 4.2 against Task 9: found the mis-cited lines and the
+  vacuous grep (confirmed no match anywhere in .dev/issues/442). (5) The guard script's unbound paths
+  (launch-level-guard.sh:281,394): confirmed the driving agent's own shell is not blocked by LL-TAMPER,
+  so the plan's release-from-agent-shell reasoning holds. I found no defect there. (6) ob_h1 fixtures:
+  confirmed they exist for items 1 to 9, so the Task 7 synthetic-log criterion is satisfiable.
+  (7) Section 3.3 gate against the stop rules in Task 6: they match. (8) The orchestration decision
+  (plan:25): reasons are grounded and consistent with INF-006; no defect. (9) Every `gh` path in the
+  scripts is forced through `gh_fork`, and `gh pr merge` is excluded; no leak toward SuperClaude-Org found.
+  I could not read the real `orca` help output, so flag availability stays as the plan states it.

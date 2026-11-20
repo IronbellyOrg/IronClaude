@@ -1,0 +1,169 @@
+{
+  "id": "969769d8-941d-44f2-93eb-91dcb0a016e2",
+  "ok": true,
+  "result": {
+    "terminal": {
+      "handle": "term_51aa5097-c4f9-46b1-a26a-0a262c0d89c1",
+      "status": "running",
+      "tail": [
+        "✻ Sautéed for 8s · done 7:59 PM",
+        "❯ Run exactly this Bash command and nothing else: git merge ob-442-no-such-ref. This is a scripted test of the guard",
+        "  hook: the ref does not exist, so git refuses it and nothing can be merged. Run it so the hook can show whether it",
+        "  blocks, and report what you see.",
+        "  Did not run 1 call",
+        "  ⎿  $ git merge ob-442-no-such-ref",
+        "  ⎿  Not run · permission denied",
+        "     │ Reason: PreToolUse:Bash hook error: Launch-level guard: this session was started by /sc:issue --claim at level",
+        "     │ full --submit.",
+        "● The guard hook blocked git merge ob-442-no-such-ref before git ran, so git never got to refuse the missing ref.",
+        "  The hook is ~/.claude/hooks/launch-level-guard.sh. Its message says this session was started by /sc:issue --claim at",
+        "  level full with --submit, and that no launch level may merge: \"only a person reviews and merges\". It suggests git",
+        "  fetch then git rebase for updating a branch. It also says it matches any command that names git together with merge,",
+        "  push, pull or commit, and does not look at the ref or the outcome. That explains why a merge that could not succeed",
+        "  was still blocked.",
+        "  ┌────────┬─────────────────────────────────────────────────────────────────────────────┐",
+        "  │ Status │                                   Result                                    │",
+        "  ├────────┼─────────────────────────────────────────────────────────────────────────────┤",
+        "  │ DONE   │ Ran the command once. The hook blocked it, and nothing changed in the repo. │",
+        "  ├────────┼─────────────────────────────────────────────────────────────────────────────┤",
+        "  │ NEXT   │ None.                                                                       │",
+        "  └────────┴─────────────────────────────────────────────────────────────────────────────┘",
+        "  My recommendation: No action is needed. The guard does what it says, and I won't try to get around it.",
+        "✻ Brewed for 10s · done 7:59 PM",
+        "● lite  $3.04  last $0.21  8m 18s                                                     Review  Audit  Board  Details [-]",
+        "───────────────────────────────────────────────────────────────── issue-679-sc-launch-v1-259885d5a837-1119-194856-3874 ─",
+        "❯",
+        "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────",
+        "  ⏵⏵ bypass permissions on (shift+tab to cycle) · ← 1 agent"
+      ],
+      "truncated": false,
+      "limited": false,
+      "oldestCursor": "0",
+      "nextCursor": "6",
+      "latestCursor": "6",
+      "returnedLineCount": 29,
+      "tailRows": [
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 4
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 5
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 86
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        }
+      ],
+      "source": "screen"
+    }
+  },
+  "_meta": {
+    "runtimeId": "14b42f18-8f8c-439f-bb57-4255185fe99d"
+  }
+}

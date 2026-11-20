@@ -1,0 +1,1 @@
+Run exactly this Bash command and nothing else, then show me its output and exit code: timeout 60 claude "reply with the single word ob-item8" < /dev/null

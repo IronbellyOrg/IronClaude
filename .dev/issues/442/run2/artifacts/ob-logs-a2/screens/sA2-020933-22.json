@@ -1,0 +1,179 @@
+{
+  "id": "3efa350c-d3c8-439c-850c-8885d00d9d21",
+  "ok": true,
+  "result": {
+    "terminal": {
+      "handle": "term_4b6e39f7-5cd2-466f-ad5d-0bbe2c572ff5",
+      "status": "running",
+      "tail": [
+        "● ┌────────┬────────────────────────────────────────────────────────┐",
+        "  │ Status │                         Result                         │",
+        "  ├────────┼────────────────────────────────────────────────────────┤",
+        "  │ DONE   │ Ran the codegraph status tool once for /tmp/ob/repo-a. │",
+        "  ├────────┼────────────────────────────────────────────────────────┤",
+        "  │ NEXT   │ The index is empty. Decide whether to build it.        │",
+        "  └────────┴────────────────────────────────────────────────────────┘",
+        "  WHAT: The codegraph index for this repo is empty. Here is the raw result:",
+        "  Files indexed: 0",
+        "  Total nodes: 0",
+        "  Total edges: 0",
+        "  Database size: 0.16 MB",
+        "  Latest file indexed: never",
+        "  Changes since index: 0 added, 0 modified, 0 removed",
+        "  Backend: node:sqlite (Node built-in) - full WAL + FTS5",
+        "  Journal mode: wal (concurrent reads safe)",
+        "  Nodes by Kind: (none)",
+        "  Languages: (none)",
+        "  WHY: The database file exists but nothing has been indexed into it. Codegraph's symbol and caller lookups will return",
+        "  nothing until it is built.",
+        "  RECOMMENDED ACTION: Run codegraph init --yes in /tmp/ob/repo-a. Until then I will use Read and Grep for code",
+        "  questions.",
+        "  Yes: you run the init and codegraph answers become useful. No: nothing changes and I keep using Read and Grep.",
+        "  Skipped: I did not check whether an index build is already running. Your instructions warn that re-running status",
+        "  during an init can empty the index, so check with pgrep -f 'codegraph\\.js (init|index)' before starting a new one.",
+        "✻ Elucidating… (running Stop hooks… 1/2 · 6s · ↓ 73 tokens)",
+        "● lite  $0.00  0s                                                                     Review  Audit  Board  Details [-]",
+        "────────────────────────────────────────────────────────────────────────────────────────────── repo-a-1120-020838-5e80 ─",
+        "❯",
+        "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────",
+        "  ⏵⏵ bypass permissions on (shift+tab to cycle) · esc to interrupt · ← 1 agent"
+      ],
+      "truncated": false,
+      "limited": false,
+      "oldestCursor": "0",
+      "nextCursor": "27",
+      "latestCursor": "27",
+      "returnedLineCount": 31,
+      "tailRows": [
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        }
+      ],
+      "source": "screen"
+    }
+  },
+  "_meta": {
+    "runtimeId": "14b42f18-8f8c-439f-bb57-4255185fe99d"
+  }
+}

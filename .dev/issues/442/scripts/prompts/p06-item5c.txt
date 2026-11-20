@@ -1,0 +1,1 @@
+Start one general-purpose subagent in the background whose only job is to reply with the single word approved. Then end your turn.

@@ -1,0 +1,23 @@
+# Blind calibration of the Tier 1 card (Wave 1D)
+# Calibrator agent: confidence-calibrator, spawned blind (no formation context).
+# The two trailing keys were appended by the orchestrator, not by the calibrator.
+calibrated_dimensions:
+  citation_grounding: 0.85
+  coverage_completeness: 0.75
+  deviation_classification_clarity: 0.55
+  risk_surface_coverage: 0.55
+  recommendation_actionability: 0.35
+C: 0.61
+disagreements_with_card:
+  - "T1-F1 overstates the gap (plan:15 vs plan:204, plan:263). Task 8 step 2 already removes only store entries that are new against the baseline, so it does compare the store with the baseline. In the runbook that diff is step 2 (observation-runbook.md:796-799), not a pre-step-7 check. The real defect is narrower: no task requires cleanup.sh to print the post-release diff result that the plan:263 acceptance criterion asks for."
+  - "Missed: plan:224 gives the wrong runbook lines. The LL-TAMPER statement that the release rm is run by a person is at observation-runbook.md:769, not in 764-765. Line 764 is the 'Starting the sessions' bullet, which plan:225 then edits a second time. The task as written would leave line 769 stale."
+  - "Missed: the plan:231 acceptance check `grep -n 'not representative'` may be vacuous. Runbook lines 764-769 do not contain that phrase; line 765 says 'would therefore not show'. The check could pass without any edit being made."
+  - "Missed: the card's structural line says the Task 9 edit at runbook:764 shifts nothing that the plan extracts. That holds for the prompt and setup blocks. It skips the runbook parts after line 764 that the plan cites: the 5.1 safety list at 773-783 (plan:22) and cleanup at 785-835 (plan:199). Task 8 has no self-test diff over those lines, so they can drift unchecked."
+  - "Missed: plan:145 has session d wait up to 90 minutes inside a script, while plan:26 requires every external call to be bounded by `timeout`, and plan:240 gives no instruction to run the scripts in the background or in chunks. An agent running the script in a single foreground call will hit its tool timeout. This is a real execution risk in Task 10."
+  - "Missed: the card's authorization item (T1-F2, plan:19) covers issue and PR creation only. It does not cover the other outward-facing writes: pushing the T4 branch, `gh api -X PUT` (plan:149), and closing the PR with `--delete-branch` and closing the issues (plan:206, plan:264). It also does not cover the plan:19 wording that limits the authorization to 'governed claims'."
+  - "T1-F5 cites plan:259 for staging ob-logs. That line only says `git add .dev/tasks`. The card never asks whether `./artifacts/` (plan:185) is the package artifacts folder, which is staged, or the project-root artifacts folder, which CLAUDE.md says is never staged. That ambiguity decides whether screen captures get staged."
+  - "No finding carries a severity, and none carries a fix or a go/no-go verdict (plan:15-19). Labels such as 'gap', 'risk, acknowledged' and 'minor' are not comparable. The card has no recommendation section, so the executor cannot tell which findings block Task 10."
+  - "T1-F4 (plan:137) is valid and well grounded. The card does not note that session b overwrites the `settings.local.json` that Task 5 protects with 'never overwrites it' (plan:123). The two scripts conflict unless the restore step is made explicit."
+escalation_recommendation: escalate-t2
+calibrator_model_class: opus
+calibrator_diversity: degraded

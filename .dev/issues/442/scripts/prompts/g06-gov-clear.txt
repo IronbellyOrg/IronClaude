@@ -1,0 +1,1 @@
+Run the Bash command `/tmp/ob/bin/ob-tree.sh gov-clear; sleep 242` in the background, then end your turn.

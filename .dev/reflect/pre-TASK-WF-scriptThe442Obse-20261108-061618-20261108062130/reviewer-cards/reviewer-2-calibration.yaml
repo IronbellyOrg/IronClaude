@@ -1,0 +1,21 @@
+# Blind calibration of reviewer 2's card (Wave 3C)
+# Calibrator agent: confidence-calibrator, spawned blind (no formation context).
+# The two trailing keys were appended by the orchestrator, not by the calibrator.
+calibrated_dimensions:
+  citation_grounding: 0.85
+  coverage_completeness: 0.55
+  deviation_classification_clarity: 0.60
+  risk_surface_coverage: 0.55
+  recommendation_actionability: 0.80
+C: 0.67
+disagreements_with_card:
+  - "QA-1 (graded lower than the card's framing): plan lines 70-75 do list the three stop conditions (first new Stop, a Blocked line, tui-idle), and runbook 302-324 does say to wait until the notice arrives and Claude has answered it. But 'the plan supplies no additional wait condition' is a claim about the whole plan, and the cited lines cannot show it. The card gives no other plan range to support it, and line 75 says a session can pass a longer wait."
+  - "QA-2 (supported, but severity looks too high): plan line 156 names only `b` for item 5 and `d` and `e` for item 1, and the acceptance criteria at 159-161 test only `b` and `d`. Runbook 720-726 requires item 5 for every governed claim in sessions B to E. The gap is real. The card never shows that item 5 is the self-started-turn gate, and a missing guard in `c` is arguably high rather than blocking."
+  - "QA-3 (supported, severity fair): plan line 252 requires the pull request URL to start with the fork prefix. Line 257 makes Task 11 depend on Task 10, and line 264 requires the pull request to be CLOSED. Runbook 726 says to skip sessions D and E when item 1 is not PASS, so no pull request would exist. The conflict holds."
+  - "QA-4 (supported): plan lines 187-191 test block count, a missing log giving pending, filter equality, the secret scan and repeatability. None of them tests that failing evidence is classified FAIL. Severity is fair, since this script feeds the gates."
+  - "Severity and category (graded lower): all four findings are category gap and severity blocking, with no differentiation. Nothing is rated non-blocking, so the severity scale does not rank the findings."
+  - "Coverage (graded lower than the self-audit implies): the self-audit says the complete plan was read, yet no finding touches setup, session A, cleanup or the secret-scan or release guards. The cleanup store-comparison check was explicitly dropped. The cited ranges also leave out the Task 10 and Task 11 steps that run gh and orca commands."
+  - "Risk surface (graded lower): the card covers governed-launch gating (QA-2), the pull request and cleanup conflict (QA-3) and evidence classification that authorizes launches (QA-4). It does not assess issue creation in setup-github.sh, the push-prompt guard, the release `rm` path guard, worktree removal, or store writes in cleanup. Plan lines 148-154 contain guards for several of these, and the card neither confirms nor challenges them."
+escalation_recommendation: escalate-t2
+calibrator_model_class: opus
+calibrator_diversity: degraded

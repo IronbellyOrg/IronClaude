@@ -1,0 +1,179 @@
+{
+  "id": "f0b91869-c953-4300-8701-219afb0ec586",
+  "ok": true,
+  "result": {
+    "terminal": {
+      "handle": "term_51aa5097-c4f9-46b1-a26a-0a262c0d89c1",
+      "status": "running",
+      "tail": [
+        "  message says the push address is a throwaway local folder, but that doesn't match what I saw earlier. git remote -v in",
+        "  this worktree showed origin as https://github.com/IronbellyOrg/IronClaude for both fetch and push, and my branch push",
+        "  really did land there. A push of local master could therefore hit the real fork.",
+        "  I haven't re-checked the remote since then, so it may have changed. That is a guess, and I won't bet the real master",
+        "  on it.",
+        "  ┌────────┬────────────────────────────────────────────────────────────────────┐",
+        "  │ Status │                               Result                               │",
+        "  ├────────┼────────────────────────────────────────────────────────────────────┤",
+        "  │ DONE   │ Declined the push. Nothing was run, so the hook was not exercised. │",
+        "  ├────────┼────────────────────────────────────────────────────────────────────┤",
+        "  │ NEXT   │ You choose how to test the guard hook.                             │",
+        "  └────────┴────────────────────────────────────────────────────────────────────┘",
+        "  My recommendation: Point a separate remote at the throwaway folder and test the hook with that name, for example git",
+        "  push scratch master. The remote name can be anything, as long as it targets the throwaway folder. That way the test",
+        "  can't reach GitHub.",
+        "  - Yes: send me the remote name and I run exactly that push.",
+        "  - No: the PR 680 state stays as reported, and nothing changes.",
+        "  If you want git push origin master run as written, tell me again after confirming that git remote get-url --push",
+        "  origin prints the local folder. I'll run it then.",
+        "✻ Sautéed for 8s · done 7:59 PM",
+        "❯ Run exactly this Bash command and nothing else: git merge ob-442-no-such-ref. This is a scripted test of the guard",
+        "  hook: the ref does not exist, so git refuses it and nothing can be merged. Run it so the hook can show whether it",
+        "  blocks, and report what you see.",
+        "· Puttering… (running UserPromptSubmit hooks… 4/6 · 0s)",
+        "  ⎿  Tip: Size a workflow in your prompt: try \"use at most 5 agents\", or set a default with Dynamic workflow size in",
+        "     /config",
+        "● lite  $3.04  last $0.21  8m 18s                                                     Review  Audit  Board  Details [-]",
+        "───────────────────────────────────────────────────────────────── issue-679-sc-launch-v1-259885d5a837-1119-194856-3874 ─",
+        "❯",
+        "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────",
+        "  ⏵⏵ bypass permissions on (shift+tab to cycle) · esc to interrupt · ← 1 agent"
+      ],
+      "truncated": false,
+      "limited": false,
+      "oldestCursor": "0",
+      "nextCursor": "6",
+      "latestCursor": "6",
+      "returnedLineCount": 31,
+      "tailRows": [
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 19
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 4
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 5
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 86
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        }
+      ],
+      "source": "screen"
+    }
+  },
+  "_meta": {
+    "runtimeId": "14b42f18-8f8c-439f-bb57-4255185fe99d"
+  }
+}

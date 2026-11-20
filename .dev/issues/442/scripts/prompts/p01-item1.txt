@@ -1,0 +1,1 @@
+Use the Agent tool to start one general-purpose subagent. Tell it: run the Bash command `echo ob-item1-sub`, then use the Agent tool to start one nested general-purpose subagent that runs the Bash command `echo ob-item1-nested`, and report back what happened.

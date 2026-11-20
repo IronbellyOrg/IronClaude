@@ -1,0 +1,89 @@
+{
+  "id": "ad7139f8-47a9-4c54-8ebc-c92e9fba08fb",
+  "ok": true,
+  "result": {
+    "terminal": {
+      "handle": "term_51aa5097-c4f9-46b1-a26a-0a262c0d89c1",
+      "status": "running",
+      "tail": [
+        " ▐▛███▛█   Claude Code v2.1.328",
+        "▝▜██████▀  Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0 with medium effort · API Usage Billing",
+        " ▝▝   ▝▝   ~/workspaces/worktrees/IronClaude/issue-679",
+        "❯ [sc-launch:v1:259885d5a83701ba129a4124f6c04fdb] Read .dev/issues/679/launch-prompt.md and follow it.",
+        "● Editing 2 files +6, committed f82d83013, pushed to ironbelly/issue-679, reading 3 files, calling 2 tools, running 3",
+        "  shell commands…",
+        "  ⎿  $ git push origin ironbelly/issue-679",
+        "* Ruminating… (52s · ↓ 2.1k tokens · thinking with medium effort)",
+        "● lite  $0.00  0s                                                                     Review  Audit  Board  Details [-]",
+        "───────────────────────────────────────────────────────────────── issue-679-sc-launch-v1-259885d5a837-1119-194856-3874 ─",
+        "❯",
+        "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────",
+        "  ⏵⏵ bypass permissions on (shift+tab to cycle) · esc to interrupt · ← 1 agent"
+      ],
+      "truncated": false,
+      "limited": false,
+      "oldestCursor": "0",
+      "nextCursor": "6",
+      "latestCursor": "6",
+      "returnedLineCount": 13,
+      "tailRows": [
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 18
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        }
+      ],
+      "source": "screen"
+    }
+  },
+  "_meta": {
+    "runtimeId": "14b42f18-8f8c-439f-bb57-4255185fe99d"
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "id": "3c2600d9-1ae2-4ca2-8240-f7553f47ed83",
+  "ok": true,
+  "result": {
+    "terminal": {
+      "handle": "term_51aa5097-c4f9-46b1-a26a-0a262c0d89c1",
+      "status": "running",
+      "tail": [
+        " ▐▛███▛█   Claude Code v2.1.328",
+        "▝▜██████▀  Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0 with medium effort · API Usage Billing",
+        " ▝▝   ▝▝   ~/workspaces/worktrees/IronClaude/issue-679",
+        "❯ [sc-launch:v1:259885d5a83701ba129a4124f6c04fdb] Read .dev/issues/679/launch-prompt.md and follow it.",
+        "● Committing the file and pushing the feature branch",
+        "  ⎿  $ git add ob-442/T4.txt && git commit -q -m \"feat(ob-442): add disposable T4 launch-level observation target (#679)",
+        "     Co-Authored-By: Claude Code <noreply@anthropic.com>\" && git push origin ironbelly/issue-679 2>&1 | tail -3 && git",
+        "     status --short",
+        "✶ Ruminating… (26s · ↓ 1.0k tokens)",
+        "● lite  $0.00  0s                                                                     Review  Audit  Board  Details [-]",
+        "───────────────────────────────────────────────────────────────── issue-679-sc-launch-v1-259885d5a837-1119-194856-3874 ─",
+        "❯",
+        "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────",
+        "  ⏵⏵ bypass permissions on (shift+tab to cycle) · esc to interrupt · ← 1 agent"
+      ],
+      "truncated": false,
+      "limited": false,
+      "oldestCursor": "0",
+      "nextCursor": "6",
+      "latestCursor": "6",
+      "returnedLineCount": 14,
+      "tailRows": [
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 18
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        }
+      ],
+      "source": "screen"
+    }
+  },
+  "_meta": {
+    "runtimeId": "14b42f18-8f8c-439f-bb57-4255185fe99d"
+  }
+}

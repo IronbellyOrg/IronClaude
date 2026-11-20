@@ -1,0 +1,75 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: .dev/reflect/pre-TASK-WF-scriptThe442Obse-20261108-061618-20261108062130/REPORT.md
+audit_log_path: .dev/reflect/pre-TASK-WF-scriptThe442Obse-20261108-061618-20261108062130/audit.log
+confidence_calibrated: 0.61
+escalation_rule_matched: "rule 4 (S_domains=4) + parsed-sparse pre-filter (D13); rule 6 also holds (C<0.85)"
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_touches_other_level: false
+hierarchy_details: []
+input_sha256:
+  tasklist: 6858a121c396c4121f70cb978b48f9a159122b06d8dcc616703e1a077cde3078
+  spec: 2cccf3264c80e12ddaf6b504f6e5a1ec8e942e005f1a35e5711dee9a3a7de3f7
+input_tree_sha256: b075866649321f52cdedd58afd8e9d8b83a4850cd5c8fb3effece973b0a5cad1
+input_tree_file_count: 7
+input_tree_snapshot_path: .dev/reflect/pre-TASK-WF-scriptThe442Obse-20261108-061618-20261108062130/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 39
+citations_revalidated: 38
+citations_dropped: 1
+citations_dropped_extrapolated: 0
+citations_inferred: 6
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - .dev/reflect/pre-TASK-WF-scriptThe442Obse-20261108-061618-20261108062130/reviewer-cards/reviewer-1-card.yaml
+  - .dev/reflect/pre-TASK-WF-scriptThe442Obse-20261108-061618-20261108062130/reviewer-cards/reviewer-2-card.yaml
+adversarial_artifacts_dir: .dev/reflect/pre-TASK-WF-scriptThe442Obse-20261108-061618-20261108062130/adversarial
+adversarial_convergence_score: 1.00
+adversarial_unavailable: false
+merge_method: adversarial
+merged_verdict: FAIL
+adversarial_status: completed
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: full
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_route: null
+remediation_package_path: null
+escalated_to_user: false
+needs_human_decision: false
+grounding_gaps_path: null
+runtime_surface_sweep_ran: false
+runtime_surface_unreached: 0
+runtime_surface_degraded: false
+unreached_surfaces: []
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: false
+verification_skip_reason: read-only-mode-pre
+reachability_gate_ran: false
+per_task_verdicts: []
+interaction_effects_present: false
+interaction_effects: []
+budget_check_skipped: true
+budget_forced_tier_downgrade: false
+forced_tier: null
+deviation_patterns_written: false
+promotion_action: not-applicable
+promotion_gate_passed: null
+promotion_skip_reason: "UC-1 pre mode: no work-unit promotion"
+status_partial_reason: "evidence-validator dropped 1 citation (plan:206 for --delete-branch; corrected to plan:199+206 in REPORT.md)"

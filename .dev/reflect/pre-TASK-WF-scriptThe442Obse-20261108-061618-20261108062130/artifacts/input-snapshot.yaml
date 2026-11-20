@@ -1,0 +1,18 @@
+input_tree_sha256: b075866649321f52cdedd58afd8e9d8b83a4850cd5c8fb3effece973b0a5cad1
+hash_method: "sha256sum over sorted path list (tasklist, spec, depth-1 linked files, work-unit files), then sha256 of that listing (/tmp/r442-tree.txt)"
+file_count: 7
+output_root: /home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/.dev/reflect/pre-TASK-WF-scriptThe442Obse-20261108-061618-20261108062130
+output_overlaps_input: false
+file_list:
+  - {path: .dev/issues/442/handoff-runbook.md, sha256: 10508df707a41b7f42cae514976c0996332be0974ecc7ca49eec1141f7e38e36}
+  - {path: .dev/issues/442/observation-runbook.md, sha256: 19d5e3a4608583df1e278aac6ccdbd082604a2ec369fcf04574021fba82fad69}
+  - {path: .dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md, sha256: 6858a121c396c4121f70cb978b48f9a159122b06d8dcc616703e1a077cde3078}
+  - {path: .dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/source.md, sha256: 2cccf3264c80e12ddaf6b504f6e5a1ec8e942e005f1a35e5711dee9a3a7de3f7}
+  - {path: ~/.claude/ISSUE-HANDOFF.md, sha256: b23da735fb8d08a31c1ba191f0746e595267a4ab852b7b1ef5c295cf24f23159}
+  - {path: ~/.claude/skills/orchestration/SKILL.md, sha256: ce9a81cb2e6bbb8487107d2e088bf9fd6e0ba71ebc6bcc1929f827fde65fec6b}
+  - {path: src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py, sha256: 9b64db5f6a03cd8093b67536b8e2247e5b910e0b20506f59e774c2db5f5daef8}
+excluded_from_tree:
+  - "tests/hooks/fixtures/launch_level/ob_h1/*.json (glob reference, not a single linked file)"
+input_sha256:
+  tasklist: 6858a121c396c4121f70cb978b48f9a159122b06d8dcc616703e1a077cde3078
+  spec: 2cccf3264c80e12ddaf6b504f6e5a1ec8e942e005f1a35e5711dee9a3a7de3f7
