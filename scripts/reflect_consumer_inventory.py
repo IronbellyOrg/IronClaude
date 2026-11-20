@@ -388,7 +388,7 @@ def render(root: Path, res: dict) -> str:
     out += _equality_line(res)
     out.append(
         "- The Task 15 lint (`src/superclaude/cli/reflect/panel_lint.py`) checks the version as "
-        '`version != CONTRACT_VERSION` with `CONTRACT_VERSION = "1.8.0"`, not as the literal equality this search '
+        '`version not in CONTRACT_VERSIONS` with `CONTRACT_VERSIONS = ("1.8.0", "1.9.0")`, not as the literal equality this search '
         "looks for, so a rerun does not list it here."
     )
     out.append(_grader_line(root, res))

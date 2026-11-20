@@ -7,7 +7,7 @@ Loaded **only** when Wave 0 detects a managed plan. Everything here is additive:
 A source file `P` is **managed** iff `P` has front matter `schema: workflow-plan/1.2`. Then **all** must hold, else STOP `E-MANAGED-INVALID` (no ledger, no writes):
 
 1. `slug` matches `^TASK-WF-[a-z][A-Za-z0-9]{0,15}-[0-9]{8}-[0-9]{6}(-[2-9])?$` (subject: lower camelCase, max 16, no hyphens), equals the name of `P`'s parent directory, **and `P`'s basename is exactly `<slug>.md`** (a managed plan named `plan.md` or any other name → `E-MANAGED-INVALID`; never fall back to `plan.md`). Below, `<plan>` means `<slug>.md`.
-2. Sibling `return-contract.yaml` has `contract_version: "1.1"`, the same `slug`, and `status: success` or `partial` (a `failed` contract is never executable).
+2. Sibling `return-contract.yaml` has `contract_version: "1.1"`, the same `slug`, and `status: success` or `partial` (a `failed` contract is never executable). A contract that carries `review_verdict: FAIL` is refused before any write and before the ledger step with STOP `E-MANAGED-REVIEW-FAIL`, which prints the `open_blockers` ids from that contract (the plan still has blocking review findings; repair it with `/sc:workflow`, do not run it).
 3. `P` resolves (realpath, no symlinked component below the checkout) to `<checkout>/.dev/tasks/to-do/<slug>/<slug>.md` or `<checkout>/.dev/tasks/done/<slug>/<slug>.md`, where `<checkout>` is the current git top-level. A copied plan or a plan from another checkout fails here.
 4. Sibling `source.md` exists as a regular file.
 

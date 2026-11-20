@@ -18,6 +18,7 @@ SKILL_REL = "src/superclaude/skills/sc-reflect-protocol/SKILL.md"
 SKILL = ROOT / SKILL_REL
 SPEC = ROOT / "src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md"
 SKILL_DIR = ROOT / "src/superclaude/skills/sc-reflect-protocol"
+FIXTURES = Path(__file__).parent / "fixtures"
 
 
 def git(*args: str) -> str | None:
@@ -39,14 +40,14 @@ def block_after(text: str, heading: str) -> str:
 # ------------------------------------------------------------ where the skill may change (AC1)
 
 
-def test_stable_contract_block_and_version_are_byte_identical_to_head():
-    head = git("show", f"HEAD:{SKILL_REL}")
-    if head is None:
-        pytest.skip("no git history for the skill")
-    heading = "### 9.1 Stable contract (contract_version: 1.8.0)"
-    current = SKILL.read_text(encoding="utf-8")
-    assert block_after(current, heading) == block_after(head, heading)
-    assert 'contract_version: "1.8.0"' in block_after(current, heading)
+def test_stable_contract_block_and_version_match_the_pinned_1_9_0_block():
+    pinned = (FIXTURES / "stable_contract_1_9_0_block.yaml.txt").read_text(
+        encoding="utf-8"
+    )
+    heading = "### 9.1 Stable contract (contract_version: 1.9.0)"
+    block = block_after(SKILL.read_text(encoding="utf-8"), heading)
+    assert block == pinned.rstrip("\n")
+    assert 'contract_version: "1.9.0"' in block and "finding_counts:" in block
 
 
 def test_skill_changes_are_confined_to_the_allowed_sections():
@@ -62,7 +63,8 @@ def test_skill_changes_are_confined_to_the_allowed_sections():
         above = [h for i, h in headings if i <= lineno]
         return above[-1] if above else ""
 
-    allowed = ("### 3.1 ", "### 4.3a ", "### 5.4 ", "### 9.2 ")
+    # 9.1 holds the 1.9.0 heading, finding_counts and the version sentence; 17.6 holds the grader row
+    allowed = ("### 3.1 ", "### 4.3a ", "### 5.4 ", "### 9.1 ", "### 9.2 ", "## 17.6 ")
     seen = set()
     for m in re.finditer(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@", diff, re.M):
         start, count = int(m.group(1)), int(m.group(2) or 1)
@@ -72,7 +74,6 @@ def test_skill_changes_are_confined_to_the_allowed_sections():
             assert sec.startswith(allowed), f"line {n} changed under {sec!r}"
             if sec.startswith("### 3.1 "):
                 assert "--t2-engine" in lines[n - 1]
-    assert not any(s.startswith("### 9.1 ") for s in seen)
 
 
 def test_no_new_src_superclaude_hit_in_the_skill_directory():

@@ -4,6 +4,8 @@
 
 Exactly one: existing file (`@path` unwraps) **or** non-empty leftover prompt.
 
+With `--revise` the source requirement is waived: no source file or prompt is needed (`E-NO-SOURCE` does not apply). Instead the `--revise <package-dir>` value must be an existing package directly under `.dev/tasks/to-do/` that holds its plan `<id>.md`, its `source.md` and a `return-contract.yaml`, and the `--review <REPORT.md>` file must exist; otherwise STOP `E-BAD-FLAG` (no package, no yaml). A `--revise` run creates no new package and no `source.md` at Wave 0: it skips Waves 0 to 4 and enters Wave 4R directly with `<old-id>` = the given package (`SKILL.md`, Wave 0).
+
 ## Validate first, then create
 
 Validate every input and flag **before any write**. These STOPs create no package, no `source.md`, no yaml (chat only):
@@ -17,12 +19,12 @@ Validate every input and flag **before any write**. These STOPs create no packag
 
 ## Package identity
 
-Every generation creates one **new** package under the current checkout: `.dev/tasks/to-do/<id>/`. Regeneration never reuses, merges into, or overwrites an existing package.
+Every generation creates one **new** package under the current checkout: `.dev/tasks/to-do/<id>/`. Regeneration never reuses, merges into, or overwrites an existing package. Wave 4R (`refs/remediation.md`) places a new package for a repaired plan and never edits an old one.
 
 1. **Subject** — lower camelCase, **max 16** characters, no hyphens. Take the basename without extension (file source) or the inline prompt. Split into words with the regex `[A-Z]+(?![a-z])|[A-Z]?[a-z]+|[0-9]+` (ASCII only; every other character is a separator; camelCase and acronym boundaries split, so `authLogin` → `auth`,`Login` and `XMLParser` → `XML`,`Parser`). Lowercase each word. Before concatenation or truncation, if there are no words or the first word starts with a digit, prepend the word `plan`. Keep the first word as is, capitalize the first letter of each later word, concatenate, then truncate to **16** (empty → `plan`; `2fa login` → words `plan`,`2`,`fa`,`login` → `plan2FaLogin`; `1234567890123456` → `plan123456789012`). The result always matches `[a-z][A-Za-z0-9]{0,15}`.
 2. **Timestamp** — current **UTC** `YYYYMMDD-HHMMSS`.
 3. **ID** — `TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>`. The ID is the package directory name and the plan `slug`; it never changes after creation and is independent of the source's absolute path.
-4. **Exclusive creation** — if `.dev/tasks/to-do/<id>` **or** `.dev/tasks/done/<id>` exists (`test -e` **or** `test -L`, so dangling symlinks count), do not touch it: retry with suffix `-2`, `-3`, … up to `-9` appended to the full ID. Create the leaf with plain `mkdir` (never `mkdir -p`, never `rm -rf`) so an existing leaf is a hard failure; only the parents (`.dev/tasks/to-do`) may be created with `-p`. If `-9` is also taken → STOP `E-PACKAGE-COLLISION` (no package created).
+4. **Exclusive creation** — if `.dev/tasks/to-do/<id>` **or** `.dev/tasks/done/<id>` exists, or `.dev/tasks/archive/<id>` exists (`test -e` **or** `test -L`, so dangling symlinks count), do not touch it: retry with suffix `-2`, `-3`, … up to `-9` appended to the full ID. Create the leaf with plain `mkdir` (never `mkdir -p`, never `rm -rf`) so an existing leaf is a hard failure; only the parents (`.dev/tasks/to-do`) may be created with `-p`. If `-9` is also taken → STOP `E-PACKAGE-COLLISION` (no package created).
 
 | Source or prompt | Subject |
 |------------------|---------|
@@ -49,12 +51,12 @@ Every generation creates one **new** package under the current checkout: `.dev/t
 |------|------|----------|
 | `E-NO-SOURCE` | no path and no prompt, or two file tokens | none |
 | `E-EMPTY-SOURCE` | whitespace-only | none |
-| `E-BAD-FLAG` | unknown enum | none |
+| `E-BAD-FLAG` | unknown enum (including a `--remediate` value other than `none\|surgical\|regenerate`), a `--revise` without `--review`, or a `--review` without `--revise` | none |
 | `E-LEGACY` | `--output`, `--parallel`, `--validate`, `--depth shallow\|normal` | none |
 | `E-PACKAGE-COLLISION` | `-9` suffix also taken | none |
 | `E-NO-PHASES` | Wave 1 extracted nothing | created → `failed` contract |
 | `E-GATE` | Wave 3 schema/heading fail | created → `failed` contract |
 
-Enums: strategy `systematic|agile|enterprise`; depth `quick|standard|deep`; handoff `none|design|implement`.
+Enums: strategy `systematic|agile|enterprise`; depth `quick|standard|deep`; handoff `none|design|implement`. Remediate (`--remediate`) `none|surgical|regenerate`. `--revise <package-dir>` and `--review <REPORT.md>` are given together or not at all (each takes one value).
 
-Bash: only the package `mkdir` (exclusive leaf) and a single `rm` may change the filesystem; read-only helpers (`date -u`, `test -e`/`-L`, `tr`/`sed` for the subject, `grep` for gate checks) are fine. The single `rm` is of the draft `<id>.md` this run wrote when Wave 3 fails (never a directory, never anything else). Write `source.md` and `<id>.md` with the Write tool (a file source's text is read, then written verbatim).
+Bash: only the package `mkdir` (exclusive leaf), a single `rm`, the subcommands of `~/.claude/skills/sc-workflow-protocol/scripts/remediate.py` (`route`, `reserve`, `prepare`, `archive`, `place`, `restore`, `mark`, `release`), the private `mktemp -d /tmp/sc-workflow-revise.XXXXXXXX` directory and the copy and move those subcommands perform may change the filesystem; read-only helpers (`date -u`, `test -e`/`-L`, `tr`/`sed` for the subject, `grep` for gate checks) are fine. The single `rm` is of the draft `<id>.md` this run wrote when Wave 3 fails (never a directory, never anything else). Write `source.md` and `<id>.md` with the Write tool (a file source's text is read, then written verbatim).

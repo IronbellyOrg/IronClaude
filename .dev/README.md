@@ -22,7 +22,7 @@ The enforcement layers that depend on this rule:
 | `releases/` | Release planning, in-flight releases (`current/`), completed work (`archive/`), backlog (`backlog/`), and templates (`templates/`). |
 | `research/` | Free-form research notes, decision memos, and analysis artefacts that inform design decisions. |
 | `resurrection-contracts/` | Recovery contracts (gate definitions) used when an audit needs to re-execute against a known good state. |
-| `tasks/` | MDTM task files — `done/` holds completed tasks; loose `*.md` files are in-flight or staged work. Also holds **workflow task packages** (`to-do/TASK-WF-*/`, `done/TASK-WF-*/`) — see [Workflow task packages](#workflow-task-packages). |
+| `tasks/` | MDTM task files — `done/` holds completed tasks; loose `*.md` files are in-flight or staged work. Also holds **workflow task packages** (`to-do/TASK-WF-*/`, `done/TASK-WF-*/`, `archive/TASK-WF-*/`) — see [Workflow task packages](#workflow-task-packages). |
 | `test-fixtures/` | Static input fixtures used by skill harnesses and evals (e.g. `test-prd-user-auth.md`) plus `results/`. |
 | `test-sprints/` | Sprint CLI smoke-test bundles used to validate the sprint pipeline end-to-end. |
 
@@ -44,7 +44,7 @@ If you find yourself wanting to write to `.claude/skills/<skill>-workspace/` or 
 
 ## Workflow task packages
 
-`/sc:workflow` creates one **new** package per generation (it never overwrites one): `.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/` (UTC; `<subject>` is lower camelCase, max 16 chars, e.g. `authLogin`; `-2`..`-9` suffix on a collision in `to-do/` or `done/`). The tasklist file is named exactly like the package directory plus `.md` (`TASK-WF-authLogin-20261001-063000.md`, collision suffix included). `--output` is retired — there is no destination override.
+`/sc:workflow` creates one **new** package per generation (it never overwrites one): `.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/` (UTC; `<subject>` is lower camelCase, max 16 chars, e.g. `authLogin`; `-2`..`-9` suffix on a collision in `to-do/`, `done/` or `archive/`). The tasklist file is named exactly like the package directory plus `.md` (`TASK-WF-authLogin-20261001-063000.md`, collision suffix included). `--output` is retired — there is no destination override.
 
 ```text
 .dev/tasks/to-do/TASK-WF-<id>/
@@ -59,5 +59,8 @@ If you find yourself wanting to write to `.claude/skills/<skill>-workspace/` or 
 - **Completion.** After every task is complete, `/sc:implement` runs a fresh independent final review (every archive attempt, even for a one-task plan) and then a small helper moves the whole package to `.dev/tasks/done/<id>/`. No commit, PR, merge or release is implied.
 - **Archiving is Linux-only and fail-closed.** It uses `renameat2(RENAME_NOREPLACE)`; on another OS, an unsupported filesystem/kernel, a cross-filesystem move or any existing destination it refuses and leaves the package in `to-do/` — it never falls back to `mv`/copy.
 - **Interrupted archive.** An existing `<package>/.archiving` marker always stops the next run. After you confirm the original run has stopped, clear it explicitly with the helper's `--clear-marker <token>` (the token is in `.archiving/owner`); nothing reclaims it automatically.
-- **Look in both places.** To find work, scan `.dev/tasks/to-do/TASK-WF-*/` (in flight) and `.dev/tasks/done/TASK-WF-*/` (finished). A package present in both is a conflict: stop and resolve it by hand.
+- **Archive of superseded packages.** `.dev/tasks/archive/TASK-WF-*/` holds packages that a newer package replaced. They are never run and are deleted only on an explicit owner order. `/sc:implement` refuses a plan under `archive/` and a plan whose contract says `review_verdict: FAIL` (blocking review findings still open).
+- **Surgical route.** When the final review of `/sc:workflow` finds 1 to 3 blocking findings, the plan is repaired on a copy, the old package moves to `archive/`, and the repaired copy is placed as a new package in `to-do/` and re-reviewed (at most 2 fix cycles).
+- **Regenerate route.** When the review finds more blocking findings than that, the plan is regenerated as a new package (at most once per run) and the old package moves to `archive/`.
+- **Look in three places.** To find work, scan `.dev/tasks/to-do/TASK-WF-*/` (in flight), `.dev/tasks/done/TASK-WF-*/` (finished) and `.dev/tasks/archive/TASK-WF-*/` (superseded). A package present in `to-do/` and in `archive/` or `done/` is a conflict: stop and resolve it by hand.
 - **Preserved legacy runs.** Plans generated before this layout (`workflow-plan/1.1`, `.dev/workflow/<slug>/`) and their path-hashed ledgers under `.dev/implement/` keep working unchanged; they are not migrated.

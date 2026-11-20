@@ -1,0 +1,20 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-implementDocsDes-20261120-021912
+plan_path: ./TASK-WF-implementDocsDes-20261120-021912.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-624/.dev/tasks/to-do/TASK-WF-implementDocsDes-20261120-021912/artifacts/re-review-4.md
+supersedes: TASK-WF-implementDocsDes-20261120-021216
+remediation_route: surgical
+finding_counts: {blocking: 0, label_high: 0, medium: 4, note: 3}
+fix_cycles: 3
+review_verdict: PASS
+unresolved:
+  - "Review chain: review 1 not-ready (12 blocking), re-review 2 not-ready (1 blocking), re-review 3 ready, re-review 4 ready (0 blocking, all 15 prior findings resolved). Re-reviews were scoped to changed lines plus prior findings. The reviews ran without blind calibration, adversarial merge and evidence validation. Fix cycles: 3 (the owner allowed a third, past the usual cap of 2, to fold in the Medium findings)."
+  - "Open Medium follow-ups from re-review 4 (see artifacts/re-review-4.md): M1 restore cannot undo rewritten lines, M2 the existing-mark check is too broad, M3 no writer for remediation_route and finding_counts on routes none, escalate and forced, M4 a partly failed archive strands the old package."

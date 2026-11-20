@@ -6,7 +6,7 @@ files only: no model, no process, no network, and it writes nothing.
 
 Legacy set: every ``<runs-root>/pre-*`` directory (default runs root: ``.dev/reflect`` under the repository that
 holds this script) that holds a ``return-contract.yaml`` which parses to a mapping with ``contract_version`` equal
-to the string ``"1.8.0"`` and has no ``panel/manifest.json``. Other contracts are counted and listed as skipped,
+to the string ``"1.8.0"`` or ``"1.9.0"`` and has no ``panel/manifest.json``. Other contracts are counted and listed as skipped,
 with the reason.
 
 Shadow set: the run directories given with ``--shadow`` (a shadow run is one with ``panel/manifest.json``; the
@@ -29,7 +29,7 @@ Differences: runs are paired by directory name. A paired run differs when its (v
 degraded reason is a shadow run whose verdict is ``degraded`` and that either (a) is paired with a legacy run whose
 (verdict, reason) is not the same, or (b) is unpaired and has a degraded reason that no legacy run has. The script
 prints both sets, for each ``allow_single_vendor`` value, and exits 1 when there is any new degraded reason, 0
-otherwise, 2 on a usage error. Limits: a shadow contract that is unusable or not 1.8.0 is skipped and listed, and a
+otherwise, 2 on a usage error. Limits: a shadow contract that is unusable or not 1.8.0 or 1.9.0 is skipped and listed, and a
 shadow verdict of ``blocked`` or ``halted`` is a difference when paired but not a new degraded reason; neither
 changes the exit code.
 
@@ -51,7 +51,7 @@ from superclaude.cli.reflect.contract import derive_verdict
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = "return-contract.yaml"
-VERSION = "1.8.0"
+VERSIONS = ("1.8.0", "1.9.0")
 DERIVE_ARGS = {"expected_tier": 2, "child_rc": 0}
 SINGLE_VENDOR_MODES = (
     False,
@@ -70,7 +70,7 @@ def load(run: Path) -> tuple[dict | None, str | None]:
         return None, "unreadable or unparseable"
     if not isinstance(data, dict):
         return None, "not a mapping"
-    if data.get("contract_version") != VERSION:
+    if data.get("contract_version") not in VERSIONS:
         return None, f"contract_version {data.get('contract_version')!r}"
     return data, None
 

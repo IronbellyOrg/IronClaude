@@ -1,0 +1,168 @@
+```yaml
+contract_version: "1.9.0"   # #323: the change-summary corroboration field was removed (no consumer read it); the other fields keep their names. 1.9.0 ADDITIVE ONLY: +finding_counts ({blocking, label_high, medium, note}); 1.8.0 ADDITIVE ONLY: +remediation_plan_path (plan-route sibling of remediation_task_path); 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics; 1.7.x runtime/semantic hardening: EV-1 Wave-4 ORCHESTRATOR-VERIFIES-ON-DISK merge gate + EV-2 merge_method legal-values guard (no stable-field change); 1.6.0 (FR-RSR) ADDITIVE ONLY: +runtime_surface_* (6 fields); 1.7.0 (FR-RH1) ADDITIVE ONLY: +reachability_* fields
+status: success | partial | failed | dry-run
+mode: pre | post
+tier_reached: 1 | 2 | 3
+report_path: <abs path to REPORT.md>
+audit_log_path: <abs path>
+confidence_calibrated: <float 0.00-1.00>
+escalation_rule_matched: <int 1-8> | null
+onboarding_ran: false                 # constant false since #323: the one-shot onboarding bootstrap was removed; kept for contract stability
+
+# UC-1 specific
+coverage_pct: <float 0.0-1.0> | null            # PARSED-ONLY denominator; pre-D13 semantics UNCHANGED (consumer-safe per the 9.4 additive policy)
+coverage_pct_union: <float 0.0-1.0> | null      # NEW (1.5.0, D13): union denominator (parsed + inferred rows) per Step 1B.0; reflect-internal gates read this
+coverage_undefined: <bool>           # true when no parseable requirement IDs across BOTH extraction passes
+coverage_degraded: <string> | null   # NEW (1.5.0, D13): "parsed-sparse" when inferred_count > parsed_count (Step 1B.2b); table-wide T1-stop pre-filter
+unmapped_requirements: [<list>]                 # PARSED-ONLY; pre-D13 semantics unchanged
+unmapped_requirements_union: [<list>]           # NEW (1.5.0, D13): union set incl. unmatched INF-NNN rows
+best_practice_grade: <int 0-5> | null
+implementation_coverage_pct: <float 0.0-1.0> | null   # FR-1 (null when the kind-guard never fired — C5)
+missing_implementations:                              # FR-1
+  - abstract_name_path: <string>
+    expected_count: <int>
+    found_count: <int>
+hierarchy_slice_path: null                            # constant null since #323: the type-hierarchy step was removed; kept for contract stability
+hierarchy_coverage_pct: null                          # constant null since #323 (same reason)
+
+# UC-2 specific
+tasklist_completion_pct: <float 0.0-1.0> | null
+deviation_count_by_class:
+  authorized: <int>
+  necessary: <int>
+  drift: <int>
+  regression: <int>
+deviation_register_path: <abs path> | null
+grounding_gaps_path: <abs path> | null    # parallel artifact for evidence-insufficient findings
+hunk_to_declaration_map_path: <abs path>   # FR-2 (UC-2 only)
+third_party_api_grounding:                 # FR-4
+  - api_name: <string>
+    dep_version: <string>
+    resolution_path: <string>
+third_party_api_verified: <bool>           # FR-4 (always false while Step 7 `search_deps` is skipped)
+verification_ran: <bool>                   # FR-4 (UC-2 Bash verification run, §6.1 steps 5 and 5.5)
+verification_invocations: <int>            # FR-4 (count of verify-log invocation entries)
+verification_failures: <int>               # FR-4 (exit_code != 0 count)
+verification_regressions_detected: <int>   # FR-4 (taxonomy-classified Regression exits on a claimed-passing file)
+verification_skip_reason: tool-unavailable|read-only-project|--no-verify|null   # FR-4
+
+# Runtime-surface reachability (FR-RSR — UC-2)
+# MANDATORY EMISSION (FR-RSR.7): whenever runtime_surface_sweep_ran is true, ALL SIX fields
+# below MUST be emitted with these EXACT names on EVERY path — REACHED, DEGRADE, and UNREACHED
+# alike. Do NOT invent alternative field names (e.g. runtime_surface_reachable,
+# reachability_path, static_caller_absent_is_expected); those are NOT contract fields and a
+# consumer keyed on §9.3 will not see them. Record the per-symbol verdict ONLY through these
+# six fields:
+#   • REACHED  → runtime_surface_unreached: 0, runtime_surface_degraded: false, unreached_surfaces: []
+#   • DEGRADE  → runtime_surface_degraded: true (+ a §10.6 Grounding Gap row); the symbol is NOT in unreached_surfaces
+#   • UNREACHED→ runtime_surface_unreached: <count ≥ 1>, with one unreached_surfaces[] entry per UNREACHED symbol
+# The count invariant len(unreached_surfaces) == runtime_surface_unreached MUST hold every run.
+runtime_surface_requirements: [<list str>]          # FR-RSR.1 (surface requirement ids tagged from symbol kind/decorator; [] when none)
+runtime_surface_sweep_ran: <bool>                   # FR-RSR.2 (true only when ≥1 tagged surface triggered the sweep)
+runtime_surface_ledger_path: <abs path> | null      # FR-RSR.2 (<output>/artifacts/runtime-surface-ledger.yaml; null when sweep did not run)
+runtime_surface_unreached: <int>                    # FR-RSR.2/6 (count of SYMBOLS reduced to UNREACHED; 0 on a fully-REACHED run; drives §5.3 pre-filter)
+runtime_surface_degraded: <bool>                    # FR-RSR.3/8 (true when ≥1 symbol reduced to DEGRADE → §10.6 Grounding Gap; false on a fully-REACHED run)
+unreached_surfaces: [<list of UnreachedSurface>]    # FR-RSR.6 (one entry per UNREACHED symbol; [] on REACHED and on DEGRADE-only runs)
+
+# Contracted-sink reachability / oracle-admissibility (FR-RH1 — UC-2)
+reachability_gate_ran: <bool>
+reachability_ledger_path: <abs path> | null          # null when the gate did not run
+reachability_requirements_scanned: <int>             # side-effect-bearing requirements evaluated
+reachability_unreachable: <int>                      # verdict==unreachable rows (each → regression_present); set by EITHER Step 5.6 real-boot durable-sink absence OR Step 5.6a static behavioral-unreachability of a spec-declared REQUIRED capability (annotation-free, no real-boot)
+reachability_unproven: <int>                         # verdict==unproven rows (each → a grounding-gaps row)
+reachability_real_boot_ran: <bool>                   # best-effort step-5.5 boot fired at least once
+reachability_skip_reason: --no-reachability|no-side-effect-requirements|spec-and-tasklist-absent|null
+
+# Reuse-Miss neighbour sweep (FR-REUSE — §6.1 step 4a / §10.8; UC-2). NO deviation_count_by_class.reuse_miss key (§17.7).
+reuse_sweep_ran: <bool>
+reuse_audit_path: <abs path> | null          # reuse-auditor's reuse-audit.yaml
+reuse_miss_blocking: <int>                    # rung-L3 findings mapped to Drift/Regression (§10.8)
+reuse_miss_advisory: <int>                    # rung ≤ L2 (non-gating)
+reuse_verdict_count_by_type: { reuse_by_import: <int>, mirror_shape: <int>, extract_shared: <int>, distinct: <int> }
+reuse_grounding_gap_count: <int>              # maybe-related/insufficient routed to §10.6
+neighbour_search_sampled: <bool>              # candidates exceeded the ≤12 cap
+neighbour_search_degraded: <bool>             # auggie-unavailable fallback used (caps findings at advisory L2)
+max_overlap_score: <float 0.0-1.0> | null
+
+# Input integrity
+input_sha256:                         # legacy single-file hashes preserved for backward-compat
+  tasklist: <hex>
+  spec: <hex> | null
+input_tree_sha256: <hex>              # AUTHORITATIVE: tree-hash over every input file
+input_tree_file_count: <int>          # number of files in the tree-hash; 1 for spec-only UC-1
+input_tree_snapshot_path: <abs path>  # <output>/artifacts/input-snapshot.yaml
+input_drift_detected: <bool>          # true if input_tree_sha256 mismatch at Wave 5 OR Wave 7 step 7.2
+input_drift_diff: [<list of {path, old_sha, new_sha, change_kind: added|removed|modified}>] | null
+
+# Hallucination guard
+citations_total: <int>
+citations_revalidated: <int>          # M; size of the re-Read subset; equals citations_total in full_reread mode
+citations_dropped: <int>              # >0 forces status: partial; in sampled mode this is the SAMPLE COUNT (§11.5)
+citations_dropped_extrapolated: <int> # population projection in sampled mode; recording-only, does NOT gate promotion
+citations_inferred: <int>             # [INFERRED]-tagged; does not force partial
+citation_budget_policy: full_reread | sampled
+evidence_validator_ran: bool
+citation_revalidation_at_promotion: bool   # true when Wave 7 step 7.2 re-Read cited files (Wave 6 ran)
+
+# Tier 2 artifacts
+reviewer_cards: [<list of paths>] | []
+adversarial_artifacts_dir: <path> | null   # consumer-side remap from sc-adversarial's `artifacts_dir` field (see §8)
+adversarial_convergence_score: <float> | null
+adversarial_unavailable: <bool>      # F3 path
+merge_method: adversarial | single-reviewer-fallback   # F2 path. [EV-2] LEGAL VALUES ARE EXACTLY {adversarial, single-reviewer-fallback}: any other value (inline, convergence-inline, an in-context "convergence" of the cards) is MALFORMED -> reject. A non-adversarial merge is legal ONLY via the F2/F3 fallback (single-reviewer-fallback + adversarial_unavailable: true + audit.log). Reflect MUST NOT synthesize its own merge.
+t2_model_class_diversity: full | degraded
+t2_vendor_diversity: multi | single   # warn-only in v1.0
+t2_effective_diversity: full | model-only | vendor-only | none   # derived; combines both diversity axes
+calibrator_diversity: full | degraded
+
+# Tier 3
+remediation_offered: bool
+remediation_accepted: bool | null
+task_file_path: <path> | null
+remediation_task_path: null   # FR-8, retired in 6.1.0: the MDTM route is gone, so this is always null. Kept in the schema so older reports still load.
+remediation_plan_path: <abs path> | null   # 1.8.0: absolute path of the sc:workflow tasklist `.dev/tasks/to-do/<slug>/<slug>.md` built in Wave 6 (the only route); null when no plan was built. The wrapper auto-fix loop READS this to auto-run /sc:implement.
+handoff_memory_key: null   # FR-3, retired in 6.1.0: always null, no handoff file is written. Kept in the schema so older reports still load.
+finding_counts: {blocking: <int>, label_high: <int>, medium: <int>, note: <int>}   # 1.9.0: computed from the merged findings after the evidence validator, in both pre and post modes. label_high counts the Deviations-table label HIGH (legacy path) or findings-v2 severity CRITICAL (panel path); blocking, medium and note count the grades `Blocking (...)`, `Medium:` and `Note:` (panel: the `blocking` flag, severity MAJOR not blocking, severity MINOR; see refs/reviewer-spec.md).
+
+# Asymmetric-cost flags (downstream automation must respect these)
+cannot_validate_without_user_input: bool
+regression_present: bool                   # FR-4: now verified-sourced from the §6.1 step 5.5 exit-code taxonomy (was task-log self-report)
+unauthorized_deviation_present: bool
+blocked_by_low_confidence: bool            # every actionable rec gated to <0.70 by confidence-check
+spec_is_wrong: bool                        # UC-2 — code is correct, spec contradicts on-disk reality
+user_decision_required: bool               # convergence < threshold AND no auto-route applies
+needs_human_decision: bool                 # grounding-gaps.yaml non-empty
+
+# Per-task verdict array (P1 + P2) — populated when UC-2 input is a multi-task tasklist
+per_task_verdicts:                       # empty list for UC-1 or single-task UC-2
+  - task_id: <string>
+    status: success | partial | failed
+    deviation_class: authorized | necessary | drift | regression | none
+    citations_dropped: <int>
+    per_task_validation_strength: <float 0.00-1.00>   # P2: calibrated, post-evidence-validator
+    evidence_anchor: <abs path or task-log ref>
+
+# Cross-task interaction-effects (P3) — UC-2 tasklist-scope only
+interaction_effects_scanned: bool         # true when Wave 1B.3 ran; false when skipped
+interaction_effects_findings: <int>       # count of cross_task invariant probe entries (sum of HIGH+MEDIUM+LOW)
+
+# Budget pre-flight (P5)
+budget_forced_tier_downgrade: bool        # true when --budget-remaining triggered tier downgrade
+budget_forced_stop: bool                  # true when --budget-remaining < 5
+budget_check_skipped: bool                # true when --budget-remaining was not provided
+forced_tier: 1 | 2 | null                 # populated when budget_forced_tier_downgrade == true
+
+# Promotion (UC-2 only — §14.5)
+promotion_action: moved | skipped | rejected | failed | already-promoted | resumed | dry-run | not-applicable
+promotion_adapter: task | sprint-release | none | null
+promotion_source: <abs path> | null
+promotion_destination: <abs path> | null
+promotion_log_path: <abs path> | null      # always set when Wave 7 ran
+promotion_gate_passed: bool | null         # null when mode == pre or Wave 7 skipped pre-gate
+promotion_skip_reason: user-flag | gate-failed | adapter-unresolved | dry-run | null
+promotion_fail_reason: source_disappeared | destination_collision | mv_error | sha_mismatch | null
+promotion_override_used: --promote-anyway | --promote-resume | null
+promotion_rollback_command: <string> | null   # only set on promotion_action: moved or resumed
+promotion_checkpoint_path: <abs path> | null  # set when cross-fs move occurred; see §14.5.5
+promotion_cross_fs: bool                       # true when source and destination on different filesystems
+promotion_pending: bool                        # true between pre-write (7.3.6) and finalization (7.6); only true in a crashed-mid-run log entry

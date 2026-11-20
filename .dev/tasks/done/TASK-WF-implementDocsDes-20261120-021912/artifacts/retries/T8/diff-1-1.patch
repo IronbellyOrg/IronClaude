@@ -1,0 +1,112 @@
+diff --git a/plugins/superclaude/commands/workflow.md b/plugins/superclaude/commands/workflow.md
+index 96a9140e1..38a1b1032 100644
+--- a/plugins/superclaude/commands/workflow.md
++++ b/plugins/superclaude/commands/workflow.md
+@@ -4,7 +4,7 @@ description: "Generate a phased implementation plan from a PRD, spec, or feature
+ category: orchestration
+ complexity: standard
+ mcp-servers: [codegraph]
+-argument-hint: "<path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement]"
++argument-hint: "<path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement] [--remediate none|surgical|regenerate] [--revise <package-dir> --review <REPORT.md>]"
+ ---
+ 
+ # /sc:workflow — Implementation Plan Generator
+@@ -28,6 +28,8 @@ Exactly one source: an existing file path (`@path` ok) **or** leftover `$ARGUMEN
+              [--strategy systematic|agile|enterprise]
+              [--depth quick|standard|deep]
+              [--handoff none|design|implement]
++             [--remediate none|surgical|regenerate]
++/sc:workflow --revise <package-dir> --review <REPORT.md>        # route for a package reviewed outside workflow
+ /sc:workflow <path-or-prompt> --unattended --report-dir <dir>   # worker mode, see Unattended mode
+ ```
+ 
+@@ -39,6 +41,8 @@ Exactly one source: an existing file path (`@path` ok) **or** leftover `$ARGUMEN
+ | `--strategy` | `systematic` | `systematic` \| `agile` \| `enterprise`. Enterprise + omitted depth → `deep` |
+ | `--depth` | `standard` | `quick` \| `standard` \| `deep` |
+ | `--handoff` | `none` | `none` / `design` = text; `implement` = Skill invoke |
++| `--remediate` | route of the routing rule, run after Wave 4 | `none` \| `surgical` \| `regenerate`. `none` records the finding counts and the chosen route and changes nothing; `surgical` and `regenerate` force that route and are recorded as forced |
++| `--revise <package-dir>` + `--review <REPORT.md>` | off | Given together: run the route for a package that was reviewed outside workflow, using that review report |
+ | `--unattended` | off | Worker mode: no step waits for a person; see Unattended mode |
+ | `--report-dir` | none | With `--unattended`, the directory that holds the worker contract |
+ 
+@@ -47,6 +51,7 @@ Banned (`E-LEGACY`): `--parallel`, `--validate`, `--depth shallow|normal`, and t
+ ## Behavioral Summary
+ 
+ Command file: parse flags → STOP on empty/banned → Activation. Protocol owns waves. Final generation step (after the gate, before any handoff): advisory `/sc:reflect --mode pre` of the plan against the source; its report path/status is printed and recorded in `return-contract.yaml`.
++After that review, Wave 4R routes the blocking findings (`none`, `surgical`, `regenerate` or `escalate`) and repairs only blocking findings, for at most 2 fix cycles; Medium and Note findings are counted and never repaired. `--revise <package-dir> --review <REPORT.md>` runs the same route for a package reviewed outside workflow. The routing rule and the repair steps are in the protocol (`~/.claude/skills/sc-workflow-protocol/SKILL.md`).
+ The protocol runs one codegraph readiness check per run: a fresh index grounds the plan and that pre-check in the real code, otherwise Grep/Read do and the fallback is recorded.
+ 
+ ## Activation
+@@ -87,13 +92,14 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
+ - **Handoff.** A `--handoff implement` is skipped (the implement executor accepts the flag only in a later phase) and recorded in the package contract as `partial` with one `unresolved` line. The `design` handoff is text and unchanged.
+ - **Gates.** None else, and no person-mode flag.
+ - **Nested invocations.** Under `--unattended` the Wave 4 reflect step receives `--unattended --output <report-dir>/nested/reflect-<n>/` (reflect's own directory flag; workflow's `--output` stays retired; `<n>` counts from 1 and is never reused), still without `--remediate`, and its contract is listed in `artifacts`, also when the call failed. A nested contract is read by the nested-result rule of `~/.claude/WORKER-CONTRACT.md`.
++- **Remediation.** The `--remediate` and `--revise ... --review ...` routes run without a person. The surgical route runs unattended; escalation after 2 fix cycles ends the run `partial`, lists the open blockers in `unresolved`, and the last placed package keeps `review_verdict: FAIL`. Nested reflect calls for re-reviews use the next unused `nested/reflect-<n>/` directory and each one is listed in `artifacts`.
+ - **Outward actions.** The command does not stage `.dev/tasks` and leaves that to the coordinator; it pushes and commits nothing.
+ 
+ ## Boundaries
+ 
+-**Will:** create one new package `.dev/tasks/to-do/<id>/` holding `<id>.md` (schema `workflow-plan/1.2`), `source.md` snapshot and `return-contract.yaml` (1.1). Never overwrites an existing package. Run `/sc:reflect --mode pre` (advisory, read-only on the plan) as the last plan-generation step, before any `--handoff`. Ground the plan in the real code through codegraph when the index is fresh.
++**Will:** create one new package `.dev/tasks/to-do/<id>/` holding `<id>.md` (schema `workflow-plan/1.2`), `source.md` snapshot and `return-contract.yaml` (1.1). Never overwrites an existing package. Run `/sc:reflect --mode pre` (advisory, read-only on the plan) as the last plan-generation step, before any `--handoff`. Ground the plan in the real code through codegraph when the index is fresh. Run the bounded remediation after Wave 4: repair only blocking findings (surgical route, at most 2 fix cycles) or build one replacement package (regenerate route), and record the route and finding counts in the package contract.
+ 
+-**Will Not:** mutate product code; edit the plan from reflect findings.
++**Will Not:** mutate product code; edit a plan for a Medium or Note finding; edit a plan outside the surgical route or beyond 2 fix cycles; regenerate more than once per run.
+ 
+ ## Related Commands
+ 
+diff --git a/src/superclaude/commands/workflow.md b/src/superclaude/commands/workflow.md
+index 96a9140e1..38a1b1032 100644
+--- a/src/superclaude/commands/workflow.md
++++ b/src/superclaude/commands/workflow.md
+@@ -4,7 +4,7 @@ description: "Generate a phased implementation plan from a PRD, spec, or feature
+ category: orchestration
+ complexity: standard
+ mcp-servers: [codegraph]
+-argument-hint: "<path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement]"
++argument-hint: "<path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement] [--remediate none|surgical|regenerate] [--revise <package-dir> --review <REPORT.md>]"
+ ---
+ 
+ # /sc:workflow — Implementation Plan Generator
+@@ -28,6 +28,8 @@ Exactly one source: an existing file path (`@path` ok) **or** leftover `$ARGUMEN
+              [--strategy systematic|agile|enterprise]
+              [--depth quick|standard|deep]
+              [--handoff none|design|implement]
++             [--remediate none|surgical|regenerate]
++/sc:workflow --revise <package-dir> --review <REPORT.md>        # route for a package reviewed outside workflow
+ /sc:workflow <path-or-prompt> --unattended --report-dir <dir>   # worker mode, see Unattended mode
+ ```
+ 
+@@ -39,6 +41,8 @@ Exactly one source: an existing file path (`@path` ok) **or** leftover `$ARGUMEN
+ | `--strategy` | `systematic` | `systematic` \| `agile` \| `enterprise`. Enterprise + omitted depth → `deep` |
+ | `--depth` | `standard` | `quick` \| `standard` \| `deep` |
+ | `--handoff` | `none` | `none` / `design` = text; `implement` = Skill invoke |
++| `--remediate` | route of the routing rule, run after Wave 4 | `none` \| `surgical` \| `regenerate`. `none` records the finding counts and the chosen route and changes nothing; `surgical` and `regenerate` force that route and are recorded as forced |
++| `--revise <package-dir>` + `--review <REPORT.md>` | off | Given together: run the route for a package that was reviewed outside workflow, using that review report |
+ | `--unattended` | off | Worker mode: no step waits for a person; see Unattended mode |
+ | `--report-dir` | none | With `--unattended`, the directory that holds the worker contract |
+ 
+@@ -47,6 +51,7 @@ Banned (`E-LEGACY`): `--parallel`, `--validate`, `--depth shallow|normal`, and t
+ ## Behavioral Summary
+ 
+ Command file: parse flags → STOP on empty/banned → Activation. Protocol owns waves. Final generation step (after the gate, before any handoff): advisory `/sc:reflect --mode pre` of the plan against the source; its report path/status is printed and recorded in `return-contract.yaml`.
++After that review, Wave 4R routes the blocking findings (`none`, `surgical`, `regenerate` or `escalate`) and repairs only blocking findings, for at most 2 fix cycles; Medium and Note findings are counted and never repaired. `--revise <package-dir> --review <REPORT.md>` runs the same route for a package reviewed outside workflow. The routing rule and the repair steps are in the protocol (`~/.claude/skills/sc-workflow-protocol/SKILL.md`).
+ The protocol runs one codegraph readiness check per run: a fresh index grounds the plan and that pre-check in the real code, otherwise Grep/Read do and the fallback is recorded.
+ 
+ ## Activation
+@@ -87,13 +92,14 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
+ - **Handoff.** A `--handoff implement` is skipped (the implement executor accepts the flag only in a later phase) and recorded in the package contract as `partial` with one `unresolved` line. The `design` handoff is text and unchanged.
+ - **Gates.** None else, and no person-mode flag.
+ - **Nested invocations.** Under `--unattended` the Wave 4 reflect step receives `--unattended --output <report-dir>/nested/reflect-<n>/` (reflect's own directory flag; workflow's `--output` stays retired; `<n>` counts from 1 and is never reused), still without `--remediate`, and its contract is listed in `artifacts`, also when the call failed. A nested contract is read by the nested-result rule of `~/.claude/WORKER-CONTRACT.md`.
++- **Remediation.** The `--remediate` and `--revise ... --review ...` routes run without a person. The surgical route runs unattended; escalation after 2 fix cycles ends the run `partial`, lists the open blockers in `unresolved`, and the last placed package keeps `review_verdict: FAIL`. Nested reflect calls for re-reviews use the next unused `nested/reflect-<n>/` directory and each one is listed in `artifacts`.
+ - **Outward actions.** The command does not stage `.dev/tasks` and leaves that to the coordinator; it pushes and commits nothing.
+ 
+ ## Boundaries
+ 
+-**Will:** create one new package `.dev/tasks/to-do/<id>/` holding `<id>.md` (schema `workflow-plan/1.2`), `source.md` snapshot and `return-contract.yaml` (1.1). Never overwrites an existing package. Run `/sc:reflect --mode pre` (advisory, read-only on the plan) as the last plan-generation step, before any `--handoff`. Ground the plan in the real code through codegraph when the index is fresh.
++**Will:** create one new package `.dev/tasks/to-do/<id>/` holding `<id>.md` (schema `workflow-plan/1.2`), `source.md` snapshot and `return-contract.yaml` (1.1). Never overwrites an existing package. Run `/sc:reflect --mode pre` (advisory, read-only on the plan) as the last plan-generation step, before any `--handoff`. Ground the plan in the real code through codegraph when the index is fresh. Run the bounded remediation after Wave 4: repair only blocking findings (surgical route, at most 2 fix cycles) or build one replacement package (regenerate route), and record the route and finding counts in the package contract.
+ 
+-**Will Not:** mutate product code; edit the plan from reflect findings.
++**Will Not:** mutate product code; edit a plan for a Medium or Note finding; edit a plan outside the surgical route or beyond 2 fix cycles; regenerate more than once per run.
+ 
+ ## Related Commands
+ 

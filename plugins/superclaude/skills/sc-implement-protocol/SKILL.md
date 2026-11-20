@@ -43,6 +43,7 @@ STOP: need a source (file or prompt). Will not invent scope beyond that source.
 | `E-LEDGER-PATH` | `--ledger` not under `.dev/implement/` (managed: any `--ledger` other than the sibling `progress.md`) | No | No |
 | `E-MANAGED-INVALID` | `workflow-plan/1.2` plan fails managed detection (copied, cross-checkout, slug/contract mismatch, failed contract) | No | No |
 | `E-MANAGED-CONFLICT` | managed package exists in both `to-do/` and `done/` | No | No |
+| `E-MANAGED-REVIEW-FAIL` | managed contract carries `review_verdict: FAIL`; prints its `open_blockers` ids | No | No |
 | `E-PLAN-CHANGED` | managed plan/source hash differs from the pin after the first `T<id>: start` | No | Unchanged |
 | `E-ARCHIVE-MARKER` | managed `.archiving` marker exists | No | Unchanged |
 | `E-ARCHIVE-BLOCKED` | managed FINAL/archive cannot complete (`issues`, `--skip-final-review`, helper refusal) | No | FINAL line only if a review ran |
