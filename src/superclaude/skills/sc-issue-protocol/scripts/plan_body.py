@@ -409,32 +409,43 @@ def read_body(json_path, file_path) -> str:
     return body
 
 
+def _refuse_linked_folder(target: Path, path) -> None:
+    """Refuse an output folder that a link redirects inside the checkout (or out of it).
+
+    The folder is resolved (links followed) and compared with the folder as written:
+    every folder of the path below the working directory must be a real folder, however
+    the working directory itself is reached (an alias of it is fine)."""
+    base = Path.cwd().resolve()
+    parent = target.parent.resolve()
+    inside = parent.is_relative_to(base)
+    if not inside:
+        if not target.is_absolute() or ".." in target.parts:
+            raise UsageError(
+                "refusing to write outside the working directory (a linked folder "
+                f"or '..'): {path}"
+            )
+        return  # an absolute path elsewhere: only the file itself was checked
+    if ".." in target.parts:
+        raise UsageError(f"refusing a '..' in an output path: {path}")
+    real = parent.relative_to(base).parts
+    written = target.parent.parts
+    if len(real) > len(written) or (real and written[-len(real) :] != real):
+        raise UsageError(f"refusing to write through a linked folder (symlink): {path}")
+    for i in range(len(written) - len(real), len(written)):
+        if Path(*written[: i + 1]).is_symlink():
+            raise UsageError(
+                f"refusing to write through a linked folder (symlink): {path}"
+            )
+
+
 def _write_bytes(path, text: str) -> None:
     """Write an output file, never through a link: a checked-out branch could hold a
     symlink where the session writes (`.dev/issues/<N>/plan-body.md`)."""
     target = Path(path)
-    base = Path.cwd()
     try:
         if target.is_symlink():
             raise UsageError(f"refusing to write through a symlink: {path}")
-        # Every folder of the path below the working directory must be a real folder:
-        # a link inside the checkout could point at another tracked folder.
-        if target.is_absolute():
-            below = target.relative_to(base) if target.is_relative_to(base) else None
-        else:
-            below = target
-        if below is not None:
-            here = base
-            for part in below.parts[:-1]:
-                here = here / part
-                if here.is_symlink():
-                    raise UsageError(
-                        f"refusing to write through a linked folder (symlink) {here}: {path}"
-                    )
-            if not target.parent.resolve().is_relative_to(base.resolve()):
-                raise UsageError(
-                    f"refusing to write outside the working directory: {path}"
-                )
+        _refuse_linked_folder(target, path)
         target.write_bytes(text.encode("utf-8"))
     except OSError as err:
         raise UsageError(f"cannot write {path}: {err}") from err
@@ -543,6 +554,27 @@ def cmd_verify(args) -> dict:
     return {"cmd": "verify", "result": "ok", "body_sha": body_sha(back)}
 
 
+def cmd_prepare(args) -> dict:
+    """Create the issue folder for the session's own writes (`gh ... > <D>/issue.json`,
+    the worker's files): the folder must not run through a link and must hold no
+    symlink, because a checked-out branch could plant one where the session writes."""
+    folder = Path(args.dir)
+    _refuse_linked_folder(folder / "issue.json", args.dir)
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+    except OSError as err:
+        raise UsageError(f"cannot create {args.dir}: {err}") from err
+    _refuse_linked_folder(folder / "issue.json", args.dir)
+    if folder.is_symlink():
+        raise UsageError(f"refusing a symlink as the issue folder: {args.dir}")
+    links = sorted(p.name for p in folder.iterdir() if p.is_symlink())
+    if links:
+        raise UsageError(
+            f"refusing the issue folder {args.dir}: it holds symlinks ({', '.join(links)})"
+        )
+    return {"cmd": "prepare", "dir": str(args.dir)}
+
+
 def _body_args(parser, prefix: str, required: bool) -> None:
     group = parser.add_mutually_exclusive_group(required=required)
     group.add_argument(f"--{prefix}-json", dest=f"{prefix}_json", metavar="FILE")
@@ -566,10 +598,17 @@ def build_parser() -> argparse.ArgumentParser:
     _body_args(verify, "base", True)
     _body_args(verify, "readback", True)
     verify.add_argument("--remaining", metavar="FILE")
+    prepare = sub.add_parser("prepare", help="create the issue folder, refusing links")
+    prepare.add_argument("--dir", required=True, metavar="DIR")
     return parser
 
 
-COMMANDS = {"check": cmd_check, "splice": cmd_splice, "verify": cmd_verify}
+COMMANDS = {
+    "check": cmd_check,
+    "splice": cmd_splice,
+    "verify": cmd_verify,
+    "prepare": cmd_prepare,
+}
 
 
 def main(argv=None) -> int:

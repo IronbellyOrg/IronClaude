@@ -1972,6 +1972,81 @@ def test_a_linked_folder_that_points_inside_the_checkout_is_refused_too(tmp_path
     assert list((work / "tracked" / "docs").iterdir()) == []
 
 
+def test_an_alias_of_the_checkout_does_not_hide_a_linked_folder_inside_it(tmp_path):
+    work = tmp_path / "work"
+    (work / "tracked" / "docs").mkdir(parents=True)
+    (work / ".dev").mkdir()
+    (work / ".dev" / "issues").symlink_to(work / "tracked" / "docs", True)
+    alias = tmp_path / "alias"
+    alias.symlink_to(work, target_is_directory=True)
+    proc = _run_in(work, _splice_argv(tmp_path, alias / ".dev/issues/plan-body.md"))
+    assert proc.returncode == 2 and "linked folder" in proc.stderr
+    assert list((work / "tracked" / "docs").iterdir()) == []
+
+
+def test_an_alias_of_the_checkout_is_fine_when_every_folder_inside_is_real(tmp_path):
+    work = tmp_path / "work"
+    (work / ".dev" / "issues" / "1").mkdir(parents=True)
+    alias = tmp_path / "alias"
+    alias.symlink_to(work, target_is_directory=True)
+    out = alias / ".dev/issues/1/plan-body.md"
+    proc = _run_in(work, _splice_argv(tmp_path, out))
+    assert proc.returncode == 0, proc.stderr
+    assert (work / ".dev" / "issues" / "1" / "plan-body.md").is_file()
+
+
+def test_a_dot_dot_in_an_output_path_inside_the_checkout_is_refused(tmp_path):
+    work = tmp_path / "work"
+    (work / "a").mkdir(parents=True)
+    proc = _run_in(work, _splice_argv(tmp_path, "a/../plan-body.md"))
+    assert proc.returncode == 2 and "'..'" in proc.stderr
+
+
+def test_wave_zero_creates_the_issue_folder_with_prepare_before_any_redirect():
+    text = _text(PLAN_REF)
+    step4 = text.split("4. `gh auth status`", 1)[1].split("\n5. ", 1)[0]
+    assert 'plan_body.py" prepare --dir <D>' in step4
+    assert text.index("prepare --dir <D>` | creates") < text.index("## Wave 0")
+    assert (
+        "> <D>/issue.json" in text.split("\n5. ", 1)[1]
+    )  # the first redirect is later
+
+
+def test_prepare_creates_the_issue_folder_and_can_be_repeated(tmp_path):
+    work = tmp_path / "work"
+    work.mkdir()
+    for _ in range(2):
+        proc = _run_in(work, ["prepare", "--dir", ".dev/issues/7"])
+        assert proc.returncode == 0, proc.stderr
+        assert json.loads(proc.stdout) == {"cmd": "prepare", "dir": ".dev/issues/7"}
+    assert (work / ".dev" / "issues" / "7").is_dir()
+
+
+def test_prepare_refuses_a_planted_symlink_where_the_session_writes(tmp_path):
+    work = tmp_path / "work"
+    folder = work / ".dev" / "issues" / "7"
+    folder.mkdir(parents=True)
+    victim = work / "tracked.txt"
+    victim.write_text("keep me", encoding="utf-8")
+    (folder / "issue.json").symlink_to(victim)
+    proc = _run_in(work, ["prepare", "--dir", ".dev/issues/7"])
+    assert proc.returncode == 2 and "issue.json" in proc.stderr
+    assert victim.read_text(encoding="utf-8") == "keep me"
+
+
+@pytest.mark.parametrize("linked", [".dev/issues", ".dev/issues/7"])
+def test_prepare_refuses_a_linked_folder_in_the_path(tmp_path, linked):
+    work = tmp_path / "work"
+    (work / "tracked" / "docs").mkdir(parents=True)
+    (work / ".dev" / "issues").mkdir(parents=True)
+    if linked == ".dev/issues":
+        (work / ".dev" / "issues").rmdir()
+    (work / linked).symlink_to(work / "tracked" / "docs", True)
+    proc = _run_in(work, ["prepare", "--dir", ".dev/issues/7"])
+    assert proc.returncode == 2 and "link" in proc.stderr
+    assert list((work / "tracked" / "docs").iterdir()) == []
+
+
 def test_a_relative_output_path_that_climbs_out_of_the_checkout_is_refused(tmp_path):
     work = tmp_path / "work"
     work.mkdir()
