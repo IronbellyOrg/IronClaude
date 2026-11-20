@@ -17,9 +17,11 @@ test_issue_worker_agents.py.
 """
 
 import ast
-import hashlib
 import importlib.util
+import json
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -1085,16 +1087,18 @@ PLAN_HEADING = {
 }
 PLAN_MARKER = "<!-- sc:issue:plan -->"
 CREATE_MARKER = "<!-- sc:issue:create template=issue-bug-simple -->"
-CREATE_MARKER_PREFIX = "<!-- sc:issue:create"
-_HTML_COMMENT = re.compile(r"<!--.*?-->", re.S)
-_BLOCK_OPEN = re.compile(r"^<!-- plan-section: (priority|fix_approach|test_plan) -->$")
-_KEPT_MARKER = re.compile(r"^<!-- sc:issue:(?!replan).*-->\s*$")
+PLAN_SCRIPT = SKILL_DIR / "scripts/plan_body.py"
 
-_spec = importlib.util.spec_from_file_location(
-    "origin_repo_for_plan", SKILL_DIR / "scripts/origin_repo.py"
-)
-origin_repo = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(origin_repo)
+
+def _load_script(name: str, path: Path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+origin_repo = _load_script("origin_repo_for_plan", SKILL_DIR / "scripts/origin_repo.py")
+plan_body = _load_script("plan_body_for_tests", PLAN_SCRIPT)
 
 PLAN_STOP_CODES = [
     "E-CREATE-ONLY-FLAG",
@@ -1111,217 +1115,43 @@ PLAN_STOP_CODES = [
 ]
 
 
-class PlanStop(Exception):
-    def __init__(self, code: str) -> None:
-        super().__init__(code)
-        self.code = code
-
-
 class GhError(Exception):
     """A failed `gh` call."""
 
 
-def _bare(line: str) -> str:
-    return line.rstrip("\r\n")
+# The rules themselves live in the script; these are the names the cases below use.
+PlanStop = plan_body.PlanStop
+plan_section_span = plan_body.plan_section_span
+plan_section_state = plan_body.plan_section_state
+plan_check = plan_body.plan_check
+section_text = plan_body.section_text
+parse_plan_sections = plan_body.parse_plan_sections
+build_plan_body = plan_body.build_plan_body
+build_replan_body = plan_body.build_replan_body
+replan_marker = plan_body.replan_marker
+outside_unchanged = plan_body.outside_unchanged
+parse_remaining_file = plan_body.parse_remaining_file
 
 
-def plan_section_span(body: str, token: str):
-    """Return (heading count, first line, line after the last) of one section.
-
-    A section runs from the line after its heading to the next line that starts
-    with `## ` or with the hidden create marker, or to the end of the body.
-    """
-    lines = body.splitlines(keepends=True)
-    heading = [i for i, ln in enumerate(lines) if _bare(ln) == PLAN_HEADING[token]]
-    if len(heading) != 1:
-        return len(heading), None, None
-    start = heading[0] + 1
-    end = next(
-        (
-            i
-            for i in range(start, len(lines))
-            if _bare(lines[i]).startswith(("## ", CREATE_MARKER_PREFIX))
-        ),
-        len(lines),
+def run_script(*argv):
+    """Run the script as a separate process, as the session does."""
+    proc = subprocess.run(
+        [sys.executable, str(PLAN_SCRIPT), *map(str, argv)],
+        capture_output=True,
+        text=True,
+        check=False,
     )
-    return 1, start, end
+    return proc.returncode, proc.stdout, proc.stderr
 
 
-def plan_section_state(body: str, token: str) -> str:
-    count, start, end = plan_section_span(body, token)
-    if count == 0:
-        return "absent"
-    if count > 1:
-        return "repeated"
-    lines = body.splitlines(keepends=True)
-    text = _HTML_COMMENT.sub("", "".join(lines[start:end])).strip()
-    if not text:
-        return "empty"
-    if text.lower() == "not known yet":
-        return "placeholder"
-    return "ok"
-
-
-def plan_check(body: str) -> dict[str, str]:
-    return {token: plan_section_state(body, token) for token in PLAN_TOKENS}
-
-
-def section_text(body: str, token: str) -> str:
-    _, start, end = plan_section_span(body, token)
-    return "".join(body.splitlines(keepends=True)[start:end])
-
-
-def parse_plan_sections(text: str) -> dict[str, str]:
-    """Read `plan-sections.md`: one block per `<!-- plan-section: <token> -->`."""
-    blocks: dict[str, list[str]] = {}
-    token = None
-    for line in text.splitlines():
-        opened = _BLOCK_OPEN.match(line.strip())
-        if opened:
-            token = opened.group(1)
-            blocks[token] = []
-        elif token:
-            blocks[token].append(line)
-    return {t: "\n".join(lines).strip() for t, lines in blocks.items()}
-
-
-def plan_block_problems(states: dict[str, str], blocks: dict[str, str]) -> list[str]:
-    """What is wrong with the worker's blocks (an empty list means usable)."""
-    problems = []
-    for token in PLAN_TOKENS:
-        text = blocks.get(token, "")
-        if states[token] == "ok":
-            if token in blocks:
-                problems.append(f"{token}: a block for a section that passes")
-            continue
-        if not text:
-            problems.append(f"{token}: no block")
-            continue
-        if "not known yet" in text.lower():
-            problems.append(f"{token}: says Not known yet")
-        first, *rest = text.splitlines()
-        if states[token] == "absent":
-            if first != PLAN_HEADING[token]:
-                problems.append(f"{token}: an absent section needs its heading line")
-        else:
-            rest = [first, *rest]
-        if any(ln.startswith(("## ", "<!-- sc:issue:")) for ln in rest):
-            problems.append(f"{token}: a drafted line starts a heading or a marker")
-    return problems
-
-
-def _nl(body: str) -> str:
-    return "\r\n" if "\r\n" in body else "\n"
-
-
-def _text_lines(text: str, nl: str) -> list[str]:
-    return [_bare(ln) + nl for ln in text.strip().splitlines()]
-
-
-def build_plan_body(body: str, blocks: dict[str, str]) -> str | None:
-    """Wave 5 of plain plan mode: append absent headings, fill empty sections."""
-    states = plan_check(body)
-    if "repeated" in states.values():
-        raise PlanStop("E-PLAN-REPEATED-HEADING")
-    needed = [t for t in PLAN_TOKENS if states[t] != "ok"]
-    if not needed:
-        return None
-    nl = _nl(body)
-    lines = body.splitlines(keepends=True)
-    marker = [] if PLAN_MARKER in body else [PLAN_MARKER + nl]
-    first = needed[0]
-    in_place = [t for t in needed if states[t] != "absent"]
-    for token in sorted(
-        in_place, key=lambda t: plan_section_span(body, t)[1], reverse=True
-    ):
-        _, start, end = plan_section_span(body, token)
-        region = [
-            nl,
-            *(marker if token == first else []),
-            *_text_lines(blocks[token], nl),
-        ]
-        if end < len(lines):
-            region.append(nl)
-        lines[start:end] = region
-    out = "".join(lines)
-    for token in (t for t in needed if states[t] == "absent"):
-        block = _text_lines(blocks[token], nl)  # its first line is the heading
-        if token == first:
-            block[1:1] = marker
-        if out and not out.endswith("\n"):
-            out += nl
-        out += nl + "".join(block)
-    return out
-
-
-def replan_marker(round_number: int, sha: str) -> str:
-    return f"<!-- sc:issue:replan round={round_number} sha={sha} -->"
-
-
-def build_replan_body(body, blocks, round_number, sha):
-    """Wave 5 of `--remaining`: replace Fix approach and Test plan in place."""
-    states = plan_check(body)
-    if "repeated" in states.values():
-        raise PlanStop("E-PLAN-REPEATED-HEADING")
-    if any(state != "ok" for state in states.values()):
-        raise PlanStop("E-REMAINING-NEEDS-PLAN")
-    if replan_marker(round_number, sha) in body:
-        return None
-    nl = _nl(body)
-    lines = body.splitlines(keepends=True)
-    tokens = ("fix_approach", "test_plan")
-    for token in sorted(
-        tokens, key=lambda t: plan_section_span(body, t)[1], reverse=True
-    ):
-        _, start, end = plan_section_span(body, token)
-        kept = [
-            _bare(ln) + nl for ln in lines[start:end] if _KEPT_MARKER.match(_bare(ln))
-        ]
-        new_marker = (
-            [replan_marker(round_number, sha) + nl] if token == "fix_approach" else []
-        )
-        region = [nl, *kept, *new_marker, *_text_lines(blocks[token], nl)]
-        if end < len(lines):
-            region.append(nl)
-        lines[start:end] = region
-    return "".join(lines)
-
-
-def _outside(body: str, tokens) -> str:
-    lines = body.splitlines(keepends=True)
-    spans = sorted((plan_section_span(body, t)[1:] for t in tokens), reverse=True)
-    for start, end in spans:
-        del lines[start:end]
-    return "".join(lines).replace("\r\n", "\n")
-
-
-def outside_unchanged(old: str, new: str, filled, appended=()) -> bool:
-    """Every byte outside the sections filled (or appended) is as it was."""
-    before, after = _outside(old, filled), _outside(new, filled)
-    return after.startswith(before) if appended else after == before
-
-
-def parse_remaining_file(path: Path):
-    """The rules of the file of `--remaining`; any breach is E-REMAINING-FILE."""
-    try:
-        raw = Path(path).read_bytes()
-        text = raw.decode("utf-8")
-    except (OSError, UnicodeDecodeError) as err:
-        raise PlanStop("E-REMAINING-FILE") from err
-    lines = text.splitlines()
-    head = re.fullmatch(r"round: ([0-9]+)", lines[0]) if lines else None
-    if not head or int(head.group(1)) < 2:
-        raise PlanStop("E-REMAINING-FILE")
-    items = [ln for ln in lines[1:] if ln.strip()]
-    if not 1 <= len(items) <= 20:
-        raise PlanStop("E-REMAINING-FILE")
-    if any(not ln.startswith("- ") or len(ln) > 300 for ln in items):
-        raise PlanStop("E-REMAINING-FILE")
-    return (
-        int(head.group(1)),
-        [ln[2:] for ln in items],
-        hashlib.sha256(raw).hexdigest()[:8],
-    )
+def script_result(*argv):
+    """The one result line of a successful call, or the STOP code of a refusal."""
+    code, out, err = run_script(*argv)
+    if code == 1:
+        raise PlanStop(err.split(":", 1)[0])
+    assert code == 0, err
+    assert len(out.splitlines()) == 1 and err == ""
+    return json.loads(out)
 
 
 class FakeGh:
@@ -1415,8 +1245,16 @@ def run_plan_session(gh, workdir, argument, worker, *, remaining=None, depth="qu
         return _contract("stopped", stop=stop.code, depth=depth)
 
 
+def _json_file(path, payload):
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    return path
+
+
 def _plan_session(gh, workdir, argument, worker, remaining, depth):
-    replan = parse_remaining_file(remaining) if remaining is not None else None
+    """The session of refs/plan.md; every body decision is a call of the script."""
+    extra = ["--remaining", remaining] if remaining is not None else []
+    if remaining is not None:
+        script_result("check", "--remaining", remaining)  # Wave 0 step 2
     try:
         number = origin_repo.check_claim(argument, ORIGIN)
     except origin_repo.ClaimError as err:
@@ -1431,65 +1269,43 @@ def _plan_session(gh, workdir, argument, worker, remaining, depth):
         raise PlanStop("E-PLAN-NOT-AN-ISSUE")
     if issue["state"] != "OPEN":
         raise PlanStop("E-PLAN-ISSUE-CLOSED")
-    base = issue["body"]
-    states = plan_check(base)
-    if "repeated" in states.values():
-        raise PlanStop("E-PLAN-REPEATED-HEADING")
-    if replan is None:
-        tokens = [t for t in PLAN_TOKENS if states[t] != "ok"]
-        if not tokens:
-            return _contract(already_planned=True, depth=depth)
-    else:
-        round_number, _criteria, sha = replan
-        if any(state != "ok" for state in states.values()):
-            raise PlanStop("E-REMAINING-NEEDS-PLAN")
-        if replan_marker(round_number, sha) in base:
-            return _contract(already_planned=True, depth=depth)
-        tokens = ["fix_approach", "test_plan"]
-    (d / "plan-input.md").write_text(base, encoding="utf-8")
-    drafted = worker(states)
-    (d / "plan-sections.md").write_text(drafted, encoding="utf-8")
-    blocks = parse_plan_sections(drafted)
-    if replan is None:
-        if plan_block_problems(states, blocks):
-            raise PlanStop("E-WORKER-NO-OUTPUT")
-    else:
-        if set(blocks) != set(tokens) or any(not b for b in blocks.values()):
-            raise PlanStop("E-WORKER-NO-OUTPUT")
-        old = "".join(PLAN_HEADING[t] + "\n" + section_text(base, t) for t in tokens)
-        (d / f"plan-before-round-{round_number}.md").write_text(old, encoding="utf-8")
-    changes = 0
+    issue_json = _json_file(d / "issue.json", issue)
+    checked = script_result("check", "--body-json", issue_json, *extra)
+    if checked["already_planned"]:
+        return _contract(already_planned=True, depth=depth)
+    (d / "plan-input.md").write_text(issue["body"], encoding="utf-8")
+    (d / "plan-sections.md").write_text(worker(checked["states"]), encoding="utf-8")
+    splice = [
+        "splice",
+        "--sections-file",
+        d / "plan-sections.md",
+        "--out",
+        d / "plan-body.md",
+        *extra,
+    ]
+    if remaining is not None:
+        splice += ["--before-out", d / f"plan-before-round-{checked['round']}.md"]
+    script_result(*splice, "--body-json", issue_json)  # is the drafted file usable?
+    base_sha, changes = checked["body_sha"], 0
     current = _read_issue(gh, number, "body,state")
     while True:
         if current["state"] != "OPEN":
             raise PlanStop("E-PLAN-ISSUE-CLOSED")
-        if current["body"] != base:
+        now_json = _json_file(d / "issue-now.json", current)
+        now = script_result("check", "--body-json", now_json, *extra)
+        if now["body_sha"] != base_sha:
             changes += 1
             if changes > 1:
                 raise PlanStop("E-PLAN-RACE")
-            base = current["body"]
-            states = plan_check(base)
-            if "repeated" in states.values():
-                raise PlanStop("E-PLAN-REPEATED-HEADING")
-            if replan is None:
-                tokens = [t for t in PLAN_TOKENS if states[t] != "ok"]
-                if not tokens:
-                    return _contract(already_planned=True, depth=depth)
-                blocks = {t: b for t, b in blocks.items() if t in tokens}
-                if set(blocks) != set(tokens):
-                    raise PlanStop("E-WORKER-NO-OUTPUT")
-            else:
-                if any(state != "ok" for state in states.values()):
-                    raise PlanStop("E-REMAINING-NEEDS-PLAN")
-                if replan_marker(round_number, sha) in base:
-                    return _contract(already_planned=True, depth=depth)
-        if replan is None:
-            new_body = build_plan_body(base, blocks)
-        else:
-            new_body = build_replan_body(base, blocks, round_number, sha)
-        (d / "plan-body.md").write_bytes(new_body.encode("utf-8"))
+            base_sha = now["body_sha"]
+            if now["already_planned"]:
+                return _contract(already_planned=True, depth=depth)
+        spliced = script_result(*splice, "--body-json", now_json)
         current = _read_issue(gh, number, "body,state")
-        if current["body"] == base and current["state"] == "OPEN":
+        if (
+            plan_body.body_sha(current["body"]) == spliced["base_sha"]
+            and current["state"] == "OPEN"
+        ):
             break
     try:
         gh(
@@ -1503,24 +1319,17 @@ def _plan_session(gh, workdir, argument, worker, remaining, depth):
         )
     except GhError as err:
         raise PlanStop("E-PLAN-WRITE-FAILED") from err
-    back = _read_issue(gh, number, "body", "E-PLAN-WRITE-FAILED")["body"]
-    if replan is None:
-        filled = [t for t in tokens if states[t] in ("empty", "placeholder")]
-        appended = [t for t in tokens if states[t] == "absent"]
-        marker_ok = back.count(PLAN_MARKER) == 1
-    else:
-        filled, appended = tokens, []
-        marker_ok = back.count(replan_marker(round_number, sha)) == 1
-    checks = [
-        outside_unchanged(base, back, filled, appended),
-        all(state == "ok" for state in plan_check(back).values()),
-        marker_ok,
-    ]
-    if not all(checks):
-        raise PlanStop("E-PLAN-WRITE-FAILED")
-    if replan is None:
-        return _contract(sections_added=tokens, depth=depth, issue_number=number)
-    return _contract(sections_replaced=tokens, depth=depth, issue_number=number)
+    back = _read_issue(gh, number, "body", "E-PLAN-WRITE-FAILED")
+    after_json = _json_file(d / "issue-after.json", back)
+    script_result(
+        "verify", "--base-json", now_json, "--readback-json", after_json, *extra
+    )
+    return _contract(
+        sections_added=spliced["sections_added"],
+        sections_replaced=spliced["sections_replaced"],
+        depth=depth,
+        issue_number=number,
+    )
 
 
 # Fixtures: an issue body made of the three plan sections in one of several forms.
@@ -1961,13 +1770,22 @@ def test_an_unusable_draft_is_no_output_and_writes_nothing(tmp_path):
         lambda states: "",
         lambda states: "<!-- plan-section: priority -->\nNot known yet\n",
         lambda states: "<!-- plan-section: priority -->\nMedium: x.\n",
-        lambda states: (
-            fake_worker(states) + "\n<!-- plan-section: fix_approach -->\nx\n"
-        ),
         lambda states: fake_worker(states).replace("## Test plan\n\n", ""),
+        lambda states: fake_worker(states).replace("- Tests", "## Tests"),
     ):
         gh, result = run(tmp_path, [body], worker=bad)
         assert result["stop"] == "E-WORKER-NO-OUTPUT" and gh.edits() == []
+
+
+def test_a_block_for_a_section_that_passes_is_dropped_and_never_written(tmp_path):
+    body = make_body({"priority": "empty"})
+    extra = lambda states: (  # noqa: E731
+        fake_worker(states) + "\n<!-- plan-section: fix_approach -->\nSTRAY TEXT\n"
+    )
+    gh, result = run(tmp_path, [body], worker=extra)
+    assert result["status"] == "success" and result["sections_added"] == ["priority"]
+    assert "STRAY TEXT" not in gh.written
+    assert outside_unchanged(body, gh.written, ["priority"])
 
 
 # --- a body that changes while the mode runs ---------------------------------------------
@@ -2046,6 +1864,9 @@ def test_plan_mode_writes_its_files_under_the_issue_directory_only(tmp_path):
     run(tmp_path, [make_body({"priority": "absent"})])
     base = tmp_path / ".dev/issues/302"
     assert sorted(p.name for p in base.iterdir()) == [
+        "issue-after.json",
+        "issue-now.json",
+        "issue.json",
         "plan-body.md",
         "plan-input.md",
         "plan-sections.md",
@@ -2345,6 +2166,344 @@ def test_the_replan_rule_replaces_the_already_planned_rule_and_keeps_the_preambl
     text = _text(PLAN_REF)
     assert "the re-plan marker rule below replaces that rule" in text
     assert "keeps the preamble that `refs/create.md` requires" in text
+
+
+# --- scripts/plan_body.py as a program: arguments, result line, exit codes ----------------
+
+
+def _write_json_body(path: Path, body: str) -> Path:
+    path.write_text(json.dumps({"body": body, "state": "OPEN"}), encoding="utf-8")
+    return path
+
+
+def _drafted_file(path: Path, body: str) -> Path:
+    path.write_text(fake_worker(plan_check(body)), encoding="utf-8")
+    return path
+
+
+def test_the_script_uses_only_the_standard_library_and_never_reaches_github():
+    tree = ast.parse(PLAN_SCRIPT.read_text(encoding="utf-8"))
+    imported = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imported |= {a.name.split(".")[0] for a in node.names}
+        elif isinstance(node, ast.ImportFrom):
+            imported.add((node.module or "").split(".")[0])
+    assert imported <= set(sys.stdlib_module_names), imported
+    # no process, no network, no operating-system calls: it only reads and writes files
+    assert not imported & {"subprocess", "socket", "urllib", "http", "ssl", "os"}
+
+
+def test_the_files_table_names_the_script_and_plan_md_runs_its_three_commands():
+    skill, plan = _text(SKILL), _text(PLAN_REF)
+    rows = [
+        ln for ln in skill.splitlines() if ln.startswith("| `scripts/plan_body.py` |")
+    ]
+    assert len(rows) == 1 and PLAN_SCRIPT.is_file()
+    for command in ("check", "splice", "verify"):
+        assert f'plan_body.py" {command}' in plan, command
+    assert "never builds or compares a body by hand" in plan
+
+
+def test_check_prints_one_json_line_with_the_states_and_the_sha(tmp_path):
+    body = make_body({"priority": "absent", "test_plan": "placeholder"})
+    as_json = _write_json_body(tmp_path / "issue.json", body)
+    as_file = tmp_path / "body.md"
+    as_file.write_bytes(body.encode("utf-8"))
+    from_json = script_result("check", "--body-json", as_json)
+    assert from_json == script_result("check", "--body-file", as_file)
+    assert from_json["states"] == {
+        "priority": "absent",
+        "fix_approach": "ok",
+        "test_plan": "placeholder",
+    }
+    assert from_json["need"] == ["priority", "test_plan"]
+    assert from_json["already_planned"] is False
+    assert from_json["body_sha"] == plan_body.body_sha(body)
+    ok = script_result(
+        "check", "--body-json", _write_json_body(tmp_path / "ok.json", make_body())
+    )
+    assert ok["already_planned"] is True and ok["need"] == []
+
+
+def test_check_with_only_the_remaining_file_checks_the_file(tmp_path):
+    path = write_remaining(tmp_path, 3, ["a", "b"])
+    result = script_result("check", "--remaining", path)
+    assert result["round"] == 3 and result["criteria"] == 2
+    assert result["sha"] == parse_remaining_file(path)[2]
+    assert result["marker"] == replan_marker(3, result["sha"])
+    assert "states" not in result
+
+
+@pytest.mark.parametrize(
+    ("forms", "code"),
+    [
+        ({"test_plan": "twice"}, "E-PLAN-REPEATED-HEADING"),
+        ({"priority": "absent", "fix_approach": "twice"}, "E-PLAN-REPEATED-HEADING"),
+    ],
+)
+def test_a_refused_body_is_one_stderr_line_with_the_stop_code_and_exit_1(
+    tmp_path, forms, code
+):
+    issue = _write_json_body(tmp_path / "issue.json", make_body(forms))
+    status, out, err = run_script("check", "--body-json", issue)
+    assert status == 1 and out == ""
+    assert err.startswith(code + ": ") and len(err.splitlines()) == 1
+    assert "## " in err  # it names the heading
+
+
+def test_a_replan_needs_a_plan_and_a_good_file(tmp_path):
+    good = write_remaining(tmp_path)
+    issue = _write_json_body(tmp_path / "i.json", make_body({"priority": "empty"}))
+    status, out, err = run_script("check", "--body-json", issue, "--remaining", good)
+    assert status == 1 and out == "" and err.startswith("E-REMAINING-NEEDS-PLAN: ")
+    bad = tmp_path / "bad.md"
+    bad.write_text("round: 1\n- a\n", encoding="utf-8")
+    status, out, err = run_script("check", "--remaining", bad)
+    assert status == 1 and out == "" and err.startswith("E-REMAINING-FILE: ")
+    assert len(err.splitlines()) == 1
+
+
+def test_unreadable_input_and_bad_arguments_exit_2_and_write_nothing(tmp_path):
+    out_file = tmp_path / "out.md"
+    sections = tmp_path / "s.md"
+    sections.write_text("x", encoding="utf-8")
+    not_utf8 = tmp_path / "b.md"
+    not_utf8.write_bytes(b"\xff\xfe")
+    not_json = tmp_path / "n.json"
+    not_json.write_text("[1]", encoding="utf-8")
+    for argv in (
+        [
+            "splice",
+            "--body-file",
+            tmp_path / "missing.md",
+            "--sections-file",
+            sections,
+            "--out",
+            out_file,
+        ],
+        [
+            "splice",
+            "--body-file",
+            not_utf8,
+            "--sections-file",
+            sections,
+            "--out",
+            out_file,
+        ],
+        [
+            "splice",
+            "--body-json",
+            not_json,
+            "--sections-file",
+            sections,
+            "--out",
+            out_file,
+        ],
+        ["splice", "--sections-file", sections, "--out", out_file],
+        ["check"],
+        ["verify", "--base-file", not_utf8],
+        [],
+    ):
+        status, out, err = run_script(*argv)
+        assert status == 2 and out == "" and err.strip(), argv
+        assert not out_file.exists()
+
+
+def test_splice_refuses_a_missing_or_unusable_sections_file_as_no_output(tmp_path):
+    body = _write_json_body(tmp_path / "issue.json", make_body({"priority": "empty"}))
+    out_file = tmp_path / "out.md"
+    status, out, err = run_script(
+        "splice",
+        "--body-json",
+        body,
+        "--sections-file",
+        tmp_path / "none.md",
+        "--out",
+        out_file,
+    )
+    assert (
+        status == 1 and err.startswith("E-WORKER-NO-OUTPUT: ") and not out_file.exists()
+    )
+
+
+def test_splice_writes_the_body_the_session_edits_with_and_nothing_else(tmp_path):
+    before = make_body({"priority": "absent", "test_plan": "empty"})
+    issue = _write_json_body(tmp_path / "issue.json", before)
+    sections = _drafted_file(tmp_path / "plan-sections.md", before)
+    out_file = tmp_path / "plan-body.md"
+    result = script_result(
+        "splice", "--body-json", issue, "--sections-file", sections, "--out", out_file
+    )
+    assert result["result"] == "written" and result["mode"] == "plan"
+    assert result["sections_added"] == ["priority", "test_plan"]
+    assert result["sections_replaced"] == [] and result[
+        "base_sha"
+    ] == plan_body.body_sha(before)
+    after = out_file.read_bytes().decode("utf-8")
+    assert after == build_plan_body(before, parse_plan_sections(sections.read_text()))
+    assert outside_unchanged(before, after, ["test_plan"], ["priority"])
+    # the same call twice gives the same bytes
+    again = tmp_path / "again.md"
+    script_result(
+        "splice", "--body-json", issue, "--sections-file", sections, "--out", again
+    )
+    assert again.read_bytes() == out_file.read_bytes()
+
+
+def test_a_planned_body_is_not_written_and_the_old_out_file_stays_untouched(tmp_path):
+    body = make_body()
+    issue = _write_json_body(tmp_path / "issue.json", body)
+    sections = tmp_path / "s.md"
+    sections.write_text("", encoding="utf-8")
+    out_file = tmp_path / "plan-body.md"
+    result = script_result(
+        "splice", "--body-json", issue, "--sections-file", sections, "--out", out_file
+    )
+    assert result["result"] == "already_planned" and not out_file.exists()
+
+
+def test_the_file_form_and_the_json_form_of_the_body_give_the_same_bytes(tmp_path):
+    before = make_body({"fix_approach": "placeholder"}, nl="\r\n").replace(
+        "It breaks.", "Ünïcode ★"
+    )
+    raw = tmp_path / "body.md"
+    raw.write_bytes(before.encode("utf-8"))
+    sections = _drafted_file(tmp_path / "s.md", before)
+    outs = []
+    for flag, path in (
+        ("--body-file", raw),
+        ("--body-json", _write_json_body(tmp_path / "i.json", before)),
+    ):
+        out_file = tmp_path / f"out{flag}.md"
+        script_result(
+            "splice", flag, path, "--sections-file", sections, "--out", out_file
+        )
+        outs.append(out_file.read_bytes())
+    assert outs[0] == outs[1]
+    text = outs[0].decode("utf-8")
+    assert "\n" not in text.replace("\r\n", "") and "Ünïcode ★" in text
+
+
+def test_a_null_body_is_an_empty_body_and_all_three_sections_are_appended(tmp_path):
+    issue = tmp_path / "issue.json"
+    issue.write_text(json.dumps({"body": None}), encoding="utf-8")
+    sections = tmp_path / "s.md"
+    sections.write_text(fake_worker(plan_check("")), encoding="utf-8")
+    out_file = tmp_path / "out.md"
+    result = script_result(
+        "splice", "--body-json", issue, "--sections-file", sections, "--out", out_file
+    )
+    assert result["sections_added"] == list(PLAN_TOKENS)
+    assert set(plan_check(out_file.read_text()).values()) == {"ok"}
+
+
+def test_verify_passes_a_good_read_back_and_fails_every_broken_one(tmp_path):
+    before = make_body({"priority": "empty"})
+    base = tmp_path / "base.md"
+    base.write_bytes(before.encode("utf-8"))
+    issue = _write_json_body(tmp_path / "issue.json", before)
+    sections = _drafted_file(tmp_path / "s.md", before)
+    out_file = tmp_path / "out.md"
+    script_result(
+        "splice", "--body-json", issue, "--sections-file", sections, "--out", out_file
+    )
+    good = out_file.read_text(encoding="utf-8")
+
+    def verify(back: str, *extra):
+        path = tmp_path / "back.json"
+        _write_json_body(path, back)
+        return run_script(
+            "verify", "--base-file", base, "--readback-json", path, *extra
+        )
+
+    status, out, err = verify(good)
+    assert status == 0 and json.loads(out)["result"] == "ok" and err == ""
+    # GitHub may hand the body back with CRLF: the same body
+    assert verify(good.replace("\n", "\r\n"))[0] == 0
+    broken = {
+        "one byte outside the section": (
+            good.replace("It breaks.", "It breaks!", 1),
+            "outside",
+        ),
+        "create marker dropped": (good.replace(CREATE_MARKER + "\n", ""), "outside"),
+        "a heading gone": (good.replace("## Priority", "## Priorit"), "heading"),
+        "a heading twice": (good + "\n## Priority\n", "heading"),
+        "marker twice": (good + f"\n{PLAN_MARKER}\n", "marker"),
+        "marker gone": (good.replace(PLAN_MARKER + "\n", ""), "marker"),
+        "not known yet left": (
+            good.replace(DRAFTED["priority"], "Not known yet"),
+            "plan check",
+        ),
+    }
+    for name, (back, needle) in broken.items():
+        status, out, err = verify(back)
+        assert status == 1 and out == "", name
+        assert err.startswith("E-PLAN-WRITE-FAILED: ") and len(err.splitlines()) == 1, (
+            name
+        )
+        assert needle in err, (name, err)
+
+
+def test_a_replan_through_the_script_saves_the_old_text_and_verifies(tmp_path):
+    before = replan_body()
+    issue = _write_json_body(tmp_path / "issue.json", before)
+    remaining = write_remaining(tmp_path, 3, ["part three is done"])
+    n, criteria, sha = parse_remaining_file(remaining)
+    sections = tmp_path / "s.md"
+    sections.write_text(fake_replan_worker(n, criteria), encoding="utf-8")
+    out_file, saved = tmp_path / "plan-body.md", tmp_path / "plan-before-round-3.md"
+    argv = (
+        "--body-json",
+        issue,
+        "--sections-file",
+        sections,
+        "--out",
+        out_file,
+        "--remaining",
+        remaining,
+    )
+    status, _, err = run_script("splice", *argv)
+    assert (
+        status == 2 and "--before-out" in err
+    )  # a re-plan must say where the old text goes
+    result = script_result("splice", *argv, "--before-out", saved)
+    assert result["mode"] == "replan" and result["sections_replaced"] == [
+        "fix_approach",
+        "test_plan",
+    ]
+    assert result["sections_added"] == [] and result["before_out"] == str(saved)
+    after = out_file.read_text(encoding="utf-8")
+    assert after.count(replan_marker(3, sha)) == 1
+    old = saved.read_text(encoding="utf-8")
+    assert PLAN_OK_TEXT["fix_approach"] in old and PLAN_OK_TEXT["priority"] not in old
+    back = _write_json_body(tmp_path / "back.json", after)
+    script_result(
+        "verify",
+        "--base-json",
+        issue,
+        "--readback-json",
+        back,
+        "--remaining",
+        remaining,
+    )
+    # the same file again: already planned, nothing more is written
+    again = script_result("check", "--body-json", back, "--remaining", remaining)
+    assert again["already_planned"] is True
+    # one byte outside the two sections changes: the check fails
+    mutated = _write_json_body(
+        tmp_path / "m.json", after.replace("It breaks.", "It breaks!", 1)
+    )
+    status, out, err = run_script(
+        "verify",
+        "--base-json",
+        issue,
+        "--readback-json",
+        mutated,
+        "--remaining",
+        remaining,
+    )
+    assert status == 1 and err.startswith("E-PLAN-WRITE-FAILED: ") and "outside" in err
 
 
 # --- the three plan-mode jobs of the tier workers -------------------------------------------

@@ -14,7 +14,7 @@ All notable changes to IronClaude are documented in this file.
 
 ### `/sc:issue --plan` fills the plan sections of an existing issue (issue 655)
 
-- `/sc:issue --plan <number|url> [--depth quick|standard|deep]` adds the missing `## Priority`, `## Fix approach` and `## Test plan` sections to an issue that already exists, with one edit of its body and nothing else (no comment, label, assignment or worktree); `--remaining <file>` rewrites the Fix approach and Test plan of a plan that exists to the scope that is left.
+- `/sc:issue --plan <number|url> [--depth quick|standard|deep]` adds the missing `## Priority`, `## Fix approach` and `## Test plan` sections to an issue that already exists, with one edit of its body and nothing else (no comment, label, assignment or worktree); `--remaining <file>` rewrites the Fix approach and Test plan of a plan that exists to the scope that is left. A small script, `scripts/plan_body.py` (standard library only), builds and checks the new body from the drafted section texts, so the write does not depend on a model copying the body byte for byte.
 
 ## [6.1.0] - 2026-11-18
 

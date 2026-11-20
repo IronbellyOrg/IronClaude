@@ -1,6 +1,6 @@
 # Model tiers and worker pinning
 
-Loaded before the first worker spawn of either mode.
+Loaded before the first worker spawn of any mode (claim, create or plan).
 
 Spawn workers with `subagent_type: issue-worker-t<N>` and never pass the `model` parameter.
 
@@ -13,6 +13,7 @@ Workers are the agent files `~/.claude/agents/issue-worker-t3.md`, `~/.claude/ag
 | T3 | `claude-gw-tier2b` | `issue-worker-t3` | the first lookup on every claim and create (B13); quick-depth issue body |
 | T2 | `claude-gw-tier2` | `issue-worker-t2` | accuracy check and summary on simple and medium claims; flag choice at quick depth when a flag is missing; validation of user-given flags at standard depth; standard-depth body. Next-step chains for simple work (B14) |
 | T1 | `claude-gw-tier1b` | `issue-worker-t1` | accuracy check and summary on complex claims; flag choice at standard and deep depth when a flag is missing; the independent flag variant for the deep adversarial check; deep body. Next-step chains for medium and complex work (B14) |
+| any | the worker of the depth (quick T3, standard T2, deep T1) | the plan-sections job of plan mode (`refs/plan.md`, Wave 4): the missing `## Priority`, `## Fix approach` and `## Test plan` texts of an existing issue, with the T1 -> T2 fallback below; a fallback line goes in `draft-notes.md` |
 
 Picker IDs are written without the `[1m]` context suffix (default D19). The worker name `issue-worker-t3` is a label, not the ccsession tier: since the 2026-11-12 owner decision (issue 488) it is pinned to ccsession Tier 2b (GPT-6.1 Terra first), the model order it had before Tier 3 was cut to GLM-5.3 and Qwen3.8 Max.
 

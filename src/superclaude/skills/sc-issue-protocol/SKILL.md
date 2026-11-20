@@ -35,6 +35,7 @@ For issues filed through `/sc:issue --create`, its four templates replace the `I
 | `refs/labels.md` | create Wave 5: the mode labels, the issue type and Complexity field rules, the output lines and the maintainer's one-time label creation lines |
 | `refs/tiers.md` | before the first worker spawn of any mode: tier map, pinning rule, `E-TIER-UNAVAILABLE` |
 | `scripts/origin_repo.py` | Wave 0 of both modes: prints `owner/repo` from `origin`; with `--claim` also checks the claim argument against it |
+| `scripts/plan_body.py` | plan Waves 0, 4 and 5: `check`, `splice` and `verify` build and check the new issue body from the drafted section texts (standard library only; it never calls `gh`) |
 | `scripts/clickup_claim.py` | claim Wave 3: assigns the matching ClickUp task |
 | `scripts/orca_worktree.py` | claim Wave 0 (`preflight`), Wave 5 (`prompt`), Wave 7 (`worktree`) and Wave 8 (`launch`): the only file that calls `orca` |
 | `templates/scout-report.md` | `scout.md` (both modes) |
@@ -53,7 +54,7 @@ For issues filed through `/sc:issue --create`, its four templates replace the `I
 | `templates/draft-notes.md` | `draft-notes.md` (create, plan) |
 | `templates/create-review-comment.md` | `create-review.md` (create, posted when needed) |
 
-Every output file starts as a copy of its template (stub first) and is filled in place. `clickup.json` has no template: it is the script's machine output (default D15). Plan mode adds no template: `plan-input.md` and `plan-body.md` are written by the calling session, and `plan-sections.md` holds only the heading lines and section text that the heading block ending every issue template already defines (`refs/plan.md`).
+Every output file starts as a copy of its template (stub first) and is filled in place. `clickup.json` has no template: it is the script's machine output (default D15). Plan mode adds no template: `plan-input.md` is written by the calling session, `plan-body.md` by `scripts/plan_body.py`, and `plan-sections.md` holds only the heading lines and section text that the heading block ending every issue template already defines (`refs/plan.md`).
 
 ## Workers and the spawn rule
 
@@ -113,7 +114,7 @@ Load `refs/plan.md` now. `<N>` is the issue number, `<D>` = `.dev/issues/<N>/`. 
 
 1. **Wave 0, prerequisites.** `origin_repo.py --claim "<argument>"` resolves `<R>` and `<N>` (exit 1 STOP `E-NO-ORIGIN`, exit 3 STOP `E-FOREIGN-REPO`, exit 4 STOP `E-PLAN-NOT-AN-ISSUE`); `gh auth status` (else STOP `E-GH-AUTH`); read the issue live; stop on an issue that is not found (`E-ISSUE-NOT-FOUND`), is a pull request (`E-PLAN-NOT-AN-ISSUE`) or is closed (`E-PLAN-ISSUE-CLOSED`); apply the plan check of `refs/plan.md` (a heading that occurs twice is STOP `E-PLAN-REPEATED-HEADING`; three sections that pass are `already_planned`, nothing written); write `<D>/plan-input.md`.
 2. **Wave 4, draft.** The worker of the depth (`issue-worker-t3` quick, `issue-worker-t2` standard, `issue-worker-t1` deep, with the T1 -> T2 fallback) writes `<D>/plan-sections.md` for each section that is absent, empty or only "Not known yet", and `<D>/draft-notes.md`. It asks no question.
-3. **Wave 5, write.** The calling session re-reads the body (one change since Wave 0 is merged, a second is STOP `E-PLAN-RACE`), appends or fills exactly those sections, adds `<!-- sc:issue:plan -->` once, runs the one `gh issue edit <N> --repo <R> --body-file <D>/plan-body.md`, and reads the body back (a failed edit or a failed check is STOP `E-PLAN-WRITE-FAILED`).
+3. **Wave 5, write.** The calling session re-reads the body (one change since Wave 0 is merged, a second is STOP `E-PLAN-RACE`); `scripts/plan_body.py splice` appends or fills exactly those sections and adds `<!-- sc:issue:plan -->` once, so the model never writes the body; the session runs the one `gh issue edit <N> --repo <R> --body-file <D>/plan-body.md`, reads the body back and runs `scripts/plan_body.py verify` (a failed edit or a failed check is STOP `E-PLAN-WRITE-FAILED`). The commands are in `refs/plan.md`.
 
 With `--remaining <file>` the same waves run as a re-plan of `## Fix approach` and `## Test plan` (`refs/plan.md`, "Re-plan"; stops `E-REMAINING-FILE` and `E-REMAINING-NEEDS-PLAN`). Nothing in plan mode touches a comment, a label, an assignee, ClickUp, a worktree or an agent launch.
 
