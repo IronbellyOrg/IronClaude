@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage1Request-20261116-221852-20261116222131/adversarial/merged-card.md"
+  convergence_score: 0.95
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage1Request-20261116-221852-20261116222131/adversarial/adversarial"
+  status: "success"
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 1          # C-003 (stored-tag fix), recorded in the merged card F11
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []       # Round 2.5 skipped at depth quick

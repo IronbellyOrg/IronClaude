@@ -1,0 +1,19 @@
+# sc:adversarial Mode A, depth standard, 3 reviewer cards. Merged verdict in merged-output.md: FAIL (2 Blocking, 1 Medium, 2 Note).
+# status is partial: the debate reached 15/15 agreement but convergence was BLOCKED_BY_INVARIANTS (INV-003, HIGH, UNADDRESSED);
+# no Round 3 at depth standard, so the base was force-selected by score (no-convergence path). Post-merge validation: PASS, 13 of 13 changes applied.
+# INV-003 is carried into row 1's fix text in the merged card, but the debate itself did not resolve it, so it stays listed below.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage3CRequest-20261119-143901-20261119144026/adversarial/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage3CRequest-20261119-143901-20261119144026/adversarial/adversarial/"
+  status: "partial"
+  base_variant: "variant-3-original.md (reviewer card 3, refactorer lens; advocate opus:refactorer)"
+  unresolved_conflicts: 0
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-003"
+      category: "sufficiency_challenge"
+      assumption: "Fixes for the two Blocking findings alone (added plan text) leave every acceptance check passable; false on the in-place route, where stale .claude/ dev copies of 53 primitives deleted on origin/master make `make verify-sync` (plan:59) exit 1"
+      severity: "HIGH"

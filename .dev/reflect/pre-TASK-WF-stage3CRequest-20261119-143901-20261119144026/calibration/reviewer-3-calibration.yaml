@@ -1,0 +1,9 @@
+card: reviewer-cards/reviewer-3.md (refactorer, opus); calibrator: confidence-calibrator, opus class (same class as this reviewer; calibrator_diversity degraded)
+dimensions: {citation_grounding: 0.93, coverage_completeness: 0.92, deviation_classification_clarity: 0.90, risk_surface_coverage: 0.90, recommendation_actionability: 0.70}
+calibrated_confidence: 0.87
+self_reported: none
+findings:
+  - {row: 1, grade: "Blocking (Missing)", agreement: agree}
+  - {row: 2, grade: "Blocking (Missing)", agreement: agree, note: "borderline row of the four"}
+  - {row: 3, grade: Medium, agreement: agree}
+  - {row: 4, grade: "Note (Authorized expansion)", agreement: agree}

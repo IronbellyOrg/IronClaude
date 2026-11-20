@@ -1,0 +1,16 @@
+merge_method: adversarial
+verdict: revise
+convergence_score: 0.95
+base_variant: "opus:refactorer"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+merged_card: adversarial/merged-card.md
+adversarial_artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage1Request-20261116-221852-20261116222131/adversarial/adversarial"
+findings: {total: 12, blocking: 1, non_blocking: 11}
+blocking:
+  - id: F1
+    class: drift
+    claim: "plan:23 bans code-assigned severity in src/superclaude/cli/**/*.py; Task 1 (plan:38) requires an outcome function there that returns Blocking for a hit"
+unresolved: [C-003]

@@ -1,0 +1,8 @@
+card: reviewer-cards/reviewer-2.md (qa, haiku); calibrator: confidence-calibrator, opus class (calibrator_diversity degraded: all three classes are reviewer classes)
+dimensions: {citation_grounding: 0.95, coverage_completeness: 0.95, deviation_classification_clarity: 0.80, risk_surface_coverage: 0.75, recommendation_actionability: 0.60}
+calibrated_confidence: 0.81
+self_reported: none
+findings:
+  - {row: 1, grade: "Blocking (Missing)", agreement: agree}
+  - {row: 2, grade: "Blocking (Missing)", agreement: disagree, reason: "limits summary is owner-facing information; changes no executed behaviour or acceptance check; Medium, fix before the owner's go"}
+  - {row: notes_coverage, grade: Note, agreement: agree}

@@ -1,0 +1,8 @@
+input_tree_sha256: e130c120a8b61b52e79ebe98a6cb59e4e5f26f56692e37dabca24e18b11fb4f1
+file_list:
+  - path: TASK-WF-blockerStage4-20261117-170451.md
+    sha256: ab0151e70a252ec009b80576009ed759106a20c8341a0954b2b16c5278ec5549
+  - path: source.md
+    sha256: da21741199efd757421af2ea6421faf9d4efce915e091053497737f74fae1af5
+file_count: 2
+note: UC-1; plan and spec only; link-following depth 1 not performed (no relative links to files outside the package that the review rests on)

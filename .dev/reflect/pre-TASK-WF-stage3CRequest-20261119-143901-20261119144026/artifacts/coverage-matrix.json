@@ -1,0 +1,546 @@
+{
+  "summary": {
+    "parsed_count": 0,
+    "inferred_count": 43,
+    "dropped_rows": [],
+    "matched_count": 39,
+    "total_count": 43,
+    "coverage_pct": null,
+    "coverage_pct_union": 0.907,
+    "unmapped_requirements": [],
+    "unmapped_requirements_union": [
+      "INF-001",
+      "INF-034",
+      "INF-037",
+      "INF-038"
+    ],
+    "missing_implementations_count": 0,
+    "S_dev_density": 0.093,
+    "coverage_degraded": "parsed-sparse",
+    "threshold": 0.6,
+    "plan_units": [
+      {
+        "id": "Constraints",
+        "lines": "17-27"
+      },
+      {
+        "id": "Task 1",
+        "lines": "31-48"
+      },
+      {
+        "id": "Task 2",
+        "lines": "52-61"
+      }
+    ]
+  },
+  "rows": [
+    {
+      "requirement_id": "INF-001",
+      "quote": "Run it on a fresh branch made from `origin/master`.",
+      "citation": "source.md:3",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.4286,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-002",
+      "quote": "Do NOT run `/sc:implement` on the package until the owner says go in chat.",
+      "citation": "source.md:3",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.9,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-003",
+      "quote": "The stage 3b package `TASK-WF-stage3BRequest-20261117-172514` is in the done subfolder of the repository task folder, and PR #605 is merged.",
+      "citation": "source.md:20",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-004",
+      "quote": "There is no owner gate inside this package. The owner's go to run it is a separate chat message recorded in the stage ledger `stage-requests/README.md`.",
+      "citation": "source.md:20",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.9,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-005",
+      "quote": "Task 1: edit `src/superclaude/agents/reflect-reviewer.md`. Re-read the place by its text first.",
+      "citation": "source.md:24",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-006",
+      "quote": "One edit only: in the bullet that begins \"- The Severity column of the Deviations table (HIGH, MEDIUM, LOW) is a label, not the grade.\", insert the passage below directly after the sentence \"A deviation that meets a blocking condition is Blocking whatever its label says; a HIGH that is only wording is a Note.\" and before the sentence that begins \"When no consumer can be established\".",
+      "citation": "source.md:24",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 0.9697,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-007",
+      "quote": "Keep one space between sentences.",
+      "citation": "source.md:24",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-008",
+      "quote": "Copy the passage from the fenced block below; do not retype it. It is byte-identical to the measured text (source file `.dev/stage3c-variants/brainstorm/reflect-reviewer.md`, sha256 `7696a2b21601ff914d7651085125ef4188238640998c0599907555c760ec0ed8`, in the stage 0 to 3 worktree).",
+      "citation": "source.md:24",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.7037,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-009",
+      "quote": "Before you write `Medium:`, ask whether someone following the text as written could produce behaviour the spec forbids, or pass a named acceptance check while a behaviour the spec states is absent or wrong (for example a missing message prefix, or a missing \"no output written\" rule). If so, correcting it changes a required behaviour or acceptance check: grade it `Blocking (Decision):` or `Blocking (Missing):`, not `Medium:`.",
+      "citation": "source.md:27",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 0.6286,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-010",
+      "quote": "In `tests/skills/test_review_severity_rule.py`, add two needles to the tuple in `test_c_reflect_reviewer_grade_bullets_pinned`: `\"Before you write `Medium:`, ask whether someone following the text as written could produce behaviour the spec forbids\"` and `\"A behaviour that would happen anyway (for example exit 0 on success) is not that.\"`. Make each needle a Python string that holds the exact text, backticks included.",
+      "citation": "source.md:30",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 0.9333,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-011",
+      "quote": "Do not change the frontmatter, the Behavioral Mindset, the Boundaries list, the Correctness gaps section, the columns of the Deviations table, the S1, S2 and S3 bullets, the cap bullet, or the bullet that begins \"- This grading applies\".",
+      "citation": "source.md:32",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-012",
+      "quote": "Before editing, run `git grep -n \"reflect-reviewer\" -- tests src` and write its output to `./artifacts/stage3c-task1-notes.md`, with one sentence on which tests read the agent file.",
+      "citation": "source.md:34",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-013",
+      "quote": "After the edit, run every test file that output names once and record each result in the same file.",
+      "citation": "source.md:34",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-014",
+      "quote": "`grep -c \"Before you write \\`Medium:\\`\" src/superclaude/agents/reflect-reviewer.md` prints 1.",
+      "citation": "source.md:39",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-015",
+      "quote": "`grep -c \"A behaviour that would happen anyway (for example exit 0 on success) is not that.\" src/superclaude/agents/reflect-reviewer.md` prints 1.",
+      "citation": "source.md:40",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-016",
+      "quote": "`grep -c \"a HIGH that is only wording is a Note. Before you write\" src/superclaude/agents/reflect-reviewer.md` prints 1.",
+      "citation": "source.md:41",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-017",
+      "quote": "`git diff -- src/superclaude/agents/reflect-reviewer.md` shows exactly one changed line, the Severity column bullet. The removed and added versions of that line differ only by the inserted passage plus one space.",
+      "citation": "source.md:42",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 0.96,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-018",
+      "quote": "`uv run pytest tests/skills/test_review_severity_rule.py -v` passes with the two new needles.",
+      "citation": "source.md:43",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-019",
+      "quote": "`uv run pytest tests/cli/reflect/test_reviewer_readonly_tools.py tests/cli/reflect/test_reviewer_brief_constraints.py tests/agents/test_codegraph_rosters.py tests/skills/test_review_severity_rule.py -v` passes.",
+      "citation": "source.md:44",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-020",
+      "quote": "the `git grep` output and its one sentence;",
+      "citation": "source.md:46",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-021",
+      "quote": "the results of the other test files that output names;",
+      "citation": "source.md:47",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-022",
+      "quote": "one line saying the reflect skill (`skills/sc-reflect-protocol`) and the adversarial merge were not edited.",
+      "citation": "source.md:48",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-023",
+      "quote": "Task 2: run `make sync-dev` and `make verify-sync`, then run the four test files above once more after the last edit.",
+      "citation": "source.md:50",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "ratio": 0.9333,
+      "best_unit": "Task 2",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-024",
+      "quote": "Write the pass counts and the `make verify-sync` result to `./artifacts/stage3c-final-run.md`.",
+      "citation": "source.md:50",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 2",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-025",
+      "quote": "Check that nothing under the project `.claude/` folder other than `.claude/settings.json` is staged.",
+      "citation": "source.md:50",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.7778,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-026",
+      "quote": "`make verify-sync` passes.",
+      "citation": "source.md:54",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 2",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-027",
+      "quote": "The four test files pass.",
+      "citation": "source.md:55",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-028",
+      "quote": "`./artifacts/stage3c-final-run.md` exists.",
+      "citation": "source.md:56",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.8333,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-029",
+      "quote": "That merge step is the reflect protocol's and the adversarial skill's, outside this file. No edit to `skills/sc-reflect-protocol`, the adversarial skill, or the merge text.",
+      "citation": "source.md:60",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.8667,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-030",
+      "quote": "That is a detection problem, not a grading one, and is not addressed here.",
+      "citation": "source.md:61",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.7143,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-031",
+      "quote": "No edit to the S1 to S3 bullets, `evidence-validator.md`, `sc-implement-protocol/refs/qa.md`, the own-scale primitives or `src/superclaude/cli/**/*.py`. No plugin surface.",
+      "citation": "source.md:62",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-032",
+      "quote": "No new question in any command. No Jev call.",
+      "citation": "source.md:62",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-033",
+      "quote": "The re-runs are not a task here.",
+      "citation": "source.md:63",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-034",
+      "quote": "Known limits to carry into the plan's summary",
+      "citation": "source.md:65",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.1667,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-035",
+      "quote": "The passage names two kinds of finding from spec E (\"a missing message prefix\", \"a missing 'no output written' rule\") as examples. It was measured with them, so they stay.",
+      "citation": "source.md:67",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.8,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-036",
+      "quote": "Its held-out result on spec B does not depend on them.",
+      "citation": "source.md:67",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.75,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-037",
+      "quote": "The measurement was small: one reviewer model (sonnet), three reviewers per arm, one scorer and no second reader. The briefs carried first-pass coverage hints for every arm.",
+      "citation": "source.md:68",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.35,
+      "best_unit": "Task 1",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-038",
+      "quote": "Whether dropping \"plain codepoint order\" is a real blocker is a judgment: it changes the order of digits and apostrophes, not of lowercase letters.",
+      "citation": "source.md:69",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.2857,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-039",
+      "quote": "`src/superclaude/` is the source of truth: edit there, then run `make sync-dev`.",
+      "citation": "source.md:73",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-040",
+      "quote": "Stage nothing under the project `.claude/` folder; only `.claude/settings.json` is tracked.",
+      "citation": "source.md:74",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 0.8889,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-041",
+      "quote": "Python work uses UV only (`uv run pytest ...`).",
+      "citation": "source.md:75",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-042",
+      "quote": "`.dev/tasks/` is always staged (`git add .dev/tasks`), packages and their `./artifacts/` included. Staging is not committing.",
+      "citation": "source.md:76",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    },
+    {
+      "requirement_id": "INF-043",
+      "quote": "Acceptance checks are by content and quote the sentence they protect. Line numbers in a task body are hints; re-read each place by its text.",
+      "citation": "source.md:77",
+      "matched_task_ids": [
+        "Constraints"
+      ],
+      "match_method": "containment",
+      "ratio": 1.0,
+      "best_unit": "Constraints",
+      "source": "inferred"
+    }
+  ]
+}

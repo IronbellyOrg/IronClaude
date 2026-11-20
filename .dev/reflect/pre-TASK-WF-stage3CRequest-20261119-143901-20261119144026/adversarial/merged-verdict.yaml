@@ -1,0 +1,18 @@
+merge_method: adversarial
+verdict: FAIL
+convergence_score: 1.0
+adversarial_status: partial   # BLOCKED_BY_INVARIANTS (INV-003 HIGH, unaddressed in debate; folded into row 1's fix); base force-selected by score
+base_variant: reviewer card 3 (refactorer, opus)
+source_cards:
+  - .dev/reflect/pre-TASK-WF-stage3CRequest-20261119-143901-20261119144026/reviewer-cards/reviewer-1.md
+  - .dev/reflect/pre-TASK-WF-stage3CRequest-20261119-143901-20261119144026/reviewer-cards/reviewer-2.md
+  - .dev/reflect/pre-TASK-WF-stage3CRequest-20261119-143901-20261119144026/reviewer-cards/reviewer-3.md
+merged_output_path: .dev/reflect/pre-TASK-WF-stage3CRequest-20261119-143901-20261119144026/adversarial/merged-output.md
+artifacts_dir: .dev/reflect/pre-TASK-WF-stage3CRequest-20261119-143901-20261119144026/adversarial/adversarial/
+findings:
+  - {row: 1, grade: "Blocking (Missing)", what: "no fresh-branch-from-origin/master constraint; route must be named (new worktree, or in-place with stale .claude/ copies removed before sync-dev)"}
+  - {row: 2, grade: "Blocking (Missing); Decision also holds", what: "known-limits summary not carried; plan:21 'two real gaps' states a judgment as fact"}
+  - {row: 3, grade: Medium, what: "sha256 of the measured variant dropped; greps pin only start, end and join; needles not checked as added"}
+  - {row: 4, grade: Note, what: "authorized narrowing (plan:61, :37, :60)"}
+  - {row: 5, grade: Note, what: "plan:39 '83 tests' cites the carry-scope record, not this variant"}
+unaddressed_invariants: [INV-003]

@@ -1,0 +1,23 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage3BRequest-20261117-172514-20261117173200/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage3BRequest-20261117-172514-20261117173200/audit.log
+confidence_calibrated: 0.88
+escalation_rule_matched: 2
+coverage_pct: null
+coverage_undefined: false
+unmapped_requirements: []
+citations_total: 23
+citations_revalidated: 23
+citations_dropped: 0
+citations_inferred: 2
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+input_tree_sha256: 0c1ae5d65445b2b2ac80568710cda7c55d28643b3934d98d5678674b1011621c
+input_drift_detected: false
+degraded_components: []
+unresolved:
+  - "Step 1B.0 deterministic requirement extraction not run; coverage map written by the Tier 1 reviewer."
+  - "Reviewer ran no tests; the scan-test and 11th-entry claims rest on reading the tests."

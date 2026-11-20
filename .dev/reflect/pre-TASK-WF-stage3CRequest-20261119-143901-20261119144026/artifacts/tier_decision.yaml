@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: null   # no STOP row may fire: table-wide pre-filter coverage_degraded (D13) forces Tier 2
+coverage_degraded: parsed-sparse   # inferred_count 43 > parsed_count 0 (Step 1B.2b)
+surface_unreached: null
+composite_score: 3
+per_signal_breakdown:
+  scope_size: 0          # 2 product files (agent, test)
+  task_count: 0          # 2 tasks
+  blast_radius: 1        # agent file read by every reflect Tier 2 review
+  spec_density: 2        # 43 inferred requirements, 0 labeled
+  ambiguity_signals: 0
+escalation_reason: "parse-density guard (coverage_degraded: parsed-sparse) forbids the Tier 1 stop; route to Tier 2"
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null

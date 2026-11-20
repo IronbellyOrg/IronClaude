@@ -1,0 +1,8 @@
+calibrator: confidence-calibrator (opus class), blind (card + rubric only)
+card: t1-card.md
+dimensions: {citation_grounding: 0.92, coverage_completeness: 0.85, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.85, recommendation_actionability: 0.75}
+calibrated_confidence: 0.81
+self_reported_confidence: 0.85
+delta: -0.04
+escalation: ESCALATE (C < 0.85; also forced by the coverage_degraded pre-filter)
+not_checked: edit_simulation.py, grep counts, sha256sum and pytest were not re-run by the calibrator

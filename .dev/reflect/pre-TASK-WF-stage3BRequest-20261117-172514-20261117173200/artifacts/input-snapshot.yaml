@@ -1,0 +1,8 @@
+input_tree_sha256: 0c1ae5d65445b2b2ac80568710cda7c55d28643b3934d98d5678674b1011621c
+file_list:
+  - path: TASK-WF-stage3BRequest-20261117-172514.md
+    sha256: 719739667ffad26f2972e5051ede4a5512bef3b375426ea061b0c04c7f5253df
+  - path: source.md
+    sha256: 2d8b429b64277513e20a1689945921bd632779d4e33754264874ba88ed415246
+file_count: 2
+note: UC-1; plan and spec only; no relative file links followed
