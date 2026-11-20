@@ -5,11 +5,13 @@ from __future__ import annotations
 import os
 import re
 import stat
+import sys
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 
 import pytest
 
+from superclaude.cli.issue_watch import cycle as cycle_module
 from superclaude.cli.issue_watch import record, repos, route, wake
 from superclaude.cli.issue_watch.record import Hold
 
@@ -565,6 +567,30 @@ def test_the_poll_starts_a_dead_orchestrator_again_for_an_acknowledged_plan_requ
     assert target.orchestrator == "ironclaude-1"
     (path,) = wake_files(world.config)
     assert read_wake(path)["target"]["resume"] is True
+
+
+def test_with_no_allowance_left_the_probe_makes_no_call_and_decides_nothing(
+    tmp_path, tmp_state, gh_world, monkeypatch
+):
+    world = gh_world()
+    write_registry(world.config, {"ironclaude-1": {}, "ironclaude-2": {}})
+    write_state_file(world.config, REPO_A, 77, "in_progress", "ironclaude-1")
+    real = cycle_module.Deadline.timeout_for
+
+    def exhausted_in_the_probe(self, configured):
+        # only the registry probe sees the budget used up
+        if sys._getframe(1).f_code.co_name == "_route_locked":
+            return None
+        return real(self, configured)
+
+    monkeypatch.setattr(cycle_module.Deadline, "timeout_for", exhausted_in_the_probe)
+    waker = FakeWaker(dead={"orchestrator-ironclaude-1", "orchestrator-ironclaude-2"})
+    run(world, tmp_path, tmp_state, waker=waker)
+    assert (
+        waker.lookups == [] and waker.deliveries == []
+    )  # unknown: not resumed, not ended
+    reg = route.load_registry(world.config.orchestrator_repo)
+    assert reg["ironclaude-2"].status == "active"
 
 
 def test_a_failed_restart_is_exit_7(tmp_path, tmp_state, gh_world):

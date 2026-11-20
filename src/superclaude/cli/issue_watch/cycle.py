@@ -1416,11 +1416,12 @@ class _Cycle:
         live: dict[str, bool | None] = {}
         for e in registry.values():
             if e.status == "active":
+                timeout = self.deadline.timeout_for(PROBE_TIMEOUT_S)
+                if timeout is None:  # no allowance left: unknown, and no call is made
+                    live[e.id] = None
+                    continue
                 found = self.deps.waker.find_session(
-                    orca,
-                    cfg.orchestrator_repo,
-                    e.tag,
-                    self.deadline.timeout_for(PROBE_TIMEOUT_S) or 1.0,
+                    orca, cfg.orchestrator_repo, e.tag, timeout
                 )
                 live[e.id] = None if found is None else bool(found)
         _, resume = route.end_finished(
