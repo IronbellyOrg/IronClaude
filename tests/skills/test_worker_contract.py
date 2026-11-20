@@ -428,6 +428,7 @@ RULE_PHRASES = {
             "only a `created` result may start a worker",
             "Never start again for an `uncertain` row",
             "worker-start --worktree path:<exact path it printed>",
+            "without launching an agent of its own (it must copy the claim's issue folder in first)",
             "so the worker is that worktree's agent",
             "Create the plan-hash approval row (`record-create`) only when the worker's `ask` carries the plan hash",
             "act on a Status move alone",
