@@ -531,7 +531,7 @@ Take the governed session id once the probe log has a line, and take it again fo
 GSID=$(jq -r 'select(.session_id) | .session_id' "$L.jsonl" | head -1); echo "$GSID"
 ```
 
-All launches below are made from an ordinary Claude session in your main checkout started with `env -u CLICKUP_API_TOKEN claude` (section 1.4). The claim prints one result with `status`, `warning`, `detail`, `release` and two `layers` lines (VERIFIED: `refs/claim.md` lines 113-130 and `orca_worktree.py`). Copy all of them into the results file. Right after each launch, check that the probe loaded: `wc -l < "$L.jsonl"` is above 0.
+All launches below are made from an ordinary Claude session in your main checkout started with `env -u CLICKUP_API_TOKEN claude` (section 1.4). The claim saves its launch result as `.dev/issues/<N>/launch-result.json` in the main checkout, with `status`, `warning`, `detail`, `terminal`, `launched_at`, `enforcement_hook`, `release` and `layers` (VERIFIED by reading `write_launch_result` in `orca_worktree.py` and `refs/claim.md` line 125). Read terminal, layers and release from that file with `jq`, never from the agent's printed text and never from `orca terminal list`; a `launch-result.json` whose mtime is older than the moment the claim was sent counts as missing. That a live claim leaves the file in the main checkout is UNVERIFIED until the owner-approved live OB-H2 rerun. Copy the file's contents into the results file. Right after each launch, check that the probe loaded: `wc -l < "$L.jsonl"` is above 0.
 
 #### 2.2.1 Session B (T1, worktree level: `approved` is a negative control)
 
@@ -543,7 +543,7 @@ ls -A ~/.claude/state/launch-level/pending | wc -l      # write the count down
 printf '{' > "$WT_T1/.claude/settings.local.json"
 ```
 
-In the claim session: `/sc:issue --claim <T1> --pipeline worktree`. Expect `status` `failed`, `warning` `W-ENFORCEMENT-ABSENT`, a `detail` containing `settings.local.json cannot be read as JSON`, and no agent tab. VERIFIED in `orca_worktree.py` lines 1212-1237: the preflight runs before the pending record is published, so a refusal leaves no launch record. Confirm:
+In the claim session: `/sc:issue --claim <T1> --pipeline worktree`. Read `status`, `warning` and `detail` from the file (`jq '{status,warning,detail}' .dev/issues/<T1>/launch-result.json` in the main checkout). Expect `status` `failed`, `warning` `W-ENFORCEMENT-ABSENT`, a `detail` containing `settings.local.json cannot be read as JSON`, and no agent tab. VERIFIED in `orca_worktree.py` lines 1212-1237: the preflight runs before the pending record is published, so a refusal leaves no launch record. Confirm:
 
 ```bash
 ls -A ~/.claude/state/launch-level/pending | wc -l      # same count as before
@@ -557,13 +557,13 @@ Then:
 printf '{"disableAllHooks": true}' > "$WT_T1/.claude/settings.local.json"
 ```
 
-Claim again. Expect `failed`, `W-ENFORCEMENT-ABSENT`, and a `detail` containing `sets disableAllHooks to true, so no hook runs` (VERIFIED, `orca_worktree.py` line 907). Run the same three checks. Then restore the probe and claim for real:
+Claim again. Read `status`, `warning` and `detail` from the file (`jq '{status,warning,detail}' .dev/issues/<T1>/launch-result.json` in the main checkout). Expect `failed`, `W-ENFORCEMENT-ABSENT`, and a `detail` containing `sets disableAllHooks to true, so no hook runs` (VERIFIED, `orca_worktree.py` line 907). Run the same three checks. Then restore the probe and claim for real:
 
 ```bash
 cp /tmp/ob/t1-local.json "$WT_T1/.claude/settings.local.json"
 ```
 
-`/sc:issue --claim <T1> --pipeline worktree`. Expect `status` `launched`, `layers` with `L1 guard: effective`, and an agent tab that says it was launched in `$WT_T1` at level worktree. The claim installs the L2 pre-push hook into the shared hooks folder of the main repository, so `W-L2-ABSENT` may or may not appear (UNVERIFIED until observed); record the `layers` lines and the `warning` as printed (`refs/claim.md` lines 127-129 name `W-L2-ABSENT` as the case where L2 is not in effect).
+`/sc:issue --claim <T1> --pipeline worktree`. Expect `status` `launched`, `layers` with `L1 guard: effective`, and an agent tab that says it was launched in `$WT_T1` at level worktree. The claim installs the L2 pre-push hook into the shared hooks folder of the main repository, so `W-L2-ABSENT` may or may not appear (UNVERIFIED until observed); record the `layers` lines and the `warning` from the file (`jq -r '.layers[], .warning' .dev/issues/<T1>/launch-result.json`) (`refs/claim.md` lines 127-129 name `W-L2-ABSENT` as the case where L2 is not in effect).
 
 **Step 2: OB-H2 binding.** In the evidence terminal, with `L=/tmp/ob/logs/h2-T1`:
 
@@ -577,7 +577,7 @@ ls -i ~/.claude/state/launch-level/sessions/
 stat -c '%i %h %n' ~/.claude/state/launch-level/sessions/"$GSID"
 ```
 
-PASS when a file named `$GSID` exists, holds `worktree`, and its inode matches the number in the claim's `release` text. Record the link count (`%h`); the claim says the guard keeps the session file as a hard link of the record (VERIFIED in `refs/claim.md` line 119), but the count once the pending entry is gone is not stated anywhere this worker found.
+PASS when a file named `$GSID` exists, holds `worktree`, and its inode matches the number in the `release` field of `.dev/issues/<T1>/launch-result.json`. Record the link count (`%h`); the claim says the guard keeps the session file as a hard link of the record (VERIFIED in `refs/claim.md` line 119), but the count once the pending entry is gone is not stated anywhere this worker found.
 
 OB-H2 is PASS only when F1, F2, F3, the inode match, both preflight refusals of step 1 and the LL-NOBIND result from session A all pass. Replaces `test_pending_live_observation[OB-H2]`.
 
@@ -632,7 +632,7 @@ Run the Bash command `/tmp/ob/bin/ob-tree.sh gov-clear; sleep 242` in the backgr
 jq -r 'select(.session_id) | .session_id' "$L.jsonl" | uniq      # a second id after /clear (U18)
 ```
 
-Record F4 for the new id. The distinction case of §19.1: `sleep 241` (the old governed child) and `sleep 242` (after `/clear` in the same Claude process) are alive at the same time; compare their `identify` output and the ancestors in `tree-gov-bg.txt` and `tree-gov-clear.txt`. Finally release: run, in your own terminal, the `rm` command from the claim's `release` line, then:
+Record F4 for the new id. The distinction case of §19.1: `sleep 241` (the old governed child) and `sleep 242` (after `/clear` in the same Claude process) are alive at the same time; compare their `identify` output and the ancestors in `tree-gov-bg.txt` and `tree-gov-clear.txt`. Finally release: run, in your own terminal, the `rm` command in the `release` field of the result file (`jq -r .release .dev/issues/<T1>/launch-result.json`), then:
 
 ```bash
 ~/.claude/hooks/launch-job-identity.sh identify "$(pgrep -xf 'sleep 241')"    # expect ordinary with reason released
@@ -648,11 +648,11 @@ OB-CTX is PASS only when every case of part 1 and part 2 is recorded and `sleep 
 /sc:implement <the plan path it printed>
 ```
 
-Expect `ls ~/.claude/state/launch-level/sessions/"$GSID".ok` to list the file and the implement step to run (VERIFIED on the guard: a prompt starting with `/sc:implement` unlocks, while `please run /sc:implement now` does not). Then the commit prompt of session B: expect the LL-COMMIT text. Release with the claim's `rm` line.
+Expect `ls ~/.claude/state/launch-level/sessions/"$GSID".ok` to list the file and the implement step to run (VERIFIED on the guard: a prompt starting with `/sc:implement` unlocks, while `please run /sc:implement now` does not). Then the commit prompt of session B: expect the LL-COMMIT text. Release with the `rm` command in the `release` field of the claim's `launch-result.json`.
 
 #### 2.2.3 Session D (T3, full level)
 
-`L=/tmp/ob/logs/h2-T3`. Claim with `--pipeline full`. The agent runs every step, stages nothing, and ends with `git status --short` (VERIFIED in the launch prompt template). Then the commit prompt of session B: expect the LL-COMMIT text. Evidence: F5 (the git commands `/sc:implement` uses, U10), F6, F7, F8. Release with the claim's `rm` line.
+`L=/tmp/ob/logs/h2-T3`. Claim with `--pipeline full`. The agent runs every step, stages nothing, and ends with `git status --short` (VERIFIED in the launch prompt template). Then the commit prompt of session B: expect the LL-COMMIT text. Evidence: F5 (the git commands `/sc:implement` uses, U10), F6, F7, F8. Release with the `rm` command in the `release` field of the claim's `launch-result.json`.
 
 #### 2.2.4 Session E (T4, full level with submit)
 
@@ -691,7 +691,7 @@ git -C "$WT_T4" config --worktree --unset remote.origin.pushurl
 git -C "$WT_T4" config --unset extensions.worktreeConfig      # only if you set it above
 ```
 
-Also record: one block message as you saw it in the tab (AC-7); the time from launch to the first block; the outputs of `claude --version`, `orca --version` and `sha256sum ~/.claude/settings.json ~/.claude/hooks/launch-level-guard.sh`. L2 (the pre-push hook) stays pending here: §19.5 needs a disposable bare destination, and this run does not push to one. Release with the claim's `rm` line.
+Also record: one block message as you saw it in the tab (AC-7); the time from launch to the first block; the outputs of `claude --version`, `orca --version` and `sha256sum ~/.claude/settings.json ~/.claude/hooks/launch-level-guard.sh`. L2 (the pre-push hook) stays pending here: §19.5 needs a disposable bare destination, and this run does not push to one. Release with the `rm` command in the `release` field of the claim's `launch-result.json`.
 
 OB-H3 is PASS only when sessions B (step 3), C, D and E each show the expected blocks and unlocks, the protected push and the merge are refused, and the counts are recorded. A skipped part keeps OB-H3 pending, not passed (design line 317). Replaces `test_pending_live_observation[OB-H3]`.
 
@@ -764,9 +764,9 @@ Copy the evidence lines into the results file before cleanup. Cleanup deletes `/
 - **Starting the sessions.** Owner authorization of 2026-11-08 (the plan `.dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md`, Constraints, line 19): an agent may start Claude sessions for these observations and run governed claims on the four disposable issues T1 to T4 only. No claim, launch or comment on any other issue. The gate in section 3 still holds: no governed claim on a real issue, whatever the results.
 - **The prompts themselves.** Hook payloads carry no field that says where a prompt came from (design V6 and R15). A prompt sent with `orca terminal send` reaches the hooks as the same `UserPromptSubmit` payload as a typed one, so injected prompts are representative of typed ones (plan Constraints, line 24). The send is `orca terminal send --terminal "$h" --text "$text"` (driver.sh:62). Items 4 and 5, the `approved` and `/sc:implement` unlocks, and the LL-NOBIND prompt may be sent with `driver.sh send`. An agent that sends `approved` is the R15 risk the design names, allowed here only on T1 to T4.
 - **Seeing the block message.** Whether a blocked prompt's message is visible in the tab (U20) and how one live block message reads (AC-7) can only be judged on screen.
-- **The O-10 conflict edit** during the `/sc:pr-submit` monitoring window is made through `gh_fork api repos/IronbellyOrg/IronClaude/contents/ob-442/T4.txt` (session-gov.sh:423) with `-X PUT` (session-gov.sh:421), not in the GitHub web UI. Whether `/sc:pr-submit` reacts to it the same way as to a web edit is UNVERIFIED.
+- **The O-10 conflict edit** during the `/sc:pr-submit` monitoring window is made through `gh_fork api repos/IronbellyOrg/IronClaude/contents/ob-442/T4.txt` (session-gov.sh:455) with `-X PUT` (session-gov.sh:453), not in the GitHub web UI. Whether `/sc:pr-submit` reacts to it the same way as to a web edit is UNVERIFIED.
 - **Judging retries** in F7 and F8: whether the next command is a reworded retry of a blocked one is a reading, not a filter. Record readings with `usage: evidence.sh --reading <u20|retry-f7-f8|ac7>` (evidence.sh:42).
-- **The release.** The LL-TAMPER block applies only to a governed session, so the claim's `release` line, an `rm`, is run from the driving agent's own shell (`refs/claim.md` line 119): `rm -f -- "${p1:?}" "${p2:?}"` (session-gov.sh:209) after `refusing an odd session id` (session-gov.sh:195). The guard still blocks a governed agent that touches the launch-level state (LL-TAMPER).
+- **The release.** The LL-TAMPER block applies only to a governed session, so the `release` field of `launch-result.json` (an `rm`) is run from the driving agent's own shell (`refs/claim.md` line 119): `rm -f -- "${p1:?}" "${p2:?}"` (session-gov.sh:241) after `refusing an odd session id` (session-gov.sh:228). The guard still blocks a governed agent that touches the launch-level state (LL-TAMPER).
 
 ## 5. Safety and cleanup
 
@@ -793,7 +793,7 @@ pgrep -af 'sleep 24[123]$'
 for n in 241 242 243; do for p in $(pgrep -xf "sleep $n"); do [ "$(ps -o etimes= -p $p)" -lt $(( $(date +%s) - $(stat -c %Y /tmp/ob/baseline-sessions.txt) )) ] && kill "$p"; done; done
 ```
 
-2. Release every governed session that is still bound. Use the `rm` line each claim printed. Then compare the store with the baseline:
+2. Release every governed session that is still bound. Use the `rm` command in the `release` field of each claim's `launch-result.json`. Then compare the store with the baseline:
 
 ```bash
 ls -A ~/.claude/state/launch-level/sessions | diff /tmp/ob/baseline-sessions.txt - 
@@ -854,6 +854,9 @@ Cleanup `--apply` rule: `Default: print the plan and delete nothing.` (cleanup.s
 | `NEEDS_INPUT` (driver.sh:58, driver-helpers.sh:48) | Read the screen file named on the line. Answer only a dialog about this run's disposable targets (T1 to T4, their worktrees and branches, the plan's scripts, `/tmp/ob`), with `answer <name> <key> <reason>` (driver.sh:102). The line can come before the send (`Pre-send check: a dialog already on screen means the prompt is not sent.` (driver.sh:56)) or while the driver waits for the turn to end, after the send. Read the saved screen: if the step's prompt is not shown there, answer the dialog and send that prompt again; if it is shown, answer only. |
 | `PENDING step=` (session-a.sh:79, session-a.sh:93, session-a2.sh:59) | Read the reason and the screen file on the line before you run anything further. |
 | `reason=needs-input` (session-gov.sh:82) | Same as `NEEDS_INPUT`: read the screen file, answer only a disposable target, and check whether the step's prompt is shown before you send it again. |
+| `reason=claim-result-` (session-gov.sh:177, session-gov.sh:178) | `PENDING`: the claim left no fresh `launch-result.json` in the main checkout (`missing`), or only one older than the claim's start (`stale`, which is also what an `already_launched` claim leaves, because it writes no file). Look at the claim session and at `.dev/issues/<N>/launch-result.json`; never run the claim again before you know it did not launch. |
+| `claim-result` (session-gov.sh:179) | `FAIL claim-result <why>`: the result file is a symlink, is not a JSON object, or has no string `status`. Repair the cause; do not delete the file. |
+| `reason=terminal-handle-missing` (session-gov.sh:215) | `PENDING`: the file's `terminal` is empty or not a plain handle. The full record is in the run log named on the line; take the handle by hand and run `driver.sh adopt`. |
 | `NEEDS_INPUT claim` (setup-github.sh:100) | Same as `NEEDS_INPUT`. |
 | `BLOCKED login-isolated-home` (setup.sh:170) and `exit 3` (setup.sh:171) | Stop; the owner decides. Do not copy credential files. |
 
@@ -890,7 +893,7 @@ Checked against `--help` output (5):
 
 Checked by reading the source (8):
 
-18. The claim's result fields, including `release` and the two `layers` lines (`refs/claim.md` lines 113-130).
+18. The claim's result fields, including `release` and the two `layers` lines, are saved to `launch-result.json` and read from it by the scripts (`refs/claim.md` lines 113-130 and 125, `write_launch_result` in `orca_worktree.py`; live behaviour is UNVERIFIED, see item 15 of the not-verified list).
 19. The preflight runs before the pending record is published, so a refusal leaves no launch record (`orca_worktree.py` lines 1212-1237).
 20. The two refusal texts: "cannot be read as JSON" (line 821) and "sets disableAllHooks to true, so no hook runs" (line 907) of `orca_worktree.py`.
 21. The session file is a hard link of the record (`refs/claim.md` line 119).
@@ -899,7 +902,7 @@ Checked by reading the source (8):
 24. `--submit` is valid only with `--pipeline full` (`commands/issue.md`).
 25. The gate sentence quoted in section 3.2 (`refs/claim.md` line 130).
 
-### Not verified (14)
+### Not verified (15)
 
 Each is marked UNVERIFIED where it is used, with the way to confirm it:
 
@@ -917,5 +920,6 @@ Each is marked UNVERIFIED where it is used, with the way to confirm it:
 12. The expected `identify` result for a job detached with `setsid`. The design states none (section 2.2.1, step 4).
 13. Whether `/clear` gives a new `session_id` and how the binding follows it (design U18, section 2.2.1, step 4).
 14. Whether entries left in `jobs/` or `requests/` can safely be removed by hand (section 5.2).
+15. Whether a live claim from the main checkout leaves `.dev/issues/<N>/launch-result.json` there, and whether its `terminal`, `layers` and `release` equal what the session prints (sections 2.2.1 and 4.2). To confirm: the owner-approved live OB-H2 rerun on T1 to T4.
 
 The design's open questions U7, U8, U20 and U27 are answered by the observations themselves. They are not commands, and they are not counted here.

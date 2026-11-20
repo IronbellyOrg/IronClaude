@@ -111,76 +111,109 @@ wait_gsid() {  # wait_gsid <label>: the governed session id from the probe log
   done
 }
 
-# --- the claim and its printed result ---------------------------------------------
-# CLAIM_TXT is the claim session's screen with spaces, newlines and backslashes
-# removed, so wrapped JSON still matches; CLAIM_LAST is the text after the newest
-# "status" key (the stale results of earlier claims stay above it).
+# --- the claim and its result file ------------------------------------------------
+# The claim saves its result as $MAIN/.dev/issues/<N>/launch-result.json (issue 691, Part A). Terminal, layers
+# and release text are read from that file with jq, never from the claim session's screen. The screen is read
+# for two jobs only: a vanished claim terminal and a login or permission dialog.
+CLAIM_START=0; CLAIM_FILE=""; CLAIM_STATE=""; CLAIM_WHY=""
+CLAIM_JSON=""; CLAIM_STATUS=""; CLAIM_WARNING=""; CLAIM_DETAIL=""; CLAIM_TERMINAL=""; CLAIM_RELEASE=""
+claim_file() {  # claim_file <issue number>: the result file of that claim, in the main checkout
+  [ -n "${MAIN:-}" ] || die claim-result "MAIN is not set"
+  printf '%s/.dev/issues/%s/launch-result.json' "$MAIN" "$1"
+}
+claim_result_state() {  # claim_result_state <n>: prints missing, stale, unreadable or ok; also sets CLAIM_STATE, CLAIM_FILE, CLAIM_WHY
+  local mt la le
+  [ -n "${MAIN:-}" ] || die claim-result "MAIN is not set"   # not inside the $(...) below, where die would only end the subshell
+  CLAIM_FILE=$(claim_file "$1"); CLAIM_WHY=""
+  if [ -L "$CLAIM_FILE" ]; then CLAIM_STATE=unreadable; CLAIM_WHY="$CLAIM_FILE is a symlink"
+  elif [ ! -e "$CLAIM_FILE" ]; then CLAIM_STATE=missing; CLAIM_WHY="$CLAIM_FILE does not exist"
+  elif [ ! -f "$CLAIM_FILE" ]; then CLAIM_STATE=unreadable; CLAIM_WHY="$CLAIM_FILE is not a regular file"
+  else
+    mt=$(stat -c %Y "$CLAIM_FILE" 2>/dev/null || echo 0)
+    la=$(command timeout "$T" jq -r 'if (.launched_at | type) == "string" then .launched_at else empty end' "$CLAIM_FILE" 2>/dev/null)
+    le=""; [ -z "$la" ] || le=$(date -u -d "$la" +%s 2>/dev/null)
+    if [ "$mt" -lt "$CLAIM_START" ]; then CLAIM_STATE=stale; CLAIM_WHY="mtime $mt is older than the claim start $CLAIM_START"
+    elif ! command timeout "$T" jq -e 'type == "object" and (.status | type == "string")' "$CLAIM_FILE" >/dev/null 2>&1; then
+      CLAIM_STATE=unreadable; CLAIM_WHY="$CLAIM_FILE is not a JSON object with a string status"
+    elif [ -n "$le" ] && [ "$le" -lt "$CLAIM_START" ]; then CLAIM_STATE=stale; CLAIM_WHY="launched_at $la is older than the claim start $CLAIM_START"
+    else CLAIM_STATE=ok
+    fi
+  fi
+  printf '%s' "$CLAIM_STATE"
+}
+load_claim_result() {  # load_claim_result: fill the CLAIM_* globals from the ok file named by CLAIM_FILE (jq only)
+  CLAIM_STATUS=$(command timeout "$T" jq -r '.status' "$CLAIM_FILE")
+  CLAIM_WARNING=$(command timeout "$T" jq -r '.warning // empty' "$CLAIM_FILE")
+  CLAIM_DETAIL=$(command timeout "$T" jq -r '.detail // empty' "$CLAIM_FILE")
+  CLAIM_TERMINAL=$(command timeout "$T" jq -r '.terminal // empty' "$CLAIM_FILE")
+  CLAIM_RELEASE=$(command timeout "$T" jq -r '.release // empty' "$CLAIM_FILE")
+  CLAIM_JSON=$(command timeout "$T" jq -c . "$CLAIM_FILE")
+}
 claim_send() {  # claim_send <issue number> <flags>
   # a claim terminal that no longer exists shows an empty screen for ever: stop at once, send nothing
   local cs; cs=$(bash "$here/driver.sh" screen claim 2>/dev/null | tail -1)
   if [ -z "$cs" ] || [ "$(command timeout "$T" jq -r '(.result.terminal.tail // []) | length' "$cs" 2>/dev/null || echo 0)" = 0 ]; then
     pending "reason=claim-terminal-gone screen=${cs:-none}"
   fi
-  # A clean screen first, so the result read below is this claim's. Then type and return at once: the driver's own turn
-  # wait has no probe log for the claim session and can hold the full 900 s after the claim is done (seen live).
+  # A clean screen first. Then type and return at once: the driver's own turn wait has no probe log for the claim
+  # session and can hold the full 900 s after the claim is done (seen live). CLAIM_START is taken after the /clear:
+  # a result file older than it belongs to an earlier claim and counts as missing.
   local i raw fo
   if [ "${OB_CLAIM_POLLS:-180}" -ne 0 ]; then bash "$here/driver.sh" send claim "/clear" claim 60 >/dev/null 2>&1; fi
+  CLAIM_START=$(date +%s)
   SN=$((SN+1))
   fo=$(bash "$here/driver.sh" fire claim "/sc:issue --claim $1 $2" 2>&1) || die "send-$SN" "claim send failed: $(printf '%s' "$fo" | tail -1)"
   rec "send-$SN" OK "claim claim /sc:issue --claim $1 $2"
   for i in $(seq 1 "${OB_CLAIM_POLLS:-180}"); do
+    claim_result_state "$1" >/dev/null
+    [ "$CLAIM_STATE" = ok ] && break
     raw=$(screen_text claim)
-    if printf '%s' "$raw" | grep -qE 'launch_status:|"status"' && ! printf '%s' "$raw" | grep -q 'esc to interrupt'; then break; fi
     if printf '%s' "$raw" | grep -qE 'Do you want|/login|Not logged in'; then pending "step=$SN reason=needs-input name=claim"; fi
     command sleep "${OB_CLAIM_SLEEP_S:-5}"
   done
-  CLAIM_SCREEN=$(bash "$here/driver.sh" screen claim)
-  raw=$(command timeout "$T" jq -r '.result.terminal.tail // [] | join("\n")' "$CLAIM_SCREEN" 2>/dev/null)
-  CLAIM_TXT=$(printf '%s' "$raw" | tr -d ' \t\r\n\\')
-  case "$CLAIM_TXT" in
-    *'"status":"'*) CLAIM_LAST=${CLAIM_TXT##*\"status\":\"}; CLAIM_STATUS=${CLAIM_LAST%%\"*} ;;
-    *launch_status:*)   # the claim prints "launch_status: <value>" lines (seen live); the text after the newest issue_number line is this claim's
-      CLAIM_STATUS=$(printf '%s\n' "$raw" | grep -oE 'launch_status: *[a-z_]+' | tail -1 | sed 's/.*: *//')
-      CLAIM_LAST=${CLAIM_TXT##*issue_number:}; [ -n "$CLAIM_LAST" ] || CLAIM_LAST=$CLAIM_TXT ;;
-    *) pending "reason=claim-unreadable screen=$CLAIM_SCREEN" ;;
+  claim_result_state "$1" >/dev/null   # once more after the loop, so OB_CLAIM_POLLS=0 still reads the file once
+  case "$CLAIM_STATE" in
+    ok) load_claim_result ;;
+    missing) pending "reason=claim-result-missing file=$CLAIM_FILE" ;;
+    stale) pending "reason=claim-result-stale file=$CLAIM_FILE ($CLAIM_WHY; a claim that is already_launched writes no new result)" ;;
+    *) die claim-result "$CLAIM_WHY" ;;
   esac
 }
-claim_has() {  # claim_has <text>: the newest claim result contains that text
-  local n; n=$(printf '%s' "$1" | tr -d ' ')
-  case "$CLAIM_LAST" in *"$n"*) return 0 ;; esac
-  return 1
+claim_layer_has() {  # claim_layer_has <text>: some element of .layers in the result file starts with that text
+  command timeout "$T" jq -e --arg s "$1" '(.layers // []) | any(.[]; startswith($s))' "$CLAIM_FILE" >/dev/null 2>&1
+}
+claim_detail_has() {  # claim_detail_has <text>: .detail in the result file contains that text
+  command timeout "$T" jq -e --arg s "$1" '(.detail // "") | contains($s)' "$CLAIM_FILE" >/dev/null 2>&1
 }
 pend_count() { ls -A "$HOME/.claude/state/launch-level/pending" 2>/dev/null | wc -l | tr -d ' '; }
 
 launch_real() {  # launch_real <T1..T4> <flags> <session name> [first-stop wait secs; absent or 0 = do not wait]
   local t=$1 n h label=h2-$1
   need n "$t"
-  if [ -n "$(state_get "RESUME_LAUNCH_$t" 2>/dev/null)" ] && [ -s "$OB/claim-$t.txt" ]; then
-    # the real launch already happened in an earlier run of this script (its claim text was saved then): do not claim again
-    CLAIM_LAST=$(cat "$OB/claim-$t.txt"); CLAIM_STATUS=launched; CLAIM_SCREEN=none
-    rec "$sub-resume" OK "launch of $t reused from the saved claim text $OB/claim-$t.txt"
+  if [ -n "$(state_get "RESUME_LAUNCH_$t" 2>/dev/null)" ] && [ -s "$OB/claim-$t.json" ]; then
+    # the real launch already happened in an earlier run of this script (its result file was saved then, and checked when it was saved): do not claim again
+    CLAIM_FILE=$OB/claim-$t.json; load_claim_result; CLAIM_STATUS=launched
+    rec "$sub-resume" OK "launch of $t reused from the saved result file $OB/claim-$t.json"
+  elif [ -n "$(state_get "RESUME_LAUNCH_$t" 2>/dev/null)" ] && [ -e "$OB/claim-$t.txt" ]; then
+    die resume "an earlier run launched $t and saved claim text only ($OB/claim-$t.txt), not a result file; do not claim again (a repeat is already_launched and writes no result file)"
   else
     claim_send "$n" "$2"
-    [ "$CLAIM_STATUS" = launched ] || die "$sub-claim" "status=$CLAIM_STATUS screen=$CLAIM_SCREEN"
-    printf '%s\n' "$CLAIM_LAST" > "$OB/claim-$t.txt"
+    [ "$CLAIM_STATUS" = launched ] || die "$sub-claim" "status=$CLAIM_STATUS warning=$CLAIM_WARNING file=$CLAIM_FILE"
+    cp -- "$CLAIM_FILE" "$OB/claim-$t.json"
     state_set "RESUME_LAUNCH_$t" "$(date -u +%FT%TZ)"
   fi
-  claim_has 'L1 guard: effective' && rec "$sub-layers" OK "L1 guard: effective" || rec "$sub-layers" FAIL "no 'L1 guard: effective' line (the claim session printed its own summary; enforcement_hook line: $(printf '%s' "$CLAIM_LAST" | grep -oE 'enforcement_hook:[a-z]+' | head -1))"
-  case "$CLAIM_LAST" in
-    *'"terminal":"'*) h=${CLAIM_LAST#*\"terminal\":\"}; h=${h%%\"*} ;;
-    *) h="" ;;
+  if claim_layer_has 'L1 guard: effective'; then
+    rec "$sub-layers" OK "L1 guard: effective (read from launch-result.json)"
+  else
+    rec "$sub-layers" FAIL "no 'L1 guard: effective' layer in $CLAIM_FILE (enforcement_hook=$(command timeout "$T" jq -r '.enforcement_hook // empty' "$CLAIM_FILE" 2>/dev/null); layers: $(command timeout "$T" jq -r '(.layers // []) | join(" | ")' "$CLAIM_FILE" 2>/dev/null))"
+  fi
+  h=$CLAIM_TERMINAL
+  case "$h" in
+    ''|*[!0-9A-Za-z_-]*)
+      runlog "claim $t: no usable terminal handle in the result file; record: $CLAIM_JSON"
+      runlog "claim $t: launch record: $(command timeout "$T" jq -c '.launch // "none"' "${MAIN:-.}/.dev/issues/$n/worktree.json" 2>&1)"
+      pending "reason=terminal-handle-missing file=$CLAIM_FILE (full record in $PKG_ART/t10-run-log.md)" ;;
   esac
-  if [ -z "$h" ]; then
-    # the real claim output has no terminal key: take the one Orca terminal of this issue's worktree whose title is the launch marker
-    h=$(command timeout "$T" orca terminal list --json 2>/dev/null | command timeout "$T" jq -r --arg wt "$(state_get "WT_$t")" \
-        '[.result.terminals[] | select(.worktreePath == $wt and ((.title // "") | test("sc-launch")))] | if length == 1 then .[0].handle else empty end' 2>/dev/null)
-    [ -z "$h" ] || rec "$sub-terminal" OK "terminal $h found by worktree path and launch title (the claim output has no terminal key)"
-  fi
-  if [ -z "$h" ]; then
-    runlog "claim $t: no terminal key in the claim output; record: $CLAIM_LAST"
-    runlog "claim $t: launch record: $(command timeout "$T" jq -c '.launch // "none"' "${MAIN:-.}/.dev/issues/$n/worktree.json" 2>&1)"
-    pending "reason=terminal-handle-missing screen=$CLAIM_SCREEN (full record in $PKG_ART/t10-run-log.md)"
-  fi
   bash "$here/driver.sh" adopt "$3" "$h" >/dev/null
   GSID=$(wait_gsid "$label") || { rec "$sub-probe-loaded" FAIL "no session_id in $label.jsonl"; exit 1; }
   state_set "GSID_$t" "$GSID"
@@ -189,18 +222,17 @@ launch_real() {  # launch_real <T1..T4> <flags> <session name> [first-stop wait 
   [ "${4:-0}" = 0 ] || wait_first_stop "$label" "$4" || pending "reason=no-first-stop label=$label"
 }
 
-# --- release: the claim's printed rm, only for this run's GSID --------------------
-release_session() {  # release_session <gsid> <claim text>
-  local gsid=$1 m p1 p2
+# --- release: the rm in the claim's launch-result.json, only for this run's GSID -----
+release_session() {  # release_session <gsid> <saved claim result file, $OB/claim-T<n>.json>
+  local gsid=$1 rel p1 p2
   case "$gsid" in ''|*[!0-9A-Za-z_-]*) die release "refusing an odd session id" ;; esac
-  m=$(printf '%s' "$2" | grep -oE 'rm"[^"]+""[^"]+"' | tail -1)
-  if [ -n "$m" ]; then
-    p1=$(printf '%s' "$m" | sed -E 's/^rm"([^"]+)""([^"]+)"$/\1/')
-    p2=$(printf '%s' "$m" | sed -E 's/^rm"([^"]+)""([^"]+)"$/\2/')
-    p1=${p1//<sessionid>/$gsid}; p2=${p2//<sessionid>/$gsid}
+  rel=$(command timeout "$T" jq -r '.release // empty' "$2" 2>/dev/null)
+  if [[ $rel =~ rm\ \"([^\"]+)\"\ \"([^\"]+)\" ]]; then
+    p1=${BASH_REMATCH[1]}; p2=${BASH_REMATCH[2]}
+    p1=${p1//<session id>/$gsid}; p2=${p2//<session id>/$gsid}   # the real text has the placeholder with a space (orca_worktree.py)
   else
-    # the claim session paraphrased the release text (no printed rm line, seen live): the same two files, named from this run's GSID
-    rec release-text FAIL "the claim output has no printed rm line; releasing this run's own two session files (UNVERIFIED claim text)"
+    # the result's release field has no rm pair: the same two files, named from this run's GSID
+    rec release-text FAIL "the result file's release field has no rm pair; releasing this run's own two session files (UNVERIFIED release text)"
     p1=$SESS/$gsid; p2=$SESS/$gsid.ok
   fi
   if [ "$p1" != "$SESS/$gsid" ] || [ "$p2" != "$SESS/$gsid.ok" ]; then
@@ -240,10 +272,10 @@ preflight_refusal() {  # preflight_refusal <tag> <needle>: runbook lines 546-552
   local now sig rec2
   claim_send "$N1" "--pipeline worktree"
   case "$CLAIM_STATUS" in launched|already_launched) die "b-$1" "a refused launch started an agent (status=$CLAIM_STATUS)" ;; esac
-  if [ "$CLAIM_STATUS" = failed ] && claim_has W-ENFORCEMENT-ABSENT && claim_has "$2"; then
+  if [ "$CLAIM_STATUS" = failed ] && [ "$CLAIM_WARNING" = W-ENFORCEMENT-ABSENT ] && claim_detail_has "$2"; then
     rec "b-$1-claim" OK "failed W-ENFORCEMENT-ABSENT"
   else
-    rec "b-$1-claim" FAIL "status=$CLAIM_STATUS screen=$CLAIM_SCREEN"
+    rec "b-$1-claim" FAIL "status=$CLAIM_STATUS warning=$CLAIM_WARNING file=$CLAIM_FILE"
   fi
   now=$(pend_count)
   if [ "$now" = "$PEND0" ]; then rec "b-$1-pending" OK "count $now"; else rec "b-$1-pending" FAIL "before=$PEND0 after=$now"; fi
@@ -262,7 +294,7 @@ ident() {  # ident <id> <pgrep pattern>: record what identify prints for that pr
 
 inode_record() {  # runbook step 2 (lines 576-580): the session file's inode against the number in the claim's release text
   local want have f=$SESS/$GSID
-  want=$(printf '%s' "$CLAIM_LAST" | grep -oE 'inodenumber[0-9]+' | head -1 | tr -dc '0-9')
+  want=$(printf '%s' "$CLAIM_RELEASE" | grep -oE 'inode number [0-9]+' | head -1 | tr -dc '0-9')
   if [ ! -e "$f" ]; then rec b-inode FAIL "no session file named $GSID in $SESS"; return 0; fi
   have=$(stat -c '%i %h' "$f")
   if [ -z "$want" ]; then
@@ -327,7 +359,7 @@ run_b() {
   n=$(command timeout "$T" jq -r 'select(.session_id) | .session_id' "$L.jsonl" | uniq | wc -l | tr -d ' ')
   rec b-session-ids OK "$n distinct id runs in the log (a second id after /clear is U18)"
   # release mid step 4 (runbook 635), then the final identify of sleep 241
-  release_session "$GSID" "$(cat "$OB/claim-T1.txt")"
+  release_session "$GSID" "$OB/claim-T1.json"
   ident b-id-241-released 'sleep 241'
   case "$IDENT_OUT" in
     no-process) : ;;
@@ -341,8 +373,8 @@ run_b() {
 run_c() {
   local s path cmd
   need N2 T2; need WT2 WT_T2
-  launch_real T2 "--pipeline worktree" gC "${OB_INITIAL_WAIT_S:-900}"
   MAIN=${OB_MAIN:-$(main_checkout)}
+  launch_real T2 "--pipeline worktree" gC "${OB_INITIAL_WAIT_S:-900}"
   path=$(plan_path gC "$WT2")
   [ -n "$path" ] || pending "reason=plan-path-not-on-screen name=gC"
   cmd=$(cat "$P/g07-c-implement.txt")
@@ -350,7 +382,7 @@ run_c() {
   gsend gC h2-T2 "$cmd" 1800
   ok_file_check "$GSID" c-implement-ok
   gsend gC h2-T2 "$(cat "$P/g02-commit.txt")" 600
-  release_session "$GSID" "$(cat "$OB/claim-T2.txt")"
+  release_session "$GSID" "$OB/claim-T2.json"
   printf 'SESSION_C_DONE\n'
 }
 
@@ -379,7 +411,7 @@ run_d() {
   done
   rec d-final-status OK "agent ended with git status --short"
   gsend gD h2-T3 "$(cat "$P/g02-commit.txt")" 600
-  release_session "$GSID" "$(cat "$OB/claim-T3.txt")"
+  release_session "$GSID" "$OB/claim-T3.json"
   printf 'SESSION_D_DONE\n'
 }
 
@@ -464,7 +496,7 @@ run_e() {
   gsend gE h2-T4 "$(cat "$P/g09-e-merge.txt")" 600
   restore_push
   rec e-versions OK "claude=$(command timeout "$T" claude --version 2>&1 | head -1) orca=$(command timeout "$T" orca --version 2>&1 | head -1) sha=$(command timeout "$T" sha256sum "$HOME/.claude/settings.json" "$HOME/.claude/hooks/launch-level-guard.sh" 2>&1 | tr '\n' ' ')"
-  release_session "$GSID" "$(cat "$OB/claim-T4.txt")"
+  release_session "$GSID" "$OB/claim-T4.json"
   printf 'SESSION_E_DONE\n'
 }
 
