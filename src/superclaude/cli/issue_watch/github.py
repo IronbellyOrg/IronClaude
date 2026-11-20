@@ -49,8 +49,8 @@ PAGE_CAP = 5
 CALL_CAP = 35
 """Most ``gh`` calls one cycle may make (NFR-009)."""
 
-RESERVED_CALLS = 3
-"""Calls of ``CALL_CAP`` kept for the FR-011 re-read."""
+RESERVED_CALLS = 4
+"""Calls of ``CALL_CAP`` kept for the FR-011 re-read: issue, label events, ``Approved`` field events, Project items."""
 
 # --- jq projections (design 8.1, G3, G4, G7) --------------------------------
 

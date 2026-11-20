@@ -99,6 +99,18 @@ def _projects(value: object) -> dict[str, str]:
     return dict(value)
 
 
+def _fixed(raw: dict, key: str, built_in: str) -> str:
+    """The watcher's approval reads use the built-in field and option, so another value is refused."""
+    if key not in raw:
+        return built_in
+    value = _name(raw[key], key)
+    if value != built_in:
+        raise _invalid(
+            f"{key} cannot be changed: the watcher reads only the built-in value"
+        )
+    return value
+
+
 def load_defaults(config_dir: str | Path = DEFAULT_CONFIG_DIR) -> Defaults:
     """Read ``issue-watch-defaults.json`` from ``config_dir``; the built-ins when it is absent.
 
@@ -136,12 +148,8 @@ def load_defaults(config_dir: str | Path = DEFAULT_CONFIG_DIR) -> Defaults:
         trigger_label=_name(raw["trigger_label"], "trigger_label")
         if "trigger_label" in raw
         else base.trigger_label,
-        approval_field=_name(raw["approval_field"], "approval_field")
-        if "approval_field" in raw
-        else base.approval_field,
-        approval_option=_name(raw["approval_option"], "approval_option")
-        if "approval_option" in raw
-        else base.approval_option,
+        approval_field=_fixed(raw, "approval_field", base.approval_field),
+        approval_option=_fixed(raw, "approval_option", base.approval_option),
         allowed_owners=_logins(raw["allowed_owners"], "allowed_owners", _OWNER)
         if "allowed_owners" in raw
         else base.allowed_owners,

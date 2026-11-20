@@ -136,6 +136,9 @@ def result_marker(issue: int, run_id: int) -> str:
 class _Summary:
     artifacts: tuple[str, ...]
     pull_request: str | None
+    outcome: str | None = (
+        None  # the file's own outcome word; None when no file was given
+    )
 
 
 def _read_summary(path: object) -> _Summary | None:
@@ -149,6 +152,7 @@ def _read_summary(path: object) -> _Summary | None:
     keys = [line.partition(":")[0] for line in lines]
     if keys != ["outcome", "artifacts", "pull_request"]:
         return None
+    file_outcome = lines[0].partition(":")[2].strip()
     artifacts_text = lines[1].partition(":")[2].strip()
     artifacts = (
         tuple(a.strip() for a in artifacts_text.split(",")) if artifacts_text else ()
@@ -159,9 +163,9 @@ def _read_summary(path: object) -> _Summary | None:
         return None
     pr = lines[2].partition(":")[2].strip()
     if pr == "none":
-        return _Summary(artifacts, None)
+        return _Summary(artifacts, None, file_outcome)
     if _PULL_REQUEST.fullmatch(pr):
-        return _Summary(artifacts, pr)
+        return _Summary(artifacts, pr, file_outcome)
     return None
 
 
@@ -356,6 +360,9 @@ def complete(
     assert isinstance(project_id, str) and isinstance(run_id, int)
     summary = _read_summary(summary_path)
     if summary is None:
+        return "refused:bad_summary"
+    # a failed result file must not be reported as success: the two outcome words must agree
+    if summary.outcome is not None and summary.outcome != outcome:
         return "refused:bad_summary"
     owner, name = repo.split("/")
     marker = result_marker(issue, run_id)

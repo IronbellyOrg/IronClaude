@@ -348,6 +348,16 @@ def test_the_comment_holds_only_the_outcome_artifacts_and_pull_request(
     assert bare.posts[0].splitlines()[2:] == ["Artifacts: none", "Pull request: none"]
 
 
+def test_a_result_file_outcome_that_differs_from_the_outcome_argument_is_refused(
+    tmp_path: Path,
+) -> None:
+    summary = tmp_path / "result.md"
+    summary.write_text("outcome: failed\nartifacts: none\npull_request: none\n")
+    world = World(node(status="Plan"))
+    assert call(world, "succeeded", summary=str(summary)) == "refused:bad_summary"
+    assert world.posts == [] and world.mutations == []
+
+
 @pytest.mark.parametrize(
     "text",
     [

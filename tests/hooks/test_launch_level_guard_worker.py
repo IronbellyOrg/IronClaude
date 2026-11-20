@@ -398,5 +398,8 @@ def test_stage_status_stays_unclassified_for_a_bound_worker(tmp_path):
     """`stage-status` is a read; the guard does not classify it (plan Task 13)."""
     _bind_worker(tmp_path)
     assert _allowed(
-        _run(_bash("superclaude issue-pipeline stage-status 12 --repo o/r --json"), tmp_path)
+        _run(
+            _bash("superclaude issue-pipeline stage-status 12 --repo o/r --json"),
+            tmp_path,
+        )
     )

@@ -69,6 +69,8 @@ def test_a_key_the_file_leaves_out_takes_its_built_in_value(tmp_path: Path) -> N
         {"trigger_label": "x" * 51},
         {"trigger_label": 3},
         {"approval_field": "two\nlines"},
+        {"approval_field": "Other"},  # the approval reads use only the built-in field
+        {"approval_option": "Maybe"},  # and the built-in option
         {"approval_option": None},
         {"allowed_owners": ["bad owner"]},
         {"allowed_owners": []},

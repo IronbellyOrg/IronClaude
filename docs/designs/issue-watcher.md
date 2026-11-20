@@ -326,11 +326,11 @@ cron     cli        cycle          record/Store     github(gh)        launch(git
  |        |            |--discover()--------------------->| gh issue list (call 2)           |
  |        |            | order candidates (considered map), local checks      |              |
  |        |            |  per candidate (<= 10):          |                   |              |
- |        |            |--events/comments/edits/items---->| GET pages (cap 35 incl. 3 reserved)
+ |        |            |--events/comments/edits/items---->| GET pages (cap 35 incl. 4 reserved)
  |        |            |  first eligible candidate:       |                   |              |
  |        |            |--find_orca() (cached)------------------------------->| skills list  |
  |        |            |--build_claim_prompt(n)           |                   |              |
- |        |            |--re-read issue/events/items----->| 3 reserved calls  |              |
+ |        |            |--re-read issue/events/items----->| 4 reserved calls  |              |
  |        |            |--day_cap_count(now)------------->|                   |              |
  |        |            |--disabled()---->|                |                   |              |
  |        |            |--check_origin() (not cached)------------------------>| git -C       |
@@ -376,9 +376,9 @@ Dry-run differences: step 1 ignores `enabled`; steps 7, 12 and 13 compute but do
 | Owner pre-filter | n | n (discovery already filters by `--assignee`; `is_intended_owner` re-checks) | 0 calls |
 | Candidate ordering | n | min(n, 10) | `max_candidates` 10 |
 | Local checks | k | k' (minus `already_dispatched`, `in_backoff`, `day_cap`) | 0 calls |
-| GitHub checks | k' | eligible set E, examined until the first eligible | 32 calls (35 minus 3 reserved) |
+| GitHub checks | k' | eligible set E, examined until the first eligible | 31 calls (35 minus 4 reserved) |
 | Launch | first of E | 0 or 1 | `max_launches_per_cycle` 1; day cap 6 per rolling 24 h |
-| Re-read | 1 | 0 or 1 | 3 reserved calls |
+| Re-read | 1 | 0 or 1 | 4 reserved calls |
 
 Calls per cycle:
 

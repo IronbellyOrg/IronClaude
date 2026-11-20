@@ -1410,30 +1410,30 @@ def test_user_timeout_for_none_makes_no_runner_call__fr029_nfr008(fake_runner) -
 # --- CallBudget (NFR-009) -----------------------------------------------------------
 
 
-def test_call_budget_allows_32_ordinary_calls_and_refuses_the_33rd__nfr009() -> None:
+def test_call_budget_allows_31_ordinary_calls_and_refuses_the_32nd__nfr009() -> None:
     budget = github.CallBudget()
-    assert all(budget.spend() for _ in range(32))
+    assert all(budget.spend() for _ in range(31))
     assert budget.spend() is False
-    assert budget.calls == 32
-    assert budget.total == 32
+    assert budget.calls == 31
+    assert budget.total == 31
 
 
-def test_call_budget_allows_3_reserved_calls_up_to_35__nfr009() -> None:
+def test_call_budget_allows_4_reserved_calls_up_to_35__nfr009() -> None:
     budget = github.CallBudget()
-    for _ in range(32):
+    for _ in range(31):
         assert budget.spend()
-    assert [budget.spend(reserved=True) for _ in range(4)] == [True] * 3 + [False]
+    assert [budget.spend(reserved=True) for _ in range(5)] == [True] * 4 + [False]
     assert budget.calls == 35
     assert budget.spend() is False
     assert github.CALL_CAP == 35
-    assert github.RESERVED_CALLS == 3
+    assert github.RESERVED_CALLS == 4
 
 
 def test_call_budget_reserved_calls_may_come_first__nfr009() -> None:
     budget = github.CallBudget()
     assert budget.spend(reserved=True)
     assert budget.calls == 1
-    assert sum(budget.spend() for _ in range(40)) == 31
+    assert sum(budget.spend() for _ in range(40)) == 30
 
 
 def test_call_budget_shared_calls_count_in_total_not_against_the_cap__nfr009() -> None:
@@ -1441,9 +1441,9 @@ def test_call_budget_shared_calls_count_in_total_not_against_the_cap__nfr009() -
     budget.spend_shared()
     budget.spend_shared()
     assert (budget.calls, budget.shared_calls, budget.total) == (0, 2, 2)
-    assert all(budget.spend() for _ in range(32))
+    assert all(budget.spend() for _ in range(31))
     assert budget.spend() is False
-    assert all(budget.spend(reserved=True) for _ in range(3))
+    assert all(budget.spend(reserved=True) for _ in range(4))
     assert (budget.calls, budget.shared_calls, budget.total) == (35, 2, 37)
 
 

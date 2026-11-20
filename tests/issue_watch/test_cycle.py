@@ -3990,7 +3990,7 @@ def test_s1_case_a_fifteen_skipping_issues_examine_k_then_the_rest__fr016_df50(
         *[(n, "project_mismatch") for n in range(1, k + 1)],
         *[(n, "budget_exhausted") for n in range(7, 11)],
     ]
-    assert _the_cycle_line(lines1)["gh_calls"] == 2 + 32
+    assert _the_cycle_line(lines1)["gh_calls"] == 2 + 31
     t0 = CYCLE_NOW
     stored = tmp_state.load()
     assert dict(stored.considered) == {n: t0 for n in range(1, 7)}  # 7 to 10 unstamped
@@ -4698,10 +4698,10 @@ def _per_issue_calls(world) -> int:
     return len([t for t in _trace(world) if t not in shared])
 
 
-def test_ten_skipping_candidates_stop_at_32_calls_and_leave_two_unread__nfr009(
+def test_ten_skipping_candidates_stop_at_31_calls_and_leave_three_unread__nfr009(
     tmp_path, tmp_state, gh_world
 ):
-    assert (github.CALL_CAP, github.RESERVED_CALLS) == (35, 3)
+    assert (github.CALL_CAP, github.RESERVED_CALLS) == (35, 4)
     world = gh_world()
     world.issues_from(range(1, 11), items=[{"status": "In progress"}])  # r = 5 (R35)
     res, deps = _run(tmp_path, tmp_state, world)
@@ -4710,17 +4710,17 @@ def test_ten_skipping_candidates_stop_at_32_calls_and_leave_two_unread__nfr009(
         *[(n, "project_mismatch") for n in range(1, 7)],
         *[(n, "budget_exhausted") for n in range(7, 11)],
     ]
-    assert _per_issue_calls(world) + _approval_calls(world) == 32  # cap minus 3
-    assert _the_cycle_line(lines)["gh_calls"] == 2 + 32
+    assert _per_issue_calls(world) + _approval_calls(world) == 31  # cap minus 4
+    assert _the_cycle_line(lines)["gh_calls"] == 2 + 31
     for n in range(1, 7):
         assert _reads(world, n) == _FULL_READS
-    assert _reads(world, 7) == ["comments", "events"]  # the third read is refused
+    assert _reads(world, 7) == ["comments"]  # the second read is refused
     assert _reads(world, 8) == [] and _reads(world, 9) == []
     assert dict(tmp_state.load().considered) == {n: CYCLE_NOW for n in range(1, 7)}
     assert deps.launcher.calls == []
 
 
-def test_the_three_reserved_calls_remain_for_the_re_read__nfr009(
+def test_the_four_reserved_calls_remain_for_the_re_read__nfr009(
     tmp_path, tmp_state, gh_world
 ):
     world = gh_world()
@@ -4733,7 +4733,7 @@ def test_the_three_reserved_calls_remain_for_the_re_read__nfr009(
         *[(n, "project_mismatch") for n in range(1, 6)],
         (6, "launched"),
     ]
-    # 25 for the five skips + 5 for the checks of 6 = 30 of the 32 allowed, then the
+    # 25 for the five skips + 5 for the checks of 6 = 30 of the 31 allowed, then the
     # reserved calls (re-read, events, field events, items: 4 here) finish the cycle.
     assert _reads(world, 6) == [*_FULL_READS, "reread", "events", "items"]
     assert _per_issue_calls(world) + _approval_calls(world) == 34

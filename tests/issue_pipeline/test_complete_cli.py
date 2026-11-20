@@ -104,7 +104,7 @@ def test_the_summary_file_is_read_and_no_issue_text_reaches_the_output(
     monkeypatch, tmp_path: Path
 ) -> None:
     summary = tmp_path / "result.md"
-    summary.write_text("outcome: failed\nartifacts: a.md\npull_request: none\n")
+    summary.write_text("outcome: succeeded\nartifacts: a.md\npull_request: none\n")
     world = World(node(status="Plan"))
     world.other_comment("someone", f"{CANARY} a hostile comment")
     result = invoke(world, monkeypatch, "--summary", str(summary))

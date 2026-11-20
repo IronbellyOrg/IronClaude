@@ -48,8 +48,9 @@ _ID_MAX = 10**20 - 1
 
 PROJECTS_QUERY = """query($owner: String!, $name: String!) {
   repository(owner: $owner, name: $name) {
-    projectsV2(first: 10) {
+    projectsV2(first: 100) {
       nodes { id number }
+      pageInfo { hasNextPage }
     }
   }
 }"""
@@ -154,9 +155,12 @@ def _read_id(runner: Runner, argv: list[str]) -> int | None:
 def _projects(runner: Runner, repo: str) -> list[str] | None:
     data = _json(runner.run(argv_projects(repo), TIMEOUT_S))
     try:
-        nodes = data["data"]["repository"]["projectsV2"]["nodes"]  # type: ignore[index]
-        ids = [n["id"] for n in nodes]
-    except (KeyError, TypeError):
+        connection = data["data"]["repository"]["projectsV2"]  # type: ignore[index]
+        ids = [n["id"] for n in connection["nodes"]]
+        more = connection.get("pageInfo", {}).get("hasNextPage")
+    except (KeyError, TypeError, AttributeError):
+        return None
+    if more:  # shortcut: only the first 100 Projects are read, so more than that is a failed read
         return None
     if not all(
         isinstance(i, str) and re.fullmatch(r"PVT_[A-Za-z0-9_-]{1,64}", i) for i in ids

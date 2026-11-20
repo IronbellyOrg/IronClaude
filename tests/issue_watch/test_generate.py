@@ -24,9 +24,10 @@ def _record(name: str = "IronClaude", slug: str = "IronbellyOrg/IronClaude"):
     return repos.OrcaRepo("id-1", name, f"/home/u/workspaces/{name}", slug)
 
 
-def _projects_reply(*ids: str) -> str:
+def _projects_reply(*ids: str, more: bool = False) -> str:
     nodes = [{"id": i, "number": n} for n, i in enumerate(ids, 1)]
-    return json.dumps({"data": {"repository": {"projectsV2": {"nodes": nodes}}}})
+    connection = {"nodes": nodes, "pageInfo": {"hasNextPage": more}}
+    return json.dumps({"data": {"repository": {"projectsV2": connection}}})
 
 
 def _world(
@@ -300,6 +301,19 @@ def test_every_call_is_a_read_and_each_rest_call_carries_method_get(
             assert any(a.startswith("query=query(") for a in argv)
         else:
             assert argv[2:4] == ("--method", "GET"), argv
+
+
+def test_a_projects_list_with_a_next_page_is_a_failed_read_not_a_complete_list() -> (
+    None
+):
+    assert "hasNextPage" in generate.PROJECTS_QUERY
+    slug = "IronbellyOrg/IronClaude"
+    script = {
+        tuple(generate.argv_projects(slug)): result(
+            stdout=_projects_reply("PVT_a", more=True)
+        )
+    }
+    assert generate._projects(Runner(script), slug) is None
 
 
 def test_the_projects_query_asks_for_ids_and_numbers_only() -> None:
