@@ -625,7 +625,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 
 **MCP servers:** none
 
-**Related:** [How We Work](how-we-work.md) (routing rows for supervising a Run), `docs/designs/orchestrator-mode.md` (the design), and the Phase 1 follow-up issue IronbellyOrg/IronClaude#534.
+**Related:** [Orchestrator mode guide](orchestrator-mode.md) (how the coordinator, sweep and closeout fit together), [Observer guide](observer.md) (the live dashboard), [How We Work](how-we-work.md) (routing rows for supervising a Run), `docs/designs/orchestrator-mode.md` (the design), and the Phase 1 follow-up issue IronbellyOrg/IronClaude#534.
 
 ---
 

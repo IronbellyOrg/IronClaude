@@ -32,7 +32,7 @@ The README reflects the product/function of the repo first, while preserving the
 
 ## Highlights
 
-- **CLI-driven workflows** for reflect, swarm, eval, and read-only Orca supervision (`sweep`, `observe`)
+- **CLI-driven workflows** for reflect, swarm, eval, and read-only Orca supervision (`sweep`, `observe`; see the [Observer guide](docs/user-guide/observer.md) and the [Orchestrator mode guide](docs/user-guide/orchestrator-mode.md))
 - **Claude Code asset distribution** through commands, agents, and skills
 - **PM-agent patterns** for confidence, self-check, and reflexion
 - **MCP-aware development** with codegraph (installed and registered by default) and optional integrations such as Auggie, Tavily, and Context7
