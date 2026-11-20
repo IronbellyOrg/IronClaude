@@ -44,4 +44,11 @@ def test_remediation_checks_agent_precedence_and_untouched_files():
     assert "is read first by Claude Code and shadows it" in text
     assert "`tools:` line `Read, Edit, Grep, Glob` and nothing else" in text
     assert "sha256 of the original plan" in text
-    assert "status --porcelain" in text
+    assert "ls-files -z --cached --others --exclude-standard" in text
+    assert "ends in `:workflow-reviser`" in text
+
+
+def test_agent_is_bundled_with_the_plugin_byte_for_byte():
+    plugin = _ROOT / "plugins/superclaude/agents/workflow-reviser.md"
+    assert plugin.is_file() and plugin.read_bytes() == _AGENT.read_bytes()
+    assert _tools(plugin.read_text(encoding="utf-8")) == _EXPECTED
