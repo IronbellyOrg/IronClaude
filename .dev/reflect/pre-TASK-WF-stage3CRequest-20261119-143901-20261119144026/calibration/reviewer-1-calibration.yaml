@@ -1,0 +1,9 @@
+card: reviewer-cards/reviewer-1.md (analyzer, sonnet); calibrator: confidence-calibrator, opus class (calibrator_diversity degraded)
+dimensions: {citation_grounding: 0.85, coverage_completeness: 0.85, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.80, recommendation_actionability: 0.75}
+calibrated_confidence: 0.79
+self_reported: none
+findings:
+  - {row: 1, grade: "Blocking (Missing)", agreement: agree}
+  - {row: 2, grade: "Blocking (Missing)", agreement: agree, note: "plan:21 'two real gaps' is an unsupported stated reason vs source.md:69, so Decision applies as well"}
+  - {row: 3, grade: Medium, agreement: agree, note: "grep-only and pytest-pass checks are copied from source.md:39-44; Drift label fits only in part"}
+  - {row: 4, grade: Medium, agreement: disagree, note: "wording comes from the spec (source.md:34); at most a Note"}

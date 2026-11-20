@@ -1,0 +1,77 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage1Request-20261116-221852-20261116222131/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage1Request-20261116-221852-20261116222131/audit.log
+confidence_calibrated: 0.83
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: 0.0                  # PARSED-ONLY; artifact (the 9 parsed ids are review-finding ids, not requirements)
+coverage_pct_union: 0.2083
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, REQ-09]
+unmapped_requirements_union: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, REQ-09, INF-006, INF-007, INF-008, INF-009, INF-010, INF-011, INF-012, INF-013, INF-014, INF-015]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 4f64a7c516ba228e7053d59a7c0ffb2a4443accebc0831be1b20b284534fb141
+  spec: a56d1c9a3af37256988d057ea50d341b579340ba99e5754fbf2b738332867def
+input_tree_sha256: 419656a2f48a4d293f5bbd40c1d10df9d79b8b074c50597b253b77b73fef5f04
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage1Request-20261116-221852-20261116222131/artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_total: 45
+citations_revalidated: 45
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage1Request-20261116-221852-20261116222131/reviewer-cards/reviewer-1-card.md, /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage1Request-20261116-221852-20261116222131/reviewer-cards/reviewer-2-card.md, /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage1Request-20261116-221852-20261116222131/reviewer-cards/reviewer-3-card.md]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage1Request-20261116-221852-20261116222131/adversarial/adversarial
+adversarial_convergence_score: 0.95
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_check_skipped: true
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+telemetry:
+  degraded_components: [calibrator-diversity, vendor-diversity-single]
+  reviewer_models: [claude-gw-tier1b, claude-gw-tier2, claude-gw-tier1a]
+  reviewer_personas: [analyzer, qa, refactorer]
+  executor_class_source: unknown
+  executor_class_resolved: false
+  t1_calibrated_confidence: 0.63
+  reviewer_calibrations: [0.84, 0.76, 0.89]
+  deviations_blocking: 1
+  zero_drop_flag: true

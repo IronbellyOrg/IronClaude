@@ -1,0 +1,10 @@
+selected_tier: 2
+fired_rule_number: 4   # first match in order: coverage_degraded pre-filter forbids rows 1, 2 and 8; rule 3 (UC-2) n/a; rule 4 S_domains 4 >= 3; rule 5 also true (S_dev_density 0.7917 > 0.20)
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 7.0
+per_signal_breakdown: {scope_size: 0, task_count: 0, blast_radius: 2, spec_density: 2, ambiguity_signals: 2}   # recording only; scores are the orchestrator's estimate
+escalation_reason: "parsed-sparse coverage guard (inferred 15 > parsed 9), S_domains 4, S_dev_density 0.7917"
+t2_engine_requested: null
+t2_engine_effective: null
+panel_fallback_reason: null

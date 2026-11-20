@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/stage4-route-debate-20261117/out/merged-output.md"
+  convergence_score: 0.846
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/stage4-route-debate-20261117/out/adversarial"
+  status: "success"
+  base_variant: "variant 2 (Route B, copy and surgical edits); no model or persona recorded"
+  unresolved_conflicts: 2   # C-002, X-002
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped at --depth quick

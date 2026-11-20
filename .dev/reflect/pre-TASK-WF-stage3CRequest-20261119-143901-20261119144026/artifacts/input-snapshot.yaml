@@ -1,0 +1,19 @@
+input_tree_sha256: a7035a378489ccab54791421dc5e5732c65adc4e64732b446c109da662715774
+file_count: 8
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-stage3CRequest-20261119-143901/TASK-WF-stage3CRequest-20261119-143901.md
+    sha256: 1feafcba5f051c339f10fe9165bbb9ae052b3cff6b8cf50bb74ff3708a3a7a18
+  - path: .dev/tasks/to-do/TASK-WF-stage3CRequest-20261119-143901/source.md
+    sha256: 53ba6260707a33920fceca701e7888f9b1a5c11a099462bbff9bc7801f1eb0d1
+  - path: src/superclaude/agents/evidence-validator.md
+    sha256: 1a4967d25c7df508a2a46c2138d48acbbd8746ee230d988e0a1b9f211f98cc64
+  - path: src/superclaude/agents/reflect-reviewer.md
+    sha256: ed911b7c37edd16d4b0ede40ccedc354b8304f8feb88f8835552774d183312c6
+  - path: src/superclaude/skills/sc-implement-protocol/refs/qa.md
+    sha256: 93e232f5d49207624c24da25bc6f2e9a0686b4f7f7ca99a38e4b95f56edaf004
+  - path: tests/agents/test_codegraph_rosters.py
+    sha256: 9652bd9ec880f16279520d56ba8377aafeaec89262fb6cf58feb431b11545e98
+  - path: tests/cli/reflect/test_reviewer_readonly_tools.py
+    sha256: e6a513533b47a5ab28724ebc12c24ad1dbcc0ee751d8f2b1bdd451a281a27367
+  - path: tests/skills/test_review_severity_rule.py
+    sha256: 798120644eed65b484ec331e3016aa931252561016424cb5d09c35170998aab7

@@ -1,0 +1,8 @@
+input_tree_sha256: 419656a2f48a4d293f5bbd40c1d10df9d79b8b074c50597b253b77b73fef5f04
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-stage1Request-20261116-221852/source.md
+    sha256: a56d1c9a3af37256988d057ea50d341b579340ba99e5754fbf2b738332867def
+  - path: .dev/tasks/to-do/TASK-WF-stage1Request-20261116-221852/TASK-WF-stage1Request-20261116-221852.md
+    sha256: 4f64a7c516ba228e7053d59a7c0ffb2a4443accebc0831be1b20b284534fb141
+file_count: 2
+note: tree-hash is the sha256 of the two "sha  name" lines printed by sha256sum run inside the package folder; the output root is outside the input tree

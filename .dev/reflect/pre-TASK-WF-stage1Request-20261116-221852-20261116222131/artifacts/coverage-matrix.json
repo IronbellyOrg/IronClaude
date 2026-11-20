@@ -1,0 +1,266 @@
+{
+ "parsed_count": 9,
+ "inferred_count": 15,
+ "coverage_pct": 0.0,
+ "coverage_pct_union": 0.2083,
+ "unmapped_requirements": [
+  "R-001",
+  "R-007",
+  "R-002",
+  "R-003",
+  "R-004",
+  "R-005",
+  "R-006",
+  "R-008",
+  "REQ-09"
+ ],
+ "unmapped_requirements_union": [
+  "R-001",
+  "R-007",
+  "R-002",
+  "R-003",
+  "R-004",
+  "R-005",
+  "R-006",
+  "R-008",
+  "REQ-09",
+  "INF-006",
+  "INF-007",
+  "INF-008",
+  "INF-009",
+  "INF-010",
+  "INF-011",
+  "INF-012",
+  "INF-013",
+  "INF-014",
+  "INF-015"
+ ],
+ "coverage_degraded": "parsed-sparse",
+ "S_scope": 2,
+ "S_dev_density": 0.7917,
+ "matrix": [
+  {
+   "id": "R-001",
+   "source": "parsed",
+   "line": 26,
+   "matched": [],
+   "method": "none"
+  },
+  {
+   "id": "R-007",
+   "source": "parsed",
+   "line": 26,
+   "matched": [],
+   "method": "none"
+  },
+  {
+   "id": "R-002",
+   "source": "parsed",
+   "line": 29,
+   "matched": [],
+   "method": "none"
+  },
+  {
+   "id": "R-003",
+   "source": "parsed",
+   "line": 30,
+   "matched": [],
+   "method": "none"
+  },
+  {
+   "id": "R-004",
+   "source": "parsed",
+   "line": 31,
+   "matched": [],
+   "method": "none"
+  },
+  {
+   "id": "R-005",
+   "source": "parsed",
+   "line": 32,
+   "matched": [],
+   "method": "none"
+  },
+  {
+   "id": "R-006",
+   "source": "parsed",
+   "line": 33,
+   "matched": [],
+   "method": "none"
+  },
+  {
+   "id": "R-008",
+   "source": "parsed",
+   "line": 42,
+   "matched": [],
+   "method": "none"
+  },
+  {
+   "id": "REQ-09",
+   "source": "parsed",
+   "line": 46,
+   "matched": [],
+   "method": "none"
+  },
+  {
+   "id": "INF-001",
+   "source": "inferred",
+   "line": 61,
+   "matched": [
+    "T1"
+   ],
+   "method": "containment",
+   "best_task_ratio": 0.8,
+   "constraints_ratio": 0.5,
+   "quote": "`src/superclaude/cli/review/safety_route.py` (GR1 vocabulary in one list, GR12 raise-only rule), `src/superclaude/cli/review/safety_cmd.py`, the subcommand `superclaude review safety-scan <file>` registered in the tuple of `src/superclaude/cli/review/__init__.py`, and the tests `tests/review/test_review_safety_route.py` and `tests/review/test_review_safety_cmd.py`."
+  },
+  {
+   "id": "INF-002",
+   "source": "inferred",
+   "line": 61,
+   "matched": [
+    "T1"
+   ],
+   "method": "containment",
+   "best_task_ratio": 0.882,
+   "constraints_ratio": 0.294,
+   "quote": "It takes plain row text, imports no codec and no classifier, reports unreadable or missing input as such (exit 2, never a hit count), and stores no tag."
+  },
+  {
+   "id": "INF-003",
+   "source": "inferred",
+   "line": 62,
+   "matched": [
+    "T2"
+   ],
+   "method": "containment",
+   "best_task_ratio": 0.947,
+   "constraints_ratio": 0.421,
+   "quote": "prints every non-superseded minor line of every task's notes file, runs `superclaude review safety-scan` over each notes file, prints \"no notes file for T<id>\" for a missing file, asks nothing, changes no verdict or archive outcome;"
+  },
+  {
+   "id": "INF-004",
+   "source": "inferred",
+   "line": 62,
+   "matched": [
+    "T2"
+   ],
+   "method": "containment",
+   "best_task_ratio": 1.0,
+   "constraints_ratio": 0.714,
+   "quote": "Paragraph \"Follow-up print (record and print only).\" in `SKILL.md` (\"Done\") and `refs/managed-workspace.md` (after the closing fence of the `FINAL:` block, before step 6);"
+  },
+  {
+   "id": "INF-005",
+   "source": "inferred",
+   "line": 62,
+   "matched": [
+    "T2"
+   ],
+   "method": "containment",
+   "best_task_ratio": 0.647,
+   "constraints_ratio": 0.471,
+   "quote": "both files copied byte for byte to the plugin twin (pinned by `test_h_implement_protocol_plugin_twins_byte_equal`); `refs/qa.md` unedited (SHA-256 recorded at the task start); active-flow smoke check recorded in `./artifacts/print-smoke.txt`."
+  },
+  {
+   "id": "INF-006",
+   "source": "inferred",
+   "line": 63,
+   "matched": [],
+   "method": "none",
+   "best_task_ratio": 0.324,
+   "constraints_ratio": 0.706,
+   "quote": "C1 (classifier, its inputs supplier and its command: Tasks 5, 9, 10, 11 and 12), C2 (follow-up ledger codec, filing logic and the ledger reference: Tasks 4, 7 and 8), C4 (skill folder, rule, scale map, registry, install check and registry drift tests: Tasks 1, 2, 3, 6, 14 and 15), C10 (the owner summary: Task 16)."
+  },
+  {
+   "id": "INF-007",
+   "source": "inferred",
+   "line": 63,
+   "matched": [],
+   "method": "none",
+   "best_task_ratio": 0.4,
+   "constraints_ratio": 0.4,
+   "quote": "One Constraints bullet states that these are not built."
+  },
+  {
+   "id": "INF-008",
+   "source": "inferred",
+   "line": 64,
+   "matched": [],
+   "method": "none",
+   "best_task_ratio": 0.333,
+   "constraints_ratio": 0.533,
+   "quote": "Its seven other tasks are cut (rows C2 and C7); its ledger row and request file are marked withdrawn by the main session."
+  },
+  {
+   "id": "INF-009",
+   "source": "inferred",
+   "line": 65,
+   "matched": [],
+   "method": "none",
+   "best_task_ratio": 0.333,
+   "constraints_ratio": 0.778,
+   "quote": "Two tasks fit `depth: quick` (2 to 4 phases, one task per phase)."
+  },
+  {
+   "id": "INF-010",
+   "source": "inferred",
+   "line": 66,
+   "matched": [],
+   "method": "none",
+   "best_task_ratio": 0.522,
+   "constraints_ratio": 0.435,
+   "quote": "command `superclaude review safety-scan <file>` (option `--unattended`); files `src/superclaude/cli/review/safety_route.py`, `src/superclaude/cli/review/safety_cmd.py`, `tests/review/test_review_safety_route.py`, `tests/review/test_review_safety_cmd.py`; paragraph title \"Follow-up print (record and print only).\"; artifacts `./artifacts/qa-md-sha256-before.txt` and `./artifacts/print-smoke.txt`; no stored tag `protected-risk-dispute`."
+  },
+  {
+   "id": "INF-011",
+   "source": "inferred",
+   "line": 67,
+   "matched": [],
+   "method": "none",
+   "best_task_ratio": 0.417,
+   "constraints_ratio": 0.667,
+   "quote": "The Constraints now name `src/superclaude/cli/review/__init__.py` as the third existing file the package edits (Task 1 registers `safety_cmd`)."
+  },
+  {
+   "id": "INF-012",
+   "source": "inferred",
+   "line": 22,
+   "matched": [],
+   "method": "none",
+   "best_task_ratio": 0.214,
+   "constraints_ratio": 0.571,
+   "quote": "Do not change `sc-implement-protocol/refs/qa.md`, the own-scale primitives, the cap of 2 fix cycles or the 35 percent target. No Jev call, key or account."
+  },
+  {
+   "id": "INF-013",
+   "source": "inferred",
+   "line": 22,
+   "matched": [],
+   "method": "none",
+   "best_task_ratio": 0.231,
+   "constraints_ratio": 0.385,
+   "quote": "No edit of any carrier (`pragmatic.md`, agents, templates, rule prompts, task skill, tech-research, WORKER-CONTRACT) and no stage 2 to 4 task."
+  },
+  {
+   "id": "INF-014",
+   "source": "inferred",
+   "line": 7,
+   "matched": [],
+   "method": "none",
+   "best_task_ratio": 0.353,
+   "constraints_ratio": 0.441,
+   "quote": "Read its `## Constraints` and carry over what applies to stage 1: spec and PF naming, owner-decision defaults, the not-built list, the classifier facts (M, C and E run only with code-supplied inputs; the \"M or C is Y gives BLOCKING\" row is never enabled; confidence is an ordinal band), pins by content, `src/superclaude/` as source of truth with `make sync-dev`, UV only."
+  },
+  {
+   "id": "INF-015",
+   "source": "inferred",
+   "line": 18,
+   "matched": [],
+   "method": "none",
+   "best_task_ratio": 0.394,
+   "constraints_ratio": 0.455,
+   "quote": "Write `./artifacts/stage1-summary-for-owner.md`: for each task its artifact or file and its observed test result (the commands run and their pass counts), the list of files created, a statement that no carrier was edited (`git diff --stat` over carriers is empty), the open items, and the sentence that the owner's go for stage 2 is given in chat and not by this file."
+  }
+ ]
+}

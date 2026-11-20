@@ -1,0 +1,10 @@
+selected_tier: 1
+fired_rule_number: 2
+coverage_degraded: null
+surface_unreached: null
+composite_score: null
+escalation_reason: calibrator C 0.88, escalate no; 2 tasks; no regression candidate (UC-1)
+t2_engine_requested: null
+t2_engine_effective: null
+panel_fallback_reason: null
+note: coverage_pct not computed (Step 1B.0 Pass 1 and 2 not run); recorded as a protocol gap in REPORT.md

@@ -1,0 +1,10 @@
+selected_tier: 1
+fired_rule_number: 2     # C 0.85, 5 tasks, domains docs+tests, no unmapped requirement, no regression candidate (UC-1)
+coverage_degraded: null
+surface_unreached: null
+composite_score: null    # not computed (recording only)
+escalation_reason: calibrator recommended no escalation
+t2_engine_requested: null
+t2_engine_effective: null
+panel_fallback_reason: null
+note: coverage_pct not computed (Step 1B.0 Pass 1 and 2 not run); Tier 1 stop taken on the reviewer's hand-written coverage map. Recorded as a protocol gap in REPORT.md.
