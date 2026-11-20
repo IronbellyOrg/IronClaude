@@ -2474,6 +2474,39 @@ def test_evidence_check_results_are_bounded_to_forty(scratch: Scratch) -> None:
     assert len([ln for ln in lines if ln.startswith("> check: ")]) == 40
 
 
+def test_evidence_reads_a_timeline_larger_than_one_command_argument(
+    scratch: Scratch,
+) -> None:
+    """Cross-reference events carry the other issue's body: three of 60000 characters
+    are over the 128 KiB limit of one argument, so the timeline must not be an argument."""
+    big = "x" * 60000
+    events = [
+        {
+            "event": "cross-referenced",
+            "created_at": OLD,
+            "source": {
+                "issue": {
+                    "number": 70 + i,
+                    "state": "closed",
+                    "body": big,
+                    "pull_request": {"merged_at": OLD},
+                    "repository": {"full_name": REPO_SLUG},
+                }
+            },
+        }
+        for i in range(3)
+    ]
+    make_world(scratch, timeline=events)
+    for i in range(3):
+        scratch.add_pr(70 + i, merge=MERGE_SHA, head="f" * 40, files=[f"o{i}.py"])
+    res = scratch.run(SETTLE, "evidence", str(PR_N), "--issue", str(ISSUE_N))
+    got = _expect_line(res, "EVIDENCE", 0)
+    assert got["prs"] == "4"
+    text = (Path(got["dir"]) / "evidence.md").read_text(encoding="utf-8")
+    for i in range(3):
+        assert f"PR #{70 + i} state=MERGED" in text
+
+
 @pytest.mark.parametrize("match", ["--paginate", "issue view", "pr list"])
 def test_evidence_that_cannot_read_fails_and_the_next_issue_call_is_no_verdict(
     scratch: Scratch, match: str

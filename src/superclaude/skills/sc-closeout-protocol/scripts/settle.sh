@@ -889,9 +889,12 @@ cmd_evidence() {
     lowrepo=$(printf '%s' "$GH_REPO" | tr '[:upper:]' '[:lower:]')
     # Candidates: merged first, then open, then the rest; the target comes first of all.
     local cand_json ncands
-    cand_json=$(jq -n --argjson tl "$tl" --argjson all "$all" --argjson open "$open" \
+    # The timeline can hold large bodies, so it goes in on standard input (a single
+    # argument is limited to about 128 KiB); the two search lists are small.
+    cand_json=$(jq --argjson all "$all" --argjson open "$open" \
         --arg r "$lowrepo" --argjson pr "$PR" --argjson n "$n" '
-        def rank: if . == "MERGED" then 0 elif . == "OPEN" then 1 else 2 end;
+        . as $tl
+        | def rank: if . == "MERGED" then 0 elif . == "OPEN" then 1 else 2 end;
         ( [ $tl[] | select(.event == "cross-referenced")
             | select(.source.issue.pull_request != null)
             | select(((.source.issue.repository.full_name // ((.source.issue.repository_url // "") | sub("^.*/repos/"; ""))) | ascii_downcase) == $r)
@@ -902,7 +905,7 @@ cmd_evidence() {
           + [ $open[] | {number: .number, state: "OPEN"} ] )
         | map(select(.number != $pr and .number != $n))
         | group_by(.number) | map(.[0])
-        | sort_by([(.state | rank), .number])' 2>/dev/null) || ev_fail "cannot join the pull request lists"
+        | sort_by([(.state | rank), .number])' <<<"$tl" 2>/dev/null) || ev_fail "cannot join the pull request lists"
     ncands=$(jq 'length' <<<"$cand_json")
     local numbers
     numbers="$PR $(jq -r '.[0:9][].number' <<<"$cand_json" | tr '\n' ' ')"
