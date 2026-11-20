@@ -23,6 +23,7 @@ trap 'for p in "${SLEEPS[@]:-}"; do [ -n "$p" ] && kill "$p" 2>/dev/null; done; 
 cat > "$T/bin/orca" <<'STUB'
 #!/usr/bin/env bash
 L=$OB_STUB_DIR; h=""; t=""; prev=""
+printf '%s\n' "$*" >> "$L/calls.log"
 for a in "$@"; do
   [ "$prev" = --terminal ] && h=$a
   [ "$prev" = --text ] && t=$a
@@ -37,7 +38,25 @@ case "$1 $2" in
     # STUB_OK_FILE: a typed /sc:implement (and nothing else) creates the unlock file
     case "$t" in /sc:implement\ *) [ -z "${STUB_OK_FILE:-}" ] || : > "$STUB_OK_FILE" ;; esac
     f=$(ls -1 "$L/q-$h"/*.txt 2>/dev/null | head -1)
-    [ -n "$f" ] && mv "$f" "$L/screen-$h.txt"
+    case "$h $t" in
+      'h-claim /sc:issue --claim '*)
+        # a claim saves its result as <main>/.dev/issues/<N>/launch-result.json (issue 691, Part A) and the screen holds
+        # a deliberately wrong text (a terminal key, an rm line, no L1 guard line): a script that read the screen would fail
+        n=$(printf '%s' "$t" | awk '{print $3}'); r=$OB_STUB_MAIN/.dev/issues/$n/launch-result.json
+        if [ -n "$f" ]; then
+          case "${STUB_RESULT_MODE:-}" in
+            none) ;;
+            symlink) cp "$f" "$L/linked-result.json"; rm -f "$r"; ln -s "$L/linked-result.json" "$r" ;;
+            oldlaunched) jq --arg d "$(date -u -d '1 day ago' +%FT%TZ)" '.launched_at = $d' "$f" > "$r" ;;
+            freshlaunched) jq --arg d "$(date -u +%FT%TZ)" '.launched_at = $d' "$f" > "$r" ;;
+            stale) cp "$f" "$r"; touch -d '2 hours ago' "$r" ;;
+            *) cp "$f" "$r" ;;
+          esac
+          rm -f "$f"
+        fi
+        printf 'claim done\n{"terminal":"term_screen_wrong"}\nrm "/nonexistent/a" "/nonexistent/b"\n' > "$L/screen-h-claim.txt" ;;
+      *) [ -n "$f" ] && mv "$f" "$L/screen-$h.txt" ;;
+    esac
     for lg in "$OB"/logs/*.jsonl; do
       [ -e "$lg" ] || continue
       # STUB_STOP_ONLY=<label>: only that log gets a Stop (the governed agent's first turn stays open)
@@ -128,7 +147,7 @@ seed() {  # seed <label> <gsid> [extra log lines...]: probe log with a session i
 }
 runsub() {  # runsub <b|c|d|e> [VAR=value ...]: sets OUT and RC
   local sub=$1; shift
-  OUT=$(env OB="$S/ob" HOME="$H" OB_STUB_DIR="$S/stub" OB_RESULTS="$S/results.md" OB_MAIN="$S/main" \
+  OUT=$(env OB="$S/ob" HOME="$H" OB_STUB_DIR="$S/stub" OB_STUB_MAIN="$S/main" OB_RESULTS="$S/results.md" OB_MAIN="$S/main" \
         OB_POLL_S=0 OB_LAUNCH_WAIT_S=2 OB_INITIAL_WAIT_S=2 OB_D_WAIT_S=2 OB_E_WAIT_S=2 OB_QUIET_S=0 OB_TIMEOUT_S=20 OB_CLAIM_POLLS=0 \
         PATH="$T/bin:$PATH" "$@" timeout 120 bash "$here/session-gov.sh" "$sub" 2>&1); RC=$?
 }
@@ -243,7 +262,7 @@ has b-inode-unreadable "$OUT" 'PENDING b-inode the claim printed no inode number
 # a launch that already happened in an earlier run is not claimed or refused again: steps 1 and 2 are skipped
 mkenv b7; results PASS PASS
 seed T1 gsid-b-1; printf x > "$H/.claude/state/launch-level/sessions/gsid-b-1"
-claim_json launched W-L2-ABSENT x term_gb "$(RELP)" "$(RELP).ok" > "$S/ob/claim-T1.txt"
+claim_json launched W-L2-ABSENT x term_gb "$(RELP)" "$(RELP).ok" > "$S/ob/claim-T1.json"
 printf 'RESUME_LAUNCH_T1=earlier\n' >> "$S/ob/state.env"
 printf 'plan written: .dev/issues/421/plan.md\n' > "$S/stub/screen-term_gb.txt"
 runsub b
@@ -251,16 +270,82 @@ has b-resume-skipped "$OUT" 'OK b-steps-1-2-skipped'
 has b-resume-launch "$OUT" 'OK b-resume launch of T1 reused'
 hasnt b-resume-no-claim "$(sent)" '/sc:issue --claim 421'
 
-# the claim result in the form the real claim session prints ("launch_status: <value>" lines, not JSON) is read too
-mkenv b6; results PASS PASS
+# a launch that saved claim text only (an older run) is not claimed again: a repeat is already_launched and writes no result file
+mkenv b8; results PASS PASS
 seed T1 gsid-b-1; printf x > "$H/.claude/state/launch-level/sessions/gsid-b-1"
-yaml() { printf 'issue_number: 421\nlaunch_status: failed\nlaunch_warning: W-ENFORCEMENT-ABSENT\nlaunch_detail: %s\nenforcement_hook: missing\n' "$1"; }
-qpush h-claim 1 "$(yaml 'settings.local.json cannot be read as JSON')"
-qpush h-claim 2 "$(yaml 'x sets disableAllHooks to true, so no hook runs')"
-qpush h-claim 3 "$(claim_json launched W-L2-ABSENT x term_gb "$(RELP)" "$(RELP).ok")"
+claim_json launched W-L2-ABSENT x term_gb "$(RELP)" "$(RELP).ok" > "$S/ob/claim-T1.txt"
+printf 'RESUME_LAUNCH_T1=earlier\n' >> "$S/ob/state.env"
 runsub b
-has b-yaml-claim "$OUT" 'OK b-badjson-claim failed W-ENFORCEMENT-ABSENT'
-has b-yaml-claim2 "$OUT" 'OK b-nohooks-claim failed W-ENFORCEMENT-ABSENT'
+ck resume-text-only-rc "$RC" 1; has resume-text-only-msg "$OUT" 'FAIL resume'
+hasnt resume-text-only-no-claim "$(sent)" '/sc:issue --claim 421'
+
+# --- 4b. the claim result is read from launch-result.json, never from the screen (issue 691, Part B) ------------
+# every stub claim leaves a wrong screen (terminal term_screen_wrong, an rm of /nonexistent paths, no L1 guard line)
+cenv() {  # cenv <tag> [jq filter on the launched fixture] [raw fixture body]: a session c scenario, T2 is issue 422
+  mkenv "$1"; results PASS PASS; seed T2 gsid-c-1
+  printf x > "$H/.claude/state/launch-level/sessions/gsid-c-1"
+  if [ $# -ge 3 ]; then qpush h-claim 1 "$3"
+  else qpush h-claim 1 "$(claim_json launched W-L2-ABSENT x term_gc "$(RELP)" "$(RELP).ok" | jq -c "${2:-.}")"; fi
+  printf 'run /sc:implement .dev/issues/422/plan.md\n' > "$S/stub/screen-term_gc.txt"
+  mkdir -p "$S/wts/T2/.dev/issues/422"; : > "$S/wts/T2/.dev/issues/422/plan.md"
+}
+cenv fresh
+runsub c; RES=$S/main/.dev/issues/422/launch-result.json
+ck fresh-file-rc "$RC" 0; ck fresh-file-done "$(printf '%s' "$OUT" | tail -1)" SESSION_C_DONE
+ck fresh-file-saved-copy-equal "$(cmp -s "$S/ob/claim-T2.json" "$RES" && echo equal)" equal
+has screen-ignored-adopts-file-terminal "$OUT" 'OK c-launched terminal=term_gc gsid=gsid-c-1'
+hasnt screen-ignored-not-screen-terminal "$OUT" 'term_screen_wrong'
+has screen-ignored-layers-from-file "$OUT" 'OK c-layers L1 guard: effective (read from launch-result.json)'
+ck screen-ignored-released-file-pair "$([ ! -e "$H/.claude/state/launch-level/sessions/gsid-c-1" ] && echo gone)" gone
+cenv freshstamp
+runsub c STUB_RESULT_MODE=freshlaunched
+ck fresh-launched-at-rc "$RC" 0; ck fresh-launched-at-done "$(printf '%s' "$OUT" | tail -1)" SESSION_C_DONE
+cenv missing
+runsub c STUB_RESULT_MODE=none
+ck missing-rc "$RC" 0; has missing-msg "$OUT" 'PENDING reason=claim-result-missing'
+ck missing-no-implement "$(sent | grep -c '/sc:implement' || true)" 0
+cenv stale
+runsub c STUB_RESULT_MODE=stale
+ck stale-rc "$RC" 0; has stale-msg "$OUT" 'PENDING reason=claim-result-stale'
+ck stale-no-implement "$(sent | grep -c '/sc:implement' || true)" 0
+cenv oldlaunched
+runsub c STUB_RESULT_MODE=oldlaunched
+ck stale-launched-at-rc "$RC" 0; has stale-launched-at-msg "$OUT" 'PENDING reason=claim-result-stale'
+cenv notjson . 'this is not json'
+runsub c
+ck unreadable-notjson-rc "$RC" 1; has unreadable-notjson-msg "$OUT" 'FAIL claim-result'
+cenv jsonarray . '[1,2]'
+runsub c
+ck unreadable-array-rc "$RC" 1; has unreadable-array-msg "$OUT" 'FAIL claim-result'
+cenv nostatus . '{}'
+runsub c
+ck unreadable-nostatus-rc "$RC" 1; has unreadable-nostatus-msg "$OUT" 'FAIL claim-result'
+cenv symlink
+runsub c STUB_RESULT_MODE=symlink
+ck unreadable-symlink-rc "$RC" 1; has unreadable-symlink-msg "$OUT" 'FAIL claim-result'
+cenv failedresult '.status="failed" | .warning="W-ENFORCEMENT-ABSENT" | .detail="refused"'
+runsub c
+ck failed-result-rc "$RC" 1; has failed-result-msg "$OUT" 'FAIL c-claim status=failed warning=W-ENFORCEMENT-ABSENT'
+cenv terminalnull '.terminal = null'
+runsub c
+ck terminal-null-rc "$RC" 0; has terminal-null-msg "$OUT" 'PENDING reason=terminal-handle-missing'
+cenv terminalodd '.terminal = "a b;c"'
+runsub c
+ck terminal-odd-rc "$RC" 0; has terminal-odd-msg "$OUT" 'PENDING reason=terminal-handle-missing'
+cenv nolayer '.layers = ["L2 pre-push: absent"]'
+runsub c
+ck layers-rc "$RC" 0; has layers-fail "$OUT" 'FAIL c-layers no '"'"'L1 guard: effective'"'"' layer'
+ck layers-run-continues "$(printf '%s' "$OUT" | tail -1)" SESSION_C_DONE
+# an already_launched claim writes no new result (Part A): the older result stays, counts as missing, and is left byte- and mtime-identical
+mkenv already; results PASS PASS
+RES=$S/main/.dev/issues/421/launch-result.json
+claim_json launched W-L2-ABSENT x term_gb "$(RELP)" "$(RELP).ok" > "$RES"; touch -d '2 hours ago' "$RES"
+cp -p "$RES" "$S/prev-result.json"; before=$(stat -c %Y "$RES")
+qpush h-claim 1 "$(claim_json launched W-L2-ABSENT x term_gb "$(RELP)" "$(RELP).ok")"
+runsub b STUB_RESULT_MODE=none
+ck already-launched-rc "$RC" 0; has already-launched-msg "$OUT" 'PENDING reason=claim-result-stale'
+ck already-launched-bytes "$(cmp -s "$S/prev-result.json" "$RES" && echo equal)" equal
+ck already-launched-mtime "$(stat -c %Y "$RES")" "$before"
 
 # --- 5. session b: a failed backup stops before anything is touched -------------------------
 mkenv b2; results PASS PASS; rm -f "$S/wts/T1/.claude/settings.local.json"
@@ -365,6 +450,9 @@ seed T2 gsid-c-1; sed -i '$d' "$S/ob/logs/h2-T2.jsonl"
 qpush h-claim 1 "$(claim_json launched W-L2-ABSENT x term_gc "$(RELP)" "$(RELP).ok")"
 runsub c STUB_STOP_ONLY=claim OB_INITIAL_WAIT_S=1
 has c-first-stop-gate "$OUT" 'PENDING reason=no-first-stop label=h2-T2'
+
+# --- 9d. no scenario ever listed terminals: the handle comes from launch-result.json only -------------------------
+ck no-terminal-list-in-any-scenario "$(cat "$T"/*/stub/calls.log 2>/dev/null | grep -c 'terminal list' || true)" 0
 
 # --- 10. every prompt file equals its runbook text block, byte for byte (lines 536-697) ----------------
 names=(g01-b-implement g02-commit g03-approved g04-gov-bg g05-gov-det g06-gov-clear g07-c-implement g08-e-push g09-e-merge)

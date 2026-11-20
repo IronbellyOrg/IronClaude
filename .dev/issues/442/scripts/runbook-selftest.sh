@@ -80,6 +80,12 @@ uncited=$(printf '%s\n' "$sec" | awk '
   !/[a-z0-9-]+\.sh:[0-9]+/ { print NR ": " $0 }')
 ck sec6-every-line-cited "${uncited:-none}" none
 
+# 4b. the claim's terminal, layers and release come from launch-result.json, not from screen text or an Orca lookup (issue 691, Part B)
+ck result-file-cited "$([ "$(grep -c 'launch-result.json' "$RB")" -ge 7 ] && echo yes)" yes
+ck gov-no-terminal-list "$(grep -c 'terminal list' "$here/session-gov.sh" || true)" 0
+ck rb-terminal-list-only-as-removed "$(grep 'orca terminal list' "$RB" | grep -vc 'no longer\|never' || true)" 0
+ck gov-no-screen-parse "$(grep -c 'CLAIM_LAST\|CLAIM_TXT' "$here/session-gov.sh" || true)" 0
+
 # 5. the line anchors other self-tests read (session A 228-472, filters 505-520, sessions B to E 536-697)
 ck anchor-session-a "$(sed -n '228p' "$RB" | cut -c1-16)" '### 2.1 Session '
 ck anchor-filters "$(sed -n '505p' "$RB" | cut -c1-5)" '# F1:'
