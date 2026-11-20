@@ -1899,6 +1899,15 @@ def test_a_replan_still_merges_a_change_outside_the_two_sections(tmp_path):
     )
 
 
+def test_replaced_sha_changes_when_a_line_moves_from_one_section_to_the_other():
+    tight = "## Priority\nLow: x\n## Fix approach\n{fix}## Test plan\n{test}"
+    before = tight.format(fix="step A\nstep B\n", test="C\n")
+    after = tight.format(fix="step A\n", test="step B\nC\n")
+    assert plan_check(before) == plan_check(after) == {t: "ok" for t in PLAN_TOKENS}
+    assert plan_body.replaced_sha(before) != plan_body.replaced_sha(after)
+    assert plan_body.replaced_sha(before) == plan_body.replaced_sha(before)
+
+
 def test_replaced_sha_is_printed_only_for_a_replan_and_splice_requires_it(tmp_path):
     issue = _write_json_body(tmp_path / "issue.json", replan_body())
     assert "replaced_sha" not in script_result("check", "--body-json", issue)

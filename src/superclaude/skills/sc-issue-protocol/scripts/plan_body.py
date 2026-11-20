@@ -157,7 +157,9 @@ def body_sha(body: str) -> str:
 def replaced_sha(body: str) -> str:
     """Hash of the text a re-plan overwrites (Fix approach and Test plan), so a draft
     written from that text can be told apart from one made after someone edited it."""
-    return body_sha("".join(section_text(body, t) for t in REPLAN_TOKENS))
+    # A list keeps the two sections apart: a line moved from the end of one to the start
+    # of the other must change the hash.
+    return body_sha(json.dumps([section_text(body, t) for t in REPLAN_TOKENS]))
 
 
 # --- the drafted blocks -----------------------------------------------------------------
