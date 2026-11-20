@@ -46,7 +46,9 @@ grep -q 'oldsid' "$T/baseline-sessions.txt" && ck baseline-sessions ok ok || ck 
 # 2. refusal without --resume
 if bash "$here/setup.sh" >/dev/null 2>&1; then ck rerun-refused called ok; else ck rerun-refused ok ok; fi
 # --resume passes the guard
+printf 'keepme\n' >> "$T/baseline-sessions.txt"   # a resume must keep the original baseline, not re-take it
 out2=$(bash "$here/setup.sh" --resume 2>&1); rc2=$?
+grep -q 'keepme' "$T/baseline-sessions.txt" && ck resume-keeps-baseline ok ok || ck resume-keeps-baseline overwritten ok
 ck rerun-resume-rc "$rc2" 0
 
 # 3. probe files byte-for-byte vs the runbook blocks

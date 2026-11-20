@@ -790,7 +790,7 @@ Before cleanup, copy all evidence into `.dev/issues/442/observation-results.md`.
 
 ```bash
 pgrep -af 'sleep 24[123]$'
-for n in 241 242 243; do for p in $(pgrep -xf "sleep $n"); do [ "/proc/$p" -nt /tmp/ob/baseline-sessions.txt ] && kill "$p"; done; done
+for n in 241 242 243; do for p in $(pgrep -xf "sleep $n"); do [ "$(ps -o etimes= -p $p)" -lt $(( $(date +%s) - $(stat -c %Y /tmp/ob/baseline-sessions.txt) )) ] && kill "$p"; done; done
 ```
 
 2. Release every governed session that is still bound. Use the `rm` line each claim printed. Then compare the store with the baseline:
@@ -855,7 +855,7 @@ Cleanup `--apply` rule: `Default: print the plan and delete nothing.` (cleanup.s
 | `PENDING step=` (session-a.sh:79, session-a.sh:93, session-a2.sh:53) | Read the reason and the screen file on the line before you run anything further. |
 | `reason=needs-input` (session-gov.sh:82) | Same as `NEEDS_INPUT`: read the screen file, answer only a disposable target, and check whether the step's prompt is shown before you send it again. |
 | `NEEDS_INPUT claim` (setup-github.sh:100) | Same as `NEEDS_INPUT`. |
-| `BLOCKED login-isolated-home` (setup.sh:169) and `exit 3` (setup.sh:170) | Stop; the owner decides. Do not copy credential files. |
+| `BLOCKED login-isolated-home` (setup.sh:170) and `exit 3` (setup.sh:171) | Stop; the owner decides. Do not copy credential files. |
 
 Files not in the run order: `lib.sh`, `driver.sh`, `driver-helpers.sh`, `lib-selftest.sh`, `setup-selftest.sh`, `driver-selftest.sh`, `session-a-selftest.sh`, `setup-github-selftest.sh`, `session-gov-selftest.sh`, `evidence-selftest.sh`, `cleanup-selftest.sh`, `runbook-selftest.sh`, `selftest.sh`, and the `prompts/` folder.
 

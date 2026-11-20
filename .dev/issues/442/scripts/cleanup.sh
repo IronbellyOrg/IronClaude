@@ -43,13 +43,15 @@ MAIN=${OB_MAIN:-$(main_checkout)}
 
 # --- step 1: leftover background jobs ----------------------------------------------------
 step1() {
-  local out n pid
+  local out n pid et age
   out=$(pgrep -af 'sleep 24[123]$' 2>/dev/null || true)
   printf '  running: %s\n' "${out:-none}"
   # only a job that started after this run's baseline file was written: an unrelated "sleep 241" of the same user stays
   for n in 241 242 243; do
     for pid in $(pgrep -xf "sleep $n" 2>/dev/null || true); do
-      if [ "/proc/$pid" -nt "$OB_BASE_SESSIONS" ]; then act_soft command timeout "$T" kill "$pid"
+      # process age (ps etimes, seconds) against the baseline file's age: a pid's /proc mtime is not its start time
+      et=$(ps -o etimes= -p "$pid" 2>/dev/null | tr -d ' '); age=$(( $(date +%s) - $(stat -c %Y "$OB_BASE_SESSIONS" 2>/dev/null || echo 0) ))
+      if [ -n "$et" ] && [ "$et" -lt "$age" ]; then act_soft command timeout "$T" kill "$pid"
       else printf '  SKIP pid %s (sleep %s): started before this run, not ours\n' "$pid" "$n"; fi
     done
   done

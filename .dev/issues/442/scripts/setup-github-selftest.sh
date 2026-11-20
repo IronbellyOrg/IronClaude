@@ -116,6 +116,12 @@ after=$(grep -c 'issue create' "$L/gh.log")
 ck sg-rerun-no-new-creates "$after" "$before"
 ck sg-rerun-skip-line "$(head -1 "$T/out2")" "SKIP issues: state already holds T1=$(OB=$T bash -c "source '$here/lib.sh'; state_get T1")"
 ck sg-rerun-no-new-uv "$(grep -c 'orca_worktree.py worktree' "$L/uv.log")" 4
+# a rerun after a partial failure (T2 missing from the state) creates only T2
+sed -i '/^T2=/d' "$T/state.env"
+before=$(grep -c 'issue create' "$L/gh.log")
+PATH="$L/bin2:$PATH" timeout 60 bash "$here/setup-github.sh" > "$T/out3" 2>&1
+ck sg-partial-rerun-creates-one "$(( $(grep -c 'issue create' "$L/gh.log") - before ))" 1
+ck sg-partial-rerun-T2-recorded "$([ -n "$(OB=$T bash -c "source '$here/lib.sh'; state_get T2")" ] && echo yes)" yes
 
 # 5. state recorded T1..T4 numbers, WT paths read from the script's JSON, and the probe settings
 for t in T1 T2 T3 T4; do

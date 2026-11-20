@@ -15,10 +15,10 @@ SKILL=${OB_SKILL_DIR:-$HOME/.claude/skills/sc-issue-protocol}
 # --- 1. four disposable issues (gh_fork pins the repo on every form) ------------
 # OB_ONLY="T4" limits every loop to those targets (a repeat of one session, such as a second session e run).
 TARGETS=${OB_ONLY:-T1 T2 T3 T4}; FIRST=${TARGETS%% *}
-if state_get "$FIRST" >/dev/null 2>&1 && [ -n "$(state_get "$FIRST")" ]; then
-  printf 'SKIP issues: state already holds %s=%s\n' "$FIRST" "$(state_get "$FIRST")"
-else
+# per target: a rerun after a partial failure creates only the issues that are still missing
+{
   for t in $TARGETS; do
+    if [ -n "$(state_get "$t" 2>/dev/null)" ]; then printf 'SKIP issues: state already holds %s=%s\n' "$t" "$(state_get "$t")"; continue; fi
     # Copy the handoff template to a temp file and fill every section, per the
     # issue rule (never edit the installed template itself).
     tpl=$(mktemp)
@@ -38,7 +38,7 @@ else
     state_set "$t" "$n"
     printf 'ISSUE %s=%s\n' "$t" "$n"
   done
-fi
+}
 
 # --- 2. the claim session --------------------------------------------------------
 MAIN=${OB_MAIN:-$(main_checkout)}

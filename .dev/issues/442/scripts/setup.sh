@@ -62,8 +62,9 @@ printf 'rc=%s\n' "$?" >> "$PRE"
 
 # --- §1.2 baselines (read-only) ----------------------------------------------
 timeout "$T" mkdir -p "$OB_LOGS"
-timeout "$T" ls -A "$HOME/.claude/state/launch-level/sessions" > "$OB_BASE_SESSIONS" 2>>"$PRE" || true
-timeout "$T" ls -A "$HOME/.claude/state/launch-level/pending" > "$OB_BASE_PENDING" 2>>"$PRE" || true
+# a resume keeps the original baselines: new session files of this run must still show as additions at cleanup
+[ -e "$OB_BASE_SESSIONS" ] || timeout "$T" ls -A "$HOME/.claude/state/launch-level/sessions" > "$OB_BASE_SESSIONS" 2>>"$PRE" || true
+[ -e "$OB_BASE_PENDING" ] || timeout "$T" ls -A "$HOME/.claude/state/launch-level/pending" > "$OB_BASE_PENDING" 2>>"$PRE" || true
 
 # --- §1.3 isolated HOME -------------------------------------------------------
 # The log-only probe comes from THIS repo (runbook:50-51), whose checkout root
