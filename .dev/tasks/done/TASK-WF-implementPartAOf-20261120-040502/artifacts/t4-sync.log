@@ -1,0 +1,24 @@
+== make sync-dev
+make sync-dev rc=0
+   Commands:  35 files
+   Hooks:     17 files
+   Templates: 52 files
+== make verify-sync
+make verify-sync rc=0
+
+✅ All components in sync.
+== pytest, one line per file
+tests/skills/test_issue_orca_worktree.py: ============================= 182 passed in 45.42s =============================
+tests/skills/test_issue_l2_install.py: ======================== 56 passed, 2 skipped in 8.12s =========================
+tests/skills/test_issue_protocol.py: ============================= 153 passed in 1.61s ==============================
+tests/commands/test_issue_command.py: ============================== 19 passed in 0.54s ==============================
+== git staging state (commit HEAD)
+files with a .claude/ path in HEAD: 0
+.dev/tasks paths in HEAD: 15
+git status:  M .dev/tasks/to-do/TASK-WF-implementPartAOf-20261120-040502/artifacts/t4-sync.log
+git status: ?? .dev/tasks/to-do/TASK-WF-implementPartAOf-20261120-040502/artifacts/retries/T4/probe-1-1.md
+git status: ?? .dev/tasks/to-do/TASK-WF-implementPartAOf-20261120-040502/artifacts/retries/T4/prompt-4-1.md
+git status: ?? .dev/tasks/to-do/TASK-WF-implementPartAOf-20261120-040502/artifacts/retries/T4/review-1.md
+git status end
+== pull request (opened by /sc:pr-submit --monitor 3; monitor ended clean, CI green)
+https://github.com/IronbellyOrg/IronClaude/pull/693
