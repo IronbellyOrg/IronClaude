@@ -3645,3 +3645,24 @@ def test_an_information_entry_named_only_in_another_items_notes_still_gets_a_car
     fake_gh(monkeypatch, {})
     runmod.refresh()
     assert nine in [i["url"] for i in refreshed_page(root)["items"]]
+
+
+def test_an_information_entry_replaces_an_unlisted_baseline_record_of_its_url(
+    root, monkeypatch
+):
+    daily = closed_daily_run(root)
+    six = f"{U}issues/6"
+    cls = json.loads((daily / "classified.json").read_text())
+    assert (
+        cls["items"][six]["group"] == "other" and six in cls["order"]
+    )  # in the files, not on the page
+    put_entry(
+        root,
+        "mention__IronbellyOrg__Coder__6",
+        held_entry(1, url=six, kind="info:mentions", title="Six"),
+        sub="info",
+    )
+    fake_gh(monkeypatch, {})
+    runmod.refresh()
+    cards = [i for i in refreshed_page(root)["items"] if i["url"] == six]
+    assert len(cards) == 1 and cards[0]["title"] == "Six"

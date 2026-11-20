@@ -725,6 +725,10 @@ def _refresh(run=None):
                 }
             else:
                 cmp_["unchanged"].append(url)
+            # The entry replaces any record the daily run kept for the url (an unlisted "other" item, say),
+            # so the page never gets two cards for one url.
+            cls["order"] = [u for u in cls["order"] if u.lower() != url.lower()]
+            items = [i for i in items if i["url"].lower() != url.lower()]
             cls["order"].append(url)
             cls["items"][url] = c
             items.append(item)
