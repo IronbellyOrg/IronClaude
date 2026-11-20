@@ -387,3 +387,13 @@ def test_the_old_two_mode_wording_is_gone():
     assert "Exactly one of `--claim` / `--create`" not in text
     assert "Both modes post directly" not in text
     assert "Two modes on the repository" not in text
+
+
+def test_every_row_of_the_related_commands_table_is_one_row_of_two_cells():
+    section = _text().split("## Related Commands", 1)[1]
+    rows = [ln for ln in section.splitlines() if ln.startswith("|")]
+    assert len(rows) >= 4  # header, separator, and the rows that follow
+    for row in rows:
+        assert "||" not in row, row
+        # a Markdown row of two cells has exactly three unescaped pipes
+        assert row.replace("\\|", "").count("|") == 3, row

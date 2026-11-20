@@ -129,4 +129,5 @@ The full behavioral specification is in `~/.claude/skills/sc-issue-protocol/SKIL
 
 | Command | Difference |
 |---|---|
-| `/sc:recommend` | Picks the next-step chain that a claim writes into `next-steps.md` || `/sc:brainstorm`, `/sc:design`, `/sc:workflow`, `/sc:implement`, `/sc:troubleshoot` | The next-step commands a claim recommends; the launched agent runs them at the chosen level, or you run them from this checkout's `.dev/issues/<N>/` after `--pipeline none` |
+| `/sc:recommend` | Picks the next-step chain that a claim writes into `next-steps.md` |
+| `/sc:brainstorm`, `/sc:design`, `/sc:workflow`, `/sc:implement`, `/sc:troubleshoot` | The next-step commands a claim recommends; the launched agent runs them at the chosen level, or you run them from this checkout's `.dev/issues/<N>/` after `--pipeline none` |
