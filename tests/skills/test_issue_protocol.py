@@ -1899,6 +1899,73 @@ def test_a_replan_still_merges_a_change_outside_the_two_sections(tmp_path):
     )
 
 
+def _splice_argv(tmp_path, out):
+    body = make_body({"priority": "empty"})
+    issue = _write_json_body(tmp_path / "issue.json", body)
+    sections = tmp_path / "s.md"
+    sections.write_text(fake_worker(plan_check(body)), encoding="utf-8")
+    return ["splice", "--body-json", issue, "--sections-file", sections, "--out", out]
+
+
+def _run_in(cwd, argv):
+    return subprocess.run(
+        [sys.executable, str(PLAN_SCRIPT), *map(str, argv)],
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+def test_a_symlinked_output_file_is_refused_and_its_target_is_not_touched(tmp_path):
+    victim = tmp_path / "victim.txt"
+    victim.write_text("keep me", encoding="utf-8")
+    link = tmp_path / "plan-body.md"
+    link.symlink_to(victim)
+    status, _, err = run_script(*_splice_argv(tmp_path, link))
+    assert status == 2 and "symlink" in err
+    assert victim.read_text(encoding="utf-8") == "keep me"
+
+
+def test_a_symlinked_before_out_is_refused_too(tmp_path):
+    victim = tmp_path / "victim.txt"
+    victim.write_text("keep me", encoding="utf-8")
+    saved = tmp_path / "plan-before-round-3.md"
+    saved.symlink_to(victim)
+    issue = _write_json_body(tmp_path / "issue.json", replan_body())
+    remaining = write_remaining(tmp_path, 3, ["part three is done"])
+    n, criteria, _ = parse_remaining_file(remaining)
+    sections = tmp_path / "s.md"
+    sections.write_text(fake_replan_worker(n, criteria), encoding="utf-8")
+    replaced = script_result("check", "--body-json", issue, "--remaining", remaining)
+    status, _, err = run_script(
+        "splice", "--body-json", issue, "--sections-file", sections,
+        "--out", tmp_path / "plan-body.md", "--remaining", remaining,
+        "--before-out", saved, "--replaced-sha", replaced["replaced_sha"],
+    )  # fmt: skip
+    assert status == 2 and "symlink" in err
+    assert victim.read_text(encoding="utf-8") == "keep me"
+
+
+def test_a_relative_output_path_through_a_linked_folder_is_refused(tmp_path):
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    work = tmp_path / "work"
+    work.mkdir()
+    (work / "linked").symlink_to(outside, target_is_directory=True)
+    proc = _run_in(work, _splice_argv(tmp_path, "linked/plan-body.md"))
+    assert proc.returncode == 2 and "linked folder" in proc.stderr
+    assert list(outside.iterdir()) == []
+
+
+def test_a_normal_relative_output_path_still_works(tmp_path):
+    work = tmp_path / "work"
+    (work / ".dev" / "issues" / "1").mkdir(parents=True)
+    proc = _run_in(work, _splice_argv(tmp_path, ".dev/issues/1/plan-body.md"))
+    assert proc.returncode == 0, proc.stderr
+    assert (work / ".dev" / "issues" / "1" / "plan-body.md").is_file()
+
+
 def test_replaced_sha_changes_when_a_line_moves_from_one_section_to_the_other():
     tight = "## Priority\nLow: x\n## Fix approach\n{fix}## Test plan\n{test}"
     before = tight.format(fix="step A\nstep B\n", test="C\n")

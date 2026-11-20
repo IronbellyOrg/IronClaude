@@ -410,8 +410,19 @@ def read_body(json_path, file_path) -> str:
 
 
 def _write_bytes(path, text: str) -> None:
+    """Write an output file, never through a link: a checked-out branch could hold a
+    symlink where the session writes (`.dev/issues/<N>/plan-body.md`)."""
+    target = Path(path)
     try:
-        Path(path).write_bytes(text.encode("utf-8"))
+        if target.is_symlink():
+            raise UsageError(f"refusing to write through a symlink: {path}")
+        if not target.is_absolute() and not target.parent.resolve().is_relative_to(
+            Path.cwd().resolve()
+        ):
+            raise UsageError(
+                f"refusing to write outside the working directory (a linked folder): {path}"
+            )
+        target.write_bytes(text.encode("utf-8"))
     except OSError as err:
         raise UsageError(f"cannot write {path}: {err}") from err
 

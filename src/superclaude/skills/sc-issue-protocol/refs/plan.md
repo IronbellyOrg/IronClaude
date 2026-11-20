@@ -26,7 +26,7 @@ The plan check passes when all three sections are `ok`. The script below impleme
 
 ## The splice script
 
-The model drafts section texts and nothing more. `<skill base>/scripts/plan_body.py` (Python standard library only) reads the current body and the drafted texts from files, writes the new body to a file and prints one JSON line; it never calls `gh` or the network. A body file is either the output of `gh issue view <N> --repo <R> --json body,...` (`--body-json`, `--base-json`, `--readback-json`; keeps every byte, CRLF included) or the body as plain text (`--body-file`, `--base-file`, `--readback-file`). A refused input prints one line on stderr that starts with the STOP code and exits 1; exit 2 means the call itself could not run (bad arguments, an unreadable file) and nothing was written: fix the call and run it again.
+The model drafts section texts and nothing more. `<skill base>/scripts/plan_body.py` (Python standard library only) reads the current body and the drafted texts from files, writes the new body to a file and prints one JSON line; it never calls `gh` or the network. A body file is either the output of `gh issue view <N> --repo <R> --json body,...` (`--body-json`, `--base-json`, `--readback-json`; keeps every byte, CRLF included) or the body as plain text (`--body-file`, `--base-file`, `--readback-file`). A refused input prints one line on stderr that starts with the STOP code and exits 1; exit 2 means the call itself could not run (bad arguments, an unreadable file, an output path that is a symlink or that runs through a linked folder, because a checked-out branch may hold a link where the script writes) and nothing was written: fix the call and run it again.
 
 | Command | What it does | Refusals (exit 1) |
 |---|---|---|
