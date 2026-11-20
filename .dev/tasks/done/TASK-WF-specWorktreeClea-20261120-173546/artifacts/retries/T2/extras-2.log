@@ -1,0 +1,7 @@
+== ruff check
+All checks passed!
+== pytest tests/worktree_cleanup
+tests/worktree_cleanup/test_runner.py .................................. [ 61%]
+.....................                                                    [100%]
+
+============================== 55 passed in 2.23s ==============================

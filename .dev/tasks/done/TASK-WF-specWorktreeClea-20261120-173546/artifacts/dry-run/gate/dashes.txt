@@ -1,0 +1,27 @@
+new .dev/tasks/to-do/TASK-WF-specWorktreeClea-20261120-173546/artifacts/run-evidence-pointer.md: 0
+new scripts/worktree_cleanup.py: 0
+new scripts/worktree_cleanup_PROVENANCE.md: 0
+new scripts/worktree_cleanup_orca_automation.md: 0
+new src/superclaude/commands/worktrees.md: 0
+new tests/commands/test_worktrees_command.py: 0
+new tests/worktree_cleanup/__init__.py: 0
+new tests/worktree_cleanup/conftest.py: 0
+new tests/worktree_cleanup/fixtures/README.md: 0
+new tests/worktree_cleanup/fixtures/gh_issue_view.json: 0
+new tests/worktree_cleanup/fixtures/gh_pr_list.json: 0
+new tests/worktree_cleanup/fixtures/gh_pr_view.json: 0
+new tests/worktree_cleanup/fixtures/orca_reference_list.json: 0
+new tests/worktree_cleanup/fixtures/orca_repo_list.json: 0
+new tests/worktree_cleanup/fixtures/orca_terminal_list.json: 0
+new tests/worktree_cleanup/fixtures/orca_worktree_ps.json: 0
+new tests/worktree_cleanup/test_archive.py: 0
+new tests/worktree_cleanup/test_automation_definition.py: 0
+new tests/worktree_cleanup/test_facts.py: 0
+new tests/worktree_cleanup/test_git_facts.py: 0
+new tests/worktree_cleanup/test_pipeline.py: 0
+new tests/worktree_cleanup/test_removal.py: 0
+new tests/worktree_cleanup/test_rules.py: 0
+new tests/worktree_cleanup/test_runner.py: 0
+new tests/worktree_cleanup/test_safety.py: 0
+new tests/worktree_cleanup/test_verbs.py: 0
+added lines of changed tracked files with a dash: 0

@@ -1,0 +1,3 @@
+279eeef4a0fe7a43f5fea61dff96307e813d8ebc
+A3 r3-1 F3.1 note scripts/worktree_cleanup.py:2562 ac=T11.AC5 n,n,n,n orca_lists rejects non JSON and ok:false but returns False for a reply with no worktrees list ({}, {"ok": true}); the quoted words are not byte-present in the plan so the Read-back failed; the real list reply shape is unverified, so a strict parser could fail real replies; follow up when the shape is proven
+superseded A1 r1-1 F1.1 minor scripts/worktree_cleanup.py:2334 ac=scope n,n,n,n a second module level _first_line shadowed an earlier one (reverted tree; the rebuilt tree names it _refusal_text)

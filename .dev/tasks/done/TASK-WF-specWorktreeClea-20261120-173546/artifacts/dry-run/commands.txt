@@ -1,0 +1,4 @@
+COMMAND: uv run --no-project python scripts/worktree_cleanup.py list
+list exit=69
+COMMAND: uv run --no-project python scripts/worktree_cleanup.py prune --out /tmp/worktree-cleanup-dry-run
+prune exit=69

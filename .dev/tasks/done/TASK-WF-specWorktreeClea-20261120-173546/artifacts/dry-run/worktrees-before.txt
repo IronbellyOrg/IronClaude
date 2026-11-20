@@ -1,0 +1,420 @@
+worktree /home/coder/workspaces/IronClaude
+HEAD e38bd05e05d7b2ae00423db4ccde8a5e81e47329
+branch refs/heads/fix/ccsession-allowedtools-grep
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca
+HEAD 96ad48c122ee9f5672d46c8a488bad5cb49c1bc3
+branch refs/heads/feature/ccsession-orca-launch
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca-title
+HEAD 326474362cee07f503b7f1422714e4b2ae6df490
+branch refs/heads/fix/ccsession-orca-title
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-rename
+HEAD 2e91e22da0adecbfc1b9c1e5351cd748534f472b
+branch refs/heads/feat/ccsession-unified-rename
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-repo-keys
+HEAD 808e1cdf4133d0ff491deff4f463cdf526def2c0
+branch refs/heads/feature/ccsession-repo-keys
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-role-access
+HEAD e328b23c27475354d50534a2ad028cdafd3f3caa
+branch refs/heads/feat/ccsession-role-access
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-typed-input
+HEAD 55d4030874676c664eb640b60c92fe6cc9bfeb52
+branch refs/heads/fix/ccsession-typed-input
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-user-access
+HEAD babe270012e5b5d81ea5adcb17f2c5cff50267f7
+branch refs/heads/feature/ccsession-user-access
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-window-fix
+HEAD d26489d6bb1042f8dc86c8cbd9443c170d4666c5
+branch refs/heads/fix/ccsession-window-from-tiers
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-worktree-list
+HEAD 87a9cb44642c0a575e0bf9ebe5bc90145bbaff3d
+branch refs/heads/fix/ccsession-worktree-list
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ic-master-baseline
+HEAD 22eaa0c7c638639e460a1f8c8feb54c1bf447a0c
+detached
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/onboarding-deck
+HEAD 5bf31eb35664378f348a8c6c2c982a17415817b0
+branch refs/heads/docs/onboarding-deck-default-planner
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-monitor-3
+HEAD 070399ebc97e2b0dbb960a1d1033a327b2645bff
+branch refs/heads/feature/pr-submit-default-monitor-3
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-skill-cleanup
+HEAD 3d171809f5a1bcdff326999271896135cbcbf989
+branch refs/heads/fix/pr-submit-skill-cleanup
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/tests-drop-release-artifacts
+HEAD d692bccda5253fe9aaa0be547b95f5c51210543e
+branch refs/heads/fix/tests-drop-release-artifacts
+
+worktree /home/coder/workspaces/worktrees/IronClaude/cicd-ref-ironclaude
+HEAD 5f8a1ea2d506fa6a6b8fa5eb335a20140032c64d
+branch refs/heads/clayphi/cicd-ref-ironclaude
+
+worktree /home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator
+HEAD 05070b49b3861ed3f1c64c509294d7e06f4f1243
+branch refs/heads/clayphi/release-6.0.0
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-572-agent-usage
+HEAD 3f3b34a26280fd3fd64649f5d010f874b1905b65
+branch refs/heads/clayphi/572-agent-usage
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-a
+HEAD 8e5ae29ad69363510dbd4a863f91fa91b6dfbfcb
+branch refs/heads/clayphi/issue-655-pr-a
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b1
+HEAD 8f9ca258927667d3a02c4a44a03a6c659b81d42b
+branch refs/heads/clayphi/issue-655-pr-b-b1
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b2
+HEAD 39c9f8307f351e146ceeae9929de0fbb3b2626c1
+branch refs/heads/clayphi/issue-655-pr-b-b2
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b3a
+HEAD 8cab4fdac65073e139d96a43c44a350206d0a8e1
+branch refs/heads/clayphi/issue-655-pr-b-b3a
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b4a
+HEAD b5de7d5d98a72c4dc9889f3bc5001205ba1bb602
+branch refs/heads/clayphi/issue-655-pr-b-b4a
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b5
+HEAD dc43bffe2e15e449055a91cf68115d546bf9038c
+branch refs/heads/clayphi/issue-655-pr-b-b5
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-c
+HEAD 29b3f69212ca87420ca65e54f4a52e3e991a1761
+branch refs/heads/clayphi/issue-655-pr-c
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-d
+HEAD 0a01fb3e9e64d70712fd66704609d4aefbf7327e
+branch refs/heads/clayphi/issue-655-pr-d
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-p
+HEAD f3bc7798197558d57090ef01c1363a7dafca579a
+branch refs/heads/clayphi/issue-655-pr-p
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-spec
+HEAD 8bd180ba7c83b69167ec8f388c32f8795cd96521
+branch refs/heads/clayphi/issue-655-spec
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-spec-pr
+HEAD e4f8fdf53c9b324a97809b05f5bba112d5b9a100
+branch refs/heads/clayphi/issue-655-spec-pr
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-668
+HEAD 2031c054fc139045f79a36cb82bc36efab733f04
+branch refs/heads/clayphi/issue-668
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-668-build-p1
+HEAD 9e5ec9aa11f2d6bdc3421e3c5248949e83cbc907
+branch refs/heads/clayphi/issue-668-build-p1
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-668-build-p2
+HEAD 239873a944b6abb5271d5446ef8f32a73e473de1
+branch refs/heads/clayphi/issue-668-build-p2
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-668-build-p3
+HEAD 3239e83d7711daceb7bf5fe8bda5c09377349471
+branch refs/heads/clayphi/issue-668-build-p3
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-669
+HEAD cfe0aa3bb12e50984b1bec95a16337d5339b31c6
+branch refs/heads/clayphi/issue-669
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-687
+HEAD f2904292eed1f6710ebc5dca2eb48394fd1775f6
+branch refs/heads/clayphi/issue-687
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-templates-plan-fields
+HEAD 3f3b34a26280fd3fd64649f5d010f874b1905b65
+branch refs/heads/clayphi/issue-templates-plan-fields
+
+worktree /home/coder/workspaces/worktrees/IronClaude/orchestrator-655-hub
+HEAD 89dc403d4e813211390a081615db4612ff337f3a
+branch refs/heads/clayphi/orchestrator-655-hub
+
+worktree /home/coder/workspaces/worktrees/IronClaude/rollback-655
+HEAD b9dbcc997fbf318b68b337cd0a2772a7303b0446
+branch refs/heads/clayphi/rollback-655-build
+
+## /home/coder/workspaces/Coder/
+worktree /home/coder/workspaces/Coder
+HEAD 2adaa6a027ffcb13a9dde2a842c1cb89d0229c1f
+branch refs/heads/main
+
+worktree /home/coder/workspaces/worktrees/Coder/cicd-ref-coder
+HEAD ad26796a00f9a11b443f8ecff50e20ec833e3087
+branch refs/heads/clayphi/cicd-ref-coder
+
+worktree /home/coder/workspaces/worktrees/Coder/micro-first-questions
+HEAD 3e7976388be7fa521caea3ccd85d75100e7be872
+branch refs/heads/clayphi/micro-first-questions
+
+worktree /home/coder/workspaces/worktrees/coder-agent-layout
+HEAD 01cd4e06fce7113032d4cda33ebf689f0661536a
+branch refs/heads/feat/orca-full-list-agent-layout
+
+worktree /home/coder/workspaces/worktrees/coder-ccsession-access
+HEAD 0b0b432135526402c58b8f58053d8e24b29bbcae
+branch refs/heads/feat/ccsession-user-access
+
+worktree /home/coder/workspaces/worktrees/coder-ccsession-orca
+HEAD 496419b8c012572bf29439a7cb16977af2bada3d
+branch refs/heads/feat/ccsession-orca-rollout
+
+worktree /home/coder/workspaces/worktrees/coder-main-2bce9071
+HEAD 174842633a094ed5bd2fb7e56efbf8be9e478554
+detached
+
+worktree /home/coder/workspaces/worktrees/coder-main-old
+HEAD c278c22b698a099ab1dc1187f53254abc113480f
+detached
+
+worktree /home/coder/workspaces/worktrees/coder-orca-from-fork
+HEAD 28c7321ba1b88111f277ff36574d217afec709b0
+branch refs/heads/auto/orca-pin-1.4.245-aidev02.dfe1eb410300
+
+worktree /home/coder/workspaces/worktrees/coder-orca-pin
+HEAD 7fce51c8352ed832c5e9f04dd7ca7fee904d5d74
+detached
+
+worktree /home/coder/workspaces/worktrees/coder-orca-port
+HEAD 6b24a04d2cd6b9f43412a1ff8a342f9159180e33
+branch refs/heads/feat/orca-port-upstream
+
+worktree /home/coder/workspaces/worktrees/coder-orca-sidebar-fix
+HEAD 87d4705c048a5fd434110467262655d48839ce4b
+branch refs/heads/fix/orca-idle-agent-status
+
+worktree /home/coder/workspaces/worktrees/coder-pin-1.4.245
+HEAD f9681d64f024b8f78ba3864ad4699e62a69edfc1
+detached
+
+worktree /home/coder/workspaces/worktrees/coder-tier-roles
+HEAD 163b7fd7beaceb076a16cb5d827df54ed1ac0e06
+branch refs/heads/feat/ccsession-tier-roles
+
+worktree /home/coder/workspaces/worktrees/coder-typed-input
+HEAD 8a079565c797a28a43227d68cf3e736bdae33c28
+branch refs/heads/fix/new-terminal-typed-input
+
+## /home/coder/workspaces/Financials/
+worktree /home/coder/workspaces/Financials
+HEAD d04e3ac4bab0e43086cd71354af60c05987d8e39
+branch refs/heads/main
+
+## /home/coder/workspaces/GFxAI/
+worktree /home/coder/workspaces/GFxAI
+HEAD a370e7a10cbfacec09d145f2679af0c8c6df2255
+branch refs/heads/master
+
+## /home/coder/workspaces/IronClaude/
+worktree /home/coder/workspaces/IronClaude
+HEAD e38bd05e05d7b2ae00423db4ccde8a5e81e47329
+branch refs/heads/fix/ccsession-allowedtools-grep
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca
+HEAD 96ad48c122ee9f5672d46c8a488bad5cb49c1bc3
+branch refs/heads/feature/ccsession-orca-launch
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca-title
+HEAD 326474362cee07f503b7f1422714e4b2ae6df490
+branch refs/heads/fix/ccsession-orca-title
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-rename
+HEAD 2e91e22da0adecbfc1b9c1e5351cd748534f472b
+branch refs/heads/feat/ccsession-unified-rename
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-repo-keys
+HEAD 808e1cdf4133d0ff491deff4f463cdf526def2c0
+branch refs/heads/feature/ccsession-repo-keys
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-role-access
+HEAD e328b23c27475354d50534a2ad028cdafd3f3caa
+branch refs/heads/feat/ccsession-role-access
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-typed-input
+HEAD 55d4030874676c664eb640b60c92fe6cc9bfeb52
+branch refs/heads/fix/ccsession-typed-input
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-user-access
+HEAD babe270012e5b5d81ea5adcb17f2c5cff50267f7
+branch refs/heads/feature/ccsession-user-access
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-window-fix
+HEAD d26489d6bb1042f8dc86c8cbd9443c170d4666c5
+branch refs/heads/fix/ccsession-window-from-tiers
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-worktree-list
+HEAD 87a9cb44642c0a575e0bf9ebe5bc90145bbaff3d
+branch refs/heads/fix/ccsession-worktree-list
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/ic-master-baseline
+HEAD 22eaa0c7c638639e460a1f8c8feb54c1bf447a0c
+detached
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/onboarding-deck
+HEAD 5bf31eb35664378f348a8c6c2c982a17415817b0
+branch refs/heads/docs/onboarding-deck-default-planner
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-monitor-3
+HEAD 070399ebc97e2b0dbb960a1d1033a327b2645bff
+branch refs/heads/feature/pr-submit-default-monitor-3
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-skill-cleanup
+HEAD 3d171809f5a1bcdff326999271896135cbcbf989
+branch refs/heads/fix/pr-submit-skill-cleanup
+
+worktree /home/coder/workspaces/IronClaude/.dev/worktrees/tests-drop-release-artifacts
+HEAD d692bccda5253fe9aaa0be547b95f5c51210543e
+branch refs/heads/fix/tests-drop-release-artifacts
+
+worktree /home/coder/workspaces/worktrees/IronClaude/cicd-ref-ironclaude
+HEAD 5f8a1ea2d506fa6a6b8fa5eb335a20140032c64d
+branch refs/heads/clayphi/cicd-ref-ironclaude
+
+worktree /home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator
+HEAD 05070b49b3861ed3f1c64c509294d7e06f4f1243
+branch refs/heads/clayphi/release-6.0.0
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-572-agent-usage
+HEAD 3f3b34a26280fd3fd64649f5d010f874b1905b65
+branch refs/heads/clayphi/572-agent-usage
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-a
+HEAD 8e5ae29ad69363510dbd4a863f91fa91b6dfbfcb
+branch refs/heads/clayphi/issue-655-pr-a
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b1
+HEAD 8f9ca258927667d3a02c4a44a03a6c659b81d42b
+branch refs/heads/clayphi/issue-655-pr-b-b1
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b2
+HEAD 39c9f8307f351e146ceeae9929de0fbb3b2626c1
+branch refs/heads/clayphi/issue-655-pr-b-b2
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b3a
+HEAD 8cab4fdac65073e139d96a43c44a350206d0a8e1
+branch refs/heads/clayphi/issue-655-pr-b-b3a
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b4a
+HEAD b5de7d5d98a72c4dc9889f3bc5001205ba1bb602
+branch refs/heads/clayphi/issue-655-pr-b-b4a
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b5
+HEAD dc43bffe2e15e449055a91cf68115d546bf9038c
+branch refs/heads/clayphi/issue-655-pr-b-b5
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-c
+HEAD 29b3f69212ca87420ca65e54f4a52e3e991a1761
+branch refs/heads/clayphi/issue-655-pr-c
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-d
+HEAD 0a01fb3e9e64d70712fd66704609d4aefbf7327e
+branch refs/heads/clayphi/issue-655-pr-d
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-pr-p
+HEAD f3bc7798197558d57090ef01c1363a7dafca579a
+branch refs/heads/clayphi/issue-655-pr-p
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-spec
+HEAD 8bd180ba7c83b69167ec8f388c32f8795cd96521
+branch refs/heads/clayphi/issue-655-spec
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-655-spec-pr
+HEAD e4f8fdf53c9b324a97809b05f5bba112d5b9a100
+branch refs/heads/clayphi/issue-655-spec-pr
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-668
+HEAD 2031c054fc139045f79a36cb82bc36efab733f04
+branch refs/heads/clayphi/issue-668
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-668-build-p1
+HEAD 9e5ec9aa11f2d6bdc3421e3c5248949e83cbc907
+branch refs/heads/clayphi/issue-668-build-p1
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-668-build-p2
+HEAD 239873a944b6abb5271d5446ef8f32a73e473de1
+branch refs/heads/clayphi/issue-668-build-p2
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-668-build-p3
+HEAD 3239e83d7711daceb7bf5fe8bda5c09377349471
+branch refs/heads/clayphi/issue-668-build-p3
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-669
+HEAD cfe0aa3bb12e50984b1bec95a16337d5339b31c6
+branch refs/heads/clayphi/issue-669
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-687
+HEAD f2904292eed1f6710ebc5dca2eb48394fd1775f6
+branch refs/heads/clayphi/issue-687
+
+worktree /home/coder/workspaces/worktrees/IronClaude/issue-templates-plan-fields
+HEAD 3f3b34a26280fd3fd64649f5d010f874b1905b65
+branch refs/heads/clayphi/issue-templates-plan-fields
+
+worktree /home/coder/workspaces/worktrees/IronClaude/orchestrator-655-hub
+HEAD 89dc403d4e813211390a081615db4612ff337f3a
+branch refs/heads/clayphi/orchestrator-655-hub
+
+worktree /home/coder/workspaces/worktrees/IronClaude/rollback-655
+HEAD b9dbcc997fbf318b68b337cd0a2772a7303b0446
+branch refs/heads/clayphi/rollback-655-build
+
+## /home/coder/workspaces/IronFlow/
+worktree /home/coder/workspaces/IronFlow
+HEAD a04c2754b08dedea035074fd11409e739cf71d52
+branch refs/heads/docs/agent-work-coordinator-spec
+
+worktree /home/coder/workspaces/worktrees/IronFlow/cicd-review-spec
+HEAD e4ec7b7dd53d9b71e2dabe7cb4bd298d64cbd034
+branch refs/heads/clayphi/cicd-review-spec
+
+worktree /home/coder/workspaces/worktrees/IronFlow/coordinator
+HEAD 89bde6d6375c887b6ab9aae3ae08d2ea4410ec90
+branch refs/heads/clayphi/coordinator
+
+worktree /home/coder/workspaces/worktrees/IronFlow/issue-5
+HEAD 5d8f6d78584a1f272f25d6f99349245ec2346b97
+branch refs/heads/clayphi/issue-5
+
+worktree /home/coder/workspaces/worktrees/IronFlow/main
+HEAD f72263b7dbdd3abfaffc09ffacefa886d7e8ce23
+branch refs/heads/main
+
+## /home/coder/workspaces/IronOrca/
+worktree /home/coder/workspaces/IronOrca
+HEAD e0f32dcac1d0669952bd5ec7c43fc94c9c0158df
+branch refs/heads/main
+
+worktree /home/coder/workspaces/worktrees/IronOrca/aidev02-v1.4.245
+HEAD 82a07da65a241945e8206a14f6aeb9354a797643
+branch refs/heads/aidev02
+
+worktree /home/coder/workspaces/worktrees/IronOrca/cicd-ref-ironorca
+HEAD e0f32dcac1d0669952bd5ec7c43fc94c9c0158df
+branch refs/heads/clayphi/cicd-ref-ironorca
+
+## /home/coder/workspaces/IronOrchestrator/
+worktree /home/coder/workspaces/IronOrchestrator
+HEAD 442c7318ab40ba96ae7a823884539390136e4c5c
+branch refs/heads/main
+
+## /home/coder/workspaces/run-evidence/
+worktree /home/coder/workspaces/run-evidence
+HEAD 94f2392201ffb6423ed21ce8d4964a2bb7e43b52
+branch refs/heads/main
+

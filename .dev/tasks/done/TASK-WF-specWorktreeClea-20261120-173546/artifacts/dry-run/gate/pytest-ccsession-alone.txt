@@ -1,0 +1,185 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-687
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collected 487 items
+
+tests/unit/test_ccsession_tag.py ....................................... [  8%]
+...................................................FFF.................. [ 22%]
+.........................F......................F.F...F............F.... [ 37%]
+........................................................................ [ 52%]
+........................................................................ [ 67%]
+........................................................................ [ 81%]
+........................................................................ [ 96%]
+................                                                         [100%]
+
+=================================== FAILURES ===================================
+_______________ test_orca_ctrl_c_cancels_without_starting_claude _______________
+tests/unit/test_ccsession_tag.py:2125: in test_orca_ctrl_c_cancels_without_starting_claude
+    assert proc.wait(timeout=60) == 130, output
+E   AssertionError: ^C
+E     [ccsession] Shim already running on 127.0.0.1:4555 (reusing)
+E     Traceback (most recent call last):
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 1348, in do_open
+E         h.request(req.get_method(), req.selector, req.data, headers,
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/http/client.py", line 1303, in request
+E         self._send_request(method, url, body, headers, encode_chunked)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/http/client.py", line 1349, in _send_request
+E         self.endheaders(body, encode_chunked=encode_chunked)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/http/client.py", line 1298, in endheaders
+E         self._send_output(message_body, encode_chunked=encode_chunked)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/http/client.py", line 1058, in _send_output
+E         self.send(msg)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/http/client.py", line 996, in send
+E         self.connect()
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/http/client.py", line 962, in connect
+E         self.sock = self._create_connection(
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/socket.py", line 857, in create_connection
+E         raise err
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/socket.py", line 845, in create_connection
+E         sock.connect(sa)
+E     ConnectionRefusedError: [Errno 111] Connection refused
+E     
+E     During handling of the above exception, another exception occurred:
+E     
+E     Traceback (most recent call last):
+E       File "<stdin>", line 21, in <module>
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 216, in urlopen
+E         return opener.open(url, data, timeout)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 519, in open
+E         response = self._open(req, data)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 536, in _open
+E         result = self._call_chain(self.handle_open, protocol, protocol +
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 496, in _call_chain
+E         result = func(*args)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 1377, in http_open
+E         return self.do_open(http.client.HTTPConnection, req)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 1351, in do_open
+E         raise URLError(err)
+E     urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+E     [ccsession] WARNING: could not pre-load gateway models; Claude Code will retry discovery after launch
+E     [ccsession] Starting new session labeled 'work-1120-233051-4e1d'
+E     
+E   assert 0 == 130
+E    +  where 0 = wait(timeout=60)
+E    +    where wait = <Popen: returncode: 0 args: ['/home/coder/workspaces/worktrees/IronClaude/is...>.wait
+________ test_orca_ctrl_c_while_line_mode_is_off_restores_the_terminal _________
+tests/unit/test_ccsession_tag.py:2162: in test_orca_ctrl_c_while_line_mode_is_off_restores_the_terminal
+    assert proc.wait(timeout=60) == 130, output
+E   AssertionError: ^CSession name (Enter = auto-named, Ctrl+C = cancel; auto-named after 30s): 
+E     [ccsession] Shim already running on 127.0.0.1:4555 (reusing)
+E     Traceback (most recent call last):
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 1348, in do_open
+E         h.request(req.get_method(), req.selector, req.data, headers,
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/http/client.py", line 1303, in request
+E         self._send_request(method, url, body, headers, encode_chunked)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/http/client.py", line 1349, in _send_request
+E         self.endheaders(body, encode_chunked=encode_chunked)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/http/client.py", line 1298, in endheaders
+E         self._send_output(message_body, encode_chunked=encode_chunked)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/http/client.py", line 1058, in _send_output
+E         self.send(msg)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/http/client.py", line 996, in send
+E         self.connect()
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/http/client.py", line 962, in connect
+E         self.sock = self._create_connection(
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/socket.py", line 857, in create_connection
+E         raise err
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/socket.py", line 845, in create_connection
+E         sock.connect(sa)
+E     ConnectionRefusedError: [Errno 111] Connection refused
+E     
+E     During handling of the above exception, another exception occurred:
+E     
+E     Traceback (most recent call last):
+E       File "<stdin>", line 21, in <module>
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 216, in urlopen
+E         return opener.open(url, data, timeout)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 519, in open
+E         response = self._open(req, data)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 536, in _open
+E         result = self._call_chain(self.handle_open, protocol, protocol +
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 496, in _call_chain
+E         result = func(*args)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 1377, in http_open
+E         return self.do_open(http.client.HTTPConnection, req)
+E       File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/urllib/request.py", line 1351, in do_open
+E         raise URLError(err)
+E     urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+E     [ccsession] WARNING: could not pre-load gateway models; Claude Code will retry discovery after launch
+E     [ccsession] Starting new session labeled 'work-1120-233124-588c'
+E     
+E   assert 0 == 130
+E    +  where 0 = wait(timeout=60)
+E    +    where wait = <Popen: returncode: 0 args: ['/home/coder/workspaces/worktrees/IronClaude/is...>.wait
+________ test_ask_ctrl_c_while_line_mode_is_off_exits_130_and_restores _________
+tests/unit/test_ccsession_tag.py:2193: in test_ask_ctrl_c_while_line_mode_is_off_exits_130_and_restores
+    assert proc.communicate(timeout=30)[0] == b""
+/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py:1154: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py:2022: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py:1198: in _check_timeout
+    raise TimeoutExpired(
+E   subprocess.TimeoutExpired: Command '['/home/coder/workspaces/worktrees/IronClaude/issue-687/src/superclaude/skills/ccsession-tag/ccsession', '--ask']' timed out after 30 seconds
+___________________ test_ask_prints_only_the_name_on_stdout ____________________
+tests/unit/test_ccsession_tag.py:2651: in test_ask_prints_only_the_name_on_stdout
+    assert proc.communicate(timeout=30)[0] == b""
+/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py:1154: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py:2022: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py:1198: in _check_timeout
+    raise TimeoutExpired(
+E   subprocess.TimeoutExpired: Command '['/home/coder/workspaces/worktrees/IronClaude/issue-687/src/superclaude/skills/ccsession-tag/ccsession', '--ask']' timed out after 30 seconds
+________ test_ask_default_limit_is_30_seconds_and_shown_in_the_question ________
+tests/unit/test_ccsession_tag.py:2916: in test_ask_default_limit_is_30_seconds_and_shown_in_the_question
+    assert (status, stdout) == (130, b"")
+E   AssertionError: assert (1, b'') == (130, b'')
+E     
+E     At index 0 diff: 1 != 130
+E     Use -v to get more diff
+____ test_ask_limit_0_waits_for_ever_and_drops_the_limit_from_the_question _____
+tests/unit/test_ccsession_tag.py:2933: in test_ask_limit_0_waits_for_ever_and_drops_the_limit_from_the_question
+    status, stdout, shown, _, _ = _ask_on_pty(tmp_path, [(1.5, b"\x03")], env=env)
+tests/unit/test_ccsession_tag.py:2901: in _ask_on_pty
+    stdout = proc.communicate(timeout=60)[0]
+/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py:1154: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py:2022: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py:1198: in _check_timeout
+    raise TimeoutExpired(
+E   subprocess.TimeoutExpired: Command '['/home/coder/workspaces/worktrees/IronClaude/issue-687/src/superclaude/skills/ccsession-tag/ccsession', '--ask']' timed out after 60 seconds
+_________________ test_ask_hint_placeholder_follows_the_limit __________________
+tests/unit/test_ccsession_tag.py:2977: in test_ask_hint_placeholder_follows_the_limit
+    _, _, shown, _, _ = _ask_on_pty(tmp_path, [(0.3, b"\x03")], hint, env=env)
+tests/unit/test_ccsession_tag.py:2901: in _ask_on_pty
+    stdout = proc.communicate(timeout=60)[0]
+/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py:1154: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py:2022: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py:1198: in _check_timeout
+    raise TimeoutExpired(
+E   subprocess.TimeoutExpired: Command '['/home/coder/workspaces/worktrees/IronClaude/issue-687/src/superclaude/skills/ccsession-tag/ccsession', '--ask', 'Enter = auto-named; auto-named after @LIMIT@s']' timed out after 60 seconds
+____ test_ask_ctrl_c_while_pasted_text_is_collected_exits_130_and_restores _____
+tests/unit/test_ccsession_tag.py:3082: in test_ask_ctrl_c_while_pasted_text_is_collected_exits_130_and_restores
+    assert (status, stdout) == (130, b"")
+E   AssertionError: assert (0, b'some name\n') == (130, b'')
+E     
+E     At index 0 diff: 0 != 130
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tag.py::test_orca_ctrl_c_cancels_without_starting_claude
+FAILED tests/unit/test_ccsession_tag.py::test_orca_ctrl_c_while_line_mode_is_off_restores_the_terminal
+FAILED tests/unit/test_ccsession_tag.py::test_ask_ctrl_c_while_line_mode_is_off_exits_130_and_restores
+FAILED tests/unit/test_ccsession_tag.py::test_ask_prints_only_the_name_on_stdout
+FAILED tests/unit/test_ccsession_tag.py::test_ask_default_limit_is_30_seconds_and_shown_in_the_question
+FAILED tests/unit/test_ccsession_tag.py::test_ask_limit_0_waits_for_ever_and_drops_the_limit_from_the_question
+FAILED tests/unit/test_ccsession_tag.py::test_ask_hint_placeholder_follows_the_limit
+FAILED tests/unit/test_ccsession_tag.py::test_ask_ctrl_c_while_pasted_text_is_collected_exits_130_and_restores
+================== 8 failed, 479 passed in 464.08s (0:07:44) ===================
+pytest exit=1

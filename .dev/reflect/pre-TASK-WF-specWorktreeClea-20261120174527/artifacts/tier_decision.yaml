@@ -1,0 +1,14 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: null          # the five-signal composite was not computed; the rubric rules decided
+per_signal_breakdown: null
+escalation_reason: "Step 1B.2b: inferred_count 82 > parsed_count 0 forbids the Tier 1 stop (table-wide pre-filter); rule 4: S_domains 5 (code, tests, docs, config, automation); rule 6: C 0.65 < 0.85 from the Tier 1 calibration"
+confidence_calibrated_t1: 0.65
+S_scope: 20
+S_domains: 5
+S_dev_density: 0.0976
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null

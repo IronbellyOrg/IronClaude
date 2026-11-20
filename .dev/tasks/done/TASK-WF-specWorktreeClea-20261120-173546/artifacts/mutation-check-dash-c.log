@@ -1,0 +1,8 @@
+== with the fix
+
+============================= 129 passed in 0.53s ==============================
+== old line back (cwd = value): the new tests must fail
+FAILED tests/worktree_cleanup/test_runner.py::test_a_relative_dash_c_is_joined_onto_the_running_folder_not_the_process_folder
+FAILED tests/worktree_cleanup/test_runner.py::test_chained_dash_c_values_are_joined_one_after_the_other
+======================== 2 failed, 127 passed in 0.77s =========================
+restored: identical

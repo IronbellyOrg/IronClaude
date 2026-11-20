@@ -1,0 +1,17 @@
+{
+  "dropped": [
+    {
+      "finding": "INV-005",
+      "evidence_prefix": "PLAN:196",
+      "reason": "The bullet says the Task 14 command text will name git/gh write verbs, but PLAN:196 plans only prose; WRITE_VERB_RE needs a literal verb and the model file closeout.md has no such hit. The finding keeps its other evidence (the test scan and the missing mention of the classification table)."
+    }
+  ],
+  "inf_dropped": [],
+  "revalidated": 70,
+  "slips": [
+    "M-1 PLAN:99: the quote is Task 6's acceptance line, the bullet says Task 8 (attribution error, quote real)",
+    "M-1 PLAN:74 and PLAN:86-88: quotes real; Task 8 (PLAN:120) does name squash-merge and four-place issue cases, so 'no task owns collector tests' is weaker than the bullet reads",
+    "M-9: the Task 2 title (PLAN:41) says 'allowlisted command runner' and PLAN:45 gives git clean and git push positive conditions; the finding does not mention either; citation kept",
+    "INF-040 and INF-082: quotes and lines correct; the matched task is a lexical mismatch"
+  ]
+}

@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-specWorktreeClea-20261120-173546
+plan_path: ./TASK-WF-specWorktreeClea-20261120-173546.md
+source_path: ./source.md
+source_origin: .dev/issues/687/SPEC-worktree-cleanup.md
+strategy: systematic
+depth: deep
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-687/.dev/reflect/pre-TASK-WF-specWorktreeClea-20261120174527/REPORT.md
+unresolved:
+  - "reflect verdict FAIL (advisory): 7 blocking findings (M-1 to M-5, M-8, M-9), 6 medium, 1 note; one grade dispute open (patch-and-bundle manual archive, owner decision); the plan was not edited from the findings, see reflect_report_path"
