@@ -3700,3 +3700,26 @@ def test_excluded_json_names_every_url_a_held_entry_names_even_when_a_read_retur
     assert json.loads((f / "excluded.json").read_text()) == sorted(
         [HELD, HELD_PR, "orca://session/o1", "orca://session/w1"]
     )
+
+
+def test_the_card_of_a_held_issue_links_the_workers_pull_request(root, monkeypatch):
+    # The entry's written parts never repeat the url: the link must still be on the page.
+    put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))
+    fake_gh(monkeypatch, {1: OPEN_MINE})
+    runmod.refresh()
+    card = next(i for i in refreshed_page(root)["items"] if i["url"] == HELD)
+    assert f'href="{HELD_PR}"' in card["parts"]
+    e = held_entry(1)
+    item_, cls_, _ = runmod.entry_record(HELD, e, "k", False, "")
+    cmp_ = {"new": [], "changed": {}, "carried": [], "closed": {}, "unchanged": []}
+    ctx = {
+        "template": render.item_template(),
+        "notes": {},
+        "to_write": set(),
+        "statuses": {},
+        "prev_date": "",
+    }
+    block = render.entry(HELD, item_, cls_, cmp_, ctx, filed=e)
+    assert f"]({HELD_PR})" in block and check.template_problems(HELD, block) == []
+    none = render.entry(HELD, item_, cls_, cmp_, ctx, filed=held_entry(1, pr_url=None))
+    assert "pull/10" not in none

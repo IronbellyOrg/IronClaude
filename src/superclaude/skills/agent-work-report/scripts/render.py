@@ -223,6 +223,10 @@ def entry(url, it, c, cmp_, ctx, filed=None):
                 or "stalled: the entry file has no status for this session"
             )
             sessions.append(session_line(s, status))
+        # The worker's pull request: the card shows its link beside the sessions.
+        if filed.get("pr_url"):
+            pr = filed["pr_url"]
+            sessions.append(f"  - [{short(pr)}]({pr}) · the worker's pull request")
     else:
         written = {s: (prev.get(s) or slot(s)) for s in WRITTEN}
         if url in ctx["to_write"]:
