@@ -19,6 +19,7 @@ from .answer_check import answer_check_cmd
 from .common import ROOT_ENV
 from .idle_end import idle_end_cmd
 from .lease import lease_group
+from .merge_gate import merge_gate_cmd
 from .plan_check import plan_check_cmd
 from .repos_verb import repos_group
 from .state_verb import state_group
@@ -49,3 +50,4 @@ orchestrator_group.add_command(repos_group)
 orchestrator_group.add_command(answer_check_cmd)
 orchestrator_group.add_command(plan_check_cmd)
 orchestrator_group.add_command(idle_end_cmd)
+orchestrator_group.add_command(merge_gate_cmd)
