@@ -86,7 +86,7 @@ RULE_PHRASES = {
     "never-as-worker": (
         "**Never-as-worker list**",
         [
-            "`/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:sweep` and "
+            "`/sc:agent`, `/sc:closeout`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:sweep` and "
             "`/sc:swarm-wizard`, plus `/sc:pr-submit` while the answer to decision D3 keeps it off workers"
         ],
     ),
@@ -420,31 +420,13 @@ RULE_PHRASES = {
             "A refusal is report-only: the worker never installs or refreshes a command copy and never rewrites its own brief",
         ],
     ),
-    "issue-pipeline-duties": (
+    "messages-carry-no-to": (
         None,
         [
-            "### Issue pipeline duties",
-            'Route B adds no exception to "never answer a person prompt"',
-            "only a `created` result may start a worker",
-            "Never start again for an `uncertain` row",
-            "worker-start --worktree path:<exact path it printed>",
-            "Create the plan-hash approval row (`record-create`) only when the worker's `ask` carries the plan hash",
-            "act on a Status move alone",
-            "post an issue write without that issue's grant row",
-        ],
-    ),
-    "wc17-plan-approval": (
-        None,
-        [
-            "**WC-17. Plan approval is the reply to the worker's own ask.**",
-            "(1) runs `superclaude issue-pipeline plan-hash",
-            "(4) runs `superclaude issue-pipeline check-approval",
-            "(5) sends `ack <message_id> applied` or `ack <message_id> refused`",
-            "(6) continues only on `applied`",
+            "**Messages carry no `--to`.**",
             "`ask` and `send` commands carry no `--to`",
+            "Orca's default is the owning Run mailbox, the worker's own coordinator",
             "the launch-level guard blocks any `--to` from a bound worker",
-            "never treats a bare `approved`, or any text that is not the reply to its own ask, as approval",
-            "A mismatch is refused and reported, not retried silently",
         ],
     ),
     "brief-worktree-path-slot": (
@@ -461,6 +443,7 @@ GUARD_LINE = (
 
 NEVER_AS_WORKER = (
     "/sc:agent",
+    "/sc:closeout",
     "/sc:git",
     "/sc:help",
     "/sc:issue",
@@ -1944,6 +1927,15 @@ def _check_all_classified() -> None:
     )
 
 
+_CLOSEOUT_LANDED = (
+    "src/superclaude/skills/sc-closeout-protocol/scripts/branch-landed.sh"
+)
+_CLOSEOUT_SETTLE = "src/superclaude/skills/sc-closeout-protocol/scripts/settle.sh"
+_CLOSEOUT_REASON = (
+    "/sc:closeout is on the never-as-worker list; its pull request and issue reads "
+    "and writes run only in the coordinator or person session"
+)
+
 # (repo-relative path, verb(s), stripped line) -> (category, one-line reason)
 WRITE_VERB_CLASSIFICATION = {
     (
@@ -3079,6 +3071,73 @@ WRITE_VERB_CLASSIFICATION = {
         "no-command",
         "the report skill runs only in the coordinator session, never in a worker; Step 14 commits its own state folder in the orchestrator repo and never pushes",
     ),
+    # /sc:closeout (issue 668): every `gh pr` and `gh api` line of its two scripts. All are
+    # plain reads (GET); the writes of the skill are `gh issue comment`, `gh issue close`
+    # and an Orca task update, none of which the audit pattern matches.
+    (_CLOSEOUT_LANDED, "gh pr", 'json=$(gh pr view "$PR" --repo "$GH_REPO" \\'): (
+        "never-worker",
+        _CLOSEOUT_REASON,
+    ),
+    (
+        _CLOSEOUT_LANDED,
+        "gh pr",
+        'unknown gh_failed "gh pr view failed (exit $rc)"',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh api",
+        'evt=$(gh api --paginate "repos/$GH_REPO/issues/$n/timeline?per_page=100" --jq \'.[] | select(.event=="closed" or .event=="reopened") | [.event, .created_at] | @tsv\' </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh api",
+        "name=$(gh api \"users/$login\" --jq .name </dev/null 2>/dev/null | head -n 1 | tr -d '\\r')",
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh api",
+        'obj=$(gh api "repos/$GH_REPO/issues/$n" </dev/null 2>/dev/null) || issue_out escalated why=issue_lookup_failed none',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh api",
+        'out=$(gh api "repos/$GH_REPO/collaborators/$login/permission" --jq .role_name 2>"$WORK/perm.err" </dev/null)',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh api",
+        'tl=$(gh api "repos/$GH_REPO/issues/$n/timeline?per_page=100" </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh api",
+        'tl=$(gh api --paginate "repos/$GH_REPO/issues/$ISSUE_N/timeline?per_page=100" --jq \'.[] | select(.event=="closed" or .event=="reopened") | [.event, .created_at] | @tsv\' </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh pr",
+        'PRJ=$(gh pr view "$PR" --repo "$GH_REPO" --json number,title,body,closingIssuesReferences,mergedAt,mergedBy,mergeCommit,changedFiles </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh pr",
+        'all=$(gh pr list --repo "$GH_REPO" --state all --search "$n" --limit 10 --json number,state,mergedAt,baseRefName </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh pr",
+        'open=$(gh pr list --repo "$GH_REPO" --state open --search "$n" --limit 10 --json number,baseRefName,headRefName </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh pr",
+        'pj=$(gh pr view "$num" --repo "$GH_REPO" --json state,mergedAt,baseRefName,body,files,changedFiles </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh pr",
+        'tpr=$(gh pr view "$PR" --repo "$GH_REPO" --json body,files,changedFiles,baseRefName,mergedAt,closingIssuesReferences,statusCheckRollup </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
 }
 
 
@@ -3151,39 +3210,11 @@ def test_audit_fails_on_unclassified_write_verb(tmp_path, monkeypatch):
         _check_all_classified()
 
 
-# --- Issue pipeline duties (Plan B Task 9) -----------------------------------
+# --- The no-to rule, kept after the plan-approval gate was retired (issue 655) ---
 
 
-def _adoption_bullet(text: str) -> str:
-    bullets = [
-        ln for ln in text.splitlines() if ln.startswith("- **Adopt from sources")
-    ]
-    assert len(bullets) == 1, "expected one adoption bullet"
-    return bullets[0]
-
-
-def _check_adoption_sources(text: str) -> None:
-    bullet = _adoption_bullet(text)
-    assert "worktree.json" not in bullet, "adoption names worktree.json as a source"
-    assert "dispatch.json" in bullet
-    assert ".dev/issues/<N>/issue-summary.md" in bullet
-
-
-def test_adoption_names_only_sources_that_exist_after_pipeline_none():
-    _check_adoption_sources(_contract())
-
-
-def test_adoption_check_fails_when_worktree_json_is_named(tmp_path, monkeypatch):
-    text = _contract().replace(
-        "writes no worktree record",
-        "writes no `worktree.json`, but read `worktree.json`",
+def test_the_no_to_rule_sits_in_the_worker_session_duties():
+    section = (
+        _contract().split("## 3. Worker-session duties", 1)[1].split("\n## 4.", 1)[0]
     )
-    _patched_copy(tmp_path, monkeypatch, text)
-    with pytest.raises(AssertionError):
-        _check_adoption_sources(_contract())
-
-
-def test_issue_pipeline_duties_allow_no_typing_into_a_worker_prompt():
-    section = _contract().split("### Issue pipeline duties", 1)[1].split("\n### ", 1)[0]
-    assert "terminal send" not in section
-    assert "types nothing into a worker's terminal" in section
+    assert "`ask` and `send` commands carry no `--to`" in section
