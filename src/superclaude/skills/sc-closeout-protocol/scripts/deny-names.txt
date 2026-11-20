@@ -1,0 +1,12 @@
+# Names no output of this skill may contain, one per line (blank lines and lines that start with a hash sign are ignored). Rule: settle.sh refuses a verdict or a --what sentence whose text holds a listed name, matched case-insensitively as a whole word; a name inside a path or file-name token (a run of letters, digits, underscore, dot, slash and hyphen that holds a slash or a dot followed by a letter or digit, such as skills/x.md or .config/settings.json) is not a match, so citations of repository paths pass. This file is the one accepted place in the skill that holds the names; the tests read it, and no other file lists them.
+claude
+anthropic
+opus
+sonnet
+haiku
+fable
+gpt
+openai
+gemini
+llama
+mistral
