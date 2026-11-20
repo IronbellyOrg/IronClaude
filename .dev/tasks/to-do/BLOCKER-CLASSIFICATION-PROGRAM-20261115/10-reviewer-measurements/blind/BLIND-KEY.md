@@ -1,0 +1,25 @@
+# Blind key (do not show to scorers)
+card-E-01.md <- Y-E/card-4.md
+card-E-02.md <- Y-E/card-2.md
+card-E-03.md <- X-E/card-3.md
+card-E-04.md <- Y-E/card-1.md
+card-E-05.md <- Z-E/card-4.md
+card-E-06.md <- X-E/card-4.md
+card-E-07.md <- Y-E/card-3.md
+card-E-08.md <- X-E/card-1.md
+card-E-09.md <- Z-E/card-3.md
+card-E-10.md <- Z-E/card-2.md
+card-E-11.md <- Z-E/card-1.md
+card-E-12.md <- X-E/card-2.md
+card-B-01.md <- Y-B/card-4.md
+card-B-02.md <- Y-B/card-2.md
+card-B-03.md <- X-B/card-3.md
+card-B-04.md <- Y-B/card-1.md
+card-B-05.md <- Z-B/card-4.md
+card-B-06.md <- X-B/card-4.md
+card-B-07.md <- Y-B/card-3.md
+card-B-08.md <- X-B/card-1.md
+card-B-09.md <- Z-B/card-3.md
+card-B-10.md <- Z-B/card-2.md
+card-B-11.md <- Z-B/card-1.md
+card-B-12.md <- X-B/card-2.md
