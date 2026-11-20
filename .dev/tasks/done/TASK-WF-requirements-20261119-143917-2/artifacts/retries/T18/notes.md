@@ -1,0 +1,2 @@
+- the T18 start snapshot was taken after repos.py and test_repos.py were written (the T17 re-review ran in parallel); the reviewer read the live files whole
+- review 1 note F1.1: a repo name with two or more spaces would fail loudly as unreadable_list, never be skipped silently

@@ -1,0 +1,1 @@
+- review 1 note F1.1: the guard test example for stage-status lacked --repo; fixed in place after the review

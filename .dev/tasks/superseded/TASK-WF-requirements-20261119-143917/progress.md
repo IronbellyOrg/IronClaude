@@ -1,0 +1,9 @@
+# implement ledger — source: ./TASK-WF-requirements-20261119-143917.md — created: 2026-11-19T15:32:25Z
+PLAN: sha256=0193e905343527b407127ebc633ecbe79b40da6c24e357dd8d6e9a85bebe0450 source_sha256=2bb13ff0d6f008ee57d5b7ce15832fa88d9a2ed7542a04546c417395a39cb99e
+T1: start sha=b617d176112d3b52a6476d2736d79c455fbf9c83
+T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3,T1.AC4 evidence=T1.AC1@src/superclaude/cli/issue_watch/predicates.py:273,T1.AC2@tests/issue_watch/test_predicates.py:458,T1.AC3@tests/issue_watch/conftest.py:873,T1.AC4@tests/issue_pipeline/test_reads.py:1 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/issue_watch/predicates.py,tests/issue_watch/test_predicates.py,tests/issue_watch/conftest.py,tests/issue_watch/test_github.py,tests/issue_watch/fixtures/_assumed_shape/graphql_project_items.json
+T2: start sha=1209e2d53846e31d2ad2d81e901df0013556a06d
+T2: complete verdict=compliant ac=T2.AC1,T2.AC2,T2.AC3 evidence=T2.AC1@docs/designs/issue-watcher.md:15,T2.AC2@docs/designs/issue-watcher-setup.md:189,T2.AC3@tests/docs/test_tavily_doc_alignment.py:1 extras=lint:skip,typecheck:skip,test:pass files=docs/designs/issue-watcher.md,docs/designs/issue-watcher-setup.md
+T3: start sha=20cd30f5c17dfc37dca5138efff1c1f3b1779870
+T3: complete verdict=compliant ac=T3.AC1,T3.AC2,T3.AC3,T3.AC4 evidence=T3.AC1@./artifacts/t3-single-select-value-fields.txt:1,T3.AC2@tests/issue_watch/test_github.py:1507,T3.AC3@src/superclaude/cli/issue_watch/github.py:95,T3.AC4@src/superclaude/cli/issue_watch/predicates.py:119 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/issue_watch/github.py,src/superclaude/cli/issue_watch/predicates.py,tests/issue_watch/test_github.py,tests/issue_watch/conftest.py,tests/issue_watch/fixtures/_assumed_shape/graphql_project_items.json,.dev/tasks/to-do/TASK-WF-requirements-20261119-143917/artifacts/t3-single-select-value-fields.txt
+T4: start sha=12a14d86d0beedf92c5b30ac5f82cc753e42a5db

@@ -1,0 +1,2 @@
+- review 1 F1.1 (a weak real-home assertion) removed after the review; the HOME-redirect check stays
+- the Projects query omits the title field the brief names (the watcher security scan forbids it; the title is unused); the collaborators URL adds per_page=100

@@ -1,0 +1,2 @@
+- review 1 minor: F1.2 the complete pattern misses two spaces between the words or a trailing ; or ); stated limit of a best-effort pattern
+- review 3 note F3.1: design doc line 85 summary omits the .config/superclaude token (stays true)

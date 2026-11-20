@@ -1,0 +1,3 @@
+- review 1 F1.1 (a stale OPEN sentence in the R24 row) and F1.2 (the status vocabulary line lacked `decided (Coder repo)`) were fixed and confirmed by review 2
+- R35 had no row in requirements.md; a row was added (built). source.md is pinned by the plan and was not edited, so it still has the label wording
+- R31 stays `built` in the status column because the code still has the rule; R36 (owner 2026-11-20) withdraws it and the amendment file removes it in a separate pass

@@ -1,0 +1,1 @@
+- the reply shape of GET orgs/<owner>/issue-fields is unverified live; read defensively, anything unexpected is failed

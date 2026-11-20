@@ -1,0 +1,3 @@
+- review 1 F1.1 (a dry run was said to exit 75) and F1.2 (the Project check was said to need exactly one Project) were wrong sentences in the setup runbook; both fixed and confirmed by review 2
+- review 1 F1.3 and review 2 F2.1 (advisory): the setup runbook points to the Coder handoff file that Task 27 creates
+- the docs describe the R31 value-time void rule as built; owner decision R36 (2026-11-20) withdraws it and the amendment file removes it in a separate pass after this plan

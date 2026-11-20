@@ -1,0 +1,1 @@
+- review 1 note F1.1: _make_runner moved above the new verb in cli.py; harmless

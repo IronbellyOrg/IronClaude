@@ -1,0 +1,1 @@
+Review 1 note (not blocking, F1.1): complete.py adds refused:bad_summary and refused:bad_run and reads the closed three-line result file strictly; the brief names only a pointer to the result summary file.

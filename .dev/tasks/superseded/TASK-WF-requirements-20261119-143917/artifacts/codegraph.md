@@ -1,0 +1,1 @@
+run state: index_state=fresh access=mcp checked_at=2026-11-19T15:32:25Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb projectPath=/home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb

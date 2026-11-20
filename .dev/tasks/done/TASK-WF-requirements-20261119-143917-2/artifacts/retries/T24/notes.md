@@ -1,0 +1,3 @@
+- review 1 F1.1 (the generation skip reasons were in no table) fixed: SKIP_REASONS now names them and a test reads generate.py and repos.py to keep it complete
+- review 1 F1.2: the pre-child reads can overrun the 270 s cap by one repo's checks; the 255 s kill still bounds each child
+- review 1 F1.1 was fixed after the review and verified by the new table test; no second review was run for that one-table edit
