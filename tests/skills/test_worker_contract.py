@@ -3063,6 +3063,14 @@ WRITE_VERB_CLASSIFICATION = {
         "never-worker",
         "/sc:issue is on the never-as-worker list; its type, field and comment writes run only in the coordinator or person session",
     ),
+    (
+        "src/superclaude/skills/agent-work-report/SKILL.md",
+        "git add+git commit",
+        '`python3 run.py close <run>`, then from the orchestrator repo root: `git add .dev/coordinator && git commit -m "chore(coordinator): report <run id>"`. Never push.',
+    ): (
+        "no-command",
+        "the report skill runs only in the coordinator session, never in a worker; Step 14 commits its own state folder in the orchestrator repo and never pushes",
+    ),
     # /sc:closeout (issue 668): every `gh pr` and `gh api` line of its two scripts. All are
     # plain reads (GET); the writes of the skill are `gh issue comment`, `gh issue close`
     # and an Orca task update, none of which the audit pattern matches.
