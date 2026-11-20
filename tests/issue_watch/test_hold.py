@@ -1001,6 +1001,24 @@ def test_a_backlog_label_added_while_a_plan_request_waits_sends_no_resend(
     assert len(waker.deliveries) == 1
 
 
+@pytest.mark.parametrize("change", ["disabled", "removed"])
+def test_a_repo_disabled_or_removed_while_a_plan_request_waits_sends_no_resend(
+    tmp_path, tmp_state, gh_world, change
+):
+    world = due_world(gh_world, tmp_path, tmp_state)
+    waker = FakeWaker()
+    quiet_run(world, tmp_path, tmp_state, 60, waker=waker)
+    assert len(waker.deliveries) == 1
+    repos_now = (
+        [{"repo": REPO_A, "enabled": False, "checkout": None, "clone_parent": str(tmp_path)}]
+        if change == "disabled"
+        else [{"repo": "IronbellyOrg/Other", "enabled": True, "checkout": None, "clone_parent": str(tmp_path)}]
+    )  # fmt: skip
+    write_repos(world.config.orchestrator_repo, repos=repos_now)
+    quiet_run(world, tmp_path, tmp_state, 11, waker=waker)  # the lease is over
+    assert len(waker.deliveries) == 1
+
+
 def test_a_rate_limited_evidence_read_stops_the_cycle_and_persists_the_backoff(
     tmp_path, tmp_state, gh_world
 ):

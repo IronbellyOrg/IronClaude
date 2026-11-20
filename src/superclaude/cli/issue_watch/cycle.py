@@ -1529,6 +1529,11 @@ class _Cycle:
                 or predicates.BACKLOG_LABEL in row.labels  # deferred since the request
             ):
                 continue
+            listed = self.rdoc.get(row.repo)  # still listed and enabled?
+            if listed is None or not listed.enabled:
+                continue
+            if self._checkout_for(row.repo) == "origin_mismatch":
+                continue
             bucket(ident)["plans"].append(
                 wake.PlanRequestItem(
                     row.repo,
