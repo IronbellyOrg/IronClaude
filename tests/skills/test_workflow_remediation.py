@@ -37,7 +37,11 @@ _spec.loader.exec_module(rm)
             {"forced": "regenerate", "regenerated_already": True},
             ("escalate", True),
         ),
-        ((1, 0, 0), {"forced": "surgical", "regenerated_already": True}, ("surgical", True)),
+        (
+            (1, 0, 0),
+            {"forced": "surgical", "regenerated_already": True},
+            ("surgical", True),
+        ),
     ],
 )
 def test_route(args, kwargs, expected):
@@ -64,8 +68,16 @@ def test_cli_prints_json():
 
 def test_cli_forced_and_escalate():
     p = _run(
-        "route", "--blocking", "1", "--label-high", "0", "--medium", "0",
-        "--forced", "regenerate", "--regenerated-already",
+        "route",
+        "--blocking",
+        "1",
+        "--label-high",
+        "0",
+        "--medium",
+        "0",
+        "--forced",
+        "regenerate",
+        "--regenerated-already",
     )
     assert json.loads(p.stdout) == {"route": "escalate", "forced": True}
 
@@ -125,7 +137,9 @@ def make_pkg(root, contract=BASE_CONTRACT, pid=OLD):
 
 
 def top_keys(text):
-    return [ln.split(":", 1)[0] for ln in text.splitlines() if re.match(r"^[A-Za-z_]+:", ln)]
+    return [
+        ln.split(":", 1)[0] for ln in text.splitlines() if re.match(r"^[A-Za-z_]+:", ln)
+    ]
 
 
 def sha(p):
@@ -193,7 +207,9 @@ def test_revision_number_increments(repo, tmp_path):
     _, copy = repaired_copy(repo, new=new)
     rm.archive(repo, pkg, new)
     rm.place(repo, OLD, new, str(copy), COUNTS, str(review_file(tmp_path)))
-    assert "## Revision 2" in (repo / ".dev/tasks/to-do" / new / "source.md").read_text()
+    assert (
+        "## Revision 2" in (repo / ".dev/tasks/to-do" / new / "source.md").read_text()
+    )
 
 
 def test_archive_none_appends_one_unrecorded_line(repo):
@@ -239,21 +255,30 @@ def test_unresolved_forms_and_restore_is_byte_identical(repo, tmp_path, tail, ne
     assert text.count("SUPERSEDED by") == 1
     keys = top_keys(text)
     assert len(keys) == len(set(keys))
-    other = [k for k in keys if k not in top_keys(contract) and k not in ("superseded_by", "unresolved")]
+    other = [
+        k
+        for k in keys
+        if k not in top_keys(contract) and k not in ("superseded_by", "unresolved")
+    ]
     assert other == []
     if "handoff: none" in tail and "unresolved:\n- one" in tail:
-        assert "- one\n- \"SUPERSEDED" in text  # same list style, list followed by keys
+        assert '- one\n- "SUPERSEDED' in text  # same list style, list followed by keys
         assert text.index("SUPERSEDED by") < text.index("reflect: ok")
     # failed place (copy dir missing) -> release -> restore
     with pytest.raises(rm.RemediateError):
-        rm.place(repo, OLD, new, str(tmp_path / "nope"), COUNTS, str(review_file(tmp_path)))
+        rm.place(
+            repo, OLD, new, str(tmp_path / "nope"), COUNTS, str(review_file(tmp_path))
+        )
     rm.release(repo, new)
     assert not (repo / ".dev/tasks/to-do" / new).exists()
     rm.restore(repo, OLD)
     back = repo / ".dev/tasks/to-do" / OLD
     assert (back / "return-contract.yaml").read_text() == contract
     assert not (back / "artifacts").exists()
-    assert "SUPERSEDED" not in (back / "return-contract.yaml").read_text() or "SUPERSEDED" in contract
+    assert (
+        "SUPERSEDED" not in (back / "return-contract.yaml").read_text()
+        or "SUPERSEDED" in contract
+    )
     assert not (repo / ".dev/tasks/archive" / OLD).exists()
 
 
@@ -293,7 +318,9 @@ def test_reserve_collision_suffixes_and_exhaustion(repo):
         rm.reserve(repo, OLD, now=STAMP)
     assert e.value.code == "E-PACKAGE-COLLISION"
     # only the one leaf created earlier remains new
-    assert sorted(p.name for p in (tasks / "to-do").iterdir()) == sorted([OLD, NEW + "-2"])
+    assert sorted(p.name for p in (tasks / "to-do").iterdir()) == sorted(
+        [OLD, NEW + "-2"]
+    )
 
 
 def test_reserve_uses_real_clock_id_rule(repo):
@@ -335,7 +362,9 @@ def test_archive_never_overwrites_existing_destination(repo):
     assert (pkg / "return-contract.yaml").read_text() == before
 
 
-def test_failed_place_release_restore_leaves_no_new_package(repo, tmp_path, monkeypatch):
+def test_failed_place_release_restore_leaves_no_new_package(
+    repo, tmp_path, monkeypatch
+):
     pkg = make_pkg(repo)
     new = rm.reserve(repo, OLD, now=STAMP)
     _, copy = repaired_copy(repo, new=new)
@@ -354,7 +383,9 @@ def test_failed_place_release_restore_leaves_no_new_package(repo, tmp_path, monk
     todo = sorted(p.name for p in (repo / ".dev/tasks/to-do").iterdir())
     assert todo == [OLD]
     assert not list((repo / ".dev/tasks/archive").iterdir())
-    assert (repo / ".dev/tasks/to-do" / OLD / "return-contract.yaml").read_text() == BASE_CONTRACT
+    assert (
+        repo / ".dev/tasks/to-do" / OLD / "return-contract.yaml"
+    ).read_text() == BASE_CONTRACT
 
 
 def test_release_removes_empty_leaf_and_is_idempotent(repo):
@@ -367,13 +398,18 @@ def test_release_removes_empty_leaf_and_is_idempotent(repo):
 def test_mark_regenerate_writes_link_fields(repo):
     pkg = make_pkg(repo)
     rm.mark(
-        pkg, supersedes="TASK-WF-authLogin-20260901-000000",
-        route_name="regenerate", finding_counts=COUNTS,
+        pkg,
+        supersedes="TASK-WF-authLogin-20260901-000000",
+        route_name="regenerate",
+        finding_counts=COUNTS,
     )
     text = (pkg / "return-contract.yaml").read_text()
     assert "supersedes: TASK-WF-authLogin-20260901-000000" in text
     assert "remediation_route: regenerate" in text
-    assert 'finding_counts: {"blocking": 1, "label_high": 0, "medium": 2, "note": 3}' in text
+    assert (
+        'finding_counts: {"blocking": 1, "label_high": 0, "medium": 2, "note": 3}'
+        in text
+    )
     with pytest.raises(rm.RemediateError):  # the three go together
         rm.mark(pkg, supersedes="TASK-WF-authLogin-20260901-000000")
 
@@ -400,7 +436,12 @@ def test_mark_without_contract_creates_minimal_regenerate_links(repo):
     text = (pkg / "return-contract.yaml").read_text()
     keys = top_keys(text)
     assert keys == [
-        "contract_version", "status", "slug", "supersedes", "remediation_route", "finding_counts",
+        "contract_version",
+        "status",
+        "slug",
+        "supersedes",
+        "remediation_route",
+        "finding_counts",
     ]
     assert 'contract_version: "1.1"' in text and "status: partial" in text
     assert f"slug: {OLD}" in text and f"supersedes: {old}" in text
@@ -441,9 +482,19 @@ def test_missing_sibling_helper_moves_nothing(repo, tmp_path):
     pkg = make_pkg(repo)
     script = _install_without_sibling(tmp_path)
     p = subprocess.run(
-        [sys.executable, str(script), "archive", "--root", str(repo),
-         "--package", str(pkg), "--superseded-by", "none"],
-        capture_output=True, text=True,
+        [
+            sys.executable,
+            str(script),
+            "archive",
+            "--root",
+            str(repo),
+            "--package",
+            str(pkg),
+            "--superseded-by",
+            "none",
+        ],
+        capture_output=True,
+        text=True,
     )
     assert p.returncode == 1 and "E-REMEDIATE-HELPER" in p.stderr
     assert pkg.is_dir() and not (repo / ".dev/tasks/archive").exists()
@@ -457,9 +508,19 @@ def test_installed_layout_finds_sibling_helper(repo, tmp_path):
     helper_dir.mkdir(parents=True)
     shutil.copy(rm.HELPER_PATH, helper_dir / "archive_workspace.py")
     p = subprocess.run(
-        [sys.executable, str(script), "archive", "--root", str(repo),
-         "--package", str(pkg), "--superseded-by", "none"],
-        capture_output=True, text=True,
+        [
+            sys.executable,
+            str(script),
+            "archive",
+            "--root",
+            str(repo),
+            "--package",
+            str(pkg),
+            "--superseded-by",
+            "none",
+        ],
+        capture_output=True,
+        text=True,
     )
     assert p.returncode == 0, p.stderr
     assert (repo / ".dev/tasks/archive" / OLD).is_dir()
@@ -487,9 +548,13 @@ def test_cli_reserve_prepare_archive_flow(repo):
     assert Path(info["copy_dir"]).name == new
     assert info["old_plan_sha256"] == sha(pkg / f"{OLD}.md")
     assert Path(info["tmp_dir"]).name.startswith("sc-workflow-revise.")
-    a = _run("archive", "--root", str(repo), "--package", str(pkg), "--superseded-by", new)
+    a = _run(
+        "archive", "--root", str(repo), "--package", str(pkg), "--superseded-by", new
+    )
     assert a.returncode == 0 and json.loads(a.stdout)["status"] == "archived"
-    bad = _run("archive", "--root", str(repo), "--package", str(pkg), "--superseded-by", "none")
+    bad = _run(
+        "archive", "--root", str(repo), "--package", str(pkg), "--superseded-by", "none"
+    )
     assert bad.returncode == 1 and "E-REMEDIATE" in bad.stderr
 
 
@@ -524,7 +589,9 @@ def test_revise_waives_source_and_enters_wave_4r_directly():
     assert "enters Wave 4R directly with `<old-id>` = the given package" in wave0
 
 
-_IMPL_DIR = Path(__file__).resolve().parents[2] / "src/superclaude/skills/sc-implement-protocol"
+_IMPL_DIR = (
+    Path(__file__).resolve().parents[2] / "src/superclaude/skills/sc-implement-protocol"
+)
 
 
 def test_implement_refuses_review_verdict_fail_before_ledger():
@@ -542,16 +609,89 @@ def test_review_fail_code_listed_in_every_managed_stop_list():
     qa = (_IMPL_DIR / "refs/qa.md").read_text(encoding="utf-8")
     assert "| `E-MANAGED-REVIEW-FAIL` |" in skill
     assert "`E-MANAGED-CONFLICT`, `E-MANAGED-REVIEW-FAIL`" in qa
-    plugin = Path(__file__).resolve().parents[2] / "plugins/superclaude/skills/sc-implement-protocol"
+    plugin = (
+        Path(__file__).resolve().parents[2]
+        / "plugins/superclaude/skills/sc-implement-protocol"
+    )
     for rel in ("SKILL.md", "refs/qa.md", "refs/managed-workspace.md"):
         assert (plugin / rel).read_bytes() == (_IMPL_DIR / rel).read_bytes(), rel
 
 
 def test_contract_pin_and_locations_unchanged():
     m = (_IMPL_DIR / "refs/managed-workspace.md").read_text(encoding="utf-8")
-    assert '`contract_version: "1.1"`' in m and "contract_version: \"1.2\"" not in m
+    assert '`contract_version: "1.1"`' in m and 'contract_version: "1.2"' not in m
     arch = (_IMPL_DIR / "scripts/archive_workspace.py").read_text(encoding="utf-8")
     assert 'contract.get("contract_version") != "1.1"' in arch
-    assert "<checkout>/.dev/tasks/to-do/<slug>/<slug>.md` or `<checkout>/.dev/tasks/done/<slug>/<slug>.md`" in m
+    assert (
+        "<checkout>/.dev/tasks/to-do/<slug>/<slug>.md` or `<checkout>/.dev/tasks/done/<slug>/<slug>.md`"
+        in m
+    )
     assert 'tasks / "archive"' not in arch and '"tasks" / "archive"' not in arch
-    assert "archive/" not in m.split("## Location resolution", 1)[1].split("## Ledger", 1)[0]
+    assert (
+        "archive/"
+        not in m.split("## Location resolution", 1)[1].split("## Ledger", 1)[0]
+    )
+
+
+def test_archive_refuses_symlinked_archive_dir(repo, tmp_path):
+    pkg = make_pkg(repo)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (repo / ".dev/tasks/archive").symlink_to(outside)
+    with pytest.raises(rm.RemediateError) as e:
+        rm.archive(repo, pkg, "none")
+    assert e.value.code == "E-REMEDIATE-ROOT"
+    assert pkg.is_dir() and not os.listdir(outside)
+
+
+def test_restore_refuses_symlinked_todo_dir(repo, tmp_path):
+    pkg = make_pkg(repo)
+    rm.archive(repo, pkg, "none")
+    todo = repo / ".dev/tasks/to-do"
+    todo.rmdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    todo.symlink_to(outside)
+    with pytest.raises(rm.RemediateError) as e:
+        rm.restore(repo, OLD)
+    assert e.value.code == "E-REMEDIATE-ROOT"
+    assert (repo / ".dev/tasks/archive" / OLD).is_dir() and not os.listdir(outside)
+
+
+def test_archive_refuses_preexisting_undo_file_and_keeps_it(repo):
+    pkg = make_pkg(repo)
+    undo = pkg / "artifacts" / rm.UNDO_NAME
+    undo.parent.mkdir()
+    undo.write_bytes(b"precious\x00bytes")
+    with pytest.raises(rm.RemediateError) as e:
+        rm.archive(repo, pkg, "none")
+    assert e.value.code == "E-REMEDIATE-CONFLICT"
+    assert undo.read_bytes() == b"precious\x00bytes"
+    assert not (repo / ".dev/tasks/archive" / OLD).exists()
+
+
+def test_archive_rollback_deletes_only_undo_file_it_created(repo, monkeypatch):
+    pkg = make_pkg(repo)
+    (pkg / "artifacts").mkdir()
+    (pkg / "artifacts" / "keep.txt").write_text("keep")
+
+    def boom(*a, **k):
+        raise OSError("contract write failed")
+
+    monkeypatch.setattr(rm, "_write_atomic", boom)
+    with pytest.raises(rm.RemediateError) as e:
+        rm.archive(repo, pkg, "none")
+    assert "rolled back" in e.value.msg
+    assert (pkg / "artifacts" / "keep.txt").read_text() == "keep"
+    assert not (
+        pkg / "artifacts" / rm.UNDO_NAME
+    ).exists()  # the run's own file is removed
+
+
+def test_remediation_ref_coordinator_supplies_diff():
+    ref = (_SKILL_DIR / "refs/remediation.md").read_text(encoding="utf-8")
+    sec = ref.split("## 4. The re-review brief", 1)[1].split("## 5.", 1)[0]
+    assert "The coordinator runs `diff -w <baseline> <candidate>` itself" in sec
+    assert 'stands in for the prompt\'s "Run diff -w" step' in sec
+    assert "runs no commands" in sec
+    assert "It runs `diff -w" not in sec

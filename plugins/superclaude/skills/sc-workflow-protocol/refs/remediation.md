@@ -69,7 +69,7 @@ The reviser and the re-reviewer are sub-agents started with the Agent tool.
 
 - Agent type `reflect-reviewer`, started with the Agent tool, read-only.
 - Inputs: the placed plan (candidate), the archived original `.dev/tasks/archive/<old-id>/<old-id>.md` as baseline, the prior review report, and the prior blocking findings.
-- It runs `diff -w baseline candidate`, then decides each prior blocker as `resolved`, `open` or `regressed` by comparing the defect with the changed text, and grades any new finding by the review severity rule. Follow the RE-REVIEW prompt of `~/.claude/rules/prompts/document_review_loop_prompts.md` (project copy second).
+- The reviewer is read-only and runs no commands. The coordinator runs `diff -w <baseline> <candidate>` itself and puts that output, with the baseline and candidate paths, in the reviewer's brief; that supplied output stands in for the prompt's "Run diff -w" step. The reviewer decides each prior blocker as `resolved`, `open` or `regressed` by comparing the defect with the changed text, and grades any new finding by the review severity rule. Follow the RE-REVIEW prompt of `~/.claude/rules/prompts/document_review_loop_prompts.md` (project copy second).
 - Scope: changed lines plus prior blockers; the contract's `reflect_status` says so. Its card gives the counts for the next routing decision.
 
 ## 5. The regenerate route

@@ -184,7 +184,10 @@ PARITY_FIELDS = (
     "reviewer_cards",
 )
 LEGAL_MERGE_METHODS = ("adversarial", "single-reviewer-fallback")
-CONTRACT_VERSIONS = ("1.8.0", "1.9.0")  # 1.8.0 is a recorded contract; finding_counts is optional there
+CONTRACT_VERSIONS = (
+    "1.8.0",
+    "1.9.0",
+)  # 1.8.0 is a recorded contract; finding_counts is optional there
 
 _KEY_LINE = re.compile(r"(?m)^([a-z_0-9]+):")
 _CARD_FILE = re.compile(r"^reviewer-(\d+)-card\.(?:yaml|yml|md)$")

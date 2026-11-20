@@ -232,7 +232,9 @@ def test_f3_f4_contract_version(tmp_path):
     assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == [
         "L1 contract_version: expected one of '1.8.0', '1.9.0', got None"
     ]
-    run = make(tmp_path, mutate=lambda c: c.update(contract_version="1.7.0"), name="run3")
+    run = make(
+        tmp_path, mutate=lambda c: c.update(contract_version="1.7.0"), name="run3"
+    )
     assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == [
         "L1 contract_version: expected one of '1.8.0', '1.9.0', got '1.7.0'"
     ]

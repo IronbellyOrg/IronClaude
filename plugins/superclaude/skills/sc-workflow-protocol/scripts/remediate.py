@@ -61,7 +61,11 @@ class RemediateError(Exception):
 # --------------------------------------------------------------------- route
 def route(blocking, label_high, medium, regenerated_already=False, forced=None):
     """Return (route, forced). Rows in order, first match wins."""
-    for name, v in (("blocking", blocking), ("label_high", label_high), ("medium", medium)):
+    for name, v in (
+        ("blocking", blocking),
+        ("label_high", label_high),
+        ("medium", medium),
+    ):
         if isinstance(v, bool) or not isinstance(v, int) or v < 0:
             raise ValueError(f"{name} must be a non-negative integer, got {v!r}")
     if forced is not None and forced not in ROUTES:
@@ -91,7 +95,11 @@ def _count(text):
 
 def _cmd_route(args):
     r, forced = route(
-        args.blocking, args.label_high, args.medium, args.regenerated_already, args.forced
+        args.blocking,
+        args.label_high,
+        args.medium,
+        args.regenerated_already,
+        args.forced,
     )
     print(json.dumps({"route": r, "forced": forced}))
     return 0
@@ -119,13 +127,25 @@ def _real_dir(p):
     return os.path.isdir(p) and not os.path.islink(p)
 
 
+def _check_tree(root, tasks):
+    """Fail closed unless .dev, tasks, to-do and archive (those that exist) are real dirs."""
+    for d in (root / ".dev", tasks, tasks / "to-do", tasks / "archive"):
+        if os.path.islink(d) or (os.path.lexists(d) and not os.path.isdir(d)):
+            _fail(
+                "E-REMEDIATE-ROOT",
+                f"{d} must be a real directory (no symlink); nothing moved",
+            )
+
+
 def _load_helper():
     if not HELPER_PATH.is_file():
         _fail(
             "E-REMEDIATE-HELPER",
             f"sibling helper missing, nothing moved: {HELPER_PATH}",
         )
-    spec = importlib.util.spec_from_file_location("archive_workspace_helper", HELPER_PATH)
+    spec = importlib.util.spec_from_file_location(
+        "archive_workspace_helper", HELPER_PATH
+    )
     mod = importlib.util.module_from_spec(spec)
     try:
         spec.loader.exec_module(mod)
@@ -179,7 +199,9 @@ def _parse_counts(text):
     if (
         not isinstance(obj, dict)
         or set(obj) != set(COUNT_KEYS)
-        or any(isinstance(v, bool) or not isinstance(v, int) or v < 0 for v in obj.values())
+        or any(
+            isinstance(v, bool) or not isinstance(v, int) or v < 0 for v in obj.values()
+        )
     ):
         _fail(
             "E-REMEDIATE-COUNTS",
@@ -283,12 +305,18 @@ def _undo_ops(lines, ops):
         if kind == "ins":
             _, idx, line = op
             if idx >= len(lines) or lines[idx] != line:
-                _fail("E-REMEDIATE-RESTORE", f"contract changed since archive (line {idx})")
+                _fail(
+                    "E-REMEDIATE-RESTORE",
+                    f"contract changed since archive (line {idx})",
+                )
             del lines[idx]
         elif kind == "rep":
             _, idx, new, orig = op
             if idx >= len(lines) or lines[idx] != new:
-                _fail("E-REMEDIATE-RESTORE", f"contract changed since archive (line {idx})")
+                _fail(
+                    "E-REMEDIATE-RESTORE",
+                    f"contract changed since archive (line {idx})",
+                )
             lines[idx] = orig
         elif kind == "del":
             _, idx, orig = op
@@ -302,9 +330,13 @@ def reserve(root, old_id, now=None):
     _check_id(old_id, "--old-id")
     root, tasks = _tasks(root)
     if not _real_dir(tasks / "to-do" / old_id):
-        _fail("E-REMEDIATE-SOURCE", f"{tasks / 'to-do' / old_id} is not a real directory")
+        _fail(
+            "E-REMEDIATE-SOURCE", f"{tasks / 'to-do' / old_id} is not a real directory"
+        )
     subject = ID_RE.match(old_id).group(1)
-    stamp = now or datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d-%H%M%S")
+    stamp = now or datetime.datetime.now(datetime.timezone.utc).strftime(
+        "%Y%m%d-%H%M%S"
+    )
     base = f"TASK-WF-{subject}-{stamp}"
     _check_id(base, "computed id")
     todo = tasks / "to-do"
@@ -337,8 +369,10 @@ def prepare(root, old_id, new_id):
     if not m or not re.search(r"^slug:.*$", m.group(2), re.M):
         _fail("E-REMEDIATE-SOURCE", "plan has no front-matter slug line")
     front = re.sub(r"^slug:.*$", f"slug: {new_id}", m.group(2), count=1, flags=re.M)
-    new_text = m.group(1) + front + m.group(3) + text[m.end():]
-    tmp = tempfile.mkdtemp(prefix="sc-workflow-revise.", dir="/tmp")  # mktemp -d semantics
+    new_text = m.group(1) + front + m.group(3) + text[m.end() :]
+    tmp = tempfile.mkdtemp(
+        prefix="sc-workflow-revise.", dir="/tmp"
+    )  # mktemp -d semantics
     copy = Path(tmp) / new_id
     copy.mkdir()
     (copy / f"{new_id}.md").write_text(new_text, encoding="utf-8")
@@ -359,6 +393,7 @@ def _contract_edit(text, key_values, item=None):
 
 def archive(root, package, superseded_by):
     root, tasks = _tasks(root)
+    _check_tree(root, tasks)
     pkg = Path(os.path.abspath(package))
     old_id = _check_id(pkg.name, "package")
     if os.path.realpath(pkg.parent) != str(tasks / "to-do"):
@@ -369,7 +404,10 @@ def archive(root, package, superseded_by):
     if not _real_dir(src):
         _fail("E-REMEDIATE-SOURCE", f"{src} is not a real directory")
     if os.path.lexists(dst):
-        _fail("E-REMEDIATE-CONFLICT", f"archive destination exists: {dst}; nothing changed")
+        _fail(
+            "E-REMEDIATE-CONFLICT",
+            f"archive destination exists: {dst}; nothing changed",
+        )
     helper = _load_helper()
     contract = src / "return-contract.yaml"
     undo_ops = []
@@ -396,13 +434,24 @@ def archive(root, package, superseded_by):
     made_artifacts = not os.path.lexists(src / "artifacts")
     if not made_artifacts and not _real_dir(src / "artifacts"):
         _fail("E-REMEDIATE-SOURCE", "artifacts must be a real directory")
+    if os.path.lexists(src / "artifacts" / UNDO_NAME):
+        _fail(
+            "E-REMEDIATE-CONFLICT",
+            f"{src / 'artifacts' / UNDO_NAME} already exists; nothing moved, nothing deleted",
+        )
     os.makedirs(dst.parent, exist_ok=True)
     _move(helper, src, dst)  # first mutation; fails closed with nothing moved
+    undo_created = False
     try:
         if made_artifacts:
             os.mkdir(dst / "artifacts")
-        record = {"created_contract": created, "made_artifacts": made_artifacts, "ops": undo_ops}
+        record = {
+            "created_contract": created,
+            "made_artifacts": made_artifacts,
+            "ops": undo_ops,
+        }
         _write_new(dst / "artifacts" / UNDO_NAME, json.dumps(record) + "\n")
+        undo_created = True
         _write_atomic(dst / "return-contract.yaml", new_text)
     except Exception as exc:
         try:  # best effort: put the package back untouched
@@ -410,20 +459,28 @@ def archive(root, package, superseded_by):
                 for n in os.listdir(dst / "artifacts"):
                     os.unlink(dst / "artifacts" / n)
                 os.rmdir(dst / "artifacts")
-            elif os.path.lexists(dst / "artifacts" / UNDO_NAME):
+            elif undo_created and os.path.lexists(dst / "artifacts" / UNDO_NAME):
                 os.unlink(dst / "artifacts" / UNDO_NAME)
             if created and os.path.lexists(dst / "return-contract.yaml"):
                 os.unlink(dst / "return-contract.yaml")
             _move(helper, dst, src)
         except Exception as back:
-            _fail("E-REMEDIATE-ARCHIVE", f"{exc}; rollback failed ({back}); package is at {dst}")
+            _fail(
+                "E-REMEDIATE-ARCHIVE",
+                f"{exc}; rollback failed ({back}); package is at {dst}",
+            )
         _fail("E-REMEDIATE-ARCHIVE", f"{exc}; rolled back, package is in to-do/")
-    return {"status": "archived", "path": str(dst), "added_unresolved": item is not None}
+    return {
+        "status": "archived",
+        "path": str(dst),
+        "added_unresolved": item is not None,
+    }
 
 
 def restore(root, old_id):
     _check_id(old_id, "--old-id")
     root, tasks = _tasks(root)
+    _check_tree(root, tasks)
     src, dst = tasks / "archive" / old_id, tasks / "to-do" / old_id
     if not _real_dir(src):
         _fail("E-REMEDIATE-SOURCE", f"{src} is not a real directory")
@@ -459,8 +516,16 @@ def restore(root, old_id):
 
 
 # ---------------------------------------------------------------------- mark
-def mark(package, review_fail=False, open_blockers=None, superseded_by=None,
-         fix_cycles=None, supersedes=None, route_name=None, finding_counts=None):
+def mark(
+    package,
+    review_fail=False,
+    open_blockers=None,
+    superseded_by=None,
+    fix_cycles=None,
+    supersedes=None,
+    route_name=None,
+    finding_counts=None,
+):
     pkg = Path(package)
     contract = pkg / "return-contract.yaml"
     missing = not os.path.lexists(contract)
@@ -550,8 +615,7 @@ def place(root, old_id, new_id, copy_dir, finding_counts, review):
 
     _write_new(leaf / f"{new_id}.md", new_text)
     revision = (
-        ("" if src_text.endswith("\n") else "\n")
-        + f"\n## Revision {n}\n\n"
+        ("" if src_text.endswith("\n") else "\n") + f"\n## Revision {n}\n\n"
         f"- Replaces package: {old_id} (archived under .dev/tasks/archive/{old_id}/)\n"
         f"- Review report: {rev}\n"
         "- Fix map: ./artifacts/revision-log.md (diff: ./artifacts/plan.diff)\n"
@@ -592,11 +656,17 @@ def release(root, new_id):
         for d in dn:
             r = str(rel / d)
             if r != "artifacts" or os.path.islink(Path(dp) / d):
-                _fail("E-REMEDIATE-RELEASE", f"{leaf / r} was not written by place; left alone")
+                _fail(
+                    "E-REMEDIATE-RELEASE",
+                    f"{leaf / r} was not written by place; left alone",
+                )
             dirs.append(Path(dp) / d)
         for f in fn:
             if str(rel / f) not in allowed:
-                _fail("E-REMEDIATE-RELEASE", f"{Path(dp) / f} was not written by place; left alone")
+                _fail(
+                    "E-REMEDIATE-RELEASE",
+                    f"{Path(dp) / f} was not written by place; left alone",
+                )
             files.append(Path(dp) / f)
     for f in files:
         os.unlink(f)
@@ -651,7 +721,11 @@ def main(argv=None):
 
     s = add(
         "place",
-        _json(lambda a: place(a.root, a.old_id, a.new_id, a.copy_dir, a.finding_counts, a.review)),
+        _json(
+            lambda a: place(
+                a.root, a.old_id, a.new_id, a.copy_dir, a.finding_counts, a.review
+            )
+        ),
     )
     s.add_argument("--old-id", required=True)
     s.add_argument("--new-id", required=True)
@@ -666,8 +740,14 @@ def main(argv=None):
         "mark",
         _json(
             lambda a: mark(
-                a.package, a.review_fail, a.open_blockers, a.superseded_by,
-                a.fix_cycles, a.supersedes, a.route, a.finding_counts,
+                a.package,
+                a.review_fail,
+                a.open_blockers,
+                a.superseded_by,
+                a.fix_cycles,
+                a.supersedes,
+                a.route,
+                a.finding_counts,
             )
         ),
         root=False,
