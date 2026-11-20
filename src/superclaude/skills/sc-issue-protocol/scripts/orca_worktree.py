@@ -238,6 +238,17 @@ WARNING_ORDER = [
     "W-FIRST-TAB-LEFT",  # cosmetic: an empty tab to close by hand, so it ranks last
 ]
 RECORD_NAME = "worktree.json"
+LAUNCH_RESULT_NAME = "launch-result.json"
+
+
+def write_launch_result(source: Path, result: dict) -> None:
+    """Save the launch JSON next to the issue files; best-effort, never raises."""
+    try:
+        atomic_write_text(
+            source / LAUNCH_RESULT_NAME, json.dumps(result, indent=2) + "\n"
+        )
+    except OSError:
+        pass
 
 
 @dataclass
@@ -463,7 +474,7 @@ def copy_issue_dir(
         for name in sorted(files):
             src_file = Path(walk_root) / name
             rel = src_file.relative_to(source)
-            if rel.as_posix() == RECORD_NAME:
+            if rel.as_posix() in (RECORD_NAME, LAUNCH_RESULT_NAME):
                 continue
             dst_file = dest / rel
             bad = first_symlink(root, dst_file.parent)
@@ -1696,10 +1707,16 @@ def stale_prompt(source: Path, wt: Path, number: int) -> str | None:
 def cmd_launch(args: argparse.Namespace) -> int:
     source, number = Path(args.source), args.number
     failed = "W-LAUNCH-FAILED"
+
+    def finish(result: dict) -> int:
+        # Every launched or failed result is also saved; already_launched is not.
+        write_launch_result(source, result)
+        return emit(result)
+
     main_common = git_common_dir()
     wt = guarded_record_path(source, main_common) if main_common else None
     if wt is None:
-        return emit(launch_result("failed", [(failed, "no usable worktree record")]))
+        return finish(launch_result("failed", [(failed, "no usable worktree record")]))
     record = read_record(source) or {}
     mirror_path, mirrored = read_mirror(wt, number)
     earlier = record.get("launch")
@@ -1721,7 +1738,7 @@ def cmd_launch(args: argparse.Namespace) -> int:
         )
     stale = stale_prompt(source, Path(wt), number)
     if stale:
-        return emit(launch_result("failed", [(failed, stale)]))
+        return finish(launch_result("failed", [(failed, stale)]))
     # Order: the already-launched and stale-prompt checks above come first, the
     # IR-4 preflight next, and only then publish_pending, so a refusal leaves no
     # launch record and starts no agent. enforcement_hook in the result means:
@@ -1729,7 +1746,7 @@ def cmd_launch(args: argparse.Namespace) -> int:
     # refused, null (the launch_result default) no preflight ran.
     absent = enforcement_preflight(wt)
     if absent:
-        return emit(
+        return finish(
             launch_result(
                 "failed",
                 [
@@ -1755,7 +1772,7 @@ def cmd_launch(args: argparse.Namespace) -> int:
     l2, l2_reason = l2_status(wt)
     l2_notes = [("W-L2-ABSENT", L2_ABSENT_WHY + l2_reason)] if l2 != "owned" else []
     if IR7_REFUSE and l2_notes:
-        return emit(launch_result("failed", l2_notes, enforcement_hook=hook))
+        return finish(launch_result("failed", l2_notes, enforcement_hook=hook))
     word = "full-submit" if args.submit else args.level
     try:
         nonce, pending = publish_pending(word)
@@ -1766,7 +1783,7 @@ def cmd_launch(args: argparse.Namespace) -> int:
         except OSError:
             inode = None
     except OSError as exc:
-        return emit(
+        return finish(
             launch_result(
                 "failed",
                 [(failed, f"could not write the launch record: {exc}")],
@@ -1791,7 +1808,7 @@ def cmd_launch(args: argparse.Namespace) -> int:
             "  # an agent started by hand is not governed by the launch-level hook; "
             "re-running the claim is preferred"
         )
-        return emit(
+        return finish(
             launch_result(
                 "failed",
                 [(failed, why)],
@@ -1831,7 +1848,7 @@ def cmd_launch(args: argparse.Namespace) -> int:
     )
     if unrecorded:
         result["detail"] = "; ".join(filter(None, [result["detail"], unrecorded]))
-    return emit(result)
+    return finish(result)
 
 
 def issue_number(text: str) -> int:

@@ -815,6 +815,22 @@ def test_fo16_worktree_json_is_never_copied_and_keeps_its_launch_entry(
     }
 
 
+def test_fo16_launch_result_file_is_never_copied_into_the_worktree(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
+    (issue_dir / "worktree.json").write_text(
+        json.dumps({"path": str(wt), "status": "created"})
+    )
+    (issue_dir / "launch-result.json").write_text('{"status": "launched"}\n')
+    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "reused"
+    dest = wt / ".dev/issues/302"
+    assert not (dest / "launch-result.json").exists()
+    assert not (dest / "launch-result.json.prev").exists()
+
+
 def test_fo17_missing_base_ref_means_no_create(
     fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
 ) -> None:
@@ -1783,6 +1799,57 @@ def test_ir6_refused_launch_has_no_release_or_layers(
     assert data["release"] is None and data["layers"] is None
 
 
+def test_launch_result_file_equals_the_printed_launched_json(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    launch_scene(fake_orca, git_repo, issue_dir)
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "launched"
+    saved = json.loads((issue_dir / "launch-result.json").read_text())
+    assert saved == data
+    assert saved["terminal"] == "term_abc" and saved["layers"] and saved["release"]
+
+
+def test_launch_result_file_holds_a_refused_launch(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    launch_scene(fake_orca, git_repo, issue_dir, hook=None)
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert_refused(fake_orca, data)
+    saved = json.loads((issue_dir / "launch-result.json").read_text())
+    assert saved == data
+    assert saved["status"] == "failed" and saved["enforcement_hook"] == "missing"
+
+
+def test_launch_result_file_is_not_rewritten_by_an_already_launched_call(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    launch_scene(fake_orca, git_repo, issue_dir)
+    assert run_launch(fake_orca, git_repo, issue_dir)["status"] == "launched"
+    path = issue_dir / "launch-result.json"
+    before = path.read_bytes()
+    again = run_launch(fake_orca, git_repo, issue_dir)
+    assert again["status"] == "already_launched"
+    assert path.read_bytes() == before
+
+
+def test_launch_result_file_write_failure_leaves_the_printed_json_unchanged(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    launch_scene(fake_orca, git_repo, issue_dir)
+    # A directory at the final name makes the rename in atomic_write_text raise
+    # OSError (record_launch also uses atomic_write_text, so it is not patched).
+    (issue_dir / "launch-result.json").mkdir()
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "launched"
+    assert data["warning"] == "W-L2-ABSENT"  # the scene has no pre-push hook
+    assert data["enforcement_hook"] == "installed"
+    assert data["terminal"] == "term_abc"
+    assert data["layers"][0].startswith("L1 guard: effective")
+    assert data["release"].startswith("to release this session")
+    assert "launch-result" not in (data["detail"] or "")
+
+
 @pytest.mark.parametrize(
     ("case", "expected"),
     [
@@ -2133,7 +2200,7 @@ def test_la7_launch_without_a_usable_worktree_record_calls_nothing(
     assert not (fake_orca.home / ".claude/state").exists()
 
 
-def test_launch_creates_no_file_in_the_worktree_or_the_source_directory(
+def test_launch_adds_only_the_launch_result_file_to_the_source_directory(
     fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
 ) -> None:
     wt = launch_scene(fake_orca, git_repo, issue_dir)
@@ -2144,7 +2211,7 @@ def test_launch_creates_no_file_in_the_worktree_or_the_source_directory(
     )
     run_launch(fake_orca, git_repo, issue_dir)
     assert tree_listing(wt) == before[0]
-    assert tree_listing(issue_dir) == before[1]
+    assert tree_listing(issue_dir) == sorted([*before[1], "launch-result.json"])
     assert git(wt, "status", "--porcelain") == before[2]
 
 

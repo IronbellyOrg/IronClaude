@@ -170,6 +170,7 @@ def test_claim_outputs_and_examples_cover_the_new_flags():
     text = _text()
     claim_row = next(ln for ln in text.splitlines() if ln.startswith("| claim |"))
     assert "launch-prompt.md" in claim_row and "worktree.json" in claim_row
+    assert "launch-result.json" in claim_row
     for example in (
         "/sc:issue --claim 302 --pipeline none",
         "/sc:issue --claim 302 --pipeline full",

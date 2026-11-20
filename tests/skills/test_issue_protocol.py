@@ -502,6 +502,14 @@ def test_st9_final_output_lists_the_launch_results_and_every_launch_code():
         assert code in claim and code in _text(SKILL), code
 
 
+def test_st9_launch_result_file_is_documented_for_launched_and_failed():
+    for path in (REFS / "claim.md", SKILL):
+        lines = [ln for ln in _text(path).splitlines() if "launch-result.json" in ln]
+        assert lines, path
+        # the Wave 7 line only says the file is not copied; one line must say what it holds
+        assert any("`launched`" in ln and "`failed`" in ln for ln in lines), path
+
+
 def test_st9_final_output_prints_the_hand_command_the_remedy_line_promises():
     claim = _text(REFS / "claim.md")
     assert "the hand command is printed" in claim.split("## Wave 8", 1)[1]
