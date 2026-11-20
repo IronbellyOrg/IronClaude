@@ -413,15 +413,28 @@ def _write_bytes(path, text: str) -> None:
     """Write an output file, never through a link: a checked-out branch could hold a
     symlink where the session writes (`.dev/issues/<N>/plan-body.md`)."""
     target = Path(path)
+    base = Path.cwd()
     try:
         if target.is_symlink():
             raise UsageError(f"refusing to write through a symlink: {path}")
-        if not target.is_absolute() and not target.parent.resolve().is_relative_to(
-            Path.cwd().resolve()
-        ):
-            raise UsageError(
-                f"refusing to write outside the working directory (a linked folder): {path}"
-            )
+        # Every folder of the path below the working directory must be a real folder:
+        # a link inside the checkout could point at another tracked folder.
+        if target.is_absolute():
+            below = target.relative_to(base) if target.is_relative_to(base) else None
+        else:
+            below = target
+        if below is not None:
+            here = base
+            for part in below.parts[:-1]:
+                here = here / part
+                if here.is_symlink():
+                    raise UsageError(
+                        f"refusing to write through a linked folder (symlink) {here}: {path}"
+                    )
+            if not target.parent.resolve().is_relative_to(base.resolve()):
+                raise UsageError(
+                    f"refusing to write outside the working directory: {path}"
+                )
         target.write_bytes(text.encode("utf-8"))
     except OSError as err:
         raise UsageError(f"cannot write {path}: {err}") from err

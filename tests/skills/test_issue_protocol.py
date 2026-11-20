@@ -1958,6 +1958,28 @@ def test_a_relative_output_path_through_a_linked_folder_is_refused(tmp_path):
     assert list(outside.iterdir()) == []
 
 
+def test_a_linked_folder_that_points_inside_the_checkout_is_refused_too(tmp_path):
+    work = tmp_path / "work"
+    (work / "tracked" / "docs").mkdir(parents=True)
+    (work / ".dev").mkdir()
+    (work / ".dev" / "issues").symlink_to(work / "tracked" / "docs", True)
+    proc = _run_in(work, _splice_argv(tmp_path, ".dev/issues/plan-body.md"))
+    assert proc.returncode == 2 and "linked folder" in proc.stderr
+    assert list((work / "tracked" / "docs").iterdir()) == []
+    # the same through an absolute path that lies inside the working directory
+    proc = _run_in(work, _splice_argv(tmp_path, work / ".dev/issues/plan-body.md"))
+    assert proc.returncode == 2 and "linked folder" in proc.stderr
+    assert list((work / "tracked" / "docs").iterdir()) == []
+
+
+def test_a_relative_output_path_that_climbs_out_of_the_checkout_is_refused(tmp_path):
+    work = tmp_path / "work"
+    work.mkdir()
+    proc = _run_in(work, _splice_argv(tmp_path, "../escaped.md"))
+    assert proc.returncode == 2 and "outside the working directory" in proc.stderr
+    assert not (tmp_path / "escaped.md").exists()
+
+
 def test_a_normal_relative_output_path_still_works(tmp_path):
     work = tmp_path / "work"
     (work / ".dev" / "issues" / "1").mkdir(parents=True)
