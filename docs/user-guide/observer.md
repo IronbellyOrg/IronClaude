@@ -100,7 +100,7 @@ If the height is too small for the desk, the desk is replaced by a one-line noti
 | `h` | Show or hide historical rows. |
 | `m` | Mark now. Workers that change afterwards are starred and `changed since HH:MM (n)` appears. |
 | `n` / `p` | Select the next or previous question (questions screen only). |
-| `e` | Export: write the plain-text record and the JSON snapshot (see [Files](#files-it-writes)). |
+| `e` | Export: write the plain-text record to a new file. It does not write the JSON snapshot, which a live session rewrites by itself (see [Files](#files-it-writes)). |
 | `q` or Ctrl-C | Quit. The terminal is restored; Ctrl-Z then `fg` also repaints correctly. |
 
 There is no refresh key. The observer reads Orca once every 15 seconds, with at most 5 Orca calls per read, and repaints at least twice a second so ages move.
@@ -120,9 +120,10 @@ The shown key list is shortened to the most used keys; the others still work.
 
 | Trigger | File | Mode |
 |---|---|---|
-| `e` in the live screen | `observe-<timestamp>.txt` (plain-text record) and `snapshot.json`, under `${XDG_STATE_HOME:-~/.local/state}/superclaude/observe/` | 600 |
-| `--snapshot FILE` | The JSON snapshot at `FILE`; in live mode it is rewritten as the data changes | 600 |
-| `--once` | The plain-text record on standard output; nothing is written unless you add `--snapshot` | n/a |
+| `e` in the live screen | `observe-<timestamp>.txt`, the plain-text record only, under `${XDG_STATE_HOME:-~/.local/state}/superclaude/observe/` | 600 |
+| A live session (automatic, no key) | `snapshot.json` in that same folder, or at the path given by `--snapshot FILE`. It is overwritten once per read cycle, so it is the latest state, not a copy saved at export time | 600 |
+| A `--fixture` session | A snapshot only when you pass `--snapshot FILE`; no automatic file | 600 |
+| `--once` | The plain-text record on standard output; a snapshot only when you add `--snapshot` | n/a |
 
 The record and the snapshot hold ids, times and counts. They never hold question text, message bodies, prompts, tokens or secrets.
 
