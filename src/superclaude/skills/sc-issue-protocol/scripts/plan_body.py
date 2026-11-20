@@ -154,6 +154,12 @@ def body_sha(body: str) -> str:
     return hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
 
 
+def replaced_sha(body: str) -> str:
+    """Hash of the text a re-plan overwrites (Fix approach and Test plan), so a draft
+    written from that text can be told apart from one made after someone edited it."""
+    return body_sha("".join(section_text(body, t) for t in REPLAN_TOKENS))
+
+
 # --- the drafted blocks -----------------------------------------------------------------
 
 
@@ -297,9 +303,14 @@ def _outside(body: str, tokens):
     if any(count != 1 for count, _, _ in spans):
         return None
     lines = body.splitlines(keepends=True)
+    reaches_end = any(end == len(lines) for _, _, end in spans)
     for _, start, end in sorted(spans, key=lambda s: s[1], reverse=True):
         del lines[start:end]
-    return "".join(lines).replace("\r\n", "\n")
+    text = "".join(lines).replace("\r\n", "\n")
+    # A section that runs to the end of the body may sit under a heading that has no
+    # line end; filling it must add that one newline, so trailing newlines are not
+    # compared when a replaced section reaches the end.
+    return text.rstrip("\n") if reaches_end else text
 
 
 def outside_unchanged(old: str, new: str, filled, appended=()) -> bool:
@@ -434,12 +445,15 @@ def cmd_check(args) -> dict:
             )
         need = list(REPLAN_TOKENS)
         planned = replan_marker(replan[0], replan[2]) in body
-    return result | {
+    result |= {
         "states": states,
         "need": need,
         "already_planned": planned,
         "body_sha": body_sha(body),
     }
+    if replan is not None:
+        result["replaced_sha"] = replaced_sha(body)
+    return result
 
 
 def cmd_splice(args) -> dict:
@@ -448,6 +462,10 @@ def cmd_splice(args) -> dict:
         raise UsageError("--remaining needs --before-out")
     if replan is None and args.before_out:
         raise UsageError("--before-out belongs to --remaining")
+    if replan is not None and not args.replaced_sha:
+        raise UsageError("--remaining needs --replaced-sha (printed by `check`)")
+    if replan is None and args.replaced_sha:
+        raise UsageError("--replaced-sha belongs to --remaining")
     body = read_body(args.body_json, args.body_file)
     try:
         blocks = parse_plan_sections(_read_bytes(args.sections_file))
@@ -458,6 +476,11 @@ def cmd_splice(args) -> dict:
         tokens = [t for t in PLAN_TOKENS if plan_section_state(body, t) != "ok"]
     else:
         new_body = build_replan_body(body, blocks, replan[0], replan[2])
+        if new_body is not None and replaced_sha(body) != args.replaced_sha:
+            raise PlanStop(
+                "E-PLAN-RACE",
+                "Fix approach or Test plan changed after the draft was written from them",
+            )
         tokens = list(REPLAN_TOKENS)
     result = {
         "cmd": "splice",
@@ -512,6 +535,7 @@ def build_parser() -> argparse.ArgumentParser:
     splice.add_argument("--out", required=True, metavar="FILE")
     splice.add_argument("--remaining", metavar="FILE")
     splice.add_argument("--before-out", metavar="FILE")
+    splice.add_argument("--replaced-sha", metavar="HEX")
     verify = sub.add_parser("verify", help="check the body read back after the edit")
     _body_args(verify, "base", True)
     _body_args(verify, "readback", True)

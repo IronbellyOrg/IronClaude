@@ -1284,7 +1284,12 @@ def _plan_session(gh, workdir, argument, worker, remaining, depth):
         *extra,
     ]
     if remaining is not None:
-        splice += ["--before-out", d / f"plan-before-round-{checked['round']}.md"]
+        splice += [
+            "--before-out",
+            d / f"plan-before-round-{checked['round']}.md",
+            "--replaced-sha",
+            checked["replaced_sha"],
+        ]
     script_result(*splice, "--body-json", issue_json)  # is the drafted file usable?
     base_sha, changes = checked["body_sha"], 0
     current = _read_issue(gh, number, "body,state")
@@ -1827,6 +1832,83 @@ def test_a_drafted_block_with_no_text_is_refused_before_anything_is_written(
         build_plan_body(body, {"test_plan": block})
     assert stop.value.code == "E-WORKER-NO-OUTPUT", case
     assert "no text under the heading" in stop.value.reason, case
+
+
+@pytest.mark.parametrize("nl", ["\n", "\r\n"])
+def test_a_last_heading_without_a_line_end_is_filled_and_the_readback_passes(nl):
+    base = nl.join(
+        ["## Summary", "", "x", "", "## Priority", "", "Low: a", ""]
+        + ["## Fix approach", "", "Do X.", "", "## Test plan"]
+    )
+    assert plan_check(base)["test_plan"] == "empty"
+    new = build_plan_body(base, {"test_plan": "- Tests: t.py"})
+    assert plan_body.verify_readback(base, new) == []
+    # a byte changed outside the filled section is still caught
+    assert plan_body.verify_readback(base, new.replace("Do X.", "Do Y."))
+
+
+def _replan_files(tmp_path, body):
+    issue = _write_json_body(tmp_path / "issue.json", replan_body())
+    remaining = write_remaining(tmp_path, 3, ["part three is done"])
+    n, criteria, _ = parse_remaining_file(remaining)
+    sections = tmp_path / "s.md"
+    sections.write_text(fake_replan_worker(n, criteria), encoding="utf-8")
+    drafted_from = script_result(
+        "check", "--body-json", issue, "--remaining", remaining
+    )
+    now = _write_json_body(tmp_path / "now.json", body)
+    argv = (
+        "--body-json",
+        now,
+        "--sections-file",
+        sections,
+        "--out",
+        tmp_path / "plan-body.md",
+        "--remaining",
+        remaining,
+        "--before-out",
+        tmp_path / "before.md",
+        "--replaced-sha",
+        drafted_from["replaced_sha"],
+    )
+    return argv, tmp_path / "plan-body.md"
+
+
+@pytest.mark.parametrize(
+    "edit",
+    [
+        lambda b: b.replace("Base branch: master", "Base branch: main", 1),
+        lambda b: b.replace("- Tests to add: tests/test_a.py", "- Tests: a, b", 1),
+    ],
+    ids=["a correction in Fix approach", "a change in Test plan"],
+)
+def test_a_replan_refuses_a_draft_made_from_text_that_was_edited_since(tmp_path, edit):
+    argv, out = _replan_files(tmp_path, edit(replan_body()))
+    status, _, err = run_script("splice", *argv)
+    assert status == 1 and err.startswith("E-PLAN-RACE: "), err
+    assert not out.exists()
+
+
+def test_a_replan_still_merges_a_change_outside_the_two_sections(tmp_path):
+    argv, out = _replan_files(
+        tmp_path, replan_body().replace("It breaks.", "It breaks badly.", 1)
+    )
+    result = script_result("splice", *argv)
+    assert result["result"] == "written" and "It breaks badly." in out.read_text(
+        encoding="utf-8"
+    )
+
+
+def test_replaced_sha_is_printed_only_for_a_replan_and_splice_requires_it(tmp_path):
+    issue = _write_json_body(tmp_path / "issue.json", replan_body())
+    assert "replaced_sha" not in script_result("check", "--body-json", issue)
+    sections = tmp_path / "s.md"
+    sections.write_text(fake_worker(plan_check(replan_body())), encoding="utf-8")
+    status, _, err = run_script(
+        "splice", "--body-json", issue, "--sections-file", sections, "--out",
+        tmp_path / "o.md", "--replaced-sha", "0123456789abcdef",
+    )  # fmt: skip
+    assert status == 2 and "--replaced-sha belongs to --remaining" in err
 
 
 # --- a body that changes while the mode runs ---------------------------------------------
@@ -2510,7 +2592,14 @@ def test_a_replan_through_the_script_saves_the_old_text_and_verifies(tmp_path):
     assert (
         status == 2 and "--before-out" in err
     )  # a re-plan must say where the old text goes
-    result = script_result("splice", *argv, "--before-out", saved)
+    status, _, err = run_script("splice", *argv, "--before-out", saved)
+    assert status == 2 and "--replaced-sha" in err  # and which text the draft is from
+    replaced = script_result("check", "--body-json", issue, "--remaining", remaining)[
+        "replaced_sha"
+    ]
+    result = script_result(
+        "splice", *argv, "--before-out", saved, "--replaced-sha", replaced
+    )
     assert result["mode"] == "replan" and result["sections_replaced"] == [
         "fix_approach",
         "test_plan",
