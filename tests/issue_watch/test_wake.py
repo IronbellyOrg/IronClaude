@@ -227,6 +227,15 @@ def test_a_wake_for_another_orchestrator_or_tag_is_wrong_target():
     )
 
 
+def test_an_assigned_repo_matches_the_target_repo_in_any_letter_case():
+    d = golden()
+    d["target"]["repo"] = d["target"]["repo"].lower()  # repos.yaml spelling
+    parsed = parse(d)
+    assert parsed.rejected == () and len(parsed.wake.assigned) == 1
+    d["assigned"][0]["repo"] = "Other/Repo"
+    assert parse(d).rejected == ((0, "malformed_item"),)  # a different repo still fails
+
+
 def test_the_file_name_must_equal_the_wake_id():
     with pytest.raises(wake.WakeRejected, match="id_mismatch"):
         parse(golden(), name="20261119T101500Z-00000000.json")

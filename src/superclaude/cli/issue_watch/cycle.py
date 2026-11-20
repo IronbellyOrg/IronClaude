@@ -1684,7 +1684,14 @@ class _Cycle:
             repo, number = split_issue_key(key)
             if kind == "plan":
                 h = self.doc.holds[key]
-                if out.kind in ("woken", "unknown"):
+                if out.kind == "spawn_error":  # as an entry: ended, never retried
+                    self._set(
+                        record.set_hold(
+                            self.doc, key, replace(h, plan_request="abandoned")
+                        )
+                    )
+                elif out.kind in ("woken", "unknown", "no_session"):
+                    # every try counts, and the next one waits for the lease, like an entry
                     self._set(
                         record.set_hold(
                             self.doc,

@@ -354,7 +354,7 @@ def _assigned(d: object, target_repo: str) -> AssignedItem:
     assert isinstance(d, dict)
     names = d.get("assignees")
     if (
-        repo != target_repo
+        repo.lower() != target_repo.lower()  # repos.yaml may spell it differently
         or not isinstance(names, list)
         or not 1 <= len(names) <= MAX_ASSIGNEES
         or not all(valid_login(n) for n in names)

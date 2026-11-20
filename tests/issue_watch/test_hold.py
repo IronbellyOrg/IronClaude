@@ -945,6 +945,26 @@ def test_an_unacknowledged_plan_request_is_sent_again_and_abandoned_after_three_
     )
 
 
+def test_a_plan_request_that_finds_no_session_counts_as_a_try_and_waits_for_the_lease(
+    tmp_path, tmp_state, gh_world
+):
+    world = due_world(gh_world, tmp_path, tmp_state)
+    waker = FakeWaker(wake.WakeOutcome("no_session", "no_tier"))
+    quiet_run(world, tmp_path, tmp_state, 60, waker=waker)
+    h = tmp_state.load().holds[K5]
+    assert (h.plan_attempts, h.plan_request) == (1, "woken")
+    quiet_run(world, tmp_path, tmp_state, 1, waker=waker)  # inside the lease: no retry
+    assert len(waker.deliveries) == 1
+    for _ in range(2):
+        quiet_run(world, tmp_path, tmp_state, 11, waker=waker)
+    assert tmp_state.load().holds[K5].plan_attempts == 3 and len(waker.deliveries) == 3
+    quiet_run(world, tmp_path, tmp_state, 11, waker=waker)
+    assert (
+        tmp_state.load().holds[K5].plan_request == "abandoned"
+        and len(waker.deliveries) == 3
+    )  # never a fourth try
+
+
 def test_a_plan_request_wake_file_matches_the_golden_item_and_the_title_has_no_control_characters(
     tmp_path, tmp_state, gh_world
 ):
