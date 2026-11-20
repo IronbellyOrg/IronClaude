@@ -30,8 +30,9 @@ from superclaude.cli.orchestrator.limits import (
 )
 
 ANSWER_REF = "answer:2026-11-19T10:00:00Z#merge_safety"
-# The design is not on every branch (open question Q1): point ORCHESTRATOR_SPEC_PATH at it
-# to run the comparison with the table of 5.9 itself.
+# The design is at docs/designs/orchestrator.md on master; the comparison with the table
+# of 5.9 skips only when that file is missing (a branch cut before it landed).
+# ORCHESTRATOR_SPEC_PATH points the test at another copy.
 SPEC = Path(
     os.environ.get("ORCHESTRATOR_SPEC_PATH")
     or Path(__file__).resolve().parents[2] / "docs/designs/orchestrator.md"
@@ -51,6 +52,27 @@ REFUSED = [
     ("git push origin --delete x", "n2_git_push_delete"),
     ("git push -d origin x", "n2_git_push_delete"),
     ("git push origin :x", "n2_git_push_delete"),
+    # shared branch history: force pushes and a GraphQL ref deletion (owner ruling, Q3 and Q4)
+    ("git push --force origin main", "n2_git_push_force"),
+    ("git push origin main --force", "n2_git_push_force"),
+    ("git push --force-with-lease origin main", "n2_git_push_force"),
+    ("git push --force-with-lease=main:abc1234 origin main", "n2_git_push_force"),
+    ("git push --force-if-includes origin main", "n2_git_push_force"),
+    ("git push -f origin main", "n2_git_push_force"),
+    ("git push -fu origin main", "n2_git_push_force"),
+    ("git push origin +main", "n2_git_push_force"),
+    ("git push origin +HEAD:refs/heads/main", "n2_git_push_force"),
+    ("git push --mirror origin", "n2_git_push_force"),
+    ("git -C /d push -f origin main", "n2_git_push_force"),
+    (
+        'gh api graphql -f query=mutation{deleteRef(input:{refId:"x"}){clientMutationId}}',
+        "n2_api_graphql_delete",
+    ),
+    (
+        "gh api graphql -f query=mutation{deleteBranch(input:{}){x}}",
+        "n2_api_graphql_delete",
+    ),
+    ("gh api graphql -F query=@q.graphql -f note=DELETEREF", "n2_api_graphql_delete"),
     ("git branch -d x", "n2_git_branch_delete"),
     ("git branch -D x", "n2_git_branch_delete"),
     ("git branch --delete x", "n2_git_branch_delete"),

@@ -33,6 +33,20 @@ is the only closed list here. Everything it does not name passes: ``git fetch``,
 ordinary file. Deleting ordinary files is allowed by ruling 25 and there is no
 ``rm`` pattern and no list of folders; the rows of 5.9 that name a location
 describe what the orchestrator does, not what this function checks.
+
+Releases (owner ruling on question Q2 of the B1 report): ``N2`` says the
+orchestrator never deletes a release and ``N6`` allows ``gh release delete`` with
+a recorded OK. Both stay as built and the stricter side wins where the forms
+differ: the command ``gh release delete`` is gated by ``N6`` (it passes with an
+accepted ``answer_ref``), while the API form ``gh api -X DELETE repos/<R>/releases/<id>``
+is refused by ``N2`` with no way through.
+
+Shared branch history is a hard bar (``N2``): a force push (``--force``,
+``--force-with-lease``, ``-f``, a refspec that starts with ``+``, ``--mirror``), a
+branch deletion by ``git push --delete`` or a ``:branch`` refspec, and a GraphQL
+call whose text holds ``deleteRef`` or ``deleteBranch`` are refused. A GraphQL
+document passed from a file (``--input``) cannot be read here: that is a stated
+limit.
 """
 
 from __future__ import annotations
@@ -217,6 +231,27 @@ def _git_push_delete(after: Sequence[str]) -> bool:
     return any(r.startswith(":") for r in refspecs)  # ``git push origin :branch``
 
 
+def _git_push_force(after: Sequence[str]) -> bool:
+    """A push that rewrites a remote branch: force flags, ``--mirror`` or a ``+`` refspec."""
+    if _has_flag(
+        after, "--force", "--force-with-lease", "--force-if-includes", "--mirror"
+    ):
+        return True
+    if _short_cluster_has(after, frozenset("f")):
+        return True
+    refspecs = [t for t in after if not t.startswith("-")][1:]
+    return any(r.startswith("+") for r in refspecs)
+
+
+def _api_graphql_delete(after: Sequence[str]) -> bool:
+    """A ``gh api graphql`` call whose text deletes a branch or a ref."""
+    api = _gh_api(after)
+    if api.endpoint != "graphql":
+        return False
+    text = " ".join(after).lower()
+    return "deleteref" in text or "deletebranch" in text
+
+
 def _is_hold_label_path(endpoint: str | None) -> bool:
     """Exactly ``repos/<R>/issues/<N>/labels/hold:plan``: the poll's one DELETE."""
     match = _HOLD_PATH.fullmatch(endpoint or "")
@@ -306,6 +341,8 @@ def _send_interrupt(after: Sequence[str]) -> bool:
 _EXTRA: Final[dict[str, Callable[[Sequence[str]], bool]]] = {
     "git_branch_delete": _git_branch_delete,
     "git_push_delete": _git_push_delete,
+    "git_push_force": _git_push_force,
+    "api_graphql_delete": _api_graphql_delete,
     "api_delete_other": _api_delete_other,
     "api_secret_write": _api_secret_write,
     "credential_file": _credential_file,
@@ -348,6 +385,8 @@ RULES: Final[tuple[Rule, ...]] = (
         "N2", "n2_git_branch_delete", ("git",), (("branch",),), (), "git_branch_delete"
     ),
     Rule("N2", "n2_git_push_delete", ("git",), (("push",),), (), "git_push_delete"),
+    Rule("N2", "n2_git_push_force", ("git",), (("push",),), (), "git_push_force"),
+    Rule("N2", "n2_api_graphql_delete", ("gh",), (("api",),), (), "api_graphql_delete"),
     Rule(
         "N2",
         "n2_pr_merge_delete_branch",
