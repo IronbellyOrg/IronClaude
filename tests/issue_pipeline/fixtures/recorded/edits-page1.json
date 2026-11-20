@@ -1,0 +1,42 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "ironbelly"
+              },
+              "createdAt": "2026-11-08T07:35:23Z",
+              "databaseId": 6718803733,
+              "lastEditedAt": null
+            },
+            {
+              "author": {
+                "login": "ironbelly"
+              },
+              "createdAt": "2026-11-08T07:35:24Z",
+              "databaseId": 6718803883,
+              "lastEditedAt": null
+            },
+            {
+              "author": {
+                "login": "ironbelly"
+              },
+              "createdAt": "2026-11-08T07:37:46Z",
+              "databaseId": 6718824242,
+              "lastEditedAt": null
+            }
+          ],
+          "pageInfo": {
+            "endCursor": "Y3Vyc29yOnYyOpHPAAAAAZB5HzI=",
+            "hasNextPage": false
+          }
+        },
+        "createdAt": "2026-11-08T07:32:18Z",
+        "lastEditedAt": null
+      }
+    }
+  }
+}

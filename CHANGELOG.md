@@ -4,17 +4,9 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
-### agent-work-report: the work report skill moves into IronClaude (issue 655)
-
-- The `agent-work-report` skill (the daily work report) now ships with `superclaude install` to `~/.claude/skills/agent-work-report/` and keeps its state in the orchestrator repo (`$AWR_ROOT`, else `orchestrator_repo` in `~/.config/superclaude/issue-watch.json`) instead of the IronFlow checkout; it leaves out the issues an orchestrator holds, adds `run.py refresh` for the living report, and its "Needs you" entries gain the lines `Why this reaches you:`, `Low-stakes options:` and `If you do not answer:`.
-
 ### ccsession: `--prune --apply` asks for a typed confirmation (follows #638)
 
 - `ccsession --prune --apply` now prints what it will delete (names, ages, sizes and the total) and asks you to type the number of things it names. Any other answer, an empty one or end of input deletes nothing. With no terminal on standard input it refuses (exit 2) unless the new `--yes` flag is given, which deletes without asking. No environment variable or setting does that. This is the guard for a session a person named with an automatic-looking name that `ccsession --classify --apply` marked `agent`. A dry run, and a run with nothing to delete, ask nothing.
-
-### Removed: the old plan-approval gate (issue 655)
-
-- The `superclaude issue-pipeline` command group and its plan-approval flow are removed: the worker contract no longer has rule WC-17 or the "Issue pipeline duties" section, and the launch-level guard no longer blocks those commands. The guard still lets a bound worker run `orchestration send` and `ask` without `--to`, and the person's typed `/sc:implement` still releases it.
 
 ### New command: `/sc:closeout` and the `sc-closeout-protocol` skill (issue 668)
 
