@@ -81,20 +81,23 @@ class PlanCheck:
 
 
 def _without_comments(body: str) -> str:
-    """The body with every closed HTML comment blanked, except the hidden create marker.
+    """The body with every closed HTML comment blanked; the create marker keeps its sentinel.
 
     A heading inside a comment is not a heading (a commented-out ``## Priority``
-    must not open a section). The line count is kept; the create marker stays
-    because it ends the section above it. A comment that is never closed is left
-    for ``plan_check`` to drop from the section it sits in.
+    must not open a section), the hidden create marker's comment included. The
+    line count is kept; the marker is reduced to its sentinel line because that
+    line ends the section above it. A comment that is never closed is left for
+    ``plan_check`` to drop from the section it sits in.
     """
 
     def blank(match: re.Match[str]) -> str:
         line_start = body.rfind("\n", 0, match.start()) + 1
         text = body[line_start : match.end()]
+        blanks = "\n" * match.group(0).count("\n")
         if _CREATE_MARKER.match(text):
-            return match.group(0)
-        return "\n" * match.group(0).count("\n")
+            # keep only the sentinel; a heading inside its comment is not a heading
+            return "<!-- sc:issue:create -->" + blanks
+        return blanks
 
     return _CLOSED_COMMENT.sub(blank, body)
 

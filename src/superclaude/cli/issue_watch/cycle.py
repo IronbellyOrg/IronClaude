@@ -1203,7 +1203,9 @@ class _Cycle:
     def _checkout_of(self, repo: str) -> str:
         assert self.rdoc is not None
         entry = self.rdoc.get(repo)
-        assert entry is not None
+        if entry is None:
+            # a stored entry of a repo that repos.yaml no longer lists (removed by hand)
+            raise _Skip("repo_not_listed")
         state = self.origin_state.get(entry.repo)
         if state is None:
             if entry.checkout is None or not os.path.isdir(entry.checkout):

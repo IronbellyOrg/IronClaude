@@ -123,6 +123,13 @@ def test_a_heading_inside_an_html_comment_is_not_a_heading(commented):
     assert plan_check(commented + body()).ok
 
 
+def test_a_heading_inside_the_multiline_create_marker_is_not_a_heading():
+    marker = "<!-- sc:issue:create round=1\n## Test plan\nRun it.\n-->\n"
+    assert plan_check(body(test=None) + marker).missing == ("test_plan",)
+    # a heading that is present once stays once: the marker adds no second one
+    assert plan_check(body() + marker).ok
+
+
 def test_a_section_ends_at_the_next_heading_and_at_the_hidden_create_marker():
     text = "## Priority\nP2\n\n## Fix approach\n\n## Test plan\nRun it.\n"  # the middle section is empty: the next heading ends it
     assert plan_check(text).missing == ("fix_approach",)

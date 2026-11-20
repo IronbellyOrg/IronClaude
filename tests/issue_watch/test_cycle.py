@@ -691,6 +691,20 @@ def test_an_unacknowledged_wake_is_sent_again_after_ten_minutes_to_the_same_orch
     assert res.exit_code == 0
 
 
+def test_a_resend_for_a_repo_removed_from_repos_yaml_is_skipped_not_a_crash(
+    tmp_path, tmp_state, gh_world
+):
+    world, _ = woken_issue(tmp_path, tmp_state, gh_world)
+    write_repos(
+        world.config.orchestrator_repo,
+        repos=[{"repo": REPO_B, "enabled": True, "checkout": None, "clone_parent": str(tmp_path)}],
+    )  # fmt: skip
+    waker = FakeWaker()
+    run(world, tmp_path, tmp_state, waker=waker, advance=601)  # must not raise
+    assert waker.deliveries == []
+    assert tmp_state.load().entries[K5].state in ("pending", "woken")  # not acked
+
+
 def test_the_third_unacknowledged_attempt_abandons_the_entry_exit_7_and_marks_unread(
     tmp_path, tmp_state, gh_world
 ):
