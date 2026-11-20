@@ -1072,6 +1072,7 @@ class _Cycle:
             return "skip"
         if number == 4:  # no plan, no label, no entry: hold it
             seen = row.updated_at
+            limited = False
             if self.dry_run:
                 self.would_hold.append(row.key)
             else:
@@ -1084,12 +1085,16 @@ class _Cycle:
                 )
                 if read.reason is None:
                     seen = read.value  # type: ignore[assignment]
+                elif read.kind == "rate_limited":
+                    limited = True
             self._set(
                 record.set_hold(
                     self.doc, row.key, hold.new_hold(now, seen, check.missing)
                 )
             )
             self._decision("hold_applied", row.repo, row.number)
+            if limited:  # the new hold is kept; the backoff is persisted like any other
+                raise self._rate_stop()
             return "skip"
         assert h is not None or number == 6
         if number == 5:

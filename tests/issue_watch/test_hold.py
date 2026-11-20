@@ -1014,6 +1014,18 @@ def test_a_rate_limited_evidence_read_stops_the_cycle_and_persists_the_backoff(
     assert waker.deliveries == []
 
 
+def test_a_rate_limited_read_after_the_label_keeps_the_new_hold_and_persists_the_backoff(
+    tmp_path, tmp_state, gh_world
+):
+    world = held_world(gh_world)
+    world.fail("updated", "rate", key=(REPO_A, 5), times=1)
+    res = run(world, tmp_path, tmp_state)
+    assert res.exit_code == 5 and res.reason in ("rate_limited", "rate_limit_clamped")
+    doc = tmp_state.load()
+    assert doc.holds[K5].state == "held" and doc.rate_streak == 1
+    assert doc.next_permitted_at is not None
+
+
 def test_a_plan_request_wake_file_matches_the_golden_item_and_the_title_has_no_control_characters(
     tmp_path, tmp_state, gh_world
 ):
