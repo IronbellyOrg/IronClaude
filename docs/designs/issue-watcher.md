@@ -12,13 +12,13 @@
 
 The binding requirements are `.dev/brainstorms/20261107-064825-github-issue-watcher/spec-final.md` (cited below as "spec", with section numbers and FR/NFR ids). `spec-refactor-log.md` in the same folder is context only. This document turns the spec into modules, interfaces, schemas, call contracts and tests. It contains no implementation code: signatures, dataclass field lists, JSON schemas and short pseudo-flow only.
 
-**What is built.** A poller that runs inside one person's Coder workspace. Every 5 minutes (cadence comes from a cron entry that is a follow-up, FU-2) it runs one cycle with that workspace's own `gh` login. A cycle finds issues on IronbellyOrg/IronClaude that are tagged, assigned exactly to the own login, approved by an allow-listed human, unchanged since approval and in the Project's Backlog column. For at most one such issue per cycle it starts one ordinary top-level agent session through `orca agent launch` with the prompt `/sc:issue --claim <N>`, after durably recording the dispatch.
+**What is built.** A poller that runs inside one person's Coder workspace. Every 5 minutes (cadence comes from a cron entry that is a follow-up, FU-2) it runs one cycle with that workspace's own `gh` login. A cycle finds issues on IronbellyOrg/IronClaude that are tagged, assigned exactly to the own login, approved by an allow-listed human, unchanged since approval and in one of the Project's allowed Status columns (Research, Spec, Plan or Debug; Backlog, Ready, In progress, In review and Done never act, and a status added to the board later is blocked until it is added to the allow-list). This reverses the original issue 331 rule ("Issues must be in Backlog status"), by owner decision of 2026-11-18. For at most one such issue per cycle it starts one ordinary top-level agent session through `orca agent launch` with the prompt `/sc:issue --claim <N>`, after durably recording the dispatch.
 
 **Guarantee (spec section 1).** At most one claim session per issue per intact, single dispatch store per login. A restored older backup (R11) or a second store on the same login (R12) breaks it; both are documented residual risks.
 
 | Root cause (spec RC) | What this design does about it | Where |
 |---|---|---|
-| RC1 No "ready" signal exists | Trigger label plus approval label, approval actor checked against an allow-list, Project Status `Backlog` | sections 6, 8 |
+| RC1 No "ready" signal exists | Trigger label plus approval label, approval actor checked against an allow-list, Project Status one of `Research`, `Spec`, `Plan`, `Debug` | sections 6, 8 |
 | RC2 The claim routes to whoever runs it | `is_intended_owner`: assignee set exactly {own login}; discovery pre-filters with `--assignee` | sections 5, 8 |
 | RC3 Nothing enforces at-most-once | Local dispatch record written durably (`pending`, `launches` + 1) before the spawn, plus the claim marker | section 7 |
 
@@ -40,13 +40,13 @@ The binding requirements are `.dev/brainstorms/20261107-064825-github-issue-watc
 
 **Superseded 2026-11-14: D2 "claim-only" (the owner's Q2 decision, option 3).** The watcher still launches `/sc:issue --claim <N>` with no `--pipeline` value, but the claim command's default level is `worktree`, not "stop at `next-steps.md`". So the claim session assigns the issue, posts two comments, writes its summary files, then creates the Orca worktree `issue-<N>` and starts a second, governed agent that stops at a plan for a person. No code change was made (`--pipeline none` is not added). The owner reversed their own 2026-11-07 decision knowingly; their words: "3 ... Yes, first test session runs with permission checks off ... Amend document re: option 3". The old D2 wording is kept in the table below for history. This change does not alter what the first live test (FU-1) requires.
 
-**Superseded again 2026-11-17 (Plan B, owner decision 6 = B): D2 is `claim-only again, with a coordinator handoff`.** The watcher's claim returns to `--pipeline none`: the prompt is now `/sc:issue --claim <N> --pipeline none` (`launch.build_claim_prompt`), the claim assigns the issue, posts its two comments and writes its summary files, and it creates no worktree and starts no agent. A person-opened coordinator then runs the claim script's worktree step and starts the plan-writing worker with `worker-start --worktree path:<that worktree>`; the poller still never assigns, comments or moves Project items, and it never reads the approval. Guard decision (owner Q34): `no launch-level guard for the one test issue` (G1, written acceptance included); the guard is changed for a bound worker (G2, `docs/designs/issue-pipeline-guard-g2.md`) before any other issue runs through this flow. Two inputs approve the plan, both read by the coordinator through `stage-status`: the approval label (the Status move on the Project item is its visible sign, reported and not required) and an `approved` comment under the comment rules of the issue pipeline (the issue's assignee or a listed approver, never edited, after the latest plan reply). Latency note (owner Q36, accepted): an approval given on GitHub waits until the coordinator's next gate or wake; an approval given in the coordinator session is immediate. Nothing starts while the coordinator is down, so this change merges only with or after the coordinator rules (`WORKER-CONTRACT.md` section 4) and a running coordinator. Separately, the claim command's own text (`src/superclaude/commands/issue.md`) says no governed claim (`worktree` or `full`) is used on a real issue until its hook checks OB-H1 item 1, OB-H2 and OB-H3 have passed, and that OB-H1 item 5 is needed before a claim at any level; those checks are that command's gate, not this design's.
+**Superseded again 2026-11-17 (Plan B, owner decision 6 = B): D2 is `claim-only again, with a coordinator handoff`.** The watcher's claim returns to `--pipeline none`: the prompt is now `/sc:issue --claim <N> --pipeline none` (`launch.build_claim_prompt`; since the zero-setup plan it also carries `--stage <stage>` and the level of the issue's Pipeline, `docs/designs/issue-watcher-status-pipelines.md`), the claim assigns the issue, posts its two comments and writes its summary files, and it creates no worktree and starts no agent. A person-opened coordinator then runs the claim script's worktree step and starts the plan-writing worker with `worker-start --worktree path:<that worktree>`; the poller still never assigns, comments or moves Project items, and it never reads the approval. Guard decision (owner Q34): `no launch-level guard for the one test issue` (G1, written acceptance included); the guard is changed for a bound worker (G2, `docs/designs/issue-pipeline-guard-g2.md`) before any other issue runs through this flow. Two inputs approve the plan, both read by the coordinator through `stage-status`: the approval label (the Status move on the Project item is its visible sign, reported and not required) and an `approved` comment under the comment rules of the issue pipeline (the issue's assignee or a listed approver, never edited, after the latest plan reply). Latency note (owner Q36, accepted): an approval given on GitHub waits until the coordinator's next gate or wake; an approval given in the coordinator session is immediate. Nothing starts while the coordinator is down, so this change merges only with or after the coordinator rules (`WORKER-CONTRACT.md` section 4) and a running coordinator. Separately, the claim command's own text (`src/superclaude/commands/issue.md`) says no governed claim (`worktree` or `full`) is used on a real issue until its hook checks OB-H1 item 1, OB-H2 and OB-H3 have passed, and that OB-H1 item 5 is needed before a claim at any level; those checks are that command's gate, not this design's.
 
 | Decision | Consequence in this design | Enforced by |
 |---|---|---|
 | D1 option A | No listener, inbound port or address registry. A pull poller run by cron in each workspace. | Package shape (section 5); NG-1 |
 | D2 claim-only (SUPERSEDED 2026-11-14 by option 3, then 2026-11-17 by `claim-only again, with a coordinator handoff`; see above) | Original wording: the job ends once the session has been asked to run `/sc:issue --claim <N>`. The claim stops at `next-steps.md`. **Still true:** the poller itself never assigns, comments or moves Project items; it only launches the claim session, and the claim session (not the poller) does the assigning and commenting. **History (2026-11-14, superseded):** the claim at its default `worktree` level also created worktree `issue-<N>` and started a governed agent that stopped at a plan for a person. **Now (2026-11-17):** the claim runs `--pipeline none` and ends after its comments; a coordinator starts the worker. The poller still makes one launch per approved issue, and it starts no agent beyond that claim session. | NG-2 test over every argv and GraphQL constant (section 12); unchanged, it covers the poller only |
-| D3 integer only | The prompt is built only by `launch.build_claim_prompt(n)`, which accepts an `int` (not `bool`) in 1..999999999 and returns `/sc:issue --claim <n> --pipeline none`. No other text reaches the prompt. | FR-012, NFR-001 property test (section 9) |
+| D3 integer only | The prompt is built only by `launch.build_claim_prompt(n, status, pipeline)`, which accepts an `int` (not `bool`) in 1..999999999, one of the four allowed Statuses and a Pipeline value, and returns `/sc:issue --claim <n> --pipeline <level> --stage <stage>` (`docs/designs/issue-watcher-status-pipelines.md`, section 3). No other text reaches the prompt. | FR-012, NFR-001 property test (section 9) |
 
 **Owner's review-and-approval flow (direction only; to be designed; not part of this change).** The owner intends that after the plan is ready it is posted as a reply on the issue, the issue moves to a review state, the assignee is mentioned and asked to approve, and the move to the next state counts as approval; the same approval could also be given inside Orca through the coordinator session or the TUI dashboard, with the risk of a double start between the two places reduced. Its mechanism is being explored separately and is not decided here.
 
@@ -135,7 +135,7 @@ JSON, because Python 3.10 has no `tomllib` (`pyproject.toml:16` `requires-python
 | `schema_version` | int | yes | none | Equals `1` |
 | `enabled` | bool | no | `false` | A JSON boolean; `false` makes `once` exit 0 `not_enabled` before any external call |
 | `labels.trigger` | string | no | `issue-watch:trigger` | Non-empty, at most 50 characters, no control characters; matched exact and case-sensitive |
-| `labels.approval` | string | no | `issue-watch:approved` | As above, and different from `labels.trigger` |
+| `labels.approval` | string | no | none | Do not set it: the approval is the issue field `Approved` set to `Yes` (R35). A config that sets it is rejected with `config_invalid` |
 | `project_id` | string | yes | none | Matches `^PVT_[A-Za-z0-9_-]{1,64}$` [PROPOSAL; Projects v2 node-id prefix is UNVERIFIED, FU-3] |
 | `owner_account_id` | int | no | absent | If present, an `int` (not `bool`) in 1..10^20−1; a mismatch with `gh api user` `.id` is exit 2 `account_id_mismatch` at cycle time |
 | `worktree` | string | yes | none | Absolute path, existing directory (`worktree_invalid`) |
@@ -689,7 +689,7 @@ The worst case is therefore 120 s of reads, then a 120 s launch, ending at 240 s
 | Comment author login | G4, G5 | `str`, compared with the own login | no | no |
 | Comment or issue body | never fetched as text | `bool` (`marker`) | no | no |
 | Timestamps | G3 to G5 | `datetime` after strict ISO parse | no | `approved_at` |
-| Project id, Status option | G6 | `str`, compared with config and `"Backlog"` | no | no |
+| Project id, Status option | G6 | `str`, compared with config and the allowed Status names (`Research`, `Spec`, `Plan`, `Debug`) | no | no |
 | `gh` stderr | runner | `str`, at most 500 bytes | no | no (stderr fallback lines carry a reason only) |
 | Orca stdout | launch | parsed JSON; only the operation id kept | no | `operation_id` after `^[A-Za-z0-9._:-]{1,128}$` |
 
@@ -697,7 +697,7 @@ The operation id regex is a design addition: the id is printed by `status` as pa
 
 ### 9.3 D3 enforcement path
 
-The prompt is built from the `int` held in the candidate's `DiscoveredIssue.number`, which `github.discover` produced with `type(v) is int and 1 <= v <= 999_999_999` (a `bool` fails `type(v) is int`). `build_claim_prompt` repeats the check and returns `f"/sc:issue --claim {n} --pipeline none"`. Nothing else is passed to `launch_argv` except constants, the resolved Orca path and the configured worktree. The property test draws `n` from integers, hostile strings, floats and booleans, and asserts every recorded `--prompt` matches `^/sc:issue --claim [1-9][0-9]{0,8} --pipeline none$`. Because hypothesis is not a dependency (C15), the property test is a seeded `random.Random(331)` loop of 2,000 draws plus the FR-012 edge list, tagged with the existing `property_based` marker (C12).
+The prompt is built from the `int` held in the candidate's `DiscoveredIssue.number`, which `github.discover` produced with `type(v) is int and 1 <= v <= 999_999_999` (a `bool` fails `type(v) is int`). `build_claim_prompt` repeats the check and returns `f"/sc:issue --claim {n} --pipeline {level} --stage {stage}"`. Nothing else is passed to `launch_argv` except constants, the resolved Orca path and the configured worktree. The property test draws `n` from integers, hostile strings, floats and booleans, and asserts every recorded `--prompt` matches `^/sc:issue --claim [1-9][0-9]{0,8} --pipeline (?:none|worktree|full(?: --submit)?) --stage (?:research|spec|plan|debug)$`. Because hypothesis is not a dependency (C15), the property test is a seeded `random.Random(331)` loop of 2,000 draws plus the FR-012 edge list, tagged with the existing `property_based` marker (C12).
 
 ## 10. Observability
 
@@ -881,7 +881,7 @@ All criteria run under `uv run pytest tests/issue_watch/` with fakes or PATH stu
 | AC-1 | One `once` runs the FR-001 order; `FakeRunner` sees G1 first and no argv after an exit decision | FR-001, FR-002 |
 | AC-2 | Discovery argv equals the FR-003 literal; 100 results or a repeated number exits 4 | FR-003, FR-004 |
 | AC-3 | Approval table: outsider, bot, unlabel, relabel, incomplete history, edit after approval each skip with their reason | FR-005, FR-006 |
-| AC-4 | Project and owner tables: wrong project, not Backlog, unassigned, other assignee skip | FR-007, FR-008 |
+| AC-4 | Project and owner tables: wrong project, a status that is not Research, Spec, Plan or Debug, unassigned, other assignee skip | FR-007, FR-008 |
 | AC-5 | An own-login marker comment yields `claimed` and no launch | FR-009 |
 | AC-6 | `pending` with `launches` 1 is saved before the launcher is called; the re-read failure skips | FR-010, FR-011 |
 | AC-7 | Every recorded prompt matches the D3 regex over the hostile corpus; non-int input raises | FR-012, NFR-001 |
@@ -940,3 +940,65 @@ All criteria run under `uv run pytest tests/issue_watch/` with fakes or PATH stu
 | NFR-012 | 11, 13 |
 | NFR-013 | 10.3 |
 | NFR-014 | 5.1 to 5.4 |
+
+## 19. Zero-setup additions (plan `TASK-WF-requirements-20261119-143917-2`)
+
+This section records what the zero-setup work added. The per-status commands, the launch levels and the end Status are decided in `docs/designs/issue-watcher-status-pipelines.md`; the first-time setup of a host is in section 17 of `docs/designs/issue-watcher-setup.md`.
+
+### 19.1 The `run-all` loop and its caps
+
+`superclaude issue-watch run-all` (module `dispatch.py`) runs one sweep over every Orca repository and starts one `once` child per enabled repository. Caps: the whole sweep stops starting children after about 270 seconds (`LOOP_CAP_S`, read again right before each child starts, so slow setup cannot push a child past it; a child that starts just under the cap still runs up to 255 s, so one sweep can last about 525 s and the locks skip one cron tick), one child is killed after 255 seconds (`CHILD_TIMEOUT_S`, longer than the 240 second cycle deadline), and the sweep stops after the first child that reports `launched:` or `attempted:`, so one sweep starts at most one agent. The start repository rotates between sweeps (file `<state dir>/issue-watch/rotation.json`). A second sweep exits 75 through the lock file `<state dir>/issue-watch/run-all.lock`. When a child ends with the plain reason `rate_limited` the loop writes `<state dir>/issue-watch/account-rate-wait.json` and starts no child until that time; the clamped reason `rate_limit_clamped` writes nothing. `--dry-run` lists each repository and its decision, takes no lock and writes no config, rotation file or label. Exit codes: 0 clean, 1 a child failed or the repository list could not be read, 2 a configuration problem of the loop itself, 75 another sweep holds the lock.
+
+### 19.2 Configuration folder, defaults file, generator and first run
+
+Each repository has its own file `~/.config/superclaude/issue-watch.d/<name>.json` and its own approvers file beside it. The central defaults file `~/.config/superclaude/issue-watch-defaults.json` (module `defaults.py`; built-in values apply when it is absent) holds the approver logins, the trigger label, the `Approved` field name and option, the allowed owner and a map of repository to Project id. The generator (`generate.py`) writes a missing config from reads only (launch account, the one Project, approvers), mode 600, with `enabled: false`; a file that exists is never overwritten. The first-run check (`first_run.py`) enables the config only after six steps pass in order: config, label, state, dry run, lock test (a second cycle ends 75 while the lock is held) and restart test (the state reloads and `dispatch.json` is unchanged). Its report is `<state dir>/first-run.txt`. The config has a `repo` key (strict `owner/name`); every GitHub read and the coordinator's `stage-status --repo` use it, so a repository other than IronClaude is read as itself.
+
+### 19.3 Writers
+
+Only two modules may write to GitHub: `issue_pipeline/complete.py` (the completion update) and `issue_watch/repo_init.py` (creating the trigger label once per repository, from the first run only; the loop itself never creates a label). `tests/issue_watch/test_security_invariants.py` scans for any other writer.
+
+### 19.4 The `Approved` issue field is the approval (R35)
+
+The approval is the organization issue field `Approved` set to `Yes`, not a label. The watcher reads the issue's field-change events, turns each into a label-style event with the pseudo label `issue-field:Approved`, and runs the existing approval logic on it. Only a person in the approvers file counts. The event id is the event time in whole epoch seconds, so two approval events on one issue within one second share an id. The old label `issue-watch:approved` is no longer read.
+
+### 19.5 Approval-void rule and the Task 4 observation
+
+Task 5 built a rule (R31) that voided an approval when the Status or the Pipeline value changed after it. Owner decision R36 of 2026-11-20 withdrew it, and the pass of `.dev/releases/backlog/issue-watcher-zero-setup/amendment-r36-withdraw-r31.md` removed it: `value_changed_after`, its two calls, its tests and the value-time reads are gone. An approval still counts after a later Status or Pipeline change. Only the edit rule (`unchanged_since`: body, comment or title edited after the approval) and the closed ship gate (`level_gated`) hold back a Pipeline raised after approval (owner decision R37: no re-approval is required after a Pipeline change). The re-read before the launch still compares the examined Status and Pipeline with the re-read ones (`revalidation_failed`). Task 4's observation of the value times (`t4-updatedat-observation.md` in the plan's artifacts) is kept as history; it decides nothing now.
+
+### 19.6 The `Coordinator` worktree, completion update and ship gate
+
+Each repository has a worktree `/home/coder/workspaces/worktrees/<repo>/Coordinator` on branch `Coordinator`; the sweep checks that it exists, is a git checkout and that `origin` names the repository, and skips the repository with `worktree_invalid`, `worktree_not_git` or `origin_mismatch` otherwise. The coordinator (not the worker, not the watcher) moves the Project Status to `In review` when a run ends `succeeded`, with `issue-pipeline complete` (`complete.py`), compare-and-set from Research, Spec, Plan or Debug on the configured item. It posts one result comment carrying a per-run marker keyed on the approval event id, so a retry never posts twice. Only the allowed Statuses (Research, Spec, Plan, Debug) act.
+
+The ship gate is the constant `GOVERNED_LEVELS_ALLOWED = False` in `launch.py`. While it is `False` only Pipeline None launches and any other level ends with the skip reason `level_gated`. It is flipped by one reviewed commit that also un-skips the launch-level observations in `tests/hooks/test_launch_level_observations.py`; a coupling test enforces the pairing. No config key or environment variable is the switch.
+
+### 19.7 New reason words and warnings
+
+| Word | Meaning |
+|---|---|
+| `level_gated` | The issue's Pipeline asks for a level above None while the ship gate is closed; nothing launched. |
+| `warning: approver_is_launch_account` | The approvers file lists the account the watcher launches with, so that account could approve its own issue; printed by `check-config` and in `first-run.txt`; a warning only. |
+| `status_moved_by_person` | `complete` found the Status already moved by someone else, left it alone and only commented. |
+| `refused:bad_outcome`, `bad_issue`, `bad_project_id`, `bad_repo`, `bad_run`, `bad_summary` | `complete` was given an invalid argument and wrote nothing. |
+| `refused:project_missing`, `project_ambiguous`, `status_option_missing` | The Project, or its `In review` option, could not be found exactly once; nothing was changed. |
+| `failed:*` | A GitHub call of `complete` failed; run it again. |
+
+Loop skip reasons (`SKIP_REASONS` in `dispatch.py`) include `config_invalid`, `not_enabled`, `worktree_invalid`, `origin_mismatch`, `label_missing`, `approved_field_missing` and the Project reasons; each repository that is skipped is printed with its word.
+
+### 19.8 Guard refusals and version 2
+
+The launch-level guard (`src/superclaude/hooks/scripts/launch-level-guard.sh`, mirrored in `plugins/superclaude/hooks/scripts/`) now refuses every `gh issue` verb except view, list and status, and every `gh label` and `gh project` write, at every level including Full Submit (`project item-list` and `project field-list` are allowed). `issue-pipeline complete` is coordinator-only. The token `*.config/superclaude*` guards the watcher's own configuration. The guard's version stamp is 2, so each host runs `superclaude install --force` once.
+
+### 19.9 Rollback of each remediation finding
+
+Each line says how to undo it; none is needed unless the finding's change misbehaves.
+
+- Q-1 (writes by Full Submit agents): revert the guard and its mirror to stamp 1; Full Submit agents can then write to issues again.
+- Q-2 (ship gate): nothing to roll back; flipping the constant is the opening step, and reverting that commit closes the gate again.
+- Q-3 (the value-time rule): R36 withdrew it and the code is removed (19.5); nothing to roll back. Owner decision R37 (2026-11-20): no re-approval is required after a Pipeline change, so the level-specific approval label of the proposal is not built.
+- Q-4 (reread order): restore the earlier order in `_revalidate`; two reasons may then be reported for one reread.
+- Q-5 (Status move on the wrong item): remove the compare-and-set in `complete.py`; the move then trusts the first item.
+- Q-6 (per-run marker): revert to the shared marker; a second run's comment would then be suppressed.
+- Q-7 (acceptance of the prompt task): move a `tests/issue_watch` file that pins `--pipeline none` back to the later task; that task's acceptance then fails until the file is updated.
+- Q-8 (variable types in the GraphQL query): restore the literal repository in the query and the old assertion in `test_security_invariants.py`; the repo parameter then stops working.
+- Q-9 (which sessions the guard governs): remove the unbound-session guard test and its wording; the guard itself does not change.
+- Q-10 (ordering and dependency edges): wording and plan ordering only; revert the lines.

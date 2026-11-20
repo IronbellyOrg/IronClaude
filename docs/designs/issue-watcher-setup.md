@@ -73,8 +73,7 @@ The default path is `~/.config/superclaude/issue-watch.json`. Every command take
   "schema_version": 1,
   "enabled": false,
   "labels": {
-    "trigger": "issue-watch:trigger",
-    "approval": "issue-watch:approved"
+    "trigger": "issue-watch:trigger"
   },
   "project_id": "PVT_REPLACE_WITH_PROJECT_NODE_ID",
   "owner_account_id": 1234567,
@@ -91,7 +90,7 @@ Replace every placeholder value. The fields:
 | `schema_version` | yes | none | The integer `1` |
 | `enabled` | no | `false` | A JSON boolean. `false` makes `once` exit 0 with `not_enabled` before any external call; `once --dry-run` ignores it |
 | `labels.trigger` | no | `issue-watch:trigger` | 1 to 50 characters, no control character, no comma, no double quote, not starting with a dash; matched exactly, case-sensitive |
-| `labels.approval` | no | `issue-watch:approved` | Same rules, and different from `labels.trigger` |
+| `labels.approval` | no | none | Do not set it. The approval is the issue field `Approved` set to `Yes` (R35), not a label. A config that sets this key is rejected with `config_invalid` (`labels.approval is the Approved issue field now (R35); remove the key`) |
 | `project_id` | yes | none | `PVT_` followed by 1 to 64 letters, digits, `_` or `-` |
 | `owner_account_id` | no | absent | A whole number from 1 up to 10^20 minus 1. When present, a cycle whose logged-in account has another id exits 2 with `account_id_mismatch` |
 | `worktree` | yes | none | An absolute path to an existing directory |
@@ -107,7 +106,7 @@ Rules that are easy to miss:
 
 ## 3. The approvers file
 
-The approvers file lists the GitHub accounts whose approval label counts. An approval label counts only when it was applied by a user account that is in this file.
+The approvers file lists the GitHub accounts whose approval counts. An approval (the issue field `Approved` set to `Yes`) counts only when it was set by a user account that is in this file.
 
 - One decimal account id per line, for example `1234567`. The id is the number, not the login. No spaces around it and no leading zero.
 - A line that starts with `#` in the first column is a comment. Blank lines are ignored. Any other line makes the whole file invalid.
@@ -130,14 +129,13 @@ Now run `superclaude issue-watch check-config` again. It must exit 0 before you 
 
 ## 4. Label setup
 
-The two labels must exist in the repository before anyone can apply them. The watcher never creates labels and never writes to GitHub at all, and `/sc:issue` does not create them either. You create them once, by hand. These commands are documented here and are not run by the implementation:
+The trigger label must exist in the repository before anyone can apply it. The watcher never creates labels and never writes to GitHub at all, and `/sc:issue` does not create them either. You create it once, by hand (on a host with the automatic path, the first run of section 17 creates it). The approval is not a label: it is the issue field `Approved` set to `Yes` (section 6). These commands are documented here and are not run by the implementation:
 
 ```bash
 gh label create issue-watch:trigger --repo IronbellyOrg/IronClaude
-gh label create issue-watch:approved --repo IronbellyOrg/IronClaude
 ```
 
-If you set other names under `labels` in the configuration file, create those names instead. `gh label create` also takes `--description` and `--color` if you want them. Confirm the result with:
+If you set another name under `labels.trigger` in the configuration file, create that name instead. `gh label create` also takes `--description` and `--color` if you want them. Confirm the result with:
 
 ```bash
 gh label list --repo IronbellyOrg/IronClaude
@@ -155,39 +153,34 @@ superclaude issue-watch init-state
 
 It creates the state directory (mode 0700), the store `dispatch.json` (0600) and the lock file `lock` (0600), and prints `state created: <state_dir>`. It never overwrites: when a store already exists it changes nothing, says so and exits 6. A cycle run before `init-state` ends exit 6 with `lock_missing`, because a cycle takes the lock before it reads the store; `store_missing` is what a cycle reports when the lock file exists but `dispatch.json` does not (section 11.5). `init-state` refuses to run when either file already exists.
 
-The store records the time it was created, and an approval label applied at or before that time never counts (the decision line says `approval_before_init`). A dry run uses the same rule. So approvals from before the watcher was set up are never acted on. For every issue that was approved before `init-state` and that you want the watcher to consider, apply the approval label again, as one of the approvers of section 3. Remove the label first and wait a few seconds before you add it back, because two label events in the same second make the cycle skip the issue as `events_incomplete`:
-
-```bash
-gh issue edit 42 --repo IronbellyOrg/IronClaude --remove-label issue-watch:approved
-sleep 5
-gh issue edit 42 --repo IronbellyOrg/IronClaude --add-label issue-watch:approved
-```
+The store records the time it was created, and an approval set at or before that time never counts (the decision line says `approval_before_init`). A dry run uses the same rule. So approvals from before the watcher was set up are never acted on. For every issue that was approved before `init-state` and that you want the watcher to consider, set the `Approved` field again, as one of the approvers of section 3: clear the field (or set it to another value), wait a few seconds, then set it to `Yes` again. Two field events in the same second share one event id, so do not rush it.
 
 Do not edit the issue after you re-approve it (section 6).
 
 ## 6. Setup order for each issue
 
-**First, a coordinator.** The watcher's claim runs `--pipeline none`: it assigns the issue, posts its comments and stops, and a person-opened coordinator starts the plan-writing worker. Nothing starts for a claimed issue while the coordinator is down, so a coordinator must be running before the cron entry of section 8.7 is installed and before you approve any issue. The coordinator's rules are in `src/superclaude/core/WORKER-CONTRACT.md` (section 4, "Issue pipeline duties"); the first live test and its record are in `docs/designs/issue-pipeline-fu1.md`.
+**First, a coordinator.** The watcher's claim runs at the issue's Pipeline level (while the ship gate is closed only `--pipeline none` launches): it assigns the issue, posts its comments and stops, and a person-opened coordinator starts the plan-writing worker. Nothing starts for a claimed issue while the coordinator is down, so a coordinator must be running before the cron entry of section 8.7 is installed and before you approve any issue. The coordinator's rules are in `src/superclaude/core/WORKER-CONTRACT.md` (section 4, "Issue pipeline duties"); the first live test and its record are in `docs/designs/issue-pipeline-fu1.md`.
 
 For each open issue you want the watcher to pick up, do these three steps in this order. The order matters because the approval has to be later than the trigger.
 
 1. Assign the issue to the owner, which means the GitHub login the watcher runs as, and nobody else. The watcher accepts an issue only when the assignee set is exactly that one login. An issue with no assignee is skipped as `unassigned`; one with any other assignee, alone or in addition, is skipped as `assigned_other`.
 2. Add the trigger label.
-3. Wait a few seconds, then, as one of the approvers, add the approval label. An approval that is not strictly later than the trigger label event is skipped as `approval_before_trigger`, and two label events in the same second are skipped as `events_incomplete`.
+3. Wait a few seconds, then, as one of the approvers, set the issue field `Approved` to `Yes` (in the issue sidebar; it is a field, not a label). An approval that is not strictly later than the trigger label event is skipped as `approval_before_trigger`.
 
 ```bash
 gh issue edit 42 --repo IronbellyOrg/IronClaude --add-assignee @me
 gh issue edit 42 --repo IronbellyOrg/IronClaude --add-label issue-watch:trigger
 sleep 5
-gh issue edit 42 --repo IronbellyOrg/IronClaude --add-label issue-watch:approved
+# now set the issue field Approved to Yes (the approval is a field, not a label)
 ```
 
-`@me` is whoever `gh` is logged in as on the machine where you run the command; it must be the watcher's login. If the approver is a different person, that person runs the last command.
+`@me` is whoever `gh` is logged in as on the machine where you run the command; it must be the watcher's login. If the approver is a different person, that person sets the `Approved` field.
 
 Two more conditions are checked on every cycle, so prepare them before step 3:
 
-- The issue must be on the Project of `project_id`, in the Backlog status, and not archived. Otherwise it is skipped as `project_mismatch` (or `project_unreadable` when the Project cannot be read).
+- The issue must be on the Project of `project_id`, in one of the allowed statuses (Research, Spec, Plan or Debug; Backlog, Ready, In progress, In review and Done never act, and a new status is blocked until it is added), and not archived. Otherwise it is skipped as `project_mismatch` (or `project_unreadable` when the Project cannot be read).
 - Nothing may change after the approval. An edit to the issue body or title, or a comment by anyone other than the watcher's own login, made at or after the approval time makes the issue `edited_after_approval`. Finish all edits first, then approve.
+- A later change of the Status or the Pipeline does not void the approval (R36), and no re-approval is needed after a Pipeline change (R37). While the ship gate is closed, a Pipeline above None ends `level_gated`.
 
 ## 7. Shadow rollout
 
@@ -261,7 +254,7 @@ ls -ld --time-style=full-iso ~/.local/state/superclaude/issue-watch ~/.local/sta
 grep -m1 '"created_at"' ~/.local/state/superclaude/issue-watch/dispatch.json
 ```
 
-Restart the workspace the way you normally do, then run both commands again and run `superclaude issue-watch status`. The directory and `dispatch.json` must still exist, the `created_at` line must be the same, and `status` must not exit 6. If the directory is gone, `$HOME` is not persistent on your workspace template. Set `state_dir` in the configuration file to an absolute path on storage that persists (follow-up FU-2 covers this), run `check-config` and `init-state` again, and re-apply the approval labels as in section 5, because the new store has a new creation time. The audit log of the shadow run is lost with the old directory.
+Restart the workspace the way you normally do, then run both commands again and run `superclaude issue-watch status`. The directory and `dispatch.json` must still exist, the `created_at` line must be the same, and `status` must not exit 6. If the directory is gone, `$HOME` is not persistent on your workspace template. Set `state_dir` in the configuration file to an absolute path on storage that persists (follow-up FU-2 covers this), run `check-config` and `init-state` again, and set the `Approved` field again as in section 5, because the new store has a new creation time. The audit log of the shadow run is lost with the old directory.
 
 ### 8.4 The staleness alert
 
@@ -310,7 +303,7 @@ The file's content does not matter, and a dangling symlink with that name counts
 - `status` shows the time the file was last touched as `disabled since`.
 - `check-config`, `init-state` and `reset` do not look at the file.
 
-What it cannot do: a session that has already been started cannot be stopped by it (risk R15). Neither does removing an approval label after the spawn has started stop that session. To end a running session, close it in Orca yourself; this runbook gives no command for that.
+What it cannot do: a session that has already been started cannot be stopped by it (risk R15). Neither does clearing the `Approved` field after the spawn has started stop that session. To end a running session, close it in Orca yourself; this runbook gives no command for that.
 
 While the file exists, `status` goes unhealthy (exit 1) once 900 seconds have passed since the last completed cycle, because a cycle that ends `disabled` is not counted as completed. Expect the staleness alert of section 12 to fire during a planned stop. Setting `enabled` to `false` in the configuration file has the same effect on `once` (exit 0, `not_enabled`), except that `--dry-run` ignores it.
 
@@ -363,7 +356,7 @@ The audit log accepts only the 59 names below (`REASON_TABLE` in the package's `
 | 0 | decision, skip | `events_incomplete` | The label history cannot be trusted: two label events in the same second, or no trigger label event found |
 | 0 | decision, skip | `events_unreadable` | The label history could not be read |
 | 0 | decision, skip | `edited_after_approval` | The issue body or title, or a comment by someone else, changed at or after the approval |
-| 0 | decision, skip | `project_mismatch` | The issue is not on the configured Project, not in Backlog, or archived |
+| 0 | decision, skip | `project_mismatch` | The issue is not on the configured Project, not in Research, Spec, Plan or Debug, or archived |
 | 0 | decision, skip | `project_unreadable` | The Project could not be read for this issue |
 | 0 | decision, skip | `unassigned` | The issue has no assignee |
 | 0 | decision, skip | `assigned_other` | The assignee set is not exactly the watcher's login |
@@ -547,7 +540,7 @@ superclaude issue-watch init-state
 superclaude issue-watch check-config
 ```
 
-The new store has a new creation time, so every earlier approval is void. Apply the approval label again to the issues you want considered, as in section 5. The new store also does not remember earlier launches; that record is in the `.broken` directory. Do not re-approve an issue whose session already started. `state_dir_unwritable` is different: it is not damage. Fix the disk, the mount or the permissions, and nothing else needs to change.
+The new store has a new creation time, so every earlier approval is void. Set the `Approved` field again on the issues you want considered, as in section 5. The new store also does not remember earlier launches; that record is in the `.broken` directory. Do not re-approve an issue whose session already started. `state_dir_unwritable` is different: it is not damage. Fix the disk, the mount or the permissions, and nothing else needs to change.
 
 ## 12. Alerting
 
@@ -570,9 +563,9 @@ These rules hold from the moment `enabled` is `true`:
 - **Never claim by hand an issue that carries the trigger label** (risk R14). A hand claim and a launched session can then run at the same time and do the same work twice. If you want to work an issue yourself, remove the trigger label from it first.
 - **Remove the trigger label from issues that are claimed** (risk R3). The watcher reads at most 100 open trigger-labelled issues assigned to its login and ends exit 4 (`truncated`) at 100, so claimed issues that keep the label eventually stop all dispatch. The `discovery_count` warning appears at 80. The command is shown below the list.
 - **Run one enabled workspace per GitHub login** (OD-8 of the design). The local record cannot see another workspace, so two enabled workspaces on one login could launch the same issue twice. Every audit line carries `host`, so a double enablement shows up as lines from two hosts for one `login`. Every workspace also multiplies the GitHub calls. By the design's proposed figures, one workspace makes 2 calls in an idle cycle (24 an hour, 0.48% of the 5,000-an-hour limit) and at most 37 in a busy one.
-- **Leave an approved issue alone.** Any edit to the title or body, or a comment by someone other than the watcher's login, made at or after the approval time makes the issue `edited_after_approval`, and anyone who can comment can cause that (risk R17). The issue waits until you apply the approval label again: remove it, wait a few seconds, and add it back as one of the approvers (section 5).
+- **Leave an approved issue alone.** Any edit to the title or body, or a comment by someone other than the watcher's login, made at or after the approval time makes the issue `edited_after_approval`, and anyone who can comment can cause that (risk R17). The issue waits until you set the `Approved` field again: clear it, wait a few seconds, and set it to `Yes` as one of the approvers (section 5).
 - **Change the approvers file deliberately.** It is the only list of who can approve. After each edit, run `check-config` and compare the modification time and the count with your notes (section 3; risk R10).
-- **Expect sessions to stay open.** A launched session runs until it ends (risk R7 of the design). The watcher starts at most one session per cycle and at most 6 in 24 hours, so look at the open sessions now and then. Since 2026-11-17 each of those claim sessions ends after its comments (`--pipeline none`) and the coordinator, not the watcher, starts the worker in worktree `issue-<N>` (before that date the claim started a governed agent of its own at the default `worktree` level, superseded). Risk to monitor: the watcher's caps count only its own launches, not the workers a coordinator starts, so the number of open sessions can be higher than the caps suggest (see `docs/designs/issue-pipeline-fu1.md`).
+- **Expect sessions to stay open.** A launched session runs until it ends (risk R7 of the design). The watcher starts at most one session per cycle and at most 6 in 24 hours, so look at the open sessions now and then. Since 2026-11-17 each of those claim sessions ends after its comments at level `none` (the only level that launches while the ship gate is closed) and the coordinator, not the watcher, starts the worker in worktree `issue-<N>` (before that date the claim started a governed agent of its own at the default `worktree` level, superseded). Risk to monitor: the watcher's caps count only its own launches, not the workers a coordinator starts, so the number of open sessions can be higher than the caps suggest (see `docs/designs/issue-pipeline-fu1.md`).
 - **Check `status` regularly.** It lists `stale` entries (section 11) and shows the day cap used.
 
 To remove the trigger label from a claimed issue (42 here):
@@ -649,7 +642,7 @@ The design accepts these. Their likelihood and impact ratings are proposals in t
 | R14 | A hand claim at the same time as a launch duplicates work | Section 13: never claim a trigger-labelled issue by hand |
 | R15 | An approval removed, or `DISABLED` created, after the spawn has started cannot stop the session | Accepted; the check before the launch stops anything not yet started |
 | R16 | Clock jumps distort the lease, the backoff, the day cap and the ordering, but never the launch count | Accepted; the 300-second tolerance for claim markers and the `clock_skew` warning make a skew visible |
-| R17 | Any commenter can stall an approved issue until it is approved again | Apply the approval label again (section 13) |
+| R17 | Any commenter can stall an approved issue until it is approved again | Set the `Approved` field again (section 13) |
 | R18 | The integer-only prompt keeps issue text out of the prompt but not out of the session, because the claim reads title, body and comments | The deployment gate, the permission mode and the rule "unchanged since approval"; accepted |
 
 ### 15.2 When to revisit the design
@@ -704,3 +697,17 @@ Every item below is run by the owner; nothing in the implementation runs any of 
 - Verify the [staleness alert (section 8.4)](#84-the-staleness-alert).
 - Only then [set `enabled` to `true` (section 8.6)](#86-set-enabled).
 - Install the [cron entry (section 8.7)](#87-install-the-cron-entry-fu-2).
+
+## 17. The automatic path (replaces the hand steps of sections 2 to 5)
+
+On a host with the Coder template, nothing in sections 2 to 5 is done by hand. The cron entry runs `superclaude issue-watch run-all` (see `docs/designs/issue-watcher-zero-setup-coder-handoff.md` for the line). For every repository Orca knows, the loop does this:
+
+1. Finds or creates the config `~/.config/superclaude/issue-watch.d/<name>.json` and its approvers file from the defaults file `~/.config/superclaude/issue-watch-defaults.json` (the Project and approvers are read from GitHub).
+2. Runs the first-run check (config, trigger label, state, dry run, lock test, restart test). The trigger label is created here and nowhere else. A passing check sets `enabled` to `true`; a failing one leaves it `false` and the reason is in `<state dir>/first-run.txt`.
+3. Before each child it checks the repository's `Coordinator` worktree (path `/home/coder/workspaces/worktrees/<repo>/Coordinator`, `origin` equal to the repository), the trigger label, the `Approved` field and the Project (the repository has one Project, or several with the defaults map naming the configured one; otherwise the reasons are `no_project`, `project_ambiguous` or `project_mismatch`). A repository that fails is skipped with a reason and nothing is created.
+
+To approve an issue, a person in the approvers file sets the issue field `Approved` to `Yes` (not a label) after the owner has set the Status (Research, Spec, Plan or Debug) and the Pipeline. While the ship gate is closed only Pipeline None launches; other levels end with `level_gated`. The coordinator moves the Status to `In review` when a run succeeds. A coordinator must be running for each repository (session `COORD-<RepoName>`).
+
+Check a host without changing anything: `superclaude issue-watch run-all --dry-run`. A real sweep (without `--dry-run`) exits 75 when another sweep is running; a dry run takes no lock and never does.
+
+The manual commands of sections 2 to 5 remain valid as a fallback: write the config and approvers file by hand, run `superclaude issue-watch check-config` and `init-state`, create the trigger label with `gh label create`, and approve with the `Approved` field (not a label). Leave `labels.approval` out of the config: the loader rejects it. A hand-written config is left alone by the generator.
