@@ -80,7 +80,7 @@ with open(STATE, encoding="utf-8") as fh:
 PR_FIELDS = {
     "number", "state", "mergedAt", "mergedBy", "mergeCommit", "baseRefName",
     "headRefName", "headRefOid", "commits", "url", "body", "title", "files",
-    "changedFiles", "closingIssuesReferences",
+    "changedFiles", "closingIssuesReferences", "statusCheckRollup",
 }
 ISSUE_FIELDS = {"state", "stateReason", "comments", "title", "body"}
 
@@ -692,6 +692,7 @@ class Scratch:
             "title": title,
             "files": [{"path": name} for name in (files or [])],
             "changedFiles": len(files or []),
+            "statusCheckRollup": [],
             "closingIssuesReferences": [
                 {
                     "number": n,
@@ -2302,7 +2303,7 @@ EXPECTED_EVIDENCE_CALLS = [
         "--repo",
         REPO_SLUG,
         "--json",
-        "body,files,changedFiles,baseRefName,mergedAt,closingIssuesReferences",
+        "body,files,changedFiles,baseRefName,mergedAt,closingIssuesReferences,statusCheckRollup",
     ],
     ["api", f"repos/{REPO_SLUG}/issues/12/timeline?per_page=100"],
     [
@@ -2408,6 +2409,69 @@ def test_evidence_quotes_every_line_a_person_wrote(scratch: Scratch) -> None:
     for forged in ("file: forged.py", "file: other.py", "## Heading"):
         assert forged not in lines
     assert not [ln for ln in lines if ln.startswith(("PR #98", "PR #99"))]
+
+
+def _set_checks(s: Scratch, rollup: list[dict]) -> None:
+    s.state["prs"][str(PR_N)]["statusCheckRollup"] = rollup
+    s.save_state()
+
+
+def test_evidence_holds_the_check_results_of_the_target_pull_request(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch)
+    _set_checks(
+        scratch,
+        [
+            {
+                "name": "Test on Python 3.10",
+                "status": "COMPLETED",
+                "conclusion": "SUCCESS",
+            },
+            {"name": "Lint", "status": "COMPLETED", "conclusion": "FAILURE"},
+            {"context": "ci/external", "state": "PENDING"},
+            {
+                "name": "bad\nfile: forged.py",
+                "status": "COMPLETED",
+                "conclusion": "SUCCESS",
+            },
+        ],
+    )
+    res = scratch.run(SETTLE, "evidence", str(PR_N), "--issue", str(ISSUE_N))
+    got = _expect_line(res, "EVIDENCE", 0)
+    assert got["truncated"] == "no"
+    text = (Path(got["dir"]) / "evidence.md").read_text(encoding="utf-8")
+    lines = text.splitlines()
+    assert "checks: 4 of 4 (results of the head commit; data)" in lines
+    assert "> check: Test on Python 3.10 status=COMPLETED conclusion=SUCCESS" in lines
+    assert "> check: Lint status=COMPLETED conclusion=FAILURE" in lines
+    assert "> check: ci/external status=PENDING conclusion=" in lines
+    # A check name is data: a line break in it cannot make a record line.
+    assert "file: forged.py" not in lines
+    assert "> check: bad?file: forged.py status=COMPLETED conclusion=SUCCESS" in lines
+    # The same gh call as before, with the extra field only (no new call).
+    calls = [c for c in scratch.gh_calls() if c[:3] == ["pr", "view", str(PR_N)]]
+    assert calls and all("statusCheckRollup" in c[-1] for c in calls[:1])
+
+
+def test_evidence_check_results_are_bounded_to_forty(scratch: Scratch) -> None:
+    make_world(scratch)
+    _set_checks(
+        scratch,
+        [
+            {"name": f"check {i}", "status": "COMPLETED", "conclusion": "SUCCESS"}
+            for i in range(45)
+        ],
+    )
+    got = _expect_line(
+        scratch.run(SETTLE, "evidence", str(PR_N), "--issue", str(ISSUE_N)),
+        "EVIDENCE",
+        0,
+    )
+    assert got["truncated"] == "yes"
+    lines = (Path(got["dir"]) / "evidence.md").read_text(encoding="utf-8").splitlines()
+    assert "checks: 40 of 45 (results of the head commit; data)" in lines
+    assert len([ln for ln in lines if ln.startswith("> check: ")]) == 40
 
 
 @pytest.mark.parametrize("match", ["--paginate", "issue view", "pr list"])
@@ -2568,13 +2632,13 @@ def update_calls(s: Scratch) -> list[list[str]]:
 
 
 def test_task_without_orca_is_no_orca(scratch: Scratch) -> None:
-    res = scratch.run(SETTLE, "task", "34", "--issue", "12")
+    res = scratch.run(SETTLE, "task", "34", "--issue", "12", "--issue-done")
     assert res.code == 1 and res.lines == ["TASK escalated why=no_orca"]
 
 
 def test_task_with_no_run_is_no_orca_run(scratch: Scratch) -> None:
     scratch.install_orca(run=None)
-    res = scratch.run(SETTLE, "task", "34", "--issue", "12")
+    res = scratch.run(SETTLE, "task", "34", "--issue", "12", "--issue-done")
     assert res.code == 1 and res.lines == ["TASK escalated why=no_orca_run"]
     assert update_calls(scratch) == []
 
@@ -2584,7 +2648,9 @@ def test_task_found_by_title_or_dispatch_is_set_with_the_exact_update(
     scratch: Scratch, how: str
 ) -> None:
     scratch.install_orca(tasks=[dict(TASK_ROW)], workers=[dict(WORKER_ROW)])
-    args = ["--issue", "12"] if how == "title" else ["--dispatch", "ctx_1"]
+    args = (
+        ["--issue", "12", "--issue-done"] if how == "title" else ["--dispatch", "ctx_1"]
+    )
     res = scratch.run(SETTLE, "task", "34", *args)
     expected = "TASK settled id=task_1 how=completed"
     if how == "dispatch":
@@ -2613,7 +2679,9 @@ def test_task_already_completed_or_failed_is_already_final(
     scratch: Scratch, status: str
 ) -> None:
     scratch.install_orca(tasks=[{**TASK_ROW, "status": status}])
-    res = scratch.run(SETTLE, "task", "34", "--title", f"{REPO_SLUG}#12")
+    res = scratch.run(
+        SETTLE, "task", "34", "--title", f"{REPO_SLUG}#12", "--issue-done"
+    )
     assert res.code == 0
     assert res.lines == [f"TASK already_final id=task_1 how=already_{status}"]
     assert update_calls(scratch) == []
@@ -2621,7 +2689,7 @@ def test_task_already_completed_or_failed_is_already_final(
 
 def test_task_with_no_match_is_none_found(scratch: Scratch) -> None:
     scratch.install_orca(tasks=[{**TASK_ROW, "title": "other/repo#1"}], workers=[])
-    res = scratch.run(SETTLE, "task", "34", "--issue", "12")
+    res = scratch.run(SETTLE, "task", "34", "--issue", "12", "--issue-done")
     assert res.code == 0 and res.lines == ["TASK none_found"]
     res = scratch.run(SETTLE, "task", "34", "--dispatch", "ctx_unknown")
     assert res.lines == ["TASK none_found"]
@@ -2640,15 +2708,93 @@ def test_task_lookup_and_write_failures(scratch: Scratch, rule: dict, why: str) 
     scratch.install_orca(
         tasks=[dict(TASK_ROW)], workers=[dict(WORKER_ROW)], rules=[rule]
     )
-    args = ["--dispatch", "ctx_1"] if "worker" in rule["match"] else ["--issue", "12"]
+    args = (
+        ["--dispatch", "ctx_1"]
+        if "worker" in rule["match"]
+        else ["--issue", "12", "--issue-done"]
+    )
     res = scratch.run(SETTLE, "task", "34", *args)
     assert res.code == 1 and fields(res.line)["why"] == why
 
 
 def test_task_update_that_does_not_stick_is_write_failed(scratch: Scratch) -> None:
     scratch.install_orca(tasks=[dict(TASK_ROW)], update_noop=True)
-    res = scratch.run(SETTLE, "task", "34", "--issue", "12")
+    res = scratch.run(SETTLE, "task", "34", "--issue", "12", "--issue-done")
     assert res.code == 1 and fields(res.line)["why"] == "write_failed"
+
+
+# -- the task is bound to the issue verdict or to the Dispatch (review of pull request 683) --
+
+
+def test_task_by_title_is_not_chosen_without_a_done_verdict(scratch: Scratch) -> None:
+    scratch.install_orca(tasks=[dict(TASK_ROW)], workers=[dict(WORKER_ROW)])
+    for args in (["--issue", "12"], ["--title", f"{REPO_SLUG}#12"]):
+        res = scratch.run(SETTLE, "task", "34", *args)
+        assert res.code == 1 and res.lines == ["TASK escalated why=not_reached"]
+    # No Orca call of any kind was made, so no task can have been touched.
+    assert scratch.orca_calls_list() == []
+
+
+def test_a_not_done_verdict_never_completes_a_title_matched_task(
+    scratch: Scratch,
+) -> None:
+    make_world(scratch)
+    scratch.install_orca(tasks=[dict(TASK_ROW)], workers=[dict(WORKER_ROW)])
+    issue = issue_with_verdict(scratch, NOT_DONE_TEXT)
+    assert issue.line.startswith("ISSUE settled ") and "how=left_open" in issue.line
+    # The caller passes --issue-done only for a closed issue, so a not_done run has none.
+    task = scratch.run(SETTLE, "task", "34", "--issue", "12")
+    assert task.lines == ["TASK escalated why=not_reached"]
+    assert update_calls(scratch) == []
+    # An unclear verdict is the same.
+    make_world(scratch)
+    unclear = issue_with_verdict(scratch, UNCLEAR_TEXT)
+    assert "why=unclear" in unclear.line
+    assert scratch.run(SETTLE, "task", "34", "--issue", "12").lines == [
+        "TASK escalated why=not_reached"
+    ]
+    assert update_calls(scratch) == []
+
+
+def test_a_dispatch_completes_its_task_whatever_the_verdict(scratch: Scratch) -> None:
+    make_world(scratch)
+    scratch.install_orca(tasks=[dict(TASK_ROW)], workers=[dict(WORKER_ROW)])
+    issue_with_verdict(scratch, NOT_DONE_TEXT)
+    task = scratch.run(SETTLE, "task", "34", "--dispatch", "ctx_1")
+    assert task.code == 0
+    assert task.lines == ["TASK settled id=task_1 how=completed dispatch=dispatched"]
+    assert len(update_calls(scratch)) == 1
+
+
+def test_a_done_verdict_with_one_matching_task_completes_it(scratch: Scratch) -> None:
+    make_world(scratch)
+    decoy = {"id": "task_9", "title": f"{REPO_SLUG}#99", "status": "dispatched"}
+    scratch.install_orca(tasks=[decoy, dict(TASK_ROW)])
+    issue = issue_with_verdict(scratch, verdict_text())
+    assert "how=closed_now" in issue.line
+    task = scratch.run(SETTLE, "task", "34", "--issue", "12", "--issue-done")
+    assert task.code == 0 and task.lines == ["TASK settled id=task_1 how=completed"]
+    assert [c[3] for c in update_calls(scratch)] == ["task_1"]
+
+
+def test_several_matching_tasks_are_escalated_and_none_is_touched(
+    scratch: Scratch,
+) -> None:
+    twin = {**TASK_ROW, "id": "task_2"}
+    scratch.install_orca(tasks=[dict(TASK_ROW), twin])
+    res = scratch.run(SETTLE, "task", "34", "--issue", "12", "--issue-done")
+    assert res.code == 1 and res.lines == ["TASK escalated why=task_lookup_failed"]
+    assert update_calls(scratch) == []
+
+
+def test_one_open_task_among_finished_twins_is_the_one_completed(
+    scratch: Scratch,
+) -> None:
+    done = {**TASK_ROW, "id": "task_0", "status": "completed"}
+    scratch.install_orca(tasks=[done, dict(TASK_ROW)])
+    res = scratch.run(SETTLE, "task", "34", "--issue", "12", "--issue-done")
+    assert res.lines == ["TASK settled id=task_1 how=completed"]
+    assert [c[3] for c in update_calls(scratch)] == ["task_1"]
 
 
 # -- the hand run (row 7) and the merge guard (F22) -----------------------------------
@@ -2667,7 +2813,7 @@ def test_hand_run_with_no_orchestrator_and_no_orca(scratch: Scratch) -> None:
     path = write_verdict(directory, verdict_text())
     issue = run_issue(scratch, verdict=path, directory=directory)
     entry = scratch.run(SETTLE, "entry", "--key", "acme__widgets__12")
-    task = scratch.run(SETTLE, "task", "34", "--issue", "12")
+    task = scratch.run(SETTLE, "task", "34", "--issue", "12", "--issue-done")
     assert issue.line.startswith("ISSUE settled ")
     assert entry.line == "ENTRY escalated key=acme__widgets__12 why=surface_absent"
     assert task.line == "TASK escalated why=no_orca"
@@ -2741,7 +2887,7 @@ def test_scripts_never_print_or_write_a_secret(scratch: Scratch) -> None:
     results = [
         run_issue(scratch, verdict=path, directory=directory),
         scratch.run(SETTLE, "entry", "--key", "k"),
-        scratch.run(SETTLE, "task", "34", "--issue", "12"),
+        scratch.run(SETTLE, "task", "34", "--issue", "12", "--issue-done"),
     ]
     for res in results:
         for canary in ("canary-gh-token-0001", "canary-clickup-token-0002"):
@@ -3189,7 +3335,7 @@ def test_a_full_run_writes_and_prints_no_secret(scratch: Scratch) -> None:
     results = [
         run_issue(scratch, verdict=path, directory=directory),
         scratch.run(SETTLE, "entry", "--key", "k", "--issue-open"),
-        scratch.run(SETTLE, "task", "34", "--issue", "12"),
+        scratch.run(SETTLE, "task", "34", "--issue", "12", "--issue-done"),
     ]
     for res in results:
         _assert_output_is_clean(res)
@@ -3279,7 +3425,7 @@ def test_every_gh_call_names_the_origin_repository_and_the_files_carry_repo(
     directory = get_evidence(scratch)
     path = write_verdict(directory, verdict_text())
     assert run_issue(scratch, verdict=path, directory=directory).code == 0
-    scratch.run(SETTLE, "task", "34", "--issue", "12")
+    scratch.run(SETTLE, "task", "34", "--issue", "12", "--issue-done")
     calls = scratch.gh_calls()
     assert len(calls) > 10
     _check_gh_calls_name_the_origin_repo(calls)
@@ -3345,7 +3491,7 @@ def test_the_only_writes_of_a_full_run_are_one_note_one_close_and_one_task_updat
     scratch.clear_calls()
     issue_with_verdict(scratch, verdict_text())
     scratch.run(SETTLE, "entry", "--key", "acme__widgets__12")
-    scratch.run(SETTLE, "task", "34", "--issue", "12")
+    scratch.run(SETTLE, "task", "34", "--issue", "12", "--issue-done")
     issue_writes = writes(scratch)
     assert [tuple(c[:2]) for c in issue_writes] == [
         ("issue", "comment"),
@@ -3425,3 +3571,19 @@ def test_done_check_text_is_in_the_skill() -> None:
         assert "src/superclaude/" not in text, path.name
         assert EM_DASH not in text and EN_DASH not in text, path.name
         assert _names_in(text) == [], path.name
+
+
+def test_the_task_rule_and_the_check_results_are_written_in_the_skill_text() -> None:
+    skill = SKILL_MD.read_text(encoding="utf-8")
+    result = (REFS_DIR / "result.md").read_text(encoding="utf-8")
+    done_check = re.sub(
+        r"\s+", " ", (REFS_DIR / "done-check.md").read_text(encoding="utf-8")
+    )
+    for text in (skill, result):
+        assert "--issue-done" in text
+        assert "why=not_reached" in text
+        assert "exactly one task" in text
+    assert "how=closed_now" in skill and "`note=already_there`" in skill
+    assert "40 check results" in skill and "40 check results" in done_check
+    assert "its check results" in done_check
+    assert "--issue-done" in SETTLE.read_text(encoding="utf-8")

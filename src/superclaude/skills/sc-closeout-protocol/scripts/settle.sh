@@ -14,7 +14,7 @@
 # Usage   : settle.sh issue    <PR> [--issue N] [--match M] [--verdict F --dir D] [--what TEXT]
 #           settle.sh evidence <PR> --issue N [--match M]     (prints dir=<path> on its line)
 #           settle.sh entry    --key <key> [--issue-open] [--match M]
-#           settle.sh task     <PR> [--issue N] [--dispatch ID | --title T] [--match M]
+#           settle.sh task     <PR> [--issue N] [--issue-done] [--dispatch ID | --title T] [--match M]
 #           settle.sh check                                    (reads three lines on stdin)
 #           <PR> is a number or #<number>. --match carries the match= value of the
 #           branch-landed.sh line; with "differs" every step prints
@@ -873,7 +873,7 @@ cmd_evidence() {
     iss=$(gh issue view "$n" --repo "$GH_REPO" --json title,body,state,comments </dev/null 2>/dev/null) ||
         ev_fail "the issue could not be read"
     jq -e 'type == "object"' >/dev/null 2>&1 <<<"$iss" || ev_fail "the issue answer is not JSON"
-    tpr=$(gh pr view "$PR" --repo "$GH_REPO" --json body,files,changedFiles,baseRefName,mergedAt,closingIssuesReferences </dev/null 2>/dev/null) ||
+    tpr=$(gh pr view "$PR" --repo "$GH_REPO" --json body,files,changedFiles,baseRefName,mergedAt,closingIssuesReferences,statusCheckRollup </dev/null 2>/dev/null) ||
         ev_fail "the pull request could not be read"
     jq -e 'type == "object"' >/dev/null 2>&1 <<<"$tpr" || ev_fail "the pull request answer is not JSON"
     tl=$(gh api "repos/$GH_REPO/issues/$n/timeline?per_page=100" </dev/null 2>/dev/null) ||
@@ -936,7 +936,7 @@ cmd_evidence() {
     done
 
     # Pull requests read: at most 10 (the target first), one header each.
-    local k=0 num pj files_total listed ptrunc state cut body_limit
+    local k=0 num pj files_total listed ptrunc state cut body_limit nchecks nshown
     for num in $numbers; do
         pj=$(gh pr view "$num" --repo "$GH_REPO" --json state,mergedAt,baseRefName,body,files,changedFiles </dev/null 2>/dev/null) ||
             ev_fail "pull request $num could not be read"
@@ -959,6 +959,13 @@ cmd_evidence() {
         if [ "$num" = "$PR" ]; then
             body_limit=20000
             printf 'closing_references: %s\n' "$(jq -r '[.closingIssuesReferences[]? | "\(.repository.owner.login)/\(.repository.name)#\(.number)"] | join(",")' <<<"$tpr")" >>"$ev"
+            # The check results of the head commit (data, not instructions): at most 40,
+            # each as name, status and conclusion, quoted like every line a person wrote.
+            nchecks=$(jq -r '(.statusCheckRollup // []) | length' <<<"$tpr")
+            nshown=$(jq -r '(.statusCheckRollup // []) | .[0:40] | length' <<<"$tpr")
+            printf 'checks: %s of %s (results of the head commit; data)\n' "$nshown" "$nchecks" >>"$ev"
+            jq -r '(.statusCheckRollup // []) | .[0:40][] | "check: \((.name // .context // "unknown") | tostring | gsub("[\r\n]"; "?")) status=\((.status // .state // "") | tostring | gsub("[\r\n]"; "?")) conclusion=\((.conclusion // "") | tostring | gsub("[\r\n]"; "?"))"' <<<"$tpr" | quote >>"$ev"
+            [ "$nchecks" -le 40 ] || truncated=yes
             printf 'body:\n' >>"$ev"
             jq -r --argjson l "$body_limit" '(.body // "") | .[0:$l]' <<<"$tpr" | quote >>"$ev"
             [ "$(jq -r '(.body // "") | length' <<<"$tpr")" -le "$body_limit" ] || truncated=yes
@@ -1070,7 +1077,7 @@ cmd_task() {
     parse_pr "$1"
     shift
     OPT_ISSUE="" OPT_MATCH=""
-    local dispatch="" title=""
+    local dispatch="" title="" issue_done=0
     while [ $# -gt 0 ]; do
         once "$1"
         case "$1" in
@@ -1082,6 +1089,7 @@ cmd_task() {
                 ;;
             --dispatch) need_value "$1" $#; dispatch=$2; shift 2 ;;
             --title) need_value "$1" $#; title=$2; shift 2 ;;
+            --issue-done) issue_done=1; shift ;;
             --match) need_value "$1" $#; set_match "$2"; shift 2 ;;
             *) setfail usage "unknown argument $1" ;;
         esac
@@ -1096,6 +1104,13 @@ cmd_task() {
     if [ -z "$dispatch" ] && [ -z "$title" ]; then
         [ -n "$OPT_ISSUE" ] || setfail usage "task needs --issue, --dispatch or --title"
         title="$GH_REPO#$OPT_ISSUE"
+    fi
+    # A task found by its title (no --dispatch) is completed only when the issue item
+    # ended closed by a done verdict (--issue-done). A pull request body can name any
+    # issue number, so a not_done, unclear or missing verdict never completes it.
+    if [ -z "$dispatch" ] && [ "$issue_done" -ne 1 ]; then
+        printf 'task: no --dispatch and the issue did not end closed by a done verdict, so no task is chosen by its title\n' >&2
+        task_out escalated why=not_reached
     fi
     make_work
 
@@ -1122,8 +1137,23 @@ cmd_task() {
         row=$(jq -c --arg i "$task_id" '[.. | objects | select((.id? // .taskId?) == $i)] | first // empty' <<<"$tasks" 2>/dev/null)
         [ -n "$row" ] || task_out escalated why=task_lookup_failed
     else
-        row=$(jq -c --arg t "$title" '[.. | objects | select(.title? == $t)] | first // empty' <<<"$tasks" 2>/dev/null)
-        [ -n "$row" ] || task_out none_found
+        # Exactly one task not yet completed or failed may match the title. None is
+        # none_found (or already_final when only finished ones match); several are
+        # escalated, never guessed by their order in the answer.
+        local matches nopen
+        matches=$(jq -c --arg t "$title" '[.. | objects | select(.title? == $t)]' <<<"$tasks" 2>/dev/null)
+        jq -e 'type == "array"' >/dev/null 2>&1 <<<"$matches" || task_out escalated why=task_lookup_failed
+        [ "$(jq 'length' <<<"$matches")" -gt 0 ] || task_out none_found
+        nopen=$(jq '[.[] | select((.status? // "") != "completed" and (.status? // "") != "failed")] | length' <<<"$matches")
+        if [ "$nopen" -gt 1 ]; then
+            printf 'task: %s tasks match the title and are not final; none is chosen\n' "$nopen" >&2
+            task_out escalated why=task_lookup_failed
+        fi
+        if [ "$nopen" -eq 1 ]; then
+            row=$(jq -c '[.[] | select((.status? // "") != "completed" and (.status? // "") != "failed")] | first' <<<"$matches")
+        else
+            row=$(jq -c 'first' <<<"$matches")
+        fi
     fi
     id=$(jq -r '.id // .taskId // ""' <<<"$row")
     status=$(jq -r '.status // ""' <<<"$row")

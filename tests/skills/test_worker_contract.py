@@ -3146,7 +3146,7 @@ WRITE_VERB_CLASSIFICATION = {
     (
         _CLOSEOUT_SETTLE,
         "gh pr",
-        'tpr=$(gh pr view "$PR" --repo "$GH_REPO" --json body,files,changedFiles,baseRefName,mergedAt,closingIssuesReferences </dev/null 2>/dev/null) ||',
+        'tpr=$(gh pr view "$PR" --repo "$GH_REPO" --json body,files,changedFiles,baseRefName,mergedAt,closingIssuesReferences,statusCheckRollup </dev/null 2>/dev/null) ||',
     ): ("never-worker", _CLOSEOUT_REASON),
 }
 

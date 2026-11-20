@@ -15,7 +15,7 @@ Investigate first and list what was checked in every verdict, not only in an unc
 1. The issue's own done-criteria: its Fix approach, Test plan, acceptance criteria and any "Done when" list. An issue with none of these gets one criterion, its title and first paragraph, with the source `other`.
 2. The remaining items and the later stages the issue names.
 3. The issue's comments.
-4. The target pull request (the one this run settles) and the pull requests linked to the issue.
+4. The target pull request (the one this run settles), its check results (a failed or missing check counts against `delivered` for a behavioral criterion) and the pull requests linked to the issue.
 5. The other open or merged pull requests that reference the issue.
 6. The times of the `closed` and `reopened` events (the timeline).
 
@@ -31,7 +31,7 @@ Matching the words `Fixes`, `Closes` or `Refs` decides nothing. A `Refs`-only pu
 
 ## The caps and `truncated=yes`
 
-The evidence file holds at most 30 comments, 10 pull requests, 100 file names for each pull request and 100 timeline events (for the cross-reference read; the `closed` and `reopened` times are read from every page and are not capped). Nothing past a cap is in the file. The `EVIDENCE` line says `truncated=yes` when any cap cut something, and a pull request header says `files_truncated=yes` when its file list is cut. Past a cap you cannot prove a criterion: write `not_done` or `unclear_escalate`, never `done`, for a criterion that only a cut part could show. For a pull request whose header says `files_truncated=yes` the script does not check the file names you cite; for one with `files_truncated=no` it does.
+The evidence file holds at most 30 comments, 10 pull requests, 100 file names for each pull request, 40 check results of the target pull request's head (each as name, status and conclusion, quoted as data) and 100 timeline events (for the cross-reference read; the `closed` and `reopened` times are read from every page and are not capped). Nothing past a cap is in the file. The `EVIDENCE` line says `truncated=yes` when any cap cut something, and a pull request header says `files_truncated=yes` when its file list is cut. Past a cap you cannot prove a criterion: write `not_done` or `unclear_escalate`, never `done`, for a criterion that only a cut part could show. For a pull request whose header says `files_truncated=yes` the script does not check the file names you cite; for one with `files_truncated=no` it does.
 
 ## The line forms
 
