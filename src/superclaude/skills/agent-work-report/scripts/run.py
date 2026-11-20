@@ -47,6 +47,7 @@ from common import (
     SESSION_URL,
     SKILL_DIR,
     CommandError,
+    entry_blocks,
     entry_files,
     entry_issue_url,
     entry_session_ids,
@@ -697,6 +698,14 @@ def _refresh(run=None):
         "prev_date": "",
     }
     mine, other = [], []
+    # What the daily report lists: an item block, or a "Likely yours" line led by the item's link. A url that
+    # only appears in another item's notes is not listed.
+    daily_listed = {u.lower() for u in entry_blocks(text)} | {
+        u.lower()
+        for u in re.findall(
+            r"(?m)^(?:- )?\[[^\]]*\]\(([^)\s]+)\)", section(text, "Likely yours")
+        )
+    }
     emitted = set()  # one card per url: the orchestrated entry is made first and wins over an information one
     for info, entries in ((False, held_entries), (True, info_entries)):
         for path, e in sorted(entries.items()):
@@ -704,10 +713,8 @@ def _refresh(run=None):
             if not url:
                 print(f"entry file {path.name} left out: no url", file=sys.stderr)
                 continue
-            if (
-                info and f"]({url})" in text
-            ):  # a block of the daily report already lists it (FR-28)
-                continue
+            if info and url.lower() in daily_listed:
+                continue  # a block of the daily report already lists it (FR-28)
             if url.lower() in emitted:
                 continue
             emitted.add(url.lower())

@@ -3623,3 +3623,25 @@ def test_two_refreshes_never_run_at_once(root, monkeypatch):
         assert t.is_alive() and not shared.exists()  # and it waits there
     t.join(10)
     assert not t.is_alive() and shared.exists()
+
+
+def test_an_information_entry_named_only_in_another_items_notes_still_gets_a_card(
+    root, monkeypatch
+):
+    daily = closed_daily_run(root, [item(5, author=ME)])
+    nine = f"{U}issues/9"
+    text = (daily / "overview.md").read_text()
+    # The daily report only mentions issue 9 inside another item's notes.
+    (daily / "overview.md").write_text(
+        text.replace("A fix for the login page.", f"A fix for [issue 9]({nine}).", 1)
+    )
+    assert f"]({nine})" in (daily / "overview.md").read_text()
+    put_entry(
+        root,
+        "mention__IronbellyOrg__Coder__9",
+        held_entry(1, url=nine, kind="info:mentions"),
+        sub="info",
+    )
+    fake_gh(monkeypatch, {})
+    runmod.refresh()
+    assert nine in [i["url"] for i in refreshed_page(root)["items"]]
