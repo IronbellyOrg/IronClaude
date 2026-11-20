@@ -1,0 +1,55 @@
+"""The Wave 4R reviser reads an untrusted review report, so its tools are pinned."""
+
+from __future__ import annotations
+
+import re
+from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parents[2]
+_AGENT = _ROOT / "src/superclaude/agents/workflow-reviser.md"
+_REF = _ROOT / "src/superclaude/skills/sc-workflow-protocol/refs/remediation.md"
+_EXPECTED = ["Read", "Edit", "Grep", "Glob"]
+
+
+def _tools(text: str) -> list[str]:
+    fm = re.match(r"\A---\n(.*?)\n---\n", text, re.S)
+    assert fm, "no frontmatter"
+    line = re.search(r"^tools:[ \t]*(.*)$", fm.group(1), re.M)
+    assert line and line.group(1).strip(), "no tools: allowlist"
+    return [t.strip() for t in line.group(1).split(",") if t.strip()]
+
+
+def test_agent_tools_are_exactly_read_edit_grep_glob():
+    assert _AGENT.is_file()
+    assert _tools(_AGENT.read_text(encoding="utf-8")) == _EXPECTED
+
+
+def test_tools_check_fails_when_bash_is_added():
+    text = _AGENT.read_text(encoding="utf-8").replace(
+        "tools: Read, Edit, Grep, Glob", "tools: Read, Edit, Grep, Glob, Bash"
+    )
+    assert _tools(text) != _EXPECTED
+
+
+def test_remediation_pins_reviser_fail_closed_and_untrusted():
+    text = " ".join(_REF.read_text(encoding="utf-8").split())
+    assert "`workflow-reviser`" in text
+    assert "Fail closed" in text
+    assert "never falls back to `general-purpose`" in text
+    assert "untrusted data" in text
+
+
+def test_remediation_checks_agent_precedence_and_untouched_files():
+    text = " ".join(_REF.read_text(encoding="utf-8").split())
+    assert "is read first by Claude Code and shadows it" in text
+    assert "`tools:` line `Read, Edit, Grep, Glob` and nothing else" in text
+    assert "sha256 of the original plan" in text
+    assert "ls-files -z --cached --others --exclude-standard" in text
+    assert "submodule foreach --quiet --recursive" in text
+    assert "ends in `:workflow-reviser`" in text
+
+
+def test_agent_is_bundled_with_the_plugin_byte_for_byte():
+    plugin = _ROOT / "plugins/superclaude/agents/workflow-reviser.md"
+    assert plugin.is_file() and plugin.read_bytes() == _AGENT.read_bytes()
+    assert _tools(plugin.read_text(encoding="utf-8")) == _EXPECTED
