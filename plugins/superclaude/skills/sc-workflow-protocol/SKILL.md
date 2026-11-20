@@ -100,7 +100,7 @@ This call itself is advisory: the plan is changed only by Wave 4R, only for bloc
 
 Runs after Wave 4 by default (`--remediate none` records the counts and the chosen route and changes nothing; `--remediate surgical|regenerate` forces a route; `--revise <package-dir> --review <REPORT.md>` runs it for a package reviewed outside workflow). Read `finding_counts` from the Wave 4 reflect contract, run `remediate.py route` (`~/.claude/skills/sc-workflow-protocol/scripts/remediate.py`, project copy `.claude/skills/sc-workflow-protocol/scripts/remediate.py` second) and follow the chosen route of the ref: `none` changes nothing; `surgical` repairs a copy and places it as a new package after archiving the original; `regenerate` runs Waves 0 to 3 once more (at most once per run); `escalate` stops and marks the package `review_verdict: FAIL`. Only blocking findings are repaired, at most 2 fix cycles.
 
-File operations of this wave: `mktemp -d /tmp/sc-workflow-revise.XXXXXXXX`, and every copy and move through `remediate.py` only (no `mv`, `cp` or `rm` by hand). The reviser and the re-reviewer are sub-agents started with the Agent tool (Task is the same tool under its other name).
+File operations of this wave: `mktemp -d /tmp/sc-workflow-revise.XXXXXXXX`, and every copy and move through `remediate.py` only (no `mv`, `cp` or `rm` by hand). The reviser (agent type `workflow-reviser`, Read/Edit/Grep/Glob only; if it is unavailable the wave stops, runs `release` and escalates, never falling back to another agent type) and the re-reviewer (`reflect-reviewer`) are sub-agents started with the Agent tool (Task is the same tool under its other name).
 
 ## Wave 5 — Contract
 
@@ -114,4 +114,4 @@ After an `implement` handoff the package may have moved to `done/` (executor-own
 
 **Will:** one new package `.dev/tasks/to-do/<id>/` with `<id>.md`, `source.md`, `return-contract.yaml`; ground the plan in the real code through codegraph when the index is fresh. Never overwrites or reuses an existing package. Run `/sc:reflect --mode pre` (advisory) on the gated plan as the final generation step, before any handoff. Then Wave 4R: repair blocking findings on a copy and place it as a new package, archiving the one it replaces.
 
-**Will Not:** product code, new agents, Task fan-out (except the Wave 4R reviser and re-reviewer sub-agents); edit a plan in place, or change a plan for a Medium or Note finding.
+**Will Not:** product code, new agents (the one pinned `workflow-reviser` and the existing `reflect-reviewer` are the only Wave 4R sub-agents), Task fan-out (except those two Wave 4R sub-agents); edit a plan in place, or change a plan for a Medium or Note finding.
