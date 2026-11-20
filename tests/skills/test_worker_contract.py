@@ -447,6 +447,15 @@ RULE_PHRASES = {
             "A mismatch is refused and reported, not retried silently",
         ],
     ),
+    "messages-carry-no-to": (
+        None,
+        [
+            "**Messages carry no `--to`.**",
+            "`ask` and `send` commands carry no `--to`",
+            "Orca's default is the owning Run mailbox, the worker's own coordinator",
+            "the launch-level guard blocks any `--to` from a bound worker",
+        ],
+    ),
     "brief-worktree-path-slot": (
         None,
         ["| path:<existing worktree>>"],
@@ -3256,3 +3265,13 @@ def test_issue_pipeline_duties_allow_no_typing_into_a_worker_prompt():
     section = _contract().split("### Issue pipeline duties", 1)[1].split("\n### ", 1)[0]
     assert "terminal send" not in section
     assert "types nothing into a worker's terminal" in section
+
+
+# --- The no-to rule in the worker-session duties (guard rule G2.2) ---
+
+
+def test_the_no_to_rule_sits_in_the_worker_session_duties():
+    section = (
+        _contract().split("## 3. Worker-session duties", 1)[1].split("\n## 4.", 1)[0]
+    )
+    assert "`ask` and `send` commands carry no `--to`" in section
