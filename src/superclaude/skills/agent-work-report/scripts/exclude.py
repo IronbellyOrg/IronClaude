@@ -69,22 +69,25 @@ def main(run):
         and me in (i.get("assignees") or [])
         and f"{i['org']}/{i['repo']}".lower() in read_ok
     }
-    gone, held = set(), []
+    gone, named, held = set(), set(), []
     for path, entry in entry_files().items():
         url = entry_issue_url(entry, path)
         if url.lower() not in issues:
             continue  # not shown open and assigned to the person: the daily run lists it like any other item
         held.append(path.stem)
-        gone.add(url.lower())
-        if entry.get("pr_url"):
-            gone.add(entry["pr_url"].lower())
-        gone |= {(SESSION_URL + sid).lower() for sid in entry_session_ids(entry)}
+        named |= {url, entry.get("pr_url") or ""}
+        named |= {SESSION_URL + sid for sid in entry_session_ids(entry)}
+    named.discard("")
+    gone = {u.lower() for u in named}
     kept_items = [i for i in github if i["url"].lower() not in gone]
     kept_sessions = [
         s for s in sessions if (SESSION_URL + s["session_id"]).lower() not in gone
     ]
+    # Every url a held entry names is excluded, also one this run's read did not return (a failed session read
+    # leaves sessions.json empty): the previous snapshot and report must not bring it back as carried work.
     removed = sorted(
-        {i["url"] for i in github if i["url"].lower() in gone}
+        named
+        | {i["url"] for i in github if i["url"].lower() in gone}
         | {
             SESSION_URL + s["session_id"]
             for s in sessions

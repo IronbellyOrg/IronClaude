@@ -3689,3 +3689,14 @@ def test_a_carried_item_the_orchestrator_now_holds_is_not_brought_back_from_the_
     runmod.refresh()
     urls = [i["url"] for i in refreshed_page(root)["items"]]
     assert HELD in urls and HELD_PR not in urls
+
+
+def test_excluded_json_names_every_url_a_held_entry_names_even_when_a_read_returned_nothing(
+    root,
+):
+    put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))
+    # The session read failed (sessions.json is empty) and the pull request is not in this run's collection.
+    f = new_run(root, [item(1, assignees=[ME])], sess=[])
+    assert json.loads((f / "excluded.json").read_text()) == sorted(
+        [HELD, HELD_PR, "orca://session/o1", "orca://session/w1"]
+    )
