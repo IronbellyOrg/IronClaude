@@ -26,10 +26,16 @@ MAIN_WT=$(main_checkout)
 START_CMD="cd $OB/repo-a && claude --settings $OB/settings-a2.json"
 bash "$here/driver.sh" start sA2 "path:$MAIN_WT" "$START_CMD" >/dev/null
 
-# probe loaded? (runbook line 455)
-if [ ! -s "$OB_LOGS/h1m.jsonl" ]; then
-  sleep 3
-fi
+# probe loaded? (runbook line 455). A first start in a new folder can show a trust question before any hook runs:
+# stop there and leave the session open, so the operator answers it with the driver.
+for _ in $(seq 1 "${OB_PROBE_POLLS:-30}"); do
+  [ ! -s "$OB_LOGS/h1m.jsonl" ] || break
+  f=$(bash "$here/driver.sh" screen sA2 | tail -1)
+  if grep -qiE 'trust (the files|this folder)|Do you want|/login|Not logged in' "$f" 2>/dev/null; then
+    printf 'NEEDS_INPUT step=1 screen=%s\n' "$f"; exit 0
+  fi
+  command sleep "${OB_PROBE_SLEEP_S:-2}"
+done
 if [ ! -s "$OB_LOGS/h1m.jsonl" ]; then
   printf 'PENDING step=1 text=probe reason=h1m-log-empty\n'
   bash "$here/driver.sh" stop sA2 >/dev/null

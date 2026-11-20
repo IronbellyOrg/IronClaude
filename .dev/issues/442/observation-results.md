@@ -238,26 +238,27 @@ Write match
 
 - Replaces test: `test_pending_live_observation[OB-H1 item 7]` in tests/hooks/test_launch_level_observations.py
 - Session: A, A2
-- Result: pending
+- Result: PASS
 - Evidence command:
 
 ```bash
 jq -c 'select(.hook_event_name=="PreToolUse" and (.tool_name=="SendMessage" or (.tool_name|startswith("mcp__")))) | {tool_name, keys: (.tool_input|keys)}' /tmp/ob/logs/h1.jsonl /tmp/ob/logs/h1m.jsonl
 ```
 
-- Evidence output:
+- Evidence output (updated 2026-11-20 after a live session A2 run, run 3, with the owner's go in chat; the SendMessage line comes from session A's log of the first run, saved at .dev/tasks/done/TASK-WF-scriptThe442Obse-20261108-061618/artifacts/ob-logs/logs/h1.jsonl, and the MCP line from the A2 log saved at .dev/issues/442/run2/artifacts/ob-logs-a2/logs/h1m.jsonl; the two logs come from two different runs, so this PASS reads both halves of the item from separate runs):
 
 ```text
-jq: error: Could not open file /tmp/ob/logs/h1m.jsonl: No such file or directory
 {"tool_name":"SendMessage","keys":["content","message","recipient","recipient_kind","summary","to","type"]}
+{"tool_name":"mcp__codegraph__codegraph_status","keys":["projectPath"]}
 ```
 
-- Log file and line: /tmp/ob/logs/h1.jsonl, /tmp/ob/logs/h1m.jsonl: SendMessage and mcp__ tool names
-- What you saw in the tab (for block messages): none recorded
+- Log file and line: h1.jsonl (first run, session A) and h1m.jsonl (run 3, session A2): SendMessage and mcp__ tool names
+- What you saw in the tab (for block messages): none recorded (A2 screens are in .dev/issues/442/run2/artifacts/ob-logs-a2/screens/)
 - Rule parts:
-  - SendMessage and MCP tool names: pending (no MCP tool call (no MCP server))
-- If pending: SendMessage and MCP tool names: pending (no MCP tool call (no MCP server));
+  - SendMessage and MCP tool names: PASS (SendMessage arrives as SendMessage; the MCP tool arrives as mcp__codegraph__codegraph_status, the form mcp__<server>__<tool>)
+- If pending: not pending
 - If FAIL: not a FAIL
+- Side effect of run 3: Claude Code wrote a trust entry for /tmp/ob/repo-a to ~/.claude.json (hasTrustDialogAccepted true), approved by the owner in chat. /tmp/ob/repo-a is deleted by cleanup, so the entry now points at a folder that no longer exists; removing it is left to the owner.
 
 ## OB-H1 item 8
 

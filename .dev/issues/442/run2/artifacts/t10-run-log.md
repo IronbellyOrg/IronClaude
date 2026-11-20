@@ -2,3 +2,6 @@
 2026-11-19T19:38:45Z setup.sh exit=0
 2026-11-19T19:40:48Z P3 guard mismatch accepted: installed guard (Nov 18) still lists /sc:improve, /sc:spawn, /sc:build, which master retired in 6.0.0; only the block text and class list differ, the worktree-level rule is the same. No superclaude install run.
 2026-11-19T19:59:52Z run 2 evidence.sh all exit=0; session-gov e exit=0, PR https://github.com/IronbellyOrg/IronClaude/pull/680
+2026-11-20T02:04:18Z run 3 (session A2 only, item 7 MCP half) started by me on the owner's yes in chat ("Yes run a2", 2026-11-20); the owner also approved the ~/.claude.json trust entry for /tmp/ob/repo-a. SendMessage half comes from the original run h1.jsonl.
+2026-11-20T02:09:16Z sA2 trust dialog for /tmp/ob/repo-a (this run's disposable repo): moved down once and pressed Enter on "Yes, I trust this folder"; owner approved the ~/.claude.json trust entry in chat 2026-11-20
+2026-11-20T02:10:05Z run 3 (A2) finished; item 7 PASS; cleanup --apply done; trust entry for /tmp/ob/repo-a remains in ~/.claude.json

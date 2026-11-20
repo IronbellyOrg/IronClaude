@@ -1,0 +1,39 @@
+{
+  "id": "d1976a76-9123-4b34-9e29-3867d8c882c5",
+  "ok": true,
+  "result": {
+    "terminal": {
+      "handle": "term_4b6e39f7-5cd2-466f-ad5d-0bbe2c572ff5",
+      "status": "running",
+      "tail": [
+        "aidev: startup-summary reports warns; cat ~/.aidev/status/startup-summary",
+        "IronClaude docs/409-orca-dashboard-designs > cd /tmp/ob/repo-a && claude --settings /tmp/ob/settings-a2.json",
+        "Session name (Enter = auto-named, Ctrl+C = cancel; auto-named after 30s):"
+      ],
+      "truncated": false,
+      "limited": false,
+      "oldestCursor": "0",
+      "nextCursor": "2",
+      "latestCursor": "2",
+      "returnedLineCount": 3,
+      "tailRows": [
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        }
+      ],
+      "source": "screen"
+    }
+  },
+  "_meta": {
+    "runtimeId": "14b42f18-8f8c-439f-bb57-4255185fe99d"
+  }
+}

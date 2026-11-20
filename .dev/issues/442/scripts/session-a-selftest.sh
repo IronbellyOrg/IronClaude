@@ -110,7 +110,15 @@ ck resume-skips "$(printf '%s\n' "$out" | grep -c '^SKIP step=')" 20
 ck resume-first-send "$(printf '%s\n' "$out" | grep '^SEND' | head -1 | cut -d' ' -f2)" step=21
 # 7. session-a2: h1m empty => PENDING probe (log absent)
 : > "$L/sent.txt"; rm -f "$T/logs/h1m.jsonl"
-out=$(timeout 60 bash "$here/session-a2.sh" 2>&1)
+# a trust question on the screen before any hook ran: NEEDS_INPUT, and the session is left open
+printf 'Do you trust the files in this folder?\n' > "$L/screen.txt"
+out=$(OB_PROBE_POLLS=2 OB_PROBE_SLEEP_S=0 timeout 60 bash "$here/session-a2.sh" 2>&1)
+case "$out" in
+  NEEDS_INPUT\ step=1*) ck sessa2-trust-needs-input ok ok ;;
+  *) ck sessa2-trust-needs-input "$(printf '%s' "$out" | head -1)" "NEEDS_INPUT step=1..." ;;
+esac
+: > "$L/screen.txt"
+out=$(OB_PROBE_POLLS=2 OB_PROBE_SLEEP_S=0 timeout 60 bash "$here/session-a2.sh" 2>&1)
 case "$out" in
   PENDING\ step=1*) ck sessa2-pending-probe ok ok ;;
   *) ck sessa2-pending-probe "$(printf '%s' "$out" | head -1)" "PENDING step=1..." ;;
