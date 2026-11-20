@@ -19,7 +19,6 @@ import re
 import sys
 import time
 from datetime import datetime, timezone
-from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import clickup
@@ -36,7 +35,6 @@ from common import (
 
 WAKE_LINES = {
     "morning": "Wake (daily report): run /agent-work-report for today's report.",
-    "hourly": "Wake (hourly check): the orchestrator does every check-in itself, so there is nothing for this session to run.",
 }
 HOLD_RETRIES, HOLD_WAIT_S = (
     15,
@@ -78,11 +76,6 @@ def daily_run_started(now_local):
         ):
             return p.name
     return None
-
-
-COORDINATOR_BUILT = (
-    Path(__file__).resolve().parents[2] / "agent-coordinator" / "SKILL.md"
-).exists()
 
 
 def notify(text):
@@ -220,7 +213,7 @@ def start_session(workspace, spare):
 
 def wake(mode):
     rec = {"mode": mode, "workspace": workspace_path()}
-    if mode == "hourly" and not COORDINATOR_BUILT:
+    if mode == "hourly":
         rec["outcome"] = (
             "SKIPPED: there is no hourly check: the orchestrator does every check-in itself and there is no session manager"
         )
@@ -404,7 +397,7 @@ def check_missed():
 
 if __name__ == "__main__":
     mode = sys.argv[1] if len(sys.argv) == 2 else ""
-    if mode in WAKE_LINES:
+    if mode in ("morning", "hourly"):
         wake(mode)
     elif mode == "check-missed":
         check_missed()

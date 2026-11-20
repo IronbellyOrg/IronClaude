@@ -10,6 +10,7 @@ import os
 import re
 import subprocess
 import sys
+import unicodedata
 from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -65,6 +66,20 @@ def runs_dir():
     d = state_dir() / "runs"
     d.mkdir(parents=True, exist_ok=True)
     return d
+
+
+TITLE_MAX = 200
+
+
+def safe_title(text, limit=TITLE_MAX):
+    """A title other people wrote (an issue, a task, a session) as one short plain line before it goes into the
+    writing sheet the model reads: control and format characters (escape codes, bidirectional overrides,
+    zero-width marks) dropped, whitespace and line breaks folded, at most `limit` characters. A title stays
+    data: SKILL.md Step 10 tells the model so."""
+    text = "".join(
+        c for c in str(text) if unicodedata.category(c)[0] != "C" or c in " \t\n"
+    )
+    return " ".join(text.split())[:limit].rstrip()
 
 
 def read_json(path, default=None):
@@ -152,6 +167,9 @@ def entry_files(folder=None):
     folder = Path(folder) if folder else orchestrated_dir()
     found = {}
     for p in sorted(folder.glob("*.json")) if folder.is_dir() else []:
+        if p.is_symlink():  # a link could point at any file on the host
+            print(f"entry file {p.name} left out: it is a symlink", file=sys.stderr)
+            continue
         try:
             data = json.loads(p.read_text())
         except (OSError, ValueError) as e:

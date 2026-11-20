@@ -27,6 +27,7 @@ lock and proceeds, and the stuck run is named in the new run's folder for the re
 
 import hashlib
 import json
+import os
 import re
 import shutil
 import sys
@@ -461,10 +462,21 @@ def entry_time(path, data):
 
 
 def move_to_closed(path, entry, reason):
-    closed = orchestrated_dir() / "closed"
+    """Write the entry into `closed/` and remove the active file. A symlink anywhere on the way (the folder,
+    the destination or the active file) is refused: the write would follow it out of the state folder. The
+    file is written beside its destination and put in place with `os.replace`, which never follows a link."""
+    base = orchestrated_dir()
+    closed = base / "closed"
+    if closed.is_symlink() or (closed / path.name).is_symlink() or path.is_symlink():
+        raise CommandError(f"{path.name}: a symlink is in the way of closed/")
     closed.mkdir(parents=True, exist_ok=True)
+    if closed.resolve().parent != base.resolve():
+        raise CommandError(f"{path.name}: closed/ is not inside orchestrated/")
     entry = dict(entry, closed_at=now().isoformat(), close_reason=reason)
-    write_json(closed / path.name, entry)
+    fd, tmp = tempfile.mkstemp(dir=closed, prefix=".closing-", suffix=".json")
+    os.close(fd)
+    write_json(tmp, entry)
+    os.replace(tmp, closed / path.name)
     path.unlink()
 
 
@@ -498,7 +510,11 @@ def reconcile_entries():
             reason = "no longer assigned to you"
         else:
             continue
-        move_to_closed(path, entry, reason)
+        try:
+            move_to_closed(path, entry, reason)
+        except (CommandError, OSError) as e:
+            warnings.append(f"{path.name}: not moved to closed/ ({e})")
+            continue
         moved.append((path.name, reason))
     return moved, warnings
 

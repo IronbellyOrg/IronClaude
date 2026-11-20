@@ -35,6 +35,7 @@ from common import (
     previous_notes,
     read_json,
     report_days_between,
+    safe_title,
     section,
     session_statuses,
     to_write,
@@ -114,14 +115,14 @@ def clickup_line(t):
     if t.get("carried"):
         extra.append("carried: ClickUp not read this run")
     return (
-        f"  - [{t['title']}]({t['url']}) · {t['boards'][0]['status']} · "
+        f"  - [{safe_title(t['title'])}]({t['url']}) · {t['boards'][0]['status']} · "
         + " · ".join(extra + [f"updated {local_time(t['updated'])[:10]}"])
     )
 
 
 def session_line(s, status):
     return (
-        f"  - [{s['title']}]({s['url']}) · branch {s['branch'] or 'none'} · "
+        f"  - [{safe_title(s['title'])}]({s['url']}) · branch {s['branch'] or 'none'} · "
         f"{'running' if s['claude_running'] else 'not running'} · last activity {local_time(s['last_event'])} · "
         f"status: {status}"
     )
@@ -265,7 +266,7 @@ def entry(url, it, c, cmp_, ctx, filed=None):
         level, why = c["priority"], priority_why(c)
     fills = {
         "identifier_link": f"[{short(url)}]({url})",
-        "title": it["title"],
+        "title": safe_title(it["title"]),
         "priority": level,
         "change": change_note(url, cmp_),
         "author": it.get("author") or "Unknown",
@@ -475,7 +476,9 @@ def main(run):
                             snap[u]["group"], "other work in progress"
                         ),
                     }
-                    got.append(entry(u, {"title": snap[u]["title"]}, c, cmp_, ctx))
+                    got.append(
+                        entry(u, {"title": safe_title(snap[u]["title"])}, c, cmp_, ctx)
+                    )
                 lines += [
                     e for e in got if e.startswith("#")
                 ]  # full entries first, then the one-line ones together
@@ -512,7 +515,9 @@ def main(run):
                 if u in dropped
                 else ""
             )
-            closed.append(f"- [{v['title']}]({u}){dead}: {v['reason']}{note}")
+            closed.append(
+                f"- [{safe_title(v['title'])}]({u}){dead}: {v['reason']}{note}"
+            )
     old = read_json(prev_dir / "snapshot.json", {}) if prev_dir else {}
     for u in sorted(
         old
@@ -520,7 +525,7 @@ def main(run):
         now = cls["items"].get(u)
         if old[u].get("group") in LISTED and now and now["group"] not in LISTED:
             closed.append(
-                f"- [{old[u]['title']}]({u}): no longer yours: now {now['group']}"
+                f"- [{safe_title(old[u]['title'])}]({u}): no longer yours: now {now['group']}"
             )
     if went_quiet:
         closed.append(
