@@ -224,6 +224,10 @@ def test_c_reflect_reviewer_grade_bullets_pinned():
         "`consumer-unknown`",
         "stays in the Correctness gaps table, never the Deviations table, and never gates on its own",
         "the orchestrator still makes the gating decision",
+        "Before you write `Medium:`, ask whether someone following the text as written could produce behaviour the spec forbids",
+        "A behaviour that would happen anyway (for example exit 0 on success) is not that.",
+        "A defect in the plan's own choices that can make a check the plan itself states fail or become unrunnable as written",
+        "As an exception to the no-spec routing rules above, report it in the Deviations table, not the Correctness gaps table",
     ):
         assert _flat(needle) in flat, needle
 

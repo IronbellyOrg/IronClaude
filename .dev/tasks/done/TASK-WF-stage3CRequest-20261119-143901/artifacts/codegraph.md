@@ -1,0 +1,1 @@
+codegraph: index_state=fresh access=mcp checked_at=2026-11-19T17:13:58Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/blocker-classification-stage3c projectPath=/home/coder/workspaces/worktrees/IronClaude/blocker-classification-stage3c
