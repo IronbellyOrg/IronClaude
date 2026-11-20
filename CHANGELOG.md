@@ -16,6 +16,10 @@ All notable changes to IronClaude are documented in this file.
 
 - The `superclaude issue-pipeline` command group and its plan-approval flow are removed: the worker contract no longer has rule WC-17 or the "Issue pipeline duties" section, and the launch-level guard no longer blocks those commands. The guard still lets a bound worker run `orchestration send` and `ask` without `--to`, and the person's typed `/sc:implement` still releases it.
 
+### `/sc:issue --plan` fills the plan sections of an existing issue (issue 655)
+
+- `/sc:issue --plan <number|url> [--depth quick|standard|deep]` adds the missing `## Priority`, `## Fix approach` and `## Test plan` sections to an issue that already exists, with one edit of its body and nothing else (no comment, label, assignment or worktree); `--remaining <file>` rewrites the Fix approach and Test plan of a plan that exists to the scope that is left. A small script, `scripts/plan_body.py` (standard library only), builds and checks the new body from the drafted section texts, so the write does not depend on a model copying the body byte for byte.
+
 ### New command: `/sc:closeout` and the `sc-closeout-protocol` skill (issue 668)
 
 - `/sc:closeout <PR>` settles a merged pull request: a script checks that it really merged, the skill decides whether the issue is done and closes it (or leaves it open with one note of what remains and hands that back to the orchestrator), and the work report entry and the worker's Orca task are settled or escalated with a reason. It adopts two files of Jay Wedgeworth (`skills/closeout/SKILL.md` and `scripts/branch-landed.sh`) under Apache-2.0; see `PROVENANCE.md` in the skill folder.

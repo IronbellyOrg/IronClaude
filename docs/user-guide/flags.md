@@ -193,11 +193,13 @@ Opt in only for PRs from collaborators trusted with your credentials: lock regen
 |------|---------|--------|
 | `--claim` | Claim an existing issue on the origin repo | Issue number (`302`, `#302`) or issue URL |
 | `--create` | File a new issue | Text, or `@path` to a file holding the description |
-| `--depth` | How hard create mode checks your flags and fills the body (create only) | `quick` (default), `standard`, `deep` |
+| `--plan` | Fill the plan sections (`## Priority`, `## Fix approach`, `## Test plan`) an existing issue lacks, with one body edit | Issue number (`302`, `#302`) or issue URL |
+| `--remaining` | Re-plan: rewrite `## Fix approach` and `## Test plan` of an issue that already has a plan to the scope that is left (plan only) | Path of a file: first line `round: <n>` (n is 2 or more), then 1 to 20 lines `- <criterion>` of at most 300 characters |
+| `--depth` | How hard create mode checks your flags and fills the body, or which worker drafts the plan sections (create and plan) | `quick` (default), `standard`, `deep` |
 | `--mode` | Feature or bug template, issue type (Feature or Bug) and mode label (create only) | `feature`, `bug`; chosen by a worker when omitted |
 | `--type` | Area of the change; a feature in `tests` gets the issue type Test, otherwise it is recorded in `flags.md` and no label is applied (create only) | `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install`, `other`; chosen by a worker when omitted |
 
-Pass exactly one of `--claim` and `--create`. There is no repository flag: the repository is always `origin`.
+Pass exactly one of `--claim`, `--create` and `--plan`. `--mode` and `--type` work with `--create` only; `--depth` works with `--create` and `--plan`; `--remaining` works with `--plan` only. There is no repository flag: the repository is always `origin`.
 
 On `--create` the command sets the GitHub issue type and the Complexity issue field of your organization (Simple, Medium or Complex, from `--depth`: quick, standard or deep), applies the `enhancement` or `bug` mode label when the repository has it, and lists anything it could not set in the final output. It never creates a label, an issue type or an issue field.
 
