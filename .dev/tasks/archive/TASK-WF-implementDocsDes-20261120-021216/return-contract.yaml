@@ -1,0 +1,22 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-implementDocsDes-20261120-021216
+plan_path: ./TASK-WF-implementDocsDes-20261120-021216.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-624/.dev/tasks/to-do/TASK-WF-implementDocsDes-20261120-021216/artifacts/re-review-3.md
+supersedes: TASK-WF-implementDocsDes-20261120-020554
+remediation_route: surgical
+finding_counts: {blocking: 0, label_high: 0, medium: 2, note: 2}
+fix_cycles: 2
+review_verdict: PASS
+unresolved:
+  - "Review chain: review 1 not-ready (12 blocking), re-review 2 not-ready (1 blocking, N2), re-review 3 ready (0 blocking). Re-reviews were scoped to changed lines plus prior blockers, not a full review. The reviews ran without blind calibration, adversarial merge and evidence validation."
+  - "Medium follow-up candidates left unrepaired on purpose: R1 (Task 6 test depends on Task 7 wording; add Depends on Task 7), R2 (Wave 5 must also fill missing stable 1.1 fields such as slug), plus N1, N3 to N9 of re-review 2 (see artifacts/re-review-2.md)."
+  - "SUPERSEDED by TASK-WF-implementDocsDes-20261120-021912: a third surgical edit folded in the Medium findings of the re-reviews. Do not run /sc:implement on this package."
+superseded_by: TASK-WF-implementDocsDes-20261120-021912

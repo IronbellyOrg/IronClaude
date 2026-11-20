@@ -1,0 +1,152 @@
+diff --git a/src/superclaude/skills/sc-workflow-protocol/scripts/remediate.py b/src/superclaude/skills/sc-workflow-protocol/scripts/remediate.py
+new file mode 100644
+index 000000000..06185407f
+--- /dev/null
++++ b/src/superclaude/skills/sc-workflow-protocol/scripts/remediate.py
+@@ -0,0 +1,64 @@
++#!/usr/bin/env python3
++"""Surgical-remediation helper for /sc:workflow (standard library only)."""
++
++import argparse
++import json
++import sys
++
++ROUTES = ("none", "surgical", "regenerate")
++
++
++def route(blocking, label_high, medium, regenerated_already=False, forced=None):
++    """Return (route, forced). Rows in order, first match wins."""
++    for name, v in (("blocking", blocking), ("label_high", label_high), ("medium", medium)):
++        if isinstance(v, bool) or not isinstance(v, int) or v < 0:
++            raise ValueError(f"{name} must be a non-negative integer, got {v!r}")
++    if forced is not None and forced not in ROUTES:
++        raise ValueError(f"forced must be one of {ROUTES}, got {forced!r}")
++    if forced is not None:
++        result = forced
++    elif blocking == 0:
++        result = "none"
++    elif blocking <= 3 and label_high <= 5 and medium <= 9:
++        result = "surgical"
++    else:
++        result = "regenerate"
++    if result == "regenerate" and regenerated_already:
++        result = "escalate"
++    return result, forced is not None
++
++
++def _count(text):
++    try:
++        v = int(text)
++    except ValueError:
++        raise argparse.ArgumentTypeError(f"not an integer: {text!r}")
++    if v < 0:
++        raise argparse.ArgumentTypeError(f"negative count: {v}")
++    return v
++
++
++def _cmd_route(args):
++    r, forced = route(
++        args.blocking, args.label_high, args.medium, args.regenerated_already, args.forced
++    )
++    print(json.dumps({"route": r, "forced": forced}))
++    return 0
++
++
++def main(argv=None):
++    p = argparse.ArgumentParser(prog="remediate.py")
++    sub = p.add_subparsers(dest="command", required=True)
++    r = sub.add_parser("route", help="print the remediation route as JSON")
++    r.add_argument("--blocking", type=_count, required=True)
++    r.add_argument("--label-high", type=_count, required=True)
++    r.add_argument("--medium", type=_count, required=True)
++    r.add_argument("--regenerated-already", action="store_true")
++    r.add_argument("--forced", choices=ROUTES, default=None)
++    r.set_defaults(func=_cmd_route)
++    args = p.parse_args(argv)
++    return args.func(args)
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/skills/test_workflow_remediation.py b/tests/skills/test_workflow_remediation.py
+new file mode 100644
+index 000000000..02dfcc2ca
+--- /dev/null
++++ b/tests/skills/test_workflow_remediation.py
+@@ -0,0 +1,76 @@
++"""Tests for the /sc:workflow remediation routing script."""
++
++import importlib.util
++import json
++import subprocess
++import sys
++from pathlib import Path
++
++import pytest
++
++_SCRIPT = (
++    Path(__file__).resolve().parents[2]
++    / "src/superclaude/skills/sc-workflow-protocol/scripts/remediate.py"
++)
++_spec = importlib.util.spec_from_file_location("remediate", _SCRIPT)
++rm = importlib.util.module_from_spec(_spec)
++_spec.loader.exec_module(rm)
++
++
++@pytest.mark.parametrize(
++    "args,kwargs,expected",
++    [
++        ((0, 0, 0), {}, ("none", False)),
++        ((0, 20, 30), {}, ("none", False)),
++        ((3, 0, 0), {}, ("surgical", False)),
++        ((4, 0, 0), {}, ("regenerate", False)),
++        ((1, 5, 0), {}, ("surgical", False)),
++        ((1, 6, 0), {}, ("regenerate", False)),
++        ((1, 0, 9), {}, ("surgical", False)),
++        ((1, 0, 10), {}, ("regenerate", False)),
++        ((4, 0, 0), {"regenerated_already": True}, ("escalate", False)),
++        ((1, 0, 0), {"forced": "regenerate"}, ("regenerate", True)),
++        ((5, 0, 0), {"forced": "surgical"}, ("surgical", True)),
++        ((2, 0, 0), {"forced": "none"}, ("none", True)),
++        (
++            (1, 0, 0),
++            {"forced": "regenerate", "regenerated_already": True},
++            ("escalate", True),
++        ),
++        ((1, 0, 0), {"forced": "surgical", "regenerated_already": True}, ("surgical", True)),
++    ],
++)
++def test_route(args, kwargs, expected):
++    assert rm.route(*args, **kwargs) == expected
++
++
++@pytest.mark.parametrize("bad", [-1, 1.5, "2", True])
++def test_route_rejects_bad_counts(bad):
++    with pytest.raises(ValueError):
++        rm.route(bad, 0, 0)
++
++
++def _run(*args):
++    return subprocess.run(
++        [sys.executable, str(_SCRIPT), *args], capture_output=True, text=True
++    )
++
++
++def test_cli_prints_json():
++    p = _run("route", "--blocking", "2", "--label-high", "1", "--medium", "0")
++    assert p.returncode == 0
++    assert json.loads(p.stdout) == {"route": "surgical", "forced": False}
++
++
++def test_cli_forced_and_escalate():
++    p = _run(
++        "route", "--blocking", "1", "--label-high", "0", "--medium", "0",
++        "--forced", "regenerate", "--regenerated-already",
++    )
++    assert json.loads(p.stdout) == {"route": "escalate", "forced": True}
++
++
++@pytest.mark.parametrize("bad", ["-1", "x", "1.5"])
++def test_cli_rejects_bad_counts(bad):
++    p = _run("route", "--blocking", bad, "--label-high", "0", "--medium", "0")
++    assert p.returncode != 0

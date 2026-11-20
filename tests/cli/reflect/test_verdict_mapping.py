@@ -606,6 +606,28 @@ def test_fx7_vacuous_no_verify_stays_exempt_but_visible() -> None:
     assert result.verification_verified is False
 
 
+def test_1_9_0_contract_with_finding_counts_parses_and_passes(tmp_path) -> None:
+    """contract 1.9.0: ``finding_counts`` is an additive field; parse_contract and derive_verdict take it."""
+    from superclaude.cli.reflect.contract import parse_contract
+
+    contract = _load("pass.yaml")
+    contract["contract_version"] = "1.9.0"
+    contract["finding_counts"] = {
+        "blocking": 0,
+        "label_high": 1,
+        "medium": 2,
+        "note": 3,
+    }
+    path = tmp_path / "return-contract.yaml"
+    path.write_text(yaml.safe_dump(contract), encoding="utf-8")
+    parsed = parse_contract(path)
+    assert parsed is not None and parsed["finding_counts"]["note"] == 3
+    result = derive_verdict(
+        parsed, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result.verdict is Verdict.PASS
+
+
 def test_graph_tokens_do_not_halt() -> None:
     """P3-D7 (issue #323): ``graph:*`` codegraph tokens are informational telemetry.
 

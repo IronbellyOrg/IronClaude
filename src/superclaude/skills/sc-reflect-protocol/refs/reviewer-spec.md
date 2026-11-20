@@ -77,6 +77,10 @@ Example shape:
 
 When Step 3B.0 completes, the contract emits `reviewer_briefs_materialized: <N>` (count of brief files written). Reviewer spawning Wave 3A reads each brief from disk; no in-memory state is shared between reviewers.
 
+### Finding counts (contract 1.9.0)
+
+The contract field `finding_counts: {blocking, label_high, medium, note}` is computed from the merged findings after the evidence validator. A shadow-panel reviewer's findings-v2 lines map as follows: severity CRITICAL counts as `label_high` (the panel has no HIGH label); a finding whose `blocking` flag is true counts as `blocking`; severity MAJOR with `blocking` false counts as `medium`; severity MINOR counts as `note`. On the legacy path the counts come from the Deviations-table grades instead: the label HIGH is `label_high`, and `Blocking (...)`, `Medium:` and `Note:` are `blocking`, `medium` and `note`.
+
 ---
 
 ## Composition

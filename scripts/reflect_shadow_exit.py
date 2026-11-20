@@ -6,7 +6,7 @@ files only (no model, no process, no network) and writes only the optional ``--o
 
 Shadow runs: every ``<runs-root>/pre-*/panel/manifest.json`` whose ``t2_engine_effective`` is ``shadow``. A manifest in
 state ``published`` is counted; ``failed`` fails the exit; any other state is an incomplete run, listed and not
-counted. The legacy baseline is the recorded 1.8.0 pre runs without ``panel/manifest.json`` (the set of
+counted. The legacy baseline is the recorded 1.8.0 or 1.9.0 pre runs without ``panel/manifest.json`` (the set of
 ``scripts/reflect_verdict_replay.py``).
 
 Per counted run the script joins ``return-contract.yaml`` and ``adversarial/merged-verdict.yaml`` and checks:

@@ -1,0 +1,111 @@
+diff --git a/src/superclaude/skills/sc-reflect-protocol/SKILL.md b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+index e08ee5485..8f5f513e7 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+@@ -308,7 +308,7 @@ Emit `interaction_effects_scanned: true` in the contract when this step runs; `i
+ 
+ ### 4.3a T2 engine selection (`--t2-engine`)
+ 
+-With the default `--t2-engine legacy` the panel code is never called, the Wave 3 reviewer rotation of §7.1 runs exactly as before, and contract 1.8.0 is unchanged (no stable field, `merge_method` value or contract version changes). `--t2-engine shadow` additionally runs the panel offline for measurement, UC-1 only (Stage 2); the legacy rotation and the Wave 4 debate stay authoritative, and everything the panel writes goes under `<output>/panel/` and into telemetry. In UC-2 (post-execution) runs the flag is accepted and ignored until Stage 5.
++With the default `--t2-engine legacy` the panel code is never called, the Wave 3 reviewer rotation of §7.1 runs exactly as before, and contract 1.9.0 is unchanged (no stable field, `merge_method` value or contract version changes). `--t2-engine shadow` additionally runs the panel offline for measurement, UC-1 only (Stage 2); the legacy rotation and the Wave 4 debate stay authoritative, and everything the panel writes goes under `<output>/panel/` and into telemetry. In UC-2 (post-execution) runs the flag is accepted and ignored until Stage 5.
+ 
+ The panel is a Tier 2 mechanism and is called only after the **final** tier is 2. Order of decisions: (1) Wave 0 alias routing (§4 Wave 0 step 0.5) and executor class (§7.1); (2) budget pre-flight (§4.0 step 0.9); (3) Waves 1-2: the T1 card, coverage map, blind calibration of the T1 card, rubric; (4) only now `--t2-engine` is read, at the start of Wave 3. Both the requested and the effective engine are written to `tier_decision.yaml` (§5.4) and, when the panel runs, to its manifest.
+ 
+@@ -346,7 +346,7 @@ The panel is a Tier 2 mechanism and is called only after the **final** tier is 2
+ 7. **Debate (legacy, unchanged).** After it, write `<output>/adversarial/merged-verdict.yaml` from the debate's merged output and return contract (`merge_method`, `verdict`, `convergence_score`, `base_variant`, `source_cards` and the merged findings; copy, never invent a value) and confirm it with Glob or Bash: the EV-1 rule of Wave 4 reads exactly that path, and a copy under `adversarial/adversarial/` or a `merged-verdict.md` alone does not satisfy it. Then advance `debated`, record `debate_skipped_similar` (true when the child's log says the variants were substantially identical; the real null score stays null). Read the installed `sc-adversarial-protocol` return contract: when it names a judge record it as `judge_identity`; when it does not, record `judge_identity: unknown` and `judge_class_collision: unknown`, never `false`. When a judge id is known, assert it is not a Fable model and not a Tier 0 alias, and note a class collision with a reviewer or the executor in `<output>/panel/notes.md`.
+ 8. **After the evidence validator.** Write the finding ids it kept to `<output>/panel/kept-ids.txt`, one `reviewer-<N>:<finding id>` per line (each reviewer numbers its own findings, so a bare id would keep that id in every card) and run `superclaude review cluster <output>/panel/cards --snapshot <output>/artifacts/input-snapshot.yaml --out <output> --kept <output>/panel/kept-ids.txt` (the `clusters_kept` pass; `clusters.json` is not touched). Advance `validated`.
+ 9. **Identity.** Record `identity_source` from the S-ID spike: `observed` when the adapter read the reviewer's resolved model id from its transcript, `requested-pinned` (an unverified assumption) when it only knows the model it asked for. Compare each card's `reviewer_model_self_report` with the pin; a mismatch sets `identity_mismatch_suspected: true` in telemetry and in `<output>/panel/notes.md`. While the identity is `requested-pinned` or the executor class is unknown, the panel notes make no claim of verified independence.
+-10. **Publish.** Before it, confirm that the contract records `reviewer_personas` and `reviewer_models` (the legacy rotation as it ran, as in §9.1) and no top-level key outside the stable list; every shadow field goes under `telemetry:`. After the legacy writers have written `REPORT.md`, `return-contract.yaml` and `audit.log`, run `superclaude review manifest advance --out <output> --stage published`: it records their hashes and rewrites nothing. The panel telemetry fields are listed in §9.2 under `telemetry:`; the three stable-contract files stay as the legacy writers produce them, with `contract_version` 1.8.0.
++10. **Publish.** Before it, confirm that the contract records `reviewer_personas` and `reviewer_models` (the legacy rotation as it ran, as in §9.1) and no top-level key outside the stable list; every shadow field goes under `telemetry:`. After the legacy writers have written `REPORT.md`, `return-contract.yaml` and `audit.log`, run `superclaude review manifest advance --out <output> --stage published`: it records their hashes and rewrites nothing. The panel telemetry fields are listed in §9.2 under `telemetry:`; the three stable-contract files stay as the legacy writers produce them, with `contract_version` 1.9.0.
+ 
+ ### 4.5 Wave 5 — Detailed step addition
+ 
+@@ -455,7 +455,7 @@ t2_engine_effective: legacy | shadow | null  # §4.3a: the engine that ran; null
+ panel_fallback_reason: <string> | null  # §4.3a rule D4: why a requested non-legacy engine ran the legacy rotation; null otherwise
+ ```
+ 
+-The three engine keys are additive audit keys of this artifact, not contract fields; `contract_version` stays 1.8.0.
++The three engine keys are additive audit keys of this artifact, not contract fields; `contract_version` stays 1.9.0.
+ 
+ Grader `yaml_field` asserts both `fired_rule_number` and `composite_score` are present. The composite is *recording*, not deciding.
+ 
+@@ -703,10 +703,10 @@ Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) the worker f
+ 
+ Two-block contract: stable + telemetry. Written to `<output>/return-contract.yaml` AND returned inline. (See `refs/report-template.md` for the human-facing REPORT.md skeleton that renders these fields.)
+ 
+-### 9.1 Stable contract (contract_version: 1.8.0)
++### 9.1 Stable contract (contract_version: 1.9.0)
+ 
+ ```yaml
+-contract_version: "1.8.0"   # #323: the change-summary corroboration field was removed (no consumer read it); the other fields keep their names. 1.8.0 ADDITIVE ONLY: +remediation_plan_path (plan-route sibling of remediation_task_path); 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics; 1.7.x runtime/semantic hardening: EV-1 Wave-4 ORCHESTRATOR-VERIFIES-ON-DISK merge gate + EV-2 merge_method legal-values guard (no stable-field change); 1.6.0 (FR-RSR) ADDITIVE ONLY: +runtime_surface_* (6 fields); 1.7.0 (FR-RH1) ADDITIVE ONLY: +reachability_* fields
++contract_version: "1.9.0"   # #323: the change-summary corroboration field was removed (no consumer read it); the other fields keep their names. 1.9.0 ADDITIVE ONLY: +finding_counts ({blocking, label_high, medium, note}); 1.8.0 ADDITIVE ONLY: +remediation_plan_path (plan-route sibling of remediation_task_path); 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics; 1.7.x runtime/semantic hardening: EV-1 Wave-4 ORCHESTRATOR-VERIFIES-ON-DISK merge gate + EV-2 merge_method legal-values guard (no stable-field change); 1.6.0 (FR-RSR) ADDITIVE ONLY: +runtime_surface_* (6 fields); 1.7.0 (FR-RH1) ADDITIVE ONLY: +reachability_* fields
+ status: success | partial | failed | dry-run
+ mode: pre | post
+ tier_reached: 1 | 2 | 3
+@@ -829,6 +829,7 @@ task_file_path: <path> | null
+ remediation_task_path: null   # FR-8, retired in 6.1.0: the MDTM route is gone, so this is always null. Kept in the schema so older reports still load.
+ remediation_plan_path: <abs path> | null   # 1.8.0: absolute path of the sc:workflow tasklist `.dev/tasks/to-do/<slug>/<slug>.md` built in Wave 6 (the only route); null when no plan was built. The wrapper auto-fix loop READS this to auto-run /sc:implement.
+ handoff_memory_key: null   # FR-3, retired in 6.1.0: always null, no handoff file is written. Kept in the schema so older reports still load.
++finding_counts: {blocking: <int>, label_high: <int>, medium: <int>, note: <int>}   # 1.9.0: computed from the merged findings after the evidence validator, in both pre and post modes. label_high counts the Deviations-table label HIGH (legacy path) or findings-v2 severity CRITICAL (panel path); blocking, medium and note count the grades `Blocking (...)`, `Medium:` and `Note:` (panel: the `blocking` flag, severity MAJOR not blocking, severity MINOR; see refs/reviewer-spec.md).
+ 
+ # Asymmetric-cost flags (downstream automation must respect these)
+ cannot_validate_without_user_input: bool
+@@ -874,7 +875,7 @@ promotion_cross_fs: bool                       # true when source and destinatio
+ promotion_pending: bool                        # true between pre-write (7.3.6) and finalization (7.6); only true in a crashed-mid-run log entry
+ ```
+ 
+-Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.8.0`.
++Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.9.0`.
+ 
+ **Reachability field-presence & consistency (FR-RH1, R7).** The `reachability_*` block is **mandatory for every UC-2 return contract at `contract_version: "1.7.0"`** and optional/absent for UC-1. Invariants:
+ 
+@@ -1915,7 +1916,7 @@ Every load-bearing protocol decision maps to at least one deterministic or quali
+ | §11.3 calibrator disjoint-set | `yaml_field` | `reflection-card.yaml calibrator_model_class NOT IN reviewer_model_classes` |
+ | §11.5 citation-budget policy | `yaml_field` | `return-contract.yaml citation_budget_policy ∈ {full_reread, sampled}` |
+ | §12.5 falsifier T2-convergence-wrong-answer | `yaml_field` + composite | `return-contract.yaml regression_present AND convergence_score < 0.75` |
+-| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.8.0"` |
++| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.9.0"` |
+ | §6.1 step 5.6 reachability R7 field presence (UC-2) | `yaml_field` | `return-contract.yaml reachability_gate_ran AND reachability_skip_reason` |
+ | §6.1 step 5.6 unreachable → real-boot-proven Regression | `yaml_field` | `return-contract.yaml reachability_unreachable > 0 ⟹ reachability_real_boot_ran == true AND regression_present == true` |
+ | §6.1 step 5.6 unproven → Grounding Gap (annotated sink) | `file_exists` + `yaml_field` | `grounding-gaps.yaml row AND return-contract.yaml reachability_unproven > 0 AND needs_human_decision == true` |
+diff --git a/src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md b/src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md
+index 90876e72f..3783f1bda 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md
++++ b/src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md
+@@ -177,7 +177,7 @@ The §6.1 step-5.6 contracted-sink reachability gate (contract `1.7.0`, UC-2) in
+ | `--no-reachability` telemetry-only | `yaml_field` + `regex_absent` | `reachability_skip_reason == "--no-reachability"`, `reachability_gate_ran == false`; `regex_absent` on any reachability Grounding-Gap row |
+ | `spec-and-tasklist-absent` telemetry-only | `yaml_field` | `reachability_skip_reason == "spec-and-tasklist-absent"`, `reachability_gate_ran == false`, `status != partial` |
+ | Semantic-fallback advisory non-gating | `regex_absent` | no `reachability_unproven` increment / Grounding-Gap row from semantic-only classification lacking `durable_sink:` / `@sink` |
+-| `contract_version == "1.8.0"` | `yaml_field` | additive bump check |
++| `contract_version == "1.9.0"` | `yaml_field` | additive bump check |
+ 
+ A producer-level eval fixture (R6) drives Step 5.6 from real inputs; only if such an implemented fixture demonstrably needs a semantic check beyond `yaml_field` / `regex_present` / `regex_absent` / `yaml_list_contains` should a new assertion type be proposed — v1 invents none.
+ 
+diff --git a/src/superclaude/skills/sc-reflect-protocol/refs/report-template.md b/src/superclaude/skills/sc-reflect-protocol/refs/report-template.md
+index 8328ecb9d..19d14a066 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/refs/report-template.md
++++ b/src/superclaude/skills/sc-reflect-protocol/refs/report-template.md
+@@ -11,7 +11,7 @@ Wave 5 MUST NOT introduce findings that were not already classified upstream. Un
+ The header block is the first content in the emitted artifact. It is rendered as a fenced YAML block so downstream parsers (budget ledgers, CI) can lift fields without Markdown parsing.
+ 
+ ```yaml
+-contract_version: 1.8.0
++contract_version: 1.9.0
+ status: success | partial | needs_human_decision
+ mode: pre | post
+ tier_reached: 1 | 2
+diff --git a/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md b/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
+index 70bf760d4..25ba0bb20 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
++++ b/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
+@@ -77,6 +77,10 @@ Example shape:
+ 
+ When Step 3B.0 completes, the contract emits `reviewer_briefs_materialized: <N>` (count of brief files written). Reviewer spawning Wave 3A reads each brief from disk; no in-memory state is shared between reviewers.
+ 
++### Finding counts (contract 1.9.0)
++
++The contract field `finding_counts: {blocking, label_high, medium, note}` is computed from the merged findings after the evidence validator. A shadow-panel reviewer's findings-v2 lines map as follows: severity CRITICAL counts as `label_high` (the panel has no HIGH label); a finding whose `blocking` flag is true counts as `blocking`; severity MAJOR with `blocking` false counts as `medium`; severity MINOR counts as `note`. On the legacy path the counts come from the Deviations-table grades instead: the label HIGH is `label_high`, and `Blocking (...)`, `Medium:` and `Note:` are `blocking`, `medium` and `note`.
++
+ ---
+ 
+ ## Composition

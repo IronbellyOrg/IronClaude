@@ -1,0 +1,3 @@
+3bc8bdc73f23cf7d34b84149481ff37952b092e3 tree=7aa52c187aa2b0b6cac648a3978f4f88fc4dbd8d
+AC1 met, AC2 met, AC3 met (reviewer marks, T5.AC1..3@src/superclaude/skills/sc-workflow-protocol/refs/remediation.md)
+F1.1 sev=blocking trigger=B4 ac=scope at=src/superclaude/skills/sc-workflow-protocol/refs/remediation.md:57 anchor="repeats steps 1 to 7 with the placed package as `<old-id>`" chk=n,y,n,y family=mark-once fix=steps 1 to 6 repeat; mark once at the end (regenerate: one mark with all fields) covers="then `mark` once with the final verdict" first=start origin=new: loop re-runs step 7 (mark) every cycle and the regenerate route calls mark twice (lines 82 and 90)

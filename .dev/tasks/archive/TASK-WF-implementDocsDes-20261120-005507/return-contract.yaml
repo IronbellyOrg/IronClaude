@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-implementDocsDes-20261120-005507
+plan_path: ./TASK-WF-implementDocsDes-20261120-005507.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-624/.dev/reflect/pre-implementDocsDes-20261120005835/REPORT.md
+unresolved:
+  - "Advisory pre-execution review verdict: not-ready (3 of 3 reviewers, 12 blocking findings in the union). The plan was not edited; read REPORT.md before running /sc:implement."
+  - "Reflect ran at tier 2 without blind calibration, the adversarial merge and the evidence-validator gate (status partial); the findings are a hand-deduplicated union of three reviewer cards."
+  - "SUPERSEDED by TASK-WF-implementDocsDes-20261120-020554: the advisory review found 12 blocking findings (REPORT.md); a surgical edit of a copy replaced this package. Do not run /sc:implement on it."
+superseded_by: TASK-WF-implementDocsDes-20261120-020554

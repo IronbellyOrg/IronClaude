@@ -1,0 +1,1 @@
+run state: index_state=fresh access=mcp checked_at=2026-11-20T02:48:46Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/issue-624 projectPath=/home/coder/workspaces/worktrees/IronClaude/issue-624

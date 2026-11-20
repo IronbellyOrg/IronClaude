@@ -1,0 +1,117 @@
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/SKILL.md b/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
+index 56ee64f0c..91a69a462 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
+@@ -43,6 +43,7 @@ STOP: need a source (file or prompt). Will not invent scope beyond that source.
+ | `E-LEDGER-PATH` | `--ledger` not under `.dev/implement/` (managed: any `--ledger` other than the sibling `progress.md`) | No | No |
+ | `E-MANAGED-INVALID` | `workflow-plan/1.2` plan fails managed detection (copied, cross-checkout, slug/contract mismatch, failed contract) | No | No |
+ | `E-MANAGED-CONFLICT` | managed package exists in both `to-do/` and `done/` | No | No |
++| `E-MANAGED-REVIEW-FAIL` | managed contract carries `review_verdict: FAIL`; prints its `open_blockers` ids | No | No |
+ | `E-PLAN-CHANGED` | managed plan/source hash differs from the pin after the first `T<id>: start` | No | Unchanged |
+ | `E-ARCHIVE-MARKER` | managed `.archiving` marker exists | No | Unchanged |
+ | `E-ARCHIVE-BLOCKED` | managed FINAL/archive cannot complete (`issues`, `--skip-final-review`, helper refusal) | No | FINAL line only if a review ran |
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md b/plugins/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
+index d970bdf7d..5710506db 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
+@@ -7,7 +7,7 @@ Loaded **only** when Wave 0 detects a managed plan. Everything here is additive:
+ A source file `P` is **managed** iff `P` has front matter `schema: workflow-plan/1.2`. Then **all** must hold, else STOP `E-MANAGED-INVALID` (no ledger, no writes):
+ 
+ 1. `slug` matches `^TASK-WF-[a-z][A-Za-z0-9]{0,15}-[0-9]{8}-[0-9]{6}(-[2-9])?$` (subject: lower camelCase, max 16, no hyphens), equals the name of `P`'s parent directory, **and `P`'s basename is exactly `<slug>.md`** (a managed plan named `plan.md` or any other name → `E-MANAGED-INVALID`; never fall back to `plan.md`). Below, `<plan>` means `<slug>.md`.
+-2. Sibling `return-contract.yaml` has `contract_version: "1.1"`, the same `slug`, and `status: success` or `partial` (a `failed` contract is never executable).
++2. Sibling `return-contract.yaml` has `contract_version: "1.1"`, the same `slug`, and `status: success` or `partial` (a `failed` contract is never executable). A contract that carries `review_verdict: FAIL` is refused before any write and before the ledger step with STOP `E-MANAGED-REVIEW-FAIL`, which prints the `open_blockers` ids from that contract (the plan still has blocking review findings; repair it with `/sc:workflow`, do not run it).
+ 3. `P` resolves (realpath, no symlinked component below the checkout) to `<checkout>/.dev/tasks/to-do/<slug>/<slug>.md` or `<checkout>/.dev/tasks/done/<slug>/<slug>.md`, where `<checkout>` is the current git top-level. A copied plan or a plan from another checkout fails here.
+ 4. Sibling `source.md` exists as a regular file.
+ 
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+index 72cdff90e..8eb54d1e4 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -282,7 +282,7 @@ Each line names the path, when it fires and why it stays.
+ 3. `E-NO-RULING`: reachable only when someone tries to continue past a non-compliant verdict, which now exists only with a blocker. Kept as the user-acceptance safety gate.
+ 4. `operator-review`: user-initiated after a halt, never started by automation.
+ 5. `E-RESUME-NEEDED` (`reviewer-down` after a second paperwork-only or unparseable review, `ref-failed` including a notes file that cannot be written, incomplete revert, adviser agent missing): infrastructure, never about a finding; it asks the user to re-run, not to fix anything. Kept because continuing would record an unverified completion or risk data loss.
+-6. Input and integrity STOPs (`E-NO-SOURCE`, `E-SOURCE-MISSING`, `E-NO-TASKS`, `E-NO-AC`, `E-LEGACY`, `E-LEDGER-CORRUPT`, `E-LEDGER-PATH`, `E-MANAGED-INVALID`, `E-MANAGED-CONFLICT`, `E-PLAN-CHANGED`, `E-ARCHIVE-MARKER`): occur before or outside per-task QA. Kept unchanged.
++6. Input and integrity STOPs (`E-NO-SOURCE`, `E-SOURCE-MISSING`, `E-NO-TASKS`, `E-NO-AC`, `E-LEGACY`, `E-LEDGER-CORRUPT`, `E-LEDGER-PATH`, `E-MANAGED-INVALID`, `E-MANAGED-CONFLICT`, `E-MANAGED-REVIEW-FAIL`, `E-PLAN-CHANGED`, `E-ARCHIVE-MARKER`): occur before or outside per-task QA. Kept unchanged.
+ 7. `E-ARCHIVE-BLOCKED` (managed): FINAL `issues` naming a blocking defect at the end state (see "FINAL derived test" below), `--skip-final-review` on a managed package, or a helper refusal. Kept because FINAL is never waived.
+ 
+ No other path may stop automation or prompt the user. Every halt message and Ruling request lists blocking findings only. A minors-only replay writes no `halt` and no `Ruling:` line.
+diff --git a/src/superclaude/skills/sc-implement-protocol/SKILL.md b/src/superclaude/skills/sc-implement-protocol/SKILL.md
+index 56ee64f0c..91a69a462 100644
+--- a/src/superclaude/skills/sc-implement-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-implement-protocol/SKILL.md
+@@ -43,6 +43,7 @@ STOP: need a source (file or prompt). Will not invent scope beyond that source.
+ | `E-LEDGER-PATH` | `--ledger` not under `.dev/implement/` (managed: any `--ledger` other than the sibling `progress.md`) | No | No |
+ | `E-MANAGED-INVALID` | `workflow-plan/1.2` plan fails managed detection (copied, cross-checkout, slug/contract mismatch, failed contract) | No | No |
+ | `E-MANAGED-CONFLICT` | managed package exists in both `to-do/` and `done/` | No | No |
++| `E-MANAGED-REVIEW-FAIL` | managed contract carries `review_verdict: FAIL`; prints its `open_blockers` ids | No | No |
+ | `E-PLAN-CHANGED` | managed plan/source hash differs from the pin after the first `T<id>: start` | No | Unchanged |
+ | `E-ARCHIVE-MARKER` | managed `.archiving` marker exists | No | Unchanged |
+ | `E-ARCHIVE-BLOCKED` | managed FINAL/archive cannot complete (`issues`, `--skip-final-review`, helper refusal) | No | FINAL line only if a review ran |
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md b/src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
+index d970bdf7d..5710506db 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
+@@ -7,7 +7,7 @@ Loaded **only** when Wave 0 detects a managed plan. Everything here is additive:
+ A source file `P` is **managed** iff `P` has front matter `schema: workflow-plan/1.2`. Then **all** must hold, else STOP `E-MANAGED-INVALID` (no ledger, no writes):
+ 
+ 1. `slug` matches `^TASK-WF-[a-z][A-Za-z0-9]{0,15}-[0-9]{8}-[0-9]{6}(-[2-9])?$` (subject: lower camelCase, max 16, no hyphens), equals the name of `P`'s parent directory, **and `P`'s basename is exactly `<slug>.md`** (a managed plan named `plan.md` or any other name → `E-MANAGED-INVALID`; never fall back to `plan.md`). Below, `<plan>` means `<slug>.md`.
+-2. Sibling `return-contract.yaml` has `contract_version: "1.1"`, the same `slug`, and `status: success` or `partial` (a `failed` contract is never executable).
++2. Sibling `return-contract.yaml` has `contract_version: "1.1"`, the same `slug`, and `status: success` or `partial` (a `failed` contract is never executable). A contract that carries `review_verdict: FAIL` is refused before any write and before the ledger step with STOP `E-MANAGED-REVIEW-FAIL`, which prints the `open_blockers` ids from that contract (the plan still has blocking review findings; repair it with `/sc:workflow`, do not run it).
+ 3. `P` resolves (realpath, no symlinked component below the checkout) to `<checkout>/.dev/tasks/to-do/<slug>/<slug>.md` or `<checkout>/.dev/tasks/done/<slug>/<slug>.md`, where `<checkout>` is the current git top-level. A copied plan or a plan from another checkout fails here.
+ 4. Sibling `source.md` exists as a regular file.
+ 
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/qa.md b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+index 72cdff90e..8eb54d1e4 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -282,7 +282,7 @@ Each line names the path, when it fires and why it stays.
+ 3. `E-NO-RULING`: reachable only when someone tries to continue past a non-compliant verdict, which now exists only with a blocker. Kept as the user-acceptance safety gate.
+ 4. `operator-review`: user-initiated after a halt, never started by automation.
+ 5. `E-RESUME-NEEDED` (`reviewer-down` after a second paperwork-only or unparseable review, `ref-failed` including a notes file that cannot be written, incomplete revert, adviser agent missing): infrastructure, never about a finding; it asks the user to re-run, not to fix anything. Kept because continuing would record an unverified completion or risk data loss.
+-6. Input and integrity STOPs (`E-NO-SOURCE`, `E-SOURCE-MISSING`, `E-NO-TASKS`, `E-NO-AC`, `E-LEGACY`, `E-LEDGER-CORRUPT`, `E-LEDGER-PATH`, `E-MANAGED-INVALID`, `E-MANAGED-CONFLICT`, `E-PLAN-CHANGED`, `E-ARCHIVE-MARKER`): occur before or outside per-task QA. Kept unchanged.
++6. Input and integrity STOPs (`E-NO-SOURCE`, `E-SOURCE-MISSING`, `E-NO-TASKS`, `E-NO-AC`, `E-LEGACY`, `E-LEDGER-CORRUPT`, `E-LEDGER-PATH`, `E-MANAGED-INVALID`, `E-MANAGED-CONFLICT`, `E-MANAGED-REVIEW-FAIL`, `E-PLAN-CHANGED`, `E-ARCHIVE-MARKER`): occur before or outside per-task QA. Kept unchanged.
+ 7. `E-ARCHIVE-BLOCKED` (managed): FINAL `issues` naming a blocking defect at the end state (see "FINAL derived test" below), `--skip-final-review` on a managed package, or a helper refusal. Kept because FINAL is never waived.
+ 
+ No other path may stop automation or prompt the user. Every halt message and Ruling request lists blocking findings only. A minors-only replay writes no `halt` and no `Ruling:` line.
+diff --git a/tests/skills/test_workflow_remediation.py b/tests/skills/test_workflow_remediation.py
+index 6b6838872..fc2bbde56 100644
+--- a/tests/skills/test_workflow_remediation.py
++++ b/tests/skills/test_workflow_remediation.py
+@@ -481,3 +481,36 @@ def test_wave5_merges_into_existing_contract_and_keeps_review_verdict():
+     assert "never edit, delete, or regenerate" not in skill
+     head = skill.split("---", 2)[1]
+     assert "Agent" in head and "Task" in head
++
++
++_IMPL_DIR = Path(__file__).resolve().parents[2] / "src/superclaude/skills/sc-implement-protocol"
++
++
++def test_implement_refuses_review_verdict_fail_before_ledger():
++    m = (_IMPL_DIR / "refs/managed-workspace.md").read_text(encoding="utf-8")
++    detection = m.split("## Detection", 1)[1].split("## Location resolution", 1)[0]
++    assert "`review_verdict: FAIL`" in detection
++    assert "STOP `E-MANAGED-REVIEW-FAIL`" in detection
++    assert "`open_blockers`" in detection
++    assert "before any write and before the ledger step" in detection
++    assert m.index("E-MANAGED-REVIEW-FAIL") < m.index("## Ledger, artifacts, pins")
++
++
++def test_review_fail_code_listed_in_every_managed_stop_list():
++    skill = (_IMPL_DIR / "SKILL.md").read_text(encoding="utf-8")
++    qa = (_IMPL_DIR / "refs/qa.md").read_text(encoding="utf-8")
++    assert "| `E-MANAGED-REVIEW-FAIL` |" in skill
++    assert "`E-MANAGED-CONFLICT`, `E-MANAGED-REVIEW-FAIL`" in qa
++    plugin = Path(__file__).resolve().parents[2] / "plugins/superclaude/skills/sc-implement-protocol"
++    for rel in ("SKILL.md", "refs/qa.md", "refs/managed-workspace.md"):
++        assert (plugin / rel).read_bytes() == (_IMPL_DIR / rel).read_bytes(), rel
++
++
++def test_contract_pin_and_locations_unchanged():
++    m = (_IMPL_DIR / "refs/managed-workspace.md").read_text(encoding="utf-8")
++    assert '`contract_version: "1.1"`' in m and "contract_version: \"1.2\"" not in m
++    arch = (_IMPL_DIR / "scripts/archive_workspace.py").read_text(encoding="utf-8")
++    assert 'contract.get("contract_version") != "1.1"' in arch
++    assert "<checkout>/.dev/tasks/to-do/<slug>/<slug>.md` or `<checkout>/.dev/tasks/done/<slug>/<slug>.md`" in m
++    assert 'tasks / "archive"' not in arch and '"tasks" / "archive"' not in arch
++    assert "archive/" not in m.split("## Location resolution", 1)[1].split("## Ledger", 1)[0]

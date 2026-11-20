@@ -1,7 +1,7 @@
 ---
 name: sc:workflow-protocol
 description: "Behavioral protocol for /sc:workflow — PRD/spec to phased tasklist (<id>.md)"
-allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_callees, mcp__codegraph__codegraph_impact
+allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill, Agent, Task, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_callees, mcp__codegraph__codegraph_impact
 argument-hint: "<path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement]"
 ---
 
@@ -48,6 +48,8 @@ Entry: `$ARGUMENTS`. Validate all input and flags first (`--output` is retired �
 
 STOP codes in the ref. No package, no plan file, no yaml on a pre-creation STOP.
 
+**`--revise <package-dir> --review <REPORT.md>`:** the source requirement is waived. After the checks of `refs/input-parse.md` (existing package under `.dev/tasks/to-do/` with plan, `source.md` and contract, and an existing report; else STOP `E-BAD-FLAG`), Waves 0 to 4 are skipped: no new package and no `source.md` is created at Wave 0. The counts come from the `finding_counts` of the given REPORT.md, or its graded rows, as `refs/remediation.md` says, and the run enters Wave 4R directly with `<old-id>` = the given package; then Wave 5 as usual.
+
 `.dev/tasks/` is always staged (`git add .dev/tasks`): the package and its `artifacts/` included. Never gitignore it, never leave it untracked, and never write "never stage" about it in a generated plan (Constraints included). Staging is not committing.
 
 Under `--unattended` that staging is deferred to the coordinator (`~/.claude/WORKER-CONTRACT.md`): this run does not stage `.dev/tasks`. Also apply the `## Unattended mode` section of the `workflow` command file: the installed copy `~/.claude/commands/sc/workflow.md`, or the project copy `.claude/commands/sc/workflow.md`.
@@ -90,18 +92,26 @@ Final step of plan generation; runs only after Wave 3 passed, and **before** the
 
 Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) that call passes `--unattended --output <report-dir>/nested/reflect-<n>/` (reflect's own directory flag; workflow's `--output` stays retired; `<n>` counts from 1 and is never reused), still without `--remediate`, and the nested contract is listed in `artifacts`, also when the call failed.
 
-Advisory and read-only: never edit, delete, or regenerate `<id>.md` from findings, and never change the workflow `status` because of them. Reflect unavailable or `failed` → `reflect_status: skipped|failed`, `reflect_report_path: null`, one `unresolved` line; still proceed to Wave 5.
+This call itself is advisory: the plan is changed only by Wave 4R, only for blocking findings and only on a copy, never in place, and findings never change the workflow `status`. Never overwrite an existing package. Reflect unavailable or `failed` → `reflect_status: skipped|failed`, `reflect_report_path: null`, one `unresolved` line; still proceed to Wave 5.
+
+## Wave 4R — Remediate
+
+**Ref:** `refs/remediation.md`
+
+Runs after Wave 4 by default (`--remediate none` records the counts and the chosen route and changes nothing; `--remediate surgical|regenerate` forces a route; `--revise <package-dir> --review <REPORT.md>` runs it for a package reviewed outside workflow). Read `finding_counts` from the Wave 4 reflect contract, run `remediate.py route` (`~/.claude/skills/sc-workflow-protocol/scripts/remediate.py`, project copy `.claude/skills/sc-workflow-protocol/scripts/remediate.py` second) and follow the chosen route of the ref: `none` changes nothing; `surgical` repairs a copy and places it as a new package after archiving the original; `regenerate` runs Waves 0 to 3 once more (at most once per run); `escalate` stops and marks the package `review_verdict: FAIL`. Only blocking findings are repaired, at most 2 fix cycles.
+
+File operations of this wave: `mktemp -d /tmp/sc-workflow-revise.XXXXXXXX`, and every copy and move through `remediate.py` only (no `mv`, `cp` or `rm` by hand). The reviser and the re-reviewer are sub-agents started with the Agent tool (Task is the same tool under its other name).
 
 ## Wave 5 — Contract
 
 **Refs:** `refs/return-contract.md`, `refs/overlap-routing.md`
 
-Write `<pkg>/return-contract.yaml` (contract 1.1: stable `slug`, `./<id>.md`, `./source.md`, `reflect_*`) **before** any `implement` handoff. Apply handoff; a failed `implement` handoff on a valid plan is `partial`, a failed generation is `failed`.
+Write `return-contract.yaml` (contract 1.1: stable `slug`, `./<id>.md`, `./source.md`, `reflect_*`) into the **final placed package** (never into an archived one) **before** any `implement` handoff. Wave 5 merges into the contract that `place` and `mark` already wrote and never replaces the file: it creates the contract when none exists (route `none`), sets the final `status` (over the minimal `status: partial` that `mark` writes when it had to create the contract on the regenerate route), `reflect_*`, `handoff_*` and `unresolved`, fills every stable 1.1 field still missing (`slug`, `plan_path`, `source_path`, `source_origin`, `strategy`, `depth`) and keeps every line of `supersedes`, `remediation_route`, `finding_counts`, `fix_cycles`, `review_verdict` and `open_blockers`. `report_path` and the printed plan path name the final placed plan. The archived package's contract is written only by `remediate.py archive` and `mark`. Apply handoff; a failed `implement` handoff on a valid plan is `partial`, a failed generation is `failed`.
 
 After an `implement` handoff the package may have moved to `done/` (executor-owned archive). Resolve the actual location by id (`.dev/tasks/to-do/<id>` vs `.dev/tasks/done/<id>`, `test -e || test -L`): only if the package still exists at `to-do/` may you rewrite the contract (e.g. to `partial`), and never recreate a directory or write into a path whose package is absent. Only `done/` exists → leave the archived contract untouched, report the failure/outcome in chat, print the actual `done/` plan path. Both exist → mutate neither and report the conflict. Print the plan path at its actual location.
 
 ## Will / Will Not
 
-**Will:** one new package `.dev/tasks/to-do/<id>/` with `<id>.md`, `source.md`, `return-contract.yaml`; ground the plan in the real code through codegraph when the index is fresh. Never overwrites or reuses an existing package. Run `/sc:reflect --mode pre` (advisory) on the gated plan as the final generation step, before any handoff.
+**Will:** one new package `.dev/tasks/to-do/<id>/` with `<id>.md`, `source.md`, `return-contract.yaml`; ground the plan in the real code through codegraph when the index is fresh. Never overwrites or reuses an existing package. Run `/sc:reflect --mode pre` (advisory) on the gated plan as the final generation step, before any handoff. Then Wave 4R: repair blocking findings on a copy and place it as a new package, archiving the one it replaces.
 
-**Will Not:** product code, new agents, Task fan-out; modify the plan from reflect findings.
+**Will Not:** product code, new agents, Task fan-out (except the Wave 4R reviser and re-reviewer sub-agents); edit a plan in place, or change a plan for a Medium or Note finding.

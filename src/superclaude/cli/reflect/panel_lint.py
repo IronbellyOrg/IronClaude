@@ -1,7 +1,8 @@
 """Contract lint for panel-run reflect output directories (the reflect Tier 2 panel, Stages 0-2).
 
 lint_panel_contract(out_dir, legacy_contract) returns the failure lines of a panel run's return-contract.yaml
-against the frozen 1.8.0 contract; an empty list is a pass. It is a read-only checker: it reads
+against the frozen 1.9.0 contract (a recorded 1.8.0 contract, where finding_counts is optional, passes too); an empty
+list is a pass. It is a read-only checker: it reads
 out_dir/return-contract.yaml, out_dir/panel/manifest.json, out_dir/adversarial/merged-verdict.yaml,
 out_dir/reviewer-cards/ and out_dir/audit.log, and writes nothing. The assertion ids (L0 to L7, B) and their exact
 messages are those of the plan's lint design (artifacts/lint-test-design.md of the managed package).
@@ -11,7 +12,7 @@ shadow mode use. The --unattended layout (nested/adversarial-<n>/, SKILL.md sect
 run L6 reports `merged-verdict: absent`. The lint is meant for panel-run contracts and the matched legacy fixture,
 not as a retro-check of every recorded run.
 
-STABLE_FIELDS_1_8_0 and TELEMETRY_FIELDS are copies of the top-level keys of the YAML blocks of SKILL.md sections
+STABLE_FIELDS_1_9_0 and TELEMETRY_FIELDS are copies of the top-level keys of the YAML blocks of SKILL.md sections
 9.1 and 9.2. Those blocks do not parse as YAML (they hold `a | b` value forms), so the keys are taken line by line:
 every line of the block matching ^([a-z_0-9]+): (no indent). extract_field_list applies that rule, and a test fails
 when the constants and the SKILL.md sections differ.
@@ -30,7 +31,7 @@ import yaml
 
 from .contract import _LOAD_BEARING_BOOL_FIELDS
 
-STABLE_FIELDS_1_8_0 = (
+STABLE_FIELDS_1_9_0 = (
     "contract_version",
     "status",
     "mode",
@@ -114,6 +115,7 @@ STABLE_FIELDS_1_8_0 = (
     "remediation_task_path",
     "remediation_plan_path",
     "handoff_memory_key",
+    "finding_counts",
     "cannot_validate_without_user_input",
     "regression_present",
     "unauthorized_deviation_present",
@@ -182,7 +184,10 @@ PARITY_FIELDS = (
     "reviewer_cards",
 )
 LEGAL_MERGE_METHODS = ("adversarial", "single-reviewer-fallback")
-CONTRACT_VERSION = "1.8.0"
+CONTRACT_VERSIONS = (
+    "1.8.0",
+    "1.9.0",
+)  # 1.8.0 is a recorded contract; finding_counts is optional there
 
 _KEY_LINE = re.compile(r"(?m)^([a-z_0-9]+):")
 _CARD_FILE = re.compile(r"^reviewer-(\d+)-card\.(?:yaml|yml|md)$")
@@ -300,7 +305,7 @@ def _ev1(out: Path, c: dict, *, use_manifest: bool = True) -> list[str]:
 
 
 def lint_panel_contract(out_dir: str | Path, legacy_contract: dict) -> list[str]:
-    """Failure lines of the panel run in out_dir against the 1.8.0 contract and the matched legacy contract."""
+    """Failure lines of the panel run in out_dir against the 1.9.0 contract and the matched legacy contract."""
     out = Path(out_dir)
     state, c = _read_yaml_mapping(out / "return-contract.yaml")
     if state != "ok":
@@ -309,13 +314,13 @@ def lint_panel_contract(out_dir: str | Path, legacy_contract: dict) -> list[str]
         ]
     lines: list[str] = []
     version = c.get("contract_version")
-    if version != CONTRACT_VERSION:
+    if version not in CONTRACT_VERSIONS:
         lines.append(
-            f"L1 contract_version: expected {CONTRACT_VERSION!r}, got {version!r}"
+            f"L1 contract_version: expected one of {', '.join(map(repr, CONTRACT_VERSIONS))}, got {version!r}"
         )
-    known = set(STABLE_FIELDS_1_8_0) | set(TELEMETRY_FIELDS) | {"telemetry"}
+    known = set(STABLE_FIELDS_1_9_0) | set(TELEMETRY_FIELDS) | {"telemetry"}
     key_lines = [
-        f"L2 stable keys: top-level key {k!r} is not in the 1.8.0 stable field list or the telemetry block"
+        f"L2 stable keys: top-level key {k!r} is not in the 1.9.0 stable field list or the telemetry block"
         for k in sorted((k for k in c if k not in known), key=str)
     ]
     lines += key_lines
@@ -330,7 +335,7 @@ def lint_panel_contract(out_dir: str | Path, legacy_contract: dict) -> list[str]
     l3_failed = not legal if wave4 else not (merge is None or legal)
     if l3_failed:
         lines.append(
-            f"L3 merge_method: {merge!r} is not a legal 1.8.0 value (EV-2: 'adversarial' or 'single-reviewer-fallback')"
+            f"L3 merge_method: {merge!r} is not a legal 1.9.0 value (EV-2: 'adversarial' or 'single-reviewer-fallback')"
         )
     score = c.get("adversarial_convergence_score")
     if score is not None and not (type(score) is float and math.isfinite(score)):
@@ -359,7 +364,7 @@ def lint_panel_contract(out_dir: str | Path, legacy_contract: dict) -> list[str]
             )
     if key_lines or l3_failed:
         lines.append(
-            f"B bump rule: the contract leaves 1.8.0 ({len(key_lines)} stable-key violation(s), "
+            f"B bump rule: the contract leaves 1.9.0 ({len(key_lines)} stable-key violation(s), "
             f"{1 if l3_failed else 0} EV-2 value violation(s)); a new stable key or merge_method value needs a "
             "contract version bump, which this plan does not make"
         )

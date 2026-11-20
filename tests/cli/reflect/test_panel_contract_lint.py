@@ -66,7 +66,7 @@ def own(run):
 
 def bump(n, m):
     return (
-        f"B bump rule: the contract leaves 1.8.0 ({n} stable-key violation(s), {m} EV-2 value violation(s)); "
+        f"B bump rule: the contract leaves 1.9.0 ({n} stable-key violation(s), {m} EV-2 value violation(s)); "
         "a new stable key or merge_method value needs a contract version bump, which this plan does not make"
     )
 
@@ -90,7 +90,7 @@ ALL_MISSING = "adversarial_unavailable: true, merge_method: single-reviewer-fall
 @pytest.mark.parametrize(
     "heading, constant",
     [
-        ("### 9.1 Stable contract (contract_version: 1.8.0)", pl.STABLE_FIELDS_1_8_0),
+        ("### 9.1 Stable contract (contract_version: 1.9.0)", pl.STABLE_FIELDS_1_9_0),
         ("### 9.2 Telemetry (non-stable)", pl.TELEMETRY_FIELDS),
     ],
 )
@@ -106,10 +106,13 @@ def test_pinned_field_lists_match_skill_md(heading, constant):
 
 def test_constant_sizes_and_load_bearing_import():
     # 26 telemetry names of the original section 9.2 plus the `telemetry` block that Task 19 added to it
-    assert len(pl.STABLE_FIELDS_1_8_0) == 110 and len(pl.TELEMETRY_FIELDS) == 27
+    # 110 fields of 1.8.0 plus finding_counts (1.9.0)
+    assert len(pl.STABLE_FIELDS_1_9_0) == 111 and len(pl.TELEMETRY_FIELDS) == 27
+    assert "finding_counts" in pl.STABLE_FIELDS_1_9_0
+    assert pl.CONTRACT_VERSIONS == ("1.8.0", "1.9.0")
     assert pl.LOAD_BEARING_BOOLS is _LOAD_BEARING_BOOL_FIELDS
     assert (
-        "citations_dropped_extrapolated" in pl.STABLE_FIELDS_1_8_0
+        "citations_dropped_extrapolated" in pl.STABLE_FIELDS_1_9_0
         and "citations_dropped_extrapolated" in pl.TELEMETRY_FIELDS
     )
 
@@ -156,6 +159,36 @@ def test_other_pass_variants(tmp_path, mutate):
     assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == []
 
 
+COUNTS = {"blocking": 0, "label_high": 1, "medium": 2, "note": 3}
+
+
+def test_a_1_9_0_contract_with_finding_counts_passes(tmp_path):
+    run = make(
+        tmp_path,
+        mutate=lambda c: c.update(contract_version="1.9.0", finding_counts=COUNTS),
+    )
+    assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == []
+
+
+def test_a_recorded_1_8_0_contract_passes_with_or_without_finding_counts(tmp_path):
+    assert "finding_counts" not in LEGACY_CONTRACT
+    assert LEGACY_CONTRACT["contract_version"] == "1.8.0"
+    assert pl.lint_panel_contract(LEGACY, LEGACY_CONTRACT) == []
+    run = make(tmp_path, mutate=lambda c: c.update(finding_counts=COUNTS))
+    assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == []
+
+
+def test_a_1_9_0_contract_with_an_unknown_key_still_fails(tmp_path):
+    run = make(
+        tmp_path,
+        mutate=lambda c: c.update(contract_version="1.9.0", finding_count=COUNTS),
+    )
+    assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == [
+        "L2 stable keys: top-level key 'finding_count' is not in the 1.9.0 stable field list or the telemetry block",
+        bump(1, 0),
+    ]
+
+
 def test_p8_loud_fallback_passes(tmp_path):
     run = make(tmp_path, mutate=no_fallback_set, no_adv=True, audit=FALLBACK_AUDIT)
     assert pl.lint_panel_contract(run, own(run)) == []
@@ -176,7 +209,7 @@ def test_p9_tier_one_passes(tmp_path):
 def test_f1_extra_stable_key_is_named(tmp_path):
     run = make(tmp_path, mutate=lambda c: c.update(cluster_agreement=1.0))
     assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == [
-        "L2 stable keys: top-level key 'cluster_agreement' is not in the 1.8.0 stable field list or the telemetry block",
+        "L2 stable keys: top-level key 'cluster_agreement' is not in the 1.9.0 stable field list or the telemetry block",
         bump(1, 0),
     ]
 
@@ -185,19 +218,25 @@ def test_f2_merge_method_panel_fails(tmp_path):
     # merge_method is not a parity field, so only L3 and B appear
     run = make(tmp_path, mutate=lambda c: c.update(merge_method="panel"))
     assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == [
-        "L3 merge_method: 'panel' is not a legal 1.8.0 value (EV-2: 'adversarial' or 'single-reviewer-fallback')",
+        "L3 merge_method: 'panel' is not a legal 1.9.0 value (EV-2: 'adversarial' or 'single-reviewer-fallback')",
         bump(0, 1),
     ]
 
 
 def test_f3_f4_contract_version(tmp_path):
-    run = make(tmp_path, mutate=lambda c: c.update(contract_version="1.9.0"))
+    run = make(tmp_path, mutate=lambda c: c.update(contract_version="1.10.0"))
     assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == [
-        "L1 contract_version: expected '1.8.0', got '1.9.0'"
+        "L1 contract_version: expected one of '1.8.0', '1.9.0', got '1.10.0'"
     ]
     run = make(tmp_path, mutate=lambda c: c.pop("contract_version"), name="run2")
     assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == [
-        "L1 contract_version: expected '1.8.0', got None"
+        "L1 contract_version: expected one of '1.8.0', '1.9.0', got None"
+    ]
+    run = make(
+        tmp_path, mutate=lambda c: c.update(contract_version="1.7.0"), name="run3"
+    )
+    assert pl.lint_panel_contract(run, LEGACY_CONTRACT) == [
+        "L1 contract_version: expected one of '1.8.0', '1.9.0', got '1.7.0'"
     ]
 
 
