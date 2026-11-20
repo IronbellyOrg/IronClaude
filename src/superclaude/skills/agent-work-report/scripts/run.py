@@ -695,6 +695,9 @@ def _refresh(run=None):
     )
     cls["order"] = [u for u in cls["order"] if u.lower() not in held]
     cls["items"] = {u: v for u, v in cls["items"].items() if u.lower() not in held}
+    baseline = {
+        i["url"].lower(): i for i in items
+    }  # the daily run's items, before the held ones are dropped
     items = [i for i in items if i["url"].lower() not in held]
     # page.py recreates an item from the snapshot when compare.json carries it, so a superseded url must leave
     # the carried list and the snapshot too, or it comes back as a card of its own.
@@ -734,6 +737,9 @@ def _refresh(run=None):
                 continue
             emitted.add(url.lower())
             item, c, changed = entry_record(url, e, path.stem, info, started)
+            # ClickUp tasks the daily report listed under this issue stay on its card (ClickUp stays with the
+            # daily run; only the orchestrator's own text replaces the baseline's).
+            item["clickup"] = list((baseline.get(url.lower()) or {}).get("clickup", []))
             if changed:
                 cmp_["changed"][url] = {
                     "updated": {"was": None, "now": e.get("last_update")}

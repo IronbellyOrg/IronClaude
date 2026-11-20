@@ -3868,3 +3868,36 @@ def test_the_orchestrator_and_its_tier_are_named_on_the_card_sessions(root):
     titles = {s["session_id"]: s["title"] for s in item_["sessions"]}
     assert titles["o1"] == "orchestrator-coder-1 (tier1b)"
     assert titles["w1"] == "Worker for issue 1 (tier2)"
+
+
+def test_a_clickup_task_listed_under_a_claimed_issue_stays_on_its_card(
+    root, monkeypatch
+):
+    task = "https://app.clickup.com/t/86aaa"
+    daily = closed_daily_run(root, tasks=[cu("86aaa", github_links=[HELD])])
+    base_items = {i["url"]: i for i in json.loads((daily / "items.json").read_text())}
+    assert [t["number"] for t in base_items[HELD]["clickup"]] == ["86aaa"]
+    put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))
+    fake_gh(monkeypatch, {1: OPEN_MINE})
+    runmod.refresh()
+    card = next(i for i in refreshed_page(root)["items"] if i["url"] == HELD)
+    assert f'href="{task}"' in card["parts"]
+
+
+def test_sessions_listed_under_a_claimed_issue_stay_with_its_carried_task(root):
+    first = stub(
+        root,
+        [item(1, assignees=[ME])],
+        tasks=[cu("86aaa", github_links=[HELD])],
+        sess=[sess("s2", "1-start")],
+    )
+    fill(first)
+    approve(first)
+    runmod.close_run(first)
+    put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))  # names o1 and w1, not s2
+    f = new_run(
+        root, [item(1, assignees=[ME])]
+    )  # neither ClickUp nor the sessions are read
+    items = {i["url"]: i for i in json.loads((f / "items.json").read_text())}
+    task = items["https://app.clickup.com/t/86aaa"]
+    assert [s["session_id"] for s in task["sessions"]] == ["s2"]

@@ -193,11 +193,20 @@ def main(run):
             for t in it.get("clickup", []):
                 if t["url"] in items:
                     continue
+                # Sessions read this run are matched below; unread ones stay with the task, except the ones the
+                # orchestrator holds (their urls are in `held`).
+                kept = []
+                if not read_json(run / "sessions-status.json", {}).get("read"):
+                    kept = [
+                        dict(x, carried=True)
+                        for x in it.get("sessions", [])
+                        if x["url"].lower() not in held
+                    ]
                 items[t["url"]] = dict(
                     TASK_BASE,
                     **t,
                     clickup=[],
-                    sessions=[],
+                    sessions=kept,
                     carried=True,
                     matched_by=[
                         "carried from the previous report: ClickUp not read this run, and its issue is held by the orchestrator"
