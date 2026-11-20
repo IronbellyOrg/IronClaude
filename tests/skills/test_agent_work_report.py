@@ -110,6 +110,13 @@ def root(tmp_path, monkeypatch):
     )
     monkeypatch.setattr(compare, "lookup_closed", lambda url: None)
     monkeypatch.setattr(waker, "notify", lambda text: "test notice")
+
+    def no_orca(
+        *args, **kwargs
+    ):  # CI has no `orca`; a test that needs one installs its own fake
+        raise common.CommandError("orca is not available in the tests")
+
+    monkeypatch.setattr(orca_term, "orca", no_orca)
     return tmp_path
 
 
@@ -3666,3 +3673,19 @@ def test_an_information_entry_replaces_an_unlisted_baseline_record_of_its_url(
     runmod.refresh()
     cards = [i for i in refreshed_page(root)["items"] if i["url"] == six]
     assert len(cards) == 1 and cards[0]["title"] == "Six"
+
+
+def test_a_carried_item_the_orchestrator_now_holds_is_not_brought_back_from_the_snapshot(
+    root, monkeypatch
+):
+    daily = closed_daily_run(root)
+    snap = json.loads((daily / "snapshot.json").read_text())
+    assert HELD_PR in snap  # the daily report listed the worker's pull request
+    cmp_ = json.loads((daily / "compare.json").read_text())
+    cmp_["carried"] = [HELD_PR]  # its source could not confirm its state that day
+    (daily / "compare.json").write_text(json.dumps(cmp_))
+    put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))  # names HELD_PR
+    fake_gh(monkeypatch, {1: OPEN_MINE})
+    runmod.refresh()
+    urls = [i["url"] for i in refreshed_page(root)["items"]]
+    assert HELD in urls and HELD_PR not in urls

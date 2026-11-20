@@ -689,6 +689,14 @@ def _refresh(run=None):
     cls["order"] = [u for u in cls["order"] if u.lower() not in held]
     cls["items"] = {u: v for u, v in cls["items"].items() if u.lower() not in held}
     items = [i for i in items if i["url"].lower() not in held]
+    # page.py recreates an item from the snapshot when compare.json carries it, so a superseded url must leave
+    # the carried list and the snapshot too, or it comes back as a card of its own.
+    cmp_["carried"] = [u for u in cmp_["carried"] if u.lower() not in held]
+    snapshot = {
+        u: v
+        for u, v in (read_json(base / "snapshot.json", {}) if base else {}).items()
+        if u.lower() not in held
+    }
 
     ctx = {
         "template": render.item_template(),
@@ -785,9 +793,7 @@ def _refresh(run=None):
     write_json(cur / "classified.json", cls)
     write_json(cur / "items.json", items)
     write_json(cur / "compare.json", cmp_)
-    write_json(
-        cur / "snapshot.json", read_json(base / "snapshot.json", {}) if base else {}
-    )
+    write_json(cur / "snapshot.json", snapshot)
     write_json(cur / "to-write.json", [])
     try:
         page.main(cur)
