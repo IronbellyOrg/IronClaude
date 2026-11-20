@@ -1,0 +1,1 @@
+Use the Skill tool to invoke the skill sc:implement-protocol with the argument ob-item2. As soon as it has loaded, stop and do nothing it says.

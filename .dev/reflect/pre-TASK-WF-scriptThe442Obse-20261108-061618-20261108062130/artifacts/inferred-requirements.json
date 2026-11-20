@@ -1,0 +1,15 @@
+{
+  "spec": ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/source.md",
+  "parsed_count": 0,
+  "inferred_count": 6,
+  "pass_1": "no labelled requirement IDs in the 1-line source",
+  "pass_2": "requirement-bearing spans of source.md line 1, each quoted verbatim",
+  "rows": [
+    {"id": "INF-001", "quote": "Script the #442 observation runbook (.dev/issues/442/observation-runbook.md): setup", "cite": "source.md:1", "tag": "[INFERRED]"},
+    {"id": "INF-002", "quote": "Orca terminal driver", "cite": "source.md:1", "tag": "[INFERRED]"},
+    {"id": "INF-003", "quote": "evidence", "cite": "source.md:1", "tag": "[INFERRED]"},
+    {"id": "INF-004", "quote": "cleanup", "cite": "source.md:1", "tag": "[INFERRED]"},
+    {"id": "INF-005", "quote": "The owner has authorized an agent to start Claude sessions and run governed claims on the four disposable issues.", "cite": "source.md:1", "tag": "[INFERRED]"},
+    {"id": "INF-006", "quote": "Investigate whether the /orchestration skill (~/.claude/skills/orchestration/SKILL.md) is appropriate to use in this plan, and include it only if it fits.", "cite": "source.md:1", "tag": "[INFERRED]"}
+  ]
+}

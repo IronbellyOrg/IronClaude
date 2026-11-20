@@ -1,0 +1,1 @@
+Use the Write tool to create the file ob9.txt containing the word one, then use the Edit tool to change one to two.

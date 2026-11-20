@@ -1,0 +1,26 @@
+# Blind calibration of reviewer 1's card (Wave 3C)
+# Calibrator agent: confidence-calibrator, spawned blind (no formation context).
+# The two trailing keys were appended by the orchestrator, not by the calibrator.
+calibrated_dimensions:
+  citation_grounding: 0.55
+  coverage_completeness: 0.80
+  deviation_classification_clarity: 0.80
+  risk_surface_coverage: 0.80
+  recommendation_actionability: 0.80
+C: 0.75
+disagreements_with_card:
+  - "R1-F02 (lower): the runbook cites are exact (pkill at 789-794, push-URL undo at 806, scratch folders at 835, config set at 669). The plan cite 153-162 is wrong. Those lines are Task 6's release, stop rules and acceptance criteria. Task 8's 'steps 1 to 8' is at plan line 199. The claim itself is real."
+  - "R1-F03 (lower): runbook 799-800 is exact. Plan 155 is blank and 162 is a Task 6 acceptance line. Plan 215 is the 'every gh call carries --repo' criterion. The store-versus-baseline diff criterion is at plan 263 and is not cited. The finding stands, but its plan grounding is mostly mislocated."
+  - "R1-F04 (lower): runbook 635-641 is exact (release, then identify on sleep 241, then the OB-CTX PASS rule). Plan 99 is blank and 111 is the Task 5 header. The step 4 text is at plan 141."
+  - "R1-F06 (lower): runbook 659-665 and 28-30 (P8, master unprotected) are exact. Plan 105-108 is Task 4's acceptance criteria and the Task 5 header. The O-10 and 'after the cycle' text is at plan 149-150."
+  - "R1-F08 (lower): runbook 541 and 563 are exact. Plan:95 is blank. The restore from /tmp/ob/t1-local.json is at plan 137."
+  - "R1-F09 (lower): source 49, 1031-1043, 1289 and 1313 all verify. Find_handle does a recursive search for 'handle', and the result carries terminal=handle. Plan:96 is the 'Session start' bullet. The UNVERIFIED label is at plan 138."
+  - "R1-F10 (lower): runbook 765, 767-769 are exact. The cited plan 178-186 is Task 7 text, and plan:179 is not the 'Starting the sessions' bullet (that is at plan 225). The vacuous-grep claim is real: the check is at plan 231 and the phrase 'not representative' is not in the runbook."
+  - "R1-F14 (lower): plan 114, 139 and 199 do not support the claim. 114 is the issue-creation step and 139 is the GSID line. The stop rule is at plan 156 and the 'needs reading' text is at plan 183. The concern itself is plausible."
+  - "R1-F01, F05, F07, F11, F12 and F13 (as framed): the cites verify. F05's plan 64 and 96-98 and runbook 163 and 452 are exact. F07's plan 63-75, 81 and 243 are exact. F11's plan 185, 208 and 214 are exact. F12's plan 185 and 259 and runbook 779 are exact."
+  - "R1-F13 (severity): minor looks slightly low. The finding is about authorization for issue creation and PR creation on the fork, which are outward writes. It is correctly flagged as ambiguous, but it sits next to blocking items in the same risk class."
+  - "R1-F12 (severity): minor is acceptable, but the plan git-stages ob-logs unconditionally and the scan has only four patterns. Raising it to blocking would be consistent with how F07 is treated."
+  - "Risk surface (gap): the card does not examine Task 8's `--force` rule for `orca worktree rm` (plan 205). It also does not examine step 5's `--delete-branch` ordering (plan 206) or the `git branch -D` decision (runbook 823). Both are destructive, and neither is reviewed."
+escalation_recommendation: escalate-t2
+calibrator_model_class: opus
+calibrator_diversity: degraded

@@ -1,0 +1,17 @@
+{
+  "tasklist": ".dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md",
+  "coverage_pct": null,
+  "coverage_pct_note": "parsed-only semantics; 0 parsed requirements",
+  "coverage_pct_union": 1.0,
+  "coverage_degraded": "parsed-sparse",
+  "unmapped_requirements": [],
+  "unmapped_requirements_union": [],
+  "rows": [
+    {"req": "INF-001 setup", "tasks": ["Task 1", "Task 2", "Task 5"], "status": "covered", "grounding": ["TASK-WF-scriptThe442Obse-20261108-061618.md:31-55", "TASK-WF-scriptThe442Obse-20261108-061618.md:107-128"]},
+    {"req": "INF-002 Orca terminal driver", "tasks": ["Task 3", "Task 4", "Task 6"], "status": "covered", "grounding": ["TASK-WF-scriptThe442Obse-20261108-061618.md:59-82"]},
+    {"req": "INF-003 evidence", "tasks": ["Task 7"], "status": "covered", "grounding": ["TASK-WF-scriptThe442Obse-20261108-061618.md:166-191"]},
+    {"req": "INF-004 cleanup", "tasks": ["Task 8", "Task 11"], "status": "covered", "grounding": ["TASK-WF-scriptThe442Obse-20261108-061618.md:195-215", "TASK-WF-scriptThe442Obse-20261108-061618.md:255-266"]},
+    {"req": "INF-005 agent starts Claude sessions and governed claims on the four disposable issues", "tasks": ["Constraints", "Task 4", "Task 6", "Task 10"], "status": "covered", "grounding": ["TASK-WF-scriptThe442Obse-20261108-061618.md:19", "TASK-WF-scriptThe442Obse-20261108-061618.md:236-253"]},
+    {"req": "INF-006 investigate /orchestration, include only if it fits", "tasks": ["Constraints"], "status": "covered", "grounding": ["TASK-WF-scriptThe442Obse-20261108-061618.md:25"]}
+  ]
+}

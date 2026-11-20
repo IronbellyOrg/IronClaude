@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/.dev/reflect/pre-TASK-WF-scriptThe442Obse-20261108-061618-20261108062130/adversarial/merged-verdict.yaml"
+  convergence_score: 1.00
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/.dev/reflect/pre-TASK-WF-scriptThe442Obse-20261108-061618-20261108062130/adversarial/"
+  status: "success"
+  base_variant: "reviewer-1-card (analyzer persona, C=0.75)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

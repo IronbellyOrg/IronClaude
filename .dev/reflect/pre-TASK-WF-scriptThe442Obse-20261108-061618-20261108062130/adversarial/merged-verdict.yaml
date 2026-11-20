@@ -1,0 +1,146 @@
+# Merged Verdict — sc-reflect Tier-2 adversarial merge (sc-adversarial-protocol Mode A)
+<!-- Provenance: produced by /sc:adversarial Mode A. Base: Variant 1 (reviewer-1-card.yaml). Merge date: 2026-11-08T18:36Z -->
+
+merge_method: adversarial
+mode: A-compare
+plan_under_review: .dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md
+cards:
+  - .dev/reflect/pre-TASK-WF-scriptThe442Obse-20261108-061618-20261108062130/reviewer-cards/reviewer-1-card.yaml
+  - .dev/reflect/pre-TASK-WF-scriptThe442Obse-20261108-061618-20261108062130/reviewer-cards/reviewer-2-card.yaml
+calibrations_applied:
+  - reviewer-cards/reviewer-1-calibration.yaml   # C=0.75; plan citations shifted ~40-60 lines low, runbook exact
+  - reviewer-cards/reviewer-2-calibration.yaml   # C=0.67; QA-1 whole-plan claim under-grounded
+  - artifacts/t1-calibration.yaml                # C=0.61; narrows the store-diff overlap (X-001)
+focus: [correctness, coverage, deviation-classification]
+depth: standard
+convergence_score: 1.00
+
+counts:
+  findings_input: 18        # R1-F01..F14 + QA-1..QA-4
+  findings_confirmed: 17
+  findings_dropped: 1       # R1-F14
+  citation_corrected: 9     # R1-F02,F03,F04,F06,F08,F09,F10 (plan side) + QA-2, QA-3 (narrowed)
+  severity_changed: 2       # R1-F12 minor->blocking; QA-2 blocking->minor
+  overlap_adjudicated: 2    # X-001 store-diff (R1-F03 vs QA self-audit drop); X-002 R1-F13 authorization ambiguity carried
+
+findings:
+  - id: R1-F01
+    source_reviewer: reviewer-1
+    final_severity: blocking
+    final_category: gap
+    corrected_citation: "plan:70-75 (accurate as cited); runbook:216"
+    merge_rationale: "Confirmed blocking; calibration lists F01 cites as verifying; no competing QA finding (QA-1 is the complementary notice-wait in the same block)."
+  - id: R1-F02
+    source_reviewer: reviewer-1
+    final_severity: blocking
+    final_category: gap
+    corrected_citation: "plan:199 (Task 8 'steps 1 to 8' claim), plan:204-208; runbook:789-794,806,835 (exact)"
+    merge_rationale: "Claim confirmed (steps 1, 3, 8 have no scripted behaviour); plan citation corrected from 153-162 to 199/204-208 per calibration + fresh read."
+  - id: R1-F03
+    source_reviewer: reviewer-1
+    final_severity: blocking
+    final_category: gap
+    corrected_citation: "plan:263 (the diff AC) and plan:208 (step 7 deletes the baselines); runbook:796-804 (step 2), 800 (pending diff)"
+    merge_rationale: "Overlap X-001 adjudicated for R1 in the T1-calibrator's narrowed form: step-2 removal logic implies the comparison, but no task scripts the printed pre-step-7 diff and the pending diff (runbook:800) is absent from the plan; QA's self-audit drop and the T1 card both converge on this gap."
+  - id: R1-F04
+    source_reviewer: reviewer-1
+    final_severity: blocking
+    final_category: gap
+    corrected_citation: "plan:141 (session b step 4), plan:153; runbook:635-641 (exact: release, identify, OB-CTX PASS rule)"
+    merge_rationale: "Confirmed blocking (OB-CTX can never PASS from this script); plan citation corrected from 99,111 to 141/153 per calibration + fresh read."
+  - id: R1-F05
+    source_reviewer: reviewer-1
+    final_severity: blocking
+    final_category: gap
+    corrected_citation: "plan:64,96-98 (accurate); runbook:163,452 (exact)"
+    merge_rationale: "Confirmed blocking; calibration: 'F05's plan 64 and 96-98 and runbook 163 and 452 are exact'."
+  - id: R1-F06
+    source_reviewer: reviewer-1
+    final_severity: blocking
+    final_category: gap
+    corrected_citation: "plan:149-150 (O-10 edit 'during monitoring', push 'after the cycle'); runbook:659-665,28-30 (exact)"
+    merge_rationale: "Confirmed blocking (no observable trigger for the O-10 window or cycle end; the push-URL guard is the only barrier to the unprotected master); plan citation corrected from 105-108 per calibration + fresh read."
+  - id: R1-F07
+    source_reviewer: reviewer-1
+    final_severity: blocking
+    final_category: risk
+    corrected_citation: "plan:63-75,81,243 (accurate)"
+    merge_rationale: "Confirmed blocking; calibration verifies all three cites; fault-finder INV-011 confirms the answer-subcommand fix passes both the marker refusal and run-log recording."
+  - id: R1-F08
+    source_reviewer: reviewer-1
+    final_severity: minor
+    final_category: gap
+    corrected_citation: "plan:137 (restore from /tmp/ob/t1-local.json); runbook:541,563 (exact)"
+    merge_rationale: "Confirmed minor; plan citation corrected from 95 to 137 per calibration + fresh read; T1 calibration adds the conflict with plan:123 ('never overwrites')."
+  - id: R1-F09
+    source_reviewer: reviewer-1
+    final_severity: minor
+    final_category: gap
+    corrected_citation: "plan:138 (UNVERIFIED label); src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:49,1031-1046,1289,1313 (verified: find_handle recursive 'handle' search; terminal=handle in launch_result)"
+    merge_rationale: "Confirmed minor; plan citation corrected from 96 to 138; source cites re-verified by fresh read this merge."
+  - id: R1-F10
+    source_reviewer: reviewer-1
+    final_severity: minor
+    final_category: drift
+    corrected_citation: "plan:224,231 (the edit instruction and the vacuous grep); runbook:765,767-769 (exact)"
+    merge_rationale: "Confirmed minor; vacuous-grep claim independently re-verified this merge (grep 'not representative' over .dev/issues/442: no matches); plan citation corrected from 178-186 to 224/231; the stale lines 767-769 are a real sub-gap."
+  - id: R1-F11
+    source_reviewer: reviewer-1
+    final_severity: minor
+    final_category: gap
+    corrected_citation: "plan:185,208,214 (accurate)"
+    merge_rationale: "Confirmed minor; calibration: cites verify."
+  - id: R1-F12
+    source_reviewer: reviewer-1
+    final_severity: blocking
+    final_category: risk
+    corrected_rationale_note: severity raised from minor per Round-2 concession + calibration
+    corrected_citation: "plan:185 (scan patterns), plan:74-75 (unconditional screen saves), plan:259 (unconditional staging); runbook:779"
+    merge_rationale: "Severity changed minor->blocking: screens capture everything the observed agent printed, the scan covers 4 patterns, and staging is unconditional; R1 calibration ('raising it to blocking would be consistent with how F07 is treated') and INV-009 concur."
+  - id: R1-F13
+    source_reviewer: reviewer-1
+    final_severity: minor
+    final_category: risk
+    corrected_citation: "plan:19 (owner authorization line), plan:114 (issue creation), plan:148-149 (PR/push writes); source.md:1; runbook:172-182"
+    merge_rationale: "Overlap X-004/X-002 adjudicated: kept minor per Round-2 agreement (the runbook itself lists the writes, so risk is low and the defect is documentary); QA card did not examine it; T1 calibration notes the authorization item is broader than issue/PR creation."
+  - id: R1-F14
+    source_reviewer: reviewer-1
+    final_severity: dropped
+    final_category: gap
+    corrected_citation: "plan:183 (needs-reading list excludes item 5), plan:156 (stop rule)"
+    merge_rationale: "DROPPED: the plan's own needs-reading list (F7/F8 retry judgement, U20 visibility, AC-7 message) excludes item 5; the card's cited plan lines (114,139,199) do not support the claim; calibration concurs ('plan 114, 139 and 199 do not support the claim')."
+  - id: QA-1
+    source_reviewer: reviewer-2
+    final_severity: blocking
+    final_category: gap
+    corrected_citation: "plan:70-75 (accurate; line 75 does allow a longer wait but names no notice condition); runbook:302-324 (exact)"
+    merge_rationale: "Confirmed blocking with framing narrowed per calibration: the whole-plan 'no additional wait condition' claim is under-grounded as stated, but the cited wait block names no notice-wait condition and runbook:302-324 requires one; kept with the narrower grounding."
+  - id: QA-2
+    source_reviewer: reviewer-2
+    final_severity: minor
+    final_category: gap
+    corrected_rationale_note: severity lowered from blocking per debate evidence
+    corrected_citation: "plan:156 (stop rules name b, d, e only), plan:159-161 (ACs test b and d only); runbook:720-726 (item 5 for every governed claim)"
+    merge_rationale: "Gap real but downgraded blocking->minor: plan:240 runs b before c and item 5 is checked before b, so the ungated path requires independent invocation of c; R1 self-audit point 7 independently corroborated the stop-rule match for b/d/e."
+  - id: QA-3
+    source_reviewer: reviewer-2
+    final_severity: blocking
+    final_category: gap
+    corrected_citation: "plan:252 (PR URL AC), plan:257 (Task 11 depends on Task 10), plan:264 (PR CLOSED AC); runbook:726 (skip D/E when item 1 not PASS)"
+    merge_rationale: "Confirmed blocking; citation narrowed from the broad 240-264 range to the three load-bearing lines; the conflict between gates and acceptance criteria verified by fresh read."
+  - id: QA-4
+    source_reviewer: reviewer-2
+    final_severity: blocking
+    final_category: gap
+    corrected_citation: "plan:187-191 (accurate: the five ACs test block count, missing log, filter equality, secret scan, repeatability — none asserts a FAIL classification)"
+    merge_rationale: "Confirmed blocking; calibration: 'supported'; the evidence script feeds the gates that authorize governed launches."
+
+verdict: FAIL
+verdict_rationale: >
+  12 blocking findings survive merge and calibration-weighted debate across driver correctness (R1-F01,
+  QA-1, R1-F05, R1-F07), runbook fidelity (R1-F02, R1-F03, R1-F04, R1-F06), safety exposure (R1-F12),
+  and acceptance-criteria coherence (QA-3, QA-4). Both input cards independently returned FAIL; the
+  converged merge upholds it. The plan is not executable as written; correct before Task 10.
+verdict_notes:
+  - "Invariant probe INV-010 (MEDIUM, UNADDRESSED by both cards): the destructive cleanup paths -- plan:205 --force heuristic, plan:206 --delete-branch ordering, runbook:823 git branch -D -- were reviewed by neither card; review them before the corrective tasklist is executed."
+  - "Both cards' verdicts were FAIL; severity differentiation in the merged rows follows the R1 scale as corrected by both calibrations."

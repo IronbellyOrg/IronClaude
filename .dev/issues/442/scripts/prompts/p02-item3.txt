@@ -1,0 +1,1 @@
+Use the Agent tool with isolation set to "worktree" to start one general-purpose subagent that runs the Bash command `echo ob-item3-iso` and reports back.

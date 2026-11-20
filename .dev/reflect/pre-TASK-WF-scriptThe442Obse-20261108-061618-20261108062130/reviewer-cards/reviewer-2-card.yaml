@@ -1,0 +1,90 @@
+# Reviewer card 2 of 2 — Tier 2 reflect ensemble (UC-1 pre)
+# persona: qa | model alias: haiku (claude-gw-tier2[1m]) | brief: reviewer-briefs/reviewer-2.md
+# received via teammate message 2026-11-08T18:19:38Z (truncated) + 18:19:53Z (remainder); assembled by orchestrator verbatim.
+findings:
+  - id: QA-1
+    category: gap
+    severity: blocking
+    claim: >-
+      The driver finishes waiting at the first new Stop event or idle screen,
+      but the self-started-turn observation requires waiting for each background
+      completion notice and Claude's answer. The plan supplies no additional
+      wait condition for those notices. An initial turn can finish before its
+      background task does, allowing the next prompt or evidence collection to
+      run too early and incorrectly satisfy this claim-safety gate.
+    citation: >-
+      /home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/.dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:70-75;
+      /home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/.dev/issues/442/observation-runbook.md:302-324
+    recommendation: >-
+      Specify a separate bounded wait for each background notice and its completed
+      response before advancing. Add a scripted test where the initial Stop
+      precedes the notice, and require missing completion evidence to leave
+      the observation pending.
+
+  - id: QA-2
+    category: gap
+    severity: blocking
+    claim: >-
+      The governed-session script explicitly checks the self-started-turn gate
+      before session B, but not before session C. Its acceptance tests likewise
+      cover only B for this gate. Session C is an independently callable
+      subcommand that launches a governed claim, while the runbook requires
+      this gate before every governed disposable-issue claim.
+    citation: >-
+      /home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/.dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:134-161;
+      /home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/.dev/issues/442/observation-runbook.md:720-726
+    recommendation: >-
+      Require the self-started-turn result to be PASS at entry to every
+      governed-session subcommand. Test each subcommand with FAIL, pending,
+      and a missing results file, asserting that no launch occurs.
+
+  - id: QA-3
+    category: gap
+    severity: blocking
+    claim: >-
+      The live-run acceptance criteria require a disposable pull request even
+      when the safety gates correctly prohibit session E. Cleanup then depends
+      on completing that live-run task and also requires the pull request to be
+      CLOSED. Thus a valid failed or pending observation cannot satisfy the
+      plan, and the plan provides no explicit route to clean up the resources
+      already created on that outcome.
+    citation: >-
+      /home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/.dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:240-264;
+      /home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/.dev/issues/442/observation-runbook.md:726
+    recommendation: >-
+      Define gated skips as valid recorded observation outcomes, make pull-request
+      assertions conditional on creation, and require cleanup after an aborted
+      or gated run. Add a test covering cleanup when issues and worktrees exist
+      but no governed launch or pull request was created.
+
+  - id: QA-4
+    category: gap
+    severity: blocking
+    claim: >-
+      The evidence script must implement the observation PASS rules, but its
+      acceptance criteria test block counts, missing logs, filter text, secret
+      scanning, and repeatability only. They never assert the classification of
+      present but failing evidence. A script that marks every item PASS whenever
+      its log exists could satisfy these checks, including for the results that
+      authorize governed launches.
+    citation: >-
+      /home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/.dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618/TASK-WF-scriptThe442Obse-20261108-061618.md:170-191
+    recommendation: >-
+      Add expected-result assertions using positive, failing, and incomplete
+      synthetic evidence. At minimum, verify that a bare self-started approval
+      fails the claim gate, a wrong parent session identifier does not pass,
+      and incomplete binding or enforcement evidence cannot produce PASS.
+
+verdict: FAIL
+
+self_audit: >-
+  Read the complete plan, runbook, source request, and reviewer brief using
+  read-only tools. Compared all six coverage-matrix quotations with the complete
+  source request; no requirement-bearing source span was absent from the matrix.
+  Checked prompt sequencing, background completion, governed-claim prerequisites,
+  evidence classification tests, and cleanup after gated outcomes. Did not repeat
+  the claimed missing cleanup store comparison: Task 8 incorporates runbook
+  cleanup step 2, which already contains that comparison. Ran no commands,
+  changed no files, and did not verify runtime behavior. There are four findings
+  total, with no QA-5 or later finding. The recommended next action is to correct
+  these four plan gaps before execution.

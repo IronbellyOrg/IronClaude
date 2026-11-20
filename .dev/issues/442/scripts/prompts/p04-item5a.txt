@@ -1,0 +1,1 @@
+Use the Monitor tool to run `sleep 2; echo approved` and tell me what it prints.

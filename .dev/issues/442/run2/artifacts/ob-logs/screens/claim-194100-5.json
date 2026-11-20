@@ -1,0 +1,219 @@
+{
+  "id": "cda29c9a-9a14-4782-8989-e5e0ee72c532",
+  "ok": true,
+  "result": {
+    "terminal": {
+      "handle": "term_fbee4e13-dddf-4f44-a34d-f8e03dd6d088",
+      "status": "running",
+      "tail": [
+        "  q24-orca-capture-1116-221840-4361  started 2026-11-16 22:19  last 2026-11-17 00:49  (2h 29m)  06f0a1c7  (was ~/workspa",
+        "ces/worktrees/IronClaude/q24-orca-capture)",
+        "  review-loop-refactor-1109-190254-5a8e  started 2026-11-09 19:03  last 2026-11-11 18:09  (1d 23h)  27e3b4aa  (was ~/wor",
+        "kspaces/worktrees/IronClaude/review-loop-refactor-346)",
+        "  review-loop-refactor-1109-190830-6c5c  started 2026-11-09 19:08  last 2026-11-11 18:09  (1d 23h)  dede499e  (was ~/wor",
+        "kspaces/worktrees/IronClaude/review-loop-refactor-346)",
+        "  sc-issue-claim-pipel-1107-062636-330b  started 2026-11-07 06:26  last 2026-11-12 13:34  (5d 7h)  36855239  (was ~/work",
+        "spaces/worktrees/IronClaude/sc-issue-claim-pipeline-flag)",
+        "  sc-issue-orchestrate    started 2026-11-04 06:28  last 2026-11-05 16:44  (1d 10h)  0cf7ada3  (was ~/workspaces/worktre",
+        "es/IronClaude/feat-sc-issue-command)",
+        "  scratch-361-1108-041055-705d  started 2026-11-08 04:10  last 2026-11-09 02:24  (22h 13m)  acfb30e5  (was ~/workspaces/",
+        "worktrees/IronClaude/scratch-361)",
+        "  scratch-361-live-110-1109-023435-34a2  started 2026-11-09 02:34  last 03:04  (29m)  97958150  (was ~/workspaces/worktr",
+        "ees/IronClaude/scratch-361-live-1109)",
+        "  shim-probe-reply-with-the-word-1108-144318-41e0  started 2026-11-08 14:43  last 14:44  (1m)  19daef42  (was ~/workspac",
+        "es/worktrees/IronClaude/shim-probe)",
+        "  shim-probe2-sc-launch-v1-0123456789ab-1108-174921-30c4  started 2026-11-08 17:49  last 17:49  (0m)  03cff4f0  (was ~/w",
+        "orkspaces/worktrees/IronClaude/shim-probe2)",
+        "  smoke-504-1112-001050-3fec  started 2026-11-12 00:10  last 00:14  (3m)  fb55e671  (was ~/workspaces/worktrees/IronClau",
+        "de/smoke-504)",
+        "  sweep-git-fix-you-are-the-fresh-1114-150600-1492  started 2026-11-14 15:06  last 17:44  (2h 38m)  d74f09b0  (was ~/wor",
+        "kspaces/worktrees/IronClaude/sweep-git-fix)",
+        "  sweep-tests-579-read-tmp-sweep-tests-1117-002019-5493  started 2026-11-17 00:20  last 00:49  (28m)  5510d07a  (was ~/w",
+        "orkspaces/worktrees/IronClaude/sweep-tests-579)",
+        "  sweep-working-fix-read-tmp-sweep-fix-1116-223126-6b3a  started 2026-11-16 22:31  last 2026-11-17 00:18  (1h 47m)  4b7b",
+        "66ee  (was ~/workspaces/worktrees/IronClaude/sweep-working-fix)",
+        "  tier3-effort-1112-120127-5a2f  started 2026-11-12 12:01  last 12:02  (1m)  23600ecf  (was ~/workspaces/worktrees/IronC",
+        "laude/tier3-effort)",
+        "  unattended-flag-docs-1111-202610-5d72  started 2026-11-11 20:26  last 22:31  (2h 5m)  f3da757d  (was ~/workspaces/work",
+        "trees/IronClaude/unattended-flag-docs)",
+        "  unattended-flag-docs-1111-211501-7ea3  started 2026-11-11 21:15  last 22:31  (1h 16m)  dc05d445  (was ~/workspaces/wor",
+        "ktrees/IronClaude/unattended-flag-docs)",
+        "  wonsol-default-1117-211517-3ed6  started 2026-11-17 21:15  last 22:18  (1h 3m)  8c6c5c7e  (was ~/workspaces/worktrees/",
+        "IronClaude/wonsol-default)",
+        "  wonsol-default-1117-222015-2ada  started 2026-11-17 22:20  last 2026-11-19 15:27  (1d 17h)  758666fb  (was ~/workspace",
+        "s/worktrees/IronClaude/wonsol-default)",
+        "83 more sessions in other worktrees of this repo: type * to list them",
+        "Sessions from other repos and folders: ccsession --list",
+        "Session name (Enter = auto-named, Ctrl+C = cancel; auto-named after 30s):"
+      ],
+      "truncated": false,
+      "limited": true,
+      "oldestCursor": "0",
+      "nextCursor": "429",
+      "latestCursor": "429",
+      "returnedLineCount": 39,
+      "tailRows": [
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": true,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        }
+      ],
+      "source": "screen"
+    }
+  },
+  "_meta": {
+    "runtimeId": "14b42f18-8f8c-439f-bb57-4255185fe99d"
+  }
+}

@@ -1,0 +1,1 @@
+Use the Monitor tool to run `cd /tmp/ob/repo-a && git -c user.name=ob -c user.email=ob@invalid commit -q --allow-empty -m ob-ctx && git push -q origin master`.

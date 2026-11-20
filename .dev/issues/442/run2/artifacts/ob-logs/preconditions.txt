@@ -1,0 +1,43 @@
+== P1a
+2.1.328 (Claude Code)
+rc=0
+== P1b
+1.4.245-aidev02.9cfecdd30b2a
+rc=0
+== P1c
+git version 2.47.3
+rc=0
+== P1d
+jq-1.7
+rc=0
+== P1e
+uv 0.11.8 (x86_64-unknown-linux-musl)
+rc=0
+gh version 2.103.3 (2026-10-26)
+https://github.com/cli/cli/releases/tag/v2.103.3
+rc=0
+== P2
+# launch-level-guard-version: 1
+rc=0
+== P3
+/home/coder/.claude/hooks/launch-level-guard.sh /home/coder/workspaces/worktrees/IronClaude/issue-442-runbook/src/superclaude/hooks/scripts/launch-level-guard.sh differ: byte 1359, line 43
+rc=1
+== P4
+[{"e":"UserPromptSubmit","m":[null]},{"e":"PreToolUse","m":["^(Bash|Skill|Agent|Task|Edit|Write|NotebookEdit|Monitor|Workflow|RemoteTrigger|SendMessage|Cron[A-Za-z]*|Schedule[A-Za-z]*)$|^mcp__.*(merge|push|commit|pull_request|create_or_update_file|delete_file|update_ref|create_ref|create_branch)","Bash"]}]
+rc=0
+== P5
+rc=1
+== P6
+[]
+rc=0
+== P7
+IronbellyOrg/IronClaude
+rc=0
+https://github.com/IronbellyOrg/IronClaude
+rc=0
+== P8
+{"protected":false}
+rc=0
+== login-check
+[claude-code:unrecognized_model] {"model":"claude-gw-tier1a[1m]","query_source":"sdk"}
+ok
