@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-stage3CRequest-20261119-143901
+plan_path: ./TASK-WF-stage3CRequest-20261119-143901.md
+source_path: ./source.md
+source_origin: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/tasks/to-do/BLOCKER-CLASSIFICATION-PROGRAM-20261115/stage-requests/stage3c-request.md
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/brainstorm-reflect-panel/.dev/reflect/pre-TASK-WF-stage3CRequest-20261119-143901-20261119144026/REPORT.md
+unresolved:
+  - "This contract was written by the stage 0 to 3 worker session on 2026-11-19. The package is a hand copy of TASK-WF-stage3BRequest-20261117-172514 (plan text edited to the stage 3c request; progress.md and artifacts/ not copied) by the owner's decision of 2026-11-19; it is not a /sc:workflow run."
+  - "Pre-execution review (/sc:reflect --mode pre, 2026-11-19, Tier 2 forced by the parsed-sparse guard: three reflect-reviewer cards on sonnet/haiku/opus, adversarial merge, evidence validator): verdict FAIL, 2 Blocking (D-001 no fresh-branch-from-origin/master constraint, route must be named because an in-place switch leaves stale .claude/ copies that fail make verify-sync; D-002 the request's known-limits summary is not carried and plan:21 states a judgment as fact), 1 Medium (D-003 measured sha256 dropped), 1 Note (D-005 '83 tests' cites the carry-scope record). 59 citations re-read, 1 dropped (D-004). Status partial because a citation was dropped and the merge was blocked by one invariant (INV-003, folded into D-001). The plan is not yet fixed for these findings."
+  - "2026-11-19, owner in chat: 'go make the fixes and no review needed, proceed'. The plan was then edited for D-001 (constraint: run in a new Orca worktree from origin/master, carry the package, request and ledger change, with the stale .claude/ reason), D-002 (new 'Known limits' section with the three limits; 'two real gaps' reworded), D-003 (sha256 acceptance check with the base hash, and one needle grep per new test needle) and D-005 (the 83-test claim now names who ran it and that no artifact was kept). These edits were not re-reviewed, by the owner's decision; the review's input hash no longer matches the plan."
+  - "2026-11-19, owner in chat: 'yes, go'. This is the go to run /sc:implement on this package, in a new Orca worktree from origin/master with a Claude agent (recorded in the stage ledger row 3c). It is not a go for stage 4."

@@ -1,0 +1,4 @@
+start=0ea674b8f7b2b4c847c86888f8dae044eac1659f tree=a33a577a02a0563e145fc0404b2fa41a062a5d9c
+T1.AC1..AC6 met (second review, cited at src/superclaude/agents/reflect-reviewer.md:122 and tests/skills/test_review_severity_rule.py:227-228)
+T1.AC7 unmet (F1.1) at .dev/tasks/to-do/TASK-WF-stage3CRequest-20261119-143901/artifacts/stage3c-task1-notes.md:44
+F1.1 sev=blocking trigger=B1 ac=T1.AC7 at=.dev/tasks/to-do/TASK-WF-stage3CRequest-20261119-143901/artifacts/stage3c-task1-notes.md:44 anchor="the results of the other test files it names" chk=y,n,n,n family=notes-test-coverage fix=run tests/skills/test_worker_contract.py and tests/unit/test_cli_install.py (both named by the git grep output) and record each result in the notes file first=A1 origin=new: The git grep output names tests/skills/test_worker_contract.py:2742 and tests/unit/test_cli_install.py:62; the notes hold no result for either.
