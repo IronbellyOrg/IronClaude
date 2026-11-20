@@ -277,10 +277,10 @@ def _hold(key: object, raw: object) -> Hold:
     _key(key)
     if not isinstance(raw, dict) or set(raw) != _HOLD_KEYS:
         raise _invalid()
-    if raw["state"] not in HOLD_STATES:
+    if not isinstance(raw["state"], str) or raw["state"] not in HOLD_STATES:
         raise _invalid()
-    _opt(raw["plan_request"], lambda v: v in PLAN_REQUEST_STATES)
-    _opt(raw["evidence_kind"], lambda v: v in EVIDENCE_KINDS)
+    _opt(raw["plan_request"], lambda v: isinstance(v, str) and v in PLAN_REQUEST_STATES)
+    _opt(raw["evidence_kind"], lambda v: isinstance(v, str) and v in EVIDENCE_KINDS)
     _opt(raw["plan_request_orchestrator"], _pattern(ORCHESTRATOR_ID_PATTERN))
     _opt(raw["plan_wake_id"], _pattern(WAKE_ID_PATTERN))
     if not _is_int(raw["plan_attempts"]) or not 0 <= raw["plan_attempts"] <= 3:
@@ -288,6 +288,7 @@ def _hold(key: object, raw: object) -> Hold:
     missing = raw["missing"]
     if (
         not isinstance(missing, list)
+        or not all(isinstance(m, str) for m in missing)
         or len(set(missing)) != len(missing)
         or any(m not in MISSING_TOKENS for m in missing)
     ):

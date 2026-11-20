@@ -93,6 +93,14 @@ BAD = [
         _mutated(["repos", 0, "release_merge_method"], "x"), None, id="release method"
     ),
     pytest.param(
+        _mutated(["repos", 0, "merge_method"], []), None, id="merge_method list"
+    ),
+    pytest.param(
+        _mutated(["repos", 0, "release_merge_method"], {}),
+        None,
+        id="release method mapping",
+    ),
+    pytest.param(
         _mutated(["repos", 0, "release_head"], "bad branch!"), None, id="release_head"
     ),
     pytest.param(_mutated(["repos", 0, "reviewers"], []), None, id="empty reviewers"),

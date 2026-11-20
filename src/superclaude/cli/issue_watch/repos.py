@@ -219,7 +219,7 @@ def _method(entry: Mapping, key: str) -> str | None:
     value = entry.get(key)
     if value is None:
         return None
-    if value not in _METHODS:
+    if not isinstance(value, str) or value not in _METHODS:
         raise _fail(f"{key} must be squash, merge or rebase")
     return value
 

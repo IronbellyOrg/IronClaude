@@ -147,6 +147,11 @@ INVALID = [
     mutated([*H, "missing"], ["priority", "priority"], held_doc()),
     mutated([*H, "missing"], ["title"], held_doc()),
     mutated([*H, "plan_attempts"], 9, held_doc()),
+    # an unhashable value is store_invalid, never a TypeError (review finding)
+    mutated([*H, "state"], [], held_doc()),
+    mutated([*H, "plan_request"], [], held_doc()),
+    mutated([*H, "evidence_kind"], {}, held_doc()),
+    mutated([*H, "missing"], [[]], held_doc()),
     mutated(
         [*H, "plan_request"], "acked", held_doc()
     ),  # a request needs its time and orchestrator

@@ -530,6 +530,23 @@ def test_new_information_rides_with_a_wake_and_is_marked_seen(
     assert len(wake_files(world.config)) == 1 and again.woken == ()  # seen: not new
 
 
+def test_only_the_information_a_wake_carries_is_marked_seen(
+    tmp_path, tmp_state, gh_world
+):
+    world = gh_world()
+    world.issue(REPO_A, 5)
+    total = wake.MAX_INFO + 3
+    for n in range(100, 100 + total):
+        world.info["mentions"].append(
+            {"repo": REPO_B, "number": n, "kind": "issue", "updated_at": CYCLE_NOW}
+        )
+    run(world, tmp_path, tmp_state)
+    d = read_wake(wake_files(world.config)[0])
+    assert len(d["info"]["mentions"]) == wake.MAX_INFO
+    # the three items cut from the wake stay eligible for a later one
+    assert len(tmp_state.load().info_seen) == wake.MAX_INFO
+
+
 def test_information_alone_goes_to_an_active_orchestrator_and_starts_no_session(
     tmp_path, tmp_state, gh_world
 ):
@@ -593,6 +610,23 @@ def test_a_taken_acknowledgment_moves_the_entry_to_acked_and_the_files_to_done(
         and (wakes / "done" / f"{wake_id}.json").exists()
     )
     assert (wakes / "done" / f"{wake_id}.ack.json").exists()
+
+
+def test_the_acknowledgment_is_saved_before_its_files_move_to_done(
+    tmp_path, tmp_state, gh_world, monkeypatch
+):
+    world, wake_id = woken_issue(tmp_path, tmp_state, gh_world)
+    write_ack(world.config, wake_id, taken=[(REPO_A, 5)])
+    seen = []
+    real = wake.move_to_done
+
+    def spy(repo, wid):
+        seen.append(tmp_state.load().entries[K5].state)  # what a crash here would keep
+        real(repo, wid)
+
+    monkeypatch.setattr(wake, "move_to_done", spy)
+    run(world, tmp_path, tmp_state, advance=300)
+    assert seen == ["acked"]
 
 
 def test_a_skipped_acknowledgment_stores_its_free_reason_and_wakes_nobody_again(

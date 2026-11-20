@@ -107,6 +107,22 @@ def test_the_tokens_come_in_the_fixed_order_and_a_body_that_is_not_text_counts_a
     )
 
 
+@pytest.mark.parametrize(
+    "commented",
+    [
+        "<!--\n## Priority\n-->\n",  # the closing line is not section text
+        "<!-- ## Priority -->\n",
+        "<!--\n## Priority\nP1\n-->\n",
+    ],
+)
+def test_a_heading_inside_an_html_comment_is_not_a_heading(commented):
+    text = commented + "## Fix approach\nDo it.\n## Test plan\nRun it.\n"
+    check = plan_check(text)
+    assert (check.ok, check.missing) == (False, ("priority",))
+    # a real heading next to a commented one still counts once
+    assert plan_check(commented + body()).ok
+
+
 def test_a_section_ends_at_the_next_heading_and_at_the_hidden_create_marker():
     text = "## Priority\nP2\n\n## Fix approach\n\n## Test plan\nRun it.\n"  # the middle section is empty: the next heading ends it
     assert plan_check(text).missing == ("fix_approach",)

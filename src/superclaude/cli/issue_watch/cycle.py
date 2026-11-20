@@ -762,6 +762,7 @@ class _Cycle:
             if h.plan_wake_id and h.plan_request in ("pending", "woken"):
                 by_wake.setdefault(h.plan_wake_id, []).append(("plan", key))
         cfg = self.deps.config
+        done: list[str] = []
         for wake_id in sorted(by_wake):
             ack = wake.read_ack(cfg.orchestrator_repo, wake_id)
             if ack is None:
@@ -801,6 +802,10 @@ class _Cycle:
                         orchestrator=h.plan_request_orchestrator, wake_id=wake_id,
                     )  # fmt: skip
             if decided == len(by_wake[wake_id]):
+                done.append(wake_id)
+        if done:
+            self._save()  # the transitions are durable before the files move away
+            for wake_id in done:
                 wake.move_to_done(cfg.orchestrator_repo, wake_id)
 
     # -- step 6: the sweep ----------------------------------------------------
@@ -1671,7 +1676,7 @@ class _Cycle:
             self._note_tier(ident, out)
         if info_only:
             if out.kind == "woken":
-                self.info_sent += [i.seen_key for i in self.info_new]
+                self.info_sent += self._carried_info_keys(w)
             return
         for kind, key in keys:
             repo, number = split_issue_key(key)
@@ -1716,7 +1721,28 @@ class _Cycle:
         if not keys and w.target.resume and out.kind != "woken":
             self._failure_cond(out)
         if out.kind == "woken":
-            self.info_sent += [i.seen_key for i in self.info_new]
+            self.info_sent += self._carried_info_keys(w)
+
+    def _carried_info_keys(self, w: wake.Wake) -> list[str]:
+        """The ``info_seen`` keys of the information items this wake actually carries.
+
+        Items cut by ``MAX_INFO``, and items riding on another wake, stay unseen
+        so a later cycle can still deliver them.
+        """
+        carried = {
+            (stream, r.repo, r.number, r.kind, r.updated_at)
+            for stream, refs in (
+                ("mentions", w.mentions),
+                ("could_assign", w.could_assign),
+                ("affects", w.affects),
+            )
+            for r in refs
+        }
+        return [
+            i.seen_key
+            for i in self.info_new
+            if (i.stream, i.repo, i.number, i.kind, i.updated_at) in carried
+        ]
 
     def _failure_cond(self, out: wake.WakeOutcome) -> None:
         self._cond(_FAIL_REASON.get(out.kind, "wake_unknown"))

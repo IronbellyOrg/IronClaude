@@ -759,7 +759,9 @@ class Waker:
         if res is None:
             return "screen_unreadable"
         draft = _find(res, "draft")
-        if isinstance(draft, str) and draft.strip():
+        if not isinstance(draft, str):
+            return "screen_unreadable"  # an empty draft must be seen, not assumed (DQ2)
+        if draft.strip():
             return "typing"
         last = (term.get("lastOutputAt") or 0) / 1000
         if last and now.timestamp() - last < FRESH_OUTPUT_SECONDS:

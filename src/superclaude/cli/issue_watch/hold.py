@@ -67,6 +67,7 @@ SECTIONS = (
 """The closed tokens of ``missing`` and the heading line each one names."""
 
 _COMMENT = re.compile(r"<!--.*?(?:-->|\Z)", re.DOTALL)
+_CLOSED_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
 _CREATE_MARKER = re.compile(r"^\s*<!--\s*sc:issue:create\b")
 _NOT_KNOWN = "not known yet"
 
@@ -77,6 +78,25 @@ class PlanCheck:
 
     ok: bool
     missing: tuple[str, ...]
+
+
+def _without_comments(body: str) -> str:
+    """The body with every closed HTML comment blanked, except the hidden create marker.
+
+    A heading inside a comment is not a heading (a commented-out ``## Priority``
+    must not open a section). The line count is kept; the create marker stays
+    because it ends the section above it. A comment that is never closed is left
+    for ``plan_check`` to drop from the section it sits in.
+    """
+
+    def blank(match: re.Match[str]) -> str:
+        line_start = body.rfind("\n", 0, match.start()) + 1
+        text = body[line_start : match.end()]
+        if _CREATE_MARKER.match(text):
+            return match.group(0)
+        return "\n" * match.group(0).count("\n")
+
+    return _CLOSED_COMMENT.sub(blank, body)
 
 
 def _sections(lines: list[str], heading: str) -> list[str]:
@@ -107,7 +127,7 @@ def plan_check(body: object) -> PlanCheck:
     repeated, empty or "Not known yet". A body that is not text counts as empty.
     It does not say whether the plan is good.
     """
-    lines = body.splitlines() if isinstance(body, str) else []
+    lines = _without_comments(body).splitlines() if isinstance(body, str) else []
     missing: list[str] = []
     for token, heading in SECTIONS:
         found = _sections(lines, heading)

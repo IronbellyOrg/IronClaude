@@ -681,6 +681,27 @@ def test_a_draft_on_the_screen_means_someone_is_typing_and_nothing_is_typed(
     ) and send_argv() not in runner.argvs()
 
 
+@pytest.mark.parametrize("draft", [None, 5, ["x"]])
+def test_a_screen_read_with_no_text_draft_field_is_not_an_empty_draft(
+    fake_runner, tmp_path, draft
+):
+    script = idle_script()
+    script[screen_argv()] = ok(
+        {"ok": True, "result": {"terminal": {"tail": ["$ "]}, "draft": draft}}
+    )
+    waker, runner = waker_for(fake_runner, tmp_path, script)
+    out = waker.deliver(ORCA, target(), WID, NOW, 30)
+    assert (out.kind, out.typed, out.detail) == (
+        "woken",
+        False,
+        "screen_unreadable",
+    ) and send_argv() not in runner.argvs()
+    missing = idle_script()
+    missing[screen_argv()] = ok({"ok": True, "result": {"terminal": {"tail": ["$ "]}}})
+    waker, runner = waker_for(fake_runner, tmp_path / "b", missing)
+    assert waker.deliver(ORCA, target(), WID, NOW, 30).typed is False
+
+
 def test_a_busy_session_is_not_typed_to(fake_runner, tmp_path):
     script = idle_script()
     script[wait_argv()] = ok({"ok": True, "result": {"satisfied": False}})
