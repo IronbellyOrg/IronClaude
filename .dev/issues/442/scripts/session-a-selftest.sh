@@ -119,6 +119,12 @@ esac
 : > "$L/screen.txt"   # clear case 6's dialog so the pre-send check passes
 export STUB_STOP_LOG=$T/logs/h1m.jsonl; : > "$STUB_STOP_LOG"
 printf '{"hook_event_name":"SessionStart","session_id":"x"}\n' > "$T/logs/h1m.jsonl"
+# the log exists but the input box is not ready (no prompt on the screen): nothing is sent
+: > "$L/sent.txt"
+out=$(OB_READY_POLLS=2 OB_READY_SLEEP_S=0 timeout 60 bash "$here/session-a2.sh" 2>&1)
+case "$out" in *"reason=not-ready"*) ck sessa2-not-ready-pending ok ok ;; *) ck sessa2-not-ready-pending "$(printf '%s' "$out" | head -1)" "PENDING ... reason=not-ready" ;; esac
+grep -q 'codegraph status' "$L/sent.txt" && ck sessa2-not-ready-sends-nothing sent none || ck sessa2-not-ready-sends-nothing none none
+printf 'bypass permissions on (shift+tab to cycle)\n❯ \n' > "$L/screen.txt"   # the prompt is ready
 out=$(timeout 60 bash "$here/session-a2.sh" 2>&1)
 ck sessa2-rc "$?" 0
 grep -q 'codegraph status' "$L/sent.txt" && ck sessa2-mcp-sent ok ok || ck sessa2-mcp-sent missing ok

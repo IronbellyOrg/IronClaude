@@ -43,10 +43,16 @@ MAIN=${OB_MAIN:-$(main_checkout)}
 
 # --- step 1: leftover background jobs ----------------------------------------------------
 step1() {
-  local out n
+  local out n pid
   out=$(pgrep -af 'sleep 24[123]$' 2>/dev/null || true)
   printf '  running: %s\n' "${out:-none}"
-  for n in 241 242 243; do act_soft command timeout "$T" pkill -xf "sleep $n"; done
+  # only a job that started after this run's baseline file was written: an unrelated "sleep 241" of the same user stays
+  for n in 241 242 243; do
+    for pid in $(pgrep -xf "sleep $n" 2>/dev/null || true); do
+      if [ "/proc/$pid" -nt "$OB_BASE_SESSIONS" ]; then act_soft command timeout "$T" kill "$pid"
+      else printf '  SKIP pid %s (sleep %s): started before this run, not ours\n' "$pid" "$n"; fi
+    done
+  done
   line 1 OK "sleep 241, 242 and 243 stopped if running"
 }
 
@@ -112,8 +118,9 @@ rm_worktree() {  # rm_worktree <path>
   if [ "$APPLY" = 0 ]; then printf '  WOULD orca worktree rm --worktree path:%s\n' "$wt"; return 0; fi
   if command timeout "$T" orca worktree rm --worktree "path:$wt" >/dev/null 2>&1; then printf '  removed %s\n' "$wt"; return 0; fi
   st=$(tgit -C "$wt" status --short 2>/dev/null)
-  # --force only when nothing but files this run created (untracked) is there
-  if [ -n "$st" ] && ! printf '%s\n' "$st" | grep -qv '^??'; then
+  # --force only when every entry is untracked AND is a path this run or its claim creates:
+  # ob-442/ (the disposable file), .claude/ (probe settings), .dev/issues/<n>/ (the claim's copy). Anything else may be the owner's.
+  if [ -n "$st" ] && ! printf '%s\n' "$st" | grep -qvE '^\?\? (ob-442/|\.claude/|\.dev/issues/[0-9]+/)'; then
     command timeout "$T" orca worktree rm --worktree "path:$wt" --force >/dev/null 2>&1 && { printf '  removed %s (only untracked files, --force)\n' "$wt"; return 0; }
   fi
   printf '  REFUSED %s: local changes, look at git -C %s status --short\n' "$wt" "$wt"

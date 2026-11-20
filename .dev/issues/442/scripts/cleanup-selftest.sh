@@ -98,7 +98,7 @@ mkenv apply
 cl --apply
 ck apply-rc "$RC" 0
 ck apply-end "$(printf '%s\n' "$OUT" | tail -1)" CLEANUP_DONE
-ck apply-order "$(calls)" 'pkill pkill pkill rm rm orca orca orca orca gh gh gh gh gh rm'
+ck apply-order "$(calls)" 'rm rm orca orca orca orca gh gh gh gh gh rm'
 ck apply-steps "$(printf '%s\n' "$OUT" | grep -c '^STEP [1-8] ')" 8
 ck apply-gh-pinned "$(grep '^gh ' "$CALLS" | grep -c -- '--repo IronbellyOrg/IronClaude')" 5
 has apply-pr-close "$(cat "$CALLS")" 'gh pr close 77 --delete-branch --repo IronbellyOrg/IronClaude'
@@ -205,14 +205,32 @@ rm -rf "$OB"
 
 # --- 9. --force only for a worktree that holds nothing but untracked files -------------------------------
 mkenv force
-printf new > "$S/wts/T2/created.txt"                          # untracked: created by the run
+mkdir -p "$S/wts/T2/ob-442"; printf new > "$S/wts/T2/ob-442/T2.txt"   # untracked, and a path the run creates
+printf mine > "$S/wts/T1/notes.txt"                            # untracked but not a path the run creates: the owner's
 printf change > "$S/wts/T3/file.txt"; "$REAL_GIT" -C "$S/wts/T3" add file.txt; "$REAL_GIT" -C "$S/wts/T3" -c user.name=o -c user.email=o@i commit -q -m f
 printf changed > "$S/wts/T3/file.txt"                          # a modified tracked file: someone's work
-run env STUB_RM_FAIL="$S/wts/T2 $S/wts/T3" timeout 120 bash "$here/cleanup.sh" --apply
+run env STUB_RM_FAIL="$S/wts/T1 $S/wts/T2 $S/wts/T3" timeout 120 bash "$here/cleanup.sh" --apply
 ck force-once "$(grep -c -- '--force' "$CALLS")" 1
 has force-on-t2 "$(grep -- '--force' "$CALLS")" "path:$S/wts/T2 --force"
 has force-refused-t3 "$OUT" "REFUSED $S/wts/T3: local changes"
+has force-refused-t1-owner-file "$OUT" "REFUSED $S/wts/T1: local changes"
 ck force-rc "$RC" 5
+rm -rf "$OB"
+
+# --- 10. a leftover "sleep 24x" is killed only when it started after this run's baseline -----------------------
+printf '#!/usr/bin/env bash\nprintf "kill %%s\\n" "$*" >> "$CALLS"\nexit 0\n' > "$T/bin/kill"
+printf '#!/usr/bin/env bash\ncase "$*" in *"-xf sleep 241"*) printf "%%s\\n" "${STUB_PGREP:-}" ;; esac\n[ -n "${STUB_PGREP:-}" ]\n' > "$T/bin/pgrep"
+chmod 0755 "$T/bin/kill" "$T/bin/pgrep"
+mkenv kill
+touch -d '2 days ago' "$OB/baseline-sessions.txt"                     # baseline old: this shell is newer, so its pid counts as started after
+run env STUB_PGREP="$$" timeout 120 bash "$here/cleanup.sh" --apply
+has kill-newer-process "$(cat "$CALLS")" "kill $$"
+rm -rf "$OB"
+mkenv nokill
+touch "$OB/baseline-sessions.txt"                                      # baseline now: a pid that does not exist is not newer
+run env STUB_PGREP="999999" timeout 120 bash "$here/cleanup.sh" --apply
+hasnt kill-unrelated-process "$(cat "$CALLS")" "kill 999999"
+has kill-unrelated-skipped "$OUT" "started before this run, not ours"
 rm -rf "$OB"
 
 exit $failures

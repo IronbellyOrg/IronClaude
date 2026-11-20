@@ -36,6 +36,18 @@ if [ ! -s "$OB_LOGS/h1m.jsonl" ]; then
   exit 0
 fi
 
+# SessionStart is logged before the input box is ready: send nothing until Claude shows its prompt (as setup-github.sh does)
+f=""
+for _ in $(seq 1 "${OB_READY_POLLS:-60}"); do
+  f=$(bash "$here/driver.sh" screen sA2 | tail -1)
+  if grep -q 'shift+tab' "$f" 2>/dev/null && grep -q '❯' "$f" 2>/dev/null; then break; fi
+  command sleep "${OB_READY_SLEEP_S:-2}"
+done
+if [ "${OB_READY_POLLS:-60}" -ne 0 ] && ! { grep -q 'shift+tab' "$f" 2>/dev/null && grep -q '❯' "$f" 2>/dev/null; }; then
+  printf 'PENDING step=2 file=%s reason=not-ready screen=%s\n' "$P/p17-item7b.txt" "$f"
+  bash "$here/driver.sh" stop sA2 >/dev/null
+  exit 0
+fi
 out=$(bash "$here/driver.sh" send sA2 "$(cat "$P/p17-item7b.txt")" h1m 600 2>&1)
 case "$out" in
   NEEDS_INPUT\ *) printf 'PENDING step=2 file=%s screen=%s\n' "$P/p17-item7b.txt" "${out#NEEDS_INPUT }";;

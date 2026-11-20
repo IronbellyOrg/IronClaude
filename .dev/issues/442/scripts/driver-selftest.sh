@@ -50,6 +50,12 @@ out=$(bash "$here/driver.sh" send s1 'prompt four' h1 30 2>&1)
 ck send-idle "$(printf '%s' "$out" | tail -1)" "TURN_END idle"
 rm -f "$L/idle-on"
 
+# a notice wait does not end on idle: with no notice answered it runs to the pending timeout result
+: > "$L/screen.txt"; : > "$STUB_STOP_LOG"; touch "$L/idle-on"
+out=$(bash "$here/driver.sh" send s1 'prompt four-b' h1 4 wait-notice 2>&1)
+ck send-notice-idle-not-end "$(printf '%s' "$out" | head -1)" "TURN_END timeout"
+rm -f "$L/idle-on"
+
 # --- send outcome: timeout ----------------------------------------------------
 : > "$L/screen.txt"; : > "$STUB_STOP_LOG"
 out=$(bash "$here/driver.sh" send s1 'prompt five' h1 3 2>&1)

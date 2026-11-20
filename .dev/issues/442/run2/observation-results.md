@@ -110,7 +110,7 @@ jq -c 'select(.hook_event_name=="UserPromptSubmit" or .hook_event_name=="UserPro
 
 - Replaces test: `test_pending_live_observation[OB-H1 item 5]` in tests/hooks/test_launch_level_observations.py
 - Session: A
-- Result: PASS
+- Result: pending
 - Evidence command:
 
 ```bash
@@ -126,8 +126,8 @@ jq -c 'select(.hook_event_name=="UserPromptSubmit") | {bare_approved: (.prompt|g
 - Log file and line: /tmp/ob/logs/h1.jsonl: lines 2
 - What you saw in the tab (for block messages): none recorded
 - Rule parts:
-  - self-started turns carry no bare Approved: PASS (1 prompt line(s) not typed by the run, none a bare Approved or an implement line)
-- If pending: not pending
+  - self-started turns carry no bare Approved: pending (corrected after review: run 2 ran no session A, so the three background-notice probes never ran; the log holds only a login-check prompt, which cannot show that self-started turns were exercised. The first draft passed it; evidence.sh now keeps this pending until all three probes ran. The real item 5 result is in the main results file.)
+- If pending: the three background-notice probes did not run in run 2
 - If FAIL: not a FAIL
 
 ## OB-H1 item 6

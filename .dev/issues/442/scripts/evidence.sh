@@ -158,7 +158,8 @@ item_5() {
     | if ($l|length)==0 then "pending|no UserPromptSubmit lines"
       elif any($u[]; .b) then "FAIL|a prompt that was not typed is a bare Approved: a self-started turn would approve a worktree-level session (no claim at any level; design O-17 applies; report to the owner)"
       elif any($u[]; .i) then "FAIL|a prompt that was not typed starts with an implement command"
-      else "PASS|"+($u|length|tostring)+" prompt line(s) not typed by the run, none a bare Approved or an implement line"+(if ($u|length)==0 then " (no prompt event fires for notices)" else "" end) end' --argjson typed "$(typed_json)")"
+      elif ($probes|any(.[]; . as $x | ($l|any(.p == $x))|not)) then "pending|the three background-notice probes (prompts p04, p05, p06) did not all run, so self-started turns were not exercised"
+      else "PASS|"+($u|length|tostring)+" prompt line(s) not typed by the run, none a bare Approved or an implement line"+(if ($u|length)==0 then " (no prompt event fires for notices)" else "" end) end' --argjson typed "$(typed_json)" --argjson probes "$(for n in p04-item5a p05-item5b p06-item5c; do command timeout "$T" jq -Rs 'sub("\\s+$";"")' "$here/prompts/$n.txt"; done | command timeout "$T" jq -s .)")"
 }
 item_6() {
   local f=$LOGS/h1.jsonl M tc seen n r bad="" missing=""

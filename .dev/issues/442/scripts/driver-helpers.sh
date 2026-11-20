@@ -36,7 +36,8 @@ wait_turn() {
     if command timeout 10 orca terminal wait --terminal "$h" --for tui-idle --timeout-ms 1000 >/dev/null 2>&1; then
       # idle: re-check Stop once, then accept idle as the end
       nl_stop=$(grep -c '"hook_event_name":"Stop"' "$log" 2>/dev/null || true)
-      if [ "$nl_stop" -le "$stop_before" ]; then why=idle; break; fi
+      # a notice wait never ends on idle: it continues until the notice is answered or the timeout path below
+      if [ "$notice" -ne 1 ] && [ "$nl_stop" -le "$stop_before" ]; then why=idle; break; fi
     fi
     [ "$(date +%s)" -ge "$deadline" ] && { why=timeout; break; }
     command sleep 2

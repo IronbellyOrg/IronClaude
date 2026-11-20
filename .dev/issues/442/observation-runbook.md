@@ -790,7 +790,7 @@ Before cleanup, copy all evidence into `.dev/issues/442/observation-results.md`.
 
 ```bash
 pgrep -af 'sleep 24[123]$'
-pkill -xf 'sleep 241'; pkill -xf 'sleep 242'; pkill -xf 'sleep 243'
+for n in 241 242 243; do for p in $(pgrep -xf "sleep $n"); do [ "/proc/$p" -nt /tmp/ob/baseline-sessions.txt ] && kill "$p"; done; done
 ```
 
 2. Release every governed session that is still bound. Use the `rm` line each claim printed. Then compare the store with the baseline:
@@ -852,7 +852,7 @@ Cleanup `--apply` rule: `Default: print the plan and delete nothing.` (cleanup.s
 | Literal printed | What to do |
 |---|---|
 | `NEEDS_INPUT` (driver.sh:58, driver-helpers.sh:35) | Read the screen file named on the line. Answer only a dialog about this run's disposable targets (T1 to T4, their worktrees and branches, the plan's scripts, `/tmp/ob`), with `answer <name> <key> <reason>` (driver.sh:102). The line can come before the send (`Pre-send check: a dialog already on screen means the prompt is not sent.` (driver.sh:56)) or while the driver waits for the turn to end, after the send. Read the saved screen: if the step's prompt is not shown there, answer the dialog and send that prompt again; if it is shown, answer only. |
-| `PENDING step=` (session-a.sh:79, session-a.sh:93, session-a2.sh:41) | Read the reason and the screen file on the line before you run anything further. |
+| `PENDING step=` (session-a.sh:79, session-a.sh:93, session-a2.sh:53) | Read the reason and the screen file on the line before you run anything further. |
 | `reason=needs-input` (session-gov.sh:82) | Same as `NEEDS_INPUT`: read the screen file, answer only a disposable target, and check whether the step's prompt is shown before you send it again. |
 | `NEEDS_INPUT claim` (setup-github.sh:100) | Same as `NEEDS_INPUT`. |
 | `BLOCKED login-isolated-home` (setup.sh:169) and `exit 3` (setup.sh:170) | Stop; the owner decides. Do not copy credential files. |
