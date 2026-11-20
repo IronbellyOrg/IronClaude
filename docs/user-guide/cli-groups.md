@@ -15,8 +15,8 @@ This page lists every `superclaude` command group that 6.0.0 ships, what it is f
 | `reflect` | Run the post-execution reflect gate as a top-level subprocess. | [commands reference](commands.md) (`superclaude reflect run`) |
 | `swarm` | Orchestrate multi-model swarm execution. | [Swarm guide](../swarm/README.md) |
 | `recommend` | Deterministic helpers behind the `sc-recommend` skill (lookup cache, telemetry, eval). | [commands reference](commands.md) (`/sc:recommend`) |
-| `sweep` | Read-only sweep of Orca Runs, worktrees and sessions. | [below](#superclaude-sweep) and `/sc:sweep` in the [commands reference](commands.md) |
-| `observe` | Read-only terminal observer for Orca workers. | [below](#superclaude-observe) |
+| `sweep` | Read-only sweep of Orca Runs, worktrees and sessions. | [below](#superclaude-sweep), `/sc:sweep` in the [commands reference](commands.md), [Orchestrator mode guide](orchestrator-mode.md) |
+| `observe` | Read-only terminal dashboard for Orca workers and coordinator questions. | [below](#superclaude-observe), [Observer guide](observer.md) |
 | `issue-watch` | Poll GitHub for approved issues and start one Orca claim session each. | [below](#superclaude-issue-watch), [design](../designs/issue-watcher.md) |
 | `issue-pipeline` | Approval core for a coordinator-started plan-writing worker. | [below](#superclaude-issue-pipeline-and-superclaude-review) |
 | `review` | Deterministic helpers for document review loops. | [below](#superclaude-issue-pipeline-and-superclaude-review), [review panel](../reference/review-panel-live7.md) |
@@ -40,7 +40,7 @@ The groups `prd`, `cleanup-audit`, `cli-portify`, `roadmap`, `tasklist` and `spr
 
 ## `superclaude observe`
 
-A read-only terminal observer for Orca workers. It shows the worker ledger Orca reports for its workers (the next-action kind as Orca gives it, freshness, collected and reported counts) and can write a plain-text record and a versioned JSON snapshot. It never writes to Orca: no key and no option maps to an Orca call.
+A read-only terminal dashboard for Orca workers. It shows the worker ledger Orca reports for its workers (the next-action kind as Orca gives it, freshness, collected and reported counts) and, with `--questions --run <runId>`, the coordinator's questions with a Decision Desk for the selected one. It adapts to 160, 116 and 80 columns, uses colour only where the terminal supports it (`NO_COLOR` and `--ascii` give plain output) and can write a plain-text record and a versioned JSON snapshot. It never writes to Orca: no key and no option maps to an Orca call. Keys, screens and limits are in the [Observer guide](observer.md).
 
 | Option | Meaning |
 |--------|---------|
@@ -52,7 +52,7 @@ A read-only terminal observer for Orca workers. It shows the worker ledger Orca 
 | `--snapshot FILE` | Write the JSON snapshot to this file. Default in live mode: the per-user state directory. |
 | `--questions` | List the coordinator questions (messages of type `question`) of the one Run named by `--run`. Needs `--run` and a live source. |
 
-The observer polls Orca once every 15 seconds with at most 5 calls per read. The caps are per observer process, so several observers running at once multiply the load on Orca. With `--questions` it never runs `run-use` and never binds to a Run: start it from the terminal that already holds the Run. The question list is best effort: coverage is unknown and bursts of more than 100 rows between reads may be lost.
+The observer polls Orca once every 15 seconds with at most 5 calls per read. The caps are per observer process, so several observers running at once multiply the load on Orca. With `--questions` it never runs `run-use` and never binds to a Run: start it from the terminal that already holds the Run. The question list is best effort: coverage is unknown and bursts of more than 100 rows between reads may be lost. With the question link on, the question text is shown on screen only (never in the record or the snapshot), `n` and `p` select a question and the Decision Desk shows the one linked session. Remote hosts (`--include-remote`) are not built; see issue [#604](https://github.com/IronbellyOrg/IronClaude/issues/604).
 
 ## `superclaude issue-watch`
 
