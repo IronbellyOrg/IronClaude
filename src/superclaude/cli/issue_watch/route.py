@@ -402,7 +402,7 @@ def in_flight(
             counts[sf.orchestrator].add(key)
         elif not sf.readable or sf.status == "in_progress":
             for ident, orch in registry.items():
-                if orch.repo == sf.repo and orch.status == "active":
+                if orch.repo.lower() == sf.repo.lower() and orch.status == "active":
                     counts[ident].add(key)
     for key, entry in doc.entries.items():
         if (

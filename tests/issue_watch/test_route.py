@@ -300,6 +300,9 @@ def test_a_state_file_that_cannot_be_parsed_counts_against_every_active_orchestr
     got = count(reg, record.empty_doc(FIXED_NOW), files)
     assert got["ironclaude-1"] == got["ironclaude-2"] == {K(9)}
     assert got["example-1"] == set() and got["ironclaude-3"] == set()
+    # repos.yaml may spell the repository differently from the file name
+    lower = {"ironclaude-1": entry(repo=REPO_A.lower())}
+    assert count(lower, record.empty_doc(FIXED_NOW), files)["ironclaude-1"] == {K(9)}
 
 
 def test_an_open_plan_request_is_one_place_until_its_record_is_final_or_it_is_stuck():
