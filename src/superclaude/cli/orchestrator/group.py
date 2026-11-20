@@ -15,8 +15,15 @@ from pathlib import Path
 
 import click
 
+from .answer_check import answer_check_cmd
 from .common import ROOT_ENV
+from .idle_end import idle_end_cmd
+from .lease import lease_group
+from .plan_check import plan_check_cmd
+from .repos_verb import repos_group
 from .state_verb import state_group
+from .wake_ack import wake_ack_cmd
+from .wake_check import wake_check_cmd
 
 
 @click.group(name="orchestrator")
@@ -35,3 +42,10 @@ def orchestrator_group(ctx: click.Context, root: Path | None) -> None:
 
 
 orchestrator_group.add_command(state_group)
+orchestrator_group.add_command(wake_check_cmd)
+orchestrator_group.add_command(wake_ack_cmd)
+orchestrator_group.add_command(lease_group)
+orchestrator_group.add_command(repos_group)
+orchestrator_group.add_command(answer_check_cmd)
+orchestrator_group.add_command(plan_check_cmd)
+orchestrator_group.add_command(idle_end_cmd)

@@ -33,6 +33,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import threading
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -304,12 +305,35 @@ def run_path(root: Path | str, ident: str) -> Path:
     return _folder(root, RUNS_DIR) / f"{ident}.json"
 
 
+_held = threading.local()
+
+
 @contextmanager
 def locked(root: Path | str, wait_s: float = 10.0) -> Iterator[None]:
-    """Hold ``.orchestrator/state.lock``; ``StateError('lock_busy')`` when it stays held."""
+    """Hold ``.orchestrator/state.lock``; ``StateError('lock_busy')`` when it stays held.
+
+    The lock can be taken again by the thread that already holds it (it is then
+    only counted): a verb that needs the lock for a whole sequence, such as
+    ``idle-end``, can call the functions below that take it themselves. A
+    ``flock`` taken through a second file descriptor would otherwise wait for
+    the first one until ``lock_busy``.
+    """
+    key = os.path.realpath(Path(root) / STATE_DIR)
+    counts: dict[str, int] = _held.__dict__.setdefault("counts", {})
+    if counts.get(key, 0) > 0:
+        counts[key] += 1
+        try:
+            yield
+        finally:
+            counts[key] -= 1
+        return
     try:
         with state_lock(Path(root), wait_s):
-            yield
+            counts[key] = 1
+            try:
+                yield
+            finally:
+                counts.pop(key, None)
     except StateLockBusy:
         raise StateError("lock_busy", EXIT_LOCK_BUSY) from None
 
