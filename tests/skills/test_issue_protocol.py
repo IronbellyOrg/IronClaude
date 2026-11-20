@@ -1788,6 +1788,47 @@ def test_a_block_for_a_section_that_passes_is_dropped_and_never_written(tmp_path
     assert outside_unchanged(body, gh.written, ["priority"])
 
 
+@pytest.mark.parametrize("form", ["empty", "placeholder"])
+def test_a_plan_marker_left_in_a_reset_section_is_put_back(form):
+    # A section reset to empty or "Not known yet" can still hold its old marker; the
+    # fill deletes that line, so the splice must add the marker again.
+    body = make_body({"priority": form}).replace(
+        "## Priority\n", f"## Priority\n{PLAN_MARKER}\n", 1
+    )
+    assert plan_check(body)["priority"] == form
+    new = build_plan_body(body, {"priority": DRAFTED["priority"]})
+    assert new.count(PLAN_MARKER) == 1
+    assert plan_body.verify_readback(body, new) == []
+
+
+def test_a_plan_marker_that_survives_outside_the_filled_sections_is_not_doubled():
+    body = make_body({"priority": "empty"}).replace(
+        "## Fix approach\n", f"## Fix approach\n{PLAN_MARKER}\n", 1
+    )
+    new = build_plan_body(body, {"priority": DRAFTED["priority"]})
+    assert new.count(PLAN_MARKER) == 1
+    assert plan_body.verify_readback(body, new) == []
+
+
+@pytest.mark.parametrize(
+    ("case", "state", "block"),
+    [
+        ("heading only", "absent", "## Test plan"),
+        ("heading and a comment", "absent", "## Test plan\n\n<!-- a note -->"),
+        ("a comment only", "empty", "<!-- a note -->"),
+        ("a comment only, placeholder", "placeholder", "<!-- a note -->\n"),
+    ],
+)
+def test_a_drafted_block_with_no_text_is_refused_before_anything_is_written(
+    case, state, block
+):
+    body = make_body({"test_plan": state})
+    with pytest.raises(PlanStop) as stop:
+        build_plan_body(body, {"test_plan": block})
+    assert stop.value.code == "E-WORKER-NO-OUTPUT", case
+    assert "no text under the heading" in stop.value.reason, case
+
+
 # --- a body that changes while the mode runs ---------------------------------------------
 
 
@@ -1909,6 +1950,8 @@ def test_remaining_flag_is_in_options_stop_rules_examples_and_the_skill_table():
         ("21 lines", "round: 2\n" + "".join(f"- c{i}\n" for i in range(21))),
         ("a 301 character line", "round: 2\n- " + "x" * 299 + "\n"),
         ("a line that is not a criterion", "round: 2\nnot a list item\n"),
+        ("a dash and a space only", "round: 2\n- \n"),
+        ("a blank criterion among others", "round: 2\n- a\n-   \n"),
     ],
 )
 def test_a_bad_remaining_file_is_a_stop_and_nothing_is_read_or_written(

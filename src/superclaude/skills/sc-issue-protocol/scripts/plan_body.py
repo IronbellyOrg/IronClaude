@@ -189,6 +189,8 @@ def plan_block_problems(
                 problems.append(f"{token}: an absent section needs its heading line")
         else:
             rest = [first, *rest]
+        if not _HTML_COMMENT.sub("", "\n".join(rest)).strip():
+            problems.append(f"{token}: no text under the heading")
         if any(ln.startswith(("## ", "<!-- sc:issue:")) for ln in rest):
             problems.append(f"{token}: a drafted line starts a heading or a marker")
     return problems
@@ -217,9 +219,13 @@ def build_plan_body(body: str, blocks: dict[str, str]) -> str | None:
         raise PlanStop("E-WORKER-NO-OUTPUT", "; ".join(problems))
     nl = _nl(body)
     lines = body.splitlines(keepends=True)
-    marker = [] if PLAN_MARKER in body else [PLAN_MARKER + nl]
     first = needed[0]
     in_place = [t for t in needed if states[t] != "absent"]
+    # The marker is added unless one survives outside the sections that are replaced
+    # (a section reset to empty may still hold its old marker, which the fill deletes).
+    replaced = {i for t in in_place for i in range(*plan_section_span(body, t)[1:])}
+    survivors = "".join(ln for i, ln in enumerate(lines) if i not in replaced)
+    marker = [] if PLAN_MARKER in survivors else [PLAN_MARKER + nl]
     for token in sorted(
         in_place, key=lambda t: plan_section_span(body, t)[1], reverse=True
     ):
@@ -350,7 +356,10 @@ def parse_remaining_file(path):
         raise PlanStop(
             "E-REMAINING-FILE", f"1 to {MAX_CRITERIA} criterion lines needed"
         )
-    if any(not ln.startswith("- ") or len(ln) > MAX_LINE for ln in items):
+    if any(
+        not ln.startswith("- ") or not ln[2:].strip() or len(ln) > MAX_LINE
+        for ln in items
+    ):
         raise PlanStop(
             "E-REMAINING-FILE", f"each line is `- <criterion>` of at most {MAX_LINE}"
         )
