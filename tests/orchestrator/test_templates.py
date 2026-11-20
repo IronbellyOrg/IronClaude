@@ -563,7 +563,7 @@ def test_no_template_names_another_primitive_through_a_src_path(name):
 @pytest.mark.parametrize("name", NAMES)
 def test_no_template_has_a_dash_or_a_secret(name):
     text = read(name)
-    assert "—" not in text and "–" not in text
+    assert not re.search("[\\u2013\\u2014]", text)
     assert not re.search(
         r"ghp_|github_pat_|sk-[A-Za-z0-9]{10,}|AKIA[0-9A-Z]{8}|BEGIN [A-Z ]*PRIVATE KEY",
         text,
