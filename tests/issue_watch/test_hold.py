@@ -965,6 +965,30 @@ def test_a_plan_request_that_finds_no_session_counts_as_a_try_and_waits_for_the_
     )  # never a fourth try
 
 
+def test_a_plan_request_whose_session_cannot_even_spawn_ends_abandoned_and_is_not_retried(
+    tmp_path, tmp_state, gh_world
+):
+    world = due_world(gh_world, tmp_path, tmp_state)
+    waker = FakeWaker(wake.WakeOutcome("spawn_error", "spawn_error"))
+    quiet_run(world, tmp_path, tmp_state, 60, waker=waker)
+    assert tmp_state.load().holds[K5].plan_request == "abandoned"
+    quiet_run(world, tmp_path, tmp_state, 11, waker=waker)
+    assert len(waker.deliveries) == 1
+
+
+def test_a_hold_ended_by_hand_in_the_cycle_its_lease_expires_sends_no_resend(
+    tmp_path, tmp_state, gh_world
+):
+    world = due_world(gh_world, tmp_path, tmp_state)
+    waker = FakeWaker()
+    quiet_run(world, tmp_path, tmp_state, 60, waker=waker)  # the plan request goes out
+    assert len(waker.deliveries) == 1
+    world.issues[(REPO_A, 5)].labels.clear()  # a person removes the label
+    quiet_run(world, tmp_path, tmp_state, 11, waker=waker)  # lease over, same cycle
+    assert tmp_state.load().holds[K5].state == "hand_removed"
+    assert len(waker.deliveries) == 1
+
+
 def test_a_plan_request_wake_file_matches_the_golden_item_and_the_title_has_no_control_characters(
     tmp_path, tmp_state, gh_world
 ):

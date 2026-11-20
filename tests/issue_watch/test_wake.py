@@ -604,7 +604,9 @@ def ok(payload):
     return result(stdout=json.dumps(payload))
 
 
-def waker_for(fake_runner, tmp_path, script, *, live_tag=TAG, launcher=None):
+def waker_for(
+    fake_runner, tmp_path, script, *, live_tag=TAG, launcher=None, monotonic=None
+):
     root = fake_proc(
         tmp_path / "proc",
         {
@@ -615,7 +617,8 @@ def waker_for(fake_runner, tmp_path, script, *, live_tag=TAG, launcher=None):
         },
     )
     runner = fake_runner(script)
-    return wake.Waker(runner, launcher, proc_root=root), runner
+    extra = {} if monotonic is None else {"monotonic": monotonic}
+    return wake.Waker(runner, launcher, proc_root=root, **extra), runner
 
 
 def target(run_id="run_1", tier="tier1b"):
@@ -709,6 +712,25 @@ def test_a_screen_read_with_no_text_draft_field_is_not_an_empty_draft(
     missing[screen_argv()] = ok({"ok": True, "result": {"terminal": {"tail": ["$ "]}}})
     waker, runner = waker_for(fake_runner, tmp_path / "b", missing)
     assert waker.deliver(ORCA, target(), WID, NOW, 30).typed is False
+
+
+def test_a_delivery_starts_no_stage_after_its_allowance_is_used(fake_runner, tmp_path):
+    # the allowance is 30 s: after the mailbox the clock is already past it
+    ticks = iter([0.0, 40.0, 41.0, 42.0, 43.0])
+    waker, runner = waker_for(
+        fake_runner, tmp_path, idle_script(), monotonic=lambda: next(ticks)
+    )
+    out = waker.deliver(ORCA, target(), WID, NOW, 30)
+    assert (out.kind, out.detail, out.typed) == ("woken", "deadline", False)
+    assert LIST not in runner.argvs() and send_argv() not in runner.argvs()
+    # time runs out between the idle check and the typed line: nothing is typed
+    ticks = iter([0.0, 1.0, 2.0, 3.0, 28.0])
+    waker, runner = waker_for(
+        fake_runner, tmp_path / "b", idle_script(), monotonic=lambda: next(ticks)
+    )
+    out = waker.deliver(ORCA, target(), WID, NOW, 30)
+    assert (out.kind, out.detail, out.typed) == ("woken", "deadline", False)
+    assert wait_argv() in runner.argvs() and send_argv() not in runner.argvs()
 
 
 def test_a_busy_session_is_not_typed_to(fake_runner, tmp_path):
@@ -872,8 +894,10 @@ def test_a_missing_session_is_started_with_the_orchestrator_tier_and_then_typed_
         live_tag="other",
         launcher=launcher,
     )
-    out = waker.deliver(ORCA, target(tier="tier1b"), WID, NOW, 30)
-    assert launcher.calls == [(ORCA, WORKSPACE, TAG, "tier1b", 30)]
+    out = waker.deliver(ORCA, target(tier="tier1b"), WID, NOW, 120)
+    ((orca, workspace, tag, tier, allowance),) = launcher.calls
+    assert (orca, workspace, tag, tier) == (ORCA, WORKSPACE, TAG, "tier1b")
+    assert 119 < allowance <= 120  # what is left of the delivery's allowance
     assert (out.kind, out.started, out.tier, out.fallback_from, out.typed) == (
         "woken",
         True,
@@ -896,7 +920,7 @@ def test_a_tier_the_user_may_not_use_falls_once_and_the_fallback_is_reported(
         live_tag="other",
         launcher=launcher,
     )
-    out = waker.deliver(ORCA, target(tier="tier1b"), WID, NOW, 30)
+    out = waker.deliver(ORCA, target(tier="tier1b"), WID, NOW, 120)
     assert (launcher.calls[0][3], out.tier, out.fallback_from) == (
         "tier2",
         "tier2",
@@ -963,7 +987,7 @@ def test_a_new_session_that_is_still_loading_is_unknown_and_found_live_next_time
     waker, runner = waker_for(
         fake_runner, tmp_path, script, live_tag="other", launcher=launcher
     )
-    out = waker.deliver(ORCA, target(), WID, NOW, 30)
+    out = waker.deliver(ORCA, target(), WID, NOW, 120)  # the production allowance
     assert (out.kind, out.detail, out.started) == ("unknown", "starting", True)
     assert send_argv("term_new-0001") not in runner.argvs()
 

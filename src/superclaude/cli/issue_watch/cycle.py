@@ -1314,8 +1314,10 @@ class _Cycle:
         resend_entries = [
             self.doc.entries[k] for k in self.resend_keys if k in self.doc.entries
         ]
-        plan_resends = [
-            (k, self.doc.holds[k]) for k in self.plan_resend_keys if k in self.doc.holds
+        plan_resends = [  # a hold the hold step ended this cycle (label removed by hand) sends nothing
+            (k, self.doc.holds[k])
+            for k in self.plan_resend_keys
+            if k in self.doc.holds and self.doc.holds[k].state == "held"
         ]
         s1_by_key = {r.key: r for r in self.s1}
         if self.dry_run:

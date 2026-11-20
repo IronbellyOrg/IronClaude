@@ -62,6 +62,8 @@ INFO_KINDS = ("issue", "pull_request")
 MISSING_TOKENS = ("priority", "fix_approach", "test_plan")
 RECEIPT_STAGES = ("input_accepted", "turn_started")
 FRESH_OUTPUT_SECONDS = 60
+DELIVERY_FLOOR_S = 5.0
+"""A delivery stage does not start with fewer seconds than this left of the delivery's allowance."""
 """A session with output newer than this is busy (DQ2, ``orca_term.py:13``)."""
 
 WAKES_DIR = ".orchestrator/wakes"
@@ -690,6 +692,7 @@ class Waker:
     ) -> None:
         self._runner = runner
         self._proc_root = proc_root
+        self._monotonic = monotonic
         self._launcher = launcher or launch.OrcaLauncher(
             runner,
             lambda: claude_processes(proc_root),
@@ -768,24 +771,40 @@ class Waker:
             return "fresh_output"
         return None
 
-    def _idle(self, orca: str, handle: str, wait_ms: int = 4000) -> bool:
-        """True when the agent's interface is idle; a timeout or error counts as not idle."""
+    def _idle(
+        self, orca: str, handle: str, wait_ms: int = 4000, limit: float | None = None
+    ) -> bool:
+        """True when the agent's interface is idle; a timeout or error counts as not idle.
+
+        ``limit`` is the seconds the delivery has left: the wait and the call stay inside it.
+        """
+        seconds = wait_ms / 1000 + 30
+        if limit is not None:
+            wait_ms = min(wait_ms, max(1000, int((limit - 1) * 1000)))
+            seconds = min(seconds, limit)
         res = self._orca(
             [orca, "terminal", "wait", "--terminal", handle, "--for", "tui-idle",
              "--timeout-ms", str(wait_ms), "--json"],
-            wait_ms / 1000 + 30,
+            seconds,
         )  # fmt: skip
         return bool(_find(res, "satisfied")) if res is not None else False
 
     def _type_line(
-        self, orca: str, handle: str, wake_id: str
+        self, orca: str, handle: str, wake_id: str, limit: float | None = None
     ) -> tuple[bool, tuple[str, ...]]:
-        """Type ``/sc:orchestrator --wake <id>``; ``(accepted, stages)``."""
+        """Type ``/sc:orchestrator --wake <id>``; ``(accepted, stages)``.
+
+        ``limit`` is the seconds the delivery has left; the call and its submit wait stay inside it.
+        """
         line = launch.build_wake_line(wake_id)
+        submit, seconds = 15, 75.0
+        if limit is not None:
+            seconds = min(seconds, limit)
+            submit = max(1, min(submit, int(limit) - 2))
         res = self._orca(
             [orca, "terminal", "send", "--terminal", handle, "--text", line,
-             "--enter", "--wait-submit", "15", "--json"],
-            75,
+             "--enter", "--wait-submit", str(submit), "--json"],
+            seconds,
         )  # fmt: skip
         if res is None:
             return False, ()
@@ -835,6 +854,18 @@ class Waker:
         """
         if not isinstance(wake_id, str) or WAKE_ID_PATTERN.fullmatch(wake_id) is None:
             raise ValueError("wake_id must match the wake id pattern")
+        # ``timeout`` bounds the whole delivery (cycle.LAUNCH_TIMEOUT_S: the session start
+        # and one wake send): every stage gets only what is left of it.
+        end = self._monotonic() + timeout
+
+        def left() -> float | None:
+            rest = end - self._monotonic()
+            return rest if rest >= DELIVERY_FLOOR_S else None
+
+        def out_of_time(**fields: object) -> WakeOutcome:
+            kind = "woken" if mailbox == "sent" else "unknown"
+            return WakeOutcome(kind, "deadline", mailbox, **fields)  # type: ignore[arg-type]
+
         mailbox = "skipped"
         if target.run_id is not None:
             mailbox = (
@@ -842,7 +873,10 @@ class Waker:
                 if self._mailbox(orca, target.run_id, wake_id, timeout)
                 else "unavailable"
             )
-        live = self.find_session(orca, target.workspace, target.tag, timeout)
+        budget = left()
+        if budget is None:
+            return out_of_time()
+        live = self.find_session(orca, target.workspace, target.tag, budget)
         if live is None:
             return WakeOutcome("unknown", "terminal_list", mailbox)
         started = False
@@ -850,14 +884,23 @@ class Waker:
         fallback: str | None = None
         if live:
             handle = live[0]["handle"]
-            unsafe = self._unsafe(orca, live[0], now, timeout)
-            if unsafe is not None or not self._idle(orca, handle):
+            budget = left()
+            if budget is None:
+                return out_of_time()
+            unsafe = self._unsafe(orca, live[0], now, budget)
+            budget = left()
+            if budget is None:
+                return out_of_time()
+            if unsafe is not None or not self._idle(orca, handle, limit=budget):
                 kind = "woken" if mailbox == "sent" else "unknown"
                 return WakeOutcome(kind, unsafe or "busy", mailbox)
         else:
             if not start_session:
                 return WakeOutcome("no_session", "not_started", mailbox)
-            listed = repos.listed_tiers(self._runner, timeout)
+            budget = left()
+            if budget is None:
+                return out_of_time()
+            listed = repos.listed_tiers(self._runner, budget)
             if listed is None:
                 return WakeOutcome("no_session", "tiers_unreadable", mailbox)
             tier, fallback = repos.resolve_tier(target.tier, listed)
@@ -865,8 +908,11 @@ class Waker:
                 return WakeOutcome(
                     "no_session", "no_tier", mailbox, fallback_from=fallback
                 )
+            budget = left()
+            if budget is None:
+                return out_of_time(tier=tier, fallback_from=fallback)
             outcome = self._launcher.start(
-                orca, target.workspace, target.tag, tier, timeout
+                orca, target.workspace, target.tag, tier, budget
             )
             if outcome.kind == "spawn_error":
                 return WakeOutcome(
@@ -887,7 +933,10 @@ class Waker:
             started = True
             handle = outcome.handle
             # A new Claude may still be loading; a later attempt finds it live.
-            if not self._idle(orca, handle, wait_ms=90000):
+            budget = left()
+            if budget is None or not self._idle(
+                orca, handle, wait_ms=90000, limit=budget
+            ):
                 return WakeOutcome(
                     "unknown",
                     "starting",
@@ -896,7 +945,10 @@ class Waker:
                     tier=tier,
                     fallback_from=fallback,
                 )
-        accepted, stages = self._type_line(orca, handle, wake_id)
+        budget = left()
+        if budget is None:
+            return out_of_time(started=started, tier=tier, fallback_from=fallback)
+        accepted, stages = self._type_line(orca, handle, wake_id, limit=budget)
         kind = "woken" if accepted or mailbox == "sent" else "unknown"
         return WakeOutcome(
             kind,
