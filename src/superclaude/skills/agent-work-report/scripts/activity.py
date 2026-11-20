@@ -140,25 +140,27 @@ def pr_state(url):
 
 def clickup_lines(t, comments):
     lines = [
-        f"- ClickUp task {t['url']}: {clean(t['boards'][0]['status'])}; assignees "
-        f"{clean(', '.join(t['assignees'])) or 'none'}; updated {when_local(t['updated'])}; its title:",
-        quote(t["title"], BODY),
+        f"- ClickUp task {t['url']}, updated {when_local(t['updated'])}; its title, status and assignees:",
+        quote(
+            f"{t['title']} (status {t['boards'][0]['status']}; assignees {', '.join(t['assignees']) or 'none'})",
+            BODY,
+        ),
     ]
     for c in comments.get(t["url"], [])[-MAX_EVENTS:]:
         lines.append(
-            f"- {when_local(c['date'])} comment by {clean(c['from'])}{' (mentions you)' if c['mentions_you'] else ''}:"
+            f"- {when_local(c['date'])} comment{' (mentions you)' if c['mentions_you'] else ''}:"
         )
-        lines.append(quote(c["text"], BODY))
+        lines.append(quote(f"{c['from']} wrote: {c['text']}", BODY))
     return lines
 
 
 def session_lines(s):
     f = s["since_previous_report"]
     lines = [
-        f"- Agent session orca://session/{s['session_id']}, branch {clean(s['branch']) or 'none'}: "
+        f"- Agent session orca://session/{s['session_id']}: "
         f"Claude {'running' if s['claude_running'] else 'not running'}, {f['events']} events since the previous "
-        f"report, last activity {when_local(s.get('last_event'))}; its title:",
-        quote(s["title"], 80),
+        f"report, last activity {when_local(s.get('last_event'))}; its title and branch:",
+        quote(f"{s['title'][:80]} (branch {s['branch'] or 'none'})"),
     ]
     for p in f["prompts"][-3:]:
         lines += [f"  - you asked {when_local(p['time'])}:", quote(p["text"], 300)]
@@ -255,10 +257,12 @@ def main(run):
     chat = ["## ClickUp messages to you", ""]
     for m in cu_events["chat"]:
         chat.append(
-            f"- {when_local(m['date'])} from {clean(m.get('from') or m.get('from_user_id'))}"
+            f"- {when_local(m['date'])} message"
             f"{' (tags you)' if m.get('mentions_you') else ''}:"
         )
-        chat.append(quote(m["text"], BODY))
+        chat.append(
+            quote(f"{m.get('from') or m.get('from_user_id')} wrote: {m['text']}", BODY)
+        )
     if len(chat) == 2:
         chat.append("- none since the previous report")
     (run / "activity.md").write_text(

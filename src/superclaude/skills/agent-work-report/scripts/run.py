@@ -528,9 +528,16 @@ def entry_record(url, e, key, info, base_started):
             {
                 "session_id": sid,
                 "url": SESSION_URL + sid,
-                "title": (orch.get("tag") or orch.get("id") or "orchestrator")
-                if is_orch
-                else (worker.get("title") or f"worker for {key}"),
+                "title": (
+                    (orch.get("tag") or orch.get("id") or "orchestrator")
+                    if is_orch
+                    else (worker.get("title") or f"worker for {key}")
+                )
+                + (
+                    f" ({(orch if is_orch else worker)['tier']})"
+                    if (orch if is_orch else worker).get("tier")
+                    else ""
+                ),
                 "branch": "" if is_orch else (worker.get("branch") or ""),
                 "claude_running": str(statuses.get(sid, "")).startswith("working"),
                 "last_event": e.get("last_update") or "",

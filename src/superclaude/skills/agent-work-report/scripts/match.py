@@ -34,6 +34,18 @@ BRANCH_NUMBER = re.compile(r"(?:^|/)(?:issue-?|gh-?)?(\d{1,6})(?=[-_/]|$)")
 BRANCH_CU = re.compile(r"\bCU-([0-9a-z]+)(?![0-9a-z])", re.I)
 GITHUB = "https://github.com/"
 SHARED_BRANCHES = {"main", "master", "develop", "dev"}
+# The fields of a ClickUp item that task_facts (the task as listed under a GitHub item) does not carry.
+TASK_BASE = {
+    "source": "clickup",
+    "org": "ClickUp",
+    "repo": "ClickUp",
+    "kind": "task",
+    "comments": 0,
+    "draft": None,
+    "review_requests": [],
+    "closes": [],
+    "involves_person": True,
+}
 
 
 def task_facts(t):
@@ -172,6 +184,26 @@ def main(run):
                 for t in it.get("clickup", []):
                     by_task_id.setdefault(t["number"].lower(), t)
                     merged.setdefault(t["url"], url)
+        # A task that was listed under an issue the orchestrator now holds (exclude.py removed the issue from
+        # this run) would vanish with it: it stays listed as an item of its own, as it would if ClickUp were read.
+        held = {u.lower() for u in read_json(run / "excluded.json", [])}
+        for url, it in prev_items.items():
+            if url.lower() not in held:
+                continue
+            for t in it.get("clickup", []):
+                if t["url"] in items:
+                    continue
+                items[t["url"]] = dict(
+                    TASK_BASE,
+                    **t,
+                    clickup=[],
+                    sessions=[],
+                    carried=True,
+                    matched_by=[
+                        "carried from the previous report: ClickUp not read this run, and its issue is held by the orchestrator"
+                    ],
+                )
+                by_task_id.setdefault(t["number"].lower(), t)
 
     def resolve(url):
         url = merged.get(url, url)
