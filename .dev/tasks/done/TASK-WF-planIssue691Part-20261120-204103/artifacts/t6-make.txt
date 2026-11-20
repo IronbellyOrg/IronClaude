@@ -1,0 +1,4 @@
+# T6 make results (run from the repository root, 2026-11-20T21:06:35Z)
+make sync-dev: exit 0; last line:    Templates: 52 files
+make verify-sync: exit 0; last line: ✅ All components in sync.
+make lint: exit 0; last line: All checks passed!

@@ -1,0 +1,13 @@
+# bash .dev/issues/442/scripts/selftest.sh, tail (exit status 0; FAIL lines: 0; OK lines: 451)
+OK quotes-check-can-fail
+OK sec6-every-line-cited
+OK result-file-cited
+OK gov-no-terminal-list
+OK rb-terminal-list-only-as-removed
+OK gov-no-screen-parse
+OK anchor-session-a
+OK anchor-filters
+OK anchor-filters-end
+OK anchor-session-b
+OK anchor-section-3
+SELFTEST_OK

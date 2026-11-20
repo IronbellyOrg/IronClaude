@@ -1,0 +1,7 @@
+# T6 negative check: the new runbook-selftest.sh run against the pre-change runbook and session-gov.sh (git show HEAD:..., HEAD=1a6c8723f) in a temporary copy of the folder
+exit status: 3 (non-zero means the new checks fail on the old text)
+failing cases:
+  - gov-no-screen-parse
+  - gov-no-terminal-list
+  - result-file-cited
+OK count: 19; FAIL count: 3
