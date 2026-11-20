@@ -1651,6 +1651,8 @@ class _Cycle:
         cfg = self.deps.config
         registry: route.Registry = self._registry
         for w, ident in wakes:
+            if self.deps.store.disabled():  # the kill switch stops every delivery
+                raise _Stop("disabled_mid_cycle")  # the rest stay ``pending``
             if not self.deadline.launch_allowed():
                 break  # the rest stay ``pending`` and are sent next cycle as orphans
             timeout = self.deadline.timeout_for(LAUNCH_TIMEOUT_S)

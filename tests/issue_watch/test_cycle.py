@@ -1030,6 +1030,23 @@ def test_the_account_id_check_the_kill_switch_and_the_enabled_flag(
     assert run(gh_world(), tmp_path, tmp_state).reason == "disabled"
 
 
+def test_the_kill_switch_made_during_a_delivery_stops_the_next_one(
+    tmp_path, tmp_state, gh_world
+):
+    world = gh_world()
+    world.issue(REPO_A, 5)
+    world.issue(REPO_B, 12)  # a second repo: a second orchestrator, a second wake
+    waker = FakeWaker(
+        on_deliver=lambda target, wake_id: (
+            tmp_state.state_dir / "DISABLED"
+        ).write_text("")
+    )
+    res = run(world, tmp_path, tmp_state, waker=waker)
+    assert len(waker.deliveries) == 1 and res.reason == "disabled_mid_cycle"
+    states = sorted(e.state for e in tmp_state.load().entries.values())
+    assert states == ["pending", "woken"]  # the undelivered one is sent when re-enabled
+
+
 def test_a_bad_repos_file_stops_the_cycle_with_exit_2(tmp_path, tmp_state, gh_world):
     world = gh_world()
     (world.config.orchestrator_repo / "repos.yaml").write_text("schema_version: 9\n")
