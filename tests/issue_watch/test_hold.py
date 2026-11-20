@@ -989,6 +989,31 @@ def test_a_hold_ended_by_hand_in_the_cycle_its_lease_expires_sends_no_resend(
     assert len(waker.deliveries) == 1
 
 
+def test_a_backlog_label_added_while_a_plan_request_waits_sends_no_resend(
+    tmp_path, tmp_state, gh_world
+):
+    world = due_world(gh_world, tmp_path, tmp_state)
+    waker = FakeWaker()
+    quiet_run(world, tmp_path, tmp_state, 60, waker=waker)
+    assert len(waker.deliveries) == 1
+    world.issues[(REPO_A, 5)].labels.append("hold:backlog")  # deferred by the user
+    quiet_run(world, tmp_path, tmp_state, 11, waker=waker)  # the lease is over
+    assert len(waker.deliveries) == 1
+
+
+def test_a_rate_limited_evidence_read_stops_the_cycle_and_persists_the_backoff(
+    tmp_path, tmp_state, gh_world
+):
+    world = due_world(gh_world, tmp_path, tmp_state)
+    world.fail("develop", "rate", key=(REPO_A, 5), times=1)
+    waker = FakeWaker()
+    res = quiet_run(world, tmp_path, tmp_state, 60, waker=waker)
+    assert res.exit_code == 5 and res.reason in ("rate_limited", "rate_limit_clamped")
+    doc = tmp_state.load()
+    assert doc.next_permitted_at is not None and doc.rate_streak == 1
+    assert waker.deliveries == []
+
+
 def test_a_plan_request_wake_file_matches_the_golden_item_and_the_title_has_no_control_characters(
     tmp_path, tmp_state, gh_world
 ):

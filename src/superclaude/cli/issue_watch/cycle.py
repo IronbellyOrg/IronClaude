@@ -1145,6 +1145,14 @@ class _Cycle:
         self._decision("held_incomplete", row.repo, row.number)
         return "skip"
 
+    def _read_failed(self, read: github.Read) -> bool:
+        """True when an evidence read failed and the request waits; a rate limit stops the cycle."""
+        if read.reason is None:
+            return False
+        if read.kind == "rate_limited":
+            raise self._rate_stop()
+        return True
+
     def _evidence(self, row: DiscoveredIssue, h: Hold, now: datetime) -> Hold | None:
         """E2 to E4, read once at the moment the request would go out (4.11 point 5).
 
@@ -1155,17 +1163,17 @@ class _Cycle:
         found = github.linked_branches(
             d.runner, self.budget, row.repo, row.number, self._tf
         )
-        if found.reason is not None:
+        if self._read_failed(found):
             return None
         for name in found.value[:MAX_EVIDENCE_BRANCHES]:  # type: ignore[index]
             when = github.branch_date(d.runner, self.budget, row.repo, name, self._tf)
-            if when.reason is not None:
+            if self._read_failed(when):
                 return None
             h = hold.with_evidence(h, when.value, "branch")  # type: ignore[arg-type]
         stamp = github.timeline_evidence(
             d.runner, self.budget, row.repo, row.number, self._tf
         )
-        if stamp.reason is not None:
+        if self._read_failed(stamp):
             return None
         if stamp.value is not None:
             h = hold.with_evidence(h, stamp.value, "pull_request")  # type: ignore[arg-type]
@@ -1508,7 +1516,11 @@ class _Cycle:
                 continue
             row = s1_by_key.get(key)
             h = doc.holds[key]
-            if row is None or h.plan_requested_at is None:
+            if (
+                row is None
+                or h.plan_requested_at is None
+                or predicates.BACKLOG_LABEL in row.labels  # deferred since the request
+            ):
                 continue
             bucket(ident)["plans"].append(
                 wake.PlanRequestItem(
