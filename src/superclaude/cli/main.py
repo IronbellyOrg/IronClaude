@@ -591,5 +591,9 @@ from superclaude.cli.observe.commands import observe_group  # noqa: E402,I001  #
 
 main.add_command(observe_group, name="observe")
 
+from superclaude.cli.orchestrator import orchestrator_group  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports
+
+main.add_command(orchestrator_group, name="orchestrator")
+
 if __name__ == "__main__":
     main()
