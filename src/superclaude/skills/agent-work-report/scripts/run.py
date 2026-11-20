@@ -467,7 +467,12 @@ def move_to_closed(path, entry, reason):
     file is written beside its destination and put in place with `os.replace`, which never follows a link."""
     base = orchestrated_dir()
     closed = base / "closed"
-    if closed.is_symlink() or (closed / path.name).is_symlink() or path.is_symlink():
+    if (
+        base.is_symlink()
+        or closed.is_symlink()
+        or (closed / path.name).is_symlink()
+        or path.is_symlink()
+    ):
         raise CommandError(f"{path.name}: a symlink is in the way of closed/")
     closed.mkdir(parents=True, exist_ok=True)
     if closed.resolve().parent != base.resolve():

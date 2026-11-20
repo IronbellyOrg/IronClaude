@@ -308,6 +308,43 @@ def main(run):
                     f"{len(old)} {label} carried from the previous report: not read this run"
                 )
 
+    # A session that was listed under an issue the orchestrator now holds, with no ClickUp task to follow, stays
+    # an item of its own while sessions are not read (the orchestrator's own sessions are in `held`).
+    if not read_json(run / "sessions-status.json", {}).get("read"):
+        placed = {s["url"].lower() for it in items.values() for s in it["sessions"]}
+        for url, prev_it in prev_items.items():
+            if url.lower() not in held:
+                continue
+            for x in prev_it.get("sessions", []):
+                if x["url"].lower() in held | placed or x["url"] in items:
+                    continue
+                items[x["url"]] = {
+                    "source": "session",
+                    "org": "Orca",
+                    "repo": x.get("repo") or "no repository",
+                    "kind": "session",
+                    "number": x["session_id"],
+                    "title": x["title"],
+                    "url": x["url"],
+                    "author": CONFIG["person"],
+                    "assignees": [CONFIG["person"]],
+                    "labels": [],
+                    "created": "",
+                    "updated": x.get("last_event") or "",
+                    "comments": 0,
+                    "draft": None,
+                    "review_requests": [],
+                    "closes": [],
+                    "involves_person": True,
+                    "boards": [],
+                    "clickup": [],
+                    "sessions": [dict(x, carried=True)],
+                    "matched_by": [
+                        "carried from the previous report: sessions not read this run, and its issue is held by the orchestrator"
+                    ],
+                    "carried": True,
+                }
+
     out = sorted(items.values(), key=lambda i: i["url"])
     write_json(run / "items.json", out)
     write_json(run / "merged-into.json", merged)

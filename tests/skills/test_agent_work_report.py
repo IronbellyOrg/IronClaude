@@ -3999,3 +3999,50 @@ def test_titles_other_people_wrote_are_plain_short_lines_in_the_writing_sheet(ro
     )  # one line, flattened
     assert not any(ln.startswith("## System") for ln in text.splitlines())
     assert common.safe_title("a\tb\nc") == "a b c"
+
+
+def test_a_symlinked_entry_folder_is_not_read_pruned_or_closed_into(
+    root, monkeypatch, capsys
+):
+    outside = root / "outside"
+    outside.mkdir()
+    old = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    stale = outside / "old.json"
+    stale.write_text(json.dumps({"last_update": old, "url": f"{U}issues/9"}))
+    base = root / ".dev" / "coordinator" / "orchestrated"
+    base.mkdir(parents=True)
+    (base / "info").symlink_to(outside)
+    fake_gh(monkeypatch, {})
+    runmod.refresh()
+    assert stale.exists()  # the info/ link was not followed by the pruning
+    assert "symlink" in capsys.readouterr().err
+    # A symlinked orchestrated/ folder: nothing in it is read and nothing is written into it.
+    (base / "info").unlink()
+    base.rmdir()
+    target = root / "elsewhere"
+    target.mkdir()
+    (target / "IronbellyOrg__Coder__1.json").write_text(json.dumps(held_entry(1)))
+    base.symlink_to(target)
+    assert common.entry_files() == {}
+    with pytest.raises(common.CommandError):
+        runmod.move_to_closed(
+            base / "IronbellyOrg__Coder__1.json", held_entry(1), "COMPLETED"
+        )
+    assert not (target / "closed").exists()
+
+
+def test_a_session_under_a_claimed_issue_with_no_task_stays_an_item_when_sessions_are_not_read(
+    root,
+):
+    first = stub(root, [item(1, assignees=[ME])], sess=[sess("s2", "1-start")])
+    fill(first)
+    approve(first)
+    runmod.close_run(first)
+    put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))  # holds the issue, not s2
+    f = new_run(root, [item(1, assignees=[ME])])  # sessions are not read
+    items = {i["url"]: i for i in json.loads((f / "items.json").read_text())}
+    s2 = items["orca://session/s2"]
+    assert s2["carried"] and s2["source"] == "session" and s2["sessions"][0]["carried"]
+    compare.main(f)  # the later steps accept it
+    render.main(f)
+    assert "orca://session/s2" in (f / "overview.md").read_text()

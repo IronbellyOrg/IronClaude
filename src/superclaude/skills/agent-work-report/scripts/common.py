@@ -166,6 +166,10 @@ def entry_files(folder=None):
     `info/` folders below it are not read). A file that does not parse is named on stderr and left out."""
     folder = Path(folder) if folder else orchestrated_dir()
     found = {}
+    if folder.is_symlink() or orchestrated_dir().is_symlink():
+        # A link could lead out of the coordinator state: nothing in it is read, closed or deleted.
+        print(f"entry folder {folder.name} left out: it is a symlink", file=sys.stderr)
+        return found
     for p in sorted(folder.glob("*.json")) if folder.is_dir() else []:
         if p.is_symlink():  # a link could point at any file on the host
             print(f"entry file {p.name} left out: it is a symlink", file=sys.stderr)
