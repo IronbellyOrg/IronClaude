@@ -183,12 +183,22 @@ def _write_atomic(path, text):
 
 def _write_new(path, data):
     """Exclusive create (never overwrites)."""
-    if isinstance(data, bytes):
-        with open(path, "xb") as f:
+    binary = isinstance(data, bytes)
+    try:
+        f = open(
+            path, "xb" if binary else "x", **({} if binary else {"encoding": "utf-8"})
+        )
+    except FileExistsError:
+        raise  # not ours: never remove it
+    try:
+        with f:
             f.write(data)
-    else:
-        with open(path, "x", encoding="utf-8") as f:
-            f.write(data)
+    except BaseException:
+        try:  # the file is ours (just created); do not leave a partial one
+            os.unlink(path)
+        except OSError:
+            pass
+        raise
 
 
 def _parse_counts(text):
@@ -441,7 +451,6 @@ def archive(root, package, superseded_by):
         )
     os.makedirs(dst.parent, exist_ok=True)
     _move(helper, src, dst)  # first mutation; fails closed with nothing moved
-    undo_created = False
     try:
         if made_artifacts:
             os.mkdir(dst / "artifacts")
@@ -451,7 +460,6 @@ def archive(root, package, superseded_by):
             "ops": undo_ops,
         }
         _write_new(dst / "artifacts" / UNDO_NAME, json.dumps(record) + "\n")
-        undo_created = True
         _write_atomic(dst / "return-contract.yaml", new_text)
     except Exception as exc:
         try:  # best effort: put the package back untouched
@@ -459,7 +467,8 @@ def archive(root, package, superseded_by):
                 for n in os.listdir(dst / "artifacts"):
                     os.unlink(dst / "artifacts" / n)
                 os.rmdir(dst / "artifacts")
-            elif undo_created and os.path.lexists(dst / "artifacts" / UNDO_NAME):
+            # absent before the move (checked above), so any such file is ours
+            elif os.path.lexists(dst / "artifacts" / UNDO_NAME):
                 os.unlink(dst / "artifacts" / UNDO_NAME)
             if created and os.path.lexists(dst / "return-contract.yaml"):
                 os.unlink(dst / "return-contract.yaml")
@@ -599,6 +608,12 @@ def place(root, old_id, new_id, copy_dir, finding_counts, review):
     if os.path.lexists(tasks / "to-do" / old_id) or not _real_dir(old):
         _fail("E-REMEDIATE-SOURCE", f"{old_id} must be archived before place")
     copy, rev = Path(copy_dir), Path(review)
+    if not os.path.lexists(rev):
+        # a report inside the old package was moved by archive: use its archived path
+        base = (tasks / "to-do" / old_id).parts
+        parts = Path(os.path.realpath(rev)).parts
+        if len(parts) > len(base) and parts[: len(base)] == base:
+            rev = old.joinpath(*parts[len(base) :])
     new_plan, new_source = copy / f"{new_id}.md", copy / "source.md"
     old_plan, old_source = old / f"{old_id}.md", old / "source.md"
     for f in (new_plan, new_source, old_plan, old_source, rev):

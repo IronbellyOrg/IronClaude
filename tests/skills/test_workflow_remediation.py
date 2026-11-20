@@ -688,6 +688,63 @@ def test_archive_rollback_deletes_only_undo_file_it_created(repo, monkeypatch):
     ).exists()  # the run's own file is removed
 
 
+def test_archive_rollback_removes_partial_undo_file_with_existing_artifacts(
+    repo, monkeypatch
+):
+    pkg = make_pkg(repo)
+    (pkg / "artifacts").mkdir()
+    (pkg / "artifacts" / "keep.txt").write_text("keep")
+    real = rm._write_new
+
+    def partial(path, data):
+        Path(path).write_text("par")  # created, then the write fails
+        raise OSError("disk full")
+
+    monkeypatch.setattr(rm, "_write_new", partial)
+    with pytest.raises(rm.RemediateError) as e:
+        rm.archive(repo, pkg, "none")
+    assert "rolled back" in e.value.msg
+    assert not (pkg / "artifacts" / rm.UNDO_NAME).exists()
+    monkeypatch.setattr(rm, "_write_new", real)
+    rm.archive(repo, pkg, "none")  # retry succeeds
+    assert (repo / ".dev/tasks/archive" / OLD).is_dir()
+
+
+def test_write_new_removes_its_partial_file_but_never_a_preexisting_one(tmp_path):
+    p = tmp_path / "f.txt"
+    with pytest.raises(TypeError):
+        rm._write_new(p, 123)  # open succeeds, write fails
+    assert not p.exists()
+    p.write_bytes(b"mine")
+    with pytest.raises(FileExistsError):
+        rm._write_new(p, "x")
+    assert p.read_bytes() == b"mine"
+
+
+def test_place_finds_review_inside_old_package_after_archive(repo):
+    pkg = make_pkg(repo)
+    (pkg / "artifacts").mkdir()
+    report = pkg / "artifacts" / "REPORT.md"
+    report.write_text("# inside\n")
+    new = rm.reserve(repo, OLD, now=STAMP)
+    _, copy = repaired_copy(repo, new=new)
+    rm.archive(repo, pkg, new)
+    assert not report.exists()
+    rm.place(repo, OLD, new, str(copy), COUNTS, str(report))
+    leaf = repo / ".dev/tasks/to-do" / new
+    assert (leaf / "artifacts/prior-findings.md").read_text() == "# inside\n"
+
+
+def test_place_still_fails_for_nonexistent_review_elsewhere(repo, tmp_path):
+    pkg = make_pkg(repo)
+    new = rm.reserve(repo, OLD, now=STAMP)
+    _, copy = repaired_copy(repo, new=new)
+    rm.archive(repo, pkg, new)
+    with pytest.raises(rm.RemediateError) as e:
+        rm.place(repo, OLD, new, str(copy), COUNTS, str(tmp_path / "nope.md"))
+    assert e.value.code == "E-REMEDIATE-SOURCE"
+
+
 def test_remediation_ref_coordinator_supplies_diff():
     ref = (_SKILL_DIR / "refs/remediation.md").read_text(encoding="utf-8")
     sec = ref.split("## 4. The re-review brief", 1)[1].split("## 5.", 1)[0]
