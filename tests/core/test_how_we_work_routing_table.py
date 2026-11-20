@@ -25,7 +25,6 @@ _OTHER_BEGIN, _OTHER_END = "<!-- other-commands:v1 -->", "<!-- /other-commands -
 
 # Additional operations and explicit coordination, not an Other-only namespace.
 _OTHER_COMMANDS = {
-    "sc:closeout",
     "sc:git",
     "sc:graph",
     "sc:impact",

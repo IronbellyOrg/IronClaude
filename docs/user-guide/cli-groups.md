@@ -18,11 +18,12 @@ This page lists every `superclaude` command group that 6.0.0 ships, what it is f
 | `sweep` | Read-only sweep of Orca Runs, worktrees and sessions. | [below](#superclaude-sweep) and `/sc:sweep` in the [commands reference](commands.md) |
 | `observe` | Read-only terminal observer for Orca workers. | [below](#superclaude-observe) |
 | `issue-watch` | Poll GitHub for approved issues and start one Orca claim session each. | [below](#superclaude-issue-watch), [design](../designs/issue-watcher.md) |
-| `review` | Deterministic helpers for document review loops. | [below](#superclaude-review), [review panel](../reference/review-panel-live7.md) |
+| `issue-pipeline` | Approval core for a coordinator-started plan-writing worker. | [below](#superclaude-issue-pipeline-and-superclaude-review) |
+| `review` | Deterministic helpers for document review loops. | [below](#superclaude-issue-pipeline-and-superclaude-review), [review panel](../reference/review-panel-live7.md) |
 
 The groups `prd`, `cleanup-audit`, `cli-portify`, `roadmap`, `tasklist` and `sprint` were removed in 6.0.0. `superclaude <group>` now answers "No such command"; see the [6.0.0 release notes](../releases/v6.0.0.md#command-line-groups-and-their-flags) for the replacements.
 
-`sweep`, `observe`, `issue-watch` and `review` are new since 5.0.0. The `issue-pipeline` group (the plan-approval gate) was removed with issue 655.
+`sweep`, `observe`, `issue-watch`, `issue-pipeline` and `review` are new since 5.0.0.
 
 ## `superclaude sweep`
 
@@ -76,8 +77,9 @@ superclaude issue-watch status --json
 
 The design and the setup steps are in [issue-watcher.md](../designs/issue-watcher.md) and [issue-watcher-setup.md](../designs/issue-watcher-setup.md).
 
-## `superclaude review`
+## `superclaude issue-pipeline` and `superclaude review`
 
-`review` has its own subcommands; `superclaude review <subcommand> --help` shows the options of each.
+Both have their own subcommands; `superclaude <group> <subcommand> --help` shows the options of each.
 
+- `issue-pipeline` is the approval core for a coordinator-started plan-writing worker. Its subcommands are `init`, `adopt-create`, `adopt-mark`, `check-approval`, `plan-hash`, `record-create`, `record-mark`, `record-show`, `release-worker` and `stage-status`.
 - `review` holds deterministic helpers for document review loops. Its subcommands are `cluster`, `fixcheck`, `ledger`, `manifest`, `merge`, `panel`, `safety-scan`, `telemetry` and `verify-citations`. The reviewer panel it resolves is described in [review-panel-live7.md](../reference/review-panel-live7.md).

@@ -100,7 +100,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 | `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
 | [`/sc:graph`](#scgraph---code-graph-index-status) | Code-graph index status; builds the index only on `init` | `graph.md` | Only with `init` |
 | [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt, then an Orca worktree and a launched agent) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
-| [`/sc:closeout`](#sccloseout---settle-a-merged-pull-request) | Settle a merged pull request: decide whether its issue is done, then settle the work report entry and the worker's Orca task | `closeout.md` | Yes (posts to GitHub: one note, then one close or one not-done note; updates the entry and the task) |
 | [`/sc:sweep`](#scsweep---read-only-run-worktree-and-session-report) | Read-only snapshot of a Run, its worktrees and person sessions | `sweep.md` | Report only (writes `.dev/sweeps/`) |
 | `/sc:recommend` | Paste-ready prompt for the right command | `recommend.md` | Report only (inside an IronClaude checkout it writes its cache and telemetry under `.claude/cache/`) |
 | `/sc:init-lite` | Safe audit of project-local context surfaces | `init-lite.md` | Report only |
@@ -367,51 +366,6 @@ It posts directly to GitHub, without showing the comment or the issue body for a
 The task is found by the issue URL in its description or a custom field, or else by `#<N>` in its title, and is assigned only when exactly one task matches. The ClickUp result appears in the claim comment and never stops the claim: `not found`, `ambiguous (<count> candidates)`, `already assigned` and `error (<reason>)` all leave the GitHub assignment in place. `error (page_cap)` means the search reached `CLICKUP_MAX_PAGES` before it saw every task, so nothing was assigned; raise `CLICKUP_MAX_PAGES` or set `CLICKUP_LIST_IDS` and claim again.
 
 **MCP servers:** auggie, codegraph
-
----
-
-### `/sc:closeout` - Settle a Merged Pull Request
-
-**When to use:** After a pull request merged on the repository that `origin` points at, whether the orchestrator merged it or a person did. The command checks that the pull request really merged, decides whether its issue is done, and settles three items: the issue, the work report entry and the worker's Orca task. Each item ends with a stated final status or an escalation that says why, so nothing is left silently in progress. It starts after a merge and never merges.
-
-**Syntax:**
-
-```
-/sc:closeout <PR> [--issue <N>] [--dispatch <id>] [--entry-key <key>]
-```
-
-**Options:**
-
-| Argument | Required | What it does |
-|----------|----------|--------------|
-| `<PR>` | yes | A pull request number (`661` or `#661`) or its URL on the origin repo; a URL for another repo is refused |
-| `--issue <N>` | no | The issue to settle, when the pull request names none or more than one |
-| `--dispatch <id>` | no | The worker's Dispatch id; used only to find the worker's task |
-| `--entry-key <key>` | no | The work report entry key; the default is `<owner>__<repo>__<issue number>` |
-
-There is no repository option (the repo is always `origin`), no dry-run option and no close option. A bad or missing argument, an unknown, repeated or value-less flag prints the usage and stops with no write.
-
-**What it does:**
-
-1. A script reads the pull request state first. Only a merged pull request goes on; any other state stops the run with nothing written. It also compares the files the pull request held with the files the merge changed, and never uses commit ancestry.
-2. The issue: the skill reads the issue's own criteria (Fix approach, Test plan, acceptance criteria or a "Done when" list) against what the pull request and its linked pull requests delivered, and writes a verdict. `done` closes the issue once, with a note that says why it is done, what merged and who merged it. `not_done` leaves it open with one short note of what remains and hands the unmet criteria back to the orchestrator in the result. A case it still cannot tell after investigating is escalated with one question for a person. The words `Fixes`, `Closes` and `Refs` in the pull request body are shown but decide nothing. An issue that is already closed is left alone, and an issue that a person reopened after the note is not closed again.
-3. The entry and the task: the entry is settled through the orchestrator's report command and the task is set to completed, each only after a read. Where the report command or the Orca Run is missing, that item says so and is escalated; it is not skipped.
-
-**What it writes:** one note on the issue and, for a done issue, one close; or one not-done note and no close. It updates the work report entry and the worker's Orca task when those exist. The skill's working files (an evidence file and a verdict file) live in a private temporary directory outside the checkout. It never edits or deletes a comment, never reopens an issue, and never stops, releases or messages a worker. It never writes the word "deployed": completed means merged.
-
-**The result:** one YAML block, printed last and also after a stop. It holds the verdict of the truth check, who merged, `status` (`complete`, `partial` or `stopped`), the status of the issue, the entry and the task, the unmet criteria when the issue is not done, and one fixed sentence for each escalation. People are credited by name; the agent and the model are never named.
-
-**Who may run it:** a person or the orchestrator. It is never dispatched as a worker, because it writes to GitHub and to the coordinator's task.
-
-**Examples:**
-
-```bash
-/sc:closeout 661
-/sc:closeout #661 --issue 651
-/sc:closeout 661 --dispatch <id> --entry-key <key>
-```
-
-**MCP servers:** none
 
 ---
 

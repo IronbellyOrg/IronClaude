@@ -31,9 +31,9 @@ _SKILLS = _REPO / "src/superclaude/skills"
 _PACKAGE = "TASK-RESEARCH-recommend-refresh-20261024-044336"
 # Commands shipped after the frozen routing-refresh research package was written:
 # issue #323 (codegraph adoption, Phase 3) adds /sc:graph and /sc:impact, and
-# issue #302 adds /sc:issue, and issue #668 adds /sc:closeout. The package is
-# frozen, so the shipped set is compared minus these additions.
-_POST_REFRESH_ADDITIONS = {"closeout", "graph", "impact", "issue", "sweep"}
+# issue #302 adds /sc:issue. The package is frozen, so the shipped set is
+# compared minus these additions.
+_POST_REFRESH_ADDITIONS = {"graph", "impact", "issue", "sweep"}
 # Commands removed after the frozen package was written: /sc:spawn (replaced by
 # Orca), build, save, load, improve, cli-portify, index, index-repo and
 # review-translation (moved to the snapshot fork) went in 6.0.0, as did the roadmap,
