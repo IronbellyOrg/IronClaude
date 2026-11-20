@@ -86,7 +86,7 @@ RULE_PHRASES = {
     "never-as-worker": (
         "**Never-as-worker list**",
         [
-            "`/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:sweep` and "
+            "`/sc:agent`, `/sc:closeout`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:sweep` and "
             "`/sc:swarm-wizard`, plus `/sc:pr-submit` while the answer to decision D3 keeps it off workers"
         ],
     ),
@@ -461,6 +461,7 @@ GUARD_LINE = (
 
 NEVER_AS_WORKER = (
     "/sc:agent",
+    "/sc:closeout",
     "/sc:git",
     "/sc:help",
     "/sc:issue",
@@ -1944,6 +1945,15 @@ def _check_all_classified() -> None:
     )
 
 
+_CLOSEOUT_LANDED = (
+    "src/superclaude/skills/sc-closeout-protocol/scripts/branch-landed.sh"
+)
+_CLOSEOUT_SETTLE = "src/superclaude/skills/sc-closeout-protocol/scripts/settle.sh"
+_CLOSEOUT_REASON = (
+    "/sc:closeout is on the never-as-worker list; its pull request and issue reads "
+    "and writes run only in the coordinator or person session"
+)
+
 # (repo-relative path, verb(s), stripped line) -> (category, one-line reason)
 WRITE_VERB_CLASSIFICATION = {
     (
@@ -3071,6 +3081,73 @@ WRITE_VERB_CLASSIFICATION = {
         "never-worker",
         "/sc:issue is on the never-as-worker list; its type, field and comment writes run only in the coordinator or person session",
     ),
+    # /sc:closeout (issue 668): every `gh pr` and `gh api` line of its two scripts. All are
+    # plain reads (GET); the writes of the skill are `gh issue comment`, `gh issue close`
+    # and an Orca task update, none of which the audit pattern matches.
+    (_CLOSEOUT_LANDED, "gh pr", 'json=$(gh pr view "$PR" --repo "$GH_REPO" \\'): (
+        "never-worker",
+        _CLOSEOUT_REASON,
+    ),
+    (
+        _CLOSEOUT_LANDED,
+        "gh pr",
+        'unknown gh_failed "gh pr view failed (exit $rc)"',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh api",
+        'evt=$(gh api --paginate "repos/$GH_REPO/issues/$n/timeline?per_page=100" --jq \'.[] | select(.event=="closed" or .event=="reopened") | [.event, .created_at] | @tsv\' </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh api",
+        "name=$(gh api \"users/$login\" --jq .name </dev/null 2>/dev/null | head -n 1 | tr -d '\\r')",
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh api",
+        'obj=$(gh api "repos/$GH_REPO/issues/$n" </dev/null 2>/dev/null) || issue_out escalated why=issue_lookup_failed none',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh api",
+        'out=$(gh api "repos/$GH_REPO/collaborators/$login/permission" --jq .role_name 2>"$WORK/perm.err" </dev/null)',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh api",
+        'tl=$(gh api "repos/$GH_REPO/issues/$n/timeline?per_page=100" </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh api",
+        'tl=$(gh api --paginate "repos/$GH_REPO/issues/$ISSUE_N/timeline?per_page=100" --jq \'.[] | select(.event=="closed" or .event=="reopened") | [.event, .created_at] | @tsv\' </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh pr",
+        'PRJ=$(gh pr view "$PR" --repo "$GH_REPO" --json number,title,body,closingIssuesReferences,mergedAt,mergedBy,mergeCommit,changedFiles </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh pr",
+        'all=$(gh pr list --repo "$GH_REPO" --state all --search "$n" --limit 10 --json number,state,mergedAt,baseRefName </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh pr",
+        'open=$(gh pr list --repo "$GH_REPO" --state open --search "$n" --limit 10 --json number,baseRefName,headRefName </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh pr",
+        'pj=$(gh pr view "$num" --repo "$GH_REPO" --json state,mergedAt,baseRefName,body,files,changedFiles </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
+    (
+        _CLOSEOUT_SETTLE,
+        "gh pr",
+        'tpr=$(gh pr view "$PR" --repo "$GH_REPO" --json body,files,changedFiles,baseRefName,mergedAt,closingIssuesReferences,statusCheckRollup </dev/null 2>/dev/null) ||',
+    ): ("never-worker", _CLOSEOUT_REASON),
 }
 
 
