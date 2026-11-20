@@ -754,17 +754,41 @@ def cmd_worktree(args: argparse.Namespace) -> int:
 BLOCK_MARKER = re.compile(r"^<!-- block:([a-z]+) -->[ \t]*$", re.M)
 
 
-def render_prompt(
-    template: str, level: str, submit: bool, number: int, repo: str
-) -> str:
-    """Keep ``common`` + the level block (+ ``submit``); drop markers and the rest.
+STAGES = ("research", "spec", "plan", "debug")
 
-    ``<N>`` becomes the issue number and ``<R>`` the origin repository (validated as
-    ``owner/repo`` by the argument parser, so it carries no markup).
+
+def render_prompt(
+    template: str,
+    level: str,
+    submit: bool,
+    number: int,
+    repo: str,
+    stage: str | None = None,
+) -> str:
+    """Keep ``common``, the level block, ``submit``, the stage block and ``result``.
+
+    The stage block is the stage's own (``research``, ``spec`` or ``plan``), or for
+    ``debug`` the ``debugworktree`` block at level ``worktree`` (no ``--fix``) and
+    ``debugfull`` at level ``full`` with or without ``--submit`` (with ``--fix``).
+    ``result`` is always last: the launched agent's final step is its result file.
+    Markers and every other block are dropped. ``<N>`` becomes the issue number and
+    ``<R>`` the origin repository (validated as ``owner/repo`` by the argument
+    parser, so it carries no markup).
     """
+    if stage is not None and stage not in STAGES:
+        raise ValueError(f"unknown stage: {stage}")
     parts = BLOCK_MARKER.split(template)  # [preamble, name, body, name, body, ...]
     blocks = dict(zip(parts[1::2], parts[2::2]))
-    wanted = ["common", level] + (["submit"] if submit else [])
+    stage_block = (
+        []
+        if stage is None
+        else [("debugfull" if level == "full" else "debugworktree")]
+        if stage == "debug"
+        else [stage]
+    )
+    wanted = (
+        ["common", level] + (["submit"] if submit else []) + stage_block + ["result"]
+    )
     missing = [name for name in wanted if name not in blocks]
     if missing:
         raise ValueError(f"template has no block: {', '.join(missing)}")
@@ -788,7 +812,9 @@ def cmd_prompt(args: argparse.Namespace) -> int:
             return emit({"status": "kept", "path": str(args.out)})
     try:
         template = Path(args.template).read_text(encoding="utf-8")
-        text = render_prompt(template, args.level, args.submit, args.number, args.repo)
+        text = render_prompt(
+            template, args.level, args.submit, args.number, args.repo, args.stage
+        )
         atomic_write_text(Path(args.out), text)
     except (OSError, ValueError) as exc:
         return emit({"status": "failed", "detail": str(exc)})
@@ -847,7 +873,7 @@ L2_ABSENT_WHY = "the owned L2 pre-push hook is not in effect for this worktree: 
 # environment only and never edits any configuration.
 GUARD_COMMAND = "~/.claude/hooks/launch-level-guard.sh"
 IDENTITY_COMMAND = "~/.claude/hooks/launch-job-identity.sh"
-GUARD_VERSION_LINE = "# launch-level-guard-version: 1"
+GUARD_VERSION_LINE = "# launch-level-guard-version: 2"
 L2_VERSION_LINE = "# launch-level-pre-push-version: 1"
 GOVERNED_TOOLS = (
     "Bash",
@@ -1889,6 +1915,7 @@ def build_parser() -> argparse.ArgumentParser:
     pr.add_argument("--template", required=True)
     pr.add_argument("--level", required=True, choices=["worktree", "full"])
     pr.add_argument("--submit", action="store_true")
+    pr.add_argument("--stage", choices=list(STAGES))
     pr.add_argument("--number", required=True, type=issue_number)
     pr.add_argument("--repo", required=True, type=repo_name)
     pr.add_argument("--source", help="issue folder; keeps the prompt of a live launch")

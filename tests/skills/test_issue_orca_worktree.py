@@ -1158,7 +1158,10 @@ def test_pr2_prompt_submit_adds_the_submit_block(tmp_path: Path) -> None:
     assert "/sc:pr-submit --monitor 3" in text
     assert text.index("Level: full.") < text.index("owner asked for the commit")
     plain = render(tmp_path, "full")[1].read_text()
-    assert text.startswith(plain.rstrip("\n"))
+    # The submit block sits before the closing result step (R23), which both end with.
+    body, result = plain.split("Last step, after every other step", 1)
+    assert text.startswith(body.rstrip("\n"))
+    assert text.rstrip("\n").endswith(result.rstrip("\n"))
 
 
 def test_pr3_prompt_submit_with_worktree_level_is_a_bad_argument(
@@ -1296,7 +1299,7 @@ def launch_scene(
     if hook:
         script = fake.home / ".claude" / "hooks" / "launch-level-guard.sh"
         script.parent.mkdir(parents=True)
-        script.write_text("#!/bin/sh\n# launch-level-guard-version: 1\n")
+        script.write_text("#!/bin/sh\n# launch-level-guard-version: 2\n")
         script.chmod(0o755 if hook == "exec" else 0o644)
         user_settings(fake).write_text(HOOKS_JSON.read_text())
     return wt
@@ -1980,7 +1983,13 @@ IR4_CASES = {
         lambda f, wt: guard_script(f).write_text(
             "#!/bin/sh\n# launch-level-guard-version: 0\n"
         ),
-        ["launch-level-guard-version: 1", "stale", "superclaude install --force"],
+        ["launch-level-guard-version: 2", "stale", "superclaude install --force"],
+    ),
+    "wrong-version-line-one": (
+        lambda f, wt: guard_script(f).write_text(
+            "#!/bin/sh\n# launch-level-guard-version: 1\n"
+        ),
+        ["launch-level-guard-version: 2", "stale", "superclaude install --force"],
     ),
     "no-user-prompt-registration": (
         lambda f, wt: edit_settings(user_settings(f), drop("UserPromptSubmit", GUARD)),

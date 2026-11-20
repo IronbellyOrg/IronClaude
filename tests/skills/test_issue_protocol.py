@@ -292,9 +292,105 @@ def test_st5_launch_prompt_template_is_in_the_files_table_and_exists():
     assert len(list(REFS.glob("*.md"))) == 5
 
 
-def test_st8_launch_prompt_has_exactly_the_four_blocks():
-    assert list(_launch_blocks()) == ["common", "worktree", "full", "submit"]
-    assert len(_BLOCK_MARKER.findall(_text(LAUNCH_TEMPLATE))) == 4
+LAUNCH_BLOCKS = [
+    "common",
+    "worktree",
+    "full",
+    "submit",
+    "research",
+    "spec",
+    "plan",
+    "debugworktree",
+    "debugfull",
+    "result",
+]
+
+
+def test_st8_launch_prompt_has_exactly_the_ten_blocks():
+    assert list(_launch_blocks()) == LAUNCH_BLOCKS
+    assert len(_BLOCK_MARKER.findall(_text(LAUNCH_TEMPLATE))) == len(LAUNCH_BLOCKS)
+
+
+def _orca_module(name: str):
+    import importlib.util
+    import sys
+
+    spec = importlib.util.spec_from_file_location(name, ORCA_SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module  # dataclasses need it
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        sys.modules.pop(spec.name, None)
+    return module
+
+
+def _render(level: str, stage: str | None, submit: bool = False) -> str:
+    return _orca_module("orca_worktree_t10").render_prompt(
+        _text(LAUNCH_TEMPLATE), level, submit, 12, "owner/repo", stage
+    )
+
+
+CASES = [
+    ("worktree", False),
+    ("full", False),
+    ("full", True),
+]
+
+
+@pytest.mark.parametrize("stage", [None, "research", "spec", "plan", "debug"])
+@pytest.mark.parametrize(("level", "submit"), CASES)
+def test_r23_launch_prompt_ends_with_the_result_step_and_makes_no_github_write(
+    level, submit, stage
+):
+    text = _render(level, stage, submit)
+    assert "Last step" in text and ".dev/issues/12/result.md" in text
+    assert text.strip().endswith("does everything on GitHub itself.")
+    result = text.split("Last step", 1)[1]  # nothing follows the result step
+    assert "outcome: succeeded" in result and "pull_request:" in result
+    assert "artifacts:" in result
+    assert "Only the coordinator writes to an issue, a label or a Project" in text
+    for forbidden in ("issue-pipeline", "gh issue", "gh label", "gh project", "gh api"):
+        assert forbidden not in text, forbidden
+    if stage != "debug":
+        assert "--fix" not in text
+
+
+@pytest.mark.parametrize(("level", "submit"), CASES)
+def test_r23_troubleshoot_is_limited_at_worktree_and_carries_fix_at_full(level, submit):
+    text = _render(level, "debug", submit)
+    stage = text.split("Stage: debug.", 1)[1].split("\n\n", 1)[0]
+    assert "/sc:troubleshoot" in stage
+    if level == "worktree":
+        assert "without `--fix`" in stage
+        assert "with `--fix`" not in stage
+    else:
+        assert "with `--fix`" in stage
+        assert "without `--fix`" not in stage
+
+
+@pytest.mark.parametrize(
+    ("stage", "command"),
+    [
+        ("research", "/sc:research"),
+        ("spec", "/sc:design"),
+        ("plan", "/sc:workflow"),
+    ],
+)
+def test_r23_each_stage_names_its_command_in_the_launch_prompt(stage, command):
+    text = _render("worktree", stage)
+    assert f"Stage: {stage}." in text and command in text
+    assert "/sc:implement" not in text.split("Stage:", 1)[1].split("\n\n", 1)[0] or (
+        stage == "plan"
+    )
+
+
+def test_r23_the_prompt_command_takes_a_stage_and_refuses_an_unknown_one():
+    module = _orca_module("orca_worktree_t10b")
+    with pytest.raises(ValueError):
+        module.render_prompt(_text(LAUNCH_TEMPLATE), "full", False, 12, "o/r", "ready")
+    with pytest.raises(SystemExit):
+        module.main(["prompt", "--stage", "ready"])
 
 
 def test_st8_pr_tokens_live_only_in_the_submit_block_and_the_worktree_prohibition():
