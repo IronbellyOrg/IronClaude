@@ -2,64 +2,52 @@
 
 Each test runs ``python -m superclaude.cli.main issue-watch ...`` with an
 explicit ``env=`` from the ``stub_path`` fixture, so the only ``gh``, ``orca``,
-``orca-ide`` and ``git`` the process can reach are the PATH stubs written into
-``tmp_path`` (decisions DF-10, DF-34, DF-55, DF-56). Replies are built from the
-``GhWorld`` fixtures, with event times generated after ``init-state`` has
-stamped the store ``created_at`` from the real clock.
+``orca-ide``, ``git`` and ``ccsession`` the process can reach are the PATH stubs
+written into ``tmp_path`` (decisions DF-10, DF-34, DF-55, DF-56). Replies are
+built from the ``GhWorld`` fixtures, with the clock of the user reply set to the
+real time.
 
-Covers FR-001, FR-003, FR-010, FR-013, NFR-002, NFR-009, NFR-010 and AC-1.
-The sleeping-stub timeout (AC-19) is not tested here: it is split into a runner
-unit test and in-process cycle tests (DF-55).
+The poll wakes an orchestrator through a live Orca session, which a PATH stub
+cannot fake (the session is found from the real ``/proc``). The wake tests
+therefore script a workspace with no session whose start fails: the poll writes
+the wake file, finds no session, marks the workspace unread and exits 7. That is
+a real run of every part except the typed line, which the unit tests cover.
+
+Covers FR-001, FR-003, FR-010, NFR-002, NFR-009, NFR-010 and AC-1.
 """
 
 from __future__ import annotations
 
 import json
 import shutil
+import stat
 import subprocess
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 from superclaude.cli.issue_watch import cycle, github
 from superclaude.cli.issue_watch.predicates import parse_utc
 
 from .conftest import (
-    APPROVER_ID,
     OWN_LOGIN,
-    PROJECT_ID,
+    REPO_A,
     STUB_TOOLS,
     FakeClock,
     GhWorld,
-    label_event,
-    load_fixture,
     make_config,
     read_calls,
+    write_ack,
     write_scenario,
 )
 
 ORIGIN_TEXT = "https://github.com/IronbellyOrg/IronClaude\n"
 PROBE_REPLY = {"topics": [{"name": "orca-cli"}]}
 ISSUE = 9
-
-# FR-003, written out in full: the contract is the literal list.
-DISCOVERY_ARGV = [
-    "issue",
-    "list",
-    "--repo",
-    "IronbellyOrg/IronClaude",
-    "--state",
-    "open",
-    "--label",
-    "issue-watch:trigger",
-    "--assignee",
-    OWN_LOGIN,
-    "--json",
-    "number,labels,assignees,state",
-    "-L",
-    "100",
-]
+KEY = f"{REPO_A}#{ISSUE}"
 USER_ARGV = ["api", "user", "--include"]
+IDLE_OK = "cycle: cycle_complete\nexit: 0\n"
+NO_SESSION = "cycle: no_session\nexit: 7\n"
 
 
 def assert_local_filesystem(tmp_path: Path) -> None:
@@ -85,11 +73,9 @@ class Watcher:
         self.config_path.write_text(
             json.dumps(
                 {
-                    "schema_version": 1,
+                    "schema_version": 2,
                     "enabled": True,
-                    "project_id": PROJECT_ID,
-                    "worktree": str(self.config.worktree),
-                    "approvers_file": str(self.config.approvers_file),
+                    "orchestrator_repo": str(self.config.orchestrator_repo),
                     "state_dir": str(self.state_dir),
                 }
             ),
@@ -98,8 +84,8 @@ class Watcher:
         self.stubbin = tmp_path / "stubbin"
         self.log = Path(env["IW_STUB_LOG"])
 
-    def cli(self, verb: str) -> subprocess.CompletedProcess:
-        """Run ``issue-watch <verb> --config <file>`` as a real process."""
+    def cli(self, verb: str, *extra: str) -> subprocess.CompletedProcess:
+        """Run ``issue-watch <verb> [extra] --config <file>`` as a real process."""
         return subprocess.run(
             [
                 sys.executable,
@@ -110,6 +96,7 @@ class Watcher:
                 "superclaude.cli.main",
                 "issue-watch",
                 verb,
+                *extra,
                 "--config",
                 str(self.config_path),
             ],
@@ -118,13 +105,13 @@ class Watcher:
             stdin=subprocess.DEVNULL,
             capture_output=True,
             text=True,
-            timeout=60,
+            timeout=90,
             check=False,
         )
 
-    def init_state(self) -> datetime:
+    def init_state(self, *extra: str) -> datetime:
         """Run ``init-state`` and return the ``created_at`` it stamped."""
-        done = self.cli("init-state")
+        done = self.cli("init-state", *extra)
         assert (done.returncode, done.stderr) == (0, ""), done
         assert done.stdout == f"state created: {self.state_dir}\n", done.stdout
         return parse_utc(self.store()["created_at"])
@@ -139,17 +126,25 @@ class Watcher:
         return [json.loads(x) for x in path.read_text("utf-8").splitlines()]
 
     def calls(self) -> list[dict]:
-        """Every stub call so far, in call order across the four stubs."""
+        """Every stub call so far, in call order across the stubs."""
         return read_calls(self.log)
 
-    def script(self, world: GhWorld, *, launch_reply: dict | None = None) -> Path:
-        """Write the stub scenario: every ``gh`` reply of ``world``, git and Orca."""
-        rules: dict[str, list[dict]] = {"gh": [], "git": [], "orca-ide": []}
+    def wake_files(self) -> list[Path]:
+        folder = self.config.orchestrator_repo / ".orchestrator" / "wakes"
+        if not folder.exists():
+            return []
+        return sorted(
+            p for p in folder.glob("*.json") if not p.name.endswith(".ack.json")
+        )
+
+    def script(self, world: GhWorld) -> Path:
+        """Write the stub scenario: every exact reply of ``world`` and the Orca replies."""
+        rules: dict[str, list[dict]] = {name: [] for name in STUB_TOOLS}
         for argv, reply in world.runner.script.items():
-            if argv[0] != "gh":
+            if argv[0] not in ("gh", "git", "ccsession"):
                 continue
             answer = reply(list(argv), None)
-            rules["gh"].append(
+            rules[argv[0]].append(
                 {
                     "argv_prefix": list(argv[1:]),
                     "exit": answer.returncode,
@@ -157,129 +152,58 @@ class Watcher:
                     "stderr": answer.stderr,
                 }
             )
-        rules["git"].append(
+        # The three information streams carry a time in their query: match the start.
+        rules["gh"].append(
             {
-                "argv_prefix": [
-                    "-C",
-                    str(self.config.worktree),
-                    "remote",
-                    "get-url",
-                    "origin",
-                ],
-                "stdout": ORIGIN_TEXT,
+                "argv_prefix": ["api", "--method", "GET", "search/issues"],
+                "stdout": json.dumps(
+                    {"total_count": 0, "incomplete_results": False, "items": []}
+                ),
             }
         )
-        rules["orca-ide"].append(
-            {
-                "argv_prefix": ["skills", "list", "--json"],
-                "stdout": json.dumps(PROBE_REPLY),
-            }
-        )
-        if launch_reply is not None:
-            rules["orca-ide"].append(
-                {"argv_prefix": ["agent", "launch"], "stdout": json.dumps(launch_reply)}
-            )
+        for tool in ("orca", "orca-ide"):
+            rules[tool] += [
+                {
+                    "argv_prefix": ["skills", "list", "--json"],
+                    "stdout": json.dumps(PROBE_REPLY),
+                },
+                {
+                    "argv_prefix": ["terminal", "list"],
+                    "stdout": json.dumps({"terminals": []}),
+                },
+                {"argv_prefix": ["terminal", "create"], "exit": 1},
+                {"argv_prefix": ["worktree", "set"], "stdout": "{}"},
+            ]
         return write_scenario(self.tmp_path, rules)
 
 
 def make_watcher(tmp_path: Path, stub_path: dict[str, str]) -> Watcher:
-    stub_path["IW_STUB_STATE_DIR"] = str(tmp_path / "state")
     return Watcher(tmp_path, stub_path)
 
 
-def world_for(watcher: Watcher, *, now: datetime | None = None) -> GhWorld:
-    """A ``GhWorld`` whose clock is the real time, for the G1 ``Date`` header."""
-    clock = FakeClock(datetime.now(timezone.utc) if now is None else now)
-    return GhWorld(clock, watcher.config)
+def world_for(watcher: Watcher) -> GhWorld:
+    """A ``GhWorld`` whose clock is the real time, for the ``Date`` header of the user reply."""
+    return GhWorld(FakeClock(datetime.now(timezone.utc)), watcher.config)
 
 
 def argv_of(call: dict) -> tuple[str, list[str]]:
     return call["tool"], call["argv"]
 
 
-def eligible_issue(world: GhWorld, created: datetime) -> None:
-    """Issue 9: trigger, then an approval by the approver, both after ``created``.
-
-    The store was stamped at ``created``, so the trigger comes one second and the
-    approval two seconds after it (an approval at or before it is
-    ``approval_before_init``). Body and comment edits predate the approval.
-    """
-    config = world.config
-    world.issue(
-        ISSUE,
-        events=[
-            label_event(
-                1,
-                "labeled",
-                config.trigger_label,
-                created + timedelta(seconds=1),
-                actor_id=2001,
-                actor_login="issue-author",
-            ),
-            label_event(
-                2,
-                "labeled",
-                config.approval_label,
-                created + timedelta(seconds=2),
-                actor_id=APPROVER_ID,
-                actor_login=OWN_LOGIN,
-            ),
-        ],
-        edits={
-            "created_at": created - timedelta(seconds=30),
-            "comments": [
-                {
-                    "id": 5001,
-                    "author": "issue-author",
-                    "created_at": created - timedelta(seconds=20),
-                    "edited_at": None,
-                }
-            ],
-        },
-    )
+def gh_argvs(calls: list[dict]) -> list[list[str]]:
+    return [c["argv"] for c in calls if c["tool"] == "gh"]
 
 
-def launch_argv_literal(orca: str, worktree: Path) -> list[str]:
-    """The FR-013 argv, written out element by element (12 elements)."""
-    return [
-        orca,
-        "agent",
-        "launch",
-        "--agent",
-        "claude",
-        "--worktree",
-        f"path:{worktree}",
-        "--surface",
-        "terminal",
-        "--prompt",
-        "/sc:issue --claim 9 --pipeline none",
-        "--json",
-    ]
+def orca_calls(calls: list[dict]) -> list[dict]:
+    return [c for c in calls if c["tool"] in ("orca", "orca-ide")]
 
 
-def expected_eligible_sequence(watcher: Watcher) -> list[tuple[str, list[str]]]:
-    """Every external call of the one-eligible-issue cycle, in order (FR-001)."""
-    wt = str(watcher.config.worktree)
-    git = ["-C", wt, "remote", "get-url", "origin"]
-    return [
-        ("gh", USER_ARGV),
-        ("git", git),
-        ("gh", DISCOVERY_ARGV),
-        ("gh", github.argv_comments(ISSUE, 1)[1:]),
-        ("gh", github.argv_events(ISSUE, 1)[1:]),
-        ("gh", github.argv_edits(ISSUE)[1:]),
-        ("gh", github.argv_project_items(ISSUE)[1:]),
-        ("orca-ide", ["skills", "list", "--json"]),
-        ("gh", github.argv_reread(ISSUE)[1:]),
-        ("gh", github.argv_events(ISSUE, 1)[1:]),
-        ("gh", github.argv_project_items(ISSUE)[1:]),
-        ("git", git),
-        ("orca-ide", launch_argv_literal("ORCA", watcher.config.worktree)[1:]),
-    ]
+def is_search(argv: list[str]) -> bool:
+    return argv[:4] == ["api", "--method", "GET", "search/issues"]
 
 
 def test_ac1_fixture_guard_names_resolve_to_stubs(tmp_path, stub_path):
-    """AC-1 guard: only the four stubs are reachable, nothing else."""
+    """AC-1 guard: only the stubs are reachable, nothing else."""
     assert_local_filesystem(tmp_path)
     stubbin, linkbin = tmp_path / "stubbin", tmp_path / "linkbin"
     assert stub_path["PATH"] == f"{stubbin}:{linkbin}"
@@ -296,24 +220,26 @@ def test_ac1_fixture_guard_names_resolve_to_stubs(tmp_path, stub_path):
     }, sorted(stub_path)
 
 
-def test_fr001_idle_cycle_makes_exactly_two_gh_calls(tmp_path, stub_path):
-    """FR-001 GWT, NFR-009: an idle cycle exits 0 after `api user` and discovery."""
+def test_fr001_idle_cycle_reads_only_and_exits_0(tmp_path, stub_path):
+    """FR-001, NFR-009: nothing assigned: the user, the searches, no write, no Orca call."""
     assert_local_filesystem(tmp_path)
     watcher = make_watcher(tmp_path, stub_path)
-    watcher.init_state()
-    world = world_for(watcher)  # no issue: discovery lists nothing
-    watcher.script(world)
+    watcher.init_state("--no-baseline")
+    watcher.script(world_for(watcher))
 
     done = watcher.cli("once")
 
     assert done.returncode == 0, done
-    assert done.stdout == "cycle: cycle_complete\nexit: 0\n", done.stdout
+    assert done.stdout == IDLE_OK, done.stdout
     assert done.stderr == ""
     calls = watcher.calls()
-    gh_calls = [argv_of(c)[1] for c in calls if c["tool"] == "gh"]
-    assert gh_calls == [USER_ARGV, DISCOVERY_ARGV], gh_calls
-    assert [c["tool"] for c in calls] == ["gh", "git", "gh"], calls
-    assert not [c for c in calls if c["tool"] in ("orca", "orca-ide")], calls
+    gh = gh_argvs(calls)
+    assert gh[0] == USER_ARGV
+    assert all(is_search(argv) for argv in gh[1:]), gh
+    # one assigned search per listed org, then the three information searches per org
+    assert len(gh) == 1 + 2 * 4, gh
+    assert not orca_calls(calls), calls
+    assert not [c for c in calls if c["tool"] == "git"], calls  # no candidate: no check
     cycle_lines = [x for x in watcher.audit_lines() if x["kind"] == "cycle"]
     assert len(cycle_lines) == 1, watcher.audit_lines()
     line = cycle_lines[0]
@@ -322,122 +248,168 @@ def test_fr001_idle_cycle_makes_exactly_two_gh_calls(tmp_path, stub_path):
         "cycle_complete",
         False,
     )
-    assert (line["login"], line["gh_calls"], line["discovery_count"]) == (
-        OWN_LOGIN,
-        2,
-        0,
-    )
+    assert (line["login"], line["gh_calls"]) == (OWN_LOGIN, len(gh))
     assert watcher.store()["entries"] == {}
     assert watcher.store()["last_completed_cycle_at"] is not None
+    assert watcher.wake_files() == []
 
 
-def test_fr010_fr013_eligible_issue_launches_once_through_orca_ide(tmp_path, stub_path):
-    """FR-010, FR-013, FR-003, AC-1: one launch, 12-element argv, pending at launch."""
+def test_the_search_calls_ask_for_no_text_beyond_the_projection(tmp_path, stub_path):
+    """FR-003: every call is the fixed argv list; the first line of the user call is plain."""
     assert_local_filesystem(tmp_path)
     watcher = make_watcher(tmp_path, stub_path)
-    created = watcher.init_state()
+    watcher.init_state("--no-baseline")
     world = world_for(watcher)
-    eligible_issue(world, created)
-    watcher.script(
-        world, launch_reply=load_fixture("orca_launch_success.json")["payload"]
-    )
-    orca_ide = str(watcher.stubbin / "orca-ide")
+    world.issue(REPO_A, ISSUE)
+    watcher.script(world)
+
+    watcher.cli("once")
+
+    searches = [argv for argv in gh_argvs(watcher.calls()) if is_search(argv)]
+    assigned = [a for a in searches if a[5].startswith("q=is:issue is:open assignee:")]
+    assert len(assigned) == 2  # one per listed org
+    assert github.argv_search_assigned("IronbellyOrg", OWN_LOGIN)[1:] in assigned
+
+
+def test_the_first_cycle_records_what_is_assigned_and_wakes_nobody(tmp_path, stub_path):
+    """Design 4.3 rule 5: the baseline cycle marks every assigned issue seen, no wake."""
+    assert_local_filesystem(tmp_path)
+    watcher = make_watcher(tmp_path, stub_path)
+    watcher.init_state()  # baseline on, the default
+    world = world_for(watcher)
+    world.issue(REPO_A, ISSUE)
+    watcher.script(world)
 
     done = watcher.cli("once")
 
-    assert done.returncode == 0, done
-    assert done.stdout == "cycle: cycle_complete\nexit: 0\n", done.stdout
-    assert done.stderr == ""
-    calls = watcher.calls()
-    # every external call, in order; the stub never sees the program path
-    assert [argv_of(c) for c in calls] == expected_eligible_sequence(watcher), [
-        argv_of(c) for c in calls
-    ]
-    # FR-013: the 12-element argv, with the program path, equals the literal list
-    launches = [c for c in calls if c["argv"][:2] == ["agent", "launch"]]
-    assert len(launches) == 1, launches
-    launch_call = launches[0]
-    assert launch_call["tool"] == "orca-ide"
-    assert [orca_ide, *launch_call["argv"]] == launch_argv_literal(
-        orca_ide, watcher.config.worktree
-    )
-    assert len([orca_ide, *launch_call["argv"]]) == 12
-    assert launch_call["argv"][launch_call["argv"].index("--prompt") + 1] == (
-        "/sc:issue --claim 9 --pipeline none"
-    )
-    assert Path(launch_call["cwd"]).resolve() == watcher.config.worktree.resolve()
-    # orca-ide is resolved first, so the plain orca stub is never called
-    assert not [c for c in calls if c["tool"] == "orca"], calls
-    # FR-003: the discovery argv is the literal list and asks for no text field
-    discoveries = [c for c in calls if c["argv"][:2] == ["issue", "list"]]
-    assert [c["argv"] for c in discoveries] == [DISCOVERY_ARGV]
-    for call in calls:
-        for arg in call["argv"]:
-            assert not {"title", "body", "comments"} & set(arg.split(",")), arg
-    # FR-010: the entry was already pending, launches 1, consumed_at set, at launch time
-    assert "dispatch_json" in launch_call, launch_call
-    at_launch = json.loads(launch_call["dispatch_json"])["entries"][str(ISSUE)]
-    assert at_launch["state"] == "pending", at_launch
-    assert at_launch["launches"] == 1, at_launch
-    assert at_launch["consumed_at"] is not None, at_launch
-    assert at_launch["launch_cwd"] == str(watcher.config.worktree), at_launch
-    # no other stub call took a snapshot
-    assert [c["call"] for c in calls if "dispatch_json" in c] == [launch_call["call"]]
-    # the final store shows the launch
-    final = watcher.store()["entries"][str(ISSUE)]
-    assert final["state"] == "launched", final
-    assert final["launches"] == 1, final
-    assert final["operation_id"] == "op-test-0001", final
-    # the audit trail: one launched decision, then the cycle line
-    lines = watcher.audit_lines()
-    decisions = [x for x in lines if x["kind"] == "decision"]
-    assert [(x["issue"], x["reason"], x["state"]) for x in decisions] == [
-        (ISSUE, "launched", "launched")
-    ], lines
-    assert lines[-1]["kind"] == "cycle"
-    assert (lines[-1]["exit"], lines[-1]["reason"]) == (0, "cycle_complete")
+    assert (done.returncode, done.stdout, done.stderr) == (0, IDLE_OK, "")
+    assert not orca_calls(watcher.calls())
+    entry = watcher.store()["entries"][KEY]
+    assert (entry["state"], entry["ack_reason"]) == ("acked", "baseline")
+    assert watcher.store()["baseline"] is False
+    assert watcher.wake_files() == []
+    # the second cycle sees the issue as known and does nothing more
+    again = watcher.cli("once")
+    assert (again.returncode, again.stdout) == (0, IDLE_OK)
+    assert not orca_calls(watcher.calls())
 
 
-def test_nfr010_second_once_launches_nothing(tmp_path, stub_path):
-    """NFR-010: the second `once` on the same state makes no launch."""
+def test_fr010_an_assigned_issue_gets_a_wake_file_and_exit_7_without_a_session(
+    tmp_path, stub_path
+):
+    """FR-010: the wake file is written, the session cannot be started, the workspace is marked."""
     assert_local_filesystem(tmp_path)
     watcher = make_watcher(tmp_path, stub_path)
-    created = watcher.init_state()
+    watcher.init_state("--no-baseline")
     world = world_for(watcher)
-    eligible_issue(world, created)
-    watcher.script(
-        world, launch_reply=load_fixture("orca_launch_success.json")["payload"]
-    )
+    world.issue(REPO_A, ISSUE)
+    watcher.script(world)
 
-    first = watcher.cli("once")
-    assert (first.returncode, first.stdout) == (0, "cycle: cycle_complete\nexit: 0\n")
+    done = watcher.cli("once")
+
+    assert done.returncode == 7, done
+    assert done.stdout == NO_SESSION, done.stdout
+    assert done.stderr == ""
+    calls = watcher.calls()
+    orca = orca_calls(calls)
+    assert [c["argv"][:2] for c in orca if c["argv"][:2] != ["skills", "list"]] == [
+        ["terminal", "list"],
+        ["terminal", "create"],
+        ["worktree", "set"],
+    ], orca
+    assert all(
+        c["tool"] == "orca-ide" for c in orca
+    )  # the first name is resolved first
+    mark = next(c["argv"] for c in orca if c["argv"][:2] == ["worktree", "set"])
+    assert "--unread" in mark
+    assert mark[mark.index("--comment") + 1] == "issue-watch: no_session"
+    (wake_path,) = watcher.wake_files()
+    assert stat.S_IMODE(wake_path.stat().st_mode) == 0o600
+    data = json.loads(wake_path.read_text("utf-8"))
+    assert data["schema"] == "orchestrator-wake/1"
+    assert [(i["repo"], i["number"]) for i in data["assigned"]] == [(REPO_A, ISSUE)]
+    entry = watcher.store()["entries"][KEY]
+    assert entry["state"] == "unknown"
+    assert (entry["orchestrator"], entry["wake_id"]) == (
+        "ironclaude-1",
+        data["wake_id"],
+    )
+    decisions = [x for x in watcher.audit_lines() if x["kind"] == "decision"]
+    assert [(x["issue"], x["reason"]) for x in decisions] == [(ISSUE, "no_session")]
+    lines = watcher.audit_lines()
+    assert (lines[-1]["kind"], lines[-1]["exit"]) == ("cycle", 7)
+
+
+def test_nfr010_an_acknowledgment_ends_the_wait_and_the_next_cycle_is_quiet(
+    tmp_path, stub_path
+):
+    """NFR-010: once the orchestrator acknowledges, nothing is sent again."""
+    assert_local_filesystem(tmp_path)
+    watcher = make_watcher(tmp_path, stub_path)
+    watcher.init_state("--no-baseline")
+    world = world_for(watcher)
+    world.issue(REPO_A, ISSUE)
+    watcher.script(world)
+    assert watcher.cli("once").returncode == 7
     first_calls = len(watcher.calls())
-    entry_after_first = watcher.store()["entries"][str(ISSUE)]
-    assert entry_after_first["state"] == "launched"
+    wake_id = watcher.store()["entries"][KEY]["wake_id"]
+    write_ack(watcher.config, wake_id, taken=[(REPO_A, ISSUE)])
 
     second = watcher.cli("once")
 
     assert second.returncode == 0, second
-    assert second.stdout == "cycle: cycle_complete\nexit: 0\n", second.stdout
+    assert second.stdout == IDLE_OK, second.stdout
     assert second.stderr == ""
+    later = watcher.calls()[first_calls:]
+    # only reads: the probe and the look for the orchestrator's session
+    assert {tuple(c["argv"][:2]) for c in orca_calls(later)} <= {
+        ("skills", "list"),
+        ("terminal", "list"),
+    }, later
+    entry = watcher.store()["entries"][KEY]
+    assert entry["state"] == "acked"
+    # the acknowledged wake file and its acknowledgment are moved, never deleted
+    assert watcher.wake_files() == []
+    done = watcher.config.orchestrator_repo / ".orchestrator" / "wakes" / "done"
+    assert sorted(p.name for p in done.iterdir()) == [
+        f"{wake_id}.ack.json",
+        f"{wake_id}.json",
+    ]
+    decisions = [x["reason"] for x in watcher.audit_lines() if x["kind"] == "decision"]
+    assert decisions == ["no_session", "acked"]
+
+
+def test_a_dry_run_writes_nothing_and_calls_no_orca(tmp_path, stub_path):
+    """The dry run reads GitHub and decides; it writes no wake file, no store, no label."""
+    assert_local_filesystem(tmp_path)
+    watcher = make_watcher(tmp_path, stub_path)
+    watcher.init_state("--no-baseline")
+    world = world_for(watcher)
+    world.issue(REPO_A, ISSUE)
+    watcher.script(world)
+    before = (watcher.state_dir / "dispatch.json").read_bytes()
+
+    done = watcher.cli("once", "--dry-run")
+
+    assert done.returncode == 0, done
+    assert done.stdout.splitlines()[-1] == f"would_wake: {KEY}", done.stdout
+    assert not orca_calls(watcher.calls())
+    assert watcher.wake_files() == []
+    assert (watcher.state_dir / "dispatch.json").read_bytes() == before
+    assert watcher.audit_lines()[-1]["dry_run"] is True
+
+
+def test_check_config_prints_the_routing_without_writing(tmp_path, stub_path):
+    """The real tier list is read through ``ccsession --help``; nothing is written."""
+    assert_local_filesystem(tmp_path)
+    watcher = make_watcher(tmp_path, stub_path)
+    watcher.script(world_for(watcher))
+
+    done = watcher.cli("check-config")
+
+    assert done.returncode == 0, done
+    assert done.stdout.startswith("configuration is valid\n")
+    assert "next issue goes to a new ironclaude-1" in done.stdout
     calls = watcher.calls()
-    launches = [c for c in calls if c["argv"][:2] == ["agent", "launch"]]
-    assert len(launches) == 1, launches  # still the one of the first run
-    second_calls = calls[first_calls:]
-    assert not [c for c in second_calls if c["tool"] in ("orca", "orca-ide")], (
-        second_calls
-    )
-    # the dispatched issue is only checked for a claim marker (comments read)
-    assert [argv_of(c) for c in second_calls] == [
-        ("gh", USER_ARGV),
-        ("git", ["-C", str(watcher.config.worktree), "remote", "get-url", "origin"]),
-        ("gh", DISCOVERY_ARGV),
-        ("gh", github.argv_comments(ISSUE, 1)[1:]),
-    ], [argv_of(c) for c in second_calls]
-    # the store entry is unchanged: one launch, same operation, same consumption
-    entry_after_second = watcher.store()["entries"][str(ISSUE)]
-    for key in ("state", "launches", "operation_id", "consumed_at", "pending_at"):
-        assert entry_after_second[key] == entry_after_first[key], key
-    decisions = [x for x in watcher.audit_lines() if x["kind"] == "decision"]
-    assert [x["reason"] for x in decisions] == ["launched", "already_dispatched"]
-    assert [x["issue"] for x in decisions] == [ISSUE, ISSUE]
+    assert [argv_of(c) for c in calls] == [("ccsession", ["--help"])]
+    assert not watcher.state_dir.exists()

@@ -1,0 +1,12 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/orchestrator.md (the spec of issue 655) 4.11 E4: orca worktree show --worktree issue:N --json when a worktree exists: UNVERIFIED",
+  "payload": {
+    "ok": true,
+    "result": {
+      "worktree": {
+        "path": "/w/issue-655"
+      }
+    }
+  }
+}

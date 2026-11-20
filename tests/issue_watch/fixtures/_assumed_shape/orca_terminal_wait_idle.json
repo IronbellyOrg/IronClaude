@@ -1,0 +1,10 @@
+{
+  "_assumed_shape": true,
+  "source": "orca_term.py:81-88 (terminal wait --for tui-idle): satisfied: UNVERIFIED",
+  "payload": {
+    "ok": true,
+    "result": {
+      "satisfied": true
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "_assumed_shape": true,
+  "source": "orca_term.py:23-28 (terminal list --worktree path:W): UNVERIFIED shape from the script",
+  "payload": {
+    "ok": true,
+    "result": {
+      "truncated": false,
+      "terminals": [
+        {
+          "handle": "term_live-0001",
+          "connected": true,
+          "worktreePath": "/orch",
+          "lastOutputAt": 1700000000000
+        }
+      ]
+    }
+  }
+}

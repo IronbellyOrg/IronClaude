@@ -4,6 +4,10 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### issue-watch: the poll wakes the repo's orchestrator (issue 655)
+
+- `superclaude issue-watch once` now looks for open issues assigned to you in the repos listed in `repos.yaml` of the orchestrator repo and wakes the orchestrator of each repo (a wake file, a mailbox message and the typed line `/sc:orchestrator --wake <id>`) instead of launching a claim session for a labelled, approved issue; an issue with no plan gets the `hold:plan` label until its plan is filled in. The config file is schema 2 (`orchestrator_repo` replaces `worktree`, `approvers_file` and `project_id`), the old store is dropped, and the first cycle records the issues already assigned without waking anyone (`init-state --no-baseline` wakes them).
+
 ### agent-work-report: the work report skill moves into IronClaude (issue 655)
 
 - The `agent-work-report` skill (the daily work report) now ships with `superclaude install` to `~/.claude/skills/agent-work-report/` and keeps its state in the orchestrator repo (`$AWR_ROOT`, else `orchestrator_repo` in `~/.config/superclaude/issue-watch.json`) instead of the IronFlow checkout; it leaves out the issues an orchestrator holds, adds `run.py refresh` for the living report, and its "Needs you" entries gain the lines `Why this reaches you:`, `Low-stakes options:` and `If you do not answer:`.

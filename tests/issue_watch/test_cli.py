@@ -1,10 +1,11 @@
-"""Tests for the ``superclaude issue-watch`` command group, part A.
+"""Tests for the ``superclaude issue-watch`` command group.
 
-Covers the group and its registration, the config path (DF-13), ``check-config``,
-``once`` and ``status`` (design 4.1, 4.3 and 10.2). Everything runs in process
-with Click's ``CliRunner``. ``HOME`` and ``XDG_STATE_HOME`` point into
-``tmp_path`` for every test, ``/proc/self/mountinfo`` is replaced by a fixed
-text, and ``SubprocessRunner.run`` raises, so no real process can start.
+Covers the group and its registration, the config path (DF-13), ``check-config``
+with its routing preview, ``once``, ``status`` with the held issues, ``init-state``
+and ``reset`` (design 4.1, 4.3, 4.11 and 10.2). Everything runs in process with
+Click's ``CliRunner``. ``HOME`` and ``XDG_STATE_HOME`` point into ``tmp_path`` for
+every test, ``/proc/self/mountinfo`` is replaced by a fixed text, and
+``SubprocessRunner.run`` raises, so no real process can start.
 
 Only ``result.output`` and ``result.exit_code`` are read: with Click 8.1 the
 default runner mixes stderr into the output, and Click 8.2 and later returns the
@@ -18,36 +19,36 @@ import hashlib
 import json
 import os
 import re
-import shlex
 import shutil
 import socket
 import stat
 import sys
 from dataclasses import replace
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
 
-from superclaude.cli.issue_watch import audit, cli, cycle, launch, record
+from superclaude.cli.issue_watch import audit, cli, cycle, hold, record, wake
 from superclaude.cli.issue_watch import runner as runner_mod
 from superclaude.cli.issue_watch.cli import issue_watch_group
-from superclaude.cli.issue_watch.record import Entry
 from superclaude.cli.main import main
 
 from .conftest import (
     CYCLE_NOW,
-    FIXED_NOW,
+    REPO_A,
+    TIERS_TEXT,
     FailingStore,
     FakeClock,
+    FakeRunner,
     make_config,
     make_deps,
+    write_registry,
 )
 from .conftest import result as command_result
 
-# The real assembly, taken before the autouse fixture below replaces it, so one
-# test can run it (Gate C fix C-12).
+# The real assembly, taken before the autouse fixture below replaces it.
 _REAL_BUILD_DEPS = cli.build_deps
 
 EXPECTED_COMMANDS = ["check-config", "init-state", "once", "reset", "status"]
@@ -55,6 +56,9 @@ LOCAL_MOUNTINFO = "1 0 0:1 / / rw - ext4 /dev/sda1 rw\n"
 NFS_MOUNTINFO = "1 0 0:1 / / rw - nfs4 server:/export rw\n"
 NOW = CYCLE_NOW  # 2026-11-07T13:00:00Z
 _DROP = object()
+WAKE_ID = "20261107T120000Z-0000000a"
+ORCH = "ironclaude-1"
+KEY9 = f"{REPO_A}#9"
 
 # ==============================================================================
 # Helpers and fixtures
@@ -92,14 +96,20 @@ def config(tmp_path) -> cycle.Config:
     return make_config(tmp_path)
 
 
+@pytest.fixture
+def tiers(monkeypatch) -> FakeRunner:
+    """``check-config`` reads the tier list from ``ccsession --help``: answer it."""
+    fake = FakeRunner({("ccsession", "--help"): command_result(stdout=TIERS_TEXT)})
+    monkeypatch.setattr(cli, "SubprocessRunner", lambda: fake)
+    return fake
+
+
 def write_config(path: Path, config: cycle.Config, **over: object) -> Path:
     """Write ``config`` as the JSON file; ``over`` replaces keys, ``_DROP`` removes."""
     raw: dict[str, object] = {
-        "schema_version": 1,
+        "schema_version": 2,
         "enabled": config.enabled,
-        "project_id": config.project_id,
-        "worktree": str(config.worktree),
-        "approvers_file": str(config.approvers_file),
+        "orchestrator_repo": str(config.orchestrator_repo),
         "state_dir": str(config.state_dir),
     }
     raw.update(over)
@@ -179,81 +189,46 @@ def audit_lines(state_dir: Path) -> list[dict]:
     return [json.loads(ln) for ln in path.read_text("utf-8").splitlines()]
 
 
-def entry(n: int, state: str, updated_at: datetime, **over: object) -> Entry:
-    """A valid ``Entry``; ``launches`` 1 needs ``consumed_at`` and ``pending_at``."""
-    fields: dict[str, object] = {
-        "issue": n,
-        "state": state,
-        "attempts": 1,
-        "launches": 0,
-        "operation_id": None,
-        "approver_id": 1001,
-        "approval_event_id": 2,
-        "approved_at": NOW - timedelta(days=2),
-        "launch_cwd": None,
-        "launch_login": None,
-        "launch_account_id": None,
-        "consumed_at": None,
-        "pending_at": None,
-        "created_at": NOW - timedelta(days=2),
-        "updated_at": updated_at,
-        "lease_expires_at": None,
-        "last_reason": None,
-    }
-    fields.update(over)
-    return Entry(**fields)  # type: ignore[arg-type]
+def pending(doc: record.StoreDoc, n: int, at: datetime) -> record.StoreDoc:
+    return record.mark_pending(doc, REPO_A, n, ORCH, at)
+
+
+def woken(doc: record.StoreDoc, n: int, at: datetime) -> record.StoreDoc:
+    return record.mark_woken(pending(doc, n, at), f"{REPO_A}#{n}", WAKE_ID, at)
+
+
+def unknown(doc: record.StoreDoc, n: int, at: datetime) -> record.StoreDoc:
+    return record.mark_unknown(pending(doc, n, at), f"{REPO_A}#{n}", None, None, at)
+
+
+def abandoned(doc: record.StoreDoc, n: int, at: datetime) -> record.StoreDoc:
+    return record.mark_spawn_error(pending(doc, n, at), f"{REPO_A}#{n}", at)
+
+
+def acked(doc: record.StoreDoc, n: int, at: datetime) -> record.StoreDoc:
+    return record.mark_acked(woken(doc, n, at), f"{REPO_A}#{n}", at)
 
 
 def seed_store(
     config: cycle.Config,
+    build=lambda doc: doc,
     *,
     last_completed: datetime | None = None,
     next_permitted: datetime | None = None,
-    entries: tuple[Entry, ...] = (),
+    rate_streak: int = 0,
 ) -> record.FileStore:
-    """Create the state directory and store, then replace the interesting fields."""
-    store = record.init_state(config.state_dir, NOW - timedelta(days=3))
+    """Create the state directory and store, then fill it with ``build(doc)``."""
+    store = record.init_state(config.state_dir, NOW - timedelta(days=3), baseline=False)
+    doc = build(store.load())
     store.save(
         replace(
-            store.load(),
+            doc,
             last_completed_cycle_at=last_completed,
             next_permitted_at=next_permitted,
-            entries={e.issue: e for e in entries},
+            rate_streak=rate_streak,
         )
     )
     return store
-
-
-def retry_argv(orca: str, n: int, cwd: str, op: str) -> list[str]:
-    """The full original 12-element launch argv with the retry flag before --json."""
-    return [
-        orca,
-        "agent",
-        "launch",
-        "--agent",
-        "claude",
-        "--worktree",
-        f"path:{cwd}",
-        "--surface",
-        "terminal",
-        "--prompt",
-        f"/sc:issue --claim {n} --pipeline none",
-        "--retry-launch",
-        op,
-        "--json",
-    ]
-
-
-def set_path(monkeypatch, tmp_path: Path, *names: str) -> Path:
-    """PATH holds only ``tmp_path/bin``, with an executable file per name."""
-    bin_dir = tmp_path / "bin"
-    bin_dir.mkdir(exist_ok=True)
-    for name in names:
-        exe = bin_dir / name
-        exe.write_text("#!/bin/sh\n", encoding="utf-8")
-        exe.chmod(0o755)
-    monkeypatch.setenv("PATH", str(bin_dir))
-    return bin_dir
 
 
 @pytest.fixture
@@ -290,6 +265,13 @@ def test_the_group_lists_exactly_the_five_commands__df06():
     assert "issue-watch" in top.output
 
 
+def test_the_group_help_says_it_wakes_the_orchestrator():
+    result = CliRunner().invoke(issue_watch_group, ["--help"])
+    text = " ".join(result.output.split())
+    assert "assigned to you" in text and "orchestrator" in text
+    assert "claim" not in text and "trigger" not in text
+
+
 def test_the_help_examples_keep_one_line_each():
     result = CliRunner().invoke(issue_watch_group, ["--help"])
     lines = [ln.strip() for ln in result.output.splitlines()]
@@ -317,21 +299,21 @@ def test_every_command_takes_the_shared_config_option(verb):
 
 
 def test_check_config_without_config_reads_the_default_path_under_home__df13(
-    tmp_path, default_config_file
+    tmp_path, default_config_file, tiers
 ):
     result = run("check-config")
     assert result.exit_code == 0, result.output
     assert result.output.startswith("configuration is valid\n")
 
 
-def test_a_passed_config_with_a_tilde_is_expanded__df13(tmp_path, config):
+def test_a_passed_config_with_a_tilde_is_expanded__df13(tmp_path, config, tiers):
     write_config(tmp_path / "home/custom.json", config)
     result = run("check-config", "--config", "~/custom.json")
     assert result.exit_code == 0, result.output
 
 
 def test_a_tilde_inside_the_json_is_not_expanded__df13(tmp_path, config):
-    path = write_config(tmp_path / "bad.json", config, worktree="~/worktree")
+    path = write_config(tmp_path / "bad.json", config, orchestrator_repo="~/orch")
     result = run("check-config", "--config", str(path))
     assert result.exit_code == 2
     assert_fallback(result.output, "config_invalid")
@@ -343,73 +325,106 @@ def test_a_missing_default_config_is_exit_2(tmp_path):
     assert_fallback(result.output, "config_invalid")
 
 
+def test_a_version_1_config_is_refused_with_the_new_schema_named(tmp_path, config):
+    path = write_config(tmp_path / "old.json", config, schema_version=1)
+    result = run("check-config", "--config", str(path))
+    assert result.exit_code == 2
+    assert_fallback(result.output, "config_invalid")
+    assert "schema_version must be the integer 2" in result.output
+
+
+@pytest.mark.parametrize("old_key", ["project_id", "approvers_file", "worktree"])
+def test_a_removed_config_key_is_refused(tmp_path, config, old_key):
+    path = write_config(tmp_path / "old.json", config, **{old_key: "x"})
+    result = run("check-config", "--config", str(path))
+    assert result.exit_code == 2
+    assert_fallback(result.output, "config_invalid")
+    assert old_key in result.output
+
+
 # ==============================================================================
 # check-config
 # ==============================================================================
 
 
-def test_check_config_prints_the_mtime_and_count_and_writes_nothing(
-    tmp_path, config, config_file
+def test_check_config_prints_the_setup_and_the_routing_preview_and_writes_nothing(
+    tmp_path, config, config_file, tiers
 ):
-    """AC-17, FR-026: check-config exits 0, prints its summary and writes nothing."""
-    config.approvers_file.write_text("7654321\n# a note\n\n1001\n7654321\n", "utf-8")
-    stamp = datetime(2026, 1, 2, 3, 4, 5, tzinfo=timezone.utc).timestamp()
-    os.utime(config.approvers_file, (stamp, stamp))
     result = run_readonly(tmp_path, "check-config", "--config", str(config_file))
-    assert result.exit_code == 0
-    assert result.output == (
-        "configuration is valid\n"
-        f"state_dir: {config.state_dir}\n"
-        "approvers_file mtime: 2026-01-02T03:04:05Z\n"
-        "approvers_file entries: 2\n"
-    )
-    assert "7654321" not in result.output  # nothing else about the file
+    assert result.exit_code == 0, result.output
+    lines = result.output.splitlines()
+    assert lines[0] == "configuration is valid"
+    assert lines[1] == f"state_dir: {config.state_dir}"
+    assert lines[2] == f"orchestrator_repo: {config.orchestrator_repo}"
+    assert lines[3].startswith("repos: 2 in 2 orgs, tiers ")
+    assert "tier1b" in lines[3]
+    assert (
+        f"  {REPO_A} (enabled, max 3 in flight, tier tier1b): "
+        "next issue goes to a new ironclaude-1"
+    ) in lines
     assert not config.state_dir.exists()
+    assert tiers.argvs() == [("ccsession", "--help")]
 
 
-def _bad_config(tmp_path, config, config_file):
-    write_config(config_file, config, project_id="not-a-project")
-
-
-def _bad_line(tmp_path, config, config_file):
-    config.approvers_file.write_text("1001\nnot-an-id\n", "utf-8")
-
-
-def _group_writable(tmp_path, config, config_file):
-    config.approvers_file.chmod(0o620)
-
-
-def _empty_approvers(tmp_path, config, config_file):
-    config.approvers_file.write_text("# only a comment\n", "utf-8")
-
-
-def _missing_approvers(tmp_path, config, config_file):
-    config.approvers_file.unlink()
-
-
-def _missing_worktree(tmp_path, config, config_file):
-    config.worktree.rmdir()
-
-
-@pytest.mark.parametrize(
-    ("break_it", "reason"),
-    [
-        (_bad_config, "config_invalid"),
-        (_bad_line, "approvers_invalid"),
-        (_group_writable, "approvers_invalid"),
-        (_empty_approvers, "approvers_invalid"),
-        (_missing_approvers, "approvers_invalid"),
-        (_missing_worktree, "worktree_invalid"),
-    ],
-)
-def test_check_config_exits_2_for_an_invalid_setup(
-    tmp_path, config, config_file, break_it, reason
+def test_check_config_lists_each_orchestrator_with_what_it_holds(
+    tmp_path, config, config_file, tiers
 ):
-    break_it(tmp_path, config, config_file)
+    write_registry(config, {ORCH: {}})
+    result = run("check-config", "--config", str(config_file))
+    assert result.exit_code == 0, result.output
+    assert f"    {ORCH} active holds 0" in result.output.splitlines()
+    assert f"next issue goes to {ORCH}" in result.output
+
+
+def test_check_config_exits_2_for_a_registry_that_cannot_be_read(
+    tmp_path, config, config_file, tiers
+):
+    orch_dir = config.orchestrator_repo / ".orchestrator"
+    orch_dir.mkdir()
+    (orch_dir / "orchestrators.json").write_text("{not json", "utf-8")
+    result = run("check-config", "--config", str(config_file))
+    assert result.exit_code == 2
+    (line,) = fallback_lines(result.output)
+    assert line["reason"] == "registry_invalid"
+
+
+def test_check_config_names_a_missing_orchestrator_repo(tmp_path, config, tiers):
+    gone = tmp_path / "no-such-repo"
+    path = write_config(tmp_path / "c.json", config, orchestrator_repo=str(gone))
+    result = run_readonly(tmp_path, "check-config", "--config", str(path))
+    assert result.exit_code == 2
+    assert_fallback(result.output, "orchestrator_repo_invalid")
+
+
+def test_check_config_names_a_bad_repos_file(tmp_path, config, config_file, tiers):
+    (config.orchestrator_repo / "repos.yaml").write_text("repos: [", "utf-8")
     result = run_readonly(tmp_path, "check-config", "--config", str(config_file))
     assert result.exit_code == 2
-    assert "configuration is valid" not in result.output
-    assert_fallback(result.output, reason)
+    assert_fallback(result.output, "repos_invalid")
+
+
+def test_check_config_names_a_missing_repos_file(tmp_path, config, config_file, tiers):
+    (config.orchestrator_repo / "repos.yaml").unlink()
+    result = run("check-config", "--config", str(config_file))
+    assert result.exit_code == 2
+    assert_fallback(result.output, "repos_invalid")
+
+
+def test_check_config_exits_2_when_the_tier_list_cannot_be_read(
+    tmp_path, config, config_file, monkeypatch
+):
+    fake = FakeRunner({("ccsession", "--help"): command_result(returncode=1)})
+    monkeypatch.setattr(cli, "SubprocessRunner", lambda: fake)
+    result = run("check-config", "--config", str(config_file))
+    assert result.exit_code == 2
+    assert_fallback(result.output, "repos_invalid")
+
+
+def test_check_config_exits_2_for_an_invalid_config_file(tmp_path, config, config_file):
+    write_config(config_file, config, enabled="yes")
+    result = run_readonly(tmp_path, "check-config", "--config", str(config_file))
+    assert result.exit_code == 2
+    assert_fallback(result.output, "config_invalid")
 
 
 def test_check_config_exits_2_on_an_unsupported_platform(
@@ -445,7 +460,7 @@ def test_check_config_exits_2_for_a_deny_listed_filesystem__df52(
         (4, "truncated"),
         (5, "rate_limited"),
         (6, "store_invalid"),
-        (7, "launch_unknown"),
+        (7, "ack_not_observed"),
         (75, "lock_held"),
     ],
 )
@@ -474,7 +489,7 @@ def test_once_exits_with_the_exit_code_of_the_cycle(
     assert seen == [(sentinel, False)]
 
 
-def test_once_dry_run_passes_the_flag_and_prints_probe_and_would_launch(
+def test_once_dry_run_passes_the_flag_and_prints_what_it_would_do(
     config_file, monkeypatch
 ):
     seen: list[bool] = []
@@ -483,10 +498,12 @@ def test_once_dry_run_passes_the_flag_and_prints_probe_and_would_launch(
         seen.append(dry_run)
         return cycle.CycleResult(
             exit_code=0,
-            reason="not_approved",
+            reason="cycle_complete",
             cycle_id="0" * 32,
-            would_launch=42,
-            probe="skipped",
+            would_wake=(f"{REPO_A}#42", f"{REPO_A}#43"),
+            would_hold=(f"{REPO_A}#44",),
+            would_release=(f"{REPO_A}#45",),
+            would_request=(f"{REPO_A}#46",),
         )
 
     monkeypatch.setattr(cli, "build_deps", lambda cfg: object())
@@ -494,36 +511,37 @@ def test_once_dry_run_passes_the_flag_and_prints_probe_and_would_launch(
     result = run("once", "--dry-run", "--config", str(config_file))
     assert result.exit_code == 0
     assert result.output == (
-        "cycle: not_approved\nexit: 0\nprobe: skipped\nwould_launch: 42\n"
+        "cycle: cycle_complete\nexit: 0\n"
+        f"would_wake: {REPO_A}#42, {REPO_A}#43\n"
+        f"would_hold: {REPO_A}#44\n"
+        f"would_release: {REPO_A}#45\n"
+        f"would_request: {REPO_A}#46\n"
     )
     assert seen == [True]
 
 
-def test_once_without_dry_run_prints_no_probe_or_would_launch_line(
-    config_file, monkeypatch
-):
+def test_once_without_dry_run_prints_no_would_lines(config_file, monkeypatch):
     monkeypatch.setattr(cli, "build_deps", lambda cfg: object())
     monkeypatch.setattr(
         cycle,
         "run_cycle",
         lambda deps, dry_run: cycle.CycleResult(
             exit_code=0,
-            reason="launched",
+            reason="cycle_complete",
             cycle_id="0" * 32,
-            launched_issue=42,
-            would_launch=42,
-            probe="skipped",
+            woken=(KEY9,),
+            would_wake=(KEY9,),
         ),
     )
     result = run("once", "--config", str(config_file))
     assert result.exit_code == 0
-    assert result.output == "cycle: launched\nexit: 0\n"
+    assert result.output == "cycle: cycle_complete\nexit: 0\n"
 
 
 def test_once_on_a_config_error_writes_the_fallback_and_exits_2(
     tmp_path, config, monkeypatch, runner_calls
 ):
-    path = write_config(tmp_path / "bad.json", config, project_id=_DROP)
+    path = write_config(tmp_path / "bad.json", config, orchestrator_repo=_DROP)
     monkeypatch.setattr(
         cycle, "run_cycle", lambda *a: pytest.fail("run_cycle must not run")
     )
@@ -545,7 +563,7 @@ def test_once_runs_a_real_cycle_over_the_fakes_when_not_enabled(
     assert result.exit_code == 0
     assert result.output == "cycle: not_enabled\nexit: 0\n"
     assert deps.runner.calls == []
-    assert deps.launcher.calls == []
+    assert deps.waker.deliveries == []
     assert (tmp_state.state_dir / "dispatch.json").read_bytes() == before
     (line,) = audit_lines(tmp_state.state_dir)
     assert (line["kind"], line["reason"], line["exit"], line["dry_run"]) == (
@@ -557,11 +575,11 @@ def test_once_runs_a_real_cycle_over_the_fakes_when_not_enabled(
     assert line["host"] == "test-host"
 
 
-def test_once_dry_run_runs_a_real_cycle_and_never_launches(
+def test_once_dry_run_runs_a_real_cycle_and_wakes_nobody(
     tmp_path, tmp_state, gh_world, monkeypatch
 ):
     world = gh_world()
-    world.issue(9)
+    world.issue(REPO_A, 9)
     path = write_config(tmp_path / "on.json", world.config)
     deps = world.deps(tmp_path, tmp_state)
     monkeypatch.setattr(cli, "build_deps", lambda cfg: deps)
@@ -570,23 +588,30 @@ def test_once_dry_run_runs_a_real_cycle_and_never_launches(
     assert result.exit_code == 0, result.output
     first, *rest = result.output.splitlines()
     assert first.startswith("cycle: ")
-    assert rest == ["exit: 0", "probe: skipped", "would_launch: 9"]
-    assert deps.launcher.calls == []
+    assert rest == ["exit: 0", f"would_wake: {KEY9}"]
+    assert deps.waker.deliveries == []
     assert (tmp_state.state_dir / "dispatch.json").read_bytes() == before
     assert audit_lines(tmp_state.state_dir)[-1]["dry_run"] is True
+
+
+def test_once_wakes_the_orchestrator_for_an_assigned_issue(
+    tmp_path, tmp_state, gh_world, monkeypatch
+):
+    world = gh_world()
+    world.issue(REPO_A, 9)
+    path = write_config(tmp_path / "on.json", world.config)
+    deps = world.deps(tmp_path, tmp_state)
+    monkeypatch.setattr(cli, "build_deps", lambda cfg: deps)
+    result = run("once", "--config", str(path))
+    assert result.exit_code == 0, result.output
+    assert len(deps.waker.deliveries) == 1
+    assert tmp_state.load().entries[KEY9].state == "woken"
 
 
 # -- build_deps: the one production assembly of Deps (DF-45, Gate C fix C-12) ------
 
 
 def test_build_deps_wires_the_real_dependencies_from_the_config(config, monkeypatch):
-    seen: list[tuple[list[str], float, str | None]] = []
-
-    def record_run(self, argv, timeout, *, cwd=None):
-        seen.append((list(argv), timeout, cwd))
-        return command_result(stdout="{}")
-
-    monkeypatch.setattr(runner_mod.SubprocessRunner, "run", record_run)
     deps = _REAL_BUILD_DEPS(config)
     assert deps.config is config
     assert isinstance(deps.runner, runner_mod.SubprocessRunner)
@@ -598,21 +623,14 @@ def test_build_deps_wires_the_real_dependencies_from_the_config(config, monkeypa
     assert isinstance(deps.clock, cycle.SystemClock)
     assert deps.which is shutil.which
     assert deps.host == socket.gethostname()
-    # The launcher is the Orca launcher and runs through a SubprocessRunner, with
-    # the worktree as the working directory (the one call that passes cwd).
-    assert isinstance(deps.launcher, launch.OrcaLauncher)
-    deps.launcher.launch(
-        "orca-x", config.worktree, "/sc:issue --claim 9 --pipeline none", 30.0
-    )
-    assert seen == [
-        (
-            launch.launch_argv(
-                "orca-x", config.worktree, "/sc:issue --claim 9 --pipeline none"
-            ),
-            30.0,
-            str(config.worktree),
-        )
-    ]
+    # The waker is the real one and runs through a SubprocessRunner.
+    assert isinstance(deps.waker, wake.Waker)
+    assert deps.label_guard is None and deps.wake_token is None
+
+
+def test_the_cli_module_never_imports_subprocess():
+    text = Path(cli.__file__).read_text(encoding="utf-8")
+    assert "import subprocess" not in text and "from subprocess" not in text
 
 
 # -- once: an unexpected exception (Gate C fix C-3, C-7) ---------------------------
@@ -634,8 +652,8 @@ def _once_over(tmp_path, tmp_state, gh_world, monkeypatch, store_error=None):
 def test_once_turns_an_unexpected_exception_into_exit_1_and_one_fallback_line(
     tmp_path, tmp_state, gh_world, monkeypatch
 ):
-    secret = "issue title that must never reach the output"  # pragma: allowlist secret
-    path = _once_over(tmp_path, tmp_state, gh_world, monkeypatch, RuntimeError(secret))
+    text = "issue title that must never reach the output"
+    path = _once_over(tmp_path, tmp_state, gh_world, monkeypatch, RuntimeError(text))
     before = (tmp_state.state_dir / "dispatch.json").read_bytes()
     result = run("once", "--config", str(path))
     assert result.exit_code == 1
@@ -647,7 +665,7 @@ def test_once_turns_an_unexpected_exception_into_exit_1_and_one_fallback_line(
         "cycle_crashed",
     )
     assert "issue-watch: cycle_crashed: RuntimeError" in result.output.splitlines()
-    assert secret not in result.output  # only the class name is printed
+    assert text not in result.output  # only the class name is printed
     assert "Traceback" not in result.output
     assert audit_lines(tmp_state.state_dir) == []
     assert (tmp_state.state_dir / "dispatch.json").read_bytes() == before
@@ -732,229 +750,138 @@ def test_once_prints_exit_6_when_the_final_save_fails(
 # status
 # ==============================================================================
 
-_CWD = "/srv/worktree"
+STATUS_KEYS = {
+    "healthy",
+    "last_completed_cycle_age_seconds",
+    "disabled_since",
+    "next_permitted_at",
+    "rate_streak",
+    "counts",
+    "day_cap_used",
+    "baseline_pending",
+    "stale",
+    "held",
+}
 
 
-def seed_rich_store(config: cycle.Config) -> None:
-    """Two unknown, one stale abandoned and one claimed entry; DISABLED present."""
-    seed_store(
+def seed_rich_store(config: cycle.Config) -> record.FileStore:
+    """One stale unknown, one fresh woken, one acked, a quiet hold and a hold with a signal."""
+    old = NOW - timedelta(hours=25)
+
+    def build(doc: record.StoreDoc) -> record.StoreDoc:
+        doc = unknown(doc, 5, old)
+        doc = woken(doc, 6, NOW - timedelta(minutes=3))
+        doc = acked(doc, 7, NOW - timedelta(hours=2))
+        quiet = hold.new_hold(NOW - timedelta(hours=3), NOW - timedelta(hours=3), ())
+        doc = record.set_hold(doc, f"{REPO_A}#20", quiet)
+        busy = hold.with_evidence(
+            hold.new_hold(
+                NOW - timedelta(hours=3), NOW - timedelta(hours=3), ("fix_approach",)
+            ),
+            NOW - timedelta(minutes=10),
+            "branch",
+        )
+        return record.set_hold(doc, f"{REPO_A}#21", busy)
+
+    store = seed_store(
         config,
+        build,
         last_completed=NOW - timedelta(seconds=120),
         next_permitted=NOW + timedelta(minutes=10),
-        entries=(
-            entry(
-                5,
-                "unknown",
-                NOW - timedelta(hours=25),
-                launches=1,
-                consumed_at=NOW - timedelta(hours=25),
-                pending_at=NOW - timedelta(hours=25),
-                operation_id="op:5.abc",
-                launch_cwd=_CWD,
-                last_reason="launch_unknown",
-            ),
-            entry(
-                6,
-                "abandoned",
-                NOW - timedelta(hours=25),
-                last_reason="pending_orphan",
-            ),
-            entry(
-                7,
-                "claimed",
-                NOW - timedelta(minutes=30),
-                launches=1,
-                consumed_at=NOW - timedelta(hours=1),
-                pending_at=NOW - timedelta(hours=1),
-                last_reason="claimed",
-            ),
-            entry(
-                8,
-                "unknown",
-                NOW - timedelta(hours=23),
-                launches=1,
-                consumed_at=NOW - timedelta(hours=23),
-                pending_at=NOW - timedelta(hours=23),
-                operation_id="op-8",
-                launch_cwd=_CWD,
-                last_reason="launch_unknown",
-            ),
-        ),
+        rate_streak=2,
     )
-    disabled = config.state_dir / "DISABLED"
-    disabled.write_text("", encoding="utf-8")
-    os.utime(disabled, (FIXED_NOW.timestamp(), FIXED_NOW.timestamp()))
+    (config.state_dir / "DISABLED").write_text("", "utf-8")
+    return store
 
 
 def test_status_json_has_exactly_the_design_fields(
-    tmp_path, config, config_file, fixed_clock, monkeypatch, runner_calls
+    tmp_path, config, config_file, fixed_clock
 ):
     seed_rich_store(config)
-    set_path(monkeypatch, tmp_path, "orca-ide")
     result = run_readonly(tmp_path, "status", "--json", "--config", str(config_file))
     assert result.exit_code == 0, result.output
     report = json.loads(result.output)
-    assert set(report) == {
-        "healthy",
-        "last_completed_cycle_age_seconds",
-        "disabled_since",
-        "next_permitted_at",
-        "counts",
-        "day_cap_used",
-        "stale",
-        "retry",
+    assert set(report) == STATUS_KEYS
+    assert report["healthy"] is True
+    assert report["last_completed_cycle_age_seconds"] == 120
+    assert report["disabled_since"] is not None
+    assert report["next_permitted_at"] == "2026-11-07T13:10:00Z"
+    assert report["rate_streak"] == 2
+    assert report["counts"] == {"unknown": 1, "woken": 1, "acked": 1}
+    assert report["baseline_pending"] is False
+    assert [s["issue"] for s in report["stale"]] == [f"{REPO_A}#5"]
+    assert set(report["stale"][0]) == {"issue", "state", "last_reason", "updated_at"}
+    assert [h["issue"] for h in report["held"]] == [f"{REPO_A}#20", f"{REPO_A}#21"]
+    quiet, busy = report["held"]
+    assert quiet["signal"] is None and quiet["plan_request"] is None
+    assert busy["signal"] == "branch" and busy["missing"] == ["fix_approach"]
+    assert set(busy) == {
+        "issue",
+        "state",
+        "first_held_at",
+        "quiet_since",
+        "signal",
+        "plan_request",
+        "missing",
     }
-    assert report == {
-        "healthy": True,
-        "last_completed_cycle_age_seconds": 120,
-        "disabled_since": "2026-11-07T12:00:00Z",
-        "next_permitted_at": "2026-11-07T13:10:00Z",
-        "counts": {"abandoned": 1, "claimed": 1, "unknown": 2},
-        "day_cap_used": 2,  # entries 7 and 8; entry 5 consumed 25 h ago is outside
-        "stale": [
-            {
-                "issue": 5,
-                "state": "unknown",
-                "last_reason": "launch_unknown",
-                "updated_at": "2026-11-06T12:00:00Z",
-            },
-            {
-                "issue": 6,
-                "state": "abandoned",
-                "last_reason": "pending_orphan",
-                "updated_at": "2026-11-06T12:00:00Z",
-            },
-        ],
-        "retry": [
-            {
-                "issue": 5,
-                "operation_id": "op:5.abc",
-                "cwd": _CWD,
-                "argv": retry_argv("orca-ide", 5, _CWD, "op:5.abc"),
-            },
-            {
-                "issue": 8,
-                "operation_id": "op-8",
-                "cwd": _CWD,
-                "argv": retry_argv("orca-ide", 8, _CWD, "op-8"),
-            },
-        ],
-    }
-    assert runner_calls == []
 
 
-def test_status_text_lists_stale_entries_and_the_retry_commands(
-    tmp_path, config, config_file, fixed_clock, monkeypatch
+def test_status_text_lists_stale_entries_and_the_held_issues(
+    tmp_path, config, config_file, fixed_clock
 ):
-    """AC-9, FR-015, FR-021: status lists the full retry argv of an unknown entry."""
     seed_rich_store(config)
-    set_path(monkeypatch, tmp_path, "orca-ide")
     result = run_readonly(tmp_path, "status", "--config", str(config_file))
-    assert result.exit_code == 0
-    assert result.output == (
-        "healthy: yes\n"
-        "last completed cycle age: 120s\n"
-        "disabled since: 2026-11-07T12:00:00Z\n"
-        "next permitted at: 2026-11-07T13:10:00Z\n"
-        "day cap used: 2\n"
-        "counts: abandoned=1, claimed=1, unknown=2\n"
-        "stale: 2\n"
-        "  issue 5 unknown launch_unknown updated 2026-11-06T12:00:00Z\n"
-        "  issue 6 abandoned pending_orphan updated 2026-11-06T12:00:00Z\n"
-        "retry: 2\n"
-        f"  issue 5: run from {_CWD}\n"
-        f"    {shlex.join(retry_argv('orca-ide', 5, _CWD, 'op:5.abc'))}\n"
-        f"  issue 8: run from {_CWD}\n"
-        f"    {shlex.join(retry_argv('orca-ide', 8, _CWD, 'op-8'))}\n"
-    )
+    assert result.exit_code == 0, result.output
+    lines = result.output.splitlines()
+    assert lines[0] == "healthy: yes"
+    assert "last completed cycle age: 120s" in lines
+    assert "rate-limit streak: 2" in lines
+    assert "counts: acked=1, unknown=1, woken=1" in lines
+    assert "stale: 1" in lines
+    assert any(ln.startswith(f"  issue {REPO_A}#5 unknown") for ln in lines)
+    assert "held: 2" in lines
+    signal = [ln for ln in lines if ln.startswith(f"  issue {REPO_A}#21 ")]
+    assert len(signal) == 1 and "signal branch" in signal[0]
+    quiet = [ln for ln in lines if ln.startswith(f"  issue {REPO_A}#20 ")]
+    assert len(quiet) == 1 and "signal none" in quiet[0]
+    assert "baseline:" not in result.output
+    assert "retry" not in result.output  # no command for a person to run (R5)
 
 
-def _launched_like(n: int, state: str, reason: str, **over: object) -> Entry:
-    """An entry past its launch call that carries an operation id and a cwd."""
-    when = NOW - timedelta(minutes=30)
-    return entry(
-        n,
-        state,
-        when,
-        launches=1,
-        consumed_at=when,
-        pending_at=when,
-        operation_id=f"op-{n}",
-        launch_cwd=_CWD,
-        last_reason=reason,
-        **over,
-    )
-
-
-def test_status_retry_lists_only_unknown_entries_with_an_id_and_a_cwd__ac9_fr015(
-    tmp_path, config, config_file, fixed_clock, monkeypatch
+def test_status_says_when_the_baseline_is_still_pending(
+    tmp_path, config, config_file, fixed_clock
 ):
-    """AC-9, FR-015: launched, claimed and abandoned entries never get a retry."""
-    seed_store(
-        config,
-        last_completed=NOW - timedelta(seconds=60),
-        entries=(
-            _launched_like(5, "launched", "launched"),
-            _launched_like(6, "claimed", "claimed"),
-            _launched_like(7, "abandoned", "claim_not_observed"),
-            _launched_like(8, "unknown", "launch_unknown"),
-        ),
-    )
-    set_path(monkeypatch, tmp_path, "orca-ide")
-    as_json = run_readonly(tmp_path, "status", "--json", "--config", str(config_file))
-    assert as_json.exit_code == 0, as_json.output
-    report = json.loads(as_json.output)
-    assert report["counts"] == {
-        "abandoned": 1,
-        "claimed": 1,
-        "launched": 1,
-        "unknown": 1,
-    }
-    assert report["retry"] == [
-        {
-            "issue": 8,
-            "operation_id": "op-8",
-            "cwd": _CWD,
-            "argv": retry_argv("orca-ide", 8, _CWD, "op-8"),
-        }
+    record.init_state(config.state_dir, NOW - timedelta(minutes=5))
+    result = run("status", "--config", str(config_file))
+    assert result.exit_code == 1  # no cycle has completed yet
+    assert "baseline: pending" in result.output
+    assert json.loads(run("status", "--json", "--config", str(config_file)).output)[
+        "baseline_pending"
     ]
-    as_text = run_readonly(tmp_path, "status", "--config", str(config_file))
-    assert as_text.exit_code == 0, as_text.output
-    assert "retry: 1\n" in as_text.output
-    assert as_text.output.count("run from") == 1
-    for n in (5, 6, 7):
-        assert f"issue {n}: run from" not in as_text.output
-        assert f"op-{n}" not in as_text.output
 
 
 @pytest.mark.parametrize(("age", "code"), [(100, 0), (900, 0), (901, 1), (1000, 1)])
 def test_status_exit_code_follows_the_age_of_the_last_completed_cycle(
-    tmp_path, config, config_file, fixed_clock, age, code
+    config, config_file, fixed_clock, age, code
 ):
     seed_store(config, last_completed=NOW - timedelta(seconds=age))
-    result = run_readonly(tmp_path, "status", "--json", "--config", str(config_file))
+    result = run("status", "--config", str(config_file))
     assert result.exit_code == code
-    report = json.loads(result.output)
-    assert report["last_completed_cycle_age_seconds"] == age
-    assert report["healthy"] is (code == 0)
+    assert f"healthy: {'yes' if code == 0 else 'no'}" in result.output
 
 
 def test_status_is_unhealthy_when_no_cycle_ever_completed(
-    tmp_path, config, config_file, fixed_clock
+    config, config_file, fixed_clock
 ):
     seed_store(config)
-    result = run_readonly(tmp_path, "status", "--config", str(config_file))
+    result = run("status", "--json", "--config", str(config_file))
     assert result.exit_code == 1
-    assert result.output.startswith(
-        "healthy: no\nlast completed cycle age: never\ndisabled since: no\n"
-    )
-    as_json = run_readonly(tmp_path, "status", "--json", "--config", str(config_file))
-    assert as_json.exit_code == 1
-    assert json.loads(as_json.output)["last_completed_cycle_age_seconds"] is None
+    report = json.loads(result.output)
+    assert report["healthy"] is False
+    assert report["last_completed_cycle_age_seconds"] is None
 
 
 def test_status_exits_6_for_a_missing_store(tmp_path, config, config_file):
-    config.state_dir.mkdir()
     result = run_readonly(tmp_path, "status", "--config", str(config_file))
     assert result.exit_code == 6
     assert result.output == "issue-watch: store_missing\n"
@@ -962,28 +889,55 @@ def test_status_exits_6_for_a_missing_store(tmp_path, config, config_file):
 
 def test_status_exits_6_for_an_invalid_store(tmp_path, config, config_file):
     config.state_dir.mkdir()
-    (config.state_dir / "dispatch.json").write_text("{not json", encoding="utf-8")
-    result = run_readonly(tmp_path, "status", "--json", "--config", str(config_file))
+    (config.state_dir / "dispatch.json").write_text("{not json", "utf-8")
+    result = run_readonly(tmp_path, "status", "--config", str(config_file))
     assert result.exit_code == 6
     assert result.output == "issue-watch: store_invalid\n"
+
+
+def test_status_reads_a_version_1_store_as_an_empty_one_and_leaves_the_file_alone(
+    tmp_path, config, config_file, fixed_clock
+):
+    """A schema 1 store is dropped in memory: status reads an empty store that wants a baseline."""
+    seed_store(config, last_completed=NOW - timedelta(seconds=60))
+    path = config.state_dir / "dispatch.json"
+    raw = json.loads(path.read_text("utf-8"))
+    path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "created_at": raw["created_at"],
+                "next_permitted_at": None,
+                "last_completed_cycle_at": raw["last_completed_cycle_at"],
+                "consumed_log": [],
+                "entries": {},
+            }
+        ),
+        encoding="utf-8",
+    )
+    before = path.read_bytes()
+    result = run("status", "--json", "--config", str(config_file))
+    assert result.exit_code == 1, result.output  # no cycle has completed on schema 2
+    report = json.loads(result.output)
+    assert (report["counts"], report["baseline_pending"]) == ({}, True)
+    assert path.read_bytes() == before  # the migration is in memory only
 
 
 @pytest.mark.skipif(os.geteuid() == 0, reason="root reads any file")
 def test_status_exits_6_for_an_unreadable_store(tmp_path, config, config_file):
     seed_store(config)
-    store_file = config.state_dir / "dispatch.json"
-    store_file.chmod(0)
+    path = config.state_dir / "dispatch.json"
+    path.chmod(0)
     try:
-        result = run_readonly(tmp_path, "status", "--config", str(config_file))
+        result = run("status", "--config", str(config_file))
     finally:
-        store_file.chmod(0o600)
+        path.chmod(0o600)
     assert result.exit_code == 6
     assert result.output == "issue-watch: store_invalid\n"
 
 
 def test_status_exits_2_for_a_config_error_and_touches_nothing(tmp_path, config):
-    seed_store(config)
-    path = write_config(tmp_path / "bad.json", config, schema_version=2)
+    path = write_config(tmp_path / "bad.json", config, schema_version="2")
     result = run_readonly(tmp_path, "status", "--config", str(path))
     assert result.exit_code == 2
     assert_fallback(result.output, "config_invalid")
@@ -994,79 +948,28 @@ def test_status_leaves_every_mtime_unchanged_and_creates_no_audit_file__fr021(
 ):
     seed_rich_store(config)
     before = snapshot(tmp_path)
-    for args in (["status"], ["status", "--json"]):
-        run(*args, "--config", str(config_file))
+    for args in (("status",), ("status", "--json")):
+        assert run(*args, "--config", str(config_file)).exit_code == 0
         assert snapshot(tmp_path) == before
     assert not (config.state_dir / "audit.jsonl").exists()
-    assert not (config.state_dir / "dry-run.json").exists()
 
 
-# -- AC-9: the retry command's first element, with PATH pinned (OQ-50) ---------
-
-
-def _retry_argv0(tmp_path, config, config_file) -> tuple[int, list[str]]:
-    seed_store(
-        config,
-        last_completed=NOW - timedelta(seconds=60),
-        entries=(
-            entry(
-                9,
-                "unknown",
-                NOW - timedelta(hours=25),
-                launches=1,
-                consumed_at=NOW - timedelta(hours=25),
-                pending_at=NOW - timedelta(hours=25),
-                operation_id="op-9",
-                launch_cwd=_CWD,
-                last_reason="launch_unknown",
-            ),
-        ),
-    )
-    result = run_readonly(tmp_path, "status", "--json", "--config", str(config_file))
-    report = json.loads(result.output)
-    assert [i["issue"] for i in report["stale"]] == [9]
-    (item,) = report["retry"]
-    return result.exit_code, item["argv"]
-
-
-def test_status_retry_uses_orca_ide_when_it_is_on_path__ac9(
+def test_status_works_on_another_platform_because_it_only_reads(
     tmp_path, config, config_file, fixed_clock, monkeypatch
 ):
-    bin_dir = set_path(monkeypatch, tmp_path, "orca-ide")
-    assert shutil.which("orca-ide") == str(bin_dir / "orca-ide")
-    code, argv = _retry_argv0(tmp_path, config, config_file)
-    assert code == 0
-    assert argv == retry_argv("orca-ide", 9, _CWD, "op-9")
-    assert argv[-3:] == ["--retry-launch", "op-9", "--json"]
-
-
-def test_status_retry_uses_the_second_name_when_only_it_is_on_path__ac9(
-    tmp_path, config, config_file, fixed_clock, monkeypatch
-):
-    set_path(monkeypatch, tmp_path, "orca")
-    code, argv = _retry_argv0(tmp_path, config, config_file)
-    assert code == 0
-    assert argv == retry_argv("orca", 9, _CWD, "op-9")
-
-
-def test_status_retry_uses_the_bare_first_name_when_none_is_on_path__oq50(
-    tmp_path, config, config_file, fixed_clock, monkeypatch
-):
-    set_path(monkeypatch, tmp_path)  # an empty directory is the whole PATH
-    assert shutil.which("orca-ide") is None
-    code, argv = _retry_argv0(tmp_path, config, config_file)
-    assert code == 0
-    assert argv == retry_argv("orca-ide", 9, _CWD, "op-9")
+    seed_store(config, last_completed=NOW - timedelta(seconds=60))
+    monkeypatch.setattr(sys, "platform", "darwin")
+    assert run("status", "--config", str(config_file)).exit_code == 0
 
 
 # ==============================================================================
-# Part B: init-state and reset with their audit lines (DF-03, DF-04, DF-57)
+# init-state and reset with their audit lines (DF-03, DF-04, DF-57)
 # ==============================================================================
 
 HOST = "test-host"
 TS = "2026-11-07T13:00:00Z"  # the fixed clock, as the audit ts of every reset line
 CYCLE_ID_SHAPE = re.compile(r"[0-9a-f]{32}")
-ISSUE_FLAGS = ("9", "--forfeit-guarantee")
+ISSUE_FLAGS = (KEY9, "--forfeit-guarantee")
 RATE_FLAGS = ("--rate-limit",)
 BOTH_FORMS = pytest.mark.parametrize(
     "flags", [ISSUE_FLAGS, RATE_FLAGS], ids=["issue", "rate"]
@@ -1089,10 +992,10 @@ def reset_env(config, config_file, fixed_clock, monkeypatch, runner_calls):
     monkeypatch.setattr(cli.socket, "gethostname", lambda: HOST)
 
     def never(*args, **kwargs):
-        raise AssertionError("reset must never launch")
+        raise AssertionError("reset must never run a cycle or wake anyone")
 
     monkeypatch.setattr(cycle, "run_cycle", never)
-    monkeypatch.setattr(cli.OrcaLauncher, "launch", never)
+    monkeypatch.setattr(wake.Waker, "deliver", never)
     yield config
     assert runner_calls == []
     assert_lock_free(config)
@@ -1163,52 +1066,31 @@ def one_line(config: cycle.Config, kind: str, reason: str, **extra: object) -> s
     return cid
 
 
-def abandoned9(**over: object) -> Entry:
-    over.setdefault("last_reason", "pending_orphan")
-    return entry(9, "abandoned", NOW - timedelta(hours=1), **over)
-
-
-def unknown9() -> Entry:
-    t = NOW - timedelta(hours=2)
-    return entry(
-        9,
-        "unknown",
-        NOW - timedelta(hours=1),
-        launches=1,
-        consumed_at=t,
-        pending_at=t,
-        operation_id="op-9",
-        launch_cwd=_CWD,
-        last_reason="launch_unknown",
-    )
-
-
-def consumed(state: str, hours: int = 5) -> Entry:
-    t = NOW - timedelta(hours=hours)
-    return entry(
-        9, state, NOW - timedelta(hours=1), launches=1, consumed_at=t, pending_at=t
-    )
-
-
-def seed_reset_store(config: cycle.Config, *entries: Entry) -> record.StoreDoc:
-    """A store with ``entries``, a claimed entry 10, a rate limit and a consumed_log."""
+def seed_reset_store(config: cycle.Config, build) -> record.StoreDoc:
+    """A store with issue 9 built by ``build``, an acked issue 10, a rate limit and a log."""
     t = NOW - timedelta(hours=1)
-    other = entry(
-        10,
-        "claimed",
-        NOW - timedelta(minutes=5),
-        launches=1,
-        consumed_at=t,
-        pending_at=t,
-    )
+
+    def both(doc: record.StoreDoc) -> record.StoreDoc:
+        doc = build(doc)
+        doc = acked(doc, 10, t)
+        return replace(doc, consumed_log=(NOW - timedelta(hours=3),))
+
     store = seed_store(
         config,
+        both,
         last_completed=NOW - timedelta(seconds=60),
         next_permitted=NOW + timedelta(minutes=10),
-        entries=(*entries, other),
+        rate_streak=2,
     )
-    store.save(replace(store.load(), consumed_log=(NOW - timedelta(hours=3),)))
     return store.load()
+
+
+def abandoned9(doc: record.StoreDoc) -> record.StoreDoc:
+    return abandoned(doc, 9, NOW - timedelta(hours=1))
+
+
+def unknown9(doc: record.StoreDoc) -> record.StoreDoc:
+    return unknown(doc, 9, NOW - timedelta(hours=1))
 
 
 # -- init-state -----------------------------------------------------------------
@@ -1231,8 +1113,18 @@ def test_init_state_creates_the_directory_the_store_and_the_lock(
     ]
     doc = record.FileStore(config.state_dir).load()
     assert (doc.created_at, doc.entries, doc.consumed_log) == (NOW, {}, ())
+    assert doc.holds == {} and doc.info_seen == ()
     assert doc.next_permitted_at is None and doc.last_completed_cycle_at is None
+    assert doc.baseline is True  # the first completed cycle records what is assigned
     assert_lock_free(config)
+
+
+def test_init_state_with_no_baseline_wakes_the_issues_already_assigned(
+    config, config_file, fixed_clock
+):
+    result = run("init-state", "--no-baseline", "--config", str(config_file))
+    assert result.exit_code == 0, result.output
+    assert record.FileStore(config.state_dir).load().baseline is False
 
 
 def test_a_second_init_state_exits_6_and_changes_nothing(
@@ -1288,7 +1180,7 @@ def test_init_state_exits_6_when_the_parent_is_a_file(tmp_path):
 
 
 def test_init_state_exits_2_for_an_invalid_config__df53(tmp_path, config, config_file):
-    write_config(config_file, config, project_id="not-a-project")
+    write_config(config_file, config, schema_version=1)
     result = run_readonly(tmp_path, "init-state", "--config", str(config_file))
     assert result.exit_code == 2
     assert_fallback(result.output, "config_invalid")
@@ -1321,25 +1213,39 @@ def test_init_state_exits_2_for_a_deny_listed_filesystem__df53(
 @pytest.mark.parametrize(
     "args",
     [
-        ("9", "--rate-limit", "--forfeit-guarantee"),
-        ("9", "--rate-limit"),
+        (KEY9, "--rate-limit", "--forfeit-guarantee"),
+        (KEY9, "--rate-limit"),
         (),
         ("--forfeit-guarantee",),
-        ("9",),
+        (KEY9,),
+        ("9", "--forfeit-guarantee"),
+        ("abc", "--forfeit-guarantee"),
+        (f"{REPO_A}#0", "--forfeit-guarantee"),
+        (f"{REPO_A}#x", "--forfeit-guarantee"),
     ],
-    ids=["both", "both-no-flag", "neither", "flag-only", "no-flag"],
+    ids=[
+        "both",
+        "both-no-flag",
+        "neither",
+        "flag-only",
+        "no-flag",
+        "bare-number",
+        "word",
+        "zero",
+        "not-a-number",
+    ],
 )
 def test_reset_usage_errors_exit_2_with_the_reset_refused_fallback(
     tmp_path, reset_env, config_file, args
 ):
-    seed_reset_store(reset_env, abandoned9())
+    seed_reset_store(reset_env, abandoned9)
     result = run_readonly(tmp_path, "reset", *args, "--config", str(config_file))
     assert result.exit_code == 2
     (fb,) = fallback_lines(result.output)
     assert set(fb) == {"kind", "ts", "host", "exit", "reason"}
     assert (fb["kind"], fb["exit"], fb["reason"]) == ("cycle", 2, "reset_refused")
     assert (fb["ts"], fb["host"]) != ("", "")  # stamped by the fallback itself
-    assert any(ln.startswith("issue-watch: reset") for ln in result.output.splitlines())
+    assert any(ln.startswith("issue-watch: ") for ln in result.output.splitlines())
     assert not (reset_env.state_dir / "audit.jsonl").exists()
 
 
@@ -1350,9 +1256,9 @@ def test_a_reset_usage_error_is_found_before_the_config_is_read(tmp_path, reset_
     assert fb["reason"] == "reset_refused"
 
 
-@pytest.mark.parametrize("args", [("abc",), ("0",), ("--bogus",), ("9", "10")])
+@pytest.mark.parametrize("args", [("--bogus",), (KEY9, "10")])
 def test_click_parse_errors_write_no_audit_line(tmp_path, reset_env, config_file, args):
-    seed_reset_store(reset_env, abandoned9())
+    seed_reset_store(reset_env, abandoned9)
     result = run_readonly(tmp_path, "reset", *args, "--config", str(config_file))
     assert result.exit_code == 2
     assert fallback_lines(result.output) == []
@@ -1360,8 +1266,8 @@ def test_click_parse_errors_write_no_audit_line(tmp_path, reset_env, config_file
 
 
 def test_reset_exits_2_for_an_invalid_config(tmp_path, reset_env, config_file):
-    seed_reset_store(reset_env, abandoned9())
-    write_config(config_file, reset_env, project_id="not-a-project")
+    seed_reset_store(reset_env, abandoned9)
+    write_config(config_file, reset_env, schema_version=1)
     result = run_readonly(tmp_path, "reset", *ISSUE_FLAGS, "--config", str(config_file))
     assert result.exit_code == 2
     assert_fallback(result.output, "config_invalid")
@@ -1371,7 +1277,7 @@ def test_reset_exits_2_for_an_invalid_config(tmp_path, reset_env, config_file):
 def test_reset_exits_2_on_an_unsupported_platform(
     tmp_path, reset_env, config_file, monkeypatch
 ):
-    seed_reset_store(reset_env, abandoned9())
+    seed_reset_store(reset_env, abandoned9)
     monkeypatch.setattr(sys, "platform", "darwin")
     result = run_readonly(tmp_path, "reset", *RATE_FLAGS, "--config", str(config_file))
     assert result.exit_code == 2
@@ -1379,97 +1285,95 @@ def test_reset_exits_2_on_an_unsupported_platform(
     assert not (reset_env.state_dir / "audit.jsonl").exists()
 
 
-# -- reset N --forfeit-guarantee: refusals (DF-04) -----------------------------
+# -- reset OWNER/REPO#N --forfeit-guarantee: refusals (DF-04) ------------------
 
 
-def _seed_launched(config):
-    seed_reset_store(config, consumed("launched"))
+def _seed_woken(doc):
+    return woken(doc, 9, NOW - timedelta(hours=1))
 
 
-def _seed_claimed(config):
-    seed_reset_store(config, consumed("claimed"))
+def _seed_acked(doc):
+    return acked(doc, 9, NOW - timedelta(hours=1))
 
 
-def _seed_pending(config):
-    seed_reset_store(config, entry(9, "pending", NOW))
+def _seed_pending(doc):
+    return pending(doc, 9, NOW)
 
 
-def _seed_failed(config):
-    seed_reset_store(config, entry(9, "failed", NOW, last_reason="prompt_invalid"))
+def _seed_failed(doc):
+    return record.fail(doc, REPO_A, 9, "wake_line_invalid", NOW)
 
 
-def _seed_absent(config):  # an abandoned entry 10 must not be taken for 9
-    seed_reset_store(config, entry(10, "abandoned", NOW - timedelta(hours=1)))
+def _seed_absent(doc):  # an abandoned entry 11 must not be taken for 9
+    return abandoned(doc, 11, NOW - timedelta(hours=1))
+
+
+def _seed_other_repo(doc):  # the same number in another repository is another issue
+    other = record.mark_pending(doc, "IronbellyGroup/example", 9, ORCH, NOW)
+    return record.mark_spawn_error(other, "IronbellyGroup/example#9", NOW)
 
 
 @pytest.mark.parametrize(
     "seed",
-    [_seed_launched, _seed_claimed, _seed_pending, _seed_failed, _seed_absent],
-    ids=["launched", "claimed", "pending", "failed", "absent"],
+    [
+        _seed_woken,
+        _seed_acked,
+        _seed_pending,
+        _seed_failed,
+        _seed_absent,
+        _seed_other_repo,
+    ],
+    ids=["woken", "acked", "pending", "failed", "absent", "other-repo"],
 )
 def test_reset_refuses_an_entry_that_is_not_abandoned_or_unknown__df04(
     reset_env, config_file, seed
 ):
-    seed(reset_env)
+    seed_reset_store(reset_env, seed)
     store = reset_env.state_dir / "dispatch.json"
     before, mtime = store.read_bytes(), store.stat().st_mtime_ns
     result = reset(config_file, *ISSUE_FLAGS)
     assert result.exit_code == 2
     assert result.output == (
-        "issue-watch: reset refused: issue 9 has no abandoned or unknown entry; "
-        "nothing changed\n"
+        f"issue-watch: reset refused: {KEY9} has no abandoned or "
+        "unknown entry; nothing changed\n"
     )
     assert store.read_bytes() == before
     assert store.stat().st_mtime_ns == mtime
-    one_line(reset_env, "warning", "reset_refused", issue=9)
+    one_line(reset_env, "warning", "reset_refused", repo=REPO_A, issue=9)
 
 
-# -- reset N --forfeit-guarantee: success (DF-03) ------------------------------
+# -- reset OWNER/REPO#N --forfeit-guarantee: success (DF-03) -------------------
 
 
 @pytest.mark.parametrize(
     "target",
-    [
-        abandoned9(),
-        abandoned9(
-            launches=1,
-            consumed_at=NOW - timedelta(hours=5),
-            pending_at=NOW - timedelta(hours=5),
-        ),
-        unknown9(),
-    ],
-    ids=["abandoned-never-consumed", "abandoned-consumed", "unknown"],
+    [abandoned9, unknown9],
+    ids=["abandoned", "unknown"],
 )
 def test_reset_removes_the_entry_and_keeps_the_day_cap_count__df03(
     reset_env, config_file, target
 ):
-    """AC-10, AC-17, FR-024, FR-026: reset N keeps the day-cap count through reset."""
+    """AC-10, AC-17, FR-024, FR-026: reset keeps the day-cap count through reset."""
     before = seed_reset_store(reset_env, target)
+    gone = before.entries[KEY9]
     result = reset(config_file, *ISSUE_FLAGS)
     assert result.exit_code == 0, result.output
-    assert result.output == "issue 9 may now be launched a second time\n"
+    assert result.output == f"issue {KEY9} may now be woken a second time\n"
     after = record.FileStore(reset_env.state_dir).load()
-    assert 9 not in after.entries
-    assert after.entries[10] == before.entries[10]
-    log = before.consumed_log
-    if target.consumed_at is not None:
-        log = (*log, target.consumed_at)
-    assert after == replace(before, entries={10: before.entries[10]}, consumed_log=log)
+    assert KEY9 not in after.entries
+    assert after.entries[f"{REPO_A}#10"] == before.entries[f"{REPO_A}#10"]
+    assert after == replace(
+        before,
+        entries={f"{REPO_A}#10": before.entries[f"{REPO_A}#10"]},
+        consumed_log=(*before.consumed_log, gone.consumed_at),
+    )
     assert record.day_cap_count(after, NOW) == record.day_cap_count(before, NOW)
     assert stat.S_IMODE((reset_env.state_dir / "dispatch.json").stat().st_mode) == 0o600
-    one_line(
-        reset_env,
-        "decision",
-        "operator_reset",
-        issue=9,
-        approver_id=None,
-        approval_event_id=None,
-        approved_at=None,
-    )
+    one_line(reset_env, "decision", "operator_reset", repo=REPO_A, issue=9)
 
 
 def test_reset_rotates_a_full_audit_log_before_its_one_line(reset_env, config_file):
-    seed_reset_store(reset_env, abandoned9())
+    seed_reset_store(reset_env, abandoned9)
     from superclaude.cli.issue_watch.audit import ROTATE_BYTES
 
     big = b"{}\n" * (ROTATE_BYTES // 3 + 1)
@@ -1478,9 +1382,10 @@ def test_reset_rotates_a_full_audit_log_before_its_one_line(reset_env, config_fi
     assert reset(config_file, *ISSUE_FLAGS).exit_code == 0
     assert (reset_env.state_dir / "audit.jsonl.1").read_bytes() == big
     (line,) = audit_lines(reset_env.state_dir)
-    assert (line["kind"], line["reason"], line["issue"]) == (
+    assert (line["kind"], line["reason"], line["repo"], line["issue"]) == (
         "decision",
         "operator_reset",
+        REPO_A,
         9,
     )
 
@@ -1489,27 +1394,27 @@ def test_reset_rotates_a_full_audit_log_before_its_one_line(reset_env, config_fi
 
 
 @pytest.mark.parametrize("limited", [True, False], ids=["limited", "already-clear"])
-def test_reset_rate_limit_clears_next_permitted_at__df03(
+def test_reset_rate_limit_clears_next_permitted_at_and_the_streak__df03(
     reset_env, config_file, limited
 ):
-    """AC-18, AC-17, FR-026, FR-028: reset --rate-limit clears next_permitted_at."""
-    before = seed_reset_store(reset_env, abandoned9())
+    """AC-18, AC-17, FR-026, FR-028: reset --rate-limit clears the wait and the streak."""
+    before = seed_reset_store(reset_env, abandoned9)
     if not limited:
         store = record.FileStore(reset_env.state_dir)
-        store.save(replace(before, next_permitted_at=None))
+        store.save(replace(before, next_permitted_at=None, rate_streak=0))
         before = store.load()
     assert (before.next_permitted_at is not None) is limited
     result = reset(config_file, *RATE_FLAGS)
     assert result.exit_code == 0, result.output
     assert result.output == "rate limit cleared\n"
     after = record.FileStore(reset_env.state_dir).load()
-    assert after == replace(before, next_permitted_at=None)
-    assert after.entries[9] == before.entries[9]  # no entry is touched
+    assert after == replace(before, next_permitted_at=None, rate_streak=0)
+    assert after.entries[KEY9] == before.entries[KEY9]  # no entry is touched
     one_line(reset_env, "warning", "operator_reset")  # no issue key at all
 
 
 def test_every_reset_line_has_its_own_cycle_id__ac17(reset_env, config_file):
-    seed_reset_store(reset_env, abandoned9())
+    seed_reset_store(reset_env, abandoned9)
     assert reset(config_file, *RATE_FLAGS).exit_code == 0
     assert reset(config_file, *RATE_FLAGS).exit_code == 0
     assert reset(config_file, *ISSUE_FLAGS).exit_code == 0
@@ -1542,7 +1447,7 @@ def test_reset_exits_75_when_the_lock_is_held_and_never_rotates(
 ):
     from superclaude.cli.issue_watch.audit import ROTATE_BYTES
 
-    seed_reset_store(reset_env, abandoned9())
+    seed_reset_store(reset_env, abandoned9)
     big = b"{}\n" * (ROTATE_BYTES // 3 + 1)
     audit_file = reset_env.state_dir / "audit.jsonl"
     audit_file.write_bytes(big)
@@ -1600,7 +1505,7 @@ def _break_store_invalid(config, tmp_path):
 def test_reset_exits_6_with_one_warning_line_for_a_lock_or_store_failure(
     tmp_path, reset_env, config_file, flags, break_it, reason
 ):
-    seed_reset_store(reset_env, abandoned9())
+    seed_reset_store(reset_env, abandoned9)
     break_it(reset_env, tmp_path)
     files = state_files(reset_env)
     result = reset(config_file, *flags)
@@ -1633,7 +1538,7 @@ def test_reset_writes_only_the_fallback_when_there_is_no_state_directory(
 def test_reset_writes_only_the_fallback_for_an_unwritable_state_directory(
     reset_env, config_file, flags
 ):
-    seed_reset_store(reset_env, abandoned9())
+    seed_reset_store(reset_env, abandoned9)
     files = state_files(reset_env)
     reset_env.state_dir.chmod(0o500)
     try:
@@ -1658,7 +1563,7 @@ def test_reset_writes_only_the_fallback_for_an_unwritable_state_directory(
 def test_a_refusal_in_an_unwritable_state_directory_falls_back_to_stderr(
     reset_env, config_file
 ):
-    seed_reset_store(reset_env, consumed("launched"))
+    seed_reset_store(reset_env, _seed_acked)
     files = state_files(reset_env)
     reset_env.state_dir.chmod(0o500)
     try:
@@ -1669,4 +1574,3 @@ def test_a_refusal_in_an_unwritable_state_directory_falls_back_to_stderr(
     (fb,) = fallback_lines(result.output)
     assert (fb["kind"], fb["exit"], fb["reason"]) == ("cycle", 2, "reset_refused")
     assert state_files(reset_env) == files
-    assert not (reset_env.state_dir / "audit.jsonl").exists()

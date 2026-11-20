@@ -1,0 +1,6 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/orchestrator.md (the spec of issue 655) 4.11 point 2: stderr of gh api on a label that does not exist: UNVERIFIED",
+  "exit": 1,
+  "stderr": "gh: Not Found (HTTP 404)\n"
+}

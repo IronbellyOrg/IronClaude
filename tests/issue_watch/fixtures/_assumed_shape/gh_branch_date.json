@@ -1,0 +1,7 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/orchestrator.md (the spec of issue 655) 4.11 E2: the BRANCH_JQ projection of GET repos/R/branches/B: UNVERIFIED",
+  "payload": {
+    "date": "2026-11-19T10:30:00Z"
+  }
+}

@@ -59,18 +59,38 @@ RULES: dict[str, Rule] = {
         superclaude=frozenset({ATOMIC}),
         function_only=frozenset({ATOMIC}),
     ),
+    "repos": Rule(
+        siblings=frozenset({"runner", "predicates"}),
+        third_party=frozenset({"yaml"}),
+    ),
+    "hold": Rule(siblings=frozenset({"predicates", "runner", "record"})),
     "launch": Rule(
         siblings=frozenset({"runner"}),
         superclaude=frozenset({INSTALL_USER_SETUP}),
         names_only={INSTALL_USER_SETUP: frozenset({"_ORCA_CLIS"})},
     ),
+    "wake": Rule(siblings=frozenset({"launch", "repos", "predicates", "runner"})),
+    "route": Rule(siblings=frozenset({"predicates", "record", "repos"})),
     "cycle": Rule(
         siblings=frozenset(
-            {"runner", "github", "predicates", "record", "launch", "audit"}
+            {
+                "runner",
+                "github",
+                "predicates",
+                "record",
+                "launch",
+                "audit",
+                "repos",
+                "hold",
+                "wake",
+                "route",
+            }
         )
     ),
     "cli": Rule(
-        siblings=frozenset({"cycle", "record", "audit", "launch", "runner"}),
+        siblings=frozenset(
+            {"cycle", "record", "audit", "wake", "predicates", "runner"}
+        ),
         third_party=frozenset({"click"}),
     ),
 }
@@ -252,7 +272,7 @@ def test_real_relative_imports_resolve_to_the_package() -> None:
     """The walker sees sibling imports written in relative form (research F6)."""
     cli = {i.module for i in collect_imports(_sources()["cli"])}
     assert f"{PACKAGE}.cycle" in cli  # ``from . import audit, cycle, record``
-    assert f"{PACKAGE}.launch" in cli  # ``from .launch import ...``
+    assert f"{PACKAGE}.wake" in cli  # ``from . import ..., wake``
     assert "click" in cli
 
 
@@ -322,9 +342,24 @@ FLAGGED = [
     ("cycle", "import superclaude"),
     ("cycle", "from .. import cli"),
     ("cli", "from .github import x"),
-    ("cli", "from . import predicates"),
-    ("cli", "from superclaude.cli.issue_watch.predicates import x"),
+    ("cli", "from .launch import x"),
+    ("cli", "from . import route"),
     ("cli", "import yaml"),
+    ("repos", "from .record import Entry"),
+    ("repos", "import click"),
+    ("repos", "from .github import x"),
+    ("hold", "from .github import x"),
+    ("hold", "from . import cycle"),
+    ("hold", "import yaml"),
+    ("wake", "from .record import Entry"),
+    ("wake", "from .cycle import x"),
+    ("wake", "import yaml"),
+    ("wake", f"import {INSTALL_USER_SETUP}"),
+    ("route", "from .runner import Runner"),
+    ("route", "from .wake import x"),
+    ("route", "import yaml"),
+    ("route", f"if True:\n    from {ATOMIC} import write_prepared_bytes"),
+    ("cycle", "import yaml"),
     ("__init__", "from . import runner"),
 ]
 
@@ -350,10 +385,25 @@ CLEAN = [
         "launch",
         f"from {INSTALL_USER_SETUP} import _ORCA_CLIS\nfrom .runner import Runner",
     ),
+    ("repos", "import yaml\nfrom .predicates import x\nfrom .runner import Runner"),
+    (
+        "hold",
+        "from .predicates import x\nfrom .record import Hold\nfrom .runner import Y",
+    ),
+    (
+        "wake",
+        "from . import launch, repos\nfrom .predicates import x\nfrom .runner import Y",
+    ),
+    (
+        "route",
+        "from .predicates import x\nfrom .record import StoreDoc\nfrom .repos import R",
+    ),
+    ("route", "def lock():\n    import fcntl"),
+    ("cycle", "from . import hold, repos, route, wake"),
     ("cli", "import click\nfrom click.testing import CliRunner"),
     (
         "cli",
-        "from . import audit, cycle, record\nfrom .launch import X\nfrom .runner import Y",
+        "from . import audit, cycle, predicates, record, wake\nfrom .runner import Y",
     ),
     ("__init__", ""),
 ]

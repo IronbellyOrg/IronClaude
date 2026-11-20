@@ -1,0 +1,12 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/orchestrator.md (the spec of issue 655) 4.5 step 11: orca terminal create --worktree path:W --json (the handle path is a proposal, HANDLE_PATHS): UNVERIFIED",
+  "payload": {
+    "ok": true,
+    "result": {
+      "terminal": {
+        "handle": "term_new-0001"
+      }
+    }
+  }
+}

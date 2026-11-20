@@ -1,4 +1,4 @@
-"""Shared fakes for the issue-watch tests: scripted runner and controllable clock."""
+"""Shared fakes for the issue-watch tests: scripted runner, clock, waker and GitHub world."""
 
 from __future__ import annotations
 
@@ -7,16 +7,15 @@ import shutil
 import sys
 from collections.abc import Callable
 from contextlib import AbstractContextManager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from email.utils import format_datetime
 from pathlib import Path
 
 import pytest
 
-from superclaude.cli.issue_watch import audit, cycle, github, launch, record
-from superclaude.cli.issue_watch.launch import LaunchOutcome, launch_argv
-from superclaude.cli.issue_watch.predicates import format_utc
+from superclaude.cli.issue_watch import audit, cycle, github, launch, record, wake
+from superclaude.cli.issue_watch.predicates import file_key, format_utc
 from superclaude.cli.issue_watch.record import FileStore, Store, StoreDoc
 from superclaude.cli.issue_watch.runner import CommandResult
 
@@ -75,14 +74,15 @@ class FakeRunner:
     """A ``Runner`` that answers from a script and records every call.
 
     The script maps a full argv tuple to a ``CommandResult`` or to a callable
-    ``(argv, cwd) -> CommandResult``. An argv missing from the script gets
-    return code 99 and is added to ``unexpected``. ``timeouts`` holds the
-    ``timeout`` of every call, in call order, so a test can show which value
-    reached the runner.
+    ``(argv, cwd) -> CommandResult``. ``matchers`` holds ``(predicate, reply)``
+    pairs tried after the exact script, for calls whose argv varies (a search
+    time). An argv in neither gets return code 99 and is added to ``unexpected``.
+    ``timeouts`` holds the ``timeout`` of every call, in call order.
     """
 
     def __init__(self, script: Script | None = None) -> None:
         self.script: Script = dict(script or {})
+        self.matchers: list[tuple[Callable[[tuple[str, ...]], bool], object]] = []
         self.calls: list[tuple[tuple[str, ...], str | None]] = []
         self.timeouts: list[float] = []
         self.unexpected: list[tuple[str, ...]] = []
@@ -91,19 +91,23 @@ class FakeRunner:
         self, argv: list[str], timeout: float, *, cwd: str | None = None
     ) -> CommandResult:
         """Record the call and its timeout, and return the scripted reply."""
-        # The caller must test Deadline.timeout_for for None before it calls a
-        # Runner (design 8.5, FR-029); a None here is a missing guard (Gate C C-11).
         key = tuple(argv)
         self.calls.append((key, cwd))
         self.timeouts.append(timeout)
         assert timeout is not None, f"a None timeout reached the runner: {argv!r}"
         reply = self.script.get(key)
         if reply is None:
+            reply = next((r for pred, r in self.matchers if pred(key)), None)
+        if reply is None:
             self.unexpected.append(key)
             return result(stderr="fake: unscripted argv", returncode=99, argv=key)
         if callable(reply):
-            return reply(list(argv), cwd)
-        return reply
+            return reply(list(argv), cwd)  # type: ignore[operator]
+        return reply  # type: ignore[return-value]
+
+    def argvs(self, program: str | None = None) -> list[tuple[str, ...]]:
+        """Every argv seen, in call order; only those of ``program`` when given."""
+        return [a for a, _ in self.calls if program is None or a[0] == program]
 
 
 @pytest.fixture
@@ -122,6 +126,7 @@ def fake_runner():
 
 
 FIXED_NOW = datetime(2026, 11, 7, 12, 0, 0, tzinfo=timezone.utc)
+CYCLE_NOW = FIXED_NOW + timedelta(hours=1)
 
 CRASH_POINTS = (None, "C1", "C3", "C4", "C5")
 
@@ -129,17 +134,17 @@ CRASH_POINTS = (None, "C1", "C3", "C4", "C5")
 class CrashingStore:
     """A ``Store`` that delegates to ``real`` and raises ``SystemExit`` at a crash point.
 
-    ``save`` counts its calls. Save 1 is the ``pending`` save before a launch and
-    save 2 is the outcome save after it (design section 7.6):
+    ``save`` counts its calls. In a cycle that wakes someone, save 1 is the
+    ``pending`` save before anything is sent and save 2 is the final commit.
 
     - ``C1`` raises before delegating save 1.
-    - ``C3`` delegates save 1, then raises in the same call.
+    - ``C3`` delegates save 1, then raises in the same call (a kill between the
+      ``pending`` write and the wake file).
     - ``C4`` raises at save 2 before delegating.
     - ``C5`` delegates save 2, then raises in the same call.
 
     ``crash_at=None`` is a pure passthrough. C2 (during ``write_prepared_bytes``)
-    is not reachable through the Store seam: ``test_crash_injection.py`` injects
-    it by patching ``os.replace`` (decision DF-15).
+    is injected by ``test_crash_injection.py`` by patching ``os.replace``.
     """
 
     def __init__(self, real: Store, crash_at: str | None = None) -> None:
@@ -186,14 +191,7 @@ class CrashingStore:
 
 
 class FailingStore:
-    """A ``Store`` that delegates to ``real`` and raises ``error`` on chosen saves.
-
-    ``fail_saves`` holds the 1-based numbers of the ``save`` calls that raise
-    ``error`` (an ``OSError`` by default) before anything is written, so the file
-    on disk is as the previous save left it. Every other save delegates.
-    ``saves`` counts all calls. Unlike ``CrashingStore`` it raises an ordinary
-    exception, which ``run_cycle`` can see (Gate C fix C-6, C-7, C-3).
-    """
+    """A ``Store`` that delegates to ``real`` and raises ``error`` on chosen saves."""
 
     def __init__(
         self,
@@ -242,82 +240,22 @@ class FailingStore:
 
 @pytest.fixture
 def tmp_state(tmp_path, monkeypatch) -> FileStore:
-    """An initialised ``FileStore`` under ``tmp_path``; HOME and XDG stay inside it."""
+    """An initialised ``FileStore`` (no baseline pending); HOME and XDG stay in ``tmp_path``."""
     monkeypatch.setenv("HOME", str(tmp_path / "home"))
     monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path / "xdg"))
-    return record.init_state(tmp_path / "state", FIXED_NOW)
+    return record.init_state(tmp_path / "state", FIXED_NOW, baseline=False)
 
-
-class FakeLauncher:
-    """A ``Launcher`` that answers from ``outcomes`` and records every call.
-
-    ``outcomes`` is a list of ``LaunchOutcome`` consumed in call order, or a
-    callable ``(call_number) -> LaunchOutcome`` with ``call_number`` starting at
-    1. ``calls`` holds ``(orca, str(worktree), prompt, timeout)`` per call and
-    ``argvs`` the 12-element argv ``launch_argv`` builds from the same inputs,
-    so a prompt the real launcher would refuse raises ``ValueError`` here too
-    and records nothing. ``raises`` (an exception instance or class) is raised
-    instead of returning, after the call is recorded, and consumes no outcome.
-    ``on_call`` runs after recording and before the raise or the return: a test
-    uses it to read ``dispatch.json`` at launch time or to create ``DISABLED``
-    mid-cycle. An exhausted list fails the test with ``AssertionError``.
-    """
-
-    def __init__(
-        self,
-        outcomes: list[LaunchOutcome] | Callable[[int], LaunchOutcome] | None = None,
-        *,
-        raises: BaseException | type[BaseException] | None = None,
-        on_call: Callable[[], None] | None = None,
-    ) -> None:
-        self._outcomes = outcomes if callable(outcomes) else list(outcomes or [])
-        self.raises = raises
-        self.on_call = on_call
-        self.calls: list[tuple[str, str, str, float]] = []
-        self.argvs: list[list[str]] = []
-
-    def launch(
-        self, orca: str, worktree: Path, prompt: str, timeout: float
-    ) -> LaunchOutcome:
-        """Record the call, run ``on_call``, then raise or return the next outcome."""
-        argv = launch_argv(orca, worktree, prompt)
-        self.calls.append((orca, str(worktree), prompt, timeout))
-        self.argvs.append(argv)
-        if self.on_call is not None:
-            self.on_call()
-        if self.raises is not None:
-            raise self.raises
-        if callable(self._outcomes):
-            return self._outcomes(len(self.calls))
-        if not self._outcomes:
-            raise AssertionError("FakeLauncher: no outcome left for this launch")
-        return self._outcomes.pop(0)
-
-
-# ==============================================================================
-# Part 4: the deps factory and the scripted GitHub world (plan step 6.4).
-#
-# Every gh or Orca reply whose shape is unverified is built from an
-# ``_assumed_shape`` fixture (decision DF-32), never from inline JSON. Two
-# replies have no fixture and are written here: the Orca ``skills list --json``
-# probe reply (the shape ``install_user_setup._find_orca`` already reads) and
-# ``git remote get-url`` (plain text).
-# ==============================================================================
 
 FIXTURE_DIR = Path(__file__).parent / "fixtures" / "_assumed_shape"
-
 OWN_LOGIN = "owner-login"
 OWN_ID = 1001
-APPROVER_ID = 1001
-PROJECT_ID = "PVT_test_project_0001"
-ORIGIN_URL = "https://github.com/IronbellyOrg/IronClaude.git"
-FOREIGN_ORIGIN_URL = "https://github.com/example-org/other-repo.git"
+REPO_A = "IronbellyOrg/IronClaude"
+REPO_B = "IronbellyGroup/example"
 ORCA_PATH = "/opt/orca/bin/" + launch._ORCA_CLIS[0]
+TIERS_TEXT = (FIXTURE_DIR / "ccsession_help_tiers.txt").read_text(encoding="utf-8")
 
-# ``tmp_state`` creates the store at FIXED_NOW, and an approval must come after it.
-T_TRIGGER = FIXED_NOW + timedelta(minutes=1)
-T_APPROVED = FIXED_NOW + timedelta(minutes=2)
-CYCLE_NOW = FIXED_NOW + timedelta(hours=1)
+GOOD_BODY = "## Priority\nP2\n\n## Fix approach\nChange the poll.\n\n## Test plan\nRun the tests.\n"
+EMPTY_BODY = "Something is wrong and nobody has planned it yet.\n"
 
 
 def load_fixture(name: str) -> dict:
@@ -325,69 +263,236 @@ def load_fixture(name: str) -> dict:
     return json.loads((FIXTURE_DIR / name).read_text(encoding="utf-8"))
 
 
-def _stamp(value: object) -> object:
-    """A ``datetime`` as the ``...Z`` text gh gives; any other value unchanged."""
-    return format_utc(value) if isinstance(value, datetime) else value
-
-
-def _stamped(item: dict) -> dict:
-    return {key: _stamp(value) for key, value in item.items()}
-
-
 def default_which(name: str) -> str | None:
     """Resolve only the first Orca CLI name, to an absolute path (no real PATH)."""
     return ORCA_PATH if name == launch._ORCA_CLIS[0] else None
 
 
+def stamp(value: datetime | str) -> str:
+    """A ``datetime`` as the ``...Z`` text gh gives; a string unchanged."""
+    return format_utc(value) if isinstance(value, datetime) else value
+
+
+# --- the orchestrator repository on disk -------------------------------------------
+
+
+def write_repos(orch: Path, **over: object) -> Path:
+    """Write ``<orch>/repos.yaml`` with two listed repos; ``over`` replaces top-level keys."""
+    import yaml
+
+    doc: dict[str, object] = {
+        "schema_version": 1,
+        "orgs": ["IronbellyOrg", "IronbellyGroup"],
+        "grants": ["issue.assign", "issue.hold", "pr.merge"],
+        "repos": [
+            {
+                "repo": REPO_A,
+                "enabled": True,
+                "checkout": str(orch.parent / "checkouts" / "IronClaude"),
+                "max_in_flight": 3,
+            },
+            {
+                "repo": REPO_B,
+                "enabled": True,
+                "checkout": None,
+                "clone_parent": str(orch.parent / "checkouts"),
+            },
+        ],
+    }
+    doc.update(over)
+    (orch / "repos.yaml").write_text(yaml.safe_dump(doc), encoding="utf-8")
+    return orch / "repos.yaml"
+
+
 def make_config(tmp_path: Path, **overrides: object) -> cycle.Config:
     """A valid enabled ``Config`` whose every path is inside ``tmp_path``.
 
-    The worktree directory and an approvers file (mode 0o600, holding account
-    id 1001) are created unless ``overrides`` names another path. The state
-    directory is ``tmp_path / "state"``, the one ``tmp_state`` initialises.
+    The orchestrator repo is ``tmp_path / "orch"`` with a ``repos.yaml`` (two
+    repos) and the checkout of the first repo; the state directory is
+    ``tmp_path / "state"``, the one ``tmp_state`` initialises.
     """
-    worktree = tmp_path / "worktree"
-    approvers = tmp_path / "approvers"
+    orch = tmp_path / "orch"
     values: dict[str, object] = {
         "enabled": True,
-        "trigger_label": cycle.DEFAULT_TRIGGER_LABEL,
-        "approval_label": cycle.DEFAULT_APPROVAL_LABEL,
-        "project_id": PROJECT_ID,
         "owner_account_id": None,
-        "worktree": worktree,
-        "approvers_file": approvers,
+        "orchestrator_repo": orch,
         "state_dir": tmp_path / "state",
+        "session_tag_prefix": "orchestrator",
     }
     values.update(overrides)
-    if values["worktree"] == worktree:
-        worktree.mkdir(exist_ok=True)
-    if values["approvers_file"] == approvers and not approvers.exists():
-        approvers.write_text(f"{APPROVER_ID}\n", encoding="utf-8")
-        approvers.chmod(0o600)
+    if values["orchestrator_repo"] == orch:
+        orch.mkdir(exist_ok=True)
+        (tmp_path / "checkouts" / "IronClaude").mkdir(parents=True, exist_ok=True)
+        if not (orch / "repos.yaml").exists():
+            write_repos(orch)
     return cycle.Config(**values)  # type: ignore[arg-type]
 
 
-def launched_outcome() -> LaunchOutcome:
-    """The outcome ``orca_launch_success.json`` parses to."""
-    reply = load_fixture("orca_launch_success.json")["payload"]
-    return launch.outcome_of(result(stdout=json.dumps(reply)))
+def orch_dir(config: cycle.Config) -> Path:
+    """``<orchestrator repo>/.orchestrator``."""
+    path = config.orchestrator_repo / ".orchestrator"
+    path.mkdir(exist_ok=True)
+    return path
 
 
-def unknown_outcome() -> LaunchOutcome:
-    """The ``unknown`` outcome ``orca_launch_unknown.json`` parses to."""
-    fixture = load_fixture("orca_launch_unknown.json")
-    return launch.outcome_of(
-        result(stderr=fixture["stderr"], returncode=fixture["exit"])
+def write_json(path: Path, data: object) -> Path:
+    """Write ``data`` as JSON, creating the folder."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data), encoding="utf-8")
+    return path
+
+
+def write_registry(config: cycle.Config, entries: dict[str, dict]) -> Path:
+    """Write the registry; each value gets a default ``created_at`` and ``status``."""
+    full = {}
+    for ident, item in entries.items():
+        short = ident.rsplit("-", 1)[0]
+        full[ident] = {
+            "repo": REPO_A,
+            "tag": f"orchestrator-{ident}",
+            "created_at": "2026-11-07T11:00:00Z",
+            "status": "active",
+            **item,
+        }
+        assert short
+    return write_json(orch_dir(config) / "orchestrators.json", full)
+
+
+def write_run(
+    config: cycle.Config,
+    ident: str,
+    status: str = "active",
+    run_id: str | None = "run_1",
+) -> Path:
+    """Write ``runs/<id>.json``."""
+    data: dict[str, object] = {"status": status}
+    if run_id is not None:
+        data["run_id"] = run_id
+    return write_json(orch_dir(config) / "runs" / f"{ident}.json", data)
+
+
+def write_state_file(
+    config: cycle.Config,
+    repo: str,
+    number: int,
+    status: str = "in_progress",
+    orchestrator: str | None = "ironclaude-1",
+) -> Path:
+    """Write the per-issue state file of an orchestrator."""
+    data: dict[str, object] = {"status": status}
+    if orchestrator is not None:
+        data["orchestrator"] = orchestrator
+    return write_json(
+        orch_dir(config) / "issues" / f"{file_key(repo, number)}.json", data
     )
 
 
-def spawn_error_outcome() -> LaunchOutcome:
-    """The ``spawn_error`` outcome of a launch that could not start."""
-    return launch.outcome_of(result(spawn_error="fake: no such file"))
+def write_plan_record(
+    config: cycle.Config, repo: str, number: int, requested_at: datetime, status: str
+) -> Path:
+    """Write the plan record of ONE plan request."""
+    name = (
+        f"plan-{file_key(repo, number)}.{requested_at.strftime('%Y%m%dT%H%M%SZ')}.json"
+    )
+    return write_json(orch_dir(config) / "issues" / name, {"status": status})
 
 
-def _launched_every_time(call_number: int) -> LaunchOutcome:
-    return LaunchOutcome("launched", f"op-test-{call_number:04d}", "ok")
+def write_ack(
+    config: cycle.Config,
+    wake_id: str,
+    taken: list[tuple[str, int]] = (),
+    skipped: list[tuple[str, int, str]] = (),
+    rejected: list[int] = (),
+) -> Path:
+    """Write ``<wake_id>.ack.json`` as an orchestrator does (3.6)."""
+    data = {
+        "schema": wake.ACK_SCHEMA,
+        "wake_id": wake_id,
+        "acked_at": "2026-11-07T13:05:00Z",
+        "orchestrator": {"id": "ironclaude-1", "run_id": "run_1", "host": "h"},
+        "taken": [{"repo": r, "number": n} for r, n in taken],
+        "skipped": [{"repo": r, "number": n, "reason": why} for r, n, why in skipped],
+        "rejected_items": [{"index": i, "reason": "malformed_item"} for i in rejected],
+        "warnings": [],
+    }
+    return write_json(orch_dir(config) / "wakes" / f"{wake_id}.ack.json", data)
+
+
+def wake_files(config: cycle.Config) -> list[Path]:
+    """The wake files (not acknowledgments) of the orchestrator repo, oldest id first."""
+    folder = config.orchestrator_repo / ".orchestrator" / "wakes"
+    if not folder.exists():
+        return []
+    return sorted(p for p in folder.glob("*.json") if not p.name.endswith(".ack.json"))
+
+
+def read_wake(path: Path) -> dict:
+    """Parse one wake file."""
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+# --- the fake waker ------------------------------------------------------------------
+
+
+class FakeWaker:
+    """A ``Waker`` that answers from ``outcome`` and records every call.
+
+    ``outcome`` is a ``WakeOutcome``, a list consumed in call order, or a callable
+    ``(target, wake_id, call_number) -> WakeOutcome``. ``dead`` holds the tags that
+    have no live session (``find_session`` gives ``[]``); ``blind`` makes
+    ``find_session`` unreadable (None). ``on_deliver`` runs before the reply: a test
+    uses it to look at the wake file at the moment of delivery or to kill the cycle.
+    """
+
+    def __init__(
+        self,
+        outcome: wake.WakeOutcome | list | Callable | None = None,
+        *,
+        dead: set[str] | None = None,
+        blind: bool = False,
+        on_deliver: Callable[[wake.WakeTargetRun, str], None] | None = None,
+    ) -> None:
+        self.outcome = outcome or wake.WakeOutcome("woken", "typed", "sent", typed=True)
+        self.dead = dead or set()
+        self.blind = blind
+        self.on_deliver = on_deliver
+        self.deliveries: list[tuple[wake.WakeTargetRun, str, bool]] = []
+        self.unread: list[str] = []
+        self.lookups: list[str] = []
+
+    def find_session(self, orca: str, workspace: Path, tag: str, timeout: float):
+        """``[]`` for a dead tag, None when blind, else one fake live terminal."""
+        self.lookups.append(tag)
+        if self.blind:
+            return None
+        return [] if tag in self.dead else [{"handle": "term_live-0001"}]
+
+    def deliver(
+        self,
+        orca: str,
+        target: wake.WakeTargetRun,
+        wake_id: str,
+        now: datetime,
+        timeout: float,
+        *,
+        start_session: bool = True,
+    ) -> wake.WakeOutcome:
+        """Record the call, run ``on_deliver``, then return the next outcome."""
+        self.deliveries.append((target, wake_id, start_session))
+        if self.on_deliver is not None:
+            self.on_deliver(target, wake_id)
+        if callable(self.outcome):
+            return self.outcome(target, wake_id, len(self.deliveries))
+        if isinstance(self.outcome, list):
+            return self.outcome.pop(0)
+        return self.outcome
+
+    def mark_unread(
+        self, orca: str, workspace: Path, reason: str, timeout: float
+    ) -> bool:
+        """Record the reason of an unread mark."""
+        self.unread.append(reason)
+        return True
 
 
 def make_deps(
@@ -395,81 +500,32 @@ def make_deps(
     tmp_state: FileStore,
     *,
     runner: FakeRunner | None = None,
-    launcher: FakeLauncher | None = None,
+    waker: FakeWaker | None = None,
     clock: FakeClock | None = None,
     config: cycle.Config | None = None,
     host: str = "test-host",
     which: Callable[[str], str | None] | None = None,
+    store: Store | None = None,
 ) -> cycle.Deps:
     """Build a ``cycle.Deps`` over the fakes and a real ``AuditLog``.
 
-    The store is ``tmp_state`` and the audit log is in its directory. Defaults:
-    an empty ``FakeRunner`` (every call is unexpected), a ``FakeLauncher`` that
-    launches every time with a fresh operation id, ``FakeClock(CYCLE_NOW)``,
-    ``make_config(tmp_path)`` and ``default_which``.
+    Wake ids are ``<time>-0000000N`` with N counting up, so a test can name them.
     """
+    counter = iter(range(1, 1000))
     return cycle.Deps(
         runner=FakeRunner() if runner is None else runner,
-        store=tmp_state,
-        launcher=FakeLauncher(_launched_every_time) if launcher is None else launcher,
+        store=tmp_state if store is None else store,
+        waker=FakeWaker() if waker is None else waker,  # type: ignore[arg-type]
         clock=FakeClock(CYCLE_NOW) if clock is None else clock,
         audit=audit.AuditLog(tmp_state.state_dir),
         config=make_config(tmp_path) if config is None else config,
         which=default_which if which is None else which,
         host=host,
+        wake_token=lambda: f"{next(counter):08x}",
     )
 
 
-def label_event(event_id: int, event: str, label: str | None, at: object, **over):
-    """One G3 item shaped like ``rest_events_page.json``; ``over`` replaces fields."""
-    item = load_fixture("rest_events_page.json")["payload"][0]
-    item.update(id=event_id, event=event, label=label, created_at=at)
-    item.update(over)
-    return item
-
-
-def default_events(config: cycle.Config) -> list[dict]:
-    """The trigger label added by the author, then the approval by an approver."""
-    return [
-        label_event(
-            1,
-            "labeled",
-            config.trigger_label,
-            T_TRIGGER,
-            actor_id=2001,
-            actor_login="issue-author",
-        ),
-        label_event(
-            2,
-            "labeled",
-            config.approval_label,
-            T_APPROVED,
-            actor_id=APPROVER_ID,
-            actor_login=OWN_LOGIN,
-        ),
-    ]
-
-
-def marker_comment(
-    comment_id: int,
-    at: object,
-    *,
-    login: str | None = OWN_LOGIN,
-    marker: bool = True,
-    updated_at: object = None,
-    **over,
-):
-    """One G4 item shaped like ``rest_comments_marker.json`` (own claim by default)."""
-    item = load_fixture("rest_comments_marker.json")["payload"][0]
-    item.update(
-        id=comment_id,
-        login=login,
-        created_at=at,
-        updated_at=at if updated_at is None else updated_at,
-        marker=marker,
-    )
-    item.update(over)
-    return item
+# --- the scripted GitHub, git and Orca world ------------------------------------------
 
 
 @dataclass
@@ -480,84 +536,48 @@ class _Fail:
     used: int = 0
 
 
-class _ArgvRecorder:
-    """A ``Runner`` that records each argv and fails it: it learns exact argv."""
+@dataclass
+class Issue:
+    """One issue of the scripted world."""
 
-    def __init__(self) -> None:
-        self.argvs: list[tuple[str, ...]] = []
+    repo: str
+    number: int
+    labels: list[str] = field(default_factory=list)
+    assignees: list[str] = field(default_factory=lambda: [OWN_LOGIN])
+    state: str = "open"
+    title: str = "A title"
+    body: str = GOOD_BODY
+    updated_at: datetime = datetime(2026, 11, 7, 11, 0, 0, tzinfo=timezone.utc)
+    pull_request: bool = False
+    branches: list[tuple[str, datetime]] = field(default_factory=list)
+    timeline: list[dict] = field(default_factory=list)
+    session: bool = False  # an Orca worktree for the issue exists
 
-    def run(
-        self, argv: list[str], timeout: float, *, cwd: str | None = None
-    ) -> CommandResult:
-        key = tuple(argv)
-        self.argvs.append(key)
-        return result(returncode=1, argv=key)
 
-
-# stderr-only failures, and failures that are an exit-0 GraphQL error body.
+_PLAIN_FAILURES = frozenset(
+    {"timeout", "spawn_error", "non_json", "failed", "foreign_origin"}
+)
 _STDERR_FAILURES = {
     "auth": "gh_stderr_auth_401.json",
     "rate": "gh_stderr_rate_429.json",
     "rate_403": "gh_stderr_rate_403.json",
     "transient": "gh_stderr_http_502.json",
-    "scope": "gh_stderr_scope_read_project.json",
+    "not_found": "gh_stderr_http_404.json",
 }
-_BODY_FAILURES = {
-    "scope_graphql": "gh_graphql_insufficient_scopes.json",
-    "rate_graphql": "gh_graphql_rate_limited.json",
-}
-_PLAIN_FAILURES = frozenset(
-    {"timeout", "spawn_error", "non_json", "failed", "foreign_origin"}
-)
-_ISSUE_KEYS = frozenset(
-    {
-        "labels",
-        "assignees",
-        "state",
-        "listed",
-        "events",
-        "markers",
-        "edits",
-        "items",
-        "reread",
-        "discovered",
-    }
-)
 
 
 class GhWorld:
-    """A scripted GitHub, git and Orca world behind one ``FakeRunner``.
+    """A scripted GitHub, git, ccsession and Orca world behind one ``FakeRunner``.
 
-    ``issue(n, **spec)`` adds an issue and registers, in ``runner.script``, the
-    exact argv the ``github.argv_*`` builders give for it, so a cycle test
-    states its scenario in a few lines. Replies are built when the call is made,
-    so changing a spec or the clock after registration still takes effect.
-
-    The shared calls are the own login (``owner-login``, id 1001, a ``Date``
-    header taken from the clock plus ``skew_s``), the worktree origin check,
-    discovery and, when ``which`` resolves an Orca CLI, its probe. An issue
-    spec may hold:
-
-    - ``labels``, ``assignees``: default ``[trigger, approval]`` and ``[login]``;
-    - ``state``: the ``gh issue list`` state, default ``"OPEN"``;
-    - ``listed``: how many times discovery lists it (0 hides it, 2 repeats it);
-    - ``discovered``: raw overrides of the discovery item (labels, assignees);
-    - ``events``: G3 items from ``label_event`` (default ``default_events``);
-    - ``markers``: G4 items from ``marker_comment`` (default none);
-    - ``edits``: ``created_at``, ``edited_at`` and ``comments`` (list of
-      ``{id, author, created_at, edited_at}``); default the fixture as it is;
-    - ``items``: Project items (list of ``{project_id, status, archived}``);
-      default one live item in the configured project with status Backlog;
-    - ``reread``: raw overrides of the G7 re-read reply.
-
-    Events and comments are served in pages of ``github.PAGE_SIZE``; the two
-    GraphQL reads are served as one page (shortcut: add multi-page cursors when a
-    test needs them).
-
-    ``fail(call, how)`` makes a call fail and ``on(call, fn)`` runs ``fn`` when
-    it is made. ``call`` is ``user``, ``discover``, ``origin``, ``probe``,
-    ``events``, ``comments``, ``edits``, ``items`` or ``reread``; the last five
-    take an issue number or None for every issue.
+    ``issue(repo, n, **spec)`` adds an issue; the reads of the poll (the searches,
+    the re-read, the hold's label calls and its evidence reads) answer from the
+    current state when the call is made, so a test can change the world between
+    cycles. The label writes of the hold change the world (``labels``,
+    ``updated_at``). ``fail(call, how)`` makes a call fail and ``on(call, fn)`` runs
+    ``fn`` when it is made. ``call`` is ``user``, ``tiers``, ``search``, ``info``,
+    ``reread``, ``label_get``, ``label_create``, ``label_add``, ``label_remove``,
+    ``updated``, ``labels``, ``develop``, ``branch``, ``timeline``, ``origin``,
+    ``probe``, ``worktree`` or ``reference``; the per-issue ones take ``(repo, n)``.
     """
 
     def __init__(
@@ -567,216 +587,238 @@ class GhWorld:
         *,
         login: str = OWN_LOGIN,
         account_id: int = OWN_ID,
-        which: Callable[[str], str | None] | None = None,
         runner: FakeRunner | None = None,
+        tiers_text: str | None = None,
     ) -> None:
         self.clock = clock
         self.config = config
+        self.login = login
         self.account_id = account_id
-        self.which = default_which if which is None else which
         self.runner = FakeRunner() if runner is None else runner
-        self.skew_s = 0.0
-        self.date_text: str | None = None
-        self.user_retry_after: str | None = "120"
-        self.origin_url = ORIGIN_URL
-        self.issues: dict[int, dict] = {}
-        self._login = login
-        self._fails: dict[tuple[str, int | None], list[_Fail]] = {}
-        self._hooks: dict[tuple[str, int | None], list[Callable[[], None]]] = {}
-        self._seen: dict[tuple[str, int | None], int] = {}
-        self._register_shared()
-
-    # -- the scenario API ------------------------------------------------------
-
-    @property
-    def login(self) -> str:
-        """The own login ``api user`` answers with."""
-        return self._login
-
-    @login.setter
-    def login(self, value: str) -> None:
-        self._login = value
-        self._register_shared()
-
-    def issue(self, n: int, **spec: object) -> GhWorld:
-        """Add (or replace) issue ``n``; the default is fully eligible."""
-        self._check_keys(spec)
-        cfg = self.config
-        self.issues[n] = {
-            "labels": [cfg.trigger_label, cfg.approval_label],
-            "assignees": [self.login],
-            "state": "OPEN",
-            "listed": 1,
-            "events": None,
-            "markers": [],
-            "edits": None,
-            "items": None,
-            "reread": None,
-            "discovered": None,
-            **spec,
+        self.tiers_text = TIERS_TEXT if tiers_text is None else tiers_text
+        self.issues: dict[tuple[str, int], Issue] = {}
+        self.info: dict[str, list[dict]] = {
+            "mentions": [],
+            "could_assign": [],
+            "affects": [],
         }
-        self._register_issue(n)
-        return self
+        self.origins: dict[str, str] = {}
+        self.existing_labels: set[str] = set()
+        self.skew_s = 0.0
+        self._fails: dict[tuple[str, object], list[_Fail]] = {}
+        self._hooks: dict[tuple[str, object], list[Callable[[], None]]] = {}
+        self._seen: dict[tuple[str, object], int] = {}
+        self._register()
 
-    def issues_from(self, numbers: range | list[int], **spec: object) -> GhWorld:
-        """Add every number of ``numbers`` with the same ``spec``."""
-        for n in numbers:
-            self.issue(n, **spec)
-        return self
+    # -- the scenario API ------------------------------------------------------------
 
-    def update(self, n: int, **spec: object) -> GhWorld:
-        """Change fields of issue ``n``."""
-        self._check_keys(spec)
-        self.issues[n].update(spec)
-        return self
+    def issue(self, repo: str, number: int, **spec: object) -> Issue:
+        """Add (or replace) an issue; the default is open, assigned to the user and planned."""
+        item = Issue(repo, number, **spec)  # type: ignore[arg-type]
+        self.issues[(repo, number)] = item
+        self._register_issue(item)
+        return item
 
     def fail(
         self,
         call: str,
         how: object = "timeout",
-        n: int | None = None,
+        key: object = None,
         *,
         times: int | None = 1,
         after: int = 0,
     ) -> GhWorld:
-        """Make ``call`` fail ``times`` times (None: always) after ``after`` calls.
-
-        ``how`` is ``timeout``, ``spawn_error``, ``non_json``, ``failed``,
-        ``auth``, ``rate``, ``rate_403``, ``transient``, ``scope``,
-        ``scope_graphql``, ``rate_graphql``, ``foreign_origin`` (origin only),
-        a ``CommandResult`` or a ``(argv, cwd) -> CommandResult`` callable. A G1
-        ``rate`` reply carries ``user_retry_after``.
-        """
-        known = (
-            _PLAIN_FAILURES | set(_STDERR_FAILURES) | set(_BODY_FAILURES)
-            if isinstance(how, str)
-            else None
-        )
-        if known is not None and how not in known:
+        """Make ``call`` fail ``times`` times (None: always) after ``after`` calls."""
+        if isinstance(how, str) and how not in _PLAIN_FAILURES | set(_STDERR_FAILURES):
             raise ValueError(f"unknown failure {how!r}")
-        self._fails.setdefault((call, n), []).append(_Fail(how, times, after))
+        self._fails.setdefault((call, key), []).append(_Fail(how, times, after))
         return self
 
-    def on(self, call: str, fn: Callable[[], None], n: int | None = None) -> GhWorld:
+    def on(self, call: str, fn: Callable[[], None], key: object = None) -> GhWorld:
         """Run ``fn`` each time ``call`` is made, before the reply is chosen."""
-        self._hooks.setdefault((call, n), []).append(fn)
+        self._hooks.setdefault((call, key), []).append(fn)
         return self
+
+    def count(self, call: str, key: object = None) -> int:
+        """How many times ``call`` was made."""
+        return self._seen.get((call, key), 0)
 
     @property
     def gh_argvs(self) -> list[tuple[str, ...]]:
         """Every ``gh`` argv the runner has seen, in call order."""
-        return [argv for argv, _ in self.runner.calls if argv[0] == "gh"]
+        return self.runner.argvs("gh")
 
     def deps(
         self, tmp_path: Path, tmp_state: FileStore, **kwargs: object
     ) -> cycle.Deps:
-        """``make_deps`` over this world's runner, clock, config and ``which``."""
+        """``make_deps`` over this world's runner, clock and config."""
         return make_deps(
             tmp_path,
             tmp_state,
             runner=self.runner,
             clock=self.clock,
             config=self.config,
-            which=self.which,
             **kwargs,  # type: ignore[arg-type]
         )
 
-    # -- registration ----------------------------------------------------------
-
-    @staticmethod
-    def _check_keys(spec: dict) -> None:
-        unknown = set(spec) - _ISSUE_KEYS
-        if unknown:
-            raise TypeError(f"unknown issue field(s): {sorted(unknown)}")
+    # -- registration ------------------------------------------------------------------
 
     def _served(
-        self,
-        call: str,
-        n: int | None,
-        build: Callable[[tuple[str, ...]], CommandResult],
+        self, call: str, key: object, build: Callable[[tuple[str, ...]], CommandResult]
     ):
-        """A script entry: count the call, run hooks, apply a failure or build."""
-        keys = [(call, n)] if n is None else [(call, n), (call, None)]
+        keys = [(call, key)] if key is None else [(call, key), (call, None)]
 
         def serve(argv: list[str], cwd: str | None) -> CommandResult:
-            key_argv = tuple(argv)
-            for key in keys:
-                self._seen[key] = self._seen.get(key, 0) + 1
-            for key in keys:
-                for hook in list(self._hooks.get(key, ())):
+            argv_t = tuple(argv)
+            for k in keys:
+                self._seen[k] = self._seen.get(k, 0) + 1
+            for k in keys:
+                for hook in list(self._hooks.get(k, ())):
                     hook()
-            for key in keys:
-                for fail in self._fails.get(key, ()):
-                    if self._seen[key] > fail.after and (
+            for k in keys:
+                for fail in self._fails.get(k, ()):
+                    if self._seen[k] > fail.after and (
                         fail.times is None or fail.used < fail.times
                     ):
                         fail.used += 1
-                        return self._failure(fail.how, call, key_argv)
-            return build(key_argv)
+                        return self._failure(fail.how, call, argv_t)
+            return build(argv_t)
 
         return serve
-
-    def _register_shared(self) -> None:
-        script, cfg = self.runner.script, self.config
-        script[tuple(github.argv_user())] = self._served("user", None, self._user_reply)
-        try:
-            discover = github.argv_discover(cfg.trigger_label, self.login)
-        except ValueError:  # an invalid login never reaches discovery
-            pass
-        else:
-            script[tuple(discover)] = self._served(
-                "discover", None, self._discovery_reply
-            )
-        origin = _ArgvRecorder()
-        launch.check_origin(origin, cfg.worktree, 1.0)
-        script[origin.argvs[0]] = self._served("origin", None, self._origin_reply)
-        probe = _ArgvRecorder()
-        launch.find_orca(probe, which=self.which, timeout=1.0)
-        for argv in probe.argvs:
-            script[argv] = self._served("probe", None, self._probe_reply)
-
-    def _register_issue(self, n: int) -> None:
-        script = self.runner.script
-        for page in range(1, github.PAGE_CAP + 1):
-            script[tuple(github.argv_events(n, page))] = self._served(
-                "events", n, lambda argv, p=page: self._events_reply(argv, n, p)
-            )
-            script[tuple(github.argv_comments(n, page))] = self._served(
-                "comments", n, lambda argv, p=page: self._comments_reply(argv, n, p)
-            )
-        script[tuple(github.argv_edits(n))] = self._served(
-            "edits", n, lambda argv: self._ok(argv, self._edits_payload(n))
-        )
-        script[tuple(github.argv_project_items(n))] = self._served(
-            "items", n, lambda argv: self._ok(argv, self._items_payload(n))
-        )
-        script[tuple(github.argv_reread(n))] = self._served(
-            "reread", n, lambda argv: self._ok(argv, self._reread_payload(n))
-        )
-
-    # -- replies ---------------------------------------------------------------
 
     @staticmethod
     def _ok(argv: tuple[str, ...], payload: object) -> CommandResult:
         return result(stdout=json.dumps(payload), argv=argv)
 
+    def _register(self) -> None:
+        script = self.runner.script
+        script[tuple(github.argv_user())] = self._served("user", None, self._user_reply)
+        script[("ccsession", "--help")] = self._served(
+            "tiers", None, lambda argv: result(stdout=self.tiers_text, argv=argv)
+        )
+        probe = FakeRunner()
+        launch.find_orca(probe, which=default_which, timeout=1.0)
+        for argv in probe.argvs():
+            script[argv] = self._served(
+                "probe", None, lambda a: self._ok(a, {"topics": [{"name": "orca-cli"}]})
+            )
+        for org in ("IronbellyOrg", "IronbellyGroup"):
+            try:
+                script[tuple(github.argv_search_assigned(org, self.login))] = (
+                    self._served(
+                        "search", org, lambda a, o=org: self._search_reply(a, o)
+                    )
+                )
+            except ValueError:
+                pass
+        self.runner.matchers.append(
+            (
+                lambda a: (
+                    a[:5] == ("gh", "api", "--method", "GET", "search/issues")
+                    and (
+                        "mentions:" in a[6]
+                        or "no:assignee" in a[6]
+                        or "involves:" in a[6]
+                    )
+                ),
+                self._info_reply,
+            )
+        )
+        self.runner.matchers.append(
+            (
+                lambda a: (
+                    a[:4] == ("gh", "api", "--method", "GET") and "/branches/" in a[4]
+                ),
+                self._branch_reply,
+            )
+        )
+        self.runner.matchers.append(
+            (
+                lambda a: a[1:3] == ("worktree", "show"),
+                self._worktree_reply,
+            )
+        )
+        self.runner.matchers.append(
+            (
+                lambda a: a[1:3] == ("reference", "find"),
+                self._reference_reply,
+            )
+        )
+
+    def _register_issue(self, item: Issue) -> None:
+        script, key = self.runner.script, (item.repo, item.number)
+        repo, n = item.repo, item.number
+        script[tuple(github.argv_reread(repo, n))] = self._served(
+            "reread", key, lambda a: self._reread_reply(a, item)
+        )
+        script[tuple(github.argv_issue_updated(repo, n))] = self._served(
+            "updated", key, lambda a: self._ok(a, {"updatedAt": stamp(item.updated_at)})
+        )
+        script[tuple(github.argv_issue_labels(repo, n))] = self._served(
+            "labels",
+            key,
+            lambda a: self._ok(a, {"labels": [{"name": x} for x in item.labels]}),
+        )
+        script[tuple(github.argv_label_add(repo, n))] = self._served(
+            "label_add", key, lambda a: self._label_add(a, item)
+        )
+        script[tuple(github.argv_label_remove(repo, n))] = self._served(
+            "label_remove", key, lambda a: self._label_remove(a, item)
+        )
+        script[tuple(github.argv_develop_list(repo, n))] = self._served(
+            "develop",
+            key,
+            lambda a: result(
+                stdout="".join(f"{b}\thttps://x/{b}\n" for b, _ in item.branches),
+                argv=a,
+            ),
+        )
+        script[tuple(github.argv_timeline(repo, n))] = self._served(
+            "timeline", key, lambda a: self._ok(a, item.timeline)
+        )
+        script[tuple(github.argv_label_get(repo))] = self._served(
+            "label_get", repo, self._label_get
+        )
+        script[tuple(github.argv_label_create(repo))] = self._served(
+            "label_create", repo, self._label_create
+        )
+        checkout = self._checkout_of(repo)
+        if checkout is not None:
+            argv = ("git", "-C", str(checkout), "remote", "get-url", "origin")
+            script[argv] = self._served(
+                "origin",
+                repo,
+                lambda a, r=repo: result(
+                    stdout=self.origins.get(r, f"https://github.com/{r}.git") + "\n",
+                    argv=a,
+                ),
+            )
+
+    def _checkout_of(self, repo: str) -> str | None:
+        """The ``checkout`` of ``repo`` in ``repos.yaml``, read without validation."""
+        import yaml
+
+        try:
+            raw = yaml.safe_load(
+                (self.config.orchestrator_repo / "repos.yaml").read_text()
+            )
+            return next(r.get("checkout") for r in raw["repos"] if r["repo"] == repo)
+        except (OSError, KeyError, StopIteration, TypeError, yaml.YAMLError):
+            return None
+
+    # -- replies --------------------------------------------------------------------------
+
     def _with_headers(self, raw: str) -> tuple[str, str]:
-        """Split a G1 fixture: the head with a fresh Date and Retry-After, the body."""
         head, _, body = raw.partition("\n\n")
-        date = self.date_text
-        if date is None:
-            now = self.clock.now() + timedelta(seconds=self.skew_s)
-            date = format_datetime(now, usegmt=True)
-        lines: list[str] = []
-        for line in head.split("\n"):
-            name = line.split(":", 1)[0].lower()
-            if name == "date":
-                line = f"Date: {date}"
-            elif name == "retry-after":
-                if self.user_retry_after is None:
-                    continue
-                line = f"Retry-After: {self.user_retry_after}"
-            lines.append(line)
+        now = self.clock.now() + timedelta(seconds=self.skew_s)
+        lines = []
+        for text_line in head.split("\n"):
+            name = text_line.split(":", 1)[0].lower()
+            lines.append(
+                f"Date: {format_datetime(now, usegmt=True)}"
+                if name == "date"
+                else text_line
+            )
         return "\n".join(lines), body
 
     def _user_reply(self, argv: tuple[str, ...]) -> CommandResult:
@@ -784,113 +826,152 @@ class GhWorld:
         who = {**json.loads(body), "login": self.login, "id": self.account_id}
         return result(stdout=f"{head}\n\n{json.dumps(who)}\n", argv=argv)
 
-    def _user_rate_reply(self, argv: tuple[str, ...]) -> CommandResult:
+    def _user_rate_reply(
+        self, argv: tuple[str, ...], retry_after: str | None = "120"
+    ) -> CommandResult:
         fixture = load_fixture("gh_api_user_include_429.json")
         head, body = self._with_headers(fixture["raw"])
+        lines = [x for x in head.split("\n") if not x.lower().startswith("retry-after")]
+        if retry_after is not None:
+            lines.append(f"Retry-After: {retry_after}")
         return result(
-            stdout=f"{head}\n\n{body}",
+            stdout="\n".join(lines) + "\n\n" + body,
             stderr=fixture["stderr"],
             returncode=fixture["exit"],
             argv=argv,
         )
 
-    def _origin_reply(self, argv: tuple[str, ...]) -> CommandResult:
-        return result(stdout=self.origin_url + "\n", argv=argv)
-
-    def _probe_reply(self, argv: tuple[str, ...]) -> CommandResult:
-        # The shape install_user_setup._find_orca reads: a list of named topics.
-        return self._ok(argv, {"topics": [{"name": "orca-cli"}]})
-
-    def _discovery_reply(self, argv: tuple[str, ...]) -> CommandResult:
-        template = load_fixture("gh_issue_list.json")["payload"][0]
-        items: list[dict] = []
-        for n, spec in self.issues.items():
-            item = {
-                **template,
-                "number": n,
-                "labels": [{"name": name} for name in spec["labels"]],
-                "assignees": [{"login": name} for name in spec["assignees"]],
-                "state": spec["state"],
-                **(spec["discovered"] or {}),
-            }
-            items += [item] * int(spec["listed"])
-        return self._ok(argv, items)
-
-    def _paged(
-        self, argv: tuple[str, ...], items: list[dict], page: int
-    ) -> CommandResult:
-        size = github.PAGE_SIZE
-        chunk = items[(page - 1) * size : page * size]
-        return self._ok(argv, [_stamped(item) for item in chunk])
-
-    def _events_reply(self, argv: tuple[str, ...], n: int, page: int) -> CommandResult:
-        events = self.issues[n]["events"]
-        events = default_events(self.config) if events is None else events
-        return self._paged(argv, events, page)
-
-    def _comments_reply(
-        self, argv: tuple[str, ...], n: int, page: int
-    ) -> CommandResult:
-        return self._paged(argv, self.issues[n]["markers"], page)
-
-    def _edits_payload(self, n: int) -> dict:
-        payload = load_fixture("graphql_edits.json")["payload"]
-        spec = self.issues[n]["edits"]
-        if spec is None:
-            return payload
-        issue = payload["data"]["repository"]["issue"]
-        template = issue["comments"]["nodes"][0]
-        if "created_at" in spec:
-            issue["createdAt"] = _stamp(spec["created_at"])
-        if "edited_at" in spec:
-            issue["lastEditedAt"] = _stamp(spec["edited_at"])
-        if "comments" in spec:
-            issue["comments"]["nodes"] = [
+    def _search_reply(self, argv: tuple[str, ...], org: str) -> CommandResult:
+        items = []
+        for (repo, _), item in sorted(self.issues.items()):
+            if (
+                repo.split("/")[0] != org
+                or item.state != "open"
+                or self.login not in item.assignees
+            ):
+                continue
+            items.append(
                 {
-                    **template,
-                    "databaseId": c["id"],
-                    "author": None
-                    if c.get("author") is None
-                    else {"login": c["author"]},
-                    "createdAt": _stamp(c["created_at"]),
-                    "lastEditedAt": _stamp(c.get("edited_at")),
+                    "repository_url": f"https://api.github.com/repos/{repo}",
+                    "number": item.number,
+                    "state": item.state,
+                    "updated_at": stamp(item.updated_at),
+                    "labels": list(item.labels),
+                    "assignees": list(item.assignees),
+                    "pull_request": item.pull_request,
+                    "title": item.title,
+                    "body": item.body,
                 }
-                for c in spec["comments"]
-            ]
-        return payload
-
-    def _items_payload(self, n: int) -> dict:
-        payload = load_fixture("graphql_project_items.json")["payload"]
-        connection = payload["data"]["repository"]["issue"]["projectItems"]
-        template = connection["nodes"][0]
-        specs = self.issues[n]["items"]
-        connection["nodes"] = [
-            {
-                **template,
-                "isArchived": spec.get("archived", False),
-                "project": {"id": spec.get("project_id", self.config.project_id)},
-                "fieldValueByName": None
-                if spec.get("status", "Backlog") is None
-                else {
-                    **template["fieldValueByName"],
-                    "name": spec.get("status", "Backlog"),
-                },
-            }
-            for spec in ([{}] if specs is None else specs)
-        ]
-        return payload
-
-    def _reread_payload(self, n: int) -> dict:
-        spec = self.issues[n]
-        body = load_fixture("gh_issue_reread.json")["payload"]
-        body.update(
-            number=n,
-            state="open",
-            labels=list(spec["labels"]),
-            assignees=list(spec["assignees"]),
+            )
+        return self._ok(
+            argv,
+            {"total_count": len(items), "incomplete_results": False, "items": items},
         )
-        body.update(spec["reread"] or {})
-        return body
+
+    def _info_reply(self, argv, cwd=None) -> CommandResult:
+        query = argv[6]
+        stream = (
+            "mentions"
+            if query.startswith("q=mentions:")
+            else "could_assign"
+            if "no:assignee" in query
+            else "affects"
+        )
+        org = query.rsplit("org:", 1)[1].split()[0]
+        calls = [("info", None), ("info", stream)]
+        for k in calls:
+            self._seen[k] = self._seen.get(k, 0) + 1
+        for k in calls:
+            for fail in self._fails.get(k, ()):
+                if self._seen[k] > fail.after and (
+                    fail.times is None or fail.used < fail.times
+                ):
+                    fail.used += 1
+                    return self._failure(fail.how, "info", argv)
+        items = [i for i in self.info[stream] if i["repo"].split("/")[0] == org]
+        rows = [
+            {
+                "repository_url": f"https://api.github.com/repos/{i['repo']}",
+                "number": i["number"],
+                "updated_at": stamp(i["updated_at"]),
+                "pull_request": i.get("pull_request", False),
+            }
+            for i in items
+        ]
+        return self._ok(
+            argv, {"total_count": len(rows), "incomplete_results": False, "items": rows}
+        )
+
+    def _reread_reply(self, argv: tuple[str, ...], item: Issue) -> CommandResult:
+        return self._ok(
+            argv,
+            {
+                "number": item.number,
+                "state": item.state,
+                "labels": list(item.labels),
+                "assignees": list(item.assignees),
+                "body": item.body,
+            },
+        )
+
+    def _label_get(self, argv: tuple[str, ...]) -> CommandResult:
+        repo = argv[-1].split("/labels/")[0].removeprefix("repos/")
+        if repo in self.existing_labels:
+            return self._ok(argv, {"name": "hold:plan"})
+        return self._failure("not_found", "label_get", argv)
+
+    def _label_create(self, argv: tuple[str, ...]) -> CommandResult:
+        repo = argv[4].removeprefix("repos/").removesuffix("/labels")
+        self.existing_labels.add(repo)
+        return self._ok(argv, {"name": "hold:plan"})
+
+    def _label_add(self, argv: tuple[str, ...], item: Issue) -> CommandResult:
+        if "hold:plan" not in item.labels:
+            item.labels.append("hold:plan")
+        item.updated_at = self.clock.now()
+        return self._ok(argv, [{"name": x} for x in item.labels])
+
+    def _label_remove(self, argv: tuple[str, ...], item: Issue) -> CommandResult:
+        if "hold:plan" in item.labels:
+            item.labels.remove("hold:plan")
+        item.updated_at = self.clock.now()
+        return self._ok(argv, [{"name": x} for x in item.labels])
+
+    def _branch_reply(self, argv, cwd=None) -> CommandResult:
+        repo, _, name = argv[4].removeprefix("repos/").partition("/branches/")
+        self._seen[("branch", None)] = self._seen.get(("branch", None), 0) + 1
+        for item in self.issues.values():
+            for branch, when in item.branches:
+                if item.repo == repo and branch == name:
+                    return self._ok(argv, {"date": stamp(when)})
+        return self._failure("not_found", "branch", tuple(argv))
+
+    def _issue_of_selector(self, text: str) -> Issue | None:
+        number = int(text.removeprefix("issue:")) if text.startswith("issue:") else None
+        return next((i for i in self.issues.values() if i.number == number), None)
+
+    def _worktree_reply(self, argv, cwd=None) -> CommandResult:
+        item = self._issue_of_selector(argv[argv.index("--worktree") + 1])
+        for k in (("worktree", None),):
+            self._seen[k] = self._seen.get(k, 0) + 1
+        for fail in self._fails.get(("worktree", None), ()):
+            if self._seen[("worktree", None)] > fail.after and (
+                fail.times is None or fail.used < fail.times
+            ):
+                fail.used += 1
+                return self._failure(fail.how, "worktree", argv)
+        if item is not None and item.session:
+            return self._ok(
+                argv, load_fixture("orca_worktree_show_found.json")["payload"]
+            )
+        none = load_fixture("orca_worktree_show_none.json")
+        return result(
+            stdout=json.dumps(none["payload"]), returncode=none["exit"], argv=argv
+        )
+
+    def _reference_reply(self, argv, cwd=None) -> CommandResult:
+        self._seen[("reference", None)] = self._seen.get(("reference", None), 0) + 1
+        return self._ok(argv, {"ok": True, "result": {"matches": []}})
 
     def _failure(self, how: object, call: str, argv: tuple[str, ...]) -> CommandResult:
         if isinstance(how, CommandResult):
@@ -906,16 +987,16 @@ class GhWorld:
         if how == "failed":
             return result(returncode=1, argv=argv)
         if how == "foreign_origin":
-            return result(stdout=FOREIGN_ORIGIN_URL + "\n", argv=argv)
+            return result(
+                stdout="https://github.com/example-org/other-repo.git\n", argv=argv
+            )
         if how == "rate" and call == "user":
             return self._user_rate_reply(argv)
         if how in _STDERR_FAILURES:
-            fixture = load_fixture(_STDERR_FAILURES[how])
+            fixture = load_fixture(_STDERR_FAILURES[str(how)])
             return result(
                 stderr=fixture["stderr"], returncode=fixture["exit"], argv=argv
             )
-        if how in _BODY_FAILURES:
-            return self._ok(argv, load_fixture(_BODY_FAILURES[how])["payload"])
         raise ValueError(f"unknown failure {how!r}")
 
 
@@ -929,10 +1010,7 @@ def gh_world(tmp_path):
     made: list[GhWorld] = []
 
     def make(
-        *,
-        clock: FakeClock | None = None,
-        config: cycle.Config | None = None,
-        **kwargs,
+        *, clock: FakeClock | None = None, config: cycle.Config | None = None, **kwargs
     ) -> GhWorld:
         world = GhWorld(
             FakeClock(CYCLE_NOW) if clock is None else clock,
@@ -947,28 +1025,16 @@ def gh_world(tmp_path):
         assert not world.runner.unexpected, (
             f"unscripted argv: {world.runner.unexpected}"
         )
-        # FR-029, design 8.5 (Gate C C-11): every call of every scripted cycle got
-        # a timeout, never below the 5 s floor and never above the longest
-        # configured one (20 s for gh; 10 s for git and the probe).
         for seconds in world.runner.timeouts:
-            assert seconds is not None and 5.0 <= seconds <= 20.0, (
+            assert seconds is not None and 5.0 <= seconds <= 120.0, (
                 f"timeout out of range: {world.runner.timeouts}"
             )
 
 
-# ==============================================================================
-# Part 5: the stub-on-PATH fixture and the scenario helpers (plan step 8.1).
-#
-# ``test_cli_e2e.py`` runs the real CLI as a subprocess whose ``PATH`` holds four
-# stubs and nothing else, so no real ``gh``, ``orca``, ``orca-ide`` or ``git`` can
-# run (decisions DF-10, DF-34, DF-55, DF-56). The stubs are written into
-# ``tmp_path`` at test time; nothing executable is committed.
-# ==============================================================================
-
-STUB_TOOLS = ("gh", "orca", "orca-ide", "git")
+STUB_TOOLS = ("gh", "orca", "orca-ide", "git", "ccsession")
 STUB_UNSCRIPTED_STDERR = "stub: unscripted argv"
 
-# One template for all four stubs. Standard library only; the shebang names
+# One template for every stub. Standard library only; the shebang names
 # /usr/bin/env by absolute path and finds python3 in linkbin.
 _STUB_TEMPLATE = '''#!/usr/bin/env python3
 """PATH stub for __TOOL__, written by tests/issue_watch/conftest.py."""
@@ -976,7 +1042,6 @@ _STUB_TEMPLATE = '''#!/usr/bin/env python3
 import json
 import os
 import sys
-import time
 
 TOOL = "__TOOL__"
 
@@ -992,46 +1057,18 @@ def main():
                 if argv[: len(prefix)] == prefix:
                     rule = candidate
                     break
-    records = []
     log = os.environ.get("IW_STUB_LOG")
-    call = 1
-    if log and os.path.exists(log):
-        with open(log, encoding="utf-8") as handle:
-            for line in handle:
-                if "tool" in json.loads(line):
-                    call += 1
-    records.append(
-        {
-            "call": call,
-            "tool": TOOL,
-            "argc": len(argv),
-            "cwd": os.getcwd(),
-            "matched": rule is not None,
-        }
-    )
-    for index, arg in enumerate(argv):
-        records.append({"call": call, "i": index, "arg": arg})
-    state_dir = os.environ.get("IW_STUB_STATE_DIR")
-    if state_dir and TOOL in ("orca", "orca-ide") and argv[:2] == ["agent", "launch"]:
-        try:
-            with open(os.path.join(state_dir, "dispatch.json"), "rb") as handle:
-                text = handle.read().decode("utf-8", "replace")
-        except OSError:
-            text = None
-        records.append({"call": call, "dispatch_json": text})
     if log:
-        blob = "".join(json.dumps(record) + "\\n" for record in records)
+        record = {"tool": TOOL, "argv": argv, "cwd": os.getcwd(), "matched": rule is not None}
         fd = os.open(log, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
         try:
-            os.write(fd, blob.encode("utf-8"))
+            os.write(fd, (json.dumps(record) + "\\n").encode("utf-8"))
         finally:
             os.close(fd)
     if rule is None:
         sys.stderr.write("__UNSCRIPTED__\\n")
         sys.stderr.flush()
         sys.exit(99)
-    if rule.get("sleep"):
-        time.sleep(float(rule["sleep"]))
     sys.stdout.buffer.write(rule.get("stdout", "").encode("utf-8"))
     sys.stdout.buffer.flush()
     sys.stderr.buffer.write(rule.get("stderr", "").encode("utf-8"))
@@ -1046,10 +1083,9 @@ main()
 def write_scenario(tmp_path: Path, rules: dict[str, list[dict]]) -> Path:
     """Write ``tmp_path / "scenario.json"`` (the file ``IW_STUB_SCENARIO`` names).
 
-    ``rules`` maps a stub name to its rules, each ``{"argv_prefix": [...],
-    "exit": int, "stdout": str, "stderr": str, "sleep": float}`` with only
-    ``argv_prefix`` required. The first rule whose prefix starts the arguments
-    wins. Returns the path. Calling it again replaces the scenario.
+    ``rules`` maps a stub name to its rules, each ``{"argv_prefix": [...], "exit":
+    int, "stdout": str, "stderr": str}`` with only ``argv_prefix`` required. The
+    first rule whose prefix starts the arguments wins.
     """
     for tool, tool_rules in rules.items():
         if tool not in STUB_TOOLS:
@@ -1057,7 +1093,7 @@ def write_scenario(tmp_path: Path, rules: dict[str, list[dict]]) -> Path:
         for rule in tool_rules:
             prefix = rule.get("argv_prefix")
             if not isinstance(prefix, list) or not all(
-                isinstance(arg, str) for arg in prefix
+                isinstance(a, str) for a in prefix
             ):
                 raise ValueError(f"argv_prefix must be a list of str: {rule!r}")
     path = tmp_path / "scenario.json"
@@ -1066,58 +1102,22 @@ def write_scenario(tmp_path: Path, rules: dict[str, list[dict]]) -> Path:
 
 
 def read_calls(log_path: Path | str) -> list[dict]:
-    """Rebuild the stub calls from the JSONL log, in call order.
-
-    Each item is ``{"call", "tool", "argv", "cwd", "matched"}`` (``argv`` is the
-    list of arguments after the program name) plus ``dispatch_json`` (the text,
-    or None when the file was missing) only when the stub took the FR-010
-    snapshot before answering. A missing log is an empty list.
-    """
+    """The stub calls from the JSONL log, in call order; a missing log is empty."""
     path = Path(log_path)
     if not path.exists():
         return []
-    calls: dict[int, dict] = {}
-    args: dict[int, dict[int, str]] = {}
-    for line in path.read_text(encoding="utf-8").splitlines():
-        record = json.loads(line)
-        number = record["call"]
-        if "tool" in record:
-            calls[number] = {
-                "call": number,
-                "tool": record["tool"],
-                "argc": record["argc"],
-                "cwd": record["cwd"],
-                "matched": record["matched"],
-            }
-        elif "i" in record:
-            args.setdefault(number, {})[record["i"]] = record["arg"]
-        else:
-            calls[number]["dispatch_json"] = record["dispatch_json"]
-    out = []
-    for number in sorted(calls):
-        call = calls[number]
-        given = args.get(number, {})
-        assert sorted(given) == list(range(call.pop("argc"))), (
-            f"stub log call {number} is missing arguments: {sorted(given)}"
-        )
-        call["argv"] = [given[i] for i in range(len(given))]
-        out.append(call)
-    return out
+    return [json.loads(x) for x in path.read_text(encoding="utf-8").splitlines() if x]
 
 
 @pytest.fixture
 def stub_path(tmp_path):
-    """The environment for a subprocess that can only reach the four stubs.
+    """The environment for a subprocess that can only reach the stubs.
 
-    Creates ``<tmp_path>/stubbin`` (executable ``gh``, ``orca``, ``orca-ide`` and
-    ``git``) and ``<tmp_path>/linkbin`` (only ``python3``, a symlink to
-    ``sys.executable``). Returns a dict whose ``PATH`` is exactly
-    ``<tmp>/stubbin:<tmp>/linkbin``, plus ``HOME``, ``XDG_STATE_HOME``,
-    ``IW_STUB_SCENARIO`` (starts as an empty scenario: every call is unscripted),
-    ``IW_STUB_LOG`` (JSONL, read it with ``read_calls``) and nothing else. A test
-    sets ``IW_STUB_STATE_DIR`` itself to get the FR-010 ``dispatch.json`` snapshot.
-    The process never inherits the test environment. At teardown the test fails
-    if any stub call matched no scenario rule.
+    Creates ``<tmp_path>/stubbin`` (executable ``gh``, ``orca``, ``orca-ide``,
+    ``git`` and ``ccsession``) and ``<tmp_path>/linkbin`` (only ``python3``).
+    Returns a dict whose ``PATH`` is exactly those two folders, plus ``HOME``,
+    ``XDG_STATE_HOME``, ``IW_STUB_SCENARIO`` and ``IW_STUB_LOG``. At teardown the
+    test fails if any stub call matched no scenario rule.
     """
     stubbin = tmp_path / "stubbin"
     linkbin = tmp_path / "linkbin"
@@ -1146,10 +1146,86 @@ def stub_path(tmp_path):
     for name in STUB_TOOLS:
         found = shutil.which(name, path=env["PATH"])
         assert found == str(stubbin / name), (
-            f"{name} resolves to {found!r}, not the stub {stubbin / name}"
+            f"{name} resolves to {found!r}, not the stub"
         )
     yield env
-    unmatched = [
-        (call["tool"], call["argv"]) for call in read_calls(log) if not call["matched"]
-    ]
+    unmatched = [(c["tool"], c["argv"]) for c in read_calls(log) if not c["matched"]]
     assert not unmatched, f"stub saw unscripted argv: {unmatched}"
+
+
+# --- running a cycle ----------------------------------------------------------------------
+
+
+def run(
+    world: GhWorld,
+    tmp_path: Path,
+    tmp_state: FileStore,
+    *,
+    waker: FakeWaker | None = None,
+    dry_run: bool = False,
+    advance: float = 0,
+    **kwargs: object,
+) -> cycle.CycleResult:
+    """Run one cycle over ``world`` (after moving its clock ``advance`` seconds)."""
+    if advance:
+        world.clock.advance(advance)
+    return cycle.run_cycle(
+        world.deps(tmp_path, tmp_state, waker=waker, **kwargs), dry_run
+    )
+
+
+def decisions(res: cycle.CycleResult) -> list[tuple]:
+    """``(reason, repo#issue, state)`` of each decision line of one cycle, in order."""
+    return [
+        (ln["reason"], f"{ln['repo']}#{ln['issue']}", ln.get("state"))
+        for ln in res.lines
+        if ln["kind"] == "decision"
+    ]
+
+
+def reasons(res: cycle.CycleResult) -> list[str]:
+    """The reason of each decision and warning line of one cycle, in order."""
+    return [ln["reason"] for ln in res.lines if ln["kind"] != "cycle"]
+
+
+# --- a live orchestrator session for the real ``Waker`` ---------------------------------
+
+
+LIVE_HANDLE = "term_live-0001"
+LIVE_TAG = "orchestrator-ironclaude-1"
+
+
+def fake_proc(tmp_path: Path) -> Path:
+    """A fake ``/proc`` with one Claude process that runs the orchestrator ``ironclaude-1``."""
+    proc = tmp_path / "proc" / "4242"
+    proc.mkdir(parents=True)
+    (proc / "cmdline").write_bytes(b"/usr/local/bin/claude\0")
+    (proc / "environ").write_bytes(
+        f"ORCA_TERMINAL_HANDLE={LIVE_HANDLE}\0CLAUDE_TOPIC={LIVE_TAG}\0".encode()
+    )
+    return tmp_path / "proc"
+
+
+def script_live_session(runner: FakeRunner) -> None:
+    """Answer the Orca calls of a delivery to an idle, live session (with ``fake_proc``)."""
+    terminals = {
+        "terminals": [{"handle": LIVE_HANDLE, "connected": True, "lastOutputAt": 0}]
+    }
+    replies = [
+        (("terminal", "list"), {"result": terminals}),
+        (("terminal", "read"), {"result": {"draft": ""}}),
+        (("terminal", "wait"), {"result": {"satisfied": True}}),
+        (
+            ("terminal", "send"),
+            {"result": {"accepted": True, "stages": ["input_accepted"]}},
+        ),
+        (("orchestration", "send"), {"ok": True}),
+        (("worktree", "set"), {"ok": True}),
+    ]
+    for prefix, body in replies:
+        runner.matchers.append(
+            (
+                lambda a, p=prefix: tuple(a[1:3]) == p,
+                result(stdout=json.dumps(body)),
+            )
+        )
