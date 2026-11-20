@@ -45,6 +45,7 @@ def test_remediation_checks_agent_precedence_and_untouched_files():
     assert "`tools:` line `Read, Edit, Grep, Glob` and nothing else" in text
     assert "sha256 of the original plan" in text
     assert "ls-files -z --cached --others --exclude-standard" in text
+    assert "submodule foreach --quiet --recursive" in text
     assert "ends in `:workflow-reviser`" in text
 
 
