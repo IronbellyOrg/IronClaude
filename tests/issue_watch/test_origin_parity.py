@@ -177,3 +177,34 @@ def test_ac16_check_origin_rejects_what_parse_rejects_or_foreign__fr025(
     """AC-16 FR-025: a host in the wrong case or a foreign repo is a mismatch."""
     runner = fake_runner({GIT_ARGV: _git_reply(url)})
     assert check_origin(runner, WORKTREE, 5) == ORIGIN_MISMATCH
+
+
+@pytest.mark.parametrize(
+    ("url", "repo", "expected"),
+    [
+        ("https://github.com/Other-Org/Other.Repo.git", "Other-Org/Other.Repo", None),
+        ("git@github.com:other-org/other.repo", "Other-Org/Other.Repo", None),
+        (
+            "https://github.com/IronbellyOrg/IronClaude.git",
+            "Other-Org/Other.Repo",
+            ORIGIN_MISMATCH,
+        ),
+        (
+            "https://github.com/Other-Org/Other.Repo.git",
+            "IronbellyOrg/IronClaude",
+            ORIGIN_MISMATCH,
+        ),
+        (
+            "https://github.com/Other-Org/Other.RepoX",
+            "Other-Org/Other.Repo",
+            ORIGIN_MISMATCH,
+        ),
+    ],
+)
+def test_check_origin_compares_with_the_configured_repo_ignoring_case__plan_task_16(
+    fake_runner, url, repo, expected
+):
+    runner = fake_runner({GIT_ARGV: _git_reply(url)})
+    assert check_origin(runner, WORKTREE, 5, repo) == expected
+    # the parsers themselves still keep the case; only the compare lower-cases
+    assert launch.parse_origin(url) is None or launch.parse_origin(url).count("/") == 1

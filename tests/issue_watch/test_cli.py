@@ -50,7 +50,7 @@ from .conftest import result as command_result
 # test can run it (Gate C fix C-12).
 _REAL_BUILD_DEPS = cli.build_deps
 
-EXPECTED_COMMANDS = ["check-config", "init-state", "once", "reset", "status"]
+EXPECTED_COMMANDS = ["check-config", "init-state", "once", "reset", "run-all", "status"]
 LOCAL_MOUNTINFO = "1 0 0:1 / / rw - ext4 /dev/sda1 rw\n"
 NFS_MOUNTINFO = "1 0 0:1 / / rw - nfs4 server:/export rw\n"
 NOW = CYCLE_NOW  # 2026-11-07T13:00:00Z
@@ -210,9 +210,17 @@ def seed_store(
     last_completed: datetime | None = None,
     next_permitted: datetime | None = None,
     entries: tuple[Entry, ...] = (),
+    prompts: dict[int, str] | None = None,
 ) -> record.FileStore:
-    """Create the state directory and store, then replace the interesting fields."""
+    """Create the state directory and store, then replace the interesting fields.
+
+    ``prompts`` is written as the kept claim prompts that ``status`` retries use.
+    """
     store = record.init_state(config.state_dir, NOW - timedelta(days=3))
+    if prompts is not None:
+        (config.state_dir / cycle.PROMPTS_FILE).write_text(
+            json.dumps({str(n): p for n, p in prompts.items()}), encoding="utf-8"
+        )
     store.save(
         replace(
             store.load(),
@@ -237,7 +245,7 @@ def retry_argv(orca: str, n: int, cwd: str, op: str) -> list[str]:
         "--surface",
         "terminal",
         "--prompt",
-        f"/sc:issue --claim {n} --pipeline none",
+        f"/sc:issue --claim {n} --pipeline none --stage research",
         "--retry-launch",
         op,
         "--json",
@@ -276,11 +284,11 @@ def _listed(output: str) -> list[str]:
     ]
 
 
-def test_the_group_lists_exactly_the_five_commands__df06():
+def test_the_group_lists_exactly_the_six_commands__df06():
     result = CliRunner().invoke(main, ["issue-watch", "--help"])
     assert result.exit_code == 0, result.output
     assert sorted(_listed(result.output)) == EXPECTED_COMMANDS
-    assert len(_listed(result.output)) == 5
+    assert len(_listed(result.output)) == 6
     direct = CliRunner().invoke(issue_watch_group, ["--help"])
     assert direct.exit_code == 0
     assert _listed(direct.output) == _listed(result.output)
@@ -303,7 +311,8 @@ def test_the_help_examples_keep_one_line_each():
     assert lines[at : at + 4] == block
 
 
-@pytest.mark.parametrize("verb", EXPECTED_COMMANDS)
+# run-all works on every repo, so it takes --config-dir instead of one --config file.
+@pytest.mark.parametrize("verb", [v for v in EXPECTED_COMMANDS if v != "run-all"])
 def test_every_command_takes_the_shared_config_option(verb):
     result = CliRunner().invoke(issue_watch_group, [verb, "--help"])
     assert result.exit_code == 0
@@ -365,6 +374,49 @@ def test_check_config_prints_the_mtime_and_count_and_writes_nothing(
     )
     assert "7654321" not in result.output  # nothing else about the file
     assert not config.state_dir.exists()
+
+
+def test_check_config_warns_when_an_approver_is_the_launch_account__r33(
+    tmp_path, config, config_file
+):
+    """R33: the warning shows when the approvers file holds the account id."""
+    config.approvers_file.write_text("1001\n7654321\n", "utf-8")
+    write_config(config_file, config, owner_account_id=1001)
+    result = run_readonly(tmp_path, "check-config", "--config", str(config_file))
+    assert result.exit_code == 0
+    assert "warning: approver_is_launch_account\n" in result.output
+    assert "1001" not in result.output
+
+
+def test_check_config_has_no_warning_otherwise__r33(tmp_path, config, config_file):
+    config.approvers_file.write_text("7654321\n", "utf-8")
+    write_config(config_file, config, owner_account_id=1001)
+    quiet = run_readonly(tmp_path, "check-config", "--config", str(config_file))
+    assert "approver_is_launch_account" not in quiet.output
+    # No account id in the configuration: nothing to compare.
+    config.approvers_file.write_text("1001\n", "utf-8")
+    write_config(config_file, config)
+    unset = run_readonly(tmp_path, "check-config", "--config", str(config_file))
+    assert "approver_is_launch_account" not in unset.output
+    # Excluded by the owner: no warning either.
+    write_config(
+        config_file, config, owner_account_id=1001, approval_excluded_ids=[1001]
+    )
+    excluded = run_readonly(tmp_path, "check-config", "--config", str(config_file))
+    assert excluded.exit_code == 0
+    assert "approver_is_launch_account" not in excluded.output
+
+
+def test_an_unknown_config_key_is_still_rejected_and_the_exclusion_key_is_checked__r33(
+    tmp_path, config, config_file
+):
+    write_config(config_file, config, extra_key=1)
+    bad_key = run_readonly(tmp_path, "check-config", "--config", str(config_file))
+    assert bad_key.exit_code == 2
+    for bad in ("1001", [0], ["1001"], [True], [10**21]):
+        write_config(config_file, config, approval_excluded_ids=bad)
+        out = run_readonly(tmp_path, "check-config", "--config", str(config_file))
+        assert out.exit_code == 2, bad
 
 
 def _bad_config(tmp_path, config, config_file):
@@ -517,7 +569,50 @@ def test_once_without_dry_run_prints_no_probe_or_would_launch_line(
     )
     result = run("once", "--config", str(config_file))
     assert result.exit_code == 0
-    assert result.output == "cycle: launched\nexit: 0\n"
+    # a confirmed launch adds one `launched: <n>` line; probe and would_launch stay dry-run only
+    assert result.output == "cycle: launched\nexit: 0\nlaunched: 42\n"
+
+
+def _fake_result(monkeypatch, **fields):
+    monkeypatch.setattr(cli, "build_deps", lambda cfg: object())
+    monkeypatch.setattr(
+        cycle,
+        "run_cycle",
+        lambda deps, dry_run: cycle.CycleResult(
+            exit_code=fields.pop("exit_code", 0),
+            reason=fields.pop("reason", "launched"),
+            cycle_id="0" * 32,
+            **fields,
+        ),
+    )
+
+
+def test_once_prints_launched_after_a_confirmed_launch(config_file, monkeypatch):
+    _fake_result(monkeypatch, launched_issue=12)
+    result = run("once", "--config", str(config_file))
+    lines = result.output.splitlines()
+    assert lines.count("launched: 12") == 1
+    assert not any(line.startswith("attempted:") for line in lines)
+
+
+def test_once_prints_attempted_after_an_unknown_outcome(config_file, monkeypatch):
+    _fake_result(monkeypatch, exit_code=7, reason="launch_unknown", attempted_issue=12)
+    result = run("once", "--config", str(config_file))
+    lines = result.output.splitlines()
+    assert result.exit_code == 7
+    assert lines.count("attempted: 12") == 1
+    assert not any(line.startswith("launched:") for line in lines)
+
+
+def test_once_prints_neither_line_when_nothing_was_launched(config_file, monkeypatch):
+    _fake_result(monkeypatch, reason="not_approved")
+    result = run("once", "--config", str(config_file))
+    assert result.output == "cycle: not_approved\nexit: 0\n"
+    _fake_result(monkeypatch, reason="not_approved", would_launch=12, probe="skipped")
+    dry = run("once", "--dry-run", "--config", str(config_file))
+    assert dry.output == (
+        "cycle: not_approved\nexit: 0\nprobe: skipped\nwould_launch: 12\n"
+    )
 
 
 def test_once_on_a_config_error_writes_the_fallback_and_exits_2(
@@ -602,12 +697,17 @@ def test_build_deps_wires_the_real_dependencies_from_the_config(config, monkeypa
     # the worktree as the working directory (the one call that passes cwd).
     assert isinstance(deps.launcher, launch.OrcaLauncher)
     deps.launcher.launch(
-        "orca-x", config.worktree, "/sc:issue --claim 9 --pipeline none", 30.0
+        "orca-x",
+        config.worktree,
+        "/sc:issue --claim 9 --pipeline none --stage research",
+        30.0,
     )
     assert seen == [
         (
             launch.launch_argv(
-                "orca-x", config.worktree, "/sc:issue --claim 9 --pipeline none"
+                "orca-x",
+                config.worktree,
+                "/sc:issue --claim 9 --pipeline none --stage research",
             ),
             30.0,
             str(config.worktree),
@@ -741,6 +841,10 @@ def seed_rich_store(config: cycle.Config) -> None:
         config,
         last_completed=NOW - timedelta(seconds=120),
         next_permitted=NOW + timedelta(minutes=10),
+        prompts={
+            5: "/sc:issue --claim 5 --pipeline none --stage research",
+            8: "/sc:issue --claim 8 --pipeline none --stage research",
+        },
         entries=(
             entry(
                 5,
@@ -886,6 +990,49 @@ def _launched_like(n: int, state: str, reason: str, **over: object) -> Entry:
     )
 
 
+@pytest.mark.parametrize("status", ["Research", "Spec", "Plan", "Debug"])
+@pytest.mark.parametrize("pipeline", [None, "Worktree", "Full", "Full Submit"])
+def test_status_retry_command_is_valid_for_each_status_and_pipeline__r23(
+    config, status, pipeline
+):
+    """A retry command carries the kept prompt, whatever Status and Pipeline chose it."""
+    prompt = launch.build_claim_prompt(9, status, pipeline)
+    seed_store(
+        config,
+        last_completed=NOW - timedelta(seconds=60),
+        prompts={9: prompt},
+        entries=(_launched_like(9, "unknown", "launch_unknown"),),
+    )
+    report = cycle.status_report(record.FileStore(config.state_dir), None, NOW)
+    (item,) = report["retry"]
+    assert item["argv"][item["argv"].index("--prompt") + 1] == prompt
+    assert item["argv"][-3:] == ["--retry-launch", "op-9", "--json"]
+
+
+@pytest.mark.parametrize(
+    "kept",
+    [
+        pytest.param(None, id="no-file"),
+        pytest.param(
+            {8: "/sc:issue --claim 8 --pipeline none --stage research"},
+            id="other-issue",
+        ),
+        pytest.param({9: "/sc:issue --claim 9; rm -rf /"}, id="not-a-claim-prompt"),
+    ],
+)
+def test_status_retry_has_no_command_when_no_valid_prompt_is_kept__r23(config, kept):
+    """No prompt is guessed: a missing or foreign kept prompt gives ``argv`` None."""
+    seed_store(
+        config,
+        last_completed=NOW - timedelta(seconds=60),
+        prompts=kept,
+        entries=(_launched_like(9, "unknown", "launch_unknown"),),
+    )
+    report = cycle.status_report(record.FileStore(config.state_dir), None, NOW)
+    (item,) = report["retry"]
+    assert item["argv"] is None
+
+
 def test_status_retry_lists_only_unknown_entries_with_an_id_and_a_cwd__ac9_fr015(
     tmp_path, config, config_file, fixed_clock, monkeypatch
 ):
@@ -893,6 +1040,7 @@ def test_status_retry_lists_only_unknown_entries_with_an_id_and_a_cwd__ac9_fr015
     seed_store(
         config,
         last_completed=NOW - timedelta(seconds=60),
+        prompts={8: "/sc:issue --claim 8 --pipeline none --stage research"},
         entries=(
             _launched_like(5, "launched", "launched"),
             _launched_like(6, "claimed", "claimed"),
@@ -1008,6 +1156,7 @@ def _retry_argv0(tmp_path, config, config_file) -> tuple[int, list[str]]:
     seed_store(
         config,
         last_completed=NOW - timedelta(seconds=60),
+        prompts={9: "/sc:issue --claim 9 --pipeline none --stage research"},
         entries=(
             entry(
                 9,
@@ -1670,3 +1819,114 @@ def test_a_refusal_in_an_unwritable_state_directory_falls_back_to_stderr(
     assert (fb["kind"], fb["exit"], fb["reason"]) == ("cycle", 2, "reset_refused")
     assert state_files(reset_env) == files
     assert not (reset_env.state_dir / "audit.jsonl").exists()
+
+
+# ==============================================================================
+# run-all (plan Task 25)
+# ==============================================================================
+
+
+@pytest.fixture
+def run_all(tmp_path, monkeypatch):
+    """Invoke ``run-all`` with a fake sweep; returns (invoke, seen) where seen holds sweep kwargs."""
+    from superclaude.cli.issue_watch import dispatch
+
+    seen: dict = {}
+    box = {"result": dispatch.SweepResult(ok=True)}
+    monkeypatch.setattr(cycle, "check_platform", lambda: None)
+    monkeypatch.setattr(cli, "_make_runner", lambda: object())
+
+    def fake_sweep(runner, **kw):
+        seen.update(kw)
+        return box["result"]
+
+    monkeypatch.setattr(dispatch, "run_sweep", fake_sweep)
+
+    def invoke(*extra, result=None):
+        if result is not None:
+            box["result"] = result
+        argv = [
+            "issue-watch",
+            "run-all",
+            "--config-dir",
+            str(tmp_path / "cfg"),
+            "--state-dir",
+            str(tmp_path / "state"),
+            "--worktrees-dir",
+            str(tmp_path / "wt"),
+            "--orca",
+            "/usr/bin/orca",
+            "--superclaude",
+            "/usr/bin/superclaude",
+            *extra,
+        ]
+        return CliRunner().invoke(main, argv)
+
+    return invoke, seen
+
+
+def test_run_all_clean_sweep_prints_one_line_per_repo_and_exits_0(run_all) -> None:
+    from superclaude.cli.issue_watch import dispatch
+
+    invoke, seen = run_all
+    child = dispatch.ChildResult("Alpha", "o/Alpha", 0, "no_candidates", launched=1)
+    res = invoke(result=dispatch.SweepResult(ok=True, children=(child,)))
+    assert res.exit_code == 0, res.output
+    assert "Alpha: ran no_candidates exit=0 launched=1" in res.output
+    assert res.output.strip().endswith("sweep: clean")
+    assert seen["dry_run"] is False
+
+
+def test_run_all_reports_a_skipped_repo_and_a_failed_child_exits_1(run_all) -> None:
+    from superclaude.cli.issue_watch import dispatch
+
+    invoke, _ = run_all
+    res = invoke(
+        result=dispatch.SweepResult(
+            ok=True,
+            children=(dispatch.ChildResult("A", "o/A", 3, "boom"),),
+            skipped=(dispatch.Skipped("B b", "origin_mismatch"),),
+        )
+    )
+    assert res.exit_code == 1
+    assert "B?b: skipped origin_mismatch" in res.output
+    assert "sweep: unhealthy" in res.output
+
+
+def test_run_all_exits_75_when_another_sweep_holds_the_lock(run_all, tmp_path) -> None:
+    from superclaude.cli.issue_watch import dispatch, generate
+
+    invoke, seen = run_all
+    base = generate.Base(tmp_path / "cfg", tmp_path / "state", tmp_path / "wt")
+    with dispatch.loop_lock(base):
+        res = invoke()
+    assert res.exit_code == 75
+    assert "lock" in res.output
+    assert seen == {}
+
+
+def test_run_all_dry_run_takes_no_lock_and_writes_nothing(run_all, tmp_path) -> None:
+    from superclaude.cli.issue_watch import dispatch
+
+    invoke, seen = run_all
+    before = sorted(p for p in tmp_path.rglob("*"))
+    res = invoke(
+        "--dry-run",
+        result=dispatch.SweepResult(ok=True, would_run=("A",), would_generate=("B",)),
+    )
+    assert res.exit_code == 0, res.output
+    assert "A: would_run" in res.output and "B: would_generate" in res.output
+    assert "(dry run)" in res.output
+    assert seen["dry_run"] is True
+    assert sorted(p for p in tmp_path.rglob("*")) == before
+
+
+def test_run_all_refuses_a_relative_program_path(run_all, tmp_path) -> None:
+    invoke, _ = run_all
+    res = invoke("--orca", "orca")
+    assert res.exit_code == 2
+
+
+def test_run_all_help_exits_0_and_is_listed() -> None:
+    assert CliRunner().invoke(main, ["issue-watch", "run-all", "--help"]).exit_code == 0
+    assert "run-all" in CliRunner().invoke(main, ["issue-watch", "--help"]).output

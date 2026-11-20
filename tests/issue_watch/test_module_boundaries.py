@@ -69,8 +69,52 @@ RULES: dict[str, Rule] = {
             {"runner", "github", "predicates", "record", "launch", "audit"}
         )
     ),
+    # plan Task 17: the central defaults file; pure, it reads one file and runs no command.
+    "defaults": Rule(siblings=frozenset({"cycle", "github", "predicates"})),
+    # plan Task 18: the Orca repo list; commands only through the Runner, no subprocess import.
+    "repos": Rule(siblings=frozenset({"runner", "launch"})),
+    # plan Task 20: the trigger label and the Approved field check; the one watcher module that creates a label.
+    "repo_init": Rule(siblings=frozenset({"defaults", "github", "runner"})),
+    # plan Task 21: the first-run check; it sequences the other modules and runs nothing itself.
+    "first_run": Rule(
+        siblings=frozenset(
+            {"cycle", "defaults", "launch", "record", "repo_init", "runner"}
+        )
+    ),
+    # plan Task 23: the dispatcher core; commands only through the Runner, no subprocess import.
+    "dispatch": Rule(
+        siblings=frozenset(
+            {
+                "cycle",
+                "defaults",
+                "first_run",
+                "generate",
+                "launch",
+                "predicates",
+                "record",
+                "repo_init",
+                "repos",
+                "runner",
+            }
+        )
+    ),
+    # plan Task 19: one repo's generated config; reads through the Runner, writes two files.
+    "generate": Rule(
+        siblings=frozenset({"cycle", "defaults", "github", "repos", "runner"})
+    ),
     "cli": Rule(
-        siblings=frozenset({"cycle", "record", "audit", "launch", "runner"}),
+        siblings=frozenset(
+            {
+                "cycle",
+                "record",
+                "audit",
+                "launch",
+                "runner",
+                "defaults",
+                "dispatch",
+                "generate",
+            }
+        ),
         third_party=frozenset({"click"}),
     ),
 }

@@ -93,6 +93,25 @@ def decide(events, *, labels_now=(TRIGGER, APPROVAL), store_created_at=T0):
     )
 
 
+def test_r33_an_approval_by_an_excluded_id_is_not_approved() -> None:
+    """R33: the exclusion turns an allow-listed approver's approval into none."""
+    events = [trigger_on(), approval_on()]
+    common = dict(
+        labels_now=(TRIGGER, APPROVAL),
+        trigger_label=TRIGGER,
+        approval_label=APPROVAL,
+        approvers={APPROVER_ID, OUTSIDER_ID},
+        store_created_at=T0,
+    )
+    excluded = approval_of(events, excluded_ids={APPROVER_ID}, **common)
+    assert_skipped(excluded, "not_approved")
+    # The same event by another approver passes, and an empty exclusion changes nothing.
+    other = [trigger_on(), approval_on(actor_id=OUTSIDER_ID)]
+    assert approval_of(other, excluded_ids={APPROVER_ID}, **common).approved is True
+    assert approval_of(events, **common).approved is True
+    assert approval_of(events, excluded_ids=(), **common).approved is True
+
+
 def assert_skipped(result, reason: str) -> None:
     """Assert a not-approved result with ``reason`` and no approval fields."""
     assert result.approved is False
@@ -451,15 +470,25 @@ def item(
     *,
     project_id: str = PROJECT_ID,
     archived: bool = False,
-    status: str | None = "Backlog",
+    status: str | None = "Research",
 ) -> ProjectItem:
-    """Build a ``ProjectItem`` that is live, in ``PROJECT_ID`` and in Backlog."""
+    """Build a ``ProjectItem`` that is live, in ``PROJECT_ID`` and in Research."""
     return ProjectItem(is_archived=archived, project_id=project_id, status_name=status)
 
 
-def test_fr007_one_live_backlog_item_passes() -> None:
-    """FR-007: exactly one live item in the project at Backlog passes."""
-    assert project_check([item()], PROJECT_ID) is None
+@pytest.mark.parametrize("status", ["Research", "Spec", "Plan", "Debug"])
+def test_fr007_one_live_item_in_an_allowed_status_passes(status) -> None:
+    """R22: exactly one live item at Research, Spec, Plan or Debug passes."""
+    assert project_check([item(status=status)], PROJECT_ID) is None
+
+
+@pytest.mark.parametrize(
+    "status",
+    ["Backlog", "Ready", "In progress", "In review", "Done", None, "Triage"],
+)
+def test_r22_every_other_status_is_a_mismatch(status) -> None:
+    """R22: Backlog, Ready, In progress, In review, Done, empty and unknown refuse."""
+    assert project_check([item(status=status)], PROJECT_ID) == "project_mismatch"
 
 
 @pytest.mark.parametrize(
@@ -468,9 +497,7 @@ def test_fr007_one_live_backlog_item_passes() -> None:
         pytest.param([item(project_id="PVT_other")], id="wrong-project"),
         pytest.param([item(), item()], id="two-items"),
         pytest.param([item(archived=True)], id="archived-item"),
-        pytest.param([item(status="In progress")], id="status-in-progress"),
-        pytest.param([item(status="Backlog ")], id="status-near-miss"),
-        pytest.param([item(status=None)], id="status-missing"),
+        pytest.param([item(status="Research ")], id="status-near-miss"),
         pytest.param([], id="no-items"),
     ],
 )

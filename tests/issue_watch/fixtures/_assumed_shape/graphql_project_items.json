@@ -13,8 +13,15 @@
                 "project": {
                   "id": "PVT_test_project_0001"
                 },
-                "fieldValueByName": {
-                  "name": "Backlog"
+                "status": {
+                  "name": "Research",
+                  "createdAt": "2026-01-01T00:00:00Z",
+                  "updatedAt": "2026-01-02T00:00:00Z"
+                },
+                "pipeline": {
+                  "name": "Worktree",
+                  "createdAt": "2026-01-03T00:00:00Z",
+                  "updatedAt": "2026-01-03T00:00:00Z"
                 }
               }
             ],

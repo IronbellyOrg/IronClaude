@@ -3,11 +3,16 @@
 These tests pin the controls of design section 9.1 that cut across modules:
 
 - T1, NFR-001, AC-7: the only text after ``--prompt`` is
-  ``/sc:issue --claim <n> --pipeline none`` for an ``int`` in 1..999999999, whatever GitHub, the config or the login holds.
+  ``/sc:issue --claim <n> --pipeline <level> --stage <stage>`` for an ``int`` in
+  1..999999999, a level of none, worktree, full or full --submit and a stage of
+  research, spec, plan or debug, whatever GitHub, the config or the login holds.
 - T5, T9, NFR-002, NFR-003, AC-20: every argv the runner sees is one of the
   allowed forms, never names the upstream repository, ``{owner}``, a title or a
   body, and every REST path call carries ``--method GET`` (DF-28).
-- NG-2: nothing writes to GitHub (no ``mutation``, no POST to a REST path).
+- NG-2: ``github.py`` and the cycle write nothing to GitHub (no ``mutation``, no POST
+  to a REST path). ``issue_pipeline/complete.py`` (the coordinator's result comment and
+  Status move) and ``issue_watch/repo_init.py`` (labels) are the only modules allowed to
+  write; a scan of both packages below keeps it that way.
 - T10: the launch argv is the 12-element list of FR-013 with no extra flag.
 
 No test sleeps, and none touches a real ``gh``, ``git`` or Orca: every cycle runs
@@ -64,12 +69,22 @@ FORK = "IronbellyOrg/IronClaude"
 
 # Every prompt a launch may carry. ``fullmatch`` (not ``$``) so a trailing newline
 # fails too.
-_PROMPT_RE = re.compile(r"/sc:issue --claim [1-9][0-9]{0,8} --pipeline none")
+# Written out here, not imported from launch.py, so the test pins the closed set
+# instead of mirroring it.
+_PROMPT_RE = re.compile(
+    r"/sc:issue --claim [1-9][0-9]{0,8}"
+    r" --pipeline (?:none|worktree|full(?: --submit)?)"
+    r" --stage (?:research|spec|plan|debug)"
+)
 _TEXT_FIELD = re.compile(r"(?i)\b(?:title|body\w*)\b")
 _REST_PATH = re.compile(
     r"repos/IronbellyOrg/IronClaude/issues/[1-9][0-9]{0,8}(?:/(?:events|comments))?"
 )
-_QUERIES = ("query=" + github.EDITS_QUERY, "query=" + github.PROJECT_ITEMS_QUERY)
+_QUERIES = (
+    "query=" + github.EDITS_QUERY,
+    "query=" + github.PROJECT_ITEMS_QUERY,
+    "query=" + github.APPROVAL_EVENTS_QUERY,
+)
 _T_MARK = T_APPROVED + timedelta(minutes=1)  # a claim marker after the approval
 
 HOSTILE = [
@@ -212,7 +227,12 @@ def _draw(rng: random.Random) -> object:
 # ==============================================================================
 
 
-def _literal_launch(orca: str, worktree: object, n: int) -> tuple[str, ...]:
+def _literal_launch(
+    orca: str,
+    worktree: object,
+    n: int,
+    tail: str = "--pipeline none --stage research",
+) -> tuple[str, ...]:
     """The FR-013 launch argv written out in full (T10), not built by the source."""
     return (
         orca,
@@ -225,7 +245,7 @@ def _literal_launch(orca: str, worktree: object, n: int) -> tuple[str, ...]:
         "--surface",
         "terminal",
         "--prompt",
-        f"/sc:issue --claim {n} --pipeline none",
+        f"/sc:issue --claim {n} {tail}",
         "--json",
     )
 
@@ -283,12 +303,19 @@ def classify_argv(argv: object, worktree: object) -> str:
         return "rest"
     if argv[:4] == ["gh", "api", "graphql", "-f"]:
         assert argv[4] in _QUERIES, shown
-        assert argv[5] == "-F" and re.fullmatch(r"number=[1-9][0-9]{0,8}", argv[6]), (
+        # The repository travels as two string variables (plan Task 15), never in the query.
+        assert argv[5] == "-f" and re.fullmatch(r"owner=[A-Za-z0-9-]{1,39}", argv[6]), (
             shown
         )
-        assert len(argv) in (7, 9), shown
-        if len(argv) == 9:
-            assert argv[7] == "-f" and argv[8].startswith("after="), shown
+        assert argv[7] == "-f" and re.fullmatch(
+            r"name=[A-Za-z0-9._-]{1,100}", argv[8]
+        ), shown
+        assert argv[9] == "-F" and re.fullmatch(r"number=[1-9][0-9]{0,8}", argv[10]), (
+            shown
+        )
+        assert len(argv) in (11, 13), shown
+        if len(argv) == 13:
+            assert argv[11] == "-f" and argv[12].startswith("after="), shown
         return "graphql"
     if argv[0] == "git":
         assert len(argv) == 6 and argv[1] == "-C", shown
@@ -301,9 +328,8 @@ def classify_argv(argv: object, worktree: object) -> str:
     assert len(argv) == 12 and argv[1:3] == ["agent", "launch"], shown
     prompt = argv[10]
     assert is_claim_prompt(prompt), shown
-    assert tuple(argv) == _literal_launch(argv[0], worktree, int(prompt.split()[2])), (
-        shown
-    )
+    n, tail = prompt.split(" ", 3)[2], prompt.split(" ", 3)[3]
+    assert tuple(argv) == _literal_launch(argv[0], worktree, int(n), tail), shown
     return "launch"
 
 
@@ -419,12 +445,14 @@ SCENARIOS = {
         (
             *_START,
             "rest",  # comments (the claim marker)
-            "rest",  # events (the approval)
+            "rest",  # events (the label events)
+            "graphql",  # the Approved field events (the approval, R35)
             "graphql",  # edits
             "graphql",  # project items
             "probe",
             "rest",  # re-read of the issue
             "rest",  # re-read of the events
+            "graphql",  # re-read of the Approved field events
             "graphql",  # re-read of the project items
             "origin",
             "launch",
@@ -436,7 +464,7 @@ SCENARIOS = {
         False,
         0,
         "cycle_complete",
-        (*_START, "rest", "rest"),
+        (*_START, "rest", "rest", "graphql"),
         ((9, "claimed"),),
     ),
     "rate_limited": Scenario(
@@ -447,7 +475,7 @@ SCENARIOS = {
         True,
         0,
         "cycle_complete",
-        (*_START, "rest", "rest", "graphql", "graphql"),
+        (*_START, "rest", "rest", "graphql", "graphql", "graphql"),
         ((9, "launched"),),
     ),
 }
@@ -476,8 +504,10 @@ def test_prompt_regex_property(tmp_path):
         kinds[type(value).__name__] += 1
         if is_claim_number(value):
             valid["valid"] += 1
-            prompt = build_claim_prompt(value)
-            assert prompt == f"/sc:issue --claim {value} --pipeline none", where
+            prompt = build_claim_prompt(value, "Research", None)
+            assert (
+                prompt == f"/sc:issue --claim {value} --pipeline none --stage research"
+            ), where
             assert is_claim_prompt(prompt), where
             argv = launch_argv(ORCA_PATH, worktree, prompt)
             assert len(argv) == 12 and argv[10] == prompt, where
@@ -485,7 +515,7 @@ def test_prompt_regex_property(tmp_path):
         else:
             valid["invalid"] += 1
             with pytest.raises(ValueError):
-                build_claim_prompt(value)
+                build_claim_prompt(value, "Research", None)
         # The launch layer takes only a string that is itself a claim prompt, so a
         # raw drawn value can never become the --prompt argument.
         if not is_claim_prompt(value):
@@ -519,9 +549,9 @@ def test_prompt_regex_property(tmp_path):
     for k, n in enumerate(numbers):
         ran = run_world(tmp_path / f"cycle-{k}", lambda w, n=n: w.issue(n))
         assert (ran.result.exit_code, ran.result.launched_issue) == (0, n), n
-        assert ran.prompts == [f"/sc:issue --claim {n} --pipeline none"], (
-            f"cycle {k}: issue {n}"
-        )
+        assert ran.prompts == [
+            f"/sc:issue --claim {n} --pipeline none --stage research"
+        ], f"cycle {k}: issue {n}"
         assert all(is_claim_prompt(p) for p in ran.prompts), n
         assert ran.store.load().entries[n].launches == 1, n
 
@@ -568,7 +598,7 @@ def test_hostile_labels_logins_and_commenters_never_reach_the_prompt(tmp_path, h
     ran = run_world(tmp_path, build)
     assert ran.result.exit_code == 0 and ran.result.reason == "cycle_complete"
     assert ran.result.launched_issue == 9
-    assert ran.prompts == ["/sc:issue --claim 9 --pipeline none"], (
+    assert ran.prompts == ["/sc:issue --claim 9 --pipeline none --stage research"], (
         f"hostile: {hostile!r:.100}"
     )
     assert ran.forms == list(SCENARIOS["eligible"].forms)
@@ -605,7 +635,7 @@ def test_hostile_config_labels_stay_one_argv_element_and_never_reach_the_prompt(
         config_over={"trigger_label": trigger, "approval_label": approval},
     )
     assert (ran.result.exit_code, ran.result.launched_issue) == (0, 9)
-    assert ran.prompts == ["/sc:issue --claim 9 --pipeline none"]
+    assert ran.prompts == ["/sc:issue --claim 9 --pipeline none --stage research"]
     holders = [argv for argv in ran.argvs if any(trigger in arg for arg in argv)]
     assert len(holders) == 1 and holders[0][:3] == ("gh", "issue", "list"), holders
     assert holders[0][holders[0].index("--label") + 1] == trigger  # one element
@@ -725,8 +755,12 @@ def test_every_argv_builder_of_the_package_gives_an_allowed_form(tmp_path):
         for cursor in (None, "Y3Vyc29yOnYyOpHOAAAB", "a.b:c-d_e=="):
             expected.append((github.argv_edits(n, cursor), "graphql"))
             expected.append((github.argv_project_items(n, cursor), "graphql"))
+            expected.append((github.argv_approval_events(n, cursor), "graphql"))
         expected.append(
-            (launch_argv(ORCA_PATH, worktree, build_claim_prompt(n)), "launch")
+            (
+                launch_argv(ORCA_PATH, worktree, build_claim_prompt(n, "Plan", "Full")),
+                "launch",
+            )
         )
     recorder = _Recorder()
     assert launch.check_origin(recorder, worktree, 5.0) == "origin_mismatch"
@@ -908,15 +942,21 @@ def test_no_string_constant_of_github_py_contains_mutation():
         assert "{owner}" not in value, f"github.{name} holds the {{owner}} placeholder"
 
 
-@pytest.mark.parametrize("name", ["EDITS_QUERY", "PROJECT_ITEMS_QUERY"])
-def test_both_graphql_constants_name_the_literal_repository_and_only_read(name):
+@pytest.mark.parametrize(
+    "name", ["EDITS_QUERY", "PROJECT_ITEMS_QUERY", "APPROVAL_EVENTS_QUERY"]
+)
+def test_the_graphql_constants_take_the_repository_as_variables_and_only_read(name):
     query = getattr(github, name)
-    assert github.REPO == FORK
-    assert 'repository(owner: "IronbellyOrg", name: "IronClaude")' in query, name
+    assert github.REPO == FORK  # the default of the github.py functions
+    # the repository is two non-null string variables (plan Task 15), never a literal
+    assert re.findall(r"\$(\w+): String!", query) == ["owner", "name"], name
+    assert query.count("String!") == 2, name
+    assert "repository(owner: $owner, name: $name)" in query, name
+    assert 'repository(owner: "' not in query and "IronClaude" not in query
     assert query.startswith("query("), name  # an operation that reads
     assert "mutation" not in query.lower() and "subscription" not in query.lower()
-    assert "$owner" not in query and "$name" not in query and "{owner}" not in query
-    assert "$after: String)" in query and "String!" not in query  # DF-14
+    assert "{owner}" not in query
+    assert "$after: String)" in query  # DF-14: the cursor stays nullable
     assert not _TEXT_FIELD.search(query), f"{name} asks for a title or body"
 
 
@@ -934,7 +974,9 @@ def test_both_graphql_constants_name_the_literal_repository_and_only_read(name):
     ],
 )
 def test_launch_argv_is_the_twelve_element_list_with_no_extra_flag(orca, worktree):
-    argv = launch_argv(orca, worktree, "/sc:issue --claim 9 --pipeline none")
+    argv = launch_argv(
+        orca, worktree, "/sc:issue --claim 9 --pipeline none --stage research"
+    )
     assert argv == [
         orca,
         "agent",
@@ -946,7 +988,7 @@ def test_launch_argv_is_the_twelve_element_list_with_no_extra_flag(orca, worktre
         "--surface",
         "terminal",
         "--prompt",
-        "/sc:issue --claim 9 --pipeline none",
+        "/sc:issue --claim 9 --pipeline none --stage research",
         "--json",
     ]
     assert len(argv) == 12
@@ -971,7 +1013,7 @@ def test_the_launch_the_cycle_makes_is_the_literal_argv_in_the_worktree(tmp_path
             "--surface",
             "terminal",
             "--prompt",
-            "/sc:issue --claim 9 --pipeline none",
+            "/sc:issue --claim 9 --pipeline none --stage research",
             "--json",
         )
     ]
@@ -1008,6 +1050,85 @@ _DISPATCH_ENTRY_KEYS = {
 
 def test_dispatch_json_entries_keep_their_keys_with_the_pipeline_none_prompt(tmp_path):
     ran = run_world(tmp_path, lambda w: w.issue(9))
-    assert ran.prompts == ["/sc:issue --claim 9 --pipeline none"]
+    assert ran.prompts == ["/sc:issue --claim 9 --pipeline none --stage research"]
     raw = json.loads((ran.store.state_dir / "dispatch.json").read_text("utf-8"))
     assert set(raw["entries"]["9"]) == _DISPATCH_ENTRY_KEYS
+
+
+# ==============================================================================
+# NG-2 widened (plan Task 12): the only writers are complete.py and repo_init.py
+# ==============================================================================
+
+_WRITER_MODULES = {"complete.py", "repo_init.py"}
+_SRC = Path(__file__).resolve().parents[2] / "src/superclaude/cli"
+_WRITE_SIGN = re.compile(
+    r'"POST"|"PUT"|"PATCH"|"DELETE"|\bmutation\s*[({]|"label",\s*"create"'
+)
+
+
+def test_only_complete_and_repo_init_may_write_to_github():
+    scanned = sorted(
+        [*(_SRC / "issue_watch").glob("*.py"), *(_SRC / "issue_pipeline").glob("*.py")]
+    )
+    assert {p.name for p in scanned} >= {"github.py", "cycle.py", "complete.py"}
+    writers = {p.name for p in scanned if _WRITE_SIGN.search(p.read_text("utf-8"))}
+    assert writers <= _WRITER_MODULES, writers
+    assert {"complete.py", "repo_init.py"} <= writers  # the scan is not vacuous
+    # github.py and the cycle stay read-only
+    for name in ("github.py", "cycle.py"):
+        assert name not in writers
+
+
+def test_the_read_calls_of_complete_py_are_get_or_read_only_graphql():
+    from tests.issue_pipeline.test_complete import World, call
+
+    world = World()
+    assert call(world) == "completed"
+    reads = [
+        a
+        for a in world.argvs
+        if "POST" not in a and not any(x.startswith("query=mutation") for x in a)
+    ]
+    assert len(reads) == 3  # own login, the Project items, the comments
+    for argv in reads:
+        assert not any(UPSTREAM.lower() in a.lower() for a in argv), argv
+        assert not any("{owner}" in a for a in argv), argv
+        if argv[:3] == ["gh", "api", "graphql"]:
+            query = next(a for a in argv if a.startswith("query="))
+            assert query.startswith("query=query(") and "mutation" not in query.lower()
+        elif argv[:3] != ["gh", "api", "user"]:
+            assert argv[2:4] == ["--method", "GET"], argv
+        assert not _TEXT_FIELD.search(
+            " ".join(a for a in argv if a.startswith("query="))
+        ), argv
+
+
+def test_the_argv_builders_of_the_generator_are_reads_with_no_text_field():
+    """Plan Task 19: generate.py only reads; the scan covers its argv builders too."""
+    from superclaude.cli.issue_watch import generate
+
+    argvs = [
+        generate.argv_account(),
+        generate.argv_user_id("ironbelly"),
+        generate.argv_projects("IronbellyOrg/IronClaude"),
+        generate.argv_maintainers("IronbellyOrg/IronClaude"),
+    ]
+    for argv in argvs:
+        assert argv[:2] == ["gh", "api"], argv
+        assert not any(UPSTREAM.lower() in a.lower() for a in argv), argv
+        assert not any(a.upper() in ("POST", "PUT", "PATCH", "DELETE") for a in argv)
+        assert not any("mutation" in a.lower() for a in argv), argv
+        if argv[2] == "graphql":
+            query = next(a for a in argv if a.startswith("query="))
+            assert query.startswith("query=query(") and not _TEXT_FIELD.search(query)
+        else:
+            assert argv[2:4] == ["--method", "GET"], argv
+        assert not any(_TEXT_FIELD.search(a) for a in argv if a.startswith("query="))
+    for bad in ("a/b/c", "", "a b/c", "-a/b"):
+        with pytest.raises(ValueError):
+            generate.argv_projects(bad)
+        with pytest.raises(ValueError):
+            generate.argv_maintainers(bad)
+    for bad in ("-x", "a b", "", "a/b", "x" * 40):
+        with pytest.raises(ValueError):
+            generate.argv_user_id(bad)

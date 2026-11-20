@@ -33,40 +33,106 @@ from .conftest import result
 
 ORCA = "/opt/orca/bin/orca-ide"
 WORKTREE = "/work/tree"
-PROMPT = "/sc:issue --claim 9 --pipeline none"
+PROMPT = "/sc:issue --claim 9 --pipeline none --stage research"
 
 # --- prompt (FR-012, design 9.3) ----------------------------------------------
 
 
 def test_ac7_prompt_accepts_only_the_int_nine__fr012_nfr001():
     """AC-7 FR-012 NFR-001: of the spec's seven inputs only ``9`` returns a prompt."""
-    assert build_claim_prompt(9) == "/sc:issue --claim 9 --pipeline none"
+    assert (
+        build_claim_prompt(9, "Research", None)
+        == "/sc:issue --claim 9 --pipeline none --stage research"
+    )
 
 
 @pytest.mark.parametrize("value", ["9", True, 0, -1, 10**9, 9.0])
 def test_ac7_prompt_rejects_every_other_input__fr012_nfr001(value):
     """AC-7 FR-012 NFR-001: a str, bool, zero, negative, too large or float raises."""
     with pytest.raises(ValueError):
-        build_claim_prompt(value)
+        build_claim_prompt(value, "Research", None)
 
 
 @pytest.mark.parametrize("value", [None, "", "9; rm -rf /", [9], b"9", 9.5, False])
 def test_ac7_prompt_rejects_hostile_non_ints__fr012_nfr001(value):
     """AC-7 FR-012 NFR-001: other types and hostile text raise, nothing is built."""
     with pytest.raises(ValueError):
-        build_claim_prompt(value)
+        build_claim_prompt(value, "Research", None)
+
+
+_LEVEL_TEXT = {
+    None: "none",
+    "None": "none",
+    "Worktree": "worktree",
+    "Full": "full",
+    "Full Submit": "full --submit",
+}
+
+
+@pytest.mark.parametrize("status", ["Research", "Spec", "Plan", "Debug"])
+@pytest.mark.parametrize("pipeline", [None, "None", "Worktree", "Full", "Full Submit"])
+def test_r23_prompt_for_each_status_crossed_with_each_pipeline_value(status, pipeline):
+    """R23: the prompt names the level and the stage, and the pattern pins it."""
+    prompt = build_claim_prompt(12, status, pipeline)
+    assert prompt == (
+        f"/sc:issue --claim 12 --pipeline {_LEVEL_TEXT[pipeline]} "
+        f"--stage {status.lower()}"
+    )
+    assert launch.PROMPT_PATTERN.fullmatch(prompt) is not None
+    assert launch_argv(ORCA, WORKTREE, prompt)[9:] == ["--prompt", prompt, "--json"]
+
+
+@pytest.mark.parametrize(
+    ("status", "pipeline"),
+    [
+        ("Backlog", None),
+        ("Ready", None),
+        ("In review", "Full"),
+        (None, None),
+        ("research", None),
+        ("Research", "Triage"),
+        ("Research", "full"),
+        ("Research", "Full Submit; rm -rf /"),
+        ("Research", 3),
+        (5, None),
+    ],
+)
+def test_r23_prompt_rejects_an_unknown_status_or_pipeline(status, pipeline):
+    with pytest.raises(ValueError):
+        build_claim_prompt(9, status, pipeline)
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "/sc:issue --claim 9 --pipeline none --stage research --submit",
+        "/sc:issue --claim 9 --pipeline worktree --submit --stage research",
+        "/sc:issue --claim 9 --pipeline none --submit --stage research",
+        "/sc:issue --claim 9 --pipeline full --submit --submit --stage plan",
+        "/sc:issue --claim 9 --pipeline full --stage ready",
+        "/sc:issue --claim 9 --pipeline full",
+        "/sc:issue --claim 9 --pipeline Full --stage plan",
+        "/sc:issue --claim 9 --pipeline full --stage plan extra",
+        "/sc:issue --claim 9 --pipeline full --stage plan\n",
+        "/sc:issue --claim 09 --pipeline full --stage plan",
+    ],
+)
+def test_r23_the_pattern_refuses_extra_text_and_a_submit_without_full(prompt):
+    assert launch.PROMPT_PATTERN.fullmatch(prompt) is None
+    with pytest.raises(ValueError):
+        launch_argv(ORCA, WORKTREE, prompt)
 
 
 @pytest.mark.parametrize(
     ("value", "expected"),
     [
-        (1, "/sc:issue --claim 1 --pipeline none"),
-        (999999999, "/sc:issue --claim 999999999 --pipeline none"),
+        (1, "/sc:issue --claim 1 --pipeline none --stage research"),
+        (999999999, "/sc:issue --claim 999999999 --pipeline none --stage research"),
     ],
 )
 def test_ac7_prompt_accepts_both_range_ends__fr012(value, expected):
     """AC-7 FR-012: 1 and 999999999 are the first and last accepted numbers."""
-    assert build_claim_prompt(value) == expected
+    assert build_claim_prompt(value, "Research", None) == expected
 
 
 # --- launch argv (FR-013, threat T10) ------------------------------------------
@@ -86,7 +152,7 @@ def test_ac8_launch_argv_equals_the_literal_twelve_elements__fr013():
         "--surface",
         "terminal",
         "--prompt",
-        "/sc:issue --claim 9 --pipeline none",
+        "/sc:issue --claim 9 --pipeline none --stage research",
         "--json",
     ]
     assert len(argv) == 12
@@ -122,9 +188,9 @@ def test_ac8_orca_agent_constant_is_claude__fr013():
         "/sc:issue --claim 9 --pipeline worktree",
         "/sc:issue --claim 9 --pipeline none --pipeline full",
         "/sc:issue --claim 9 --pipeline none ",
-        "/sc:issue --claim 0 --pipeline none",
-        "/sc:issue --claim 09 --pipeline none",
-        "/sc:issue --claim 1000000000 --pipeline none",
+        "/sc:issue --claim 0 --pipeline none --stage research",
+        "/sc:issue --claim 09 --pipeline none --stage research",
+        "/sc:issue --claim 1000000000 --pipeline none --stage research",
         "/sc:issue --claim 0",
         "/sc:issue --claim 09",
         "/sc:issue --claim 1000000000",
@@ -171,7 +237,7 @@ def test_ac9_retry_argv_puts_retry_launch_right_before_json__fr015():
         "--surface",
         "terminal",
         "--prompt",
-        "/sc:issue --claim 9 --pipeline none",
+        "/sc:issue --claim 9 --pipeline none --stage research",
         "--retry-launch",
         "op-1",
         "--json",
@@ -930,13 +996,19 @@ def test_ac8_orca_agent_is_pinned_to_the_literal_claude__fr013_df11():
 
 
 def test_build_claim_prompt_returns_exactly_the_pipeline_none_form():
-    assert build_claim_prompt(9) == "/sc:issue --claim 9 --pipeline none"
+    assert (
+        build_claim_prompt(9, "Research", None)
+        == "/sc:issue --claim 9 --pipeline none --stage research"
+    )
 
 
 def test_the_old_claim_prompt_no_longer_matches_and_launch_argv_refuses_it():
     old = "/sc:issue --claim 9"
     assert launch.PROMPT_PATTERN.fullmatch(old) is None
-    assert launch.PROMPT_PATTERN.fullmatch(build_claim_prompt(9)) is not None
+    assert launch.PROMPT_PATTERN.fullmatch(build_claim_prompt(9, "Plan", None))
+    assert (
+        launch.PROMPT_PATTERN.fullmatch("/sc:issue --claim 9 --pipeline none") is None
+    )
     with pytest.raises(ValueError):
         launch_argv(ORCA, WORKTREE, old)
     with pytest.raises(ValueError):
@@ -944,9 +1016,32 @@ def test_the_old_claim_prompt_no_longer_matches_and_launch_argv_refuses_it():
 
 
 def test_launch_and_retry_argv_keep_their_shape_with_the_longer_prompt():
-    prompt = build_claim_prompt(9)
+    prompt = build_claim_prompt(9, "Debug", "Full Submit")
     argv = launch_argv(ORCA, WORKTREE, prompt)
     assert len(argv) == 12 and argv[9:] == ["--prompt", prompt, "--json"]
     retry = retry_argv(ORCA, WORKTREE, prompt, "op-1")
     assert len(retry) == 14
     assert retry[-4:] == [prompt, "--retry-launch", "op-1", "--json"]
+
+
+@pytest.mark.parametrize(
+    ("url", "repo", "expected"),
+    [
+        ("https://github.com/Other-Org/Other.Repo.git", "Other-Org/Other.Repo", None),
+        (
+            "https://github.com/IronbellyOrg/IronClaude.git",
+            "Other-Org/Other.Repo",
+            "origin_mismatch",
+        ),
+        ("https://github.com/Other-Org/Other.Repo.git", None, "origin_mismatch"),
+    ],
+)
+def test_check_origin_takes_the_configured_repo_and_defaults_to_the_fork__plan_task_16(
+    fake_runner, tmp_path, url, repo, expected
+):
+    _key, script = _origin_script(tmp_path, result(stdout=url))
+    runner = fake_runner(script)
+    if repo is None:
+        assert check_origin(runner, tmp_path, 10.0) == expected  # the default repo
+    else:
+        assert check_origin(runner, tmp_path, 10.0, repo) == expected

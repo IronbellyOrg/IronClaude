@@ -422,3 +422,45 @@ def test_a_structurally_damaged_adoption_row_is_a_closed_refusal(
         with pytest.raises(ar.ApprovalError) as err:
             call()
         assert err.value.reason == "row-invalid"
+
+
+# --- the plan-hash row is never made from claim-time fields (plan Task 11, R29) ------
+
+
+@pytest.mark.parametrize("bad_hash", ["", None, "a" * 63, "A" * 64, "z" * 64, H1 + "0"])
+def test_record_create_refuses_a_missing_or_malformed_plan_hash(
+    adir: Path, bad_hash: object
+) -> None:
+    _adopt_started(adir)
+    with pytest.raises(ar.ApprovalError):
+        ar.record_create(adir, 9, "plan", bad_hash, "label", "e1", "u1", T)  # type: ignore[arg-type]
+
+
+def test_record_create_without_the_adoption_row_refuses_even_with_a_valid_hash(
+    adir: Path,
+) -> None:
+    with pytest.raises(ar.ApprovalError) as err:
+        _create(adir, "label", "e1", H1)
+    assert err.value.reason == "no-adoption"
+
+
+def test_the_record_create_verb_requires_plan_hash(adir: Path) -> None:
+    _adopt_started(adir)
+    result = CliRunner().invoke(
+        issue_pipeline_group,
+        [
+            "record-create",
+            str(adir),
+            "--issue",
+            "9",
+            "--stage",
+            "plan",
+            "--channel",
+            "label",
+            "--evidence-id",
+            "e1",
+            "--actor",
+            "u1",
+        ],
+    )
+    assert result.exit_code != 0 and "--plan-hash" in result.output

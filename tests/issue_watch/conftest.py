@@ -547,7 +547,7 @@ class GhWorld:
     - ``edits``: ``created_at``, ``edited_at`` and ``comments`` (list of
       ``{id, author, created_at, edited_at}``); default the fixture as it is;
     - ``items``: Project items (list of ``{project_id, status, archived}``);
-      default one live item in the configured project with status Backlog;
+      default one live item in the configured project with status Research;
     - ``reread``: raw overrides of the G7 re-read reply.
 
     Events and comments are served in pages of ``github.PAGE_SIZE``; the two
@@ -578,7 +578,11 @@ class GhWorld:
         self.skew_s = 0.0
         self.date_text: str | None = None
         self.user_retry_after: str | None = "120"
-        self.origin_url = ORIGIN_URL
+        self.origin_url = (
+            ORIGIN_URL
+            if config.repo == github.REPO
+            else f"https://github.com/{config.repo}.git"
+        )
         self.issues: dict[int, dict] = {}
         self._login = login
         self._fails: dict[tuple[str, int | None], list[_Fail]] = {}
@@ -720,7 +724,7 @@ class GhWorld:
         script, cfg = self.runner.script, self.config
         script[tuple(github.argv_user())] = self._served("user", None, self._user_reply)
         try:
-            discover = github.argv_discover(cfg.trigger_label, self.login)
+            discover = github.argv_discover(cfg.trigger_label, self.login, cfg.repo)
         except ValueError:  # an invalid login never reaches discovery
             pass
         else:
@@ -728,7 +732,7 @@ class GhWorld:
                 "discover", None, self._discovery_reply
             )
         origin = _ArgvRecorder()
-        launch.check_origin(origin, cfg.worktree, 1.0)
+        launch.check_origin(origin, cfg.worktree, 1.0, cfg.repo)
         script[origin.argvs[0]] = self._served("origin", None, self._origin_reply)
         probe = _ArgvRecorder()
         launch.find_orca(probe, which=self.which, timeout=1.0)
@@ -736,21 +740,24 @@ class GhWorld:
             script[argv] = self._served("probe", None, self._probe_reply)
 
     def _register_issue(self, n: int) -> None:
-        script = self.runner.script
+        script, repo = self.runner.script, self.config.repo
         for page in range(1, github.PAGE_CAP + 1):
-            script[tuple(github.argv_events(n, page))] = self._served(
+            script[tuple(github.argv_events(n, page, repo))] = self._served(
                 "events", n, lambda argv, p=page: self._events_reply(argv, n, p)
             )
-            script[tuple(github.argv_comments(n, page))] = self._served(
+            script[tuple(github.argv_comments(n, page, repo))] = self._served(
                 "comments", n, lambda argv, p=page: self._comments_reply(argv, n, p)
             )
-        script[tuple(github.argv_edits(n))] = self._served(
+        script[tuple(github.argv_approval_events(n, None, repo))] = self._served(
+            "approval_events", n, lambda argv: self._approval_reply(argv, n)
+        )
+        script[tuple(github.argv_edits(n, None, repo))] = self._served(
             "edits", n, lambda argv: self._ok(argv, self._edits_payload(n))
         )
-        script[tuple(github.argv_project_items(n))] = self._served(
+        script[tuple(github.argv_project_items(n, None, repo))] = self._served(
             "items", n, lambda argv: self._ok(argv, self._items_payload(n))
         )
-        script[tuple(github.argv_reread(n))] = self._served(
+        script[tuple(github.argv_reread(n, repo))] = self._served(
             "reread", n, lambda argv: self._ok(argv, self._reread_payload(n))
         )
 
@@ -823,10 +830,67 @@ class GhWorld:
         chunk = items[(page - 1) * size : page * size]
         return self._ok(argv, [_stamped(item) for item in chunk])
 
-    def _events_reply(self, argv: tuple[str, ...], n: int, page: int) -> CommandResult:
+    def _all_events(self, n: int) -> list[dict]:
         events = self.issues[n]["events"]
-        events = default_events(self.config) if events is None else events
+        return default_events(self.config) if events is None else events
+
+    def _events_reply(self, argv: tuple[str, ...], n: int, page: int) -> CommandResult:
+        """The REST label events; approval-label events are served as field events."""
+        approval = self._field_label()
+        events = [e for e in self._all_events(n) if e.get("label") != approval]
         return self._paged(argv, events, page)
+
+    def _field_label(self) -> str | None:
+        """The approval label when it is the field's pseudo label, else None.
+
+        A test config that names a real label keeps that label in the REST events.
+        """
+        label = self.config.approval_label
+        return label if label == cycle.predicates.APPROVAL_FIELD_LABEL else None
+
+    def _approval_reply(self, argv: tuple[str, ...], n: int) -> CommandResult:
+        """The GraphQL field events G8: the approval-label events of ``events`` (R35)."""
+        approval = self._field_label()
+        nodes: list[dict] = []
+        for e in self._all_events(n):
+            if (
+                approval is None
+                or e.get("label") != approval
+                or e.get("event")
+                not in (
+                    "labeled",
+                    "unlabeled",
+                )
+            ):
+                continue
+            node = {
+                "__typename": "IssueFieldAddedEvent"
+                if e["event"] == "labeled"
+                else "IssueFieldRemovedEvent",
+                "createdAt": _stamp(e["created_at"]),
+                "actor": {
+                    "__typename": e.get("actor_type") or "User",
+                    "login": e.get("actor_login") or "ghost",
+                    "databaseId": e.get("actor_id"),
+                },
+                "issueField": {"name": "Approved"},
+            }
+            if e["event"] == "labeled":
+                node["value"] = "Yes"
+            nodes.append(node)
+        payload = {
+            "data": {
+                "repository": {
+                    "issue": {
+                        "timelineItems": {
+                            "nodes": nodes,
+                            "pageInfo": {"hasNextPage": False, "endCursor": None},
+                        }
+                    }
+                }
+            }
+        }
+        return self._ok(argv, payload)
 
     def _comments_reply(
         self, argv: tuple[str, ...], n: int, page: int
@@ -869,11 +933,17 @@ class GhWorld:
                 **template,
                 "isArchived": spec.get("archived", False),
                 "project": {"id": spec.get("project_id", self.config.project_id)},
-                "fieldValueByName": None
-                if spec.get("status", "Backlog") is None
+                "status": None
+                if spec.get("status", "Research") is None
                 else {
-                    **template["fieldValueByName"],
-                    "name": spec.get("status", "Backlog"),
+                    **template["status"],
+                    "name": spec.get("status", "Research"),
+                },
+                "pipeline": None
+                if spec.get("pipeline") is None
+                else {
+                    **template["pipeline"],
+                    "name": spec["pipeline"],
                 },
             }
             for spec in ([{}] if specs is None else specs)

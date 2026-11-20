@@ -12,6 +12,7 @@ from __future__ import annotations
 import itertools
 import json
 import os
+import re
 import sys
 import threading
 from dataclasses import replace
@@ -102,7 +103,7 @@ def test_load_config_minimal_applies_every_default__fr027(tmp_path, monkeypatch)
     assert config == cycle.Config(
         enabled=False,
         trigger_label="issue-watch:trigger",
-        approval_label="issue-watch:approved",
+        approval_label="issue-field:Approved",
         project_id=PROJECT,
         owner_account_id=None,
         worktree=tmp_path / "wt",
@@ -115,14 +116,14 @@ def test_load_config_fully_populated__fr027(tmp_path):
     path = _write_config(
         tmp_path,
         enabled=True,
-        labels={"trigger": "go", "approval": "ok"},
+        labels={"trigger": "go", "approval": "issue-field:Approved"},
         owner_account_id=42,
         state_dir=str(tmp_path / "state"),
     )
     assert cycle.load_config(path) == cycle.Config(
         enabled=True,
         trigger_label="go",
-        approval_label="ok",
+        approval_label="issue-field:Approved",
         project_id=PROJECT,
         owner_account_id=42,
         worktree=tmp_path / "wt",
@@ -180,11 +181,16 @@ def test_load_config_owner_account_id_bounds_accepted__fr027(tmp_path):
 
 
 def test_load_config_label_of_50_characters_is_accepted__fr027(tmp_path):
-    config = cycle.load_config(
-        _write_config(tmp_path, labels={"trigger": "t" * 50, "approval": "a" * 50})
-    )
+    config = cycle.load_config(_write_config(tmp_path, labels={"trigger": "t" * 50}))
     assert config.trigger_label == "t" * 50
-    assert config.approval_label == "a" * 50
+
+
+def test_load_config_refuses_a_real_approval_label__r35(tmp_path):
+    """R35: the approval is the Approved field; a configured label never approves."""
+    path = _write_config(tmp_path, labels={"approval": "issue-watch:approved"})
+    with pytest.raises(cycle.ConfigError) as caught:
+        cycle.load_config(path)
+    assert caught.value.reason == "config_invalid"
 
 
 def test_load_config_project_id_of_64_characters_is_accepted__fr027(tmp_path):
@@ -223,7 +229,7 @@ INVALID_CONFIGS = [
         id="labels_equal",
     ),
     pytest.param(
-        {"labels": {"trigger": "issue-watch:approved"}},
+        {"labels": {"trigger": "issue-field:Approved"}},
         (),
         "must differ",
         id="trigger_equals_default_approval",
@@ -2380,7 +2386,7 @@ _LAUNCH_TRACE = [
     "items:9",
     "origin",
 ]
-_CLAIM_9 = "/sc:issue --claim 9 --pipeline none"
+_CLAIM_9 = "/sc:issue --claim 9 --pipeline none --stage research"
 _T_MARK = T_APPROVED + timedelta(minutes=1)  # a claim marker after the approval
 _SHADOW_AT = "2026-11-07T13:00:00Z"  # CYCLE_NOW, as dry-run.json writes it
 
@@ -2396,6 +2402,7 @@ def _trace(world) -> list[str]:
         for page in range(1, github.PAGE_CAP + 1):
             names[tuple(github.argv_events(n, page))] = f"events:{n}"
             names[tuple(github.argv_comments(n, page))] = f"comments:{n}"
+        names[tuple(github.argv_approval_events(n))] = f"approval:{n}"
         names[tuple(github.argv_edits(n))] = f"edits:{n}"
         names[tuple(github.argv_project_items(n))] = f"items:{n}"
         names[tuple(github.argv_reread(n))] = f"reread:{n}"
@@ -2406,8 +2413,24 @@ def _trace(world) -> list[str]:
         elif "skills" in argv:
             out.append("probe")
         else:
-            out.append(names[argv])
+            name = names[argv]
+            # The Approved field events (R35) are part of the events read.
+            if not name.startswith("approval:"):
+                out.append(name)
     return out
+
+
+_APPROVAL_ID = int(T_APPROVED.timestamp())
+"""A field event's id is its time in whole epoch seconds (R35, ``github._field_event``)."""
+
+
+def _approval_calls(world) -> int:
+    """How many Approved field event reads (R35) the cycle made, all issues."""
+    return sum(
+        1
+        for argv, _ in world.runner.calls
+        if argv[0] == "gh" and any("timelineItems" in a for a in argv)
+    )
 
 
 def _reads(world, n) -> list[str]:
@@ -2542,10 +2565,23 @@ SKIP_CASES = [
         id="approver_not_on_the_list",
     ),
     pytest.param(
-        lambda w: w.issue(9, labels=[w.config.trigger_label]),
+        lambda w: w.issue(
+            9,
+            events=[
+                *_ev(w),
+                label_event(
+                    3,
+                    "unlabeled",
+                    w.config.approval_label,
+                    T_APPROVED + timedelta(minutes=1),
+                    actor_id=APPROVER_ID,
+                    actor_login=OWN_LOGIN,
+                ),
+            ],
+        ),
         "not_approved",
         ["comments", "events"],
-        id="approval_label_no_longer_set",
+        id="approval_field_no_longer_set",
     ),
     pytest.param(
         lambda w: w.issue(9, events=_ev(w, trigger=_T_MARK)),
@@ -2699,7 +2735,7 @@ def test_every_per_issue_skip_reason_through_a_whole_cycle__fr005_fr009_fr022(
     assert _reads(world, 9) == reads
     assert not _probed(world)
     assert deps.launcher.calls == []
-    assert _the_cycle_line(lines)["gh_calls"] == 2 + len(reads)
+    assert _the_cycle_line(lines)["gh_calls"] == 2 + len(reads) + _approval_calls(world)
     stored = tmp_state.load()
     assert stored.entries == {}
     assert dict(stored.considered) == {9: CYCLE_NOW}  # a skip is still examined
@@ -2735,7 +2771,224 @@ def test_an_unreadable_issue_skips_and_the_next_one_is_still_examined__fr007_fr0
     assert _entry(tmp_state, 8) is None
     assert _entry(tmp_state, 9).state == "launched"
     assert dict(tmp_state.load().considered) == {8: CYCLE_NOW, 9: CYCLE_NOW}
-    assert _the_cycle_line(lines)["gh_calls"] == 2 + len(reads) + 7
+    assert _the_cycle_line(lines)["gh_calls"] == 2 + len(reads) + 7 + _approval_calls(
+        world
+    )
+
+
+@pytest.mark.parametrize("status", ["Research", "Spec", "Plan", "Debug"])
+def test_the_prompt_sent_names_the_stage_of_the_issues_status__r23(
+    tmp_path, tmp_state, gh_world, status
+):
+    world = gh_world()
+    world.issue(9, items=[{"status": status}])
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "launched")]
+    assert [c[2] for c in deps.launcher.calls] == [
+        f"/sc:issue --claim 9 --pipeline none --stage {status.lower()}"
+    ]
+
+
+@pytest.mark.parametrize("pipeline", ["Worktree", "Full", "Full Submit"])
+def test_a_governed_level_ends_level_gated_with_no_launch_and_no_store_write__r33(
+    tmp_path, tmp_state, gh_world, pipeline
+):
+    """The ship gate is closed: nothing but Pipeline None launches."""
+    assert cycle.launch.GOVERNED_LEVELS_ALLOWED is False
+    world = gh_world()
+    world.issue(9, items=[{"pipeline": pipeline}])
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert (res.exit_code, res.reason) == (0, "cycle_complete")
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "level_gated")]
+    assert deps.launcher.calls == []
+    assert not _probed(world)
+    assert tmp_state.load().entries == {}  # a skip writes no entry
+    assert not (tmp_state.state_dir / cycle.PROMPTS_FILE).exists()
+
+
+@pytest.mark.parametrize("pipeline", [None, "None"])
+def test_pipeline_none_still_launches_while_the_gate_is_closed__r33(
+    tmp_path, tmp_state, gh_world, pipeline
+):
+    world = gh_world()
+    world.issue(9, items=[{"pipeline": pipeline}])
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "launched")]
+    assert len(deps.launcher.calls) == 1
+
+
+def test_a_dry_run_reports_no_would_launch_for_a_gated_level__r33(
+    tmp_path, tmp_state, gh_world
+):
+    world = gh_world()
+    world.issue(9, items=[{"pipeline": "Full Submit"}])
+    res, deps = _run(tmp_path, tmp_state, world, dry_run=True)
+    assert res.would_launch is None
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "level_gated")]
+    assert deps.launcher.calls == []
+
+
+def test_a_launch_keeps_its_prompt_for_the_status_retry_command__r23(
+    tmp_path, tmp_state, gh_world
+):
+    world = gh_world()
+    world.issue(9, items=[{"status": "Debug"}])
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "launched")]
+    kept = json.loads((tmp_state.state_dir / cycle.PROMPTS_FILE).read_text("utf-8"))
+    assert kept == {"9": "/sc:issue --claim 9 --pipeline none --stage debug"}
+    assert (tmp_state.state_dir / cycle.PROMPTS_FILE).stat().st_mode & 0o777 == 0o600
+
+
+@pytest.mark.parametrize(
+    ("examined", "reread"),
+    [
+        pytest.param(
+            [{"status": "Research"}], [{"status": "Debug"}], id="status-moved"
+        ),
+        pytest.param(
+            [{"pipeline": "Full Submit"}],
+            [{"pipeline": None}],
+            id="pipeline-lowered-to-none",
+        ),
+        pytest.param(
+            [{"pipeline": "Full Submit"}],
+            [{"pipeline": "Worktree"}],
+            id="pipeline-lowered-to-worktree",
+        ),
+    ],
+)
+def test_a_status_or_pipeline_moved_between_examine_and_launch_fails__r27(
+    tmp_path, tmp_state, gh_world, examined, reread, monkeypatch
+):
+    """The examined Status and Pipeline must equal the re-read ones."""
+    monkeypatch.setattr(cycle.launch, "GOVERNED_LEVELS_ALLOWED", True)  # gate open
+    world = gh_world()
+    world.issue(9, items=examined)
+    _on_nth(world, "items", 9, 2, lambda: world.update(9, items=reread))
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "revalidation_failed")]
+    assert deps.launcher.calls == []
+    assert tmp_state.load().entries == {}
+
+
+def test_a_launch_account_approval_launches_by_default__r33(
+    tmp_path, tmp_state, gh_world
+):
+    world = gh_world()
+    world.issue(9)  # the default approver is the launch account's id
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "launched")]
+
+
+def test_an_excluded_approval_gives_no_launch_at_examine_time__r33(
+    tmp_path, tmp_state, gh_world
+):
+    config = make_config(tmp_path, approval_excluded_ids=frozenset({APPROVER_ID}))
+    world = gh_world(config=config)
+    world.issue(9)
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "not_approved")]
+    assert deps.launcher.calls == []
+
+
+def test_an_excluded_approval_that_appears_before_launch_is_refused__r33(
+    tmp_path, tmp_state, gh_world
+):
+    """Another approver approves at examine time; the excluded account approves
+    later and becomes the latest approval, so the re-read refuses the launch."""
+    config = make_config(tmp_path, approval_excluded_ids=frozenset({APPROVER_ID}))
+    world = gh_world(config=config)
+    other = 4242
+    approvers = config.approvers_file
+    approvers.write_text(f"{APPROVER_ID}\n{other}\n", encoding="utf-8")
+    approvers.chmod(0o600)
+    first = _ev(world, approver=other)
+    later = label_event(
+        3,
+        "labeled",
+        world.config.approval_label,
+        T_APPROVED + timedelta(minutes=1),
+        actor_id=APPROVER_ID,
+        actor_login=OWN_LOGIN,
+    )
+    world.issue(9, events=first)
+    _on_nth(world, "events", 9, 2, lambda: world.update(9, events=[*first, later]))
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert deps.launcher.calls == []
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "revalidation_failed")]
+    assert tmp_state.load().entries == {}
+
+
+def test_a_real_label_named_issue_watch_approved_never_approves__r35(
+    tmp_path, tmp_state, gh_world
+):
+    """R35: only the Approved field approves; the old label by an approver does not."""
+    world = gh_world()
+    events = [
+        *_ev(world, approval=None),
+        label_event(
+            2,
+            "labeled",
+            "issue-watch:approved",
+            T_APPROVED,
+            actor_id=APPROVER_ID,
+            actor_login=OWN_LOGIN,
+        ),
+    ]
+    world.issue(9, events=events)
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "not_approved")]
+    assert deps.launcher.calls == []
+
+
+def test_a_bot_setting_the_approved_field_never_approves__r35(
+    tmp_path, tmp_state, gh_world
+):
+    world = gh_world()
+    events = _ev(world)
+    events[-1].update(actor_type="Bot", actor_login="approver-app[bot]")
+    world.issue(9, events=events)
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "not_approved")]
+    assert deps.launcher.calls == []
+
+
+def test_the_approval_time_is_the_latest_approved_event__r35(
+    tmp_path, tmp_state, gh_world
+):
+    """A foreign comment between two sets is before the latest approval: it launches."""
+    world = gh_world()
+    later = T_APPROVED + timedelta(minutes=10)
+    events = [
+        *_ev(world),
+        label_event(
+            3,
+            "unlabeled",
+            world.config.approval_label,
+            T_APPROVED + timedelta(minutes=3),
+            actor_id=APPROVER_ID,
+            actor_login=OWN_LOGIN,
+        ),
+        label_event(
+            4,
+            "labeled",
+            world.config.approval_label,
+            later,
+            actor_id=APPROVER_ID,
+            actor_login=OWN_LOGIN,
+        ),
+    ]
+    comment = {
+        "id": 1,
+        "author": "someone-else",
+        "created_at": T_APPROVED + timedelta(minutes=5),
+        "edited_at": None,
+    }
+    world.issue(9, events=events, edits={"comments": [comment]})
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "launched")]
+    assert _entry(tmp_state, 9).approved_at == later
 
 
 def test_a_marker_read_failure_never_counts_as_claimed__fr009_df02(
@@ -2931,7 +3184,7 @@ def test_an_own_claim_marker_gives_claimed_and_no_launch__ac5_fr009(
         decision["approver_id"],
         decision["approval_event_id"],
         decision["approved_at"],
-    ) == (APPROVER_ID, 2, "2026-11-07T12:02:00Z")
+    ) == (APPROVER_ID, _APPROVAL_ID, "2026-11-07T12:02:00Z")
     assert _reads(world, 9) == ["comments", "events"]  # claimed before the edit reads
     assert not _probed(world)
     assert deps.launcher.calls == []
@@ -2941,7 +3194,7 @@ def test_an_own_claim_marker_gives_claimed_and_no_launch__ac5_fr009(
     assert entry.last_reason == "claimed"
     assert (entry.approver_id, entry.approval_event_id, entry.approved_at) == (
         APPROVER_ID,
-        2,
+        _APPROVAL_ID,
         T_APPROVED,
     )
     assert tmp_state.load().last_completed_cycle_at == CYCLE_NOW
@@ -3039,7 +3292,7 @@ def test_a_failed_entry_with_a_marker_after_the_approval_becomes_claimed__ac5_fr
     assert (entry.consumed_at, entry.pending_at) == (None, None)
     assert (entry.approver_id, entry.approval_event_id, entry.approved_at) == (
         APPROVER_ID,
-        2,
+        _APPROVAL_ID,
         T_APPROVED,
     )
     assert deps.launcher.calls == []
@@ -3067,7 +3320,7 @@ def test_a_tombstone_with_an_own_marker_after_the_approval_becomes_claimed__df43
     assert (entry.consumed_at, entry.last_reason) == (None, "claimed")
     assert (entry.approver_id, entry.approval_event_id, entry.approved_at) == (
         APPROVER_ID,
-        2,
+        _APPROVAL_ID,
         T_APPROVED,
     )
     assert deps.launcher.calls == []
@@ -3170,7 +3423,7 @@ def test_the_launch_steps_run_in_the_fr014_order_and_pending_is_durable__fr010_f
     assert stored_at_origin == [{}, {}]
     # Every read and probe call is done when the launch call starts.
     ((entries, calls_at_launch),) = seen
-    assert calls_at_launch == len(_LAUNCH_TRACE)
+    assert calls_at_launch == len(_LAUNCH_TRACE) + _approval_calls(world)
     assert entries == {
         "9": {
             "issue": 9,
@@ -3179,7 +3432,7 @@ def test_the_launch_steps_run_in_the_fr014_order_and_pending_is_durable__fr010_f
             "launches": 1,
             "operation_id": None,
             "approver_id": APPROVER_ID,
-            "approval_event_id": 2,
+            "approval_event_id": _APPROVAL_ID,
             "approved_at": "2026-11-07T12:02:00Z",
             "launch_cwd": str(world.config.worktree),
             "launch_login": OWN_LOGIN,
@@ -3193,7 +3446,8 @@ def test_the_launch_steps_run_in_the_fr014_order_and_pending_is_durable__fr010_f
         }
     }
     assert launcher.calls == [(ORCA_PATH, str(world.config.worktree), _CLAIM_9, 120.0)]
-    assert world.runner.timeouts[_LAUNCH_TRACE.index("probe")] == 10.0
+    probe_at = next(i for i, (a, _) in enumerate(world.runner.calls) if "skills" in a)
+    assert world.runner.timeouts[probe_at] == 10.0
     entry = _entry(tmp_state, 9)
     assert (entry.state, entry.operation_id, entry.launches) == (
         "launched",
@@ -3205,8 +3459,11 @@ def test_the_launch_steps_run_in_the_fr014_order_and_pending_is_durable__fr010_f
     lines = _lines_of(tmp_state, res)
     (decision,) = _of_kind(lines, "decision")
     assert (decision["reason"], decision["state"]) == ("launched", "launched")
-    assert (decision["approver_id"], decision["approval_event_id"]) == (APPROVER_ID, 2)
-    assert _the_cycle_line(lines)["gh_calls"] == 9
+    assert (decision["approver_id"], decision["approval_event_id"]) == (
+        APPROVER_ID,
+        _APPROVAL_ID,
+    )
+    assert _the_cycle_line(lines)["gh_calls"] == 9 + _approval_calls(world)
     assert tmp_state.load().last_completed_cycle_at == CYCLE_NOW
 
 
@@ -3348,7 +3605,7 @@ def test_no_orca_cli_on_the_path_is_exit_2_without_a_probe_call__fr013(
 def test_a_prompt_value_error_writes_failed_prompt_invalid__fr012_fr014(
     tmp_path, tmp_state, gh_world, monkeypatch
 ):
-    def refuse(n):
+    def refuse(n, status, pipeline):
         raise ValueError("no prompt")
 
     monkeypatch.setattr(cycle.launch, "build_claim_prompt", refuse)
@@ -3357,7 +3614,7 @@ def test_a_prompt_value_error_writes_failed_prompt_invalid__fr012_fr014(
     res, deps = _run(tmp_path, tmp_state, world)
     assert (res.exit_code, res.reason) == (7, "prompt_invalid")
     assert deps.launcher.calls == []
-    assert _trace(world)[-1] == "probe"  # the prompt build precedes the re-read
+    assert _trace(world)[-1] == "items:9"  # the prompt is built after the re-read (R27)
     entry = _entry(tmp_state, 9)
     assert (entry.state, entry.attempts, entry.launches) == ("failed", 1, 0)
     assert (entry.consumed_at, entry.pending_at) == (None, None)
@@ -3596,8 +3853,8 @@ def test_a_refused_reserved_call_gives_budget_exhausted_and_no_entry__fr011_nfr0
     tmp_path, tmp_state, gh_world
 ):
     world = gh_world()
-    world.issues_from(range(1, 8), items=[{"status": "In progress"}])  # 7 x 4 = 28
-    world.issue(8)
+    world.issues_from(range(1, 6), items=[{"status": "In progress"}])  # 5 x 5 = 25
+    world.issue(6)
     padding = [
         label_event(
             100 + i,
@@ -3607,29 +3864,30 @@ def test_a_refused_reserved_call_gives_budget_exhausted_and_no_entry__fr011_nfr0
             actor_id=2001,
             actor_login="issue-author",
         )
-        for i in range(99)
+        for i in range(199)
     ]
-    # The re-read's events call now needs a second page: 33, 34, 35, then refused.
+    # The re-read's events call now needs three pages: 31 (re-read), 32, 33, 34,
+    # the field events 35, then the items re-read is refused.
     _on_nth(
         world,
         "events",
-        8,
+        6,
         2,
-        lambda: world.update(8, events=[*padding, *_ev(world)]),
+        lambda: world.update(6, events=[*padding, *_ev(world)]),
     )
     res, deps = _run(tmp_path, tmp_state, world)
     assert (res.exit_code, res.reason) == (0, "cycle_complete")
     lines = _lines_of(tmp_state, res)
-    assert _decisions(lines)[-1] == (8, "budget_exhausted")
+    assert _decisions(lines)[-1] == (6, "budget_exhausted")
     assert "state" not in _of_kind(lines, "decision")[-1]
     shared = ("user", "discover", "origin", "probe")
     per_issue = [t for t in _trace(world) if t not in shared]
-    assert len(per_issue) == github.CALL_CAP
-    assert _trace(world)[-1] == "events:8"  # the items re-read was refused
+    assert len(per_issue) + _approval_calls(world) == github.CALL_CAP
+    assert _trace(world)[-1] == "events:6"  # the items re-read was refused
     assert _the_cycle_line(lines)["gh_calls"] == github.CALL_CAP + 2
     stored = tmp_state.load()
     assert stored.entries == {}
-    assert sorted(stored.considered) == list(range(1, 8))  # 8 is not stamped
+    assert sorted(stored.considered) == list(range(1, 6))  # 6 is not stamped
     assert deps.launcher.calls == []
 
 
@@ -3722,36 +3980,33 @@ def test_s1_case_a_fifteen_skipping_issues_examine_k_then_the_rest__fr016_df50(
     tmp_path, tmp_state, gh_world
 ):
     world = gh_world()
-    world.issues_from(range(1, 16), items=[{"status": "In progress"}])  # r = 4
+    world.issues_from(range(1, 16), items=[{"status": "In progress"}])  # r = 5 (R35)
     launcher = FakeLauncher()
     res1, _ = _run(tmp_path, tmp_state, world, launcher=launcher)
     lines1 = _lines_of(tmp_state, res1)
-    k = min(10, (github.CALL_CAP - github.RESERVED_CALLS) // 4)
-    assert k == 8
+    k = min(10, (github.CALL_CAP - github.RESERVED_CALLS) // 5)
+    assert k == 6
     assert _decisions(lines1) == [
         *[(n, "project_mismatch") for n in range(1, k + 1)],
-        (9, "budget_exhausted"),
-        (10, "budget_exhausted"),
+        *[(n, "budget_exhausted") for n in range(7, 11)],
     ]
     assert _the_cycle_line(lines1)["gh_calls"] == 2 + 32
     t0 = CYCLE_NOW
     stored = tmp_state.load()
-    assert dict(stored.considered) == {n: t0 for n in range(1, 9)}  # 9, 10 unstamped
+    assert dict(stored.considered) == {n: t0 for n in range(1, 7)}  # 7 to 10 unstamped
 
     world.clock.advance(60)
     t1 = world.clock.now()
     res2, _ = _run(tmp_path, tmp_state, world, launcher=launcher)
     lines2 = _lines_of(tmp_state, res2)
-    # Cycle 2 starts with the 7 never-examined issues, then the oldest examined.
+    # Cycle 2 starts with the 9 never-examined issues, six of which fit.
     assert _decisions(lines2) == [
-        *[(n, "project_mismatch") for n in range(9, 16)],
-        (1, "project_mismatch"),
-        (2, "budget_exhausted"),
-        (3, "budget_exhausted"),
+        *[(n, "project_mismatch") for n in range(7, 13)],
+        *[(n, "budget_exhausted") for n in (13, 14, 15, 1)],
     ]
     assert dict(tmp_state.load().considered) == {
-        **{n: t0 for n in range(2, 9)},
-        **{n: t1 for n in (*range(9, 16), 1)},
+        **{n: t0 for n in range(1, 7)},
+        **{n: t1 for n in range(7, 13)},
     }
     assert launcher.calls == []
     assert tmp_state.load().entries == {}
@@ -3769,19 +4024,21 @@ def test_s1_case_b_fifteen_eligible_issues_examine_and_launch_exactly_one__fr016
     lines1 = _lines_of(tmp_state, res1)
     assert (res1.exit_code, res1.launched_issue) == (0, 1)
     assert _decisions(lines1) == [(1, "launched")]
-    assert [c[2] for c in launcher.calls] == ["/sc:issue --claim 1 --pipeline none"]
+    assert [c[2] for c in launcher.calls] == [
+        "/sc:issue --claim 1 --pipeline none --stage research"
+    ]
     assert _touched(world) == {1}  # later candidates are neither read ...
     stored = tmp_state.load()
     assert dict(stored.considered) == {1: CYCLE_NOW}  # ... nor stamped
     assert sorted(stored.entries) == [1]
-    assert _the_cycle_line(lines1)["gh_calls"] == 9
+    assert _the_cycle_line(lines1)["gh_calls"] == 9 + _approval_calls(world)
 
     world.clock.advance(60)
     res2, _ = _run(tmp_path, tmp_state, world, launcher=launcher)
     assert _decisions(_lines_of(tmp_state, res2)) == [(2, "launched")]
     assert [c[2] for c in launcher.calls] == [
-        "/sc:issue --claim 1 --pipeline none",
-        "/sc:issue --claim 2 --pipeline none",
+        "/sc:issue --claim 1 --pipeline none --stage research",
+        "/sc:issue --claim 2 --pipeline none --stage research",
     ]
     assert sorted(tmp_state.load().entries) == [1, 2]
     assert dict(tmp_state.load().considered) == {
@@ -3944,14 +4201,14 @@ def test_a_dry_run_reports_would_launch_and_writes_nothing_but_the_shadow__fr019
         "reason": "launched",
         "issue": 9,
         "approver_id": APPROVER_ID,
-        "approval_event_id": 2,
+        "approval_event_id": _APPROVAL_ID,
         "approved_at": "2026-11-07T12:02:00Z",
     }
     cycle_line = _the_cycle_line(lines)
     assert (cycle_line["dry_run"], cycle_line["exit"], cycle_line["gh_calls"]) == (
         True,
         0,
-        6,
+        7,
     )
     shadow = json.loads((tmp_state.state_dir / "dry-run.json").read_text("utf-8"))
     assert shadow == {
@@ -4154,7 +4411,7 @@ def test_a_failed_entry_is_retried_after_the_backoff_and_the_third_failure_aband
 
     # Cycle 2, 9 min 59 s after the failure: still in backoff, no probe, no re-read.
     world.clock.advance(599)
-    calls = len(world.runner.calls)
+    calls = len(_trace(world))
     two, _ = _run(tmp_path, tmp_state, world, launcher=launcher)
     assert (two.exit_code, two.reason) == (0, "cycle_complete")
     assert _decisions(_lines_of(tmp_state, two)) == [(9, "in_backoff")]
@@ -4169,7 +4426,7 @@ def test_a_failed_entry_is_retried_after_the_backoff_and_the_third_failure_aband
 
     # Cycle 3, exactly 10 minutes after: retried, the second failure.
     world.clock.advance(1)
-    calls = len(world.runner.calls)
+    calls = len(_trace(world))
     three, _ = _run(tmp_path, tmp_state, world, launcher=launcher)
     assert (three.exit_code, three.reason) == (7, "revalidation_transient")
     assert _trace(world)[calls + 3 :] == [
@@ -4206,7 +4463,7 @@ def test_a_failed_entry_is_retried_after_the_backoff_and_the_third_failure_aband
 
     # Cycle 5: the tombstone is never launched, whatever the time.
     world.clock.advance(3600)
-    calls = len(world.runner.calls)
+    calls = len(_trace(world))
     five, _ = _run(tmp_path, tmp_state, world, launcher=launcher)
     assert (five.exit_code, five.reason) == (0, "cycle_complete")
     assert _decisions(_lines_of(tmp_state, five)) == [(9, "already_dispatched")]
@@ -4244,12 +4501,11 @@ def _prompt_numbers(launcher) -> list[int]:
     """The issue numbers the launcher was asked for, after checking each prompt."""
     numbers = []
     for _orca, _worktree, prompt, _timeout in launcher.calls:
-        head, _, tail = prompt.rpartition(" ")
-        assert tail == "none" and head.endswith(" --pipeline")
-        prefix, _, digits = head[: -len(" --pipeline")].rpartition(" ")
-        assert prefix == "/sc:issue --claim"
-        assert digits.isdigit() and digits == str(int(digits))
-        numbers.append(int(digits))
+        found = re.fullmatch(
+            r"/sc:issue --claim ([1-9][0-9]*) --pipeline none --stage research", prompt
+        )
+        assert found, prompt
+        numbers.append(int(found.group(1)))
     return numbers
 
 
@@ -4362,7 +4618,7 @@ def test_acceptance_property(tmp_path, tmp_state, gh_world, count):
         if made:
             assert (
                 launcher.calls[-1][2]
-                == f"/sc:issue --claim {res.launched_issue} --pipeline none"
+                == f"/sc:issue --claim {res.launched_issue} --pipeline none --stage research"
             )
         world.clock.advance(_HALF_HOUR)
         return res, lines
@@ -4447,20 +4703,20 @@ def test_ten_skipping_candidates_stop_at_32_calls_and_leave_two_unread__nfr009(
 ):
     assert (github.CALL_CAP, github.RESERVED_CALLS) == (35, 3)
     world = gh_world()
-    world.issues_from(range(1, 11), items=[{"status": "In progress"}])  # r = 4
+    world.issues_from(range(1, 11), items=[{"status": "In progress"}])  # r = 5 (R35)
     res, deps = _run(tmp_path, tmp_state, world)
     lines = _lines_of(tmp_state, res)
     assert _decisions(lines) == [
-        *[(n, "project_mismatch") for n in range(1, 9)],
-        (9, "budget_exhausted"),
-        (10, "budget_exhausted"),
+        *[(n, "project_mismatch") for n in range(1, 7)],
+        *[(n, "budget_exhausted") for n in range(7, 11)],
     ]
-    assert _per_issue_calls(world) == 32  # the cap minus the 3 reserved calls
+    assert _per_issue_calls(world) + _approval_calls(world) == 32  # cap minus 3
     assert _the_cycle_line(lines)["gh_calls"] == 2 + 32
-    for n in range(1, 9):
+    for n in range(1, 7):
         assert _reads(world, n) == _FULL_READS
-    assert _reads(world, 9) == [] and _reads(world, 10) == []
-    assert dict(tmp_state.load().considered) == {n: CYCLE_NOW for n in range(1, 9)}
+    assert _reads(world, 7) == ["comments", "events"]  # the third read is refused
+    assert _reads(world, 8) == [] and _reads(world, 9) == []
+    assert dict(tmp_state.load().considered) == {n: CYCLE_NOW for n in range(1, 7)}
     assert deps.launcher.calls == []
 
 
@@ -4468,25 +4724,25 @@ def test_the_three_reserved_calls_remain_for_the_re_read__nfr009(
     tmp_path, tmp_state, gh_world
 ):
     world = gh_world()
-    world.issues_from(range(1, 8), items=[{"status": "In progress"}])  # 7 x 4 = 28
-    world.issues_from(range(8, 11))  # the 8th candidate is the first eligible one
+    world.issues_from(range(1, 6), items=[{"status": "In progress"}])  # 5 x 5 = 25
+    world.issues_from(range(6, 11))  # the 6th candidate is the first eligible one
     res, deps = _run(tmp_path, tmp_state, world)
     lines = _lines_of(tmp_state, res)
-    assert (res.exit_code, res.launched_issue) == (0, 8)
+    assert (res.exit_code, res.launched_issue) == (0, 6)
     assert _decisions(lines) == [
-        *[(n, "project_mismatch") for n in range(1, 8)],
-        (8, "launched"),
+        *[(n, "project_mismatch") for n in range(1, 6)],
+        (6, "launched"),
     ]
-    # 28 for the seven skips + 4 for the checks of 8 = the 32 allowed, then the
-    # reserved 3 (re-read, events, items) bring the per-issue total to exactly 35.
-    assert _reads(world, 8) == [*_FULL_READS, "reread", "events", "items"]
-    assert _per_issue_calls(world) == 35
-    assert _the_cycle_line(lines)["gh_calls"] == 2 + 35
-    assert _reads(world, 9) == [] and _reads(world, 10) == []
+    # 25 for the five skips + 5 for the checks of 6 = 30 of the 32 allowed, then the
+    # reserved calls (re-read, events, field events, items: 4 here) finish the cycle.
+    assert _reads(world, 6) == [*_FULL_READS, "reread", "events", "items"]
+    assert _per_issue_calls(world) + _approval_calls(world) == 34
+    assert _the_cycle_line(lines)["gh_calls"] == 2 + 34
+    assert _reads(world, 7) == [] and _reads(world, 8) == []
     assert [c[2] for c in deps.launcher.calls] == [
-        "/sc:issue --claim 8 --pipeline none"
+        "/sc:issue --claim 6 --pipeline none --stage research"
     ]
-    assert _entry(tmp_state, 8).state == "launched"
+    assert _entry(tmp_state, 6).state == "launched"
 
 
 # ==============================================================================
@@ -4667,11 +4923,13 @@ def test_every_runner_call_of_a_launch_cycle_gets_its_configured_timeout__fr029_
         20.0,  # discover
         20.0,  # comments
         20.0,  # events
+        20.0,  # Approved field events
         20.0,  # edits
         20.0,  # items
         10.0,  # probe
         20.0,  # reread
         20.0,  # events
+        20.0,  # Approved field events
         20.0,  # items
         10.0,  # origin
     ]
@@ -4870,7 +5128,7 @@ def test_a_dry_run_migrates_in_memory_and_never_writes_the_store__df17_fr019_c9(
 
 
 def _refuse_prompt(monkeypatch):
-    def refuse(n):
+    def refuse(n, status, pipeline):
         raise ValueError("no prompt")
 
     monkeypatch.setattr(cycle.launch, "build_claim_prompt", refuse)
@@ -4980,3 +5238,128 @@ def test_load_config_refuses_a_network_state_dir_through_the_real_reader__df52_c
     _expect("config_invalid", "network filesystem", cycle.load_config, path)
     source.write_text(ROOT_LINE + "\n", encoding="utf-8")  # a local type passes
     assert cycle.load_config(path).state_dir == tmp_path / "state"
+
+
+# --- the repo key (plan Task 16) ------------------------------------------------------
+
+_OTHER_REPO = "Other-Org/Other.Repo"
+
+
+def test_a_config_for_another_repo_sends_every_gh_call_to_it_and_checks_that_origin(
+    tmp_path, tmp_state, gh_world
+):
+    cfg = make_config(tmp_path, repo=_OTHER_REPO)
+    world = gh_world(config=cfg)  # its script holds only argvs that carry the repo
+    world.issue(9)
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert (res.exit_code, res.launched_issue) == (0, 9)
+    assert len(deps.launcher.calls) == 1
+    gh_calls = world.gh_argvs
+    assert len(gh_calls) > 5
+    for argv in gh_calls:
+        text = "\n".join(argv)
+        assert "IronClaude" not in text and "IronbellyOrg" not in text, argv
+        if argv != _USER_ARGV:
+            owner, name = _OTHER_REPO.split("/")
+            assert _OTHER_REPO in text or (
+                f"owner={owner}" in argv and f"name={name}" in argv
+            ), argv
+    # the origin check read the configured worktree and accepted the other repo's URL
+    assert any(argv[0] == "git" for argv, _ in world.runner.calls)
+
+
+def test_a_worktree_whose_origin_is_the_default_repo_is_a_mismatch_for_another_repo(
+    tmp_path, tmp_state, gh_world
+):
+    cfg = make_config(tmp_path, repo=_OTHER_REPO)
+    world = gh_world(config=cfg)
+    world.origin_url = "https://github.com/IronbellyOrg/IronClaude.git"
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert (res.exit_code, res.reason) == (2, "origin_mismatch")
+    assert deps.launcher.calls == []
+
+
+def test_the_origin_compare_for_a_configured_repo_ignores_case(
+    tmp_path, tmp_state, gh_world
+):
+    cfg = make_config(tmp_path, repo=_OTHER_REPO)
+    world = gh_world(config=cfg)
+    world.issue(9)
+    world.origin_url = f"https://github.com/{_OTHER_REPO.upper()}.git"
+    res, _deps = _run(tmp_path, tmp_state, world)
+    assert res.exit_code == 0 and res.launched_issue == 9
+
+
+def _config_file(tmp_path, **extra):
+    import json as _json
+
+    approvers = tmp_path / "approvers"
+    approvers.write_text("1001\n")
+    approvers.chmod(0o600)
+    raw = {
+        "schema_version": 1,
+        "project_id": "PVT_abc",
+        "worktree": str(tmp_path),
+        "approvers_file": str(approvers),
+        "state_dir": str(tmp_path / "state"),
+        **extra,
+    }
+    path = tmp_path / "cfg.json"
+    path.write_text(_json.dumps(raw))
+    return path
+
+
+def test_a_config_without_a_repo_key_serves_the_fork(tmp_path):
+    cfg = cycle.load_config(_config_file(tmp_path))
+    assert cfg.repo == "IronbellyOrg/IronClaude"
+
+
+def test_a_repo_key_is_read_and_must_be_owner_slash_name(tmp_path):
+    assert (
+        cycle.load_config(_config_file(tmp_path, repo=_OTHER_REPO)).repo == _OTHER_REPO
+    )
+    for bad in ("a/b/c", "", "a b/c", "-a/b", "justone", 5, None, ["a/b"]):
+        with pytest.raises(cycle.ConfigError) as err:
+            cycle.load_config(_config_file(tmp_path, repo=bad))
+        assert err.value.reason == "config_invalid"
+
+
+# --- attempted_issue (plan Task 22, R26) ---------------------------------------------
+
+
+@pytest.mark.parametrize(("outcome", "operation_id"), _UNKNOWN_OUTCOMES)
+def test_attempted_issue_is_set_for_an_unknown_launch(
+    tmp_path, tmp_state, gh_world, outcome, operation_id
+):
+    world = gh_world()
+    world.issue(9)
+    res, _ = _run(tmp_path, tmp_state, world, launcher=FakeLauncher([outcome()]))
+    assert (res.reason, res.attempted_issue, res.launched_issue) == (
+        "launch_unknown",
+        9,
+        None,
+    )
+
+
+def test_attempted_issue_is_none_for_a_confirmed_launch(tmp_path, tmp_state, gh_world):
+    world = gh_world()
+    world.issue(9)
+    res, _ = _run(tmp_path, tmp_state, world)
+    assert (res.launched_issue, res.attempted_issue) == (9, None)
+
+
+def test_attempted_issue_is_none_for_a_spawn_error_and_for_no_launch(
+    tmp_path, tmp_state, gh_world
+):
+    world = gh_world()
+    world.issue(9)
+    spawn = FakeLauncher([spawn_error_outcome()])
+    res, _ = _run(tmp_path, tmp_state, world, launcher=spawn)
+    assert (res.reason, res.attempted_issue, res.launched_issue) == (
+        "spawn_error",
+        None,
+        None,
+    )
+    empty = gh_world()
+    res, _ = _run(tmp_path, tmp_state, empty)
+    assert (res.attempted_issue, res.launched_issue) == (None, None)

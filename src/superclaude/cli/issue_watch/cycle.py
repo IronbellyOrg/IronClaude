@@ -53,7 +53,8 @@ NETWORK_FS_TYPES = frozenset(
 
 SCHEMA_VERSION = 1
 DEFAULT_TRIGGER_LABEL = "issue-watch:trigger"
-DEFAULT_APPROVAL_LABEL = "issue-watch:approved"
+DEFAULT_APPROVAL_LABEL = predicates.APPROVAL_FIELD_LABEL
+"""The approval is the ``Approved`` issue field, seen as this pseudo label (R35)."""
 
 _TOP_KEYS = frozenset(
     {
@@ -65,6 +66,8 @@ _TOP_KEYS = frozenset(
         "worktree",
         "approvers_file",
         "state_dir",
+        "approval_excluded_ids",
+        "repo",
     }
 )
 _LABEL_KEYS = frozenset({"trigger", "approval"})
@@ -105,6 +108,10 @@ class Config:
     worktree: Path
     approvers_file: Path
     state_dir: Path
+    approval_excluded_ids: frozenset[int] = frozenset()
+    """Account ids whose approval never counts (R33); empty by default."""
+    repo: str = github.REPO
+    """The ``owner/name`` the watcher serves; the fork when the key is absent."""
 
 
 def _invalid(detail: str) -> ConfigError:
@@ -241,6 +248,10 @@ def load_config(path: str | os.PathLike[str]) -> Config:
     approval = _label(labels.get("approval", DEFAULT_APPROVAL_LABEL), "approval")
     if trigger == approval:
         raise _invalid("labels.approval must differ from labels.trigger")
+    if approval != DEFAULT_APPROVAL_LABEL:
+        raise _invalid(
+            "labels.approval is the Approved issue field now (R35); remove the key"
+        )
 
     project_id = raw.get("project_id")
     if not isinstance(project_id, str) or _PROJECT_ID.fullmatch(project_id) is None:
@@ -253,6 +264,18 @@ def load_config(path: str | os.PathLike[str]) -> Config:
         not _is_int(owner) or not 1 <= owner <= _ACCOUNT_ID_MAX
     ):
         raise _invalid("owner_account_id must be an integer from 1 to 10**20-1")
+
+    excluded = raw.get("approval_excluded_ids", [])
+    if not isinstance(excluded, list) or not all(
+        _is_int(i) and 1 <= i <= _ACCOUNT_ID_MAX for i in excluded
+    ):
+        raise _invalid(
+            "approval_excluded_ids must be a list of integers from 1 to 10**20-1"
+        )
+
+    repo = raw.get("repo", github.REPO)
+    if not github.valid_repo(repo):
+        raise _invalid("repo must be owner/name (letters, digits, . _ - only)")
 
     for key in ("worktree", "approvers_file"):
         if not _is_abs_path(raw.get(key)):
@@ -280,6 +303,8 @@ def load_config(path: str | os.PathLike[str]) -> Config:
         worktree=Path(raw["worktree"]),
         approvers_file=Path(raw["approvers_file"]),
         state_dir=state_dir,
+        approval_excluded_ids=frozenset(excluded),
+        repo=repo,
     )
 
 
@@ -456,6 +481,8 @@ class CycleResult:
     would_launch: int | None = None
     probe: str | None = None
     lines: tuple[dict, ...] = ()
+    attempted_issue: int | None = None
+    """The issue whose launch ended with an unknown outcome (R26); None otherwise."""
 
 
 # Exit precedence (design 4.3, OD-10).
@@ -521,6 +548,7 @@ class _Cand:
     issue: DiscoveredIssue
     entry: Entry | None
     approval: ApprovalResult | None = None
+    item: predicates.ProjectItem | None = None  # the live Project item examined
     launching: bool = False  # True once the issue passed every GitHub check
 
 
@@ -561,6 +589,7 @@ class _Cycle:
         self.examined: list[int] = []
         self.halt = False
         self.launched_issue: int | None = None
+        self.attempted_issue: int | None = None
         self.would_launch: int | None = None
         self.shadow: record.DryRunDoc | None = None
         self.shadow_reset = False
@@ -675,7 +704,8 @@ class _Cycle:
         None, so a ``Runner`` never gets one (design 8.5).
         """
         worktree = self.deps.config.worktree
-        return launch.check_origin(self.deps.runner, worktree, timeout) is None
+        repo = self.deps.config.repo
+        return launch.check_origin(self.deps.runner, worktree, timeout, repo) is None
 
     # -- the cycle -----------------------------------------------------------
 
@@ -794,7 +824,11 @@ class _Cycle:
     def _discover(self) -> tuple[DiscoveredIssue, ...]:
         cfg = self.deps.config
         read = github.discover(
-            self.deps.runner, cfg.trigger_label, self.login or "", self._tf_shared
+            self.deps.runner,
+            cfg.trigger_label,
+            self.login or "",
+            self._tf_shared,
+            repo=cfg.repo,
         )
         if read.reason is not None:
             if read.kind == "rate_limited":
@@ -845,6 +879,29 @@ class _Cycle:
             raise _Skip("budget_exhausted")
         raise _Skip(fallback or read.reason)
 
+    def _events(
+        self, n: int, fallback: str | None = None, *, reserved: bool = False
+    ) -> tuple[predicates.LabelEvent, ...]:
+        """The label events plus the ``Approved`` field events of issue ``n`` (R35)."""
+        d = self.deps
+
+        def check(read: github.Read) -> object:
+            return self._rv(read) if reserved else self._val(read, fallback)
+
+        # One after the other: a failed first read stops the cycle before the second.
+        repo = d.config.repo
+        label_events = check(
+            github.events(
+                d.runner, self.budget, n, self._tf, reserved=reserved, repo=repo
+            )
+        )
+        field_events = check(
+            github.approval_events(
+                d.runner, self.budget, n, self._tf, reserved=reserved, repo=repo
+            )
+        )
+        return predicates.merge_approval_events(label_events, field_events)  # type: ignore[arg-type]
+
     def _hit(
         self,
         markers: object,
@@ -882,11 +939,15 @@ class _Cycle:
         cfg = self.deps.config
         result = predicates.approval_of(
             events,  # type: ignore[arg-type]
-            labels_now=c.issue.labels,
+            labels_now=predicates.with_approval_field(
+                c.issue.labels,
+                events,  # type: ignore[arg-type]
+            ),
             trigger_label=cfg.trigger_label,
             approval_label=cfg.approval_label,
             approvers=self.approvers,
             store_created_at=self.doc.created_at,
+            excluded_ids=cfg.approval_excluded_ids,
         )
         if not result.approved:
             raise _Skip(fallback or result.reason or "not_approved")
@@ -902,11 +963,11 @@ class _Cycle:
         """A tombstone or a ``failed`` entry in backoff: find the approval floor."""
         d = self.deps
         markers = self._val(
-            github.marker_comments(d.runner, self.budget, c.n, self._tf)
+            github.marker_comments(
+                d.runner, self.budget, c.n, self._tf, repo=d.config.repo
+            )
         )
-        events = self._val(
-            github.events(d.runner, self.budget, c.n, self._tf), fallback
-        )
+        events = self._events(c.n, fallback)
         approval = self._approve(c, events, fallback)
         if self._hit(markers, None, approval.approved_at):
             return self._claim(c, approval)
@@ -924,7 +985,9 @@ class _Cycle:
             or (state == "abandoned" and e.pending_at is not None)
         ):
             markers = self._val(
-                github.marker_comments(d.runner, self.budget, c.n, self._tf)
+                github.marker_comments(
+                    d.runner, self.budget, c.n, self._tf, repo=cfg.repo
+                )
             )
             if self._hit(markers, e.pending_at, None):
                 return self._claim(c, None)  # T-10
@@ -939,13 +1002,15 @@ class _Cycle:
         if not owned:
             raise _Skip(why or "assigned_other")
         markers = self._val(
-            github.marker_comments(d.runner, self.budget, c.n, self._tf)
+            github.marker_comments(d.runner, self.budget, c.n, self._tf, repo=cfg.repo)
         )
-        events = self._val(github.events(d.runner, self.budget, c.n, self._tf))
+        events = self._events(c.n)
         approval = self._approve(c, events)
         if self._hit(markers, None, approval.approved_at):
             return self._claim(c, approval)  # T-11, T-12
-        edits = self._val(github.edits(d.runner, self.budget, c.n, self._tf))
+        edits = self._val(
+            github.edits(d.runner, self.budget, c.n, self._tf, repo=cfg.repo)
+        )
         why = predicates.unchanged_since(
             approval.approved_at,  # type: ignore[arg-type]
             edits,  # type: ignore[arg-type]
@@ -954,10 +1019,21 @@ class _Cycle:
         )
         if why is not None:
             raise _Skip(why)
-        items = self._val(github.project_items(d.runner, self.budget, c.n, self._tf))
+        items = self._val(
+            github.project_items(d.runner, self.budget, c.n, self._tf, repo=cfg.repo)
+        )
         why = predicates.project_check(items, cfg.project_id)  # type: ignore[arg-type]
         if why is not None:
             raise _Skip(why)
+        c.item = predicates.live_item(items, cfg.project_id)  # type: ignore[arg-type]
+        # The ship gate (R33) sits before _launch, so a dry run's would_launch is
+        # honest and a gated level touches no store and no probe.
+        if (
+            not launch.GOVERNED_LEVELS_ALLOWED
+            and c.item is not None
+            and c.item.pipeline_name not in (None, "None")
+        ):
+            raise _Skip("level_gated")
         return self._launch(c, approval)
 
     # -- step 12: the launch steps ---------------------------------------------
@@ -976,11 +1052,15 @@ class _Cycle:
             raise _Transient
         raise _Skip("revalidation_failed")
 
-    def _revalidate(self, c: _Cand) -> None:
-        """FR-011: G7, G3' and G6' with the 3 reserved calls."""
+    def _revalidate(self, c: _Cand) -> predicates.ProjectItem:
+        """FR-011: G7, G3' and G6' with the 3 reserved calls.
+
+        Returns the live Project item the re-read confirmed: the Status and
+        Pipeline must equal the ones examined (``revalidation_failed``).
+        """
         d, cfg = self.deps, self.deps.config
         snap: predicates.IssueSnapshot = self._rv(  # type: ignore[assignment]
-            github.reread(d.runner, self.budget, c.n, self._tf)
+            github.reread(d.runner, self.budget, c.n, self._tf, repo=cfg.repo)
         )
         if (
             snap.state.lower() != "open"
@@ -992,9 +1072,7 @@ class _Cycle:
         if not owned:
             raise _Skip(why or "assigned_other")
         assert self.doc is not None and c.approval is not None
-        events = self._rv(
-            github.events(d.runner, self.budget, c.n, self._tf, reserved=True)
-        )
+        events = self._events(c.n, reserved=True)
         again = predicates.approval_of(
             events,  # type: ignore[arg-type]
             labels_now=snap.labels,
@@ -1002,6 +1080,7 @@ class _Cycle:
             approval_label=cfg.approval_label,
             approvers=self.approvers,
             store_created_at=self.doc.created_at,
+            excluded_ids=cfg.approval_excluded_ids,
         )
         # A voided approval, or a newer approval event (edits are not re-read), fails.
         if (
@@ -1010,10 +1089,20 @@ class _Cycle:
         ):
             raise _Skip("revalidation_failed")
         items = self._rv(
-            github.project_items(d.runner, self.budget, c.n, self._tf, reserved=True)
+            github.project_items(
+                d.runner, self.budget, c.n, self._tf, reserved=True, repo=cfg.repo
+            )
         )
         if predicates.project_check(items, cfg.project_id) is not None:  # type: ignore[arg-type]
             raise _Skip("revalidation_failed")
+        item = predicates.live_item(items, cfg.project_id)  # type: ignore[arg-type]
+        assert item is not None  # project_check passed, so exactly one live item
+        if c.item is not None and (item.status_name, item.pipeline_name) != (
+            c.item.status_name,
+            c.item.pipeline_name,
+        ):
+            raise _Skip("revalidation_failed")
+        return item
 
     def _fail(self, c: _Cand, reason: str) -> tuple[str, str]:
         assert self.doc is not None
@@ -1051,13 +1140,17 @@ class _Cycle:
                 raise _Skip("budget_exhausted")
             raise _Stop("orca_not_found", stamp=True)
         try:
-            prompt = launch.build_claim_prompt(c.n)
-        except ValueError:
-            return self._fail(c, "prompt_invalid")
-        try:
-            self._revalidate(c)
+            item = self._revalidate(c)
         except _Transient:
             return self._fail(c, "revalidation_transient")
+        try:
+            # Built from the item the re-read just confirmed, so a Status or
+            # Pipeline moved since examine can never launch the old command (R27).
+            prompt = launch.build_claim_prompt(
+                c.n, item.status_name, item.pipeline_name
+            )
+        except ValueError:
+            return self._fail(c, "prompt_invalid")
         if self._day_cap_reached():
             raise _Skip("day_cap")
         if d.store.disabled():
@@ -1096,6 +1189,7 @@ class _Cycle:
             self._set(before_pending)
             self._save()
             raise _Skip("budget_exhausted")
+        _remember_prompt(cfg.state_dir, c.n, prompt)
         outcome = d.launcher.launch(orca, cfg.worktree, prompt, LAUNCH_TIMEOUT_S)
         now = self.now()
         if outcome.kind == "launched":
@@ -1105,6 +1199,7 @@ class _Cycle:
             return "launched", "launched"
         if outcome.kind == "unknown":
             self._set(record.mark_unknown(self.doc, c.n, outcome.operation_id, now))
+            self.attempted_issue = c.n
             self._cond("launch_unknown")
             return "launch_unknown", "unknown"
         self._set(record.mark_spawn_error(self.doc, c.n, now))
@@ -1208,6 +1303,7 @@ class _Cycle:
             would_launch=self.would_launch,
             probe="skipped" if self.would_launch is not None else None,
             lines=lines,
+            attempted_issue=self.attempted_issue,
         )
 
 
@@ -1267,14 +1363,55 @@ def _retry_orca(which: Callable[[str], str | None]) -> str:
     return launch._ORCA_CLIS[0]
 
 
+PROMPTS_FILE = "launch-prompts.json"
+"""The claim prompt of each launch, so ``status`` can print a retry command.
+
+The dispatch store is a closed schema and keeps neither the Status nor the
+Pipeline that chose the prompt (R23), so the prompt is kept beside it.
+"""
+
+
+def _read_prompts(state_dir: Path) -> dict[str, str]:
+    """The kept prompts; an unreadable or malformed file reads as none."""
+    try:
+        data = json.loads((state_dir / PROMPTS_FILE).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    return {k: v for k, v in data.items() if isinstance(k, str) and isinstance(v, str)}
+
+
+def _remember_prompt(state_dir: Path, n: int, prompt: str) -> None:
+    """Keep ``prompt`` for issue ``n`` (mode 0600, atomic). Best effort: a failure
+    only means ``status`` prints no retry command for this launch."""
+    try:
+        data = _read_prompts(state_dir)
+        data[str(n)] = prompt
+        tmp = state_dir / (PROMPTS_FILE + ".tmp")
+        fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(data, handle, sort_keys=True)
+        os.replace(tmp, state_dir / PROMPTS_FILE)
+    except OSError:
+        pass
+
+
 def status_report(
     store: Store,
     audit: audit.AuditLog | None,
     now: datetime,
     *,
     which: Callable[[str], str | None] = shutil.which,
+    prompts: dict[int, str] | None = None,
 ) -> dict:
     """Return the ``status --json`` fields of design 10.2.
+
+    The retry argv carries the claim prompt the launch sent: ``prompts`` (issue
+    number to prompt) when the caller gives one, else the one kept in
+    ``launch-prompts.json`` beside the store. For an ``unknown`` entry with no
+    kept prompt, or one that is not a prompt the watcher could have built,
+    ``argv`` is ``None`` rather than a guessed command.
 
     Reads ``dispatch.json`` and the ``DISABLED`` mtime and nothing else: no
     lock, no write, no probe, no ``gh``. ``audit`` is accepted for the fixed
@@ -1292,6 +1429,7 @@ def status_report(
     since = store.disabled_since()
     next_at = doc.next_permitted_at
     orca = _retry_orca(which)
+    kept = _read_prompts(getattr(store, "state_dir", Path("/nonexistent")))
     stale: list[dict] = []
     retry: list[dict] = []
     for n in sorted(doc.entries):
@@ -1306,15 +1444,15 @@ def status_report(
                 }
             )
         if entry.state == "unknown" and entry.operation_id and entry.launch_cwd:
-            try:
-                argv = launch.retry_argv(
-                    orca,
-                    entry.launch_cwd,
-                    launch.build_claim_prompt(n),
-                    entry.operation_id,
-                )
-            except ValueError:  # an id that cannot be printed as a command
-                continue
+            argv = None
+            prompt = (prompts or {}).get(n) or kept.get(str(n))
+            if prompt is not None and launch.PROMPT_PATTERN.fullmatch(prompt):
+                try:
+                    argv = launch.retry_argv(
+                        orca, entry.launch_cwd, prompt, entry.operation_id
+                    )
+                except ValueError:  # an id or a prompt that cannot be printed
+                    continue
             retry.append(
                 {
                     "issue": n,

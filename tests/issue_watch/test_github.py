@@ -29,7 +29,7 @@ from superclaude.cli.issue_watch.predicates import (
     approval_of,
 )
 
-from .conftest import result
+from .conftest import FakeRunner, result
 
 FIXTURES = Path(__file__).parent / "fixtures" / "_assumed_shape"
 NOW = datetime(2026, 11, 7, 12, 0, 0, tzinfo=timezone.utc)
@@ -42,12 +42,17 @@ MARKER_JQ = (
     "[.[] | {id, login: .user.login, created_at, updated_at, "
     'marker: (.body | contains("<!-- sc:issue:claim -->"))}]'
 )
-REREAD_JQ = "{number, state, labels: [.labels[].name], assignees: [.assignees[].login]}"
+REREAD_JQ = (
+    "{number, state, labels: ([.labels[].name] + [.issue_field_values[]? | "
+    'select(.issue_field_name == "Approved" and '
+    '.single_select_option.name == "Yes") | "issue-field:Approved"]), '
+    "assignees: [.assignees[].login]}"
+)
 
 # The two GraphQL drafts, written out literally (plan step 3.6): a change to the
 # page size, a field name or the paging block in github.py must fail a test.
-EDITS_QUERY = """query($number: Int!, $after: String) {
-  repository(owner: "IronbellyOrg", name: "IronClaude") {
+EDITS_QUERY = """query($owner: String!, $name: String!, $number: Int!, $after: String) {
+  repository(owner: $owner, name: $name) {
     issue(number: $number) {
       createdAt
       lastEditedAt
@@ -58,14 +63,17 @@ EDITS_QUERY = """query($number: Int!, $after: String) {
     }
   }
 }"""
-PROJECT_ITEMS_QUERY = """query($number: Int!, $after: String) {
-  repository(owner: "IronbellyOrg", name: "IronClaude") {
+PROJECT_ITEMS_QUERY = """query($owner: String!, $name: String!, $number: Int!, $after: String) {
+  repository(owner: $owner, name: $name) {
     issue(number: $number) {
       projectItems(first: 100, after: $after) {
         nodes {
           isArchived
           project { id }
-          fieldValueByName(name: "Status") {
+          status: fieldValueByName(name: "Status") {
+            ... on ProjectV2ItemFieldSingleSelectValue { name }
+          }
+          pipeline: fieldValueByName(name: "Pipeline") {
             ... on ProjectV2ItemFieldSingleSelectValue { name }
           }
         }
@@ -175,6 +183,9 @@ def test_g4_argv_is_literal__fr009() -> None:
     ]
 
 
+REPO_VARS = ["-f", "owner=IronbellyOrg", "-f", "name=IronClaude"]
+
+
 def test_g5_argv_first_page_has_no_cursor__fr003() -> None:
     assert github.argv_edits(42) == [
         "gh",
@@ -182,6 +193,7 @@ def test_g5_argv_first_page_has_no_cursor__fr003() -> None:
         "graphql",
         "-f",
         f"query={EDITS_QUERY}",
+        *REPO_VARS,
         "-F",
         "number=42",
     ]
@@ -194,6 +206,7 @@ def test_g5_argv_later_page_adds_the_cursor() -> None:
         "graphql",
         "-f",
         f"query={EDITS_QUERY}",
+        *REPO_VARS,
         "-F",
         "number=42",
         "-f",
@@ -208,6 +221,7 @@ def test_g6_argv_first_page_has_no_cursor__fr007() -> None:
         "graphql",
         "-f",
         f"query={PROJECT_ITEMS_QUERY}",
+        *REPO_VARS,
         "-F",
         "number=42",
     ]
@@ -220,11 +234,75 @@ def test_g6_argv_later_page_adds_the_cursor__fr007() -> None:
         "graphql",
         "-f",
         f"query={PROJECT_ITEMS_QUERY}",
+        *REPO_VARS,
         "-F",
         "number=42",
         "-f",
         "after=Y3Vyc29yOjI=",
     ]
+
+
+# --- the repository is a parameter (plan Task 15) -----------------------------------
+
+OTHER = "Other-Org/Other.Repo"
+
+
+def _every_argv_for(repo: str) -> dict[str, list[str]]:
+    return {
+        "discover": github.argv_discover("sc:issue", "owner-login", repo),
+        "events": github.argv_events(42, 1, repo),
+        "comments": github.argv_comments(42, 1, repo),
+        "edits": github.argv_edits(42, None, repo),
+        "project_items": github.argv_project_items(42, None, repo),
+        "approval_events": github.argv_approval_events(42, None, repo),
+        "reread": github.argv_reread(42, repo),
+    }
+
+
+def test_every_argv_carries_the_passed_repo_and_not_the_default() -> None:
+    owner, name = OTHER.split("/")
+    for kind, argv in _every_argv_for(OTHER).items():
+        joined = "\n".join(argv)
+        assert "IronbellyOrg" not in joined and "IronClaude" not in joined, kind
+        if kind in ("edits", "project_items", "approval_events"):
+            assert f"owner={owner}" in argv and f"name={name}" in argv, kind
+        else:
+            assert OTHER in joined, kind
+
+
+def test_the_default_repo_is_the_forks() -> None:
+    assert github.argv_events(42, 2) == github.argv_events(42, 2, github.REPO)
+    assert github.argv_edits(42) == github.argv_edits(42, None, github.REPO)
+
+
+@pytest.mark.parametrize(
+    "bad",
+    ["a/b/c", "", "a b/c", "a/b c", "-a/b", "a/-b", "a", "/b", "a/", "a/..", "a/b\n"],
+)
+def test_a_repo_that_is_not_owner_slash_name_is_refused_before_any_call(
+    bad: str,
+) -> None:
+    for build in (
+        lambda: github.argv_discover("sc:issue", "owner-login", bad),
+        lambda: github.argv_events(42, 1, bad),
+        lambda: github.argv_comments(42, 1, bad),
+        lambda: github.argv_edits(42, None, bad),
+        lambda: github.argv_project_items(42, None, bad),
+        lambda: github.argv_approval_events(42, None, bad),
+        lambda: github.argv_reread(42, bad),
+    ):
+        with pytest.raises(ValueError):
+            build()
+
+
+def test_the_public_reads_pass_the_repo_and_raise_before_a_call() -> None:
+    fake_runner = FakeRunner()
+    budget = github.CallBudget()
+    with pytest.raises(ValueError):
+        github.events(fake_runner, budget, 42, lambda: 30.0, repo="a/b/c")
+    with pytest.raises(ValueError):
+        github.reread(fake_runner, budget, 42, lambda: 30.0, repo=" ")
+    assert fake_runner.calls == []
 
 
 def test_g7_argv_is_literal__fr011() -> None:
@@ -263,8 +341,11 @@ def test_no_graphql_argv_has_method() -> None:
 
 @pytest.mark.parametrize("query", [github.EDITS_QUERY, github.PROJECT_ITEMS_QUERY])
 def test_graphql_constants_name_the_repo_and_never_mutate(query: str) -> None:
-    assert 'owner: "IronbellyOrg", name: "IronClaude"' in query
-    assert "mutation" not in query.lower()
+    assert "repository(owner: $owner, name: $name)" in query
+    assert re.findall(r"\$(\w+): String!", query) == ["owner", "name"]
+    assert query.count("String!") == 2
+    assert "IronClaude" not in query
+    assert "mutation" not in query.lower() and "subscription" not in query.lower()
     assert "$after: String" in query
     assert "$after: String!" not in query
     assert re.search(r"\$after: String(?!!)", query)
@@ -295,7 +376,8 @@ def test_graphql_constants_equal_the_literal_drafts__df14() -> None:
                 "projectItems(first: 100, after: $after)",
                 "isArchived",
                 "project { id }",
-                'fieldValueByName(name: "Status")',
+                'status: fieldValueByName(name: "Status")',
+                'pipeline: fieldValueByName(name: "Pipeline")',
                 "ProjectV2ItemFieldSingleSelectValue { name }",
                 "pageInfo { hasNextPage endCursor }",
             ],
@@ -575,7 +657,7 @@ def test_user_reads_login_id_and_date_from_the_g1_fixture__fr002(fake_runner) ->
 def test_every_assumed_shape_fixture_parses_and_is_labelled() -> None:
     """Stands in for the check-json hook that is not installed locally."""
     files = sorted(FIXTURES.glob("*.json"))
-    assert len(files) == 19
+    assert len(files) == 20
     for path in files:
         data = json.loads(path.read_text(encoding="utf-8"))
         assert data["_assumed_shape"] is True, path.name
@@ -972,7 +1054,8 @@ def item_node(i: int = 0, **over: object) -> dict:
     node: dict = {
         "isArchived": False,
         "project": {"id": "PVT_1"},
-        "fieldValueByName": {"name": "Backlog"},
+        "status": {"name": "Research", "createdAt": STAMP, "updatedAt": STAMP},
+        "pipeline": None,
     }
     node.update(over)
     return node
@@ -1046,13 +1129,13 @@ def test_project_items_has_next_page_then_false_reads_both_pages__fr007(
 ) -> None:
     replies = [
         project_page([item_node()], True, "c1"),
-        project_page([item_node(fieldValueByName=None, isArchived=True)], False, None),
+        project_page([item_node(status=None, isArchived=True)], False, None),
     ]
     runner = fake_runner(cursor_script(github.argv_project_items, replies))
     got = github.project_items(runner, github.CallBudget(), 42, timeout)
     assert (got.reason, got.kind) == (None, "ok")
     assert got.value == (
-        ProjectItem(False, "PVT_1", "Backlog"),
+        ProjectItem(False, "PVT_1", "Research", None),
         ProjectItem(True, "PVT_1", None),
     )
     assert [c[0] for c in runner.calls] == [
@@ -1484,8 +1567,146 @@ def test_project_items_reads_the_graphql_project_fixture__fr007(fake_runner) -> 
     runner = fake_runner({argv: ok(payload, argv)})
     got = github.project_items(runner, github.CallBudget(), 42, timeout)
     assert (got.reason, got.kind) == (None, "ok")
-    assert got.value == (ProjectItem(False, "PVT_test_project_0001", "Backlog"),)
+    assert got.value == (
+        ProjectItem(
+            False,
+            "PVT_test_project_0001",
+            "Research",
+            "Worktree",
+        ),
+    )
     assert re.fullmatch(r"PVT_[A-Za-z0-9_-]{1,64}", got.value[0].project_id)
+
+
+def test_project_item_with_a_pipeline_value_keeps_its_name(
+    fake_runner,
+) -> None:
+    replies = [project_page([item_node(pipeline={"name": "Full Submit"})])]
+    runner = fake_runner(cursor_script(github.argv_project_items, replies))
+    got = github.project_items(runner, github.CallBudget(), 42, timeout)
+    (only,) = got.value
+    assert only.pipeline_name == "Full Submit"
+
+
+def test_project_item_with_a_null_pipeline_is_none_not_an_error__r34(
+    fake_runner,
+) -> None:
+    replies = [project_page([item_node(pipeline=None)])]
+    runner = fake_runner(cursor_script(github.argv_project_items, replies))
+    got = github.project_items(runner, github.CallBudget(), 42, timeout)
+    assert got.reason is None
+    (only,) = got.value
+    assert only.pipeline_name is None
+
+
+# --- G8: the Approved issue field events (R35) ---------------------------------
+
+
+def field_node(kind: str = "IssueFieldAddedEvent", **over: object) -> dict:
+    """One G8 node; the shape was read from a live issue on 2026-11-19."""
+    node: dict = {
+        "__typename": kind,
+        "createdAt": STAMP,
+        "actor": {"__typename": "User", "login": "ironbelly", "databaseId": 7361222},
+        "issueField": {"name": "Approved"},
+    }
+    if kind == "IssueFieldAddedEvent":
+        node["value"] = "Yes"
+    elif kind == "IssueFieldChangedEvent":
+        node["newValue"] = "Yes"
+    node.update(over)
+    return node
+
+
+def field_page(nodes: list, more: bool = False, cursor: object = None):
+    return gql("timelineItems", nodes, more, cursor)
+
+
+def read_field_events(fake_runner, replies: list):
+    runner = fake_runner(cursor_script(github.argv_approval_events, replies))
+    return github.approval_events(runner, github.CallBudget(), 42, timeout)
+
+
+def test_approval_events_added_yes_by_a_user_is_a_labeled_event__r35(fake_runner):
+    got = read_field_events(fake_runner, [field_page([field_node()])])
+    assert (got.reason, got.kind) == (None, "ok")
+    (event,) = got.value
+    assert (event.event, event.label, event.actor_id, event.actor_type) == (
+        "labeled",
+        "issue-field:Approved",
+        7361222,
+        "User",
+    )
+    assert (event.actor_login, event.created_at) == ("ironbelly", STAMPED)
+    assert event.id == int(STAMPED.timestamp())
+
+
+def test_approval_events_changed_and_removed_follow_the_value__r35(fake_runner):
+    nodes = [
+        field_node("IssueFieldChangedEvent"),
+        field_node("IssueFieldChangedEvent", newValue="No"),
+        field_node("IssueFieldRemovedEvent"),
+    ]
+    got = read_field_events(fake_runner, [field_page(nodes)])
+    assert [e.event for e in got.value] == ["labeled", "unlabeled", "unlabeled"]
+
+
+def test_approval_events_ignore_other_fields_and_keep_a_bot_with_id_zero__r35(
+    fake_runner,
+):
+    nodes = [
+        field_node(issueField={"name": "Complexity"}, value="Simple"),
+        field_node(issueField={}),
+        field_node(actor={"__typename": "Bot", "login": "app[bot]"}),
+        field_node(actor=None),
+    ]
+    got = read_field_events(fake_runner, [field_page(nodes)])
+    assert [(e.actor_id, e.actor_type) for e in got.value] == [(0, "Bot"), (0, None)]
+
+
+@pytest.mark.parametrize(
+    "over",
+    [
+        {"createdAt": None},
+        {"createdAt": "x"},
+        {"__typename": "Surprise"},
+        {"value": None, "__typename": "IssueFieldAddedEvent", "actor": 5},
+    ],
+)
+def test_approval_events_malformed_node_is_unreadable__r35(fake_runner, over):
+    got = read_field_events(fake_runner, [field_page([field_node(**over)])])
+    assert (got.value, got.reason) == (None, "events_unreadable")
+
+
+def test_approval_events_missing_actor_key_is_unreadable__r35(fake_runner):
+    node = field_node()
+    del node["actor"]
+    got = read_field_events(fake_runner, [field_page([node])])
+    assert (got.value, got.reason) == (None, "events_unreadable")
+
+
+def test_approval_events_repeated_end_cursor_is_incomplete__r35(fake_runner):
+    replies = [
+        field_page([field_node()], True, "c1"),
+        field_page([field_node()], True, "c1"),
+    ]
+    got = read_field_events(fake_runner, replies)
+    assert (got.value, got.reason) == (None, "events_unreadable")
+
+
+def test_approval_events_read_the_recorded_shape_fixture__r35(fake_runner):
+    payload = load("graphql_issue_field_events.json")["payload"]
+    argv = tuple(github.argv_approval_events(42))
+    runner = fake_runner({argv: ok(payload, argv)})
+    got = github.approval_events(runner, github.CallBudget(), 42, timeout)
+    assert [(e.event, e.actor_id) for e in got.value] == [("labeled", 7361222)]
+
+
+def test_reread_projection_shows_an_approved_yes_field_as_the_pseudo_label__r35():
+    """REREAD_JQ turns ``Approved`` = ``Yes`` into the pseudo label (jq is not run here)."""
+    assert '"issue-field:Approved"' in github.REREAD_JQ
+    assert '.issue_field_name == "Approved"' in github.REREAD_JQ
+    assert '.single_select_option.name == "Yes"' in github.REREAD_JQ
 
 
 # --- A-3: fixtures for the replies that had none ---------------------------------

@@ -252,7 +252,7 @@ def launch_argv_literal(orca: str, worktree: Path) -> list[str]:
         "--surface",
         "terminal",
         "--prompt",
-        "/sc:issue --claim 9 --pipeline none",
+        "/sc:issue --claim 9 --pipeline none --stage research",
         "--json",
     ]
 
@@ -267,11 +267,13 @@ def expected_eligible_sequence(watcher: Watcher) -> list[tuple[str, list[str]]]:
         ("gh", DISCOVERY_ARGV),
         ("gh", github.argv_comments(ISSUE, 1)[1:]),
         ("gh", github.argv_events(ISSUE, 1)[1:]),
+        ("gh", github.argv_approval_events(ISSUE)[1:]),
         ("gh", github.argv_edits(ISSUE)[1:]),
         ("gh", github.argv_project_items(ISSUE)[1:]),
         ("orca-ide", ["skills", "list", "--json"]),
         ("gh", github.argv_reread(ISSUE)[1:]),
         ("gh", github.argv_events(ISSUE, 1)[1:]),
+        ("gh", github.argv_approval_events(ISSUE)[1:]),
         ("gh", github.argv_project_items(ISSUE)[1:]),
         ("git", git),
         ("orca-ide", launch_argv_literal("ORCA", watcher.config.worktree)[1:]),
@@ -346,7 +348,8 @@ def test_fr010_fr013_eligible_issue_launches_once_through_orca_ide(tmp_path, stu
     done = watcher.cli("once")
 
     assert done.returncode == 0, done
-    assert done.stdout == "cycle: cycle_complete\nexit: 0\n", done.stdout
+    # the confirmed launch prints its issue number once (plan Task 22, R26)
+    assert done.stdout == "cycle: cycle_complete\nexit: 0\nlaunched: 9\n", done.stdout
     assert done.stderr == ""
     calls = watcher.calls()
     # every external call, in order; the stub never sees the program path
@@ -363,7 +366,7 @@ def test_fr010_fr013_eligible_issue_launches_once_through_orca_ide(tmp_path, stu
     )
     assert len([orca_ide, *launch_call["argv"]]) == 12
     assert launch_call["argv"][launch_call["argv"].index("--prompt") + 1] == (
-        "/sc:issue --claim 9 --pipeline none"
+        "/sc:issue --claim 9 --pipeline none --stage research"
     )
     assert Path(launch_call["cwd"]).resolve() == watcher.config.worktree.resolve()
     # orca-ide is resolved first, so the plain orca stub is never called
@@ -410,7 +413,10 @@ def test_nfr010_second_once_launches_nothing(tmp_path, stub_path):
     )
 
     first = watcher.cli("once")
-    assert (first.returncode, first.stdout) == (0, "cycle: cycle_complete\nexit: 0\n")
+    assert (first.returncode, first.stdout) == (
+        0,
+        "cycle: cycle_complete\nexit: 0\nlaunched: 9\n",
+    )
     first_calls = len(watcher.calls())
     entry_after_first = watcher.store()["entries"][str(ISSUE)]
     assert entry_after_first["state"] == "launched"

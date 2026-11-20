@@ -14,6 +14,7 @@ from superclaude.cli.issue_watch import github as gh
 from superclaude.cli.issue_watch.runner import CommandResult
 
 RECORDED = Path(__file__).parent / "fixtures" / "recorded"
+REPO = "IronbellyOrg/IronClaude"
 CANARY = "CANARY-9f3a-DO-NOT-LEAK"
 H = "a" * 64
 RID = "ap-9-plan-" + H[:12]
@@ -50,6 +51,27 @@ def project(bodies: list[str | None]) -> list[dict]:
 
 def ok(stdout: str) -> CommandResult:
     return CommandResult(("gh",), 0, stdout, "", False, None, 0.0)
+
+
+EMPTY_TIMELINE = json.dumps(
+    {
+        "data": {
+            "repository": {
+                "issue": {
+                    "timelineItems": {
+                        "nodes": [],
+                        "pageInfo": {"hasNextPage": False, "endCursor": None},
+                    }
+                }
+            }
+        }
+    }
+)
+"""A G8 reply with no ``Approved`` field events (R35)."""
+
+
+def is_timeline(argv: list[str]) -> bool:
+    return argv[:3] == ["gh", "api", "graphql"] and "timelineItems" in argv[4]
 
 
 def failed(stderr: str = "HTTP 502: Bad Gateway") -> CommandResult:
@@ -138,7 +160,7 @@ def test_the_plan_marker_is_read_with_its_hash() -> None:
 
 
 def test_the_new_argv_asks_for_no_body_field() -> None:
-    argv = reads.argv_comments_projected(452, 1)
+    argv = reads.argv_comments_projected(452, 1, REPO)
     assert argv[:5] == [
         "gh",
         "api",
@@ -175,7 +197,7 @@ def test_a_hostile_body_never_reaches_output_argv_result_or_a_file(
     projected = jq(reads.COMMENTS_JQ, raw)
     assert CANARY not in projected
     runner = Served(lambda argv: ok(projected))
-    out = reads.comments(runner, gh.CallBudget(), 452, never_expires)
+    out = reads.comments(runner, gh.CallBudget(), 452, never_expires, repo=REPO)
     assert out.reason is None and len(out.value) == 4
     assert CANARY not in repr(out) and CANARY not in " ".join(
         " ".join(a) for a in runner.argvs
@@ -196,7 +218,7 @@ def test_python_rejects_a_captured_value_that_breaks_its_pattern(field: str) -> 
     with pytest.raises(gh._Malformed):
         reads._comment_fact(row)
     served = Served(lambda argv: ok(json.dumps([row])))
-    result = reads.comments(served, gh.CallBudget(), 9, never_expires)
+    result = reads.comments(served, gh.CallBudget(), 9, never_expires, repo=REPO)
     assert result.value is None and result.reason == "comments_unreadable"
 
 
@@ -231,7 +253,7 @@ def test_page_cap_stops_a_comment_read_that_never_ends() -> None:
         return ok(_page(gh.PAGE_SIZE, offset=page * 1000))
 
     runner = Served(answer)
-    result = reads.comments(runner, gh.CallBudget(), 9, never_expires)
+    result = reads.comments(runner, gh.CallBudget(), 9, never_expires, repo=REPO)
     assert result.value is None and result.reason == "comments_unreadable"
     assert len(runner.argvs) == gh.PAGE_CAP
 
@@ -244,12 +266,14 @@ def test_call_cap_is_shared_across_events_comments_and_edits() -> None:
     recorded = {"events": _recorded_events(), "comments": _page(1)}
 
     def answer(argv: list[str]) -> CommandResult:
+        if is_timeline(argv):
+            return ok(EMPTY_TIMELINE)
         return ok(
             recorded["events"] if argv[4].endswith("/events") else recorded["comments"]
         )
 
     runner = Served(answer)
-    out = reads.read_stage_evidence(runner, 452, never_expires, budget)
+    out = reads.read_stage_evidence(runner, 452, never_expires, budget, repo=REPO)
     assert out.value is None and out.reason == "budget_exhausted"
     assert budget.calls <= gh.CALL_CAP - gh.RESERVED_CALLS
     assert len(runner.argvs) == 2  # the third read never ran
@@ -263,13 +287,17 @@ def test_a_transient_gh_failure_returns_a_closed_reason_not_a_partial_approval()
     None
 ):
     def answer(argv: list[str]) -> CommandResult:
+        if is_timeline(argv):
+            return ok(EMPTY_TIMELINE)
         if argv[4].endswith("/events"):
             return ok(_recorded_events())
         return failed()
 
-    out = reads.read_stage_evidence(Served(answer), 452, never_expires)
+    out = reads.read_stage_evidence(Served(answer), 452, never_expires, repo=REPO)
     assert out.value is None and out.reason == "comments_unreadable"
-    first = reads.read_stage_evidence(Served(lambda argv: failed()), 452, never_expires)
+    first = reads.read_stage_evidence(
+        Served(lambda argv: failed()), 452, never_expires, repo=REPO
+    )
     assert first.value is None and first.reason == "events_unreadable"
 
 
@@ -278,6 +306,8 @@ def test_the_whole_read_over_the_recorded_files_succeeds() -> None:
     edits = (RECORDED / "edits-page1.json").read_text()
 
     def answer(argv: list[str]) -> CommandResult:
+        if is_timeline(argv):
+            return ok(EMPTY_TIMELINE)
         if argv[:3] == ["gh", "api", "graphql"]:
             return ok(edits)
         if argv[4].endswith("/events"):
@@ -285,7 +315,7 @@ def test_the_whole_read_over_the_recorded_files_succeeds() -> None:
         assert argv[4].endswith("/comments")
         return ok(jq(reads.COMMENTS_JQ, raw_comments))
 
-    out = reads.read_stage_evidence(Served(answer), 452, never_expires)
+    out = reads.read_stage_evidence(Served(answer), 452, never_expires, repo=REPO)
     assert out.reason is None
     evidence = out.value
     assert (
@@ -293,3 +323,47 @@ def test_the_whole_read_over_the_recorded_files_succeeds() -> None:
         and evidence.events
         and evidence.edits.comments
     )
+
+
+# --- the repository is required and reaches every read (plan Task 15) -----------------
+
+
+def test_read_stage_evidence_and_comments_require_a_repo() -> None:
+    with pytest.raises(TypeError):
+        reads.read_stage_evidence(Served(lambda argv: failed()), 452, never_expires)  # type: ignore[call-arg]
+    with pytest.raises(TypeError):
+        reads.comments(
+            Served(lambda argv: failed()), gh.CallBudget(), 452, never_expires
+        )  # type: ignore[call-arg]
+    with pytest.raises(TypeError):
+        reads.argv_comments_projected(452, 1)  # type: ignore[call-arg]
+
+
+@pytest.mark.parametrize("bad", ["a/b/c", "", "a b/c", "-a/b", "a"])
+def test_a_repo_that_is_not_owner_slash_name_raises_before_any_call(bad: str) -> None:
+    runner = Served(lambda argv: failed())
+    with pytest.raises(ValueError):
+        reads.read_stage_evidence(runner, 452, never_expires, repo=bad)
+    with pytest.raises(ValueError):
+        reads.argv_comments_projected(452, 1, bad)
+    assert runner.argvs == []
+
+
+def test_every_read_of_the_stage_evidence_carries_the_given_repo() -> None:
+    def answer(argv: list[str]) -> CommandResult:
+        if is_timeline(argv):
+            return ok(EMPTY_TIMELINE)
+        if argv[:3] == ["gh", "api", "graphql"]:
+            return ok((RECORDED / "edits-page1.json").read_text())
+        if argv[4].endswith("/events"):
+            return ok(_recorded_events())
+        return ok(_page(0))
+
+    runner = Served(answer)
+    out = reads.read_stage_evidence(runner, 452, never_expires, repo="Other/Repo")
+    assert out.reason is None
+    assert len(runner.argvs) == 4  # events, approval events, comments, edits
+    for argv in runner.argvs:
+        text = "\n".join(argv)
+        assert "IronClaude" not in text and "IronbellyOrg" not in text
+        assert "Other/Repo" in text or ("owner=Other" in argv and "name=Repo" in argv)
