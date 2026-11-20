@@ -310,6 +310,12 @@ def test_the_report_shows_the_closed_gate_and_the_launch_account_warning(
     assert out.report == h.report.read_text()
 
 
+def test_the_label_made_is_the_configs_own_trigger_not_the_default(tmp_path) -> None:
+    h = Harness(tmp_path, labels={"trigger": "go-watch"})
+    h.run()
+    assert [k[3] for k in h.router.created] == ["go-watch"]
+
+
 def test_no_warning_when_the_launch_account_is_not_an_approver(tmp_path) -> None:
     h = Harness(tmp_path)
     h.run()

@@ -36,7 +36,7 @@ import re
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -287,7 +287,9 @@ def _precheck(
         return "worktree_not_git"
     if check_origin(runner, config.worktree, GIT_TIMEOUT_S, config.repo) is not None:
         return "origin_mismatch"
-    label = repo_init.trigger_label_state(config.repo, defaults, runner)
+    # the child discovers issues by the config's own trigger label, not the current default
+    own = replace(defaults, trigger_label=config.trigger_label)
+    label = repo_init.trigger_label_state(config.repo, own, runner)
     if label != repo_init.PRESENT:
         return "label_missing" if label == repo_init.MISSING else "label_check_failed"
     owner = config.repo.split("/")[0]

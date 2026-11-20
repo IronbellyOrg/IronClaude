@@ -30,7 +30,7 @@ from __future__ import annotations
 import json
 import os
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -190,7 +190,9 @@ def first_run(
         lines.append("warning: approver_is_launch_account")
 
     # 2. the trigger label (created when missing) and the Approved field (reported only)
-    label = repo_init.ensure_trigger_label(config.repo, defaults, runner)
+    # the config's own trigger label is the one the cycle reads, whatever the default is now
+    own = replace(defaults, trigger_label=config.trigger_label)
+    label = repo_init.ensure_trigger_label(config.repo, own, runner)
     lines.append(f"trigger_label: {label}")
     owner = config.repo.split("/")[0]
     lines.append(

@@ -42,6 +42,7 @@ class World:
         self.worktree_origin: dict[str, str] = {}
         self.no_worktree: set[str] = set()
         self.not_git: set[str] = set()
+        self.trigger: str | None = None  # a per-repo labels.trigger in every config
 
     # -- the files a generated config would have ------------------------------------------
     def config(self, name: str, *, enabled: bool = True) -> Path:
@@ -66,6 +67,7 @@ class World:
                     "worktree": str(self.tmp / "wt" / name / "Coordinator"),
                     "approvers_file": str(approvers),
                     "state_dir": str(self.state_dir(name)),
+                    **({"labels": {"trigger": self.trigger}} if self.trigger else {}),
                 }
             )
         )
@@ -625,6 +627,21 @@ def test_each_failed_pre_child_check_gives_its_own_skip_reason_and_creates_nothi
     assert reason in dispatch.SKIP_REASONS
     assert _created(w) == []  # the loop never creates a label
     assert not any(k[:2] == ("gh", "project") for k, _ in w.calls)
+
+
+def test_the_label_precheck_uses_the_configs_own_trigger_label(tmp_path) -> None:
+    w = World(tmp_path, ["Beta"], FakeClock(CYCLE_NOW))
+    w.trigger = "go-watch"
+    w.labels = ["bug", "go-watch"]  # the current default label does not exist
+    prepare(w)
+    out = sweep(w)
+    assert w.started() == ["Beta"] and out.skipped == ()
+    w.labels = [
+        "bug",
+        DEFAULTS.trigger_label,
+    ]  # only the default exists: the config's does not
+    out = sweep(w)
+    assert [(s.name, s.reason) for s in out.skipped] == [("Beta", "label_missing")]
 
 
 def test_a_failed_pre_child_check_skips_only_that_repo(world) -> None:
