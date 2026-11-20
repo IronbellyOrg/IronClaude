@@ -389,6 +389,13 @@ def test_label_applied_then_removed_is_a_revocation() -> None:
     )
 
 
+def test_a_removal_in_the_same_second_as_the_label_is_a_revocation() -> None:
+    status = run(
+        [plan_reply(10, 0)], [label_event(1, 2), label_event(1, 2, "unlabeled")]
+    )
+    assert (status.state, status.label.reason) == ("revoked", "label-removed")
+
+
 def test_a_comment_approval_stands_when_the_label_is_removed() -> None:
     status = run(
         [plan_reply(10, 0), approving(11, 2)],

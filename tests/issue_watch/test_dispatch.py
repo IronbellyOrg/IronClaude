@@ -300,6 +300,31 @@ def test_a_killed_child_with_an_unreadable_store_stops_the_loop(world) -> None:
     assert world.started() == ["Alpha"] and out.stopped_after == "Alpha"
 
 
+def test_an_error_exit_with_a_new_pending_entry_stops_the_loop(world) -> None:
+    prepare(world)
+    world.child("Alpha", seconds=3.0, code=1)  # error exit, no launch line
+    _pend(world, "Alpha", at=CYCLE_NOW + timedelta(seconds=10))
+    out = sweep(world)
+    assert world.started() == ["Alpha"] and out.stopped_after == "Alpha"
+
+
+def test_an_error_exit_with_no_new_entry_lets_the_later_repos_run(world) -> None:
+    prepare(world)
+    world.child("Alpha", seconds=3.0, code=1)
+    record.init_state(world.state_dir("Alpha"), CYCLE_NOW - timedelta(days=1))
+    out = sweep(world)
+    assert world.started() == ["Alpha", "Beta", "Gamma"] and out.stopped_after is None
+
+
+def test_an_error_exit_with_an_unreadable_store_lets_the_later_repos_run(world) -> None:
+    prepare(world)
+    world.child("Alpha", seconds=3.0, code=1)
+    world.state_dir("Alpha").mkdir(parents=True)
+    (world.state_dir("Alpha") / "dispatch.json").write_text("{not json")
+    out = sweep(world)
+    assert world.started() == ["Alpha", "Beta", "Gamma"] and out.stopped_after is None
+
+
 def test_the_270_second_cap_reports_the_repos_not_reached(tmp_path) -> None:
     w = World(tmp_path, NAMES, FakeClock(CYCLE_NOW))
     prepare(w)

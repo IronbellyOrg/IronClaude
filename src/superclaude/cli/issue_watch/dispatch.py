@@ -21,7 +21,7 @@ Rules:
   ``attempted:`` line. A child that was killed (by a signal) or timed out counts as a launch attempt and stops the
   loop too, unless that repository's ``dispatch.json`` (read through ``record.py``, read only) shows no
   pending, launched or unknown entry created during this sweep. A child that cannot run, or that
-  exits non-zero without launching, never stops the loop, and a timeout never kills it;
+  exits non-zero without launching never stops the loop unless its readable store shows an entry opened this sweep, and a timeout never kills it;
 * ``DAY_CAP`` stays per repository: the cycle of each child applies it.
 
 Each child's exit code and reason are kept in ``ChildResult`` for the report (Task 25). This module
@@ -215,16 +215,21 @@ def _enabled(path: Path) -> bool | None:
     return raw.get("enabled") if isinstance(raw, dict) else None
 
 
-def _opened_this_sweep(config_path: Path, since: datetime) -> bool:
+def _opened_this_sweep(
+    config_path: Path, since: datetime, *, unreadable_is_open: bool = True
+) -> bool:
     """True unless the repo's store shows no open entry created at or after ``since``.
 
-    Read only, through ``record.py``. A store that cannot be read counts as open: the loop stops.
+    Read only, through ``record.py``. A store that cannot be read counts as open (the loop stops)
+    unless ``unreadable_is_open`` is false. Stored times have whole seconds, so ``since`` is cut to
+    whole seconds too: an entry made in the same second as the sweep start still counts.
     """
     try:
         config = cycle.load_config(config_path)
         doc = record.FileStore(config.state_dir).load()
     except (cycle.ConfigError, record.StoreError, OSError):
-        return True
+        return unreadable_is_open
+    since = since.replace(microsecond=0)
     return any(
         e.state in _OPEN_STATES and e.pending_at is not None and e.pending_at >= since
         for e in doc.entries.values()
@@ -460,6 +465,12 @@ def run_sweep(
             stopped_after = repo.name
         elif child.killed and _opened_this_sweep(config_path, since):
             stopped_after = repo.name  # a killed child counts as a launch attempt
+        elif child.exit_code not in (None, 0, 5, 75) and _opened_this_sweep(
+            config_path, since, unreadable_is_open=False
+        ):
+            # an error exit with no launch line may still have left a new entry in the store
+            # (a crash after the launch call); only a readable store that shows one stops the loop
+            stopped_after = repo.name
     if dry_run:
         pass  # a dry run writes no rotation file
     elif first_unreached is None:
