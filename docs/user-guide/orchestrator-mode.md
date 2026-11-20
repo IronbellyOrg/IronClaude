@@ -9,7 +9,7 @@ This guide covers what each piece does and how to use it. The rules the coordina
 | Piece | Who uses it | What it does | Writes anything? |
 |---|---|---|---|
 | Coordinator session | You open it | Plans the work, creates one Orca Task per unit, starts one worker per Task, reads each worker's report, does every push, PR, merge and comment | Yes, outward actions are the coordinator's alone |
-| Worker session | Orca starts it for a Task | Runs one IronClaude command and reports with a contract file and a `worker_done` message | Only its own report directory (and a local commit only when the brief grants it) |
+| Worker session | Orca starts it for a Task | Runs one IronClaude command and reports with a contract file and a `worker_done` message | Its own report directory, plus any project files its command is allowed to edit (for example `/sc:implement`, or the auto-fix list of `/sc:cleanup`); a local commit only when the brief grants it |
 | `superclaude observe` | You | Read-only dashboard of the workers and the coordinator's questions | Only the record and snapshot files you ask for |
 | `/sc:sweep` (`superclaude sweep run`) | The coordinator or you | One read-only report on a Run, its worktrees and sessions | One dated report file |
 | `/sc:closeout` | The coordinator or you | Settles a pull request that already merged: the issue, the work report entry and the worker's Orca task | Comments and a close on GitHub; updates the entry and task |
@@ -21,6 +21,7 @@ This guide covers what each piece does and how to use it. The rules the coordina
 - **Workers run `--unattended`.** The brief gives each command `--unattended` and exactly one report directory. In that mode the command never stops to ask you a question, writes a `return-contract.yaml` on every outcome, and pushes, merges and opens nothing.
 - **Questions go to the coordinator.** A worker that needs a decision sends one message to the coordinator (once per Task). Those messages are what the observer's questions screen lists.
 - **Orca creates the worktrees** at its default location. Do not create them with raw `git worktree add`.
+- **Workers that edit project files need their own worktree.** Report-only workers may share the feature worktree, because they write only under `.dev/`. A worker that runs `/sc:implement` while anything else may write outside `.dev/` in the same worktree, or whose brief grants a local commit, gets its own child worktree (rule WC-11 in the worker contract). The coordinator decides this when it writes the brief.
 - **PRs go through `/sc:pr-submit --monitor 3`**, on `IronbellyOrg/IronClaude` only.
 - Some commands are never workers: `/sc:pr-submit`, `/sc:sweep` and `/sc:closeout` stay with the coordinator or the person.
 
