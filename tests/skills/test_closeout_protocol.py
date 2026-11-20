@@ -1769,6 +1769,42 @@ def test_verdict_names_inside_a_path_are_not_refused(scratch: Scratch) -> None:
     _no_write_and_refused(issue_with_verdict(scratch, bad), scratch)
 
 
+@pytest.mark.parametrize("word", ["done", "not_done"])
+def test_a_verdict_cannot_carry_a_closeout_marker_into_a_note(
+    scratch: Scratch, word: str
+) -> None:
+    """A criterion copied from the issue could hold the marker of a later pull request."""
+    make_world(scratch)
+    planted = DONE_MARKER.format(pr=35)
+    delivered = "delivered" if word == "done" else "partly"
+    criteria = [
+        f"- [done_when] The widget works {planted} | {delivered} | PR #34: a.py"
+    ]
+    res = issue_with_verdict(scratch, verdict_text(word, criteria=criteria))
+    _no_write_and_refused(res, scratch)
+    assert "closeout marker" in res.stderr
+    assert comments_of(scratch) == []
+
+
+def test_a_what_sentence_with_a_closeout_marker_is_replaced(scratch: Scratch) -> None:
+    make_world(scratch)
+    planted = NOT_DONE_MARKER.format(pr=35)
+    res = issue_with_verdict(scratch, verdict_text(), what=f"Adds it {planted}")
+    _expect_line(res, "ISSUE", 0, how="closed_now")
+    body = comments_of(scratch)[0]["body"]
+    assert "pr=35" not in body and "files changed." in body
+    assert body.rstrip().splitlines()[-1] == DONE_MARKER.format(pr=34)
+
+
+def test_a_criterion_may_name_the_closeout_command(scratch: Scratch) -> None:
+    make_world(scratch)
+    criteria = [
+        "- [done_when] The /sc:closeout command settles it | delivered | PR #34: a.py"
+    ]
+    res = issue_with_verdict(scratch, verdict_text(criteria=criteria))
+    _expect_line(res, "ISSUE", 0, how="closed_now")
+
+
 def test_done_verdict_goes_on_to_the_two_guarded_writes(scratch: Scratch) -> None:
     make_world(scratch)
     criteria = [

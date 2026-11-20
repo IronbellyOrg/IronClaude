@@ -164,6 +164,12 @@ text_refused() {
         printf 'settle: the text holds an em dash or an en dash\n' >&2
         return 0
     fi
+    # The closeout markers are owned by this script: text that a person wrote (a
+    # criterion) must never carry one into a posted note, where a later run would count it.
+    if grep -qF -e 'sc:closeout pr=' -- "$file"; then
+        printf 'settle: the text holds a closeout marker\n' >&2
+        return 0
+    fi
     if [ -n "$title" ] && grep -qiF -- "$title" "$file"; then
         printf 'settle: the text quotes the pull request title\n' >&2
         return 0

@@ -81,7 +81,7 @@ The closing note carries one sentence, `--what`, written by the model: one plain
 
 No output names the agent or the model, and the pull request title is never quoted. People are credited by name: the name on the merger's public profile, else the login; a merger that GitHub does not report is written "someone GitHub does not name".
 
-`scripts/deny-names.txt` holds the names (it is the one accepted place that lists them). The script refuses a verdict file, and replaces a `--what` sentence, whose text holds a listed name, the target pull request's title (any letter case), or an em dash or an en dash. Matching rule for a name: case-insensitive, as a whole word; a name inside a path or file-name token (a run of letters, digits, underscore, dot, slash and hyphen that holds a slash, or a dot followed by a letter or digit, such as `skills/x.md` or `.config/settings.json`) is not a match, so a criterion that cites a repository path passes.
+`scripts/deny-names.txt` holds the names (it is the one accepted place that lists them). The script refuses a verdict file, and replaces a `--what` sentence, whose text holds a listed name, the target pull request's title (any letter case), an em dash or an en dash, or the text of a closeout marker (`sc:closeout pr=`), which only this script writes, so a criterion copied from an issue can never plant one in a posted note. Matching rule for a name: case-insensitive, as a whole word; a name inside a path or file-name token (a run of letters, digits, underscore, dot, slash and hyphen that holds a slash, or a dot followed by a letter or digit, such as `skills/x.md` or `.config/settings.json`) is not a match, so a criterion that cites a repository path passes.
 
 ## 7. Known limits
 
