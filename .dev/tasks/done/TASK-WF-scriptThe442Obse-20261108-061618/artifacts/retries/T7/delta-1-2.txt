@@ -1,0 +1,125 @@
+diff --git a/.dev/issues/442/scripts/evidence-selftest.sh b/.dev/issues/442/scripts/evidence-selftest.sh
+index 2a3cbee0c..4335dcbc4 100644
+--- a/.dev/issues/442/scripts/evidence-selftest.sh
++++ b/.dev/issues/442/scripts/evidence-selftest.sh
+@@ -182,6 +182,15 @@ ck secret-bearer-rc "$RC" 3
+ ck secret-bearer-no-copy "$([ -e "$S/art/ob-logs" ] && echo copied || echo none)" none
+ hasnt secret-bearer-not-in-report "$(cat "$S/results.md")" 'zzTopSecretValue99'
+ hasnt secret-bearer-not-printed "$OUT" 'zzTopSecretValue99'
++# the quoted sk- pattern still matches inside another word, so a planted xsk- value stops the copy
++mkenv sec4; good_h1; full_gov
++printf '{"hook_event_name":"UserPromptSubmit","session_id":"x","prompt":"xsk-abcdefghij"}\n' >> "$O/logs/h1.jsonl"
++ev all; ck secret-sk-rc "$RC" 3
++hasnt secret-sk-not-in-report "$(cat "$S/results.md")" 'xsk-abcdefghij'
++# an MCP tool named like send_message is an MCP name, not a SendMessage failure
++mkenv mcpsend; good_h1
++printf '{"hook_event_name":"PreToolUse","session_id":"parent-session-0001","tool_name":"mcp__slack__send_message","tool_input":{}}\n' >> "$O/logs/h1m.jsonl"
++ev all; ck item7-mcp-send-message-pass "$(res 'OB-H1 item 7')" PASS
+ # the word task-notification is not a secret
+ mkenv sec3; good_h1; full_gov
+ ev all; ck notice-word-not-secret "$RC" 0
+diff --git a/.dev/issues/442/scripts/evidence.sh b/.dev/issues/442/scripts/evidence.sh
+index 8caa24580..1915af1e8 100644
+--- a/.dev/issues/442/scripts/evidence.sh
++++ b/.dev/issues/442/scripts/evidence.sh
+@@ -17,8 +17,9 @@ T=${OB_TIMEOUT_S:-60}
+ LOGS=$OB_LOGS
+ GOVLOG=$OB/gov-log.txt
+ READINGS=$OB/readings.txt
+-# sk- must start a word, or "task-notification" would match
+-SECRET_RE='gh[pousr]_[A-Za-z0-9]{20,}|github_pat_|(^|[^A-Za-z0-9_])sk-[A-Za-z0-9]|CLICKUP_API_TOKEN=|Bearer |Authorization:|-----BEGIN|_TOKEN=|_KEY='
++SECRET_RE='gh[pousr]_[A-Za-z0-9]{20,}|github_pat_|sk-[A-Za-z0-9]|CLICKUP_API_TOKEN=|Bearer |Authorization:|-----BEGIN|_TOKEN=|_KEY='
++# The word "task-notification" holds "sk-n"; neutralise it before a match and restore it after.
++neutral() { sed -E 's/task-notification/task\x01notification/g'; }
+ 
+ # --- runbook extraction (the commands run are the runbook's own text) -------------------
+ section_block() {  # section_block <heading regex> <marker regex>: the first ```bash block after the marker
+@@ -49,9 +50,9 @@ sel=${1:-}
+ case "$sel" in 1|2|3|4|5|6|7|8|9|h2|h3|ctx|all) ;; *) printf 'usage: evidence.sh <1..9|h2|h3|ctx|all>\n' >&2; exit 2 ;; esac
+ 
+ # --- small helpers ------------------------------------------------------------------------
+-redact() { sed -E "s/.*($SECRET_RE).*/[line withheld: secret pattern]/"; }
+-run_text() {  # run_text <command text> [L]: run extracted text, capped output
+-  L="${2:-}" MAIN="${MAIN_ID:-}" OB="$OB" command timeout "$T" bash -c "$1" 2>&1 | cut -c1-240 | redact
++redact() { neutral | sed -E "s/.*($SECRET_RE).*/[line withheld: secret pattern]/" | sed 's/\x01/-/g'; }
++run_text() {  # run_text <command text> [L]: run extracted text, redacted before it is cut
++  L="${2:-}" MAIN="${MAIN_ID:-}" OB="$OB" command timeout "$T" bash -c "$1" 2>&1 | redact | cut -c1-240
+ }
+ jqs() { command timeout "$T" jq -s -r "$2" "${@:3}" "$1" 2>/dev/null; }          # jqs <prog> <file> [--arg ...]
+ jqs_files() { local prog=$1; shift; command timeout "$T" jq -s -r "$prog" "$@" 2>/dev/null; }
+@@ -188,7 +189,7 @@ item_7() {
+   [ -s "$f1" ] || [ -s "$f2" ] || { part log pending "no log file: $f1, $f2"; return; }
+   from_rule "SendMessage and MCP tool names" "$(jqs_files '
+     [.[]|select(.hook_event_name=="PreToolUse")|.tool_name] as $n
+-    | if any($n[]; (test("send_?message";"i")) and . != "SendMessage") then "FAIL|SendMessage arrives in another form"
++    | if any($n[]; (startswith("mcp__")|not) and (test("send_?message";"i")) and . != "SendMessage") then "FAIL|SendMessage arrives in another form"
+       elif any($n[]; contains("__") and (startswith("mcp__")|not)) then "FAIL|an MCP tool arrives in a form other than mcp__<server>__<tool>"
+       elif (any($n[]; . == "SendMessage")|not) then "pending|no SendMessage call (record that the model has no SendMessage tool)"
+       elif (any($n[]; startswith("mcp__"))|not) then "pending|no MCP tool call (no MCP server)"
+@@ -373,7 +374,7 @@ header() {
+ 
+ if [ "$sel" != all ]; then
+   for e in "${names[@]}"; do
+-    [ "${e#*:}" = "$sel" ] || [ "${e%%:*}" = "OB-H1 item $sel" ] && emit_block "${e%%:*}" "${e#*:}"
++    [ "${e#*:}" = "$sel" ] || [ "${e%%:*}" = "OB-H1 item $sel" ] && { emit_block "${e%%:*}" "${e#*:}"; } | redact
+   done
+   exit 0
+ fi
+@@ -390,7 +391,9 @@ TMP=$(mktemp "$RESULTS.XXXXXX")
+ printf 'RESULTS %s blocks=%s\n' "$RESULTS" "$(grep -c '^## ' "$RESULTS")"
+ 
+ # --- copy logs, screens and state after the secret scan -----------------------------------------
+-hits=$(grep -rnIE "$SECRET_RE" "$LOGS" "$OB_SCREENS" "$OB_STATE" 2>/dev/null | cut -d: -f1,2)
++hits=$(find "$LOGS" "$OB_SCREENS" "$OB_STATE" -type f 2>/dev/null | sort | while read -r f; do
++  neutral < "$f" | grep -nIE "$SECRET_RE" | cut -d: -f1 | sed "s|^|$f:|"
++done)
+ if [ -n "$hits" ]; then
+   printf 'SECRET_SCAN_STOP the copy to ob-logs was not made; matches (file:line):\n%s\n' "$hits"
+   exit 3
+diff --git a/.dev/issues/442/scripts/session-gov-selftest.sh b/.dev/issues/442/scripts/session-gov-selftest.sh
+index 1572ce0be..e378e37da 100644
+--- a/.dev/issues/442/scripts/session-gov-selftest.sh
++++ b/.dev/issues/442/scripts/session-gov-selftest.sh
+@@ -109,9 +109,10 @@ results() {  # results <item1 result> <item5 result>
+   printf '# r\n\n## OB-H1 item 1\n\n- Result: %s\n- Session: A\n\n## OB-H1 item 5\n\n- Result: %s\n' "$1" "$2" > "$S/results.md"
+ }
+ claim_json() {  # claim_json <status> <warning> <detail> <terminal|null> [rm path 1] [rm path 2]
+-  local term=null rel=null
++  local term=null rel=null ino="; this launch's record has inode number ${CLAIM_INODE:-0}: run ls -i"
++  [ "${CLAIM_INODE:-}" != none ] || ino=""   # a claim that could not read the inode prints no number
+   [ "$4" = null ] || term="\"$4\""
+-  [ $# -ge 6 ] && rel="\"to release this session, a person runs in their own terminal: rm \\\"$5\\\" \\\"$6\\\" (every file in the sessions folder is named by a session id; this launch's record has inode number ${CLAIM_INODE:-0}: run ls -i)\""
++  [ $# -ge 6 ] && rel="\"to release this session, a person runs in their own terminal: rm \\\"$5\\\" \\\"$6\\\" (every file in the sessions folder is named by a session id$ino)\""
+   printf '{"status": "%s", "warning": "%s", "detail": "%s", "terminal": %s, "launched_at": null, "release": %s, "layers": ["L1 guard: effective (the IR-4 preflight passed)", "L2 pre-push: absent"]}\n' "$1" "$2" "$3" "$term" "$rel"
+ }
+ qpush() {  # qpush <handle> <n> <content>
+@@ -213,6 +214,14 @@ qpush h-claim 2 "$(claim_json failed W-ENFORCEMENT-ABSENT 'x sets disableAllHook
+ qpush h-claim 3 "$(CLAIM_INODE=1 claim_json launched W-L2-ABSENT x term_gb "$(RELP)" "$(RELP).ok")"
+ runsub b
+ has b-inode-mismatch "$OUT" 'FAIL b-inode session file inode'
++# a claim that printed no inode number leaves the record PENDING, not FAIL
++mkenv b4; results PASS PASS
++seed T1 gsid-b-1; for f in gsid-b-1 gsid-b-1.ok; do printf x > "$H/.claude/state/launch-level/sessions/$f"; done
++qpush h-claim 1 "$(claim_json failed W-ENFORCEMENT-ABSENT 'settings.local.json cannot be read as JSON (x)' null)"
++qpush h-claim 2 "$(claim_json failed W-ENFORCEMENT-ABSENT 'x sets disableAllHooks to true, so no hook runs' null)"
++qpush h-claim 3 "$(CLAIM_INODE=none claim_json launched W-L2-ABSENT x term_gb "$(RELP)" "$(RELP).ok")"
++runsub b
++has b-inode-unreadable "$OUT" 'PENDING b-inode the claim printed no inode number'
+ 
+ # --- 5. session b: a failed backup stops before anything is touched -------------------------
+ mkenv b2; results PASS PASS; rm -f "$S/wts/T1/.claude/settings.local.json"
+diff --git a/.dev/issues/442/scripts/session-gov.sh b/.dev/issues/442/scripts/session-gov.sh
+index 8270b2a47..75a88325c 100644
+--- a/.dev/issues/442/scripts/session-gov.sh
++++ b/.dev/issues/442/scripts/session-gov.sh
+@@ -219,7 +219,9 @@ inode_record() {  # runbook step 2 (lines 576-580): the session file's inode aga
+   want=$(printf '%s' "$CLAIM_LAST" | grep -oE 'inodenumber[0-9]+' | head -1 | tr -dc '0-9')
+   if [ ! -e "$f" ]; then rec b-inode FAIL "no session file named $GSID in $SESS"; return 0; fi
+   have=$(stat -c '%i %h' "$f")
+-  if [ -n "$want" ] && [ "${have%% *}" = "$want" ]; then
++  if [ -z "$want" ]; then
++    rec b-inode PENDING "the claim printed no inode number (session file inode ${have%% *}, link count ${have##* }); check by hand which file is this launch's"
++  elif [ "${have%% *}" = "$want" ]; then
+     rec b-inode OK "session file $GSID holds inode ${have%% *}, equal to the claim's $want; link count ${have##* }"
+   else
+     rec b-inode FAIL "session file inode ${have%% *} (link count ${have##* }), claim inode ${want:-unreadable}"

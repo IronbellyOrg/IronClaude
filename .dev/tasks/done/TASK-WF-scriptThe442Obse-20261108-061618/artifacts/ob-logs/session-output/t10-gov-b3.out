@@ -1,0 +1,4 @@
+BEGIN b-backup
+OK b-backup /tmp/ob/t1-local.json
+BEGIN b-pending-before
+OK b-pending-before 0

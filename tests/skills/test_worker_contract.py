@@ -420,31 +420,13 @@ RULE_PHRASES = {
             "A refusal is report-only: the worker never installs or refreshes a command copy and never rewrites its own brief",
         ],
     ),
-    "issue-pipeline-duties": (
+    "messages-carry-no-to": (
         None,
         [
-            "### Issue pipeline duties",
-            'Route B adds no exception to "never answer a person prompt"',
-            "only a `created` result may start a worker",
-            "Never start again for an `uncertain` row",
-            "worker-start --worktree path:<exact path it printed>",
-            "Create the plan-hash approval row (`record-create`) only when the worker's `ask` carries the plan hash",
-            "act on a Status move alone",
-            "post an issue write without that issue's grant row",
-        ],
-    ),
-    "wc17-plan-approval": (
-        None,
-        [
-            "**WC-17. Plan approval is the reply to the worker's own ask.**",
-            "(1) runs `superclaude issue-pipeline plan-hash",
-            "(4) runs `superclaude issue-pipeline check-approval",
-            "(5) sends `ack <message_id> applied` or `ack <message_id> refused`",
-            "(6) continues only on `applied`",
+            "**Messages carry no `--to`.**",
             "`ask` and `send` commands carry no `--to`",
+            "Orca's default is the owning Run mailbox, the worker's own coordinator",
             "the launch-level guard blocks any `--to` from a bound worker",
-            "never treats a bare `approved`, or any text that is not the reply to its own ask, as approval",
-            "A mismatch is refused and reported, not retried silently",
         ],
     ),
     "brief-worktree-path-slot": (
@@ -3220,39 +3202,11 @@ def test_audit_fails_on_unclassified_write_verb(tmp_path, monkeypatch):
         _check_all_classified()
 
 
-# --- Issue pipeline duties (Plan B Task 9) -----------------------------------
+# --- The no-to rule, kept after the plan-approval gate was retired (issue 655) ---
 
 
-def _adoption_bullet(text: str) -> str:
-    bullets = [
-        ln for ln in text.splitlines() if ln.startswith("- **Adopt from sources")
-    ]
-    assert len(bullets) == 1, "expected one adoption bullet"
-    return bullets[0]
-
-
-def _check_adoption_sources(text: str) -> None:
-    bullet = _adoption_bullet(text)
-    assert "worktree.json" not in bullet, "adoption names worktree.json as a source"
-    assert "dispatch.json" in bullet
-    assert ".dev/issues/<N>/issue-summary.md" in bullet
-
-
-def test_adoption_names_only_sources_that_exist_after_pipeline_none():
-    _check_adoption_sources(_contract())
-
-
-def test_adoption_check_fails_when_worktree_json_is_named(tmp_path, monkeypatch):
-    text = _contract().replace(
-        "writes no worktree record",
-        "writes no `worktree.json`, but read `worktree.json`",
+def test_the_no_to_rule_sits_in_the_worker_session_duties():
+    section = (
+        _contract().split("## 3. Worker-session duties", 1)[1].split("\n## 4.", 1)[0]
     )
-    _patched_copy(tmp_path, monkeypatch, text)
-    with pytest.raises(AssertionError):
-        _check_adoption_sources(_contract())
-
-
-def test_issue_pipeline_duties_allow_no_typing_into_a_worker_prompt():
-    section = _contract().split("### Issue pipeline duties", 1)[1].split("\n### ", 1)[0]
-    assert "terminal send" not in section
-    assert "types nothing into a worker's terminal" in section
+    assert "`ask` and `send` commands carry no `--to`" in section

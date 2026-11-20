@@ -1,0 +1,6 @@
+6fdae45fcfb2d8f73b7acb9b87a530ab57ee0517
+A3 r3-1 F5.3 minor .dev/issues/442/scripts/setup-github.sh:51 ac=T5.AC3 n n n n: the driver send exit status is ignored and the newest screen is read; a failed claim send would leave the earlier issue's Worktree line to be recorded for this issue.
+A3 r3-1 F5.4 minor .dev/issues/442/scripts/setup-github.sh:13 ac=T5.AC1 n n n n: a partial state (T1 and T2 only, after a failed create) skips creation and step 3 then claims with an empty number.
+A3 r3-1 F5.5 minor .dev/issues/442/scripts/setup-github.sh:19 ac=scope n n n n: four template copies are left in /tmp outside OB and never removed; RB at line 10 is unused.
+A3 r3-1 F5.6 note .dev/issues/442/scripts/session-a.sh:71 ac=scope n n n n: Task 4's session-a-selftest.sh appends fake item4 answer lines to the real artifacts/t10-run-log.md on every selftest run (T4-owned, not in this task's files; follow-up before Task 10, which uses that log as evidence).
+A3 r3-2 F5.3.1 minor .dev/issues/442/scripts/setup-github.sh:13 ac=scope n n n n: partial-create recovery: if creation fails after T1 is recorded, a rerun skips creation and the claim loop would send an empty issue number (same family as F5.4; operator-recovery edge, no AC covers it).

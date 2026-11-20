@@ -1,0 +1,57 @@
+diff --git a/.dev/issues/442/scripts/selftest.sh b/.dev/issues/442/scripts/selftest.sh
+index 67a23207b..6e053832c 100644
+--- a/.dev/issues/442/scripts/selftest.sh
++++ b/.dev/issues/442/scripts/selftest.sh
+@@ -65,6 +65,12 @@ printf '%s\n' "$*" >> "$L/gh.log"
+ case "$1 $2" in
+   'issue create')
+     n=$(( $(cat "$L/issue-n" 2>/dev/null || echo 420) + 1 )); printf '%s' "$n" > "$L/issue-n"
++    # capture the --body-file content so a case can assert what the body says
++    prev=""
++    for a in "$@"; do
++      [ "$prev" = "--body-file" ] && cat "$a" >> "$L/bodies.txt" 2>/dev/null
++      prev=$a
++    done
+     printf 'https://github.com/IronbellyOrg/IronClaude/issues/%s\n' "$n" ;;
+   *)  case "$1" in
+         --version) printf 'gh version 0.0.0-stub\n' ;;
+diff --git a/.dev/issues/442/scripts/setup-github-selftest.sh b/.dev/issues/442/scripts/setup-github-selftest.sh
+index 4f63db464..33af2a52d 100644
+--- a/.dev/issues/442/scripts/setup-github-selftest.sh
++++ b/.dev/issues/442/scripts/setup-github-selftest.sh
+@@ -67,8 +67,13 @@ ck sg-done "$(tail -1 "$T/out1")" "SETUP_GITHUB_OK"
+ # 2. four issue-create calls, each --repo pinned and --body-file used, no rerun set
+ grep -c -- '--repo IronbellyOrg/IronClaude' "$L/gh.log" | grep -qx 4 && ck sg-four-creates ok ok || ck sg-four-creates "$(grep -c -- '--repo IronbellyOrg/IronClaude' "$L/gh.log")" 4
+ grep -c -- '--body-file' "$L/gh.log" | grep -qx 4 && ck sg-bodyfile ok ok || ck sg-bodyfile "$(grep -c -- '--body-file' "$L/gh.log")" 4
+-# this case checks only the create count: the stub gh logs its arguments and does
+-# not inspect the template content (the fill itself is not asserted here)
++# the stub gh copies each --body-file into $L/bodies.txt: the filled body must carry
++# the runbook's body text verbatim (runbook line 178) and leave no placeholder.
++grep -c -F 'Touch nothing else. Close without merging anything.' "$L/bodies.txt" | grep -qx 4 \
++  && ck sg-body-instruction ok ok || ck sg-body-instruction "$(grep -c -F 'Touch nothing else. Close without merging anything.' "$L/bodies.txt")" 4
++grep -c -F 'The only change wanted: create the file ob-442/' "$L/bodies.txt" | grep -qx 4 \
++  && ck sg-body-change ok ok || ck sg-body-change "$(grep -c -F 'The only change wanted: create the file ob-442/' "$L/bodies.txt")" 4
++grep -c -E '^<[^>]*>$' "$L/bodies.txt" | grep -qx 0 && ck sg-body-no-placeholder ok ok || ck sg-body-no-placeholder "$(grep -c -E '^<[^>]*>$' "$L/bodies.txt")" 0
+ grep -c 'issue create' "$L/gh.log" | grep -qx 4 && ck sg-create-count ok ok || ck sg-create-count "$(grep -c 'issue create' "$L/gh.log")" 4
+ 
+ # 3. rerun refused: state holds numbers, so no second create set
+diff --git a/.dev/issues/442/scripts/setup-github.sh b/.dev/issues/442/scripts/setup-github.sh
+index 012ae8b1d..77a1a91b1 100644
+--- a/.dev/issues/442/scripts/setup-github.sh
++++ b/.dev/issues/442/scripts/setup-github.sh
+@@ -18,10 +18,12 @@ else
+     # issue rule (never edit the installed template itself).
+     tpl=$(mktemp)
+     cp "$HOME/.claude/ISSUE-HANDOFF.md" "$tpl"
++    # The runbook's body text (runbook line 178) is carried verbatim: the first
++    # sentence under "What was tried", the rest under "Done when".
+     sed -i \
+-      -e "s|<what has been tried so far, and what happened>|Nothing yet: this is a disposable target for the #442 live observations ($t).|" \
+-      -e "s|<paths, links, branches, pull requests>|ob-442/$t.txt (to be created)|" \
+-      -e "s|<the condition that means this work is finished>|ob-442/$t.txt exists holding the single line: ob-442 $t|" \
++      -e "s|<what has been tried so far, and what happened>|Disposable target for the #442 live observations ($t).|" \
++      -e "s|<paths, links, branches, pull requests>|ob-442/$t.txt|" \
++      -e "s|<the condition that means this work is finished>|The only change wanted: create the file ob-442/$t.txt holding the single line ob-442 $t. Touch nothing else. Close without merging anything.|" \
+       -e "s|<the person or agent this is handed to>|The observation run's governed sessions ($t)|" \
+       "$tpl"
+     n=$(gh_fork issue create --title "[ob-442 disposable $t] launch-level observation target" --body-file "$tpl" 2>&1 \

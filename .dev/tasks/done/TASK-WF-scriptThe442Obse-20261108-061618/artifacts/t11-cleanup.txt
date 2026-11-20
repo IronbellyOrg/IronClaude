@@ -1,0 +1,40 @@
+CLEANUP --apply
+  running: none
+STEP 1 OK sleep 241, 242 and 243 stopped if running
+  sessions diff:
+  (none)
+  pending diff:
+  (none)
+  after step 2, sessions diff:
+  (none)
+  after step 2, pending diff:
+  (none)
+  jobs and requests (listed, never removed): /home/coder/.claude/state/launch-level/jobs:  /home/coder/.claude/state/launch-level/requests: 
+STEP 2 OK nothing to remove
+STEP 3 OK worktreeConfigPre=unset: the key and the push URL are undone
+  removed /home/coder/workspaces/worktrees/IronClaude/issue-642 (only untracked files, --force)
+  removed /home/coder/workspaces/worktrees/IronClaude/issue-643 (only untracked files, --force)
+  removed /home/coder/workspaces/worktrees/IronClaude/issue-644 (only untracked files, --force)
+  removed /home/coder/workspaces/worktrees/IronClaude/issue-645 (only untracked files, --force)
+STEP 4 OK worktrees handled
+✓ Closed pull request IronbellyOrg/IronClaude#654 (chore: add disposable ob-442 T4 observation target (#645))
+✓ Deleted branch ironbelly/issue-645
+✓ Closed issue IronbellyOrg/IronClaude#642 ([ob-442 disposable T1] launch-level observation target)
+✓ Closed issue IronbellyOrg/IronClaude#643 ([ob-442 disposable T2] launch-level observation target)
+✓ Closed issue IronbellyOrg/IronClaude#644 ([ob-442 disposable T3] launch-level observation target)
+✓ Closed issue IronbellyOrg/IronClaude#645 ([ob-442 disposable T4] launch-level observation target)
+  note: the other claim branches may remain locally; list them with git branch --list (not deleted here)
+STEP 5 OK pull request and issues handled
+  left in place for the owner: /home/coder/workspaces/IronClaude/.dev/issues/642 /home/coder/workspaces/IronClaude/.dev/issues/643 /home/coder/workspaces/IronClaude/.dev/issues/644 /home/coder/workspaces/IronClaude/.dev/issues/645
+  L2 hook file /home/coder/workspaces/IronClaude/.git/hooks/pre-push: present now; before the run: present
+  L2 hook file /home/coder/workspaces/IronClaude/.git/hooks/pre-push.launch-level: present now; before the run: present
+  the L2 hook files above are not removed here: the owner decides whether to keep them
+STEP 6 OK nothing removed
+  store diff before step 7, sessions:
+  (none)
+  pending:
+  (none)
+STEP 7 OK /tmp/ob removed
+  present, not deleted (they belong to the earlier verification worker): none
+STEP 8 OK listed
+CLEANUP_DONE

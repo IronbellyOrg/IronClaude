@@ -1,0 +1,6 @@
+start=7e6f69c5c2938b68f592a8ec66bccfcb44b71815 tree=cc6907c95bedd6a5dae2df566ad70074c45b2df4
+AC T1.AC1 met .dev/issues/442/scripts/selftest.sh:57-59 (verified live; matches artifacts/t1-selftest.txt:9-10)
+AC T1.AC2 met .dev/issues/442/scripts/lib-selftest.sh:21-31
+AC T1.AC3 met .dev/issues/442/scripts/lib-selftest.sh:34-40
+F1.1 sev=blocking trigger=B4 ac=scope at=.dev/issues/442/scripts/lib.sh:47 anchor="refuses any argument matching `superclaude-org` case-insensitively" chk=amiss:n,false:n,harm:n,constraint:y family=gh-refuse-case fix="Match with nocasematch or lowercased copy; covers explicit --repo/-R slugs" covers="refuses any argument matching `superclaude-org` case-insensitively" first=A1 origin=new: Glob *[Ss]uper[Cc]laude-[Oo]rg* is not case-insensitive; SUPERCLAUDE-ORG/x, SuperClaude-ORG/x pass through to gh.
+F1.2 sev=blocking trigger=B4 ac=scope at=.dev/issues/442/scripts/lib.sh:71 anchor="every external call bounded by `timeout`" chk=amiss:n,false:n,harm:n,constraint:y family=timeout-bound fix="Wrap gh/git and the selftest's external calls with timeout" covers="every external call bounded by `timeout`" first=A1 origin=new: command gh, git worktree list and the selftest's own external calls run unbounded (plan Constraints line 26).

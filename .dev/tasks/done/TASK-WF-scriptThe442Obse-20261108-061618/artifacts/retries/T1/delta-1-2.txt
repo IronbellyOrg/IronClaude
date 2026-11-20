@@ -1,0 +1,202 @@
+diff --git a/.dev/issues/442/scripts/lib-selftest.sh b/.dev/issues/442/scripts/lib-selftest.sh
+deleted file mode 100644
+index f593af40d..000000000
+--- a/.dev/issues/442/scripts/lib-selftest.sh
++++ /dev/null
+@@ -1,45 +0,0 @@
+-#!/usr/bin/env bash
+-# lib-selftest.sh — Task 1 cases for lib.sh, run by selftest.sh.
+-set -u -o pipefail
+-umask 077
+-
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-failures=0
+-ck() { if [ "$2" = "$3" ]; then printf 'OK %s\n' "$1"; else printf 'FAIL %s got=<%s> want=<%s>\n' "$1" "$2" "$3"; failures=$((failures+1)); fi; }
+-
+-# 1. bash -n on lib.sh
+-if bash -n "$here/lib.sh"; then ck lib-bash-n ok ok; else ck lib-bash-n fail ok; fi
+-
+-# Isolated OB root for these cases.
+-T=$(mktemp -d /tmp/ob-lib.XXXXXXXX)
+-export OB=$T
+-# shellcheck source=lib.sh
+-source "$here/lib.sh"
+-
+-# 2. gh_fork pins --repo on a normal subcommand and the stub receives it.
+-mkdir -p "$T/stublog"; export OB_STUB_LOG=$T/stublog
+-out=$(gh_fork issue list)
+-grep -q -- '--repo IronbellyOrg/IronClaude' "$T/stublog/gh.log" \
+-  && ck gh-fork-repo ok ok || ck gh-fork-repo missing ok
+-
+-# 3. gh_fork api refuses a path outside the fork.
+-rm -f "$T/stublog/gh.log"
+-if gh_fork api repos/SuperClaude-Org/x 2>/dev/null; then
+-  ck gh-fork-refuse called ok
+-else
+-  if [ -e "$T/stublog/gh.log" ]; then ck gh-fork-refuse reached-stub ok; else ck gh-fork-refuse ok ok; fi
+-fi
+-
+-# 4. state file round-trip, including a value with spaces, no eval.
+-state_set T1 421
+-state_set WT_T1 "$T/wt one"
+-state_set PR_URL "https://github.com/IronbellyOrg/IronClaude/pull/9"
+-ck state-get-num "$(state_get T1)" 421
+-ck state-get-spaces "$(state_get WT_T1)" "$T/wt one"
+-ck state-get-url "$(state_get PR_URL)" "https://github.com/IronbellyOrg/IronClaude/pull/9"
+-if state_get ABSENT >/dev/null 2>&1; then ck state-get-absent found missing; else ck state-get-absent ok ok; fi
+-
+-# 5. step output shape.
+-ck step-shape "$(step s1 OK | tr '\n' '|')" "BEGIN s1|OK s1|"
+-
+-exit $failures
+diff --git a/.dev/issues/442/scripts/lib.sh b/.dev/issues/442/scripts/lib.sh
+deleted file mode 100644
+index 4fa3d8253..000000000
+--- a/.dev/issues/442/scripts/lib.sh
++++ /dev/null
+@@ -1,77 +0,0 @@
+-#!/usr/bin/env bash
+-# lib.sh — shared helpers for the #442 observation scripts.
+-# Source this from every script: source "$(dirname "$0")/lib.sh"
+-# Plan: .dev/tasks/to-do/TASK-WF-scriptThe442Obse-20261108-061618 (Task 1)
+-# Every script that sources this must already run under `set -u -o pipefail` and umask 077.
+-
+-# Scratch root (runbook §1.2/§1.3). OB is overridable so selftest.sh can point
+-# the scripts at a temp directory instead of the real /tmp/ob.
+-OB=${OB:-/tmp/ob}
+-OB_BIN=$OB/bin
+-OB_LOGS=$OB/logs
+-OB_HOME=$OB/home
+-OB_SCREENS=$OB/screens
+-OB_STATE=$OB/state.env
+-OB_BASE_SESSIONS=$OB/baseline-sessions.txt
+-OB_BASE_PENDING=$OB/baseline-pending.txt
+-
+-# Package artifacts directory (absolute, never the project-root artifacts/).
+-# The workflow package that owns this run (plan + ledger + artifacts).
+-PKG_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)   # .../dev/issues/442
+-PKG_TASKS=${PKG_TASKS:-$(cd -- "$PKG_DIR/../../tasks" && pwd)/to-do/TASK-WF-scriptThe442Obse-20261108-061618}
+-PKG_ART=${PKG_ART:-$PKG_TASKS/artifacts}
+-
+-step() {
+-  # step <id> <status> [detail] — statuses: OK SKIP FAIL PENDING
+-  printf 'BEGIN %s\n%s %s%s\n' "$1" "$2" "$1" "${3:+ $3}"
+-}
+-
+-state_set() {
+-  # state_set <KEY> <VALUE> — append KEY=value; last wins on read.
+-  # VALUE is single-line (runbook values: ids, paths, numbers, URLs).
+-  printf '%s=%s\n' "$1" "$2" >> "$OB_STATE"
+-}
+-
+-state_get() {
+-  # state_get <KEY> — print the last value, or return 1 when absent.
+-  # Read without eval: only the first `=` splits; no quotes, no eval.
+-  [ -f "$OB_STATE" ] || return 1
+-  awk -F= -v k="$1" '$1==k{v=substr($0,length($1)+2); found=1} END{if(!found)exit 1; print v}' "$OB_STATE"
+-}
+-
+-gh_fork() {
+-  # gh_fork <args...> — gh with the fork pinned on every form.
+-  local a
+-  for a in "$@"; do
+-    case "$a" in
+-      *[Ss]uper[Cc]laude-[Oo]rg*|*superclaude-org*)
+-        printf 'gh_fork: refusing forbidden target: %s\n' "$a" >&2
+-        return 1
+-        ;;
+-    esac
+-  done
+-  case "$1" in
+-    api)
+-      case "$2" in
+-        repos/IronbellyOrg/IronClaude/*) ;;
+-        *)
+-          printf 'gh_fork: api path must be repos/IronbellyOrg/IronClaude/...: %s\n' "$2" >&2
+-          return 1
+-          ;;
+-      esac
+-      ;;
+-    *)
+-      # A command that accepts --repo gets it; append if not already present.
+-      case " $* " in
+-        *" --repo "*) ;;
+-        *) set -- "$@" --repo IronbellyOrg/IronClaude ;;
+-      esac
+-      ;;
+-  esac
+-  command gh "$@"
+-}
+-
+-main_checkout() {
+-  # Print the main checkout path (worktree list line without a `.git` suffix marker).
+-  git worktree list --porcelain | awk '/^worktree /{sub(/^worktree /,""); if ($0 !~ /\/\.git$/) {print; exit}}'
+-}
+diff --git a/.dev/issues/442/scripts/selftest.sh b/.dev/issues/442/scripts/selftest.sh
+deleted file mode 100644
+index a022b1cdf..000000000
+--- a/.dev/issues/442/scripts/selftest.sh
++++ /dev/null
+@@ -1,62 +0,0 @@
+-#!/usr/bin/env bash
+-# selftest.sh — harness for the #442 observation scripts.
+-# Later tasks append their cases to the case list below.
+-set -u -o pipefail
+-umask 077
+-
+-here=$(cd -- "$(dirname -- "$0")" && pwd)
+-failures=0
+-
+-# --- harness primitives -----------------------------------------------------
+-
+-begin() { printf 'BEGIN %s\n' "$1"; }
+-pass()  { printf 'OK %s\n' "$1"; }
+-fail()  { printf 'FAIL %s %s\n' "$1" "$2"; failures=$((failures+1)); }
+-skip()  { printf 'SKIP %s\n' "$1"; }
+-
+-# Stub orca and gh: they log their arguments and print canned JSON.
+-setup_stubs() {
+-  STUB_DIR=$(mktemp -d /tmp/ob-selftest.XXXXXXXX)
+-  mkdir -p "$STUB_DIR/bin"
+-  cat > "$STUB_DIR/bin/orca" <<'STUB'
+-#!/usr/bin/env bash
+-printf '%s\n' "$*" >> "${OB_STUB_LOG:-/dev/null}/orca.log"
+-case "$1" in
+-  terminal) case "$2" in
+-    create) printf '{"status":"ok","handle":"stub-handle"}\n' ;;
+-    read)   printf '{"screen":"ok"}\n' ;;
+-    *)      printf '{"status":"ok"}\n' ;;
+-  esac ;;
+-  *) printf '{"status":"ok"}\n' ;;
+-esac
+-STUB
+-  cat > "$STUB_DIR/bin/gh" <<'STUB'
+-#!/usr/bin/env bash
+-printf '%s\n' "$*" >> "${OB_STUB_LOG:-/dev/null}/gh.log"
+-case "$1" in
+-  issue) printf '{"number":421}\n' ;;
+-  *)     printf '{"status":"ok"}\n' ;;
+-esac
+-STUB
+-  chmod 0755 "$STUB_DIR/bin/orca" "$STUB_DIR/bin/gh"
+-  PATH="$STUB_DIR/bin:$PATH"
+-  export PATH
+-}
+-
+-# --- case list (later tasks append before the summary) ----------------------
+-
+-setup_stubs
+-T=${OB_STUB_LOG:-$STUB_DIR}
+-export OB_STUB_LOG=$T
+-
+-# T1 cases: lib.sh
+-bash "$here/lib-selftest.sh" || fail lib "lib-selftest exited $?"
+-
+-# --- summary ----------------------------------------------------------------
+-
+-if [ "$failures" -eq 0 ]; then
+-  printf 'SELFTEST_OK\n'
+-  exit 0
+-fi
+-printf 'SELFTEST_FAILED failures=%d\n' "$failures"
+-exit 1

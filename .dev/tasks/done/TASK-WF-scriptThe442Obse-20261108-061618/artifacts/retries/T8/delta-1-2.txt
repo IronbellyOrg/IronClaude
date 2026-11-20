@@ -1,0 +1,148 @@
+diff --git a/.dev/issues/442/scripts/cleanup-selftest.sh b/.dev/issues/442/scripts/cleanup-selftest.sh
+index a278d8184..c4e62981b 100644
+--- a/.dev/issues/442/scripts/cleanup-selftest.sh
++++ b/.dev/issues/442/scripts/cleanup-selftest.sh
+@@ -20,9 +20,12 @@ cat > "$T/bin/pgrep" <<'STUB'
+ #!/usr/bin/env bash
+ exit 1
+ STUB
+-for c in pkill gh; do
+-  printf '#!/usr/bin/env bash\nprintf "%s %%s\\n" "$*" >> "$CALLS"\nexit 0\n' "$c" > "$T/bin/$c"
+-done
++printf '#!/usr/bin/env bash\nprintf "pkill %%s\\n" "$*" >> "$CALLS"\nexit 0\n' > "$T/bin/pkill"
++cat > "$T/bin/gh" <<'STUB'
++#!/usr/bin/env bash
++printf 'gh %s\n' "$*" >> "$CALLS"
++exit "${STUB_GH_FAIL:-0}"
++STUB
+ cat > "$T/bin/rm" <<'STUB'
+ #!/usr/bin/env bash
+ printf 'rm %s\n' "$*" >> "$CALLS"
+@@ -178,6 +181,26 @@ ck gated-no-pr-close "$(grep -c 'pr close' "$CALLS")" 0
+ ck gated-issue-closes "$(grep -c '^gh issue close' "$CALLS")" 4
+ ck gated-end "$(printf '%s\n' "$OUT" | tail -1)" CLEANUP_DONE
+ 
++# --- 8b. the store diff is printed again right after step 2's removals ------------------------------------
++mkenv postdiff
++cl --apply
++before=$(printf '%s\n' "$OUT" | awk '/^  sessions diff:/{on=1;next} /^  pending diff:/{on=0} on')
++after=$(printf '%s\n' "$OUT" | awk '/after step 2, sessions diff:/{on=1;next} /after step 2, pending diff:/{on=0} on')
++has postdiff-before-lists-gsid "$before" '> gsid-1'
++has postdiff-after-label "$OUT" 'after step 2, sessions diff:'
++hasnt postdiff-after-gone "$after" 'gsid-1'
++
++# --- 8c. a failed gh call is reported, and the state is kept for a retry -------------------------------------
++mkenv ghfail
++run env STUB_GH_FAIL=1 timeout 120 bash "$here/cleanup.sh" --apply
++has ghfail-failed "$OUT" 'FAILED: gh_fork pr close 77 --delete-branch'
++has ghfail-step5 "$OUT" 'STEP 5 FAIL'
++has ghfail-step7 "$OUT" 'STEP 7 REFUSED'
++hasnt ghfail-no-done "$OUT" 'CLEANUP_DONE'
++ck ghfail-rc "$RC" 5
++ck ghfail-ob-kept "$([ -f "$OB/state.env" ] && echo kept)" kept
++rm -rf "$OB"
++
+ # --- 9. --force only for a worktree that holds nothing but untracked files -------------------------------
+ mkenv force
+ printf new > "$S/wts/T2/created.txt"                          # untracked: created by the run
+diff --git a/.dev/issues/442/scripts/cleanup.sh b/.dev/issues/442/scripts/cleanup.sh
+index 8fe39228b..cfa897a0f 100644
+--- a/.dev/issues/442/scripts/cleanup.sh
++++ b/.dev/issues/442/scripts/cleanup.sh
+@@ -25,11 +25,18 @@ fi
+ REFUSED=0
+ line() {
+   printf 'STEP %s %s %s%s\n' "$1" "$2" "${3:-}" "$([ "$APPLY" = 1 ] || printf ' (plan only, nothing done)')"
+-  [ "$2" != REFUSED ] || REFUSED=$((REFUSED + 1))
++  case "$2" in REFUSED|FAIL) REFUSED=$((REFUSED + 1)) ;; esac
+ }
+-act() {  # act <command...>: run it with --apply, else only say what would run
++ACTFAIL=0
++act() {  # act <command...>: run it with --apply and count a failure; else only say what would run
++  if [ "$APPLY" = 1 ]; then "$@" || { ACTFAIL=$((ACTFAIL + 1)); printf '  FAILED: %s\n' "$*"; }; else printf '  WOULD %s\n' "$*"; fi
++}
++act_soft() {  # like act, but a non-zero exit is normal (pkill finds no process)
+   if [ "$APPLY" = 1 ]; then "$@" || true; else printf '  WOULD %s\n' "$*"; fi
+ }
++done_line() {  # done_line <step> <ACTFAIL at the start of the step> <ok text>
++  if [ "$ACTFAIL" -gt "$2" ]; then line "$1" FAIL "a command failed (see FAILED above); nothing was retried"; else line "$1" OK "$3"; fi
++}
+ tgit() { command timeout "$T" git "$@"; }
+ sv() { state_get "$1" 2>/dev/null || true; }
+ MAIN=${OB_MAIN:-$(main_checkout)}
+@@ -39,7 +46,7 @@ step1() {
+   local out n
+   out=$(pgrep -af 'sleep 24[123]$' 2>/dev/null || true)
+   printf '  running: %s\n' "${out:-none}"
+-  for n in 241 242 243; do act command timeout "$T" pkill -xf "sleep $n"; done
++  for n in 241 242 243; do act_soft command timeout "$T" pkill -xf "sleep $n"; done
+   line 1 OK "sleep 241, 242 and 243 stopped if running"
+ }
+ 
+@@ -57,7 +64,7 @@ recorded_gsid() {  # recorded_gsid <name>: this run's GSID or its .ok file
+   return 1
+ }
+ step2() {
+-  local d1 d2 name removed=0 skipped=0
++  local d1 d2 name removed=0 skipped=0 f0=$ACTFAIL
+   if [ ! -f "$OB_BASE_SESSIONS" ] || [ ! -f "$OB_BASE_PENDING" ]; then
+     line 2 REFUSED "baseline files missing ($OB_BASE_SESSIONS, $OB_BASE_PENDING)"; return
+   fi
+@@ -76,19 +83,23 @@ step2() {
+     [ -n "$name" ] || continue
+     printf '  SKIP pending/%s is new and is not a session file (left in place)\n' "$name"; skipped=$((skipped + 1))
+   done < <(printf '%s\n' "$d2" | new_names)
++  if [ "$APPLY" = 1 ]; then   # the diffs again right after the removals (runbook 799-800)
++    d1=$(store_diff sessions "$OB_BASE_SESSIONS"); d2=$(store_diff pending "$OB_BASE_PENDING")
++    printf '  after step 2, sessions diff:\n%s\n  after step 2, pending diff:\n%s\n' "${d1:-  (none)}" "${d2:-  (none)}"
++  fi
+   printf '  jobs and requests (listed, never removed): %s\n' "$(ls -A "$SD/jobs" "$SD/requests" 2>/dev/null | tr '\n' ' ')"
+-  if [ "$removed" -eq 0 ] && [ "$skipped" -eq 0 ]; then line 2 OK "nothing to remove"; else line 2 OK "removed $removed, skipped $skipped"; fi
++  if [ "$removed" -eq 0 ] && [ "$skipped" -eq 0 ]; then done_line 2 "$f0" "nothing to remove"; else done_line 2 "$f0" "removed $removed, skipped $skipped"; fi
+ }
+ 
+ # --- step 3: the session E push setup, only when this run set the key ----------------------
+ step3() {
+-  local pre wt4
++  local pre wt4 f0=$ACTFAIL
+   pre=$(sv worktreeConfigPre); wt4=$(sv WT_T4)
+   if [ -z "$wt4" ] || [ ! -d "$wt4" ]; then line 3 SKIP "no T4 worktree recorded or present"; return; fi
+   if [ "$pre" = unset ]; then
+     [ -z "$(tgit -C "$wt4" config --worktree --get remote.origin.pushurl 2>/dev/null)" ] || act tgit -C "$wt4" config --worktree --unset remote.origin.pushurl
+     [ -z "$(tgit -C "$wt4" config --get extensions.worktreeConfig 2>/dev/null)" ] || act tgit -C "$wt4" config --unset extensions.worktreeConfig
+-    line 3 OK "worktreeConfigPre=unset: the key and the push URL are undone"
++    done_line 3 "$f0" "worktreeConfigPre=unset: the key and the push URL are undone"
+   else
+     printf '  extensions.worktreeConfig=%s pushurl=%s\n' "$(tgit -C "$wt4" config --get extensions.worktreeConfig 2>/dev/null)" "$(tgit -C "$wt4" config --worktree --get remote.origin.pushurl 2>/dev/null)"
+     line 3 SKIP "worktreeConfigPre=${pre:-absent}: nothing changed, current values listed"
+@@ -121,7 +132,7 @@ step4() {
+ 
+ # --- step 5: the pull request and the issues, only the ones the state recorded -------------------------
+ step5() {
+-  local url n t
++  local url n t f0=$ACTFAIL
+   url=$(sv PR_URL)
+   case "$url" in
+     '') printf '  SKIP pull request: no PR_URL in the state\n' ;;
+@@ -134,7 +145,7 @@ step5() {
+     act gh_fork issue close "$n" --reason "not planned"
+   done
+   printf '  note: the other claim branches may remain locally; list them with git branch --list (not deleted here)\n'
+-  line 5 OK "pull request and issues handled"
++  done_line 5 "$f0" "pull request and issues handled"
+ }
+ 
+ # --- step 6: the claim records stay in the main checkout ---------------------------------------------------
+@@ -159,9 +170,11 @@ step7() {
+   [ -f "$OB_BASE_SESSIONS" ] && [ -f "$OB_BASE_PENDING" ] || why="baseline files missing"
+   [ -d "$PKG_ART/ob-logs" ] || why="${why:+$why; }$PKG_ART/ob-logs is missing (run evidence.sh all first)"
+   if printf '%s\n%s\n' "$d1" "$d2" | grep -q '^> '; then why="${why:+$why; }a new store entry (line marked >) remains"; fi
++  # the state file records the PR and issue numbers, so it stays while any earlier step failed or was refused
++  if [ "$ACTFAIL" -gt 0 ] || [ "$REFUSED" -gt 0 ]; then why="${why:+$why; }an earlier step failed or was refused, so $OB (with the state file) is kept for a retry"; fi
+   if [ -n "$why" ]; then line 7 REFUSED "$why"; return; fi
+   act rm -rf -- "${OB:?}"
+-  line 7 OK "$OB removed"
++  if [ ! -e "$OB" ]; then line 7 OK "$OB removed"; else line 7 FAIL "$OB is still there"; fi
+ }
+ 
+ # --- step 8: the earlier worker's scratch folders are listed, never deleted ---------------------------------------

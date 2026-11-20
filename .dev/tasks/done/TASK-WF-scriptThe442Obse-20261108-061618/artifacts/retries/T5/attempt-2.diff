@@ -1,0 +1,249 @@
+diff --git a/.dev/issues/442/scripts/selftest.sh b/.dev/issues/442/scripts/selftest.sh
+index 89626549f..67a23207b 100644
+--- a/.dev/issues/442/scripts/selftest.sh
++++ b/.dev/issues/442/scripts/selftest.sh
+@@ -60,12 +60,18 @@ esac
+ STUB
+   cat > "$STUB_DIR/bin/gh" <<'STUB'
+ #!/usr/bin/env bash
+-printf '%s\n' "$*" >> "${OB_STUB_LOG:-/dev/null}/gh.log"
+-case "$1" in
+-  --version) printf 'gh version 0.0.0-stub\n' ;;
+-  issue) printf '{"number":421}\n' ;;
+-  api)  printf '{"protected":false}\n' ;;
+-  *)    printf '{"status":"ok"}\n' ;;
++L=${OB_STUB_LOG:-/tmp/ob-stub-disabled}
++printf '%s\n' "$*" >> "$L/gh.log"
++case "$1 $2" in
++  'issue create')
++    n=$(( $(cat "$L/issue-n" 2>/dev/null || echo 420) + 1 )); printf '%s' "$n" > "$L/issue-n"
++    printf 'https://github.com/IronbellyOrg/IronClaude/issues/%s\n' "$n" ;;
++  *)  case "$1" in
++        --version) printf 'gh version 0.0.0-stub\n' ;;
++        issue) printf '{"number":421}\n' ;;
++        api)  printf '{"protected":false}\n' ;;
++        *)    printf '{"status":"ok"}\n' ;;
++      esac ;;
+ esac
+ STUB
+   cat > "$STUB_DIR/bin/claude" <<'STUB'
+@@ -105,6 +111,9 @@ timeout 120 bash "$here/driver-selftest.sh" || fail driver "driver-selftest exit
+ # T4 cases: session A and A2 scripts
+ timeout 180 bash "$here/session-a-selftest.sh" || fail sessa "session-a-selftest exited $?"
+ 
++# T5 cases: setup-github.sh
++timeout 180 bash "$here/setup-github-selftest.sh" || fail sg "setup-github-selftest exited $?"
++
+ # --- summary ----------------------------------------------------------------
+ 
+ if [ "$failures" -eq 0 ]; then
+diff --git a/.dev/issues/442/scripts/setup-github-selftest.sh b/.dev/issues/442/scripts/setup-github-selftest.sh
+new file mode 100644
+index 000000000..b3a7059e2
+--- /dev/null
++++ b/.dev/issues/442/scripts/setup-github-selftest.sh
+@@ -0,0 +1,120 @@
++#!/usr/bin/env bash
++# setup-github-selftest.sh — Task 5 cases, run by selftest.sh.
++set -u -o pipefail
++umask 077
++
++here=$(cd -- "$(dirname -- "$0")" && pwd)
++failures=0
++ck() { if [ "$2" = "$3" ]; then printf 'OK %s\n' "$1"; else printf 'FAIL %s got=<%s> want=<%s>\n' "$1" "$2" "$3"; failures=$((failures+1)); fi; }
++
++T=$(mktemp -d /tmp/ob-sg.XXXXXXXX)
++export OB=$T
++L=$OB_STUB_LOG
++mkdir -p "$T/logs" "$T/screens" "$T/wts"
++: > "$T/state.env"
++
++# 1. full run with scripted Worktree screens
++# The stub rotates screen.txt inside the `terminal send` arm: each send pops the
++# next queued `Worktree: <path> (created)` line into screen.txt, so the screen the
++# driver saves after the claim turn holds exactly this issue's line.
++for t in T1 T2 T3 T4; do
++  mkdir -p "$T/wts/$t/.claude"
++done
++cat > "$L/screen-queue" <<'EOF'
++EOF
++for t in T1 T2 T3 T4; do printf 'Worktree: %s/wts/%s (created)\n' "$T" "$t" >> "$L/screen-queue"; done
++# extend the stub: terminal wait releases one screen-queue line into screen.txt
++mkdir -p "$L/bin2"
++cat > "$L/bin2/orca" <<STUB
++#!/usr/bin/env bash
++L2=$L
++if [ "\$1 \$2" = "terminal read" ]; then
++  s=\$(cat "\$L2/screen.txt" 2>/dev/null || printf 'ok')
++  printf '{"result":{"terminal":{"tail":[%s]}}}\n' "\$(printf '%s' "\$s" | jq -Rs .)"
++  exit 0
++fi
++if [ "\$1 \$2" = "terminal wait" ]; then
++  [ -e "\$L2/idle-on" ] && exit 0
++  exit 1
++fi
++printf '%s\n' "\$*" >> "\$L2/orca.log"
++case "\$1 \$2" in
++  'terminal create') printf '{"status":"ok","handle":"stub-handle"}\n' ;;
++  'terminal send')
++    printf '%s\n' "\${*:4}" >> "\$L2/sent.txt"
++    # each send advances the scripted screen: pop the next Worktree line
++    if [ -s "\$L2/screen-queue" ]; then
++      head -1 "\$L2/screen-queue" > "\$L2/screen.txt"
++      tail -n +2 "\$L2/screen-queue" > "\$L2/q.tmp" 2>/dev/null || : > "\$L2/q.tmp"
++      mv "\$L2/q.tmp" "\$L2/screen-queue"
++    fi
++    if [ -n "\${STUB_STOP_LOG:-}" ] && [ "\${STUB_STOP:-0}" = 1 ]; then
++      printf '{"hook_event_name":"Stop"}\n' >> "\$STUB_STOP_LOG"
++    fi
++    printf '{"status":"ok"}\n' ;;
++  *) printf '{"status":"ok"}\n' ;;
++esac
++STUB
++chmod 0755 "$L/bin2/orca"
++export STUB_ORCA="$L/bin2/orca"
++export STUB_STOP_LOG=$T/logs/claim.jsonl; : > "$STUB_STOP_LOG"
++export STUB_STOP=1
++# the driver calls `orca` from PATH; selftest.sh already put a stub first, so
++# we shadow it for this case by exporting PATH with bin2 in front
++PATH="$L/bin2:$PATH" timeout 120 bash "$here/setup-github.sh" > "$T/out1" 2>&1; rc1=$?
++ck sg-rc "$rc1" 0
++ck sg-done "$(tail -1 "$T/out1")" "SETUP_GITHUB_OK"
++
++# 2. four issue-create calls, each --repo pinned and --body-file used, no rerun set
++grep -c -- '--repo IronbellyOrg/IronClaude' "$L/gh.log" | grep -qx 4 && ck sg-four-creates ok ok || ck sg-four-creates "$(grep -c -- '--repo IronbellyOrg/IronClaude' "$L/gh.log")" 4
++grep -c -- '--body-file' "$L/gh.log" | grep -qx 4 && ck sg-bodyfile ok ok || ck sg-bodyfile "$(grep -c -- '--body-file' "$L/gh.log")" 4
++# template filled: no placeholder angle-brackets in any body file the stub saw (stub gh logs args only;
++# check the temp template content indirectly: the create succeeded, and our sed filled all four sections)
++grep -c 'issue create' "$L/gh.log" | grep -qx 4 && ck sg-create-count ok ok || ck sg-create-count "$(grep -c 'issue create' "$L/gh.log")" 4
++
++# 3. rerun refused: state holds numbers, so no second create set
++before=$(grep -c 'issue create' "$L/gh.log")
++PATH="$L/bin2:$PATH" timeout 60 bash "$here/setup-github.sh" > "$T/out2" 2>&1; rc2=$?
++after=$(grep -c 'issue create' "$L/gh.log")
++ck sg-rerun-no-new-creates "$after" "$before"
++ck sg-rerun-skip-line "$(head -1 "$T/out2")" "SKIP issues: state already holds T1=$(OB=$T bash -c "source '$here/lib.sh'; state_get T1")"
++
++# 4. state recorded T1..T4 numbers, WT paths, and the probe settings were generated
++for t in T1 T2 T3 T4; do
++  v=$(OB=$T bash -c "source '$here/lib.sh'; state_get $t")
++  [ -n "$v" ] && ck "sg-state-$t" ok ok || ck "sg-state-$t" empty ok
++  w=$(OB=$T bash -c "source '$here/lib.sh'; state_get WT_$t")
++  [ "$w" = "$T/wts/$t" ] && ck "sg-wt-$t" ok ok || ck "sg-wt-$t" "$w" "$T/wts/$t"
++  [ -f "$T/wts/$t/.claude/settings.local.json" ] && ck "sg-probe-$t" ok ok || ck "sg-probe-$t" missing ok
++done
++
++# 5. generated settings equal the runbook line-197 generator output (labels h2-T*)
++for t in T1 T2 T3 T4; do
++  command timeout 10 jq -n --arg c "/tmp/ob/bin/ob-probe.sh h2-$t" \
++    '{hooks: ((["UserPromptSubmit","UserPromptExpansion","SessionStart","SubagentStop","Stop"] | map({key: ., value: [{hooks: [{type: "command", command: $c, timeout: 10}]}]}) | from_entries) + {PreToolUse: [{matcher: "*", hooks: [{type: "command", command: $c, timeout: 10}]}], PostToolUse: [{matcher: "*", hooks: [{type: "command", command: $c, timeout: 10}]}]})}' \
++    > "$T/want-$t.json"
++  # the script used $OB/bin/ob-probe.sh; rewrite expected to match that root
++  sed "s|/tmp/ob/bin/ob-probe.sh|$T/bin/ob-probe.sh|" "$T/want-$t.json" > "$T/want2-$t.json"
++  cmp -s "$T/want2-$t.json" "$T/wts/$t/.claude/settings.local.json" && ck "sg-gen-eq-$t" ok ok || ck "sg-gen-eq-$t" differ ok
++done
++
++# 6. EXISTS refusal: fresh state, worktrees whose settings.local.json already
++# exist (copied from case 1's output), and a screen queue pointing at those paths.
++T3=$(mktemp -d /tmp/ob-sg2.XXXXXXXX)
++mkdir -p "$T3/logs" "$T3/screens" "$T3/wts"
++for t in T1 T2 T3 T4; do
++  mkdir -p "$T3/wts/$t/.claude"
++  cp "$T/wts/$t/.claude/settings.local.json" "$T3/wts/$t/.claude/settings.local.json"
++done
++: > "$T3/state.env"
++: > "$L/screen-queue"
++for t in T1 T2 T3 T4; do printf 'Worktree: %s/wts/%s (created)\n' "$T3" "$t" >> "$L/screen-queue"; done
++export STUB_STOP_LOG=$T3/logs/claim.jsonl; : > "$STUB_STOP_LOG"
++OB=$T3 PATH="$L/bin2:$PATH" timeout 60 bash "$here/setup-github.sh" > "$T3/out" 2>&1; rc3=$?
++case "$(cat "$T3/out")" in
++  *EXISTS*) ck sg-exits-refused ok ok ;;
++  *) ck sg-exits-refused "$(tail -1 "$T3/out")" "EXISTS: merge by hand" ;;
++esac
++rm -rf "$T3"
++
++exit $failures
+diff --git a/.dev/issues/442/scripts/setup-github.sh b/.dev/issues/442/scripts/setup-github.sh
+new file mode 100644
+index 000000000..012ae8b1d
+--- /dev/null
++++ b/.dev/issues/442/scripts/setup-github.sh
+@@ -0,0 +1,78 @@
++#!/usr/bin/env bash
++# setup-github.sh — runbook §1.4: four disposable issues, the claim session,
++# worktree paths, probe settings. Plan Task 5.
++set -u -o pipefail
++umask 077
++here=$(cd -- "$(dirname -- "$0")" && pwd)
++# shellcheck source=lib.sh
++source "$here/lib.sh"
++T=${OB_TIMEOUT_S:-60}
++RB=$(cd -- "$here/.." && pwd)/observation-runbook.md
++
++# --- 1. four disposable issues (gh_fork pins the repo on every form) ------------
++if state_get T1 >/dev/null 2>&1 && [ -n "$(state_get T1)" ]; then
++  printf 'SKIP issues: state already holds T1=%s\n' "$(state_get T1)"
++else
++  for t in T1 T2 T3 T4; do
++    # Copy the handoff template to a temp file and fill every section, per the
++    # issue rule (never edit the installed template itself).
++    tpl=$(mktemp)
++    cp "$HOME/.claude/ISSUE-HANDOFF.md" "$tpl"
++    sed -i \
++      -e "s|<what has been tried so far, and what happened>|Nothing yet: this is a disposable target for the #442 live observations ($t).|" \
++      -e "s|<paths, links, branches, pull requests>|ob-442/$t.txt (to be created)|" \
++      -e "s|<the condition that means this work is finished>|ob-442/$t.txt exists holding the single line: ob-442 $t|" \
++      -e "s|<the person or agent this is handed to>|The observation run's governed sessions ($t)|" \
++      "$tpl"
++    n=$(gh_fork issue create --title "[ob-442 disposable $t] launch-level observation target" --body-file "$tpl" 2>&1 \
++      | grep -oE 'https://github\.com/IronbellyOrg/IronClaude/issues/[0-9]+' | grep -oE '[0-9]+$' | head -1) \
++      || true
++    [ -n "${n:-}" ] || { printf 'FAIL issue-create %s: no issue URL in output\n' "$t" >&2; exit 1; }
++    state_set "$t" "$n"
++    printf 'ISSUE %s=%s\n' "$t" "$n"
++  done
++fi
++
++# --- 2. the claim session --------------------------------------------------------
++MAIN=$(main_checkout)
++if state_get H_claim >/dev/null 2>&1 && [ -n "$(state_get H_claim)" ]; then
++  printf 'SKIP claim session: handle %s\n' "$(state_get H_claim)"
++else
++  bash "$here/driver.sh" start claim "path:$MAIN" "env -u CLICKUP_API_TOKEN claude" >/dev/null
++fi
++
++# --- 3. claims + worktree paths --------------------------------------------------
++for t in T1 T2 T3 T4; do
++  n=$(state_get "$t")
++  if state_get "WT_$t" >/dev/null 2>&1 && [ -n "$(state_get "WT_$t")" ]; then
++    printf 'SKIP claim %s: WT already %s\n' "$t" "$(state_get "WT_$t")"
++    continue
++  fi
++  out=$(bash "$here/driver.sh" send claim "/sc:issue --claim $n --pipeline none" claim 900 2>&1)
++  case "$out" in
++    NEEDS_INPUT\ *) printf 'NEEDS_INPUT claim %s screen=%s\n' "$t" "${out#NEEDS_INPUT }"; exit 0 ;;
++    TURN_END\ timeout*|*PENDING*) printf 'PENDING claim %s\n' "$t"; exit 0 ;;
++  esac
++  # read Worktree: <path> (created) from the newest claim-session screen
++  f=$(ls -1t "$OB_SCREENS"/claim-*.json 2>/dev/null | head -1)
++  wt=$(command timeout "$T" jq -r '.result.terminal.tail // [] | join("\n")' "$f" 2>/dev/null \
++    | grep -oE 'Worktree: [^ ]+ \(created\)' | tail -1 | sed 's/^Worktree: //; s/ (created)$//') || true
++  [ -n "$wt" ] || { printf 'FAIL claim %s: no "Worktree: <path> (created)" on screen\n' "$t" >&2; exit 1; }
++  state_set "WT_$t" "$wt"
++  printf 'WORKTREE %s=%s\n' "$t" "$wt"
++done
++
++# --- 4. probe settings (runbook line 197 generator, labels h2-T1..h2-T4) --------
++for t in T1 T2 T3 T4; do
++  wt=$(state_get "WT_$t"); L="h2-$t"
++  if [ -e "$wt/.claude/settings.local.json" ]; then
++    printf 'EXISTS: merge by hand (%s)\n' "$t" >&2
++    exit 3
++  fi
++  command timeout "$T" jq -n --arg c "$OB/bin/ob-probe.sh $L" \
++    '{hooks: ((["UserPromptSubmit","UserPromptExpansion","SessionStart","SubagentStop","Stop"] | map({key: ., value: [{hooks: [{type: "command", command: $c, timeout: 10}]}]}) | from_entries) + {PreToolUse: [{matcher: "*", hooks: [{type: "command", command: $c, timeout: 10}]}], PostToolUse: [{matcher: "*", hooks: [{type: "command", command: $c, timeout: 10}]}]})}' \
++    > "$wt/.claude/settings.local.json" || { printf 'FAIL probe-settings %s\n' "$t" >&2; exit 1; }
++  printf 'PROBE %s -> %s/.claude/settings.local.json\n' "$L" "$wt"
++done
++
++printf 'SETUP_GITHUB_OK\n'
