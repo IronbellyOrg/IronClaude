@@ -699,6 +699,7 @@ class _Cycle:
         self.doc = doc
         wait = doc.next_permitted_at
         if wait is not None and self.now() < wait:
+            self.rate_limited = True  # a backoff still running: the streak is kept
             raise _Stop("rate_limited")
 
     def _login_step(self) -> None:

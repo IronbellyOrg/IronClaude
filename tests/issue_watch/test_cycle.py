@@ -958,6 +958,7 @@ def test_a_rate_limit_with_a_header_waits_that_long_and_the_next_cycle_stops(
     assert (waiting.exit_code, waiting.reason) == (5, "rate_limited") and world.count(
         "user"
     ) == 1
+    assert tmp_state.load().rate_streak == 1  # no request was made: the streak stands
     resumed = run(world, tmp_path, tmp_state, advance=61)
     assert (
         resumed.exit_code == 0 and tmp_state.load().rate_streak == 0
