@@ -4,6 +4,10 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### worker contract: two gaps left after #700 (follows #697)
+
+- The worker-session duties again say that `ask` and `send` carry no `--to`. WC-17 step 4 now passes `--issue <N>` to `check-approval`, so an approval for another issue with the same plan hash is refused. The "Worktree, then worker" duty now says the worker started right after the claim script is that worktree's agent.
+
 ### ccsession: `--prune --apply` asks for a typed confirmation (follows #638)
 
 - `ccsession --prune --apply` now prints what it will delete (names, ages, sizes and the total) and asks you to type the number of things it names. Any other answer, an empty one or end of input deletes nothing. With no terminal on standard input it refuses (exit 2) unless the new `--yes` flag is given, which deletes without asking. No environment variable or setting does that. This is the guard for a session a person named with an automatic-looking name that `ccsession --classify --apply` marked `agent`. A dry run, and a run with nothing to delete, ask nothing.

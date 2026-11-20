@@ -428,6 +428,8 @@ RULE_PHRASES = {
             "only a `created` result may start a worker",
             "Never start again for an `uncertain` row",
             "worker-start --worktree path:<exact path it printed>",
+            "without launching an agent of its own (it must copy the claim's issue folder in first)",
+            "so the worker is that worktree's agent",
             "Create the plan-hash approval row (`record-create`) only when the worker's `ask` carries the plan hash",
             "act on a Status move alone",
             "post an issue write without that issue's grant row",
@@ -439,12 +441,22 @@ RULE_PHRASES = {
             "**WC-17. Plan approval is the reply to the worker's own ask.**",
             "(1) runs `superclaude issue-pipeline plan-hash",
             "(4) runs `superclaude issue-pipeline check-approval",
+            "--issue <N> --line <the reply text>",
             "(5) sends `ack <message_id> applied` or `ack <message_id> refused`",
             "(6) continues only on `applied`",
             "`ask` and `send` commands carry no `--to`",
             "the launch-level guard blocks any `--to` from a bound worker",
             "never treats a bare `approved`, or any text that is not the reply to its own ask, as approval",
             "A mismatch is refused and reported, not retried silently",
+        ],
+    ),
+    "messages-carry-no-to": (
+        None,
+        [
+            "**Messages carry no `--to`.**",
+            "`ask` and `send` commands carry no `--to`",
+            "Orca's default is the owning Run mailbox, the worker's own coordinator",
+            "the launch-level guard blocks any `--to` from a bound worker",
         ],
     ),
     "brief-worktree-path-slot": (
@@ -3256,3 +3268,13 @@ def test_issue_pipeline_duties_allow_no_typing_into_a_worker_prompt():
     section = _contract().split("### Issue pipeline duties", 1)[1].split("\n### ", 1)[0]
     assert "terminal send" not in section
     assert "types nothing into a worker's terminal" in section
+
+
+# --- The no-to rule in the worker-session duties (guard rule G2.2) ---
+
+
+def test_the_no_to_rule_sits_in_the_worker_session_duties():
+    section = (
+        _contract().split("## 3. Worker-session duties", 1)[1].split("\n## 4.", 1)[0]
+    )
+    assert "`ask` and `send` commands carry no `--to`" in section
