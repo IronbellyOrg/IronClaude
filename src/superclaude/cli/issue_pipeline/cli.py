@@ -381,6 +381,31 @@ class _StatusRefused(Exception):
         self.reason = reason or "unreadable"
 
 
+_DEFAULT_CONFIG = "~/.config/superclaude/issue-watch.json"
+
+
+def _config_for_repo(repo: str | None) -> Path | None:
+    """The generated per-repository config whose ``repo`` key equals ``repo``, else None.
+
+    A zero-setup host has only ``issue-watch.d/<name>.json``, so the default file would refuse.
+    """
+    if repo is None:
+        return None
+    folder = Path("~/.config/superclaude/issue-watch.d").expanduser()
+    try:
+        candidates = sorted(folder.glob("*.json"))
+    except OSError:
+        return None
+    for path in candidates:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(data, dict) and str(data.get("repo", "")).lower() == repo.lower():
+            return path
+    return None
+
+
 @issue_pipeline_group.command("stage-status")
 @click.argument("issue", type=click.IntRange(min=1))
 @click.option(
@@ -400,8 +425,9 @@ class _StatusRefused(Exception):
     "--config",
     "config_path",
     type=click.Path(path_type=Path),
-    default="~/.config/superclaude/issue-watch.json",
-    show_default=True,
+    default=None,
+    help="The watcher config to read. Default: the file in ~/.config/superclaude/issue-watch.d/ "
+    "whose `repo` key equals --repo, else ~/.config/superclaude/issue-watch.json.",
 )
 @click.option(
     "--approvals-dir",
@@ -425,7 +451,7 @@ def stage_status_command(
     issue: int,
     repo: str | None,
     as_json: bool,
-    config_path: Path,
+    config_path: Path | None,
     approvals_dir: Path | None,
     plan_dir: Path | None,
     plan_files: tuple[str, ...],
@@ -434,6 +460,8 @@ def stage_status_command(
     if repo is not None and not gh.valid_repo(repo):
         click.echo("refused:bad-repo")
         raise SystemExit(_EXIT_REFUSED)
+    if config_path is None:
+        config_path = _config_for_repo(repo) or Path(_DEFAULT_CONFIG)
     try:
         label, approvers, config_repo = _load_stage_inputs(config_path.expanduser())
     except cycle.ConfigError as exc:

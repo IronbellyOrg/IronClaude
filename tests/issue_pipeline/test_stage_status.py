@@ -780,6 +780,25 @@ def test_without_repo_the_config_repo_is_read(monkeypatch, tmp_path: Path) -> No
     assert not any("IronClaude" in " ".join(a) for a in world.argvs)
 
 
+def test_without_config_the_per_repo_config_of_a_zero_setup_host_is_used(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """Only issue-watch.d/<name>.json exists (the generator's output); --repo picks it."""
+    home = tmp_path / "home"
+    folder = home / ".config" / "superclaude" / "issue-watch.d"
+    folder.mkdir(parents=True)
+    generated = _write_config(tmp_path, repo=OTHER)
+    (folder / "Other.json").write_text(generated.read_text())
+    monkeypatch.setenv("HOME", str(home))
+    world = World(repo=OTHER)
+    monkeypatch.setattr(cli_mod, "_make_runner", lambda: world)
+    result = CliRunner().invoke(
+        issue_pipeline_group, ["stage-status", str(ISSUE), "--repo", OTHER, "--json"]
+    )
+    assert result.exit_code == 0, result.output
+    assert world.argvs  # it read; there is no ~/.config/superclaude/issue-watch.json
+
+
 def test_a_hand_written_config_without_a_repo_key_reads_the_fork(
     monkeypatch, tmp_path: Path
 ) -> None:
