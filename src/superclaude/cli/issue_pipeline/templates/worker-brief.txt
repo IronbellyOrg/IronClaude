@@ -23,6 +23,7 @@ Command: /sc:research "issue {N} @.dev/issues/{N}/issue-summary.md" --unattended
 Command: /sc:design .dev/issues/{N}/issue-summary.md --type architecture --format spec --unattended --report-dir .dev/issues/{N}/worker-spec
 [spec-brainstorm]
 Command: /sc:brainstorm "issue {N} @.dev/issues/{N}/issue-summary.md" --blind --handoff design --unattended --output .dev/issues/{N}/worker-spec
+Command: /sc:design .dev/issues/{N}/worker-spec/merged-requirements.md --type architecture --format spec --unattended --report-dir .dev/issues/{N}/worker-spec-design
 [plan]
 Command: /sc:workflow .dev/issues/{N}/issue-summary.md --depth standard --handoff none --unattended --report-dir .dev/issues/{N}/worker-plan
 [debug]

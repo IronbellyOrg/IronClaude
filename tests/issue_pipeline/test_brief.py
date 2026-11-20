@@ -43,7 +43,8 @@ ROWS = {
     (
         "spec",
         "brainstorm",
-    ): f"Command: /sc:brainstorm {S} --blind --handoff design --unattended --output {D}/worker-spec\n",
+    ): f"Command: /sc:brainstorm {S} --blind --handoff design --unattended --output {D}/worker-spec\n"
+    f"Command: /sc:design {D}/worker-spec/merged-requirements.md --type architecture --format spec --unattended --report-dir {D}/worker-spec-design\n",
     (
         "plan",
         None,
@@ -90,8 +91,12 @@ def test_the_spec_row_follows_the_route_of_the_judgment() -> None:
     not_defined = brief.build(452, "spec", "brainstorm")
     assert "/sc:design " in well_defined and "/sc:brainstorm" not in well_defined
     assert "/sc:brainstorm " in not_defined
-    # the brainstorm row hands off to /sc:design (high complexity or scope)
+    # --handoff design only prints a recommendation, so the row runs /sc:design itself on the
+    # brainstorm output, in its own report directory
     assert "--handoff design" in not_defined
+    commands = [ln for ln in not_defined.splitlines() if ln.startswith("Command:")]
+    assert [c.split()[1] for c in commands] == ["/sc:brainstorm", "/sc:design"]
+    assert "worker-spec/merged-requirements.md" in commands[1]
 
 
 def test_the_spec_judgment_is_recorded_in_issue_summary_not_decided_by_code() -> None:
@@ -208,7 +213,7 @@ def test_no_row_runs_implement_commit_push_or_submit_and_every_command_is_unatte
     for stage, route in ROWS:
         text = brief.build(452, stage, route)
         commands = [line for line in text.splitlines() if line.startswith("Command:")]
-        assert len(commands) == 1
+        assert len(commands) == (2 if (stage, route) == ("spec", "brainstorm") else 1)
         for token in forbidden:
             assert token not in text, (stage, token)
         for line in commands:
