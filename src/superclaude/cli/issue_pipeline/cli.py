@@ -20,6 +20,7 @@ from superclaude.cli.issue_watch.runner import Runner, SubprocessRunner
 from . import (
     approval_line,
     approval_record,
+    complete,
     plan_hash,
     reads,
     release,
@@ -214,18 +215,65 @@ def release_worker_command(session_id: str, store: Path | None) -> None:
         raise SystemExit(_EXIT_REFUSED) from None
 
 
-# --- stage-status: read-only -------------------------------------------------
-
-
 def _make_runner() -> Runner:
     """The one place a real ``gh`` runner is made (tests replace it)."""
     return SubprocessRunner()
 
 
-def _load_stage_inputs(config_path: Path) -> tuple[str, frozenset[int]]:
-    """The approval label and the approver ids of the watcher's configuration."""
+# --- complete: the coordinator's result comment and Status move ---------------
+
+
+@issue_pipeline_group.command("complete")
+@click.option("--repo", required=True, help="owner/name of the issue's repository.")
+@click.option("--issue", type=int, required=True)
+@click.option(
+    "--project-id",
+    required=True,
+    help="The Project node id (PVT_...), copied from the repo's watcher config.",
+)
+@click.option("--run", "run_id", type=int, required=True, help="The approval event id.")
+@click.option("--outcome", required=True, help="succeeded, failed, blocked or partial.")
+@click.option(
+    "--summary",
+    type=click.Path(),
+    default=None,
+    help="The closed three-line result file (outcome, artifacts, pull_request).",
+)
+def complete_command(
+    repo: str,
+    issue: int,
+    project_id: str,
+    run_id: int,
+    outcome: str,
+    summary: str | None,
+) -> None:
+    """Post the run's result comment and, for `succeeded`, move the Status (coordinator only).
+
+    Run it only under the issue's grant row, after reading the worker's contract or the
+    launched agent's result file. A failed, blocked or partial outcome never moves the Status.
+    """
+    word = complete.complete(
+        repo, issue, project_id, run_id, outcome, summary, _make_runner()
+    )
+    click.echo(word)
+    if word.startswith(("refused:", "failed:")):
+        raise SystemExit(_EXIT_REFUSED)
+
+
+# --- stage-status: read-only -------------------------------------------------
+
+
+def _load_stage_inputs(config_path: Path) -> tuple[str, frozenset[int], str]:
+    """The approval label, the approver ids and the repo of the watcher's configuration.
+
+    The repo is the config's ``repo`` key, or ``IronbellyOrg/IronClaude`` when it is absent.
+    """
     config = cycle.load_config(config_path)
-    return config.approval_label, cycle.validate_approvers(config.approvers_file)
+    return (
+        config.approval_label,
+        cycle.validate_approvers(config.approvers_file),
+        config.repo,
+    )
 
 
 def _timeout() -> float | None:
@@ -271,15 +319,16 @@ def _stage_status(
     approvals_dir: Path | None,
     plan_dir: Path | None,
     plan_names: list[str],
+    repo: str,
 ) -> dict[str, Any]:
     budget = gh.CallBudget()
     login = gh.user(runner, _timeout)
     if login.value is None:
         raise _StatusRefused(login.reason)
-    snapshot = gh.reread(runner, budget, issue, _timeout)
+    snapshot = gh.reread(runner, budget, issue, _timeout, repo=repo)
     if snapshot.value is None:
         raise _StatusRefused(snapshot.reason)
-    evidence = reads.read_stage_evidence(runner, issue, _timeout, budget)
+    evidence = reads.read_stage_evidence(runner, issue, _timeout, budget, repo=repo)
     if evidence.value is None:
         raise _StatusRefused(evidence.reason)
     host = login.value.login
@@ -332,8 +381,40 @@ class _StatusRefused(Exception):
         self.reason = reason or "unreadable"
 
 
+_DEFAULT_CONFIG = "~/.config/superclaude/issue-watch.json"
+
+
+def _config_for_repo(repo: str | None) -> Path | None:
+    """The generated per-repository config whose ``repo`` key equals ``repo``, else None.
+
+    A zero-setup host has only ``issue-watch.d/<name>.json``, so the default file would refuse.
+    """
+    if repo is None:
+        return None
+    folder = Path("~/.config/superclaude/issue-watch.d").expanduser()
+    try:
+        candidates = sorted(folder.glob("*.json"))
+    except OSError:
+        return None
+    for path in candidates:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(data, dict) and str(data.get("repo", "")).lower() == repo.lower():
+            return path
+    return None
+
+
 @issue_pipeline_group.command("stage-status")
 @click.argument("issue", type=click.IntRange(min=1))
+@click.option(
+    "--repo",
+    default=None,
+    help="owner/name of the repository the issue belongs to. Default: the `repo` key of "
+    "--config (IronbellyOrg/IronClaude when the key is absent). When both are given and "
+    "differ, the verb refuses with refused:repo-mismatch before any call.",
+)
 @click.option(
     "--json",
     "as_json",
@@ -344,8 +425,9 @@ class _StatusRefused(Exception):
     "--config",
     "config_path",
     type=click.Path(path_type=Path),
-    default="~/.config/superclaude/issue-watch.json",
-    show_default=True,
+    default=None,
+    help="The watcher config to read. Default: the file in ~/.config/superclaude/issue-watch.d/ "
+    "whose `repo` key equals --repo, else ~/.config/superclaude/issue-watch.json.",
 )
 @click.option(
     "--approvals-dir",
@@ -367,18 +449,29 @@ class _StatusRefused(Exception):
 )
 def stage_status_command(
     issue: int,
+    repo: str | None,
     as_json: bool,
-    config_path: Path,
+    config_path: Path | None,
     approvals_dir: Path | None,
     plan_dir: Path | None,
     plan_files: tuple[str, ...],
 ) -> None:
     """Print the plan-stage status of ISSUE as closed keys; writes nothing, prints no GitHub text."""
+    if repo is not None and not gh.valid_repo(repo):
+        click.echo("refused:bad-repo")
+        raise SystemExit(_EXIT_REFUSED)
+    if config_path is None:
+        config_path = _config_for_repo(repo) or Path(_DEFAULT_CONFIG)
     try:
-        label, approvers = _load_stage_inputs(config_path.expanduser())
+        label, approvers, config_repo = _load_stage_inputs(config_path.expanduser())
     except cycle.ConfigError as exc:
         click.echo(f"refused:{exc.reason}")
         raise SystemExit(_EXIT_CONFIG) from None
+    if repo is None:
+        repo = config_repo
+    elif repo.lower() != config_repo.lower():
+        click.echo("refused:repo-mismatch")
+        raise SystemExit(_EXIT_REFUSED)
     try:
         result = _stage_status(
             issue,
@@ -388,6 +481,7 @@ def stage_status_command(
             approvals_dir,
             plan_dir,
             list(plan_files),
+            repo,
         )
     except _StatusRefused as exc:
         click.echo(f"refused:{exc.reason}")

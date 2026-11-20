@@ -1,0 +1,3 @@
+T10 amended the Task 6 closed result.md format from four lines to three (dropped `run: <approval event id>`): the launched agent cannot know the approval event id and must not choose it; Tasks 12 and 14 take the run id as the `--run` parameter from the coordinator (dispatch.json entry), so no reader of result.md needs it. Recorded in docs/designs/issue-watcher-status-pipelines.md section 9. Owner to be told at the final report.
+
+Review 3 minor (not blocking): SKILL.md:42 and orca_worktree.py:43 say "four blocks"; the launch prompt now has ten (common, worktree, full, submit, research, spec, plan, debugworktree, debugfull, result). Older design records say "four blocks" too.

@@ -32,7 +32,11 @@ from superclaude.cli.issue_watch.github import (
     _text,
     _time,
 )
-from superclaude.cli.issue_watch.predicates import EditEvidence, LabelEvent
+from superclaude.cli.issue_watch.predicates import (
+    EditEvidence,
+    LabelEvent,
+    merge_approval_events,
+)
 from superclaude.cli.issue_watch.runner import Runner
 
 from .stage_predicates import CommentFact, PlanMarker
@@ -62,9 +66,13 @@ _TYPE_RE = re.compile(r"[A-Za-z]{1,20}")
 COMMENTS_UNREADABLE = "comments_unreadable"
 
 
-def argv_comments_projected(n: int, page: int) -> list[str]:
-    """One REST page of the issue's comments, reduced by ``COMMENTS_JQ``."""
-    return _argv_rest_page(n, "comments", page, COMMENTS_JQ)
+def argv_comments_projected(n: int, page: int, repo: str) -> list[str]:
+    """One REST page of the issue's comments in ``repo``, reduced by ``COMMENTS_JQ``.
+
+    ``repo`` has no default here: a coordinator for another repository must name it, so a
+    forgotten value cannot read IronClaude's issue of the same number.
+    """
+    return _argv_rest_page(n, "comments", page, COMMENTS_JQ, repo)
 
 
 def _pattern_or_none(value: object, pattern: re.Pattern[str]) -> str | None:
@@ -105,14 +113,19 @@ def _comment_fact(item: dict) -> CommentFact:
 
 
 def comments(
-    runner: Runner, budget: CallBudget, n: int, timeout_for: Callable[[], float | None]
+    runner: Runner,
+    budget: CallBudget,
+    n: int,
+    timeout_for: Callable[[], float | None],
+    *,
+    repo: str,
 ) -> Read:
     """A tuple of ``CommentFact`` for the issue's comments; every failure is ``comments_unreadable``."""
     return _rest_read(
         runner,
         budget,
         timeout_for,
-        lambda page: argv_comments_projected(n, page),
+        lambda page: argv_comments_projected(n, page, repo),
         _comment_fact,
         COMMENTS_UNREADABLE,
         COMMENTS_UNREADABLE,
@@ -132,23 +145,31 @@ def read_stage_evidence(
     n: int,
     timeout_for: Callable[[], float | None],
     budget: CallBudget | None = None,
+    *,
+    repo: str,
 ) -> Read:
-    """Read events, comments and edits under one ``CallBudget``.
+    """Read events, comments and edits of ``repo``'s issue under one ``CallBudget``.
 
     Returns ``Read(StageEvidence)``, or the first failed ``Read`` (value None, a closed
-    reason): a partial read never yields an approval.
+    reason): a partial read never yields an approval. ``repo`` is required and is passed to
+    every read; a value that is not ``owner/name`` raises ``ValueError`` before any call.
     """
+    gh._repo_arg(repo)
     budget = budget or CallBudget()
-    events = gh.events(runner, budget, n, timeout_for)
+    events = gh.events(runner, budget, n, timeout_for, repo=repo)
     if events.value is None:
         return events
-    found = comments(runner, budget, n, timeout_for)
+    field_events = gh.approval_events(runner, budget, n, timeout_for, repo=repo)
+    if field_events.value is None:
+        return field_events
+    merged = merge_approval_events(events.value, field_events.value)  # type: ignore[arg-type]
+    found = comments(runner, budget, n, timeout_for, repo=repo)
     if found.value is None:
         return found
-    edits = gh.edits(runner, budget, n, timeout_for)
+    edits = gh.edits(runner, budget, n, timeout_for, repo=repo)
     if edits.value is None:
         return edits
-    return Read(StageEvidence(found.value, events.value, edits.value))  # type: ignore[arg-type]
+    return Read(StageEvidence(found.value, merged, edits.value))  # type: ignore[arg-type]
 
 
 __all__ = [

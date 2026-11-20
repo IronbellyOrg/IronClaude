@@ -12,6 +12,8 @@ business logic and never imports ``subprocess`` (every command runs through
 from __future__ import annotations
 
 import json
+import os
+import re
 import shlex
 import shutil
 import socket
@@ -23,10 +25,10 @@ from uuid import uuid4
 
 import click
 
-from . import audit, cycle, record
-from .launch import MAX_ISSUE_NUMBER, OrcaLauncher
+from . import audit, cycle, defaults, dispatch, generate, record
+from .launch import MAX_ISSUE_NUMBER, OrcaLauncher, find_orca
 from .record import FileStore, LockError, LockHeld, StoreError
-from .runner import SubprocessRunner
+from .runner import Runner, SubprocessRunner
 
 _DEFAULT_CONFIG = "~/.config/superclaude/issue-watch.json"
 
@@ -72,6 +74,11 @@ def build_deps(config: cycle.Config) -> cycle.Deps:
         which=shutil.which,
         host=socket.gethostname(),
     )
+
+
+def _make_runner() -> Runner:
+    """The one place the real runner of ``run-all`` is made (tests replace it)."""
+    return SubprocessRunner()
 
 
 def _config_exit(exc: cycle.ConfigError) -> NoReturn:
@@ -129,6 +136,11 @@ def once_command(dry_run: bool, config_path: Path) -> None:
         sys.exit(_EXIT_CRASH)
     click.echo(f"cycle: {result.reason}")
     click.echo(f"exit: {result.exit_code}")
+    # One line each, only the number: the dispatcher reads these from a child's output (R26).
+    if result.launched_issue is not None:
+        click.echo(f"launched: {result.launched_issue}")
+    if result.attempted_issue is not None:
+        click.echo(f"attempted: {result.attempted_issue}")
     if dry_run:
         if result.probe is not None:
             click.echo(f"probe: {result.probe}")
@@ -158,7 +170,10 @@ def _print_status(report: dict) -> None:
     click.echo(f"retry: {len(report['retry'])}")
     for item in report["retry"]:
         click.echo(f"  issue {item['issue']}: run from {item['cwd']}")
-        click.echo(f"    {shlex.join(item['argv'])}")
+        if item["argv"] is None:
+            click.echo("    (no claim prompt was recorded for this launch)")
+        else:
+            click.echo(f"    {shlex.join(item['argv'])}")
 
 
 @issue_watch_group.command("status")
@@ -196,6 +211,17 @@ def check_config_command(config_path: Path) -> None:
     click.echo(f"state_dir: {config.state_dir}")
     click.echo(f"approvers_file mtime: {mtime}")
     click.echo(f"approvers_file entries: {count}")
+    # The launch account is also an approver: its own approval would count (R33).
+    # Setting approval_excluded_ids in the configuration excludes it.
+    try:
+        approvers = cycle.validate_approvers(config.approvers_file)
+    except cycle.ConfigError as exc:
+        _config_exit(exc)
+    if (
+        config.owner_account_id in approvers
+        and config.owner_account_id not in config.approval_excluded_ids
+    ):
+        click.echo("warning: approver_is_launch_account")
 
 
 @issue_watch_group.command("init-state")
@@ -345,4 +371,148 @@ def reset_command(
         )
     else:
         click.echo(f"issue-watch: {reason}", err=True)
+    sys.exit(code)
+
+
+# --- run-all: the dispatcher over every Orca repository (plan Task 25) -----------------------
+
+_SAFE_NAME = re.compile(r"[^A-Za-z0-9._-]")
+_CHILD_OK_EXITS = (0, 5, 75)  # clean, rate limited (a wait, not a fault), lock held
+
+
+def _name(value: str) -> str:
+    """A repo name for a report line: only letters, digits, dot, dash and underscore."""
+    return _SAFE_NAME.sub("?", value)[:100] or "?"
+
+
+def _child_line(child: dispatch.ChildResult) -> str:
+    if child.killed:
+        return f"{_name(child.name)}: killed {child.reason}"
+    text = (
+        f"{_name(child.name)}: ran {child.reason or 'no_reason'} exit={child.exit_code}"
+    )
+    if child.launched is not None:
+        text += f" launched={child.launched}"
+    if child.attempted is not None:
+        text += f" attempted={child.attempted}"
+    return text
+
+
+def _report(result: dispatch.SweepResult, dry_run: bool) -> tuple[list[str], int]:
+    """The lines of one sweep (repo, result, reason) and an overall line; plus the exit code."""
+    lines: list[str] = []
+    for child in result.children:
+        lines.append(_child_line(child))
+    for name in result.would_generate:
+        lines.append(f"{_name(name)}: would_generate")
+    for name in result.would_run:
+        lines.append(f"{_name(name)}: would_run")
+    for item in result.skipped:
+        lines.append(f"{_name(item.name)}: skipped {item.reason}")
+    for name in result.generated:
+        lines.append(f"{_name(name)}: generated")
+    unhealthy = any(
+        c.killed or c.exit_code not in _CHILD_OK_EXITS for c in result.children
+    )
+    if not result.ok:
+        overall, code = f"sweep: error {result.error}", _EXIT_UNHEALTHY
+    elif result.waiting_until is not None:
+        overall = f"sweep: waiting until {cycle.format_utc(result.waiting_until)}"
+        code = 0
+    elif unhealthy:
+        overall, code = "sweep: unhealthy (a child failed)", _EXIT_UNHEALTHY
+    else:
+        overall, code = "sweep: clean", 0
+    if dry_run:
+        overall += " (dry run)"
+    lines.append(overall)
+    return lines, code
+
+
+@issue_watch_group.command("run-all")
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="List the repos and the decision for each; take no lock and write or start nothing.",
+)
+@click.option(
+    "--config-dir",
+    type=click.Path(path_type=Path),
+    default=generate.DEFAULT_CONFIG_DIR,
+    show_default=True,
+    callback=_expand_config,
+    help="Holds issue-watch-defaults.json and issue-watch.d/.",
+)
+@click.option(
+    "--state-dir",
+    type=click.Path(path_type=Path),
+    default=generate.DEFAULT_STATE_DIR,
+    show_default=True,
+    callback=_expand_config,
+    help="Holds the loop lock, the rotation file and the account rate wait.",
+)
+@click.option(
+    "--worktrees-dir",
+    type=click.Path(path_type=Path),
+    default=generate.WORKTREES_DIR,
+    show_default=True,
+    help="Holds <repo>/Coordinator for each repo.",
+)
+@click.option(
+    "--orca", default=None, help="Absolute path of the Orca CLI (cron has no PATH)."
+)
+@click.option(
+    "--superclaude",
+    "superclaude_path",
+    default=None,
+    help="Absolute path of this program (default: the one that is running).",
+)
+def run_all_command(
+    dry_run: bool,
+    config_dir: Path,
+    state_dir: Path,
+    worktrees_dir: Path,
+    orca: str | None,
+    superclaude_path: str | None,
+) -> None:
+    """Run one sweep over every Orca repository: one `once` child per enabled repo."""
+    try:
+        cycle.check_platform()
+        loaded = defaults.load_defaults(config_dir)
+    except cycle.ConfigError as exc:
+        _config_exit(exc)
+    runner = _make_runner()
+    orca_path = orca or find_orca(runner, which=shutil.which, timeout=10.0)
+    own = (
+        superclaude_path or shutil.which("superclaude") or os.path.abspath(sys.argv[0])
+    )
+    for label, value in (("orca", orca_path), ("superclaude", own)):
+        if not value or not os.path.isabs(value):
+            _config_exit(
+                cycle.ConfigError(
+                    "config_invalid",
+                    f"{label} was not found; pass --{label} <absolute path>",
+                )
+            )
+    base = generate.Base(config_dir, state_dir, worktrees_dir)
+    args = dict(
+        orca=orca_path,
+        superclaude=own,
+        defaults=loaded,
+        base=base,
+        deps_factory=build_deps,
+        dry_run=dry_run,
+    )
+    try:
+        if dry_run:
+            result = dispatch.run_sweep(runner, **args)  # type: ignore[arg-type]
+        else:
+            with dispatch.loop_lock(base):
+                result = dispatch.run_sweep(runner, **args)  # type: ignore[arg-type]
+    except dispatch.LoopLockHeld:
+        click.echo("issue-watch: run-all: another sweep holds the loop lock", err=True)
+        sys.exit(_EXIT_LOCK_HELD)
+    lines, code = _report(result, dry_run)
+    for line in lines:
+        click.echo(line)
     sys.exit(code)

@@ -321,10 +321,85 @@ def test_a_brief_built_with_a_pending_nonce_binds_the_worker_and_one_without_doe
         check=True,
     ).stdout
     nonce = json.loads(out)["nonce"]
-    governed = brief.build(9, "feature", "simple", nonce)
+    governed = brief.build(9, "plan", None, nonce)
     assert _allowed(_run(_prompt(governed), tmp_path))
     _assert_bound(tmp_path, SID, "worktree")
     other = tmp_path / "other"
     other.mkdir()
-    assert _allowed(_run(_prompt(brief.build(9, "feature", "simple")), other))
+    assert _allowed(_run(_prompt(brief.build(9, "plan")), other))
     assert not (_store(other / "home") / "sessions" / SID).exists()
+
+
+# --- plan Task 13: `issue-pipeline complete` is the coordinator's alone ----------
+
+COMPLETE_PY = "src/superclaude/cli/issue_pipeline/complete.py"
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "superclaude issue-pipeline complete --repo o/r --issue 5",
+        "uv run superclaude issue-pipeline complete --repo o/r --issue 5",
+        "python -m superclaude.cli.issue_pipeline.complete",
+        'python -c "from superclaude.cli.issue_pipeline import complete"',
+        'python -c "from superclaude.cli.issue_pipeline.complete import run"',
+        'python -c "from superclaude.cli import issue_pipeline as p; p.complete.run()"',
+        "superclaude issue-pipeline complete",  # at the very end of the command text
+        "cd /tmp && superclaude issue-pipeline complete",
+    ],
+)
+def test_a_governed_session_cannot_run_the_complete_verb_or_module(tmp_path, command):
+    _bind_worker(tmp_path)
+    _assert_decision(
+        _run(_bash(command), tmp_path), tmp_path, "LL-TAMPER", "W", text=True
+    )
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        f"sed -n 1,5p {COMPLETE_PY}",
+        f"git diff {COMPLETE_PY}",
+        f"uv run ruff check {COMPLETE_PY}",
+    ],
+)
+def test_accepted_over_match_a_command_naming_complete_py_is_refused(tmp_path, command):
+    # The pattern is best effort and over-matches on purpose; the grant-row rule is the control.
+    _bind_worker(tmp_path)
+    _assert_decision(
+        _run(_bash(command), tmp_path), tmp_path, "LL-TAMPER", "W", text=True
+    )
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "superclaude issue-pipeline plan-hash plan.md",
+        "superclaude issue-pipeline check-approval 12",
+        "superclaude issue-pipeline plan-hash docs/completed/plan.md",
+        "superclaude issue-pipeline plan-hash notes/complete-the-plan.md",
+        "uv run pytest tests/issue_pipeline/test_complete.py",
+        "uv run pytest tests/issue_pipeline/test_complete_cli.py",
+    ],
+)
+def test_the_verbs_and_tests_that_only_mention_complete_stay_allowed(tmp_path, command):
+    _bind_worker(tmp_path)
+    assert _allowed(_run(_bash(command), tmp_path))
+
+
+def test_a_commit_message_with_the_word_complete_is_not_a_tamper(tmp_path):
+    _bind_worker(tmp_path)
+    result = _run(_bash('git commit -m "docs: complete the fu1 design"'), tmp_path)
+    # a worktree-level session may not commit, but the reason is LL-COMMIT, not LL-TAMPER
+    _assert_decision(result, tmp_path, "LL-COMMIT", "W", text=True)
+
+
+def test_stage_status_stays_unclassified_for_a_bound_worker(tmp_path):
+    """`stage-status` is a read; the guard does not classify it (plan Task 13)."""
+    _bind_worker(tmp_path)
+    assert _allowed(
+        _run(
+            _bash("superclaude issue-pipeline stage-status 12 --repo o/r --json"),
+            tmp_path,
+        )
+    )

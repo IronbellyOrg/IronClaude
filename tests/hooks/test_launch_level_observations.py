@@ -79,6 +79,32 @@ def test_probe_with_unwritable_log_path_exits_zero_silently(tmp_path):
 _PENDING = [f"OB-H1 item {n}" for n in range(1, 10)] + ["OB-H2", "OB-H3", "OB-CTX"]
 
 
+_GATE_ITEMS = ("OB-H1 item 1", "OB-H1 item 5", "OB-H2", "OB-H3")
+
+
+def _gate_may_be_open(gate: bool, pending: list[str]) -> bool:
+    """R33: the watcher's ship gate may be True only when no gate item is pending."""
+    return not gate or not any(item in pending for item in _GATE_ITEMS)
+
+
+def test_the_ship_gate_coupling_rule_itself__r33():
+    assert _gate_may_be_open(False, _PENDING)  # closed gate: always fine
+    assert not _gate_may_be_open(True, _PENDING)  # open gate, observations pending
+    assert not _gate_may_be_open(True, ["OB-H2"])  # any one of the four blocks it
+    assert _gate_may_be_open(True, ["OB-H1 item 2", "OB-CTX"])  # none of the four
+
+
+def test_the_ship_gate_opens_only_when_its_observations_are_run__r33():
+    """A commit that flips ``launch.GOVERNED_LEVELS_ALLOWED`` while OB-H1 items 1 and
+    5, OB-H2 or OB-H3 are still pending (skipped here) fails this test, so the gate
+    opens in the commit that runs the observations."""
+    from superclaude.cli.issue_watch import launch
+
+    assert _gate_may_be_open(launch.GOVERNED_LEVELS_ALLOWED, _PENDING), (
+        "GOVERNED_LEVELS_ALLOWED is True while its observations are still pending"
+    )
+
+
 @pytest.mark.parametrize("item", _PENDING)
 def test_pending_live_observation(item):
     pytest.skip(f"{item}: needs a real governed session and has not been run")

@@ -1,0 +1,4 @@
+037a20427733cd81a9a0cc2989110c4500579e1c
+reviewed=none ref=none
+F2.1 ac=scope at=docs/designs/sc-issue-launch-level-hook.md:174 anchor=src/superclaude/hooks/scripts/launch-level-guard.sh:777 chk=n,y,n,n family=design-doc-h3-stale fix=add `.config/superclaude` to the tamper-token list in the Tamper paragraph (and note the accepted over-match: any governed command whose text mentions that path is refused, reads included) : The Tamper paragraph lists the tokens T contains as `.claude/state`, `.claude/settings`, `.claude/hooks`, `disableAllHooks`, `.gitconfig`, `.git/config` or `.config/git`. The guard also refuses `*.config/superclaude*` (the guard's tamper case, line 777, added by Task 13). The design doc is the guard's stated design (guard line 3), so its list is now false against the live guard.
+applied tree=none

@@ -1,0 +1,10 @@
+# Reviewer brief (UC-1, pre-execution audit; read-only, run nothing)
+You audit a PROPOSED plan against its driving requirements.
+Spec: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/tasks/to-do/TASK-WF-requirements-20261119-012839/source.md  (requirements R1-R32)
+Plan: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/tasks/to-do/TASK-WF-requirements-20261119-012839/TASK-WF-requirements-20261119-012839.md
+Grounding: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/tasks/to-do/TASK-WF-requirements-20261119-012839/artifacts/codegraph-grounding.md
+Code under audit: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/src/superclaude/ and tests/.
+An EARLIER plan version had these review findings: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-010910-20261119011330/adversarial/merged-output.md (P-1 to P-11; P-1 completion write by a launched agent, P-2 Task 10 vs test_security_invariants.py:911-919, P-3 killed child, P-4 Pipeline provenance, P-5 to P-11). The owner decided: only the coordinator writes the completion update; an approval is void when the Project item changed after it. Check each earlier finding is really fixed in THIS plan (cite plan lines), then look for NEW defects, especially in Tasks 3, 4, 9, 10 (approval-void rule, completion verb, guard change) and anything the fixes introduced.
+Report each finding as: id, severity (blocking|medium|note), plan task and source row, evidence as file:line you actually Read, what changes if corrected. Blocking means correcting it changes a named decision or behaviour, a required item is missing, or following the text would break a safety boundary. Tag anything unread [INFERRED]. A zero-finding result is valid if you say what you checked. Under 60 lines.
+
+Persona: refactorer. Focus: safety. Task 4 approval-void rule (can the owner's own flow still work, does the claim or the coordinator's Status move trip it?), Task 10 guard change (does it refuse what it should and nothing it must allow), the coordinator-only completion path, Full Submit push.

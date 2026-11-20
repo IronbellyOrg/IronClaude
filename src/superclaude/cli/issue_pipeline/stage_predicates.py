@@ -169,9 +169,9 @@ def _label_channel(
         )
         return ChannelResult(False, reason), False
     latest = applied_after[-1]
+    # Same-second events share a timestamp and may share an id, so order is unknowable: fail closed.
     removed = any(
-        e.event == "unlabeled" and (e.created_at, e.id) > (latest.created_at, latest.id)
-        for e in relevant
+        e.event == "unlabeled" and e.created_at >= latest.created_at for e in relevant
     )
     if removed:
         return ChannelResult(False, "label-removed", latest.id, latest.actor_id), True

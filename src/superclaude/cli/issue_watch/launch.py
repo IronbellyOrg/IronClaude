@@ -30,8 +30,36 @@ ORCA_AGENT = "claude"
 MAX_ISSUE_NUMBER = 999_999_999
 """Largest issue number ``build_claim_prompt`` accepts (FR-012)."""
 
-PROMPT_PATTERN = re.compile(r"^/sc:issue --claim [1-9][0-9]{0,8} --pipeline none$")
+PROMPT_PATTERN = re.compile(
+    r"^/sc:issue --claim [1-9][0-9]{0,8}"
+    r" --pipeline (?:none|worktree|full(?: --submit)?)"
+    r" --stage (?:research|spec|plan|debug)$"
+)
 """Every prompt ``build_claim_prompt`` can return, and nothing else."""
+
+STAGE_OF_STATUS = {
+    "Research": "research",
+    "Spec": "spec",
+    "Plan": "plan",
+    "Debug": "debug",
+}
+"""The stage word the claim runs for each allowed Project Status (R23)."""
+
+GOVERNED_LEVELS_ALLOWED = False
+"""The ship gate (R33): while False only Pipeline None launches and every other
+level ends ``level_gated``. No config key or environment variable is the switch,
+because the config directory is not tamper-protected. Flipped only by a reviewed
+commit that also un-skips the launch-level observations of
+``tests/hooks/test_launch_level_observations.py`` (a coupling test enforces it)."""
+
+PIPELINE_ARGS = {
+    None: "none",
+    "None": "none",
+    "Worktree": "worktree",
+    "Full": "full",
+    "Full Submit": "full --submit",
+}
+"""The ``--pipeline`` text for each Pipeline value; an empty Pipeline is ``none``."""
 
 OPERATION_ID_PATTERN = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
 """Operation ids that may be stored and printed in a retry command (design 9.2)."""
@@ -81,15 +109,28 @@ def _check_timeout(timeout: object) -> float:
     return float(timeout)
 
 
-def build_claim_prompt(n: object) -> str:
-    """Return ``/sc:issue --claim <n> --pipeline none`` for an ``int`` in 1..999999999.
+def build_claim_prompt(n: object, status: object, pipeline: object) -> str:
+    """Return the claim prompt for issue ``n``, its Project ``status`` and ``pipeline``.
 
-    A ``bool``, a ``str``, a ``float`` or an out-of-range ``int`` raises
-    ``ValueError`` (FR-012, design 9.3).
+    For example ``/sc:issue --claim 9 --pipeline full --submit --stage plan``.
+    ``n`` is an ``int`` in 1..999999999; ``status`` is one of ``Research``,
+    ``Spec``, ``Plan``, ``Debug``; ``pipeline`` is ``None`` (no value), ``None``
+    as text, ``Worktree``, ``Full`` or ``Full Submit``. Anything else, a ``bool``
+    or a ``str`` issue number included, raises ``ValueError`` (FR-012, design 9.3,
+    ``docs/designs/issue-watcher-status-pipelines.md`` section 3).
     """
     if type(n) is not int or not 1 <= n <= MAX_ISSUE_NUMBER:
         raise ValueError("issue number must be an int in 1..999999999")
-    return f"/sc:issue --claim {n} --pipeline none"
+    if not isinstance(status, str) or status not in STAGE_OF_STATUS:
+        raise ValueError("status must be Research, Spec, Plan or Debug")
+    if pipeline is not None and (
+        not isinstance(pipeline, str) or pipeline not in PIPELINE_ARGS
+    ):
+        raise ValueError("pipeline must be empty, None, Worktree, Full or Full Submit")
+    return (
+        f"/sc:issue --claim {n} --pipeline {PIPELINE_ARGS[pipeline]}"
+        f" --stage {STAGE_OF_STATUS[status]}"
+    )
 
 
 def launch_argv(orca: str, worktree: Path | str, prompt: str) -> list[str]:
@@ -231,9 +272,14 @@ def parse_origin(url: object) -> str | None:
 
 
 def check_origin(
-    runner: Runner, worktree: Path | str, timeout: float | None
+    runner: Runner,
+    worktree: Path | str,
+    timeout: float | None,
+    repo: str = ORIGIN_REPO,
 ) -> str | None:
-    """Return None when the worktree's origin is IronbellyOrg/IronClaude.
+    """Return None when the worktree's origin is ``repo`` (default IronbellyOrg/IronClaude).
+
+    The compare is case-insensitive, as GitHub names are.
 
     Otherwise return ``"origin_mismatch"``: a ``timeout`` of None (no process is
     started), a timed-out or failed ``git``, or an unparseable or foreign URL.
@@ -245,8 +291,8 @@ def check_origin(
     result = runner.run(argv, _check_timeout(timeout))
     if result.timed_out or result.spawn_error is not None or result.returncode != 0:
         return ORIGIN_MISMATCH
-    repo = parse_origin(result.stdout)
-    if repo is None or repo.lower() != ORIGIN_REPO:
+    found = parse_origin(result.stdout)
+    if found is None or found.lower() != repo.lower():
         return ORIGIN_MISMATCH
     return None
 

@@ -1,0 +1,1 @@
+- review 1 note F1.1: the no-home-write proof is the HOME redirect plus an absent tmp home directory; a stronger real-home snapshot was not added

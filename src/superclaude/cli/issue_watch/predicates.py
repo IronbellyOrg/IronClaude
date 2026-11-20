@@ -14,6 +14,14 @@ from datetime import datetime, timedelta, timezone
 CLAIM_MARKER = "<!-- sc:issue:claim -->"
 """Claim-comment marker; ``github.MARKER_JQ`` is built from this constant."""
 
+APPROVAL_FIELD_NAME = "Approved"
+"""The organization issue field whose value ``Yes`` is the approval (R35)."""
+
+APPROVAL_FIELD_VALUE = "Yes"
+
+APPROVAL_FIELD_LABEL = "issue-field:Approved"
+"""The pseudo label that field events carry, so the approval logic stays generic."""
+
 SKEW_TOLERANCE_S = 300
 """Seconds a claim marker may precede ``pending_at`` and still count."""
 
@@ -116,6 +124,7 @@ class ProjectItem:
     is_archived: bool
     project_id: str
     status_name: str | None
+    pipeline_name: str | None = None
 
 
 @dataclass(frozen=True)
@@ -182,6 +191,32 @@ def _second(value: datetime) -> datetime:
     return value.replace(microsecond=0)
 
 
+def merge_approval_events(
+    label_events: Iterable[LabelEvent], field_events: Iterable[LabelEvent]
+) -> tuple[LabelEvent, ...]:
+    """Label events plus the ``Approved`` field events (R35).
+
+    A REST label event that carries ``APPROVAL_FIELD_LABEL`` is dropped, so only
+    a real field event can stand for the approval.
+    """
+    kept = [e for e in label_events if e.label != APPROVAL_FIELD_LABEL]
+    return (*kept, *field_events)
+
+
+def with_approval_field(
+    labels: Iterable[str], events: Iterable[LabelEvent]
+) -> tuple[str, ...]:
+    """``labels`` plus ``APPROVAL_FIELD_LABEL`` when the latest field event is a set."""
+    mine = sorted(
+        (e for e in events if e.label == APPROVAL_FIELD_LABEL),
+        key=lambda e: (e.created_at, e.id),
+    )
+    out = tuple(labels)
+    if mine and mine[-1].event == "labeled" and APPROVAL_FIELD_LABEL not in out:
+        out += (APPROVAL_FIELD_LABEL,)
+    return out
+
+
 def approval_of(
     events: Iterable[LabelEvent],
     *,
@@ -190,11 +225,13 @@ def approval_of(
     approval_label: str,
     approvers: Collection[int],
     store_created_at: datetime,
+    excluded_ids: Collection[int] = (),
 ) -> ApprovalResult:
     """Apply spec Section 3 "Approved by a human" checks (a) to (e).
 
     ``events`` must be the complete event history; absent evidence never
-    counts as positive.
+    counts as positive. An approval whose actor is in ``excluded_ids`` is no
+    approval (R33: the owner's way to exclude the launch account).
     """
     ordered = sorted(events, key=lambda e: (e.created_at, e.id))
     appr_on = [e for e in ordered if e.event == "labeled" and e.label == approval_label]
@@ -219,6 +256,7 @@ def approval_of(
         or approval.actor_login.endswith("[bot]")
         or type(approval.actor_id) is not int
         or approval.actor_id not in approvers
+        or approval.actor_id in excluded_ids
     ):
         return _not_approved("not_approved")
     # OQ-38: no trigger `labeled` event means check (c) cannot pass; this also
@@ -259,16 +297,26 @@ def unchanged_since(
     return None
 
 
-def project_check(items: Iterable[ProjectItem], project_id: str) -> str | None:
-    """Return ``project_mismatch`` unless exactly one live item is in Backlog.
+ALLOWED_STATUSES: tuple[str, ...] = ("Research", "Spec", "Plan", "Debug")
 
-    The item must be non-archived, in ``project_id`` and have Status
-    ``Backlog``.
+
+def project_check(items: Iterable[ProjectItem], project_id: str) -> str | None:
+    """Return ``project_mismatch`` unless exactly one live item has an allowed Status.
+
+    The item must be non-archived, in ``project_id`` and have a Status named in
+    ``ALLOWED_STATUSES`` (R22). Any other value, a new board status included,
+    is a mismatch until it is added there.
     """
-    matching = [i for i in items if not i.is_archived and i.project_id == project_id]
-    if len(matching) == 1 and matching[0].status_name == "Backlog":
+    item = live_item(items, project_id)
+    if item is not None and item.status_name in ALLOWED_STATUSES:
         return None
     return "project_mismatch"
+
+
+def live_item(items: Iterable[ProjectItem], project_id: str) -> ProjectItem | None:
+    """The one non-archived item of ``project_id``, or None for zero or several."""
+    matching = [i for i in items if not i.is_archived and i.project_id == project_id]
+    return matching[0] if len(matching) == 1 else None
 
 
 def marker_time(marker: MarkerEvidence) -> datetime:

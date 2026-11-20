@@ -1,0 +1,10 @@
+merge_method: adversarial
+verdict: fail
+convergence_score: 0.857
+base_variant: "opus:refactorer (reviewer-3)"
+source_cards: [reviewer-1-card.md, reviewer-2-card.md, reviewer-3-card.md]
+merged_output: ./merged-output.md
+depth: quick
+position_bias_check: not_run
+scores_estimated: true
+findings: {blocking: 4, medium: 8, note_groups: 1}

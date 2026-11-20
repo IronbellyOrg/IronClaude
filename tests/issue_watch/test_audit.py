@@ -1,6 +1,6 @@
 """Tests for the audit log: reason table pin, line builders, writer, rotation.
 
-The 59 reason names and the (kind, exit) table below are literal copies of the
+The 60 reason names and the (kind, exit) table below are literal copies of the
 closed reason table (spec lines 330-358 plus the five proposals DF-02, DF-03,
 DF-22 and DF-57, and the two Gate C proposals ``cycle_complete`` (exit 0) and
 ``cycle_crashed`` (exit 1), fix findings C-2 and C-3). They are never imported
@@ -35,7 +35,7 @@ from .conftest import FakeClock
 MIB = 1024 * 1024
 ROTATE_AT = 5 * MIB
 
-# The 59 reason names, in the order of the reason table.
+# The 60 reason names, in the order of the reason table.
 EXPECTED_NAMES = [
     "config_invalid",
     "approvers_invalid",
@@ -81,6 +81,7 @@ EXPECTED_NAMES = [
     "revalidation_failed",
     "marker_unreadable",
     "edits_unreadable",
+    "level_gated",
     "prompt_invalid",
     "revalidation_transient",
     "attempts_exhausted",
@@ -144,6 +145,7 @@ EXPECTED_TABLE = {
     "revalidation_failed": ("skip", 0),
     "marker_unreadable": ("skip", 0),
     "edits_unreadable": ("skip", 0),
+    "level_gated": ("skip", 0),
     "prompt_invalid": ("entry", 7),
     "revalidation_transient": ("entry", 7),
     "attempts_exhausted": ("entry", 0),
@@ -211,12 +213,12 @@ def names_in(directory) -> list[str]:
 # ---------------------------------------------------------------- reason table
 
 
-def test_reasons_pin_59_names__ac14_fr020_nfr006():
-    assert len(EXPECTED_NAMES) == 59
-    assert len(set(EXPECTED_NAMES)) == 59
+def test_reasons_pin_60_names__ac14_fr020_nfr006():
+    assert len(EXPECTED_NAMES) == 60
+    assert len(set(EXPECTED_NAMES)) == 60
     assert isinstance(REASONS, frozenset)
     assert REASONS == frozenset(EXPECTED_NAMES)
-    assert len(REASON_TABLE) == 59
+    assert len(REASON_TABLE) == 60
     assert list(REASON_TABLE) == EXPECTED_NAMES
 
 

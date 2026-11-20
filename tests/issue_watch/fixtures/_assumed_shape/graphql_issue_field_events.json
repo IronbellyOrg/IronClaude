@@ -1,0 +1,47 @@
+{
+  "_assumed_shape": true,
+  "source": "gh api graphql timelineItems(itemTypes: [ISSUE_FIELD_ADDED_EVENT, ISSUE_FIELD_CHANGED_EVENT, ISSUE_FIELD_REMOVED_EVENT]) on issues 675 and 642 of the fork, read-only, 2026-11-19 (requirement R35)",
+  "note": "The shape is a real capture; the values are trimmed. value and newValue are plain strings, actor.databaseId is an integer.",
+  "payload": {
+    "data": {
+      "repository": {
+        "issue": {
+          "timelineItems": {
+            "nodes": [
+              {
+                "__typename": "IssueFieldAddedEvent",
+                "createdAt": "2026-11-19T18:23:59Z",
+                "actor": {
+                  "__typename": "User",
+                  "login": "ironbelly",
+                  "databaseId": 7361222
+                },
+                "issueField": {
+                  "name": "Approved"
+                },
+                "value": "Yes"
+              },
+              {
+                "__typename": "IssueFieldAddedEvent",
+                "createdAt": "2026-11-19T15:21:58Z",
+                "actor": {
+                  "__typename": "User",
+                  "login": "clayphi",
+                  "databaseId": 193966884
+                },
+                "issueField": {
+                  "name": "Complexity"
+                },
+                "value": "Simple"
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            }
+          }
+        }
+      }
+    }
+  }
+}

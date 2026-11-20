@@ -1,0 +1,46 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261118-233559-20261118234500/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261118-233559-20261118234500/audit.log
+confidence_calibrated: 0.72
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: 0.957
+coverage_pct_union: 0.917
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: [R20]
+unmapped_requirements_union: [R20, INF-001]
+input_tree_sha256: a81aed64a2a5411773e44125fc7b35b3e2cf6b31510811dda0e2562df992f121
+input_tree_file_count: 3
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261118-233559-20261118234500/artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_dropped: 4
+citations_inferred: 3
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261118-233559-20261118234500/reviewer-cards/reviewer-1-card.md, /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261118-233559-20261118234500/reviewer-cards/reviewer-2-card.md, /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261118-233559-20261118234500/reviewer-cards/reviewer-3-card.md]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261118-233559-20261118234500/adversarial/adversarial
+adversarial_convergence_score: 0.857
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+user_decision_required: true
+needs_human_decision: true
+per_task_verdicts: []
+interaction_effects_scanned: false
+budget_check_skipped: true
+degraded_components: [calibrator-disjoint-set, adversarial-quick-depth]

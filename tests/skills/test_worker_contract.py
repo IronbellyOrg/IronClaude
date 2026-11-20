@@ -282,7 +282,7 @@ RULE_PHRASES = {
     "git-github-ownership": (
         None,
         [
-            "Every such action targets `IronbellyOrg/IronClaude`",
+            "Every such action targets the repo the issue belongs to (`IronbellyOrg/IronClaude` for this repository)",
             "PRs go only through `/sc:pr-submit --monitor 3`",
             "Before any push that would publish worker commits the person has not seen",
             "stages explicit paths plus `.dev/tasks` at every commit and again at the end of the run",
@@ -3278,3 +3278,95 @@ def test_the_no_to_rule_sits_in_the_worker_session_duties():
         _contract().split("## 3. Worker-session duties", 1)[1].split("\n## 4.", 1)[0]
     )
     assert "`ask` and `send` commands carry no `--to`" in section
+
+
+# --- issue pipeline duties and the push rule (plan Task 11) -----------------------
+
+
+def _duties() -> str:
+    text = _contract()
+    start = text.index("### Issue pipeline duties")
+    return text[start : text.index("### Worked example", start)]
+
+
+def _ownership() -> str:
+    text = _contract()
+    start = text.index("### Git and GitHub ownership")
+    return text[start : text.index("### Reading a result", start)]
+
+
+def test_the_push_rule_names_full_submit_and_grants_the_coordinator_nothing_on_the_pipeline():
+    section = _ownership()
+    assert (
+        "At Full Submit the launched agent pushes only its own feature branch to origin "
+        "and opens the pull request through /sc:pr-submit; the owner's Pipeline value "
+        "plus an approval in the `Approved` field is the go for that issue "
+        "only. The coordinator never pushes worker commits on that basis; for every "
+        "other push the rule above stands."
+    ) in section
+    assert "pushes only on the person's go" in section
+    # no sentence grants the coordinator a push because of the Pipeline value
+    for sentence in re.split(r"(?<=[.;])\s+", section):
+        if "Pipeline" in sentence and "push" in sentence:
+            assert "never pushes worker commits on that basis" in sentence or (
+                "launched agent pushes only its own feature branch" in sentence
+            ), sentence
+
+
+def test_every_outward_action_targets_the_repo_the_issue_belongs_to():
+    section = _ownership()
+    assert "targets the repo the issue belongs to" in section
+    assert "never the SuperClaude upstream" in section
+
+
+def test_the_duties_cover_claims_at_every_level():
+    duties = _duties()
+    assert "--pipeline <level> --stage <stage>" in duties and "(any level)" in duties
+    assert (
+        "apply only to an issue that the issue watcher claimed with `/sc:issue --claim <N> --pipeline none`"
+        not in duties
+    )
+
+
+def test_the_duties_name_the_status_to_command_table_and_the_brief_at_level_none_only():
+    duties = _duties()
+    for command in (
+        "`/sc:research`",
+        "`/sc:design`",
+        "`/sc:brainstorm`",
+        "`/sc:workflow`",
+        "`/sc:troubleshoot` without `--fix`",
+    ):
+        assert command in duties, command
+    assert "level `none` only" in duties and "no brief has a level slot" in duties
+    assert "needs the owner to move the Status back to an allowed value" in duties
+
+
+def test_the_duties_read_the_status_through_stage_status_with_the_issues_repo():
+    duties = _duties()
+    assert duties.count("stage-status --repo <the issue's repo>") == 2
+
+
+def test_the_duties_name_the_claim_time_approval_and_the_adoption_row_as_the_automatic_record():
+    duties = _duties()
+    assert "claim-time approval kept in `dispatch.json` plus the adoption row" in duties
+    assert "never the plan-hash row" in duties and "`label-before-plan`" in duties
+    assert (
+        "only when the worker's `ask` carries the plan hash and `stage-status` "
+        "reports the approval as accepted"
+    ) in duties
+
+
+def test_the_duties_name_the_complete_verb_the_grant_row_and_the_failed_outcome_rule():
+    duties = _duties()
+    assert "superclaude issue-pipeline complete --repo" in duties
+    assert "--project-id" in duties and "--run <the approval event id" in duties
+    assert "only under that issue's grant row" in duties
+    assert (
+        "only `succeeded` moves the Status, to In review, and a failed, blocked or "
+        "partial outcome never moves the Status"
+    ) in duties
+    assert "A worker and a launched agent never run this verb" in duties
+    assert "best effort; the grant-row rule is the control" in duties
+    # it runs after the worker's contract (level none) or the launched agent's result file
+    assert "`worker_done` contract" in duties and ".dev/issues/<N>/result.md" in duties

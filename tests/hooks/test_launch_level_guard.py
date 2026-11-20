@@ -55,6 +55,7 @@ IDS = [
     "LL-PROTECTED",
     "LL-MERGE",
     "LL-GH-WRITE",
+    "LL-ISSUE",
     "LL-SUBMIT",
     "LL-REPO",
     "LL-UNKNOWN",
@@ -261,7 +262,7 @@ def test_script_is_executable_with_version_line():
     assert os.access(HOOK, os.X_OK)
     lines = HOOK.read_text().splitlines()
     assert lines[0] == "#!/bin/bash"
-    assert "# launch-level-guard-version: 1" in lines[:10]
+    assert "# launch-level-guard-version: 2" in lines[:10]
 
 
 def test_script_text_never_names_the_joined_store_path():
@@ -795,6 +796,7 @@ GRID_CLASSES = (
     "PROTECTED",
     "MERGE",
     "GHWRITE",
+    "ISSUE",
     "UNKNOWN",
     "MCP",
     "ESCAPE",
@@ -825,6 +827,7 @@ EXPECTED = {
         "FS": "LL-PROTECTED",
     },
     "MERGE": {"W": "LL-MERGE", "WA": "LL-MERGE", "F": "LL-MERGE", "FS": "LL-MERGE"},
+    "ISSUE": {"W": "LL-ISSUE", "WA": "LL-ISSUE", "F": "LL-ISSUE", "FS": "LL-ISSUE"},
     "GHWRITE": {
         "W": "LL-GH-WRITE",
         "WA": "LL-GH-WRITE",
@@ -1763,6 +1766,7 @@ PUSH = ("LL-PUSH", "LL-PUSH", "LL-PUSH", "LL-PUSH-FORM")
 COMMIT = ("LL-COMMIT", "LL-COMMIT", "LL-COMMIT", None)
 MERGE = ("LL-MERGE",) * 4
 GHWRITE = ("LL-GH-WRITE",) * 4
+ISSUE = ("LL-ISSUE",) * 4
 TAMPER = ("LL-TAMPER",) * 4
 ESCAPE = ("LL-ESCAPE",) * 4
 NONE4 = (None,) * 4
@@ -2744,6 +2748,12 @@ GH_ORACLE = {
             "gh auth status",
             "gh -R o/r pr list",
             'echo "use gh to view"',
+            # The reads that stay allowed next to the ISSUE class (plan Task 13).
+            "gh issue list",
+            "gh issue status",
+            "gh project item-list",
+            "gh project field-list",
+            "gh label list",
             # Residual R17 (N-ATK-36): a gh word out of command position.
             "flock /tmp/l gh mm 5",
         ],
@@ -2751,10 +2761,7 @@ GH_ORACLE = {
     "SUBMIT": (
         SUBMIT,
         [
-            # Row 20 and row 21.
-            "gh issue create",
-            "gh issue comment 5",
-            "gh issue edit 5",
+            # Row 20 and row 21 (the issue verbs moved to the ISSUE class, plan Task 13).
             "gh pr comment 5",
             "gh pr edit 5",
             "gh pr ready 5",
@@ -2764,6 +2771,22 @@ GH_ORACLE = {
             "gh pr create --repo o/r --title x",
             "gh -R o/r pr create --title x",
             f'gh pr create {REPO_FLAG} --base master --head f --title "docs: explain git hooks" --body "x"',
+        ],
+    ),
+    "ISSUE": (
+        ISSUE,
+        [
+            # An issue, label or project write is the coordinator's alone (plan Task 13).
+            "gh issue create",
+            "gh issue edit 5 --add-label issue-watch:approved",
+            "gh issue comment 5",
+            "gh issue close 5",
+            "gh label create x",
+            "gh project item-edit",
+            "true && gh issue comment 5",
+            "gh -R o/r issue comment 5",
+            "gh issue comment 5 -R o/r",
+            "gh issue comment 5 --repo o/r",
         ],
     ),
     "REPO": (
@@ -2884,12 +2907,14 @@ GH_NAMED = {
     "test_gh_writes_need_submit": [
         (c, SUBMIT)
         for c in (
-            "gh issue create",
-            "gh issue comment 5",
             "gh pr comment 5",
             "gh pr edit 5",
             "gh pr ready 5",
         )
+    ],
+    # T-GH-5b (plan Task 13): the issue verbs are refused at every level, Full Submit included.
+    "test_gh_issue_writes_refused_every_level": [
+        (c, ISSUE) for c in ("gh issue create", "gh issue comment 5", "gh issue edit 5")
     ],
     # T-GH-6 (O-3)
     "test_gh_pr_ready_submit_class": [("gh pr ready 5", SUBMIT)],
@@ -3369,6 +3394,7 @@ GRID_CASES = [
     ("MERGE", "gh-pr-merge", _bash("gh pr merge 5"), None),
     ("MERGE", "mcp-merge", _tool("mcp__github__merge_pull_request"), None),
     ("GHWRITE", "gh-api-graphql", _bash("gh api graphql"), None),
+    ("ISSUE", "gh-issue-comment", _bash("gh issue comment 5"), None),
     ("UNKNOWN", "git-alias", _bash("git ci"), None),
     ("MCP", "mcp-push-files", _tool("mcp__github__push_files"), None),
     ("ESCAPE", "skill-issue", _skill("sc:issue"), None),
@@ -3400,7 +3426,7 @@ def test_grid_policy(tmp_path, payload, level, msg_id):
 
 def test_grid_complete():
     # T-GRID-2: every class has an oracle row with W, WA, F and FS, and a case.
-    assert len(set(GRID_CLASSES)) == 16
+    assert len(set(GRID_CLASSES)) == 17
     assert set(EXPECTED) == set(GRID_CLASSES) | {"NONE"}
     for cls, row in EXPECTED.items():
         assert sorted(row) == sorted(LEVEL_ORDER), cls
@@ -4443,6 +4469,7 @@ MSG_CASES = {
     "LL-PROTECTED": ("W", _bash("git push origin main")),
     "LL-MERGE": ("W", _bash("gh pr merge 5")),
     "LL-GH-WRITE": ("W", _bash("gh api graphql")),
+    "LL-ISSUE": ("W", _bash("gh issue create")),
     "LL-SUBMIT": ("W", _skill("sc:pr-submit")),
     "LL-REPO": ("FS", _bash("gh pr create --title x")),
     "LL-UNKNOWN": ("W", _bash("git ci")),
@@ -4629,3 +4656,71 @@ def test_acceptance_map_cases_present(ac):
         elif not re.search(rf"T-{fam}-{n}(?!\d)", source):
             missing.append((fam, n))
     assert not missing, (ac, missing)
+
+
+# --- plan Task 13: the ISSUE class, the config tamper token and the stamp --------
+
+CONFIG_FILE = "~/.config/superclaude/issue-watch.json"
+
+
+def test_the_issue_message_has_three_non_empty_parts(tmp_path):
+    _bind(tmp_path, *LEVEL_FILES["FS"])
+    result = _run(_bash("gh issue comment 5"), tmp_path)
+    lines = result.stderr.decode().splitlines()
+    assert result.returncode == 2
+    parts = {k: v for k, _, v in (line.partition(": ") for line in lines[1:4])}
+    assert set(parts) == {"Blocked", "Why", "You can"}
+    assert all(parts.values())
+    assert "issue, label or project write" in parts["Blocked"]
+    assert "only the coordinator" in parts["Why"].lower()
+    assert ".dev/issues/<N>/result.md" in parts["You can"]
+
+
+def test_the_submit_message_no_longer_mentions_issues():
+    text = HOOK.read_text()
+    block = text.split("LL-SUBMIT)", 1)[1].split("LL-ISSUE)", 1)[0]
+    assert "pull request or issue" not in block and "pull request)" in block
+
+
+@pytest.mark.parametrize("level", LEVEL_ORDER)
+@pytest.mark.parametrize(
+    "payload",
+    [
+        _edit("Edit", CONFIG_FILE),
+        _edit("Write", CONFIG_FILE),
+        _bash(f"echo '{{}}' > {CONFIG_FILE}"),
+        _bash(f"sed -i s/a/b/ {CONFIG_FILE}"),
+        _bash(f"cat {CONFIG_FILE}"),  # the accepted over-match: reads are refused too
+    ],
+    ids=["edit", "write", "redirect", "sed", "read-over-match"],
+)
+def test_the_watcher_config_is_a_tamper_path_at_every_level(tmp_path, level, payload):
+    _bind(tmp_path, *LEVEL_FILES[level])
+    result = _run(payload, tmp_path)
+    _assert_decision(
+        result,
+        tmp_path,
+        "LL-TAMPER",
+        level,
+        text=payload["tool_name"] in ("Bash", "Monitor"),
+    )
+
+
+def test_an_unbound_session_may_write_issues__documents_does_not_endorse(tmp_path):
+    """An ordinary session is never governed, so `gh issue comment` passes there.
+
+    This documents the limit of the guard; it does not endorse it. The complete control
+    is a token without issues or projects write for launched agents (a Coder row).
+    """
+    for command in ("gh issue comment 5", "gh label create x", "gh project item-edit"):
+        payload = _bash(command)
+        payload["session_id"] = "unbound-session"
+        result = _run(payload, tmp_path)
+        assert (result.returncode, result.stderr) == (0, b""), command
+
+
+def test_the_guard_and_its_mirror_carry_stamp_two_and_agree():
+    mirror = ROOT / "plugins/superclaude/hooks/scripts/launch-level-guard.sh"
+    assert mirror.read_text() == HOOK.read_text()
+    assert "# launch-level-guard-version: 2" in HOOK.read_text().splitlines()[:10]
+    assert "# launch-level-guard-version: 1" not in HOOK.read_text().splitlines()[:10]

@@ -1,0 +1,9 @@
+input_tree_sha256: a81aed64a2a5411773e44125fc7b35b3e2cf6b31510811dda0e2562df992f121
+file_list:
+  - path: ./TASK-WF-requirements-20261118-233559.md
+    sha256: 9ae0b21a40befc6c9c5054e8e88fe41d492d6a3fb454c7d111b610300ca92e99
+  - path: ./artifacts/codegraph-grounding.md
+    sha256: 557924363012707df3a783a978173b0406661ddda69840552b79440c39da3296
+  - path: ./source.md
+    sha256: bf1106ecf5aaef68ca5cea43a3ad6344f8390fd3330de193b3722e8dd714a3a3
+file_count: 3

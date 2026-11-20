@@ -1,0 +1,14 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/releases/backlog/issue-watcher-zero-setup/debate/adversarial/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/releases/backlog/issue-watcher-zero-setup/debate/adversarial/"
+  status: "partial"
+  base_variant: "original:variant-2 (one watcher instance per project)"
+  unresolved_conflicts: 0
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    - "partial because: base-selection metrics were estimated by reading, not computed; the dual-pass position-bias check was not run; Round 3 not run (depth standard)."
+    - "The 4 HIGH invariant items (INV-001, INV-003, INV-010, INV-012) are carried into the merged output and the requirements file as rows R12 to R15; none is fixed in code yet."

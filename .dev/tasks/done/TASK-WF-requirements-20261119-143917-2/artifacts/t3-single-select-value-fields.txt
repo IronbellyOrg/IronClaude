@@ -1,0 +1,1 @@
+{"data":{"__type":{"fields":[{"name":"color"},{"name":"createdAt"},{"name":"creator"},{"name":"databaseId"},{"name":"description"},{"name":"descriptionHTML"},{"name":"field"},{"name":"id"},{"name":"item"},{"name":"name"},{"name":"nameHTML"},{"name":"optionId"},{"name":"updatedAt"}]}}}

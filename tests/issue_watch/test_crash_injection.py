@@ -35,7 +35,7 @@ from .conftest import (
 ISSUE = 9
 RERUNS = 5
 GAP_S = 300  # the clock moves 5 minutes before each run, as a timer would
-PROMPT = f"/sc:issue --claim {ISSUE} --pipeline none"
+PROMPT = f"/sc:issue --claim {ISSUE} --pipeline none --stage research"
 USER_ARGV = tuple(github.argv_user())
 
 
@@ -171,7 +171,10 @@ class Rig:
         assert (entry.state, entry.launches, entry.attempts) == ("pending", 1, 0)
         assert (entry.consumed_at, entry.pending_at) == (when, when)
         assert (entry.operation_id, entry.last_reason) == (None, None)
-        assert (entry.approver_id, entry.approval_event_id) == (APPROVER_ID, 2)
+        assert (entry.approver_id, entry.approval_event_id) == (
+            APPROVER_ID,
+            int(T_APPROVED.timestamp()),  # a field event's id is its epoch second
+        )
         assert entry.approved_at == T_APPROVED
         assert entry.launch_cwd == str(cfg.worktree)
         assert (entry.launch_login, entry.launch_account_id) == (OWN_LOGIN, OWN_ID)
@@ -358,7 +361,8 @@ def test_c5_crash_after_the_outcome_save_loses_only_the_audit_lines__nfr005(
     doc = rig.doc()
     assert ISSUE in doc.considered
     assert doc.last_completed_cycle_at == CYCLE_NOW
-    assert rig.file_names() == rig.names_before
+    # The launch kept its claim prompt beside the store (R23); nothing else is new.
+    assert rig.file_names() == sorted([*rig.names_before, "launch-prompts.json"])
     assert [call[2] for call in rig.crash_launcher.calls] == [PROMPT]
     # No decision line for this launch (no line of the cycle was written).
     rig.assert_untouched_audit()

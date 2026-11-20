@@ -16,6 +16,12 @@ All notable changes to IronClaude are documented in this file.
 
 - `/sc:closeout <PR>` settles a merged pull request: a script checks that it really merged, the skill decides whether the issue is done and closes it (or leaves it open with one note of what remains and hands that back to the orchestrator), and the work report entry and the worker's Orca task are settled or escalated with a reason. It adopts two files of Jay Wedgeworth (`skills/closeout/SKILL.md` and `scripts/branch-landed.sh`) under Apache-2.0; see `PROVENANCE.md` in the skill folder.
 
+### Launch-level guard (version 2): issue, label and project writes are refused at every level
+
+- A session launched by `/sc:issue --claim` can no longer run `gh issue create|edit|comment|close`, `gh label ...` or `gh project item-edit` at any level, Full Submit included (new class `ISSUE`, message `LL-ISSUE`). Only the coordinator writes to an issue, a label or a Project; a launched session reports through `.dev/issues/<N>/result.md`. The reads `gh issue view|list|status`, `gh project item-list` and `gh project field-list` stay allowed, and `gh pr comment` still passes at Full Submit.
+- A governed session also cannot run `issue-pipeline complete` (the verb, the module or `complete.py` by name; best effort, the grant row is the control) or touch `~/.config/superclaude` (any command whose text names that path is refused, reads included).
+- The version stamp on line 10 of the guard is now 2, so a host with the old guard fails the claim's install preflight. **Hosts run `superclaude install --force` before the next claim.**
+
 ## [6.1.0] - 2026-11-18
 
 The task and documentation bundle is removed: nine skills (`prd`, `tdd`, `tech-research`, `tech-reference`, `operational-guide`, `readme`, `task`, `task-builder`, `roadmap`), the `/sc:tdd` command, one eval suite and levels 4, 5 and 6 of the routing guide. Every route that offered the task-file (MDTM) route now has one route: `/sc:workflow` writes the plan and `/sc:implement` runs it. Read the [6.1.0 release notes](docs/releases/v6.1.0.md) for the full list, the replacements and the upgrade steps. The project's changelog rule counts a removed skill as a breaking change, which normally means a major version; the owner chose 6.1.0 for this release.

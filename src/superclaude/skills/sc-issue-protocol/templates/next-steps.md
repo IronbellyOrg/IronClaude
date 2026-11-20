@@ -3,6 +3,7 @@
 # Next steps for #<N>
 
 Plan boundary: after step <K>
+<Only with --stage: the two lines "Stage: <research|spec|plan|debug>" and "Level: <none|worktree|full|full --submit>"; step 1 is then the stage's command (`refs/claim.md` Wave 5)>
 
 Run these in order, after the `/model` line. `/sc:issue` itself does not run them: the agent it launches does (up to the plan boundary at level `worktree`, to the last step at level `full`), or you do after `--pipeline none`.
 

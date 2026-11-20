@@ -1,0 +1,3 @@
+- review 1 F1.1: the 270 s cap is checked only before a child starts, so a child begun at 269 s can run to 524 s; the design wording is about 270 s
+- review 1 F1.2: a killed child whose store file is missing counts as open and stops the loop (conservative); no test
+- review 1 F1.3: a failed first run shows in the sweep only as not_enabled; its reason is in <state dir>/first-run.txt, which Task 25 can read

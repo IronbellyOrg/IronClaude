@@ -1,0 +1,30 @@
+merge_method: adversarial
+verdict: FAIL
+verdict_note: FAIL as advice; 5 blocking findings stand; owner decisions needed none
+plan: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/tasks/to-do/TASK-WF-requirements-20261119-140750/TASK-WF-requirements-20261119-140750.md
+convergence_score: 0.784
+convergence_threshold: 0.80
+convergence_status: NOT_CONVERGED
+unresolved_point: "C-004 / P4-4 (Task 13 guard pattern); arbiter grade Blocking (Decision), 1 of 3 advocates agreed"
+base_variant: "opus:refactorer"
+source_cards:
+  - /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-140750-20261119141121/reviewer-cards/reviewer-1-card.md
+  - /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-140750-20261119141121/reviewer-cards/reviewer-2-card.md
+  - /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-140750-20261119141121/reviewer-cards/reviewer-3-card.md
+counts:
+  blocking: 5
+  medium: 6
+  note: 11
+  total: 22
+confirmed_fixed:
+  q1: PARTIAL
+  q2: FIXED
+  q3: FIXED
+  q4: FIXED
+  q5: FIXED
+  q6: PARTIAL
+  q7: FIXED
+  q8: FIXED
+  q9: FIXED
+  q10: PARTIAL
+owner_decisions_needed: 0

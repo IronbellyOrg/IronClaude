@@ -1,0 +1,13 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-140750-20261119141121/adversarial/merged-output.md
+  convergence_score: 0.784
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-140750-20261119141121/adversarial/adversarial
+  status: partial
+  base_variant: opus:refactorer
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: task-agent
+  unaddressed_invariants:
+    - "I-2 Approval provenance is per repo (UNADDRESSED, Blocking Safety; merged as P4-1)"
+    - "I-3 An empty Pipeline launches at level None, never refused by the void rule (UNADDRESSED, Blocking Decision; merged as P4-2)"

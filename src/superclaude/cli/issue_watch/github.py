@@ -20,6 +20,9 @@ from email.utils import parsedate_to_datetime
 from typing import TypeVar
 
 from .predicates import (
+    APPROVAL_FIELD_LABEL,
+    APPROVAL_FIELD_NAME,
+    APPROVAL_FIELD_VALUE,
     CLAIM_MARKER,
     CommentEdit,
     DiscoveredIssue,
@@ -46,8 +49,8 @@ PAGE_CAP = 5
 CALL_CAP = 35
 """Most ``gh`` calls one cycle may make (NFR-009)."""
 
-RESERVED_CALLS = 3
-"""Calls of ``CALL_CAP`` kept for the FR-011 re-read."""
+RESERVED_CALLS = 4
+"""Calls of ``CALL_CAP`` kept for the FR-011 re-read: issue, label events, ``Approved`` field events, Project items."""
 
 # --- jq projections (design 8.1, G3, G4, G7) --------------------------------
 
@@ -64,15 +67,23 @@ MARKER_JQ = (
 )
 """G4 projection of one comments page: the body becomes a boolean."""
 
-REREAD_JQ = "{number, state, labels: [.labels[].name], assignees: [.assignees[].login]}"
-"""G7 projection of the FR-011 issue re-read."""
+REREAD_JQ = (
+    "{number, state, labels: ([.labels[].name] + [.issue_field_values[]? | "
+    f"select(.issue_field_name == {json.dumps(APPROVAL_FIELD_NAME)} and "
+    f".single_select_option.name == {json.dumps(APPROVAL_FIELD_VALUE)}) | "
+    f"{json.dumps(APPROVAL_FIELD_LABEL)}]), assignees: [.assignees[].login]}}"
+)
+"""G7 projection of the FR-011 issue re-read.
+
+``Approved`` = ``Yes`` among the issue's field values shows as the pseudo label (R35).
+"""
 
 # --- GraphQL queries (design 8.1, G5, G6) -----------------------------------
 # [PROPOSAL, UNVERIFIED] drafts from decision DF-14 (research 06, Table 1.5).
 # Field names follow the public schema; reply shapes are unverified (FU-1, FU-3).
 
-EDITS_QUERY = """query($number: Int!, $after: String) {
-  repository(owner: "IronbellyOrg", name: "IronClaude") {
+EDITS_QUERY = """query($owner: String!, $name: String!, $number: Int!, $after: String) {
+  repository(owner: $owner, name: $name) {
     issue(number: $number) {
       createdAt
       lastEditedAt
@@ -85,14 +96,17 @@ EDITS_QUERY = """query($number: Int!, $after: String) {
 }"""
 """G5: issue and comment edit timestamps."""
 
-PROJECT_ITEMS_QUERY = """query($number: Int!, $after: String) {
-  repository(owner: "IronbellyOrg", name: "IronClaude") {
+PROJECT_ITEMS_QUERY = """query($owner: String!, $name: String!, $number: Int!, $after: String) {
+  repository(owner: $owner, name: $name) {
     issue(number: $number) {
       projectItems(first: 100, after: $after) {
         nodes {
           isArchived
           project { id }
-          fieldValueByName(name: "Status") {
+          status: fieldValueByName(name: "Status") {
+            ... on ProjectV2ItemFieldSingleSelectValue { name }
+          }
+          pipeline: fieldValueByName(name: "Pipeline") {
             ... on ProjectV2ItemFieldSingleSelectValue { name }
           }
         }
@@ -101,7 +115,41 @@ PROJECT_ITEMS_QUERY = """query($number: Int!, $after: String) {
     }
   }
 }"""
-"""G6: the issue's Project items with their Status value."""
+"""G6: the issue's Project items with their Status and Pipeline values.
+
+No value time is read: R36 withdrew the rule (R31) that used it.
+"""
+
+APPROVAL_EVENTS_QUERY = """query($owner: String!, $name: String!, $number: Int!, $after: String) {
+  repository(owner: $owner, name: $name) {
+    issue(number: $number) {
+      timelineItems(first: 100, after: $after, itemTypes: [ISSUE_FIELD_ADDED_EVENT, ISSUE_FIELD_CHANGED_EVENT, ISSUE_FIELD_REMOVED_EVENT]) {
+        nodes {
+          __typename
+          ... on IssueFieldAddedEvent {
+            createdAt
+            actor { __typename login ... on User { databaseId } }
+            issueField { ... on IssueFieldSingleSelect { name } }
+            value
+          }
+          ... on IssueFieldChangedEvent {
+            createdAt
+            actor { __typename login ... on User { databaseId } }
+            issueField { ... on IssueFieldSingleSelect { name } }
+            newValue
+          }
+          ... on IssueFieldRemovedEvent {
+            createdAt
+            actor { __typename login ... on User { databaseId } }
+            issueField { ... on IssueFieldSingleSelect { name } }
+          }
+        }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}"""
+"""G8: the issue's issue-field events, who set a field and when (R35)."""
 
 # --- argv builders (design 8.1, G1 to G7) -----------------------------------
 # Every REST path call carries --method GET (gh defaults to POST once parameters
@@ -147,6 +195,31 @@ def _cursor_args(after: str | None) -> list[str]:
     return ["-f", f"after={after}"]
 
 
+# A strict ``owner/name``: the owner starts with a letter or digit (so no value can start
+# with a dash), the name has no space, slash or leading dash. GitHub's own limits are
+# 39 and 100 characters.
+_REPO_RE = re.compile(
+    r"[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9._][A-Za-z0-9._-]{0,99}"
+)
+
+
+def valid_repo(value: object) -> bool:
+    """True for a strict ``owner/name`` string."""
+    return (
+        isinstance(value, str)
+        and _REPO_RE.fullmatch(value) is not None
+        and value.split("/")[1] not in (".", "..")
+    )
+
+
+def _repo_arg(repo: object) -> str:
+    """Return ``repo`` when it is a strict ``owner/name``, else raise ``ValueError``."""
+    if not valid_repo(repo):
+        raise ValueError("invalid repository")
+    assert isinstance(repo, str)
+    return repo
+
+
 def _trigger_arg(trigger: object) -> str:
     """Return ``trigger`` when it is safe as one ``--label`` value.
 
@@ -177,14 +250,14 @@ def argv_user() -> list[str]:
     return ["gh", "api", "user", "--include"]
 
 
-def argv_discover(trigger: str, login: str) -> list[str]:
+def argv_discover(trigger: str, login: str, repo: str = REPO) -> list[str]:
     """G2: open issues carrying ``trigger`` and assigned to ``login`` (FR-003)."""
     return [
         "gh",
         "issue",
         "list",
         "--repo",
-        REPO,
+        _repo_arg(repo),
         "--state",
         "open",
         "--label",
@@ -198,14 +271,16 @@ def argv_discover(trigger: str, login: str) -> list[str]:
     ]
 
 
-def _argv_rest_page(n: object, kind: str, page: object, jq: str) -> list[str]:
+def _argv_rest_page(
+    n: object, kind: str, page: object, jq: str, repo: str = REPO
+) -> list[str]:
     """One REST page of ``repos/R/issues/N/<kind>`` projected by ``jq``."""
     return [
         "gh",
         "api",
         "--method",
         "GET",
-        f"repos/{REPO}/issues/{_issue_arg(n)}/{kind}",
+        f"repos/{_repo_arg(repo)}/issues/{_issue_arg(n)}/{kind}",
         "-F",
         f"per_page={PAGE_SIZE}",
         "-F",
@@ -215,48 +290,66 @@ def _argv_rest_page(n: object, kind: str, page: object, jq: str) -> list[str]:
     ]
 
 
-def argv_events(n: int, page: int) -> list[str]:
+def argv_events(n: int, page: int, repo: str = REPO) -> list[str]:
     """G3: one page of the issue's event history (FR-005, FR-006)."""
-    return _argv_rest_page(n, "events", page, EVENTS_JQ)
+    return _argv_rest_page(n, "events", page, EVENTS_JQ, repo)
 
 
-def argv_comments(n: int, page: int) -> list[str]:
+def argv_comments(n: int, page: int, repo: str = REPO) -> list[str]:
     """G4: one page of the issue's comments, reduced to marker evidence (FR-009)."""
-    return _argv_rest_page(n, "comments", page, MARKER_JQ)
+    return _argv_rest_page(n, "comments", page, MARKER_JQ, repo)
 
 
-def _argv_graphql(query: str, n: object, after: str | None) -> list[str]:
-    """One GraphQL page; ``-F`` sends ``number`` typed, no ``after`` sends null."""
+def _argv_graphql(
+    query: str, n: object, after: str | None, repo: str = REPO
+) -> list[str]:
+    """One GraphQL page; ``-F`` sends ``number`` typed, no ``after`` sends null.
+
+    ``owner`` and ``name`` are string variables (the query declares them non-null), so a
+    call that forgets the repository fails instead of reading another one.
+    """
+    owner, name = _repo_arg(repo).split("/")
     return [
         "gh",
         "api",
         "graphql",
         "-f",
         f"query={query}",
+        "-f",
+        f"owner={owner}",
+        "-f",
+        f"name={name}",
         "-F",
         f"number={_issue_arg(n)}",
         *_cursor_args(after),
     ]
 
 
-def argv_edits(n: int, after: str | None = None) -> list[str]:
+def argv_edits(n: int, after: str | None = None, repo: str = REPO) -> list[str]:
     """G5: one page of issue and comment edit timestamps."""
-    return _argv_graphql(EDITS_QUERY, n, after)
+    return _argv_graphql(EDITS_QUERY, n, after, repo)
 
 
-def argv_project_items(n: int, after: str | None = None) -> list[str]:
+def argv_project_items(n: int, after: str | None = None, repo: str = REPO) -> list[str]:
     """G6: one page of the issue's Project items (FR-007)."""
-    return _argv_graphql(PROJECT_ITEMS_QUERY, n, after)
+    return _argv_graphql(PROJECT_ITEMS_QUERY, n, after, repo)
 
 
-def argv_reread(n: int) -> list[str]:
+def argv_approval_events(
+    n: int, after: str | None = None, repo: str = REPO
+) -> list[str]:
+    """G8: one page of the issue's issue-field events (R35)."""
+    return _argv_graphql(APPROVAL_EVENTS_QUERY, n, after, repo)
+
+
+def argv_reread(n: int, repo: str = REPO) -> list[str]:
     """G7: re-read the issue's number, state, labels and assignees (FR-011)."""
     return [
         "gh",
         "api",
         "--method",
         "GET",
-        f"repos/{REPO}/issues/{_issue_arg(n)}",
+        f"repos/{_repo_arg(repo)}/issues/{_issue_arg(n)}",
         "--jq",
         REREAD_JQ,
     ]
@@ -765,14 +858,68 @@ def _project_item(node: object) -> ProjectItem:
     d = _obj(node)
     archived = d.get("isArchived")
     _check(type(archived) is bool)
-    # [UNVERIFIED] reply shape (design 837, FU-1): treated as None when the value
-    # is null or has no name; any other non-object value is malformed.
-    status = d.get("fieldValueByName")
     return ProjectItem(
         is_archived=bool(archived),
         project_id=_text(_obj(d.get("project")).get("id")),
-        status_name=None if status is None else _opt_text(_obj(status).get("name")),
+        status_name=_single_select(d.get("status")),
+        pipeline_name=_single_select(d.get("pipeline")),
     )
+
+
+_FIELD_EVENT_TYPES = {
+    "IssueFieldAddedEvent": "value",
+    "IssueFieldChangedEvent": "newValue",
+    "IssueFieldRemovedEvent": None,
+}
+
+
+def _field_event(node: object) -> LabelEvent | None:
+    """One G8 node as a ``LabelEvent`` for ``Approved``, or None for another field.
+
+    The event id is the time in whole epoch seconds (shortcut: two approval
+    events on one issue inside one second share an id, because the GraphQL node
+    id is a string; upgrade when the approval record can store a string id).
+    A bot or deleted actor has no ``databaseId``: ``actor_id`` 0 is no approver,
+    yet its removal still withdraws the approval.
+    """
+    d = _obj(node)
+    kind = _text(d.get("__typename"))
+    _check(kind in _FIELD_EVENT_TYPES)
+    created = _time(d.get("createdAt"))
+    _check("actor" in d)
+    actor = d["actor"]
+    actor_id, login, actor_type = 0, None, None
+    if actor is not None:
+        a = _obj(actor)
+        login, actor_type = _text(a.get("login")), _text(a.get("__typename"))
+        db = a.get("databaseId")
+        actor_id = _pos_int(db) if db is not None else 0
+    _check("issueField" in d)
+    name = _obj(d["issueField"]).get("name") if d["issueField"] is not None else None
+    key = _FIELD_EVENT_TYPES[kind]
+    value = None
+    if key is not None:
+        _check(key in d)
+        value = _opt_text(d[key])
+    if name != APPROVAL_FIELD_NAME:
+        return None
+    on = key is not None and value == APPROVAL_FIELD_VALUE
+    return LabelEvent(
+        id=int(created.timestamp()),
+        event="labeled" if on else "unlabeled",
+        label=APPROVAL_FIELD_LABEL,
+        actor_id=actor_id,
+        actor_login=login,
+        actor_type=actor_type,
+        created_at=created,
+    )
+
+
+def _single_select(value: object) -> str | None:
+    """Name of one single-select value; an absent value (null) has no name."""
+    if value is None:
+        return None
+    return _opt_text(_obj(value).get("name"))
 
 
 # --- typed reads: public API --------------------------------------------------
@@ -802,7 +949,12 @@ def user(runner: Runner, timeout_for: Callable[[], float | None]) -> Read:
 
 
 def discover(
-    runner: Runner, trigger: str, login: str, timeout_for: Callable[[], float | None]
+    runner: Runner,
+    trigger: str,
+    login: str,
+    timeout_for: Callable[[], float | None],
+    *,
+    repo: str = REPO,
 ) -> Read:
     """G2: a tuple of ``DiscoveredIssue`` (FR-003, FR-004).
 
@@ -811,7 +963,7 @@ def discover(
     ``ValueError`` before any call for a ``trigger`` or ``login`` that is unsafe
     as a command-line value (the cycle checks both first).
     """
-    reply = _call(runner, None, timeout_for, argv_discover(trigger, login))
+    reply = _call(runner, None, timeout_for, argv_discover(trigger, login, repo))
     if reply is None:
         return _SHARED_NO_CALL
     if reply.kind != "ok":
@@ -849,13 +1001,14 @@ def events(
     timeout_for: Callable[[], float | None],
     *,
     reserved: bool = False,
+    repo: str = REPO,
 ) -> Read:
     """G3 (G3' with ``reserved``): a tuple of ``LabelEvent`` (FR-005, FR-006)."""
     return _rest_read(
         runner,
         budget,
         timeout_for,
-        lambda page: argv_events(n, page),
+        lambda page: argv_events(n, page, repo),
         _event,
         "events_unreadable",
         "events_incomplete",
@@ -864,7 +1017,12 @@ def events(
 
 
 def marker_comments(
-    runner: Runner, budget: CallBudget, n: int, timeout_for: Callable[[], float | None]
+    runner: Runner,
+    budget: CallBudget,
+    n: int,
+    timeout_for: Callable[[], float | None],
+    *,
+    repo: str = REPO,
 ) -> Read:
     """G4: a tuple of ``MarkerEvidence`` for comments with a login (FR-009).
 
@@ -875,7 +1033,7 @@ def marker_comments(
         runner,
         budget,
         timeout_for,
-        lambda page: argv_comments(n, page),
+        lambda page: argv_comments(n, page, repo),
         _marker,
         "marker_unreadable",
         "marker_unreadable",
@@ -884,14 +1042,19 @@ def marker_comments(
 
 
 def edits(
-    runner: Runner, budget: CallBudget, n: int, timeout_for: Callable[[], float | None]
+    runner: Runner,
+    budget: CallBudget,
+    n: int,
+    timeout_for: Callable[[], float | None],
+    *,
+    repo: str = REPO,
 ) -> Read:
     """G5: an ``EditEvidence``; every failure is ``edits_unreadable`` (DF-02)."""
     out = _graphql_read(
         runner,
         budget,
         timeout_for,
-        lambda after: argv_edits(n, after),
+        lambda after: argv_edits(n, after, repo),
         "comments",
         _edit_issue,
         _comment_edit,
@@ -911,6 +1074,7 @@ def project_items(
     timeout_for: Callable[[], float | None],
     *,
     reserved: bool = False,
+    repo: str = REPO,
 ) -> Read:
     """G6 (G6' with ``reserved``): a tuple of ``ProjectItem`` (FR-007).
 
@@ -921,7 +1085,7 @@ def project_items(
         runner,
         budget,
         timeout_for,
-        lambda after: argv_project_items(n, after),
+        lambda after: argv_project_items(n, after, repo),
         "projectItems",
         lambda issue: None,
         _project_item,
@@ -931,15 +1095,49 @@ def project_items(
     return out if isinstance(out, Read) else Read(out[1])
 
 
+def approval_events(
+    runner: Runner,
+    budget: CallBudget,
+    n: int,
+    timeout_for: Callable[[], float | None],
+    *,
+    reserved: bool = False,
+    repo: str = REPO,
+) -> Read:
+    """G8: a tuple of ``LabelEvent`` for the ``Approved`` issue field (R35).
+
+    Every failure is ``events_unreadable``, like the label events it joins.
+    """
+    out = _graphql_read(
+        runner,
+        budget,
+        timeout_for,
+        lambda after: argv_approval_events(n, after, repo),
+        "timelineItems",
+        lambda issue: None,
+        _field_event,
+        "events_unreadable",
+        reserved,
+    )
+    if isinstance(out, Read):
+        return out
+    return Read(tuple(e for e in out[1] if e is not None))
+
+
 def reread(
-    runner: Runner, budget: CallBudget, n: int, timeout_for: Callable[[], float | None]
+    runner: Runner,
+    budget: CallBudget,
+    n: int,
+    timeout_for: Callable[[], float | None],
+    *,
+    repo: str = REPO,
 ) -> Read:
     """G7: an ``IssueSnapshot`` from one reserved call (FR-011).
 
     A timeout or 5xx is ``revalidation_transient``; any other failure, or a
     reply for another number, is ``revalidation_failed``.
     """
-    reply = _call(runner, budget, timeout_for, argv_reread(n), reserved=True)
+    reply = _call(runner, budget, timeout_for, argv_reread(n, repo), reserved=True)
     if reply is None:
         return _NO_CALL
     if reply.kind != "ok":

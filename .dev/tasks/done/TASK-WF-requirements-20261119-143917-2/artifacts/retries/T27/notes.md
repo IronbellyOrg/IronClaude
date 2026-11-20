@@ -1,0 +1,2 @@
+- review 1 F1.1 (minor wording: which check reports approved_field_missing) fixed after the review by a one-phrase edit; not re-reviewed
+- the issue numbers on R10 (516) and R21 (515) are inferred from the rows' topics; the requirements rows name none

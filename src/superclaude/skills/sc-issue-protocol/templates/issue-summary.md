@@ -7,6 +7,7 @@ Handled by issue-worker-t2 (tier 2): tier1b is not available to this user.
 - Type: <feature | bug>
 - Complexity: <simple | medium | complex> (rubric: `refs/claim.md`)
 - Effort estimate: <hours> hours
+- spec-route: <design | brainstorm> — <one-line reason> (design: Simple or Medium with a stated acceptance criterion; brainstorm: anything else, and always for Complex, which then hands off to `/sc:design`)
 
 ## What the issue asks for
 

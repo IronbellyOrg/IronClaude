@@ -1,0 +1,2 @@
+- review 1 F1.1: the dry-run test of run-all fakes run_sweep; a direct run_sweep(dry_run=True) test over the World in test_dispatch.py is not written (minor, open)
+- run-all is not given the shared --config option: it works on every repo, so it takes --config-dir; the shared-config test skips it

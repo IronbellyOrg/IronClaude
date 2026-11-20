@@ -389,6 +389,13 @@ def test_label_applied_then_removed_is_a_revocation() -> None:
     )
 
 
+def test_a_removal_in_the_same_second_as_the_label_is_a_revocation() -> None:
+    status = run(
+        [plan_reply(10, 0)], [label_event(1, 2), label_event(1, 2, "unlabeled")]
+    )
+    assert (status.state, status.label.reason) == ("revoked", "label-removed")
+
+
 def test_a_comment_approval_stands_when_the_label_is_removed() -> None:
     status = run(
         [plan_reply(10, 0), approving(11, 2)],
@@ -464,3 +471,69 @@ def test_the_host_login_flag_is_set_and_the_approval_is_still_accepted() -> None
     assert by_comment.approved and by_comment.comment.actor_is_host_login
     plain = run([plan_reply(10, 0)], [label_event(1, 2)])
     assert not plain.label.actor_is_host_login and not plain.assignee_is_host_login
+
+
+# --- claim-time approval (plan Task 11, R29, R35) ----------------------------------
+
+FIELD_LABEL = "issue-field:Approved"
+
+
+def _claim_time_event(tmp_path: Path, minutes: int) -> LabelEvent:
+    """The `Approved` field event the watcher kept in dispatch.json at claim time."""
+    stamp = at(minutes).strftime("%Y-%m-%dT%H:%M:%SZ")
+    path = tmp_path / "dispatch.json"
+    path.write_text(
+        json.dumps(
+            {
+                "9": {
+                    "state": "claimed",
+                    "approver_id": APPROVER_ID,
+                    "approval_event_id": 4242,
+                    "approved_at": stamp,
+                }
+            }
+        )
+    )
+    entry = json.loads(path.read_text())["9"]
+    return LabelEvent(
+        entry["approval_event_id"],
+        "labeled",
+        FIELD_LABEL,
+        entry["approver_id"],
+        "approver-login",
+        "User",
+        parse_utc(entry["approved_at"]),
+    )
+
+
+def _run_field(comments, events) -> sp.StageStatus:
+    return sp.evaluate(
+        9,
+        comments,
+        events,
+        edits_for(*comments),
+        plan_hash_now=H_A,
+        host_login=HOST,
+        assignees=(OWNER,),
+        approvers=frozenset({APPROVER_ID}),
+        approval_label=FIELD_LABEL,
+    )
+
+
+def test_a_claim_time_approval_dated_before_the_plan_reply_gives_label_before_plan(
+    tmp_path: Path,
+) -> None:
+    claim = _claim_time_event(tmp_path, 0)
+    status = _run_field([plan_reply(10, 5)], [claim])
+    assert status.approved is False and status.state == "awaiting-approval"
+    assert (status.label.accepted, status.label.reason) == (False, "label-before-plan")
+
+
+def test_an_approval_dated_after_the_plan_reply_is_accepted_even_with_a_claim_time_one(
+    tmp_path: Path,
+) -> None:
+    claim = _claim_time_event(tmp_path, 0)
+    fresh = replace(claim, id=4243, created_at=at(8))
+    status = _run_field([plan_reply(10, 5)], [claim, fresh])
+    assert status.approved is True and status.label.reason == "ok"
+    assert status.label.evidence_id == 4243 and status.label.actor_id == APPROVER_ID

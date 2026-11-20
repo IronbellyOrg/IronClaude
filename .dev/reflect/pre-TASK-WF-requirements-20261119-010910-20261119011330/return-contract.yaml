@@ -1,0 +1,37 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-010910-20261119011330/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-010910-20261119011330/audit.log
+confidence_calibrated: 0.72
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: 1.0
+coverage_pct_union: 0.97
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+input_tree_sha256: a6bc91452ade8e06661bca8658b25fc16c0aca983f5f0395d1390359ab888713
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-010910-20261119011330/artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_dropped: 9
+evidence_validator_ran: true
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-010910-20261119011330/reviewer-cards/reviewer-1-card.md, /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-010910-20261119011330/reviewer-cards/reviewer-2-card.md, /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-010910-20261119011330/reviewer-cards/reviewer-3-card.md]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/claim-handoff-planb/.dev/reflect/pre-TASK-WF-requirements-20261119-010910-20261119011330/adversarial/adversarial
+adversarial_convergence_score: 0.8125
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+regression_present: false
+user_decision_required: true
+needs_human_decision: true
+per_task_verdicts: []
+degraded_components: [calibrator-disjoint-set, adversarial-quick-depth]

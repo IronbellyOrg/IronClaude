@@ -7,7 +7,7 @@
 # governed; every other session is ordinary and never blocked (FR-L-53).
 # Ten-part layout (DD-1); part 8 holds the section 5.2 classifiers (Skill, Bash,
 # Monitor, edits, Agent/Task, Cron/Schedule, escape and MCP tools); others NONE.
-# launch-level-guard-version: 1
+# launch-level-guard-version: 2
 
 # 1. Settings
 export LC_ALL=C
@@ -68,9 +68,13 @@ ll_say() {
         w='In a launched session gh api may only read, and only in a form the guard can check: a gh api write can merge, comment or change the main branch.'
         y='Run the read as one plain command with every value written out, for example gh api repos/o/r/pulls/5 --jq .state, or use a gh command for the step (gh pr view --json, gh pr comment, gh pr create --repo ...) at a level that allows it, or ask the person.' ;;
     LL-SUBMIT)
-        b='/sc:pr-submit or a GitHub write (opening, editing, readying or commenting on a pull request or issue).'
+        b='/sc:pr-submit or a GitHub write (opening, editing, readying or commenting on a pull request).'
         w='Publishing work needs a launch with --pipeline full --submit.'
         y='Run it yourself in your own session, or claim the issue again with --pipeline full --submit.' ;;
+    LL-ISSUE)
+        b='a GitHub issue, label or project write (gh issue create, edit, comment or close, gh label, gh project item-edit).'
+        w='Only the coordinator writes to an issue, a label or a Project, under that issue grant row; a launched session reports through its result file.'
+        y='Write .dev/issues/<N>/result.md (outcome, artifacts, pull_request) and let the coordinator post it.' ;;
     LL-REPO)
         b='gh pr create without --repo.'
         w='Without --repo, gh can open the pull request on the parent repository of a fork.'
@@ -441,7 +445,14 @@ if [ "$LL_BRANCH" = tool ]; then
             # G2: the coordinator-side issue-pipeline commands write the approval rows and the
             # worker's release (.ok) file; a bound worker must not run them (plan-hash and
             # check-approval stay allowed: the worker needs them).
-            case $T in *release-worker* | *release_worker* | *issue-pipeline*adopt-* | *issue-pipeline*record-* | *issue_pipeline*release* | *issue_pipeline*approval_record*) LL_CLASSES+='TAMPER ' ;; esac
+            # `issue-pipeline complete` writes the result comment and moves the Status; it is the
+            # coordinator's alone. The verb word is anchored by a space (with its own end-of-text
+            # form) so `plan-hash` on a path containing "completed" and `pytest
+            # tests/issue_pipeline/test_complete.py` stay allowed. Best effort, not a control: the
+            # grant-row rule of WORKER-CONTRACT.md is the control. Accepted over-match: a governed
+            # command that names issue_pipeline/complete.py (sed, git diff, ruff) is refused.
+            # Not matched: names built from strings (getattr, importlib with a split name).
+            case $T in *release-worker* | *release_worker* | *issue-pipeline*adopt-* | *issue-pipeline*record-* | *issue_pipeline*release* | *issue_pipeline*approval_record* | *issue-pipeline[[:space:]]complete[[:space:]]* | *issue-pipeline[[:space:]]complete | *issue_pipeline.complete* | *issue_pipeline/complete.py* | *issue_pipeline*import*complete* | *issue_pipeline*complete.run*) LL_CLASSES+='TAMPER ' ;; esac
             LL_CL=0 LL_CF=0 LL_SA=0 # a claude word; a claude launch flag word (whole command); an orca send or ask word
             LL_GLOB=0 # once per command: a glob character in the text
             case $T in *[\*\?\[\{]*) LL_GLOB=1 ;; esac
@@ -650,7 +661,9 @@ if [ "$LL_BRANCH" = tool ]; then
                             'alias '* | 'extension '* | *'$'*) LL_CLASSES+='UNKNOWN ' ;;
                             'search '* | 'status '* | 'auth '* | 'browse '* | 'help '* | 'completion '*) ;;
                             *' view' | *' list' | *' status' | *' diff' | *' checks' | *' watch' | *' checkout') ;;
-                            'pr create' | 'pr edit' | 'pr comment' | 'pr ready' | 'issue create' | 'issue edit' | 'issue comment') LL_CLASSES+='SUBMIT ' ;;
+                            'project item-list' | 'project field-list') ;;
+                            'issue '* | 'label '* | 'project '*) LL_CLASSES+='ISSUE ' ;;
+                            'pr create' | 'pr edit' | 'pr comment' | 'pr ready') LL_CLASSES+='SUBMIT ' ;;
                             *) [ "$LL_CP" != "$i" ] || LL_CLASSES+='UNKNOWN ' ;;
                             esac
                             # H4: each pr create needs a nonempty repo operand in its own segment.
@@ -761,8 +774,11 @@ if [ "$LL_BRANCH" = tool ]; then
     # FR-L-49: the tamper tokens in T or the edit path; the store part is
     # built from LL_S1 and LL_S2, so this text never names it joined.
     case $LL_TT in
-    *"$LL_S1/$LL_S2"* | *.claude/settings* | *.claude/hooks* | *disableAllHooks* | *.gitconfig* | *.git/config* | *.config/git*) LL_CLASSES+='TAMPER ' ;;
+    *"$LL_S1/$LL_S2"* | *.claude/settings* | *.claude/hooks* | *disableAllHooks* | *.gitconfig* | *.git/config* | *.config/git* | *.config/superclaude*) LL_CLASSES+='TAMPER ' ;;
     esac
+    # *.config/superclaude* (owner decision of 2026-11-19) protects the watcher config and the
+    # approvers file. Accepted over-match: any governed command whose text mentions that path
+    # is refused, reads included.
     # FR-050..FR-052 (#441): the git pre-push hook, its data file, --no-verify
     # and hook config, lowercased so case changes do not slip past. The config
     # transports (--config-env, GIT_CONFIG_*) are left to their L1 classes (SD-2).
@@ -783,7 +799,7 @@ if [ "$LL_BRANCH" = tool ]; then
 
     # 9. One case on CLASS:LEVEL, taken in message precedence; any blocked class
     # blocks the call with the first blocked class's message.
-    for LL_C in BIG TAMPER MERGE GHWRITE PROTECTED ESCAPE MCP UNKNOWN SUBMIT REPO PUSH PUSHFORM COMMIT TURN IMPL SKILL; do
+    for LL_C in BIG TAMPER MERGE GHWRITE ISSUE PROTECTED ESCAPE MCP UNKNOWN SUBMIT REPO PUSH PUSHFORM COMMIT TURN IMPL SKILL; do
         case $LL_CLASSES in *" $LL_C "*) ;; *) continue ;; esac
         case $LL_C:$LL_LEVEL in
         IMPL:WA | IMPL:F | IMPL:FS | TURN:WA | TURN:F | TURN:FS) ;;
@@ -796,6 +812,7 @@ if [ "$LL_BRANCH" = tool ]; then
         PROTECTED:W | PROTECTED:WA | PROTECTED:F | PROTECTED:FS) ll_deny LL-PROTECTED ;;
         MERGE:W | MERGE:WA | MERGE:F | MERGE:FS) ll_deny LL-MERGE ;;
         GHWRITE:W | GHWRITE:WA | GHWRITE:F | GHWRITE:FS) ll_deny LL-GH-WRITE ;;
+        ISSUE:W | ISSUE:WA | ISSUE:F | ISSUE:FS) ll_deny LL-ISSUE ;;
         UNKNOWN:W | UNKNOWN:WA | UNKNOWN:F | UNKNOWN:FS) ll_deny LL-UNKNOWN ;;
         MCP:W | MCP:WA | MCP:F | MCP:FS) ll_deny LL-MCP ;;
         ESCAPE:W | ESCAPE:WA | ESCAPE:F | ESCAPE:FS) ll_deny LL-ESCAPE ;;

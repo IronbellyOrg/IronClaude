@@ -6,7 +6,7 @@ category: workflow
 complexity: advanced
 mcp-servers: [litellm, auggie, codegraph]
 personas: [analyzer]
-argument-hint: "--claim <number|url> [--pipeline worktree|full|none] [--submit] | --create \"<description>\" [--depth quick|standard|deep] [--mode feature|bug] [--type <type>]"
+argument-hint: "--claim <number|url> [--pipeline worktree|full|none] [--submit] [--stage research|spec|plan|debug] | --create \"<description>\" [--depth quick|standard|deep] [--mode feature|bug] [--type <type>]"
 ---
 
 # /sc:issue: GitHub Issue Claim and Create
@@ -42,6 +42,7 @@ Explicit only: the user types `/sc:issue --claim ...` or `/sc:issue --create ...
 | `--type` | create | chosen by a worker when omitted | `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install`, `other` | Area of the change; a feature in `tests` gets the issue type Test, otherwise the area is recorded in `flags.md`; no label is applied for it |
 | `--pipeline` | claim | `full` or `worktree`, picked from the issue | `worktree`, `full`, `none` | How far the launched agent goes. Omitted means the level is picked from the issue: a bug or a simple or medium feature of 16 hours or less gets `full`; a complex feature, a feature over 16 hours or an issue that cannot be classified gets `worktree` (the rule is in the skill, `refs/claim.md`). `worktree` and `full` create the worktree and launch an agent; `none` creates no worktree and launches no agent |
 | `--submit` | claim | off | no value | Only with `--pipeline full` (an explicit `--pipeline full` is still required): the agent also commits, pushes a feature branch to `origin` and runs `/sc:pr-submit --monitor 3`. Never merges |
+| `--stage` | claim | none (the recommended chain) | `research`, `spec`, `plan`, `debug` | The Project Status the issue is in; the issue watcher sends it. Step 1 of the next steps becomes that stage's command (`/sc:research`, `/sc:design` or `/sc:brainstorm`, `/sc:workflow`, `/sc:troubleshoot`; `--fix` only with `--pipeline full`). Valid with every `--pipeline` value; the launched agent's last step is writing `.dev/issues/<N>/result.md` |
 
 There is no repository option (the repo is always `origin`), no dry-run option and no preview option.
 
@@ -57,6 +58,8 @@ A person who types `--claim` with no `--pipeline` gets the picked level, and an 
 - `--pipeline` or `--submit` together with `--create`: STOP `E-CLAIM-ONLY-FLAG` ("--pipeline and --submit apply to --claim only").
 - A `--pipeline` value that is not `worktree`, `full` or `none`, or `--pipeline` with no value: STOP and list those three values.
 - `--submit` with a value, without `--pipeline full`, or with no `--pipeline`: STOP `E-SUBMIT-NEEDS-FULL` ("--submit needs --pipeline full").
+- `--stage` together with `--create`: STOP `E-CLAIM-ONLY-FLAG` ("--stage applies to --claim only").
+- A `--stage` value that is not `research`, `spec`, `plan` or `debug`, or `--stage` with no value: STOP and list those four values.
 
 ## Examples
 
@@ -67,6 +70,7 @@ A person who types `--claim` with no `--pipeline` gets the picked level, and an 
 /sc:issue --claim 302 --pipeline none
 /sc:issue --claim 302 --pipeline full
 /sc:issue --claim 302 --pipeline full --submit
+/sc:issue --claim 302 --pipeline worktree --stage plan
 /sc:issue --create "The sync check misses deleted skill files" --mode bug --type cli --depth standard
 /sc:issue --create @notes/new-command.md --depth deep
 ```

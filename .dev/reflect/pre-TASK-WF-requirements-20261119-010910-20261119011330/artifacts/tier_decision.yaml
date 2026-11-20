@@ -1,0 +1,11 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: null
+surface_unreached: null
+composite_score: 7
+escalation_reason: "S_domains >= 3 (code, tests, docs, hooks); 23 tasks; rule 4"
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+executor_class_source: unknown

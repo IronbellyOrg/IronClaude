@@ -11,3 +11,10 @@
 - Recurring pattern: specs labelled FR-/NFR-/AC- yield 0 Pass-1 ids (reflect regex is R-/REQ-/SPEC-/T- only) -> coverage_degraded parsed-sparse forces T2 every time. Lexical containment then undercounts paraphrase (189/322); a qa reviewer walking the unmapped rows is what finds the real drops.
 - Recurring plan-defect classes for protocol edits: (1) plan requires `make verify-sync` but never runs `make sync-dev`; (2) spec rule text carries `SKILL.md:NNN` pointers that test_protocol_prose_has_no_cross_file_line_pointers rejects; (3) rules placed in a ref file that is not loaded on the path that needs them (retry.md loads only on A2 failure/resume); (4) bare line citations drift once earlier tasks edit the same file.
 - Lesson: label-only FR->task self-audits falsely report coverage; require content-level disposition of unmapped rows.
+
+## reflect-post-zero-setup-watcher-20261120042051 (UC-2, zero-setup issue watcher plus R36 removal, 28 tasks)
+- Verdict: PARTIAL (tier 2, convergence 0.895, calibrated 0.90 base card). 3 regression (2 blocking, both fail closed), 9 drift (7 Notes), 1 necessary.
+- Recurring pattern: **a loader or contract change that rejects old input is not matched by a check of the machine's own existing config and of the runbook text**: T4a made `load_config` refuse `labels.approval`; the host config still had it (`check-config` exit 2) and setup.md still taught label approval, while the ledger said every task was done.
+- Recurring pattern: a loop cap implemented as "stop starting children" while the plan said "total cap"; a killed-child brake keyed on `timed_out` only, so a signal exit slips through. Check every "killed or timed out" rule against the runner's real return shape.
+- Lesson: ledger rows cannot stand in for unread files: two of three reviewers graded T23 or T26 "met" from the ledger and were wrong.
+- Reflect run on an uncommitted tree: the diff included unrelated untracked files from other sessions.

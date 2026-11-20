@@ -80,6 +80,8 @@ REASON_TABLE: dict[str, tuple[str, int]] = {
     "revalidation_failed": ("skip", 0),
     "marker_unreadable": ("skip", 0),
     "edits_unreadable": ("skip", 0),
+    # The ship gate (R33): a Pipeline other than None while the gate is closed.
+    "level_gated": ("skip", 0),
     # Entry reasons.
     "prompt_invalid": ("entry", 7),
     "revalidation_transient": ("entry", 7),

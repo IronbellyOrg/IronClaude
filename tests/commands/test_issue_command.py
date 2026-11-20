@@ -81,7 +81,7 @@ def test_st3_version_is_1_1_0():
     assert _frontmatter()["version"] == '"1.1.0"'
 
 
-def test_st1_options_table_lists_exactly_the_seven_flags():
+def test_st1_options_table_lists_exactly_the_eight_flags():
     assert sorted(_options_rows()) == sorted(
         [
             "--claim",
@@ -91,8 +91,65 @@ def test_st1_options_table_lists_exactly_the_seven_flags():
             "--type",
             "--pipeline",
             "--submit",
+            "--stage",
         ]
     )
+
+
+STAGES = ["research", "spec", "plan", "debug"]
+
+
+def test_r23_stage_option_is_claim_only_with_the_four_stages():
+    row = _options_rows()["--stage"]
+    assert row[1] == "claim"
+    assert re.findall(r"`([a-z]+)`", row[3]) == STAGES
+    assert "--stage research|spec|plan|debug" in _frontmatter()["argument-hint"]
+
+
+def test_r23_stage_stop_rules_follow_the_submit_rule():
+    text = _text()
+    stops = text.index("## STOP rules")
+    rules = text[stops : text.index("\n## ", stops + 1)]
+    submit = rules.index("E-SUBMIT-NEEDS-FULL")
+    stage_create = rules.index('"--stage applies to --claim only"')
+    stage_value = rules.index("A `--stage` value that is not")
+    assert submit < stage_create < stage_value
+    assert "`--stage` together with `--create`: STOP `E-CLAIM-ONLY-FLAG`" in rules
+    assert "with no value" in rules[stage_value:]
+
+
+@pytest.mark.parametrize("stage", STAGES)
+@pytest.mark.parametrize(
+    "level", ["none", "worktree", "full", "full --submit"], ids=str
+)
+def test_r23_every_prompt_form_the_watcher_sends_is_a_documented_form(stage, level):
+    """Each form the watcher can send (Task 7) parses under the documented rules:
+    one of the three --pipeline values, --submit only after full, one stage."""
+    from superclaude.cli.issue_watch import launch
+
+    prompt = f"/sc:issue --claim 12 --pipeline {level} --stage {stage}"
+    assert launch.PROMPT_PATTERN.fullmatch(prompt)
+    tokens = prompt.split()
+    assert tokens[tokens.index("--pipeline") + 1] in ("worktree", "full", "none")
+    assert ("--submit" in tokens) <= (tokens[tokens.index("--pipeline") + 1] == "full")
+    assert tokens[tokens.index("--stage") + 1] in STAGES
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "/sc:issue --claim 12 --pipeline none --stage research extra",
+        "/sc:issue --claim 12 --pipeline turbo --stage research",
+        "/sc:issue --claim 12 --pipeline worktree --submit --stage plan",
+        "/sc:issue --claim 12 --pipeline none --submit --stage plan",
+        "/sc:issue --claim 12 --pipeline full --stage ready",
+        "/sc:issue --claim 12 --stage plan",
+    ],
+)
+def test_r23_extra_text_an_unknown_level_and_submit_without_full_are_refused(prompt):
+    from superclaude.cli.issue_watch import launch
+
+    assert launch.PROMPT_PATTERN.fullmatch(prompt) is None
 
 
 @pytest.mark.parametrize("flag", sorted(ALLOWED))
