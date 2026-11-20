@@ -336,6 +336,33 @@ def test_an_open_plan_request_is_one_place_until_its_record_is_final_or_it_is_st
     assert count(reg, doc_with(holds={key: unrequested})) == {"ironclaude-1": set()}
 
 
+def test_an_acknowledged_plan_request_with_an_open_record_is_work_to_resume():
+    key = K(5)
+
+    def hold(request="acked", state="held"):
+        return Hold(
+            state=state,
+            first_held_at=NOW,
+            plan_requested_at=NOW,
+            plan_request_orchestrator="ironclaude-1",
+            plan_request=request,
+        )
+
+    def found(h, status=None):
+        return route.plan_in_progress(
+            doc_with(holds={key: h}), lambda repo, n, at: status
+        )
+
+    assert found(hold()) == {"ironclaude-1"}  # taken, no record yet
+    assert found(hold(), "in_progress") == {"ironclaude-1"}
+    assert found(hold(), "done") == found(hold(), "failed") == set()
+    # an unacknowledged request is resent (and so starts the session); a hold that
+    # ended by hand or a request that is over is not work
+    for request in ("pending", "woken", "stuck", "skipped", "abandoned"):
+        assert found(hold(request)) == set()
+    assert found(hold(state="hand_removed")) == set()
+
+
 # --- routing (5.7 point 3) --------------------------------------------------------------------------------------------
 
 
@@ -511,6 +538,30 @@ def test_the_poll_starts_a_dead_orchestrator_again_with_the_same_tag_and_a_resum
     }
     assert d["assigned"] == [] and d["plan_requests"] == [] and d["attempt"] == 1
     assert res.exit_code == 0 and wake_id == d["wake_id"]
+
+
+def test_the_poll_starts_a_dead_orchestrator_again_for_an_acknowledged_plan_request(
+    tmp_path, tmp_state, gh_world
+):
+    world = gh_world()
+    write_registry(world.config, {"ironclaude-1": {}})
+    h = Hold(
+        state="held",
+        first_held_at=NOW,
+        plan_requested_at=NOW,
+        plan_request_orchestrator="ironclaude-1",
+        plan_request="acked",
+        plan_acked_at=NOW,
+        missing=("priority",),
+    )
+    tmp_state.save(record.set_hold(doc_with(), K(5), h))
+    waker = FakeWaker(dead={"orchestrator-ironclaude-1"})
+    world.issue(REPO_A, 5, labels=["hold:plan"], body="")
+    run(world, tmp_path, tmp_state, waker=waker)
+    ((target, _, _),) = waker.deliveries
+    assert target.orchestrator == "ironclaude-1"
+    (path,) = wake_files(world.config)
+    assert read_wake(path)["target"]["resume"] is True
 
 
 def test_a_failed_restart_is_exit_7(tmp_path, tmp_state, gh_world):

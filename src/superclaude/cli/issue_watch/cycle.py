@@ -1389,19 +1389,16 @@ class _Cycle:
         registry = route.load_registry(cfg.orchestrator_repo)
         before = dict(registry)
         state_files = route.read_state_files(cfg.orchestrator_repo)
-        counts = route.in_flight(
-            registry,
-            self.doc,
-            state_files,
-            lambda repo, n, at: route.plan_record_status(
-                cfg.orchestrator_repo, repo, n, at
-            ),
-        )
+
+        def plan_status(repo: str, n: int, at: datetime) -> str | None:
+            return route.plan_record_status(cfg.orchestrator_repo, repo, n, at)
+
+        counts = route.in_flight(registry, self.doc, state_files, plan_status)
         in_progress = {
             sf.orchestrator
             for sf in state_files.values()
             if sf.orchestrator and sf.readable and sf.status == "in_progress"
-        }
+        } | route.plan_in_progress(self.doc, plan_status)
         live: dict[str, bool | None] = {}
         for e in registry.values():
             if e.status == "active":

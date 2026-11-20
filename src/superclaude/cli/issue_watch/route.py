@@ -426,6 +426,31 @@ def in_flight(
     return counts
 
 
+def plan_in_progress(
+    doc: StoreDoc,
+    plan_status: Callable[[str, int, datetime], str | None],
+) -> set[str]:
+    """The orchestrators that hold an acknowledged plan request whose record is not final.
+
+    Like an ``in_progress`` state file, such a request is work an orchestrator
+    that died must be started again for: nothing resends an acknowledged request.
+    """
+    found: set[str] = set()
+    for key, hold in doc.holds.items():
+        if (
+            hold.state != "held"
+            or hold.plan_request != "acked"
+            or hold.plan_requested_at is None
+            or hold.plan_request_orchestrator is None
+        ):
+            continue
+        repo, number = split_issue_key(key)
+        if plan_status(repo, number, hold.plan_requested_at) in ("done", "failed"):
+            continue
+        found.add(hold.plan_request_orchestrator)
+    return found
+
+
 # --- routing -------------------------------------------------------------------------
 
 
