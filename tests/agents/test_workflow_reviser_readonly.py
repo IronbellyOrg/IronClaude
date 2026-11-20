@@ -37,3 +37,11 @@ def test_remediation_pins_reviser_fail_closed_and_untrusted():
     assert "Fail closed" in text
     assert "never falls back to `general-purpose`" in text
     assert "untrusted data" in text
+
+
+def test_remediation_checks_agent_precedence_and_untouched_files():
+    text = " ".join(_REF.read_text(encoding="utf-8").split())
+    assert "is read first by Claude Code and shadows it" in text
+    assert "`tools:` line `Read, Edit, Grep, Glob` and nothing else" in text
+    assert "sha256 of the original plan" in text
+    assert "status --porcelain" in text
