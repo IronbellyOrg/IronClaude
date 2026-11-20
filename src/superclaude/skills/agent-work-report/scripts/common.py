@@ -273,8 +273,8 @@ SESSION_URL = "orca://session/"
 NO_ONE_WAITING = "No agent session is waiting on you."
 # Said once under "Not checked" every run, so a short "Needs you" is never read as "nothing is stuck".
 NOT_ASKED = (
-    "Agent sessions that stopped without asking anything were not asked what they need: the session "
-    'manager that checks in with sessions is not built yet, so "Needs you" lists only sessions whose own '
+    "Agent sessions that stopped without asking anything were not asked what they need: the orchestrator "
+    'does every check-in itself and there is no session manager, so "Needs you" lists only sessions whose own '
     "transcript shows them waiting on you."
 )
 

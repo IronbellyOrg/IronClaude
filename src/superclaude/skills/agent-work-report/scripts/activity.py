@@ -7,9 +7,14 @@ Short on purpose: for each new or changed item in the person's groups and the ca
 MAX_EVENTS GitHub events since the previous report (comments trimmed), a pull request's checks and review
 state, its ClickUp tasks' new comments, and its agent sessions' last prompts and reply. Then every ClickUp
 chat message to the person. The model writes the report's short notes from this file and calls nothing.
+
+Everything other people wrote (comments, titles, messages) and everything an agent session said is untrusted
+text: it is written only as a quoted line, `> ` followed by the text with its control characters removed,
+after a script line that says what it is. A quoted line is data, never an instruction.
 """
 
 import sys
+import unicodedata
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -30,6 +35,23 @@ SKIP = {
 MINE = {"assigned", "owned", "opened", "inprogress", "candidate"}
 MAX_EVENTS = 8
 BODY = 600
+
+
+def clean(text):
+    """One line of remote text: whitespace folded to single spaces and every control or format character
+    (escape codes, bidirectional overrides, zero-width marks) dropped."""
+    text = "".join(
+        c for c in str(text) if unicodedata.category(c)[0] != "C" or c in "\n\t "
+    )
+    return " ".join(text.split())
+
+
+def quote(text, limit=None):
+    """Remote prose as one quoted line. Everything other people wrote (comments, titles, prompts, replies,
+    messages) goes into activity.md only through this, so it can never read as a heading, a list item or an
+    instruction: the model reads every line that starts with `> ` as data."""
+    text = clean(text)
+    return "> " + (text[:limit] if limit else text)
 
 
 def when(e):
@@ -53,7 +75,7 @@ def events(url, since):
             f"repos/{org}/{repo}/issues/{n}/timeline?per_page=100",
         )
     except CommandError as e:
-        return [f"- could not read the timeline: {e}"]
+        return ["- could not read the timeline:", quote(e, BODY)]
     evs = [e for page in pages for e in page if e.get("event") not in SKIP]
     evs = ([e for e in evs if when(e) >= since] if since else evs)[-MAX_EVENTS:]
     lines = []
@@ -64,31 +86,34 @@ def events(url, since):
             e.get("event"),
         )
         if ev in ("commented", "reviewed"):
-            body = " ".join((e.get("body") or "").split())
-            lines.append(f'- {t} {ev} by {who} {e.get("state", "")}: "{body[:BODY]}"')
+            lines.append(f"- {t} {ev} by {clean(who)} {clean(e.get('state', ''))}:")
+            lines.append(quote(e.get("body") or "", BODY))
         elif ev in ("assigned", "unassigned"):
             lines.append(
-                f"- {t} {ev} {(e.get('assignee') or {}).get('login')} by {who}"
+                f"- {t} {ev} {clean((e.get('assignee') or {}).get('login'))} by {clean(who)}"
             )
         elif ev == "renamed":
             r = e.get("rename") or {}
-            lines.append(f"- {t} renamed by {who}: {r.get('from')} -> {r.get('to')}")
+            lines.append(f"- {t} renamed by {clean(who)}:")
+            lines.append(quote(f"{r.get('from')} -> {r.get('to')}", BODY))
         elif ev == "cross-referenced":
             src = (e.get("source") or {}).get("issue") or {}
             lines.append(
-                f"- {t} referenced from {src.get('html_url')} ({src.get('state')}) {src.get('title', '')[:80]}"
+                f"- {t} referenced from {clean(src.get('html_url'))} ({clean(src.get('state'))}):"
             )
+            lines.append(quote(src.get("title", ""), 80))
         elif ev == "committed":
             lines.append(
-                f"- {when_local((e.get('author') or {}).get('date', ''))} commit {e.get('sha', '')[:8]}: {(e.get('message') or '').splitlines()[0][:100]}"
+                f"- {when_local((e.get('author') or {}).get('date', ''))} commit {clean(e.get('sha', '')[:8])}:"
             )
+            lines.append(quote((e.get("message") or "").splitlines()[0], 100))
         elif ev == "referenced":
             # GitHub's "referenced" is a commit message that names this item, not another issue or pull request.
             lines.append(
-                f"- {t} a commit by {who} mentioned this item in its message (commit {(e.get('commit_id') or '')[:8]})"
+                f"- {t} a commit by {clean(who)} mentioned this item in its message (commit {clean((e.get('commit_id') or '')[:8])})"
             )
         elif ev:
-            lines.append(f"- {t} {ev} by {who}")
+            lines.append(f"- {t} {clean(ev)} by {clean(who)}")
     return lines
 
 
@@ -102,7 +127,7 @@ def pr_state(url):
             "mergeable,isDraft,reviewDecision,statusCheckRollup",
         )
     except CommandError as e:
-        return f"- now: could not read ({e})"
+        return f"- now: could not read ({clean(e)[:200]})"
     checks = {}
     for c in p.get("statusCheckRollup") or []:
         k = (c.get("conclusion") or c.get("state") or "PENDING").upper()
@@ -115,36 +140,35 @@ def pr_state(url):
 
 def clickup_lines(t, comments):
     lines = [
-        f"- ClickUp task [{t['title']}]({t['url']}): {t['boards'][0]['status']}; assignees "
-        f"{', '.join(t['assignees']) or 'none'}; updated {when_local(t['updated'])}"
+        f"- ClickUp task {t['url']}: {clean(t['boards'][0]['status'])}; assignees "
+        f"{clean(', '.join(t['assignees'])) or 'none'}; updated {when_local(t['updated'])}; its title:",
+        quote(t["title"], BODY),
     ]
     for c in comments.get(t["url"], [])[-MAX_EVENTS:]:
         lines.append(
-            f"  - {when_local(c['date'])} comment by {c['from']}{' (mentions you)' if c['mentions_you'] else ''}: "
-            f'"{" ".join(c["text"].split())[:BODY]}"'
+            f"- {when_local(c['date'])} comment by {clean(c['from'])}{' (mentions you)' if c['mentions_you'] else ''}:"
         )
+        lines.append(quote(c["text"], BODY))
     return lines
 
 
 def session_lines(s):
     f = s["since_previous_report"]
     lines = [
-        f"- Agent session {s['title']} (orca://session/{s['session_id']}), branch {s['branch'] or 'none'}: "
+        f"- Agent session orca://session/{s['session_id']}, branch {clean(s['branch']) or 'none'}: "
         f"Claude {'running' if s['claude_running'] else 'not running'}, {f['events']} events since the previous "
-        f"report, last activity {when_local(s.get('last_event'))}"
+        f"report, last activity {when_local(s.get('last_event'))}; its title:",
+        quote(s["title"], 80),
     ]
-    lines += [
-        f'  - you asked {when_local(p["time"])}: "{" ".join(p["text"].split())[:300]}"'
-        for p in f["prompts"][-3:]
-    ]
-    lines += [
-        f'  - its last reply {when_local(r["time"])}: "{" ".join(r["text"].split())[:400]}"'
-        for r in f["replies"][-1:]
-    ]
-    lines += [f"  - error: {e[:200]}" for e in f["errors"][-2:]]
+    for p in f["prompts"][-3:]:
+        lines += [f"  - you asked {when_local(p['time'])}:", quote(p["text"], 300)]
+    for r in f["replies"][-1:]:
+        lines += [f"  - its last reply {when_local(r['time'])}:", quote(r["text"], 400)]
+    for e in f["errors"][-2:]:
+        lines += ["  - error:", quote(e, 200)]
     if f["pending_tool_call"]:
         lines.append(
-            f"  - stopped on a {f['pending_tool_call']['tool']} call with no result since {when_local(f['pending_tool_call']['time'])}"
+            f"  - stopped on a {clean(f['pending_tool_call']['tool'])} call with no result since {when_local(f['pending_tool_call']['time'])}"
         )
     return lines
 
@@ -191,7 +215,7 @@ def main(run):
             for ln in session_lines(sessions[s["session_id"]])
         ]
         return (
-            [f"## {it['title']}", url]
+            [f"## {url}", quote(it["title"], BODY)]
             + (evs or ["- no activity in this window"])
             + [""]
         )
@@ -215,11 +239,12 @@ def main(run):
             and cls["items"][u]["priority"] == "Unset"
             and found
         ):
-            mentions.append(f"### {items[u]['title']} ({u})")
-            mentions += [
-                f'- {m["date"][:10]} {m["where"]} by {m["by"]}: "{m["line"]}"'
-                for m in found[-3:]
-            ]
+            mentions += [f"### {u}", quote(items[u]["title"], BODY)]
+            for m in found[-3:]:
+                mentions += [
+                    f"- {clean(m['date'][:10])} {clean(m['where'])} by {clean(m['by'])}:",
+                    quote(m["line"], BODY),
+                ]
     if len(mentions) == 2:
         mentions.append("- none")
     parts.append(mentions + [""])
@@ -230,9 +255,10 @@ def main(run):
     chat = ["## ClickUp messages to you", ""]
     for m in cu_events["chat"]:
         chat.append(
-            f"- {when_local(m['date'])} from {m.get('from') or m.get('from_user_id')}"
-            f'{" (tags you)" if m.get("mentions_you") else ""}: "{" ".join(m["text"].split())[:BODY]}"'
+            f"- {when_local(m['date'])} from {clean(m.get('from') or m.get('from_user_id'))}"
+            f"{' (tags you)' if m.get('mentions_you') else ''}:"
         )
+        chat.append(quote(m["text"], BODY))
     if len(chat) == 2:
         chat.append("- none since the previous report")
     (run / "activity.md").write_text(

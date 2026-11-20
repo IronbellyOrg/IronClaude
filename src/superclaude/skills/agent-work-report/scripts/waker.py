@@ -5,7 +5,8 @@ usage: waker.py morning | hourly | check-missed
 
 morning       find the coordinator session (the terminal running Claude under the ccsession tag), starting
               one if there is none, and send it one wake line to run today's report
-hourly        the same, for the coordinator's hourly check (does nothing until the coordinator is built)
+hourly        no hourly check exists: the orchestrator does every check-in itself and there is no session manager,
+              so this mode only records that it was skipped
 check-missed  report if no daily run has completed today (run at 09:00 local by a second automation), with why:
               the morning wake's outcome and any error the coordinator session shows
 
@@ -35,7 +36,7 @@ from common import (
 
 WAKE_LINES = {
     "morning": "Wake (daily report): run /agent-work-report for today's report.",
-    "hourly": "Wake (hourly check): run /agent-coordinator --hourly.",
+    "hourly": "Wake (hourly check): the orchestrator does every check-in itself, so there is nothing for this session to run.",
 }
 HOLD_RETRIES, HOLD_WAIT_S = (
     15,
@@ -221,7 +222,7 @@ def wake(mode):
     rec = {"mode": mode, "workspace": workspace_path()}
     if mode == "hourly" and not COORDINATOR_BUILT:
         rec["outcome"] = (
-            "SKIPPED: the coordinator is not built yet, so there is no hourly check"
+            "SKIPPED: there is no hourly check: the orchestrator does every check-in itself and there is no session manager"
         )
         return record(rec)
     gate = local_gate(mode)

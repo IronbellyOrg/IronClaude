@@ -1,6 +1,6 @@
 """Terminal reads, typing and idle checks, and sends with receipts, through the Orca CLI (FR-22, FR-24, FR-25).
 
-Shared by the waker now and by the coordinator and session manager later (FR-26: reused, never copied).
+Shared by the waker (FR-26: reused, never copied). The orchestrator does every check-in itself; there is no session manager.
 Handles change after an Orca restart, so callers look a terminal up every time and never store one.
 """
 
