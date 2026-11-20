@@ -3846,65 +3846,11 @@ def test_branch_status_and_names_are_quoted_too(root, monkeypatch):
     assert len(carrying) >= 3 and all(ln.startswith("> ") for ln in carrying)
 
 
-def test_a_task_under_an_issue_the_orchestrator_holds_is_carried_when_clickup_is_not_read(
-    root,
-):
-    first = stub(
-        root, [item(1, assignees=[ME])], tasks=[cu("86aaa", github_links=[HELD])]
-    )
-    fill(first)
-    approve(first)
-    runmod.close_run(first)
-    put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))
-    f = new_run(root, [item(1, assignees=[ME])])  # ClickUp is not read this run
-    items = {i["url"]: i for i in json.loads((f / "items.json").read_text())}
-    assert HELD not in items  # the orchestrator holds the issue
-    task = items["https://app.clickup.com/t/86aaa"]
-    assert task["carried"] and task["source"] == "clickup" and task["kind"] == "task"
-    classify_ = json.loads((f / "classified.json").read_text())
-    assert "https://app.clickup.com/t/86aaa" in classify_["order"]
-    compare.main(f)  # and the next steps accept it
-    render.main(f)
-
-
 def test_the_orchestrator_and_its_tier_are_named_on_the_card_sessions(root):
     item_, _, _ = runmod.entry_record(HELD, held_entry(1), "k", False, "")
     titles = {s["session_id"]: s["title"] for s in item_["sessions"]}
     assert titles["o1"] == "orchestrator-coder-1 (tier1b)"
     assert titles["w1"] == "Worker for issue 1 (tier2)"
-
-
-def test_a_clickup_task_listed_under_a_claimed_issue_stays_on_its_card(
-    root, monkeypatch
-):
-    task = "https://app.clickup.com/t/86aaa"
-    daily = closed_daily_run(root, tasks=[cu("86aaa", github_links=[HELD])])
-    base_items = {i["url"]: i for i in json.loads((daily / "items.json").read_text())}
-    assert [t["number"] for t in base_items[HELD]["clickup"]] == ["86aaa"]
-    put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))
-    fake_gh(monkeypatch, {1: OPEN_MINE})
-    runmod.refresh()
-    card = next(i for i in refreshed_page(root)["items"] if i["url"] == HELD)
-    assert f'href="{task}"' in card["parts"]
-
-
-def test_sessions_listed_under_a_claimed_issue_stay_with_its_carried_task(root):
-    first = stub(
-        root,
-        [item(1, assignees=[ME])],
-        tasks=[cu("86aaa", github_links=[HELD])],
-        sess=[sess("s2", "1-start")],
-    )
-    fill(first)
-    approve(first)
-    runmod.close_run(first)
-    put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))  # names o1 and w1, not s2
-    f = new_run(
-        root, [item(1, assignees=[ME])]
-    )  # neither ClickUp nor the sessions are read
-    items = {i["url"]: i for i in json.loads((f / "items.json").read_text())}
-    task = items["https://app.clickup.com/t/86aaa"]
-    assert [s["session_id"] for s in task["sessions"]] == ["s2"]
 
 
 def test_excluded_sessions_are_not_restored_when_sessions_are_not_read(root):
@@ -3928,27 +3874,6 @@ def test_excluded_sessions_are_not_restored_when_sessions_are_not_read(root):
     assert (
         "s2" not in ids and "w1" in ids
     )  # the held one is not brought back; the other is carried as before
-
-
-def test_sessions_of_a_claimed_issue_are_carried_when_clickup_is_read_but_sessions_are_not(
-    root,
-):
-    first = stub(
-        root,
-        [item(1, assignees=[ME])],
-        tasks=[cu("86aaa", github_links=[HELD])],
-        sess=[sess("s2", "1-start")],
-    )
-    fill(first)
-    approve(first)
-    runmod.close_run(first)
-    put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))  # holds the issue, not s2
-    f = new_run(
-        root, [item(1, assignees=[ME])], tasks=[cu("86aaa", github_links=[HELD])]
-    )  # ClickUp is read, sessions are not
-    items = {i["url"]: i for i in json.loads((f / "items.json").read_text())}
-    task = items["https://app.clickup.com/t/86aaa"]
-    assert [s["session_id"] for s in task["sessions"]] == ["s2"]
 
 
 def test_a_closed_entry_is_never_written_through_a_symlink(root, monkeypatch, capsys):
@@ -4031,18 +3956,50 @@ def test_a_symlinked_entry_folder_is_not_read_pruned_or_closed_into(
     assert not (target / "closed").exists()
 
 
-def test_a_session_under_a_claimed_issue_with_no_task_stays_an_item_when_sessions_are_not_read(
-    root,
-):
-    first = stub(root, [item(1, assignees=[ME])], sess=[sess("s2", "1-start")])
-    fill(first)
-    approve(first)
-    runmod.close_run(first)
-    put_entry(root, "IronbellyOrg__Coder__1", held_entry(1))  # holds the issue, not s2
-    f = new_run(root, [item(1, assignees=[ME])])  # sessions are not read
-    items = {i["url"]: i for i in json.loads((f / "items.json").read_text())}
-    s2 = items["orca://session/s2"]
-    assert s2["carried"] and s2["source"] == "session" and s2["sessions"][0]["carried"]
-    compare.main(f)  # the later steps accept it
-    render.main(f)
-    assert "orca://session/s2" in (f / "overview.md").read_text()
+def test_a_symlinked_ancestor_of_the_entry_folders_is_refused(root, monkeypatch):
+    outside = root.parent / (root.name + "-outside")
+    (outside / "orchestrated" / "closed").mkdir(parents=True)
+    old = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    stale = outside / "orchestrated" / "closed" / "old.json"
+    stale.write_text(json.dumps({"closed_at": old}))
+    live = outside / "orchestrated" / "IronbellyOrg__Coder__1.json"
+    live.write_text(json.dumps(held_entry(1)))
+    (root / ".dev").mkdir()
+    (root / ".dev" / "coordinator").symlink_to(
+        outside
+    )  # an ancestor of orchestrated/ is a link
+    assert common.entry_files() == {}
+    assert common.entry_files(common.orchestrated_dir() / "closed") == {}
+    with pytest.raises(common.CommandError):
+        runmod.move_to_closed(live, held_entry(1), "COMPLETED")
+    fake_gh(monkeypatch, {1: OPEN_MINE})
+    runmod.refresh()
+    assert stale.exists() and live.exists()  # nothing pruned, nothing moved
+    assert not (
+        outside / "orchestrated" / "closed" / "IronbellyOrg__Coder__1.json"
+    ).exists()
+
+
+def test_an_entry_url_that_is_not_web_or_orca_is_never_a_card_link(root, monkeypatch):
+    for bad in ("javascript:alert(1)", "data:text/html,x", "file:///etc/passwd"):
+        assert common.safe_url(bad) == ""
+    assert common.safe_url("https://github.com/o/r/issues/1") and common.safe_url(
+        "orca://session/a"
+    )
+    put_entry(
+        root,
+        "mention__evil",
+        held_entry(1, url="javascript:alert(1)", kind="info:mentions"),
+        sub="info",
+    )
+    put_entry(
+        root, "IronbellyOrg__Coder__1", held_entry(1, pr_url="javascript:alert(2)")
+    )
+    fake_gh(monkeypatch, {1: OPEN_MINE})
+    runmod.refresh()
+    page_text = (root / ".dev" / "coordinator" / "report.html").read_text()
+    assert "javascript:" not in page_text
+    d = refreshed_page(root)
+    assert [i["url"] for i in d["items"]] == [
+        HELD
+    ]  # the information entry with the bad url is left out

@@ -53,6 +53,7 @@ from common import (
     entry_issue_url,
     entry_session_ids,
     gh_json,
+    inside_repo,
     item_parts,
     needs_in_order,
     orchestrated_dir,
@@ -60,6 +61,7 @@ from common import (
     repo_root,
     run_cmd,
     runs_dir,
+    safe_url,
     section,
     state_dir,
     write_json,
@@ -472,6 +474,7 @@ def move_to_closed(path, entry, reason):
         or closed.is_symlink()
         or (closed / path.name).is_symlink()
         or path.is_symlink()
+        or not inside_repo(base)
     ):
         raise CommandError(f"{path.name}: a symlink is in the way of closed/")
     closed.mkdir(parents=True, exist_ok=True)
@@ -716,9 +719,6 @@ def _refresh(run=None):
     )
     cls["order"] = [u for u in cls["order"] if u.lower() not in held]
     cls["items"] = {u: v for u, v in cls["items"].items() if u.lower() not in held}
-    baseline = {
-        i["url"].lower(): i for i in items
-    }  # the daily run's items, before the held ones are dropped
     items = [i for i in items if i["url"].lower() not in held]
     # page.py recreates an item from the snapshot when compare.json carries it, so a superseded url must leave
     # the carried list and the snapshot too, or it comes back as a card of its own.
@@ -748,7 +748,7 @@ def _refresh(run=None):
     emitted = set()  # one card per url: the orchestrated entry is made first and wins over an information one
     for info, entries in ((False, held_entries), (True, info_entries)):
         for path, e in sorted(entries.items()):
-            url = entry_issue_url(e, path) if not info else (e.get("url") or "")
+            url = entry_issue_url(e, path) if not info else safe_url(e.get("url"))
             if not url:
                 print(f"entry file {path.name} left out: no url", file=sys.stderr)
                 continue
@@ -758,9 +758,6 @@ def _refresh(run=None):
                 continue
             emitted.add(url.lower())
             item, c, changed = entry_record(url, e, path.stem, info, started)
-            # ClickUp tasks the daily report listed under this issue stay on its card (ClickUp stays with the
-            # daily run; only the orchestrator's own text replaces the baseline's).
-            item["clickup"] = list((baseline.get(url.lower()) or {}).get("clickup", []))
             if changed:
                 cmp_["changed"][url] = {
                     "updated": {"was": None, "now": e.get("last_update")}

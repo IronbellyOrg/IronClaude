@@ -34,18 +34,6 @@ BRANCH_NUMBER = re.compile(r"(?:^|/)(?:issue-?|gh-?)?(\d{1,6})(?=[-_/]|$)")
 BRANCH_CU = re.compile(r"\bCU-([0-9a-z]+)(?![0-9a-z])", re.I)
 GITHUB = "https://github.com/"
 SHARED_BRANCHES = {"main", "master", "develop", "dev"}
-# The fields of a ClickUp item that task_facts (the task as listed under a GitHub item) does not carry.
-TASK_BASE = {
-    "source": "clickup",
-    "org": "ClickUp",
-    "repo": "ClickUp",
-    "kind": "task",
-    "comments": 0,
-    "draft": None,
-    "review_requests": [],
-    "closes": [],
-    "involves_person": True,
-}
 
 
 def task_facts(t):
@@ -168,14 +156,6 @@ def main(run):
     clickup_read = read_json(run / "clickup-status.json", {}).get("read")
     # What exclude.py left out because an orchestrator holds it: never restored from the previous report.
     held = {u.lower() for u in read_json(run / "excluded.json", [])}
-    # Sessions that were listed under an issue now held follow the ClickUp tasks that were listed under it
-    # (the issue is gone from this run, so each task is an item of its own).
-    moved_sessions = {
-        t["url"]: it.get("sessions", [])
-        for url, it in prev_items.items()
-        if url.lower() in held
-        for t in it.get("clickup", [])
-    }
     if not clickup_read:
         # ClickUp not read: the previous report's tasks stay listed as they were, so a session on a task still
         # finds it and nothing moves because of one failed read.
@@ -194,25 +174,6 @@ def main(run):
                 for t in it.get("clickup", []):
                     by_task_id.setdefault(t["number"].lower(), t)
                     merged.setdefault(t["url"], url)
-        # A task that was listed under an issue the orchestrator now holds (exclude.py removed the issue from
-        # this run) would vanish with it: it stays listed as an item of its own, as it would if ClickUp were read.
-        for url, it in prev_items.items():
-            if url.lower() not in held:
-                continue
-            for t in it.get("clickup", []):
-                if t["url"] in items:
-                    continue
-                items[t["url"]] = dict(
-                    TASK_BASE,
-                    **t,
-                    clickup=[],
-                    sessions=[],
-                    carried=True,
-                    matched_by=[
-                        "carried from the previous report: ClickUp not read this run, and its issue is held by the orchestrator"
-                    ],
-                )
-                by_task_id.setdefault(t["number"].lower(), t)
 
     def resolve(url):
         url = merged.get(url, url)
@@ -299,51 +260,12 @@ def main(run):
             continue
         for url, it in items.items():
             old = prev_items.get(url, {}).get(key, [])
-            if key == "sessions":
-                old = old + moved_sessions.get(url, [])
             old = [x for x in old if x["url"].lower() not in held]
             if old and not it[key]:
                 it[key] = [dict(x, carried=True) for x in old]
                 it["matched_by"].append(
                     f"{len(old)} {label} carried from the previous report: not read this run"
                 )
-
-    # A session that was listed under an issue the orchestrator now holds, with no ClickUp task to follow, stays
-    # an item of its own while sessions are not read (the orchestrator's own sessions are in `held`).
-    if not read_json(run / "sessions-status.json", {}).get("read"):
-        placed = {s["url"].lower() for it in items.values() for s in it["sessions"]}
-        for url, prev_it in prev_items.items():
-            if url.lower() not in held:
-                continue
-            for x in prev_it.get("sessions", []):
-                if x["url"].lower() in held | placed or x["url"] in items:
-                    continue
-                items[x["url"]] = {
-                    "source": "session",
-                    "org": "Orca",
-                    "repo": x.get("repo") or "no repository",
-                    "kind": "session",
-                    "number": x["session_id"],
-                    "title": x["title"],
-                    "url": x["url"],
-                    "author": CONFIG["person"],
-                    "assignees": [CONFIG["person"]],
-                    "labels": [],
-                    "created": "",
-                    "updated": x.get("last_event") or "",
-                    "comments": 0,
-                    "draft": None,
-                    "review_requests": [],
-                    "closes": [],
-                    "involves_person": True,
-                    "boards": [],
-                    "clickup": [],
-                    "sessions": [dict(x, carried=True)],
-                    "matched_by": [
-                        "carried from the previous report: sessions not read this run, and its issue is held by the orchestrator"
-                    ],
-                    "carried": True,
-                }
 
     out = sorted(items.values(), key=lambda i: i["url"])
     write_json(run / "items.json", out)

@@ -36,6 +36,7 @@ from common import (
     read_json,
     report_days_between,
     safe_title,
+    safe_url,
     section,
     session_statuses,
     to_write,
@@ -225,8 +226,8 @@ def entry(url, it, c, cmp_, ctx, filed=None):
             )
             sessions.append(session_line(s, status))
         # The worker's pull request: the card shows its link beside the sessions.
-        if filed.get("pr_url"):
-            pr = filed["pr_url"]
+        if safe_url(filed.get("pr_url")):
+            pr = safe_url(filed["pr_url"])
             sessions.append(f"  - [{short(pr)}]({pr}) · the worker's pull request")
     else:
         written = {s: (prev.get(s) or slot(s)) for s in WRITTEN}

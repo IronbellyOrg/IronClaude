@@ -161,12 +161,35 @@ def orchestrated_dir():
     return state_dir() / ORCHESTRATED
 
 
+def inside_repo(path):
+    """True when `path` resolves to somewhere inside the orchestrator repo: a link anywhere on the way (a
+    symlinked `.dev`, `.dev/coordinator` or `orchestrated/`) that leads out of the repo makes it False."""
+    try:
+        return Path(path).resolve().is_relative_to(repo_root().resolve())
+    except (OSError, RuntimeError):
+        return False
+
+
+URL_OK = re.compile(r"(?:https?|orca)://", re.I)
+
+
+def safe_url(url):
+    """`url` when it is a web or Orca session address, else "": a `javascript:` or `data:` address in an entry
+    file would run script when its card is clicked (the page puts it in an `href`)."""
+    url = str(url or "")
+    return url if URL_OK.match(url) else ""
+
+
 def entry_files(folder=None):
     """{path: entry} for each entry file directly inside `folder` (default `orchestrated/`; the `closed/` and
     `info/` folders below it are not read). A file that does not parse is named on stderr and left out."""
     folder = Path(folder) if folder else orchestrated_dir()
     found = {}
-    if folder.is_symlink() or orchestrated_dir().is_symlink():
+    if (
+        folder.is_symlink()
+        or orchestrated_dir().is_symlink()
+        or not inside_repo(folder)
+    ):
         # A link could lead out of the coordinator state: nothing in it is read, closed or deleted.
         print(f"entry folder {folder.name} left out: it is a symlink", file=sys.stderr)
         return found
@@ -189,7 +212,7 @@ def entry_files(folder=None):
 def entry_issue_url(entry, path):
     """The issue's url: the file's `url`, else the one the name `<owner>__<repo>__<number>` spells."""
     if entry.get("url"):
-        return entry["url"]
+        return safe_url(entry["url"])
     parts = Path(path).stem.split("__", 1)
     if len(parts) == 2 and "__" in parts[1]:
         repo, number = parts[1].rsplit("__", 1)
