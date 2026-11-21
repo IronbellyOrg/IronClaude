@@ -623,6 +623,86 @@ def test_a_pending_commit_whose_push_still_fails_stops_before_any_verification(
     assert c.remote_files(BASE) == []
 
 
+def test_a_pending_commit_that_this_script_did_not_make_is_never_pushed(
+    wc, runner_cls, throwaway_repo, evidence_bare, tmp_path
+):
+    def push_down(argv, cwd):
+        if "push" in argv:
+            return _result(wc, 1, "", "! [rejected]")
+        return None
+
+    c = Case(
+        wc, runner_cls, throwaway_repo, evidence_bare, tmp_path,
+        replies={"git": push_down},
+    )  # fmt: skip
+    assert c.run().reason == "saved copy failed: push refused"
+    write(Path(c.clone) / "unrelated.txt", "not an archive\n")
+    git_in(c.clone, "add", "unrelated.txt")
+    git_in(c.clone, "commit", "-q", "-m", "wip: something else")
+    c.runner = runner_cls(evidence_dir=c.clone)  # the push would work now
+    again = c.run()
+    assert not again.ok
+    assert again.reason == (
+        "saved copy failed: the evidence clone holds a commit this script did not make"
+    )
+    assert c.remote_files(BASE) == []
+    on_remote = git_in(c.bare, "ls-tree", "-r", "--name-only", "main").split()
+    assert on_remote == ["README.md"]  # only the seed file: nothing was published
+
+
+def test_a_file_that_changes_after_the_secret_scan_is_not_saved(
+    wc, runner_cls, throwaway_repo, evidence_bare, tmp_path
+):
+    seen = {"done": False}
+    holder = {}
+
+    def edit_during_sync(argv, cwd):
+        if "fetch" in argv and not seen["done"]:
+            seen["done"] = True
+            token = "sk" + "-" + "A1b2C3d4" * 4  # built at run time, never a literal
+            (holder["case"].path / ".dev" / "tasks" / "a b.md").write_text(
+                f"key={token}\n", encoding="utf-8"
+            )
+        return None
+
+    c = Case(
+        wc, runner_cls, throwaway_repo, evidence_bare, tmp_path,
+        replies={"git": edit_during_sync},
+    )  # fmt: skip
+    holder["case"] = c
+    result = c.run()
+    assert not result.ok
+    assert result.reason.endswith("changed after it was checked for secrets")
+    assert c.remote_files(BASE) == []
+    assert not (Path(c.clone) / BASE).exists()  # nothing was moved into place
+
+
+def test_an_ignored_file_that_changes_after_the_secret_scan_is_not_saved(
+    wc, runner_cls, throwaway_repo, evidence_bare, tmp_path
+):
+    seen = {"done": False}
+    holder = {}
+
+    def edit_during_sync(argv, cwd):
+        if "fetch" in argv and not seen["done"]:
+            seen["done"] = True
+            token = "sk" + "-" + "A1b2C3d4" * 4
+            (holder["case"].path / ".dev" / "local" / "run.log").write_text(
+                f"key={token}\n", encoding="utf-8"
+            )
+        return None
+
+    c = Case(
+        wc, runner_cls, throwaway_repo, evidence_bare, tmp_path,
+        replies={"git": edit_during_sync},
+    )  # fmt: skip
+    holder["case"] = c
+    result = c.run()
+    assert not result.ok
+    assert result.reason.endswith("changed after it was checked for secrets")
+    assert c.remote_files(BASE) == []
+
+
 @pytest.mark.skipif(os.geteuid() == 0, reason="root can read any file")
 def test_an_unreadable_file_is_a_saved_copy_failed_result_not_an_exception(wc, case):
     secret_file = case.path / ".dev" / "local" / "locked.log"

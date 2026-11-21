@@ -2214,6 +2214,9 @@ def _push(runner: Runner, clone: str) -> str | None:
     return "push refused"
 
 
+ARCHIVE_SUBJECT_PREFIX = "archive("  # every evidence commit subject starts with this
+
+
 def _publish_pending_commits(runner: Runner, clone: str) -> str | None:
     """Push evidence commits an earlier run made locally but could not push.
 
@@ -2231,7 +2234,18 @@ def _publish_pending_commits(runner: Runner, clone: str) -> str | None:
         ahead = None
     if ahead is None:
         return "the evidence clone could not be compared with origin/main"
-    return _push(runner, clone) if ahead else None
+    if not ahead:
+        return None
+    # Only commits this script made are published: every one carries its archive subject.
+    subjects = runner.run(
+        ["git", "log", "--format=%s", f"origin/{EVIDENCE_BRANCH}..HEAD"], cwd=clone
+    )
+    lines = [s for s in subjects.stdout.splitlines() if s]
+    if subjects.returncode != 0 or len(lines) != ahead:
+        return "the evidence clone could not be compared with origin/main"
+    if not all(s.startswith(ARCHIVE_SUBJECT_PREFIX) for s in lines):
+        return "the evidence clone holds a commit this script did not make"
+    return _push(runner, clone)
 
 
 def _manifest(
@@ -2361,12 +2375,20 @@ def archive_worktree(
             target = os.path.join(partial, "files", rel)
             os.makedirs(os.path.dirname(target), exist_ok=True)
             shutil.copy2(os.path.join(worktree, rel), target)
+            if _sha256(target) != digests_now[rel]:
+                return _fail(f"{rel} changed after it was checked for secrets", partial)
         parts = _write_archive(partial, worktree, todo_ignored)
-        in_archive = sorted(name for name, _digest in archive_members(parts))
+        members = list(archive_members(parts))
+        in_archive = sorted(name for name, _digest in members)
         if in_archive != sorted(todo_ignored):
             return _fail(
                 "the archive does not list the files it was made from", partial
             )
+        for name, digest in members:
+            if digest != digests_now[name]:
+                return _fail(
+                    f"{name} changed after it was checked for secrets", partial
+                )
         if len(parts) == 1:
             listing = runner.run(["tar", "-tzf", parts[0]], cwd=partial)
             names = sorted(
@@ -2392,7 +2414,7 @@ def archive_worktree(
 
     date = (pr.merged_at or "")[:10]
     suffix = folder[len(base) :]
-    message = f"archive({base.split('/')[0]}): {date} pr{pr.number} {subject}{suffix}"
+    message = f"{ARCHIVE_SUBJECT_PREFIX}{base.split('/')[0]}): {date} pr{pr.number} {subject}{suffix}"
     if runner.run(["git", "add", "--", folder], cwd=evidence_dir).returncode != 0:
         return _fail("the saved folder could not be staged")
     if (
