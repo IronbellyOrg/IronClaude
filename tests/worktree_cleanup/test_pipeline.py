@@ -15,7 +15,7 @@ from pathlib import Path
 import pytest
 
 from .conftest import git_in, make_fake_proc
-from .test_archive import git_identity  # noqa: F401 - autouse: the evidence commit needs an identity
+from .test_archive import git_identity  # noqa: F401
 from .test_facts import write
 from .test_verbs import World
 
