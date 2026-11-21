@@ -23,20 +23,6 @@ BASE = "IronClaude/example-user/2026-11-10_pr700_topic"
 UNSET = object()
 
 
-@pytest.fixture(autouse=True)
-def git_identity(monkeypatch):
-    """The evidence commit needs an identity; the throwaway one never leaves the tests."""
-    for key, value in {
-        "GIT_AUTHOR_NAME": "t",
-        "GIT_AUTHOR_EMAIL": "t@example.invalid",
-        "GIT_COMMITTER_NAME": "t",
-        "GIT_COMMITTER_EMAIL": "t@example.invalid",
-        "GIT_CONFIG_GLOBAL": "/dev/null",
-        "GIT_CONFIG_NOSYSTEM": "1",
-    }.items():
-        monkeypatch.setenv(key, value)
-
-
 def make_pr(wc, **change):
     base = dict(
         number=700, state="MERGED", head_oid="b" * 40, author=AUTHOR, merged_at=MERGED,

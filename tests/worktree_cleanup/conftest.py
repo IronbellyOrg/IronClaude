@@ -37,6 +37,24 @@ def wc():
     return load_script()
 
 
+@pytest.fixture(autouse=True)
+def git_identity(monkeypatch):
+    """The evidence commit needs an identity; the throwaway one never leaves the tests.
+
+    Defined here once: a fixture imported into several test modules is listed more than
+    once by ``pytest --fixtures``, which crashes on the tie (CI runs that command).
+    """
+    for key, value in {
+        "GIT_AUTHOR_NAME": "t",
+        "GIT_AUTHOR_EMAIL": "t@example.invalid",
+        "GIT_COMMITTER_NAME": "t",
+        "GIT_COMMITTER_EMAIL": "t@example.invalid",
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_CONFIG_NOSYSTEM": "1",
+    }.items():
+        monkeypatch.setenv(key, value)
+
+
 @pytest.fixture(scope="session")
 def runner_cls(wc):
     """A Runner whose outside programs are answered from canned replies.

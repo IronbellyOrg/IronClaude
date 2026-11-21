@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 from .conftest import git_in, make_fake_proc
-from .test_archive import UNSET, Case, git_identity, make_pr  # noqa: F401
+from .test_archive import Case, make_pr
 from .test_facts import write
 
 NOW = 2_000_000_000.0
