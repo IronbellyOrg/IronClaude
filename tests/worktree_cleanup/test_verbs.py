@@ -483,6 +483,23 @@ def test_the_orca_repo_list_failing_falls_back_to_the_current_repo_and_says_so(
     assert "removable" not in shown.replace("no worktree can be removed", "")
 
 
+def test_an_orca_repo_list_that_is_empty_also_falls_back_to_the_current_repo(
+    wc, world, capsys
+):
+    world.add("done")
+
+    def orca_lists_no_repos(argv, cwd):
+        if tuple(argv[1:3]) == ("repo", "list"):
+            return wc.Result(0, json.dumps({"ok": True, "result": {"repos": []}}), "")
+        return World.orca(world, argv, cwd)
+
+    world.runner.replies["orca"] = orca_lists_no_repos
+    world.run("list", out=False, cwd=str(world.repo.main))
+    shown = capsys.readouterr().out
+    assert "note: Orca lists no repos" in shown and "current checkout" in shown
+    assert "| done |" in shown
+
+
 def test_an_unreadable_orca_never_lets_a_pinned_worktree_be_removed(wc, world, capsys):
     world.add("done")
     world.listed = {"done"}

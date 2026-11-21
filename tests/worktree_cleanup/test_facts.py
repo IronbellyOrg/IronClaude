@@ -200,6 +200,15 @@ def test_repo_list_falls_back_to_the_current_checkout_and_says_so(wc):
     assert "Orca unavailable" in note and "current checkout" in note
 
 
+def test_an_empty_repo_list_also_falls_back_to_the_current_checkout(wc):
+    current = wc.OrcaRepo("current", "/work/example/IronClaude", "IronClaude")
+    empty = wc.parse_orca_repos('{"result": {"repos": []}}')
+    assert empty.ok and not empty.items
+    repos, note = wc.repos_or_current(empty, current)
+    assert repos == [current]
+    assert "Orca lists no repos" in note and "current checkout" in note
+
+
 # --- guard rails of Task 3 -------------------------------------------------------------
 
 
@@ -440,6 +449,37 @@ def test_the_git_reads_change_nothing(wc, runner_cls, throwaway_repo):
     assert verbs >= {("worktree", "list"), ("status", "--porcelain"), ("log", "-1")}
 
 
+def test_a_worktree_with_no_origin_remote_is_a_verdict_not_an_unread_fact(
+    wc, runner_cls, throwaway_repo
+):
+    path = throwaway_repo.add_worktree("no-origin")
+    git_in(throwaway_repo.main, "remote", "remove", "origin")
+    _, f = facts_for(wc, runner_cls, throwaway_repo, path)
+    assert f.origin is None and f.origin_unread == ""
+    assert "git remote get-url origin failed" not in f.failures
+
+
+def test_a_failed_origin_read_is_recorded_as_unread(wc, runner_cls, throwaway_repo):
+    path = throwaway_repo.add_worktree("origin-broken")
+
+    def git_reply(argv, cwd):
+        if argv[1:4] == ["remote", "get-url", "origin"]:
+            return wc.Result(128, "", "fatal: not a git repository")
+        return None
+
+    runner = runner_cls(replies={"git": git_reply})
+    found = wc.discover_worktrees(
+        runner, [wc.OrcaRepo("r", str(throwaway_repo.main), "example")]
+    )
+    entry = next(
+        w for w in found.worktrees if os.path.realpath(w.path) == os.path.realpath(path)
+    )
+    f = wc.gather_facts(runner, entry)
+    assert f.origin is None
+    assert f.origin_unread == "git remote get-url origin exited with 128"
+    assert "git remote get-url origin failed" in f.failures
+
+
 def test_git_runs_with_optional_locks_off(runner_cls):
     assert runner_cls()._env_for(["git", "status"])["GIT_OPTIONAL_LOCKS"] == "0"
 
@@ -522,6 +562,25 @@ def test_origin_that_is_not_github_or_not_a_url_is_none(wc):
         "/local/path",
     ):
         assert wc.parse_origin(url) is None
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        # github.com only appears inside the path of another host
+        "https://mirror.example/github.com/IronbellyOrg/IronClaude.git",
+        # github.com is only the tail of a look-alike host
+        "https://evilgithub.com/IronbellyOrg/IronClaude.git",
+        "https://github.com.evil.example/IronbellyOrg/IronClaude.git",
+        "git@github.com.evil.example:IronbellyOrg/IronClaude.git",
+        # more or fewer path parts than owner/repo
+        "https://github.com/IronbellyOrg/IronClaude/extra.git",
+        "https://github.com/IronbellyOrg",
+        "git@github.com:IronbellyOrg",
+    ],
+)
+def test_origin_with_a_lookalike_host_or_wrong_path_shape_is_none(wc, url):
+    assert wc.parse_origin(url) is None
 
 
 def test_name_guard_is_anchored_at_the_start(wc):

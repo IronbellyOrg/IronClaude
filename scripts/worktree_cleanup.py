@@ -801,13 +801,14 @@ def repos_or_current(
 ) -> tuple[list[OrcaRepo], str]:
     """The repos to scan: Orca's list, or the current checkout's repo alone when Orca gave none.
 
-    The second value is the note the table prints when the fallback was used.
+    "Gave none" covers both an Orca that could not be read and an Orca that answered
+    with an empty list. The second value is the note the table prints when the
+    fallback was used.
     """
-    if read.ok:
+    if read.ok and read.items:
         return list(read.items), ""
-    return [
-        current_repo
-    ], f"{read.unavailable}; scanning the current checkout's repo only"
+    reason = read.unavailable if not read.ok else "Orca lists no repos"
+    return [current_repo], f"{reason}; scanning the current checkout's repo only"
 
 
 # --- local facts: git, files and processes (read only) -----------------------
@@ -908,17 +909,27 @@ class OriginInfo:
         return self.owner.lower() in OWNERS
 
 
+# The host must be exactly github.com, and the path exactly owner/repo. A URL that only
+# mentions github.com somewhere (a mirror path, a look-alike host) matches neither.
+_GITHUB_URL_PATTERNS = (
+    re.compile(
+        r"^(?:https?|ssh|git)://(?:[^@/]+@)?github\.com(?::\d+)?/([^/]+)/([^/]+?)(?:\.git)?/?$",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"^(?:[^@/]+@)?github\.com:([^/]+)/([^/]+?)(?:\.git)?/?$", re.IGNORECASE
+    ),
+)
+
+
 def parse_origin(url: str) -> OriginInfo | None:
     """Owner and repo of a GitHub remote URL (https, ssh or scp style); None otherwise."""
     text = url.strip()
-    if "github.com" not in text.lower():
-        return None
-    parts = [
-        p for p in re.split(r"[/:]", text.removesuffix("/").removesuffix(".git")) if p
-    ]
-    if len(parts) < 2:
-        return None
-    return OriginInfo(owner=parts[-2], repo=parts[-1])
+    for pattern in _GITHUB_URL_PATTERNS:
+        match = pattern.match(text)
+        if match:
+            return OriginInfo(owner=match.group(1), repo=match.group(2))
+    return None
 
 
 @dataclass
@@ -980,6 +991,9 @@ class WorktreeFacts:
     present: bool = True
     head: str | None = None
     origin: OriginInfo | None = None
+    # Why the origin could not be read (empty when it was read, or when git said the
+    # remote does not exist, which is a real answer and not a failed read)
+    origin_unread: str = ""
     git_dir: str | None = None
     state: LocalState | None = None
     last_commit_ts: float | None = None
@@ -1044,6 +1058,10 @@ def walk_worktree(top: str) -> tuple[int, list[str], list[str]]:
     return size, nested, errors
 
 
+# `git remote get-url <name>` exits 2 when the remote does not exist.
+GIT_NO_SUCH_REMOTE = 2
+
+
 def gather_facts(
     runner: Runner,
     wt: GitWorktree,
@@ -1069,8 +1087,13 @@ def gather_facts(
     out = read(["git", "rev-parse", "--git-dir"], "git rev-parse --git-dir")
     if out is not None:
         facts.git_dir = os.path.normpath(os.path.join(wt.path, out.strip()))
-    out = read(["git", "remote", "get-url", "origin"], "git remote get-url origin")
-    facts.origin = parse_origin(out) if out is not None else None
+    res = runner.run(["git", "remote", "get-url", "origin"], cwd=wt.path)
+    if res.returncode == 0:
+        facts.origin = parse_origin(res.stdout)
+    elif res.returncode != GIT_NO_SUCH_REMOTE:
+        # not "there is no origin" but "git could not say": unread, so exit 69, not a verdict
+        facts.origin_unread = f"git remote get-url origin exited with {res.returncode}"
+        facts.failures.append("git remote get-url origin failed")
     out = read(
         ["git", "status", "--porcelain", "-z", "--ignored", "--untracked-files=all"],
         "git status",
@@ -1589,6 +1612,7 @@ class RuleInputs:
 
 # Reasons that come from a fact that could not be read (a lookup failure, exit 69).
 UNREAD_PREFIXES = (
+    "origin lookup failed",
     "pull request lookup failed",
     "landed check said UNKNOWN",
     "issue lookup failed",
@@ -1636,6 +1660,8 @@ def _rule1(i: RuleInputs) -> str | None:
     if not f.present:
         # checked before the origin: a missing folder leaves origin unread
         return "folder missing (reported only)"
+    if f.origin_unread:
+        return f"origin lookup failed: {f.origin_unread}"
     if f.origin is None or not f.origin.is_ours:
         return "not our repo"
     if i.own_folder:
@@ -2188,6 +2214,26 @@ def _push(runner: Runner, clone: str) -> str | None:
     return "push refused"
 
 
+def _publish_pending_commits(runner: Runner, clone: str) -> str | None:
+    """Push evidence commits an earlier run made locally but could not push.
+
+    Without this, a run whose push failed leaves its folder in the clone and every later
+    run stops at "the copy on origin/main has a different file count". Returns a failure
+    reason, or None when nothing was pending or the push worked. The copy is still
+    checked against origin/main afterwards, so nothing is cleared on this push alone.
+    """
+    res = runner.run(
+        ["git", "rev-list", "--count", f"origin/{EVIDENCE_BRANCH}..HEAD"], cwd=clone
+    )
+    try:
+        ahead = int(res.stdout.strip()) if res.returncode == 0 else None
+    except ValueError:
+        ahead = None
+    if ahead is None:
+        return "the evidence clone could not be compared with origin/main"
+    return _push(runner, clone) if ahead else None
+
+
 def _manifest(
     facts: WorktreeFacts, pr: PullRequest, repo_slug: str, saved_at: str, count: int,
     sums: Mapping[str, str],
@@ -2262,6 +2308,9 @@ def archive_worktree(
         )
     base, subject = naming
     problem = sync_evidence_clone(runner, evidence_dir, evidence_repo)
+    if problem:
+        return _fail(problem)
+    problem = _publish_pending_commits(runner, evidence_dir)
     if problem:
         return _fail(problem)
 
@@ -2740,14 +2789,13 @@ def find_worktrees(runner: Runner, cwd: str) -> Found:
     notes: list[str] = []
     failures: list[str] = []
     repos_read = read_orca_repos(runner)
-    if repos_read.ok:
+    if repos_read.ok and repos_read.items:
         repos = list(repos_read.items)
     else:
         current = _current_repo(runner, cwd)
         if current is None:
-            failures.append(
-                f"{repos_read.unavailable}, and the current folder is not a git checkout"
-            )
+            why = repos_read.unavailable if not repos_read.ok else "Orca lists no repos"
+            failures.append(f"{why}, and the current folder is not a git checkout")
             return Found([], notes, failures)
         repos, note = repos_or_current(repos_read, current)
         notes.append(note)

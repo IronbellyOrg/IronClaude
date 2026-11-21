@@ -580,6 +580,49 @@ def test_an_earlier_folder_that_was_never_pushed_is_not_counted_as_covered(
         )  # a fresh repo for the next pass
 
 
+def test_a_commit_whose_push_failed_is_pushed_by_the_next_run_and_then_verified(
+    wc, runner_cls, throwaway_repo, evidence_bare, tmp_path
+):
+    def push_down(argv, cwd):
+        if "push" in argv:
+            return _result(wc, 1, "", "! [rejected] main -> main (fetch first)")
+        return None
+
+    c = Case(
+        wc, runner_cls, throwaway_repo, evidence_bare, tmp_path,
+        replies={"git": push_down},
+    )  # fmt: skip
+    first = c.run()
+    assert first.reason == "saved copy failed: push refused"
+    assert (Path(c.clone) / BASE).is_dir()  # committed in the clone, never pushed
+    assert c.remote_files(BASE) == []
+    # the next run has a working push: it publishes the pending commit, then verifies it
+    c.runner = runner_cls(evidence_dir=c.clone)
+    again = c.run()
+    assert again.ok, again.reason
+    assert again.verified.startswith(f"VERIFIED {BASE} files=")
+    assert len(c.remote_files(BASE)) == again.files
+    assert not (Path(c.clone) / f"{BASE}-r2").exists()  # no second folder was made
+
+
+def test_a_pending_commit_whose_push_still_fails_stops_before_any_verification(
+    wc, runner_cls, throwaway_repo, evidence_bare, tmp_path
+):
+    def push_down(argv, cwd):
+        if "push" in argv:
+            return _result(wc, 1, "", "! [rejected]")
+        return None
+
+    c = Case(
+        wc, runner_cls, throwaway_repo, evidence_bare, tmp_path,
+        replies={"git": push_down},
+    )  # fmt: skip
+    assert c.run().reason == "saved copy failed: push refused"
+    again = c.run()  # the push is still down
+    assert not again.ok and again.reason == "saved copy failed: push refused"
+    assert c.remote_files(BASE) == []
+
+
 @pytest.mark.skipif(os.geteuid() == 0, reason="root can read any file")
 def test_an_unreadable_file_is_a_saved_copy_failed_result_not_an_exception(wc, case):
     secret_file = case.path / ".dev" / "local" / "locked.log"

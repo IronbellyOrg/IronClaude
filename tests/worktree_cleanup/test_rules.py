@@ -89,6 +89,10 @@ def case(wc, good, name):
         "main": (with_wt(wc, good, is_main=True), 1, "main checkout"),
         "origin-not-ours": (with_facts(wc, good, origin=wc.OriginInfo("Other", "x")), 1, "not our repo"),
         "origin-unknown": (with_facts(wc, good, origin=None), 1, "not our repo"),
+        "origin-unread": (
+            with_facts(wc, good, origin=None, origin_unread="git remote get-url origin exited with 128"),
+            1, "origin lookup failed: git remote get-url origin exited with 128",
+        ),
         "own-folder": (dataclasses.replace(good, own_folder=True), 1, "this is where the script runs"),
         "locked": (with_wt(wc, good, locked=True), 1, "locked"),
         "missing": (with_facts(wc, good, present=False), 1, "folder missing (reported only)"),
@@ -145,7 +149,7 @@ def case(wc, good, name):
 
 
 CASE_NAMES = [
-    "main", "origin-not-ours", "origin-unknown", "own-folder", "locked", "missing", "guard", "detached",
+    "main", "origin-not-ours", "origin-unknown", "origin-unread", "own-folder", "locked", "missing", "guard", "detached",
     "no-pr", "pr-lookup", "pr-open", "pr-closed", "landed-unknown", "landed-missing", "landed-open",
     "after-3", "after-1", "after-unknown", "after-missing", "issue-open", "issue-failed", "issue-missing",
     "changed", "untracked", "ignored-local", "state-unread", "save-failed", "save-unset",
@@ -166,6 +170,13 @@ def test_failing_only_one_rule_keeps_the_worktree_with_that_reason(wc, good, nam
         assert d.reason.startswith("in use: the process scan failed")
 
 
+def test_a_missing_origin_is_a_verdict_but_an_unread_origin_is_not(wc, good):
+    gone = wc.decide(with_facts(wc, good, origin=None))
+    assert (gone.reason, gone.unread) == ("not our repo", False)
+    unread = wc.decide(with_facts(wc, good, origin=None, origin_unread="exit 128"))
+    assert unread.reason.startswith("origin lookup failed") and unread.unread is True
+
+
 def test_an_unreadable_orca_list_keeps_the_worktree_and_is_a_lookup_failure(wc, good):
     d = wc.decide(dataclasses.replace(good, orca_known=False))
     assert (d.decision, d.rule, d.unread) == ("kept", 8, True)
@@ -180,7 +191,7 @@ def test_an_unreadable_orca_list_keeps_the_worktree_and_is_a_lookup_failure(wc, 
 @pytest.mark.parametrize(
     "name",
     [
-        "pr-lookup", "landed-unknown", "landed-missing", "after-unknown", "after-missing",
+        "origin-unread", "pr-lookup", "landed-unknown", "landed-missing", "after-unknown", "after-missing",
         "issue-failed", "issue-missing", "state-unread", "scan-failed", "no-scan",
         "unread-folder", "git-dir-unread", "idle-unknown", "created-unknown",
     ],
