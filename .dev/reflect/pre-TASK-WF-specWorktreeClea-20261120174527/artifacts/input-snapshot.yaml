@@ -1,0 +1,10 @@
+input_tree_sha256: null
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-specWorktreeClea-20261120-173546/source.md
+    sha256: 8c9bc6b5a2a77facc45cd77b47d860d54df4e1830d7400b3c168e47be30dd8e9
+  - path: .dev/tasks/to-do/TASK-WF-specWorktreeClea-20261120-173546/TASK-WF-specWorktreeClea-20261120-173546.md
+    sha256: cb4a28401b79f75dff9548acb4513c00544d6ed312c0781327027e6f1044a71f
+file_count: 2
+recorded_at: "2026-11-20T17:45:27Z"
+rechecked_at: "2026-11-20T18:20:00Z"
+recheck_result: unchanged

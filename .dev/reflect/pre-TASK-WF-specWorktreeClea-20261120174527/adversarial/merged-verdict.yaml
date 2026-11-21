@@ -1,0 +1,245 @@
+# Merged review verdict for the pre-execution review of the worktree cleanup workflow plan (issue 687).
+#
+# Provenance
+#   Produced by /sc:adversarial (merge executor step), applying refactor-plan.md changes 1 to 9 in order.
+#   Base variant: variant 2 (qa lens, haiku class), file variant-2-original.md.
+#   Non-base source: variant 1 (analyzer lens, opus class), file variant-1-original.md.
+#   Debate files: debate-transcript.md, round-1-advocate-1.md, round-2-advocate-1.md
+#     (the advocate 2 summaries were returned in message only, see the transport note in debate-transcript.md).
+#   Invariant probe: invariant-probe.md (Round 2.5, items INV-001 to INV-009).
+#   Plan applied: refactor-plan.md (grades used exactly as written there).
+#   Both input cards were cut off by a transport limit; truncation is not treated as evidence of a plan defect.
+#
+# Citation key (every line below was either quoted in an input file or re-Read by the merge executor)
+#   PLAN      = .dev/tasks/to-do/TASK-WF-specWorktreeClea-20261120-173546/TASK-WF-specWorktreeClea-20261120-173546.md
+#   source.md = .dev/tasks/to-do/TASK-WF-specWorktreeClea-20261120-173546/source.md
+#   LANDED    = src/superclaude/skills/sc-closeout-protocol/scripts/branch-landed.sh
+#   WCTEST    = tests/skills/test_worker_contract.py
+#
+# Grade rule: BLOCKING only if correcting it would change a named decision, required behaviour, outcome or
+# acceptance check the plan rests on, or a required deliverable is absent, or following the plan would lose or
+# expose data, break a safety boundary or act outside declared scope. MEDIUM is a real weakness nothing named
+# rests on. NOTE is wording only.
+
+merge_method: adversarial
+verdict: FAIL
+convergence_score: 0.9231
+base_variant: variant-2
+source_cards:
+  - .dev/reflect/pre-TASK-WF-specWorktreeClea-20261120174527/adversarial/variant-1-original.md
+  - .dev/reflect/pre-TASK-WF-specWorktreeClea-20261120174527/adversarial/variant-2-original.md
+blocked_by_invariants: true
+
+unresolved_conflicts:
+  - id: C-003
+    topic: 'Grade of the dropped patch-and-bundle save for manual archive (finding M-6)'
+    position_variant_2: 'BLOCKING: source.md:214 says archive by hand "can still save them as a patch and a bundle", the plan drops it on its own authority, and source.md:374 sends any other change back to the owner.'
+    position_variant_1_advocate_and_calibrator: 'MEDIUM: it is an aside in "What is not saved" with no step, format, folder or test case, the verb definition at source.md:83 omits it, and the plan discloses the drop at PLAN:25 and PLAN:170.'
+    resolution_used: 'Orchestrator tie-break to MEDIUM, as written in refactor-plan.md change 7. The finding stays listed as UNRESOLVED and as a follow-up candidate for the owner.'
+
+findings:
+  - id: M-1
+    severity: BLOCKING
+    grade_ground: Decision
+    claim: 'Acceptance checks of Tasks 3, 4, 7, 11 and 12 cannot be met when their task ends, because they need fixtures or tests that later tasks create. Separately, no task owns tests for the fact-gathering code (Orca parsers, /proc scan, four-place issue collection, landed-check lookup chain).'
+    evidence:
+      - 'PLAN:62 "accepts the recorded shape saved under `tests/worktree_cleanup/fixtures/` by Task 7" (Task 3 needs Task 7, which comes later)'
+      - 'PLAN:73 "On a throwaway repository built by Task 7" (Task 4 needs Task 7)'
+      - 'PLAN:106 Task 7 "Depends on: Task 6" and PLAN:108 "the script''s removal reports ''kept'' not an error" (Task 7 own check needs the removal pipeline of Task 11 at PLAN:158; verb bodies stay stubs until Tasks 11 and 12 at PLAN:45)'
+      - 'PLAN:161 "The order of recorded commands in a test run is: archive commands, `orca terminal close`" (Task 11 check, no test exists until Task 13 at PLAN:178-188)'
+      - 'PLAN:174 "Two runs started against the same repo cannot both remove the same worktree" (Task 12 check, tested only in Task 13)'
+      - 'PLAN:99 Task 8 tests "A pure function (no process started)" with hand-built facts, so it does not exercise the collectors of Tasks 3 to 5'
+      - 'PLAN:108 and PLAN:114 Task 7 owns only test_git_facts.py (the three git facts); PLAN:74 and PLAN:86-88 (fake /proc, squash, four places, fallback) name no test module'
+      - 'Declared deferrals, not blocking: PLAN:49, PLAN:63, PLAN:76, PLAN:85 each say the assertion is made in Task 13'
+    consequence: 'An executor that checks each task when it ends (the per-task model of /sc:implement, shown by the per-task Acceptance criteria and Depends on lines and by the plan own deferral wording) cannot pass these checks. It must mark them unverified or build fixtures out of order. The parsers and collectors can ship with no regression test that fails if they break.'
+    suggested_fix: 'Move Task 7 support work (conftest, fixtures, throwaway-repo builder, fake /proc) to just after Task 2 and split Task 7: the "removal reports kept" check moves to after Task 11. Add a test module for Tasks 3 to 5 (for example tests/worktree_cleanup/test_facts.py) that exercises the real collectors. Rewrite the checks of Tasks 2, 11 and 12 so each can be met when its task ends, or move them into Task 13. Renumber the "by Task 7" and "Task 13" references (see INV-008 below).'
+    provenance: 'Variant 1 F1 (scope, six tasks, collector-test gap U-003) plus variant 2 F1 (Task 7 self-reference); debate points C-001 and X-002; verdict C-001 92 percent; both advocates agree. Declared deferrals separated from hard cases per debate A-001 QUALIFY.'
+
+  - id: M-2
+    severity: BLOCKING
+    grade_ground: Missing
+    claim: 'No task opens the pull request. The spec ends its acceptance list with the pull request step, and the plan ends at the dry run report and regression gate.'
+    evidence:
+      - 'source.md:276 "Finish with `/sc:pr-submit --monitor 3`"'
+      - 'source.md:379 "Pull request with `/sc:pr-submit --monitor 3`" (step 7 of the plan of work)'
+      - 'PLAN:263-274 Task 20 ends with the dry run report and the regression gate; no task names the pull request'
+    consequence: 'A checkbox of the spec own acceptance list has no owning task, so a plan run to the end leaves the change without its required finish step.'
+    suggested_fix: 'Add the pull request step as a final handoff note for the person (not an executing task). Reason (INV-006): the plan Constraints say "no other repo is pushed to" (PLAN:24), the pull request may be opened only through /sc:pr-submit --monitor 3 against the fork, and the pull request body needs a "Generator-Constraint Considered" section if a gate or validator file is touched (UNVERIFIED whether this change touches one). A note keeps those decisions with the person.'
+    provenance: 'Variant 2 F4 (headline only survived the cut; evidence taken from the spec) plus invariant INV-006 caveat; debate point C-004, 90 percent; both advocates accept.'
+
+  - id: M-3
+    severity: BLOCKING
+    grade_ground: Decision
+    claim: 'The spec section 12 table has 15 rows, not 14, and its labels are not limited to the three words the plan requires. Task 19 acceptance check uses the wrong number.'
+    evidence:
+      - 'PLAN:253 "one row for each of the 14 rows of the table in source section 12"'
+      - 'PLAN:256 "has 14 rows in its changed-table, each labelled with one of the three words"'
+      - 'source.md:314-328 holds 15 data rows (11 from retire.py at 314-324, branch-landed.sh at 325, lane-map.md at 326, two disk-janitor.sh rows at 327-328)'
+      - 'Labels outside "kept as is, changed or dropped": "Replaced" at source.md:321, "Reused" at source.md:325, "Not adopted" at source.md:327, "Adopted in spirit" at source.md:328'
+      - 'source.md:275 and source.md:332 require the adapted files to say what was changed'
+    consequence: 'To meet "14 rows" the executor must drop one of the spec rows from the provenance record without saying so (probably branch-landed.sh), or fail the check. That weakens the Apache-2.0 "say what was changed" record the spec requires.'
+    suggested_fix: 'Change both numbers to 15. Either allow the spec own labels or state in the plan how each label maps to kept as is, changed or dropped.'
+    provenance: 'Variant 1 F2; debate point C-005, 99 percent; variant 2 advocate had no counter.'
+
+  - id: M-4
+    severity: BLOCKING
+    grade_ground: Decision
+    claim: 'Task 1 gives the fallback of item 2 to item 1 and settles a conflict between two spec fallbacks without saying so. The "deregister from Orca" half of item 1 fallback has no verb in any task.'
+    evidence:
+      - 'PLAN:33 "copy the fallback of source section 11" then "items 1 and 2: remove an Orca-listed worktree with `orca worktree rm` without `--force` and read back"'
+      - 'source.md:297 item 1 fallback "Use only `git worktree remove` (its refusal is tested) and deregister from Orca if Orca still lists the worktree"'
+      - 'source.md:298 item 2 fallback "Remove through Orca for the worktrees it lists"'
+      - 'PLAN:37 items 1 and 2 are both NOT PROVEN by design, so both fallbacks apply at once and conflict'
+      - 'source.md:374 "If a proof in step 1 fails, use the fallback named in section 11 for that item; any other change goes back to Clay"'
+      - 'PLAN:158 Task 11 still runs `orca worktree rm` for Orca-listed worktrees; no task has a step that deregisters a worktree from Orca after `git worktree remove`'
+    consequence: 'Correcting the text either changes the removal path Task 11 builds for Orca-listed worktrees or sends the conflict to the owner. Either way a required behaviour changes. The plan chosen path (orca worktree rm for Orca-listed worktrees) matches the spec default design, so the defect is the unflagged choice, not an unsafe path.'
+    suggested_fix: 'Record each item own fallback in Task 1 (item 1 per source.md:297, item 2 per source.md:298). State how the plan resolves the conflict when both stay NOT PROVEN, or send it to the owner as source.md:374 requires. Either add a deregister step and verb for the item 1 fallback or state that it does not exist and ask the owner.'
+    provenance: 'Variant 1 F3 (cut off after the evidence; consequence and fix completed from the debate) plus invariant INV-002; debate point C-006, 95 percent.'
+
+  - id: M-5
+    severity: BLOCKING
+    grade_ground: Decision
+    claim: 'Spec section 11 item 3 asks for the landed check to be run on a merged and an OPEN pull request. Task 1 runs it on pull request 700 and on a number that does not exist (MERGED and NONE), so the OPEN answer is never proved. Neither card raised this.'
+    evidence:
+      - 'source.md:299 "run the check on a merged and an open pull request"'
+      - 'PLAN:33 "once on pull request 700 and once on a number that does not exist, to see `MERGED` and `NONE`"'
+      - 'PLAN:37 acceptance "the `MERGED` line for pull request 700 and the `NONE` line for the missing number appear verbatim"'
+      - 'PLAN:120 Task 8 does exercise an open pull request case, from fixtures'
+    consequence: 'Correcting the text changes an acceptance check (OPEN in place of, or beside, NONE), so it blocks under the literal acceptance-check clause. Practical effect is small because the OPEN branch is still exercised from fixtures in Task 8.'
+    suggested_fix: 'Change the Task 1 proof and its acceptance check to MERGED and OPEN (a real open pull request), keeping NONE as an extra if wanted.'
+    provenance: 'Debate Round 2 (round-2-advocate-1.md section 3.3; raised in Round 1 concession 5); both advocates accept; plan change 5.'
+
+  - id: M-6
+    severity: MEDIUM
+    grade_ground: none
+    claim: 'The manual archive save of tracked edits and later commits as a patch and a bundle is dropped by the plan on its own authority. GRADE UNRESOLVED (variant 2 holds BLOCKING; see unresolved_conflicts C-003).'
+    evidence:
+      - 'source.md:214 "`archive` by hand can still save them as a patch and a bundle"'
+      - 'PLAN:25 "It gives no step, format or folder for it, so it is not built; Task 12 records that in the verb''s help text"'
+      - 'PLAN:170 help text states the patch-and-bundle save "is not built"'
+      - 'source.md:83 verb definition: archive "Runs only the evidence step of section 7 on one worktree: copy, push, check against GitHub" (no patch or bundle)'
+      - 'source.md:374 "any other change goes back to Clay" (scope: changes to the decided design and to proof fallbacks)'
+      - 'No acceptance case or build-list entry for it at source.md:246-276 or source.md:375'
+    consequence: 'A capability named in the spec is not built and the owner has not approved the drop. Nothing is lost by leaving it out (a worktree with tracked edits or later commits is always kept, source.md:229 and source.md:212), and no decision or acceptance check rests on it.'
+    suggested_fix: 'Ask the owner whether to build a bounded patch-and-bundle save or accept the drop. Keep the help text note. Keep such worktrees during prune either way.'
+    provenance: 'Variant 2 F3 regraded to MEDIUM by orchestrator tie-break (plan change 7); debate point C-003, 55 percent on grade; follow-up candidate for the owner.'
+
+  - id: M-7
+    severity: MEDIUM
+    grade_ground: none
+    claim: 'The landed-check helper writes (a git fetch, a temporary file), while Task 1 says to prove "only what needs no write", and the recording runner answers the helper from canned replies, so its safety test cannot see the helper child commands.'
+    evidence:
+      - 'PLAN:33 "Prove only what needs no write to a real worktree" but runs branch-landed.sh on pull request 700'
+      - 'PLAN:82 Task 5 runs branch-landed.sh from the repo main checkout and "needs `jq` and one `git fetch`"'
+      - 'LANDED:182 "git fetch --quiet origin \"$base\" \"refs/pull/$PR/head\""'
+      - 'LANDED:99 "ERRFILE=$(mktemp)" and LANDED:40 "rm -f -- \"$ERRFILE\"" (the helper own temporary file, not a file in any worktree)'
+      - 'LANDED:32-33 header "The only write is git fetch of the base branch and refs/pull/<N>/head, which touches objects and FETCH_HEAD only"'
+      - 'LANDED:107-108 and LANDED:120-128 (cited in round-2-advocate-1.md) OPEN, CLOSED and NONE exit before the fetch, so it runs only on the MERGED path'
+      - 'source.md:299 "run the check on a merged and an open pull request" and source.md:256 "changes nothing (the recorded commands contain no removal)"'
+      - 'PLAN:45 and PLAN:108 the recorder answers branch-landed.sh from canned replies'
+    consequence: 'The "needs no write" sentence in Task 1 is untrue for one call, and the safety test that records every command (source.md:255) never sees the helper own child commands. No data is lost or exposed and the spec requires the call, so no named decision rests on it. A throwaway repository cannot replace the real run, because Task 1 needs the MERGED line for pull request 700 (PLAN:37).'
+    suggested_fix: 'Document the helper fetch in Task 1 and in the dry run report. Add a note that the recorder cannot observe the helper children and test the helper integration separately. Do not move the proof to a throwaway repository.'
+    provenance: 'Variant 2 F2 regraded from BLOCKING to MEDIUM (plan change 6), evidence lines kept; debate points C-002 and X-001, 88 and 85 percent; variant 2 advocate conceded to MEDIUM in Round 2.'
+
+  - id: M-8
+    severity: BLOCKING
+    grade_ground: Decision
+    claim: 'Task 20 requires "the recorded command list in the .json output", but no task writes a command list into the JSON. Tasks 6 and 12 write the JSON of "the same rows" only.'
+    evidence:
+      - 'PLAN:270 "the recorded command list in the `.json` output contains no removal, no terminal close, no archive and no push"'
+      - 'PLAN:96 Task 6 "Add the table renderers (markdown and the same rows as JSON)"'
+      - 'PLAN:170 Task 12 writes "the `.json` of the same rows"'
+    consequence: 'The Task 20 acceptance check cannot be met as written: the output it inspects does not exist. The executor must invent the output or fail the check.'
+    suggested_fix: 'Either add to Task 6 or Task 12 a step that writes the recorded command list into the JSON (or a sibling file) and a test for it, or reword the Task 20 check to read the commands from a place a task actually writes.'
+    provenance: 'Invariant probe INV-001 (HIGH, verified by the orchestrator against the plan text); plan change 8. The merge executor chose the ground Missing; the orchestrator changed it to Decision (an acceptance check that cannot be met); the plan fixed only the BLOCKING severity.'
+
+  - id: M-9
+    severity: BLOCKING
+    grade_ground: Safety
+    claim: 'Task 2 builds the command runner as a denylist (it lists banned shapes), but the spec adopts an allowlist runner. Unlisted mutating commands (for example git reset, mv, find -delete) would pass the runner.'
+    evidence:
+      - 'PLAN:45 check_allowed "refuses before any process starts: `--force` or `-f` on `orca worktree rm` or `git worktree remove`, `git branch -D`, `rm`, `git worktree prune`, `git push` with a delete flag ..." (banned shapes only)'
+      - 'source.md:323 "Adopted: the script runs commands only through one runner with an allowlist, and a test records every command (section 9)"'
+      - 'PLAN:19 safety constraint: no task removes, moves or clears any real worktree or file'
+    consequence: 'The runner is the safety boundary of the whole script. A denylist lets any mutating command that nobody thought to ban run, which breaks the safety boundary the spec adopted and the plan own constraint relies on.'
+    suggested_fix: 'Rewrite Task 2 so the runner holds a positive list of allowed command shapes (read verbs of git, gh and orca, plus the named write verbs of the pipeline) and refuses everything else, and keep the banned shapes as extra refusals. Add a test that an unlisted command such as git reset is refused.'
+    provenance: 'Invariant probe INV-003 (HIGH, verified by the orchestrator); plan change 8. The grade ground (Safety) was chosen by the merge executor; the plan fixed only the BLOCKING severity.'
+
+  - id: INV-004
+    severity: MEDIUM
+    grade_ground: none
+    claim: 'Task 1 marks item 7 NOT PROVEN with a write-based reason although item 7 is read-only, and marks item 4 PROVEN by "write the definition" while the spec says to test with a fake /proc.'
+    evidence:
+      - 'PLAN:33 "Mark items 1, 2, 5, 6, 7, 8 and 10 NOT PROVEN, because proving them needs a real Orca removal, a real push, an automation or a terminal close"'
+      - 'source.md:303 item 7 is proved by "Compare with `gh` on every worktree Orca lists" (read-only)'
+      - 'PLAN:33 item 4 "write the definition" against source.md:300 "Test with a fake `/proc`"'
+    consequence: 'The proofs record gives an untrue reason for item 7 and weaker proof than the spec for item 4. Nothing named rests on it (item 7 is never used as authority at source.md:303).'
+    suggested_fix: 'Prove item 7 read-only against gh, or give its real reason; record item 4 as proved only once the fake /proc test exists.'
+    provenance: 'Invariant probe INV-004 (probe severity HIGH; placed in the MEDIUM and NOTE bucket by refactor-plan.md change 9, so graded MEDIUM here).'
+
+  - id: INV-005
+    severity: MEDIUM
+    grade_ground: none
+    claim: 'Tasks 14 and 16 may fail an existing test because the plan never mentions the WRITE_VERB_CLASSIFICATION table that classifies every git or gh write verb in command files.'
+    evidence:
+      - 'WCTEST:1893-1896 WRITE_VERB_RE matches `git push`, `git worktree remove`, `gh pr` and similar on any line under the audit roots'
+      - 'WCTEST:1950-1957 _check_all_classified fails on "unclassified git/gh write-verb hits"'
+      - 'PLAN:196 Task 14 command file text will name such verbs in its Boundaries; no task mentions the classification table'
+    consequence: 'Task 16 acceptance check "uv run pytest tests/skills/test_worker_contract.py -v passes" (PLAN:221) can fail on unclassified hits from the new command file.'
+    suggested_fix: 'Add to Task 14 or Task 16 a step to classify any new hit in WRITE_VERB_CLASSIFICATION, or word the command file so it has no matching line.'
+    provenance: 'Invariant probe INV-005 (MEDIUM, re-checked by the orchestrator against WCTEST:1893-1957).'
+
+  - id: INV-007
+    severity: MEDIUM
+    grade_ground: none
+    claim: 'The .dev save-state window is not fully covered: Task 6 shows removable at save state needed while rule 5 allows .dev files only at verified; the order of save and decision under --apply is unstated; no test adds a new ignored .dev file between save and removal.'
+    evidence:
+      - 'PLAN:96 "`.dev` files allowed only when the save state is `verified`" and the dry run "shows `removable` with the saved-copy cell `needed`"'
+      - 'PLAN:158 Task 11 re-reads the untracked and ignored lists after the terminal close (so a check exists)'
+      - 'PLAN:182 Task 13 and source.md:248 test a new commit, a tracked edit and an untracked file outside .dev, not a new ignored .dev file'
+    consequence: 'Coverage gap and unstated order only, not a missing check (the orchestrator refinement of the probe). A change in the .dev window could pass untested.'
+    suggested_fix: 'State the order of save and decision under --apply in Task 6 or Task 11, and add a test for a new ignored file under .dev appearing between the save and the removal.'
+    provenance: 'Invariant probe INV-007 as refined by the orchestrator (MEDIUM).'
+
+  - id: INV-008
+    severity: MEDIUM
+    grade_ground: none
+    claim: 'Moving Task 7 after Task 2 (the fix for M-1) is not a plain reorder: Task 7 must be split, the check_allowed registration arrives in Task 11, and "by Task 7" and "Task 13" references need renumbering.'
+    evidence:
+      - 'PLAN:108 Task 7 "removal reports ''kept''" check needs Task 11 (PLAN:158)'
+      - 'PLAN:45 and PLAN:158 the registration of saved paths with the Runner is added in Task 11'
+      - 'PLAN:62, PLAN:73 ("by Task 7"); PLAN:49, PLAN:63, PLAN:76, PLAN:85 ("Task 13"); PLAN:143 "Depends on: Task 9, Task 7"; PLAN:180 "Depends on: Task 12, Task 8"; PLAN:259 "Task 2" pointer'
+    consequence: 'An executor that applies the M-1 fix as a simple move breaks dependency lines and cross-references.'
+    suggested_fix: 'Apply the M-1 fix as a split and renumber every cross-reference listed above in one pass.'
+    provenance: 'Invariant probe INV-008 (ADDRESSED partial, MEDIUM).'
+
+  - id: INV-009
+    severity: NOTE
+    grade_ground: none
+    claim: 'Task 20 lists only Tasks 12 and 19 as dependencies, but its criteria record the full suite, lint and sync results, so Tasks 13 and 15 to 18 are missing from its dependencies.'
+    evidence:
+      - 'PLAN:265 "Depends on: Task 12, Task 19"'
+      - 'PLAN:274 the report records "the full test suite (`uv run pytest`), `make lint`, `make verify-sync`, and a scan of every new file for em and en dashes"'
+    consequence: 'A dependency line is incomplete. The task order already puts Task 20 last, so no outcome changes.'
+    suggested_fix: 'Add Tasks 13 and 15 to 18 to the Task 20 dependency line.'
+    provenance: 'Invariant probe INV-009 (LOW), listed as a note by plan change 9.'
+
+checked_and_found_sound:
+  - 'Dry run safety wording: PLAN:19 bans removal, moving, clearing, terminal close, automation and push to the evidence repo, not a fetch; source.md:256 defines "changes nothing" as no removal in the recorded commands. The helper fetch is therefore MEDIUM (M-7), not a safety break.'
+  - 'The helper temporary file and rm -f (LANDED:99, LANDED:40) concern its own mktemp file, not a file in any worktree, and PLAN:21 scopes "never rm" to the script itself.'
+  - 'The plan removal path for Orca-listed worktrees (PLAN:158) is the spec default design; M-4 is about the unflagged fallback choice, not an unsafe path.'
+  - 'Patch-and-bundle drop is disclosed in the plan (PLAN:25, PLAN:170) and does not lose data (tracked edits and later commits keep the worktree), so it is not a safety finding.'
+  - 'Rejected claim, variant 1 F1 wording that Task 2 cannot pass: overstated, since most Task 2 checks pass when it ends; only the refusal assertion at PLAN:49 looks ahead, and that is a declared deferral.'
+  - 'Rejected attribution, variant 1 citing PLAN:99 as an ordering defect of Task 8: that line belongs to Task 6 and describes a pure function with hand-built facts; used only for the collector-test gap in M-1.'
+  - 'Rejected grade, variant 2 F2 as BLOCKING: the spec requires the helper call (source.md:299) and defines "changes nothing" as no removal (source.md:256).'
+  - 'Rejected figure, variant 2 self-reported confidence 0.95: two of its four BLOCKING grades (F2, F3) did not hold under the grade rule.'
+  - 'Truncation of both cards is a transport limit, not evidence of a plan defect; the FAIL verdict does not depend on the cut-off text, because M-1, M-2, M-3, M-4, M-5, M-8 and M-9 each block on their own.'
+
+coverage_gaps:
+  - 'Both input cards were cut off by the transport: variant 2 after the start of F4 ("The plan ends with recording"), variant 1 after the evidence of F3 ("source.md:374 says"). The consequence and fix of variant 1 F3 and the evidence of variant 2 F4 were completed from the spec and the debate, not from the cards.'
+  - 'No coverage matrix: neither visible card covers C-007 (spec section to task coverage), so unreviewed spec sections are not shown clean.'
+  - 'Tasks 9, 10, 14 to 19 were reviewed by neither card in the visible text; they appear here only through INV-005, INV-008 and INV-009.'
+  - 'UNVERIFIED: a plain git fetch origin <branch> may also update the remote-tracking ref refs/remotes/origin/<branch> (round-2-advocate-1.md); it changes no grade.'
+  - 'UNVERIFIED: whether this change touches a gate or validator file, which decides whether the pull request body needs a "Generator-Constraint Considered" section (M-2).'
+  - 'The /sc:implement protocol file was not opened by the advocates; the per-task checking model is taken from the plan own Acceptance criteria and Depends on lines and from the skill description.'
+  - 'Advocate 2 wrote no report files; its positions come from the returned summaries recorded in debate-transcript.md.'

@@ -1,0 +1,14 @@
+# first run (the revert itself; its own log file was flagged as residue, so it was moved out and the run repeated)
+SWEEP refs/superclaude/implement/TASK-WF-specWorktreeClea-20261120-173546/retry/T12/sweep-2-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+RESTORED scripts/worktree_cleanup.py
+RESTORED tests/worktree_cleanup/test_rules.py
+RESTORED tests/worktree_cleanup/test_runner.py
+DELETED tests/worktree_cleanup/test_verbs.py
+RESIDUE .dev/tasks/to-do/TASK-WF-specWorktreeClea-20261120-173546/artifacts/retries/T12/revert-2.log
+exit=3
+# second run
+SWEEP refs/superclaude/implement/TASK-WF-specWorktreeClea-20261120-173546/retry/T12/sweep-2-2
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+DONE
+exit=0

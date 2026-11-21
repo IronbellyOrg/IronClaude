@@ -1,0 +1,7554 @@
+{
+  "columns": [
+    "repo",
+    "folder",
+    "branch",
+    "in_orca",
+    "pull_request",
+    "issues",
+    "idle_days",
+    "size",
+    "saved_copy",
+    "decision",
+    "reason"
+  ],
+  "rows": [
+    {
+      "repo": "IronFlow",
+      "folder": "IronFlow",
+      "branch": "docs/agent-work-coordinator-spec",
+      "in_orca": "yes",
+      "pull_request": "n/a",
+      "issues": "n/a",
+      "idle_days": "0.1",
+      "size": "6.5 GB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "main checkout"
+    },
+    {
+      "repo": "IronFlow",
+      "folder": "cicd-review-spec",
+      "branch": "clayphi/cicd-review-spec",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "none found",
+      "idle_days": "9.4",
+      "size": "2.7 GB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronFlow",
+      "folder": "coordinator",
+      "branch": "clayphi/coordinator",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "none found",
+      "idle_days": "0.8",
+      "size": "2.7 GB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronFlow",
+      "folder": "issue-5",
+      "branch": "clayphi/issue-5",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "#5 CLOSED",
+      "idle_days": "1.4",
+      "size": "2.7 GB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronFlow",
+      "folder": "main",
+      "branch": "main",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "none found",
+      "idle_days": "0.1",
+      "size": "2.7 GB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "GFxAI",
+      "folder": "GFxAI",
+      "branch": "master",
+      "in_orca": "yes",
+      "pull_request": "n/a",
+      "issues": "n/a",
+      "idle_days": "2.2",
+      "size": "15.5 GB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "main checkout"
+    },
+    {
+      "repo": "Financials",
+      "folder": "Financials",
+      "branch": "main",
+      "in_orca": "yes",
+      "pull_request": "n/a",
+      "issues": "n/a",
+      "idle_days": "29.2",
+      "size": "20.4 GB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "main checkout"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "IronClaude",
+      "branch": "fix/ccsession-allowedtools-grep",
+      "in_orca": "yes",
+      "pull_request": "n/a",
+      "issues": "n/a",
+      "idle_days": "0.2",
+      "size": "5.5 GB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "main checkout"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "ccsession-orca",
+      "branch": "feature/ccsession-orca-launch",
+      "in_orca": "no",
+      "pull_request": "#301 MERGED",
+      "issues": "none found",
+      "idle_days": "0.2",
+      "size": "556.4 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "ccsession-orca-title",
+      "branch": "fix/ccsession-orca-title",
+      "in_orca": "no",
+      "pull_request": "#309 MERGED",
+      "issues": "none found",
+      "idle_days": "0.2",
+      "size": "226.2 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "ccsession-rename",
+      "branch": "feat/ccsession-unified-rename",
+      "in_orca": "no",
+      "pull_request": "#328 MERGED",
+      "issues": "#325 CLOSED",
+      "idle_days": "0.2",
+      "size": "478.1 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "ccsession-repo-keys",
+      "branch": "feature/ccsession-repo-keys",
+      "in_orca": "no",
+      "pull_request": "#314 MERGED",
+      "issues": "none found",
+      "idle_days": "0.2",
+      "size": "263.1 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "ccsession-role-access",
+      "branch": "feat/ccsession-role-access",
+      "in_orca": "no",
+      "pull_request": "#318 MERGED",
+      "issues": "#311 CLOSED",
+      "idle_days": "0.2",
+      "size": "235.4 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "ccsession-typed-input",
+      "branch": "fix/ccsession-typed-input",
+      "in_orca": "no",
+      "pull_request": "none",
+      "issues": "none found",
+      "idle_days": "0.2",
+      "size": "168.5 MB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "ccsession-user-access",
+      "branch": "feature/ccsession-user-access",
+      "in_orca": "no",
+      "pull_request": "#310 MERGED",
+      "issues": "none found",
+      "idle_days": "0.2",
+      "size": "227.4 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "ccsession-window-fix",
+      "branch": "fix/ccsession-window-from-tiers",
+      "in_orca": "no",
+      "pull_request": "#321 MERGED",
+      "issues": "none found",
+      "idle_days": "0.2",
+      "size": "202.6 MB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "ccsession-worktree-list",
+      "branch": "fix/ccsession-worktree-list",
+      "in_orca": "no",
+      "pull_request": "#350 MERGED",
+      "issues": "#347 CLOSED",
+      "idle_days": "0.2",
+      "size": "535.2 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "ignored local state: .serena/.gitignore, .serena/project.local.yml, .serena/project.yml"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "ic-master-baseline",
+      "branch": "(detached)",
+      "in_orca": "no",
+      "pull_request": "n/a",
+      "issues": "n/a",
+      "idle_days": "0.2",
+      "size": "226.2 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "detached HEAD"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "onboarding-deck",
+      "branch": "docs/onboarding-deck-default-planner",
+      "in_orca": "no",
+      "pull_request": "#303 MERGED",
+      "issues": "none found",
+      "idle_days": "0.2",
+      "size": "764.6 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "pr-submit-monitor-3",
+      "branch": "feature/pr-submit-default-monitor-3",
+      "in_orca": "no",
+      "pull_request": "#285 MERGED",
+      "issues": "#367 CLOSED",
+      "idle_days": "0.2",
+      "size": "491.0 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "pr-submit-skill-cleanup",
+      "branch": "fix/pr-submit-skill-cleanup",
+      "in_orca": "no",
+      "pull_request": "#287 MERGED",
+      "issues": "none found",
+      "idle_days": "0.2",
+      "size": "518.9 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "tests-drop-release-artifacts",
+      "branch": "fix/tests-drop-release-artifacts",
+      "in_orca": "no",
+      "pull_request": "#312 MERGED",
+      "issues": "none found",
+      "idle_days": "0.2",
+      "size": "230.1 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "cicd-ref-ironclaude",
+      "branch": "clayphi/cicd-ref-ironclaude",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "none found",
+      "idle_days": "0.2",
+      "size": "753.0 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "ic6-orchestrator",
+      "branch": "clayphi/release-6.0.0",
+      "in_orca": "yes",
+      "pull_request": "#634 MERGED",
+      "issues": "#505 CLOSED, #506 CLOSED, #510 CLOSED, #536 CLOSED, #542 CLOSED, #543 CLOSED, #544 CLOSED, #545 CLOSED, #571 OPEN",
+      "idle_days": "0.2",
+      "size": "878.2 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "27 commits after the pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-572-agent-usage",
+      "branch": "clayphi/572-agent-usage",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "#572 OPEN",
+      "idle_days": "0.2",
+      "size": "766.7 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-655-pr-a",
+      "branch": "clayphi/issue-655-pr-a",
+      "in_orca": "yes",
+      "pull_request": "#686 OPEN",
+      "issues": "#675 OPEN, #665 OPEN, #655 OPEN",
+      "idle_days": "0.2",
+      "size": "1.1 GB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "pull request #686 is open"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-655-pr-b-b1",
+      "branch": "clayphi/issue-655-pr-b-b1",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "#655 OPEN",
+      "idle_days": "0.2",
+      "size": "823.9 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-655-pr-b-b2",
+      "branch": "clayphi/issue-655-pr-b-b2",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "#655 OPEN",
+      "idle_days": "0.2",
+      "size": "797.0 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-655-pr-b-b3a",
+      "branch": "clayphi/issue-655-pr-b-b3a",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "#655 OPEN",
+      "idle_days": "0.2",
+      "size": "801.0 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-655-pr-b-b4a",
+      "branch": "clayphi/issue-655-pr-b-b4a",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "#655 OPEN",
+      "idle_days": "0.2",
+      "size": "756.2 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-655-pr-b-b5",
+      "branch": "clayphi/issue-655-pr-b-b5",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "#655 OPEN",
+      "idle_days": "0.2",
+      "size": "795.7 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-655-pr-c",
+      "branch": "clayphi/issue-655-pr-c",
+      "in_orca": "yes",
+      "pull_request": "#684 MERGED",
+      "issues": "#655 OPEN",
+      "idle_days": "0.2",
+      "size": "854.1 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "issue #655 is open"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-655-pr-d",
+      "branch": "clayphi/issue-655-pr-d",
+      "in_orca": "yes",
+      "pull_request": "#682 MERGED",
+      "issues": "#655 OPEN",
+      "idle_days": "0.2",
+      "size": "1.1 GB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "issue #655 is open"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-655-pr-p",
+      "branch": "clayphi/issue-655-pr-p",
+      "in_orca": "yes",
+      "pull_request": "#690 OPEN",
+      "issues": "#665 OPEN, #655 OPEN",
+      "idle_days": "0.2",
+      "size": "1.1 GB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "pull request #690 is open"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-655-spec",
+      "branch": "clayphi/issue-655-spec",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "#655 OPEN",
+      "idle_days": "0.2",
+      "size": "772.3 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-655-spec-pr",
+      "branch": "clayphi/issue-655-spec-pr",
+      "in_orca": "yes",
+      "pull_request": "#681 MERGED",
+      "issues": "#655 OPEN",
+      "idle_days": "0.2",
+      "size": "784.6 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "issue #655 is open"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-668",
+      "branch": "clayphi/issue-668",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "#668 CLOSED",
+      "idle_days": "0.2",
+      "size": "765.9 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-668-build-p1",
+      "branch": "clayphi/issue-668-build-p1",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "#668 CLOSED",
+      "idle_days": "0.2",
+      "size": "767.7 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-668-build-p2",
+      "branch": "clayphi/issue-668-build-p2",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "#668 CLOSED",
+      "idle_days": "0.2",
+      "size": "776.0 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-668-build-p3",
+      "branch": "clayphi/issue-668-build-p3",
+      "in_orca": "yes",
+      "pull_request": "#683 MERGED",
+      "issues": "#668 CLOSED",
+      "idle_days": "0.2",
+      "size": "853.8 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "ignored local state: relative-home/.cache/uv/.gitignore, relative-home/.cache/uv/.lock, relative-home/.cache/uv/CACHEDIR.TAG and 2 more"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-669",
+      "branch": "clayphi/issue-669",
+      "in_orca": "yes",
+      "pull_request": "#670 MERGED",
+      "issues": "#669 CLOSED",
+      "idle_days": "0.2",
+      "size": "775.5 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-687",
+      "branch": "clayphi/issue-687",
+      "in_orca": "yes",
+      "pull_request": "n/a",
+      "issues": "n/a",
+      "idle_days": "0.2",
+      "size": "840.7 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "this is where the script runs"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "issue-templates-plan-fields",
+      "branch": "clayphi/issue-templates-plan-fields",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "none found",
+      "idle_days": "0.2",
+      "size": "737.3 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "orchestrator-655-hub",
+      "branch": "clayphi/orchestrator-655-hub",
+      "in_orca": "no",
+      "pull_request": "none",
+      "issues": "#655 OPEN",
+      "idle_days": "0.2",
+      "size": "741.5 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronClaude",
+      "folder": "rollback-655",
+      "branch": "clayphi/rollback-655-build",
+      "in_orca": "no",
+      "pull_request": "#700 MERGED",
+      "issues": "#655 OPEN",
+      "idle_days": "0.2",
+      "size": "794.3 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "issue #655 is open"
+    },
+    {
+      "repo": "Coder",
+      "folder": "Coder",
+      "branch": "main",
+      "in_orca": "yes",
+      "pull_request": "n/a",
+      "issues": "n/a",
+      "idle_days": "21.4",
+      "size": "56.3 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "main checkout"
+    },
+    {
+      "repo": "Coder",
+      "folder": "cicd-ref-coder",
+      "branch": "clayphi/cicd-ref-coder",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "none found",
+      "idle_days": "10.2",
+      "size": "84.3 MB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "Coder",
+      "folder": "micro-first-questions",
+      "branch": "clayphi/micro-first-questions",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "none found",
+      "idle_days": "0.8",
+      "size": "84.4 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "Coder",
+      "folder": "coder-agent-layout",
+      "branch": "feat/orca-full-list-agent-layout",
+      "in_orca": "no",
+      "pull_request": "#394 MERGED",
+      "issues": "none found",
+      "idle_days": "24.9",
+      "size": "55.7 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "Coder",
+      "folder": "coder-ccsession-access",
+      "branch": "feat/ccsession-user-access",
+      "in_orca": "no",
+      "pull_request": "#401 MERGED",
+      "issues": "#309 CLOSED, #311 CLOSED",
+      "idle_days": "24.2",
+      "size": "55.9 MB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "Coder",
+      "folder": "coder-ccsession-orca",
+      "branch": "feat/ccsession-orca-rollout",
+      "in_orca": "no",
+      "pull_request": "#400 MERGED",
+      "issues": "none found",
+      "idle_days": "24.4",
+      "size": "55.9 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "Coder",
+      "folder": "coder-main-2bce9071",
+      "branch": "(detached)",
+      "in_orca": "no",
+      "pull_request": "n/a",
+      "issues": "n/a",
+      "idle_days": "14.3",
+      "size": "64.4 MB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "detached HEAD"
+    },
+    {
+      "repo": "Coder",
+      "folder": "coder-main-old",
+      "branch": "(detached)",
+      "in_orca": "no",
+      "pull_request": "n/a",
+      "issues": "n/a",
+      "idle_days": "14.3",
+      "size": "53.6 MB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "detached HEAD"
+    },
+    {
+      "repo": "Coder",
+      "folder": "coder-orca-from-fork",
+      "branch": "auto/orca-pin-1.4.245-aidev02.dfe1eb410300",
+      "in_orca": "no",
+      "pull_request": "#440 MERGED",
+      "issues": "#399 CLOSED, #370 CLOSED, #9 CLOSED, #373 OPEN",
+      "idle_days": "14.3",
+      "size": "64.4 MB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "issue #373 is open"
+    },
+    {
+      "repo": "Coder",
+      "folder": "coder-orca-pin",
+      "branch": "(detached)",
+      "in_orca": "no",
+      "pull_request": "n/a",
+      "issues": "n/a",
+      "idle_days": "24.9",
+      "size": "55.8 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "detached HEAD"
+    },
+    {
+      "repo": "Coder",
+      "folder": "coder-orca-port",
+      "branch": "feat/orca-port-upstream",
+      "in_orca": "no",
+      "pull_request": "#377 MERGED",
+      "issues": "#356 CLOSED",
+      "idle_days": "26.9",
+      "size": "55.7 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "Coder",
+      "folder": "coder-orca-sidebar-fix",
+      "branch": "fix/orca-idle-agent-status",
+      "in_orca": "no",
+      "pull_request": "#395 CLOSED",
+      "issues": "none found",
+      "idle_days": "14.3",
+      "size": "55.8 MB",
+      "saved_copy": "needed",
+      "decision": "kept",
+      "reason": "pull request #395 closed, not merged"
+    },
+    {
+      "repo": "Coder",
+      "folder": "coder-pin-1.4.245",
+      "branch": "(detached)",
+      "in_orca": "no",
+      "pull_request": "n/a",
+      "issues": "n/a",
+      "idle_days": "14.3",
+      "size": "64.6 MB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "detached HEAD"
+    },
+    {
+      "repo": "Coder",
+      "folder": "coder-tier-roles",
+      "branch": "feat/ccsession-tier-roles",
+      "in_orca": "no",
+      "pull_request": "#410 MERGED",
+      "issues": "none found",
+      "idle_days": "23.2",
+      "size": "56.3 MB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept"
+    },
+    {
+      "repo": "Coder",
+      "folder": "coder-typed-input",
+      "branch": "fix/new-terminal-typed-input",
+      "in_orca": "no",
+      "pull_request": "none",
+      "issues": "none found",
+      "idle_days": "14.3",
+      "size": "56.8 MB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronOrca",
+      "folder": "IronOrca",
+      "branch": "main",
+      "in_orca": "yes",
+      "pull_request": "n/a",
+      "issues": "n/a",
+      "idle_days": "0.9",
+      "size": "2.6 GB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "main checkout"
+    },
+    {
+      "repo": "IronOrca",
+      "folder": "aidev02-v1.4.245",
+      "branch": "aidev02",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "#2 OPEN, #1 CLOSED",
+      "idle_days": "17.2",
+      "size": "8.8 GB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronOrca",
+      "folder": "cicd-ref-ironorca",
+      "branch": "clayphi/cicd-ref-ironorca",
+      "in_orca": "yes",
+      "pull_request": "none",
+      "issues": "none found",
+      "idle_days": "10.2",
+      "size": "2.6 GB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "no pull request"
+    },
+    {
+      "repo": "IronOrchestrator",
+      "folder": "IronOrchestrator",
+      "branch": "main",
+      "in_orca": "yes",
+      "pull_request": "n/a",
+      "issues": "n/a",
+      "idle_days": "0.8",
+      "size": "180.2 KB",
+      "saved_copy": "none needed",
+      "decision": "kept",
+      "reason": "main checkout"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "orca",
+        "repo",
+        "list",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "worktree",
+        "ps",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "/home/coder/workspaces/IronFlow",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "/home/coder/workspaces/GFxAI",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "/home/coder/workspaces/Financials",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "/home/coder/workspaces/Coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "/home/coder/workspaces/IronOrca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "/home/coder/workspaces/IronOrchestrator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronFlow",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronFlow",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronFlow",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronFlow",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronFlow",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/cicd-review-spec",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/cicd-review-spec",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/cicd-review-spec",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/cicd-review-spec",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/cicd-review-spec",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronFlow",
+        "--head",
+        "clayphi/cicd-review-spec",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:80e04fd3-f473-4b89-ba9f-e1a377ceeb1f::/home/coder/workspaces/worktrees/IronFlow/cicd-review-spec",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/coordinator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/coordinator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/coordinator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/coordinator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/coordinator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronFlow",
+        "--head",
+        "clayphi/coordinator",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:80e04fd3-f473-4b89-ba9f-e1a377ceeb1f::/home/coder/workspaces/worktrees/IronFlow/coordinator",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/issue-5",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/issue-5",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/issue-5",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/issue-5",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/issue-5",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronFlow",
+        "--head",
+        "clayphi/issue-5",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:80e04fd3-f473-4b89-ba9f-e1a377ceeb1f::/home/coder/workspaces/worktrees/IronFlow/issue-5",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "5",
+        "--repo",
+        "IronbellyOrg/IronFlow",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "5",
+        "--repo",
+        "IronbellyOrg/IronFlow",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/main",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/main",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/main",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/main",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronFlow/main",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronFlow",
+        "--head",
+        "main",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:80e04fd3-f473-4b89-ba9f-e1a377ceeb1f::/home/coder/workspaces/worktrees/IronFlow/main",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/GFxAI",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/GFxAI",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/GFxAI",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/GFxAI",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/GFxAI",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/Financials",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/Financials",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/Financials",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/Financials",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/Financials",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "feature/ccsession-orca-launch",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "301"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca-title",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca-title",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca-title",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca-title",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-orca-title",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "fix/ccsession-orca-title",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "309"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "395",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-rename",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-rename",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-rename",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-rename",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-rename",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "feat/ccsession-unified-rename",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "328"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "325",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-repo-keys",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-repo-keys",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-repo-keys",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-repo-keys",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-repo-keys",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "feature/ccsession-repo-keys",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "314"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-role-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-role-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-role-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-role-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-role-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "feat/ccsession-role-access",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "318"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "311",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "311",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-typed-input",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-typed-input",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-typed-input",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-typed-input",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-typed-input",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "fix/ccsession-typed-input",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-user-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-user-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-user-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-user-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-user-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "feature/ccsession-user-access",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "310"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "309",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "306",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "308",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-window-fix",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-window-fix",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-window-fix",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-window-fix",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-window-fix",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "fix/ccsession-window-from-tiers",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "321"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "318",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "410",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-worktree-list",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-worktree-list",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-worktree-list",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-worktree-list",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-worktree-list",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "fix/ccsession-worktree-list",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "350"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "87a9cb44642c0a575e0bf9ebe5bc90145bbaff3d",
+        "25f30242ce8f368a44304d3e5f82a674974dccca"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-worktree-list",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "347",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ic-master-baseline",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ic-master-baseline",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ic-master-baseline",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ic-master-baseline",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/ic-master-baseline",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/onboarding-deck",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/onboarding-deck",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/onboarding-deck",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/onboarding-deck",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/onboarding-deck",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "docs/onboarding-deck-default-planner",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "303"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "5bf31eb35664378f348a8c6c2c982a17415817b0",
+        "ecc9c042c588fca3a69bef67aa3ddfcd491a3d2d"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/onboarding-deck",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "295",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "296",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-monitor-3",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-monitor-3",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-monitor-3",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-monitor-3",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-monitor-3",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "feature/pr-submit-default-monitor-3",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "285"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "367",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "367",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-skill-cleanup",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-skill-cleanup",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-skill-cleanup",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-skill-cleanup",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-skill-cleanup",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "fix/pr-submit-skill-cleanup",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "287"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "285",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/tests-drop-release-artifacts",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/tests-drop-release-artifacts",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/tests-drop-release-artifacts",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/tests-drop-release-artifacts",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude/.dev/worktrees/tests-drop-release-artifacts",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "fix/tests-drop-release-artifacts",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "312"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "306",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "308",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/cicd-ref-ironclaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/cicd-ref-ironclaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/cicd-ref-ironclaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/cicd-ref-ironclaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/cicd-ref-ironclaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/cicd-ref-ironclaude",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/cicd-ref-ironclaude",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/release-6.0.0",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "634"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "05070b49b3861ed3f1c64c509294d7e06f4f1243",
+        "54cef7b885e1dc9e7545948947ce89da338236ce"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-list",
+        "--count",
+        "54cef7b885e1dc9e7545948947ce89da338236ce..05070b49b3861ed3f1c64c509294d7e06f4f1243"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "505",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "505",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "506",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "506",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "510",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "510",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "536",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "536",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "542",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "542",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "543",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "543",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "544",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "544",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "545",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "545",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "571",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "571",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-572-agent-usage",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-572-agent-usage",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-572-agent-usage",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-572-agent-usage",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-572-agent-usage",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/572-agent-usage",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-572-agent-usage",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "572",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "572",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-655-pr-a",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-a",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "682",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "675",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "675",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "665",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "665",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b1",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b1",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b1",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b1",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b1",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-655-pr-b-b1",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b1",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b2",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b2",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b2",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b2",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b2",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-655-pr-b-b2",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b2",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b3a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b3a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b3a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b3a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b3a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-655-pr-b-b3a",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b3a",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b4a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b4a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b4a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b4a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b4a",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-655-pr-b-b4a",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b4a",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b5",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b5",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b5",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b5",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b5",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-655-pr-b-b5",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-b-b5",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-c",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-c",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-c",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-c",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-c",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-655-pr-c",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "684"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-c",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-d",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-d",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-d",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-d",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-d",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-655-pr-d",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "682"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-d",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-p",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-p",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-p",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-p",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-p",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-655-pr-p",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-655-pr-p",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "683",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "665",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "665",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "3",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-spec",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-spec",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-spec",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-spec",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-spec",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-655-spec",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-655-spec",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-spec-pr",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-spec-pr",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-spec-pr",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-spec-pr",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-655-spec-pr",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-655-spec-pr",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "681"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-655-spec-pr",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-668",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-668",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "668",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "668",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p1",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p1",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p1",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p1",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p1",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-668-build-p1",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p1",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "668",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "668",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p2",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p2",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p2",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p2",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p2",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-668-build-p2",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p2",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "668",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "668",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p3",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p3",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p3",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p3",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p3",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-668-build-p3",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "683"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-668-build-p3",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "668",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-669",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-669",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-669",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-669",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-669",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-669",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "670"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-669",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "669",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "669",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-687",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-687",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-687",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-687",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-687",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-templates-plan-fields",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-templates-plan-fields",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-templates-plan-fields",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-templates-plan-fields",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-templates-plan-fields",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/issue-templates-plan-fields",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-templates-plan-fields",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/orchestrator-655-hub",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/orchestrator-655-hub",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/orchestrator-655-hub",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/orchestrator-655-hub",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/orchestrator-655-hub",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/orchestrator-655-hub",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/rollback-655",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/rollback-655",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/rollback-655",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/rollback-655",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronClaude/rollback-655",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--head",
+        "clayphi/rollback-655-build",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "700"
+      ],
+      "cwd": "/home/coder/workspaces/IronClaude",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "683",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "684",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "682",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "584",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "591",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "681",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "688",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "694",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "686",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "690",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "655",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/Coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/Coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/Coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/Coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/Coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/Coder/cicd-ref-coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/Coder/cicd-ref-coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/Coder/cicd-ref-coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/Coder/cicd-ref-coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/Coder/cicd-ref-coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--head",
+        "clayphi/cicd-ref-coder",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:eea8be64-9d34-453a-82ab-78028531cbd1::/home/coder/workspaces/worktrees/Coder/cicd-ref-coder",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/Coder/micro-first-questions",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/Coder/micro-first-questions",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/Coder/micro-first-questions",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/Coder/micro-first-questions",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/Coder/micro-first-questions",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--head",
+        "clayphi/micro-first-questions",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:eea8be64-9d34-453a-82ab-78028531cbd1::/home/coder/workspaces/worktrees/Coder/micro-first-questions",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-agent-layout",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-agent-layout",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-agent-layout",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-agent-layout",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-agent-layout",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--head",
+        "feat/orca-full-list-agent-layout",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "394"
+      ],
+      "cwd": "/home/coder/workspaces/Coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-ccsession-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-ccsession-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-ccsession-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-ccsession-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-ccsession-access",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--head",
+        "feat/ccsession-user-access",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "401"
+      ],
+      "cwd": "/home/coder/workspaces/Coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "309",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "309",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "310",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "311",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "311",
+        "--repo",
+        "IronbellyOrg/IronClaude",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-ccsession-orca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-ccsession-orca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-ccsession-orca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-ccsession-orca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-ccsession-orca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--head",
+        "feat/ccsession-orca-rollout",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "400"
+      ],
+      "cwd": "/home/coder/workspaces/Coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "301",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "388",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "394",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "396",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-main-2bce9071",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-main-2bce9071",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-main-2bce9071",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-main-2bce9071",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-main-2bce9071",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-main-old",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-main-old",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-main-old",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-main-old",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-main-old",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-from-fork",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-from-fork",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-from-fork",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-from-fork",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-from-fork",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--head",
+        "auto/orca-pin-1.4.245-aidev02.dfe1eb410300",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "440"
+      ],
+      "cwd": "/home/coder/workspaces/Coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "399",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "399",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "370",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "370",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "9",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "9",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "373",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "373",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "438",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "439",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "245",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "2",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-pin",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-pin",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-pin",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-pin",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-pin",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-port",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-port",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-port",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-port",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-port",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--head",
+        "feat/orca-port-upstream",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "377"
+      ],
+      "cwd": "/home/coder/workspaces/Coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "356",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "356",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-sidebar-fix",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-sidebar-fix",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-sidebar-fix",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-sidebar-fix",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-orca-sidebar-fix",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--head",
+        "fix/orca-idle-agent-status",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "383",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-pin-1.4.245",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-pin-1.4.245",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-pin-1.4.245",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-pin-1.4.245",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-pin-1.4.245",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-tier-roles",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-tier-roles",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-tier-roles",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-tier-roles",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-tier-roles",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--head",
+        "feat/ccsession-tier-roles",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-687/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh",
+        "410"
+      ],
+      "cwd": "/home/coder/workspaces/Coder",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "318",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "311",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "321",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "407",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-typed-input",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-typed-input",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-typed-input",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-typed-input",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/coder-typed-input",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/Coder",
+        "--head",
+        "fix/new-terminal-typed-input",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronOrca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronOrca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronOrca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronOrca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronOrca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronOrca/aidev02-v1.4.245",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronOrca/aidev02-v1.4.245",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronOrca/aidev02-v1.4.245",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronOrca/aidev02-v1.4.245",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronOrca/aidev02-v1.4.245",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronOrca",
+        "--head",
+        "aidev02",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:cd010228-cd78-4d3d-b6e1-08c102bfb426::/home/coder/workspaces/worktrees/IronOrca/aidev02-v1.4.245",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "2",
+        "--repo",
+        "IronbellyOrg/IronOrca",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "2",
+        "--repo",
+        "IronbellyOrg/IronOrca",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "245",
+        "--repo",
+        "IronbellyOrg/IronOrca",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "245",
+        "--repo",
+        "IronbellyOrg/IronOrca",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "1",
+        "--repo",
+        "IronbellyOrg/IronOrca",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "1",
+        "--repo",
+        "IronbellyOrg/IronOrca",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "399",
+        "--repo",
+        "IronbellyOrg/IronOrca",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "issue",
+        "view",
+        "399",
+        "--repo",
+        "IronbellyOrg/IronOrca",
+        "--json",
+        "state"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronOrca/cicd-ref-ironorca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronOrca/cicd-ref-ironorca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronOrca/cicd-ref-ironorca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronOrca/cicd-ref-ironorca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/worktrees/IronOrca/cicd-ref-ironorca",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "gh",
+        "pr",
+        "list",
+        "--repo",
+        "IronbellyOrg/IronOrca",
+        "--head",
+        "clayphi/cicd-ref-ironorca",
+        "--state",
+        "all",
+        "--limit",
+        "30",
+        "--json",
+        "number,state,headRefOid,author,mergedAt,title,body,closingIssuesReferences,headRefName"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "orca",
+        "reference",
+        "list",
+        "--worktree",
+        "id:cd010228-cd78-4d3d-b6e1-08c102bfb426::/home/coder/workspaces/worktrees/IronOrca/cicd-ref-ironorca",
+        "--json"
+      ],
+      "cwd": null,
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/coder/workspaces/IronOrchestrator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--git-dir"
+      ],
+      "cwd": "/home/coder/workspaces/IronOrchestrator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "cwd": "/home/coder/workspaces/IronOrchestrator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain",
+        "-z",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "cwd": "/home/coder/workspaces/IronOrchestrator",
+      "stdin_paths": 0
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=%ct"
+      ],
+      "cwd": "/home/coder/workspaces/IronOrchestrator",
+      "stdin_paths": 0
+    }
+  ],
+  "summary": {
+    "removed": 0,
+    "kept": 47,
+    "failed": 17,
+    "removable": 0,
+    "skipped": 0,
+    "dry_run": true,
+    "first_reasons": {
+      "rule 1": [
+        "main checkout",
+        13
+      ],
+      "rule 2": [
+        "no pull request",
+        26
+      ],
+      "rule 3": [
+        "27 commits after the pull request",
+        1
+      ],
+      "rule 4": [
+        "issue #655 is open",
+        5
+      ],
+      "rule 5": [
+        "ignored local state: .serena/.gitignore, .serena/project.local.yml, .serena/project.yml",
+        2
+      ],
+      "rule 6": [
+        "in use: the process scan failed (pid 352: permission denied for its own user), so everything is kept",
+        17
+      ]
+    }
+  }
+}

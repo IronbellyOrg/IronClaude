@@ -1,0 +1,119 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: .dev/reflect/pre-TASK-WF-specWorktreeClea-20261120174527/REPORT.md
+audit_log_path: .dev/reflect/pre-TASK-WF-specWorktreeClea-20261120174527/audit.log
+confidence_calibrated: 0.76
+escalation_rule_matched: 4
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 0.9024
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-026, INF-028, INF-035, INF-042, INF-045, INF-048, INF-058, INF-079]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# Input integrity
+input_sha256:
+  tasklist: cb4a28401b79f75dff9548acb4513c00544d6ed312c0781327027e6f1044a71f
+  spec: 8c9bc6b5a2a77facc45cd77b47d860d54df4e1830d7400b3c168e47be30dd8e9
+input_tree_sha256: null   # not computed as a tree in this run; the two file hashes above were re-checked unchanged at Wave 5
+input_tree_file_count: 2
+input_tree_snapshot_path: .dev/reflect/pre-TASK-WF-specWorktreeClea-20261120174527/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 142
+citations_revalidated: 70
+citations_dropped: 1
+citations_dropped_extrapolated: 2
+citations_inferred: 0
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards:
+  - .dev/reflect/pre-TASK-WF-specWorktreeClea-20261120174527/reviewer-cards/reviewer-1-card.md
+  - .dev/reflect/pre-TASK-WF-specWorktreeClea-20261120174527/reviewer-cards/reviewer-2-card.md
+adversarial_artifacts_dir: .dev/reflect/pre-TASK-WF-specWorktreeClea-20261120174527/adversarial
+adversarial_convergence_score: 0.9231
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded   # executor class excluded, 2 reviewers
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: full
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true    # C-003: the owner decides whether the patch-and-bundle save of manual archive is in version 1
+needs_human_decision: false     # no grounding-gaps file
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+# Budget
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion (UC-2 only)
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+# Findings summary (extra, additive)
+verdict: FAIL
+findings_by_severity: {blocking: 7, medium: 6, note: 1}
+blocking_findings: [M-1, M-2, M-3, M-4, M-5, M-8, M-9]
+
+telemetry:
+  degraded_components: [reviewer-cards-truncated, scoring-condensed, advocate-2-no-file-writes, graph:empty]
+  fallback_path: null
+  executor_class_source: env-heuristic   # this session runs as the sonnet-class gateway alias; no flag or env var named it
+  executor_class_resolved: true
+  executor_exclusion_degraded: false
+  reviewer_models: [claude-gw-tier1a, claude-gw-tier2]
+  reviewer_personas: [analyzer, qa]
+  calibration_scores: {t1_card: 0.65, reviewer_1_card: 0.75, reviewer_2_card: 0.76}
+  t2_engine_requested: legacy
+  t2_engine_effective: legacy
+  memory_persisted: false   # last-pass and deviation-patterns files not written (UC-1 yields no deviation classes; best effort skipped)
+  metrics_json_written: false
+  runs_jsonl_appended: false
+  verification_ran: false   # UC-1
+  codegraph: {index_state: fresh, checked_at: "2026-11-20T17:38:06Z", used_for: "workflow-run status only; reflect lookups used Read and Grep"}
+  card_truncation: "both reviewer cards were cut by a transport limit (about 4,000 characters); the agents could not be asked for the rest because the launch guard blocks messaging agents"

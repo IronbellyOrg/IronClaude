@@ -1,0 +1,6 @@
+worktree lists identical before and after
+total 184
+drwxr-xr-x 2 coder coder   4096 Nov 20 22:44 .
+drwxrwxrwt 1 root  root   12288 Nov 20 22:44 ..
+-rw-r--r-- 1 coder coder 157119 Nov 20 22:44 prune-20261120T224206Z.json
+-rw-r--r-- 1 coder coder   9389 Nov 20 22:44 prune-20261120T224206Z.md

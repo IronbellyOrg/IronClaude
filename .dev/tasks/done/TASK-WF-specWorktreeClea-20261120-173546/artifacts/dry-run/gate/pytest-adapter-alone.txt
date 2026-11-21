@@ -1,0 +1,28 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-687
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collected 13 items
+
+tests/cli/eval/test_claude_process_adapter.py ..........FF.              [100%]
+
+=================================== FAILURES ===================================
+__________ test_ruff_flags_synthetic_anthropic_import_under_cli_eval ___________
+tests/cli/eval/test_claude_process_adapter.py:457: in test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+    assert "TID251" in result.stdout, (
+E   AssertionError: Expected TID251 ban-api violation in ruff output; got: ''
+E   assert 'TID251' in ''
+E    +  where '' = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/issue-687/.venv/bin/python', '-m', 'ruff', 'check'...=1, stdout='', stderr='/home/coder/workspaces/worktrees/IronClaude/issue-687/.venv/bin/python: No module named ruff\n').stdout
+___________________ test_ruff_passes_on_real_adapter_module ____________________
+tests/cli/eval/test_claude_process_adapter.py:481: in test_ruff_passes_on_real_adapter_module
+    assert result.returncode == 0, (
+E   AssertionError: adapter module trips its own ban rule: '' '/home/coder/workspaces/worktrees/IronClaude/issue-687/.venv/bin/python: No module named ruff\n'
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/issue-687/.venv/bin/python', '-m', 'ruff', 'check'...=1, stdout='', stderr='/home/coder/workspaces/worktrees/IronClaude/issue-687/.venv/bin/python: No module named ruff\n').returncode
+=========================== short test summary info ============================
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_passes_on_real_adapter_module
+========================= 2 failed, 11 passed in 1.20s =========================
+pytest exit=1

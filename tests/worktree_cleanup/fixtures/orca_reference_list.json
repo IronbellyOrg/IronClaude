@@ -1,0 +1,22 @@
+{
+  "id": "00000000-0000-4000-8000-000000000003",
+  "ok": true,
+  "result": {
+    "references": [
+      {
+        "id": "ref-1",
+        "kind": "issue",
+        "number": 687,
+        "title": "example linked issue",
+        "url": "https://github.com/IronbellyOrg/IronClaude/issues/687"
+      },
+      {
+        "id": "ref-2",
+        "kind": "pull_request",
+        "number": 700,
+        "title": "example linked pull request",
+        "url": "https://github.com/IronbellyOrg/IronClaude/pull/700"
+      }
+    ]
+  }
+}
