@@ -3302,10 +3302,32 @@ def test_the_push_rule_names_full_submit_and_grants_the_coordinator_nothing_on_t
         "At Full Submit the launched agent pushes only its own feature branch to origin "
         "and opens the pull request through /sc:pr-submit; the owner's Pipeline value "
         "plus an approval in the `Approved` field is the go for that issue "
-        "only. The coordinator never pushes worker commits on that basis; for every "
+        "only."
+    ) in section
+    assert (
+        "The coordinator never pushes worker commits on that basis; for every "
         "other push the rule above stands."
     ) in section
     assert "pushes only on the person's go" in section
+    assert (
+        "no earlier pre-authorization waives this, except the person's own typed "
+        "`/sc:pr-submit --monitor 3` line or the Full Submit go in the next "
+        "sentence, which belong to the launched agent's own run and never to the "
+        "coordinator."
+    ) in section
+    assert (
+        "That go is given before the commits exist. It covers only that issue's "
+        "first push, its pull request and the fast-forward fix pushes of the one "
+        "`/sc:pr-submit --monitor 3` run the launched agent starts in its own "
+        "top-level session; it never covers a merge, a force push, a push to the "
+        "default or a protected branch, a branch deletion or any other push. A "
+        "worker or the coordinator never types the run line."
+    ) in section
+    assert (
+        "The go ends when that run ends, when the pull request is merged or "
+        "closed, or when the branch head moves to a commit the run did not make; "
+        "the next push, and a new run, then need the person's own typed go."
+    ) in section
     # no sentence grants the coordinator a push because of the Pipeline value
     for sentence in re.split(r"(?<=[.;])\s+", section):
         if "Pipeline" in sentence and "push" in sentence:
