@@ -1,0 +1,909 @@
+{
+ "summary": {
+  "parsed_count": 0,
+  "inferred_count": 82,
+  "coverage_pct": null,
+  "coverage_pct_union": 0.9024,
+  "unmapped_requirements": [],
+  "unmapped_requirements_union": [
+   "INF-026",
+   "INF-028",
+   "INF-035",
+   "INF-042",
+   "INF-045",
+   "INF-048",
+   "INF-058",
+   "INF-079"
+  ],
+  "S_dev_density": 0.0976,
+  "coverage_degraded": "parsed-sparse"
+ },
+ "rows": [
+  {
+   "requirement_id": "INF-001",
+   "source": "inferred",
+   "citation": "source.md:16",
+   "quote": "It never uses `--force` on a worktree removal, never `git branch -D`, never `rm`, never pushes to a source repo and never deletes a remote branch.",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.769
+  },
+  {
+   "requirement_id": "INF-002",
+   "source": "inferred",
+   "citation": "source.md:16",
+   "quote": "Its only push goes to the evidence repo.",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.75
+  },
+  {
+   "requirement_id": "INF-003",
+   "source": "inferred",
+   "citation": "source.md:16",
+   "quote": "Tracked edits and commits made after the pull request always keep the worktree.",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.8
+  },
+  {
+   "requirement_id": "INF-004",
+   "source": "inferred",
+   "citation": "source.md:78",
+   "quote": "Dry run is the default for every verb that could remove something; `--apply` is the only way to remove.",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.8
+  },
+  {
+   "requirement_id": "INF-005",
+   "source": "inferred",
+   "citation": "source.md:82",
+   "quote": "Prints a table of every git worktree of every repo of ours, one decision (keep or removable) and one reason per row.",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.833
+  },
+  {
+   "requirement_id": "INF-006",
+   "source": "inferred",
+   "citation": "source.md:83",
+   "quote": "Runs only the evidence step of section 7 on one worktree: copy, push, check against GitHub.",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.909
+  },
+  {
+   "requirement_id": "INF-007",
+   "source": "inferred",
+   "citation": "source.md:84",
+   "quote": "Removes one worktree whose work is safe, run from outside it, usually right after its pull request merges.",
+   "matched_task_ids": [
+    "Task 15"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.615
+  },
+  {
+   "requirement_id": "INF-008",
+   "source": "inferred",
+   "citation": "source.md:85",
+   "quote": "Runs the same decision on all worktrees and removes the removable ones.",
+   "matched_task_ids": [
+    "Task 12"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-009",
+   "source": "inferred",
+   "citation": "source.md:87",
+   "quote": "One row per worktree: repo, folder, branch, in Orca (yes or no), pull request and state, issue(s) and state, idle days, size, saved copy (none needed, saved and checked, or failed), decision and reason.",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.87
+  },
+  {
+   "requirement_id": "INF-010",
+   "source": "inferred",
+   "citation": "source.md:89",
+   "quote": "Each step fails closed: if any step cannot be completed or read back, the worktree is kept and the reason is shown.",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.727
+  },
+  {
+   "requirement_id": "INF-011",
+   "source": "inferred",
+   "citation": "source.md:91",
+   "quote": "Without a `VERIFIED` result the worktree is kept and nothing below happens.",
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.625
+  },
+  {
+   "requirement_id": "INF-012",
+   "source": "inferred",
+   "citation": "source.md:92",
+   "quote": "An `unverifiable` or failed close keeps the worktree.",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-013",
+   "source": "inferred",
+   "citation": "source.md:93",
+   "quote": "Any change since the save and any process still inside the worktree keeps it.",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-014",
+   "source": "inferred",
+   "citation": "source.md:94",
+   "quote": "Never a path that is not in the manifest, never `-d` on a folder as a whole, never a tracked file (decision 2).",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.778
+  },
+  {
+   "requirement_id": "INF-015",
+   "source": "inferred",
+   "citation": "source.md:95",
+   "quote": "For a worktree Orca lists: `orca worktree rm --worktree id:<id>` without `--force`.",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-016",
+   "source": "inferred",
+   "citation": "source.md:95",
+   "quote": "For a worktree Orca does not list (the 13 removable ones today): `git worktree remove <path>` without `--force`.",
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.833
+  },
+  {
+   "requirement_id": "INF-017",
+   "source": "inferred",
+   "citation": "source.md:96",
+   "quote": "**Remove the local branch with `git branch -d`, never `-D`.**",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-018",
+   "source": "inferred",
+   "citation": "source.md:97",
+   "quote": "Confirm the folder is gone, `git worktree list` no longer shows it and `orca worktree list` no longer shows it.",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.778
+  },
+  {
+   "requirement_id": "INF-019",
+   "source": "inferred",
+   "citation": "source.md:99",
+   "quote": "In a dry run (no `--apply`) steps 1 to 7 are not run",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-020",
+   "source": "inferred",
+   "citation": "source.md:102",
+   "quote": "a repo whose `origin` belongs to IronbellyOrg or IronbellyGroup, found from `orca repo list` plus `git worktree list` in each repo (so worktrees Orca does not list are covered), wherever they sit",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.824
+  },
+  {
+   "requirement_id": "INF-021",
+   "source": "inferred",
+   "citation": "source.md:105",
+   "quote": "As a second guard the script skips any worktree whose folder name starts with `orca-port-`, `orca-recipe-` or `orca-pristine-`, or is `orca-old-patched`, even if git lists it.",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.778
+  },
+  {
+   "requirement_id": "INF-022",
+   "source": "inferred",
+   "citation": "source.md:112",
+   "quote": "One Orca automation per Coder workspace, once a day at 2:00 AM Central (08:00 UTC), switched on by that workspace's owner.",
+   "matched_task_ids": [
+    "Task 18"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.733
+  },
+  {
+   "requirement_id": "INF-023",
+   "source": "inferred",
+   "citation": "source.md:112",
+   "quote": "The name must not start with `coordinator-`.",
+   "matched_task_ids": [
+    "Task 18"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-024",
+   "source": "inferred",
+   "citation": "source.md:116",
+   "quote": "The cron string is `0 8 * * *` (UTC).",
+   "matched_task_ids": [
+    "Task 18"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.6
+  },
+  {
+   "requirement_id": "INF-025",
+   "source": "inferred",
+   "citation": "source.md:124",
+   "quote": "Python standard library only, no model call anywhere.",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.667
+  },
+  {
+   "requirement_id": "INF-026",
+   "source": "inferred",
+   "citation": "source.md:125",
+   "quote": "It is a command, not a skill: a skill installs for everyone and would break the opt-in schedule.",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_ratio": 0.375
+  },
+  {
+   "requirement_id": "INF-027",
+   "source": "inferred",
+   "citation": "source.md:126",
+   "quote": "The automation definition, written and switched off, modelled on `scripts/merged_pr_log_orca_automation.md`.",
+   "matched_task_ids": [
+    "Task 18"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-028",
+   "source": "inferred",
+   "citation": "source.md:131",
+   "quote": "a precheck command that exits non-zero makes Orca skip the run and start no agent session.",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_ratio": 0.417
+  },
+  {
+   "requirement_id": "INF-029",
+   "source": "inferred",
+   "citation": "source.md:137",
+   "quote": "Name: `worktree-cleanup-daily`. Trigger: `0 8 * * *` (UTC; 2:00 AM Central in winter, decision 11). Status: written, not switched on.",
+   "matched_task_ids": [
+    "Task 18"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.944
+  },
+  {
+   "requirement_id": "INF-030",
+   "source": "inferred",
+   "citation": "source.md:144",
+   "quote": "`GH_TOKEN` (never read from a file by the script; it is passed to `gh` and to `git push` through the environment).",
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-031",
+   "source": "inferred",
+   "citation": "source.md:146",
+   "quote": "One lock file per repo in the output folder, so two runs cannot remove the same worktree twice; a second run after a removal finds nothing more to do.",
+   "matched_task_ids": [
+    "Task 12"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.944
+  },
+  {
+   "requirement_id": "INF-032",
+   "source": "inferred",
+   "citation": "source.md:148",
+   "quote": "Each run writes `<out dir>/prune-<UTC timestamp>.md` (the table) and a `.json` of the same rows",
+   "matched_task_ids": [
+    "Task 12"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-033",
+   "source": "inferred",
+   "citation": "source.md:148",
+   "quote": "Exit codes follow Jay's: 0 means the run completed (some worktrees may be kept; read the table), 64 means a usage error or a `retire` of a worktree that is not removable, 69 means a lookup or a removal failed (the table still shows what happened).",
+   "matched_task_ids": [
+    "Task 12"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.821
+  },
+  {
+   "requirement_id": "INF-034",
+   "source": "inferred",
+   "citation": "source.md:148",
+   "quote": "No output names an agent or a model.",
+   "matched_task_ids": [
+    "Task 12"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-035",
+   "source": "inferred",
+   "citation": "source.md:150",
+   "quote": "Clay switches it on in his workspace and for the first week it only writes the table (no `--apply`)",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_ratio": 0.556
+  },
+  {
+   "requirement_id": "INF-036",
+   "source": "inferred",
+   "citation": "source.md:154",
+   "quote": "A worktree is removed only when ALL eight rules hold.",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.667
+  },
+  {
+   "requirement_id": "INF-037",
+   "source": "inferred",
+   "citation": "source.md:154",
+   "quote": "Every rule fails closed: if the script cannot tell, it keeps the worktree.",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.889
+  },
+  {
+   "requirement_id": "INF-038",
+   "source": "inferred",
+   "citation": "source.md:158",
+   "quote": "It is a linked worktree of one of our repos that this run may touch.",
+   "matched_task_ids": [
+    "Task 12"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.667
+  },
+  {
+   "requirement_id": "INF-039",
+   "source": "inferred",
+   "citation": "source.md:159",
+   "quote": "Its own pull request is MERGED.",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-040",
+   "source": "inferred",
+   "citation": "source.md:160",
+   "quote": "Nothing was added after the pull request.",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.8
+  },
+  {
+   "requirement_id": "INF-041",
+   "source": "inferred",
+   "citation": "source.md:161",
+   "quote": "The issue it was for is CLOSED.",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-042",
+   "source": "inferred",
+   "citation": "source.md:162",
+   "quote": "Nothing unsaved is in it.",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_ratio": 0.5
+  },
+  {
+   "requirement_id": "INF-043",
+   "source": "inferred",
+   "citation": "source.md:163",
+   "quote": "Nothing but its own Orca terminals is using it.",
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.6
+  },
+  {
+   "requirement_id": "INF-044",
+   "source": "inferred",
+   "citation": "source.md:164",
+   "quote": "It has been idle for at least 7 days and was not created in the last 7 days.",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-045",
+   "source": "inferred",
+   "citation": "source.md:165",
+   "quote": "It is not pinned and nobody asked to keep it.",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_ratio": 0.5
+  },
+  {
+   "requirement_id": "INF-046",
+   "source": "inferred",
+   "citation": "source.md:170",
+   "quote": "Decision 1 allows `git clean -f -x` for the exact paths saved and verified in the evidence repo and for nothing else",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.867
+  },
+  {
+   "requirement_id": "INF-047",
+   "source": "inferred",
+   "citation": "source.md:171",
+   "quote": "Close an Orca terminal of a worktree that has not passed every other rule and whose save is not verified.",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.909
+  },
+  {
+   "requirement_id": "INF-048",
+   "source": "inferred",
+   "citation": "source.md:173",
+   "quote": "Run `git worktree prune`, because a missing folder can mean a disk is not mounted (Jay's guard); it reports such a worktree and leaves it.",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_ratio": 0.562
+  },
+  {
+   "requirement_id": "INF-049",
+   "source": "inferred",
+   "citation": "source.md:175",
+   "quote": "Create, move or change a file inside a worktree it keeps (the archive step reads and copies; it never edits).",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.75
+  },
+  {
+   "requirement_id": "INF-050",
+   "source": "inferred",
+   "citation": "source.md:176",
+   "quote": "Read a credential from a file, print a credential, or name an agent or a model in any output.",
+   "matched_task_ids": [
+    "Task 12"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.75
+  },
+  {
+   "requirement_id": "INF-051",
+   "source": "inferred",
+   "citation": "source.md:186",
+   "quote": "Needs the merged pull request of rule 2. Without one it refuses (nothing is saved for unmerged work).",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.833
+  },
+  {
+   "requirement_id": "INF-052",
+   "source": "inferred",
+   "citation": "source.md:188",
+   "quote": "Pack the ignored files under `.dev/` (not `__pycache__`) into `ignored.tar.gz`, split into parts of 85 MB when larger",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.929
+  },
+  {
+   "requirement_id": "INF-053",
+   "source": "inferred",
+   "citation": "source.md:188",
+   "quote": "Write `saved-paths.txt`, one exact path per line",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.857
+  },
+  {
+   "requirement_id": "INF-054",
+   "source": "inferred",
+   "citation": "source.md:188",
+   "quote": "Write `MANIFEST.md`: source repo, branch, pull request link and title, merge date, worktree head and pull request head, worktree folder, time saved, count of files, and a SHA-256 of each archive file and of `saved-paths.txt`.",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.96
+  },
+  {
+   "requirement_id": "INF-055",
+   "source": "inferred",
+   "citation": "source.md:189",
+   "quote": "Commit in the evidence repo with the message `archive(<repo>): <date> pr<N> <subject>`.",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.889
+  },
+  {
+   "requirement_id": "INF-056",
+   "source": "inferred",
+   "citation": "source.md:190",
+   "quote": "If the push is refused, repeat from the fetch up to 3 times",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-057",
+   "source": "inferred",
+   "citation": "source.md:191",
+   "quote": "Print `VERIFIED <folder> files=<n>`.",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.8
+  },
+  {
+   "requirement_id": "INF-058",
+   "source": "inferred",
+   "citation": "source.md:192",
+   "quote": "It never overwrites a folder.",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_ratio": 0.5
+  },
+  {
+   "requirement_id": "INF-059",
+   "source": "inferred",
+   "citation": "source.md:194",
+   "quote": "`<source-repo>/<pr-author>/<YYYY-MM-DD>_pr<number>_<subject>/`.",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-060",
+   "source": "inferred",
+   "citation": "source.md:212",
+   "quote": "after the save is pushed and verified against GitHub, do whatever is needed to make the worktree removable, for the saved untracked and ignored files only.",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.667
+  },
+  {
+   "requirement_id": "INF-061",
+   "source": "inferred",
+   "citation": "source.md:235",
+   "quote": "YES: a names-only secret check before pushing.",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.667
+  },
+  {
+   "requirement_id": "INF-062",
+   "source": "inferred",
+   "citation": "source.md:244",
+   "quote": "They never touch a real worktree. Each case must fail if its rule is removed.",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.625
+  },
+  {
+   "requirement_id": "INF-063",
+   "source": "inferred",
+   "citation": "source.md:249",
+   "quote": "Decision 3: a worktree that passes every rule and has Orca terminals open and a process inside is removed in `--apply` only after `orca terminal close --worktree id:<id> --all` is confirmed",
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-064",
+   "source": "inferred",
+   "citation": "source.md:251",
+   "quote": "A squash-merged pull request whose commits are not on the base is judged landed from pull request state, not ancestry.",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.909
+  },
+  {
+   "requirement_id": "INF-065",
+   "source": "inferred",
+   "citation": "source.md:252",
+   "quote": "A pull request that is merged but whose branch was later reused for new commits keeps the worktree.",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-066",
+   "source": "inferred",
+   "citation": "source.md:255",
+   "quote": "A test records every command the script runs, in every verb and every branch",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-067",
+   "source": "inferred",
+   "citation": "source.md:257",
+   "quote": "A second run after a removal finds nothing more to do; two runs at once do not both remove the same worktree (one lock per repo).",
+   "matched_task_ids": [
+    "Task 12"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.933
+  },
+  {
+   "requirement_id": "INF-068",
+   "source": "inferred",
+   "citation": "source.md:259",
+   "quote": "No output names an agent or a model (a test greps the table, the summary and the log).",
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-069",
+   "source": "inferred",
+   "citation": "source.md:264",
+   "quote": "An ignored archive larger than 85 MB is split into parts that join back to the same bytes.",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-070",
+   "source": "inferred",
+   "citation": "source.md:266",
+   "quote": "Two clones pushing different folders at the same time both end up on `origin/main` after the rebase and retry.",
+   "matched_task_ids": [
+    "Task 10"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-071",
+   "source": "inferred",
+   "citation": "source.md:268",
+   "quote": "Decision 1: exactly the paths in `saved-paths.txt` are cleared (including a name with a space) and nothing else",
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.917
+  },
+  {
+   "requirement_id": "INF-072",
+   "source": "inferred",
+   "citation": "source.md:269",
+   "quote": "Decision 2: a merged worktree with a tracked edit or a commit after the pull request is kept, nothing is cleared, no terminal is closed and nothing is archived by `prune`.",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.941
+  },
+  {
+   "requirement_id": "INF-073",
+   "source": "inferred",
+   "citation": "source.md:271",
+   "quote": "`git worktree remove` without force refuses a worktree with an untracked file and one with a modified tracked file, and removes one that holds only ignored files",
+   "matched_task_ids": [
+    "Task 7"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-074",
+   "source": "inferred",
+   "citation": "source.md:274",
+   "quote": "A dry run in Clay's workspace prints a table whose counts match `git worktree list`",
+   "matched_task_ids": [
+    "Task 20"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.846
+  },
+  {
+   "requirement_id": "INF-075",
+   "source": "inferred",
+   "citation": "source.md:275",
+   "quote": "Jay's files that are adapted keep his Apache-2.0 notice and say what was changed",
+   "matched_task_ids": [
+    "Task 19"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.769
+  },
+  {
+   "requirement_id": "INF-076",
+   "source": "inferred",
+   "citation": "source.md:276",
+   "quote": "The regression gate passes: the full test suite, `make lint` and the sync checks that `/sc:pr-submit` runs.",
+   "matched_task_ids": [
+    "Task 20"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.643
+  },
+  {
+   "requirement_id": "INF-077",
+   "source": "inferred",
+   "citation": "source.md:276",
+   "quote": "No em or en dashes in new files.",
+   "matched_task_ids": [
+    "Task 17"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.8
+  },
+  {
+   "requirement_id": "INF-078",
+   "source": "inferred",
+   "citation": "source.md:373",
+   "quote": "on throwaway worktrees only, and write the findings to `.dev/research/worktree-cleanup-proofs.md`.",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.7
+  },
+  {
+   "requirement_id": "INF-079",
+   "source": "inferred",
+   "citation": "source.md:375",
+   "quote": "registered where the repo lists commands. Reuse the landed check of #668.",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_ratio": 0.556
+  },
+  {
+   "requirement_id": "INF-080",
+   "source": "inferred",
+   "citation": "source.md:376",
+   "quote": "A provenance block with Jay's Apache-2.0 notice at the top of the script.",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_ratio": 1.0
+  },
+  {
+   "requirement_id": "INF-081",
+   "source": "inferred",
+   "citation": "source.md:377",
+   "quote": "**Retire the manual tool** in the evidence repo (its `tools/archive-workspace.sh` becomes a pointer to the script)",
+   "matched_task_ids": [
+    "Task 19"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.667
+  },
+  {
+   "requirement_id": "INF-082",
+   "source": "inferred",
+   "citation": "source.md:379",
+   "quote": "**Pull request** with `/sc:pr-submit --monitor 3`.",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "best_ratio": 0.714
+  }
+ ]
+}

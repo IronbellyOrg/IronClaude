@@ -1,0 +1,6 @@
+SWEEP refs/superclaude/implement/TASK-WF-specWorktreeClea-20261120-173546/retry/T11/sweep-2-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+RESTORED scripts/worktree_cleanup.py
+DELETED tests/worktree_cleanup/test_removal.py
+DONE
+exit=0

@@ -41,4 +41,19 @@ Third-party components
    source commits, the content hashes and the changes made. The upstream
    repository has no NOTICE file, so there is no further notice to carry.
 
+3. worktree_cleanup (adapted rules)
+   ------------------------------
+   Upstream:  https://github.com/Simple-With-Us/AI-Fleet-Coordinator
+   License:   Apache License, Version 2.0 (Apache-2.0)
+   Location:  scripts/worktree_cleanup.py
+
+   The worktree cleanup script adapts rules from three files written by Jay
+   Wedgeworth (Copyright 2026 Jay Wedgeworth): `scripts/fleet_lanes/retire.py`,
+   `docs/protocols/lane-map.md` and `scripts/disk-janitor.sh`. The Apache License
+   text is kept verbatim at
+   `src/superclaude/skills/sc-closeout-protocol/LICENSE`, and
+   `scripts/worktree_cleanup_PROVENANCE.md` records what was kept, changed or
+   dropped for each rule. The upstream repository has no NOTICE file, so there
+   is no further notice to carry.
+
 ==============================================================================

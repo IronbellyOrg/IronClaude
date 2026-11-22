@@ -1,0 +1,19 @@
+== A: the save is skipped, so nothing is verified before the terminals close
+FAILED tests/worktree_cleanup/test_pipeline.py::test_terminals_and_a_process_inside_are_closed_first_and_the_second_check_runs
+FAILED tests/worktree_cleanup/test_pipeline.py::test_the_branch_is_removed_with_d_and_a_squash_merge_refusal_reports_kept
+FAILED tests/worktree_cleanup/test_pipeline.py::test_a_second_run_finds_nothing_more_to_do
+FAILED tests/worktree_cleanup/test_pipeline.py::test_folders_that_are_not_worktrees_of_our_repos_never_appear_and_are_never_touched
+FAILED tests/worktree_cleanup/test_safety.py::test_the_script_never_opens_a_credential_file
+==================== 5 failed, 96 passed, 6 errors in 6.17s ====================
+== B: a path outside the saved list is let through to git clean
+FAILED tests/worktree_cleanup/test_pipeline.py::test_exactly_the_listed_paths_are_cleared_and_nothing_else
+FAILED tests/worktree_cleanup/test_safety.py::test_a_clean_that_is_not_the_exact_shape_or_not_saved_is_refused
+======================== 2 failed, 105 passed in 8.03s =========================
+== C: the second check is removed
+E    +  where 'log: saving into /tmp/pytest-of-coder/pytest-57/test_a_change_between_the_save0/evidence-clone/example/example-user/....ed, as after a squash merge) |\n\nsummary: removed 1, kept 1, failed 0\n  kept at rule 1: main checkout (1 worktree)\n' = CaptureResult(out='log: saving into /tmp/pytest-of-coder/pytest-57/test_a_change_between_the_save0/evidence-clone/exam...ter a squash merge) |\n\nsummary: removed 1, kept 1, failed 0\n  kept at rule 1: main checkout (1 worktree)\n', err='').out
+E    +    where CaptureResult(out='log: saving into /tmp/pytest-of-coder/pytest-57/test_a_change_between_the_save0/evidence-clone/exam...ter a squash merge) |\n\nsummary: removed 1, kept 1, failed 0\n  kept at rule 1: main checkout (1 worktree)\n', err='') = readouterr()
+FAILED tests/worktree_cleanup/test_pipeline.py::test_a_change_between_the_save_and_the_close_keeps_the_worktree[new commit]
+FAILED tests/worktree_cleanup/test_pipeline.py::test_a_change_between_the_save_and_the_close_keeps_the_worktree[tracked edit]
+FAILED tests/worktree_cleanup/test_pipeline.py::test_a_change_between_the_save_and_the_close_keeps_the_worktree[untracked file outside .dev]
+======================== 3 failed, 104 passed in 8.40s =========================
+restored: identical

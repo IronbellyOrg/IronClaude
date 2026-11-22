@@ -1,0 +1,29 @@
+[
+  {
+    "number": 700,
+    "state": "MERGED",
+    "headRefOid": "1111111111111111111111111111111111111111",
+    "headRefName": "example/issue-687",
+    "author": {"login": "example-user"},
+    "mergedAt": "2026-11-10T12:00:00Z",
+    "title": "Example change (#20)",
+    "body": "Fixes #21. Related: IronbellyOrg/IronClaude#22.",
+    "closingIssuesReferences": [
+      {
+        "number": 21,
+        "repository": {"name": "IronClaude", "owner": {"login": "IronbellyOrg"}}
+      }
+    ]
+  },
+  {
+    "number": 650,
+    "state": "CLOSED",
+    "headRefOid": "2222222222222222222222222222222222222222",
+    "headRefName": "example/issue-687",
+    "author": {"login": "example-user"},
+    "mergedAt": null,
+    "title": "Earlier try",
+    "body": "",
+    "closingIssuesReferences": []
+  }
+]

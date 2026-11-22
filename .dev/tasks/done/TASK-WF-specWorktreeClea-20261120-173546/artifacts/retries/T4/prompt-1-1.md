@@ -1,0 +1,1260 @@
+014b44a10aa2ec6a6844532c914545da92e4885a
+Review one task for spec compliance.
+
+Task brief: ## Task 4: Add the read-only git facts, local state classification and the process scan
+
+Depends on: Task 3
+
+In `scripts/worktree_cleanup.py` add, through the `Runner`: discovery of worktrees as `orca repo list` folders plus `git worktree list --porcelain` run in each repo, so worktrees Orca does not list are found, wherever they sit (source section 3, "In scope"); per worktree the main-checkout flag (first porcelain entry), locked flag, folder present or missing, branch or detached HEAD, `origin` owner (IronbellyOrg or IronbellyGroup, from `git remote get-url origin`), `git rev-parse HEAD`, `git status --porcelain` split into changed tracked files, untracked files outside `.dev/`, untracked files under `.dev/`, and the ignored files from `git status --porcelain --ignored` split into build output and generated copies (the fixed list of source section 6 rule 5, matched on path parts), ignored files under `.dev/`, and unknown ignored names; the idle time as the newest of the modification times of `HEAD`, `index` and `logs/HEAD` in the worktree's own git folder, the last commit time, and Orca's `lastActivityAt` when Orca lists it, plus the creation age; a `.worktree-keep` file check; a git operation in progress check (merge, rebase, cherry-pick, revert, bisect, `index.lock` in the worktree's git folder); a nested checkout check (a `.git` file or folder below the top of the worktree); and the process scan: read `/proc/<pid>/cwd` for every entry, ignore an entry that exited meanwhile, note and ignore an entry of another user, and treat any other error as "scan failed" which keeps every worktree (source section 11, item 4); the `/proc` root is a parameter so tests can pass a fake. The size of each worktree is computed by walking the folder read-only. The script's own folder is compared by real path. The name guard of source section 3 is anchored at the start of the folder name, so `coder-orca-port` is not caught.
+
+Acceptance criteria:
+- On a throwaway repository built by a helper in `tests/worktree_cleanup/conftest.py` (created here; Task 7 extends it) and checked in `tests/worktree_cleanup/test_facts.py`, each fact is returned correctly for a clean worktree, one with a changed tracked file, one with an untracked file outside `.dev/`, one with untracked and ignored files under `.dev/`, one with an ignored environment file outside `.dev/`, and one with only build output.
+- The process scan returns "scan failed" for an unreadable-for-another-reason entry in a fake `/proc` and ignores a vanished one and another user's one.
+- `orca-port-evidence`, `orca-recipe-x`, `orca-pristine-y` and `orca-old-patched` are on the name guard and `coder-orca-port` is not.
+- No git command in this task changes the repository (the recorder test of Task 13 shows read verbs only: `worktree list`, `status`, `rev-parse`, `remote get-url`, `log`, `ls-files`).
+
+AC ids (in source order): T4.AC1, T4.AC2, T4.AC3, T4.AC4
+Global constraints: ## Constraints
+
+- Safety for this whole run (set by the issue owner): tests use throwaway git repositories, a local bare repository standing in for the evidence repo, and a fake runner with recorded `gh`, `git` and `orca` replies. No task and no test runs the script with `--apply` against real worktrees, removes, moves or clears any real worktree or file, creates or switches on an Orca automation (the definition is a file, status "written, not switched on"), closes a real Orca terminal, or pushes to `IronbellyOrg/run-evidence`. The only run against the real workspace is a dry run (Task 20).
+- The script never uses `--force` on `orca worktree rm` or `git worktree remove`, never `git branch -D`, never `rm`, never `git worktree prune`, never pushes anywhere but the evidence repo's clone, and never deletes a remote branch. The only force flag in the whole script is `git clean -f -x --` on exact paths listed in a verified `saved-paths.txt` (source sections 3, 6 and 8, decision 1).
+- The script never deletes a file or folder itself (no `rm`, no `shutil.rmtree`, no `unlink`): its lock files stay in place under `fcntl.flock`, and a scratch folder left by a failed save stays and is named in the log. This plan chose that so "never rm" holds without exception.
+- Python standard library only, no model call, no agent or model name in any output, credentials only from the environment (`GH_TOKEN`), no credential file is ever opened by the script, no secret is printed or written (source sections 5, 6 and 9).
+- The 11 decisions of source section 8 are final. Out of scope (source section 10): where worktrees live (#289, #322), Jay's other pieces, the closeout itself (#668, so `/sc:closeout` and its files and tests are not changed), any shared or remote branch, anything that is not a git worktree of our repos.
+- The change to the separate `IronbellyOrg/run-evidence` repo (source section 15, step 5) is prepared as text under `./artifacts/` and not applied by this plan; no other repo is pushed to.
+- The spec mentions that `archive` by hand "can still save" tracked edits and later commits "as a patch and a bundle" (source section 7, "What is not saved"). It gives no step, format or folder for it, so it is not built; Task 12 records that in the verb's help text so it is not a silent drop.
+- Where the spec is silent this plan decides, and says so in the task: `/sc:worktrees` goes on the never-as-worker list (Task 16); outside an IronClaude checkout the command stops and runs nothing (Task 14); the default `--out` folder is `~/.local/state/worktree-cleanup` so nothing is ever written inside a worktree (Task 2); `/sc:closeout` is left unchanged (this constraint).
+- Edit only under `src/superclaude/`, `scripts/`, `tests/`, `docs/`, `plugins/superclaude/skills/sc-recommend/refs/`, `CHANGELOG.md` and `NOTICE`; run `make sync-dev` after editing `src/superclaude/` and never edit the `.claude/` copies. Plain English and no em or en dashes in every new file. A command file must not point at another primitive through a `src/superclaude/...` path.
+- The pull request for this change is opened by the finishing step of the run, `/sc:pr-submit --monitor 3` (source section 15, step 7), after the last task; no task of this plan opens it.
+- Corrections the implementer made to this plan before the first task started, from the advisory reflect review of the plan (the list is in `./artifacts/plan-corrections.md`): Task 1 (the item 1 fallback, the open pull request proof, item 7), Task 2 (a positive allowlist runner and its own first tests), Tasks 3 to 5 (their own tests, so no check waits for a later task), Task 7 (shared fixtures only), Tasks 11 and 12 (Orca read back, the command list in the JSON), Task 14 (the write-verb classification), Task 19 (15 rows), Task 20 (dependencies).
+Start sha: 014b44a10aa2ec6a6844532c914545da92e4885a
+Diff against the start snapshot: diff --git a/scripts/worktree_cleanup.py b/scripts/worktree_cleanup.py
+deleted file mode 100644
+index cd200db32..000000000
+--- a/scripts/worktree_cleanup.py
++++ /dev/null
+@@ -1,857 +0,0 @@
+-#!/usr/bin/env python3
+-# Rules adapted from three files in https://github.com/Simple-With-Us/AI-Fleet-Coordinator
+-# (scripts/fleet_lanes/retire.py, docs/protocols/lane-map.md, scripts/disk-janitor.sh),
+-# Copyright 2026 Jay Wedgeworth, licensed under the Apache License, Version 2.0.
+-# Changed by IronClaude: the rules, the runner, the archive step and every command are
+-# rewritten for git worktrees of IronbellyOrg repos. See scripts/worktree_cleanup_PROVENANCE.md.
+-"""Remove git worktrees of our own repos once their work is finished, and nothing else.
+-
+-A worktree is removed only when all eight rules hold: it is a linked worktree of one of
+-our repos, its own pull request is merged, nothing was added after that pull request,
+-every issue it relates to is closed, nothing unsaved is in it, nothing but its own Orca
+-terminals is using it, it has been idle for the idle floor, and it is not pinned.
+-Untracked and ignored files under ``.dev/`` are first saved to the evidence repo and
+-checked against GitHub. Every step fails closed: if anything cannot be read or
+-completed, the worktree is kept and the reason is shown.
+-
+-Verbs (a dry run unless --apply is given):
+-  list                 table of every worktree of every repo of ours, never removes
+-  archive <worktree>   only the save step, never removes
+-  retire <worktree>    remove one worktree whose work is safe
+-  prune                the same decision for every worktree
+-
+-Environment (names only; credentials come from the environment and nowhere else):
+-  GH_TOKEN                     token for gh, for the landed check (it runs gh) and for the
+-                               push to the evidence repo; no other command gets it
+-  RUN_EVIDENCE_REPO            default IronbellyOrg/run-evidence
+-  RUN_EVIDENCE_DIR             local clone, default ~/workspaces/run-evidence
+-  WORKTREE_CLEANUP_IDLE_DAYS   idle floor in days, default 7
+-
+-Usage:
+-  uv run --no-project python scripts/worktree_cleanup.py <verb> [--apply] [--out DIR]
+-"""
+-
+-from __future__ import annotations
+-
+-import argparse
+-import json
+-import os
+-import re
+-import shlex
+-import subprocess
+-import sys
+-from collections.abc import Mapping
+-from dataclasses import dataclass, field
+-from pathlib import Path
+-from typing import Any
+-
+-# --- constants -------------------------------------------------------------
+-
+-IDLE_DAYS_DEFAULT = 7
+-EVIDENCE_REPO_DEFAULT = "IronbellyOrg/run-evidence"
+-EVIDENCE_DIR_DEFAULT = "~/workspaces/run-evidence"
+-DEFAULT_OUT = "~/.local/state/worktree-cleanup"
+-
+-# GitHub refuses a file over 100 MB; ignored archives are split into parts of this size.
+-# A module constant so a test can lower it.
+-ARCHIVE_PART_BYTES = 85 * 1024 * 1024
+-
+-OWNERS = ("ironbellyorg", "ironbellygroup")
+-
+-# Second guard: infrastructure and port folders are never touched, even if git lists them.
+-NAME_GUARD_PREFIXES = ("orca-port-", "orca-recipe-", "orca-pristine-")
+-NAME_GUARD_EXACT = ("orca-old-patched",)
+-
+-# Ignored names that are build output or generated copies, not local state (rule 5).
+-BUILD_OUTPUT_NAMES = frozenset(
+-    {
+-        "__pycache__",
+-        ".venv",
+-        ".codegraph",
+-        ".ruff_cache",
+-        ".pytest_cache",
+-        ".mypy_cache",
+-        "node_modules",
+-        "dist",
+-        "build",
+-        "uv.lock",
+-    }
+-)
+-BUILD_OUTPUT_PATHS = (
+-    (".serena", "cache"),
+-    (".claude", "agents"),
+-    (".claude", "commands"),
+-    (".claude", "hooks"),
+-    (".claude", "skills"),
+-    (".claude", "templates"),
+-)
+-
+-EXIT_OK = 0
+-EXIT_USAGE = 64
+-EXIT_FAILED = 69
+-
+-VERBS = ("list", "archive", "retire", "prune")
+-
+-CREDENTIAL_HELPER = "credential.helper=!gh auth git-credential"
+-
+-# Environment names that carry a credential. Only gh, the landed check (it runs gh) and
+-# the push to the evidence repo get them. The clone and the fetch of the evidence repo
+-# get none and rely on the stored login of the person running the script, which this
+-# script never reads.
+-TOKEN_NAMES = ("GH_TOKEN", "GITHUB_TOKEN")
+-
+-LANDED_CHECK_RELATIVE = "skills/sc-closeout-protocol/scripts/branch-landed.sh"
+-
+-# A branch the evidence clone may push: no colon, plus sign or star in it.
+-_BRANCH_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9._/-]*$")
+-_REPO_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+-
+-
+-def default_landed_paths() -> tuple[str, ...]:
+-    """The three places the landed check is looked for, in the order Task 1 recorded."""
+-    checkout = Path(__file__).resolve().parents[1]
+-    return (
+-        os.path.expanduser("~/.claude/" + LANDED_CHECK_RELATIVE),
+-        str(checkout / ".claude" / LANDED_CHECK_RELATIVE),
+-        str(checkout / "src" / "superclaude" / LANDED_CHECK_RELATIVE),
+-    )
+-
+-
+-# --- the one runner --------------------------------------------------------
+-
+-
+-class RefusedCommand(Exception):
+-    """A command the allowlist does not name, or one of the always-banned shapes."""
+-
+-
+-@dataclass
+-class CommandRecord:
+-    argv: list[str]
+-    cwd: str | None
+-    stdin_paths: int = 0
+-
+-
+-@dataclass
+-class Result:
+-    returncode: int
+-    stdout: str = ""
+-    stderr: str = ""
+-
+-
+-def _plain(token: str) -> str:
+-    """A plain argument: never empty and never shaped like an option, a forced ref or a pathspec magic."""
+-    if not token or token[0] in "-+:":
+-        raise RefusedCommand(f"argument not accepted: {token!r}")
+-    return token
+-
+-
+-def _match(
+-    tail: list[str],
+-    flags: frozenset[str] = frozenset(),
+-    values: frozenset[str] = frozenset(),
+-    prefixes: tuple[str, ...] = (),
+-    allow_dashdash: bool = False,
+-) -> tuple[list[str], list[str]]:
+-    """Check ``tail`` against one exact option shape; return (arguments, paths after --).
+-
+-    Every token that starts with ``-`` must be named in ``flags``, be one of the ``values``
+-    options (which takes the next token as its value), or start with one of ``prefixes``.
+-    There is no deny list: a bundled short option or a shortened long option is not named,
+-    so it is refused.
+-    """
+-    args: list[str] = []
+-    paths: list[str] = []
+-    i = 0
+-    while i < len(tail):
+-        tok = tail[i]
+-        if tok == "--":
+-            if not allow_dashdash:
+-                raise RefusedCommand("`--` is not accepted here")
+-            paths = tail[i + 1 :]
+-            if not paths or any(not p for p in paths):
+-                raise RefusedCommand("`--` must be followed by paths")
+-            break
+-        if tok in flags:
+-            pass
+-        elif tok in values:
+-            i += 1
+-            if i >= len(tail) or not tail[i] or tail[i].startswith("-"):
+-                raise RefusedCommand(f"{tok} needs a value")
+-        elif any(tok.startswith(p) for p in prefixes):
+-            pass
+-        elif tok.startswith("-"):
+-            raise RefusedCommand(f"option not on the allowlist: {tok}")
+-        else:
+-            args.append(_plain(tok))
+-        i += 1
+-    return args, paths
+-
+-
+-def _count(args: list[str], low: int, high: int | None, what: str) -> None:
+-    if len(args) < low or (high is not None and len(args) > high):
+-        raise RefusedCommand(f"{what} takes a different number of arguments")
+-
+-
+-# git read verbs: the exact options, the exact option prefixes, the least and most plain
+-# arguments, and whether ``-- <paths>`` is accepted. Nothing outside this table is a read verb.
+-_GitShape = tuple[frozenset[str], tuple[str, ...], int, int | None, bool]
+-_GIT_READ_SHAPES: dict[str, _GitShape] = {
+-    "status": (
+-        frozenset({"--porcelain", "-z", "--ignored", "--untracked-files=all"}),
+-        (),
+-        0,
+-        0,
+-        False,
+-    ),
+-    "rev-parse": (
+-        frozenset(
+-            {
+-                "--git-dir",
+-                "--git-common-dir",
+-                "--show-toplevel",
+-                "--verify",
+-                "--abbrev-ref",
+-            }
+-        ),
+-        (),
+-        0,
+-        None,
+-        False,
+-    ),
+-    "log": (frozenset({"-1"}), ("--format=",), 0, None, True),
+-    "ls-files": (
+-        frozenset({"-z", "--others", "--ignored", "--exclude-standard", "--cached"}),
+-        (),
+-        0,
+-        0,
+-        True,
+-    ),
+-    "ls-tree": (frozenset({"-r", "--name-only", "-z"}), (), 1, None, False),
+-    "merge-base": (frozenset({"--is-ancestor"}), (), 2, 2, False),
+-    "rev-list": (frozenset({"--count"}), (), 1, None, False),
+-    "diff": (frozenset({"--quiet"}), (), 0, None, True),
+-}
+-
+-_GH_VALUE_FLAGS = frozenset({"--repo", "--head", "--state", "--json", "--limit"})
+-
+-
+-@dataclass
+-class Runner:
+-    """The only way this script starts an outside program.
+-
+-    ``check_allowed`` is a positive allowlist: a command is accepted only when it matches
+-    one complete argument shape, and everything else is refused before any process
+-    starts. Every command that passes is recorded (argument list and working folder), so
+-    a test can read the whole list.
+-    """
+-
+-    evidence_dir: str | None = None
+-    commands: list[CommandRecord] = field(default_factory=list)
+-    # The three places branch-landed.sh may be run from (compared by real path).
+-    landed_paths: tuple[str, ...] = field(default_factory=default_landed_paths)
+-    # Paths saved and verified in the evidence repo, per worktree folder (real path).
+-    saved_paths: dict[str, set[str]] = field(default_factory=dict)
+-    # Worktree selectors whose Orca terminals may be closed (every other rule passed
+-    # and the save is verified).
+-    close_authorized: set[str] = field(default_factory=set)
+-
+-    # -- authorization registered by the pipeline --------------------------------
+-
+-    def register_saved(self, worktree: str, paths: list[str]) -> None:
+-        self.saved_paths.setdefault(os.path.realpath(worktree), set()).update(paths)
+-
+-    def authorize_close(self, selector: str) -> None:
+-        self.close_authorized.add(selector)
+-
+-    # -- the allowlist ---------------------------------------------------------
+-
+-    def _in_evidence_dir(self, cwd: str | None) -> bool:
+-        if not self.evidence_dir or cwd is None:
+-            return False
+-        return os.path.realpath(cwd) == os.path.realpath(self.evidence_dir)
+-
+-    def _is_landed_check(self, path: str) -> bool:
+-        real = os.path.realpath(path)
+-        return any(real == os.path.realpath(p) for p in self.landed_paths)
+-
+-    def check_allowed(
+-        self,
+-        argv: list[str],
+-        cwd: str | None = None,
+-        stdin: bytes | None = None,
+-    ) -> None:
+-        if not argv:
+-            raise RefusedCommand("empty command")
+-        prog = os.path.basename(argv[0])
+-        if prog == "git":
+-            self._check_git(argv[1:], cwd)
+-        elif prog == "gh":
+-            self._check_gh(argv[1:])
+-        elif prog == "orca":
+-            self._check_orca(argv[1:])
+-        elif prog == "tar":
+-            if not (
+-                len(argv) == 3 and argv[1] == "-tzf" and argv[2] and argv[2][0] != "-"
+-            ):
+-                raise RefusedCommand("tar is allowed only as: tar -tzf <archive>")
+-        elif prog == "xargs":
+-            self._check_xargs(argv[1:], cwd, stdin)
+-        elif prog == "bash" and len(argv) == 3 and self._is_landed_check(argv[1]):
+-            self._check_landed_arg(argv[2])
+-        elif prog != "bash" and len(argv) == 2 and self._is_landed_check(argv[0]):
+-            self._check_landed_arg(argv[1])
+-        else:
+-            raise RefusedCommand(f"command not on the allowlist: {shlex.join(argv)}")
+-
+-    @staticmethod
+-    def _check_landed_arg(arg: str) -> None:
+-        if not (arg.isascii() and arg.isdigit()):
+-            raise RefusedCommand("branch-landed.sh takes one pull request number")
+-
+-    # git ----------------------------------------------------------------------
+-
+-    def _check_git(self, args: list[str], cwd: str | None) -> None:
+-        rest = list(args)
+-        helper = False
+-        while rest and rest[0] in ("-C", "-c"):
+-            flag = rest.pop(0)
+-            if not rest or not rest[0] or rest[0].startswith("-"):
+-                raise RefusedCommand("git option without a value")
+-            value = rest.pop(0)
+-            if flag == "-c":
+-                if value != CREDENTIAL_HELPER:
+-                    raise RefusedCommand(
+-                        f"git -c is allowed only for {CREDENTIAL_HELPER}"
+-                    )
+-                helper = True
+-            else:
+-                cwd = value
+-        if not rest or rest[0].startswith("-"):
+-            raise RefusedCommand("git needs a verb after -C and -c")
+-        verb, tail = rest[0], rest[1:]
+-        if helper and verb != "push":
+-            raise RefusedCommand(
+-                "the credential helper option is allowed only on the evidence push"
+-            )
+-        if verb in _GIT_READ_SHAPES:
+-            flags, prefixes, low, high, dashdash = _GIT_READ_SHAPES[verb]
+-            plain, _paths = _match(
+-                tail, flags, prefixes=prefixes, allow_dashdash=dashdash
+-            )
+-            _count(plain, low, high, f"git {verb}")
+-        elif verb == "remote":
+-            if not (len(tail) == 2 and tail[0] == "get-url"):
+-                raise RefusedCommand(
+-                    "git remote is allowed only as: remote get-url <name>"
+-                )
+-            _plain(tail[1])
+-        elif verb == "config":
+-            if not (len(tail) == 2 and tail[0] == "--get"):
+-                raise RefusedCommand(
+-                    "git config is allowed only as: config --get <key>"
+-                )
+-            _plain(tail[1])
+-        elif verb == "worktree":
+-            self._check_git_worktree(tail)
+-        elif verb == "branch":
+-            self._check_git_branch(tail)
+-        elif verb in ("clone", "fetch", "add", "commit", "rebase", "push"):
+-            self._check_git_evidence(verb, tail, cwd)
+-        else:
+-            raise RefusedCommand(f"git {verb} is not on the allowlist")
+-
+-    @staticmethod
+-    def _check_git_worktree(tail: list[str]) -> None:
+-        if tail in (["list"], ["list", "--porcelain"]):
+-            return
+-        if len(tail) == 2 and tail[0] == "remove":
+-            _plain(tail[1])
+-            return
+-        raise RefusedCommand(
+-            "git worktree is allowed only as: list [--porcelain], remove <path> "
+-            "(never --force, never prune)"
+-        )
+-
+-    @staticmethod
+-    def _check_git_branch(tail: list[str]) -> None:
+-        if tail == ["--show-current"]:
+-            return
+-        if len(tail) == 2 and tail[0] in ("--list", "-d"):
+-            _plain(tail[1])
+-            return
+-        raise RefusedCommand(
+-            "git branch is allowed only as: --show-current, --list <name>, -d <name> "
+-            "(never -D)"
+-        )
+-
+-    def _check_git_evidence(self, verb: str, tail: list[str], cwd: str | None) -> None:
+-        if verb == "clone":
+-            if not (len(tail) == 2 and self.evidence_dir):
+-                raise RefusedCommand(
+-                    "git clone is allowed only as: clone <url> <evidence folder>"
+-                )
+-            _plain(tail[0])
+-            if os.path.realpath(tail[1]) != os.path.realpath(self.evidence_dir):
+-                raise RefusedCommand(
+-                    "git clone is allowed only into the evidence folder"
+-                )
+-            return
+-        if not self._in_evidence_dir(cwd):
+-            raise RefusedCommand(f"git {verb} runs only inside the evidence clone")
+-        if verb == "fetch":
+-            if tail in (["origin"], ["--quiet", "origin"]):
+-                return
+-            raise RefusedCommand("git fetch is allowed only as: fetch [--quiet] origin")
+-        if verb == "add":
+-            if len(tail) < 2 or tail[0] != "--":
+-                raise RefusedCommand("git add is allowed only as: add -- <paths>")
+-            for p in tail[1:]:
+-                if not p or p[0] == ":" or ".." in p.split("/"):
+-                    raise RefusedCommand(f"git add path not accepted: {p!r}")
+-            return
+-        if verb == "commit":
+-            if len(tail) >= 2 and tail[:-2] in ([], ["--quiet"]) and tail[-2] == "-m":
+-                _plain(tail[-1])
+-                return
+-            raise RefusedCommand(
+-                "git commit is allowed only as: commit [--quiet] -m <message>"
+-            )
+-        if verb == "rebase":
+-            if tail == ["origin/main"]:
+-                return
+-            raise RefusedCommand("git rebase is allowed only as: rebase origin/main")
+-        # push
+-        rest = tail[1:] if tail[:1] == ["--porcelain"] else tail
+-        if len(rest) == 2 and rest[0] == "origin":
+-            branch = rest[1]
+-            if _BRANCH_RE.match(branch) and ".." not in branch:
+-                return
+-        raise RefusedCommand(
+-            "git push is allowed only as: push [--porcelain] origin <branch>; it never "
+-            "deletes, forces or rewrites a ref"
+-        )
+-
+-    # gh -----------------------------------------------------------------------
+-
+-    @staticmethod
+-    def _check_gh(args: list[str]) -> None:
+-        if args[:2] == ["pr", "list"]:
+-            want = 0
+-        elif args[:2] in (["pr", "view"], ["issue", "view"]):
+-            want = 1
+-        else:
+-            raise RefusedCommand(f"gh {' '.join(args[:2])} is not on the allowlist")
+-        tail = args[2:]
+-        plain, _ = _match(tail, values=_GH_VALUE_FLAGS)
+-        _count(plain, want, want, "gh")
+-        if want and not (plain[0].isascii() and plain[0].isdigit()):
+-            raise RefusedCommand("gh view takes one number")
+-        repos = [tail[i + 1] for i, t in enumerate(tail[:-1]) if t == "--repo"]
+-        if len(repos) != 1 or not _REPO_RE.match(repos[0]):
+-            raise RefusedCommand("gh needs exactly one --repo <owner>/<repo>")
+-        if repos[0].split("/")[0].lower() not in OWNERS:
+-            raise RefusedCommand("gh may only name a repo of our own owners")
+-
+-    # orca ---------------------------------------------------------------------
+-
+-    def _check_orca(self, args: list[str]) -> None:
+-        head, tail = args[:2], args[2:]
+-        if head in (["repo", "list"], ["worktree", "list"], ["worktree", "ps"]):
+-            if tail in ([], ["--json"]):
+-                return
+-        elif head in (["reference", "list"], ["terminal", "list"]):
+-            if (
+-                len(tail) in (2, 3)
+-                and tail[0] == "--worktree"
+-                and _plain(tail[1])
+-                and tail[2:] in ([], ["--json"])
+-            ):
+-                return
+-        elif head == ["worktree", "rm"]:
+-            if len(tail) == 2 and tail[0] == "--worktree" and _plain(tail[1]):
+-                return
+-            raise RefusedCommand(
+-                "orca worktree rm is allowed only as: worktree rm --worktree <selector> "
+-                "(never --force)"
+-            )
+-        elif head == ["terminal", "close"]:
+-            if (
+-                len(tail) == 3
+-                and tail[0] == "--worktree"
+-                and tail[2] == "--all"
+-                and _plain(tail[1])
+-            ):
+-                if tail[1] in self.close_authorized:
+-                    return
+-                raise RefusedCommand(
+-                    "orca terminal close before every other rule passed and the save was verified"
+-                )
+-            raise RefusedCommand(
+-                "orca terminal close is allowed only as: terminal close --worktree <selector> --all"
+-            )
+-        raise RefusedCommand(f"orca {' '.join(args)} is not on the allowlist")
+-
+-    # xargs git clean ------------------------------------------------------------
+-
+-    def _check_xargs(
+-        self, args: list[str], cwd: str | None, stdin: bytes | None
+-    ) -> None:
+-        if args != ["-0", "git", "clean", "-f", "-x", "--"]:
+-            raise RefusedCommand(
+-                "xargs is allowed only as: xargs -0 git clean -f -x --"
+-            )
+-        if cwd is None or stdin is None:
+-            raise RefusedCommand("git clean needs a worktree folder and a path list")
+-        allowed = self.saved_paths.get(os.path.realpath(cwd), set())
+-        paths = [p for p in stdin.decode("utf-8", "surrogateescape").split("\0") if p]
+-        if not paths:
+-            raise RefusedCommand("git clean with no paths")
+-        outside = [p for p in paths if p not in allowed]
+-        if outside:
+-            raise RefusedCommand(
+-                f"git clean refused for a path not in the saved list: {outside[0]}"
+-            )
+-
+-    # -- running ---------------------------------------------------------------
+-
+-    def run(
+-        self,
+-        argv: list[str],
+-        cwd: str | None = None,
+-        stdin: bytes | None = None,
+-    ) -> Result:
+-        self.check_allowed(argv, cwd, stdin)
+-        n_paths = len([p for p in stdin.split(b"\0") if p]) if stdin else 0
+-        self.commands.append(CommandRecord(list(argv), cwd, n_paths))
+-        return self._execute(argv, cwd, stdin)
+-
+-    @staticmethod
+-    def _git_verb(args: list[str]) -> str:
+-        rest = list(args)
+-        while rest and rest[0] in ("-C", "-c"):
+-            del rest[:2]
+-        return rest[0] if rest else ""
+-
+-    def _needs_token(self, argv: list[str]) -> bool:
+-        """The token goes only to gh, the landed check (it runs gh) and the evidence push."""
+-        prog = os.path.basename(argv[0])
+-        if prog == "gh":
+-            return True
+-        if prog == "bash" and len(argv) > 1 and self._is_landed_check(argv[1]):
+-            return True
+-        if prog != "bash" and self._is_landed_check(argv[0]):
+-            return True
+-        return prog == "git" and self._git_verb(argv[1:]) == "push"
+-
+-    def _env_for(self, argv: list[str]) -> dict[str, str]:
+-        env = dict(os.environ)
+-        env["GIT_TERMINAL_PROMPT"] = "0"
+-        env.pop("GIT_EXTERNAL_DIFF", None)
+-        if os.path.basename(argv[0]) == "xargs":
+-            env["GIT_LITERAL_PATHSPECS"] = "1"
+-        if not self._needs_token(argv):
+-            for name in TOKEN_NAMES:
+-                env.pop(name, None)
+-        return env
+-
+-    def _execute(self, argv: list[str], cwd: str | None, stdin: bytes | None) -> Result:
+-        try:
+-            proc = subprocess.run(
+-                argv,
+-                cwd=cwd,
+-                input=stdin,
+-                capture_output=True,
+-                env=self._env_for(argv),
+-                check=False,
+-            )
+-        except OSError as exc:
+-            return Result(127, "", f"{type(exc).__name__}: {exc}")
+-        return Result(
+-            proc.returncode,
+-            proc.stdout.decode("utf-8", "replace"),
+-            proc.stderr.decode("utf-8", "replace"),
+-        )
+-
+-
+-# --- Orca facts (read only) --------------------------------------------------
+-
+-ORCA_UNAVAILABLE = "Orca unavailable"
+-
+-
+-@dataclass(frozen=True)
+-class OrcaRepo:
+-    id: str
+-    path: str
+-    name: str
+-
+-
+-@dataclass(frozen=True)
+-class OrcaWorktree:
+-    """One row of ``orca worktree ps --json``.
+-
+-    ``linked_pr_hint`` is Orca's own pull request record. It is only a hint: no rule reads
+-    it as proof of a merge (only gh decides rule 2).
+-    """
+-
+-    worktree_id: str
+-    selector: str  # id:<worktree_id>, the form every Orca verb takes
+-    path: str
+-    branch: str
+-    repo: str
+-    last_activity_ms: float | None
+-    is_pinned: bool
+-    live_terminal_count: int
+-    linked_pr_hint: Mapping[str, Any] | None
+-    comment: str
+-
+-
+-@dataclass(frozen=True)
+-class OrcaReference:
+-    raw: Mapping[str, Any]
+-
+-
+-@dataclass(frozen=True)
+-class OrcaTerminal:
+-    handle: str
+-    worktree_id: str
+-    title: str
+-
+-
+-@dataclass(frozen=True)
+-class OrcaRead:
+-    """The outcome of one Orca read: its rows, or the reason Orca gave no facts."""
+-
+-    ok: bool
+-    items: tuple[Any, ...] = ()
+-    reason: str = ""
+-
+-    @property
+-    def unavailable(self) -> str | None:
+-        return None if self.ok else f"{ORCA_UNAVAILABLE}: {self.reason}"
+-
+-
+-def _unavailable(reason: str) -> OrcaRead:
+-    return OrcaRead(False, (), reason)
+-
+-
+-def _orca_rows(text: str, key: str) -> list[dict[str, Any]] | str:
+-    """The list under ``result.<key>`` of an Orca reply, or the reason it is not usable."""
+-    try:
+-        doc = json.loads(text)
+-    except (ValueError, TypeError):
+-        return "the reply is not JSON"
+-    if isinstance(doc, dict) and doc.get("ok") is False:
+-        return "Orca reported an error"
+-    body = doc.get("result") if isinstance(doc, dict) and "result" in doc else doc
+-    rows = body.get(key) if isinstance(body, dict) else body
+-    if not isinstance(rows, list) or not all(isinstance(r, dict) for r in rows):
+-        return f"no {key} list in the reply"
+-    return rows
+-
+-
+-def _str(row: Mapping[str, Any], key: str) -> str | None:
+-    value = row.get(key)
+-    return value if isinstance(value, str) and value else None
+-
+-
+-def parse_orca_repos(text: str) -> OrcaRead:
+-    rows = _orca_rows(text, "repos")
+-    if isinstance(rows, str):
+-        return _unavailable(rows)
+-    repos = []
+-    for row in rows:
+-        rid, path = _str(row, "id"), _str(row, "path")
+-        if rid is None or path is None:
+-            return _unavailable("a repo row has no id or path")
+-        name = _str(row, "displayName") or _str(row, "name") or os.path.basename(path)
+-        repos.append(OrcaRepo(rid, path, name))
+-    return OrcaRead(True, tuple(repos))
+-
+-
+-def parse_orca_worktrees(text: str) -> OrcaRead:
+-    rows = _orca_rows(text, "worktrees")
+-    if isinstance(rows, str):
+-        return _unavailable(rows)
+-    worktrees = []
+-    for row in rows:
+-        wid, path = _str(row, "worktreeId"), _str(row, "path")
+-        pinned, live = row.get("isPinned"), row.get("liveTerminalCount")
+-        activity, pr = row.get("lastActivityAt"), row.get("linkedPR")
+-        comment = row.get("comment")
+-        if wid is None or path is None:
+-            return _unavailable("a worktree row has no worktreeId or path")
+-        if not isinstance(pinned, bool):
+-            return _unavailable("a worktree row has no isPinned flag")
+-        if isinstance(live, bool) or not isinstance(live, int) or live < 0:
+-            return _unavailable("a worktree row has no liveTerminalCount")
+-        if activity is not None and (
+-            isinstance(activity, bool) or not isinstance(activity, (int, float))
+-        ):
+-            return _unavailable("a worktree row has a bad lastActivityAt")
+-        if pr is not None and not isinstance(pr, dict):
+-            return _unavailable("a worktree row has a bad linkedPR")
+-        if comment is not None and not isinstance(comment, str):
+-            return _unavailable("a worktree row has a bad comment")
+-        worktrees.append(
+-            OrcaWorktree(
+-                worktree_id=wid,
+-                selector=f"id:{wid}",
+-                path=path,
+-                branch=_str(row, "branch") or "",
+-                repo=_str(row, "repo") or "",
+-                last_activity_ms=activity,
+-                is_pinned=pinned,
+-                live_terminal_count=live,
+-                linked_pr_hint=pr,
+-                comment=comment or "",
+-            )
+-        )
+-    return OrcaRead(True, tuple(worktrees))
+-
+-
+-def parse_orca_references(text: str) -> OrcaRead:
+-    rows = _orca_rows(text, "references")
+-    if isinstance(rows, str):
+-        return _unavailable(rows)
+-    return OrcaRead(True, tuple(OrcaReference(dict(r)) for r in rows))
+-
+-
+-def parse_orca_terminals(text: str) -> OrcaRead:
+-    rows = _orca_rows(text, "terminals")
+-    if isinstance(rows, str):
+-        return _unavailable(rows)
+-    terminals = []
+-    for row in rows:
+-        handle = _str(row, "handle")
+-        if handle is None:
+-            return _unavailable("a terminal row has no handle")
+-        terminals.append(
+-            OrcaTerminal(
+-                handle=handle,
+-                worktree_id=_str(row, "worktreeId") or "",
+-                title=_str(row, "title") or "",
+-            )
+-        )
+-    return OrcaRead(True, tuple(terminals))
+-
+-
+-def _orca_read(runner: Runner, argv: list[str], parse: Any) -> OrcaRead:
+-    """Run one read verb and parse it; a failed run or a bad reply is "Orca unavailable"."""
+-    res = runner.run(argv)
+-    if res.returncode != 0:
+-        return _unavailable(f"the command exited with {res.returncode}")
+-    return parse(res.stdout)
+-
+-
+-def read_orca_repos(runner: Runner) -> OrcaRead:
+-    return _orca_read(runner, ["orca", "repo", "list", "--json"], parse_orca_repos)
+-
+-
+-def read_orca_worktrees(runner: Runner) -> OrcaRead:
+-    return _orca_read(
+-        runner, ["orca", "worktree", "ps", "--json"], parse_orca_worktrees
+-    )
+-
+-
+-def read_orca_references(runner: Runner, selector: str) -> OrcaRead:
+-    argv = ["orca", "reference", "list", "--worktree", selector, "--json"]
+-    return _orca_read(runner, argv, parse_orca_references)
+-
+-
+-def read_orca_terminals(runner: Runner, selector: str) -> OrcaRead:
+-    argv = ["orca", "terminal", "list", "--worktree", selector, "--json"]
+-    return _orca_read(runner, argv, parse_orca_terminals)
+-
+-
+-def repos_or_current(
+-    read: OrcaRead, current_repo: OrcaRepo
+-) -> tuple[list[OrcaRepo], str]:
+-    """The repos to scan: Orca's list, or the current checkout's repo alone when Orca gave none.
+-
+-    The second value is the note the table prints when the fallback was used.
+-    """
+-    if read.ok:
+-        return list(read.items), ""
+-    return [
+-        current_repo
+-    ], f"{read.unavailable}; scanning the current checkout's repo only"
+-
+-
+-# --- command line ----------------------------------------------------------
+-
+-
+-def settings(env: Mapping[str, str]) -> dict[str, object]:
+-    raw = env.get("WORKTREE_CLEANUP_IDLE_DAYS", "")
+-    try:
+-        idle = int(raw) if raw else IDLE_DAYS_DEFAULT
+-    except ValueError:
+-        idle = IDLE_DAYS_DEFAULT
+-    return {
+-        "idle_days": max(idle, 0),
+-        "evidence_repo": env.get("RUN_EVIDENCE_REPO", EVIDENCE_REPO_DEFAULT),
+-        "evidence_dir": os.path.expanduser(
+-            env.get("RUN_EVIDENCE_DIR", EVIDENCE_DIR_DEFAULT)
+-        ),
+-    }
+-
+-
+-def parse_args(argv: list[str] | None) -> argparse.Namespace:
+-    parser = argparse.ArgumentParser(
+-        prog="worktree_cleanup",
+-        description=(
+-            "Remove git worktrees of our own repos once their work is finished. "
+-            "A dry run unless --apply is given."
+-        ),
+-        epilog="Flags of every verb: --apply (really remove) and --out DIR (table files and locks).",
+-    )
+-    sub = parser.add_subparsers(
+-        dest="verb", required=True, metavar="{" + ",".join(VERBS) + "}"
+-    )
+-    sub.add_parser(
+-        "list", help="print the table of every worktree; never removes anything"
+-    )
+-    p_archive = sub.add_parser(
+-        "archive",
+-        help="save one worktree's .dev files to the evidence repo; never removes anything",
+-    )
+-    p_archive.add_argument("worktree", help="worktree path or unique folder name")
+-    p_retire = sub.add_parser(
+-        "retire", help="remove one worktree whose work is safe (needs --apply)"
+-    )
+-    p_retire.add_argument("worktree", help="worktree path or unique folder name")
+-    sub.add_parser(
+-        "prune",
+-        help="run the same decision for every worktree (removes only with --apply)",
+-    )
+-    for p in sub.choices.values():
+-        p.add_argument(
+-            "--apply",
+-            action="store_true",
+-            help="actually remove; without it nothing is removed",
+-        )
+-        p.add_argument(
+-            "--out",
+-            type=Path,
+-            default=None,
+-            help=f"folder for the table files and locks (default {DEFAULT_OUT}); never inside a worktree",
+-        )
+-    return parser.parse_args(argv)
+-
+-
+-def main(
+-    argv: list[str] | None = None,
+-    runner: Runner | None = None,
+-    env: Mapping[str, str] | None = None,
+-) -> int:
+-    args = parse_args(argv)
+-    env = os.environ if env is None else env
+-    cfg = settings(env)
+-    runner = runner or Runner(evidence_dir=str(cfg["evidence_dir"]))
+-    out = args.out or Path(os.path.expanduser(DEFAULT_OUT))
+-    _ = (runner, out)  # used by the verbs below
+-    print(f"worktree_cleanup {args.verb}: not built yet", file=sys.stderr)
+-    return EXIT_USAGE
+-
+-
+-if __name__ == "__main__":
+-    sys.exit(main())
+diff --git a/tests/worktree_cleanup/conftest.py b/tests/worktree_cleanup/conftest.py
+deleted file mode 100644
+index 9a0ab3949..000000000
+--- a/tests/worktree_cleanup/conftest.py
++++ /dev/null
+@@ -1,88 +0,0 @@
+-"""Shared test support for scripts/worktree_cleanup.py.
+-
+-Tests never touch a real worktree: git runs only on throwaway repositories under
+-``tmp_path``, and ``gh``, ``orca`` and the landed-check helper are answered from
+-canned replies by the recording runner below. The reply shapes are hand-written from
+-the spec and the tool help, not literal captures of live output.
+-"""
+-
+-from __future__ import annotations
+-
+-import importlib.util
+-import os
+-import sys
+-from pathlib import Path
+-
+-import pytest
+-
+-ROOT = Path(__file__).resolve().parents[2]
+-SCRIPT = ROOT / "scripts" / "worktree_cleanup.py"
+-
+-# A made-up lookup location for the landed check: no real file is read or run from it.
+-LANDED = "/h/.claude/skills/sc-closeout-protocol/scripts/branch-landed.sh"
+-
+-
+-def load_script():
+-    spec = importlib.util.spec_from_file_location("worktree_cleanup", SCRIPT)
+-    mod = importlib.util.module_from_spec(spec)
+-    sys.modules["worktree_cleanup"] = mod
+-    spec.loader.exec_module(mod)
+-    return mod
+-
+-
+-@pytest.fixture(scope="session")
+-def wc():
+-    """The script module, loaded once."""
+-    return load_script()
+-
+-
+-@pytest.fixture(scope="session")
+-def runner_cls(wc):
+-    """A Runner whose outside programs are answered from canned replies.
+-
+-    ``replies`` maps a program name (``gh``, ``orca``, ``bash``) to a callable
+-    ``(argv, cwd) -> Result | None``. ``git``, ``tar`` and ``xargs`` really run when
+-    ``real_git`` is true (on throwaway folders only). A command with no canned reply
+-    gets exit code 127 and is never started.
+-    """
+-
+-    class RecordingRunner(wc.Runner):
+-        def __init__(
+-            self, replies=None, real_git=True, evidence_dir=None, landed_paths=(LANDED,)
+-        ):
+-            super().__init__(
+-                evidence_dir=evidence_dir, landed_paths=tuple(landed_paths)
+-            )
+-            self.replies = dict(replies or {})
+-            self.real_git = real_git
+-
+-        def _execute(self, argv, cwd, stdin):
+-            prog = os.path.basename(argv[0])
+-            handler = self.replies.get(prog)
+-            if handler is not None:
+-                answer = handler(argv, cwd)
+-                if answer is not None:
+-                    return answer
+-            if prog in ("git", "tar", "xargs") and self.real_git:
+-                return super()._execute(argv, cwd, stdin)
+-            return wc.Result(127, "", f"no canned reply for {argv}")
+-
+-    return RecordingRunner
+-
+-
+-class NeverRun:
+-    """A reply table whose handlers fail the test if a process would start."""
+-
+-    def __getitem__(self, key):  # pragma: no cover - used only on failure
+-        raise AssertionError(f"a process would have started: {key}")
+-
+-
+-@pytest.fixture
+-def never_run_runner(runner_cls, tmp_path):
+-    """A runner that raises if a command is actually executed."""
+-
+-    class Guard(runner_cls):
+-        def _execute(self, argv, cwd, stdin):
+-            raise AssertionError(f"command reached execution: {argv}")
+-
+-    return Guard(evidence_dir=str(tmp_path / "evidence"))
+diff --git a/tests/worktree_cleanup/test_facts.py b/tests/worktree_cleanup/test_facts.py
+deleted file mode 100644
+index 586368a45..000000000
+--- a/tests/worktree_cleanup/test_facts.py
++++ /dev/null
+@@ -1,237 +0,0 @@
+-"""Facts the script reads: Orca (Task 3), then git and GitHub (Tasks 4 and 5).
+-
+-Orca replies come from the hand-written files in ``fixtures/``; no real Orca is started.
+-"""
+-
+-from __future__ import annotations
+-
+-import ast
+-import inspect
+-import json
+-from pathlib import Path
+-
+-import pytest
+-
+-FIXTURES = Path(__file__).parent / "fixtures"
+-
+-
+-def fixture_text(name: str) -> str:
+-    return (FIXTURES / name).read_text(encoding="utf-8")
+-
+-
+-# --- Task 3: Orca, read only ----------------------------------------------------
+-
+-
+-def test_repo_list_fixture_gives_id_path_and_name(wc):
+-    read = wc.parse_orca_repos(fixture_text("orca_repo_list.json"))
+-    assert read.ok and read.unavailable is None
+-    assert [(r.name, r.path) for r in read.items] == [
+-        ("IronClaude", "/work/example/IronClaude"),
+-        ("Coder", "/work/example/Coder"),
+-    ]
+-    assert all(r.id for r in read.items)
+-
+-
+-def test_worktree_ps_fixture_gives_every_named_field(wc):
+-    read = wc.parse_orca_worktrees(fixture_text("orca_worktree_ps.json"))
+-    assert read.ok
+-    main, pinned, third = read.items
+-    assert main.selector == "id:" + main.worktree_id
+-    assert main.worktree_id.endswith("::/work/example/IronClaude")
+-    assert main.path == "/work/example/IronClaude"
+-    assert main.last_activity_ms == 1795095396714
+-    assert main.is_pinned is False and main.live_terminal_count == 2
+-    assert main.linked_pr_hint["state"] == "merged"
+-    assert main.comment == ""
+-    assert pinned.is_pinned is True and pinned.comment.startswith("keep until")
+-    assert pinned.linked_pr_hint is None and pinned.live_terminal_count == 0
+-    # a missing lastActivityAt and a null comment are accepted
+-    assert third.last_activity_ms is None and third.comment == ""
+-    assert third.linked_pr_hint["state"] == "open"
+-
+-
+-def test_reference_and_terminal_fixtures(wc):
+-    refs = wc.parse_orca_references(fixture_text("orca_reference_list.json"))
+-    assert refs.ok and [r.raw["number"] for r in refs.items] == [687, 700]
+-    terms = wc.parse_orca_terminals(fixture_text("orca_terminal_list.json"))
+-    assert terms.ok
+-    assert [t.handle for t in terms.items] == ["term_example_1", "term_example_2"]
+-    assert terms.items[0].title == "claude"
+-
+-
+-def test_empty_lists_are_a_valid_answer(wc):
+-    for parse, key in (
+-        (wc.parse_orca_repos, "repos"),
+-        (wc.parse_orca_worktrees, "worktrees"),
+-        (wc.parse_orca_references, "references"),
+-        (wc.parse_orca_terminals, "terminals"),
+-    ):
+-        read = parse(json.dumps({"ok": True, "result": {key: []}}))
+-        assert read.ok and read.items == ()
+-
+-
+-def _ps_with(**change):
+-    doc = json.loads(fixture_text("orca_worktree_ps.json"))
+-    doc["result"]["worktrees"][0].update(change)
+-    return json.dumps(doc)
+-
+-
+-MALFORMED = [
+-    ("repos", "not json at all"),
+-    ("repos", ""),
+-    ("repos", "null"),
+-    ("repos", "[1, 2]"),
+-    ("repos", '{"ok": false, "error": "boom"}'),
+-    ("repos", '{"ok": true, "result": {"worktrees": []}}'),
+-    ("repos", '{"ok": true, "result": {"repos": [{"id": "x"}]}}'),
+-    ("repos", '{"ok": true, "result": {"repos": "no"}}'),
+-    ("worktrees", '{"ok": true, "result": {"worktrees": [{"path": "/x"}]}}'),
+-    ("worktrees", _ps_with(isPinned="no")),
+-    ("worktrees", _ps_with(liveTerminalCount=-1)),
+-    ("worktrees", _ps_with(liveTerminalCount=True)),
+-    ("worktrees", _ps_with(liveTerminalCount="2")),
+-    ("worktrees", _ps_with(lastActivityAt="yesterday")),
+-    ("worktrees", _ps_with(linkedPR="merged")),
+-    ("worktrees", _ps_with(comment=5)),
+-    ("worktrees", _ps_with(path="")),
+-    ("references", '{"ok": true, "result": {"terminals": []}}'),
+-    ("references", '{"ok": true, "result": {"references": [1]}}'),
+-    ("terminals", '{"ok": true, "result": {"terminals": [{"title": "x"}]}}'),
+-    ("terminals", "{"),
+-]
+-
+-
+-@pytest.mark.parametrize(
+-    "kind,text", MALFORMED, ids=[f"{k}-{i}" for i, (k, _) in enumerate(MALFORMED)]
+-)
+-def test_a_malformed_reply_is_orca_unavailable_not_an_exception(wc, kind, text):
+-    parse = {
+-        "repos": wc.parse_orca_repos,
+-        "worktrees": wc.parse_orca_worktrees,
+-        "references": wc.parse_orca_references,
+-        "terminals": wc.parse_orca_terminals,
+-    }[kind]
+-    read = parse(text)
+-    assert read.ok is False and read.items == ()
+-    assert read.unavailable.startswith("Orca unavailable: ")
+-
+-
+-# --- the reads go through the runner ----------------------------------------------
+-
+-
+-@pytest.fixture
+-def orca_runner(wc, runner_cls):
+-    """Build a runner whose Orca answers come from ``{argv tuple: stdout or (code, stdout)}``."""
+-
+-    def build(replies):
+-        def handler(argv, cwd):
+-            answer = replies.get(tuple(argv))
+-            if answer is None:
+-                return None
+-            code, out = answer if isinstance(answer, tuple) else (0, answer)
+-            return wc.Result(code, out, "")
+-
+-        return runner_cls(replies={"orca": handler})
+-
+-    return build
+-
+-
+-SEL = "id:11111111-1111-4111-8111-111111111111::/work/example/IronClaude"
+-
+-
+-def test_each_read_issues_only_its_read_verb_and_returns_rows(wc, orca_runner):
+-    runner = orca_runner(
+-        {
+-            ("orca", "repo", "list", "--json"): fixture_text("orca_repo_list.json"),
+-            ("orca", "worktree", "ps", "--json"): fixture_text("orca_worktree_ps.json"),
+-            (
+-                "orca",
+-                "reference",
+-                "list",
+-                "--worktree",
+-                SEL,
+-                "--json",
+-            ): fixture_text("orca_reference_list.json"),
+-            (
+-                "orca",
+-                "terminal",
+-                "list",
+-                "--worktree",
+-                SEL,
+-                "--json",
+-            ): fixture_text("orca_terminal_list.json"),
+-        }
+-    )
+-    assert wc.read_orca_repos(runner).ok
+-    worktrees = wc.read_orca_worktrees(runner)
+-    assert worktrees.ok and worktrees.items[0].selector == SEL
+-    assert wc.read_orca_references(runner, SEL).ok
+-    assert wc.read_orca_terminals(runner, SEL).ok
+-    verbs = [tuple(c.argv[1:3]) for c in runner.commands]
+-    assert verbs == [
+-        ("repo", "list"),
+-        ("worktree", "ps"),
+-        ("reference", "list"),
+-        ("terminal", "list"),
+-    ]
+-    flat = [t for c in runner.commands for t in c.argv]
+-    assert "close" not in flat and "rm" not in flat and "--force" not in flat
+-
+-
+-def test_a_failed_or_unanswered_read_is_orca_unavailable(wc, orca_runner):
+-    runner = orca_runner({("orca", "worktree", "ps", "--json"): (1, "")})
+-    read = wc.read_orca_worktrees(runner)
+-    assert read.ok is False and "exited with 1" in read.unavailable
+-    # no canned reply at all: the recording runner answers 127, as a missing program would
+-    assert wc.read_orca_repos(runner).unavailable.startswith("Orca unavailable")
+-    # a clean exit with a broken body
+-    runner = orca_runner({("orca", "worktree", "ps", "--json"): "<html>"})
+-    assert wc.read_orca_worktrees(runner).unavailable.startswith("Orca unavailable")
+-
+-
+-def test_repo_list_falls_back_to_the_current_checkout_and_says_so(wc):
+-    current = wc.OrcaRepo("current", "/work/example/IronClaude", "IronClaude")
+-    good = wc.parse_orca_repos(fixture_text("orca_repo_list.json"))
+-    repos, note = wc.repos_or_current(good, current)
+-    assert [r.name for r in repos] == ["IronClaude", "Coder"] and note == ""
+-    bad = wc.parse_orca_repos("nope")
+-    repos, note = wc.repos_or_current(bad, current)
+-    assert repos == [current]
+-    assert "Orca unavailable" in note and "current checkout" in note
+-
+-
+-# --- guard rails of Task 3 -------------------------------------------------------------
+-
+-
+-def test_the_read_functions_never_name_a_close_or_remove_verb(wc):
+-    for fn in (
+-        wc.read_orca_repos,
+-        wc.read_orca_worktrees,
+-        wc.read_orca_references,
+-        wc.read_orca_terminals,
+-        wc._orca_read,
+-    ):
+-        src = inspect.getsource(fn)
+-        for word in ('"close"', '"rm"', '"--force"', '"create"'):
+-            assert word not in src, (fn.__name__, word)
+-
+-
+-def test_linked_pr_hint_is_read_by_no_rule_function(wc):
+-    """Only the parser sets it; nothing else in the script reads it as proof of a merge."""
+-    tree = ast.parse(Path(wc.__file__).read_text(encoding="utf-8"))
+-    readers = []
+-    for fn in ast.walk(tree):
+-        if isinstance(fn, ast.FunctionDef):
+-            for node in ast.walk(fn):
+-                if isinstance(node, ast.Attribute) and node.attr == "linked_pr_hint":
+-                    readers.append(fn.name)
+-    assert readers == []
+-    # the field is still part of the record
+-    assert "linked_pr_hint" in {f for f in wc.OrcaWorktree.__dataclass_fields__}
+-    assert "linkedPR" in Path(wc.__file__).read_text(encoding="utf-8")
+-
+-
+-def test_no_dash_characters_in_the_fixtures():
+-    for path in FIXTURES.iterdir():
+-        text = path.read_text(encoding="utf-8")
+-        assert chr(0x2013) not in text and chr(0x2014) not in text, path
+
+
+Codegraph context: index_state=fresh checked_at=2026-11-20T18:23:04Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/issue-687 projectPath=/home/coder/workspaces/worktrees/IronClaude/issue-687
+call codegraph only when index_state: fresh, never to widen scope
+Q2b ran on the Grep and Read floor for dependents of changed symbols (this task creates new files or edits registration lists; see the diff).
+
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

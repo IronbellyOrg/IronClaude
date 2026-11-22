@@ -102,6 +102,7 @@ This page is the per-command reference: exact syntax, options, and what each com
 | [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt, then an Orca worktree and a launched agent) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
 | [`/sc:closeout`](#sccloseout---settle-a-merged-pull-request) | Settle a merged pull request: decide whether its issue is done, then settle the work report entry and the worker's Orca task | `closeout.md` | Yes (posts to GitHub: one note, then one close or one not-done note; updates the entry and the task) |
 | [`/sc:sweep`](#scsweep---read-only-run-worktree-and-session-report) | Read-only snapshot of a Run, its worktrees and person sessions | `sweep.md` | Report only (writes `.dev/sweeps/`) |
+| [`/sc:worktrees`](#scworktrees---remove-merged-worktrees) | List the git worktrees of our repos with the reason each is kept or removable, and remove the ones whose work is finished | `worktrees.md` | Yes with `--apply` (removes worktrees, closes their Orca terminals, writes to the evidence repo); without it only `archive` writes (to the evidence repo), and the other verbs report only |
 | `/sc:recommend` | Paste-ready prompt for the right command | `recommend.md` | Report only (inside an IronClaude checkout it writes its cache and telemetry under `.claude/cache/`) |
 | `/sc:init-lite` | Safe audit of project-local context surfaces | `init-lite.md` | Report only |
 | `/sc:pr-submit` | Open fork PR and monitor review fixes | `pr-submit.md` | Yes |
@@ -626,6 +627,62 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 **MCP servers:** none
 
 **Related:** [Orchestrator mode guide](orchestrator-mode.md) (how the coordinator, sweep and closeout fit together), [Observer guide](observer.md) (the live dashboard), [How We Work](how-we-work.md) (routing rows for supervising a Run), `docs/designs/orchestrator-mode.md` (the design), and the Phase 1 follow-up issue IronbellyOrg/IronClaude#534.
+
+---
+
+### `/sc:worktrees` - Remove Merged Worktrees
+
+**When to use:** Git worktrees pile up after their pull requests merge. This command lists every worktree of our repos with the reason it is kept or removable, saves the untracked and ignored `.dev/` files of a finished worktree to the evidence repo, and removes the worktrees whose work is safe. `list`, `retire` and `prune` are dry runs unless you type `--apply`; `archive` is the one verb that writes without it (it saves to the evidence repo and removes nothing). Use it after a pull request merges; the answer to "when do I remove a worktree after its pull request merges" is: after the pull request merges and every rule below holds.
+
+**Syntax:**
+
+```
+/sc:worktrees <list|archive|retire|prune> [<worktree>] [--apply] [--out <dir>]
+```
+
+**Options:**
+
+| Argument | What it does |
+|----------|--------------|
+| `list` | Prints the table of every worktree of every repo of ours, with its decision and reason. Removes nothing |
+| `archive <worktree>` | Runs only the save step for one worktree and prints `VERIFIED` when the saved copy matches GitHub. It writes to the evidence repo with or without `--apply`, and removes nothing. Saving tracked edits or later commits as a patch and a bundle is not built; such a worktree is kept |
+| `retire <worktree>` | Removes one worktree whose work is safe. Run it from outside that worktree. It takes a path or a unique folder name |
+| `prune` | Applies the same decision to every worktree. Without `--apply` it prints the table and writes `prune-<UTC stamp>.md` and `.json` under `--out`; with `--apply` it removes the removable ones |
+| `--apply` | Actually removes (`retire` and `prune`). Without it nothing is removed, closed or cleared |
+| `--out <dir>` | The folder for the table files and the per-repo lock files. Never inside a worktree. Default `~/.local/state/worktree-cleanup` |
+
+**The eight rules.** A worktree is removed only when all of these hold, and the first one that fails is the reason shown: (1) it is a linked worktree of one of our repos, not the main checkout, not the folder you run in, not locked and not detached; (2) its own pull request is merged, judged from the pull request and not from commit ancestry; (3) nothing was added after that pull request; (4) every issue it relates to is closed; (5) nothing unsaved is in it, which means no changed tracked file, no untracked file outside `.dev/` and no ignored file that is not build output; (6) nothing but its own Orca terminals is using it; (7) it has been idle for the idle floor (7 days) and is not new; (8) it is not pinned in Orca and has no keep file. Anything the command cannot read counts as a reason to keep the worktree.
+
+**What a removal does, in order:**
+
+1. Saves the untracked and ignored `.dev/` files to the evidence repo, checks the saved copy against GitHub and prints `VERIFIED`.
+2. Closes the worktree's Orca terminals, only after every rule passed and the save was verified.
+3. Checks the worktree again; a change or a process still inside keeps it.
+4. Clears exactly the saved files, and nothing else.
+5. Removes the worktree without force, removes its local branch with the safe form of the branch delete (a branch that git says is not fully merged, as after a squash merge, is reported as kept), and reads the result back.
+
+A failure at any step keeps the worktree and shows the cause.
+
+**Environment** (names only; the command never prints a value): `GH_TOKEN` (GitHub access for the checks and the evidence push), `RUN_EVIDENCE_REPO` (the evidence repo, default `IronbellyOrg/run-evidence`), `RUN_EVIDENCE_DIR` (the local clone of it) and `WORKTREE_CLEANUP_IDLE_DAYS` (the idle floor, default 7).
+
+**Exit codes:** `0` the run completed; `64` a usage error, or a `retire` of a worktree that is not removable; `69` a lookup or a removal failed (the table still shows what happened).
+
+**The daily automation:** `scripts/worktree_cleanup_orca_automation.md` holds the definition of an Orca automation that would run the cleanup once a day. It is written and not switched on. When it is switched on, its first week should report only. Nothing here creates or runs it.
+
+**Stops outside a checkout:** the command runs only inside an IronClaude checkout that has `scripts/worktree_cleanup.py`; anywhere else it prints that and runs nothing.
+
+**Who may run it:** a person only. It closes terminals and removes work, so it is on the never-as-worker list in `~/.claude/WORKER-CONTRACT.md`.
+
+**Examples:**
+
+```bash
+/sc:worktrees list
+/sc:worktrees archive issue-687
+/sc:worktrees retire issue-687 --apply
+/sc:worktrees prune --out ~/worktree-reports
+```
+
+**MCP servers:** none
 
 ---
 

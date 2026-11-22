@@ -31,6 +31,7 @@ _OTHER_COMMANDS = {
     "sc:impact",
     "sc:issue",
     "sc:sweep",
+    "sc:worktrees",
     "sc:agent",
     "sc:pm",
 }

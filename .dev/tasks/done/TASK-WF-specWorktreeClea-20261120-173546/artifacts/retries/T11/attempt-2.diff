@@ -1,0 +1,782 @@
+diff --git a/scripts/worktree_cleanup.py b/scripts/worktree_cleanup.py
+index a72689648..0b94ef983 100644
+--- a/scripts/worktree_cleanup.py
++++ b/scripts/worktree_cleanup.py
+@@ -34,6 +34,7 @@ Usage:
+ from __future__ import annotations
+ 
+ import argparse
++import dataclasses
+ import hashlib
+ import json
+ import os
+@@ -1865,6 +1866,8 @@ class ArchiveResult:
+         frozenset()
+     )  # worktree-relative; what Task 11 registers
+     verified: str = ""  # the VERIFIED line
++    # SHA-256 of each saved path as it was when saved; the removal re-checks them
++    digests: Mapping[str, str] = field(default_factory=dict)
+     scratch: str = ""  # a partial folder left behind by a failed save, named in the log
+ 
+ 
+@@ -2239,7 +2242,13 @@ def archive_worktree(
+     if existing and not todo_untracked and not todo_ignored:
+         n = _count_files(os.path.join(evidence_dir, existing[-1]))
+         return ArchiveResult(
+-            True, "", existing[-1], n, every, f"VERIFIED {existing[-1]} files={n}"
++            True,
++            "",
++            existing[-1],
++            n,
++            every,
++            f"VERIFIED {existing[-1]} files={n}",
++            digests_now,
+         )
+     free = [c for c in candidates if c not in existing]
+     if not free:
+@@ -2305,7 +2314,245 @@ def archive_worktree(
+     if problem:
+         return _fail(problem)
+     n = _count_files(final)
+-    return ArchiveResult(True, "", folder, n, every, f"VERIFIED {folder} files={n}")
++    return ArchiveResult(
++        True, "", folder, n, every, f"VERIFIED {folder} files={n}", digests_now
++    )
++
++
++# --- the removal pipeline (steps 1 to 7 of "what a removal is") ------------------
++
++
++@dataclass(frozen=True)
++class RemovalResult:
++    status: str  # removed, kept (a safe stop) or failed (a step went wrong; exit 69)
++    reason: str = ""
++    steps: tuple[str, ...] = ()  # what ran, in order, for the table and the log
++    branch: str = ""  # branch removed, kept, or removed with the worktree
++    verified: str = ""  # the VERIFIED line of the save, when there was one
++
++
++def _refusal_text(text: str) -> str:
++    for line in text.splitlines():
++        if line.strip():
++            return line.strip()[:200]
++    return "no message"
++
++
++def _inside(path: str, top: str) -> bool:
++    real, base = os.path.realpath(path), os.path.realpath(top)
++    return real == base or real.startswith(base + os.sep)
++
++
++def remove_worktree(
++    runner: Runner,
++    inp: RuleInputs,
++    pr: PullRequest,
++    evidence_dir: str,
++    evidence_repo: str,
++    proc_root: str = "/proc",
++    log: Callable[[str], None] | None = None,
++) -> RemovalResult:
++    """Remove one removable worktree, step by step; every step fails closed (apply only).
++
++    Callers run this only under ``--apply``. A worktree that is not removable by the eight
++    rules is refused here too, so a tracked edit or a commit after the pull request is never
++    archived, never has terminals closed and is never cleared.
++    """
++    say = log or (lambda _m: None)
++    steps: list[str] = []
++    facts, orca = inp.facts, inp.orca
++    wt = facts.worktree
++    if _has_dev_files(facts.state) and inp.save_state == SAVE_NOT_NEEDED:
++        inp = dataclasses.replace(inp, save_state=SAVE_NEEDED)
++    first = decide(inp)
++    if first.decision != "removable":
++        return RemovalResult("kept", first.reason)
++    main_checkout = wt.repo_path
++    if _inside(main_checkout, wt.path):
++        return RemovalResult(
++            "failed", "the repo folder is inside the worktree; run from outside it"
++        )
++
++    # 1. save
++    verified, digests = "", {}
++    if _has_dev_files(facts.state):
++        saved = archive_worktree(
++            runner, facts, pr, evidence_dir, evidence_repo, log=say
++        )
++        if not saved.ok:
++            return RemovalResult("failed", saved.reason, tuple(steps))
++        runner.register_saved(wt.path, sorted(saved.saved_paths))
++        verified, digests = saved.verified, saved.digests
++        steps.append(f"saved: {verified}")
++
++    # 2. close the Orca terminals, only now: every rule passed and the save is verified
++    if orca is not None and orca.live_terminal_count > 0:
++        runner.authorize_close(orca.selector)
++        closed = runner.run(
++            ["orca", "terminal", "close", "--worktree", orca.selector, "--all"]
++        )
++        if (
++            closed.returncode != 0
++            or "unverifiable" in (closed.stdout + closed.stderr).lower()
++        ):
++            return RemovalResult(
++                "failed",
++                "Orca terminal close not confirmed",
++                tuple(steps),
++                verified=verified,
++            )
++        steps.append("closed Orca terminals")
++
++    # 3. check again: a terminal may have been working
++    again = gather_facts(runner, wt, orca)
++    changed = (
++        again.state is None
++        or again.state != facts.state
++        or again.head != facts.head
++        or any(
++            p in digests and _safe_sha(os.path.join(wt.path, p)) != digests[p]
++            for p in digests
++        )
++    )
++    after = commits_after_pr(runner, wt.path, again.head, pr.head_oid)
++    if changed or after.relation not in ("same", "ancestor"):
++        return RemovalResult(
++            "kept",
++            "changed since the terminals were closed",
++            tuple(steps),
++            verified=verified,
++        )
++    scan = scan_processes(proc_root)
++    if not scan.ok:
++        return RemovalResult(
++            "kept",
++            f"in use: the process scan failed ({scan.failure})",
++            tuple(steps),
++            verified=verified,
++        )
++    if processes_inside(scan, wt.path):
++        return RemovalResult(
++            "kept",
++            "a process is still inside after its Orca terminals were closed",
++            tuple(steps),
++            verified=verified,
++        )
++    steps.append("checked again")
++
++    # 4. clear exactly the saved files
++    if digests:
++        paths = sorted(digests)
++        stdin = b"".join(p.encode("utf-8", "surrogateescape") + b"\0" for p in paths)
++        cleared = runner.run(
++            ["xargs", "-0", "git", "clean", "-f", "-x", "--"], cwd=wt.path, stdin=stdin
++        )
++        if cleared.returncode != 0:
++            return RemovalResult(
++                "failed",
++                f"clearing the saved files failed: {_refusal_text(cleared.stderr)}",
++                tuple(steps),
++                verified=verified,
++            )
++        steps.append(f"cleared {len(paths)} saved files")
++
++    # 5. remove the worktree
++    if orca is not None:
++        removal = runner.run(
++            ["orca", "worktree", "rm", "--worktree", orca.selector], cwd=main_checkout
++        )
++    else:
++        removal = runner.run(["git", "worktree", "remove", wt.path], cwd=main_checkout)
++    if removal.returncode != 0:
++        why = _refusal_text(removal.stderr or removal.stdout)
++        return RemovalResult(
++            "failed", f"removal refused: {why}", tuple(steps), verified=verified
++        )
++    steps.append("removed the worktree")
++
++    # 6. the local branch, with -d only
++    branch_note = _remove_branch(runner, main_checkout, wt.branch)
++    steps.append(f"branch: {branch_note}")
++
++    # 7. read back
++    problem = _read_back(runner, wt, orca, main_checkout)
++    if problem:
++        return RemovalResult("failed", problem, tuple(steps), branch_note, verified)
++    steps.append("read back")
++    return RemovalResult("removed", "", tuple(steps), branch_note, verified)
++
++
++def _safe_sha(path: str) -> str | None:
++    try:
++        return _sha256(path)
++    except OSError:
++        return None
++
++
++def _remove_branch(runner: Runner, main_checkout: str, branch: str | None) -> str:
++    if not branch:
++        return "none"
++    listed = runner.run(["git", "branch", "--list", branch], cwd=main_checkout)
++    if listed.returncode == 0 and not listed.stdout.strip():
++        return "removed with the worktree"
++    res = runner.run(["git", "branch", "-d", branch], cwd=main_checkout)
++    if res.returncode == 0:
++        return "removed"
++    if "not fully merged" in res.stderr.lower():
++        return "kept (not fully merged, as after a squash merge)"
++    return f"kept ({_refusal_text(res.stderr)})"
++
++
++def _read_back(
++    runner: Runner, wt: GitWorktree, orca: OrcaWorktree | None, main_checkout: str
++) -> str | None:
++    """None when the folder is gone and neither git nor Orca lists the worktree."""
++    if os.path.exists(wt.path):
++        return "removed in git but the folder is still there"
++    listed = runner.run(["git", "worktree", "list", "--porcelain"], cwd=main_checkout)
++    if listed.returncode != 0:
++        return "read back failed: git worktree list failed"
++    gone = os.path.normpath(wt.path)
++    if any(
++        os.path.normpath(e.path) == gone
++        for e in parse_worktree_porcelain(listed.stdout, main_checkout)
++    ):
++        return "removed but git still lists the worktree"
++    seen = runner.run(["orca", "worktree", "list", "--json"], cwd=main_checkout)
++    if seen.returncode != 0:
++        return (
++            "read back failed: orca worktree list failed" if orca is not None else None
++        )
++    if orca is None:
++        return None
++    still = orca_lists(seen.stdout, wt.path, orca.worktree_id)
++    if still is None:
++        return "read back failed: the orca worktree list could not be read"
++    return "removed in git but still listed in Orca" if still else None
++
++
++def orca_lists(text: str, path: str, worktree_id: str) -> bool | None:
++    """Does an ``orca worktree list --json`` reply hold this worktree? None: unreadable.
++
++    Paths and ids are compared for equality, never as text, so a sibling whose name starts
++    with this one's is not mistaken for it.
++    """
++    try:
++        doc = json.loads(text)
++    except (ValueError, TypeError):
++        return None
++    wanted = os.path.normpath(path)
++    stack: list[Any] = [doc]
++    while stack:
++        node = stack.pop()
++        if isinstance(node, dict):
++            for key, value in node.items():
++                if key in ("path", "worktreeId", "id") and isinstance(value, str):
++                    if value == worktree_id or os.path.normpath(value) == wanted:
++                        return True
++                stack.append(value)
++        elif isinstance(node, list):
++            stack.extend(node)
++    return False
+ 
+ 
+ # --- command line ----------------------------------------------------------
+diff --git a/tests/worktree_cleanup/test_removal.py b/tests/worktree_cleanup/test_removal.py
+new file mode 100644
+index 000000000..265e391d2
+--- /dev/null
++++ b/tests/worktree_cleanup/test_removal.py
+@@ -0,0 +1,493 @@
++"""The removal pipeline (Task 11): save, close terminals, check again, clear, remove, branch, read back.
++
++Real git runs on throwaway repositories under ``tmp_path`` with local bare remotes; ``orca``
++answers come from canned replies. Nothing here touches a real worktree.
++"""
++
++from __future__ import annotations
++
++import dataclasses
++import os
++from pathlib import Path
++
++import pytest
++
++from .conftest import git_in, make_fake_proc
++from .test_archive import UNSET, Case, git_identity, make_pr  # noqa: F401 - the fixture is autouse
++from .test_facts import write
++
++NOW = 2_000_000_000.0
++DAY = 86400.0
++OLD = {
++    "git_file_mtime": NOW - 20 * DAY,
++    "last_commit_ts": NOW - 20 * DAY,
++    "created_ts": NOW - 30 * DAY,
++}
++GOOD_ORCA_LIST = '{"ok": true, "result": {"worktrees": []}}'
++
++
++def result(wc, code=0, out="", err=""):
++    return wc.Result(code, out, err)
++
++
++class Setup:
++    """One worktree with .dev files, ready to be removed, plus the inputs the rules need."""
++
++    def __init__(
++        self,
++        wc,
++        runner_cls,
++        repo,
++        evidence_bare,
++        tmp_path,
++        orca_replies=None,
++        with_orca=False,
++    ):
++        self.wc, self.tmp = wc, tmp_path
++        self.orca_calls: list[list[str]] = []
++        self.orca_replies = dict(orca_replies or {})
++        self.case = Case(
++            wc, runner_cls, repo, evidence_bare, tmp_path, replies={"orca": self.orca}
++        )
++        self.with_orca = with_orca
++        self.proc_root = str(make_fake_proc(tmp_path / "proc", {}))
++        self.pr_head = None
++
++    def orca(self, argv, cwd):
++        self.orca_calls.append(list(argv))
++        key = tuple(argv[1:3])
++        handler = self.orca_replies.get(key)
++        if handler is not None:
++            return handler(argv, cwd)
++        if key == ("worktree", "list"):
++            return result(self.wc, 0, GOOD_ORCA_LIST)
++        if key == ("worktree", "rm"):  # Orca removes through git, as the real one does
++            git_in(self.case.repo.main, "worktree", "remove", str(self.case.path))
++            return result(self.wc)
++        return result(self.wc)
++
++    @property
++    def runner(self):
++        return self.case.runner
++
++    def inputs(self, pr_head=None, terminals=2, procs=None, **facts_change):
++        wc = self.wc
++        facts = dataclasses.replace(self.case.facts(), **OLD, **facts_change)
++        pr = make_pr(wc, head_oid=pr_head or facts.head)
++        orca = None
++        if self.with_orca:
++            orca = wc.OrcaWorktree(
++                worktree_id="wid", selector="id:wid", path=str(self.case.path), branch="topic", repo="r",
++                last_activity_ms=None, is_pinned=False, live_terminal_count=terminals,
++                linked_pr_hint=None, comment="",
++            )  # fmt: skip
++        after = self.runner_after(facts, pr)
++        inp = wc.RuleInputs(
++            facts=facts, now=NOW, orca=orca, pr_lookup=wc.PrLookup(True, pr),
++            landed=wc.Landed("MERGED", "installed copy"), after=after,
++            issues=wc.IssueFacts((), ()), procs=procs or wc.ProcScan(True, ()),
++        )  # fmt: skip
++        return inp, pr
++
++    def runner_after(self, facts, pr):
++        return self.wc.commits_after_pr(
++            self.runner, str(self.case.path), facts.head, pr.head_oid
++        )
++
++    def remove(self, inp=None, pr=None, proc_root=None):
++        if inp is None:
++            inp, pr = self.inputs()
++        self.runner.commands.clear()
++        return self.wc.remove_worktree(
++            self.runner, inp, pr, self.case.clone, str(self.case.bare),
++            proc_root=proc_root or self.proc_root, log=self.case.notes.append,
++        )  # fmt: skip
++
++    def verbs(self):
++        out = []
++        for c in self.runner.commands:
++            argv = list(c.argv)
++            if argv[0] == "git":  # drop the leading -c and -C options
++                while argv[1] in ("-c", "-C"):
++                    del argv[1:3]
++                out.append(" ".join(argv[1:3]))
++            else:
++                out.append(" ".join(argv[:2]))
++        return out
++
++
++@pytest.fixture
++def setup(wc, runner_cls, throwaway_repo, evidence_bare, tmp_path):
++    return Setup(wc, runner_cls, throwaway_repo, evidence_bare, tmp_path)
++
++
++@pytest.fixture
++def setup_orca(wc, runner_cls, throwaway_repo, evidence_bare, tmp_path):
++    return Setup(
++        wc, runner_cls, throwaway_repo, evidence_bare, tmp_path, with_orca=True
++    )
++
++
++def index_of(verbs, start):
++    return next(i for i, v in enumerate(verbs) if v.startswith(start))
++
++
++def last_index_of(verbs, start):
++    return max(i for i, v in enumerate(verbs) if v.startswith(start))
++
++
++# -- the whole removal, in order --------------------------------------------------------------
++
++
++def test_a_worktree_orca_does_not_list_is_removed_with_git_in_the_right_order(setup):
++    path = setup.case.path
++    done = setup.remove()
++    assert done.status == "removed", done.reason
++    assert done.verified.startswith("VERIFIED ") and done.branch == "removed"
++    assert not path.exists()
++    assert (
++        Path(setup.case.clone) / "IronClaude" / "example-user"
++    ).is_dir()  # the save is in the clone
++    verbs = setup.verbs()
++    push = index_of(verbs, "push")
++    clear = index_of(verbs, "xargs")
++    remove = index_of(verbs, "worktree remove")
++    branch = index_of(verbs, "branch -d")
++    assert push < clear < remove < branch < last_index_of(verbs, "worktree list")
++    # Orca never listed it: the only Orca call is the read back
++    orca = [c.argv for c in setup.runner.commands if c.argv[0] == "orca"]
++    assert orca == [["orca", "worktree", "list", "--json"]]
++    assert done.steps[0].startswith("saved: VERIFIED") and done.steps[-1] == "read back"
++    cleared = setup.runner.commands[clear]
++    assert (
++        cleared.argv == ["xargs", "-0", "git", "clean", "-f", "-x", "--"]
++        and cleared.stdin_paths == 2
++    )
++    assert cleared.cwd == str(path)
++    # the removal runs from the repo's main checkout, never from inside the worktree
++    removal = setup.runner.commands[remove]
++    assert removal.cwd == str(setup.case.repo.main) and removal.argv[-1] == str(path)
++
++
++def test_the_orca_path_closes_terminals_after_the_save_and_before_the_clear(setup_orca):
++    done = setup_orca.remove()
++    assert done.status == "removed", done.reason
++    verbs = setup_orca.verbs()
++    order = [
++        index_of(verbs, "push"),
++        index_of(verbs, "orca terminal"),
++        last_index_of(verbs, "status"),  # the re-check reads, after the close
++        index_of(verbs, "xargs"),
++        index_of(verbs, "orca worktree"),
++        index_of(verbs, "branch --list"),
++        last_index_of(verbs, "orca worktree"),  # the read back lists it again
++    ]
++    assert order == sorted(order) and len(set(order)) == len(order)
++    assert [
++        "orca",
++        "terminal",
++        "close",
++        "--worktree",
++        "id:wid",
++        "--all",
++    ] in setup_orca.orca_calls
++    assert ["orca", "worktree", "rm", "--worktree", "id:wid"] in setup_orca.orca_calls
++    assert not any(
++        v.startswith("worktree remove") for v in verbs
++    )  # Orca did the removal
++    assert done.branch == "removed with the worktree" or done.branch == "removed"
++
++
++def test_no_recorded_command_is_forbidden(setup_orca):
++    assert setup_orca.remove().status == "removed"
++    evidence = os.path.realpath(setup_orca.case.clone)
++    for c in setup_orca.runner.commands:
++        argv = c.argv
++        if (
++            argv[0] != "xargs"
++        ):  # the one -f of the whole run is the clean, checked below
++            assert "--force" not in argv and "-D" not in argv and "-f" not in argv
++        assert argv[0] not in ("rm", "mv") and ["worktree", "prune"] != argv[1:3]
++        assert not (argv[0] == "git" and "--delete" in argv)
++        if "push" in argv:
++            assert os.path.realpath(c.cwd) == evidence and argv[-2:] == [
++                "origin",
++                "main",
++            ]
++        if "git" in argv[:1] and "clean" in argv:
++            raise AssertionError("git clean must run only through xargs")
++    clean = [c for c in setup_orca.runner.commands if c.argv[0] == "xargs"]
++    assert len(clean) == 1 and clean[0].argv[1:] == [
++        "-0",
++        "git",
++        "clean",
++        "-f",
++        "-x",
++        "--",
++    ]
++
++
++# -- fail closed at every step ---------------------------------------------------------------------
++
++
++def test_a_tracked_edit_or_a_commit_after_the_pull_request_does_nothing(wc, setup_orca):
++    edit = setup_orca.case.path / "README.md"
++    edit.write_text("edited\n", encoding="utf-8")
++    done = setup_orca.remove()
++    assert (done.status, done.reason) == ("kept", "1 changed tracked file")
++    assert (
++        setup_orca.runner.commands == [] and setup_orca.orca_calls == []
++    )  # no archive, close or clear
++    assert (
++        edit.exists() and (setup_orca.case.path / ".dev" / "tasks" / "a b.md").exists()
++    )
++    # a commit made after the pull request's last commit
++    edit.write_text("example\n", encoding="utf-8")
++    inp, pr = setup_orca.inputs()
++    old_head = pr.head_oid
++    write(setup_orca.case.path / "later.txt")
++    git_in(setup_orca.case.path, "add", "later.txt")
++    git_in(setup_orca.case.path, "commit", "-q", "-m", "after the pull request")
++    inp, pr = setup_orca.inputs(pr_head=old_head)
++    done = setup_orca.remove(inp, pr)
++    assert (done.status, done.reason) == ("kept", "1 commit after the pull request")
++    assert setup_orca.runner.commands == [] and setup_orca.orca_calls == []
++
++
++@pytest.mark.parametrize(
++    "answer", [(0, '{"unverifiable": true}'), (1, ""), (0, "closed but UNVERIFIABLE")]
++)
++def test_an_unconfirmed_terminal_close_keeps_the_worktree_and_clears_nothing(
++    wc, setup_orca, answer
++):
++    setup_orca.orca_replies[("terminal", "close")] = lambda argv, cwd: result(
++        wc, *answer
++    )
++    done = setup_orca.remove()
++    assert (done.status, done.reason) == ("failed", "Orca terminal close not confirmed")
++    assert setup_orca.case.path.exists()
++    assert not any(c.argv[0] == "xargs" for c in setup_orca.runner.commands)
++    assert (setup_orca.case.path / ".dev" / "tasks" / "a b.md").exists()
++
++
++def test_a_change_made_while_the_terminals_closed_keeps_the_worktree(wc, setup_orca):
++    path = setup_orca.case.path
++
++    def busy_terminal(argv, cwd):
++        write(path / "notes-made-by-the-terminal.txt")  # an agent was still working
++        return result(wc)
++
++    setup_orca.orca_replies[("terminal", "close")] = busy_terminal
++    done = setup_orca.remove()
++    assert (done.status, done.reason) == (
++        "kept",
++        "changed since the terminals were closed",
++    )
++    assert path.exists() and not any(
++        c.argv[0] == "xargs" for c in setup_orca.runner.commands
++    )
++
++
++def test_a_saved_file_edited_after_the_save_is_never_cleared(wc, setup_orca):
++    path = setup_orca.case.path
++
++    def edits_a_saved_file(argv, cwd):
++        (path / ".dev" / "tasks" / "a b.md").write_text(
++            "newer bytes\n", encoding="utf-8"
++        )
++        return result(wc)
++
++    setup_orca.orca_replies[("terminal", "close")] = edits_a_saved_file
++    done = setup_orca.remove()
++    assert (done.status, done.reason) == (
++        "kept",
++        "changed since the terminals were closed",
++    )
++    assert (path / ".dev" / "tasks" / "a b.md").read_text() == "newer bytes\n"
++
++
++def test_a_process_still_inside_after_the_close_keeps_the_worktree(wc, setup_orca):
++    proc = make_fake_proc(setup_orca.tmp / "busy-proc", {42: str(setup_orca.case.path)})
++    done = setup_orca.remove(proc_root=str(proc))
++    assert (done.status, done.reason) == (
++        "kept",
++        "a process is still inside after its Orca terminals were closed",
++    )
++    assert not any(c.argv[0] == "xargs" for c in setup_orca.runner.commands)
++    failing = make_fake_proc(setup_orca.tmp / "bad-proc", {43: "file"})
++    done = setup_orca.remove(proc_root=str(failing))
++    assert done.status == "kept" and "process scan failed" in done.reason
++
++
++def test_a_failed_save_stops_before_anything_else(
++    wc, runner_cls, throwaway_repo, evidence_bare, tmp_path
++):
++    setup = Setup(
++        wc, runner_cls, throwaway_repo, evidence_bare, tmp_path, with_orca=True
++    )
++    (setup.case.path / ".dev" / "local" / "run.log").write_text(
++        "key " + "gh" + "p_" + "A1b2C3d4" * 4 + "\n"
++    )
++    done = setup.remove()
++    assert done.status == "failed" and done.reason.startswith(
++        "saved copy failed: possible secret in"
++    )
++    assert setup.orca_calls == [] and setup.runner.commands == []
++    assert setup.case.path.exists()
++
++
++def test_a_removal_that_git_refuses_keeps_the_worktree_with_the_refusal_text(
++    wc, runner_cls, throwaway_repo, evidence_bare, tmp_path
++):
++    setup = Setup(wc, runner_cls, throwaway_repo, evidence_bare, tmp_path)
++
++    def refuse(argv, cwd):
++        return (
++            result(
++                wc,
++                128,
++                "",
++                "fatal: contains modified or untracked files, use --force to delete it",
++            )
++            if argv[1:3] == ["worktree", "remove"]
++            else None
++        )
++
++    setup.case.runner = runner_cls(
++        evidence_dir=setup.case.clone, replies={"git": refuse}
++    )
++    done = setup.remove()
++    assert done.status == "failed"
++    assert (
++        done.reason
++        == "removal refused: fatal: contains modified or untracked files, use --force to delete it"
++    )
++    assert setup.case.path.exists()
++    assert not any("--force" in c.argv for c in setup.runner.commands)
++
++
++def test_removed_in_git_but_still_listed_in_orca_is_a_failed_row(wc, setup_orca):
++    path = setup_orca.case.path
++    setup_orca.orca_replies[("worktree", "list")] = lambda argv, cwd: result(
++        wc, 0, f'{{"worktrees": [{{"path": "{path}"}}]}}'
++    )
++    done = setup_orca.remove()
++    assert (done.status, done.reason) == (
++        "failed",
++        "removed in git but still listed in Orca",
++    )
++    assert not path.exists()  # the removal itself happened
++
++
++def test_an_orca_read_back_that_fails_is_a_failed_row_when_orca_listed_the_worktree(
++    wc, setup_orca
++):
++    setup_orca.orca_replies[("worktree", "list")] = lambda argv, cwd: result(
++        wc, 1, "", "orca down"
++    )
++    done = setup_orca.remove()
++    assert (
++        done.status == "failed"
++        and done.reason == "read back failed: orca worktree list failed"
++    )
++
++
++def test_a_squash_merged_branch_is_reported_kept_not_an_error(
++    wc, runner_cls, throwaway_repo, evidence_bare, tmp_path
++):
++    setup = Setup(wc, runner_cls, throwaway_repo, evidence_bare, tmp_path)
++    path = setup.case.path
++    write(path / "feature.txt")
++    git_in(path, "add", "feature.txt")
++    git_in(path, "commit", "-q", "-m", "feature")
++    done = setup.remove()
++    assert done.status == "removed", done.reason
++    assert done.branch == "kept (not fully merged, as after a squash merge)"
++    assert "topic" in git_in(throwaway_repo.main, "branch", "--list", "topic")
++
++
++def test_a_worktree_with_nothing_to_save_skips_the_archive_and_the_clear(
++    wc, runner_cls, throwaway_repo, evidence_bare, tmp_path
++):
++    setup = Setup(wc, runner_cls, throwaway_repo, evidence_bare, tmp_path)
++    import shutil
++
++    shutil.rmtree(
++        setup.case.path / ".dev"
++    )  # a throwaway folder: nothing under .dev remains
++    done = setup.remove()
++    assert done.status == "removed" and done.verified == ""
++    assert not any(c.argv[0] == "xargs" for c in setup.runner.commands)
++    assert not any("push" in c.argv for c in setup.runner.commands)
++    assert not Path(setup.case.clone).exists()
++
++
++def test_the_repo_folder_inside_the_worktree_is_refused(wc, setup):
++    inp, pr = setup.inputs()
++    wt = dataclasses.replace(inp.facts.worktree, repo_path=str(setup.case.path / "sub"))
++    inp = dataclasses.replace(inp, facts=dataclasses.replace(inp.facts, worktree=wt))
++    done = setup.remove(inp, pr)
++    assert done.status == "failed" and "run from outside it" in done.reason
++    assert setup.runner.commands == []
++
++
++def test_a_sibling_whose_name_starts_with_the_removed_one_is_not_still_listed(
++    wc, setup_orca
++):
++    path = str(setup_orca.case.path)
++    sibling = f'{{"worktrees": [{{"path": "{path}-fix", "worktreeId": "wid-2::{path}-fix"}}]}}'
++    setup_orca.orca_replies[("worktree", "list")] = lambda argv, cwd: result(
++        wc, 0, sibling
++    )
++    done = setup_orca.remove()
++    assert done.status == "removed", done.reason
++
++
++def test_an_unreadable_orca_list_after_a_removal_is_a_failed_read_back(wc, setup_orca):
++    setup_orca.orca_replies[("worktree", "list")] = lambda argv, cwd: result(
++        wc, 0, "<html>"
++    )
++    done = setup_orca.remove()
++    assert (done.status, done.reason) == (
++        "failed",
++        "read back failed: the orca worktree list could not be read",
++    )
++
++
++def test_orca_lists_compares_paths_and_ids_for_equality(wc):
++    body = '{"result": {"worktrees": [{"worktreeId": "w1::/x/docs-354-fix", "path": "/x/docs-354-fix"}]}}'
++    assert wc.orca_lists(body, "/x/docs-354", "w0::/x/docs-354") is False
++    assert wc.orca_lists(body, "/x/docs-354-fix", "other") is True
++    assert wc.orca_lists(body, "/elsewhere", "w1::/x/docs-354-fix") is True
++    assert (
++        wc.orca_lists(body, "/x/docs-354-fix/", "other") is True
++    )  # a trailing slash is the same folder
++    assert (
++        wc.orca_lists("[]", "/x", "w") is False
++        and wc.orca_lists("{}", "/x", "w") is False
++    )
++    assert (
++        wc.orca_lists("not json", "/x", "w") is None
++        and wc.orca_lists("", "/x", "w") is None
++    )
++
++
++def test_the_helper_for_refusal_text_does_not_shadow_the_earlier_one(wc):
++    assert (
++        wc._first_line("") == ""
++    )  # the pull request lookup helper keeps its own behaviour
++    assert wc._refusal_text("") == "no message"
++    assert wc._refusal_text("\n  first\nsecond") == "first"
++
++
++def test_git_clean_is_refused_for_any_path_that_was_not_saved(wc, setup):
++    """The runner itself refuses a clean of an unregistered path, whatever the pipeline does."""
++    other = setup.case.path / "keep-me.txt"
++    write(other)
++    with pytest.raises(wc.RefusedCommand):
++        setup.runner.run(
++            ["xargs", "-0", "git", "clean", "-f", "-x", "--"],
++            cwd=str(setup.case.path),
++            stdin=b"keep-me.txt\0",
++        )
++    assert other.exists()

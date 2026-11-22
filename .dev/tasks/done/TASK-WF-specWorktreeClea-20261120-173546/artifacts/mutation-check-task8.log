@@ -1,0 +1,10 @@
+== _rule4 always passes
+FAILED tests/worktree_cleanup/test_rules.py::test_an_issue_lookup_that_fails_keeps_the_worktree
+========================= 5 failed, 86 passed in 1.80s =========================
+== _rule3 always passes
+FAILED tests/worktree_cleanup/test_rules.py::test_a_merged_pull_request_whose_branch_was_reused_keeps_the_worktree
+========================= 5 failed, 86 passed in 1.77s =========================
+== _rule6 always passes
+FAILED tests/worktree_cleanup/test_rules.py::test_a_real_fake_proc_process_inside_and_a_failing_scan
+======================== 17 failed, 74 passed in 1.80s =========================
+restored: identical

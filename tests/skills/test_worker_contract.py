@@ -86,8 +86,8 @@ RULE_PHRASES = {
     "never-as-worker": (
         "**Never-as-worker list**",
         [
-            "`/sc:agent`, `/sc:closeout`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:sweep` and "
-            "`/sc:swarm-wizard`, plus `/sc:pr-submit` while the answer to decision D3 keeps it off workers"
+            "`/sc:agent`, `/sc:closeout`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:sweep`, "
+            "`/sc:swarm-wizard` and `/sc:worktrees`, plus `/sc:pr-submit` while the answer to decision D3 keeps it off workers"
         ],
     ),
     "nested-propagation": (
@@ -481,6 +481,7 @@ NEVER_AS_WORKER = (
     "/sc:swarm-wizard",
     "/sc:pr-submit",
     "/sc:sweep",
+    "/sc:worktrees",
 )
 
 # The thirteen commands that get an `## Unattended mode` section in P1, in the order

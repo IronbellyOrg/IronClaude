@@ -1,0 +1,18 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-specWorktreeClea-20261120174527/adversarial/merged-verdict.yaml"
+  convergence_score: 0.9231
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-specWorktreeClea-20261120174527/adversarial"
+  status: "partial"
+  base_variant: "variant-2"
+  unresolved_conflicts: 1
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-001, category: sufficiency_challenge, assumption: "The listed fixes make the plan fit for /sc:implement", severity: HIGH}
+    - {id: INV-002, category: sufficiency_challenge, assumption: "Giving item 1 its own fallback settles the removal path", severity: HIGH}
+    - {id: INV-003, category: guard_conditions, assumption: "Task 2's runner is the allowlist the spec adopts", severity: HIGH}
+    - {id: INV-004, category: guard_conditions, assumption: "Task 1 reasons for PROVEN and NOT PROVEN are sound", severity: HIGH}
+  notes:
+    - "fallback_mode is true because the scoring layer was condensed (one pass, six dimensions) and advocate 2 would not write files; see base-selection.md and debate-transcript.md"
+    - "status is partial: convergence is blocked by four HIGH UNADDRESSED invariants and one grade dispute (C-003) is unresolved"

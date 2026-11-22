@@ -4,6 +4,10 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### New command: /sc:worktrees and scripts/worktree_cleanup.py (issue 687)
+
+- `/sc:worktrees <list|archive|retire|prune>` removes git worktrees of our repos once their work is finished. A worktree goes only when its own pull request is merged, nothing was added after it, its issues are closed, nothing unsaved is in it, nothing but its own Orca terminals is using it, it has been idle for 7 days and it is not pinned. `list`, `retire` and `prune` are dry runs unless `--apply` is typed; `archive` is the one verb that writes without it (to the evidence repo only, and it removes nothing). Before a removal, the untracked and ignored `.dev/` files are saved to the evidence repo `IronbellyOrg/run-evidence` and checked against GitHub; if anything cannot be read or saved, the worktree is kept and the reason is shown. The script is `scripts/worktree_cleanup.py` (Python standard library only), and the command is on the never-as-worker list. The removal rules are adapted from files of Jay Wedgeworth's AI-Fleet-Coordinator under Apache-2.0; see `scripts/worktree_cleanup_PROVENANCE.md` and `NOTICE`. A definition for a daily Orca automation is in `scripts/worktree_cleanup_orca_automation.md`; it is written and not switched on.
+
 ### worker contract: two gaps left after #700 (follows #697)
 
 - The worker-session duties again say that `ask` and `send` carry no `--to`. WC-17 step 4 now passes `--issue <N>` to `check-approval`, so an approval for another issue with the same plan hash is refused. The "Worktree, then worker" duty now says the worker started right after the claim script is that worktree's agent.
