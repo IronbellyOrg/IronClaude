@@ -1,0 +1,14 @@
+{
+  "status": "launched",
+  "warning": null,
+  "detail": "",
+  "terminal": "term_7e3d9c61-9baf-4221-beda-01f49ca9753a",
+  "launched_at": "2026-11-21T02:57:07Z",
+  "enforcement_hook": "installed",
+  "hand_command": null,
+  "release": "to release this session, a person runs in their own terminal: rm \"/home/coder/.claude/state/launch-level/sessions/<session id>\" \"/home/coder/.claude/state/launch-level/sessions/<session id>.ok\" (every file in the sessions folder is named by a session id and holds only the level word, and a name ending in .ok is an approval; the launch does not print the id; this launch's record has inode number 39845895: run ls -i on the sessions folder and take the name whose number is 39845895 (once the agent has read its first prompt the guard keeps the session file as a hard link of this record, so the number matches); if no name has that number, the session was bound another way, so check which session file belongs to this launch before removing anything; a guard block about touching the launch-level state prints the exact rm command)",
+  "layers": [
+    "L1 guard: effective (the IR-4 preflight passed)",
+    "L2 pre-push: owned (the launch-level pre-push hook, version 1, refuses this session's pushes to main and master)"
+  ]
+}

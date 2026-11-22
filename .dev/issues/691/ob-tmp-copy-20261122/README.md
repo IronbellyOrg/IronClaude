@@ -1,0 +1,2 @@
+# Copy of /tmp/ob (issue 691 live OB-H2 rerun, 2026-11-21 02:32 to 03:36 UTC)
+Copied 2026-11-22 by ORCH-IronClaude on the owner's "Yes" (chat) before the temporary folder is cleaned up. Left out on purpose: home/ (a copy of a Claude home, 7.6 MB), bare-a.git, bare-push.git, repo-a and repo-push (test scaffolding). Two files in logs/ (h2-T1.env.jsonl, h2-T1.jsonl) differ from the earlier copy in ../ob-h2-rerun-logs/; this copy is the later one. Checksums: SHA256SUMS.

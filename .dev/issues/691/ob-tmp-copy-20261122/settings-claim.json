@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/tmp/ob/bin/ob-claim-guard.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
