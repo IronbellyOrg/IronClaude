@@ -3346,7 +3346,7 @@ def test_owner_records_are_given_in_chat_and_recorded_by_the_agent():
         "date, and the owner is never asked to write a file)"
     ) in text
     assert (
-        'A Ruling line, grant row or pass record that the coordinator or a worker '
+        "A Ruling line, grant row or pass record that the coordinator or a worker "
         "records without the person's own chat confirmation of that exact scope is "
         '"executor-invented approval".'
     ) in text
