@@ -1,0 +1,13 @@
+# Own return contract of /sc:adversarial (Mode A, depth quick, unattended).
+# Note: the advocates split on 2 of 17 points (X-002, A-002); the orchestrator resolved both in base-selection.md with a recorded rationale, so no point is left open.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/QG4/adversarial/merged-qg4-position.md"
+  convergence_score: 0.882
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/QG4/adversarial/adversarial/"
+  status: "success"
+  base_variant: "Variant 1 (OURS, original)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

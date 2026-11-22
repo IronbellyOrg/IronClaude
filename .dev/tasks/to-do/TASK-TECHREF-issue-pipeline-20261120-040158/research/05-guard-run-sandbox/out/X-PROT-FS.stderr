@@ -1,0 +1,5 @@
+Launch-level guard: this session was started by /sc:issue --claim at level full --submit.
+Blocked: a push to master or main.
+Why: No launch level may change the main branch.
+You can: Push the feature branch by name, then merge it through a reviewed pull request.
+Note: the guard does not tell quoted text from commands. Any command that names git together with the word commit, push, merge or pull, or gh together with the word api, counts as that action, even if the words are only in a message, a title, a PR body or a search pattern. If that is the case here, write the text to a file with the Write tool and pass it with git commit -F <file> or gh ... --body-file <file>, or reword the search or title.

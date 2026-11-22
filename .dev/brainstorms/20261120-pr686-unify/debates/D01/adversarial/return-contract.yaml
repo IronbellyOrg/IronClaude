@@ -1,0 +1,12 @@
+worker_contract_version: "1"
+worker_status: "partial"
+command: "/sc:adversarial --compare .../D01/position-OURS.md,.../D01/position-CLAY.md --depth standard --unattended --output .../D01/adversarial/"
+report_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D01/adversarial/merged-output.md"
+artifacts:
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D01/adversarial/adversarial/return-contract.yaml"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D01/adversarial/adversarial/diff-analysis.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D01/adversarial/adversarial/debate-transcript.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D01/adversarial/adversarial/invariant-probe.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D01/adversarial/adversarial/base-selection.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D01/adversarial/adversarial/refactor-plan.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D01/adversarial/adversarial/merge-log.md"

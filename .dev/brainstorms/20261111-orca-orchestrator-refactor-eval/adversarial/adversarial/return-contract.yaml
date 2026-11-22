@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261111-orca-orchestrator-refactor-eval/adversarial/merged-output.md"
+  convergence_score: 0.765          # 13 of 17 points; threshold 0.80 (default)
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261111-orca-orchestrator-refactor-eval/adversarial/adversarial/"
+  status: "partial"                 # NOT_CONVERGED at quick depth; force-selected by score per FR-006
+  base_variant: "variant-1 (Variant A, keep Task sub-agents), default model"
+  unresolved_conflicts: 4           # C-002, C-004, C-008, C-009
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []        # Round 2.5 skipped: --depth quick
+  notes:
+    - "Both variants were authored by the invoking session; advocates were separate agents."
+    - "Position-bias second pass was not run by an independent evaluator."
+    - "Rounds 2, 2.5 and 3 skipped by depth=quick."

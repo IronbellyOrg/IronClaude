@@ -1,0 +1,22 @@
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:adversarial --compare /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/position-OURS.md,/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/position-CLAY.md --depth standard --unattended --output /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/"
+report_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/merged-output.md"
+artifacts:
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/base-selection.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/debate-transcript.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/diff-analysis.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/invariant-probe.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/merge-log.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/refactor-plan.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/rounds/qual-pass-1.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/rounds/qual-pass-2.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/rounds/round-1-advocate-1.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/rounds/round-1-advocate-2.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/rounds/round-2-advocate-1.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/rounds/round-2-advocate-2.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/scripts/qualcompare.py
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/scripts/quant.py
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/variant-1-original.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/variant-2-original.md
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial/return-contract.yaml"

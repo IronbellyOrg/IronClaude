@@ -1,0 +1,112 @@
+Please carry out this task from my Orca coordinator by following the brief I pasted below. 
+
+<pasted_content id="4479">
+You are working inside Orca, a multi-agent IDE. You are a dispatched worker.
+Your coordinator's terminal handle is: term_ff21ff3b-01fc-4fbf-a8c5-8374259f3953
+Your task ID is: task_933b8d9447c6
+
+The coordinator cannot see this terminal, so reach it with the `orca orchestration`
+commands below; a question or result left only in this terminal never gets to it.
+Don't post to Slack, GitHub, or other channels during the run; report through these commands.
+
+=== CLI COMMANDS ===
+
+```sh
+  # Report the task outcome (required, exactly once).
+  #
+  # --body must be a 3-sentence executive summary (what you did,
+  # what you found, what's left). Never send an empty body; the coordinator
+  # reads the body first and only opens artifacts if it needs more detail.
+  # Append --files-modified only when files changed, and append --report-path
+  # only when you produced a durable report. Always pass real values; do not
+  # send the example placeholders literally.
+  #
+  # Send worker_done exactly once. Use --outcome succeeded when the
+  # requested work is done, or replace it with --outcome failed when it is not.
+  # Never encode failure only in prose and never silently exit.
+  # Include BOTH taskId and dispatchId in the payload so a late completion
+  # from a failed retry cannot complete the current dispatch.
+  orca orchestration send --from term_05bf1300-a1f4-4c20-acba-ae29e8d64cb8 --type worker_done --subject "<short status>" --body "<3-sentence summary: what you did, what you found, what's left>" --task-id task_933b8d9447c6 --dispatch-id ctx_5f78a1f4eb2c --outcome succeeded
+
+  # Send a heartbeat every 5 minutes
+  # while actively working on the task. The coordinator uses this to
+  # distinguish "still thinking" from "hung / crashed." Skip heartbeats only
+  # while blocked inside `check --wait` or `ask` — those calls are
+  # themselves liveness signals. If a background loop sends them, restart
+  # it if it expires mid-task, and stop it before you send worker_done.
+  #
+  # Include BOTH taskId and dispatchId in the payload: the coordinator
+  # attributes the heartbeat to the specific dispatch context, not just
+  # the task, so a straggler heartbeat from a previously-failed dispatch
+  # cannot mask a hung retry.
+  orca orchestration send --from term_05bf1300-a1f4-4c20-acba-ae29e8d64cb8 --type heartbeat --subject "alive" --task-id task_933b8d9447c6 --dispatch-id ctx_5f78a1f4eb2c --phase "<short: investigating|implementing|reviewing|waiting>"
+
+  # Ask the coordinator a question and block until it answers.
+  #
+  # Use this instead of AskUserQuestion: that opens a local prompt the
+  # coordinator cannot see or answer, so the task would stall until someone
+  # happened to look at this terminal. Send every question through `ask`.
+  #
+  # The `ask` verb durably records a question in this Dispatch's Run and
+  # blocks until the coordinator replies, then prints the reply body. If the
+  # call times out or disconnects, resume with the returned message ID instead
+  # of creating a duplicate question.
+  orca orchestration ask --from term_05bf1300-a1f4-4c20-acba-ae29e8d64cb8 --question "<your question>" --options "<optional,comma,separated>" --timeout-ms 600000
+
+  # Escalate a blocker or failure (pre-completion, when you need the
+  # coordinator to do something before you can continue):
+  orca orchestration send --from term_05bf1300-a1f4-4c20-acba-ae29e8d64cb8 --type escalation --subject "Blocked: <reason>" --body "<details>" --task-id task_933b8d9447c6 --dispatch-id ctx_5f78a1f4eb2c
+
+  # Read coordinator follow-ups. Nothing interrupts you: a durable message only
+  # arrives when you look, so run this at each natural checkpoint — before you
+  # start a new file and after a test run — and once more immediately before
+  # you send worker_done, so a redirect lands before the task settles.
+  orca orchestration check --terminal term_05bf1300-a1f4-4c20-acba-ae29e8d64cb8 --json
+
+  # After processing every message, ack the returned deliveryId; this also reads
+  # the next batch. Repeat until count is 0, then resume. Unacked batches replay
+  # and hide newer mail.
+  orca orchestration check --terminal term_05bf1300-a1f4-4c20-acba-ae29e8d64cb8 --ack <delivery_id> --json
+```
+
+=== AFTER YOU SEND worker_done ===
+
+worker_done ends your turn for this task. Your dispatched work is complete:
+stop, return to an idle prompt, and take no further actions — do NOT start
+new or unrelated work, do NOT run a sleep/poll loop, and do NOT keep calling
+`orca orchestration check`. The coordinator has already recorded your
+completion and expects no further output.
+
+A direct instruction from the user takes precedence over this idle rule.
+Treat it as new user-owned work: follow it without coordinator approval or a
+fresh Dispatch, and do not send lifecycle messages using the settled task or
+Dispatch IDs. Never refuse a direct user request because you were a worker.
+
+Do not exit the shell. Your terminal stays available, and if the
+coordinator has more for you it will re-engage this terminal with a fresh
+preamble + TASK block, which arrives as new input. Treat that as supervised
+work under the new Dispatch; ignore stale follow-ups from the settled task.
+
+=== SUB-DISPATCH ===
+You may start helper workers for this task. They work in this Dispatch's Run and
+report to you: their questions, escalations, and worker_done arrive in your own
+`check`, and your coordinator's mail keeps arriving there too.
+
+```sh
+  orca orchestration worker-start --from term_05bf1300-a1f4-4c20-acba-ae29e8d64cb8 --spec "<sub-task>" --worktree current --agent <agent> --json
+  # Answer a helper's question by its message ID:
+  orca orchestration reply --from term_05bf1300-a1f4-4c20-acba-ae29e8d64cb8 --id <message_id> --body "<answer>"
+```
+
+Wait for every helper's worker_done before reporting your own. Nesting is
+capped; your helpers may not be able to start helpers of their own.
+
+---
+
+=== TASK ===
+[sc-launch:v1:64d3113065bcad044e18895aa2dc3412] EARLY PROBE for issue 442 (disposable issue 712). Do only these two things, then stop and wait. Do not edit, commit, push or create any file. (1) Reply with the first 70 characters of this message, copied exactly, inside a code block. (2) Reply with the number of entries in the folder ~/.claude/state/launch-level/pending (run: ls ~/.claude/state/launch-level/pending | wc -l). Then say PROBE-DONE.
+</pasted_content id="4479">
+
+
+
+

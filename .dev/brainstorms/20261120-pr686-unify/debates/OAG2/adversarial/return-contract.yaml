@@ -1,0 +1,14 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:adversarial --compare /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/position-OURS.md,/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/position-CLAY.md --depth quick --unattended --output /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/adversarial/"
+report_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/adversarial/merged-oag2-sweep-observer-recommendation.md"
+artifacts:
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/adversarial/adversarial/return-contract.yaml
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/adversarial/adversarial/diff-analysis.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/adversarial/adversarial/round1-advocate-V1.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/adversarial/adversarial/round1-advocate-V2.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/adversarial/adversarial/debate-transcript.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/adversarial/adversarial/base-selection.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/adversarial/adversarial/base-selection-pass2.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/adversarial/adversarial/refactor-plan.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/adversarial/adversarial/merge-log.md

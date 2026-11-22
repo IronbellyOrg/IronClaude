@@ -1,0 +1,8 @@
+# Gate 2 consolidated findings (cycle 2)
+
+**Date:** 2026-11-20
+**F_2 = 1** (BLOCKING N-1; 0 synthetic). Source: qa-synthesis-verification-content-c1.md (FAIL, 1 BLOCKING) and qa-synthesis-verification-structural-c1.md (PASS). The nine cycle-1 findings G2-1..G2-9 are FIXED-OK per the content report.
+
+| ID | Origin lens | Location | Finding (from qa-synthesis-verification-content-c1.md, row N-1; full text there) | Required fix |
+|---|---|---|---|---|
+| N-1 | content verification c1 (new, introduced by the G2-1 fix) | synth-06 Section 14.3 "Future Considerations", row at line ~283 ("Binding coordinator-started workers (D-18) and the OB-H gate as code (D-21)") versus D-18 (line ~261), D-21 (line ~264) and the 14.1.1 row at line ~186 | 14.3 says these items are deferred because of "Owner decisions (OD-1 docs/designs/sc-issue-launch-level-hook.md:534; OD-3 OW:818-822)" with revisit "After the #442 observations (OW:822)". D-18 says "No decision found in the files this reference cites"; 14.1.1 says Planned Fix "none recorded (D-18)". OD-1 is the declared limits of L2 (design:534) and OD-3 is the IR-7 refusal staying off (OW:818-822); neither concerns binding a coordinator-started worker. | In the 14.3 row split D-18 from D-21. For D-18 write "No decision found in the files this reference cites (D-18); the guard design says it does not govern such a worker (docs/designs/sc-issue-launch-level-hook.md:23)" and drop OD-1, OD-3 and the OW:822 revisit trigger from it. Keep OD-3 and OW:822 only for D-21, rephrased to say what they decide (IR-7 stays off until the #442 observations pass), not as a decision to leave the gate prose-only. |

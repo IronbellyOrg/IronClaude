@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D15/adversarial/merged-d15-position.md"
+  convergence_score: 0.893   # 25 of 28 points; threshold 0.80
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D15/adversarial/adversarial/"
+  status: "partial"          # BLOCKED_BY_INVARIANTS: standard depth has no Round 3
+  base_variant: "variant-1-original (OURS position paper)"
+  unresolved_conflicts: 3    # G-2 plan key, G-3 round-start mechanism, G-9 part 1 channel (all carried as owner decisions OD-1, OD-2, OD-5)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: "INV-001", category: "interaction_effects", assumption: "A hand-back round 2 or later can wait for re-approval without holding a place in flight forever", severity: "HIGH"}
+    - {id: "INV-002", category: "state_variables", assumption: "After the person re-approves, something wakes the coordinator to start round 2", severity: "HIGH"}
+    - {id: "INV-003", category: "guard_conditions", assumption: "The per-repo config is guarded by the repos verbs alone", severity: "HIGH"}
+    - {id: "INV-004", category: "interaction_effects", assumption: "No standing issue.close grant and closeout adopted as is can both hold", severity: "HIGH"}

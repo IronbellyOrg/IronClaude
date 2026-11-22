@@ -1,0 +1,5 @@
+Launch-level guard: this session was started by /sc:issue --claim at level worktree (approved).
+Blocked: /sc:pr-submit or a GitHub write (opening, editing, readying or commenting on a pull request or issue).
+Why: Publishing work needs a launch with --pipeline full --submit.
+You can: Run it yourself in your own session, or claim the issue again with --pipeline full --submit.
+Note: the guard does not tell quoted text from commands. Any command that names git together with the word commit, push, merge or pull, or gh together with the word api, counts as that action, even if the words are only in a message, a title, a PR body or a search pattern. If that is the case here, write the text to a file with the Write tool and pass it with git commit -F <file> or gh ... --body-file <file>, or reword the search or title.

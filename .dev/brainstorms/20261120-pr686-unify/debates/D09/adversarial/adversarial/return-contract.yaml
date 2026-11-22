@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/adversarial/merged-output.md"
+  convergence_score: 0.93
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/adversarial/adversarial/"
+  status: "partial"   # one unresolved diff point (C-002) and two HIGH probe items cleared by moderator resolution, not by debate
+  base_variant: "variant-2 (CLAY paper)"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: "INV-001"
+      category: "interaction_effects"
+      assumption: "A held issue leaves the hold when someone edits the body and then reaches launch (in the owner's local branch the edit voids the approval; resolved by owner rule R19/R36, ordering of plan_check against the approval read is UNVERIFIED because the local branch has no hold code)"
+      severity: "HIGH"

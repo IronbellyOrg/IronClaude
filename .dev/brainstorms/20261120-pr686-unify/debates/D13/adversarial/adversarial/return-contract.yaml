@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D13/adversarial/merged-hybrid-position.md"
+  convergence_score: 0.846
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D13/adversarial/adversarial/"
+  status: "success"
+  base_variant: "variant-2-original (CLAY position paper)"
+  unresolved_conflicts: 2   # C-001 and X-002: framing and wording only; settled in VERDICT.md as HYBRID
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 invariant probe skipped at depth quick

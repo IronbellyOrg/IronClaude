@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/adversarial/merged-oag2-sweep-observer-recommendation.md"
+  convergence_score: 1.0   # 19 of 19 diff points agreed (18 of 18 without S-001, which neither advocate argued); Round 1 only (depth quick)
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG2/adversarial/adversarial"
+  status: "success"        # all five steps ran and post-merge validation passed; Round 2, Round 2.5 (invariant probe) and Round 3 were skipped by depth quick
+  base_variant: "variant-1 (OURS position paper)"   # combined score 0.9328 against 0.7955; paper quality, not the winner of the question
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # empty because the invariant probe was skipped at quick depth, not because it found none

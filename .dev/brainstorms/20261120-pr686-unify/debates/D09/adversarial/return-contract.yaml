@@ -1,0 +1,14 @@
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:adversarial --compare /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/position-OURS.md,/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/position-CLAY.md --depth standard --unattended --output /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/adversarial/"
+report_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/adversarial/merged-output.md"
+artifacts:
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/adversarial/adversarial/return-contract.yaml"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/adversarial/adversarial/diff-analysis.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/adversarial/adversarial/debate-transcript.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/adversarial/adversarial/invariant-probe.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/adversarial/adversarial/base-selection.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/adversarial/adversarial/refactor-plan.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/adversarial/adversarial/merge-log.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/adversarial/adversarial/variant-1-original.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D09/adversarial/adversarial/variant-2-original.md"
