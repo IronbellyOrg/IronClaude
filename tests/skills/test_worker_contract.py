@@ -3314,6 +3314,22 @@ def test_the_push_rule_names_full_submit_and_grants_the_coordinator_nothing_on_t
             ), sentence
 
 
+def test_owner_records_are_given_in_chat_and_recorded_by_the_agent():
+    text = _contract()
+    assert "still written by the owner" not in text
+    assert (
+        "other owner records, such as a grant row or a pass record, are likewise "
+        "given by the owner in chat and recorded by the agent in that session from "
+        "that confirmation, naming the exact scope, the owner's quoted words and the "
+        "date, and the owner is never asked to write a file)"
+    ) in text
+    assert (
+        'A Ruling line, grant row or pass record that the coordinator or a worker '
+        "records without the person's own chat confirmation of that exact scope is "
+        '"executor-invented approval".'
+    ) in text
+
+
 def test_every_outward_action_targets_the_repo_the_issue_belongs_to():
     section = _ownership()
     assert "targets the repo the issue belongs to" in section
