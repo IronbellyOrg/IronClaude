@@ -1,0 +1,79 @@
+{
+  "id": "632a51cc-b1b4-46cc-a88f-e6ef7bc4b67f",
+  "ok": true,
+  "result": {
+    "terminal": {
+      "handle": "term_7e3d9c61-9baf-4221-beda-01f49ca9753a",
+      "status": "running",
+      "tail": [
+        " ▐▛███▛█   Claude Code v2.1.330",
+        "▝▜██████▀  Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0 with medium effort · API Usage Billing",
+        " ▝▝   ▝▝   ~/workspaces/worktrees/IronClaude/issue-712",
+        "❯ /clear",
+        "❯ Run the Bash command /tmp/ob/bin/ob-tree.sh gov-clear; sleep 242 in the background, then end your turn.",
+        "* Propagating… (running UserPromptSubmit hooks… 3/6 · 0s)",
+        "● lite  $0.00  0s                                                                     Review  Audit  Board  Details [-]",
+        "───────────────────────────────────────────────────────────────── issue-712-sc-launch-v1-96bcdb5d82a1-1121-025705-0508 ─",
+        "❯",
+        "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────",
+        "  ⏵⏵ bypass permissions on · 1 shell · esc to interrupt · ← 1 agent · ↓ to manage"
+      ],
+      "truncated": false,
+      "limited": false,
+      "oldestCursor": "0",
+      "nextCursor": "6",
+      "latestCursor": "6",
+      "returnedLineCount": 11,
+      "tailRows": [
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 112
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 15
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        }
+      ],
+      "source": "screen"
+    }
+  },
+  "_meta": {
+    "runtimeId": "5fa47013-c78e-429f-8465-1efeaa46b5b9"
+  }
+}
