@@ -69,6 +69,11 @@ EXPECTED_TOP_LEVEL_FIELDS: tuple[str, ...] = (
     "resolved_lens_entry",
     "preflight",
     "caller_metadata",
+    "caller",
+    "target",
+    "lens_source",
+    "recommended_next_command_template",
+    "recommended_next_command_substitutions",
 )
 
 

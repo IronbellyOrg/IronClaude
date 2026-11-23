@@ -1350,6 +1350,30 @@ class Manifest:
     process boundaries (executor exits, ``swarm attach`` re-reads, M6 resume
     rehydrates).
 
+    Accepted reduction context:
+        ``run_preflight`` also captures ``caller``, ``target``, ``lens_source``,
+        the effective ``recommended_next_command_template`` and its explicit
+        substitutions before dispatch. The existing ``caller_metadata`` holds
+        resolved caller overrides, including false/empty values. Target checksum
+        uses the preflight's post-truncation bytes (12 hex characters in the
+        contract target; the full digest stays in ``preflight.target_checksum``).
+        Thus an interrupted new job needs no prior return contract to recover
+        this context. Successful worker paths supply automatic next-command
+        substitutions at reduction time; explicit substitutions still win.
+
+        New optional fields default to ``None`` for unavailable historical data,
+        not to empty accepted values. Resume uses explicit manifest context
+        first, then useful fields of a well-shaped same-job prior contract,
+        then recoverable lens/preflight snapshot values and ordinary defaults.
+        Historical empty reducer stubs do not mask snapshot lens metadata or
+        next-command templates; an explicitly stored false/empty manifest value
+        does win. Snapshot lens identity remains authoritative. Old manifests
+        without a prior contract cannot recover caller/target values never
+        stored (for example invocation label, target path or truncation state).
+        Default resume never reads the live registry or target file to guess
+        them. Explicit force-relens still replaces the lens-derived template
+        with the live template while retaining accepted substitutions.
+
     Defaults:
         - ``contract_version="1.0"`` -- mirrors :class:`ResultContract`
           (T01.25) so the manifest and its terminal contract carry the same
@@ -1375,9 +1399,11 @@ class Manifest:
         round-trips losslessly via JSON (``from_json(to_json(x)) == x``).
         Combined with ``to_json`` ``sort_keys=True``, two encodings of the
         same Manifest are byte-identical -- the INV-016 source-of-truth
-        guarantee. The ``resolved_lens_entry`` snapshot is preserved
-        verbatim through the round-trip (T01.27 acceptance:
-        "resolved_lens_entry preserved verbatim").
+        guarantee for newly encoded populated manifests. An old JSON document
+        missing optional fields remains readable, but canonical re-encoding adds
+        their defaults; resume does not re-encode or rewrite the original file,
+        preserving its exact bytes, including formatting and absent keys. The
+        ``resolved_lens_entry`` snapshot is preserved verbatim through round-trip.
 
     Cross-field validation -- ``contract_version`` semver compatibility
     against the schema layer's recognized versions (NFR-006), ``job_id``
@@ -1406,6 +1432,13 @@ class Manifest:
     # no-arg-construction safe, round-trip lossless via the nested-dataclass
     # helpers.
     caller_metadata: "CallerMetadata" = field(default_factory=lambda: CallerMetadata())
+    # None means historical context is unavailable; empty values are accepted
+    # context and must not trigger fallback during resume.
+    caller: Optional["CallerInfo"] = None
+    target: Optional["ContractTarget"] = None
+    lens_source: Optional[str] = None
+    recommended_next_command_template: Optional[str] = None
+    recommended_next_command_substitutions: Optional[dict[str, str]] = None
 
 
 @dataclass(frozen=True)

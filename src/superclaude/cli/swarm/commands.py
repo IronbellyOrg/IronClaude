@@ -2131,7 +2131,9 @@ def run_cmd(
             for w in normalized_workers
             if w.status == "success" and w.final_path
         ]
-        next_cmd_subs = dict(inline_job.recommended_next_command_substitutions or {})
+        next_cmd_subs = dict(
+            preflight_result.manifest.recommended_next_command_substitutions or {}
+        )
         next_cmd_subs.setdefault(
             "suspect_files",
             ",".join(succeeded_final_paths)
@@ -2149,10 +2151,13 @@ def run_cmd(
             workers_requested=(preflight_result.manifest.preflight.workers_requested),
             status_policy=inline_job.status_policy,
             job_id=preflight_result.manifest.job_id,
-            lens=inline_job.output.lens_name or (lens or ""),
+            lens=preflight_result.manifest.resolved_lens_entry.name,
+            lens_source=preflight_result.manifest.lens_source or "",
+            caller=preflight_result.manifest.caller,
+            target=preflight_result.manifest.target,
             caller_metadata=preflight_result.caller_metadata,
             recommended_next_command_template=(
-                inline_job.recommended_next_command_template
+                preflight_result.manifest.recommended_next_command_template or ""
             ),
             recommended_next_command_substitutions=next_cmd_subs,
             resume=False,
@@ -2309,6 +2314,55 @@ def discover_succeeded_slots(
             status="success",
         )
     return succeeded
+
+
+def _prior_resume_context(output_dir: Path, job_id: str) -> dict[str, Any]:
+    """Load only well-shaped context from a same-job historical contract."""
+    import yaml
+
+    try:
+        prior = yaml.safe_load(
+            (output_dir / "return-contract.yaml").read_text(encoding="utf-8")
+        )
+    except (OSError, UnicodeError, yaml.YAMLError):
+        return {}
+    if (
+        not isinstance(prior, dict)
+        or prior.get("job_id") != job_id
+        or prior.get("contract_version") != "1.0"
+    ):
+        return {}
+    context: dict[str, Any] = {}
+    for name in ("lens", "lens_source", "recommended_next_command"):
+        value = prior.get(name)
+        if isinstance(value, str):
+            context[name] = value
+    shapes = {
+        "caller": {
+            "skill": (str, type(None)),
+            "skill_version": (str, type(None)),
+            "invocation_label": (str,),
+            "kind": (str,),
+        },
+        "caller_metadata": {"suspect": (bool,), "tier": (str,)},
+        "target": {
+            "path": (str,),
+            "checksum": (str,),
+            "truncated": (bool,),
+            "truncation_line_cap": (int,),
+        },
+    }
+    for name, shape in shapes.items():
+        value = prior.get(name)
+        if isinstance(value, dict) and all(
+            key in value and type(value[key]) in types for key, types in shape.items()
+        ):
+            context[name] = {key: value[key] for key in shape}
+    if context.get("caller", {}).get("kind") not in ("cli", "claude", "subprocess"):
+        context.pop("caller", None)
+    if context.get("lens_source") not in ("", "registry", "custom"):
+        context.pop("lens_source", None)
+    return context
 
 
 def _run_resume_branch(
@@ -2575,6 +2629,68 @@ def _run_resume_branch(
         # via IMM-5 based on M/N.
 
     # ----- Wave 3 reduce with resume=True (merge regen per INV-010) ---------
+    from superclaude.cli.swarm.models import CallerInfo, CallerMetadata, ContractTarget
+
+    # Explicit manifest values win, including empty strings/dicts and false.
+    # Only legacy/missing context consults the prior contract, BEFORE reduce
+    # overwrites it. Historical reducer stubs (empty lens/command and false/"")
+    # are not evidence of accepted overrides and must not mask the snapshot.
+    prior = {}
+    if (
+        any(
+            value is None
+            for value in (
+                manifest_obj.caller,
+                manifest_obj.target,
+                manifest_obj.lens_source,
+                manifest_obj.recommended_next_command_template,
+            )
+        )
+        or "caller_metadata" not in manifest_dict
+    ):
+        prior = _prior_resume_context(output_path, manifest_obj.job_id)
+    snapshot = manifest_obj.resolved_lens_entry
+    context_lens = snapshot.name or prior.get("lens", "")
+    context_source = manifest_obj.lens_source
+    if context_source is None:
+        context_source = prior.get("lens_source") or (
+            "custom"
+            if context_lens == "custom"
+            else ("registry" if context_lens else "")
+        )
+    context_caller = manifest_obj.caller
+    if context_caller is None:
+        context_caller = _from_dict(CallerInfo, prior.get("caller", {}))
+    context_target = manifest_obj.target
+    if context_target is None:
+        context_target = _from_dict(ContractTarget, prior.get("target", {}))
+        if not context_target.checksum:
+            context_target.checksum = manifest_obj.preflight.target_checksum[:12]
+    context_metadata = manifest_obj.caller_metadata
+    if "caller_metadata" not in manifest_dict:
+        prior_metadata = prior.get("caller_metadata", {})
+        context_metadata = (
+            _from_dict(CallerMetadata, prior_metadata)
+            if prior_metadata and prior_metadata != {"suspect": False, "tier": ""}
+            else CallerMetadata(suspect=snapshot.suspect, tier=snapshot.tier)
+        )
+    next_template = rehydrated_spec.recommended_next_command_template
+    if not force_relens and manifest_obj.recommended_next_command_template is None:
+        prior_command = prior.get("recommended_next_command", "")
+        if prior_command:
+            # Already rendered historical text is literal, not a new template.
+            next_template = prior_command.replace("{", "{{").replace("}", "}}")
+    succeeded_final_paths = [
+        w.final_path for w in combined if w.status == "success" and w.final_path
+    ]
+    next_cmd_subs = dict(rehydrated_spec.recommended_next_command_substitutions)
+    next_cmd_subs.setdefault(
+        "suspect_files",
+        ",".join(succeeded_final_paths) if succeeded_final_paths else "<no-bare-files>",
+    )
+    next_cmd_subs.setdefault(
+        "compare_files", ",".join(["<existing-review>", *succeeded_final_paths])
+    )
     reduce_wave3(
         combined,
         mode=amalgamation_mode,
@@ -2582,6 +2698,13 @@ def _run_resume_branch(
         workers_requested=workers_requested,
         status_policy=rehydrated_spec.status_policy,
         job_id=manifest_obj.job_id,
+        lens=context_lens,
+        lens_source=context_source,
+        caller=context_caller,
+        caller_metadata=context_metadata,
+        target=context_target,
+        recommended_next_command_template=next_template,
+        recommended_next_command_substitutions=next_cmd_subs,
         resume=True,
     )
 

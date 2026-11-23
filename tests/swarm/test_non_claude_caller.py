@@ -451,11 +451,10 @@ def test_caller_kind_does_not_alter_structural_contract(tmp_path: Path) -> None:
     """AC-016: ``caller.kind`` never gates control flow.
 
     Two invocations identical except for ``caller.kind`` ("claude" vs
-    "subprocess") must produce structurally equivalent manifests. The
-    manifest schema does not surface ``caller.kind``, so the two paths
-    produce byte-identical ``manifest.json`` payloads. A regression
-    that started routing on ``caller.kind`` -- or leaked the value into
-    the manifest -- would diverge the two payloads and fail this gate.
+    "subprocess") must produce structurally equivalent manifests. Accepted
+    caller context is now persisted for resume, so only its recorded kind
+    differs; every other field must stay identical. A regression that routes
+    on ``caller.kind`` and changes dispatch context still fails this gate.
     """
     target = tmp_path / "target.py"
     _make_target(target)
@@ -510,8 +509,10 @@ def test_caller_kind_does_not_alter_structural_contract(tmp_path: Path) -> None:
     subprocess_payload = json.loads(
         (out_subprocess / "manifest.json").read_text(encoding="utf-8")
     )
+    assert claude_payload["caller"].pop("kind") == "claude"
+    assert subprocess_payload["caller"].pop("kind") == "subprocess"
     assert claude_payload == subprocess_payload, (
-        "caller.kind influenced the manifest contract -- AC-016 violation.\n"
+        "caller.kind influenced context beyond its recorded value -- AC-016 violation.\n"
         f"claude: {claude_payload}\nsubprocess: {subprocess_payload}"
     )
 
