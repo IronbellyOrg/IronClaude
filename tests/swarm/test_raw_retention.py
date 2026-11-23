@@ -194,13 +194,17 @@ def test_completed_resume_preserves_raw_inventory_at_emission(
     "policy", ["enabled-custom", "disabled", "historical", "disabled-custom-context"]
 )
 def test_partial_resume_retains_original_slot_paths(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, force_relens: bool, policy: str
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    force_relens: bool,
+    policy: str,
 ) -> None:
     import dataclasses
 
     import superclaude.cli.swarm.dispatch as dispatch_mod
     import superclaude.cli.swarm.preflight as preflight_mod
     import superclaude.cli.swarm.reduce as reduce_mod
+    from superclaude.cli.swarm.lenses import LENSES
     from superclaude.cli.swarm.models import CallerMetadata
 
     combined = policy == "disabled-custom-context"
@@ -211,54 +215,75 @@ def test_partial_resume_retains_original_slot_paths(
 
         def accepted_preflight(spec: Any, **kwargs: Any) -> Any:
             spec["caller"] = {
-                "skill": "context-test",
-                "skill_version": "1.0",
-                "invocation_label": "accepted",
-                "kind": "cli",
+                "skill": "context-test", "skill_version": "1.0",
+                "invocation_label": "accepted", "kind": "cli",
             }
             spec["target"]["truncation"]["line_cap"] = 3
             spec["recommended_next_command_template"] = (
-                "inspect {job_id} {suspect_files}"
+                "inspect {job_id} {suspect_files} {compare_files}"
             )
             spec["recommended_next_command_substitutions"] = {
-                "job_id": "accepted-job",
-                "suspect_files": "accepted-files",
+                "job_id": "accepted-job", "suspect_files": "accepted-files",
+                "compare_files": "accepted-compare",
             }
             return real_preflight(
-                spec,
-                caller_metadata_override=CallerMetadata(suspect=False, tier="T1"),
-                **kwargs,
+                spec, caller_metadata_override=CallerMetadata(suspect=False, tier="T1"), **kwargs
             )
 
         monkeypatch.setattr(preflight_mod, "run_preflight", accepted_preflight)
-        from superclaude.cli.swarm.lenses import LENSES
-
+    output, job_id, lens = _persist_resume_job(
+        tmp_path, retain_raw=not disabled, custom_names=custom
+    )
+    manifest_path = output / "manifest.json"
+    if combined:
+        accepted = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert isinstance(accepted["caller"], dict), "accepted caller must be persisted"
+        assert isinstance(accepted["target"], dict), "accepted target must be persisted"
+        assert accepted["caller"]["invocation_label"] == "accepted"
+        assert accepted["caller_metadata"] == {"suspect": False, "tier": "T1"}
+        assert accepted["target"]["truncated"] is True
+        assert accepted["target"]["truncation_line_cap"] == 3
+        assert accepted["lens_source"] == "registry"
+        assert accepted["retain_raw"] is False
+        assert accepted["output_lens_name"] == lens
         live = dataclasses.replace(
             LENSES["bare-review"],
             recommended_next_command_template="live {job_id} {suspect_files}",
         )
         monkeypatch.setattr(preflight_mod, "resolve_lens", lambda _: live)
-    output, job_id, lens = _persist_resume_job(
-        tmp_path, retain_raw=not disabled, custom_names=custom
-    )
-    manifest_path = output / "manifest.json"
-    accepted = json.loads(manifest_path.read_text())
+        recovered = preflight_mod.resume_mode(manifest_path, force_relens=force_relens)
+        assert dataclasses.asdict(recovered.caller) == accepted["caller"]
+        assert recovered.target.path == accepted["target"]["path"]
+        assert recovered.target.truncation.line_cap == 3
+        assert recovered.recommended_next_command_substitutions == accepted[
+            "recommended_next_command_substitutions"
+        ]
+        assert recovered.normalization.on_parse_error.retain_raw is False
+        assert recovered.output.lens_name == lens
+        assert recovered.output.filename_template == accepted["output_filename_template"]
+        expected_template = (
+            live.recommended_next_command_template if force_relens
+            else accepted["recommended_next_command_template"]
+        )
+        assert recovered.recommended_next_command_template == expected_template
     if policy == "historical":
-        for key in ("retain_raw", "output_filename_template", "output_lens_name"):
-            accepted.pop(key)
-        manifest_path.write_text(json.dumps(accepted))
-    before_manifest = manifest_path.read_bytes()
+        manifest_path = output / "manifest.json"
+        payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+        # Keep only fields present before durable retention/naming recovery.
+        original_fields = {
+            "contract_version", "job_id", "resolved_lens_entry", "preflight",
+            "caller_metadata",
+        }
+        payload = {key: value for key, value in payload.items() if key in original_fields}
+        manifest_path.write_text(json.dumps(payload), encoding="utf-8")
+    manifest_before = manifest_path.read_bytes()
     for index in (0, 2):
         _seed_resume_slot(output, index, lens)
     preserved = {
-        p.name: p.read_bytes()
-        for p in output.iterdir()
+        p.name: p.read_bytes() for p in output.iterdir()
         if p.name.endswith((".raw.md", ".final.md", ".meta.json"))
     }
-    bodies = {
-        1: "## Verdict\nResumed café one.\r\n\n",
-        3: "## Verdict\nResumed three.\n",
-    }
+    bodies = {1: "## Verdict\nResumed café one.\r\n\n", 3: "## Verdict\nResumed three.\n"}
     dispatched = []
 
     def fake_dispatch(preflight_result: Any, **kwargs: Any) -> list[WorkerResult]:
@@ -278,35 +303,37 @@ def test_partial_resume_retains_original_slot_paths(
 
     def check_emit(contract: Any, directory: Path) -> Path:
         observed.append(contract)
-        assert [w.index for w in contract.output_files] == [0, 1, 2, 3]
+        assert [worker.index for worker in contract.output_files] == [0, 1, 2, 3]
         if combined:
+            assert contract.lens == "bare-review"
+            assert contract.lens_source == "registry"
             assert dataclasses.asdict(contract.caller) == accepted["caller"]
-            assert (
-                dataclasses.asdict(contract.caller_metadata)
-                == accepted["caller_metadata"]
-            )
+            assert dataclasses.asdict(contract.caller_metadata) == accepted["caller_metadata"]
             assert dataclasses.asdict(contract.target) == accepted["target"]
             assert contract.recommended_next_command == (
-                "live accepted-job accepted-files"
-                if force_relens
-                else "inspect accepted-job accepted-files"
+                "live accepted-job accepted-files" if force_relens
+                else "inspect accepted-job accepted-files accepted-compare"
             )
+            for worker in contract.output_files:
+                if worker.index in bodies:
+                    stem = f"{lens}-{worker.index:02d}-saved-fixture-model-{worker.index}"
+                    assert worker.final_path == str(output / f"{stem}.final.md")
+                    assert worker.meta_path == str(output / f"{stem}.meta.json")
+        # Check the raw seam first; absent final/meta should not mask the defect.
         for worker in contract.output_files:
             if disabled:
-                assert worker.raw_path == ""
+                assert worker.raw_path == "", "disabled resumed retention advertises nothing"
             elif worker.index in bodies:
                 extra = "saved-" if custom else ""
                 stem = f"{lens}-{worker.index:02d}-{extra}fixture-model-{worker.index}"
-                assert worker.raw_path == str(output / f"{stem}.raw.md")
-                assert Path(worker.raw_path).read_bytes() == bodies[
-                    worker.index
-                ].encode("utf-8")
+                expected = output / f"{stem}.raw.md"
+                assert worker.raw_path == str(expected), "resume must restore original naming and slot indexes"
+                assert expected.read_bytes() == bodies[worker.index].encode("utf-8")
             else:
                 assert Path(worker.raw_path).is_file()
+        for worker in contract.output_files:
             assert Path(worker.final_path).is_file()
             assert Path(worker.meta_path).is_file()
-            if custom and worker.index in bodies:
-                assert "-saved-" in Path(worker.final_path).name
         assert {name: (output / name).read_bytes() for name in preserved} == preserved
         if disabled:
             assert {p.name for p in output.glob("*.raw.md")} == {
@@ -325,7 +352,7 @@ def test_partial_resume_retains_original_slot_paths(
     assert result.exit_code == 0, result.output
     assert dispatched == [True]
     assert len(observed) == 1
-    assert manifest_path.read_bytes() == before_manifest
+    assert manifest_path.read_bytes() == manifest_before
 
 
 @pytest.mark.parametrize("force_relens", [False, True])
@@ -423,3 +450,67 @@ def test_resume_discovers_saved_custom_layout(
             expected = template.format(lens=lens, index=worker["index"], model_slug=f"fixture-model-{worker['index']}")[:-3]
             assert worker["final_path"] == str(output / f"{expected}.final.md")
     assert {p: (output / p).read_bytes() for p in preserved} == preserved
+
+
+@pytest.mark.parametrize("force_relens", [False, True])
+@pytest.mark.parametrize("retain_raw", [True, False])
+def test_custom_resume_normalization_preserves_provenance_and_retention(
+    tmp_path, monkeypatch, force_relens, retain_raw
+):
+    from superclaude.cli.swarm import preflight as preflight_mod
+
+    real_preflight = preflight_mod.run_preflight
+
+    def accepted_recipe(spec, **kwargs):
+        spec["normalization"]["recipe_args"] = {
+            "caller_label": "accepted-retention-label", "target_truncated": False,
+        }
+        return real_preflight(spec, **kwargs)
+
+    monkeypatch.setattr(preflight_mod, "run_preflight", accepted_recipe)
+    output, job_id, lens = _persist_resume_job(
+        tmp_path, retain_raw=retain_raw, custom_names=True
+    )
+    manifest_bytes = (output / "manifest.json").read_bytes()
+    manifest = json.loads(manifest_bytes)
+    for index in (0, 2):
+        _seed_resume_slot(output, index, lens)
+    completed = {path.name: path.read_bytes() for path in output.iterdir()
+                 if path.name.endswith((".raw.md", ".final.md", ".meta.json"))}
+    Path(manifest["target"]["path"]).write_text("# changed live target\n" * 8)
+
+    def captured_dispatch(*args, **kwargs):
+        workers = []
+        for position, original in enumerate((1, 3)):
+            worker = WorkerResult(
+                index=position, model_id=f"fixture-model-{original}", status="success"
+            )
+            worker.body = f"## Verdict\nCaptured café slot {original}.\n"
+            workers.append(worker)
+        return workers
+
+    monkeypatch.setattr("superclaude.cli.swarm.dispatch.dispatch_wave1", captured_dispatch)
+    args = ["--resume", job_id, "--output", str(output)]
+    if force_relens:
+        args.append("--force-relens")
+    result = CliRunner().invoke(run_cmd, args)
+    assert result.exit_code == 0, result.output
+    contract = yaml.safe_load((output / "return-contract.yaml").read_text())
+    for worker in contract["output_files"]:
+        if worker["index"] not in (1, 3):
+            continue
+        final = Path(worker["final_path"])
+        assert "-saved-" in final.name
+        provenance = yaml.safe_load(final.read_text().split("---", 2)[1])
+        assert provenance["target"] == manifest["target"]["path"]
+        assert provenance["target_checksum"] == manifest["preflight"]["target_checksum"]
+        assert provenance["caller_label"] == "accepted-retention-label"
+        assert provenance["target_truncated"] is False
+        meta = json.loads(Path(worker["meta_path"]).read_text())
+        assert meta["status"] == "success"
+        assert meta["recipe"] == "bare-review-v1"
+        assert bool(worker["raw_path"]) is retain_raw
+        if retain_raw:
+            assert "Captured café" in Path(worker["raw_path"]).read_text()
+    assert {name: (output / name).read_bytes() for name in completed} == completed
+    assert (output / "manifest.json").read_bytes() == manifest_bytes
