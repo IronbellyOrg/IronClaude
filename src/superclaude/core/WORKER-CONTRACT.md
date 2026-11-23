@@ -68,7 +68,7 @@ These bind the top-level session that received the dispatch preamble. This secti
 
 ## 4. Coordinator rules
 
-These bind the coordinator: an Orca coordinator session the person opened. It plans, creates Tasks, starts workers, reads their reports and performs every outward action.
+These bind the coordinator: an Orca coordinator session, whether a person opened it or a script started it. It plans, creates Tasks, starts workers, reads their reports and performs every outward action.
 
 ### WC-6. Every retry is a new Task
 
