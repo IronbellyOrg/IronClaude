@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 import yaml
@@ -95,3 +96,81 @@ def test_completed_replay_allows_zero_byte_final(tmp_path, monkeypatch, final_pr
     contract = yaml.safe_load((output / "return-contract.yaml").read_text())
     assert contract["output_files"][0]["final_path"] == (str(final) if final_present else "")
     assert all((output / p).read_bytes() == data for p, data in before.items())
+
+
+@pytest.mark.parametrize("prior_final", [False, True])
+@pytest.mark.parametrize("canonical_is_final", [False, True])
+def test_empty_normalization_does_not_advertise_planned_final(
+    tmp_path, prior_final, canonical_is_final
+):
+    from superclaude.cli.swarm.normalize import normalize_wave2
+
+    from .test_normalize import _make_worker
+
+    worker = _make_worker(tmp_path, 0, body="")
+    worker.path = worker.final_path if canonical_is_final else worker.raw_path
+    final = Path(worker.final_path)
+    if prior_final:
+        final.write_text("Older output must not masquerade as this empty result.")
+    before = inventory(tmp_path)
+    [out] = normalize_wave2([worker], "passthrough")
+    assert out.status == "success" and out.bytes == 0
+    assert out.final_path == ""
+    assert out.path == ("" if canonical_is_final else worker.raw_path)
+    assert Path(out.meta_path).is_file()
+    assert worker.final_path == str(final), "normalization must not mutate input"
+    assert all((tmp_path / p).read_bytes() == data for p, data in before.items())
+
+
+@pytest.mark.parametrize(("body", "status"), [
+    ("## Verdict\nGood.\n", "success"), ("unstructured", "success"),
+    ("", "success"), (None, "success"), (42, "success"),
+    ("failed body", "proxy_error"), ("parse-error body", "parse_error"),
+])
+@pytest.mark.parametrize("retain", [False, True])
+def test_two_partial_resumes_truthful_paths(tmp_path, monkeypatch, body, status, retain):
+    output, job, lens = _persist_resume_job(tmp_path, retain_raw=retain, custom_names=True)
+    _seed_resume_slot(output, 0, lens)
+    calls = []
+
+    def dispatch(preflight_result, **kwargs):
+        calls.append(preflight_result.manifest.preflight.workers_requested)
+        # One success per invocation leaves a genuine partial job twice.
+        worker = WorkerResult(index=0, model_id=f"battle-{len(calls)}", status=status)
+        if body is not None:
+            worker.body = body
+        return [worker]
+
+    monkeypatch.setattr("superclaude.cli.swarm.dispatch.dispatch_wave1", dispatch)
+    manifest = (output / "manifest.json").read_bytes()
+    missing = []
+    for _ in range(2):
+        completed = {p: data for p, data in inventory(output).items()
+                     if str(p).endswith((".final.md", ".meta.json", ".raw.md"))}
+        result = resume(output, job)
+        if result.exception and not isinstance(result.exception, SystemExit):
+            raise result.exception
+        assert result.exit_code in (0, 1), result.output
+        contract = yaml.safe_load((output / "return-contract.yaml").read_text())
+        assert (output / "manifest.json").read_bytes() == manifest
+        assert all((output / p).read_bytes() == data for p, data in completed.items())
+        for worker in contract["output_files"]:
+            # Failed statuses may retain a planned final write target. Only
+            # successful normalization promises a usable final output.
+            keys = ("raw_path", "meta_path")
+            if worker["status"] == "success":
+                keys += ("final_path",)
+            else:
+                assert worker["status"] == status
+                assert worker["final_path"].endswith(".final.md")
+                assert not Path(worker["final_path"]).exists()
+            for key in keys:
+                if worker[key]:
+                    if not Path(worker[key]).is_file():
+                        missing.append((len(calls), worker["index"], key))
+            if not retain:
+                assert worker["raw_path"] == ""
+        command = contract["recommended_next_command"]
+        assert all(w["final_path"] in command for w in contract["output_files"] if w["status"] == "success" and w["final_path"])
+    assert len(calls) == 2
+    assert not missing, f"advertised paths absent after actual repeated resumes: {missing}"
