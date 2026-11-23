@@ -1,0 +1,41 @@
+input_tree_sha256: 50a657e3ab67297bed5a917e59f6ae03acd48851a21d4640509faf38d98de2a5
+file_count: 19
+file_list:
+  - path: .dev/brainstorms/20261108-132433-orca-observer-mvp/merged-requirements.md
+    sha256: 229849b8383fe06f8f1f4fe70b0391cdc5c6c4c88c3030c9ffe4502d99ad06b3
+  - path: .dev/issues/409/bmad/spec-orca-observer/ARCHITECTURE-SPINE.md
+    sha256: 4018c06e4a8b5d11c7d9082a363e6e459e19ad9f3894d404ee2770acac8f6c1f
+  - path: .dev/issues/409/bmad/spec-orca-observer/SPEC.md
+    sha256: ad81732c784db9743c2cd0b7e1518d85e288f162f2a86add91c9a6f7163d8fed
+  - path: .dev/issues/409/bmad/spec-orca-observer/acceptance-tests.md
+    sha256: 932639f44f8bb10dc5ddaae67d5f41215d28c3d243d0c122b77cedee6f0ab83f
+  - path: .dev/issues/409/bmad/spec-orca-observer/adapter-contract.md
+    sha256: 0d393753d8c9700a565f6736a9121c3be8cdeabcc6607faa8462ef0823f9f187
+  - path: .dev/issues/409/bmad/spec-orca-observer/owner-decisions-and-risks.md
+    sha256: d8024c9d9393f91062a0f64c0b90e14ab346318e5403b3c7ed63d5d680d178d1
+  - path: .dev/issues/409/bmad/spec-orca-observer/release-gates.md
+    sha256: 8845d196daf5f1a3683d5b84c90a752e321d94331ff306e7b018f9669ec593de
+  - path: .dev/issues/409/bmad/spec-orca-observer/rendering-rules.md
+    sha256: dca4914334729fbc06cdc84da1885756b4f575e6c5b54008153e98db941b5654
+  - path: .dev/issues/409/bmad/spec-orca-observer/snapshot-export-schema.md
+    sha256: 259d2aceb6751323bf31b4e2a878dae461dfcc3ab63149ec08d29bcc2b6e16d1
+  - path: .dev/issues/409/bmad/spec-orca-observer/stack.md
+    sha256: cbe0298a76077544d139b39a1edb7cecbafecc4d220780462e0c0f37c8049bd4
+  - path: .dev/issues/409/bmad/spec-orca-observer/unverified-register.md
+    sha256: 21db3313fc5eb7697c5709475d9aeb795cab8a99ea31ced95aa7265ef0c1a9ef
+  - path: .dev/issues/409/owner-decisions-20261108.md
+    sha256: 5916b3981efee5e99cf1ccba80be5f0587745a07233c13c1e311db77b88bc29c
+  - path: .dev/issues/409/tuibbs-review/architecture-options.md
+    sha256: e6c0adbc8c2097b260a4acfaab4de2c91722930dfa97914038467e8a1a715835
+  - path: .dev/tasks/to-do/TASK-WF-buildRelease1OfT-20261111-164757/TASK-WF-buildRelease1OfT-20261111-164757.md
+    sha256: 7c92ee4e423cdef254d4133f266da35658a25931d9bee245a213e910598c6405
+  - path: .dev/tasks/to-do/TASK-WF-buildRelease1OfT-20261111-164757/source.md
+    sha256: 0d1c17106b08ca2794f547de98244e9a89ab7f6ef86ad859dd2949ca75a8a1e5
+  - path: src/superclaude/cli/eval/pty_stream.py
+    sha256: 03cbe9ca791278382143b7cbca3f26ad55ca69efaffb80b600ddda277c649308
+  - path: src/superclaude/cli/install_user_setup.py
+    sha256: c64f62c7e1e7347e44e12928deb47ecd8534a9a204d4cb4c0276ecd403c1a077
+  - path: src/superclaude/cli/main.py
+    sha256: 4dd5b9bd858e80758bd2e1ed007b89fe52aed36482fe23cad74cf93becb7b005
+  - path: src/superclaude/cli/sprint/monitor.py
+    sha256: 02ea67c90da5060531c879c6ba75195a6bd0fc625512bad73e276523198df8ea

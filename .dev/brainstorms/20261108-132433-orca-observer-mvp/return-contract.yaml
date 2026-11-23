@@ -1,0 +1,25 @@
+contract_version: "1.0"
+stable:
+  status: "success"
+  seed_brief_path: ".dev/brainstorms/20261108-132433-orca-observer-mvp/seed-brief.md"
+  merged_output_path: ".dev/brainstorms/20261108-132433-orca-observer-mvp/merged-requirements.md"
+  convergence_score: 1.00  # majority rule; strict 3/3 score 0.88
+  adversarial_artifacts_dir: ".dev/brainstorms/20261108-132433-orca-observer-mvp/adversarial/adversarial/"
+  handoff_action: "none"
+  handoff_output_path: null
+  unresolved_conflicts: 0  # 7 points at 2 of 3 recorded as dissents, not conflicts
+telemetry:
+  domain: "architecture"
+  strategy: "agile"
+  depth: "deep"
+  proposal_count: 3
+  agent_spec: "opus:architect,opus:analyzer,haiku:backend"
+  debate_rounds: 3  # Round 3 triggered by HIGH invariant INV-019
+  enrichment_used:
+    - source: "codebase"
+      quality_tier: "fallback_1"
+    - source: "research-light"
+      quality_tier: "fallback_1"
+  deviations:
+    - "Adversarial artifacts landed in the nested path adversarial/adversarial/ instead of adversarial/."
+    - "Merge log Before/After summaries were written by the merge agent from memory plus the plan, not re-verified line by line."

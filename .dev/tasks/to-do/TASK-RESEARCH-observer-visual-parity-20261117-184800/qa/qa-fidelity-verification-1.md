@@ -1,0 +1,1 @@
+Not run (recorded deviation). Gate 4 had zero blocking findings, so no fix was applied and there are no fixes to verify. The two fidelity reports themselves (qa-source-fidelity-report-1.md and -2.md, both PASS with 0 blocking) are the review. Verdict: PASS. Remaining blocking count: 0.

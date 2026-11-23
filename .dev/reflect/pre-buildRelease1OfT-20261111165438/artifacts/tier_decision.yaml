@@ -1,0 +1,7 @@
+selected_tier: 2
+fired_rule_number: null
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: null
+per_signal_breakdown: {}
+escalation_reason: "table-wide pre-filter: coverage_degraded parsed-sparse (23 inferred rows, 0 parsed) forbids a Tier 1 stop (SKILL step 1B.2b)"

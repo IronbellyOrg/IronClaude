@@ -1,0 +1,35 @@
+contract_version: 1.8.0
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-phase3OfTheOrcaT-20261117062037/REPORT.md
+output_dir: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-phase3OfTheOrcaT-20261117062037/
+verdict: fail
+confidence_calibrated: 0.30
+citations_total: 111
+citations_revalidated: 111
+citations_dropped: 1
+citations_inferred: 3
+citation_budget_policy: full_reread
+coverage_degraded: parsed-sparse
+merge_method: adversarial
+adversarial_convergence_score: 1.0
+adversarial_convergence_status: BLOCKED_BY_INVARIANTS
+unaddressed_invariants:
+  - INV-008
+  - INV-021
+t2_model_class_diversity: full
+calibrator_diversity: degraded
+t2_vendor_diversity: single
+executor_class_resolved: false
+input_drift_detected: false
+input_tree_sha256: 2659d3f2b1f7f56e195e36340476a22a4ea4648ddc738eaa1187eb86f643323d
+needs_human_decision: true
+plan_edited: false
+promotion: not_applicable
+memory_write: skipped   # tracked docs/memory write deliberately not done
+findings:
+  blocking: 3
+  medium: 7
+  note: 5
+  invariant_open: 21

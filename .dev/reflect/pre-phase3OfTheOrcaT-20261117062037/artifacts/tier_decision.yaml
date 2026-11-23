@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 4               # S_domains >= 3 (code, tests, docs)
+coverage_degraded: parsed-sparse   # Step 1B.2b: 0 parsed rows, 13 inferred rows; table-wide pre-filter, forbids a Tier 1 stop
+surface_unreached: null
+composite_score: 7.0
+per_signal_breakdown:
+  scope_size: 1                    # 7 tasks
+  task_count: 1
+  blast_radius: 2                  # parse, collector, view, render, export, commands, docs
+  spec_density: 1                  # one inline prompt, no labeled ids
+  ambiguity_signals: 2             # tier 1 calibrated 0.30, parsed-sparse
+escalation_reason: "coverage_degraded parsed-sparse forbids a Tier 1 stop; S_domains 3 (rule 4); Tier 1 calibrated confidence 0.30 (rule 6)"
+t2_engine_requested: null
+t2_engine_effective: null
+panel_fallback_reason: null

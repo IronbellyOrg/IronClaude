@@ -1,0 +1,39 @@
+contract_version: "1.8.0"
+status: partial   # REPORT.md could not be written: the harness refused the file write; the report text was returned in the final message instead
+mode: pre
+tier_reached: 2
+report_path: null
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-executeNowBrief-20261116204114/audit.log
+confidence_calibrated: 0.76
+escalation_rule_matched: 4
+coverage_pct: null
+coverage_pct_union: 0.8696
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-021, INF-022, INF-023]
+input_tree_sha256: af40b43a9a7a29cc78c43b4bbe6889cd98c0fca682f53f355f02eb156f7f7dd6
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-executeNowBrief-20261116204114/artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_total: 23
+citations_revalidated: 23
+citations_dropped: 0
+citations_inferred: 3
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+reviewer_cards: [reviewer-cards/reviewer-1-card.md, reviewer-cards/reviewer-2-card.md, reviewer-cards/reviewer-3-card.md]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-executeNowBrief-20261116204114/adversarial
+adversarial_convergence_score: 0.8947
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+memory_persist_skipped: true   # calling workflow forbids repository changes outside the plan package
+needs_human_decision: false
+budget_check_skipped: true

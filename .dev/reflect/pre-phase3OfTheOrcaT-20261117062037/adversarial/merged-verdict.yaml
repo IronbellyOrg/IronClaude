@@ -1,0 +1,39 @@
+merge_method: adversarial
+verdict: fail                      # plan must be revised before /sc:implement runs it
+convergence_score: 1.0             # 28 of 28 diff points agreed after Round 2
+convergence_status: BLOCKED_BY_INVARIANTS   # INV-008 and INV-021 (UNADDRESSED HIGH) were not debated
+base_variant: variant-1 (analyzer, sonnet)
+source_cards:
+  - ../reviewer-cards/reviewer-1-card.md
+  - ../reviewer-cards/reviewer-2-card.md
+  - ../reviewer-cards/reviewer-3-card.md
+merged_card: ./adversarial/merged-review-card.md
+blocking_findings:
+  - id: C-001
+    task: 3
+    class: Gap
+    summary: "--once path (commands.py:218) never gets link=; only the interactive Collector call (commands.py:350) is named"
+  - id: C-002
+    task: 4
+    class: Regression
+    summary: "Editing QUESTIONS_KEYS_LINE changes every questions-on screen, breaking 'link off behaves exactly as today' (view.py:914)"
+  - id: C-003
+    task: 6
+    class: Gap
+    summary: "Snapshot check 'no dispatch id of a question' cannot pass with the linked worker present, because rows[].dispatchId is exported (export.py:131-145, :195)"
+medium_findings: [C-004, C-005, C-006, C-009, C-011, C-012, C-013]
+note_findings: [C-007, C-008, C-010, C-014, C-015]
+invariant_probe:
+  total: 34
+  unaddressed_high: [INV-008, INV-021]
+  unaddressed_medium: [INV-001, INV-004, INV-009, INV-010, INV-011, INV-012, INV-013, INV-015, INV-016, INV-017, INV-018]
+unaddressed_invariants:
+  - {id: INV-008, category: count_divergence, assumption: "replacing the subject with the question text keeps the line's honesty labels", severity: HIGH}
+  - {id: INV-021, category: sufficiency_challenge, assumption: "the 10 candidate edits alone make the plan executable and correct", severity: HIGH}
+artifacts:
+  diff_analysis: ./adversarial/diff-analysis.md
+  debate_transcript: ./adversarial/debate-transcript.md
+  base_selection: ./adversarial/base-selection.md
+  refactor_plan: ./adversarial/refactor-plan.md
+  merge_log: ./adversarial/merge-log.md
+  invariant_probe: ./adversarial/invariant-probe.md

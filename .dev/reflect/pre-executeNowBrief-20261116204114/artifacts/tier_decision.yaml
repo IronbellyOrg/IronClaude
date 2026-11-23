@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 4   # pre-filter coverage_degraded (table-wide) fires first; first row that matches the table is rule 4 (S_domains >= 3); rule 6 (C < 0.85) also true
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6.0
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 2
+  blast_radius: 1
+  spec_density: 1
+  ambiguity_signals: 1
+escalation_reason: "coverage_degraded parsed-sparse (23 inferred vs 0 parsed) forbids the Tier-1 stop; S_domains 3 (rule 4); calibrated C 0.762 < 0.85 (rule 6)"
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null

@@ -1,0 +1,17 @@
+input_tree_sha256: 2659d3f2b1f7f56e195e36340476a22a4ea4648ddc738eaa1187eb86f643323d
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-phase3OfTheOrcaT-20261117-061534/TASK-WF-phase3OfTheOrcaT-20261117-061534.md
+    sha256: 7296aa5e904bb5ef12d02b68ff5d40ec1465588c319c1c02b1335019a80ea05e
+  - path: .dev/tasks/to-do/TASK-WF-phase3OfTheOrcaT-20261117-061534/source.md
+    sha256: 9b6df68d3b310fc2548da3ddb2beebbb82586073c9d8e43a3c427a882d4bf7fb
+  - path: .dev/issues/409/bmad/spec-orca-observer/SPEC.md
+    sha256: 3067ab4fc06987cc1d4ddedc09b1948d0a14dbc1e23d00065c9b07f99dddc7dd
+  - path: .dev/issues/409/bmad/spec-orca-observer/acceptance-tests.md
+    sha256: 1f50412d17e0f3b2f8345a3d00ef6cf6b60d5d9dcecfaece92fc6af7030e2df4
+  - path: .dev/issues/409/bmad/spec-orca-observer/adapter-contract.md
+    sha256: 965e219558bc08f155306bf02d682b52e7a67a5646097fad36a26a78129af19c
+  - path: .dev/issues/409/bmad/spec-orca-observer/release-gates.md
+    sha256: d7559255bf1ac70bf2f4273b7d97005dcf1160995c87c7c216a9e5d64de3e37e
+  - path: .dev/issues/409/bmad/spec-orca-observer/rendering-rules.md
+    sha256: 7061cf8715398557cc38965ef782e09d943555d070b14a2ae2926da358779ee1
+file_count: 7

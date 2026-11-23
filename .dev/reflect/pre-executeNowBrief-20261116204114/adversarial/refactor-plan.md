@@ -1,0 +1,3 @@
+# Refactor Plan (auto-approved)
+Base V3. Changes: (1) add V1 F1 as a blocking finding; (2) add V1 F9; (3) demote the package-acceptance finding to non-blocking drift with the baseline caveat (V2, V1, V3 agree after Round 2); (4) add INV-001 (Task 10 must keep "release-gates.md" and "Task 18" in the commands.py comment); (5) drop V1 F6 docstring half (Task 5 rewrites it) and the withdrawn "final count never stated" claim; (6) merge duplicates F4/F7, F5/F8, F6/F9, F7/F10, F8/F11 across cards.
+Not made: V3 F2 blocking=false is kept; INV-002 rejected (refuted on disk); import-sorting claim rejected (withdrawn by V3).
