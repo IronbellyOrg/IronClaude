@@ -995,6 +995,14 @@ def _slugify_model(value: str, fallback: str) -> str:
     return slug or fallback
 
 
+def _normalization_recipe_args(job: "JobSpec", target_checksum: str) -> dict[str, Any]:
+    """Apply accepted provenance defaults identically on fresh and resumed jobs."""
+    args = dict(job.normalization.recipe_args or {})
+    args.setdefault("target", job.target.path)
+    args.setdefault("target_checksum", target_checksum)
+    return args
+
+
 def _read_truncated_target(job: "JobSpec") -> str:
     """Return the truncated target body for inline prompt assembly (B-5).
 
@@ -2121,11 +2129,8 @@ def run_cmd(
         # it (per-worker model_id is uniform on the single-model stub / parity
         # path). caller_label arrives via spec ``normalization.recipe_args`` (the
         # --label override); target + checksum are supplied here from preflight.
-        recipe_args = dict(inline_job.normalization.recipe_args or {})
-        recipe_args.setdefault("target", inline_job.target.path)
-        recipe_args.setdefault(
-            "target_checksum",
-            preflight_result.manifest.preflight.target_checksum,
+        recipe_args = _normalization_recipe_args(
+            inline_job, preflight_result.manifest.preflight.target_checksum
         )
         normalized_workers = normalize_wave2(
             stamped_workers,
@@ -2673,10 +2678,24 @@ def _run_resume_branch(
 
     # ----- Wave 2 normalize (redispatched workers only) ---------------------
     if redispatched and recipe_name:
+        recipe_args = _normalization_recipe_args(
+            rehydrated_spec, manifest_obj.preflight.target_checksum
+        )
+        if (
+            manifest_obj.target is None
+            and "target" not in rehydrated_spec.normalization.recipe_args
+        ):
+            # Old manifests may still have accepted target context in the
+            # same-job prior contract. Never read a live target for metadata.
+            prior_target = _prior_resume_context(output_path, manifest_obj.job_id).get(
+                "target", {}
+            )
+            recipe_args["target"] = prior_target.get("path", "")
         try:
             redispatched = normalize_wave2(
                 redispatched,
                 recipe_name=recipe_name,
+                recipe_args=recipe_args,
             )
         except KeyError as exc:
             click.echo(

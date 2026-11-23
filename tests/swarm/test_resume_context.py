@@ -601,3 +601,63 @@ def test_resume_mode_keeps_accepted_worker_policy(tmp_path, monkeypatch):
             from_dict(JobSpec, spec).workers
         )
     assert (output / "manifest.json").read_bytes() == before
+
+
+@pytest.mark.parametrize("force_relens", [False, True])
+@pytest.mark.parametrize("empty_label", [False, True])
+@pytest.mark.parametrize("legacy_context", [False, True])
+def test_partial_resume_keeps_accepted_normalization_provenance(
+    tmp_path, monkeypatch, force_relens, empty_label, legacy_context
+):
+    from superclaude.cli.swarm import commands as commands_mod
+    from superclaude.cli.swarm.models import WorkerResult
+
+    original = preflight_mod.run_preflight
+
+    def with_recipe_args(spec, **kwargs):
+        spec["normalization"]["recipe_args"] = {
+            "caller_label": "" if empty_label else "accepted-recipe-label",
+            "target_truncated": False,
+        }
+        return original(spec, **kwargs)
+
+    monkeypatch.setattr(preflight_mod, "run_preflight", with_recipe_args)
+    output, spec, fresh = _fresh(tmp_path, monkeypatch)
+    if legacy_context:
+        _legacy(output)
+    first = next(output.glob("*.final.md"))
+    expected = yaml.safe_load(first.read_text().split("---", 2)[1])
+    next(path for path in output.glob("*.meta.json") if "-01-" in path.name).unlink()
+    preserved = {
+        path.name: path.read_bytes() for path in output.iterdir()
+        if path.name.endswith((".raw.md", ".final.md", ".meta.json"))
+        and "-01-" not in path.name
+    }
+    manifest_before = (output / "manifest.json").read_bytes()
+    Path(spec["target"]["path"]).write_text("# changed live input\n" * 5)
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("normalization provenance must not reread changed live inputs")
+
+    def captured_dispatch(*args, **kwargs):
+        worker = WorkerResult(index=0, model_id="captured-provenance", status="success")
+        worker.body = "## Verdict\nCaptured normalized result.\n"
+        return [worker]
+
+    monkeypatch.setattr(commands_mod, "_read_truncated_target", forbidden)
+    monkeypatch.setattr(preflight_mod, "_default_target_loader", forbidden)
+    monkeypatch.setattr("superclaude.cli.swarm.dispatch.dispatch_wave1", captured_dispatch)
+    args = ["--resume", "stored-context", "--output", str(output)]
+    if force_relens:
+        args.append("--force-relens")
+    result = CliRunner().invoke(run_cmd, args)
+    assert result.exit_code == 0, result.output
+    resumed = yaml.safe_load((output / "return-contract.yaml").read_text())
+    worker = next(worker for worker in resumed["output_files"] if worker["index"] == 1)
+    provenance = yaml.safe_load(Path(worker["final_path"]).read_text().split("---", 2)[1])
+    for field in ("target", "target_checksum", "caller_label", "target_truncated"):
+        assert provenance[field] == expected[field], field
+    assert len(provenance["target_checksum"]) == 64
+    assert resumed["target"] == fresh["target"]
+    assert {name: (output / name).read_bytes() for name in preserved} == preserved
+    assert (output / "manifest.json").read_bytes() == manifest_before

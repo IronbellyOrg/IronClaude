@@ -1883,6 +1883,7 @@ def run_preflight(
         output_lens_name=job.output.lens_name,
         accepted_workers=from_dict(WorkerSpec, dataclasses.asdict(job.workers)),
         accepted_prompt=dataclasses.replace(job.prompt),
+        accepted_recipe_args=dataclasses.asdict(job.normalization)["recipe_args"],
     )
     state = SwarmState(
         state="preflight_ok",
@@ -2036,6 +2037,7 @@ def resume_mode(
             ),
             normalization=NormalizationSpec(
                 recipe=live_snapshot.recipe_name,
+                recipe_args=dict(manifest.accepted_recipe_args or {}),
                 on_parse_error=OnParseError(retain_raw=manifest.retain_raw),
             ),
             output=output,
@@ -2062,6 +2064,7 @@ def resume_mode(
         ),
         normalization=NormalizationSpec(
             recipe=snapshot.recipe_name,
+            recipe_args=dict(manifest.accepted_recipe_args or {}),
             on_parse_error=OnParseError(retain_raw=manifest.retain_raw),
         ),
         output=output,
