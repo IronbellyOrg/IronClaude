@@ -159,7 +159,7 @@ Do not edit the issue after you re-approve it (section 6).
 
 ## 6. Setup order for each issue
 
-**First, a coordinator.** The watcher's claim runs at the issue's Pipeline level (while the ship gate is closed only `--pipeline none` launches): it assigns the issue, posts its comments and stops, and a person-opened coordinator starts the plan-writing worker. Nothing starts for a claimed issue while the coordinator is down, so a coordinator must be running before the cron entry of section 8.7 is installed and before you approve any issue. The coordinator's rules are in `src/superclaude/core/WORKER-CONTRACT.md` (section 4, "Issue pipeline duties"); the first live test and its record are in `docs/designs/issue-pipeline-fu1.md`.
+**First, a coordinator.** The watcher's claim runs at the issue's Pipeline level (while the ship gate is closed only `--pipeline none` launches): it assigns the issue, posts its comments and stops, and a coordinator starts the plan-writing worker. Nothing starts for a claimed issue while the coordinator is down, so a coordinator must be running before the cron entry of section 8.7 is installed and before you approve any issue. The coordinator's rules are in `src/superclaude/core/WORKER-CONTRACT.md` (section 4, "Issue pipeline duties"); the first live test and its record are in `docs/designs/issue-pipeline-fu1.md`.
 
 For each open issue you want the watcher to pick up, do these three steps in this order. The order matters because the approval has to be later than the trigger.
 
