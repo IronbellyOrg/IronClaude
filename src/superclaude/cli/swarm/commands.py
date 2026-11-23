@@ -2253,25 +2253,19 @@ def discover_succeeded_slots(
 ) -> dict[int, WorkerResult]:
     """T06.04 -- scan ``output_dir`` for succeeded worker meta sidecars.
 
-    Reject escaping paths and duplicate successful slot evidence before reuse.
-    Saved templates are validated before scanning the historical top-level layout.
-
-    Returns ``{slot_index: WorkerResult}`` for every ``*.meta.json``
-    sidecar whose ``status`` field is ``"success"``. The slot index is
-    extracted from the filename via :data:`_META_SLOT_INDEX_RE` (the
-    ``-NN-`` segment between the lens prefix and the model slug). Slots
-    outside ``[0, workers_requested)`` are ignored so a stale sidecar
-    from a prior run with a different ``workers.count`` cannot influence
-    the resume decision.
+    Returns ``{slot_index: WorkerResult}`` for successful confined sidecars.
+    With saved naming policy, match each original slot against that template
+    and the historical canonical layout, including nested paths. Reject
+    multiple slot matches and duplicate successful sidecars rather than guess.
+    Two-argument callers retain the top-level historical numeric parser.
+    Slots outside ``[0, workers_requested)`` are ignored.
 
     The reconstructed :class:`WorkerResult` carries:
 
         * ``index`` -- the slot the sidecar names.
         * ``meta_path`` -- absolute path to the on-disk sidecar.
         * ``final_path`` -- absolute path to the sibling
-          ``…-NN-….final.md`` body when it exists; empty string when
-          absent (a sidecar without a final body still counts as
-          succeeded but downstream merge gates on ``final_path``).
+          ``…-NN-….final.md`` body when it exists; empty string when absent.
         * ``raw_path`` -- absolute path to the sibling
           ``…-NN-….raw.md`` when it exists.
         * ``status`` -- ``"success"`` (the only branch admitted here).
@@ -2296,31 +2290,67 @@ def discover_succeeded_slots(
 
     from superclaude.cli.swarm.state import confine_path
 
-    if lens_name is not None:
-        template = filename_template or "{lens}-{index:02d}-{model_slug}.md"
-        fields = list(Formatter().parse(template))
-        if not any(field == "index" for _, field, _, _ in fields):
-            raise ValueError("output naming cannot uniquely identify worker slots")
-        if any(field not in (None, "lens", "index", "model_slug")
-               for _, field, _, _ in fields):
-            raise ValueError("unsupported output naming field")
-        for index in range(workers_requested):
-            rendered = template.format(lens=lens_name, index=index, model_slug="slot")
-            confine_path(output_dir / rendered, output_dir)
     succeeded: dict[int, WorkerResult] = {}
+    patterns: list[tuple[int, re.Pattern[str]]] = []
+    if lens_name is not None:
+        templates = dict.fromkeys([
+            filename_template or "{lens}-{index:02d}-{model_slug}.md",
+            "{lens}-{index:02d}-{model_slug}.md",
+        ])
+        for template in templates:
+            fields = list(Formatter().parse(template))
+            if not any(field == "index" for _, field, _, _ in fields):
+                raise ValueError("output naming cannot uniquely identify worker slots")
+            for index in range(workers_requested):
+                rendered = template.format(lens=lens_name, index=index, model_slug="slot")
+                confine_path(output_dir / rendered, output_dir)
+                parts = []
+                seen_slug = False
+                for literal, field, spec, conversion in fields:
+                    parts.append(re.escape(literal))
+                    if field is None:
+                        continue
+                    if field == "model_slug" and not spec and conversion is None:
+                        parts.append(r"(?P<slug>[^/\\]+)" if not seen_slug else r"(?P=slug)")
+                        seen_slug = True
+                    elif field in ("lens", "index"):
+                        value = {"lens": lens_name, "index": index}[field]
+                        parts.append(re.escape(Formatter().format_field(
+                            Formatter().convert_field(value, conversion) if conversion else value,
+                            spec,
+                        )))
+                    else:
+                        raise ValueError("unsupported output naming field")
+                expression = "".join(parts)
+                if expression.endswith(r"\.md"):
+                    expression = expression[:-4]
+                patterns.append((index, re.compile(expression + r"\.meta\.json")))
     if not output_dir.is_dir():
         return succeeded
-    for candidate in sorted(output_dir.glob("*")):
+    for candidate in sorted(output_dir.rglob("*")):
+        # Check directory symlinks too: rglob does not traverse them.
         confine_path(candidate, output_dir)
         if not candidate.name.endswith(".meta.json"):
             continue
-        meta_file = confine_path(candidate, output_dir)
-        match = _META_SLOT_INDEX_RE.search(meta_file.name)
-        if match is None:
+        relative = candidate.relative_to(output_dir).as_posix()
+        identities: dict[int, str] = {}
+        if lens_name is not None:
+            for index, pattern in patterns:
+                match = pattern.fullmatch(relative)
+                if match:
+                    identities.setdefault(index, match.groupdict().get("slug") or f"slot{index:02d}")
+        elif candidate.parent == output_dir:
+            match = _META_SLOT_INDEX_RE.search(candidate.name)
+            if match:
+                identities[int(match.group(1))] = candidate.name[match.end(1) + 1 : -len(".meta.json")]
+        if not identities:
             continue
-        slot_index = int(match.group(1))
+        if len(identities) != 1:
+            raise ValueError("ambiguous worker slot identity")
+        slot_index, slug_tail = identities.popitem()
         if slot_index < 0 or slot_index >= workers_requested:
             continue
+        meta_file = confine_path(candidate, output_dir)
         try:
             payload = json.loads(meta_file.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
@@ -2336,11 +2366,6 @@ def discover_succeeded_slots(
         stem = meta_file.name[: -len(".meta.json")]
         final_candidate = confine_path(meta_file.parent / f"{stem}.final.md", output_dir)
         raw_candidate = confine_path(meta_file.parent / f"{stem}.raw.md", output_dir)
-        # Recover the model_label from the filename segment between the
-        # slot index and the ``.meta.json`` suffix. The capture's tail
-        # is the model_slug; we surface it verbatim so merge provenance
-        # carries the same label the original run stamped.
-        slug_tail = meta_file.name[match.end(1) + 1 : -len(".meta.json")]
         if slot_index in succeeded:
             raise ValueError("ambiguous duplicate worker slot sidecars")
         bytes_written = payload.get("bytes", 0)
