@@ -81,6 +81,8 @@ from superclaude.cli.swarm.models import (
     LensEntry,
     Manifest,
     NormalizationSpec,
+    OnParseError,
+    OutputSpec,
     PreflightSummary,
     PromptSpec,
     ResolvedLensEntry,
@@ -1876,6 +1878,9 @@ def run_preflight(
         recommended_next_command_substitutions=dict(
             job.recommended_next_command_substitutions
         ),
+        retain_raw=job.normalization.on_parse_error.retain_raw,
+        output_filename_template=job.output.filename_template,
+        output_lens_name=job.output.lens_name,
     )
     state = SwarmState(
         state="preflight_ok",
@@ -1998,6 +2003,15 @@ def resume_mode(
         else {}
     )
 
+    output = OutputSpec(
+        filename_template=manifest.output_filename_template,
+        lens_name=(
+            snapshot.name
+            if manifest.output_lens_name is None
+            else manifest.output_lens_name
+        ),
+    )
+
     if force_relens:
         live_entry: LensEntry = resolve_lens(snapshot.name)
         live_snapshot: ResolvedLensEntry = ResolvedLensEntry.from_lens(live_entry)
@@ -2013,7 +2027,11 @@ def resume_mode(
                 system=live_snapshot.system_prompt_fragment,
                 user_template=live_snapshot.user_template,
             ),
-            normalization=NormalizationSpec(recipe=live_snapshot.recipe_name),
+            normalization=NormalizationSpec(
+                recipe=live_snapshot.recipe_name,
+                on_parse_error=OnParseError(retain_raw=manifest.retain_raw),
+            ),
+            output=output,
             recommended_next_command_template=(
                 live_snapshot.recommended_next_command_template
             ),
@@ -2031,7 +2049,11 @@ def resume_mode(
             system=snapshot.system_prompt_fragment,
             user_template=snapshot.user_template,
         ),
-        normalization=NormalizationSpec(recipe=snapshot.recipe_name),
+        normalization=NormalizationSpec(
+            recipe=snapshot.recipe_name,
+            on_parse_error=OnParseError(retain_raw=manifest.retain_raw),
+        ),
+        output=output,
         recommended_next_command_template=(
             manifest.recommended_next_command_template
             if manifest.recommended_next_command_template is not None

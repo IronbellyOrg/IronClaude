@@ -74,6 +74,9 @@ EXPECTED_TOP_LEVEL_FIELDS: tuple[str, ...] = (
     "lens_source",
     "recommended_next_command_template",
     "recommended_next_command_substitutions",
+    "retain_raw",
+    "output_filename_template",
+    "output_lens_name",
 )
 
 
@@ -87,6 +90,21 @@ EXPECTED_PREFLIGHT_FIELDS: tuple[str, ...] = (
 # ---------------------------------------------------------------------------
 # Field-completeness.
 # ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("lens_name", [None, "", "saved-review"])
+@pytest.mark.parametrize("retain_raw", [True, False])
+def test_manifest_round_trips_retention_and_naming(lens_name, retain_raw) -> None:
+    manifest = Manifest(
+        retain_raw=retain_raw,
+        output_filename_template="{lens}-{index:02d}-saved-{model_slug}.md",
+        output_lens_name=lens_name,
+    )
+    assert from_json(Manifest, to_json(manifest)) == manifest
+    historical = from_dict(Manifest, {})
+    assert historical.retain_raw is True
+    assert historical.output_filename_template == "{lens}-{index:02d}-{model_slug}.md"
+    assert historical.output_lens_name is None
 
 
 def test_manifest_is_a_dataclass() -> None:

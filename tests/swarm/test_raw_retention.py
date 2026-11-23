@@ -1,0 +1,372 @@
+"""Raw transport text and saved output policy survive fresh and resumed runs."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+import pytest
+from click.testing import CliRunner
+
+from superclaude.cli.swarm.commands import _build_spec_from_lens, run_cmd
+from superclaude.cli.swarm.models import WorkerResult
+
+
+@pytest.mark.parametrize("retention", ["default", "disabled", "disabled-stale"])
+@pytest.mark.parametrize(
+    ("body_kind", "status", "body"),
+    [
+        ("success", "success", "## Verdict\nKeep café intact.\r\n\n"),
+        ("parse-error", "parse_error", "unstructured café\r\n\n"),
+        ("empty", "success", ""),
+        ("missing", "success", None),
+        ("nonstring", "success", 42),
+    ],
+)
+def test_fresh_run_raw_retention_at_contract_emission(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    retention: str,
+    body_kind: str,
+    status: str,
+    body: Any,
+) -> None:
+    """Check disk before emission, using real preflight, normalize and reduce."""
+    import superclaude.cli.swarm.dispatch as dispatch_mod
+    import superclaude.cli.swarm.reduce as reduce_mod
+
+    target = tmp_path / "target.py"
+    target.write_text("# A real review target with enough content.\n" * 4)
+    output = tmp_path / "out"
+    spec = _build_spec_from_lens("bare-review")
+    spec["target"]["path"] = str(target)
+    spec["output"]["dir"] = str(output)
+    spec["workers"]["count"] = 1
+    spec["workers"]["models"] = ["fixture-model"]
+    spec["transport"]["kind"] = "stub"
+    if retention != "default":
+        spec["normalization"]["on_parse_error"]["retain_raw"] = False
+    raw_file = output / "bare-review-00-fixture-model.raw.md"
+    if retention == "disabled-stale":
+        output.mkdir()
+        raw_file.write_bytes(b"previous run body\n")
+
+    def fake_dispatch(*args: Any, **kwargs: Any) -> list[WorkerResult]:
+        worker = WorkerResult(index=0, model_id="fixture-model", status=status)
+        if body_kind != "missing":
+            worker.body = body
+        return [worker]
+
+    real_emit = reduce_mod.emit_contract
+    observed = []
+
+    def check_emit(contract: Any, directory: Path) -> Path:
+        observed.append(contract)
+        assert len(contract.output_files) == 1
+        worker = contract.output_files[0]
+        assert worker.status == status
+        assert Path(worker.meta_path).is_file()
+        if body_kind == "success":
+            assert Path(worker.final_path).is_file()
+        if retention != "default" or not isinstance(body, str):
+            assert worker.raw_path == ""
+        else:
+            assert worker.raw_path == str(raw_file)
+            assert raw_file.read_bytes() == body.encode("utf-8")
+        if retention == "disabled":
+            assert not raw_file.exists()
+        if retention == "disabled-stale":
+            assert raw_file.read_bytes() == b"previous run body\n"
+        return real_emit(contract, directory)
+
+    monkeypatch.setattr(dispatch_mod, "dispatch_wave1", fake_dispatch)
+    monkeypatch.setattr(reduce_mod, "emit_contract", check_emit)
+    result = CliRunner().invoke(
+        run_cmd, ["--stdin", "--output", str(output)], input=json.dumps(spec)
+    )
+    if result.exception is not None:
+        raise result.exception
+    assert result.exit_code == 0, result.output
+    assert len(observed) == 1
+
+
+def _persist_resume_job(
+    tmp_path: Path, *, retain_raw: bool = True, custom_names: bool = False
+) -> tuple[Path, str, str]:
+    """Persist the real Wave-0 manifest, not a fabricated recovery policy."""
+    from superclaude.cli.swarm.preflight import run_preflight
+
+    target = tmp_path / "target.py"
+    target.write_text("# Review this real target.\n" * 8, encoding="utf-8")
+    output = tmp_path / "out"
+    spec = _build_spec_from_lens("bare-review")
+    spec["target"]["path"] = str(target)
+    spec["output"]["dir"] = str(output)
+    spec["workers"]["count"] = 4
+    spec["workers"]["models"] = [f"fixture-model-{i}" for i in range(4)]
+    spec["transport"]["kind"] = "stub"
+    spec["normalization"]["on_parse_error"]["retain_raw"] = retain_raw
+    lens = "saved-review" if custom_names else "bare-review"
+    template = "{lens}-{index:02d}-saved-{model_slug}.md"
+    if custom_names:
+        spec["output"]["lens_name"] = lens
+        spec["output"]["filename_template"] = template
+    result = run_preflight(spec, output_dir=output)
+    return output, result.manifest.job_id, lens
+
+
+def _seed_resume_slot(output: Path, index: int, lens: str) -> None:
+    """Simulate a completed worker, including the actual sibling inventory."""
+    stem = f"{lens}-{index:02d}-fixture-model-{index}"
+    body = f"## Verdict\nPrior café body {index}.\r\n\n".encode()
+    (output / f"{stem}.raw.md").write_bytes(body)
+    (output / f"{stem}.final.md").write_bytes(body)
+    (output / f"{stem}.meta.json").write_text(
+        json.dumps({"status": "success", "bytes": len(body)}), encoding="utf-8"
+    )
+
+
+@pytest.mark.parametrize("force_relens", [False, True])
+@pytest.mark.parametrize("retain_raw", [True, False])
+def test_resume_restores_persisted_retention_and_naming(
+    tmp_path: Path, force_relens: bool, retain_raw: bool
+) -> None:
+    from superclaude.cli.swarm.preflight import resume_mode
+
+    output, _, lens = _persist_resume_job(
+        tmp_path, retain_raw=retain_raw, custom_names=True
+    )
+    recovered = resume_mode(output / "manifest.json", force_relens=force_relens)
+    assert recovered.normalization.on_parse_error.retain_raw is retain_raw
+    assert recovered.output.lens_name == lens
+    assert (
+        recovered.output.filename_template == "{lens}-{index:02d}-saved-{model_slug}.md"
+    )
+
+
+@pytest.mark.parametrize("retain_raw", [True, False])
+def test_completed_resume_preserves_raw_inventory_at_emission(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, retain_raw: bool
+) -> None:
+    import superclaude.cli.swarm.dispatch as dispatch_mod
+    import superclaude.cli.swarm.reduce as reduce_mod
+
+    output, job_id, lens = _persist_resume_job(tmp_path, retain_raw=retain_raw)
+    for index in range(4):
+        _seed_resume_slot(output, index, lens)
+    before = {p.name: p.read_bytes() for p in output.iterdir() if p.suffix != ".yaml"}
+
+    def unexpected_dispatch(*args: Any, **kwargs: Any) -> Any:
+        pytest.fail("completed workers must not be redispatched")
+
+    real_emit = reduce_mod.emit_contract
+    observed = []
+
+    def check_emit(contract: Any, directory: Path) -> Path:
+        observed.append(contract)
+        assert len(contract.output_files) == 4
+        for worker in contract.output_files:
+            if retain_raw:
+                assert (
+                    Path(worker.raw_path).read_bytes()
+                    == before[Path(worker.raw_path).name]
+                )
+            else:
+                assert worker.raw_path == ""
+        return real_emit(contract, directory)
+
+    monkeypatch.setattr(dispatch_mod, "dispatch_wave1", unexpected_dispatch)
+    monkeypatch.setattr(reduce_mod, "emit_contract", check_emit)
+    result = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(output)])
+    if result.exception is not None:
+        raise result.exception
+    assert result.exit_code == 0, result.output
+    assert len(observed) == 1
+    for name, data in before.items():
+        if name.endswith((".raw.md", ".final.md", ".meta.json", "manifest.json")):
+            assert (output / name).read_bytes() == data
+
+
+@pytest.mark.parametrize("force_relens", [False, True])
+@pytest.mark.parametrize(
+    "policy", ["enabled-custom", "disabled", "historical", "disabled-custom-context"]
+)
+def test_partial_resume_retains_original_slot_paths(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, force_relens: bool, policy: str
+) -> None:
+    import dataclasses
+
+    import superclaude.cli.swarm.dispatch as dispatch_mod
+    import superclaude.cli.swarm.preflight as preflight_mod
+    import superclaude.cli.swarm.reduce as reduce_mod
+    from superclaude.cli.swarm.models import CallerMetadata
+
+    combined = policy == "disabled-custom-context"
+    custom = policy == "enabled-custom" or combined
+    disabled = policy == "disabled" or combined
+    if combined:
+        real_preflight = preflight_mod.run_preflight
+
+        def accepted_preflight(spec: Any, **kwargs: Any) -> Any:
+            spec["caller"] = {
+                "skill": "context-test",
+                "skill_version": "1.0",
+                "invocation_label": "accepted",
+                "kind": "cli",
+            }
+            spec["target"]["truncation"]["line_cap"] = 3
+            spec["recommended_next_command_template"] = (
+                "inspect {job_id} {suspect_files}"
+            )
+            spec["recommended_next_command_substitutions"] = {
+                "job_id": "accepted-job",
+                "suspect_files": "accepted-files",
+            }
+            return real_preflight(
+                spec,
+                caller_metadata_override=CallerMetadata(suspect=False, tier="T1"),
+                **kwargs,
+            )
+
+        monkeypatch.setattr(preflight_mod, "run_preflight", accepted_preflight)
+        from superclaude.cli.swarm.lenses import LENSES
+
+        live = dataclasses.replace(
+            LENSES["bare-review"],
+            recommended_next_command_template="live {job_id} {suspect_files}",
+        )
+        monkeypatch.setattr(preflight_mod, "resolve_lens", lambda _: live)
+    output, job_id, lens = _persist_resume_job(
+        tmp_path, retain_raw=not disabled, custom_names=custom
+    )
+    manifest_path = output / "manifest.json"
+    accepted = json.loads(manifest_path.read_text())
+    if policy == "historical":
+        for key in ("retain_raw", "output_filename_template", "output_lens_name"):
+            accepted.pop(key)
+        manifest_path.write_text(json.dumps(accepted))
+    before_manifest = manifest_path.read_bytes()
+    for index in (0, 2):
+        _seed_resume_slot(output, index, lens)
+    preserved = {
+        p.name: p.read_bytes()
+        for p in output.iterdir()
+        if p.name.endswith((".raw.md", ".final.md", ".meta.json"))
+    }
+    bodies = {
+        1: "## Verdict\nResumed café one.\r\n\n",
+        3: "## Verdict\nResumed three.\n",
+    }
+    dispatched = []
+
+    def fake_dispatch(preflight_result: Any, **kwargs: Any) -> list[WorkerResult]:
+        assert preflight_result.manifest.preflight.workers_requested == 2
+        dispatched.append(True)
+        workers = []
+        for position, original in enumerate((1, 3)):
+            worker = WorkerResult(
+                index=position, model_id=f"fixture-model-{original}", status="success"
+            )
+            worker.body = bodies[original]
+            workers.append(worker)
+        return workers
+
+    real_emit = reduce_mod.emit_contract
+    observed = []
+
+    def check_emit(contract: Any, directory: Path) -> Path:
+        observed.append(contract)
+        assert [w.index for w in contract.output_files] == [0, 1, 2, 3]
+        if combined:
+            assert dataclasses.asdict(contract.caller) == accepted["caller"]
+            assert (
+                dataclasses.asdict(contract.caller_metadata)
+                == accepted["caller_metadata"]
+            )
+            assert dataclasses.asdict(contract.target) == accepted["target"]
+            assert contract.recommended_next_command == (
+                "live accepted-job accepted-files"
+                if force_relens
+                else "inspect accepted-job accepted-files"
+            )
+        for worker in contract.output_files:
+            if disabled:
+                assert worker.raw_path == ""
+            elif worker.index in bodies:
+                extra = "saved-" if custom else ""
+                stem = f"{lens}-{worker.index:02d}-{extra}fixture-model-{worker.index}"
+                assert worker.raw_path == str(output / f"{stem}.raw.md")
+                assert Path(worker.raw_path).read_bytes() == bodies[
+                    worker.index
+                ].encode("utf-8")
+            else:
+                assert Path(worker.raw_path).is_file()
+            assert Path(worker.final_path).is_file()
+            assert Path(worker.meta_path).is_file()
+            if custom and worker.index in bodies:
+                assert "-saved-" in Path(worker.final_path).name
+        assert {name: (output / name).read_bytes() for name in preserved} == preserved
+        if disabled:
+            assert {p.name for p in output.glob("*.raw.md")} == {
+                name for name in preserved if name.endswith(".raw.md")
+            }
+        return real_emit(contract, directory)
+
+    monkeypatch.setattr(dispatch_mod, "dispatch_wave1", fake_dispatch)
+    monkeypatch.setattr(reduce_mod, "emit_contract", check_emit)
+    args = ["--resume", job_id, "--output", str(output)]
+    if force_relens:
+        args.append("--force-relens")
+    result = CliRunner().invoke(run_cmd, args)
+    if result.exception is not None:
+        raise result.exception
+    assert result.exit_code == 0, result.output
+    assert dispatched == [True]
+    assert len(observed) == 1
+    assert manifest_path.read_bytes() == before_manifest
+
+
+@pytest.mark.parametrize("force_relens", [False, True])
+def test_resume_preserves_explicit_empty_output_lens(tmp_path, force_relens):
+    from superclaude.cli.swarm.preflight import resume_mode
+
+    output, _, _ = _persist_resume_job(tmp_path)
+    path = output / "manifest.json"
+    payload = json.loads(path.read_text())
+    payload["output_lens_name"] = ""
+    path.write_text(json.dumps(payload))
+    assert resume_mode(path, force_relens=force_relens).output.lens_name == ""
+
+
+@pytest.mark.parametrize("inventory", ["missing", "directory"])
+def test_discovered_raw_path_requires_a_file(tmp_path, inventory):
+    from superclaude.cli.swarm.commands import discover_succeeded_slots
+
+    output, _, lens = _persist_resume_job(tmp_path)
+    stem = f"{lens}-00-fixture-model-0"
+    (output / f"{stem}.meta.json").write_text(json.dumps({"status": "success"}))
+    if inventory == "directory":
+        (output / f"{stem}.raw.md").mkdir()
+    assert discover_succeeded_slots(output, 4)[0].raw_path == ""
+
+
+@pytest.mark.parametrize("escape", ["parent", "symlink"])
+def test_shared_worker_paths_reject_output_escape(tmp_path: Path, escape: str) -> None:
+    from superclaude.cli.swarm.commands import _stamp_inline_worker_paths
+    from superclaude.cli.swarm.state import OutputConfinementError
+
+    output = tmp_path / "out"
+    output.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    if escape == "symlink":
+        (output / "linked").symlink_to(outside, target_is_directory=True)
+        template = "linked/{lens}-{index:02d}-{model_slug}.md"
+    else:
+        template = "../outside/{lens}-{index:02d}-{model_slug}.md"
+    worker = WorkerResult(index=0, model_id="fixture-model", status="success")
+    worker.body = "## Verdict\nDo not write outside the output directory.\n"
+    with pytest.raises(OutputConfinementError):
+        _stamp_inline_worker_paths([worker], output, "bare-review", template)
+    assert list(outside.iterdir()) == []
