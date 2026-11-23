@@ -306,14 +306,15 @@ def test_update_preserves_workers_across_polls(tmp_path) -> None:
                     payload={},
                 )
             )
-        assert len(tui._events) <= 6  # Retention depends on workers, not poll count.
+        assert len(tui._events) <= 8  # At most four representatives per worker.
         idle = poll()
         assert "alpha-7b" in idle and "beta-13b" in idle and "timeout" in idle
     finally:
         tui.stop()
 
 
-def test_update_bounds_events_and_uses_last_arriving_completion() -> None:
+@pytest.mark.parametrize("label_on_done", [False, True])
+def test_update_bounds_events_and_uses_last_arriving_completion(label_on_done) -> None:
     """Floods and older timestamps cannot evict rows or change arrival order."""
     tui = TUI()
     state = SwarmState(state="dispatching", job_id="job-ordering")
@@ -326,9 +327,21 @@ def test_update_bounds_events_and_uses_last_arriving_completion() -> None:
     tui.update(
         state,
         [
-            event(0, "worker_progress", "2026-06-01T15:00:02Z", model_id="first"),
+            event(
+                0,
+                "worker_progress",
+                "2026-06-01T15:00:02Z",
+                **({} if label_on_done else {"model_id": "first"}),
+            ),
             event(1, "worker_start", "2026-06-01T15:00:00Z", model_label="second"),
-            event(0, "worker_done", "2026-06-01T15:00:10Z", status="success"),
+            event(
+                0,
+                "worker_done",
+                "2026-06-01T15:00:10Z",
+                status="success",
+                elapsed_ms=10000,
+                **({"model_label": "first"} if label_on_done else {}),
+            ),
         ],
     )
     tui.update(

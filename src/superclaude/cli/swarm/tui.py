@@ -260,7 +260,16 @@ class TUI:
             payload = event.payload or {}
             label = payload.get("model_label") or payload.get("model_id")
             if isinstance(label, str) and label:
-                retained.setdefault((idx, "label"), event)
+                # A label must not replay an obsolete completion's timing.
+                retained.setdefault(
+                    (idx, "label"),
+                    EventRecord(
+                        event_type="worker_progress",
+                        timestamp=event.timestamp,
+                        worker_index=idx,
+                        payload={"model_label": label},
+                    ),
+                )
             if event.event_type in ("worker_start", "worker_progress"):
                 retained.setdefault((idx, event.event_type), event)
             elif event.event_type == "worker_done":
