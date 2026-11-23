@@ -2265,7 +2265,10 @@ def discover_succeeded_slots(
         * ``index`` -- the slot the sidecar names.
         * ``meta_path`` -- absolute path to the on-disk sidecar.
         * ``final_path`` -- absolute path to the sibling
-          ``…-NN-….final.md`` body when it exists; empty string when absent.
+          ``…-NN-….final.md`` body when it is a regular file; empty
+          string when absent and the sidecar reports no positive bytes.
+          A non-file final or a missing positive-byte final is rejected
+          as contradictory completed evidence.
         * ``raw_path`` -- absolute path to the sibling
           ``…-NN-….raw.md`` when it exists.
         * ``status`` -- ``"success"`` (the only branch admitted here).
@@ -2373,12 +2376,15 @@ def discover_succeeded_slots(
             bytes_int = int(bytes_written)
         except (TypeError, ValueError):
             bytes_int = 0
+        final_is_file = final_candidate.is_file()
+        if not final_is_file and (final_candidate.exists() or bytes_int > 0):
+            raise ValueError("completed worker final output is not a regular file")
         succeeded[slot_index] = WorkerResult(
             index=slot_index,
-            path=str(final_candidate) if final_candidate.exists() else "",
+            path=str(final_candidate) if final_is_file else "",
             raw_path=str(raw_candidate) if raw_candidate.is_file() else "",
             meta_path=str(meta_file),
-            final_path=str(final_candidate) if final_candidate.exists() else "",
+            final_path=str(final_candidate) if final_is_file else "",
             model_id=slug_tail,
             model_label=slug_tail,
             bytes=bytes_int,
