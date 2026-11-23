@@ -2703,7 +2703,13 @@ def _run_resume_branch(
             else CallerMetadata(suspect=snapshot.suspect, tier=snapshot.tier)
         )
     next_template = rehydrated_spec.recommended_next_command_template
-    if not force_relens and manifest_obj.recommended_next_command_template is None:
+    if (
+        not force_relens
+        and manifest_obj.recommended_next_command_template is None
+        and not next_template
+    ):
+        # Prefer the accepted snapshot template: a prior rendered command can
+        # contain only the workers that had succeeded before this resume.
         prior_command = prior.get("recommended_next_command", "")
         if prior_command:
             # Already rendered historical text is literal, not a new template.
