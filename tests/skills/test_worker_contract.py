@@ -3411,6 +3411,14 @@ def test_the_duties_name_the_complete_verb_the_grant_row_and_the_failed_outcome_
     assert "`worker_done` contract" in duties and ".dev/issues/<N>/result.md" in duties
 
 
+def test_the_coordinator_section_does_not_require_a_person_opened_coordinator():
+    # owner decision 2026-11-23: a script-started coordinator is as valid as a person-opened one
+    contract = _contract()
+    assert "These bind the coordinator" in contract
+    assert "an Orca coordinator session the person opened" not in contract
+    assert "whether a person opened it or a script started it" in contract
+
+
 def test_contract_has_one_coordinator_per_project_not_per_host():
     text = _contract()
     assert "Each project (repository) has one coordinator" in text
