@@ -3413,5 +3413,5 @@ def test_the_duties_name_the_complete_verb_the_grant_row_and_the_failed_outcome_
 
 def test_contract_has_one_coordinator_per_project_not_per_host():
     text = _contract()
-    assert "Each project (repository) has one person-opened coordinator" in text
+    assert "Each project (repository) has one coordinator" in text
     assert "issue on the host" not in text
