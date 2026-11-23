@@ -1455,6 +1455,7 @@ class Manifest:
     # None identifies legacy manifests without recoverable accepted settings.
     accepted_workers: Optional["WorkerSpec"] = None
     accepted_prompt: Optional["PromptSpec"] = None
+    accepted_recipe_args: Optional[dict[str, Any]] = None
 
 
 @dataclass(frozen=True)

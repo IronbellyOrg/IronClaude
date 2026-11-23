@@ -79,6 +79,7 @@ EXPECTED_TOP_LEVEL_FIELDS: tuple[str, ...] = (
     "output_lens_name",
     "accepted_workers",
     "accepted_prompt",
+    "accepted_recipe_args",
 )
 
 
@@ -392,3 +393,28 @@ def test_round_trip_decouples_manifest_from_originating_lens_entry() -> None:
     restored = from_json(Manifest, encoded)
     assert restored.resolved_lens_entry.system_prompt_fragment != "MUTATED"
     assert restored.resolved_lens_entry.recommended_next_command_template != "MUTATED"
+
+
+def test_manifest_round_trips_accepted_nonsecret_request_settings() -> None:
+    from superclaude.cli.swarm.models import PromptSpec, RetryPolicy, WorkerSpec
+
+    manifest = Manifest(
+        accepted_workers=WorkerSpec(
+            count=2, models=["captured-one", "captured-two"], timeout_sec=17,
+            temperature=0.7, retry=RetryPolicy(on_5xx=False, on_timeout=True),
+        ),
+        accepted_prompt=PromptSpec(system="Accepted instruction.", user_template="{target_content}"),
+        accepted_recipe_args={"caller_label": "", "target_truncated": False},
+    )
+    restored = from_json(Manifest, to_json(manifest))
+    assert restored == manifest
+    assert isinstance(restored.accepted_workers, WorkerSpec)
+    assert isinstance(restored.accepted_prompt, PromptSpec)
+    historical = from_dict(Manifest, {})
+    assert historical.accepted_workers is None
+    assert historical.accepted_prompt is None
+    assert historical.accepted_recipe_args is None
+    assert restored.accepted_recipe_args == {"caller_label": "", "target_truncated": False}
+    # No transport/environment credentials or raw target body are added.
+    assert set(to_dict(manifest)) - set(to_dict(historical)) == set()
+    assert to_json(restored) == to_json(manifest)
