@@ -40,6 +40,7 @@ import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime
+from itertools import chain
 from typing import IO, Iterable, Optional
 
 from rich.console import Console, Group
@@ -240,9 +241,33 @@ class TUI:
         state: Optional[SwarmState],
         events: Iterable[EventRecord],
     ) -> None:
-        """Refresh the dashboard with a fresh state + event snapshot."""
+        """Refresh from incremental events, retaining at most four per worker.
+
+        Keep the first label, start and progress plus the latest completion.
+        Progress traffic cannot grow retention or evict another worker's row.
+        The bound scales with worker slots, not the number of polls or events.
+        """
         self._state = state
-        self._events = list(events)
+        retained: dict[tuple[int, str], EventRecord] = {}
+        for event in chain(self._events, events):
+            idx = event.worker_index
+            if idx is None or event.event_type not in (
+                "worker_start",
+                "worker_progress",
+                "worker_done",
+            ):
+                continue
+            payload = event.payload or {}
+            label = payload.get("model_label") or payload.get("model_id")
+            if isinstance(label, str) and label:
+                retained.setdefault((idx, "label"), event)
+            if event.event_type in ("worker_start", "worker_progress"):
+                retained.setdefault((idx, event.event_type), event)
+            elif event.event_type == "worker_done":
+                # Reinsert so a later completion stays after earlier events.
+                retained.pop((idx, "done"), None)
+                retained[(idx, "done")] = event
+        self._events = list(retained.values())
         if self._live is not None:
             self._live.update(self.render(self._state, self._events))
 
