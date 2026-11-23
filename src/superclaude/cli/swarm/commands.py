@@ -1044,6 +1044,7 @@ def _stamp_inline_worker_paths(
     output_dir: Path,
     lens_name: str,
     filename_template: str,
+    retain_raw: bool = True,
 ) -> list[WorkerResult]:
     """Populate ``final_path`` / ``meta_path`` / ``raw_path`` on fresh workers.
 
@@ -1060,6 +1061,9 @@ def _stamp_inline_worker_paths(
     """
     import dataclasses
 
+    from superclaude.cli.swarm.atomic import write_prepared_bytes
+    from superclaude.cli.swarm.state import confine_path
+
     template = filename_template or "{lens}-{index:02d}-{model_slug}.md"
     stamped: list[WorkerResult] = []
     for worker in workers:
@@ -1068,13 +1072,23 @@ def _stamp_inline_worker_paths(
         )
         rendered = template.format(lens=lens_name, index=worker.index, model_slug=slug)
         base = rendered[:-3] if rendered.endswith(".md") else rendered
+        final_path = confine_path(output_dir / f"{base}.final.md", output_dir)
+        meta_path = confine_path(output_dir / f"{base}.meta.json", output_dir)
+        raw_path = confine_path(output_dir / f"{base}.raw.md", output_dir)
+        body = getattr(worker, "body", None)
+        if retain_raw and isinstance(body, str):
+            raw_path.parent.mkdir(parents=True, exist_ok=True)
+            write_prepared_bytes(raw_path, body.encode("utf-8"))
         replaced = dataclasses.replace(
             worker,
-            final_path=str(output_dir / f"{base}.final.md"),
-            meta_path=str(output_dir / f"{base}.meta.json"),
-            raw_path=str(output_dir / f"{base}.raw.md"),
+            final_path=str(final_path),
+            meta_path=str(meta_path),
+            raw_path=(
+                str(raw_path)
+                if retain_raw and isinstance(body, str) and raw_path.is_file()
+                else ""
+            ),
         )
-        body = getattr(worker, "body", None)
         if body is not None:
             replaced.body = body
         stamped.append(replaced)
@@ -2101,6 +2115,7 @@ def run_cmd(
             state_output_dir,
             inline_job.output.lens_name or (lens or ""),
             inline_job.output.filename_template,
+            retain_raw=inline_job.normalization.on_parse_error.retain_raw,
         )
         # normalize_wave2 forwards a single recipe_args dict to every worker; the
         # bare-review-v1 recipe reads target / target_checksum / caller_label from
@@ -2305,7 +2320,7 @@ def discover_succeeded_slots(
         succeeded[slot_index] = WorkerResult(
             index=slot_index,
             path=str(final_candidate) if final_candidate.exists() else "",
-            raw_path=str(raw_candidate) if raw_candidate.exists() else "",
+            raw_path=str(raw_candidate) if raw_candidate.is_file() else "",
             meta_path=str(meta_file),
             final_path=str(final_candidate) if final_candidate.exists() else "",
             model_id=slug_tail,
@@ -2521,6 +2536,10 @@ def _run_resume_branch(
 
     # ----- Slot-state discovery ---------------------------------------------
     succeeded = discover_succeeded_slots(output_path, workers_requested)
+    retain_raw = rehydrated_spec.normalization.on_parse_error.retain_raw
+    if not retain_raw:
+        for worker in succeeded.values():
+            worker.raw_path = ""
     remaining_indices: list[int] = [
         index for index in range(workers_requested) if index not in succeeded
     ]
@@ -2600,6 +2619,15 @@ def _run_resume_branch(
             target_index = remaining_indices[new_pos]
             worker.index = target_index
             redispatched.append(worker)
+
+    # Prepare only redispatched workers, after restoring their original indexes.
+    redispatched = _stamp_inline_worker_paths(
+        redispatched,
+        output_path,
+        rehydrated_spec.output.lens_name,
+        rehydrated_spec.output.filename_template,
+        retain_raw=retain_raw,
+    )
 
     # ----- Wave 2 normalize (redispatched workers only) ---------------------
     if redispatched and recipe_name:
