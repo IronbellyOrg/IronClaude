@@ -468,6 +468,15 @@ def _normalize_one(
             salvage_reason=decision.reason,
         )
 
+    if promoted.status == "success" and not bytes_written:
+        # Stamped paths are write targets, not evidence of emitted output.
+        # Preserve failed-status targets and any distinct raw/canonical path.
+        return dataclasses.replace(
+            promoted,
+            bytes=0,
+            final_path="",
+            path="" if promoted.path == promoted.final_path else promoted.path,
+        )
     return dataclasses.replace(promoted, bytes=bytes_written)
 
 
