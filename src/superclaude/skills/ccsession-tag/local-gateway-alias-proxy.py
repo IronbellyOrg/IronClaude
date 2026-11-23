@@ -416,6 +416,10 @@ _TOO_LARGE = re.compile(
     r"prompt is too long|too many tokens|context length|context window|maximum context|too large",
     re.I,
 )
+# A text-only model (seen live 2026-11-23: GLM 5.3) rejects any image in the
+# conversation with a 400. That says nothing about the model's health, so the
+# request moves to the next model and the text-only one is not parked.
+_TEXT_ONLY = "allowed values: ['text']"
 
 
 def switch_reason(status, body_text):
@@ -831,6 +835,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         # A backup that could not hold the conversation. Kept even when later
         # models fail on usage, so the reply never hides the size problem.
         size_error = None
+        text_only_error = None  # last 400 from a model that takes only text
         for position, (slot, model, window) in enumerate(tier["models"]):
             if window < tier_window:
                 continue  # cannot hold this tier's context (spec section 6)
@@ -948,6 +953,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 )
                 last = size_error = (resp.status, headers, raw)
                 continue
+            if status == 400 and _TEXT_ONLY in text.lower():
+                audit(
+                    f"TIER {name}: {model} takes only text; trying the next model, not parking it"
+                )
+                last = text_only_error = (status, headers, raw)
+                continue
             return self._send_body(resp.status, headers, raw)  # not a switch error
         waits = [cooling_until(m) for _, m, w in tier["models"] if w >= tier_window]
         waits = [w for w in waits if w]
@@ -960,6 +971,19 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 note += f"; the others are out of usage{retry}"
             audit(f"TIER {name}: {note}")
             status, headers, raw = size_error
+            return self._send_body(status, headers, with_note(raw, note))
+        if text_only_error:
+            if waits:
+                # A model skipped for usage was never asked and may take the
+                # image, so this is a wait (429, which Claude Code retries),
+                # not a refusal.
+                note = f"ccsession: the {tier['label']} models that did not reject the image are out of usage{retry}"
+                audit(f"TIER {name}: {note}")
+                return self._send_error_json(429, "rate_limit_error", note)
+            # Every model that could answer takes only text: say so, not "out of usage".
+            note = f"ccsession: no available {tier['label']} model accepts an image in this conversation"
+            audit(f"TIER {name}: {note}")
+            status, headers, raw = text_only_error
             return self._send_body(status, headers, with_note(raw, note))
         note = f"ccsession: all {tier['label']} models are out of usage{retry}"
         audit(f"TIER {name}: {note}")
