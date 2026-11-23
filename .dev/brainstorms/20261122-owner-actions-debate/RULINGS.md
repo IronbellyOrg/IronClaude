@@ -44,3 +44,17 @@ All 17 now have an owner answer or are closed or parked. Still running: X06 agen
 - "442 - run probe". Go for the X10 early probe on disposable issue 712 only. Done 12:20 UTC: one worker, bound by the guard, stopped. Result: X10/early-probe/RESULT.md. WORKER_BINDING_PROVEN untouched.
 - "409 - continue from 718 if you can confirm everything from 409 is complete and nothing needs copying to 718". Condition NOT met: issue 409 is open; its remaining work is tracked in #706 (and remote fleet in #604), not in #718 (which holds four report-entry items from 655). Nothing needs copying to 718. Nothing retired or deleted. Findings: .dev/brainstorms/20261122-worktree-review/.
 - "This checkout - push". The branch docs/409-orca-dashboard-designs is already on origin at the same commit (495eb96d1); nothing to push for that commit. Asked the owner whether to commit and push the staged and untracked files.
+
+## 2026-11-22 (seventh owner message, quoted)
+- "Yes" (to: record on issue 726 that the dashboard read-only rule is relaxed as part of the version 2.0 direction in issue 727). Comment posted on issue 726. Issue 727 filed from the owner's pasted roadmap. The vote waits for the architecture evaluation.
+
+## 2026-11-22 (eighth owner message, quoted)
+- "No" (to: commit the 409 worktree's finished design-review files to branch docs/409-observer-sweep-user-docs). Not done; they stay on disk until issue 706 is done.
+- New task (release planning pipeline, BMAD plus IronClaude, two debating subagents): see .dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/OWNER-INSTRUCTIONS.md. Coordinator decision: the agents write issue drafts to disk; nothing is filed on GitHub until the owner reviews the consensus.
+
+## 2026-11-23 (ninth owner message, quoted)
+- "01 02 04 05 06 07 all approved". O1, O2, O4, O5, O6, O7 of the BMAD plus IronClaude pipeline consensus approved. O3 (plan approval before implement) was skipped; asked again. Details and later changes: .dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/PIPELINE-RECORD.md.
+- "/sc:issue --create "unattended mode for sc:implement" --mode feature" plus "spawn a subagent to invoke sc:brainstorm to spec and put its spec in the issues body with instructions to take spec straight to sc:workflow". Authorized: file the issue after the brainstorm spec exists.
+- Dashboard version numbers: integration branch numbers. Each dashboard release is an integration branch (dash1.3); each user story is a sub-branch (dash1.3/story1); the release branch merges into main (this repo's default branch is master), then 1.4. Changes O4 (one PR per feature) to stories as sub-branches of a release branch. Git cannot hold both `dash1.3` and `dash1.3/story1`; naming to be fixed.
+- "Ask bmad for the rest of the truncated list and spawn subagent to do full comparison". Read as: get bmad-planner's full unverified list, then an independent agent compares both agents' unverified lists and key claims with the real skill files and commands.
+- "Confirm I have an issue created for a reusable release planning pipeline". Searched on 2026-11-23: none exists (issue 727 is the dashboard roadmap). To be created, with a decision and phase record kept in PIPELINE-RECORD.md.
