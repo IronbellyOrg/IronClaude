@@ -1451,6 +1451,10 @@ class Manifest:
     retain_raw: bool = True
     output_filename_template: str = "{lens}-{index:02d}-{model_slug}.md"
     output_lens_name: Optional[str] = None
+    # Accepted request settings only; never resolved credentials or target bodies.
+    # None identifies legacy manifests without recoverable accepted settings.
+    accepted_workers: Optional["WorkerSpec"] = None
+    accepted_prompt: Optional["PromptSpec"] = None
 
 
 @dataclass(frozen=True)
