@@ -58,3 +58,10 @@ All 17 now have an owner answer or are closed or parked. Still running: X06 agen
 - Dashboard version numbers: integration branch numbers. Each dashboard release is an integration branch (dash1.3); each user story is a sub-branch (dash1.3/story1); the release branch merges into main (this repo's default branch is master), then 1.4. Changes O4 (one PR per feature) to stories as sub-branches of a release branch. Git cannot hold both `dash1.3` and `dash1.3/story1`; naming to be fixed.
 - "Ask bmad for the rest of the truncated list and spawn subagent to do full comparison". Read as: get bmad-planner's full unverified list, then an independent agent compares both agents' unverified lists and key claims with the real skill files and commands.
 - "Confirm I have an issue created for a reusable release planning pipeline". Searched on 2026-11-23: none exists (issue 727 is the dashboard roadmap). To be created, with a decision and phase record kept in PIPELINE-RECORD.md.
+
+## 2026-11-23 (tenth owner message, quoted)
+- O3 answered: "No human approval on p[lan]. Workflow plan, but plan must pass review panel scrutiny and have no blockers". Plan approval is by a review panel with no blocking findings, not by a person. Recorded in PIPELINE-RECORD.md entry 14 and the CONSENSUS owner-rulings section.
+
+## 2026-11-23 (eleventh owner message, quoted)
+- "O5 authorizes on implement briefs" and "Should plan-only in v1": the O5 approval authorises --unattended on implement briefs (no live check first); the --plan-only preflight ships in v1. Both folded into the unattended /sc:implement spec.
+- Branch names: the owner asked for Tavily research on branching strategies for fast AI workflows (three proposals), a /sc:adversarial debate and merge into one unified branching proposal, plus a search of the owner's GFxAI repository for an already decided branching approach to add to the mix and validate here. Folder: .dev/brainstorms/20261123-branching-strategy/.
