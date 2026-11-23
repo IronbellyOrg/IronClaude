@@ -1,6 +1,7 @@
 """Model-free regressions for provider recovery and truthful resume artifacts."""
 from __future__ import annotations
 
+import dataclasses
 import json
 from pathlib import Path
 
@@ -174,3 +175,73 @@ def test_two_partial_resumes_truthful_paths(tmp_path, monkeypatch, body, status,
         assert all(w["final_path"] in command for w in contract["output_files"] if w["status"] == "success" and w["final_path"])
     assert len(calls) == 2
     assert not missing, f"advertised paths absent after actual repeated resumes: {missing}"
+
+
+@pytest.mark.parametrize("prompt_mode", ["empty-defaults", "explicit"])
+@pytest.mark.parametrize("force", [False, True])
+def test_exact_fresh_resume_provider_parity(tmp_path, monkeypatch, prompt_mode, force):
+    from superclaude.cli.swarm import preflight
+    from superclaude.cli.swarm.dispatch import dispatch_wave1
+    from superclaude.cli.swarm.lenses import LENSES
+
+    target = tmp_path / "target.py"
+    target.write_text("# accepted target body\n" * 6)
+    output = tmp_path / "out"
+    spec = cmd._build_spec_from_lens("bare-review")
+    spec["job_id"] = "battle-parity"
+    spec["target"]["path"] = str(target)
+    spec["output"]["dir"] = str(output)
+    spec["transport"]["kind"] = "openai_compat"
+    spec["workers"].update(timeout_sec=13, temperature=0.0)
+    # The schema requires a guard in an enabled prompt. Disable it explicitly
+    # for this harmless fixture so genuinely empty prompt fields are valid.
+    spec["target"]["injection_guard"].update(enabled=False, required_substring="")
+    spec["prompt"].update({"system": "", "user_template": ""} if prompt_mode == "empty-defaults" else {
+        "system": "Accepted explicit system.", "user_template": "Accepted user: {target_content}"})
+    sent, policies = [], []
+
+    class Capture:
+        def __init__(self, index):
+            self.index = index
+
+        def send(self, prompt, timeout_sec):
+            sent.append((self.index, prompt, timeout_sec))
+            worker = WorkerResult(index=self.index, model_id=f"battle-model-{self.index}", status="success")
+            worker.body = "## Verdict\nCaptured model-free review.\n"
+            return worker
+
+    def factory(*args, **kwargs):
+        return Capture
+
+    def dispatch(*args, **kwargs):
+        policies.append(dataclasses.asdict(kwargs["worker_spec"]))
+        return dispatch_wave1(*args, **kwargs)
+
+    monkeypatch.setattr(cmd, "_resolve_run_transport_factory", factory)
+    monkeypatch.setattr("superclaude.cli.swarm.dispatch.dispatch_wave1", dispatch)
+    fresh = CliRunner().invoke(cmd.run_cmd, ["--stdin", "--output", str(output)], input=json.dumps(spec))
+    assert fresh.exit_code == 0, fresh.output
+    fresh_request = next(row for row in sent if row[0] == 1)
+    sent.clear()
+    for p in output.glob("*-01-*.meta.json"):
+        p.unlink()
+    before = inventory(output)
+    if force:
+        live = dataclasses.replace(LENSES["bare-review"],
+            system_prompt_fragment="Intentionally relensed system.", user_template="Live: {target_content}")
+        monkeypatch.setattr(preflight, "resolve_lens", lambda _: live)
+    result = resume(output, spec["job_id"], force)
+    assert result.exit_code == 0, result.output
+    assert len(sent) == 1 and sent[0][0] == 1
+    assert policies[0] == policies[1], "exact accepted worker policy must survive"
+    if prompt_mode == "empty-defaults":
+        assert fresh_request[1] == "", "explicitly accepted empty prompt changed"
+    else:
+        assert target.read_text().splitlines()[0] in fresh_request[1]
+    assert all((output / p).read_bytes() == body for p, body in before.items()
+               if "-00-" in str(p) or "-02-" in str(p) or p.name == "manifest.json")
+    if force:
+        assert "Intentionally relensed system." in sent[0][1]
+        assert sent[0][1] != fresh_request[1]
+    else:
+        assert sent[0] == fresh_request, "fresh and ordinary resume requests differ"
