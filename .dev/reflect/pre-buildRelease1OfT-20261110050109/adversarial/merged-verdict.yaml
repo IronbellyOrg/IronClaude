@@ -1,0 +1,12 @@
+# Wave 4 exit record written by the reflect orchestrator after reading the sc-adversarial-protocol output on disk (EV-1).
+merge_method: adversarial
+adversarial_unavailable: false
+merged_output_path: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-buildRelease1OfT-20261110050109/adversarial/merged-output.md
+adversarial_return_contract: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-buildRelease1OfT-20261110050109/adversarial/return-contract.yaml
+adversarial_status: partial          # convergence blocked by two HIGH invariant items, resolved by incorporation, not by a further round
+convergence_score: 0.91
+base_variant: "opus:qa (reviewer-2 card), Level-1 tiebreaker"
+reviewer_cards_calibrated:
+  - {card: reviewer-cards/reviewer-1-card.yaml, calibrated_confidence: 0.92, calibrator: sonnet}
+  - {card: reviewer-cards/reviewer-2-card.yaml, calibrated_confidence: 0.80, calibrator: sonnet}
+merged_counts: {blocking: 6, minor: 10, missed_by_both_blocking: 4, missed_by_both_minor: 5}

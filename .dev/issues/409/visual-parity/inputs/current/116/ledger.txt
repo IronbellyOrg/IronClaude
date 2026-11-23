@@ -1,0 +1,50 @@
+ORCA OBSERVER  mode=fixture  SYNTHETIC FIXTURE base, not Orca data  scope=all  as of 12:00:00
+worker-list OK 0s  messages UNVERIFIED (not read)
+collected 80 / reported 80  scope=all  source counts: active 54 / reclaimable 0 / retained 13 / released 13
+runs seen: 8  SETTLED unavailable (no source)  POLICY FROZEN unavailable (no source)  cost unavailable
+Human questions: source UNVERIFIED, 0 rows interpreted, not "no questions"
+26 historical hidden (h)
+worker-reported, not questions
+   none               w-001                                                alive          10s
+   review             w-002                                                alive          13s
+   none               w-005                                                alive          22s
+   wait               w-006                                                alive          25s
+   none               w-007                                                alive          28s
+   review             w-008                                                alive          31s
+   none               w-011                                                alive          40s
+   wait               w-012                                                alive          43s
+   none               w-013                                                alive          46s
+   review             w-014                                                alive          49s
+   none               w-017                                                alive          58s
+   wait               w-018                                                alive          1m
+   none               w-019                                                alive          1m
+   review             w-020                                                alive          1m
+   none               w-023                                                alive          1m
+   wait               w-024                                                alive          1m
+   none               w-025                                                alive          1m
+   review             w-026                                                alive          1m
+   none               w-029                                                alive          1m
+   wait               w-030                                                alive          1m
+   none               w-031                                                alive          1m
+   review             w-032                                                alive          1m
+   none               w-035                                                alive          1m
+   wait               w-036                                                alive          1m
+   none               w-037                                                alive          1m
+   review             w-038                                                alive          2m
+   none               w-041                                                alive          2m
+   wait               w-042                                                alive          2m
+   none               w-043                                                alive          2m
+   review             w-044                                                alive          2m
+   none               w-047                                                alive          2m
+   wait               w-048                                                alive          2m
+   none               w-049                                                alive          2m
+   review             w-050                                                alive          2m
+   none               w-053                                                alive          2m
+   wait               w-054                                                alive          2m
+   none               w-055                                                alive          2m
+   review             w-056                                                alive          2m
+   none               w-059                                                alive          3m
+   wait               w-060                                                alive          3m
+40/54 shown  +14 more
+Up/Down j/k move  Enter detail  Esc back  / filter  h historical  m mark  e export  q quit
+shown 40/54 | collected 80 / reported 80

@@ -1,0 +1,27 @@
+input_tree_sha256: 17bc54fc0bfaff9b08b48012db99557c122b077290e1eccf192dc64c72d47658
+file_list:
+  - path: .dev/brainstorms/20261108-132433-orca-observer-mvp/enrichment/codebase-context.md
+    sha256: 8eca75e4bc2f638867cb2deffcc7a893b932d11751075847b86c028fc0caa529
+  - path: .dev/brainstorms/20261108-132433-orca-observer-mvp/merged-requirements.md
+    sha256: 229849b8383fe06f8f1f4fe70b0391cdc5c6c4c88c3030c9ffe4502d99ad06b3
+  - path: .dev/issues/409/owner-decisions-20261108.md
+    sha256: 5916b3981efee5e99cf1ccba80be5f0587745a07233c13c1e311db77b88bc29c
+  - path: .dev/issues/409/tuibbs-review/architecture-options.md
+    sha256: e6c0adbc8c2097b260a4acfaab4de2c91722930dfa97914038467e8a1a715835
+  - path: .dev/tasks/to-do/TASK-WF-buildRelease1OfT-20261110-045742/TASK-WF-buildRelease1OfT-20261110-045742.md
+    sha256: bae115590cec475a0b01c8ded272940d8463586026474c53ff9a2cf4e5dab485
+  - path: .dev/tasks/to-do/TASK-WF-buildRelease1OfT-20261110-045742/source.md
+    sha256: b0ae115c9809cd774580591e57e52646f7246420aecd7031e1c30af50eb18b46
+  - path: src/superclaude/cli/eval/pty_stream.py
+    sha256: 03cbe9ca791278382143b7cbca3f26ad55ca69efaffb80b600ddda277c649308
+  - path: src/superclaude/cli/install_user_setup.py
+    sha256: c64f62c7e1e7347e44e12928deb47ecd8534a9a204d4cb4c0276ecd403c1a077
+  - path: src/superclaude/cli/main.py
+    sha256: 4dd5b9bd858e80758bd2e1ed007b89fe52aed36482fe23cad74cf93becb7b005
+  - path: src/superclaude/cli/prd/tui.py
+    sha256: 02baf7040bf86acba90fe62197c73e6cb40dce69ee73b5daf7424bba62c737a9
+  - path: src/superclaude/cli/sprint/monitor.py
+    sha256: 02ea67c90da5060531c879c6ba75195a6bd0fc625512bad73e276523198df8ea
+  - path: src/superclaude/cli/sprint/tui.py
+    sha256: ac8704030948f80707be2695852ae6ca632cb3aed53040333530e08807ed5b68
+file_count: 12

@@ -1,0 +1,4 @@
+# Base Selection
+Quantitative layer (deterministic proxies, orchestrator): V1 0.78, V2 0.55, V3 0.80. Qualitative layer (orchestrator single pass over the 30-criterion rubric with evidence; the dual-pass position-bias mitigation was NOT run: documented deviation): V1 0.80, V2 0.50, V3 0.77.
+Combined: V1 0.79, V3 0.785, V2 0.525. Top two are within 5%: tiebreaker level 1 (points won in Round 1-2): V3 7 (C-004, C-006, C-007, C-009, C-010, C-011, C-012), V1 5 (C-001, C-005, C-008, X-003, S-002). Selected base: Variant 3 (refactorer, opus slot). Edge-case floor: all variants at or above 1/5.
+Strengths to incorporate: V1 C-001 (Task 4 grep, blocking), C-008 (apply_frozen import); V2 non-blocking package drift and the owner-record verification of Tasks 10-12; Round 2.5 INV-001 (Task 10 pinned strings), INV-009.

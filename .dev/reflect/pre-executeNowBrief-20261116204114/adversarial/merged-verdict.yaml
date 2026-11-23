@@ -1,0 +1,17 @@
+merge_method: adversarial
+verdict: plan has defects; advisory; 3 blocking findings (acceptance criteria that cannot pass, one pinned string trap), execute after fixing them
+convergence_score: 0.8947
+base_variant: variant-3 (refactorer, opus slot)
+source_cards: [reviewer-1-card.md, reviewer-2-card.md, reviewer-3-card.md]
+judge_identity: reflect orchestrator (claude-gw-tier1b)
+judge_class_collision: true
+merged_findings:
+  - {id: M1, task: 4, severity: MAJOR, blocking: true, category: unpassable-check, claim: "plan:63 literal grep finds closure_evidence in test_questions.py:50 and never_read in test_view.py:174", refs: [plan:63, tests/observe/test_questions.py:50, tests/observe/test_view.py:174]}
+  - {id: M2, task: 5, severity: MAJOR, blocking: true, category: unpassable-check, claim: "plan:72 cannot pass: renamed test contains question_fixture; hyphen code never matches the pattern", refs: [plan:69, plan:72, tests/observe/test_collector.py:662]}
+  - {id: M3, task: 10, severity: MAJOR, blocking: true, category: other, claim: "rewriting commands.py:63-66 must keep 'release-gates.md' and 'Task 18' (pinned by test_commands.py:750)", refs: [src/superclaude/cli/observe/commands.py:64, tests/observe/test_commands.py:750]}
+  - {id: M4, task: package, severity: MAJOR, blocking: false, category: missing-requirement, claim: "source.md:49-53 whole-package checks (run-use grep, git status vs a pre-run baseline) have no plan item", refs: [source.md:52, source.md:53]}
+  - {id: M5, task: "5,12", severity: MINOR, blocking: false, category: stale-reference, claim: "commands.py:177-178 shifts to 176-177 after Task 4; cite _question_refusal", refs: [src/superclaude/cli/observe/commands.py:142, src/superclaude/cli/observe/commands.py:177]}
+  - {id: M6, task: 8, severity: MINOR, blocking: false, category: other, claim: "import text drops snapshot_json; resources import left unused", refs: [tests/observe/test_snapshot_schema.py:8, tests/observe/test_snapshot_schema.py:15]}
+  - {id: M7, task: 3, severity: MINOR, blocking: false, category: other, claim: "apply_frozen import not mentioned", refs: [tests/observe/test_fixtures.py:14]}
+  - {id: M8, task: "1,5", severity: MINOR, blocking: false, category: stale-reference, claim: "orphan comments terminal.py:41 and collector.py:102", refs: [src/superclaude/cli/observe/terminal.py:41, src/superclaude/cli/observe/collector.py:102]}
+  - {id: M9, task: "8,9,12", severity: MINOR, blocking: false, category: other, claim: "stale names/docstrings: golden scan test names, test_snapshot_schema.py:1; T-label collision; spine drift at ARCHITECTURE-SPINE.md:142 (follow-up)", refs: [tests/observe/test_golden_contract.py:207, tests/observe/test_snapshot_schema.py:1]}

@@ -1,0 +1,25 @@
+ORCA OBSERVER  mode=live  scope=all  as of 12:00:00
+worker-list OK 0s  coordinator questions OK 0s (one Run run_14cfcbd8edf2)
+collected 6 / reported 6  scope=all  source counts: unknown  runs seen: 2
+SETTLED unavailable (no source)  POLICY FROZEN unavailable (no source)  cost un>
+COORDINATOR QUESTIONS
+one Run only: run_14cfcbd8edf2
+question read: OK 0s
+bounded best effort; coverage unknown; at most 100 rows per read, not 100
+questions; bursts over 100 rows between reads may be lost
+seen, not resolved: 3 | closed by evidence: unavailable (no source)
+no read marker in source: answered questions stay listed
+  1h  Choose schema compatibility policy  reason unknown
+  59m  Confirm deployment window  reason unknown
+  59m  Name the release reviewer  reason unknown
+retention reset at 12:00; questions observed before this start are not retained
+worker-reported, not questions
+   wait           w-001                                  3s
+   wait           w-002                                  6s
+   none           w-003                                  9s
+   wait           w-004                                  12s
+   wait           w-005                                  15s
+   none           w-006                                  18s
+Up/Down j/k move workers  Enter detail  Esc back  / filter  h historical  m
+mark rows  e export all  q quit  n/p question
+shown 6/6 | collected 6 / reported 6

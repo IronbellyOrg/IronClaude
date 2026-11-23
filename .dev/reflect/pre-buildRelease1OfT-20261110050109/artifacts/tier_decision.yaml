@@ -1,0 +1,12 @@
+selected_tier: 2
+fired_rule_number: 6          # C < 0.85 (T1 calibrated 0.30; 0.75 when scored as a static review)
+coverage_degraded: parsed-sparse   # Step 1B.2b: inferred_count 21 > parsed_count 0; table-wide pre-filter also forces Tier 2
+surface_unreached: null
+composite_score: 7
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 1
+  spec_density: 1
+  ambiguity_signals: 1
+escalation_reason: "spec has no labeled requirement IDs (parsed-sparse pre-filter) and the Tier 1 card calibrated below 0.85"

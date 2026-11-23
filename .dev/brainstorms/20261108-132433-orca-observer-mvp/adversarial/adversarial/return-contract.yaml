@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/20261108-132433-orca-observer-mvp/adversarial/merged-output.md"
+  convergence_score: 1.00  # majority rule; strict 3/3 score is 0.88 (convergence-r3.md)
+  artifacts_dir: ".dev/brainstorms/20261108-132433-orca-observer-mvp/adversarial/adversarial/"
+  status: "success"
+  base_variant: "opus:analyzer"
+  unresolved_conflicts: 0  # the 7 points agreed 2 of 3 are recorded as dissents in merged-output.md section 12
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []  # INV-019 and INV-020 (HIGH) resolved in Round 3; MEDIUM/LOW carried as warnings

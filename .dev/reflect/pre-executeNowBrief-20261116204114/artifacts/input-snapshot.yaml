@@ -1,0 +1,9 @@
+input_tree_sha256: af40b43a9a7a29cc78c43b4bbe6889cd98c0fca682f53f355f02eb156f7f7dd6
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-executeNowBrief-20261116-202439/TASK-WF-executeNowBrief-20261116-202439.md
+    sha256: 18f72af4b7e0b9ae22ee43ea5fc13be27923001bc0874bae80053a0916ca5c61
+  - path: .dev/tasks/to-do/TASK-WF-executeNowBrief-20261116-202439/source.md
+    sha256: 0a3d81a3dab64165ee0b26f2fd254959124e0efcf6ecc9b0ea9ef59a94a66ccf
+file_count: 2
+# tree = tasklist + spec; the tasklist has no markdown links to follow beyond ./source.md; UC-1 has no work-unit-directory rule.
+# output_root is outside the work-unit directory, so the REFLECT_OUTPUT_ROOT exclusion is a no-op.

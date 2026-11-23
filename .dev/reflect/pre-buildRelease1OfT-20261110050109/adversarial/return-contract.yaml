@@ -1,0 +1,34 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-buildRelease1OfT-20261110050109/adversarial/merged-output.md"
+  convergence_score: 0.91
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-buildRelease1OfT-20261110050109/adversarial/"
+  status: "partial"
+  base_variant: "opus:qa (variant-2-original.md = reviewer-2-card.yaml; selected by Level-1 tiebreaker, margin 0.017)"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: INV-001
+      category: interaction_effects
+      assumption: "The per-call min(timeout, remaining) fix alone meets the 15 s cycle budget; _find_orca's two 10 s probes and 1-2 extra subprocesses sit outside it"
+      severity: HIGH
+      resolution: "incorporated into the M-01 and M-02 suggested fixes (also listed as N-03); not re-debated"
+    - id: INV-002
+      category: sufficiency_challenge
+      assumption: "The outcome class and label of a budget-truncated cycle need no definition (T5 says FAILED (timeout), T40 says cycle overran)"
+      severity: HIGH
+      resolution: "incorporated into the M-01 suggested fix (also listed as N-04); not re-debated"
+  notes:
+    convergence_status: "BLOCKED_BY_INVARIANTS (10 of 11 diff points agreed; taxonomy L1/L2/L3 all covered; Round 3 not run at depth standard)"
+    unresolved_points: ["A-004 (label only: V1 REJECT, V2 QUALIFY; both keep R1-05 minor)"]
+    judge_decided_split: "R1-04 severity (V1 blocking, V2 minor) decided minor with evidence in refactor-plan.md ruling 3"
+    merged_counts: {blocking: 6, minor: 10, rejected_outright: 0, partial_rejections: 4}
+    missed_by_both_cards: {total: 9, blocking: 4, minor: 5, note: "N-03 and N-04 are blocking amendments tracked under M-01/M-02"}
+    degradations:
+      - "Step 1 diff analysis written by the orchestrator, not a separate analytical agent"
+      - "Step 3 position-bias passes (forward and reverse) both run by the orchestrator, not independent evaluators"
+      - "Step 4 refactor plan auto-approved (non-interactive); no separate analytical reviewer"
+      - "Inputs are YAML copied under .md names; no normalization applied"
+    models: {advocate_variant_1: haiku, advocate_variant_2: sonnet, fault_finder: sonnet, merge_executor: sonnet}
+    post_merge_validation: "merge-executor: 56/56 evidence strings verbatim in the cards; ids contiguous; counts match; orchestrator spot-checked merged-output.md"

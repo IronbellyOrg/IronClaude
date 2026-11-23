@@ -1,0 +1,13 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-phase3OfTheOrcaT-20261117062037/adversarial/adversarial/merged-review-card.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-phase3OfTheOrcaT-20261117062037/adversarial/adversarial"
+  status: "partial"                 # convergence blocked by two UNADDRESSED HIGH invariants
+  base_variant: "sonnet:analyzer"
+  unresolved_conflicts: 2           # INV-008, INV-021 (not debated)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-008, category: count_divergence, assumption: "replacing the subject with the question text keeps the line's honesty labels", severity: HIGH}
+    - {id: INV-021, category: sufficiency_challenge, assumption: "the 10 candidate edits alone make the plan executable and correct", severity: HIGH}

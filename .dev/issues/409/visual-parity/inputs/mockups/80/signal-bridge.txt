@@ -1,0 +1,42 @@
+                                                                                
+  ◈ SIGNAL BRIDGE                                      SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                            
+                                                                                
+ ┏━ HUMAN QUESTION ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ 
+ ┃ Choose schema compatibility policy                                         ┃ 
+ ┃ Owner: Human operator                                                      ┃ 
+ ┃ Scope: 4 sessions | observed 45m ago                                       ┃ 
+ ┃ Affected: S001, S011, S021, S031                                           ┃ 
+ ┃ Messages partial | 2 other questions                                       ┃ 
+ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ 
+                                                                                
+   RUN 48  SETTLED 24  UNKNOWN 8  STALE 5                                       
+                                                                                
+ ╭─ SELECTED FLEET SLICE ─────────────────────────────────────────────────────╮ 
+ │ SESSION / LIFECYCLE / PHASE; RESULT / ADMISSION BELOW                      │ 
+ │                                                                            │ 
+ │ S001    running  / work                                                    │ 
+ │ not observed / not admitted | stale | not frozen                           │ 
+ │ S002    running  / review                                                  │ 
+ │ not observed / not admitted | fresh | not frozen                           │ 
+ │ S003    running  / queue                                                   │ 
+ │ not observed / not admitted | fresh | not frozen                           │ 
+ │ S004    running  / dependency                                              │ 
+ │ not observed / not admitted | fresh | not frozen                           │ 
+ │ S005    running  / work                                                    │ 
+ │ not observed / not admitted | fresh | not frozen                           │ 
+ │ S006    running  / review                                                  │ 
+ │ not observed / not admitted | fresh | not frozen                           │ 
+ │ S007    settled  / work                                                    │ 
+ │ succeeded / admitted | fresh | not frozen                                  │ 
+ │ S008    settled  / review                                                  │ 
+ │ partial / not admitted | fresh | not frozen                                │ 
+ │ S009    settled  / queue                                                   │ 
+ │ failed / not admitted | fresh | not frozen                                 │ 
+ │ 9/80 shown | result is not admission                                       │ 
+ ╰────────────────────────────────────────────────────────────────────────────╯ 
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view               
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                   

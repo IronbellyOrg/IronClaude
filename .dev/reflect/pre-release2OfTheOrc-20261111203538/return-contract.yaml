@@ -1,0 +1,20 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-release2OfTheOrc-20261111203538/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-release2OfTheOrc-20261111203538/audit.log
+confidence_calibrated: null
+escalation_rule_matched: null
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: true
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+evidence_validator_ran: false
+citations_total: 0
+citations_dropped: 0
+degraded_components: [evidence-validator, confidence-calibrator]
+needs_human_decision: false

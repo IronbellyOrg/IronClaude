@@ -1,0 +1,57 @@
+# Round 3 final positions: reviewer "opus" (issue #606)
+
+- **Model id:** claude-opus-5-5 (Opus 5.5)
+- **Reviewer:** opus
+- **Date:** 2026-11-17
+- **Task:** task_f99dec811266 (round 3, final).
+- **Read:** `/home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/issues/409/visual-parity/round2/astra-response.md` and my own `round2/opus-response.md`. No other file in `round3/` was opened.
+- **Re-checked this round:** `render.py` lines 194-196 (id width at 116), 317-319 (question line head), 365-366 and 383-387 (panel order); `terminal.py` lines 30-34 (glyph table) and 121 (colour system); `rendering-rules.md` lines 30, 42, 50, 57 and 61 (`spec:<line>`); the non-ASCII characters in all nine current renders; the pane widths on line 6 of `mockups/160/signal-bridge.txt` and line 14 of `mockups/116/signal-bridge.txt`; the badge text on line 2 of all nine mockups.
+- **One rule applied to every class dispute (D2, D3, D4, D8, F-opus-35):** a DEFECT here is output that is wrong, lost or contrary to an explicit spec rule at a supported width. Examples are F-opus-19 (the `q quit` key cut off) and F-opus-07 (`unknown` not muted, spec:70). Output that is correct and complete but laid out badly is a PARITY-GAP. Under that rule five of my round-1 DEFECT labels (F-opus-16, 17, 25, 28, 35) do not hold, and I concede them below. I am not conceding just to agree: in each case I found no wrong or lost value and no broken spec line.
+
+## D1: RETAIN CONTEXT pane and note placement (F-astra-02, F-opus-27, F-opus-35)
+
+- **Severity: CONCEDE to PARITY-GAP, Medium, with astra's narrowed scope.** The pane groups facts the observer already prints in three separate places, not the mockup's seven-row checklist. Re-checked `current/80/questions.txt`: `one Run only: run_14cfcbd8edf2` (line 6), `no read marker in source: answered questions stay listed` (line 11) and `retention reset at 12:00; questions observed before this start are not retained` (line 15). My round-1 claim that "only the retention note exists" was too narrow, and grouping existing scope, closure and retention facts is a real hierarchy gain. Attributes with no source stay out or read `unavailable (no source)`. At 80 the context stays compact (spec:61).
+- **Note placement (F-opus-35): CONCEDE to PARITY-GAP, Low, merged into D1.** Re-checked `render.py:365-366`: the `_panel_lines` docstring names the order "questions, then the desk block (when given), notes", and lines 383-387 implement it. The order is deliberate and the note text is correct and visible (`retention reset at 12:00; questions observed before this start are not retained`, `current/116/desk.txt`). No value is wrong, so it is not a DEFECT.
+
+## D2: Missing column headings at 116 and 80 (F-astra-07, F-opus-16)
+
+- **Final: CONCEDE to PARITY-GAP, Medium, category DEGRADED-WIDTH.** Re-checked `render.py:497` (header only for `width_class == "full"`) and spec:33 (`<kind> <dispatchId> <liveness.verdict> <age>` at 116, with no heading rule). The values in `   none               w-001                                                alive          10s` (`current/116/ledger.txt`) are the specified fields, verbatim and in the specified order. My round-2 argument (an unlabeled `wait` can be misread) is about interpretation, not wrong output. The fix stays mandatory in the merged plan: a compact muted heading at every width.
+
+## D3: Key/action pair split by wrapping (F-astra-09, F-opus-28)
+
+- **Final: CONCEDE to PARITY-GAP, Low.** Re-checked `render.py:72-75`: `wrap` breaks at the last single space. In `current/116/questions.txt` the result is `...  q quit  n/p` then `question`: every key and every action word is printed, in order, with nothing cut. The `_help_lines` promise "no key is cut" (`render.py:305`) is kept. Fix: wrap only at the two-space gaps between groups, merged with F-opus-06 (footer rule and grouping).
+
+## D4: Age misalignment and the question-list hierarchy item (F-astra-03, F-opus-23, F-opus-24, F-opus-25)
+
+- **Age misalignment (F-opus-25): CONCEDE to PARITY-GAP, Low, as a component of the hierarchy item.** Re-checked `render.py:317-319`: the line is built as `mark + q.lead + "  "` with no padding, which follows spec:50's format string (`<age>  [no longer in source window]  <subject>  reason unknown`). The output matches the spec. The one-cell offset (`  1h  Choose schema compatibility policy  reason unknown` against `  59m  Confirm deployment window  reason unknown`, `current/80/questions.txt`) is typography, not wrong output. The gutter must fit the longest age plus the optional bracket text, not a fixed mockup width.
+- **Hierarchy severity: COMPROMISE: one merged item (F-astra-03 + F-opus-23 + F-opus-24, with F-opus-25 as a Low component), PARITY-GAP, Medium.** In round 2 I accepted High for the merged item. I now move it to Medium to avoid counting the same loss twice. The screen-level loss of question primacy is already counted at High three times: no styling (F-opus-01/F-astra-04), no panes (F-opus-03/F-astra-05) and no two-column composition (F-opus-21). Most of what is left once those are fixed is caveat placement and row emphasis. Evidence that the residual is real: at 116, seven title and caveat lines (`current/116/questions.txt` lines 5-11) precede the three question lines (12-14). The disclosure keeps its full text (astra's point that it must not be clipped into a border title stands; I withdraw my "pane title" fix direction).
+
+## D5: Title bar and READ ONLY badge (F-astra-10, F-opus-04)
+
+- **Final: COMPROMISE: PARITY-GAP, Low, with scope = READ ONLY badge plus the left-title / right-badge split.** Title weight and colour belong to F-opus-01 and the frame to F-opus-03; I concede that those parts of my Medium were double counting. I keep the left/right split in scope because re-checking shows it is a repeated layout technique, not one image detail: `SYNTHETIC · READ ONLY` appears right-aligned on line 2 of all nine mockup `.txt` files. The current first line has no badge (`ORCA OBSERVER  mode=fixture  SYNTHETIC FIXTURE base, not Orca data  scope=all  as of 12:00:00`, `current/160/ledger.txt`). The 80-column wrap of `as of 12:00:00` is withdrawn as a separate point.
+
+## D6: Ledger three-column layout (F-opus-09)
+
+- **Final: COMPROMISE: PARITY-GAP, Medium; the exact three-column grid is NOT required.** Decisive measurement: the centre SESSION REGISTER pane on line 6 of `mockups/160/signal-bridge.txt` is 74 cells wide (72 inside), but the spec:30 full-width ledger needs 153 cells (header line 8 of `current/160/ledger.txt`). The required fields cannot fit in the mockup's centre column without dropping spec-required columns, so the grid conflicts with spec:30.
+- **Geometry that gives the same theme:** at 160, a top band of three framed panes side by side: the amber HUMAN QUESTION or gap-notice pane (F-opus-13), the slate OBSERVATION WINDOW (F-opus-10) and the cyan count tiles (F-opus-11). Under the band, one full-width framed `worker-reported, not questions` register pane holding the full table. At 116, two top panes side by side (attention, then observation and counts), then the full-width register (the mockup's own 116 register is 78 cells, line 14 of `mockups/116/signal-bridge.txt`). At 80, stacked framed panes as in `mockups/80/signal-bridge.txt`. This keeps attention-first framing, slate/cyan pane roles and count tiles while keeping every spec column.
+
+## D7: ASCII box path and 16-colour console (F-opus-08, F-opus-02)
+
+- **F-opus-08: SPEC-GUARD (concede it is not a current finding).** Re-checked: the only non-ASCII characters in all nine current renders are `─` (900) and `▸` (6), and both have ASCII forms in the glyph table (`terminal.py:30-34`). No current output fails under `--ascii`. Guard to put in the spec and the fix plan: panes must use an explicit ASCII box (`+`, `-`, `|`, spec:25) under `--ascii`, never fall through to `ascii_safe`'s `?`, and NO_COLOR must keep hierarchy through text, bold and glyphs.
+- **F-opus-02: SPEC-GUARD (concede it is not a current finding).** `terminal.py:121` sets `"standard"`, but with no styles emitted today no wrong colour can be observed, and I did not demonstrate a slate/muted collision. Guard: the theme defines distinct semantic roles that stay distinct at the terminal's real capability (truecolor, 256 or 16). The console's colour system must be chosen to allow that, and NO_COLOR stays `None`. Exact 24-bit values are not a requirement.
+
+## D8: Blank band between id and liveness at 116 and 80 (F-opus-17)
+
+- **Final: CONCEDE to PARITY-GAP, Low.** Re-checked `render.py:194-196`: at 116 the id column is `min(116 - 64, 60)` = 52 cells by design, and every value prints correctly and aligned (`   review             w-002                                                alive          13s`, `current/116/ledger.txt`). Astra's point about column stability across refreshes is valid, so the fix direction becomes: cap the id width from the longest id in the collected rows (stable for a refresh cycle), and check that real 16-character dispatch ids still fit.
+
+## D9: 80-column invariant lines, workerState drop, desk id placement (F-opus-29, F-opus-18, F-opus-31)
+
+- **F-opus-29: REJECTED (concede).** Re-checked spec:42: "question retention is in memory for this process only", and the retention-reset line is shown. The spec:61 sentence "Questions stay until explicit resolution." would therefore claim more than the observer keeps across restarts and window eviction. A focused question card on a screen with no selection would invent a selection. The only surviving part, framing the 80-column list, is already F-opus-03.
+- **F-opus-18: OPTIONAL.** The mockup keeps the lifecycle word at every width, but spec:33 deliberately defines the 116 and 80 forms without `workerState`. Adding it needs a spec change. Once D8 frees the id band there is room at 116, so it is a worthwhile option, not a parity requirement. At 80 it stays out (ACCEPTED-DIVERGENCE under spec:33).
+- **F-opus-31: required in part.** The required part is emphasis: question text bold in the attention colour and the id/age line muted (PARITY-GAP, Medium). Moving the id line below the question is REJECTED. Decisive: spec:57 fixes the order as "Title `DECISION DESK`; a line with the selected question's id and age; the question text", and `current/116/desk.txt` follows it (`DECISION DESK`, `msg_000000000000  age 1h`, `Choose schema compatibility policy`).
+
+## Unresolved after round 3
+
+- **D5 scope only (severity agreed at Low):** I keep the left-title / right-badge split as part of the required fix, while astra called right alignment optional. The fact that settles it: whether the merged plan treats a technique repeated on line 2 of all nine mockups as theme (my view) or as image detail. If the coordinator rules it image detail, I accept the badge alone.
+- **D4 merged severity:** I moved to Medium (from my round-2 High) because the screen-level loss is counted elsewhere at High. Astra's round-2 text kept "umbrella High" only as a description, with Medium components, so we likely agree. The fact that settles it: whether the coordinator counts F-opus-21 (two-column questions layout) as High. If it does not, the hierarchy item should go back to High so the loss is counted once.
+- No other point is disputed: D1, D2, D3, D7, D8 and F-opus-29 are conceded, and D6 and the F-opus-31 reorder take astra's direction with the geometry and spec line stated above.

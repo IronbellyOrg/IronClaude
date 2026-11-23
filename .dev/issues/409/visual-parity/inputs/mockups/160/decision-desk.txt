@@ -1,0 +1,48 @@
+                                                                                                                                                                
+  ◈ DECISION DESK                                                                                                                      SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                                                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                                                            
+                                                                                                                                                                
+ ┏━ HUMAN QUESTION ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ╭─ AFFECTED SESSION EVIDENCE ──────────────────────────────────────────────────╮ 
+ ┃ Choose schema compatibility policy                                       ┃  │ SESSION / LIFECYCLE / PHASE; RESULT / ADMISSION BELOW                        │ 
+ ┃ Owner: Human operator                                                    ┃  │                                                                              │ 
+ ┃ Scope: 4 sessions | observed 45m ago                                     ┃  │ S001    running  / work                                                      │ 
+ ┃ Affected: S001, S011, S021, S031                                         ┃  │ not observed / not admitted | stale | not frozen                             │ 
+ ┃ Messages partial | 2 other questions                                     ┃  │ S011    running  / work                                                      │ 
+ ┃                                                                          ┃  │ not observed / not admitted | fresh | not frozen                             │ 
+ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  │ S021    running  / queue                                                     │ 
+                                                                               │ not observed / not admitted | fresh | not frozen                             │ 
+                                                                               │ S031    running  / work                                                      │ 
+ ╭─ OTHER OBSERVED QUESTIONS ───────────────────────────────────────────────╮  │ not observed / not admitted | fresh | not frozen                             │ 
+ │                                                                          │  │                                                                              │ 
+ │ Confirm deployment window                                                │  │                                                                              │ 
+ │ Owner: Human operator                                                    │  │                                                                              │ 
+ │ 2 affected | 20m observed                                                │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │ Name the release reviewer                                                │  │                                                                              │ 
+ │ Owner: Human operator                                                    │  │                                                                              │ 
+ │ 2 affected | 10m observed                                                │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │                                                                          │  │                                                                              │ 
+ │ 2/2 other questions shown                                                │  │ 4/4 shown | result is not admission                                          │ 
+ ╰──────────────────────────────────────────────────────────────────────────╯  ╰──────────────────────────────────────────────────────────────────────────────╯ 
+                                                                                                                                                                
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view                                                                                               
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                                                                                                   

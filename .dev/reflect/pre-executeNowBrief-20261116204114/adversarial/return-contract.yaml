@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-executeNowBrief-20261116204114/adversarial/merged-verdict.yaml
+  convergence_score: 0.8947
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/issue-409-mvp/.dev/reflect/pre-executeNowBrief-20261116204114/adversarial
+  status: success
+  base_variant: "variant-3 (refactorer, opus slot)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []

@@ -1,0 +1,24 @@
+ORCA OBSERVER  mode=live  scope=all  as of 12:00:00
+worker-list OK 0s  coordinator questions OK 0s (one Run run_14cfcbd8edf2)
+collected 6 / reported 6  scope=all  source counts: unknown  runs seen: 2  SETTLED unavailable (no source)  POLICY FROZEN unavailable (no source)
+cost unavailable
+COORDINATOR QUESTIONS
+one Run only: run_14cfcbd8edf2
+question read: OK 0s
+bounded best effort; coverage unknown; at most 100 rows per read, not 100 questions; bursts over 100 rows between reads may be lost
+seen, not resolved: 3 | closed by evidence: unavailable (no source)
+no read marker in source: answered questions stay listed
+  1h  Choose schema compatibility policy  reason unknown
+  59m  Confirm deployment window  reason unknown
+  59m  Name the release reviewer  reason unknown
+retention reset at 12:00; questions observed before this start are not retained
+worker-reported, not questions
+   dispatchId             run          workerState  dispatchStatus terminalState  outcome      nextAction.kind  liveness               evidence age flags
+── ────────────────────── ──────────── ──────────── ────────────── ────────────── ──────────── ──────────────── ────────────────────── ──────────── ────────────
+   w-001                  run-0        running      active         active         none         wait             alive (terminal)       3s
+   w-002                  run-1        idle         active         active         none         wait             alive (terminal)       6s
+   w-003                  run-0        running      active         active         none         none             alive (terminal)       9s
+   w-004                  run-1        idle         active         active         none         wait             alive (terminal)       12s
+   w-005                  run-0        running      active         active         none         wait             alive (terminal)       15s
+   w-006                  run-1        idle         active         active         none         none             alive (terminal)       18s
+Up/Down j/k move workers  Enter detail  Esc back  / filter  h historical  m mark rows  e export all  q quit  n/p question  shown 6/6 | collected 6 / reported 6
