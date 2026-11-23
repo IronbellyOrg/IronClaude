@@ -1881,6 +1881,8 @@ def run_preflight(
         retain_raw=job.normalization.on_parse_error.retain_raw,
         output_filename_template=job.output.filename_template,
         output_lens_name=job.output.lens_name,
+        accepted_workers=from_dict(WorkerSpec, dataclasses.asdict(job.workers)),
+        accepted_prompt=dataclasses.replace(job.prompt),
     )
     state = SwarmState(
         state="preflight_ok",
@@ -1997,6 +1999,11 @@ def resume_mode(
         if manifest.target is not None
         else TargetSpec()
     )
+    workers = (
+        from_dict(WorkerSpec, dataclasses.asdict(manifest.accepted_workers))
+        if manifest.accepted_workers is not None
+        else WorkerSpec(count=manifest.preflight.workers_requested)
+    )
     substitutions = (
         dict(manifest.recommended_next_command_substitutions)
         if manifest.recommended_next_command_substitutions is not None
@@ -2021,7 +2028,7 @@ def resume_mode(
             caller=caller,
             target=target,
             recommended_next_command_substitutions=substitutions,
-            workers=WorkerSpec(count=manifest.preflight.workers_requested),
+            workers=workers,
             transport=TransportSpec(kind=manifest.preflight.transport_kind),
             prompt=PromptSpec(
                 system=live_snapshot.system_prompt_fragment,
@@ -2043,11 +2050,15 @@ def resume_mode(
         caller=caller,
         target=target,
         recommended_next_command_substitutions=substitutions,
-        workers=WorkerSpec(count=manifest.preflight.workers_requested),
+        workers=workers,
         transport=TransportSpec(kind=manifest.preflight.transport_kind),
-        prompt=PromptSpec(
-            system=snapshot.system_prompt_fragment,
-            user_template=snapshot.user_template,
+        prompt=(
+            dataclasses.replace(manifest.accepted_prompt)
+            if manifest.accepted_prompt is not None
+            else PromptSpec(
+                system=snapshot.system_prompt_fragment,
+                user_template=snapshot.user_template,
+            )
         ),
         normalization=NormalizationSpec(
             recipe=snapshot.recipe_name,

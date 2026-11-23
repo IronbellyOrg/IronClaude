@@ -1023,10 +1023,9 @@ def _assemble_inline_prompt(job: "JobSpec", target_text: str) -> str:
     The pre-WS-0 inline path dispatched with the default empty ``prompt=""``,
     so workers received no review instruction (cosmetic under ``--transport
     stub``, which returns canned bodies regardless; wrong for ``openai_compat``).
-    The resume branch has no reusable assembly helper -- it rehydrates persisted
-    state and likewise dispatches with an empty prompt -- so the inline path
-    assembles directly from ``job.prompt`` (lens ``system_prompt_fragment`` +
-    ``user_template``), injecting the truncated target between the lens
+    Fresh runs and verified provider resumes assemble from ``job.prompt``
+    (accepted system fragment + user template), injecting the truncated target
+    between the lens
     ``<<<TARGET>>>`` / ``<<<END TARGET>>>`` delimiters. ``str.replace`` (not
     ``str.format``) is used because the target body routinely contains literal
     braces (code) that would break ``format``.
@@ -2547,6 +2546,47 @@ def _run_resume_branch(
     # ----- Wave 1 redispatch (remaining slots only) -------------------------
     redispatched: list[WorkerResult] = []
     if remaining_indices:
+        assembled_prompt = ""
+        if resolved_transport_kind != "stub":
+            # A lens snapshot cannot prove caller prompt/policy overrides.
+            # Recover only accepted settings and checksum-verified target bytes;
+            # historical stub jobs remain usable without enabling unsafe inference.
+            if (
+                manifest_obj.accepted_workers is None
+                or manifest_obj.accepted_prompt is None
+                or manifest_obj.target is None
+            ):
+                click.echo(
+                    "swarm run --resume: cannot recover accepted provider inputs; "
+                    "start a new job instead",
+                    err=True,
+                )
+                raise click.exceptions.Exit(EXIT_INVALID)
+            from superclaude.cli.swarm.preflight import (
+                _target_checksum,
+                _truncate_target,
+            )
+
+            try:
+                target_bytes, _ = _truncate_target(
+                    Path(rehydrated_spec.target.path).read_bytes(),
+                    rehydrated_spec.target.truncation.line_cap,
+                )
+            except OSError:
+                click.echo("swarm run --resume: cannot recover target input", err=True)
+                raise click.exceptions.Exit(EXIT_INVALID) from None
+            if _target_checksum(target_bytes) != manifest_obj.preflight.target_checksum:
+                click.echo(
+                    "swarm run --resume: cannot recover target input: checksum changed",
+                    err=True,
+                )
+                raise click.exceptions.Exit(EXIT_INVALID)
+            assembled_prompt = _assemble_inline_prompt(
+                rehydrated_spec, target_bytes.decode("utf-8", errors="replace")
+            )
+            # An explicitly accepted empty prompt is valid with the guard
+            # disabled. Preserve it just as fresh dispatch does; missing
+            # accepted inputs and changed targets were rejected above.
         synthetic_manifest = _Manifest(
             contract_version=manifest_obj.contract_version,
             job_id=manifest_obj.job_id,
@@ -2604,6 +2644,8 @@ def _run_resume_branch(
         raw_redispatched = dispatch_wave1(
             synthetic_preflight,
             transport_for_slot=_resume_slot_transport,
+            prompt=assembled_prompt,
+            worker_spec=rehydrated_spec.workers,
             logger=None,
         )
 

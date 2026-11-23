@@ -77,6 +77,8 @@ EXPECTED_TOP_LEVEL_FIELDS: tuple[str, ...] = (
     "retain_raw",
     "output_filename_template",
     "output_lens_name",
+    "accepted_workers",
+    "accepted_prompt",
 )
 
 
