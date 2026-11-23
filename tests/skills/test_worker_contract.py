@@ -3417,3 +3417,9 @@ def test_the_coordinator_section_does_not_require_a_person_opened_coordinator():
     assert "These bind the coordinator" in contract
     assert "an Orca coordinator session the person opened" not in contract
     assert "whether a person opened it or a script started it" in contract
+
+
+def test_contract_has_one_coordinator_per_project_not_per_host():
+    text = _contract()
+    assert "Each project (repository) has one coordinator" in text
+    assert "issue on the host" not in text

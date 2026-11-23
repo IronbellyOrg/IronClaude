@@ -81,7 +81,7 @@ Run them in this order. For each: the step, the value to record, and what a fail
 
 - Step: with a worker waiting in `ask`, stop the coordinator's wait (close its wait command, do not close the worker); read `orca orchestration worker-list --run <run id>` after two minutes.
 - Record: whether the worker is still listed alive and still waiting.
-- Failure means: if the worker exits, "nothing starts while the coordinator is down" is not enough and the approval wait needs a different design.
+- Failure means: if the worker exits, "nothing starts for a project while its coordinator is down" is not enough and the approval wait needs a different design.
 
 ### i. Worktree reuse when the claim runs twice
 
