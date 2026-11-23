@@ -20,7 +20,7 @@
 
 - `validate-lenses` reports `registry OK (9 entries inspected, 8 validated)`: eight bundled lenses plus the `custom` entry, which it skips (`commands.py:409-415`; `lenses/__init__.py:75-85`).
 - `scaffold --lens <name>` prints a starter job file (JSON) that `validate` accepts as is, with the `stub` transport and empty `target.path` / `output.dir`; `validate` exits 0 on a good file, 1 on a rule failure, 2 on unreadable or invalid JSON.
-- A fresh `swarm run` writes the full output set into `--output`: `.swarm-state.json`, `manifest.json`, `execution-log.jsonl`, `execution-log.md`, one `.final.md` and one `.meta.json` per worker, `merged.md` and `return-contract.yaml`, and no `done.json` (`commands.py:2083-2178`; `reduce.py:702`).
+- A fresh `swarm run` writes the full output set into `--output`: `.swarm-state.json`, `manifest.json`, `execution-log.jsonl`, `execution-log.md`, one `.final.md`, one `.meta.json` and one retained `.raw.md` per worker with an available string transport body (default retention), `merged.md` and `return-contract.yaml`, and no `done.json` (`commands.py:2083-2178`; `reduce.py:702`).
 - `status` prints one `status: phase=... job_id=... updated=...` line (plus `terminal_status=` when the run is finished) and exits 0 for running or `success`, 1 for `partial` / `failed`, 2 for usage errors; `logs` prints the Markdown or JSONL event log.
 - `--detached` starts a tmux session `swarm-<job_id>` and returns at once; `attach` and `kill` exit 0 when no session exists; `kill --output` writes `done.json` with `terminal_status: killed`.
 - `--tui` draws a live `SUPERCLAUDE SWARM` dashboard on a TTY and does nothing on a pipe; it cannot be combined with `--detached` or `--resume`.
@@ -29,9 +29,8 @@
 - **Observed-as-coded in 5.0.0** (record, do not mark FAIL):
   - A `--detached` run leaves only `.swarm-detached-spec.json` in the output folder: no state file, no log, no reviews, no contract (Step 14). The tmux child runs `swarm run <snapshot>` without `--output` (`commands.py:1297-1304`), preflight writes `manifest.json` only when it is given an output folder (`preflight.py:1871-1873`), and the run writes state, logs and results only when a manifest was written (`commands.py:1844-1866,2095,2164`). With the stub the session also ends within a second, so there is nothing to attach to.
   - With the `stub` transport every worker is labelled `lens-default-model-0`: one stub transport serves all slots, bound to the first model name (`commands.py:566-570,631-635`).
-  - `return-contract.yaml` lists a `raw_path` (`.raw.md`) per worker that is never written, and its `started`, `finished`, `target.path` and `artifacts:` fields are empty (Step 8).
-  - `--resume` of a finished job rewrites `return-contract.yaml` with `lens: ''` and an empty `recommended_next_command`, because the resume path calls the merge step without the lens and next-command values (`commands.py:2578-2586`; Step 12).
-  - The `--tui` dashboard shows only the workers whose events arrived in the latest poll, so its last frame can list fewer workers than ran (`commands.py:2012-2015`; `tui.py:243-247,263`; Step 13).
+  - `return-contract.yaml` still has empty `started`, `finished` and `artifacts:` paths (Step 8); accepted target context is retained.
+- **Corrected resume and dashboard expectations** (Steps 12/13): completed resume retains the saved lens and next command. A partial resume adds newly successful worker files to the recovered command unless accepted substitutions explicitly override those inputs. The dashboard retains worker rows across empty polls and bounds retained events by worker count. These outcomes are verified with model-free checks, not live-provider runs.
 
 Settings this guide does not exercise: `--target-line-cap`, `--timeout-sec`, `--label`, `--force-relens` beyond one edge row, `--auto-inject-guard`, `status --watch` beyond one step, `logs --follow` on a running job, and the seven lenses other than `bare-review`. All are listed by `superclaude swarm run --help`, `status --help` and `logs --help`.
 
@@ -206,10 +205,13 @@ exit=0
 .swarm-state.json
 bare-review-00-lens-default-model-0.final.md
 bare-review-00-lens-default-model-0.meta.json
+bare-review-00-lens-default-model-0.raw.md
 bare-review-01-lens-default-model-0.final.md
 bare-review-01-lens-default-model-0.meta.json
+bare-review-01-lens-default-model-0.raw.md
 bare-review-02-lens-default-model-0.final.md
 bare-review-02-lens-default-model-0.meta.json
+bare-review-02-lens-default-model-0.raw.md
 execution-log.jsonl
 execution-log.md
 manifest.json
@@ -263,12 +265,12 @@ merged_path: /tmp/d14/sw1/merged.md
 3
 ## Verdict
 stub:lens-default-model-0:3db82dd8b13e352e
-0
+3
 started: ''
 finished: ''
 ```
 
-`recommended_next_command` is `/sc:adversarial --compare <existing-review>,<the three .final.md paths> --suspect-source <the same three paths>`: replace `<existing-review>` with your own review file before you run it. `merged.md` has one `## From <model> (<ms>ms)` section per worker. Each review is the bare-review template with an empty findings table and the stub's one-line verdict. Observed-as-coded: every worker is `lens-default-model-0`; the contract names a `raw_path` per worker but no `.raw.md` is written (`0`); `started`, `finished`, `target.path` and the `artifacts:` paths are empty. (source: next command `commands.py:2121-2159`; merge `commands.py:2145-2159`; raw path `commands.py:1075`; stub model `commands.py:566-570,631-635`)
+`recommended_next_command` is `/sc:adversarial --compare <existing-review>,<the three .final.md paths> --suspect-source <the same three paths>`: replace `<existing-review>` with your own review file before you run it. `merged.md` has one `## From <model> (<ms>ms)` section per worker. Each review is the bare-review template with an empty findings table and the stub's one-line verdict. The three `.raw.md` files contain the exact transport text as UTF-8, before normalization; every nonempty `raw_path` names an existing file. An available empty string produces an empty raw file; a missing or non-string body produces no advertised raw path. With `normalization.on_parse_error.retain_raw: false` in a job file, no raw file is written or advertised, even if a prior raw file exists; prior files are not deleted. Raw bodies and raw-file pointers are not stored in `.meta.json`. Observed-as-coded: every worker is `lens-default-model-0`; `started`, `finished` and the `artifacts:` paths remain empty; `target.path` carries the accepted target. (source: next command `commands.py:2121-2159`; merge `commands.py:2145-2159`; raw path `commands.py:1075`; stub model `commands.py:566-570,631-635`)
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -369,9 +371,14 @@ exit=0
 
 ```bash
 cd /tmp/d14
+sha256sum sw1/*.raw.md > raw-before.sha256
 superclaude swarm run --resume <JOB> --output /tmp/d14/sw1; echo "exit=$?"
+sha256sum sw1/*.raw.md > raw-after.sha256
+cmp raw-before.sha256 raw-after.sha256; echo "raw-inventory-and-bytes=$?"
+ls sw1/*.raw.md | wc -l
 superclaude swarm run --resume wrong-id --output /tmp/d14/sw1; echo "exit=$?"
-grep -E '^(status|lens|recommended_next_command):' /tmp/d14/sw1/return-contract.yaml
+grep -E '^(status|lens):' /tmp/d14/sw1/return-contract.yaml
+grep -A1 '^recommended_next_command:' /tmp/d14/sw1/return-contract.yaml
 ```
 
 **Expected result:**
@@ -379,14 +386,19 @@ grep -E '^(status|lens|recommended_next_command):' /tmp/d14/sw1/return-contract.
 ```text
 swarm run --resume: job_id=<JOB> workers=3 skipped=3 redispatched=0
 exit=0
+raw-inventory-and-bytes=0
+3
 swarm run --resume: job_id mismatch -- requested 'wrong-id', manifest carries '<JOB>'
 exit=2
 status: success
-lens: ''
-recommended_next_command: ''
+lens: bare-review
+recommended_next_command: /sc:adversarial --compare <existing-review>,/tmp/d14/sw1/bare-review-00-lens-default-model-0.final.md,/tmp/d14/sw1/bare-review-01-lens-default-model-0.final.md,/tmp/d14/sw1/bare-review-02-lens-default-model-0.final.md
+  --suspect-source /tmp/d14/sw1/bare-review-00-lens-default-model-0.final.md,/tmp/d14/sw1/bare-review-01-lens-default-model-0.final.md,/tmp/d14/sw1/bare-review-02-lens-default-model-0.final.md
 ```
 
-All three workers have a `success` meta file, so none is sent again; `merged.md` and the contract are written again. Observed-as-coded: the rewritten contract loses the lens name and the next command (compare Step 8). (source: resume `commands.py:1631-1670,2314-2598`; mismatch `commands.py:2425`; merge call without lens `commands.py:2578-2586`)
+All three workers have a `success` meta file, so none is sent again; `merged.md` and the contract are written again. The raw inventory stays at three files with identical bytes, and each advertised `raw_path` still resolves to its retained file. Resume restores the saved retention and output naming policy from `manifest.json`; redispatched workers use their original slot indexes. With saved retention disabled, resume advertises no raw paths and leaves previously existing raw files untouched. The rewritten contract retains `lens: bare-review` and the saved next-command template with all three successful final paths, as in Step 8. YAML may wrap that command differently; its parsed value is what matters. Replace `<existing-review>` before using it. For partial jobs, newly successful files join the command's inputs unless accepted substitutions explicitly override them. (source: `commands.py` `_run_resume_branch`; runnable checks: `tests/swarm/test_resume_context.py`, `tests/swarm/test_raw_retention.py`.)
+
+Provider resumes with incomplete slots require recoverable accepted prompt/worker settings and target bytes that match the saved checksum. Missing legacy settings or a missing/changed target fail before provider dispatch, with a `cannot recover` diagnostic; start a new job instead. A fully completed job does not need live target input or a provider. Unsafe or ambiguous saved output paths also fail before dispatch. These are model-free safety checks, not a claim that live-provider or detached limitations are fixed.
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -401,7 +413,7 @@ ls /tmp/d14/sw4 | wc -l
 superclaude swarm run --lens bare-review --target /tmp/d14/target.md --output /tmp/d14/sw5 --tui | cat; echo "exit=${PIPESTATUS[0]}"
 ```
 
-**Expected result:** first command: for under a second a blue box titled `SUPERCLAUDE SWARM` with a line `job: lens-bare-review-<8 hex>    state: <phase>    workers: <n>    elapsed: <s>` and a table with columns `#`, `Model`, `Status`, `Elapsed`; then the box stops and `swarm run: dispatched job (mode=lens, workers=3, results=3)` and `exit=0`. `ls` counts `11` entries (the Step 6 set without the hidden state file). Second command (standard output is a pipe): no box, only the `dispatched job` line and `exit=0`. Observed-as-coded: the last frame can show `state: dispatching` and fewer than three rows, because each poll shows only newly read events. (source: dashboard `tui.py:263-303`; TTY gate `tui.py:74-93`, `commands.py:1946`; poll loop `commands.py:1990-2081`)
+**Expected result:** first command: for under a second a blue box titled `SUPERCLAUDE SWARM` with a line `job: lens-bare-review-<8 hex>    state: <phase>    workers: <n>    elapsed: <s>` and a table with columns `#`, `Model`, `Status`, `Elapsed`; then the box stops and `swarm run: dispatched job (mode=lens, workers=3, results=3)` and `exit=0`. `ls` counts `14` entries (the Step 6 set, including three raw files, without the hidden state file). Second command (standard output is a pipe): no box, only the `dispatched job` line and `exit=0`. Once a worker's event arrives, its row, first model label and latest completion remain visible across later empty polls. Progress events do not evict another worker's row or grow the saved event list without bound: at most four representative events are retained per worker. The header may still show `state: dispatching` in the last drawn frame; this row-retention fix does not promise an extra terminal redraw or a live-provider result. (source: `tui.py` `TUI.update`; runnable idle-poll and bounded-retention check: `tests/swarm/test_tui.py::test_update_preserves_workers_across_polls`.)
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 

@@ -245,3 +245,89 @@ def test_exact_fresh_resume_provider_parity(tmp_path, monkeypatch, prompt_mode, 
         assert sent[0][1] != fresh_request[1]
     else:
         assert sent[0] == fresh_request, "fresh and ordinary resume requests differ"
+
+
+def test_completed_replay_without_raw_sibling(tmp_path, monkeypatch):
+    output, job, lens = _persist_resume_job(tmp_path)
+    for index in range(4):
+        _seed_resume_slot(output, index, lens)
+    next(output.glob("*-00-*.raw.md")).unlink()
+    before = inventory(output)
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("completed replay must not redispatch")
+
+    monkeypatch.setattr("superclaude.cli.swarm.dispatch.dispatch_wave1", forbidden)
+    for _ in range(2):
+        result = resume(output, job)
+        assert result.exit_code == 0, result.output
+        contract = yaml.safe_load((output / "return-contract.yaml").read_text())
+        assert contract["output_files"][0]["raw_path"] == ""
+        assert all((output / p).read_bytes() == data for p, data in before.items())
+
+
+@pytest.mark.parametrize("initial", [True, False])
+def test_saved_retention_toggle_between_partial_resumes(tmp_path, monkeypatch, initial):
+    output, job, lens = _persist_resume_job(tmp_path, retain_raw=initial)
+    _seed_resume_slot(output, 0, lens)
+    position = []
+
+    def dispatch(*args, **kwargs):
+        position.append(True)
+        worker = WorkerResult(index=0, model_id=f"toggle-{len(position)}", status="success")
+        worker.body = "## Verdict\nToggle body.\n"
+        return [worker]
+
+    monkeypatch.setattr("superclaude.cli.swarm.dispatch.dispatch_wave1", dispatch)
+    for retained in (initial, not initial):
+        manifest_path = output / "manifest.json"
+        data = json.loads(manifest_path.read_text())
+        data["retain_raw"] = retained  # deliberate fixture policy edit, no product edit
+        manifest_path.write_text(json.dumps(data))
+        manifest_bytes = manifest_path.read_bytes()
+        before = {p: body for p, body in inventory(output).items() if str(p).endswith((".raw.md", ".meta.json", ".final.md"))}
+        result = resume(output, job)
+        assert result.exit_code in (0, 1), result.output
+        contract = yaml.safe_load((output / "return-contract.yaml").read_text())
+        assert manifest_path.read_bytes() == manifest_bytes
+        assert all((output / p).read_bytes() == body for p, body in before.items())
+        new_worker = next(w for w in contract["output_files"] if w["model_id"] == f"toggle-{len(position)}")
+        assert bool(new_worker["raw_path"]) is retained
+        if not retained:
+            assert all(w["raw_path"] == "" for w in contract["output_files"])
+    assert len(position) == 2
+
+
+@pytest.mark.parametrize("damage", ["same-length", "missing-target", "missing-workers", "missing-prompt", "malformed-prompt", "conflicting-prior"])
+def test_battle_provider_recovery_state(tmp_path, monkeypatch, damage):
+    output, job, lens = _persist_resume_job(tmp_path)
+    for index in (0, 2):
+        _seed_resume_slot(output, index, lens)
+    manifest_path = output / "manifest.json"
+    data = json.loads(manifest_path.read_text())
+    data["preflight"]["transport_kind"] = "openai_compat"
+    target = Path(data["target"]["path"])
+    if damage == "same-length":
+        body = target.read_bytes()
+        target.write_bytes(body.replace(b"Review", b"review"))
+        assert target.stat().st_size == len(body)
+    elif damage == "missing-target":
+        target.unlink()
+    elif damage == "missing-workers":
+        data.pop("accepted_workers")
+    elif damage == "missing-prompt":
+        data.pop("accepted_prompt")
+    elif damage == "malformed-prompt":
+        data["accepted_prompt"] = []
+    else:
+        data.pop("accepted_prompt")
+        (output / "return-contract.yaml").write_text(yaml.safe_dump({"job_id": "another-job", "lens": "custom", "recommended_next_command": "invented"}))
+    manifest_path.write_text(json.dumps(data))
+    before = inventory(output)
+    calls = []
+    monkeypatch.setattr(cmd, "_resolve_run_transport_factory", lambda *a, **k: calls.append(True))
+    result = resume(output, job)
+    assert result.exit_code != 0
+    assert calls == [], "unrecoverable state reached provider construction"
+    assert inventory(output) == before
+    assert "success" not in result.output.lower()
