@@ -538,3 +538,55 @@ def test_discover_succeeded_slots_exported() -> None:
 
     assert "discover_succeeded_slots" in commands_mod.__all__
     assert callable(commands_mod.discover_succeeded_slots)
+
+
+@pytest.mark.parametrize("hazard", ["duplicate", "parent", "symlink", "raw-symlink"])
+def test_resume_discovery_rejects_unsafe_inventory(tmp_path, monkeypatch, hazard):
+    output = tmp_path / "out"
+    manifest_path = _write_manifest(output)
+    payload = json.loads(manifest_path.read_text())
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    if hazard == "parent":
+        payload["output_filename_template"] = (
+            "../outside/{lens}-{index:02d}-{model_slug}.md"
+        )
+    elif hazard == "symlink":
+        (output / "linked").symlink_to(outside, target_is_directory=True)
+        payload["output_filename_template"] = (
+            "linked/{lens}-{index:02d}-{model_slug}.md"
+        )
+    else:
+        _write_succeeded_sidecar(output, slot_index=0)
+        if hazard == "duplicate":
+            _write_succeeded_sidecar(output, slot_index=0, model_slug="another-model")
+        else:
+            raw = outside / "body.md"
+            raw.write_text("Outside body stays private.\n")
+            (output / f"{LENS_NAME}-00-stub-model.raw.md").symlink_to(raw)
+    manifest_path.write_text(json.dumps(payload))
+    before = {p: p.read_bytes() for p in tmp_path.rglob("*") if p.is_file()}
+    calls = []
+
+    def forbidden(*args, **kwargs):
+        calls.append(True)
+        pytest.fail("unsafe inventory must fail before dispatch")
+
+    monkeypatch.setattr("superclaude.cli.swarm.dispatch.dispatch_wave1", forbidden)
+    result = CliRunner().invoke(run_cmd, ["--resume", JOB_ID, "--output", str(output)])
+    assert result.exit_code != 0
+    assert calls == []
+    assert {p: p.read_bytes() for p in before} == before
+
+
+def test_discovery_does_not_guess_unrelated_numeric_segment(tmp_path):
+    _write_succeeded_sidecar(tmp_path, slot_index=0)
+    unrelated = tmp_path / "unrelated-01-record.meta.json"
+    unrelated.write_text(json.dumps({"status": "success"}))
+    succeeded = discover_succeeded_slots(
+        tmp_path,
+        3,
+        lens_name=LENS_NAME,
+        filename_template="{model_slug}-{lens}-slot-{index:02d}.md",
+    )
+    assert set(succeeded) == {0}

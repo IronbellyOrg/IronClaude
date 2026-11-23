@@ -995,6 +995,14 @@ def _slugify_model(value: str, fallback: str) -> str:
     return slug or fallback
 
 
+def _normalization_recipe_args(job: "JobSpec", target_checksum: str) -> dict[str, Any]:
+    """Apply accepted provenance defaults identically on fresh and resumed jobs."""
+    args = dict(job.normalization.recipe_args or {})
+    args.setdefault("target", job.target.path)
+    args.setdefault("target_checksum", target_checksum)
+    return args
+
+
 def _read_truncated_target(job: "JobSpec") -> str:
     """Return the truncated target body for inline prompt assembly (B-5).
 
@@ -1023,10 +1031,9 @@ def _assemble_inline_prompt(job: "JobSpec", target_text: str) -> str:
     The pre-WS-0 inline path dispatched with the default empty ``prompt=""``,
     so workers received no review instruction (cosmetic under ``--transport
     stub``, which returns canned bodies regardless; wrong for ``openai_compat``).
-    The resume branch has no reusable assembly helper -- it rehydrates persisted
-    state and likewise dispatches with an empty prompt -- so the inline path
-    assembles directly from ``job.prompt`` (lens ``system_prompt_fragment`` +
-    ``user_template``), injecting the truncated target between the lens
+    Fresh runs and verified provider resumes assemble from ``job.prompt``
+    (accepted system fragment + user template), injecting the truncated target
+    between the lens
     ``<<<TARGET>>>`` / ``<<<END TARGET>>>`` delimiters. ``str.replace`` (not
     ``str.format``) is used because the target body routinely contains literal
     braces (code) that would break ``format``.
@@ -1044,6 +1051,7 @@ def _stamp_inline_worker_paths(
     output_dir: Path,
     lens_name: str,
     filename_template: str,
+    retain_raw: bool = True,
 ) -> list[WorkerResult]:
     """Populate ``final_path`` / ``meta_path`` / ``raw_path`` on fresh workers.
 
@@ -1060,6 +1068,9 @@ def _stamp_inline_worker_paths(
     """
     import dataclasses
 
+    from superclaude.cli.swarm.atomic import write_prepared_bytes
+    from superclaude.cli.swarm.state import confine_path
+
     template = filename_template or "{lens}-{index:02d}-{model_slug}.md"
     stamped: list[WorkerResult] = []
     for worker in workers:
@@ -1068,13 +1079,23 @@ def _stamp_inline_worker_paths(
         )
         rendered = template.format(lens=lens_name, index=worker.index, model_slug=slug)
         base = rendered[:-3] if rendered.endswith(".md") else rendered
+        final_path = confine_path(output_dir / f"{base}.final.md", output_dir)
+        meta_path = confine_path(output_dir / f"{base}.meta.json", output_dir)
+        raw_path = confine_path(output_dir / f"{base}.raw.md", output_dir)
+        body = getattr(worker, "body", None)
+        if retain_raw and isinstance(body, str):
+            raw_path.parent.mkdir(parents=True, exist_ok=True)
+            write_prepared_bytes(raw_path, body.encode("utf-8"))
         replaced = dataclasses.replace(
             worker,
-            final_path=str(output_dir / f"{base}.final.md"),
-            meta_path=str(output_dir / f"{base}.meta.json"),
-            raw_path=str(output_dir / f"{base}.raw.md"),
+            final_path=str(final_path),
+            meta_path=str(meta_path),
+            raw_path=(
+                str(raw_path)
+                if retain_raw and isinstance(body, str) and raw_path.is_file()
+                else ""
+            ),
         )
-        body = getattr(worker, "body", None)
         if body is not None:
             replaced.body = body
         stamped.append(replaced)
@@ -2101,17 +2122,15 @@ def run_cmd(
             state_output_dir,
             inline_job.output.lens_name or (lens or ""),
             inline_job.output.filename_template,
+            retain_raw=inline_job.normalization.on_parse_error.retain_raw,
         )
         # normalize_wave2 forwards a single recipe_args dict to every worker; the
         # bare-review-v1 recipe reads target / target_checksum / caller_label from
         # it (per-worker model_id is uniform on the single-model stub / parity
         # path). caller_label arrives via spec ``normalization.recipe_args`` (the
         # --label override); target + checksum are supplied here from preflight.
-        recipe_args = dict(inline_job.normalization.recipe_args or {})
-        recipe_args.setdefault("target", inline_job.target.path)
-        recipe_args.setdefault(
-            "target_checksum",
-            preflight_result.manifest.preflight.target_checksum,
+        recipe_args = _normalization_recipe_args(
+            inline_job, preflight_result.manifest.preflight.target_checksum
         )
         normalized_workers = normalize_wave2(
             stamped_workers,
@@ -2228,25 +2247,28 @@ _META_SLOT_INDEX_RE: re.Pattern[str] = re.compile(r"-(\d+)-[^/\\]+\.meta\.json$"
 def discover_succeeded_slots(
     output_dir: Path,
     workers_requested: int,
+    *,
+    lens_name: Optional[str] = None,
+    filename_template: Optional[str] = None,
 ) -> dict[int, WorkerResult]:
     """T06.04 -- scan ``output_dir`` for succeeded worker meta sidecars.
 
-    Returns ``{slot_index: WorkerResult}`` for every ``*.meta.json``
-    sidecar whose ``status`` field is ``"success"``. The slot index is
-    extracted from the filename via :data:`_META_SLOT_INDEX_RE` (the
-    ``-NN-`` segment between the lens prefix and the model slug). Slots
-    outside ``[0, workers_requested)`` are ignored so a stale sidecar
-    from a prior run with a different ``workers.count`` cannot influence
-    the resume decision.
+    Returns ``{slot_index: WorkerResult}`` for successful confined sidecars.
+    With saved naming policy, match each original slot against that template
+    and the historical canonical layout, including nested paths. Reject
+    multiple slot matches and duplicate successful sidecars rather than guess.
+    Two-argument callers retain the top-level historical numeric parser.
+    Slots outside ``[0, workers_requested)`` are ignored.
 
     The reconstructed :class:`WorkerResult` carries:
 
         * ``index`` -- the slot the sidecar names.
         * ``meta_path`` -- absolute path to the on-disk sidecar.
         * ``final_path`` -- absolute path to the sibling
-          ``…-NN-….final.md`` body when it exists; empty string when
-          absent (a sidecar without a final body still counts as
-          succeeded but downstream merge gates on ``final_path``).
+          ``…-NN-….final.md`` body when it is a regular file; empty
+          string when absent and the sidecar reports no positive bytes.
+          A non-file final or a missing positive-byte final is rejected
+          as contradictory completed evidence.
         * ``raw_path`` -- absolute path to the sibling
           ``…-NN-….raw.md`` when it exists.
         * ``status`` -- ``"success"`` (the only branch admitted here).
@@ -2267,16 +2289,95 @@ def discover_succeeded_slots(
         Mapping from slot index to :class:`WorkerResult`. Empty when no
         sidecar reports success.
     """
+    from string import Formatter
+
+    from superclaude.cli.swarm.state import confine_path
+
     succeeded: dict[int, WorkerResult] = {}
+    patterns: list[tuple[int, re.Pattern[str]]] = []
+    if lens_name is not None:
+        templates = dict.fromkeys(
+            [
+                filename_template or "{lens}-{index:02d}-{model_slug}.md",
+                "{lens}-{index:02d}-{model_slug}.md",
+            ]
+        )
+        for template in templates:
+            fields = list(Formatter().parse(template))
+            if not any(field == "index" for _, field, _, _ in fields):
+                raise ValueError("output naming cannot uniquely identify worker slots")
+            if any(
+                field not in (None, "lens", "index", "model_slug")
+                for _, field, _, _ in fields
+            ):
+                raise ValueError("unsupported output naming field")
+            for index in range(workers_requested):
+                try:
+                    rendered = template.format(
+                        lens=lens_name, index=index, model_slug="slot"
+                    )
+                except KeyError as exc:
+                    raise ValueError("unsupported output naming field") from exc
+                confine_path(output_dir / rendered, output_dir)
+                parts = []
+                seen_slug = False
+                for literal, field, spec, conversion in fields:
+                    parts.append(re.escape(literal))
+                    if field is None:
+                        continue
+                    if field == "model_slug" and not spec and conversion is None:
+                        parts.append(
+                            r"(?P<slug>[^/\\]+)" if not seen_slug else r"(?P=slug)"
+                        )
+                        seen_slug = True
+                    elif field in ("lens", "index"):
+                        value = {"lens": lens_name, "index": index}[field]
+                        parts.append(
+                            re.escape(
+                                Formatter().format_field(
+                                    Formatter().convert_field(value, conversion)
+                                    if conversion
+                                    else value,
+                                    spec,
+                                )
+                            )
+                        )
+                    else:
+                        raise ValueError("unsupported output naming field")
+                expression = "".join(parts)
+                if expression.endswith(r"\.md"):
+                    expression = expression[:-4]
+                patterns.append((index, re.compile(expression + r"\.meta\.json")))
     if not output_dir.is_dir():
         return succeeded
-    for meta_file in sorted(output_dir.glob("*.meta.json")):
-        match = _META_SLOT_INDEX_RE.search(meta_file.name)
-        if match is None:
+    for candidate in sorted(output_dir.rglob("*")):
+        # Check directory symlinks too: rglob does not traverse them.
+        confine_path(candidate, output_dir)
+        if not candidate.name.endswith(".meta.json"):
             continue
-        slot_index = int(match.group(1))
+        relative = candidate.relative_to(output_dir).as_posix()
+        identities: dict[int, str] = {}
+        if lens_name is not None:
+            for index, pattern in patterns:
+                match = pattern.fullmatch(relative)
+                if match:
+                    identities.setdefault(
+                        index, match.groupdict().get("slug") or f"slot{index:02d}"
+                    )
+        elif candidate.parent == output_dir:
+            match = _META_SLOT_INDEX_RE.search(candidate.name)
+            if match:
+                identities[int(match.group(1))] = candidate.name[
+                    match.end(1) + 1 : -len(".meta.json")
+                ]
+        if not identities:
+            continue
+        if len(identities) != 1:
+            raise ValueError("ambiguous worker slot identity")
+        slot_index, slug_tail = identities.popitem()
         if slot_index < 0 or slot_index >= workers_requested:
             continue
+        meta_file = confine_path(candidate, output_dir)
         try:
             payload = json.loads(meta_file.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
@@ -2290,24 +2391,26 @@ def discover_succeeded_slots(
             continue
 
         stem = meta_file.name[: -len(".meta.json")]
-        final_candidate = meta_file.parent / f"{stem}.final.md"
-        raw_candidate = meta_file.parent / f"{stem}.raw.md"
-        # Recover the model_label from the filename segment between the
-        # slot index and the ``.meta.json`` suffix. The capture's tail
-        # is the model_slug; we surface it verbatim so merge provenance
-        # carries the same label the original run stamped.
-        slug_tail = meta_file.name[match.end(1) + 1 : -len(".meta.json")]
+        final_candidate = confine_path(
+            meta_file.parent / f"{stem}.final.md", output_dir
+        )
+        raw_candidate = confine_path(meta_file.parent / f"{stem}.raw.md", output_dir)
+        if slot_index in succeeded:
+            raise ValueError("ambiguous duplicate worker slot sidecars")
         bytes_written = payload.get("bytes", 0)
         try:
             bytes_int = int(bytes_written)
         except (TypeError, ValueError):
             bytes_int = 0
+        final_is_file = final_candidate.is_file()
+        if not final_is_file and (final_candidate.exists() or bytes_int > 0):
+            raise ValueError("completed worker final output is not a regular file")
         succeeded[slot_index] = WorkerResult(
             index=slot_index,
-            path=str(final_candidate) if final_candidate.exists() else "",
-            raw_path=str(raw_candidate) if raw_candidate.exists() else "",
+            path=str(final_candidate) if final_is_file else "",
+            raw_path=str(raw_candidate) if raw_candidate.is_file() else "",
             meta_path=str(meta_file),
-            final_path=str(final_candidate) if final_candidate.exists() else "",
+            final_path=str(final_candidate) if final_is_file else "",
             model_id=slug_tail,
             model_label=slug_tail,
             bytes=bytes_int,
@@ -2520,7 +2623,20 @@ def _run_resume_branch(
     recipe_name = rehydrated_spec.normalization.recipe
 
     # ----- Slot-state discovery ---------------------------------------------
-    succeeded = discover_succeeded_slots(output_path, workers_requested)
+    try:
+        succeeded = discover_succeeded_slots(
+            output_path,
+            workers_requested,
+            lens_name=rehydrated_spec.output.lens_name,
+            filename_template=rehydrated_spec.output.filename_template,
+        )
+    except (ValueError, OSError) as exc:
+        click.echo("swarm run --resume: unsafe or ambiguous worker inventory", err=True)
+        raise click.exceptions.Exit(EXIT_INVALID) from exc
+    retain_raw = rehydrated_spec.normalization.on_parse_error.retain_raw
+    if not retain_raw:
+        for worker in succeeded.values():
+            worker.raw_path = ""
     remaining_indices: list[int] = [
         index for index in range(workers_requested) if index not in succeeded
     ]
@@ -2528,6 +2644,47 @@ def _run_resume_branch(
     # ----- Wave 1 redispatch (remaining slots only) -------------------------
     redispatched: list[WorkerResult] = []
     if remaining_indices:
+        assembled_prompt = ""
+        if resolved_transport_kind != "stub":
+            # A lens snapshot cannot prove caller prompt/policy overrides.
+            # Recover only accepted settings and checksum-verified target bytes;
+            # historical stub jobs remain usable without enabling unsafe inference.
+            if (
+                manifest_obj.accepted_workers is None
+                or manifest_obj.accepted_prompt is None
+                or manifest_obj.target is None
+            ):
+                click.echo(
+                    "swarm run --resume: cannot recover accepted provider inputs; "
+                    "start a new job instead",
+                    err=True,
+                )
+                raise click.exceptions.Exit(EXIT_INVALID)
+            from superclaude.cli.swarm.preflight import (
+                _target_checksum,
+                _truncate_target,
+            )
+
+            try:
+                target_bytes, _ = _truncate_target(
+                    Path(rehydrated_spec.target.path).read_bytes(),
+                    rehydrated_spec.target.truncation.line_cap,
+                )
+            except OSError:
+                click.echo("swarm run --resume: cannot recover target input", err=True)
+                raise click.exceptions.Exit(EXIT_INVALID) from None
+            if _target_checksum(target_bytes) != manifest_obj.preflight.target_checksum:
+                click.echo(
+                    "swarm run --resume: cannot recover target input: checksum changed",
+                    err=True,
+                )
+                raise click.exceptions.Exit(EXIT_INVALID)
+            assembled_prompt = _assemble_inline_prompt(
+                rehydrated_spec, target_bytes.decode("utf-8", errors="replace")
+            )
+            # An explicitly accepted empty prompt is valid with the guard
+            # disabled. Preserve it just as fresh dispatch does; missing
+            # accepted inputs and changed targets were rejected above.
         synthetic_manifest = _Manifest(
             contract_version=manifest_obj.contract_version,
             job_id=manifest_obj.job_id,
@@ -2585,6 +2742,8 @@ def _run_resume_branch(
         raw_redispatched = dispatch_wave1(
             synthetic_preflight,
             transport_for_slot=_resume_slot_transport,
+            prompt=assembled_prompt,
+            worker_spec=rehydrated_spec.workers,
             logger=None,
         )
 
@@ -2601,12 +2760,35 @@ def _run_resume_branch(
             worker.index = target_index
             redispatched.append(worker)
 
+    # Prepare only redispatched workers, after restoring their original indexes.
+    redispatched = _stamp_inline_worker_paths(
+        redispatched,
+        output_path,
+        rehydrated_spec.output.lens_name,
+        rehydrated_spec.output.filename_template,
+        retain_raw=retain_raw,
+    )
+
     # ----- Wave 2 normalize (redispatched workers only) ---------------------
     if redispatched and recipe_name:
+        recipe_args = _normalization_recipe_args(
+            rehydrated_spec, manifest_obj.preflight.target_checksum
+        )
+        if (
+            manifest_obj.target is None
+            and "target" not in rehydrated_spec.normalization.recipe_args
+        ):
+            # Old manifests may still have accepted target context in the
+            # same-job prior contract. Never read a live target for metadata.
+            prior_target = _prior_resume_context(output_path, manifest_obj.job_id).get(
+                "target", {}
+            )
+            recipe_args["target"] = prior_target.get("path", "")
         try:
             redispatched = normalize_wave2(
                 redispatched,
                 recipe_name=recipe_name,
+                recipe_args=recipe_args,
             )
         except KeyError as exc:
             click.echo(
@@ -2675,7 +2857,13 @@ def _run_resume_branch(
             else CallerMetadata(suspect=snapshot.suspect, tier=snapshot.tier)
         )
     next_template = rehydrated_spec.recommended_next_command_template
-    if not force_relens and manifest_obj.recommended_next_command_template is None:
+    if (
+        not force_relens
+        and manifest_obj.recommended_next_command_template is None
+        and not next_template
+    ):
+        # Prefer the accepted snapshot template: a prior rendered command can
+        # contain only the workers that had succeeded before this resume.
         prior_command = prior.get("recommended_next_command", "")
         if prior_command:
             # Already rendered historical text is literal, not a new template.

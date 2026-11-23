@@ -234,7 +234,10 @@ def test_resume_without_contract_and_repeated_resume_use_manifest(
 
 def test_legacy_prior_contract_recovers_only_missing_context(tmp_path, monkeypatch):
     output, spec, fresh = _fresh(tmp_path, monkeypatch, True)
-    _legacy(output)
+    payload = _legacy(output)
+    # Historical rendered text is a fallback only without a saved template.
+    payload["resolved_lens_entry"]["recommended_next_command_template"] = ""
+    (output / "manifest.json").write_text(json.dumps(payload, indent=3))
     fresh["caller"]["invocation_label"] = "historical-caller"
     fresh["recommended_next_command"] = "historical command {literal-braces}"
     fresh["target"]["truncation_line_cap"] = 27
@@ -384,3 +387,315 @@ def test_force_relens_keeps_explicit_live_template_semantics(tmp_path, monkeypat
     assert resumed["recommended_next_command"] == "live accepted-job accepted-files"
     assert resumed["caller_metadata"] == dict(suspect=False, tier="T1")
     assert (output / "manifest.json").read_bytes() == before
+
+
+def test_legacy_partial_resume_refreshes_saved_template_inputs(tmp_path, monkeypatch):
+    from superclaude.cli.swarm.models import WorkerResult
+
+    output, _, prior = _fresh(tmp_path, monkeypatch)
+    _legacy(output)
+    for path in output.iterdir():
+        if any(f"-{index:02d}-" in path.name for index in (1, 2)):
+            path.unlink()
+    completed = {
+        path.name: path.read_bytes()
+        for path in output.iterdir()
+        if path.name.endswith((".final.md", ".meta.json", ".raw.md"))
+    }
+    prior["recommended_next_command"] = "historical " + str(
+        next(output.glob("*.final.md"))
+    )
+    (output / "return-contract.yaml").write_text(yaml.safe_dump(prior))
+    manifest_before = (output / "manifest.json").read_bytes()
+    calls = []
+
+    def captured_dispatch(preflight_result, **kwargs):
+        assert preflight_result.manifest.preflight.workers_requested == 2
+        calls.append(True)
+        workers = []
+        for index in range(2):
+            worker = WorkerResult(
+                index=index, model_id=f"recovered-{index}", status="success"
+            )
+            worker.body = "## Verdict\nCaptured recovery review.\n"
+            workers.append(worker)
+        return workers
+
+    monkeypatch.setattr(
+        "superclaude.cli.swarm.dispatch.dispatch_wave1", captured_dispatch
+    )
+    result = CliRunner().invoke(
+        run_cmd, ["--resume", "stored-context", "--output", str(output)]
+    )
+    assert result.exit_code == 0, result.output
+    resumed = yaml.safe_load((output / "return-contract.yaml").read_text())
+    assert calls == [True]
+    assert len(resumed["output_files"]) == 3
+    for worker in resumed["output_files"]:
+        assert worker["final_path"] in resumed["recommended_next_command"]
+    assert (output / "manifest.json").read_bytes() == manifest_before
+    assert {name: (output / name).read_bytes() for name in completed} == completed
+
+
+@pytest.mark.parametrize("force_relens", [False, True])
+def test_partial_resume_preserves_provider_request_and_policy(
+    tmp_path, monkeypatch, force_relens
+):
+    import dataclasses
+
+    from superclaude.cli.swarm import commands as commands_mod
+    from superclaude.cli.swarm.models import JobSpec, WorkerResult, from_dict
+
+    target = tmp_path / "accepted.py"
+    target.write_text("# accepted content with enough non-whitespace bytes\n" * 4)
+    output = tmp_path / "out"
+    spec = _build_spec_from_lens("bare-review")
+    spec["job_id"] = "accepted-provider"
+    spec["target"]["path"] = str(target)
+    spec["target"]["truncation"]["line_cap"] = 2
+    spec["output"]["dir"] = str(output)
+    spec["transport"]["kind"] = "openai_compat"
+    spec["workers"].update(
+        count=3,
+        models=["captured-one", "captured-two", "captured-three"],
+        timeout_sec=17,
+        temperature=0.7,
+        retry={
+            "on_5xx": False,
+            "on_5xx_backoff_sec": 9,
+            "on_4xx": True,
+            "on_timeout": True,
+        },
+    )
+    spec["prompt"]["system"] += "\nAccepted instruction override."
+    accepted = from_dict(JobSpec, spec)
+    preflight_mod.run_preflight(spec, output_dir=output)
+    stem = output / "bare-review-00-captured-one"
+    stem.with_suffix(".final.md").write_text("Completed review.\n")
+    stem.with_suffix(".meta.json").write_text(
+        json.dumps({"status": "success", "bytes": 18})
+    )
+    before = (output / "manifest.json").read_bytes()
+    calls = []
+
+    factory_settings = []
+    sent = []
+    from superclaude.cli.swarm.dispatch import dispatch_wave1 as real_dispatch
+
+    class CapturedTransport:
+        def __init__(self, index):
+            self.index = index
+
+        def send(self, prompt, timeout_sec):
+            sent.append((self.index, prompt, timeout_sec))
+            worker = WorkerResult(
+                index=self.index,
+                model_id=spec["workers"]["models"][self.index],
+                status="success",
+            )
+            worker.body = "## Verdict\nCaptured resumed review.\n"
+            return worker
+
+    def captured_factory(kind, **kwargs):
+        assert kind == "openai_compat"
+        factory_settings.append(kwargs)
+        return CapturedTransport
+
+    def captured_dispatch(result, **kwargs):
+        calls.append(True)
+        assert result.manifest.preflight.workers_requested == 2
+        assert [kwargs["transport_for_slot"](i).index for i in range(2)] == [1, 2]
+        prompt = kwargs.get("prompt", "")
+        assert prompt, "resumed provider request must not be empty"
+        assert target.read_text().splitlines()[0] in prompt
+        if not force_relens:
+            assert "Accepted instruction override." in prompt
+        worker_spec = kwargs.get("worker_spec")
+        assert worker_spec is not None, "accepted worker policy must reach dispatch"
+        assert dataclasses.asdict(worker_spec) == dataclasses.asdict(accepted.workers)
+        return real_dispatch(result, **kwargs)
+
+    monkeypatch.setattr(
+        commands_mod, "_resolve_run_transport_factory", captured_factory
+    )
+    monkeypatch.setattr(
+        "superclaude.cli.swarm.dispatch.dispatch_wave1", captured_dispatch
+    )
+    args = ["--resume", "accepted-provider", "--output", str(output)]
+    if force_relens:
+        args.append("--force-relens")
+    result = CliRunner().invoke(run_cmd, args)
+    if result.exception and not isinstance(result.exception, SystemExit):
+        raise result.exception
+    assert result.exit_code == 0, result.output
+    assert calls == [True]
+    assert factory_settings[0]["models"] == spec["workers"]["models"]
+    assert factory_settings[0]["temperature"] == 0.7
+    assert sorted(index for index, _, _ in sent) == [1, 2]
+    assert all(prompt and timeout == 17 for _, prompt, timeout in sent)
+    assert (output / "manifest.json").read_bytes() == before
+
+
+def test_completed_legacy_provider_resume_needs_no_live_inputs(tmp_path, monkeypatch):
+    from superclaude.cli.swarm import commands as commands_mod
+
+    output, spec, _ = _fresh(tmp_path, monkeypatch)
+    payload = _legacy(output)
+    payload.pop("accepted_workers", None)
+    payload.pop("accepted_prompt", None)
+    payload["preflight"]["transport_kind"] = "openai_compat"
+    (output / "manifest.json").write_text(json.dumps(payload))
+    Path(spec["target"]["path"]).unlink()
+
+    def forbidden(*args, **kwargs):
+        pytest.fail(
+            "completed legacy provider resume needs no transport or target read"
+        )
+
+    monkeypatch.setattr(commands_mod, "_resolve_run_transport_factory", forbidden)
+    monkeypatch.setattr(commands_mod, "_read_truncated_target", forbidden)
+    resumed = _resume(output, monkeypatch)
+    assert resumed["workers_succeeded"] == 3
+
+
+@pytest.mark.parametrize("damage", ["legacy", "changed", "missing"])
+def test_partial_provider_resume_refuses_unrecoverable_inputs(
+    tmp_path, monkeypatch, damage
+):
+    from superclaude.cli.swarm import commands as commands_mod
+
+    output, spec, _ = _fresh(tmp_path, monkeypatch)
+    next(path for path in output.glob("*.meta.json") if "-01-" in path.name).unlink()
+    manifest_path = output / "manifest.json"
+    payload = json.loads(manifest_path.read_text())
+    if damage == "legacy":
+        payload.pop("accepted_workers", None)
+        payload.pop("accepted_prompt", None)
+        manifest_path.write_text(json.dumps(payload))
+    elif damage == "changed":
+        Path(spec["target"]["path"]).write_text("# different accepted input\n" * 5)
+    else:
+        Path(spec["target"]["path"]).unlink()
+    before = {
+        path.name: path.read_bytes() for path in output.iterdir() if path.is_file()
+    }
+
+    def forbidden(*args, **kwargs):
+        pytest.fail(
+            "unsafe recovery must fail before transport construction or dispatch"
+        )
+
+    monkeypatch.setattr(commands_mod, "_resolve_run_transport_factory", forbidden)
+    monkeypatch.setattr("superclaude.cli.swarm.dispatch.dispatch_wave1", forbidden)
+    result = CliRunner().invoke(
+        run_cmd,
+        [
+            "--resume",
+            "stored-context",
+            "--output",
+            str(output),
+            "--transport",
+            "openai_compat",
+        ],
+    )
+    if result.exception and not isinstance(result.exception, SystemExit):
+        raise result.exception
+    assert result.exit_code == 1
+    assert "cannot recover" in result.output
+    assert ("accepted" if damage == "legacy" else "target") in result.output
+    assert {
+        path.name: path.read_bytes() for path in output.iterdir() if path.is_file()
+    } == before
+
+
+def test_resume_mode_keeps_accepted_worker_policy(tmp_path, monkeypatch):
+    import dataclasses
+
+    from superclaude.cli.swarm.models import JobSpec, from_dict
+
+    output, spec, _ = _fresh(tmp_path, monkeypatch)
+    spec["workers"].update(
+        timeout_sec=17,
+        temperature=0.7,
+        retry={
+            "on_5xx": False,
+            "on_5xx_backoff_sec": 9,
+            "on_4xx": True,
+            "on_timeout": True,
+        },
+    )
+    preflight_mod.run_preflight(spec, output_dir=output)
+    before = (output / "manifest.json").read_bytes()
+    for force_relens in (False, True):
+        recovered = preflight_mod.resume_mode(
+            output / "manifest.json", force_relens=force_relens
+        )
+        assert dataclasses.asdict(recovered.workers) == dataclasses.asdict(
+            from_dict(JobSpec, spec).workers
+        )
+    assert (output / "manifest.json").read_bytes() == before
+
+
+@pytest.mark.parametrize("force_relens", [False, True])
+@pytest.mark.parametrize("empty_label", [False, True])
+@pytest.mark.parametrize("legacy_context", [False, True])
+def test_partial_resume_keeps_accepted_normalization_provenance(
+    tmp_path, monkeypatch, force_relens, empty_label, legacy_context
+):
+    from superclaude.cli.swarm import commands as commands_mod
+    from superclaude.cli.swarm.models import WorkerResult
+
+    original = preflight_mod.run_preflight
+
+    def with_recipe_args(spec, **kwargs):
+        spec["normalization"]["recipe_args"] = {
+            "caller_label": "" if empty_label else "accepted-recipe-label",
+            "target_truncated": False,
+        }
+        return original(spec, **kwargs)
+
+    monkeypatch.setattr(preflight_mod, "run_preflight", with_recipe_args)
+    output, spec, fresh = _fresh(tmp_path, monkeypatch)
+    if legacy_context:
+        _legacy(output)
+    first = next(output.glob("*.final.md"))
+    expected = yaml.safe_load(first.read_text().split("---", 2)[1])
+    next(path for path in output.glob("*.meta.json") if "-01-" in path.name).unlink()
+    preserved = {
+        path.name: path.read_bytes()
+        for path in output.iterdir()
+        if path.name.endswith((".raw.md", ".final.md", ".meta.json"))
+        and "-01-" not in path.name
+    }
+    manifest_before = (output / "manifest.json").read_bytes()
+    Path(spec["target"]["path"]).write_text("# changed live input\n" * 5)
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("normalization provenance must not reread changed live inputs")
+
+    def captured_dispatch(*args, **kwargs):
+        worker = WorkerResult(index=0, model_id="captured-provenance", status="success")
+        worker.body = "## Verdict\nCaptured normalized result.\n"
+        return [worker]
+
+    monkeypatch.setattr(commands_mod, "_read_truncated_target", forbidden)
+    monkeypatch.setattr(preflight_mod, "_default_target_loader", forbidden)
+    monkeypatch.setattr(
+        "superclaude.cli.swarm.dispatch.dispatch_wave1", captured_dispatch
+    )
+    args = ["--resume", "stored-context", "--output", str(output)]
+    if force_relens:
+        args.append("--force-relens")
+    result = CliRunner().invoke(run_cmd, args)
+    assert result.exit_code == 0, result.output
+    resumed = yaml.safe_load((output / "return-contract.yaml").read_text())
+    worker = next(worker for worker in resumed["output_files"] if worker["index"] == 1)
+    provenance = yaml.safe_load(
+        Path(worker["final_path"]).read_text().split("---", 2)[1]
+    )
+    for field in ("target", "target_checksum", "caller_label", "target_truncated"):
+        assert provenance[field] == expected[field], field
+    assert len(provenance["target_checksum"]) == 64
+    assert resumed["target"] == fresh["target"]
+    assert {name: (output / name).read_bytes() for name in preserved} == preserved
+    assert (output / "manifest.json").read_bytes() == manifest_before

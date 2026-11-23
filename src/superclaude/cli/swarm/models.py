@@ -405,12 +405,17 @@ class OnParseError:
     :class:`WorkerSpec` and :class:`Truncation` / :class:`Delimiters` /
     :class:`InjectionGuard` on :class:`TargetSpec`).
 
-    Semantics (FR-028 / §7.4, enforced in Wave 2 -- COMP-008, M4):
+    Semantics (FR-028 / §7.4; raw retention is prepared before Wave 2):
         - ``salvage=True`` -- Wave 2 may promote ``parse_error -> success``
           when §7.4 salvage conditions are met (e.g. recoverable shape).
-        - ``retain_raw=True`` -- raw worker output is preserved on the
-          per-worker meta sidecar regardless of normalization outcome,
-          so callers can audit salvage provenance.
+        - ``retain_raw=True`` -- an available string transport body,
+          including an empty string, is written unchanged as UTF-8 to the
+          sibling ``*.raw.md`` file before normalization, regardless of its
+          outcome. ``WorkerResult.raw_path`` advertises that existing file;
+          the meta sidecar stores neither the body nor a raw-file pointer.
+        - ``retain_raw=False`` -- no raw file is written or advertised.
+          Previously existing raw files are not deleted. Missing or non-string
+          bodies also leave ``raw_path`` empty, even when retention is enabled.
     """
 
     salvage: bool = True
@@ -488,8 +493,9 @@ class OutputSpec:
           partial file and rerun is idempotent (FR-027, COMP-011).
         - ``emit_meta_sidecar=True`` -- §4.1 default. Per-worker meta
           sidecar (``*.meta.json``) carries provenance (transport, model,
-          attempts, status, raw retention pointer when ``retain_raw=True``
-          on :class:`OnParseError`).
+          attempts, status), not raw bodies or raw-file pointers. Raw transport
+          text belongs in a sibling ``*.raw.md`` file when ``retain_raw=True``
+          on :class:`OnParseError` and a string body is available.
 
     Cross-field validation (path confinement of ``dir`` and rendered
     filename against the job's output root per NFR-013, template-placeholder
@@ -1049,11 +1055,12 @@ class WorkerResult:
         - ``path=""`` -- the canonical output path emitted by the worker
           (post-normalization when ``amalgamation_mode`` includes
           ``normalize``; same as ``raw_path`` for raw-only mode).
-        - ``raw_path=""`` -- the per-worker raw output path
-          (``*.raw.<ext>``). Retained when
-          ``NormalizationSpec.on_parse_error.retain_raw=True`` so the
-          caller can audit salvage provenance regardless of Wave 2
-          outcome.
+        - ``raw_path=""`` -- the per-worker sibling ``*.raw.md`` path,
+          advertised only when retention is enabled and the retained file
+          exists. A newly dispatched worker needs an available string body
+          (including an empty string); the file preserves exact transport text
+          regardless of Wave 2 outcome. Disabled retention leaves this empty
+          without deleting previously existing raw files.
         - ``meta_path=""`` -- the per-worker meta sidecar
           (``*.meta.json``). Carries transport / model / attempts /
           http_code / elapsed_ms / status so M3 dispatch and M6 resume
@@ -1439,6 +1446,16 @@ class Manifest:
     lens_source: Optional[str] = None
     recommended_next_command_template: Optional[str] = None
     recommended_next_command_substitutions: Optional[dict[str, str]] = None
+    # Historical manifests retain raw output with canonical names. None marks
+    # an absent output lens; an explicitly empty saved lens stays empty.
+    retain_raw: bool = True
+    output_filename_template: str = "{lens}-{index:02d}-{model_slug}.md"
+    output_lens_name: Optional[str] = None
+    # Accepted request settings only; never resolved credentials or target bodies.
+    # None identifies legacy manifests without recoverable accepted settings.
+    accepted_workers: Optional["WorkerSpec"] = None
+    accepted_prompt: Optional["PromptSpec"] = None
+    accepted_recipe_args: Optional[dict[str, Any]] = None
 
 
 @dataclass(frozen=True)
