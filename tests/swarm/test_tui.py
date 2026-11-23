@@ -243,6 +243,135 @@ def test_render_handles_empty_event_stream() -> None:
     assert "workers:" in out
 
 
+def test_update_preserves_workers_across_polls(tmp_path) -> None:
+    """Exercise the production JSONL tailer and Live display across idle polls."""
+    from superclaude.cli.swarm.commands import _tail_events
+    from superclaude.cli.swarm.models import to_json
+
+    buf = io.StringIO()
+    tui = TUI(console=Console(file=buf, force_terminal=False, width=120))
+    state = SwarmState(state="dispatching", job_id="job-incremental")
+    path = tmp_path / "execution-log.jsonl"
+    offset = 0
+
+    def poll(*events: EventRecord) -> str:
+        nonlocal offset
+        with path.open("a") as stream:
+            for event in events:
+                stream.write(to_json(event) + "\n")
+        batch, offset = _tail_events(path, offset)
+        tui.update(state, iter(batch))
+        capture = io.StringIO()
+        Console(file=capture, width=120).print(tui._live.renderable)
+        return capture.getvalue()
+
+    tui.start()
+    try:
+        first = poll(
+            EventRecord(
+                event_type="worker_start",
+                timestamp="2026-06-01T15:00:00+00:00",
+                worker_index=0,
+                payload={"model_label": "alpha-7b"},
+            )
+        )
+        assert "alpha-7b" in first
+        second = poll(
+            EventRecord(
+                event_type="worker_start",
+                timestamp="2026-06-01T15:00:01+00:00",
+                worker_index=1,
+                payload={"model_label": "beta-13b"},
+            )
+        )
+        assert "alpha-7b" in second and "beta-13b" in second
+        assert "alpha-7b" in poll() and "beta-13b" in poll()
+        completed = poll(
+            EventRecord(
+                event_type="worker_done",
+                timestamp="2026-06-01T15:00:03+00:00",
+                worker_index=0,
+                payload={"status": "timeout", "elapsed_ms": 3000},
+            )
+        )
+        assert "alpha-7b" in completed and "beta-13b" in completed
+        assert "timeout" in completed and "running" in completed
+        assert "3.0s" in completed
+        for _ in range(100):
+            poll(
+                EventRecord(
+                    event_type="worker_progress",
+                    timestamp="2026-06-01T15:00:04+00:00",
+                    worker_index=1,
+                    payload={},
+                )
+            )
+        assert len(tui._events) <= 8  # At most four representatives per worker.
+        idle = poll()
+        assert "alpha-7b" in idle and "beta-13b" in idle and "timeout" in idle
+    finally:
+        tui.stop()
+
+
+@pytest.mark.parametrize("label_on_done", [False, True])
+def test_update_bounds_events_and_uses_last_arriving_completion(label_on_done) -> None:
+    """Floods and older timestamps cannot evict rows or change arrival order."""
+    tui = TUI()
+    state = SwarmState(state="dispatching", job_id="job-ordering")
+
+    def event(index, kind, timestamp, **payload):
+        return EventRecord(
+            event_type=kind, timestamp=timestamp, worker_index=index, payload=payload
+        )
+
+    tui.update(
+        state,
+        [
+            event(
+                0,
+                "worker_progress",
+                "2026-06-01T15:00:02Z",
+                **({} if label_on_done else {"model_id": "first"}),
+            ),
+            event(1, "worker_start", "2026-06-01T15:00:00Z", model_label="second"),
+            event(
+                0,
+                "worker_done",
+                "2026-06-01T15:00:10Z",
+                status="success",
+                elapsed_ms=10000,
+                **({"model_label": "first"} if label_on_done else {}),
+            ),
+        ],
+    )
+    tui.update(
+        state,
+        [
+            event(0, "worker_start", "2026-06-01T15:00:00Z", model_label="changed"),
+            event(0, "worker_done", "2026-06-01T15:00:05Z", status="timeout"),
+        ],
+    )
+    for _ in range(100):
+        tui.update(
+            state,
+            (event(1, "worker_progress", "2026-06-01T15:00:11Z") for _ in range(10)),
+        )
+        tui.update(state, [])
+        assert len(tui._events) <= 8
+    workers = _project_workers(tui._events)
+    assert set(workers) == {0, 1}
+    assert workers[0].model_label == "first"
+    assert workers[0].status == "timeout"
+    assert workers[0].elapsed_seconds == pytest.approx(5.0)
+    assert workers[1].model_label == "second"
+    assert workers[1].status == "running"
+    done = [
+        e for e in tui._events if e.worker_index == 0 and e.event_type == "worker_done"
+    ]
+    assert len(done) == 1
+    assert done[0].payload["status"] == "timeout"
+
+
 def test_render_handles_missing_state() -> None:
     """``state=None`` is tolerated -- header shows ``-`` placeholders."""
     tui = TUI()
