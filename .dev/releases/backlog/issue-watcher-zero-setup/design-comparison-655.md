@@ -50,7 +50,7 @@ Purpose: Clay's note of 2026-11-20 20:43 UTC on issue 655 holds the Coder builds
 - **Coder 515 (cron):** not needed if B goes to an automation. It stays only if cron is kept.
 - **Coder 516 (coordinator):** needed for the `Coordinator` worktree. The "start the session if down" part can move into the dispatcher (C), which both designs already describe.
 - **Config:** until a `Coordinator` worktree exists, `check-config` fails with `worktree_invalid`, and the watcher stays `enabled: false`.
-- **Clay's PR 686 and 690:** both stay drafts. PR 686 is adapted, not merged as is (spec D14).
+- **Clay's PR 686 and 690:** both were closed on 2026-11-23 (branches kept), per R38. This line first said PR 686 would be adapted, not merged as is (spec D14); R38 voids that.
 
 ## Decisions only the owner (and Clay) can make
 
