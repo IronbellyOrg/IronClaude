@@ -1,0 +1,19 @@
+# Final return contract, sc-adversarial-protocol Mode A, depth standard, focus correctness,coverage,deviation-classification.
+# All five steps completed. status is "partial" (completed with warnings), not "success", because:
+#  - fallback_mode: the Round 2 request sent by SendMessage to the Round 1 V1 advocate did not return within the
+#    orchestrator turn, so all three Round 2 rebuttals ran as fresh synchronous advocate agents reading Round 1 from disk
+#    (recorded in debate-transcript.md);
+#  - all advocates, the fault-finder and the merge executor ran on the inherited model class; identities unverified;
+#  - 3 MEDIUM UNADDRESSED invariants (INV-001, INV-004, INV-007) are carried into the merged review as MR-M1, MR-M2, MR-M4.
+# No judge model is named by this skill; judge_identity is not recorded here.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/merged-review.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial"
+  status: "partial"
+  base_variant: "variant-3 (reviewer-3 card, refactorer, requested opus)"
+  unresolved_conflicts: 0
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants: []

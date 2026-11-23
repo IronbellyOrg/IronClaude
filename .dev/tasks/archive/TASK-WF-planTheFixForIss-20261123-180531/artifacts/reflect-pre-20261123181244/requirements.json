@@ -1,0 +1,10 @@
+[
+{"id":"INF-001","quote":"Plan the fix for issue 501: replace refactor-find's unavailable /sc:code-review --apply follow-up with /sc:adversarial --compare.","citation":"source.md:1"},
+{"id":"INF-002","quote":"Supply actual generated report filenames for refactor-find only","citation":"source.md:1"},
+{"id":"INF-003","quote":"preserving other review modes and explicit caller overrides.","citation":"source.md:1"},
+{"id":"INF-004","quote":"Update the matching documentation.","citation":"source.md:1"},
+{"id":"INF-005","quote":"Include a regression test that fails before the fix and passes afterward","citation":"source.md:1"},
+{"id":"INF-006","quote":"checking the complete suggested command and accepted report inputs.","citation":"source.md:1"},
+{"id":"INF-007","quote":"Carry forward the requirement to verify the repaired output; diagnosis alone is not fix acceptance.","citation":"source.md:1"},
+{"id":"INF-008","quote":"Do not implement, commit or push.","citation":"source.md:1"}
+]

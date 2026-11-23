@@ -1,0 +1,14 @@
+{
+ "total_tasks":4,"parsed_count":0,"inferred_count":8,"coverage_pct":null,"coverage_pct_union":0.5,"coverage_degraded":"parsed-sparse","coverage_undefined":false,"unmapped_requirements":[],"unmapped_requirements_union":["INF-003","INF-005","INF-007","INF-008"],"S_dev_density":0.5,
+ "matcher":"coverage-check.py, no stemming; fixed stopword set recorded in script",
+ "matrix":[
+ {"id":"INF-001","source":"inferred","ratio":0.6471,"matched_task_ids":[2],"match_method":"containment"},
+ {"id":"INF-002","source":"inferred","ratio":0.8571,"matched_task_ids":[3],"match_method":"containment"},
+ {"id":"INF-003","source":"inferred","ratio":0.5714,"matched_task_ids":[],"match_method":"none"},
+ {"id":"INF-004","source":"inferred","ratio":0.6667,"matched_task_ids":[4],"match_method":"containment"},
+ {"id":"INF-005","source":"inferred","ratio":0.4286,"matched_task_ids":[],"match_method":"none"},
+ {"id":"INF-006","source":"inferred","ratio":0.7143,"matched_task_ids":[3],"match_method":"containment"},
+ {"id":"INF-007","source":"inferred","ratio":0.4,"matched_task_ids":[],"match_method":"none"},
+ {"id":"INF-008","source":"inferred","ratio":0.0,"matched_task_ids":[],"match_method":"none"}
+ ]
+}

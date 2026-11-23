@@ -1,0 +1,15 @@
+========================================== test session starts ===========================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-501-refactor-handoff
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collected 47 items
+
+tests/swarm/test_resume_crash_recovery.py .................                                        [ 36%]
+tests/swarm/test_imm5_status.py ..............................                                     [100%]
+
+=========================================== 47 passed in 0.49s ===========================================
+
+Command: uv run --offline pytest tests/swarm/test_resume_crash_recovery.py tests/swarm/test_imm5_status.py -q
+Exit status: 0

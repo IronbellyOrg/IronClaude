@@ -1,0 +1,69 @@
+<!-- SC:TROUBLESHOOT:TARGET
+issue: Issue 501: swarm refactor-find recommends unavailable /sc:code-review
+started_at: 2026-11-23T17:03:14Z
+type: bug
+depth: standard
+scope: none
+fix_authorized: false
+no_escalate: false
+mcps_available: auggie,codegraph,context7,tavily
+output_dir: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314
+caller: none
+context_path: none
+-->
+Wave 0 complete: type=bug depth=standard
+repo_owner: IronbellyOrg
+repo_name: IronClaude
+branch: master
+worktree_root: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s
+Source changes, paid swarm runs, Git/GitHub writes are not authorized.
+profile: /home/coder/.claude/agents/troubleshoot-analyst.md; project absent; roster valid
+codegraph: index_state=fresh checked_at=2026-11-23T17:03:50Z access=mcp projectPath=/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s
+preflight: graph switch absent (default enabled); pgrep no index builds (exit 1, expected no-match)
+auggie: initial search returned stale lens at refactor_find.py:53 and renderer/test leads, confirmed locally
+reproducer: local-reducer-1 exit 0; missing packaged and installed code-review.md; production reducer returns /sc:code-review --apply {compare_files}
+uv: created gitignored .venv and installed project dependencies; no paid review
+recovery: audit Edit initially blocked by freshness hook; Read target and retry on tracked text
+Wave 1 complete: grounding done; handing off to Wave 1.5
+local-cli-stub-1: production CLI --transport stub exit 0 workers=3; captured return-contract.yaml:64 contains stale command and literal <existing-review>
+local-input-check-1: three successful final reports readable; adversarial comma-separated 2-10 file contract accepts this concrete list; candidate not executed
+baseline-tests: 76 passed in 0.92s; no new test added
+captured sizes: execution-log.jsonl=1559 bytes, return-contract.yaml=4221 bytes
+Wave 1.5 branches dispatched in parallel to restricted profile; parent-owned persistence
+Wave 1.5 complete: doc-context.md synthesized from persisted A/B/C branch results; mtimes equal, docs current under rubric; catalog mirrors defect, contribution policy requires real downstream command
+negative evidence: branch A found no governing PRD/TDD under requested current/complete release paths, recovered historical record instead; branch C had two EACCES Grep failures and recovered relevant clauses with direct Read and scoped Grep
+Wave 1.6 complete: verdict=partial complexity=trivial hard_stop=false round=0/3 discriminator-required=no
+observation: direct contract artifact fully captures disputed string; no additional instrumentation necessary; no authoritative counter write
+Wave 1.7: independent restricted hypothesis analyst returned card; parent persisted and bound behavior-definition row1 before calibration
+calibration: independent score 0.92 STOP, all nine C-rules non-fired; normal artifact read back and machine recomputed (6 dimensions, 9 rules)
+Wave 2: STOP at Tier1, reason=none; Tier2 not required
+Wave 4.5: HC0 applicable=true; HC1 FAIL missing positive repaired-state proof, waiver_status latched; HC2 PASS discovery; HC3 N/A no prose classifier; HC4 N/A no indirect Git selector; HC5 independent validation required
+hardening: blocked by truth-table priority2; diagnostic cause remains reproduced; no repair acceptance claimed
+recovery: ledger Edit matched three placeholders, applied no changes; retried uniquely anchored Rows table replacement
+Wave 5: template read; REPORT.md.draft populated incrementally, validation pending; monotonic run status blocked due repair-closure proof
+validation receipt: independent evidence-validator PASS for diagnosis; 7 grouped source/artifact items verified, 2 command items passed through under no-reexec policy, zero citations dropped. A1/A3/A4/A7/A8/A10 non-fired; A2/A5/A6/A9 skipped with explicit absent-input reasons. No structural FAIL, no invalid timestamp/probe, no additional core pending measurement.
+post-validation consumer: persisted and Read full validation result before final report. Suggested citation-check success cannot clear prior blocked state. HC5 performed/PASS; HC1 FAIL and waiver latch remain. No source edits, no unrequested minor-note fixes, no medium follow-up issue request needed.
+publication barrier: listed existing run artifacts and captured contract; all report citations retained. Final REPORT.md copied from validated draft, with actual review receipt and clock metadata; no independent second diagnostic narrative authored.
+final machine check: required report sections present; unresolved stubs=0; diagnostic-review=PASS; repair-closure=blocked. Latest git status: only untracked diagnostic directory, tracked-source diff empty.
+finished_at: 2026-11-23T17:29:19Z
+<!-- SC:TROUBLESHOOT:SUMMARY
+status: blocked
+tier_reached: 1
+confidence: 0.92
+escalation_reason: none
+hypothesis_count: 1
+adversarial_invoked: false
+cosmetic_overrun: 0
+fix_authorized: false
+duration_sec: 1565
+caller: none
+context_path: none
+return_contract_path: none
+pipeline_hardening_applicable: true
+pipeline_hardening_verdict: blocked
+waiver_status: latched
+backtest_status: not_run
+off_path_review_decision: performed
+report_path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/REPORT.md
+-->
+Wave 5 complete: diagnosis report independently validated; repaired-state acceptance NOT PROVEN. No --fix, stop without Wave 6.

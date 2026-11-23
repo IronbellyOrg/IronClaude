@@ -1,0 +1,101 @@
+# Copied from merged-review.md and adversarial/return-contract.yaml; no value invented.
+# Review claims only: no repair acceptance, no plan/product edit, no execution authorization.
+merge_method: adversarial
+verdict: FAIL
+convergence_score: 1.0
+base_variant: "variant-3 (reviewer-3 card, refactorer, requested opus)"
+merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/merged-review.md"
+adversarial_status: partial
+fallback_mode: true
+source_cards:
+  - path: reviewer-cards/reviewer-1-card.md
+    persona: analyzer
+    requested_model: sonnet
+    card_verdict: "PASS (with notes)"
+    calibrated_confidence: 0.73
+  - path: reviewer-cards/reviewer-2-card.md
+    persona: qa
+    requested_model: haiku
+    card_verdict: PASS
+    calibrated_confidence: 0.73
+  - path: reviewer-cards/reviewer-3-card.md
+    persona: refactorer
+    requested_model: opus
+    card_verdict: FAIL
+    calibrated_confidence: 0.87
+model_identity: unverified
+finding_counts: {blocking: 1, medium: 4, low: 3, note: 3, dropped: 1}
+findings:
+  - id: MR-B1
+    grade: blocking
+    blocking_basis: [Decision, Missing]
+    category: Drift
+    location: "plan:20, plan:79, plan:81, plan:84"
+    summary: "Task 4 omits active matching documentation; plan:81 'No changes to installed skill or command definitions are required' and plan:84 'all four known stale occurrences' are false. Eight active refactor-find hand-off mentions exist, including refs/cli-contract.md:44, refs/interview.md:65, commands/swarm-wizard.md:94, docs/swarm/wizard-guide.md:216."
+    sources: ["reviewer-3 row 1", "X-001", "C-001", "C-006", "INV-006", "INV-007"]
+  - id: MR-M1
+    grade: medium
+    category: Drift
+    location: "plan:60"
+    summary: "No rule separating the bundled refactor-find default from a caller template; rule must be gated on lens == refactor-find (edge-case-hunt shares the template after Task 2) and cover detached and scaffold-to-stdin runs."
+    sources: ["reviewer-1 row 1", "reviewer-3 row 3", "X-003", "A-008", "INV-001", "INV-003"]
+  - id: MR-M2
+    grade: medium
+    category: Drift
+    location: "plan:62"
+    summary: "No quoting form named; any form must be proven against the consumer's comma-split rule and confined to the refactor-find branch."
+    sources: ["reviewer-3 row 4", "X-004", "INV-004", "INV-005"]
+  - id: MR-M3
+    grade: medium
+    category: Drift
+    location: "docs/swarm/wizard-guide.md:216"
+    summary: "Lens hand-off list names /code-review, which is refactor-find's stale hand-off under another name; remedied inside MR-B1's fix."
+    sources: ["reviewer-1 row 2", "reviewer-3 row 2", "C-002"]
+  - id: MR-M4
+    grade: medium
+    category: Drift
+    location: "plan:20, plan:75, plan:84"
+    summary: "MR-B1 fix conflicts with plan:20 scope and 'three' wording unless widened together."
+    sources: ["INV-007"]
+  - id: MR-L1
+    grade: low
+    category: Drift
+    location: "plan:62"
+    summary: "'Successful usable reports' not defined in code; empty-body success can count toward the two-report guard."
+    sources: ["INV-008"]
+  - id: MR-L2
+    grade: low
+    category: Drift
+    location: "plan:79"
+    summary: "Resumed runs give an empty suggestion; Task 4 documents only the too-few-reports reason."
+    sources: ["INV-009", "X-002"]
+  - id: MR-L3
+    grade: low
+    category: Drift
+    location: "plan:22, plan:60"
+    summary: "Spec scaffolded before the fix keeps the stale command as caller-owned input; document only."
+    sources: ["Round 2 V1/V2/V3"]
+  - id: MR-N1
+    grade: note
+    category: Drift
+    location: "plan:79"
+    summary: "Goal text 'Find small safe cleanups I could apply' should be recorded as a deliberate keep."
+    sources: ["INV-010"]
+  - id: MR-N2
+    grade: note
+    category: Drift
+    location: "out of plan scope"
+    summary: "sc-bare-review/SKILL.md:21 names /sc:code-review; out of scope, record in documentation-check.txt."
+    sources: ["Round 2 V1", "INV-006"]
+  - id: MR-N3
+    grade: note
+    category: Drift
+    location: "plan:34"
+    summary: "Existing real-dispatch test calls the subcommand directly; plan requires public swarm_group."
+    sources: ["reviewer-2 U-005"]
+dropped_findings:
+  - id: MR-D1
+    original: "reviewer-1 row 3: resume renders literal {compare_files}"
+    reason: "Refuted by actual arguments: commands.py:2578-2586 passes no template; reduce.py:553 default ''; reduce.py:460-461 returns ''. X-002 agreed 100%; reviewer-1 advocate withdrew it."
+minority_blocker_handling: "reviewer-3's minority blocker was verified against source and upheld; both majority advocates conceded in Round 1."
+category_note: "Merge executor assigned category Drift to Low and Note rows by default; MR-N2 is outside plan scope."

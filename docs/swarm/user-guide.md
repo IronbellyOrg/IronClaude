@@ -197,13 +197,18 @@ downstream hand-off command. Pick by what you're reviewing:
 | You're reviewing… | Use lens | Output shape | Hands off to |
 |---|---|---|---|
 | Code, for any bug (broad, unscaffolded) | `bare-review` | findings table + verdict | `/sc:adversarial` |
-| Code, for the smallest worthwhile cleanups | `refactor-find` | findings table | `/sc:code-review` |
+| Code, for the smallest worthwhile cleanups | `refactor-find` | findings table | `/sc:adversarial --compare` |
 | Code, for inputs/states that break it | `edge-case-hunt` (4 workers) | findings table | `/sc:adversarial` |
 | A spec, for gaps / under-specification | `spec-completeness` | verdict + rationale | `/sc:reflect` |
 | An approach, for whether it'll work | `feasibility-probe` | verdict + rationale | `/sc:research` |
 | A failure, for ranked root-cause hypotheses | `troubleshoot-hypothesis` (4 workers) | hypothesis table | `/sc:troubleshoot` |
 | Docs, for missing / stale content | `doc-completeness` | findings table | `/sc:document` |
 | Completed work, as one reviewer in a reflection ensemble | `reflect-review` | free-form body (`passthrough`) | `/sc:adversarial` |
+
+For `refactor-find`, copy the emitted comparison suggestion to compare generated
+findings, not apply code changes. It uses 2-10 successful, readable reports; the
+suggestion is empty when there are too few usable reports or other invalid inputs.
+See the [refactor-find handoff requirements](lens-catalog.md#refactor-find).
 
 `reflect-review` is the stable lens that `superclaude reflect` Tier 2 fans out
 headlessly; you rarely run it by hand. Full per-lens detail (prompts, recipes, templates): [Lens Catalog](lens-catalog.md).

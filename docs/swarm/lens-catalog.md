@@ -22,7 +22,7 @@ All default to a 4000-line target cap. Worker counts and recipes differ by inten
 | Lens | Workers | Recipe | Stability | Tier | Suspect | Hands off to |
 |---|---:|---|---|---|:---:|---|
 | [`bare-review`](#bare-review) | 3 | `bare-review-v1` | **stable** | T2 | ✅ | `/sc:adversarial --compare {compare_files} --suspect-source {suspect_files}` |
-| [`refactor-find`](#refactor-find) | 3 | `findings_table_v1` | experimental | T2-code | — | `/sc:code-review --apply {compare_files}` |
+| [`refactor-find`](#refactor-find) | 3 | `findings_table_v1` | experimental | T2-code | — | `/sc:adversarial --compare {compare_files}` (template) |
 | [`edge-case-hunt`](#edge-case-hunt) | 4 | `findings_table_v1` | experimental | T2-edge | — | `/sc:adversarial --compare {compare_files}` |
 | [`spec-completeness`](#spec-completeness) | 3 | `verdict_only_v1` | experimental | T2-spec | — | `/sc:reflect --merge {compare_files}` |
 | [`feasibility-probe`](#feasibility-probe) | 3 | `verdict_only_v1` | experimental | T2-feas | — | `/sc:research --extend {compare_files}` |
@@ -45,8 +45,20 @@ with both `{compare_files}` and `{suspect_files}`.
 ### refactor-find
 
 The smallest cleanups that improve correctness, readability, or efficiency. Recipe
-`findings_table_v1` → `| ID | Locator | Finding | Detail | Action |`. Hands off to
-`/sc:code-review`.
+`findings_table_v1` → `| ID | Locator | Finding | Detail | Action |`. Suggests
+`/sc:adversarial --compare` to compare and combine the generated findings, not to
+apply changes to application code. The comparison is never run automatically.
+
+In the table's template, `{compare_files}` is replaced with one comma-separated
+argument containing the actual successful workers' report filenames, in order.
+No extra existing review is required. Copy the complete `recommended_next_command`
+from `return-contract.yaml`; paths containing spaces are quoted as one argument.
+The bundled default requires 2-10 successful, readable report files. If there are
+fewer than two, more than ten, an unreadable report, or a comma in a path, the
+suggestion is empty; swarm status and all artifacts are retained. A successful
+swarm status alone does not establish that the comparison inputs are valid.
+Explicit caller templates and substitutions are preserved, not rewritten by these
+default-only checks.
 
 ### edge-case-hunt
 

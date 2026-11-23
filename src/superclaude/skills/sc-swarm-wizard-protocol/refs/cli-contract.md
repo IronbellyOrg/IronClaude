@@ -41,7 +41,7 @@ no-op; schema-only) · `validate-lenses [--warning-mode]` · `status --output DI
 | Lens ID | "Pick me when the user wants…" | Workers | Recipe | Hands off to |
 |---|---|---|---|---|
 | `bare-review` | "review my code for bugs / correctness" (**only stable lens**; flags suspect files) | 3 | `bare-review-v1` | `/sc:adversarial` |
-| `refactor-find` | "find small safe cleanups to apply" | 3 | `findings_table_v1` | `/sc:code-review --apply` |
+| `refactor-find` | "find small safe cleanups to apply" | 3 | `findings_table_v1` | `/sc:adversarial --compare` |
 | `edge-case-hunt` | "what inputs/states break my code?" | 4 | `findings_table_v1` | `/sc:adversarial` |
 | `spec-completeness` | "is my spec complete / what's missing?" | 3 | `verdict_only_v1` | `/sc:reflect` |
 | `feasibility-probe` | "will this approach actually work?" | 3 | `verdict_only_v1` | `/sc:research` |
@@ -103,6 +103,12 @@ written on a fresh inline run** — only on detached/resume completion + `swarm 
 - `return-contract.yaml` headline fields: `status` ∈ `success|partial|failed` (IMM-5: M==N→success;
   2≤M<N→partial; M<2→failed); `workers_requested|succeeded|failed`; `output_files[]` (per worker:
   `final_path`, `status`, `model_label`, `bytes`, `elapsed_ms`); `merged_path`; `recommended_next_command`.
+- For `refactor-find`'s bundled default, surface the emitted `/sc:adversarial --compare`
+  suggestion with its actual successful report filenames. It compares findings, not
+  application-code edits, and is never run automatically. Inputs must be 2-10 readable
+  reports with no comma in a path; paths with spaces are quoted as one argument. With
+  fewer than two usable reports or another invalid list, the suggestion is empty even
+  when swarm status is successful. Caller templates/substitutions remain unchanged.
 - Per-worker status ∈ `success|timeout|parse_error|proxy_error`. Detached/kill `done.json.terminal_status`
   ∈ `success|partial|failed|killed` (4 values).
 - Log event types: `worker_start|worker_progress|worker_done|wave_transition|terminal` (use `worker_done`,
