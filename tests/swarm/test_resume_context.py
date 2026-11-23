@@ -234,7 +234,10 @@ def test_resume_without_contract_and_repeated_resume_use_manifest(
 
 def test_legacy_prior_contract_recovers_only_missing_context(tmp_path, monkeypatch):
     output, spec, fresh = _fresh(tmp_path, monkeypatch, True)
-    _legacy(output)
+    payload = _legacy(output)
+    # Historical rendered text is a fallback only without a saved template.
+    payload["resolved_lens_entry"]["recommended_next_command_template"] = ""
+    (output / "manifest.json").write_text(json.dumps(payload, indent=3))
     fresh["caller"]["invocation_label"] = "historical-caller"
     fresh["recommended_next_command"] = "historical command {literal-braces}"
     fresh["target"]["truncation_line_cap"] = 27
@@ -384,3 +387,51 @@ def test_force_relens_keeps_explicit_live_template_semantics(tmp_path, monkeypat
     assert resumed["recommended_next_command"] == "live accepted-job accepted-files"
     assert resumed["caller_metadata"] == dict(suspect=False, tier="T1")
     assert (output / "manifest.json").read_bytes() == before
+
+
+def test_legacy_partial_resume_refreshes_saved_template_inputs(tmp_path, monkeypatch):
+    from superclaude.cli.swarm.models import WorkerResult
+
+    output, _, prior = _fresh(tmp_path, monkeypatch)
+    _legacy(output)
+    for path in output.iterdir():
+        if any(f"-{index:02d}-" in path.name for index in (1, 2)):
+            path.unlink()
+    completed = {
+        path.name: path.read_bytes()
+        for path in output.iterdir()
+        if path.name.endswith((".final.md", ".meta.json", ".raw.md"))
+    }
+    prior["recommended_next_command"] = "historical " + str(
+        next(output.glob("*.final.md"))
+    )
+    (output / "return-contract.yaml").write_text(yaml.safe_dump(prior))
+    manifest_before = (output / "manifest.json").read_bytes()
+    calls = []
+
+    def captured_dispatch(preflight_result, **kwargs):
+        assert preflight_result.manifest.preflight.workers_requested == 2
+        calls.append(True)
+        workers = []
+        for index in range(2):
+            worker = WorkerResult(
+                index=index, model_id=f"recovered-{index}", status="success"
+            )
+            worker.body = "## Verdict\nCaptured recovery review.\n"
+            workers.append(worker)
+        return workers
+
+    monkeypatch.setattr(
+        "superclaude.cli.swarm.dispatch.dispatch_wave1", captured_dispatch
+    )
+    result = CliRunner().invoke(
+        run_cmd, ["--resume", "stored-context", "--output", str(output)]
+    )
+    assert result.exit_code == 0, result.output
+    resumed = yaml.safe_load((output / "return-contract.yaml").read_text())
+    assert calls == [True]
+    assert len(resumed["output_files"]) == 3
+    for worker in resumed["output_files"]:
+        assert worker["final_path"] in resumed["recommended_next_command"]
+    assert (output / "manifest.json").read_bytes() == manifest_before
+    assert {name: (output / name).read_bytes() for name in completed} == completed
