@@ -2,7 +2,7 @@
 
 Status: runbook only. **No step in this document is run by the agent that wrote it.** The owner runs every step, on a throwaway issue the owner wrote, and fills the record at the end. Nothing here claims, starts, merges or posts anything by itself.
 
-This test is the claim-handoff part of FU-1, the first live test of `docs/designs/issue-watcher-setup.md` section 8.5 (the live-test record) and section 14.1 (the live test). It adds preconditions a to k for design B: a person-opened coordinator starts the plan-writing agent as a supervised Orca worker for a watcher-claimed issue. The facts below come from the validation file of the plan package `TASK-WF-planDecision6BFo-20261114-174909` (its section 7 lists a to j); precondition k is new.
+This test is the claim-handoff part of FU-1, the first live test of `docs/designs/issue-watcher-setup.md` section 8.5 (the live-test record) and section 14.1 (the live test). It adds preconditions a to k for design B: a coordinator starts the plan-writing agent as a supervised Orca worker for a watcher-claimed issue. The facts below come from the validation file of the plan package `TASK-WF-planDecision6BFo-20261114-174909` (its section 7 lists a to j); precondition k is new.
 
 ## 1. What B does, in four lines
 
@@ -22,7 +22,7 @@ The test issue text is written by the owner. No other issue runs through this fl
 ## 3. Gates that still apply (none is waived by the acceptance)
 
 - A separate live-test grant row for this one issue.
-- A reachable Orca (`orca status` answers) and a person-opened coordinator terminal.
+- A reachable Orca (`orca status` answers) and a coordinator terminal.
 - A named owner of the watcher worktree (written in the grant row).
 - The claim's own hook check (the claim refuses with `W-ENFORCEMENT-ABSENT` when its checks fail; it is not bypassed).
 - Every `gh` call in this runbook is a read-only GET (or the fixed edits GraphQL query) and names `IronbellyOrg/IronClaude`, by `--repo IronbellyOrg/IronClaude` or, for `gh api`, in the path `repos/IronbellyOrg/IronClaude/...`. Nothing is sent to the upstream SuperClaude repository.
