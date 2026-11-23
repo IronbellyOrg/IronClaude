@@ -2247,8 +2247,14 @@ _META_SLOT_INDEX_RE: re.Pattern[str] = re.compile(r"-(\d+)-[^/\\]+\.meta\.json$"
 def discover_succeeded_slots(
     output_dir: Path,
     workers_requested: int,
+    *,
+    lens_name: Optional[str] = None,
+    filename_template: Optional[str] = None,
 ) -> dict[int, WorkerResult]:
     """T06.04 -- scan ``output_dir`` for succeeded worker meta sidecars.
+
+    Reject escaping paths and duplicate successful slot evidence before reuse.
+    Saved templates are validated before scanning the historical top-level layout.
 
     Returns ``{slot_index: WorkerResult}`` for every ``*.meta.json``
     sidecar whose ``status`` field is ``"success"``. The slot index is
@@ -2286,10 +2292,29 @@ def discover_succeeded_slots(
         Mapping from slot index to :class:`WorkerResult`. Empty when no
         sidecar reports success.
     """
+    from string import Formatter
+
+    from superclaude.cli.swarm.state import confine_path
+
+    if lens_name is not None:
+        template = filename_template or "{lens}-{index:02d}-{model_slug}.md"
+        fields = list(Formatter().parse(template))
+        if not any(field == "index" for _, field, _, _ in fields):
+            raise ValueError("output naming cannot uniquely identify worker slots")
+        if any(field not in (None, "lens", "index", "model_slug")
+               for _, field, _, _ in fields):
+            raise ValueError("unsupported output naming field")
+        for index in range(workers_requested):
+            rendered = template.format(lens=lens_name, index=index, model_slug="slot")
+            confine_path(output_dir / rendered, output_dir)
     succeeded: dict[int, WorkerResult] = {}
     if not output_dir.is_dir():
         return succeeded
-    for meta_file in sorted(output_dir.glob("*.meta.json")):
+    for candidate in sorted(output_dir.glob("*")):
+        confine_path(candidate, output_dir)
+        if not candidate.name.endswith(".meta.json"):
+            continue
+        meta_file = confine_path(candidate, output_dir)
         match = _META_SLOT_INDEX_RE.search(meta_file.name)
         if match is None:
             continue
@@ -2309,13 +2334,15 @@ def discover_succeeded_slots(
             continue
 
         stem = meta_file.name[: -len(".meta.json")]
-        final_candidate = meta_file.parent / f"{stem}.final.md"
-        raw_candidate = meta_file.parent / f"{stem}.raw.md"
+        final_candidate = confine_path(meta_file.parent / f"{stem}.final.md", output_dir)
+        raw_candidate = confine_path(meta_file.parent / f"{stem}.raw.md", output_dir)
         # Recover the model_label from the filename segment between the
         # slot index and the ``.meta.json`` suffix. The capture's tail
         # is the model_slug; we surface it verbatim so merge provenance
         # carries the same label the original run stamped.
         slug_tail = meta_file.name[match.end(1) + 1 : -len(".meta.json")]
+        if slot_index in succeeded:
+            raise ValueError("ambiguous duplicate worker slot sidecars")
         bytes_written = payload.get("bytes", 0)
         try:
             bytes_int = int(bytes_written)
@@ -2539,7 +2566,15 @@ def _run_resume_branch(
     recipe_name = rehydrated_spec.normalization.recipe
 
     # ----- Slot-state discovery ---------------------------------------------
-    succeeded = discover_succeeded_slots(output_path, workers_requested)
+    try:
+        succeeded = discover_succeeded_slots(
+            output_path, workers_requested,
+            lens_name=rehydrated_spec.output.lens_name,
+            filename_template=rehydrated_spec.output.filename_template,
+        )
+    except (ValueError, OSError) as exc:
+        click.echo("swarm run --resume: unsafe or ambiguous worker inventory", err=True)
+        raise click.exceptions.Exit(EXIT_INVALID) from exc
     retain_raw = rehydrated_spec.normalization.on_parse_error.retain_raw
     if not retain_raw:
         for worker in succeeded.values():
