@@ -133,6 +133,54 @@ def test_json_round_trip_is_lossless(record_cls: type) -> None:
     )
 
 
+def test_populated_manifest_context_is_byte_stable() -> None:
+    manifest = Manifest(
+        caller=CallerInfo(skill="context-test", invocation_label="accepted"),
+        caller_metadata=CallerMetadata(suspect=False, tier=""),
+        target=models.ContractTarget(
+            path="target.py", checksum="a" * 12, truncated=True, truncation_line_cap=2
+        ),
+        lens_source="registry",
+        recommended_next_command_template="inspect {job_id}",
+        recommended_next_command_substitutions={"job_id": "accepted-job"},
+    )
+    encoded = to_json(manifest)
+    restored = from_json(Manifest, encoded)
+    assert restored == manifest
+    assert isinstance(restored.caller, CallerInfo)
+    assert isinstance(restored.target, models.ContractTarget)
+    assert to_json(restored) == encoded
+
+
+@pytest.mark.parametrize("explicit", [False, True])
+def test_manifest_missing_context_differs_from_explicit_empty(explicit) -> None:
+    payload = {}
+    if explicit:
+        payload.update(
+            caller=to_dict(CallerInfo()),
+            target=to_dict(models.ContractTarget(truncated=False)),
+            lens_source="",
+            recommended_next_command_template="",
+            recommended_next_command_substitutions={},
+            caller_metadata={"suspect": False, "tier": ""},
+        )
+    manifest = from_dict(Manifest, payload)
+    if explicit:
+        assert manifest.caller == CallerInfo()
+        assert manifest.target == models.ContractTarget(truncated=False)
+        assert manifest.lens_source == ""
+        assert manifest.recommended_next_command_template == ""
+        assert manifest.recommended_next_command_substitutions == {}
+        assert manifest.caller_metadata == CallerMetadata(suspect=False, tier="")
+    else:
+        assert manifest.caller is None
+        assert manifest.target is None
+        assert manifest.lens_source is None
+        assert manifest.recommended_next_command_template is None
+        assert manifest.recommended_next_command_substitutions is None
+    assert to_json(from_json(Manifest, to_json(manifest))) == to_json(manifest)
+
+
 def test_to_dict_returns_plain_dict() -> None:
     """The helper output is a ``dict``, not a dataclass / namedtuple."""
     payload = to_dict(JobSpec())

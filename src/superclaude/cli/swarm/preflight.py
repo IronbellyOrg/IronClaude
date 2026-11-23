@@ -74,7 +74,9 @@ from typing import Any, Callable, Iterable, Literal, Optional
 
 from superclaude.cli.swarm import schema
 from superclaude.cli.swarm.models import (
+    CallerInfo,
     CallerMetadata,
+    ContractTarget,
     JobSpec,
     LensEntry,
     Manifest,
@@ -83,7 +85,9 @@ from superclaude.cli.swarm.models import (
     PromptSpec,
     ResolvedLensEntry,
     SwarmState,
+    TargetSpec,
     TransportSpec,
+    Truncation,
     WorkerSpec,
     from_dict,
     from_json,
@@ -1858,6 +1862,20 @@ def run_preflight(
         # OQ-009 caller override when supplied) so the value persists in
         # manifest.json and survives executor restart / resume.
         caller_metadata=resolved_caller_metadata,
+        caller=dataclasses.replace(job.caller),
+        target=ContractTarget(
+            path=job.target.path,
+            checksum=_target_checksum(target_bytes)[:12],
+            truncated=_was_truncated,
+            truncation_line_cap=job.target.truncation.line_cap,
+        ),
+        lens_source=(
+            "custom" if job.lens == "custom" else ("registry" if job.lens else "")
+        ),
+        recommended_next_command_template=job.recommended_next_command_template,
+        recommended_next_command_substitutions=dict(
+            job.recommended_next_command_substitutions
+        ),
     )
     state = SwarmState(
         state="preflight_ok",
@@ -1909,14 +1927,34 @@ def resume_mode(
         * ``prompt.system`` -- :attr:`ResolvedLensEntry.system_prompt_fragment`.
         * ``prompt.user_template`` -- :attr:`ResolvedLensEntry.user_template`.
         * ``normalization.recipe`` -- :attr:`ResolvedLensEntry.recipe_name`.
-        * ``recommended_next_command_template`` -- from snapshot.
+        * ``caller`` and ``target.path`` / truncation cap -- accepted manifest
+          context when present; otherwise their dataclass defaults.
+        * ``recommended_next_command_template`` -- the accepted effective
+          manifest value, even when empty; only ``None``/absent falls back to
+          the lens snapshot's template.
+        * ``recommended_next_command_substitutions`` -- accepted explicit
+          substitutions when stored, otherwise an empty mapping.
 
-    Fields not recoverable from the manifest alone (``target.path``,
-    ``output.dir``, ``transport.base_url_env``, custom prompts, etc.)
-    take their dataclass defaults. The resume-driving caller
-    (``run_cmd --resume`` in T06.04) layers in the remaining context
-    from the on-disk job directory (worker ``.meta.json`` files,
-    state file, persisted job-spec snapshot per T06.05).
+    This function reads only the manifest and never rewrites it, preserving
+    exact bytes even for historical files with missing optional keys. New
+    preflight manifests persist the above context before dispatch, so an
+    interrupted job needs no return contract. Other unavailable fields such
+    as ``output.dir``, ``transport.base_url_env`` and custom prompts retain
+    defaults; this is not a complete job-spec restoration.
+
+    The ``run_cmd --resume`` reduction caller separately restores contract-only
+    context (lens source, caller metadata and target checksum/truncation state).
+    Its precedence is explicit manifest values, then useful same-job prior
+    contract fields read before overwrite, then recoverable snapshot values
+    and defaults. Missing historical metadata is distinct from explicitly
+    stored false/empty manifest values; known-empty old reducer stubs do not
+    hide snapshot metadata or the snapshot next-command template. Automatic
+    suspect/compare file substitutions use current successful final paths,
+    with explicit stored substitutions winning. A prior rendered command is
+    literal text, not a template to expand again. Without a prior contract,
+    old manifests cannot recover caller/target values never stored, such as
+    invocation label, target path or truncation state. Neither live target
+    contents nor registry defaults are used to invent that missing history.
 
     Args:
         manifest_path: filesystem path to ``manifest.json`` previously
@@ -1928,9 +1966,11 @@ def resume_mode(
             ``recommended_next_command_template``) is re-resolved from
             the live LENSES registry via :func:`resolve_lens`. This is
             the escape hatch for operators who explicitly want
-            mutation visibility on resume. Non-lens manifest fields
-            (``job_id``, ``workers.count``, ``transport.kind``) still
-            come from the manifest so the slot fan-out and transport
+            mutation visibility on resume: the live next-command template wins
+            over the stored effective template and prior rendered command.
+            Accepted explicit substitutions are retained. Non-lens manifest
+            fields (including caller, target, ``job_id``, ``workers.count`` and
+            ``transport.kind``) still come from the manifest so the slot fan-out and transport
             binding stay aligned with the original job. Raises
             :class:`KeyError` when the lens name is no longer
             registered.
@@ -1943,6 +1983,20 @@ def resume_mode(
     payload = Path(manifest_path).read_text(encoding="utf-8")
     manifest: Manifest = from_json(Manifest, payload)
     snapshot: ResolvedLensEntry = manifest.resolved_lens_entry
+    caller = manifest.caller if manifest.caller is not None else CallerInfo()
+    target = (
+        TargetSpec(
+            path=manifest.target.path,
+            truncation=Truncation(line_cap=manifest.target.truncation_line_cap),
+        )
+        if manifest.target is not None
+        else TargetSpec()
+    )
+    substitutions = (
+        dict(manifest.recommended_next_command_substitutions)
+        if manifest.recommended_next_command_substitutions is not None
+        else {}
+    )
 
     if force_relens:
         live_entry: LensEntry = resolve_lens(snapshot.name)
@@ -1950,6 +2004,9 @@ def resume_mode(
         return JobSpec(
             job_id=manifest.job_id,
             lens=live_snapshot.name,
+            caller=caller,
+            target=target,
+            recommended_next_command_substitutions=substitutions,
             workers=WorkerSpec(count=manifest.preflight.workers_requested),
             transport=TransportSpec(kind=manifest.preflight.transport_kind),
             prompt=PromptSpec(
@@ -1965,6 +2022,9 @@ def resume_mode(
     return JobSpec(
         job_id=manifest.job_id,
         lens=snapshot.name,
+        caller=caller,
+        target=target,
+        recommended_next_command_substitutions=substitutions,
         workers=WorkerSpec(count=manifest.preflight.workers_requested),
         transport=TransportSpec(kind=manifest.preflight.transport_kind),
         prompt=PromptSpec(
@@ -1972,7 +2032,11 @@ def resume_mode(
             user_template=snapshot.user_template,
         ),
         normalization=NormalizationSpec(recipe=snapshot.recipe_name),
-        recommended_next_command_template=(snapshot.recommended_next_command_template),
+        recommended_next_command_template=(
+            manifest.recommended_next_command_template
+            if manifest.recommended_next_command_template is not None
+            else snapshot.recommended_next_command_template
+        ),
     )
 
 
