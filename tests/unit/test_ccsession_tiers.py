@@ -734,6 +734,10 @@ TOO_LONG = (
     400,
     b'{"type":"error","error":{"type":"invalid_request_error","message":"prompt is too long: 900000 tokens"}}',
 )
+TEXT_ONLY = (  # the gateway's answer when a text-only model (GLM 5.3) is sent an image
+    400,
+    b'{"type":"error","error":{"type":"invalid_request_error","message":"messages.content.type is invalid, allowed values: [\'text\']"}}',
+)
 
 
 class StandInGateway:
@@ -1095,6 +1099,54 @@ def test_no_backup_can_hold_it_passes_the_error_back(shim) -> None:
     assert "prompt is too long" in message and "can hold this conversation" in message
     # Muse really is out of usage; the size problem comes first.
     assert message.index("can hold this conversation") < message.index("out of usage")
+
+
+def test_text_only_model_rejecting_an_image_moves_on_without_parking(shim) -> None:
+    gateway, start, log = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [TEXT_ONLY]
+    for _ in range(2):
+        status, body = _ask(base, "claude-gw-tier2")
+        assert status == 200 and b"grok-4.7" in body
+    # Not parked: the text-only model is asked first again on the next request,
+    # so a session without an image in it still gets that model.
+    assert gateway.models_called() == ["muse-spark-1.3", "grok-4.7"] * 2
+    assert "takes only text" in log.read_text()
+
+
+def test_every_model_text_only_says_so_not_out_of_usage(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    for m in (
+        "muse-spark-1.3",
+        "grok-4.7",
+        "Qwen3.8-max",
+        "glm-5.3",
+        "muse-wonder-1.0",
+        "gpt-6.1-sol",
+    ):
+        gateway.script[m] = [TEXT_ONLY]
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 400
+    message = json.loads(body)["error"]["message"]
+    assert "allowed values: ['text']" in message
+    assert "accepts an image in this conversation" in message
+    assert "out of usage" not in message
+
+
+def test_text_only_model_plus_models_out_of_usage_is_a_wait_not_a_refusal(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [TEXT_ONLY]
+    for m in ("grok-4.7", "Qwen3.8-max", "glm-5.3", "muse-wonder-1.0", "gpt-6.1-sol"):
+        gateway.script[m] = [COOLING]
+    status, body = _ask(base, "claude-gw-tier2")
+    # The parked models were never asked about the image, so this is a 429
+    # (Claude Code retries it), not a 400 telling the user to drop the image.
+    assert status == 429
+    message = json.loads(body)["error"]["message"]
+    assert "out of usage; next retry at" in message
+    assert "accepts an image" not in message
 
 
 def test_all_models_out_returns_last_error_with_note(shim) -> None:
