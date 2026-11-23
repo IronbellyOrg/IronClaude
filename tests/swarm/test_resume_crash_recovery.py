@@ -573,3 +573,14 @@ def test_resume_discovery_rejects_unsafe_inventory(tmp_path, monkeypatch, hazard
     assert result.exit_code != 0
     assert calls == []
     assert {p: p.read_bytes() for p in before} == before
+
+
+def test_discovery_does_not_guess_unrelated_numeric_segment(tmp_path):
+    _write_succeeded_sidecar(tmp_path, slot_index=0)
+    unrelated = tmp_path / "unrelated-01-record.meta.json"
+    unrelated.write_text(json.dumps({"status": "success"}))
+    succeeded = discover_succeeded_slots(
+        tmp_path, 3, lens_name=LENS_NAME,
+        filename_template="{model_slug}-{lens}-slot-{index:02d}.md",
+    )
+    assert set(succeeded) == {0}

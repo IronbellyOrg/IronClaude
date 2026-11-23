@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import yaml
 from click.testing import CliRunner
 
 from superclaude.cli.swarm.commands import _build_spec_from_lens, run_cmd
@@ -370,3 +371,55 @@ def test_shared_worker_paths_reject_output_escape(tmp_path: Path, escape: str) -
     with pytest.raises(OutputConfinementError):
         _stamp_inline_worker_paths([worker], output, "bare-review", template)
     assert list(outside.iterdir()) == []
+
+
+@pytest.mark.parametrize("force_relens", [False, True])
+@pytest.mark.parametrize("retain_raw", [False, True])
+@pytest.mark.parametrize("template", [
+    "nested/{lens}/{index:02d}-{model_slug}.md",
+    "audit-17-{model_slug}-{lens}-slot-{index:02d}.md",
+])
+def test_resume_discovers_saved_custom_layout(
+    tmp_path, monkeypatch, force_relens, retain_raw, template
+):
+    output, job_id, lens = _persist_resume_job(tmp_path, retain_raw=retain_raw)
+    manifest_path = output / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["output_filename_template"] = template
+    manifest_path.write_text(json.dumps(manifest))
+    for index in (0, 2):
+        _seed_resume_slot(output, index, lens)
+        old = f"{lens}-{index:02d}-fixture-model-{index}"
+        new = template.format(lens=lens, index=index, model_slug=f"fixture-model-{index}")[:-3]
+        for suffix in (".raw.md", ".final.md", ".meta.json"):
+            destination = output / f"{new}{suffix}"
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            (output / f"{old}{suffix}").rename(destination)
+    preserved = {p.relative_to(output): p.read_bytes() for p in output.rglob("*") if p.is_file()}
+    dispatched = []
+
+    def captured_dispatch(preflight_result, **kwargs):
+        dispatched.append(preflight_result.manifest.preflight.workers_requested)
+        assert dispatched == [2], "only incomplete original slots may be dispatched"
+        workers = []
+        for position, original in enumerate((1, 3)):
+            worker = WorkerResult(index=position, model_id=f"fixture-model-{original}", status="success")
+            worker.body = f"## Verdict\nResumed slot {original}.\n"
+            workers.append(worker)
+        return workers
+
+    monkeypatch.setattr("superclaude.cli.swarm.dispatch.dispatch_wave1", captured_dispatch)
+    args = ["--resume", job_id, "--output", str(output)]
+    if force_relens:
+        args.append("--force-relens")
+    result = CliRunner().invoke(run_cmd, args)
+    assert result.exit_code == 0, result.output
+    assert dispatched == [2]
+    contract = yaml.safe_load((output / "return-contract.yaml").read_text())
+    assert [w["index"] for w in contract["output_files"]] == [0, 1, 2, 3]
+    for worker in contract["output_files"]:
+        assert bool(worker["raw_path"]) is retain_raw
+        if worker["index"] in (1, 3):
+            expected = template.format(lens=lens, index=worker["index"], model_slug=f"fixture-model-{worker['index']}")[:-3]
+            assert worker["final_path"] == str(output / f"{expected}.final.md")
+    assert {p: (output / p).read_bytes() for p in preserved} == preserved
