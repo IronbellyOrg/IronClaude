@@ -33,7 +33,7 @@ BLOCK_MESSAGE = (
     "`orca worktree create` without `--agent`.\n"
     'Use: orca worktree create --name <name> --agent claude --prompt "<task>"\n'
     "The eligible session that creates the worktree owns that agent.\n"
-    "A supervised coordinator is person-opened; workers cannot create worktrees or dispatch workers.\n"
+    "A supervised coordinator may be opened by a person or started by a script; workers cannot create worktrees or dispatch workers.\n"
     "Supervised workers use `orca orchestration worker-start`.\n"
 )
 

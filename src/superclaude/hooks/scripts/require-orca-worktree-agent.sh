@@ -352,7 +352,7 @@ cat >&2 <<'MSG'
 ORCA WORKTREE BLOCK: every Orca worktree gets an agent, and this command runs `orca worktree create` without `--agent`.
 Use: orca worktree create --name <name> --agent claude --prompt "<task>"
 The eligible session that creates the worktree owns that agent.
-A supervised coordinator is person-opened; workers cannot create worktrees or dispatch workers.
+A supervised coordinator may be opened by a person or started by a script; workers cannot create worktrees or dispatch workers.
 Supervised workers use `orca orchestration worker-start`.
 MSG
 exit 2
