@@ -1,0 +1,103 @@
+# Troubleshoot Report
+
+**Target**: Issue 568, swarm help advertises unsupported custom prompt option.
+**Type**: bug
+**Tier reached**: 1
+**Confidence**: 1.00 (bounded static wording claim, not repaired-state acceptance)
+**Status**: blocked
+**Escalation reason**: none
+**Test is wrong**: false
+**Behavior is documented**: false
+**Doc context card**: ./doc-context.md
+**Duration**: 1021 seconds (captured finalization time 2026-11-23T19:31:28Z)
+**Date**: 2026-11-23T19:27:11Z
+
+## Summary
+The help mismatch is reproduced, but repaired-state closure is blocked: no product fix, regression-test run, repaired public help output or independent review of an applied fix was performed. The current public scaffold and validate-lenses help outputs advertise a directory option rejected by run. The supported interface uses custom_prompt_dir in a job specification with lens custom. This diagnostic makes no claim that custom-prompt jobs fail.
+
+## Documentation Context
+- Relevant ref: docs/swarm/command-reference.md:56-61; release post-release records support the same route.
+- Documented behavior: JobSpec field, not a run option; nonempty directory requires custom lens.
+- Restrictions honored: preserve inline custom specs, injection guard and metadata validation; do not add a new flag.
+- Restrictions overridden: none.
+- Card: ./doc-context.md. Document currency check used equal source/doc mtimes, not a runtime guarantee.
+
+## Diagnosability Context
+**Verdict**: partial. **Complexity classification**: trivial, score0. **Captured-bytes (failing run)**: 13359.
+Direct help and rejection streams are preserved. Native discovery after Augment403 caps the inventory at partial. Both string producers are visible; no lost-datum or environment-dependent mechanism is asserted. The five exact/reference/control rows remain pending, not passed. No hard-stop fired.
+Full card: ./diagnosability-context.md. Informational tasklist: ./diagnosability-tasklist.md.
+
+## Diagnosis
+**Root cause**: two literal public help descriptions name an option that is not the supported custom-prompt configuration interface.
+**Cause class**: Other, static help/interface wording drift.
+The docstring and option-help literal match the captured public help. The parser rejects the advertised spelling, while the current command reference and preflight/schema source identify the JobSpec field. This establishes the bounded wording defect independently of any environment-substitution hypothesis. No competing cause, inferred enum status, successful custom job or repaired-state proof is claimed. Independent rubric confidence1.00 applies only to that literal-source claim; pending generic comparison rows are not additional evidence.
+
+## Evidence
+1. src/superclaude/cli/swarm/commands.py:438: help docstring says `from ``--custom-prompt-dir`` at preflight` (P1).
+2. src/superclaude/cli/swarm/commands.py:3785: option-help literal says `flow in from --custom-prompt-dir at preflight` (P2).
+3. docs/swarm/command-reference.md:56-61: `the custom prompt directory is not a run flag`; it names JobSpec custom_prompt_dir with lens custom (inline formatting normalized).
+4. src/superclaude/cli/swarm/preflight.py:1592-1615: checks custom lens, obtains `spec_dict.get("custom_prompt_dir")`, then calls read_custom_prompt_dir. Source reading only, not a successful job run.
+5. src/superclaude/cli/swarm/schema.py:710-734: nonempty directory with non-custom lens yields a binding failure; inline custom specs remain permitted.
+6. Public commands `uv run superclaude swarm scaffold --help` and `uv run superclaude swarm validate-lenses --help`: parent-observed exit0 each. ./scaffold-help.txt:24 and ./validate-lenses-help.txt:7 retain the stale option verbatim, arm=current-help-parser, runs-in=current-worktree.
+7. Public command `uv run superclaude swarm run --custom-prompt-dir /tmp`: parent-observed exit2, ./run-rejection.txt:4: `Error: No such option '--custom-prompt-dir'.` Same run/arm provenance; parsing rejected the option, no model job ran.
+8. Module-origin inspection `uv run python -I -c 'import superclaude.cli.swarm.commands as commands; print(commands.__file__)'`: exit0, ./module-origin.txt:1 resolves to this worktree's src/superclaude/cli/swarm/commands.py.
+
+## Proposed Fix
+Supported correction, not applied: replace the two public help descriptions in src/superclaude/cli/swarm/commands.py with JobSpec custom_prompt_dir / lens custom guidance. Do not add a run option or alter prompt-loading semantics. A later implementation needs public-group help/parser regression checks, observed failing before the edit and passing afterward, plus repaired public help captures and an independent fix review. No execution/planning handoff is launched by this report; the current invocation has no --fix. Existing staged refactor-find task packages are unrelated and remain untouched.
+
+## Risk + Rollback
+The proposed change must not imply all custom specs require a directory, remove inline custom prompts or weaken injection guard/metadata rules. No production/test files changed, so no product rollback is needed. Preserve all raw observations, intermediate reports and existing staged packages. Regression coverage for the proposed wording fix is not yet authored or run.
+
+## Follow-up tasks
+None. Internal comments and run-help directory placeholders were dispositioned as outside the two rendered false-option descriptions; no unrelated cleanup or issue creation requested.
+
+## Grounding Gaps
+- Augment semantic retrieval failed HTTP403. No alternative Auggie tool; codegraph leads and native source reads used. No missing source was fabricated.
+- Original FR-021 PRD/TDD not located in searched release tree; release complete/completed directories absent. Current source and command reference support the narrower interface claim.
+- No new regression tests, full suite, successful custom job, repaired-state positive witness or independent review of an applied fix. Captured shell exit statuses are parent observations; text files contain output, not status sidecars.
+- Five tasklist core rows remain pending; no environmental control or substitution cause asserted. SAME-ENV remains unknown relative to historical issue captures; current local provenance is explicit.
+- C8 skipped: behavior-definition input absent; static text correspondence was read and observed, no unobserved library primitive behavior drives the conclusion.
+- Hardening blocker and waiver latch persist regardless of confidence score. The report cannot authorize a speculative fix, automatic rerun, plan execution, commit, push or PR.
+
+## Next Steps
+No automatic rerun/remediation is recommended while repaired-state closure is blocked. Required external next state: a separately authorized bounded implementation with a reproducing test, fixed public output, parser regression and independent review. The existing report's blocker remains evidence, not a fabricated passing check.
+
+Pending tasklist rows, all core and unexecuted (not retroactively passed by earlier captures):
+- P1-exact: pending because no new confined experimental boundary established; stale flag present is consistent with the validate-lenses wording claim, absent refutes it; incomplete/error is inconclusive.
+- P1-ref: pending for same reason; identical minimal callee/form, same predictions/mapping, not an independent control.
+- P2-exact: pending; stale flag present is consistent with scaffold wording claim, absent refutes it; incomplete/error is inconclusive.
+- P2-ref: pending; identical minimal callee/form, same predictions/mapping, not an independent control.
+- control: pending, no passing environment/control-proof and no command invented; both true/false predictions unknown because no-op outcome has no causal relation to help wording, either outcome inconclusive.
+The report stays `partial` at the diagnosability layer until P1-exact and P2-exact have complete provenance-bound output and the reference/control rows have observed results or an evidence-backed applicability decision. Overall status remains blocked by the stronger repaired-state proof requirement, even if that diagnostic gap closes. No enabling instrumentation change is proposed.
+
+## Audit
+Hypothesis: ./tier1-hypothesis.md. Independent calibration: ./tier1-calibration.md, bounded static score1.00; receipt arithmetic/structure check PASS (six dimensions, nine structural rows). Audit: ./audit.log. Execution locus: ./execution-locus.md. No Tier2/adversarial, no Tier3 task plan and no fix. Diagnostic counter snapshot: ./diagnosability-rounds.json, round1; unrelated shared-store entries preserved. All earlier intermediates retained. Independent citation/structural validation: ./evidence-validation.md, PASS with zero drops; metadata finalized afterward. Existing closure blocker remains blocked. Worker citation-count headline inconsistency (7 versus eight table rows) is recorded as a minor reporting note, not a product finding.
+
+## Pipeline Hardening Closure
+**Applicable**: true
+**Closure verdict**: blocked
+**Waiver status**: latched
+**Backtest status**: not_run
+**Off-path review**: required for repaired-state closure, not performed.
+
+- HC0 PASS: typed boundary scan in ./hardening-boundary.md identifies public help/parser and spec delivery seams.
+- HC1 FAIL: ./runtime-entrypoint.md records actual public negative witness but no fix-applied positive witness.
+- HC2 PASS: ./contract-ledger.md classifies source help, public parser, spec consumers and sibling token hits; not a whole-repository completeness claim.
+- HC3 N/A: ./unmask-sweep.md records sibling sweep; no generated-prose severity classifier under change, so classifier fixture controls are inapplicable.
+- HC4 N/A: ./effective-input.md records explicit inputs; no indirect implementation selector to validate.
+- HC5 FAIL: independent applied-fix review absent. Formation/calibration/citation checks are not that review.
+
+Known escapes caught: none claimed. All four required card paths above exist.
+
+NOT PROVEN: failed hardening waves HC1 and HC5.
+NOT PROVEN: mandatory repaired-state runtime proof absent. Confidence in the observed wording does not override these blockers.
+
+## Worktree path correction (2026-11-24)
+
+At the user's request, 13 absolute checkout-path occurrences in `audit.log`, `effective-input.md`, `module-origin.txt` and `wave1_5-branch-{A,B,C}.md` were updated to `/home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help`. Each target exists in this worktree. This is a path-only relocation of the transferred investigation from the checkout named `bug-swarm-refactor-find-recommends-unavailable-s`, not a new diagnostic run. In particular, `module-origin.txt` is now a relocated source-file pointer, not unmodified output proving an import in this worktree. Original timestamps, historical branch/commit identities and observed results still describe the earlier investigation. Earlier checksum receipts describe the pre-correction files and are not checksums of this edited package. The installed-skill rubric path is unchanged because it is valid. Diagnostic counters, product code, tests and diagnosis status were not changed; no script or public command was rerun.
+
+## Historical path restoration (2026-11-24)
+
+The preceding correction note records an intermediate state and is retained as history. The user subsequently authorized preserving original captured paths and using a separate lookup map instead. The 13 root-path substitutions in the six files named above have now been reversed using the exact earlier Edit records. All six restored files match the complete pre-replacement file reads retained in this session's transcript; their SHA-256 digests are recorded in `./path-relocation-map.json`.
+
+Use `./path-relocation-map.json` to resolve historical paths to current checkout targets without editing the evidence. It lists all 13 occurrences, retains repo-relative lookup targets, and distinguishes the original execution location from the current checkout hint. Historical source line numbers and source versions are not made current by this mapping. The six restored captures are original again; this report remains annotated with both correction and restoration history. No diagnostic counter, source/test file, historical diagnosis status or captured result was changed by this restoration, and no diagnostic command was rerun.

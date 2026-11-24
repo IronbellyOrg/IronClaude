@@ -1,0 +1,17 @@
+return_contract:
+  merged_output_path: ../merged-review.md
+  convergence_score: 0.9166666667
+  artifacts_dir: .
+  status: success
+  base_variant: opus:refactorer
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []
+  review_verdict: FAIL
+  finding_counts: {blocking: 1, label_high: 1, medium: 5, note: 3}
+  notes:
+    - "One presentation preference lacked unanimity, but base selection settled it by the documented score/tiebreaker; no unresolved output conflict remains."
+    - "Four Medium probe warnings retained, with sufficiency overlap deduplicated. No Medium-only repair authorized."
+    - "Success means review-card merge completed, not plan approval. Requested model labels do not prove actual runtime class diversity."

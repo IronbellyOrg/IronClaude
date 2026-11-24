@@ -1,0 +1,26 @@
+Command: PYTHONDONTWRITEBYTECODE=1 uv run --no-sync pytest tests/swarm/test_validate_lenses_cmd.py -p no:cacheprovider
+========================================== test session starts ===========================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/.venv/bin/python
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 13 items
+
+tests/swarm/test_validate_lenses_cmd.py::test_validate_lenses_cmd_registered_on_swarm_group PASSED [  7%]
+tests/swarm/test_validate_lenses_cmd.py::test_validate_lenses_cmd_advertises_warning_mode_flag PASSED [ 15%]
+tests/swarm/test_validate_lenses_cmd.py::test_clean_registry_exits_zero PASSED                     [ 23%]
+tests/swarm/test_validate_lenses_cmd.py::test_clean_registry_warning_mode_also_exits_zero PASSED   [ 30%]
+tests/swarm/test_validate_lenses_cmd.py::test_bundled_registry_via_main_group_exits_zero PASSED    [ 38%]
+tests/swarm/test_validate_lenses_cmd.py::test_failing_registry_exits_nonzero_by_default PASSED     [ 46%]
+tests/swarm/test_validate_lenses_cmd.py::test_failure_diagnostics_name_the_lens_entry PASSED       [ 53%]
+tests/swarm/test_validate_lenses_cmd.py::test_multiple_failures_each_surface PASSED                [ 61%]
+tests/swarm/test_validate_lenses_cmd.py::test_failure_diagnostic_format_is_grep_friendly PASSED    [ 69%]
+tests/swarm/test_validate_lenses_cmd.py::test_failing_registry_warning_mode_exits_zero PASSED      [ 76%]
+tests/swarm/test_validate_lenses_cmd.py::test_warning_mode_diagnostic_lines_match_blocking_mode PASSED [ 84%]
+tests/swarm/test_validate_lenses_cmd.py::test_custom_only_registry_exits_zero PASSED               [ 92%]
+tests/swarm/test_validate_lenses_cmd.py::test_ok_summary_reports_inspected_count PASSED            [100%]
+
+=========================================== 13 passed in 0.76s ===========================================
+
+Observed pytest exit status: 0

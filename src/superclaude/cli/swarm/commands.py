@@ -434,9 +434,10 @@ def validate_lenses_cmd(warning_mode: bool) -> None:
 
     Runs the COMP-023 five-assertion lens validator over every entry in
     :data:`superclaude.cli.swarm.lenses.LENSES`. The ``custom`` escape
-    hatch (COMP-026) is intentionally skipped — its prompt body flows in
-    from ``--custom-prompt-dir`` at preflight and is validated on that
-    path (T02.05 / T02.07).
+    hatch (COMP-026) is intentionally skipped. Directory-backed custom
+    prompts use the JobSpec ``custom_prompt_dir`` field with ``lens: custom``
+    and are loaded and validated at preflight (T02.05 / T02.07). Custom
+    specs may also supply inline prompts without a directory.
 
     Exit codes (OQ-010 resolution -- see module docstring):
 
@@ -4134,9 +4135,11 @@ def _write_scaffold_atomic(output_path: Path, payload: str) -> None:
         "Expands lens defaults (system/user prompts, recipe, workers, "
         "line_cap, next-command template) into a full DM-001 JobSpec "
         "the operator can edit. ``custom`` and unknown lens names are "
-        "rejected -- ``custom`` is the FR-021 escape hatch whose prompts "
-        "flow in from --custom-prompt-dir at preflight, so it has no "
-        "registry defaults to expand from."
+        "rejected -- ``custom`` is the FR-021 escape hatch with no "
+        "registry defaults to expand from. Directory-backed custom prompts "
+        "use the JobSpec ``custom_prompt_dir`` field with ``lens: custom`` "
+        "and are loaded at preflight; custom specs may instead supply "
+        "inline prompts without a directory."
     ),
 )
 @click.option(

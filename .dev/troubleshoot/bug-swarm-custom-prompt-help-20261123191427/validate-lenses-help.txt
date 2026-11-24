@@ -1,0 +1,30 @@
+Usage: superclaude swarm validate-lenses [OPTIONS]
+
+  Validate the bundled LENSES registry (FR-008 / T02.20).
+
+  Runs the COMP-023 five-assertion lens validator over every entry in
+  :data:`superclaude.cli.swarm.lenses.LENSES`. The ``custom`` escape hatch (COMP-026) is
+  intentionally skipped — its prompt body flows in from ``--custom-prompt-dir`` at preflight and
+  is validated on that path (T02.05 / T02.07).
+
+  Exit codes (OQ-010 resolution -- see module docstring):
+
+      * 0 -- every non-custom entry passes its five COMP-023       assertions, OR ``--warning-
+      mode`` is set and failures are       emitted as warnings rather than errors.     * 1 -- one
+      or more entries failed validation and       ``--warning-mode`` is not set (default blocking
+      branch).     * 2 -- reserved for future usage errors (no path argument       accepted today,
+      but kept consistent with :func:`validate_cmd`       for a future ``--registry-path`` opt-
+      in).
+
+  Output:
+
+      * Success: one-line OK summary on stdout naming the registry       size and the count of
+      inspected (non-custom) entries.     * Failure: structured per-entry diagnostic block on
+      stderr,       one line per failing entry, format       ``- <rule> @ <path>: <message>
+      (lens=<lens_name>)``.
+
+Options:
+  --warning-mode  OQ-010 warning branch: emit per-entry diagnostics on stderr but exit 0 even when
+                  entries fail. Use for pre-commit hooks and non-blocking CI advisories. Default
+                  is blocking (exit 1 on any failure).
+  -h, --help      Show this message and exit.

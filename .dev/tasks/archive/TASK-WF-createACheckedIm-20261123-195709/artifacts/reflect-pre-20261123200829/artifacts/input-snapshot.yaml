@@ -1,0 +1,29 @@
+output_root: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/.dev/tasks/to-do/TASK-WF-createACheckedIm-20261123-195709/artifacts/reflect-pre-20261123200829
+input_tree_sha256: f36b4d29219521ffde06b090de4759a8fb2d13f53a845a61b00ed8b25cfef05b
+file_count: 19
+wave5_recheck:
+  checked_at: "2026-11-23T20:50:54.889725+00:00"
+  input_tree_sha256: f36b4d29219521ffde06b090de4759a8fb2d13f53a845a61b00ed8b25cfef05b
+  matches_initial: true
+  changed: []
+serialization: compact-json-array-of-path-hash-pairs-sorted-by-path
+file_list:
+  - {path: .dev/tasks/to-do/TASK-WF-createACheckedIm-20261123-195709/TASK-WF-createACheckedIm-20261123-195709.md, sha256: 225ef673a9006040b49dd6db1ff23a5c6e3b59669618b76aa176d1f62f64c1e4}
+  - {path: .dev/tasks/to-do/TASK-WF-createACheckedIm-20261123-195709/source.md, sha256: d0e154cf87338e2c097376e0a4ff0485d21935b0488d90585cd6024db68864cc}
+  - {path: .dev/troubleshoot/bug-swarm-custom-prompt-help-20261123191427/REPORT.md, sha256: 49604958078521c053ac0a5345c30d46b8cca766085e7cb05590db6022d0f7b9}
+  - {path: .dev/troubleshoot/bug-swarm-custom-prompt-help-20261123191427/diagnosability-tasklist.md, sha256: ab347105e6a188da85864f44137bd4a4c559a85ae75f3040a7e112e8bd6dd2bb}
+  - {path: .dev/troubleshoot/bug-swarm-custom-prompt-help-20261123191427/doc-context.md, sha256: 62ccb1a5b6cb84319c94a72a0520e7f9a37a04c84b66e5de0dea952431df76cd}
+  - {path: .dev/troubleshoot/bug-swarm-custom-prompt-help-20261123191427/run-rejection.txt, sha256: a266c849f4af7f87157f06dfb6ae5507f5ee4d65c2ac23a6fdaa95b4e8f2f94c}
+  - {path: .dev/troubleshoot/bug-swarm-custom-prompt-help-20261123191427/runtime-entrypoint.md, sha256: 08ebc51850df9c808a40ad1b56ae1e553c8ef8b5f00f5afa4a51e5122e8a7896}
+  - {path: .dev/troubleshoot/bug-swarm-custom-prompt-help-20261123191427/scaffold-help.txt, sha256: 5530a386b08997b9b38900d252c2aadf4e1f00f40c5babdaf20386a6ce81adf5}
+  - {path: .dev/troubleshoot/bug-swarm-custom-prompt-help-20261123191427/validate-lenses-help.txt, sha256: b6f64696b5858095209f39c46171f206c5a99a2dd823067f1bfcc385c9dc0df1}
+  - {path: docs/swarm/command-reference.md, sha256: 35990afcfa11e6c43e893af20bed0a97a643acef799f1b89232487d1397e86a3}
+  - {path: src/superclaude/cli/swarm/__init__.py, sha256: c3ef2bff8de015636c104aef19f919f4f92b4b8528037aab18e8d8b250c72717}
+  - {path: src/superclaude/cli/swarm/commands.py, sha256: ff530f91030fa719d91fbe118a877b7cb428a9a72f73b971294b32eb71255127}
+  - {path: src/superclaude/cli/swarm/preflight.py, sha256: 8effbcf3cea497dd5fce4a16cfae7fa2294ceab60c3785320b284515a48b09a2}
+  - {path: src/superclaude/cli/swarm/schema.py, sha256: b23d40483be3a000e8bfa87d3b82e859346946712656f0a2749fd77e6240e2e9}
+  - {path: tests/swarm/test_cli_registration.py, sha256: f9c20bd9dd05ad772e5b1202b066aebf6afd41ffd0aaf64c4ced654091feac27}
+  - {path: tests/swarm/test_custom_prompt_dir.py, sha256: 1799cf00c789f477a3b043818abd7127582adbe573c1f558028d20034a355c8b}
+  - {path: tests/swarm/test_custom_prompt_dir_injection_guard.py, sha256: 6327a9f4012c083ecc5e0460a922c2c81814325b555eb1c7f72fe28b09fb7961}
+  - {path: tests/swarm/test_scaffold_cmd.py, sha256: 9f8f02b8f5dbe1bc678411b2c518545e9cb9934f1b1189c7638290b25efefb81}
+  - {path: tests/swarm/test_validate_lenses_cmd.py, sha256: 980bda6c2dbb4fb59eff7627d2412e54da939d95ef1fd2a79678fa8719f939e3}

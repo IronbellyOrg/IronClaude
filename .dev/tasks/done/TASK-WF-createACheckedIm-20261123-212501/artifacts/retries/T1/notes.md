@@ -1,0 +1,2 @@
+start=fdff62848f3268733cedac6bf940bf08f30663b8
+A1 r1-2 F2.1 note tests/swarm/test_cli_registration.py:112 ac=T1.AC1 chk=n,n,n,n family=wording-pin-ungrounded: Test accepts the explicit lens:custom spelling, not every equivalent JSON/prose binding. Optional wording flexibility only; no AC outcome absent, false claim, harmful effect or constraint breach. Later help wording must state lens: custom. Inherited earlier unparseable-review notes about the same assertion are deduplicated here, not promoted to blockers.

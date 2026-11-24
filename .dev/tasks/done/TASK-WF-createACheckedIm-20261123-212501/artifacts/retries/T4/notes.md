@@ -1,0 +1,4 @@
+start=50b87a71cedf08bf630b12be9234faa9a33273e7
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-WF-createACheckedIm-20261123-212501/artifacts/public-after.txt:8 ac=T4.AC4 chk=n,n,n,n family=cmd-form: Public commands add uv run --no-sync to prevent dependency synchronization; disclosed, real outputs/statuses satisfy the task.
+A1 r1-1 F1.2 note .dev/tasks/to-do/TASK-WF-createACheckedIm-20261123-212501/artifacts/related-tests-green.txt:5 ac=T4.AC3 chk=n,n,n,n family=cmd-form: Test commands add no-sync, no-bytecode and no-cache switches; unavailable coverage is recorded and all five files ran, 80 passed, 1 skipped, exit 0.
+A1 r1-1 F1.3 note .dev/tasks/to-do/TASK-WF-createACheckedIm-20261123-212501/artifacts/diagnostic-disposition.md:21 ac=T4.AC5 chk=n,n,n,n family=stale-text origin=inherited: Earlier checkpoint still says independent applied review is required; later applied-fix-review.md records its completion. Retained unchanged, not a current missing review.
