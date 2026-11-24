@@ -1,0 +1,26 @@
+Issue 501 current documentation check
+
+Search and dispositions
+Dedicated Grep pattern: /sc:code-review|/code-review|--apply
+Scope: docs/swarm/, src/superclaude/skills/sc-swarm-wizard-protocol/, src/superclaude/commands/swarm-wizard.md.
+Observed remaining hits:
+- docs/swarm/lens-catalog.md:30: /sc:document --apply belongs to doc-completeness, not refactor-find. Intentional unrelated mention; unchanged under the explicit sibling-lens exclusion.
+- docs/swarm/release-notes-v1.md:34: /sc:code-review is historical release text. Intentionally unchanged under the explicit historical-evidence exclusion.
+- Wizard skill refs and command: zero matches, including the formerly generic related-command lists.
+Corrected refactor-find rows in README, lens catalog, user guide and both wizard mapping tables. Removed the refactor-find-only stale command from the generic command/guide lists and explained the actual comparison handoff.
+No other lens row, historical report, release note or unrelated guide was edited.
+
+Source agreement
+docs/swarm/lens-catalog.md:45-61 documents the template, successful report paths, 2-10 readable-file limit, argument quoting, no extra existing review, invalid-list suppression, preserved caller overrides and suggestion-only behavior.
+Observed actual command: artifacts/repaired-cli/return-contract.yaml:64. It contains only /sc:adversarial --compare and the three actual successful final_path values at lines 27,39,51. Those reports are readable; repaired-cli.txt:5-6 records the command/input check without invoking comparison.
+Supported consumer interface: src/superclaude/commands/adversarial.md:15,39 and installed sc-adversarial-protocol/SKILL.md:60-62. The syntax/count requirements match the repaired suggestion and the revised descriptions.
+README/user-guide link to the detailed lens subsection. Wizard refs, command and guide describe findings comparison, not automatic application-code edits, and warn that a successful swarm status does not prove valid comparison inputs.
+No complete illustrative command with invented report filenames was added; the only full-form table entry is explicitly labelled as a template.
+
+Sync and quality checks
+make sync-dev: exit 0. Generated project .claude copies only; no installed global files changed.
+make verify-sync: exit 0; verify-sync.txt:201 reports All components in sync, line 204 records exit 0.
+git diff --check: exit 0. Documentation delta touches exactly the seven Task 4 named files.
+Primitive path search in edited wizard surfaces found only cli-contract.md:4, an inherited provenance statement identifying this checkout's CLI source, not an instruction to Read/verify an installed dependency. No new src/superclaude runtime lookup was added.
+No generated .claude path is staged. Typecheck skipped: no mypy/pyright/tsc executable was available, and package.json has no typecheck script. No tool was installed.
+Full behavioral tests from Task 3 remain the actual repaired-state evidence; this documentation task does not claim a fresh runtime implementation.

@@ -1,0 +1,7 @@
+Plan the fix for issue 501: replace refactor-find's unavailable /sc:code-review --apply follow-up with /sc:adversarial --compare. Supply actual generated report filenames for refactor-find only, preserving other review modes and explicit caller overrides. Update the matching documentation. Include a regression test that fails before the fix and passes afterward, checking the complete suggested command and accepted report inputs. Carry forward the requirement to verify the repaired output; diagnosis alone is not fix acceptance. Do not implement, commit or push.
+
+## Revision 1
+
+- Replaces package: TASK-WF-planTheFixForIss-20261123-180531 (archived under .dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/)
+- Review report: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/REPORT.md
+- Fix map: ./artifacts/revision-log.md (diff: ./artifacts/plan.diff)

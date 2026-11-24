@@ -7,9 +7,22 @@ repos:
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
-        exclude: '(\.md$|^tests/troubleshoot/fixtures/)'
+        # Issue 501: preserve raw patch prefixes and captured pytest padding.
+        exclude: |
+          (?x)(
+            \.md$|
+            ^tests/troubleshoot/fixtures/|
+            ^\.dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/artifacts/(plan\.diff|task-[1-4]\.diff|lens-template\.txt|regression-before\.txt)$
+          )
       - id: end-of-file-fixer
-        exclude: '^tests/troubleshoot/fixtures/'
+        # Issue 501: hashed source-input snapshot and verbatim CLI manifests.
+        exclude: |
+          (?x)(
+            ^tests/troubleshoot/fixtures/|
+            ^\.dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/source\.md$|
+            ^\.dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/artifacts/repaired-cli/manifest\.json$|
+            ^\.dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/manifest\.json$
+          )
       - id: check-yaml
         args: ['--unsafe']  # Allow custom YAML tags
       - id: check-json
@@ -93,6 +106,14 @@ repos:
     hooks:
       - id: yamllint
         args: ['-d', '{extends: default, rules: {line-length: disable, document-start: disable, braces: disable, commas: disable}}']
+        # Issue 501: captured serializers use valid indentless YAML sequences.
+        # check-yaml still validates all four files; only style is exempted.
+        exclude: |
+          (?x)^(
+            \.dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/(artifacts/input-snapshot|return-contract)\.yaml|
+            \.dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/artifacts/repaired-cli/return-contract\.yaml|
+            \.dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/return-contract\.yaml
+          )$
 
   # Shell script linting
   - repo: https://github.com/shellcheck-py/shellcheck-py

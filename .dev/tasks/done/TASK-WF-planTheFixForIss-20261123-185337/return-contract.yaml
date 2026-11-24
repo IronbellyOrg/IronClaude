@@ -1,0 +1,20 @@
+contract_version: "1.1"
+supersedes: TASK-WF-planTheFixForIss-20261123-180531
+remediation_route: surgical
+finding_counts: {"blocking": 1, "label_high": 1, "medium": 4, "note": 3}
+fix_cycles: 1
+status: success
+slug: TASK-WF-planTheFixForIss-20261123-185337
+plan_path: ./TASK-WF-planTheFixForIss-20261123-185337.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+# Final re-review scope: changed lines plus prior MR-B1, not a fresh whole-plan review.
+# finding_counts above are the ORIGINAL routing counts retained by remediate.py.
+# Prior blocker is resolved; current open/new blockers=0. Initial partial review and minor notes remain archived.
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-501-refactor-handoff/.dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/artifacts/re-review.md
+unresolved: []

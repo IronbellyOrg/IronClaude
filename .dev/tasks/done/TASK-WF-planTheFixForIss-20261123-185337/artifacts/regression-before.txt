@@ -1,0 +1,38 @@
+Using CPython 3.13.5 interpreter at: /usr/bin/python3
+Creating virtual environment at: .venv
+   Building superclaude @ file:///home/coder/workspaces/worktrees/IronClaude/issue-501-refactor-handoff
+      Built superclaude @ file:///home/coder/workspaces/worktrees/IronClaude/issue-501-refactor-handoff
+Installed 27 packages in 29ms
+========================================== test session starts ===========================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-501-refactor-handoff
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collected 2 items
+
+tests/swarm/test_bundled_lenses.py F                                                               [ 50%]
+tests/swarm/test_commands_run.py F                                                                 [100%]
+
+================================================ FAILURES ================================================
+________________________________ test_refactor_find_followup_is_packaged _________________________________
+tests/swarm/test_bundled_lenses.py:149: in test_refactor_find_followup_is_packaged
+    assert command_file.is_file(), f"Unpackaged follow-up: {tokens[0]}"
+E   AssertionError: Unpackaged follow-up: /sc:code-review
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/home/coder/workspaces/worktrees/IronClaude/issue-501-refactor-handoff/src/superclaude/commands/code-review.md').is_file
+___________________________________ test_refactor_find_default_handoff ___________________________________
+tests/swarm/test_commands_run.py:524: in test_refactor_find_default_handoff
+    assert tokens[:2] == ["/sc:adversarial", "--compare"]
+E   AssertionError: assert ['/sc:code-review', '--apply'] == ['/sc:adversa..., '--compare']
+E     
+E     At index 0 diff: '/sc:code-review' != '/sc:adversarial'
+E     Use -v to get more diff
+======================================== short test summary info =========================================
+FAILED tests/swarm/test_bundled_lenses.py::test_refactor_find_followup_is_packaged - AssertionError: Un...
+FAILED tests/swarm/test_commands_run.py::test_refactor_find_default_handoff - AssertionError: assert ['...
+=========================================== 2 failed in 1.10s ============================================
+
+Command: uv run --offline pytest tests/swarm/test_bundled_lenses.py::test_refactor_find_followup_is_packaged tests/swarm/test_commands_run.py::test_refactor_find_default_handoff -q
+Exit status: 1

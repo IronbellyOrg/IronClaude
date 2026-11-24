@@ -91,6 +91,10 @@ artifacts; expose raw rule codes / tracebacks to the user without a plain-langua
 
 ## Related Commands
 
-- `/sc:adversarial`, `/sc:troubleshoot`, `/sc:code-review`, `/sc:document`, `/sc:reflect`, `/sc:research`
+- `/sc:adversarial`, `/sc:troubleshoot`, `/sc:document`, `/sc:reflect`, `/sc:research`
   — the downstream skills a finished swarm run hands off to (the wizard surfaces the right one per lens).
+  For `refactor-find`, suggest `/sc:adversarial --compare` with the actual successful report
+  filenames from the emitted command. This compares findings; it does not automatically edit
+  application code. The bundled suggestion is empty with fewer than two usable reports or
+  another invalid 2-10-file input list; never infer validity from swarm success alone.
 - `/sc:pr-submit`, `/sc:auggie-review` — sibling review workflows for the PR path.

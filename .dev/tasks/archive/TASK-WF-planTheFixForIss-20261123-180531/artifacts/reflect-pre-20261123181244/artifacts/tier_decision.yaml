@@ -1,0 +1,22 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 4
+per_signal_breakdown: {scope_size: 1, task_count: 0, blast_radius: 1, spec_density: 2, ambiguity_signals: 0}
+escalation_reason: "Parsed-sparse table-wide prefilter forbids every T1 stop. First applicable numbered escalation rule is4 (three domains); C0.70 and S_dev_density0.5 also trigger6 and5. Composite is recording only."
+C: 0.70
+S_scope: 4
+S_domains: 3
+S_dev_density: 0.5
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null
+executor_class_source: unknown
+executor_class_resolved: false
+reviewer_models: [sonnet, haiku, opus]
+reviewer_personas: [analyzer, qa, refactorer]
+requested_alias_distinct_count: 3
+identity_source: requested-pinned
+actual_gateway_class: unknown
+calibrator_diversity: degraded

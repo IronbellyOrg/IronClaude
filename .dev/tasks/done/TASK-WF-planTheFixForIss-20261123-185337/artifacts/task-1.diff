@@ -1,0 +1,89 @@
+diff --git a/tests/swarm/test_bundled_lenses.py b/tests/swarm/test_bundled_lenses.py
+index 065fb7a44..9d7b5c4d5 100644
+--- a/tests/swarm/test_bundled_lenses.py
++++ b/tests/swarm/test_bundled_lenses.py
+@@ -30,6 +30,8 @@ authoring.
+ from __future__ import annotations
+ 
+ import importlib
++import shlex
++from pathlib import Path
+ 
+ import pytest
+ 
+@@ -138,6 +140,17 @@ def test_bare_review_field_guards() -> None:
+     assert "{suspect_files}" in lens.recommended_next_command_template
+ 
+ 
++def test_refactor_find_followup_is_packaged() -> None:
++    """The default follow-up must resolve to a shipped command, not a plugin."""
++    tokens = shlex.split(LENSES["refactor-find"].recommended_next_command_template)
++    command_name = tokens[0].removeprefix("/sc:")
++    commands_dir = Path(__file__).resolve().parents[2] / "src/superclaude/commands"
++    command_file = commands_dir / f"{command_name}.md"
++    assert command_file.is_file(), f"Unpackaged follow-up: {tokens[0]}"
++    assert tokens == ["/sc:adversarial", "--compare", "{compare_files}"]
++    assert "--compare" in command_file.read_text(encoding="utf-8")
++
++
+ def test_edge_case_hunt_workers_is_four() -> None:
+     assert LENSES["edge-case-hunt"].default_workers == 4
+ 
+diff --git a/tests/swarm/test_commands_run.py b/tests/swarm/test_commands_run.py
+index 70bf51ef2..07d1bad8d 100644
+--- a/tests/swarm/test_commands_run.py
++++ b/tests/swarm/test_commands_run.py
+@@ -31,10 +31,12 @@ depend on schema-test internals.
+ from __future__ import annotations
+ 
+ import json
++import shlex
+ from pathlib import Path
+ from typing import Any
+ 
+ import pytest
++import yaml
+ from click.testing import CliRunner
+ 
+ from superclaude.cli.swarm import swarm_group
+@@ -499,6 +501,40 @@ def test_dispatch_wave1_with_transport_calls_send_per_worker() -> None:
+     assert [r.index for r in results] == [0, 1, 2]
+ 
+ 
++def test_refactor_find_default_handoff(tmp_path: Path) -> None:
++    """Exercise real dispatch through emission, then check the complete suggestion."""
++    spec = _runnable_spec(tmp_path)
++    output = Path(spec["output"]["dir"])
++    result = CliRunner().invoke(
++        swarm_group,
++        [
++            "run",
++            "--lens",
++            "refactor-find",
++            "--transport",
++            "stub",
++            "--target",
++            spec["target"]["path"],
++            "--output",
++            str(output),
++        ],
++    )
++    assert result.exit_code == EXIT_OK, result.output
++    contract = yaml.safe_load((output / "return-contract.yaml").read_text())
++    reports = [
++        worker["final_path"]
++        for worker in contract["output_files"]
++        if worker["status"] == "success"
++    ]
++    assert len(reports) == 3
++    assert all(Path(path).is_file() and Path(path).read_text() for path in reports)
++    tokens = shlex.split(contract["recommended_next_command"])
++    assert tokens[:2] == ["/sc:adversarial", "--compare"]
++    assert len(tokens) == 3
++    assert tokens[2].split(",") == reports
++    assert 2 <= len(reports) <= 10
++
++
+ # ---------------------------------------------------------------------------
+ # F-P3-1 regression -- real stub dispatch is NOT a no-op
+ # ---------------------------------------------------------------------------

@@ -30,6 +30,8 @@ authoring.
 from __future__ import annotations
 
 import importlib
+import shlex
+from pathlib import Path
 
 import pytest
 
@@ -136,6 +138,17 @@ def test_bare_review_field_guards() -> None:
     # suspect=True requires {suspect_files} in the next-cmd template
     # (COMP-023 assertion 3).
     assert "{suspect_files}" in lens.recommended_next_command_template
+
+
+def test_refactor_find_followup_is_packaged() -> None:
+    """The default follow-up must resolve to a shipped command, not a plugin."""
+    tokens = shlex.split(LENSES["refactor-find"].recommended_next_command_template)
+    command_name = tokens[0].removeprefix("/sc:")
+    commands_dir = Path(__file__).resolve().parents[2] / "src/superclaude/commands"
+    command_file = commands_dir / f"{command_name}.md"
+    assert command_file.is_file(), f"Unpackaged follow-up: {tokens[0]}"
+    assert tokens == ["/sc:adversarial", "--compare", "{compare_files}"]
+    assert "--compare" in command_file.read_text(encoding="utf-8")
 
 
 def test_edge_case_hunt_workers_is_four() -> None:

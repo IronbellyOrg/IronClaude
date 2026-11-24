@@ -50,7 +50,7 @@ LENS: LensEntry = LensEntry(
     default_target_line_cap=4000,
     suspect=False,
     tier="T2-code",
-    recommended_next_command_template=("/sc:code-review --apply {compare_files}"),
+    recommended_next_command_template=("/sc:adversarial --compare {compare_files}"),
     acceptance_notes=(
         "Experimental lens; graduates to stable after a real caller "
         "wires it in production (spec §3.3)."
