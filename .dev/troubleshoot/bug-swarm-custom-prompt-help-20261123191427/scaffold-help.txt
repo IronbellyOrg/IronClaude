@@ -1,0 +1,29 @@
+Usage: superclaude swarm scaffold [OPTIONS]
+
+  Emit a starter JobSpec for the named lens (FR-006 / T07.09).
+
+  Generates a fully-populated DM-001 JobSpec for ``--lens NAME`` so operators have a valid
+  baseline they can edit instead of authoring the spec from scratch. The emitted spec passes
+  ``swarm validate`` out of the box -- the only fields the operator MUST override before invoking
+  ``swarm run`` are ``target.path`` (placeholder ``""``) and ``output.dir`` (placeholder ``""``).
+  Model IDs are filled with ``lens-default-model-<i>`` placeholders that schema-validate but never
+  reach the wire (the transport defaults to ``stub`` for the same safe-quick-dispatch reasoning as
+  ``swarm run --lens``).
+
+  Exit codes:
+
+      * 0 -- starter spec rendered successfully (to stdout, or to       ``--output`` when
+      supplied).     * 2 -- usage error: lens unknown, lens is the ``custom`` escape       hatch
+      (no registry defaults to expand from), or ``--output``       path is unwritable.
+
+Options:
+  --lens TEXT        Lens to scaffold a starter JobSpec for (e.g. bare-review). Expands lens
+                     defaults (system/user prompts, recipe, workers, line_cap, next-command
+                     template) into a full DM-001 JobSpec the operator can edit. ``custom`` and
+                     unknown lens names are rejected -- ``custom`` is the FR-021 escape hatch
+                     whose prompts flow in from --custom-prompt-dir at preflight, so it has no
+                     registry defaults to expand from.  [required]
+  -o, --output FILE  Write the starter JobSpec to PATH atomically (tmp + os.replace). When
+                     omitted, the JSON document is emitted to stdout so it can be piped straight
+                     into ``swarm validate`` or redirected with the shell of choice.
+  -h, --help         Show this message and exit.

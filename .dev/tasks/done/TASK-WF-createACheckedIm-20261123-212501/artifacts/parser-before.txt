@@ -1,0 +1,17 @@
+Task 2: unsupported-option guard before product edits
+Timestamp: 2026-11-24T15:18:43Z
+Checkout: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help
+Command: PYTHONDONTWRITEBYTECODE=1 uv run --no-sync pytest tests/swarm/test_cli_registration.py::test_run_rejects_custom_prompt_dir_option -p no:cacheprovider
+========================================== test session starts ===========================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/.venv/bin/python
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 1 item
+
+tests/swarm/test_cli_registration.py::test_run_rejects_custom_prompt_dir_option PASSED             [100%]
+
+=========================================== 1 passed in 0.96s ============================================
+
+Observed pytest exit status: 0

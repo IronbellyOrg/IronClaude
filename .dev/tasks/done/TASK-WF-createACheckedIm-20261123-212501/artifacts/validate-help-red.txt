@@ -1,0 +1,67 @@
+Task 1 fresh red observation
+Timestamp: 2026-11-24T15:05:52Z
+Checkout: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help
+Commit: 720cbaf96653c1c983497ba480f76ca6e60e5369
+Module origin command: uv run --no-sync python -I -c import/module-location
+/home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/src/superclaude/cli/swarm/commands.py
+
+Command: PYTHONDONTWRITEBYTECODE=1 uv run --no-sync pytest tests/swarm/test_cli_registration.py::test_validate_lenses_help_uses_jobspec_custom_prompt_dir -p no:cacheprovider
+========================================== test session starts ===========================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/.venv/bin/python
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 1 item
+
+tests/swarm/test_cli_registration.py::test_validate_lenses_help_uses_jobspec_custom_prompt_dir FAILED [100%]
+
+================================================ FAILURES ================================================
+________________________ test_validate_lenses_help_uses_jobspec_custom_prompt_dir ________________________
+tests/swarm/test_cli_registration.py:109: in test_validate_lenses_help_uses_jobspec_custom_prompt_dir
+    assert "--custom-prompt-dir" not in help_text, result.output
+E   AssertionError: Usage: main swarm validate-lenses [OPTIONS]
+E     
+E       Validate the bundled LENSES registry (FR-008 / T02.20).
+E     
+E       Runs the COMP-023 five-assertion lens validator over every entry in
+E       :data:`superclaude.cli.swarm.lenses.LENSES`. The ``custom`` escape hatch
+E       (COMP-026) is intentionally skipped — its prompt body flows in from
+E       ``--custom-prompt-dir`` at preflight and is validated on that path (T02.05 /
+E       T02.07).
+E     
+E       Exit codes (OQ-010 resolution -- see module docstring):
+E     
+E           * 0 -- every non-custom entry passes its five COMP-023       assertions,
+E           OR ``--warning-mode`` is set and failures are       emitted as warnings
+E           rather than errors.     * 1 -- one or more entries failed validation and
+E           ``--warning-mode`` is not set (default blocking branch).     * 2 --
+E           reserved for future usage errors (no path argument       accepted today,
+E           but kept consistent with :func:`validate_cmd`       for a future
+E           ``--registry-path`` opt-in).
+E     
+E       Output:
+E     
+E           * Success: one-line OK summary on stdout naming the registry       size
+E           and the count of inspected (non-custom) entries.     * Failure: structured
+E           per-entry diagnostic block on stderr,       one line per failing entry,
+E           format       ``- <rule> @ <path>: <message> (lens=<lens_name>)``.
+E     
+E     Options:
+E       --warning-mode  OQ-010 warning branch: emit per-entry diagnostics on stderr
+E                       but exit 0 even when entries fail. Use for pre-commit hooks
+E                       and non-blocking CI advisories. Default is blocking (exit 1 on
+E                       any failure).
+E       -h, --help      Show this message and exit.
+E     
+E   assert '--custom-prompt-dir' not in 'Usage:mains...sageandexit.'
+E     
+E     '--custom-prompt-dir' is contained here:
+E     ?                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ...
+E     
+E     ...Full output truncated, use '-vv' to show
+======================================== short test summary info =========================================
+FAILED tests/swarm/test_cli_registration.py::test_validate_lenses_help_uses_jobspec_custom_prompt_dir
+=========================================== 1 failed in 0.76s ============================================
+
+Observed pytest exit status: 1

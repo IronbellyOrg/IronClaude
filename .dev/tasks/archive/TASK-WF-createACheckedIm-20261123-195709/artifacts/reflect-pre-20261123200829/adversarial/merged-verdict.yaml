@@ -1,0 +1,18 @@
+merge_method: adversarial
+adversarial_unavailable: false
+merged_output_path: ./merged-review.md
+artifacts_dir: ./adversarial
+convergence_score: 0.9166666667
+reviewer_count: 3
+review_verdict: FAIL
+finding_counts: {blocking: 1, label_high: 1, medium: 5, note: 3}
+blocking_findings:
+  - id: F1
+    grade: Blocking (Missing)
+    label: HIGH
+    category: drift
+    target: Task 4 before/after comparison inputs
+followup_findings: [F2, F3, F5, F6, F7]
+notes: [F4, exact-review-filename, excluded-directory-placeholder]
+confidence_source: original V3 calibration 0.81, not merged-card recalibration
+unaddressed_high_invariants: []

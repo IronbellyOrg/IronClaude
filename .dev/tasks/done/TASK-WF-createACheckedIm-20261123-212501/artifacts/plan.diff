@@ -1,0 +1,22 @@
+--- old-plan
++++ new-plan
+@@ -3,7 +3,7 @@
+ source: ./source.md
+ strategy: systematic
+ depth: standard
+-slug: TASK-WF-createACheckedIm-20261123-195709
++slug: TASK-WF-createACheckedIm-20261123-212501
+ version: "1"
+ priority: Medium
+ created_date: "2026-11-23"
+@@ -77,8 +77,8 @@
+ 
+ Acceptance criteria:
+ - The final product diff contains only the two intended help blocks in `src/superclaude/cli/swarm/commands.py` plus the new regressions in `tests/swarm/test_cli_registration.py`; internal comments, adjacent error messages, registrations, parser options, preflight, schema and docs are unchanged. Help describes directory-backed prompts as optional for custom specs.
+-- Both public-root help regressions and the parser rejection guard pass after their preserved pre-edit observations. Existing registration/help and scaffold tests remain intact, including custom/unknown-lens rejection, schema-valid scaffold output and injection-guard content.
++- Both public-root help regressions and the parser rejection guard pass after their preserved pre-edit observations in `./artifacts/validate-help-red.txt`, `./artifacts/scaffold-help-red.txt` and `./artifacts/parser-before.txt` (F1). Existing registration/help and scaffold tests remain intact, including custom/unknown-lens rejection, schema-valid scaffold output and injection-guard content.
+ - Run `uv run pytest tests/swarm/test_cli_registration.py tests/swarm/test_validate_lenses_cmd.py tests/swarm/test_scaffold_cmd.py tests/swarm/test_custom_prompt_dir.py tests/swarm/test_custom_prompt_dir_injection_guard.py --cov=superclaude.cli.swarm --cov-report=term-missing`; preserve command, full output and observed status in `./artifacts/related-tests-green.txt`. No arbitrary coverage percentage is required; report unavailable coverage tooling or any failure honestly and do not silently drop checks.
+-- Capture full repaired public outputs with the same three CLI invocations as Task 2 in `./artifacts/public-after.txt`, including module origin, commit/checkout provenance, timestamps and observed statuses 0, 0 and 2. Both help outputs omit the rejected option and explain the supported field/custom-lens binding; the actual run parser still rejects that option. Source text inspection or mocked output alone is insufficient.
++- Capture full repaired public outputs by running `uv run superclaude swarm validate-lenses --help`, `uv run superclaude swarm scaffold --help` and `uv run superclaude swarm run --custom-prompt-dir <existing temporary directory>`, in `./artifacts/public-after.txt` (F1), including module origin, commit/checkout provenance, timestamps and observed statuses 0, 0 and 2. Both help outputs omit the rejected option and explain the supported field/custom-lens binding; the actual run parser still rejects that option. Source text inspection or mocked output alone is insufficient. Compare each with the same command's status and output in `./artifacts/public-before.txt` (F1).
+ - Retain red/green tests, before/after public captures and the pending/applicability record for the historical diagnostic rows. The executor's independent final applied-fix review must check this exact diff, the effective public surfaces, inline custom support and unchanged guard/metadata behavior, and persist its report under `./artifacts/`. Planning pre-review does not satisfy it.
+ - Do not declare repaired-state closure while public positive evidence or independent applied-fix review is absent or failing. Record new evidence and any remaining blockers without editing or retroactively passing the transferred report. No real model run, full custom-job success claim, commit, push, GitHub interaction or worktree creation is part of this plan.

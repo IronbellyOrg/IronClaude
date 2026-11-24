@@ -1,0 +1,107 @@
+contract_version: "1.9.0"
+status: success
+mode: pre
+tier_reached: 2
+review_verdict: FAIL
+next_action: halt-phase-for-review
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/.dev/tasks/to-do/TASK-WF-createACheckedIm-20261123-195709/artifacts/reflect-pre-20261123200829/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/.dev/tasks/to-do/TASK-WF-createACheckedIm-20261123-195709/artifacts/reflect-pre-20261123200829/audit.log
+confidence_calibrated: 0.81
+confidence_source: original selected V3 card calibration, not merged-report recalibration
+escalation_rule_matched: 5
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.5
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-002, INF-009, INF-010, INF-011, INF-012]
+S_dev_density: 0.5
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+deviation_count_scope: UC-2 inapplicable; use UC-1 finding_counts below
+deviation_register_path: null
+grounding_gaps_path: null
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+verification_scope: UC-1, product execution not authorized
+third_party_api_grounding: []
+third_party_api_verified: false
+input_sha256:
+  tasklist: 225ef673a9006040b49dd6db1ff23a5c6e3b59669618b76aa176d1f62f64c1e4
+  spec: d0e154cf87338e2c097376e0a4ff0485d21935b0488d90585cd6024db68864cc
+input_tree_sha256: f36b4d29219521ffde06b090de4759a8fb2d13f53a845a61b00ed8b25cfef05b
+input_tree_file_count: 19
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/.dev/tasks/to-do/TASK-WF-createACheckedIm-20261123-195709/artifacts/reflect-pre-20261123200829/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 21
+citations_revalidated: 21
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [./reviewer-cards/reviewer-1.md, ./reviewer-cards/reviewer-2.md, ./reviewer-cards/reviewer-3.md]
+adversarial_artifacts_dir: ./adversarial/adversarial
+adversarial_convergence_score: 0.9166666667
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+model_identity_note: Requested slots varied; routed runtime class/vendor diversity unproven, conservative diversity enums used
+executor_class_resolved: false
+executor_exclusion_degraded: true
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+finding_counts: {blocking: 1, label_high: 1, medium: 5, note: 3}
+open_blockers: [F1]
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+memory_retention_actions: 0
+memory_persist_failed: false
+memory_persist_skipped: invocation limited to planning artifacts
+global_metrics_append_skipped: invocation limited to planning artifacts
+unresolved:
+  - "Plan correction and independent re-review remain unauthorized; Task 4 blocker remains open."
+  - "Historical repaired-state runtime proof and independent applied-fix review remain unproven."

@@ -1,0 +1,27 @@
+selected_tier: 2
+fired_rule_number: 5
+coverage_degraded: parsed-sparse
+surface_unreached: null
+confidence_calibrated: 0.68
+S_scope: 4
+S_domains: 2
+S_dev_density: 0.5
+coverage_pct: null
+coverage_pct_union: 0.5
+composite_score: 5
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 1
+  blast_radius: 0
+  spec_density: 2
+  ambiguity_signals: 2
+composite_rationale: "Recording-only heuristic: two product/test files, four tasks, help-only behavior reach, no parsed labels and six literal nonmatches; not the routing input."
+escalation_reason: "Parsed-sparse is a table-wide Tier 2 pre-filter; first matching structural escalation is rule 5 (density >0.20), with rule 6 low confidence independently applicable."
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null
+executor_class_source: unknown
+executor_class_resolved: false
+reviewer_models_requested: [sonnet, haiku, opus]
+reviewer_personas: [analyzer, qa, refactorer]
+identity_verification: requested-not-measured

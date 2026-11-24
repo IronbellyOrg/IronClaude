@@ -1,0 +1,116 @@
+Usage: superclaude swarm run [OPTIONS] [SPEC_PATH]
+
+  Run a swarm job: Wave 0 preflight -> Wave 1 dispatch (T03.01 / FR-001).
+
+  Four mutually-exclusive input modes:
+
+      * Positional ``SPEC_PATH`` -- a JobSpec JSON file on disk.     * ``--stdin`` -- read the
+      JobSpec JSON document from stdin.     * ``--lens NAME`` -- shortcut for a single bundled
+      lens.       T03.08 / FR-020 expands the shortcut into a fully       lens-defaulted JobSpec
+      so a bare ``--lens NAME --target ...       --output ...`` is preflight-valid without a spec
+      file.     * ``--resume JOB_ID`` -- T06.04 / FR-015 resume mode. Loads
+      ``manifest.json`` from ``--output``, rehydrates the JobSpec       via
+      :func:`preflight.resume_mode` (lens snapshot taken       verbatim per INV-001 / INV-016),
+      skips succeeded workers via       their on-disk meta sidecars, re-dispatches the remainder,
+      re-runs Wave 2 normalize on the redispatched slots, and       regenerates ``merged.md`` via
+      :func:`reduce_wave3` with       ``resume=True``.
+
+  Flow (non-resume modes):
+
+      1. Resolve the input mode into a JobSpec dict.     2. Apply ``--target`` / ``--output`` /
+      ``--transport``        overrides on the dict in place.     3. Run :func:`run_preflight`
+      (Wave 0). On failure, emit the        structured rule block on stderr and exit with
+      :data:`EXIT_INVALID`. The INV-007 env-missing contract        path (when written) is
+      surfaced as the last stderr line.     4. Run :func:`dispatch_wave1` (Wave 1) with the
+      selected        :class:`Transport`. The T03.01 path is a sequential        reference body;
+      T03.02 swaps in the real        :class:`ParallelExecutor`-driven fan-out. With ``--tui`` on
+      a        TTY, this dispatch runs on a non-daemon background thread while        the main
+      thread renders a live progress dashboard by tailing        ``execution-log.jsonl`` (fresh-
+      run only; mutually exclusive        with ``--detached``).     5. Emit a return-contract stub
+      on stdout (M5 replaces this        with the full :class:`ResultContract` writer).
+
+Options:
+  --stdin                         Consume the JobSpec JSON document from stdin instead of a file.
+  --lens TEXT                     Shortcut: dispatch with the named lens (e.g. bare-review).
+                                  Expands lens defaults (system/user prompts, recipe, workers,
+                                  line_cap, next-command template) into a full JobSpec per FR-020.
+                                  Requires --target and --output to point at concrete files. Pass
+                                  --transport openai_compat to drive the T2 proxy; the default is
+                                  stub for safe quick-dispatch. ``custom`` and unknown lens names
+                                  are rejected with EXIT_USAGE.
+  --resume TEXT                   T06.04 / FR-015 -- resume a prior swarm job from its manifest.
+                                  Requires --output <dir> pointing at the original job's output
+                                  directory (the one carrying manifest.json). Skips workers whose
+                                  *.meta.json sidecar reports status=success, re-dispatches the
+                                  remainder, re-runs Wave 2 normalize on the redispatched slots,
+                                  and regenerates merged.md when
+                                  amalgamation_mode==normalize+merge via
+                                  reduce_wave3(resume=True). Mutually exclusive with SPEC_PATH /
+                                  --stdin / --lens. INV-001 / INV-016: the lens snapshot is
+                                  rehydrated verbatim from manifest.resolved_lens_entry; live
+                                  LENSES edits between runs are ignored unless --force-relens
+                                  (T06.07) is passed.
+  --target PATH                   Override target.path on the resolved JobSpec. Useful with --lens
+                                  to point a shortcut invocation at a specific file.
+  --output DIRECTORY              Override output.dir on the resolved JobSpec. The preflight
+                                  manifest and (eventually) the M5 return-contract are written
+                                  under this directory. Required when --resume is set: the resume
+                                  branch locates the prior job's manifest under this dir.
+  --transport [openai_compat|stub]
+                                  Override transport.kind on the resolved JobSpec.
+                                  ``openai_compat`` (default, FR-022) routes through the T2 proxy;
+                                  ``stub`` (FR-023) is the deterministic in-process transport used
+                                  by tests and dry runs.
+  --reviewers INTEGER             B-1 -- override the bare-review reviewer (worker) count. Integer
+                                  in the inclusive range [2, 4] (legacy t2_preflight.sh AC-1.4
+                                  invariant). When omitted, the lens default (3 for bare-review)
+                                  is preserved. workers.models is resized to match so the INV-005
+                                  model-pool guard admits the requested count.
+  --target-line-cap INTEGER       B-2 -- override the target truncation line cap (legacy
+                                  t2_preflight.sh --target-line-cap, default 4000). When omitted,
+                                  the lens default (4000 for bare-review) is preserved. The value
+                                  threads through to target.truncation.line_cap.
+  --timeout-sec INTEGER           B-3 -- override the per-worker timeout in seconds (legacy
+                                  t2_preflight.sh --timeout-sec / T2Timeout, default 180). When
+                                  omitted, the 180s default is preserved. Applied to
+                                  workers.timeout_sec and threaded into dispatch via worker_spec.
+  --label TEXT                    B-4 -- override the caller invocation label (legacy
+                                  t2_preflight.sh --label), stamped onto per-reviewer output
+                                  frontmatter via the recipe caller_label. When omitted, the
+                                  default ``swarm-run-lens-<lens>`` label is preserved.
+  --force-relens                  T06.07 / FR-025 -- on resume, re-resolve the lens from the
+                                  current LENSES registry instead of consuming the manifest's
+                                  resolved_lens_entry snapshot. The default resume path is
+                                  manifest-driven (INV-001 / INV-016) so registry edits made
+                                  between runs are silently ignored; this flag is the opt-in
+                                  override for operators who explicitly want the live lens values
+                                  applied to the redispatched workers. The lens name +
+                                  workers.count + transport.kind still come from the manifest;
+                                  only the lens body (system prompt, user template, recipe, next-
+                                  command template) is re-resolved. Requires --resume.
+  --detached                      T07.11 / FR-014 -- launch the run inside a detached tmux session
+                                  named ``swarm-<job_id>`` so it survives caller exit (AC-008).
+                                  Returns immediately after the session is launched, printing the
+                                  job_id on stdout. The resolved JobSpec (with CLI overrides
+                                  applied) is staged to ``<output_dir>/.swarm-detached-spec.json``
+                                  and the child tmux process re-invokes ``swarm run`` against that
+                                  snapshot. Requires tmux on PATH and a resolvable output.dir;
+                                  mutually exclusive with --resume. Use ``swarm attach <job_id>``
+                                  to re-attach and ``swarm kill <job_id>`` to terminate.
+  --tui                           INV-012 / FR-1 -- render a live Rich progress dashboard while
+                                  Wave 1 dispatch runs on a non-daemon background thread. The main
+                                  thread is the SOLE console writer (FR-1 single-writer topology):
+                                  it tails ``execution-log.jsonl`` + ``.swarm-state.json`` from
+                                  the ``--output`` directory at 2/s and feeds the dashboard, while
+                                  the dispatch worker routes ALL output through the filesystem
+                                  logger. Fresh-run only (NOT supported with --resume) and
+                                  requires a TTY (silently no-ops to the plain synchronous run on
+                                  a non-TTY pipe). Mutually exclusive with --detached (the
+                                  dashboard requires a foreground run).
+  --auto-inject-guard             FR-024 backward-compat: prepend the canonical §11.5 sentence to
+                                  <custom-prompt-dir>/system.txt before the injection-guard
+                                  substring check runs. Default is off so the §11.5 required-
+                                  substring enforcement is preserved (no silent bypass). Use
+                                  during migration from legacy custom-prompt-dir layouts that
+                                  predate §11.5 framing.
+  -h, --help                      Show this message and exit.

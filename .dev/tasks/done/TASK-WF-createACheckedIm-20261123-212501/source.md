@@ -1,0 +1,7 @@
+Create a checked implementation plan only for issue 568, swarm help advertises unsupported --custom-prompt-dir. Source is this inline request, informed by .dev/troubleshoot/bug-swarm-custom-prompt-help-20261123191427/REPORT.md and linked transferred evidence. Preserve blocked/partial historical diagnosis and all pending verification requirements. Plan the supported two-help-description correction in src/superclaude/cli/swarm/commands.py using JobSpec custom_prompt_dir with lens custom, reproducing regression tests failing before the edit and passing afterward, corrected public help captures, rejection of unsupported run option and independent review. No new CLI flag, prompt-loading changes, inline-custom-spec changes, injection-guard or metadata changes. Work only in this isolated checkout. Do not replay counter-update.py or change diagnostic counters, implement product code/tests, run models, commit, push, interact with GitHub or create worktrees. User explicitly requests plan only, no implementation.
+
+## Revision 1
+
+- Replaces package: TASK-WF-createACheckedIm-20261123-195709 (archived under .dev/tasks/archive/TASK-WF-createACheckedIm-20261123-195709/)
+- Review report: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/.dev/tasks/archive/TASK-WF-createACheckedIm-20261123-195709/artifacts/reflect-pre-20261123200829/REPORT.md
+- Fix map: ./artifacts/revision-log.md (diff: ./artifacts/plan.diff)

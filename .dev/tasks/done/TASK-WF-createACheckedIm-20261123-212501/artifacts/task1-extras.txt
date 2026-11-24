@@ -1,0 +1,24 @@
+Task 1 extras (expected-red new help test excluded from existing-test check)
+Command: uv run --no-sync ruff check --no-cache tests/swarm/test_cli_registration.py
+All checks passed!
+Lint exit: 0
+Command: PYTHONDONTWRITEBYTECODE=1 uv run --no-sync pytest tests/swarm/test_cli_registration.py -k not test_validate_lenses_help_uses_jobspec_custom_prompt_dir -p no:cacheprovider
+========================================== test session starts ===========================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/.venv/bin/python
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 8 items / 1 deselected / 7 selected
+
+tests/swarm/test_cli_registration.py::test_swarm_group_is_top_level_command PASSED                 [ 14%]
+tests/swarm/test_cli_registration.py::test_swarm_not_nested_under_other_groups PASSED              [ 28%]
+tests/swarm/test_cli_registration.py::test_swarm_help_exits_zero PASSED                            [ 42%]
+tests/swarm/test_cli_registration.py::test_swarm_help_lists_all_eight_placeholders PASSED          [ 57%]
+tests/swarm/test_cli_registration.py::test_swarm_group_registers_all_eight_placeholders PASSED     [ 71%]
+tests/swarm/test_cli_registration.py::test_placeholder_exits_non_zero_with_message[NOTSET] SKIPPED [ 85%]
+tests/swarm/test_cli_registration.py::test_swarm_module_imports_without_error PASSED               [100%]
+
+=============================== 6 passed, 1 skipped, 1 deselected in 0.70s ===============================
+Existing-test exit: 0
+Typecheck: skipped, no installed project mypy detected

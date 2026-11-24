@@ -14,6 +14,8 @@ Enforces AC-002 and COMP-001 from the MultiModelSwarm roadmap:
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from click.testing import CliRunner
 
@@ -99,6 +101,40 @@ def test_swarm_help_exits_zero() -> None:
     result = runner.invoke(main, ["swarm", "--help"])
     assert result.exit_code == 0, result.output
     assert "swarm" in result.output.lower()
+
+
+def test_validate_lenses_help_uses_jobspec_custom_prompt_dir() -> None:
+    """Custom prompt directories are JobSpec fields, not command-line options."""
+    result = CliRunner().invoke(main, ["swarm", "validate-lenses", "--help"])
+    assert result.exit_code == 0, result.output
+    help_text = "".join(result.output.split())
+    assert "--custom-prompt-dir" not in help_text, result.output
+    assert "JobSpec" in help_text, result.output
+    assert "custom_prompt_dir" in help_text, result.output
+    assert "lens:custom" in help_text.replace("`", ""), result.output
+
+
+def test_scaffold_help_uses_jobspec_custom_prompt_dir() -> None:
+    """Scaffold help names optional directory-backed custom prompt configuration."""
+    result = CliRunner().invoke(main, ["swarm", "scaffold", "--help"])
+    assert result.exit_code == 0, result.output
+    help_text = "".join(result.output.split())
+    assert "--custom-prompt-dir" not in help_text, result.output
+    assert "JobSpec" in help_text, result.output
+    assert "custom_prompt_dir" in help_text, result.output
+    assert "lens:custom" in help_text.replace("`", ""), result.output
+    assert "inline" in help_text.lower(), result.output
+
+
+def test_run_rejects_custom_prompt_dir_option(tmp_path: Path) -> None:
+    """The directory belongs in a JobSpec, never in the run option parser."""
+    result = CliRunner().invoke(
+        main, ["swarm", "run", "--custom-prompt-dir", str(tmp_path)]
+    )
+    assert result.exit_code == 2, result.output
+    assert "No such option" in result.output, result.output
+    assert "--custom-prompt-dir" in result.output, result.output
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_swarm_help_lists_all_eight_placeholders() -> None:
