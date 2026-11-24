@@ -81,6 +81,8 @@ from superclaude.cli.swarm.models import (
     LensEntry,
     Manifest,
     NormalizationSpec,
+    OnParseError,
+    OutputSpec,
     PreflightSummary,
     PromptSpec,
     ResolvedLensEntry,
@@ -1876,6 +1878,12 @@ def run_preflight(
         recommended_next_command_substitutions=dict(
             job.recommended_next_command_substitutions
         ),
+        retain_raw=job.normalization.on_parse_error.retain_raw,
+        output_filename_template=job.output.filename_template,
+        output_lens_name=job.output.lens_name,
+        accepted_workers=from_dict(WorkerSpec, dataclasses.asdict(job.workers)),
+        accepted_prompt=dataclasses.replace(job.prompt),
+        accepted_recipe_args=dataclasses.asdict(job.normalization)["recipe_args"],
     )
     state = SwarmState(
         state="preflight_ok",
@@ -1992,10 +2000,24 @@ def resume_mode(
         if manifest.target is not None
         else TargetSpec()
     )
+    workers = (
+        from_dict(WorkerSpec, dataclasses.asdict(manifest.accepted_workers))
+        if manifest.accepted_workers is not None
+        else WorkerSpec(count=manifest.preflight.workers_requested)
+    )
     substitutions = (
         dict(manifest.recommended_next_command_substitutions)
         if manifest.recommended_next_command_substitutions is not None
         else {}
+    )
+
+    output = OutputSpec(
+        filename_template=manifest.output_filename_template,
+        lens_name=(
+            snapshot.name
+            if manifest.output_lens_name is None
+            else manifest.output_lens_name
+        ),
     )
 
     if force_relens:
@@ -2007,13 +2029,18 @@ def resume_mode(
             caller=caller,
             target=target,
             recommended_next_command_substitutions=substitutions,
-            workers=WorkerSpec(count=manifest.preflight.workers_requested),
+            workers=workers,
             transport=TransportSpec(kind=manifest.preflight.transport_kind),
             prompt=PromptSpec(
                 system=live_snapshot.system_prompt_fragment,
                 user_template=live_snapshot.user_template,
             ),
-            normalization=NormalizationSpec(recipe=live_snapshot.recipe_name),
+            normalization=NormalizationSpec(
+                recipe=live_snapshot.recipe_name,
+                recipe_args=dict(manifest.accepted_recipe_args or {}),
+                on_parse_error=OnParseError(retain_raw=manifest.retain_raw),
+            ),
+            output=output,
             recommended_next_command_template=(
                 live_snapshot.recommended_next_command_template
             ),
@@ -2025,13 +2052,22 @@ def resume_mode(
         caller=caller,
         target=target,
         recommended_next_command_substitutions=substitutions,
-        workers=WorkerSpec(count=manifest.preflight.workers_requested),
+        workers=workers,
         transport=TransportSpec(kind=manifest.preflight.transport_kind),
-        prompt=PromptSpec(
-            system=snapshot.system_prompt_fragment,
-            user_template=snapshot.user_template,
+        prompt=(
+            dataclasses.replace(manifest.accepted_prompt)
+            if manifest.accepted_prompt is not None
+            else PromptSpec(
+                system=snapshot.system_prompt_fragment,
+                user_template=snapshot.user_template,
+            )
         ),
-        normalization=NormalizationSpec(recipe=snapshot.recipe_name),
+        normalization=NormalizationSpec(
+            recipe=snapshot.recipe_name,
+            recipe_args=dict(manifest.accepted_recipe_args or {}),
+            on_parse_error=OnParseError(retain_raw=manifest.retain_raw),
+        ),
+        output=output,
         recommended_next_command_template=(
             manifest.recommended_next_command_template
             if manifest.recommended_next_command_template is not None

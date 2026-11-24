@@ -315,6 +315,7 @@ def _emit_meta(
     error: Optional[str],
     bytes_written: int,
     salvage_reason: Optional[str] = None,
+    raw_retained: Optional[bool] = None,
 ) -> None:
     """Atomically emit the per-worker meta sidecar (``*.meta.json``).
 
@@ -348,6 +349,10 @@ def _emit_meta(
         "status": status,
         "bytes": bytes_written,
     }
+    if raw_retained is not None:
+        # Persist this attempt's output identity without deleting older files.
+        payload["final_emitted"] = bytes_written > 0
+        payload["raw_retained"] = raw_retained
     if error:
         payload["error"] = error
     if salvage_reason is not None:
@@ -466,8 +471,18 @@ def _normalize_one(
             error=result.error,
             bytes_written=bytes_written,
             salvage_reason=decision.reason,
+            raw_retained=bool(worker.raw_path),
         )
 
+    if promoted.status == "success" and not bytes_written:
+        # Stamped paths are write targets, not evidence of emitted output.
+        # Preserve failed-status targets and any distinct raw/canonical path.
+        return dataclasses.replace(
+            promoted,
+            bytes=0,
+            final_path="",
+            path="" if promoted.path == promoted.final_path else promoted.path,
+        )
     return dataclasses.replace(promoted, bytes=bytes_written)
 
 
