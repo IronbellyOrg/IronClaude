@@ -46,7 +46,7 @@ def orca_module():
 
 P = "launch-level pre-push:"
 GATE = "<gate>"
-BRANCHES = ["main", "master"]
+BRANCHES = ["main", "master", "integration"]
 ACTORS = ["governed", "unknown", "human"]
 ROUTE = (
     "pre-push.launch-level and ~/.claude/hooks/launch-job-identity.sh) or "
@@ -132,7 +132,12 @@ class Repo:
         self.git("config", "commit.gpgsign", "false")
         self.a = self.commit("a")
         self.git(
-            "push", "-q", "origin", "HEAD:refs/heads/main", "HEAD:refs/heads/master"
+            "push",
+            "-q",
+            "origin",
+            "HEAD:refs/heads/main",
+            "HEAD:refs/heads/master",
+            "HEAD:refs/heads/integration",
         )
         self.b = self.commit("b")
         self.alt = self.git(

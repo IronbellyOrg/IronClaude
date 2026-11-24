@@ -64,13 +64,13 @@ This repository is a **fork**. This clone has only one remote, `origin` = `Ironb
 **Fallback only, when `/sc:pr-submit` cannot run:**
 
 ```bash
-gh pr create --repo IronbellyOrg/IronClaude --base master --head <branch> --title "..." --body "..."
+gh pr create --repo IronbellyOrg/IronClaude --base integration --head <branch> --title "..." --body "..."
 ```
 
 **Pre-PR checks (mandatory):**
 
 1. `git remote get-url origin` must print the `IronbellyOrg/IronClaude` URL, and `gh repo view IronbellyOrg/IronClaude --json nameWithOwner -q .nameWithOwner` must print `IronbellyOrg/IronClaude`. If gh's default repo is wrong, run `gh repo set-default IronbellyOrg/IronClaude`.
-2. `git fetch origin && git log master..origin/master` — if the fork's master is ahead of the local master, **rebase the branch onto `origin/master`** before pushing. The fork has additional commits (e.g., `.claude/` untrack, lint cleanup) that the local clone may not have. Without rebasing, the PR creation will fail with "No commits between master and <branch>".
+2. `git fetch origin && git log integration..origin/integration` — if the fork's integration is ahead of the local integration, **rebase the branch onto `origin/integration`** before pushing. The fork has additional commits (e.g., `.claude/` untrack, lint cleanup) that the local clone may not have. Without rebasing, the PR creation will fail with "No commits between integration and <branch>".
 3. After PR creation, **verify the returned URL points at `https://github.com/IronbellyOrg/IronClaude/pull/N`**. If it points at `SuperClaude-Org`, stop, report the URL to the user, and take no action on that PR; the user closes it. This matches `/sc:pr-submit`, which already halts on a misrouted URL.
 
 **There are no exceptions.**
@@ -291,7 +291,7 @@ def test_with_budget(token_budget):
 
 **Standard workflow**:
 
-1. Create branch from `integration`: `git checkout -b feature/your-feature`
+1. Create branch from `integration` (pull requests are opened against it): `git checkout -b feature/your-feature`
 2. Develop with tests: `uv run pytest`
 3. Commit: `git commit -m "feat: description"` (conventional commits)
 4. Merge to `integration` → validate → merge to `master`
@@ -315,8 +315,8 @@ worktree location, outside the main checkout; `orca worktree current --json` (fr
 - **Existing checkouts under the retired `.dev/worktrees/` location** may stay until their branch is merged, then are removed with `git worktree remove <path>`; no new checkout may be created there.
 
 ```bash
-# Create a worktree named pm-agent, based on origin/master, with an agent in it
-orca worktree create --name pm-agent --base-branch origin/master --agent claude --prompt "<task>"
+# Create a worktree named pm-agent, based on origin/integration, with an agent in it
+orca worktree create --name pm-agent --base-branch origin/integration --agent claude --prompt "<task>"
 
 # Show where Orca put it
 orca worktree list

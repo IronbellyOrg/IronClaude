@@ -10,7 +10,7 @@ Isolation guardrails:
 - Imports nothing from ``commands.py`` / ``runner.py`` / ``contract.py``.
 
 FR-3 input derivation, FR-4 pinned output dir + ``.claude`` STOP, G1 max_turns
-default (Open Question OQ6), OQ1 base-branch default ``master``.
+default (Open Question OQ6), OQ1 base-branch default ``integration``.
 """
 
 from __future__ import annotations
@@ -38,10 +38,10 @@ _DEFAULT_TIMEOUT_SECONDS = 3600
 # ``--max-turns`` flag in v1 (keeps the spec Section 9 option set exact).
 _DEFAULT_MAX_TURNS = 250
 
-# OQ1 (LOAD-BEARING): the project trunk is ``master`` (origin/HEAD -> master);
-# an ``integration`` branch also exists but hardcoding it would compute the
-# WRONG base. Make it a parameter defaulting to ``master``, never hardcode.
-_DEFAULT_BASE_BRANCH = "master"
+# OQ1 (LOAD-BEARING): since 2026-11-24 the repository default (and PR base)
+# branch is ``integration``; ``master`` stays the production branch and would
+# compute the WRONG base. Keep it a parameter defaulting to ``integration``.
+_DEFAULT_BASE_BRANCH = "integration"
 
 # FR-4 STOP: an ``--output`` resolving under any of these ``.claude`` subtrees
 # is a reflect STOP condition -- reject before launch.
@@ -278,7 +278,7 @@ def resolve_config(
         max_turns: Per-process turn ceiling (G1; default 250, never None).
         promote / allow_single_vendor / tmux / dry_run / print_command /
         resume: wrapper-side flags threaded through to the runner.
-        base_branch: base for ``git merge-base`` fallback (default ``master``).
+        base_branch: base for ``git merge-base`` fallback (default ``integration``).
         transport: Tier-2 worker transport (``openai_compat`` or ``stub``).
         reviewers: Tier-2 reviewer slots; ``1`` is preserved as the negative
             witness, otherwise values are clamped to ``[2,4]``.

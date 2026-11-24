@@ -20,7 +20,7 @@ Closes #
 
 - [ ] Opened with `/sc:pr-submit --monitor 3` on `IronbellyOrg/IronClaude` (fallback: `gh pr create --repo IronbellyOrg/IronClaude`).
 - [ ] For collaborators: Used a topic branch (not directly committed to main).
-- [ ] Branch rebased onto `origin/master` (no conflicts).
+- [ ] Branch rebased onto `origin/integration` (no conflicts).
 - [ ] Commit messages conform to Conventional Commits (`feat:`, `fix:`, `docs:`, etc.).
 
 ### Code Quality

@@ -1,0 +1,16 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-makeTheRepoAgree-20261124-221427
+plan_path: ./TASK-WF-makeTheRepoAgree-20261124-221427.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: skipped
+reflect_report_path: null
+unresolved:
+  - "Wave 4 advisory /sc:reflect --mode pre not run in this session; Wave 4R remediation therefore had no findings to route (route none)"
+remediation_route: none
+finding_counts: {blocking: 0, label_high: 0, medium: 0, note: 0}
