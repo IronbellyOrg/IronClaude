@@ -744,3 +744,79 @@ def test_saved_layout_discovery_matches_whole_paths_and_repeated_slugs(tmp_path)
     assert set(slots) == {1}
     assert slots[1].model_id == "model-2-4"
     assert slots[1].final_path == ""  # Preserve historical final-evidence policy.
+
+
+@pytest.mark.parametrize("body", ["", None, 42])
+@pytest.mark.parametrize(
+    "template",
+    ["{lens}-{index:02d}-{model_slug}.md", "nested/{lens}_{model_slug}_{index}.json"],
+)
+def test_repeated_resume_does_not_advertise_stale_attempt(
+    tmp_path, monkeypatch, body, template
+):
+    """Current output absence survives replay without removing prior evidence."""
+    import superclaude.cli.swarm.dispatch as dispatch_mod
+    from superclaude.cli.swarm.preflight import run_preflight
+
+    target = tmp_path / "target.py"
+    target.write_text("# review target\n" * 8)
+    output = tmp_path / "out"
+    spec = _build_spec_from_lens("bare-review")
+    spec["target"]["path"] = str(target)
+    spec["output"]["dir"] = str(output)
+    spec["output"]["filename_template"] = template
+    spec["workers"]["count"] = 1
+    spec["workers"]["models"] = ["fixture-model"]
+    spec["transport"]["kind"] = "stub"
+    accepted = run_preflight(spec, output_dir=output)
+    stem = template.format(lens="bare-review", index=0, model_slug="fixture-model")
+    stem = stem[:-3] if stem.endswith(".md") else stem
+    final_file = output / f"{stem}.final.md"
+    raw_file = output / f"{stem}.raw.md"
+    meta_file = output / f"{stem}.meta.json"
+    final_file.parent.mkdir(parents=True, exist_ok=True)
+    final_file.write_text("prior nonempty final")
+    raw_file.write_text("prior raw body")
+    meta_file.write_text(json.dumps({"status": "parse_error", "bytes": 20}))
+    calls = []
+
+    def dispatch(*args, **kwargs):
+        calls.append(1)
+        worker = WorkerResult(index=0, model_id="fixture-model", status="success")
+        if body is not None:
+            worker.body = body
+        return [worker]
+
+    monkeypatch.setattr(dispatch_mod, "dispatch_wave1", dispatch)
+    contracts = []
+    for _ in range(2):
+        result = CliRunner().invoke(
+            run_cmd,
+            ["--resume", accepted.manifest.job_id, "--output", str(output)],
+        )
+        assert result.exit_code == 0, result.output
+        contracts.append(yaml.safe_load((output / "return-contract.yaml").read_text()))
+    expected_raw = str(raw_file) if isinstance(body, str) else ""
+    for contract in contracts:
+        worker = contract["output_files"][0]
+        assert (worker["final_path"], worker["raw_path"]) == ("", expected_raw)
+        assert str(final_file) not in contract.get("recommended_next_command", "")
+    assert len(calls) == 1
+    assert final_file.read_text() == "prior nonempty final"
+    if not isinstance(body, str):
+        assert raw_file.read_text() == "prior raw body"
+    meta = json.loads(meta_file.read_text())
+    assert meta["final_emitted"] is False
+    assert meta["raw_retained"] is isinstance(body, str)
+
+
+@pytest.mark.parametrize("flag", ["final_emitted", "raw_retained"])
+@pytest.mark.parametrize("invalid", ["false", 0, None])
+def test_discovery_rejects_nonboolean_output_presence(tmp_path, flag, invalid):
+    from superclaude.cli.swarm.commands import discover_succeeded_slots
+
+    (tmp_path / "review-00-model.meta.json").write_text(
+        json.dumps({"status": "success", "bytes": 0, flag: invalid})
+    )
+    with pytest.raises(ValueError, match="output presence"):
+        discover_succeeded_slots(tmp_path, 1)

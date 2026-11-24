@@ -919,6 +919,8 @@ def test_g4_dispatcher_emission_gates(
         assert meta == {
             "bytes": out_bytes,
             "recipe": "g4-gate",
+            "final_emitted": out_bytes > 0,
+            "raw_retained": True,
             "salvage_reason": "rejected_not_parse_error",
             "salvaged": False,
             "schema_version": "1.0",
@@ -1255,6 +1257,9 @@ def _meta(status, bytes_, salvaged=False, reason=None, error=None):
     }
     if reason is not None:
         out["salvage_reason"] = reason
+        if error is None:
+            out["final_emitted"] = bytes_ > 0
+            out["raw_retained"] = True
     if error is not None:
         out["error"] = error
     return out

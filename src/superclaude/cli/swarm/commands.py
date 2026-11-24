@@ -2405,12 +2405,19 @@ def discover_succeeded_slots(
         final_is_file = final_candidate.is_file()
         if not final_is_file and (final_candidate.exists() or bytes_int > 0):
             raise ValueError("completed worker final output is not a regular file")
+        for flag in ("final_emitted", "raw_retained"):
+            if flag in payload and not isinstance(payload[flag], bool):
+                raise ValueError("invalid worker output presence metadata")
+        # New sidecars distinguish this attempt from older retained siblings.
+        # Missing flags preserve historical zero-byte/file-existence recovery.
+        final_present = final_is_file and payload.get("final_emitted", True)
+        raw_present = raw_candidate.is_file() and payload.get("raw_retained", True)
         succeeded[slot_index] = WorkerResult(
             index=slot_index,
-            path=str(final_candidate) if final_is_file else "",
-            raw_path=str(raw_candidate) if raw_candidate.is_file() else "",
+            path=str(final_candidate) if final_present else "",
+            raw_path=str(raw_candidate) if raw_present else "",
             meta_path=str(meta_file),
-            final_path=str(final_candidate) if final_is_file else "",
+            final_path=str(final_candidate) if final_present else "",
             model_id=slug_tail,
             model_label=slug_tail,
             bytes=bytes_int,
