@@ -874,7 +874,7 @@ L2_ABSENT_WHY = "the owned L2 pre-push hook is not in effect for this worktree: 
 GUARD_COMMAND = "~/.claude/hooks/launch-level-guard.sh"
 IDENTITY_COMMAND = "~/.claude/hooks/launch-job-identity.sh"
 GUARD_VERSION_LINE = "# launch-level-guard-version: 2"
-L2_VERSION_LINE = "# launch-level-pre-push-version: 1"
+L2_VERSION_LINE = "# launch-level-pre-push-version: 2"
 GOVERNED_TOOLS = (
     "Bash",
     "Skill",
@@ -1360,7 +1360,7 @@ def _l2_selftest(wt: str, staged: Path, data_copy: Path, env: Mapping[str, str])
     if not hook(push("refs/heads/main")).ok:
         return "main-push"
     data_copy.unlink()
-    for ref in ("refs/heads/main", "refs/heads/master"):
+    for ref in ("refs/heads/main", "refs/heads/master", "refs/heads/integration"):
         res = hook(push(ref))
         if res.rc != 1 or "L2-UNKNOWN" not in res.err:
             return "no-data-refusal"

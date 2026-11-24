@@ -1,12 +1,12 @@
 #!/bin/bash -p
-# launch-level-pre-push-version: 1
+# launch-level-pre-push-version: 2
 # Launch-level L2 git pre-push hook, IronbellyOrg/IronClaude issue #441.
 # Installed by the claim as <git-common-dir>/hooks/pre-push next to its data
 # file pre-push.launch-level (line 1: pinned HOME, line 2: pinned uv directory).
 # The actor is decided first by the launch-job identity selector; an ordinary
 # push exits 0 at once and silently, without reading stdin. A governed push to
-# refs/heads/main or refs/heads/master is refused; an unknown actor is refused
-# only for those two refs. Exit 0 allows, 1 refuses, 2 refuses a malformed
+# refs/heads/main, refs/heads/master or refs/heads/integration is refused; an
+# unknown actor is refused only for those three refs. Exit 0 allows, 1 refuses, 2 refuses a malformed
 # stream. Arguments are ignored; no file is written and git is never called.
 # -p: bash ignores BASH_ENV, ENV, SHELLOPTS and imported functions. Linux only.
 
@@ -14,7 +14,7 @@ LC_ALL=C
 export LC_ALL
 set -f
 
-L2_PROTECTED=(refs/heads/main refs/heads/master)
+L2_PROTECTED=(refs/heads/main refs/heads/master refs/heads/integration)
 L2_HOOKS=${0%/*}
 L2_DATA=$L2_HOOKS/pre-push.launch-level
 L2_HOME=

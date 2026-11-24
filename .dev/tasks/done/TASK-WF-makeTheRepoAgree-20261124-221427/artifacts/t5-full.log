@@ -1,0 +1,21 @@
+  Warnings: 4
+  ✅ PASS — architecture policy compliant (4 warning(s))
+Running linter...
+uv run ruff check .
+All checks passed!
+lint rc=0
+    with cli_runner.isolated_filesystem() as fs:
+
+tests/pipeline/test_release_gate_validation.py::TestKnownBugPatterns::test_wrong_operand_state_mutation_detected
+  /home/coder/workspaces/worktrees/IronClaude/fix-default-branch-integration/src/superclaude/cli/pipeline/invariant_pass.py:107: UserWarning: Duplicate variable_name '_loaded_start_index' in scope 'class-level' (occurrence #2)
+    warnings = check_duplicate_variables(entries)
+
+tests/pipeline/test_release_gate_validation.py::TestKnownBugPatterns::test_sentinel_ambiguity_detected
+  /home/coder/workspaces/worktrees/IronClaude/fix-default-branch-integration/src/superclaude/cli/pipeline/invariant_pass.py:107: UserWarning: Duplicate variable_name '_replayed_event_offset' in scope 'class-level' (occurrence #2)
+    warnings = check_duplicate_variables(entries)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_passes_on_real_adapter_module
+===== 2 failed, 25142 passed, 44 skipped, 9 warnings in 1457.16s (0:24:17) =====
