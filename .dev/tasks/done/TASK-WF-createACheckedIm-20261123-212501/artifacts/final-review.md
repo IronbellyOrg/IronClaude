@@ -35,3 +35,7 @@ Reviewer-labelled Medium follow-up candidate: commands.py:166,169 uses <custom-p
 Limitations: reviewer relied on saved machine output and exact diff rather than running git/pytest/CLI itself; it read the relevant live source regions and greps, not every line of commands.py. Parent executed the commands and checked the source-only git scope directly. Coverage tooling unavailable; a model-backed custom job is intentionally out of scope.
 
 Delivery state before and after the fresh review: 82e427236d2afe0686bda292006c204c2c50edb1390a6370c55b4e77ca44ba1e. Both helper observations list only src/superclaude/cli/swarm/commands.py and tests/swarm/test_cli_registration.py. No delivery writer remained active during review.
+
+## Source revision for historical citations (2026-11-24)
+
+Source line numbers above describe the pre-rebase reviewed state, recorded in local commit `f8ba6a491a63717f4ac66bff8d1f6d3c3f9d64ad`, not the rebased PR head. See [source-revision-map.json](./source-revision-map.json) for a published-base-plus-patch reconstruction, exact source hashes, and ranges pinned to PR revision `1b16d73832dfdb228ee7f6e4075ea4b14ee46235`. In particular, historical `commands.py:3784-3789` maps to `commands.py:4137-4142` there. This annotation preserves the original review and does not claim a new review or test run.
