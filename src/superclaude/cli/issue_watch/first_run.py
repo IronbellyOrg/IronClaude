@@ -29,6 +29,8 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import stat
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
@@ -39,6 +41,7 @@ from .defaults import Defaults
 from .runner import Runner
 
 REPORT_FILE = "first-run.txt"
+_FAILED_HEAD = re.compile(r"first-run: failed ([a-z_]+):")
 LOCK_HELD_EXIT = 75
 
 STEPS = ("config", "label", "init_state", "dry_run", "lock", "restart")
@@ -81,6 +84,62 @@ def _report_dir(config_path: Path, raw: dict | None) -> Path:
     if isinstance(state, str) and os.path.isabs(state):
         return Path(state)
     return config_path.parent
+
+
+def _report_name(config_path: Path, directory: Path) -> str:
+    """``first-run.txt`` in a state dir; ``<stem>-first-run.txt`` beside a config with none."""
+    if directory != config_path.parent:
+        return REPORT_FILE
+    return f"{config_path.stem}-{REPORT_FILE}"
+
+
+def failed_step(config_path: Path) -> tuple[str, datetime] | None:
+    """The step a failed first run stopped at and when its report was written, else None.
+
+    Read only. ``first_run`` writes its report in one of two places: next to the config (or in the
+    raw ``state_dir``) when the config step fails, and in the validated ``state_dir`` once the
+    config loads. Both are read and the newer report counts, so a later step's failure is found
+    even when the config has no ``state_dir`` or names its own folder. A report is opened without
+    following a symlink and only when it is a regular file, at most 4096 bytes of its first line
+    are read, and the result is None for a missing, unreadable or non-UTF-8 report and for any
+    report that does not start ``first-run: failed``.
+    """
+    config_path = Path(config_path)
+    directory = _report_dir(config_path, _raw_config(config_path))
+    paths = [directory / _report_name(config_path, directory)]
+    try:
+        paths.append(cycle.load_config(config_path).state_dir / REPORT_FILE)
+    except cycle.ConfigError:
+        pass  # the config step failed: the report sits where the raw config points
+    reports = [
+        r for r in (_read_report_head(p) for p in dict.fromkeys(paths)) if r is not None
+    ]
+    if not reports:
+        return None
+    head, written = max(reports, key=lambda r: r[1])
+    found = _FAILED_HEAD.match(head)
+    if found is None:
+        return None
+    return found.group(1), datetime.fromtimestamp(written, timezone.utc)
+
+
+def _read_report_head(path: Path) -> tuple[str, float] | None:
+    """First line and mtime of a regular report file; None for anything else or any error.
+
+    ``O_NONBLOCK`` keeps a FIFO from blocking the open, and the ``S_ISREG`` check refuses it.
+    """
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except OSError:
+        return None
+    with os.fdopen(fd, "rb") as handle:
+        try:
+            info = os.fstat(handle.fileno())
+            if not stat.S_ISREG(info.st_mode):
+                return None
+            return handle.read(4096).split(b"\n", 1)[0].decode("utf-8"), info.st_mtime
+        except (OSError, ValueError):  # UnicodeDecodeError is a ValueError
+            return None
 
 
 def _write_report(directory: Path, text: str, name: str = REPORT_FILE) -> Path | None:
@@ -138,11 +197,7 @@ def first_run(
     directory = _report_dir(config_path, raw)
     # A config with no readable state_dir reports next to itself, under its own name, so two
     # repositories never overwrite one report.
-    report_name = (
-        REPORT_FILE
-        if directory != config_path.parent
-        else (f"{config_path.stem}-{REPORT_FILE}")
-    )
+    report_name = _report_name(config_path, directory)
     steps: list[Step] = []
     lines: list[str] = []
 

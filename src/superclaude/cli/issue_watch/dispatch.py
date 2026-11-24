@@ -5,7 +5,9 @@ One cron entry runs a sweep. A sweep:
 1. lists the usable repositories with ``orca repo list`` (Task 18). A failed or unreadable list is
    an error result, never a clean one (R15);
 2. for a repository with no config, generates one (Task 19) and runs its first-run check (Task 21);
-   a repository whose config is not enabled is skipped with a reason, not run;
+   a repository whose config is not enabled is skipped with a reason, not run, except that one
+   whose first-run report says the last attempt failed is retried on a later sweep (at once for a
+   ``config`` step failure, after one hour for any other step; never on a dry run);
 3. starts ``superclaude issue-watch once --config <file>`` as a child process for each enabled
    repository, one after another, through the ``Runner`` (absolute paths only: cron has no PATH).
 
@@ -37,12 +39,12 @@ import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from . import cycle, record, repo_init
 from .defaults import Defaults
-from .first_run import first_run
+from .first_run import failed_step, first_run
 from .generate import Base, _projects, ensure_config
 from .launch import check_origin
 from .predicates import format_utc, parse_utc
@@ -52,6 +54,8 @@ from .runner import Runner
 LOOP_CAP_S = 270.0
 CHILD_TIMEOUT_S = 255.0
 GIT_TIMEOUT_S = 15.0
+# a failed first run past the config step is retried only after this long
+RETRY_AFTER_S = 3600.0
 ROTATION_FILE = "rotation.json"
 RATE_WAIT_FILE = "account-rate-wait.json"
 LOCK_FILE = "run-all.lock"
@@ -63,7 +67,7 @@ SKIP_REASONS: dict[str, str] = {
     "stopped_after_launch": "an earlier repo launched or attempted a launch this sweep",
     "loop_cap": "the 270 second loop cap was reached before this repo",
     "account_rate_wait": "a child hit the account rate limit; no child starts until its time",
-    "not_enabled": "the config is enabled: false (the first run did not pass, or the owner set it)",
+    "not_enabled": "the config is enabled: false (the first run did not pass and is retried on a later sweep, or the owner set it)",
     "config_unreadable": "the config file cannot be read as JSON",
     "config_invalid": "cycle.load_config refused the config (audit reason config_invalid)",
     "worktree_invalid": "the Coordinator worktree is not an existing directory (audit reason)",
@@ -424,6 +428,20 @@ def run_sweep(
                 continue
             if outcome.status == "generated":
                 generated.append(repo.name)
+                first_run(config_path, defaults, runner, deps_factory)
+        if (
+            not dry_run
+            and repo.name not in generated
+            and _enabled(config_path) is False
+        ):
+            # A config left disabled by a failed first run is retried: a config-step failure (the
+            # worktree was not there yet) every sweep, a later step (GitHub calls, dry-run cycles)
+            # only once RETRY_AFTER_S has passed. No failed report means the owner disabled it.
+            failed = failed_step(config_path)
+            if failed is not None and (
+                failed[0] == "config"
+                or since - failed[1] >= timedelta(seconds=RETRY_AFTER_S)
+            ):
                 first_run(config_path, defaults, runner, deps_factory)
         enabled = _enabled(config_path)
         if enabled is not True:

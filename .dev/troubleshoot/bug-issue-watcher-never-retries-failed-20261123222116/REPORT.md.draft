@@ -1,0 +1,115 @@
+# Troubleshoot Report
+
+**Target**: The issue watcher never retries a failed first run: dispatch.py calls first_run only when it generates a missing config, so a config left enabled: false after worktree_invalid stays disabled and the label, state and lock stay manual
+**Type**: bug
+**Tier reached**: 2
+**Confidence**: 0.83
+**Status**: success
+**Escalation reason**: low_confidence
+**Test is wrong**: false
+**Behavior is documented**: false
+**Doc context card**: .dev/troubleshoot/bug-issue-watcher-never-retries-failed-20261123222116/doc-context.md
+**Duration**: about 330
+**Date**: 2026-11-23T22:26:22Z
+
+---
+
+## Summary
+
+`run_sweep` calls `first_run` only on the sweep that generates a repo's config, so a config left `enabled: false` by a failed first run (for example `worktree_invalid` because the Coordinator worktree did not exist yet) is skipped as `not_enabled` on every later sweep, and the label, state directory, lock and enabled flag stay manual. Tier 1 and both Tier 2 lenses agree on this cause and on the shape of the fix: have the sweep retry `first_run` for a disabled config only when that config's own `first-run.txt` report says the last first run failed. Confidence is 0.83 (Tier 1 0.83, root-cause lens 0.83, quality-engineer lens 0.75): the diagnosis is read from source, but nothing was run, and the retry gate is a design choice for the owner.
+
+## Documentation Context
+
+- **Relevant refs**: .dev/releases/backlog/issue-watcher-zero-setup/requirements.md (R7, R17, R18, R28)
+- **Documented behavior**: R18 says a failed first-run check leaves the repo `enabled: false` and reports why; no document says the failure is final.
+- **Restrictions honored**: a dry run stays read-only (dispatch.py docstring); an existing store is kept (first_run.py already does this); label creation stays inside `first_run`/`repo_init`.
+- **Restrictions overridden**: None
+- **Card path**: .dev/troubleshoot/bug-issue-watcher-never-retries-failed-20261123222116/doc-context.md
+
+## Diagnosability Context
+
+**Verdict**: unknown
+**Complexity classification**: trivial
+**Captured-bytes (failing run)**: n/a
+
+The Wave 1.6 audit was not run as separate branch agents; there is no failing run to instrument (static control-flow defect). No tasklist was emitted.
+
+## Diagnosis
+
+**Root cause**: In `run_sweep`, the only call to `first_run` (src/superclaude/cli/issue_watch/dispatch.py:427) sits inside the `if not config_path.exists():` branch and only for a freshly `generated` config; a config that already exists and says `enabled: false` is skipped as `not_enabled` (dispatch.py:428-436), so a first run that failed once is never retried.
+
+**Cause class**: Control-flow gap / missing retry path
+
+**Detailed explanation**: `ensure_config` writes every generated config with `"enabled": False` and a worktree path under `<worktrees>/<name>/Coordinator` that may not exist yet (generate.py:252, generate.py:256). `first_run`'s `config` step fails with `worktree_invalid` when that directory is missing (cycle.py:398-401), leaves the config disabled and writes `first-run: failed config: worktree_invalid` into the config's state directory (first_run.py:176-183, first_run.py:170). On the next sweep the config exists, so the generate-and-first-run branch is not entered, `_enabled` returns `False`, and the repo is skipped. No other production code calls `first_run`. The code also cannot tell this unfinished case from a project the owner switched off, which is why calling `first_run` for every disabled config is not a safe fix. The single `surviving` producer of the `not_enabled` skip is P1 (dispatch.py:429); there is no other producer to discriminate.
+
+## Evidence
+
+1. `src/superclaude/cli/issue_watch/dispatch.py:415` — `if not config_path.exists():`
+2. `src/superclaude/cli/issue_watch/dispatch.py:425-427` — `if outcome.status == "generated":` / `generated.append(repo.name)` / `first_run(config_path, defaults, runner, deps_factory)` (the only production call site; `grep -rn "first_run(" src tests` lists dispatch.py:427 and test files only)
+3. `src/superclaude/cli/issue_watch/dispatch.py:428-436` — `enabled = _enabled(config_path)` / `if enabled is not True:` / `"not_enabled" if enabled is False else "config_unreadable"` / `continue`
+4. `src/superclaude/cli/issue_watch/generate.py:252` — `"enabled": False,` and `src/superclaude/cli/issue_watch/generate.py:256` — `"worktree": str(base.worktrees_dir / name / "Coordinator"),`
+5. `src/superclaude/cli/issue_watch/cycle.py:398-401` — `if not os.path.isdir(config.worktree):` / `raise ConfigError(` / `"worktree_invalid", "the worktree is not an existing directory"`
+6. `src/superclaude/cli/issue_watch/first_run.py:176-183` — the `config` step catches `cycle.ConfigError` and returns `done(step)`; `src/superclaude/cli/issue_watch/first_run.py:158-170` — the head `first-run: failed <step>: <reason>` is written to the report
+7. `src/superclaude/cli/issue_watch/first_run.py:136-137` — `if raw is not None and raw.get("enabled") is True:` / `return FirstRunResult("already_enabled", True)`; `src/superclaude/cli/issue_watch/first_run.py:208-216` — an existing store is kept (`state_exists`)
+8. `tests/issue_watch/test_dispatch.py:421-426` — the test that pins `not_enabled` for a disabled config with no report; `tests/issue_watch/test_first_run.py:179-180` — pins `"worktree_invalid" in text and "first-run: failed config" in text`
+
+## Proposed Fix
+
+Add a retry in `run_sweep`, just before the `enabled is not True` skip: when the config exists, `_enabled(config_path) is False`, the sweep is not a dry run, and the first line of the config's own first-run report starts with `first-run: failed`, call `first_run(config_path, defaults, runner, deps_factory)` once and re-read `_enabled`. A disabled config with no report, or with a `first-run: passed` report, stays `not_enabled`. Put the read-only report check in `first_run.py` next to the code that decides the report's directory and name (first_run.py:78-86, first_run.py:141-145), so it finds the report both in the absolute `state_dir` and beside the config as `<stem>-first-run.txt`; read it without following symlinks, bounded in size, and treat any read error as "no retry".
+
+Two points for the owner to settle (the three analyses differ slightly here):
+- **Back-off.** `config`-step failures are local and cheap, so retry them every sweep. Failures at `label`, `dry_run`, `lock` or `restart` make GitHub calls and up to three dry-run cycles each attempt, and `first_run` is not bounded by the 270 s loop cap (the cap is only checked before a repo's turn), so retry them only after a delay (suggested 1 hour from the report's age). The smaller option is to retry `config` failures only.
+- **Marker.** The failed report is the cheapest durable marker and fails closed (no report, no retry). It does not cover a crash between generation and the first run, or a report that could not be written. A new explicit "needs first run" state would cover those but needs a config-schema or file change.
+
+**Files to change**:
+- `src/superclaude/cli/issue_watch/first_run.py` — add a read-only helper that returns the failed step from the report
+- `src/superclaude/cli/issue_watch/dispatch.py` — add the retry branch; update the module docstring and the `not_enabled` text in `SKIP_REASONS`
+
+**Test to verify**:
+- New in `tests/issue_watch/test_dispatch.py`: failed first run, then a valid worktree, then the next sweep enables the repo and starts its child; a repeated failure stays `not_enabled` and calls `first_run` once per sweep; no report or a `passed` report means no call; a dry-run sweep makes no call and writes nothing; a report beside the config (relative `state_dir`) is found. Existing tests need no change (`test_dispatch.py:421-426` becomes the "no report" case).
+
+**Apply with**: `/sc:troubleshoot --fix ...` (re-run with `--fix` to authorize the Tier 3 plan chain via `sc:workflow` then `sc:implement`), or apply manually.
+
+## Alternative Fixes Considered
+
+- **Call `first_run` for every disabled config** (from the first Tier 1 reading)
+  - Rejected because: it would re-enable repos the owner switched off on purpose.
+- **Add a `first_run_pending` config field** (root-cause lens)
+  - Rejected because: the config schema key set is closed, so it needs a schema change and a rewrite at generation.
+- **Generate configs with `enabled: true`** (root-cause lens)
+  - Rejected because: R18 wants the first-run check to gate enabling.
+- **No adversarial debate was run**: the three analyses agree on the cause and on the report-based marker, so there was no competing fix cluster.
+
+## Risk + Rollback
+
+- **Likelihood of regression**: low in the generation path, medium in sweep timing: a repo that keeps failing a GitHub-touching step could use much of the 270 s loop budget each sweep unless the back-off is added.
+- **Test coverage of the changed code**: partial today (dispatch has tests for generation and `not_enabled`; no test covers a retry), so the new tests above should land with the change.
+- **Rollback**: revert the change; configs and reports are untouched by the helper. A stale failed report on a config the owner then disabled is retried; the owner deletes the report or the config to opt out.
+
+## Follow-up tasks
+
+- Make the `not_enabled` skip reason say whether the first run failed (the text at dispatch.py:66 admits two causes). Suggested type: `observability`.
+
+## Grounding Gaps
+
+- No test or live run was executed; the diagnosis is from reading source. Reproducibility and fix-directness were each scored 0.5 by the calibrators for that reason and because the retry gate is a design choice.
+- Wave 1.5 (three documentation branches) and Wave 1.6 (two audit branches) were done inline by the orchestrator, not as parallel branch agents; Diagnosability verdict: unknown.
+- The codegraph index reported 107407 unresolved references (`graph:stale`), so caller lookups used Grep and Read.
+- The quality-engineer card carried an invalid timestamp (22:40Z, later than the run clock); the calibrator dropped that line (C5). The two Tier 2 cards differ on docs consistency (quality-engineer: conflicts; root-cause: aligned); both agree no document says a failed first run is final.
+- Not read by any lens: `tests/sweep/test_probes_allowlist.py`, the full `test_security_invariants.py`, the body of `cycle.load_config`, the `loop_lock` code.
+- Not verified: that `Base.state_dir` is always absolute, so the "report beside the config" path may matter more than Tier 1 assumed.
+
+## Next Steps
+
+- Decide the back-off and marker questions in Proposed Fix, then run the plan route (`/sc:troubleshoot ... --fix`) or implement manually and add the tests above.
+
+## Audit
+
+- **Hypothesis cards**: .dev/troubleshoot/bug-issue-watcher-never-retries-failed-20261123222116/tier1-hypothesis.md, tier2-root-cause-analyst-hypothesis.md, tier2-quality-engineer-hypothesis.md
+- **Adversarial artifacts** (Tier 2 only): Not invoked — consensus
+- **Self-review** (Tier 2 only): Not run (no adversarial merge)
+- **Audit log**: .dev/troubleshoot/bug-issue-watcher-never-retries-failed-20261123222116/audit.log
+
+## Pipeline Hardening Closure
+
+HC0 not run — applicability unassessed. Pipeline hardening not applicable: the defect is a sweep-loop control-flow gap in one module, not a runtime, generated-artifact or review-input boundary escape (boundary scan was not run as a typed table).

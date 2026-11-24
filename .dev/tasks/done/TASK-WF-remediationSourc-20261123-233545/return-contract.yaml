@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-remediationSourc-20261123-233545
+plan_path: ./TASK-WF-remediationSourc-20261123-233545.md
+source_path: ./source.md
+source_origin: .dev/troubleshoot/bug-issue-watcher-never-retries-failed-20261123222116/remediation-source.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-751/.dev/tasks/to-do/TASK-WF-remediationSourc-20261123-233545/artifacts/reflect-pre-report.md
+unresolved:
+  - "reflect pre-review ran as an abbreviated inline Tier 1 check (no reviewer ensemble, calibration or evidence-validator); status partial"

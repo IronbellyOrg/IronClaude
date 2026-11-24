@@ -6,6 +6,7 @@ Every path is under ``tmp_path``; no real ``orca``, ``gh``, ``git`` or ``supercl
 from __future__ import annotations
 
 import json
+import os
 from datetime import timedelta
 from pathlib import Path
 
@@ -76,6 +77,17 @@ class World:
 
     def state_dir(self, name: str) -> Path:
         return self.tmp / "state" / "issue-watch" / name
+
+    def report(self, name: str, first_line: str, *, age_s: float = 0.0) -> Path:
+        """The first-run report a first run left in the state dir, ``age_s`` before the sweep."""
+        directory = self.state_dir(name)
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / "first-run.txt"
+        path.write_text(first_line + "\nship_gate: closed\n")
+        path.chmod(0o600)
+        when = (CYCLE_NOW - timedelta(seconds=age_s)).timestamp()
+        os.utime(path, (when, when))
+        return path
 
     def child(
         self,
@@ -707,3 +719,128 @@ def test_every_reason_the_generator_and_the_repo_list_can_give_is_in_the_table()
     assert (generated | listed) <= set(dispatch.SKIP_REASONS), (
         generated | listed
     ) - set(dispatch.SKIP_REASONS)
+
+
+# --- a failed first run is retried on a later sweep (issue 751) --------------------------------
+
+FAILED_CONFIG = "first-run: failed config: worktree_invalid"
+
+
+def _spy_first_run(monkeypatch, calls: list[str], *, enable: bool) -> None:
+    def fake(path, defs, runner, deps_factory):
+        calls.append(Path(path).stem)
+        if enable:
+            data = json.loads(Path(path).read_text())
+            data["enabled"] = True
+            Path(path).write_text(json.dumps(data))
+
+    monkeypatch.setattr(dispatch, "first_run", fake)
+
+
+def _disabled_beta(world: World, first_line: str | None, *, age_s: float = 0.0) -> Path:
+    prepare(world)
+    path = world.config("Beta", enabled=False)
+    if first_line is not None:
+        world.report("Beta", first_line, age_s=age_s)
+    return path
+
+
+def test_a_failed_config_step_is_retried_and_the_repo_then_runs(
+    world, monkeypatch
+) -> None:
+    _disabled_beta(world, FAILED_CONFIG)
+    calls: list[str] = []
+    _spy_first_run(monkeypatch, calls, enable=True)
+    out = sweep(world)
+    assert calls == ["Beta"]
+    assert world.started() == ["Alpha", "Beta", "Gamma"]
+    assert out.skipped == ()
+
+
+def test_a_repeated_failure_stays_not_enabled_with_one_retry_per_sweep(
+    world, monkeypatch
+) -> None:
+    _disabled_beta(world, FAILED_CONFIG)
+    calls: list[str] = []
+    _spy_first_run(monkeypatch, calls, enable=False)
+    out = sweep(world)
+    assert calls == ["Beta"]
+    assert world.started() == ["Alpha", "Gamma"]
+    assert [(s.name, s.reason) for s in out.skipped] == [("Beta", "not_enabled")]
+
+
+@pytest.mark.parametrize(
+    "first_line", [None, "first-run: passed", "something else entirely"]
+)
+def test_a_disabled_config_without_a_failed_report_is_not_retried(
+    world, monkeypatch, first_line
+) -> None:
+    _disabled_beta(world, first_line)
+    calls: list[str] = []
+    _spy_first_run(monkeypatch, calls, enable=True)
+    out = sweep(world)
+    assert calls == []
+    assert world.started() == ["Alpha", "Gamma"]
+    assert [(s.name, s.reason) for s in out.skipped] == [("Beta", "not_enabled")]
+
+
+def test_a_dry_run_sweep_makes_no_retry_and_changes_no_file(world, monkeypatch) -> None:
+    path = _disabled_beta(world, FAILED_CONFIG)
+    report = world.state_dir("Beta") / "first-run.txt"
+    before = (path.read_bytes(), report.read_bytes(), report.stat().st_mtime)
+    calls: list[str] = []
+    _spy_first_run(monkeypatch, calls, enable=True)
+    out = sweep(world, dry_run=True)
+    assert calls == [] and world.started() == []
+    assert [(s.name, s.reason) for s in out.skipped] == [("Beta", "not_enabled")]
+    assert (path.read_bytes(), report.read_bytes(), report.stat().st_mtime) == before
+
+
+@pytest.mark.parametrize("step", ["label", "dry_run", "restart"])
+def test_a_failure_past_the_config_step_waits_an_hour_before_the_retry(
+    world, monkeypatch, step
+) -> None:
+    line = f"first-run: failed {step}: label_failed"
+    _disabled_beta(world, line, age_s=dispatch.RETRY_AFTER_S - 60)
+    calls: list[str] = []
+    _spy_first_run(monkeypatch, calls, enable=False)
+    sweep(world)
+    assert calls == []
+    world.report("Beta", line, age_s=dispatch.RETRY_AFTER_S + 60)
+    sweep(world)
+    assert calls == ["Beta"]
+
+
+def test_a_config_generated_in_this_sweep_is_not_retried_a_second_time(
+    world, monkeypatch
+) -> None:
+    prepare(world, ["Alpha", "Gamma"])
+    world.child("Beta")
+    calls: list[str] = []
+    _spy_first_run(monkeypatch, calls, enable=False)
+
+    def fake_ensure(repo, defs, runner, base):
+        world.config(repo.name, enabled=False)
+        world.report(repo.name, FAILED_CONFIG)
+        return Outcome("generated", repo.name, config_path=base.config_dir)
+
+    monkeypatch.setattr(dispatch, "ensure_config", fake_ensure)
+    out = sweep(world)
+    assert calls == ["Beta"]
+    assert out.generated == ("Beta",)
+
+
+def test_a_failed_retry_keeps_the_existing_store_and_lock(world) -> None:
+    world.no_worktree.add("Beta")
+    path = _disabled_beta(world, FAILED_CONFIG)
+    state = world.state_dir("Beta")
+    (state / "dispatch.json").write_text('{"kept": true}\n')
+    (state / "lock").write_text("")
+    report = state / "first-run.txt"
+    stale = report.read_text()
+    out = sweep(world)  # the real first_run runs and fails again at the config step
+    assert [(s.name, s.reason) for s in out.skipped] == [("Beta", "not_enabled")]
+    assert report.read_text() != stale and report.read_text().startswith(FAILED_CONFIG)
+    assert (state / "dispatch.json").read_text() == '{"kept": true}\n'
+    assert (state / "lock").read_text() == ""
+    assert json.loads(path.read_text())["enabled"] is False
