@@ -1,0 +1,8 @@
+Command: uv run --no-sync env HOME=<run>/artifacts/home pytest tests/swarm/test_done_sentinel.py tests/swarm/test_commands_run.py -q
+Exit: 0
+Captured result:
+collected 25 items
+tests/swarm/test_done_sentinel.py ........... [44%]
+tests/swarm/test_commands_run.py .............. [100%]
+25 passed in 0.59s
+These are existing tests, not a new regression test for issue 540. The separate CLI reproduction still omits done.json.

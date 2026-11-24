@@ -9,7 +9,9 @@ the CLI substrate behind the multi-model review/troubleshoot/spec workflows.
 > preflight → Wave 1 dispatch → Wave 2 normalize → Wave 3 reduce**. Besides the
 > observability files it writes the per-worker outputs, `merged.md` (in the
 > `normalize+merge` mode every bundled lens uses) and `return-contract.yaml`. The
-> `done.json` sentinel is written only by `swarm kill <job_id> --output <dir>`. See
+> `done.json` completion marker is then written after the result contract and terminal
+> state when `runtime.on_completion.write_done_sentinel` is enabled (the default).
+> Detached children, not their launchers, publish completion. See
 > [What a run emits](#what-a-run-emits).
 
 ---
@@ -108,20 +110,32 @@ contains:
 | `<lens>-NN-<model>.meta.json` | Per-worker sidecar (status, attempts, timing) | same |
 | `merged.md` | All worker outputs merged (Wave 3; written when `amalgamation_mode` is `normalize+merge`, the default for every bundled lens) | same |
 | `return-contract.yaml` | Run status (`success` / `partial` / `failed`), worker counts, output paths, recommended next command | same |
+| `done.json` | Atomic completion marker: `atomic_write: true`, `terminal_status` matching the actual result (`success` / `partial` / `failed`), and `contract_path` pointing to the absolute persisted contract path | same |
 
-A stub `bare-review` run, for example, leaves 12 entries: the four observability files,
-three `bare-review-0N-lens-default-model-0.final.md` + `.meta.json` pairs, `merged.md`
-and `return-contract.yaml`.
+A default stub `bare-review` run, for example, leaves 13 entries: the four observability
+files, three `bare-review-0N-lens-default-model-0.final.md` + `.meta.json` pairs,
+`merged.md`, `return-contract.yaml` and `done.json`.
 
-**Not** emitted by a run: `done.json`. Only `swarm kill <job_id> --output <dir>` writes
-it (with `terminal_status=killed`). (A missing proxy env contract fails the run at
+**Completion policy.** Foreground and resumed runs publish `done.json` after the
+contract and terminal state are persisted; detached children use the same completion
+path. Setting `runtime.on_completion.write_done_sentinel=false` suppresses the marker,
+not the contract or terminal state. A marker means completion, not that every worker
+succeeded. Early errors, no completed reduction, or a persistence exception do not
+produce a new completion marker. Use a fresh output directory per job so an old marker
+cannot be mistaken for this job's completion.
+
+`swarm kill <job_id> --output <dir>` keeps its separate `terminal_status=killed`
+marker with an empty `contract_path`. (A missing proxy env contract fails the run at
 transport construction with a clear `missing: …` diagnostic and exit `1`, writing only
 `manifest.json` + `.swarm-state.json` — see
 [User Guide §6c](user-guide.md#6c-if-the-env-is-missing).)
 
 > **Resume mode.** `swarm run --resume` skips succeeded workers, re-dispatches the rest,
 > re-runs Wave 2 normalize on them and Wave 3 reduce (`reduce_wave3(resume=True)`),
-> regenerating `merged.md` and `return-contract.yaml`. See
+> regenerating `merged.md` and `return-contract.yaml`, then publishing the marker
+> when the effective rehydrated completion policy enables it. Arbitrary original
+> runtime overrides are not fully restored from the manifest, so an original opt-out
+> is not guaranteed to survive resume. See
 > [User Guide §8](user-guide.md#8-resuming-a-partial-job) and
 > [Command Ref → run artifacts](command-reference.md#run-artifacts).
 

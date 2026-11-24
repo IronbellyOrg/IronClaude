@@ -1,0 +1,87 @@
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_tmux_detached.py tests/swarm/test_tmux_fallback.py tests/swarm/test_kill_cmd.py tests/swarm/test_done_sentinel.py tests/swarm/test_three_layer_artifacts.py tests/swarm/test_imm6_atomic_write.py tests/cli/reflect/test_ensemble_unit.py tests/cli/reflect/test_ensemble_stub_integration.py -q -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+...........ss......FFF.......................................................................................... [ 91%]
+...........                                                                                                      [100%]
+======================================================= FAILURES =======================================================
+____________________________ test_detached_parent_defers_completion_to_actual_child[False] _____________________________
+tests/swarm/test_tmux_detached.py:302: in test_detached_parent_defers_completion_to_actual_child
+    assert child.exit_code == 0, child.output
+E   AssertionError: Usage: run [OPTIONS] [SPEC_PATH]
+E     Try 'run --help' for help.
+E     
+E     Error: Invalid value for '[SPEC_PATH]': File 'run' does not exist.
+E     
+E   assert 2 == 0
+E    +  where 2 = <Result SystemExit(2)>.exit_code
+_____________________________ test_detached_parent_defers_completion_to_actual_child[True] _____________________________
+tests/swarm/test_tmux_detached.py:302: in test_detached_parent_defers_completion_to_actual_child
+    assert child.exit_code == 0, child.output
+E   AssertionError: Usage: run [OPTIONS] [SPEC_PATH]
+E     Try 'run --help' for help.
+E     
+E     Error: Invalid value for '[SPEC_PATH]': File 'run' does not exist.
+E     
+E   assert 2 == 0
+E    +  where 2 = <Result SystemExit(2)>.exit_code
+__________________________________ test_detached_live_cli_child_publishes_completion ___________________________________
+tests/swarm/test_tmux_detached.py:333: in test_detached_live_cli_child_publishes_completion
+    assert (out / "done.json").is_file(), f"child ended without completion: {sorted(p.name for p in out.iterdir())}"
+E   AssertionError: child ended without completion: ['.swarm-detached-spec.json']
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = (PosixPath('/tmp/pytest-of-coder/pytest-17/test_detached_live_cli_child_p0/out') / 'done.json').is_file
+=============================================== short test summary info ================================================
+FAILED tests/swarm/test_tmux_detached.py::test_detached_parent_defers_completion_to_actual_child[False] - AssertionEr...
+FAILED tests/swarm/test_tmux_detached.py::test_detached_parent_defers_completion_to_actual_child[True] - AssertionErr...
+FAILED tests/swarm/test_tmux_detached.py::test_detached_live_cli_child_publishes_completion - AssertionError: child e...
+3 failed, 118 passed, 2 skipped in 5.07s
+
+EXIT: 1
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_tmux_detached.py tests/swarm/test_tmux_fallback.py tests/swarm/test_kill_cmd.py tests/swarm/test_done_sentinel.py tests/swarm/test_three_layer_artifacts.py tests/swarm/test_imm6_atomic_write.py tests/cli/reflect/test_ensemble_unit.py tests/cli/reflect/test_ensemble_stub_integration.py -q -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+...........ss.......FF.......................................................................................... [ 91%]
+...........                                                                                                      [100%]
+======================================================= FAILURES =======================================================
+_____________________________ test_detached_parent_defers_completion_to_actual_child[True] _____________________________
+tests/swarm/test_tmux_detached.py:317: in test_detached_parent_defers_completion_to_actual_child
+    assert (out / "done.json").exists() is enabled
+E   AssertionError: assert False is True
+E    +  where False = exists()
+E    +    where exists = (PosixPath('/tmp/pytest-of-coder/pytest-18/test_detached_parent_defers_co1/out') / 'done.json').exists
+__________________________________ test_detached_live_cli_child_publishes_completion ___________________________________
+tests/swarm/test_tmux_detached.py:375: in test_detached_live_cli_child_publishes_completion
+    assert (out / "done.json").is_file(), (
+E   AssertionError: child ended without completion: ['.swarm-detached-spec.json']
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = (PosixPath('/tmp/pytest-of-coder/pytest-18/test_detached_live_cli_child_p0/out') / 'done.json').is_file
+=============================================== short test summary info ================================================
+FAILED tests/swarm/test_tmux_detached.py::test_detached_parent_defers_completion_to_actual_child[True] - AssertionErr...
+FAILED tests/swarm/test_tmux_detached.py::test_detached_live_cli_child_publishes_completion - AssertionError: child e...
+2 failed, 119 passed, 2 skipped in 5.03s
+
+EXIT: 1
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_tmux_detached.py tests/swarm/test_tmux_fallback.py tests/swarm/test_kill_cmd.py tests/swarm/test_done_sentinel.py tests/swarm/test_three_layer_artifacts.py tests/swarm/test_imm6_atomic_write.py tests/cli/reflect/test_ensemble_unit.py tests/cli/reflect/test_ensemble_stub_integration.py -q -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+...........ss................................................................................................... [ 91%]
+...........                                                                                                      [100%]
+121 passed, 2 skipped in 4.88s
+
+EXIT: 0
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_tmux_detached.py tests/swarm/test_tmux_fallback.py tests/swarm/test_kill_cmd.py tests/swarm/test_done_sentinel.py tests/swarm/test_three_layer_artifacts.py tests/swarm/test_imm6_atomic_write.py tests/cli/reflect/test_ensemble_unit.py tests/cli/reflect/test_ensemble_stub_integration.py -q -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+...........ss................................................................................................... [ 89%]
+.............                                                                                                    [100%]
+123 passed, 2 skipped in 5.37s
+
+EXIT: 0
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_tmux_detached.py tests/swarm/test_tmux_fallback.py tests/swarm/test_kill_cmd.py tests/swarm/test_done_sentinel.py tests/swarm/test_three_layer_artifacts.py tests/swarm/test_imm6_atomic_write.py tests/cli/reflect/test_ensemble_unit.py tests/cli/reflect/test_ensemble_stub_integration.py -q -rs -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+...........ss................................................................................................... [ 89%]
+.............                                                                                                    [100%]
+=============================================== short test summary info ================================================
+SKIPPED [1] tests/swarm/test_tmux_detached.py:112: this branch only fires when tmux is absent
+SKIPPED [1] tests/swarm/test_tmux_detached.py:125: patched-tmux path covers monkeypatched absence
+123 passed, 2 skipped in 5.03s
+
+EXIT: 0

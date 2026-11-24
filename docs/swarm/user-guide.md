@@ -404,11 +404,17 @@ re-binds your terminal, `kill <job_id>` tears it down. tmux is **optional** — 
 never need it, and `--detached` without tmux exits `2` with a clear error rather than
 silently falling back.
 
-> **Caveat — `done.json`:** a run does **not** write the `done.json` sentinel; only
-> `swarm kill <job_id> --output <dir>` writes it. The `until [ -f done.json ]` poll in
-> [Monitoring Patterns](monitoring-patterns.md) therefore only fires for killed jobs.
-> Poll `.swarm-state.json` reaching `terminal` via `status` instead: the state flips to
-> `terminal` only after `merged.md` and `return-contract.yaml` are on disk.
+> **Completion marker:** the detached child, not the launcher, writes `done.json`
+> after the result contract and terminal state are persisted. Foreground and resumed
+> runs also publish it when their effective `runtime.on_completion.write_done_sentinel`
+> policy is enabled (the default). Explicit `false` suppresses the marker; arbitrary
+> original runtime overrides, including opt-out, are not guaranteed to survive resume.
+> The marker contains `atomic_write: true`, the actual `success` / `partial` / `failed`
+> result in `terminal_status`, and the absolute `contract_path`. Completion is not
+> necessarily success. `swarm kill <job_id> --output <dir>` keeps its separate `killed`
+> marker with an empty contract path. Use a fresh per-job output directory and see
+> [Monitoring Patterns](monitoring-patterns.md) for polling. Early errors or no completed
+> reduction do not produce a new marker; inspect state and contract when opting out.
 
 ---
 
@@ -521,7 +527,7 @@ only** — no scoring, deduping, or reordering (AC-011).
 | `run` exits 0 but no files on disk | Spec-file mode without the `--output` **flag**. | Always pass `--output <dir>`; the flag (not `spec.output.dir`) wires artifacts. |
 | `cannot construct 'openai_compat' transport … incomplete; missing: …` (exit 1) | `openai_compat` with `T2ProxyUrl` / `T2ProxyKey` / `T2Model0*` slots unset. | Export the [env contract](#6a-set-the-env-contract); the `missing:` list names exactly what's absent. |
 | `--detached` exits 2 | tmux not installed / nested in tmux. | Install tmux, or run inline (no `--detached`). |
-| No `done.json` after a normal run | Expected — only `swarm kill <job_id> --output <dir>` writes it. | Poll `swarm status` for `phase=terminal` (§7); see [README](README.md#what-a-run-emits). |
+| No `done.json` after a run | Completion policy disabled, no durable output, or execution failed before reduction and terminal-state persistence completed. | Check effective `runtime.on_completion.write_done_sentinel`, the output directory, `.swarm-state.json` and `return-contract.yaml`; an enabled completed reduction should publish a marker. See [README](README.md#what-a-run-emits). |
 | `VIRTUAL_ENV … will be ignored` warning | Benign uv/venv notice. | Ignore, or filter with `grep -v VIRTUAL_ENV`. |
 
 See also the [Command Reference](command-reference.md) for per-command exit-code tables

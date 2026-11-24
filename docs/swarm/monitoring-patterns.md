@@ -3,12 +3,13 @@
 > 📚 Part of the [swarm documentation](./README.md). New here? Start with the
 > [User Guide](./user-guide.md).
 >
-> ⚠️ **Implementation status.** Wave 3 reduce now runs on a fresh `swarm run`
-> (it writes `return-contract.yaml` before the state flips to `terminal`), but
-> `done.json` is still written only by `swarm kill --output`. Pattern 1 below
-> therefore never sees the sentinel on a normal run. Watch `.swarm-state.json`
-> instead, with Pattern 3 (`swarm status --watch`, which exits once the phase
-> reaches `terminal`).
+> **Completion scope.** Foreground runs, resumed runs and detached children publish
+> `done.json` after the result contract and terminal state are persisted when their
+> effective `runtime.on_completion.write_done_sentinel` policy is enabled (the default).
+> Explicit `false`, early errors, no completed reduction or persistence failure can
+> leave no new marker. In those cases inspect `.swarm-state.json`, the contract and
+> logs rather than waiting indefinitely. Use a fresh output directory per job;
+> a marker left from an earlier attempt does not prove a resumed attempt finished.
 
 Three durable monitoring patterns are supported against any running
 swarm job. All three read the **caller-agnostic** observability artifacts
@@ -36,9 +37,19 @@ criteria (three monitoring patterns demonstrated).
 
 Use when the caller needs to **block until the job finishes** (success,
 partial, failed, or killed) but does not need to stream intermediate
-events. The sentinel is written atomically (tmp + `os.replace`) once
-`SwarmState.state` flips to `terminal`, so a `[ -f done.json ]` test is
-sufficient — there is no half-written window.
+events. For a completed reduction with marker policy enabled, the contract is saved
+first, terminal state second, and `done.json` atomically last (tmp + `os.replace`).
+With a fresh per-job output directory, `[ -f done.json ]` is sufficient to observe
+that publication; there is no half-written marker. This applies to foreground,
+resumed and detached-child completion, not just killed jobs. The marker contains
+`atomic_write: true`, the actual `success` / `partial` / `failed` result in
+`terminal_status`, and the absolute `contract_path`; completion is not necessarily
+success. Kill retains its separate `killed` status and empty contract path.
+
+The poll below assumes the run reaches completed reduction with publication enabled.
+It does not detect early launcher/executor failure or opt-out. Use state/contract/log
+inspection for those cases. Resume uses the effective rehydrated policy; arbitrary
+original runtime overrides, including completion opt-out, are not guaranteed to survive.
 
 ### Paste-ready commands (pattern 1)
 

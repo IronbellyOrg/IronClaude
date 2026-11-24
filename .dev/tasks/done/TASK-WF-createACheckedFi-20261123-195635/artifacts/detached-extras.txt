@@ -1,0 +1,20 @@
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python ruff check --select I --fix tests/swarm/test_tmux_detached.py
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+Found 2 errors (2 fixed, 0 remaining).
+
+EXIT: 0
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python ruff format tests/swarm/test_tmux_detached.py
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+1 file reformatted
+
+EXIT: 0
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python ruff check tests/swarm/test_tmux_detached.py
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+All checks passed!
+
+EXIT: 0
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python ruff check src/superclaude/cli/swarm/commands.py tests/swarm/test_tmux_detached.py
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+All checks passed!
+
+EXIT: 0

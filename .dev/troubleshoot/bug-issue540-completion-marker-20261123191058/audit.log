@@ -1,0 +1,63 @@
+<!-- SC:TROUBLESHOOT:TARGET
+issue: Issue 540: successful foreground swarm run omits done.json
+type: bug
+depth: standard
+scope: src/superclaude/cli/swarm
+fix_authorized: true
+no_escalate: false
+mcps_available: auggie,codegraph,context7,tavily
+output_dir: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058
+caller: none
+context_path: none
+-->
+start: 2026-11-23T19:10:58Z
+Wave 0 complete: type=bug depth=standard
+repo_owner: IronbellyOrg
+repo_name: IronClaude
+branch: master
+analyst_profile: /home/coder/.claude/agents/troubleshoot-analyst.md (project absent; global closed roster verified)
+graph: index_state=fresh access=mcp checked_at=2026-11-23T19:11:34Z projectPath=/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s; 0 pending changes
+Augment grounding: normal/resume completion lack writer; helper tests and reflect caller found; verified against local source.
+Caller lookup: 15/15 graph rows shown (including imports); production reflect caller call-site-verified at ensemble.py:421.
+Local reproduction authorized by user requesting quoted command; fixed stub transport and isolated HOME/output; foreground CLI exit=0, stdout='swarm run: dispatched job (mode=lens, workers=3, results=3)'.
+Edit freshness hook refused first audit Edit; recovered through Read, no bypass.
+Wave 1 complete: grounding done; local-foreground-1 observed success, terminal, done_exists=false. Existing helper/CLI suites: 25 passed (artifacts/baseline-tests.txt).
+Wave 1.5 dispatched required documentation branches A/B/C with restricted profile and graph/repo state.
+Wave 1.5 complete: doc_context_card_path=.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/doc-context.md. Three branches persisted/read. Rescued release authority unverified; source model policy outranks descriptive limitation docs. Mtime-current does not mean semantically accurate.
+Wave 1.6 failing_component=commands.py::run_cmd completion; observation-kind=trace (filesystem omission); no categorical producer menu. Existing done_exists=false observation resolves disputed datum; discriminator-required=no pending branch assessment. Scope complexity score1 (more than two files inspected), no intermittent/security/performance signal: trivial.
+Wave 1.6 captured bytes: jsonl1559 md999 contract4825 state104. Required branches A/B dispatched.
+Wave 1.6 complete: verdict=partial (S8), complexity=trivial score1, hard_stop=false, round0/3, discriminator-required=no; direct datum already captured. Tasklist has no required pending diagnostic probes. No shared counter writes performed. git diff --name-only shows shared diagnosability-rounds.json changed externally; left intact.
+Local-resume-1 additionally reproduced missing marker after real --resume, exit0 skipped3 redispatched0. Original foreground artifacts preserved in separate directory.
+Wave 1.7 hypothesis received, persisted, and Read. First receipt retained at artifacts/hypothesis-first-receipt.md; final receipt binds raw captured artifacts and actual import paths.
+Behaviour binding: no unobserved primitive behavior asserted; project source bodies plus real CLI/filesystem captures. No behavior-definition fetch required; optional behavior_definitions_path omitted, not fabricated.
+producer-citation-check: skipped (header-only trace menu, no surviving categorical rows).
+Independent confidence-calibrator dispatched with now_iso=2026-11-23T19:25:41Z card_mtime=2026-11-23T19:25:31Z and full rubric/assertion/locus/tasklist inputs.
+Source revision: db57e231863078dbbb8e4e5fb37a61371c89806c; imported modules resolve inside this exact worktree.
+Wave 1.7 complete: independent calibrated confidence1.00; all six justified scores1.0, nine C-rule rows, formula and markers mechanically checked. No retained prior bound; no retry.
+Wave 2: STOP at Tier1 per standard/default rule; single-domain reproducible symptom. No Tier2/debate required.
+Wave 4.5 HC0 applicable: CLI/persisted-state/generated-artifact/sibling boundaries. HC1 FAIL: real pre-fix negative witness present, fix-applied positive witness absent. HC2 PASS enumeration, HC3/HC4 rationalized N/A, HC5 pending required off-path review. Hardening closure blocked (sticky HC1), not a claim repair is complete.
+Boundary acceptance oracle on existing foreground output exited1, AssertionError: completion marker missing after real foreground CLI success; preserved in artifacts/negative-witness.txt.
+Common-epilogue status contribution: blocked (missing mandatory repaired-run closure proof). Diagnosis itself is supported; no source/test/doc changes. --fix planning offer is ineligible unless final reportstatus is success; do not silently waive this contract conflict.
+Wave 5 first independent validation persisted/read: 15 source/artifact spans verified, zero dropped, two command results passed through; A1-A10 no fired contribution. Off-path review FAIL for blocking B1: unconditional workflow-deadlock/status-mapping claim not established by skill/ref text.
+B1 correction: draft now distinguishes actual success-only offer condition, positive-witness closure requirement, undefined pre-fix pending semantics, and absent explicit ordinary-HC-failure -> reportstatus mapping. Conservative blocked interpretation retained, rationalized N/A/advisory alternative acknowledged but not adopted; no status/cap/closure upgrade. Runtime/applicability cards corrected consistently. Initial draft and review preserved under artifacts/.
+Minor notes M1/M2 retained without repair; M3 pending-state bookkeeping will be updated only from actual re-review outcome. One substantive correction/re-review cycle underway, not a fresh review loop.
+Wave 5 cycle1 re-review persisted/read: off-path PASS, B1 resolved;19 source/artifact spans verified, zero dropped, two command references passed through. A1/A3/A4/A6/A7/A8/A9/A10 did not fire; A2 skipped(null diff), A5 skipped(no candidate index); no timestamp drop, suspect probe or structuralFAIL. Minor notes retained without repair/recheck. No new substantive finding.
+Post-validation consequence consumer: retain prior conservative blocked interpretation and HC1 failure; no plain-success upgrade from citationPASS. HC5 performed/PASS now recorded. Old unconditional-deadlock assertion corrected in draft/cards and independently rechecked; first draft/review preserved. No causal diagnosis/evidence changed. Final existence ls succeeded for all cited output paths and active protocol refs; no missing citation to drop.
+Report timestamp/finalization checkpoint copied from Bash date:2026-11-23T19:38:46Z, elapsed1668seconds from captured start. Only review-outcome bookkeeping and verified-clock fields changed after re-review, no substantive repaired claim.
+Wave 6 not entered: this run retains reportstatusblocked as an explicitly conservative interpretation of ambiguous pre-fix handling; success-only --fix offer ineligible under that choice. No remediation offer/acceptance, no impact/workflow handoff, no implementation, commit, push or GitHub write. Human guidance needed before choosing another interpretation; any later plan must retain missing positive CLI evidence.
+Output fields: status=blocked tier_reached=1 confidence=1.00 test_is_wrong=false behavior_is_documented=false remediation_route=null plan_path=null remediation_offered=false remediation_accepted=false diagnosability_verdict=partial diagnosability_hard_stop=false pipeline_hardening_applicable=true pipeline_hardening_verdict=blocked waiver_status=none backtest_status=not_run off_path_review_decision=performed known_escapes_caught=[] recommended_escalation=halt tasklist_insertion_path=null remediation_target=none solution_summary="". TFEP adapter not emitted(caller none).
+<!-- SC:TROUBLESHOOT:SUMMARY
+status: blocked
+tier_reached: 1
+confidence: 1.0
+escalation_reason: none
+hypothesis_count: 1
+adversarial_invoked: false
+cosmetic_overrun: 0
+fix_authorized: true
+duration_sec: 1668
+caller: none
+context_path: none
+return_contract_path: none
+-->
+

@@ -1,0 +1,1696 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-11-24T14:41:49.907137+00:00",
+  "path_base": "repository-root",
+  "instructions": "Resolve current_path from the root of your checkout. Historical aliases are recorded values, not live paths or runnable commands. An unavailable entry intentionally has no target.",
+  "entry_points": {
+    "investigation": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+    "completed_fix": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md"
+  },
+  "historical_source": {
+    "revision": "db57e231863078dbbb8e4e5fb37a61371c89806c",
+    "instructions": "Read source citations at this Git revision; do not apply historical line numbers to current files.",
+    "command_shape": "git show <revision>:<repository-relative-source-path>"
+  },
+  "alias_rules": [
+    {
+      "from": "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/",
+      "to": "",
+      "note": "Preserve suffix and resolve from checkout root. Source citations additionally require the recorded Git revision."
+    },
+    {
+      "from": ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/",
+      "to": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/"
+    },
+    {
+      "from": "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/",
+      "to": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/"
+    }
+  ],
+  "files": [
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "package": "original-investigation",
+      "historical_aliases": []
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/REPORT.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/REPORT.md"
+      ],
+      "original_sha256": "2df0dc844008267dbec3f5485723bae035671ff27a5fc88be88d9179069e58e6",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/REPORT.md.draft",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/REPORT.md.draft"
+      ],
+      "original_sha256": "2df0dc844008267dbec3f5485723bae035671ff27a5fc88be88d9179069e58e6",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/baseline-tests.txt",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/baseline-tests.txt"
+      ],
+      "original_sha256": "54d7d51bf91c102167f60171b9e32a77f57d8587633d43ddc316fff38b4e5db1",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/evidence-validation-round1.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/evidence-validation-round1.md"
+      ],
+      "original_sha256": "d43a676c0cfb5be1e981e2a525e784ae09cbbc81cdd912eb25f1eefbc24ed1f5",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/.swarm-state.json",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/.swarm-state.json"
+      ],
+      "original_sha256": "668e3f3a5536d23c9ab31324d307cf0eed00f46c7e99832f0fb81ac076f6d5fd",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-00-lens-default-model-0.final.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-00-lens-default-model-0.final.md"
+      ],
+      "original_sha256": "ecd7fda17d39b8d8e0053d37b4a007208d17f7006a25dd9af0379d70dd1ef5cd",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-00-lens-default-model-0.meta.json",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-00-lens-default-model-0.meta.json"
+      ],
+      "original_sha256": "b74c75763a094e1ebc7a3f3be19f08eb27f9fbfb0e3f65d7b61d45a9bd290404",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-01-lens-default-model-0.final.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-01-lens-default-model-0.final.md"
+      ],
+      "original_sha256": "ecd7fda17d39b8d8e0053d37b4a007208d17f7006a25dd9af0379d70dd1ef5cd",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-01-lens-default-model-0.meta.json",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-01-lens-default-model-0.meta.json"
+      ],
+      "original_sha256": "b74c75763a094e1ebc7a3f3be19f08eb27f9fbfb0e3f65d7b61d45a9bd290404",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-02-lens-default-model-0.final.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-02-lens-default-model-0.final.md"
+      ],
+      "original_sha256": "ecd7fda17d39b8d8e0053d37b4a007208d17f7006a25dd9af0379d70dd1ef5cd",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-02-lens-default-model-0.meta.json",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-02-lens-default-model-0.meta.json"
+      ],
+      "original_sha256": "b74c75763a094e1ebc7a3f3be19f08eb27f9fbfb0e3f65d7b61d45a9bd290404",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/execution-log.jsonl",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/execution-log.jsonl"
+      ],
+      "original_sha256": "b11a948a3fbfd5d14a918f054dbd6886a6de1362e81a101a4f4975e8dfbf7ec8",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/execution-log.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/execution-log.md"
+      ],
+      "original_sha256": "620211076986c002c43e00e69282863b8136417a531d4298c0a33d1681c8db31",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/manifest.json",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/manifest.json"
+      ],
+      "original_sha256": "3c06236f0e2418bf4f99e961e3053f3968c501e956073b1db129c76f92fc325b",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/merged.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/merged.md"
+      ],
+      "original_sha256": "ca7bbfbde0f091afc7e37bea5e0ba41ab7345c099ac312cc8b63032517b78c28",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/return-contract.yaml",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/return-contract.yaml"
+      ],
+      "original_sha256": "667fc05ebae8c5b83bd497d2f67e20e65af0c181a311a1ea0d22059c84085562",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground-check.json",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground-check.json"
+      ],
+      "original_sha256": "2384fbcb55f1d98204b037d295ab45e7d427be1899fec2e4ef86850b85775279",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground.stdout.txt",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground.stdout.txt"
+      ],
+      "original_sha256": "3884a66a5ce6fc441ec1c8298757aba3f1e7755ef7444b4e9cd0faf1a1b91c46",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/home/.keep",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/home/.keep"
+      ],
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/hypothesis-first-receipt.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/hypothesis-first-receipt.md"
+      ],
+      "original_sha256": "a43afc0faa652fa5b8acbeb8613d6a1fac9b016887e01a5299821298b7c0afd1",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/import-paths.txt",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/import-paths.txt"
+      ],
+      "original_sha256": "e248dfc996afc9c48a4ec009c618af71a3e37356a8a5f59c7cbe916c6db58184",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/negative-witness.txt",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/negative-witness.txt"
+      ],
+      "original_sha256": "09f42ad8d4cfa7a0999655484613e09e4ce529a960a689daa61e2c80b16ad713",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/report-before-review-correction.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/report-before-review-correction.md"
+      ],
+      "original_sha256": "c645bb817bd45ebdf74bb9bc63aa53e14f7863b9db647a935cc9f3f9c3b2f3c0",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/.swarm-state.json",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/.swarm-state.json"
+      ],
+      "original_sha256": "0ef127ac84e9fa21290053b9cdd066fca64c1959cac89b30b6ba3da9a662c67b",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-00-lens-default-model-0.final.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-00-lens-default-model-0.final.md"
+      ],
+      "original_sha256": "92fd643c9e4a1239417c54550e0c48e47c742a2f0d313c0ca5d582c49e25ecb3",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-00-lens-default-model-0.meta.json",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-00-lens-default-model-0.meta.json"
+      ],
+      "original_sha256": "b74c75763a094e1ebc7a3f3be19f08eb27f9fbfb0e3f65d7b61d45a9bd290404",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-01-lens-default-model-0.final.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-01-lens-default-model-0.final.md"
+      ],
+      "original_sha256": "92fd643c9e4a1239417c54550e0c48e47c742a2f0d313c0ca5d582c49e25ecb3",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-01-lens-default-model-0.meta.json",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-01-lens-default-model-0.meta.json"
+      ],
+      "original_sha256": "b74c75763a094e1ebc7a3f3be19f08eb27f9fbfb0e3f65d7b61d45a9bd290404",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-02-lens-default-model-0.final.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-02-lens-default-model-0.final.md"
+      ],
+      "original_sha256": "92fd643c9e4a1239417c54550e0c48e47c742a2f0d313c0ca5d582c49e25ecb3",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-02-lens-default-model-0.meta.json",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-02-lens-default-model-0.meta.json"
+      ],
+      "original_sha256": "b74c75763a094e1ebc7a3f3be19f08eb27f9fbfb0e3f65d7b61d45a9bd290404",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/execution-log.jsonl",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/execution-log.jsonl"
+      ],
+      "original_sha256": "412a490903f2f66e3c37da5bc4eec97cb009e6107a66eb81da00d39fce0e20bd",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/execution-log.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/execution-log.md"
+      ],
+      "original_sha256": "eb2c98c6366df84e353156981b0fb910a395c8f59c639fac8fd011939b06ae48",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/manifest.json",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/manifest.json"
+      ],
+      "original_sha256": "19ab3ab3611d74241df0aa0ca5b9fb77213072d46b902494e9b3a5c367ef684e",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/merged.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/merged.md"
+      ],
+      "original_sha256": "57a111cbd241dc55f8443196ab356c361c146fc27e986b6e6360d00933b19018",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/return-contract.yaml",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/return-contract.yaml"
+      ],
+      "original_sha256": "aacebae98f6b6cb4ba095002716e5119e73ee0305b61115a2eca724bc4f9b12d",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume-check.json",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume-check.json"
+      ],
+      "original_sha256": "2384fbcb55f1d98204b037d295ab45e7d427be1899fec2e4ef86850b85775279",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume.stdout.txt",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume.stdout.txt"
+      ],
+      "original_sha256": "d2571f126e72c00620f8560e8a25bf81fac4eb9bda39d1793d127be95d63c1ef",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/shared-counter-observation.diff",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/shared-counter-observation.diff"
+      ],
+      "original_sha256": "0bd85eebeb468a62f30c9e325b11599e4dc1cd654472150967af10466b1282cf",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/source-revision.txt",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/source-revision.txt"
+      ],
+      "original_sha256": "983f0eedf9bf33e5301fd24c2b9edf8ddcb5bfae9d66b78dece217440c3e6b80",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/target.txt",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/target.txt"
+      ],
+      "original_sha256": "81c8903246f2dfdf2014b96d6af517ed789925898d18defd5ace26202c6c57b2",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/audit.log",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/audit.log"
+      ],
+      "original_sha256": "518730cb30edf941533047b2070e67b7e42db4bb57017569ab1f087d949066ed",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/contract-ledger.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/contract-ledger.md"
+      ],
+      "original_sha256": "30e1702f3d0e27f36ed2c19c2fbcba8dcdd44ac234e4b3ea87035bfddf1d92ae",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/diagnosability-context.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/diagnosability-context.md"
+      ],
+      "original_sha256": "f42b1a7533a2f9441a34613a16e55b7313f2dea6134e273b6771569790e0e1b4",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/diagnosability-tasklist.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/diagnosability-tasklist.md"
+      ],
+      "original_sha256": "8e275845405c4748f29f2353961a898204f3d2f40abc5d3b157289675c1b17c2",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/doc-context.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/doc-context.md"
+      ],
+      "original_sha256": "240400be47793b663c31e52bffa4594e3e0a67942d76e39a35d3853deefea37a",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/effective-input.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/effective-input.md"
+      ],
+      "original_sha256": "d06c72835f346febdc4fb693b202806b6fcf75f9abf058fbacb9ee9ba9955927",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/evidence-validation.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/evidence-validation.md"
+      ],
+      "original_sha256": "a86992d7fe0fed8b7362ef735c7f4f9ca73a30b6b7b94551da02acfe3ba10d2c",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/execution-locus.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/execution-locus.md"
+      ],
+      "original_sha256": "67232d280a6010fa0e7ee1c9a9a7a5b59264b59f5b8ad6c484d36911fa70fa18",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/hardening-applicability.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/hardening-applicability.md"
+      ],
+      "original_sha256": "c4c2f95a62605fd2496c041a925368ca02192c10996682ebbcfada559bb92746",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/producers.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/producers.md"
+      ],
+      "original_sha256": "df3cbf50cf4b9a387cf69918b5393d7771d97b5a44d6279a77c4b604748dfc5e",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/runtime-entrypoint.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/runtime-entrypoint.md"
+      ],
+      "original_sha256": "89d8b4653833849035a3befb0940b54d7f5c64e2ad0a50ba880aab4ebf1ec7cc",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/tier1-calibration.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/tier1-calibration.md"
+      ],
+      "original_sha256": "b86fe4e4d44d664c9fb63dce664af52a2d15b22db60de2ed151ca3f46ee5e3c8",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/tier1-callers.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/tier1-callers.md"
+      ],
+      "original_sha256": "ca42cc72df2192a1c30f532fabfcf85d48937deb50ad2a588ee20b3c213392e9",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/tier1-hypothesis.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/tier1-hypothesis.md"
+      ],
+      "original_sha256": "56fcce51f586a07b7664cca41b90748a268ced4cb90caee3d2175fceba8dab5d",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/tier1-observation.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/tier1-observation.md"
+      ],
+      "original_sha256": "ef5c53e0da2f3d8e0bf0494ffd5ffb95ea5b05d30ec234a7af2ec25ae629bdcc",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/transfer-receipt.json",
+      "package": "original-investigation",
+      "historical_aliases": []
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/unmask-sweep.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/unmask-sweep.md"
+      ],
+      "original_sha256": "eaac46e4cd03ebaf64bb082d1f3bf6e2f2b13e30649e02c4056975a5a430b1b2",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/wave1_5-branch-A.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/wave1_5-branch-A.md"
+      ],
+      "original_sha256": "2c6ad8343c778025f3c6f22ae6a59317cdd35fb67c8c7a535250fd06f7cbcf76",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/wave1_5-branch-B.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/wave1_5-branch-B.md"
+      ],
+      "original_sha256": "7ec0053657e6f51eb6b8239295a08d8640644fa2eba6a1da054a92c06bd33f83",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/wave1_5-branch-C.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/wave1_5-branch-C.md"
+      ],
+      "original_sha256": "d97b66553815f7fc789916e0a5abcc880dc0de97aa2a3bff50b13e26c5ccef68",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/wave1_6-branch-A.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/wave1_6-branch-A.md"
+      ],
+      "original_sha256": "fa9b92fd30875815ad60247ad054883031b81c489563332aa8114544dd796f50",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/wave1_6-branch-B.md",
+      "package": "original-investigation",
+      "historical_aliases": [
+        "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/wave1_6-branch-B.md"
+      ],
+      "original_sha256": "d9eb4aaf13d6e884bc19de745bf7314582762d01562597631913accd99c4f709",
+      "original_bytes_preserved": true
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/README.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/README.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/TASK-WF-createACheckedFi-20261123-195635.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/TASK-WF-createACheckedFi-20261123-195635.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/TASK-WF-createACheckedFi-20261123-195635.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/capture_cli.py",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/capture_cli.py",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/capture_cli.py"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/check_completion_docs.py",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/check_completion_docs.py",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/check_completion_docs.py"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/check_detached.py",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/check_detached.py",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/check_detached.py"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/check_saved_prompts.py",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/check_saved_prompts.py",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/check_saved_prompts.py"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/codegraph-grounding.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/codegraph-grounding.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/codegraph-grounding.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/codegraph.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/codegraph.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/codegraph.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/completion-compatibility.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/completion-compatibility.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/completion-compatibility.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-check.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-check.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-check.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/out/.swarm-detached-spec.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/out/.swarm-detached-spec.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/out/.swarm-detached-spec.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/spec.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/spec.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/spec.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/target.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/target.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/target.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/.swarm-detached-spec.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/.swarm-detached-spec.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/.swarm-detached-spec.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/.swarm-state.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/.swarm-state.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/.swarm-state.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-00-lens-default-model-0.final.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-00-lens-default-model-0.final.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-00-lens-default-model-0.final.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-00-lens-default-model-0.meta.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-00-lens-default-model-0.meta.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-00-lens-default-model-0.meta.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-01-lens-default-model-0.final.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-01-lens-default-model-0.final.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-01-lens-default-model-0.final.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-01-lens-default-model-0.meta.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-01-lens-default-model-0.meta.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-01-lens-default-model-0.meta.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-02-lens-default-model-0.final.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-02-lens-default-model-0.final.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-02-lens-default-model-0.final.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-02-lens-default-model-0.meta.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-02-lens-default-model-0.meta.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/bare-review-02-lens-default-model-0.meta.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/done.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/done.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/done.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/execution-log.jsonl",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/execution-log.jsonl",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/execution-log.jsonl"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/execution-log.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/execution-log.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/execution-log.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/manifest.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/manifest.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/manifest.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/merged.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/merged.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/merged.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/return-contract.yaml",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/return-contract.yaml",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/return-contract.yaml"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/spec.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/spec.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/spec.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/target.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/target.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/target.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/.swarm-detached-spec.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/.swarm-detached-spec.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/.swarm-detached-spec.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/.swarm-state.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/.swarm-state.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/.swarm-state.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-00-lens-default-model-0.final.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-00-lens-default-model-0.final.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-00-lens-default-model-0.final.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-00-lens-default-model-0.meta.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-00-lens-default-model-0.meta.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-00-lens-default-model-0.meta.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-01-lens-default-model-0.final.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-01-lens-default-model-0.final.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-01-lens-default-model-0.final.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-01-lens-default-model-0.meta.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-01-lens-default-model-0.meta.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-01-lens-default-model-0.meta.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-02-lens-default-model-0.final.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-02-lens-default-model-0.final.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-02-lens-default-model-0.final.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-02-lens-default-model-0.meta.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-02-lens-default-model-0.meta.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/bare-review-02-lens-default-model-0.meta.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/done.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/done.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/done.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/execution-log.jsonl",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/execution-log.jsonl",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/execution-log.jsonl"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/execution-log.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/execution-log.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/execution-log.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/manifest.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/manifest.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/manifest.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/merged.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/merged.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/merged.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/return-contract.yaml",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/return-contract.yaml",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/return-contract.yaml"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/spec.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/spec.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/spec.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/target.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/target.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/target.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-extras.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-extras.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-extras.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/diagnostic-preservation.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/diagnostic-preservation.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/diagnostic-preservation.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-lint-check.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-lint-check.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-lint-check.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-review-input.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-review-input.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-review-input.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-review.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-review.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-review.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-runtime-check.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-runtime-check.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-runtime-check.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-safety-scan.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-safety-scan.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-safety-scan.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-state.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-state.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/final-state.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-after.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-after.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-after.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-before.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-before.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-before.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/.swarm-state.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/.swarm-state.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/.swarm-state.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-00-lens-default-model-0.final.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-00-lens-default-model-0.final.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-00-lens-default-model-0.final.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-00-lens-default-model-0.meta.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-00-lens-default-model-0.meta.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-00-lens-default-model-0.meta.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-01-lens-default-model-0.final.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-01-lens-default-model-0.final.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-01-lens-default-model-0.final.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-01-lens-default-model-0.meta.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-01-lens-default-model-0.meta.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-01-lens-default-model-0.meta.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-02-lens-default-model-0.final.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-02-lens-default-model-0.final.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-02-lens-default-model-0.final.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-02-lens-default-model-0.meta.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-02-lens-default-model-0.meta.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/bare-review-02-lens-default-model-0.meta.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/done.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/done.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/done.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/execution-log.jsonl",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/execution-log.jsonl",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/execution-log.jsonl"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/execution-log.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/execution-log.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/execution-log.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/manifest.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/manifest.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/manifest.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/merged.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/merged.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/merged.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/return-contract.yaml",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/return-contract.yaml",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli/return-contract.yaml"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli-check.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli-check.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli-check.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli-home/target.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli-home/target.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-cli-home/target.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-extras.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-extras.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/foreground-extras.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/monitoring-doc-check.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/monitoring-doc-check.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/monitoring-doc-check.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/prepare_review.py",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/prepare_review.py",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/prepare_review.py"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/prompt-template-check.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/prompt-template-check.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/prompt-template-check.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/reference-doc-check.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/reference-doc-check.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/reference-doc-check.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-after.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-after.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-after.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-before.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-before.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-before.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/.swarm-state.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/.swarm-state.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/.swarm-state.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-00-lens-default-model-0.final.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-00-lens-default-model-0.final.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-00-lens-default-model-0.final.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-00-lens-default-model-0.meta.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-00-lens-default-model-0.meta.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-00-lens-default-model-0.meta.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-01-lens-default-model-0.final.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-01-lens-default-model-0.final.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-01-lens-default-model-0.final.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-01-lens-default-model-0.meta.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-01-lens-default-model-0.meta.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-01-lens-default-model-0.meta.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-02-lens-default-model-0.final.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-02-lens-default-model-0.final.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-02-lens-default-model-0.final.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-02-lens-default-model-0.meta.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-02-lens-default-model-0.meta.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/bare-review-02-lens-default-model-0.meta.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/done.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/done.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/done.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/execution-log.jsonl",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/execution-log.jsonl",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/execution-log.jsonl"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/execution-log.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/execution-log.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/execution-log.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/manifest.json",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/manifest.json",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/manifest.json"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/merged.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/merged.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/merged.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/return-contract.yaml",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/return-contract.yaml",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/return-contract.yaml"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli-check.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli-check.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli-check.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli-home/target.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli-home/target.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli-home/target.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-extras.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-extras.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-extras.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T1/prompt-1-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T1/prompt-1-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T1/prompt-1-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T1/q0-head",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T1/q0-head",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T1/q0-head"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T1/review-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T1/review-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T1/review-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T2/prompt-1-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T2/prompt-1-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T2/prompt-1-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T2/q0-head",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T2/q0-head",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T2/q0-head"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T2/review-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T2/review-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T2/review-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/advice-3-a.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/advice-3-a.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/advice-3-a.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/advice-3-b.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/advice-3-b.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/advice-3-b.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/advice-check-3.log",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/advice-check-3.log",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/advice-check-3.log"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/approach-2.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/approach-2.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/approach-2.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/attempt-2.diff",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/attempt-2.diff",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/attempt-2.diff"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/extras-2.log",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/extras-2.log",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/extras-2.log"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/notes.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/notes.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/notes.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/operator-review-2.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/operator-review-2.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/operator-review-2.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/probe-1-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/probe-1-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/probe-1-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/prompt-1-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/prompt-1-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/prompt-1-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/prompt-2-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/prompt-2-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/prompt-2-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/prompt-2-2.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/prompt-2-2.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/prompt-2-2.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/q0-head",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/q0-head",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/q0-head"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/review-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/review-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/review-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/review-2.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/review-2.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T3/review-2.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/notes.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/notes.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/notes.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/probe-1-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/probe-1-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/probe-1-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/prompt-1-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/prompt-1-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/prompt-1-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/prompt-2-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/prompt-2-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/prompt-2-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/q0-head",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/q0-head",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/q0-head"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/review-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/review-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/review-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/review-2.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/review-2.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T4/review-2.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T5/notes.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T5/notes.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T5/notes.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T5/prompt-1-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T5/prompt-1-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T5/prompt-1-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T5/q0-head",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T5/q0-head",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T5/q0-head"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T5/review-1.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T5/review-1.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/retries/T5/review-1.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/run_check.py",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/run_check.py",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/run_check.py"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/task-3-review-input.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/task-3-review-input.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/task-3-review-input.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/task-4-rereview-input.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/task-4-rereview-input.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/task-4-rereview-input.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/task-4-review-input.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/task-4-review-input.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/task-4-review-input.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/artifacts/task-5-review-input.txt",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/task-5-review-input.txt",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/task-5-review-input.txt"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/impact/T1/impact.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/impact/T1/impact.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/impact/T1/impact.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/impact/T1/return-contract.yaml",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/impact/T1/return-contract.yaml",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/impact/T1/return-contract.yaml"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/progress.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/progress.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/progress.md"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/return-contract.yaml",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/return-contract.yaml",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/return-contract.yaml"
+      ]
+    },
+    {
+      "current_path": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/source.md",
+      "package": "completed-fix",
+      "historical_aliases": [
+        ".dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/source.md",
+        "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/source.md"
+      ]
+    }
+  ],
+  "unavailable_historical_outputs": [
+    {
+      "recorded_alias": "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-00-lens-default-model-0.raw.md",
+      "status": "unavailable-not-transferred",
+      "current_path": null,
+      "normalized_output_not_raw_replacement": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-00-lens-default-model-0.final.md"
+    },
+    {
+      "recorded_alias": "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-01-lens-default-model-0.raw.md",
+      "status": "unavailable-not-transferred",
+      "current_path": null,
+      "normalized_output_not_raw_replacement": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-01-lens-default-model-0.final.md"
+    },
+    {
+      "recorded_alias": "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-02-lens-default-model-0.raw.md",
+      "status": "unavailable-not-transferred",
+      "current_path": null,
+      "normalized_output_not_raw_replacement": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/bare-review-02-lens-default-model-0.final.md"
+    }
+  ],
+  "expected_absences": [
+    ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/done.json",
+    ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/done.json"
+  ],
+  "external_context": "Installed ~/.claude files, rescued release documents and an excluded foreign report are historical context, not portable bundled dependencies. See the transfer path audit for their checked locations."
+}

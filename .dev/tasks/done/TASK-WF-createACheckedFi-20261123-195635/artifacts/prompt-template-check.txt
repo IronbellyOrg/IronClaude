@@ -1,0 +1,19 @@
+FAIL retries/T1/prompt-1-1.md
+FAIL retries/T2/prompt-1-1.md
+FAIL retries/T3/prompt-1-1.md
+FAIL retries/T3/prompt-2-1.md
+PASS retries/T3/prompt-2-2.md
+FAIL retries/T4/prompt-1-1.md
+PASS retries/T4/prompt-2-1.md
+FAIL retries/T5/prompt-1-1.md
+CHECK: FAIL
+RECHECK: trailing whitespace before an empty slot is ignored per qa.md
+PASS retries/T1/prompt-1-1.md
+PASS retries/T2/prompt-1-1.md
+PASS retries/T3/prompt-1-1.md
+PASS retries/T3/prompt-2-1.md
+PASS retries/T3/prompt-2-2.md
+PASS retries/T4/prompt-1-1.md
+PASS retries/T4/prompt-2-1.md
+PASS retries/T5/prompt-1-1.md
+CHECK: PASS
