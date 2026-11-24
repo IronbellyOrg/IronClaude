@@ -1,0 +1,47 @@
+{
+  "kind": "historical-path-relocation-map",
+  "recorded_on": "2026-11-24",
+  "original_root": "/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s",
+  "current_checkout_hint": "/home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help",
+  "lookup_rule": "Leave historical evidence unchanged. For a path beginning with original_root, resolve its suffix relative to the current checkout root. Each target below is that repo-relative suffix; '.' means the checkout root. current_checkout_hint records the lookup location verified on this date, not a permanent root or the historical execution location.",
+  "occurrences": [
+    {"file": "audit.log", "line": 9, "target": ".dev/troubleshoot/bug-swarm-custom-prompt-help-20261123191427"},
+    {"file": "audit.log", "line": 17, "target": "."},
+    {"file": "audit.log", "line": 18, "target": "."},
+    {"file": "effective-input.md", "line": 6, "target": "."},
+    {"file": "module-origin.txt", "line": 1, "target": "src/superclaude/cli/swarm/commands.py"},
+    {"file": "wave1_5-branch-A.md", "line": 1, "target": ".dev/releases/current/v5.0.0/post-release/CONSOLIDATED-PLAN.md"},
+    {"file": "wave1_5-branch-A.md", "line": 1, "target": ".dev/releases/current/v5.0.0/post-release/scan/A2-feature-user-docs.md"},
+    {"file": "wave1_5-branch-B.md", "line": 2, "target": "docs/swarm/command-reference.md"},
+    {"file": "wave1_5-branch-B.md", "line": 3, "target": "docs/swarm/user-guide.md"},
+    {"file": "wave1_5-branch-B.md", "line": 4, "target": "docs/dev/lens-contribution-policy.md"},
+    {"file": "wave1_5-branch-C.md", "line": 2, "target": "src/superclaude/cli/swarm/schema.py"},
+    {"file": "wave1_5-branch-C.md", "line": 3, "target": "src/superclaude/cli/swarm/preflight.py"},
+    {"file": "wave1_5-branch-C.md", "line": 4, "target": "src/superclaude/cli/swarm/preflight.py"}
+  ],
+  "restoration_verification": {
+    "method": "All six restored files were compared in full against their original pre-replacement numbered Read outputs in this session's saved transcript. Line-number prefixes were removed; reconstructed bytes matched the restored files exactly. This verifies the restoration, not historical runtime behavior in the current checkout.",
+    "sha256": {
+      "audit.log": "99dba2f77411167d32aa8a206e0a7a941e8777970aaaa505ee4f5b49213f6557",
+      "effective-input.md": "bc297825480e4e452061038c63cbd2cddb03ad224109361f443d6b64bef801fb",
+      "module-origin.txt": "235e94d123758fe1a2b585d9c98e2745da6c7e67b2a29601aa082408dc33172f",
+      "wave1_5-branch-A.md": "45e0d6c4e7560e7721bf06984b3ad21dd09e987ade4af09c65b6a34732df5842",
+      "wave1_5-branch-B.md": "b8ca65230b42cb0814718636a6b1ef4b9eaaa7776607aeb6f30faccf25249281",
+      "wave1_5-branch-C.md": "7446d114aef3347da5911bc6cf96f99d9c2f5cafa9d347b767a8389426e03d69"
+    }
+  },
+  "independent_review": {
+    "verdict": "PASS",
+    "reviewer": "historical-path-restoration-qa",
+    "checked": "All 13 original-root occurrences at the listed evidence file/line positions, exact suffix-to-target correspondence, current target existence, and REPORT.md:95-103 retaining both replacement and restoration history. No original-checkout access or diagnostic rerun; no current-runtime claim derived from historical captures.",
+    "blocking_findings": [],
+    "notes": ["The earlier correction heading at REPORT.md:95 is not itself labelled superseded, but the restoration section explicitly says it records an intermediate state retained as history. Form-only note; no further edit required."],
+    "limitations": "Reviewer used Read/Grep/Glob in the current checkout. The full original-capture byte comparison and SHA-256 verification were performed by the parent, not independently recomputed by the reviewer."
+  },
+  "limits": [
+    "This map restores discoverability without rewriting historical paths. Do not execute commands in or modify the original checkout to use the map.",
+    "The occurrence line numbers locate paths inside the evidence files. Historical source line numbers, timestamps, branch identities and commit identities remain historical and may not match current source.",
+    "Target existence does not assert identical source contents, a rerun, a successful custom job, or a change to the historical blocked/partial diagnosis.",
+    "REPORT.md retains both the earlier path-replacement note and a later restoration note. Only the six files listed by hash are claimed restored to their original captured bytes."
+  ]
+}

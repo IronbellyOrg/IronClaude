@@ -62,12 +62,17 @@ recipe, that runs arbitrary code on their machine — only use prompts they trus
 | User picked | lens | transport (default) | reviewers | watch default | hands off to |
 |---|---|---|---|---|---|
 | bugs/correctness | `bare-review` | stub→openai_compat | 3 | tui (if TTY) | `/sc:adversarial` |
-| cleanups | `refactor-find` | stub→openai_compat | 3 | tui | `/sc:code-review --apply` |
+| cleanups | `refactor-find` | stub→openai_compat | 3 | tui | `/sc:adversarial --compare` |
 | edge cases | `edge-case-hunt` | stub→openai_compat | 4 | tui | `/sc:adversarial` |
 | spec complete? | `spec-completeness` | stub→openai_compat | 3 | tui | `/sc:reflect` |
 | approach work? | `feasibility-probe` | stub→openai_compat | 3 | tui | `/sc:research` |
 | why failing? | `troubleshoot-hypothesis` | stub→openai_compat | 4 | tui | `/sc:troubleshoot` |
 | docs audit | `doc-completeness` | stub→openai_compat | 3 | tui | `/sc:document` |
+
+For cleanups (`refactor-find`), explain that the follow-up compares generated findings,
+not automatic code edits. Use the emitted suggestion's actual successful report filenames.
+It is empty with fewer than two usable reports or another invalid 2-10-readable-file list;
+do not fabricate a comparison or infer validity from swarm success alone.
 
 After mapping, restate the plan in one plain sentence and confirm before building:
 "I'll run a 3-reviewer bug review on `src/auth.py`, starting with a free practice run. Sound right?"

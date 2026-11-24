@@ -31,10 +31,12 @@ depend on schema-test internals.
 from __future__ import annotations
 
 import json
+import shlex
 from pathlib import Path
 from typing import Any
 
 import pytest
+import yaml
 from click.testing import CliRunner
 
 from superclaude.cli.swarm import swarm_group
@@ -42,8 +44,10 @@ from superclaude.cli.swarm.commands import (
     EXIT_INVALID,
     EXIT_OK,
     EXIT_USAGE,
+    _build_spec_from_lens,
     run_cmd,
 )
+from superclaude.cli.swarm.lenses import LENSES
 from superclaude.cli.swarm.schema import (
     CANONICAL_INJECTION_GUARD_SENTENCE,
     CURRENT_SPEC_VERSION,
@@ -497,6 +501,331 @@ def test_dispatch_wave1_with_transport_calls_send_per_worker() -> None:
     assert len(results) == 3
     # Worker indices are stamped in slot order.
     assert [r.index for r in results] == [0, 1, 2]
+
+
+@pytest.mark.parametrize("output_name", ["out", "reports with spaces"])
+def test_refactor_find_default_handoff(tmp_path: Path, output_name: str) -> None:
+    """Exercise real dispatch through emission, then check the complete suggestion."""
+    spec = _runnable_spec(tmp_path)
+    output = tmp_path / output_name
+    result = CliRunner().invoke(
+        swarm_group,
+        [
+            "run",
+            "--lens",
+            "refactor-find",
+            "--transport",
+            "stub",
+            "--target",
+            spec["target"]["path"],
+            "--output",
+            str(output),
+        ],
+    )
+    assert result.exit_code == EXIT_OK, result.output
+    contract = yaml.safe_load((output / "return-contract.yaml").read_text())
+    reports = [
+        worker["final_path"]
+        for worker in contract["output_files"]
+        if worker["status"] == "success"
+    ]
+    assert len(reports) == 3
+    assert all(Path(path).is_file() and Path(path).read_text() for path in reports)
+    tokens = shlex.split(contract["recommended_next_command"])
+    assert tokens[:2] == ["/sc:adversarial", "--compare"]
+    assert len(tokens) == 3
+    assert tokens[2].split(",") == reports
+    assert 2 <= len(reports) <= 10
+
+
+@pytest.mark.parametrize(
+    "successful_slots,expected_status",
+    [((), "failed"), ((1,), "failed"), ((0, 2), "partial")],
+)
+def test_refactor_find_partial_handoff(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    successful_slots: tuple[int, ...],
+    expected_status: str,
+) -> None:
+    import superclaude.cli.swarm.dispatch as dispatch_mod
+
+    original_dispatch = dispatch_mod.dispatch_wave1
+
+    def controlled_dispatch(*args: Any, **kwargs: Any) -> list[Any]:
+        workers = original_dispatch(*args, **kwargs)
+        for worker in workers:
+            if worker.index not in successful_slots:
+                worker.status = "timeout"
+        return workers
+
+    monkeypatch.setattr(dispatch_mod, "dispatch_wave1", controlled_dispatch)
+    spec = _runnable_spec(tmp_path)
+    output = Path(spec["output"]["dir"])
+    result = CliRunner().invoke(
+        swarm_group,
+        [
+            "run",
+            "--lens",
+            "refactor-find",
+            "--transport",
+            "stub",
+            "--target",
+            spec["target"]["path"],
+            "--output",
+            str(output),
+        ],
+    )
+    assert result.exit_code == EXIT_OK, result.output
+    contract = yaml.safe_load((output / "return-contract.yaml").read_text())
+    assert contract["status"] == expected_status
+    assert contract["workers_succeeded"] == len(successful_slots)
+    assert contract["workers_failed"] == 3 - len(successful_slots)
+    assert len(contract["output_files"]) == 3
+    reports = [
+        w["final_path"] for w in contract["output_files"] if w["status"] == "success"
+    ]
+    if len(successful_slots) < 2:
+        assert contract["recommended_next_command"] == ""
+    else:
+        assert all(Path(path).is_file() for path in reports)
+        assert shlex.split(contract["recommended_next_command"]) == [
+            "/sc:adversarial",
+            "--compare",
+            ",".join(reports),
+        ]
+
+
+@pytest.mark.parametrize(
+    "worker_count,output_name,expected_count",
+    [(3, "out", 3), (10, "out", 10), (11, "out", 0), (3, "reports,comma", 0)],
+)
+def test_refactor_find_spec_default_inputs(
+    tmp_path: Path,
+    worker_count: int,
+    output_name: str,
+    expected_count: int,
+) -> None:
+    target = _runnable_spec(tmp_path)["target"]["path"]
+    spec = _build_spec_from_lens("refactor-find")
+    spec["target"]["path"] = target
+    spec["workers"]["count"] = worker_count
+    spec["workers"]["models"] = [f"stub-{i}" for i in range(worker_count)]
+    output = tmp_path / output_name
+    result = CliRunner().invoke(
+        swarm_group,
+        [
+            "run",
+            str(_write_spec(tmp_path, spec)),
+            "--transport",
+            "stub",
+            "--output",
+            str(output),
+        ],
+    )
+    assert result.exit_code == EXIT_OK, result.output
+    contract = yaml.safe_load((output / "return-contract.yaml").read_text())
+    assert contract["status"] == "success"
+    assert contract["workers_succeeded"] == worker_count
+    reports = [w["final_path"] for w in contract["output_files"]]
+    assert len(reports) == worker_count
+    assert all(Path(path).is_file() for path in reports)
+    if expected_count:
+        assert shlex.split(contract["recommended_next_command"]) == [
+            "/sc:adversarial",
+            "--compare",
+            ",".join(reports),
+        ]
+        assert (
+            len(shlex.split(contract["recommended_next_command"])[2].split(","))
+            == expected_count
+        )
+    else:
+        assert contract["recommended_next_command"] == ""
+
+
+@pytest.mark.parametrize(
+    "template,substitutions",
+    [
+        (
+            "/sc:adversarial --compare {compare_files}",
+            {"compare_files": "caller one,caller two"},
+        ),
+        ("/sc:adversarial --compare {compare_files}", {"compare_files": ""}),
+        ("caller command {compare_files}", {}),
+        ("", {}),
+    ],
+)
+def test_refactor_find_caller_handoff_overrides(
+    tmp_path: Path,
+    template: str,
+    substitutions: dict[str, str],
+) -> None:
+    target = _runnable_spec(tmp_path)["target"]["path"]
+    spec = _build_spec_from_lens("refactor-find")
+    spec["target"]["path"] = target
+    spec["workers"]["count"] = 1
+    spec["workers"]["models"] = ["stub-0"]
+    spec["recommended_next_command_template"] = template
+    spec["recommended_next_command_substitutions"] = substitutions
+    output = tmp_path / "caller reports,with comma"
+    result = CliRunner().invoke(
+        swarm_group,
+        [
+            "run",
+            str(_write_spec(tmp_path, spec)),
+            "--transport",
+            "stub",
+            "--output",
+            str(output),
+        ],
+    )
+    assert result.exit_code == EXIT_OK, result.output
+    contract = yaml.safe_load((output / "return-contract.yaml").read_text())
+    reports = [
+        w["final_path"] for w in contract["output_files"] if w["status"] == "success"
+    ]
+    assert len(reports) == 1
+    # Caller-owned values are neither quoted, validated nor suppressed by default guards.
+    values = {
+        "compare_files": ",".join(["<existing-review>", *reports]),
+        **substitutions,
+    }
+    assert contract["recommended_next_command"] == template.format_map(values)
+
+
+@pytest.mark.parametrize(
+    "template,substitutions",
+    [
+        ("accepted {compare_files}", {"compare_files": "accepted-a,accepted-b"}),
+        (
+            "/sc:adversarial --compare {compare_files}",
+            {"compare_files": "accepted-a,accepted-b"},
+        ),
+        ("", {}),
+    ],
+)
+def test_refactor_find_uses_accepted_preflight_context(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    template: str,
+    substitutions: dict[str, str],
+) -> None:
+    from dataclasses import replace
+
+    from superclaude.cli.swarm import preflight as preflight_mod
+
+    spec = _build_spec_from_lens("refactor-find")
+    spec["target"]["path"] = _runnable_spec(tmp_path)["target"]["path"]
+    output = tmp_path / "accepted-context"
+    original = preflight_mod.run_preflight
+
+    def accepted_context(*args, **kwargs):
+        result = original(*args, **kwargs)
+        result.manifest = replace(
+            result.manifest,
+            recommended_next_command_template=template,
+            recommended_next_command_substitutions=substitutions,
+        )
+        return result
+
+    monkeypatch.setattr(preflight_mod, "run_preflight", accepted_context)
+    result = CliRunner().invoke(
+        swarm_group,
+        [
+            "run",
+            str(_write_spec(tmp_path, spec)),
+            "--transport",
+            "stub",
+            "--output",
+            str(output),
+        ],
+    )
+    assert result.exit_code == EXIT_OK, result.output
+    contract = yaml.safe_load((output / "return-contract.yaml").read_text())
+    # Reduction must use accepted context, including explicit empty values.
+    assert contract["recommended_next_command"] == template.format_map(substitutions)
+
+
+@pytest.mark.parametrize(
+    "lens_name", ["bare-review", "edge-case-hunt", "reflect-review"]
+)
+def test_sibling_default_handoff_unchanged(tmp_path: Path, lens_name: str) -> None:
+    spec = _runnable_spec(tmp_path)
+    output = Path(spec["output"]["dir"])
+    result = CliRunner().invoke(
+        swarm_group,
+        [
+            "run",
+            "--lens",
+            lens_name,
+            "--transport",
+            "stub",
+            "--target",
+            spec["target"]["path"],
+            "--output",
+            str(output),
+        ],
+    )
+    assert result.exit_code == EXIT_OK, result.output
+    contract = yaml.safe_load((output / "return-contract.yaml").read_text())
+    reports = [
+        w["final_path"] for w in contract["output_files"] if w["status"] == "success"
+    ]
+    assert contract["recommended_next_command"] == LENSES[
+        lens_name
+    ].recommended_next_command_template.format(
+        compare_files=",".join(["<existing-review>", *reports]),
+        suspect_files=",".join(reports),
+    )
+
+
+@pytest.mark.parametrize("problem", ["missing", "unreadable"])
+def test_refactor_find_unusable_report_suppresses_suggestion(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    problem: str,
+) -> None:
+    original_is_file = Path.is_file
+    original_open = Path.open
+
+    def is_file(path: Path) -> bool:
+        if problem == "missing" and path.name.endswith(".final.md"):
+            return False
+        return original_is_file(path)
+
+    def open_report(path: Path, mode: str = "r", *args: Any, **kwargs: Any) -> Any:
+        if problem == "unreadable" and mode == "rb" and path.name.endswith(".final.md"):
+            raise PermissionError("report cannot be read")
+        return original_open(path, mode, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "is_file", is_file)
+    monkeypatch.setattr(Path, "open", open_report)
+    spec = _runnable_spec(tmp_path)
+    output = Path(spec["output"]["dir"])
+    result = CliRunner().invoke(
+        swarm_group,
+        [
+            "run",
+            "--lens",
+            "refactor-find",
+            "--transport",
+            "stub",
+            "--target",
+            spec["target"]["path"],
+            "--output",
+            str(output),
+        ],
+    )
+    assert result.exit_code == EXIT_OK, result.output
+    contract = yaml.safe_load((output / "return-contract.yaml").read_text())
+    assert contract["status"] == "success"
+    assert contract["workers_succeeded"] == 3
+    assert len(contract["output_files"]) == 3
+    assert all(
+        original_is_file(Path(w["final_path"])) for w in contract["output_files"]
+    )
+    assert contract["recommended_next_command"] == ""
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,472 @@
+208409a540b7f16ebb59be68045d29febd7df5b6
+Review one task for spec compliance.
+
+Task brief:  Update the current refactor-find handoff descriptions (MR-B1)
+
+Depends on: Task 3
+
+Update only refactor-find's handoff descriptions in docs/swarm/README.md (lens table), docs/swarm/lens-catalog.md (lens table and refactor-find subsection), docs/swarm/user-guide.md (choosing-a-lens table), docs/swarm/wizard-guide.md, and the matching wizard primitives src/superclaude/skills/sc-swarm-wizard-protocol/refs/cli-contract.md, src/superclaude/skills/sc-swarm-wizard-protocol/refs/interview.md and src/superclaude/commands/swarm-wizard.md (MR-B1). Edit the primitives only under src/superclaude/, then run make sync-dev and make verify-sync, and never stage generated .claude copies (MR-B1). Name /sc:adversarial --compare consistently and explain that the suggestion compares generated findings; it does not automatically change application code. Where the complete invocation is shown, its inputs are the actual successful report filenames delivered by Task 3. Keep the existing placeholder convention for a template clearly labeled as a template, not a nonexistent extra required report. Document the absence of a runnable suggestion when there are too few successful reports, without implying that a successful swarm status alone proves comparison validity.
+
+Do not rewrite docs/swarm/release-notes-v1.md or docs/testing historical validation reports, and do not repair unrelated lens handoffs found during the search.
+Acceptance criteria:
+T4.AC1: A search of current docs/swarm/ and the wizard primitives under src/superclaude/ for the stale refactor-find follow-up (/sc:code-review and --apply) has every hit dispositioned as corrected or as an intentional historical/unrelated mention (MR-B1). No current refactor-find instruction in the files listed above remains stale, and other lens rows remain unchanged. make verify-sync passes.
+T4.AC2: The documented complete command and file requirements agree with the repaired CLI capture in ./artifacts/repaired-cli/return-contract.yaml and the existing src/superclaude/commands/adversarial.md interface. Comparison is suggestion-only and not a promise to apply code refactors.
+T4.AC3: Preserve the documentation search and source-agreement check in ./artifacts/documentation-check.txt. Distinguish intentional historical mentions from current instructions. No new feature, unrelated documentation cleanup or historical evidence rewrite is included.
+Global constraints: 
+- This package is a plan only. Generating it does not authorize implementation. Execute only after the person approves execution. Do not commit, push, open a pull request, post an issue comment or launch paid/model-backed reviews.
+- Limit production edits to src/superclaude/cli/swarm/lenses/refactor_find.py and the fresh-run recommendation-building block of run_cmd in src/superclaude/cli/swarm/commands.py. Use existing test files and update only the matching current documentation and wizard guidance named in Task 4 (MR-B1).
+- The extra existing-review placeholder is not a separate issue to fix everywhere. Adjust refactor-find's bundled handoff only as required by the chosen consumer. Leave every other lens's recommendation, shared reducer, resume behavior, normalization, reviewer output content and success-status policy unchanged.
+- Preserve refactor-find's experimental status, suspect=False, worker defaults, and absence of automatic downstream execution. Preserve explicit caller-provided templates and substitutions; do not replace custom instructions or silently validate/rewrite caller-owned inputs under this change.
+- The replacement compares and combines reports, not application source. Never add a new command solely to preserve the stale recommendation. The supported command is /sc:adversarial --compare with a comma-separated list of 2-10 existing readable files, per src/superclaude/commands/adversarial.md and the active sc-adversarial-protocol skill.
+- No credentials in files or logs; use environment references only. All Python/test operations use UV. Network-free stub reviewer transport is sufficient; never run the downstream adversarial skill or a model-backed swarm to satisfy these tasks.
+- Diagnosis is evidence, not repaired-state acceptance. The previous diagnosis reproduced the stale instruction, but has no fix-applied positive witness. Do not relabel that historical report or clear its blocker by assertion. Task 3 must supply new observed red-to-green regression results and actual repaired CLI output.
+- Keep task-owned evidence under ./artifacts/ using package-relative links. Keep intermediate evidence. Stage .dev/tasks, including this package and its artifacts, as project policy requires; staging is not a commit. Do not stage generated .claude mirrors. Final independent whole-plan review and archiving belong to the executor, not a separate task here.
+
+
+Start sha: 208409a540b7f16ebb59be68045d29febd7df5b6
+Diff against the start snapshot: diff --git a/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/documentation-check.txt b/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/documentation-check.txt
+new file mode 100644
+index 000000000..452012ea4
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/documentation-check.txt
+@@ -0,0 +1,26 @@
++Issue 501 current documentation check
++
++Search and dispositions
++Dedicated Grep pattern: /sc:code-review|/code-review|--apply
++Scope: docs/swarm/, src/superclaude/skills/sc-swarm-wizard-protocol/, src/superclaude/commands/swarm-wizard.md.
++Observed remaining hits:
++- docs/swarm/lens-catalog.md:30: /sc:document --apply belongs to doc-completeness, not refactor-find. Intentional unrelated mention; unchanged under the explicit sibling-lens exclusion.
++- docs/swarm/release-notes-v1.md:34: /sc:code-review is historical release text. Intentionally unchanged under the explicit historical-evidence exclusion.
++- Wizard skill refs and command: zero matches, including the formerly generic related-command lists.
++Corrected refactor-find rows in README, lens catalog, user guide and both wizard mapping tables. Removed the refactor-find-only stale command from the generic command/guide lists and explained the actual comparison handoff.
++No other lens row, historical report, release note or unrelated guide was edited.
++
++Source agreement
++docs/swarm/lens-catalog.md:45-61 documents the template, successful report paths, 2-10 readable-file limit, argument quoting, no extra existing review, invalid-list suppression, preserved caller overrides and suggestion-only behavior.
++Observed actual command: artifacts/repaired-cli/return-contract.yaml:64. It contains only /sc:adversarial --compare and the three actual successful final_path values at lines 27,39,51. Those reports are readable; repaired-cli.txt:5-6 records the command/input check without invoking comparison.
++Supported consumer interface: src/superclaude/commands/adversarial.md:15,39 and installed sc-adversarial-protocol/SKILL.md:60-62. The syntax/count requirements match the repaired suggestion and the revised descriptions.
++README/user-guide link to the detailed lens subsection. Wizard refs, command and guide describe findings comparison, not automatic application-code edits, and warn that a successful swarm status does not prove valid comparison inputs.
++No complete illustrative command with invented report filenames was added; the only full-form table entry is explicitly labelled as a template.
++
++Sync and quality checks
++make sync-dev: exit 0. Generated project .claude copies only; no installed global files changed.
++make verify-sync: exit 0; verify-sync.txt:201 reports All components in sync, line 204 records exit 0.
++git diff --check: exit 0. Documentation delta touches exactly the seven Task 4 named files.
++Primitive path search in edited wizard surfaces found only cli-contract.md:4, an inherited provenance statement identifying this checkout's CLI source, not an instruction to Read/verify an installed dependency. No new src/superclaude runtime lookup was added.
++No generated .claude path is staged. Typecheck skipped: no mypy/pyright/tsc executable was available, and package.json has no typecheck script. No tool was installed.
++Full behavioral tests from Task 3 remain the actual repaired-state evidence; this documentation task does not claim a fresh runtime implementation.
+diff --git a/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/verify-sync.txt b/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/verify-sync.txt
+new file mode 100644
+index 000000000..7e993d542
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/verify-sync.txt
+@@ -0,0 +1,204 @@
++🔍 Verifying src/superclaude/ ↔ .claude/ sync...
++
++=== Skills ===
++  ✅ ccsession-tag
++  ✅ confidence-check
++  ✅ sc-adversarial-protocol
++  ✅ sc-auggie-review-protocol
++  ✅ sc-bare-review
++  ✅ sc-brainstorm-protocol
++  ✅ sc-cleanup-audit-protocol
++  ✅ sc-cli-eval-protocol
++  ✅ sc-closeout-protocol
++  ✅ sc-crash-recovery
++  ✅ sc-graph-protocol
++  ✅ sc-impact-protocol
++  ✅ sc-implement-protocol
++  ✅ sc-init-lite-protocol
++  ✅ sc-issue-protocol
++  ✅ sc-pm-protocol
++  ✅ sc-post-release-protocol
++  ✅ sc-pr-submit-protocol
++  ✅ sc-recommend
++  ✅ sc-reflect-protocol
++  ✅ sc-release-split-protocol
++  ✅ sc-swarm-wizard-protocol
++  ✅ sc-sweep-protocol
++  ✅ sc-task-protocol
++  ✅ sc-troubleshoot-protocol
++  ✅ sc-validate-tests-protocol
++  ✅ sc-workflow-protocol
++
++=== Agents ===
++  ✅ audit-analyzer.md
++  ✅ audit-comparator.md
++  ✅ audit-consolidator.md
++  ✅ audit-scanner.md
++  ✅ audit-validator.md
++  ✅ auggie-reviewer.md
++  ✅ backend-architect.md
++  ✅ business-panel-experts.md
++  ✅ confidence-calibrator.md
++  ✅ debate-orchestrator.md
++  ✅ deep-research-agent.md
++  ✅ deep-research.md
++  ✅ devops-architect.md
++  ✅ eval-docs-loader.md
++  ✅ eval-run-reporter.md
++  ✅ eval-suite-author.md
++  ✅ evidence-validator.md
++  ✅ frontend-architect.md
++  ✅ implement-retry-adviser.md
++  ✅ issue-worker-t1.md
++  ✅ issue-worker-t2.md
++  ✅ issue-worker-t3.md
++  ✅ learning-guide.md
++  ✅ merge-executor.md
++  ✅ performance-engineer.md
++  ✅ pm-agent.md
++  ✅ python-expert.md
++  ✅ quality-engineer.md
++  ✅ refactoring-expert.md
++  ✅ reflect-reviewer.md
++  ✅ repo-index.md
++  ✅ requirements-analyst.md
++  ✅ reuse-auditor.md
++  ✅ rf-analyst.md
++  ✅ rf-assembler.md
++  ✅ rf-qa-qualitative.md
++  ✅ rf-qa.md
++  ✅ rf-task-builder.md
++  ✅ rf-task-executor.md
++  ✅ rf-task-researcher.md
++  ✅ rf-team-lead.md
++  ✅ root-cause-analyst.md
++  ✅ security-engineer.md
++  ✅ self-review.md
++  ✅ socratic-mentor.md
++  ✅ system-architect.md
++  ✅ technical-writer.md
++  ✅ troubleshoot-analyst.md
++  ✅ workflow-reviser.md
++
++=== Commands ===
++  ✅ adversarial.md
++  ✅ agent.md
++  ✅ analyze.md
++  ✅ auggie-review.md
++  ✅ brainstorm.md
++  ✅ business-panel.md
++  ✅ cleanup-audit.md
++  ✅ cleanup.md
++  ✅ cli-eval.md
++  ✅ closeout.md
++  ✅ design.md
++  ✅ document.md
++  ✅ explain.md
++  ✅ git.md
++  ✅ graph.md
++  ✅ help.md
++  ✅ impact.md
++  ✅ implement.md
++  ✅ init-lite.md
++  ✅ issue.md
++  ✅ pm.md
++  ✅ post-release.md
++  ✅ pr-submit.md
++  ✅ recommend.md
++  ✅ reflect.md
++  ✅ release-split.md
++  ✅ research.md
++  ✅ spec-panel.md
++  ✅ swarm-wizard.md
++  ✅ sweep.md
++  ✅ task.md
++  ✅ test.md
++  ✅ troubleshoot.md
++  ✅ validate-tests.md
++  ✅ workflow.md
++  ✅ worktrees.md
++
++=== Hooks ===
++  ✅ auggie-flag-clear.sh
++  ✅ block-bare-python.sh
++  ✅ codegraph-session-start.sh
++  ✅ freshness-file-changed.sh
++  ✅ freshness-post-read.sh
++  ✅ freshness-pre-edit.sh
++  ✅ freshness-session-start.sh
++  ✅ freshness-subagent-start.sh
++  ✅ freshness-subagent-stop.sh
++  ✅ freshness-user-prompt.sh
++  ✅ launch-job-identity.sh
++  ✅ launch-level-guard.sh
++  ✅ launch-level-pre-push.sh
++  ✅ reject-workspace-writes.sh
++  ✅ require-orca-worktree-agent.sh
++  ✅ sc-recommend-phase0.sh
++  ✅ pragmatic-subagent.js
++
++=== Templates ===
++  ✅ workflow/05_prd_template.md
++  ✅ workflow/03_project_plan_template.md
++  ✅ workflow/03_component_authoring_template.md
++  ✅ workflow/00_mdtm_template_simple_task.md
++  ✅ workflow/01_mdtm_template_generic_task__gfdoc.md
++  ✅ workflow/06_architecture_proposal_template.md
++  ✅ workflow/02_mdtm_template_complex_task.md
++  ✅ workflow/04_feature_brief_template.md
++  ✅ workflow/changelog_template.md
++  ✅ workflow/01_mdtm_template_generic_task.md
++  ✅ workflow/99_mdtm_template_generic_task_old.md
++  ✅ documents/prd_template.md
++  ✅ documents/operational_guide_template.md
++  ✅ documents/GFxAI_Master_Documentation_Template.md
++  ✅ documents/tdd_template.md
++  ✅ documents/agent_template_analysis.md
++  ✅ documents/supplemental-doc-creation-checklist.md
++  ✅ documents/agent_template_qa.md
++  ✅ documents/skill_template.md
++  ✅ documents/roadmap_template.md
++  ✅ documents/agent_template_worker.md
++  ✅ documents/release-spec-template.md
++  ✅ documents/supplemental_doc_template.md
++  ✅ documents/technical_reference_template.md
++  ✅ documents/readme_template.md
++  ✅ modularization-template-review/qa-fix-summary_template.md
++  ✅ modularization-template-review/qa-task-research-alignment_report_template.md
++  ✅ modularization-template-review/analyst-synthesis-review_report_template.md
++  ✅ modularization-template-review/research-notes_template.md
++  ✅ modularization-template-review/synthetic-dnsp-finding.contract
++  ✅ modularization-template-review/INDEX.md
++  ✅ modularization-template-review/qa-task-validation-structure_report_template.md
++  ✅ modularization-template-review/qa-cross-source-contradictions_template.md
++  ✅ modularization-template-review/track-scope-map_template.md
++  ✅ modularization-template-review/claim-evidence-matrix_template.md
++  ✅ modularization-template-review/qa-inventory_report_template.md
++  ✅ modularization-template-review/analyst-coverage-matrix_template.md
++  ✅ modularization-template-review/codebase-research_template.md
++  ✅ modularization-template-review/analyst-completeness_report_template.md
++  ✅ modularization-template-review/analyst-gap-analysis_template.md
++  ✅ modularization-template-review/qa-lens_report_template.md
++  ✅ modularization-template-review/qa-consolidated-findings_template.md
++  ✅ modularization-template-review/qa-task-validation-b2_report_template.md
++  ✅ modularization-template-review/qa-research-gap_report_template.md
++  ✅ modularization-template-review/qa-research-evidence_report_template.md
++  ✅ modularization-template-review/qa-qualitative-operational_report_template.md
++  ✅ modularization-template-review/qa-qualitative-sufficiency_report_template.md
++  ✅ modularization-template-review/analyst-cross-validation_report_template.md
++  ✅ modularization-template-review/qa-acceptance-methodology-audit_template.md
++  ✅ modularization-template-review/pipeline-complete_report_template.md
++  ✅ modularization-template-review/qa-source-fidelity_template.md
++  ✅ modularization-template-review/qa-research-depth_report_template.md
++  ✅ modularization-template-review/web-research_template.md
++
++=== Installer Registration ===
++  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
++
++=== Hooks Cross-Consistency ===
++  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
++
++✅ All components in sync.
++
++Command: make sync-dev && make verify-sync
++Exit status: 0
+diff --git a/docs/swarm/README.md b/docs/swarm/README.md
+index 0f091c271..a98a59d31 100644
+--- a/docs/swarm/README.md
++++ b/docs/swarm/README.md
+@@ -64,7 +64,7 @@ hand-off). A **recipe** normalizes each worker's raw output into a canonical sha
+ | Lens | Workers | Recipe | Stability | Suspect | Hands off to |
+ |---|---|---|---|---|---|
+ | `bare-review` | 3 | `bare-review-v1` | stable | yes | `/sc:adversarial` |
+-| `refactor-find` | 3 | `findings_table_v1` | experimental | no | `/sc:code-review` |
++| `refactor-find` | 3 | `findings_table_v1` | experimental | no | `/sc:adversarial --compare` |
+ | `edge-case-hunt` | 4 | `findings_table_v1` | experimental | no | `/sc:adversarial` |
+ | `spec-completeness` | 3 | `verdict_only_v1` | experimental | no | `/sc:reflect` |
+ | `feasibility-probe` | 3 | `verdict_only_v1` | experimental | no | `/sc:research` |
+@@ -73,6 +73,10 @@ hand-off). A **recipe** normalizes each worker's raw output into a canonical sha
+ | `reflect-review` | 3 | `passthrough` | stable | yes | `/sc:adversarial` |
+ | `custom` | — | (escape hatch) | — | — | prompts from the JobSpec `custom_prompt_dir` field |
+ 
++For `refactor-find`, the suggestion compares generated findings, not application-code
++edits. It requires 2-10 usable reports and is empty when the inputs are invalid;
++see the [refactor-find handoff details](lens-catalog.md#refactor-find).
++
+ > The registry has **9 entries** (8 bundled lenses plus `custom`); `validate-lenses`
+ > validates **8** (the `custom` escape hatch is intentionally skipped — its prompt body
+ > flows in at preflight from the directory named by the JobSpec field
+diff --git a/docs/swarm/lens-catalog.md b/docs/swarm/lens-catalog.md
+index 498cbc5cc..787181c61 100644
+--- a/docs/swarm/lens-catalog.md
++++ b/docs/swarm/lens-catalog.md
+@@ -22,7 +22,7 @@ All default to a 4000-line target cap. Worker counts and recipes differ by inten
+ | Lens | Workers | Recipe | Stability | Tier | Suspect | Hands off to |
+ |---|---:|---|---|---|:---:|---|
+ | [`bare-review`](#bare-review) | 3 | `bare-review-v1` | **stable** | T2 | ✅ | `/sc:adversarial --compare {compare_files} --suspect-source {suspect_files}` |
+-| [`refactor-find`](#refactor-find) | 3 | `findings_table_v1` | experimental | T2-code | — | `/sc:code-review --apply {compare_files}` |
++| [`refactor-find`](#refactor-find) | 3 | `findings_table_v1` | experimental | T2-code | — | `/sc:adversarial --compare {compare_files}` (template) |
+ | [`edge-case-hunt`](#edge-case-hunt) | 4 | `findings_table_v1` | experimental | T2-edge | — | `/sc:adversarial --compare {compare_files}` |
+ | [`spec-completeness`](#spec-completeness) | 3 | `verdict_only_v1` | experimental | T2-spec | — | `/sc:reflect --merge {compare_files}` |
+ | [`feasibility-probe`](#feasibility-probe) | 3 | `verdict_only_v1` | experimental | T2-feas | — | `/sc:research --extend {compare_files}` |
+@@ -45,8 +45,20 @@ with both `{compare_files}` and `{suspect_files}`.
+ ### refactor-find
+ 
+ The smallest cleanups that improve correctness, readability, or efficiency. Recipe
+-`findings_table_v1` → `| ID | Locator | Finding | Detail | Action |`. Hands off to
+-`/sc:code-review`.
++`findings_table_v1` → `| ID | Locator | Finding | Detail | Action |`. Suggests
++`/sc:adversarial --compare` to compare and combine the generated findings, not to
++apply changes to application code. The comparison is never run automatically.
++
++In the table's template, `{compare_files}` is replaced with one comma-separated
++argument containing the actual successful workers' report filenames, in order.
++No extra existing review is required. Copy the complete `recommended_next_command`
++from `return-contract.yaml`; paths containing spaces are quoted as one argument.
++The bundled default requires 2-10 successful, readable report files. If there are
++fewer than two, more than ten, an unreadable report, or a comma in a path, the
++suggestion is empty; swarm status and all artifacts are retained. A successful
++swarm status alone does not establish that the comparison inputs are valid.
++Explicit caller templates and substitutions are preserved, not rewritten by these
++default-only checks.
+ 
+ ### edge-case-hunt
+ 
+diff --git a/docs/swarm/user-guide.md b/docs/swarm/user-guide.md
+index 600b503c9..5e2d25153 100644
+--- a/docs/swarm/user-guide.md
++++ b/docs/swarm/user-guide.md
+@@ -197,7 +197,7 @@ downstream hand-off command. Pick by what you're reviewing:
+ | You're reviewing… | Use lens | Output shape | Hands off to |
+ |---|---|---|---|
+ | Code, for any bug (broad, unscaffolded) | `bare-review` | findings table + verdict | `/sc:adversarial` |
+-| Code, for the smallest worthwhile cleanups | `refactor-find` | findings table | `/sc:code-review` |
++| Code, for the smallest worthwhile cleanups | `refactor-find` | findings table | `/sc:adversarial --compare` |
+ | Code, for inputs/states that break it | `edge-case-hunt` (4 workers) | findings table | `/sc:adversarial` |
+ | A spec, for gaps / under-specification | `spec-completeness` | verdict + rationale | `/sc:reflect` |
+ | An approach, for whether it'll work | `feasibility-probe` | verdict + rationale | `/sc:research` |
+@@ -205,6 +205,11 @@ downstream hand-off command. Pick by what you're reviewing:
+ | Docs, for missing / stale content | `doc-completeness` | findings table | `/sc:document` |
+ | Completed work, as one reviewer in a reflection ensemble | `reflect-review` | free-form body (`passthrough`) | `/sc:adversarial` |
+ 
++For `refactor-find`, copy the emitted comparison suggestion to compare generated
++findings, not apply code changes. It uses 2-10 successful, readable reports; the
++suggestion is empty when there are too few usable reports or other invalid inputs.
++See the [refactor-find handoff requirements](lens-catalog.md#refactor-find).
++
+ `reflect-review` is the stable lens that `superclaude reflect` Tier 2 fans out
+ headlessly; you rarely run it by hand. Full per-lens detail (prompts, recipes, templates): [Lens Catalog](lens-catalog.md).
+ 
+diff --git a/docs/swarm/wizard-guide.md b/docs/swarm/wizard-guide.md
+index 97b02c715..59e6618d4 100644
+--- a/docs/swarm/wizard-guide.md
++++ b/docs/swarm/wizard-guide.md
+@@ -213,8 +213,14 @@ Most people never need this; the built-in lenses cover the common cases.
+ 
+ ### Related commands
+ 
+-The follow-up each lens hands off to: `/sc:adversarial`, `/code-review`, `/sc:reflect`,
+-`/sc:research`, `/sc:troubleshoot`, `/sc:document`. For the raw CLI surface the wizard sits on top of, see
++The follow-up each lens hands off to: `/sc:adversarial`, `/sc:reflect`,
++`/sc:research`, `/sc:troubleshoot`, `/sc:document`. For `refactor-find`, the suggestion is
++`/sc:adversarial --compare` with the actual successful report filenames from the run.
++It compares findings; it does not automatically change application code. The bundled default
++suggestion is empty when fewer than two usable reports exist or the file list cannot
++meet the 2-10 readable-file requirement (including paths containing commas).
++A successful swarm status alone does not prove the comparison inputs are usable.
++For the raw CLI surface the wizard sits on top of, see
+ [`command-reference.md`](command-reference.md), [`user-guide.md`](user-guide.md), and
+ [`lens-catalog.md`](lens-catalog.md).
+ 
+diff --git a/src/superclaude/commands/swarm-wizard.md b/src/superclaude/commands/swarm-wizard.md
+index 895c02233..93310c3ec 100644
+--- a/src/superclaude/commands/swarm-wizard.md
++++ b/src/superclaude/commands/swarm-wizard.md
+@@ -91,6 +91,10 @@ artifacts; expose raw rule codes / tracebacks to the user without a plain-langua
+ 
+ ## Related Commands
+ 
+-- `/sc:adversarial`, `/sc:troubleshoot`, `/sc:code-review`, `/sc:document`, `/sc:reflect`, `/sc:research`
++- `/sc:adversarial`, `/sc:troubleshoot`, `/sc:document`, `/sc:reflect`, `/sc:research`
+   — the downstream skills a finished swarm run hands off to (the wizard surfaces the right one per lens).
++  For `refactor-find`, suggest `/sc:adversarial --compare` with the actual successful report
++  filenames from the emitted command. This compares findings; it does not automatically edit
++  application code. The bundled suggestion is empty with fewer than two usable reports or
++  another invalid 2-10-file input list; never infer validity from swarm success alone.
+ - `/sc:pr-submit`, `/sc:auggie-review` — sibling review workflows for the PR path.
+diff --git a/src/superclaude/skills/sc-swarm-wizard-protocol/refs/cli-contract.md b/src/superclaude/skills/sc-swarm-wizard-protocol/refs/cli-contract.md
+index 7d871e89d..2fa2c64f4 100644
+--- a/src/superclaude/skills/sc-swarm-wizard-protocol/refs/cli-contract.md
++++ b/src/superclaude/skills/sc-swarm-wizard-protocol/refs/cli-contract.md
+@@ -41,7 +41,7 @@ no-op; schema-only) · `validate-lenses [--warning-mode]` · `status --output DI
+ | Lens ID | "Pick me when the user wants…" | Workers | Recipe | Hands off to |
+ |---|---|---|---|---|
+ | `bare-review` | "review my code for bugs / correctness" (**only stable lens**; flags suspect files) | 3 | `bare-review-v1` | `/sc:adversarial` |
+-| `refactor-find` | "find small safe cleanups to apply" | 3 | `findings_table_v1` | `/sc:code-review --apply` |
++| `refactor-find` | "find small safe cleanups to apply" | 3 | `findings_table_v1` | `/sc:adversarial --compare` |
+ | `edge-case-hunt` | "what inputs/states break my code?" | 4 | `findings_table_v1` | `/sc:adversarial` |
+ | `spec-completeness` | "is my spec complete / what's missing?" | 3 | `verdict_only_v1` | `/sc:reflect` |
+ | `feasibility-probe` | "will this approach actually work?" | 3 | `verdict_only_v1` | `/sc:research` |
+@@ -103,6 +103,12 @@ written on a fresh inline run** — only on detached/resume completion + `swarm
+ - `return-contract.yaml` headline fields: `status` ∈ `success|partial|failed` (IMM-5: M==N→success;
+   2≤M<N→partial; M<2→failed); `workers_requested|succeeded|failed`; `output_files[]` (per worker:
+   `final_path`, `status`, `model_label`, `bytes`, `elapsed_ms`); `merged_path`; `recommended_next_command`.
++- For `refactor-find`'s bundled default, surface the emitted `/sc:adversarial --compare`
++  suggestion with its actual successful report filenames. It compares findings, not
++  application-code edits, and is never run automatically. Inputs must be 2-10 readable
++  reports with no comma in a path; paths with spaces are quoted as one argument. With
++  fewer than two usable reports or another invalid list, the suggestion is empty even
++  when swarm status is successful. Caller templates/substitutions remain unchanged.
+ - Per-worker status ∈ `success|timeout|parse_error|proxy_error`. Detached/kill `done.json.terminal_status`
+   ∈ `success|partial|failed|killed` (4 values).
+ - Log event types: `worker_start|worker_progress|worker_done|wave_transition|terminal` (use `worker_done`,
+diff --git a/src/superclaude/skills/sc-swarm-wizard-protocol/refs/interview.md b/src/superclaude/skills/sc-swarm-wizard-protocol/refs/interview.md
+index 3b26bbd97..a510bd302 100644
+--- a/src/superclaude/skills/sc-swarm-wizard-protocol/refs/interview.md
++++ b/src/superclaude/skills/sc-swarm-wizard-protocol/refs/interview.md
+@@ -62,12 +62,17 @@ recipe, that runs arbitrary code on their machine — only use prompts they trus
+ | User picked | lens | transport (default) | reviewers | watch default | hands off to |
+ |---|---|---|---|---|---|
+ | bugs/correctness | `bare-review` | stub→openai_compat | 3 | tui (if TTY) | `/sc:adversarial` |
+-| cleanups | `refactor-find` | stub→openai_compat | 3 | tui | `/sc:code-review --apply` |
++| cleanups | `refactor-find` | stub→openai_compat | 3 | tui | `/sc:adversarial --compare` |
+ | edge cases | `edge-case-hunt` | stub→openai_compat | 4 | tui | `/sc:adversarial` |
+ | spec complete? | `spec-completeness` | stub→openai_compat | 3 | tui | `/sc:reflect` |
+ | approach work? | `feasibility-probe` | stub→openai_compat | 3 | tui | `/sc:research` |
+ | why failing? | `troubleshoot-hypothesis` | stub→openai_compat | 4 | tui | `/sc:troubleshoot` |
+ | docs audit | `doc-completeness` | stub→openai_compat | 3 | tui | `/sc:document` |
+ 
++For cleanups (`refactor-find`), explain that the follow-up compares generated findings,
++not automatic code edits. Use the emitted suggestion's actual successful report filenames.
++It is empty with fewer than two usable reports or another invalid 2-10-readable-file list;
++do not fabricate a comparison or infer validity from swarm success alone.
++
+ After mapping, restate the plan in one plain sentence and confirm before building:
+ "I'll run a 3-reviewer bug review on `src/auth.py`, starting with a free practice run. Sound right?"
+
+Codegraph context
+index_state: fresh
+checked_at: 2026-11-23T20:00:21Z
+worktree_root: /home/coder/workspaces/worktrees/IronClaude/issue-501-refactor-handoff
+projectPath: /home/coder/workspaces/worktrees/IronClaude/issue-501-refactor-handoff
+call codegraph only when index_state: fresh, never to widen scope
+Rows about files changed in this run are leads only; confirm using direct reads. Q2b ran on the Grep/Read floor. The unchanged reducer and resume consumer remain outside the edit scope.
+
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

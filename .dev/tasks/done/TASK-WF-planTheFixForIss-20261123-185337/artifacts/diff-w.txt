@@ -1,0 +1,24 @@
+6c6
+< slug: TASK-WF-planTheFixForIss-20261123-180531
+---
+> slug: TASK-WF-planTheFixForIss-20261123-185337
+20c20
+< - Limit production edits to src/superclaude/cli/swarm/lenses/refactor_find.py and the fresh-run recommendation-building block of run_cmd in src/superclaude/cli/swarm/commands.py. Use existing test files and update only the matching current documentation named below.
+---
+> - Limit production edits to src/superclaude/cli/swarm/lenses/refactor_find.py and the fresh-run recommendation-building block of run_cmd in src/superclaude/cli/swarm/commands.py. Use existing test files and update only the matching current documentation and wizard guidance named in Task 4 (MR-B1).
+75c75
+< ## Task 4: Update the three current user-facing handoff descriptions
+---
+> ## Task 4: Update the current refactor-find handoff descriptions (MR-B1)
+79,81c79
+< Update only refactor-find's handoff descriptions in docs/swarm/README.md (lens table), docs/swarm/lens-catalog.md (lens table and refactor-find subsection), and docs/swarm/user-guide.md (choosing-a-lens table). Name /sc:adversarial --compare consistently and explain that the suggestion compares generated findings; it does not automatically change application code. Where the complete invocation is shown, its inputs are the actual successful report filenames delivered by Task 3. Keep the existing placeholder convention for a template clearly labeled as a template, not a nonexistent extra required report. Document the absence of a runnable suggestion when there are too few successful reports, without implying that a successful swarm status alone proves comparison validity.
+<
+< Do not rewrite docs/swarm/release-notes-v1.md or docs/testing historical validation reports, and do not repair unrelated lens handoffs found during the search. No changes to installed skill or command definitions are required.
+---
+> Update only refactor-find's handoff descriptions in docs/swarm/README.md (lens table), docs/swarm/lens-catalog.md (lens table and refactor-find subsection), docs/swarm/user-guide.md (choosing-a-lens table), docs/swarm/wizard-guide.md, and the matching wizard primitives src/superclaude/skills/sc-swarm-wizard-protocol/refs/cli-contract.md, src/superclaude/skills/sc-swarm-wizard-protocol/refs/interview.md and src/superclaude/commands/swarm-wizard.md (MR-B1). Edit the primitives only under src/superclaude/, then run make sync-dev and make verify-sync, and never stage generated .claude copies (MR-B1). Name /sc:adversarial --compare consistently and explain that the suggestion compares generated findings; it does not automatically change application code. Where the complete invocation is shown, its inputs are the actual successful report filenames delivered by Task 3. Keep the existing placeholder convention for a template clearly labeled as a template, not a nonexistent extra required report. Document the absence of a runnable suggestion when there are too few successful reports, without implying that a successful swarm status alone proves comparison validity.
+82a81
+> Do not rewrite docs/swarm/release-notes-v1.md or docs/testing historical validation reports, and do not repair unrelated lens handoffs found during the search.
+84c83
+< - The three active files no longer tell a refactor-find user to run /sc:code-review or --apply; all four known stale occurrences in their current table/subsection text are corrected, and other lens rows remain unchanged.
+---
+> - A search of current docs/swarm/ and the wizard primitives under src/superclaude/ for the stale refactor-find follow-up (/sc:code-review and --apply) has every hit dispositioned as corrected or as an intentional historical/unrelated mention (MR-B1). No current refactor-find instruction in the files listed above remains stale, and other lens rows remain unchanged. make verify-sync passes.

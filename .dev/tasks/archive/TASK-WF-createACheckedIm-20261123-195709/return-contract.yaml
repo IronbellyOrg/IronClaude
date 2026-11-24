@@ -1,0 +1,28 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-createACheckedIm-20261123-195709
+plan_path: ./TASK-WF-createACheckedIm-20261123-195709.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: ./artifacts/reflect-pre-20261123200829/REPORT.md
+review_history:
+  - status: failed
+    reason: "First delegated review could not write its report because the subagent boundary refused Write. No review verdict/counts were invented. That attempt also reported unintended UV environment bootstrap/local-package installation during metadata hashing; no cleanup was attempted."
+  - status: success
+    reason: "Retry kept persistence in main context and completed three calibrated reviews, adversarial merge and independent citation validation (21 verified, zero dropped). Review completion is not plan approval."
+unresolved:
+  - "Plan review FAIL: Task 4 does not name the public commands and baseline/red comparison inputs required by its isolated reviewer. One blocker, five nonblocking Medium warnings and three Notes are recorded in the reflect report."
+  - "Review-only authority forced the routing helper to none; no plan correction, replacement package, fix cycle or implementation was performed. The plan remains unchanged and blocked."
+  - "Historical diagnosis remains blocked/partial. Failing-then-passing tests, repaired public outputs, diagnostic-row disposition and independent applied-fix review remain future implementation requirements."
+  - "Model/calibrator separation is degraded; requested slots do not establish measured runtime independence."
+  - "Implementation, model jobs, commits, pushes, GitHub actions and new worktrees remain unauthorized."
+  - "SUPERSEDED by TASK-WF-createACheckedIm-20261123-212501: do not run /sc:implement on this package."
+review_verdict: FAIL
+open_blockers: ["F1"]
+fix_cycles: 0
+superseded_by: TASK-WF-createACheckedIm-20261123-212501

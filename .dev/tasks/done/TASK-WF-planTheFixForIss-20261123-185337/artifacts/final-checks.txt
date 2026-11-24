@@ -1,0 +1,20 @@
+PASS: approved plan and source hashes unchanged throughout execution.
+PASS: all 87 transferred originals preserved; 86 byte-identical, only the already-authorized contract review-path replacement differs.
+PASS: exactly 11 planned production/test/documentation files changed; no unrelated source delta.
+docs/swarm/README.md
+docs/swarm/lens-catalog.md
+docs/swarm/user-guide.md
+docs/swarm/wizard-guide.md
+src/superclaude/cli/swarm/commands.py
+src/superclaude/cli/swarm/lenses/refactor_find.py
+src/superclaude/commands/swarm-wizard.md
+src/superclaude/skills/sc-swarm-wizard-protocol/refs/cli-contract.md
+src/superclaude/skills/sc-swarm-wizard-protocol/refs/interview.md
+tests/swarm/test_bundled_lenses.py
+tests/swarm/test_commands_run.py
+PASS: staging contains task artifacts only; no generated .claude copy or product file staged.
+PASS: HEAD unchanged; no commit made.
+Typecheck skipped: no mypy, pyright or tsc executable found on PATH or in .venv/bin; no package.json typecheck script. No tools installed.
+Archive reference check: dedicated Grep for this package id found no src/ or docs/ references. .dev matches are inside this package plus the old archived package's return-contract.yaml and archive-undo.txt, which refer to the replacement by stable slug, not a to-do path. Those links survive the managed move.
+Package-relative plan/source/artifact links move together. Historical absolute paths in copied reports, saved review inputs and the production-entrypoint capture are immutable provenance, not new runtime lookups; preserve them per worktree-handoff.md. The captured report paths were independently checked while the reports existed there, before the managed archive. After archiving, inspect the same relative report suffix under done/ rather than executing this historical captured suggestion.
+The installed archive helper is the sole mover; its managed location resolver supports the original to-do invocation by stable slug after the move. No original shared checkout or staging was accessed.

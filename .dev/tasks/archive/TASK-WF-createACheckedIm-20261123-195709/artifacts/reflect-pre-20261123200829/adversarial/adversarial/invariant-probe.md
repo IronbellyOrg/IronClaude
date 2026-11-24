@@ -1,0 +1,21 @@
+# Invariant Probe Results
+
+## Round 2.5: Fault-Finder Analysis
+
+| ID | Category | Assumption | Status | Severity | Evidence |
+|---|---|---|---|---|---|
+| INV-001 | state_variables | Task 4 reviewer sees the whole-plan diff | UNADDRESSED | MEDIUM | Executor SKILL.md:123-124 / qa.md:9 define task-start snapshot diff, while candidate Task 4 AC1 describes final whole-plan two-block diff. Constraints assign final whole-plan review to executor, but AC1 remains worded per-task. Drops if cumulative diff is supplied. |
+| INV-002 | guard_conditions | Naming baseline files alone makes them admissible to review | UNADDRESSED | MEDIUM | qa.md:31 excludes outside-touched-set citations unless AC requires reading them. An explicit compare/read requirement is stronger than a body-only filename list. |
+| INV-003 | count_divergence | Three commands plus four paths exhaust Task 4 retention inputs | UNADDRESSED | MEDIUM | Candidate line 83 also retains green/disposition records, including validate-help-green.txt, validate-lenses-tests.txt and diagnostic-disposition.md; run invocation needs existing temporary directory argument. |
+| INV-004 | collection_boundaries | Wrapped-token risk affects only regression tests, not raw public capture review | UNADDRESSED | LOW | Captured validate-lenses-help.txt:12-13 and 16-17 split other hyphenated tokens; raw option absence can also be obscured. Same family as existing wrapped-token follow-up, not a new target failure. |
+| INV-005 | interaction_effects | Task 3 intermediate test states need an unnamed baseline | ADDRESSED | LOW | Constraints line 20 names sole test file; Task 3 names validate-help-red.txt and behavior cases. It checks pass/fail states, unlike Task 4's invocation identity comparison. |
+
+| INV-006 | sufficiency_challenge | Task 4-only correction is sufficient once three commands and four baseline paths are listed | UNADDRESSED | MEDIUM | Template:15; qa.md:9/31/128/356; candidate:76-84. Enumerated downstream gates: command identity needs existing temp-dir argument; line 83 retention includes validate-help-green.txt, validate-lenses-tests.txt and diagnostic-disposition.md; baseline citations require an AC read/compare instruction under qa.md:31; line 79 whole-plan diff is not the task-start diff. Full-plan/cumulative reviewer input would falsify the isolation premise but is not the contracted input. This is remedy-completeness warning, not a second blocker. |
+
+The fault-finder independently Read candidate lines 17-27, 47, 62-66, 76-84, workflow template:15, executor qa.md:9/31/128/356 and executor SKILL.md:121-139. It confirms the existing Task 4 blocker but says the proposed literal three-command/four-path remedy is not a proven exhaustive repair. Its initial headline said two Medium gaps although three Medium rows were returned; explicit count clarification was requested rather than silently adopting the headline.
+
+Sufficiency enumeration (not product-fix proof): the governing sources are the workflow stand-alone template, executor input/diff/citation contracts and Task 4 AC1/AC4/AC5. A full-plan/cumulative-diff reviewer input would falsify the isolation premise, but the actual contract says otherwise. Reconstructed after commands cannot prove before/after identity. Listing paths without requiring comparison, omitting retention dependencies or leaving whole-plan/per-task diff wording unqualified can leave related review gaps. No claim that merely fixing plan text repairs the product or greens tests is made.
+
+## Summary
+
+Clarification received from the independent fault-finder: the original five rows contain THREE Medium unaddressed items, one Low unaddressed and one Low addressed; the initial two-Medium headline was wrong. The explicit sixth row adds a fourth Medium unaddressed warning, overlapping remedy completeness rather than a new defect. Final six-row counts: ADDRESSED 1, UNADDRESSED 5 (HIGH 0, MEDIUM 4, LOW 1). No HIGH invariant is unaddressed. The consensus already carries its one Blocking (Missing) finding; do not confuse that accepted finding with a new unaddressed invariant. Convergence gate passes with warnings. Preserve INV-001/002/003/006 as remedy limitations, never new blockers or independent Medium-only fix passes. No plan correction or product test has occurred.

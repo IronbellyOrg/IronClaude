@@ -1,0 +1,4 @@
+Usage: superclaude swarm run [OPTIONS] [SPEC_PATH]
+Try 'superclaude swarm run --help' for help.
+
+Error: No such option '--custom-prompt-dir'.

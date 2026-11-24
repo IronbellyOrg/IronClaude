@@ -1,0 +1,54 @@
+{
+  "kind": "historical-review-source-revision-map",
+  "recorded_on": "2026-11-24",
+  "historical_revision": "f8ba6a491a63717f4ac66bff8d1f6d3c3f9d64ad",
+  "historical_revision_role": "Local pre-rebase commit containing the exact final source and test bytes reviewed by applied-fix-review.md and final-review.md. It was not pushed; its object is not required for the published reconstruction below.",
+  "rebased_pr_revision": "1b16d73832dfdb228ee7f6e4075ea4b14ee46235",
+  "reconstruction": {
+    "base_revision": "720cbaf96653c1c983497ba480f76ca6e60e5369",
+    "patch": "./applied-product.diff",
+    "published_patch_revision": "1b16d73832dfdb228ee7f6e4075ea4b14ee46235",
+    "published_patch_path": ".dev/tasks/done/TASK-WF-createACheckedIm-20261123-212501/artifacts/applied-product.diff",
+    "method": "Run the commands together as one parenthesized Bash block. Load base_revision into a temporary Git index, apply the published patch with git apply --cached, and read the resulting index blobs. The subshell scopes GIT_INDEX_FILE and its exit trap removes only the temporary index; the working tree and normal index are unchanged. Both product changes are in this patch; historical preflight.py and schema.py are unchanged from the base.",
+    "commands": [
+      "(",
+      "set -euo pipefail",
+      "index=$(mktemp) || exit 1",
+      "export GIT_INDEX_FILE=\"$index\"",
+      "trap 'rm -f \"$index\"' EXIT",
+      "git read-tree 720cbaf96653c1c983497ba480f76ca6e60e5369",
+      "git show 1b16d73832dfdb228ee7f6e4075ea4b14ee46235:.dev/tasks/done/TASK-WF-createACheckedIm-20261123-212501/artifacts/applied-product.diff | git apply --cached -",
+      "git rev-parse :src/superclaude/cli/swarm/commands.py",
+      "git show :src/superclaude/cli/swarm/commands.py",
+      ")"
+    ],
+    "observed_result": "Reconstructed bytes for all four files below equal the local pre-rebase revision exactly. The commands.py reconstructed blob is 5510b96b304e59b399bb93a11a081a2fc0b3136a, which supplies the historical line numbering in both reports."
+  },
+  "files": [
+    {"path": "src/superclaude/cli/swarm/commands.py", "historical_blob": "5510b96b304e59b399bb93a11a081a2fc0b3136a", "historical_sha256": "3992a8bcd53ecbc3345db57ea6d1d7e19da3f45eccca5f40e1940dd984933383"},
+    {"path": "tests/swarm/test_cli_registration.py", "historical_blob": "7b9a13e3040fb95c29039490b2a24fb98da44797", "historical_sha256": "f3b92c4bde05fcd80025b23dc6ac74d0f894cd468fb08e7d074879083a65fc16"},
+    {"path": "src/superclaude/cli/swarm/preflight.py", "historical_blob": "6c64557c09cbef7e8c3245b9108d4acc75536252", "historical_sha256": "8effbcf3cea497dd5fce4a16cfae7fa2294ceab60c3785320b284515a48b09a2"},
+    {"path": "src/superclaude/cli/swarm/schema.py", "historical_blob": "0bd66220088496e025d048481fd2edadb95b880c", "historical_sha256": "b23d40483be3a000e8bfa87d3b82e859346946712656f0a2749fd77e6240e2e9"}
+  ],
+  "commands_line_mapping": [
+    {"historical_lines": [435, 440], "rebased_pr_lines": [435, 440]},
+    {"historical_lines": [436, 440], "rebased_pr_lines": [436, 440]},
+    {"historical_lines": [3780, 3790], "rebased_pr_lines": [4133, 4143]},
+    {"historical_lines": [3784, 3789], "rebased_pr_lines": [4137, 4142]},
+    {"historical_lines": [3826, 3844], "rebased_pr_lines": [4179, 4197]},
+    {"historical_lines": [3830, 3844], "rebased_pr_lines": [4183, 4197]}
+  ],
+  "mapping_validation": "Each historical commands.py line-range block occurs exactly once, byte-for-byte, at its mapped range in rebased_pr_revision. In particular, the scaffold-help citation 3784-3789 maps to 4137-4142.",
+  "independent_verification": {
+    "verdict": "PASS",
+    "reviewer": "pr763-citation-map-review",
+    "checks": "Independently reconstructed the specified base plus published patch in a temporary Git index. All four files matched the pre-rebase revision, Git blob IDs and SHA-256 values. All six mapped ranges matched uniquely byte-for-byte. Both report prefixes matched HEAD exactly, with only appended source-revision notes. The ordinary index and watched files were unchanged by verification.",
+    "findings": [],
+    "limitations": "Verification used the published commit objects available locally; it did not separately query GitHub, rerun tests, or re-review product behavior."
+  },
+  "limits": [
+    "Historical source references describe the pre-rebase review state, not floating line numbers on the latest branch head. The rebased ranges are pinned to rebased_pr_revision, not a promise about future commits.",
+    "The original review bodies, raw command captures, plan/source pins and execution ledger are preserved. Linked report annotations explain this map; they do not retroactively claim a new independent review or rerun.",
+    "This reconstruction restores the cited source and test files, not the entire old checkout or its dependency environment. It does not rerun the captured tests or establish model-backed custom-job behavior."
+  ]
+}

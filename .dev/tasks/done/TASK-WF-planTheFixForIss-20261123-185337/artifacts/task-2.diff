@@ -1,0 +1,59 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/lens-template.txt b/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/lens-template.txt
+new file mode 100644
+index 000000000..eb0395b28
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/lens-template.txt
+@@ -0,0 +1,40 @@
++========================================== test session starts ===========================================
++platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0
++SuperClaude: 6.1.0
++rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-501-refactor-handoff
++configfile: pyproject.toml
++plugins: anyio-4.16.0, superclaude-6.1.0
++collected 73 items
++
++tests/swarm/test_bundled_lenses.py .......................................................         [ 75%]
++tests/swarm/test_lens_defaults.py ..................                                               [100%]
++
++=========================================== 73 passed in 0.41s ===========================================
++
++Command: uv run --offline pytest tests/swarm/test_bundled_lenses.py tests/swarm/test_lens_defaults.py -q
++Exit status: 0
++========================================== test session starts ===========================================
++platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0
++SuperClaude: 6.1.0
++rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-501-refactor-handoff
++configfile: pyproject.toml
++plugins: anyio-4.16.0, superclaude-6.1.0
++collected 1 item
++
++tests/swarm/test_commands_run.py F                                                                 [100%]
++
++================================================ FAILURES ================================================
++___________________________________ test_refactor_find_default_handoff ___________________________________
++tests/swarm/test_commands_run.py:534: in test_refactor_find_default_handoff
++    assert tokens[2].split(",") == reports
++E   AssertionError: assert ['<existing-r...l-0.final.md'] == ['/tmp/pytest...l-0.final.md']
++E     
++E     At index 0 diff: '<existing-review>' != '/tmp/pytest-of-coder/pytest-5/test_refactor_find_default_han0/out/refactor-find-00-lens-default-model-0.final.md'
++E     Left contains one more item: '/tmp/pytest-of-coder/pytest-5/test_refactor_find_default_han0/out/refactor-find-02-lens-default-model-0.final.md'
++E     Use -v to get more diff
++======================================== short test summary info =========================================
++FAILED tests/swarm/test_commands_run.py::test_refactor_find_default_handoff - AssertionError: assert ['...
++=========================================== 1 failed in 0.40s ============================================
++
++Command: uv run --offline pytest tests/swarm/test_commands_run.py::test_refactor_find_default_handoff -q
++Exit status: 1 (expected failure until Task 3)
+diff --git a/src/superclaude/cli/swarm/lenses/refactor_find.py b/src/superclaude/cli/swarm/lenses/refactor_find.py
+index 560f0daab..47a772160 100644
+--- a/src/superclaude/cli/swarm/lenses/refactor_find.py
++++ b/src/superclaude/cli/swarm/lenses/refactor_find.py
+@@ -50,7 +50,7 @@ LENS: LensEntry = LensEntry(
+     default_target_line_cap=4000,
+     suspect=False,
+     tier="T2-code",
+-    recommended_next_command_template=("/sc:code-review --apply {compare_files}"),
++    recommended_next_command_template=("/sc:adversarial --compare {compare_files}"),
+     acceptance_notes=(
+         "Experimental lens; graduates to stable after a real caller "
+         "wires it in production (spec §3.3)."

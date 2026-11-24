@@ -213,8 +213,14 @@ Most people never need this; the built-in lenses cover the common cases.
 
 ### Related commands
 
-The follow-up each lens hands off to: `/sc:adversarial`, `/code-review`, `/sc:reflect`,
-`/sc:research`, `/sc:troubleshoot`, `/sc:document`. For the raw CLI surface the wizard sits on top of, see
+The follow-up each lens hands off to: `/sc:adversarial`, `/sc:reflect`,
+`/sc:research`, `/sc:troubleshoot`, `/sc:document`. For `refactor-find`, the suggestion is
+`/sc:adversarial --compare` with the actual successful report filenames from the run.
+It compares findings; it does not automatically change application code. The bundled default
+suggestion is empty when fewer than two usable reports exist or the file list cannot
+meet the 2-10 readable-file requirement (including paths containing commas).
+A successful swarm status alone does not prove the comparison inputs are usable.
+For the raw CLI surface the wizard sits on top of, see
 [`command-reference.md`](command-reference.md), [`user-guide.md`](user-guide.md), and
 [`lens-catalog.md`](lens-catalog.md).
 

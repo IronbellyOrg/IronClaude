@@ -1,0 +1,14 @@
+[
+ {"id":"INF-001","quote":"Create a checked implementation plan only for issue 568, swarm help advertises unsupported --custom-prompt-dir.","citation":"../../source.md:1","semantic":"Plan title, goal and Constraints"},
+ {"id":"INF-002","quote":"Preserve blocked/partial historical diagnosis and all pending verification requirements.","citation":"../../source.md:1","semantic":"Constraints; Tasks 2 and 4"},
+ {"id":"INF-003","quote":"Plan the supported two-help-description correction in src/superclaude/cli/swarm/commands.py using JobSpec custom_prompt_dir with lens custom","citation":"../../source.md:1","semantic":"Tasks 3 and 4"},
+ {"id":"INF-004","quote":"reproducing regression tests failing before the edit and passing afterward","citation":"../../source.md:1","semantic":"Tasks 1-4 red then green checkpoints"},
+ {"id":"INF-005","quote":"corrected public help captures","citation":"../../source.md:1","semantic":"Task 4 repaired public outputs"},
+ {"id":"INF-006","quote":"rejection of unsupported run option","citation":"../../source.md:1","semantic":"Task 2 parser guard; Task 4 repaired parser output"},
+ {"id":"INF-007","quote":"independent review","citation":"../../source.md:1","semantic":"Constraints and Task 4 independent applied-fix review"},
+ {"id":"INF-008","quote":"No new CLI flag, prompt-loading changes, inline-custom-spec changes, injection-guard or metadata changes.","citation":"../../source.md:1","semantic":"Constraints; Tasks 3 and 4 unchanged behavior"},
+ {"id":"INF-009","quote":"Work only in this isolated checkout.","citation":"../../source.md:1","semantic":"Constraints isolate work"},
+ {"id":"INF-010","quote":"Do not replay counter-update.py or change diagnostic counters","citation":"../../source.md:1","semantic":"Constraints preserve counter snapshot and forbid replay"},
+ {"id":"INF-011","quote":"implement product code/tests, run models, commit, push, interact with GitHub or create worktrees","citation":"../../source.md:1","semantic":"Prohibition inherited from preceding Do not; Constraints and Task 4"},
+ {"id":"INF-012","quote":"User explicitly requests plan only, no implementation.","citation":"../../source.md:1","semantic":"Constraints plan-only authorization"}
+]

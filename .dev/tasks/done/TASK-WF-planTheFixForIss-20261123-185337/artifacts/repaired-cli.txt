@@ -1,0 +1,6 @@
+swarm run: dispatched job (mode=lens, workers=3, results=3)
+
+Command: uv run --offline superclaude swarm run --lens refactor-find --target src/superclaude/cli/swarm/lenses/refactor_find.py --output .dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/repaired-cli --transport stub
+Exit status: 0
+Observed suggested-command check: PASS; exactly three successful readable reports, one comma-separated argument, shipped /sc:adversarial --compare interface.
+Consumer checked against src/superclaude/commands/adversarial.md:15,39 and the installed skill:60-62; comparison NOT executed.

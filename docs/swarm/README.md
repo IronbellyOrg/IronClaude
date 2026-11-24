@@ -66,7 +66,7 @@ hand-off). A **recipe** normalizes each worker's raw output into a canonical sha
 | Lens | Workers | Recipe | Stability | Suspect | Hands off to |
 |---|---|---|---|---|---|
 | `bare-review` | 3 | `bare-review-v1` | stable | yes | `/sc:adversarial` |
-| `refactor-find` | 3 | `findings_table_v1` | experimental | no | `/sc:code-review` |
+| `refactor-find` | 3 | `findings_table_v1` | experimental | no | `/sc:adversarial --compare` |
 | `edge-case-hunt` | 4 | `findings_table_v1` | experimental | no | `/sc:adversarial` |
 | `spec-completeness` | 3 | `verdict_only_v1` | experimental | no | `/sc:reflect` |
 | `feasibility-probe` | 3 | `verdict_only_v1` | experimental | no | `/sc:research` |
@@ -74,6 +74,10 @@ hand-off). A **recipe** normalizes each worker's raw output into a canonical sha
 | `doc-completeness` | 3 | `findings_table_v1` | experimental | no | `/sc:document` |
 | `reflect-review` | 3 | `passthrough` | stable | yes | `/sc:adversarial` |
 | `custom` | — | (escape hatch) | — | — | prompts from the JobSpec `custom_prompt_dir` field |
+
+For `refactor-find`, the suggestion compares generated findings, not application-code
+edits. It requires 2-10 usable reports and is empty when the inputs are invalid;
+see the [refactor-find handoff details](lens-catalog.md#refactor-find).
 
 > The registry has **9 entries** (8 bundled lenses plus `custom`); `validate-lenses`
 > validates **8** (the `custom` escape hatch is intentionally skipped — its prompt body

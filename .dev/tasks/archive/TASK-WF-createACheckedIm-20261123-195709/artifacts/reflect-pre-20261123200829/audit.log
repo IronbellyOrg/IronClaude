@@ -1,0 +1,56 @@
+{"wave":0,"step":"0.1","timestamp":"2026-11-23T20:08:29Z","outcome":"ok","evidence_ref":"../../source.md"}
+{"wave":0,"step":"0.2","timestamp":"2026-11-23T20:08:29Z","outcome":"ok","evidence_ref":"../../TASK-WF-createACheckedIm-20261123-195709.md"}
+{"wave":0,"step":"0.3","timestamp":"2026-11-23T20:08:29Z","outcome":"ok","evidence_ref":"/home/coder/.claude/skills/sc-adversarial-protocol/SKILL.md"}
+{"wave":0,"step":"0.4","timestamp":"2026-11-23T20:08:34Z","outcome":"ok","evidence_ref":"./artifacts/input-snapshot.yaml"}
+{"wave":0,"step":"0.5","timestamp":"2026-11-23T20:08:34Z","outcome":"warn","evidence_ref":null}
+{"wave":0,"step":"0.6","timestamp":"2026-11-23T20:08:34Z","outcome":"warn","evidence_ref":null}
+{"wave":0,"step":"0.7","timestamp":"2026-11-23T20:08:34Z","outcome":"skip","evidence_ref":null}
+{"wave":0,"step":"0.8","timestamp":"2026-11-23T20:08:34Z","outcome":"ok","evidence_ref":"./audit.log"}
+{"wave":0,"step":"0.9","timestamp":"2026-11-23T20:08:34Z","outcome":"skip","evidence_ref":null}
+{"wave":0,"step":"codegraph","timestamp":"2026-11-23T20:08:34Z","outcome":"ok","evidence_ref":"./artifacts/input-snapshot.yaml"}
+{"wave":1,"step":"1A.2","timestamp":"2026-11-23T20:13:22Z","outcome":"ok","evidence_ref":"./t1-card.md"}
+{"wave":1,"step":"1A.2a","timestamp":"2026-11-23T20:13:22Z","outcome":"skip","evidence_ref":null}
+{"wave":1,"step":"1A.3","timestamp":"2026-11-23T20:13:22Z","outcome":"ok","evidence_ref":"./t1-card.md"}
+{"wave":1,"step":"1A.3b","timestamp":"2026-11-23T20:13:22Z","outcome":"skip","evidence_ref":null}
+{"wave":1,"step":"1A.4","timestamp":"2026-11-23T20:13:22Z","outcome":"ok","evidence_ref":"./t1-card.md"}
+{"wave":1,"step":"1A.4a","timestamp":"2026-11-23T20:13:22Z","outcome":"skip","evidence_ref":null}
+{"wave":1,"step":"1A.5","timestamp":"2026-11-23T20:13:22Z","outcome":"skip","evidence_ref":null}
+{"wave":1,"step":"1A.5.5","timestamp":"2026-11-23T20:13:22Z","outcome":"skip","evidence_ref":null}
+{"wave":1,"step":"1A.5.6","timestamp":"2026-11-23T20:13:22Z","outcome":"skip","evidence_ref":null}
+{"wave":1,"step":"1B.0","timestamp":"2026-11-23T20:20:17Z","outcome":"warn","evidence_ref":"./coverage-matrix.md"}
+{"wave":1,"step":"1B.1","timestamp":"2026-11-23T20:20:17Z","outcome":"ok","evidence_ref":"./coverage-matrix.md"}
+{"wave":1,"step":"1B.2b","timestamp":"2026-11-23T20:20:17Z","outcome":"warn","evidence_ref":"./artifacts/tier_decision.yaml"}
+{"wave":1,"step":"1C","timestamp":"2026-11-23T20:20:17Z","outcome":"ok","evidence_ref":"./t1-card.md"}
+{"wave":1,"step":"1D","timestamp":"2026-11-23T20:20:17Z","outcome":"ok","evidence_ref":"./t1-calibration.md"}
+{"wave":2,"step":"routing","timestamp":"2026-11-23T20:20:17Z","outcome":"ok","evidence_ref":"./artifacts/tier_decision.yaml"}
+{"wave":3,"step":"3A","timestamp":"2026-11-23T20:20:17Z","outcome":"warn","evidence_ref":"./artifacts/tier_decision.yaml"}
+{"wave":3,"step":"3B.0","timestamp":"2026-11-23T20:20:17Z","outcome":"ok","evidence_ref":"./reviewer-briefs/"}
+{"wave":3,"step":"dispatch","timestamp":"2026-11-23T20:20:17Z","outcome":"ok","evidence_ref":"./reviewer-cards/"}
+{"wave":3,"step":"3B","timestamp":"2026-11-23T20:28:10Z","outcome":"ok","evidence_ref":"./reviewer-cards/"}
+{"wave":3,"step":"3C","timestamp":"2026-11-23T20:28:10Z","outcome":"warn","evidence_ref":"./reviewer-calibrations/"}
+{"wave":3,"step":"3D","timestamp":"2026-11-23T20:28:10Z","outcome":"ok","evidence_ref":"./reviewer-cards/"}
+{"wave":4,"step":"prerequisites","timestamp":"2026-11-23T20:28:10Z","outcome":"ok","evidence_ref":"./adversarial/adversarial/"}
+{"wave":4,"step":"diff-analysis","timestamp":"2026-11-23T20:40:23Z","outcome":"ok","evidence_ref":"./adversarial/adversarial/diff-analysis.md"}
+{"wave":4,"step":"round-1","timestamp":"2026-11-23T20:40:23Z","outcome":"ok","evidence_ref":"./adversarial/adversarial/debate-transcript.md"}
+{"wave":4,"step":"round-2","timestamp":"2026-11-23T20:40:23Z","outcome":"ok","evidence_ref":"./adversarial/adversarial/debate-transcript.md"}
+{"wave":4,"step":"invariant-probe-clarification","timestamp":"2026-11-23T20:40:23Z","outcome":"warn","evidence_ref":"./adversarial/adversarial/invariant-probe.md"}
+{"wave":4,"step":"neutral-scoring-received","timestamp":"2026-11-23T20:48:27Z","outcome":"ok","evidence_ref":"./adversarial/adversarial/base-selection.md"}
+{"wave":4,"step":"card-read-path-corrected","timestamp":"2026-11-23T20:50:54Z","outcome":"warn","evidence_ref":"./reviewer-cards/reviewer-1.md","detail":"First resumed Read omitted reflect artifact prefix and returned file-missing; correct current card then Read. No finding uses missing path."}
+{"wave":5,"step":"input-drift-check","timestamp":"2026-11-23T20:50:54Z","outcome":"ok","evidence_ref":"./artifacts/input-snapshot.yaml","detail":"19-file hash matches; early integrity check while Wave4 gating finishes."}
+{"wave":4,"step":"merge-plan-draft","timestamp":"2026-11-23T20:51:48Z","outcome":"ok","evidence_ref":"./adversarial/adversarial/refactor-plan.md"}
+{"wave":4,"step":"invariant-clarification-received","timestamp":"2026-11-23T20:56:33Z","outcome":"ok","evidence_ref":"./adversarial/adversarial/invariant-probe.md","detail":"Delayed message drain recovered original and resend receipts; six categories complete, zero HIGH unaddressed, four Medium warnings."}
+{"wave":4,"step":"merge-plan-independent-review","timestamp":"2026-11-23T20:56:33Z","outcome":"ok","evidence_ref":"./adversarial/adversarial/refactor-plan.md","detail":"Requirements analyst PASS with notes; filename concern retained, U-004 source qualified, counts clarified. Candidate plan unchanged."}
+{"wave":4,"step":"merge-dispatch","timestamp":"2026-11-23T20:56:33Z","outcome":"ok","evidence_ref":"./adversarial/adversarial/refactor-plan.md"}
+{"wave":5,"step":"pre-synthesis-input-recheck","timestamp":"2026-11-23T20:56:33Z","outcome":"ok","evidence_ref":"./artifacts/input-snapshot.yaml","input_tree_sha256":"f36b4d29219521ffde06b090de4759a8fb2d13f53a845a61b00ed8b25cfef05b"}
+{"wave":4,"step":"merge-execution","timestamp":"2026-11-23T20:58:12Z","outcome":"ok","evidence_ref":"./adversarial/adversarial/merge-log.md","detail":"Dedicated merge-executor returned eight applied changes, 1 blocker/5 Medium/3 Notes after dedup; main persisted sectionwise."}
+{"wave":4,"step":"EV-1-disk-gate","timestamp":"2026-11-23T21:01:59Z","outcome":"ok","evidence_ref":"./adversarial/merged-verdict.yaml","detail":"Actual disk check found adversarial method, merged output and three calibrated exact-copy cards."}
+{"wave":5,"step":"synthesis","timestamp":"2026-11-23T21:01:59Z","outcome":"ok","evidence_ref":"./REPORT.md","detail":"Only upstream findings rendered. Relative capture citation prefix corrected before validator dispatch."}
+{"wave":5,"step":"evidence-validator-dispatch","timestamp":"2026-11-23T21:01:59Z","outcome":"ok","evidence_ref":"./evidence-validation.md","detail":"Independent citation-only validator, full reread, commands not re-executed; final metadata awaits actual result."}
+{"wave":5,"step":"memory-aggregate-scope","timestamp":"2026-11-23T21:01:59Z","outcome":"skip","evidence_ref":"./metrics.json","detail":"Global memory/docs and shared runs.jsonl writes outside planning package not authorized; per-run metrics retained."}
+{"wave":5,"step":"evidence-validator-complete","timestamp":"2026-11-23T21:06:10Z","outcome":"ok","evidence_ref":"./evidence-validation.md","zero-drop-flag":true,"citations_total":21,"citations_revalidated":21,"citations_dropped":0,"detail":"Truncated tail recovered by bounded resend, no new review. All twelve quotes survive; no union coverage recompute needed."}
+{"wave":5,"step":"final-input-recheck","timestamp":"2026-11-23T21:04:32Z","outcome":"ok","evidence_ref":"./artifacts/input-snapshot.yaml","detail":"19-file hash unchanged; no product/docs/test diff."}
+{"wave":5,"step":"workflow-route-mark","timestamp":"2026-11-23T21:06:10Z","outcome":"ok","evidence_ref":"../../return-contract.yaml","detail":"Helper route forced none for review-only authority; helper mark writes review_verdict FAIL/open F1/fix_cycles 0. No replacement or correction."}
+{"wave":5,"step":"freshness-recovery","timestamp":"2026-11-23T21:06:10Z","outcome":"warn","evidence_ref":"./return-contract.yaml","detail":"Hook refused Edit until Read; Read then same Edit succeeded. No alternate write bypass."}
+{"wave":5,"step":"report-contract-metrics","timestamp":"2026-11-23T21:06:10Z","outcome":"ok","evidence_ref":"./REPORT.md","detail":"Review process complete; binary plan verdict FAIL. Calibrator value from original V3 only. Unmeasured token/wave timing values null."}
+{"wave":6,"step":"remediation","timestamp":"2026-11-23T21:06:10Z","outcome":"skip","evidence_ref":null,"detail":"No --remediate or product implementation authorization; no Medium-only edits; follow-up list retained, no GitHub action."}
+{"wave":7,"step":"promotion","timestamp":"2026-11-23T21:06:10Z","outcome":"skip","evidence_ref":null,"detail":"UC-1 pre-execution review, promotion inapplicable."}

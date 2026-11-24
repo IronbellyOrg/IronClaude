@@ -372,13 +372,46 @@ print one warning line on standard error. How long sessions an agent saved are
 kept is ccsession's own pruning (`ccsession --prune`), not this setting.
 
 `superclaude install` also installs the default Claude Code plugins listed in
-its settings defaults (including `playwright`, `frontend-design` and `ponytail`)
-with `claude plugin install <plugin> --scope user`, skipping any you disabled in
+its settings defaults (including `frontend-design` and `ponytail`) with
+`claude plugin install <plugin> --scope user`, skipping any that are off in
 `enabledPlugins`. This step downloads over the network within a shared 30-second
 budget (with the Orca skills step); a plugin that fails or runs out of time is
 reported by name, and the step never makes `superclaude install` fail. Rerun
 `superclaude install` to retry. When the Orca CLI is installed, the same step
 asks it to install its own skills (`computer-use`, `orca-cli`, `orchestration`).
+
+**Playwright (off by default).** The `playwright@claude-plugins-official`
+plugin is off by default, because its browser server takes about 120 MB in
+every session. The defaults set it to `false`, and on a machine where earlier
+defaults had turned it on, `superclaude install` turns it off once and records
+that in `~/.claude/.superclaude-playwright-off`. If you turn it on again
+afterwards, it stays on. To turn it on for one project, run this from that
+project's folder, then start a new session there:
+
+```bash
+claude plugin install playwright@claude-plugins-official --scope local
+```
+
+`--scope local` writes `"playwright@claude-plugins-official": true` to the
+project's `.claude/settings.local.json`, which applies only to you and only in
+that project, and wins over the `false` in your user settings. Keep that file
+out of version control. The command downloads the plugin when it is missing and
+works when the plugin is already downloaded. `--scope project` would instead
+write the committed `.claude/settings.json` and turn the plugin on for everyone
+who clones the repository, and a project-scope plugin's server also waits for
+each person's trust and server approval, so use it only when the whole team
+wants the plugin. To turn it off again for that project, run
+`claude plugin uninstall playwright@claude-plugins-official --scope local`.
+
+On Linux without Google Chrome (`/opt/google/chrome/chrome`), the plugin's
+server cannot start a browser. So `superclaude install` sets
+`PLAYWRIGHT_MCP_BROWSER=chromium` and `PLAYWRIGHT_MCP_EXECUTABLE_PATH` (the
+newest complete Chromium in Playwright's browser folder) under `env` in
+`~/.claude/settings.json`, even while the plugin is off, so turning it on works
+at once. When no Chromium is installed it first runs
+`npx -y playwright install chromium --no-shell` within the same 30-second
+budget. A browser you set yourself in settings `env` is kept. macOS and other
+systems are left alone.
 
 **Ponytail.** `ponytail@ironclaude` is Ponytail v5.3.3 from
 `DietrichGebert/ponytail`, pinned to commit

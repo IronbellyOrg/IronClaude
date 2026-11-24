@@ -1,0 +1,111 @@
+contract_version: "1.9.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/audit.log
+confidence_calibrated: 0.87
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.5
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-003, INF-005, INF-007, INF-008]
+best_practice_grade: 4
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 1, regression: 0}
+deviation_register_path: null
+grounding_gaps_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+input_sha256:
+  tasklist: e28f37ef48b0a92cb51e95f18be84a912272dfe272132eb87523f422bea15cb2
+  spec: 304b97938d193fef45b2b3765ca54e15b69a1fa6f9e167cd44dfd4964dfa8a05
+input_tree_sha256: f34684df25d02eb1a179ee47a42e12169c5cf4aeaa4de4c94383b775dd0a5321
+input_tree_file_count: 16
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 29
+citations_revalidated: 29
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+- /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-1-card.md
+- /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-2-card.md
+- /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+finding_counts: {blocking: 1, label_high: 1, medium: 4, note: 3}
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+promotion_cross_fs: false
+promotion_pending: false
+telemetry:
+  review_verdict: FAIL
+  open_blocking_ids: [MR-B1]
+  legacy_low_nonblocking: 3
+  initial_confidence: 0.70
+  base_card_confidence: 0.87
+  reviewer_confidences: [0.73, 0.73, 0.87]
+  reviewer_models: [sonnet, haiku, opus]
+  reviewer_personas: [analyzer, qa, refactorer]
+  identity_source: requested-pinned
+  actual_model_identity: unverified
+  executor_class_source: unknown
+  executor_class_resolved: false
+  judge_identity: unknown
+  judge_class_collision: unknown
+  adversarial_status: partial
+  adversarial_fallback_mode: true
+  partial_reason: "Round2 replacement advocates and unverified model identities; not citation failure or missing repaired proof."
+  zero_drop_flag: true
+  memory_hits: 0
+  memory_misses: 2
+  memory_retention_actions: 0
+  memory_persisted: false
+  memory_note: "Run-local receipts only; no recurring project pattern established and review writes confined to pinned output."
+  verification_note: pre-mode, not applicable
+  best_practice_grade_basis: "4 of5 planning checks: real files, staged red/green, caller/sibling preservation, repaired-output requirement; matching-doc scope incomplete."

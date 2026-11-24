@@ -1,0 +1,60 @@
+mode: pre
+depth: standard
+tier: auto
+output_root: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244
+codegraph: {index_state: fresh, checked_at: '2026-11-23T18:12:44Z', access: mcp, worktree_root: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s, projectPath: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s}
+rows:
+- {wave: 0, step: '0.1', timestamp: '2026-11-23T18:12:44Z', outcome: ok, evidence_ref: source.md}
+- {wave: 0, step: '0.2', timestamp: '2026-11-23T18:12:44Z', outcome: ok, evidence_ref: artifacts/input-snapshot.yaml}
+- {wave: 0, step: '0.3', timestamp: '2026-11-23T18:12:44Z', outcome: ok, evidence_ref: /home/coder/.claude/skills/sc-adversarial-protocol/SKILL.md}
+- {wave: 0, step: '0.4', timestamp: '2026-11-23T18:12:44Z', outcome: ok, evidence_ref: artifacts/input-snapshot.yaml}
+- {wave: 0, step: '0.5', timestamp: '2026-11-23T18:12:44Z', outcome: ok, evidence_ref: null}
+- {wave: 0, step: '0.5b', timestamp: '2026-11-23T18:12:44Z', outcome: warn, evidence_ref: null}
+- {wave: 0, step: '0.6', timestamp: '2026-11-23T18:12:44Z', outcome: warn, evidence_ref: null}
+- {wave: 0, step: '0.7', timestamp: '2026-11-23T18:12:44Z', outcome: skip, evidence_ref: null}
+- {wave: 0, step: '0.8', timestamp: '2026-11-23T18:12:44Z', outcome: ok, evidence_ref: audit.log}
+- {wave: 0, step: '0.9', timestamp: '2026-11-23T18:12:44Z', outcome: skip, evidence_ref: null}
+- {wave: 1, step: '1A.2-4', timestamp: '2026-11-23T18:16:05Z', outcome: ok, evidence_ref: grounding.md}
+- {wave: 1, step: '1A.3b', timestamp: '2026-11-23T18:16:05Z', outcome: skip, evidence_ref: grounding.md}
+- {wave: 1, step: '1A.5-5.6', timestamp: '2026-11-23T18:16:05Z', outcome: skip, evidence_ref: grounding.md}
+- {wave: 1, step: '1B.0', timestamp: '2026-11-23T18:16:05Z', outcome: ok, evidence_ref: coverage-analysis.md}
+- {wave: 1, step: '1B.1', timestamp: '2026-11-23T18:16:05Z', outcome: ok, evidence_ref: coverage-matrix.json}
+- {wave: 1, step: '1B.2b', timestamp: '2026-11-23T18:16:05Z', outcome: warn, evidence_ref: coverage-matrix.json}
+- {wave: 1, step: '1C', timestamp: '2026-11-23T18:16:05Z', outcome: ok, evidence_ref: t1-card.md}
+- {wave: 1, step: '1D', timestamp: '2026-11-23T18:18:44Z', outcome: ok, evidence_ref: t1-calibration.md}
+- {wave: 2, step: 'routing', timestamp: '2026-11-23T18:18:44Z', outcome: warn, evidence_ref: artifacts/tier_decision.yaml}
+- {wave: 3, step: '3A', timestamp: '2026-11-23T18:21:08Z', outcome: warn, evidence_ref: artifacts/tier_decision.yaml}
+- {wave: 3, step: '3B.0', timestamp: '2026-11-23T18:21:08Z', outcome: ok, evidence_ref: reviewer-briefs/}
+- {wave: 3, step: '3B', timestamp: '2026-11-23T18:21:08Z', outcome: ok, evidence_ref: reviewer-briefs/}
+- {wave: 3, step: '3C', timestamp: '2026-11-23T18:24:17Z', outcome: warn, evidence_ref: reviewer-cards/}
+- {wave: 3, step: '3D', timestamp: '2026-11-23T18:24:17Z', outcome: ok, evidence_ref: candidate-verdicts.md}
+- {wave: 4, step: 'invoke', timestamp: '2026-11-23T18:24:17Z', outcome: ok, evidence_ref: adversarial/}
+- {wave: 4, step: 'EV-1', timestamp: '2026-11-23T18:49:25Z', outcome: ok, evidence_ref: adversarial/merged-verdict.yaml}
+- {wave: 5, step: '5.0', timestamp: '2026-11-23T18:49:25Z', outcome: ok, evidence_ref: adversarial/return-contract.yaml}
+- {wave: 5, step: '5.x-input-drift', timestamp: '2026-11-23T18:49:25Z', outcome: ok, evidence_ref: artifacts/input-snapshot.yaml}
+- {wave: 5, step: 'synthesis', timestamp: '2026-11-23T18:49:25Z', outcome: warn, evidence_ref: REPORT.md}
+- {wave: 5, step: 'evidence-validator', timestamp: '2026-11-23T18:51:52Z', outcome: ok, evidence_ref: evidence-validation.md}
+- {wave: 5, step: 'contract', timestamp: '2026-11-23T18:53:13Z', outcome: warn, evidence_ref: return-contract.yaml}
+- {wave: 6, step: 'remediation', timestamp: '2026-11-23T18:53:13Z', outcome: skip, evidence_ref: null}
+- {wave: 7, step: 'promotion', timestamp: '2026-11-23T18:53:13Z', outcome: skip, evidence_ref: null}
+notes:
+- Independent citation validator PASS29/29/0, all8INF retained, no union recompute; zero-drop-flag=true. Does not override actual partial comparison or FAIL plan content. Complete tail persisted before consumption. Final report metadata review1of3 added for subsequent bounded re-review, not a source claim change.
+- Workflow4R route script returned surgical for B1/H1/M4. Reserved185337, prepared private copy; reviser isolation SHA checks matched before/after; full gate PASS4phases4tasks18existingfiles. Only blocker corrected; minor findings preserved. Exact measured byte delta714added182deleted supersedes agent estimates. Reflection itself ran no Tier3 remediation or promotion; workflow owns its separate revision route.
+- Audit Edit freshness hook rejected stale Read; recovered with fresh Read and same surgical Edit, no bypass.
+- EV1_DISK_GATE=PASS from actual YAML plus three card/calibration files. Merge_method=adversarial, base variant3, convergence1.0=31/31, actual child status partial, fallback_mode true (fresh Round2 replacements). No F2/F3 single-reviewer fallback. Raw merge retained, minority blocker upheld, reviewer1 incorrect resume consequence dropped upstream.
+- Input16-file hash recomputed unchanged f34684df25d02eb1a179ee47a42e12169c5cf4aeaa4de4c94383b775dd0a5321. Output pinned/excluded, plan/source unchanged.
+- Raw comparison no-sync-dev advice conflicts with project CLAUDE.md; synthesis preserves mandatory source-of-truth sync workflow. No product primitive edited. Coverage stays machine0.5.
+- confidence-check lightweight form: current Reads verify plan revision target, existing remediate script and wizard evidence; no unsupported100% implementation confidence or execution authority claimed.
+- All three independent calibrations received/persisted/Read before weights attached and comparison invocation:0.73,0.73,0.87. All requested classes occupied so opus fallback calibrator diversity degraded; no disjoint claim. Reviewer1 resume consequence is contradicted by source and preserved as disputed in receipt, not final report fact. Reviewer3 timestamp unverified not used.
+- Actual Skill ModeA invocation compares three calibrated cards at standard depth, focus correctness/coverage/deviation-classification. Dedicated debate-orchestrator owns comparison artifacts only; may not change plan/product/REPORT. Reflect's disk merge gate pending, not passed by invocation alone.
+- Adversarial --help no-op Skill probe loaded successfully. No comparison mode/files supplied to probe, no comparison begun and no nonexistent contract claimed. Actual compare invocation waits for calibrated reviewer cards.
+- Actual t1 calibration mean0.70 preserved; no score retry. Parsed-sparse prefilter and rule4 require T2. Three briefs contain exactly three required sections and quoted T1 slices; qa carries full source body. Reviewers requested sonnet/haiku/opus via restricted reflect-reviewer. Alias env recheck matched Wave0. Actual resolved gateway identity unknown: requested model rotation only, no verified heterogeneity claim. Legacy engine, no panel.
+- notify_when_idle for subagent was unsupported; no retry/poll. Agents deliver automatic completion messages.
+- pgrep exit1 means no running index build; MCP readiness fresh with zero changes. No second readiness check in this reflect run.
+- aliases resolved: opus=claude-opus-5-5, sonnet=claude-sonnet-5-5, haiku=claude-gw-tier2[1m]. Three distinct requested aliases; actual gateway class unknown.
+- Executor class unresolved (no flag, env or task log). Anti-self-confirmation guarantee weakened. Single recognizable vendor, vendor diversity unproven for gateway alias; no multi-vendor claim. Vendor override is optional, not a required decision for this run.
+- Memory inventory found no matching files; memory_hits=0 memory_misses=2. Memory persistence not allowed outside output during this plan-only review; retain run-local receipt instead.
+- Input/output overlap checks passed before first write. Managed review output pinned inside package artifacts. UC1 snapshot includes plan, source and 14 existing referenced files. Future evidence paths do not exist and are not faked.
+- Report template Read before report skeleton creation. Product source unchanged. No verification execution in pre mode; UC2-only diagnostics, reuse, runtime surface, interaction scan, reachability and promotion do not run.
+- Source grounding uses Augment search plus native Reads and graph outline/impact. Augment only searches pushed master, local Reads are authoritative.
+- references_extended_info_used=false type_hierarchy_invoked=false summarize_changes_invoked=false third_party_api_verified=false.

@@ -1,0 +1,24 @@
+All checks passed!
+Lint exit: 0
+Command: PYTHONDONTWRITEBYTECODE=1 uv run --no-sync pytest tests/swarm/test_cli_registration.py -k not_help_contract_cases -p no:cacheprovider
+Actual filter: not test_validate_lenses_help_uses_jobspec_custom_prompt_dir and not test_scaffold_help_uses_jobspec_custom_prompt_dir
+========================================== test session starts ===========================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/.venv/bin/python
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 10 items / 2 deselected / 8 selected
+
+tests/swarm/test_cli_registration.py::test_swarm_group_is_top_level_command PASSED                 [ 12%]
+tests/swarm/test_cli_registration.py::test_swarm_not_nested_under_other_groups PASSED              [ 25%]
+tests/swarm/test_cli_registration.py::test_swarm_help_exits_zero PASSED                            [ 37%]
+tests/swarm/test_cli_registration.py::test_run_rejects_custom_prompt_dir_option PASSED             [ 50%]
+tests/swarm/test_cli_registration.py::test_swarm_help_lists_all_eight_placeholders PASSED          [ 62%]
+tests/swarm/test_cli_registration.py::test_swarm_group_registers_all_eight_placeholders PASSED     [ 75%]
+tests/swarm/test_cli_registration.py::test_placeholder_exits_non_zero_with_message[NOTSET] SKIPPED [ 87%]
+tests/swarm/test_cli_registration.py::test_swarm_module_imports_without_error PASSED               [100%]
+
+=============================== 7 passed, 1 skipped, 2 deselected in 0.68s ===============================
+Existing-tests and parser exit: 0
+Typecheck: skip (no installed mypy)

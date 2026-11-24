@@ -1,0 +1,15 @@
+Command: diff -w .dev/tasks/archive/TASK-WF-createACheckedIm-20261123-195709/TASK-WF-createACheckedIm-20261123-195709.md .dev/tasks/to-do/TASK-WF-createACheckedIm-20261123-212501/TASK-WF-createACheckedIm-20261123-212501.md
+Observed exit status: 1 (differences found, not a comparison error)
+
+6c6
+< slug: TASK-WF-createACheckedIm-20261123-195709
+---
+> slug: TASK-WF-createACheckedIm-20261123-212501
+80c80
+< - Both public-root help regressions and the parser rejection guard pass after their preserved pre-edit observations. Existing registration/help and scaffold tests remain intact, including custom/unknown-lens rejection, schema-valid scaffold output and injection-guard content.
+---
+> - Both public-root help regressions and the parser rejection guard pass after their preserved pre-edit observations in `./artifacts/validate-help-red.txt`, `./artifacts/scaffold-help-red.txt` and `./artifacts/parser-before.txt` (F1). Existing registration/help and scaffold tests remain intact, including custom/unknown-lens rejection, schema-valid scaffold output and injection-guard content.
+82c82
+< - Capture full repaired public outputs with the same three CLI invocations as Task 2 in `./artifacts/public-after.txt`, including module origin, commit/checkout provenance, timestamps and observed statuses 0, 0 and 2. Both help outputs omit the rejected option and explain the supported field/custom-lens binding; the actual run parser still rejects that option. Source text inspection or mocked output alone is insufficient.
+---
+> - Capture full repaired public outputs by running `uv run superclaude swarm validate-lenses --help`, `uv run superclaude swarm scaffold --help` and `uv run superclaude swarm run --custom-prompt-dir <existing temporary directory>`, in `./artifacts/public-after.txt` (F1), including module origin, commit/checkout provenance, timestamps and observed statuses 0, 0 and 2. Both help outputs omit the rejected option and explain the supported field/custom-lens binding; the actual run parser still rejects that option. Source text inspection or mocked output alone is insufficient. Compare each with the same command's status and output in `./artifacts/public-before.txt` (F1).

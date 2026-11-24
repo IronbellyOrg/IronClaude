@@ -1,0 +1,37 @@
+output_root: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244
+input_tree_sha256: f34684df25d02eb1a179ee47a42e12169c5cf4aeaa4de4c94383b775dd0a5321
+file_count: 16
+serialization: sorted path/hash pairs, JSON compact separators
+file_list:
+- path: .dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/TASK-WF-planTheFixForIss-20261123-180531.md
+  sha256: e28f37ef48b0a92cb51e95f18be84a912272dfe272132eb87523f422bea15cb2
+- path: .dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-180531/source.md
+  sha256: 304b97938d193fef45b2b3765ca54e15b69a1fa6f9e167cd44dfd4964dfa8a05
+- path: docs/swarm/README.md
+  sha256: 6c213f123226a062d1cda5b47516dc2ad07ddb12cc908262e7117908b40f0420
+- path: docs/swarm/lens-catalog.md
+  sha256: 13694a806a9b990784c83d972cd662036197bddef4e36b986b1d9d4a0d2976c7
+- path: docs/swarm/release-notes-v1.md
+  sha256: ab506cfe5f6a4f86bdb697187cc73ab77e1ee71b21c4e9babaec7ff79f440087
+- path: docs/swarm/user-guide.md
+  sha256: d90aabf030315ad90daa682d351c6e606d29e813699e55fa2a582089c2b37b76
+- path: src/superclaude/cli/swarm/commands.py
+  sha256: ff530f91030fa719d91fbe118a877b7cb428a9a72f73b971294b32eb71255127
+- path: src/superclaude/cli/swarm/lenses/__init__.py
+  sha256: 48e68a070fac2ca0b16648815141cc05cc4cc2b4dcbdcd28ce4c528fb5b3c857
+- path: src/superclaude/cli/swarm/lenses/refactor_find.py
+  sha256: 8fcf843580305e17da6aa00b0924c0f67c05beb69c4d8108419d950975fdc47e
+- path: src/superclaude/commands/adversarial.md
+  sha256: 3fc93ebed48cd5e5aa05d32e8b7cd8d315193745d6399ab4bc57a900c750f9bc
+- path: tests/swarm/test_bare_review_parity.py
+  sha256: 882266cfd982f116f6a45f2047b6fb82782221936ba2570d128880c7d3d201a0
+- path: tests/swarm/test_bundled_lenses.py
+  sha256: dd6e9ec4baca8b2750bee7e87b55b688d915e91f7137cf0fb819ffff0dfa50f0
+- path: tests/swarm/test_commands_run.py
+  sha256: 157ad1e8c4cdfdb52fc5363f1282251a2b296e6cc6a29a99947279452806073d
+- path: tests/swarm/test_e2e_user_guide.py
+  sha256: 26064808ba80e90deefd42a583dbf6396de7b6eb541ef16d943750c547fcf070
+- path: tests/swarm/test_lens_defaults.py
+  sha256: c8a20d19d4b5cf145b1375b51b0634b084dafa5972c0f052e21cb8fa41168db1
+- path: tests/swarm/test_swarm_run_inputs.py
+  sha256: 9715551bc5a0ba95eeef6e8d8cc4b71ed334b323de2eb874052a75358aa5e8c7

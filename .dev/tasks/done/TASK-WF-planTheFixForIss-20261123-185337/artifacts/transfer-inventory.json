@@ -1,0 +1,729 @@
+{
+  "check": "issue-501-transfer-preservation",
+  "status": "PASS",
+  "method": "SHA256 and byte comparison against issue-only transfer snapshot; to-do plan mapped to done; one exact review-path line replacement allowed. Git index blobs compared with every staged transferred file.",
+  "snapshot_provenance": "/tmp/issue-501-transfer.FIuLiBp7",
+  "scope_limit": "Does not inspect the original shared worktree or assert completeness of anything absent from the issue-only snapshot. File inventory is not a comprehensive secret scan.",
+  "summary": {
+    "snapshot_files": 87,
+    "missing": 0,
+    "unchanged": 86,
+    "approved_metadata_change": 1,
+    "transferred_files_staged": 51,
+    "diagnosis_untracked": 35,
+    "diagnosis_ignored": 1,
+    "unstaged_bug_files": 11,
+    "active_review_lookup_readable": true
+  },
+  "unstaged_bug_paths": [
+    "docs/swarm/README.md",
+    "docs/swarm/lens-catalog.md",
+    "docs/swarm/user-guide.md",
+    "docs/swarm/wizard-guide.md",
+    "src/superclaude/cli/swarm/commands.py",
+    "src/superclaude/cli/swarm/lenses/refactor_find.py",
+    "src/superclaude/commands/swarm-wizard.md",
+    "src/superclaude/skills/sc-swarm-wizard-protocol/refs/cli-contract.md",
+    "src/superclaude/skills/sc-swarm-wizard-protocol/refs/interview.md",
+    "tests/swarm/test_bundled_lenses.py",
+    "tests/swarm/test_commands_run.py"
+  ],
+  "files": [
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/TASK-WF-planTheFixForIss-20261123-180531.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/TASK-WF-planTheFixForIss-20261123-180531.md",
+      "snapshot_sha256": "e28f37ef48b0a92cb51e95f18be84a912272dfe272132eb87523f422bea15cb2",
+      "current_sha256": "e28f37ef48b0a92cb51e95f18be84a912272dfe272132eb87523f422bea15cb2",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/archive-undo.txt",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/archive-undo.txt",
+      "snapshot_sha256": "ffbc68c6a077097a19723476d4f8702534f81ad510c70ff3f2cfac3d05ba3f09",
+      "current_sha256": "ffbc68c6a077097a19723476d4f8702534f81ad510c70ff3f2cfac3d05ba3f09",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/codegraph-grounding.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/codegraph-grounding.md",
+      "snapshot_sha256": "5615ccf659cb1a3e05974a5405e541b5747a526c784589044e631f582af5ad62",
+      "current_sha256": "5615ccf659cb1a3e05974a5405e541b5747a526c784589044e631f582af5ad62",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/REPORT.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/REPORT.md",
+      "snapshot_sha256": "2a5581501b9fb56b6753c83ed125d5891bdcdc6375c478b1113d8339790eb571",
+      "current_sha256": "2a5581501b9fb56b6753c83ed125d5891bdcdc6375c478b1113d8339790eb571",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/base-selection.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/base-selection.md",
+      "snapshot_sha256": "2074faa32b09b72b65af7bac88c8251191cac0527fb501bf07722dba660482f8",
+      "current_sha256": "2074faa32b09b72b65af7bac88c8251191cac0527fb501bf07722dba660482f8",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/debate-transcript.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/debate-transcript.md",
+      "snapshot_sha256": "6d5cddf34f606615a6f7adf495b73643338843cc4f141d8a62f61e59fed22dfc",
+      "current_sha256": "6d5cddf34f606615a6f7adf495b73643338843cc4f141d8a62f61e59fed22dfc",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/diff-analysis.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/diff-analysis.md",
+      "snapshot_sha256": "45ea8f6d45215f13de4c7117ad67a5826b65a5d0734418f03965b37499381a46",
+      "current_sha256": "45ea8f6d45215f13de4c7117ad67a5826b65a5d0734418f03965b37499381a46",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/invariant-probe.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/invariant-probe.md",
+      "snapshot_sha256": "741519cf365da71e3ada03bd81f9a02ad8a45371f020efa2e1146697fe8e8622",
+      "current_sha256": "741519cf365da71e3ada03bd81f9a02ad8a45371f020efa2e1146697fe8e8622",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/merge-log.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/merge-log.md",
+      "snapshot_sha256": "ceb48b396ab9ad65ff42d53088366309b44705d5fba5db5c2ad3742a1a900b19",
+      "current_sha256": "ceb48b396ab9ad65ff42d53088366309b44705d5fba5db5c2ad3742a1a900b19",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/merged-verdict.yaml",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/merged-verdict.yaml",
+      "snapshot_sha256": "ec14df3a72fa3545e0ccb4c1aebec3851f5b0c6c6de93d50d4f133535599d5e5",
+      "current_sha256": "ec14df3a72fa3545e0ccb4c1aebec3851f5b0c6c6de93d50d4f133535599d5e5",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/refactor-plan.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/refactor-plan.md",
+      "snapshot_sha256": "60ab81b5bcff61dfb921c4930676cee811b291c7cb5cb4d8fb3494132d6094b5",
+      "current_sha256": "60ab81b5bcff61dfb921c4930676cee811b291c7cb5cb4d8fb3494132d6094b5",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/return-contract.yaml",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/return-contract.yaml",
+      "snapshot_sha256": "9cea7911bb5bde505a6100a967e0fb7085b109d58e116357d5dcd816519eaad9",
+      "current_sha256": "9cea7911bb5bde505a6100a967e0fb7085b109d58e116357d5dcd816519eaad9",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/variant-1-original.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/variant-1-original.md",
+      "snapshot_sha256": "e391b55142070129293eab115d82e0285980a6923904450f8ac605fec2b3efb2",
+      "current_sha256": "e391b55142070129293eab115d82e0285980a6923904450f8ac605fec2b3efb2",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/variant-2-original.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/variant-2-original.md",
+      "snapshot_sha256": "efe23d2d734bb3415c675799da1e8e68691d5e8eadd4088c015a79974d771ee8",
+      "current_sha256": "efe23d2d734bb3415c675799da1e8e68691d5e8eadd4088c015a79974d771ee8",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/variant-3-original.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/adversarial/variant-3-original.md",
+      "snapshot_sha256": "1b4505b5db54e478e87abd86d94b826e4fdb9ee0067436e9a0e98531a3795e25",
+      "current_sha256": "1b4505b5db54e478e87abd86d94b826e4fdb9ee0067436e9a0e98531a3795e25",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/artifacts/input-snapshot.yaml",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/artifacts/input-snapshot.yaml",
+      "snapshot_sha256": "c84d183169db5b65b81d7bbbd813c7283bc7b2f1a32d3cfed6a7e8f5396723d8",
+      "current_sha256": "c84d183169db5b65b81d7bbbd813c7283bc7b2f1a32d3cfed6a7e8f5396723d8",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/artifacts/tier_decision.yaml",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/artifacts/tier_decision.yaml",
+      "snapshot_sha256": "ce2d8598a07dc54fa044a62d03693801c9addd008926a29d6e034e9fbdfbdce6",
+      "current_sha256": "ce2d8598a07dc54fa044a62d03693801c9addd008926a29d6e034e9fbdfbdce6",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/audit.log",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/audit.log",
+      "snapshot_sha256": "f3645261ac0eb4adb986cf9f036386ab4a2d847f59cdfbcceadca75a561a0eef",
+      "current_sha256": "f3645261ac0eb4adb986cf9f036386ab4a2d847f59cdfbcceadca75a561a0eef",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/candidate-verdicts.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/candidate-verdicts.md",
+      "snapshot_sha256": "2c49a349a7838ec2fbd2e15e579a8a5b75f7cd72cc31340aa05e580b219f06a0",
+      "current_sha256": "2c49a349a7838ec2fbd2e15e579a8a5b75f7cd72cc31340aa05e580b219f06a0",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/coverage-analysis.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/coverage-analysis.md",
+      "snapshot_sha256": "5f94ba971fd1b40982d90980937b75c101b54622bb08d1c6d576c840bd815555",
+      "current_sha256": "5f94ba971fd1b40982d90980937b75c101b54622bb08d1c6d576c840bd815555",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/coverage-check.py",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/coverage-check.py",
+      "snapshot_sha256": "4eb0336901e5b46dada99231204d51378b4dccb9994505bfc7461748b7077dd7",
+      "current_sha256": "4eb0336901e5b46dada99231204d51378b4dccb9994505bfc7461748b7077dd7",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/coverage-matrix.json",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/coverage-matrix.json",
+      "snapshot_sha256": "52c0d42a85cb97d5b3472df9f5bdd583d9644a2337343b3ef54a1cab1b0322b5",
+      "current_sha256": "52c0d42a85cb97d5b3472df9f5bdd583d9644a2337343b3ef54a1cab1b0322b5",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/evidence-validation.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/evidence-validation.md",
+      "snapshot_sha256": "e98a3a21f21b40b9912d7f369d9a40afaa61b6bc846f4de6a4e0459399b38908",
+      "current_sha256": "e98a3a21f21b40b9912d7f369d9a40afaa61b6bc846f4de6a4e0459399b38908",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/grounding.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/grounding.md",
+      "snapshot_sha256": "c6b2067b37e67baf020faee3b01de34f038823240c4a9bb5679cee322a4ebfdc",
+      "current_sha256": "c6b2067b37e67baf020faee3b01de34f038823240c4a9bb5679cee322a4ebfdc",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/merged-review.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/merged-review.md",
+      "snapshot_sha256": "3cc68f41ac1d5ac036a02d1ed15dad122eadcc23b0b1b0e5e8166601eacfc128",
+      "current_sha256": "3cc68f41ac1d5ac036a02d1ed15dad122eadcc23b0b1b0e5e8166601eacfc128",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/metrics.json",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/metrics.json",
+      "snapshot_sha256": "ef095bd41f61ba9b2290bf4c054b28e497d32bcf0f8794aa352ba5683ce80288",
+      "current_sha256": "ef095bd41f61ba9b2290bf4c054b28e497d32bcf0f8794aa352ba5683ce80288",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/requirements.json",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/requirements.json",
+      "snapshot_sha256": "6e9c83f1a3040fdc29977f60289e89aaeac9071abb0323cc31c7edddd72c1d64",
+      "current_sha256": "6e9c83f1a3040fdc29977f60289e89aaeac9071abb0323cc31c7edddd72c1d64",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/return-contract.yaml",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/return-contract.yaml",
+      "snapshot_sha256": "00c87cc6c08751366dd39b00c48798be2a8db05324b4d1dfc99b92080e6a765f",
+      "current_sha256": "00c87cc6c08751366dd39b00c48798be2a8db05324b4d1dfc99b92080e6a765f",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-briefs/reviewer-1.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-briefs/reviewer-1.md",
+      "snapshot_sha256": "1bff0e2ff04e33e7f06e6165c6519e938f3b2e0242351c016f0cb4456d9645aa",
+      "current_sha256": "1bff0e2ff04e33e7f06e6165c6519e938f3b2e0242351c016f0cb4456d9645aa",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-briefs/reviewer-2.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-briefs/reviewer-2.md",
+      "snapshot_sha256": "50285c7ae2d80086d369a67c539abb4a7815e9a10fd2b4dd5da601cdb7d581a6",
+      "current_sha256": "50285c7ae2d80086d369a67c539abb4a7815e9a10fd2b4dd5da601cdb7d581a6",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-briefs/reviewer-3.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-briefs/reviewer-3.md",
+      "snapshot_sha256": "d2c6ec07e806b4de8140fa7711716c9aa0bbbe8ccfe3f8aa82afd8eb627b9e61",
+      "current_sha256": "d2c6ec07e806b4de8140fa7711716c9aa0bbbe8ccfe3f8aa82afd8eb627b9e61",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-1-calibration.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-1-calibration.md",
+      "snapshot_sha256": "9bb8c21e4b5b6ce6358d8926b88538ed61ad3cabd8551d7c50c67ddf2b22d10b",
+      "current_sha256": "9bb8c21e4b5b6ce6358d8926b88538ed61ad3cabd8551d7c50c67ddf2b22d10b",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-1-card.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-1-card.md",
+      "snapshot_sha256": "e391b55142070129293eab115d82e0285980a6923904450f8ac605fec2b3efb2",
+      "current_sha256": "e391b55142070129293eab115d82e0285980a6923904450f8ac605fec2b3efb2",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-2-calibration.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-2-calibration.md",
+      "snapshot_sha256": "5ea0bad8d8b76d875976a11914359f4333b564948171da5beaef8e066545f795",
+      "current_sha256": "5ea0bad8d8b76d875976a11914359f4333b564948171da5beaef8e066545f795",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-2-card.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-2-card.md",
+      "snapshot_sha256": "efe23d2d734bb3415c675799da1e8e68691d5e8eadd4088c015a79974d771ee8",
+      "current_sha256": "efe23d2d734bb3415c675799da1e8e68691d5e8eadd4088c015a79974d771ee8",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-3-calibration.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-3-calibration.md",
+      "snapshot_sha256": "8beefe4c1df3a973528c8cb9bfabbe5abe8aa6eb517a6b65a11868f65aecb8cc",
+      "current_sha256": "8beefe4c1df3a973528c8cb9bfabbe5abe8aa6eb517a6b65a11868f65aecb8cc",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-3-card.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/reviewer-cards/reviewer-3-card.md",
+      "snapshot_sha256": "1b4505b5db54e478e87abd86d94b826e4fdb9ee0067436e9a0e98531a3795e25",
+      "current_sha256": "1b4505b5db54e478e87abd86d94b826e4fdb9ee0067436e9a0e98531a3795e25",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/t1-calibration.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/t1-calibration.md",
+      "snapshot_sha256": "4fcfc8c820c6c5ff6c1b04daaa341a4bddcabc6977778ce740b82a5a39b5b129",
+      "current_sha256": "4fcfc8c820c6c5ff6c1b04daaa341a4bddcabc6977778ce740b82a5a39b5b129",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/t1-card.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/artifacts/reflect-pre-20261123181244/t1-card.md",
+      "snapshot_sha256": "d31eed8b5c51881b2cd1838bbf49460835d82ac9eabe05229eef531b2a6ba3dc",
+      "current_sha256": "d31eed8b5c51881b2cd1838bbf49460835d82ac9eabe05229eef531b2a6ba3dc",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/return-contract.yaml",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/return-contract.yaml",
+      "snapshot_sha256": "2e6c7443e8fc3c286fa86978a564b3d812e48eb8110f242f574ba9e2bdd5a2a8",
+      "current_sha256": "2e6c7443e8fc3c286fa86978a564b3d812e48eb8110f242f574ba9e2bdd5a2a8",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/source.md",
+      "current_path": ".dev/tasks/archive/TASK-WF-planTheFixForIss-20261123-180531/source.md",
+      "snapshot_sha256": "304b97938d193fef45b2b3765ca54e15b69a1fa6f9e167cd44dfd4964dfa8a05",
+      "current_sha256": "304b97938d193fef45b2b3765ca54e15b69a1fa6f9e167cd44dfd4964dfa8a05",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/TASK-WF-planTheFixForIss-20261123-185337.md",
+      "current_path": ".dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/TASK-WF-planTheFixForIss-20261123-185337.md",
+      "snapshot_sha256": "b81fd4e0e6676850dd229add73ba83afb8413f520babb9f958e156d9f350a89a",
+      "current_sha256": "b81fd4e0e6676850dd229add73ba83afb8413f520babb9f958e156d9f350a89a",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/diff-w.txt",
+      "current_path": ".dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/artifacts/diff-w.txt",
+      "snapshot_sha256": "e795253b6fe8c43d1976806cbad42a5158b1268ebc6b2b6bc313e81b2e8592c3",
+      "current_sha256": "e795253b6fe8c43d1976806cbad42a5158b1268ebc6b2b6bc313e81b2e8592c3",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/old-plan.md",
+      "current_path": ".dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/artifacts/old-plan.md",
+      "snapshot_sha256": "e28f37ef48b0a92cb51e95f18be84a912272dfe272132eb87523f422bea15cb2",
+      "current_sha256": "e28f37ef48b0a92cb51e95f18be84a912272dfe272132eb87523f422bea15cb2",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/plan.diff",
+      "current_path": ".dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/artifacts/plan.diff",
+      "snapshot_sha256": "930e71a38750a1cd71beb936d3d2daabb2315252d5b2080b17f3775191c32f0e",
+      "current_sha256": "930e71a38750a1cd71beb936d3d2daabb2315252d5b2080b17f3775191c32f0e",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/prior-findings.md",
+      "current_path": ".dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/artifacts/prior-findings.md",
+      "snapshot_sha256": "2a5581501b9fb56b6753c83ed125d5891bdcdc6375c478b1113d8339790eb571",
+      "current_sha256": "2a5581501b9fb56b6753c83ed125d5891bdcdc6375c478b1113d8339790eb571",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/re-review.md",
+      "current_path": ".dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/artifacts/re-review.md",
+      "snapshot_sha256": "14a5e82244765bbb24e4ca35021506e207a82bf391314830c21c69e595327275",
+      "current_sha256": "14a5e82244765bbb24e4ca35021506e207a82bf391314830c21c69e595327275",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/revision-audit.md",
+      "current_path": ".dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/artifacts/revision-audit.md",
+      "snapshot_sha256": "52ead8e2d9da008aa76caff75299a9b3be7a930f531b2cd5815f5801ed9ebcbb",
+      "current_sha256": "52ead8e2d9da008aa76caff75299a9b3be7a930f531b2cd5815f5801ed9ebcbb",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/artifacts/revision-log.md",
+      "current_path": ".dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/artifacts/revision-log.md",
+      "snapshot_sha256": "6b7101bd237097cc6e5a8b5a687661dac166a19607c7ab965183bcfc12714bf4",
+      "current_sha256": "6b7101bd237097cc6e5a8b5a687661dac166a19607c7ab965183bcfc12714bf4",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/return-contract.yaml",
+      "current_path": ".dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/return-contract.yaml",
+      "snapshot_sha256": "389b4733ba509291492b27864ad1ced9cac8e22b9302c489aa5c335e9745dc55",
+      "current_sha256": "5b6c50d2ca5a6eaa3b247b6045773b099baf30918926093bf05d780c8ae5f795",
+      "change": "approved worktree and archive review-path corrections only",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/tasks/to-do/TASK-WF-planTheFixForIss-20261123-185337/source.md",
+      "current_path": ".dev/tasks/done/TASK-WF-planTheFixForIss-20261123-185337/source.md",
+      "snapshot_sha256": "fd841c02d1a14066c4ed7df374624feef98384e196476807d222ee1ad2e11539",
+      "current_sha256": "fd841c02d1a14066c4ed7df374624feef98384e196476807d222ee1ad2e11539",
+      "change": "unchanged",
+      "git_disposition": "staged, bytes match working file"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/REPORT.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/REPORT.md",
+      "snapshot_sha256": "469f62f78750d5fe3ec913c235b3a6aa67544a458d32e4ecaed4bbb84f197e03",
+      "current_sha256": "469f62f78750d5fe3ec913c235b3a6aa67544a458d32e4ecaed4bbb84f197e03",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/REPORT.md.draft",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/REPORT.md.draft",
+      "snapshot_sha256": "e6338de869c4dcd8202a4b0350e3dcab5735a3f493a22b5b4c62f949774e1c2b",
+      "current_sha256": "e6338de869c4dcd8202a4b0350e3dcab5735a3f493a22b5b4c62f949774e1c2b",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/audit.log",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/audit.log",
+      "snapshot_sha256": "a2deec464362040718d940b600250360dfb29207faf93a797e3e7d5054ccb5e5",
+      "current_sha256": "a2deec464362040718d940b600250360dfb29207faf93a797e3e7d5054ccb5e5",
+      "change": "unchanged",
+      "git_disposition": "ignored, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/behaviour-definitions.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/behaviour-definitions.md",
+      "snapshot_sha256": "06ed9929eeb891a3f2b6d1384435e725b110bbd32b374d0e199f9cb86fca076a",
+      "current_sha256": "06ed9929eeb891a3f2b6d1384435e725b110bbd32b374d0e199f9cb86fca076a",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/contract-ledger.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/contract-ledger.md",
+      "snapshot_sha256": "9f5a604b912e381058014a25e16b5d0f30c499b359d9f2b96e143f05c0315c2a",
+      "current_sha256": "9f5a604b912e381058014a25e16b5d0f30c499b359d9f2b96e143f05c0315c2a",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/diagnosability-context.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/diagnosability-context.md",
+      "snapshot_sha256": "8486a9794361f99c6178e86917d9c90ee48e9682c5c0fc74f64e2a04750ee066",
+      "current_sha256": "8486a9794361f99c6178e86917d9c90ee48e9682c5c0fc74f64e2a04750ee066",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/diagnosability-tasklist.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/diagnosability-tasklist.md",
+      "snapshot_sha256": "84959fd9972f6d2fbe5ebeefcb13283942b219ebb721c2558e87c34dbd779c4e",
+      "current_sha256": "84959fd9972f6d2fbe5ebeefcb13283942b219ebb721c2558e87c34dbd779c4e",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/doc-context.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/doc-context.md",
+      "snapshot_sha256": "15c77d91eef2de73ba70d029d961e76b0699f5ae98f5f52c0d3a5b45e8503c71",
+      "current_sha256": "15c77d91eef2de73ba70d029d961e76b0699f5ae98f5f52c0d3a5b45e8503c71",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/effective-input.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/effective-input.md",
+      "snapshot_sha256": "6da1c4dbee45655a794dce5063451600e5085624efa66f6a4bf795eec7eff6b6",
+      "current_sha256": "6da1c4dbee45655a794dce5063451600e5085624efa66f6a4bf795eec7eff6b6",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/evidence-validation.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/evidence-validation.md",
+      "snapshot_sha256": "dd0e0ef5351941b2839bc54ba75a6be915282e4eb1d5faee66f87bdffff1c482",
+      "current_sha256": "dd0e0ef5351941b2839bc54ba75a6be915282e4eb1d5faee66f87bdffff1c482",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/execution-locus.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/execution-locus.md",
+      "snapshot_sha256": "1a53ebf0929cbfdf556ec094ead439f946f547745b946905898536f176ce5650",
+      "current_sha256": "1a53ebf0929cbfdf556ec094ead439f946f547745b946905898536f176ce5650",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/hardening-applicability.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/hardening-applicability.md",
+      "snapshot_sha256": "bc07c1b4ed3e823ead5b5bbcdf793283df22f7db001ee852edf1f26095eaa2cb",
+      "current_sha256": "bc07c1b4ed3e823ead5b5bbcdf793283df22f7db001ee852edf1f26095eaa2cb",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/producers.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/producers.md",
+      "snapshot_sha256": "5dcd77505bf9f7189582ef8249cd25ceb145ac215fca5f89549f4264ac545814",
+      "current_sha256": "5dcd77505bf9f7189582ef8249cd25ceb145ac215fca5f89549f4264ac545814",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/runtime-entrypoint.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/runtime-entrypoint.md",
+      "snapshot_sha256": "6442e4586dbf48dc6bed3e61b08b83ebe275e8c753ec0013d316d48aa3bf85ca",
+      "current_sha256": "6442e4586dbf48dc6bed3e61b08b83ebe275e8c753ec0013d316d48aa3bf85ca",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/.swarm-state.json",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/.swarm-state.json",
+      "snapshot_sha256": "cadf2ca48dd067c6f73471900ccd697979d9192925db1aaddbc48ee3a8067db8",
+      "current_sha256": "cadf2ca48dd067c6f73471900ccd697979d9192925db1aaddbc48ee3a8067db8",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/execution-log.jsonl",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/execution-log.jsonl",
+      "snapshot_sha256": "d8afd7e5212856a9e84bcbc2efd4d7419a33606548caa934fde01b524bc24548",
+      "current_sha256": "d8afd7e5212856a9e84bcbc2efd4d7419a33606548caa934fde01b524bc24548",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/execution-log.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/execution-log.md",
+      "snapshot_sha256": "8771746d132002f4e7888f2655ec48fc052b098feb5b4d5ae208fae78d4d3950",
+      "current_sha256": "8771746d132002f4e7888f2655ec48fc052b098feb5b4d5ae208fae78d4d3950",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/manifest.json",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/manifest.json",
+      "snapshot_sha256": "a74c8d8fbe44a7969587b061ebc636331d3cf65642f64501fb1b65a266539c19",
+      "current_sha256": "a74c8d8fbe44a7969587b061ebc636331d3cf65642f64501fb1b65a266539c19",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/merged.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/merged.md",
+      "snapshot_sha256": "490617bc54ca4c49f91eba075bdecb49558edde2d25e835dc5aa6f4c9440ffc6",
+      "current_sha256": "490617bc54ca4c49f91eba075bdecb49558edde2d25e835dc5aa6f4c9440ffc6",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/refactor-find-00-lens-default-model-0.final.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/refactor-find-00-lens-default-model-0.final.md",
+      "snapshot_sha256": "ffcb3fe11b60d39b2438dfc6435492e279eb0ecefd5063eefdc413350f16217d",
+      "current_sha256": "ffcb3fe11b60d39b2438dfc6435492e279eb0ecefd5063eefdc413350f16217d",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/refactor-find-00-lens-default-model-0.meta.json",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/refactor-find-00-lens-default-model-0.meta.json",
+      "snapshot_sha256": "08c9d10e003ac614b0c8670ebac798a1afa39e5d970471c9954bf43f1cbf5549",
+      "current_sha256": "08c9d10e003ac614b0c8670ebac798a1afa39e5d970471c9954bf43f1cbf5549",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/refactor-find-01-lens-default-model-0.final.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/refactor-find-01-lens-default-model-0.final.md",
+      "snapshot_sha256": "ffcb3fe11b60d39b2438dfc6435492e279eb0ecefd5063eefdc413350f16217d",
+      "current_sha256": "ffcb3fe11b60d39b2438dfc6435492e279eb0ecefd5063eefdc413350f16217d",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/refactor-find-01-lens-default-model-0.meta.json",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/refactor-find-01-lens-default-model-0.meta.json",
+      "snapshot_sha256": "08c9d10e003ac614b0c8670ebac798a1afa39e5d970471c9954bf43f1cbf5549",
+      "current_sha256": "08c9d10e003ac614b0c8670ebac798a1afa39e5d970471c9954bf43f1cbf5549",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/refactor-find-02-lens-default-model-0.final.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/refactor-find-02-lens-default-model-0.final.md",
+      "snapshot_sha256": "ffcb3fe11b60d39b2438dfc6435492e279eb0ecefd5063eefdc413350f16217d",
+      "current_sha256": "ffcb3fe11b60d39b2438dfc6435492e279eb0ecefd5063eefdc413350f16217d",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/refactor-find-02-lens-default-model-0.meta.json",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/refactor-find-02-lens-default-model-0.meta.json",
+      "snapshot_sha256": "08c9d10e003ac614b0c8670ebac798a1afa39e5d970471c9954bf43f1cbf5549",
+      "current_sha256": "08c9d10e003ac614b0c8670ebac798a1afa39e5d970471c9954bf43f1cbf5549",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/return-contract.yaml",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/stub-run/return-contract.yaml",
+      "snapshot_sha256": "5796658b30ff3cbe9edc0884310c0bd1f7c6499304eeb7fb236da3e13782bb89",
+      "current_sha256": "5796658b30ff3cbe9edc0884310c0bd1f7c6499304eeb7fb236da3e13782bb89",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/tier1-calibration.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/tier1-calibration.md",
+      "snapshot_sha256": "93071b056cb979eed0e09cdebc9141224da7dd9637037362155435379b05a466",
+      "current_sha256": "93071b056cb979eed0e09cdebc9141224da7dd9637037362155435379b05a466",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/tier1-callers.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/tier1-callers.md",
+      "snapshot_sha256": "a4aa9eab5251ff4c617dc554f92f611446a9ec3c3a15ff632d7ea3a979d5ed09",
+      "current_sha256": "a4aa9eab5251ff4c617dc554f92f611446a9ec3c3a15ff632d7ea3a979d5ed09",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/tier1-hypothesis.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/tier1-hypothesis.md",
+      "snapshot_sha256": "55c29792ec987ab3d4ee36f5632e66985fe788235073ef479fcc520a78775cc5",
+      "current_sha256": "55c29792ec987ab3d4ee36f5632e66985fe788235073ef479fcc520a78775cc5",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/tier1-observation.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/tier1-observation.md",
+      "snapshot_sha256": "cdbce26479a4a7741fc6c647f0b77a71a2bb8fab7b4332db6eead965da62088f",
+      "current_sha256": "cdbce26479a4a7741fc6c647f0b77a71a2bb8fab7b4332db6eead965da62088f",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/unmask-sweep.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/unmask-sweep.md",
+      "snapshot_sha256": "0c45e78fbd6dfb68447bc9b7423e85bf9e06dee50ef08c4fe2b03777552bafaa",
+      "current_sha256": "0c45e78fbd6dfb68447bc9b7423e85bf9e06dee50ef08c4fe2b03777552bafaa",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/wave1_5-branch-A.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/wave1_5-branch-A.md",
+      "snapshot_sha256": "a0fa9181442ea7f15c7564f41e8a37e94896012b58181e5264cfebf47904392d",
+      "current_sha256": "a0fa9181442ea7f15c7564f41e8a37e94896012b58181e5264cfebf47904392d",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/wave1_5-branch-B.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/wave1_5-branch-B.md",
+      "snapshot_sha256": "3f0231362006d2aa1ea08b6bda3a018630ab435ece774dccd8b69b8aca20a3c6",
+      "current_sha256": "3f0231362006d2aa1ea08b6bda3a018630ab435ece774dccd8b69b8aca20a3c6",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/wave1_5-branch-C.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/wave1_5-branch-C.md",
+      "snapshot_sha256": "3bdff11c0dd3aa6b1697ef324de05cedb3cdc385f57a9b93f621650a4600235e",
+      "current_sha256": "3bdff11c0dd3aa6b1697ef324de05cedb3cdc385f57a9b93f621650a4600235e",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/wave1_6-branch-A.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/wave1_6-branch-A.md",
+      "snapshot_sha256": "d9ba42a471e23aa1fd253d5a2800b9526c7f241e879a31c33e7612e199f9f6b4",
+      "current_sha256": "d9ba42a471e23aa1fd253d5a2800b9526c7f241e879a31c33e7612e199f9f6b4",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    },
+    {
+      "snapshot_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/wave1_6-branch-B.md",
+      "current_path": ".dev/troubleshoot/bug-swarm-refactor-find-recommends-unavailable-20261123170314/wave1_6-branch-B.md",
+      "snapshot_sha256": "20d11b4533fed2e79ca3884b6bde43b81046fb169c454f3d2040d7db2040b0ee",
+      "current_sha256": "20d11b4533fed2e79ca3884b6bde43b81046fb169c454f3d2040d7db2040b0ee",
+      "change": "unchanged",
+      "git_disposition": "untracked, not in proposed commit index"
+    }
+  ]
+}

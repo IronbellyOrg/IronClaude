@@ -1,0 +1,107 @@
+Fresh related-test observation: 2026-11-24T15:29:44Z
+Checkout: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help
+Commit: 720cbaf96653c1c983497ba480f76ca6e60e5369
+
+Command: PYTHONDONTWRITEBYTECODE=1 uv run --no-sync pytest tests/swarm/test_cli_registration.py tests/swarm/test_validate_lenses_cmd.py tests/swarm/test_scaffold_cmd.py tests/swarm/test_custom_prompt_dir.py tests/swarm/test_custom_prompt_dir_injection_guard.py --cov=superclaude.cli.swarm --cov-report=term-missing -p no:cacheprovider
+ERROR: usage: pytest [options] [file_or_dir] [file_or_dir] [...]
+pytest: error: unrecognized arguments: --cov=superclaude.cli.swarm --cov-report=term-missing
+  inifile: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/pyproject.toml
+  rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help
+
+Coverage-command exit: 4
+
+Coverage tooling is unavailable; do not install it. Running the identical five files without coverage arguments, not dropping any test file.
+Command: PYTHONDONTWRITEBYTECODE=1 uv run --no-sync pytest tests/swarm/test_cli_registration.py tests/swarm/test_validate_lenses_cmd.py tests/swarm/test_scaffold_cmd.py tests/swarm/test_custom_prompt_dir.py tests/swarm/test_custom_prompt_dir_injection_guard.py -p no:cacheprovider
+========================================== test session starts ===========================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/.venv/bin/python
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 81 items
+
+tests/swarm/test_cli_registration.py::test_swarm_group_is_top_level_command PASSED                 [  1%]
+tests/swarm/test_cli_registration.py::test_swarm_not_nested_under_other_groups PASSED              [  2%]
+tests/swarm/test_cli_registration.py::test_swarm_help_exits_zero PASSED                            [  3%]
+tests/swarm/test_cli_registration.py::test_validate_lenses_help_uses_jobspec_custom_prompt_dir PASSED [  4%]
+tests/swarm/test_cli_registration.py::test_scaffold_help_uses_jobspec_custom_prompt_dir PASSED     [  6%]
+tests/swarm/test_cli_registration.py::test_run_rejects_custom_prompt_dir_option PASSED             [  7%]
+tests/swarm/test_cli_registration.py::test_swarm_help_lists_all_eight_placeholders PASSED          [  8%]
+tests/swarm/test_cli_registration.py::test_swarm_group_registers_all_eight_placeholders PASSED     [  9%]
+tests/swarm/test_cli_registration.py::test_placeholder_exits_non_zero_with_message[NOTSET] SKIPPED [ 11%]
+tests/swarm/test_cli_registration.py::test_swarm_module_imports_without_error PASSED               [ 12%]
+tests/swarm/test_validate_lenses_cmd.py::test_validate_lenses_cmd_registered_on_swarm_group PASSED [ 13%]
+tests/swarm/test_validate_lenses_cmd.py::test_validate_lenses_cmd_advertises_warning_mode_flag PASSED [ 14%]
+tests/swarm/test_validate_lenses_cmd.py::test_clean_registry_exits_zero PASSED                     [ 16%]
+tests/swarm/test_validate_lenses_cmd.py::test_clean_registry_warning_mode_also_exits_zero PASSED   [ 17%]
+tests/swarm/test_validate_lenses_cmd.py::test_bundled_registry_via_main_group_exits_zero PASSED    [ 18%]
+tests/swarm/test_validate_lenses_cmd.py::test_failing_registry_exits_nonzero_by_default PASSED     [ 19%]
+tests/swarm/test_validate_lenses_cmd.py::test_failure_diagnostics_name_the_lens_entry PASSED       [ 20%]
+tests/swarm/test_validate_lenses_cmd.py::test_multiple_failures_each_surface PASSED                [ 22%]
+tests/swarm/test_validate_lenses_cmd.py::test_failure_diagnostic_format_is_grep_friendly PASSED    [ 23%]
+tests/swarm/test_validate_lenses_cmd.py::test_failing_registry_warning_mode_exits_zero PASSED      [ 24%]
+tests/swarm/test_validate_lenses_cmd.py::test_warning_mode_diagnostic_lines_match_blocking_mode PASSED [ 25%]
+tests/swarm/test_validate_lenses_cmd.py::test_custom_only_registry_exits_zero PASSED               [ 27%]
+tests/swarm/test_validate_lenses_cmd.py::test_ok_summary_reports_inspected_count PASSED            [ 28%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_cmd_registered_on_swarm_group PASSED               [ 29%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_help_lists_lens_and_output_flags PASSED            [ 30%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_requires_lens_flag PASSED                          [ 32%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_stdout_emits_valid_json_per_lens[bare-review] PASSED [ 33%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_stdout_emits_valid_json_per_lens[refactor-find] PASSED [ 34%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_stdout_emits_valid_json_per_lens[edge-case-hunt] PASSED [ 35%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_stdout_emits_valid_json_per_lens[spec-completeness] PASSED [ 37%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_stdout_emits_valid_json_per_lens[feasibility-probe] PASSED [ 38%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_stdout_emits_valid_json_per_lens[troubleshoot-hypothesis] PASSED [ 39%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_stdout_emits_valid_json_per_lens[doc-completeness] PASSED [ 40%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_stdout_emits_valid_json_per_lens[reflect-review] PASSED [ 41%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_output_validates_via_schema[bare-review] PASSED    [ 43%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_output_validates_via_schema[refactor-find] PASSED  [ 44%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_output_validates_via_schema[edge-case-hunt] PASSED [ 45%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_output_validates_via_schema[spec-completeness] PASSED [ 46%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_output_validates_via_schema[feasibility-probe] PASSED [ 48%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_output_validates_via_schema[troubleshoot-hypothesis] PASSED [ 49%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_output_validates_via_schema[doc-completeness] PASSED [ 50%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_output_validates_via_schema[reflect-review] PASSED [ 51%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_output_validates_via_swarm_validate PASSED         [ 53%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_stdout_carries_injection_guard_substring PASSED    [ 54%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_stdout_is_pure_json PASSED                         [ 55%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_output_writes_file_atomically PASSED               [ 56%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_output_short_flag_alias PASSED                     [ 58%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_output_creates_parent_directory PASSED             [ 59%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_output_overwrites_existing_file PASSED             [ 60%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_rejects_custom_lens PASSED                         [ 61%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_rejects_unknown_lens PASSED                        [ 62%]
+tests/swarm/test_scaffold_cmd.py::test_scaffold_via_main_swarm_group PASSED                        [ 64%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_happy_path_returns_trio PASSED  [ 65%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_accepts_pathlike PASSED         [ 66%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_empty_meta_yields_empty_dict PASSED [ 67%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_preserves_verbatim_content PASSED [ 69%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_missing_directory_raises PASSED [ 70%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_path_is_file_raises PASSED      [ 71%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_missing_file_raises[system.txt] PASSED [ 72%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_missing_file_raises[user.txt] PASSED [ 74%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_missing_file_raises[meta.yaml] PASSED [ 75%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_batches_missing_files PASSED    [ 76%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_missing_substring_raises PASSED [ 77%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_substring_default_disabled PASSED [ 79%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_guard_uses_central_helper_path_label PASSED [ 80%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_invalid_yaml_raises PASSED      [ 81%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_non_mapping_meta_raises PASSED  [ 82%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_scalar_meta_raises PASSED       [ 83%]
+tests/swarm/test_custom_prompt_dir.py::test_custom_prompt_dir_contents_round_trip_into_manifest PASSED [ 85%]
+tests/swarm/test_custom_prompt_dir.py::test_read_custom_prompt_dir_meta_variables_survive_json_round_trip PASSED [ 86%]
+tests/swarm/test_custom_prompt_dir.py::test_run_preflight_reads_custom_prompt_dir_and_passes_guard PASSED [ 87%]
+tests/swarm/test_custom_prompt_dir.py::test_run_preflight_custom_dir_missing_system_substring_raises PASSED [ 88%]
+tests/swarm/test_custom_prompt_dir.py::test_run_preflight_custom_dir_missing_raises PASSED         [ 90%]
+tests/swarm/test_custom_prompt_dir.py::test_run_preflight_custom_dir_auto_inject_guard PASSED      [ 91%]
+tests/swarm/test_custom_prompt_dir.py::test_run_preflight_custom_dir_populates_prompt_variables PASSED [ 92%]
+tests/swarm/test_custom_prompt_dir_injection_guard.py::test_custom_prompt_dir_rejects_missing_substring PASSED [ 93%]
+tests/swarm/test_custom_prompt_dir_injection_guard.py::test_custom_prompt_dir_accepts_substring_present PASSED [ 95%]
+tests/swarm/test_custom_prompt_dir_injection_guard.py::test_custom_prompt_dir_failure_message_identifies_rule PASSED [ 96%]
+tests/swarm/test_custom_prompt_dir_injection_guard.py::test_same_fixture_yields_identical_rejection_on_both_paths PASSED [ 97%]
+tests/swarm/test_custom_prompt_dir_injection_guard.py::test_mutation_bypassing_predicate_flips_custom_prompt_dir_verdict PASSED [ 98%]
+tests/swarm/test_custom_prompt_dir_injection_guard.py::test_mutation_skipping_guard_call_would_fail_parity PASSED [100%]
+
+===================================== 80 passed, 1 skipped in 0.95s ======================================
+
+Observed five-file test exit: 0

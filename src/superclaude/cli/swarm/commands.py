@@ -434,9 +434,10 @@ def validate_lenses_cmd(warning_mode: bool) -> None:
 
     Runs the COMP-023 five-assertion lens validator over every entry in
     :data:`superclaude.cli.swarm.lenses.LENSES`. The ``custom`` escape
-    hatch (COMP-026) is intentionally skipped — its prompt body flows in
-    from ``--custom-prompt-dir`` at preflight and is validated on that
-    path (T02.05 / T02.07).
+    hatch (COMP-026) is intentionally skipped. Directory-backed custom
+    prompts use the JobSpec ``custom_prompt_dir`` field with ``lens: custom``
+    and are loaded and validated at preflight (T02.05 / T02.07). Custom
+    specs may also supply inline prompts without a directory.
 
     Exit codes (OQ-010 resolution -- see module docstring):
 
@@ -2166,6 +2167,43 @@ def run_cmd(
             "compare_files",
             ",".join(["<existing-review>", *succeeded_final_paths]),
         )
+        next_cmd_template = (
+            preflight_result.manifest.recommended_next_command_template or ""
+        )
+        if (
+            preflight_result.manifest.resolved_lens_entry.name == "refactor-find"
+            and next_cmd_template
+            == LENSES["refactor-find"].recommended_next_command_template
+            and "compare_files"
+            not in (
+                preflight_result.manifest.recommended_next_command_substitutions or {}
+            )
+        ):
+            # Only the bundled refactor-find handoff compares generated reports
+            # alone. Caller templates/substitutions and sibling lenses stay intact.
+            from shlex import quote
+
+            usable = (
+                2 <= len(succeeded_final_paths) <= 10
+                and len(succeeded_final_paths)
+                == sum(w.status == "success" for w in normalized_workers)
+                and all(
+                    "," not in path and Path(path).is_file()
+                    for path in succeeded_final_paths
+                )
+            )
+            if usable:
+                try:
+                    for path in succeeded_final_paths:
+                        with Path(path).open("rb") as report:
+                            report.read(1)
+                except OSError:
+                    usable = False
+            if usable:
+                next_cmd_subs["compare_files"] = quote(",".join(succeeded_final_paths))
+            else:
+                # An invalid suggestion must not change status or discard reports.
+                next_cmd_template = ""
         result_contract = reduce_wave3(
             normalized_workers,
             mode=inline_job.amalgamation_mode,
@@ -2178,9 +2216,7 @@ def run_cmd(
             caller=preflight_result.manifest.caller,
             target=preflight_result.manifest.target,
             caller_metadata=preflight_result.caller_metadata,
-            recommended_next_command_template=(
-                preflight_result.manifest.recommended_next_command_template or ""
-            ),
+            recommended_next_command_template=next_cmd_template,
             recommended_next_command_substitutions=next_cmd_subs,
             resume=False,
         )
@@ -4124,9 +4160,11 @@ def _write_scaffold_atomic(output_path: Path, payload: str) -> None:
         "Expands lens defaults (system/user prompts, recipe, workers, "
         "line_cap, next-command template) into a full DM-001 JobSpec "
         "the operator can edit. ``custom`` and unknown lens names are "
-        "rejected -- ``custom`` is the FR-021 escape hatch whose prompts "
-        "flow in from --custom-prompt-dir at preflight, so it has no "
-        "registry defaults to expand from."
+        "rejected -- ``custom`` is the FR-021 escape hatch with no "
+        "registry defaults to expand from. Directory-backed custom prompts "
+        "use the JobSpec ``custom_prompt_dir`` field with ``lens: custom`` "
+        "and are loaded at preflight; custom specs may instead supply "
+        "inline prompts without a directory."
     ),
 )
 @click.option(

@@ -1,0 +1,92 @@
+Fresh repaired public observation: 2026-11-24T15:29:46Z
+Checkout: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help
+Commit: 720cbaf96653c1c983497ba480f76ca6e60e5369
+Module origin command: PYTHONDONTWRITEBYTECODE=1 uv run --no-sync python -c 'import superclaude.cli.swarm.commands as commands; print(commands.__file__)'
+/home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/src/superclaude/cli/swarm/commands.py
+Existing temporary directory (same as before): /tmp/swarm-help-parser.wYfp70Qi
+
+Command: uv run --no-sync superclaude swarm validate-lenses --help
+Usage: superclaude swarm validate-lenses [OPTIONS]
+
+  Validate the bundled LENSES registry (FR-008 / T02.20).
+
+  Runs the COMP-023 five-assertion lens validator over every entry in
+  :data:`superclaude.cli.swarm.lenses.LENSES`. The ``custom`` escape hatch (COMP-026) is
+  intentionally skipped. Directory-backed custom prompts use the JobSpec ``custom_prompt_dir``
+  field with ``lens: custom`` and are loaded and validated at preflight (T02.05 / T02.07). Custom
+  specs may also supply inline prompts without a directory.
+
+  Exit codes (OQ-010 resolution -- see module docstring):
+
+      * 0 -- every non-custom entry passes its five COMP-023       assertions, OR ``--warning-
+      mode`` is set and failures are       emitted as warnings rather than errors.     * 1 -- one
+      or more entries failed validation and       ``--warning-mode`` is not set (default blocking
+      branch).     * 2 -- reserved for future usage errors (no path argument       accepted today,
+      but kept consistent with :func:`validate_cmd`       for a future ``--registry-path`` opt-
+      in).
+
+  Output:
+
+      * Success: one-line OK summary on stdout naming the registry       size and the count of
+      inspected (non-custom) entries.     * Failure: structured per-entry diagnostic block on
+      stderr,       one line per failing entry, format       ``- <rule> @ <path>: <message>
+      (lens=<lens_name>)``.
+
+Options:
+  --warning-mode  OQ-010 warning branch: emit per-entry diagnostics on stderr but exit 0 even when
+                  entries fail. Use for pre-commit hooks and non-blocking CI advisories. Default
+                  is blocking (exit 1 on any failure).
+  -h, --help      Show this message and exit.
+
+Observed exit status: 0
+
+Command: uv run --no-sync superclaude swarm scaffold --help
+Usage: superclaude swarm scaffold [OPTIONS]
+
+  Emit a starter JobSpec for the named lens (FR-006 / T07.09).
+
+  Generates a fully-populated DM-001 JobSpec for ``--lens NAME`` so operators have a valid
+  baseline they can edit instead of authoring the spec from scratch. The emitted spec passes
+  ``swarm validate`` out of the box -- the only fields the operator MUST override before invoking
+  ``swarm run`` are ``target.path`` (placeholder ``""``) and ``output.dir`` (placeholder ``""``).
+  Model IDs are filled with ``lens-default-model-<i>`` placeholders that schema-validate but never
+  reach the wire (the transport defaults to ``stub`` for the same safe-quick-dispatch reasoning as
+  ``swarm run --lens``).
+
+  Exit codes:
+
+      * 0 -- starter spec rendered successfully (to stdout, or to       ``--output`` when
+      supplied).     * 2 -- usage error: lens unknown, lens is the ``custom`` escape       hatch
+      (no registry defaults to expand from), or ``--output``       path is unwritable.
+
+Options:
+  --lens TEXT        Lens to scaffold a starter JobSpec for (e.g. bare-review). Expands lens
+                     defaults (system/user prompts, recipe, workers, line_cap, next-command
+                     template) into a full DM-001 JobSpec the operator can edit. ``custom`` and
+                     unknown lens names are rejected -- ``custom`` is the FR-021 escape hatch with
+                     no registry defaults to expand from. Directory-backed custom prompts use the
+                     JobSpec ``custom_prompt_dir`` field with ``lens: custom`` and are loaded at
+                     preflight; custom specs may instead supply inline prompts without a
+                     directory.  [required]
+  -o, --output FILE  Write the starter JobSpec to PATH atomically (tmp + os.replace). When
+                     omitted, the JSON document is emitted to stdout so it can be piped straight
+                     into ``swarm validate`` or redirected with the shell of choice.
+  -h, --help         Show this message and exit.
+
+Observed exit status: 0
+
+Command: uv run --no-sync superclaude swarm run --custom-prompt-dir /tmp/swarm-help-parser.wYfp70Qi
+Usage: superclaude swarm run [OPTIONS] [SPEC_PATH]
+Try 'superclaude swarm run --help' for help.
+
+Error: No such option '--custom-prompt-dir'.
+
+Observed exit status: 2
+
+Directory entries after parser probe:
+
+Comparison with public-before.txt (new analysis, not CLI output):
+The validate-lenses command is identical before:8 and after:8. Both exit 0 (before:39, after:41). The stale option in before:15-16 is replaced by JobSpec custom_prompt_dir, lens: custom, preflight validation and optional inline prompts in after:15-17.
+The scaffold command is identical before:41 and after:43. Both exit 0 (before:71, after:76). The stale option in before:64-66 is replaced by the supported field/lens binding and optional inline route in after:66-70; no-registry-defaults rejection remains explicit.
+The run-parser command and existing temporary directory are identical before:73 and after:78. Both exit 2 (before:78, after:84), with the same No such option diagnostic (before:77, after:82); the directory remains empty. No model job ran.
+These captures use uv run --no-sync to avoid dependency synchronization. This is fresh repaired public evidence, not a change to historical diagnostic rows or a successful custom-job claim.

@@ -1,0 +1,80 @@
+Public pre-fix baseline
+Timestamp: 2026-11-24T15:18:58Z
+Checkout: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help
+Commit: 720cbaf96653c1c983497ba480f76ca6e60e5369
+Module origin: /home/coder/workspaces/worktrees/IronClaude/issue-568-swarm-help/src/superclaude/cli/swarm/commands.py
+Parser temporary directory: /tmp/swarm-help-parser.wYfp70Qi
+
+Command: uv run --no-sync superclaude swarm validate-lenses --help
+Usage: superclaude swarm validate-lenses [OPTIONS]
+
+  Validate the bundled LENSES registry (FR-008 / T02.20).
+
+  Runs the COMP-023 five-assertion lens validator over every entry in
+  :data:`superclaude.cli.swarm.lenses.LENSES`. The ``custom`` escape hatch (COMP-026) is
+  intentionally skipped — its prompt body flows in from ``--custom-prompt-dir`` at preflight and
+  is validated on that path (T02.05 / T02.07).
+
+  Exit codes (OQ-010 resolution -- see module docstring):
+
+      * 0 -- every non-custom entry passes its five COMP-023       assertions, OR ``--warning-
+      mode`` is set and failures are       emitted as warnings rather than errors.     * 1 -- one
+      or more entries failed validation and       ``--warning-mode`` is not set (default blocking
+      branch).     * 2 -- reserved for future usage errors (no path argument       accepted today,
+      but kept consistent with :func:`validate_cmd`       for a future ``--registry-path`` opt-
+      in).
+
+  Output:
+
+      * Success: one-line OK summary on stdout naming the registry       size and the count of
+      inspected (non-custom) entries.     * Failure: structured per-entry diagnostic block on
+      stderr,       one line per failing entry, format       ``- <rule> @ <path>: <message>
+      (lens=<lens_name>)``.
+
+Options:
+  --warning-mode  OQ-010 warning branch: emit per-entry diagnostics on stderr but exit 0 even when
+                  entries fail. Use for pre-commit hooks and non-blocking CI advisories. Default
+                  is blocking (exit 1 on any failure).
+  -h, --help      Show this message and exit.
+Observed exit status: 0
+
+Command: uv run --no-sync superclaude swarm scaffold --help
+Usage: superclaude swarm scaffold [OPTIONS]
+
+  Emit a starter JobSpec for the named lens (FR-006 / T07.09).
+
+  Generates a fully-populated DM-001 JobSpec for ``--lens NAME`` so operators have a valid
+  baseline they can edit instead of authoring the spec from scratch. The emitted spec passes
+  ``swarm validate`` out of the box -- the only fields the operator MUST override before invoking
+  ``swarm run`` are ``target.path`` (placeholder ``""``) and ``output.dir`` (placeholder ``""``).
+  Model IDs are filled with ``lens-default-model-<i>`` placeholders that schema-validate but never
+  reach the wire (the transport defaults to ``stub`` for the same safe-quick-dispatch reasoning as
+  ``swarm run --lens``).
+
+  Exit codes:
+
+      * 0 -- starter spec rendered successfully (to stdout, or to       ``--output`` when
+      supplied).     * 2 -- usage error: lens unknown, lens is the ``custom`` escape       hatch
+      (no registry defaults to expand from), or ``--output``       path is unwritable.
+
+Options:
+  --lens TEXT        Lens to scaffold a starter JobSpec for (e.g. bare-review). Expands lens
+                     defaults (system/user prompts, recipe, workers, line_cap, next-command
+                     template) into a full DM-001 JobSpec the operator can edit. ``custom`` and
+                     unknown lens names are rejected -- ``custom`` is the FR-021 escape hatch
+                     whose prompts flow in from --custom-prompt-dir at preflight, so it has no
+                     registry defaults to expand from.  [required]
+  -o, --output FILE  Write the starter JobSpec to PATH atomically (tmp + os.replace). When
+                     omitted, the JSON document is emitted to stdout so it can be piped straight
+                     into ``swarm validate`` or redirected with the shell of choice.
+  -h, --help         Show this message and exit.
+Observed exit status: 0
+
+Command: uv run --no-sync superclaude swarm run --custom-prompt-dir /tmp/swarm-help-parser.wYfp70Qi
+Usage: superclaude swarm run [OPTIONS] [SPEC_PATH]
+Try 'superclaude swarm run --help' for help.
+
+Error: No such option '--custom-prompt-dir'.
+Observed exit status: 2
+Temporary directory contents after rejection: 
+Expected observed status sequence: 0,0,2
