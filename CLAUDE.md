@@ -70,7 +70,7 @@ gh pr create --repo IronbellyOrg/IronClaude --base integration --head <branch> -
 **Pre-PR checks (mandatory):**
 
 1. `git remote get-url origin` must print the `IronbellyOrg/IronClaude` URL, and `gh repo view IronbellyOrg/IronClaude --json nameWithOwner -q .nameWithOwner` must print `IronbellyOrg/IronClaude`. If gh's default repo is wrong, run `gh repo set-default IronbellyOrg/IronClaude`.
-2. `git fetch origin && git log integration..origin/integration` — if the fork's integration is ahead of the local integration, **rebase the branch onto `origin/integration`** before pushing. The fork has additional commits (e.g., `.claude/` untrack, lint cleanup) that the local clone may not have. Without rebasing, the PR creation will fail with "No commits between integration and <branch>".
+2. `git fetch origin && git log HEAD..origin/integration` — if the fork's `origin/integration` has commits your branch lacks (this works in a clone that has no local `integration` branch), **rebase the branch onto `origin/integration`** before pushing. The fork has additional commits (e.g., `.claude/` untrack, lint cleanup) that the local clone may not have. Without rebasing, the PR creation will fail with "No commits between integration and <branch>".
 3. After PR creation, **verify the returned URL points at `https://github.com/IronbellyOrg/IronClaude/pull/N`**. If it points at `SuperClaude-Org`, stop, report the URL to the user, and take no action on that PR; the user closes it. This matches `/sc:pr-submit`, which already halts on a misrouted URL.
 
 **There are no exceptions.**
