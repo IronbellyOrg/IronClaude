@@ -39,10 +39,15 @@ def isolated_home_guard(tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(home / "config"))
     state = SimpleNamespace(home=home)
-    # The existing real-framework ccsession fixture must not download plugins or
-    # Orca skills while exercising the real install.
+    # The existing real-framework ccsession fixture must not download plugins,
+    # Orca skills or a browser while exercising the real install.
     monkeypatch.setattr(
         install_user_setup, "install_plugins", lambda **kwargs: (True, "Plugin fixture")
+    )
+    monkeypatch.setattr(
+        install_user_setup,
+        "configure_playwright_browser",
+        lambda **kwargs: (True, "Browser fixture"),
     )
     monkeypatch.setattr(
         install_user_setup,

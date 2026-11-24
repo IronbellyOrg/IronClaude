@@ -18,12 +18,16 @@ defaults, and Orca's bundled skills.
   marketplace: the defaults' ``ironclaudeMarketplace`` catalog is written to
   ~/.claude/ironclaude-marketplace/ on every run, and each entry pins a commit,
   so a plugin changes only when a release changes the pin.
+- On Linux without Google Chrome, the Playwright plugin is pointed at
+  Playwright's own Chromium (installed when there is none) through settings
+  ``env``, because the plugin's server otherwise fails on every browser call.
 """
 
 import json
 import os
 import shutil
 import subprocess
+import sys
 import time
 from pathlib import Path
 from typing import List, Tuple
@@ -53,6 +57,11 @@ _HTTPS_GITHUB = {
     "GIT_CONFIG_KEY_0": "url.https://github.com/.insteadOf",
     "GIT_CONFIG_VALUE_0": "git@github.com:",
 }
+_PLAYWRIGHT_PLUGIN = "playwright@claude-plugins-official"
+# The browser the plugin's server looks for on Linux unless told otherwise.
+_GOOGLE_CHROME = Path("/opt/google/chrome/chrome")
+_PW_BROWSER = "PLAYWRIGHT_MCP_BROWSER"
+_PW_PATH = "PLAYWRIGHT_MCP_EXECUTABLE_PATH"
 
 
 def _package_dir(name: str) -> Path:
@@ -495,6 +504,105 @@ def install_plugins(
     return True, f"✅ Plugins: installed {', '.join(wanted)}"
 
 
+def _browsers_folder(home: Path) -> Path:
+    """Return Playwright's browser folder on Linux, found as Playwright finds it."""
+    folder = os.environ.get("PLAYWRIGHT_BROWSERS_PATH", "")
+    if folder not in ("", "0"):
+        return Path(folder)
+    return Path(os.environ.get("XDG_CACHE_HOME") or home / ".cache") / "ms-playwright"
+
+
+def _newest_chromium(root: Path) -> Path | None:
+    """Return the newest complete Chromium build in the browser folder ``root``."""
+    found = []
+    for build in root.glob("chromium-*"):
+        number = build.name.split("-", 1)[1]
+        if not number.isdigit() or not (build / "INSTALLATION_COMPLETE").exists():
+            continue  # another kind of build, or a download still in progress
+        for platform_dir in ("chrome-linux64", "chrome-linux-arm64", "chrome-linux"):
+            exe = build / platform_dir / "chrome"
+            if exe.is_file():
+                found.append((int(number), exe))
+    return max(found)[1] if found else None
+
+
+def _install_chromium(home: Path, deadline: float | None) -> str:
+    """Install Playwright's Chromium; returns "" or why it did not install."""
+    npx = shutil.which("npx")
+    if npx is None:
+        return "npx not found"
+    deadline = time.monotonic() + _NETWORK_BUDGET if deadline is None else deadline
+    remaining = deadline - time.monotonic()
+    if remaining < 2:
+        return "time limit"
+    try:
+        result = subprocess.run(
+            [npx, "-y", "playwright", "install", "chromium", "--no-shell"],
+            capture_output=True,
+            text=True,
+            timeout=remaining,
+            stdin=subprocess.DEVNULL,
+            env={**os.environ, "HOME": str(home)},
+            # Never the caller's folder: npx would run a project's own playwright.
+            cwd=str(home),
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        return str(exc)
+    if result.returncode == 0:
+        return ""
+    lines = (result.stderr or result.stdout).strip().splitlines()
+    return lines[-1] if lines else f"exit {result.returncode}"
+
+
+def configure_playwright_browser(
+    home: Path | None = None, deadline: float | None = None
+) -> Tuple[bool, str]:
+    """Point the Playwright plugin at Playwright's Chromium on Linux.
+
+    Without Google Chrome the plugin's server fails on every browser call, so
+    settings ``env`` names Playwright's newest installed Chromium, installing
+    one when there is none; a failed install is reported, not fatal. Headless
+    mode and the sandbox keep the server's own defaults. Other systems, a
+    disabled plugin, a working path and a browser the user chose are left
+    alone; a path that no longer exists is replaced.
+    """
+    home = Path.home() if home is None else Path(home)
+    if not sys.platform.startswith("linux"):
+        return True, "⏭️  Playwright browser: not Linux; plugin default kept"
+    settings_path = home / ".claude" / "settings.json"
+    settings, _error = _load_settings(settings_path)
+    if settings is None:
+        return True, f"⏭️  Playwright browser: {settings_path} unreadable; skipped"
+    plugins = settings.get("enabledPlugins")
+    env = settings.get("env", {})
+    if not isinstance(plugins, dict) or plugins.get(_PLAYWRIGHT_PLUGIN) is not True:
+        return True, "⏭️  Playwright browser: plugin not enabled; skipped"
+    if not isinstance(env, dict) or env.get(_PW_BROWSER, "chromium") != "chromium":
+        return True, "⏭️  Playwright browser: set otherwise in settings env; kept"
+    path = env.get(_PW_PATH)
+    if isinstance(path, str) and Path(path).is_file():
+        return True, f"✅ Playwright browser: already set ({path})"
+    if not path and _GOOGLE_CHROME.is_file():
+        return True, "✅ Playwright browser: Google Chrome found; plugin default kept"
+    folder = _browsers_folder(home)
+    exe = _newest_chromium(folder)
+    reason = ""
+    if exe is None:
+        reason = _install_chromium(home, deadline)
+        exe = _newest_chromium(folder)
+    if exe is None:
+        why = f"install failed: {reason}" if reason else f"none found in {folder}"
+        return True, (
+            f"⚠️  Playwright browser: no Chromium ({why}); rerun "
+            "`superclaude install` or run `npx playwright install chromium`"
+        )
+    env.update({_PW_BROWSER: "chromium", _PW_PATH: str(exe)})
+    settings["env"] = env
+    backup = _write_settings(settings_path, settings)
+    message = f"✅ Playwright browser: set to {exe}"
+    return True, message + (f"\n💾 Backup: {backup}" if backup else "")
+
+
 def install_user_setup(force: bool = False) -> Tuple[bool, str]:
     """Run every user-setup step; returns combined success and messages."""
     deadline = time.monotonic() + _NETWORK_BUDGET
@@ -504,5 +612,6 @@ def install_user_setup(force: bool = False) -> Tuple[bool, str]:
         apply_settings_defaults(),
         install_orca_skills(deadline=deadline, force=force),
         install_plugins(deadline=deadline),
+        configure_playwright_browser(deadline=deadline),
     ]
     return all(ok for ok, _ in results), "\n".join(msg for _, msg in results)
