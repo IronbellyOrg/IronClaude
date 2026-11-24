@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
@@ -39,6 +40,7 @@ from .defaults import Defaults
 from .runner import Runner
 
 REPORT_FILE = "first-run.txt"
+_FAILED_HEAD = re.compile(r"first-run: failed ([a-z_]+):")
 LOCK_HELD_EXIT = 75
 
 STEPS = ("config", "label", "init_state", "dry_run", "lock", "restart")
@@ -81,6 +83,36 @@ def _report_dir(config_path: Path, raw: dict | None) -> Path:
     if isinstance(state, str) and os.path.isabs(state):
         return Path(state)
     return config_path.parent
+
+
+def _report_name(config_path: Path, directory: Path) -> str:
+    """``first-run.txt`` in a state dir; ``<stem>-first-run.txt`` beside a config with none."""
+    if directory != config_path.parent:
+        return REPORT_FILE
+    return f"{config_path.stem}-{REPORT_FILE}"
+
+
+def failed_step(config_path: Path) -> tuple[str, datetime] | None:
+    """The step a failed first run stopped at and when its report was written, else None.
+
+    Read only. Looks where ``first_run`` writes the report, opens it without following a
+    symlink, reads at most 4096 bytes of its first line, and returns None for a missing,
+    unreadable or non-UTF-8 file and for any report that does not start ``first-run: failed``.
+    """
+    config_path = Path(config_path)
+    directory = _report_dir(config_path, _raw_config(config_path))
+    path = directory / _report_name(config_path, directory)
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+        with os.fdopen(fd, "rb") as handle:
+            head = handle.read(4096).split(b"\n", 1)[0].decode("utf-8")
+            written = os.fstat(handle.fileno()).st_mtime
+    except (OSError, ValueError):  # UnicodeDecodeError is a ValueError
+        return None
+    found = _FAILED_HEAD.match(head)
+    if found is None:
+        return None
+    return found.group(1), datetime.fromtimestamp(written, timezone.utc)
 
 
 def _write_report(directory: Path, text: str, name: str = REPORT_FILE) -> Path | None:
@@ -138,11 +170,7 @@ def first_run(
     directory = _report_dir(config_path, raw)
     # A config with no readable state_dir reports next to itself, under its own name, so two
     # repositories never overwrite one report.
-    report_name = (
-        REPORT_FILE
-        if directory != config_path.parent
-        else (f"{config_path.stem}-{REPORT_FILE}")
-    )
+    report_name = _report_name(config_path, directory)
     steps: list[Step] = []
     lines: list[str] = []
 

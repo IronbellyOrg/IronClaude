@@ -1,0 +1,16 @@
+schema_version: 1
+command: impact
+status: partial
+caller: sc-troubleshoot-protocol
+output_dir: /home/coder/workspaces/worktrees/IronClaude/issue-751/.dev/troubleshoot/bug-issue-watcher-never-retries-failed-20261123222116/impact
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-751/.dev/troubleshoot/bug-issue-watcher-never-retries-failed-20261123222116/impact/impact.md
+contract_path: /home/coder/workspaces/worktrees/IronClaude/issue-751/.dev/troubleshoot/bug-issue-watcher-never-retries-failed-20261123222116/impact/return-contract.yaml
+input: {mode: symbols, symbols: [run_sweep, first_run], diff_base: null, changed_files: [], depth: 2, limit: 20, tests: false, test_depth: null}
+advisory: true
+degraded: [graph:stale, graph:unresolved]
+symbols:
+  - {name: run_sweep, file: src/superclaude/cli/issue_watch/dispatch.py, start_line: 348, end_line: 492, mapped_by: name, prod: {shown: 1, total: 1}, test: {shown: 1, total: 1}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 2}, truncated: false}
+  - {name: first_run, file: src/superclaude/cli/issue_watch/first_run.py, start_line: 125, end_line: 254, mapped_by: name, prod: {shown: 1, total: 1}, test: {shown: 2, total: 2}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 2}, truncated: false}
+dependents_omitted: 0
+call_sites: {verified: 0, unresolved: 5, dropped: 0, budget: "5/symbol, 20/run"}
+errors: []
