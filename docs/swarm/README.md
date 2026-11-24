@@ -106,15 +106,16 @@ contains:
 | `execution-log.md` | Human-readable mirror of the same stream | same |
 | `manifest.json` | Lens snapshot + preflight summary + caller metadata (resume anchor) | [Command Ref → run artifacts](command-reference.md#run-artifacts) |
 | `.swarm-state.json` | Coarse wave phase (`preflight_ok`…`terminal`) | [Command Ref → status](command-reference.md#swarm-status) |
+| `<lens>-NN-<model>.raw.md` | Retained worker response when raw retention is enabled (the default) | [Command Ref → run artifacts](command-reference.md#run-artifacts) |
 | `<lens>-NN-<model>.final.md` | One normalized output per worker (Wave 2) | [Command Ref → run artifacts](command-reference.md#run-artifacts) |
 | `<lens>-NN-<model>.meta.json` | Per-worker sidecar (status, attempts, timing) | same |
 | `merged.md` | All worker outputs merged (Wave 3; written when `amalgamation_mode` is `normalize+merge`, the default for every bundled lens) | same |
 | `return-contract.yaml` | Run status (`success` / `partial` / `failed`), worker counts, output paths, recommended next command | same |
 | `done.json` | Atomic completion marker: `atomic_write: true`, `terminal_status` matching the actual result (`success` / `partial` / `failed`), and `contract_path` pointing to the absolute persisted contract path | same |
 
-A default stub `bare-review` run, for example, leaves 13 entries: the four observability
-files, three `bare-review-0N-lens-default-model-0.final.md` + `.meta.json` pairs,
-`merged.md`, `return-contract.yaml` and `done.json`.
+A default stub `bare-review` run, for example, leaves 16 entries: the four observability
+files, three `bare-review-0N-lens-default-model-0` worker sets (`.raw.md`, `.final.md`
+and `.meta.json`), `merged.md`, `return-contract.yaml` and `done.json`.
 
 **Completion policy.** Foreground and resumed runs publish `done.json` after the
 contract and terminal state are persisted; detached children use the same completion

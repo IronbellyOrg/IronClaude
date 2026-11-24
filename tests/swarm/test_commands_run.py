@@ -581,7 +581,8 @@ def test_completion_policy_input_modes(tmp_path, monkeypatch, stdin, enabled):
     monkeypatch.chdir(tmp_path)
     args = ["--stdin"] if stdin else [str(path)]
     result = CliRunner().invoke(
-        swarm_group, ["run", *args, "--output", "out"],
+        swarm_group,
+        ["run", *args, "--output", "out"],
         input=json.dumps(spec) if stdin else None,
     )
     assert result.exit_code == EXIT_OK, result.output
@@ -591,19 +592,25 @@ def test_completion_policy_input_modes(tmp_path, monkeypatch, stdin, enabled):
     assert (out / "done.json").exists() is enabled
     if enabled:
         assert json.loads((out / "done.json").read_text()) == {
-            "atomic_write": True, "terminal_status": contract["status"],
+            "atomic_write": True,
+            "terminal_status": contract["status"],
             "contract_path": str(out / "return-contract.yaml"),
         }
 
 
-@pytest.mark.parametrize("successes,expected", [(3, "success"), (2, "partial"), (0, "failed")])
-def test_completion_uses_reduced_status_and_order(tmp_path, monkeypatch, successes, expected):
+@pytest.mark.parametrize(
+    "successes,expected", [(3, "success"), (2, "partial"), (0, "failed")]
+)
+def test_completion_uses_reduced_status_and_order(
+    tmp_path, monkeypatch, successes, expected
+):
     """Real reduction and writer publish actual verdict only after terminal persistence."""
     import yaml
 
     import superclaude.cli.swarm.commands as commands
     import superclaude.cli.swarm.dispatch as dispatch
     import superclaude.cli.swarm.reduce as reducer
+
     spec = _runnable_spec(tmp_path)
     spec["amalgamation_mode"] = "normalize"
     out = tmp_path / "out"
@@ -627,21 +634,27 @@ def test_completion_uses_reduced_status_and_order(tmp_path, monkeypatch, success
         return real_state(root, value, job_id)
 
     def marker(status, contract_path):
-        assert json.loads((out / ".swarm-state.json").read_text())["state"] == "terminal"
+        assert (
+            json.loads((out / ".swarm-state.json").read_text())["state"] == "terminal"
+        )
         assert yaml.safe_load(Path(contract_path).read_text())["status"] == status
         events.append("marker")
         return real_marker(status, contract_path)
 
     monkeypatch.setattr(commands, "_write_swarm_state", state)
     monkeypatch.setattr(reducer, "emit_done_sentinel", marker)
-    result = CliRunner().invoke(swarm_group, ["run", str(_write_spec(tmp_path, spec)), "--output", str(out)])
+    result = CliRunner().invoke(
+        swarm_group, ["run", str(_write_spec(tmp_path, spec)), "--output", str(out)]
+    )
     assert result.exit_code == EXIT_OK, result.output
     assert json.loads((out / "done.json").read_text())["terminal_status"] == expected
     assert events == ["terminal", "marker"]
 
 
 @pytest.mark.parametrize("failure", ["reduce", "contract", "terminal"])
-def test_completion_not_published_when_persistence_fails(tmp_path, monkeypatch, failure):
+def test_completion_not_published_when_persistence_fails(
+    tmp_path, monkeypatch, failure
+):
     import superclaude.cli.swarm.commands as commands
     import superclaude.cli.swarm.reduce as reducer
 
@@ -657,19 +670,25 @@ def test_completion_not_published_when_persistence_fails(tmp_path, monkeypatch, 
     elif failure == "contract":
         monkeypatch.setattr(reducer, "emit_contract", fail)
     else:
+
         def state(root, value, job_id):
             if value == "terminal":
                 fail()
             return real_state(root, value, job_id)
+
         monkeypatch.setattr(commands, "_write_swarm_state", state)
-    result = CliRunner().invoke(swarm_group, ["run", str(_write_spec(tmp_path, spec)), "--output", str(out)])
+    result = CliRunner().invoke(
+        swarm_group, ["run", str(_write_spec(tmp_path, spec)), "--output", str(out)]
+    )
     assert result.exit_code != EXIT_OK
     assert isinstance(result.exception, OSError)
     assert not (out / "done.json").exists()
 
 
 @pytest.mark.parametrize("branch", ["no-output", "no-recipe", "preflight", "transport"])
-def test_completion_not_fabricated_without_terminal_reduction(tmp_path, monkeypatch, branch):
+def test_completion_not_fabricated_without_terminal_reduction(
+    tmp_path, monkeypatch, branch
+):
     import superclaude.cli.swarm.commands as commands
 
     spec = _runnable_spec(tmp_path)
@@ -681,9 +700,15 @@ def test_completion_not_fabricated_without_terminal_reduction(tmp_path, monkeypa
         Path(spec["target"]["path"]).write_text("tiny")
     elif branch == "transport":
         from superclaude.cli.swarm.transports.openai_compat import TransportEnvError
+
         def fail(*a, **kw):
             raise TransportEnvError("injected missing environment")
+
         monkeypatch.setattr(commands, "_resolve_run_transport_factory", fail)
-    result = CliRunner().invoke(swarm_group, ["run", str(_write_spec(tmp_path, spec)), *args])
-    assert result.exit_code == (EXIT_INVALID if branch in {"preflight", "transport"} else EXIT_OK), result.output
+    result = CliRunner().invoke(
+        swarm_group, ["run", str(_write_spec(tmp_path, spec)), *args]
+    )
+    assert result.exit_code == (
+        EXIT_INVALID if branch in {"preflight", "transport"} else EXIT_OK
+    ), result.output
     assert not (out / "done.json").exists()

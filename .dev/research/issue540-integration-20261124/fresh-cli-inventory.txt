@@ -1,0 +1,29 @@
+<frozen runpy>:128: RuntimeWarning: 'superclaude.cli.main' found in sys.modules after import of package 'superclaude.cli', but prior to execution of 'superclaude.cli.main'; this may result in unpredictable behaviour
+swarm run: dispatched job (mode=lens, workers=3, results=3)
+{
+  "output_dir": "/tmp/issue540-integrated-cli.ylt4KO/out",
+  "count": 16,
+  "files": [
+    ".swarm-state.json",
+    "bare-review-00-lens-default-model-0.final.md",
+    "bare-review-00-lens-default-model-0.meta.json",
+    "bare-review-00-lens-default-model-0.raw.md",
+    "bare-review-01-lens-default-model-0.final.md",
+    "bare-review-01-lens-default-model-0.meta.json",
+    "bare-review-01-lens-default-model-0.raw.md",
+    "bare-review-02-lens-default-model-0.final.md",
+    "bare-review-02-lens-default-model-0.meta.json",
+    "bare-review-02-lens-default-model-0.raw.md",
+    "done.json",
+    "execution-log.jsonl",
+    "execution-log.md",
+    "manifest.json",
+    "merged.md",
+    "return-contract.yaml"
+  ],
+  "marker": {
+    "atomic_write": true,
+    "contract_path": "/tmp/issue540-integrated-cli.ylt4KO/out/return-contract.yaml",
+    "terminal_status": "success"
+  }
+}

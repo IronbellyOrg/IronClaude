@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-24",
+  "base_commit": "f75cf81e3bf9ad61e22bb2e8b81052aba233fc5b",
+  "rebased_fix_commit": "7af652b70178a484f856ac64d87a22ff90898794",
+  "original_fix_commit": "075b4db32",
+  "scope": "Integrate the unpublished issue 540 completion-marker fix with newer master resume context and artifact reconciliation changes; retain both sets of tests.",
+  "runtime": "PYTHONPATH=$PWD/src PYTHONDONTWRITEBYTECODE=1 uv run --no-project --python /opt/uv/tools/superclaude/bin/python",
+  "swarm_and_reflect": {"passed": 3139, "skipped": 19, "failed": 0, "output": "swarm-and-reflect.txt", "timing": "after rebase, before formatting-only cleanup"},
+  "post_format_completion": {"passed": 115, "skipped": 2, "failed": 0, "output": "post-format-completion.txt"},
+  "architecture": {"exit": 0, "warnings": 4, "output": "architecture.txt"},
+  "lint": {"exit": 0, "ruff_version": "0.15.20", "scope": ".", "output": "lint.txt"},
+  "format": {"exit": 0, "ruff_version": "0.15.20", "scope": "src/ tests/", "output": "format.txt"},
+  "initial_formatter_attempt": {"exit": 1, "ruff_version": "0.17.3", "output": "initial-unpinned-format.txt", "resolution": "pyproject.toml pins 0.15.20; used that version and formatted only the two changed tests. The six Markdown failures under 0.17.3 are outside scope and unchanged."},
+  "make_lint": {"exit": 0, "output": "make-lint.txt", "runtime_note": "UV_NO_SYNC=1 UV_PROJECT_ENVIRONMENT=/opt/uv/tools/superclaude with pinned Ruff 0.15.20 on PATH and local PYTHONPATH"},
+  "independent_review": "../issue540-rebase-review-20261124.md",
+  "review_file_delivery": "The read-only reviewer could not author Markdown. Its findings were recorded by the main session with that limitation disclosed.",
+  "inventory_correction": {"observed_entries": 16, "raw_files": 3, "output": "fresh-cli-inventory.txt", "change": "Updated docs/swarm/README.md to match newer master raw retention. Historical 13-entry captures were not changed."},
+  "initial_navigation_check": {"exit": 1, "cause": "Only the pending independent-review report link was missing before that report was recorded; all 61 original hashes matched."},
+  "historical_evidence": "Original diagnostic captures and archived execution evidence were not overwritten; these are new integration checks."
+}

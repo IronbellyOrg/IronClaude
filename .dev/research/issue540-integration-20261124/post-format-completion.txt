@@ -1,0 +1,5 @@
+...............................................................................ss....................................                                                        [100%]
+============================================================================= short test summary info ==============================================================================
+SKIPPED [1] tests/swarm/test_tmux_detached.py:112: this branch only fires when tmux is absent
+SKIPPED [1] tests/swarm/test_tmux_detached.py:125: patched-tmux path covers monkeypatched absence
+115 passed, 2 skipped in 4.29s

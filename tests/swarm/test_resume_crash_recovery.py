@@ -387,7 +387,9 @@ def test_resume_skips_succeeded_workers_and_redispatches_remaining(
     assert "skipped=1" in result.stdout
     assert "redispatched=2" in result.stdout
     assert JOB_ID in result.stdout
-    assert json.loads((out_dir / "done.json").read_text())["terminal_status"] == "success"
+    assert (
+        json.loads((out_dir / "done.json").read_text())["terminal_status"] == "success"
+    )
 
 
 def test_resume_all_workers_succeeded_skips_redispatch(
@@ -423,7 +425,9 @@ def test_resume_all_workers_succeeded_skips_redispatch(
     assert dispatch_calls == []
     assert "skipped=3" in result.stdout
     assert "redispatched=0" in result.stdout
-    assert json.loads((out_dir / "done.json").read_text())["terminal_status"] == "success"
+    assert (
+        json.loads((out_dir / "done.json").read_text())["terminal_status"] == "success"
+    )
 
 
 def test_resume_regenerates_merged_md(

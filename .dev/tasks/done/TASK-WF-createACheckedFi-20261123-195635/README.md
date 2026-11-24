@@ -14,7 +14,8 @@ This is the completed implementation package for the missing swarm completion ma
 | Foreground positive command-line witness | [Capture](artifacts/foreground-cli-check.txt), [saved marker](artifacts/foreground-cli/done.json), [result contract](artifacts/foreground-cli/return-contract.yaml) |
 | Resume positive command-line witness | [Capture](artifacts/resume-cli-check.txt), [saved marker](artifacts/resume-cli/done.json), [result contract](artifacts/resume-cli/return-contract.yaml) |
 | Detached negative and positive witnesses | [Appended capture records](artifacts/detached-check.txt), [successful child marker](artifacts/detached-cli/verified/out/done.json), [result contract](artifacts/detached-cli/verified/out/return-contract.yaml) |
-| Combined affected-test results | [Runtime checks](artifacts/final-runtime-check.txt) |
+| Combined affected-test results before integration with newer master | [Runtime checks](artifacts/final-runtime-check.txt) |
+| Fresh checks after integration with newer master | [Integration checks and raw outputs](../../../research/issue540-integration-20261124/checks.json), [independent integration review](../../../research/issue540-rebase-review-20261124.md) |
 | Completion documentation and local-link checks | [Reference checks](artifacts/reference-doc-check.txt), [monitoring checks](artifacts/monitoring-doc-check.txt) |
 | Retry history and reviewer notes | [Detached review](artifacts/retries/T3/operator-review-2.md), [reference review](artifacts/retries/T4/review-2.md), [monitoring review](artifacts/retries/T5/review-1.md) |
 | Transferred-evidence validation | [Path audit](../../../research/issue540-transfer-path-audit-20261124.json) |
