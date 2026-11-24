@@ -28,7 +28,7 @@
   },
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,
-    "playwright@claude-plugins-official": true,
+    "playwright@claude-plugins-official": false,
     "notion@claude-plugins-official": true,
     "dropbox@claude-plugins-official": true,
     "google-cloud-storage@claude-plugins-official": true,

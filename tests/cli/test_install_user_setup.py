@@ -171,13 +171,44 @@ def test_settings_defaults_add_ponytail_for_existing_users(tmp_path: Path) -> No
     assert "ironclaude" not in settings["extraKnownMarketplaces"]
     assert settings["env"]["PONYTAIL_DEFAULT_MODE"] == "lite"
     for plugin, value in old_plugins.items():
-        assert settings["enabledPlugins"][plugin] is value
+        # Earlier defaults turned Playwright on; it is now turned off once.
+        expected = False if plugin == "playwright@claude-plugins-official" else value
+        assert settings["enabledPlugins"][plugin] is expected, plugin
     for market, value in old_markets.items():
         assert settings["extraKnownMarketplaces"][market] == value
     assert setup.apply_settings_defaults(home=tmp_path) == (
         True,
         "✅ Settings defaults: already present",
     )
+
+
+def test_playwright_is_off_by_default_and_turned_off_once(tmp_path: Path) -> None:
+    """Issue 764: off for new installs; an earlier default `true` goes off once."""
+    plugin = "playwright@claude-plugins-official"
+    assert _defaults()["enabledPlugins"][plugin] is False
+    fresh = tmp_path / "fresh"
+    assert setup.apply_settings_defaults(home=fresh)[0]
+    assert _settings(fresh)["enabledPlugins"][plugin] is False
+    assert (fresh / setup._PLAYWRIGHT_OFF_MARKER).exists()
+
+    home = tmp_path / "existing"
+    (home / ".claude").mkdir(parents=True)
+    settings = {**_defaults(), "enabledPlugins": {**_defaults()["enabledPlugins"]}}
+    del settings[setup._CATALOG_KEY]
+    settings["enabledPlugins"][plugin] = True  # what earlier defaults wrote
+    (home / ".claude" / "settings.json").write_text(json.dumps(settings))
+    ok, message = setup.apply_settings_defaults(home=home)
+    assert ok and f"turned {plugin} off" in message and "--scope local" in message
+    assert _settings(home)["enabledPlugins"][plugin] is False
+    assert list((home / ".claude").glob("settings.json.bak.*"))
+    # Turned on again by the user after that: it stays on.
+    settings["enabledPlugins"][plugin] = True
+    (home / ".claude" / "settings.json").write_text(json.dumps(settings))
+    assert setup.apply_settings_defaults(home=home) == (
+        True,
+        "✅ Settings defaults: already present",
+    )
+    assert _settings(home)["enabledPlugins"][plugin] is True
 
 
 def test_settings_defaults_keep_user_ponytail_choices(tmp_path: Path) -> None:
@@ -859,7 +890,7 @@ PW_PLUGIN = "playwright@claude-plugins-official"
 
 @pytest.fixture
 def linux_without_chrome(tmp_path: Path, monkeypatch) -> Path:
-    """A Linux home with the Playwright plugin enabled and no Google Chrome."""
+    """A Linux home with no Google Chrome and the Playwright plugin off (the default)."""
     monkeypatch.setattr(setup.sys, "platform", "linux")
     monkeypatch.setattr(setup, "_GOOGLE_CHROME", tmp_path / "no-chrome" / "chrome")
     monkeypatch.delenv("PLAYWRIGHT_BROWSERS_PATH", raising=False)
@@ -870,7 +901,7 @@ def linux_without_chrome(tmp_path: Path, monkeypatch) -> Path:
     return home
 
 
-def _write_pw_settings(home: Path, env: object, enabled: object = True) -> None:
+def _write_pw_settings(home: Path, env: object, enabled: object = False) -> None:
     settings = {"enabledPlugins": {PW_PLUGIN: enabled}, "env": env}
     (home / ".claude" / "settings.json").write_text(json.dumps(settings))
 
@@ -907,6 +938,8 @@ def test_playwright_browser_uses_newest_complete_chromium(
         "PLAYWRIGHT_MCP_BROWSER": "chromium",
         "PLAYWRIGHT_MCP_EXECUTABLE_PATH": str(newest),
     }
+    # Written while the plugin is off, and the plugin stays off.
+    assert _settings(home)["enabledPlugins"] == {PW_PLUGIN: False}
     assert setup.configure_playwright_browser(home=home) == (
         True,
         f"✅ Playwright browser: already set ({newest})",
@@ -986,9 +1019,7 @@ def test_playwright_browser_install_failure_is_not_fatal(
     assert (home / ".claude" / "settings.json").read_text() == before
 
 
-@pytest.mark.parametrize(
-    "case", ["darwin", "disabled", "chrome", "user-browser", "user-path"]
-)
+@pytest.mark.parametrize("case", ["darwin", "chrome", "user-browser", "user-path"])
 def test_playwright_browser_leaves_other_setups_alone(
     linux_without_chrome: Path, monkeypatch, case: str
 ) -> None:
@@ -996,8 +1027,6 @@ def test_playwright_browser_leaves_other_setups_alone(
     _chromium(home / ".cache" / "ms-playwright", "chromium-1248")
     if case == "darwin":
         monkeypatch.setattr(setup.sys, "platform", "darwin")
-    elif case == "disabled":
-        _write_pw_settings(home, {}, enabled=False)
     elif case == "chrome":
         chrome = setup._GOOGLE_CHROME
         chrome.parent.mkdir(parents=True)
