@@ -445,3 +445,63 @@ def test_failed_step_writes_nothing(tmp_path) -> None:
     before = sorted(str(p) for p in tmp_path.rglob("*"))
     first_run.failed_step(h.path)
     assert sorted(str(p) for p in tmp_path.rglob("*")) == before
+
+
+def test_failed_step_does_not_block_on_a_fifo_at_the_report_path(tmp_path) -> None:
+    import threading
+
+    state = tmp_path / "state"
+    state.mkdir()
+    path = _plain_config(tmp_path, state_dir=str(state))
+    os.mkfifo(state / first_run.REPORT_FILE)
+    found: list[object] = []
+    worker = threading.Thread(
+        target=lambda: found.append(first_run.failed_step(path)), daemon=True
+    )
+    worker.start()
+    worker.join(2)
+    assert not worker.is_alive(), "failed_step blocked on a FIFO"
+    assert found == [None]
+
+
+def test_failed_step_finds_a_later_step_report_when_the_config_has_no_state_dir(
+    tmp_path,
+) -> None:
+    # first_run writes the report of a step after the config step in the validated state dir,
+    # which is the default one when the config names none.
+    h = Harness(tmp_path)
+    raw = json.loads(h.path.read_text())
+    del raw["state_dir"]
+    h.path.write_text(json.dumps(raw))
+    state = cycle.load_config(h.path).state_dir
+    state.mkdir(parents=True)
+    (state / first_run.REPORT_FILE).write_text(
+        "first-run: failed label: label_failed\n"
+    )
+    found = first_run.failed_step(h.path)
+    assert found is not None and found[0] == "label"
+
+
+def test_failed_step_finds_a_later_step_report_when_state_dir_is_the_config_folder(
+    tmp_path,
+) -> None:
+    h = Harness(tmp_path, state_dir=str(tmp_path / "cfg"))
+    (tmp_path / "cfg" / first_run.REPORT_FILE).write_text(
+        "first-run: failed dry_run: origin_mismatch\n"
+    )
+    found = first_run.failed_step(h.path)
+    assert found is not None and found[0] == "dry_run"
+
+
+def test_failed_step_takes_the_newer_of_the_two_report_locations(tmp_path) -> None:
+    h = Harness(tmp_path, state_dir=str(tmp_path / "cfg"))
+    old = tmp_path / "cfg" / f"IronClaude-{first_run.REPORT_FILE}"
+    new = tmp_path / "cfg" / first_run.REPORT_FILE
+    old.write_text("first-run: failed config: worktree_invalid\n")
+    new.write_text("first-run: passed\n")
+    os.utime(old, (1_000_000, 1_000_000))
+    os.utime(new, (2_000_000, 2_000_000))
+    assert first_run.failed_step(h.path) is None
+    os.utime(old, (3_000_000, 3_000_000))
+    found = first_run.failed_step(h.path)
+    assert found is not None and found[0] == "config"

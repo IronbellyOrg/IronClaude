@@ -54,7 +54,8 @@ from .runner import Runner
 LOOP_CAP_S = 270.0
 CHILD_TIMEOUT_S = 255.0
 GIT_TIMEOUT_S = 15.0
-RETRY_AFTER_S = 3600.0  # a failed first run past the config step is retried after this long
+# a failed first run past the config step is retried only after this long
+RETRY_AFTER_S = 3600.0
 ROTATION_FILE = "rotation.json"
 RATE_WAIT_FILE = "account-rate-wait.json"
 LOCK_FILE = "run-all.lock"
