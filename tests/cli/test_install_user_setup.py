@@ -455,13 +455,20 @@ def test_user_setup_passes_force_to_orca_without_skipping_plugins(
         calls.append(("plugins", kwargs))
         return True, "plugins"
 
+    def browser(**kwargs):
+        calls.append(("browser", kwargs))
+        return True, "browser"
+
     monkeypatch.setattr(setup, "install_orca_skills", orca)
     monkeypatch.setattr(setup, "install_plugins", plugins)
+    monkeypatch.setattr(setup, "configure_playwright_browser", browser)
     ok, message = setup.install_user_setup(force=force)
     assert ok and "Skipped edited guide" in message and "plugins" in message
+    assert "browser" in message
     assert calls == [
         ("orca", {"force": force, "deadline": 100.0 + setup._NETWORK_BUDGET}),
         ("plugins", {"deadline": 100.0 + setup._NETWORK_BUDGET}),
+        ("browser", {"deadline": 100.0 + setup._NETWORK_BUDGET}),
     ]
 
 
@@ -845,6 +852,167 @@ def test_plugins_skip_when_claude_cli_is_absent(tmp_path: Path, monkeypatch) -> 
         True,
         "⏭️  Plugins: claude CLI not found; skipped",
     )
+
+
+PW_PLUGIN = "playwright@claude-plugins-official"
+
+
+@pytest.fixture
+def linux_without_chrome(tmp_path: Path, monkeypatch) -> Path:
+    """A Linux home with the Playwright plugin enabled and no Google Chrome."""
+    monkeypatch.setattr(setup.sys, "platform", "linux")
+    monkeypatch.setattr(setup, "_GOOGLE_CHROME", tmp_path / "no-chrome" / "chrome")
+    monkeypatch.delenv("PLAYWRIGHT_BROWSERS_PATH", raising=False)
+    monkeypatch.delenv("XDG_CACHE_HOME", raising=False)
+    home = tmp_path / "home"
+    (home / ".claude").mkdir(parents=True)
+    _write_pw_settings(home, {"KEEP": "1"})
+    return home
+
+
+def _write_pw_settings(home: Path, env: object, enabled: object = True) -> None:
+    settings = {"enabledPlugins": {PW_PLUGIN: enabled}, "env": env}
+    (home / ".claude" / "settings.json").write_text(json.dumps(settings))
+
+
+def _chromium(
+    root: Path, build: str, complete: bool = True, platform_dir: str = "chrome-linux64"
+) -> Path:
+    exe = root / build / platform_dir / "chrome"
+    exe.parent.mkdir(parents=True)
+    exe.write_text("")
+    if complete:
+        (root / build / "INSTALLATION_COMPLETE").write_text("")
+    return exe
+
+
+def _no_run(*_args, **_kwargs):
+    raise AssertionError("no install expected")
+
+
+def test_playwright_browser_uses_newest_complete_chromium(
+    linux_without_chrome: Path, monkeypatch
+) -> None:
+    home = linux_without_chrome
+    cache = home / ".cache" / "ms-playwright"
+    _chromium(cache, "chromium-1200")
+    newest = _chromium(cache, "chromium-1248")
+    _chromium(cache, "chromium-1300", complete=False)  # still downloading
+    _chromium(cache, "chromium-tip-of-tree-1400")  # not a numbered build
+    monkeypatch.setattr(setup.subprocess, "run", _no_run)
+    ok, message = setup.configure_playwright_browser(home=home)
+    assert ok and message.startswith(f"✅ Playwright browser: set to {newest}")
+    assert _settings(home)["env"] == {
+        "KEEP": "1",
+        "PLAYWRIGHT_MCP_BROWSER": "chromium",
+        "PLAYWRIGHT_MCP_EXECUTABLE_PATH": str(newest),
+    }
+    assert setup.configure_playwright_browser(home=home) == (
+        True,
+        f"✅ Playwright browser: already set ({newest})",
+    )
+    # A path that no longer exists (an old build was removed) is replaced.
+    browsers = home / "browsers"
+    other = _chromium(browsers, "chromium-1255")
+    monkeypatch.setenv("PLAYWRIGHT_BROWSERS_PATH", str(browsers))
+    newest.unlink()
+    assert setup.configure_playwright_browser(home=home)[0]
+    assert _settings(home)["env"]["PLAYWRIGHT_MCP_EXECUTABLE_PATH"] == str(other)
+
+
+@pytest.mark.parametrize("platform_dir", ["chrome-linux-arm64", "chrome-linux"])
+def test_playwright_browser_finds_other_linux_builds(
+    linux_without_chrome: Path, monkeypatch, tmp_path: Path, platform_dir: str
+) -> None:
+    """ARM and older builds have their own folder; XDG_CACHE_HOME moves the cache."""
+    home = linux_without_chrome
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path / "xdg"))
+    exe = _chromium(
+        tmp_path / "xdg" / "ms-playwright", "chromium-1255", platform_dir=platform_dir
+    )
+    monkeypatch.setattr(setup.subprocess, "run", _no_run)
+    assert setup.configure_playwright_browser(home=home)[0]
+    assert _settings(home)["env"]["PLAYWRIGHT_MCP_EXECUTABLE_PATH"] == str(exe)
+
+
+def test_playwright_browser_installs_chromium_when_none(
+    linux_without_chrome: Path, monkeypatch
+) -> None:
+    home = linux_without_chrome
+    calls = []
+
+    def fake_run(command, **kwargs):
+        assert kwargs["cwd"] == str(home)  # never a project's own playwright
+        calls.append((command, kwargs["env"]["HOME"]))
+        _chromium(home / ".cache" / "ms-playwright", "chromium-1255")
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(setup.shutil, "which", lambda name: f"/bin/{name}")
+    monkeypatch.setattr(setup.subprocess, "run", fake_run)
+    ok, message = setup.configure_playwright_browser(home=home)
+    assert ok and "chromium-1255" in message, message
+    assert calls == [
+        (
+            ["/bin/npx", "-y", "playwright", "install", "chromium", "--no-shell"],
+            str(home),
+        )
+    ]
+    assert _settings(home)["env"]["PLAYWRIGHT_MCP_BROWSER"] == "chromium"
+
+
+def test_playwright_browser_install_failure_is_not_fatal(
+    linux_without_chrome: Path, monkeypatch
+) -> None:
+    home = linux_without_chrome
+    before = (home / ".claude" / "settings.json").read_text()
+    monkeypatch.setattr(setup.shutil, "which", lambda name: f"/bin/{name}")
+    monkeypatch.setattr(
+        setup.subprocess,
+        "run",
+        lambda command, **k: subprocess.CompletedProcess(command, 1, "", "no net"),
+    )
+    ok, message = setup.configure_playwright_browser(home=home)
+    assert ok and message.startswith("⚠️  Playwright browser") and "no net" in message
+    monkeypatch.setattr(
+        setup.subprocess,
+        "run",
+        lambda command, **k: subprocess.CompletedProcess(command, 0, "", ""),
+    )
+    ok, message = setup.configure_playwright_browser(home=home)
+    assert ok and f"none found in {home / '.cache' / 'ms-playwright'}" in message
+    monkeypatch.setattr(setup.subprocess, "run", _no_run)
+    ok, message = setup.configure_playwright_browser(home=home, deadline=0)
+    assert ok and "time limit" in message
+    assert (home / ".claude" / "settings.json").read_text() == before
+
+
+@pytest.mark.parametrize(
+    "case", ["darwin", "disabled", "chrome", "user-browser", "user-path"]
+)
+def test_playwright_browser_leaves_other_setups_alone(
+    linux_without_chrome: Path, monkeypatch, case: str
+) -> None:
+    home = linux_without_chrome
+    _chromium(home / ".cache" / "ms-playwright", "chromium-1248")
+    if case == "darwin":
+        monkeypatch.setattr(setup.sys, "platform", "darwin")
+    elif case == "disabled":
+        _write_pw_settings(home, {}, enabled=False)
+    elif case == "chrome":
+        chrome = setup._GOOGLE_CHROME
+        chrome.parent.mkdir(parents=True)
+        chrome.write_text("")
+    elif case == "user-browser":
+        _write_pw_settings(home, {"PLAYWRIGHT_MCP_BROWSER": "firefox"})
+    else:
+        mine = home / "my-chrome"
+        mine.write_text("")
+        _write_pw_settings(home, {"PLAYWRIGHT_MCP_EXECUTABLE_PATH": str(mine)})
+    before = (home / ".claude" / "settings.json").read_text()
+    monkeypatch.setattr(setup.subprocess, "run", _no_run)
+    ok, _message = setup.configure_playwright_browser(home=home)
+    assert ok
+    assert (home / ".claude" / "settings.json").read_text() == before
 
 
 def test_shipped_setup_contains_no_personal_home_paths() -> None:
