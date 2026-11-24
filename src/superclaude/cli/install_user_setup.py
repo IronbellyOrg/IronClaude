@@ -18,9 +18,11 @@ defaults, and Orca's bundled skills.
   marketplace: the defaults' ``ironclaudeMarketplace`` catalog is written to
   ~/.claude/ironclaude-marketplace/ on every run, and each entry pins a commit,
   so a plugin changes only when a release changes the pin.
-- On Linux without Google Chrome, the Playwright plugin is pointed at
-  Playwright's own Chromium (installed when there is none) through settings
-  ``env``, because the plugin's server otherwise fails on every browser call.
+- The Playwright plugin is off by default (its server costs memory in every
+  session); a `true` that earlier defaults wrote is turned off once per machine.
+  On Linux without Google Chrome it is still pointed at Playwright's own
+  Chromium (installed when there is none) through settings ``env``, so turning
+  it on in a project works at once.
 """
 
 import json
@@ -58,6 +60,14 @@ _HTTPS_GITHUB = {
     "GIT_CONFIG_VALUE_0": "git@github.com:",
 }
 _PLAYWRIGHT_PLUGIN = "playwright@claude-plugins-official"
+# Earlier defaults turned the Playwright plugin on; it is now off by default
+# (issue 764). That `true` is turned off once per machine, and this marker file
+# records it, so a user who turns the plugin on again keeps it on.
+_PLAYWRIGHT_OFF_MARKER = Path(".claude") / ".superclaude-playwright-off"
+_PLAYWRIGHT_ON_HINT = (
+    "to turn it on for one project, run `claude plugin install "
+    f"{_PLAYWRIGHT_PLUGIN} --scope local` in that project"
+)
 # The browser the plugin's server looks for on Linux unless told otherwise.
 _GOOGLE_CHROME = Path("/opt/google/chrome/chrome")
 _PW_BROWSER = "PLAYWRIGHT_MCP_BROWSER"
@@ -210,6 +220,13 @@ def install_output_styles(
     return not failed, message
 
 
+def _mark(marker: Path) -> None:
+    """Record that the one-time Playwright turn-off ran on this machine."""
+    if not marker.exists():
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        marker.touch()
+
+
 def apply_settings_defaults(home: Path | None = None) -> Tuple[bool, str]:
     home = Path.home() if home is None else Path(home)
     defaults_path = Path(__file__).resolve().parent / "user_settings_defaults.json"
@@ -243,11 +260,29 @@ def apply_settings_defaults(home: Path | None = None) -> Tuple[bool, str]:
         elif key not in settings:
             settings[key] = value
             added.append(key)
+    marker = home / _PLAYWRIGHT_OFF_MARKER
+    plugins = settings.get("enabledPlugins")
+    turn_off = (
+        not marker.exists()
+        and isinstance(plugins, dict)
+        and plugins.get(_PLAYWRIGHT_PLUGIN) is True
+    )
+    if turn_off:
+        plugins[_PLAYWRIGHT_PLUGIN] = False
 
-    if not added:
+    if not added and not turn_off:
+        _mark(marker)
         return True, "✅ Settings defaults: already present"
     backup = _write_settings(settings_path, settings)
-    message = f"✅ Settings defaults: added {len(added)} ({', '.join(added)})"
+    _mark(marker)
+    message = "✅ Settings defaults:"
+    if added:
+        message += f" added {len(added)} ({', '.join(added)})"
+    if turn_off:
+        message += (
+            f"{';' if added else ''} turned {_PLAYWRIGHT_PLUGIN} off (now off by "
+            f"default; {_PLAYWRIGHT_ON_HINT})"
+        )
     if backup:
         message += f"\n💾 Backup: {backup}"
     return True, message
@@ -561,10 +596,11 @@ def configure_playwright_browser(
 
     Without Google Chrome the plugin's server fails on every browser call, so
     settings ``env`` names Playwright's newest installed Chromium, installing
-    one when there is none; a failed install is reported, not fatal. Headless
-    mode and the sandbox keep the server's own defaults. Other systems, a
-    disabled plugin, a working path and a browser the user chose are left
-    alone; a path that no longer exists is replaced.
+    one when there is none; a failed install is reported, not fatal. This runs
+    whether or not the plugin is on (it is off by default), so turning it on in
+    a project works at once. Headless mode and the sandbox keep the server's own
+    defaults. Other systems, a working path and a browser the user chose are
+    left alone; a path that no longer exists is replaced.
     """
     home = Path.home() if home is None else Path(home)
     if not sys.platform.startswith("linux"):
@@ -573,10 +609,7 @@ def configure_playwright_browser(
     settings, _error = _load_settings(settings_path)
     if settings is None:
         return True, f"⏭️  Playwright browser: {settings_path} unreadable; skipped"
-    plugins = settings.get("enabledPlugins")
     env = settings.get("env", {})
-    if not isinstance(plugins, dict) or plugins.get(_PLAYWRIGHT_PLUGIN) is not True:
-        return True, "⏭️  Playwright browser: plugin not enabled; skipped"
     if not isinstance(env, dict) or env.get(_PW_BROWSER, "chromium") != "chromium":
         return True, "⏭️  Playwright browser: set otherwise in settings env; kept"
     path = env.get(_PW_PATH)
