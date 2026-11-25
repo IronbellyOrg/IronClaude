@@ -146,6 +146,13 @@ WEAK_PAIR = re.compile(
     re.VERBOSE | re.IGNORECASE,
 )
 
+# A bare ``auth`` field (a Docker ``config.json`` holds ``"auth": "<base64 of user:pass>"``):
+# replaced only for a base64-looking value, so ``auth: required`` and ``author: Bob`` stay.
+AUTH_PAIR = re.compile(
+    rf"""(?P<head>(?<![A-Za-z0-9])auth["']?\s*[:=]\s*)(?P<value>{_QUOTED}|[^\s"',;]+)""",
+    re.IGNORECASE,
+)
+
 # Exact placeholder shapes only: a real secret that merely starts with ``$`` or
 # ``<`` (``$ecret123``) is still redacted.
 _PLACEHOLDER = re.compile(
@@ -183,6 +190,19 @@ def _secret_shaped(value: str) -> bool:
         len(value) >= 16
         and any(ch.isdigit() for ch in value)
         and any(ch.isalpha() for ch in value)
+    )
+
+
+def _auth_shaped(value: str) -> bool:
+    """A short base64-looking value: 8 or more characters with a digit, ``=`` or mixed case."""
+    return (
+        len(value) >= 8
+        and re.fullmatch(r"[A-Za-z0-9+/_-]+={0,2}", value) is not None
+        and (
+            any(ch.isdigit() for ch in value)
+            or value.endswith("=")
+            or (any(ch.isupper() for ch in value) and any(ch.islower() for ch in value))
+        )
     )
 
 
@@ -252,13 +272,13 @@ def redact(text: str) -> tuple[str, int]:
     )
     total += n
 
-    def replace(match: re.Match[str], only_if_secret_shaped: bool) -> str:
+    def replace(
+        match: re.Match[str], only_if_shaped: bool, shape=_secret_shaped
+    ) -> str:
         nonlocal total
         value = match["value"]
         quote, inner = _unquote(value)
-        if _is_placeholder(value) or (
-            only_if_secret_shaped and not _secret_shaped(inner)
-        ):
+        if _is_placeholder(value) or (only_if_shaped and not shape(inner)):
             return match.group(0)
         total += 1
         return match["head"] + quote + REDACTED + quote
@@ -269,6 +289,7 @@ def redact(text: str) -> tuple[str, int]:
     text = COOKIE_LINE.sub(lambda m: replace(m, False), text)
     text = STRONG_PAIR.sub(lambda m: replace(m, False), text)
     text = WEAK_PAIR.sub(lambda m: replace(m, True), text)
+    text = AUTH_PAIR.sub(lambda m: replace(m, True, _auth_shaped), text)
     return text, total
 
 

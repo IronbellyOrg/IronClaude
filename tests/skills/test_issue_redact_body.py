@@ -97,6 +97,8 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "REDIS_URL=redis://:correcthorsebatterystaple@host/0",
         'Cookie: "theme=dark\n  session=remaining-secret123" # note',
         "a" * 100 + "_password: remaining-secret123",
+        '{"auths":{"registry.example.com":{"auth":"dXNlcjpwYXNz"}}}',
+        "auth: dXNlcjpwYXNzd29yZA==",
         PEM,
     ],
 )
@@ -123,6 +125,7 @@ def test_credentials_are_redacted(line):
         "Secret1234567890",
         "tail-secret99",
         "correcthorsebatterystaple",
+        "dXNlcjpwYXNz",
         "opaqueSecret123456",
         B64_TWO,
         B64,
@@ -136,6 +139,9 @@ def test_credentials_are_redacted(line):
     [
         "key: ArrowUp",
         "token: Identifier",
+        "auth: required",
+        "auth: none",
+        "author: Bobby123",
         "the build finished at 10:30:15:00:05 local time",
         "press key=Enter to continue",
         "password: <your password>",
