@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import importlib.util
 from pathlib import Path
 
@@ -30,6 +31,7 @@ rb = _load()
 # Fake values built from fragments: none is a real credential.
 GH = "ghp_" + "A1b2C3d4E5f6G7h8I9j0K1l2M3"
 PEM = "-----BEGIN RSA PRIVATE KEY-----\nMIIBOg\n-----END RSA PRIVATE KEY-----"
+B64 = base64.b64encode(GH.encode()).decode()  # an encoded token, no known prefix
 
 
 @pytest.mark.parametrize(
@@ -54,6 +56,11 @@ PEM = "-----BEGIN RSA PRIVATE KEY-----\nMIIBOg\n-----END RSA PRIVATE KEY-----"
         "password: $ecret1234",
         "password: correct horse battery staple",
         'password = "correct horse"',
+        "password: {{template}} actual-secret",
+        '{"password":"prefix\\"remaining-secret123"}',
+        "access_token: abcdefghijklmnopqrstuvwxyz",
+        "auth_token: a1b2c3d4",
+        f"encoded: {B64}",
         PEM,
     ],
 )
@@ -73,6 +80,11 @@ def test_credentials_are_redacted(line):
         "ecret1234",
         "staple",
         "horse",
+        "actual-secret",
+        "remaining-secret123",
+        "abcdefghijklmnopqrstuvwxyz",
+        "a1b2c3d4",
+        B64,
     ):
         assert secret not in out
 
@@ -87,6 +99,8 @@ def test_credentials_are_redacted(line):
         "password: ${PASSWORD}",
         "API_KEY=$API_KEY",
         "the token expired after an hour",
+        "commit 0123456789abcdef0123456789abcdef01234567 fixed it",
+        "see .dev/tasks/done/TASK-WF-issueSummary-20261125-190451/artifacts/README-run.md",
     ],
 )
 def test_harmless_text_is_left_alone(line):

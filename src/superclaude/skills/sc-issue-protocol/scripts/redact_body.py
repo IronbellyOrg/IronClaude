@@ -43,10 +43,21 @@ SHAPED_VALUES = re.compile(
     re.VERBOSE | re.IGNORECASE,
 )
 
+# A long base64-looking run (upper case, lower case and a digit, 40 or more characters)
+# is treated as an encoded credential. Git hashes are lower-case hex and file paths
+# contain ``/``, ``-`` and ``.``, so they do not match. This narrows, but cannot close,
+# the encoded-secret gap: a worker that deliberately obfuscates a value can still
+# get it past any pattern.
+BASE64_BLOB = re.compile(
+    r"(?<![A-Za-z0-9+/=])"
+    r"(?=[A-Za-z0-9+]*[A-Z])(?=[A-Za-z0-9+]*[a-z])(?=[A-Za-z0-9+]*[0-9])"
+    r"[A-Za-z0-9+]{40,}={0,2}(?![A-Za-z0-9+/=])"
+)
+
 URL_PASSWORD = re.compile(r"(\b[a-z][a-z0-9+.-]*://[^\s/:@]+:)([^\s/@]+)(@)", re.I)
 
 _SEP = r"""["']?\s*[:=]\s*"""
-_QUOTED = r"""(?:"[^"\n]*"|'[^'\n]*')"""
+_QUOTED = r"""(?:"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')"""
 _NAME_CHARS = r"[A-Za-z0-9_.-]*"
 
 # A whole header line: ``Cookie: theme=dark; session=...`` holds several values.
@@ -59,7 +70,8 @@ COOKIE_LINE = re.compile(
 STRONG_PAIR = re.compile(
     rf"""(?P<head>{_NAME_CHARS}
         (?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
-           |authorization|credential|session[_-]?id)
+           |authorization|credential|session[_-]?id
+           |(?:access|auth|refresh|id|bearer)[_-]?token)
         {_NAME_CHARS}{_SEP})(?P<value>{_QUOTED}|[^\n]+)""",
     re.VERBOSE | re.IGNORECASE,
 )
@@ -74,10 +86,10 @@ WEAK_PAIR = re.compile(
 # Exact placeholder shapes only: a real secret that merely starts with ``$`` or
 # ``<`` (``$ecret123``) is still redacted.
 _PLACEHOLDER = re.compile(
-    r"""<[A-Za-z0-9_ -]*>?          # <your-password>, <your, <REDACTED>
-      | \$\{[^}]*\}?                # ${PASSWORD}
+    r"""<[A-Za-z0-9_ -]*>           # <your-password>, <REDACTED>
+      | \$\{[^}]*\}                 # ${PASSWORD}
       | \$[A-Z_][A-Z0-9_]*          # $API_KEY (upper-case variable)
-      | \{\{.*                      # {{ secret }}
+      | \{\{[^{}]*\}\}              # {{ secret }}
       | %[A-Za-z_][A-Za-z0-9_]*%    # %PASSWORD%
       | \*+                         # ******
     """,
@@ -115,6 +127,8 @@ def redact(text: str) -> tuple[str, int]:
     text, n = PRIVATE_KEY_BLOCK.subn(REDACTED, text)
     total += n
     text, n = SHAPED_VALUES.subn(REDACTED, text)
+    total += n
+    text, n = BASE64_BLOB.subn(REDACTED, text)
     total += n
     text, n = URL_PASSWORD.subn(
         lambda m: (
