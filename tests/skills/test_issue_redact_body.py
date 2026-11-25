@@ -69,6 +69,8 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         'password: "first-line\\\n  remaining-secret123"',
         "password: | # production password\n  remaining-secret123",
         '"password": |\n  remaining-secret123',
+        "password: first-line\n  remaining-secret123",
+        'password: "' + "ab12" * 700 + '\n  tail-secret99"',
         "password: <Secret1234567890>",
         PEM,
     ],
@@ -94,6 +96,7 @@ def test_credentials_are_redacted(line):
         "abcdefghijklmnopqrstuvwxyz",
         "a1b2c3d4",
         "Secret1234567890",
+        "tail-secret99",
         B64,
         B64_SLASH,
     ):
@@ -129,6 +132,12 @@ def test_a_block_scalar_is_redacted_and_the_next_key_is_kept():
     out, count = rb.redact("password: |\n  hunter22\n  more words\nuser: bob\n")
     assert count == 1
     assert "hunter22" not in out and "more words" not in out
+    assert out.endswith("user: bob\n")
+
+
+def test_a_plain_multiline_value_is_redacted_and_the_next_key_is_kept():
+    out, _ = rb.redact("password: first-line\n  remaining-secret123\nuser: bob\n")
+    assert "first-line" not in out and "remaining-secret123" not in out
     assert out.endswith("user: bob\n")
 
 

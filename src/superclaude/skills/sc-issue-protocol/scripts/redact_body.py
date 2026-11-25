@@ -60,19 +60,21 @@ URL_PASSWORD = re.compile(r"(\b[a-z][a-z0-9+.-]*://[^\s/:@]+:)([^\s/@]+)(@)", re
 _SEP = r"""["']?\s*[:=]\s*"""
 # Double quotes escape with a backslash; single quotes also escape by doubling (YAML).
 _QUOTED = r"""(?:"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.|'')*')"""
-# A strong name may hold a multi-line quoted value (YAML); bounded so a stray quote
-# cannot swallow the rest of a long document.
-_QUOTED_ML = r"""(?:"(?:[^"\\]|\\[\s\S]){0,2000}"|'(?:[^'\\]|\\[\s\S]|''){0,2000}')"""
+# A strong name may hold a multi-line quoted value (YAML). It runs to the closing
+# quote, however far away: over-redacting is the safe failure for a public issue.
+_QUOTED_ML = r"""(?:"(?:[^"\\]|\\[\s\S])*"|'(?:[^'\\]|\\[\s\S]|'')*')"""
 _NAME_CHARS = r"[A-Za-z0-9_.-]*"
 _STRONG_NAMES = r"""(?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
            |authorization|credential|session[_-]?id
            |(?:access|auth|refresh|id|bearer)[_-]?token)"""
 
-# ``password: |`` followed by indented lines (a YAML block scalar).
-BLOCK_HEAD = re.compile(
-    rf"^[ \t-]*[\"']?{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP}[|>][-+0-9]*[ \t]*(?:\#.*)?$",
+# A credential line whose value may continue on the more indented lines below it:
+# ``password: |`` (a YAML block scalar) or ``password: first-line`` (a plain scalar).
+STRONG_LINE = re.compile(
+    rf"^[ \t-]*[\"']?{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP}(?P<rest>.*)$",
     re.VERBOSE | re.IGNORECASE,
 )
+_BLOCK_INDICATOR = re.compile(r"[|>][-+0-9]*(?:[ \t]+\#.*)?")
 
 # A whole header line: ``Cookie: theme=dark; session=...`` holds several values.
 COOKIE_LINE = re.compile(
@@ -144,7 +146,15 @@ def _redact_block_scalars(text: str) -> tuple[str, int]:
         line = lines[i]
         out.append(line)
         i += 1
-        if not BLOCK_HEAD.match(line):
+        head = STRONG_LINE.match(line)
+        if not head:
+            continue
+        rest = head["rest"].strip()
+        if (
+            not rest or rest[0] in "\"'"
+        ):  # nothing here, or a quoted value (handled apart)
+            continue
+        if _BLOCK_INDICATOR.fullmatch(rest) is None and _is_placeholder(rest):
             continue
         base = len(line) - len(line.lstrip())
         redacted_any = False
