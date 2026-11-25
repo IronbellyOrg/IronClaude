@@ -77,7 +77,8 @@ STRONG_LINE = re.compile(
 
 # A whole header line: ``Cookie: theme=dark; session=...`` holds several values.
 COOKIE_LINE = re.compile(
-    r"""\b(?P<head>(?:set-)?cookie["']?\s*[:=]\s*)(?P<value>[^\n]+)""", re.IGNORECASE
+    rf"""\b(?P<head>(?:set-)?cookie["']?\s*[:=]\s*)(?P<value>{_QUOTED}|[^\n]+)""",
+    re.IGNORECASE,
 )
 
 # netrc style, with no ``:`` or ``=``: ``machine h login u password p`` on one line,

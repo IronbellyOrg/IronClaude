@@ -150,6 +150,13 @@ def test_a_plain_multiline_value_is_redacted_and_the_next_key_is_kept():
     assert out.endswith("user: bob\n")
 
 
+def test_a_quoted_cookie_keeps_the_json_around_it():
+    text = '{"headers":{"Cookie":"session=abc123; theme=dark","Accept":"x"}}'
+    out, count = rb.redact(text)
+    assert count == 1
+    assert out == '{"headers":{"Cookie":"<REDACTED>","Accept":"x"}}'
+
+
 def test_a_quoted_netrc_password_never_swallows_later_prose():
     text = 'login bob password "first second"\nWe said "hello" later.\n'
     out, count = rb.redact(text)
