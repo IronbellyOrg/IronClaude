@@ -70,6 +70,8 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "password: | # production password\n  remaining-secret123",
         '"password": |\n  remaining-secret123',
         "password: first-line\n  remaining-secret123",
+        "password: $PASSWORD\n  remaining-secret123",
+        "password:\n  first-part\n  remaining-secret123",
         'password: "' + "ab12" * 700 + '\n  tail-secret99"',
         "password: <Secret1234567890>",
         PEM,

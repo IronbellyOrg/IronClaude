@@ -74,7 +74,6 @@ STRONG_LINE = re.compile(
     rf"^[ \t-]*[\"']?{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP}(?P<rest>.*)$",
     re.VERBOSE | re.IGNORECASE,
 )
-_BLOCK_INDICATOR = re.compile(r"[|>][-+0-9]*(?:[ \t]+\#.*)?")
 
 # A whole header line: ``Cookie: theme=dark; session=...`` holds several values.
 COOKIE_LINE = re.compile(
@@ -150,12 +149,10 @@ def _redact_block_scalars(text: str) -> tuple[str, int]:
         if not head:
             continue
         rest = head["rest"].strip()
-        if (
-            not rest or rest[0] in "\"'"
-        ):  # nothing here, or a quoted value (handled apart)
+        if rest and rest[0] in "\"'":  # a quoted value (handled apart)
             continue
-        if _BLOCK_INDICATOR.fullmatch(rest) is None and _is_placeholder(rest):
-            continue
+        # Whatever the first line holds (a block marker, a value, a placeholder or
+        # nothing), more indented lines under a credential name are part of the value.
         base = len(line) - len(line.lstrip())
         redacted_any = False
         while i < len(lines) and (
