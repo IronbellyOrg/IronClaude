@@ -1,6 +1,6 @@
 # Issue 597 closeout check (2026-11-25)
 
-## Verdict: every criterion PASS on the merged rule; no rule change needed, so no new branch was made. Evidence is small (one session per case).
+## Verdict: criteria 1, 3, 4 and 5 PASS; criterion 2 (Tavily first for current information) is NOT MET in the one sample. No native web tool was used. One session per case.
 
 ## Setup
 - Merged rule = rule 11 in `src/superclaude/core/CLAUDE.md` at `origin/integration` d3a1059f0 (PR 828 included). The "before" arm is the same file with only rule 11 removed.
@@ -23,10 +23,10 @@ No session with the rule made any native WebFetch/WebSearch call.
 
 ## Criteria of issue 597
 1. Docs questions default to Context7: **PASS** (D1, G1 both arms, G2 after: Context7 first).
-2. Current-information questions default to Tavily: **PASS, with a caveat.** Tavily ran second, not first: the first call was a Context7 library lookup (Playwright is also a library), then Tavily search and extract, and no native web call. A strict reading of "first call is Tavily" is not met by this one sample. The earlier replay (/home/coder/workspaces/worktrees/IronClaude/issue-597/.dev/issues/597/delegation-replay/REPORT.md) saw Tavily first for the same question.
+2. Current-information questions default to Tavily: **FAIL on the strict reading, no native-tool bypass.** Rule 11 and the replay criterion say Tavily first; the recorded first call in T1-current-after-r1 was context7-resolve-library-id (Playwright is also a library), then Tavily search and 3 Tavily extracts. No WebFetch/WebSearch was used. The earlier replay (/home/coder/workspaces/worktrees/IronClaude/issue-597/.dev/issues/597/delegation-replay/REPORT.md) saw Tavily first for the same question, so one sample each way; this is not a settled result.
 3. Native tools remain valid fallbacks: **PASS**, from the earlier replay (research server disconnected, native fallback worked). Not rerun now.
 4. Delegation goes to an agent with the research tools, or the orchestrator looks it up itself: **PASS.** Without the rule the model delegated to the native-only guide; with it, it did the Context7 lookup itself (G2 pair).
-5. Testing note (first call Context7/Tavily, delegated lookup checked): **PASS**, per the table. The G2 pair is the delegated-lookup check.
+5. Testing note (first call Context7/Tavily, delegated lookup checked): **PARTIAL.** Docs question and delegated lookup PASS (Context7 first; G2 pair); the current-information question's first call was Context7, not Tavily (see 2).
 
 ## Limits
 - One session per case, no statistics. Order not randomized. Answer correctness not audited.
@@ -37,4 +37,4 @@ No session with the rule made any native WebFetch/WebSearch call.
 None required. No branch, no commit, nothing pushed. This run left the original branch `ironbelly/issue-597` as it was (I briefly detached to origin/integration to run the tests and returned).
 
 ## Recommendation
-Close issue 597 as done. The only soft spot is criterion 2 order (Context7 before Tavily on a library-release question); the owner may accept it or ask for a wording tweak.
+Do not call 597 fully closed on this evidence alone: the delegation criterion (4) and the docs routing are met, but the Tavily-first order for current-information questions was not shown in this replay. Either accept that a Context7 library lookup before Tavily is fine for library-release questions, or re-run the Playwright case a few more times to see how often Tavily comes first. A rule wording change is not proposed without that data.

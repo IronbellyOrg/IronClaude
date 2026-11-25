@@ -10,6 +10,8 @@ import time
 
 ROOT = Path(__file__).resolve().parents[4]
 OUT = Path(__file__).resolve().parent
+# Each run writes into a fresh folder, so the committed case folders are never overwritten.
+RUNS = OUT / ("run-" + time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()))
 MODEL = "claude-sonnet-5-5"
 GUIDE_DESCRIPTION = (
     'Use this agent when the user asks questions ("Can Claude...", "Does Claude...", "How do I...") '
@@ -44,7 +46,7 @@ PLAN = [
 
 def run_case(case, arm, repeat, prompt, guide, mcp_on, context, research, env):
     name = f"{case}-{arm}-r{repeat}"
-    folder = OUT / name
+    folder = RUNS / name
     folder.mkdir()
     marker = folder / "attempt.json"
     (folder / "core-context.md").write_text(context)
@@ -99,14 +101,15 @@ def run_case(case, arm, repeat, prompt, guide, mcp_on, context, research, env):
 
 def main():
     assert "opus" not in MODEL.lower() and len(PLAN) <= 8
-    with (OUT / "started.json").open("x") as stream:
+    RUNS.mkdir()
+    with (RUNS / "started.json").open("x") as stream:
         json.dump({"model": MODEL, "sessions": len(PLAN), "per_session_usd": 1}, stream)
     after = subprocess.run(["git", "show", "origin/integration:src/superclaude/core/CLAUDE.md"], cwd=ROOT,
                            check=True, text=True, capture_output=True).stdout
     rule = next(l for l in after.splitlines() if l.startswith("11. **Research routing**"))
     baseline = after.replace(rule + "\n", "", 1)
     assert baseline != after
-    (OUT / "changed-rule.txt").write_text(rule + "\n")
+    (RUNS / "changed-rule.txt").write_text(rule + "\n")
     research = json.loads((Path.home() / ".claude.json").read_text())["mcpServers"]["litellm"]
     env = os.environ.copy()
     for key in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT", "CLAUDE_SESSION_ID", "ORCA_TERMINAL_ID",
