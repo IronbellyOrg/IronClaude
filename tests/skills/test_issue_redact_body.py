@@ -73,6 +73,8 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "*:*:*:bob:remaining-secret123",
         "127.0.0.1:5432:app:bob:remaining-secret123",
         "Cookie: |\n    session=remaining-secret123",
+        'password = """\nfirst-part\nremaining-secret123\n"""',
+        "password = '''\nfirst-part\nremaining-secret123\n'''",
         'Cookie: "theme=dark\n  session=remaining-secret123"',
         'Cookie: "session=abc123"; theme=opaqueSecret123456',
         "password: |\n  correct horse battery staple",
@@ -181,7 +183,9 @@ def test_a_quoted_netrc_password_never_swallows_later_prose():
 
 
 @pytest.mark.parametrize(
-    "unit", ["a", "ab1", "a-", "a.b", "x_y1", "-", "- ", " -", "--\n"]
+    "unit",
+    ["a", "ab1", "a-", "a.b", "x_y1", "-", "- ", " -", "--\n"]
+    + ["password", "cookie", "api_key", "token", "Cookie ", "secret:"],
 )
 def test_a_long_uninterrupted_string_is_scanned_in_linear_time(unit):
     text = unit * (200_000 // len(unit))

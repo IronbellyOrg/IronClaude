@@ -83,8 +83,13 @@ _SEP = r"""["']?\s*[:=]\s*"""
 _QUOTED = r"""(?:"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.|'')*')"""
 # A strong name may hold a multi-line quoted value (YAML). It runs to the closing
 # quote, however far away: over-redacting is the safe failure for a public issue.
-_QUOTED_ML = r"""(?:"(?:[^"\\]|\\[\s\S])*"|'(?:[^'\\]|\\[\s\S]|'')*')"""
-_NAME_CHARS = r"[A-Za-z0-9_.-]*"
+_QUOTED_ML = (
+    r"""(?:\"{3}[\s\S]*?\"{3}|'{3}[\s\S]*?'{3}"""  # TOML triple quotes
+    r"""|"(?:[^"\\]|\\[\s\S])*"|'(?:[^'\\]|\\[\s\S]|'')*')"""
+)
+# A credential name is short; bounding the run keeps the match linear when a long string
+# repeats a credential word (``passwordpasswordpassword...``).
+_NAME_CHARS = r"[A-Za-z0-9_.-]{0,64}"
 # A name starts where a run of name characters starts, so a long uninterrupted string
 # is scanned once and not again from every position (no quadratic backtracking).
 _NAME_START = r"(?<![A-Za-z0-9_.-])"
