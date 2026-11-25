@@ -1500,15 +1500,16 @@ def test_every_launch_restores_grep_and_glob(
         (("demo",), True),  # resumed label
     ],
 )
-@pytest.mark.parametrize("shell_value", [None, "0"])
+@pytest.mark.parametrize("zero_from", [None, "shell", "env_file"])
 def test_every_launch_sets_bg_shell_pressure_reap_switch(
     tmp_path: Path,
     args: tuple[str, ...],
     transcript: bool,
-    shell_value: str | None,
+    zero_from: str | None,
     monkeypatch,
 ) -> None:
-    # Issue 765: Claude must start with the switch at 1, also when the shell had 0.
+    # Issue 765: Claude must start with the switch at 1, also when the shell or the
+    # env file (CCSESSION_ENV_FILE, sourced before the export) had 0.
     # The stand-in records only this one variable, never the whole environment.
     monkeypatch.delenv("CC_CLAUDE_FLAGS", raising=False)
     fake_source = (
@@ -1516,11 +1517,13 @@ def test_every_launch_sets_bg_shell_pressure_reap_switch(
         "print(json.dumps(os.environ.get("
         "'CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP')))\n"
     )
-    extra_env = (
-        {}
-        if shell_value is None
-        else {"CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP": shell_value}
-    )
+    extra_env: dict[str, str] = {}
+    if zero_from == "shell":
+        extra_env["CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP"] = "0"
+    elif zero_from == "env_file":
+        env_file = tmp_path / "reap.env"
+        env_file.write_text("export CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=0\n")
+        extra_env["CCSESSION_ENV_FILE"] = str(env_file)
     result, _ = _label_run(
         tmp_path,
         transcript=transcript,
