@@ -10,7 +10,11 @@ _RULESETS = _REPO / ".github" / "rulesets"
 _GUIDE = _REPO / "docs" / "developer-guide" / "branch-protection.md"
 
 # Repository admin role, bypass only through a pull request (owner decision 2026-11-25).
-_ADMIN_PR_BYPASS = {"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "pull_request"}
+_ADMIN_PR_BYPASS = {
+    "actor_id": 5,
+    "actor_type": "RepositoryRole",
+    "bypass_mode": "pull_request",
+}
 
 _BRANCH_FILES = {
     "protect-master": "refs/heads/master",
@@ -31,7 +35,11 @@ def test_branch_rulesets(name, ref):
     # Named explicitly: the default branch moved to integration, so ~DEFAULT_BRANCH would miss master.
     assert data["conditions"]["ref_name"] == {"include": [ref], "exclude": []}
     assert data["bypass_actors"] == [_ADMIN_PR_BYPASS]
-    assert sorted(r["type"] for r in data["rules"]) == ["deletion", "non_fast_forward", "pull_request"]
+    assert sorted(r["type"] for r in data["rules"]) == [
+        "deletion",
+        "non_fast_forward",
+        "pull_request",
+    ]
     pr = next(r for r in data["rules"] if r["type"] == "pull_request")
     assert pr["parameters"]["required_approving_review_count"] == 0
 
@@ -41,7 +49,10 @@ def test_tag_ruleset():
     assert data["name"] == "protect-release-tags"
     assert data["target"] == "tag"
     assert data["enforcement"] == "active"
-    assert data["conditions"]["ref_name"] == {"include": ["refs/tags/v*"], "exclude": []}
+    assert data["conditions"]["ref_name"] == {
+        "include": ["refs/tags/v*"],
+        "exclude": [],
+    }
     assert data["bypass_actors"] == []
     # No creation rule: `git push origin vX.Y.Z` in the release flow must keep working.
     assert sorted(r["type"] for r in data["rules"]) == ["deletion", "non_fast_forward"]

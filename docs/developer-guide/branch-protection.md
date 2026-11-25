@@ -23,7 +23,10 @@ Before applying, confirm that no webhook, deploy key or GitHub App pushes to `ma
 ```bash
 gh api repos/IronbellyOrg/IronClaude/hooks --jq 'length'
 gh api repos/IronbellyOrg/IronClaude/keys --jq 'length'
+gh api orgs/IronbellyOrg/installations --jq '.installations[] | [.app_slug, .permissions.contents] | @tsv'
 ```
+
+Both counts should be `0`. The third command lists the GitHub Apps installed on the organization with their `contents` permission: an app with `write` can push, and once the rulesets are on it must use pull requests, because only the admin role can bypass them. Review each `write` app before applying. (The list shows installed apps, not which repositories they can reach.)
 
 Apply in this order (tags first, then `integration`, then `master`):
 
