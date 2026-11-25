@@ -21,7 +21,7 @@ State read on 2026-11-22 (so the next person starts from facts): the observer da
 
 - Owner roadmap: GitHub issue #727, body saved at `.dev/issues/727/issue-body.md` (owner text at its end)
 - Plan and pipeline text: `.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent1/RELEASE-PLAN.md` and `shared/CONSENSUS.md`
-- Related: #726 (a vote on each question, kept as a local record; its open decision is whether the read-only rule may be relaxed)
+- Related: #726 (a vote on each question, kept as a local record; the owner ruled in chat on 2026-11-22 that the read-only rule is relaxed and the dashboard is meant to become two-way; the vote waits for the architecture and storage evaluation in #727)
 
 ## Done when
 

@@ -19,7 +19,7 @@ Why this feature exists: The dashboard is read-only by design; two-way needs the
 ## Relevant files and links
 
 - Owner roadmap: GitHub issue #727, body saved at `.dev/issues/727/issue-body.md` (owner text at its end)
-- Related: #726 (a vote on each question, kept as a local record; its open decision is whether the read-only rule may be relaxed)
+- Related: #726 (a vote on each question, kept as a local record; the owner ruled in chat on 2026-11-22 that the read-only rule is relaxed and the dashboard is meant to become two-way; the vote waits for the architecture and storage evaluation in #727)
 - `.dev/issues/409/bmad/spec-orca-observer/write-back-future-stage.md` (origin/master)
 - Observer guide: `docs/user-guide/observer.md` (read-only statement to be changed)
 
@@ -37,7 +37,7 @@ The owner (supervises the coordinators and makes the decisions) decides; BMAD PR
 
 Run each step in a fresh context window (the bmad-help skill advises this). The person in the session answers every BMAD menu; BMAD and the agent never decide for them. Each BMAD workflow keeps its own .memlog.md; do not edit SPEC.md or the architecture spine by hand (they are derived from the memlog). After each step, tick its box under Progress and comment on this issue with the output path.
 
-Before step 1: read `EPIC-12` (the epic) and the owner goal that every epic keeps: the dashboard is not meant to replace talking to the coordinator sessions; it is where decisions are made, with as many coordinator questions as possible reduced to binary or multiple-choice questions, and when that fails, demands to the coordinator for more context, a better explanation, a debate of several proposals, extra validation, research, fact checking, or use of specific plugins or tools (for example ponytail).
+Before step 1: read `EPIC-12` (the epic) and the owner goal that every epic keeps: the dashboard replaces talking to the coordinator sessions directly; it is the one place where the person reads and answers everything the coordinators need (release 1.8 is where responses and answers start going through the dashboard to the coordinator); decisions are made there, with as many coordinator questions as possible reduced to binary or multiple-choice questions, and when that fails, demands to the coordinator for more context, a better explanation, a debate of several proposals, extra validation, research, fact checking, or use of specific plugins or tools (for example ponytail).
 
 Steps:
 

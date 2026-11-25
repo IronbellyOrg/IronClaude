@@ -62,7 +62,7 @@ def epic():
             done=[
                 "The PRD (Update of the 409 PRD) has feature groups with globally numbered FR ids for: decision cards (binary and multiple choice), demands to the coordinator (more context, better explanation, debate of several proposals, extra validation, research, fact checking, use of named plugins or tools such as ponytail), and the notice that the person is needed in a coordinator session.",
                 "The UX pair (DESIGN.md, EXPERIENCE.md) covers those screens at the terminal widths the 409 package fixed (160, 116 and 80 columns).",
-                "The decision to relax the read-only rule is recorded by the owner in a dated record (house pattern: `.dev/issues/409/owner-decisions-<date>.md`); issue #726 is told.",
+                "The owner's 2026-11-22 decision (read-only rule relaxed, dashboard two-way) is copied into the owner-decisions record in the house pattern `.dev/issues/409/owner-decisions-<date>.md`, with the exact write paths this PRD allows still to be decided by the owner.",
                 "An independent review of the PRD and UX passed before anything is handed to IronClaude (the 409 review needed 63 blocking fixes).",
             ],
             who=f"{OWNER}; BMAD product manager (John, `/bmad-agent-pm`) and UX designer (Sally, `/bmad-agent-ux-designer`) personas are available.",

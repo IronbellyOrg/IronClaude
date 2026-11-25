@@ -5,11 +5,13 @@ Nothing has been built for this yet. Filed from the owner's note of 2026-11-22.
 State read on 2026-11-22 (so the next person starts from facts):
 - The observer dashboard (`superclaude observe`) is read-only by design. Its user guide (`docs/user-guide/observer.md` on master) says it "never approves, retries, terminates, dispatches, merges or messages". It shows the coordinator's questions (questions screen and Decision Desk) but has no way to answer them; the person answers in the coordinator's own terminal.
 - It keeps no database. Questions live in process memory; the only stored files are an export record and a snapshot under the observer state folder.
-- The first small step toward this roadmap is already filed: issue 726 (a vote on each question, kept as a local record). Its open decision is whether the read-only rule may be relaxed. This note is the owner's direction on that rule: the dashboard is meant to become two-way.
+- The first small step toward this roadmap is already filed: issue 726 (a vote on each question, kept as a local record). Its question of whether the read-only rule may be relaxed was answered by the owner in chat on 2026-11-22 (recorded as a comment on #726): yes, the dashboard is meant to become two-way. The vote itself still waits for the architecture and storage evaluation in this issue.
+
+Update, 2026-11-25 (from the session logs and the planning folder `.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/`): no dashboard code has been written. The planning pipeline for this roadmap (issue #731) produced 15 epic drafts and 73 feature drafts, one per release item below, all on disk and none filed as issues; they wait for the owner to schedule each release. The `/sc:brainstorm --depth deep` on dashboard storage and the Postgres database has not been run (the only brainstorm in that folder is about who writes the spec at the hand-off from BMAD, the planning method, to IronClaude, so it does not count).
 
 ## Relevant files and links
 
-- Related issues: #409 (TUI dashboard, open), #706 (observer follow-up, open), #604 (observer remote fleet, open), #606 (visual parity, closed; holds the Zellij go or no-go), #718 (dashboard items from the 655 split), #716 (coordinator next release), #726 (vote on interventions).
+- Related issues: #409 (TUI dashboard, open), #706 (observer follow-up, open), #604 (observer remote fleet, open), #606 (visual parity, closed; holds the Zellij go or no-go), #718 (dashboard items from the 655 split), #716 (coordinator next release), #726 (vote on interventions), #731 (reusable release-planning pipeline that holds the unfiled drafts for this roadmap).
 - Code today: `src/superclaude/cli/observe/` (`view.py`, `questions.py`, `commands.py`, `export.py`), tests in `tests/observe/`, guide `docs/user-guide/observer.md`.
 - The design mockups and "Clay's html dashboards" mentioned in the note: location Not known yet (the 20 synthetic designs are in the design package on branch `docs/409-orca-dashboard-designs`).
 
@@ -26,9 +28,13 @@ Each release in the list then gets its own issue when the owner schedules it; th
 
 Do not build anything from this issue before the owner says go. The owner's order: the architecture and preliminary evaluation come first and take precedence over the release list; the priority is checking what is needed to support the two-way dashboard and building or changing it, including a Postgres database per project. Dashboard, watcher and coordinator work are meant to be developed together as needed.
 
-The goal stated by the owner is NOT to replace talking to the coordinator sessions. It is that the dashboard is where decisions are made, with as many coordinator questions as possible reduced to binary or multiple-choice questions for the person, and, when that fails, demands to the coordinator for more context, a better explanation, a debate of several proposals, extra validation, research, fact checking, or use of specific plugins or tools (for example ponytail).
+The goal is that the dashboard replaces talking to the coordinator sessions directly. It is the one place where the person reads and answers everything the coordinators need (the 1.8 release in the list below is where the first write and respond features arrive: responses and answers go through the dashboard and are relayed to the coordinator). Decisions are made there, with as many coordinator questions as possible reduced to binary or multiple-choice questions for the person, and, when that fails, demands to the coordinator for more context, a better explanation, a debate of several proposals, extra validation, research, fact checking, or use of specific plugins or tools (for example ponytail).
 
-Reading notes (UNVERIFIED, mine): "Zelij" is read as Zellij; "1\n5 release" is read as 1.5; the version numbers such as 1.105 are kept as the owner wrote them.
+Open for the owner: the 1.8 line also lists "notifications that the user is needed in the coordinator session for a q&a or longer conversation". Until the dashboard can carry such conversations itself, that notice is the only case where the person still talks to a coordinator directly. Should longer conversations move into the dashboard too, and in which release? (If yes, the 1.8 and 2.0 items need a line for it.)
+
+Reading notes (UNVERIFIED, mine): "Zelij" is read as Zellij; "1\n5 release" is read as 1.5; the version numbers such as 1.105 are kept as the owner wrote them. The planning drafts read the list as: 1.105, 1.505, 1.705 and 1.905 are test-and-CI releases between the numbered ones, and the Zellij review fills the 1.3 slot because the list jumps from 1.2 to 1.4.
+
+**Correction (owner, 2026-11-25):** the sentence "The ultimate goal is NOT to replace interacting with the coordinator sessions" in the verbatim text below is wrong. The goal is for the dashboard to replace direct communication with the coordinators; the 1.8 line below (first write and respond features: the person's responses and answers go through the dashboard to the coordinator) is the intent. The same wrong sentence was copied from this issue into the planning folder's release plan and into every epic and feature draft (see the Update above), so those need the same correction before anything is filed. Where this note and the quote conflict, this correction wins. The quote is left unchanged as the record of the original note.
 
 Owner's text, verbatim (2026-11-22):
 
@@ -59,3 +65,5 @@ Owner's text, verbatim (2026-11-22):
 > - Human testing, feedback/feature requests, validation, bug filing and fixing for 1.9 release
 > - 1.905: Additional automated tests or ci needed to have caught any high/medium bugs without needing human validation as well as regression tests
 > - Implement feedback from 1.9 and additional write/respond features for 2.0 release
+
+
