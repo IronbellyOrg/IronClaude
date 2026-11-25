@@ -286,7 +286,7 @@ def e12():
             title="Release 1.8: a notice when the person is needed in the coordinator session",
             source=src + " (notifications that the user is needed in the coordinator session for a q&a or longer conversation)", why="When a question cannot be reduced to a decision, the dashboard says so and points to the session.",
             links=[L727, LCODE],
-            done=["A coordinator question that needs a conversation shows as 'you are needed' with the session to open and why.", "The notice clears when the conversation is done.", "The owner's open question from issue #727 (2026-11-25) is answered or deferred in the record: should longer conversations with a coordinator move into the dashboard too, and in which release."],
+            done=["A coordinator question that needs a conversation shows as 'you are needed' with the session to open and why.", "The notice clears when the conversation is done.", "The owner's answer of 2026-11-25 (issue #727) is kept: longer conversations do not move into the dashboard; in the near term they stay in the coordinator session, so this notice is the whole plan for them. The later brainstorm on the best set of agents (some to coordinate work, others to talk with the person and take new requests, with the coordinator kept narrowly on orchestrating) is not part of this story."],
             who=f"IronClaude workers; stories in a BMAD session.",
             seeds=[f"As {DEV}, I want a clear notice with the session name when I am needed, so that I go straight there."],
             steps=[S("/bmad-create-epics-and-stories", "stories for the notice and its clearing; epic number fixed to this EPIC number", "story entries", "each state has a criterion")],
