@@ -1364,3 +1364,37 @@ def test_evidence_rule_check_fails_when_a_requirement_is_deleted(needle, tmp_pat
     cut = template.replace(needle, "removed")
     problems = evidence_rule_problems(ref, _mutated(tmp_path, "draft-notes.md", cut))
     assert problems == [f"draft-notes template lacks {needle!r}"]
+
+
+def credential_check_problems(ref: str) -> list[str]:
+    """Problems with the no-question credential check that runs before the post."""
+    problems = []
+    check = line_starting(ref, "Credential check")
+    if not check:
+        return ["refs/create.md has no 'Credential check' paragraph"]
+    for needle in (
+        "with no question",
+        "safety-scan",
+        "<REDACTED>",
+        "kept without approval",
+    ):
+        if needle not in check:
+            problems.append(f"the credential check lacks {needle!r}")
+    if ref.index(check) > ref.index("3. `gh issue create"):
+        problems.append("the credential check does not come before the create command")
+    if "`redacted:` line" not in line_starting(ref, "8. Print the issue URL"):
+        problems.append("Wave 5 step 8 does not print the redacted lines")
+    return problems
+
+
+def test_create_redacts_credentials_before_posting_without_a_question():
+    assert credential_check_problems(_text(REFS / "create.md")) == []
+
+
+@pytest.mark.parametrize("needle", ["with no question", "<REDACTED>", "safety-scan"])
+def test_credential_check_fails_when_a_requirement_is_deleted(needle, tmp_path):
+    ref = _text(REFS / "create.md")
+    check = line_starting(ref, "Credential check")
+    cut = ref.replace(check, check.replace(needle, "removed"))
+    problems = credential_check_problems(_mutated(tmp_path, "create.md", cut))
+    assert problems == [f"the credential check lacks {needle!r}"]

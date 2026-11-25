@@ -29,13 +29,13 @@ The shim never runs the real tool and never opens a connection. It needs these v
 - `SHIM_LOG_DIR`: the absolute path of `rows/<row id>` inside this kit (the shim creates it); the row's log file is `rows/<row id>/gh-calls.log`
 - `SHIM_FIXTURES`: the absolute path of the `fixtures` folder of this kit
 - `SHIM_REPO`: the `owner/repo` that the scratch directory's origin names (use `IronbellyOrg/IronClaude`)
-- `SHIM_ISSUE_TYPE` (optional): the issue type the shim echoes when the flow reads the type back; it prints `Feature` when unset. It is an echo of this variable, not a check of what was created: read the `CREATE` line for that
+- `SHIM_ISSUE_TYPE` (optional): the issue type the shim echoes when the flow reads the type back; it prints `Feature` when unset. It only echoes this variable and does not check what was created; to see what was filed, read the `CREATE` line of the row's log.
 
 The shim answers only the calls the create flow makes and logs each as one line: `OK-AUTH`, `LOOKUP-LABELS`, `LOOKUP-TYPES`, `LOOKUP-FIELDS`, `LOOKUP-DUPES`, `CREATE`, `VIEW-TYPE`, `COMMENT`, `FIELD-POST`, `FIELD-READ`. Everything else, and any call about an issue number other than this row's fake number, is logged as `REFUSED` and exits non-zero. The fixtures follow the shape the skill text describes; if a lookup worker reports it cannot read one, adjust that fixture to the real API answer and say so in the row.
 
 ## 4. Use a fresh scratch directory for every row
 
-The create flow reads `<R>` from the working directory's `origin` remote and stops with `E-NO-ORIGIN` without one. It also renames its draft folder to `.dev/issues/<N>/` and writes files there. So for each row make a new per-row scratch directory outside this repository checkout, run `git init` in it, and add a local `origin` that names the fork (`git remote add origin https://github.com/IronbellyOrg/IronClaude.git`; nothing is ever fetched or pushed). Then copy the repository source the scenario names into the scratch directory, so the drafter has real files to check the description against: for S03, S06, S07 and S08 copy this checkout's `src/superclaude/cli/` folder to the same path in the scratch directory; for S01 copy `README.md`. The scratch directory must not contain `src/superclaude/cli/ledger_utils.py` or a `parse_ledger_line` function (this checkout has neither): S06 relies on that file being absent from the real source, not from an empty directory. Never run a row inside a real checkout, and never reuse a scratch directory.
+The create flow reads `<R>` from the working directory's `origin` remote and stops with `E-NO-ORIGIN` without one. It also renames its draft folder to `.dev/issues/<N>/` and writes files there. So for each row make a new per-row scratch directory outside this repository checkout, run `git init` in it, and add a local `origin` that names the fork (`git remote add origin https://github.com/IronbellyOrg/IronClaude.git`; nothing is ever fetched or pushed). Then copy the repository source the scenario names into the scratch directory, so the drafter has real files to check the description against: for S03, S06, S07 and S08 copy this checkout's `src/superclaude/cli/` folder to the same path in the scratch directory; for S01 create a `README.md` whose line 3 reads `We recieve the data.` (never copy this checkout's real `README.md`, which has no such typo, so the description's claim stays true); for S10 create `src/cache.py` holding the single line `CACHE_TTL_SECONDS = 3600`, so the cache really has a time limit that the description denies. The scratch directory must not contain `src/superclaude/cli/ledger_utils.py` or a `parse_ledger_line` function (this checkout has neither): S06 relies on that file being absent from the real source, not from an empty directory. Never run a row inside a real checkout, and never reuse a scratch directory.
 
 ## 5. Start the agent on the temporary home and run the row
 
@@ -54,7 +54,7 @@ A recipe is a description meant to provoke the scenario. A row counts only when 
 - S07: S03 and S06 together in one description.
 - S08: S02 and S06 together in one description.
 - S09: all flags given, with a mode and type the worker will dispute (for example `--mode bug --type docs` on a feature request); at quick depth the flags are taken at face value, so no comment is expected there.
-- S10: `"The cache never expires; add a refresh flag."`; the draft adds a code fact that the cache has a time limit (an addition that is the only evidence of the contradiction).
+- S10: `"The cache in src/cache.py never expires; add a refresh flag."`; the draft adds a code fact that the cache has a time limit (an addition that is the only evidence of the contradiction).
 
 Run each scenario at all three depths with the same description.
 
