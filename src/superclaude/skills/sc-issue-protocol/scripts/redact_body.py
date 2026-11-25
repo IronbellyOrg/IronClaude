@@ -62,7 +62,7 @@ _SEP = r"""["']?\s*[:=]\s*"""
 _QUOTED = r"""(?:"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.|'')*')"""
 # A strong name may hold a multi-line quoted value (YAML); bounded so a stray quote
 # cannot swallow the rest of a long document.
-_QUOTED_ML = r"""(?:"(?:[^"\\]|\\.){0,2000}"|'(?:[^'\\]|\\.|''){0,2000}')"""
+_QUOTED_ML = r"""(?:"(?:[^"\\]|\\[\s\S]){0,2000}"|'(?:[^'\\]|\\[\s\S]|''){0,2000}')"""
 _NAME_CHARS = r"[A-Za-z0-9_.-]*"
 _STRONG_NAMES = r"""(?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
            |authorization|credential|session[_-]?id
@@ -70,7 +70,7 @@ _STRONG_NAMES = r"""(?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
 
 # ``password: |`` followed by indented lines (a YAML block scalar).
 BLOCK_HEAD = re.compile(
-    rf"^[ \t-]*{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP}[|>][-+0-9]*[ \t]*$",
+    rf"^[ \t-]*{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP}[|>][-+0-9]*[ \t]*(?:\#.*)?$",
     re.VERBOSE | re.IGNORECASE,
 )
 
@@ -104,7 +104,7 @@ _PLACEHOLDER = re.compile(
       | \{\{[^{}]*\}\}              # {{ secret }}
       | %[A-Za-z_][A-Za-z0-9_]*%    # %PASSWORD%
       | \*+                         # ******
-      | [|>][-+0-9]*                # a YAML block-scalar header (its lines are handled apart)
+      | [|>][-+0-9]*(?:[ \t]+\#.*)? # a YAML block-scalar header (its lines are handled apart)
     """,
     re.VERBOSE,
 )
