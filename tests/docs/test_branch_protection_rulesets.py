@@ -55,7 +55,12 @@ def test_tag_ruleset():
     }
     assert data["bypass_actors"] == []
     # No creation rule: `git push origin vX.Y.Z` in the release flow must keep working.
-    assert sorted(r["type"] for r in data["rules"]) == ["deletion", "non_fast_forward"]
+    # `update` blocks moving an existing tag forward; `non_fast_forward` alone only blocks rewrites.
+    assert sorted(r["type"] for r in data["rules"]) == [
+        "deletion",
+        "non_fast_forward",
+        "update",
+    ]
 
 
 def test_no_default_branch_token_anywhere():
