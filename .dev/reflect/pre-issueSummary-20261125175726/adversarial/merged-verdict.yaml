@@ -1,0 +1,18 @@
+# EV-1 merged verdict for sc:reflect Wave 4, copied from the sc:adversarial merged output and return contract (no value invented)
+merge_method: adversarial
+verdict: FAIL                       # merged card Notes, Verdict: rows 1-5 Blocking
+convergence_score: 0.8889           # 16 of 18 diff points agreed
+convergence_status: CONVERGED
+base_variant: "variant-2-original (reviewer 2, opus:qa)"
+merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-765/.dev/reflect/pre-issueSummary-20261125175726/adversarial/merged-review-card.md"
+adversarial_return_contract: "/home/coder/workspaces/worktrees/IronClaude/issue-765/.dev/reflect/pre-issueSummary-20261125175726/adversarial/adversarial/return-contract.yaml"
+source_cards:
+  - "/home/coder/workspaces/worktrees/IronClaude/issue-765/.dev/reflect/pre-issueSummary-20261125175726/reviewer-cards/reviewer-1-card.md"
+  - "/home/coder/workspaces/worktrees/IronClaude/issue-765/.dev/reflect/pre-issueSummary-20261125175726/reviewer-cards/reviewer-2-card.md"
+merged_findings:
+  deviations_rows: 13
+  by_grade: {blocking: 5, medium: 5, note: 3}
+  blocking_by_condition: {decision: [3, 4], missing: [1, 2, 5], safety: []}
+  label_high: 5
+  unresolved_invariants: {high: [], medium_count: 7}
+  orchestrator_corrections: ["row 1 README wording narrowed after the evidence validator's note: the pinned span runs from README line 409 to line 613 and only lines 418-426 are pinned tightly; the earlier 409-426 wording was wider than the test"]

@@ -2437,6 +2437,13 @@ else
 fi
 export CCSESSION_ORIGIN
 
+# Issue 765: keep Claude Code's low-memory cleanup from killing a background
+# command (the coordinator's message watch). Forced after the env file and the
+# tier setup, so a shell or env-file value of 0 cannot unprotect this launch.
+# It holds for every ccsession launch (no coordinator-only signal exists here)
+# and for every background command of that Claude process, not only the watch.
+export CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1
+
 # No topic (bare --shim and/or --profile) starts a normal untagged session.
 if [ "$NAME_GIVEN" != 1 ] && { [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; }; then
   set -- "$@" ${CLAUDE_PASSTHROUGH[@]+"${CLAUDE_PASSTHROUGH[@]}"}

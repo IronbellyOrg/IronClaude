@@ -406,6 +406,14 @@ runs through the shim and passes Orca's own arguments (its prompt,
 `--prefill <text>`, resume flags) to Claude Code unchanged, after ccsession's
 `--claude-args`, so a prompt is never read as a session name.
 
+Every ccsession launch, through `ccsession-orca` or not, starts Claude Code with
+`CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1`, forced over any shell or env-file
+value, so Claude Code's low-memory cleanup cannot kill a background command such
+as the coordinator's message watch (every background command of that process is
+exempt, not only the watch). The setting is read when Claude starts: relaunch
+a running session through the updated ccsession to get it. A direct `ic` or a
+hand-started `claude` bypasses ccsession and is not covered.
+
 ### Orca session launches
 
 For a new ccsession-backed Claude session, choose **Claude (CLI)**, never **New Terminal**.

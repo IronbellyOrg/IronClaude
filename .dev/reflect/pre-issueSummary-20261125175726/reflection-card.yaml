@@ -1,0 +1,43 @@
+# Calibrations (blind, confidence-calibrator agents, model class sonnet). Self-reported confidences were not used as inputs.
+t1_card:
+  path: t1-card.md
+  hypothesis_source: inline-fallback
+  self_reported: 0.80
+  calibrated:
+    per_dimension: {citation_grounding: 0.90, coverage_completeness: 0.70, deviation_classification_clarity: 0.60, risk_surface_coverage: 0.80, recommendation_actionability: 0.80}
+    C: 0.76
+    citations_checked: 31
+    citations_failed: ["README.md:46-60 (root README lines 53-62 show only pipx install and superclaude install; the ./update.sh refresh is documented at src/superclaude/skills/ccsession-tag/README.md:52, which the card meant)"]
+reviewer_cards:
+  - card: reviewer-cards/reviewer-1-card.md
+    model_class: haiku
+    alias: claude-gw-tier2
+    persona: analyzer
+    reviewer_model_self_report: "ChatGPT (OpenAI; exact model identifier not exposed)"
+    self_reported: 0.94
+    calibrated:
+      per_dimension: {citation_grounding: 0.95, coverage_completeness: 0.80, deviation_classification_clarity: 0.55, risk_surface_coverage: 0.70, recommendation_actionability: 0.80}
+      C: 0.76
+      per_finding: {1: 0.85, 2: 0.95, 3: 0.70, 4: 0.92}
+      citations_checked: 17
+      citations_failed: []
+  - card: reviewer-cards/reviewer-2-card.md
+    model_class: opus
+    alias: claude-gw-tier1a
+    persona: qa
+    reviewer_model_self_report: "claude-gw-tier1a[1m]"
+    self_reported: 0.85
+    calibrated:
+      per_dimension: {citation_grounding: 0.82, coverage_completeness: 0.85, deviation_classification_clarity: 0.72, risk_surface_coverage: 0.80, recommendation_actionability: 0.65}
+      C: 0.77
+      per_finding: {1: 0.92, 2: 0.80, 3: 0.82, 4: 0.95, 5: 0.88, 6: 0.62, 7: 0.80, 8: 0.60, 9: 0.50, 10: 0.45, 11: 0.93, 12: 0.65, 13: 0.90}
+      citations_checked: 32
+      citations_failed:
+        - "tests/unit/test_ccsession_tag.py:1844-1860 (env-filter list; row 12's exec-line claim is inferred, and the orchestrator read ccsession-orca:227-236 and 259-263 to confirm it)"
+        - "ccsession:2412-2415 (about CCSESSION_LAUNCH_ID; supports row 6's inheritance claim by analogy only)"
+        - "install_ccsession.py:61-71 (links, as row 2 says; 'copies nothing' overstated: lines 56-57 and 72-88 copy session-name.sh and the env example)"
+        - "rows 8-10 cite the brief's matrix and card excerpt, which the calibrator did not have"
+calibrator_diversity: full
+calibrator_model_class: sonnet
+executor_class: sonnet
+three_way_partition: degraded

@@ -1,0 +1,31 @@
+selected_tier: 2
+fired_rule_number: 4               # first §5.3 row that matches after the pre-filter: S_domains 3 (code, tests, docs) >= 3; rows 5 (S_dev_density 0.5366 > 0.20, lexical rule) and 6 (C 0.76 < 0.85) also match
+coverage_degraded: parsed-sparse   # Step 1B.2b: inferred_count 41 > parsed_count 0; table-wide pre-filter, no STOP row may fire
+surface_unreached: null            # UC-1: runtime-surface sweep does not run
+composite_score: 7.0
+per_signal_breakdown:
+  scope_size: 1                    # S_scope = 6 tasklist items (> 5, <= 10)
+  task_count: 1                    # 6 tasks
+  blast_radius: 1                  # one export reaches every ccsession-started Claude; dependents found by Grep, none needing change
+  spec_density: 2                  # 41 inferred requirement rows, 0 labelled
+  ambiguity_signals: 2             # S_dev_density 0.5366 (lexical); calibrated C 0.76
+escalation_reason: "parsed-sparse pre-filter forbids a Tier 1 stop; rule 4 (three domains) fires first; rule 5 (unmapped share 0.5366 by the lexical rule) and rule 6 (calibrated C 0.76) also match"
+inputs:
+  C: 0.76
+  S_scope: 6
+  S_domains: 3
+  S_dev_density: 0.5366            # lexical containment rule; most unmatched rows are covered in meaning (see t1-card.md)
+  coverage_pct: null               # parsed-only; no parsed IDs
+  coverage_pct_union: 0.4634
+  coverage_undefined: false
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null
+t2_model_class_diversity: full
+reviewers: [{n: 1, model_class: haiku, alias: claude-gw-tier2, persona: analyzer}, {n: 2, model_class: opus, alias: claude-gw-tier1a, persona: qa}]
+executor_class: sonnet
+executor_class_source: log-heuristic
+executor_exclusion_degraded: false
+calibrator_class: sonnet
+calibrator_diversity: full         # disjoint from the reviewer classes {haiku, opus}
+three_way_partition: degraded      # calibrator class = executor class (sonnet)

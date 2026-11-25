@@ -1,0 +1,26 @@
+input_tree_sha256: 4b8613061eb895b3e32dce9de6fa841b3ae8fd47f132260e5645e6454e6d417b
+file_count: 11
+serialization: json.dumps(sorted([[rel_path, sha256]]), separators=(',',':'))
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-issueSummary-20261125-175231/TASK-WF-issueSummary-20261125-175231.md
+    sha256: 428f1d6ae80e9be514ba56dcdcc8f8bdf04e9a64799bebc5843240f8d097aeb4
+  - path: .dev/tasks/to-do/TASK-WF-issueSummary-20261125-175231/source.md
+    sha256: 5eb4e15e539f3da8a4c739b91f01e7ac4326f230ed13d7d1f8e1ae5c682a8db0
+  - path: src/superclaude/cli/user_settings_defaults.json
+    sha256: 1e62e5e412c09b34e7cbb13f7a88801501cc96ba2ae4dd8c5530f54b18181e55
+  - path: src/superclaude/core/WORKER-CONTRACT.md
+    sha256: 02d3fd77df23d55f42b795ff84d65f8ee2acedff8296bb33c61b5a17dfa514e7
+  - path: src/superclaude/scripts/ic
+    sha256: 158ec08397f5cf1a78dbc22662581438aaf6538c2d2c944584d16a47cc306a4e
+  - path: src/superclaude/skills/ccsession-tag/README.md
+    sha256: 2b9efdb51ef1a72356036c64e03c33e74b606836337ef4683cf412fc42df6591
+  - path: src/superclaude/skills/ccsession-tag/ccsession
+    sha256: f4585a0b240042f7af3a9ce0eab5168b3d27103c750be13da0fc5440e32ee9ac
+  - path: src/superclaude/skills/ccsession-tag/ccsession-orca
+    sha256: b20ce3040bad59dd02241d7783257109eb41da6304531a3979df8701d12730ee
+  - path: tests/unit/test_ccsession_tag.py
+    sha256: dc5a4acd069d688113e12de9d1055c9262ec566a2aeb0ed1b0cd6a88e7124976
+  - path: tests/unit/test_ccsession_tiers.py
+    sha256: 49ee9d71a1b274bbe40a3ded56aff57a5ea6a8ec94438c1ed0b43cb8bc55b944
+  - path: tests/unit/test_install_ccsession.py
+    sha256: ec9194ef1c9c3871abdc14b888554ae175122f0b526c5babafcdd61728ed0213

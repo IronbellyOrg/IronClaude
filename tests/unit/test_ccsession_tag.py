@@ -61,6 +61,7 @@ def _offline_model_data(monkeypatch, tmp_path_factory):
         if name.startswith("ORCA_"):
             monkeypatch.delenv(name)
     for name in (
+        "CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP",  # a shell value must not leak in
         "CLAUDECODE",  # set when the tests run inside Claude Code
         "CLAUDE_CODE_DISABLE_TERMINAL_TITLE",
         "CCSESSION_LAUNCH_ID",
@@ -1335,6 +1336,7 @@ def _label_run(
     transcript: bool,
     args: tuple[str, ...] = ("demo",),
     extra_env: dict[str, str] | None = None,
+    fake_source: str | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], bool]:
     """Run ccsession on a saved label; return the finished process and whether the label stayed."""
     home = tmp_path / "home"
@@ -1342,7 +1344,8 @@ def _label_run(
     work.mkdir(parents=True)
     fake = tmp_path / "claude-args"
     fake.write_text(
-        "#!/usr/bin/env python3\nimport json, sys\nprint(json.dumps(sys.argv[1:]))\n"
+        fake_source
+        or "#!/usr/bin/env python3\nimport json, sys\nprint(json.dumps(sys.argv[1:]))\n"
     )
     fake.chmod(0o700)
     projects = home / ".claude" / "projects"
@@ -1487,6 +1490,45 @@ def test_every_launch_restores_grep_and_glob(
     assert launched[:2] == ["--dangerously-skip-permissions", "--allowedTools=Grep"]
     assert ("--model" in launched) == ("--profile" in args)
     assert ("--resume" in launched) == transcript
+
+
+@pytest.mark.parametrize(
+    ("args", "transcript"),
+    [
+        (("-p", "x"), False),  # untagged
+        (("demo",), False),  # new label
+        (("demo",), True),  # resumed label
+    ],
+)
+@pytest.mark.parametrize("shell_value", [None, "0"])
+def test_every_launch_sets_bg_shell_pressure_reap_switch(
+    tmp_path: Path,
+    args: tuple[str, ...],
+    transcript: bool,
+    shell_value: str | None,
+    monkeypatch,
+) -> None:
+    # Issue 765: Claude must start with the switch at 1, also when the shell had 0.
+    # The stand-in records only this one variable, never the whole environment.
+    monkeypatch.delenv("CC_CLAUDE_FLAGS", raising=False)
+    fake_source = (
+        "#!/usr/bin/env python3\nimport json, os\n"
+        "print(json.dumps(os.environ.get("
+        "'CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP')))\n"
+    )
+    extra_env = (
+        {}
+        if shell_value is None
+        else {"CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP": shell_value}
+    )
+    result, _ = _label_run(
+        tmp_path,
+        transcript=transcript,
+        args=args,
+        extra_env=extra_env,
+        fake_source=fake_source,
+    )
+    assert json.loads(result.stdout.strip().splitlines()[-1]) == "1"
 
 
 @pytest.mark.parametrize(("args", "transcript"), _LAUNCH_CASES)

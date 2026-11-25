@@ -1,0 +1,50 @@
+# coverage matrix (UC-1). Pass 1 parsed ids: 0. Pass 2 rows below (source: inferred).
+parsed_count: 0
+inferred_count: 41
+inferred_rows_dropped_invalid: 0
+matched_count: 19
+coverage_pct: null
+coverage_pct_union: 0.4634
+S_dev_density: 0.5366
+rows:
+  - {id: INF-001, source: inferred, citation: "source.md:6", tasks: [], method: none, ratio: 0.0, quote: "Effort estimate: 8 hours"}
+  - {id: INF-002, source: inferred, citation: "source.md:7", tasks: [5], method: containment, ratio: 1.0, quote: "the new coordinator process starts with the switch set"}
+  - {id: INF-003, source: inferred, citation: "source.md:7", tasks: [2], method: containment, ratio: 0.6, quote: "launch tests cover the chosen scope"}
+  - {id: INF-004, source: inferred, citation: "source.md:7", tasks: [5], method: containment, ratio: 0.667, quote: "live proof verifies the environment and message delivery"}
+  - {id: INF-005, source: inferred, citation: "source.md:11", tasks: [5], method: containment, ratio: 0.818, quote: "start every coordinator's Claude process with `CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1` in its initial..."}
+  - {id: INF-006, source: inferred, citation: "source.md:11", tasks: [1], method: containment, ratio: 0.667, quote: "Change the ccsession launcher"}
+  - {id: INF-007, source: inferred, citation: "source.md:11", tasks: [], method: none, ratio: 0.444, quote: "record whether protection covers coordinators only or all ccsession launches"}
+  - {id: INF-008, source: inferred, citation: "source.md:11", tasks: [5], method: containment, ratio: 0.875, quote: "document the session-wide effect and the need to launch a new process"}
+  - {id: INF-009, source: inferred, citation: "source.md:11", tasks: [], method: none, ratio: 0.5, quote: "verify fresh and resumed launches"}
+  - {id: INF-010, source: inferred, citation: "source.md:11", tasks: [], method: none, ratio: 0.118, quote: "Part 2 is dropped entirely, including research, guard, sampler, browser stops and the eight plan problems; ..."}
+  - {id: INF-011, source: inferred, citation: "source.md:11", tasks: [], method: none, ratio: 0.286, quote: "Use `origin/integration`, not the old body's `master`"}
+  - {id: INF-012, source: inferred, citation: "source.md:13", tasks: [1], method: containment, ratio: 0.9, quote: "Recommend all ccsession launches because there is no verified coordinator-role signal in the launcher"}
+  - {id: INF-013, source: inferred, citation: "source.md:13", tasks: [1], method: containment, ratio: 0.667, quote: "The plan must record its decision"}
+  - {id: INF-014, source: inferred, citation: "source.md:13", tasks: [], method: none, ratio: 0.583, quote: "ensure a conflicting inherited or env-file value cannot leave a protected coordinator without `=1`"}
+  - {id: INF-015, source: inferred, citation: "source.md:13", tasks: [], method: none, ratio: 0.1, quote: "do not treat earlier suggestions to respect overrides as owner approval to weaken the final requirement"}
+  - {id: INF-016, source: inferred, citation: "source.md:13", tasks: [1], method: containment, ratio: 0.625, quote: "Direct `ic` and bare Claude launches bypass ccsession, so verify the actual coordinator launch route rather..."}
+  - {id: INF-017, source: inferred, citation: "source.md:15", tasks: [1], method: containment, ratio: 0.889, quote: "2 hours to trace the real route and record scope/override policy"}
+  - {id: INF-018, source: inferred, citation: "source.md:15", tasks: [], method: none, ratio: 0.4, quote: "1 hour for the shared export and README"}
+  - {id: INF-019, source: inferred, citation: "source.md:15", tasks: [], method: none, ratio: 0.5, quote: "2 hours for branch/configuration regression tests"}
+  - {id: INF-020, source: inferred, citation: "source.md:15", tasks: [], method: none, ratio: 0.25, quote: "1 hour for checks and synchronization"}
+  - {id: INF-021, source: inferred, citation: "source.md:15", tasks: [], method: none, ratio: 0.5, quote: "2 hours for live launch/message evidence and recording limitations"}
+  - {id: INF-022, source: inferred, citation: "source.md:15", tasks: [], method: none, ratio: 0.091, quote: "The earlier 32-hour complex estimate included the now-dropped research and no longer applies"}
+  - {id: INF-023, source: inferred, citation: "source.md:21", tasks: [], method: none, ratio: 0.462, quote: "Cover untagged/raw-resume, labeled resume and new-label launches, both with and without an explicit model."}
+  - {id: INF-024, source: inferred, citation: "source.md:21", tasks: [2], method: containment, ratio: 0.786, quote: "the shared pre-exec location after 2438 and before 2440 reaches all six Claude exec sites"}
+  - {id: INF-025, source: inferred, citation: "source.md:22", tasks: [], method: none, ratio: 0.0, quote: "do not infer roles from labels"}
+  - {id: INF-026, source: inferred, citation: "source.md:23", tasks: [5], method: containment, ratio: 0.75, quote: "Verify the coordinator's actual configuration during live proof."}
+  - {id: INF-027, source: inferred, citation: "source.md:24", tasks: [], method: none, ratio: 0.455, quote: "Add scope, session-wide effect, override behavior, bypasses and treatment of existing sessions."}
+  - {id: INF-028, source: inferred, citation: "source.md:25", tasks: [3], method: containment, ratio: 0.667, quote: "Add coverage for unset/conflicting shell and env-file values, new/resumed and tagged/untagged launches, and..."}
+  - {id: INF-029, source: inferred, citation: "source.md:26", tasks: [], method: none, ratio: 0.4, quote: "Extend targeted capture to prove tier/model/profile selection does not remove protection."}
+  - {id: INF-030, source: inferred, citation: "source.md:26", tasks: [3], method: containment, ratio: 0.667, quote: "Keep tests isolated from developer environment values."}
+  - {id: INF-031, source: inferred, citation: "source.md:27", tasks: [4], method: containment, ratio: 0.833, quote: "Run alongside the two launch-test files"}
+  - {id: INF-032, source: inferred, citation: "source.md:27", tasks: [], method: none, ratio: 0.429, quote: "installer changes are not required by the recommended launch-only approach"}
+  - {id: INF-033, source: inferred, citation: "source.md:28", tasks: [6], method: containment, ratio: 0.667, quote: "no settings change is planned"}
+  - {id: INF-034, source: inferred, citation: "source.md:29", tasks: [], method: none, ratio: 0.5, quote: "Document this boundary"}
+  - {id: INF-035, source: inferred, citation: "source.md:29", tasks: [], method: none, ratio: 0.5, quote: "do not expand this issue into unrelated launcher work without a scope decision"}
+  - {id: INF-036, source: inferred, citation: "source.md:30", tasks: [], method: none, ratio: 0.444, quote: "Preserve the contract; the fix is launch-time environment, not automatic watch restart."}
+  - {id: INF-037, source: inferred, citation: "source.md:31", tasks: [6], method: containment, ratio: 0.9, quote: "Check only the exact switch in `/proc/<pid>/environ`, never the full environment"}
+  - {id: INF-038, source: inferred, citation: "source.md:31", tasks: [6], method: containment, ratio: 0.7, quote: "verify receipt and watch renewal across at least two five-minute cycles"}
+  - {id: INF-039, source: inferred, citation: "source.md:31", tasks: [6], method: containment, ratio: 0.6, quote: "Do not force memory pressure on the shared host."}
+  - {id: INF-040, source: inferred, citation: "source.md:32", tasks: [], method: none, ratio: 0.4, quote: "Implement in `src/`, not generated `.claude/` mirrors."}
+  - {id: INF-041, source: inferred, citation: "source.md:32", tasks: [], method: none, ratio: 0.462, quote: "Run the three targeted test files, the required broader regression/lint/format gates and sync checks"}

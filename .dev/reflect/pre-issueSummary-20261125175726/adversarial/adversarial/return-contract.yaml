@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-765/.dev/reflect/pre-issueSummary-20261125175726/adversarial/merged-review-card.md"
+  convergence_score: 0.8889          # 16 of 18 diff points agreed by both advocates
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-765/.dev/reflect/pre-issueSummary-20261125175726/adversarial/adversarial"
+  status: "success"                  # all 5 steps ran; post-merge validation passed; convergence above the 0.80 threshold; no HIGH unaddressed invariant
+  base_variant: "variant-2-original (reviewer 2, opus:qa)"
+  unresolved_conflicts: 2            # C-003 and X-001 (one dispute: grade of the Task 2 help-notice defect); settled by judge ruling (Medium), not by agreement
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  convergence_status: "CONVERGED"
+  unaddressed_invariants: []         # no HIGH-severity UNADDRESSED item; 7 MEDIUM and 2 LOW warnings are listed in invariant-probe.md and carried into the merged card
+  judge_rulings:
+    - {points: [C-003, X-001], ruling: "Medium", reason: "nothing the plan or spec rests on reads the help line"}
+  depth: standard
+  rounds: {debate: 2, invariant_probe: 1, round_3: skipped}

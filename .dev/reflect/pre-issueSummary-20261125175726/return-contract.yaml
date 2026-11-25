@@ -1,0 +1,128 @@
+contract_version: "1.9.0"
+status: success                         # the review ran to the end and the evidence gate passed; the verdict on the plan is FAIL (merged-verdict.yaml)
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-765/.dev/reflect/pre-issueSummary-20261125175726/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-765/.dev/reflect/pre-issueSummary-20261125175726/audit.log
+confidence_calibrated: 0.76
+escalation_rule_matched: 4
+onboarding_ran: false
+
+# UC-1 specific
+coverage_pct: null                      # parsed-only denominator; 0 parsed ids
+coverage_pct_union: 0.4634              # 19 of 41 inferred rows matched by the word-overlap rule (it under-counts; see REPORT.md Coverage)
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-007, INF-009, INF-010, INF-011, INF-014, INF-015, INF-018, INF-019, INF-020, INF-021, INF-022, INF-023, INF-025, INF-027, INF-029, INF-032, INF-034, INF-035, INF-036, INF-040, INF-041]
+best_practice_grade: null
+implementation_coverage_pct: null       # kind-guard never fired: no abstract symbol is touched
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 only fields are not applicable to a pre-execution review
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 13, regression: 0}
+deviation_register_path: null
+grounding_gaps_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+reachability_gate_ran: false
+reachability_skip_reason: spec-and-tasklist-absent   # not applicable in UC-1; telemetry only
+runtime_surface_sweep_ran: false
+reuse_sweep_ran: false
+
+# Input integrity
+input_sha256:
+  tasklist: 428f1d6ae80e9be514ba56dcdcc8f8bdf04e9a64799bebc5843240f8d097aeb4
+  spec: 5eb4e15e539f3da8a4c739b91f01e7ac4326f230ed13d7d1f8e1ae5c682a8db0
+input_tree_sha256: 4b8613061eb895b3e32dce9de6fa841b3ae8fd47f132260e5645e6454e6d417b
+input_tree_file_count: 11
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-765/.dev/reflect/pre-issueSummary-20261125175726/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 141
+citations_revalidated: 141
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 3
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 artifacts
+reviewer_cards:
+  - /home/coder/workspaces/worktrees/IronClaude/issue-765/.dev/reflect/pre-issueSummary-20261125175726/reviewer-cards/reviewer-1-card.md
+  - /home/coder/workspaces/worktrees/IronClaude/issue-765/.dev/reflect/pre-issueSummary-20261125175726/reviewer-cards/reviewer-2-card.md
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/issue-765/.dev/reflect/pre-issueSummary-20261125175726/adversarial/adversarial
+adversarial_convergence_score: 0.8889
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single             # by the alias-name heuristic of step 0.6; reviewer 1's self-report names an OpenAI model, so the real diversity is higher
+t2_effective_diversity: model-only
+calibrator_diversity: full
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+finding_counts: {blocking: 5, label_high: 5, medium: 5, note: 3}
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+per_task_verdicts: []                   # UC-1
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+# Budget pre-flight
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion (UC-2 only)
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+# Telemetry (non-stable)
+reviewer_models: [claude-gw-tier2, claude-gw-tier1a]
+reviewer_personas: [analyzer, qa]
+degraded_components: ["graph:truncated", "three-way-partition", "reviewer-spawn-retry"]
+fallback_path: null
+executor_class_source: log-heuristic
+executor_class_resolved: true           # class taken from the session's own model id, not from a flag or the environment
+executor_exclusion_degraded: false
+memory_hits: 2
+memory_misses: 0
+memory_retention_actions: 0
+zero_drop_flag: true
+reviewer_isolation: disabled

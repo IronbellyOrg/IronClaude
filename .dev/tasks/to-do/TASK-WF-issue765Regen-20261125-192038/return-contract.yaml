@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-issue765Regen-20261125-192038
+plan_path: ./TASK-WF-issue765Regen-20261125-192038.md
+source_path: ./source.md
+source_origin: ".dev/reflect/pre-issueSummary-20261125175726/artifacts/issue765Regen.md"
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: skipped
+reflect_report_path: null
+unresolved:
+  - "Owner instruction at 2026-11-25T19:21Z: no re-review of this regenerated plan (no second reflect, no adversarial round). It fixes the 5 blocking findings of the first plan's review but was not itself reviewed; the first plan's review is at .dev/reflect/pre-issueSummary-20261125175726/REPORT.md. Open findings go to the PR body as follow-up notes."
+supersedes: TASK-WF-issueSummary-20261125-175231
+remediation_route: regenerate
+finding_counts: {"blocking": 5, "label_high": 5, "medium": 5, "note": 3}
