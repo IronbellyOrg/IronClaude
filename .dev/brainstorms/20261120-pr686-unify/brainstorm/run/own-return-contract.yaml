@@ -1,0 +1,27 @@
+# The command's own contract (the worker contract is return-contract.yaml beside this file)
+contract_version: "1.0"
+status: partial                       # adversarial convergence blocked by invariants (1 HIGH carried); merged output exists
+seed_brief_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/brainstorm/run/seed-brief.md"
+merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/brainstorm/run/merged-requirements.md"
+convergence_score: 1.0
+adversarial_artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/brainstorm/run/nested/adversarial-1"
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary             # two read-only code-check agents on the snapshots plus two augment searches; nested/analyze-<n>/ not written (no /sc:analyze call)
+  - source: research-light
+    quality_tier: skipped             # --no-research
+  - source: research-deep
+    quality_tier: skipped             # --no-research
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "X-001: how to stop the poll-launched claim agent and the standing coordinator sharing one worktree (separate claim worktree or the coordinator claims); needs a live probe and an owner answer (OA-23)."
+  - "INV-025 (HIGH): binding a worker at a guard level narrows honest drift but does not stop a scripted push, PR, comment or merge; only a ruleset plus a separate agent login narrows it further."
+  - "Verdicts D15 and D16 appeared after the seed brief was written; D15 was appended to the brief before the proposals; D16 was used in the refactoring plan and the merge, not by the proposal agents."
+telemetry:
+  wave_durations_ms: {wave_0: null, wave_1: null, wave_2a: null, wave_2b: null, wave_3: null, wave_4: null}   # not measured
+  token_usage: {note: "not measured; agent runs reported about 0.2 to 0.4 million tokens each (3 proposals, 3 advocates x 2 rounds, 1 fault-finder, 2 scorers, 1 merge executor with one fix pass, 1 independent reviewer)"}
+  agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for architecture domain',sonnet:analyzer:'focus on root-cause analysis and evidence-based reasoning for architecture',haiku:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'"
+  enrichment_artifact_sizes: {codebase-context.md: 10455}

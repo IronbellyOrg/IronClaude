@@ -1,0 +1,4 @@
+Launch-level guard:
+Blocked: this launch prompt.
+Why: The session was started by /sc:issue --claim, but the guard could not register it, so its limits could not be enforced.
+You can: Check that jq is installed and /home/coder/workspaces/IronClaude/.dev/tasks/to-do/TASK-TECHREF-issue-pipeline-20261120-040158/research/05-guard-run-sandbox/home/.claude/state/launch-level is writable, then claim the issue again.

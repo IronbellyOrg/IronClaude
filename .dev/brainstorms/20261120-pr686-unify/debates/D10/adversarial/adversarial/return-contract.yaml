@@ -1,0 +1,19 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/merged-output.md"
+  convergence_score: 0.80          # 12 of 15 diff points agreed; gate BLOCKED_BY_INVARIANTS
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/adversarial"
+  status: "partial"                # completed; two HIGH UNADDRESSED invariants, three unresolved diff points
+  base_variant: "variant-2-original (CLAY paper)"
+  unresolved_conflicts: 3          # X-001, X-002, A-002 (all resolved in substance in the merge)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: INV-001
+      category: state_variables
+      assumption: "The orchestrator-written ack means the issue was durably taken, so the poll may stop resending and move the wake file to done/"
+      severity: HIGH
+    - id: INV-002
+      category: state_variables
+      assumption: "An entry that runs out of wake attempts is a loud, recoverable failure and its wake file is still usable"
+      severity: HIGH

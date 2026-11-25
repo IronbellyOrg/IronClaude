@@ -1,0 +1,1 @@
+want to scan of all places that need to be updated as well as reasoning through the blast radius that the incidences of that contradiction have.  Generate a task list of all of the changes needed and then task list with SC implement

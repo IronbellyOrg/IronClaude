@@ -1,0 +1,34 @@
+{
+  "id": "33a2b79b-c37f-4c99-a29e-167283b98771",
+  "ok": true,
+  "result": {
+    "terminal": {
+      "handle": "term_cbf13968-d886-47d5-b57d-a40ae19da3a1",
+      "status": "running",
+      "tail": [
+        "aidev: startup-summary reports warns; cat ~/.aidev/status/startup-summary",
+        "IronClaude docs/409-orca-dashboard-designs > env -u CLICKUP_API_TOKEN claude --settings /tmp/ob/settings-claim.json"
+      ],
+      "truncated": false,
+      "limited": false,
+      "oldestCursor": "0",
+      "nextCursor": "2",
+      "latestCursor": "2",
+      "returnedLineCount": 2,
+      "tailRows": [
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        }
+      ],
+      "source": "screen"
+    }
+  },
+  "_meta": {
+    "runtimeId": "5fa47013-c78e-429f-8465-1efeaa46b5b9"
+  }
+}

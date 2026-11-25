@@ -1,0 +1,39 @@
+..................................................s......................................................................................................................... [  5%]
+...............s............................................................................................................................................................ [ 10%]
+....................................................ssssssssssssss.......................................................................................................... [ 16%]
+............................................................................................................................................................................ [ 21%]
+............................................................................................................................................................................ [ 27%]
+............................................................................................................................................................................ [ 32%]
+............................................................................................................................................................................ [ 38%]
+.............................................................................................................................................................s.............. [ 43%]
+............................................................................................................................................................................ [ 49%]
+............................................................................................................................................................................ [ 54%]
+............................................................................................................................................................................ [ 59%]
+............................................................................................................................................................................ [ 65%]
+............................................................................................................................................................................ [ 70%]
+............................................................................................................................................................................ [ 76%]
+............................................................................................................................................................................ [ 81%]
+............................................................................................................................................................................ [ 87%]
+...............................................................................................................................................................ss........... [ 92%]
+............................................................................................................................................................................ [ 98%]
+..............................................................                                                                                                               [100%]
+============================================================================= short test summary info ==============================================================================
+SKIPPED [1] tests/swarm/test_bare_review_golden_regen.py:254: Golden regeneration is a deliberate, human-approved act. Set SWARM_REGEN_GOLDEN=1 to re-bless the frozen golden tree.
+SKIPPED [1] tests/swarm/test_cli_registration.py:125: got empty parameter set for (subcommand)
+SKIPPED [2] tests/swarm/test_e2e_real_proxy.py:212: set SWARM_REAL_E2E=1 to run real-proxy tests; T2ProxyKey (from .aienv) not set
+SKIPPED [1] tests/swarm/test_e2e_real_proxy.py:258: set SWARM_REAL_E2E=1 to run real-proxy tests; T2ProxyKey (from .aienv) not set
+SKIPPED [1] tests/swarm/test_e2e_real_proxy.py:266: set SWARM_REAL_E2E=1 to run real-proxy tests; T2ProxyKey (from .aienv) not set
+SKIPPED [1] tests/swarm/test_e2e_real_proxy.py:274: set SWARM_REAL_E2E=1 to run real-proxy tests; T2ProxyKey (from .aienv) not set
+SKIPPED [1] tests/swarm/test_e2e_real_proxy.py:282: set SWARM_REAL_E2E=1 to run real-proxy tests; T2ProxyKey (from .aienv) not set
+SKIPPED [1] tests/swarm/test_e2e_real_proxy.py:292: set SWARM_REAL_E2E=1 to run real-proxy tests; T2ProxyKey (from .aienv) not set
+SKIPPED [1] tests/swarm/test_e2e_real_proxy.py:300: set SWARM_REAL_E2E=1 to run real-proxy tests; T2ProxyKey (from .aienv) not set
+SKIPPED [1] tests/swarm/test_e2e_real_proxy.py:310: set SWARM_REAL_E2E=1 to run real-proxy tests; T2ProxyKey (from .aienv) not set
+SKIPPED [1] tests/swarm/test_e2e_real_proxy.py:318: set SWARM_REAL_E2E=1 to run real-proxy tests; T2ProxyKey (from .aienv) not set
+SKIPPED [1] tests/swarm/test_e2e_real_proxy.py:327: set SWARM_REAL_E2E=1 to run real-proxy tests; T2ProxyKey (from .aienv) not set
+SKIPPED [1] tests/swarm/test_e2e_real_proxy.py:356: set SWARM_REAL_E2E=1 to run real-proxy tests; T2ProxyKey (from .aienv) not set
+SKIPPED [1] tests/swarm/test_e2e_real_proxy.py:375: set SWARM_REAL_E2E=1 to run real-proxy tests; T2ProxyKey (from .aienv) not set
+SKIPPED [1] tests/swarm/test_e2e_real_proxy.py:387: set SWARM_REAL_E2E=1 to run real-proxy tests; T2ProxyKey (from .aienv) not set
+SKIPPED [1] tests/swarm/test_openai_compat.py:634: T2 proxy env vars not set; skipping live transport probe.
+SKIPPED [1] tests/swarm/test_tmux_detached.py:112: this branch only fires when tmux is absent
+SKIPPED [1] tests/swarm/test_tmux_detached.py:125: patched-tmux path covers monkeypatched absence
+3139 passed, 19 skipped in 39.89s

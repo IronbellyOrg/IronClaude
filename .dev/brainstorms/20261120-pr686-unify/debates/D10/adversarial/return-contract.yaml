@@ -1,0 +1,18 @@
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:adversarial --compare .../D10/position-OURS.md,.../D10/position-CLAY.md --depth standard --unattended --output .../D10/adversarial/"
+report_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/merged-output.md"
+artifacts:
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/adversarial/return-contract.yaml"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/adversarial/diff-analysis.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/adversarial/debate-transcript.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/adversarial/invariant-probe.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/adversarial/base-selection.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/adversarial/refactor-plan.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/adversarial/merge-log.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/adversarial/round1-advocate-1-ours.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/adversarial/round1-advocate-2-clay.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/adversarial/round2-rebuttal-1-ours.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D10/adversarial/adversarial/round2-rebuttal-2-clay.md"
+reason: null
+note: "status partial: convergence 0.80 reached but blocked by two HIGH UNADDRESSED invariants (INV-001, INV-002); standard depth has no Round 3, so they are carried into the merged output as mandatory conditions M1 and M2."

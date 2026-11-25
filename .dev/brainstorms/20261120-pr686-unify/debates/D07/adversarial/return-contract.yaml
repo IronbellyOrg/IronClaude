@@ -1,0 +1,14 @@
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:adversarial --compare /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/position-OURS.md,/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/position-CLAY.md --depth standard --unattended --output /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/adversarial/"
+report_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/adversarial/merged-output.md"
+reason: null
+artifacts:
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/adversarial/adversarial/return-contract.yaml
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/adversarial/adversarial/diff-analysis.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/adversarial/adversarial/debate-transcript.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/adversarial/adversarial/invariant-probe.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/adversarial/adversarial/base-selection.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/adversarial/adversarial/refactor-plan.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/adversarial/adversarial/merge-log.md
+partial_reason: "Diff-point convergence 95.8 percent, but five HIGH invariant findings stayed UNADDRESSED at standard depth (no Round 3); they are recorded as conditions in the merged output."

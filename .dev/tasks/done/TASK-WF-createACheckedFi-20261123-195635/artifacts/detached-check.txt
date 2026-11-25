@@ -1,0 +1,130 @@
+{
+  "command": [
+    "uv",
+    "run",
+    "--no-project",
+    "--python",
+    "/opt/uv/tools/superclaude/bin/python",
+    "superclaude",
+    "swarm",
+    "run",
+    "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/spec.json",
+    "--detached",
+    "--output",
+    "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/out"
+  ],
+  "stdout": "swarm run: detached job_id=completion-e59774353e0d session=swarm-completion-e59774353e0d mode=spec-file\n",
+  "stderr": "",
+  "exit_code": 0,
+  "tmux_available": true,
+  "nested": false,
+  "deadline_seconds": 10,
+  "artifacts": [
+    ".swarm-detached-spec.json"
+  ],
+  "state_exists": false,
+  "contract_exists": false,
+  "marker_exists": false,
+  "imported_package": "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src/superclaude/cli/swarm",
+  "check": "FAIL"
+}
+{
+  "command": [
+    "uv",
+    "run",
+    "--no-project",
+    "--python",
+    "/opt/uv/tools/superclaude/bin/python",
+    "superclaude",
+    "swarm",
+    "run",
+    "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/spec.json",
+    "--detached",
+    "--output",
+    "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out"
+  ],
+  "stdout": "swarm run: detached job_id=completion-b23cc790498e session=swarm-completion-b23cc790498e mode=spec-file\n",
+  "stderr": "",
+  "exit_code": 0,
+  "tmux_available": true,
+  "nested": false,
+  "deadline_seconds": 10,
+  "artifacts": [
+    ".swarm-detached-spec.json",
+    ".swarm-state.json",
+    "bare-review-00-lens-default-model-0.final.md",
+    "bare-review-00-lens-default-model-0.meta.json",
+    "bare-review-01-lens-default-model-0.final.md",
+    "bare-review-01-lens-default-model-0.meta.json",
+    "bare-review-02-lens-default-model-0.final.md",
+    "bare-review-02-lens-default-model-0.meta.json",
+    "done.json",
+    "execution-log.jsonl",
+    "execution-log.md",
+    "manifest.json",
+    "merged.md",
+    "return-contract.yaml"
+  ],
+  "state_exists": true,
+  "contract_exists": true,
+  "marker_exists": true,
+  "imported_package": "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src/superclaude/cli/swarm/commands.py",
+  "marker": {
+    "atomic_write": true,
+    "contract_path": "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli-launcher-fix/out/return-contract.yaml",
+    "terminal_status": "success"
+  },
+  "contract_status": "success",
+  "state": "terminal",
+  "check": "PASS"
+}
+{
+  "command": [
+    "uv",
+    "run",
+    "--no-project",
+    "--python",
+    "/opt/uv/tools/superclaude/bin/python",
+    "superclaude",
+    "swarm",
+    "run",
+    "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/spec.json",
+    "--detached",
+    "--output",
+    "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out"
+  ],
+  "stdout": "swarm run: detached job_id=completion-ff992e4addd7 session=swarm-completion-ff992e4addd7 mode=spec-file\n",
+  "stderr": "",
+  "exit_code": 0,
+  "tmux_available": true,
+  "nested": false,
+  "deadline_seconds": 10,
+  "artifacts": [
+    ".swarm-detached-spec.json",
+    ".swarm-state.json",
+    "bare-review-00-lens-default-model-0.final.md",
+    "bare-review-00-lens-default-model-0.meta.json",
+    "bare-review-01-lens-default-model-0.final.md",
+    "bare-review-01-lens-default-model-0.meta.json",
+    "bare-review-02-lens-default-model-0.final.md",
+    "bare-review-02-lens-default-model-0.meta.json",
+    "done.json",
+    "execution-log.jsonl",
+    "execution-log.md",
+    "manifest.json",
+    "merged.md",
+    "return-contract.yaml"
+  ],
+  "state_exists": true,
+  "contract_exists": true,
+  "marker_exists": true,
+  "imported_package": "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src/superclaude/cli/swarm/commands.py",
+  "marker": {
+    "atomic_write": true,
+    "contract_path": "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/detached-cli/verified/out/return-contract.yaml",
+    "terminal_status": "success"
+  },
+  "contract_status": "success",
+  "state": "terminal",
+  "check": "PASS"
+}

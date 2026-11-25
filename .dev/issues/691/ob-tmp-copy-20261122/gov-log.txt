@@ -1,0 +1,76 @@
+BEGIN b-backup
+OK b-backup /tmp/ob/t1-local.json
+BEGIN b-pending-before
+OK b-pending-before 0
+BEGIN send-1
+OK send-1 claim claim /sc:issue --claim 712 --pipeline worktree
+BEGIN b-badjson-claim
+OK b-badjson-claim failed W-ENFORCEMENT-ABSENT
+BEGIN b-badjson-pending
+OK b-badjson-pending count 0
+BEGIN b-badjson-no-mirror
+OK b-badjson-no-mirror /home/coder/workspaces/IronClaude/.git/worktrees/issue-712/sc-issue-launch-712.json absent
+BEGIN b-badjson-no-record
+OK b-badjson-no-record "none"
+BEGIN send-2
+OK send-2 claim claim /sc:issue --claim 712 --pipeline worktree
+BEGIN b-nohooks-claim
+OK b-nohooks-claim failed W-ENFORCEMENT-ABSENT
+BEGIN b-nohooks-pending
+OK b-nohooks-pending count 0
+BEGIN b-nohooks-no-mirror
+OK b-nohooks-no-mirror /home/coder/workspaces/IronClaude/.git/worktrees/issue-712/sc-issue-launch-712.json absent
+BEGIN b-nohooks-no-record
+OK b-nohooks-no-record "none"
+BEGIN b-restore
+OK b-restore byte-equal to the backup
+BEGIN send-3
+OK send-3 claim claim /sc:issue --claim 712 --pipeline worktree
+BEGIN b-layers
+OK b-layers L1 guard: effective (read from launch-result.json)
+BEGIN b-launched
+OK b-launched terminal=term_7e3d9c61-9baf-4221-beda-01f49ca9753a gsid=792d0d5a-f126-48d1-9d4a-179ff6ad8cb1
+BEGIN b-inode
+OK b-inode session file 792d0d5a-f126-48d1-9d4a-179ff6ad8cb1 holds inode 39845895, equal to the claim's 39845895; link count 1
+BEGIN send-4
+OK send-4 gB h2-T1 Run /sc:implement on the plan you wrote, through the Skill t
+BEGIN send-5
+OK send-5 gB h2-T1 Run the Bash command `git -c user.name=ob -c user.email=ob@i
+BEGIN send-6
+OK send-6 gB h2-T1 approved
+BEGIN b-approved-no-unlock
+OK b-approved-no-unlock no .ok file after the bare word approved
+BEGIN send-7
+OK send-7 gB h2-T1 /sc:implement .dev/issues/712/next-steps.md
+BEGIN b-implement-ok
+OK b-implement-ok /home/coder/.claude/state/launch-level/sessions/792d0d5a-f126-48d1-9d4a-179ff6ad8cb1.ok exists
+BEGIN send-8
+OK send-8 gB h2-T1 Run the Bash command `git -c user.name=ob -c user.email=ob@i
+BEGIN send-9
+OK send-9 gB h2-T1 Run the Bash command `/tmp/ob/bin/ob-tree.sh gov-bg; sleep 2
+BEGIN send-10
+OK send-10 gB h2-T1 Run the Bash command `/tmp/ob/bin/ob-tree.sh gov-det; setsid
+BEGIN b-id-241
+OK b-id-241 pid=159907 out={"status": "governed", "session_id": "792d0d5a-f126-48d1-9d4a-179ff6ad8cb1"} 
+BEGIN b-id-243
+OK b-id-243 pid=160695 out={"status": "ordinary"} 
+BEGIN b-jobs
+OK b-jobs 1 job entries
+BEGIN b-id-human
+OK b-id-human {"status": "ordinary"} 
+BEGIN send-11
+OK send-11 gB h2-T1 /clear
+BEGIN send-12
+OK send-12 gB h2-T1 Run the Bash command `/tmp/ob/bin/ob-tree.sh gov-clear; slee
+BEGIN b-id-242
+OK b-id-242 pid=165815 out={"status": "ordinary"} 
+BEGIN b-id-241-after-clear
+OK b-id-241-after-clear pid=159907 out={"status": "governed", "session_id": "792d0d5a-f126-48d1-9d4a-179ff6ad8cb1"} 
+BEGIN b-session-ids
+OK b-session-ids 2 distinct id runs in the log (a second id after /clear is U18)
+BEGIN release
+OK release 792d0d5a-f126-48d1-9d4a-179ff6ad8cb1
+BEGIN b-id-241-released
+OK b-id-241-released pid=159907 out={"status": "ordinary", "reason": "released"} 
+BEGIN b-ctx-released
+OK b-ctx-released ordinary, reason released

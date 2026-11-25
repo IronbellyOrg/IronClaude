@@ -1,0 +1,149 @@
+{
+  "id": "931cfbad-2d91-4fc1-a4d0-08ebf102d06c",
+  "ok": true,
+  "result": {
+    "terminal": {
+      "handle": "term_cbf13968-d886-47d5-b57d-a40ae19da3a1",
+      "status": "running",
+      "tail": [
+        " ▐▛███▛█   Claude Code v2.1.330",
+        "▝▜██████▀  Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0 with medium effort · API Usage Billing",
+        " ▝▝   ▝▝   ~/workspaces/IronClaude",
+        "❯ /clear",
+        "❯ /sc:issue --claim 713 --pipeline none",
+        "  Read 2 files, listed 1 directory, ran 1 agent, called 2 tools, ran 2 shell commands",
+        "● The lookup worker is running. The claim can't go further until it writes the scout file, so I'm waiting for it.",
+        "  ┌────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────┐",
+        "  │ Status │                                                 Result                                                  │",
+        "  ├────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────┤",
+        "  │ DONE   │ Resolved the repo (IronbellyOrg/IronClaude, issue 713), checked GitHub login, Orca is running, default  │",
+        "  │        │ branch is master, created /home/coder/workspaces/IronClaude/.dev/issues/713/.                           │",
+        "  ├────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────┤",
+        "  │ NEXT   │ Read the lookup worker's /home/coder/workspaces/IronClaude/.dev/issues/713/scout.md, then assign the    │",
+        "  │        │ issue, run the accuracy check and post the comments.                                                    │",
+        "  └────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────┘",
+        "  Nothing has been assigned or posted on GitHub yet.",
+        "✻ Waiting for 1 background agent to finish · 6 messages hidden (/focus to show)",
+        "● lite  $2.06  last $2.06  26s                                                        Review  Audit  Board  Details [-]",
+        "────────────────────────────────────────────────────────────────────────────────────────── IronClaude-1121-023302-61de ─",
+        "❯ continue",
+        "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────",
+        "  ⏵⏵ bypass permissions on (shift+tab to cycle) · ← 1 agent · ↓ to manage",
+        "  ● main",
+        "  ◯ issue-worker-t3  Searching claim comments via GitHub API                                      34s · ↓ 22.5k tokens"
+      ],
+      "truncated": false,
+      "limited": true,
+      "oldestCursor": "0",
+      "nextCursor": "514",
+      "latestCursor": "514",
+      "returnedLineCount": 25,
+      "tailRows": [
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 112
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 81
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        }
+      ],
+      "source": "screen"
+    }
+  },
+  "_meta": {
+    "runtimeId": "5fa47013-c78e-429f-8465-1efeaa46b5b9"
+  }
+}

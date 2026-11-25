@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q02/adversarial/merged-hybrid-position.md"
+  convergence_score: 0.929
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q02/adversarial/adversarial/"
+  status: "success"
+  base_variant: "Variant 1 (OURS)"
+  unresolved_conflicts: 0   # C-004 split in the debate (13 of 14 agreed); resolved by the orchestrator in base-selection.md
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped at --depth quick

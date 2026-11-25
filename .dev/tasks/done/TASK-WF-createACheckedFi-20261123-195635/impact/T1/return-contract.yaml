@@ -1,0 +1,30 @@
+schema_version: 1
+command: impact
+status: partial
+caller: sc-implement-protocol
+output_dir: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/impact/T1
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/impact/T1/impact.md
+contract_path: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/impact/T1/return-contract.yaml
+input: {mode: symbols, symbols: [test_quickstart_does_not_emit_done_sentinel], diff_base: null, changed_files: [], depth: 1, limit: 10, tests: false, test_depth: null}
+readiness:
+  access: mcp
+  index_state: fresh
+  checked_at: 2026-11-23T20:15:26Z
+  cli_version: 1.6.2
+  pin: 1.6.2
+  pin_match: true
+  worktree_root: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker
+  project_path: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker
+  worktree_relation: own
+advisory: false
+degraded: [graph:empty]
+symbols:
+  - {name: test_quickstart_does_not_emit_done_sentinel, file: tests/swarm/test_e2e_user_guide.py, start_line: 117, end_line: 138, mapped_by: name, prod: {shown: 0, total: 0}, test: {shown: 0, total: 0}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+ambiguous: []
+unmapped_files: []
+dependents: []
+dependents_omitted: 0
+call_sites: {verified: 0, unresolved: 0, dropped: 0, budget: '5/symbol, 20/run'}
+tests: []
+selection_source: null
+errors: []

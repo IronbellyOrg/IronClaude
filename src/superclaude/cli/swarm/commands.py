@@ -1322,7 +1322,9 @@ def _launch_detached_run(*, spec_dict: dict[str, Any], input_mode: str) -> None:
         "superclaude.cli.main",
         "swarm",
         "run",
-        str(snapshot_path),
+        "--output",
+        str(output_path.resolve()),
+        str(snapshot_path.resolve()),
     ]
 
     import subprocess as _subprocess
@@ -2114,6 +2116,7 @@ def run_cmd(
     # and the ``--suspect-source`` recommended-next-command so the bare-review
     # return contract is complete (closing the R3 §1.4 inline-vs-resume asymmetry).
     recipe_name = inline_job.normalization.recipe
+    result_contract = None
     if state_output_dir is not None and recipe_name:
         from superclaude.cli.swarm.normalize import normalize_wave2
         from superclaude.cli.swarm.reduce import reduce_wave3
@@ -2201,7 +2204,7 @@ def run_cmd(
             else:
                 # An invalid suggestion must not change status or discard reports.
                 next_cmd_template = ""
-        reduce_wave3(
+        result_contract = reduce_wave3(
             normalized_workers,
             mode=inline_job.amalgamation_mode,
             output_dir=state_output_dir,
@@ -2226,6 +2229,20 @@ def run_cmd(
             state_output_dir,
             "terminal",
             preflight_result.manifest.job_id,
+        )
+
+    # Publish only after both the result and terminal state are durable. The
+    # no-reduction path has no contract and must not manufacture completion.
+    if (
+        result_contract is not None
+        and state_output_dir is not None
+        and inline_job.runtime.on_completion.write_done_sentinel
+    ):
+        from superclaude.cli.swarm.reduce import emit_done_sentinel
+
+        emit_done_sentinel(
+            result_contract.status,
+            (state_output_dir / RESULT_CONTRACT_FILENAME).resolve(),
         )
 
     # Single grep-friendly success line -- preserved verbatim so the documented
@@ -2922,7 +2939,7 @@ def _run_resume_branch(
     next_cmd_subs.setdefault(
         "compare_files", ",".join(["<existing-review>", *succeeded_final_paths])
     )
-    reduce_wave3(
+    result_contract = reduce_wave3(
         combined,
         mode=amalgamation_mode,
         output_dir=output_path,
@@ -2943,6 +2960,14 @@ def _run_resume_branch(
     # so ``swarm status`` on the resumed job reports completion (confined to
     # the ``--output`` root via the same atomic writer the inline path uses).
     _write_swarm_state(output_path, "terminal", manifest_obj.job_id)
+
+    if rehydrated_spec.runtime.on_completion.write_done_sentinel:
+        from superclaude.cli.swarm.reduce import emit_done_sentinel
+
+        emit_done_sentinel(
+            result_contract.status,
+            (output_path / RESULT_CONTRACT_FILENAME).resolve(),
+        )
 
     click.echo(
         f"swarm run --resume: job_id={manifest_obj.job_id} "

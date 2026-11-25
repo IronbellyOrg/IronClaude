@@ -1,0 +1,26 @@
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python ruff check src/superclaude/cli/swarm/commands.py tests/swarm/test_commands_run.py tests/swarm/test_e2e_user_guide.py tests/swarm/test_resume_crash_recovery.py tests/swarm/test_tmux_detached.py
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+I001 [*] Import block is un-sorted or un-formatted
+   --> tests/swarm/test_commands_run.py:602:5
+    |
+600 |   def test_completion_uses_reduced_status_and_order(tmp_path, monkeypatch, successes, expected):
+601 |       """Real reduction and writer publish actual verdict only after terminal persistence."""
+602 | /     import yaml
+603 | |     import superclaude.cli.swarm.commands as commands
+604 | |     import superclaude.cli.swarm.dispatch as dispatch
+605 | |     import superclaude.cli.swarm.reduce as reducer
+    | |__________________________________________________^
+606 |       spec = _runnable_spec(tmp_path)
+607 |       spec["amalgamation_mode"] = "normalize"
+    |
+help: Organize imports
+    |
+602 |     import yaml
+603 +
+604 |     import superclaude.cli.swarm.commands as commands
+    |
+
+Found 1 error.
+[*] 1 fixable with `--fix`.
+
+EXIT: 1

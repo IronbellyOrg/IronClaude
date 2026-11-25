@@ -1,0 +1,6 @@
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_commands_run.py tests/swarm/test_e2e_user_guide.py tests/swarm/test_swarm_run_inputs.py tests/swarm/test_run_tui_integration.py tests/swarm/test_done_sentinel.py tests/swarm/test_imm6_atomic_write.py -q -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+..............................................................................................................   [100%]
+110 passed in 5.50s
+
+EXIT: 0

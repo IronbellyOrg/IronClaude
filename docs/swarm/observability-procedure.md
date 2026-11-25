@@ -20,15 +20,16 @@ event stream, and the human-readable Markdown log. These **three** are
 regardless of whether the run was driven by a skill, a human operator, or a CI
 subprocess, so the same procedure applies everywhere.
 
-A fourth artifact — the terminal **done sentinel** (`done.json`) — is **not**
-universal: it is emitted only on the paths that wire the on-completion sentinel
-step (the detached/resume completion path) and by `swarm kill` (which writes a
-`terminal_status=killed` sentinel). **A default inline `swarm run` does NOT emit
-`done.json`** (`reduce_wave3` does not write it; verified by
-`tests/swarm/test_e2e_user_guide.py::test_quickstart_does_not_emit_done_sentinel`).
-For an inline run, treat an **absent `done.json` as expected, never as a failure
-symptom**: the canonical completion signal is `.swarm-state.json` reaching
-`terminal` **AND** `return-contract.yaml` being present — not `done.json`.
+A fourth artifact, the terminal **done sentinel** (`done.json`), is published by
+completed foreground and resumed reductions, and by detached children, when the
+effective `runtime.on_completion.write_done_sentinel` policy enables it (the default).
+The executor persists the result contract first, terminal state second, then the
+atomic marker. The positive default-inline regression is
+`tests/swarm/test_e2e_user_guide.py::test_quickstart_emits_done_sentinel`.
+An absent marker can mean opt-out, an early failure, no completed reduction or a
+persistence error; it is not automatically expected just because the run is inline.
+Inspect state, contract and logs. `swarm kill --output` retains its separate
+`terminal_status=killed` marker with an empty contract path.
 
 OPS-003 / R-152 (`phase-9-tasklist.md:78-111`) requires this doc to map each
 artifact to a debugging workflow and to cover the common failure modes
@@ -47,15 +48,15 @@ swarm CLI actually emits.
 | State file | `.swarm-state.json` | `SWARM_STATE_FILENAME` | Coarse wave-level phase (DM-014), atomically rewritten on each transition. |
 | Structured log | `execution-log.jsonl` | `EXECUTION_LOG_JSONL_FILENAME` | Append-only, lock-coordinated event stream (DM-015), one JSON record per line. |
 | Human log | `execution-log.md` | `EXECUTION_LOG_MD_FILENAME` | Human-readable Markdown mirror of the JSONL stream. |
-| Done sentinel | `done.json` | `DONE_SENTINEL_FILENAME` | Atomic terminal marker (DM-017): `terminal_status` + `contract_path`. **Emitted only on the detached/resume completion path and by `swarm kill`; absent after a default inline `swarm run`.** |
+| Done sentinel | `done.json` | `DONE_SENTINEL_FILENAME` | Atomic marker (DM-017): `atomic_write: true`, actual result in `terminal_status`, absolute `contract_path`. Published after contract and terminal state by foreground/resume/detached-child completion with effective policy enabled; kill writes `killed` with an empty path. |
 
 Two supporting artifacts complete the run's on-disk record and are referenced by
 the recipes below:
 
 | Supporting | Filename | Source | What it holds |
 |---|---|---|---|
-| Result contract | `return-contract.yaml` | `RESULT_CONTRACT_FILENAME` (`commands.py`) | The final caller-facing contract; present only once state reaches `terminal`. |
-| Manifest | `manifest.json` | written by `preflight.py` (string literal, not a `*_FILENAME` constant) | Preflight-resolved job spec (INV-001 / INV-016); the run is recoverable from it alone. |
+| Result contract | `return-contract.yaml` | `RESULT_CONTRACT_FILENAME` (`commands.py`) | Caller-facing result, persisted by reduction before terminal state; a diagnostic failure contract alone does not establish completion. |
+| Manifest | `manifest.json` | written by `preflight.py` (string literal, not a `*_FILENAME` constant) | Preflight/lens snapshot used for resume (INV-001 / INV-016); arbitrary original runtime overrides are not fully restored. |
 
 ### Layer 1 — `.swarm-state.json` (coarse phase)
 
@@ -94,26 +95,27 @@ A Markdown rendering of the same event stream, one bullet per event in the shape
 pipe JSONL through `jq` — it is the default surface `swarm logs` dumps (JSONL is
 opt-in via `--jsonl`).
 
-### Layer 4 — `done.json` (terminal sentinel) — run-mode-dependent
+### Layer 4: `done.json` (terminal sentinel), policy-dependent
 
-When emitted, it is written atomically once the run reaches a terminal state and
-carries `terminal_status` (e.g. `success`, `partial`, `failed`, or `killed`) and
-`contract_path` (empty for killed jobs, since an interrupted executor never
-emitted a `return-contract.yaml`).
+Completed foreground and resumed reductions persist the result contract, then
+terminal state, then atomically publish `done.json` when the effective
+`runtime.on_completion.write_done_sentinel` policy is enabled (the default).
+Detached launchers only start their child; that child owns completion publication.
+The marker has exactly `atomic_write: true`, `terminal_status` matching the actual
+contract result (`success`, `partial` or `failed`), and the absolute `contract_path`.
+A marker means terminal completion, not that every worker succeeded.
 
-**Crucially, `done.json` is NOT a universal "job finished" signal.** It is
-emitted **only** on the paths that wire the on-completion sentinel step — the
-**detached/resume completion path** — and by `swarm kill` (which writes a
-`terminal_status=killed` sentinel). The **default inline `swarm run` does NOT
-emit it** (`reduce_wave3` does not write it; the on-completion step is not wired
-on the inline path —
-`tests/swarm/test_e2e_user_guide.py::test_quickstart_does_not_emit_done_sentinel`).
+Explicit opt-out suppresses the completion marker without suppressing the contract
+or terminal state. Early errors, no completed reduction and failed contract/state
+persistence do not produce a new completion marker. Inspect the state, contract and
+logs rather than treating marker absence as either success or a hang. Resume uses
+the effective rehydrated policy; arbitrary original runtime overrides, including
+opt-out, are not guaranteed to survive resume.
 
-Therefore: **only use `[ -f done.json ]` as a completion signal for detached /
-resumed / killed jobs.** For an inline run, an absent `done.json` is expected and
-is **not** a failure symptom — the completion signal is `.swarm-state.json`
-reaching `terminal` **AND** `return-contract.yaml` being present (its
-`status` field carries the verdict that `done.json.terminal_status` would carry).
+Use fresh per-job output directories. An existing marker in a reused job directory
+does not by itself prove a new resume attempt completed. `swarm kill --output`
+retains its separate `terminal_status=killed` marker and empty `contract_path`;
+that empty path must not be treated as a result-contract filename.
 
 ---
 
@@ -128,22 +130,23 @@ export OUT=/path/to/job/output
 
 ### Recipe 0 — Triage: which layer first?
 
-First, know your run mode — it changes the completion signal:
+First, check the completion policy and the job's output directory:
 
-- **Inline run** (default `swarm run`, no `--resume`): completion = state file at
-  `terminal` **AND** `return-contract.yaml` present. **`done.json` is expected to
-  be ABSENT — its absence is NOT a failure.**
-- **Detached / resumed / killed job**: completion = `done.json` present (with
-  `terminal_status`).
+- **Foreground / resumed / detached-child completion, policy enabled:** a new
+  `done.json` records the actual terminal result after contract and state persistence.
+- **Policy disabled or marker absent:** inspect `.swarm-state.json` and
+  `return-contract.yaml` together, then the logs; do not assume completion or a hang
+  from marker presence/absence alone in a reused directory.
+- **Killed job:** `done.json` has `terminal_status=killed` and an empty contract path.
 
 ```bash
-# Snapshot the layers. For an inline run, done.json is expected to be absent.
+# Snapshot the layers. Marker absence can reflect policy or incomplete execution.
 ls -la "$OUT"/.swarm-state.json "$OUT"/execution-log.jsonl \
        "$OUT"/execution-log.md "$OUT"/return-contract.yaml "$OUT"/done.json 2>&1
 jq -r '.state' "$OUT/.swarm-state.json" 2>/dev/null   # coarse phase
-# Inline-run verdict: state==terminal + contract present → read the contract.
+# Any run: state==terminal + a current contract lets you inspect the result.
 [ -f "$OUT/return-contract.yaml" ] && grep -E '^status:' "$OUT/return-contract.yaml"
-# Detached/resume/kill verdict only: done.json carries terminal_status.
+# Any published marker carries terminal_status; kill uses the separate killed value.
 [ -f "$OUT/done.json" ] && jq -r .terminal_status "$OUT/done.json"
 ```
 
@@ -151,10 +154,10 @@ jq -r '.state' "$OUT/.swarm-state.json" 2>/dev/null   # coarse phase
   (env-missing).
 - **State stuck at `dispatching`/`normalizing` (not `terminal`) and no
   `return-contract.yaml`** → the run hung mid-wave; Recipe 2 (timeout) or
-  Recipe 3 (parse-error). (Do **not** infer a hang from a missing `done.json` on
-  an inline run — that file is expected to be absent there.)
-- **State `terminal` + `return-contract.yaml` present, `status != success`** (or,
-  for detached/killed jobs, `done.json.terminal_status != success`) → it finished
+  Recipe 3 (parse-error). A missing `done.json` alone does not establish a hang;
+  check policy and whether reduction and terminal persistence completed.
+- **State `terminal` + `return-contract.yaml` present, `status != success`** (or
+  a current marker with `terminal_status != success`) → it finished
   but degraded; Recipe 4 reads the per-worker stream to find which slots failed.
 
 ### Recipe 1 — env-missing (run never started)
@@ -165,8 +168,8 @@ pattern + the preflight artifact:
 
 ```bash
 # Symptom: no execution-log.* and no return-contract.yaml; manifest may also be
-# absent. (done.json is absent here, but it is also absent on a healthy inline
-# run, so its absence is not by itself an env-missing signal.)
+# absent. Marker absence alone is not an env-missing signal: opt-out or an
+# incomplete reduction can also leave no new done.json.
 ls "$OUT" 2>&1
 # If a manifest exists, it captures the preflight-resolved spec; if it is
 # missing too, preflight aborted before resolution (the env-missing signature).
@@ -215,9 +218,9 @@ jq -c 'select(.event_type=="worker_done" and .status=="parse_error")
        | {worker_index, status}' "$OUT/execution-log.jsonl"
 
 # Confirm the run wrapped up and read the downgraded verdict.
-# Inline run: the verdict is the contract's status field.
+# Any completed reduction: the verdict is the contract's status field.
 [ -f "$OUT/return-contract.yaml" ] && grep -E '^status:' "$OUT/return-contract.yaml"
-# Detached/resume/kill: the verdict is done.json.terminal_status.
+# With marker policy enabled, any run also publishes done.json.terminal_status.
 [ -f "$OUT/done.json" ] && jq -r '.terminal_status' "$OUT/done.json"
 ```
 
@@ -233,13 +236,13 @@ grep -E 'wave_transition|worker_done' "$OUT/execution-log.md"
 
 When the verdict is `partial` or `failed`, the structured stream tells you
 *which* workers dragged it down, and the result contract carries the
-caller-facing detail. Read the verdict from the contract on an inline run, or
-from `done.json` on a detached/resumed/killed job:
+caller-facing detail. Read the verdict from the contract in any run mode, or
+from its published `done.json`; killed markers have no contract path:
 
 ```bash
-# Inline run: the contract is the verdict surface (status + per-worker detail).
+# Any completed reduction: the contract holds status + per-worker detail.
 [ -f "$OUT/return-contract.yaml" ] && grep -E '^status:' "$OUT/return-contract.yaml"
-# Detached/resume/kill: done.json carries terminal_status + contract_path.
+# Any published marker: terminal_status + contract_path (empty for killed).
 [ -f "$OUT/done.json" ] && \
   jq -r '.terminal_status + " contract=" + .contract_path' "$OUT/done.json"
 
@@ -247,7 +250,7 @@ from `done.json` on a detached/resumed/killed job:
 jq -r 'select(.event_type=="worker_done") | .status' \
    "$OUT/execution-log.jsonl" | sort | uniq -c
 
-# The final contract (present once state == terminal).
+# The result contract, when present; a killed marker need not have one.
 cat "$OUT/return-contract.yaml"
 ```
 
@@ -265,8 +268,9 @@ stream directly rather than trusting the coarse phase.
 
 | Question | Layer | Read |
 |---|---|---|
-| Did an **inline** run finish, and how? | State file + contract | `.swarm-state.json` (`state==terminal`) + `return-contract.yaml` (`status`) |
-| Did a **detached/resumed/killed** job finish? | Done sentinel | `done.json` (`terminal_status`) — absent on inline runs |
+| Did a **foreground/resumed/detached-child** job finish with marker policy enabled? | Done sentinel | A new `done.json` with actual result in `terminal_status` and absolute `contract_path` |
+| Is reduction complete when marker publication is disabled? | State file + contract | `.swarm-state.json` (`state==terminal`) + current `return-contract.yaml` (`status`) |
+| Was the job killed? | Done sentinel | `done.json` with `terminal_status=killed` and empty `contract_path` |
 | Which coarse wave is it in / did it die in? | State file | `.swarm-state.json` (`state`) |
 | Which worker failed, and why? | Structured log | `execution-log.jsonl` (`event_type`, `status`) |
 | Quick human eyeball of the run | Human log | `execution-log.md` |

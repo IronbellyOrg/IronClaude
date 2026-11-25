@@ -1,0 +1,70 @@
+contract_version: '1.0'
+status: success
+job_id: lens-bare-review-0a1cf709
+started: ''
+finished: ''
+elapsed_ms: 0
+caller:
+  skill: null
+  skill_version: null
+  invocation_label: ''
+  kind: cli
+lens: ''
+lens_source: ''
+target:
+  path: ''
+  checksum: ''
+  truncated: false
+  truncation_line_cap: 4000
+workers_requested: 3
+workers_succeeded: 3
+workers_failed: 0
+output_files:
+- index: 0
+  path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-00-lens-default-model-0.final.md
+  raw_path: ''
+  meta_path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-00-lens-default-model-0.meta.json
+  final_path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-00-lens-default-model-0.final.md
+  model_id: lens-default-model-0
+  model_label: lens-default-model-0
+  bytes: 656
+  status: success
+  http_code: null
+  attempts: 1
+  elapsed_ms: 0
+- index: 1
+  path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-01-lens-default-model-0.final.md
+  raw_path: ''
+  meta_path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-01-lens-default-model-0.meta.json
+  final_path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-01-lens-default-model-0.final.md
+  model_id: lens-default-model-0
+  model_label: lens-default-model-0
+  bytes: 656
+  status: success
+  http_code: null
+  attempts: 1
+  elapsed_ms: 0
+- index: 2
+  path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-02-lens-default-model-0.final.md
+  raw_path: ''
+  meta_path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-02-lens-default-model-0.meta.json
+  final_path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/bare-review-02-lens-default-model-0.final.md
+  model_id: lens-default-model-0
+  model_label: lens-default-model-0
+  bytes: 656
+  status: success
+  http_code: null
+  attempts: 1
+  elapsed_ms: 0
+amalgamation_mode: normalize+merge
+merged_path: /home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/.dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/resume/merged.md
+caller_metadata:
+  suspect: false
+  tier: ''
+recommended_next_command: ''
+artifacts:
+  manifest_path: ''
+  state_path: ''
+  event_log_jsonl: ''
+  event_log_md: ''
+  done_sentinel: ''

@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/QG2/adversarial/merged-qg2-position.md"
+  convergence_score: 0.667
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/QG2/adversarial/adversarial/"
+  status: "partial"
+  base_variant: "Variant A (OURS, position-OURS.md)"
+  unresolved_conflicts: 4
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    - "Depth quick: Round 1 only; Round 2, Round 2.5 invariant probe and Round 3 skipped by depth."
+    - "Convergence 66.7 percent (8 of 12) is below the 80 percent threshold; unresolved points C-001, C-002, C-003, X-002 were settled by the owner weighting rule, not by advocate agreement."
+    - "Separate reverse-order qualitative pass not run; scoring by the orchestrating session alone (fallback_mode true)."
+    - "Merge log records two open tensions: mask marker text in 'What it costs', and the row 8 trigger against 'until the owner rules on the nine rows'."

@@ -1,0 +1,2 @@
+/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/src/superclaude/cli/swarm/commands.py
+/home/coder/workspaces/worktrees/IronClaude/bug-swarm-refactor-find-recommends-unavailable-s/src/superclaude/cli/swarm/reduce.py

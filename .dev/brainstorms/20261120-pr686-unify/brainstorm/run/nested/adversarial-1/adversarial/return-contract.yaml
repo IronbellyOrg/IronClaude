@@ -1,0 +1,20 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/brainstorm/run/nested/adversarial-1/merged-output.md"
+  convergence_score: 1.0            # 30 of 30 diff points agreed (28 unanimous, 2 by majority: C-007, X-001); status below says the invariant gate blocked declaring convergence
+  convergence_status: BLOCKED_BY_INVARIANTS
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/brainstorm/run/nested/adversarial-1/adversarial"
+  status: "partial"
+  base_variant: "haiku:backend"      # variant 3, tiebreaker level 1 (combined 0.9069 vs 0.9065)
+  unresolved_conflicts: 2            # X-001 (mechanism: separate claim worktree or coordinator claims; needs a live probe and an owner answer), INV-025 (HIGH, carried as a binding spec condition)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: INV-025
+      category: sufficiency_challenge
+      assumption: "Binding a worker at a guard level (W then WA, or F) makes 'a worker cannot push or merge' true. It does not: the guard reads command text only, L2 refuses only main and master, gh writes have no second layer."
+      severity: HIGH
+  notes:
+    - "15 MEDIUM and 4 LOW findings of invariant-probe.md were turned into spec conditions in merged-output.md (section 8), not left open."
+    - "An independent reviewer found 6 blocking and 14 minor defects in the first merged text; all were fixed (merge-log.md, section Post-review fixes)."
+    - "Depth standard has no Round 3."

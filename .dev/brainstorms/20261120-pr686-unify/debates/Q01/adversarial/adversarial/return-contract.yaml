@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q01/adversarial/merged-hybrid-position.md"
+  convergence_score: 0.643
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q01/adversarial/adversarial/"
+  status: "partial"
+  base_variant: "variant-1-original (OURS), selected by tiebreaker level 1 (3 points won against 0); combined score V1 0.768 against V2 0.805, margin 3.7%"
+  unresolved_conflicts: 5
+  unresolved_points: ["S-002", "C-002", "C-003", "C-006", "A-003"]
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    - "Partial because convergence 64.3% is below the 0.80 threshold at depth quick (one round). In four of the five unresolved points both advocates endorse adopting the same Variant 2 element and differ only on the label."
+    - "Round 2, Round 2.5 (invariant probe) and Round 3 skipped: depth=quick."
+    - "Quantitative layer estimated by hand by two scorer agents, not scripted."

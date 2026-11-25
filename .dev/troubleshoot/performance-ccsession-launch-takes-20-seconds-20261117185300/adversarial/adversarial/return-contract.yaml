@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/troubleshoot/performance-ccsession-launch-takes-20-seconds-20261117185300/adversarial/merged-output.md"
+  convergence_score: 0.947
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/troubleshoot/performance-ccsession-launch-takes-20-seconds-20261117185300/adversarial/adversarial"
+  status: "success"
+  base_variant: "variant-3-original (staged: bash quick win first, then python3 helper)"
+  unresolved_conflicts: 1   # C-010 (expected remaining wall time), split between the advocates
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 invariant probe skipped at depth quick
+notes:
+  - "--output was the folder .../adversarial/; the skill creates <output>/adversarial/ for process artifacts, so they sit in .../adversarial/adversarial/ and the merged artifact sits one level up in .../adversarial/."
+  - "Taxonomy coverage L1/L2/L3 satisfied after Round 1; no forced round. Depth quick: Rounds 2, 2.5 and 3 skipped."
+  - "Quantitative layer computed by /tmp/ccs-proto/quant.py (first run DC 0.400 for variant 3 due to a definition-detection rule; corrected and re-run once; both shown in base-selection.md; selection unchanged)."

@@ -1,0 +1,57 @@
+  ◈  SIGNAL OBSERVATORY                                                       SYNTHETIC DESIGN  /  OBSERVER ONLY
+
+  DECIDE 3 observed    UNBLOCK 14 unique tasks    READY 6    VERIFY 3
+  local host  ·  inbox PARTIAL  ·  no live connection  ·  demo as-of 15:00 UTC
+
+ ┏━ 09  SIGNAL DIGEST ━━━━━━━━━━━━━━━━━━━━━━━━┓  ╭─ 01  DECISION YIELD ───────────────────────────────────────────────────────────────────────╮
+ ┃                                            ┃  │                                                                                            │
+ ┃ Since your last visit / 15 minutes         ┃  │ What would your next answer unblock?                                                       │
+ ┃                                            ┃  │                                                                                            │
+ ┃ 864 routine events sampled                 ┃  │ SCHEMA STRATEGY     12 tasks   45m             ◉  SELECTED INSIGHT                         │
+ ┃   7 distinct issue candidates              ┃  │ DEPLOY WINDOW        5 tasks   20m                                                         │
+ ┃   3 human requests observed                ┃  │ REVIEW OWNERSHIP     2 tasks   10m             ┃                                           │
+ ┃                                            ┃  │                                                ╰━━▶ evidence → next action                 │
+ ┃ + retry loop detected                      ┃  │ 14 unique affected tasks                                                                   │
+ ┃ + review ownership missing                 ┃  │ Impact overlaps: do not add 12+5+2.                                                        │
+ ┃ = schema decision still waiting            ┃  │                                                ↵ inspect   / filter                        │
+ ┃ NEXT  Read issues, not the raw stream.     ┃  │ NEXT  Decide schema strategy.                                                              │
+ ┃ Basis: demo event grouping; coverage part… ┃  │ Basis: demo dependency + request joins                                                     │
+ ┃                                            ┃  │                                                                                            │
+ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ╰────────────────────────────────────────────────────────────────────────────────────────────╯
+
+ ╭─ 02  WAITING DEBT ─────────────────────────╮  ╭─ 03  HANDOFF GAPS ─────────────────────────╮  ╭─ 06  BLOCKING CHAIN ───────────────────────╮
+ │                                            │  │                                            │  │                                            │
+ │ 280 worker-min in recorded waits           │  │ Delivered is not answered.                 │  │ Your decision has downstream reach.        │
+ │ Last 60m / 8 workers with wait history     │  │                                            │  │                                            │
+ │                                            │  │ Billing -> coordinator -> YOU              │  │ SCHEMA CHOICE [YOU]                        │
+ │ Window average  35m per worker             │  │   45m  schema question / no reply seen     │  │   ├─ migration                             │
+ │ Requests         3 observed open           │  │ QA -> reviewer                             │  │   │   ├─ compatibility checks              │
+ │ Oldest          45m schema strategy        │  │   22m  handoff / no acceptance seen        │  │   │   └─ integration tests                 │
+ │                                            │  │ UI -> coordinator                          │  │   └─ API rollout                           │
+ │ No spend estimate: usage unavailable.      │  │   10m  review owner not assigned           │  │       └─ release review                    │
+ │                                            │  │                                            │  │ 12 descendants total / tree excerpt        │
+ │ NEXT  Clear the oldest root blocker.       │  │ NEXT  Claim the orphaned review.           │  │ NEXT  Answer at the root, not leaves.      │
+ │ Basis: summed demo wait intervals          │  │ Basis: sampled threads; not full inbox     │  │ Basis: demo graph; no completion ETA       │
+ │                                            │  │                                            │  │                                            │
+ ╰────────────────────────────────────────────╯  ╰────────────────────────────────────────────╯  ╰────────────────────────────────────────────╯
+
+ ╭─ 08  VERIFICATION DRIFT ───────────────────╮  ╭─ 04  OVERLAPPING WORK ─────────────────────╮  ╭─ 05  RETRY LOOPS ──────────────────────────╮
+ │                                            │  │                                            │  │                                            │
+ │ Reported complete is not current proof.    │  │ Potential collisions, not proven faults    │  │ Repeated effort without new evidence       │
+ │                                            │  │                                            │  │                                            │
+ │ 2 tasks: passing checks on OLD revision    │  │ billing/schema.py                          │  │ payments-contract test                     │
+ │ 1 task: worker says done; no review        │  │   migration + compatibility + tests        │  │   attempt 1  FAIL  same assertion          │
+ │                                            │  │   3 active tasks touch this file           │  │   attempt 2  FAIL  same assertion          │
+ │ billing     tested a71 -> current b92      │  │                                            │  │   attempt 3  FAIL  same assertion          │
+ │ api-client  tested c18 -> current d04      │  │ Two task briefs request the same           │  │                                            │
+ │                                            │  │ API retry policy. Similarity inferred.     │  │ No changed diagnosis recorded.             │
+ │ No current pass claimed for either.        │  │                                            │  │ Signature match is a heuristic.            │
+ │ NEXT  Re-run checks on current heads.      │  │ NEXT  Compare scope before more work.      │  │ NEXT  Ask for a different hypothesis.      │
+ │ Basis: demo revision-bound evidence        │  │ Basis: demo diffs + inferred brief match   │  │ Basis: demo attempts + failure signatures  │
+ │                                            │  │                                            │  │                                            │
+ ╰────────────────────────────────────────────╯  ╰────────────────────────────────────────────╯  ╰────────────────────────────────────────────╯
+
+ ╭─ 07  READY BUT UNASSIGNED ─────────────────────────────────────────────────────────────────╮
+ │ 6 ready: docs 3 / tests 2 / notes 1                                                        │
+ ╰────────────────────────────────────────────────────────────────────────────────────────────╯
+  No live controls · proposed analytics require history, task links and revision evidence

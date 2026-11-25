@@ -1,0 +1,20 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/merged-output.md"
+  convergence_score: 0.824
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D05/adversarial/adversarial"
+  status: "partial"
+  base_variant: "default:original (Variant 2, CLAY, score 0.8833 against 0.8308 for Variant 1, OURS)"
+  unresolved_conflicts: 3
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-003, category: state_variables, assumption: "Binding lasts for the worker's whole life, though it is keyed on one session id", severity: HIGH}
+    - {id: INV-015, category: count_divergence, assumption: "\"Before the second real orchestrated issue\" is a point the system can enforce", severity: HIGH}
+    - {id: INV-019, category: collection_boundaries, assumption: "\"Protected\" means master and main", severity: HIGH}
+    - {id: INV-027, category: interaction_effects, assumption: "The staging gate, R33's closed constant and the guard's own status line agree", severity: HIGH}
+    - {id: INV-034, category: sufficiency_challenge, assumption: "A script run (bash ./push.sh and similar) is refused by the guard", severity: HIGH}
+    - {id: INV-035, category: sufficiency_challenge, assumption: "The branch enumeration shows 'binding at FS closes K12' holds as written", severity: HIGH}
+    - {id: INV-037, category: sufficiency_challenge, assumption: "K12 is closed once the worker is bound", severity: HIGH}
+  # status partial: diff-point convergence 14 of 17 (82.4 percent, threshold 80) but BLOCKED_BY_INVARIANTS
+  # (7 HIGH UNADDRESSED); depth standard has no Round 3. Unresolved points: C-002, C-005, C-006.

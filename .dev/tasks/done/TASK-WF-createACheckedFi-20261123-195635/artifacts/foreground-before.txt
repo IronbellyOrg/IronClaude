@@ -1,0 +1,373 @@
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_e2e_user_guide.py::test_quickstart_emits_done_sentinel tests/swarm/test_commands_run.py -k 'completion or emits_done_sentinel' -q -o addopts= -p no:cacheprovider
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+F..FFFFF.......                                                                                                  [100%]
+======================================================= FAILURES =======================================================
+_________________________________________ test_quickstart_emits_done_sentinel __________________________________________
+
+runner = <click.testing.CliRunner object at 0x7decebd80ec0>
+target = PosixPath('/tmp/pytest-of-coder/pytest-10/test_quickstart_emits_done_sen0/target.py')
+tmp_path = PosixPath('/tmp/pytest-of-coder/pytest-10/test_quickstart_emits_done_sen0')
+
+    def test_quickstart_emits_done_sentinel(runner, target, tmp_path):
+        """A completed default run publishes the marker after its result and state."""
+        out = tmp_path / "out"
+        result = _run(
+            runner,
+            "run",
+            "--lens",
+            "bare-review",
+            "--target",
+            str(target),
+            "--output",
+            str(out),
+            "--transport",
+            "stub",
+        )
+        assert result.exit_code == EXIT_OK, result.output
+        import yaml
+    
+>       marker = json.loads((out / DONE_SENTINEL_FILENAME).read_text())
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/swarm/test_e2e_user_guide.py:135: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.13/pathlib/_local.py:548: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-coder/pytest-10/test_quickstart_emits_done_sen0/out/done.json'), mode = 'r'
+buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-coder/pytest-10/test_quickstart_emits_done_sen0/out/done.json'
+
+/usr/lib/python3.13/pathlib/_local.py:539: FileNotFoundError
+____________________________________ test_completion_policy_input_modes[True-False] ____________________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-coder/pytest-10/test_completion_policy_input_m2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7decea9ae580>, stdin = False, enabled = True
+
+    @pytest.mark.parametrize("stdin", [False, True])
+    @pytest.mark.parametrize("enabled", [False, True])
+    def test_completion_policy_input_modes(tmp_path, monkeypatch, stdin, enabled):
+        """Spec/stdin honor opt-out, including relative output roots."""
+        import yaml
+    
+        spec = _runnable_spec(tmp_path)
+        spec["runtime"]["on_completion"]["write_done_sentinel"] = enabled
+        spec["output"]["dir"] = "out"
+        path = _write_spec(tmp_path, spec)
+        monkeypatch.chdir(tmp_path)
+        args = ["--stdin"] if stdin else [str(path)]
+        result = CliRunner().invoke(
+            swarm_group, ["run", *args, "--output", "out"],
+            input=json.dumps(spec) if stdin else None,
+        )
+        assert result.exit_code == EXIT_OK, result.output
+        out = tmp_path / "out"
+        assert json.loads((out / ".swarm-state.json").read_text())["state"] == "terminal"
+        contract = yaml.safe_load((out / "return-contract.yaml").read_text())
+>       assert (out / "done.json").exists() is enabled
+E       AssertionError: assert False is True
+E        +  where False = exists()
+E        +    where exists = (PosixPath('/tmp/pytest-of-coder/pytest-10/test_completion_policy_input_m2/out') / 'done.json').exists
+
+/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/tests/swarm/test_commands_run.py:591: AssertionError
+____________________________________ test_completion_policy_input_modes[True-True] _____________________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-coder/pytest-10/test_completion_policy_input_m3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7decea9af790>, stdin = True, enabled = True
+
+    @pytest.mark.parametrize("stdin", [False, True])
+    @pytest.mark.parametrize("enabled", [False, True])
+    def test_completion_policy_input_modes(tmp_path, monkeypatch, stdin, enabled):
+        """Spec/stdin honor opt-out, including relative output roots."""
+        import yaml
+    
+        spec = _runnable_spec(tmp_path)
+        spec["runtime"]["on_completion"]["write_done_sentinel"] = enabled
+        spec["output"]["dir"] = "out"
+        path = _write_spec(tmp_path, spec)
+        monkeypatch.chdir(tmp_path)
+        args = ["--stdin"] if stdin else [str(path)]
+        result = CliRunner().invoke(
+            swarm_group, ["run", *args, "--output", "out"],
+            input=json.dumps(spec) if stdin else None,
+        )
+        assert result.exit_code == EXIT_OK, result.output
+        out = tmp_path / "out"
+        assert json.loads((out / ".swarm-state.json").read_text())["state"] == "terminal"
+        contract = yaml.safe_load((out / "return-contract.yaml").read_text())
+>       assert (out / "done.json").exists() is enabled
+E       AssertionError: assert False is True
+E        +  where False = exists()
+E        +    where exists = (PosixPath('/tmp/pytest-of-coder/pytest-10/test_completion_policy_input_m3/out') / 'done.json').exists
+
+/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/tests/swarm/test_commands_run.py:591: AssertionError
+_______________________________ test_completion_uses_reduced_status_and_order[3-success] _______________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-coder/pytest-10/test_completion_uses_reduced_s0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7deceaa44d50>, successes = 3, expected = 'success'
+
+    @pytest.mark.parametrize("successes,expected", [(3, "success"), (2, "partial"), (0, "failed")])
+    def test_completion_uses_reduced_status_and_order(tmp_path, monkeypatch, successes, expected):
+        """Real reduction and writer publish actual verdict only after terminal persistence."""
+        import yaml
+        import superclaude.cli.swarm.commands as commands
+        import superclaude.cli.swarm.dispatch as dispatch
+        import superclaude.cli.swarm.reduce as reducer
+        from superclaude.cli.swarm.models import WorkerResult
+    
+        spec = _runnable_spec(tmp_path)
+        spec["amalgamation_mode"] = "normalize"
+        out = tmp_path / "out"
+        monkeypatch.setattr(dispatch, "dispatch_wave1", lambda *a, **kw: [
+            WorkerResult(index=i, status="success" if i < successes else "failed")
+            for i in range(3)
+        ])
+        events = []
+        real_state, real_marker = commands._write_swarm_state, reducer.emit_done_sentinel
+    
+        def state(root, value, job_id):
+            if value == "terminal":
+                assert (root / "return-contract.yaml").is_file()
+                assert not (root / "done.json").exists()
+                events.append("terminal")
+            return real_state(root, value, job_id)
+    
+        def marker(status, contract_path):
+            assert json.loads((out / ".swarm-state.json").read_text())["state"] == "terminal"
+            assert yaml.safe_load(Path(contract_path).read_text())["status"] == status
+            events.append("marker")
+            return real_marker(status, contract_path)
+    
+        monkeypatch.setattr(commands, "_write_swarm_state", state)
+        monkeypatch.setattr(reducer, "emit_done_sentinel", marker)
+        result = CliRunner().invoke(swarm_group, ["run", str(_write_spec(tmp_path, spec)), "--output", str(out)])
+        assert result.exit_code == EXIT_OK, result.output
+>       assert json.loads((out / "done.json").read_text())["terminal_status"] == expected
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/swarm/test_commands_run.py:635: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.13/pathlib/_local.py:548: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-coder/pytest-10/test_completion_uses_reduced_s0/out/done.json'), mode = 'r'
+buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-coder/pytest-10/test_completion_uses_reduced_s0/out/done.json'
+
+/usr/lib/python3.13/pathlib/_local.py:539: FileNotFoundError
+_______________________________ test_completion_uses_reduced_status_and_order[2-partial] _______________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-coder/pytest-10/test_completion_uses_reduced_s1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7deceaa45450>, successes = 2, expected = 'partial'
+
+    @pytest.mark.parametrize("successes,expected", [(3, "success"), (2, "partial"), (0, "failed")])
+    def test_completion_uses_reduced_status_and_order(tmp_path, monkeypatch, successes, expected):
+        """Real reduction and writer publish actual verdict only after terminal persistence."""
+        import yaml
+        import superclaude.cli.swarm.commands as commands
+        import superclaude.cli.swarm.dispatch as dispatch
+        import superclaude.cli.swarm.reduce as reducer
+        from superclaude.cli.swarm.models import WorkerResult
+    
+        spec = _runnable_spec(tmp_path)
+        spec["amalgamation_mode"] = "normalize"
+        out = tmp_path / "out"
+        monkeypatch.setattr(dispatch, "dispatch_wave1", lambda *a, **kw: [
+            WorkerResult(index=i, status="success" if i < successes else "failed")
+            for i in range(3)
+        ])
+        events = []
+        real_state, real_marker = commands._write_swarm_state, reducer.emit_done_sentinel
+    
+        def state(root, value, job_id):
+            if value == "terminal":
+                assert (root / "return-contract.yaml").is_file()
+                assert not (root / "done.json").exists()
+                events.append("terminal")
+            return real_state(root, value, job_id)
+    
+        def marker(status, contract_path):
+            assert json.loads((out / ".swarm-state.json").read_text())["state"] == "terminal"
+            assert yaml.safe_load(Path(contract_path).read_text())["status"] == status
+            events.append("marker")
+            return real_marker(status, contract_path)
+    
+        monkeypatch.setattr(commands, "_write_swarm_state", state)
+        monkeypatch.setattr(reducer, "emit_done_sentinel", marker)
+        result = CliRunner().invoke(swarm_group, ["run", str(_write_spec(tmp_path, spec)), "--output", str(out)])
+>       assert result.exit_code == EXIT_OK, result.output
+E       AssertionError: 
+E       assert 1 == 0
+E        +  where 1 = <Result ValueError("WorkerResult.status must be one of ('success', 'timeout', 'parse_error', 'proxy_error'), got 'failed'")>.exit_code
+
+tests/swarm/test_commands_run.py:634: AssertionError
+_______________________________ test_completion_uses_reduced_status_and_order[0-failed] ________________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-coder/pytest-10/test_completion_uses_reduced_s2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7deceaa2f3e0>, successes = 0, expected = 'failed'
+
+    @pytest.mark.parametrize("successes,expected", [(3, "success"), (2, "partial"), (0, "failed")])
+    def test_completion_uses_reduced_status_and_order(tmp_path, monkeypatch, successes, expected):
+        """Real reduction and writer publish actual verdict only after terminal persistence."""
+        import yaml
+        import superclaude.cli.swarm.commands as commands
+        import superclaude.cli.swarm.dispatch as dispatch
+        import superclaude.cli.swarm.reduce as reducer
+        from superclaude.cli.swarm.models import WorkerResult
+    
+        spec = _runnable_spec(tmp_path)
+        spec["amalgamation_mode"] = "normalize"
+        out = tmp_path / "out"
+        monkeypatch.setattr(dispatch, "dispatch_wave1", lambda *a, **kw: [
+            WorkerResult(index=i, status="success" if i < successes else "failed")
+            for i in range(3)
+        ])
+        events = []
+        real_state, real_marker = commands._write_swarm_state, reducer.emit_done_sentinel
+    
+        def state(root, value, job_id):
+            if value == "terminal":
+                assert (root / "return-contract.yaml").is_file()
+                assert not (root / "done.json").exists()
+                events.append("terminal")
+            return real_state(root, value, job_id)
+    
+        def marker(status, contract_path):
+            assert json.loads((out / ".swarm-state.json").read_text())["state"] == "terminal"
+            assert yaml.safe_load(Path(contract_path).read_text())["status"] == status
+            events.append("marker")
+            return real_marker(status, contract_path)
+    
+        monkeypatch.setattr(commands, "_write_swarm_state", state)
+        monkeypatch.setattr(reducer, "emit_done_sentinel", marker)
+        result = CliRunner().invoke(swarm_group, ["run", str(_write_spec(tmp_path, spec)), "--output", str(out)])
+>       assert result.exit_code == EXIT_OK, result.output
+E       AssertionError: 
+E       assert 1 == 0
+E        +  where 1 = <Result ValueError("WorkerResult.status must be one of ('success', 'timeout', 'parse_error', 'proxy_error'), got 'failed'")>.exit_code
+
+tests/swarm/test_commands_run.py:634: AssertionError
+=============================================== short test summary info ================================================
+FAILED tests/swarm/test_e2e_user_guide.py::test_quickstart_emits_done_sentinel - FileNotFoundError: [Errno 2] No such...
+FAILED tests/swarm/test_commands_run.py::test_completion_policy_input_modes[True-False] - AssertionError: assert Fals...
+FAILED tests/swarm/test_commands_run.py::test_completion_policy_input_modes[True-True] - AssertionError: assert False...
+FAILED tests/swarm/test_commands_run.py::test_completion_uses_reduced_status_and_order[3-success] - FileNotFoundError...
+FAILED tests/swarm/test_commands_run.py::test_completion_uses_reduced_status_and_order[2-partial] - AssertionError: 
+FAILED tests/swarm/test_commands_run.py::test_completion_uses_reduced_status_and_order[0-failed] - AssertionError: 
+6 failed, 9 passed, 14 deselected in 1.33s
+
+EXIT: 1
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_e2e_user_guide.py::test_quickstart_emits_done_sentinel tests/swarm/test_commands_run.py -k 'completion or emits_done_sentinel' -q -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+F..FFFFF.......                                                                                                  [100%]
+======================================================= FAILURES =======================================================
+_________________________________________ test_quickstart_emits_done_sentinel __________________________________________
+tests/swarm/test_e2e_user_guide.py:135: in test_quickstart_emits_done_sentinel
+    marker = json.loads((out / DONE_SENTINEL_FILENAME).read_text())
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_local.py:548: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_local.py:539: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-coder/pytest-11/test_quickstart_emits_done_sen0/out/done.json'
+____________________________________ test_completion_policy_input_modes[True-False] ____________________________________
+/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/tests/swarm/test_commands_run.py:591: in test_completion_policy_input_modes
+    assert (out / "done.json").exists() is enabled
+E   AssertionError: assert False is True
+E    +  where False = exists()
+E    +    where exists = (PosixPath('/tmp/pytest-of-coder/pytest-11/test_completion_policy_input_m2/out') / 'done.json').exists
+____________________________________ test_completion_policy_input_modes[True-True] _____________________________________
+/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/tests/swarm/test_commands_run.py:591: in test_completion_policy_input_modes
+    assert (out / "done.json").exists() is enabled
+E   AssertionError: assert False is True
+E    +  where False = exists()
+E    +    where exists = (PosixPath('/tmp/pytest-of-coder/pytest-11/test_completion_policy_input_m3/out') / 'done.json').exists
+_______________________________ test_completion_uses_reduced_status_and_order[3-success] _______________________________
+tests/swarm/test_commands_run.py:638: in test_completion_uses_reduced_status_and_order
+    assert json.loads((out / "done.json").read_text())["terminal_status"] == expected
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_local.py:548: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_local.py:539: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-coder/pytest-11/test_completion_uses_reduced_s0/out/done.json'
+_______________________________ test_completion_uses_reduced_status_and_order[2-partial] _______________________________
+tests/swarm/test_commands_run.py:638: in test_completion_uses_reduced_status_and_order
+    assert json.loads((out / "done.json").read_text())["terminal_status"] == expected
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_local.py:548: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_local.py:539: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-coder/pytest-11/test_completion_uses_reduced_s1/out/done.json'
+_______________________________ test_completion_uses_reduced_status_and_order[0-failed] ________________________________
+tests/swarm/test_commands_run.py:638: in test_completion_uses_reduced_status_and_order
+    assert json.loads((out / "done.json").read_text())["terminal_status"] == expected
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_local.py:548: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/pathlib/_local.py:539: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-coder/pytest-11/test_completion_uses_reduced_s2/out/done.json'
+=============================================== short test summary info ================================================
+FAILED tests/swarm/test_e2e_user_guide.py::test_quickstart_emits_done_sentinel - FileNotFoundError: [Errno 2] No such...
+FAILED tests/swarm/test_commands_run.py::test_completion_policy_input_modes[True-False] - AssertionError: assert Fals...
+FAILED tests/swarm/test_commands_run.py::test_completion_policy_input_modes[True-True] - AssertionError: assert False...
+FAILED tests/swarm/test_commands_run.py::test_completion_uses_reduced_status_and_order[3-success] - FileNotFoundError...
+FAILED tests/swarm/test_commands_run.py::test_completion_uses_reduced_status_and_order[2-partial] - FileNotFoundError...
+FAILED tests/swarm/test_commands_run.py::test_completion_uses_reduced_status_and_order[0-failed] - FileNotFoundError:...
+6 failed, 9 passed, 14 deselected in 2.13s
+
+EXIT: 1

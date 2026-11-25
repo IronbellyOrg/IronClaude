@@ -1,0 +1,133 @@
+{
+  "id": "0d91f40e-ccd8-4831-9c39-995a9182fc37",
+  "ok": true,
+  "result": {
+    "dispatchId": "ctx_5f78a1f4eb2c",
+    "source": "transcript",
+    "sourceIdentity": "tcBKrloY_m4f4dYXA5X4UBb1crO9djYj",
+    "provider": "claude",
+    "transcript": {
+      "messages": [
+        {
+          "id": "a1ac5762-479c-4f0d-ada9-fcafc90fedc4",
+          "role": "user",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "Please carry out this task from my Orca coordinator by following the brief I pasted below. \n\n<pasted_content id=\"4479\">\nYou are working inside Orca, a multi-agent IDE. You are a dispatched worker.\nYour coordinator's terminal handle is: term_ff21ff3b-01fc-4fbf-a8c5-8374259f3953\nYour task ID is: task_933b8d9447c6\n\nThe coordinator cannot see this terminal, so reach it with the `orca orchestration`\ncommands below; a question or result left only in this terminal never gets to it.\nDon't post to Slack, GitHub, or other channels during the run; report through these commands.\n\n=== CLI COMMANDS ===\n\n```sh\n  # Report the task outcome (required, exactly once).\n  #\n  # --body must be a 3-sentence executive summary (what you did,\n  # what you found, what's left). Never send an empty body; the coordinator\n  # reads the body first and only opens artifacts if it needs more detail.\n  # Append --files-modified only when files changed, and append --report-path\n  # only when you produced a durable report. Always pass real values; do not\n  # send the example placeholders literally.\n  #\n  # Send worker_done exactly once. Use --outcome succeeded when the\n  # requested work is done, or replace it with --ou\n… (truncated)"
+            }
+          ],
+          "timestamp": 1795350057147,
+          "source": "transcript",
+          "parentId": "53f4b0c8-f63a-407c-a3bf-6853935136f0"
+        },
+        {
+          "id": "211c3256-16f2-4261-b541-db6e34cf9032",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "ls ~/.claude/state/launch-level/pending | wc -l",
+                "description": "Count pending launch-level entries"
+              },
+              "callId": "toolu_01NaDnQfrLT7qqWZUXqbepuN"
+            }
+          ],
+          "timestamp": 1795350058919,
+          "source": "transcript",
+          "parentId": "ad88c724-09d7-4f91-8127-351011e6af22"
+        },
+        {
+          "id": "3dbfbf1f-e103-4744-b569-47307316edf0",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "PreToolUse:Bash hook error: [~/.claude/hooks/launch-level-guard.sh]: Launch-level guard: this session was started by /sc:issue --claim at level worktree.\nBlocked: touching the launch-level state, the Claude Code settings or hooks, a git configuration file or the git pre-push hook, or reinstalling the hooks.\nWhy: The session must not change its own limits.\nYou can: Ask the person. To release this session they run, in their own terminal: rm \"/home/coder/.claude/state/launch-level/sessions/ae728c49-a2f3-4257-bf6b-13e48f70e37f\" \"/home/coder/.claude/state/launch-level/sessions/ae728c49-a2f3-4257-bf6b-13e48f70e37f.ok\"\nNote: the guard does not tell quoted text from commands. Any command that names git together with the word commit, push, merge or pull, or gh together with the word api, counts as that action, even if the words are only in a message, a title, a PR body or a search pattern. If that is the case here, write the text to a file with the Write tool and pass it with git commit -F <file> or gh ... --body-file <file>, or reword the search or title.\n",
+              "callId": "toolu_01NaDnQfrLT7qqWZUXqbepuN",
+              "isError": true
+            }
+          ],
+          "timestamp": 1795350059146,
+          "source": "transcript",
+          "parentId": "211c3256-16f2-4261-b541-db6e34cf9032"
+        }
+      ],
+      "nextCursor": "owr1_eyJ2IjoxLCJkIjoiY3R4XzVmNzhhMWY0ZWIyYyIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6InRjQktybG9ZX200ZjRkWVhBNVg0VUJiMWNyTzlkallqIiwicCI6MTAwMjczOSwiYyI6Im1nT0NSMlNMcUptMXJlYkZiVmdhUDdLWG9GbVlzTDlHIn0",
+      "limited": true,
+      "returnedMessageCount": 3
+    },
+    "cursor": "owr1_eyJ2IjoxLCJkIjoiY3R4XzVmNzhhMWY0ZWIyYyIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6InRjQktybG9ZX200ZjRkWVhBNVg0VUJiMWNyTzlkallqIiwicCI6MTAwMjczOSwiYyI6Im1nT0NSMlNMcUptMXJlYkZiVmdhUDdLWG9GbVlzTDlHIn0",
+    "status": {
+      "worker": "ready",
+      "terminal": "running",
+      "liveness": "live"
+    },
+    "fallbackReason": null,
+    "warnings": [
+      "Oversized transcript text was clipped."
+    ],
+    "sourceExact": true,
+    "contentComplete": false,
+    "clipping": [
+      "transcript_payload"
+    ],
+    "projection": {
+      "id": "ctx_5f78a1f4eb2c",
+      "dispatchId": "ctx_5f78a1f4eb2c",
+      "taskId": "task_933b8d9447c6",
+      "runId": "run_93bfa00cae2b",
+      "role": "worker",
+      "parent": null,
+      "provider": {
+        "id": "claude",
+        "model": null
+      },
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/issue-712",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "ready",
+        "dispatch": "dispatched",
+        "detail": "input_accepted",
+        "activity": "working"
+      },
+      "outcome": "in_progress",
+      "liveness": {
+        "verdict": "live",
+        "observedAt": 1795350058977,
+        "source": "agent_status"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "fresh",
+        "lastObservedAt": 1795350058977
+      },
+      "resource": {
+        "state": "owned",
+        "id": "wtr_b51b23a820c0",
+        "ownerDispatchId": "ctx_5f78a1f4eb2c",
+        "releaseState": "not_requested",
+        "terminalState": "active"
+      },
+      "nextAction": {
+        "kind": "none",
+        "argv": []
+      },
+      "attention": {
+        "categories": [],
+        "requiresAction": false
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "5fa47013-c78e-429f-8465-1efeaa46b5b9"
+  }
+}

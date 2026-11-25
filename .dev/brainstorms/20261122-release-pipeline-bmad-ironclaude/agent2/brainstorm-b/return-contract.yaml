@@ -1,0 +1,61 @@
+# Stable contract (brainstorm own fields)
+contract_version: "1.0"
+status: success
+seed_brief_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/brainstorm-b/seed-brief.md"
+merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/brainstorm-b/merged-requirements.md"
+convergence_score: 0.654
+adversarial_artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/brainstorm-b/nested/adversarial-1/adversarial/"
+domain: architecture
+proposal_count: 2
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: [S-001, S-004, C-002, C-003, C-004, C-008, X-002, A-002, A-006]
+
+# Notes on routing (extra fields, not part of the stable contract)
+routing_note: "convergence 0.654 is at or above the 0.65 PASS line of the brainstorm routing but below the 0.75 threshold passed to the adversarial step; the adversarial step itself returned status partial (not converged at depth quick). The 9 unresolved points were adjudicated by the orchestrator in refactor-plan.md."
+adversarial_status: partial
+quick_mode_notes:
+  - "Socratic dialogue was answered from the topic file (unattended; no person asked)."
+  - "Codebase enrichment used mcp__litellm__augment_code-augment_code_search plus direct Read and Grep; no /sc:analyze call, so no nested/analyze-<n>/ directory."
+  - "Research skipped by --no-research."
+  - "Adversarial merge ran inline in the orchestrating session, not through the merge-executor agent."
+  - "Round 2, Round 2.5 and Round 3 skipped by depth quick."
+  - "Token hard-kill threshold (1.25 x Wave 2B estimate) was exceeded (about 671K sub-agent tokens against about 208K estimated) and not enforced during the run."
+
+# Worker fields (--unattended)
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:brainstorm "@/home/coder/workspaces/IronClaude/.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/brainstorm-b-topic.md" --depth quick --proposals 2 --no-research --unattended --output /home/coder/workspaces/IronClaude/.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/brainstorm-b'
+report_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/brainstorm-b/merged-requirements.md"
+artifacts:
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/brainstorm-b/seed-brief.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/brainstorm-b/enrichment/codebase-context.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/brainstorm-b/nested/adversarial-1/return-contract.yaml"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/brainstorm-b/nested/adversarial-1/merged-output.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/brainstorm-b/nested/adversarial-1/adversarial/"
+
+# Telemetry (non-stable; durations were not timed in this run)
+wave_durations_ms:
+  wave_0: null
+  wave_1: null
+  wave_2a: null
+  wave_2b: null
+  wave_3: null
+  wave_4: null
+token_usage:
+  wave_0: null
+  wave_1: null
+  wave_2a: null
+  wave_2b: 208000
+  wave_3: 671028
+  wave_4: null
+agent_spec: "opus:architect,sonnet:analyzer"
+enrichment_artifact_sizes:
+  codebase-context.md: 3300

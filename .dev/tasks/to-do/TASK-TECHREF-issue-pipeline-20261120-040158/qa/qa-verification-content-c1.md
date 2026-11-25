@@ -1,0 +1,64 @@
+# QA Report - Gate 3 verification, content (qualitative), cycle 1
+
+**Phase:** report-validation verification (qualitative), tech-ref-qualitative lens
+**Fix cycle:** 1
+**Date:** 2026-11-20
+**Status:** Complete (see final line)
+**Document:** /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/techref/ISSUE-TO-WORK-PIPELINE-TECHNICAL-REFERENCE.md
+**Fix authorization:** false
+
+Inputs read: consolidated findings (G3-1..G3-9), fix log qa-fix-cycle1-report.md, the whole document (2436 lines), the Step 6.12 prompt block (task file lines 2083-2110). Source read only from /home/coder/.cache/ic-snap-20261120/master (nothing written there). Removed-code appendix read only through the document's own read-only git commands.
+
+## Previous BLOCKING findings (G3-1..G3-9)
+
+| ID | Location | FIXED-OK / STILL-OPEN | Evidence |
+|---|---|---|---|
+| G3-1 | 4.2 step 6 (L522), 5.3 orca-ide paragraph (L1260), 5.4 open items (L1364), Section 6 (L1377, L1380), 14.3.1 Identifier map (L2010) | FIXED-OK | A regex search for `Q-1x`, `C-3x/6x`, `O-2..O-4` finds Q-12, Q-13, Q-17 only inside the Identifier map (L2010). Each replacement target exists: Q-02, Q-06, Q-08 sit in U-10 (L2007); U-4, U-6, U-5, U-7 (L2001-2004); D-16, D-18, D-21, D-23, D-25 exist in 14.2.1 (L1967, 1969, 1972, 1974, 1976). Identifier map claims checked against U-10 (lists Q-02..Q-09, Q-18..Q-21) and U-11 (Q-22..Q-24). The sentence "all listed in Section 14" is now true. |
+| G3-2 | 5.1.1 (L718) | FIXED-OK | Now reads "except where marked in 5.1.8"; 5.1.8 (L952-966) is the contradictions table. |
+| G3-3 | 5.1.6 (L921), 5.1.1.1 (L759), 10.2 (L1604, L1607) | FIXED-OK | Pointers now resolve (5.1.1.1, 5.1.1.2, step table, 10.1, 10.2). `re-approved` raise site checked in the snapshot: `cycle.py:646-661` (`_issue_line`; note set at 660, condition 654-659) and `audit.py:280-284` (a note word is rejected as a reason and checked as a note kind). The external research-file citations are gone from 10.2; its replacement evidence `P/audit.py:26-102` and `P/cli.py:244-250` verified (`cli.py:244` `operator_reset`, `:248` `reset_refused`; `cycle.py:731, 775, 807` are the three `_warn` sites). |
+| G3-4 | 15.2 row 11 (L2051) | FIXED-OK | Now "guard registered twice (once per event), identity once". Read `hooks.json:63-71, 115-124, 125-134`: guard under UserPromptSubmit and PreToolUse, identity under PreToolUse Bash, all `timeout: 5`. Agrees with L326, L395, L1278-1282, Appendix A.2 L2239. |
+| G3-5 | 13.1.8 (L1838-1840) | FIXED-OK | Skeleton `RULE_PHRASES["<rule-name>"] = (None, [...])`. Snapshot `tests/skills/test_worker_contract.py:24-32` (comment `rule -> (identifier ... or None; phrases)`, first entry `"worker-run": (None, [...])`), `:725` `ident, phrases = RULE_PHRASES[rule]`, `:728-731` identifier-on-first-phrase-line check. The explanation bullet matches exactly. |
+| G3-6 | 15.2 (L2035-2103) | FIXED-OK | Commands moved to one fenced block. I ran the 18 checks read-only against the snapshot (private /tmp batch, cleaned): #1 lists exactly the nine files; #2 hit `cycle.py:228`; #3 five hits 177/183/204/231/255; #5 one hit `cycle.py:35`; #6 `IR7_REFUSE = False` at 822, branch at 1757; #7 prints `0` and `339` (and would print a non-zero count if WC-17 returned, so it can fail); #8 no output; #9 `orca)` and `0`; #10 the guard regex and the template line naming `/sc:task`; #12 identical; #13 changelog line and `No such file or directory`; #14 ten paths; #15 the `O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW` call; #16 `19`; #17 `46`; #18 last non-blank line `<!-- sc:issue:claim -->`. #11 read by hand (hooks.json). Every check matches its table row. |
+| G3-7 | 4.2 (L513) | FIXED-OK | Now "NOT BUILT as code, prose rule only, D-20". Agrees with 5.2 L1006, D-20 (L1971). No section still says BUILT-ON for the default pick. |
+| G3-8 | 8.1 guard-stack table (L1448), 15.6 (L2138) | FIXED-OK for the missing link; see new finding N-1 for an inaccurate sentence inside the new row | The row exists with the right citations: allow-list `launch-level-guard.sh:480-491`, send/ask `:485` and `:496-537`, the four pins `test_launch_level_guard_worker.py:74, 187, 213, 262` (all are test definitions at those lines). Option rules (`--to`, `--run`, `--environment`, `--pairing-code`, prefix of `--to`/`--run`, bare word, lone `--`, 8192 bytes, 64 arguments, glob) match `:496-537` and `:443, 484`. Status wording agrees with 2.3 row 6 and D-18. 15.6 now names the command and the allow-list. |
+| G3-9 | 13.1.1 (L1763), "Symbols used in 13.1" table (L1843-1857) | FIXED-OK | Every symbol checked in the snapshot: `_cond` `cycle.py:587-588`, `_stopped` `:590-592`; `github.py:111, 118, 141, 150, 168`; `test_record.py:1518, 1522` (df42 tests, descriptions correct: first is parametrised over `LITERAL_REASONS`, second collects transition reasons); `render_prompt` `orca_worktree.py:746-761` (description exact, `BLOCK_MARKER` at 743); `ll_deny` `launch-level-guard.sh:135-139`; `_FRESHNESS_SCRIPTS` `install_hooks.py:42-97` (launch scripts at 90, 93, 96); `test_tier_ids_appear_only_in_allowed_paths` `test_model_alias_policy.py:104`; `_check_never_as_worker` `test_worker_contract.py:734`, pinned by `:881-882`; `test_github.py:2077, 2107, 2132` match the three "invalid ..." messages. The df42 tests are in `test_record.py`, not `test_audit.py`. |
+
+## New BLOCKING findings
+
+| ID | Location | Problem | Evidence | carried-over / new | previously-rated-PASS |
+|---|---|---|---|---|---|
+| N-1 | 8.1 new guard-stack row (L1448): "every other `orca` call is ESCAPE"; same claim at 5.3 G2 rule 2 paragraph (L1258, "every other orca call is ESCAPE (`GD:480-491`)") and 2.4 row 6 (L354, "every other `orca` verb off the allow-list is blocked") | The allow-list is presented as exhaustive, so a bound worker looks unable to run any other `orca` command. The guard has an exception: when the last word is `--help` or `-h`, the call has at most four words from `orca` on, and the text holds no glob character, the call is not ESCAPE (`launch-level-guard.sh:487-490`, comment "help only on a short call"). The snapshot pins this: `tests/hooks/test_launch_level_guard_worker.py:230` `test_the_read_only_orca_forms_stay_allowed_for_a_bound_worker` with `orca list --help` and `orca agent launch -h` (`:226-227`), while the doc cites only `:213` (blocked cases) and never `:230`. A maintainer who extends the allow-list or writes a test from this row would get the rule wrong; the row is the one the G3-8 fix added to make Section 8 a complete record of the G2 rule 2 chain. | The sentence in 5.3/2.4/4.6 is carried over (present before the fix pass, never flagged); the same sentence is also new in the 8.1 row written by the G3-8 fix | Yes: review 1 qa-qual-domain-accuracy rated the guard area PASS (its report has no mention of `--help` or the short-help arm); the G3-8 row itself was not yet written |
+
+Required fix for N-1 (report only; this agent does not edit the document): in each of the three places (L354, L1258, L1448) say that the allow-list is exhaustive except for a short help call (`<verb words> --help` or `-h`, at most four words from `orca`, no glob character), citing `launch-level-guard.sh:487-490` and `test_launch_level_guard_worker.py:226-230`.
+
+## Checks performed
+
+Chains and status words
+- Chain ledger -> Section 5 -> 14.2.1 -> Appendix B re-walked for the rows the fix pass touched or neighbours: ledger row 6 (G2 rule 2) -> 5.3 status line and ledger (L1168, L1294) -> 8.1 row (L1448) -> D-18/D-25 -> B.6 (rule 2 survives the removal); rows 10 and 18 -> 5.2 L1005, 4.4 L572, 8.3 L1483, D-18; row 12/D-19 IR-7; row 13/D-21; row 11/D-22; row 14/D-04; row 15 and 17/D-16; row 8 and 9/D-17, D-27. All status words agree (BUILT-ON / BUILT-OFF (enabled:false) / NOT BUILT / REMOVED). The default `--pipeline` pick now says NOT BUILT as code in 4.2, 5.2, 14.2.1 D-20.
+- The Identifier map (L2010) covers every `Q-` tag still present in Sections 4 to 6 and 13 (Q-02, Q-06, Q-08, Q-14, Q-20, Q-22); no tag is undefined; `C-`/`O-` gap-log tags from the review are gone. `O-15`, `OD-1`, `OD-3`, `LIM-*` are attributed to the design documents, not to this reference.
+- PR 686 / rewrite design: one sentence (L218); regex search for `686`, `rewrite`, `orchestrator.md` finds no other mention (other `686` hits are source line numbers; "rewrites" in job-identity text is unrelated).
+- Extension Guide followable: 13.1.1 to 13.1.8 skeletons checked against source: `REASON_TABLE` entry shape, `_TOP_KEYS`/`Config` at `cycle.py:58-69, 96-107`, github builders and `_call` `:557`, argparse `choices` at `orca_worktree.py:1873, 1883, 1891`, level-word case at guard `:264-269`, class grid `:785-803` (a class with no cell becomes `LL-BROKEN` at `:801`), `_FRESHNESS_SCRIPTS`, `WORKERS`, `RULE_PHRASES`. All correct.
+
+Behavioural claims spot-checked against the snapshot (more than 10, each by reading the source line named): (1) G2 rule 2 option rules and allow-list, `launch-level-guard.sh:440-537`; (2) launch argv has 12 elements, prompt pattern, `launch.py:28-116`; (3) `_examine` gate order E1 to E15, `cycle.py:915-961`; (4) `_issue_line` re-approved logic `:646-661`; (5) `hooks.json` registrations `:63-71, 115-134`; (6) guard marker regex, binding by hard link, typed-approval regex, `:286-385`; (7) Skill classifier `:398-413`; (8) level grid `:783-808`; (9) `cmd_launch` order, IR-4, `install_l2`, `publish_pending`, argv with marker, shim detection `orca_worktree.py:1696-1834`; (10) `build_parser` choices `:1857-1902`; (11) `WORKER-CONTRACT.md` rules WC-2..WC-16 lines, "grant row" once at `:57`, no-`--to` bullet `:66`, never-as-worker list `:23`, brief template without marker `:303-311`, WC-16 `:287-289`; (12) `claim.md:81` default-level rule and `:94, :96`; `issue.md:43-48, 59, 80-85`; (13) module and test line counts (`wc -l`): all stated line counts for the watcher package, claim files, hooks, contract, `test_worker_contract.py` (3220 lines, 59 tests), `tests/issue_watch` (19,801 lines) match; (14) constants `cycle.py:34-47`; (15) `--pipeline` occurs only at `launch.py:33, 85, 92` (three, as stated).
+
+## MINOR notes (not blocking, not rechecked)
+
+- 2.3 intro (L319) lists the additional rows as "1b, 7b and 9 to 18" but the table also has row 12b.
+- Section 1 (L210) says "20 files in `tests/issue_watch/` (19 test modules plus `conftest.py`)"; the directory holds 21 `.py` files because an empty `__init__.py` is also there (the 19,801-line total is unaffected). Section 5.1 says "nine modules" (test counts `__init__`) while Section 1 says "8 modules ... plus an empty `__init__.py`"; both are true but read differently.
+- Symbols table, `_FRESHNESS_SCRIPTS` row (L1855) and 13.1.6 cite `tests/cli/test_install_hooks.py:897` as a pin; that test checks the `hooks.json` registration of the identity hook, the list-membership assertions are at `:937, :1092, :1110` (the `:1086`, `:1104` function definitions are right).
+- Symbols table, `render_prompt` row names `test_issue_protocol.py:295`, which parses the template with its own regex; `render_prompt` itself is exercised through the `prompt` subcommand tests in `test_issue_orca_worktree.py`.
+- Symbols table, df42 rows say "Appendix A.1, `test_record.py` row"; that A.1 row does not name the df42 tests.
+
+## Self-audit
+
+(a) Reliance list: no inherited structural verdict was supplied; I relied on no rf-qa PASS item. I did not rely on the fix log either: every FIXED-OK above comes from reading the current document text and the snapshot.
+(b) Independent semantic checks: the 18 spot-check commands were run (read-only) and compared with the expected column; the RULE_PHRASES skeleton was compared with the real dictionary shape and its consumer; the new 8.1 row was compared line by line with `launch-level-guard.sh:440-537` and the four pinning tests, which is how N-1 was found; the symbols table was checked symbol by symbol; Q/C/O tag resolution was checked by regex search over the whole document.
+- Claims independently verified against source: about 60 (each file/line named in the tables above).
+- Confidence: Verified: 9/9 previous findings plus 15 spot-check groups | Unverifiable: 0 | Unchecked: 0 | Confidence: 100% on the scoped list; whole-document claims outside the changed passages and their neighbours were not re-verified (the review 1 PASS areas were sampled, not repeated).
+- Tool engagement: Read: 27 | Grep: 14 | Glob: 2 | Bash: 2 (one batch of 18 read-only checks, one `wc -l` run). No web research (repo-internal subject); no Tavily or fallback calls.
+
+## Verdict: FAIL
+
+BLOCKING count: 1 (N-1). All nine previous BLOCKING findings are FIXED-OK. The fix pass introduced no false number, no status-word conflict and no broken chain; the one open item is a false universal claim ("every other orca call is ESCAPE") that the guard code and its pinning test contradict, now repeated in the new Section 8.1 row.
+
+Status: Complete

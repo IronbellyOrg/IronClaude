@@ -1,0 +1,13 @@
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:adversarial --compare .../D11/position-OURS.md,.../D11/position-CLAY.md --depth standard --unattended --output .../D11/adversarial/"
+report_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D11/adversarial/merged-d11-observability-recommendation.md"
+artifacts:
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D11/adversarial/adversarial/return-contract.yaml
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D11/adversarial/adversarial/diff-analysis.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D11/adversarial/adversarial/debate-transcript.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D11/adversarial/adversarial/invariant-probe.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D11/adversarial/adversarial/base-selection.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D11/adversarial/adversarial/refactor-plan.md
+  - /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D11/adversarial/adversarial/merge-log.md
+reason: "Partial: the invariant probe found two HIGH unaddressed findings (INV-001, INV-002) that blocked convergence; standard depth has no Round 3, so they were written into the merged recommendation as rules 5 and 6. All 18 diff points converged."

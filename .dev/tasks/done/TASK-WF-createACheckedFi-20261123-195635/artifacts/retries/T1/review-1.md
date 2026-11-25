@@ -1,0 +1,10 @@
+start=8b15d2ff88ae732825660a101866fa453832b953 tree=380e420958253750b6af88d139db11bf6f5e20a0
+Earlier blocking findings: none supplied.
+T1.AC1 met at=./artifacts/foreground-before.txt:292 and ./artifacts/foreground-after.txt:1. Pre-change runs fail for absent done.json; the post-change six-module run passes 110 tests, exit 0.
+T1.AC2 met at=tests/swarm/test_e2e_user_guide.py:117 and tests/swarm/test_commands_run.py:571. Registered CLI tests check exact marker fields, YAML status, resolved contract path, spec/stdin and relative output roots.
+T1.AC3 met at=tests/swarm/test_commands_run.py:573 and tests/swarm/test_commands_run.py:599. Opt-out and controlled success/partial/failed statuses use the real continuation/reducer and delegating writer wrappers.
+T1.AC4 met at=tests/swarm/test_commands_run.py:621 and tests/swarm/test_commands_run.py:642 and src/superclaude/cli/swarm/commands.py:2165. Ordering, persistence failure, early error and no-reduction cases are covered; publication follows terminal persistence.
+T1.AC5 met at=./artifacts/foreground-cli-check.txt:2 and ./artifacts/capture_cli.py:17 and ./TASK-WF-createACheckedFi-20261123-195635.md:21. Public UV capture records argv/stdout/stderr/exit/provenance and matching persisted state/contract/marker; script establishes isolated HOME; task explicitly pairs positive evidence with immutable negative witness. Diagnostic witness itself was not re-read, following the review prohibition.
+T1.AC6 met at=./artifacts/foreground-after.txt:1 and src/superclaude/cli/swarm/__init__.py:150 and src/superclaude/cli/swarm/commands.py:2186. Required six-module run reports 110 passed, exit 0; registration/stdout remain intact and supplied production diff leaves atomic writer/kill behavior unchanged.
+Finding lines: none. No concrete defect found in scoped source, tests or permitted evidence. No commands ran and no files changed.
+Parent verdict: compliant. Reviewer paths normalized to checkout/package-relative form; no findings to grade. The outcome line for the test run is foreground-after.txt:4.

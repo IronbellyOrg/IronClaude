@@ -114,11 +114,8 @@ def test_quickstart_lens_bare_review_emits_observability_artifacts(
     assert state["state"] == TERMINAL_STATE_VALUE
 
 
-def test_quickstart_does_not_emit_done_sentinel(runner, target, tmp_path):
-    """WS-0 (G-4): the inline pipeline now emits merged.md + return-contract.yaml
-    (see test_quickstart_emits_normalized_artifacts), but NOT the done.json sentinel
-    (reduce_wave3 does not write it; the on_completion done-sentinel step is not wired
-    on this inline path). This is the narrowed remnant of the old M5-absent assertion."""
+def test_quickstart_emits_done_sentinel(runner, target, tmp_path):
+    """A completed default run publishes the marker after its result and state."""
     out = tmp_path / "out"
     result = _run(
         runner,
@@ -133,9 +130,17 @@ def test_quickstart_does_not_emit_done_sentinel(runner, target, tmp_path):
         "stub",
     )
     assert result.exit_code == EXIT_OK, result.output
-    assert not (out / DONE_SENTINEL_FILENAME).exists(), (
-        f"{DONE_SENTINEL_FILENAME} should not exist on the inline (non-resume) WS-0 path"
-    )
+    import yaml
+
+    marker = json.loads((out / DONE_SENTINEL_FILENAME).read_text())
+    contract = yaml.safe_load((out / RESULT_CONTRACT_FILENAME).read_text())
+    assert marker == {
+        "atomic_write": True,
+        "terminal_status": contract["status"],
+        "contract_path": str((out / RESULT_CONTRACT_FILENAME).resolve()),
+    }
+    assert contract["status"] == "success"
+    assert json.loads((out / SWARM_STATE_FILENAME).read_text())["state"] == "terminal"
 
 
 def test_quickstart_emits_normalized_artifacts(runner, target, tmp_path):
