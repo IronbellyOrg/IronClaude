@@ -68,6 +68,10 @@ gh pr create --repo IronbellyOrg/IronClaude --base master --head <branch> --titl
 
 Check that the returned URL starts with `https://github.com/IronbellyOrg/IronClaude/pull/`.
 
+### Branch rule
+
+`master` and `integration` take pull requests only. The server refuses direct pushes (including edits in the GitHub web editor), force pushes and deletion, so open a pull request from a branch. Merging `master` into `integration` is a pull request too. Release tags (`v*`) can be created but never deleted or rewritten. See [Branch Protection](docs/developer-guide/branch-protection.md).
+
 ### Claiming and filing issues
 
 Take an issue with `/sc:issue --claim <number>`: it assigns the issue to you on the fork (and its ClickUp task when your `CLICKUP_*` variables are set), checks whether the issue text still matches the code, and writes a summary and a next-step prompt to `.dev/issues/<N>/` before it stops. File a new issue with `/sc:issue --create "<description>"`; it uses the command's own feature and bug templates and labels. Both modes read the repository from `origin` only, so they always act on `IronbellyOrg/IronClaude` here. The command never commits `.dev/issues/`. See [`/sc:issue`](docs/user-guide/commands.md#scissue---github-issue-claim-and-create) for the flags.

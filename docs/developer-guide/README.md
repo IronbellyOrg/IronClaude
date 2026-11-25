@@ -56,6 +56,7 @@ This Developer Guide provides documentation for understanding SuperClaude's cont
 - [Session Memory](session-memory.md): the file-based `.superclaude/memory/` store behind `/sc:pm` and the PM agent
 - [Review Severity Rule](review-severity-rule.md): blocking vs minor findings and the two-fix-cycle limit
 - [Release Procedure](release-procedure.md): go/no-go checks, release notes, tag and GitHub release
+- [Branch Protection](branch-protection.md): the rulesets that make `master` and `integration` pull-request-only, with apply, check and break-glass commands
 
 ## Key Framework Concepts
 

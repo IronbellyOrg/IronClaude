@@ -34,6 +34,11 @@ This index provides comprehensive access to all SuperClaude Framework developmen
 **Purpose**: How a maintainer cuts an IronClaude release: version bump, release notes, the G1-G9 go/no-go gate, tag, GitHub release and post-release follow-through  
 **Target Audience**: Maintainers cutting a release; go here for every release or tagging question
 
+### 🔒 [Branch Protection](branch-protection.md)
+
+**Purpose**: The three rulesets that make `master` and `integration` pull-request-only and protect `v*` release tags: what they do, how to apply and check them, how to break glass  
+**Target Audience**: Repository admins and maintainers
+
 ### 🌿 [Git Standards and Repository Protocols](git-standards-protocols.md) (imported, not IronClaude's process)
 
 **Status**: This file was copied from another project and is not IronClaude's process. Its branches, environments and links belong to that project. It is kept until it is rewritten for IronClaude or deleted. Do not follow it.
@@ -160,6 +165,7 @@ For IronClaude, the branch model is `master` ← `integration` ← `feature/*`, 
 **Release**:
 
 - [Release Procedure](release-procedure.md) - Version bump, release notes, G1-G9 gate, tag and GitHub release
+- [Branch Protection](branch-protection.md) - Rulesets for `master`, `integration` and `v*` tags; apply, check, break glass
 
 ### 🛠️ MCP Integration
 
