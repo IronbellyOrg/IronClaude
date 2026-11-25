@@ -1157,3 +1157,24 @@ def test_the_coordinator_handoff_paragraph_states(needle):
 
 def test_the_claim_still_writes_no_worktree_record_for_pipeline_none():
     assert "no `<D>/worktree.json` is written" in _text(REFS / "claim.md")
+
+
+def test_stage_claim_skips_recommend_and_plain_claim_keeps_it():
+    claim = _text(REFS / "claim.md")
+    step1 = claim.split("1. Without `--stage`: invoke `Skill sc-recommend`", 1)[
+        1
+    ].split("\n2.", 1)[0]
+    # plain claim: the recommend step is unchanged
+    assert (
+        "Save its output verbatim to `<D>/recommend.md`"
+        in step1.split("With `--stage <stage>`", 1)[0]
+    )
+    # --stage claim: no Skill call, one skip line, no "Default row not used"
+    stage = step1.split("With `--stage <stage>`", 1)[1]
+    assert "do not invoke `Skill sc-recommend`" in stage
+    assert (
+        "Skipped: --stage <stage> sets step 1 (the Project Status names the starting command)."
+        in stage
+    )
+    assert "`Default row not used` line is not written" in claim
+    assert "a `--stage` claim never calls it" in claim
