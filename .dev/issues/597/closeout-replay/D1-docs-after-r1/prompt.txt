@@ -1,0 +1,1 @@
+In Next.js 15, how do I write a route handler that streams a response? Give me the API and a short example.

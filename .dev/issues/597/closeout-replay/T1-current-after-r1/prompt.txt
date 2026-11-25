@@ -1,0 +1,1 @@
+What is the latest stable release version of Playwright, and what changed in it?
