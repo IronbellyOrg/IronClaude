@@ -25,7 +25,7 @@ Why this feature exists: When a question cannot be reduced to a decision, the da
 
 - A coordinator question that needs a conversation shows as 'you are needed' with the session to open and why.
 - The notice clears when the conversation is done.
-- The owner's open question from issue #727 (2026-11-25) is answered or deferred in the record: should longer conversations with a coordinator move into the dashboard too, and in which release.
+- The owner's answer of 2026-11-25 (issue #727) is kept: longer conversations do not move into the dashboard; in the near term they stay in the coordinator session, so this notice is the whole plan for them. The later brainstorm on the best set of agents (some to coordinate work, others to talk with the person and take new requests, with the coordinator kept narrowly on orchestrating) is not part of this story.
 
 ## Who it is for
 

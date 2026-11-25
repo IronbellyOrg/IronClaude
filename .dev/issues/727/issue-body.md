@@ -30,7 +30,7 @@ Do not build anything from this issue before the owner says go. The owner's orde
 
 The goal is that the dashboard replaces talking to the coordinator sessions directly. It is the one place where the person reads and answers everything the coordinators need (the 1.8 release in the list below is where the first write and respond features arrive: responses and answers go through the dashboard and are relayed to the coordinator). Decisions are made there, with as many coordinator questions as possible reduced to binary or multiple-choice questions for the person, and, when that fails, demands to the coordinator for more context, a better explanation, a debate of several proposals, extra validation, research, fact checking, or use of specific plugins or tools (for example ponytail).
 
-Open for the owner: the 1.8 line also lists "notifications that the user is needed in the coordinator session for a q&a or longer conversation". Until the dashboard can carry such conversations itself, that notice is the only case where the person still talks to a coordinator directly. Should longer conversations move into the dashboard too, and in which release? (If yes, the 1.8 and 2.0 items need a line for it.)
+**Owner answer (2026-11-25, in chat):** longer conversations do NOT move into the dashboard. In the near term they stay in the coordinator session; the 1.8 "you are needed in the coordinator session" notice is the whole plan for them. The longer-term goal is to brainstorm the best set of agents to (a) coordinate work and (b) talk with the person and handle new questions and requests. The coordinator session should be as narrowly focused on orchestrating as possible: take in updates from agents and from the dashboard, relay them to where they need to go, and make sure every agent and every person has the information and instructions they need at all times. This agent-set brainstorm is not yet a scheduled item; it belongs with the architecture work this issue puts first.
 
 Reading notes (UNVERIFIED, mine): "Zelij" is read as Zellij; "1\n5 release" is read as 1.5; the version numbers such as 1.105 are kept as the owner wrote them. The planning drafts read the list as: 1.105, 1.505, 1.705 and 1.905 are test-and-CI releases between the numbered ones, and the Zellij review fills the 1.3 slot because the list jumps from 1.2 to 1.4.
 
@@ -65,5 +65,6 @@ Owner's text, verbatim (2026-11-22):
 > - Human testing, feedback/feature requests, validation, bug filing and fixing for 1.9 release
 > - 1.905: Additional automated tests or ci needed to have caught any high/medium bugs without needing human validation as well as regression tests
 > - Implement feedback from 1.9 and additional write/respond features for 2.0 release
+
 
 
