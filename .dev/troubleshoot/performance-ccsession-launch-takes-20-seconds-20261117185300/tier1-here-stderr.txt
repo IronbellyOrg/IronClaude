@@ -1,0 +1,1 @@
+ccsession: Claude Code deletes saved sessions after 90 days (cleanupPeriodDays is set by the managed settings file /etc/claude-code/managed-settings.d/10-retention.json, which a value in ~/.claude/settings.json cannot override), so named sessions older than that lose their conversation. Ask whoever manages this machine to raise it to 365 or more.

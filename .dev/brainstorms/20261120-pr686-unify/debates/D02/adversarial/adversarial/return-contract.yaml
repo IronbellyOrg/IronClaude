@@ -1,0 +1,21 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D02/adversarial/merged-position-d02.md"
+  convergence_score: 0.833
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D02/adversarial/adversarial/"
+  status: "partial"
+  base_variant: "variant-2-original (CLAY, Orca automation with a no-agent precheck), selected by tiebreaker level 1 (raw score 0.8748 for variant 1 against 0.8305 for variant 2, margin 0.0443)"
+  unresolved_conflicts: 3
+  unresolved_conflict_ids: ["C-008", "X-003", "A-002"]
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: "INV-023"
+      category: "interaction_effects"
+      assumption: "run-all can sit on top of the PR 686 poll after it merges (the two polls differ in contract)"
+      severity: "HIGH"
+    - id: "INV-024"
+      category: "sufficiency_challenge"
+      assumption: "Choosing cron alone achieves zero setup (R1, R17)"
+      severity: "HIGH"
+  notes: "Convergence by diff points reached 15 of 18 (83.3 percent, threshold 80 percent) but was blocked by the two HIGH UNADDRESSED invariants; Round 3 is not run at depth standard, so the status is partial. Base selection is a document-level result; the owner's weighting rule is applied in VERDICT.md."

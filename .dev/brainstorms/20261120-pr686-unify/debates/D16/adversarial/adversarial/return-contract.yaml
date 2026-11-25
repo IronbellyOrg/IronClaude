@@ -1,0 +1,28 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D16/adversarial/merged-output.md"
+  convergence_score: 1.0   # 22 of 22 diff points agreed or adjudicated; convergence BLOCKED by 4 HIGH invariants (status BLOCKED_BY_INVARIANTS)
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D16/adversarial/"
+  status: "partial"
+  base_variant: "variant-1-original (OURS)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: INV-001
+      category: state_variables
+      assumption: "The ruleset on master covers the places where design and deletion work lands (23 of the last 100 merged PRs went to the unprotected integration branch)"
+      severity: HIGH
+    - id: INV-007
+      category: guard_conditions
+      assumption: "Require review from code owners at 0 required approvals blocks an author who is himself a listed code owner (GitHub documentation silent; one community report says it does not)"
+      severity: HIGH
+    - id: INV-026
+      category: sufficiency_challenge
+      assumption: "The package ranks 1 to 7 alone would have prevented PRs 681 and 682 (holds only if one admin ruleset setting blocks the incident author)"
+      severity: HIGH
+    - id: INV-027
+      category: sufficiency_challenge
+      assumption: "The throwaway PR test and the 14 day review would detect a gate that does not block"
+      severity: HIGH
+  notes: "Depth standard has no Round 3, so the four HIGH invariants are resolved as binding conditions in merged-output.md (sections 'Test protocol and fallbacks' and 'Open invariants') instead of by a further debate round."

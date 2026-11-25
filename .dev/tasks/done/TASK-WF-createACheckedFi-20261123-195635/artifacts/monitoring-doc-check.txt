@@ -1,0 +1,229 @@
+CHECK: completion claims, related local links and captured marker fields
+TABLE OK README.md: done.json follows contract row without a table break
+HIT docs/swarm/README.md:12: > `done.json` completion marker is then written after the result contract and terminal
+HIT docs/swarm/README.md:13: > state when `runtime.on_completion.write_done_sentinel` is enabled (the default).
+HIT docs/swarm/README.md:113: | `done.json` | Atomic completion marker: `atomic_write: true`, `terminal_status` matching the actual result (`success` / `partial` / `failed`), and `contract_path` pointing to the absolute persisted contract path | same |
+HIT docs/swarm/README.md:117: `merged.md`, `return-contract.yaml` and `done.json`.
+HIT docs/swarm/README.md:119: **Completion policy.** Foreground and resumed runs publish `done.json` after the
+HIT docs/swarm/README.md:121: path. Setting `runtime.on_completion.write_done_sentinel=false` suppresses the marker,
+HIT docs/swarm/README.md:127: `swarm kill <job_id> --output <dir>` keeps its separate `terminal_status=killed`
+HIT docs/swarm/README.md:128: marker with an empty `contract_path`. (A missing proxy env contract fails the run at
+LINK OK README.md -> #what-a-run-emits
+LINK OK README.md -> wizard-guide.md
+LINK OK README.md -> user-guide.md#1-quickstart-your-first-swarm-stub-transport
+LINK OK README.md -> user-guide.md
+LINK OK README.md -> command-reference.md
+LINK OK README.md -> lens-catalog.md
+LINK OK README.md -> runbook.md#t2-proxy-env-contract-ac-017
+LINK OK README.md -> monitoring-patterns.md
+LINK OK README.md -> transport-limits.md
+LINK OK README.md -> release-notes-v1.md
+LINK OK README.md -> oq-resolutions.md
+LINK OK README.md -> command-reference.md#swarm-run
+LINK OK README.md -> command-reference.md#swarm-scaffold
+LINK OK README.md -> command-reference.md#swarm-validate
+LINK OK README.md -> command-reference.md#swarm-validate-lenses
+LINK OK README.md -> command-reference.md#swarm-status
+LINK OK README.md -> command-reference.md#swarm-logs
+LINK OK README.md -> command-reference.md#swarm-attach
+LINK OK README.md -> command-reference.md#swarm-kill
+LINK OK README.md -> lens-catalog.md
+LINK OK README.md -> runbook.md#t2-proxy-env-contract-ac-017
+LINK OK README.md -> transport-limits.md
+LINK OK README.md -> command-reference.md#swarm-logs
+LINK OK README.md -> command-reference.md#run-artifacts
+LINK OK README.md -> command-reference.md#swarm-status
+LINK OK README.md -> command-reference.md#run-artifacts
+LINK OK README.md -> user-guide.md#6c-if-the-env-is-missing
+LINK OK README.md -> user-guide.md#8-resuming-a-partial-job
+LINK OK README.md -> command-reference.md#run-artifacts
+LINK OK README.md -> user-guide.md
+LINK OK README.md -> user-guide.md
+LINK OK README.md -> command-reference.md
+LINK OK README.md -> lens-catalog.md
+LINK OK README.md -> runbook.md
+LINK OK README.md -> monitoring-patterns.md
+LINK OK README.md -> transport-limits.md
+LINK OK README.md -> release-notes-v1.md
+LINK OK README.md -> oq-resolutions.md
+LINK OK README.md -> command-reference.md
+TABLE OK command-reference.md: done.json follows contract row without a table break
+HIT docs/swarm/command-reference.md:182: On a terminal job with a readable contract the line ends with `terminal_status=`:
+HIT docs/swarm/command-reference.md:185: status: phase=terminal job_id=lens-bare-review-ab12cd34 updated=2026-06-09T00:18:03Z terminal_status=success
+HIT docs/swarm/command-reference.md:243: | `--output` | DIR | When supplied, also flips `<DIR>/.swarm-state.json` to `terminal` and writes `done.json` with `terminal_status=killed`, so polling consumers observe the termination. Omitted → only the tmux session is torn down. |
+HIT docs/swarm/command-reference.md:254: `return-contract.yaml` and, with the default completion policy, `done.json`:
+HIT docs/swarm/command-reference.md:266: | `done.json` | JSON | Exactly `atomic_write` (`true`), `terminal_status` (the actual contract's `success` / `partial` / `failed` result), and `contract_path` (absolute persisted contract path). Completion does not guarantee all workers succeeded. |
+HIT docs/swarm/command-reference.md:269: state, then atomically publish `done.json`. Detached launchers only start the child;
+HIT docs/swarm/command-reference.md:270: the child owns those writes. `runtime.on_completion.write_done_sentinel` defaults to
+HIT docs/swarm/command-reference.md:275: `terminal_status=killed` marker with an empty `contract_path`. Preflight also writes
+HIT docs/swarm/command-reference.md:282: `done.json` when the effective rehydrated policy enables it. Arbitrary original
+LINK OK command-reference.md -> #swarm-run
+LINK OK command-reference.md -> #swarm-scaffold
+LINK OK command-reference.md -> #swarm-validate
+LINK OK command-reference.md -> #swarm-validate-lenses
+LINK OK command-reference.md -> #swarm-status
+LINK OK command-reference.md -> #swarm-logs
+LINK OK command-reference.md -> #swarm-attach
+LINK OK command-reference.md -> #swarm-kill
+LINK OK command-reference.md -> #run-artifacts
+LINK OK command-reference.md -> README.md#what-a-run-emits
+LINK OK command-reference.md -> #run-artifacts
+LINK OK command-reference.md -> #swarm-validate
+LINK OK command-reference.md -> #swarm-status
+LINK OK command-reference.md -> #swarm-kill
+LINK OK command-reference.md -> lens-catalog.md
+HIT docs/swarm/user-guide.md:257: status: phase=terminal job_id=lens-bare-review-xxxxxxxx updated=2026-06-09T00:18:03Z terminal_status=success
+HIT docs/swarm/user-guide.md:393: ### Pattern C — detached + done-sentinel poll
+HIT docs/swarm/user-guide.md:407: > **Completion marker:** the detached child, not the launcher, writes `done.json`
+HIT docs/swarm/user-guide.md:409: > runs also publish it when their effective `runtime.on_completion.write_done_sentinel`
+HIT docs/swarm/user-guide.md:413: > result in `terminal_status`, and the absolute `contract_path`. Completion is not
+HIT docs/swarm/user-guide.md:530: | No `done.json` after a run | Completion policy disabled, no durable output, or execution failed before reduction and terminal-state persistence completed. | Check effective `runtime.on_completion.write_done_sentinel`, the output directory, `.swarm-state.json` and `return-contract.yaml`; an enabled completed reduction should publish a marker. See [README](README.md#what-a-run-emits). |
+LINK OK user-guide.md -> runbook.md#t2-proxy-env-contract-ac-017
+LINK OK user-guide.md -> README.md#what-a-run-emits
+LINK OK user-guide.md -> #1-quickstart-your-first-swarm-stub-transport
+LINK OK user-guide.md -> #2-validate-the-bundled-lens-registry
+LINK OK user-guide.md -> #3-scaffold--edit--validate--run-a-full-jobspec
+LINK OK user-guide.md -> #4-choosing-a-lens-for-your-task
+LINK OK user-guide.md -> #5-inspecting-results-status-logs-manifest
+LINK OK user-guide.md -> #6-running-against-a-real-model-proxy
+LINK OK user-guide.md -> #7-monitoring-a-long-running-job
+LINK OK user-guide.md -> #8-resuming-a-partial-job
+LINK OK user-guide.md -> #9-prompt-injection-guard--custom-prompts
+LINK OK user-guide.md -> #10-authoring-a-custom-normalization-recipe
+LINK OK user-guide.md -> #11-troubleshooting-common-errors
+LINK OK user-guide.md -> lens-catalog.md#the-lens-validator-6-assertions
+LINK OK user-guide.md -> #11-troubleshooting-common-errors
+LINK OK user-guide.md -> lens-catalog.md
+LINK OK user-guide.md -> #7-monitoring-a-long-running-job
+LINK OK user-guide.md -> runbook.md#t2-proxy-env-contract-ac-017
+LINK OK user-guide.md -> transport-limits.md
+LINK OK user-guide.md -> monitoring-patterns.md
+LINK OK user-guide.md -> monitoring-patterns.md
+LINK OK user-guide.md -> release-notes-v1.md#custom-prompt-migration-path-fr-021-escape-hatch
+LINK OK user-guide.md -> lens-catalog.md#the-custom-py-loader
+LINK OK user-guide.md -> #6a-set-the-env-contract
+LINK OK user-guide.md -> README.md#what-a-run-emits
+LINK OK user-guide.md -> command-reference.md
+LINK OK user-guide.md -> runbook.md
+HIT docs/swarm/monitoring-patterns.md:7: > `done.json` after the result contract and terminal state are persisted when their
+HIT docs/swarm/monitoring-patterns.md:8: > effective `runtime.on_completion.write_done_sentinel` policy is enabled (the default).
+HIT docs/swarm/monitoring-patterns.md:23: | `done.json` | Atomic terminal sentinel (DM-017) | `reduce.py` |
+HIT docs/swarm/monitoring-patterns.md:26: terminal** (done sentinel), **stream events** (JSONL tail), and
+HIT docs/swarm/monitoring-patterns.md:31: roadmap row R-128 / FR-027 (done sentinel), and milestone M7 exit
+HIT docs/swarm/monitoring-patterns.md:36: ## Pattern 1 — Wait for terminal via `done.json` sentinel
+HIT docs/swarm/monitoring-patterns.md:41: first, terminal state second, and `done.json` atomically last (tmp + `os.replace`).
+HIT docs/swarm/monitoring-patterns.md:42: With a fresh per-job output directory, `[ -f done.json ]` is sufficient to observe
+HIT docs/swarm/monitoring-patterns.md:46: `terminal_status`, and the absolute `contract_path`; completion is not necessarily
+HIT docs/swarm/monitoring-patterns.md:69: # Poll until done.json appears (~atomic terminal marker).
+HIT docs/swarm/monitoring-patterns.md:70: until [ -f "$OUT/done.json" ]; do sleep 1; done
+HIT docs/swarm/monitoring-patterns.md:73: jq -r '"status=" + .terminal_status + " contract=" + .contract_path' \
+HIT docs/swarm/monitoring-patterns.md:74:     "$OUT/done.json"
+HIT docs/swarm/monitoring-patterns.md:81: pattern applies — replace `&` with `--detached` and the sentinel still
+HIT docs/swarm/monitoring-patterns.md:179: | Block until done, single yes/no | 1 (sentinel poll) | `done.json` |
+HIT docs/swarm/monitoring-patterns.md:185: the sentinel — the four artifacts are independent and consistent
+HIT docs/swarm/monitoring-patterns.md:192: - Roadmap row R-128 / FR-027 — `done.json` terminal sentinel.
+HIT docs/swarm/monitoring-patterns.md:199: - `src/superclaude/cli/swarm/reduce.py` — `emit_done_sentinel`
+LINK OK monitoring-patterns.md -> ./README.md
+LINK OK monitoring-patterns.md -> ./user-guide.md
+HIT docs/swarm/observability-procedure.md:5: > (done-sentinel poll / JSONL tail / `status --watch`), see
+HIT docs/swarm/observability-procedure.md:23: A fourth artifact, the terminal **done sentinel** (`done.json`), is published by
+HIT docs/swarm/observability-procedure.md:25: effective `runtime.on_completion.write_done_sentinel` policy enables it (the default).
+HIT docs/swarm/observability-procedure.md:28: `tests/swarm/test_e2e_user_guide.py::test_quickstart_emits_done_sentinel`.
+HIT docs/swarm/observability-procedure.md:32: `terminal_status=killed` marker with an empty contract path.
+HIT docs/swarm/observability-procedure.md:51: | Done sentinel | `done.json` | `DONE_SENTINEL_FILENAME` | Atomic marker (DM-017): `atomic_write: true`, actual result in `terminal_status`, absolute `contract_path`. Published after contract and terminal state by foreground/resume/detached-child completion with effective policy enabled; kill writes `killed` with an empty path. |
+HIT docs/swarm/observability-procedure.md:98: ### Layer 4: `done.json` (terminal sentinel), policy-dependent
+HIT docs/swarm/observability-procedure.md:101: terminal state, then atomically publish `done.json` when the effective
+HIT docs/swarm/observability-procedure.md:102: `runtime.on_completion.write_done_sentinel` policy is enabled (the default).
+HIT docs/swarm/observability-procedure.md:104: The marker has exactly `atomic_write: true`, `terminal_status` matching the actual
+HIT docs/swarm/observability-procedure.md:105: contract result (`success`, `partial` or `failed`), and the absolute `contract_path`.
+HIT docs/swarm/observability-procedure.md:117: retains its separate `terminal_status=killed` marker and empty `contract_path`;
+HIT docs/swarm/observability-procedure.md:136:   `done.json` records the actual terminal result after contract and state persistence.
+HIT docs/swarm/observability-procedure.md:140: - **Killed job:** `done.json` has `terminal_status=killed` and an empty contract path.
+HIT docs/swarm/observability-procedure.md:145:        "$OUT"/execution-log.md "$OUT"/return-contract.yaml "$OUT"/done.json 2>&1
+HIT docs/swarm/observability-procedure.md:149: # Any published marker carries terminal_status; kill uses the separate killed value.
+HIT docs/swarm/observability-procedure.md:150: [ -f "$OUT/done.json" ] && jq -r .terminal_status "$OUT/done.json"
+HIT docs/swarm/observability-procedure.md:157:   Recipe 3 (parse-error). A missing `done.json` alone does not establish a hang;
+HIT docs/swarm/observability-procedure.md:160:   a current marker with `terminal_status != success`) → it finished
+HIT docs/swarm/observability-procedure.md:172: # incomplete reduction can also leave no new done.json.
+HIT docs/swarm/observability-procedure.md:207: `done.json` with `terminal_status=killed`).
+HIT docs/swarm/observability-procedure.md:223: # With marker policy enabled, any run also publishes done.json.terminal_status.
+HIT docs/swarm/observability-procedure.md:224: [ -f "$OUT/done.json" ] && jq -r '.terminal_status' "$OUT/done.json"
+HIT docs/swarm/observability-procedure.md:240: from its published `done.json`; killed markers have no contract path:
+HIT docs/swarm/observability-procedure.md:245: # Any published marker: terminal_status + contract_path (empty for killed).
+HIT docs/swarm/observability-procedure.md:246: [ -f "$OUT/done.json" ] && \
+HIT docs/swarm/observability-procedure.md:247:   jq -r '.terminal_status + " contract=" + .contract_path' "$OUT/done.json"
+HIT docs/swarm/observability-procedure.md:271: | Did a **foreground/resumed/detached-child** job finish with marker policy enabled? | Done sentinel | A new `done.json` with actual result in `terminal_status` and absolute `contract_path` |
+HIT docs/swarm/observability-procedure.md:273: | Was the job killed? | Done sentinel | `done.json` with `terminal_status=killed` and empty `contract_path` |
+HIT docs/swarm/observability-procedure.md:281: sentinel, live-tail the JSONL, or watch the coarse phase — use the three
+HIT docs/swarm/observability-procedure.md:290:   (state file / JSONL log / Markdown log / done sentinel + debugging recipes).
+HIT docs/swarm/observability-procedure.md:294:   wait-on-a-job patterns (done-sentinel poll / JSONL tail / `status --watch`);
+HIT docs/swarm/observability-procedure.md:300:   `DONE_SENTINEL_FILENAME`, `RESULT_CONTRACT_FILENAME` constants; `status_cmd`,
+LINK OK observability-procedure.md -> ./README.md
+LINK OK observability-procedure.md -> ./user-guide.md
+LINK OK observability-procedure.md -> ./monitoring-patterns.md
+LINK OK observability-procedure.md -> ./monitoring-patterns.md
+LINK OK observability-procedure.md -> ./env-readiness.md
+LINK OK observability-procedure.md -> ./monitoring-patterns.md
+LINK OK observability-procedure.md -> ./monitoring-patterns.md
+LINK OK observability-procedure.md -> ./monitoring-patterns.md
+LINK OK observability-procedure.md -> ./env-readiness.md
+HIT docs/swarm/operator-runbook.md:35: - [observability-procedure.md](./observability-procedure.md) — state / log / sentinel artifacts + debugging recipes (OPS-003).
+HIT docs/swarm/operator-runbook.md:221: contract and terminal state are persisted, it publishes `done.json` when the
+HIT docs/swarm/operator-runbook.md:222: effective rehydrated `runtime.on_completion.write_done_sentinel` policy enables it.
+HIT docs/swarm/operator-runbook.md:244: `done.json` with `terminal_status=killed`, so polling consumers (`status`,
+HIT docs/swarm/operator-runbook.md:290: - [observability-procedure.md](./observability-procedure.md) — state file / JSONL log / Markdown log / done sentinel + debugging recipes (OPS-003).
+LINK OK operator-runbook.md -> ./README.md
+LINK OK operator-runbook.md -> ./command-reference.md
+LINK OK operator-runbook.md -> ./runbook.md
+LINK OK operator-runbook.md -> ./runbook.md
+LINK OK operator-runbook.md -> ./command-reference.md
+LINK OK operator-runbook.md -> ./runbook.md#environment-mandate-ac-001
+LINK OK operator-runbook.md -> ./command-reference.md
+LINK OK operator-runbook.md -> ./env-readiness.md
+LINK OK operator-runbook.md -> ./observability-procedure.md
+LINK OK operator-runbook.md -> ./rollback-procedure.md
+LINK OK operator-runbook.md -> ./command-reference.md#swarm-run
+LINK OK operator-runbook.md -> ./command-reference.md#swarm-run
+LINK OK operator-runbook.md -> ./command-reference.md#swarm-run
+LINK OK operator-runbook.md -> ./runbook.md#tmux-is-optional-ac-008
+LINK OK operator-runbook.md -> #attach--re-attach-to-a-detached-job
+LINK OK operator-runbook.md -> #kill--terminate-a-detached-job
+LINK OK operator-runbook.md -> ./env-readiness.md
+LINK OK operator-runbook.md -> ./runbook.md#t2-proxy-env-contract-ac-017
+LINK OK operator-runbook.md -> ./observability-procedure.md
+LINK OK operator-runbook.md -> ./command-reference.md#run-artifacts
+LINK OK operator-runbook.md -> ./command-reference.md#swarm-status
+LINK OK operator-runbook.md -> #watch--poll-until-terminal
+LINK OK operator-runbook.md -> ./observability-procedure.md
+LINK OK operator-runbook.md -> ./command-reference.md#swarm-logs
+LINK OK operator-runbook.md -> ./observability-procedure.md
+LINK OK operator-runbook.md -> ./monitoring-patterns.md
+LINK OK operator-runbook.md -> #logs--dump-or-tail-a-jobs-execution-log
+LINK OK operator-runbook.md -> ./command-reference.md#swarm-status
+LINK OK operator-runbook.md -> ./monitoring-patterns.md
+LINK OK operator-runbook.md -> ./observability-procedure.md
+LINK OK operator-runbook.md -> ./command-reference.md#swarm-run
+LINK OK operator-runbook.md -> ./command-reference.md#run-artifacts
+LINK OK operator-runbook.md -> ./observability-procedure.md
+LINK OK operator-runbook.md -> ./command-reference.md#swarm-kill
+LINK OK operator-runbook.md -> ./runbook.md#tmux-is-optional-ac-008
+LINK OK operator-runbook.md -> ./rollback-procedure.md
+LINK OK operator-runbook.md -> #status--check-a-jobs-wave-phase
+LINK OK operator-runbook.md -> #logs--dump-or-tail-a-jobs-execution-log
+LINK OK operator-runbook.md -> ./command-reference.md#swarm-attach
+LINK OK operator-runbook.md -> ./runbook.md#tmux-is-optional-ac-008
+LINK OK operator-runbook.md -> ./command-reference.md
+LINK OK operator-runbook.md -> ./runbook.md
+LINK OK operator-runbook.md -> ./env-readiness.md
+LINK OK operator-runbook.md -> ./observability-procedure.md
+LINK OK operator-runbook.md -> ./rollback-procedure.md
+LINK OK operator-runbook.md -> ./monitoring-patterns.md
+LINK OK operator-runbook.md -> ./command-reference.md
+CAPTURE: marker fields/status/path match; state=terminal; default foreground file count=13
+CHECK: PASS
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_e2e_user_guide.py tests/swarm/test_tmux_fallback.py -q -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+.............................                                                                                    [100%]
+29 passed in 1.18s
+
+EXIT: 0

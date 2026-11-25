@@ -387,6 +387,9 @@ def test_resume_skips_succeeded_workers_and_redispatches_remaining(
     assert "skipped=1" in result.stdout
     assert "redispatched=2" in result.stdout
     assert JOB_ID in result.stdout
+    assert (
+        json.loads((out_dir / "done.json").read_text())["terminal_status"] == "success"
+    )
 
 
 def test_resume_all_workers_succeeded_skips_redispatch(
@@ -422,6 +425,9 @@ def test_resume_all_workers_succeeded_skips_redispatch(
     assert dispatch_calls == []
     assert "skipped=3" in result.stdout
     assert "redispatched=0" in result.stdout
+    assert (
+        json.loads((out_dir / "done.json").read_text())["terminal_status"] == "success"
+    )
 
 
 def test_resume_regenerates_merged_md(
@@ -590,3 +596,134 @@ def test_discovery_does_not_guess_unrelated_numeric_segment(tmp_path):
         filename_template="{model_slug}-{lens}-slot-{index:02d}.md",
     )
     assert set(succeeded) == {0}
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+@pytest.mark.parametrize("successes", [0, 2, 3])
+@pytest.mark.parametrize("skip_all", [False, True])
+def test_resume_completion_policy_status_and_order(
+    tmp_path, monkeypatch, enabled, successes, skip_all
+):
+    """Independent manifests prevent a fresh-run marker from masking missing resume wiring."""
+    import yaml
+
+    import superclaude.cli.swarm.commands as commands
+    import superclaude.cli.swarm.dispatch as dispatch
+    import superclaude.cli.swarm.normalize as normalize
+    import superclaude.cli.swarm.preflight as preflight
+    import superclaude.cli.swarm.reduce as reducer
+
+    out = tmp_path / "out"
+    _write_manifest(out, workers_requested=3)
+    saved = []
+    if skip_all:
+        for index in range(3):
+            meta, final = _write_succeeded_sidecar(out, slot_index=index)
+            saved.extend([(meta, meta.read_bytes()), (final, final.read_bytes())])
+    assert not (out / "done.json").exists()
+    real_rehydrate = preflight.resume_mode
+
+    def rehydrate(*a, **kw):
+        spec = real_rehydrate(*a, **kw)
+        spec.runtime.on_completion.write_done_sentinel = enabled
+        return spec
+
+    monkeypatch.setattr(preflight, "resume_mode", rehydrate)
+    calls = []
+
+    def workers(pf, **kwargs):
+        calls.append(pf.manifest.preflight.workers_requested)
+        return [
+            WorkerResult(index=i, status="success" if i < successes else "timeout")
+            for i in range(3)
+        ]
+
+    monkeypatch.setattr(dispatch, "dispatch_wave1", workers)
+    monkeypatch.setattr(normalize, "normalize_wave2", lambda workers, **kwargs: workers)
+    events = []
+    real_state, real_marker = commands._write_swarm_state, reducer.emit_done_sentinel
+
+    def state(root, value, job_id):
+        assert (out / "return-contract.yaml").is_file()
+        assert not (out / "done.json").exists()
+        events.append("terminal")
+        return real_state(root, value, job_id)
+
+    def marker(status, contract_path):
+        assert (
+            json.loads((out / ".swarm-state.json").read_text())["state"] == "terminal"
+        )
+        assert yaml.safe_load(Path(contract_path).read_text())["status"] == status
+        events.append("marker")
+        return real_marker(status, contract_path)
+
+    monkeypatch.setattr(commands, "_write_swarm_state", state)
+    monkeypatch.setattr(reducer, "emit_done_sentinel", marker)
+    result = CliRunner().invoke(run_cmd, ["--resume", JOB_ID, "--output", str(out)])
+    assert result.exit_code == EXIT_OK, result.output
+    assert calls == ([] if skip_all else [3])
+    assert events == (["terminal", "marker"] if enabled else ["terminal"])
+    expected = (
+        "success"
+        if skip_all or successes == 3
+        else "partial"
+        if successes == 2
+        else "failed"
+    )
+    assert (
+        yaml.safe_load((out / "return-contract.yaml").read_text())["status"] == expected
+    )
+    assert (out / "done.json").exists() is enabled
+    if enabled:
+        assert json.loads((out / "done.json").read_text()) == {
+            "atomic_write": True,
+            "terminal_status": expected,
+            "contract_path": str((out / "return-contract.yaml").resolve()),
+        }
+    assert (
+        len(
+            {
+                w["index"]
+                for w in yaml.safe_load((out / "return-contract.yaml").read_text())[
+                    "output_files"
+                ]
+            }
+        )
+        == 3
+    )
+    for path, original in saved:
+        assert path.read_bytes() == original
+
+
+@pytest.mark.parametrize(
+    "failure", ["reduce", "contract", "terminal", "missing", "malformed", "mismatch"]
+)
+def test_resume_no_marker_on_error(tmp_path, monkeypatch, failure):
+    import superclaude.cli.swarm.commands as commands
+    import superclaude.cli.swarm.reduce as reducer
+
+    out = tmp_path / "out"
+    manifest = _write_manifest(out, workers_requested=3)
+    for i in range(3):
+        _write_succeeded_sidecar(out, slot_index=i)
+
+    def fail(*a, **kw):
+        raise OSError("injected resume persistence failure")
+
+    if failure == "reduce":
+        monkeypatch.setattr(reducer, "reduce_wave3", fail)
+    elif failure == "contract":
+        monkeypatch.setattr(reducer, "emit_contract", fail)
+    elif failure == "terminal":
+        monkeypatch.setattr(commands, "_write_swarm_state", fail)
+    elif failure == "missing":
+        manifest.unlink()
+    elif failure == "malformed":
+        manifest.write_text("not JSON")
+    else:
+        data = json.loads(manifest.read_text())
+        data["job_id"] = "different-job"
+        manifest.write_text(json.dumps(data))
+    result = CliRunner().invoke(run_cmd, ["--resume", JOB_ID, "--output", str(out)])
+    assert result.exit_code != EXIT_OK
+    assert not (out / "done.json").exists()

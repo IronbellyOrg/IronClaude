@@ -1,0 +1,14 @@
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:adversarial --compare /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/position-OURS.md,/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/position-CLAY.md --depth quick --unattended --output /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/adversarial/"
+report_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/adversarial/merged-output.md"
+artifacts:
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/adversarial/adversarial/return-contract.yaml"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/adversarial/adversarial/diff-analysis.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/adversarial/adversarial/debate-transcript.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/adversarial/adversarial/base-selection.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/adversarial/adversarial/refactor-plan.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/adversarial/adversarial/merge-log.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/adversarial/adversarial/variant-1-original.md"
+  - "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/adversarial/adversarial/variant-2-original.md"
+reason: "partial: the debate ended at 71.4% convergence (threshold 80%) at depth quick; the merge and its validation passed"

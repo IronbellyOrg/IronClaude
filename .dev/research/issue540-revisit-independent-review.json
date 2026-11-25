@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "checks": [
+    {
+      "check": "Relative Markdown links in both new navigation guides",
+      "result": "PASS",
+      "investigation_guide_links": 74,
+      "completed_fix_guide_links": 22,
+      "total_links_resolved": 96,
+      "invalid_links": 0,
+      "method": "Independently extracted Markdown destinations from each live README; resolved each from its own parent directory; required a relative destination, an existing file and a target inside the checkout."
+    },
+    {
+      "check": "Original investigation inventory completeness",
+      "result": "PASS",
+      "receipt_files": 61,
+      "guide_inventory_files": 61,
+      "missing": 0,
+      "extra": 0,
+      "duplicates": 0,
+      "method": "Compared only the README inventory section against every key in the original transfer-receipt.json files map."
+    },
+    {
+      "check": "Original evidence byte preservation",
+      "result": "PASS",
+      "files_hashed": 61,
+      "missing_files": 0,
+      "sha256_mismatches": 0,
+      "method": "Calculated SHA-256 directly from each current original evidence file and compared against the transfer receipt, not the parent's PASS result."
+    },
+    {
+      "check": "Prior link-check log agrees with independent checks",
+      "result": "PASS",
+      "link_records_compared": 96,
+      "all_link_records_identical": true,
+      "original_file_counts_agree": true
+    },
+    {
+      "check": "Portable index current targets and package coverage",
+      "result": "PASS",
+      "indexed_files": 198,
+      "original_investigation_entries": 63,
+      "completed_fix_entries": 135,
+      "missing_or_invalid_targets": 0,
+      "duplicate_current_paths": 0,
+      "entry_points_resolved": 2,
+      "unindexed_non_cache_package_files": 0,
+      "unindexed_uv_cache_files": 30,
+      "parent_index_count_agrees": true,
+      "method": "Resolved every current_path beneath this checkout, compared the two package directory inventories with indexed paths, and checked both entry points. The investigation count includes its added README and transfer receipt in addition to the 61 original files."
+    },
+    {
+      "check": "Historical aliases resolve to the indexed current locations",
+      "result": "PASS",
+      "alias_rules": 3,
+      "aliases_checked": 331,
+      "completed_fix_to_archived_done_aliases": 270,
+      "mapping_mismatches": 0,
+      "archived_done_package_exists": true,
+      "old_to_do_package_exists": false,
+      "method": "Applied the longest matching declared prefix rule independently to every historical_aliases value and compared the result with that row's current_path. Both relative and absolute old to-do aliases map to the same archived done path."
+    },
+    {
+      "check": "Portable index original hash claims match the receipt",
+      "result": "PASS",
+      "receipt_rows": 61,
+      "indexed_hash_rows": 61,
+      "mismatches_or_unexpected_rows": 0,
+      "method": "Compared each original_sha256 and original_bytes_preserved flag with the transfer receipt and the independently verified original files."
+    },
+    {
+      "check": "Unavailable raw outputs are explicitly unavailable, not recovered",
+      "result": "PASS",
+      "original_contract_raw_paths": 3,
+      "matching_unavailable_index_entries": 3,
+      "raw_files_absent_at_original_and_transferred_paths": 3,
+      "raw_files_not_in_transfer_receipt": 3,
+      "null_current_targets": 3,
+      "preserved_normalized_outputs_resolved": 3,
+      "method": "Read the original foreground return contract and matched all raw_path values with unavailable_historical_outputs. Each status is unavailable-not-transferred and each current_path is null. The investigation guide explicitly says the linked final.md files are normalized outputs, not raw substitutes."
+    },
+    {
+      "check": "Pre-fix missing completion markers stay absent",
+      "result": "PASS",
+      "expected_absences_checked": 2,
+      "absent_and_not_indexed_as_current_files": 2,
+      "method": "Checked artifacts/foreground/done.json and artifacts/resume/done.json in the original investigation package. Both are absent, and the guide explicitly identifies their absence as negative evidence."
+    }
+  ],
+  "findings": [],
+  "limitations": [
+    "This is a navigation and evidence-integrity audit only. It does not re-review the diagnosis, implementation, runtime results, authorization history, source citations or later formatting claims.",
+    "Checks describe the live checkout at review time. No network access, code execution from archived packages, Git mutation, source edits or original-evidence edits were performed.",
+    "The three raw outputs cannot be recovered from these checked paths. Their absence at both recorded and transferred locations was verified, but no broader recovery search was requested or performed.",
+    "The directory inventory additionally found 30 files under captured home/.cache/uv directories. Those runtime cache files are not indexed as evidence; all other package files are indexed.",
+    "Installed home-directory resources and rescued release documents are declared external context by the guides and index. Their portability and contents were not re-audited."
+  ]
+}

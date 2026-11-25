@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/adversarial/merged-output.md"
+  convergence_score: 0.714
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q03/adversarial/adversarial/"
+  status: "partial"
+  base_variant: "Variant 1 (OURS, original position paper)"
+  unresolved_conflicts: 6
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    - "depth quick: one debate round; Round 2 and the Round 2.5 invariant probe were skipped by design, so no invariant-probe.md exists"
+    - "partial because convergence 71.4% is below the 80% threshold; unresolved points: S-002, C-002, C-005, C-007, X-003, A-004"
+    - "post-merge validation PASS (13 internal references resolved, 0 broken, 0 new contradictions)"

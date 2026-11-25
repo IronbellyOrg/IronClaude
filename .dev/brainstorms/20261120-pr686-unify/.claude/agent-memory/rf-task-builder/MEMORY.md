@@ -1,0 +1,1 @@
+- [Tech-reference gate pattern](techref-gate-pattern.md) — fixed per-gate item list with SKIPPED stubs, halt guards, dynamic gap-fill markers

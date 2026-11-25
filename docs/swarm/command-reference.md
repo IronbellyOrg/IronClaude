@@ -250,8 +250,8 @@ missing, nested tmux, illegal `JOB_ID`, or `--output` not a directory).
 ## Run artifacts
 
 After a successful **fresh** `swarm run … --output <DIR>` (stub or proxy), `<DIR>`
-contains the four observability files, the per-worker outputs, `merged.md` and
-`return-contract.yaml`:
+contains the four observability files, the per-worker outputs, `merged.md`,
+`return-contract.yaml` and, with the default completion policy, `done.json`:
 
 | File | Format | Key fields |
 |---|---|---|
@@ -263,14 +263,25 @@ contains the four observability files, the per-worker outputs, `merged.md` and
 | `<lens>-NN-<model>.meta.json` | JSON | Per-worker sidecar; `--resume` skips workers whose sidecar reports `status=success`. |
 | `merged.md` | Markdown | Wave 3 merge of the worker outputs; written when `amalgamation_mode` is `normalize+merge` (the default for every bundled lens). |
 | `return-contract.yaml` | YAML | `status` (`success`/`partial`/`failed`), `job_id`, `lens`, `workers_requested` / `workers_succeeded` / `workers_failed`, `output_files` (per-worker paths), recommended next command. |
+| `done.json` | JSON | Exactly `atomic_write` (`true`), `terminal_status` (the actual contract's `success` / `partial` / `failed` result), and `contract_path` (absolute persisted contract path). Completion does not guarantee all workers succeeded. |
 
-**Not** emitted by a run: `done.json`. Only [`swarm kill JOB_ID --output DIR`](#swarm-kill)
-writes it (with `terminal_status=killed`). Preflight also writes `return-contract.yaml`
-(`status: failed`, `reason: env-missing`) on the INV-007 env-missing path.
+**Completion ordering and policy.** Foreground runs persist the contract, then terminal
+state, then atomically publish `done.json`. Detached launchers only start the child;
+the child owns those writes. `runtime.on_completion.write_done_sentinel` defaults to
+`true`; explicit `false` suppresses only the completion marker. Early errors, absent
+completed reduction, and failed contract or terminal-state persistence do not produce
+a new marker. Use a fresh per-job output directory to avoid reading an old marker.
+[`swarm kill JOB_ID --output DIR`](#swarm-kill) retains its separate
+`terminal_status=killed` marker with an empty `contract_path`. Preflight also writes
+`return-contract.yaml` (`status: failed`, `reason: env-missing`) on the INV-007
+env-missing path; a failure contract alone is not a completion marker.
 
 **`--resume`** re-dispatches only the workers that did not succeed, re-runs Wave 2
 normalize on them and Wave 3 reduce (`reduce_wave3(resume=True)`), regenerating
-`merged.md` and `return-contract.yaml`.
+`merged.md` and `return-contract.yaml`, then persists terminal state and publishes
+`done.json` when the effective rehydrated policy enables it. Arbitrary original
+runtime overrides are not fully restored from the manifest; do not assume an
+original completion opt-out survives resume.
 
 Full schemas: [Lens Catalog](lens-catalog.md) and the dataclass definitions in
 `cli/swarm/models.py`.

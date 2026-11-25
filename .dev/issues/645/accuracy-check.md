@@ -1,0 +1,29 @@
+## Accuracy check for #645
+
+**Verdict:** current
+
+Checked against `origin/master` at `3f3b34a26280fd3fd64649f5d010f874b1905b65`, and the pull requests merged since the issue was opened (3, list truncated: no). The fresh scout records an origin fetch; this check independently resolved the ref and inspected its tree. PRs #646 and #649 were reviewed separately through GitHub rather than assumed to be included in that ref.
+
+| # | Claim in the issue (quoted) | Status today (still true / changed / gone) | Evidence (path:line, PR #number or commit) |
+|---|---|---|---|
+| 1 | "Disposable target for the #442 live observations (T4)." | still true — stated purpose | Issue #442 is open and requests real-session launch-level guard observations using disposable work. #645 defines this T4 target; it does not claim an observation has passed. T4 live-session results are Not known yet. |
+| 2 | "ob-442/T4.txt" | still true — proposed new path | A recursive tree check of `origin/master` at the commit above returns no entries for the target directory. A local Glob likewise finds no files under `/home/coder/workspaces/IronClaude/ob-442/`. The file is requested as new, so absence supports rather than invalidates the request. |
+| 3 | "The only change wanted: create the file ob-442/T4.txt holding the single line ob-442 T4." | still true — unfulfilled requirement | `/home/coder/workspaces/IronClaude/ob-442/T4.txt` is absent from the checked tree. None of #640, #646 or #649 changes that path. The required single line remains exactly `ob-442 T4`. |
+| 4 | "Touch nothing else. Close without merging anything." | still true — explicit constraints | These are scope and completion instructions, not code behavior. No reviewed PR supersedes them. This check neither creates the target nor closes or merges anything. |
+| 5 | "The observation run's governed sessions (T4)" | still true — stated audience | #442 supplies the governed-session observation context, while #645 identifies the particular T4 target. Creating a disposable target is not evidence that the launch guard's live gates have passed. |
+| 6 | Earlier claim comment: "The file is absent from origin/master today."; "Effort estimate: 0.25 hours"; "Complexity: simple"; "Type: feature" | still true | The tree and local checks confirm absence. One new one-line fixture is a feature in one area; 0.25 hours is within the simple rubric's maximum of 4 hours. The comment repeats the same one-file and no-merge constraints. |
+| 7 | Earlier accuracy comment: "2, list truncated: no" and "Both scout-listed PRs were checked" | changed — historical check now refreshed | The fresh scout includes the additional merged PR #649, making three. Its full 27-file list contains only release documentation and installation-run evidence, with no target overlap. This changes the check's coverage, not the issue's requirements. |
+| 8 | Earlier accuracy comment: "There were no comments on #645 in the retrieved issue data." | changed — historical snapshot | The current issue response contains the earlier accuracy-check and claim comments. Both were reviewed here; neither reports target completion. This administrative change does not make the implementation request out of date. |
+| 9 | Earlier accuracy comment: release guard changes remove retired command names, and the issue-chain change adjusts a brainstorm handoff note | still true | The full first-parent #640 merge diff confirms the changes in the guard, its plugin mirror, the related guard tests and issue-chain reference. They do not create the target or change its required contents. |
+
+### Merged pull requests that touch this issue
+
+All three scout-listed PRs and their changed-file lists were checked for relevance. None fulfills or invalidates the one-file request. For #640, GitHub returns only the first 100 files; the complete local first-parent merge diff was checked instead (1,146 paths), including an explicit target-path diff with no matches.
+
+| PR | Title | Relevant files | Effect on the issue |
+|---|---|---|---|
+| #649 | docs: post-release sync and install runs for 6.0.0 | No target overlap. All 27 changed files are release/readme documentation, developer/getting-started/reference/user guides, and installation-run evidence under `/home/coder/workspaces/IronClaude/docs/testing/v6.0.0/`. | No target creation or changed acceptance criteria. Merge commit reported by GitHub: `bc3d796aa89c33d1f9e4766ea9fd18417ab0a61e`. Installation-run evidence is not evidence of the T4 launch-level observation. |
+| #646 | fix(install): stop filecmp from returning a stale "identical" answer | No target overlap. Complete list: `/home/coder/workspaces/IronClaude/src/superclaude/cli/install_core.py`, `/home/coder/workspaces/IronClaude/src/superclaude/cli/install_keep.py`, `/home/coder/workspaces/IronClaude/tests/cli/test_install_keep.py`. | Installer work does not create the disposable target. Merge commit reported by GitHub: `ffb37863054a02adc6ef7172623c6d28bc7d52f8`. |
+| #640 | release: 6.0.0 (removals, retire step, eight fixes) | Indirect context only: `/home/coder/workspaces/IronClaude/src/superclaude/hooks/scripts/launch-level-guard.sh`, `/home/coder/workspaces/IronClaude/plugins/superclaude/hooks/scripts/launch-level-guard.sh`, `/home/coder/workspaces/IronClaude/tests/hooks/test_launch_level_guard.py`, `/home/coder/workspaces/IronClaude/src/superclaude/skills/sc-issue-protocol/refs/chains.md`. Remaining changed paths concern release artifacts, removed commands/systems, documentation and tests; no target path occurs. | Guard classification/messages and tests drop retired commands; the chain note changes its brainstorm handoff wording. Neither affects this plain-text target or the no-merge constraint. Merge commit: `3f3b34a26280fd3fd64649f5d010f874b1905b65`. |
+
+<!-- sc:issue:accuracy-check -->

@@ -1,0 +1,8 @@
+started 2026-11-17T19:07:38Z LANG=C.UTF-8 LC_ALL=unset load=9.76 19.38 16.42
+plain run1 23.586 s
+LC_ALL=C run1 16.657 s
+plain run2 24.663 s
+LC_ALL=C run2 16.244 s
+plain run3 22.471 s
+LC_ALL=C run3 16.597 s
+finished 2026-11-17T19:09:38Z load=4.19 13.98 14.79

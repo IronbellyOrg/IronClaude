@@ -1,0 +1,17 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG3/adversarial/merged-output.md"
+  convergence_score: 0.684
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG3/adversarial/adversarial/"
+  status: "partial"
+  base_variant: "Variant 1 (OURS, position-OURS.md)"
+  unresolved_conflicts: 6
+  unresolved_point_ids: [S-003, C-003, C-004, C-005, X-001, A-003]
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    - "Partial because depth quick ran one round and convergence was 13 of 19 points (68.4 percent) against the 80 percent threshold."
+    - "Change 5 of the refactor plan was applied in part: fact 10 added, the fact 6 sentence fix skipped because the plan gave no replacement text."
+    - "Round 2, Round 2.5 (invariant probe) and Round 3 were skipped by --depth quick; the invariant probe gate was not applied."
+    - "Both position-bias scoring passes were run by the orchestrator in opposite order, not by independent agents."

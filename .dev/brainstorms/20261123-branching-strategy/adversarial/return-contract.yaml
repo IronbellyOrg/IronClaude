@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/20261123-branching-strategy/UNIFIED-BRANCHING-PROPOSAL.md"
+  convergence_score: 0.879   # 51 of 58 diff points agreed; 85.4% without the 10 no-contest points; 70.7% if no-contest counted as disagreement
+  artifacts_dir: ".dev/brainstorms/20261123-branching-strategy/adversarial/"
+  status: "partial"          # completed all 5 steps with warnings: invariant gate and 7 unresolved points
+  base_variant: "variant-1 release line with story branches (combined 0.9351; margin 0.0149 over variant 3, tiebreak by debate points 27 to 9)"
+  unresolved_conflicts: 7    # C-005, X-004, C-017, A-008, A-011, A-013, A-015 (defaults given in the proposal, owner decisions 4 and 7)
+  fallback_mode: true        # debate run by the coordinator session with agent advocates; the debate-orchestrator agent was not used
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: "INV-017"
+      category: "collection_boundaries"
+      assumption: "A very large release PR can still be read, graded and fixed by the tools in the loop (gh pr diff fails above 300 files; gh pr view --json files returns 100)"
+      severity: "HIGH"
+      status: "addressed by design (UNIFIED-BRANCHING-PROPOSAL section 8, size budget 250 files, story cap 6, records PR); NOT verified; trials T4 and T7 settle it. Recorded as accepted with mitigation."

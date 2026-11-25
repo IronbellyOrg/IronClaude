@@ -1,0 +1,14 @@
+diff --git a/.dev/troubleshoot/diagnosability-rounds.json b/.dev/troubleshoot/diagnosability-rounds.json
+index 29858a02a..74ac6ebca 100644
+--- a/.dev/troubleshoot/diagnosability-rounds.json
++++ b/.dev/troubleshoot/diagnosability-rounds.json
+@@ -1,5 +1,9 @@
+ {
+   "ironbelly/fix-flaky-parallel-thread-test": {
+     "orca-orchestrator-spawn-session-surface": 1
++  },
++  "swill-ib/bug-swarm-refactor-find-recommends-unavailable-s": {
++    "swarm-custom-prompt-help": 1,
++    "swarm-detached-output-delivery": 1
+   }
+ }

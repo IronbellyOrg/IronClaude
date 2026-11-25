@@ -1,0 +1,29 @@
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python ruff check tests/swarm/test_tmux_detached.py
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+All checks passed!
+
+EXIT: 0
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_tmux_detached.py tests/swarm/test_tmux_fallback.py tests/swarm/test_kill_cmd.py tests/swarm/test_done_sentinel.py tests/swarm/test_three_layer_artifacts.py tests/swarm/test_imm6_atomic_write.py tests/cli/reflect/test_ensemble_unit.py tests/cli/reflect/test_ensemble_stub_integration.py -q -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+...........ss.......FF.......................................................................................... [ 91%]
+...........                                                                                                      [100%]
+======================================================= FAILURES =======================================================
+_____________________________ test_detached_parent_defers_completion_to_actual_child[True] _____________________________
+tests/swarm/test_tmux_detached.py:317: in test_detached_parent_defers_completion_to_actual_child
+    assert (out / "done.json").exists() is enabled
+E   AssertionError: assert False is True
+E    +  where False = exists()
+E    +    where exists = (PosixPath('/tmp/pytest-of-coder/pytest-19/test_detached_parent_defers_co1/out') / 'done.json').exists
+__________________________________ test_detached_live_cli_child_publishes_completion ___________________________________
+tests/swarm/test_tmux_detached.py:375: in test_detached_live_cli_child_publishes_completion
+    assert (out / "done.json").is_file(), (
+E   AssertionError: child ended without completion: ['.swarm-detached-spec.json']
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = (PosixPath('/tmp/pytest-of-coder/pytest-19/test_detached_live_cli_child_p0/out') / 'done.json').is_file
+=============================================== short test summary info ================================================
+FAILED tests/swarm/test_tmux_detached.py::test_detached_parent_defers_completion_to_actual_child[True] - AssertionErr...
+FAILED tests/swarm/test_tmux_detached.py::test_detached_live_cli_child_publishes_completion - AssertionError: child e...
+2 failed, 119 passed, 2 skipped in 5.03s
+
+EXIT: 1

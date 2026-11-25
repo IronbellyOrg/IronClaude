@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/QG1/adversarial/merged-qg1-position.md"
+  convergence_score: 0.9375
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/QG1/adversarial/adversarial/"
+  status: "success"
+  base_variant: "variant-1 (OURS, original)"
+  unresolved_conflicts: 1  # X-002 (advocates split: Variant 1 against Hybrid); both reach the same practical result
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []  # Round 2.5 (invariant probe) skipped at --depth quick

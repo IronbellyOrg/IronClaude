@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG1/adversarial/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/OAG1/adversarial/adversarial/"
+  status: "success"
+  base_variant: "OURS (variant-1-original.md)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    depth: "quick (Round 1 plus one forced round for taxonomy level L1; Round 2, invariant probe and Round 3 skipped by depth)"
+    convergence_caveat: "advocates held the owner's weighting rule and conceded heavily; independent evaluator source checks found 3 errors in the OURS paper and 1 in the CLAY paper"
+    process_gap: "two follow-up messages to the Round 1 advocates were never answered; two fresh agents answered the forced round"
+    combined_scores: "OURS 0.886, CLAY 0.855; margin 3.1 percent; tiebreaker level 1 (debate performance) selected OURS"

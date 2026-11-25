@@ -1,0 +1,63 @@
+{
+  "command": [
+    "uv",
+    "run",
+    "--no-project",
+    "--python",
+    "/opt/uv/tools/superclaude/bin/python",
+    "superclaude",
+    "swarm",
+    "run",
+    "--resume",
+    "lens-bare-review-ec124405",
+    "--transport",
+    "stub",
+    "--output",
+    "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli"
+  ],
+  "stdout": "swarm run --resume: job_id=lens-bare-review-ec124405 workers=3 skipped=3 redispatched=0\n",
+  "stderr": "",
+  "exit_code": 0,
+  "seed": {
+    "command": [
+      "uv",
+      "run",
+      "--no-project",
+      "--python",
+      "/opt/uv/tools/superclaude/bin/python",
+      "superclaude",
+      "swarm",
+      "run",
+      "--lens",
+      "bare-review",
+      "--target",
+      "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli-home/target.txt",
+      "--transport",
+      "stub",
+      "--output",
+      "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli"
+    ],
+    "stdout": "swarm run: dispatched job (mode=lens, workers=3, results=3)\n",
+    "stderr": "",
+    "exit_code": 0,
+    "removed_prior_marker": {
+      "atomic_write": true,
+      "contract_path": "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/return-contract.yaml",
+      "terminal_status": "success"
+    }
+  },
+  "state": {
+    "job_id": "lens-bare-review-ec124405",
+    "state": "terminal",
+    "updated": "2026-11-23T20:25:40Z"
+  },
+  "contract_status": "success",
+  "marker": {
+    "atomic_write": true,
+    "contract_path": "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635/artifacts/resume-cli/return-contract.yaml",
+    "terminal_status": "success"
+  },
+  "imported_commands": "/home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src/superclaude/cli/swarm/commands.py",
+  "artifact_count": 13,
+  "check": "PASS"
+}

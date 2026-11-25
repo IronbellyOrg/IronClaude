@@ -1,0 +1,6 @@
+Acceptance oracle on captured real foreground CLI output, source revision db57e231863078dbbb8e4e5fb37a61371c89806c.
+Command: uv run --no-sync python -I -c 'from pathlib import Path; p=Path(".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/artifacts/foreground/done.json"); assert p.is_file(), "completion marker missing after real foreground CLI success"'
+Observed exit: 1
+Observed stderr final line:
+AssertionError: completion marker missing after real foreground CLI success
+This is expected negative evidence of the bug. It is not a passing regression suite or a repaired-run witness.

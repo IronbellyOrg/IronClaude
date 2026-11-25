@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D14/adversarial/merged-output.md"
+  convergence_score: 1.0   # 21 of 21 diff-point positions agreed after round 2; gate blocked by invariants
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D14/adversarial/adversarial/"
+  status: "partial"   # standard depth has no round 3; 4 HIGH invariants were turned into conditions in the merged output, not debated further
+  base_variant: "variant-1-original (OURS position paper)"
+  unresolved_conflicts: 0   # diff points; five owner calls remain open and are listed in merged-output.md section 11
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: "INV-006", category: "guard_conditions", assumption: "No merge on red CI and an owner go gate each step, while master is unprotected", severity: "HIGH"}
+    - {id: "INV-018", category: "interaction_effects", assumption: "superclaude install after the revert only refreshes guard and contract (it also runs the PR 633 retire step)", severity: "HIGH"}
+    - {id: "INV-026", category: "sufficiency_challenge", assumption: "Revert plus adapt in place plus two lanes alone stops contested rules landing (PRs 686 and 690 are open, non-draft, green)", severity: "HIGH"}
+    - {id: "INV-027", category: "sufficiency_challenge", assumption: "A contested stamp keeps the design doc from steering builders", severity: "HIGH"}

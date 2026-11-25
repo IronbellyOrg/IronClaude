@@ -1,0 +1,56 @@
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_resume_crash_recovery.py -k 'resume_completion or resume_no_marker' -q -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+.F.F.F.F.F.F......                                                                                               [100%]
+======================================================= FAILURES =======================================================
+_____________________________ test_resume_completion_policy_status_and_order[False-0-True] _____________________________
+tests/swarm/test_resume_crash_recovery.py:593: in test_resume_completion_policy_status_and_order
+    assert events == (["terminal", "marker"] if enabled else ["terminal"])
+E   AssertionError: assert ['terminal'] == ['terminal', 'marker']
+E     
+E     Right contains one more item: 'marker'
+E     Use -v to get more diff
+_____________________________ test_resume_completion_policy_status_and_order[False-2-True] _____________________________
+tests/swarm/test_resume_crash_recovery.py:593: in test_resume_completion_policy_status_and_order
+    assert events == (["terminal", "marker"] if enabled else ["terminal"])
+E   AssertionError: assert ['terminal'] == ['terminal', 'marker']
+E     
+E     Right contains one more item: 'marker'
+E     Use -v to get more diff
+_____________________________ test_resume_completion_policy_status_and_order[False-3-True] _____________________________
+tests/swarm/test_resume_crash_recovery.py:593: in test_resume_completion_policy_status_and_order
+    assert events == (["terminal", "marker"] if enabled else ["terminal"])
+E   AssertionError: assert ['terminal'] == ['terminal', 'marker']
+E     
+E     Right contains one more item: 'marker'
+E     Use -v to get more diff
+_____________________________ test_resume_completion_policy_status_and_order[True-0-True] ______________________________
+tests/swarm/test_resume_crash_recovery.py:593: in test_resume_completion_policy_status_and_order
+    assert events == (["terminal", "marker"] if enabled else ["terminal"])
+E   AssertionError: assert ['terminal'] == ['terminal', 'marker']
+E     
+E     Right contains one more item: 'marker'
+E     Use -v to get more diff
+_____________________________ test_resume_completion_policy_status_and_order[True-2-True] ______________________________
+tests/swarm/test_resume_crash_recovery.py:593: in test_resume_completion_policy_status_and_order
+    assert events == (["terminal", "marker"] if enabled else ["terminal"])
+E   AssertionError: assert ['terminal'] == ['terminal', 'marker']
+E     
+E     Right contains one more item: 'marker'
+E     Use -v to get more diff
+_____________________________ test_resume_completion_policy_status_and_order[True-3-True] ______________________________
+tests/swarm/test_resume_crash_recovery.py:593: in test_resume_completion_policy_status_and_order
+    assert events == (["terminal", "marker"] if enabled else ["terminal"])
+E   AssertionError: assert ['terminal'] == ['terminal', 'marker']
+E     
+E     Right contains one more item: 'marker'
+E     Use -v to get more diff
+=============================================== short test summary info ================================================
+FAILED tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[False-0-True] - Asse...
+FAILED tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[False-2-True] - Asse...
+FAILED tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[False-3-True] - Asse...
+FAILED tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[True-0-True] - Asser...
+FAILED tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[True-2-True] - Asser...
+FAILED tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[True-3-True] - Asser...
+6 failed, 12 passed, 17 deselected in 1.02s
+
+EXIT: 1

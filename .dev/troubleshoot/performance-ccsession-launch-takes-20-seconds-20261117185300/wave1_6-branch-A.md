@@ -1,0 +1,17 @@
+# Wave 1.6 Branch A (log-call inspection), persisted by the parent on receipt
+
+Returned by troubleshoot-analyst; condensed by the parent. I = /home/coder/.claude/skills/ccsession-tag/ccsession (2072 lines = origin/master 10f6ec670). Worker read ccsession lines 1370-1739 and 1866-1900 plus a whole-file grep; ccsession-orca lines 192-218; session-start.sh 15-48; session-name.sh by grep only. All `has_timing` fields are false.
+
+error_reporter_sdk: none.
+
+Emitters on the failing component (all are user-visible output, none is diagnostics or timing):
+
+- I:1582 list_heading then heading to stdout (not in worktree mode); I:1603 "(transcript missing)" row; I:1613 "(times unavailable)" row; I:1626 normal row (started/last/duration/id8); I:1651 "N more session(s) in other worktrees" (the only per-run count); I:1656-1661 empty-list text.
+- I:1676 retention_warning (stderr, days in force only); I:1723, 1728, 1730 show_saved title, rows, hint on stderr.
+- I:1732 `show_saved worktree` runs list_sessions inside `$(...)` (the worker also cites the capture at I:1718 for the `show_saved` body): stdout is captured whole, so nothing is shown until the whole listing is done: the user sees a silent pause for the full listing time before the first row.
+- Dispatch sites I:1881 (`--list`), I:1887 (`--here`), I:1897 (`--ask`): no timing wrapper. ccsession-orca:204 `answer=$("$CCSESSION" --ask "$hint") || rc=$?`: no time measured around it; ccsession-orca:208 comment: exit 1 is the timed-out / not-asked case, silently auto-named, so a listing that overruns is indistinguishable from not being asked; ccsession-orca:211 prints a failure line only for an unexpected status.
+- I:1873 CCSESSION_MODELS_VERBOSE (model refresh only), I:1931 launch-time refresh `|| true`; models.py:912 and retention.py:254 status prints, no timing.
+
+Exception handlers (all silence errors): session_home I:1396 (`2>/dev/null`), session_branch I:1405, load_worktrees I:1420, session_place I:1436 / 1449 / 1457 / 1458, session_transcript I:1482 (`2>/dev/null | head -n 1 || true`), get_btime I:1499 / 1504, get_mtime I:1521 / 1524, format_epoch I:1535 (`date -r ... 2>/dev/null || date -d ...`: on Linux the first form fails for every call and the second form is then run, so each row pays two date processes per timestamp; the parent's count is consistent: 1756 `date` processes = 2 attempts x 2 timestamps x 439 rows), retention_warning I:1675, ask INT trap I:1693; hooks drop all output (session-start.sh:45, session-name.sh:202-212) and do not call the listing path.
+
+Worker note (condensed): there is no built-in way to see where listing time goes (no CCSESSION_DEBUG, no verbose/timing/profile switch, no `set -x`/PS4/BASH_XTRACEFD, no EPOCHREALTIME, SECONDS or `time`, no logger; the only "time" uses are the ask timeout I:1736, a lock-wait monotonic at I:449-456 and the fetchedAt stamp at I:1162). The 27 s and per-function split came only from the parent's external `bash -x` trace. Proposed (not run) instrumentation: EPOCHREALTIME deltas around session_home, session_place, session_transcript, get_btime, get_mtime and format_epoch in list_sessions, summed per phase and printed once to stderr behind a new env var (for example CCSESSION_TIMING=1), plus counts (topic files, transcripts found at the first path I:1595, fallback globs I:1599, session_home calls). Worker gaps: ccsession-orca read only at 192-218; `ccsession:449-456` and `:1162` come from grep.

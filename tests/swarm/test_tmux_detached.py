@@ -253,3 +253,146 @@ def test_detached_session_survives_caller_exit(tmp_path) -> None:
     finally:
         if swarm_tmux.has_session(job_id):
             swarm_tmux.kill(job_id)
+
+
+def _completion_spec(tmp_path, enabled=True):
+    import json
+
+    from superclaude.cli.swarm.commands import _build_spec_from_lens
+
+    spec = _build_spec_from_lens("bare-review")
+    spec["job_id"] = "completion-" + uuid.uuid4().hex[:12]
+    target = tmp_path / "target.txt"
+    target.write_text("Review this isolated completion test target.\n" * 10)
+    spec["target"]["path"] = str(target)
+    spec["output"]["dir"] = str(tmp_path / "out")
+    spec["transport"]["kind"] = "stub"
+    spec["runtime"]["on_completion"]["write_done_sentinel"] = enabled
+    path = tmp_path / "spec.json"
+    path.write_text(json.dumps(spec))
+    return spec, path
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+@pytest.mark.parametrize("relative_output", [False, True])
+def test_detached_parent_defers_completion_to_actual_child(
+    tmp_path, monkeypatch, enabled, relative_output
+):
+    import json
+    from pathlib import Path
+
+    from click.testing import CliRunner
+
+    from superclaude.cli.swarm.commands import run_cmd
+
+    home = tmp_path / "home"
+    home.mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    spec, path = _completion_spec(tmp_path, enabled)
+    out = tmp_path / "out"
+    requests = []
+    monkeypatch.setattr(swarm_tmux, "is_tmux_available", lambda: True)
+
+    def launch(job_id, argv, **kwargs):
+        assert not (out / "done.json").exists()
+        requests.append(argv)
+        return swarm_tmux.session_name(job_id)
+
+    monkeypatch.setattr(swarm_tmux, "launch_detached", launch)
+    monkeypatch.chdir(tmp_path)
+    parent = CliRunner().invoke(
+        run_cmd,
+        [str(path), "--detached", "--output", "out" if relative_output else str(out)],
+    )
+    assert parent.exit_code == 0, parent.output
+    assert not (out / "done.json").exists()
+    assert len(requests) == 1
+    snapshot = Path(requests[0][-1])
+    assert snapshot.is_absolute()
+    assert requests[0][5:7] == ["--output", str(out.resolve())]
+    assert (
+        json.loads(snapshot.read_text())["runtime"]["on_completion"][
+            "write_done_sentinel"
+        ]
+        is enabled
+    )
+    # Execute precisely the captured child request, not a repaired test-only argv.
+    child = CliRunner().invoke(run_cmd, requests[0][5:])
+    assert child.exit_code == 0, child.output
+    assert (out / "done.json").exists() is enabled
+    assert (out / "return-contract.yaml").is_file()
+    assert json.loads((out / ".swarm-state.json").read_text())["state"] == "terminal"
+    if enabled:
+        import yaml
+
+        marker = json.loads((out / "done.json").read_text())
+        assert (
+            marker["terminal_status"]
+            == yaml.safe_load((out / "return-contract.yaml").read_text())["status"]
+        )
+        assert marker["contract_path"] == str((out / "return-contract.yaml").resolve())
+        assert (
+            json.loads((out / ".swarm-state.json").read_text())["state"] == "terminal"
+        )
+
+
+@requires_tmux
+@pytest.mark.skipif(
+    not NOT_NESTED, reason="nested tmux does not support detached launch"
+)
+def test_detached_live_cli_child_publishes_completion(tmp_path, monkeypatch):
+    import json
+    import sys
+    from pathlib import Path
+
+    spec, path = _completion_spec(tmp_path)
+    out = tmp_path / "out"
+    home = tmp_path / "home"
+    home.mkdir()
+    env = dict(
+        os.environ,
+        HOME=str(home),
+        PYTHONPATH=str(Path(__file__).resolve().parents[2] / "src"),
+        PYTHONDONTWRITEBYTECODE="1",
+    )
+    command = [
+        "uv",
+        "run",
+        "--no-project",
+        "--python",
+        sys.executable,
+        "superclaude",
+        "swarm",
+        "run",
+        str(path),
+        "--detached",
+        "--output",
+        str(out),
+    ]
+    result = subprocess.run(
+        command, capture_output=True, text=True, env=env, timeout=30
+    )
+    try:
+        assert result.returncode == 0, result.stdout + result.stderr
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline and not (out / "done.json").exists():
+            if not swarm_tmux.has_session(spec["job_id"]):
+                break
+            time.sleep(0.1)
+        assert (out / "done.json").is_file(), (
+            f"child ended without completion: {sorted(p.name for p in out.iterdir())}"
+        )
+        import yaml
+
+        marker = json.loads((out / "done.json").read_text())
+        assert (
+            marker["terminal_status"]
+            == yaml.safe_load((out / "return-contract.yaml").read_text())["status"]
+            == "success"
+        )
+        assert (
+            json.loads((out / ".swarm-state.json").read_text())["state"] == "terminal"
+        )
+    finally:
+        if swarm_tmux.has_session(spec["job_id"]):
+            swarm_tmux.kill(spec["job_id"])

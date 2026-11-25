@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/QG3/adversarial/merged-qg3-position.md"
+  convergence_score: 0.882
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/QG3/adversarial/adversarial/"
+  status: "success"
+  base_variant: "variant-1-original (OURS)"
+  unresolved_conflicts: 2   # C-006 and X-003, both resolved as HYBRID in the merge
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped at depth quick, so no probe ran

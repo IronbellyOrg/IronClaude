@@ -1,0 +1,5 @@
+Launch-level guard: this session was started by /sc:issue --claim at level worktree.
+Blocked: creating a commit (git commit, cherry-pick, revert, am, or moving a branch with update-ref).
+Why: Only a launch with --pipeline full --submit lets the agent commit.
+You can: Review the changes and commit them yourself, or claim the issue again with --pipeline full --submit.
+Note: the guard does not tell quoted text from commands. Any command that names git together with the word commit, push, merge or pull, or gh together with the word api, counts as that action, even if the words are only in a message, a title, a PR body or a search pattern. If that is the case here, write the text to a file with the Write tool and pass it with git commit -F <file> or gh ... --body-file <file>, or reword the search or title.

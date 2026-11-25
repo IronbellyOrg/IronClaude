@@ -1,0 +1,5 @@
+# Base selection
+
+Base: proposal A (minimal delta). Reason: it follows the pattern of the four sibling sections exactly, adds the fewest flags, and its outcome table is complete over the STOP table. Merged in from B: report directory rules, extras waits, forced sequential, ledger-derived status, partial for Ruling-accepted tasks, the `--plan-sha256` hash pin, risk list and test pins. Merged in from C: the `implement:` mapping, `E-PLAN-NOT-APPROVED`, the launch-level text, the WORKER-CONTRACT edit list. Rejected: `--plan-only` (C), `.prev` rename (B), partial for E-ARCHIVE-BLOCKED (C), 4 minute extras kill (A).
+
+Score sketch (1 to 5, session judgment, no tool computed these): completeness A 4, B 4, C 4; fit with existing pattern A 5, B 3, C 3; safety A 3, B 5, C 4; coordinator usability A 3, B 3, C 5. Totals A 15, B 15, C 16, but C's extra mode and extra code are the largest new surface, so A is the base and the safety and pipeline items are merged in as additions, not as a different design.

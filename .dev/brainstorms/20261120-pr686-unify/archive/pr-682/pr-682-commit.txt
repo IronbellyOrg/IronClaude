@@ -1,0 +1,101 @@
+01e7a9e23519fd54bc438bb1a1a0e03dcdae5baf
+parent c2a1395522239429dd21f19cadd206fd643fec03
+author clayphi <clay@ironbelly.com>
+date 2026-11-19T18:02:35-06:00
+
+refactor: retire the old plan-approval gate (issue 655, PR D) (#682)
+
+* refactor(cli): remove the issue-pipeline plan-approval package (#655)
+
+Delete src/superclaude/cli/issue_pipeline/, its ten test files and fixtures,
+and tests/cli/test_issue_pipeline_registered.py, and drop the issue-pipeline
+registration from main.py. Nothing ran this code: the issue watcher has
+enabled: false and never ran live. issue_watch is unchanged.
+
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+* docs(core): retire WC-17 and the issue pipeline duties from the worker contract (#655)
+
+Remove rule WC-17 and the "Issue pipeline duties" section. Keep the one
+sentence launch-level guard rule 2 relies on (ask and send carry no --to) as
+its own bullet in the worker-session duties, and assert it in the contract
+test. Fixes the missing contract text for the worker side of guard rule 2
+(finding F14 of issue 665).
+
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+* refactor(hooks): remove guard rule G2.1, the issue-pipeline TAMPER class (#655)
+
+Remove the first G2 rule of launch-level-guard.sh (source and plugin copy,
+byte-identical): the case that classed release-worker and the issue-pipeline
+verbs as TAMPER. The verbs no longer exist. G2 rule 2 (a bound worker may run
+orchestration send and ask only as one plain call with no --to) and the
+guard's own sessions/<sid>.ok approval path are untouched.
+
+Rewrite the module of the rule 2 tests so it no longer imports the deleted
+package: the release is now a typed /sc:implement prompt, and the nonce
+binding test builds its prompt from the _marker helper.
+
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+* docs: drop the retired issue-pipeline group and coordinator duties (#655)
+
+Checked the four files PR D names for rules that no longer exist:
+- SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md: one sentence said a
+  coordinator then starts the worker after a --pipeline none claim, which
+  was the removed "Issue pipeline duties" section. It now says so. The
+  check-config line (line 1085) that names the approvers file keeps its hit:
+  the issue_watch code is unchanged here, and PR A removes that check.
+- orchestrator-mode.md, the issue-331 deviation patterns memory file and the
+  yaml-deviation-class.yaml fixture: no hit for the dropped names, unchanged.
+Also remove the issue-pipeline rows from docs/user-guide/cli-groups.md, which
+documented a group that no longer exists (not in the PR D file list).
+
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+* docs(changelog): note the removal of the old plan-approval gate (#655)
+
+Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+---------
+
+Co-authored-by: coder <coder@coder.local>
+Co-authored-by: Claude Code <noreply@anthropic.com>
+
+ CHANGELOG.md                                                      |   4 ++
+ docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md |   2 +-
+ docs/user-guide/cli-groups.md                                     |  10 ++-
+ plugins/superclaude/hooks/scripts/launch-level-guard.sh           |   7 +-
+ src/superclaude/cli/issue_pipeline/__init__.py                    |   5 --
+ src/superclaude/cli/issue_pipeline/approval_line.py               |  62 -----------------
+ src/superclaude/cli/issue_pipeline/approval_record.py             | 416 --------------------------------------------------------------------------------------------------------------
+ src/superclaude/cli/issue_pipeline/brief.py                       |  74 --------------------
+ src/superclaude/cli/issue_pipeline/cli.py                         | 395 --------------------------------------------------------------------------------------------------------
+ src/superclaude/cli/issue_pipeline/plan_hash.py                   |  90 ------------------------
+ src/superclaude/cli/issue_pipeline/reads.py                       | 161 -------------------------------------------
+ src/superclaude/cli/issue_pipeline/release.py                     |  66 ------------------
+ src/superclaude/cli/issue_pipeline/stage_predicates.py            | 301 --------------------------------------------------------------------------------
+ src/superclaude/cli/issue_pipeline/templates/worker-brief.txt     |  27 --------
+ src/superclaude/cli/main.py                                       |   4 --
+ src/superclaude/core/WORKER-CONTRACT.md                           |  13 +---
+ src/superclaude/hooks/scripts/launch-level-guard.sh               |   7 +-
+ tests/cli/test_issue_pipeline_registered.py                       |  15 ----
+ tests/hooks/test_launch_level_guard_worker.py                     |  56 ++++-----------
+ tests/issue_pipeline/__init__.py                                  |   0
+ tests/issue_pipeline/fixtures/recorded/OWNER-INPUT.md             |   1 -
+ tests/issue_pipeline/fixtures/recorded/README.md                  |  16 -----
+ tests/issue_pipeline/fixtures/recorded/comments-page1.json        | 143 --------------------------------------
+ tests/issue_pipeline/fixtures/recorded/edits-page1.json           |  42 ------------
+ tests/issue_pipeline/fixtures/recorded/events-page1.json          | 264 ----------------------------------------------------------------------
+ tests/issue_pipeline/test_approval_concurrency.py                 |  78 ---------------------
+ tests/issue_pipeline/test_approval_crash.py                       |  88 ------------------------
+ tests/issue_pipeline/test_approval_line.py                        | 135 ------------------------------------
+ tests/issue_pipeline/test_approval_record.py                      | 424 ----------------------------------------------------------------------------------------------------------------
+ tests/issue_pipeline/test_brief.py                                | 224 -----------------------------------------------------------
+ tests/issue_pipeline/test_plan_hash.py                            | 116 -------------------------------
+ tests/issue_pipeline/test_reads.py                                | 295 ------------------------------------------------------------------------------
+ tests/issue_pipeline/test_release.py                              |  89 ------------------------
+ tests/issue_pipeline/test_stage_predicates.py                     | 466 ---------------------------------------------------------------------------------------------------------------------------
+ tests/issue_pipeline/test_stage_status.py                         | 476 ------------------------------------------------------------------------------------------------------------------------------
+ tests/skills/test_worker_contract.py                              |  62 +++--------------
+ 36 files changed, 35 insertions(+), 4599 deletions(-)

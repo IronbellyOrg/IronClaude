@@ -1,0 +1,5 @@
+Launch-level guard: this session was started by /sc:issue --claim at level worktree.
+Blocked: starting /sc:implement, /task or /sc:cleanup (or their skills).
+Why: At the worktree level the agent stops at a plan until a person approves it.
+You can: Read the plan, then type /sc:implement or /task in this session.
+Note: the launch record was invalid or unreadable, so the strictest level (worktree) applies.

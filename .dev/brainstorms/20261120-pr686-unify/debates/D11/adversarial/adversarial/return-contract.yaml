@@ -1,0 +1,13 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D11/adversarial/merged-d11-observability-recommendation.md"
+  convergence_score: 1.0   # 18 of 18 diff points agreed; gate BLOCKED_BY_INVARIANTS, cleared by writing INV-001 and INV-002 into the plan as required rules (no Round 3 at standard depth)
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D11/adversarial/adversarial"
+  status: "partial"        # completed; the invariant gate blocked convergence at Round 2.5 and was cleared by incorporation, not by a further debate round
+  base_variant: "opus:analyzer"   # Variant 2 (CLAY position paper), combined score 0.8667 against 0.7723; this is paper quality, not the winner of the question
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-001, category: state_variables, assumption: "The report can read transcripts only for session ids found in sweep rows and still keep its no-silent-loss rule", severity: HIGH, resolution: "written as rule 5 of the merged recommendation"}
+    - {id: INV-002, category: count_divergence, assumption: "A fixture test guards coverage after the report's own terminal-to-session map is removed", severity: HIGH, resolution: "written as rule 6 (live side-by-side run first)"}

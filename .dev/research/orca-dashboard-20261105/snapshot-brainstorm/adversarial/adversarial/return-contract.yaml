@@ -1,0 +1,40 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/IronClaude/.dev/research/orca-dashboard-20261105/snapshot-brainstorm/adversarial/merged-output.md
+  convergence_score: 0.957
+  artifacts_dir: /home/coder/workspaces/IronClaude/.dev/research/orca-dashboard-20261105/snapshot-brainstorm/adversarial/adversarial
+  status: partial  # debate gate was BLOCKED_BY_INVARIANTS; fixes verified in merged text by the orchestrator, not re-probed by a fault-finder
+  convergence_status: BLOCKED_BY_INVARIANTS
+  base_variant: "haiku:backend"
+  unresolved_conflicts: 2  # S-003, A-003 (A-003 kept as gate FG-11); INV-021 open question in merged output s.20.2
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: task-agent
+  unaddressed_invariants:  # unaddressed in all three variants at probe time (Round 2.5)
+    - id: INV-005
+      category: guard_conditions
+      assumption: "Heartbeats and routine progress can be reliably separated from decision requests; no classifier or fallback specified in any variant."
+      severity: HIGH
+      merged_fix: "merged-output.md s.4 'Message classification and the visible fallback' (l.148-158): closed routine list, everything else an `unclassified` decision-block row; gate FG-9 (l.1114)."
+    - id: INV-006
+      category: guard_conditions
+      assumption: "V2 MC-4 / R-INT-01 and V1 COV-4 still permit a conditional all-clear, contradicting X-004."
+      severity: HIGH
+      merged_fix: "COV-4 (l.106) forbids any all-clear in every concept and state; MC-4 (l.1011) checks for its absence with no exception; l.1121 says no gate unlocks all-clear wording."
+    - id: INV-010
+      category: count_divergence
+      assumption: "Line budgets (V1 ~40, V3 44 yielding, V2 60 hard) are unreconciled and one paste is assumed to fit the chat limit (A-003)."
+      severity: HIGH
+      merged_fix: "One budget, 60 lines x 78 columns (rule 7 l.186, FMT-3 l.959); transport fit is gate FG-11 (l.966, l.1116); a paste without matching end marker is invalid (l.967)."
+    - id: INV-026
+      category: sufficiency_challenge
+      assumption: "OLDEST line plus census unknown finds the oldest blocking decision, though the 100-message peek has no paging or cursor."
+      severity: HIGH
+      merged_fix: "s.4 'Census and the oldest claim' (l.160-167): `OLDEST observed` while census unknown, unclassified items ranked, unknown-age items above known-age with warning; gate FG-10 (l.1115). All 10 rendered screens print `OLDEST observed`."
+    - id: INV-028
+      category: sufficiency_challenge
+      assumption: "Scope-qualified empty state resolves X-004, though its qualifier sits in the footer that a split, truncated or stale paste loses."
+      severity: HIGH
+      merged_fix: "Frame header carries the `cover` line with census and omitted counts plus `seq N` identity (s.6 l.196-222); footer repeats it before the end marker. All 10 rendered screens have header and footer `cover` lines and matching seq end markers."
+  invariant_note: "Each required change (refactor plan Changes 12-16) was verified present in the merged artifact by the orchestrator reading the cited lines on 2026-11-05. No fresh fault-finder re-probe of the merged output was run, so the protocol gate status is left as recorded."
+  user_direction_note: "Superseding user direction (relayed by team-lead, 2026-11-05): do not consider forks of agent/session managers, since they duplicate Orca; Orca stays the authority; prioritize TUI frameworks and visual hierarchy, layout and readability. The merged spec contains no product-fork recommendation (it lists the fork/build question as out of scope, l.1046). No new research or debate round was run for this direction."
+  token_usage_note: "Measured usage visible to the orchestrator: merge-executor 135,514 tokens. Usage of earlier children (variant generators, advocates, fault-finder, scorers) is not available in the orchestrator's post-compaction context, so no total is claimed against the 675k ceiling. No further children are planned."

@@ -1,0 +1,19 @@
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_commands_run.py tests/swarm/test_e2e_user_guide.py tests/swarm/test_swarm_run_inputs.py tests/swarm/test_run_tui_integration.py tests/swarm/test_done_sentinel.py tests/swarm/test_imm6_atomic_write.py tests/swarm/test_resume_crash_recovery.py tests/swarm/test_resume_regenerates_merge.py tests/swarm/test_resume_uses_manifest_lens.py tests/swarm/test_crash_recovery_e2e.py tests/swarm/test_force_relens.py tests/swarm/test_tmux_detached.py tests/swarm/test_tmux_fallback.py tests/swarm/test_kill_cmd.py tests/swarm/test_three_layer_artifacts.py tests/cli/reflect/test_ensemble_unit.py tests/cli/reflect/test_ensemble_stub_integration.py -q -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+................................................................................................................ [ 38%]
+...........................................................................................ss................... [ 77%]
+..................................................................                                               [100%]
+288 passed, 2 skipped in 8.50s
+
+EXIT: 0
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_commands_run.py tests/swarm/test_e2e_user_guide.py tests/swarm/test_swarm_run_inputs.py tests/swarm/test_run_tui_integration.py tests/swarm/test_done_sentinel.py tests/swarm/test_imm6_atomic_write.py tests/swarm/test_resume_crash_recovery.py tests/swarm/test_resume_regenerates_merge.py tests/swarm/test_resume_uses_manifest_lens.py tests/swarm/test_crash_recovery_e2e.py tests/swarm/test_force_relens.py tests/swarm/test_tmux_detached.py tests/swarm/test_tmux_fallback.py tests/swarm/test_kill_cmd.py tests/swarm/test_three_layer_artifacts.py tests/cli/reflect/test_ensemble_unit.py tests/cli/reflect/test_ensemble_stub_integration.py -q -rs -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+................................................................................................................ [ 38%]
+...........................................................................................ss................... [ 77%]
+..................................................................                                               [100%]
+=============================================== short test summary info ================================================
+SKIPPED [1] tests/swarm/test_tmux_detached.py:112: this branch only fires when tmux is absent
+SKIPPED [1] tests/swarm/test_tmux_detached.py:125: patched-tmux path covers monkeypatched absence
+288 passed, 2 skipped in 8.36s
+
+EXIT: 0

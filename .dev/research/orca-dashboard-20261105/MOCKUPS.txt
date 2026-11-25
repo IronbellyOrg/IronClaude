@@ -1,0 +1,323 @@
+TERMINAL DASHBOARD CONCEPTS
+===========================
+Design sketches, not a running application. All data is SYNTHETIC.
+Ten complete compositions: five chat snapshots and five live-terminal concepts.
+These are parent-authored visual refinements of the saved brainstorm proposals,
+not an adversarially approved merge. Orca remains the orchestration authority.
+Plain ASCII is intentional. No actual ANSI escapes or cursor controls are used.
+
+SHARED DEMO SCENE
+-----------------
+At 15:00 UTC: 24 observed workers, each in one display bucket:
+16 active (A), 4 waiting (W), 3 reported complete (D), 1 unavailable (?).
+Reported complete is not verified or merge-ready. Requests and blockers overlap
+these buckets and must not be added to worker counts.
+Three observed human requests: schema choice 42m, API target 18m, review 7m.
+Two reported blockers: schema choice and a CI queue. Schema choice affects two
+waiting workers; API target one; review one. CI queue affects an active worker.
+Local host covered; expected-host inventory unknown. Inbox is partial.
+The oldest request shown is the oldest OBSERVED, not necessarily the true oldest.
+Demo operator owns all three requests. Billing, API and UI workers requested them.
+Evidence identifiers DEMO-M1/M2/M3 are illustrative, not live links.
+No cost, tokens, completion percentage, delivery ETA or performance claims.
+
+STATIC SNAPSHOTS
+================
+Intended cadence: five minutes. Not an urgent-notification guarantee.
+Each is a complete alternative paste, not a different widget.
+
+S1 / THE BRIEF
+Question first, restrained horizontal rules, useful in ordinary chat.
+
+  FLEET BRIEF                         15:00 UTC / SYNTHETIC DEMO
+  local host | inbox PARTIAL | hosts beyond local: unknown
+  ------------------------------------------------------------
+  NEEDS YOUR DECISION                           3 observed
+
+  42m  Schema choice                           DEMO-M1
+       Billing asks: keep the table or split it?
+       You own the decision. Two workers waiting.
+
+  18m  API target                              DEMO-M2
+       API worker asks: target v2 or v3 sandbox?
+
+   7m  Review                                  DEMO-M3
+       UI worker asks: accept the proposed screen changes?
+  ------------------------------------------------------------
+  WORKERS  16 active / 4 waiting / 3 reported done / 1 unknown
+  BLOCKERS  schema decision + CI queue (2 reported)
+  SINCE 14:55  Docs reported done; review request first observed.
+  Oldest observed: schema, 42m. Checks not connected.
+  END 15:00 / 3 requests shown / more may exist
+
+S2 / THE CONTROL STRIP
+A compact status ribbon above a two-column decision and context board.
+
++-- CONTROL STRIP -- 15:00 UTC -- SYNTHETIC DEMO ----------------+
+| ACTIVE 16    WAITING 4    REPORTED DONE 3    UNAVAILABLE 1      |
+| local host | inbox PARTIAL | expected hosts unknown           |
++--------------------------------+-----------------------------+
+| YOUR NEXT MOVES / 3 observed    | CONTEXT                     |
+|                                |                             |
+| 42m  Choose schema             | 2 workers await this choice |
+|      Keep table or split?      | Billing -> you / DEMO-M1    |
+| 18m  Choose API v2 or v3        | API -> you / DEMO-M2        |
+|  7m  Review screen changes     | UI -> you / DEMO-M3         |
+|                                |                             |
++--------------------------------+-----------------------------+
+| BLOCKERS  schema + CI queue    | Checks: not connected       |
+| CHANGE    Docs reported done  | Reported done != verified   |
++--------------------------------------------------------------+
+| Oldest observed 42m | shown 3 | inbox may contain more         |
++-- END 15:00 --------------------------------------------------+
+
+S3 / THE DEPENDENCY CARD
+A branching shape makes the consequence of one decision visible.
+
+  DEPENDENCY CARD / 15:00 UTC / SYNTHETIC DEMO
+  local host | inbox PARTIAL | other-host coverage unknown
+  ============================================================
+  [YOU] Schema choice / oldest observed 42m / DEMO-M1
+    |
+    +-- Billing asks: keep table or split?
+    |
+    +----> Migration worker [WAITING]
+    `----> Compatibility worker [WAITING]
+
+  [YOU] API target / 18m / DEMO-M2
+    `----> API worker [WAITING] / v2 or v3 sandbox?
+
+  [YOU] Review / 7m / DEMO-M3
+    `----> UI worker [WAITING] / accept screen changes?
+  ------------------------------------------------------------
+  Separate blocker: CI queue affects an active worker.
+  24 observed: 16 A / 4 W / 3 reported D / 1 unavailable
+  Two reported blockers overlap the worker inventory.
+  END 15:00 / 3 requests shown / complete decision count unknown
+
+S4 / THE CORRESPONDENCE SLIP
+Sender-to-recipient alignment, generous space around unanswered asks.
+
++-- CORRESPONDENCE -- 15:00 UTC -- SYNTHETIC DEMO ----------------+
+| local host | inbox PARTIAL | expected-host inventory unknown  |
++--------------------------------------------------------------+
+| FROM          TO       WAIT    QUESTION                      |
+| Billing       You      42m     Keep table or split?           |
+| API           You      18m     Target v2 or v3 sandbox?        |
+| UI            You       7m     Accept screen changes?         |
++--------------------------------------------------------------+
+| OLDEST OBSERVED / Billing -> You / DEMO-M1                    |
+|                                                              |
+|   "Both schema options are drafted. Which should I use?"     |
+|   Two workers waiting. No answer observed in sampled messages.|
+|                                                              |
+| Other evidence: API DEMO-M2 / UI DEMO-M3                      |
++--------------------------------------------------------------+
+| 24 workers: 16 active, 4 wait, 3 reported done, 1 unavailable  |
+| 2 reported blockers: schema / CI queue. Checks unavailable.   |
+| END 15:00 / all 3 observed requests shown / more may exist     |
++--------------------------------------------------------------+
+
+S5 / THE FIVE-MINUTE JOURNAL
+Decisions remain at the top; a compact chronological change strip follows.
+
+  14:55 ------------------------ 15:00 UTC / SYNTHETIC DEMO
+  local host | inbox PARTIAL | expected hosts unknown
+  +----------------------------------------------------------+
+  | STILL NEEDS YOU / 3 observed                              |
+  | 42m Schema: keep table or split?    Billing -> you DEMO-M1 |
+  | 18m API: v2 or v3 sandbox?          API -> you     DEMO-M2 |
+  |  7m Review screen changes          UI -> you      DEMO-M3 |
+  +----------------------------------------------------------+
+       |
+       +-- 14:57  Docs worker reported complete, not verified
+       +-- 14:58  Review request first observed (created 14:53)
+       `-- 15:00  Schema decision still holds two workers
+  +----------------------------------------------------------+
+  | NOW  16 active / 4 waiting / 3 reported done / 1 unknown   |
+  |      2 reported blockers: schema choice and CI queue      |
+  +----------------------------------------------------------+
+  Delta covers observations, not guaranteed event history.
+  END 15:00 / oldest observed 42m / 3 shown / more may exist
+
+INTERACTIVE TERMINAL CONCEPTS
+============================
+All key hints below describe proposed behavior, not working controls.
+Observe-only first. Opening or reading never consumes Orca's inbox.
+If added later, reply/acknowledge/resolve remain separate explicit operations.
+Selection follows stable identity, never a changing row number.
+Pause freezes the view, not workers; show frame age and queued updates.
+Input stays ASCII; optional ANSI color must never be the only status signal.
+
+I1 / TRIAGE RAIL
+A quiet vertical request rail and large selected-question preview.
+
++-- OBSERVER / DEMO -- 15:00 UTC -- READ ONLY -- inbox PARTIAL ---------------+
+| NEEDS YOU / 3 observed   | SCHEMA CHOICE                                   |
+|                         |                                                 |
+| > Schema choice     42m | Keep the table, or split it?                     |
+|   API target        18m |                                                 |
+|   Review             7m | From Billing worker -> You                      |
+|                         | Two workers waiting on your decision.           |
+|-------------------------| Evidence DEMO-M1 / current attempt DEMO-A1       |
+| 24 WORKERS OBSERVED     |                                                 |
+| 16 active   4 waiting   | THREAD EXCERPT / history incomplete             |
+|  3 reported done        | 14:18 Billing: both options drafted.            |
+|  1 unavailable          | 14:20 Billing: waiting for your choice.         |
+|                         | No answer observed in sampled messages.         |
+| 2 BLOCKERS REPORTED     |                                                 |
+| schema / CI queue       | [Open evidence]  [View affected workers]         |
++-------------------------+-------------------------------------------------+
+| local host | other hosts unknown | observed 4s ago | checks unavailable   |
+| / search  f filter  tab pane  enter detail  p freeze view  ? help         |
++---------------------------------------------------------------------------+
+
+Visual treatment: thin quiet borders, selected row inverse, restrained accent
+on request heading. Narrow mode shows rail, then full-screen selected detail.
+Updates refresh facts in place; new arrivals get a badge, never steal focus.
+Framework fit: Textual's layout/widgets or Bubble Tea + Lip Gloss composition.
+
+I2 / INSTRUMENT MOSAIC
+Asymmetric tiles: requests get the large upper-left area, facts stay peripheral.
+
++-- INSTRUMENTS / SYNTHETIC DEMO -- READ ONLY -- inbox PARTIAL ---------------+
+| REQUEST WAIT AGE / 3 observed                   | WORKERS / 24 observed  |
+|                                                |                        |
+| > Schema  ##################### 42m            | Active           16    |
+|   API     #########             18m            | Waiting           4    |
+|   Review  ####                   7m            | Reported done     3    |
+|   # = 2m, rounded; numbers are exact           | Unavailable       1    |
++------------------------------------------------+------------------------+
+| SELECTED / Keep the table, or split it?         | COVERAGE               |
+| Billing -> You / 42m / 2 workers waiting        | Local host observed    |
+| Evidence DEMO-M1 / thread history incomplete    | Other hosts unknown    |
+|                                                | Inbox partial          |
++--------------------------------+---------------+------------------------+
+| WORKER CELLS / one per worker   | BLOCKERS      | SINCE LAST CAPTURE     |
+| AAAAAAAA AAAAAAAA WWWW DDD ?    | schema choice | Docs reported done     |
+| A active W wait D reported done | CI queue      | Checks not connected   |
+| ? unavailable; not task success | 2 reported    |                        |
++--------------------------------+---------------+------------------------+
+| 15:00 UTC / data age 4s | tab tile  arrows select  / filter  enter inspect |
++---------------------------------------------------------------------------+
+
+Visual treatment: aligned tile edges, broad request tile, subdued inventory.
+The wait-age bars share one scale; worker cells have a complete text legend.
+Narrow mode stacks tiles with requests first. Freeze shows a queue counter.
+Framework fit: Ratatui layouts/charts or Textual containers; no benchmark claim.
+
+I3 / WAIT TIMELINE
+A shared time axis above a wide conversational detail drawer.
+
++-- WAIT TIMELINE / SYNTHETIC DEMO -- READ ONLY -- inbox PARTIAL -------------+
+| Observed waits       14:00     14:15     14:30     14:45     15:00          |
+|                      |---------|---------|---------|---------|            |
+| > Schema             ............============================ 42m        |
+|   API                ............................============ 18m        |
+|   Review             ...................................=====  7m        |
+|                      40 cells / 60 minutes; endpoints rounded             |
++---------------------------------------------------------------------------+
+| SELECTED QUESTION                                                         |
+| Keep the table, or split it?                                               |
+| Billing worker -> You / DEMO-M1 / 2 waiting workers                         |
+|                                                                           |
+| 14:18  Both options drafted.                                               |
+| 14:20  Waiting for your choice. No answer observed in sampled messages.     |
++---------------------------------------------------------------------------+
+| FLEET  16 active / 4 waiting / 3 reported done / 1 unavailable               |
+| BLOCKERS  schema + CI queue / 2 reported | check results not connected      |
+| local host only | expected hosts unknown | frame 15:00 UTC                 |
+| up/down lane  enter thread  / search  p freeze [PAUSED: 7 updates queued]   |
++---------------------------------------------------------------------------+
+
+Visual treatment: fine axis, long quiet spans, high-contrast selected lane.
+Ages are anchored to the frozen frame, not a live clock while paused.
+Narrow mode replaces lanes with labeled wait ages, retaining the full question.
+Framework fit: Ratatui for drawn lanes, or a custom widget in Textual/Bubble Tea.
+
+I4 / CORRESPONDENCE DESK
+Three columns devote most space to the selected conversation, not fleet logs.
+
++-- DESK / SYNTHETIC DEMO -- READ ONLY -- inbox PARTIAL ----------------------+
+| REQUESTS          | CONVERSATION                     | CONTEXT             |
+|                   |                                  |                     |
+| > Billing    42m  | Billing -> You                   | 2 workers waiting   |
+|   API        18m  | 14:18                            |                     |
+|   UI review   7m  | Keep the table, or split it?      | Evidence DEMO-M1    |
+|                   |                                  | Attempt DEMO-A1     |
+| 3 observed        | 14:20                            |                     |
+| More may exist    | Both options are drafted.        | ANSWER              |
+|                   |                                  | Not observed        |
+| FILTER            | No answer observed in sampled    |                     |
+| [needs me]        | messages. History is incomplete. | RESOLUTION          |
+| [all observed]    |                                  | Unknown             |
+|                   | [Open original] [Affected work]  |                     |
++-------------------+----------------------------------+---------------------+
+| 24 workers: 16 active / 4 wait / 3 reported done / 1 unavailable             |
+| 2 reported blockers | local host | other hosts unknown | checks unavailable|
+| 15:00 UTC / 4s old | / filter  tab pane  enter open  esc back  p freeze     |
++---------------------------------------------------------------------------+
+
+Visual treatment: strong conversational whitespace, subdued author timestamps,
+separate facts column. Narrow mode becomes list -> thread -> facts navigation.
+New messages show a separator; they do not auto-scroll a reader away from text.
+Framework fit: Textual for focus/scrolling; other frameworks also possible.
+
+I5 / STATE BOARD
+A full-width attention banner above vertical worker lanes and a detail tray.
+
++== OBSERVED REQUESTS / SYNTHETIC DEMO / inbox PARTIAL =======================+
+| Schema choice 42m [selected]   | API target 18m   | Review 7m               |
++--------------------+--------------------+--------------------+-------------+
+| ACTIVE 16          | WAITING 4          | REPORTED DONE 3    | UNKNOWN 1   |
+|                    |                    | not verified       |             |
+| Auth refactor      | > Billing          | Docs sweep         | Indexer     |
+| Search build       |   schema choice    | Lint cleanup       | unavailable |
+| API generation     | Compatibility      | Changelog          |             |
+|                    |   schema choice    |                    |             |
+| 13 more            | API client         |                    |             |
+|                    |   API target       |                    |             |
+|                    | UI worker          |                    |             |
+|                    |   review           |                    |             |
++--------------------+--------------------+--------------------+-------------+
+| Keep the table, or split it? / Billing -> You / 42m / DEMO-M1              |
+| 2 workers waiting | 2 reported blockers overall: schema and CI queue       |
+| local host | other hosts unknown | frame 15:00 UTC / 4s old | READ ONLY    |
+| h/l lane  j/k worker  tab requests  / filter  enter thread  p freeze       |
++---------------------------------------------------------------------------+
+
+Visual treatment: bold attention banner, quiet lane dividers, detail tray.
+Narrow mode uses lane tabs, with requests always above the active lane.
+Selected workers remain identifiable when their state changes; no silent jump.
+Framework fit: Bubble Tea + Lip Gloss for custom lanes or Textual layout.
+
+INTERACTION CONTRACT FOR ALL FIVE
+---------------------------------
+- Filter by run, host, worktree, state, owner, age and observed attention.
+  Always display active filters and distinguish filtered-out from unobserved.
+- Header counts use the declared scope; selected-pane counts name their filter.
+- Refresh cadence is a future implementation choice, not established here.
+- Freeze leaves collection running only if the future collector supports it;
+  otherwise disclose a collection gap instead of inventing queued updates.
+- No action keys send anything in these sketches. Later actions need a target,
+  fresh authority check and explicit confirmation. Transport acceptance does
+  not prove an answer was read or that a decision was resolved.
+- Human-seen state must not acknowledge or consume coordinator deliveries.
+- Older hidden messages and unavailable hosts can contain further requests.
+
+VISUAL COMPARISON
+-----------------
+S1: quiet reading. S2: compact overview. S3: cause and effect.
+S4: communication clarity. S5: repeated-update readability.
+I1: balanced triage. I2: ambient instruments. I3: time-focused investigation.
+I4: conversation-heavy work. I5: broad worker-state overview.
+Provisional starting pair: S2 + I1. This is a visual recommendation, not approval.
+Use I2 when the desired character is a dense instrument panel, I4 when reading
+and responding dominates. None requires adopting another orchestration product.
+
+VALIDATION STATUS
+-----------------
+These mockups are non-functional design artifacts. Mechanical ASCII/width/count
+checks can verify text properties, not usability, data coverage or live behavior.
+The static brainstorm was partial; the interactive debate exceeded its budget
+before completion. No consensus or independent validation pass is claimed here.

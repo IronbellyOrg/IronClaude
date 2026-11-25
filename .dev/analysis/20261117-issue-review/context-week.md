@@ -1,0 +1,83 @@
+# Last 7 days on IronbellyOrg/IronClaude (generated 2026-11-17)
+
+## Merged PRs since 2026-11-10 (number, merged, title, body first line)
+- #469 2026-11-10T11:24 feat: add tested L2 pre-push protection with refusal activation gated (#441)
+- #471 2026-11-10T02:33 Exp346 p1 logs
+- #477 2026-11-10T02:41 346Claude-P1: remove prompts that override the review-loop contract
+- #478 2026-11-10T02:41 346Claude-P2: grade review findings by consequence and add a Medium warning tier
+- #479 2026-11-10T03:20 346Claude-P4: extend the spec-panel Review Loop with provenance, fail-closed and coverage clauses
+- #480 2026-11-10T03:21 346Claude-P3: name kept installer files that differ and save them before a forced overwrite
+- #481 2026-11-10T02:38 fix(ccsession): retry server errors then switch, including named models (#392)
+- #482 2026-11-10T03:20 346Claude-P1b: remove the remaining finding quotas from producer-skill QA prompts
+- #484 2026-11-10T03:21 346Claude-P7: move review prompts to one rules file, add evidence block and first-review grading check
+- #485 2026-11-10T06:10 docs(issue-watch): design drift fixes and owner rollout checklist (refs #450)
+- #486 2026-11-10T06:10 feat(issue): set issue types and Complexity fields on create
+- #490 2026-11-11T03:12 feat(review): live 7-reviewer panel (@live7) and tier2b placeholder (refs #346)
+- #491 2026-11-11T05:46 fix(review): address #490 review findings (refs #346)
+- #492 2026-11-11T09:58 feat(review): define tier2b models (Terra, GLM 5.3, Qwen 3.8 Max, Muse Wonder 1.0) (refs #346)
+- #493 2026-11-11T15:11 feat(ccsession): Tier 2b, two-model Tier 3, three-model Tier 4 (issue 488) — DO NOT MERGE until Coder 20261110-1 is installed
+- #494 2026-11-11T14:49 docs(testing): fix the Part 4 upgrade-survey check in leandro.md (#354)
+- #498 2026-11-11T16:17 Merge 346Claude-integration into master (#346 review loop, @live7 panel, ccsession Tier 2b) — DO NOT MERGE until Coder 20261110-1 is on every workspace
+- #499 2026-11-11T16:20 fix(pr-submit): name an Augment review whose status marker is unreadable instead of polling silently (#382, #456)
+- #500 2026-11-11T16:44 346 claude ab experiment artifacts
+- #503 2026-11-11T19:54 feat(observe): release 1 of the Orca terminal observer, superclaude observe (#409)
+- #508 2026-11-11T22:03 docs(worker-contract): make --unattended the positive per-step default for coordinators (#507)
+- #509 2026-11-11T22:14 feat(issue): move issue-worker-t1 to tier1b with a tier-2 fallback
+- #511 2026-11-11T23:50 feat: use codegraph in /sc:analyze, /sc:design, /sc:implement, /sc:workflow and the general-purpose agents (#504)
+- #513 2026-11-12T01:32 docs(codegraph): tighten nine ambiguities in the analyze and design instructions
+- #514 2026-11-12T12:36 feat(observe): release 2, coordinator questions for one named Run (live read off) (#409)
+- #515 2026-11-12T12:36 feat(mcp): add the reviewed MCP servers and tool grants to nine skills and commands (#512)
+- #516 2026-11-12T12:50 fix(issue): give issue-worker-t3 effort: low so tier 3 stops answering HTTP 400
+- #518 2026-11-12T14:47 feat(ccsession): apply the 2026-11-12 owner decisions for tiers (issue #488)
+- #519 2026-11-12T19:47 feat(reflect): Stage 0-2 of the Tier 2 review panel (measurement, dormant kernel, shadow mode)
+- #532 2026-11-12T19:46 docs(architecture): supervised orchestration technical reference and task records
+- #539 2026-11-14T17:41 feat(sweep): read-only superclaude sweep and /sc:sweep (Phase 1 of orchestrator mode, #339)
+- #541 2026-11-14T15:52 test(core): pin the worktree-rule bullet to its current wording
+- #548 2026-11-14T17:42 docs(issue-watch): record the owner's option 3 claim-level decision (refs #450)
+- #570 2026-11-16T18:13 fix(ccsession): head lists with the repo name, keep named sessions for a year
+- #577 2026-11-17T00:40 feat(observe): enable the live questions read, apply the 11 cuts, record the owner's direction decision (#409)
+- #579 2026-11-17T00:29 fix(sweep): restore the working class with the real Orca names
+- #581 2026-11-17T00:30 feat(review): safety-scan command and print-only follow-up paragraph (issue 552 stage 0 and 1)
+- #582 2026-11-17T03:32 feat(review): consequence-based review rule, fixcheck command and rf-qa rewrites (issue 552 stage 3)
+- #583 2026-11-17T03:34 fix(issue): remove the plain approved route from every worktree-level claim
+- #584 2026-11-17T04:00 feat(issue-pipeline): approval core for the issue-watcher claim handoff (Plan A) and the first live-test record
+- #585 2026-11-17T05:03 docs(orchestration): narrow the D2 amendment wording to a Ruling
+- #586 2026-11-17T05:03 docs(observe): record the live questions test and the synthetic load test (#409)
+- #587 2026-11-17T06:04 docs(dev): record the orchestrator, observer and issue-watcher alignment decisions (#339)
+- #588 2026-11-17T06:32 docs(dev): fix three review findings on the alignment decision records (#339)
+- #589 2026-11-17T06:48 docs(dev): record the owner-run questions-read observation under Q30 (#339)
+
+## Open PRs
+
+## Commits on origin/master since 2026-11-10
+- fe14a11bd 11-17 01:47 docs(dev): record the owner-run questions-read observation under Q30 (#339) (#589)
+- bc7b0b15a 11-17 01:32 docs(dev): fix three review findings on the alignment decision records (#339) (#588)
+- d41d79a8e 11-17 01:04 docs(dev): record the orchestrator, observer and issue-watcher alignment decisions (#339) (#587)
+- a98541153 11-17 00:03 docs(observe): record the live questions test and the synthetic load test (#409) (#586)
+- bfabf1d63 11-17 00:03 docs(orchestration): narrow the D2 amendment wording to a Ruling (#585)
+- b6d038a30 11-16 23:00 feat(issue-pipeline): approval core for the issue-watcher claim handoff (Plan A) and the first live-test record (#584)
+- d32465f21 11-16 22:34 fix(issue): remove the plain approved route from every worktree-level claim (#583)
+- 64e8eacf2 11-16 22:32 feat(review): consequence-based review rule, fixcheck command and rf-qa rewrites (issue 552 stage 3) (#582)
+- 44ff04aef 11-16 19:40 feat(observe): enable the live questions read, apply the 11 cuts, record the owner's direction decision (#409) (#577)
+- fc4b22402 11-16 19:30 feat(review): safety-scan command and print-only follow-up paragraph (issue 552 stage 0 and 1) (#581)
+- b46ecc1bd 11-16 19:29 fix(sweep): restore the working class with the real Orca names (#579)
+- 8c21ac41f 11-16 12:13 fix(ccsession): head lists with the repo name, keep named sessions for a year (#570)
+- d4d1662a8 11-14 12:42 docs(issue-watch): record the owner's option 3 claim-level decision (refs #450) (#548)
+- 4d3c0b126 11-14 12:41 feat(sweep): read-only superclaude sweep and /sc:sweep (Phase 1 of orchestrator mode, #339) (#539)
+- 0406ef5b0 11-14 10:52 test(core): pin the worktree-rule bullet to its current wording (#541)
+- d2d8a2d16 11-12 14:47 feat(reflect): Stage 0-2 of the Tier 2 review panel (measurement, dormant kernel, shadow mode) (#519)
+- 05b78d4d3 11-12 14:46 docs(architecture): add supervised orchestration technical reference and task records (#532)
+- 167184c6b 11-12 09:47 feat(ccsession): apply the 2026-11-12 owner decisions for tiers (issue #488) (#518)
+- b0977b4f2 11-12 07:50 fix(issue): give issue-worker-t3 effort: low so tier 3 stops answering HTTP 400 (#516)
+- 077f9dd38 11-12 07:36 feat(mcp): add the reviewed MCP servers and tool grants to nine skills and commands (#512) (#515)
+- cd8736199 11-12 07:36 feat(observe): release 2, coordinator questions for one named Run (live read off) (#409) (#514)
+- 930c5ebc8 11-11 20:32 docs(codegraph): tighten nine ambiguities in the analyze and design instructions (#513)
+- 7764bb623 11-11 18:50 feat: use codegraph in /sc:analyze, /sc:design, /sc:implement, /sc:workflow and the general-purpose agents (#504) (#511)
+- 35073356e 11-11 17:14 feat(issue): move issue-worker-t1 to tier1b with a tier-2 fallback (#509)
+- 146be6fc3 11-11 17:03 docs(worker-contract): make --unattended the positive per-step default for coordinators (#507) (#508)
+- 9e2608b03 11-11 14:54 feat(observe): release 1 of the Orca terminal observer, superclaude observe (#409) (#503)
+- ec259f1b7 11-11 11:44 346 claude ab experiment artifacts (#500)
+- 4ab620d1f 11-11 10:20 fix(pr-submit): name an Augment review whose status marker is unreadable instead of polling silently (#382, #456) (#499)
+- 9163bd1c7 11-11 11:17 Merge 346Claude-integration into master (#346 review loop, @live7 panel, ccsession Tier 2b) — DO NOT MERGE until Coder 20261110-1 is on every workspace (#498)
+- 0c2b41f8e 11-11 08:49 docs(testing): fix the Part 4 upgrade-survey check in leandro.md (#354) (#494)
+- 5f8a1ea2d 11-10 06:24 feat: add tested L2 pre-push protection with refusal activation gated (#441) (#469)

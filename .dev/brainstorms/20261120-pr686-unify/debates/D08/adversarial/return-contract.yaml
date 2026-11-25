@@ -1,0 +1,13 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D08/adversarial/merged-output.md"
+  convergence_score: 0.94
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D08/adversarial/"
+  status: "success"
+  base_variant: "variant-1-original (OURS, coordinator)"
+  unresolved_conflicts: 2
+  fallback_mode: true
+  fallback_notes: "Base chosen over the paper-level score (V2 0.802 vs V1 0.748) under the owner weighting rule after Round 2 concessions; scores are judge estimates; no dual-pass position-bias evaluation; advocates ran as general-purpose subagents, merge done by the debate session."
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-001, category: guard_conditions, assumption: "flag-less command means no grants; grants only through flags", severity: HIGH, resolution: "resolved by judge rule: authority only from recorded authorization (base-selection.md)"}

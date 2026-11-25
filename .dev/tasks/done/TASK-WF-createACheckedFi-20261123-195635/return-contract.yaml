@@ -1,0 +1,16 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-createACheckedFi-20261123-195635
+plan_path: ./TASK-WF-createACheckedFi-20261123-195635.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: failed
+reflect_report_path: null
+unresolved:
+  - "Plan generation passed the full structural gate, but the independent advisory reflect protocol did not complete. The delegated review context reported a developer-level prohibition on writing Markdown reports, so it could not supply the required disk handoff; no review output files exist. No workaround was used. Independent review remains outstanding; this generation success is not a review PASS or product repair approval."
+  - "Wave 4R finding routing could not run without a review contract or verified finding counts. No counts, review verdict, remediation route or completion evidence were fabricated."
+  - "Implementation remains separately authorized only by a future user request. The original diagnostic report and its unproven repair closure are preserved unchanged; all positive repair evidence remains mandatory future acceptance."

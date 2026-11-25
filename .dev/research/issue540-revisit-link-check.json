@@ -1,0 +1,495 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "checked_at": "2026-11-24T14:41:49.907137+00:00",
+  "guide_links_checked": 96,
+  "original_files_in_guide": 61,
+  "original_files_unchanged": 61,
+  "indexed_files": 198,
+  "indexed_targets_present_in_git_index": 198,
+  "missing_from_git_index": [],
+  "staging_note": "The first Git-index check found audit.log omitted by the general *.log ignore rule. It was added explicitly without changing its bytes; the repeated check found all 198 targets in the index. No commit or push was made.",
+  "links": [
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "transfer-receipt.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "REPORT.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "evidence-validation.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "tier1-observation.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "../../tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "../../research/issue540-transfer-path-audit-20261124.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "../../research/issue540-current-file-locations.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "wave1_5-branch-C.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/negative-witness.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/return-contract.yaml",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/bare-review-00-lens-default-model-0.final.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/bare-review-01-lens-default-model-0.final.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/bare-review-02-lens-default-model-0.final.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "REPORT.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "REPORT.md.draft",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "audit.log",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "contract-ledger.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "diagnosability-context.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "diagnosability-tasklist.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "doc-context.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "effective-input.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "evidence-validation.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "execution-locus.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "hardening-applicability.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "producers.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "runtime-entrypoint.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "tier1-calibration.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "tier1-callers.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "tier1-hypothesis.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "tier1-observation.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "unmask-sweep.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "wave1_5-branch-A.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "wave1_5-branch-B.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "wave1_5-branch-C.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "wave1_6-branch-A.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "wave1_6-branch-B.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/baseline-tests.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/evidence-validation-round1.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground-check.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground.stdout.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/home/.keep",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/hypothesis-first-receipt.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/import-paths.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/negative-witness.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/report-before-review-correction.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume-check.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume.stdout.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/shared-counter-observation.diff",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/source-revision.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/target.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/.swarm-state.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/manifest.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/execution-log.jsonl",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/execution-log.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/return-contract.yaml",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/merged.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/bare-review-00-lens-default-model-0.final.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/bare-review-00-lens-default-model-0.meta.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/bare-review-01-lens-default-model-0.final.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/bare-review-01-lens-default-model-0.meta.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/bare-review-02-lens-default-model-0.final.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/foreground/bare-review-02-lens-default-model-0.meta.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume/.swarm-state.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume/manifest.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume/execution-log.jsonl",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume/execution-log.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume/return-contract.yaml",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume/merged.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume/bare-review-00-lens-default-model-0.final.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume/bare-review-00-lens-default-model-0.meta.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume/bare-review-01-lens-default-model-0.final.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume/bare-review-01-lens-default-model-0.meta.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume/bare-review-02-lens-default-model-0.final.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "link": "artifacts/resume/bare-review-02-lens-default-model-0.meta.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "../../../troubleshoot/bug-issue540-completion-marker-20261123191058/README.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "TASK-WF-createACheckedFi-20261123-195635.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "progress.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/final-review.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "return-contract.yaml",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/foreground-cli-check.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/foreground-cli/done.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/foreground-cli/return-contract.yaml",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/resume-cli-check.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/resume-cli/done.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/resume-cli/return-contract.yaml",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/detached-check.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/detached-cli/verified/out/done.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/detached-cli/verified/out/return-contract.yaml",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/final-runtime-check.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/reference-doc-check.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/monitoring-doc-check.txt",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/retries/T3/operator-review-2.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/retries/T4/review-2.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "artifacts/retries/T5/review-1.md",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "../../../research/issue540-transfer-path-audit-20261124.json",
+      "exists": true
+    },
+    {
+      "from": ".dev/tasks/done/TASK-WF-createACheckedFi-20261123-195635/README.md",
+      "link": "../../../research/issue540-current-file-locations.json",
+      "exists": true
+    }
+  ],
+  "errors": []
+}

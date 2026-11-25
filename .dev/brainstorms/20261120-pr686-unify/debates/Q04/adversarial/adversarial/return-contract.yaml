@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q04/adversarial/merged-output.md"
+  convergence_score: 0.875
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/Q04/adversarial/adversarial/"
+  status: "partial"
+  base_variant: "variant-1-original (OURS, position-OURS.md)"
+  unresolved_conflicts: 2
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    - "Depth quick: Round 2, Round 2.5 (invariant probe) and Round 3 skipped by design; the invariant gate was not applied."
+    - "Unresolved diff points: A-004 and A-005 (both end in one drafting requirement, see debate-transcript.md)."
+    - "Position-bias pass 2 was run by the same evaluator, not independently; scores estimated by hand."
+    - "Merge validation flagged five tensions, none failed (see merge-log.md); status partial because of the two unresolved points and the same-evaluator pass 2."

@@ -1,0 +1,20 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-wantToScanOfAllP-20261125-135851
+plan_path: ./TASK-WF-wantToScanOfAllP-20261125-135851.md
+source_path: ./source.md
+source_origin: inline-prompt
+strategy: systematic
+depth: standard
+reflect_status: partial
+reflect_report_path: .dev/reflect/pre-TASK-WF-wantToScanOfAllP-20261125140148/REPORT.md
+remediation_route: none
+finding_counts: {blocking: 0, label_high: 0, medium: 2, note: 2}
+fix_cycles: 0
+review_verdict: PASS
+open_blockers: []
+handoff_requested: none
+handoff_status: not-requested
+unresolved:
+  - "Reflect ran at Tier 1 only: executor class collides with the reviewer pool and the opus alias is not used (owner rule), so no independent Tier 2 review exists."
+  - "Request part 'then task list with SC implement' is not run by /sc:workflow (plan-only); run /sc:implement on this package or re-run workflow with --handoff implement."

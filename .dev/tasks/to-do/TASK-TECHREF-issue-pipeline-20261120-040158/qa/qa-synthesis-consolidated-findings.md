@@ -1,0 +1,21 @@
+# Gate 2 consolidated findings (cycle 1, review 1)
+
+**Date:** 2026-11-20
+**Valid review-1 reports:** 6 of 6 (analyst-synthesis-accuracy-report-1.md PASS; -2.md FAIL; qa-synthesis-structure-report-1.md FAIL; -2.md FAIL; qa-synthesis-coherence-report-1.md FAIL; -2.md FAIL). All carry `Status: Complete` and a `## Verdict:` line.
+**Consolidated verdict:** FAIL
+**F_1 (BLOCKING) = 9** (0 synthetic). The full finding text, evidence and fix text of every row are in the originating report (named per row); the fix agent reads each report row first.
+
+| ID | Originating report(s) | Location | Summary | Required fix (short) |
+|---|---|---|---|---|
+| G2-1 | analyst-synthesis-accuracy-report-2.md B-1 | synth-04 lines ~192, 213, 315, 316, 378; synth-06 line ~217 (14.2 intro) and rows D-18, D-27, D-31 through "See the 14.2 clause" | Cites docs/designs/orchestrator.md (the out-of-scope rewrite design) as the place where a decision is recorded (G1 "not governed", removal of route A, retirement of the "grant row"); also :117 does not contain the quoted words | Remove the citations; reword to "no decision found in the files this reference cites" or cite a non-rewrite file; keep the facts that rest on code |
+| G2-2 | qa-synthesis-structure-report-1.md B-1; qa-synthesis-coherence-report-1.md B-2 (duplicate) | synth-02 section 4.1 rows 11-12 and bullet ~lines 127-128, 139 versus synth-03 5.1.1 | Dry-run described as running the pre-launch re-read; step numbering differs between synth-02 and synth-03 | Use one numbering (synth-03's: launch step includes probe, prompt, re-read); dry-run runs steps 1-10 and returns at the top of step 11 (cycle.py:1029-1035) |
+| G2-3 | qa-synthesis-structure-report-2.md B-1 | synth-06 13.1.4, 13.1.7, partly 13.1.5 and 13.1.6 | Extension Guide entries lack a minimal skeleton and the words "not determinable from research" | Add short skeletons per the report's fix text (or the phrase "not determinable from research" where research does not support one) |
+| G2-4 | qa-synthesis-coherence-report-1.md B-1 | synth-01 section 1 Key statistics (line ~34) vs synth-03 5.1.2, synth-05 ~264, synth-06 ~94 | synth-01 calls 35 a per-cycle call cap; other sections say per-issue budget 35 plus 2 shared calls, at most 37 per cycle (2 idle) | Make synth-01 match (35 per-issue cap, 3 reserved, plus shared G1/G2; at most 37 gh calls per cycle) |
+| G2-5 | qa-synthesis-coherence-report-1.md B-3 | synth-01 2.1 (~105), 2.3 row 6 (~154), 2.4 row 6 (~179); synth-02 4.6 level grid row | G2 rule 2 / orca allow-list presented as working with no caveat; guard matches basename `orca` only; `orca-ide` not recognised (observed exit 0) | Add the caveat and pointer to Section 5.3 and D-25 in each place |
+| G2-6 | qa-synthesis-coherence-report-2.md F-1 | synth-06 14.2 row D-18 vs synth-01 2.3 rows 10 and 18, synth-04 5.2/5.3, synth-02 4.4, synth-05 8.3 | Same capability (caller of orca_worktree.py pending / binding of coordinator-started workers) has status NOT BUILT in some places and BUILT-ON (verb) in others | One scheme: "NOT BUILT (binding and caller); the pending verb itself is BUILT-ON"; apply in all five places |
+| G2-7 | qa-synthesis-coherence-report-2.md F-2 | synth-04 5.2 `--pipeline` table row `worktree` (~line 111) vs 5.3 (~268), synth-05 8.2/10.2, synth-02 4.3/4.6 | 5.2 says a first line starting /sc:implement, /sc:task or /task approves; the guard accepts only /sc:implement and /task (launch-level-guard.sh:347) | Fix the 5.2 cell and tag the /sc:task mention [CODE-CONTRADICTED] with pointer to 5.3 and D-23 |
+| G2-8 | qa-synthesis-coherence-report-2.md F-3 | synth-05 Appendix A.2 row test_launch_level_guard_worker.py and 8.3 last row; synth-02 4.3/4.4 | "the only test caller of orca_worktree.py pending (:287)" is false: tests/skills/test_issue_orca_worktree.py:2472-2498 also runs it | List both test callers in all places |
+| G2-9 | qa-synthesis-coherence-report-2.md F-4 | synth-05 Appendix A intro (~305) vs A.2 row test_launch_level_pre_push.py (~343) | Blanket "none calls real git push" is false for the pre-push tests (real git against a local bare remote) | Reword the intro: none calls real GitHub (gh) or Orca; pre-push and L2-install tests run real git against temporary local repositories |
+
+## MINOR notes (no fix pass; see reports)
+All MINOR findings in the six reports stay as notes.
