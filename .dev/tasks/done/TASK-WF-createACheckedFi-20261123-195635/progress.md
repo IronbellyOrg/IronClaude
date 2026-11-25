@@ -1,0 +1,17 @@
+# implement ledger — source: ./TASK-WF-createACheckedFi-20261123-195635.md — created: 2026-11-23T20:14:00Z
+PLAN: sha256=7fcb916baa03f01def2927f7d830f089d393d1c8a14f50ebc769fcd5c8f5db7c source_sha256=5b689aeb3e7bf2db98dedbadb75dec24bf386bb80a0b99085430da9076e0d2eb
+T1: start sha=8b15d2ff88ae732825660a101866fa453832b953
+T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3,T1.AC4,T1.AC5,T1.AC6 evidence=T1.AC1@./artifacts/foreground-after.txt:4,T1.AC2@tests/swarm/test_e2e_user_guide.py:135,T1.AC3@tests/swarm/test_commands_run.py:571,T1.AC4@tests/swarm/test_commands_run.py:621,T1.AC5@./artifacts/foreground-cli-check.txt:36,T1.AC6@./artifacts/foreground-after.txt:4 extras=lint:fail,typecheck:skip,test:pass files=src/superclaude/cli/swarm/commands.py,tests/swarm/test_commands_run.py,tests/swarm/test_e2e_user_guide.py
+T2: start sha=260a67c768f6e745b806c67988f60276e4abefa4
+T2: complete verdict=compliant ac=T2.AC1,T2.AC2,T2.AC3,T2.AC4,T2.AC5,T2.AC6 evidence=T2.AC1@./artifacts/resume-before.txt:54,T2.AC2@src/superclaude/cli/swarm/commands.py:2593,T2.AC3@tests/swarm/test_resume_crash_recovery.py:545,T2.AC4@tests/swarm/test_resume_crash_recovery.py:590,T2.AC5@./artifacts/resume-cli-check.txt:62,T2.AC6@./artifacts/resume-after.txt:15 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/swarm/commands.py,tests/swarm/test_resume_crash_recovery.py
+T3: start sha=1e33f422dadf9034876adec8c03894ab6ccfca76
+T3: blocked verdict=missing ac=T3.AC1,T3.AC2,T3.AC3,T3.AC4 evidence=T3.AC1@./artifacts/completion-compatibility.txt:45-50,T3.AC2@./artifacts/detached-check.txt:19-29,T3.AC3@./artifacts/completion-compatibility.txt:61,T3.AC4@src/superclaude/cli/swarm/commands.py:1297 extras=lint:pass,typecheck:skip,test:fail files=tests/swarm/test_tmux_detached.py
+T3: retry n=3 step=open checkpoint=ce530d567278a160b6196e6b4591b0738ec9ab91 tier=unknown
+T3: halt review=2 reason=dispute
+T3: complete verdict=compliant ac=T3.AC1,T3.AC2,T3.AC3,T3.AC4 evidence=T3.AC1@tests/swarm/test_tmux_detached.py:322,T3.AC2@./artifacts/detached-check.txt:129,T3.AC3@./artifacts/completion-compatibility.txt:85,T3.AC4@src/superclaude/cli/swarm/commands.py:1297,notes@./artifacts/retries/T3/notes.md:1-3 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/cli/swarm/commands.py,tests/swarm/test_tmux_detached.py
+T4: start sha=06ccf7288c46958c354806c28c54ed8695f301fe
+T4: complete verdict=compliant ac=T4.AC1,T4.AC2,T4.AC3,T4.AC4 evidence=T4.AC1@docs/swarm/README.md:119,T4.AC2@docs/swarm/command-reference.md:266,T4.AC3@docs/swarm/README.md:136,T4.AC4@./artifacts/reference-doc-check.txt:226,notes@./artifacts/retries/T4/notes.md:1-2 extras=lint:skip,typecheck:skip,test:pass files=docs/swarm/README.md,docs/swarm/command-reference.md,docs/swarm/user-guide.md
+T5: start sha=56f171c140f4a92de9d2342f644276d8438e8920
+T5: complete verdict=compliant ac=T5.AC1,T5.AC2,T5.AC3,T5.AC4,T5.AC5 evidence=T5.AC1@docs/swarm/monitoring-patterns.md:6,T5.AC2@docs/swarm/observability-procedure.md:98,T5.AC3@docs/swarm/operator-runbook.md:218,T5.AC4@./artifacts/monitoring-doc-check.txt:223,T5.AC5@./artifacts/monitoring-doc-check.txt:227,notes@./artifacts/retries/T5/notes.md:1-3 extras=lint:skip,typecheck:skip,test:pass files=docs/swarm/monitoring-patterns.md,docs/swarm/observability-procedure.md,docs/swarm/operator-runbook.md
+FINAL: pass evidence=./artifacts/final-review.md:3 state=a64b4c8e7dc88ac21ffdf379af3ff451aa0b499e997185267921278d79309334
+ARCHIVE: start id=TASK-WF-createACheckedFi-20261123-195635 token=0ea7c9f20b4a22d8

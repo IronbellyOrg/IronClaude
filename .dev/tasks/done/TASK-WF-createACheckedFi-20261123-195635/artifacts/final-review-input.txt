@@ -1,0 +1,27 @@
+Independent managed FINAL acceptance review, governed by sc-implement-protocol refs/qa.md sections Severity model, FINAL derived test, and Managed FINAL review (archive gate), and refs/managed-workspace.md Completion.
+
+Do not trust the implementer's report. Read the governing QA reference at /home/coder/.claude/skills/sc-implement-protocol/refs/qa.md. This is the independent end-state audit, not another implementation or code-quality ensemble. Do not edit any files or rerun implementation. Return the review as text; the parent persists it under the protocol's read-only-reviewer pattern.
+
+Checkout root: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker
+Package root: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/.dev/tasks/to-do/TASK-WF-createACheckedFi-20261123-195635
+Plan: <package>/TASK-WF-createACheckedFi-20261123-195635.md
+Source snapshot: <package>/source.md
+Full ledger: <package>/progress.md
+Delivery state and exhaustive delivery-file list: <package>/artifacts/final-state.json
+Read the current full plan, full ledger, source snapshot, and current contents of every delivery file listed there. Resolve repository-relative paths against checkout root and ./artifacts tokens against package root. Verify every original AC of Tasks 1-5 against actual current contents and evidence, not just ledger claims.
+
+Effective user instruction: in this conversation at 2026-11-23T20:53:20Z the user said "go ahead and include the launcher change and finish the fix", after the missing detached child output handoff and plan boundary were explained. This explicitly authorizes the launcher output-directory/snapshot-path handoff in commands.py in addition to the two completion continuations. It overrides only that original edit boundary. It is not acceptance of any missing AC; the original plan/source remain byte-pinned and unchanged. No commit, push, GitHub action, new worktree, other issue work, preflight/runtime override recovery or cleanup protocol was authorized. The earlier explicit implementation request already authorized executing this plan.
+
+Use the exact severity model in qa.md. Only a confirmed blocking defect produces issues. The executor owns per-task verdicts; do not rewrite their history. Verify any accepted gap if present; do not treat missing behavior as met. Read all notes, probes, prompts, review files and any briefs named by retry step=revert records in the package's artifacts/retries/T*/ folders. The normal per-task forbidden-read rule does NOT apply to this FINAL. Historical findings with later resolved lines and superseded notes are history, not current defects. All-no notes are noted, not unmet AC. Check saved prompts against the seven-slot closed template outside the slots; whitespace-only differences are notes, not issues. No saved prompt may be modified to evade this check. The optional machine comparison evidence and its script are artifacts/prompt-template-check.txt and artifacts/check_saved_prompts.py; independently inspect the actual saved prompts and governing template.
+
+For each original task AC return met or unmet with live path:line evidence from delivery files or the package logs; never copy citations blindly from the ledger. If unmet name the concrete blocking finding and quote its AC/constraint anchor. Check claim/evidence agreement and latest cited outcome lines, preserving actual failed historical attempts as history. Keep lint/typecheck/test extras distinct from spec-compliance verdicts as qa.md requires. The original diagnostic package is immutable context and may be read for the original negative witnesses; do not write or rerun diagnosis. Current CLI evidence and retained pre-fix checks are under artifacts/foreground-*, resume-*, detached-*, completion-compatibility.txt, reference-doc-check.txt, monitoring-doc-check.txt and final-runtime-check.txt. These are input locations, not statements that they pass.
+
+Return final result exactly pass or issues, evidence per every AC, saved-prompt/notes end-state checks, and findings with their four factual checklist answers and one anchor per yes. If no blocking findings, state what files/behaviors/claims you checked and why no defect remains. Mention unverified checks honestly. No extra review ensemble or agents.
+
+Codegraph context
+index_state: fresh
+checked_at: 2026-11-23T20:14:00Z
+worktree_root: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker
+projectPath: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker
+call codegraph only when index_state: fresh, never to widen scope
+The run has changed source since that readiness check, so graph rows are leads confirmed by Read/Grep. Documentation uses the Read/Grep floor. No new readiness check.

@@ -1,0 +1,17 @@
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python ruff format tests/swarm/test_resume_crash_recovery.py
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+1 file reformatted
+
+EXIT: 0
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_resume_crash_recovery.py tests/swarm/test_resume_regenerates_merge.py tests/swarm/test_resume_uses_manifest_lens.py tests/swarm/test_crash_recovery_e2e.py tests/swarm/test_force_relens.py -q -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+..................................................................................                               [100%]
+82 passed in 1.56s
+
+EXIT: 0
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_resume_crash_recovery.py tests/swarm/test_resume_regenerates_merge.py tests/swarm/test_resume_uses_manifest_lens.py tests/swarm/test_crash_recovery_e2e.py tests/swarm/test_force_relens.py -q -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+..................................................................................                               [100%]
+82 passed in 1.56s
+
+EXIT: 0

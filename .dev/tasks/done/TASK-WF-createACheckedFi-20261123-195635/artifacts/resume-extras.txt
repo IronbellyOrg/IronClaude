@@ -1,0 +1,11 @@
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python ruff check src/superclaude/cli/swarm/commands.py tests/swarm/test_resume_crash_recovery.py
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+All checks passed!
+
+EXIT: 0
+COMMAND: uv run --no-project --python /opt/uv/tools/superclaude/bin/python pytest tests/swarm/test_done_sentinel.py tests/swarm/test_kill_cmd.py -q -o addopts= -p no:cacheprovider --tb=short
+PYTHONPATH: /home/coder/workspaces/worktrees/IronClaude/issue-540-completion-marker/src
+...........................                                                                                      [100%]
+27 passed in 0.77s
+
+EXIT: 0

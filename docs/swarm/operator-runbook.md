@@ -215,10 +215,15 @@ uv run superclaude swarm run --resume lens-bare-review-ab12cd34 --output out --f
 `--stdin` / `--lens` / `--detached`), `--force-relens` (requires `--resume`),
 `--output`, `--transport`.
 
-**Resume emits more than a fresh run.** Because it re-runs Wave 2/3, a resumed
-`<DIR>` additionally contains `return-contract.yaml`, `done.json`, the
-per-worker normalized outputs, and `merged.md` when
-`amalgamation_mode == normalize+merge` — see the
+**Resume regenerates the same result artifacts as a fresh completed reduction.**
+It re-runs Wave 2/3 to regenerate `return-contract.yaml`, per-worker normalized
+outputs and `merged.md` when `amalgamation_mode == normalize+merge`. After the
+contract and terminal state are persisted, it publishes `done.json` when the
+effective rehydrated `runtime.on_completion.write_done_sentinel` policy enables it.
+Explicit opt-out suppresses the marker, not the result or terminal state; arbitrary
+original runtime overrides are not fully restored from the manifest, so an original
+opt-out is not guaranteed to survive resume. Neither early failure nor absent
+completed reduction implies a new marker. See the
 [run artifacts reference](./command-reference.md#run-artifacts) and
 [observability-procedure.md](./observability-procedure.md) (OPS-003).
 

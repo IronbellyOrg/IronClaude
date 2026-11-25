@@ -1,0 +1,3 @@
+56f171c140f4a92de9d2342f644276d8438e8920
+A1 r1-1 F1.1 note ./artifacts/monitoring-doc-check.txt:224 ac=T5.AC5 n,n,n,n UV invocation explicitly selects the existing tool interpreter and local source path instead of relying on the empty checkout venv; it runs the two required test modules and records 29 passed, exit 0. Optional literal-command formatting suggestion only.
+A1 r1-1 F1.2 note ./artifacts/monitoring-doc-check.txt:3-221 ac=T5.AC4 n,n,n,n Search/link results and CHECK: PASS have no separate per-hit prose verdict. The independent reviewer read the hits in live context and verified no stale only-kill/default-inline-never claim remains. Optional evidence presentation suggestion only.
