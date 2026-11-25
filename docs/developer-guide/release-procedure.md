@@ -20,7 +20,7 @@ In the commands below, replace `X.Y.Z` with the version you are releasing, for e
 
 - IronClaude is not published to PyPI. Users install from git with `pipx install git+https://github.com/IronbellyOrg/IronClaude`, then `superclaude install` (`scripts/README.md:3-9`). `uv build` builds the package locally without uploading it (`scripts/README.md:11`).
 - Every merge to `master` therefore reaches anyone who installs or upgrades. A release is a version number, a changelog section, a release-notes file, an annotated tag and a GitHub release on the fork, followed by `/sc:post-release`.
-- `master` and `integration` take pull requests only: the server refuses direct pushes, force pushes and deletion, and release tags (`v*`) cannot be moved or deleted (see [Branch Protection](branch-protection.md)). Merging `master` into `integration` after a release is a pull request too. Creating a new tag stays open, so Step 4 is unchanged.
+- `master` and `integration` take pull requests only: the server refuses direct pushes, force pushes and deletion, and release tags (`v*`) cannot be deleted or rewritten (see [Branch Protection](branch-protection.md)). Merging `master` into `integration` after a release is a pull request too. Creating a new tag stays open, so Step 4 is unchanged.
 - Every `gh` command carries `--repo IronbellyOrg/IronClaude`. This repository is a fork, and without `--repo` the GitHub CLI targets the upstream parent.
 
 ## Step 1: Choose the version

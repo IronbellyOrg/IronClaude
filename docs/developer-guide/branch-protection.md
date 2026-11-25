@@ -12,7 +12,7 @@
 
 - Nobody can push straight to `master` or `integration`, force push over them or delete them. Every change arrives through a pull request, which a person or an automation may merge (zero approvals are required).
 - Merging `master` into `integration` is a pull request too.
-- Release tags can be created (`git push origin vX.Y.Z` still works) but never moved or deleted.
+- Release tags can be created (`git push origin vX.Y.Z` still works) but never deleted or rewritten (`non_fast_forward`). The ruleset has no `update` rule, so a fast-forward move of an existing lightweight tag to a descendant commit is not blocked by it; adding an `update` rule is an open owner decision.
 - `protect-master` names `refs/heads/master` explicitly. Do not use `~DEFAULT_BRANCH`: the default branch is `integration`, so the token would protect the wrong branch.
 - The two branch rulesets have one bypass actor: the Repository admin role (`actor_id` 5) in `pull_request` mode. It lets an admin merge a pull request that is blocked by a rule, and a direct push stays refused. Anything that runs under the admin login can use it, so a person uses it and records it (see Break glass). The tag ruleset has no bypass.
 
@@ -23,7 +23,7 @@ Before applying, confirm that no webhook, deploy key or GitHub App pushes to `ma
 ```bash
 gh api repos/IronbellyOrg/IronClaude/hooks --jq 'length'
 gh api repos/IronbellyOrg/IronClaude/keys --jq 'length'
-gh api orgs/IronbellyOrg/installations --jq '.installations[] | [.app_slug, .permissions.contents] | @tsv'
+gh api --paginate orgs/IronbellyOrg/installations --jq '.installations[] | [.app_slug, .permissions.contents] | @tsv'
 ```
 
 Both counts should be `0`. The third command lists the GitHub Apps installed on the organization with their `contents` permission: an app with `write` can push, and once the rulesets are on it must use pull requests, because only the admin role can bypass them. Review each `write` app before applying. (The list shows installed apps, not which repositories they can reach.)

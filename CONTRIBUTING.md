@@ -70,7 +70,7 @@ Check that the returned URL starts with `https://github.com/IronbellyOrg/IronCla
 
 ### Branch rule
 
-`master` and `integration` take pull requests only. The server refuses direct pushes (including edits in the GitHub web editor), force pushes and deletion, so open a pull request from a branch. Merging `master` into `integration` is a pull request too. Release tags (`v*`) can be created but never moved or deleted. See [Branch Protection](docs/developer-guide/branch-protection.md).
+`master` and `integration` take pull requests only. The server refuses direct pushes (including edits in the GitHub web editor), force pushes and deletion, so open a pull request from a branch. Merging `master` into `integration` is a pull request too. Release tags (`v*`) can be created but never deleted or rewritten. See [Branch Protection](docs/developer-guide/branch-protection.md).
 
 ### Claiming and filing issues
 
