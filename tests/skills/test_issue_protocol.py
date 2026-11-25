@@ -1374,7 +1374,8 @@ def credential_check_problems(ref: str) -> list[str]:
         return ["refs/create.md has no 'Credential check' paragraph"]
     for needle in (
         "with no question",
-        "never run a scanner",
+        "prints nothing",
+        "run a scanner",
         "<REDACTED>",
         "kept without approval",
     ):
@@ -1395,7 +1396,7 @@ def test_create_redacts_credentials_before_posting_without_a_question():
 
 
 @pytest.mark.parametrize(
-    "needle", ["with no question", "<REDACTED>", "never run a scanner"]
+    "needle", ["with no question", "<REDACTED>", "prints nothing", "run a scanner"]
 )
 def test_credential_check_fails_when_a_requirement_is_deleted(needle, tmp_path):
     ref = _text(REFS / "create.md")
