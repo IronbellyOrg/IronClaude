@@ -1292,6 +1292,11 @@ def test_wave2_blocker_item_states_the_three_outcomes_in_order():
     assert "<each #number and link>" in item[first:second]
     # an unreadable list continues and is reported in the final output
     assert "continue" in item[second:third]
+    # output that is neither a blocker line nor empty also fails open, never "no blockers"
+    assert (
+        "or any output that does not match means the check could not run"
+        in item[second:third]
+    )
     assert (
         "Blocker check: could not run (<reason>); the claim went ahead without it."
         in item[second:third]
