@@ -41,6 +41,7 @@ The Flag column is advisory: these are hints Claude may honour, not options ever
 8. **Auggie first** — call `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) before significant edits to load relevant context
 9. **Temporal** — verify current date from env context before any date/version reasoning
 10. **Issues** — before filing a GitHub issue, copy the matching template (`~/.claude/ISSUE-HANDOFF.md` for work handed to another person or agent, `~/.claude/ISSUE-BACKLOG.md` for parked work) to a temporary file, fill every section in the copy, then run `gh issue create --title "<title>" --body-file <the copy>`; never edit the installed template
+11. **Research routing** — documentation for a library, framework, SDK or CLI: call `context7` first; current online information: call `tavily` first, and extract a likely answer's page before searching more. Before delegating a research question, check the delegate's tools include the needed server; if not, run the lookup directly instead of handing it off. Native web tools and local code search stay valid fallbacks when a server is missing, erroring or out of scope
 
 ### Orca session launches
 

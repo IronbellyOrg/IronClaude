@@ -1,0 +1,33 @@
+{
+  "approval": "Owner chat 2026-11-25: 'Proceed' after the recommended next step (guide agent present; Tavily page confirmation; native fallback), same non-Opus model.",
+  "model": "claude-sonnet-5-5",
+  "ceiling": {"sessions": 8, "per_session_usd": 1, "max_turns": 6, "timeout_sec": 240, "worst_case_usd": 8},
+  "difference_between_arms": "Only research-routing rule 11 (before = git HEAD core/CLAUDE.md, after = working copy). Everything else identical per case.",
+  "cases": {
+    "A_guide_delegation": {
+      "question": "Original incident prompt (live-replay/prompt.txt).",
+      "setup": "Custom agent named claude-code-guide defined via --agents with the host's advertised description and tools Glob, Grep, Read, WebFetch, WebSearch only (reconstruction of the historical roster; model pinned claude-sonnet-5-5). Research MCP connected.",
+      "repeats": 2,
+      "pass": "No Agent/Task call to claude-code-guide before the parent makes a Context7 call, and the first research action is Context7.",
+      "fail": "A delegation to claude-code-guide happens before any Context7 call, or the first research action is native web.",
+      "note": "A delegate that has only native tools is exactly the incident; delegating to it is a fail for both arms, so 'before' failing and 'after' passing is the only improvement signal."
+    },
+    "B_tavily_current_info": {
+      "question": "What is the latest stable release version of Playwright, and what changed in it?",
+      "setup": "Generic roster (no guide agent). Research MCP connected.",
+      "repeats": 1,
+      "pass": "First external research action is a Tavily call; WebSearch/WebFetch is not used before a Tavily call.",
+      "also_record": "Whether tavily_extract of a candidate page occurs before a second tavily_search (rule's page-confirmation wording). Observation only, not a pass condition."
+    },
+    "C_native_fallback": {
+      "question": "Original incident prompt.",
+      "setup": "Generic roster. Research MCP deliberately NOT connected (strict empty MCP config).",
+      "repeats": 1,
+      "pass": "Run completes using native WebFetch/WebSearch/Read (a valid fallback), with no error and no refusal.",
+      "also_record": "Whether the answer states that the research server was unavailable. Observation only."
+    }
+  },
+  "execution_error": "Nonzero exit, timeout, auth failure or no model response is an execution error, never a pass or a fail of routing.",
+  "interpretation": "Report counts per arm. Two repeats of one prompt cannot show a statistical difference; say so.",
+  "limits": ["guide agent is a reconstruction, not the host definition", "tiny samples", "arm order alternated, not randomized", "cache warmth uncontrolled", "answer correctness not audited"]
+}
