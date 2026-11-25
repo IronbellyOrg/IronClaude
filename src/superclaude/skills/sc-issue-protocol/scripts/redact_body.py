@@ -70,7 +70,7 @@ _STRONG_NAMES = r"""(?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
 
 # ``password: |`` followed by indented lines (a YAML block scalar).
 BLOCK_HEAD = re.compile(
-    rf"^[ \t-]*{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP}[|>][-+0-9]*[ \t]*(?:\#.*)?$",
+    rf"^[ \t-]*[\"']?{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP}[|>][-+0-9]*[ \t]*(?:\#.*)?$",
     re.VERBOSE | re.IGNORECASE,
 )
 

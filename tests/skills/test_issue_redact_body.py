@@ -68,6 +68,7 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         'password: "first-line\n  remaining-secret123"',
         'password: "first-line\\\n  remaining-secret123"',
         "password: | # production password\n  remaining-secret123",
+        '"password": |\n  remaining-secret123',
         "password: <Secret1234567890>",
         PEM,
     ],
