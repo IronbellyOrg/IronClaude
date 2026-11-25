@@ -44,21 +44,32 @@ SHAPED_VALUES = re.compile(
 )
 
 # A long base64-looking run (upper case, lower case and a digit, 40 or more characters)
-# is treated as an encoded credential. Git hashes are lower-case hex and file paths
-# contain ``/``, ``-`` and ``.``, so they do not match. This narrows, but cannot close,
-# the encoded-secret gap: a worker that deliberately obfuscates a value can still
-# get it past any pattern.
+# is treated as an encoded credential. Git hashes are lower-case hex, and a run with two
+# or more ``/`` is read as a path or URL (a GitHub permalink must survive), so neither
+# is redacted. This narrows, but cannot close, the encoded-secret gap: a worker that
+# deliberately obfuscates a value, or an encoded value with two ``/``, can still get
+# past any pattern.
 BASE64_BLOB = re.compile(
     r"(?<![A-Za-z0-9+/=])"
-    r"(?=[A-Za-z0-9+]*[A-Z])(?=[A-Za-z0-9+]*[a-z])(?=[A-Za-z0-9+]*[0-9])"
-    r"[A-Za-z0-9+]{40,}={0,2}(?![A-Za-z0-9+/=])"
+    r"(?=[A-Za-z0-9+/]*[A-Z])(?=[A-Za-z0-9+/]*[a-z])(?=[A-Za-z0-9+/]*[0-9])"
+    r"[A-Za-z0-9+/]{40,}={0,2}(?![A-Za-z0-9+/=])"
 )
 
 URL_PASSWORD = re.compile(r"(\b[a-z][a-z0-9+.-]*://[^\s/:@]+:)([^\s/@]+)(@)", re.I)
 
 _SEP = r"""["']?\s*[:=]\s*"""
-_QUOTED = r"""(?:"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')"""
+# Double quotes escape with a backslash; single quotes also escape by doubling (YAML).
+_QUOTED = r"""(?:"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.|'')*')"""
 _NAME_CHARS = r"[A-Za-z0-9_.-]*"
+_STRONG_NAMES = r"""(?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
+           |authorization|credential|session[_-]?id
+           |(?:access|auth|refresh|id|bearer)[_-]?token)"""
+
+# ``password: |`` followed by indented lines (a YAML block scalar).
+BLOCK_HEAD = re.compile(
+    rf"^[ \t-]*{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP}[|>][-+0-9]*[ \t]*$",
+    re.VERBOSE | re.IGNORECASE,
+)
 
 # A whole header line: ``Cookie: theme=dark; session=...`` holds several values.
 COOKIE_LINE = re.compile(
@@ -68,11 +79,8 @@ COOKIE_LINE = re.compile(
 # Names that always hold a credential: a quoted value, or the rest of the line (a
 # passphrase may have several words; over-redacting a line is the safe failure).
 STRONG_PAIR = re.compile(
-    rf"""(?P<head>{_NAME_CHARS}
-        (?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
-           |authorization|credential|session[_-]?id
-           |(?:access|auth|refresh|id|bearer)[_-]?token)
-        {_NAME_CHARS}{_SEP})(?P<value>{_QUOTED}|[^\n]+)""",
+    rf"""(?P<head>{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP})
+        (?P<value>{_QUOTED}|[^\n]+)""",
     re.VERBOSE | re.IGNORECASE,
 )
 
@@ -86,12 +94,14 @@ WEAK_PAIR = re.compile(
 # Exact placeholder shapes only: a real secret that merely starts with ``$`` or
 # ``<`` (``$ecret123``) is still redacted.
 _PLACEHOLDER = re.compile(
-    r"""<[A-Za-z0-9_ -]*>           # <your-password>, <REDACTED>
+    r"""<REDACTED>
+      | <[a-z][a-z _-]*>            # <your-password> (lower case only: <Secret123> is a value)
       | \$\{[^}]*\}                 # ${PASSWORD}
       | \$[A-Z_][A-Z0-9_]*          # $API_KEY (upper-case variable)
       | \{\{[^{}]*\}\}              # {{ secret }}
       | %[A-Za-z_][A-Za-z0-9_]*%    # %PASSWORD%
       | \*+                         # ******
+      | [|>][-+0-9]*                # a YAML block-scalar header (its lines are handled apart)
     """,
     re.VERBOSE,
 )
@@ -121,6 +131,34 @@ def _secret_shaped(value: str) -> bool:
     )
 
 
+def _redact_block_scalars(text: str) -> tuple[str, int]:
+    """Redact the indented lines under ``password: |`` (a YAML block scalar)."""
+    lines = text.split("\n")
+    out: list[str] = []
+    count = 0
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        out.append(line)
+        i += 1
+        if not BLOCK_HEAD.match(line):
+            continue
+        base = len(line) - len(line.lstrip())
+        redacted_any = False
+        while i < len(lines) and (
+            not lines[i].strip() or len(lines[i]) - len(lines[i].lstrip()) > base
+        ):
+            body = lines[i]
+            if body.strip():
+                out.append(body[: len(body) - len(body.lstrip())] + REDACTED)
+                redacted_any = True
+            else:
+                out.append(body)
+            i += 1
+        count += redacted_any
+    return "\n".join(out), count
+
+
 def redact(text: str) -> tuple[str, int]:
     """Return ``text`` with credential values replaced and the replacement count."""
     total = 0
@@ -128,7 +166,18 @@ def redact(text: str) -> tuple[str, int]:
     total += n
     text, n = SHAPED_VALUES.subn(REDACTED, text)
     total += n
-    text, n = BASE64_BLOB.subn(REDACTED, text)
+    blobs = 0
+
+    def blob(match: re.Match[str]) -> str:
+        nonlocal blobs
+        if match.group(0).count("/") >= 2:  # a path or URL, not an encoded value
+            return match.group(0)
+        blobs += 1
+        return REDACTED
+
+    text = BASE64_BLOB.sub(blob, text)
+    total += blobs
+    text, n = _redact_block_scalars(text)
     total += n
     text, n = URL_PASSWORD.subn(
         lambda m: (

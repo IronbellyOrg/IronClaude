@@ -32,6 +32,7 @@ rb = _load()
 GH = "ghp_" + "A1b2C3d4E5f6G7h8I9j0K1l2M3"
 PEM = "-----BEGIN RSA PRIVATE KEY-----\nMIIBOg\n-----END RSA PRIVATE KEY-----"
 B64 = base64.b64encode(GH.encode()).decode()  # an encoded token, no known prefix
+B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one slash
 
 
 @pytest.mark.parametrize(
@@ -61,6 +62,10 @@ B64 = base64.b64encode(GH.encode()).decode()  # an encoded token, no known prefi
         "access_token: abcdefghijklmnopqrstuvwxyz",
         "auth_token: a1b2c3d4",
         f"encoded: {B64}",
+        f"encoded: {B64_SLASH}",
+        "password: |\n  correct horse battery staple",
+        "password: 'prefix''remaining-secret123'",
+        "password: <Secret1234567890>",
         PEM,
     ],
 )
@@ -84,7 +89,9 @@ def test_credentials_are_redacted(line):
         "remaining-secret123",
         "abcdefghijklmnopqrstuvwxyz",
         "a1b2c3d4",
+        "Secret1234567890",
         B64,
+        B64_SLASH,
     ):
         assert secret not in out
 
@@ -100,6 +107,7 @@ def test_credentials_are_redacted(line):
         "API_KEY=$API_KEY",
         "the token expired after an hour",
         "commit 0123456789abcdef0123456789abcdef01234567 fixed it",
+        "https://github.com/IronbellyOrg/IronClaude/blob/a6fec24480e8cc65abbb16b194625e2ea52238c7/SECURITY.md#L484",
         "see .dev/tasks/done/TASK-WF-issueSummary-20261125-190451/artifacts/README-run.md",
     ],
 )
@@ -111,6 +119,13 @@ def test_a_strong_name_redacts_the_rest_of_the_line():
     out, count = rb.redact("password=hunter22 and api_key=abcd1234efgh")
     assert count == 1
     assert "hunter22" not in out and "abcd1234efgh" not in out
+
+
+def test_a_block_scalar_is_redacted_and_the_next_key_is_kept():
+    out, count = rb.redact("password: |\n  hunter22\n  more words\nuser: bob\n")
+    assert count == 1
+    assert "hunter22" not in out and "more words" not in out
+    assert out.endswith("user: bob\n")
 
 
 def test_one_value_per_line_counts_once_each():
