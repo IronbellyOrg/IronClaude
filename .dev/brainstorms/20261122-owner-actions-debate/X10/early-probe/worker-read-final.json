@@ -1,0 +1,14 @@
+{
+  "id": "c62451d3-dc9e-426a-a3ca-55ea5e5b3202",
+  "ok": false,
+  "error": {
+    "code": "transcript_required",
+    "message": "Structured output is unavailable for Dispatch ctx_5f78a1f4eb2c: session_not_reported.",
+    "data": {
+      "reason": "session_not_reported"
+    }
+  },
+  "_meta": {
+    "runtimeId": "5fa47013-c78e-429f-8465-1efeaa46b5b9"
+  }
+}

@@ -1,0 +1,17 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D12/adversarial/merged-d12-position.md"
+  convergence_score: 0.88
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D12/adversarial/adversarial/"
+  status: "partial"
+  base_variant: "variant-1-original (OURS)"
+  unresolved_conflicts: 3
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-001, category: sufficiency_challenge, assumption: "The new claim rule alone removes the double planning (the --pipeline none orchestrator path takes its chain from its own handoff template)", severity: HIGH}
+    - {id: INV-002, category: sufficiency_challenge, assumption: "--plan plus plan_check alone lets an unattended consumer start only planned issues (the check is syntactic; fenced headings count)", severity: HIGH}
+    - {id: INV-004, category: guard_conditions, assumption: "A passing plan may take the short chain whatever the accuracy verdict", severity: HIGH}
+    - {id: INV-005, category: count_divergence, assumption: "A plan that passes the check is deep enough for the claim-time complexity (plan depth is not recorded)", severity: HIGH}
+    - {id: INV-006, category: interaction_effects, assumption: "Quoting the plan into next-steps.md is safe (claim has no data fence for issue text)", severity: HIGH}
+  notes: "Convergence 22 of 25 diff points (88 percent, threshold 80) but BLOCKED_BY_INVARIANTS at depth standard (no Round 3); the five HIGH findings are carried as safeguards S1 to S5 in refactor-plan.md. Unresolved points decided by the orchestrator: C-003, C-013, X-003. Score margin 1.5 percent, tiebreak by points won (8 against 1)."

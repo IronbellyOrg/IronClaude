@@ -1,0 +1,18 @@
+# Final. status FAILED: budget abort ordered by team-lead. Measured variant-generation total 284,611 tokens
+# (119,633 + 164,978) exceeded the 230,000 hard ceiling at variant_generation. The orchestrator did NOT abort
+# there; diff, Round 1 debate, scoring, refactor plan and merge all ran (further subagent use: advocates
+# 114,319 + 111,907, merge-executor 149,866) before the abort order arrived. Those steps were reached, so their
+# fields are filled with what is on disk rather than nulled. Debate was also non-converged (0.625 < 0.75).
+# No child agents are running; all artifacts preserved; nothing deleted; no retry.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/research/orca-dashboard-20261105/interactive-brainstorm/adversarial/merged-visual-design.md"
+  convergence_score: 0.625
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/research/orca-dashboard-20261105/interactive-brainstorm/adversarial/adversarial"
+  status: "failed"
+  failure_reason: "budget_ceiling_exceeded: variant total 284,611 > 230,000 hard ceiling; abort not applied until after merge"
+  base_variant: "variant-2-sonnet-architect.md"
+  unresolved_conflicts: ["S-002", "C-003", "X-001"]
+  fallback_mode: false
+  failure_stage: "variant_generation"
+  invocation_method: "task-agent"
+  unaddressed_invariants: []

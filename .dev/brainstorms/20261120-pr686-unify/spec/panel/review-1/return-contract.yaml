@@ -1,0 +1,10 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:spec-panel @/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/spec/panel/candidate-1.md --mode critique --focus requirements,architecture,testing,compliance,correctness --format detailed --unattended --report-dir /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/spec/panel/review-1"
+report_path: /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/spec/panel/review-1/spec-panel-report.md
+artifacts: []
+review: "1 of 3"
+verdict: FAIL
+blocking_findings: 1
+medium_findings: 13
+note_findings: 11

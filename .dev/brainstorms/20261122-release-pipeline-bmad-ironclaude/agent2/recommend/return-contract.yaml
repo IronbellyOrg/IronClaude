@@ -1,0 +1,12 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:recommend --unattended --report-dir .dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/recommend "<goal: BMAD to IronClaude release pipeline>"'
+report_path: .dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/recommend/recommendation.md
+artifacts: []
+status: success
+mode: local
+recommendation_kind: multi_path
+guide_status: no_match
+routing_row_id: ""
+auggie_status: ok
+degradation_notes: "installed HOW-WE-WORK.md used, checkout copy not read (checkout behind origin/master); hot-path cache skipped; run was made inline by ic-planner, not as an Orca worker"

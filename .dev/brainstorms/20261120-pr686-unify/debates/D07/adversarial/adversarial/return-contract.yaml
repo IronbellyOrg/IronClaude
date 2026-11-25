@@ -1,0 +1,18 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/adversarial/merged-output.md"
+  convergence_score: 0.958
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/adversarial/adversarial"
+  status: "partial"
+  base_variant: "variant-1-original (OURS, the owner's line)"
+  unresolved_conflicts: 1   # X-005 (branch name coordinators vs Coordinator), an open owner decision
+  fallback_mode: true       # standard depth has no Round 3: forced selection by score after the invariant gate blocked convergence
+  failure_stage: null
+  invocation_method: "skill-direct"
+  convergence_status: "BLOCKED_BY_INVARIANTS (diff-point agreement 95.8 percent, above the 80 percent threshold; taxonomy gate passed)"
+  unaddressed_invariants:
+    - {id: INV-001, category: interaction_effects, assumption: "The in-flight cap can be a dispatcher pre-check that skips the repo", severity: HIGH}
+    - {id: INV-002, category: state_variables, assumption: "In flight ends by itself (closed, dropped or escalated)", severity: HIGH}
+    - {id: INV-004, category: interaction_effects, assumption: "Claim sessions and the standing coordinator can share one Coordinator worktree", severity: HIGH}
+    - {id: INV-005, category: guard_conditions, assumption: "A dead coordinator with work in flight can be restarted safely from the dispatcher", severity: HIGH}
+    - {id: INV-012, category: sufficiency_challenge, assumption: "OURS topology plus the four adoptions alone give safe, bounded, zero-setup dispatch", severity: HIGH}
+  note: "The five HIGH items are carried into merged-output.md as stated requirements and conditions (items 3, 6, 7 and the Prerequisites cost line); they were not debated in a third round."

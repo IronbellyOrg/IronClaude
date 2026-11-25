@@ -1,0 +1,137 @@
+<!-- Provenance: produced by /sc:adversarial; Base: Variant 1 (OURS); Merge date: 2026-11-20 -->
+<!-- Source: Base (original, modified) - title renamed from "Position OURS" to a merged position; the paths line is kept and the pr-p snapshot path is added from Variant 2 -->
+# Merged position (D12): /sc:issue plan sections, `--plan`, `--remaining` and planning at claim
+
+Paths below are read from the master snapshot `/home/coder/.cache/ic-snap-20261120/master` (origin/master 61ac2c2e6) unless stated. "Master" means that snapshot. Paths marked "pr-p snapshot" are read from `/home/coder/.cache/ic-snap-20261120/pr-p` (branch issue-655-pr-p, PR 690).
+
+<!-- Source: Base (original, modified) - Claim widened to the plan: claim reads the plan sections (Change #1), `--remaining` kept with adaptations (Change #3), splits and deferrals (Changes #4 to #8) -->
+## Claim
+
+Keep the owner's claim chain where it is, and make claim read the plan sections that PR 661 added (Change C1, under safeguards S1 to S5). Planning with brainstorm and design stays at claim, after an accuracy check, because an issue body is assumed to be out of date by the time somebody picks it up. Take from Clay: the three plan sections in the templates (PR 661, merged, kept as merged); plain `--plan` and `--remaining` (PR 690, open), both kept with adaptations made before merge (C3); and, as a separate small change, `--mode other` and the three GitHub form fields (C4). Do not build now Clay's issue 689 move of brainstorm and design into create: it becomes an owner decision with named preconditions (C8). The claim refusal of plan-less issues becomes a warning (C5); the higher create tier (C6) and the rename of `## Fix approach` (C7) are deferred.
+
+<!-- Source: Base (original, modified) - mechanism points 1 to 3 kept; points 4 and 5 added from Variant 2 -->
+## Mechanism (how the owner's line works today, and what the plan modes add)
+
+1. `--claim` assigns the issue, runs an accuracy check of the issue text against today's code and the PRs merged since the issue was opened, writes a summary, then in Wave 5 loads `refs/chains.md`, calls `/sc:recommend` with the default chain row for the type and complexity, and writes `next-steps.md`. `/sc:issue` itself never runs the chain commands; the launched agent does, up to the plan boundary of its level (`worktree` stops at a plan a human approves; `full` goes on to implement). <!-- Source: Base (original) -->
+2. `--create` files an issue. It drafts the body with a worker on the tier of the depth and, since PR 661, fills Priority, Fix approach and Test plan at every depth. <!-- Source: Base (original) -->
+3. The owner's pipeline for the watcher picks the command from the issue's Project Status (Research, Spec, Plan, Debug) and the level from the Pipeline field. Planning commands are therefore chosen after claim, per stage, by the person who set the Status. <!-- Source: Base (original) -->
+4. `--plan <N>` runs the same drafting as create on an existing issue and makes one body edit built by a script (`src/superclaude/skills/sc-issue-protocol/scripts/plan_body.py` with `check`, `splice`, `verify`, pr-p snapshot), so the model never retypes the body. <!-- Source: Variant 2 (CLAY), Section Mechanism, bullet 1 - merged per Change #3 -->
+5. The orchestrator design (`docs/designs/orchestrator.md`, sections 4.11 and 8.3, master) holds an issue with no plan (`hold:plan`) and fills the plan through `/sc:issue --plan`; claim then runs only the execution steps. <!-- Source: Variant 2 (CLAY), Section Mechanism, bullet 2 - merged per Change #3 -->
+
+<!-- Source: Base (original, modified) - facts 1 to 9 preserved; facts 10 to 15 added from Variant 2 -->
+## Cited facts
+
+1. The owner's own spec for the command, issue 302 "[feat]sc-issue command" (closed), says the claim "Assumes context in issue body is out of date", validates the body against code and later PRs, and then builds a chain by bug or feature and complexity: simple, medium and complex features start with `/sc:brainstorm` (design for medium), then `/sc:workflow`, then `/sc:implement` (issue 302 body, lines 9 to 19, read with `gh issue view 302 --repo IronbellyOrg/IronClaude`). The planning-at-claim shape is the owner's stated design, not an accident. <!-- Source: Base (original) -->
+2. Design record `docs/designs/sc-issue-command.md`: B2 (line 29) the claim writes the next-step prompt and an agent runs it; B4 (line 31) `/sc:recommend` picks the chain; B14 (line 41) brainstorm and implement work run on T1 or T2 by complexity; D23 (line 469) `/sc:recommend` overrides the default row. <!-- Source: Base (original) -->
+3. `src/superclaude/skills/sc-issue-protocol/refs/chains.md:7`: "`/sc:issue` never runs these commands (B2); it writes them into `next-steps.md`". The create-mode workers cannot run them either: `src/superclaude/agents/issue-worker-t1.md:5` (same line in t2 and t3) gives the tools `Read, Grep, Glob, Write, Bash`, with no Skill or Agent tool. Issue 689 asks create to "run the brainstorm and design steps"; it names no actor that can. <!-- Source: Base (original) -->
+4. `/sc:issue` is on the never-as-worker list (`src/superclaude/core/WORKER-CONTRACT.md:23`). So any planning that `/sc:issue` runs must run in a calling session, not in a worker. That is also why Clay's own design says PR 690's plan mode is called by the orchestrator session (design `docs/designs/orchestrator.md`, section 8.3, and risk K27). <!-- Source: Base (original) -->
+5. The owner's zero-setup requirements (unpushed, worktree `claim-handoff-planb`, `.dev/releases/backlog/issue-watcher-zero-setup/requirements.md`): R23 (line 47) Status picks the command (Spec: `/sc:design` or `/sc:brainstorm`; Plan: `/sc:workflow`; Debug: `/sc:troubleshoot --fix`) and R25 (line 51) Pipeline picks the level. If design and brainstorm ran at create, the Spec stage would have nothing left to do and R23 would need a rewrite. <!-- Source: Base (original) -->
+6. Issue 689 is an open issue, not a PR: no assignee, no comments, `updatedAt` 2026-11-20T00:47:18Z (read with `gh issue view 689`). Its own Fix approach says "Settle the decisions marked Decision for Clay in items 2, 5, 6, 7, 8 and 9 with Clay. Nothing is built before this." Nothing in it is built and several of its own decisions are open. <!-- Source: Base (original) -->
+7. Issue 689 would make `--claim` refuse any issue without the three plan sections. PR 661 merged on 2026-11-19T01:29:57Z, so every issue filed before then, and every issue filed by hand through the GitHub forms (issue 689 itself states `.github/ISSUE_TEMPLATE/*.yml` has no plan field; `grep` of the three forms on master finds 0 matches), would be refused. The owner's open issues 339, 409, 423, 431, 444 and 450 were filed before 2026-11-19 (their filing dates are not re-read here; UNVERIFIED), so they would likely be refused. <!-- Source: Base (original) -->
+8. Master claim ignores the plan sections that PR 661 added: `grep` for "Fix approach" in `refs/claim.md`, `templates/next-steps.md` and `templates/issue-summary.md` finds nothing. This is a real gap in the owner's line, conceded below, and it is closed by one rule in claim (Change C1), not by moving the chain. <!-- Source: Base (original, modified) - "one rule in claim" now points at Change C1 and its safeguards instead of the original one-line concession -->
+9. PR 690 as built keeps the owner's boundary: one body edit, no comment, no label, no assignment, no ClickUp, no worktree, no launch (`commands/issue.md` Will Not, plan line, in the pr-p snapshot). Its drafting worker has the same tool set as claim and create and sees issue text only as fenced data (PR 690 body, "Known limits"; hardening tracked on follow-up issue 665). <!-- Source: Base (original) -->
+10. After PR 661 the two ends disagree. Create now writes a Fix approach whose commands are `/sc:workflow`, `/sc:implement`, `/sc:pr-submit --monitor 3` (`refs/create.md:66`), while claim, in Wave 5, still builds a chain that starts with `/sc:brainstorm` and `/sc:design` for medium and complex features (`refs/chains.md` rows 2 and 3) and never reads the plan sections (same grep result as point 8). The same plan is therefore made twice. PR 661 says of itself "Not changed: the claim flow". Merged `refs/create.md:61` promises that whoever picks the issue up "only executes" (cited in the refactoring plan, Change C1; the line is not re-read here). <!-- Source: Variant 2 (CLAY), Section Cited facts, points 2 and 3 - merged per Change #1 -->
+11. A capability the owner's line lacks: nothing fills the plan sections of an issue that already exists. Hand-filed issues (GitHub forms with no plan field: `.github/ISSUE_TEMPLATE/bug_report.yml`, `feature_request.yml`, `other.yml`; `grep` finds 0 matches for the three headings) and every issue filed before 2026-11-19 reach claim with no plan. PR 690's `--plan` is that capability. <!-- Source: Variant 2 (CLAY), Section Cited facts, point 4 - merged per Change #3 -->
+12. PR 690 is built and tested: 2,811 additions, three review rounds (Augment and Codex), full suite 23,043 passed on its first head (PR 690 body), and a hand run in the private sandbox `IronbellyOrg/orchestrator-sandbox` issue 1 with before and after bodies shown. These figures are for the first head; the live head is confirmed before merge (Change C3, adaptation d). `plan_body.py` makes the write deterministic and testable, and its one-write boundary is the owner's own rule. <!-- Source: Variant 2 (CLAY), Section Cited facts, point 5 and Section What it gets right, bullet 2 - merged per Change #3 -->
+13. The design's hold depends on `--plan`. `plan_check` (design 4.11 point 1) tests the same three headings; ruling 31 says "all plan creation flows through `/sc:issue`" and PR P is "built before PR B" (design 8.3, line 1085). Without `--plan` an unattended poll can hold an issue but nothing can fill it. The debate transcript notes the design is partly unpushed (U-007 row in `debate-transcript.md`). <!-- Source: Variant 2 (CLAY), Section Cited facts, point 6 - merged per Change #3 -->
+14. Issue 689 states asymmetries as findings read on master: create drafts on T3 at quick and T2 at standard and only deep uses T1 (`refs/tiers.md` tier map), while claim plans on T1 (`refs/chains.md` tier lines); `refs/labels.md:26` says "Task is never chosen", so docs, chores and research are filed as features; the GitHub forms carry no plan field. <!-- Source: Variant 2 (CLAY), Section Cited facts, point 7 - merged per Changes #4 and #6 -->
+15. Issue 689 is honest about its state: "Decision for Clay" is marked on items 2, 5, 6, 7, 8 and 9, "Assumption, for Clay to confirm" on others, and step 1 reads "Nothing is built before this." It calls for the orchestrator's `plan_check` to accept both `Fix approach` and `Approach` during migration. <!-- Source: Variant 2 (CLAY), Section Cited facts, point 8 - merged per Changes #7 and #8 -->
+
+<!-- Source: Base (original, modified) - base bullets kept; bullets 4 and 5 added from the refactoring plan (Changes #1, #3, #9) -->
+## What it costs
+
+- Claim time is expensive: a brainstorm and a design on tier 1b for each medium or complex claim. <!-- Source: Base (original) -->
+- Two places draft a plan today (create's light plan, claim's heavy chain), and claim does not read the first (points 8 and 10). That is duplicate work and is the one point in issue 689 that is right. Change C1 closes it only for simple features whose plan passes the check and whose accuracy verdict is current (S2 to S4); for medium and complex features the duplicate work remains, with the filed plan as a seed, until the plan marker records its drafting depth. <!-- Source: Base (original, modified) - the cost is narrowed to what C1 and safeguards S2 to S4 leave open -->
+- A person who files by hand gets no plan until claim, or until `--plan` is run on the issue (point 11). <!-- Source: Base (original, modified) - pointer to `--plan` added -->
+- C1 touches the chain tests and the launch prompt path (overall risk Medium in the refactoring plan); the pinned rows in `tests/skills/test_issue_protocol.py` and the `next-steps.md` first-line test move in the same PR (Change C9). <!-- Source: Base (original, modified) - cost added from the refactoring plan (Changes #1 and #9) -->
+- The PR 690 adaptations (C3, a to d) must land before merge: fence-aware heading count with a test, one definition of "passes the check", a documented caller for `--remaining`, and a check of the live head. <!-- Source: Base (original, modified) - cost added from the refactoring plan (Change #3) -->
+
+<!-- Source: Base (original, modified) - hold question and `--remaining` risk rewritten for Change #3; risks 3 to 5 added from the refactoring plan -->
+## What it risks
+
+- Keeping the chain at claim leaves the unattended watcher with no plan-before-start check inside claim. That is the "hold" question, which belongs to another debate (D-topics on the watcher), not to this one. The plan's position is that the unattended path is held by the orchestrator's own `plan-check` at wave 1 (`orchestrator.md:543`), not by claim, because claim has no unattended signal (Change C5). <!-- Source: Base (original, modified) - pointer to Change C5 added -->
+- PR 690's `--remaining` serves the orchestrator's hand-back loop (design ruling 36, `handback` verb), which is unbuilt and contested elsewhere (design 8.3). The base position held `--remaining` back for that reason. The plan keeps it, because the skill text is self-contained with no `handback` coupling (stated as verified in the refactoring plan, Change C3) and because its adaptations state that `--remaining` is called by a session that holds the issue, with no caller gate (documentation, not enforcement; INV-003). The residual risk is an interface that can be called by anyone and an unbuilt consumer. <!-- Source: Base (original, modified) - the base risk of merging `--remaining` now is kept as a residual risk and reconciled with Change #3; the ruling 36 reference comes from Variant 2 (CLAY), Section What it risks, bullet 4 -->
+- C1 can skip brainstorm and design on a thin or stale plan. The check proves presence of the three sections, not quality (S2), the verdict must be current (S3), the short chain is for simple features only (S4), and the plan reaches `next-steps.md` only as quoted data (S5). Rollback is to remove the rule; the chain rows stay unchanged. <!-- Source: Base (original, modified) - risk added from the refactoring plan (Change #1) -->
+- On the `--pipeline none` path the chain source is the orchestrator's own handoff template (`orchestrator.md:643`), which C1 does not govern (S1). <!-- Source: Base (original, modified) - risk added from the refactoring plan (Change #1, S1) -->
+- PR 690's known limit stays: the session follows `refs/plan.md` as prose and only body building and checks are code; issue text reaches a drafting worker with the claim-mode tool set (follow-up issue 665, point 9). <!-- Source: Variant 2 (CLAY), Section What it risks, bullet 5 - merged per Change #3 -->
+
+<!-- Source: Base (original, modified) - base bullets kept (one narrowed); Variant 2 strengths added as bullets 5 to 9 -->
+## What it gets right
+
+- Staleness: a design written into the body at filing time is a claim about code that moves. The owner's accuracy check exists to test the body against today's code. A heavy design baked into the body makes the accuracy check validate a design, and a stale design is worse than none. <!-- Source: Base (original) -->
+- Human gate: `worktree` level stops at a plan a human approves (`templates/launch-prompt.md:21-23`). Plan-at-claim puts the human review where the plan is built from fresh facts. <!-- Source: Base (original) -->
+- Small blast radius: no rename of `## Fix approach` (C7), no change to the four issue body templates (C2), no new `## Design` section, no blanket claim refusal (C5); chain rows stay as they are and C1 adds one rule beside them. <!-- Source: Base (original, modified) - restated against Changes C1, C2, C5 and C7 -->
+- PR 661 (light plan at create) and PR 690 plain `--plan` already fill the plan-less gap without moving the heavy planning. <!-- Source: Base (original) -->
+- Double planning is real (point 10): create now promises the plan and claim ignores it. Making claim read the plan is the right fix, and it needs no move of the chain. <!-- Source: Variant 2 (CLAY), Section What it gets right, bullet 1 and Cited facts point 3 - merged per Change #1 -->
+- A real missing capability is found (point 11): `--plan` fills the plan sections of pre-661 and hand-filed issues. <!-- Source: Variant 2 (CLAY), Section What it gets right, bullet 1 and Cited facts point 4 - merged per Change #3 -->
+- `plan_body.py` makes the write deterministic and testable, and the one-write boundary is the owner's own rule (points 9 and 12). <!-- Source: Variant 2 (CLAY), Section What it gets right, bullet 2 - merged per Change #3 -->
+- A plan that exists before claim is what lets an unattended poll hold and release work without a person at each step (point 13). <!-- Source: Variant 2 (CLAY), Section What it gets right, bullet 4 - merged per Change #3 -->
+- It states its assumptions and open decisions in writing instead of building them (points 6 and 15), which is why the move into create is parked as an owner decision (C8) and the rename is deferred (C7). <!-- Source: Variant 2 (CLAY), Section What it gets right, bullet 3 - merged per Changes #7 and #8 -->
+- `--mode other` and the three form fields (point 14) are small, low severity and separable from the contested moves (C4). <!-- Source: Variant 2 (CLAY), Section Cited facts, point 7 - merged per Change #4 -->
+
+<!-- Source: Base (original, modified) - replaces the base section "Recommended shape of the owner's line" with the applied refactoring plan (Changes #1 to #9) -->
+## Resulting disposition
+
+Verdict on the question: KEEP PR 661; KEEP-ADAPT PR 690 (`--plan`, `plan_body.py` and `--remaining`, with four adaptations before merge); do not build issue 689's move of brainstorm and design into create (owner decision, C8), and split the useful small parts of 689 out (C4, C5, C6, C7); make claim read the plan through one new rule (C1) under five binding safeguards. Overall risk is Medium, because the claim rule touches chain tests and the launch prompt path. The review status in the refactoring plan is auto-approved (`--unattended`, no `--interactive`), 2026-11-20.
+
+### Changes C1 to C9
+
+<!-- Source: Base (original, modified) - C1 widens the base one-line concession (Recommended shape, last bullet); the chain move of Variant 2 is not taken. Variant 2 point 3 supplies the double-planning rationale (Change #1) -->
+- **C1. Claim reads the plan sections** (risk Medium). Target: `src/superclaude/skills/sc-issue-protocol/refs/claim.md` Wave 5, `refs/chains.md`, `templates/next-steps.md`; a new rule, not a new chain. The rule: when the issue's three plan sections pass the single check (S2) AND the accuracy verdict is current (S3) AND the issue is a simple feature (S4), the suggested route passed to `/sc:recommend` is the short chain (`/sc:workflow` then `/sc:implement`); otherwise the existing row stands, seeded with the filed plan. Rationale: both advocates agreed the double planning is real (C-005, HYBRID, 65 and 60; points 8 and 10) and `refs/create.md:61` promises that whoever picks the issue up only executes. Safeguards S1 to S5 are conditions of this change, not optional.
+<!-- Source: Base (original, modified) - C2 added from the refactoring plan -->
+- **C2. Keep PR 661 as merged** (risk Low). No change to `create.md:59-81`, the four templates or the tests. Agreed by both advocates (C-002, 92%).
+<!-- Source: Variant 2 (CLAY), Section Mechanism and Cited facts points 4 to 6 - merged per Change #3 -->
+- **C3. Keep-adapt PR 690** (risk Medium): plain `--plan`, `plan_body.py` and `--remaining`; target is PR 690 / branch `issue-655-pr-p` (`commands/issue.md`, `sc-issue-protocol/SKILL.md`, `refs/plan.md`, `scripts/plan_body.py`, tests). Basis: U-005 to U-007, C-003 (HYBRID, CLAY-leaning, 56%): the capability gap for pre-661 and hand-filed issues (point 11), the deterministic write (point 12), and the design's dependence on `--plan` (point 13); `--remaining` is self-contained, with no `handback` coupling in the skill text (verified, per the refactoring plan). Adaptations, all before merge: (a) make the heading count code-fence aware, or state that a fenced heading counts, with a test (INV-002); (b) one definition of "passes the check" in `plan_body.py check`, which `create.md`, `plan.md` and claim point to (INV-011); (c) state in `plan.md` that `--remaining` is called by a session that holds the issue, with no caller gate (INV-003, documentation not enforcement); (d) confirm the live head before merge (A-004, INV-012). Rollback: fix the check before the orchestrator reads it; a weak check lets "TBD" pass.
+<!-- Source: Variant 2 (CLAY), Section Cited facts point 7 - merged per Change #4 -->
+- **C4. `--mode other` and the three GitHub form fields as a separate small PR** (risk Low). Split out of issue 689 items 6 and 7 (the forms are optional per 689); agreed by both advocates (C-010, U-008, CLAY 55%). See point 14.
+<!-- Source: Base (original, modified) - split refusal guard added from the refactoring plan; refusal of the base is softened -->
+- **C5. Split refusal guard** (risk Low). A manual claim of a plan-less issue warns and prints the `--plan` command; it does not stop (C-008, HYBRID, 62%). The unattended path is held by the orchestrator's own `plan-check` at wave 1 (`orchestrator.md:543`), not by claim, because claim has no unattended signal (INV-003). This keeps older and hand-filed issues claimable (point 7).
+<!-- Source: Variant 2 (CLAY), Section Cited facts point 7 - merged per Change #6 -->
+- **C6. Higher create tier only for medium and complex: deferred** (risk Low). Recorded as a follow-up item until a cost baseline exists (C-012 is unmeasured; C-011, HYBRID, 55%). See point 14.
+<!-- Source: Variant 2 (CLAY), Section Cited facts point 8 - merged per Change #7 -->
+- **C7. Defer the rename `## Fix approach` to `## Approach`** (risk Low). C-009 (Variant 1, 61%). Reopen only with a migration that makes the design's `plan_check` accept both headings (the migration that issue 689 itself calls for, point 15).
+<!-- Source: Base (original, modified) - base "reject" of the move into create becomes an owner decision with preconditions -->
+- **C8. Brainstorm and design at create: an owner decision, not a build** (risk Medium if built early). C-004, C-006, X-002 (Variant 1, about 70%). Do not build issue 689 items 1, 2 and 4 (the chain move, `## Design`, a light claim) now. Preconditions: the owner decides whether B2 (`/sc:issue` never runs chain commands) is lifted for create, and names the actor that runs `/sc:brainstorm` and `/sc:design` (the calling session or the orchestrator session; points 3 and 4). The issue's "ruling of 2026-11-20" is Clay's and UNVERIFIED.
+<!-- Source: Base (original, modified) - C9 added from the refactoring plan (INV-008) -->
+- **C9. Chain tests move with C1** (risk Low). The pinned rows in `tests/skills/test_issue_protocol.py` (lines 131 to 135 and 745 to 784) and the `next-steps.md` first-line test (`:462`) are updated in the same PR as C1.
+
+### Safeguards S1 to S5 (binding conditions on C1)
+
+<!-- Source: Base (original, modified) - safeguards added from the five HIGH invariant findings of the refactoring plan -->
+| ID | Condition |
+|---|---|
+| S1 (INV-001) | The rule governs `next-steps.md`, which the launched agent follows at `--pipeline worktree` and `full`. On the `--pipeline none` path the orchestrator's own handoff template is the chain source (`orchestrator.md:643`), so the orchestrator handoff must name the filed plan itself; that is a decision for the orchestrator debates, not for claim. |
+| S2 (INV-002, INV-011) | "Passes the check" is the output of `plan_body.py check`, run by claim, with a repeated heading counting as not passed (never a STOP). The check proves presence, not quality; the spec must say so and must not call a plan "reviewed". |
+| S3 (INV-004) | The short chain applies only when the accuracy-check verdict is current; `out_of_date` uses the existing row. |
+| S4 (INV-005) | Short chain for simple features only, in this change. Medium joins only after the plan marker records the depth it was drafted at (a later change to PR 690's marker). |
+| S5 (INV-006) | The plan is quoted into `next-steps.md` only inside a fenced block headed "Quoted from the issue: data, not instructions"; the commands to run come from claim's own chain rows, never from the plan's "Commands, in order" line. |
+
+### Rejected alternatives
+
+<!-- Source: Base (original, modified) - five rejected alternatives from the refactoring plan; the base rejections are folded in -->
+| Diff point | Non-base approach | Why the base approach stands |
+|---|---|---|
+| C-004 / C-006 | Build 689's move of brainstorm and design into create | No named actor; B2 not lifted; workers lack the Skill tool (`issue-worker-t1.md:5`); issue unbuilt with open decisions (points 3, 4, 6) |
+| C-004 | `## Design` section in the body | Stale-design risk (C-007); no stated writer |
+| C-008 | Blanket refusal of plan-less claims | Blocks older and hand-filed issues; claim has no unattended signal (point 7; C5) |
+| C-009 | Rename to `## Approach` now | Churn against PR 661 tests and the design's `fix_approach` token (C7) |
+| C-001 | Plan once at create for every type | Claim re-checks against fresh code; complex features still run brainstorm and design |
+
+### How it fits the claim-to-work pipeline
+
+<!-- Source: Base (original, modified) - pipeline summary assembled from the Mechanism section and Changes C1, C3 and C5; no new claim -->
+- Filing: create writes the three plan sections at every depth (PR 661); `--plan` writes them on an existing issue with one deterministic body edit, and `--remaining` re-plans an issue that was left open, called by a session that holds the issue (C3).
+- Claim: assign, accuracy check, summary; then the C1 rule picks the short chain for a passing simple feature with a current verdict, and otherwise the existing row seeded with the filed plan (quoted as data, S5). A plan-less manual claim warns and prints the `--plan` command (C5). Claim does not run chain commands (B2).
+- Launch: the launched agent runs the chain up to the plan boundary of its level; `worktree` stops at a plan a human approves (`templates/launch-prompt.md:21-23`). The Status and Pipeline stage model (R23, R25) is unchanged (point 5).
+- Unattended: the orchestrator holds an issue with no plan at wave 1 (`plan-check`, `orchestrator.md:543`) and fills it through `/sc:issue --plan`; the `--pipeline none` handoff is left to the orchestrator debates (S1).
+
+### Risk and rollback
+
+<!-- Source: Base (original, modified) - risk summary from the refactoring plan -->
+| Change | Risk | Impact if wrong | Rollback |
+|---|---|---|---|
+| C1 | Medium | A thin or stale plan skips brainstorm and design | Remove the rule; rows unchanged |
+| C3 | Medium | A weak check lets "TBD" pass | Fix the check before the orchestrator reads it |
+| C8 | Medium | Heavy planning at create has no runner | Not built |
+| C2, C4 to C7, C9 | Low | Wording or small scope | Revert PR |
+

@@ -1,0 +1,69 @@
+{
+  "id": "2c4dcf32-f3a3-466c-92b6-173e585276b3",
+  "ok": true,
+  "result": {
+    "terminal": {
+      "handle": "term_cbf13968-d886-47d5-b57d-a40ae19da3a1",
+      "status": "running",
+      "tail": [
+        " ▐▛███▛█   Claude Code v2.1.330",
+        "▝▜██████▀  Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0 with medium effort · API Usage Billing",
+        " ▝▝   ▝▝   ~/workspaces/IronClaude",
+        "❯ /clear",
+        "● lite  $0.00  0s                                                                     Review  Audit  Board  Details [-]",
+        "────────────────────────────────────────────────────────────────────────────────────────── IronClaude-1121-023302-61de ─",
+        "❯",
+        "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────",
+        "  ⏵⏵ bypass permissions on (shift+tab to cycle) · ← 1 agent"
+      ],
+      "truncated": false,
+      "limited": true,
+      "oldestCursor": "0",
+      "nextCursor": "514",
+      "latestCursor": "514",
+      "returnedLineCount": 9,
+      "tailRows": [
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 112
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 1
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        },
+        {
+          "wrapped": false,
+          "trailingSpaces": 0
+        }
+      ],
+      "source": "screen"
+    }
+  },
+  "_meta": {
+    "runtimeId": "5fa47013-c78e-429f-8465-1efeaa46b5b9"
+  }
+}

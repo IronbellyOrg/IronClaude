@@ -1,0 +1,3 @@
+263bc652fd715afe06e128bc71ab65a7d1ba3fb0 857ec26a588616865cd4896b69c8db7794708526
+T1.AC1 met plan_common.py:10,28; T1.AC2 met plan_common.py:10,28; T1.AC3 met plan_common.py:28-33
+F1.1 sev=blocking trigger=B4 ac=scope at=agent1/tools/plan_common.py:28 anchor="Corrected wording of the sentence (same meaning as the corrected issue 727)" chk=n,n,n,y family=goal-wording-incomplete fix=use the full corrected wording in GOAL on one line covers="same meaning as the corrected issue 727" first=A1 origin=new: new GOAL drops "decisions are made there" and the whole "when that fails, demands to the coordinator ..." clause that the corrected wording keeps

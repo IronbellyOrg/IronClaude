@@ -1,0 +1,23 @@
+contract_version: "1.0"
+status: partial
+seed_brief_path: .dev/research/orca-dashboard-20261105/snapshot-brainstorm/seed-brief.md
+merged_output_path: .dev/research/orca-dashboard-20261105/snapshot-brainstorm/merged-requirements.md
+convergence_score: 0.957
+adversarial_artifacts_dir: .dev/research/orca-dashboard-20261105/snapshot-brainstorm/adversarial/adversarial
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: skipped
+  - source: research-light
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "Five HIGH invariant findings have proposed merge fixes but no independent post-merge recheck; BLOCKED_BY_INVARIANTS remains."
+  - "Requirements catalogue form and chat paste limit unresolved."
+  - "Answered-but-unresolved eligibility for oldest-decision ranking unresolved."
+  - "Subsequent user direction prioritizes TUI frameworks and visual inspiration over agent-product forks; these snapshot concepts are provisional inputs, not final visual designs."
+telemetry:
+  actual_token_usage: null
+  note: "No fabricated total; nested usage accounting not consolidated."

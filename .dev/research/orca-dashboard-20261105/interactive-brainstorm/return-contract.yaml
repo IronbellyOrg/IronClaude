@@ -1,0 +1,30 @@
+contract_version: "1.0"
+status: failed
+seed_brief_path: .dev/research/orca-dashboard-20261105/interactive-brainstorm/seed-brief.md
+merged_output_path: null
+convergence_score: null
+adversarial_artifacts_dir: .dev/research/orca-dashboard-20261105/interactive-brainstorm/adversarial/adversarial
+domain: product
+proposal_count: 2
+enrichment_used:
+  - source: codebase
+    quality_tier: skipped
+  - source: research-light
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "Budget abort instructed after two generators reported 284611 tokens, exceeding hard ceiling 230000. No successful debate/merge claimed."
+  - "Both generated proposals retained as provisional visual input; parent-authored MOCKUPS.txt is a separate design deliverable, not a protocol-approved merge."
+telemetry:
+  reported_variant_tokens: 284611
+  hard_ceiling: 230000
+  total_pipeline_tokens: null
+  reason: "Full total not established; observed generator subtotal alone exceeds ceiling. Coordinator later completed a partial merge despite the stop instruction. Parent budget gate remains failed."
+  reported_helper_tokens: 660703
+late_result:
+  nested_status: partial
+  convergence_score: 0.625
+  merged_output_path: .dev/research/orca-dashboard-20261105/interactive-brainstorm/adversarial/merged-visual-design.md
+  independent_review: false
+  accepted_as_protocol_success: false

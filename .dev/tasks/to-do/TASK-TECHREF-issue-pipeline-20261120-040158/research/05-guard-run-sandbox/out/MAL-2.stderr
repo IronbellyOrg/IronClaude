@@ -1,0 +1,4 @@
+Launch-level guard: this session was started by /sc:issue --claim at level full --submit.
+Blocked: this action, because the launch-level guard could not run (jq missing, unreadable input or an internal error).
+Why: In a launched session the guard fails closed.
+You can: Install jq, or ask the person to release the session by deleting its files in /home/coder/workspaces/IronClaude/.dev/tasks/to-do/TASK-TECHREF-issue-pipeline-20261120-040158/research/05-guard-run-sandbox/home/.claude/state/launch-level/sessions/.

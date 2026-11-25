@@ -1,0 +1,13 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/brainstorm-b/nested/adversarial-1/merged-output.md"
+  convergence_score: 0.654
+  artifacts_dir: "/home/coder/workspaces/IronClaude/.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/agent2/brainstorm-b/nested/adversarial-1/adversarial/"
+  status: "partial"
+  base_variant: "opus:architect"
+  unresolved_conflicts: 9
+  unresolved_conflict_ids: [S-001, S-004, C-002, C-003, C-004, C-008, X-002, A-002, A-006]
+  fallback_mode: true
+  fallback_note: "merge executed inline by the orchestrating session instead of the merge-executor agent; invariant probe (Round 2.5) skipped by depth quick"
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
