@@ -20,7 +20,9 @@ def _rule() -> str:
     start = text.index("## Core Rules")
     section = text[start:].split("\n## ", 1)[0]
     return next(
-        line for line in section.splitlines() if line.startswith("11. **Research routing**")
+        line
+        for line in section.splitlines()
+        if line.startswith("11. **Research routing**")
     )
 
 
@@ -39,5 +41,5 @@ def test_rule_requires_delegate_capability_check_or_direct_lookup():
 
 def test_rule_keeps_native_and_local_fallback():
     rule = _rule()
-    assert "fallbacks" in rule
+    assert "Native web tools and local code search stay valid fallbacks" in rule
     assert "missing, erroring or out of scope" in rule
