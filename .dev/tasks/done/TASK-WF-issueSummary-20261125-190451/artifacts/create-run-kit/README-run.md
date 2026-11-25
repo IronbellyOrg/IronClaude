@@ -29,12 +29,13 @@ The shim never runs the real tool and never opens a connection. It needs these v
 - `SHIM_LOG_DIR`: the absolute path of `rows/<row id>` inside this kit (the shim creates it); the row's log file is `rows/<row id>/gh-calls.log`
 - `SHIM_FIXTURES`: the absolute path of the `fixtures` folder of this kit
 - `SHIM_REPO`: the `owner/repo` that the scratch directory's origin names (use `IronbellyOrg/IronClaude`)
+- `SHIM_ISSUE_TYPE` (optional): the issue type the shim reports when the flow reads the type back; it prints `Feature` when unset, so set it for any row whose `--type` or mode maps to another type (S09 checks it)
 
 The shim answers only the calls the create flow makes and logs each as one line: `OK-AUTH`, `LOOKUP-LABELS`, `LOOKUP-TYPES`, `LOOKUP-FIELDS`, `LOOKUP-DUPES`, `CREATE`, `VIEW-TYPE`, `COMMENT`, `FIELD-POST`, `FIELD-READ`. Everything else, and any call about an issue number other than this row's fake number, is logged as `REFUSED` and exits non-zero. The fixtures follow the shape the skill text describes; if a lookup worker reports it cannot read one, adjust that fixture to the real API answer and say so in the row.
 
 ## 4. Use a fresh scratch directory for every row
 
-The create flow reads `<R>` from the working directory's `origin` remote and stops with `E-NO-ORIGIN` without one. It also renames its draft folder to `.dev/issues/<N>/` and writes files there. So for each row make a new per-row scratch directory outside this repository checkout, run `git init` in it, and add a local `origin` that names the fork (`git remote add origin https://github.com/IronbellyOrg/IronClaude.git`; nothing is ever fetched or pushed). Never run a row inside a real checkout, and never reuse a scratch directory.
+The create flow reads `<R>` from the working directory's `origin` remote and stops with `E-NO-ORIGIN` without one. It also renames its draft folder to `.dev/issues/<N>/` and writes files there. So for each row make a new per-row scratch directory outside this repository checkout, run `git init` in it, and add a local `origin` that names the fork (`git remote add origin https://github.com/IronbellyOrg/IronClaude.git`; nothing is ever fetched or pushed). Then copy the repository source the scenario names into the scratch directory, so the drafter has real files to check the description against: for S03, S06, S07 and S08 copy this checkout's `src/superclaude/cli/` folder to the same path in the scratch directory; for S01 copy `README.md`. The scratch directory must not contain `src/superclaude/cli/ledger_utils.py` or a `parse_ledger_line` function (this checkout has neither): S06 relies on that file being absent from the real source, not from an empty directory. Never run a row inside a real checkout, and never reuse a scratch directory.
 
 ## 5. Start the agent on the temporary home and run the row
 
@@ -65,6 +66,7 @@ After the run, read `rows/<row id>/gh-calls.log`. A row passes only when all of 
 - it has exactly one `CREATE` line and exactly one `FIELD-POST` line;
 - the number of `COMMENT` lines equals the "Calls expected" column (a comment only for S09 at standard and deep depth);
 - the number of questions you saw equals the "Expected questions" column, and the answer you gave is the one the row names;
+- for S09 only: the `CREATE` line's arguments carry the label of the mode you passed with `--mode` (not the mode the drafter preferred), and the `VIEW-TYPE` line shows the issue type your `--type` maps to (set `SHIM_ISSUE_TYPE` to that type before the row); the row folder's `field-values.posted.json` holds the Complexity value that was posted. A row where the filed mode or type differs from the flags you gave fails, even with zero questions;
 - every addition listed in the copied `draft-notes.md` is present in `rows/<row id>/issue-body.posted.md`, and the final output has one `kept without approval: <item>` line for each;
 - the agent never offered the full issue body for approval.
 
