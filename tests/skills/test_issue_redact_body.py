@@ -74,6 +74,7 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "machine example.com login bob password remaining-secret123",
         'machine example.com login bob password "first remaining-secret123"',
         'password "first remaining-secret123"',
+        '{"headers":{"Cookie":"session=remaining-secret123; theme=dark"}}',
         "machine example.com\n  login bob\n  password remaining-secret123\n",
         "password:\n  first-part\n  remaining-secret123",
         'password: "' + "ab12" * 700 + '\n  tail-secret99"',
@@ -147,6 +148,14 @@ def test_a_plain_multiline_value_is_redacted_and_the_next_key_is_kept():
     out, _ = rb.redact("password: first-line\n  remaining-secret123\nuser: bob\n")
     assert "first-line" not in out and "remaining-secret123" not in out
     assert out.endswith("user: bob\n")
+
+
+def test_a_quoted_netrc_password_never_swallows_later_prose():
+    text = 'login bob password "first second"\nWe said "hello" later.\n'
+    out, count = rb.redact(text)
+    assert count == 1
+    assert out.endswith('We said "hello" later.\n')
+    assert "first second" not in out
 
 
 def test_one_value_per_line_counts_once_each():
