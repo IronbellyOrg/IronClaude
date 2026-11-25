@@ -1,6 +1,6 @@
 # Issue 597 closeout check (2026-11-25)
 
-## Verdict: criteria 1, 3, 4 and 5 PASS; criterion 2 (Tavily first for current information) is NOT MET in the one sample. No native web tool was used. One session per case.
+## Verdict: criteria 1, 3 and 4 PASS; criterion 5 is PARTIAL; criterion 2 (Tavily first for current information) is NOT MET in the one sample. No native web tool was used. One session per case.
 
 ## Setup
 - Merged rule = rule 11 in `src/superclaude/core/CLAUDE.md` at `origin/integration` d3a1059f0 (PR 828 included). The "before" arm is the same file with only rule 11 removed.
