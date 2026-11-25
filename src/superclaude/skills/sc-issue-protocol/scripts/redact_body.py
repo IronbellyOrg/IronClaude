@@ -80,6 +80,16 @@ COOKIE_LINE = re.compile(
     r"\b(?P<head>(?:set-)?cookie\s*[:=]\s*)(?P<value>[^\n]+)", re.IGNORECASE
 )
 
+# netrc style, with no ``:`` or ``=``: ``machine h login u password p`` on one line,
+# or a line that is only ``password p``.
+NETRC_LOGIN = re.compile(
+    r"(?P<head>\blogin\s+\S+\s+password\s+)(?P<value>\S+)", re.IGNORECASE
+)
+NETRC_LINE = re.compile(
+    r"^(?P<head>[ \t]*password[ \t]+)(?P<value>\S+)[ \t]*$",
+    re.IGNORECASE | re.MULTILINE,
+)
+
 # Names that always hold a credential: a quoted value, or the rest of the line (a
 # passphrase may have several words; over-redacting a line is the safe failure).
 STRONG_PAIR = re.compile(
@@ -210,6 +220,8 @@ def redact(text: str) -> tuple[str, int]:
         total += 1
         return match["head"] + quote + REDACTED + quote
 
+    text = NETRC_LOGIN.sub(lambda m: replace(m, False), text)
+    text = NETRC_LINE.sub(lambda m: replace(m, False), text)
     text = COOKIE_LINE.sub(lambda m: replace(m, False), text)
     text = STRONG_PAIR.sub(lambda m: replace(m, False), text)
     text = WEAK_PAIR.sub(lambda m: replace(m, True), text)
