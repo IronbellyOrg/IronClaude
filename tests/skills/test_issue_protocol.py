@@ -1374,12 +1374,15 @@ def credential_check_problems(ref: str) -> list[str]:
         return ["refs/create.md has no 'Credential check' paragraph"]
     for needle in (
         "with no question",
-        "safety-scan",
+        "never run a scanner",
         "<REDACTED>",
         "kept without approval",
     ):
         if needle not in check:
             problems.append(f"the credential check lacks {needle!r}")
+    if "safety-scan" in check:
+        # that command prints the whole matching row, which would copy the value
+        problems.append("the credential check runs a scanner that prints body rows")
     if ref.index(check) > ref.index("3. `gh issue create"):
         problems.append("the credential check does not come before the create command")
     if "`redacted:` line" not in line_starting(ref, "8. Print the issue URL"):
@@ -1391,7 +1394,9 @@ def test_create_redacts_credentials_before_posting_without_a_question():
     assert credential_check_problems(_text(REFS / "create.md")) == []
 
 
-@pytest.mark.parametrize("needle", ["with no question", "<REDACTED>", "safety-scan"])
+@pytest.mark.parametrize(
+    "needle", ["with no question", "<REDACTED>", "never run a scanner"]
+)
 def test_credential_check_fails_when_a_requirement_is_deleted(needle, tmp_path):
     ref = _text(REFS / "create.md")
     check = line_starting(ref, "Credential check")
