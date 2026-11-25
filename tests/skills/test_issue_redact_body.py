@@ -93,6 +93,10 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "password:\n  first-part\n  remaining-secret123",
         'password: "' + "ab12" * 700 + '\n  tail-secret99"',
         "password: <Secret1234567890>",
+        'password = """prefix\\"""remaining-secret123\n"""',
+        "REDIS_URL=redis://:correcthorsebatterystaple@host/0",
+        'Cookie: "theme=dark\n  session=remaining-secret123" # note',
+        "a" * 100 + "_password: remaining-secret123",
         PEM,
     ],
 )
@@ -118,6 +122,7 @@ def test_credentials_are_redacted(line):
         "a1b2c3d4",
         "Secret1234567890",
         "tail-secret99",
+        "correcthorsebatterystaple",
         "opaqueSecret123456",
         B64_TWO,
         B64,

@@ -75,7 +75,7 @@ BASE64_BLOB = re.compile(
 # The scheme must start where a run of scheme characters starts (no ``\b``): a long
 # run of letters is then scanned once, not again from every position.
 URL_PASSWORD = re.compile(
-    r"((?<![a-z0-9+.-])[a-z][a-z0-9+.-]*://[^\s/:@]+:)([^\s/@]+)(@)", re.I
+    r"((?<![a-z0-9+.-])[a-z][a-z0-9+.-]*://[^\s/:@]*:)([^\s/@]+)(@)", re.I
 )
 
 _SEP = r"""["']?\s*[:=]\s*"""
@@ -84,15 +84,16 @@ _QUOTED = r"""(?:"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.|'')*')"""
 # A strong name may hold a multi-line quoted value (YAML). It runs to the closing
 # quote, however far away: over-redacting is the safe failure for a public issue.
 _QUOTED_ML = (
-    r"""(?:\"{3}[\s\S]*?\"{3}|'{3}[\s\S]*?'{3}"""  # TOML triple quotes
+    # TOML triple quotes: a basic string honours backslash escapes (``\"""``)
+    r"""(?:\"{3}(?:[^"\\]|\\[\s\S]|"(?!""))*\"{3}"""
+    r"""|'{3}(?:[^']|'(?!''))*'{3}"""
     r"""|"(?:[^"\\]|\\[\s\S])*"|'(?:[^'\\]|\\[\s\S]|'')*')"""
 )
-# A credential name is short; bounding the run keeps the match linear when a long string
-# repeats a credential word (``passwordpasswordpassword...``).
+# A name run is scanned once: the leading part starts where a run of name characters
+# starts (so a long string is not rescanned from every position), and the part after
+# the credential word is bounded (so a string that repeats ``password`` stays linear).
+_NAME_LEAD = r"(?<![A-Za-z0-9_.-])[A-Za-z0-9_.-]*"
 _NAME_CHARS = r"[A-Za-z0-9_.-]{0,64}"
-# A name starts where a run of name characters starts, so a long uninterrupted string
-# is scanned once and not again from every position (no quadratic backtracking).
-_NAME_START = r"(?<![A-Za-z0-9_.-])"
 _STRONG_NAMES = r"""(?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
            |authorization|credential|session[_-]?id
            |(?:access|auth|refresh|id|bearer)[_-]?token)"""
@@ -100,14 +101,14 @@ _STRONG_NAMES = r"""(?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
 # A credential line whose value may continue on the more indented lines below it:
 # ``password: |`` (a YAML block scalar) or ``password: first-line`` (a plain scalar).
 STRONG_LINE = re.compile(
-    rf"^[ \t]*(?:-[ \t]+)?[\"']?{_NAME_CHARS}(?:{_STRONG_NAMES}|(?:set-)?cookie)"
+    rf"^[ \t]*(?:-[ \t]+)?[\"']?[A-Za-z0-9_.-]*(?:{_STRONG_NAMES}|(?:set-)?cookie)"
     rf"{_NAME_CHARS}{_SEP}(?P<rest>.*)$",
     re.VERBOSE | re.IGNORECASE,
 )
 
 # A whole header line: ``Cookie: theme=dark; session=...`` holds several values.
 COOKIE_LINE = re.compile(
-    rf"""\b(?P<head>(?:set-)?cookie["']?\s*[:=]\s*)(?P<value>{_QUOTED_ML}(?=[ \t]*(?:[,}}\]]|$))|[^\n]+)""",
+    rf"""\b(?P<head>(?:set-)?cookie["']?\s*[:=]\s*)(?P<value>{_QUOTED_ML}(?=[ \t]*(?:[,}}\]]|\#|$))|[^\n]+)""",
     re.IGNORECASE | re.MULTILINE,
 )
 
@@ -133,14 +134,14 @@ PGPASS_LINE = re.compile(
 # Names that always hold a credential: a quoted value, or the rest of the line (a
 # passphrase may have several words; over-redacting a line is the safe failure).
 STRONG_PAIR = re.compile(
-    rf"""(?P<head>{_NAME_START}{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP})
+    rf"""(?P<head>{_NAME_LEAD}{_STRONG_NAMES}{_NAME_CHARS}{_SEP})
         (?P<value>{_QUOTED_ML}|[^\n]+)""",
     re.VERBOSE | re.IGNORECASE,
 )
 
 # Names that may be harmless (``key: ArrowUp``): replaced only for secret-shaped values.
 WEAK_PAIR = re.compile(
-    rf"""(?P<head>{_NAME_START}{_NAME_CHARS}(?:token|key){_NAME_CHARS}{_SEP})
+    rf"""(?P<head>{_NAME_LEAD}(?:token|key){_NAME_CHARS}{_SEP})
         (?P<value>{_QUOTED}|[^\s"',;]+)""",
     re.VERBOSE | re.IGNORECASE,
 )
