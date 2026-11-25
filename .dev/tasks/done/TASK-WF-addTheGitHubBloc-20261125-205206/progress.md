@@ -1,0 +1,16 @@
+# implement ledger — source: ./TASK-WF-addTheGitHubBloc-20261125-205206.md — created: 2026-11-25T21:02:04Z
+PLAN: sha256=fc76c397ed3b21d1b1f2d06e0804346b2402d1ed9bc8c52c63e88fbe5cde01ad source_sha256=351439c12a62f29e7b2098c9915190b0a0040b2a550dd4731f2feac848331605
+T1: start sha=d95df19b94c424a6b43ad5253478c032ab263523
+T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3,T1.AC4,T1.AC5 evidence=T1.AC1@src/superclaude/skills/sc-issue-protocol/refs/claim.md:44,T1.AC2@src/superclaude/skills/sc-issue-protocol/refs/claim.md:49,T1.AC3@src/superclaude/skills/sc-issue-protocol/refs/claim.md:44,T1.AC4@src/superclaude/skills/sc-issue-protocol/refs/claim.md:150,T1.AC5@src/superclaude/skills/sc-issue-protocol/refs/claim.md:44,notes@./artifacts/retries/T1/notes.md:1-2 extras=lint:skip,typecheck:skip,test:pass files=src/superclaude/skills/sc-issue-protocol/refs/claim.md
+T2: start sha=6c36f45c38577fb6cad76516d36081f97887d34e
+T2: complete verdict=compliant ac=T2.AC1,T2.AC2,T2.AC3 evidence=T2.AC1@src/superclaude/skills/sc-issue-protocol/SKILL.md:86,T2.AC2@src/superclaude/skills/sc-issue-protocol/SKILL.md:199,T2.AC3@tests/skills/test_issue_protocol.py:664 extras=lint:skip,typecheck:skip,test:pass files=src/superclaude/skills/sc-issue-protocol/SKILL.md
+T3: start sha=d10b3a60b5e12a1dc9d0cfbdf84f74370f4b5c48
+T3: complete verdict=compliant ac=T3.AC1,T3.AC2 evidence=T3.AC1@src/superclaude/commands/issue.md:16,T3.AC2@tests/commands/test_issue_command.py:183 extras=lint:skip,typecheck:skip,test:pass files=src/superclaude/commands/issue.md
+T4: start sha=b2bfaa2337be7157f59708080aa23d304b6e4fcd
+T4: complete verdict=compliant ac=T4.AC1,T4.AC2 evidence=T4.AC1@src/superclaude/core/HOW-WE-WORK.md:296,T4.AC2@src/superclaude/core/HOW-WE-WORK.md:296 extras=lint:skip,typecheck:skip,test:pass files=src/superclaude/core/HOW-WE-WORK.md
+T5: start sha=8b7aeb501d77f8169e92d8a842ec894cf0f7defe
+T5: complete verdict=compliant ac=T5.AC1,T5.AC2 evidence=T5.AC1@plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:296,T5.AC2@tests/commands/test_routing_plugin_parity.py:29 extras=lint:skip,typecheck:skip,test:pass files=plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+T6: start sha=45ec8b667454251e6599c1b8e2ae9043577e1d97
+T6: complete verdict=compliant ac=T6.AC1,T6.AC2,T6.AC3,T6.AC4,T6.AC5 evidence=T6.AC1@tests/skills/test_issue_protocol.py:1263,T6.AC2@tests/skills/test_issue_protocol.py:1270,T6.AC3@tests/skills/test_issue_protocol.py:1307,T6.AC4@tests/skills/test_worker_contract.py:2969,T6.AC5@tests/skills/test_issue_protocol.py:1180,notes@./artifacts/retries/T6/notes.md:1-3 extras=lint:pass,typecheck:skip,test:pass files=tests/skills/test_issue_protocol.py,tests/skills/test_worker_contract.py
+FINAL: pass evidence=src/superclaude/skills/sc-issue-protocol/refs/claim.md:44,src/superclaude/skills/sc-issue-protocol/SKILL.md:166,src/superclaude/commands/issue.md:16,src/superclaude/core/HOW-WE-WORK.md:296,plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:296,tests/skills/test_issue_protocol.py:1278-1300,tests/skills/test_worker_contract.py:2969-2976 state=0fef7c0b76d8d32666181209a4c0940075de4f43ba096b6f41dd8ba27b534203
+ARCHIVE: start id=TASK-WF-addTheGitHubBloc-20261125-205206 token=7d8495193aaa3555

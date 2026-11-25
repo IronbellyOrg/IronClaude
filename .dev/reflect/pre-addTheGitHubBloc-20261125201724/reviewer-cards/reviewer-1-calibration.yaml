@@ -1,0 +1,22 @@
+# confidence-calibrator (sonnet class) output for reviewer-1-card.md, persisted verbatim by the orchestrator.
+calibrated_confidence: 0.84
+dimensions:
+  citation_grounding: 0.92
+  coverage_completeness: 0.85
+  deviation_classification_clarity: 0.75
+  risk_surface_coverage: 0.88
+  recommendation_actionability: 0.82
+per_finding:
+  A1: 0.90
+  A2: 0.75
+  A3: 0.60
+  A4: 0.80
+  A5: 0.85
+  A6: 0.70
+  A7: 0.90
+  A8: 0.85
+  A9: 0.90
+citations_checked: 21
+citations_failed: []
+calibrator_model_class: sonnet
+reviewer_model_class: opus

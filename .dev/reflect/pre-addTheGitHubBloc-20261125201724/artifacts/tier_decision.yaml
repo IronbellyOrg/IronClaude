@@ -1,0 +1,27 @@
+selected_tier: 2
+fired_rule_number: 6               # C < 0.85; independently the coverage_degraded pre-filter forbids any T1 stop
+coverage_degraded: parsed-sparse   # Step 1B.2b: 0 parsed IDs, 5 inferred rows
+surface_unreached: null
+composite_score: 4.0
+per_signal_breakdown:
+  scope_size: 1        # 6 tasks
+  task_count: 1
+  blast_radius: 1      # 5 source files, 3 tests, one guide copy
+  spec_density: 0
+  ambiguity_signals: 1 # sparse labeling
+escalation_reason: "coverage_degraded pre-filter (Step 1B.2b) and calibrated confidence 0.81 < 0.85 (rule 6)"
+confidence_calibrated_t1: 0.81
+S_scope: 6
+S_domains: 2
+S_dev_density: 0.0
+t2_engine_requested: null
+t2_engine_effective: null
+panel_fallback_reason: null
+executor_class: sonnet            # session model claude-gw-tier1b; not from flag, env or log
+executor_class_source: session-model
+executor_class_resolved: true
+reviewer_classes: [opus, haiku]   # executor class sonnet removed; no backfill class available, so N=2 (floor)
+calibrator_class: sonnet          # disjoint from the reviewers; equals the executor class (unavoidable with three Anthropic-family aliases)
+calibrator_diversity: full
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single

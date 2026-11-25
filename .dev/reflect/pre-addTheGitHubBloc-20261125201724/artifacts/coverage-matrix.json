@@ -1,0 +1,57 @@
+{
+  "parsed_ids": [],
+  "parsed_count": 0,
+  "inferred_count": 5,
+  "coverage_pct": null,
+  "coverage_pct_union": 1.0,
+  "unmapped_requirements_union": [],
+  "coverage_degraded": "parsed-sparse",
+  "task_count": 6,
+  "rows": [
+    {
+      "id": "INF-001",
+      "quote": "Add the GitHub blocked-by check to /sc:issue --claim",
+      "citation": "source.md:1",
+      "source": "inferred",
+      "best_task": 1,
+      "ratio": 1.0,
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-002",
+      "quote": "read repos/<R>/issues/<N>/dependencies/blocked_by in Wave 2 before Wave 3",
+      "citation": "source.md:1",
+      "source": "inferred",
+      "best_task": 1,
+      "ratio": 1.0,
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-003",
+      "quote": "stop with E-BLOCKED naming each open blocker",
+      "citation": "source.md:1",
+      "source": "inferred",
+      "best_task": 1,
+      "ratio": 1.0,
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-004",
+      "quote": "continue as today when none or all closed",
+      "citation": "source.md:1",
+      "source": "inferred",
+      "best_task": 1,
+      "ratio": 1.0,
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-005",
+      "quote": "continue and say so in the final output when the list cannot be read",
+      "citation": "source.md:1",
+      "source": "inferred",
+      "best_task": 2,
+      "ratio": 0.8571,
+      "match_method": "containment"
+    }
+  ]
+}
