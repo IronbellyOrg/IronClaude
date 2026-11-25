@@ -50,6 +50,10 @@ PEM = "-----BEGIN RSA PRIVATE KEY-----\nMIIBOg\n-----END RSA PRIVATE KEY-----"
         "sk-" + "a1B2c3D4e5F6g7H8i9J0k1L2",
         "AKIA" + "ABCDEFGHIJKLMNOP",
         "Cookie: session_id=abcdef123456",
+        "Cookie: theme=dark; session=zz9876543210",
+        "password: $ecret1234",
+        "password: correct horse battery staple",
+        'password = "correct horse"',
         PEM,
     ],
 )
@@ -57,7 +61,19 @@ def test_credentials_are_redacted(line):
     out, count = rb.redact(line)
     assert count >= 1
     assert rb.REDACTED in out
-    for secret in (GH, "hunter22", "abcd1234efgh", "pa55w0rd", "s3cr3tvalue", "MIIBOg"):
+    for secret in (
+        GH,
+        "hunter22",
+        "abcd1234efgh",
+        "pa55w0rd",
+        "s3cr3tvalue",
+        "MIIBOg",
+        "zz9876543210",
+        "abcdef123456",
+        "ecret1234",
+        "staple",
+        "horse",
+    ):
         assert secret not in out
 
 
@@ -77,8 +93,14 @@ def test_harmless_text_is_left_alone(line):
     assert rb.redact(line) == (line, 0)
 
 
-def test_two_values_on_one_line_count_twice():
-    _, count = rb.redact("password=hunter22 and api_key=abcd1234efgh")
+def test_a_strong_name_redacts_the_rest_of_the_line():
+    out, count = rb.redact("password=hunter22 and api_key=abcd1234efgh")
+    assert count == 1
+    assert "hunter22" not in out and "abcd1234efgh" not in out
+
+
+def test_one_value_per_line_counts_once_each():
+    _, count = rb.redact("password=hunter22\napi_key=abcd1234efgh\n")
     assert count == 2
 
 

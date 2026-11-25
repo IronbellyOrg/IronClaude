@@ -6,7 +6,9 @@ usage: redact_body.py FILE [FILE ...]
 before the issue is posted. It matches by value shape (private key blocks,
 well-known token formats, bearer and JWT tokens, the password part of a
 ``user:password@`` URL) and by name (``password``, ``api_key``, ``token`` and
-similar, case-insensitive, with ``-`` or ``_``). A weak name such as ``token`` or
+similar, case-insensitive, with ``-`` or ``_``). A strong name (``password``,
+``secret``, ``api_key``, ``authorization``) redacts a quoted value, or the rest of
+the line, and a ``Cookie:`` header is redacted to the end of the line. A weak name such as ``token`` or
 ``key`` is redacted only when its value looks like a secret (16 or more
 characters with a letter and a digit), so ``key: ArrowUp`` stays. It never
 prints a line or a value: the only output is ``redacted: <n>`` (the number of
@@ -43,33 +45,59 @@ SHAPED_VALUES = re.compile(
 
 URL_PASSWORD = re.compile(r"(\b[a-z][a-z0-9+.-]*://[^\s/:@]+:)([^\s/@]+)(@)", re.I)
 
-_SEP = r"""["']?\s*[:=]\s*["']?"""
-_VALUE = r"""[^\s"',;]+"""
+_SEP = r"""["']?\s*[:=]\s*"""
+_QUOTED = r"""(?:"[^"\n]*"|'[^'\n]*')"""
 _NAME_CHARS = r"[A-Za-z0-9_.-]*"
 
-# Names that always hold a credential: any value is replaced.
+# A whole header line: ``Cookie: theme=dark; session=...`` holds several values.
+COOKIE_LINE = re.compile(
+    r"\b(?P<head>(?:set-)?cookie\s*[:=]\s*)(?P<value>[^\n]+)", re.IGNORECASE
+)
+
+# Names that always hold a credential: a quoted value, or the rest of the line (a
+# passphrase may have several words; over-redacting a line is the safe failure).
 STRONG_PAIR = re.compile(
     rf"""(?P<head>{_NAME_CHARS}
         (?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
-           |authorization|credential|session[_-]?id|cookie)
-        {_NAME_CHARS}{_SEP})(?P<value>{_VALUE})""",
+           |authorization|credential|session[_-]?id)
+        {_NAME_CHARS}{_SEP})(?P<value>{_QUOTED}|[^\n]+)""",
     re.VERBOSE | re.IGNORECASE,
 )
 
 # Names that may be harmless (``key: ArrowUp``): replaced only for secret-shaped values.
 WEAK_PAIR = re.compile(
-    rf"""(?P<head>{_NAME_CHARS}(?:token|key){_NAME_CHARS}{_SEP})(?P<value>{_VALUE})""",
+    rf"""(?P<head>{_NAME_CHARS}(?:token|key){_NAME_CHARS}{_SEP})
+        (?P<value>{_QUOTED}|[^\s"',;]+)""",
     re.VERBOSE | re.IGNORECASE,
 )
 
-_PLACEHOLDER_START = ("<", "$", "{", "%", "*")
+# Exact placeholder shapes only: a real secret that merely starts with ``$`` or
+# ``<`` (``$ecret123``) is still redacted.
+_PLACEHOLDER = re.compile(
+    r"""<[A-Za-z0-9_ -]*>?          # <your-password>, <your, <REDACTED>
+      | \$\{[^}]*\}?                # ${PASSWORD}
+      | \$[A-Z_][A-Z0-9_]*          # $API_KEY (upper-case variable)
+      | \{\{.*                      # {{ secret }}
+      | %[A-Za-z_][A-Za-z0-9_]*%    # %PASSWORD%
+      | \*+                         # ******
+    """,
+    re.VERBOSE,
+)
+
+
+def _unquote(value: str) -> tuple[str, str]:
+    """Split a value into its quote character (or ``""``) and the inner text."""
+    if len(value) >= 2 and value[0] in "\"'" and value[-1] == value[0]:
+        return value[0], value[1:-1]
+    return "", value
 
 
 def _is_placeholder(value: str) -> bool:
+    inner = _unquote(value.strip())[1]
     return (
-        value.startswith(_PLACEHOLDER_START)
-        or value.upper() == "REDACTED"
-        or value.lower() in {"bearer", "basic"}  # the scheme word, not the secret
+        _PLACEHOLDER.fullmatch(inner) is not None
+        or inner.upper() == "REDACTED"
+        or inner.lower() in {"bearer", "basic"}  # the scheme word, not the secret
     )
 
 
@@ -98,23 +126,20 @@ def redact(text: str) -> tuple[str, int]:
     )
     total += n
 
-    def strong(match: re.Match[str]) -> str:
-        nonlocal total
-        if _is_placeholder(match["value"]):
-            return match.group(0)
-        total += 1
-        return match["head"] + REDACTED
-
-    def weak(match: re.Match[str]) -> str:
+    def replace(match: re.Match[str], only_if_secret_shaped: bool) -> str:
         nonlocal total
         value = match["value"]
-        if _is_placeholder(value) or not _secret_shaped(value):
+        quote, inner = _unquote(value)
+        if _is_placeholder(value) or (
+            only_if_secret_shaped and not _secret_shaped(inner)
+        ):
             return match.group(0)
         total += 1
-        return match["head"] + REDACTED
+        return match["head"] + quote + REDACTED + quote
 
-    text = STRONG_PAIR.sub(strong, text)
-    text = WEAK_PAIR.sub(weak, text)
+    text = COOKIE_LINE.sub(lambda m: replace(m, False), text)
+    text = STRONG_PAIR.sub(lambda m: replace(m, False), text)
+    text = WEAK_PAIR.sub(lambda m: replace(m, True), text)
     return text, total
 
 
