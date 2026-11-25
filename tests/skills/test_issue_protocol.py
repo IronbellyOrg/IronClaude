@@ -1374,13 +1374,16 @@ def credential_check_problems(ref: str) -> list[str]:
         return ["refs/create.md has no 'Credential check' paragraph"]
     for needle in (
         "with no question",
-        "prints nothing",
+        "scripts/redact_body.py",
+        "never a value",
         "run a scanner",
         "<REDACTED>",
         "kept without approval",
     ):
         if needle not in check:
             problems.append(f"the credential check lacks {needle!r}")
+    if not (SKILL.parent / "scripts" / "redact_body.py").is_file():
+        problems.append("scripts/redact_body.py does not exist")
     if "safety-scan" in check:
         # that command prints the whole matching row, which would copy the value
         problems.append("the credential check runs a scanner that prints body rows")
@@ -1396,7 +1399,8 @@ def test_create_redacts_credentials_before_posting_without_a_question():
 
 
 @pytest.mark.parametrize(
-    "needle", ["with no question", "<REDACTED>", "prints nothing", "run a scanner"]
+    "needle",
+    ["with no question", "<REDACTED>", "scripts/redact_body.py", "run a scanner"],
 )
 def test_credential_check_fails_when_a_requirement_is_deleted(needle, tmp_path):
     ref = _text(REFS / "create.md")

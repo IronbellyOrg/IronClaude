@@ -32,6 +32,7 @@ For issues filed through `/sc:issue --create`, its four templates replace the `I
 | `refs/tiers.md` | before the first worker spawn of either mode: tier map, pinning rule, `E-TIER-UNAVAILABLE` |
 | `scripts/origin_repo.py` | Wave 0 of both modes: prints `owner/repo` from `origin`; with `--claim` also checks the claim argument against it |
 | `scripts/clickup_claim.py` | claim Wave 3: assigns the matching ClickUp task |
+| `scripts/redact_body.py` | create Wave 5, before the post: replaces credential values in `issue-body.md` and `draft-notes.md` with `<REDACTED>` and prints only the count |
 | `scripts/orca_worktree.py` | claim Wave 0 (`preflight`), Wave 5 (`prompt`), Wave 7 (`worktree`) and Wave 8 (`launch`): the only file that calls `orca` |
 | `templates/scout-report.md` | `scout.md` (both modes) |
 | `templates/accuracy-check-comment.md` | `accuracy-check.md` (claim, posted) |
