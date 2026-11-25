@@ -67,6 +67,9 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         f"encoded: {B64}",
         f"encoded: {B64_SLASH}",
         f"session {B64_TWO} end",
+        f"the token is {B64_TWO}.",
+        "db.example.com:5432:app:bob:remaining-secret123",
+        "*:*:*:bob:remaining-secret123",
         'Cookie: "session=abc123"; theme=opaqueSecret123456',
         "password: |\n  correct horse battery staple",
         "password: 'prefix''remaining-secret123'",
@@ -122,6 +125,7 @@ def test_credentials_are_redacted(line):
     [
         "key: ArrowUp",
         "token: Identifier",
+        "the build finished at 10:30:15:00:05 local time",
         "press key=Enter to continue",
         "password: <your password>",
         "password: ${PASSWORD}",

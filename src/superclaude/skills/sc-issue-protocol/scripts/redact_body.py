@@ -46,18 +46,26 @@ SHAPED_VALUES = re.compile(
 # A long base64-looking run (upper case, lower case and a digit, 40 or more characters)
 # is treated as an encoded credential. Git hashes are lower-case hex, so they are not
 # redacted. A run with two or more ``/`` that sits inside URL or path syntax (next to
-# ``.``, ``-``, ``_``, ``:``, ``#`` or ``?``, as in a GitHub permalink) is kept; a
-# standalone run with slashes, such as a session token, is redacted. This narrows,
-# but cannot close, the encoded-secret gap: a worker that deliberately obfuscates a
-# value can still get past any pattern.
-_URL_EDGE = (
-    ".",
-    "-",
-    "_",
-    ":",
-    "#",
-    "?",
-)  # next to these, a slash run is a URL or path
+# ``.``, ``-``, ``_``, ``#`` or ``?`` with a letter or digit beyond it, as in a GitHub
+# permalink; a full stop that ends a sentence does not count) is kept; a standalone
+# run with slashes, such as a session token, is redacted. This narrows, but cannot
+# close, the encoded-secret gap: a worker that deliberately obfuscates a value can
+# still get past any pattern.
+_URL_EDGE = ".-_#?"
+
+
+def _in_url_or_path(text: str, start: int, end: int) -> bool:
+    """True when the run ``text[start:end]`` is joined to URL or path syntax."""
+    before = text[start - 1] if start >= 1 else ""
+    before2 = text[start - 2] if start >= 2 else ""
+    after = text[end] if end < len(text) else ""
+    after2 = text[end + 1] if end + 1 < len(text) else ""
+    return bool(
+        (before and before in _URL_EDGE and before2.isalnum())
+        or (after and after in _URL_EDGE and after2.isalnum())
+    )
+
+
 BASE64_BLOB = re.compile(
     r"(?<![A-Za-z0-9+/=])"
     r"(?=[A-Za-z0-9+/]*[A-Z])(?=[A-Za-z0-9+/]*[a-z])(?=[A-Za-z0-9+/]*[0-9])"
@@ -99,6 +107,13 @@ NETRC_LOGIN = re.compile(
 NETRC_LINE = re.compile(
     rf"^(?P<head>[ \t]*password[ \t]+)(?P<value>{_QUOTED}|\S+)[ \t]*$",
     re.IGNORECASE | re.MULTILINE,
+)
+
+# ``.pgpass`` style: ``host:port:database:user:password`` on a line of its own. The
+# host must contain a letter or ``*``, so a time such as ``10:30:15:00:05`` is left.
+PGPASS_LINE = re.compile(
+    r"^(?P<head>[^\s:]*[A-Za-z*][^\s:]*:(?:\d+|\*):[^\s:]*:[^\s:]*:)(?P<value>\S+)[ \t]*$",
+    re.MULTILINE,
 )
 
 # Names that always hold a credential: a quoted value, or the rest of the line (a
@@ -201,11 +216,10 @@ def redact(text: str) -> tuple[str, int]:
 
     def blob(match: re.Match[str]) -> str:
         nonlocal blobs
-        if match.group(0).count("/") >= 2:
-            before = match.string[match.start() - 1 : match.start()]
-            after = match.string[match.end() : match.end() + 1]
-            if before in _URL_EDGE or after in _URL_EDGE:  # inside a URL or path
-                return match.group(0)
+        if match.group(0).count("/") >= 2 and _in_url_or_path(
+            match.string, match.start(), match.end()
+        ):
+            return match.group(0)
         blobs += 1
         return REDACTED
 
@@ -234,6 +248,7 @@ def redact(text: str) -> tuple[str, int]:
         total += 1
         return match["head"] + quote + REDACTED + quote
 
+    text = PGPASS_LINE.sub(lambda m: replace(m, False), text)
     text = NETRC_LOGIN.sub(lambda m: replace(m, False), text)
     text = NETRC_LINE.sub(lambda m: replace(m, False), text)
     text = COOKIE_LINE.sub(lambda m: replace(m, False), text)
