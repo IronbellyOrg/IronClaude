@@ -72,6 +72,8 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "db.example.com:5432:app:bob:remaining-secret123",
         "*:*:*:bob:remaining-secret123",
         "127.0.0.1:5432:app:bob:remaining-secret123",
+        "Cookie: |\n    session=remaining-secret123",
+        'Cookie: "theme=dark\n  session=remaining-secret123"',
         'Cookie: "session=abc123"; theme=opaqueSecret123456',
         "password: |\n  correct horse battery staple",
         "password: 'prefix''remaining-secret123'",
@@ -178,7 +180,9 @@ def test_a_quoted_netrc_password_never_swallows_later_prose():
     assert "first second" not in out
 
 
-@pytest.mark.parametrize("unit", ["a", "ab1", "a-", "a.b", "x_y1"])
+@pytest.mark.parametrize(
+    "unit", ["a", "ab1", "a-", "a.b", "x_y1", "-", "- ", " -", "--\n"]
+)
 def test_a_long_uninterrupted_string_is_scanned_in_linear_time(unit):
     text = unit * (200_000 // len(unit))
     started = time.monotonic()

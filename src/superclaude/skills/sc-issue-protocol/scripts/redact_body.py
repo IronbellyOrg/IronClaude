@@ -95,13 +95,14 @@ _STRONG_NAMES = r"""(?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
 # A credential line whose value may continue on the more indented lines below it:
 # ``password: |`` (a YAML block scalar) or ``password: first-line`` (a plain scalar).
 STRONG_LINE = re.compile(
-    rf"^[ \t-]*[\"']?{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP}(?P<rest>.*)$",
+    rf"^[ \t]*(?:-[ \t]+)?[\"']?{_NAME_CHARS}(?:{_STRONG_NAMES}|(?:set-)?cookie)"
+    rf"{_NAME_CHARS}{_SEP}(?P<rest>.*)$",
     re.VERBOSE | re.IGNORECASE,
 )
 
 # A whole header line: ``Cookie: theme=dark; session=...`` holds several values.
 COOKIE_LINE = re.compile(
-    rf"""\b(?P<head>(?:set-)?cookie["']?\s*[:=]\s*)(?P<value>{_QUOTED}(?=[ \t]*(?:[,}}\]]|$))|[^\n]+)""",
+    rf"""\b(?P<head>(?:set-)?cookie["']?\s*[:=]\s*)(?P<value>{_QUOTED_ML}(?=[ \t]*(?:[,}}\]]|$))|[^\n]+)""",
     re.IGNORECASE | re.MULTILINE,
 )
 
