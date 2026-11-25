@@ -32,6 +32,9 @@ rb = _load()
 GH = "ghp_" + "A1b2C3d4E5f6G7h8I9j0K1l2M3"
 PEM = "-----BEGIN RSA PRIVATE KEY-----\nMIIBOg\n-----END RSA PRIVATE KEY-----"
 B64 = base64.b64encode(GH.encode()).decode()  # an encoded token, no known prefix
+B64_TWO = (
+    "IQoJb3JpZ2luX2VjEJr/AbCdEfGhIjKlMnOpQrStUv12/wXyZ0987654321abcdEFGH"  # two slashes
+)
 B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one slash
 
 
@@ -63,6 +66,8 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "auth_token: a1b2c3d4",
         f"encoded: {B64}",
         f"encoded: {B64_SLASH}",
+        f"session {B64_TWO} end",
+        'Cookie: "session=abc123"; theme=opaqueSecret123456',
         "password: |\n  correct horse battery staple",
         "password: 'prefix''remaining-secret123'",
         'password: "first-line\n  remaining-secret123"',
@@ -104,6 +109,8 @@ def test_credentials_are_redacted(line):
         "a1b2c3d4",
         "Secret1234567890",
         "tail-secret99",
+        "opaqueSecret123456",
+        B64_TWO,
         B64,
         B64_SLASH,
     ):

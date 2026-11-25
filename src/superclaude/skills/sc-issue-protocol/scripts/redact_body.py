@@ -44,11 +44,20 @@ SHAPED_VALUES = re.compile(
 )
 
 # A long base64-looking run (upper case, lower case and a digit, 40 or more characters)
-# is treated as an encoded credential. Git hashes are lower-case hex, and a run with two
-# or more ``/`` is read as a path or URL (a GitHub permalink must survive), so neither
-# is redacted. This narrows, but cannot close, the encoded-secret gap: a worker that
-# deliberately obfuscates a value, or an encoded value with two ``/``, can still get
-# past any pattern.
+# is treated as an encoded credential. Git hashes are lower-case hex, so they are not
+# redacted. A run with two or more ``/`` that sits inside URL or path syntax (next to
+# ``.``, ``-``, ``_``, ``:``, ``#`` or ``?``, as in a GitHub permalink) is kept; a
+# standalone run with slashes, such as a session token, is redacted. This narrows,
+# but cannot close, the encoded-secret gap: a worker that deliberately obfuscates a
+# value can still get past any pattern.
+_URL_EDGE = (
+    ".",
+    "-",
+    "_",
+    ":",
+    "#",
+    "?",
+)  # next to these, a slash run is a URL or path
 BASE64_BLOB = re.compile(
     r"(?<![A-Za-z0-9+/=])"
     r"(?=[A-Za-z0-9+/]*[A-Z])(?=[A-Za-z0-9+/]*[a-z])(?=[A-Za-z0-9+/]*[0-9])"
@@ -77,8 +86,8 @@ STRONG_LINE = re.compile(
 
 # A whole header line: ``Cookie: theme=dark; session=...`` holds several values.
 COOKIE_LINE = re.compile(
-    rf"""\b(?P<head>(?:set-)?cookie["']?\s*[:=]\s*)(?P<value>{_QUOTED}|[^\n]+)""",
-    re.IGNORECASE,
+    rf"""\b(?P<head>(?:set-)?cookie["']?\s*[:=]\s*)(?P<value>{_QUOTED}(?=[ \t]*(?:[,}}\]]|$))|[^\n]+)""",
+    re.IGNORECASE | re.MULTILINE,
 )
 
 # netrc style, with no ``:`` or ``=``: ``machine h login u password p`` on one line,
@@ -192,8 +201,11 @@ def redact(text: str) -> tuple[str, int]:
 
     def blob(match: re.Match[str]) -> str:
         nonlocal blobs
-        if match.group(0).count("/") >= 2:  # a path or URL, not an encoded value
-            return match.group(0)
+        if match.group(0).count("/") >= 2:
+            before = match.string[match.start() - 1 : match.start()]
+            after = match.string[match.end() : match.end() + 1]
+            if before in _URL_EDGE or after in _URL_EDGE:  # inside a URL or path
+                return match.group(0)
         blobs += 1
         return REDACTED
 
