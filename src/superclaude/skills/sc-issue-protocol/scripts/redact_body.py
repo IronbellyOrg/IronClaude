@@ -83,10 +83,11 @@ COOKIE_LINE = re.compile(
 # netrc style, with no ``:`` or ``=``: ``machine h login u password p`` on one line,
 # or a line that is only ``password p``.
 NETRC_LOGIN = re.compile(
-    r"(?P<head>\blogin\s+\S+\s+password\s+)(?P<value>\S+)", re.IGNORECASE
+    rf"(?P<head>\blogin\s+\S+\s+password\s+)(?P<value>{_QUOTED_ML}|\S+)",
+    re.IGNORECASE,
 )
 NETRC_LINE = re.compile(
-    r"^(?P<head>[ \t]*password[ \t]+)(?P<value>\S+)[ \t]*$",
+    rf"^(?P<head>[ \t]*password[ \t]+)(?P<value>{_QUOTED_ML}|\S+)[ \t]*$",
     re.IGNORECASE | re.MULTILINE,
 )
 

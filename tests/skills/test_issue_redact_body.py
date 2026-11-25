@@ -72,6 +72,8 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "password: first-line\n  remaining-secret123",
         "password: $PASSWORD\n  remaining-secret123",
         "machine example.com login bob password remaining-secret123",
+        'machine example.com login bob password "first remaining-secret123"',
+        'password "first remaining-secret123"',
         "machine example.com\n  login bob\n  password remaining-secret123\n",
         "password:\n  first-part\n  remaining-secret123",
         'password: "' + "ab12" * 700 + '\n  tail-secret99"',
