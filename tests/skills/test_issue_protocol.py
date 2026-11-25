@@ -1178,3 +1178,189 @@ def test_stage_claim_skips_recommend_and_plain_claim_keeps_it():
     )
     assert "`Default row not used` line is not written" in claim
     assert "a `--stage` claim never calls it" in claim
+
+
+# --- create decision rule: ask only for a contradiction (issue 834) -------------------
+
+CONFLICT_CATEGORIES = [
+    "reversed choice",
+    "dropped requirement",
+    "changed flag",
+    "contradicted by verified code",
+]
+# The old broad trigger and the old first choice are built from fragments, so no
+# whole copy of either sits in tests/ (a search of tests/ for them finds nothing).
+OLD_TRIGGER = "new" + " material" + " or a" + " contradiction"
+OLD_KEEP_ALL = '"keep' + ' all"'
+
+
+def prompt_rule_section(text: str) -> str:
+    """The body of the Contradiction prompt rule section of refs/create.md."""
+    start = text.index("### Contradiction prompt rule")
+    return text[start : text.index("\n## ", start)]
+
+
+def line_starting(text: str, prefix: str) -> str:
+    return next((ln for ln in text.splitlines() if ln.startswith(prefix)), "")
+
+
+def _mutated(tmp_path: Path, name: str, text: str) -> str:
+    copy = tmp_path / name
+    copy.write_text(text, encoding="utf-8")
+    return copy.read_text(encoding="utf-8")
+
+
+def create_question_problems(ref: str, skill: str) -> list[str]:
+    """Problems with the rule that create asks only for a supported contradiction."""
+    section = prompt_rule_section(ref)
+    problems = [
+        f"prompt rule section lacks the category {name!r}"
+        for name in CONFLICT_CATEGORIES
+        if name not in section
+    ]
+    for needle in ("exactly one", "before Wave 5", "zero questions"):
+        if needle not in section:
+            problems.append(f"prompt rule section lacks {needle!r}")
+    for where, text in (("refs/create.md", ref), ("SKILL.md", skill)):
+        if OLD_TRIGGER in text:
+            problems.append(f"{where} still carries the old broad trigger")
+    if OLD_KEEP_ALL in ref:
+        problems.append("refs/create.md still offers the old keep-all choice")
+    return problems
+
+
+def draft_notes_problems(text: str) -> list[str]:
+    """Problems with the two lists and their different consequences."""
+    problems = []
+    if headings(text) != ["New material", "Contradictions"]:
+        problems.append("the two headings are not exactly New material, Contradictions")
+    if text.count("\n- None") != 2:
+        problems.append("each list must keep a '- None' empty marker")
+    for needle in ("no question", "one question"):
+        if needle not in text:
+            problems.append(f"the template does not say {needle!r}")
+    return problems
+
+
+def additions_report_problems(ref: str, skill: str) -> list[str]:
+    """Problems with the retained-additions line and the no-approval promise."""
+    problems = []
+    step8 = line_starting(ref, "8. Print the issue URL")
+    step6 = line_starting(skill, "6. **Wave 5, post.**")
+    if "kept without approval:" not in step8:
+        problems.append(
+            "refs/create.md Wave 5 step 8 lacks the retained-additions line"
+        )
+    if "kept without approval:" not in step6:
+        problems.append("SKILL.md create step 6 lacks the retained-additions line")
+    if "never shown for approval" not in prompt_rule_section(ref):
+        problems.append(
+            "the prompt rule section no longer says the body is never shown"
+        )
+    if "never shown for approval" not in line_starting(skill, "- Posts go up directly"):
+        problems.append("SKILL.md 'Posts go up directly' no longer says it")
+    return problems
+
+
+def evidence_rule_problems(ref: str, template: str) -> list[str]:
+    """Problems with the three-part contradiction rule and the flag carve-out."""
+    problems = []
+    for where, text in (("refs/create.md", ref), ("draft-notes template", template)):
+        for needle in (
+            "user's own words",
+            "conflicting evidence",
+            "missing any of the three",
+            "disagreement with a",
+            "not a contradiction",
+        ):
+            if needle not in text:
+                problems.append(f"{where} lacks {needle!r}")
+    return problems
+
+
+def test_create_questions_only_for_contradictions():
+    ref, skill = _text(REFS / "create.md"), _text(SKILL)
+    assert create_question_problems(ref, skill) == []
+
+
+def test_create_question_check_fails_when_the_old_trigger_returns(tmp_path):
+    ref, skill = _text(REFS / "create.md"), _text(SKILL)
+    back = ref + "\nAsk when `draft-notes.md` lists " + OLD_TRIGGER + ".\n"
+    problems = create_question_problems(_mutated(tmp_path, "create.md", back), skill)
+    assert problems == ["refs/create.md still carries the old broad trigger"]
+
+
+@pytest.mark.parametrize("name", CONFLICT_CATEGORIES)
+def test_create_question_check_fails_when_a_category_is_deleted(name, tmp_path):
+    ref, skill = _text(REFS / "create.md"), _text(SKILL)
+    section = prompt_rule_section(ref)
+    cut = ref.replace(section, section.replace(name, "removed"))
+    problems = create_question_problems(_mutated(tmp_path, "create.md", cut), skill)
+    assert problems == [f"prompt rule section lacks the category {name!r}"]
+
+
+def test_create_question_check_fails_when_the_keep_all_choice_returns(tmp_path):
+    ref, skill = _text(REFS / "create.md"), _text(SKILL)
+    back = ref + "\nChoices: " + OLD_KEEP_ALL + ".\n"
+    problems = create_question_problems(_mutated(tmp_path, "create.md", back), skill)
+    assert problems == ["refs/create.md still offers the old keep-all choice"]
+
+
+def test_draft_notes_separates_additions_and_contradictions():
+    assert draft_notes_problems(_text(TEMPLATES / "draft-notes.md")) == []
+
+
+def test_draft_notes_check_fails_when_the_none_marker_is_deleted(tmp_path):
+    text = _text(TEMPLATES / "draft-notes.md")
+    cut = text.replace("\n- None", "\n- ", 1)
+    problems = draft_notes_problems(_mutated(tmp_path, "draft-notes.md", cut))
+    assert problems == ["each list must keep a '- None' empty marker"]
+
+
+def test_draft_notes_check_fails_when_the_consequences_are_deleted(tmp_path):
+    text = _text(TEMPLATES / "draft-notes.md")
+    cut = text.replace("cause no question", "cause nothing").replace(
+        "exactly one question", "a prompt"
+    )
+    problems = draft_notes_problems(_mutated(tmp_path, "draft-notes.md", cut))
+    assert problems == [
+        "the template does not say 'no question'",
+        "the template does not say 'one question'",
+    ]
+
+
+def test_create_reports_additions_without_approval():
+    assert additions_report_problems(_text(REFS / "create.md"), _text(SKILL)) == []
+
+
+def test_additions_report_check_fails_when_the_literal_is_removed(tmp_path):
+    ref, skill = _text(REFS / "create.md"), _text(SKILL)
+    cut = skill.replace("kept without approval:", "kept")
+    problems = additions_report_problems(ref, _mutated(tmp_path, "SKILL.md", cut))
+    assert problems == ["SKILL.md create step 6 lacks the retained-additions line"]
+
+
+def test_additions_report_check_fails_when_the_promise_is_removed(tmp_path):
+    ref, skill = _text(REFS / "create.md"), _text(SKILL)
+    section = prompt_rule_section(ref)
+    cut = ref.replace(section, section.replace("never shown for approval", "shown"))
+    problems = additions_report_problems(_mutated(tmp_path, "create.md", cut), skill)
+    assert problems == [
+        "the prompt rule section no longer says the body is never shown"
+    ]
+
+
+def test_contradiction_categories_require_user_evidence():
+    ref, template = _text(REFS / "create.md"), _text(TEMPLATES / "draft-notes.md")
+    assert evidence_rule_problems(ref, template) == []
+
+
+@pytest.mark.parametrize(
+    "needle",
+    ["conflicting evidence", "missing any of the three", "disagreement with a"],
+)
+def test_evidence_rule_check_fails_when_a_requirement_is_deleted(needle, tmp_path):
+    ref, template = _text(REFS / "create.md"), _text(TEMPLATES / "draft-notes.md")
+    cut = template.replace(needle, "removed")
+    problems = evidence_rule_problems(ref, _mutated(tmp_path, "draft-notes.md", cut))
+    assert problems == [f"draft-notes template lacks {needle!r}"]

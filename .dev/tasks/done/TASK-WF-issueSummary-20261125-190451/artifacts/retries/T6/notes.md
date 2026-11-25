@@ -1,0 +1,2 @@
+9288a336452a2fd6530c9837fe586bf1a964cb6a
+A1 r1-1 F1.1 minor docs/user-guide/commands.md:357 ac=T6.AC2 n,n,n,n Wording: calling the --create question "the one exception" to "without showing ... for approval first" can read as if --create shows something for approval; the question names the contradicting items and never shows the body (design doc line 225 and the D14 row say so). The sentence "without showing the comment or the issue body for approval first" is still present.

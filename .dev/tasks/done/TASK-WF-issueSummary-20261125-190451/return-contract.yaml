@@ -1,0 +1,19 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-issueSummary-20261125-190451
+plan_path: ./TASK-WF-issueSummary-20261125-190451.md
+source_path: ./source.md
+source_origin: .dev/issues/834/issue-summary.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: null
+unresolved:
+  - "Second review of this plan was stopped by the owner before the adversarial merge and evidence validation; three complete reviewer cards report open findings, listed in ./artifacts/open-review-findings.md. Owner decision: accept the plan as is and carry the findings as follow-up notes."
+  - "The first plan of this source (TASK-WF-issueSummary-20261125-175321) failed review with six blocking findings and was archived; its review report is .dev/reflect/pre-issueSummary-20261125175807/REPORT.md."
+fix_cycles: 0
+supersedes: TASK-WF-issueSummary-20261125-175321
+remediation_route: regenerate
+finding_counts: {"blocking": 6, "label_high": 0, "medium": 7, "note": 7}
