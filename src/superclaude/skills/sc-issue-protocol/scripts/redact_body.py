@@ -60,6 +60,9 @@ URL_PASSWORD = re.compile(r"(\b[a-z][a-z0-9+.-]*://[^\s/:@]+:)([^\s/@]+)(@)", re
 _SEP = r"""["']?\s*[:=]\s*"""
 # Double quotes escape with a backslash; single quotes also escape by doubling (YAML).
 _QUOTED = r"""(?:"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.|'')*')"""
+# A strong name may hold a multi-line quoted value (YAML); bounded so a stray quote
+# cannot swallow the rest of a long document.
+_QUOTED_ML = r"""(?:"(?:[^"\\]|\\.){0,2000}"|'(?:[^'\\]|\\.|''){0,2000}')"""
 _NAME_CHARS = r"[A-Za-z0-9_.-]*"
 _STRONG_NAMES = r"""(?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
            |authorization|credential|session[_-]?id
@@ -80,7 +83,7 @@ COOKIE_LINE = re.compile(
 # passphrase may have several words; over-redacting a line is the safe failure).
 STRONG_PAIR = re.compile(
     rf"""(?P<head>{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP})
-        (?P<value>{_QUOTED}|[^\n]+)""",
+        (?P<value>{_QUOTED_ML}|[^\n]+)""",
     re.VERBOSE | re.IGNORECASE,
 )
 

@@ -65,6 +65,7 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         f"encoded: {B64_SLASH}",
         "password: |\n  correct horse battery staple",
         "password: 'prefix''remaining-secret123'",
+        'password: "first-line\n  remaining-secret123"',
         "password: <Secret1234567890>",
         PEM,
     ],
