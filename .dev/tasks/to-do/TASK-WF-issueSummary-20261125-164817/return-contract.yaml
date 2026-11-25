@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-issueSummary-20261125-164817
+plan_path: ./TASK-WF-issueSummary-20261125-164817.md
+source_path: ./source.md
+source_origin: .dev/issues/842/issue-summary.md
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-842/.dev/reflect/pre-issueSummary-20261125164929/REPORT.md
+unresolved: []
+finding_counts: {blocking: 0, label_high: 1, medium: 1, note: 5}
+# Route none (0 blocking findings): the plan was not changed. Follow-up candidates, not repaired:
+#   Medium: D-001, the acceptance bullets at plan lines 33 and 44 under-check the one-file scope (the executor's own review still enforces plan line 19).
+#   Notes: trailing-newline wording, push-before-check ordering, coverage-record omission of source.md line 17, and two more wording points; see the report.

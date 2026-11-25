@@ -1,0 +1,10 @@
+# T1 evidence
+## content bytes of .dev/ll-obs/C.txt
+0000000   o   b   s   e   r   v   a   t   i   o   n       C  \n
+0000016
+## git status --short -uall -- .dev/ll-obs
+?? .dev/ll-obs/C.txt
+## paths changed since the T1 start snapshot (git diff-tree --name-status b75a59fda438b169d968414c5472f9e0b19d802d ae55219ff70f8badc30501eb8846adc78c7fed55)
+A	.dev/ll-obs/C.txt
+A	.dev/tasks/to-do/TASK-WF-issueSummary-20261125-164817/artifacts/retries/T1/q0-head
+M	.dev/tasks/to-do/TASK-WF-issueSummary-20261125-164817/progress.md
