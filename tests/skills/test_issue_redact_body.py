@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import importlib.util
+import time
 from pathlib import Path
 
 import pytest
@@ -70,6 +71,7 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         f"the token is {B64_TWO}.",
         "db.example.com:5432:app:bob:remaining-secret123",
         "*:*:*:bob:remaining-secret123",
+        "127.0.0.1:5432:app:bob:remaining-secret123",
         'Cookie: "session=abc123"; theme=opaqueSecret123456',
         "password: |\n  correct horse battery staple",
         "password: 'prefix''remaining-secret123'",
@@ -174,6 +176,15 @@ def test_a_quoted_netrc_password_never_swallows_later_prose():
     assert count == 1
     assert out.endswith('We said "hello" later.\n')
     assert "first second" not in out
+
+
+@pytest.mark.parametrize("unit", ["a", "ab1", "a-", "a.b", "x_y1"])
+def test_a_long_uninterrupted_string_is_scanned_in_linear_time(unit):
+    text = unit * (200_000 // len(unit))
+    started = time.monotonic()
+    out, count = rb.redact(text)
+    assert time.monotonic() - started < 5
+    assert count <= 1  # a long base64-looking run may be redacted once
 
 
 def test_one_value_per_line_counts_once_each():

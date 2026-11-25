@@ -72,7 +72,11 @@ BASE64_BLOB = re.compile(
     r"[A-Za-z0-9+/]{40,}={0,2}(?![A-Za-z0-9+/=])"
 )
 
-URL_PASSWORD = re.compile(r"(\b[a-z][a-z0-9+.-]*://[^\s/:@]+:)([^\s/@]+)(@)", re.I)
+# The scheme must start where a run of scheme characters starts (no ``\b``): a long
+# run of letters is then scanned once, not again from every position.
+URL_PASSWORD = re.compile(
+    r"((?<![a-z0-9+.-])[a-z][a-z0-9+.-]*://[^\s/:@]+:)([^\s/@]+)(@)", re.I
+)
 
 _SEP = r"""["']?\s*[:=]\s*"""
 # Double quotes escape with a backslash; single quotes also escape by doubling (YAML).
@@ -81,6 +85,9 @@ _QUOTED = r"""(?:"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.|'')*')"""
 # quote, however far away: over-redacting is the safe failure for a public issue.
 _QUOTED_ML = r"""(?:"(?:[^"\\]|\\[\s\S])*"|'(?:[^'\\]|\\[\s\S]|'')*')"""
 _NAME_CHARS = r"[A-Za-z0-9_.-]*"
+# A name starts where a run of name characters starts, so a long uninterrupted string
+# is scanned once and not again from every position (no quadratic backtracking).
+_NAME_START = r"(?<![A-Za-z0-9_.-])"
 _STRONG_NAMES = r"""(?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
            |authorization|credential|session[_-]?id
            |(?:access|auth|refresh|id|bearer)[_-]?token)"""
@@ -112,21 +119,22 @@ NETRC_LINE = re.compile(
 # ``.pgpass`` style: ``host:port:database:user:password`` on a line of its own. The
 # host must contain a letter or ``*``, so a time such as ``10:30:15:00:05`` is left.
 PGPASS_LINE = re.compile(
-    r"^(?P<head>[^\s:]*[A-Za-z*][^\s:]*:(?:\d+|\*):[^\s:]*:[^\s:]*:)(?P<value>\S+)[ \t]*$",
+    r"^(?P<head>(?:(?=[^\s:]*[A-Za-z*])[^\s:]+|\d{1,3}(?:\.\d{1,3}){3}):(?:\d+|\*):[^\s:]*:[^\s:]*:)"
+    r"(?P<value>\S+)[ \t]*$",
     re.MULTILINE,
 )
 
 # Names that always hold a credential: a quoted value, or the rest of the line (a
 # passphrase may have several words; over-redacting a line is the safe failure).
 STRONG_PAIR = re.compile(
-    rf"""(?P<head>{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP})
+    rf"""(?P<head>{_NAME_START}{_NAME_CHARS}{_STRONG_NAMES}{_NAME_CHARS}{_SEP})
         (?P<value>{_QUOTED_ML}|[^\n]+)""",
     re.VERBOSE | re.IGNORECASE,
 )
 
 # Names that may be harmless (``key: ArrowUp``): replaced only for secret-shaped values.
 WEAK_PAIR = re.compile(
-    rf"""(?P<head>{_NAME_CHARS}(?:token|key){_NAME_CHARS}{_SEP})
+    rf"""(?P<head>{_NAME_START}{_NAME_CHARS}(?:token|key){_NAME_CHARS}{_SEP})
         (?P<value>{_QUOTED}|[^\s"',;]+)""",
     re.VERBOSE | re.IGNORECASE,
 )
