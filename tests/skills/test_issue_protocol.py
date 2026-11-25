@@ -1161,9 +1161,14 @@ def test_the_claim_still_writes_no_worktree_record_for_pipeline_none():
 
 def test_stage_claim_skips_recommend_and_plain_claim_keeps_it():
     claim = _text(REFS / "claim.md")
-    step1 = claim.split("1. Without `--stage`: invoke `Skill sc-recommend`", 1)[1].split("\n2.", 1)[0]
+    step1 = claim.split("1. Without `--stage`: invoke `Skill sc-recommend`", 1)[
+        1
+    ].split("\n2.", 1)[0]
     # plain claim: the recommend step is unchanged
-    assert "Save its output verbatim to `<D>/recommend.md`" in step1.split("With `--stage <stage>`", 1)[0]
+    assert (
+        "Save its output verbatim to `<D>/recommend.md`"
+        in step1.split("With `--stage <stage>`", 1)[0]
+    )
     # --stage claim: no Skill call, one skip line, no "Default row not used"
     stage = step1.split("With `--stage <stage>`", 1)[1]
     assert "do not invoke `Skill sc-recommend`" in stage
