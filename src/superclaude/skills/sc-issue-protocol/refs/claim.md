@@ -35,13 +35,14 @@ Worker returns no file or an empty one: retry that worker once, then STOP `E-WOR
 
 ## Wave 2: edge cases (orchestrator reads `<D>/scout.md`)
 
-Checked in this order; every STOP here makes no GitHub or ClickUp write (B9):
+Checked in this order; every STOP here makes no GitHub, ClickUp or Orca write (B9):
 
 1. `is_pull_request` is true -> STOP `E-NOT-AN-ISSUE`: "#N is a pull request, not an issue; not claimed."
 2. `state` is `CLOSED` -> STOP: "Issue #N is closed; not claimed."
 3. Assigned to anyone other than the current login -> STOP: "Issue #N is assigned to @<login>; not claimed."
 4. Already assigned to the current login -> continue (re-claim is allowed and idempotent).
-5. Earlier claim or accuracy-check comment IDs present -> remember them; Wave 6 edits those comments instead of posting new ones (B9, D18).
+5. Blocker check (read only; it runs before the first write of Wave 3): run `gh api --paginate repos/<R>/issues/<N>/dependencies/blocked_by --jq '.[] | select(.state == "open") | "#\(.number) \(.html_url)"'`. Apply the outcomes in this order. First, any output line that matches `^#[0-9]+ https://` is an open blocker, whatever the exit status: STOP `E-BLOCKED`: "Issue #N is blocked by open issue(s): <each #number and link>; not claimed." Second, otherwise a non-zero exit (for example no access or an endpoint that is not served) or any output that does not match means the check could not run: continue, and hold the line `Blocker check: could not run (<reason>); the claim went ahead without it.` for the final output. Third, otherwise there are no open blockers (no output, or only closed ones): continue as today. The check applies to a re-claim and to every `--pipeline` value.
+6. Earlier claim or accuracy-check comment IDs present -> remember them; Wave 6 edits those comments instead of posting new ones (B9, D18).
 
 ## Wave 3: assign (orchestrator)
 
@@ -146,5 +147,5 @@ Print, in this order:
    - `already_launched`: "agent already launched at <launched_at>" plus the script's `detail`, which names the two files that hold the `launch` entry (`<D>/worktree.json` and a file in the worktree's git directory); the user removes the entry from both to launch again. In place of the Wave 5 `Level:` line print `Level: <stored level> (stored)`, read from the `launch` entry of `<D>/worktree.json` or, when that file has none, from the mirror file the script's `detail` names; the stored level wins over the level picked in Wave 5.
    - Failed worktree (Wave 7 `status` `failed`) or failed launch (`status` `failed`): print no `Level:` line; the launch result and the warnings below name the failure.
    - `--pipeline none`: "No worktree created and no agent launched. Open .dev/issues/<N>/next-steps.md in this checkout and run its commands in your own session."
-4. Every warning, the worktree one first (print the Wave 7 `warning` as `worktree_warning: <code>`, so an unattended run shows it): the code, its `detail`, and its remedy line from the two tables above. For `W-LAUNCH-FAILED`, also print the launch JSON's `hand_command` when it is not null (the remedy line promises it), and tell the user that an agent started by hand is not governed by the enforcement hook.
+4. Every warning, the worktree one first (print the Wave 7 `warning` as `worktree_warning: <code>`, so an unattended run shows it): the code, its `detail`, and its remedy line from the two tables above. For `W-LAUNCH-FAILED`, also print the launch JSON's `hand_command` when it is not null (the remedy line promises it), and tell the user that an agent started by hand is not governed by the enforcement hook. When the Wave 2 blocker check could not run, also print the held `Blocker check: could not run (<reason>); the claim went ahead without it.` line, for `--pipeline none` too.
 5. The return contract (`SKILL.md`) and STOP.

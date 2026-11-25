@@ -1178,3 +1178,150 @@ def test_stage_claim_skips_recommend_and_plain_claim_keeps_it():
     )
     assert "`Default row not used` line is not written" in claim
     assert "a `--stage` claim never calls it" in claim
+
+
+# --- the blocked-by check of the claim (issue 848) ------------------------------------
+# Static tests of the written contract in the skill text. They do not show that a live
+# model follows it.
+
+BLOCKER_PATH = "repos/<R>/issues/<N>/dependencies/blocked_by"
+GUIDE = ROOT / "src/superclaude/core/HOW-WE-WORK.md"
+PLUGIN_GUIDE = ROOT / "plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md"
+
+
+def _wave2_item_lines(claim: str) -> list[str]:
+    return [ln for ln in _wave(claim, 2).splitlines() if re.match(r"^\d+\. ", ln)]
+
+
+def _line_index(lines: list[str], needle: str) -> int | None:
+    return next((i for i, ln in enumerate(lines) if needle in ln), None)
+
+
+def blocker_check_problems(claim: str) -> list[str]:
+    """What is wrong with the blocker check in the text of refs/claim.md (empty: nothing)."""
+    items = _wave2_item_lines(claim)
+    blocker = _line_index(items, BLOCKER_PATH)
+    if blocker is None:
+        return [f"Wave 2 has no item that reads {BLOCKER_PATH}"]
+    problems = []
+    if "E-BLOCKED" not in items[blocker]:
+        problems.append("the Wave 2 blocker item does not name E-BLOCKED")
+    for name, needle in (
+        ("closed-issue", "`state` is `CLOSED`"),
+        ("assigned-to-someone-else", "Assigned to anyone other than"),
+        ("already-assigned", "Already assigned to the current login"),
+    ):
+        index = _line_index(items, needle)
+        if index is None or index > blocker:
+            problems.append(f"the blocker item is not after the {name} item of Wave 2")
+    wave3 = _wave(claim, 3)
+    if BLOCKER_PATH in wave3:
+        problems.append("Wave 3 reads the blocked-by list")
+    if "--add-assignee" not in wave3:
+        problems.append("Wave 3 lost the assignment")
+    if "Blocker check: could not run" not in claim.split("## Final output", 1)[1]:
+        problems.append("the Final output has no could-not-run line rule")
+    return problems
+
+
+def _claim_with_blocker_item_moved(claim: str, after_needle: str | None) -> str:
+    """Copy of the claim text with the blocker item removed, or put after a line."""
+    lines = claim.splitlines(keepends=True)
+    i = next(i for i, ln in enumerate(lines) if ln.startswith("5. Blocker check"))
+    item = lines.pop(i)
+    if after_needle is not None:
+        j = next(j for j, ln in enumerate(lines) if after_needle in ln)
+        lines.insert(j + 1, item)
+    return "".join(lines)
+
+
+def test_blocker_check_in_the_claim_ref_has_no_problems():
+    assert blocker_check_problems(_text(REFS / "claim.md")) == []
+
+
+def test_blocker_check_fails_when_the_item_is_removed():
+    claim = _claim_with_blocker_item_moved(_text(REFS / "claim.md"), None)
+    assert blocker_check_problems(claim)
+
+
+@pytest.mark.parametrize(
+    "after_needle, name",
+    [
+        ("`state` is `CLOSED`", "assigned-to-someone-else"),
+        ("Assigned to anyone other than", "already-assigned"),
+    ],
+)
+def test_blocker_check_fails_when_the_item_sits_before_an_assignee_item(
+    after_needle, name
+):
+    claim = _claim_with_blocker_item_moved(_text(REFS / "claim.md"), after_needle)
+    assert any(f"not after the {name} item" in p for p in blocker_check_problems(claim))
+
+
+def test_blocker_check_fails_when_wave_3_reads_the_list():
+    claim = _text(REFS / "claim.md").replace(
+        "## Wave 3: assign (orchestrator)\n",
+        f"## Wave 3: assign (orchestrator)\n\n{BLOCKER_PATH}\n",
+        1,
+    )
+    assert "Wave 3 reads the blocked-by list" in blocker_check_problems(claim)
+
+
+def test_blocker_check_fails_without_the_final_output_line():
+    head, tail = _text(REFS / "claim.md").split("## Final output", 1)
+    claim = head + "## Final output" + tail.replace("Blocker check: could not run", "x")
+    assert "the Final output has no could-not-run line rule" in blocker_check_problems(
+        claim
+    )
+
+
+def test_wave2_blocker_item_states_the_three_outcomes_in_order():
+    claim = _text(REFS / "claim.md")
+    assert "every STOP here makes no GitHub, ClickUp or Orca write (B9)" in _wave(
+        claim, 2
+    )
+    items = _wave2_item_lines(claim)
+    item = items[_line_index(items, BLOCKER_PATH)]
+    first = item.index("First, any output line that matches `^#[0-9]+ https://`")
+    second = item.index("Second, otherwise a non-zero exit")
+    third = item.index("Third, otherwise there are no open blockers")
+    assert first < second < third
+    # an open blocker stops the claim whatever the exit status, naming each one
+    assert "whatever the exit status" in item[first:second]
+    assert "STOP `E-BLOCKED`" in item[first:second]
+    assert "<each #number and link>" in item[first:second]
+    # an unreadable list continues and is reported in the final output
+    assert "continue" in item[second:third]
+    assert (
+        "Blocker check: could not run (<reason>); the claim went ahead without it."
+        in item[second:third]
+    )
+    # none, or only closed blockers: the claim runs as today
+    assert "continue as today" in item[third:]
+
+
+def test_skill_and_command_describe_the_blocker_stop():
+    skill = _text(SKILL)
+    claim_mode = skill.split("## Claim mode", 1)[1].split("## Create mode", 1)[0]
+    rows = [
+        ln
+        for ln in skill.split("## Error handling", 1)[1].splitlines()
+        if ln.startswith("|")
+    ]
+    assert "E-BLOCKED" in claim_mode
+    assert any("E-BLOCKED" in r and "no writes" in r for r in rows)
+    assert any("Blocker check: could not run" in r for r in rows)
+    assert "E-BLOCKED" in _text(COMMANDS / "issue.md")
+
+
+def _guide_issue_row(path: Path) -> str:
+    return next(
+        ln for ln in _text(path).splitlines() if ln.startswith("| `/sc:issue` |")
+    )
+
+
+def test_guide_row_mentions_the_blocker_check_and_the_plugin_copy_matches():
+    row = _guide_issue_row(GUIDE)
+    assert '"blocked by"' in row
+    assert "does not stop the claim" in row
+    assert row == _guide_issue_row(PLUGIN_GUIDE)

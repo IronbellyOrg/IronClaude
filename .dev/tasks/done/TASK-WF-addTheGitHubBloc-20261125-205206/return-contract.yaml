@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-addTheGitHubBloc-20261125-205206
+plan_path: ./TASK-WF-addTheGitHubBloc-20261125-205206.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-848/.dev/reflect/pre-addTheGitHubBloc-20261125201724/REPORT.md
+unresolved:
+  - "The repaired plan was not re-reviewed: the owner stopped the plan review and the re-reviewer after the surgical repair of blocking findings A1 and A2, and told the session to build. Medium findings A3 and A10 and the 10 Notes of the reflect report were left unrepaired by design (follow-up candidates)."
+supersedes: TASK-WF-addTheGitHubBloc-20261125-201412
+remediation_route: surgical
+finding_counts: {"blocking": 2, "label_high": 0, "medium": 2, "note": 10}

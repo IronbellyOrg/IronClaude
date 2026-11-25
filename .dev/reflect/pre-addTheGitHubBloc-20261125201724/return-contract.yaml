@@ -1,0 +1,102 @@
+contract_version: "1.9.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-848/.dev/reflect/pre-addTheGitHubBloc-20261125201724/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-848/.dev/reflect/pre-addTheGitHubBloc-20261125201724/audit.log
+confidence_calibrated: 0.81
+escalation_rule_matched: 6
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# input integrity
+input_sha256:
+  tasklist: f747526bdb1ce637ab28103ced1b535ec09ab3f46c3c154d2bead795e02bebf8
+  spec: 7a35ebcdd32ef8e2c546e95f063f83b6d77826fe08cc3c21a733cb86d3581a43
+input_tree_sha256: 5658ffa9d4238d6a626ba9d15ee44b1ae6622733ffc939c13ae4fc52e59430cb
+input_tree_file_count: 17
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-848/.dev/reflect/pre-addTheGitHubBloc-20261125201724/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# hallucination guard
+citations_total: 62
+citations_revalidated: 62
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# tier 2
+reviewer_cards:
+  - .dev/reflect/pre-addTheGitHubBloc-20261125201724/reviewer-cards/reviewer-1-card.md
+  - .dev/reflect/pre-addTheGitHubBloc-20261125201724/reviewer-cards/reviewer-2-card.md
+adversarial_artifacts_dir: .dev/reflect/pre-addTheGitHubBloc-20261125201724/adversarial/adversarial
+adversarial_convergence_score: 0.91
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded     # 2 reviewer classes (executor class excluded)
+t2_vendor_diversity: single            # aliases are gateway names; one reviewer self-reported GPT-5.2
+t2_effective_diversity: model-only
+calibrator_diversity: full
+
+# tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+finding_counts: {blocking: 2, label_high: 0, medium: 2, note: 10}
+
+# flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+grounding_gaps_path: null
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_check_skipped: true
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+forced_tier: null
+reviewer_briefs_materialized: 2
+
+# promotion (UC-2 only)
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_log_path: null
+promotion_gate_passed: null
+
+telemetry:
+  reviewer_models: [claude-gw-tier1a (opus alias), claude-gw-tier2 (haiku alias)]
+  reviewer_personas: [analyzer, qa]
+  executor_class_source: session-model
+  executor_class_resolved: true
+  executor_exclusion_degraded: false
+  degraded_components: []
+  fallback_path: null
+  memory_hits: 0
+  memory_misses: 2
+  memory_retention_actions: 0
+  judge_identity: unknown
+  judge_class_collision: unknown

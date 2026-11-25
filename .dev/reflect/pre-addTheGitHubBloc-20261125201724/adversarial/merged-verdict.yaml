@@ -1,0 +1,21 @@
+# Written by the reflect orchestrator from the adversarial run's merged output and return contract (copied, not invented).
+# Read from disk by the Wave 4 exit check (EV-1).
+merge_method: adversarial
+verdict: plan_has_blocking_gaps          # UC-1: the plan covers the spec (coverage_pct_union 1.0) but two blocking gaps would make its own acceptance checks fail or break a required outcome
+convergence_score: 0.91
+base_variant: "opus:analyzer"
+source_cards:
+  - .dev/reflect/pre-addTheGitHubBloc-20261125201724/reviewer-cards/reviewer-1-card.md
+  - .dev/reflect/pre-addTheGitHubBloc-20261125201724/reviewer-cards/reviewer-2-card.md
+merged_output_path: .dev/reflect/pre-addTheGitHubBloc-20261125201724/adversarial/merged-reviewer-card.md
+adversarial_artifacts_dir: .dev/reflect/pre-addTheGitHubBloc-20261125201724/adversarial/adversarial
+judge_identity: unknown                   # sc-adversarial's own return contract names no judge; the debaters were opus and haiku class, the orchestrator that scored was sonnet class
+judge_class_collision: unknown
+debate_skipped_similar: false
+finding_counts: {blocking: 2, label_high: 0, medium: 2, note: 10}
+merged_findings:
+  - {id: A1, grade: Blocking, kind: Missing, summary: "no task adds the WRITE_VERB_CLASSIFICATION entry in tests/skills/test_worker_contract.py for the new gh api line", sources: [A1, Q1, INV-004]}
+  - {id: A2, grade: Blocking, kind: Decision, summary: "Task 1 does not say which outcome rule wins on a failed blocker read; verified: a failed read exits 1 and prints error JSON on stdout; refined rule: any line matching ^#[0-9]+ https:// stops the claim, else non-zero exit or non-matching output is could-not-run", sources: [A2, INV-001, INV-002]}
+  - {id: A3, grade: Medium, summary: "the held could-not-run line is not guaranteed to print when a later STOP ends the claim", sources: [A3, INV-003]}
+  - {id: A10, grade: Medium, kind: Missing, summary: "Task 6's ordering helper does not pin the order against the assignee checks", sources: [Q2]}
+  - {id: "A4-A9, A11-A14", grade: Note, summary: "wording traps, heading, housekeeping, coverage record, ASCII guide wording, unevaluable acceptance wording, watcher note"}

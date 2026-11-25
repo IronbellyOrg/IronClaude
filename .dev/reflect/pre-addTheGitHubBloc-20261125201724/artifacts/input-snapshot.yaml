@@ -1,0 +1,37 @@
+input_tree_sha256: 5658ffa9d4238d6a626ba9d15ee44b1ae6622733ffc939c13ae4fc52e59430cb
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-addTheGitHubBloc-20261125-201412/TASK-WF-addTheGitHubBloc-20261125-201412.md
+    sha256: f747526bdb1ce637ab28103ced1b535ec09ab3f46c3c154d2bead795e02bebf8
+  - path: .dev/tasks/to-do/TASK-WF-addTheGitHubBloc-20261125-201412/artifacts/codegraph-grounding.md
+    sha256: 7c4fdb0947eb3c2019160064f22325053f38d8667b18d7fc38c4132840539cca
+  - path: .dev/tasks/to-do/TASK-WF-addTheGitHubBloc-20261125-201412/source.md
+    sha256: 7a35ebcdd32ef8e2c546e95f063f83b6d77826fe08cc3c21a733cb86d3581a43
+  - path: plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+    sha256: 6e0d16608c6e14274339b035ab1c560850630da88c6224873d7b6908eba1c0a3
+  - path: src/superclaude/commands/issue.md
+    sha256: 69b48f752c5f88c5cd89aee5a55c4e631a73a5e7a4ad30a9a3451b7ecdd1818e
+  - path: src/superclaude/core/HOW-WE-WORK.md
+    sha256: 6e0d16608c6e14274339b035ab1c560850630da88c6224873d7b6908eba1c0a3
+  - path: src/superclaude/skills/sc-issue-protocol/SKILL.md
+    sha256: 49f887b6015b710be92b4a52b9437cd56bdfee20a7edb5240ff7c13f18ff1a0a
+  - path: src/superclaude/skills/sc-issue-protocol/refs/claim.md
+    sha256: c8940ec63b148e597cff30a8fd13db6e6e7dfb1427e2e81ee94a338d454ad62a
+  - path: tests/cli/test_how_we_work_install.py
+    sha256: d6b7c746b8a7175f6f22b3d56719b75c3bd3d44bf54af6558faa4b101c28d0a4
+  - path: tests/commands/test_issue_command.py
+    sha256: ceac1e0f327512be5c45b9e353b97a02234d7e51daa78fbb0b5d33ff6113449f
+  - path: tests/commands/test_routing_plugin_parity.py
+    sha256: c362104ffdea66a1164d0903a251f3fb11e614c02c60258a3b476b7e16aaa123
+  - path: tests/core/test_how_we_work_routing_table.py
+    sha256: ff9fd85c9f23c8d3ab90469815d24f58d7dfc96fcbf6dfc4b532e658c7635af9
+  - path: tests/issue_pipeline/test_brief.py
+    sha256: 76263f5fd7e2d2e137da35161e7bfffe8aaeba2ed4edd750b158dceabb5aa9e1
+  - path: tests/issue_watch/test_marker_contract.py
+    sha256: ceed729cffc862305509ba3f607f542b3c1cac2482234c018c294fd9cf4a9b74
+  - path: tests/skills/test_issue_orca_worktree.py
+    sha256: 59095ff05b61a268e3ec104ab60d1b9dd3f41ab1ddec58836674373c21afa429
+  - path: tests/skills/test_issue_protocol.py
+    sha256: 81a6abe7a2857e7861b14f7a79bd63863e9dbba3b9e10e04cd6ad468b8906830
+  - path: tests/skills/test_worker_contract.py
+    sha256: 3826927893348abb78ff876f4997b685a84509d1bc9dee6638c4c62a1aabbad3
+file_count: 17
