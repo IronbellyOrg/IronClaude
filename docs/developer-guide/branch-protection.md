@@ -162,8 +162,11 @@ Before the first real create, test the role on a throwaway branch of the target 
 
 ```bash
 # the scratch clone is on a local branch with two commits; create the throwaway branch first
+# RULESET_FILE is the role file in a separate checkout of IronClaude (it is only read), for example
+# RULESET_FILE=/path/to/IronClaude/.github/rulesets/other-repos/protect-main.json
+# ID below is the id of the scratch ruleset that the create call prints, not a real ruleset
 git push https://github.com/IronbellyOrg/$REPO.git HEAD:refs/heads/zz-ruleset-selftest
-jq '.name="zz-selftest-<role>" | .conditions.ref_name.include=["refs/heads/zz-ruleset-selftest"]' <file> | gh api --method POST repos/IronbellyOrg/$REPO/rulesets --input -
+jq '.name="zz-selftest-<role>" | .conditions.ref_name.include=["refs/heads/zz-ruleset-selftest"]' "$RULESET_FILE" | gh api --method POST repos/IronbellyOrg/$REPO/rulesets --input -
 # full role: an empty commit on top must be refused (error GH013)
 git commit --allow-empty -m "selftest: this push must be refused"
 git push https://github.com/IronbellyOrg/$REPO.git HEAD:zz-ruleset-selftest
@@ -178,16 +181,21 @@ Run the empty-commit push for the full role and the force push for the mirror (t
 
 ### Roll back and break glass
 
-The commands are the same as for IronClaude, with `$REPO` and `$ID`:
+The commands are the same as for IronClaude, with `$REPO` and `$ID`. Break glass, for an emergency that needs a direct push (the ruleset stays in place):
 
 ```bash
 gh api --method PUT repos/IronbellyOrg/$REPO/rulesets/$ID -f enforcement=disabled
 # push the fix
 gh api --method PUT repos/IronbellyOrg/$REPO/rulesets/$ID -f enforcement=active
+```
+
+Roll back, which removes the protection for good: run it on its own, never as part of a break-glass sequence, and only for a ruleset that this rollout created:
+
+```bash
 gh api --method DELETE repos/IronbellyOrg/$REPO/rulesets/$ID
 ```
 
-Comment on the tracking issue with who, when and why each time. Delete only rulesets that this rollout created.
+Comment on the tracking issue with who, when and why each time.
 
 ## Tests
 

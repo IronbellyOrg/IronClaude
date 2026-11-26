@@ -32,15 +32,48 @@ _OTHER = _RULESETS / "other-repos"
 # applier: who applies; branch: candidate files (a fork lists both roles, the role is chosen on apply day);
 # optional: files that may be absent (aidev02 needs a written yes); tag: conditional, skip or handoff.
 _TARGETS = {
-    "CPA-Manager-Plus": {"applier": "clay", "branch": ["protect-main", "protect-main-mirror"], "optional": [], "tag": "conditional"},
-    "IronOrca": {"applier": "clay", "branch": ["protect-main", "protect-main-mirror"], "optional": ["protect-aidev02"], "tag": "conditional"},
-    "coder_orca": {"applier": "clay", "branch": ["protect-main"], "optional": [], "tag": "skip"},
-    "IronHands-CLI": {"applier": "ryan", "branch": ["protect-main", "protect-main-mirror"], "optional": [], "tag": "handoff"},
-    "irondots": {"applier": "ryan", "branch": ["protect-main"], "optional": [], "tag": "handoff"},
-    "ironops-marketplace": {"applier": "ryan", "branch": ["protect-main"], "optional": [], "tag": "handoff"},
+    "CPA-Manager-Plus": {
+        "applier": "clay",
+        "branch": ["protect-main", "protect-main-mirror"],
+        "optional": [],
+        "tag": "conditional",
+    },
+    "IronOrca": {
+        "applier": "clay",
+        "branch": ["protect-main", "protect-main-mirror"],
+        "optional": ["protect-aidev02"],
+        "tag": "conditional",
+    },
+    "coder_orca": {
+        "applier": "clay",
+        "branch": ["protect-main"],
+        "optional": [],
+        "tag": "skip",
+    },
+    "IronHands-CLI": {
+        "applier": "ryan",
+        "branch": ["protect-main", "protect-main-mirror"],
+        "optional": [],
+        "tag": "handoff",
+    },
+    "irondots": {
+        "applier": "ryan",
+        "branch": ["protect-main"],
+        "optional": [],
+        "tag": "handoff",
+    },
+    "ironops-marketplace": {
+        "applier": "ryan",
+        "branch": ["protect-main"],
+        "optional": [],
+        "tag": "handoff",
+    },
 }
 
-_FULL_ROLE_FILES = {"protect-main": "refs/heads/main", "protect-aidev02": "refs/heads/aidev02"}
+_FULL_ROLE_FILES = {
+    "protect-main": "refs/heads/main",
+    "protect-aidev02": "refs/heads/aidev02",
+}
 
 
 def _load_other(name):
@@ -109,7 +142,11 @@ def test_other_repos_full_role_derived():
         expected["conditions"]["ref_name"]["include"] = [ref]
         data = _load_other(name)
         assert data == expected, name
-        assert sorted(r["type"] for r in data["rules"]) == ["deletion", "non_fast_forward", "pull_request"]
+        assert sorted(r["type"] for r in data["rules"]) == [
+            "deletion",
+            "non_fast_forward",
+            "pull_request",
+        ]
         assert data["bypass_actors"] == [_ADMIN_PR_BYPASS]
         pr = next(r for r in data["rules"] if r["type"] == "pull_request")
         assert pr["parameters"]["required_approving_review_count"] == 0
@@ -127,10 +164,14 @@ def test_other_repos_mirror_derived():
 
 def test_other_repos_files_match_targets():
     on_disk = {p.stem for p in _OTHER.rglob("*.json")}
-    required = {n for t in _TARGETS.values() for n in t["branch"]} - {n for t in _TARGETS.values() for n in t["optional"]}
+    required = {n for t in _TARGETS.values() for n in t["branch"]} - {
+        n for t in _TARGETS.values() for n in t["optional"]
+    }
     optional = {n for t in _TARGETS.values() for n in t["optional"]}
     assert required <= on_disk, f"missing: {sorted(required - on_disk)}"
-    assert on_disk <= required | optional, f"unlisted: {sorted(on_disk - required - optional)}"
+    assert on_disk <= required | optional, (
+        f"unlisted: {sorted(on_disk - required - optional)}"
+    )
 
 
 def test_guide_has_other_repos_section():
