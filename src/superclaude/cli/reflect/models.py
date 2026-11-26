@@ -145,9 +145,8 @@ class ReflectResult:
     # reflect package (total across commands.py, runner.py, contract.py) stay valid.
     fix_iterations: int = 0
     fix_converged: bool = False
-    remediation_task_path: str | None = None
-    # Plan-route sibling of ``remediation_task_path`` (contract 1.8.0): the
-    # ``sc:workflow`` ``plan.md`` the wrapper runs via ``/sc:implement``.
+    # Contract 1.8.0: the ``sc:workflow`` tasklist ``<slug>.md`` the wrapper runs via
+    # ``/sc:implement``.
     remediation_plan_path: str | None = None
     # L2 reviewer-isolation telemetry (pure telemetry — does NOT alter the verdict;
     # the STOP happens in the runner before derive_verdict). Defaulted so all

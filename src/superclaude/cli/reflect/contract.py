@@ -121,10 +121,9 @@ def _make_result(
         deviations=_extract_deviations(contract),
         child_exit_code=child_rc,
         write_status="",
-        # FR-8: the wrapper only READS the path reflect emits; it never guesses
-        # a "newest TASK-RF-* dir". Defaults to None when reflect did not author one.
-        remediation_task_path=c.get("remediation_task_path"),
-        # Contract 1.8.0: plan-route pointer (sc:workflow plan.md); None on older contracts.
+        # FR-8: the wrapper only READS the plan path reflect emits (contract 1.8.0:
+        # the `sc:workflow` `<slug>.md` tasklist); None when reflect authored none,
+        # and on older contracts.
         remediation_plan_path=c.get("remediation_plan_path"),
         # FX7 additive: surface the honest-accounting visibility siblings.
         # Absent-in-contract (old contracts) → False (unverified / fail-closed).

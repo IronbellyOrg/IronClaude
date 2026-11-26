@@ -30,7 +30,7 @@ There is no Python or shell code behind the store. It is a set of instructions i
 - **Location.** Each memory is `<project>/.superclaude/memory/<key>.md`, flat markdown, with subfolders allowed for topics (`pm-agent.md:21`).
 - **Project root.** `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory when it is not inside git (`pm-agent.md:21`).
 - **One store per worktree.** `git rev-parse --show-toplevel` returns the root of the worktree you are in, so each git worktree of the same repository has its own `.superclaude/memory/` and does not see the others' memories (`pm-agent.md:21`).
-- **Kept out of git.** On the first write, if `<project>/.superclaude/.gitignore` is absent, the writer creates it with the single line `*` (`pm-agent.md:21`). The whole `.superclaude/` folder, including the `.gitignore` itself, is then ignored. The skills that write their own subfolders repeat this rule before writing (`sc-task-protocol/SKILL.md:331`, `sc-reflect-protocol/SKILL.md:376`).
+- **Kept out of git.** On the first write, if `<project>/.superclaude/.gitignore` is absent, the writer creates it with the single line `*` (`pm-agent.md:21`). The whole `.superclaude/` folder, including the `.gitignore` itself, is then ignored. The skills that write their own subfolders repeat this rule before writing (`sc-task-protocol/SKILL.md:331`, `sc-reflect-protocol/SKILL.md:576`).
 
 Example layout after a few sessions:
 
@@ -56,7 +56,7 @@ The rules exist so that several sessions in one worktree can write without overw
 | Single-owner (PM only) | `current_plan` | Overwritten whole | `pm-agent.md:21`, `sc-pm-protocol/SKILL.md:23` |
 | Parallel | `checkpoint`, `decision`, handoffs | Written as `<key>-<session-or-timestamp>.md` and never edited in place | `pm-agent.md:21` |
 
-Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `reflect/last-pass-{slug}.md` whole and writes `reflect/handoff-{slug}-{timestamp}.md` once (`sc-reflect-protocol/SKILL.md:592-594`).
+Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `reflect/last-pass-{slug}.md` whole (`sc-reflect-protocol/SKILL.md:581`). It no longer writes `reflect/handoff-*.md` files: they were retired in 6.1.0 (`sc-reflect-protocol/SKILL.md:588`, section 6.3 "Handoff files"), and existing ones are left in place.
 
 ## Who reads and writes the store
 
@@ -76,7 +76,7 @@ Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `ref
 | Skill | Use of the store | Source |
 |---|---|---|
 | `sc-task-protocol` | Reads relevant memories before work; saves session state to `task/session-<timestamp>.md` | `sc-task-protocol/SKILL.md:92,316,331` |
-| `sc-reflect-protocol` | Reads and writes `reflect/` files (older versions also wrote a `reflect/handoff-*.md` file for a removed route) | `sc-reflect-protocol/SKILL.md:262,376-378,590-600` |
+| `sc-reflect-protocol` | Reads and writes `reflect/` files (older versions also wrote a `reflect/handoff-*.md` file for a removed route) | `sc-reflect-protocol/SKILL.md:262,576-598` |
 | `sc-crash-recovery` | Counts memory files and spawns a project-memory investigator only when the store has files | `sc-crash-recovery/SKILL.md:62,79`, `sc-crash-recovery/scripts/bootstrap_scan.sh:153-154` |
 
 ## Why files and not an MCP server

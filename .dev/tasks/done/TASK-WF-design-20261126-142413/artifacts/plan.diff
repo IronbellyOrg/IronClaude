@@ -1,0 +1,70 @@
+--- old-plan
++++ new-plan
+@@ -3,7 +3,7 @@
+ source: ./source.md
+ strategy: systematic
+ depth: standard
+-slug: TASK-WF-design-20261126-131233
++slug: TASK-WF-design-20261126-142413
+ version: "1"
+ priority: Medium
+ created_date: "2026-11-26"
+@@ -20,8 +20,8 @@
+ - The contract stays at 1.9.0. The key `remediation_task_path` stays in the section 9.1 block of `src/superclaude/skills/sc-reflect-protocol/SKILL.md` (pinned by `tests/cli/reflect/test_shadow_skill_contract.py`) and in the allow-list in `src/superclaude/cli/reflect/panel_lint.py`. The eight YAML fixtures under `tests/cli/reflect/fixtures/` keep the key. Do not touch `refs/remediation-handoff.md`, `src/superclaude/commands/reflect.md` or either `HOW-WE-WORK.md`.
+ - Edit only `src/superclaude/`, `docs/developer-guide/session-memory.md` and `tests/cli/reflect/`. Never edit or stage `.claude/` or `.dev/issues/`. No plugin copy of the reflect skill exists, so `make sync-dev` then `make verify-sync` is the whole mirror step.
+ - The guard test `tests/cli/reflect/test_shadow_skill_contract.py::test_skill_changes_are_confined_to_the_allowed_sections` runs `git diff HEAD -U0` on `SKILL.md` and allows hunks only under sections 3.1, 4.3a, 5.4, 9.1, 9.2 and 17.6. The fallback edit is under section 7, so that one test is red between the `SKILL.md` edit and the commit. Every pytest run in this plan deselects exactly that node id with `--deselect tests/cli/reflect/test_shadow_skill_contract.py::test_skill_changes_are_confined_to_the_allowed_sections`. Never widen its allow-list and never report a deselected run as the complete suite.
+-- The commit and the complete test run after it are not tasks. `/sc:implement` never commits. After this plan, the commit step of the story commits on the feature branch with a conventional-commit message (staging `src/`, `docs/`, `tests/` and `.dev/tasks`), and then the complete `uv run pytest` runs on the committed tree, guard included, and its failures are compared by node id with `./artifacts/baseline-pytest.md`.
+-- Line length is 88 (`pyproject.toml`, `line-length = 88`). New or edited Python must pass `uv run ruff check src/ tests/` and `uv run ruff format --check src/ tests/`; fix formatting with `make format`.
++- The commit and the complete test run after it are not tasks. `/sc:implement` never commits. After this plan, the commit step of the story commits on the feature branch with a conventional-commit message (staging `src/`, `docs/`, `tests/` and `.dev/tasks`), and then the complete `uv run pytest` runs on the committed tree, guard included, and its failures are compared by node id with `./artifacts/baseline-pytest.md`. Until the commit and the complete run after it, report the final verification as blocked.
++- Line length is 88 (`pyproject.toml`, `line-length = 88`). New or edited Python must pass `uv run ruff check src/ tests/` and `uv run ruff format --check src/ tests/`; fix formatting with `uv run ruff format <each file you edited>`; run `make format` only if Task 1's format check exited 0, and otherwise record the departure from spec step 5 as a necessary deviation in `./artifacts/t7-checks.md`.
+ - A collected test count is not a pass. Report observed pass and fail counts and node ids.
+ - Line citations into `SKILL.md` in the developer guide are re-checked with `sed -n` if the branch is rebased onto `origin/integration`.
+ 
+@@ -29,10 +29,10 @@
+ 
+ ## Task 1: Capture the pre-change test baseline
+ 
+-Run `make sync-dev` first. The worktree has no `.claude/` mirrors and several audit tests under `tests/audit/` read them, so a baseline taken before the sync is red for unrelated reasons. Then run `uv run pytest` on the unmodified tree (the commit the branch started from) and write the result to `./artifacts/baseline-pytest.md`: the run order, the pass count, the fail count, the error count and every failing node id. Edit no file under `src/`, `tests/` or `docs/` in this task.
++Run `make sync-dev` first. The worktree has no `.claude/` mirrors and several audit tests under `tests/audit/` read them, so a baseline taken before the sync is red for unrelated reasons. Then run `uv run pytest` on the unmodified tree (the commit the branch started from) and write the result to `./artifacts/baseline-pytest.md`: the run order, the pass count, the fail count, the error count and every failing node id. Also record in that file the output of `uv run ruff --version`, the exit codes of `uv run ruff check src/ tests/` and `uv run ruff format --check src/ tests/`, and every file the format check lists. Edit no file under `src/`, `tests/` or `docs/` in this task.
+ 
+ Acceptance criteria:
+-- `./artifacts/baseline-pytest.md` exists and states that `make sync-dev` ran before `uv run pytest`, and lists pass count, fail count, error count and each failing node id (or states that none failed).
++- `./artifacts/baseline-pytest.md` exists and states that `make sync-dev` ran before `uv run pytest`, and lists pass count, fail count, error count and each failing node id (or states that none failed); it also records the ruff version, the exit codes of `uv run ruff check src/ tests/` and `uv run ruff format --check src/ tests/`, and every file the format check lists.
+ - `git status --short` shows no modified tracked file; only untracked `.dev/` paths appear.
+ 
+ ## Task 2: Add the Phase A depth pins and the review-only pin to the route-table test module
+@@ -46,7 +46,7 @@
+ - A helper `_depth_tokens(text)` that returns `re.findall(r"--depth\s+([^\s`]+)", text)`.
+ - A helper `_delegation_row()` that returns the single line of `_SKILL` that starts with `_ROW_PREFIX` and asserts that exactly one such line exists.
+ 
+-Then add these five test functions, each assertion carrying a message that names its site:
++Then add these five test functions, each assertion carrying a message that names its site. The five functions take no arguments (no `parametrize`) and read `_REF`, `_SKILL` and `_CMD` inside their bodies:
+ 
+ - `test_phase_a_depth_ref_region`: region is `_region(_REF, "### Phase A", "### Phase B")` (lines 28 to 76 today). Assert the token list is not empty, every token equals `standard`, the region contains `--depth standard --handoff none`, and the region does not contain `--strategy`.
+ - `test_phase_a_depth_skill_region`: region is `_region(_SKILL, "- **Phase A", "- **Phase B")` (lines 374 to 375 today). Assert the token list is not empty, every token equals `standard`, and `--strategy` is absent.
+@@ -59,8 +59,6 @@
+ Acceptance criteria:
+ - `uv run pytest tests/cli/reflect/test_remediation_route_table.py -v` on the unedited `SKILL.md` shows the five existing tests passing; `test_phase_a_depth_ref_region`, `test_phase_a_depth_skill_region` and `test_no_placeholder_depth_on_sc_workflow_lines` passing; and `test_phase_a_depth_delegation_row` and `test_review_only_decision_stays_written_down` failing, because line 624 yields the tokens standard and deep and its last cell ends with `or --depth deep`. The output is saved to `./artifacts/t2-red.log`.
+ - `uv run ruff check tests/cli/reflect/test_remediation_route_table.py` and `uv run ruff format --check tests/cli/reflect/test_remediation_route_table.py` exit 0.
+-- Mutation check, reverted afterwards: replacing `--depth standard` with `--depth deep`, deleting the flag, or writing `--depth <d>` at one site makes only that site's function fail while the other two site functions still pass; after the revert `git diff -- src/superclaude/skills/sc-reflect-protocol` is empty.
+-
+ ## Task 3: Add the verdict case for the retired result attribute
+ 
+ Depends on: Task 1
+@@ -146,13 +144,14 @@
+ 
+ Edit only `src/superclaude/skills/sc-reflect-protocol/SKILL.md`, line 624, the `sc:workflow-protocol` row of the delegation table under the heading `## 7. Agent Delegation Map` (line 610). Replace the last table cell only: the old cell is the text `None; surface the report path and recommend manual planning or` followed by a space and the backticked flag `--depth deep`; the new cell is exactly `None; surface the report path and recommend manual planning`. Keep every other cell, including `--depth standard --handoff none` in the third cell, and keep the line count of the file: record `wc -l` before the edit and compare after. The same advice appears nowhere else (`refs/remediation-handoff.md` line 187 already says only `recommend manual planning`).
+ 
+-Then run the aggregate checks for the whole change set, with the guard deselected as the Constraints say, and write each command with its exit code and the counts to `./artifacts/t7-checks.md`.
++Then run the aggregate checks for the whole change set, with the guard deselected as the Constraints say, and write each command with its exit code and the counts to `./artifacts/t7-checks.md`. Also write the named line "complete-suite verification: blocked until the commit" in that file. Task 7's own result follows its acceptance criteria, not that line.
+ 
+ Acceptance criteria:
+ - `git diff --stat -- src/superclaude/skills/sc-reflect-protocol/SKILL.md` shows one insertion and one deletion, and `wc -l` of the file is unchanged.
+ - `git grep -n "manual planning or" -- src/superclaude` prints nothing.
+ - The two tests that failed in Task 2 (`test_phase_a_depth_delegation_row` and `test_review_only_decision_stays_written_down`) now pass.
+ - `uv run pytest tests/cli/reflect --deselect tests/cli/reflect/test_shadow_skill_contract.py::test_skill_changes_are_confined_to_the_allowed_sections` has no failure that is absent from `./artifacts/baseline-pytest.md` (compared by node id).
+-- `uv run ruff check src/ tests/` and `uv run ruff format --check src/ tests/` exit 0.
++- `uv run ruff check src/ tests/` exits 0, and `uv run ruff format --check src/ tests/` lists no file that Task 1 did not list and none of the seven edited files; both outputs are recorded in `./artifacts/t7-checks.md`.
++- Mutation check, in memory only. `./artifacts/t7-mutation-check.py` in this package is run with `uv run python` from the repository root. It loads `tests/cli/reflect/test_remediation_route_table.py` from its repository path and first runs the five new tests on the unmutated text, requiring all five to pass. It then runs nine cases: for each of the ref Phase A region, the skill Phase A region and the delegation row, replace `--depth standard` with `--depth deep`, delete it, or replace it with `--depth <d>`. Each case changes only that site's own slice (the `_region` text, or the `_delegation_row()` line): it asserts the slice occurs once and holds `--depth standard` exactly once, writes the changed slice back into the module string with a single replacement, asserts the result differs from the original, calls the five tests, and restores the originals. Expected: the changed site's function fails and the other two site functions pass; the placeholder test also fails in every `<d>` case; `test_review_only_decision_stays_written_down` also fails when the row is changed to `deep`. Only AssertionError counts as a detection. The script exits nonzero on any mismatch; each case and the exit code go to `./artifacts/t7-mutation.log`. No tracked file changes. The check shows that each site's depth check can fail.
+ - `make sync-dev` then `make verify-sync` exit 0.
+ - `git status --short` lists, besides the `.dev/` paths, only `src/superclaude/cli/reflect/contract.py`, `src/superclaude/cli/reflect/models.py`, `src/superclaude/skills/sc-reflect-protocol/SKILL.md`, `docs/developer-guide/session-memory.md`, `tests/cli/reflect/test_remediation_route_table.py`, `tests/cli/reflect/test_verdict_mapping.py` and `tests/cli/reflect/test_fix_loop.py`.

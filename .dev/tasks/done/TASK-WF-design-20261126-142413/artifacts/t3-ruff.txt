@@ -1,0 +1,7 @@
+# ruff on tests/cli/reflect/test_verdict_mapping.py after the edit (ruff 0.17.3)
+--- uv run ruff check tests/cli/reflect/test_verdict_mapping.py
+All checks passed!
+exit code: 0
+--- uv run ruff format --check tests/cli/reflect/test_verdict_mapping.py
+1 file already formatted
+exit code: 0

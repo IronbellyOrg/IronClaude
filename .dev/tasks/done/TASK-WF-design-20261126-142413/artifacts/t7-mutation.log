@@ -1,0 +1,13 @@
+unmutated: {'test_phase_a_depth_ref_region': 'pass', 'test_phase_a_depth_skill_region': 'pass', 'test_phase_a_depth_delegation_row': 'pass', 'test_no_placeholder_depth_on_sc_workflow_lines': 'pass', 'test_review_only_decision_stays_written_down': 'pass'} -> OK
+case ref/deep: failed=['test_phase_a_depth_ref_region'] expected=['test_phase_a_depth_ref_region'] -> OK
+case ref/delete: failed=['test_phase_a_depth_ref_region'] expected=['test_phase_a_depth_ref_region'] -> OK
+case ref/placeholder: failed=['test_no_placeholder_depth_on_sc_workflow_lines', 'test_phase_a_depth_ref_region'] expected=['test_no_placeholder_depth_on_sc_workflow_lines', 'test_phase_a_depth_ref_region'] -> OK
+case skill/deep: failed=['test_phase_a_depth_skill_region'] expected=['test_phase_a_depth_skill_region'] -> OK
+case skill/delete: failed=['test_phase_a_depth_skill_region'] expected=['test_phase_a_depth_skill_region'] -> OK
+case skill/placeholder: failed=['test_no_placeholder_depth_on_sc_workflow_lines', 'test_phase_a_depth_skill_region'] expected=['test_no_placeholder_depth_on_sc_workflow_lines', 'test_phase_a_depth_skill_region'] -> OK
+case row/deep: failed=['test_phase_a_depth_delegation_row', 'test_review_only_decision_stays_written_down'] expected=['test_phase_a_depth_delegation_row', 'test_review_only_decision_stays_written_down'] -> OK
+case row/delete: failed=['test_phase_a_depth_delegation_row'] expected=['test_phase_a_depth_delegation_row'] -> OK
+case row/placeholder: failed=['test_no_placeholder_depth_on_sc_workflow_lines', 'test_phase_a_depth_delegation_row'] expected=['test_no_placeholder_depth_on_sc_workflow_lines', 'test_phase_a_depth_delegation_row'] -> OK
+restored: {'test_phase_a_depth_ref_region': 'pass', 'test_phase_a_depth_skill_region': 'pass', 'test_phase_a_depth_delegation_row': 'pass', 'test_no_placeholder_depth_on_sc_workflow_lines': 'pass', 'test_review_only_decision_stays_written_down': 'pass'} -> OK
+mismatches: 0
+exit code: 0
