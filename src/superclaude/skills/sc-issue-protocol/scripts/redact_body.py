@@ -148,10 +148,13 @@ WEAK_PAIR = re.compile(
 )
 
 # An XML element whose name holds a credential word: ``<password>hunter2</password>``
-# (Maven ``settings.xml``). The element text up to the closing tag is the value.
+# (Maven ``settings.xml``). Everything up to that element's own closing tag is the
+# value (text, CDATA, comments, mixed content); it is capped at 1000 characters so an
+# unclosed tag cannot make the scan quadratic.
 XML_ELEMENT = re.compile(
-    rf"""(?P<head><[A-Za-z0-9_.:-]*{_STRONG_NAMES}[A-Za-z0-9_.:-]{{0,64}}(?:\s[^<>]*)?>\s*)
-        (?P<value><!\[CDATA\[[\s\S]*?\]\]>|[^<]+?)(?=\s*</)""",
+    rf"""(?P<head><(?P<tag>[A-Za-z0-9_.:-]*{_STRONG_NAMES}[A-Za-z0-9_.:-]{{0,64}})
+            (?:\s[^<>]*)?>)
+        (?P<value>[\s\S]{{1,1000}}?)(?=</(?P=tag)\s*>)""",
     re.VERBOSE | re.IGNORECASE,
 )
 

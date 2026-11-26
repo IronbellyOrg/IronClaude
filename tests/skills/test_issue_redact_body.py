@@ -111,6 +111,9 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "<db-pass>\n  remaining-secret123\n</db-pass>",
         '<password type="plain">remaining-secret123</password>',
         "<password><![CDATA[remaining-secret123]]></password>",
+        "<password><![CDATA[remaining-secret123]]>suffix</password>",
+        "<password><![CDATA[remaining-secret123]]><!-- note --></password>",
+        "<password>remaining-<b>secret123</b></password>",
         "<password>\n  <![CDATA[first\nremaining-secret123]]>\n</password>",
         PEM,
     ],
@@ -228,6 +231,8 @@ def test_a_quoted_netrc_password_never_swallows_later_prose():
         "secret:",
         "<a",
         "<password",
+        "<password>",
+        "<password>x</password",
     ],
 )
 def test_a_long_uninterrupted_string_is_scanned_in_linear_time(unit):
