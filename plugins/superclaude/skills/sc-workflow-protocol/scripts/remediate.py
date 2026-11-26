@@ -414,8 +414,11 @@ def _has_superseded_warning(text):
     i = hits[0]
     rest = lines[i].split(":", 1)[1].strip()
     if rest.startswith("["):
-        # shortcut: splits on commas even inside quotes; fine for a leading-word test
-        items = rest.strip("[]").split(",")
+        # quote-aware: a comma inside one quoted item does not start a new item
+        inner = rest[1 : rest.rfind("]")] if "]" in rest else rest[1:]
+        items = re.findall(
+            r"""\s*("(?:[^"\\]|\\.)*"|'[^']*'|[^,"']+)\s*(?:,|$)""", inner
+        )
     else:
         items = []
         for ln in lines[i + 1 : _block_end(lines, i)]:

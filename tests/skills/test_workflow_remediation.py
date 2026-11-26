@@ -261,6 +261,20 @@ def test_inline_list_warning_gets_no_second_item(repo):
     assert out == contract
 
 
+def test_comma_inside_one_quoted_inline_item_is_not_a_warning(repo):
+    # one item whose text contains ", superseded": not a second item, not a warning
+    contract = (
+        BASE_CONTRACT + 'unresolved: ["unrelated, superseded by another package"]\n'
+    )
+    pkg = make_pkg(repo, contract)
+    rm.archive(repo, pkg, "none")
+    out = (repo / ".dev/tasks/archive" / OLD / "return-contract.yaml").read_text()
+    assert out.count("SUPERSEDED") == 1
+    rm.restore(repo, OLD)
+    back = repo / ".dev/tasks/to-do" / OLD / "return-contract.yaml"
+    assert back.read_text() == contract
+
+
 @pytest.mark.parametrize(
     "tail",
     [
