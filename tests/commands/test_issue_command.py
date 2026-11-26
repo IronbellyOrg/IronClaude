@@ -268,3 +268,76 @@ def test_no_source_tree_path():
 @pytest.mark.parametrize("path", [COMMAND, SKILL], ids=["command", "skill"])
 def test_rule_10_line_is_carried_verbatim(path):
     assert RULE_10_LINE in path.read_text(encoding="utf-8").splitlines()
+
+
+# --- command and skill agree on the create question (issue 834) --------------------
+
+# The old broad trigger is built from fragments, so no whole copy of it sits in tests/.
+OLD_TRIGGER = "new" + " material" + " or a" + " contradiction"
+CREATE_FILES = [
+    "description.md",
+    "scout.md",
+    "flags.md",
+    "issue-body.md",
+    "draft-notes.md",
+    "create-review.md",
+]
+
+
+def agreement_problems(command: str, skill: str) -> list[str]:
+    """Problems with how the command file and SKILL.md describe the create question."""
+    problems = []
+    if "nothing is shown for approval first" not in command:
+        problems.append("the command lost the direct-posting promise")
+    if "never shown for approval" not in skill:
+        problems.append("SKILL.md lost the no-approval promise")
+    if "contradicts your own description, instruction or flag" not in command:
+        problems.append("the command lacks the contradiction exception")
+    if (
+        "supported contradiction of the user's own description, instruction or flag"
+        not in skill
+    ):
+        problems.append("SKILL.md lacks the contradiction-only prompt rule")
+    for where, text in (("the command", command), ("SKILL.md", skill)):
+        if OLD_TRIGGER in text:
+            problems.append(f"{where} still carries the old broad trigger")
+    row = next((ln for ln in command.splitlines() if ln.startswith("| create |")), "")
+    problems += [
+        f"the create Outputs row lacks {name}"
+        for name in CREATE_FILES
+        if name not in row
+    ]
+    if "printed in the final output" not in row:
+        problems.append("the create Outputs row does not mention retained additions")
+    return problems
+
+
+def test_command_and_skill_agree_on_the_create_question():
+    assert agreement_problems(_text(), SKILL.read_text(encoding="utf-8")) == []
+
+
+def test_agreement_check_fails_when_the_contradiction_exception_is_removed(tmp_path):
+    copy = tmp_path / "issue.md"
+    copy.write_text(re.sub(r" The one exception is `--create`:[^\n]*", "", _text()))
+    problems = agreement_problems(
+        copy.read_text(encoding="utf-8"), SKILL.read_text(encoding="utf-8")
+    )
+    assert problems == ["the command lacks the contradiction exception"]
+
+
+def test_agreement_check_fails_when_the_old_trigger_returns(tmp_path):
+    copy = tmp_path / "SKILL.md"
+    copy.write_text(
+        SKILL.read_text(encoding="utf-8") + f"\nAsk when notes list {OLD_TRIGGER}.\n"
+    )
+    problems = agreement_problems(_text(), copy.read_text(encoding="utf-8"))
+    assert problems == ["SKILL.md still carries the old broad trigger"]
+
+
+def test_agreement_check_fails_when_the_create_row_loses_a_file(tmp_path):
+    copy = tmp_path / "issue.md"
+    copy.write_text(_text().replace("`create-review.md`", "`review.md`"))
+    problems = agreement_problems(
+        copy.read_text(encoding="utf-8"), SKILL.read_text(encoding="utf-8")
+    )
+    assert problems == ["the create Outputs row lacks create-review.md"]
