@@ -79,7 +79,7 @@ A release takes two PRs. The release-prep PR goes into `integration` and carries
    gh pr checks <n> --repo IronbellyOrg/IronClaude --watch
    ```
 
-   The two recorded values are `<reviewed-head-sha>` (the PR's `headRefOid`) and `<master-tip>` (`origin/master`). If `integration` moves, record both again and repeat from the `gh pr checks` line. A freeze notice on `integration` helps, but the head pin of the merge command is the guard. Do not use `/sc:pr-submit --monitor 3` for this PR: its fix loop pushes "to the PR head branch only, never the default or a protected branch" (`src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:192-195`), and `integration` is both.
+   The two recorded values are `<reviewed-head-sha>` (the PR's `headRefOid`) and `<master-tip>` (`origin/master`). If `integration` moves, record both again and repeat from the `gh pr checks` line. Run right after the PR is opened, `gh pr checks` can print `no checks reported` and exit 1 before GitHub has registered the checks. The release PR into `master` always runs the `Tests` workflow (`.github/workflows/test.yml:3-6`), so repeat the command until it lists at least one check, and do not apply the no-checks rule of Step 5 here. A freeze notice on `integration` helps, but the head pin of the merge command is the guard. Do not use `/sc:pr-submit --monitor 3` for this PR: its fix loop pushes "to the PR head branch only, never the default or a protected branch" (`src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:192-195`), and `integration` is both.
 8. **Run the Step 3 rows marked before merge on a detached checkout of the reviewed head, in a clean checkout (not a new worktree).**
 
    ```bash
