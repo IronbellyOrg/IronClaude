@@ -522,21 +522,25 @@ def check_push(
 
 
 def read_existing(runner: Runner, org: str, repo: str, branches: list[str]) -> dict:
-    """What the repo already has: ruleset names (``rulesets`` is None when the list
-    could not be read), classic protection per branch (``classic``, ``none`` or
-    ``unknown``) and the number of ``v*`` tags (None when unknown)."""
+    """What the repo already has: ruleset names (``rulesets``, name to the first id,
+    None when the list could not be read), every id per name (``ids``: the list can
+    hold two rulesets of one name, for instance one inherited from the organization),
+    classic protection per branch (``classic``, ``none`` or ``unknown``) and the
+    number of ``v*`` tags (None when unknown)."""
     base = f"repos/{org}/{repo}"
     listed = runner.run(
         ["gh", "api", "--paginate", f"{base}/rulesets?per_page={PER_PAGE}"]
     )
     rulesets = None
+    ids: dict[str, list] = {}
     try:
         items, _ = _items(listed)
         rulesets = {}
         for item in items:
             rulesets.setdefault(item["name"], item["id"])
+            ids.setdefault(item["name"], []).append(item["id"])
     except (ValueError, KeyError, TypeError):
-        rulesets = None
+        rulesets, ids = None, {}
     protection = {}
     for branch in branches:
         status = http_status(
@@ -557,6 +561,7 @@ def read_existing(runner: Runner, org: str, repo: str, branches: list[str]) -> d
         v_tags = None
     return {
         "rulesets": rulesets,
+        "ids": ids,
         "rulesets_status": http_status(listed),
         "protection": protection,
         "v_tags": v_tags,
@@ -607,11 +612,11 @@ def _assess(runner: Runner, org: str, repo: str, now: datetime) -> dict:
     if existing["rulesets"] is None:
         status = existing["rulesets_status"]
         problems.append(f"ruleset list cannot be read (HTTP {status})")
-    elif PROTECTED_RULESET_IDS & set(existing["rulesets"].values()):
+    elif PROTECTED_RULESET_IDS & {i for v in existing["ids"].values() for i in v}:
         problems.append("repo lists a ruleset id this script never touches")
     else:
         found["same"] = _check_same_name(
-            runner, owner, name, bodies, existing["rulesets"], problems
+            runner, owner, name, bodies, existing["ids"], problems
         )
     found.update(
         branches=branches,
@@ -626,24 +631,27 @@ def _assess(runner: Runner, org: str, repo: str, now: datetime) -> dict:
 def _check_same_name(runner, owner, name, bodies, names, problems) -> set[str]:
     """A ruleset that already has the name of a rendered body is skipped only when it
     equals that body. The names that do are returned; any other (different or
-    unreadable) adds a problem, so ``--apply`` refuses and the operator decides."""
+    unreadable) adds a problem, so ``--apply`` refuses and the operator decides.
+    Every ruleset of the name is read: ``names`` maps a name to all its ids, and the
+    name counts as identical only when each of them equals the listed body."""
     identical = set()
     for body in bodies:
-        rid = names.get(body["name"])
-        if rid is None:
-            continue
-        got = runner.run(["gh", "api", f"repos/{owner}/{name}/rulesets/{rid}"])
-        remote = _json_object(got)
         label = body["name"]
-        if remote is None:
-            problems.append(f"same-name ruleset {label} (id {rid}) cannot be read")
-            continue
-        diffs = compare_bodies(body, remote)
-        if diffs:
-            problems.append(
-                f"same-name ruleset {label} (id {rid}) differs: " + "; ".join(diffs)
-            )
-        else:
+        clean = bool(names.get(label))
+        for rid in names.get(label, []):
+            got = runner.run(["gh", "api", f"repos/{owner}/{name}/rulesets/{rid}"])
+            remote = _json_object(got)
+            if remote is None:
+                problems.append(f"same-name ruleset {label} (id {rid}) cannot be read")
+                clean = False
+                continue
+            diffs = compare_bodies(body, remote)
+            if diffs:
+                problems.append(
+                    f"same-name ruleset {label} (id {rid}) differs: " + "; ".join(diffs)
+                )
+                clean = False
+        if clean:
             identical.add(label)
     return identical
 
@@ -711,7 +719,7 @@ def _before_state(runner, base, existing, digest, owner, name, now):
     (the list answer may hold summaries only); the branch protection of the set was
     read just before and is ``none`` on every branch, or the run would have refused."""
     rulesets = {}
-    for rid in sorted(existing["rulesets"].values()):
+    for rid in sorted({i for v in existing["ids"].values() for i in v}):
         data = _json_object(runner.run(["gh", "api", f"{base}/rulesets/{rid}"]))
         if data is None:
             return None, f"before-state read failed for ruleset {rid}"

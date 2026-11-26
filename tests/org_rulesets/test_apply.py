@@ -374,6 +374,59 @@ def test_a_same_name_ruleset_that_differs_refuses_and_writes_nothing(
     assert list(tmp_path.iterdir()) == []
 
 
+def test_every_ruleset_of_a_name_is_compared_not_only_the_first(
+    world, orr, fake_runner_cls, tmp_path
+):
+    """The list can hold two rulesets of one name (for instance one inherited from the
+    organization). The second one differs: the run refuses and names its id."""
+    ok = fake_runner_cls.ok
+    body = orr.render_tags()
+    listed = ok([{"id": 7, "name": TAG_RULESET}, {"id": 8, "name": TAG_RULESET}])
+    off = {**body, "enforcement": "disabled", "id": 8, **SERVER}
+    gets = {
+        LIST: listed,
+        f"{REPO}/rulesets/7": ok({**body, "id": 7, **SERVER}),
+        f"{REPO}/rulesets/8": ok(off),
+    }
+    runner = world(gets=gets)
+    got = apply(orr, runner, tmp_path)
+    assert got["ok"] is False and got["skipped"] == []
+    assert f"same-name ruleset {TAG_RULESET} (id 8) differs" in got["error"]
+    assert "(id 7)" not in got["error"]
+    assert posts(runner, fake_runner_cls) == []
+    text = "\n".join(orr.dry_run_report(runner, "acme", "acme-one", NOW))
+    assert f"{TAG_RULESET} (tag) - not created" in text
+
+
+def test_two_identical_rulesets_of_a_name_are_both_read_and_skipped(
+    world, orr, fake_runner_cls, tmp_path
+):
+    ok = fake_runner_cls.ok
+    body = orr.render_tags()
+    listed = ok([{"id": 7, "name": TAG_RULESET}, {"id": 8, "name": TAG_RULESET}])
+    gets = {LIST: listed}
+    gets.update(
+        {f"{REPO}/rulesets/{n}": ok({**body, "id": n, **SERVER}) for n in (7, 8)}
+    )
+    runner = world(gets=gets)
+    got = apply(orr, runner, tmp_path)
+    assert got["ok"] is True and got["skipped"] == [TAG_RULESET]
+    saved = json.loads((tmp_path / "out" / "acme-one-before.json").read_text())
+    assert sorted(saved["rulesets"]) == ["7", "8"]
+
+
+def test_a_protected_id_that_is_not_the_first_of_its_name_is_refused(
+    world, orr, fake_runner_cls, tmp_path
+):
+    listed = fake_runner_cls.ok(
+        [{"id": 7, "name": TAG_RULESET}, {"id": 28081842, "name": TAG_RULESET}]
+    )
+    runner = world(gets={LIST: listed})
+    got = apply(orr, runner, tmp_path)
+    assert got["ok"] is False and "never touches" in got["error"]
+    assert not any("/rulesets/" in c.argv[-1] for c in runner.commands)
+
+
 def test_an_unreadable_same_name_ruleset_refuses(world, orr, fake_runner_cls, tmp_path):
     summary = fake_runner_cls.ok([{"id": 7, "name": TAG_RULESET}])
     runner = world(
