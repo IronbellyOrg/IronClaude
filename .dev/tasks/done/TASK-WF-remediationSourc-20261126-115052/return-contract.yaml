@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-remediationSourc-20261126-115052
+plan_path: ./TASK-WF-remediationSourc-20261126-115052.md
+source_path: ./source.md
+source_origin: .dev/troubleshoot/bug-orca-registers-this-repository-under-20261126031957/remediation-source-r1.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-780/.dev/reflect/rereview-115052/REPORT.md
+unresolved: ["Re-review 2 of 3 passed with 3 Medium findings (N1 to N3) and 2 Note findings (N4, N5); by the repair rule they are follow-up candidates and are not repaired in the plan. The scope of this re-review was the changed lines plus the five prior blockers, not a full review of the plan."]
+supersedes: TASK-WF-remediationSourc-20261126-044652
+remediation_route: surgical
+finding_counts: {"blocking": 5, "label_high": 0, "medium": 6, "note": 3}
+fix_cycles: 1

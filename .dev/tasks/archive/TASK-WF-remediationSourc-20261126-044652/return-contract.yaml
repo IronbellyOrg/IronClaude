@@ -1,0 +1,20 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-remediationSourc-20261126-044652
+plan_path: ./TASK-WF-remediationSourc-20261126-044652.md
+source_path: ./source.md
+source_origin: .dev/troubleshoot/bug-orca-registers-this-repository-under-20261126031957/remediation-source-r1.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-780/.dev/reflect/pre-TASK-WF-remediationSourc-20261126-044652-20261126044911/REPORT.md
+unresolved: ["Review escalated: after the one regenerate of this run the second review still has 5 blocking findings (MV-01 to MV-05); the plan is marked review_verdict FAIL and /sc:implement refuses it until the owner decides. Smallest corrections are in the reflect REPORT.md under 'Smallest corrections for the five Blocking findings'.", "The previous package TASK-WF-remediationSourc-20261126-034522 is archived (superseded) with 4 blocking findings of its own (M-01 to M-04)."]
+review_verdict: FAIL
+open_blockers: ["MV-01", "MV-02", "MV-03", "MV-04", "MV-05"]
+fix_cycles: 0
+supersedes: TASK-WF-remediationSourc-20261126-034522
+remediation_route: regenerate
+finding_counts: {"blocking": 5, "label_high": 0, "medium": 6, "note": 3}
+superseded_by: TASK-WF-remediationSourc-20261126-115052
