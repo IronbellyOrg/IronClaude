@@ -1,5 +1,5 @@
 {
-  "built": "2026-11-26T02:09:41Z",
+  "built": "2026-11-26T13:10:53Z",
   "source": "release-planning-20261124",
   "order_rules": "features: feature-order.tsv (goal first); stories: same-feature prerequisites first (dependency or conflict), then priority, unblock count, complexity, size, number; open questions never affect order",
   "question_rule": "an open question is answered inside the work (recommended answer, or the story owner decides at the start); nothing waits on an answer",
@@ -480,7 +480,7 @@
               "overlaps": null,
               "conflict_in_iteration_with": [],
               "conflict_scope": null,
-              "note": "the OB-H3 runs are already under way, by the coordinator that works under the ironbelly login (test issues #841 and #842, opened and claimed 10:44 to 10:48 AM; that this is Ryan's coordinator is inferred from the login); the other observation sets (OB-H1, OB-H2, OB-CTX) follow on the same disposable test issues; the ship gate needs four items to pass: OB-H1 item 1, OB-H1 item 5, OB-H2 and OB-H3 (`_GATE_ITEMS` in `tests/hooks/test_launch_level_observations.py`); record each observation's result next to its test (un-skip it, or give a checked reason) and deliver that change through the normal pull request; never change `GOVERNED_LEVELS_ALLOWED` in `src/superclaude/cli/issue_watch/launch.py` and never say on the issue that the gate is lifted: turning it on is a separate reviewed change the owner decides on once all four pass",
+              "note": "the OB-H3 runs are already under way, by the coordinator that works under the ironbelly login (test issues #841 and #842, opened and claimed 10:44 to 10:48 AM; that this is Ryan's coordinator is inferred from the login); the other observation sets (OB-H1, OB-H2, OB-CTX) follow on the same disposable test issues; the observations passed on 25 Nov and pull request 851 opened the launch gate (merged to master in 856): confirm each result is recorded next to its test, then close #442",
               "open_question": "Also run the OB-H1, OB-H2 and OB-CTX live observations, as OB-H3 already runs?",
               "recommended_answer": "Yes, with the same coordinator and disposable test issues",
               "lane": "E1-L13",

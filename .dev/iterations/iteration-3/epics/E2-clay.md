@@ -1,6 +1,6 @@
 # Iteration 3 work file: Clay, epic E2
 
-Generated Wed 25 Nov 2026 20:14 Central by `scripts/epic-files.sh` from the reviewed work map (`work-map.json`). Do not edit by hand: change the map's inputs and rebuild. Repository: `IronbellyOrg/IronClaude`, base branch `integration`. Iteration 3 ends Sunday 6 December.
+Generated Thu 26 Nov 2026 07:10 Central by `scripts/epic-files.sh` from the reviewed work map (`work-map.json`). Do not edit by hand: change the map's inputs and rebuild. Repository: `IronbellyOrg/IronClaude`, base branch `integration`. Iteration 3 ends Sunday 6 December.
 
 ## 1. Kickoff prompt
 
@@ -15,6 +15,7 @@ You lead epic E2 for Clay in IronbellyOrg/IronClaude, iteration 3. Read .dev/ite
 - Claiming each issue below on GitHub, one Orca worktree and one agent per story, in the order and lanes of section 5.
 - For each story: committing on its own feature branch from `integration`, pushing that branch to `origin` (or, with the owner's go in step 1, the branch of the open pull request the story continues), and opening or attaching its pull request with `/sc:pr-submit --monitor 3`, which also pushes the fixes it makes for review findings and failing checks.
 - For a story whose route says so: a comment with its evidence on its issue, closing that issue, filing the new issues the route names, and the writes the story's route or decisions name on other repositories (for example rulesets), each only after the checks they give.
+- After a story is closed out: removing its worktree with `/sc:worktrees retire issue-<issue> --apply` (section 7, step 13), only when the dry run says its work is safe.
 - Not approved: merging (the owner merges, and never with a failing check), pushing to `integration` or `master`, closing an issue outside the story workflow, and any change outside the story's issue.
 
 ## 3. Epic goal
@@ -29,7 +30,7 @@ Claiming, releasing and session tooling work reliably on integration, and the te
 4. Before you start any story, run its **Start when** check and its **Shared files** check. Start it only when both pass. A story that fails a check waits; check again whenever a pull request merges.
 5. To start a story, follow the story workflow in section 7, steps 1 and 2: you make its worktree and start its agent with its story file. The agent runs steps 3 to 10 itself.
 6. How you and an agent talk: the agent writes `.dev/issues/<issue>/result.md` in its worktree and says in its terminal what it did and what is left, or that it is waiting (for a plan approval or an answer). Read its terminal and that file with the `orca-cli` skill. To give it an answer or the owner's go, type into its terminal with the `orca-cli` skill.
-7. When a story's pull request has every check green and every review comment handled, tell Clay it is ready to merge. After the merge, run step 12 (closeout), then start the next story in that lane.
+7. When a story's pull request has every check green and every review comment handled, tell Clay it is ready to merge. After the merge, run step 12 (closeout) and step 13 (worktree cleanup), then start the next story in that lane.
 8. A story marked **Plan approval: yes** stops after its plan. Show Clay the plan path; type the owner's go into the agent's terminal only after the owner says go.
 9. Where a story's decisions or scope say a part needs Clay's answer at the start, ask Clay when that story starts and type the answer into the agent's terminal; the agent writes it into the story's decisions (section 7, step 4) and its pull request. Nothing else waits on anyone.
 10. Section 6 lists what this epic needs from other people and what they need from it. Check it before each start.
@@ -72,7 +73,7 @@ Stories in the same lane run one after another, in the order shown. Different la
 
 This is the workflow of the team's routing guide (`src/superclaude/core/HOW-WE-WORK.md`, sections 1, 3.2 to 3.4 and 3.11) and of the claim skill (`src/superclaude/skills/sc-issue-protocol/`). A story whose route starts with **Route (replaces steps 5 to 10)** has no code change: that paragraph replaces steps 5 to 10. Its agent may comment on and close its own issue as the route says; this is an exception to the claim launch prompt's rule that only the coordinator writes to an issue, and section 2 approves it.
 
-Why the claim runs with `--pipeline none` for now: the claim skill forbids a launched claim (`--pipeline worktree` or `full`) on a real issue while its ship gate is closed (the rule in its `refs/claim.md`, Wave 8), and the issue watcher's matching gate is the constant `GOVERNED_LEVELS_ALLOWED = False` in `src/superclaude/cli/issue_watch/launch.py`. Both open only by a reviewed change, after four live observations of #442 have passed (OB-H1 item 1, OB-H1 item 5, OB-H2 and OB-H3, the gate items of `tests/hooks/test_launch_level_observations.py`). The claim also cannot yet carry this file's decisions into a launched agent. Until both are solved, the agent runs the claim and its next steps in its own session, which the claim skill allows for `--pipeline none`.
+Why the claim runs with `--pipeline none`: the launch gate is open since 25 Nov (pull request 851 set `GOVERNED_LEVELS_ALLOWED = True` after #442's live observations passed), but a launched claim cannot carry this file's decisions into the agent it starts. So the story's agent runs the claim and its next steps in its own session, which the claim skill allows for `--pipeline none`, and adds the decisions itself in step 4.
 
 1. **Start check (lead).** Run the story's **Start when** command for each issue it names: each must print `CLOSED`. (Each of these is also a GitHub "blocked by" link, and since #848 the claim itself stops with `E-BLOCKED` while one is open, once your installed IronClaude has that change; this check stays the first line.) Run the story's **Shared files** command when it has one: it must print `[]`. If a check fails, the story waits. Then two more checks, for every story:
    - **Assignee.** `gh issue view <issue> --repo IronbellyOrg/IronClaude --json assignees --jq '[.assignees[].login]'` must list only your own login (`gh api user --jq .login`) or nothing. If it lists anyone else, the claim in step 3 would stop: ask the owner to have that person removed (they remove themselves, or the owner runs `gh issue edit <issue> --repo IronbellyOrg/IronClaude --remove-assignee <login>`), then start.
@@ -88,8 +89,9 @@ Why the claim runs with `--pipeline none` for now: the claim skill forbids a lau
 9. **Commit and push (agent).** If you continue an open pull request: skip the next check, commit on its branch and push to that branch. Otherwise first check that no pull request exists for this branch: `gh pr list --repo IronbellyOrg/IronClaude --head <branch> --state all` must print nothing; if one exists, stop and report it. Commit on a feature branch made from `integration`, with a conventional-commit message (`type(scope): message`). Stage the changed files and `.dev/tasks`; never anything under `.claude/` or `.dev/issues/`. Push the feature branch to `origin`; never push `integration` or `master`.
 10. **Pull request (agent).** If you continue an open pull request: `/sc:pr-submit --monitor 3 --pr <number>`. Otherwise `/sc:pr-submit --monitor 3 --head <branch> --base integration --title "<title>" --body "<body>"`. The body carries the story's **Decided for this work** block. Write `Fixes #<issue>` only when the pull request delivers the whole issue; otherwise `Refs #<issue>` and say what is left. Stay with it until every check is green and every review comment is handled, then report.
 11. **Merge (owner).** The owner merges. Never merge with a failing check.
-12. **Closeout (lead).** `/sc:closeout <pull request>`. It checks that the pull request merged and settles the issue, the work report entry and the Orca task.
-13. **Next (lead).** Start the next story in this lane (section 5), from step 1.
+12. **Closeout (lead).** `/sc:closeout <pull request>`. It checks that the pull request merged and settles the issue, the work report entry and the Orca task. A story whose route closes its issue with no pull request skips this step.
+13. **Worktree cleanup (lead).** From outside the story's worktree, run `/sc:worktrees retire issue-<issue>`. That dry run says whether the work is safe to remove. When it is, run `/sc:worktrees retire issue-<issue> --apply`: it saves the worktree's `.dev` files to the evidence repo and removes the worktree. When it says the work is not safe, keep the worktree and tell the owner why.
+14. **Next (lead).** Start the next story in this lane (section 5), from step 1.
 
 ## 8. Stories in order of completion
 
