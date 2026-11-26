@@ -106,6 +106,10 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "DB_PASS=remaining-secret123",
         "export DB_PASS='remaining-secret123'",
         "passphrase: remaining-secret123",
+        "<settings><server><password>remaining-secret123</password></server></settings>",
+        "<apiKey>remaining-secret123</apiKey>",
+        "<db-pass>\n  remaining-secret123\n</db-pass>",
+        '<password type="plain">remaining-secret123</password>',
         PEM,
     ],
 )
@@ -154,6 +158,8 @@ def test_credentials_are_redacted(line):
         "auth: 'required'",
         "auth: none",
         "author: Bobby123",
+        "<password>${env.DB_PASSWORD}</password>",
+        "<title>Password reset</title>",
         "PWD=/home/coder/project",
         "pass: 3 tests",
         "bypass: true",
@@ -211,7 +217,16 @@ def test_a_quoted_netrc_password_never_swallows_later_prose():
 @pytest.mark.parametrize(
     "unit",
     ["a", "ab1", "a-", "a.b", "x_y1", "-", "- ", " -", "--\n"]
-    + ["password", "cookie", "api_key", "token", "Cookie ", "secret:"],
+    + [
+        "password",
+        "cookie",
+        "api_key",
+        "token",
+        "Cookie ",
+        "secret:",
+        "<a",
+        "<password",
+    ],
 )
 def test_a_long_uninterrupted_string_is_scanned_in_linear_time(unit):
     text = unit * (200_000 // len(unit))

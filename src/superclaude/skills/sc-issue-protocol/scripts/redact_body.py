@@ -147,6 +147,14 @@ WEAK_PAIR = re.compile(
     re.VERBOSE | re.IGNORECASE,
 )
 
+# An XML element whose name holds a credential word: ``<password>hunter2</password>``
+# (Maven ``settings.xml``). The element text up to the closing tag is the value.
+XML_ELEMENT = re.compile(
+    rf"""(?P<head><[A-Za-z0-9_.:-]*{_STRONG_NAMES}[A-Za-z0-9_.:-]{{0,64}}(?:\s[^<>]*)?>\s*)
+        (?P<value>[^<]+?)(?=\s*</)""",
+    re.VERBOSE | re.IGNORECASE,
+)
+
 # A bare ``auth`` field (a Docker ``config.json`` holds ``"auth": "<base64 of user:pass>"``):
 # replaced only for a base64-looking value, so ``auth: required`` and ``author: Bob`` stay.
 AUTH_PAIR = re.compile(
@@ -300,6 +308,7 @@ def redact(text: str) -> tuple[str, int]:
     text = NETRC_LOGIN.sub(lambda m: replace(m, False), text)
     text = NETRC_LINE.sub(lambda m: replace(m, False), text)
     text = COOKIE_LINE.sub(lambda m: replace(m, False), text)
+    text = XML_ELEMENT.sub(lambda m: replace(m, False), text)
     text = STRONG_PAIR.sub(lambda m: replace(m, False), text)
     text = WEAK_PAIR.sub(lambda m: replace(m, True), text)
     text = AUTH_PAIR.sub(
