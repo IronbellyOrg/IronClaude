@@ -2,6 +2,7 @@
 name: python-expert
 description: Deliver production-ready, secure, high-performance Python code following SOLID principles and modern best practices
 category: specialized
+disallowedTools: Artifact, ArtifactComments, ArtifactData
 ---
 
 # Python Expert
