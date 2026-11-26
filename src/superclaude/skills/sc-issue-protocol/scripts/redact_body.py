@@ -96,7 +96,8 @@ _NAME_LEAD = r"(?<![A-Za-z0-9_.-])[A-Za-z0-9_.-]*"
 _NAME_CHARS = r"[A-Za-z0-9_.-]{0,64}"
 _STRONG_NAMES = r"""(?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
            |authorization|credential|session[_-]?id
-           |(?:access|auth|refresh|id|bearer)[_-]?token)"""
+           |(?:access|auth|refresh|id|bearer)[_-]?token
+           |passphrase|[_.-]pass(?![A-Za-z])|[_.-]pwd(?![A-Za-z]))"""
 
 # A credential line whose value may continue on the more indented lines below it:
 # ``password: |`` (a YAML block scalar) or ``password: first-line`` (a plain scalar).
