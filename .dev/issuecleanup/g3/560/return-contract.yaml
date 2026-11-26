@@ -1,0 +1,13 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: '/sc:analyze src/superclaude/cli/eval/commands.py --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/560/analyze'
+report_path: .dev/issuecleanup/g3/560/findings.md
+artifacts:
+  - .dev/issuecleanup/g3/560/analyze/analyze-report.md
+  - .dev/issuecleanup/g3/560/analyze/return-contract.yaml
+  - .dev/issuecleanup/g3/560/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g3/560/qa.md
+reason: 'E-INDEPENDENT-QA-MISSING: two Agent attempts produced no independent report; qa.md is an explicit worker-authored FAIL record, not independent acceptance.'
+blocked_question: 'A fresh independent reviewer must check findings.md against source and the live issue before acceptance; no QA verdict was delivered by either attempted reviewer.'
+qa_verdict: FAIL
+independent_review_completed: false

@@ -1,0 +1,23 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze src/superclaude/skills/sc-adversarial-protocol --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g1/376/analyze"
+report_path: "/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/376/analyze/analyze-report.md"
+artifacts:
+  - "/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/376/findings.md"
+  - "/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/376/analyze/qa-review.md"
+  - "/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/376/analyze/handoff/1-analyze.md"
+issue_verdict: still-relevant
+complexity: medium
+size: M
+priority: P2
+quality_gate: PASS
+limitations:
+  - "Complete issue timeline unavailable through the brief's allowed GitHub interfaces; UNVERIFIED."
+  - "No live debate, test execution, source fix or current-remote-source check; UNVERIFIED runtime behavior."
+  - "Independent QA verified current source/report claims, not remote issue/PR metadata."
+codegraph:
+  index_state: fresh
+  access: mcp
+  checked_at: "2026-11-23T23:05:09Z"
+  degraded:
+    - graph:empty

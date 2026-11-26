@@ -1,0 +1,12 @@
+# Analysis handoff
+- Command: `/sc:analyze src/superclaude/agents/rf-qa-qualitative.md --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g6/465/analyze`
+- Task ID: task_d2689b838a92
+- Dispatch ID: ctx_fa9f7cbf6199
+- worker_status: succeeded
+- Analysis: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g6/465/analyze/analyze-report.md
+- Contract: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g6/465/analyze/return-contract.yaml
+- Findings: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g6/465/findings.md
+- Decision: still-relevant, complex/L, P2; retained authority ambiguity remains, historical report now persisted.
+- Applied coordinator message IDs: none; all checkpoints empty.
+- Next Command line: none. Remaining dispatch work: fresh-context independent evidence review and QA report, then final follow-up check and worker_done.
+- Source/GitHub mutations, tests, installs and local commits: none.

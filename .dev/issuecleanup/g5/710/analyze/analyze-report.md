@@ -1,0 +1,22 @@
+# Credential quota and selection architecture
+
+## Scope
+Quick, read-only architecture review of `src/superclaude/skills/ccsession-tag`, the narrowest package covering the launcher, Orca wrapper, model configuration and local forwarding proxy named by issue #710. Read the live issue and its empty comments list on 2026-11-24. No runtime or gateway experiments were performed.
+
+Codegraph: index_state=fresh, checked_at=2026-11-24T13:56:48Z; degraded: none. Access: mcp. Graph caller and impact results were used as leads and confirmed against source. The graph does not index the extensionless shell launchers; those were read directly.
+
+## Findings
+1. **P2 feature gap: model choice is not account choice.** The proxy rewrites model names and enters tier fallback at `src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:664-707`. Its fallback loop iterates model slots and sends a changed model at lines 839-847. No credential identifier is selected by that loop. Generic non-hop header forwarding at lines 603-608 is an integration opportunity, not proof that a downstream gateway recognizes a selector.
+2. **P2 external capability gate: the real request path matters.** `_open_upstream` constructs the upstream URL and forwards headers at lines 783-812. The default is a LiteLLM passthrough base, not a direct account-management API (lines 50-53). No script-readable quota reader, weekly-reset listing or explicit credential selector was found by package inventory and searches for `quota`, `auth_index`, `reset` and `credential`. The broader `src` search for `auth_index|CPAMP|CPA.Manager|weekly.*(quota|reset)|credential.selection` returned no matches. This establishes the repository gap, not external gateway incapability.
+3. **P2 integration constraint: preserve concurrent-session isolation.** `models.py:748-780` builds the settings identity; `783-815` hashes it and derives a shim port. `ccsession:1155-1178` checks upstream, settings and code before reuse. If a future credential selection is process-scoped it must join the identity; a request-scoped design instead needs proof that selection remains per request. No such design or experiment is established yet.
+4. **Existing safeguard to retain.** Authentication fallback stays environment-based (`ccsession:1128-1138`); `tests/unit/test_ccsession_tag.py:621-632` forbids personal-account routing defaults. Source redacts known incoming credential header values in `_redact_credentials` at lines 594-601. These are existing protections, not proof that a new quota reader or selector would be secret-safe.
+
+## Recommendations
+Keep #710 open for exploration before implementation. Establish the quota interface, provider coverage, units, reset timezone, freshness and environment authentication without recording secrets. Separately prove explicit credential selection through the configured gateway path, with gateway-side credential evidence, concurrent requests and fail-closed behavior for invalid or exhausted selections. Build only capabilities demonstrated by those experiments; automatic reset-aware account scheduling remains out of scope.
+
+## Evidence and limits
+- Inspected the Python graph layout (6 indexed Python files), shell launcher/wrapper, model identity, proxy routing, README and the no-personal-routing test. Repository baseline is `a7ae3dd30`; recent relevant proxy change is `720cbaf96653c1c983497ba480f76ca6e60e5369` from merged PR #738, which fixes image-related model fallback, not account selection.
+- GitHub searches for `710` yielded unrelated numeric matches, not a linked implementation; `CPA` and `credential quota` PR searches yielded none. Issue #710 has no comments and names no concrete related PR. These bounded searches do not prove that no unlinked work exists.
+- Search in the two ccsession test modules found a weekly-usage error fixture, not a quota/reset listing or selector test. Tests were not executed, as the brief forbids UV and runtime writes outside this report directory.
+- UNVERIFIED: deployed CPA/CPA Manager Plus APIs, authentication requirements, provider quota/reset coverage, selector support through the deployed gateway, actual credential usage, live concurrency and secrecy guarantees. No private gateway was contacted and no key/token values were inspected or written.
+- Findings describe static feature gaps and integration boundaries, not observed runtime failures. No source, configuration, GitHub object or git index was changed.

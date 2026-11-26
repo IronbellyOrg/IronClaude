@@ -1,0 +1,7 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "Independent evidence review of issue 534 findings and analysis"
+report_path: .dev/issuecleanup/g2/534-review/qa.md
+verdict: FAIL
+artifacts:
+  - .dev/issuecleanup/g2/534-review/handoff/1-review.md

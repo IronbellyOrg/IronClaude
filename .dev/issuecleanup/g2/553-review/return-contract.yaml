@@ -1,0 +1,7 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "Independent review of issue 553 findings and architecture analysis, per dispatched task brief"
+report_path: .dev/issuecleanup/g2/553-review/qa.md
+verdict: FAIL
+artifacts:
+  - .dev/issuecleanup/g2/553-review/handoff/1-review.md

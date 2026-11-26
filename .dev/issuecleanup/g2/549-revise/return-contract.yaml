@@ -1,0 +1,7 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "Revise blocking findings for issue 549 only"
+report_path: .dev/issuecleanup/g2/549-revise/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g2/549/findings.md
+  - .dev/issuecleanup/g2/549-revise/handoff/1-revise.md

@@ -1,0 +1,17 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: "Task: issue 717 blocking-only revision, fix cycle 2"
+report_path: .dev/issuecleanup/g5/717-revise2/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g5/717-revise2/handoff/1-revise.md
+blocked_question: "How will the required live PR records, discussions and newer-work evidence be completed after permitted GitHub reads become available, with blocking finding B1 still open at fix cycle 2 of 2?"
+reason: "Fresh allowed issue read succeeded, then the tool reported the shared GitHub API limit exceeded; no further permitted PR evidence could be gathered and the allow-list excludes the suggested reset probe. The brief requires reporting blocked gates, so succeeded would be false."
+verdict: "FAIL; still-relevant (provisional), review blocked and not accepted"
+complexity: complex
+size: XL
+priority: P2
+classification_status: provisional
+open_blocking_findings:
+  - B1
+existing_findings_modified: false
+existing_analysis_modified: false

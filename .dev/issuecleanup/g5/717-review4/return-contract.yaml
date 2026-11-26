@@ -1,0 +1,11 @@
+worker_contract_version: "1"
+worker_status: succeeded
+report_path: .dev/issuecleanup/g5/717-review4/qa.md
+verdict: FAIL
+artifacts:
+  - .dev/issuecleanup/g5/717-review4/handoff/1-review4.md
+reason: "Review delivered FAIL: independent live PR checks remain blocked by the shared GitHub API-limit warning; current unification spec is absent. Succeeded describes audit delivery, not acceptance of the reviewed findings."
+unverified:
+  - "Independent live PR records, discussions and newer-work reconciliation, including PR 759"
+  - "Current unification spec and stage completion"
+  - "Host enablement, persistence, permissions, retry semantics and operational acceptance records"

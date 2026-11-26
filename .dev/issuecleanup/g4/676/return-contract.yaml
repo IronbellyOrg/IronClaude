@@ -1,0 +1,16 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: /sc:analyze src/superclaude/cli --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/676/analyze
+report_path: .dev/issuecleanup/g4/676/findings.md
+artifacts:
+  - .dev/issuecleanup/g4/676/qa.md
+  - .dev/issuecleanup/g4/676/analyze/analyze-report.md
+  - .dev/issuecleanup/g4/676/analyze/return-contract.yaml
+  - .dev/issuecleanup/g4/676/handoff/1-analyze.md
+verdict: still-relevant
+complexity: medium
+size: S
+priority: P2
+qa_verdict: PASS
+qa_notes: One minor historical PR-provenance note; no blocking defects. Runtime remains UNVERIFIED.
+

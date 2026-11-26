@@ -1,0 +1,17 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze .dev/experiments/346-validation/phase5/final-bundle/builds/stoprule/source --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g5/734/analyze"
+report_path: .dev/issuecleanup/g5/734/findings.md
+artifacts:
+  - .dev/issuecleanup/g5/734/analyze/analyze-report.md
+  - .dev/issuecleanup/g5/734/analyze/return-contract.yaml
+  - .dev/issuecleanup/g5/734/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g5/734/qa.md
+issue: 734
+issue_verdict: still-relevant
+complexity: medium
+size: M
+priority: P1
+qa_verdict: PASS
+limits: "Static review only; no runtime acceptance tests, UV, source changes, Git mutations or GitHub writes."
+review_recovery: "Initial named reviewer produced no artifact and was stopped; a fresh unnamed general-purpose reviewer completed QA with PASS. No fix cycles were needed."

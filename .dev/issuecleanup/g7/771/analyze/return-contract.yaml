@@ -1,0 +1,6 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze src/superclaude/core/WORKER-CONTRACT.md --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g7/771/analyze"
+report_path: .dev/issuecleanup/g7/771/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g7/771/analyze/handoff/1-analyze.md

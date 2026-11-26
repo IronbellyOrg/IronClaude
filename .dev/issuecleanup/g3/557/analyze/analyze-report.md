@@ -1,0 +1,27 @@
+# Issue 557: quick architecture analysis
+
+## Scope and method
+Command: `/sc:analyze src/superclaude/cli/swarm --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/557/analyze`.
+
+The swarm package is the narrowest common source directory covering resume orchestration, raw-output handling, CLI help and dashboard state. Codegraph lists 36 Python files in that package. This was static analysis of the four issue areas, not an exhaustive audit of all 36 files. Source, regression definitions and live issue/PR metadata were read; no source was modified and no runtime, test suite, dependency install or provider call was executed.
+
+Codegraph: index_state=fresh, checked_at=2026-11-24T13:03:10Z; degraded: graph:truncated.
+
+Readiness used the current worktree `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup`, with MCP access. Resume callees were capped at 20 and the cross-file method-name lookup had unrelated matches, so graph results were treated only as leads and source was read directly. No index initialization or synchronization was run.
+
+## Current architecture and findings
+The CLI orchestrates preflight, dispatch, normalization and reduction. Graph callees for the resume branch identify these stages; the verified direct caller is the public run command (the call-site search locates it at line 1664 of `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/commands.py`). Graph impact identifies the run entry point as the immediate affected caller. The four issue areas do not require a new subsystem or another tracker-specific fix.
+
+1. P1, partial delivery: accepted reduction context is restored by master PR #739 (`3ecf3fee8d7cbf810098ad01807d9c7aa0af8627`). Source passes saved caller/metadata/target/template to the reducer at `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/commands.py:2661-2708`; lines 2677-2682 still preserve a historical rendered command literally. Later partial-resume/provider/provenance work belongs to the existing draft PR #756, not a fresh competing implementation.
+2. P1, retained-evidence gap: fresh path stamping advertises a raw filename without checking retention or file existence at `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/commands.py:1063-1080`. The package-wide raw_path/retain_raw search finds no raw writer. The observed normalizer writes final text and sidecar metadata at `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/normalize.py:455-471`. This supports an unresolved writer/advertisement boundary, not an observed raw-file deletion. PR #756 proposes retention and discovery reconciliation.
+3. P2 locally, within the P1 tracker: unsupported-option guidance still appears on both help surfaces at `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/commands.py:435-439` and `:3903-3909`. Keep #568's fix narrow to the supported job-field explanation and a regression check; the issue's prior command rejection was not rerun here.
+4. Delivered repair, not a new defect: master PR #740 (`0dd726d181a15e4cb2c0cf9e4b9fb0ed0f91cfe6`) changes dashboard updates to retain representative events at `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/tui.py:239-281`. The existing regression at `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests/swarm/test_tui.py:246-313` feeds the production log tailer into the Live renderer, checks split/empty batches and completion updates, and bounds retained events under a progress flood. It was read, not executed. A true terminal timing/model test is UNVERIFIED.
+
+The live PR list shows #741-#750 merged into feature bases; PR #756 targets master and is still OPEN/DRAFT. Counting those ten merges as ten delivered master fixes would contradict the current source and the consolidation PR's stated purpose.
+
+## Recommendations and limits
+Keep the grouped tracker in-progress until #566/#567/#568/#569 all qualify for closure. Reuse PR #756 for the remaining resume/artifact work and preserve its owner-controlled draft hold. Resolve the separate help-text child without introducing a new option. The accepted-context and dashboard slices are already delivered; avoid duplicate implementation.
+
+Static scope includes CLI orchestration, saved manifest context, artifact stamping/normalization and the dashboard with its regression definitions. No new security vulnerability, performance measurement or comprehensive package-wide quality score is claimed. No fresh test counts, raw-file inventories, model requests or live terminal frames were collected. The PR's two reported review suggestions and CI state were not independently inspected; their consequence remains UNVERIFIED.
+
+Method limits and negative evidence: the project development copy of the analyze command does not exist, while the installed copy contains the required Unattended mode section; the worker guard therefore passed. A package-wide raw_path/retain_raw search plus normalizer inspection did not locate a raw writer. A related-PR number search did not identify a dedicated help repair. These are bounded searches, not universal absence proofs. Two initial report-population edits were blocked by the freshness hook because freshly written skeletons had not yet been Read; both were retried only after Read and succeeded. All task-authored files stay under the assigned report directory.

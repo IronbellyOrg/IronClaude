@@ -1,0 +1,17 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: 'Review issue 761; /sc:analyze src/superclaude --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g6/761/analyze'
+report_path: .dev/issuecleanup/g6/761/findings.md
+verdict: still-relevant
+complexity: complex
+size: L
+priority: P2
+qa_verdict: PASS
+qa_blocking_defects: 0
+limits: Static cleanup triage only; full 18-point coverage research, owner decisions, external Coder inspection and deployment checks remain outside this review.
+artifacts:
+  - .dev/issuecleanup/g6/761/qa.md
+  - .dev/issuecleanup/g6/761/report-templates.md
+  - .dev/issuecleanup/g6/761/analyze/analyze-report.md
+  - .dev/issuecleanup/g6/761/analyze/return-contract.yaml
+  - .dev/issuecleanup/g6/761/analyze/handoff/1-analyze.md

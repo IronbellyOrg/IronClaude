@@ -1,0 +1,14 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: /sc:analyze src/superclaude/hooks/scripts/launch-level-guard.sh --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/678/analyze
+report_path: .dev/issuecleanup/g4/678/findings.md
+artifacts:
+  - .dev/issuecleanup/g4/678/analyze/analyze-report.md
+  - .dev/issuecleanup/g4/678/analyze/return-contract.yaml
+  - .dev/issuecleanup/g4/678/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g4/678/qa.md
+qa_verdict: PASS
+issue_verdict: still-relevant
+complexity: medium
+size: S
+priority: P3

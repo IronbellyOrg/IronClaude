@@ -1,0 +1,17 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze src/superclaude/skills/sc-post-release-protocol --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g1/429/analyze"
+report_path: .dev/issuecleanup/g1/429/findings.md
+artifacts:
+  - .dev/issuecleanup/g1/429/analyze/analyze-report.md
+  - .dev/issuecleanup/g1/429/analyze/return-contract.yaml
+  - .dev/issuecleanup/g1/429/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g1/429/review.md
+verdict: still-relevant
+complexity: complex
+size: L
+priority: P1
+verification_limits:
+  - Full GitHub event timeline unavailable through permitted gh issue/pr view/list surface.
+  - PR 667 metadata and body verified remotely; its artifact contents absent locally and unverified.
+  - Static review only; no fresh runtime tests.

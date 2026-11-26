@@ -1,0 +1,8 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "Task-only revision of issue 487 blocking findings"
+report_path: .dev/issuecleanup/g2/487-revise/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g2/487/findings.md
+  - .dev/issuecleanup/g2/487/analyze/analyze-report.md
+  - .dev/issuecleanup/g2/487-revise/handoff/1-revise.md

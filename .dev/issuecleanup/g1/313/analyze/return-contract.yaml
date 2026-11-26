@@ -1,0 +1,15 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze tests --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g1/313/analyze"
+report_path: "/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/313/analyze/analyze-report.md"
+artifacts:
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/313/findings.md
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/313/handoff/1-analyze.md
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/313/qa.md
+verdict: still-relevant
+validation: "Independent static review PASS; minor historical module-size wording corrected."
+limitations:
+  - "Full issue event timeline unavailable through the brief's permitted gh view/list surface."
+  - "No tests run; 11 is a static count among the issue's surviving named files, not a current failure count."
+  - "Guard absence and unrelated work searches are bounded negative evidence."
+

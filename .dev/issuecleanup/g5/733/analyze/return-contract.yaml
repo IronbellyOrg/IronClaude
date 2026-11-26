@@ -1,0 +1,20 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/skills/sc-implement-protocol --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g5/733/analyze'
+report_path: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/733/analyze/analyze-report.md
+artifacts:
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/733/analyze/handoff/1-analyze.md
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/733/findings.md
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/733/qa.md
+issue_review:
+  issue: 733
+  verdict: still-relevant
+  complexity: complex
+  size: L
+  priority: P1
+  findings_path: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/733/findings.md
+  qa_path: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/733/qa.md
+  qa_verdict: PASS
+  runtime_checks: not-run
+  source_changes: false
+  github_writes: false

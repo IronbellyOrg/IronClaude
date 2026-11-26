@@ -1,0 +1,11 @@
+worker_contract_version: "1"
+worker_status: partial
+command: "Review issue 362 and run /sc:analyze .github/workflows --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g1/362/analyze"
+report_path: ".dev/issuecleanup/g1/362/findings.md"
+artifacts:
+  - ".dev/issuecleanup/g1/362/report-template.md"
+  - ".dev/issuecleanup/g1/362/analyze/analyze-report.md"
+  - ".dev/issuecleanup/g1/362/analyze/return-contract.yaml"
+  - ".dev/issuecleanup/g1/362/analyze/handoff/1-analyze.md"
+  - ".dev/issuecleanup/g1/362/independent-review.md"
+reason: 'Full event timeline UNVERIFIED: allowed gh issue view rejects timelineItems; issue body, all visible comments, dependency fields, linked closing-PR fields, mentioned PR 402 and local workflow architecture were reviewed. No outward action or staging was performed.'

@@ -1,0 +1,22 @@
+# Independent evidence review
+
+## Verdict
+**PASS.** No concrete blocking defect found in the report-only output. This approves the report's accuracy within the checked scope, not completion of issue 442, activation of either switch, or acceptance of every live observation.
+
+## Scope checked
+- Read both producer reports completely in chunks of no more than 80 lines and checked the independent-review template at `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/362/report-template.md`.
+- Confirmed the findings report includes verdict/evidence, current state, concrete next steps, complexity/size, priority, dependencies, related issues, related PRs, and uncertainty/negative evidence. Confirmed the analysis includes scope, architecture/metrics, severity-rated findings, recommendations, and limits.
+- Checked the 12 unconditional observation skips and four-item watcher coupling against `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests/hooks/test_launch_level_observations.py`; checked both disabled activation switches against `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/launch.py` and `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py`.
+- Checked prompt/tool registration, release-command matching, launch binding, and the Claude-word-plus-launch-flag escape classifier against `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/hooks/hooks.json` and `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/hooks/scripts/launch-level-guard.sh`.
+- Checked all nine OB-H1 outcome blocks, OB-H2's original printed-detail failures, OB-H3's supplement and protected-push gap, and OB-CTX's bounded PASS against `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issues/442/observation-results.md`. Checked the newer refusal, layer, launch and inode outcomes against `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issues/691/ob-h2-rerun-logs/gov-log.txt`.
+- Only this review file is writable in this task. No producer report or product source was changed.
+
+## Blocking findings
+None. The load-bearing source citations support the stated implementation and disabled gates. The saved outcome inventory supports the distinction between completed, pending, historical failure, and parked work. The report correctly treats issue 691's newer successful reader/binding log as newer evidence without treating its closure as full formal OB-H2 or issue-442 acceptance. It does not mistake a model's refusal to attempt the protected push for a hook-enforced refusal.
+
+## Follow-up candidates and notes
+- External GitHub issue states, comments, PR merge metadata and search completeness were supplied through the producer/parent's allowed reads, not independently reverified by this reviewer. Their retrieval history is not certified by this local-file review.
+- Additional primary-evidence spot checks confirmed the bare-child turn in `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/tasks/done/TASK-WF-scriptThe442Obse-20261108-061618/artifacts/ob-logs/logs/h1.jsonl` and the older preflight/inode/process outcomes in `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/tasks/done/TASK-WF-scriptThe442Obse-20261108-061618/artifacts/ob-logs/gov-log-reconstructed.txt`.
+- Evidence-retention follow-up, not a blocking correction: the raw files named by the saved results at `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issues/442/run2/artifacts/ob-logs/logs/h2-T4.jsonl` and `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issues/442/run2/artifacts/ob-logs-a2/logs/h1m.jsonl` are absent in this checkout. A search found no alternative A2 log. The run-2 merge and A2 MCP PASS statements are verified here as recorded outcomes in the results document, not independently replayed primary evidence. Preserve or recover their underlying logs before a formal acceptance audit. The report already limits its claims to recorded results and does not grant acceptance.
+- The medium/M estimate and P1 priority are reasoned judgments, not measurements or verified GitHub field values. Nothing in the checked evidence makes either a blocking factual error.
+- No Bash, source edits, test execution, staging, commits, GitHub writes, live launches, or Orca lifecycle operations were performed. Only this review file was created and populated incrementally.

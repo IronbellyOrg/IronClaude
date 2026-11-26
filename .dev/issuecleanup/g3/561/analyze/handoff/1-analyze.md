@@ -1,0 +1,14 @@
+# Command handoff
+- Command: /sc:analyze src/superclaude/cli/eval/commands.py --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/561/analyze
+- Task ID: task_72402c0e0795
+- Dispatch ID: ctx_b68a564055bc
+- worker_status: succeeded
+- Deliverable: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/561/analyze/analyze-report.md
+- Contract: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/561/analyze/return-contract.yaml
+- Decisions: still-relevant; simple/S; P3; retain explicit backlog hold.
+- Evidence: current source still creates run/homes before missing-suite and missing-eval rejection.
+- Boundaries: static analysis only; no eval, tests, environment creation, source change, staging, commit or GitHub write.
+- Graph: fresh at 2026-11-24T13:04:53Z; graph:truncated (callee query only).
+- Applied message IDs: none; coordinator checks returned zero messages.
+- Next Command: none.
+- Remaining brief step: independent fresh-context review of findings.md, producing qa.md.

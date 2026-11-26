@@ -1,0 +1,9 @@
+# Template: WC-4 in /home/coder/.claude/WORKER-CONTRACT.md; fields required by the revision brief.
+worker_contract_version: "1"
+worker_status: succeeded
+command: "Task brief: revise only blocking findings for issue 553; no Command line"
+report_path: .dev/issuecleanup/g2/553-revise/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g2/553/findings.md
+  - .dev/issuecleanup/g2/553/analyze/analyze-report.md
+  - .dev/issuecleanup/g2/553-revise/handoff/1-revise.md

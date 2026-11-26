@@ -1,0 +1,10 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: "Recheck and revise only the BLOCKING findings for issue 468, as dispatched (no Command: line)"
+report_path: .dev/issuecleanup/g2/468-revise/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g2/468-revise/handoff/1-revise.md
+  - .dev/issuecleanup/g2/468/findings.md
+  - .dev/issuecleanup/g2/468/analyze/analyze-report.md
+blocked_question: "The original analysis handoff is missing and original Task/Dispatch provenance is UNVERIFIED in the supplied files; the producing worker or coordinator must reconcile it from actual dispatch evidence and list it in the original contract. This brief does not authorize inventing that history or editing the original contract."
+reason: "Blocking finding 4 remains open; findings 1-3 were corrected. A succeeded contract would falsely imply that the required original handoff had been reconciled."

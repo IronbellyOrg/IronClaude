@@ -1,0 +1,17 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/cli/reflect/ensemble.py --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/565/analyze'
+report_path: .dev/issuecleanup/g3/565/findings.md
+artifacts:
+  - .dev/issuecleanup/g3/565/qa-template.md
+  - .dev/issuecleanup/g3/565/analyze/analyze-report.md
+  - .dev/issuecleanup/g3/565/analyze/return-contract.yaml
+  - .dev/issuecleanup/g3/565/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g3/565/qa.md
+issue_verdict: still-relevant
+complexity: medium
+size: M
+priority: P3
+qa_verdict: PASS
+qa_notes: 'One nonblocking note: analysis wording about existing synthetic/live checks is unsubstantiated; findings explicitly require a new separate check and do not rely on existing protection.'
+limitations: 'Static review only; no tests or model runs, source edits, staging, commits or GitHub mutations. Historical captures, actual billing, installed console and complete GitHub event timeline remain unverified.'

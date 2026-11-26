@@ -1,0 +1,22 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze src/superclaude/cli/swarm --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/567/analyze"
+report_path: .dev/issuecleanup/g3/567/findings.md
+artifacts:
+  - .dev/issuecleanup/g3/567/qa.md
+  - .dev/issuecleanup/g3/567/analyze/analyze-report.md
+  - .dev/issuecleanup/g3/567/analyze/return-contract.yaml
+  - .dev/issuecleanup/g3/567/handoff/1-analyze.md
+issue: 567
+verdict: in-progress
+complexity: medium
+size: M
+priority: P1
+qa_verdict: PASS
+fix_cycles: 0
+source_revision: a7ae3dd30fcf88aaab655c37e94e58e121c2d863
+active_pr: 756
+active_pr_state: OPEN_DRAFT
+tests_run: false
+source_modified: false
+outward_actions: none

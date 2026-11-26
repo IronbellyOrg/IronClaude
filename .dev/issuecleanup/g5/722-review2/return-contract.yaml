@@ -1,0 +1,6 @@
+worker_contract_version: "1"
+worker_status: succeeded
+report_path: .dev/issuecleanup/g5/722-review2/qa.md
+verdict: PASS
+artifacts:
+  - .dev/issuecleanup/g5/722-review2/handoff/1-review2.md

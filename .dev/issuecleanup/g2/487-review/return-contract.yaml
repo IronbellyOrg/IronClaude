@@ -1,0 +1,8 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "Independent review of issue 487 findings and analyze report"
+report_path: .dev/issuecleanup/g2/487-review/qa.md
+verdict: FAIL
+blocking_findings: 3
+artifacts:
+  - .dev/issuecleanup/g2/487-review/handoff/1-review.md

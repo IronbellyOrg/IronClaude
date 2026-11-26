@@ -1,0 +1,9 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "Task brief: revise only blocking findings for issue 534"
+report_path: .dev/issuecleanup/g2/534-revise/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g2/534/findings.md
+  - .dev/issuecleanup/g2/534/analyze/analyze-report.md
+  - .dev/issuecleanup/g2/534-revise/report-template.md
+  - .dev/issuecleanup/g2/534-revise/handoff/1-revise.md

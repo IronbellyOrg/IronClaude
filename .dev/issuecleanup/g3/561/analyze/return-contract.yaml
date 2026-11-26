@@ -1,0 +1,13 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/cli/eval/commands.py --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/561/analyze'
+report_path: .dev/issuecleanup/g3/561/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g3/561/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g3/561/findings.md
+  - .dev/issuecleanup/g3/561/qa.md
+qa_verdict: PASS
+issue_verdict: still-relevant
+complexity: simple
+size: S
+priority: P3

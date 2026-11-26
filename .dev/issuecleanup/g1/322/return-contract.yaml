@@ -1,0 +1,10 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: "Review issue 322 and run /sc:analyze src/superclaude/hooks --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g1/322/analyze"
+report_path: .dev/issuecleanup/g1/322/findings.md
+artifacts:
+  - .dev/issuecleanup/g1/322/analyze/analyze-report.md
+  - .dev/issuecleanup/g1/322/analyze/return-contract.yaml
+  - .dev/issuecleanup/g1/322/analyze/handoff/1-analyze.md
+blocked_question: "The required independent evidence gate produced no qa.md artifact; coordinator must arrange a fresh review before admitting the report. Complete GitHub timeline is also UNVERIFIED under the permitted gh issue/pr view/list surface."
+reason: "Report contents and command completed, but final independent acceptance gate is unresolved."

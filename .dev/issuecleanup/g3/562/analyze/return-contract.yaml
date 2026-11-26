@@ -1,0 +1,9 @@
+worker_contract_version: "1"
+worker_status: "succeeded"
+command: "/sc:analyze src/superclaude/cli/eval/coverage.py --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/562/analyze"
+report_path: ".dev/issuecleanup/g3/562/analyze/analyze-report.md"
+artifacts:
+  - ".dev/issuecleanup/g3/562/findings.md"
+  - ".dev/issuecleanup/g3/562/qa.md"
+  - ".dev/issuecleanup/g3/562/report-template.md"
+  - ".dev/issuecleanup/g3/562/analyze/handoff/1-analyze.md"

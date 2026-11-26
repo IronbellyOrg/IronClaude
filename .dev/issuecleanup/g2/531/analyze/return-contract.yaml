@@ -1,0 +1,28 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/cli --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g2/531/analyze'
+report_path: .dev/issuecleanup/g2/531/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g2/531/findings.md
+  - .dev/issuecleanup/g2/531/analyze/evidence-review.md
+  - .dev/issuecleanup/g2/531/analyze/handoff/1-analyze.md
+issue_verdict: still-relevant
+complexity: complex
+size: XL
+priority: P2
+review_verdict: PASS
+review_scope: local-source evidence only; remote metadata not independently rechecked
+limitations:
+  - Full GitHub non-comment event timeline UNVERIFIED under permitted issue/pr view/list commands.
+  - No runtime tests, model execution or central-service end-to-end check.
+  - Unmerged branch implementation UNVERIFIED.
+  - Minor scheduler-bound wording note retained in evidence-review.md.
+codegraph:
+  index_state: fresh
+  access: mcp
+  checked_at: '2026-11-24T02:44:12Z'
+  worktree_root: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup
+  degraded:
+    - graph:truncated
+local_commit: not-authorized
+outward_actions: none

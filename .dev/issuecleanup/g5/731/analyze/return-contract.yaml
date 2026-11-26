@@ -1,0 +1,19 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: /sc:analyze src/superclaude/skills/sc-implement-protocol --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g5/731/analyze
+report_path: .dev/issuecleanup/g5/731/analyze/analyze-report.md
+triage:
+  issue: 731
+  verdict: still-relevant
+  complexity: complex
+  size: L
+  priority: P2
+  qa_verdict: PASS
+artifacts:
+  - .dev/issuecleanup/g5/731/qa.md
+  - .dev/issuecleanup/g5/731/findings.md
+  - .dev/issuecleanup/g5/731/issue-731.json
+  - .dev/issuecleanup/g5/731/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g5/731/source-pipeline-record.md
+  - .dev/issuecleanup/g5/731/source-consensus.md
+  - .dev/issuecleanup/g5/731/source-owner-instructions.md

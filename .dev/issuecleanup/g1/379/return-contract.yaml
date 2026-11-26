@@ -1,0 +1,22 @@
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:analyze src/superclaude/skills/sc-issue-protocol/scripts/clickup_claim.py --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g1/379/analyze"
+report_path: .dev/issuecleanup/g1/379/findings.md
+artifacts:
+  - .dev/issuecleanup/g1/379/analyze/analyze-report.md
+  - .dev/issuecleanup/g1/379/analyze/return-contract.yaml
+  - .dev/issuecleanup/g1/379/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g1/379/evidence-review.md
+issue_verdict: still-relevant
+complexity: medium
+size: M
+priority: P1
+coverage_limit: "Full GitHub event timeline is UNVERIFIED because the allowed gh issue/pr view/list commands do not expose it; source and current issue/PR metadata were reviewed."
+quality_gate: PASS
+quality_review: .dev/issuecleanup/g1/379/evidence-review.md
+review_note_disposition: "Narrowed request-failure wording to pre-assignment reads; enclosing partial contract was created after the reviewer's directory snapshot. No blocking findings."
+checks_not_run:
+  - tests or helper execution
+  - mock PUT experiments
+  - live ClickUp integration or assignment checks
+outward_actions: none

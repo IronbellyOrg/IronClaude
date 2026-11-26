@@ -1,0 +1,40 @@
+## Verdict
+**still-relevant**, blocked by an unmet measurement precondition, not in progress on the evidence reviewed. Keep the issue open pending that result, not as authorization to implement it.
+
+Reviewed the live issue https://github.com/IronbellyOrg/IronClaude/issues/612 and its empty comment list on 2026-11-24, against checkout commit `a7ae3dd30fcf88aaab655c37e94e58e121c2d863`. The issue explicitly says to build only after step 2 demonstrates that Jev clearly beats the keyword table; https://github.com/IronbellyOrg/IronClaude/issues/611 is OPEN, has no comments, and records no comparison result. Neither a positive result that permits implementation nor a negative result that justifies closing as not-planned was found in those live records. Off-issue experiments or unpublished work are UNVERIFIED.
+
+Current source still performs keyword/structural type selection only when no explicit type is provided: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:151-159. The performance row still lacks the three phrases requested by step 1, and "leak" remains in both performance and security rows. Its audit header has a type field, but no preflight probability field: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:162-176.
+
+No standalone troubleshoot preflight implementation was located: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/main.py:557-596 registers the other CLI groups, not a preflight group; searches across /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/ and /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests/ found no `preflight troubleshoot`, `TYPESAFE_API_KEY`, `jev-1.14` or companion-Noul integration. Existing swarm/reflect preflights are not evidence of this feature. No directly related implementing PR or merge commit was verified; see Related PRs.
+
+The required architecture analysis is /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g4/612/analyze/analyze-report.md. This review does not establish runtime classification accuracy, Jev latency, API availability or data retention; those remain UNVERIFIED.
+
+## Complexity and size
+**complexity medium; size M.** Conditional implementation crosses CLI registration, a shared runner plus one question/spec file, protocol and audit integration, offline override/threshold/failure tests and data-path documentation; it is more than a keyword edit, but does not require a gateway rewrite or other flags. This is an engineering estimate, not a claim that implementation has started.
+
+## Priority
+**P3.** This is an optional advisory improvement with unproven accuracy benefit and an explicit upstream experiment gate; no downstream issue blocked by #612 is identified in the reviewed issue family. Existing type selection remains available. Misclassification can affect security escalation, so any later implementation must preserve the explicit-user override and must not treat a failed request as a classification.
+
+## Concrete next steps
+1. Do not start #612 yet. Complete the cheap keyword baseline change in #610, then the comparison in #611, with the owner's exact decision margin and required data-sharing/budget approval fixed before a live run. This review grants neither approval nor permission for a live call.
+2. Have the coordinator bring the measured #611 result to the owner. If Jev does not clear the agreed margin, recommend closing #612 as not justified and attaching that comparison. If it does, link the affirmative result before beginning implementation. No issue or PR is changed by this worker.
+3. Only after that gate, implement the standalone type-only JSON result, explicit flag precedence, abstention, keyword fallback and surfaced request errors; wire the probability into Wave 0's audit header and add offline regression tests plus the public-only data-path documentation. Do not infer authorization/environment flags or add a gateway rewrite, depth inference, scope inference or the optional hook without separate scope approval.
+4. Before encoding thresholds, clarify the exact boundary behavior at 0.3 and 0.7 and distinguish a Choice option's probability from the companion Noul's fit probability. The issue describes both but does not fully specify boundary equality or the JSON field relationship; those details are UNVERIFIED, not decisions made by this review.
+
+## Dependencies
+- **Needs #611 directly:** https://github.com/IronbellyOrg/IronClaude/issues/611 must record an affirmative Jev-vs-table decision using the margin fixed before the run. It is OPEN with no comments or result in its body as checked on 2026-11-24.
+- **Needs #610 transitively through #611:** https://github.com/IronbellyOrg/IronClaude/issues/610 updates the keyword baseline before the comparison. It is OPEN with no comments; the requested phrases are still absent from /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:155, and the duplicate "leak" remains at lines 155 and 157.
+- **Feeds parent #609:** https://github.com/IronbellyOrg/IronClaude/issues/609 tracks the three-step decision, not a prerequisite to be separately implemented first. No other downstream issue blocked by #612 is established by the reviewed records. A negative #611 result would intentionally remove the need for #612.
+- The owner's pre-run decision margin, data-sharing approval and budget belong to #611; no approval for a new hosted call follows from this cleanup review. #553's plugin installation and #576's alternative local node are not stated prerequisites for the standalone build.
+
+## Related issues
+- #609, parent proposal and conditional build decision: https://github.com/IronbellyOrg/IronClaude/issues/609. Read live, OPEN, no comments.
+- #610, keyword baseline improvement: https://github.com/IronbellyOrg/IronClaude/issues/610. Read live; required before #611.
+- #611, measured comparison and direct gate: https://github.com/IronbellyOrg/IronClaude/issues/611. Read live; no affirmative or negative result recorded.
+- #463, earlier Jev routing research: https://github.com/IronbellyOrg/IronClaude/issues/463; #553, default TypeSafe plugin installation: https://github.com/IronbellyOrg/IronClaude/issues/553; #576, alternative local inference node: https://github.com/IronbellyOrg/IronClaude/issues/576. These relationships come from #612's body; their present status and deliverables are UNVERIFIED in this narrow review, and none is promoted to a hard dependency.
+- #552, private-data question referenced by the feature's public-only limit: https://github.com/IronbellyOrg/IronClaude/issues/552. Resolution of that question is UNVERIFIED; this review does not extend the feature to private prompts.
+
+## Related PRs
+**None directly verified.** Issue #612 has no comments or linked/mentioned PR in its body; its live `closedByPullRequestsReferences` is also empty. Its formal dependency fields list exactly #611 as blocking it, #609 as parent and no issues blocked by #612. The read parent and dependency issues name no implementing PR. An initial query using the unsupported `closedByPullRequests` field failed; the CLI's returned field list supplied the supported field name used for this verification. Read-only PR searches on IronbellyOrg/IronClaude for `612`, `Jev`, and `preflight troubleshoot` returned #690, #87, #500 and #184. Their fetched titles/bodies identify issue-planning, historical cleanup, experiment artifacts and sprint locking, not the requested standalone preflight; body filtering found no `#612` reference or implementing Jev preflight claim, so these are excluded rather than treated as delivery evidence.
+
+No merge commit can be attributed to #612 from this evidence. Search results and source absence are bounded evidence, not proof that no unpushed branch or unlinked work exists. Such work is UNVERIFIED. The source snapshot commit cited above identifies what was reviewed, not a feature-delivery commit.

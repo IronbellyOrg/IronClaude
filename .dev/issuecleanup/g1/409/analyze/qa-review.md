@@ -1,0 +1,30 @@
+# Independent evidence review
+
+Template: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/362/report-template.md` (Independent review template).
+
+## Verdict
+**PASS.** No blocking defect found in the completed report pair. The issue verdict **in-progress** is supported: #409 is OPEN, its latest returned comment explicitly keeps it open until #706 is done, and #706 is OPEN with remaining capabilities and owner decisions. This describes partial delivery, not verified active implementation.
+
+The reports do not mistake existing rendering-size tests for evidence of live scale performance. No conclusion needs changing on the evidence checked.
+
+## Scope checked
+- Read the governing independent-review template and the complete inputs in chunks of no more than 80 lines:
+  - `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/409/findings.md`
+  - `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/409/analyze/analyze-report.md`
+- Independently re-read every distinct source/test excerpt cited by either input: enabled question guards, fixture/live source selection and question refusal, collector constants, exact dispatch linkage and unknown-scope handling, complete key handler, adapter allowlist, worker data model, rendering matrix and generator, and the record payload-exclusion test. No cited excerpt contradicted its substantive claim. Inventory checks also confirm 14 observer Python files and 26 matching test modules.
+- Read GitHub evidence using only issue/pr view/list with the explicitly allowed repository: #409's status, latest closure comment, closing references and structured dependencies; #706's body, status, closing references and follow-up comment; #604's deferred scope; #606's closed status. The latest parent comment explicitly identifies #706 as the closure dependency. Empty structured dependency lists do not erase that textual requirement.
+- Cross-checked merged status, titles, merge dates and commit IDs for all 15 cited PRs: #447, #448, #503, #514, #532, #539, #541, #577, #586, #591, #592, #598, #673, #708 and #730. Also checked #673's delivery description and #730's changed-file list; the latter is confined to preserved records.
+- Required-field audit: **all present in substance**. The findings report supplies the allowed issue verdict with evidence, real state, concrete next steps, complexity and size with rationale, priority with rationale, dependencies, related issues/PRs and explicit UNVERIFIED limits. The accompanying analysis supplies architecture evidence, rated findings, recommendations and verification limits. The pair does not need identical headings to cover the requirements.
+
+## Blocking findings
+None. No checked claim changes the recommended issue disposition, omits a required field in substance or introduces a safety risk. No report conclusions were rewritten, and no changes to the input reports are required by this review.
+
+## Follow-up candidates and notes
+- **Scale evidence, not live certification:** `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests/observe/test_render.py:99-118` contains the 3-by-3-by-3 rendering matrix with line-width, height, count and overflow assertions. `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests/observe/conftest.py:179-204` generates worker rows spread over Run IDs. These definitions establish that synthetic size/width coverage exists; they establish neither real orchestrator/session ownership mapping nor live collection speed, completeness or full difficult-data coverage. Both reports preserve this distinction. Correcting #706's blanket absence claim while auditing remaining scenarios is justified.
+- **Real state:** local dashboard core and visual parity are delivered; the checked model/source/navigation evidence supports the reported remaining summaries, links, named steps, source alignment and session-opening/disclosure work. The November 22 guide-fix follow-up is included in the next steps without pretending its underlying contract/code claims were independently revalidated here.
+- **Complexity and size:** complex / L is a reasoned remaining-scope estimate, not a measured schedule. Multiple source/scope decisions, new session information and acceptance work justify substantial effort without treating the existing renderer as a rebuild. Deferred remote fleet is excluded.
+- **Priority:** P2 is explicitly a recommendation, not an owner ruling or a changed GitHub field. The stated reason is consistent with delivered local functionality plus important remaining supervision gaps; the review established no emergency that forces another priority.
+- **Dependencies and related work:** keep #706 as the parent closure gate; #606 is closed and #673 merged; #604 remains separate deferred work. #339/#534 are alignment context, not automatically hard prerequisites. The additional contextual issues are not represented as freshly audited dependencies. The cited merged PRs do not establish that the remaining #706 scope is done.
+- **Next steps:** no report repair is required. Retain the owner's decision gates and the existing #706 checklist; map missing scenario coverage before creating tests, and validate the three guide corrections against their actual code/contract before editing. This review authorizes no implementation or GitHub changes.
+- **Explicit UNVERIFIED:** current test results; live timing, production scale and ownership coverage; full cross-scenario acceptance; visual/runtime gates; remote joins; full timeline/cross-reference completeness; complete historical attachment availability and design-branch ancestry. This independent review also did not reproduce the original Skill invocation, Augment/Codegraph run history or every contextual issue's full history. PR metadata is not fresh runtime evidence.
+- Only this review stub was edited, incrementally through its four placeholders. No other files were changed, no source edits or git operations were performed, and no tests, Orca calls, timeline API, web access or publication were used.

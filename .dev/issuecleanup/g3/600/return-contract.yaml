@@ -1,0 +1,20 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/core/HOW-WE-WORK.md --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/600/analyze'
+report_path: .dev/issuecleanup/g3/600/findings.md
+artifacts:
+  - .dev/issuecleanup/g3/600/analyze/analyze-report.md
+  - .dev/issuecleanup/g3/600/analyze/return-contract.yaml
+  - .dev/issuecleanup/g3/600/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g3/600/qa.md
+  - .dev/issuecleanup/g3/600/qa-review1.md
+verdict: close
+complexity: simple
+size: XS
+priority: P3
+qa_verdict: PASS
+qa_fix_cycles: 1
+limits:
+  - Static source and live issue review only; no tests or whole-project synchronization run.
+  - No source changes, Git staging, commits or GitHub writes.
+  - Separate stale design-output warning recorded for follow-up; no issue created.

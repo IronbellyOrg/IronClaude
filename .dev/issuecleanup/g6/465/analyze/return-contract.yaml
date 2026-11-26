@@ -1,0 +1,14 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze src/superclaude/agents/rf-qa-qualitative.md --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g6/465/analyze"
+report_path: .dev/issuecleanup/g6/465/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g6/465/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g6/465/findings.md
+  - .dev/issuecleanup/g6/465/report-templates.md
+  - .dev/issuecleanup/g6/465/qa.md
+issue_verdict: still-relevant
+complexity: complex
+size: L
+priority: P2
+qa_verdict: PASS

@@ -1,0 +1,16 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze src/superclaude/cli/observe --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g1/409/analyze"
+report_path: "/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/409/analyze/analyze-report.md"
+artifacts:
+  - "/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/409/findings.md"
+  - "/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/409/analyze/qa-review.md"
+  - "/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/409/analyze/handoff/1-analyze.md"
+verdict: in-progress
+complexity: complex
+size: L
+priority: P2
+review_verdict: PASS
+verification_limits:
+  - "Full GitHub timeline events not accessible under the authorized view/list verbs; UNVERIFIED."
+  - "Static analysis only; tests, live operation, benchmarks and full cross-scenario scale acceptance UNVERIFIED."

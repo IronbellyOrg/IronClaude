@@ -1,0 +1,15 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: "Revise issue 717 findings using independently checked live PR records under the dispatch's budget precondition"
+report_path: .dev/issuecleanup/g5/717-revise4/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g5/717-revise4/handoff/1-revise.md
+blocked_question: "What executable or permitted interpretation replaces the brief's literal 'Before any gh call run 4962', while preserving its read-only GitHub command allow-list?"
+reason: "The pre-GitHub budget gate is malformed: 4962 is a number, not an identified executable check. No GitHub call was made and no fresh budget was inferred; the brief's report-blocked policy applies. Existing findings and architecture analysis remain unchanged, and the required independent PR reconciliation is incomplete."
+issue_verdict: still-relevant-provisional
+complexity: complex
+size: XL
+priority: P2
+github_calls: 0
+existing_reports_modified: false
+escalation_message_id: msg_b8db6650eea3

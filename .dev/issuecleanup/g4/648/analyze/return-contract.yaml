@@ -1,0 +1,10 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: /sc:analyze src/superclaude/hooks/scripts/codegraph-session-start.sh --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/648/analyze
+report_path: .dev/issuecleanup/g4/648/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g4/648/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g4/648/issue-648.json
+  - .dev/issuecleanup/g4/648/parent-link.json
+  - .dev/issuecleanup/g4/648/findings.md
+  - .dev/issuecleanup/g4/648/qa.md

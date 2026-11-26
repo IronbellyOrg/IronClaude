@@ -1,0 +1,10 @@
+worker_contract_version: '1'
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/skills/sc-reflect-protocol --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/599/analyze'
+report_path: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/599/analyze/analyze-report.md
+artifacts:
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/599/analyze/handoff/1-analyze.md
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/599/findings.md
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/599/qa-round1.md
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/599/qa.md
+

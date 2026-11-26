@@ -1,0 +1,6 @@
+worker_contract_version: "1"
+worker_status: succeeded
+report_path: .dev/issuecleanup/g2/468-review/qa.md
+verdict: FAIL
+artifacts:
+  - .dev/issuecleanup/g2/468-review/handoff/1-review.md

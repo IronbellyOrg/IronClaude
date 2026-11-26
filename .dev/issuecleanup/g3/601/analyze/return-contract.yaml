@@ -1,0 +1,6 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/skills/sc-troubleshoot-protocol --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/601/analyze'
+report_path: .dev/issuecleanup/g3/601/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g3/601/analyze/handoff/1-analyze.md

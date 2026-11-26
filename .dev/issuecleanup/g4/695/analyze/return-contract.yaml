@@ -1,0 +1,10 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze tests/skills --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/695/analyze'
+report_path: .dev/issuecleanup/g4/695/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g4/695/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g4/695/findings.md
+  - .dev/issuecleanup/g4/695/qa.md
+issue_verdict: still-relevant
+qa_verdict: PASS

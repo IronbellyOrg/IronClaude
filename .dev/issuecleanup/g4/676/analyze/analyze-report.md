@@ -1,0 +1,22 @@
+# Installer architecture analysis
+
+## Scope and method
+Ran `/sc:analyze src/superclaude/cli --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/676/analyze` on 2026-11-24. This directory is the narrowest common source directory covering the three installers, their shared backup helper and both CLI entry points. The analysis is limited to those installer paths, not an audit of every CLI family. Checkout: a7ae3dd30fcf88aaab655c37e94e58e121c2d863.
+
+Static inspection only: codegraph layout, symbol outlines, callers, callees and impact, followed by direct source reads and text searches. No installer, tests, UV, package installation or source modifications were run.
+
+## Findings and impact
+1. **Medium, inconsistent preservation policy:** existing targets bypass only the non-force branch, then are directly overwritten in `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/install_core.py:68-79`, `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/install_agents.py:47-59` and `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/install_templates.py:70-79`. None calls the backup helper. A successful forced copy therefore replaces edited bytes without these functions saving a recovery copy. This verifies the mechanism, not an observed real-user loss.
+2. **Medium, helper contract is broader than its actual adoption:** `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/install_keep.py:1-7` describes saving differing files before forced overwrites without saying it only applies to participating installers. Actual helper call sites are commands at `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/install_commands.py:65-79` and user setup at `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/install_user_setup.py:93-105`. Both skip overwriting after a backup failure. The helper itself raises on a failed save at `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/install_keep.py:40-50`.
+3. **Exposure through both entry points:** install forwards its force value at `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/main.py:180`, `:198` and `:229`; update unconditionally passes true at `:383`, `:396` and `:417`. Users can encounter this during an ordinary update, without typing a force flag.
+4. **Documentation partially addresses the issue already:** `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/getting-started/installation.md:613` and `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/getting-started/upgrading.md:38-56` warn that core files, agents and skills have no saved copy. Neither cited list names templates. The issue's allowed documentation-only resolution is therefore not complete.
+
+Existing regression patterns cover saved command/rule/style content and failed-save preservation in `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests/cli/test_install_keep.py:121-193`; the core test at `:69-78` checks stale-file reporting, not forced backup preservation. These tests were read, not executed. Runtime behavior and platform-specific failures remain UNVERIFIED. No claim is made that backups cover skills, hooks or every file the complete installer touches.
+
+## Recommendations
+Keep issue #676 open until the owner records the preservation policy for core files, agents and templates. The smallest allowed resolution is documentation only: retain behavior, narrow the helper's promise and explicitly list all three unprotected types in the user guide. If the owner chooses backups instead, reuse `backup_if_differs` before copying each existing target, report the saved path, preserve the target on backup failure, and add edited/identical/failing-backup checks for each affected installer. No new backup mechanism or broad installer refactor is needed.
+
+## Grounding
+Codegraph: index_state=fresh, checked_at=2026-11-24T13:45:42Z; degraded: none
+
+Access: mcp. Worktree root: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup`. Graph queries located 12 caller rows for the core installer and the shared helper's two production callers; all production call sites used above were confirmed in source. Scope metrics are three unprotected installer functions and two protected installer paths, not repository-wide totals. No severity is assigned to unrelated CLI families.

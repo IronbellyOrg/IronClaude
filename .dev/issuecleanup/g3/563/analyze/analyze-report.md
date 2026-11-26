@@ -1,0 +1,20 @@
+# Reflect CLI architecture analysis
+
+## Scope and method
+Read-only, quick architecture analysis of `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/reflect/`, the smallest package containing both the preview and ensemble scorer. Ten Python source files were inventoried; source inspection concentrated on the runner, ensemble and command options, plus existing preview tests and the historical testing guide. Checkout: `a7ae3dd30fcf88aaab655c37e94e58e121c2d863`, reviewed 2026-11-24.
+
+Codegraph: index_state=fresh, checked_at=2026-11-24T13:06:22Z; degraded: graph:ambiguous
+
+Codegraph supplied file inventory, runner/ensemble outlines, scorer callers/callees and prompt-builder impact. An unqualified prompt-builder query also found an unrelated research helper; only the production definition was used. All cited production lines were read directly.
+
+## Findings
+1. **Medium: preview and production plans diverge.** `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/reflect/runner.py:452-481,637-662` prints a single `/sc:reflect` invocation and returns before launching. Production standard/deep routing instead calls the ensemble at lines 535-548. The ensemble invokes a scorer only with at least two successful outputs and no supplied convergence score (`/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/reflect/ensemble.py:423-435`); the scorer passes the `/sc:adversarial` prompt to the child at lines 535-554 and 582-598. Reviewers have a distinct review-lens prompt at lines 601-616. The preview is therefore not the real execution plan. This confirms issue #563, not a mismatch of argv.
+2. **Coverage limitation:** `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests/cli/reflect/test_cli_smoke.py:58-79,88-116` checks no-launch behavior, the old `/sc:reflect` text and restricted argv shape with the runner process class mocked. The production ensemble routing deliberately depends on the class retaining its original identity (`/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/reflect/runner.py:519-542`). These inspected tests do not establish preview/scorer prompt equivalence. This is not a claim that the whole repository lacks related tests.
+
+## Impact and recommendations
+The preview is launch-free but misleading for operators assessing which prompts will run. Keep issue #563 open in backlog at P3, respecting the explicit November 18 hold in its comments; no implementation is authorized by this review. When the owner lifts the hold, derive a preview of the ensemble plan with distinct reviewer/scorer roles, explain conditional scorer execution and use placeholders for reviewer output paths that cannot exist before execution. Preserve preview no-launch behavior. Add a model-free regression capturing the real dispatch boundary without replacing the runner class in a way that disables the ensemble branch. Review guide/test assertions alongside that change.
+
+Estimated remaining work: medium complexity, size M. This is a focused wrapper/preview/test change, not a rewrite of the reflection skill or fixes for sibling issues #564 and #565.
+
+## Verification limits
+Static analysis only. No Python command, UV, tests, reflection wrapper, model child, dependency installation, source modification or GitHub write was run. Existing tests were read, not executed. Historical model-free probe results quoted in issue #563 were not rerun or opened locally and remain UNVERIFIED as new runtime evidence. GitHub issue #563 and comments were read live; no PR is linked in its body or comments, and an all-state exact-title/body search for 563 returned no match. A broader numeric search returned unrelated merged PR #622, not a fix. GitHub's full event timeline was not available through the allowed read commands: UNVERIFIED. The testing guide explicitly records this mismatch at `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/testing/v5.0.0/user/D12-reflect.md:26-30`; recording it does not fix it.

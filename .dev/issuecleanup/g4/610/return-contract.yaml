@@ -1,0 +1,19 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/610/analyze'
+report_path: .dev/issuecleanup/g4/610/findings.md
+artifacts:
+  - .dev/issuecleanup/g4/610/qa.md
+  - .dev/issuecleanup/g4/610/analyze/analyze-report.md
+  - .dev/issuecleanup/g4/610/analyze/return-contract.yaml
+  - .dev/issuecleanup/g4/610/analyze/handoff/1-analyze.md
+issue: 610
+verdict: still-relevant
+complexity: simple
+size: XS
+priority: P2
+qa_verdict: PASS
+source_modified: false
+github_modified: false
+local_commit_authorized: false
+remaining: 'Implementation and acceptance evidence remain issue work, not unfinished review deliverables.'

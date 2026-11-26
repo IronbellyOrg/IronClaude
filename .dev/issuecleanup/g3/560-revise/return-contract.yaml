@@ -1,0 +1,12 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: 'Blocking-only revision of issue 560 findings; no Command line in brief'
+report_path: .dev/issuecleanup/g3/560-revise/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g3/560-revise/handoff/1-revise.md
+reason: 'E-INDEPENDENT-QA-MISSING: the supplied qa.md is a producer-authored missing-review record, not independent content findings; no flagged statement can be corrected to satisfy that gate.'
+blocked_question: 'The coordinator must arrange a fresh independent review of the original findings; this content-only revision cannot supply the missing acceptance gate.'
+qa_verdict: FAIL
+independent_review_completed: false
+original_findings_modified: false
+original_analysis_modified: false

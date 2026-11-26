@@ -1,0 +1,7 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: "Direct revision task for issue 618, fix cycle 2 (no Command line)"
+report_path: .dev/issuecleanup/g3/618-revise2/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g3/618-revise2/handoff/1-revise.md
+blocked_question: "The mandatory .dev/issuecleanup/g3/618/findings.md and .dev/issuecleanup/g3/618/analyze/analyze-report.md inputs are missing; restore them or dispatch a new task naming the correct input and edit paths."
