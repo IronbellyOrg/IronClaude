@@ -1,0 +1,50 @@
+  Variant 1 becomes the base, and only the T1 worker's note gets merged in. · summary
+
+● Bash(D=.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super; A=$D/adversarial; mkdir -p $A
+      cp $D/flags-user.md $A/variant-1-original.md; cp $D/…)
+  ⎿  history_hits=0
+     clickup_claim.py
+     orca_worktree.py
+     … +14 lines (ctrl+o to expand)
+
+● Wave 2 is settled with no flag disagreement, so there will be no pushback comment. Wave 3: a bug at deep depth uses templates/issue-bug-complex.md. Wave 4: the T1 worker drafts the body.
+
+● issue-worker-t1(Draft deep bug issue body)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● The flag check is done. Your flags (bug / skill, so issue type Bug and Complexity Complex) matched the T1 worker's independent pick on every value. No pushback comment will be posted.
+
+  While checking, the T1 worker found that src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py doesn't exist. That scripts/ folder only has clickup_claim.py, origin_repo.py and
+  orca_worktree.py, and git history has never had a file with that name. This doesn't change the flags. It matters for the issue body, though, because your description names that file as where the
+  crash happens.
+
+  The T1 worker is now drafting the body from the deep bug template. It checks every fact you stated against the code. If the drafted body ends up contradicting your description, I'll ask you one
+  question before anything is posted.
+
+● Agent "Draft deep bug issue body" finished · 1m 15s
+
+  Searched for 1 pattern, read 2 files (ctrl+o to expand)
+
+● I checked the draft's evidence myself and both points hold. The deep draft found two claims in your description that the code contradicts. The rules say I ask one question before posting.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ☐ Contradiction
+
+│ The draft of the bug issue "/sc:issue --create crashes when the description is empty" contradicts two facts in your description, based on the code: (1) You wrote that it "crashes in
+│ `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py`", but that file does not exist and never did in git history; `scripts/` holds only clickup_claim.py, origin_repo.py and
+│ orca_worktree.py. (2) You wrote that it "crashes ... when the description is empty", but `src/superclaude/commands/issue.md:56` makes an empty description a STOP ("--create needs a description"),
+│ and no crashing code path was found (static read; not run). The draft therefore says the crash is reported but unreproduced, the named script does not exist, and step 1 of the fix is to reproduce
+│ it. How should the issue be filed?
+
+❯ 1. Keep the draft (Recommended)
+     File it as drafted: the crash is reported but not reproduced, the named script is noted as missing, and the fix starts by reproducing. Title: "[BUG] /sc:issue --create with an empty description:
+     verify the reported crash and enforce the STOP rule".
+  2. Keep my wording
+     Change the draft so it states, as you wrote it, that --create crashes in scripts/create_issue.py on an empty description. The code evidence stays in Codebase Context.
+  3. Edit
+     Tell me what to change (use the Other / notes field), and I'll apply only that to the two contradicted points before posting.
+  4. Type something.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  5. Chat about this
+
+Enter to select · ↑/↓ to navigate · Esc to cancel
+

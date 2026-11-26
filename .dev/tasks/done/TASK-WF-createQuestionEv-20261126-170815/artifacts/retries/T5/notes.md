@@ -1,0 +1,9 @@
+2bb3ed28741687916e331146e0749b144c871395
+A1 r1-1 F1.2 minor .dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/harness/run_create.py:answer_keys ac=scope n,n,n,n answer_keys presses Down once per numbered line before the option; a numbered question text shifts the selection, and the summary counts answered questions without the answer given.
+A1 r1-1 F1.3 minor .dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/harness/run_create.py:guarded ac=T5.AC4 n,n,n,n the self-test hash scope covers one skill folder under src/, not agents or commands.
+A1 r1-1 F1.4 minor .dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/harness/run_create.py:self_test ac=T5.AC3 n,n,n,n the self-test never reads Task 4's recorded hash list.
+A1 r1-1 F1.5 minor .dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/harness/run_create.py:self_test ac=scope n,n,n,n a private-key header literal in the source may trip the pre-commit hook.
+A1 r1-1 F1.6 minor .dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/harness/run_create.py:self_test ac=T5.AC1 n,n,n,n the fake gh is called through the interpreter, not through its shebang and the run PATH.
+A1 r1-1 F1.7 minor .dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/harness/run_create.py:do_run ac=scope n,n,n,n the run name is not validated before rmtree.
+A2 r2-1 F2.1 note .dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/harness/run_create.py:self_test ac=T5.AC3 n,n,n,n the self-test requires 25 or more seeded files rather than comparing Task 4's recorded list.
+A2 r2-1 F2.2 note .dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/harness/run_create.py:self_test ac=T5.AC4 n,n,n,n the guarded list could also cover src agents and commands.

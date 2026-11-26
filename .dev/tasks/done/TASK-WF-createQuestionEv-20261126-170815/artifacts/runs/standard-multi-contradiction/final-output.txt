@@ -1,0 +1,33 @@
+I filed the issue: https://github.com/IronbellyOrg/IronClaude/issues/990001. You chose "Keep my wording", so it says the empty-description crash is in `create_issue.py` and is logged by `issue_logger.py`. But neither file exists in this checkout: the scripts folder only has `origin_repo.py`, `clickup_claim.py` and `orca_worktree.py`. Empty descriptions are actually handled by a stop rule in `src/superclaude/commands/issue.md:51-56`. Whoever picks the issue up will find those two files missing, so you may want to correct the body or add a comment.
+
+- **Title:** `[BUG] /sc:issue --create crashes in create_issue.py on an empty description`
+- **Files:** `.dev/issues/990001/` (renamed from the draft folder; not staged)
+- **Label:** `bug` applied. **Type:** `Bug`, confirmed after creation. **Complexity:** `Medium`, set and confirmed.
+- **Flag check:** the second check agreed with `--mode bug --type skill`, so no pushback comment was posted.
+- **The one question:** asked once, about the two missing files. Only those passages were changed to your wording.
+- **Duplicates:** the search found none.
+- **Code graph:** codegraph and Auggie weren't available, so the code check used plain file search and reading.
+
+Material I added to the issue without asking (it's also listed in `draft-notes.md`):
+- **Expected behavior:** stop with `--create needs a description` before the skill starts, for an empty description and for an empty or missing `@path` file (`issue.md:51-56`).
+- **Reproduction steps:** a proposed command that has not been run yet, plus collecting the installed version and the traceback.
+- **Existing tests:** they only check text, not behavior (`tests/commands/test_issue_command.py:183-191`, `tests/skills/test_issue_protocol.py:147-157`).
+- **Fix plan:** `/sc:workflow`, then `/sc:implement`, then `/sc:pr-submit --monitor 3` against `integration`.
+- **Test plan:** stronger STOP-rule tests, manual checks of the three invalid inputs, then `uv run pytest`, `make lint` and `make verify-sync`.
+- **Priority High:** this assumes the crash can be reproduced. Nothing has reproduced it yet.
+- **Manual checks needed:** the tests I looked at have no way to run slash commands automatically.
+
+```yaml
+status: success
+mode: create
+issue_number: 990001
+issue_url: https://github.com/IronbellyOrg/IronClaude/issues/990001
+dir: .dev/issues/990001/
+clickup_status: null
+labels_applied: [bug]
+labels_missing: []
+next_steps_path: null
+issue_type: Bug
+complexity_field: Medium
+classification_missing: []
+```

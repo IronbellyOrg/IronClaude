@@ -1,0 +1,34 @@
+I filed the issue as a Bug with your flags: https://github.com/IronbellyOrg/IronClaude/issues/990001
+
+- **Title:** `[BUG] Make superclaude install end with the number of skills copied`
+- **Classification:** label `bug`, issue type Bug and Complexity Medium. I read the type and the field back from GitHub after creating the issue, and both are set.
+- **Your flags were kept,** but the check disagreed on one. It would have filed this as a feature, because the installer already prints a count during the skills step and only the final summary line is missing. The issue was not reclassified. I posted that reasoning as a flag-review comment: https://github.com/IronbellyOrg/IronClaude/issues/990001#issuecomment-1
+- **Duplicates:** the search found none.
+- **No question was asked,** because the draft didn't contradict anything you wrote.
+- **Files** are in `.dev/issues/990001/` (not staged).
+
+**Kept without asking you** (all are in the issue body and `draft-notes.md`):
+- **Today's last line:** the count line is followed by later install steps. The last thing printed comes from the cleanup of retired files, e.g. `No retired commands, skills or agents present.` (`src/superclaude/cli/install_retired_files.py:269-305`). This comes from reading the code; I didn't run the installer.
+- **Where the count lives:** `install_all_skills` already counts copied, skipped and failed skills, but only returns a success flag and a message (`src/superclaude/cli/install_skills.py:62-150`).
+- **Orca skills:** another CLI installs them and gives no per-run count, so they're left out (`src/superclaude/cli/install_user_setup.py:323-366`).
+- **Assumption, what counts:** "copied" means skill folders actually copied in this run, including forced replacements. Skipped, failed, command-served and Orca skills don't count.
+- **Assumption, the line itself:** it reads `Skills copied: N`, also when N is 0. Exit codes stay the same, and the output of `install --list` and `update` doesn't change.
+- **Assumption, testing:** tests use stubbed CLI runs in a throwaway home directory, so no network and no real home is touched.
+- **Priority** is Low, because this is a missing summary line and nothing fails.
+- **Proposed fix:** have `install_skills.py` return the counts, and print the summary in `main.py` after the cleanup step, just before the final exit check. Tests go in `tests/unit/test_cli_install.py` and `tests/cli/test_install_retired_mcp.py`. Then run `/sc:workflow`, `/sc:implement` and `/sc:pr-submit --monitor 3` against `integration`.
+- **Code index:** the code-search index wasn't set up, so the worker searched the files directly.
+
+```yaml
+status: success
+mode: create
+issue_number: 990001
+issue_url: https://github.com/IronbellyOrg/IronClaude/issues/990001
+dir: .dev/issues/990001/
+clickup_status: null
+labels_applied: [bug]
+labels_missing: []
+next_steps_path: null
+issue_type: Bug
+complexity_field: Medium
+classification_missing: []
+```

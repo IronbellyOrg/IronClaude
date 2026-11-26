@@ -1,0 +1,10 @@
+{"t": "2026-11-26T18:07:30Z", "argv": ["auth", "token"], "kind": "start-up-read"}
+{"t": "2026-11-26T18:07:44Z", "argv": ["auth", "status"], "kind": "protocol-read"}
+{"t": "2026-11-26T18:08:13Z", "argv": ["label", "list", "--repo", "IronbellyOrg/IronClaude", "--limit", "200", "--json", "name"], "kind": "protocol-read"}
+{"t": "2026-11-26T18:08:13Z", "argv": ["api", "repos/IronbellyOrg/IronClaude/issue-types"], "kind": "protocol-read"}
+{"t": "2026-11-26T18:08:13Z", "argv": ["api", "orgs/IronbellyOrg/issue-fields"], "kind": "protocol-read"}
+{"t": "2026-11-26T18:08:14Z", "argv": ["issue", "list", "--repo", "IronbellyOrg/IronClaude", "--state", "all", "--search", "sc:issue create empty description crash", "--json", "number,title,state,url", "--limit", "10"], "kind": "protocol-read"}
+{"t": "2026-11-26T18:10:04Z", "argv": ["issue", "create", "--repo", "IronbellyOrg/IronClaude", "--title", "[BUG] Handle empty descriptions in issue creation", "--body-file", ".dev/issues/draft-20261126-180744-bug-sc-issue-create-crashes-in-src-super/issue-body.md", "--label", "bug", "--type", "Bug"], "kind": "write", "op": "issue create", "number": 990001, "title": "[BUG] Handle empty descriptions in issue creation", "labels": ["bug"], "type": "Bug", "body_copy": "/tmp/createQuestionEv-scratch/runs/quick-contradiction/gh-posted/posted-issue-990001-1795716604921.md"}
+{"t": "2026-11-26T18:10:10Z", "argv": ["issue", "view", "990001", "--repo", "IronbellyOrg/IronClaude", "--json", "issueType", "--jq", ".issueType.name"], "kind": "protocol-read"}
+{"t": "2026-11-26T18:10:10Z", "argv": ["api", "-X", "POST", "repos/IronbellyOrg/IronClaude/issues/990001/issue-field-values", "--input", ".dev/issues/990001/complexity-field.json"], "kind": "write", "method": "POST", "path": "repos/IronbellyOrg/IronClaude/issues/990001/issue-field-values", "body_copy": "/tmp/createQuestionEv-scratch/runs/quick-contradiction/gh-posted/posted-api-input-0-1795716610350.md"}
+{"t": "2026-11-26T18:10:10Z", "argv": ["api", "repos/IronbellyOrg/IronClaude/issues/990001/issue-field-values"], "kind": "protocol-read"}

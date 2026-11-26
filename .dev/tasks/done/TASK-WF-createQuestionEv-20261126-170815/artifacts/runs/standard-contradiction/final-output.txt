@@ -1,0 +1,40 @@
+I filed issue #990001 and set its Bug type, `bug` label and Complexity field. As you chose, the summary names `create_issue.py` as the crash location. But that file does not exist in this checkout, and nobody has reproduced the crash yet.
+
+**Issue:** https://github.com/IronbellyOrg/IronClaude/issues/990001
+**Directory:** `.dev/issues/990001/` (not staged)
+
+- **Classification:** I read the issue back from GitHub. The type is Bug, the label is `bug` and Complexity is Medium. Nothing was left unset.
+- **Your question:** there was one contradiction. Your description names `scripts/create_issue.py`, but the skill's `scripts/` folder holds only `origin_repo.py`, `clickup_claim.py` and `orca_worktree.py`. You answered "Keep my wording", so I rewrote the Bug Summary and Current Behavior to state the crash as you wrote it. The rest of the body still says the file is missing and treats the cause as unconfirmed.
+- **Flag review comment** ([posted](https://github.com/IronbellyOrg/IronClaude/issues/990001#issuecomment-1)): the check agreed with `--mode bug`. It would have chosen `--type command` instead of `skill`, because the empty-description check lives in `src/superclaude/commands/issue.md:51-56` and runs before the skill starts. I filed the issue with your flag and did not reclassify it.
+
+**Added to the body without asking you:**
+- The OS, version, severity, blast radius and crash output are "Not known yet". The command file declares version `1.1.0`.
+- Nobody has reproduced the crash; the drafting worker only read the code.
+- A proposed repro: `/sc:issue --create "" --mode bug --type skill --depth standard`.
+- The code check used Grep, Glob and Read only. The code-graph and Auggie tools were not available to the worker.
+- The slug's `untitled` fallback does not mean an empty description is allowed.
+- The existing tests check the Markdown text of the command, not how the command behaves when run.
+- The lookup found no duplicate issues, which does not prove there are none.
+- Assumption: Priority is High, on the rule "a documented command or gate fails", if the crash reproduces.
+- The fix runs `/sc:troubleshoot`, then `/sc:workflow`, then `/sc:implement`, then `/sc:pr-submit --monitor 3`, on `IronbellyOrg/IronClaude` from the `integration` branch.
+- Assumption: a real defect is in the command's input check or in an out-of-date installed copy. No `create_issue.py` should be invented.
+- The plan compares the installed copies with the project `.claude/` copies and changes the source only if a gap is shown.
+- A proposed new test, `test_empty_create_rule_names_message_and_file_cases`, plus an extension of `test_stop_rules_come_before_activation`.
+- Assumption: a description of only whitespace counts as empty.
+- Before the PR: the focused pytest files, then `make test`, `make lint`, and `make sync-dev && make verify-sync`.
+- A reviewer checks an empty string, whitespace only, and an empty or missing `@path` file. Each must stop with no workers started, no writes and no traceback.
+
+```yaml
+status: success
+mode: create
+issue_number: 990001
+issue_url: https://github.com/IronbellyOrg/IronClaude/issues/990001
+dir: .dev/issues/990001/
+clickup_status: null
+labels_applied: [bug]
+labels_missing: []
+next_steps_path: null
+issue_type: Bug
+complexity_field: Medium
+classification_missing: []
+```

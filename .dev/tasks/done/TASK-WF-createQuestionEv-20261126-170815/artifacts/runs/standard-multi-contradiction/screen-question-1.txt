@@ -1,0 +1,50 @@
+✻ Waiting for 1 background agent to finish
+
+● Agent "Create lookup scout" finished · 14s
+
+  Read 1 file (ctrl+o to expand)
+
+● Waves 2 and 4 don't depend on each other, so I'm running them in parallel. · summary
+
+● 2 background agents launched (↓ to manage)
+   ├ Validate user flags (standard)
+   └ Draft standard bug issue body
+
+● The flag validation and body draft workers are both running; I'll continue when they report.
+
+✻ Waiting for 2 background agents to finish
+
+● Agent "Validate user flags (standard)" finished · 26s
+
+  Read 1 file (ctrl+o to expand)
+
+● No flag disagreement, so no pushback comment will be needed. Waiting on the body draft worker.
+
+✻ Waiting for 1 background agent to finish
+
+● Agent "Draft standard bug issue body" finished · 2m 31s
+
+  Read 2 files (ctrl+o to expand)
+
+● The skill's scripts folder holds only three files, and the draft notes list two contradictions, so I'll ask one question before posting. · summary
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ☐ Contradiction
+
+│ The draft disagrees with two facts in your /sc:issue --create description, because neither file you named exists in this checkout (src/superclaude/skills/sc-issue-protocol/scripts/ only holds
+│ origin_repo.py, clickup_claim.py and orca_worktree.py): (1) you wrote that it "crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py`", but that file is absent and the
+│ empty-description check is a STOP rule in src/superclaude/commands/issue.md:51-56; (2) you wrote that "the crash is written to the log by
+│ `src/superclaude/skills/sc-issue-protocol/scripts/issue_logger.py`", but that file is absent too. The draft files the bug as a reported crash on an empty description, says the named files don't
+│ exist, and asks for a reproduction. Which version should the issue use?
+
+❯ 1. Keep the draft (Recommended)
+     File it as the draft says: the crash is reported but not confirmed, the named create_issue.py and issue_logger.py don't exist, and the fix starts by reproducing it against the issue.md STOP rule.
+  2. Keep my wording
+     Change the draft to state, as you did, that the crash is in create_issue.py and is logged by issue_logger.py, even though neither file exists in this checkout.
+  3. Edit
+     Tell me (via Other / notes) how those two items should read, and I'll apply that to the body before posting.
+  4. Type something.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  5. Chat about this
+
+Enter to select · ↑/↓ to navigate · Esc to cancel
+

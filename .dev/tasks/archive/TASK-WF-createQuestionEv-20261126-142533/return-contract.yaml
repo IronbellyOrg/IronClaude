@@ -1,0 +1,24 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-createQuestionEv-20261126-142533
+plan_path: ./TASK-WF-createQuestionEv-20261126-142533.md
+source_path: ./source.md
+source_origin: the issue 834 summary plus a Revision 1 section of labelled requirements R-001 to R-024 (regeneration source)
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-834-rest/.dev/reflect/pre-createQuestionEv-20261126142850/REPORT.md
+unresolved:
+  - "review_verdict FAIL: four blocking findings of the second review are open (B-1 dry run before write blocks exist, B-2 criterion 4 diff against the moving integration tip, B-3 preserved-flag test cannot pass as stated, B-4 staging hold only in Tasks 9 and 11); /sc:implement refuses this package until a surgical repair places a new one"
+  - "the second review's adversarial merge did not complete; the report uses the single-reviewer fallback (merge_method single-reviewer-fallback)"
+  - "medium findings M-05 to M-16 are recorded in the reflect report as follow-up candidates"
+  - "SUPERSEDED by TASK-WF-createQuestionEv-20261126-170236: do not run /sc:implement on this package."
+review_verdict: FAIL
+open_blockers: ["B-1", "B-2", "B-3", "B-4"]
+fix_cycles: 0
+supersedes: TASK-WF-issueSummary-20261126-132314
+remediation_route: regenerate
+finding_counts: {"blocking": 3, "label_high": 6, "medium": 10, "note": 5}
+superseded_by: TASK-WF-createQuestionEv-20261126-170236

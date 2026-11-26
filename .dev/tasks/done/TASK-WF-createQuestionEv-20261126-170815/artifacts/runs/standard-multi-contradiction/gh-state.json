@@ -1,0 +1,1 @@
+{"next": 990002, "issues": {"990001": {"title": "[BUG] /sc:issue --create crashes in create_issue.py on an empty description", "labels": ["bug"], "type": "Bug", "fields": [{"field_id": 7001, "value": "Medium"}]}}, "comments": 0}

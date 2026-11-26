@@ -1,0 +1,43 @@
+I filed the issue as #990001 with your wording, as you chose. The code still disagrees with it, and the issue body shows that evidence.
+
+**Issue:** https://github.com/IronbellyOrg/IronClaude/issues/990001
+**Directory:** `.dev/issues/990001/`
+
+- **Title:** `[BUG] /sc:issue --create crashes in src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py when the description is empty`
+- **Classification:** the `bug` label, issue type Bug and Complexity set to Complex. I read the type and the field back from GitHub, and all three are applied.
+- **Flags:** the T1 worker made its own pick of mode and area without seeing yours, and it matched yours on every value. So no pushback comment was posted.
+
+**The contradiction question:** I asked one question about two points, and you chose "Keep my wording". The issue now says it crashes in `create_issue.py` when the description is empty. Two things in the code don't match that, and the issue's Codebase Context section records both:
+- `create_issue.py` does not exist, and git history has never had it. That `scripts/` folder holds only `clickup_claim.py`, `origin_repo.py` and `orca_worktree.py`.
+- An empty description is documented as a stop with "--create needs a description" (`src/superclaude/commands/issue.md:56`). No code path that crashes on it was found. This was a read of the code only; I never ran an empty description.
+
+Because the crash is now stated as fact, I raised Priority from Medium to High ("a documented command fails"). The first step of the Fix approach is still to reproduce the crash and find where it happens.
+
+**Added to the issue without your approval:**
+- The codebase check used Grep, Glob and Read only; codegraph and auggie weren't available to the worker.
+- The analysis environment: Linux, package 6.1.0, branch `qev-run`, commit `862384852`.
+- The documented stop rule for an empty description (`commands/issue.md:56`, `SKILL.md:156`).
+- The only test of the stop rule checks that its wording is present, not how the command behaves (`tests/commands/test_issue_command.py:191`). An empty description would also get the folder name `untitled` (`tests/skills/test_issue_protocol.py:186-190`).
+- Wave 0 of `refs/create.md` has no empty-description check of its own.
+- No related issues were found.
+- Assumption: the reproduction step is `/sc:issue --create ""`.
+- Assumption: the real gap may be that whitespace-only and empty or missing `@path` descriptions aren't named in Wave 0.
+- Assumption: the base branch is `integration`.
+- The Priority, Fix approach and Test plan sections come from the worker's check.
+
+Your `[synthetic run marker: qev-deep-contradiction-185432]` is not in the issue title or body, so you can't search for the issue by it. It is only in `.dev/issues/990001/description.md`. Nothing under `.dev/issues/` was staged or committed.
+
+```yaml
+status: success
+mode: create
+issue_number: 990001
+issue_url: https://github.com/IronbellyOrg/IronClaude/issues/990001
+dir: .dev/issues/990001/
+clickup_status: null
+labels_applied: [bug]
+labels_missing: []
+next_steps_path: null
+issue_type: Bug
+complexity_field: Complex
+classification_missing: []
+```

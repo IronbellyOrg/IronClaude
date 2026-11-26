@@ -1,0 +1,37 @@
+model: opus (ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a[1m]) family: claude rung: top (executor tier unknown, so adviser A is the top rung)
+outcome: ready
+
+| AC | why earlier attempts missed it (path:line) | change |
+|---|---|---|
+| T4.AC1 | Attempt 2 met three ACs but not this one (review-2.md:2-5). The answer bullet says "Answer supplied: yes", but no retained raw record backs it: the run F transcript was deleted, and the only retained F screens still show the question open (review-2.md:6). Separately, the gh-call description leaves out the logged `issue list -R anthropics/claude-code ...` call (review-2.md:7). The answer the shipped rule expects is "keep my wording" (src/superclaude/skills/sc-issue-protocol/refs/create.md:86). | Run a new answered probe, F2. Its driver judges success from the run's own transcript, not the screen: it waits for a `tool_result` that carries "keep my wording", then a later assistant text line. Keep that transcript, a separate gh log for the run, and the screen after the answer. Quote them. Then list every logged gh call, sort each into probe self-test / Claude Code start-up read / other, and widen the known-read rule to match. |
+| T4.AC2 | Met in attempt 2 (review-2.md:3). It will break, though, if the decision section is not updated for F2.2's fix, which widens the known-read rule (review-2.md:7). The answer verdict must also come from F2, since the unsupported "yes" is the failure (review-2.md:6). | If F2 has the transcript evidence, the decision says "proceed" and names every control, including the exact known start-up read list. If F2 times out, write "answer supply not evidenced here" and turn the decision into a stop report (revised estimate, whether Phase 1 can ship alone, the question for the lead). In that case nothing is created under `./artifacts/harness/`. |
+| T4.AC3 | Met (review-2.md:4). The revert removes the file, so the excerpt has to be quoted again from retained raw files. | Quote the question tool call from the print-mode logs (dry-A to D, G) and from the transcript of the H run (an interactive probe left deliberately unanswered). Add the F2 `tool_use` and `tool_result` lines. |
+| T4.AC4 | Met (review-2.md:5). Lost on revert like the rest. | Record the dry-run command line and its full `env -i` environment exactly as launched: isolated HOME and config directory, the three variables left unset, the stub gh first on PATH, the invalid push URL. Record the probe prompt and confirm it never invokes `/sc:issue`. Add F2's own driver and log variable. |
+
+differs-by: The answered probe's success is decided from its own retained transcript (a `tool_result` carrying the answer, followed by an assistant reply), with a gh log, transcript copy and screens that belong to that run alone and are never deleted. Earlier attempts judged success from the tmux screen, shared one gh log, and deleted transcripts.
+
+steps:
+1. Leave every existing file in `/tmp/createQuestionEv-scratch` as it is. Do not truncate `gh-stub-dry.log`, and do not delete any file under `home/.claude/projects/`. All new raw output goes in that same scratch directory with an `F2` prefix.
+2. Write `/tmp/createQuestionEv-scratch/probe_answer.sh` as a copy of `probe_tmux.sh` with these changes:
+   - It reuses the same `env -i` launch line, `--permission-mode manual`, `--strict-mcp-config`, the same `probe-prompt.txt` and the same `probe-clone` cwd.
+   - It sets `GH_STUB_LOG=/tmp/createQuestionEv-scratch/gh-F2.log`, a new file.
+   - Before launch it records the list of `*.jsonl` files under `home/.claude/projects/-tmp-createQuestionEv-scratch-probe-clone/`. After the run it copies the one new transcript to `dry-F2.transcript.jsonl`.
+   - When it sees the question screen (it contains `Enter to select` and `keep my wording`), it saves `dry-F2.question-screen.txt`, waits 2 seconds, then sends Enter.
+   - It polls once a second for up to 90 seconds. The run is done only when the new transcript holds a `tool_result` line containing `keep my wording`, followed by an assistant text line, and the screen no longer shows `Enter to select`. If the question screen is still showing 10 seconds after Enter, it sends Enter one more time and logs that.
+   - It saves `dry-F2.after-answer-screen.txt` and `dry-F2.final.txt`. Every step goes into `dry-F2.driver.log` with a UTC timestamp and a final `ANSWERED` or `TIMEOUT`.
+3. Run `bash /tmp/createQuestionEv-scratch/probe_answer.sh` once. Then grep `dry-F2.transcript.jsonl` for `AskUserQuestion`, `tool_result` and `Bash`, and read `gh-F2.log`.
+4. Rebuild `./artifacts/harness-feasibility.md` from scratch, section by section in plan order:
+   - (a) The `claude --help` options, quoted from `claude-help.txt`.
+   - (b) The loading options considered and the one chosen, with `load-list.txt`.
+   - (c) The question section: the print-mode result (no AskUserQuestion offered) quoted from dry-A to D and G. The answered result quoted from `dry-F2.transcript.jsonl` (the `tool_use` line and the `tool_result` line) and `dry-F2.after-answer-screen.txt`. The no-answer behaviour from `dry-H.after-wait-screen.txt` and the H transcript.
+   - (d) The write blocks. List all five lines of `gh-stub-dry.log` plus every line of `gh-F2.log`, each marked as the probe's stub self-test or a Claude Code start-up read. A start-up read is a call logged within the launch second with no `Bash` tool_use in the transcript; this includes `issue list -R anthropics/claude-code --author @me ...`. Say that the stub forwarded nothing (it exits 97). Then the fork-activity check, keeping attempt 2's rule that unattributed activity is listed and held for review (F1.3).
+   - (e) A fresh listing of `src/superclaude/skills/sc-issue-protocol/scripts/`.
+   - (f) Fresh sha256 hashes for all 30 files: the src copy, the seeded copy and the installed copy (F1.1).
+   - (g) The dry-run command line, environment and probe prompt.
+5. Write the decision section. Widen the known-read rule to name the exact start-up reads: `auth token`, and `issue list -R anthropics/claude-code` with read-only flags. The fake gh logs them, answers them with empty canned output and does not stop. Every other unknown call, any other `-R`/`--repo` target, an uninterceptable write, any fork-activity change a run could have caused, or a read of an installed copy still stops every remaining run (Constraints line 23). If step 3 ended `ANSWERED`, write "proceed" and name every control. If it ended `TIMEOUT`, write "answer supply not evidenced here" and a stop report with the revised estimate, whether Phase 1 can ship alone and the question for the lead, then create nothing under `./artifacts/harness/`.
+6. Check the rebuilt file is valid UTF-8 (plain ASCII separators) and grep it for secret patterns, as extras-2.log:2-3 did. Copy no raw scratch file into `./artifacts/`; Task 9 does that after its scan.
+7. Do not write to GitHub, edit anything under `src/`, or stage `.claude/` or `.dev/issues/`.
+
+The second finding holds by its own citation: line 2 of `gh-stub-dry.log` is the `issue list -R anthropics/claude-code` call, logged in the same second as an `auth token` call.
+
+Not checked: I could not run anything, so whether Claude Code makes that `issue list` call at every interactive start-up is still unproven until `gh-F2.log` shows it. One risk: if F2 also leaves the question open after the second Enter, the result is a stop report, not "proceed".

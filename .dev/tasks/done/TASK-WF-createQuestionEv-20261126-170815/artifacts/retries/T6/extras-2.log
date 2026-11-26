@@ -1,0 +1,2 @@
+extras for T6 attempt 2: the changed repository file is a Python script; ruff check passes; the harness self-test passes (run after the changes)
+lint=pass typecheck=skip test=skip

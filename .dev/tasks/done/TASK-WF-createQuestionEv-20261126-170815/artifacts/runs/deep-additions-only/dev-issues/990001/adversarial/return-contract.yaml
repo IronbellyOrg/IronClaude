@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/issues/990001/flags-merged.md"
+  convergence_score: 0.80
+  artifacts_dir: ".dev/issues/990001/adversarial/"
+  status: "partial"
+  base_variant: "variant-2-original (issue-worker-t1)"
+  unresolved_conflicts: 1
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

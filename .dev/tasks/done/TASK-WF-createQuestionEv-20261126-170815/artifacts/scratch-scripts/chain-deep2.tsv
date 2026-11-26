@@ -1,0 +1,2 @@
+deep-contradiction	deep	bug	skill	1	1	-	Bug: `/sc:issue --create` crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` when the description is empty.
+deep-flag-preserved	deep	bug	cli	0	1	1	Make `superclaude install` print, as its last line, how many skills it copied.

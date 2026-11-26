@@ -1,0 +1,208 @@
+{
+  "name": "deep-additions-only",
+  "depth": "deep",
+  "flags": "--mode feature --type cli --depth deep",
+  "marker": "qev-deep-additions-only-183517",
+  "description": "Feature: make `superclaude install` print, as its last line, how many skills it copied.",
+  "clone_head": "862384852faebe3255c2876527103696cfd3cf3b",
+  "drive": {
+    "questions_screens": 0,
+    "answered": 0,
+    "unanswered": 0,
+    "permission_prompts": 0,
+    "status": "completed",
+    "seconds": 312
+  },
+  "expected": {
+    "questions": 0,
+    "issue_create": 1,
+    "issue_comment": null
+  },
+  "observed": {
+    "questions_as_tool_calls": 0,
+    "questions_answered": 0,
+    "questions_as_plain_text": 0,
+    "issue_create": 1,
+    "issue_comment": 1,
+    "issue_edit": 0,
+    "other_writes": 0,
+    "unknown_gh_calls": 0,
+    "start_up_gh_reads": 1
+  },
+  "matched": {
+    "questions": true,
+    "issue_create": true,
+    "issue_comment": null
+  },
+  "creates": [
+    {
+      "title": "[FEATURE] Make `superclaude install` print, as its last line, how many skills it copied",
+      "labels": [
+        "enhancement"
+      ],
+      "type": "Feature"
+    }
+  ],
+  "worker_lines": [],
+  "agents_spawned": [
+    "issue-worker-t3",
+    "issue-worker-t1",
+    "issue-worker-t1"
+  ],
+  "skills_loaded": [
+    "sc-issue-protocol",
+    "sc-adversarial-protocol"
+  ],
+  "question_texts": [],
+  "question_answers": [],
+  "additions": [
+    "Codebase pass: `/sc:analyze --depth deep` was followed from `~/.claude/commands/sc/analyze.md` on `src/superclaude/cli/` and `tests/` using Grep, Glob and Read only; codegraph MCP tools were not available to the worker and `auggie` is not on the PATH. The installed skill refs and templates under `~/.claude/skills/` were not readable, so the in-checkout copies under `src/superclaude/skills/sc-issue-protocol/` were used.",
+    "Added fact: the `install` command is `src/superclaude/cli/main.py:46`; it calls `install_all_skills(force=force)` at `src/superclaude/cli/main.py:206`; the output that is currently last comes from step 10, `run_retire_files_step` (`src/superclaude/cli/main.py:273-283`, `src/superclaude/cli/install_retired_files.py:269-306`), or from its \"Retire step skipped\" warning.",
+    "Added fact: `install_all_skills` returns `(success, message)` and the copied skills exist only as the local list `installed` (`src/superclaude/cli/install_skills.py:83`, `:112-113`, `:119-122`); the copy itself is `shutil.copytree` in `src/superclaude/cli/install_skill.py:52`.",
+    "Added fact: `superclaude update` calls the same `install_all_skills(force=True)` (`src/superclaude/cli/main.py:402`); `install --list` returns before any install step (`src/superclaude/cli/main.py:89-174`).",
+    "Added fact: existing tests stub `superclaude.cli.install_skills.install_all_skills` with fakes that return a 2-tuple and accept `*args, **kwargs` (`tests/cli/test_update_command.py:20`, `:74-96`; `tests/cli/test_install_retired_mcp.py:518`, `:526-529`); real-install tests of the function are in `tests/unit/test_cli_install.py:683`, `:713`, `:789`, `:942`.",
+    "Added fact: no possible duplicate issue was found (`scout.md`: searches `superclaude install skills count` and `install summary skills copied` returned no results).",
+    "Added fact: regression-gate commands come from the Makefile (`test` runs `uv run pytest`; `lint` runs `lint-architecture` and `uv run ruff check .`; `verify-sync` at `Makefile:166`); `docs/user-guide/commands.md:343` mentions `superclaude install`.",
+    "Added: Priority Medium, trigger \"a planned feature\" from the Priority rule set in `refs/create.md`.",
+    "Assumption: the printed line reads `Skills copied: <N>`; the exact wording was not given.",
+    "Assumption: \"copied\" means the skills `install_all_skills()` copied in this run (the `installed` list); skills skipped because they already exist, skills served by `/sc:` commands, Orca skills from `install_user_setup` and the ccsession skill are not counted.",
+    "Assumption: the line is also printed when `install` exits 1, and prints `0` when nothing was copied (for example a second run without `--force`).",
+    "Assumption: `superclaude update` and `superclaude install --list` are out of scope and do not get the line.",
+    "Assumption: the count reaches `install` through a new optional keyword argument (`counts: dict[str, int] | None = None`) filled by `install_all_skills`, keeping the 2-tuple return so existing stubs and `update` keep working; the parameter name and shape are open to the implementer.",
+    "Assumption: Effort Estimate is 3 hours (one function, one call site, tests, one doc check); by the `refs/claim.md` rubric this is simple, while Complexity is filed as complex because `--depth deep` was given.",
+    "Assumption: a reviewer may check the result with a throwaway `HOME`; the install's codegraph phase may need network access or fail there, and the skills-copied line is still printed because of the \"printed when exit 1\" assumption above.",
+    "Assumption: the Problem Statement, User Story, Out of Scope, Success Metrics and Dependencies sections stay \"Not known yet\" because the description and the pass give nothing for them."
+  ],
+  "contradictions": [],
+  "addition_presence": "see record.md (approximate best-matching-line rule)",
+  "kept_without_approval_lines": [
+    "- kept without approval: the printed line reads `Skills copied: <N>`.",
+    "- kept without approval: \"copied\" means skills actually copied in this run. Skills skipped because they already exist, skills served by `/sc:` commands, Orca skills and the ccsession skill are not counted.",
+    "- kept without approval: the line also prints when install exits 1, and prints `0` when nothing was copied.",
+    "- kept without approval: `superclaude update` and `superclaude install --list` don't get the line.",
+    "- kept without approval: the count reaches `install` through a new optional keyword argument (`counts`). `install_all_skills` still returns `(success, message)`, so existing callers and test stubs keep working.",
+    "- kept without approval: effort is 3 hours. By that rubric the work is simple, but Complexity is Complex because you passed `--depth deep`.",
+    "- kept without approval: Priority is Medium (a planned feature).",
+    "- kept without approval: the reviewer check uses a throwaway `HOME`.",
+    "- kept without approval: Problem Statement, User Story, Out of Scope, Success Metrics and Dependencies are left as \"Not known yet\".",
+    "- kept without approval: the codebase pass used Grep, Glob and Read only, because codegraph and auggie were not available."
+  ],
+  "false_files_in_body_at_question": [],
+  "false_files_in_posted_body": [],
+  "read_files": {
+    "count": 34,
+    "not_equal_src": [],
+    "installed_copy": [],
+    "failed_reads": [
+      "/root/.claude/skills/sc-issue-protocol/templates/scout-report.md",
+      "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.claude/skills/sc-issue-protocol/templates/scout-report.md"
+    ]
+  },
+  "seeded_hashes_equal_src": 30,
+  "fork_activity": {
+    "attributed": [],
+    "unattributed": [
+      {
+        "kind": "issue",
+        "number": 905,
+        "author": "ironbelly",
+        "created_at": "2026-11-26T18:39:07Z",
+        "new": true,
+        "title": "[FEATURE] Let /sc:workflow surgical remediation repair Medium findings (opt-in),"
+      },
+      {
+        "kind": "issue",
+        "number": 904,
+        "author": "clayphi",
+        "created_at": "2026-11-26T18:35:32Z",
+        "new": true,
+        "title": "feat(rulesets): apply the branch rulesets to one repo per run, with a dry run (i"
+      },
+      {
+        "kind": "issue",
+        "number": 903,
+        "author": "ironbelly",
+        "created_at": "2026-11-26T18:22:46Z",
+        "new": false,
+        "title": "fix(workflow): finish the five surgical-remediation follow-ups (issue 703)"
+      },
+      {
+        "kind": "issue",
+        "number": 826,
+        "author": "ironbelly",
+        "created_at": "2026-11-24T23:26:23Z",
+        "new": false,
+        "title": "[FEATURE] Define the release path from integration to master and update release "
+      },
+      {
+        "kind": "issue",
+        "number": 599,
+        "author": "ironbelly",
+        "created_at": "2026-11-17T15:19:52Z",
+        "new": false,
+        "title": "[FEATURE] Refactor sc:reflect to remove task-builder and task with --remediate -"
+      },
+      {
+        "kind": "comment",
+        "id": 7200397384,
+        "author": "chatgpt-codex-connector[bot]",
+        "created_at": "2026-11-26T18:22:55Z",
+        "first_line": "<!-- codex-pull-request-review-summary -->"
+      },
+      {
+        "kind": "comment",
+        "id": 7200639759,
+        "author": "chatgpt-codex-connector[bot]",
+        "created_at": "2026-11-26T18:35:44Z",
+        "first_line": "<!-- codex-pull-request-review-summary -->"
+      },
+      {
+        "kind": "comment",
+        "id": 7200646098,
+        "author": "augmentcode[bot]",
+        "created_at": "2026-11-26T18:36:03Z",
+        "first_line": "<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId"
+      },
+      {
+        "kind": "comment",
+        "id": 7200701011,
+        "author": "clayphi",
+        "created_at": "2026-11-26T18:39:03Z",
+        "first_line": "Done as decided. The owner chose to keep deep reflect review-only (recorded in t"
+      },
+      {
+        "kind": "comment",
+        "id": 7200701881,
+        "author": "clayphi",
+        "created_at": "2026-11-26T18:39:06Z",
+        "first_line": "Done. The release path from integration to master is defined and the tooling upd"
+      },
+      {
+        "kind": "comment",
+        "id": 7200713485,
+        "author": "chatgpt-codex-connector[bot]",
+        "created_at": "2026-11-26T18:39:45Z",
+        "first_line": "<!-- codex-review-receipt:v1 -->"
+      }
+    ],
+    "error": ""
+  },
+  "files_written_by_run": [
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/scout.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/issue-body.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/draft-notes.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/flags-t1.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/description.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/flags-user.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/adversarial/diff-analysis.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/adversarial/debate-transcript.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/adversarial/base-selection.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/adversarial/refactor-plan.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/flags-merged.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/adversarial/merge-log.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/adversarial/return-contract.yaml",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/draft-20261126-183533-feature-make-superclaude-install-print-a/flags.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-additions-only/.dev/issues/990001/create-review.md"
+  ],
+  "stop_conditions": []
+}

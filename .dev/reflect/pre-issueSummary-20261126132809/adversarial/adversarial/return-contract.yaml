@@ -1,0 +1,20 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-834-rest/.dev/reflect/pre-issueSummary-20261126132809/adversarial/merged-reviewer-card.md"
+  convergence_score: 0.94
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-834-rest/.dev/reflect/pre-issueSummary-20261126132809/adversarial/adversarial"
+  status: "partial"
+  base_variant: "opus:qa"
+  unresolved_conflicts: 3   # C-004, C-005, C-006: grade dissent from the Round 2.5 fault-finder (advocates and orchestrator hold Medium)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    # HIGH-severity probe items with no agreement after Round 2.5 (depth standard has no Round 3).
+    # The orchestrator dispositioned each in the merged card; see invariant-probe.md.
+    - {id: INV-001, category: guard_conditions, assumption: "C-005 (no expected issue create count) is Medium", severity: HIGH}
+    - {id: INV-002, category: interaction_effects, assumption: "C-006 stays Medium whichever C-001 fix is chosen", severity: HIGH}
+    - {id: INV-008, category: state_variables, assumption: "PLAN:112 proves runs loaded the src/ workers and skill (premise unverified)", severity: HIGH}
+    - {id: INV-011, category: guard_conditions, assumption: "C-004 (criteria pointer) changes no verdict", severity: HIGH}
+  # status is partial because the invariant gate blocked convergence and four HIGH items stay open.
+  # base selection: Variant 2 (opus:qa) 0.902 against Variant 1 (haiku:analyzer) 0.570.
+  # finding_counts: blocking 3, medium 10, note 5

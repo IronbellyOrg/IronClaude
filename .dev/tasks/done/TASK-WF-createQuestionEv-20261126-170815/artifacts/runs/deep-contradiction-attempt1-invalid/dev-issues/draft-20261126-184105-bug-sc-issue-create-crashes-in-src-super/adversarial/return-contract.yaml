@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/issues/draft-20261126-184105-bug-sc-issue-create-crashes-in-src-super/adversarial/merged-flags.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/issues/draft-20261126-184105-bug-sc-issue-create-crashes-in-src-super/adversarial/"
+  status: "partial"
+  base_variant: "variant-1-original (flags-user.md)"
+  unresolved_conflicts: 0
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

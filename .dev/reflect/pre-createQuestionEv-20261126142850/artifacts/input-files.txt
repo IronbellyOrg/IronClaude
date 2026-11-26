@@ -1,0 +1,13 @@
+.dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-142533/TASK-WF-createQuestionEv-20261126-142533.md
+.dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-142533/source.md
+.github/workflows/contract3-generator-constraint-lint.yml
+docs/designs/sc-issue-command.md
+docs/user-guide/commands.md
+src/superclaude/commands/issue.md
+src/superclaude/skills/sc-issue-protocol/SKILL.md
+src/superclaude/skills/sc-issue-protocol/refs/claim.md
+src/superclaude/skills/sc-issue-protocol/refs/create.md
+src/superclaude/skills/sc-issue-protocol/templates/draft-notes.md
+src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md
+tests/commands/test_issue_command.py
+tests/skills/test_issue_protocol.py

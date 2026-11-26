@@ -1,0 +1,71 @@
+contract_version: "1.9.0"
+status: partial                        # one citation dropped by the evidence validator; adversarial merge unavailable (fallback F2)
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-834-rest/.dev/reflect/pre-createQuestionEv-20261126142850/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-834-rest/.dev/reflect/pre-createQuestionEv-20261126142850/audit.log
+confidence_calibrated: 0.64
+escalation_rule_matched: 4             # section 5.3 rule 4 (3 or more domains); rule 6 (C < 0.85) also holds
+onboarding_ran: false
+coverage_pct: 1.0
+coverage_pct_union: 0.8421
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-002, INF-003, INF-004, INF-007, INF-009]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 2, necessary: 1, drift: 19, regression: 0}   # reviewer 2 card: 2 authorized expansion, 1 necessary, 19 drift (including the 4 blocking rows; no regression-class row)
+deviation_register_path: null
+grounding_gaps_path: null
+third_party_api_verified: false
+verification_ran: false
+verification_skip_reason: tool-unavailable
+input_tree_sha256: 1b78d13bd36dabd37c04affba149f6360a15912ffa12d6cab77235e56154f56b
+input_tree_file_count: 13
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-834-rest/.dev/reflect/pre-createQuestionEv-20261126142850/artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_total: 142
+citations_revalidated: 142
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 4
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+reviewer_cards:
+  - .dev/reflect/pre-createQuestionEv-20261126142850/reviewer-cards/reviewer-1-card.md
+  - .dev/reflect/pre-createQuestionEv-20261126142850/reviewer-cards/reviewer-2-card.md
+adversarial_artifacts_dir: .dev/reflect/pre-createQuestionEv-20261126142850/adversarial   # incomplete: diff-analysis.md and header stubs only
+adversarial_convergence_score: null
+adversarial_unavailable: true
+merge_method: single-reviewer-fallback   # F2: the highest-calibrated reviewer card (reviewer 2, 0.86); loud, see REPORT.md
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+remediation_plan_path: null
+finding_counts: {blocking: 4, label_high: 4, medium: 12, note: 6}
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+budget_check_skipped: true
+promotion_action: not-applicable
+telemetry:
+  degraded_components: [graph:truncated, graph:unlisted, adversarial-merge-unavailable, executor-calibrator-collision, hypothesis_source:inline-fallback]
+  fallback_path: F2
+  reviewer_isolation: disabled
+  executor_class_resolved: true
+  memory_persist_skipped: tracked-file-out-of-scope
+  unaddressed_invariants: []
+  notes: "merge orchestrator stopped after round 1 when the session paused; advocate v2 round 1 statement received and not used for grading"

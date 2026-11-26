@@ -1,0 +1,412 @@
+{
+  "summary": {
+    "parsed_count": 24,
+    "inferred_count": 14,
+    "invalid_dropped": [],
+    "coverage_pct": 1.0,
+    "coverage_pct_union": 0.8421,
+    "unmapped_requirements": [],
+    "unmapped_requirements_union": [
+      "INF-001",
+      "INF-002",
+      "INF-003",
+      "INF-004",
+      "INF-007",
+      "INF-009"
+    ],
+    "S_dev_density": 0.1579,
+    "coverage_degraded": null,
+    "task_count": 11
+  },
+  "matrix": [
+    {
+      "requirement_id": "R-001",
+      "source": "parsed",
+      "citation": "source.md:53",
+      "matched_task_ids": [
+        1,
+        2,
+        3
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-002",
+      "source": "parsed",
+      "citation": "source.md:54",
+      "matched_task_ids": [
+        1,
+        2,
+        3
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-003",
+      "source": "parsed",
+      "citation": "source.md:55",
+      "matched_task_ids": [
+        6,
+        7,
+        8
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-004",
+      "source": "parsed",
+      "citation": "source.md:56",
+      "matched_task_ids": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-005",
+      "source": "parsed",
+      "citation": "source.md:57",
+      "matched_task_ids": [
+        6,
+        7,
+        8
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-006",
+      "source": "parsed",
+      "citation": "source.md:58",
+      "matched_task_ids": [
+        6,
+        7,
+        8
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-007",
+      "source": "parsed",
+      "citation": "source.md:59",
+      "matched_task_ids": [
+        7
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-008",
+      "source": "parsed",
+      "citation": "source.md:60",
+      "matched_task_ids": [
+        7,
+        8
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-009",
+      "source": "parsed",
+      "citation": "source.md:61",
+      "matched_task_ids": [
+        3,
+        9
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-010",
+      "source": "parsed",
+      "citation": "source.md:62",
+      "matched_task_ids": [
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-011",
+      "source": "parsed",
+      "citation": "source.md:63",
+      "matched_task_ids": [
+        4
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-012",
+      "source": "parsed",
+      "citation": "source.md:64",
+      "matched_task_ids": [
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-013",
+      "source": "parsed",
+      "citation": "source.md:65",
+      "matched_task_ids": [
+        5,
+        9
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-014",
+      "source": "parsed",
+      "citation": "source.md:66",
+      "matched_task_ids": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-015",
+      "source": "parsed",
+      "citation": "source.md:67",
+      "matched_task_ids": [
+        9
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-016",
+      "source": "parsed",
+      "citation": "source.md:68",
+      "matched_task_ids": [
+        9
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-017",
+      "source": "parsed",
+      "citation": "source.md:69",
+      "matched_task_ids": [
+        9
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-018",
+      "source": "parsed",
+      "citation": "source.md:70",
+      "matched_task_ids": [
+        9,
+        11
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-019",
+      "source": "parsed",
+      "citation": "source.md:71",
+      "matched_task_ids": [
+        9,
+        10,
+        11
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-020",
+      "source": "parsed",
+      "citation": "source.md:72",
+      "matched_task_ids": [
+        10
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-021",
+      "source": "parsed",
+      "citation": "source.md:73",
+      "matched_task_ids": [
+        11
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-022",
+      "source": "parsed",
+      "citation": "source.md:74",
+      "matched_task_ids": [
+        9,
+        11
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-023",
+      "source": "parsed",
+      "citation": "source.md:75",
+      "matched_task_ids": [
+        11
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-024",
+      "source": "parsed",
+      "citation": "source.md:76",
+      "matched_task_ids": [
+        10
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "INF-001",
+      "source": "inferred",
+      "citation": "source.md:11",
+      "best_task": 9,
+      "best_ratio": 0.5,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "requirement_id": "INF-002",
+      "source": "inferred",
+      "citation": "source.md:11",
+      "best_task": 9,
+      "best_ratio": 0.381,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "requirement_id": "INF-003",
+      "source": "inferred",
+      "citation": "source.md:11",
+      "best_task": 9,
+      "best_ratio": 0.5833,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "requirement_id": "INF-004",
+      "source": "inferred",
+      "citation": "source.md:23",
+      "best_task": 3,
+      "best_ratio": 0.5385,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "requirement_id": "INF-005",
+      "source": "inferred",
+      "citation": "source.md:26",
+      "best_task": 9,
+      "best_ratio": 0.6923,
+      "matched_task_ids": [
+        9
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-006",
+      "source": "inferred",
+      "citation": "source.md:27",
+      "best_task": 4,
+      "best_ratio": 0.6,
+      "matched_task_ids": [
+        4
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-007",
+      "source": "inferred",
+      "citation": "source.md:35",
+      "best_task": 4,
+      "best_ratio": 0.375,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "requirement_id": "INF-008",
+      "source": "inferred",
+      "citation": "source.md:43",
+      "best_task": 9,
+      "best_ratio": 0.96,
+      "matched_task_ids": [
+        9
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-009",
+      "source": "inferred",
+      "citation": "source.md:43",
+      "best_task": 9,
+      "best_ratio": 0.5556,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "requirement_id": "INF-010",
+      "source": "inferred",
+      "citation": "source.md:43",
+      "best_task": 11,
+      "best_ratio": 1.0,
+      "matched_task_ids": [
+        11
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-011",
+      "source": "inferred",
+      "citation": "source.md:43",
+      "best_task": 11,
+      "best_ratio": 0.8,
+      "matched_task_ids": [
+        11
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-012",
+      "source": "inferred",
+      "citation": "source.md:43",
+      "best_task": 9,
+      "best_ratio": 0.7778,
+      "matched_task_ids": [
+        9
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-013",
+      "source": "inferred",
+      "citation": "source.md:45",
+      "best_task": 4,
+      "best_ratio": 0.75,
+      "matched_task_ids": [
+        4
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-014",
+      "source": "inferred",
+      "citation": "source.md:49",
+      "best_task": 2,
+      "best_ratio": 0.6667,
+      "matched_task_ids": [
+        2
+      ],
+      "match_method": "containment"
+    }
+  ]
+}

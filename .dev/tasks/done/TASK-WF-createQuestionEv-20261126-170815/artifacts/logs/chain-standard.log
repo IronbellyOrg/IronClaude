@@ -1,0 +1,66 @@
+2026-11-26T18:12:02Z pre-run review of pending items
+issue 901 by ironbelly (2026-11-26T18:10:08Z): [FEATURE] Coordinator pokes agents stuck or halted on API errors with 
+issue 900 by ironbelly (2026-11-26T18:09:18Z): Issue watcher: read each project's approvers list from a protected fil
+issue 896 by clayphi (2026-11-26T17:55:17Z): docs: write the six owner answers of issue 289 into the worktree guide
+issue 894 by clayphi (2026-11-26T17:25:48Z): feat(jev-611): offline harness for the Jev versus keyword table compar
+comment 7199851949 by chatgpt-codex-connector[bot] (2026-11-26T17:55:32Z): <!-- codex-pull-request-review-summary -->
+comment 7200105366 by chatgpt-codex-connector[bot] (2026-11-26T18:08:48Z): <!-- codex-review-receipt:v1 -->
+cleared
+2026-11-26T18:12:05Z start standard-additions-only
+run standard-additions-only: questions=0 (expected 0), issue create=1, issue comment=0, drive=completed
+exit=0
+issue 896 by clayphi (2026-11-26T17:55:17Z): docs: write the six owner answers of issue 289 into the worktree guide
+issue 892 by clayphi (2026-11-26T17:09:59Z): feat(rulesets): ruleset files, guide and pinning test for the other Ir
+cleared
+2026-11-26T18:17:25Z pre-run review of pending items
+nothing pending
+2026-11-26T18:17:25Z start standard-contradiction
+run standard-contradiction: questions=1 (expected 1), issue create=1, issue comment=1, drive=completed
+exit=0
+issue 903 by ironbelly (2026-11-26T18:22:46Z): fix(workflow): finish the five surgical-remediation follow-ups (issue 
+issue 902 by ironbelly (2026-11-26T18:21:29Z): [BUG] Agentic commits blocked too strictly
+issue 837 by ironbelly (2026-11-25T16:31:51Z): [ruleset] Apply the branch protection rulesets to the other public Iro
+comment 7200300402 by clayphi (2026-11-26T18:18:18Z): Ryan, the three repos only your login can change are yours to apply: I
+branch ironbelly/issue-703
+cleared
+2026-11-26T18:22:58Z pre-run review of pending items
+nothing pending
+2026-11-26T18:22:58Z start standard-multi-contradiction
+run standard-multi-contradiction: questions=1 (expected 1), issue create=1, issue comment=0, drive=completed
+exit=0
+issue 903 by ironbelly (2026-11-26T18:22:46Z): fix(workflow): finish the five surgical-remediation follow-ups (issue 
+issue 897 by clayphi (2026-11-26T18:01:08Z): docs(release): warn that gh pr checks may report no checks right after
+issue 896 by clayphi (2026-11-26T17:55:17Z): docs: write the six owner answers of issue 289 into the worktree guide
+issue 894 by clayphi (2026-11-26T17:25:48Z): feat(jev-611): offline harness for the Jev versus keyword table compar
+issue 819 by ironbelly (2026-11-24T20:59:10Z): [FEATURE] Issue watcher W11: One retry of an unknown launch outcome th
+issue 790 by ironbelly (2026-11-24T20:51:03Z): [FEATURE] Coordinator C9: Handoff prompt template: fixed nine-section 
+issue 774 by clayphi (2026-11-24T18:28:15Z): [FEATURE] Docs refresh for the issue watcher and coordinator: stale st
+issue 772 by clayphi (2026-11-24T18:26:51Z): [FEATURE] Stage flow through the watcher: moving between Research, Spe
+issue 771 by clayphi (2026-11-24T18:26:36Z): [FEATURE] Wire `/sc:closeout` and `/sc:worktrees` into the coordinator
+issue 755 by ironbelly (2026-11-23T22:54:00Z): Coordinator created multiple Orca Runs by default; find why, set a Run
+issue 725 by ironbelly (2026-11-22T11:38:46Z): [FEATURE] Coordinators MUST ask the peer project's coordinator (read-o
+issue 706 by ironbelly (2026-11-20T20:56:45Z): [FEATURE] Observer follow-up: session summaries, links, named steps, o
+issue 698 by ironbelly (2026-11-20T14:12:37Z): Release-worker and plan-approval checks rest on text matching and an a
+issue 534 by ironbelly (2026-11-12T20:57:35Z): Follow-ups from #339 Phase 1 (read-only sweep): open items, owner-rule
+issue 442 by ironbelly (2026-11-08T04:26:15Z): [TEST GAP] Run the live observations OB-H1, OB-H2, OB-H3 and OB-CTX fo
+issue 289 by clayphi (2026-10-23T18:05:26Z): docs(how-we-work): decide the worktree and branch protocol for paralle
+comment 7200397384 by chatgpt-codex-connector[bot] (2026-11-26T18:22:55Z): <!-- codex-pull-request-review-summary -->
+comment 7200481118 by ironbelly (2026-11-26T18:27:17Z): auggie review
+comment 7200481362 by ironbelly (2026-11-26T18:27:17Z): @codex review
+comment 7200488992 by augmentcode[bot] (2026-11-26T18:27:41Z): <sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/sessi
+comment 7200495962 by augmentcode[bot] (2026-11-26T18:28:04Z): <sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/sessi
+cleared
+2026-11-26T18:28:49Z pre-run review of pending items
+nothing pending
+2026-11-26T18:28:49Z start standard-flag-preserved
+run standard-flag-preserved: questions=0 (expected 0), issue create=1, issue comment=1, drive=completed
+exit=0
+issue 903 by ironbelly (2026-11-26T18:22:46Z): fix(workflow): finish the five surgical-remediation follow-ups (issue 
+issue 611 by ironbelly (2026-11-17T19:38:38Z): Jev preflight step 2: compare Jev against the keyword table on about 3
+comment 7200397384 by chatgpt-codex-connector[bot] (2026-11-26T18:22:55Z): <!-- codex-pull-request-review-summary -->
+comment 7200520146 by clayphi (2026-11-26T18:29:22Z): A pull request merged: IronbellyOrg/IronClaude#894 on 2026-11-26, by c
+comment 7200545507 by ironbelly (2026-11-26T18:30:42Z): auggie review
+comment 7200545792 by ironbelly (2026-11-26T18:30:42Z): @codex review
+comment 7200579803 by chatgpt-codex-connector[bot] (2026-11-26T18:32:33Z): <!-- codex-review-receipt:v1 -->
+cleared
+2026-11-26T18:33:34Z chain standard complete

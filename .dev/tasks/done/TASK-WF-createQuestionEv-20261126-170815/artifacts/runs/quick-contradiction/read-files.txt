@@ -1,0 +1,16 @@
+-  /tmp/createQuestionEv-scratch/clones/quick-contradiction/.dev/issues/draft-20261126-180744-bug-sc-issue-create-crashes-in-src-super/description.md  (not a skill, worker or command file; Read tool)
+-  /tmp/createQuestionEv-scratch/clones/quick-contradiction/.dev/issues/draft-20261126-180744-bug-sc-issue-create-crashes-in-src-super/draft-notes.md  (not a skill, worker or command file; Read tool)
+-  /tmp/createQuestionEv-scratch/clones/quick-contradiction/.dev/issues/draft-20261126-180744-bug-sc-issue-create-crashes-in-src-super/issue-body.md  (not a skill, worker or command file; Read tool)
+-  /tmp/createQuestionEv-scratch/clones/quick-contradiction/.dev/issues/draft-20261126-180744-bug-sc-issue-create-crashes-in-src-super/scout.md  (not a skill, worker or command file; Read tool)
+8db89806dae11ca6fccba2a3fcd396211792c6356fe15e9df956ff9cc74feadb  /tmp/createQuestionEv-scratch/clones/quick-contradiction/src/superclaude/commands/issue.md  src-equal=yes  (Read tool)
+FAILED-READ /tmp/createQuestionEv-scratch/home/.claude/CODEGRAPH.md (Read tool; the read returned an error, nothing was loaded from it)
+1a10c2f0669fe240f2ccd6f5b2388b9bcf6fb66a9da776ce46f01aaaceeb4b15  /tmp/createQuestionEv-scratch/home/.claude/commands/sc/analyze.md  src-equal=yes  (Read tool)
+-  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol  (directory; skill base directory)
+56c889ba34542b0c1c5918d40b5c9f1954ab00b7dce0b5df2ff23a7daf30141b  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/refs/create.md  src-equal=yes  (Read tool)
+21417aa57aedb2aed199adc44171727f5d39c1cf38a6b92a0f05383dddb7ed55  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/refs/labels.md  src-equal=yes  (Read tool)
+47bd0d899aaa2a1b03b2fe2f297118c99850a3a15a292794270337475916cf0d  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/scripts/origin_repo.py  src-equal=yes  (Bash command text)
+1abf40eeee2342401b85b042f858f6aaa88aaa5ebc97c80eb750e8912f9c5967  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/templates/draft-notes.md  src-equal=yes  (Read tool)
+7b888a6117c3ee13d80e76f99b1f09f60d8d4e8618534593d28c426c43918c41  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/templates/issue-bug-simple.md  src-equal=yes  (Read tool)
+3acca39b3370b27e088a6b399e0476447da87065c6f7224cf637ea7681c81a1e  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/templates/scout-report.md  src-equal=yes  (Read tool)
+910c9081e725f7fe94799e35274e2ae089443d72cfcc1c91a03103f28967c21a  /tmp/createQuestionEv-scratch/home/.claude/agents/issue-worker-t3.md  agent spawned by name: issue-worker-t3  src-equal=yes
+skill loaded by name: sc-issue-protocol

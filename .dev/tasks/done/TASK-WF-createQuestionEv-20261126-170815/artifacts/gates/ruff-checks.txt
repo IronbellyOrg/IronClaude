@@ -1,0 +1,15 @@
+$ uv run ruff --version
+ruff 0.17.3
+$ uv run ruff format --check tests/skills/test_issue_create_question_scenarios.py
+1 file already formatted
+$ uv run ruff format --check src tests (summary)
+unformatted: File would be reformatted
+unformatted: File would be reformatted
+unformatted: File would be reformatted
+unformatted: File would be reformatted
+unformatted: File would be reformatted
+unformatted: File would be reformatted
+6 files would be reformatted, 1543 files already formatted
+$ uv run pytest <the first failing test> -q (stderr excerpt)
+stderr='/home/coder/workspaces/worktrees/IronClaude/issue-834-rest/.venv/bin/python: No module named ruff\n
+pin: 54:    "ruff==0.15.20", 

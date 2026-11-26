@@ -1,0 +1,5 @@
+Wave 2 is done, and the flag check agrees with your flags. I ran the deep adversarial compare between your flags and the T1 worker's independent choice. Both picked mode `bug`, area `skill`, issue type Bug and complexity Complex, so the issue will be filed exactly as you flagged it, with no pushback comment.
+
+The T1 worker also raised the point I flagged in Wave 0. `create_issue.py` doesn't exist, and the command already stops on an empty `--create` description before the skill starts (`commands/sc/issue.md:56`). That doesn't change any flag. It does call into question the crash itself, so I passed it on to the body drafter to check.
+
+Wave 4 is running now. `issue-worker-t1` is running a deep `/sc:analyze` pass, checking the file and the empty-description behaviour against the code and git history. It is filling the bug template into `issue-body.md` and writing `draft-notes.md`. If it confirms that the code contradicts what the description says, I'll ask you one question before anything is posted.

@@ -1,0 +1,29 @@
+PASS  seeded home equals src for every file of the load list  [30 files]
+PASS  the seeded refs/create.md equals src and differs from the installed user copy  [src 56c889ba3454 installed b784ea61e0fc]
+note  this hash list is the expectation; the proof for a real run is its own read-files.txt
+PASS  fake gh: `issue create` exits 0 and is logged as a write
+PASS  fake gh: `issue comment` exits 0 and is logged as a write
+PASS  fake gh: `api -X POST` exits 0 and is logged as a write
+PASS  fake gh: `issue edit` exits 0 and is logged as a write
+PASS  fake gh: four writes are in the log and none was forwarded  [fake issue number 990001]
+PASS  fake gh: imports no subprocess, socket, urllib or http
+PASS  fake gh: reads back the stored issue type and field
+PASS  fake gh: an unknown call exits non-zero and is logged as unknown  [exit 98]
+PASS  fake gh: a read of another repository is unknown
+PASS  fake gh: the two start-up reads are known and logged as start-up reads
+PASS  run environment has no GH_TOKEN, GITHUB_TOKEN, SSH_AUTH_SOCK or GIT_ASKPASS
+PASS  run environment: fake gh first on PATH, empty gh config, git config pointed at /dev/null
+PASS  launch.sh passes gateway variables by reference only
+PASS  run clone has no credential helper
+PASS  git push from the run clone fails  [fatal: remote helper 'invalid' aborted session]
+PASS  run clone: project .claude folder removed, origin fetch URL is the GitHub form
+PASS  secret scan finds the planted synthetic token, key header and password and passes a clean folder
+PASS  secret scan never prints a found value
+matrix stopped, no run started: STOP file: {"reason": "self-test stop", "run": "self-test", "at": "2026-11-26T19:14:53Z"}
+PASS  the stop file stops a second run before anything starts
+PASS  fork-activity attribution: marker hits are attributed, the rest listed as unattributed
+PASS  a PENDING-REVIEW file holds the next run until it is cleared
+PASS  no STOP or PENDING-REVIEW file is left behind by the self-test
+PASS  no file under src/ skill folders or the user's installed skill, worker and command folders changed
+PASS  the matrix's own STOP and PENDING-REVIEW files were left untouched
+self-test: PASS
