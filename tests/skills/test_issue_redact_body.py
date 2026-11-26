@@ -110,6 +110,8 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "<apiKey>remaining-secret123</apiKey>",
         "<db-pass>\n  remaining-secret123\n</db-pass>",
         '<password type="plain">remaining-secret123</password>',
+        "<password><![CDATA[remaining-secret123]]></password>",
+        "<password>\n  <![CDATA[first\nremaining-secret123]]>\n</password>",
         PEM,
     ],
 )

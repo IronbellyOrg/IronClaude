@@ -151,7 +151,7 @@ WEAK_PAIR = re.compile(
 # (Maven ``settings.xml``). The element text up to the closing tag is the value.
 XML_ELEMENT = re.compile(
     rf"""(?P<head><[A-Za-z0-9_.:-]*{_STRONG_NAMES}[A-Za-z0-9_.:-]{{0,64}}(?:\s[^<>]*)?>\s*)
-        (?P<value>[^<]+?)(?=\s*</)""",
+        (?P<value><!\[CDATA\[[\s\S]*?\]\]>|[^<]+?)(?=\s*</)""",
     re.VERBOSE | re.IGNORECASE,
 )
 
