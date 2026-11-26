@@ -1,0 +1,7 @@
+_ephemeral_low() = 32768
+clear window: base 10000 ports [10000, 10101, 10202, 10303, 10404, 10505]
+_window_binds(base) while the six SO_REUSEADDR sockets are held: True
+plain bind of base without SO_REUSEADDR fails, errno 98 (a helper without SO_REUSEADDR would print False)
+_window_binds(base) while a plain listening socket holds base + STEP: False
+_window_binds(base) after it is closed: True
+rc=0

@@ -7,10 +7,12 @@ workspace env file, the network, or the model-data cache.
 
 from __future__ import annotations
 
+import errno
 import gzip
 import http.server
 import json
 import os
+import random
 import re
 import runpy
 import signal
@@ -820,7 +822,41 @@ class StandInGateway:
         self.server.server_close()
 
 
+_FREE_PORT_FLOOR = 10000  # lowest base port the shim window search draws
+_FREE_PORT_TRIES = 50  # draws before the search gives up and falls back to bind(0)
+
+
+def _ephemeral_low() -> int:
+    """First port the kernel hands to outgoing connections (32768 if unreadable)."""
+    try:
+        text = Path("/proc/sys/net/ipv4/ip_local_port_range").read_text()
+        return int(text.split()[0])
+    except (OSError, ValueError, IndexError):
+        return 32768  # below the macOS range too
+
+
+def _window_binds(base: int) -> bool:
+    """Whether every port of the shim window that starts at base can be bound."""
+    for k in range(models.SHIM_PORT_ATTEMPTS):
+        with socket.socket() as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # as the shim does
+            try:
+                s.bind(("127.0.0.1", base + models.SHIM_PORT_STEP * k))
+            except OSError:
+                return False
+    return True
+
+
 def _free_port() -> int:
+    # #352: a bind(0) base lies in the range the kernel uses for outgoing
+    # connections, and base + 101 then collides with other processes' connections.
+    # Draw the base below that range, and keep it only if the whole window binds.
+    top = _ephemeral_low() - 1 - models.SHIM_PORT_STEP * (models.SHIM_PORT_ATTEMPTS - 1)
+    if top >= _FREE_PORT_FLOOR:
+        for _ in range(_FREE_PORT_TRIES):
+            base = random.randrange(_FREE_PORT_FLOOR, top + 1)
+            if _window_binds(base):
+                return base
     with socket.socket() as s:
         s.bind(("127.0.0.1", 0))
         return s.getsockname()[1]
@@ -1987,6 +2023,68 @@ def test_free_port_clear_of_fails_loudly_at_the_bound(monkeypatch) -> None:
         _free_port_clear_of(url)
     assert url in str(excinfo.value)
     assert len(calls) == _FREE_PORT_CLEAR_OF_TRIES
+
+
+def test_free_port_window_lies_below_the_ephemeral_range() -> None:
+    """#352: the kernel gives outgoing connections the ports above `low`, so a
+    shim window up there collides with other processes' connections."""
+    try:
+        low = int(Path("/proc/sys/net/ipv4/ip_local_port_range").read_text().split()[0])
+    except (OSError, ValueError, IndexError):
+        pytest.skip("the local port range is not readable")
+    reach = models.SHIM_PORT_STEP * (models.SHIM_PORT_ATTEMPTS - 1)
+    if low - 1 - reach < 10000:
+        pytest.skip("no room for a shim window below the local port range")
+    for _ in range(20):
+        assert _free_port() + reach < low
+
+
+def test_free_port_skips_a_window_whose_attempt_port_is_a_client_local_port(
+    monkeypatch,
+) -> None:
+    """#352: a port that is another socket's local port refuses connect probes
+    but fails the shim's SO_REUSEADDR bind, so its window must be skipped."""
+    span = models.SHIM_PORT_STEP * models.SHIM_PORT_ATTEMPTS
+    clear_base = _free_port()
+    for _ in range(50):
+        held_base = _free_port()
+        if abs(held_base - clear_base) > span:
+            break
+    else:
+        pytest.skip("could not draw two windows that do not overlap")
+    held = held_base + models.SHIM_PORT_STEP
+    listener, client = socket.socket(), socket.socket()
+    conn, probes = None, []
+    try:
+        try:
+            listener.bind(("127.0.0.1", 0))
+            listener.listen(1)
+            client.bind(("127.0.0.1", held))
+            client.connect(listener.getsockname())
+            conn, _ = listener.accept()
+        except OSError as exc:
+            pytest.skip(f"cannot make port {held} a client's local port: {exc}")
+        probes.append(socket.socket())
+        if probes[-1].connect_ex(("127.0.0.1", held)) != errno.ECONNREFUSED:
+            pytest.skip(f"a connect probe to port {held} was not refused")
+        probes.append(socket.socket())
+        probes[-1].setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            probes[-1].bind(("127.0.0.1", held))
+        except OSError as exc:
+            if exc.errno != errno.EADDRINUSE:
+                pytest.skip(f"the SO_REUSEADDR bind of port {held} failed: {exc}")
+        else:
+            pytest.skip(f"a SO_REUSEADDR bind of the client's port {held} worked")
+        draws = iter([held_base])
+        monkeypatch.setattr(
+            random, "randrange", lambda start, stop: next(draws, clear_base)
+        )
+        assert _free_port() == clear_base
+    finally:
+        for sock in (conn, listener, *probes, client):
+            if sock is not None:
+                sock.close()
 
 
 def test_forced_in_window_shim_port_is_skipped(tmp_path: Path, monkeypatch) -> None:

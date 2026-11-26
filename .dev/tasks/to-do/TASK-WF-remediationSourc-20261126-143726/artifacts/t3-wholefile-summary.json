@@ -1,0 +1,232 @@
+{
+ "mode": "tests",
+ "results": [
+  {
+   "round": 0,
+   "log": "wholefile-r0-p0.log",
+   "rc": 1,
+   "secs": 429.1,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 1,
+   "log": "wholefile-r1-p0.log",
+   "rc": 1,
+   "secs": 396.6,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 2,
+   "log": "wholefile-r2-p0.log",
+   "rc": 1,
+   "secs": 479.8,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 3,
+   "log": "wholefile-r3-p0.log",
+   "rc": 1,
+   "secs": 447.4,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 4,
+   "log": "wholefile-r4-p0.log",
+   "rc": 1,
+   "secs": 427.7,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 5,
+   "log": "wholefile-r5-p0.log",
+   "rc": 1,
+   "secs": 416.2,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 6,
+   "log": "wholefile-r6-p0.log",
+   "rc": 1,
+   "secs": 451.7,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 7,
+   "log": "wholefile-r7-p0.log",
+   "rc": 1,
+   "secs": 459.6,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 8,
+   "log": "wholefile-r8-p0.log",
+   "rc": 1,
+   "secs": 443.7,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 9,
+   "log": "wholefile-r9-p0.log",
+   "rc": 1,
+   "secs": 450.2,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 10,
+   "log": "wholefile-r10-p0.log",
+   "rc": 1,
+   "secs": 416.2,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 11,
+   "log": "wholefile-r11-p0.log",
+   "rc": 1,
+   "secs": 419.5,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 12,
+   "log": "wholefile-r12-p0.log",
+   "rc": 1,
+   "secs": 430.0,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 13,
+   "log": "wholefile-r13-p0.log",
+   "rc": 1,
+   "secs": 438.0,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 14,
+   "log": "wholefile-r14-p0.log",
+   "rc": 1,
+   "secs": 384.7,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 15,
+   "log": "wholefile-r15-p0.log",
+   "rc": 1,
+   "secs": 421.0,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 16,
+   "log": "wholefile-r16-p0.log",
+   "rc": 1,
+   "secs": 460.0,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 17,
+   "log": "wholefile-r17-p0.log",
+   "rc": 1,
+   "secs": 431.8,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 18,
+   "log": "wholefile-r18-p0.log",
+   "rc": 1,
+   "secs": 424.7,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 19,
+   "log": "wholefile-r19-p0.log",
+   "rc": 1,
+   "secs": 422.4,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  }
+ ],
+ "burners": 16,
+ "parallel": 1,
+ "load_before": [
+  "20.82",
+  "21.74",
+  "15.81"
+ ]
+}

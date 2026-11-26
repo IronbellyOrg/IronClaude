@@ -1,0 +1,306 @@
+{
+ "mode": "tests",
+ "results": [
+  {
+   "round": 0,
+   "log": "fixed-r0-p0.log",
+   "rc": 0,
+   "secs": 83.7,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 0,
+   "log": "fixed-r0-p1.log",
+   "rc": 0,
+   "secs": 83.9,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 0,
+   "log": "fixed-r0-p2.log",
+   "rc": 0,
+   "secs": 84.3,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 0,
+   "log": "fixed-r0-p3.log",
+   "rc": 0,
+   "secs": 84.3,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 0,
+   "log": "fixed-r0-p4.log",
+   "rc": 0,
+   "secs": 84.3,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 0,
+   "log": "fixed-r0-p5.log",
+   "rc": 0,
+   "secs": 84.3,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 0,
+   "log": "fixed-r0-p6.log",
+   "rc": 0,
+   "secs": 84.2,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 0,
+   "log": "fixed-r0-p7.log",
+   "rc": 0,
+   "secs": 84.2,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 1,
+   "log": "fixed-r1-p0.log",
+   "rc": 0,
+   "secs": 81.6,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 1,
+   "log": "fixed-r1-p1.log",
+   "rc": 0,
+   "secs": 81.9,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 1,
+   "log": "fixed-r1-p2.log",
+   "rc": 1,
+   "secs": 85.8,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_every_shim_launch_gets_the_port_for_its_settings"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 2
+  },
+  {
+   "round": 1,
+   "log": "fixed-r1-p3.log",
+   "rc": 0,
+   "secs": 85.7,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 1,
+   "log": "fixed-r1-p4.log",
+   "rc": 0,
+   "secs": 85.7,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 1,
+   "log": "fixed-r1-p5.log",
+   "rc": 0,
+   "secs": 85.7,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 1,
+   "log": "fixed-r1-p6.log",
+   "rc": 0,
+   "secs": 85.7,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 1,
+   "log": "fixed-r1-p7.log",
+   "rc": 0,
+   "secs": 85.7,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 2,
+   "log": "fixed-r2-p0.log",
+   "rc": 1,
+   "secs": 85.1,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_every_shim_launch_gets_the_port_for_its_settings"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 2
+  },
+  {
+   "round": 2,
+   "log": "fixed-r2-p1.log",
+   "rc": 0,
+   "secs": 85.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 2,
+   "log": "fixed-r2-p2.log",
+   "rc": 0,
+   "secs": 85.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 2,
+   "log": "fixed-r2-p3.log",
+   "rc": 0,
+   "secs": 85.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 2,
+   "log": "fixed-r2-p4.log",
+   "rc": 0,
+   "secs": 85.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 2,
+   "log": "fixed-r2-p5.log",
+   "rc": 0,
+   "secs": 85.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 2,
+   "log": "fixed-r2-p6.log",
+   "rc": 0,
+   "secs": 85.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 2,
+   "log": "fixed-r2-p7.log",
+   "rc": 0,
+   "secs": 85.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 3,
+   "log": "fixed-r3-p0.log",
+   "rc": 1,
+   "secs": 88.1,
+   "failed": [
+    "tests/unit/test_ccsession_tiers.py::test_every_shim_launch_gets_the_port_for_its_settings"
+   ],
+   "shim_failed_to_start": 0,
+   "another_shim": 2
+  },
+  {
+   "round": 3,
+   "log": "fixed-r3-p1.log",
+   "rc": 0,
+   "secs": 88.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 3,
+   "log": "fixed-r3-p2.log",
+   "rc": 0,
+   "secs": 88.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 3,
+   "log": "fixed-r3-p3.log",
+   "rc": 0,
+   "secs": 88.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 3,
+   "log": "fixed-r3-p4.log",
+   "rc": 0,
+   "secs": 88.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 3,
+   "log": "fixed-r3-p5.log",
+   "rc": 0,
+   "secs": 88.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 3,
+   "log": "fixed-r3-p6.log",
+   "rc": 0,
+   "secs": 88.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  },
+  {
+   "round": 3,
+   "log": "fixed-r3-p7.log",
+   "rc": 0,
+   "secs": 88.1,
+   "failed": [],
+   "shim_failed_to_start": 0,
+   "another_shim": 0
+  }
+ ],
+ "burners": 16,
+ "parallel": 8,
+ "load_before": [
+  "4.09",
+  "4.20",
+  "3.77"
+ ]
+}

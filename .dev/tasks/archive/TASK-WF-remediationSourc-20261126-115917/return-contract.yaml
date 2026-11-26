@@ -1,0 +1,7 @@
+contract_version: "1.1"
+supersedes: TASK-WF-remediationSourc-20261126-041454
+remediation_route: surgical
+finding_counts: {"blocking": 2, "label_high": 1, "medium": 7, "note": 5}
+unresolved:
+  - "SUPERSEDED by TASK-WF-remediationSourc-20261126-143726: do not run /sc:implement on this package."
+superseded_by: TASK-WF-remediationSourc-20261126-143726
