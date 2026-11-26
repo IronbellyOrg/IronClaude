@@ -514,6 +514,8 @@ def analyse_transcripts(records: list[dict]) -> dict:
             base_dirs += re.findall(r"Base directory for this skill: ([^\\\s]+)", raw)
     questions = [u for u in uses if u["name"] == "AskUserQuestion"]
     answered = [u for u in questions if "have been answered" in results.get(u["id"], "")]
+    # one call can carry several entries in input.questions: count the entries too (a call with no usable list counts as 1)
+    entries = sum(len(q) if isinstance(q := u["input"].get("questions"), list) and q else 1 for u in questions)
     reads, writes, skills, agents, bash_paths = {}, [], [], [], set()
     for u in uses:
         inp = u["input"]
@@ -543,6 +545,7 @@ def analyse_transcripts(records: list[dict]) -> dict:
     return {
         "tool_uses": [u["name"] for u in uses],
         "questions": len(questions),
+        "question_entries": entries,
         "answered": len(answered),
         "question_texts": [json.dumps(u["input"])[:400] for u in questions],
         "answers": [results.get(u["id"], "")[:300] for u in questions],
@@ -734,6 +737,9 @@ def finish(args: argparse.Namespace, run_dir: Path, clone: Path, records: list[d
     kept_lines = [ln.strip() for ln in final_text.splitlines() if re.sub(r"^[-*\s]+", "", ln).startswith("kept without approval:")]
     worker_lines = re.findall(r"Handled by (issue-worker-t\d)[^\n]*", notes_text)
     questions = analysis["questions"]
+    entries = analysis["question_entries"]
+    # a plain-text question next to a tool call is counted too (questions_as_plain_text below keeps its old tool-call-free meaning)
+    plain_any = sum(1 for t in analysis["all_main_texts"] if "?" in t and re.search(r"keep my wording|keep the draft", t, re.I))
     summary = {
         "name": name,
         "depth": args.depth,
@@ -746,9 +752,7 @@ def finish(args: argparse.Namespace, run_dir: Path, clone: Path, records: list[d
         "observed": {
             "questions_as_tool_calls": questions,
             "questions_answered": analysis["answered"],
-            "questions_as_plain_text": sum(
-                1 for t in analysis["all_main_texts"] if "?" in t and re.search(r"keep my wording|keep the draft", t, re.I) and questions == 0
-            ),
+            "questions_as_plain_text": plain_any if questions == 0 else 0,
             "issue_create": gh["issue_create"],
             "issue_comment": gh["issue_comment"],
             "issue_edit": gh["issue_edit"],
@@ -757,7 +761,7 @@ def finish(args: argparse.Namespace, run_dir: Path, clone: Path, records: list[d
             "start_up_gh_reads": gh["start_up_reads"],
         },
         "matched": {
-            "questions": questions == args.expect_questions,
+            "questions": entries + plain_any == args.expect_questions,
             "issue_create": gh["issue_create"] == args.expect_create,
             "issue_comment": None if args.expect_comments is None else gh["issue_comment"] == args.expect_comments,
         },
@@ -795,6 +799,9 @@ def finish(args: argparse.Namespace, run_dir: Path, clone: Path, records: list[d
         else:
             print("reanalyse: would hold:", json.dumps(activity["unattributed"])[:300])
     summary["stop_conditions"] = stop
+    # new keys go last so that the line numbers of the keys above stay as the evidence matrix cites them
+    summary["question_entries"] = entries
+    summary["questions_as_plain_text_any"] = plain_any
     (run_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     if log_lines is not None:
         (run_dir / "driver.log").write_text("\n".join(log_lines) + "\n", encoding="utf-8")
@@ -975,6 +982,16 @@ def _self_test_checks() -> int:
     found, passed = run([sys.executable, str(scan), str(dirty)]), run([sys.executable, str(scan), str(clean)])
     check("secret scan finds the planted synthetic token, key header and password and passes a clean folder", found.returncode == 1 and "github-token" in found.stdout and "private-key-header" in found.stdout and "password-assignment" in found.stdout and passed.returncode == 0)
     check("secret scan never prints a found value", "ghp_a1B2" not in found.stdout and "hunter2" not in found.stdout)
+
+    # question counting: one tool call with two entries is two questions, and a plain-text question beside a tool call is seen
+    two_entries = {"type": "assistant", "_file": "synthetic", "_line": 1, "message": {"content": [
+        {"type": "tool_use", "name": "AskUserQuestion", "id": "q1", "input": {"questions": [{"question": "first?"}, {"question": "second?"}]}}]}}
+    plain_text = {"type": "assistant", "_file": "synthetic", "_line": 2, "message": {"content": [
+        {"type": "text", "text": "Do you want to keep my wording or keep the draft?"}]}}
+    counted = analyse_transcripts([two_entries, plain_text])
+    plain_seen = sum(1 for t in counted["all_main_texts"] if "?" in t and re.search(r"keep my wording|keep the draft", t, re.I))
+    check("question counting: one call with two entries counts as two entries and one call", counted["questions"] == 1 and counted["question_entries"] == 2, f"calls {counted['questions']}, entries {counted['question_entries']}")
+    check("question counting: a plain-text question next to a tool call is counted", plain_seen == 1)
 
     # the stop file
     write_stop("self-test stop", "self-test")
