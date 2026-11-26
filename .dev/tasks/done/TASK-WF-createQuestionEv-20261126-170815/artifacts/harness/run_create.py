@@ -499,14 +499,16 @@ def blocks(rec: dict) -> list[dict]:
 def count_plain_questions(texts: list[str]) -> int:
     """Plain-text questions that offer the answer choices: every question (the sentence ending in a question mark) that names one of them.
 
-    Only the question's own sentence counts: the text before the last sentence end (a full stop, an exclamation mark or a blank line) is not part of it.
+    A question counts when its own sentence (the text after the last full stop, exclamation mark or blank line) names a choice, or when the text
+    since the previous question lists a choice as a bullet or numbered option. A narrative sentence that mentions a choice earlier does not count.
     """
-    return sum(
-        1
-        for t in texts
-        for part in t.split("?")[:-1]
-        if re.search(r"keep my wording|keep the draft", re.split(r"[.!]|\n\s*\n", part)[-1], re.I)
-    )
+    choice = re.compile(r"keep my wording|keep the draft", re.I)
+    option_line = re.compile(r"(?m)^\s*(?:[-*•]|\d+[.)])\s+(.*)$")
+
+    def is_choice_question(part: str) -> bool:
+        return bool(choice.search(re.split(r"[.!]|\n\s*\n", part)[-1])) or any(choice.search(item) for item in option_line.findall(part))
+
+    return sum(1 for t in texts for part in t.split("?")[:-1] if is_choice_question(part))
 
 
 def analyse_transcripts(records: list[dict]) -> dict:
@@ -1011,10 +1013,13 @@ def _self_test_checks() -> int:
     check("question counting: two plain-text questions in one message are two questions", plain_two == 2, f"counted {plain_two}")
     other_question = "I can keep the draft in this state. Is the issue ready to post?"
     list_question = "Options:\n- Keep my wording\n- Keep the draft\nWhich do you want?"
+    blank_list_question = "Options:\n- Keep my wording\n- Keep the draft\n\nWhich do you want?"
+    numbered_question = "1. Keep the draft\n2. Keep my wording\n\nWhich one?"
     check(
-        "question counting: an unrelated question in a text block that mentions an answer choice earlier is not a choice question",
-        count_plain_questions([other_question]) == 0 and count_plain_questions([list_question]) == 1,
-        f"unrelated {count_plain_questions([other_question])}, list {count_plain_questions([list_question])}",
+        "question counting: an unrelated question after a sentence that mentions an answer choice is not a choice question; listed options are",
+        count_plain_questions([other_question]) == 0
+        and count_plain_questions([list_question, blank_list_question, numbered_question]) == 3,
+        f"unrelated {count_plain_questions([other_question])}, listed {count_plain_questions([list_question, blank_list_question, numbered_question])}",
     )
 
     # redaction keeps a transcript record valid JSON: a key-anchored match replaces the value, never the key or the separators
