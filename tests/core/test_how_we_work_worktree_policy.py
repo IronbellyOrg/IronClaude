@@ -44,6 +44,10 @@ def branch_errors(branch: str) -> list[str]:
         errors.append(f"{len(branch)} characters, at most {_MAX_LENGTH}")
     if _NUMBER_RUN.search(words):
         errors.append("the words hold a run of 2 to 4 digits that cleanup reads")
+    if _NUMBER_RUN.search(login):
+        errors.append(
+            "the login holds a run of 2 to 4 digits that cleanup reads as an issue"
+        )
     return errors
 
 
@@ -63,6 +67,7 @@ def max_words_length(login: str, digits: int) -> int:
         "longloginname/issue-289",  # 23
         "Ab-c/issue-5",  # 12
         "a/issue-1-v12345",  # 16; a 5-digit run is not a 2 to 4 digit run
+        "dev1/issue-289",  # 14; a 1-digit run in the login is not read by cleanup
     ],
 )
 def test_checker_accepts(branch):
@@ -82,6 +87,7 @@ def test_checker_accepts(branch):
         "a--b/issue-1",  # a double hyphen in the login
         "-a/issue-1",  # a login that starts with a hyphen
         "a/issue-1-x/y",  # a second slash
+        "dev42/issue-289",  # a 2 digit run in the login: cleanup also reads issue 42
     ],
 )
 def test_checker_rejects(branch):
@@ -140,6 +146,14 @@ _KEY_PHRASES = [
     "checks that comment first",
     "is exempt",
     "handoff of unfinished work",
+    "at its default location",
+    "Supervised workers follow",
+    "same repository, issue and branch",
+    "no other live agent",
+    "no uncommitted changes",
+    "the PR that counts",
+    "the watcher claims by itself",
+    "after the first session has stopped",
 ]
 
 
