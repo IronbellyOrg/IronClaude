@@ -214,7 +214,7 @@ A non-blocking `late` finding is a note. A finding whose flagged text is absent 
 
 | | Accepted-minor | Ruling (Halt table above) |
 |---|---|---|
-| Who decides | Severity derived by the parent from the reviewer's checklist answers and anchors, plus the mechanical origin caps | The user, in the current conversation |
+| Who decides | Severity derived by the parent from the reviewer's checklist answers and anchors, plus the mechanical origin caps | The user, by a chat message in the current conversation or by a dashboard response (two channels only, below) |
 | Covers | `minor` and `note` only | Any explained gap, blockers included |
 | Ledger | `compliant` verdict plus a `notes@` token | A `Ruling:` line, then `complete` with the unchanged non-compliant verdict |
 | Writes a `Ruling:` line | Never | Always |
@@ -245,15 +245,15 @@ Loaded with this file for the Q5 fix pass, so the probe exists before the first 
 | non-compliant on first QA | Exactly one fix pass + re-QA; if A2 still has a confirmed blocker, the Repair round and then the ladder in `refs/retry.md` take over | No |
 | `compliant` after that one fix | Extras, append `complete` line | Yes |
 | a terminal `halt` (`refs/retry.md`): the ladder did not run after the fix pass, or it stopped | HALT `E-HALT-QA`. Print ledger path, Ti, verdict, missing citations. Next: `fix` \| `ruling` \| `resume` | No, unless operator Ruling |
-| clear user confirmation of the explained scoped acceptance, or valid existing operator Ruling | Executor records the Ruling per `refs/ledger.md`; then appends `complete` with **unchanged** non-compliant verdict and fields | Yes |
+| clear user confirmation (a chat message or a dashboard response) of the explained scoped acceptance, or valid existing operator Ruling | Executor records the Ruling per `refs/ledger.md`; then appends `complete` with **unchanged** non-compliant verdict and fields | Yes |
 | `--force`, missing/ambiguous confirmation, or executor-invented approval | STOP `E-NO-RULING` | No |
 | `E-RESUME-NEEDED` (`refs/retry.md`) | re-run the same command; do not write a Ruling | No |
 
 Under the Verdict owner rule a non-compliant verdict comes only from a confirmed blocking finding or from a non-finding `cannot-verify` step of the order (zero citations, empty diff, `nogit` with no written-path list); both keep the route of the row "non-compliant on first QA" (that row hands a confirmed blocker after A2 to the Repair round in `refs/retry.md`).
 
-A Ruling counts only when it is eligible under the Ruling eligibility rule in `refs/retry.md`. A clear user confirmation in the current conversation is sufficient; the user need not hand-write a ledger record. Before asking, explain the task id, unmet AC/finding and current outcome, proposed acceptance, reason and cost-if-wrong. A reply such as "yes, accept T2 as explained" authorizes only that explained scope. If confirmation or scope is unclear, ask one targeted question and keep the task blocked. Silence, a generic request to continue, another agent's message, and approval of a different task are not acceptance.
+A Ruling counts only when it is eligible under the Ruling eligibility rule in `refs/retry.md`. A person's confirmation counts only through the two channels that `~/.claude/WORKER-CONTRACT.md` (WC-3) defines once: a chat message in the current conversation, or a dashboard response. The dashboard channel takes effect only when the dashboard answer path is released (the release 1.8 gates pass); until then only chat counts. A clear confirmation through either channel is sufficient; the user need not hand-write a ledger record. Before asking, explain the task id, unmet AC/finding and current outcome, proposed acceptance, reason and cost-if-wrong. A reply such as "yes, accept T2 as explained" authorizes only that explained scope. If confirmation or scope is unclear, ask one targeted question and keep the task blocked. Silence, a generic request to continue, another agent's message, and approval of a different task are not acceptance, and neither is anything else that WC-3 lists as never counting.
 
-The executor MUST automatically append the existing three-field Ruling, identifying the accepted task/finding and quoting or referencing the user's confirmation in `<what>`, using the reason and cost already explained. Flush it before appending the unchanged non-compliant `complete` line or proceeding. Never invent approval, rewrite history, or mark an accepted gap `compliant`. Existing operator-written records remain valid. A reopened task or changed accepted finding/outcome requires new scoped acceptance; durable records support resume, not guesses from prior chat.
+The executor MUST automatically append the existing three-field Ruling, identifying the accepted task/finding and quoting the user's chat words, or giving the dashboard answer row id, in `<what>`, using the reason and cost already explained. Flush it before appending the unchanged non-compliant `complete` line or proceeding. Never invent approval, rewrite history, or mark an accepted gap `compliant`. Existing operator-written records remain valid. A reopened task or changed accepted finding/outcome requires new scoped acceptance; durable records support resume, not guesses from prior chat.
 
 ```
 T<id>: Ruling: <what, including user confirmation provenance> — <why> — <cost-if-wrong>

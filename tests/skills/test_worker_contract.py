@@ -3348,14 +3348,16 @@ def test_owner_records_are_given_in_chat_and_recorded_by_the_agent():
     text = _contract()
     assert "still written by the owner" not in text
     assert (
-        "other owner records, such as a grant row or a pass record, are likewise "
-        "given by the owner in chat and recorded by the agent in that session from "
-        "that confirmation, naming the exact scope, the owner's quoted words and the "
-        "date, and the owner is never asked to write a file)"
+        "A confirmation of a Ruling, a grant row or a pass record counts only when "
+        "it is one of these two channels, naming the exact scope"
+    ) in text
+    assert (
+        "the person is never asked to write a file (decision D2 as amended "
+        "2026-11-17, extended to the dashboard channel by the owner on 2026-11-26)"
     ) in text
     assert (
         "A Ruling line, grant row or pass record that the coordinator or a worker "
-        "records without the person's own chat confirmation of that exact scope is "
+        "records without one of these two channels for that exact scope is "
         '"executor-invented approval".'
     ) in text
 

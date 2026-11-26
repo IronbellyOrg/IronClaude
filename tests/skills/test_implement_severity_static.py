@@ -323,7 +323,17 @@ _ALLOW = [
     ("refs/ledger.md", "| X | Last record is", "blocking"),
     ("refs/ledger.md", "| B | Last record is", "blocking"),
     ("refs/ledger.md", "Executor-recorded Ru", "definition"),
-    ("refs/ledger.md", "T2: Ruling: accept T", "definition"),
+    ("refs/ledger.md", "The same Ruling reco", "definition"),
+    (
+        "refs/ledger.md",
+        "T2: Ruling: accept T2 missing pagination; user confirmed in current",
+        "definition",
+    ),
+    (
+        "refs/ledger.md",
+        "T2: Ruling: accept T2 missing pagination; user confirmed by dashboard",
+        "definition",
+    ),
     ("refs/ledger.md", "The earlier operator", "definition"),
     ("refs/ledger.md", "T1: halt review=2 re", "definition"),
     ("refs/ledger.md", "^ARCHIVE: (start|fai", "definition"),

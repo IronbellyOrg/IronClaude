@@ -1,0 +1,5 @@
+input_tree_files:
+  - path: .dev/tasks/to-do/TASK-WF-d3ContractEditBr-20261126-023139/source.md
+    sha256: d70e1faca179516a747cab36a83a0c4806af410ac3173d6a7ad8fb66d0084581
+  - path: .dev/tasks/to-do/TASK-WF-d3ContractEditBr-20261126-023139/TASK-WF-d3ContractEditBr-20261126-023139.md
+    sha256: 4fc882c6a1a8f6ec7ddd290342fa0ea8c1ac747469b6a596caebff87d696f833

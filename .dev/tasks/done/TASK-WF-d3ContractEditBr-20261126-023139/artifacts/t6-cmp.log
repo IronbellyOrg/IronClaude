@@ -1,0 +1,12 @@
+cmp exit 0: refs/qa.md
+cmp exit 0: refs/ledger.md
+cmp exit 0: SKILL.md
+cmp exit 0: refs/managed-workspace.md
+cmp exit 0: refs/retry.md
+plugin diff stat (the HOW-WE-WORK plugin copy was mirrored in Task 5):
+ plugins/superclaude/skills/sc-implement-protocol/SKILL.md       | 2 +-
+ plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md | 8 +++++++-
+ plugins/superclaude/skills/sc-implement-protocol/refs/qa.md     | 8 ++++----
+ plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md     | 2 +-
+ 4 files changed, 13 insertions(+), 7 deletions(-)
+tests/skills/test_review_severity_rule.py: 59 passed

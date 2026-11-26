@@ -1,0 +1,22 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-d3ContractEditBr-20261126-023139
+plan_path: ./TASK-WF-d3ContractEditBr-20261126-023139.md
+source_path: ./source.md
+source_origin: file
+strategy: systematic
+depth: standard
+reflect_status: partial
+reflect_report_path: .dev/reflect/pre-TASK-WF-d3ContractEditBr-20261126023351/REPORT.md
+remediation_route: none
+finding_counts: {blocking: 0, label_high: 0, medium: 5, note: 3}
+fix_cycles: 0
+review_verdict: PASS
+open_blockers: []
+handoff_requested: none
+handoff_status: not-requested
+unresolved:
+  - "Reflect ran at Tier 2 with two reviewers (sonnet, haiku; no Opus by owner rule). The adversarial merge was not run: the two cards do not conflict, so they were merged by hand (merge_method outside the legal values), which forces status partial."
+  - "Five Medium findings are recorded in the reflect report and not repaired (workflow repairs only blocking findings). Executor notes: Task 7 must edit the allow-list in tests/skills/test_implement_severity_static.py lines 296-355, not only line 410; Task 5 must run the repo-wide search and record each hit; Task 6 should also mirror commands/implement.md and the HOW-WE-WORK.md plugin copy if Task 5 edits them."
+  - "Owner decision candidate: plan approval for issues reaches a worker as a coordinator reply built from GitHub evidence (WORKER-CONTRACT.md WC-17 and the issue-pipeline plan-approval bullet). The plan leaves that mechanic unchanged; if the owner wants it to stop counting, that is a separate change."
+  - "Request part 'run /sc:implement' is not run by /sc:workflow (plan-only); run /sc:implement on this package."

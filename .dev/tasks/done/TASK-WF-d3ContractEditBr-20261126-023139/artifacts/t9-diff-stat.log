@@ -1,0 +1,1 @@
+git diff --stat -- src/superclaude/cli src/superclaude/skills/sc-implement-protocol/scripts docs/designs: no output (no change)
