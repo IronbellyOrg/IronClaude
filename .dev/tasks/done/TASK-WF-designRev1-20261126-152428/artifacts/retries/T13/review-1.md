@@ -1,0 +1,4 @@
+256f8cf05c9304e648363a0a43b19b5cca8fda4d tree=aa8046c1d81862fbfcd1245cb1d5dbf9b3b0f18e
+AC marks: T13.AC1 unmet, AC2..AC6 met (reviewer r1-1)
+F1.1 sev=blocking trigger=B2 ac=T13.AC1 at=.dev/issues/837/apply-runbook.md:124 anchor=.dev/issues/837/audit/CPA-Manager-Plus.md:88 chk=n,y,n,n family=r1-workflow-claim fix=replace the sentence with the accurate push-trigger wording first=A1 origin=new: The CPA-Manager-Plus R1 text says the repo has no workflow with a push trigger, but the audit records push triggers in demo-pages.yml and pr-check.yml.
+F1.2 sev=blocking trigger=B1 ac=T13.AC1 at=.dev/issues/837/apply-runbook.md:108 anchor=the ledger-decided file filled chk=y,n,n,n family=variables-not-filled fix=fill FILE for each repo first=A1 origin=new: FILE is a conditional placeholder in angle brackets for CPA-Manager-Plus and IronOrca and angle-bracketed for coder_orca, so the ledger-decided file is not filled and R3 reads --input .github/rulesets/other-repos/$FILE.
