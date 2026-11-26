@@ -261,6 +261,15 @@ def test_inline_list_warning_gets_no_second_item(repo):
     assert out == contract
 
 
+def test_single_quoted_inline_warning_with_doubled_quote_gets_no_second_item(repo):
+    # YAML escapes a quote inside a single-quoted item by doubling it
+    contract = BASE_CONTRACT + "unresolved: ['SUPERSEDED by an owner''s migration']\n"
+    pkg = make_pkg(repo, contract)
+    rm.archive(repo, pkg, "none")
+    out = (repo / ".dev/tasks/archive" / OLD / "return-contract.yaml").read_text()
+    assert out == contract
+
+
 def test_comma_inside_one_quoted_inline_item_is_not_a_warning(repo):
     # one item whose text contains ", superseded": not a second item, not a warning
     contract = (

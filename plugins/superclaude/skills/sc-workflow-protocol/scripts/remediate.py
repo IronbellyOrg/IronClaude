@@ -417,7 +417,7 @@ def _has_superseded_warning(text):
         # quote-aware: a comma inside one quoted item does not start a new item
         inner = rest[1 : rest.rfind("]")] if "]" in rest else rest[1:]
         items = re.findall(
-            r"""\s*("(?:[^"\\]|\\.)*"|'[^']*'|[^,"']+)\s*(?:,|$)""", inner
+            r"""\s*("(?:[^"\\]|\\.)*"|'(?:[^']|'')*'|[^,"']+)\s*(?:,|$)""", inner
         )
     else:
         items = []
