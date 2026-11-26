@@ -4,6 +4,10 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### Installers: core files, agents and templates are saved before `--force` and `update` overwrite them (issue 676)
+
+- `superclaude install --force` and `superclaude update` now save a core file, agent or template that differs from the shipped one as `<name>.bak.<UTC time>` next to it, as they already did for commands, rules and output styles. A save that fails leaves that file as it was, lists it as failed and makes the command exit 1. `install --list` no longer counts these copies as installed templates. Skill folders and hook scripts are still overwritten with no copy. Releases 6.1.0 and earlier overwrite core files, agents and templates with no copy.
+
 ### New command: /sc:worktrees and scripts/worktree_cleanup.py (issue 687)
 
 - `/sc:worktrees <list|archive|retire|prune>` removes git worktrees of our repos once their work is finished. A worktree goes only when its own pull request is merged, nothing was added after it, its issues are closed, nothing unsaved is in it, nothing but its own Orca terminals is using it, it has been idle for 7 days and it is not pinned. `list`, `retire` and `prune` are dry runs unless `--apply` is typed; `archive` is the one verb that writes without it (to the evidence repo only, and it removes nothing). Before a removal, the untracked and ignored `.dev/` files are saved to the evidence repo `IronbellyOrg/run-evidence` and checked against GitHub; if anything cannot be read or saved, the worktree is kept and the reason is shown. The script is `scripts/worktree_cleanup.py` (Python standard library only), and the command is on the never-as-worker list. The removal rules are adapted from files of Jay Wedgeworth's AI-Fleet-Coordinator under Apache-2.0; see `scripts/worktree_cleanup_PROVENANCE.md` and `NOTICE`. A definition for a daily Orca automation is in `scripts/worktree_cleanup_orca_automation.md`; it is written and not switched on.

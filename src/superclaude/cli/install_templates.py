@@ -21,6 +21,8 @@ import shutil
 from pathlib import Path
 from typing import List, Tuple
 
+from .install_keep import backup_if_differs
+
 # Files we refuse to ever write into the target directory (defensive —
 # the source tree shouldn't contain these names, but if it did, we
 # would still skip them).
@@ -54,6 +56,7 @@ def install_templates(
     installed: List[str] = []
     skipped: List[str] = []
     failed: List[str] = []
+    backed_up: List[str] = []
 
     for src_file in sorted(source.rglob("*")):
         if not src_file.is_file():
@@ -71,6 +74,17 @@ def install_templates(
         if dest.exists() and not force:
             skipped.append(str(rel))
             continue
+
+        # A forced overwrite first saves a differing file next to itself
+        try:
+            if dest.exists():
+                backup = backup_if_differs(src_file, dest)
+                if backup is not None:
+                    backed_up.append(str(backup))
+        except OSError as exc:
+            failed.append(f"{rel}: could not save a copy first, left untouched ({exc})")
+            continue
+
         try:
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src_file, dest)
@@ -89,6 +103,12 @@ def install_templates(
         )
         for rel in skipped:
             messages.append(f"   - {rel}")
+    if backed_up:
+        messages.append(
+            f"\n💾 Saved {len(backed_up)} changed template(s) before overwriting:"
+        )
+        for path in backed_up:
+            messages.append(f"   - {path}")
     if failed:
         messages.append(f"\n❌ Failed to install {len(failed)} templates:")
         for fail in failed:
@@ -152,5 +172,6 @@ def list_installed_templates() -> List[str]:
         for f in target.rglob("*")
         if f.is_file()
         and "__pycache__" not in f.parts
+        and ".bak." not in f.name  # saved copies made by install --force and update
         and not any(p in _PROTECTED_TARGET_SUBDIRS for p in f.relative_to(target).parts)
     )

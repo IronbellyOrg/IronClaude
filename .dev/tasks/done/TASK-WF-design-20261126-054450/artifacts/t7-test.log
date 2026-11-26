@@ -1,0 +1,34 @@
+$ MUTATION CHECK: the Task 6 filter line removed from list_installed_templates (temporary, restored afterwards)
+$ uv run pytest -p no:cacheprovider tests/cli/test_install_keep.py -q -k listings_ignore_backups
+    assert not any(".bak." in n for n in installed)
+E   assert not True
+FAILED tests/cli/test_install_keep.py::test_listings_ignore_backups - assert ...
+======================= 1 failed, 50 deselected in 0.92s =======================
+
+$ MUTATION CHECK 2: a backup attempt for files of the protected folder placed above the protected-folder skip in install_templates (temporary, restored afterwards)
+$ uv run pytest -p no:cacheprovider tests/cli/test_install_keep.py -q -k nested_template_backup_and_excluded_folder
+(the test then fails on: assert not [... agent-memory/x.md.bak.<stamp>], i.e. the protected-folder assertion)
+product file restored byte-identical (cmp against the saved copy)
+
+$ uv run pytest -p no:cacheprovider tests/cli/test_install_keep.py tests/unit/test_cli_install.py tests/cli/test_how_we_work_install.py -q
+tests/cli/test_how_we_work_install.py .........                          [100%]
+
+============================= 154 passed in 1.98s ==============================
+
+$ uv run pytest -p no:cacheprovider tests/cli/test_install_keep.py -v -k "templates or listings or bak or binary or nested"
+test_forced_install_saves_a_differing_file_then_replaces_it[templates] PASSED [  6%]
+test_forced_install_of_a_matching_or_missing_file_makes_no_backup[templates] PASSED [ 13%]
+test_a_second_forced_run_makes_no_further_backup[templates] PASSED [ 20%]
+test_plain_install_keeps_the_edit_and_makes_no_backup[templates] PASSED [ 26%]
+test_core_kept_note_names_the_bak_naming PASSED [ 33%]
+test_failed_save_leaves_the_file_untouched[templates-permission] PASSED [ 40%]
+test_failed_save_leaves_the_file_untouched[templates-enospc] PASSED [ 46%]
+test_save_then_failed_replacement_keeps_the_backup[templates] PASSED [ 53%]
+test_backup_names_do_not_collide_on_one_instant[templates] PASSED [ 60%]
+test_same_size_same_mtime_edit_is_saved_when_forced[templates] PASSED [ 66%]
+test_directory_at_the_victim_path_fails_closed[templates] PASSED [ 73%]
+test_empty_and_binary_content_is_saved_exactly PASSED [ 80%]
+test_nested_template_backup_and_excluded_folder PASSED [ 86%]
+test_listings_ignore_backups PASSED      [ 93%]
+test_no_shipped_template_name_contains_bak PASSED [100%]
+====================== 15 passed, 36 deselected in 1.17s =======================

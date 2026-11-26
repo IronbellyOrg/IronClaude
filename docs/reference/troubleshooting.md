@@ -156,10 +156,25 @@ grep -r "@" ~/.claude/CLAUDE.md      # Verify imports
 superclaude install --force          # Overwrite the installed framework files
 ```
 
-`superclaude install --force` overwrites the files it ships in `~/.claude/`. It
-saves a differing command, rule or output-style file as `<name>.bak.<UTC time>`
-first; edited core files, agents and skills get no copy, so copy those first.
+`superclaude install --force` overwrites the files it ships in `~/.claude/`.
+When a command, rule, output-style, core, agent or template file differs from
+the shipped one, the installer first saves a copy next to it as
+`<name>.bak.<UTC time>`.
+Skill folders (deleted and re-copied) and hook scripts get no copy.
+Copy any file you changed or added inside a skill folder, and any hook script
+you changed, to a place outside `~/.claude/skills/` before you run either
+command.
 There is no uninstall command.
+
+**Failed to save a copy:**
+
+`could not save a copy first, left untouched`: the installer could not write
+the `.bak.` copy next to a file, because the folder is not writable, the disk
+is full, the file cannot be read, or a folder sits at the file's path. That file
+is left as it is, the run lists it under the failed files, and
+`superclaude install --force` or `superclaude update` exits 1. Make the folder
+writable or free space and run the command again, or move the file aside
+yourself. A `.bak.` file left behind by a failed save may be incomplete.
 
 ## Get Help
 

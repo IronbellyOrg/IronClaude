@@ -1,0 +1,15 @@
+$ uv run pytest -p no:cacheprovider tests/cli/test_install_failures.py tests/troubleshoot/test_diagnostic_worker_contract.py tests/unit/test_cli_install.py tests/cli/test_update_command.py tests/cli/test_install_retired_files.py -q
+tests/cli/test_update_command.py ....................                    [ 83%]
+tests/cli/test_install_retired_files.py ................................ [100%]
+
+============================= 199 passed in 5.52s ==============================
+
+$ ad hoc behaviour check of install_agents (not committed)
+AC1 replaced: True | one backup with old bytes: True | message has Saved line: True
+AC2 matching file, no further backup: True
+AC2 force=False no Saved line: True
+AC2 failed backup: ok= False | untouched: True | line: True
+AC3 backup excluded by the *.md glob: True
+
+$ ad hoc AC3 check: list_installed_agents with a saved copy present (not committed)
+backups on disk: 1 | listed installed: 49 | available: 49 | no .bak. listed: True | README.md listed: False

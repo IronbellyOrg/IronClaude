@@ -1,0 +1,66 @@
+== make sync-dev ==
+   Agents:    49 files
+   Commands:  36 files
+   Hooks:     17 files
+   Templates: 52 files
+== AC3 backup_if_differs( call sites ==
+src/superclaude/cli/install_agents.py:61:                backup = backup_if_differs(agent_file, target_file)
+src/superclaude/cli/install_commands.py:68:                backup = backup_if_differs(command_file, target_file)
+src/superclaude/cli/install_core.py:79:                backup = backup_if_differs(src_file, dest_file)
+src/superclaude/cli/install_keep.py:42:def backup_if_differs(shipped: Path, target: Path) -> Path | None:
+src/superclaude/cli/install_templates.py:81:                backup = backup_if_differs(src_file, dest)
+src/superclaude/cli/install_user_setup.py:114:                backup = backup_if_differs(src, target)
+== AC3 main.py diff and install_keep diff hunks ==
+0
+1
+-``install --force`` and ``update`` overwrite, so a differing file is saved
+-next to itself first (``<name>.bak.<UTC stamp>``, which Claude Code does not
+-load) and the overwrite is skipped when that save fails.
++``install --force`` and ``update`` overwrite, so the commands, rules,
++output-styles, core, agent and template installers first save a differing file
++next to itself (``<name>.bak.<UTC stamp>``, which Claude Code does not load) and
++skip the overwrite when that save fails. Skill folders and hook scripts do not
++use this helper: they are overwritten with no copy.
+== AC4 git status outside .dev ==
+ M CHANGELOG.md
+ M docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md
+ M docs/getting-started/installation.md
+ M docs/getting-started/upgrading.md
+ M docs/onboarding/ironclaude-onboarding.html
+ M docs/reference/troubleshooting.md
+ M docs/user-guide/flags.md
+ M docs/user-guide/how-we-work.md
+ M plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+ M src/superclaude/cli/install_agents.py
+ M src/superclaude/cli/install_core.py
+ M src/superclaude/cli/install_keep.py
+ M src/superclaude/cli/install_templates.py
+ M src/superclaude/core/HOW-WE-WORK.md
+ M tests/cli/test_install_keep.py
+ M tests/cli/test_update_command.py
+== AC5a focused set ==
+.....................................................                    [100%]
+
+============================= 198 passed in 4.06s ==============================
+== AC6 doc readers ==
+...                                                                      [100%]
+
+============================= 243 passed in 1.16s ==============================
+== AC7 verify-sync ==
+verify-sync exit=0
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+== staged .claude paths (expect none) ==
+0
+== AC1 CHANGELOG diff ==
+@@ -6,0 +7,4 @@ All notable changes to IronClaude are documented in this file.
++### Installers: core files, agents and templates are saved before `--force` and `update` overwrite them (issue 676)
++
++- `superclaude install --force` and `superclaude update` now save a core file, agent or template that differs from the 
++
+== AC5b full tests/cli + tests/unit ==
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========== 3297 passed, 7 skipped, 5 warnings in 499.76s (0:08:19) ============
+exit=0

@@ -9,7 +9,7 @@ import shutil
 from pathlib import Path
 from typing import List, Tuple
 
-from .install_keep import same_content
+from .install_keep import backup_if_differs, same_content
 
 # Core files this version ships; list_installed_core_files reports only these.
 KNOWN_CORE_FILES = frozenset(
@@ -64,12 +64,25 @@ def install_core_files(
     installed = []
     skipped = []
     failed = []
+    backed_up = []
 
     for src_file in core_files:
         dest_file = target_path / src_file.name
 
         if dest_file.exists() and not force:
             skipped.append(src_file.name)
+            continue
+
+        # A forced overwrite first saves a differing file next to itself
+        try:
+            if dest_file.exists():
+                backup = backup_if_differs(src_file, dest_file)
+                if backup is not None:
+                    backed_up.append(str(backup))
+        except OSError as e:
+            failed.append(
+                f"{src_file.name}: could not save a copy first, left untouched ({e})"
+            )
             continue
 
         try:
@@ -100,10 +113,18 @@ def install_core_files(
         if stale:
             messages.append(
                 f"\n⚠️  {len(stale)} kept file(s) differ from this version and were "
-                "NOT updated (run with --force or `superclaude update` to refresh):"
+                "NOT updated (run with --force or `superclaude update` to refresh; "
+                "a differing file is saved as <name>.bak.<time> first):"
             )
             for name in stale:
                 messages.append(f"   - {name}")
+
+    if backed_up:
+        messages.append(
+            f"\n💾 Saved {len(backed_up)} changed core file(s) before overwriting:"
+        )
+        for path in backed_up:
+            messages.append(f"   - {path}")
 
     if failed:
         messages.append(f"\n❌ Failed to install {len(failed)} files:")
