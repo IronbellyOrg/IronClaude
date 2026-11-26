@@ -1,0 +1,39 @@
+#761 [FEATURE] Issue watcher and coordinator: potential gaps and issues to check against existing work [OPEN ] closed=-
+<!-- /sc:issue feature template (simple). Copy to <D>/issue-body.md and fill every placeholder in place. Keep every heading. Write "Not known yet" under a heading when the description and the codebase pass give nothing; never invent a fact. The exception is ## Priority, ## Fix approach and ## Test plan: fill them at every depth from the codebase pass, never write "Not known yet" there, and state any assumption in the section (rules in refs/create.md). -->
+
+## Feature Summary
+
+Discuss 18 potential gaps in the merged issue watcher and coordinator design, including PR #707 and the coordinator duties in `WORKER-CONTRACT.md`. Requested by Clay after a review of IronClaude master `0dd726d18` on 2026-11-23; this is a discussion, not a verdict that these gaps are confirmed.
+
+## Problem Statement
+
+Do the following 18 potential gaps still apply, or are they already covered by existing work or plans? For Ryan, Clay and the people directing agent work, which still-open points need an owner decision, and are the suggested simplifications appropriate?
+
+The original observations below are preserved verbatim as the subjects of those questions, not as confirmed findings. The research step must check each one before any follow-up work is chosen.
+
+## Big ones
+
+1. **Humans work by clicking in GitHub.** Before anything runs, a person must move the card out of Backlog, set Pipeline, assign, add the trigger label and set Approved, and the owner must also give a per-issue "grant row" before the coordinator acts. That is slower than how we work now: we tell an agent in chat, use our judgment on its plain summary, and the agent does the clicks through the command line. Asking people to click and drag cards in GitHub may be a step backwards. `/sc:issue` already sets one issue field (Complexity), so it could be the natural place for an agent to do this setup on our say-so.
+
+2. **The two approvals will be done by agents anyway, by hand, every time.** In practice Ryan or Clay will open an agent session to read the issue, summarize it, take our call, and set the approval. At the plan stage, the same again. That repeated routine should be a thin skill: (a) onboard an issue and give a plain summary for a human yes, no or feedback, then set the approval; (b) the same for the plan.
+
+3. **Issues don't move between stages.** Each Status column (Research, Spec, Plan, Debug) runs one step and ends at In review. Nothing advances it to the next column, and the watcher never picks up an issue it has claimed once. The worker brief and contract say "move the Status back to run again", but the code skips it. So each issue gets one step, ever, and no column runs the build. Simpler: approve once, run end to end at the Pipeline level, and Status only shows progress.
+
+4. **The coordinator has no skill, agent or command.** It runs on rule text in WORKER-CONTRACT.md plus an 8-sentence launch prompt. Nothing tells it to load Orca's orchestration guide. Issue 716 lists features to add later; it is not the plan for the coordinator itself, and the plan it builds on (stages S13 to S15 of a local SPEC.md) is not on GitHub yet. 716 also asks to build parts of the 655 design while requirement R38 says none of it is adopted, so it may help to say which stands.
+
+5. **Nothing hands a claim to the coordinator.** The watcher opens a separate claim tab, which claims and stops. No message, no list of unadopted claims, and no "check on each wake" step tells the standing coordinator. The same is true at the end: the contract says a finished agent's result file is "noticed by /sc:sweep", but the sweep code never reads it. The live test (FU-1) tested the Orca messaging pieces, not this handoff, and the whole chain from cron to completion has not been run live yet.
+
+6. **No single point of contact, a
+--- comments=1; last 3:
+[ironbelly 2026-11-24T16:12:32Z] ## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Complex / L
+- **Priority:** P2
+
+#### Concrete next steps
+1. Complete the issue's ordered 18-point coverage document at a named current-master revision, comparing that revision with the issue's `0dd726d18` baseline. Preserve the original groups and wording as questions. For each point record fully/partly/not-at-all coverage, implemented versus planned status, evidence links and the remaining question; document the search scope when nothing is found.
+2. Incorporate known partial progress: coordinator wording in #752/#754 and the newly merged first-run retry PR #759 for #751. Reconcile each roadmap proposal with the existing R38 decision before calling it approved coverage. R38 is recorded at /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/releases/backlog/issue-watcher-zero-setup/requirements.md:64; this discussion does not override it.
+3. Obtain

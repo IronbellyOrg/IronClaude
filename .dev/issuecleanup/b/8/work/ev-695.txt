@@ -1,0 +1,65 @@
+#695 [BUG] Make the local gate test independent of the clock [OPEN ] closed=-
+<!-- /sc:issue bug template (simple). -->
+
+## Bug Summary
+
+`tests/skills/test_agent_work_report.py::test_local_gate_keeps_only_the_firing_at_local_time` depends on the real clock and can fail unrelated pull requests.
+
+## Environment (OS, version)
+
+- OS: Not known yet
+- Version: `origin/master` (test inspected); exact commit not known yet.
+
+## Current Behavior
+
+The test creates a run with a real current `started` time and expects the morning gate to say "already started" one hour later. When that time is before 07:00 local, the gate returns "too early" first. A docs-only PR 694 had this failure in CI run 44725551250 on 2026-11-20 at 11:15 UTC; it was merged with the check red. The other assertions use fixed datetimes.
+
+## Expected Behavior
+
+The test passes at any time of day. A fixed run start time inside the morning window or a mocked clock could make the assertion independent of when CI runs.
+
+## Steps to Reproduce
+
+1. Run the test when its real run start time plus one hour is before 07:00 local.
+2. Observe that the assertion expecting "already started" receives "too early" instead.
+
+## Impact Assessment (Severity, Blast Radius)
+
+- Severity: Not known yet
+- Blast Radius: The test can turn CI red on unrelated pull requests.
+
+## Error Messages
+
+```text
+AssertionError: assert 'already started' in 'too early: it is 06:15 local, the report runs at 07:00'
+```
+
+## Codebase Context (from `/sc:analyze`)
+
+- `tests/skills/test_agent_work_report.py:1642` creates a run, reads its `started` timestamp and passes one hour later to the morning gate.
+- `src/superclaude/skills/agent-work-report/scripts/waker.py:45` checks report days first, then checks whether it is too early before checking whether today's report already started.
+## Related Issues
+
+Not known yet
+
+## Testing Notes
+
+Confirm the test passes with the clock set before 07:00 local and after it, and that no other test in the file changes behaviour.
+
+<!-- sc:issue:create template=issue-bug-simple -->
+
+--- comments=1; last 3:
+[ironbelly 2026-11-24T14:05:02Z] ## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Simple / XS
+- **Priority:** P3
+
+#### Concrete next steps
+No active implementation was verified; removal is the only completed mitigation in the reviewed tree. This review authorizes no code or GitHub action.
+
+1. When #720's existing restoration trigger and owner approval are satisfied, include #695's repair in the restoration's trim-and-fix change, not in a standalone recreation of the deleted test file.
+2. Set both persisted daily-run metadata and the time passed to the local gate to fixed instants on one configured report weekday and one local calendar date, after the morning threshold. Freeze/mock the run clock or set the fixture's metadata; do not derive either value from the actual execution time.
+3. Preserve the existing daylight-saving examples; add controlled before/after-morning-cutoff checks and verify the already-started result using a fixed eligi

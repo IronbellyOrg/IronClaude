@@ -1,0 +1,34 @@
+#701 [MERGED] docs(worker-contract): restore the no --to duty and bind check-approval to the issue (follows #700, #697)
+## What this adds
+
+Two small gaps in `src/superclaude/core/WORKER-CONTRACT.md` and `tests/skills/test_worker_contract.py` that master still has after PR 700 (the merged revert of PR 682). Nothing else changes.
+
+1. **The worker-side "Messages carry no `--to`" duty** (commit 1). PR 682 had added it as its own bullet in the worker-session duties, with a test entry and `test_the_no_to_rule_sits_in_the_worker_session_duties`. PR 700 dropped them, and master now has 0 matches for "Messages carry no". Only the copy inside rule WC-17 is left. I re-applied the bullet and its tests by hand against master's current text.
+2. **Two fixes found in review of the closed PR 697** (commit 2):
+   - WC-17 step 4 now passes `--issue <N>` to `check-approval`, so an approval for another issue with the same plan hash is refused. I checked the code: `approval_line.check` only enforces the issue in the record id when `--issue` is given. The worker gets `<N>` from the brief's `Report directory` line.
+   - The "Worktree, then worker" duty now says the claim script creates the worktree without launching an agent of its own, only because it must copy the claim's issue folder in first, and that the worker started right after is that worktree's agent. This describes what the script does. It does not change the script.
+   - Both are pinned in the contract test, and there is a short CHANGELOG entry.
+
+## Why
+
+The owner closed PR 697 because PR 700 already reverted PR 682 on master. These are the only pieces of PR 697 that master still lacks. The two-commit split keeps the carry-over of an existing duty apart from the review fixes.
+
+## What this does not fix
+
+The design questions found in the same review stay open and are tracked in issues 698 and 699. This PR changes no guard code, no approval logic and no script. Review comments about restored text that this PR does not touch point to those two issues.
+
+## Related
+
+- Closed PR 697: https://github.com/IronbellyOrg/IronClaude/pull/697
+- Merged PR 700 (the revert on master)
+- Issue 698 and issue 699 (open design follow-ups)
+
+## Tests
+
+- `tests/skills/test_worker_contract.py`, `tests/issue_pipeline`, `tests/hooks/test_launch_level_guard_worker.py`, `tests/cli/test_issue_pipeline_registered.py`: 1012 passed.
+- `make lint`: passed. `make verify-sync`: passed after `make sync-dev` (nothing under `.claude/` is staged).
+
+Not to be merged until the owner says so.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+

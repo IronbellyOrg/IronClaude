@@ -1,0 +1,37 @@
+# [FEATURE] Coordinator C8: Record the issue body hash at handoff and re-read the issue on every status pass [OPEN]
+## What was tried
+This is item C8 of the coordinator issue #716 (next release: the features of issue 655 that the current plan does not cover), split out so it can be built and tracked on its own. Issue 655 was split into its 14 sections and one analyst per section classified every design feature against the unification spec and its decision record; this item is one of the features that were found missing. Nothing in this item is built yet. #716 stays the umbrella issue: its closing review holds the build order, the phases and the open owner decisions.
+
+## Relevant files and links
+- Parent issue: #716 (this item is a sub-issue of it). Sister issues of the split: watcher #717, TUI dashboard #718. Source design: #655.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+The item below is built, tested and checked against its own lines, or the owner records in chat that it is dropped. The text is copied unchanged from #716.
+
+### C8. Record the issue body hash at handoff and re-read the issue on every status pass (655 section 2, 5, 8; rows S02-F16, S05-F18, S08-F8)
+  - What to build: At worker handoff the coordinator stores the sha256 of the exact issue body given to the worker in `issues/<repo-key>__<N>.json`, so a later body change is detected.
+  - Also in this item:
+    - S05-F18: When the coordinator sees the issue body edited by a login other than the owner's after a claim, it adds one line to that issue's work-report entry and does nothing else.
+    - S08-F8: While a worker runs, have the coordinator re-read its issue on each status pass and record a stop or an escalation when the issue is closed, assigned to someone else, or edited by another person.
+  - Done when: the state file of a started issue holds `body_sha` equal to sha256 of the body that was read at handoff, and a test shows a changed body gives a different value.
+    - also: a test edits a claimed issue as another login and the entry gains exactly one new line, with no escalation and no state change.
+    - also: with a fake `gh` returning a reassigned, a closed and an edited issue in turn, the coordinator marks each case in the per-issue file and takes the escalation path instead of continuing.
+  - Related items (read together; the order is in the review at the end): C10
+  - Research and debate results from our documents:
+    - S02-F16: .dev/brainstorms/20261120-pr686-unify/debates/QG1/VERDICT.md:31 `Carrier (recommended, side effects UNVERIFIED): the state file takes status escalated with step handback_awaiting_approval(body_sha)`.
+    - S05-F18: VERD(D01):29 (Clay's design has the report line); no evidence found that the plan rejects it.
+    - S08-F8: SPEC.md:125 and :77 (start-time only, quoted above). SPEC.md:218 (FR-82, NG-2): the poll cycle writes nothing to GitHub, so this must be a read.
+  - Watch out:
+    - S02-F16: the plan's approval check already reads whether the body changed since approval (`unchanged_since`, `predicates.py:249-259`, QG1 VERDICT.md:26); a builder must not create a second, competing "unchanged" test.
+    - S05-F18: report skill state is unclear after PR 700 removed `agent-work-report` (SPEC:771; FR-45, FR-46, FR-48 blocked until restored, SPEC:778). Needs the report-skill restore decision first. FR-80 limits which entry fields the observer shows (SPEC:263).
+
+
+## Pick-up note
+- Read the review at the end of #716 first: it holds the build order, the three phases and the owner decisions that gate this item. The related-item ids above (C numbers) refer to the sibling sub-issues of #716.
+- The plan files named above are local files, not pushed; read them from a checkout that has them, or ask the owner.
+
+--- COMMENTS:
+

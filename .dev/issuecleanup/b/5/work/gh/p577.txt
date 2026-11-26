@@ -1,0 +1,47 @@
+author:	chatgpt-codex-connector
+association:	none
+edited:	true
+status:	none
+--
+<!-- codex-pull-request-review-summary -->
+<!-- codex-review-state:v1 {"code_review":{"commit_sha":"82c85658ab63344cb8f441a822a4fcddda79b10c","has_any_findings":false,"has_unresolved_findings":false,"status":"completed"},"security_review":{"commit_sha":"82c85658ab63344cb8f441a822a4fcddda79b10c","has_any_findings":null,"has_unresolved_findings":null,"status":"completed"}} -->
+<!-- codex-security-review:v1 {"blockingSeverityThreshold":"P0","headSha":"82c85658ab63344cb8f441a822a4fcddda79b10c","mergeGateEnabled":false,"pullRequestNumber":577,"repository":"IronbellyOrg/IronClaude","status":"completed"} -->
+<details>
+<summary><strong>Codex Review Summary</strong>: ✅ Completed</summary>
+
+This comment shows the latest Codex review activity on this pull request.
+
+| Review | Status | Commit | Review trigger |
+| --- | --- | --- | --- |
+| 📝 **Code Review** | ✅ **Completed** <relative-time datetime="2026-11-16T22:40:25.711735Z">2026-11-16T22:40:25.711735Z</relative-time> | `82c8565` | PR opened |
+| 🔒 **Security Review** | ✅ **Completed** <relative-time datetime="2026-11-16T22:43:50.114805Z">2026-11-16T22:43:50.114805Z</relative-time> | `82c8565` | PR opened |
+
+
+
+<details> <summary>ℹ️ About Codex in GitHub</summary>
+<br/>
+
+[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you
+- Open a pull request for review
+- Mark a draft as ready
+- Comment "@codex review" or "@codex security review".
+
+Codex reacts with 👀 while any review is running, comments if it has suggestions, and reacts with 👍 once all reviews finish with no findings.
+
+</details>
+
+</details>
+--
+author:	augmentcode
+association:	none
+edited:	false
+status:	commented
+--
+<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=01M7K8687E8BQ3F1GT3QAXCC9F)🐛</sup>
+
+Review completed with 1 suggestion.
+
+<sub>Reviewed commit: `82c8565`</sub>
+
+<!-- cosmos-review-status:v1 {"specialist":"deep","status":"reviewed","baseline":"8c21ac41f51f54baac9c39ae1861a5a0a8b52ba8","head":"82c85658ab63344cb8f441a822a4fcddda79b10c","unresolved_count":1,"session_url":"https://cosmos.augmentcode.com/session?agentId=01M7K8687E8BQ3F1GT3QAXCC9F"} -->
+--

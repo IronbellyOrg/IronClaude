@@ -1,0 +1,131 @@
+author:	chatgpt-codex-connector
+association:	none
+edited:	true
+status:	none
+--
+<!-- codex-pull-request-review-summary -->
+<!-- codex-review-state:v1 {"code_review":{"commit_sha":"7cac4df8e46a9b18790bbf53db1c6fba667ca583","has_any_findings":false,"has_unresolved_findings":false,"status":"completed"},"security_review":{"commit_sha":"7cac4df8e46a9b18790bbf53db1c6fba667ca583","has_any_findings":null,"has_unresolved_findings":null,"status":"completed"}} -->
+<!-- codex-security-review:v1 {"blockingSeverityThreshold":"P0","headSha":"7cac4df8e46a9b18790bbf53db1c6fba667ca583","mergeGateEnabled":false,"pullRequestNumber":735,"repository":"IronbellyOrg/IronClaude","status":"completed"} -->
+<details>
+<summary><strong>Codex Review Summary</strong>: ✅ Completed</summary>
+
+This comment shows the latest Codex review activity on this pull request.
+
+| Review | Status | Commit | Review trigger |
+| --- | --- | --- | --- |
+| 📝 **Code Review** | ✅ **Completed** <relative-time datetime="2026-11-23T17:52:38.765940Z">2026-11-23T17:52:38.765940Z</relative-time> | `7cac4df` | Manual request |
+| 🔒 **Security Review** | ✅ **Completed** <relative-time datetime="2026-11-23T17:56:14.228611Z">2026-11-23T17:56:14.228611Z</relative-time> | `7cac4df` | Manual request |
+
+
+
+<details> <summary>ℹ️ About Codex in GitHub</summary>
+<br/>
+
+[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you
+- Open a pull request for review
+- Mark a draft as ready
+- Comment "@codex review" or "@codex security review".
+
+Codex reacts with 👀 while any review is running, comments if it has suggestions, and reacts with 👍 once all reviews finish with no findings.
+
+</details>
+
+</details>
+--
+author:	augmentcode
+association:	none
+edited:	false
+status:	commented
+--
+<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=01M84R83HKV6PK147EPWGB7BV4)🐛</sup>
+
+Review completed with 0 suggestions.
+
+<sub>Reviewed commit: `46826fe`</sub>
+
+<!-- cosmos-review-status:v1 {"specialist":"deep","status":"reviewed","baseline":"db57e231863078dbbb8e4e5fb37a61371c89806c","head":"46826fe4ce28b0040a230aeb28e1e419cbbda245","unresolved_count":0,"session_url":"https://cosmos.augmentcode.com/session?agentId=01M84R83HKV6PK147EPWGB7BV4"} -->
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+augment review
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+@codex review
+--
+author:	chatgpt-codex-connector
+association:	none
+edited:	false
+status:	none
+--
+<!-- codex-review-receipt:v1 -->
+
+Codex Review: Didn't find any major issues. Bravo.
+
+**Reviewed commit:** `7cac4df8e4`
+
+<details> <summary>ℹ️ About Codex in GitHub</summary>
+<br/>
+
+[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you
+- Open a pull request for review
+- Mark a draft as ready
+- Comment "@codex review".
+
+If Codex has suggestions, it will comment; otherwise it will react with 👍.
+
+
+
+
+Codex can also answer questions or update the PR. Try commenting "@codex address that feedback".
+            
+</details>
+--
+author:	augmentcode
+association:	none
+edited:	false
+status:	commented
+--
+<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=01M84RGH665V4JTWGZWRBXZF2M)🐛</sup>
+
+Review completed with 0 suggestions.
+
+<sub>Reviewed commit: `7cac4df`</sub>
+
+<!-- cosmos-review-status:v1 {"specialist":"deep","status":"reviewed","baseline":"46826fe4ce28b0040a230aeb28e1e419cbbda245","head":"7cac4df8e46a9b18790bbf53db1c6fba667ca583","unresolved_count":0,"session_url":"https://cosmos.augmentcode.com/session?agentId=01M84RGH665V4JTWGZWRBXZF2M"} -->
+--
+author:	chatgpt-codex-connector
+association:	none
+edited:	false
+status:	none
+--
+<!-- codex-review-receipt:v1 -->
+
+### 🛡️ Codex Security Review · _Automatically triggered_
+
+Security review completed. No security issues were found in this pull request.
+
+**Reviewed commit:** `7cac4df8e4`
+
+[View security finding report](https://chatgpt.com/codex/cloud/tasks/task_e_6b047d093538832bafb90a99ef820fe4)
+
+_Only the user who started this review can view the report in Codex._
+
+<details> <summary>ℹ️ About Codex security reviews in GitHub</summary>
+<br/>
+
+This is an experimental Codex feature. Security reviews are triggered when:
+- You comment "@codex security review"
+- A regular code review gets triggered (for example, "@codex review" or when a PR is opened), and you’re opted in so security review runs alongside code review
+
+Once complete, Codex will leave suggestions, or a comment if no findings are found.
+
+
+</details>
+--

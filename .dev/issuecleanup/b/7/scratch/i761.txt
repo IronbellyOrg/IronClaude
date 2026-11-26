@@ -1,0 +1,132 @@
+#761 [OPEN] [FEATURE] Issue watcher and coordinator: potential gaps and issues to check against existing work
+<!-- /sc:issue feature template (simple). Copy to <D>/issue-body.md and fill every placeholder in place. Keep every heading. Write "Not known yet" under a heading when the description and the codebase pass give nothing; never invent a fact. The exception is ## Priority, ## Fix approach and ## Test plan: fill them at every depth from the codebase pass, never write "Not known yet" there, and state any assumption in the section (rules in refs/create.md). -->
+
+## Feature Summary
+
+Discuss 18 potential gaps in the merged issue watcher and coordinator design, including PR #707 and the coordinator duties in `WORKER-CONTRACT.md`. Requested by Clay after a review of IronClaude master `0dd726d18` on 2026-11-23; this is a discussion, not a verdict that these gaps are confirmed.
+
+## Problem Statement
+
+Do the following 18 potential gaps still apply, or are they already covered by existing work or plans? For Ryan, Clay and the people directing agent work, which still-open points need an owner decision, and are the suggested simplifications appropriate?
+
+The original observations below are preserved verbatim as the subjects of those questions, not as confirmed findings. The research step must check each one before any follow-up work is chosen.
+
+## Big ones
+
+1. **Humans work by clicking in GitHub.** Before anything runs, a person must move the card out of Backlog, set Pipeline, assign, add the trigger label and set Approved, and the owner must also give a per-issue "grant row" before the coordinator acts. That is slower than how we work now: we tell an agent in chat, use our judgment on its plain summary, and the agent does the clicks through the command line. Asking people to click and drag cards in GitHub may be a step backwards. `/sc:issue` already sets one issue field (Complexity), so it could be the natural place for an agent to do this setup on our say-so.
+
+2. **The two approvals will be done by agents anyway, by hand, every time.** In practice Ryan or Clay will open an agent session to read the issue, summarize it, take our call, and set the approval. At the plan stage, the same again. That repeated routine should be a thin skill: (a) onboard an issue and give a plain summary for a human yes, no or feedback, then set the approval; (b) the same for the plan.
+
+3. **Issues don't move between stages.** Each Status column (Research, Spec, Plan, Debug) runs one step and ends at In review. Nothing advances it to the next column, and the watcher never picks up an issue it has claimed once. The worker brief and contract say "move the Status back to run again", but the code skips it. So each issue gets one step, ever, and no column runs the build. Simpler: approve once, run end to end at the Pipeline level, and Status only shows progress.
+
+4. **The coordinator has no skill, agent or command.** It runs on rule text in WORKER-CONTRACT.md plus an 8-sentence launch prompt. Nothing tells it to load Orca's orchestration guide. Issue 716 lists features to add later; it is not the plan for the coordinator itself, and the plan it builds on (stages S13 to S15 of a local SPEC.md) is not on GitHub yet. 716 also asks to build parts of the 655 design while requirement R38 says none of it is adopted, so it may help to say which stands.
+
+5. **Nothing hands a claim to the coordinator.** The watcher opens a separate claim tab, which claims and stops. No message, no list of unadopted claims, and no "check on each wake" step tells the standing coordinator. The same is true at the end: the contract says a finished agent's result file is "noticed by /sc:sweep", but the sweep code never reads it. The live test (FU-1) tested the Orca messaging pieces, not this handoff, and the whole chain from cron to completion has not been run live yet.
+
+6. **No single point of contact, and no way to reach us.** There is one coordinator per repo, mixed in with claim tabs in the same worktree. Finding out where work stands means hunting through dozens of sessions, and there is no coordinator of coordinators to ask. In the other direction, nothing notifies a person when something needs a decision; it waits in a session or a local log until someone looks.
+
+7. **Maybe a lot of moving pieces.** Watcher, claim tab, coordinator, worker, two stores, two approvals, grant rows, a ship gate, Status rules and labels. Each piece is careful on its own; together it may be more than we need, and simpler might run better.
+
+## Other gaps
+
+8. **Any comment after approval cancels it, silently.** That includes a comment from anyone, since the repo is public, and it applies while the issue waits in the queue. Because the exemption is "comments by the workspace's own login", Ryan's own comments don't cancel his approval but Clay's do. Only a local log line records it. No open issue changes this.
+
+9. **Plan approval on every stage.** Research, Spec and Debug workers are also told to get plan approval, but the approval code only knows plans. What happens is undefined.
+
+10. **No build step through the watcher.** No path runs /sc:implement. At Full, "only run the stage command" is an instruction to the model, not checked by code. At Worktree level with the Plan stage, the launch prompt says both "wait for a person to type /sc:implement" and "never run /sc:implement for this stage".
+
+11. **Nothing carries work to the finish.** After a pull request opens (Full Submit), nothing drives it to merge. /sc:closeout and /sc:worktrees aren't wired in, so nothing settles the issue or cleans up after a merge, and a "not done" result from closeout has nobody to hand back to.
+
+12. **Workers that die wait for a person.** The coordinator may not restart a dead worker on its own (WC-6); a person must decide each time.
+
+13. **Throughput is low.** The watcher starts one issue per 5-minute run across all repos, and at most 6 per repo per day, so a busy week queues up.
+
+14. **Only IronbellyOrg repos are watched by default.** <private-org> repos are skipped unless the defaults file adds that owner.
+
+15. **Silent skips and a hidden stop.** Skipped or queued issues show only in a local log. Claimed issues keep the trigger label, nothing removes it, and at 100 labelled issues the watcher stops entirely. (Issue 751 already covers the first-run retry.)
+
+16. **A dead coordinator may not be restarted.** The Coder restart check counts any open Claude tab in the worktree as the coordinator, and claim tabs live there too. (Unverified: one live check settles it.)
+
+17. **The shared login can approve its own work.** Already tracked in issues 698 and 722.
+
+## Docs out of date
+
+18. Still says "approval label" (now a field). Still says "person-opened coordinator" (now automatic). Still says Full "implements" (it doesn't). Still says "the coordinator does every push and merge" (a person's go is needed). Still says "nothing manual" (each issue needs a grant row). The watcher design header still says "never run live". The status-pipelines note says Full makes "one local commit" while the launch prompt says "make no commit".
+
+## User Story
+
+As a person directing agent work, I want each potential gap checked against what is already built or planned, so that only still-open gaps need a decision and follow-up work.
+
+## Proposed Solution
+
+A follow-up research step, assigned to clayphi, will check every gap against open and closed issues, PRs, branches and release plan files, and add one coverage document to this issue. For each of the 18 numbered points, the document will identify what covers it fully, partly or not at all, with links and the remaining question, if any. It must distinguish planned coverage from implemented coverage.
+
+Only gaps that are still open go forward. The owner decides what to do about each remaining gap before follow-up issues are filed or existing issues are updated; the list above is not approval to implement any suggested change.
+
+## Acceptance Criteria
+
+- [ ] All 18 points remain in the original order, numbering, wording and groups, and are treated as questions rather than confirmed defects.
+- [ ] clayphi adds one coverage document to this issue with an entry for every numbered gap, a fully/partly/not-at-all coverage verdict, links to relevant open or closed issues, PRs, branches or release plan files, and any remaining gap. Where no coverage is found, the entry records the search scope rather than inventing a citation.
+- [ ] Each still-open gap has an owner decision recorded; fully covered points do not generate duplicate work.
+- [ ] Follow-up issues are created or existing issues updated only for the still-open work the owner chooses, and are linked back to the coverage document and this discussion.
+
+## Out of Scope
+
+Implementing or removing watcher or coordinator behavior, changing approvals or safety gates, and treating any of these potential gaps as a confirmed defect before research and an owner decision. This discussion does not adopt or reject the issue #655 design.
+
+## Components Affected (from `/sc:analyze`)
+
+These are research targets on master `0dd726d18`, not a list of confirmed defects.
+
+- Watcher selection, approval invalidation, launch limits and claim launching: `src/superclaude/cli/issue_watch/cycle.py`, `predicates.py`, `launch.py` and `record.py`.
+- Multi-repository dispatch and owner defaults: `src/superclaude/cli/issue_watch/dispatch.py`, `defaults.py` and `generate.py`.
+- Worker briefs and plan approval: `src/superclaude/cli/issue_pipeline/brief.py`, `stage_predicates.py`, `complete.py` and `templates/worker-brief.txt`.
+- Coordinator supervision, adoption and permission boundaries: `src/superclaude/core/WORKER-CONTRACT.md` section 4, and the Coder image script `templates/VSCode-AIDev02/image/bin/coordinator-ensure` (<private-repo>).
+- Claim launch levels and stage instructions: `src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md` at the merged snapshot; claim routing also touches `refs/chains.md`.
+- Sweep and design documentation: `src/superclaude/skills/sc-sweep-protocol/SKILL.md`, `src/superclaude/cli/sweep/`, `docs/designs/issue-watcher.md`, `docs/designs/issue-watcher-setup.md` and `docs/designs/issue-watcher-status-pipelines.md`.
+- Existing regression areas for any eventual implementation: `tests/issue_watch/` and `tests/issue_pipeline/`. No implementation change is proposed by this discussion alone.
+
+## Related Issues/PRs
+
+Related work to check for coverage, not confirmed duplicates:
+
+- #716: [FEATURE] Coordinator: next release, the features of issue 655 that our current plan does not cover
+- #717: [FEATURE] Issue watcher: the features of issue 655 that our current plan does not cover
+- #339: [Feature]: Orchestrator - To Run and manage ALL sessions within a worktree
+- #733: [FEATURE] Unattended mode for /sc:implement
+- #655 (closed): [FEATURE] Issue-polling orchestrator: poll assigned issues, claim them and launch the worker (replaces #450)
+- #698: Release-worker and plan-approval checks rest on text matching and an assignee shortcut
+- #722: [FEATURE] The owner and the AI helpers share one GitHub login: decide how to tell who approved (a separate agent account is one proposed solution)
+- #725: [FEATURE] Coordinators MUST ask the peer project's coordinator (read-only) before asking a human
+- #751: [BUG] The issue watcher never retries a failed first run, so the label, state and enabled flag stay manual
+- #409: [FEATURE] TUI Dashboard to Manage Orchestration at Scale
+- PR #707 (merged): feat(issue-watch): zero-setup watcher, per-status launch levels, Approved field, guard v2 (R1-R37)
+
+## Priority
+
+Medium: Planned feature / design review, matching the planned-feature trigger in the Priority rule set; the 18 potential gaps require research, not immediate implementation.
+
+## Fix approach
+
+Repo: IronbellyOrg/IronClaude. Base branch: master.
+
+Commands, in order: `/sc:research "Check coverage of all 18 potential watcher and coordinator gaps in this issue against open and closed issues, PRs, branches and release plan files; produce one linked coverage document" --strategy planning`; then owner decisions; then `/sc:issue --create "<owner-approved still-open gap>"` for follow-ups that need a new issue. Update an existing issue instead when it already tracks the remaining work. No implementation command runs as part of this discussion.
+
+Steps, in order:
+
+- Step 1: clayphi researches all 18 points and adds one coverage document to this issue. For each point, identify the existing issue, PR, branch or release plan file that covers it fully, partly or not at all; include links, evidence, whether coverage is planned or implemented, and what remains open. Check the watcher, issue-pipeline, coordinator contract, claim templates, sweep and design files listed above against both the reviewed snapshot and current master, and record which revision each citation describes.
+- Step 2: The owner reviews that document and records a decision for each still-open gap. This step decides the direction, including whether a suggested simplification should be pursued; it does not silently adopt the suggestions in the original observations.
+- Step 3: File follow-up issues with `/sc:issue --create` or update existing issues for the owner-approved remaining work. Link each follow-up to its numbered point and coverage evidence, and do not create new work for fully covered gaps. Any later code change targets the relevant components above under its own approved follow-up.
+
+Assumption: This issue delivers research and design decisions, not code changes; implementation planning belongs to the owner-approved follow-up issues.
+
+## Test plan
+
+- Tests to add or change: Manual review of the coverage document. Confirm there are exactly 18 entries, numbered 1-18 in the original order, each with a coverage verdict (fully, partly or not at all), evidence links or a documented no-coverage search, and a clear statement of what remains open. Verify the original issue wording and groups are unchanged.
+- Regression gate: The research deliverable must pass the completeness and citation checks here. Preserve existing required gates; any later implementation must pass `make test` (full pytest suite), `make lint` and `make verify-sync`, including relevant `tests/issue_watch/` and `tests/issue_pipeline/` coverage. This draft claims no test execution or live watcher validation.
+- How a reviewer verifies: Open the coverage document from this issue; check every row has a verdict and supporting links, and spot-check citations by opening the linked issues and PRs and inspecting branch or plan-file paths at the cited revision. Check that a closed issue or a plan is not presented as proof of implementation without supporting code or a merged PR. Confirm every still-open gap has an owner decision and that only approved remaining work becomes a follow-up. A pass means all 18 points are accounted for, the sampled citations support their verdicts, and no covered work is duplicated.
+
+Assumption: A document-only research step is verified by this review; automated behavior tests and any live end-to-end checks are selected in the resulting implementation issues, if any.
+
+<!-- sc:issue:create template=issue-feature-simple -->
+

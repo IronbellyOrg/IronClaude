@@ -1,0 +1,7 @@
+command: /sc:analyze
+status: succeeded
+report_path: .dev/issuecleanup/b/1/analyze/analyze-report.md
+target: src/superclaude/skills/sc-closeout-protocol
+focus: architecture
+depth: quick
+source_modified: false

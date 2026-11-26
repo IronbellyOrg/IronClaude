@@ -1,0 +1,44 @@
+PR #608 [MERGED 2026-11-18T03:34:22Z] docs(style): define plain English and give the wrap-up a fixed five-part body
+## What changed and why
+
+Clay, William, Leandro and Ryan said that the replies agents write are hard to understand. This change to the Pragmatic output style (`src/superclaude/output-styles/pragmatic.md`) does four things:
+
+1. It says what "plain English" means, and requires every named thing (an issue number, a tool, a branch) to be introduced with what it is, plus its link or path.
+2. It requires every question or approval request to be followed by one line per possible answer saying what that answer would do.
+3. It adds a before-sending check: could someone who has not seen this work follow it, is every number or name explained, does every question have its answer lines, is every sentence needed.
+4. It gives the wrap-up a fixed body after the table: **What I did**, **How**, **Where it stands**, **What's next**, **My recommendation**.
+
+The DONE / NEXT table is not changed in any way: same two columns (Status, Result), same row style. Line 22 and the sweep exception are untouched. The long-reply limit (line 29) is untouched, so this does not invite longer replies.
+
+## Changed lines (line numbers in the new file)
+
+| Line | Change |
+|---|---|
+| 17 | Defines plain English instead of "No jargon or shorthand." |
+| 19 | "Lead with WHAT" now says a wrap-up or multi-point reply starts with the table, then the WHAT. |
+| 21 | "End with RECOMMENDED ACTION" now says that in a wrap-up it is the **My recommendation** heading, and that in a normal reply the table comes after it. |
+| 32 | Adds that what was done and what changed is always reported (in a wrap-up, under **What I did**); only the play-by-play of commands is left out. |
+| 41-44 | Four new plain-English bullets (names the user uses, name plus what it is, answer lines under every question, the before-sending check). |
+| 56 | Decisions now state what each value would do and why it matters. |
+| 66 | The multi-point reply sentence now points at each point's **Where it stands** facts instead of the old RUNS / STUBBED / NOT BUILT line. |
+| 88 | Wrap-up template: five bold headings in a fixed order, with a size limit and what each says. The text up to "LEADS the response;" is unchanged. |
+| 90-103 | Wrap-up example replaced by one with a real NEXT row and the five headings (still a blockquote like the other three examples). |
+
+Every unlisted line is byte-identical to `origin/master`. `.claude/` mirrors were refreshed with `make sync-dev` and are not staged.
+
+## Tests
+
+- Changed one number in `tests/commands/test_sweep_command.py`: the count of `| NEXT | None. |` goes from 3 to 2. The new wrap-up example has a real NEXT row ("You decide whether to merge the pull request."), so only two examples now end with "None". Every other assertion there passes unchanged, including the six uses of the sweep qualifier.
+- Added `tests/commands/test_pragmatic_plain_english.py` (3 tests): the four new bullets are present once each, in order, inside the writing-conventions section; the five wrap-up headings appear in order in the template and in the example.
+- Full suite, run as the CI `test` job runs it (no `--maxfail`), with a throwaway HOME:
+
+| | Failed | Passed | Skipped |
+|---|---|---|---|
+| Before (origin/master) | 4 | 27930 | 158 |
+| After | 5 | 27932 | 158 |
+
+The four failures before and after are the same sandbox-only failures (no `ruff` on the test PATH, no detached tmux or shell): `test_ruff_flags_synthetic_anthropic_import_under_cli_eval`, `test_ruff_passes_on_real_adapter_module`, `test_detached_session_survives_caller_exit`, `test_shim_outlives_the_terminal_that_started_it`. The fifth after-failure, `tests/cli/test_install_keep.py::test_same_content_is_true_only_for_identical_readable_files`, is a timing flake unrelated to this change: it rewrites a same-size temp file within one clock tick and `filecmp` caches by size and modification time; it passed 2 of 12 reruns on this same tree. Total tests went from 27934 to 27937 (my 3 new ones).
+- `make lint`, `make verify-sync` and `git diff --check` pass before and after. `ruff format --check src/ tests/` already reports the same 12 files on `origin/master`; the new test file is formatted.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+

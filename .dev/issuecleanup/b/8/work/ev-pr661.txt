@@ -1,0 +1,24 @@
+PR #661 feat(sc-issue): require Priority, Fix approach and Test plan in every issue template [MERGED] merged=2026-11-19T01:29:57Z
+files: docs/designs/sc-issue-command.md, src/superclaude/agents/issue-worker-t1.md, src/superclaude/agents/issue-worker-t2.md, src/superclaude/agents/issue-worker-t3.md, src/superclaude/skills/sc-issue-protocol/SKILL.md, src/superclaude/skills/sc-issue-protocol/refs/create.md, src/superclaude/skills/sc-issue-protocol/templates/issue-bug-complex.md, src/superclaude/skills/sc-issue-protocol/templates/issue-bug-simple.md, src/superclaude/skills/sc-issue-protocol/templates/issue-feature-complex.md, src/superclaude/skills/sc-issue-protocol/templates/issue-feature-simple.md, tests/skills/test_issue_protocol.py, tests/skills/test_issue_worker_agents.py
+Closes #651
+
+## What changed
+- All four sc-issue templates now end with ## Priority, ## Fix approach and ## Test plan (same position and order, before the closing marker line). Testing Notes, Testing Strategy and the Fix Approach and Verification Plan bullets are folded into them; the bug-complex heading is now For Development Team (Root Cause Analysis).
+- refs/create.md holds the fixed Priority rule set (Urgent, High, Medium, Low, each with its trigger) and the rule that the three sections are required at every depth with no Not known yet.
+- issue-worker-t1/t2/t3 state the same rule in the Wave 4 body job, with a carve-out in No invented facts.
+- SKILL.md and docs/designs/sc-issue-command.md list the new sections.
+- Tests: heading lists updated; new tests fail when a template lacks one of the three headings, has an empty body, or says Not known yet in one; the rule sentence is pinned in refs/create.md and in each worker file. 26 new test cases.
+
+Beyond the issue text (please confirm): (1) the For Development Team heading rename; (2) assumptions are recorded under New material in draft-notes.md as Assumption: lines; (3) one sentence in the rule set: choose the highest level whose trigger the issue meets.
+
+Not changed: the claim flow (refs/claim.md, scripts/), the issue watcher, and anything outside these 12 files.
+
+## Gate results (run on this exact head, after rebasing onto the 6.1.0 release; full output kept in the worker's gate.md, not committed)
+- Targeted tests (5 files): 921 passed.
+- Full suite: 22611 passed, 2 failed, 69 skipped. Both failing ids (tests/cli/eval/test_schema_id_rejection.py::test_no_fs_write_when_cli_describe_rejects and ::test_no_fs_write_when_schema_rejected) pass alone (20 passed, twice); these tests compare a shared /tmp scratch folder that other runs write to. The same kind of test was also flaky before my change (in the baseline and in a first full run before the rebase).
+- make lint, ruff format --check src/ tests/, git diff --check: pass.
+- make verify-sync: every sc-issue file is in sync. In my local worktree it exits 1 only because of 10 stale, gitignored dev copies in .claude/ of skills the 6.1.0 release removed from src/; CI runs make sync-dev on a fresh checkout first. Before the rebase it exited 0.
+- Throwaway-HOME superclaude install and doctor: exit 0 (one earlier attempt hit the installer's 10-second claude --version probe and exited 1; the retry passed); the installed templates carry the new sections.
+- Deleting one of the three headings from a template makes the template tests fail; restoring it passes.
+
+Process

@@ -1,0 +1,31 @@
+PR #280 ci: simplify GitHub Actions workflows [MERGED] merged=2026-10-22T21:07:50Z
+files: .dev/tasks/done/TASK-WF-simplifyTheGitHu-20261022-185526/TASK-WF-simplifyTheGitHu-20261022-185526.md, .dev/tasks/done/TASK-WF-simplifyTheGitHu-20261022-185526/artifacts/t1-required-checks.txt, .dev/tasks/done/TASK-WF-simplifyTheGitHu-20261022-185526/artifacts/t11-render-diff.txt, .dev/tasks/done/TASK-WF-simplifyTheGitHu-20261022-185526/artifacts/t6-setup-uv-docs.md, .dev/tasks/done/TASK-WF-simplifyTheGitHu-20261022-185526/artifacts/t7-lint-job-local.txt, .dev/tasks/done/TASK-WF-simplifyTheGitHu-20261022-185526/progress.md, .dev/tasks/done/TASK-WF-simplifyTheGitHu-20261022-185526/return-contract.yaml, .dev/tasks/done/TASK-WF-simplifyTheGitHu-20261022-185526/source.md, .github/workflows/README.md, .github/workflows/boundary-guard.yml, .github/workflows/contract3-generator-constraint-lint.yml, .github/workflows/publish-pypi.yml, .github/workflows/pull-sync-framework.yml, .github/workflows/quick-check.yml, .github/workflows/readme-quality-check.yml, .github/workflows/test.yml
+## Summary
+
+Cuts `.github/workflows/` from 7 workflow files to 4 and removes duplicated setup, dead steps and redundant Python versions. Every PR to `master`/`integration` still runs the same checks.
+
+| Change | Why |
+|---|---|
+| Delete `readme-quality-check.yml` | Scored `README-zh/ja/kr.md` and a `Docs/**` path that don't exist; installed unused deps |
+| Delete `publish-pypi.yml` | Fork installs from git; the PyPI `superclaude` name is upstream's |
+| Delete `quick-check.yml` | Duplicated `test.yml` on every PR; its `verify-sync` + `lint-architecture` moved into `test.yml` |
+| `test.yml`: Python 3.10 only | 3.10 is the `requires-python` floor; no version-sensitive imports or `sys.version_info` branches in `src/`/`tests/` |
+| `test.yml`: one pytest run with coverage | Was run twice on the 3.10 leg |
+| `test.yml`: `astral-sh/setup-uv@v10.3.2` + activated venv | Replaces curl installer + setup-python in every job (no floating `@v10` tag exists) |
+| `test.yml`: merged `lint` job | lint + plugin-check + verify-deps + verify-sync + lint-architecture set up once |
+| `test.yml`: `test-summary` → one `contains()` condition | Replaces a 27-line script |
+| `contract3`: `paths` filter | Replaces the git-diff detect step |
+| `boundary-guard`: one step | Warning first; `git diff` outside the heredoc with a fallback |
+| `pull-sync-framework`: drop dead checkout + missing root `plugin.json` | The sync script clones its own copy |
+
+### Necessary deviation: verify-deps audits a separate env
+
+With the activated venv, `uv pip install -e ".[dev]"` ignores `uv.lock` and resolves `py-cpuinfo2`, which is not in `scripts/dependency_baseline.txt`. That turns `make verify-deps` red. The step now sets `UV_PROJECT_ENVIRONMENT: ${{ runner.temp }}/verify-deps-venv`, so `uv run` builds a separate `uv.lock`-resolved env, exactly what master audits today. Reproduced locally; see `t6-setup-uv-docs.md` in the plan package.
+
+## Verification
+
+- Built from a `/sc:workflow` plan with a Tier-2 pre-execution reflection, then executed by `/sc:implement`: 12 tasks, each reviewed against its acceptance criteria, plus a final independent review. Plan, ledger and evidence: `.dev/tasks/done/TASK-WF-simplifyTheGitHu-20261022-185526/`.
+- Locally: all workflows parse; the merged lint job's 8 commands pass; the boundary-guard summary renders identically to the old 3-step version.
+- **Pending on this PR's CI run** (deferred by operator ruling): Python 3.10 in every job via setup-uv, `doctor-check` and `make verify-deps` passing on GitHub runners.
+
+No required status checks or rulesets exist on `master`, a

@@ -1,0 +1,45 @@
+#772 [FEATURE] Stage flow through the watcher: moving between Research, Spec, Plan and Debug, what Pipeline Full means, and a build step [OPEN ] closed=-
+<!-- /sc:issue feature template (simple). Copy to <D>/issue-body.md and fill every placeholder in place. Keep every heading. Write "Not known yet" under a heading when the description and the codebase pass give nothing; never invent a fact. The exception is ## Priority, ## Fix approach and ## Test plan: fill them at every depth from the codebase pass, never write "Not known yet" there, and state any assumption in the section (rules in refs/create.md). -->
+
+## Feature Summary
+
+Thank you, Ryan, for the issue watcher and the standing coordinator (PR #707, merged). This issue asks how an issue should move between Research, Spec, Plan and Debug through the watcher, what Pipeline Full should mean, and whether a build step should exist.
+
+## Problem Statement
+
+Clay and a research run checked 18 possible gaps in that design. The list is IronClaude issue #761 (potential gaps to check against existing work). This issue is the part about how an issue moves through stages. All file and line facts below were checked on master at commit afb3ccf29 and verified against `origin/master` at that same commit. Each problem is a question for the owner, not a verdict.
+
+### Problem 1: an issue does not move between stages through the watcher
+
+The Project Status field (Research, Spec, Plan, Debug) picks the stage command. Today one claim runs one stage and the issue ends at In review. We found no way to go on to the next stage through the watcher.
+
+- A watcher store entry in state `claimed` or `pending` is skipped as `already_dispatched` before any GitHub read (`src/superclaude/cli/issue_watch/cycle.py:981-982`).
+- Only an entry in state `abandoned` or `unknown` can be reset (`src/superclaude/cli/issue_watch/record.py:448` and `:714`). So moving the Status back cannot start a second run.
+- All four Status pipelines end at In review (`src/superclaude/cli/issue_pipeline/complete.py:55`, the table `END_STATUS`). The design says this is on purpose (`docs/designs/issue-watcher-status-pipelines.md:15`).
+- Four places still tell a person that moving the Status back to an allowed value starts a relaunch: `src/superclaude/cli/issue_pipeline/templates/worker-brief.txt:17`, `src/superclaude/core/WORKER-CONTRACT.md:297` (last sentence), and `docs/designs/issue-watcher-status-pipelines.md:65` and `:79`. By the three facts above that sentence is not true for a claimed issue. No issue tracks fixing it.
+- No document, issue or pull request designs a chain from Research to Spec to Plan. We searched issues, PRs #707 and #729 and the two merged planning branches.
+
+Why it matters: a person who reads those four sentences will move the Status back and wait for a run that never starts.
+
+### Problem 2: what Pipeline Full means is described three different ways
+
+- The `/sc:issue` command text says `full` also implements, with no commit and no push, and `full` with `--submit` also commits, pushes and opens a PR (`src/superclaude/commands/issue.md`, the Usage paragraph and the `--pipeline` row).
+- The watcher design table says Full is the stage command plus one local commit of the report, and Full Submit adds the push and the PR (`docs/designs/issue-watcher-status-pipelines.md:19`).
+- The launch prompt for Full says: make no commit (`src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md:27-28`).
+- With `--stage`, the claim step says step 1 is only the stage command, not the recommended chain, and that it never runs `/sc:implement` or `/task` (`src/superclaude/skills/sc-issue-protocol/refs/claim.md:80`). No watcher path runs `/sc:implement`.
+- Every level above None is switched off today: `GOVERNED_LEVELS_ALLOWED = False` (`src/superclaude/cli/issue_watch/launch.py:48`), and such an issue ends `level_gated` (`src/superclaude/cli/issue_watch/cycle.py:1029-1036`). Issue #
+--- comments=1; last 3:
+[ironbelly 2026-11-24T22:03:52Z] ## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P2
+
+#### Concrete next steps
+
+1. Owner answers (a) to (d) in #772 in chat; the agent records them (owner never writes a file). Without the answers nothing below should change behaviour.
+2. After answer (d): fix the four relaunch passages (worker-brief.txt:17, WORKER-CONTRACT.md:297, design :65 and :79) and update `tests/issue_pipeline/test_brief.py:242` and `tests/skills/test_worker_contract.py::test_the_duties_name_the_status_to_command_table_and_the_brief_at_level_none_only` to pin the new wording. Edit `src/superclaude/core/WORKER-CONTRACT.md` at its source, then run `make sync-dev`.
+3. Remove the Worktree-with-Plan conflict in `launch-prompt.md:25` versus `:45` without allowing implement in a Plan stage; add a rendered-prompt test for that case.
+4. Pick one meaning of Full and align `commands/issue.md:16`, `refs/claim.md`, `tem

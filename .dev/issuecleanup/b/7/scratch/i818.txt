@@ -1,0 +1,77 @@
+#818 [OPEN] [FEATURE] Issue watcher W10: Permissions of launched sessions (FU-6)
+## What was tried
+This is item W10 of the watcher issue #717 (the features of issue 655 that the current plan does not cover), split out so it can be built and tracked on its own. Issue 655 was split into its 14 sections and one analyst per section classified every design feature against the unification spec and its decision record; this item is one of the features that were found missing. Nothing in this item is built yet. #717 stays the umbrella issue: its closing review holds the build order, the phases and the open owner decisions.
+
+## Relevant files and links
+- Parent issue: #717 (this item is a sub-issue of it). Sister issues of the split: coordinator #716, TUI dashboard #718. Source design: #655.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+The item below is built, tested and checked against its own lines, or the owner records in chat that it is dropped. The text is copied unchanged from #717.
+
+### W10. Permissions of launched sessions (FU-6) (655 section 11; rows S11-F17)
+  - What to build: read the permission mode of the session the poll launches during the live test, state it in the go/no-go record, and block a second approver until per-actor permission checks exist.
+  - Done when: the S17 record names the observed permission mode of the launched session, and adding a second approver is refused or flagged until a check exists.
+  - Research and debate results from our documents:
+    - S11-F17: SETUP section 14.2 (`origin/master`): "Do not add a second approver before FU-6. Per-actor permission checks inside the launched session are not built."
+  - Watch out:
+    - S11-F17: the plan keeps the approver list (S11-F28), so a second approver stays possible; D01 text says "an allowed approver" (`DECISIONS.md:152`).
+
+- [ ] **W11. One retry of an unknown launch outcome through Orca's operation id (FU-8, owner question Q2)** (655 section 11; rows S11-F18, S11-F24)
+  - What to build: when a launch outcome is `unknown`, retry once through Orca's operation-id retry (not a fresh launch) after the real argv is confirmed by the live test.
+  - Also in this item:
+    - S11-F24: record the owner's answer on the retry form and implement it together with S11-F18.
+  - Done when: in a live test with a lost reply, one retry with the same operation id produces exactly one session and the entry reaches `claimed` or `failed`.
+    - also: the retry form is chosen in chat and recorded, and the test of S11-F18 uses that form.
+  - Research and debate results from our documents:
+    - S11-F18: `TECHREF:1963` (D-12): "`retry_argv` ... is only printed by `status_report`", "Deferred 'after FU-1 confirms the C20 argv'"; DES line 103 (`origin/master`): the retry flag and unknown-outcome reply shapes "are UNVERIFIED".
+    - S11-F24: DES line 873 (`origin/master`): "Q2 accept the full-argv retry form (C20) in place of FR-015's short form."
+  - Watch out:
+    - S11-F18: FR-21's "never relaunches" must stay true; a retry is allowed only if it cannot make a second session. UNVERIFIED that Orca's retry has that property.
+    - S11-F24: I found no owner answer to Q2 in the brainstorm folder. UNVERIFIED whether it was answered elsewhere.
+
+- [ ] **W12. Seven-day service-level review after the first live enable (FU-10)** (655 section 11, 12; rows S11-F19, S12-F33)
+  - What to build: after 7 days live, run `slo_numbers` (p95 approval-to-launch, exit-0 share, claimed share, stale count) and review the result with the owner.
+  - Also in this item:
+    - S12-F33: Seven days after the first live enable, the owner (or a scheduled agent) reads the watcher's SLO numbers and decides whether to keep it on.
+  - Done when: a written review of the four numbers exists after the first 7 live days.
+    - also: a dated review entry exists in the ledger or a task, created at switch-on, that cites the four SLO numbers from `slo_numbers`.
+  - Research and debate results from our documents:
+    - S11-F19: `TECHREF:1954` (D-03): "`slo_numbers` ... have no caller; only `test_slo_helper.py` and an owner-run snippet".
+    - S12-F33: techref ISSUE-TO-WORK-PIPELINE-TECHNICAL-REFERENCE.md:1954 "D-03 SLO numbers ... `slo_numbers` (`P/cycle.py:1359`) and `SloNumbers` (`:1339`) have no caller; ... NOT BUILT"; :1990 "FU-10 SLO review ... 'None of these is built by this work' ... FU-10 'after 7 days live'".
+  - Watch out:
+    - S11-F19: the p95 "approval-to-launch" number assumes the approval step that the plan keeps, not 655's assignment trigger.
+    - S12-F33: `slo_numbers` has no caller today, so the review needs a reader first (maybe a status field); the review itself would need the owner's decision. FU-10 was in Clay's "carried over" list (line 160).
+
+- [ ] **W13. Size bound for the dispatch store (FU-11)** (655 section 11; rows S11-F20)
+  - What to build: bound finished tombstone entries in `dispatch.json` once the store passes 1 MiB.
+  - Done when: a store seeded above 1 MiB with finished entries is trimmed without losing any entry that blocks a second launch.
+  - Research and debate results from our documents:
+    - S11-F20: `TECHREF:1965` (D-14): "Only `reset_entry` removes `abandoned`/`unknown`", "Deferred 'when the store is above 1 MiB'".
+  - Watch out:
+    - S11-F20: the plan counts store entries for the in-flight cap and "an unreadable file counts" (FR-33, `SPEC.md:235`), so pruning must not drop an entry that still counts.
+
+- [ ] **W14. check-config refuses a state folder that is not on a local disk (FU-12)** (655 section 11; rows S11-F21)
+  - What to build: make `check-config` refuse or warn when `state_dir` is not on a local, persistent file system.
+  - Done when: `check-config` flags a `state_dir` on a network or non-persistent mount.
+  - Related items (read together; the order is in the review at the end): W5
+  - Research and debate results from our documents:
+    - S11-F21: `TECHREF:1966` (D-15): "local-FS allow-list FU-12 ... No code"; DES line 871 (`origin/master`): "FU-12 | Local-filesystem allow-list for `state_dir` | per-host facts gathered".
+  - Watch out:
+    - S11-F21: DES says the allow-list waits on "per-host facts gathered"; no such facts were found in our documents.
+
+- [ ] **W15. Update the owner runbook to the unified design after the live test** (655 section 13; rows S13-F22)
+  - What to build: After the S17 live tests, update the owner runbook (`docs/designs/issue-watcher-setup.md` and the issue 442 runbook) to the unified design as run, with the real captured steps.
+  - Done when: A merged PR changes the runbook text and the S17 record names the PR; a person can follow it to switch a repo on and off.
+  - Research and debate results from our documents:
+    - S13-F22: SPEC.md:69 "PR B (coordinator skill) and PR E (runbook rewrite) are unbuilt."
+  - Watch out:
+    - S13-F22: SPEC.md:569 gates PR E on the design amendment; it is not stated whether the plan keeps the name "PR E".
+
+
+## Pick-up note
+- Read the review at the end of #717 first: it holds the build order and the owner decisions that gate this item. The related-item ids above (W numbers) refer to the sibling sub-issues of #717.
+- The plan files named above are local files, not pushed; read them from a checkout that has them, or ask the owner.
+

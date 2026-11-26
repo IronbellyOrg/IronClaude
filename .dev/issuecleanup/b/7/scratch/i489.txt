@@ -1,0 +1,45 @@
+#489 [OPEN] Follow-up to #488: update the eval-framework panel tiers and live alias map for Tier 2b
+## Why this follow-up exists
+
+The #346 review-loop experiments (branch `346Claude-ab-experiment-artifacts`) built a multi-model reviewer panel and a spec for a re-useable eval framework (#487). Both name the ccsession gateway tiers directly. #488 reorganises those tiers: today's Tier 3 becomes **Tier 2b**, a new **Tier 3** holds GLM 5.3, Grok 4.7 and Qwen 3.8, and Tier 4 adds Claude Haiku 5.5. When the experiment work is implemented and merged, everything we push that names a tier must be updated to the new layout. This issue tracks that update so it is not forgotten.
+
+**Do this after both of these have landed:** (1) the experiment/framework work from #346 and #487 is merged, and (2) #488 is deployed (the Coder `defaults.sh` change must be live before the IronClaude JSON, per the merge order in #488).
+
+## The change in one table
+
+| Role in our panel | Before #488 | After #488 |
+|---|---|---|
+| Reviewer slots (owner intent) | tiers 1b, 2, 3 (the experiments currently also use a `t4` slot) | **tiers 1b, 2, 2b, 3** |
+| `claude-gw-tier2[1m]` | GPT-6.1 Sol (confirmed live 2026-11-09, issue #392 e2e record; owner has also confirmed tier1b, tier3 and tier4 resolve live) | unchanged |
+| `claude-gw-tier2b[1m]` | n/a | today's Tier 3 list, Terra first |
+| `claude-gw-tier3[1m]` | GPT-6.1 Terra first (GLM 5.3 likely in practice) | GLM 5.3, Grok 4.7, Qwen 3.8 |
+| `claude-gw-tier4[1m]` | GPT-6 Luna | GPT-6 Luna and Claude Haiku 5.5 |
+
+## What must be updated (files from our change set)
+
+- **Panel template and slot map in the ab5 harness:** change the panel from one reviewer each of `t1b, t2, t3, t4` to `t1b, t2, t2b, t3`; update `live_alias_map` and the lane map (`decision.json`), `panel.json` resolution, the READY notes and `tests/test_ab5.py` (the test that asserts one reviewer per tier and that changing the map changes only resolved-model and lane labels). Source: `.dev/research/346-review-loop-experiments/p18/ab5/`.
+- **Mock stand-ins:** in the mock, Haiku 5.5 stands in for every non-primary slot. After #488, Claude Haiku 5.5 is a real Tier 4 model, so decide whether the mock stand-in label still means "stand-in" or becomes a live `tier4` reviewer.
+- **Eval-framework spec:** B3.3 (slot map examples), B5 (policy/slots), B7 token lanes, Part E (the recorded tier2 evidence and the open endpoint question), and the Appendix B/C tables in `.dev/designs/spec-task-eval-framework/SPEC-AND-CONTEXT.md`.
+- **Experiment records and docs** that quote the old tier names or the Terra-at-tier3 mapping (`LEDGER-RESULTS.md` lane tables, `p18/debate/BRIEF.md`, `p18/seams/DESIGN-AB6.md`): add a dated note rather than rewriting history.
+- **Policy file for the framework** (`slots/live.yaml` and the Fable/Opus policy): add `tier2b`, keep Fable forbidden and Opus the ceiling.
+- Any follow-on code that reads `ccsession-models.json` slot names (`T2bModel01..`) must not assume tier ids are only digits (the framework's id handling should accept letter tiers, as #488 notes the launcher already does).
+
+## Acceptance criteria
+
+- [ ] A live probe records the answering model for each of `claude-gw-tier1b`, `tier2`, `tier2b`, `tier3` and `tier4` after #488 is deployed (same style as the #392 e2e record: requested alias, returncode, answering model from the proxy log), and the results are written into the spec.
+- [ ] The ab5 panel template, `live_alias_map`, lane map and tests use `t1b, t2, t2b, t3`, and the test suite passes.
+- [ ] The spec and the experiment notes name the new tiers and the new model order; no document says Terra is at tier3 without a dated "before #488" label.
+- [ ] A short note records whether the `t4` slot stays in the panel now that Tier 4 holds Luna and Haiku 5.5.
+- [ ] Policy checks still reject Fable and anything above the Opus ceiling for every new alias.
+- [ ] No `.claude/` path is staged.
+
+## Open questions
+
+1. Does the panel keep a `t4` reviewer (Luna and Haiku 5.5 are both cheap tier-4 models), or is the panel exactly `1b, 2, 2b, 3`?
+2. Which model fills the Tier 2b panel slot in the mock run (Haiku 5.5 as before), and which in a live run (Terra first, per #488)?
+3. Does #488's answer to its open question 1 (where GPT-6.1 Terra sits) change the live model for `tier3` in our panel?
+4. Is the `claude`-binary route (`claude --model claude-gw-tier2b`) confirmed to serve the new tier, or do we need the swarm transport for it?
+
+## Related
+
+- Parent: #488 (tier reorganisation). Framework feature: #487. Origin experiments: #346.

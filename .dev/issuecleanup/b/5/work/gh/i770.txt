@@ -1,0 +1,37 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P1
+
+#### Concrete next steps
+
+1. Owner or Ryan chooses (a), (b), (c) or a mix. Recommendation: (a) via 757 for the wake, plus the small list verb from (c) so the wake has something to call.
+2. Store claim listing on the existing `dispatch.json` (`record.py`); no second store.
+3. Add the list verb to `issue_pipeline/cli.py` (unadopted claims, new `result.md`), tests in `tests/issue_pipeline/` and `tests/cli/test_issue_pipeline_registered.py`.
+4. Add the wake-time step to `WORKER-CONTRACT.md` near lines 290-302; either make the sweep read `result.md` (`cli/sweep/probes.py`, `models.py`, `report.py`, skill and command text, `tests/sweep/`) or correct line 302 and `issue-watcher-status-pipelines.md:75` to name the new path.
+5. Record one live run (cron tick, claim, adopt, worker, `issue-pipeline complete`) in `docs/designs/issue-watcher-live-test.md`; merge with issue 717 to avoid duplicate work.
+6. Run `uv run pytest`, `make lint`, `make verify-sync`.
+
+#### Dependencies
+
+Needs: 757 (option a), a decision from Ryan; live record needs host access and overlaps 717 and 761's list. Constrained by 755 (one inbox per Run decides where a claim notice is read). Blocks nothing recorded.
+
+#### Related issues
+
+757 (scheduled wake, open), 755 (multiple Runs, open), 716 (coordinator gaps, open), 590 (sweep needs parsed contract, open), 761 (parent gap list, open), 450 (rollout tracker, closed), 717 (live-test and fixtures, per 450 comment; state UNVERIFIED), Coder#516 (UNVERIFIED, other repo).
+
+#### Related PRs
+
+707 (merged, watcher and ship gate), 591 (merged, coordinator handoff Plan B), 584 (merged, approval core Plan A), 729 (merged, R38 docs), 735 (merged, one coordinator per project), 754 (merged, docs). No open PR addresses 770.
+
+_Limits: items marked UNVERIFIED in the text could not be checked in this read-only review. Nothing was changed on this issue other than this comment and its field values._
+
+--

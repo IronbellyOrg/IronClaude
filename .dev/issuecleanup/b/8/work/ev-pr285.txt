@@ -1,0 +1,38 @@
+PR #285 feat(pr-submit): default to --monitor 3 and route every PR instruction through it [MERGED] merged=2026-10-23T20:50:10Z
+files: .dev/reviews/pr-submit-default-monitor-3/qa-orphan-sweep.md, .dev/reviews/pr-submit-default-monitor-3/qa-spec-conformance.md, .dev/reviews/pr-submit-default-monitor-3/qa2-orphan-sweep.md, .dev/reviews/pr-submit-default-monitor-3/qa2-spec-conformance.md, .dev/reviews/pr-submit-default-monitor-3/qa3-orphan-sweep.md, .dev/reviews/pr-submit-default-monitor-3/qa3-spec-conformance.md, .dev/reviews/pr-submit-default-monitor-3/qa4-final-gate.md, .dev/specs/pr-submit-default-monitor-3.md, .github/PULL_REQUEST_TEMPLATE.md, CHANGELOG.md, CLAUDE.md, docs/developer-guide/contributing-code.md, docs/guides/prd-skill-release-guide.md, docs/guides/tdd-skill-release-guide.md, docs/user-guide/commands.md, docs/user-guide/how-we-work.md, plugins/superclaude/commands/help.md, plugins/superclaude/commands/reflect.md, plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md, src/superclaude/cli/reflect/commands.py, src/superclaude/commands/help.md, src/superclaude/commands/pr-submit.md, src/superclaude/commands/reflect.md, src/superclaude/core/HOW-WE-WORK.md, src/superclaude/pr_submit/contract_setup/diagnosis.py
+## What this changes
+
+**1. `/sc:pr-submit` now defaults to level 3.** `DEFAULT_MONITOR` in `src/superclaude/pr_submit/fsm.py` goes from 2 to 3. A bare `/sc:pr-submit` now:
+- fixes confirmed review findings of Medium severity or higher (Low/Nit are only reported);
+- fixes failing CI checks;
+- pushes the fixes **without asking**;
+- replies to and resolves the review threads it fixed.
+
+Use `--monitor 2` to make fixes locally and stop before pushing, or `--monitor 0` to only open the PR.
+
+This finishes a change Ryan Wiancko started in `2165ae25`. That commit set the command file to "default 3", but the code, the skill and the options table still said 2, so the command file and the code disagreed.
+
+**2. Every PR instruction now says to open PRs with `/sc:pr-submit --monitor 3`:**
+- `CLAUDE.md`: the mandatory PR rule. `gh pr create --repo IronbellyOrg/IronClaude ...` stays as the fallback.
+- `HOW-WE-WORK.md` and its byte-identical plugin copy: workflow 3.11, the section 5 "surprising defaults" row, and the `review-pr` routing row's mandatory flag (was `--monitor 1`).
+- The PRD and TDD release guides (were `--monitor 1`).
+- `docs/developer-guide/contributing-code.md` (was "Create PR on GitHub").
+- `.github/PULL_REQUEST_TEMPLATE.md` (was an upstream PR plus `upstream/main`).
+- `superclaude reflect contract-status`: its READY next command (was `--monitor 1`).
+
+## Contradictions removed along the way
+
+**Push-approval rule:** HOW-WE-WORK's "Never push without approval" rule now names the one exception. After the approved push, level 3 pushes its own review and CI fixes; `--monitor 2` is the way to see them first.
+
+**Fork targeting (`CLAUDE.md` pre-PR check 1):** `gh repo view` must report `IronbellyOrg/IronClaude`. The skill takes its PR target from `gh repo view`, and gh prefers an `upstream` remote over `origin`.
+
+**Confirmation step that never existed:** `refs/state-machine.md` §5.3 described a one-time confirmation before the first push. No wave performs it, and the `--yes` flag the parser accepts has no effect. The text now describes the real behaviour.
+
+**Wording:**
+- "Next safe command" and "safe flags" are renamed ("next command to run" / "required flags"), since the mandated flag is now the push level.
+- The routing-table test is renamed to match: `_MANDATORY_FLAGS`, `test_named_mandatory_flags_are_on_their_steps`.
+
+## How it was checked
+
+- **Spec:** `.dev/specs/pr-submit-default-monitor-3.md` lists every change, what was deliberately left alone, and what is out of scope.
+- **QA:** four rounds of independent reviewers, with reports in `.dev/reviews/pr-subm

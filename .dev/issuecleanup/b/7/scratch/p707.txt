@@ -1,0 +1,6 @@
+PR #707 [MERGED 2026-11-20T22:09:24Z] feat(issue-watch): zero-setup watcher, per-status launch levels, Approved field, guard v2 (R1-R37)
+Zero-setup issue watcher: run-all dispatcher, per-repo config generator, first-run check, trigger label creation, coordinator-only completion update (In review), Approved issue field as approval, closed ship gate (level_gated), launch-level guard version 2 (hosts run superclaude install --force), runbook and Coder handoff. R36 withdrew the void-on-change rule; R37 needs no re-approval after a Pipeline change. Reflect report: 3 regression findings fixed (host config, runbook, signal-killed child) and the loop cap re-checked. Full local suite before the last rebase: 24056 passed, 10 failed in ccsession and ruff-module tests this diff does not touch.
+
+Merge-guard note: draft and ready behaviour of the reviewers is unverified (release gates G4 and G5).
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)

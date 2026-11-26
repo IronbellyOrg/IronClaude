@@ -1,0 +1,12 @@
+#587 [MERGED] docs(dev): record the orchestrator, observer and issue-watcher alignment decisions (#339)
+Records the decisions and open questions of the orchestrator, observer, issue watcher and approval-flow alignment program (issue #339), so a person or an agent arriving with no context can pick the program up.
+
+What it adds, all under `.dev/brainstorms/20261113-orchestrator-tui-alignment/owner-questions/` (documentation only, no code):
+- `open-decisions.md`: a cold-start preamble, a status board for questions Q1 to Q41, and what is still waiting.
+- `owner-answers.md`: the dated record of every owner answer, with what each settles, leaves open and does not authorize.
+- The debate records and briefs behind the answers, the cut triage with its adversarial debate, and the Q24 live capture findings (names and values only).
+
+Raw Orca captures stay outside git because they hold live session text. Rebased onto current master; no conflicts.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+

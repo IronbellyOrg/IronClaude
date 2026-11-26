@@ -1,0 +1,72 @@
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Findings from the review of PR 681 (spec landing)
+
+PR 681 lands the owner-approved design `docs/designs/orchestrator.md` unchanged. The Augment and Codex reviews raised six findings about its text. The owner approved the text byte for byte, so none was fixed in that docs-only pull request. They are recorded here for the follow-up of the design.
+
+1. [Codex P2, line 565](https://github.com/IronbellyOrg/IronClaude/pull/681#discussion_r4636029171): the wave 4 worktree helper takes its source checkout from the current directory, so it must be run from the issue's repo checkout and not from the orchestrator repo.
+2. [Codex P2, line 708](https://github.com/IronbellyOrg/IronClaude/pull/681#discussion_r4636029179): a `done` or `skipped` issue that is reopened or reassigned cannot be retaken, because `--take` creates the state file exclusively and only three `escalated` endings are archived.
+3. [Augment high, line 350](https://github.com/IronbellyOrg/IronClaude/pull/681#discussion_r4636047200): the sample poll precheck runs `superclaude issue-watch once` without `--dry-run`, while the shadow phase is meant to be a dry run (section 4.8 adds the flag), so the sample can be mistaken for the shadow command.
+4. [Augment medium, line 300](https://github.com/IronbellyOrg/IronClaude/pull/681#discussion_r4636047209): the validator accepts `max_in_flight` from 1 to 10, while goal G5 and owner ruling 8 say at most 3 issues in flight per orchestrator.
+5. [Augment medium, line 480](https://github.com/IronbellyOrg/IronClaude/pull/681#discussion_r4636047217): wave 0 does not cancel a plan request when the live issue no longer carries `hold:plan`, so a label removed by hand after dispatch can still start `/sc:issue --plan`.
+6. [Augment medium, line 702](https://github.com/IronbellyOrg/IronClaude/pull/681#discussion_r4636047226): a plan request acknowledged as skipped for `held_backlog` has no plan record, so the in-flight count treats it as in flight and a lasting backlog label can hold a slot and trigger extra orchestrators.
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Follow-ups from the review of PR 684 (the report skill moved into IronClaude)
+
+These findings are about code moved unchanged from the IronFlow repository (or were left out of PR 684 on purpose). None was fixed in that pull request.
+
+1. **Local report server (security).** `page.py` `ensure_server` runs `python -m http.server --directory .dev/coordinator` on 127.0.0.1:8765. It serves the whole state folder with a directory listing and accepts any Host header, so a page in the operator's browser that uses DNS rebinding could read run files and transcript excerpts. Fix: serve only `report.html`, reject any Host other than 127.0.0.1:8765, and turn the listing off.
+2. **Item titles are not quoted as data.** An instruction-shaped title (a renamed issue or task) reaches the report session as raw Markdown. Fix: quote the title on its own line; this changes the item template, the heading rule in `check.py` and the parsing in `page.py`.
+3. **A ClickUp task whose only GitHub link is in a comment loses that link** once the comment leaves the collection window, so the task gets its own card again.
+4. **Replies inside a ClickUp comment thread** are collected but not printed in `activity.md`, so the report session never sees a reply that asks the owner something.
+5. **Removed in PR 684 because the spec does not ask for it:** the carry-forward of ClickUp tasks and sessions across a claim (each review round found a deeper case in it). If the owner wants it back it needs its own design.
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+**Release blocker (security):** item 1 of the comment above (the local report server serves the whole state folder and accepts any Host header) is a security item that MUST be fixed before the next IronClaude release. Raised by the owner's channel after PR 684 merged (squash d7d645ddd). Items 2 to 5 are ordinary follow-ups.
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Findings from the review of PR 686 (PR A, the poll core): required before the poll is switched on
+
+PR 686 ships the poll with `enabled: false`. Codex raised these seven findings; none is a bug that blocks merging disabled code, but each must be resolved before switch-on (the shadow run will also show whether they matter).
+
+1. `cycle.py` `_ack_step`: an acknowledgment of the first wake is not read after a resend replaces the entry's `wake_id` (one `wake_id` per entry in the schema-2 store); the entry can end abandoned although the orchestrator took the wake. Fix: read acknowledgments of earlier unarchived wake files, or change the schema.
+2. `github.py` org-wide search bound (100 rows) counts unlisted repos, so someone who can assign the account in an unlisted repo could stop the poll (availability). Fix: query listed repos only (changes discovery and the call budget).
+3. `github.py` timeline read is one page of 100: the newest events of a long issue can be missed. Fix: bounded pagination (a new allowed argv form).
+4. `cycle.py` day-cap reservations of plan requests that routing then declines can crowd out a ready assignment in the same cycle (cycle order).
+5. `cycle.py` a failing resume of a dead orchestrator keeps no attempt count and retries every cycle (restart state in the store or registry).
+6. `cycle.py` `last_poll_at` advances although information items beyond the 50-item limit (or a failed information-only delivery) were not delivered (needs a cursor that cannot pass undelivered items).
+7. (fixed in the PR) registry probes fell back to a 1 s call with no allowance.
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Closing: not planned: the parent design was retired (backlog review, 2026-11-24)
+
+Closed on the owner's instruction after an independent review passed.
+
+- Parent #655 was closed as not planned on the owner's 2026-11-23 decision: merged PR #707 is the design, the archived branches are kept, and uncovered features are tracked in #716, #717 and #718 (https://github.com/IronbellyOrg/IronClaude/issues/655#issuecomment-7089440080).
+- PR #700 rolled back the #655 design and report skill, so the plan this issue wanted findings handled in no longer exists.
+- No claim is made that the 21 findings are fixed.
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Reopen if the evidence above is wrong._
+
+--

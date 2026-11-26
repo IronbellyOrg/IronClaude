@@ -1,0 +1,76 @@
+#672 [OPEN] [BUG] Unexplained report-writing prohibition interrupts delegated work
+<!-- /sc:issue bug template (simple). Copy to <D>/issue-body.md and fill every placeholder in place. Keep every heading. Write "Not known yet" under a heading when the description and the codebase pass give nothing; never invent a fact. The exception is ## Priority, ## Fix approach and ## Test plan: fill them at every depth from the codebase pass, never write "Not known yet" there, and state any assumption in the section (rules in refs/create.md). -->
+
+## Bug Summary
+
+Delegated agents sometimes refuse required saved report handoffs because they report a conflicting instruction, interrupting feature work. The source and authority of that instruction are not established.
+
+## Environment (OS, version)
+
+- OS: Not known yet
+- Version: Not known yet
+
+## Current Behavior
+
+Multiple delegated agents across different personas reported an instruction prohibiting report files, and several stopped before investigation because their assigned handoff required one. Other agents successfully wrote reports. One agent interpreted `.txt` as permitted; others treated it as forbidden circumvention. The coordinator repeatedly redispatched incompatible work and repeated the alleged rule, compounding the interruption. After the user approved a reply-only review, the feature was eventually completed.
+
+A prior limited search of local configuration and project files found no matching phrase; that is not proof of absence elsewhere. Complete startup input for the affected agents has not been inspected. A hidden or injected instruction, conflicting instructions, an unsupported agent assertion, and propagation through later prompts are possibilities, not established causes.
+
+## Expected Behavior
+
+Workers should receive compatible, auditable instructions and complete the required saved handoff when authorized. If a real conflict exists, the coordinator should identify its provenance and handle it according to the applicable policy instead of repeatedly assigning incompatible work. Reply-only handling must respect the applicable policy and any required user approval.
+
+## Steps to Reproduce
+
+1. Assign delegated agents an investigation that requires a saved report handoff.
+2. Observe whether an agent reports a conflicting report-writing prohibition or successfully writes the handoff; the precise conditions and a reliable reproduction are not known yet.
+3. If a refusal occurs, compare the earliest refusal with later redispatches and a successful worker, preserving sanitized evidence of their effective startup instructions.
+
+## Impact Assessment (Severity, Blast Radius)
+
+- Severity: high — required handoffs and dependent work were blocked until an alternative review was approved.
+- Blast Radius: affected delegated investigations and their coordinator; wider prevalence is not known yet.
+
+## Error Messages
+
+```text
+Do NOT Write report/summary/findings/analysis .md files. Return findings directly as your final assistant message.
+```
+
+The text above is the instruction reported by agents, not a verified tool error or proven startup instruction.
+
+## Codebase Context (from `/sc:analyze`)
+
+- `src/superclaude/hooks/hooks.json:159` registers two SubagentStart hooks; `src/superclaude/hooks/scripts/pragmatic-subagent.js:7` loads output-style instructions and emits them as startup additional context at line 15. These are investigation points, not an established source of the reported prohibition.
+- `plugins/superclaude/skills/sc-workflow-protocol/SKILL.md:99` requires a saved contract before implementation handoff; this illustrates a documented saved-handoff requirement, not necessarily the affected handoff.
+- `tests/hooks/test_freshness_subagent_start_policy.py:39` tests startup policy injection and provides an existing test pattern.
+- Codegraph: index_state=unverified, checked_at=2026-11-19T14:35:53Z; degraded: graph:unlisted. Graph MCP readiness tools were unavailable; the quick pass used Glob, Grep and Read.
+
+## Related Issues
+
+- #465 concerns a verifier report delivery failure and bounded recovery. It has a distinct symptom; a shared cause or duplicate status is not established.
+
+## Priority
+
+High: other work was blocked when a required saved handoff could not be delivered.
+
+## Fix approach
+
+Repo: IronbellyOrg/IronClaude. Base branch: main (assumption; confirm the repository default before implementation).
+
+Commands, in order: `/sc:analyze --depth quick` for investigation, then `/sc:workflow` to plan verified changes, then `/sc:implement` if a change is justified.
+
+Steps, in order:
+
+- Step 1: Investigate the earliest refusal before the coordinator repeated the alleged rule. Compare available effective startup inputs, agent instructions, dispatch prompts and hook output with a successful report-writing worker; capture instruction provenance without exposing private data. Inspect the registered startup hooks and workflow handoff requirements as leads, not presumed causes.
+- Step 2: Establish whether the conflict is reproducible and which policy actually applies. Only then adjust the verified instruction-loading or coordination component, or document an external limitation; avoid treating a hidden prompt or a particular hook as proven.
+- Step 3: Add regression coverage for a saved-handoff conflict, bounded handling of refusal, and reply-only policy handling including required approval; avoid repeatedly redispatching incompatible work.
+
+## Test plan
+
+- Tests to add or change: Extend the appropriate coordinator and startup-instruction tests after identifying the responsible boundary; `tests/hooks/test_freshness_subagent_start_policy.py` is an existing hook-test pattern, not a predetermined fix location. Exercise both refusing and successful workers and verify that reply-only handling follows the applicable policy.
+- Regression gate: Run `make test`, `make lint`, and `make verify-sync`; investigate failures and distinguish pre-existing failures from regressions.
+- How a reviewer verifies: Run the focused tests selected during investigation plus the three gate commands. Passing means the saved-handoff conflict is surfaced with traceable provenance, incompatible redispatch is bounded, approved reply-only handling follows policy, and the regression gates pass. Assumption: a deterministic fixture can model the observed conflict; if not, document a sanitized manual comparison and its limits.
+
+<!-- sc:issue:create template=issue-bug-simple -->
+

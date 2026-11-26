@@ -1,0 +1,4 @@
+#509 [MERGED] feat(issue): move issue-worker-t1 to tier1b with a tier-2 fallback
+Moves the /sc:issue T1 worker pin from claude-gw-tier1a to claude-gw-tier1b. Users who see only tiers 2-4 get an HTTP 400 for tier1b; a failed issue-worker-t1 spawn is now retried once with issue-worker-t2 (same job, inputs and output paths) instead of stopping with E-TIER-UNAVAILABLE after the issue was assigned. The T2 file, the accuracy-check comment and issue-summary.md (claim) or flags.md/draft-notes.md (create) say 'Handled by issue-worker-t2 (tier 2): tier1b is not available to this user.' E-TIER-UNAVAILABLE still stops T3, T2 and an unserved T2 fallback; no alias fallback. Tests: tests/skills/test_issue_t1_fallback.py (new) plus updated pin tests.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)

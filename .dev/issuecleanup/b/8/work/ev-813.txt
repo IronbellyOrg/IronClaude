@@ -1,0 +1,35 @@
+#813 [FEATURE] Issue watcher W5: Live firing tests before enabling: two-process lock test and restart test [CLOSED NOT_PLANNED] closed=2026-11-24T22:10:15Z
+## What was tried
+This is item W5 of the watcher issue #717 (the features of issue 655 that the current plan does not cover), split out so it can be built and tracked on its own. Issue 655 was split into its 14 sections and one analyst per section classified every design feature against the unification spec and its decision record; this item is one of the features that were found missing. Nothing in this item is built yet. #717 stays the umbrella issue: its closing review holds the build order, the phases and the open owner decisions.
+
+## Relevant files and links
+- Parent issue: #717 (this item is a sub-issue of it). Sister issues of the split: coordinator #716, TUI dashboard #718. Source design: #655.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+The item below is built, tested and checked against its own lines, or the owner records in chat that it is dropped. The text is copied unchanged from #717.
+
+### W5. Live firing tests before enabling: two-process lock test and restart test (655 section 11; rows S11-F12, S11-F13)
+  - What to build: before the poll is enabled, hold the poll's lock from one process, start a dry-run cycle in a second, and require the second to exit 75 with reason `lock_held`, then require a normal run after release.
+  - Also in this item:
+    - S11-F13: before the poll is enabled, restart the workspace and show that `state_dir` and `dispatch.json` still exist with the same `created_at`, because the at-most-once guarantee lives in that directory.
+  - Done when: the second cycle prints `lock_held` and exits 75, the audit log carries a `cycle` line with that reason, and a third run afterwards runs normally; the result is in the S17 go/no-go record.
+    - also: after a restart the directory and `dispatch.json` exist, `created_at` is unchanged and `issue-watch status` does not exit 6.
+  - Related items (read together; the order is in the review at the end): W14
+  - Research and debate results from our documents:
+    - S11-F12: SETUP section 8.2 (`origin/master`): "The second command must print `cycle: lock_held` and `exit: 75`"; the dry run is used because "while `enabled` is `false`, a run without it stops at `not_enabled` before it reaches the lock".
+    - S11-F13: SETUP section 8.3 (`origin/master`): "The at-most-once guarantee lives in the state directory. A new, empty state directory has no memory of earlier launches (risk R5 of the design)."
+  - Watch out:
+    - S11-F13: this matters more under the plan than under 655, because the plan's store also holds waiting hand-backs and the in-flight count (FR-33, SEC-21).
+
+- [ ] **W6. Shadow-run acceptance check: every cycle ends with exit 0 or a named reason** (655 section 12; rows S12-F25)
+  - What to build: After the 24-hour shadow run, every recorded cycle exited 0 or has a named reason from the reasons table (FR-20), and any other exit blocks switch-on.
+  - Done when: a script run over the shadow run's `audit.jsonl` and cron log lists zero cycles with an unexplained nonzero exit.
+  - Research and debate results from our documents:
+    - S12-F25: techref ISSUE-TO-WORK-PIPELINE-TECHNICAL-REFERENCE.md:2215 "`once` exit code = cycle c
+--- comments=1; last 3:
+[ironbelly 2026-11-24T22:10:14Z] Closing as no longer relevant (owner decision in chat, 2026-11-24, after a reviewed analysis of this sub-issue).
+
+Why: the owner rows R18 and R28 replaced the manual two-process lock test and restart test with the automatic first-run check, the "before enabling" condition has passed (the watcher has been live since 2026-11-23), and the persistence need is carried by W14 (#822). Note: the first run of this repo failed at the config step, so the live observations may be worth a three-line note in #450 or the runbook. If the manual proof is still wanted, make it a one-time runbook check recorded in W15 (#823), not a new gate.

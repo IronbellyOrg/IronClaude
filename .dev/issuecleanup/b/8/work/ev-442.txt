@@ -1,0 +1,49 @@
+#442 [TEST GAP] Run the live observations OB-H1, OB-H2, OB-H3 and OB-CTX for the launch-level guard [OPEN ] closed=-
+## What was tried
+PR #432 (merged 2026-11-08) shipped the launch-level guard for claim-launched agents with its unit and integration tests (the PR reports 5093 passed, 12 skipped). The 12 skipped tests are the live observations, which need a real Claude Code session and were never run: OB-H1 (items 1 to 9), OB-H2, OB-H3 and OB-CTX. Each is a skipped test with a stated reason. The PR body says: "No governed claim should be used on a real issue until OB-H1 item 1, OB-H2 and OB-H3 pass (design section 7, U1)."
+
+The PR body also lists, among the guard's known limits, that the order in which Claude Code runs two hooks is unobserved (details in `artifacts/final-check.md`).
+
+## Relevant files and links
+- PR: https://github.com/IronbellyOrg/IronClaude/pull/432 (merged)
+- `tests/hooks/test_launch_level_observations.py` (the 12 skipped tests: OB-H1 items 1 to 9, OB-H2, OB-H3, OB-CTX; each calls `pytest.skip` with "needs a real governed session and has not been run")
+- `tests/hooks/fixtures/launch_level/ob_h1/README.md` (what each OB-H1 item must capture) and `log-only-probe.sh` (the hook to register for a real observation)
+- `docs/designs/sc-issue-launch-level-hook.md`, section 11 (test plan) and section 14 (order of work: OB-H2 then OB-H3, "no real governed launch until both pass")
+- `.dev/tasks/to-do/TASK-WF-implementTheLaun-20261107-092804/` (plan package for #394, including `artifacts/final-check.md`)
+- Parent issue: #394 (still open)
+
+## Done when
+OB-H1 (all 9 items), OB-H2, OB-H3 and OB-CTX have each been run in a real session with the result recorded next to the test, and the tests are no longer skipped, or each remaining skip has a reason that was checked and written down. The first gate is OB-H1 item 1, OB-H2 and OB-H3, because the design forbids governed claims on real issues until those three pass.
+
+## Pick-up note
+This needs a person at a real terminal, so it is not a job for an unattended agent. Run the observations on a disposable fork pull request, not on a real issue. Record what you saw; do not edit the tests to pass. The same session can also confirm the hook order. Until this is done the guard is unproven in practice, and the L2 pre-push layer is not built (see the separate issue about L2).
+
+
+
+Correction (2026-11-08): the first version of this issue named the wrong test file for the skipped observation tests; the list above is the corrected one.
+
+--- comments=2; last 3:
+[ironbelly 2026-11-17T07:09:30Z] ## Status review 2026-11-17
+**Status:** BLOCKED. The 12 live observations still have not been run; they need a person at a real terminal.
+**Findings:**
+- On origin/master, `tests/hooks/test_launch_level_observations.py:84` still calls `pytest.skip` for each pending item ("needs a real governed session and has not been run").
+- `tests/hooks/fixtures/launch_level/ob_h1/README.md` says every fixture there is synthetic and none was captured from a real session. No record of OB-H1, OB-H2, OB-H3 or OB-CTX results was found in `docs/` on origin/master.
+- PR #583 (merged 2026-11-17) removed the plain `approved` release. This changes the checks: OB-H1 item 5 (a Monitor line `approved`) and the OB-H3 "unlocks by both routes" step now only apply to the `/sc:implement`, `/sc:task` and `/task` route. The issue text does not say so yet.
+- The design (`docs/designs/sc-issue-launch-level-hook.md`, line 10) still forbids governed claims on real issues until OB-H1 item 1, OB-H2 and OB-H3 pass.
+**Experiments / evidence:** none this week.
+**Next steps:**
+1. Owner at a real terminal, on a disposable fork
+~~
+[ironbelly 2026-11-23T23:41:07Z] ## Backlog review, 2026-11-23
+
+Read-only review of this issue against the current source and its history (automated analysis plus an independent evidence review).
+
+- **State:** in-progress
+- **Complexity / size:** Medium / M
+- **Priority:** P1
+
+#### Concrete next steps
+1. Reconcile the existing results before rerunning everything: carry the issue-691 live rerun evidence into the OB-H2 record, with explicit acceptance or the exact remaining checks. Preserve the earlier failures as history, not the current headline.
+2. With the owner's explicit go, finish the protected-push part of session E against a proven local disposable bare remote, not the real fork. Have the test session independently confirm its push destination before attempting it. A model refusal is not evidence that the hook blocks the call.
+3. Capture a second Skill call for OB-H1 item 2. For item 6, either capture TaskCreate or record a checked tool-availability reason for its remaining skip. Do not turn missing evidence into PASS.
+4. Keep item 8's failure and its parked disposition linked to issue 678. A fix or a fresh l

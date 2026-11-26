@@ -1,0 +1,26 @@
+#783 [OPEN] [FEATURE] Coordinator C2: Named STOP codes table with a two-way test
+## What was tried
+This is item C2 of the coordinator issue #716 (next release: the features of issue 655 that the current plan does not cover), split out so it can be built and tracked on its own. Issue 655 was split into its 14 sections and one analyst per section classified every design feature against the unification spec and its decision record; this item is one of the features that were found missing. Nothing in this item is built yet. #716 stays the umbrella issue: its closing review holds the build order, the phases and the open owner decisions.
+
+## Relevant files and links
+- Parent issue: #716 (this item is a sub-issue of it). Sister issues of the split: watcher #717, TUI dashboard #718. Source design: #655.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+The item below is built, tested and checked against its own lines, or the owner records in chat that it is dropped. The text is copied unchanged from #716.
+
+### C2. Named STOP codes table with a two-way test (655 section 4; rows S04-F7)
+  - What to build: The coordinator skill carries one table of named STOP codes (code, when it fires, what the model does next) and a test that every code in the skill text is in the table and the reverse.
+  - Done when: A test lists every `E-...` token in the skill files and the verbs and finds each in the table.
+  - Research and debate results from our documents:
+    - S04-F7: W/techref/ISSUE-TO-WORK-PIPELINE-TECHNICAL-REFERENCE.md:1611 shows the claim skill already has 13 prose STOP codes; the same file at line 1708 notes `tests/skills/test_issue_protocol.py:350` "every warning code has a remedy line", so the pattern and a test style exist.
+  - Watch out:
+    - S04-F7: names must not clash with the codes of `sc-issue-protocol` (the coordinator runs the claim) or with `E-NO-GRANT`.
+
+
+## Pick-up note
+- Read the review at the end of #716 first: it holds the build order, the three phases and the owner decisions that gate this item. The related-item ids above (C numbers) refer to the sibling sub-issues of #716.
+- The plan files named above are local files, not pushed; read them from a checkout that has them, or ask the owner.
+

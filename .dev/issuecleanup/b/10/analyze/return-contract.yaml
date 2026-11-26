@@ -1,0 +1,5 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze src/superclaude/cli/issue_watch --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/b/10/analyze"
+report_path: .dev/issuecleanup/b/10/analyze/analyze-report.md
+artifacts: []

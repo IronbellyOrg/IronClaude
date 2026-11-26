@@ -1,0 +1,84 @@
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Accuracy check for #668
+
+**Verdict:** current
+
+Checked against `origin/master` at 64dfc0e8622281a56d6c4e6826c63d50c6959da8 (the merge of PR 664, 2026-11-19T01:47:52Z), and the pull requests merged since the issue was opened (0, list truncated: no).
+
+Every concrete claim that decides the work (the new file paths, the registration list, the two frozen test lists, the plugin mirror claim, the regression gate) still holds on master. Two supporting remarks in the issue are slightly off in their wording (rows 2, 8 and 14); none of them changes the scope, the Components Affected list or the estimate, so the verdict stays `current`. No file the issue names has changed on master since the issue was created.
+
+| # | Claim in the issue (quoted) | Status today (still true / changed / gone) | Evidence (path:line, PR #number or commit) |
+|---|---|---|---|
+| 1 | "New files: `src/superclaude/skills/sc-closeout-protocol/` ... `src/superclaude/commands/closeout.md` ... `tests/skills/test_closeout_protocol.py` ... `tests/commands/test_closeout_command.py`" | still true | None of the four paths exists on `origin/master`, and no path containing `closeout`, `branch-landed` or `agent-work-report` is in the tree (`git ls-tree -r origin/master`). The sibling test files named as style models exist: `tests/skills/test_issue_protocol.py`, `tests/commands/test_issue_command.py`. |
+| 2 | "a thin command whose Activation names the protocol skill; a `SKILL.md` with the frontmatter, Will Do, Will Not Do and an error table; `refs/`, `templates/` and `scripts/`" (as the pattern of `sc-issue-protocol` and `commands/issue.md`) | still true, with one naming difference | `src/superclaude/commands/issue.md:104` is `## Activation`. `src/superclaude/skills/sc-issue-protocol/` has `refs/` (5 files), `templates/` (17) and `scripts/` (3). Its `SKILL.md` headings are `## Will` (line 179), `## Will Not` (187) and `## Error handling` (152), not "Will Do" and "Will Not Do". Other protocol skills use `## Will Do` and `## Will Not Do` (`sc-pr-submit-protocol/SKILL.md:330,339`, `sc-auggie-review-protocol`, `sc-troubleshoot-protocol`). The spec should pick one set of headings. |
+| 3 | "`src/superclaude/core/HOW-WE-WORK.md`: the `other-commands` block (between `<!-- other-commands:v1 -->` and `<!-- /other-commands -->`) lists `/sc:issue`, `/sc:sweep` and the other additional commands" | still true | `src/superclaude/core/HOW-WE-WORK.md:287` (open marker) to `:301` (close marker). Table rows: `/sc:agent`, `/sc:git`, `/sc:graph`, `/sc:impact`, `/sc:issue` (line 295), `/sc:pm`, `/sc:sweep` (line 297). Last changed on master by PR 656 (a3edd84db, 2026-11-18); no change since. |
+| 4 | "`plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md`: the plugin copy of the routing guide, which `tests/commands/test_routing_plugin_parity.py` requires to be byte-identical to the source file" | still true | `tests/commands/test_routing_plugin_parity.py:38` is `filecmp.cmp(_GUIDE, _PLUG_SKILL / "refs/HOW-WE-WORK.md", shallow=False)`. On master both files have the same SHA-256 (bae9f846...1e56), so they are identical today. |
+| 5 | "`tests/core/test_how_we_work_routing_table.py`: `_OTHER_COMMANDS` is compared to the members of the `other-commands` block" | still true | `tests/core/test_how_we_work_routing_table.py:27-35` holds the set (`sc:git`, `sc:graph`, `sc:impact`, `sc:issue`, `sc:sweep`, `sc:agent`, `sc:pm`); line 286 is `assert members == _OTHER_COMMANDS`. A row added to the block without the set entry, or the reverse, fails. |
+| 6 | "`tests/recommend/test_routing_refresh.py`: `_POST_REFRESH_ADDITIONS` lists commands shipped after the frozen research package (`graph`, `impact`, `issue`, `sweep`); a new command file makes the shipped-set comparison fail unless it is added there" | still true | `tests/recommend/test_routing_refresh.py:36` is `{"graph", "impact", "issue", "sweep"}`. Lines 660-661 build `shipped` from `src/superclaude/commands/*.md` (README excluded) and assert `shipped - _POST_REFRESH_ADDITIONS == active - _POST_REFRESH_REMOVALS`, so `closeout.md` without an entry fails. The comment above the set (lines 32-35) names only issues 323 and 302, not the sweep, so the spec may want to update that comment too. |
+| 7 | "`docs/user-guide/commands.md`: the command table (where `/sc:issue` and `/sc:pr-submit` are listed) and a per-command section" | still true | Table rows at `docs/user-guide/commands.md:102` (`/sc:issue`), `:103` (`/sc:sweep`) and `:106` (`/sc:pr-submit`); per-command sections `### /sc:issue` at line 305, `### /sc:pr-submit` at 443, `### /sc:sweep` at 545. Last changed on master by PR 659 (d619bc870). The `integration` branch carries two added lines in the `/sc:issue` section (PR 667, merged into `integration`, not master), so a later merge of `integration` can touch the same file but not the table. |
+| 8 | "the plugin mirror `plugins/superclaude/` holds only `confidence-check`, `sc-implement-protocol`, `sc-recommend` and `sc-workflow-protocol` plus 21 command files, with no `issue` or `pr-submit` entry" | still true, count worded loosely | `plugins/superclaude/skills/` holds exactly those four directories (plus `__init__.py`). `plugins/superclaude/commands/` holds 20 `.md` command files plus `__init__.py` (21 entries); there is no `issue.md`, `pr-submit.md` or `sweep.md`. |
+| 9 | "Assumptions: ... that the plugin mirror needs only the routing guide copy" | still true | `src/superclaude/commands/README.md:9` says only `help.md`, `recommend.md`, `workflow.md` and `implement.md` are mirrored byte for byte (the parity test parametrizes those four, `tests/commands/test_routing_plugin_parity.py:41`). README line 11 says the guide itself is copied whole to the plugin path and only its level-table block is recopied into `src/superclaude/core/CLAUDE.md`; a row in the `other-commands` block is outside that block, so no `CLAUDE.md` edit is implied. The sc-recommend parity test requires `plug - src == {"refs/HOW-WE-WORK.md"}` (line 32). |
+| 10 | "Checked and not needing a change: `src/superclaude/commands/help.md` does not list commands by name" | still true | Searching `help.md` on master for `/sc:issue`, `/sc:sweep`, `/sc:pr-submit` and `/sc:analyze` finds 0 matches. |
+| 11 | "`src/superclaude/core/WORKER-CONTRACT.md` (a never-as-worker list names `/sc:issue` and `/sc:sweep`; the spec decides whether `/sc:closeout` belongs on it)" | still true; more places pin the list than the issue says | `src/superclaude/core/WORKER-CONTRACT.md:23` lists `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:sweep`, `/sc:swarm-wizard`, plus `/sc:pr-submit` while D3 keeps it off workers. The same list is pinned in `tests/skills/test_worker_contract.py:86-89` and `:462-470` (`NEVER_AS_WORKER`) and repeated in `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:982`. If the spec adds `/sc:closeout`, all four places change. |
+| 12 | "`tests/skills/test_issue_worker_agents.py` (`gh_lines_missing_repo`, the shared fork-safety scan)" | still true | `tests/skills/test_issue_worker_agents.py:45` defines `gh_lines_missing_repo`; its docstring (line 8) calls it the one fork-safety scan for `/sc:issue`. |
+| 13 | "`src/superclaude/skills/sc-pr-submit-protocol/` (its `scripts/finish-merge.sh` is the pattern for a script with one stdout line and fixed failure tokens" | still true | `src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh` (mode 100755), header: "Output : exactly one stdout line", failure token `FINISH_FAIL <reason>`, exit 2. |
+| 14 | "its Merge guard section is the nearest existing text about a pull request that was merged" | changed (imprecise) | `src/superclaude/skills/sc-pr-submit-protocol/refs/merge-guard.md:1-9` is about holding an open pull request as a draft while a fix cycle runs (issue 375), so that it is not merged mid-fix. It is not about handling a merged pull request. The only place it meets a non-open pull request is the Wave 6 halt `pr_not_open` (`SKILL.md:309`). The skill has no text on a pull request that already merged, so the issue's pattern note is wrong in kind, but the point (the script style of `finish-merge.sh`) is unaffected. |
+| 15 | "The orchestrator design titles wave 8 \"Close and drop the entry\"" | still true | Issue 655 body, wave table row "8. Close and drop the entry (`refs/close.md`)": "Closes the issue if the merge did not already close it, updates the entry, then the entry leaves the report" (`gh issue view 655`). The design file itself is not on master (`docs/designs/orchestrator-mode.md` has no wave 8 and no closeout), so I did not read it. |
+| 16 | "IronClaude PR #661 (issue #651) was merged by a person (Ryan) ... the merge itself closed issue #651, because the pull request body says `Closes #651`" | still true, except the person's name is not on GitHub | `gh pr view 661`: state MERGED at 2026-11-19T01:29:57Z, merged by the account `ironbelly` (not a bot), body starts `Closes #651`, `closingIssuesReferences` lists #651. `gh issue view 651`: CLOSED at 2026-11-19T01:29:59Z, two seconds later. The name "Ryan" and the "an hour later" hand-off gap cannot be read from GitHub: not verified here. |
+| 17 | "#655 (the issue-polling orchestrator, open) ... #651 (... closed) ... #339 ... open ... #331 ... closed ... #444 ... open" | still true | `gh issue view` states: #655 OPEN, #651 CLOSED, #339 OPEN, #331 CLOSED (2026-11-08), #444 OPEN. |
+| 18 | "the `agent-work-report` skill that holds the report entry format is in the IronFlow repo today and moves into IronClaude under issue #655 (listed there as a separate pull request)" | still true | No `agent-work-report` path on IronClaude `origin/master`. Issue 655 body: "(c) moving the `agent-work-report` skill into IronClaude" and "PR C: moving the `agent-work-report` skill into IronClaude", in parallel with A and B. The skill exists in the IronFlow checkout (`.claude/skills/agent-work-report`). |
+| 19 | "Regression gate: as `.github/workflows/test.yml` runs it ... `pytest -v --tb=short --color=yes -n auto --maxfail=3 --ignore=tests/cli/test_verify_sync_hooks.py`, then `pytest ... tests/cli/test_verify_sync_hooks.py` on its own; `make lint`; `uv run ruff format --check src/ tests/`; `make sync-dev` then `make verify-sync`" | still true, not complete | `.github/workflows/test.yml:47` is the same parallel pytest line; the serial hook test is the last lint-job step (about line 137-140). `make lint` is `lint-architecture` then `uv run ruff check .` (Makefile:48-50); CI runs `ruff check src/ tests/` (line 102) and `ruff format --check src/ tests/` (line 106). CI also runs `make verify-deps` (line 123), which the issue's gate does not list; the plan adds no dependency, so the risk is low. The workflow file last changed 2026-11-05 (PR 402). |
+| 20 | "`make sync-dev` copies the new skill and command into `.claude/`" | still true | `Makefile` `sync-dev` copies every `src/superclaude/skills/<name>/` that has a `SKILL.md` (lines 109-121) and every `src/superclaude/commands/*.md` to `.claude/commands/sc/` (lines about 131-135). |
+| 21 | "The closeout skill and `branch-landed.sh` in https://github.com/Simple-With-Us/AI-Fleet-Coordinator (`skills/closeout/SKILL.md`, `scripts/branch-landed.sh`) ... Apache-2.0" | not verified | That repository is outside the repository this check may read (reads are limited to IronbellyOrg/IronClaude). The paths, the licence and the owner approval are the issue's own statements; the spec worker must read both files first and confirm the licence text before copying. |
+
+### Merged pull requests that touch this issue
+
+None merged on master since the issue was created (2026-11-19T03:36:05Z). The scout found none; I confirmed it with `git log origin/master --since=2026-11-19T03:36:05Z` (empty) and `gh pr list --state merged --search "merged:>=2026-11-18"` (the latest merge is PR 667 at 03:35:27Z, 38 seconds before the issue, into `integration`, not master). The pull requests below were merged before the issue; they shaped the files the issue names and are listed for relevance.
+
+| PR | Title | Relevant files | Effect on the issue |
+|---|---|---|---|
+| #667 | docs: post-release sync and install runs for 6.1.0 | `docs/user-guide/commands.md` (2 added lines in the `/sc:issue` section, on `integration`) | None on the claims; it can only matter as a text merge when `integration` reaches master. |
+| #664 | release: 6.1.0 (task and documentation bundle removed, ccsession agent sessions) | `docs/user-guide/commands.md`, `plugins/superclaude/...`; master head | It is the master state this check read; all claims hold against it. |
+| #661 | feat(sc-issue): require Priority, Fix approach and Test plan in every issue template | `src/superclaude/skills/sc-issue-protocol/` (SKILL.md, refs/create.md, four templates), tests | The issue's own format (Priority, Fix approach, Test plan); the cited merged example. |
+| #659 | docs(install): say the installer raises cleanupPeriodDays to 90, not 365 | `docs/user-guide/commands.md` | Last change to the user guide on master; the table rows and sections the issue cites are unchanged. |
+| #656 | refactor(skills): remove the task, task-builder and roadmap skills and level 4 of the routing guide (6.1.0) | `src/superclaude/core/HOW-WE-WORK.md`, `tests/core/test_how_we_work_routing_table.py`, `WORKER-CONTRACT.md`, plugin copy | Produced the current `other-commands` block and `_OTHER_COMMANDS`; the issue describes this state correctly. |
+| #650 | refactor(skills): remove the prd, tdd, tech-research, tech-reference, operational-guide and readme skills and /sc:tdd (6.1.0) | `tests/recommend/test_routing_refresh.py`, plugin copy | Last change to `test_routing_refresh.py`; the removal sets there do not affect adding `closeout`. |
+| #636 | feat(issue): pick the default --claim pipeline level from the issue | `src/superclaude/commands/issue.md`, `sc-issue-protocol`, routing guide | Last change to `issue.md`; the pattern files the issue points at are as described. |
+
+<!-- sc:issue:accuracy-check -->
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Claimed by @clayphi
+
+- **ClickUp:** skipped (no_workspace)
+- **Accuracy check:** current (see the accuracy-check comment on this issue)
+
+### Summary
+
+Add the skill `sc-closeout-protocol` and its thin command `/sc:closeout <PR>`: after a pull request is merged it checks what merged against what was asked for (pull request state first, then a three-dot diff, never commit ancestry), then settles the issue, the work report entry and the worker, each with a stated final status or an escalation. The work adopts Jay Wedgeworth's closeout skill and `branch-landed.sh` (Apache-2.0, owner approved), adapted and not rewritten, as its own small pull request. The orchestrator of issue #655 calls it in wave 8.
+
+- **Effort estimate:** 18 hours
+- **Complexity:** complex
+- **Type:** feature
+- **First next step:** `/sc:design "closeout skill adapted from the approved Jay Wedgeworth closeout skill and branch-landed.sh; see @.dev/issues/668/issue-summary.md" --type architecture --format spec`
+
+### Files
+
+- Summary: `.dev/issues/668/issue-summary.md`
+- Next steps: `.dev/issues/668/next-steps.md`
+- Analysis: `.dev/issues/668/analysis/`
+
+These links are paths in the repository; they open on GitHub only after someone commits and pushes the files.
+
+<!-- sc:issue:claim -->
+
+--

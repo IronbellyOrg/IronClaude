@@ -1,0 +1,189 @@
+#[FEATURE] Add /sc:closeout: settle a merged pull request, its issue and its worker [CLOSED]
+<!-- /sc:issue feature template (complex). Copy to <D>/issue-body.md and fill every placeholder in place. Keep every heading. Write "Not known yet" under a heading when the description and the codebase pass give nothing; never invent a fact. The exception is ## Priority, ## Fix approach and ## Test plan: fill them at every depth from the codebase pass, never write "Not known yet" there, and state any assumption in the section (rules in refs/create.md). -->
+
+## Feature Summary
+
+Add the skill `sc-closeout-protocol` and its thin command `/sc:closeout <PR>`. After a pull request is merged, it checks that what merged is what was asked for, then settles the pull request's issue, its entry in the work report and its worker, each with a stated final status or an escalation that says why not. The orchestrator of issue #655 calls it in wave 8, and a person can run it by hand on any pull request.
+
+## Problem Statement
+
+A pull request can be merged and still leave loose ends: the issue is open or has no closing note, the worker that built it is still held, the issue is still marked in progress in the work report, and nobody checked that what merged is what was asked for.
+
+This happened on 2026-11-19. IronClaude PR #661 (issue #651) was merged by a person (Ryan), and nothing settled its worker or its report entry until a human noticed an hour later. (In that case the merge itself closed issue #651, because the pull request body says `Closes #651`; the loose ends were the worker and the report entry.)
+
+The orchestrator of issue #655 closes out the pull requests it merges itself, but a person merging by hand, or any other session, has no such step. The same steps are needed in both cases, so they belong in one skill that both use.
+
+## User Story
+
+As a maintainer who merges a pull request by hand, or as the issue-polling orchestrator that merges one itself, I want one command that settles the merged pull request, its issue and its worker, so that nothing is left silently in progress and what merged is checked against what was asked for.
+
+## Proposed Solution
+
+A new protocol skill `sc-closeout-protocol` with a thin command `/sc:closeout <PR>`, built in the same pattern as `sc-issue-protocol` and `commands/issue.md` (a thin command whose Activation names the protocol skill; a `SKILL.md` with the frontmatter, Will Do, Will Not Do and an error table; `refs/`, `templates/` and `scripts/`).
+
+What it does, on a pull request given as a number or URL (the repo is always the `origin` repo):
+
+1. Truth check after the merge. A script reads the pull request state first (merged or not, by whom, at what commit). Then it compares what merged with what the pull request held, using a three-dot diff against the base. It never decides from commit ancestry, because a squash merge leaves the original commits out of the base history. The script returns fixed results.
+2. Update and close the issue. The closing note says what merged and who merged it. People are credited by name; the note never names the agent or the model (the gateway hides which agent did the work). The pull request body is checked for a link to the issue. An issue the merge did not close is closed.
+3. Two words with fixed meanings: "completed" means merged, "deployed" means verified in the place it runs. The skill never writes "deployed" without a check.
+4. Never leave an item silently in progress. The issue, the work report entry and the worker's Orca task each end with a stated final status, or with an escalation that says why not.
+5. Work for a merge it did not make (a person merged first), and work with no orchestrator running.
+6. Return a short result. When the orchestrator calls it (wave 8 of the orchestrator design, after the merge and the close and before the work report refresh), the orchestrator records the result; when a person runs it, the same result is printed. The orchestrator design titles wave 8 "Close and drop the entry", so the spec fixes the exact point inside that wave.
+
+Judgment is used only for the closing note and for deciding what an item's final status is; everything else is a script.
+
+Source: this is an adoption, not a rewrite. The closeout skill and `branch-landed.sh` in https://github.com/Simple-With-Us/AI-Fleet-Coordinator (`skills/closeout/SKILL.md`, `scripts/branch-landed.sh`) are Jay Wedgeworth's work, published under Apache-2.0, and the owner has approved using them. The spec and the build start from those two files and change only what our setup needs (our command and skill layout, our `gh` and Orca calls, the work report entry, the rules on naming people and never the agent); they do not redo the design. The Apache-2.0 notice and a statement of what was changed stay with the adopted files.
+
+This is its own small pull request, separate from the orchestrator pull request of issue #655.
+
+## Acceptance Criteria
+
+- [ ] `/sc:closeout <PR>` exists as a thin command whose Activation names `sc-closeout-protocol`, and the skill has the frontmatter, Will Do, Will Not Do and an error table.
+- [ ] The truth check reads the pull request state first and then uses a three-dot diff against the base; no code path uses commit ancestry. It gives the right verdict for a squash merge, a merge commit, a rebase merge, a pull request not merged, a pull request closed without merge, and a merge made by a person.
+- [ ] An issue the merge already closed is not closed twice; an open one is closed with a note that says what merged and who merged it; the link from the pull request body to the issue is checked, not assumed.
+- [ ] The skill never writes "deployed" without a recorded check; "completed" is used for merged.
+- [ ] The issue, the work report entry and the worker's Orca task each end with a stated final status or an escalation that says why not; an item with neither fails the check.
+- [ ] No output names the agent or the model; people are credited by name.
+- [ ] It works with no orchestrator and no Orca Run present, and it returns a short result that the orchestrator can record and that a person sees printed.
+- [ ] No em or en dashes appear in the skill files, and no secret is printed or written.
+- [ ] The adopted files keep Jay Wedgeworth's Apache-2.0 notice and say what was changed; the skill and script stay recognizably the adopted ones, adapted and not rewritten.
+- [ ] The command is registered where the repo lists commands, and the regression gate passes.
+
+## Out of Scope
+
+- The change to the orchestrator design (wave 8 calling `/sc:closeout`): that text change belongs to issue #655, not to this pull request.
+- The draft additions A to E to the #655 design (hold and acceptance check, what reaches the owner, what the control plane may never do, audit after a pull request lands): they are linked from issue #655 once the owner approves them.
+- Adopting anything from the Simple-With-Us AI-Fleet-Coordinator repository other than its closeout skill and `branch-landed.sh` (the owner approved those two; the rest of that repository, for example its pull request sweep, is not adopted here).
+- Making the merge itself: the skill starts after a merge.
+
+## Components Affected (from `/sc:analyze`)
+
+New files:
+
+- `src/superclaude/skills/sc-closeout-protocol/` (`SKILL.md`, `refs/`, `templates/`, `scripts/`)
+- `src/superclaude/commands/closeout.md`
+- `tests/skills/test_closeout_protocol.py` (static tests, in the style of `tests/skills/test_issue_protocol.py`)
+- `tests/commands/test_closeout_command.py` (command tests, in the style of `tests/commands/test_issue_command.py`)
+
+Existing files that change to register the command:
+
+- `src/superclaude/core/HOW-WE-WORK.md`: the `other-commands` block (between `<!-- other-commands:v1 -->` and `<!-- /other-commands -->`) lists `/sc:issue`, `/sc:sweep` and the other additional commands.
+- `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md`: the plugin copy of the routing guide, which `tests/commands/test_routing_plugin_parity.py` requires to be byte-identical to the source file.
+- `tests/core/test_how_we_work_routing_table.py`: `_OTHER_COMMANDS` is compared to the members of the `other-commands` block.
+- `tests/recommend/test_routing_refresh.py`: `_POST_REFRESH_ADDITIONS` lists commands shipped after the frozen research package (`graph`, `impact`, `issue`, `sweep`); a new command file makes the shipped-set comparison fail unless it is added there.
+- `docs/user-guide/commands.md`: the command table (where `/sc:issue` and `/sc:pr-submit` are listed) and a per-command section.
+
+Patterns and neighbours read, not changed (unless the spec decides otherwise):
+
+- `src/superclaude/skills/sc-issue-protocol/` and `src/superclaude/commands/issue.md` (structure to follow).
+- `src/superclaude/skills/sc-pr-submit-protocol/` (its `scripts/finish-merge.sh` is the pattern for a script with one stdout line and fixed failure tokens; its Merge guard section is the nearest existing text about a pull request that was merged).
+- `src/superclaude/core/WORKER-CONTRACT.md` (a never-as-worker list names `/sc:issue` and `/sc:sweep`; the spec decides whether `/sc:closeout` belongs on it).
+- `tests/skills/test_issue_worker_agents.py` (`gh_lines_missing_repo`, the shared fork-safety scan).
+
+Checked and not needing a change: `src/superclaude/commands/help.md` does not list commands by name, and the plugin mirror `plugins/superclaude/` holds only `confidence-check`, `sc-implement-protocol`, `sc-recommend` and `sc-workflow-protocol` plus 21 command files, with no `issue` or `pr-submit` entry, so the skill and command are not expected to be mirrored there (only the routing guide copy above).
+
+Codebase pass note: the code graph was not used for this pass; it was done with Grep, Glob, Read and git reads.
+
+## Related Issues/PRs
+
+- #655 (the issue-polling orchestrator, open): its wave 8 calls this skill and names this issue as a dependency.
+- #651 (the plan format: Priority, Fix approach and Test plan, closed): this issue follows that format.
+- #661 (the pull request that closed #651): the merged example above.
+- #339 (Orchestrator to run and manage all sessions within a worktree, open): related by topic, the wider orchestration work. Not a duplicate: it does not ask for a closeout step. (Matched on title only.)
+- #331 (Automated GitHub issue and task watcher and routing service, closed): the earlier watcher request whose open parts #655 takes over. Not a duplicate. (Matched on title only.)
+- #444 (Evaluate a Sub-Orchestrator or Coordinator mode for `/sc:orchestrator`, open): related because it concerns who coordinates and so who would call a closeout step. Not a duplicate. (Matched on title only.)
+
+No duplicate of this issue was found among the lookup results.
+
+## Success Metrics
+
+- Running `/sc:closeout` by hand on a merged pull request like #661 leaves the issue, the work report entry and the worker each with a stated final status or an escalation.
+- Every case in the Test plan passes in the regression gate on this pull request.
+- Issue #655 can call the skill in wave 8 with no change to the skill's contract.
+
+## Architecture Impact
+
+- A new skill and command; no existing skill or command changes behaviour.
+- New data flow: read the pull request state and diff from GitHub (read only), write the issue closing note and close the issue, update the work report entry, and settle the worker's Orca task; then return a short result to the caller.
+- The one existing interface it is called through is wave 8 of the orchestrator design, which issue #655 owns.
+- The truth check script is the only place that decides what merged; the skill's judgment is limited to the closing note and each item's final status.
+
+## Dependencies
+
+- A spec approved by the owner before anything is built (see Fix approach).
+- Issue #655 depends on this issue (its wave 8), not the other way round. The orchestrator can be built after this skill exists or against its written contract.
+- The work report entry: the `agent-work-report` skill that holds the report entry format is in the IronFlow repo today and moves into IronClaude under issue #655 (listed there as a separate pull request). The spec must say how this skill updates an entry before that move is done (see Risks).
+- Orca, for settling the worker's task. A hand run with no Orca Run present must still work.
+
+## Documentation Needs
+
+- The skill's own `SKILL.md` and refs.
+- `docs/user-guide/commands.md`: a row in the command table and a section for `/sc:closeout`.
+- `src/superclaude/core/HOW-WE-WORK.md` and its plugin copy: one row in the `other-commands` block.
+- A design spec (the spec of the Fix approach); by analogy with `docs/designs/sc-issue-command.md` it would live under `docs/designs/`.
+- `CHANGELOG.md`: earlier `/sc:issue` work has entries there. Whether this change needs one is not known yet.
+
+## Alternatives Considered
+
+- Putting these steps only inside the orchestrator's wave 8: not chosen. A person merging by hand, or any other session, would still have no closeout step. One skill that both use avoids two copies.
+- Writing the closeout skill from nothing: not chosen. Jay Wedgeworth's closeout skill and `branch-landed.sh` already do the truth check and the closeout, and the owner approved using them (Apache-2.0), so the work is to adapt them, not to redesign them.
+- Deciding the merge verdict from commit ancestry: not chosen. A squash merge leaves the original commits out of the base history, so ancestry gives the wrong answer; the pull request state plus a three-dot diff is used instead.
+
+## Impact Analysis (Blast Radius, Integration Impact)
+
+- Blast Radius: the new files only, plus the registration edits above. Writes go to the issue (a closing note and a close), the work report entry and the worker's Orca task, so a wrong run could close an issue or release a worker too early. The skill reads the pull request state first and acts only on a merged pull request, and it never closes an issue twice.
+- Integration Impact: issue #655 changes its wave 8 text to call `/sc:closeout` (belongs to #655). In this repo: the routing guide and its plugin copy, `tests/core/test_how_we_work_routing_table.py`, `tests/recommend/test_routing_refresh.py` and `docs/user-guide/commands.md`. `make sync-dev` copies the new skill and command into `.claude/`, and `make verify-sync` must pass.
+
+## Risks & Mitigation
+
+- A squash merge hides the original commits. Mitigation: pull request state first, then a three-dot diff against the base; tests with a fake `gh` and `git` for each merge type, none using commit ancestry.
+- Writing "deployed" when nothing was checked. Mitigation: a fixed meaning for each word and a test that fails when "deployed" appears without a recorded check.
+- Two actors settle the same pull request (a person and the orchestrator). Mitigation: read the current state first; an issue already closed is not closed again.
+- An item left silently in progress. Mitigation: each item ends with a final status or an escalation, and a test fails otherwise.
+- The work report entry surface is not in IronClaude yet. Mitigation: the spec defines the interface this skill uses; where the surface is absent, the result reports an escalation for that item instead of skipping it.
+- The agent or the model named in a note a person reads. Mitigation: a test on every output for the agent and model names, with people credited by name.
+- The repository is public. Mitigation: repo-relative paths only, and a test that no secret is printed or written.
+
+## Effort Estimate (hours) and Complexity
+
+- Effort Estimate (hours): 18. Reasoning: spec, two independent critique reviews and the fixes they cause, about 4 hours; the skill (`SKILL.md`, refs, templates) and the thin command, about 4 hours; the truth check script and its fixtures, about 3 hours; tests, about 4 hours; registration edits, user guide and plugin copy, about 1.5 hours; regression gate and pull request review rounds, about 1.5 hours. The skill is small, but the spec and its review round are most of the schedule.
+- Complexity: complex (set by the deep depth chosen for this issue; by the repo's hours rubric the work sits near the line between medium and complex).
+
+## Priority
+
+Medium: a planned feature (the Medium row of the Priority rule set: degraded behaviour with a workaround, or a planned feature). Today a person closes the issue, releases the worker and updates the report by hand; nothing is broken and no release or gate depends on it. It is not High because no other work is blocked: issue #655 (wave 8) can be built after this skill exists or against its written contract.
+
+## Fix approach
+
+Repo: IronbellyOrg/IronClaude. Base branch: master. Own small pull request, separate from the orchestrator pull request of issue #655. Work on a feature branch from `origin/master`; open the pull request only through `/sc:pr-submit --monitor 3 --head <branch>`.
+
+Commands, in order: `/sc:design` on this issue (a spec, `--type architecture --format spec`), then independent `/sc:spec-panel --mode critique` reviews by readers who did not write the spec, then the owner approves the spec before anything is built; after approval `/sc:workflow` on the spec, `/sc:implement` on the tasklist, and `/sc:pr-submit --monitor 3 --head <branch> --title "..." --body "..."`.
+
+Steps, in order:
+
+- Step 1: Write the spec (`docs/designs/`) as an adaptation of Jay Wedgeworth's closeout skill and `branch-landed.sh` (read both first; say what is kept as is and what changes for our setup): the flags, the steps of the truth check, the result it returns, how the orchestrator calls it and how a person runs it, which parts are scripts and which need judgment, what it writes where, where the Apache-2.0 notice goes, and the tests. Get it reviewed and approved before any build.
+- Step 2: Add the skill `src/superclaude/skills/sc-closeout-protocol/` (`SKILL.md`, `refs/`, `templates/`, `scripts/`), starting from the adopted skill, and the thin command `src/superclaude/commands/closeout.md` that activates it, following `src/superclaude/skills/sc-issue-protocol/` and `src/superclaude/commands/issue.md`.
+- Step 3: Start the truth check from the adopted `branch-landed.sh`: pull request state first, then a three-dot diff against the base, and no commit-ancestry test, with fixed results. The skill uses judgment only for the closing note and for deciding what an item's final status is. The script's output style can follow `src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh` (one stdout line, a fixed failure token).
+- Step 4: Register the command: add a row to the `other-commands` block of `src/superclaude/core/HOW-WE-WORK.md` and copy the file to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (the parity test needs identical files); add `closeout` to `_OTHER_COMMANDS` in `tests/core/test_how_we_work_routing_table.py` and to `_POST_REFRESH_ADDITIONS` in `tests/recommend/test_routing_refresh.py`; add the row and section to `docs/user-guide/commands.md`.
+- Step 5: Add the tests listed in the Test plan.
+- Step 6: In the orchestrator design (issue #655), wave 8 calls `/sc:closeout`; that text change belongs to issue #655, not to this pull request.
+
+Assumptions: the two new test file names; the registration list in Step 4 (taken from the tests that pin the command lists); that the plugin mirror needs only the routing guide copy; that the spec lives under `docs/designs/`; and that the script language (Python as in `sc-issue-protocol`, or shell as in `sc-pr-submit-protocol`) is for the spec to choose.
+
+## Test plan
+
+- Tests to add or change: in the style of `tests/skills/test_issue_protocol.py`, add `tests/skills/test_closeout_protocol.py` and `tests/commands/test_closeout_command.py`:
+  - Structure: the command is thin and its Activation names the protocol skill; `SKILL.md` has the frontmatter, Will Do, Will Not Do and the error table; every file the skill names exists and every file in `refs/`, `templates/` and `scripts/` is named.
+  - Truth check, with a fake `gh` and `git`: a squash merge, a merge commit, a rebase merge, a pull request not merged, a pull request closed without merge, and a merge made by a person. Each gives the right verdict and none uses commit ancestry.
+  - Issue handling: an issue the merge already closed is not closed twice; an open one is closed with a note naming who merged; the pull request body linking the issue is checked, not assumed.
+  - Words: a test fails if the skill writes "deployed" without a recorded check.
+  - Never in progress: an item left without a final status or an escalation fails the check.
+  - Names: no output names the agent or the model; people are credited by name.
+  - Hand run: the skill works with no orchestrator and no Orca Run present.
+  - Hygiene: no em or en dashes; no secret is printed or written.
+  - Changed tests: add `closeout` to `_OTHER_COMMANDS` in `tests/core/test_how_we_work_routing_table.py` and to `_POST_REFRESH_ADDITIONS` in `tests/recommend/test_routing_refresh.py`.
+- Regression gate: as `.github/workflows/test.yml` runs it, before and after the change: `pytest -v --tb=short --color=yes -n auto --maxfail=3 --ignore=tests/cli/test_verify_sync_hooks.py`, then `pytest -v --tb=short --color=yes tests/cli/test_verify_sync_hooks.py` on its own; `make lint`; `uv run ruff format --check src/ tests/`; `make sync-dev` then `make verify-sync`.
+- How a reviewer verifies: run the two new test files (`uv run pytest tests/skills/test_closeout_protocol.py tests/commands/test_closeout_command.py`) and the regression gate above; a pass is every test green, no ruff or lint finding, and `make verify-sync` reporting no drift. Then run `/sc:closeout` by hand on a merged pull request and check that the issue, the work report entry and the worker each show a final status or an escalation, and that no note names the agent or the model.
+
+<!-- sc:issue:create template=issue-feature-complex -->
+

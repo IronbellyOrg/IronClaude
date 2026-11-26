@@ -1,0 +1,213 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Versioned design package and embedded previews
+
+The complete design study is published for collaboration on branch **`docs/409-orca-dashboard-designs`**:
+
+- **[View all twenty embedded design images on GitHub](https://github.com/IronbellyOrg/IronClaude/blob/docs/409-orca-dashboard-designs/.dev/design/orca-observer-20261106/PREVIEWS.md)**
+- **[Browse the complete editable package](https://github.com/IronbellyOrg/IronClaude/tree/docs/409-orca-dashboard-designs/.dev/design/orca-observer-20261106)**
+- **[Download the complete package ZIP](https://github.com/IronbellyOrg/IronClaude/raw/refs/heads/docs/409-orca-dashboard-designs/.dev/issues/409/orca-observer-design-package.zip)**
+- [First ten-page PDF portfolio](https://github.com/IronbellyOrg/IronClaude/blob/docs/409-orca-dashboard-designs/.dev/design/orca-observer-20261106/portfolio.pdf)
+- [Additional agent-supervision PDF portfolio](https://github.com/IronbellyOrg/IronClaude/blob/docs/409-orca-dashboard-designs/.dev/design/orca-observer-20261106/agent-focus/portfolio.pdf)
+- [Design comparison and recommendations](https://github.com/IronbellyOrg/IronClaude/blob/docs/409-orca-dashboard-designs/.dev/design/orca-observer-20261106/concepts.md)
+- [QA and review limitations](https://github.com/IronbellyOrg/IronClaude/blob/docs/409-orca-dashboard-designs/.dev/design/orca-observer-20261106/QA.md)
+- [Evidence ledger](https://github.com/IronbellyOrg/IronClaude/blob/docs/409-orca-dashboard-designs/.dev/design/orca-observer-20261106/sources.json) and [integration questions](https://github.com/IronbellyOrg/IronClaude/blob/docs/409-orca-dashboard-designs/.dev/design/orca-observer-20261106/integration-gaps.md)
+
+The issue body already contains **22 actual embedded GitHub image attachments**: all twenty primary designs plus both contact sheets. The new Markdown preview page also renders repository-hosted images directly.
+
+The ZIP contains **406 package files** plus its per-file hash manifest. SHA-256: `5e169becf792219a9ed7f58f4146e0b0d874eb31574783375a2d8160e5860191`.
+
+For interactive inspection, download/extract the ZIP and open `orca-observer-20261106/index.html`. GitHub renders the Markdown/PNG previews and PDF files, but displays gallery HTML as source rather than running it. The galleries need no server or live connection.
+
+All data is synthetic. No production integration, deployment, operational controls or PR is introduced. Please identify the concept name and terminal width when giving feedback here; the human still chooses the direction.
+
+<!-- orca-dashboard:collaboration-branch -->
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+@ironbelly (Ryan): this is my reply to your ClickUp DM of 2026-11-06 asking whether the dashboard is worth the effort. You asked me on 2026-11-07 to leave it here. It is copied word for word from the DM.
+
+The Fleet Quilt and Decision Desk screens would be most useful to me, but need a simple plain english summary of the 'task/issue', whats done, whats left to do, and if it needs me. Link to the pr/issue if one exists
+
+Loop Detector or Mission Pulse - if this had a sort of easy to understand flow of what the agent has done with, so instead of "Retry 1" its like Brainstorm - and that is green if its done, yellow in progress, red fail. That kind of thing. Next box is whatever comes next in that spec
+
+Signal bridge could be nice if it was Issue (link) / PR (link) / Lifecycle / Phase. Ya, with colors for running, done, blocked, stuck, at PR
+
+^ esp on Signal bridge if you could click to open that session
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Status review 2026-11-17
+**Status:** ACTIVE. The observer (`superclaude observe`) is built and had two merged changes plus a live test this week. The issue text itself is stale.
+
+**Findings:**
+- #577 (merged 2026-11-17) switched the coordinator-questions panel on (`QUESTION_GATE_PASSED = True`, `src/superclaude/cli/observe/commands.py:67`), applied the 11 agreed cuts, and recorded the owner's direction decision. Earlier releases: #503 and #514.
+- #586 (docs, merged 2026-11-17) recorded a live questions test and a synthetic load test.
+- An owner-run read on 2026-11-17 listed 41 old questions and two repeat reads of the same Run returned all 41 both times, so the read did not consume them. All 41 were old, so this does not prove a fresh unanswered question survives a read (recorded in #589).
+- The issue body still carries a correction banner saying "no observer code exists" in several places. The design package branch `docs/409-orca-dashboard-designs` is not merged (no PR).
+
+**Experiments / evidence:** load test: steady traffic lost 0 of 181 messages; a 130-message burst lost 30 of about 415 (4 of the 130 burst messages, 26 unattributed). Real traffic is unmeasured.
+
+**Next steps:**
+1. Owner grants the pending correction pass on this issue body (the record lists it as waiting on the Q8 record fields).
+2. Measure the questions read against real traffic, and decide what to do about the burst loss.
+3. Decide whether the design package branch gets a PR or stays as a reference.
+
+**Related:** #339 (agent-facing half), #503 and #514 (observer releases), #577, #586, #589, #534.
+
+Posted by Claude Code during the 2026-11-17 open-issue review.
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## PR #591 (issue watcher coordinator handoff, Plan B): what it means for this issue
+
+Checked 2026-11-17 by a read-only `/sc:analyze` pass over the files #591 changed (merge commit `6af80d6c0`), then spot-checked against the files. Nothing was run.
+
+**Verdict: partly relevant.** #591 changes no code, Orca command, field or Run behaviour that `superclaude observe` reads or constrains: the allow-listed commands, the forbidden verbs, Run binding and the QUESTION-LINK assumptions are all unchanged. It does add a plan-approval flow and a coordinator-started worker flow that touch alignment items 2, 6 and 9, the "How the pieces fit" diagram and the future write-back idea.
+
+**What #591 does.** The watcher now claims with `/sc:issue --claim <n> --pipeline none`; that claim session ends after its comments. A person-opened coordinator then creates the worktree and starts the worker with `worker-start`. A worker's plan is approved through a worker `ask` and a hash-bound coordinator `reply` (rule WC-17). It also adds a local release file and a launch-level guard rule: a bound worker may `send` and `ask` only with no `--to`. #591 defines no new Orca field on Runs, Tasks, workers or worktrees.
+
+### Additional considerations
+
+1. **Alignment item 9 and the diagram.** The watcher's claim session is no longer the long-lived session. The observer sees the worker only once it is a `worker-list` row. The claim session, the gap before `worker-start`, and the adoption and approval rows are not visible through `worker-list`. Showing watcher or coordinator state (item 9) is still open and needs a source other than `worker-list`.
+2. **Alignment item 2 and the write-back idea.** A plan-approval question must be answered by the coordinator after it writes the approval row. A raw `orca orchestration reply` typed by a person would bypass that record. `write-back-future-stage.md` line 38 ("the exact `orca orchestration reply` command for the human to run") must not apply to plan-approval questions. Today the observer prints no command.
+3. **Alignment item 6.** #591 adds a third local trust mechanism that is unsigned: a hook rule, a `sessions/<id>.ok` release file, and hash-bound approval rows. Compare it with the Coder#477 and #339 proposals before one trust design is chosen.
+4. **The #394 sentence is partly answered.** The watcher claims at `--pipeline none`. A coordinator-started worker is bound by the launch-level guard only when its brief carries a launch marker; the first test issue runs unbound by owner decision.
+5. **Approval latency.** A plan-approval question can stay listed as open after the person approved on GitHub, until the coordinator's next wake. The observer lists it without a closure claim, which is correct. Do not add an "approved" or "answered" mark without a source.
+6. **Optional hardening.** `worker-start` and `worktree create` are refused only because they match none of the three argv templates; the forbidden set does not name them. Naming them would change no behaviour. The set only grows.
+7. **Where to run the observer.** Not inside a worker bound by the launch-level guard: the guard blocks `orchestration worker-list` for bound sessions. Run it from a person's terminal or the coordinator's own session.
+8. **Visual-parity fixture.** A plan ask carries a plan path, a file list and a 64-character hex hash. Add one fixture question with such a token and check the 80-column Decision Desk frame wraps or cuts it cleanly.
+
+No acceptance criterion becomes stale or newly answerable. Approval and plan state still have no source, so they stay `unavailable (no source)` and must not get a column or badge in the visual-parity work. Item 1 (sweep facts), 4, 7, 8 and 10 are unaffected.
+
+### Stale text in this issue body
+
+The diagram arrow "issue watcher ... starts a claim session" and the sentence in Related Issues that the watcher "starts `/sc:issue --claim <N>` sessions" are now more specific (considerations 1 and 4). `docs/designs/issue-watcher.md` still names a "TUI dashboard" as a possible approval surface, which conflicts with this issue's Out of Scope ("approving ... instructing workers").
+
+### UNVERIFIED
+
+- That a worker's plan-approval `ask` is stored as type `question` and so appears in the observer's question read (Q-3 in `unverified-register.md`).
+- That plan asks carry sender `dispatch:<id>` equal to the payload `dispatchId`.
+- Whether the coordinator's Run that receives these asks is the Run named in the owner record.
+- Whether the claim session and a worktree with no agent appear in `worker-list` (assumed not), and how the sweep classifies such a worktree.
+- #591's reported test counts (not re-run).
+
+### Where this issue stands (2026-11-17)
+
+Releases R1 to R3 are merged (#503, #514, #577, #592), and question text is screen-only (#598). Remote fleet (R4) is backlog issue #604. Visual parity with the design mockups is sub-issue #606.
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Visual parity review done on sub-issue #606: two reviewers (Opus 5.5 and GPT 6 Astra) compared the real renders with the mockups, debated in three rounds and produced one merged list: 18 findings to fix (5 High, 9 Medium, 4 Low), 2 spec guards, 7 accepted divergences, 1 owner decision. Findings: https://github.com/IronbellyOrg/IronClaude/issues/606#issuecomment-6957531081
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Visual parity redesign spec is ready: #606 (sub-issue of this one). Its body holds the phased spec (P0 to P7, each phase ending in a render gate with a fixed rubric, at most 3 iterations, escalation on a stalled gate), the ANSI colour depth decision, the Zellij go or no-go (optional layout only, not a dependency) and the claim instructions (run `/sc:workflow` on the spec, then `/sc:implement` its plan). The full step tables are in three comments on #606.
+
+Needs the owner: D-1 (adopt two-column layouts at 160 and 116, which reverses the stacked layout recorded in rendering-rules.md lines 43 and 57). Defaults for the other open decisions are listed in the spec, section 10.
+
+Closing #409 still depends on #606 for the visual parity part.
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Layout decision for #606 recorded: Decision Desk in two columns at 160 and 116, questions screen stays stacked at every width (owner ruling 2026-11-18). Details and the comparison renders: https://github.com/IronbellyOrg/IronClaude/issues/606#issuecomment-6962861444
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Space-diet rulings for #606 recorded (no hash on screen, each fact once, reasons once, status badge, ledger diet): https://github.com/IronbellyOrg/IronClaude/issues/606
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Review of the objectives on 2026-11-20: the dashboard core is built and merged (releases 1 to 3 and the visual parity work, #673). Five criteria added on 2026-11-13, the scale tests and three owner decisions are not done. They are tracked in #706. This issue stays open until #706 is done; remote fleet stays in #604.
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-23
+
+Read-only review of this issue against the current source and its history (automated analysis plus an independent evidence review).
+
+- **State:** in-progress
+- **Complexity / size:** Complex / L
+- **Priority:** P2
+
+#### Concrete next steps
+1. Keep #409 open and use #706 as its remaining-work checklist; do not open a duplicate implementation issue. After the owner's go, the coordinator can replace the stale parent status and correct #706's overbroad missing-scale-tests sentence. This worker made no such GitHub edits.
+2. Resolve #706's existing source/scope decisions before planning data integration: shared sweep facts versus documented differences, which summary/link/step source is authoritative, session-opening support versus disclosure, recommendations and watcher-state visibility.
+3. Implement only the approved missing summaries, links, named steps and navigation/disclosure, with missing-source values explicit. Preserve the read-only boundary and screen-only payload rule.
+4. Reuse the existing 27 rendering size/width cases. Add only genuinely missing cross-scenario coverage (uneven ownership, shared/unmapped worktrees, history, duplicates/out-of-order events, stale/missing data at required sizes) and any separately required live timing/coverage evidence. The full cross-scenario acceptance is UNVERIFIED by this quick pass; it must be mapped to existing tests before estimating new cases.
+5. Include #706's November 22 comment in that same follow-up: the worker-worktree experiment exception, fixture-only FROZEN marker and same-second export-overwrite documentation. Their requested fixes were read in #706; each guide correction still needs its own source/contract validation before editing.
+6. Leave remote fleet work in #604 until its cross-host ownership evidence and owner gate are satisfied. Close #409 only after #706's acceptance is met or its remaining items are explicitly dropped/moved by the owner.
+
+#### Dependencies
+- **Needs #706:** explicit closure dependency from #409's November 20 comment and #706's Done when section. #706 is OPEN with no closing PR references returned by issue view.
+- **#606 is satisfied:** visual parity subissue CLOSED, delivered through merged #673. It is not an outstanding blocker.
+- **#604 is separate backlog:** remote fleet remains OPEN and explicitly deferred; the latest #409/#706 split does not make it a prerequisite to the remaining local work.
+- **#339 and #534:** source/alignment relationships for the sweep and its follow-ups, not verified whole-issue prerequisites. Do not block all #706 work on their completion without a concrete missing-source dependency.
+- GitHub's returned structured blockedBy and blocking lists for #409 are empty. No other issue was verified to require #409 as a hard predecessor.
+
+#### Related issues
+Direct: [#706](https://github.com/IronbellyOrg/IronClaude/issues/706) (remaining local capabilities, acceptance and three guide fixes), [#606](https://github.com/IronbellyOrg/IronClaude/issues/606) (completed visual parity), [#604](https://github.com/IronbellyOrg/IronClaude/issues/604) (deferred remote fleet).
+
+Mentioned context in #409, not asserted as hard blockers: #339 (agent-facing supervision), #534 (sweep follow-ups), #589 (fresh-question read evidence), #444 (sub-orchestrator evaluation), #423 (later orchestration), #331/#450 (watcher implementation/rollout) and #394 (launch-level enforcement). Their present full implementation state was not re-audited here. The issue also mentions Coder#477 (listener/registration) and Coder#195 (prior pairing work); those other-repository issues were not accessed because the brief restricts GitHub reads to IronbellyOrg/IronClaude.
+
+The parent explicitly says #326, #320, #315 and #323 were searched previously but not confirmed related. This review does not promote those weak associations to dependencies.
+
+#### Related PRs
+All rows below were read directly with `gh pr view --repo IronbellyOrg/IronClaude`; GitHub reports each MERGED. Dates are merge dates, not inferred from issue prose.
+
+| PR | Verified contribution | Merge date | Merge commit |
+|---|---|---|---|
+| #503 | Release 1 worker ledger and observer package | 2026-11-11 | `9e2608b03857c78ab89fc9439c85256d3bd5d989` |
+| #514 | Release 2 one-Run questions, initially disabled | 2026-11-12 | `cd873619957b3fd4235c54f00363664fca28a193` |
+| #577 | Enabled questions and recorded direction choice | 2026-11-17 | `44ff04aeff5ce4bc51cc423a4bf4ffcb59d001cc` |
+| #586 | Documentation of live probe and synthetic load observations | 2026-11-17 | `a98541153ad973d14fbf0613c8af7325acea8208` |
+| #592 | Release 3 question text, dispatch join, Decision Desk | 2026-11-17 | `3206bdb9cb6b0fe3c81e6cdbeadcc1455aeeffda` |
+| #598 | Owner's screen-only payload-text decision | 2026-11-17 | `10f6ec670bf55f0fe768be8e0ef2067d5c5d879e` |
+| #673 | Visual parity for #606 | 2026-11-19 | `b68d5eeaf618a8e33cde55cb660acfdd8f321f67` |
+| #708 | Observer/orchestrator user guides; not remaining capability implementation | 2026-11-20 | `52d371e2c20a32a4c17613108daa7f0a295baa36` |
+| #730 | Preserved existing research and review records, no source changes | 2026-11-23 | `98879e631e6d7986d14c0dc94720007cbb2fde0b` |
+
+Also read the issue's contextual PRs: #532 (supervision technical reference, `05b78d4d351259b798e5794af58626a4d9cbd693`), #539 (sweep Phase 1, `4d3c0b126151789bd0cb5b481b10f572a0c4e6b7`), #541 (old test blocker fixed, `0406ef5b01f2e79c88100d32f01df4ebf2395646`), #591 (watcher-to-coordinator handoff, `6af80d6c04f74d7c1db196f467e09c1d937d5503`) and #447/#448 (watcher baseline and fixes, `4c93b6c7397e91b680b0306e99f32835bc364611` / `ce660825856185aa043f65dad34128e1a238b720`). Their merge does not imply the observer reads sweep data or shows watcher state.
+
+A bounded PR-list search for 409 and 706 found no additional pending capability PR; text-search completeness and unseen timeline cross-references remain UNVERIFIED.
+
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+--

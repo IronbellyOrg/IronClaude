@@ -1,0 +1,37 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P2
+
+#### Concrete next steps
+
+1. Owner answers the four questions in the issue's Proposed Solution (confirm design stays under R38; which rule governs a watcher-claimed worker's restart and its budget; one change set after part B; update or annotate the backlog requirements). No work on B until then.
+2. After the answers, one docs-only branch: fix A.1 to A.8 in the files listed above; keep `src/superclaude/core/HOW-WE-WORK.md`, `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (currently identical) and the level table in `src/superclaude/core/CLAUDE.md` together.
+3. Update `tests/skills/test_issue_protocol.py:878-880` with the new Full sentence.
+4. Update cadence text to every minute, citing the `crontab -l` evidence above.
+5. Run `uv run pytest tests/skills/test_issue_protocol.py`, then the full suite, `make lint`, `make sync-dev` and `make verify-sync`; open the PR only through `/sc:pr-submit --monitor 3` (coordinator's action, not a worker's).
+6. Link the setup-guide contradiction (`issue-watcher-setup.md` 14.1 vs 17) to issue 717 item W15 and leave the runbook rewrite to it.
+
+#### Dependencies
+
+Needs: the owner's answers (item B and the requirements-file choice). Soft overlap with 717 (W15 owns the setup runbook rewrite). Blocks: none found.
+
+#### Related issues
+
+450 (closed rollout tracker, source of the leftovers), 717 (open, W15 and fixture work), 761 (open, the gap check this issue came from), 707 is a PR (below).
+
+#### Related PRs
+
+707 (merged 2026-11-20, zero-setup watcher), 735, 736, 752, 754 (merged 2026-11-23, coordinator wording). Coder PR 526 (cadence change): UNVERIFIED, other repository, not read. No open PR for 774.
+
+_Limits: items marked UNVERIFIED in the text could not be checked in this read-only review. Nothing was changed on this issue other than this comment and its field values._
+
+--

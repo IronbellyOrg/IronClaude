@@ -1,0 +1,36 @@
+#807 [OPEN] [FEATURE] Coordinator C26: Build process for the coordinator pull requests and the local end-to-end gate
+## What was tried
+This is item C26 of the coordinator issue #716 (next release: the features of issue 655 that the current plan does not cover), split out so it can be built and tracked on its own. Issue 655 was split into its 14 sections and one analyst per section classified every design feature against the unification spec and its decision record; this item is one of the features that were found missing. Nothing in this item is built yet. #716 stays the umbrella issue: its closing review holds the build order, the phases and the open owner decisions.
+
+## Relevant files and links
+- Parent issue: #716 (this item is a sub-issue of it). Sister issues of the split: watcher #717, TUI dashboard #718. Source design: #655.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+The item below is built, tested and checked against its own lines, or the owner records in chat that it is dropped. The text is copied unchanged from #716.
+
+### C26. Build process for the coordinator pull requests and the local end-to-end gate (655 section 12, 14; rows S12-F4, S12-F18, S12-F20, S14-F1, S14-F3)
+  - What to build: Each stage PR of section 8.2 is planned with `/sc:workflow` and built with one `/sc:implement` run whose ledger shows per-task QA passed, and the ledger is staged under `.dev/tasks/`.
+  - Also in this item:
+    - S12-F18: Every stage PR also passes `make lint`, `uv run ruff format --check src/ tests/` and `make verify-deps` before it is opened.
+    - S12-F20: Stage PRs that touch a gate or validator file state in the body why a generator-side constraint was not enough, under the exact heading the workflow checks.
+    - S14-F1: Before the PR that adds `/sc:coordinator` (S14, and each S15 PR) is opened, the author runs the local throwaway end-to-end tests that apply to that PR and pastes the pass or fail result of each into the PR description.
+    - S14-F3: Provide and document a set of throwaway repos, one in each org the work covers, with throwaway issues and PRs that the local tests T1 to T13 can use and that are closed afterwards.
+  - Done when: every stage PR body links its `/sc:implement` ledger and the ledger lists every task as QA passed.
+    - also: each stage PR body records a pass for those three commands next to MC-1 to MC-12.
+    - also: the `Generator-Constraint Considered (Contract #3)` check is green on each such PR.
+  - Research and debate results from our documents:
+    - S12-F4: SPEC.md:372 "The state of its `/sc:implement` run is UNCLEAR and must be re-checked ... the ledger ... ends `T28: complete`, `FINAL: pass`"; this shows an `/sc:implement` ledger is the practice but its state was disputed, which is the reason a "ledger shows QA passed" check has value.
+    - S12-F20: .github/workflows/contract3-generator-constraint-lint.yml:46 "this PR touches a validator/gate surface (gates.py / structural_checkers.py / *_validator.py) but the PR body lacks a '## Generator-Constraint Considered' section".
+    - S14-F1: .dev/brainstorms/20261120-pr686-unify/debates/D07/VERDICT.md:29 quotes Clay's own design: "UNVERIFIED and ... the first local end-to-end check" (Clay's design already admitted its claims rested on an unrun local check). SPEC.md:698 "Nothing below has run."
+  - Watch out:
+    - S12-F4: The owner's global rule already routes planned work through `/sc:workflow` then `/sc:implement` (CLAUDE.md "How to choose a workflow", level 3), so this is a reminder, not a new design. `.dev/tasks/` must stay staged (owner rule).
+    - S12-F18: Only `ruff format --check src/ tests/` is not a Makefile target (`make format` rewrites files, Makefile:53-55); a builder must run the check form, not `make format`. Whether CI already runs these is UNVERIFIED (workflows not read beyond contract3).
+
+
+## Pick-up note
+- Read the review at the end of #716 first: it holds the build order, the three phases and the owner decisions that gate this item. The related-item ids above (C numbers) refer to the sibling sub-issues of #716.
+- The plan files named above are local files, not pushed; read them from a checkout that has them, or ask the owner.
+

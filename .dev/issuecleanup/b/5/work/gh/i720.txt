@@ -1,0 +1,45 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Complex / L
+- **Priority:** P3
+
+#### Concrete next steps
+1. **Now:** leave the implementation parked. This review grants no restore, install, GitHub write or commit.
+2. **Only after a documented trigger:** re-read #720 and the newer #716/#718 owner comments, confirm which restore slice is wanted, and revisit state location and copy-maintenance questions rather than treating the currently unpursued #718 items as approved requirements. Verify the historical IronFlow/automation questions with the relevant person; they were not verified here.
+3. Restore from the archive with a verifiable restore/amendment split as #720 requests, then implement #719's restricted serving, Host rejection, no directory listing, listener identity, third-party-request removal, lifecycle documentation and token decision. Remove person-specific defaults, use per-user state, keep DM/waker/git-commit side effects off by default, remove the old poll-config coupling and use the project's Python execution convention.
+4. For a daily-page trigger, leave the living half out. For the writer-stage trigger, bring the living half only together with the writer and current entry format. Do not promise that restoring files alone fixes closeout.
+5. At that authorized build stage, run the restored report and worker-contract tests plus the required lint/sync checks and obtain independent owner approval before merge. None was run for this read-only review.
+
+UNVERIFIED: the private unification spec and debate cited by #720 are absent at their exact paths in this checkout (Glob checked both), so their detailed requirements and hour estimates were not independently re-validated. This does not block assessing the live issue's parked status; those files or an authoritative replacement are needed before implementing their detailed design.
+
+#### Dependencies
+- **Needs #719's fix in the restore before approval**, not a prior standalone merge: the vulnerable source is archived, and the two issues explicitly place the fix in the restore amendment commit. No unsafe verbatim-only restore may be treated as complete.
+- **Gated by an owner daily-page request or the report-entry writer stage**, not by completion of all of #716 or #718. #716's entry line (C8) and content (C14), plus #718's report filtering/display (D1/D2), are the affected downstream pieces; they remain on hold. The daily-only restore does not itself deliver the writer or all those pieces.
+- **For the living portion only:** coordinate with #716's writer work rather than restoring the old entry schema independently. #718's state-location/copy questions (D3/D4) are currently not being pursued according to its newer owner comment; revisit only when the trigger actually occurs.
+- No evidence establishes that this restore must precede unrelated coordinator, watcher or dashboard work as a whole.
+
+#### Related issues
+- #719, OPEN: the archived report server exposure and required security acceptance checks; live body and comments read (no comments).
+- #716, OPEN: future coordinator features; live owner comment explicitly parks the report-entry subset until #720's trigger. The large issue body was retrieved, but this assessment relies on the report-related wording in #720 and the newer #716 owner note, not on an exhaustive review of every coordinator item.
+- #718, OPEN: report/dashboard views; live body and owner comment read, including the held filtering/display pieces and unpursued state/copy items.
+- #655, CLOSED: parent issue-polling orchestrator design identified by #720; identity and current state checked, not treated as evidence that the removed skill is restored.
+
+#### Related PRs
+- [#684](https://github.com/IronbellyOrg/IronClaude/pull/684), MERGED 2026-11-20: original report-skill import, merge d7d645dddd42e49a72a734f9c8b6952bcbcb4527. Body, merge metadata and archived implementation checked; no claim that its historical test result applies today.
+- [#700](https://github.com/IronbellyOrg/IronClaude/pull/700), MERGED 2026-11-20: rollback removed the report skill and dedicated tests while retaining closeout, merge 471f10511c8e2e8176c0e2088720ece03beca317. Body, changed paths and reviews read.
+- [#701](https://github.com/IronbellyOrg/IronClaude/pull/701), MERGED 2026-11-20: small worker-contract follow-up, merge 0a46644576a31f0f62b9629b0f095b213027cdf6; it changes contract/tests/changelog, not the report implementation. Body, changed paths and reviews read.
+- The bounded PR search also returned #686 (CLOSED, poll/coordinator work) and #696 (MERGED, workflow remediation); their titles/state were checked as search context only, not treated as restoration evidence or implementation dependencies.
+
+Limitations: no test, server, install or side-effecting command was run, and no GitHub state was changed. Installed report copies, private chat triggers, port-forward exposure, real automation state and full current remote-master equivalence are UNVERIFIED.
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+--

@@ -1,0 +1,41 @@
+#719 [OPEN] [BUG] The report skill's local page server serves the whole state folder (Codex security finding on PR 684, never fixed)
+## What was tried
+
+**The finding.** On PR 684 (Clay's pull request that moved the work-report skill `agent-work-report` into IronClaude, merged 2026-11-20) the Codex security review raised a Medium (P2) finding, "Authenticate the localhost report server", at `src/superclaude/skills/agent-work-report/scripts/page.py:327`: https://github.com/IronbellyOrg/IronClaude/pull/684#discussion_r4637549094. Clay answered in the thread that it was "not changed in this pull request", that "the finding looks real", and that it was "recorded as a security follow-up": serve only `report.html`, reject any Host other than `127.0.0.1:8765`, and disable the listing. The thread was then marked resolved in GitHub with no code change, and no follow-up issue was ever filed. This issue is that follow-up.
+
+**Review of the finding (2026-11-21, read from the archive tag, nothing was run).** The finding is correct.
+- `ensure_server()` (`page.py:308-344`) starts a detached `python -m http.server 8765 --bind 127.0.0.1 --directory <state folder>`. The state folder is `.dev/coordinator/`, not one file. The tech reference of the unification work (`TECHREF:799`) lists what is in it: `settings.json` with the ClickUp user and DM channel ids, `action-log.jsonl`, `priorities.json`, run folders with GitHub and ClickUp data and transcript excerpts, the report entry files, and `report.html`.
+- Python's `http.server` shows directory listings by default, so a visitor can list and read every file in the folder. The code has no Host check, no token and no path limit.
+- The bind is `127.0.0.1` only (no `0.0.0.0` anywhere in the skill), so the LAN cannot reach it. Any other process or account on the same machine can. A web page open in the owner's browser can too, by DNS rebinding (the page keeps its own origin while the name is re-pointed to 127.0.0.1, so the browser sends the rebound Host).
+- `ensure_server()` treats anything that answers on port 8765 as its own server and does not start another, so an unrelated listener on that port would be shown as the report.
+- The page also loads Google Fonts from the internet (`templates/report-template.html:8-10`).
+- A second Codex finding on the same pull request, a `javascript:` link in an entry (`common.py`), is marked resolved and its thread is outdated, so it is not part of this issue.
+- Existing tests: a search of the 4,005-line `tests/skills/test_agent_work_report.py` for `ensure_server`, `http.server` and `8765` finds nothing, so the server has no test today.
+
+**Not verified.** Whether a Coder port forward could expose port 8765 to other workspace users. Whether the same server is still started by Clay's own copy of the skill in the IronFlow repo.
+
+## Relevant files and links
+
+- Archive tag (the code as it was merged): `archive/pr-684-agent-work-report` (commit `d7d645ddd`). The skill is not on master, so the fix cannot be made on master until the skill is restored.
+- Files on the tag: `src/superclaude/skills/agent-work-report/scripts/page.py` (lines 308-344, `ensure_server`), `scripts/common.py` (line 404, `REPORT_PORT = 8765`), `templates/report-template.html` (lines 8-10, fonts), `SKILL.md` (line 155, how the page is opened).
+- PR 684 (merged), PR 700 (Clay's rollback that removed the skill from master), the finding https://github.com/IronbellyOrg/IronClaude/pull/684#discussion_r4637549094.
+- The restore issue that this fix is a merge gate for: #720.
+- Judge's report on the restore debate (local file, not pushed): `.dev/brainstorms/20261121-report-skill-restore-debate/VERDICT.md`, section 6.
+
+## Done when
+
+All of these are observed, on the restored code, before the restore pull request is approved:
+
+1. The server serves one scratch folder that holds only a copy of `report.html`. A request for `settings.json`, for `action-log.jsonl` and for a folder path each fails (404 or 403).
+2. A request with any `Host` header other than `127.0.0.1:8765` (for example `Host: evil.example`) is refused.
+3. Directory listing is off.
+4. Three new tests pin points 1 to 3 (file request fails, folder request fails, wrong Host fails). They run in the normal test suite with `uv run pytest`.
+5. `ensure_server()` only treats a listener as the report server when the answer contains the report's own marker (for example the `overview-sha256` meta tag of the page); an unrelated listener on 8765 is not reused.
+6. Opening the page makes no request to a third-party origin: the fonts are served from the skill or dropped.
+7. The server's lifetime is stated: either it stops when the run ends, or `SKILL.md` says it stays up and how to stop it.
+8. Decision recorded in the pull request: whether to add an unguessable token to the URL as Codex suggested. Points 1 to 3 already stop a rebound page from reading anything but `report.html`; a token would also stop another local account from reading the report itself, but changes the URL the reused Orca browser tab opens each run.
+
+## Who it is for
+
+A builder agent working on the restore pull request in an Orca worktree that has an agent, under the owner's go. This work lands as commit 2 of that pull request and is a merge gate for it. The owner (or an independent reviewer, not the author) reads it before approval.
+

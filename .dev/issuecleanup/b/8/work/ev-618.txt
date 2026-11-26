@@ -1,0 +1,57 @@
+#618 Make IronClaude's ruff version follow the Coder image pin instead of its own [OPEN ] closed=-
+Owner request (2026-11-17): IronClaude should stop pinning its own ruff version. If a pin is needed, IronClaude's pin should simply point to the Coder image's pin.
+
+## What was tried
+- **The failure that exposed this.**
+  - On 2026-11-17, a `/sc:pr-submit --monitor 3` run on PR #614 halted at validation gate VG-4 (`uv run ruff format --check src/ tests/`).
+  - The check reported 12 files that "would be reformatted". The PR changed no Python code. All 12 files are Markdown, and each is byte-identical to `origin/master` (e3e9d636a).
+- **The root cause, verified.**
+  - IronClaude pins `ruff==0.15.20` in the `dev` extra. The worktree's `.venv` had no dev extra installed, so ruff was missing there.
+  - `uv run ruff` then fell back to the Coder image's system copy at `/usr/local/bin/ruff`, which is version 0.17.3.
+  - Ruff 0.17.3 also formats the Python code blocks inside Markdown files. It checked 1970 files, where 0.15.20 checks 1392.
+  - With the pinned version (`uvx ruff@0.15.20 format --check src/ tests/`), the check passes: "1392 files already formatted". CI installs the dev extra, so it gets 0.15.20 and passes.
+- **Two pins that disagree.**
+  - IronClaude pins 0.15.20 in three places.
+  - The Coder workspace image pins 0.17.3 (Coder CHANGELOG entry for #364; contract test `test-77-ruff-requests-baked.sh`; Renovate keeps it current).
+  - Any session that runs `uv run ruff` without the dev extra gets Coder's version, so the local result and CI disagree.
+- **No change has been made yet.** The owner halted the PR #614 run.
+
+## Relevant files and links
+- **IronClaude pin sites**
+  - `pyproject.toml:50-54`: `"ruff==0.15.20"` in the `dev` extra, with a comment explaining why it is pinned exactly.
+  - `uv.lock:1563-1564`: ruff 0.15.20.
+  - `.pre-commit-config.yaml:105-112`: `rev: v0.15.20`, with a comment saying it MUST equal the pyproject pin.
+- **IronClaude places that run ruff**
+  - `.github/workflows/test.yml:96-106`: runs `uv pip install -e ".[dev]"`, then `ruff check src/ tests/` and `ruff format --check src/ tests/`.
+  - `Makefile:50,55`: `make lint` and `make format`.
+  - `.github/workflows/README.md:53-59` and `CONTRIBUTING.md:42-49`: documentation.
+  - `/sc:pr-submit` gates VG-3 and VG-4: `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md`, VAL section.
+- **Coder pin** (repository `<private-repo>`, which is **private**)
+  - `templates/VSCode-AIDev02/image/Dockerfile.coder:336-339`: `RUFF_VERSION=0.17.3`, installed with uv at `/usr/local/bin/ruff`.
+  - `.github/upstream-monitor/renovate-global.json5:71`: Renovate rule that bumps that pin.
+  - `.github/contract-tests/test-77-ruff-requests-baked.sh`: contract test for the pin.
+- **Evidence**
+  - PR #614: https://github.com/IronbellyOrg/IronClaude/pull/614
+  - Run log: `.dev/pr-monitor/pr-614-20261117T195006/monitor-run-614.jsonl` (the `validation_completed` and `terminal_halted` events), in the local worktree `/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel`.
+
+## Done when
+- **One source for the version.** IronClaude no longer names its own ruff version. It either uses the ruff on PATH (Coder's), or derives its single pin from Coder's `RUFF_VERSION`. The issue records which option was chosen and why.
+- **IronClaude pin sites.** The three pin sites (the pyproject `dev` extra, `uv.lock`, `.pre-commit-config.yaml`) are removed or follow that one source. The comments that require them to match are updated.
+- **CI version.** CI (`.github/workflows/test.yml`) runs the same ruff version as a current Coder workspace.
+  - Constraint: Coder is private, so IronClaude's CI cannot read it without a credential. The design must state how CI learns the version. One option is a version file in IronClaude that Coder's Renovate or release process updates.
+  - The desig
+--- comments=1; last 3:
+[ironbelly 2026-11-24T15:32:20Z] ## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P1
+
+#### Concrete next steps
+No partial Ruff fix was established in this checkout. These are the remaining issue acceptance steps, not work authorized during this read-only review:
+
+1. Plan one version authority: either use the workspace's Ruff with an explicit CI/contributor provisioning contract, or derive the version from Coder through an agreed transfer mechanism. Verify Coder's actual current source before choosing a value. Do not assume IronClaude's CI can fetch a private repository, and do not add credentials merely to silence this review's verification gap.
+2. Bring the three existing pin sites and their comments under that policy, including pre-commit's own installed environment. Set out how non-Coder contributors get the same version, and the order in which the two repositories change when the Coder version changes.
+3. De

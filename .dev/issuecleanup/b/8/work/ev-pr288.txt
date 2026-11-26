@@ -1,0 +1,24 @@
+PR #288 docs: .dev/tasks is always staged; stop ignoring package evidence [MERGED] merged=2026-10-23T21:00:24Z
+files: .gitignore, CLAUDE.md, plugins/superclaude/skills/sc-implement-protocol/SKILL.md, plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md, plugins/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md, plugins/superclaude/skills/sc-workflow-protocol/SKILL.md, src/superclaude/core/CLAUDE.md, src/superclaude/skills/sc-implement-protocol/SKILL.md, src/superclaude/skills/sc-implement-protocol/refs/ledger.md, src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md, src/superclaude/skills/sc-reflect-protocol/SKILL.md, src/superclaude/skills/sc-reflect-protocol/refs/promotion-adapters.md, src/superclaude/skills/sc-workflow-protocol/SKILL.md, src/superclaude/skills/task-builder/SKILL.md, src/superclaude/skills/task/SKILL.md
+## What
+
+Owner rule: everything under `.dev/tasks` (packages, `progress.md` ledgers, each package's `.dev/tasks/<pkg>/artifacts/`) is always staged and tracked. The project-root `artifacts/` is a different folder and is never staged.
+
+- Adds the rule to `CLAUDE.md`, `src/superclaude/core/CLAUDE.md` and the skills that create or move `.dev/tasks` packages: `sc-implement-protocol`, `sc-workflow-protocol`, `sc-reflect-protocol`, `task`, `task-builder`.
+- `sc-implement-protocol` `ledger.md` and `SKILL.md`: "do not `git add` the ledger" now applies only to a legacy ledger under `.dev/implement/`; a managed package ledger lives under `.dev/tasks`.
+- `.gitignore`: drops the four `.dev/tasks/**` reflect and fix stdout/stderr ignores, and keeps `.log` files and `logs/` under `.dev/tasks` visible.
+- `plugins/` mirrors updated to stay byte-identical to `src/`.
+
+## Checks
+
+- `uv run pytest tests/commands/test_workflow_command.py tests/skills/test_workflow_archive.py tests/skills/test_implement_retry_revert.py tests/unit/test_cli_install.py`: 340 passed, after rebasing onto `origin/master`.
+- Installed copies under `~/.claude` were updated to match and are byte-identical to `src/`.
+
+## Known follow-ups (not in this PR)
+
+- `src/superclaude/cli/reflect/config.py:137-149`: with `--isolate-reviewers`, staged package files inside the audited scope count as dirty.
+- `.pre-commit-config.yaml:15-18`: `check-json` and the 1000 KB file limit may reject large reflect output once committed under `.dev/tasks`.
+- `.gitignore` `tmp/` and `*.py[cod]` still hide some package content.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+

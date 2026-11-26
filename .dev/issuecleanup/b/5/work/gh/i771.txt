@@ -1,0 +1,44 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P2
+
+#### Concrete next steps
+
+1. Owner (Ryan) answers the three questions in the issue. First, decide this issue versus issue 716 C16-C19 (the issue offers to merge into 716 or have 716 point here); the 2026-11-24 review on 716 also asks to reconcile C16/C17 with the later R38 baseline before building.
+2. Settle the UNVERIFIED trigger: read `/sc:sweep` and the watcher store for a merged-PR signal, or decide the person types the closeout line.
+3. Write the plan with `/sc:workflow`, then `/sc:implement`: add the post-merge duty and the `handback: remaining` recipient to "Issue pipeline duties", keep line 23 and line 246, and change `commands/worktrees.md` only if the owner explicitly widens it.
+4. Add rule tests in `tests/skills/test_worker_contract.py` (with negative cases) and keep `tests/commands/test_worktrees_command.py` aligned; run `make sync-dev`, `make verify-sync`, `make lint`, `uv run pytest`; submit with `/sc:pr-submit --monitor 3`; the merge stays the person's typed go.
+
+#### Dependencies
+
+- Needs: owner decisions in the issue's open questions; coordination with issue 716 (C16-C19 overlap). No GitHub blockedBy links exist.
+- Blocks: nothing recorded; issue 761 (gap check) is its source.
+
+#### Related issues
+
+- 668 (closed, completed): add `/sc:closeout`.
+- 687 (closed, completed): daily cleanup of merged worktrees.
+- 674 (open): 70 review findings on the closeout design.
+- 716 (open, updated 2026-11-24T18:14:24Z): coordinator features incl. C16-C19; its 2026-11-24 comment, item 2 ("Finishing the work (C16 to C19)"), repeats this gap.
+- 761 (open): gap check this issue came from.
+
+#### Related PRs
+
+- 683 (merged 2026-11-20): `/sc:closeout`.
+- 711 (merged 2026-11-22): `/sc:worktrees`.
+- 707 (merged 2026-11-20): issue watcher and standing coordinator.
+- 700 (merged 2026-11-20): rolled back the issue 655 orchestrator build, kept closeout. 690, 686, 697 (closed, unmerged) are the earlier 655 work, out of scope.
+- No PR implements 771 (the issue's `closedByPullRequestsReferences` is empty; `gh pr list --search 771` found none).
+
+_Limits: items marked UNVERIFIED in the text could not be checked in this read-only review. Nothing was changed on this issue other than this comment and its field values._
+
+--

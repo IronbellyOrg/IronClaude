@@ -1,0 +1,30 @@
+#689 [FEATURE] /sc:issue: plan everything at creation (brainstorm and design included), add an other mode, and make claim go straight to workflow and implement [CLOSED NOT_PLANNED] closed=2026-11-23T19:44:48Z
+<!-- /sc:issue feature template (complex). Filled by hand from the master templates on 2026-11-20 by the session that wrote it, following refs/create.md of origin/master. Requested by Clay. -->
+
+## Feature Summary
+
+Move all planning of an issue into `/sc:issue --create`, so the expensive models plan once, at filing time, and whoever picks the issue up only does a light check and then executes. Concretely: (1) create runs the brainstorm and design steps that today run at claim, on ccsession tier 1a or 1b, and writes the result into the issue; (2) claim stops brainstorming and designing and goes straight to `/sc:workflow`, then `/sc:implement`, then `/sc:pr-submit --monitor 3`; (3) a third mode, other, covers docs, chores and research with the same plan sections; (4) the three GitHub issue forms carry the same fields; (5) the section "Fix approach" becomes "Approach".
+
+## Problem Statement
+
+IronClaude #651 (merged as PR #661) made Priority, Fix approach and Test plan required in all four `/sc:issue --create` templates. It moved only the light part of planning to filing time. Read on `origin/master` on 2026-11-20:
+
+- **Create plans lightly.** `refs/create.md` fills the three sections from one `/sc:analyze` pass at every depth (the rule is at lines 59 to 81). Nothing at create calls `/sc:recommend` or chooses the commands.
+- **Claim plans heavily.** `refs/chains.md` is loaded at claim Wave 5. For a complex feature its default chain is `/sc:brainstorm`, then `/sc:design`, then `/sc:workflow`, then `/sc:implement`, on `/model claude-gw-tier1b`; for medium work it is similar; for medium and complex bugs it starts with `/sc:troubleshoot`. So the most expensive planning runs when the issue is picked up, which is the opposite of the goal in #651 ("front-load planning into the issue at filing time, so a polling orchestrator or a worker only executes").
+- **The two disagree.** The example chain in `refs/create.md:66` is `/sc:workflow`, `/sc:implement`, `/sc:pr-submit --monitor 3`, while the default for a complex feature at claim has two more planning steps in front.
+- **Only two modes.** `/sc:issue --create` takes feature or bug (`refs/create.md` Wave 3). Docs, chores and research have to be filed as a feature. `refs/labels.md` says the issue type Task "is never chosen".
+- **Hand-filed issues have no plan.** `.github/ISSUE_TEMPLATE/bug_report.yml`, `feature_request.yml` and `other.yml` have no Priority, approach or test plan field (checked 2026-11-20).
+- **The name.** "Fix approach" reads like a bug-only section but holds the plan for every kind of issue.
+- **A tier mismatch.** Create today drafts on T3 (tier 2b) for quick and T2 (tier 2) for standard (`refs/tiers.md`); only deep uses T1 (tier 1b). Planning is not on a strong model at every depth.
+
+## User Story
+
+As the owner who files issues for an orchestrator or a worker to pick up, I want every issue, of every kind, to arrive with its research, design and plan already done on a strong model, so that picking it up costs only a light check and a straight run of `/sc:workflow`, `/sc:implement` and `/sc:pr-submit --monitor 3` on a cheaper model.
+
+## Proposed Solution
+
+Clay's rulings of 2026-11-20 (do not re-ask): brainstorm and design belong to create, not claim; the other type uses the same approach as the types already defined; claim goes straight to workflow and implement; create runs on tier 1a or 1b; file this issue.
+
+1. **Create does all the planning.** The chain rows of `refs/chains.md` move into `refs/create.md` (moved, not copied, so the rule is written once). At create, by type and complexity: feature simple, the codebase pass only; feature medium and complex, `/sc:brainstorm` then `/sc:design` after the pass (the commands, flags and tier lines as in the rows today); bug, the diagno
+--- comments=1; last 3:
+[clayphi 2026-11-23T19:44:47Z] Closed as not planned at Clay's direction (2026-11-23).

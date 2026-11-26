@@ -1,0 +1,9 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Closing as no longer relevant (owner decision in chat, 2026-11-24, after a reviewed analysis of this sub-issue).
+
+Why: the owner rows R18 and R28 replaced the manual two-process lock test and restart test with the automatic first-run check, the "before enabling" condition has passed (the watcher has been live since 2026-11-23), and the persistence need is carried by W14 (#822). Note: the first run of this repo failed at the config step, so the live observations may be worth a three-line note in #450 or the runbook. If the manual proof is still wanted, make it a one-time runbook check recorded in W15 (#823), not a new gate.
+--

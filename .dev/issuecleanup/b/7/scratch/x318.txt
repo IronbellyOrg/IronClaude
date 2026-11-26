@@ -1,0 +1,58 @@
+#318 [MERGED] feat(ccsession): tiers by Coder role, letter tier names, new tier layout
+## What this does
+
+**Tiers by Coder role** (IronClaude #311: ironbelly's comment there asks for roles instead of groups, since the license has no groups)
+- New workspace setting `CCSESSION_TIER_RULES`. Entries are space-separated, `<who>=<start tier>[:<tier>,...][+models]`:
+  - `<who>` is a Coder username, `role:<coder role>`, or `*` for everyone else, including a terminal that doesn't know its owner.
+  - A username entry wins, then the first matching role entry, then `*`.
+  - Roles come from `CODER_WORKSPACE_OWNER_ROLES`, which the Coder template sets (companion Coder PR).
+- `+models` also lists each model of the owner's tiers in `/model`, ordered by the new `CCSESSION_MODEL_ORDER` setting.
+- The line follows the same one-line safety rule as `CCSESSION_ACCESS`. A broken entry that applies to the owner stops the launch rather than opening every tier.
+- `CCSESSION_ACCESS` becomes the older form, read only when the rules line is absent.
+
+**Tier names can end in a letter:** `tier1a`, `tier1b` (`T1a_WINDOW`, `T1aModel01`, picker id `claude-gw-tier1a`). `--tier 1A` also works.
+
+**New tier layout** (owner's spec, `ccsession-models.json` 2026-10-28.1). The models and windows themselves stay in the workspace settings file.
+
+| Tier | Models (failover order) |
+|---|---|
+| 0 | Fable 5.1, GPT 6 Astra |
+| 1a | Opus 5.5, Sonnet 5.5 |
+| 1b | Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full |
+| 2 | GPT 6.1 Sol, GLM 5.3, Grok 4.7, Qwen 3.8 Max, Muse Wonder, Muse Spark |
+| 3 | GPT 6.1 Terra, then Tier 2's other five |
+| 4 | GPT 6 Luna |
+
+**Safe for workspaces still on older images**
+- Older ccsession rejects the new model data, because it can't read letter tier names, and keeps its own copy.
+- Older ccsession reads only `CCSESSION_ACCESS`.
+- The companion Coder change keeps the old Tier 1 slots, so those workspaces keep working until they update. This was checked with master's code against the new settings file: no errors.
+
+## Testing
+
+**Unit tests:** all 243 ccsession tests pass, including new tests for:
+- role, `*` and username precedence
+- `+models` and the model order
+- the one-line rule for the rules line
+- letter tiers
+- member refusals
+- the real shim listing and routing per role
+
+Four tests used to fail only inside Coder workspaces, because the real owner name leaked into the test environment. The tests now clear the owner and access settings.
+
+**Full suite:** compared with master, this branch adds no new failures (40 vs master's 44; the 4 extra on master are the leak above). ruff check and format are clean.
+
+**Live check:** a workspace image was built with this commit. Three workspaces were booted the way the template starts them: `clay` (roles auditor, user-admin), `ryan` (owner) and `bruno` (no role). Chat went to the real gateway.
+- **clay and ryan:**
+  - start on Tier 1a with all six tiers
+  - `/model` lists the six tiers, then the 13 models in provider order
+  - all 19 entries answered real requests through the right model
+  - `--model grok-4.7` uses a 500K window, other models 850K; Tiers 0, 1a and 1b use 850K, Tiers 2-4 500K
+- **bruno:**
+  - starts on Tier 2 and sees Tiers 2, 3 and 4 only
+  - `--tier 1a`, `--tier 0` and `--model claude-opus-5-5` are refused
+  - the shim refuses Tiers 0, 1a and 1b, and Tiers 2-4 answer
+- **Real Claude from Orca (clay):** opens on Tier 1a, `/model` shows the tiers, and its reply came from claude-opus-5-5.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+

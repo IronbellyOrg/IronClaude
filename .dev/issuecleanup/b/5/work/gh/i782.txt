@@ -1,0 +1,8 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Sub-issue #806 was merged into this issue by the owner (decision in chat, 2026-11-24, after a reviewed analysis). Its text stays in #806 (closed); the changes to carry over are in the comment there.
+
+--

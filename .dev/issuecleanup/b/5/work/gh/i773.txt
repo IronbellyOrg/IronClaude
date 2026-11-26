@@ -1,0 +1,36 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P2
+
+#### Concrete next steps
+
+1. Owner answers, in chat, which of the five items (assign, Status, Pipeline, trigger label, per-issue grant) an agent may set and under which login; resolve #722 and #698 first. Also confirm R38 does not cover this issue.
+2. Decide where the Project id and field ids come from (candidate: reuse the watcher defaults `src/superclaude/cli/issue_watch/defaults.py`, UNVERIFIED as suitable).
+3. Run the one trial write on a test issue for the non-admin question (needs the owner's go; not authorized here).
+4. Only then: `/sc:workflow` then `/sc:implement`, adding a helper under `src/superclaude/skills/sc-issue-protocol/scripts/`, updating `commands/issue.md` (the line 102-103 limits), `SKILL.md`, `refs/create.md`, `refs/claim.md`, `refs/labels.md`, and tests. Use a flag name other than `--pipeline`.
+5. Do not file a new issue for the "simplification review of the whole chain": issue #777 (OPEN, clayphi, 2026-11-24T18:43:42Z, "map the whole watcher and coordinator chain and decide what to automate") already asks for it (gap 7). Link or fold #773's last acceptance criterion into #777. The claim that no earlier review exists is still UNVERIFIED.
+
+#### Dependencies
+
+Needs (answers first): #722, #698. Soft: #777 (gap 7 review), #761 (parent gap list), #716 (keeps claim/store baseline). Blocks: nothing in code; it would shorten the hand setup for every watcher issue.
+
+#### Related issues
+
+#777 (open; whole-chain map and automation decision, overlaps gap 7), #761 (18 possible gaps; this covers 1 and 7), #722, #698, #721 (claim estimate refactor, same skill), #716, #733 (unattended `/sc:implement`), #655 (closed, the orchestrator it replaced).
+
+#### Related PRs
+
+#707 (merged 2026-11-20, `2ea524514`: zero-setup watcher, Approved field, guard v2; the design kept). No open PR for this issue.
+
+_Limits: items marked UNVERIFIED in the text could not be checked in this read-only review. Nothing was changed on this issue other than this comment and its field values._
+
+--
