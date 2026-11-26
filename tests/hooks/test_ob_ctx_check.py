@@ -135,6 +135,9 @@ def test_human_file_p6_needs_the_same_cwd():
         text(" (cwd /w)", ""),
         text("", " (cwd /w)"),
         text("", ""),
+        text(" (cwd )", " (cwd )"),  # an empty capture is not evidence of a cwd
+        text(" (cwd  )", " (cwd  )"),
+        text(" (cwd )", " (cwd /w)"),
     ):
         assert "P6" in preds(run([line()], human_text=bad))
 
@@ -143,7 +146,7 @@ def test_complete_p8_needs_every_required_row():
     assert "P8" in preds(run([line()], complete=True))
 
 
-def test_complete_p8_needs_the_r8_row_for_the_main_actor():
+def test_complete_p8_needs_the_r8_row_for_the_main_actor(tmp_path, capsys):
     prompt = {"session_id": SID, "hook_event_name": "UserPromptSubmit", "prompt": "hi"}
 
     ids = iter(range(1000))
@@ -164,6 +167,24 @@ def test_complete_p8_needs_the_r8_row_for_the_main_actor():
         "R8" in m
         for _, _, m in run(base + [sub("CronCreate")], complete=True)["violations"]
     )
+    # R8 may be declared "not in the tool list"; a declared row that has lines is flagged
+    assert run(base, complete=True, absent_rows=("R8",))["violations"] == []
+    declared = run(base + [tool("CronCreate")], complete=True, absent_rows=("R8",))
+    assert any(
+        "declared not in the tool list" in m for _, _, m in declared["violations"]
+    )
+    for row in ("R1", "R2", "R9", "nonsense"):  # only R8 may be declared absent
+        with pytest.raises(ValueError):
+            run(base, complete=True, absent_rows=(row,))
+    # the same through the command line
+    path = tmp_path / "all-but-r8.jsonl"
+    path.write_text("\n".join(json.dumps(e) for e in base) + "\n")
+    args = ["--jsonl", str(path), "--session", SID, "--complete"]
+    assert oc.main(args) == 1
+    assert oc.main(args + ["--absent-row", "R8"]) == 0
+    assert "OB-CTX-CHECK violations=0" in capsys.readouterr().out
+    with pytest.raises(SystemExit):
+        oc.main(args + ["--absent-row", "R2"])
 
 
 def test_bash_rewrite_p7():
@@ -201,6 +222,13 @@ def test_bash_rewrite_p7():
     ):
         assert "P7" in preds(run(bad, bash_bound=True))
     assert run([line(), post("echo C1")], bash_bound=False)["violations"] == []
+    for quoted in (  # text that only mentions the hook is not a rewrite
+        "echo 'launch-job-identity.sh execute'",
+        f"echo /bin/bash {hooks}/launch-job-identity.sh execute {SID} c x",
+        f"cat {hooks}/launch-job-identity.sh # execute",
+        "grep -n 'launch-job-identity.sh execute' notes",
+    ):
+        assert run([line(), post(quoted)], bash_bound=False)["violations"] == [], quoted
     for bad in ([post(rewritten)], [line()]):
         assert "P7" in preds(run(bad, bash_bound=False))
 

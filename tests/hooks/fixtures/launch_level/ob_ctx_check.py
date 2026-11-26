@@ -56,13 +56,20 @@ REQUIRED = [("R1", "main")] + [
     )
     for a in actors
 ]
-CWD = re.compile(r"\(cwd ([^)]*)\)")
+# Rows that may be declared "not in the tool list" (the stream init event) instead of seen.
+OPTIONAL_ROWS = ("R8",)
+# A capture must start with a non-space character: "(cwd )" is a missing cwd, not an empty one.
+CWD = re.compile(r"\(cwd (\S[^)]*)\)")
 # The installed hook path as recorded in evidence/. The evidence is static, so another HOME
 # does not matter; if evidence is re-recorded under another HOME, edit this literal (P7 then
 # fails closed with a visible violation, never a false pass).
 REWRITE = re.compile(
     r"^/bin/bash /home/coder/\.claude/hooks/launch-job-identity\.sh execute (\S+) "
 )
+# An unbound (ordinary) run must show no rewrite. The path stays loose, so a fake-path
+# rewrite still counts; the match is anchored, so a command that only quotes the hook text
+# (echo, cat, grep) does not.
+UNBOUND_REWRITE = re.compile(r"^/bin/bash \S*launch-job-identity\.sh execute ")
 MAX_ORDINARY = (
     2  # LIM-1 (Monitor) and LIM-2 (setsid child) are expected to read ordinary
 )
@@ -220,7 +227,7 @@ def check_rewrites(events, governed, bound, add):
                 n,
                 f"Bash command is not rewritten for a run session: {command[:80]!r}",
             )
-        elif not bound and "launch-job-identity.sh execute" in command:
+        elif not bound and UNBOUND_REWRITE.match(command):
             add(
                 "P7",
                 n,
@@ -236,8 +243,16 @@ def check(
     human_text=None,
     complete=False,
     bash_bound=None,
+    absent_rows=(),
 ):
-    """Return {counts, violations, scoped, verdicts, governed}; a void run is a VOID violation."""
+    """Return {counts, violations, scoped, verdicts, governed}; a void run is a VOID violation.
+
+    absent_rows: rows declared "not in the tool list" by the stream init event (only
+    OPTIONAL_ROWS). The checker cannot read that event, so the declaration is an assertion;
+    it is contradicted, and flagged, when the row has lines.
+    """
+    if set(absent_rows) - set(OPTIONAL_ROWS):
+        raise ValueError(f"only {OPTIONAL_ROWS} may be declared absent")
     violations, counts, events = [], Counter(), []
 
     def add(pred, n, msg):
@@ -290,7 +305,16 @@ def check(
     if bash_bound is not None:
         check_rewrites(events, governed, bash_bound, add)
     if complete:
+        for row in absent_rows:
+            if any(c for (r, k), c in counts.items() if r == row and k != "ups"):
+                add(
+                    "P8",
+                    0,
+                    f"{row} {ROWS[row]} is declared not in the tool list but has lines",
+                )
         for row, actor in REQUIRED:
+            if row in absent_rows:
+                continue
             key = "ups" if row == "R1" else f"pret_{actor}"
             if not counts[(row, key)]:
                 add(
@@ -359,18 +383,29 @@ def main(argv=None):
     parser.add_argument(
         "--complete", action="store_true", help="also check P8 row completeness"
     )
+    parser.add_argument(
+        "--absent-row",
+        action="append",
+        default=[],
+        help="row declared 'not in the tool list' by the stream init event "
+        "(repeatable; R8 only)",
+    )
     args = parser.parse_args(argv)
     records = (
         jsonl_records(read(args.jsonl)) if args.jsonl else tsv_records(read(args.tsv))
     )
-    result = check(
-        records,
-        args.session,
-        store_column=args.governed_store_column,
-        verdict_text=read(args.stream) if args.stream else None,
-        human_text=read(args.human_file) if args.human_file else None,
-        complete=args.complete,
-    )
+    try:
+        result = check(
+            records,
+            args.session,
+            store_column=args.governed_store_column,
+            verdict_text=read(args.stream) if args.stream else None,
+            human_text=read(args.human_file) if args.human_file else None,
+            complete=args.complete,
+            absent_rows=args.absent_row,
+        )
+    except ValueError as error:
+        parser.error(str(error))
     print(render(result))
     return 0 if not result["violations"] else 1
 
