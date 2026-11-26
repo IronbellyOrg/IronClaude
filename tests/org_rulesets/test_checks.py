@@ -180,9 +180,11 @@ def test_fallback_a_merged_commit_is_not_a_direct_push(make, orr, fake_runner_cl
         make, fake_runner_cls, "master", [1, 2], {1: ok(merged()), 2: ok(merged())}
     )
     got = orr.check_push(runner, "acme", "acme-one", ["master"], NOW)
-    assert got["result"] == "pass"
+    # commit dates are not push dates: the fallback never gives a pass
+    assert got["result"] == "incomplete"
     assert got["branches"]["master"]["source"] == "commits"
     assert got["branches"]["master"]["examined"] == 2
+    assert "commit dates are not push dates" in got["branches"]["master"]["note"]
 
 
 def test_fallback_a_commit_with_no_merged_pull_is_a_direct_push(
@@ -236,7 +238,7 @@ def test_activity_past_the_cap_falls_back_to_commits(make, orr, fake_runner_cls)
     too_many = fake_runner_cls.pages(*[[] for _ in range(orr.PAGE_CAP + 1)])
     runner = make({activity_path("master"): too_many, commits_path("master"): ok([])})
     got = orr.check_push(runner, "acme", "acme-one", ["master"], NOW)
-    assert got["result"] == "pass"
+    assert got["result"] == "incomplete"
     assert got["branches"]["master"]["source"] == "commits"
 
 
@@ -251,14 +253,31 @@ def test_201_lookups_is_incomplete_and_200_are_made(make, orr, fake_runner_cls):
     assert len(looked_up) == orr.LOOKUP_CAP == 200
 
 
-def test_exactly_200_lookups_can_pass(make, orr, fake_runner_cls):
+def test_exactly_200_lookups_are_all_made_but_the_fallback_never_passes(
+    make, orr, fake_runner_cls
+):
     ok = fake_runner_cls.ok
     numbers = list(range(1, 201))
     pulls = {n: ok(merged()) for n in numbers}
     runner = commit_runner(make, fake_runner_cls, "master", numbers, pulls)
-    assert (
-        orr.check_push(runner, "acme", "acme-one", ["master"], NOW)["result"] == "pass"
+    got = orr.check_push(runner, "acme", "acme-one", ["master"], NOW)
+    assert got["result"] == "incomplete"
+    assert got["branches"]["master"]["examined"] == 200
+    assert "commit dates are not push dates" in got["branches"]["master"]["note"]
+
+
+def test_the_commits_source_never_reports_pass(make, orr, fake_runner_cls):
+    """No commit in the window and no failed call is still not a full answer."""
+    ok = fake_runner_cls.ok
+    runner = make(
+        {
+            activity_path("master"): fake_runner_cls.http(403),
+            commits_path("master"): ok([]),
+        }
     )
+    got = orr.check_push(runner, "acme", "acme-one", ["master"], NOW)
+    assert got["result"] == "incomplete"
+    assert got["branches"]["master"]["direct_pushes"] == 0
 
 
 def test_overall_result_blocked_beats_incomplete_beats_pass(make, orr, fake_runner_cls):

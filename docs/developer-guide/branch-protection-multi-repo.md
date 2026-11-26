@@ -4,7 +4,7 @@ How to put the rulesets of [Branch Protection](branch-protection.md) on another 
 
 ## What the script does, and what you do
 
-The script checks one repo and prints a dry run that writes nothing. With `--apply --confirm <digest>` and `--out` it saves `<repo>-before.json` and creates the listed rulesets that are not already present, reading each back. It never posts the comment, never edits or deletes a ruleset, never changes classic branch protection, refuses the upstream organization and has no default `--org`.
+The script checks one repo and prints a dry run that writes nothing. With `--apply --confirm <digest>` and `--out` it saves `<repo>-before.json` and creates the listed rulesets that are not already present, reading each back. A ruleset of the same name is skipped only when it equals the listed one; otherwise the run refuses. It never posts the comment, never edits or deletes a ruleset, never changes classic branch protection, refuses the upstream organization and has no default `--org`.
 
 You choose the repo, read the dry run, check the release workflows, hooks, keys and installed apps, run the apply, comment on issue 838 and roll back if needed. A dry run changes nothing; an `--apply` run that does not refuse is a live write to the repo you name.
 
@@ -64,6 +64,7 @@ Start with one low-risk repo. The canary must show complete activity coverage be
 - Each branch ends `pass`, `blocked` or `incomplete`, and the dry run prints the overall result with the same three words.
 - `incomplete` is never turned into `pass`.
 - Each branch line names its source: `source activity` or `source commits`.
+- Only `source activity` can give `pass`. The commit list is the fallback when the activity source gives no full answer: it gives `blocked` when a commit in the window has no merged pull request, and otherwise `incomplete`, because it filters by commit date, not by push date, and so cannot see a push of an older commit. An `incomplete` check refuses `--apply`.
 - A direct push by a named person is not excused: the check reports `blocked` for it.
 
 ## Refusals and failures
@@ -83,6 +84,8 @@ An `--apply` that refuses prints `refused:` and the texts below, joined by `; `,
 | `branch protection state unknown on <branch>` | Rerun the dry run; if it repeats, decide by hand |
 | `ruleset list cannot be read (HTTP <n>)` | Check your access, then rerun the dry run |
 | `repo lists a ruleset id this script never touches` | Stop: the ids 28081842, 28081844 and 28081845 are never touched, so this is probably not the repo you meant |
+| `same-name ruleset <name> (id <n>) differs: <differences>` | A ruleset of that name is already on the repo and is not the listed one. The script never edits one: fix it by hand (for example set the enforcement back to active), or remove it on purpose, then rerun the dry run |
+| `same-name ruleset <name> (id <n>) cannot be read` | Check your access, then rerun the dry run |
 | `no --out folder given` | Add `--out "$OUT"` |
 | `confirm digest does not match the rulesets rendered now` | Rerun the dry run and use the digest it prints |
 | `before-state file already exists: <path>` | Use another `OUT` folder, or move the old file away on purpose |

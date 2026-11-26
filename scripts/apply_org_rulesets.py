@@ -453,7 +453,9 @@ def _merged_into(pulls: object, branch: str) -> bool:
 
 
 def _push_commits(runner, org, repo, branch, cutoff):
-    """The fallback: a commit with no merged pull request is a direct push."""
+    """The fallback: a commit with no merged pull request is a direct push. It can
+    report ``blocked`` but never ``pass``: ``since`` filters on commit dates, not on
+    when the branch moved, so a push of an older commit is not visible here."""
     out = {"source": "commits", "direct_pushes": 0, "examined": 0}
     query = f"sha={branch}&since={_iso(cutoff)}&per_page={PER_PAGE}"
     answer = runner.run(
@@ -483,9 +485,12 @@ def _push_commits(runner, org, repo, branch, cutoff):
             out["direct_pushes"] += 1
     if out["direct_pushes"]:
         return {**out, "result": "blocked"}
-    if unknown:
-        return {**out, "result": "incomplete", "note": "not every commit was checked"}
-    return {**out, "result": "pass"}
+    note = "not every commit was checked"
+    if not unknown:
+        note = (
+            "commit dates are not push dates, so an older commit pushed now is missed"
+        )
+    return {**out, "result": "incomplete", "note": note}
 
 
 def _iso(moment: datetime) -> str:
@@ -604,6 +609,10 @@ def _assess(runner: Runner, org: str, repo: str, now: datetime) -> dict:
         problems.append(f"ruleset list cannot be read (HTTP {status})")
     elif PROTECTED_RULESET_IDS & set(existing["rulesets"].values()):
         problems.append("repo lists a ruleset id this script never touches")
+    else:
+        found["same"] = _check_same_name(
+            runner, owner, name, bodies, existing["rulesets"], problems
+        )
     found.update(
         branches=branches,
         push=push,
@@ -612,6 +621,31 @@ def _assess(runner: Runner, org: str, repo: str, now: datetime) -> dict:
         digest=payload_digest(bodies),
     )
     return found
+
+
+def _check_same_name(runner, owner, name, bodies, names, problems) -> set[str]:
+    """A ruleset that already has the name of a rendered body is skipped only when it
+    equals that body. The names that do are returned; any other (different or
+    unreadable) adds a problem, so ``--apply`` refuses and the operator decides."""
+    identical = set()
+    for body in bodies:
+        rid = names.get(body["name"])
+        if rid is None:
+            continue
+        got = runner.run(["gh", "api", f"repos/{owner}/{name}/rulesets/{rid}"])
+        remote = _json_object(got)
+        label = body["name"]
+        if remote is None:
+            problems.append(f"same-name ruleset {label} (id {rid}) cannot be read")
+            continue
+        diffs = compare_bodies(body, remote)
+        if diffs:
+            problems.append(
+                f"same-name ruleset {label} (id {rid}) differs: " + "; ".join(diffs)
+            )
+        else:
+            identical.add(label)
+    return identical
 
 
 def dry_run_report(runner: Runner, org: str, repo: str, now: datetime) -> list[str]:
@@ -654,12 +688,15 @@ def dry_run_report(runner: Runner, org: str, repo: str, now: datetime) -> list[s
         "release workflows of this repo by hand before applying."
     )
     lines.append("would create, in this order:")
+    same = found.get("same", set())
     for number, body in enumerate(found["bodies"], 1):
         present = names is not None and body["name"] in names
-        lines.append(
-            f"  {number}. {body['name']} ({body['target']})"
-            + (" - skipped, a ruleset of this name already exists" if present else "")
-        )
+        note = ""
+        if present and body["name"] in same:
+            note = " - skipped, an identical ruleset of this name already exists"
+        elif present:
+            note = " - not created, a ruleset of this name already exists"
+        lines.append(f"  {number}. {body['name']} ({body['target']}){note}")
     lines += [f"would refuse --apply: {p}" for p in found["problems"]]
     lines.append(f"digest: {found['digest']}")
     lines.append(

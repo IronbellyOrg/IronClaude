@@ -63,14 +63,34 @@ def test_dry_run_with_a_read_only_runner_never_posts(world, orr, fake_runner_cls
     assert posts(runner, fake_runner_cls) == []
 
 
-def test_dry_run_lists_a_same_name_ruleset_as_skipped_with_the_same_digest(
+def existing_world(world, fake_runner_cls, orr, body, rid=7):
+    """A fake GitHub that already holds ``body`` as ruleset ``rid``."""
+    ok = fake_runner_cls.ok
+    summary = ok([{"id": rid, "name": body["name"]}])
+    remote = {**body, "id": rid, **SERVER}
+    return world(gets={LIST: summary, f"{REPO}/rulesets/{rid}": ok(remote)})
+
+
+def test_dry_run_lists_an_identical_same_name_ruleset_as_skipped(
     world, orr, fake_runner_cls
 ):
-    summary = fake_runner_cls.ok([{"id": 7, "name": "protect-master"}])
-    runner = world(gets={LIST: summary})
+    runner = existing_world(world, fake_runner_cls, orr, orr.render_branch("master"))
     text = "\n".join(orr.dry_run_report(runner, "acme", "acme-one", NOW))
-    assert "protect-master (branch) - skipped" in text
+    assert "protect-master (branch) - skipped, an identical ruleset" in text
+    assert "would refuse" not in text
     assert f"digest: {digest_of(orr)}" in text
+
+
+def test_dry_run_refuses_a_same_name_ruleset_that_differs(world, orr, fake_runner_cls):
+    off = {**orr.render_tags(), "enforcement": "disabled"}
+    runner = existing_world(world, fake_runner_cls, orr, off)
+    text = "\n".join(orr.dry_run_report(runner, "acme", "acme-one", NOW))
+    assert f"{TAG_RULESET} (tag) - not created, a ruleset of this name" in text
+    assert (
+        f"would refuse --apply: same-name ruleset {TAG_RULESET} (id 7) differs" in text
+    )
+    assert "enforcement" in text
+    assert posts(runner, fake_runner_cls) == []
 
 
 def test_dry_run_names_what_would_refuse(world, orr, fake_runner_cls):
@@ -310,13 +330,12 @@ def test_a_timed_out_post_with_nothing_found_stops(
     assert len(posts(runner, fake_runner_cls)) == 1 and got["ids"] == {}
 
 
-def test_a_same_name_ruleset_gets_no_write_of_any_kind(
+def test_an_identical_same_name_ruleset_gets_no_write_of_any_kind(
     world, orr, fake_runner_cls, tmp_path
 ):
-    ok = fake_runner_cls.ok
-    full = {"id": 7, "name": "protect-master", "target": "branch", "rules": []}
-    summary = ok([{"id": 7, "name": "protect-master"}])
-    runner = world(gets={LIST: summary, f"{REPO}/rulesets/7": ok(full)})
+    body = orr.render_branch("master")
+    full = {**body, "id": 7, **SERVER}
+    runner = existing_world(world, fake_runner_cls, orr, body)
     got = apply(orr, runner, tmp_path)
     assert got["ok"] is True and got["skipped"] == ["protect-master"]
     assert "protect-master" not in got["ids"]
@@ -328,6 +347,52 @@ def test_a_same_name_ruleset_gets_no_write_of_any_kind(
     assert methods == {"GET", "POST"}
     saved = json.loads((tmp_path / "out" / "acme-one-before.json").read_text())
     assert saved["rulesets"] == {"7": full}
+
+
+def tag_without_update(orr):
+    body = orr.render_tags()
+    rules = [r for r in body["rules"] if r["type"] != "update"]
+    assert len(rules) < len(body["rules"])
+    return {**body, "rules": rules}
+
+
+@pytest.mark.parametrize("flaw", ["disabled", "no-update-rule"])
+def test_a_same_name_ruleset_that_differs_refuses_and_writes_nothing(
+    world, orr, fake_runner_cls, tmp_path, flaw
+):
+    flawed = (
+        {**orr.render_tags(), "enforcement": "disabled"}
+        if flaw == "disabled"
+        else tag_without_update(orr)
+    )
+    runner = existing_world(world, fake_runner_cls, orr, flawed)
+    got = apply(orr, runner, tmp_path)
+    assert got["ok"] is False and got["skipped"] == []
+    assert f"same-name ruleset {TAG_RULESET} (id 7) differs" in got["error"]
+    assert posts(runner, fake_runner_cls) == []
+    assert got["ids"] == {} and got["before_file"] is None
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_an_unreadable_same_name_ruleset_refuses(world, orr, fake_runner_cls, tmp_path):
+    summary = fake_runner_cls.ok([{"id": 7, "name": TAG_RULESET}])
+    runner = world(
+        gets={LIST: summary, f"{REPO}/rulesets/7": fake_runner_cls.http(403)}
+    )
+    got = apply(orr, runner, tmp_path)
+    assert got["ok"] is False
+    assert f"same-name ruleset {TAG_RULESET} (id 7) cannot be read" in got["error"]
+    assert posts(runner, fake_runner_cls) == []
+
+
+def test_a_protected_id_is_refused_before_any_same_name_read(
+    world, orr, fake_runner_cls, tmp_path
+):
+    listed = fake_runner_cls.ok([{"id": 28081842, "name": TAG_RULESET}])
+    runner = world(gets={LIST: listed})
+    got = apply(orr, runner, tmp_path)
+    assert got["ok"] is False and "never touches" in got["error"]
+    assert not any("/rulesets/" in c.argv[-1] for c in runner.commands)
 
 
 def test_no_call_names_a_protected_ruleset_id(world, orr, tmp_path):
