@@ -175,3 +175,30 @@ def test_hook_recognises_the_supported_orca_command_names(
     assert (proc.returncode, proc.stdout, proc.stderr) == (0, "", "")
     expected = "run_aaaaaaaaaaaa" if "worker-start" in command else "run_dddddddddddd"
     assert calls == ([f"sweep ledger --add {expected}"] if recorded else [])
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "command",
+    [
+        '"/opt/My Tools/orca-ide" orchestration run-create --json',
+        "'/opt/My Tools/orca' orchestration run-create --json",
+        'cd /x && "/opt/My Tools/orca-ide" orchestration run-create --json',
+        '"orca-ide" orchestration run-create --json',
+    ],
+)
+def test_hook_recognises_a_quoted_orca_path_with_spaces(tmp_path, command):
+    payload = bash_payload(command, stdout="made run_dddddddddddd")
+    proc, calls, _ = run_hook(tmp_path, payload)
+    assert (proc.returncode, proc.stdout, proc.stderr) == (0, "", "")
+    assert calls == ["sweep ledger --add run_dddddddddddd"]
+
+
+@pytest.mark.integration
+def test_hook_still_ignores_a_quoted_path_to_another_program(tmp_path):
+    payload = bash_payload(
+        '"/opt/My Tools/not-orca" orchestration run-create --json',
+        stdout="run_dddddddddddd",
+    )
+    proc, calls, _ = run_hook(tmp_path, payload)
+    assert (proc.returncode, calls) == (0, [])

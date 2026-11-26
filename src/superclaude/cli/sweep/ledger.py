@@ -514,27 +514,38 @@ def add_run(path: Path, run_id: str, now: datetime | None = None) -> bool:
 
     Takes the lock, keeps ``generated_at`` unchanged (so sweep staleness is not masked) and
     raises ``ValueError`` for a malformed id and ``LedgerUnavailable`` for a missing or
-    unreadable ledger.
+    unreadable ledger. A Run that is already present gets fresh hook metadata (``source`` hook,
+    ``added_at`` now, reason ``hook_added``): a rebuild that is running right now would
+    otherwise drop a Run that was just restarted, because ``merge_hook_entries`` keeps only
+    hook entries added since the rebuild began.
     """
     if re.fullmatch(RUN_ID_RE, run_id) is None:
         raise ValueError(f"invalid Run id: {run_id!r}")
+    stamp = iso_utc(now or utc_now())
     with locked(path):
         data = read_ledger(path)
         if data is None:
             raise LedgerUnavailable(f"no readable ledger at {path}")
-        if any(entry["id"] == run_id for entry in data["runs"]):
-            return False
-        data["runs"].append(
-            {
-                "id": run_id,
-                "source": "hook",
-                "reasons": ["hook_added"],
-                "added_at": iso_utc(now or utc_now()),
-            }
-        )
+        existing = next((e for e in data["runs"] if e["id"] == run_id), None)
+        if existing is None:
+            data["runs"].append(
+                {
+                    "id": run_id,
+                    "source": "hook",
+                    "reasons": ["hook_added"],
+                    "added_at": stamp,
+                }
+            )
+        else:
+            existing["source"] = "hook"
+            existing["added_at"] = stamp
+            reasons = list(existing.get("reasons", []))
+            existing["reasons"] = (
+                reasons if "hook_added" in reasons else [*reasons, "hook_added"]
+            )
         data["counts"] = compute_counts(data["runs"])
         write_atomic(path, data)
-    return True
+    return existing is None
 
 
 # --- The ``superclaude sweep ledger`` command ------------------------------------------

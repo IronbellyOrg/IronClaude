@@ -126,7 +126,9 @@ def test_add_idempotent_and_rejects_bad_id(tmp_path):
     write_atomic(path, make_ledger([entry(1)]))
     assert add_run(path, rid(2), GEN) is True
     assert add_run(path, rid(2), GEN) is False
-    assert add_run(path, rid(1), GEN) is False  # already there as a build row
+    assert (
+        add_run(path, rid(1), GEN) is False
+    )  # already there as a build row: no new Run
     data = read_ledger(path)
     assert [r["id"] for r in data["runs"]] == [rid(1), rid(2)]
     added = data["runs"][1]
@@ -136,7 +138,12 @@ def test_add_idempotent_and_rejects_bad_id(tmp_path):
         "reasons": ["hook_added"],
         "added_at": "2026-11-26T18:00:00Z",
     }
-    assert data["counts"]["hook_added"] == 1
+    # the build row got fresh hook metadata, keeping its other fields and reasons
+    refreshed = data["runs"][0]
+    assert refreshed["source"] == "hook"
+    assert refreshed["reasons"] == ["unfinished_task", "hook_added"]
+    assert refreshed["added_at"] == "2026-11-26T18:00:00Z"
+    assert data["counts"]["hook_added"] == 2
     for bad in ("run_1", rid(3) + "x", "", "RUN_" + "a" * 12):
         with pytest.raises(ValueError):
             add_run(path, bad, GEN)
@@ -227,3 +234,21 @@ def test_concurrent_add_and_build_no_lost_append(tmp_path):
     assert {rid(100 + n) for n in range(20)} <= set(ids)
     assert len(ids) == len(set(ids)) == 21
     assert [p.name for p in tmp_path.iterdir() if ".tmp." in p.name] == []
+
+
+def test_restart_during_a_rebuild_is_kept_by_the_merge(tmp_path):
+    # Run 1 is in the old ledger (an old build row). A rebuild starts at GEN and decides to drop it.
+    # Meanwhile the worker-start hook adds Run 1 again; the merge must keep it.
+    path = tmp_path / "run-ledger.json"
+    old = entry(1, added="2026-11-26T10:00:00Z")
+    write_atomic(path, make_ledger([old], generated="2026-11-26T10:00:00Z"))
+    rebuild_new = make_ledger([entry(2)], generated=ledger.iso_utc(GEN))  # no Run 1
+    add_run(path, rid(1), datetime(2026, 11, 26, 18, 0, 5, tzinfo=timezone.utc))
+    merged = merge_hook_entries(rebuild_new, read_ledger(path), GEN)
+    assert {r["id"] for r in merged["runs"]} == {rid(1), rid(2)}
+    assert merged["generated_at"] == ledger.iso_utc(GEN)
+    # without the refresh (added_at still old) the same merge drops Run 1
+    stale = make_ledger([old], generated="2026-11-26T10:00:00Z")
+    assert {r["id"] for r in merge_hook_entries(rebuild_new, stale, GEN)["runs"]} == {
+        rid(2)
+    }

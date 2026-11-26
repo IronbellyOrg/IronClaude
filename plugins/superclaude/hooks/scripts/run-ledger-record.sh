@@ -38,7 +38,9 @@ orca_names='orca|orca-ide'
 cli_name=${ORCA_CLI_COMMAND:-}
 cli_name=${cli_name##*/}
 [[ $cli_name =~ ^[A-Za-z0-9._-]+$ ]] && orca_names="$orca_names|${cli_name//./\\.}"
-verb_pattern="(^|[[:space:];&|(])([^[:space:];&|()]*/)?($orca_names)[[:space:]]+orchestration[[:space:]]+(run-create|worker-start)([[:space:]]|\$)"
+# The path may be quoted (it can then hold spaces): "/opt/My Tools/orca-ide" or '/a b/orca'.
+path_prefix='("[^"]*/|'"'"'[^'"'"']*/|[^[:space:];&|()"'"'"']*/)?'
+verb_pattern="(^|[[:space:];&|(])${path_prefix}[\"']?($orca_names)[\"']?[[:space:]]+orchestration[[:space:]]+(run-create|worker-start)([[:space:]]|\$)"
 [[ $command_text =~ $verb_pattern ]] || exit 0
 verb=${BASH_REMATCH[4]}
 

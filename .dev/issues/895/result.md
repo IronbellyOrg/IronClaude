@@ -2,7 +2,9 @@
 
 outcome: succeeded. The `superclaude sweep ledger` command, the sweep fallback to the ledger, the hook file and the install notes are built and tested; 893 tests pass with none failing, and the real runs below worked. Nothing is installed, scheduled, registered, committed or pushed.
 
-pull_request: none
+pull_request: https://github.com/IronbellyOrg/IronClaude/pull/907
+
+PR 907 (base `integration`, head `ironbelly/run-ledger`, opened 2026-11-26 after the owner's "Go 895 pr"): CI all green on `e8a10c264`, mergeable and clean, not merged. Review rounds: round 1 fixed the Orca executable name and the module-level `fcntl` import; round 2 fixed the hook's command-name matching; round 3 hit the 2-round cap, so three findings were left open: the hook fixture shape was not live-captured (Augment, medium; cannot be fixed before the hook is registered, stays disclosed), `--add` of an already-present Run recorded no fresh hook time (Codex P2) and the hook did not match a quoted absolute Orca path with spaces (Augment, medium). One extra commit (`e8a10c264`) repaired my own CI break (a test fixture imported twice). After the owner answered "No, fix first", a further round fixed the last two: `--add` now refreshes the hook metadata of a Run already in the ledger, and the hook matches a quoted path with spaces and a quoted bare name. The statements above that nothing is committed or pushed describe the state when the real runs were made.
 
 artifacts:
 - src/superclaude/cli/sweep/ledger.py (new: inclusion rules, Orca reader and guards, file store, the `ledger` command)
