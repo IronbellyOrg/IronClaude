@@ -1,6 +1,6 @@
 # Iteration 3 (IronClaude): the work files
 
-Generated Wed 25 Nov 2026 20:14 Central from the reviewed iteration plan. The planning run lives in the IronFlow repository at `.dev/research/release-planning-20261124/`; paths such as `plan/...` and `scripts/...` named in these files' header lines are in that folder, not in IronClaude. Iteration 3 ends Sunday 6 December; milestone `rel-7.0.0`.
+Generated Thu 26 Nov 2026 07:10 Central from the reviewed iteration plan. The planning run lives in the IronFlow repository at `.dev/research/release-planning-20261124/`; paths such as `plan/...` and `scripts/...` named in these files' header lines are in that folder, not in IronClaude. Iteration 3 ends Sunday 6 December; milestone `rel-7.0.0`.
 
 ## How each owner starts
 
@@ -25,6 +25,7 @@ Start only after the pull request that adds this folder to `integration` has mer
 
 ## Not automatic yet
 
-- **Launching agents from the claim.** The claim skill refuses `--pipeline worktree` or `full` on a real issue until the launch-guard observations of #442 pass (its ship gate), so for now each story's agent runs `/sc:issue --claim <issue> --pipeline none` in a worktree the lead made.
+- **Launching agents from the claim.** The launch gate opened on 25 Nov (pull request 851), but a launched claim cannot carry a story's decisions into its agent, so each story's agent still runs `/sc:issue --claim <issue> --pipeline none` in a worktree the lead made and adds the decisions itself.
+- **Worktree cleanup.** Since 26 Nov the story workflow ends with `/sc:worktrees retire issue-<issue>` after closeout (section 7, step 13). A lead that started earlier should re-read section 7 of its epic file from `origin/integration`.
 - **Carrying decisions into a launched agent.** The claim has no way to take a story's decided answers, so the agent appends them to the claim's `issue-summary.md` itself (story workflow, step 4).
 - **GitHub "blocked by" links.** The claim reads them since #848 (merged into `integration` on 25 Nov) and stops with `E-BLOCKED` while a blocker is open, but only in a workspace whose installed IronClaude has that change (it reaches the workspace image through `master`). Every start check also reads the prerequisite issue's state directly (`gh issue view <issue> --json state`), so the order holds either way.
