@@ -560,6 +560,8 @@ An `unknown` actor (owner decision OD-2) is refused only for main and master. It
 | LIM-19 | No hook-wide time bound | Beyond the 10-second selector timeout the hook has no time bound; a huge `--mirror` stream or a slow writer stalls a governed or unknown push | none | Low | Low (INV-013) |
 | LIM-20 | Orphaned probe directory | A crash between creating and removing the installer's private probe subdirectory orphans it, and nothing sweeps it | the hooks-directory tokens deny a governed agent's visible edits | Low | Low (INV-017) |
 
+**Accepted risk with the ship gate open (owner, 2026-11-26; Codex security review of PR 851).** LIM-1 and LIM-2 together mean an approved issue's governed agent can write a script (for example `payload.sh`) and start it from the Monitor tool or a `setsid` child; L1 inspects only the visible command or path, the child reads `ordinary`, and L2 exits 0 for an ordinary actor before it checks refs. A Worktree or Full agent can therefore commit and push indirectly, possibly to a protected ref. The owner decided to keep the gate open on the observed local Bash surface and to treat this as a known limit. Next fix, not part of PR 851: bind Monitor jobs and `setsid` children to the governed session, or deny them for governed agents. Until then the Pipeline levels above None should be used only for issues whose agent text the owner trusts, and the watcher's own audit log and the pull request review remain the controls.
+
 The `final-check.md` limits of the #394 package are not edited (read-only). The re-test of these limits for the L2 build is `.dev/tasks/to-do/TASK-WF-designSpec-20261108-165559/artifacts/final-check-retest.md`.
 
 ### 19.4 Release and removal (Q3, narrowed)
