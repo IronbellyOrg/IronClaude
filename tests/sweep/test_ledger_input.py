@@ -4,14 +4,15 @@ Reuses the Orca seams and helpers of ``test_cli_contract.py``. The autouse fixtu
 ``conftest.py`` points ``SUPERCLAUDE_RUN_LEDGER`` at a missing file; each test here sets its own.
 """
 
-# ruff: noqa: F811, F401  (the ``env`` fixture is imported from test_cli_contract and used by name)
-
 from __future__ import annotations
 
 import json
+from datetime import datetime
+from types import SimpleNamespace
 
 import pytest
 
+from superclaude.cli.sweep import commands, probes
 from superclaude.cli.sweep.ledger import compute_counts
 from tests.sweep.test_cli_contract import (
     RUN,
@@ -25,10 +26,38 @@ from tests.sweep.test_cli_contract import (
     _run,
     _worker_list,
     _world,
-    env,
 )
 
 HINT = 'no Run bound: pass --run <id> run "superclaude sweep ledger" first\n'
+
+
+@pytest.fixture
+def env(sweep_root, patch_orca, patch_git, monkeypatch, fixed_now):
+    """The checkout stand-in of ``test_cli_contract.py``'s ``env`` (same recipe, own fixture).
+
+    The fixture is defined here, not imported: importing a fixture function registers it twice
+    under one name and location, which makes ``pytest --fixtures`` crash while sorting.
+    """
+    monkeypatch.setattr(probes, "read_orca_version", lambda: None)
+    monkeypatch.delenv("ORCA_CLI_COMMAND", raising=False)
+    patch_git.default = "## main\0"
+
+    class _Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return fixed_now
+
+    monkeypatch.setattr(commands, "datetime", _Clock)
+    root = sweep_root.root.resolve()
+    return SimpleNamespace(
+        sweep_root=sweep_root,
+        root=root,
+        sweeps=root / ".dev" / "sweeps",
+        orca=patch_orca,
+        git=patch_git,
+        now=fixed_now,
+        tmp=sweep_root.base,
+    )
 
 
 def put_ledger(
