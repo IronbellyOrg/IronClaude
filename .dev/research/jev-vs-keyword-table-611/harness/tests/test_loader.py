@@ -207,6 +207,13 @@ def test_table_answers_are_refused_against_the_corpus(tmp_path, rows, match):
         loader.load_table_answers(_answers(tmp_path, rows), IDS)
 
 
+@pytest.mark.parametrize("field", ["prompt_id", "answer", "cues", "rows", "method"])
+def test_each_of_the_five_recorded_fields_is_required_for_every_prompt(tmp_path, field):
+    rows = [_without(_row_for(pid), field) if pid == "b" else _row_for(pid) for pid in IDS]
+    with pytest.raises(LoadError):
+        loader.load_table_answers(_answers(tmp_path, rows), IDS)
+
+
 def test_a_root_other_than_the_experiment_folder_is_refused_for_a_run_or_a_decisional_score(tmp_path):
     loader.require_own_root(Paths(loader.EXPERIMENT))
     with pytest.raises(LoadError, match="not the experiment folder"):
