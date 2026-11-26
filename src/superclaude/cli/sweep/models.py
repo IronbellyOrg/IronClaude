@@ -78,6 +78,8 @@ class SweepContext:
     window_start: datetime  # now - window
     root: Path
     runs: tuple[str, ...]
+    # Header line saying where the Run ids came from (the Run ledger); None for --run or a bound Run.
+    run_source: str | None = None
 
 
 @dataclass(frozen=True)

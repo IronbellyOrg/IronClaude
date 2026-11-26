@@ -1,0 +1,1 @@
+codegraph: index_state=fresh access=mcp checked_at=2026-11-26T18:23:53Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/run-ledger projectPath=/home/coder/workspaces/worktrees/IronClaude/run-ledger

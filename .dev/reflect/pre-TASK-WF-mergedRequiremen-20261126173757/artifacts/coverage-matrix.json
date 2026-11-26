@@ -1,0 +1,680 @@
+{
+ "summary": {
+  "parsed_count": 0,
+  "inferred_count": 55,
+  "dropped_at_emission": 0,
+  "coverage_pct": null,
+  "coverage_pct_union": 0.8182,
+  "unmapped_requirements": [],
+  "unmapped_requirements_union": [
+   "INF-006",
+   "INF-008",
+   "INF-010",
+   "INF-016",
+   "INF-027",
+   "INF-028",
+   "INF-032",
+   "INF-041",
+   "INF-053",
+   "INF-054"
+  ],
+  "S_dev_density": 0.1818,
+  "coverage_degraded": "parsed-sparse",
+  "tasks_in_plan": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11
+  ]
+ },
+ "matrix": [
+  {
+   "id": "INF-001",
+   "source": "inferred",
+   "citation": "source.md:10",
+   "quote": "One new file `src/superclaude/cli/sweep/ledger.py`, command `superclaude sweep ledger`, attached to the existing `sweep_group` (no `main.py` change); pure `decide()`; own Orca runner, not `sweep/probes.py`.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    4
+   ],
+   "best_ratio": 0.667,
+   "best_task": 4
+  },
+  {
+   "id": "INF-002",
+   "source": "inferred",
+   "citation": "source.md:11",
+   "quote": "`sweep run` reads the ledger (file read, no Orca call) when no `--run` and no terminal-bound Run; explicit `--run` wins; no new flag; stale header at 90 minutes.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    6
+   ],
+   "best_ratio": 0.778,
+   "best_task": 6
+  },
+  {
+   "id": "INF-003",
+   "source": "inferred",
+   "citation": "source.md:12",
+   "quote": "Fixed per-user file `${XDG_STATE_HOME:-~/.local/state}/superclaude/run-ledger.json`, override `--ledger` or env `SUPERCLAUDE_RUN_LEDGER`. Never under the repo.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    3
+   ],
+   "best_ratio": 0.667,
+   "best_task": 3
+  },
+  {
+   "id": "INF-004",
+   "source": "inferred",
+   "citation": "source.md:13",
+   "quote": "`fcntl.flock` sidecar lock, 10 s timeout then exit 3; atomic temp file + `fsync` + `os.replace`; rebuild merges hook entries newer than its own start.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    3
+   ],
+   "best_ratio": 0.65,
+   "best_task": 3
+  },
+  {
+   "id": "INF-005",
+   "source": "inferred",
+   "citation": "source.md:22",
+   "quote": "`--dry-run` prints the would-be ledger and writes nothing; `--json` prints the summary as JSON.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    4
+   ],
+   "best_ratio": 1.0,
+   "best_task": 4
+  },
+  {
+   "id": "INF-006",
+   "source": "inferred",
+   "citation": "source.md:23",
+   "quote": "append one id (idempotent; validated with the sweep id pattern `probes.RUN_ID_RE`; merges under the lock; no Orca call).",
+   "match_method": "none",
+   "matched_task_ids": [],
+   "best_ratio": 0.538,
+   "best_task": 9
+  },
+  {
+   "id": "INF-007",
+   "source": "inferred",
+   "citation": "source.md:24",
+   "quote": "No `show`, `path`, `--timeout`, `--no-ledger`, or sweep `--ledger` flag.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    2
+   ],
+   "best_ratio": 0.667,
+   "best_task": 2
+  },
+  {
+   "id": "INF-008",
+   "source": "inferred",
+   "citation": "source.md:26",
+   "quote": "never through `sweep/probes.py`, so the pinned `ALLOWED_ORCA` and `tests/sweep/test_probes_allowlist.py` stay unchanged and green.",
+   "match_method": "none",
+   "matched_task_ids": [],
+   "best_ratio": 0.5,
+   "best_task": 3
+  },
+  {
+   "id": "INF-009",
+   "source": "inferred",
+   "citation": "source.md:27",
+   "quote": "use `find_orca` in `src/superclaude/cli/issue_watch/` if its signature fits, else `shutil.which(\"orca\")`.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    2
+   ],
+   "best_ratio": 0.636,
+   "best_task": 2
+  },
+  {
+   "id": "INF-010",
+   "source": "inferred",
+   "citation": "source.md:42",
+   "quote": "`generated_at` is captured BEFORE the first Orca call, so the `new` rule cannot miss a Run created mid-build.",
+   "match_method": "none",
+   "matched_task_ids": [],
+   "best_ratio": 0.571,
+   "best_task": 2
+  },
+  {
+   "id": "INF-011",
+   "source": "inferred",
+   "citation": "source.md:43",
+   "quote": "`--add` keeps `generated_at` unchanged (so sweep staleness is not masked)",
+   "match_method": "containment",
+   "matched_task_ids": [
+    3
+   ],
+   "best_ratio": 0.714,
+   "best_task": 3
+  },
+  {
+   "id": "INF-012",
+   "source": "inferred",
+   "citation": "source.md:47",
+   "quote": "Never infer that a Run exists from `worker-list`",
+   "match_method": "containment",
+   "matched_task_ids": [
+    1
+   ],
+   "best_ratio": 0.833,
+   "best_task": 1
+  },
+  {
+   "id": "INF-013",
+   "source": "inferred",
+   "citation": "source.md:48",
+   "quote": "any worker row has `resource.worktreeId` exactly equal (whole string) to an `id` in `worktree list --json` `result.worktrees[].id`.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    1
+   ],
+   "best_ratio": 0.714,
+   "best_task": 1
+  },
+  {
+   "id": "INF-014",
+   "source": "inferred",
+   "citation": "source.md:49",
+   "quote": "any Task whose `status` is NOT in the terminal set `{completed, failed, cancelled}`.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    1
+   ],
+   "best_ratio": 0.857,
+   "best_task": 1
+  },
+  {
+   "id": "INF-015",
+   "source": "inferred",
+   "citation": "source.md:50",
+   "quote": "With no previous ledger, or an unreadable one, `new` means `created_at` within the last `NEW_FALLBACK_HOURS = 24` (named constant).",
+   "match_method": "containment",
+   "matched_task_ids": [
+    1
+   ],
+   "best_ratio": 0.769,
+   "best_task": 1
+  },
+  {
+   "id": "INF-016",
+   "source": "inferred",
+   "citation": "source.md:51",
+   "quote": "A hook-added entry newer than the rebuild start is kept (see Concurrency); an older one is re-evaluated by the three rules like any other Run.",
+   "match_method": "none",
+   "matched_task_ids": [],
+   "best_ratio": 0.556,
+   "best_task": 1
+  },
+  {
+   "id": "INF-017",
+   "source": "inferred",
+   "citation": "source.md:52",
+   "quote": "No age cutoff and no main-checkout exclusion is built (over-inclusion is the safe direction); a cutoff is the owner's decision (see Open decisions).",
+   "match_method": "containment",
+   "matched_task_ids": [
+    1
+   ],
+   "best_ratio": 0.643,
+   "best_task": 1
+  },
+  {
+   "id": "INF-018",
+   "source": "inferred",
+   "citation": "source.md:56",
+   "quote": "A repeated cursor, or more than 50 pages for one Run, is a failure (exit 1).",
+   "match_method": "containment",
+   "matched_task_ids": [
+    2
+   ],
+   "best_ratio": 1.0,
+   "best_task": 2
+  },
+  {
+   "id": "INF-019",
+   "source": "inferred",
+   "citation": "source.md:57",
+   "quote": "Short-circuit: fetch Tasks first; fetch workers only for Runs not already IN by Task or `new`.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    2
+   ],
+   "best_ratio": 0.8,
+   "best_task": 2
+  },
+  {
+   "id": "INF-020",
+   "source": "inferred",
+   "citation": "source.md:59",
+   "quote": "Runs admitted only by `ready` or `blocked` Tasks whose `updated_at` is older than 7 days; the count of Runs held in only by `blocked` Tasks.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    1
+   ],
+   "best_ratio": 0.8,
+   "best_task": 1
+  },
+  {
+   "id": "INF-021",
+   "source": "inferred",
+   "citation": "source.md:63",
+   "quote": "the old ledger is left untouched, one reason goes to stderr (first word `orca-failure:` or `implausible:`), and the exit is non-zero.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    4
+   ],
+   "best_ratio": 0.688,
+   "best_task": 4
+  },
+  {
+   "id": "INF-022",
+   "source": "inferred",
+   "citation": "source.md:64",
+   "quote": "Any Orca call exits non-zero, times out (30 s each), or returns JSON without `\"ok\": true` (`orca-failure:`).",
+   "match_method": "containment",
+   "matched_task_ids": [
+    2
+   ],
+   "best_ratio": 0.769,
+   "best_task": 2
+  },
+  {
+   "id": "INF-023",
+   "source": "inferred",
+   "citation": "source.md:65",
+   "quote": "`worktree list` returns 0 worktrees (the main checkout always exists, so 0 is a broken read) (`implausible:`).",
+   "match_method": "containment",
+   "matched_task_ids": [
+    1
+   ],
+   "best_ratio": 0.636,
+   "best_task": 1
+  },
+  {
+   "id": "INF-024",
+   "source": "inferred",
+   "citation": "source.md:66",
+   "quote": "`run-list` returns 0 Runs while a previous ledger exists (`implausible:`).",
+   "match_method": "containment",
+   "matched_task_ids": [
+    2
+   ],
+   "best_ratio": 1.0,
+   "best_task": 2
+  },
+  {
+   "id": "INF-025",
+   "source": "inferred",
+   "citation": "source.md:67",
+   "quote": "`--accept-empty` overrides this guard only, never an Orca failure.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    2
+   ],
+   "best_ratio": 0.714,
+   "best_task": 2
+  },
+  {
+   "id": "INF-026",
+   "source": "inferred",
+   "citation": "source.md:69",
+   "quote": "Exit codes: 0 written; 1 Orca failure or implausible result; 2 usage (including `--add` with a malformed id); 3 lock timeout. No 20% shrink guard.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    4
+   ],
+   "best_ratio": 0.706,
+   "best_task": 4
+  },
+  {
+   "id": "INF-027",
+   "source": "inferred",
+   "citation": "source.md:74",
+   "quote": "blocking up to 10 s, then exit 3 with the ledger untouched",
+   "match_method": "none",
+   "matched_task_ids": [],
+   "best_ratio": 0.5,
+   "best_task": 4
+  },
+  {
+   "id": "INF-028",
+   "source": "inferred",
+   "citation": "source.md:75",
+   "quote": "A rebuild does all Orca reads first (about 26 s) without the lock, then takes the lock, re-reads the ledger, and writes the rebuilt set plus every entry with `source == \"hook\"` and `added_at >= generated_at`.",
+   "match_method": "none",
+   "matched_task_ids": [],
+   "best_ratio": 0.55,
+   "best_task": 1
+  },
+  {
+   "id": "INF-029",
+   "source": "inferred",
+   "citation": "source.md:76",
+   "quote": "temp file `run-ledger.json.tmp.<pid>` in the same directory, `fsync`, `os.replace`; readers see the old or the new file, never half.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    3
+   ],
+   "best_ratio": 0.667,
+   "best_task": 3
+  },
+  {
+   "id": "INF-030",
+   "source": "inferred",
+   "citation": "source.md:77",
+   "quote": "`--add` on a missing or unreadable ledger writes nothing and exits 1 with `implausible:`",
+   "match_method": "containment",
+   "matched_task_ids": [
+    4
+   ],
+   "best_ratio": 0.875,
+   "best_task": 4
+  },
+  {
+   "id": "INF-031",
+   "source": "inferred",
+   "citation": "source.md:81",
+   "quote": "validate each id with `probes.RUN_ID_RE`, and sweep them. Explicit `--run` always wins and the ledger is then not read",
+   "match_method": "containment",
+   "matched_task_ids": [
+    6
+   ],
+   "best_ratio": 0.909,
+   "best_task": 6
+  },
+  {
+   "id": "INF-032",
+   "source": "inferred",
+   "citation": "source.md:82",
+   "quote": "When `generated_at` is older than 90 minutes (the #895 threshold, three missed 30-minute builds) the header adds \"ledger is N min old\"; sweep still runs",
+   "match_method": "none",
+   "matched_task_ids": [],
+   "best_ratio": 0.421,
+   "best_task": 6
+  },
+  {
+   "id": "INF-033",
+   "source": "inferred",
+   "citation": "source.md:83",
+   "quote": "Missing or corrupt ledger: exit 2 with the old \"no Run bound\" message plus `run \"superclaude sweep ledger\" first`.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    6
+   ],
+   "best_ratio": 1.0,
+   "best_task": 6
+  },
+  {
+   "id": "INF-034",
+   "source": "inferred",
+   "citation": "source.md:84",
+   "quote": "Sweep's `ALLOWED_ORCA` is unchanged.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    3
+   ],
+   "best_ratio": 0.667,
+   "best_task": 3
+  },
+  {
+   "id": "INF-035",
+   "source": "inferred",
+   "citation": "source.md:85",
+   "quote": "edit `src/superclaude/commands/sc/sweep.md` (the `--run` row and the \"no Run is bound\" sentence)",
+   "match_method": "containment",
+   "matched_task_ids": [
+    7
+   ],
+   "best_ratio": 1.0,
+   "best_task": 7
+  },
+  {
+   "id": "INF-036",
+   "source": "inferred",
+   "citation": "source.md:90",
+   "quote": "PostToolUse, matcher `Bash`; script `run-ledger-record.sh`, delivered to `~/.claude/hooks/` by `superclaude install`",
+   "match_method": "containment",
+   "matched_task_ids": [
+    10
+   ],
+   "best_ratio": 0.846,
+   "best_task": 10
+  },
+  {
+   "id": "INF-037",
+   "source": "inferred",
+   "citation": "source.md:91",
+   "quote": "acts only when `tool_input.command` runs `orca orchestration run-create` or `worker-start`.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    9
+   ],
+   "best_ratio": 0.9,
+   "best_task": 9
+  },
+  {
+   "id": "INF-038",
+   "source": "inferred",
+   "citation": "source.md:92",
+   "quote": "Always exits 0 (fail open, never blocks).",
+   "match_method": "containment",
+   "matched_task_ids": [
+    9
+   ],
+   "best_ratio": 1.0,
+   "best_task": 9
+  },
+  {
+   "id": "INF-039",
+   "source": "inferred",
+   "citation": "source.md:93",
+   "quote": "We never edit `~/.claude/settings.json`.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    7
+   ],
+   "best_ratio": 0.6,
+   "best_task": 7
+  },
+  {
+   "id": "INF-040",
+   "source": "inferred",
+   "citation": "source.md:96",
+   "quote": "run exactly one `orca orchestration run-create --objective \"scratch Run for the run-ledger hook payload test, safe to ignore\" --json`",
+   "match_method": "containment",
+   "matched_task_ids": [
+    8
+   ],
+   "best_ratio": 1.0,
+   "best_task": 8
+  },
+  {
+   "id": "INF-041",
+   "source": "inferred",
+   "citation": "source.md:97",
+   "quote": "Run id present in the output means the hook is delivered; absent means the hook is dropped with that reason",
+   "match_method": "none",
+   "matched_task_ids": [],
+   "best_ratio": 0.5,
+   "best_task": 3
+  },
+  {
+   "id": "INF-042",
+   "source": "inferred",
+   "citation": "source.md:98",
+   "quote": "a recorded payload under `tests/run_ledger/fixtures/`",
+   "match_method": "containment",
+   "matched_task_ids": [
+    8
+   ],
+   "best_ratio": 0.8,
+   "best_task": 8
+  },
+  {
+   "id": "INF-043",
+   "source": "inferred",
+   "citation": "source.md:102",
+   "quote": "Ship `docs/user-guide/run-ledger.md` for Coder#545 to adopt. Nothing is installed or registered by this work.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    10
+   ],
+   "best_ratio": 0.786,
+   "best_task": 10
+  },
+  {
+   "id": "INF-044",
+   "source": "inferred",
+   "citation": "source.md:103",
+   "quote": "every 30 minutes at offset minutes (`17,47`), wrapped in `flock -n` on a lock file",
+   "match_method": "containment",
+   "matched_task_ids": [
+    10
+   ],
+   "best_ratio": 1.0,
+   "best_task": 10
+  },
+  {
+   "id": "INF-045",
+   "source": "inferred",
+   "citation": "source.md:104",
+   "quote": "Hook registration entry for Coder:",
+   "match_method": "containment",
+   "matched_task_ids": [
+    10
+   ],
+   "best_ratio": 1.0,
+   "best_task": 10
+  },
+  {
+   "id": "INF-046",
+   "source": "inferred",
+   "citation": "source.md:105",
+   "quote": "in Coder the crontab is rewritten on every boot, so a hand-edited crontab is lost",
+   "match_method": "containment",
+   "matched_task_ids": [
+    10
+   ],
+   "best_ratio": 1.0,
+   "best_task": 10
+  },
+  {
+   "id": "INF-047",
+   "source": "inferred",
+   "citation": "source.md:110",
+   "quote": "`env -i HOME=$HOME PATH=<the cron PATH> superclaude sweep ledger --dry-run` must exit 0.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    10
+   ],
+   "best_ratio": 1.0,
+   "best_task": 10
+  },
+  {
+   "id": "INF-048",
+   "source": "inferred",
+   "citation": "source.md:119",
+   "quote": "`test_new_fallback_24h_when_no_previous_ledger`: with no or unreadable previous ledger, a Run under 24 h old is IN and an older one is OUT.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    1
+   ],
+   "best_ratio": 0.9,
+   "best_task": 1
+  },
+  {
+   "id": "INF-049",
+   "source": "inferred",
+   "citation": "source.md:126",
+   "quote": "`test_add_idempotent_and_rejects_bad_id`; `test_lock_timeout_exit3`; `test_concurrent_add_and_build_no_lost_append` (multiprocessing, 20 adds during a slow build).",
+   "match_method": "containment",
+   "matched_task_ids": [
+    3
+   ],
+   "best_ratio": 0.667,
+   "best_task": 3
+  },
+  {
+   "id": "INF-050",
+   "source": "inferred",
+   "citation": "source.md:129",
+   "quote": "`test_hook_extracts_run_id_from_fixture`; `test_hook_ignores_other_commands`; `test_hook_no_id_logs_and_exits_0`; `test_hook_fails_open_when_superclaude_missing`",
+   "match_method": "containment",
+   "matched_task_ids": [
+    9
+   ],
+   "best_ratio": 1.0,
+   "best_task": 9
+  },
+  {
+   "id": "INF-051",
+   "source": "inferred",
+   "citation": "source.md:133",
+   "quote": "edit under `src/superclaude/` only, then `make sync-dev`; never stage `.claude/`",
+   "match_method": "containment",
+   "matched_task_ids": [
+    7
+   ],
+   "best_ratio": 0.889,
+   "best_task": 7
+  },
+  {
+   "id": "INF-052",
+   "source": "inferred",
+   "citation": "source.md:134",
+   "quote": "Report in `.dev/issues/895/result.md`: ledger written (path, counts); rebuild wall time against the 26.1 s baseline;",
+   "match_method": "containment",
+   "matched_task_ids": [
+    11
+   ],
+   "best_ratio": 1.0,
+   "best_task": 11
+  },
+  {
+   "id": "INF-053",
+   "source": "inferred",
+   "citation": "source.md:155",
+   "quote": "no `orca orchestration reset`, no Run delete; no Orca link flags (`--issue`, `--pr`); no `~/.claude/settings.json` edit; no crontab edit; nothing scheduled; no commit.",
+   "match_method": "none",
+   "matched_task_ids": [],
+   "best_ratio": 0.471,
+   "best_task": 11
+  },
+  {
+   "id": "INF-054",
+   "source": "inferred",
+   "citation": "source.md:156",
+   "quote": "Not built: a package of modules, `show`, `path`, `--timeout`, `--no-ledger`, a sweep `--ledger` flag",
+   "match_method": "none",
+   "matched_task_ids": [],
+   "best_ratio": 0.556,
+   "best_task": 2
+  },
+  {
+   "id": "INF-055",
+   "source": "inferred",
+   "citation": "source.md:157",
+   "quote": "Not touched: `sweep/probes.py` and `ALLOWED_ORCA`; Windows locking.",
+   "match_method": "containment",
+   "matched_task_ids": [
+    3
+   ],
+   "best_ratio": 0.714,
+   "best_task": 3
+  }
+ ],
+ "dropped": []
+}
