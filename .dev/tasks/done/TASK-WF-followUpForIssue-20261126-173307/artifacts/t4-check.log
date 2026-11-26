@@ -1,0 +1,19 @@
+$ bash /tmp/impl-289/t4n.sh
+pm-agent hits in CLAUDE.md:
+(none)
+name:integration hits:
+(none)
+orca worktree create lines:
+320:orca worktree create --name issue-289-wtrule --base-branch origin/integration --agent claude --prompt "<task>"
+lines without --agent:
+(none)
+section bounds:
+301:### Parallel Development with Git Worktrees
+345:## 📝 Key Documentation Files
+diff stat:
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+@@ -315,0 +316 @@ worktree location, outside the main checkout; `orca worktree current --json` (fr
+@@ -318,2 +319,2 @@ worktree location, outside the main checkout; `orca worktree current --json` (fr
+@@ -335,2 +336,2 @@ orca worktree list
+@@ -341 +342 @@ orca worktree list
+rc=0

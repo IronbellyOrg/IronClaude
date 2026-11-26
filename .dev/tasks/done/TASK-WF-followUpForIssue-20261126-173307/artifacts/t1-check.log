@@ -1,0 +1,23 @@
+$ uv run python -I /tmp/impl-289/t1n.py
+section lines 357 to 366 words 492 ascii True comment False
+heading count 1
+hunks (old start,len -> new start,len): [('363', '3', '363', '3')]
+all changed new lines inside the section: True
+1  'Neither refuses an issue that already has a worktree'
+1  'iteration start check asks the owner first'
+1  'skips only the already-claimed check'
+1  'match on repository, issue and branch'
+1  'drop them and keep'
+1  'never stop on it'
+1  'is left out: use'
+1  "keeps the launcher's"
+1  'own `.dev/` notes'
+1  'issue 881'
+1  'same repository, issue and branch'
+1  'is exempt'
+1  'handoff of unfinished work'
+1  'after the first session has stopped'
+1  'the watcher claims by itself'
+gone: 'create nothing and ask the owner' -> True
+reuse bullet and first paragraph unchanged: True
+rc=0

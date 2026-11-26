@@ -1,0 +1,19 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-followUpForIssue-20261126-173307
+plan_path: ./TASK-WF-followUpForIssue-20261126-173307.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-289/.dev/reflect/pre-TASK-WF-followUpForIssue-20261126-165706-20261126170035/rereview-1/re-review-report.md
+unresolved:
+  - "Re-review scope is changed lines plus the two prior blockers (MB-1, MB-2), both resolved; first review of the replaced plan: /home/coder/workspaces/worktrees/IronClaude/issue-289/.dev/reflect/pre-TASK-WF-followUpForIssue-20261126-165706-20261126170035/REPORT.md"
+  - "Follow-up candidates not repaired by the review loop: Medium findings MM-1 to MM-4 and MM-6 of the first review, and N-1 of the re-review (source.md still states the withdrawn digit-pattern requirement; plan Constraints line 23 overrides it)"
+supersedes: TASK-WF-followUpForIssue-20261126-165706
+remediation_route: surgical
+finding_counts: {"blocking": 2, "label_high": 0, "medium": 5, "note": 10}
+fix_cycles: 1

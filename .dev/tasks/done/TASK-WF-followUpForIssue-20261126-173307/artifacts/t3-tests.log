@@ -1,0 +1,13 @@
+$ env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/docs/test_onboarding_deck.py -q -p no:cacheprovider
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-289
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collected 3 items
+
+tests/docs/test_onboarding_deck.py ...                                   [100%]
+
+============================== 3 passed in 0.05s ===============================
+rc=0
