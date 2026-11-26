@@ -33,6 +33,8 @@ _REQUIRED_COMMANDS = (
     "git ls-remote origin 'refs/tags/vX.Y.Z^{}'",
     "git rev-parse vX.Y.Z^{commit}",
     "gh pr create --repo IronbellyOrg/IronClaude --base integration --head master",
+    "gh pr view <m> --repo IronbellyOrg/IronClaude --json files --jq '.files | length'",
+    "gh pr checks <m> --repo IronbellyOrg/IronClaude --watch",
     "gh pr merge <m> --repo IronbellyOrg/IronClaude --merge",
     "git merge-base --is-ancestor <merge-sha> origin/integration",
     "git switch -c post-release-vX.Y.Z origin/integration",

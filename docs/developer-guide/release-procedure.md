@@ -170,10 +170,12 @@ The release PR put the merge commit on `master`. `integration` must contain it, 
 git fetch origin master integration --tags
 git merge-base --is-ancestor <merge-sha> origin/integration
 gh pr create --repo IronbellyOrg/IronClaude --base integration --head master --title "chore(release): merge master into integration after X.Y.Z" --body-file <body-file>
+gh pr view <m> --repo IronbellyOrg/IronClaude --json files --jq '.files | length'
+gh pr checks <m> --repo IronbellyOrg/IronClaude --watch
 gh pr merge <m> --repo IronbellyOrg/IronClaude --merge
 ```
 
-If the first `is-ancestor` already exits 0, record "already merged back" and skip the last two lines. Otherwise run all four lines, fetch again, and check that the proof exits 0. The merge-back PR should change 0 files. If it changes any file or conflicts, stop and take it to the release owner: a content-carrying sync goes through a branch cut from `origin/integration` that merges `origin/master`, then an ordinary `/sc:pr-submit` PR, outside this procedure. Wait for any check the PR shows with `gh pr checks <m> --repo IronbellyOrg/IronClaude --watch`. The same ancestry fact, `git merge-base --is-ancestor origin/master origin/integration`, is the precondition of the next release (the Step 2 precondition).
+If the first `is-ancestor` already exits 0, record "already merged back" and skip the rest. Otherwise run the lines in order and stop at the first failure. Both checks come before the merge, because the merge command does not wait for a check and `integration`'s ruleset does not require one. The `gh pr view` line must print `0`: the merge-back PR should change 0 files. If it prints anything else, the PR conflicts, or a check fails, do not merge: take it to the release owner. A content-carrying sync goes through a branch cut from `origin/integration` that merges `origin/master`, then an ordinary `/sc:pr-submit` PR, outside this procedure. If `gh pr checks` reports that the PR has no checks, record that and go on. After the merge, fetch again and check that the first proof exits 0. The same ancestry fact, `git merge-base --is-ancestor origin/master origin/integration`, is the precondition of the next release (the Step 2 precondition).
 
 ## Step 6: Post-release follow-through
 
