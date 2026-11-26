@@ -1971,8 +1971,8 @@ _CLOSEOUT_REASON = (
 WRITE_VERB_CLASSIFICATION = {
     (
         "src/superclaude/agents/audit-comparator.md",
-        "gh pr",
-        "2. **Pull requests go to the fork only.** `gh pr create` must carry `--repo IronbellyOrg/IronClaude`. A bare `gh pr create`, or any push, pull, PR, comment or link that acts on SuperClaude-Org/SuperClaude_Framework, is a violation. A static mention of the upstream repository in documentation or a test fixture is not an interaction and is not a violation.",
+        "gh pr+git push",
+        "2. **Pull requests go to the fork only.** `gh pr create` must carry `--repo IronbellyOrg/IronClaude`. A bare `gh pr create`, or any `git fetch`, `git pull`, `git push`, PR, comment or link that acts on SuperClaude-Org/SuperClaude_Framework, is a violation. A static mention of the upstream repository in documentation or a test fixture is not an interaction and is not a violation.",
     ): (
         "read-only",
         "prose that forbids the verb (Repo Rules block in a read-only reviewer agent)",
@@ -1987,8 +1987,8 @@ WRITE_VERB_CLASSIFICATION = {
     ),
     (
         "src/superclaude/agents/audit-validator.md",
-        "gh pr",
-        "2. **Pull requests go to the fork only.** `gh pr create` must carry `--repo IronbellyOrg/IronClaude`. A bare `gh pr create`, or any push, pull, PR, comment or link that acts on SuperClaude-Org/SuperClaude_Framework, is a violation. A static mention of the upstream repository in documentation or a test fixture is not an interaction and is not a violation.",
+        "gh pr+git push",
+        "2. **Pull requests go to the fork only.** `gh pr create` must carry `--repo IronbellyOrg/IronClaude`. A bare `gh pr create`, or any `git fetch`, `git pull`, `git push`, PR, comment or link that acts on SuperClaude-Org/SuperClaude_Framework, is a violation. A static mention of the upstream repository in documentation or a test fixture is not an interaction and is not a violation.",
     ): (
         "read-only",
         "prose that forbids the verb (Repo Rules block in a read-only reviewer agent)",
@@ -2003,8 +2003,8 @@ WRITE_VERB_CLASSIFICATION = {
     ),
     (
         "src/superclaude/agents/evidence-validator.md",
-        "gh pr",
-        "2. **Pull requests go to the fork only.** `gh pr create` must carry `--repo IronbellyOrg/IronClaude`. A bare `gh pr create`, or any push, pull, PR, comment or link that acts on SuperClaude-Org/SuperClaude_Framework, is a violation. A static mention of the upstream repository in documentation or a test fixture is not an interaction and is not a violation.",
+        "gh pr+git push",
+        "2. **Pull requests go to the fork only.** `gh pr create` must carry `--repo IronbellyOrg/IronClaude`. A bare `gh pr create`, or any `git fetch`, `git pull`, `git push`, PR, comment or link that acts on SuperClaude-Org/SuperClaude_Framework, is a violation. A static mention of the upstream repository in documentation or a test fixture is not an interaction and is not a violation.",
     ): (
         "read-only",
         "prose that forbids the verb (Repo Rules block in a read-only reviewer agent)",
