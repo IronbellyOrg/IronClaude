@@ -1,0 +1,24 @@
+<!-- SC:TROUBLESHOOT:TARGET
+issue: takes forever
+type: performance
+depth: quick
+scope: none
+fix_authorized: false
+no_escalate: true
+mcps_available: none
+output_dir: /home/coder/workspaces/worktrees/IronClaude/issue-610/.dev/tasks/to-do/TASK-WF-issueSummary-20261126-115114/artifacts/classification-forever
+caller: none
+context_path: none
+-->
+skill_id: issue610-check:sc-troubleshoot-protocol
+skill_path: /home/coder/workspaces/worktrees/IronClaude/issue-610/.dev/tasks/to-do/TASK-WF-issueSummary-20261126-115114/artifacts/classification-plugin/skills/sc-troubleshoot-protocol/SKILL.md
+wave0.step1 flags: issue="takes forever" --depth quick --no-escalate --no-mcp --output-dir <output_dir>; --type absent; --scope absent; --fix absent; --caller absent; --context absent
+wave0.step2 type_detection: --type not provided; performance row matched cue "takes forever"; no cue from the bug, build, deployment, security or test rows matched; type=performance
+wave0.step3 scope: none (no --scope given)
+wave0.step4 slug: performance-takes-forever-20261126120609 (run timestamp 20261126120609 supplied by caller; issue has 2 words)
+wave0.step4 output_dir: explicit --output-dir used; created by writing this audit.log
+wave0.step5 audit_log: opened with TARGET header above; mcps_available=none because --no-mcp is set
+wave0.step6 caller: none; context: none; return-contract.yaml: not scheduled
+wave0.stop_checks: none fired (input present; --depth quick without --fix; --depth deep not requested; output_dir writable; no --context)
+Wave 0 complete: type=performance depth=quick
+scope_limit: caller restricted this run to Wave 0; Wave 1 not started
