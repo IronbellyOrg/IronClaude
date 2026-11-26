@@ -1,0 +1,6 @@
+# git status --short after Task 1 (2026-11-26T15:03:47Z); tracked files modified: 0, staged: 0
+?? .dev/brainstorms/20261126-120549-reflect-remediate-depth-after-pr-653/
+?? .dev/issues/599/
+?? .dev/reflect/pre-TASK-WF-design-20261126-131233-20261126131756/
+?? .dev/tasks/archive/TASK-WF-design-20261126-131233/
+?? .dev/tasks/to-do/TASK-WF-design-20261126-142413/

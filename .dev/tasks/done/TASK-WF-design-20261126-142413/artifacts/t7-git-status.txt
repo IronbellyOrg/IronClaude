@@ -1,0 +1,12 @@
+ M docs/developer-guide/session-memory.md
+ M src/superclaude/cli/reflect/contract.py
+ M src/superclaude/cli/reflect/models.py
+ M src/superclaude/skills/sc-reflect-protocol/SKILL.md
+ M tests/cli/reflect/test_fix_loop.py
+ M tests/cli/reflect/test_remediation_route_table.py
+ M tests/cli/reflect/test_verdict_mapping.py
+?? .dev/brainstorms/20261126-120549-reflect-remediate-depth-after-pr-653/
+?? .dev/issues/599/
+?? .dev/reflect/pre-TASK-WF-design-20261126-131233-20261126131756/
+?? .dev/tasks/archive/TASK-WF-design-20261126-131233/
+?? .dev/tasks/to-do/TASK-WF-design-20261126-142413/

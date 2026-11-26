@@ -1,0 +1,58 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-599/.venv/bin/python3
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-599
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 38 items
+
+tests/cli/reflect/test_verdict_mapping.py::test_pass_full_tier2 PASSED   [  2%]
+tests/cli/reflect/test_verdict_mapping.py::test_pass_no_t2_fallback_fixture_matches_existing_pass_verdict PASSED [  5%]
+tests/cli/reflect/test_verdict_mapping.py::test_pass_with_t2_fallback_fixture_still_passes PASSED [  7%]
+tests/cli/reflect/test_verdict_mapping.py::test_degraded_tier1_first_match_precedes_single_reviewer_fallback PASSED [ 10%]
+tests/cli/reflect/test_verdict_mapping.py::test_halted_regression PASSED [ 13%]
+tests/cli/reflect/test_verdict_mapping.py::test_degraded_expected_t2_ran_t1 PASSED [ 15%]
+tests/cli/reflect/test_verdict_mapping.py::test_single_vendor_degraded_without_flag PASSED [ 18%]
+tests/cli/reflect/test_verdict_mapping.py::test_single_vendor_pass_with_flag PASSED [ 21%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_missing_contract PASSED [ 23%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_timeout PASSED   [ 26%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_child_crash_no_contract PASSED [ 28%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_unknown_major_version PASSED [ 31%]
+tests/cli/reflect/test_verdict_mapping.py::test_tolerant_unknown_field_1x PASSED [ 34%]
+tests/cli/reflect/test_verdict_mapping.py::test_verification_skip_exemption_not_degraded PASSED [ 36%]
+tests/cli/reflect/test_verdict_mapping.py::test_verification_not_run_unexempted_is_degraded PASSED [ 39%]
+tests/cli/reflect/test_verdict_mapping.py::test_extrapolated_citations_do_not_gate PASSED [ 42%]
+tests/cli/reflect/test_verdict_mapping.py::test_benign_degraded_component_does_not_over_halt PASSED [ 44%]
+tests/cli/reflect/test_verdict_mapping.py::test_nonzero_child_exit_with_present_success_contract_blocks PASSED [ 47%]
+tests/cli/reflect/test_verdict_mapping.py::test_malformed_truthy_load_bearing_boolean_blocks PASSED [ 50%]
+tests/cli/reflect/test_verdict_mapping.py::test_status_failed_halts_with_status_failed_reason PASSED [ 52%]
+tests/cli/reflect/test_verdict_mapping.py::test_reachability_1_7_0_additive_fields_tolerated PASSED [ 55%]
+tests/cli/reflect/test_verdict_mapping.py::test_reachability_no_reachability_skip_is_telemetry_only PASSED [ 57%]
+tests/cli/reflect/test_verdict_mapping.py::test_reachability_spec_absent_skip_is_telemetry_only PASSED [ 60%]
+tests/cli/reflect/test_verdict_mapping.py::test_reachability_semantic_fallback_advisory_does_not_gate PASSED [ 63%]
+tests/cli/reflect/test_verdict_mapping.py::test_reachability_proxy_oracle_unproven_is_not_regression_but_halts PASSED [ 65%]
+tests/cli/reflect/test_verdict_mapping.py::test_reachability_unwired_surface_real_boot_is_regression_not_degrade PASSED [ 68%]
+tests/cli/reflect/test_verdict_mapping.py::test_adversarial_subrun_status_partial_degrades PASSED [ 71%]
+tests/cli/reflect/test_verdict_mapping.py::test_adversarial_subrun_status_absent_still_passes PASSED [ 73%]
+tests/cli/reflect/test_verdict_mapping.py::test_low_convergence_tier2_degrades PASSED [ 76%]
+tests/cli/reflect/test_verdict_mapping.py::test_convergence_at_or_above_threshold_passes PASSED [ 78%]
+tests/cli/reflect/test_verdict_mapping.py::test_nonfinite_convergence_tier2_degrades PASSED [ 81%]
+tests/cli/reflect/test_verdict_mapping.py::test_promoting_drops_verification_exemption PASSED [ 84%]
+tests/cli/reflect/test_verdict_mapping.py::test_not_promoting_preserves_verification_exemption PASSED [ 86%]
+tests/cli/reflect/test_verdict_mapping.py::test_fx7_reviewer_shortfall_token_does_not_over_degrade PASSED [ 89%]
+tests/cli/reflect/test_verdict_mapping.py::test_fx7_vacuous_no_verify_stays_exempt_but_visible PASSED [ 92%]
+tests/cli/reflect/test_verdict_mapping.py::test_1_9_0_contract_with_finding_counts_parses_and_passes PASSED [ 94%]
+tests/cli/reflect/test_verdict_mapping.py::test_graph_tokens_do_not_halt PASSED [ 97%]
+tests/cli/reflect/test_verdict_mapping.py::test_both_pointers_keep_the_plan_pointer_and_drop_the_retired_attribute FAILED [100%]
+
+=================================== FAILURES ===================================
+___ test_both_pointers_keep_the_plan_pointer_and_drop_the_retired_attribute ____
+tests/cli/reflect/test_verdict_mapping.py:674: in test_both_pointers_keep_the_plan_pointer_and_drop_the_retired_attribute
+    assert not hasattr(result, "remediation_task_path")
+E   AssertionError: assert not True
+E    +  where True = hasattr(ReflectResult(verdict=<Verdict.HALTED: 'halted'>, status='partial', tier_reached=2, reason='status-partial', report_path='/tmp/reflect-out/REPORT.md', contract_path=None, deviations={'authorized': 0, 'necessary': 0, 'drift': 1, 'regression': 0}, child_exit_code=0, write_status='', fix_iterations=0, fix_converged=False, remediation_task_path='/abs/path/to/TASK-RF-remediation/file.md', remediation_plan_path='/abs/path/to/.dev/tasks/to-do/TASK-WF-fixAuth-20261001-063000/TASK-WF-fixAuth-20261001-063000.md', reviewer_isolation='disabled', audit_tree_dirty=False, reviewer_grounding_root=None, verification_verified=False, reviewers_verified=False, regression_verified=False, error_detail=None), 'remediation_task_path')
+=========================== short test summary info ============================
+FAILED tests/cli/reflect/test_verdict_mapping.py::test_both_pointers_keep_the_plan_pointer_and_drop_the_retired_attribute - AssertionError: assert not True
+ +  where True = hasattr(ReflectResult(verdict=<Verdict.HALTED: 'halted'>, status='partial', tier_reached=2, reason='status-partial', report_path='/tmp/reflect-out/REPORT.md', contract_path=None, deviations={'authorized': 0, 'necessary': 0, 'drift': 1, 'regression': 0}, child_exit_code=0, write_status='', fix_iterations=0, fix_converged=False, remediation_task_path='/abs/path/to/TASK-RF-remediation/file.md', remediation_plan_path='/abs/path/to/.dev/tasks/to-do/TASK-WF-fixAuth-20261001-063000/TASK-WF-fixAuth-20261001-063000.md', reviewer_isolation='disabled', audit_tree_dirty=False, reviewer_grounding_root=None, verification_verified=False, reviewers_verified=False, regression_verified=False, error_detail=None), 'remediation_task_path')
+========================= 1 failed, 37 passed in 1.14s =========================
+pytest rc=1

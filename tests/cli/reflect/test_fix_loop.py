@@ -92,7 +92,7 @@ def test_non_convergence_exit10_five_launches(
 def test_cannot_repair_absent_path_halts_no_apply(
     temp_tasklist, patch_git, patch_runner_env, make_claude_process_sequence
 ) -> None:
-    """AUTO-FIXABLE verdict with remediation_task_path: null -> terminal HALT, no apply."""
+    """AUTO-FIXABLE verdict with no remediation_plan_path -> terminal HALT, no apply."""
     config = _config(temp_tasklist, fix=True)
     factory = make_claude_process_sequence([("autofixable_drift_no_path.yaml", 0)])
     with patch(_PATCH_TARGET, side_effect=factory) as mock_cls:

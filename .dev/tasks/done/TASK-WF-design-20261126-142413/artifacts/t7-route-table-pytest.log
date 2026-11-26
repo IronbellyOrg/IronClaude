@@ -1,0 +1,21 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-599/.venv/bin/python3
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-599
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 10 items
+
+tests/cli/reflect/test_remediation_route_table.py::test_route_table_pins_the_single_plan_route PASSED [ 10%]
+tests/cli/reflect/test_remediation_route_table.py::test_no_task_file_route_is_left_in_the_reflect_files PASSED [ 20%]
+tests/cli/reflect/test_remediation_route_table.py::test_state_section_present PASSED [ 30%]
+tests/cli/reflect/test_remediation_route_table.py::test_handoff_implement_only_appears_as_a_prohibition PASSED [ 40%]
+tests/cli/reflect/test_remediation_route_table.py::test_legacy_grammar_still_documented PASSED [ 50%]
+tests/cli/reflect/test_remediation_route_table.py::test_phase_a_depth_ref_region PASSED [ 60%]
+tests/cli/reflect/test_remediation_route_table.py::test_phase_a_depth_skill_region PASSED [ 70%]
+tests/cli/reflect/test_remediation_route_table.py::test_phase_a_depth_delegation_row PASSED [ 80%]
+tests/cli/reflect/test_remediation_route_table.py::test_no_placeholder_depth_on_sc_workflow_lines PASSED [ 90%]
+tests/cli/reflect/test_remediation_route_table.py::test_review_only_decision_stays_written_down PASSED [100%]
+
+============================== 10 passed in 0.08s ==============================
+pytest rc=0
