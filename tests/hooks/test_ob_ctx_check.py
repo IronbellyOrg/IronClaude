@@ -172,14 +172,29 @@ def test_bash_rewrite_p7():
             hook_event_name="PostToolUse", tool_input={"command": command}, **over
         )
 
-    rewritten = f"/bin/bash /h/launch-job-identity.sh execute {SID} call_1 'echo 1'"
+    hooks = "/home/coder/.claude/hooks"
+    rewritten = (
+        f"/bin/bash {hooks}/launch-job-identity.sh execute {SID} call_1 'echo 1'"
+    )
     assert run([line(), post(rewritten)], bash_bound=True)["violations"] == []
+    for fake in (
+        "/tmp/fake-launch-job-identity.sh",  # the review finding
+        "/tmp/x/launch-job-identity.sh",
+        f"{hooks}/fake-launch-job-identity.sh",  # a filename prefix in the real directory
+        "/tmp/.claude/hooks/launch-job-identity.sh",  # the right suffix under a wrong root
+        "/home/other/.claude/hooks/launch-job-identity.sh",  # a fake home
+        f"{hooks}/../../../tmp/launch-job-identity.sh",  # traversal
+        "~/.claude/hooks/launch-job-identity.sh",  # an unexpanded tilde
+    ):
+        command = f"/bin/bash {fake} execute {SID} call_1 'echo 1'"
+        assert "P7" in preds(run([post(command)], bash_bound=True)), fake
+        assert "P7" in preds(run([post(command)], bash_bound=False)), fake
     for bad in (
         [post("echo 1")],  # not rewritten
         [post(rewritten), post("echo 2")],  # one of two not rewritten
         [post(rewritten.replace(SID, "other-sid"))],  # a foreign session
         [
-            post(f"echo '/bin/bash /h/launch-job-identity.sh execute {SID} c x'")
+            post(f"echo '/bin/bash {hooks}/launch-job-identity.sh execute {SID} c x'")
         ],  # quoted
         [line()],  # no PostToolUse line at all
         [post("echo 1", tool_name="Read")],  # not a Bash line

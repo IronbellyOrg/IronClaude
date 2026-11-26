@@ -57,7 +57,12 @@ REQUIRED = [("R1", "main")] + [
     for a in actors
 ]
 CWD = re.compile(r"\(cwd ([^)]*)\)")
-REWRITE = re.compile(r"^/bin/bash \S*launch-job-identity\.sh execute (\S+) ")
+# The installed hook path as recorded in evidence/. The evidence is static, so another HOME
+# does not matter; if evidence is re-recorded under another HOME, edit this literal (P7 then
+# fails closed with a visible violation, never a false pass).
+REWRITE = re.compile(
+    r"^/bin/bash /home/coder/\.claude/hooks/launch-job-identity\.sh execute (\S+) "
+)
 MAX_ORDINARY = (
     2  # LIM-1 (Monitor) and LIM-2 (setsid child) are expected to read ordinary
 )
