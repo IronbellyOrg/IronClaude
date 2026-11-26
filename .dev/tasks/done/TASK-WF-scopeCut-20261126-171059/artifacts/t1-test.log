@@ -1,0 +1,34 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-838/.venv/bin/python
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-838
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 23 items
+
+tests/org_rulesets/test_render.py::test_branch_bodies_equal_the_files PASSED [  4%]
+tests/org_rulesets/test_render.py::test_tag_body_equals_the_file_and_has_the_update_rule PASSED [  8%]
+tests/org_rulesets/test_render.py::test_other_branch_changes_only_name_and_ref PASSED [ 13%]
+tests/org_rulesets/test_render.py::test_bad_branch_names_raise[] PASSED  [ 17%]
+tests/org_rulesets/test_render.py::test_bad_branch_names_raise[feat/*] PASSED [ 21%]
+tests/org_rulesets/test_render.py::test_bad_branch_names_raise[a~b] PASSED [ 26%]
+tests/org_rulesets/test_render.py::test_bad_branch_names_raise[refs/heads/x] PASSED [ 30%]
+tests/org_rulesets/test_render.py::test_bad_branch_names_raise[~DEFAULT_BRANCH] PASSED [ 34%]
+tests/org_rulesets/test_render.py::test_no_body_holds_the_default_branch_placeholder PASSED [ 39%]
+tests/org_rulesets/test_render.py::test_render_returns_a_fresh_copy PASSED [ 43%]
+tests/org_rulesets/test_render.py::test_branch_set[master-existing0-expected0] PASSED [ 47%]
+tests/org_rulesets/test_render.py::test_branch_set[main-existing1-expected1] PASSED [ 52%]
+tests/org_rulesets/test_render.py::test_branch_set[integration-existing2-expected2] PASSED [ 56%]
+tests/org_rulesets/test_render.py::test_branch_set[main-existing3-expected3] PASSED [ 60%]
+tests/org_rulesets/test_render.py::test_branch_set_refuses_an_empty_default PASSED [ 65%]
+tests/org_rulesets/test_render.py::test_plan_bodies_order PASSED         [ 69%]
+tests/org_rulesets/test_render.py::test_plan_bodies_does_not_repeat_a_branch PASSED [ 73%]
+tests/org_rulesets/test_render.py::test_digest_is_stable_and_sensitive PASSED [ 78%]
+tests/org_rulesets/test_render.py::test_compare_equal_and_server_keys_ignored PASSED [ 82%]
+tests/org_rulesets/test_render.py::test_compare_ignores_rule_and_actor_order PASSED [ 86%]
+tests/org_rulesets/test_render.py::test_compare_names_each_kind_of_difference PASSED [ 91%]
+tests/org_rulesets/test_render.py::test_compare_reports_a_missing_rule PASSED [ 95%]
+tests/org_rulesets/test_render.py::test_rendering_does_not_depend_on_the_working_folder PASSED [100%]
+
+============================== 23 passed in 0.11s ==============================
+rc=0

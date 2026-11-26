@@ -2,6 +2,8 @@
 
 `master`, `integration` and the `v*` release tags of `IronbellyOrg/IronClaude` are protected by three GitHub repository rulesets. The rulesets are kept as JSON in `.github/rulesets/`; this page says what they do, how to apply and check them, and how to break glass.
 
+To put the same rulesets on another repo of an organization, see [Branch Protection for Other Repos](branch-protection-multi-repo.md).
+
 ## What is protected
 
 | Ruleset | File | Target | Rules |
