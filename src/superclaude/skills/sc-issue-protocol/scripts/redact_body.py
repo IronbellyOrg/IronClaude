@@ -154,6 +154,14 @@ XML_OPEN = re.compile(
     rf"""<(?P<tag>[A-Za-z0-9_.:-]*{_STRONG_NAMES}[A-Za-z0-9_.:-]{{0,64}})(?:\s[^<>]*)?>""",
     re.VERBOSE | re.IGNORECASE,
 )
+# The opening tag of an element whose ``name``, ``key`` or ``id`` attribute holds a
+# credential word (``<setting name="Password">``, ``<add key="DbPassword" value="x"/>``).
+XML_OPEN_ATTR = re.compile(
+    rf"""<(?P<tag>[A-Za-z0-9_.:-]+)
+         (?P<attrs>\s[^<>]*?\b(?:name|key|id|var|variable|property|setting|param)\s*=\s*
+            (?P<q>["'])[^"'<>]*{_STRONG_NAMES}[^"'<>]*(?P=q)[^<>]*)>""",
+    re.VERBOSE | re.IGNORECASE,
+)
 
 # A bare ``auth`` field (a Docker ``config.json`` holds ``"auth": "<base64 of user:pass>"``):
 # replaced only for a base64-looking value, so ``auth: required`` and ``author: Bob`` stay.
@@ -231,10 +239,20 @@ _XML_TAG = re.compile(r"<(/?)([A-Za-z0-9_.:-]+)(?:\s[^<>]*)?>")
 _XML_OPAQUE_START = re.compile(r"<!--|<!\[CDATA\[")
 
 
-def _mask_opaque_xml(text: str) -> str:
-    """Blank out CDATA sections and comments, keeping the length (linear time)."""
+_XML_VALUE_ATTR = re.compile(
+    r"""\bvalue\s*=\s*(["'])(?P<v>[^"'<>]*)\1""", re.IGNORECASE
+)
+
+
+def _mask_opaque_xml(text: str) -> tuple[str, int | None]:
+    """Blank out CDATA sections and comments, keeping the length (linear time).
+
+    Returns the masked text and, when a comment or CDATA section is never closed, the
+    offset where it starts (everything after it is blanked as well).
+    """
     parts: list[str] = []
     pos = 0
+    unterminated = None
     while True:
         start = _XML_OPAQUE_START.search(text, pos)
         if start is None:
@@ -242,36 +260,59 @@ def _mask_opaque_xml(text: str) -> str:
         close = "-->" if start.group(0) == "<!--" else "]]>"
         end = text.find(close, start.end())
         if end == -1:  # unterminated: no later one can terminate either
+            parts.append(text[pos : start.start()])
+            parts.append(" " * (len(text) - start.start()))
+            pos = len(text)
+            unterminated = start.start()
             break
         end += len(close)
         parts.append(text[pos : start.start()])
         parts.append(" " * (end - start.start()))
         pos = end
     parts.append(text[pos:])
-    return "".join(parts)
+    return "".join(parts), unterminated
 
 
 def _redact_xml_elements(text: str) -> tuple[str, int]:
-    """Redact the content of credential-named XML elements, nested same-name tags included."""
+    """Redact credential-named or credential-keyed XML elements, nested same-name tags included."""
     # Tags inside CDATA sections and comments are text, not markup: blank them (same
     # length, so every offset still points into ``text``).
-    masked = _mask_opaque_xml(text)
-    tags = {opening["tag"].lower() for opening in XML_OPEN.finditer(masked)}
-    if not tags:
+    masked, unterminated = _mask_opaque_xml(text)
+    credential: dict[int, re.Match[str]] = {
+        found.start(): found for found in XML_OPEN.finditer(masked)
+    }
+    spans: list[tuple[int, int]] = []
+    for found in XML_OPEN_ATTR.finditer(masked):
+        credential.setdefault(found.start(), found)
+        attribute = _XML_VALUE_ATTR.search(found["attrs"])
+        if attribute:  # <add key="DbPassword" value="..."/>
+            offset = found.start("attrs")
+            spans.append((offset + attribute.start("v"), offset + attribute.end("v")))
+    if not credential:
         return text, 0
     # One pass over every tag pairs each opening tag with its own closing tag using a
     # stack per tag name: same-name nesting works, a self-closing tag is neither, and an
     # unclosed tag costs nothing extra.
-    stacks: dict[str, list[int]] = {tag: [] for tag in tags}
-    spans: list[tuple[int, int]] = []
+    stacks: dict[str, list[tuple[int, bool]]] = {
+        found["tag"].lower(): [] for found in credential.values()
+    }
     for found in _XML_TAG.finditer(masked):
         stack = stacks.get(found.group(2).lower())
         if stack is None or found.group(0).endswith("/>"):
             continue
         if not found.group(1):
-            stack.append(found.end())
+            stack.append((found.end(), found.start() in credential))
         elif stack:
-            spans.append((stack.pop(), found.start()))
+            start, flagged = stack.pop()
+            if flagged:
+                spans.append((start, found.start()))
+    if unterminated is not None:
+        # Ill-formed: a comment or CDATA section never ends, so a credential element
+        # opened before it cannot be closed reliably. Fail closed: redact to the end.
+        for stack in stacks.values():
+            for start, flagged in stack:
+                if flagged and start <= unterminated:
+                    spans.append((start, len(text)))
     out: list[str] = []
     pos = 0
     count = 0
