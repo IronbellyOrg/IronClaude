@@ -56,7 +56,7 @@ ll_say() {
         w='The guard can check a push only when the whole command is git push [-u] origin <branch> (or <source>:<branch>), with nothing before or after it; other forms (force, --all, another remote, variables, backticks, line continuations, chained or piped commands) can reach another remote or the main branch.'
         y='Run the push as its own command, exactly: git push origin <branch> or git push -u origin <branch>, with the branch name written out.' ;;
     LL-PROTECTED)
-        b='a push to master or main.'
+        b='a push to master, main or integration.'
         w='No launch level may change the main branch.'
         y='Push the feature branch by name, then merge it through a reviewed pull request.' ;;
     LL-MERGE)
@@ -733,7 +733,7 @@ if [ "$LL_BRANCH" = tool ]; then
                     if [[ $cmd =~ $LL_RE ]]; then
                         LL_D=${BASH_REMATCH[5]:-${BASH_REMATCH[3]}}
                         case $LL_D in refs/heads/*) LL_D=${LL_D#refs/heads/} ;; heads/*) LL_D=${LL_D#heads/} ;; esac
-                        case $LL_D in master | main) LL_CLASSES+='PROTECTED ' ;; HEAD) LL_CLASSES+='PUSHFORM ' ;; esac
+                        case $LL_D in master | main | integration) LL_CLASSES+='PROTECTED ' ;; HEAD) LL_CLASSES+='PUSHFORM ' ;; esac
                     else
                         LL_CLASSES+='PUSHFORM '
                     fi ;;
