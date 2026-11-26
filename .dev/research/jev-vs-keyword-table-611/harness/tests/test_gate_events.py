@@ -204,6 +204,23 @@ def test_freeze_table_refuses_until_gate1_passes_and_when_a_file_is_missing(exp)
         gate.freeze_table(exp)
 
 
+@pytest.mark.parametrize("rewrite,match", [
+    (lambda rows: [{"prompt_id": r["prompt_id"]} for r in rows], "has no answer field"),
+    (lambda rows: rows + [rows[0]], "more than once"),
+    (lambda rows: [dict(rows[0], answer="urgent")] + rows[1:], "neither null nor one of the six"),
+    (lambda rows: rows[:-1], "lack a row for corpus prompt"),
+    (lambda rows: rows + [{"prompt_id": "zz", "answer": None}], "not in the corpus"),
+])
+def test_freeze_table_refuses_a_table_that_does_not_match_the_corpus_and_freezes_nothing(exp, rewrite, match):
+    gate.freeze_corpus(exp)
+    rows = [json.loads(line) for line in exp.table_answers.read_text().splitlines()]
+    exp.table_answers.write_text("\n".join(json.dumps(r) for r in rewrite(rows)) + "\n")
+    with pytest.raises(loader.LoadError, match=match):
+        gate.freeze_table(exp)
+    assert "table_answers" not in gate.read_manifest(exp) and events.latest(exp, "freeze")["what"] == "corpus"
+    assert gate.main(["freeze-table", "--root", str(exp.root)]) == 1
+
+
 def test_freeze_corpus_refuses_a_corpus_the_screen_refuses(exp):
     rows = [json.loads(line) for line in exp.corpus.read_text().splitlines()]
     rows[0]["text"] = "see https://github.com/example/project"

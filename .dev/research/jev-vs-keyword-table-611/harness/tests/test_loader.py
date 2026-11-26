@@ -154,6 +154,53 @@ def test_table_answers_load_and_need_a_prompt_id(tmp_path):
         loader.load_table_answers(p)
 
 
+@pytest.mark.parametrize("field", list(loader.PROVENANCE_FIELDS))
+@pytest.mark.parametrize("blank", ["", "   ", None])
+def test_corpus_refuses_a_blank_provenance_field_by_row_and_field_name(tmp_path, field, blank):
+    with pytest.raises(LoadError, match=f"corpus row p4 has an empty {field}"):
+        loader.load_corpus(_write(tmp_path, _bad(_good_rows(), 4, **{field: blank})))
+
+
+def test_corpus_refuses_a_seen_by_table_that_is_not_true_or_false(tmp_path):
+    with pytest.raises(LoadError, match="p2 has a seen_by_table"):
+        loader.load_corpus(_write(tmp_path, _bad(_good_rows(), 2, seen_by_table="no")))
+
+
+IDS = ["a", "b", "c"]
+
+
+def _answers(tmp_path, rows):
+    p = tmp_path / "t.jsonl"
+    p.write_text("\n".join(json.dumps(r) for r in rows) + "\n")
+    return p
+
+
+def test_table_answers_pass_when_every_corpus_id_has_one_explicit_answer(tmp_path):
+    p = _answers(tmp_path, [{"prompt_id": "a", "answer": "bug"}, {"prompt_id": "b", "answer": None}, {"prompt_id": "c", "answer": "test"}])
+    assert len(loader.load_table_answers(p, IDS)) == 3
+
+
+@pytest.mark.parametrize("rows,match", [
+    ([{"prompt_id": "a", "answer": "bug"}, {"prompt_id": "b"}, {"prompt_id": "c", "answer": None}], "b has no answer field"),
+    ([{"prompt_id": "a", "answer": "bug"}, {"prompt_id": "a", "answer": None}, {"prompt_id": "b", "answer": None},
+      {"prompt_id": "c", "answer": None}], "prompt a more than once"),
+    ([{"prompt_id": "a", "answer": "urgent"}, {"prompt_id": "b", "answer": None}, {"prompt_id": "c", "answer": None}],
+     "a has an answer that is neither null nor one of the six"),
+    ([{"prompt_id": "a", "answer": None}, {"prompt_id": "b", "answer": None}, {"prompt_id": "c", "answer": None},
+      {"prompt_id": "z", "answer": None}], "not in the corpus: z"),
+    ([{"prompt_id": "a", "answer": None}, {"prompt_id": "b", "answer": None}], "lack a row for corpus prompt: c"),
+])
+def test_table_answers_are_refused_against_the_corpus(tmp_path, rows, match):
+    with pytest.raises(LoadError, match=match):
+        loader.load_table_answers(_answers(tmp_path, rows), IDS)
+
+
+@pytest.mark.parametrize("value,ok", [("r1", True), ("run-2.a_b", True), ("..", False), (".", False), ("../x", False), ("/etc", False),
+                                       ("a/b", False), ("", False), ("a b", False), (None, False)])
+def test_is_plain_name(value, ok):
+    assert loader.is_plain_name(value) is ok
+
+
 # ---- paths and hashing
 
 def test_paths_on_a_temporary_root_stay_under_it_except_jevlib(tmp_path):

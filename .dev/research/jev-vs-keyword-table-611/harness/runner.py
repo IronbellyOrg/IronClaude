@@ -95,6 +95,8 @@ def _row(prompt, attempts, res):
 
 def execute(paths, rule, corpus, run_id, transport, price, live=True):
     """One run, the gates already checked by the caller.  Returns the facts of the ``run_end`` event."""
+    if not loader.is_plain_name(run_id):
+        raise ValueError("the run id may hold only letters, digits, dot, underscore and hyphen")
     phase = f"issue611-{run_id}"
     run_dir = paths.runs / run_id
     run_dir.mkdir(parents=True)
@@ -195,6 +197,9 @@ def rehearse(paths, out_dir, transport=None):
 def _run_command(paths, args, transport):
     if not args.live:
         print("REFUSED: run needs --live", file=sys.stderr)
+        return 2
+    if not loader.is_plain_name(args.run_id):
+        print("REFUSED: the run id may hold only letters, digits, dot, underscore and hyphen", file=sys.stderr)
         return 2
     if (paths.runs / args.run_id).exists():
         print(f"REFUSED: runs/{args.run_id} already exists", file=sys.stderr)

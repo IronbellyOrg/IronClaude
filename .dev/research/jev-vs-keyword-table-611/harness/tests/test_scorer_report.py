@@ -321,6 +321,24 @@ def test_a_run_that_cannot_be_scored_is_refused_without_a_report(exp, capsys):
     assert not exp.report.exists()
 
 
+def test_the_code_check_uses_the_test_record_made_before_the_first_request(exp, capsys):
+    prepare(exp)
+    gate.record_tests(exp, runner=PASSING)                       # a later record on unchanged code changes nothing
+    assert build_run_meta(exp, "r1")["frozen_changed"] == []
+    exp.questions_py.write_text("# edited after the run\n")
+    gate.record_tests(exp, runner=PASSING)                       # an edit followed by a new record must not hide the edit
+    assert "code" in build_run_meta(exp, "r1")["frozen_changed"]
+    assert score_cmd(exp) == 0
+    assert capsys.readouterr().out.strip() == "RUN_INVALID: frozen_file_changed"
+
+
+def test_a_log_with_no_first_request_uses_the_latest_test_record(exp):
+    gate.record_tests(exp, runner=PASSING)
+    exp.questions_py.write_text("# edited\n")
+    gate.record_tests(exp, runner=PASSING)
+    assert "code" not in build_run_meta(exp, "r1")["frozen_changed"]
+
+
 def test_a_changed_table_answers_file_gives_a_report_with_run_invalid(exp, capsys):
     prepare(exp)
     exp.table_answers.write_text(exp.table_answers.read_text() + "\n")

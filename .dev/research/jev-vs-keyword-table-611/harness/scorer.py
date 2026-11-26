@@ -18,7 +18,6 @@ import argparse
 import json
 import math
 import pathlib
-import re
 import sys
 
 _EXP = pathlib.Path(__file__).resolve().parents[1]
@@ -124,7 +123,6 @@ STATES = ("JEV_BEATS_TABLE", "NOT_CLEARLY", "RUN_INVALID")
 INVALID_REASONS = ("gate_result_missing", "second_live_run", "table_answers_changed", "frozen_file_changed",
                    "table_provenance_missing", "key_rejected", "model_mismatch", "stopped_before_all_prompts",
                    "no_answered_prompts", "unresolved_failures_above_limit")
-_NAME = re.compile(r"[A-Za-z0-9_.-]+")
 
 
 class ScoreRefused(Exception):
@@ -345,10 +343,13 @@ def build_run_meta(paths, run_id):
             continue
         if key not in m or not p.is_file() or loader.sha256_file(p) != m[key]:
             changed.append(key)
-    tests = events.latest(paths, "tests_passed")
+    log = events.read_events(paths)
+    # The code the tests passed on is the record made before the run's first request; a record-tests run after the run began
+    # (an edit followed by new tests) never replaces it.
+    first = next((i for i, e in enumerate(log) if e["event"] == "first_request"), len(log))
+    tests = next((e for e in reversed(log[:first]) if e["event"] == "tests_passed"), None)
     if tests is None or tests.get("code_hashes") != gate._code_hashes(paths):
         changed.append("code")
-    log = events.read_events(paths)
     ends = [e for e in log if e["event"] == "run_end" and e.get("run_id") == run_id]
     return {"frozen_changed": changed,
             "gate1_event": any(e["event"] == "gate1" and e.get("passed") for e in log),
@@ -370,7 +371,7 @@ def _write_new(path, text):
 
 def _score_command(paths, args):
     for label, value in (("run id", args.run_id), ("rescore name", args.rescore)):
-        if value is not None and (not _NAME.fullmatch(value) or value in (".", "..")):
+        if value is not None and not loader.is_plain_name(value):
             raise ScoreRefused(f"the {label} may hold only letters, digits, dot, underscore and hyphen")
     if args.rescore:
         rule = loader.load_rule(args.rule, for_scoring=True)

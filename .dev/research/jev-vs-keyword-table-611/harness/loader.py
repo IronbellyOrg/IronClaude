@@ -5,6 +5,7 @@ One job: read the frozen files.  It owns hashing (``sha256_file``), so no other 
 import hashlib
 import json
 import pathlib
+import re
 
 EXPERIMENT = pathlib.Path(__file__).resolve().parents[1]
 JEVLIB_DIR = EXPERIMENT.parent / "346-review-loop-experiments" / "p15" / "jev" / "jevlib"
@@ -21,7 +22,15 @@ _INTS = ("alpha_inverse", "unresolved_failure_invalid_count")
 _FLOATS = ("median_limit_s", "slowest_limit_s", "attempt_timeout_s", "spend_cap_usd", "noul_low", "noul_high")
 CORPUS_FIELDS = ("id", "text", "source", "retrieved_on", "selection_reason", "label", "label_basis", "labeller", "labelled_on",
                  "seen_by_table")
+PROVENANCE_FIELDS = ("retrieved_on", "selection_reason", "label_basis", "labeller", "labelled_on")   # must be non-empty text
 UNSET = "UNSET"
+_PLAIN_NAME = re.compile(r"[A-Za-z0-9_.-]+")
+
+
+def is_plain_name(value):
+    """True for a run id or a rescore name that is safe as one path component: letters, digits, dot, underscore and hyphen,
+    and not ``.`` or ``..``."""
+    return isinstance(value, str) and bool(_PLAIN_NAME.fullmatch(value)) and value not in (".", "..")
 
 
 class LoadError(ValueError):
@@ -183,6 +192,11 @@ def load_corpus(path):
             raise LoadError(f"corpus row {rid} has no public source")
         if r["label"] not in LABELS:
             raise LoadError(f"corpus row {rid} has a label outside the allowed set")
+        for field in PROVENANCE_FIELDS:
+            if not isinstance(r[field], str) or not r[field].strip():
+                raise LoadError(f"corpus row {rid} has an empty {field}")
+        if not isinstance(r["seen_by_table"], bool):
+            raise LoadError(f"corpus row {rid} has a seen_by_table that is not true or false")
         why = privacy_violation({"prompt": r["text"]}, ["public"])
         if why:
             raise LoadError(f"corpus row {rid} refused by the privacy screen: {why}")
@@ -196,10 +210,30 @@ def load_corpus(path):
     return rows
 
 
-def load_table_answers(path):
-    """The table answers, one JSON object per line (prompt_id, answer or null, cues, rows, method)."""
+def load_table_answers(path, corpus_ids=None):
+    """The table answers, one JSON object per line (prompt_id, answer or null, cues, rows, method).
+
+    With ``corpus_ids`` the file is also checked against the corpus: exactly one row for every id, an explicit ``answer`` that is
+    null or one of the six types, no duplicate and no unknown id.  A refusal names the prompt id, never prompt text."""
     rows = _jsonl(path, "table answers")
     for r in rows:
         if "prompt_id" not in r:
             raise LoadError("table answer row lacks prompt_id")
+    if corpus_ids is None:
+        return rows
+    seen = set()
+    for r in rows:
+        pid = r["prompt_id"]
+        if pid in seen:
+            raise LoadError(f"table answers hold prompt {pid} more than once")
+        seen.add(pid)
+        if "answer" not in r:
+            raise LoadError(f"table answer row {pid} has no answer field (an unset answer is an explicit null)")
+        if r["answer"] is not None and r["answer"] not in TYPES:
+            raise LoadError(f"table answer row {pid} has an answer that is neither null nor one of the six types")
+    wanted = set(corpus_ids)
+    if seen - wanted:
+        raise LoadError("table answers name a prompt id that is not in the corpus: " + ", ".join(sorted(map(str, seen - wanted))))
+    if wanted - seen:
+        raise LoadError("table answers lack a row for corpus prompt: " + ", ".join(sorted(wanted - seen)))
     return rows

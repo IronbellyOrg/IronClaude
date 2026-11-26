@@ -50,12 +50,12 @@ takes `--root` (the experiment folder by default).
 3. **Corpus and labels frozen** (a named human labeller has filled `corpus/corpus.jsonl`, `corpus/selection-criteria.md` and
    `corpus/labelling-record.md`): `gate.py freeze-corpus`. It runs the privacy screen and refuses on any failure.
 4. **Gate 1:** `gate.py gate1`. It accepts `UNSET` rule values and hashes files only.
-5. **Table answers** are applied as `table/table-procedure.md` says (prompts only, after Gate 1), then frozen: `gate.py freeze-table`.
+5. **Table answers** are applied as `table/table-procedure.md` says (prompts only, after Gate 1), then frozen: `gate.py freeze-table`. It refuses a table that does not have exactly one row for every corpus prompt, each with an explicit `answer` (null or one of the six types).
 6. **The owner's answers to the open rule fields** are written into `decision-rule.md` and recorded:
    `events.py owner-input --evidence .dev/research/jev-vs-keyword-table-611/decision-rule.md --note "<who answered, and the three values>"`
 7. **Freeze the rule:** `gate.py freeze-rule`. It refuses any `UNSET` value.
 8. **Re-confirm the price** on the vendor page and record it: `events.py price --usd-per-mtok <value> --source "<where it was read>"`.
-9. **Record the offline test run:** `gate.py record-tests` (it runs the test command above and stores the hash of every code file).
+9. **Record the offline test run:** `gate.py record-tests` (it runs the test command above and stores the hash of every code file). When a run is scored, the code is compared with the record made before the run's first request; a record made after the run began is not used.
 10. **The lead's go**, naming the rule file's hash: `events.py go --words "<the lead's words>"`.
 11. **Gate 2:** `gate.py gate2`. It fails on any missing step, any changed frozen file, a spend bound that does not fit, or a run already started.
 12. **Rehearse** (posts nothing, needs no gate and no key): `runner.py rehearse --out <a folder outside ledger/ and runs/>`.

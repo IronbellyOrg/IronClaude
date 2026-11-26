@@ -3,13 +3,13 @@
 Command line (each takes ``--root``, the experiment folder by default):
   gate.py freeze-corpus   screen and freeze the corpus, its two records, ``questions.py`` and the model pin
   gate.py gate1           check the rule file and the corpus-side hashes; accepts UNSET values
-  gate.py freeze-table    freeze the table answers and their provenance (after Gate 1 passes)
+  gate.py freeze-table    check the table answers against the corpus, then freeze them and their provenance (after Gate 1 passes)
   gate.py freeze-rule     freeze the rule file's hash (refuses any UNSET value)
   gate.py record-tests    run the harness tests and record the result with the hash of every code file
   gate.py gate2           everything Gate 1 checks, plus the rest; a pass is what the live run rests on (a lead_go that names the
                           current rule hash must already be recorded, or it fails)
 Only the three ``freeze-*`` commands write the manifest, each its own keys and never an existing key.  The gates only read it, and
-they hash files only: they never call the corpus loader.
+they hash files only: they never call the corpus loader (the freeze commands do the checking of the files they freeze).
 """
 import argparse
 import json
@@ -198,6 +198,8 @@ def freeze_table(paths):
     for p in (paths.table_answers, paths.table_provenance):
         if not p.is_file():
             raise GateError(f"{p.name} is missing")
+    # one explicit answer (null or a type) for every corpus prompt, no duplicate, no unknown id: refused before anything is frozen
+    loader.load_table_answers(paths.table_answers, [r["id"] for r in loader.load_corpus(paths.corpus)])
     keys = {"table_answers": loader.sha256_file(paths.table_answers),
             "table_provenance": loader.sha256_file(paths.table_provenance)}
     _write_manifest_keys(paths, keys)

@@ -262,6 +262,16 @@ def test_run_without_a_key_refuses_after_the_gates(exp, monkeypatch, capsys):
     assert "TYPESAFE_API_KEY is not set" in capsys.readouterr().err and not (exp.runs / "r1").exists()
 
 
+@pytest.mark.parametrize("bad", ["../escape", "/tmp/jev611-abs-run-id", "a/b", ".."])
+def test_a_run_id_that_is_not_a_plain_name_is_refused_before_any_effect(exp, bad, capsys):
+    assert runner.main(["run", "--run-id", bad, "--live", "--root", str(exp.root)]) == 2
+    assert "run id may hold only" in capsys.readouterr().err
+    assert not exp.events.exists() and not exp.runs.exists()           # no gate ran, nothing was created
+    with pytest.raises(ValueError, match="run id may hold only"):
+        go(exp, mock(), run_id=bad)
+    assert not exp.runs.exists() and not (exp.root.parent / "escape").exists() and not pathlib.Path("/tmp/jev611-abs-run-id").exists()
+
+
 class Boom:
     calls = 0
 
