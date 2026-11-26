@@ -1,0 +1,40 @@
+diff --git a/tests/swarm/test_resume_crash_recovery.py b/tests/swarm/test_resume_crash_recovery.py
+index 9e2ec8949..cf7975744 100644
+--- a/tests/swarm/test_resume_crash_recovery.py
++++ b/tests/swarm/test_resume_crash_recovery.py
+@@ -645,10 +645,18 @@ def test_resume_completion_policy_status_and_order(
+     monkeypatch.setattr(normalize, "normalize_wave2", lambda workers, **kwargs: workers)
+     events = []
+     real_state, real_marker = commands._write_swarm_state, reducer.emit_done_sentinel
++    real_contract = reducer.emit_contract
++
++    def contract(*args, **kwargs):
++        result = real_contract(*args, **kwargs)
++        assert events == ["accepted"]
++        events.append("contract")
++        return result
+ 
+     def state(root, value, job_id):
+         assert not (out / "done.json").exists()
+         if value == "terminal":
++            assert events == ["accepted", "contract"]
+             assert (out / "return-contract.yaml").is_file()
+             events.append("terminal")
+         else:
+@@ -665,12 +673,15 @@ def test_resume_completion_policy_status_and_order(
+         return real_marker(status, contract_path)
+ 
+     monkeypatch.setattr(commands, "_write_swarm_state", state)
++    monkeypatch.setattr(reducer, "emit_contract", contract)
+     monkeypatch.setattr(reducer, "emit_done_sentinel", marker)
+     result = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
+     assert result.exit_code == EXIT_OK, result.output
+     assert calls == ([] if skip_all else [3])
+     assert events == (
+-        ["accepted", "terminal", "marker"] if enabled else ["accepted", "terminal"]
++        ["accepted", "contract", "terminal", "marker"]
++        if enabled
++        else ["accepted", "contract", "terminal"]
+     )
+     expected = (
+         "success"

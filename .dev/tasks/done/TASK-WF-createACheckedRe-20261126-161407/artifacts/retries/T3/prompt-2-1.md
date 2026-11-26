@@ -1,0 +1,32 @@
+6a3111a5b8739a608013e6dd8ac08e54c5f808f4
+Review one task for spec compliance.
+
+Task brief: Task 3 text and acceptance criteria at /home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/.dev/tasks/to-do/TASK-WF-createACheckedRe-20261126-161407/TASK-WF-createACheckedRe-20261126-161407.md:59-71. AC ids in bullet order: T3.AC1 at66, T3.AC2 at67, T3.AC3 at68, T3.AC4 at69, T3.AC5 at70, T3.AC6 at71.
+Global constraints: The same plan's full ## Constraints section, lines17-25.
+Start sha: 6a3111a5b8739a608013e6dd8ac08e54c5f808f4
+Diff against the start snapshot: Full actual changed-test diff and full new logs: /home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/.dev/tasks/to-do/TASK-WF-createACheckedRe-20261126-161407/artifacts/t3-a2-diff.patch.
+Codegraph context: index_state: fresh; checked_at: 2026-11-26T17:40:24Z; worktree_root: /home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker; projectPath: /home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker. call codegraph only when index_state: fresh, never to widen scope. Changed test function caller lookup empty (graph:empty); Grep/Read floor used, not a no-dependents claim. Product implementation unchanged since Task2; no signatures changed.
+Delta diff from the previous reviewed tree (empty on the first review): /home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/.dev/tasks/to-do/TASK-WF-createACheckedRe-20261126-161407/artifacts/t3-a2-delta.patch
+Earlier blocking findings of this start (empty on the first review): F3.1 sev=blocking trigger=B4 ac=scope at=/home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/tests/swarm/test_resume_crash_recovery.py:616 anchor="Do not weaken the terminal-order check" chk=n,n,n,y family=terminal-order-proof fix=Observe successful current-attempt contract emission explicitly and require it before terminal-state publication, retaining the genuine old marker fixture first=A1 origin=new: The new completed-run fixture leaves an old return-contract.yaml in place, so the existence assertion at line 652 no longer proves the current contract was written before terminal state. An independent in-memory probe delayed contract emission until after terminal-state persistence; all 12 publication-order cases still passed. The quoted instruction is at /home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/.dev/tasks/to-do/TASK-WF-createACheckedRe-20261126-161407/TASK-WF-createACheckedRe-20261126-161407.md:54.
+Saved-probe re-check hit locations (may be empty): tests/swarm/test_resume_crash_recovery.py:604,646,648,651,657,660,664,667,672,676,678,681,736,1212.
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

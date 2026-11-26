@@ -1,0 +1,128 @@
+Command: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-project /opt/uv/tools/superclaude/bin/python -m pytest tests/swarm/test_done_sentinel.py tests/swarm/test_resume_context.py tests/swarm/test_resume_regenerates_merge.py tests/swarm/test_resume_uses_manifest_lens.py tests/swarm/test_tmux_detached.py -vv
+================================================= test session starts ==================================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0 -- /opt/uv/tools/superclaude/bin/python
+cachedir: .pytest_cache
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 101 items
+
+tests/swarm/test_done_sentinel.py::test_emit_done_sentinel_lands_next_to_contract PASSED                         [  0%]
+tests/swarm/test_done_sentinel.py::test_emit_done_sentinel_accepts_str_contract_path PASSED                      [  1%]
+tests/swarm/test_done_sentinel.py::test_emit_done_sentinel_payload_carries_dm017_fields PASSED                   [  2%]
+tests/swarm/test_done_sentinel.py::test_emit_done_sentinel_round_trips_every_imm5_verdict[success] PASSED        [  3%]
+tests/swarm/test_done_sentinel.py::test_emit_done_sentinel_round_trips_every_imm5_verdict[partial] PASSED        [  4%]
+tests/swarm/test_done_sentinel.py::test_emit_done_sentinel_round_trips_every_imm5_verdict[failed] PASSED         [  5%]
+tests/swarm/test_done_sentinel.py::test_emit_done_sentinel_leaves_no_tmp_sibling PASSED                          [  6%]
+tests/swarm/test_done_sentinel.py::test_emit_done_sentinel_overwrites_prior_sentinel PASSED                      [  7%]
+tests/swarm/test_done_sentinel.py::test_emit_done_sentinel_supports_until_f_polling_pattern PASSED               [  8%]
+tests/swarm/test_done_sentinel.py::test_emit_done_sentinel_rejects_unknown_terminal_status PASSED                [  9%]
+tests/swarm/test_done_sentinel.py::test_emit_done_sentinel_payload_mirrors_dataclass PASSED                      [ 10%]
+tests/swarm/test_resume_context.py::test_fresh_and_completed_resume_keep_populated_context[False] PASSED         [ 11%]
+tests/swarm/test_resume_context.py::test_fresh_and_completed_resume_keep_populated_context[True] PASSED          [ 12%]
+tests/swarm/test_resume_context.py::test_preflight_persists_context_before_any_dispatch PASSED                   [ 13%]
+tests/swarm/test_resume_context.py::test_resume_mode_distinguishes_absent_and_empty_template[False] PASSED       [ 14%]
+tests/swarm/test_resume_context.py::test_resume_mode_distinguishes_absent_and_empty_template[True] PASSED        [ 15%]
+tests/swarm/test_resume_context.py::test_resume_without_contract_and_repeated_resume_use_manifest[False] PASSED  [ 16%]
+tests/swarm/test_resume_context.py::test_resume_without_contract_and_repeated_resume_use_manifest[True] PASSED   [ 17%]
+tests/swarm/test_resume_context.py::test_legacy_prior_contract_recovers_only_missing_context PASSED              [ 18%]
+tests/swarm/test_resume_context.py::test_legacy_empty_contract_does_not_mask_snapshot[False-False] PASSED        [ 19%]
+tests/swarm/test_resume_context.py::test_legacy_empty_contract_does_not_mask_snapshot[False-True] PASSED         [ 20%]
+tests/swarm/test_resume_context.py::test_legacy_empty_contract_does_not_mask_snapshot[True-False] PASSED         [ 21%]
+tests/swarm/test_resume_context.py::test_legacy_empty_contract_does_not_mask_snapshot[True-True] PASSED          [ 22%]
+tests/swarm/test_resume_context.py::test_explicit_empty_manifest_values_override_populated_prior PASSED          [ 23%]
+tests/swarm/test_resume_context.py::test_legacy_invalid_prior_is_ignored_safely[yaml] PASSED                     [ 24%]
+tests/swarm/test_resume_context.py::test_legacy_invalid_prior_is_ignored_safely[list] PASSED                     [ 25%]
+tests/swarm/test_resume_context.py::test_legacy_invalid_prior_is_ignored_safely[job] PASSED                      [ 26%]
+tests/swarm/test_resume_context.py::test_legacy_invalid_prior_is_ignored_safely[version] PASSED                  [ 27%]
+tests/swarm/test_resume_context.py::test_legacy_invalid_prior_is_ignored_safely[fields] PASSED                   [ 28%]
+tests/swarm/test_resume_context.py::test_legacy_invalid_prior_is_ignored_safely[encoding] PASSED                 [ 29%]
+tests/swarm/test_resume_context.py::test_force_relens_keeps_explicit_live_template_semantics PASSED              [ 30%]
+tests/swarm/test_resume_context.py::test_legacy_partial_resume_refreshes_saved_template_inputs PASSED            [ 31%]
+tests/swarm/test_resume_context.py::test_partial_resume_preserves_provider_request_and_policy[False] PASSED      [ 32%]
+tests/swarm/test_resume_context.py::test_partial_resume_preserves_provider_request_and_policy[True] PASSED       [ 33%]
+tests/swarm/test_resume_context.py::test_completed_legacy_provider_resume_needs_no_live_inputs PASSED            [ 34%]
+tests/swarm/test_resume_context.py::test_partial_provider_resume_refuses_unrecoverable_inputs[legacy] PASSED     [ 35%]
+tests/swarm/test_resume_context.py::test_partial_provider_resume_refuses_unrecoverable_inputs[changed] PASSED    [ 36%]
+tests/swarm/test_resume_context.py::test_partial_provider_resume_refuses_unrecoverable_inputs[missing] PASSED    [ 37%]
+tests/swarm/test_resume_context.py::test_resume_mode_keeps_accepted_worker_policy PASSED                         [ 38%]
+tests/swarm/test_resume_context.py::test_partial_resume_keeps_accepted_normalization_provenance[False-False-False] PASSED [ 39%]
+tests/swarm/test_resume_context.py::test_partial_resume_keeps_accepted_normalization_provenance[False-False-True] PASSED [ 40%]
+tests/swarm/test_resume_context.py::test_partial_resume_keeps_accepted_normalization_provenance[False-True-False] PASSED [ 41%]
+tests/swarm/test_resume_context.py::test_partial_resume_keeps_accepted_normalization_provenance[False-True-True] PASSED [ 42%]
+tests/swarm/test_resume_context.py::test_partial_resume_keeps_accepted_normalization_provenance[True-False-False] PASSED [ 43%]
+tests/swarm/test_resume_context.py::test_partial_resume_keeps_accepted_normalization_provenance[True-False-True] PASSED [ 44%]
+tests/swarm/test_resume_context.py::test_partial_resume_keeps_accepted_normalization_provenance[True-True-False] PASSED [ 45%]
+tests/swarm/test_resume_context.py::test_partial_resume_keeps_accepted_normalization_provenance[True-True-True] PASSED [ 46%]
+tests/swarm/test_resume_regenerates_merge.py::test_helper_deletes_stale_merged_when_mode_is_normalize_merge PASSED [ 47%]
+tests/swarm/test_resume_regenerates_merge.py::test_helper_no_op_when_mode_is_raw PASSED                          [ 48%]
+tests/swarm/test_resume_regenerates_merge.py::test_helper_no_op_when_mode_is_normalize PASSED                    [ 49%]
+tests/swarm/test_resume_regenerates_merge.py::test_helper_idempotent_when_no_stale_file PASSED                   [ 50%]
+tests/swarm/test_resume_regenerates_merge.py::test_helper_accepts_pathlike_and_str PASSED                        [ 51%]
+tests/swarm/test_resume_regenerates_merge.py::test_resume_overwrites_stale_merge_with_redispatched_provenance PASSED [ 52%]
+tests/swarm/test_resume_regenerates_merge.py::test_resume_writes_merge_when_no_stale_file_present PASSED         [ 53%]
+tests/swarm/test_resume_regenerates_merge.py::test_resume_deletes_stale_merge_even_when_below_floor PASSED       [ 54%]
+tests/swarm/test_resume_regenerates_merge.py::test_resume_false_preserves_existing_behavior PASSED               [ 55%]
+tests/swarm/test_resume_regenerates_merge.py::test_resume_no_op_for_raw_mode PASSED                              [ 56%]
+tests/swarm/test_resume_regenerates_merge.py::test_resume_no_op_for_normalize_mode PASSED                        [ 57%]
+tests/swarm/test_resume_regenerates_merge.py::test_resume_still_emits_contract PASSED                            [ 58%]
+tests/swarm/test_resume_regenerates_merge.py::test_resume_emit_to_disk_false_skips_hook PASSED                   [ 59%]
+tests/swarm/test_resume_regenerates_merge.py::test_kill_mid_merge_then_resume_yields_clean_redispatched_body PASSED [ 60%]
+tests/swarm/test_resume_regenerates_merge.py::test_helper_exported_from_reduce PASSED                            [ 61%]
+tests/swarm/test_resume_regenerates_merge.py::test_resume_respects_custom_status_policy_floor PASSED             [ 62%]
+tests/swarm/test_resume_regenerates_merge.py::test_helper_never_touches_files_outside_output_dir PASSED          [ 63%]
+tests/swarm/test_resume_uses_manifest_lens.py::test_resume_mode_returns_jobspec PASSED                           [ 64%]
+tests/swarm/test_resume_uses_manifest_lens.py::test_resume_mode_rehydrates_lens_name_from_manifest PASSED        [ 65%]
+tests/swarm/test_resume_uses_manifest_lens.py::test_resume_mode_uses_manifest_prompt_fragment_not_live_registry PASSED [ 66%]
+tests/swarm/test_resume_uses_manifest_lens.py::test_resume_mode_uses_manifest_user_template_not_live_registry PASSED [ 67%]
+tests/swarm/test_resume_uses_manifest_lens.py::test_resume_mode_uses_manifest_recipe_not_live_registry PASSED    [ 68%]
+tests/swarm/test_resume_uses_manifest_lens.py::test_resume_mode_uses_manifest_next_command_template_not_live_registry PASSED [ 69%]
+tests/swarm/test_resume_uses_manifest_lens.py::test_resume_mode_carries_manifest_job_id PASSED                   [ 70%]
+tests/swarm/test_resume_uses_manifest_lens.py::test_resume_mode_carries_manifest_workers_requested PASSED        [ 71%]
+tests/swarm/test_resume_uses_manifest_lens.py::test_resume_mode_carries_manifest_transport_kind PASSED           [ 72%]
+tests/swarm/test_resume_uses_manifest_lens.py::test_resume_mode_invariant_under_post_emit_lens_mutation PASSED   [ 73%]
+tests/swarm/test_resume_uses_manifest_lens.py::test_resume_mode_does_not_invoke_lens_resolver PASSED             [ 74%]
+tests/swarm/test_resume_uses_manifest_lens.py::test_resume_mode_preserves_snapshot_field_set PASSED              [ 75%]
+tests/swarm/test_resume_uses_manifest_lens.py::test_resume_mode_exported_from_preflight PASSED                   [ 76%]
+tests/swarm/test_tmux_detached.py::test_session_name_prefix_and_round_trip PASSED                                [ 77%]
+tests/swarm/test_tmux_detached.py::test_session_name_rejects_illegal_chars[] PASSED                              [ 78%]
+tests/swarm/test_tmux_detached.py::test_session_name_rejects_illegal_chars[has space] PASSED                     [ 79%]
+tests/swarm/test_tmux_detached.py::test_session_name_rejects_illegal_chars[with:colon] PASSED                    [ 80%]
+tests/swarm/test_tmux_detached.py::test_session_name_rejects_illegal_chars[with.dot] PASSED                      [ 81%]
+tests/swarm/test_tmux_detached.py::test_session_name_rejects_illegal_chars[tab\there] PASSED                     [ 82%]
+tests/swarm/test_tmux_detached.py::test_session_name_rejects_illegal_chars[new\nline] PASSED                     [ 83%]
+tests/swarm/test_tmux_detached.py::test_exported_surface_matches_consumer_tasks PASSED                           [ 84%]
+tests/swarm/test_tmux_detached.py::test_is_tmux_available_reflects_path_and_nesting PASSED                       [ 85%]
+tests/swarm/test_tmux_detached.py::test_error_class_hierarchy PASSED                                             [ 86%]
+tests/swarm/test_tmux_detached.py::test_launch_detached_rejects_empty_command PASSED                             [ 87%]
+tests/swarm/test_tmux_detached.py::test_no_tmux_paths_are_safe SKIPPED (this branch only fires when tmux is
+absent)                                                                                                          [ 88%]
+tests/swarm/test_tmux_detached.py::test_no_tmux_paths_via_monkeypatch SKIPPED (patched-tmux path covers
+monkeypatched absence)                                                                                           [ 89%]
+tests/swarm/test_tmux_detached.py::test_no_tmux_paths_via_monkeypatch_when_tmux_present PASSED                   [ 90%]
+tests/swarm/test_tmux_detached.py::test_has_session_false_when_missing PASSED                                    [ 91%]
+tests/swarm/test_tmux_detached.py::test_kill_missing_is_idempotent PASSED                                        [ 92%]
+tests/swarm/test_tmux_detached.py::test_attach_missing_raises_session_missing PASSED                             [ 93%]
+tests/swarm/test_tmux_detached.py::test_launch_detached_creates_session_and_kill_tears_down PASSED               [ 94%]
+tests/swarm/test_tmux_detached.py::test_detached_session_survives_caller_exit FAILED                             [ 95%]
+tests/swarm/test_tmux_detached.py::test_detached_parent_defers_completion_to_actual_child[False-False] PASSED    [ 96%]
+tests/swarm/test_tmux_detached.py::test_detached_parent_defers_completion_to_actual_child[False-True] PASSED     [ 97%]
+tests/swarm/test_tmux_detached.py::test_detached_parent_defers_completion_to_actual_child[True-False] PASSED     [ 98%]
+tests/swarm/test_tmux_detached.py::test_detached_parent_defers_completion_to_actual_child[True-True] PASSED      [ 99%]
+tests/swarm/test_tmux_detached.py::test_detached_live_cli_child_publishes_completion PASSED                      [100%]
+
+======================================================= FAILURES =======================================================
+______________________________________ test_detached_session_survives_caller_exit ______________________________________
+tests/swarm/test_tmux_detached.py:247: in test_detached_session_survives_caller_exit
+    assert launcher.returncode == 0, (
+E   AssertionError: launcher failed: stdout='' stderr='Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    from superclaude.cli.swarm import tmux as t;print(t.launch_detached(\'t702-27132a89c5\', [\'sleep\', \'30\']))\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/src/superclaude/cli/__init__.py", line 13, in <module>\n    from .main import main\n  File "/home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/src/superclaude/cli/main.py", line 10, in <module>\n    import click\nModuleNotFoundError: No module named \'click\'\n'
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['python', '-c', "from superclaude.cli.swarm import tmux as t;print(t.launch_detached('t702-27132a89c5', ['sleep', '30']))"], returncode=1, stdout='', stderr='Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    from superclaude.cli.swarm import tmux as t;print(t.launch_detached(\'t702-27132a89c5\', [\'sleep\', \'30\']))\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/src/superclaude/cli/__init__.py", line 13, in <module>\n    from .main import main\n  File "/home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/src/superclaude/cli/main.py", line 10, in <module>\n    import click\nModuleNotFoundError: No module named \'click\'\n').returncode
+=============================================== short test summary info ================================================
+FAILED tests/swarm/test_tmux_detached.py::test_detached_session_survives_caller_exit - AssertionError: launcher failed: stdout='' stderr='Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    from superclaude.cli.swarm import tmux as t;print(t.launch_detached(\'t702-27132a89c5\', [\'sleep\', \'30\']))\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/src/superclaude/cli/__init__.py", line 13, in <module>\n    from .main import main\n  File "/home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/src/superclaude/cli/main.py", line 10, in <module>\n    import click\nModuleNotFoundError: No module named \'click\'\n'
+assert 1 == 0
+ +  where 1 = CompletedProcess(args=['python', '-c', "from superclaude.cli.swarm import tmux as t;print(t.launch_detached('t702-27132a89c5', ['sleep', '30']))"], returncode=1, stdout='', stderr='Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    from superclaude.cli.swarm import tmux as t;print(t.launch_detached(\'t702-27132a89c5\', [\'sleep\', \'30\']))\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/src/superclaude/cli/__init__.py", line 13, in <module>\n    from .main import main\n  File "/home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/src/superclaude/cli/main.py", line 10, in <module>\n    import click\nModuleNotFoundError: No module named \'click\'\n').returncode
+======================================= 1 failed, 98 passed, 2 skipped in 3.90s ========================================
+
+exit_code=1

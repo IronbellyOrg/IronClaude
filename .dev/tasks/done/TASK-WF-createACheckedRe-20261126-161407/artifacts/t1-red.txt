@@ -1,0 +1,78 @@
+Purpose: pre-production expected-red acceptance evidence, not an unintended regression.
+Baseline HEAD: a98d7b4280363f2bb506d7af5fb4eb1551953c41
+Production commands.py unchanged at this run.
+Command: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-project /opt/uv/tools/superclaude/bin/python -m pytest tests/swarm/test_resume_crash_recovery.py -k 'stale_marker or overlapping_resume' -vv -s
+================================================= test session starts ==================================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0 -- /opt/uv/tools/superclaude/bin/python
+cachedir: .pytest_cache
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 43 items / 40 deselected / 3 selected
+
+tests/swarm/test_resume_crash_recovery.py::test_stale_marker_absent_at_accepted_dispatch[True] dispatch-entry enabled=True marker_exists=[True]; exit=0; final_marker=True; old_bytes_equal=True
+FAILED
+tests/swarm/test_resume_crash_recovery.py::test_stale_marker_absent_at_accepted_dispatch[False] dispatch-entry enabled=False marker_exists=[True]; exit=0; final_marker=True; old_bytes_equal=True
+FAILED
+tests/swarm/test_resume_crash_recovery.py::test_overlapping_resume_preserves_active_fresh_artifacts overlapping_resume result=[(0, False)]; fresh_exit=0
+FAILED
+
+======================================================= FAILURES =======================================================
+_________________________________ test_stale_marker_absent_at_accepted_dispatch[True] __________________________________
+tests/swarm/test_resume_crash_recovery.py:796: in test_stale_marker_absent_at_accepted_dispatch
+    assert seen == [False], "previous completion marker visible at accepted dispatch"
+E   AssertionError: previous completion marker visible at accepted dispatch
+E   assert [True] == [False]
+E     
+E     At index 0 diff: True != False
+E     
+E     Full diff: (-: missing in left side, +: extra in left side)
+E       [
+E     -     False,
+E     +     True,
+E       ]
+_________________________________ test_stale_marker_absent_at_accepted_dispatch[False] _________________________________
+tests/swarm/test_resume_crash_recovery.py:796: in test_stale_marker_absent_at_accepted_dispatch
+    assert seen == [False], "previous completion marker visible at accepted dispatch"
+E   AssertionError: previous completion marker visible at accepted dispatch
+E   assert [True] == [False]
+E     
+E     At index 0 diff: True != False
+E     
+E     Full diff: (-: missing in left side, +: extra in left side)
+E       [
+E     -     False,
+E     +     True,
+E       ]
+_______________________________ test_overlapping_resume_preserves_active_fresh_artifacts _______________________________
+tests/swarm/test_resume_crash_recovery.py:831: in test_overlapping_resume_preserves_active_fresh_artifacts
+    assert nested[0][0] != EXIT_OK, "overlapping resume was accepted"
+E   AssertionError: overlapping resume was accepted
+E   assert 0 != 0
+=============================================== short test summary info ================================================
+FAILED tests/swarm/test_resume_crash_recovery.py::test_stale_marker_absent_at_accepted_dispatch[True] - AssertionError: previous completion marker visible at accepted dispatch
+assert [True] == [False]
+  
+  At index 0 diff: True != False
+  
+  Full diff: (-: missing in left side, +: extra in left side)
+    [
+  -     False,
+  +     True,
+    ]
+FAILED tests/swarm/test_resume_crash_recovery.py::test_stale_marker_absent_at_accepted_dispatch[False] - AssertionError: previous completion marker visible at accepted dispatch
+assert [True] == [False]
+  
+  At index 0 diff: True != False
+  
+  Full diff: (-: missing in left side, +: extra in left side)
+    [
+  -     False,
+  +     True,
+    ]
+FAILED tests/swarm/test_resume_crash_recovery.py::test_overlapping_resume_preserves_active_fresh_artifacts - AssertionError: overlapping resume was accepted
+assert 0 != 0
+=========================================== 3 failed, 40 deselected in 0.75s ===========================================
+
+exit_code=1

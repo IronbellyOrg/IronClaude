@@ -1,0 +1,59 @@
+Command: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-project /opt/uv/tools/superclaude/bin/python -m pytest .dev/tasks/to-do/TASK-WF-createACheckedRe-20261126-161407/artifacts/check_resume_boundary.py -vv -s
+Actual public swarm CLI with real stub dispatch/send/reducer and observational forwarding wrappers only. Effective completion policy is patched in memory, not restored arbitrary policy. Same-process overlap only; temporary HOME/output roots.
+Baseline HEAD: a98d7b4280363f2bb506d7af5fb4eb1551953c41; tested product/test patch: ./implementation.diff.
+497a0e1944aca64a283d127d4fc857441ac9e3180b238ff00ff6e7343f1cbbad  .dev/tasks/to-do/TASK-WF-createACheckedRe-20261126-161407/artifacts/implementation.diff
+================================================= test session starts ==================================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0 -- /opt/uv/tools/superclaude/bin/python
+cachedir: .pytest_cache
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 4 items
+
+.dev/tasks/to-do/TASK-WF-createACheckedRe-20261126-161407/artifacts/check_resume_boundary.py::test_actual_cli_boundary[True-True] BOUNDARY {"artifacts_unchanged": true, "contract_sha256": "e014fab2276a986fd3cac388acce5566351a077f48fc743d35f9bd5098c74767", "enabled": true, "event": "validation-rejected", "exit_code": 2, "marker_exists": true, "remaining": true, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "e014fab2276a986fd3cac388acce5566351a077f48fc743d35f9bd5098c74767", "enabled": true, "event": "accepted-state-written", "marker_exists": false, "remaining": true, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "e014fab2276a986fd3cac388acce5566351a077f48fc743d35f9bd5098c74767", "enabled": true, "event": "dispatch-entry", "marker_exists": false, "remaining": true, "state": "dispatching"}
+BOUNDARY {"artifacts_unchanged": true, "contract_sha256": "e014fab2276a986fd3cac388acce5566351a077f48fc743d35f9bd5098c74767", "enabled": true, "event": "overlap-rejected", "exit_code": 1, "marker_exists": false, "remaining": true, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "e014fab2276a986fd3cac388acce5566351a077f48fc743d35f9bd5098c74767", "enabled": true, "event": "actual-stub-send", "marker_exists": false, "model": "lens-default-model-0", "remaining": true, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "e014fab2276a986fd3cac388acce5566351a077f48fc743d35f9bd5098c74767", "enabled": true, "event": "reduction-entry", "marker_exists": false, "remaining": true, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "a77ebbac335c893dc89575081c7834357792abeee7b1e24b845c3a40d15c5bd6", "enabled": true, "event": "current-contract-written", "marker_exists": false, "remaining": true, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "a77ebbac335c893dc89575081c7834357792abeee7b1e24b845c3a40d15c5bd6", "enabled": true, "event": "terminal-written", "marker_exists": false, "remaining": true, "state": "terminal"}
+BOUNDARY {"contract_sha256": "a77ebbac335c893dc89575081c7834357792abeee7b1e24b845c3a40d15c5bd6", "enabled": true, "event": "new-marker-written", "marker_exists": true, "remaining": true, "state": "terminal", "status": "success"}
+CLI {"enabled": true, "remaining": true, "exit_code": 0, "fresh_exit_code": 0}
+FINAL {"enabled": true, "remaining": true, "marker_exists": true, "state": "terminal", "succeeded_files_unchanged": 4, "old_marker_bytes_equal": true, "publication": ["current-contract-written", "terminal-written", "new-marker-written"], "active_claims": 0}
+PASSED
+.dev/tasks/to-do/TASK-WF-createACheckedRe-20261126-161407/artifacts/check_resume_boundary.py::test_actual_cli_boundary[True-False] BOUNDARY {"artifacts_unchanged": true, "contract_sha256": "2a1c97e8d7047b777c4e960d431d210d9daa7e9fb26c0225abe8c02bb1a0e67e", "enabled": false, "event": "validation-rejected", "exit_code": 2, "marker_exists": true, "remaining": true, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "2a1c97e8d7047b777c4e960d431d210d9daa7e9fb26c0225abe8c02bb1a0e67e", "enabled": false, "event": "accepted-state-written", "marker_exists": false, "remaining": true, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "2a1c97e8d7047b777c4e960d431d210d9daa7e9fb26c0225abe8c02bb1a0e67e", "enabled": false, "event": "dispatch-entry", "marker_exists": false, "remaining": true, "state": "dispatching"}
+BOUNDARY {"artifacts_unchanged": true, "contract_sha256": "2a1c97e8d7047b777c4e960d431d210d9daa7e9fb26c0225abe8c02bb1a0e67e", "enabled": false, "event": "overlap-rejected", "exit_code": 1, "marker_exists": false, "remaining": true, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "2a1c97e8d7047b777c4e960d431d210d9daa7e9fb26c0225abe8c02bb1a0e67e", "enabled": false, "event": "actual-stub-send", "marker_exists": false, "model": "lens-default-model-0", "remaining": true, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "2a1c97e8d7047b777c4e960d431d210d9daa7e9fb26c0225abe8c02bb1a0e67e", "enabled": false, "event": "reduction-entry", "marker_exists": false, "remaining": true, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "54c1fce16b583f7c7971132aea4e5aea2a32a454c80a4c3df2659d091f6a21e9", "enabled": false, "event": "current-contract-written", "marker_exists": false, "remaining": true, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "54c1fce16b583f7c7971132aea4e5aea2a32a454c80a4c3df2659d091f6a21e9", "enabled": false, "event": "terminal-written", "marker_exists": false, "remaining": true, "state": "terminal"}
+CLI {"enabled": false, "remaining": true, "exit_code": 0, "fresh_exit_code": 0}
+FINAL {"enabled": false, "remaining": true, "marker_exists": false, "state": "terminal", "succeeded_files_unchanged": 4, "old_marker_bytes_equal": false, "publication": ["current-contract-written", "terminal-written"], "active_claims": 0}
+PASSED
+.dev/tasks/to-do/TASK-WF-createACheckedRe-20261126-161407/artifacts/check_resume_boundary.py::test_actual_cli_boundary[False-True] BOUNDARY {"artifacts_unchanged": true, "contract_sha256": "7636baaec4bb92e16d10cf610bc7319e2067eff804d9738c21121f7b836d3548", "enabled": true, "event": "validation-rejected", "exit_code": 2, "marker_exists": true, "remaining": false, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "7636baaec4bb92e16d10cf610bc7319e2067eff804d9738c21121f7b836d3548", "enabled": true, "event": "accepted-state-written", "marker_exists": false, "remaining": false, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "7636baaec4bb92e16d10cf610bc7319e2067eff804d9738c21121f7b836d3548", "enabled": true, "event": "reduction-entry", "marker_exists": false, "remaining": false, "state": "dispatching"}
+BOUNDARY {"artifacts_unchanged": true, "contract_sha256": "7636baaec4bb92e16d10cf610bc7319e2067eff804d9738c21121f7b836d3548", "enabled": true, "event": "overlap-rejected", "exit_code": 1, "marker_exists": false, "remaining": false, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "0dcadacc755445a75f2150111d7b25bf0e9c7287ca42fafcf49a6ac5bd59d960", "enabled": true, "event": "current-contract-written", "marker_exists": false, "remaining": false, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "0dcadacc755445a75f2150111d7b25bf0e9c7287ca42fafcf49a6ac5bd59d960", "enabled": true, "event": "terminal-written", "marker_exists": false, "remaining": false, "state": "terminal"}
+BOUNDARY {"contract_sha256": "0dcadacc755445a75f2150111d7b25bf0e9c7287ca42fafcf49a6ac5bd59d960", "enabled": true, "event": "new-marker-written", "marker_exists": true, "remaining": false, "state": "terminal", "status": "success"}
+CLI {"enabled": true, "remaining": false, "exit_code": 0, "fresh_exit_code": 0}
+FINAL {"enabled": true, "remaining": false, "marker_exists": true, "state": "terminal", "succeeded_files_unchanged": 6, "old_marker_bytes_equal": true, "publication": ["current-contract-written", "terminal-written", "new-marker-written"], "active_claims": 0}
+PASSED
+.dev/tasks/to-do/TASK-WF-createACheckedRe-20261126-161407/artifacts/check_resume_boundary.py::test_actual_cli_boundary[False-False] BOUNDARY {"artifacts_unchanged": true, "contract_sha256": "9fa608f24ac300881dde79f1677952e9517a6137de17be7934ea5016ff7fa8f5", "enabled": false, "event": "validation-rejected", "exit_code": 2, "marker_exists": true, "remaining": false, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "9fa608f24ac300881dde79f1677952e9517a6137de17be7934ea5016ff7fa8f5", "enabled": false, "event": "accepted-state-written", "marker_exists": false, "remaining": false, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "9fa608f24ac300881dde79f1677952e9517a6137de17be7934ea5016ff7fa8f5", "enabled": false, "event": "reduction-entry", "marker_exists": false, "remaining": false, "state": "dispatching"}
+BOUNDARY {"artifacts_unchanged": true, "contract_sha256": "9fa608f24ac300881dde79f1677952e9517a6137de17be7934ea5016ff7fa8f5", "enabled": false, "event": "overlap-rejected", "exit_code": 1, "marker_exists": false, "remaining": false, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "0fabcf9a01e49c978edabff850cac110e079469cff4758cddb0531d38ff5918d", "enabled": false, "event": "current-contract-written", "marker_exists": false, "remaining": false, "state": "dispatching"}
+BOUNDARY {"contract_sha256": "0fabcf9a01e49c978edabff850cac110e079469cff4758cddb0531d38ff5918d", "enabled": false, "event": "terminal-written", "marker_exists": false, "remaining": false, "state": "terminal"}
+CLI {"enabled": false, "remaining": false, "exit_code": 0, "fresh_exit_code": 0}
+FINAL {"enabled": false, "remaining": false, "marker_exists": false, "state": "terminal", "succeeded_files_unchanged": 6, "old_marker_bytes_equal": false, "publication": ["current-contract-written", "terminal-written"], "active_claims": 0}
+PASSED
+
+================================================== 4 passed in 0.66s ===================================================
+
+exit_code=0
