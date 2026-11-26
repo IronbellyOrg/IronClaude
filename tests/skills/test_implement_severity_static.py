@@ -328,6 +328,10 @@ _ALLOW = [
     ("refs/ledger.md", "T1: halt review=2 re", "definition"),
     ("refs/ledger.md", "^ARCHIVE: (start|fai", "definition"),
     ("refs/ledger.md", "- Legacy `ARCHIVE: R", "definition"),
+    # Task 32 (issue 326): the archive-gate refusal `E-ARCHIVE-BLOCKED reason=unsettled-boundary`
+    # lives in step 1. It is a non-finding STOP row, so it needs this entry; this is the
+    # recorded override of requirement T-16 (existing implement tests pass unchanged).
+    ("refs/managed-workspace.md", "1. Join every deleg", "stop-row"),
     ("refs/managed-workspace.md", "2. `--skip-final-rev", "stop-row"),
     ("refs/managed-workspace.md", "3. State: `uv run --", "stop-row"),
     ("refs/managed-workspace.md", "6. `pass` → run the ", "blocking"),

@@ -1,0 +1,4 @@
+4978e418c14e829076d9fdfc50a470fed3dc9e04
+A1 r1-1 F1.1 minor src/superclaude/skills/sc-implement-protocol/refs/commit-step.md:84 ac=T28.AC1 n,n,n,n the display step requires the exact S but does not say where the executor gets it (resolve_check returns no S; fix: name the member files= union or stage-plan).
+A1 r1-1 F1.2 minor src/superclaude/skills/sc-implement-protocol/refs/commit-step.md:107 ac=T28.AC1 n,n,n,n the keep-pins sentence reads as if outside-change pins could be released once cleanup finishes, while line 73 says they stay until the owner releases them (fix: reword so the limit applies only to ordinary pins).
+A1 r1-1 F1.3 minor src/superclaude/skills/sc-implement-protocol/refs/commit-step.md:100 ac=T28.AC1 n,n,n,n the resolved line templates say at=<date> while the format is stated only in the regexes at lines 21-22 (fix: write at=<YYYY-MM-DD>).

@@ -1,0 +1,2 @@
+27cc49d8327b92ed467c10ed6a2af2f3c05bf315
+A1 r1-1 F1.1 note src/superclaude/skills/sc-git-protocol/scripts/vcs_plan.py:2298 ac=scope n,n,n,n by reading only: after a reviewed rewrite is retried and attempt 2 is refused for another reason such as hook-failed, the terminal line no longer names the rewritten= pin, so the next retry is denied as candidate-changed; it fails closed (fix: remember the earlier hook-rewrite pin across a later refusal, or document the limit next to _credited_rewrite).

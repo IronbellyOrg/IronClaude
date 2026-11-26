@@ -322,7 +322,7 @@
       "side_effects": "none; status inspection only",
       "guide_phrases": ["Status-only stays inspection", "a commit needs authorization", "Do not append push, merge or PR creation"],
       "negative": {"competitors": ["sc:pr-submit"], "must_not": "push, merge or PR operation"},
-      "activation": {"sc:git": "self-contained"},
+      "activation": {"sc:git": "sc:git-protocol"},
       "repeats": [
         {"request": "Explicitly create a generated local commit of the staged changes.", "targets": ["sc:git"], "mode_flags": ["--smart-commit"], "expected": "authorized local commit only; no push, merge or PR"}
       ],

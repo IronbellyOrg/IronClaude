@@ -137,8 +137,11 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 
 | Flag | Purpose | Values |
 |------|---------|--------|
-| `--smart-commit` | Generate commit message | Boolean |
-| `--interactive` | Guided operations | Boolean |
+| `--message` | Commit message text, used by `commit` and `submodule commit-pointer` | Quoted text; give this or `--smart-commit`, never both |
+| `--smart-commit` | Draft a Conventional Commits message from the staged diff and show it before committing | Boolean; give this or `--message`, never both |
+| `--url` | With `submodule update`: your own URL for one submodule path | `<path>=<url>`, repeatable |
+
+Operations: `status`, `add <path>...`, `commit [<path>...]`, `branch [list | create <name> | switch <name> | cleanup]`, `submodule [status | update <path>... | commit-pointer <path>]`. A write runs only on a line you type. `merge` and `--interactive` were removed. Pull requests go through `/sc:pr-submit`, and branch cleanup goes through `/sc:worktrees`.
 
 ### Test Command Flags (`/sc:test`)
 

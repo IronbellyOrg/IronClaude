@@ -1,0 +1,3 @@
+61feea37964832c170054d89f388a89778074b4a
+A1 r1-1 F1.1 minor src/superclaude/skills/sc-git-protocol/scripts/vcs_plan.py:1604 ac=scope n,n,n,n plan_ledger passes retry_allowed=True to derive_state unconditionally, so the FR-065 disclosure condition is not checked at plan time (no AC of Task 14 covers it; Task 17 reconcile owns the retry decision).
+A1 r1-1 F1.2 note src/superclaude/skills/sc-git-protocol/scripts/vcs_plan.py:1604 ac=scope n,n,n,n run_layout puts the managed sidecar at <pkg>/artifacts/commits.md per FR-100 while design source.md line 200 says <ledger dir>/commits.md; the code docstring records the choice.

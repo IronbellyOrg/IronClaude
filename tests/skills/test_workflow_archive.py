@@ -1188,3 +1188,98 @@ def test_compliant_complete_with_notes_token_keeps_print_state_files(tmp_path):
         f"notes@./artifacts/retries/T1/notes.md:1-2 {OK} files=src/a.py"
     )
     assert aw.print_state(pk.root, pk.pkg)["files"] == before == ["src/a.py"]
+
+
+# --- T-11 / FR-070: archive gate and the commit sidecar (--commit-tasks) -------------
+_MW_REF = _SCRIPT.parents[1] / "refs/managed-workspace.md"
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+# Recorded base commit of the issue-326 work (the merge-base with origin/integration,
+# saved in the baseline log of the plan package); hardcoded on purpose.
+_BASE_COMMIT = "862384852faebe3255c2876527103696cfd3cf3b"
+_SIDECAR = (
+    'run 1: commit-tasks=off ledger-lines=2 branch=- at=2026-10-01T06:30:00Z args="" '
+    "source=./TASK.md worktree=/w\n"
+)
+
+
+def _gate_block() -> str:
+    text = _MW_REF.read_text(encoding="utf-8")
+    return text.split("Archive gate, **every attempt**", 1)[1].split(
+        "`<skill base>` is the base directory", 1
+    )[0]
+
+
+def _gate_step_one() -> str:
+    lines = [ln for ln in _gate_block().splitlines() if ln.startswith("1. ")]
+    assert len(lines) == 1
+    return lines[0]
+
+
+def test_managed_package_with_commits_md_archives_unchanged(p):
+    (p.pkg / "artifacts/commits.md").write_text(_SIDECAR)
+    before = {
+        r.name: r.read_bytes()
+        for r in p.pkg.rglob("*")
+        if r.is_file() and r.name != "progress.md"
+    }
+    assert p.run() == {"status": "archived", "path": str(p.done)}
+    after = {
+        r.name: r.read_bytes()
+        for r in p.done.rglob("*")
+        if r.is_file() and r.name != "progress.md"
+    }
+    assert after == before and after["commits.md"] == _SIDECAR.encode()
+
+
+def test_gate_step_one_refuses_an_unsettled_boundary_before_any_move():
+    step = _gate_step_one()
+    assert step.startswith("1. Join every delegated writer")
+    assert "E-ARCHIVE-BLOCKED reason=unsettled-boundary" in step
+    for word in ("due", "pending", "refused", "uncertain"):
+        assert word in step, word
+    assert "nothing is moved" in step
+    assert "before any move" in step
+    # the six steps stay in order, none renumbered, the refusal is not a seventh step
+    numbers = re.findall(r"^(\d+)\. ", _gate_block(), re.M)
+    assert numbers == ["1", "2", "3", "4", "5", "6"]
+    assert _MW_REF.read_text(encoding="utf-8").count("unsettled-boundary") == 1
+
+
+def test_gate_step_one_reads_commits_md_only_when_it_exists():
+    step = _gate_step_one()
+    assert "only when `<pkg>/artifacts/commits.md` exists" in step
+    assert "vcs reconcile" in step
+    assert "--sidecar <pkg>/artifacts/commits.md" in step
+    assert "no Bash call" in step  # a run without the file adds none (NFR-018)
+
+
+def test_gate_refusal_adds_no_ledger_record_kind_and_no_helper_change():
+    helper = _SCRIPT.read_text(encoding="utf-8")
+    assert "unsettled-boundary" not in helper and "commits.md" not in helper
+    assert "no record" in _gate_step_one()
+
+
+def test_plugin_managed_workspace_ref_is_byte_identical():
+    plugin = Path(str(_MW_REF).replace("src/superclaude/", "plugins/superclaude/"))
+    assert plugin != _MW_REF and plugin.is_file()
+    assert plugin.read_bytes() == _MW_REF.read_bytes()
+
+
+def test_archive_helper_is_unchanged_against_the_recorded_base_commit():
+    rel = "src/superclaude/skills/sc-implement-protocol/scripts/archive_workspace.py"
+    try:
+        have = subprocess.run(
+            ["git", "cat-file", "-e", f"{_BASE_COMMIT}^{{commit}}"],
+            cwd=_REPO_ROOT,
+            capture_output=True,
+        )
+    except OSError as err:
+        pytest.skip(f"git is not available: {err}")
+    if have.returncode != 0:
+        pytest.skip(f"base commit {_BASE_COMMIT} is not available (shallow clone)")
+    diff = subprocess.run(
+        ["git", "diff", "--quiet", _BASE_COMMIT, "--", rel],
+        cwd=_REPO_ROOT,
+        capture_output=True,
+    )
+    assert diff.returncode == 0, f"{rel} differs from {_BASE_COMMIT}"

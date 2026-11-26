@@ -1,0 +1,3 @@
+A=variant-1-opus-architect.md
+B=variant-2-opus-analyzer.md
+C=variant-3-haiku-backend.md

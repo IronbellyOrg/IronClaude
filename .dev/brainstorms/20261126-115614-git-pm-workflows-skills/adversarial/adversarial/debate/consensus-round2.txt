@@ -1,0 +1,67 @@
+round 2: points=61 agreed=61 convergence=1.000
+  L1: 16/16 agreed
+  L2: 14/14 agreed
+  L3: 31/31 agreed
+unanimous=45
+unresolved (no majority):
+A-001	L3	{'NONE': 3}
+A-002	L3	{'HYBRID': 3}
+A-003	L3	{'HYBRID': 3}
+A-004	L3	{'HYBRID': 2, 'C': 1}
+A-005	L3	{'NONE': 3}
+A-006	L1	{'HYBRID': 3}
+C-001	L2	{'A': 3}
+C-002	L2	{'A': 3}
+C-003	L3	{'B': 2, 'HYBRID': 1}
+C-004	L3	{'HYBRID': 3}
+C-005	L3	{'HYBRID': 3}
+C-006	L3	{'HYBRID': 3}
+C-007	L2	{'A': 3}
+C-008	L3	{'HYBRID': 3}
+C-009	L3	{'B': 2, 'HYBRID': 1}
+C-010	L3	{'HYBRID': 3}
+C-011	L3	{'B': 3}
+C-012	L1	{'HYBRID': 3}
+C-013	L1	{'B': 3}
+C-014	L2	{'HYBRID': 3}
+C-015	L3	{'HYBRID': 3}
+C-016	L2	{'C': 3}
+C-017	L3	{'B': 1, 'HYBRID': 2}
+C-018	L1	{'HYBRID': 3}
+C-019	L2	{'HYBRID': 3}
+C-020	L2	{'B': 2, 'HYBRID': 1}
+C-021	L3	{'C': 3}
+S-001	L1	{'A': 2, 'HYBRID': 1}
+S-002	L1	{'B': 3}
+S-003	L1	{'HYBRID': 3}
+S-004	L1	{'A': 2, 'C': 1}
+S-005	L1	{'HYBRID': 3}
+S-006	L1	{'B': 1, 'HYBRID': 2}
+S-007	L1	{'B': 3}
+S-008	L2	{'HYBRID': 3}
+S-009	L2	{'A': 1, 'HYBRID': 2}
+S-010	L2	{'B': 3}
+S-011	L3	{'HYBRID': 3}
+S-012	L1	{'A': 3}
+S-013	L1	{'HYBRID': 3}
+X-001	L3	{'HYBRID': 3}
+X-002	L2	{'A': 2, 'HYBRID': 1}
+X-003	L2	{'A': 3}
+X-004	L3	{'B': 2, 'HYBRID': 1}
+X-005	L3	{'A': 3}
+X-006	L3	{'B': 2, 'HYBRID': 1}
+X-007	L3	{'HYBRID': 2, 'C': 1}
+X-008	L3	{'HYBRID': 3}
+X-009	L2	{'A': 3}
+X-010	L2	{'C': 3}
+X-011	L1	{'A': 3}
+X-012	L3	{'A': 2, 'HYBRID': 1}
+X-013	L3	{'B': 3}
+X-014	L3	{'B': 2, 'HYBRID': 1}
+X-015	L3	{'C': 1, 'HYBRID': 2}
+X-016	L3	{'A': 3}
+X-017	L3	{'HYBRID': 3}
+X-018	L1	{'A': 3}
+X-019	L1	{'B': 3}
+X-020	L3	{'B': 3}
+X-021	L3	{'NONE': 3}

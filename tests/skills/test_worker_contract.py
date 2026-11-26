@@ -1966,6 +1966,22 @@ _CLOSEOUT_REASON = (
     "/sc:closeout is on the never-as-worker list; its pull request and issue reads "
     "and writes run only in the coordinator or person session"
 )
+_IMPLEMENT_COMMIT_STEP_REASON = (
+    "the per-task commit step is off under --unattended (WC-9); "
+    "/sc:implement is converted in P4"
+)
+_GIT_COMMAND_REASON = (
+    "/sc:git is on the never-as-worker list; its add and commit usage lines and "
+    "examples run only in the coordinator or person session"
+)
+_GIT_SKILL_REASON = (
+    "/sc:git is on the never-as-worker list; the registry rows of its protocol skill "
+    "name the add and commit prefixes and run nothing"
+)
+_GIT_REFS_REASON = (
+    "/sc:git is on the never-as-worker list; its safety and commit refs describe the "
+    "visible add, commit and update-ref calls that only a person-typed line authorizes"
+)
 
 # (repo-relative path, verb(s), stripped line) -> (category, one-line reason)
 WRITE_VERB_CLASSIFICATION = {
@@ -2338,7 +2354,7 @@ WRITE_VERB_CLASSIFICATION = {
     (
         "src/superclaude/skills/sc-implement-protocol/SKILL.md",
         "git update-ref",
-        "On task `complete`, delete the Q0 pin `git update-ref -d \"refs/superclaude/implement/<slug>/T<id>\"` and the task's checkpoint refs (`refs/retry.md`); keep its sweep refs. The final summary lists each kept sweep ref with one `git update-ref -d <ref>` line for the operator. The task's reviewed-tree refs `retry/T<rid>/r<k>-<j>` (`refs/qa.md`) are deleted at `complete` once `first=` and `origin=` are written; sweep refs are kept.",
+        "On task `complete`, delete the Q0 pin `git update-ref -d \"refs/superclaude/implement/<slug>/T<id>\"` and the task's checkpoint refs (`refs/retry.md`), except that a member of an unsettled commit boundary keeps its Q0 pin and checkpoint refs, and no `accepted/`, `boundary/`, `boundary-wt/` or `rewritten/` pin is deleted here, on any run, flagged or not (`refs/commit-step.md`, Pins and final summary); keep its sweep refs. The final summary lists each kept sweep ref with one `git update-ref -d <ref>` line for the operator. The task's reviewed-tree refs `retry/T<rid>/r<k>-<j>` (`refs/qa.md`) are deleted at `complete` once `first=` and `origin=` are written, and once the accepted pin holds their tree where one is required; sweep refs are kept.",
     ): (
         "wc9-allowed",
         "/sc:implement private-index snapshot or refs/superclaude/implement/ ref, allowed by WC-9",
@@ -2366,6 +2382,30 @@ WRITE_VERB_CLASSIFICATION = {
     ): (
         "deferred:P4",
         "/sc:implement is converted in P4; under --unattended its .dev/tasks staging defers to the coordinator (WC-9)",
+    ),
+    (
+        "src/superclaude/skills/sc-implement-protocol/refs/commit-step.md",
+        "git update-ref",
+        "After the settling line, release each ordinary pin with the literal call `git update-ref -d <ref>`, one ref per call.",
+    ): (
+        "deferred:P4",
+        _IMPLEMENT_COMMIT_STEP_REASON,
+    ),
+    (
+        "src/superclaude/skills/sc-implement-protocol/refs/commit-step.md",
+        "git update-ref",
+        '| 4 | `vcs stage-plan ... --candidate` prints `candidate_tree`; pin it create-only with `git update-ref <boundary_ref> <candidate_tree> ""` (`boundary/<key>-a<n>`); another target is `pin-conflict` | helper, agent | ref |',
+    ): (
+        "deferred:P4",
+        _IMPLEMENT_COMMIT_STEP_REASON,
+    ),
+    (
+        "src/superclaude/skills/sc-implement-protocol/refs/commit-step.md",
+        "git add",
+        "| 5 | Print the full list of S, then `git` + `add_argv` (a `--literal-pathspecs` add with `--pathspec-from-file` and `--pathspec-file-nul`), then `git add -- .dev/tasks` when it exists and is not ignored | agent | index |",
+    ): (
+        "deferred:P4",
+        _IMPLEMENT_COMMIT_STEP_REASON,
     ),
     (
         "src/superclaude/skills/sc-implement-protocol/refs/retry.md",
@@ -2410,7 +2450,7 @@ WRITE_VERB_CLASSIFICATION = {
     (
         "src/superclaude/skills/sc-implement-protocol/refs/retry.md",
         "git update-ref",
-        "At `complete`, delete the Q0 pin and the task's checkpoint refs `a<k>`, but keep its sweep refs: they are the only copy of bytes a revert replaced. The final summary lists them with one `git update-ref -d <ref>` line each for the operator. The task's reviewed-tree refs `retry/T<rid>/r<k>-<j>` (`refs/qa.md`) are also deleted at `complete` once `first=` and `origin=` are written; sweep refs are kept.",
+        "At `complete`, delete the Q0 pin and the task's checkpoint refs `a<k>`, except that the Q0 pin and checkpoint refs of a member of an unsettled commit boundary are kept, and no `accepted/`, `boundary/`, `boundary-wt/` or `rewritten/` pin is deleted here, on any run, flagged or not (`refs/commit-step.md`, Pins and final summary), but keep its sweep refs: they are the only copy of bytes a revert replaced. The final summary lists them with one `git update-ref -d <ref>` line each for the operator. The task's reviewed-tree refs `retry/T<rid>/r<k>-<j>` (`refs/qa.md`) are also deleted at `complete` once `first=` and `origin=` are written, and once the accepted pin holds their tree where one is required; sweep refs are kept.",
     ): (
         "wc9-allowed",
         "/sc:implement retry ladder: private-index snapshot, checkpoint and sweep refs, and revert, allowed by WC-9",
@@ -2944,20 +2984,79 @@ WRITE_VERB_CLASSIFICATION = {
     ),
     (
         "src/superclaude/commands/git.md",
-        "git commit",
-        "/sc:git commit --smart-commit",
-    ): (
-        "never-worker",
-        "/sc:git is on the never-as-worker list; its commit and merge examples run only in the coordinator or person session",
-    ),
+        "git add",
+        "/sc:git add <path>...",
+    ): ("never-worker", _GIT_COMMAND_REASON),
     (
         "src/superclaude/commands/git.md",
-        "git merge",
-        "/sc:git merge feature-branch --interactive",
-    ): (
-        "never-worker",
-        "/sc:git is on the never-as-worker list; its commit and merge examples run only in the coordinator or person session",
-    ),
+        "git commit",
+        '/sc:git commit [<path>...] (--message "<text>" | --smart-commit)',
+    ): ("never-worker", _GIT_COMMAND_REASON),
+    (
+        "src/superclaude/commands/git.md",
+        "git add",
+        "/sc:git add src/app.py tests/test_app.py",
+    ): ("never-worker", _GIT_COMMAND_REASON),
+    (
+        "src/superclaude/commands/git.md",
+        "git commit",
+        '/sc:git commit src/app.py --message "fix: handle empty input"',
+    ): ("never-worker", _GIT_COMMAND_REASON),
+    (
+        "src/superclaude/commands/git.md",
+        "git commit",
+        "/sc:git commit --smart-commit",
+    ): ("never-worker", _GIT_COMMAND_REASON),
+    (
+        "src/superclaude/skills/sc-git-protocol/SKILL.md",
+        "git add",
+        "| `add <path>...` | index | `/sc:git add` | `commit.md`, `safety.md` | `preflight`, `stage-plan` |",
+    ): ("never-worker", _GIT_SKILL_REASON),
+    (
+        "src/superclaude/skills/sc-git-protocol/SKILL.md",
+        "git commit",
+        "| `commit [<path>...]` | local-history | `/sc:git commit` | `commit.md`, `safety.md` | `preflight`, `stage-plan`, `check-message`, `verify` |",
+    ): ("never-worker", _GIT_SKILL_REASON),
+    (
+        "src/superclaude/skills/sc-git-protocol/refs/commit.md",
+        "git commit",
+        "| `commit` with no path | `git commit -F <message file>` |",
+    ): ("never-worker", _GIT_REFS_REASON),
+    (
+        "src/superclaude/skills/sc-git-protocol/refs/commit.md",
+        "git add",
+        "| staging `.dev/tasks` | `git add -- .dev/tasks` |",
+    ): ("never-worker", _GIT_REFS_REASON),
+    (
+        "src/superclaude/skills/sc-git-protocol/refs/commit.md",
+        "git add",
+        "8. Commit of paths: write the pathspec file, print the path list, run the `add` shape, then run `git add -- .dev/tasks` when that folder exists. The order is fixed: the named paths and `.dev/tasks` are staged first, and then only the named paths are committed. The person's other staged changes stay staged, because `--only` leaves them out.",
+    ): ("never-worker", _GIT_REFS_REASON),
+    (
+        "src/superclaude/skills/sc-git-protocol/refs/commit.md",
+        "git add",
+        "15. Commit with no path: run `git add -- .dev/tasks` now, also after a refusal, so that package files are not left unstaged. It never widens the commit that was just made.",
+    ): ("never-worker", _GIT_REFS_REASON),
+    (
+        "src/superclaude/skills/sc-git-protocol/refs/safety.md",
+        "git update-ref",
+        '3. **Pin it** with a visible call: `git update-ref refs/superclaude/git/boundary-wt/<timestamp> <tree> ""`. The timestamp is UTC, as `YYYYMMDDTHHMMSSZ`. The empty last word makes the pin create-once: a ref that already exists is refused `pin-conflict`, and an earlier pin is never overwritten. A failed or incomplete snapshot or pin is `snapshot-failed`, and no commit is made.',
+    ): ("never-worker", _GIT_REFS_REASON),
+    (
+        "src/superclaude/skills/sc-git-protocol/refs/safety.md",
+        "git update-ref",
+        "7. **Clean comparison.** Only after the comparison finds nothing outside S, delete the pin with a visible call, `git update-ref -d refs/superclaude/git/boundary-wt/<timestamp>`, and say so in the report. A pin is kept only while an outside-change report about it is outstanding. The next `/sc:git` write reports a kept pin first.",
+    ): ("never-worker", _GIT_REFS_REASON),
+    (
+        "src/superclaude/skills/sc-git-protocol/refs/submodule.md",
+        "git commit",
+        '| `submodule-dirty` | the module is not initialized, has a conflict, or is not clean: "commit inside the submodule first; run `/sc:git commit` from inside it" |',
+    ): ("never-worker", _GIT_REFS_REASON),
+    (
+        "src/superclaude/skills/sc-git-protocol/refs/submodule.md",
+        "git commit",
+        "A commit inside a submodule is an ordinary `/sc:git commit` run from inside the submodule's own work tree, with its own preflight, branch and hooks. A detached HEAD there is refused until a branch exists, which is the safe order: the module commit comes first, then `commit-pointer` records it. This command does not run a commit for you across the boundary.",
+    ): ("never-worker", _GIT_REFS_REASON),
     (
         "src/superclaude/commands/pr-submit.md",
         "gh pr",

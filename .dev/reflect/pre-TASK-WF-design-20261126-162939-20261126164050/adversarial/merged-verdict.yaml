@@ -1,0 +1,16 @@
+merge_method: adversarial
+verdict: "plan needs repair before execution: 11 blocking findings (M-01 to M-11), 14 medium, 10 note"
+convergence_score: 1.0
+base_variant: "opus:refactorer"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md     # analyzer, sonnet class, calibrated C 0.82
+  - reviewer-cards/reviewer-2-card.md     # qa, haiku class, calibrated C 0.79
+  - reviewer-cards/reviewer-3-card.md     # refactorer, opus class, calibrated C 0.84
+merged_output: adversarial/adversarial/merged-output.md
+adversarial_artifacts_dir: adversarial/adversarial/
+adversarial_status: partial               # convergence blocked by the invariant gate (INV-014); carried as M-07
+finding_counts_pre_validation: {blocking: 11, label_high: 11, medium: 14, note: 10}
+merged_findings:
+  blocking: [M-01, M-02, M-03, M-04, M-05, M-06, M-07, M-08, M-09, M-10, M-11]
+  medium: [M-12, M-13, M-14, M-15, M-16, M-17, M-18, M-19, M-20, M-21, M-22, M-23, M-24, M-25]
+  note: [M-26, M-27, M-28, M-29, M-30, M-31, M-32, M-33, M-34, M-35]

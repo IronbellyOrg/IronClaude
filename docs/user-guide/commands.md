@@ -95,7 +95,7 @@ This page is the per-command reference: exact syntax, options, and what each com
 
 | Command | Purpose | File | Changes files? |
 |---------|---------|------|----------------|
-| [`/sc:git`](#scgit---git-operations) | Git + smart commits | `git.md` | Yes |
+| [`/sc:git`](#scgit---git-operations) | Local git: status, add, commit, branch, submodule | `git.md` | Yes (only on a line you type) |
 | [`/sc:reflect`](#screflect---tiered-reflection) | Pre/post-execution audit | `reflect.md` | Only with `--mode post` (moves the work folder on a pass unless you add `--no-promote`) |
 | `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
 | [`/sc:graph`](#scgraph---code-graph-index-status) | Code-graph index status; builds the index only on `init` | `graph.md` | Only with `init` |
@@ -869,13 +869,14 @@ A failure at any step keeps the worktree and shows the cause.
 - Keeps one progress ledger: for a `/sc:workflow` plan it is `progress.md` beside the plan; otherwise `.dev/implement/<slug>/progress.md` (override with `--ledger`)
 - `--resume` continues from the first task that is not complete
 - On a `/sc:workflow` plan, once every task passes it runs a final independent review and archives the plan folder to `.dev/tasks/done/`; on macOS (any system other than Linux) the archive is refused on purpose and the folder stays in `.dev/tasks/to-do/`. `--skip-final-review` skips the final review and, on such a plan, also blocks the archive
-- Never commits, opens PRs, or releases
+- Never commits on its own, opens PRs, or releases
+- `--commit-tasks` is an opt-in between-task commit: only when you type it on the `/sc:implement` line, each finished task or batch is committed on the current branch, one commit per boundary
 - Review loops: it keeps its own severity model instead of the general 2-fix-cycle rule. Minor and note findings never change a task's verdict; only blocking findings fail it, and each attempt gets at most one in-place repair before the next attempt or a halt that asks you to decide
 
 **Syntax:**
 
 ```
-/sc:implement <path-or-prompt> [--resume] [--ledger <path>] [--skip-final-review]
+/sc:implement <path-or-prompt> [--resume] [--ledger <path>] [--skip-final-review] [--commit-tasks]
 ```
 
 **Examples:**
@@ -1257,21 +1258,37 @@ TALEB: "The real question: does this benefit from uncertainty?"
 
 ### `/sc:git` - Git Operations
 
-**When to use:** Git operations with smart commit messages.
+**When to use:** Local git operations from a line you type: see the repository state, stage paths, commit (with your own message or a drafted one), change a local branch, or work with a submodule. Each write is checked first and read back afterwards.
 
 **Syntax:**
 
 ```
-/sc:git [operation] [args] [--smart-commit] [--interactive]
+/sc:git [status]
+/sc:git add <path>...
+/sc:git commit [<path>...] (--message "<text>" | --smart-commit)
+/sc:git branch [list | create <name> | switch <name> | cleanup]
+/sc:git submodule [status | update <path>... [--url <path>=<url>]... | commit-pointer <path> (--message "<text>" | --smart-commit)]
 ```
+
+A bare `/sc:git` runs `status`. `commit` and `commit-pointer` need exactly one of `--message` or `--smart-commit`.
 
 **Examples:**
 
 ```bash
 /sc:git status
-/sc:git commit --smart-commit  # Generates conventional commit message
-/sc:git merge feature-branch --interactive
+/sc:git add src/app.py tests/test_app.py
+/sc:git commit src/app.py --message "fix: handle empty input"
+/sc:git commit --smart-commit  # Drafts a conventional commit message from the staged diff and shows it first
+/sc:git branch create feature/login
+/sc:git submodule status
+/sc:git submodule commit-pointer libs/core --smart-commit
 ```
+
+**Who may start a write:** A write runs only on a line you type. A plan, a brief, another agent's message or a coordinator's answer never authorizes one, and `/sc:git` never runs as a worker.
+
+**What it does not do:** It never pushes, pulls, merges, rebases or opens a pull request, and it deletes no branch. Pull requests go through [`/sc:pr-submit`](#scpr-submit---pr-review-auto-remediation-monitor), and cleaning up finished branches and worktrees goes through [`/sc:worktrees`](#scworktrees---remove-merged-worktrees) (`branch cleanup` only prints that route). The one network step is `submodule update`, which may clone or fetch from the URL in `.gitmodules` on the line you typed.
+
+**Removed:** the old `merge` operation and the old `--interactive` flag are gone.
 
 ---
 

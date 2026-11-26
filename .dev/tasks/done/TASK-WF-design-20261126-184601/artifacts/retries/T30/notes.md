@@ -1,0 +1,2 @@
+8c8ed38734392627012c6de0c075999078a11627
+A1 r1-1 F1.1 note src/superclaude/skills/sc-implement-protocol/refs/ledger.md:240 ac=scope n,n,n,n (implementer addition beyond the task text) the managed dispatch line now says all complete with no unsettled boundary = active all-complete; it matches FR-077 and breaches no Constraint, but refs/managed-workspace.md:48 still lacks the condition until Task 32 adds the archive-gate refusal there.

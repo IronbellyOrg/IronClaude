@@ -1,0 +1,22 @@
+Baseline of the existing final-gate test set, taken before any change of this work (Task 1).
+Date: 2026-11-26. Branch: clayphi/issue-326. Platform: Linux, Python 3.10.20, pytest 9.2.0, git 2.47.3.
+
+Command (tests/vcs is left out on purpose):
+  PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/core tests/commands tests/skills tests/recommend tests/docs tests/worktree_cleanup -q -p no:cacheprovider -o addopts="--strict-markers --tb=line"
+
+Result line from the run:
+  3779 passed, 2 skipped in 230.09s (0:03:50)
+  exit code 0
+
+Pass count: 3779
+Fail count: 0
+Skipped: 2
+Pre-existing failures: none
+
+Recorded base commit (output of `git merge-base HEAD origin/integration`):
+  862384852faebe3255c2876527103696cfd3cf3b
+
+Later "unchanged" checks compare a file with this commit, not with the moving branch tip.
+
+Task 1 own test run:
+  uv run pytest tests/vcs/test_fixtures.py -q  ->  14 passed in 0.52s

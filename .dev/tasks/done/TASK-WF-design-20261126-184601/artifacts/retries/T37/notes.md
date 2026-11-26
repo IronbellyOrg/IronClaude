@@ -1,0 +1,2 @@
+d659478648b8c7094606013b7b391f6a7d53be62
+A1 r1-1 F1.1 note docs/user-guide/flags.md:144 ac=T37.AC1 n,n,n,n the removal sentences in commands.md (line 1291) and flags.md (line 144) contain the literal --interactive token; judged compatible with AC1 because the task text requires the docs to show the removal, and the AC forbids it as a usage line, flag row or example; a literal grep of the /sc:git areas still hits these two sentences.

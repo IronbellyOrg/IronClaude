@@ -1,0 +1,37 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20261126-115614-git-pm-workflows-skills/seed-brief.md
+merged_output_path: .dev/brainstorms/20261126-115614-git-pm-workflows-skills/merged-requirements.md
+convergence_score: 1.0
+adversarial_artifacts_dir: .dev/brainstorms/20261126-115614-git-pm-workflows-skills/adversarial/adversarial
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary        # Augment code search, two queries
+  - source: research-deep
+    quality_tier: primary        # Tavily-backed deep research agent (report saved by the orchestrator)
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+
+# Telemetry (non-stable; times are rounded from session timestamps, token counts were not measured)
+wave_durations_ms:
+  note: "estimated from session timestamps"
+  wave_0: 60000
+  wave_1: 300000
+  wave_2a: 600000
+  wave_2b: 60000
+  wave_3: 15900000
+  wave_4: 60000
+token_usage:
+  note: "not measured by the orchestrator; subagent usage lines are in the session transcript"
+agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for architecture domain',opus:analyzer:'focus on root-cause analysis and evidence-based reasoning for architecture',haiku:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'"
+enrichment_artifact_sizes:
+  codebase-context.md: 4128
+  research-deep.md: 23415
+notes:
+  - "Wave 3 ran 3 debate rounds plus the Round 2.5 invariant probe (3 HIGH findings blocked convergence until Round 3), a plan review loop (3 reviews, 2 fix cycles; third review PASS) and a merge with 39 applied changes."
+  - "The planned token budget (about 126K tokens) was exceeded by a wide margin; the hard-kill threshold in the protocol was not enforced because token use is not visible to the orchestrator."
+  - "The deep-research agent had no write tool; the orchestrator wrote its report to enrichment/research-deep.md."
+  - "Two post-merge contradictions left by the merge executor were resolved by the orchestrator and logged in adversarial/adversarial/merge-log.md."

@@ -1,0 +1,13 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-design-20261126-162939-20261126164050/adversarial/adversarial/merged-output.md"
+  convergence_score: 1.0            # 37 of 37 diff points (S 3, C 24, X 6, A 4) agreed by a majority of the 3 advocates after Round 2
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-design-20261126-162939-20261126164050/adversarial/adversarial/"
+  status: "partial"                 # convergence gate BLOCKED_BY_INVARIANTS: the Round 2.5 probe left INV-014 UNADDRESSED at HIGH; standard depth has no Round 3, so it is carried into the merged output as finding M-07 (Blocking) instead of being debated
+  base_variant: "opus:refactorer"   # variant 3 (reviewer 3); combined score 0.8282 against 0.8132 and 0.7830; tiebreaker level 1 (debate points 11 vs 9)
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-014, category: sufficiency_challenge, assumption: "With the agreed repairs, every existing static test over the implement protocol still passes (test_implement_severity_static.py _ALLOW list)", severity: HIGH}
+# Notes: taxonomy coverage L1, L2, L3 all covered; debate rounds 2 (+ invariant probe 2.5); advocates ran on sonnet, haiku, opus (not blinded); scoring evaluators were two sonnet passes plus one opus re-evaluation of 9 disagreeing cells.
