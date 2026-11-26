@@ -1,0 +1,8 @@
+# Round 2, advocate 2 (haiku)
+
+Final grades: C-005 Blocking (Missing); C-006 Blocking (Missing); C-007 Blocking (Decision), with the round-1 Missing rationale withdrawn; C-001 Blocking (Decision), accepted.
+
+- C-005: the pre-freeze human reading is absent from the handoff procedure (source.md:142). Strongest objection: the automated cue test already addresses contamination and one README sentence repairs the omission. Neither supplies the separately required human action; the source's Medium label and the repair size do not override Missing.
+- C-006: refusal to replace existing manifest keys is absent for two freeze commands (source.md:144 requires each freeze command never to write an existing key; plan:101 specifies the refusal selectively, plan:103-104 do not). Strongest objection: write-once behaviour could be inherited. The plan assigns the refusal only to `freeze-corpus` and establishes no shared refusal; the missing item is the behaviour, not merely its test.
+- C-007: the specified snapshot cannot reliably detect edits inside existing run folders. Temporary roots are the primary protection, but source.md:150 separately requires the guard to fail any test that changes real run state; directory metadata can stay unchanged when an existing descendant file changes (plan:41, plan:46). Correcting this changes required detection behaviour, not just test wording. The earlier "Missing" rationale was unsupported (a guard exists in substance) and is withdrawn; Decision is defended on the incorrect detection behaviour.
+- C-001: accepted. The required client raises `KeyMissing` before the transport attempts (client.py:133-137), so a missing key cannot give "exactly one" post (plan:165).

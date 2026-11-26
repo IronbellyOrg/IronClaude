@@ -1,0 +1,243 @@
+merge_method: adversarial
+base_variant: "1"
+convergence_score: 1.0  # diff points resolved after Round 2: 28 of 28
+status: partial
+status_reason: "The invariant gate is blocked because INV-001, INV-002, INV-003 and INV-013 were not addressed by the debate, and with no Round 3 at standard depth they are carried into this verdict as findings (M-2, M-12, M-13)."
+verdict: "Pre-execution review: the plan is not ready to implement, because 2 Blocking findings (M-1, the missing whole-run spend estimate and undefined Gate 2 bound, and M-2, the undecided Gate 1 UNSET rule and its frozen rule-file hash) must be repaired first; it also carries 13 Medium and 5 Note findings."
+finding_counts: {blocking: 2, label_high: 0, medium: 13, note: 5}
+findings:
+  - id: M-1
+    source_ids: [C-001, INV-006]
+    grade: Blocking
+    blocking_reason: Missing
+    claim: "The design requires the whole-run spend estimate before the first request, but no task performs it: Tasks 5 and 6 guard each request on its own and check the ledger cumulatively, and Gate 2's 'verified per-request spend bound' has no stated inputs or formula, so its check cannot be written to fail. Budget.reserve_phase already provides the whole-run check; once it is added, an unspent reservation must be released with release_phase in a finally, or it stays counted in the shared ledger and reservations under the same phase name pile up across run ids."
+    evidence:
+      - "card 1 F-5: source.md:72,82; plan:103,119,124"
+      - "card 2 F-4: .dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:82; .dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md:103; .dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md:119-124"
+      - "card 3 F-2: source.md:82; TASK-WF-designSpec-20261126-144507.md:119,124; jevlib/budget.py:63-70"
+      - "probe INV-006: budget.py:54, budget.py:69-70, budget.py:98-100"
+    consequence: "T-09 can pass without the whole-run preflight, so a run whose individual requests fit but whose total estimate exceeds the remaining allowance is not refused before any post."
+    fix: "In Task 6 of TASK-WF-designSpec-20261126-144507.md, add a Budget.reserve_phase whole-run check before the first request, released with release_phase in a finally, plus a test for it, and define the Gate 2 bound's inputs (token ceiling against the largest request)."
+    raised_by: [1, 2, 3]
+  - id: M-2
+    source_ids: [C-008, INV-001, INV-013]
+    grade: Blocking
+    blocking_reason: Decision
+    claim: "The plan's Gate 1 refuses any UNSET value, stricter than the design, which ties UNSET only to the scorer; the committed rule file has three UNSET fields, so Gate 1 cannot pass and the table answers, allowed only after Gate 1, wait on Noul-band and failure-count fields the table never uses. The fix cannot be made alone: the rule file is hashed at freeze, so filling the UNSET fields later changes a frozen hash (RUN_INVALID, or a Gate 2 mismatch unless a re-hash is defined), and dropping UNSET from Gate 1 also drops it from Gate 2, which adds to Gate 1's checks. A decision between the two options is needed."
+    evidence:
+      - "card 1 F-8: plan:61,103; source.md:70,72"
+      - "probe INV-001: plan:103, plan:107, plan:84"
+      - "probe INV-013: variant-1-original.md:45, plan:29, plan:103"
+    consequence: "As written, the table answers are blocked; fixed by dropping UNSET alone, the live run either can never be scored or must be scored after the rule was changed."
+    fix: "In TASK-WF-designSpec-20261126-144507.md, record the decision on Gate 1's UNSET check: either keep the stricter Gate 1 as a stated decision and define a re-freeze of the rule-file hash for when the UNSET fields are filled, or drop UNSET from Gate 1 and keep it explicitly in the scorer and Gate 2."
+    raised_by: [1]
+  - id: M-3
+    source_ids: [C-002, INV-004]
+    grade: Medium
+    blocking_reason: null
+    claim: "Task 6 says BudgetExhausted and model_mismatch stop the run and that any non-ok status gets one rerun, but the stop signals are returned results, not exceptions: ask() catches BudgetExhausted and returns refused/budget_exhausted, model_mismatch arrives as invalid/model_mismatch, and a dry run returns refused/dry_run, so the rerun rule would rerun them before any stop. plan:125 already requires the stops, so the defect is the sentence at plan:119. Sub-point: every non-ok result carries model=None, so comparing the model in jev-rows with the pin turns any timeout into RUN_INVALID."
+    evidence:
+      - "card 1 F-3: jevlib/client.py:114-117, 103-108, 128-131; plan:117-119"
+      - "card 2 F-2: .dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md:119; .dev/research/346-review-loop-experiments/p15/jev/jevlib/client.py:114-117"
+      - "card 3 F-1: TASK-WF-designSpec-20261126-144507.md:119; jevlib/client.py:114-117, 127-131, 170-174; jevlib/validate.py:32-33"
+      - "probe INV-004: client.py:86, client.py:174, plan:84, plan:119"
+    consequence: "An exhausted budget is rerun and recorded as a prompt error instead of stopping the run, and a single timeout can invalidate the whole run."
+    fix: "In Task 6 of TASK-WF-designSpec-20261126-144507.md (plan:119), check Result.status and error before any rerun so refused/budget_exhausted and invalid/model_mismatch stop the run with no rerun and refused/dry_run is not rerun, and apply the model-pin check only to ok results."
+    raised_by: [1, 2, 3]
+  - id: M-4
+    source_ids: [C-003]
+    grade: Medium
+    blocking_reason: null
+    claim: "Task 6 says the CLI refuses to start unless --live is given and, two sentences later, that without --live it runs a dry run; it does not say whether a dry run needs the gates. The plan documents why live=False is used (plan:30), while the design wants a dry run against the mock transport, and live=False returns refused/dry_run for every prompt before any transport call."
+    evidence:
+      - "card 1 F-4: plan:119; jevlib/client.py:128-131"
+      - "card 2 F-3: .dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:82; .dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md:30; .dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md:119; .dev/research/346-review-loop-experiments/p15/jev/jevlib/client.py:127-131"
+      - "card 3 F-10: TASK-WF-designSpec-20261126-144507.md:119; source.md:82"
+    consequence: "An implementer cannot tell how a run without --live behaves or whether it must pass the gates, and a live=False dry run produces only refusals rather than exercising responses."
+    fix: "In Task 6 of TASK-WF-designSpec-20261126-144507.md, state the dry-run entry rule once (live=False as plan:30 explains, or live=True with the injected MockTransport and a fake key) and whether a dry run checks the gates."
+    raised_by: [1, 2, 3]
+  - id: M-5
+    source_ids: [C-005, INV-007]
+    grade: Medium
+    blocking_reason: null
+    claim: "Task 1's acceptance check `grep -n \"keyword\" questions.py` is meant to prove no copy of the table's cue words, but it searches for the literal word 'keyword', not the cues ('slow', 'latency', 'stack trace', 'pytest'): a questions.py that copies every cue passes it, and a harmless comment containing 'keyword' fails it. The required type names build and deployment themselves contain cues from the table. A strict cue-word grep has its own cost: option names and plain definitions naturally use cue words ('build', 'deploy', 'slow', 'auth'), so it pushes the wording of questions.py into awkward phrasing, which biases the comparison against it."
+    evidence:
+      - "card 1 F-1: .dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md:47 (cues at src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:153-158)"
+      - "card 3 F-8: TASK-WF-designSpec-20261126-144507.md:39,47; SKILL.md:154,156"
+      - "probe INV-007: SKILL.md:154-157, plan:39"
+    consequence: "The Task 1 check neither proves nor disproves that the table's cues were copied, and a strict replacement would distort the question wording."
+    fix: "In Task 1 of TASK-WF-designSpec-20261126-144507.md, replace the 'keyword' grep with a grep for the cue tokens (for example -Ei \"slow|latency|p99|stack trace|pytest|flake|CVE|vulnerab\") and exempt the option names build and deployment."
+    raised_by: [1, 3]
+  - id: M-6
+    source_ids: [C-006]
+    grade: Medium
+    blocking_reason: null
+    claim: "Task 8's final check says `git status --short` shows changes only under the experiment folder 'and the package folder'. The tree already has untracked .dev/brainstorms/, .dev/issues/611/, .dev/reflect/ and the plan folder under .dev/tasks/, which sit outside both, and 'the package folder' is not defined anywhere, so the check cannot pass as written."
+    evidence:
+      - "card 1 F-2: plan:159"
+      - "card 3 F-5: TASK-WF-designSpec-20261126-144507.md:159; session git status snapshot"
+    consequence: "Task 8's acceptance check fails even on a correct implementation."
+    fix: "In Task 8 of TASK-WF-designSpec-20261126-144507.md, measure the `git status --short` check against a baseline status taken when the plan began, or scope it to paths added since then."
+    raised_by: [1, 3]
+  - id: M-7
+    source_ids: [C-007]
+    grade: Medium
+    blocking_reason: null
+    claim: "No step or gate.py subcommand writes the manifest at freeze time; the gate 'writes and checks' the manifest itself, so its hash checks can compare against values it just wrote. Task 5 defines a CLI only for events.py (record-tests, record-go), no command records owner_input_received, freeze or rule_freeze, and record-tests is an attestation unless it runs pytest. The tests_passed event carries one evidence hash, but Gate 2 checks it against several current files. The manifest holds the table-answers hash, which does not exist at Gate 1, and how it is written later is not stated. Task 8 asks the README to name gate.py subcommands 'as built in Tasks 4 to 6' that no task defines. The score command's reading of Task 5's events is also unstated (the remaining part of C-012)."
+    evidence:
+      - "card 1 F-6: plan:101-103,156"
+      - "card 3 F-3: TASK-WF-designSpec-20261126-144507.md:101,103,156; source.md:49-56"
+      - "card 3 F-6 (folded part of C-012): TASK-WF-designSpec-20261126-144507.md:82,84,97"
+    consequence: "The gates' hash checks can pass against values the gate itself just wrote, and the freeze events and Task 8's README list have no command behind them."
+    fix: "In Task 5 of TASK-WF-designSpec-20261126-144507.md, define the gate.py CLI with a freeze/manifest subcommand and the commands that record owner_input_received, freeze and rule_freeze, record the code hashes in tests_passed, and state when and how the manifest's table-answers hash is written."
+    raised_by: [1, 3]
+  - id: M-8
+    source_ids: [C-009]
+    grade: Medium
+    blocking_reason: null
+    claim: "The design lists runs/<run-id>/run-record.md, but no task creates it. The plan also moves report.md under runs/<run-id>/ and turns decision-record.md into a hand-written template, while the design has the scorer produce both."
+    evidence:
+      - "card 3 F-9: source.md:42,44; TASK-WF-designSpec-20261126-144507.md:84,151"
+    consequence: "run-record.md is never produced, and report.md and decision-record.md end up with different paths or authors than the design names."
+    fix: "In Tasks 4 and 8 of TASK-WF-designSpec-20261126-144507.md, add the step that creates runs/<run-id>/run-record.md and settle the path and the writer of report.md and decision-record.md."
+    raised_by: [3]
+  - id: M-9
+    source_ids: [C-010]
+    grade: Medium
+    blocking_reason: null
+    claim: "The design gives the README the job 'how to rescore', but Task 8's README contents and its acceptance criteria leave it out."
+    evidence:
+      - "card 3 F-4: source.md:34; TASK-WF-designSpec-20261126-144507.md:153,156-157"
+    consequence: "The README can ship without rescore instructions and no acceptance check catches it."
+    fix: "In Task 8 of TASK-WF-designSpec-20261126-144507.md, add a README 'how to rescore' section and an acceptance criterion for it."
+    raised_by: [3]
+  - id: M-10
+    source_ids: [C-011]
+    grade: Medium
+    blocking_reason: null
+    claim: "The design (section 8) says the story's pull request 'must say `Refs #611` and list B to E as left'. No task covers it, and the coverage script's match of INF-022 to Task 3 is spurious."
+    evidence:
+      - "card 1 F-9: source.md:104; plan (no task mentions Refs)"
+      - "card 3 coverage_assessment: source.md:104"
+    consequence: "The pull request can omit the required reference and the list of what is left."
+    fix: "In Task 8 of TASK-WF-designSpec-20261126-144507.md, or a hand-off step, add the pull-request body wording: `Refs #611`, with B to E listed as left."
+    raised_by: [1, 3]
+  - id: M-11
+    source_ids: [C-014]
+    grade: Medium
+    blocking_reason: null
+    claim: "jev_answer is described only as using 'the two operators (lt, le, gt, ge)'; the plan does not say which band side yields a type, none-fit or not-settled, which operators are valid for the low and high edges, or which choice is used, so the 'every operator choice' test T-05 has no stated expected values."
+    evidence:
+      - "card 1 F-7: plan:71,76; source.md:77"
+    consequence: "T-05 cannot be written to fail on a wrong band mapping."
+    fix: "In TASK-WF-designSpec-20261126-144507.md, state the jev_answer band mapping so each T-05 boundary test has an expected value."
+    raised_by: [1]
+  - id: M-12
+    source_ids: [INV-002]
+    grade: Medium
+    blocking_reason: null
+    claim: "The gates do not close live calls after the first run: lead_go can be reused, and no gate refuses when a first_request or run_end event already exists, so a rerun of the whole run, which the agreed rule forbids, and picking the better of two runs stay open."
+    evidence:
+      - "probe INV-002: plan:27, plan:103, plan:124"
+    consequence: "A second live run, and keeping the better of two runs, stay possible despite the agreed no-rerun rule."
+    fix: "In the gate rules of TASK-WF-designSpec-20261126-144507.md (plan:103), make Gate 2 refuse when a first_request or run_end event already exists and make a lead_go usable for one run only."
+    raised_by: []  # invariant probe only
+  - id: M-13
+    source_ids: [INV-003]
+    grade: Medium
+    blocking_reason: null
+    claim: "Tests are isolated only from the network and the key. events.jsonl, ledger/spend.json and runs/ are fixed paths, so a gate or events test could append tests_passed or lead_go to the real log; that log is append-only, so the lines cannot be removed, and Gate 2 could pass with no real go."
+    evidence:
+      - "probe INV-003: plan:19, plan:101, plan:119"
+    consequence: "A test run can leave a permanent false tests_passed or lead_go line that lets Gate 2 pass without a real go."
+    fix: "In TASK-WF-designSpec-20261126-144507.md, require the gate, events and runner tests to use temporary paths for events.jsonl, ledger/spend.json and runs/."
+    raised_by: []  # invariant probe only
+  - id: M-14
+    source_ids: [INV-005]
+    grade: Medium
+    blocking_reason: null
+    claim: "The spend ceiling comes from jevlib's price constant: budget.py copies that price when it is imported, jevlib is read-only, and no task feeds a re-confirmed price into the ceiling, so the cap is not shown to hold after the price is re-confirmed."
+    evidence:
+      - "probe INV-005: config.py:10, budget.py:8, budget.py:15-16, plan:119, plan:153"
+    consequence: "If the re-confirmed price differs from the constant, the cap is computed on the old price."
+    fix: "In Tasks 6 and 8 of TASK-WF-designSpec-20261126-144507.md, add a step that feeds the re-confirmed price into the spend ceiling instead of relying on jevlib's import-time price constant."
+    raised_by: []  # invariant probe only
+  - id: M-15
+    source_ids: [INV-009]
+    grade: Medium
+    blocking_reason: null
+    claim: "The key-scan test T-10 scans only the run folder; events.jsonl, the ledger and the manifest are unscanned, and events.py has no redaction, unlike Journal."
+    evidence:
+      - "probe INV-009: plan:126, plan:101, journal.py:27"
+    consequence: "T-10 can pass while the key is written to an unscanned file."
+    fix: "In TASK-WF-designSpec-20261126-144507.md, extend T-10's key scan to events.jsonl, the ledger and the manifest."
+    raised_by: []  # invariant probe only
+  - id: M-16
+    source_ids: [C-004]
+    grade: Note
+    blocking_reason: null
+    claim: "Task 6 says the runner imports JevClient, Budget, Journal, UrllibTransport, TransportTimeout and TransportError 'from jevlib', but jevlib/__init__.py re-exports only MODEL, API_URL and KEY_ENV, so the imports must come from its submodules; KeyMissing and KeyRejected are also missing from the import list."
+    evidence:
+      - "card 1 F-3: jevlib/__init__.py:5; plan:117-119"
+      - "card 2 F-1: .dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md:117; .dev/research/346-review-loop-experiments/p15/jev/jevlib/__init__.py:5"
+      - "card 3 F-11: jevlib/__init__.py:5; TASK-WF-designSpec-20261126-144507.md:117"
+    consequence: "Wording only; read literally, `from jevlib import ...` fails before the runner tests can run."
+    fix: "In Task 6 of TASK-WF-designSpec-20261126-144507.md, name the defining jevlib submodule for each import and add KeyMissing and KeyRejected to the list."
+    raised_by: [1, 2, 3]
+  - id: M-17
+    source_ids: [C-013]
+    grade: Note
+    blocking_reason: null
+    claim: "The design says the loader owns hashing, but the plan has events.py and gate.py compute SHA-256 without requiring loader.sha256_file. The card's second point, reusing jevlib.Journal for events.py, was withdrawn in the debate."
+    evidence:
+      - "card 3 F-7: source.md:68; TASK-WF-designSpec-20261126-144507.md:101,103"
+    consequence: "Duplicate hashing code that can drift from the loader's."
+    fix: "In Task 5 of TASK-WF-designSpec-20261126-144507.md, have events.py and gate.py hash files with loader.sha256_file."
+    raised_by: [3]
+  - id: M-18
+    source_ids: [C-015]
+    grade: Note
+    blocking_reason: null
+    claim: "'Six cue rows ... SKILL.md lines 152 to 159' is imprecise: the rows are lines 153 to 158, line 152 is the step heading and line 159 is the ambiguity rule."
+    evidence:
+      - "card 1 F-10: SKILL.md:152-159; plan:137,141"
+    consequence: "Wording only; a reader may count the heading and the ambiguity rule as cue rows."
+    fix: "In TASK-WF-designSpec-20261126-144507.md (plan:137,141), cite SKILL.md lines 153 to 158 for the cue rows and line 159 for the ambiguity rule."
+    raised_by: [1]
+  - id: M-19
+    source_ids: [INV-010]
+    grade: Note
+    blocking_reason: null
+    claim: "Edge cases are not bounded: if no prompt is answered, the median and nearest-rank calculations run on an empty list; 'the jevlib files' is undefined; and a folder walk would hash __pycache__, which git ignores."
+    evidence:
+      - "probe INV-010: plan:71, plan:77, plan:103, .gitignore:2"
+    consequence: "The statistics can fail on an empty run, and a hash can change with compiled-file caches."
+    fix: "In TASK-WF-designSpec-20261126-144507.md, state the result of the median and nearest-rank statistics on an empty list, list the jevlib files to hash, and exclude __pycache__ from hashing."
+    raised_by: []  # invariant probe only
+  - id: M-20
+    source_ids: [INV-011]
+    grade: Note
+    blocking_reason: null
+    claim: "The 'gates before any environment read' test can miss a read: load_corpus calls privacy_violation, which reads os.environ directly, so a stubbed environment accessor never sees that read."
+    evidence:
+      - "probe INV-011: plan:57, plan:125, manifest.py:35"
+    consequence: "The test can pass while an environment read happens before the gates."
+    fix: "In TASK-WF-designSpec-20261126-144507.md, make the 'gates before any environment read' test cover privacy_violation's direct os.environ read in load_corpus."
+    raised_by: []  # invariant probe only
+dropped:
+  - id: C-012
+    reason: "Not a defect: Task 4 takes run_meta and is tested on synthetic inputs, so the task order is not a defect; the remaining point, the score command's reading of Task 5's events, is folded into M-7."
+  - id: C-016
+    reason: "Not a defect: all three cards acknowledge that the reuse-by-import, nothing-under-src and no-prompt-sent requirements are covered by the plan's Constraints (plan:19,21)."
+  - id: INV-008
+    reason: "Not a plan defect: a grading-consistency remark about the review itself."
+  - id: INV-012
+    reason: "Addressed: the probe marks it ADDRESSED, because the acceptance test pins the 401, wrong-model and spent-ledger stops and draw enforces the cap."
+provenance:
+  reviewed_plan: ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md (cited as plan), against source.md in the same folder"
+  base: "card 1 (adversarial/variant-1-original.md)"
+  cards_merged: ["card 2 (adversarial/variant-2-original.md)", "card 3 (adversarial/variant-3-original.md)"]
+  debate: ["adversarial/r1-advocate-1.md", "adversarial/r1-advocate-2.md", "adversarial/r1-advocate-3.md", "adversarial/r2-advocate-1.md", "adversarial/r2-advocate-2.md", "adversarial/r2-advocate-3.md"]
+  probe: "adversarial/invariant-probe.md"
+  plan_applied: "adversarial/refactor-plan.md (16 changes, all applied; log in adversarial/merge-log.md)"
+  diff_ids: "adversarial/diff-analysis.md (C-001 to C-016)"

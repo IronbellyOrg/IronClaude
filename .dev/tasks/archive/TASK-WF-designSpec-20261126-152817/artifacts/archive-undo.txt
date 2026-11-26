@@ -1,0 +1,1 @@
+{"created_contract": false, "made_artifacts": false, "ops": [["ins", 21, "superseded_by: TASK-WF-designSpec-20261126-162725"]]}

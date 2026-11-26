@@ -1,0 +1,58 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-611/.venv/bin/python
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-611
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 46 items
+
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate1_passes_after_the_corpus_is_frozen_and_accepts_unset_values PASSED [  2%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate1_refuses_before_anything_is_frozen PASSED [  4%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate1_refuses_each_rule_file_defect[<lambda>-rule_status0] PASSED [  6%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate1_refuses_each_rule_file_defect[<lambda>-rule_status1] PASSED [  8%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate1_refuses_each_rule_file_defect[<lambda>-rule_provenance_empty0] PASSED [ 10%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate1_refuses_each_rule_file_defect[<lambda>-rule_provenance_empty1] PASSED [ 13%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate1_refuses_each_rule_file_defect[<lambda>-rule_provenance_empty2] PASSED [ 15%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate1_refuses_each_rule_file_defect[<lambda>-rule_provenance_empty3] PASSED [ 17%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate1_refuses_a_missing_rule_file PASSED [ 19%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_either_gate_refuses_a_changed_corpus_side_file[corpus-hash_corpus] PASSED [ 21%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_either_gate_refuses_a_changed_corpus_side_file[selection_criteria-hash_selection_criteria] PASSED [ 23%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_either_gate_refuses_a_changed_corpus_side_file[labelling_record-hash_labelling_record] PASSED [ 26%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_either_gate_refuses_a_changed_corpus_side_file[questions_py-hash_questions] PASSED [ 28%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate2_passes_on_a_complete_synthetic_setup PASSED [ 30%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate2_refuses_a_missing_step[go-go_missing] PASSED [ 32%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate2_refuses_a_missing_step[tests-tests_not_recorded] PASSED [ 34%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate2_refuses_a_missing_step[rule-rule_not_frozen] PASSED [ 36%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate2_refuses_a_missing_step[price-price_not_confirmed] PASSED [ 39%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate2_refuses_a_missing_step[table-hash_table_answers] PASSED [ 41%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate2_refuses_a_go_that_names_an_old_rule_hash PASSED [ 43%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate2_refuses_an_unset_value PASSED [ 45%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate2_refuses_a_changed_rule_table_answers_provenance_code_or_jevlib_file PASSED [ 47%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate2_refuses_when_a_run_already_started_or_ended[first_request] PASSED [ 50%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gate2_refuses_when_a_run_already_started_or_ended[run_end] PASSED [ 52%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_spend_bound_fails_when_each_request_fits_but_the_whole_run_does_not PASSED [ 54%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_spend_bound_fails_when_the_worst_case_at_a_high_price_is_above_the_cap PASSED [ 56%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_gates_hash_files_only_and_never_call_the_corpus_loader PASSED [ 58%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_the_manifest_is_unchanged_by_either_gate PASSED [ 60%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_a_second_freeze_of_each_kind_is_refused_and_keeps_the_frozen_value PASSED [ 63%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_the_manifest_holds_the_hashes_and_the_model_pin PASSED [ 65%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_freeze_rule_refuses_an_unset_value PASSED [ 67%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_freeze_table_refuses_until_gate1_passes_and_when_a_file_is_missing PASSED [ 69%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_freeze_corpus_refuses_a_corpus_the_screen_refuses PASSED [ 71%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_record_tests_refuses_a_failing_or_empty_run[result0-failed] PASSED [ 73%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_record_tests_refuses_a_failing_or_empty_run[result1-no tests] PASSED [ 76%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_record_tests_records_the_command_count_and_hashes PASSED [ 78%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_the_recorded_test_command_is_the_repo_relative_form_the_plan_names PASSED [ 80%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_the_gate_command_line_returns_one_on_a_failure_and_zero_on_a_pass PASSED [ 82%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_events_are_appended_never_rewritten_and_carry_time_path_and_hash PASSED [ 84%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_every_event_kind_the_setup_writes_carries_a_time_a_path_and_a_hash PASSED [ 86%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_an_evidence_path_that_is_not_a_file_is_refused PASSED [ 89%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_events_refuse_an_unknown_name_and_a_reserved_field PASSED [ 91%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_the_three_event_commands_write_their_events PASSED [ 93%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_the_price_command_refuses_a_price_of_zero PASSED [ 95%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_spend_estimates_follow_the_client_formula PASSED [ 97%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_gate_events.py::test_spend_ceiling_and_worst_case_follow_the_price PASSED [100%]
+
+============================== 46 passed in 0.54s ==============================
+--- ruff
+All checks passed!

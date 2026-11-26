@@ -1,0 +1,10 @@
+{
+ "model_class": "opus",
+ "C": 0.89,
+ "per_dimension": {"citation_grounding": 0.95, "coverage_completeness": 0.90, "classification_clarity": 0.80, "risk_surface": 0.90, "actionability": 0.90},
+ "citations_checked": 33,
+ "citations_unfounded": ["F-5 importer counts (22 / 26): no file cited, not checkable by reading", "coverage_assessment lines claim needs the coverage matrix, which the calibrator did not have"],
+ "overgraded": ["F-2 (Blocking): plan:155 already lists the jev-rows fields; the real gap is a missing end-to-end test and a missing ordering edge, an integration risk (Medium)"],
+ "calibrator_model_class": "opus",
+ "calibrator_diversity": "degraded"
+}

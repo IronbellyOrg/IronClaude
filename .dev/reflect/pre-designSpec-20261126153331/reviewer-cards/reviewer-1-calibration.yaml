@@ -1,0 +1,10 @@
+{
+ "model_class": "sonnet",
+ "C": 0.83,
+ "per_dimension": {"citation_grounding": 0.90, "coverage_completeness": 0.85, "classification_clarity": 0.75, "risk_surface": 0.85, "actionability": 0.80},
+ "citations_checked": 39,
+ "citations_unfounded": ["F-4 source.md:149 supports only the prior_run point; the missing-key point is at source.md:26", "F-8(a) about 25 files from a grep: no artifact given, not checkable by reading"],
+ "overgraded": ["F-2 (Blocking/Decision): the decision is already in the plan (plan:27, plan:127); what remains is a weak test, so Medium", "F-7 (Medium): found at first test run, cheap; Low or Note"],
+ "calibrator_model_class": "opus",
+ "calibrator_diversity": "degraded"
+}

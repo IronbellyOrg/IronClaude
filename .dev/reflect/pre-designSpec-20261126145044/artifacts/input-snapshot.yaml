@@ -1,0 +1,34 @@
+{
+ "input_tree_sha256": "38c26d960e59793eeede1a5932d0c99fde22d8625da5a41bb3835e3648ddf95e",
+ "file_list": [
+  {
+   "path": ".dev/research/346-review-loop-experiments/p15/plans/SHARED-CONTRACT.md",
+   "sha256": "51e86d9d2d84ab5c77ca8fc2b54615b5f9a561964378b41849225467f9456f27"
+  },
+  {
+   "path": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md",
+   "sha256": "776073b4a27f8437b35104c366d9a2797f608a8dacdf1335304a191479c8b100"
+  },
+  {
+   "path": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md",
+   "sha256": "1663d450738e89d13dbc2a663339f39e34dba0560ce31e0e89fa17eb42c74508"
+  },
+  {
+   "path": "README.md",
+   "sha256": "56e3655b7ec49431567d35aab11ac68b447ae0e5456781024f062a4a573a5f55"
+  },
+  {
+   "path": "docs/docs-product/ops/jev-litellm-gateway-operational-guide.md",
+   "sha256": "6c4a58d6750917c06799139738a48d9996293372b086b1ba2a17a7632f46d81a"
+  },
+  {
+   "path": "docs/memory/reflect/deviation-patterns-issue-610.md",
+   "sha256": "789b655f3be7cb7ef2dbcbab56765b06afc69ab521f0d6ea497d68d80307716b"
+  },
+  {
+   "path": "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+   "sha256": "f2447e0e1b11b2cad84c76a93cac92cde990cdadac3e1bad49b2a0ea453e1dd3"
+  }
+ ],
+ "file_count": 7
+}

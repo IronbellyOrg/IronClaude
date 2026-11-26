@@ -1,0 +1,14 @@
+{
+ "S_scope": 8,
+ "S_domains": 3,
+ "domains": [
+  "code",
+  "docs",
+  "tests"
+ ],
+ "coverage_pct": 1.0,
+ "coverage_pct_union": 0.8448,
+ "S_dev_density": 0.1552,
+ "parsed": 14,
+ "inferred": 44
+}
