@@ -2044,6 +2044,9 @@ def test_free_port_skips_a_window_whose_attempt_port_is_a_client_local_port(
 ) -> None:
     """#352: a port that is another socket's local port refuses connect probes
     but fails the shim's SO_REUSEADDR bind, so its window must be skipped."""
+    reach = models.SHIM_PORT_STEP * (models.SHIM_PORT_ATTEMPTS - 1)
+    if _ephemeral_low() - 1 - reach < _FREE_PORT_FLOOR:
+        pytest.skip("no room for a shim window below the local port range")
     span = models.SHIM_PORT_STEP * models.SHIM_PORT_ATTEMPTS
     clear_base = _free_port()
     for _ in range(50):
