@@ -89,7 +89,7 @@ Before you change a symbol, `/sc:impact` lists its definition and its production
 /sc:impact parse_config                         # dependents of one symbol
 /sc:impact load_spec write_report --depth 3     # several symbols, three hops
 /sc:impact --diff                               # symbols changed in the working tree vs HEAD
-/sc:impact --diff origin/master --tests         # symbols a branch changed, plus advisory tests
+/sc:impact --diff origin/integration --tests         # symbols a branch changed, plus advisory tests
 ```
 
 | Flag | Default | Meaning |
