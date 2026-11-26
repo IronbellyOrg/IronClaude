@@ -1,0 +1,158 @@
+purpose: corrected_boundary_evidence_index_not_a_review
+implementation_head: a98d7b4280363f2bb506d7af5fb4eb1551953c41
+source_diff_sha256: 497a0e1944aca64a283d127d4fc857441ac9e3180b238ff00ff6e7343f1cbbad
+source_diff: ./implementation.diff
+source_state: 'Uncommitted repair on baseline HEAD, not a new commit; current source/test patch recorded in implementation.diff.'
+commands:
+  - id: pre_repair_negative
+    command: "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-project /opt/uv/tools/superclaude/bin/python -m pytest tests/swarm/test_resume_crash_recovery.py -k 'stale_marker or overlapping_resume' -vv -s"
+    exit_code: 1
+    expected_outcome: intentional_pre_repair_assertion_failures
+    observed: '3 failed, 40 deselected in 0.75s'
+    tested_source: 'Baseline HEAD production unchanged; Task1 test addition preserved in native T1 prompt diff.'
+    outcome: ./t1-red.txt:76
+    acceptance: ./t1-acceptance.txt:3
+  - id: related
+    command: 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-project /opt/uv/tools/superclaude/bin/python -m pytest tests/swarm/test_resume_crash_recovery.py tests/swarm/test_commands_run.py tests/swarm/test_kill_cmd.py tests/swarm/test_imm6_atomic_write.py -vv'
+    exit_code: 0
+    observed: '198 passed, 4 skipped'
+    tested_source: implementation_head_plus_source_diff
+    outcome: ./t3-order-fixed.txt:215
+    skips: 'Dispatch and normalize fault injection do not apply to reduction-only paths, four explicit cells; not passing executions.'
+  - id: siblings
+    command: >-
+      PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-project /opt/uv/tools/superclaude/bin/python -c 'import os,sys,runpy; os.environ["PATH"]=os.path.dirname(sys.executable)+os.pathsep+os.environ["PATH"]; sys.argv=["pytest","tests/swarm/test_done_sentinel.py","tests/swarm/test_resume_context.py","tests/swarm/test_resume_regenerates_merge.py","tests/swarm/test_resume_uses_manifest_lens.py","tests/swarm/test_tmux_detached.py","-vv"]; runpy.run_module("pytest",run_name="__main__")'
+    exit_code: 0
+    observed: '99 passed, 2 skipped'
+    tested_source: 'Current production implementation; sibling test files unchanged; final publication-test-only strengthening does not affect these files.'
+    outcome: ./t3-siblings-env-corrected.txt:116
+    skips: 'Two tmux-absence branches skip because tmux is present; real detached child completion executed.'
+  - id: tui
+    command: 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-project /opt/uv/tools/superclaude/bin/python -m pytest tests/swarm/test_run_tui_integration.py -vv'
+    exit_code: 0
+    observed: '14 passed'
+    tested_source: implementation_head_plus_source_diff
+    outcome: ./t3-tui.txt:25
+  - id: witness
+    command: 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-project /opt/uv/tools/superclaude/bin/python -m pytest .dev/tasks/to-do/TASK-WF-createACheckedRe-20261126-161407/artifacts/check_resume_boundary.py -vv -s'
+    exit_code: 0
+    observed: '4 passed in 0.66s'
+    tested_source: implementation_head_plus_source_diff
+    outcome: ./boundary-observations.txt:57
+    source_digest_record: ./boundary-observations.txt:4
+retained_history:
+  - file: ./t2-design.txt
+    description: 'Bounded design, initial production diff retained as history and native Q5 eager-constructor correction recorded; no cross-process guarantee.'
+  - file: ./t2-constructor-red.txt:29
+    exit_code: 1
+    command: 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-project /opt/uv/tools/superclaude/bin/python -m pytest tests/swarm/test_resume_crash_recovery.py -k constructor_failure -vv'
+    description: 'Two expected failures exposed delayed constructor acceptance in initial Task2 candidate, then corrected by its one native fix pass.'
+  - file: ./t2-fixed-checks.txt:66
+    exit_code: 0
+    description: '52 passed after eager construction fix; later test additions are covered by current related run.'
+  - file: ./t3-related.txt:254
+    exit_code: 1
+    description: '2 failed, 186 passed, 4 skipped; invalid duplicate fixture targeted retryable slot zero. Corrected to duplicate genuinely succeeded slot one; all raw output kept.'
+  - file: ./t3-related-recheck.txt:205
+    exit_code: 0
+    description: '188 passed, 4 skipped before final extra boundary cases; superseded by current related run, not deleted.'
+  - file: ./t3-final-related.txt:215
+    exit_code: 0
+    description: '198 passed, 4 skipped before native QA strengthened current-contract proof; superseded by t3-order-fixed.txt, not deleted.'
+  - file: ./t3-siblings.txt:126
+    exit_code: 1
+    description: '1 failed, 98 passed, 2 skipped: child selected bare python without click; not a repaired-product pass.'
+  - file: ./t3-siblings-recheck.txt:127
+    exit_code: 1
+    description: 'Shell PATH prefix failed because UV prepended checkout .venv/bin afterwards; process-local PATH correction in current siblings run succeeds without installs or test changes.'
+claims:
+  - id: mandatory_pre_repair_red
+    ac: [T1.AC1, T1.AC2, T1.AC3]
+    expected: 'New tests fail on actual stale-marker visibility and accepted overlapping invocation before production changes.'
+    observed: 'Both policies completed with old marker visible at dispatch entry; disabled policy retained old bytes; nested fresh-run resume returned zero and mutated artifacts. Three selected behavior assertions failed.'
+    runs: [pre_repair_negative]
+    evidence: ['./t1-red.txt:14-18', './t1-red.txt:24-51', './t1-acceptance.txt:3']
+  - id: accepted_marker_retirement
+    ac: [T2.AC1, T2.AC2, T4.AC1, T4.AC2]
+    expected: 'Retire the genuine old marker before renewed work or reduction, regardless of effective writing policy.'
+    observed: 'Marker absent at both dispatch entries and inside both real StubTransport.send executions; marker absent at reduction-only entries for both policies.'
+    runs: [witness, related]
+    evidence: ['./boundary-observations.txt:15-19', './boundary-observations.txt:27-31', './boundary-observations.txt:38-43', './boundary-observations.txt:48-52']
+  - id: rejection_preserves_bytes
+    ac: [T3.AC1, T4.AC2]
+    expected: 'Input/CLI/inventory/provider rejection is nonzero, never enters renewed work, and preserves prior marker/manifest/state/sidecar/contract bytes.'
+    observed: 'Real wrong-job controls return two with unchanged complete output snapshots in all four witness cases. Test matrix passes missing/malformed manifest, wrong identity, ambiguous/unsafe inventory, unknown relens, CLI incompatibility, unrecoverable inputs, missing/changed target and transport failures.'
+    runs: [witness, related]
+    evidence: ['./boundary-observations.txt:14', './boundary-observations.txt:26', './boundary-observations.txt:37', './boundary-observations.txt:47', './t3-order-fixed.txt:64-99']
+    applicability: 'Provider input/transport checks apply to redispatch, not reduction-only with no provider work. Genuine-marker legacy reduction without accepted inputs/target passes and preserves existing sibling behavior; no validation is bypassed for actual provider dispatch.'
+  - id: original_slot_constructor_rejection
+    ac: [T2.AC3, T3.AC1]
+    expected: 'Every remaining slot transport is constructed before retirement; late constructor failure preserves the previous attempt and permits retry.'
+    observed: 'Both delayed second-slot constructor regressions now reject without changing any prior artifact and subsequently retry successfully. Current source materializes original indices before unlink.'
+    runs: [related]
+    evidence: ['./t3-order-fixed.txt:62-63', 'src/superclaude/cli/swarm/commands.py:2836-2859']
+  - id: live_ownership_and_aliases
+    ac: [T2.AC2, T2.AC3, T3.AC2, T4.AC2]
+    expected: 'Same-process live owners reject nested canonical-root aliases without output writes; independent roots remain usable and claims are thread-safe.'
+    observed: 'Witness overlap controls return one with unchanged byte snapshots and no nested work events on both paths/policies. Genuine-marker fresh/resume/reduction boundary cases, independent-root case and concurrent thread-claim case pass.'
+    runs: [witness, related]
+    evidence: ['./boundary-observations.txt:17', './boundary-observations.txt:29', './boundary-observations.txt:40', './boundary-observations.txt:50', './t3-order-fixed.txt:61', './t3-order-fixed.txt:126-132']
+    bounded_scope: 'One process only, including threads; no two-process exclusion claim.'
+  - id: release_and_error_safety
+    ac: [T2.AC3, T3.AC4]
+    expected: 'Unlink rejection preserves the old attempt and enters no work; later dispatch/normalize/reduce/contract/terminal errors leave marker absent; claims release and legitimate retries work.'
+    observed: 'Both policies and applicable worker/reduction paths pass injected failures and retries. Four impossible dispatch/normalize reduction-only injections are explicitly skipped, not passed. Validation, unlink, worker exception and KeyboardInterrupt claim-release cases pass.'
+    runs: [related]
+    evidence: ['./t3-order-fixed.txt:57-60', './t3-order-fixed.txt:102-125', './boundary-observations.txt:24', './boundary-observations.txt:35', './boundary-observations.txt:45', './boundary-observations.txt:54']
+  - id: legitimate_crash_recovery
+    ac: [T2.AC3, T3.AC4, T4.AC2]
+    expected: 'Persisted dispatching state with no live claim remains resumable; it must not be treated as a live owner.'
+    observed: 'Every witness begins from a real saved dispatching snapshot and genuine old marker; all four resumes return zero and finish terminal with no active claims.'
+    runs: [witness, related]
+    evidence: ['./boundary-observations.txt:14-24', './boundary-observations.txt:26-35', './boundary-observations.txt:37-45', './boundary-observations.txt:47-54']
+  - id: current_publication_order_and_status
+    ac: [T2.AC1, T2.AC4, T3.AC3, T4.AC2]
+    expected: 'Current-attempt contract is written before terminal state; enabled marker is last, and disabled completion leaves no marker across success/partial/failed results.'
+    observed: 'Real witness events show current-contract-written then terminal-written then optional new-marker-written; all four terminal checks match policy. Genuine-marker status matrix covers success/partial/failed and explicitly observes current emit_contract completion, not just old-file existence.'
+    runs: [witness, related]
+    evidence: ['./boundary-observations.txt:20-24', './boundary-observations.txt:32-35', './boundary-observations.txt:41-45', './boundary-observations.txt:51-54', './t3-order-fixed.txt:34-45', 'tests/swarm/test_resume_crash_recovery.py:646-685']
+  - id: succeeded_artifacts_preserved
+    ac: [T2.AC2, T3.AC3]
+    expected: 'Reduction-only skips redispatch and preserves succeeded sidecar/final bytes; redispatch does not alter the other succeeded slots.'
+    observed: 'Witness asserts exactly one real send for remaining-worker cases and zero for reduction-only; 4 succeeded files remain unchanged for redispatch and 6 for reduction-only under each policy.'
+    runs: [witness]
+    evidence: ['./boundary-observations.txt:24', './boundary-observations.txt:35', './boundary-observations.txt:45', './boundary-observations.txt:54']
+  - id: related_contracts_and_shutdown
+    ac: [T3.AC5, T3.AC6]
+    expected: 'Original marker writer, kill-twice bytes, atomic writes, context/manifest identity, detached absolute output and TUI shutdown remain correct.'
+    observed: 'Required related suite: 198 passed/4 explicit nonexistent-stage skips; sibling suite: 99 passed/2 tmux-absence branch skips; TUI regression file: 14 passed. All real executed cells passed; original failed fixture/environment runs remain available.'
+    runs: [related, siblings, tui]
+    evidence: ['./t3-order-fixed.txt:215', './t3-siblings-env-corrected.txt:109-116', './t3-tui.txt:25']
+  - id: real_runtime_witness_not_dispatch_fake
+    ac: [T4.AC1, T4.AC2, T4.AC3]
+    expected: 'Use actual public swarm CLI, actual stub send through real dispatcher, real reducer, isolated HOME/output roots and citable actual observations.'
+    observed: 'Four explicit pytest cases passed. Witness forwarding wrappers never unlink or emit their own marker, and recorded observations distinguish dispatcher entry, inside real stub execution, reducer entry, persistence and invocation outcomes.'
+    runs: [witness]
+    evidence: ['./check_resume_boundary.py:1-20', './boundary-observations.txt:14-54', './boundary-observations.txt:57']
+historical_requirements:
+  - id: HC1
+    source: .dev/troubleshoot/issue540-diagnostic-closure-20261126-1515/REPORT.md:82
+    quote: '- HC1 Runtime-Entrypoint Verification: FAIL, retained pre-fix negative reaches CLI, but no fix-applied positive; runtime-entrypoint.md.'
+    current_evidence: [mandatory_pre_repair_red, accepted_marker_retirement, rejection_preserves_bytes, legitimate_crash_recovery, real_runtime_witness_not_dispatch_fake]
+    historical_verdict: unchanged_FAIL
+    current_resolution_owner: 'Fresh managed FINAL judges actual paired proof; this index is not an approval.'
+  - id: HC5
+    source: .dev/troubleshoot/issue540-diagnostic-closure-20261126-1515/REPORT.md:86
+    quote: '- HC5 Off-Path Reviewer + Waiver: FAIL, required corrected-boundary review absent; independent diagnostic calibration/validation does not replace it.'
+    historical_verdict: unchanged_FAIL
+    current_resolution_owner: 'Mandatory fresh managed FINAL after all four tasks complete; absent until actual pass/issues evidence/state record is appended. No per-task or planning review substitutes for it.'
+independent_completion_record: 'progress.md: fresh managed FINAL after all task completion records; not supplied by this index'
+limitations:
+  - 'Effective completion policy is patched in memory through real resume_mode; no arbitrary persisted-policy restoration claim.'
+  - 'All provider execution uses actual local StubTransport or explicit local transport-construction substitutes; no paid provider/network proof.'
+  - 'One-process root ownership only, including threads; cross-process safety remains unchanged and unproven.'
+  - 'Byte equality is not inode identity. Enabled marker bytes can equal the old deterministic payload; absence during work and observed final emission prove lifecycle rather than byte inequality.'
+  - 'Old diagnosis/hardening report and historical partial workflow/source/authoring qualifications remain unchanged; this index does not assert an overall hardening pass.'
+  - 'Native per-task QA keeps its exact closed prompt, forbidden retry/troubleshoot reads and parent-owned verdict. Only subsequent fresh managed FINAL can supply independent boundary closure; no bespoke review/repair report is required.'
+  - 'Keep every package evidence file immutable during FINAL. Helper _digest hashes paths named in files= (including listed witness/index); unlisted logs are not state-digest protected. Actual installed scripts/archive_workspace.py:239-274 confirms this precise boundary.'
+  - 'Task4 completion is witness/observations/index plus native per-task QA; it does not wait for or claim the later whole-plan FINAL.'

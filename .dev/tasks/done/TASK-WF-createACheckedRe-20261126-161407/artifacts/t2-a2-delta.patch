@@ -1,0 +1,66 @@
+diff --git a/src/superclaude/cli/swarm/commands.py b/src/superclaude/cli/swarm/commands.py
+index 2d27f90d5..4dc1ca4af 100644
+--- a/src/superclaude/cli/swarm/commands.py
++++ b/src/superclaude/cli/swarm/commands.py
+@@ -2833,9 +2833,15 @@ def _run_resume_branch(
+         # synthetic position back to its ORIGINAL slot index before the factory
+         # picks the model, so the resumed worker re-runs on the same model it
+         # was first assigned (INV-016 verbatim-rehydration spirit).
++        # The factory may defer actual construction until a slot is requested.
++        # Materialize every needed slot now: constructor failure is rejection,
++        # not an accepted worker failure after the prior marker was retired.
++        prepared_transports = {
++            index: resume_transport_factory(index) for index in remaining_indices
++        }
++
+         def _resume_slot_transport(new_pos: int) -> Any:
+-            original_index = remaining_indices[new_pos]
+-            return resume_transport_factory(original_index)
++            return prepared_transports[remaining_indices[new_pos]]
+ 
+     # Accepted-attempt boundary shared by redispatch and reduction-only resume.
+     # All applicable input checks and redispatch preparation above are read-only.
+diff --git a/tests/swarm/test_resume_crash_recovery.py b/tests/swarm/test_resume_crash_recovery.py
+index 72ca3c801..eb5c89b99 100644
+--- a/tests/swarm/test_resume_crash_recovery.py
++++ b/tests/swarm/test_resume_crash_recovery.py
+@@ -964,3 +964,39 @@ def test_resume_nested_alias_rejected_and_distinct_output_works(tmp_path, monkey
+     result = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
+     assert result.exit_code == EXIT_OK, result.output
+     assert seen == [True]
++
++
++@pytest.mark.parametrize("enabled", [True, False])
++def test_resume_constructor_failure_preserves_prior_attempt(
++    tmp_path, monkeypatch, enabled
++):
++    import superclaude.cli.swarm.commands as commands
++    from superclaude.cli.swarm.transports.stub import StubTransport
++
++    out, job_id = _completed_stub_run(tmp_path, monkeypatch)
++    for meta in sorted(out.glob("*.meta.json"))[:2]:
++        data = json.loads(meta.read_text())
++        data["status"] = "timeout"
++        meta.write_text(json.dumps(data))
++    _completion_policy(monkeypatch, enabled)
++    before = _artifact_bytes(out)
++    constructed = []
++
++    def factory(*args, **kwargs):
++        def constructor(index):
++            constructed.append(index)
++            if index == 1:
++                raise RuntimeError("injected delayed transport constructor failure")
++            return StubTransport()
++
++        return constructor
++
++    with monkeypatch.context() as patch:
++        patch.setattr(commands, "_resolve_run_transport_factory", factory)
++        result = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
++        assert result.exit_code != EXIT_OK
++        assert constructed == [0, 1]
++        assert _artifact_bytes(out) == before
++        assert not commands._ACTIVE_OUTPUTS
++    retry = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
++    assert retry.exit_code == EXIT_OK, retry.output

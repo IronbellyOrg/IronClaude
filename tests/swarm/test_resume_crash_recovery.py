@@ -604,7 +604,7 @@ def test_discovery_does_not_guess_unrelated_numeric_segment(tmp_path):
 def test_resume_completion_policy_status_and_order(
     tmp_path, monkeypatch, enabled, successes, skip_all
 ):
-    """Independent manifests prevent a fresh-run marker from masking missing resume wiring."""
+    """A genuine old marker must be retired before every terminal result status."""
     import yaml
 
     import superclaude.cli.swarm.commands as commands
@@ -613,14 +613,17 @@ def test_resume_completion_policy_status_and_order(
     import superclaude.cli.swarm.preflight as preflight
     import superclaude.cli.swarm.reduce as reducer
 
-    out = tmp_path / "out"
-    _write_manifest(out, workers_requested=3)
+    out, job_id = _completed_stub_run(tmp_path, monkeypatch)
     saved = []
     if skip_all:
-        for index in range(3):
-            meta, final = _write_succeeded_sidecar(out, slot_index=index)
-            saved.extend([(meta, meta.read_bytes()), (final, final.read_bytes())])
-    assert not (out / "done.json").exists()
+        saved = [(p, p.read_bytes()) for p in out.glob("*.meta.json")]
+        saved.extend((p, p.read_bytes()) for p in out.glob("*.final.md"))
+    else:
+        for meta in out.glob("*.meta.json"):
+            data = json.loads(meta.read_text())
+            data["status"] = "timeout"
+            meta.write_text(json.dumps(data))
+    assert (out / "done.json").is_file()
     real_rehydrate = preflight.resume_mode
 
     def rehydrate(*a, **kw):
@@ -642,11 +645,23 @@ def test_resume_completion_policy_status_and_order(
     monkeypatch.setattr(normalize, "normalize_wave2", lambda workers, **kwargs: workers)
     events = []
     real_state, real_marker = commands._write_swarm_state, reducer.emit_done_sentinel
+    real_contract = reducer.emit_contract
+
+    def contract(*args, **kwargs):
+        result = real_contract(*args, **kwargs)
+        assert events == ["accepted"]
+        events.append("contract")
+        return result
 
     def state(root, value, job_id):
-        assert (out / "return-contract.yaml").is_file()
         assert not (out / "done.json").exists()
-        events.append("terminal")
+        if value == "terminal":
+            assert events == ["accepted", "contract"]
+            assert (out / "return-contract.yaml").is_file()
+            events.append("terminal")
+        else:
+            assert value == "dispatching"
+            events.append("accepted")
         return real_state(root, value, job_id)
 
     def marker(status, contract_path):
@@ -658,11 +673,16 @@ def test_resume_completion_policy_status_and_order(
         return real_marker(status, contract_path)
 
     monkeypatch.setattr(commands, "_write_swarm_state", state)
+    monkeypatch.setattr(reducer, "emit_contract", contract)
     monkeypatch.setattr(reducer, "emit_done_sentinel", marker)
-    result = CliRunner().invoke(run_cmd, ["--resume", JOB_ID, "--output", str(out)])
+    result = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
     assert result.exit_code == EXIT_OK, result.output
     assert calls == ([] if skip_all else [3])
-    assert events == (["terminal", "marker"] if enabled else ["terminal"])
+    assert events == (
+        ["accepted", "contract", "terminal", "marker"]
+        if enabled
+        else ["accepted", "contract", "terminal"]
+    )
     expected = (
         "success"
         if skip_all or successes == 3
@@ -727,3 +747,560 @@ def test_resume_no_marker_on_error(tmp_path, monkeypatch, failure):
     result = CliRunner().invoke(run_cmd, ["--resume", JOB_ID, "--output", str(out)])
     assert result.exit_code != EXIT_OK
     assert not (out / "done.json").exists()
+
+
+def _artifact_bytes(out):
+    return {
+        str(p.relative_to(out)): p.read_bytes() for p in out.rglob("*") if p.is_file()
+    }
+
+
+def _completed_stub_run(tmp_path, monkeypatch):
+    """Seed a genuine terminal marker through the public CLI, never a fixture marker."""
+    home = tmp_path / "home"
+    home.mkdir(exist_ok=True)
+    monkeypatch.setenv("HOME", str(home))
+    target = tmp_path / "target.md"
+    target.write_text("A local simulated review target. " * 12)
+    out = tmp_path / "out"
+    fresh = CliRunner().invoke(
+        run_cmd,
+        [
+            "--lens",
+            "bare-review",
+            "--transport",
+            "stub",
+            "--target",
+            str(target),
+            "--output",
+            str(out),
+        ],
+    )
+    assert fresh.exit_code == EXIT_OK, fresh.output
+    assert (out / "done.json").is_file()
+    job_id = json.loads((out / "manifest.json").read_text())["job_id"]
+    return out, job_id
+
+
+def _retry_one(out):
+    meta = sorted(out.glob("*.meta.json"))[0]
+    data = json.loads(meta.read_text())
+    data["status"] = "timeout"
+    meta.write_text(json.dumps(data))
+
+
+def _completion_policy(monkeypatch, enabled):
+    import superclaude.cli.swarm.preflight as preflight
+
+    real = preflight.resume_mode
+
+    def rehydrate(*args, **kwargs):
+        spec = real(*args, **kwargs)
+        spec.runtime.on_completion.write_done_sentinel = enabled
+        return spec
+
+    monkeypatch.setattr(preflight, "resume_mode", rehydrate)
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+def test_stale_marker_absent_at_accepted_dispatch(tmp_path, monkeypatch, enabled):
+    import superclaude.cli.swarm.dispatch as dispatch
+
+    out, job_id = _completed_stub_run(tmp_path, monkeypatch)
+    marker = out / "done.json"
+    old = marker.read_bytes()
+    _retry_one(out)
+    _completion_policy(monkeypatch, enabled)
+    real_dispatch = dispatch.dispatch_wave1
+    seen = []
+
+    def observe(*args, **kwargs):
+        seen.append(marker.exists())
+        return real_dispatch(*args, **kwargs)
+
+    monkeypatch.setattr(dispatch, "dispatch_wave1", observe)
+    result = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
+    print(
+        f"dispatch-entry enabled={enabled} marker_exists={seen}; "
+        f"exit={result.exit_code}; final_marker={marker.exists()}; "
+        f"old_bytes_equal={marker.read_bytes() == old if marker.exists() else False}"
+    )
+    assert result.exit_code == EXIT_OK, result.output
+    assert seen == [False], "previous completion marker visible at accepted dispatch"
+    assert marker.exists() is enabled
+
+
+def test_overlapping_resume_preserves_active_fresh_artifacts(tmp_path, monkeypatch):
+    import superclaude.cli.swarm.dispatch as dispatch
+
+    home = tmp_path / "home"
+    home.mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    target = tmp_path / "target.md"
+    target.write_text("Local overlap witness. " * 12)
+    out = tmp_path / "out"
+    real_dispatch = dispatch.dispatch_wave1
+    nested = []
+    entered = False
+
+    def observe(*args, **kwargs):
+        nonlocal entered
+        if not entered:
+            entered = True
+            job_id = json.loads((out / "manifest.json").read_text())["job_id"]
+            before = _artifact_bytes(out)
+            inner = CliRunner().invoke(
+                run_cmd, ["--resume", job_id, "--output", str(out)]
+            )
+            nested.append((inner.exit_code, before == _artifact_bytes(out)))
+        return real_dispatch(*args, **kwargs)
+
+    monkeypatch.setattr(dispatch, "dispatch_wave1", observe)
+    result = CliRunner().invoke(
+        run_cmd,
+        [
+            "--lens",
+            "bare-review",
+            "--transport",
+            "stub",
+            "--target",
+            str(target),
+            "--output",
+            str(out),
+        ],
+    )
+    print(f"overlapping_resume result={nested}; fresh_exit={result.exit_code}")
+    assert result.exit_code == EXIT_OK, result.output
+    assert len(nested) == 1
+    assert nested[0][0] != EXIT_OK, "overlapping resume was accepted"
+    assert nested[0][1], "rejected overlap changed active invocation artifacts"
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+def test_resume_reduction_retires_old_marker_and_recovers_crash(
+    tmp_path, monkeypatch, enabled
+):
+    import superclaude.cli.swarm.commands as commands
+    import superclaude.cli.swarm.reduce as reducer
+
+    out, job_id = _completed_stub_run(tmp_path, monkeypatch)
+    _completion_policy(monkeypatch, enabled)
+    commands._write_swarm_state(out, "dispatching", job_id)
+    saved = {p: p.read_bytes() for p in out.glob("*.meta.json")}
+    saved.update({p: p.read_bytes() for p in out.glob("*.final.md")})
+    real_reduce = reducer.reduce_wave3
+    entries = []
+
+    def observe(*args, **kwargs):
+        entries.append((out / "done.json").exists())
+        return real_reduce(*args, **kwargs)
+
+    monkeypatch.setattr(reducer, "reduce_wave3", observe)
+    result = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
+    assert result.exit_code == EXIT_OK, result.output
+    assert entries == [False]
+    assert (out / "done.json").exists() is enabled
+    assert all(p.read_bytes() == data for p, data in saved.items())
+    assert not commands._ACTIVE_OUTPUTS
+
+
+@pytest.mark.parametrize("failure", ["validation", "unlink", "dispatch", "interrupt"])
+def test_resume_claim_released_after_failure(tmp_path, monkeypatch, failure):
+    import superclaude.cli.swarm.commands as commands
+    import superclaude.cli.swarm.dispatch as dispatch
+
+    out, job_id = _completed_stub_run(tmp_path, monkeypatch)
+    _retry_one(out)
+    before = _artifact_bytes(out)
+    with monkeypatch.context() as patch:
+        if failure == "validation":
+            invoke_id = "wrong-job"
+        else:
+            invoke_id = job_id
+        if failure == "unlink":
+            real_unlink = Path.unlink
+
+            def fail_unlink(path, *args, **kwargs):
+                if path == out / "done.json":
+                    raise PermissionError("injected old marker unlink failure")
+                return real_unlink(path, *args, **kwargs)
+
+            patch.setattr(Path, "unlink", fail_unlink)
+        elif failure in ("dispatch", "interrupt"):
+
+            def fail_dispatch(*args, **kwargs):
+                raise (
+                    KeyboardInterrupt()
+                    if failure == "interrupt"
+                    else RuntimeError("injected worker failure")
+                )
+
+            patch.setattr(dispatch, "dispatch_wave1", fail_dispatch)
+        result = CliRunner().invoke(
+            run_cmd, ["--resume", invoke_id, "--output", str(out)]
+        )
+        assert result.exit_code != EXIT_OK
+        assert not commands._ACTIVE_OUTPUTS
+        if failure in ("validation", "unlink"):
+            assert before == _artifact_bytes(out)
+        else:
+            assert not (out / "done.json").exists()
+    retry = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
+    assert retry.exit_code == EXIT_OK, retry.output
+    assert not commands._ACTIVE_OUTPUTS
+
+
+def test_resume_nested_alias_rejected_and_distinct_output_works(tmp_path, monkeypatch):
+    import superclaude.cli.swarm.dispatch as dispatch
+
+    out, job_id = _completed_stub_run(tmp_path, monkeypatch)
+    other = tmp_path / "other"
+    other.mkdir()
+    other_out, other_id = _completed_stub_run(other, monkeypatch)
+    _retry_one(out)
+    real_dispatch = dispatch.dispatch_wave1
+    seen = []
+
+    def observe(*args, **kwargs):
+        before = _artifact_bytes(out)
+        alias = str(out / ".." / out.name)
+        inner = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", alias])
+        assert inner.exit_code != EXIT_OK
+        assert before == _artifact_bytes(out)
+        distinct = CliRunner().invoke(
+            run_cmd, ["--resume", other_id, "--output", str(other_out)]
+        )
+        assert distinct.exit_code == EXIT_OK, distinct.output
+        seen.append(True)
+        return real_dispatch(*args, **kwargs)
+
+    monkeypatch.setattr(dispatch, "dispatch_wave1", observe)
+    result = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
+    assert result.exit_code == EXIT_OK, result.output
+    assert seen == [True]
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+def test_resume_constructor_failure_preserves_prior_attempt(
+    tmp_path, monkeypatch, enabled
+):
+    import superclaude.cli.swarm.commands as commands
+    from superclaude.cli.swarm.transports.stub import StubTransport
+
+    out, job_id = _completed_stub_run(tmp_path, monkeypatch)
+    for meta in sorted(out.glob("*.meta.json"))[:2]:
+        data = json.loads(meta.read_text())
+        data["status"] = "timeout"
+        meta.write_text(json.dumps(data))
+    _completion_policy(monkeypatch, enabled)
+    before = _artifact_bytes(out)
+    constructed = []
+
+    def factory(*args, **kwargs):
+        def constructor(index):
+            constructed.append(index)
+            if index == 1:
+                raise RuntimeError("injected delayed transport constructor failure")
+            return StubTransport()
+
+        return constructor
+
+    with monkeypatch.context() as patch:
+        patch.setattr(commands, "_resolve_run_transport_factory", factory)
+        result = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
+        assert result.exit_code != EXIT_OK
+        assert constructed == [0, 1]
+        assert _artifact_bytes(out) == before
+        assert not commands._ACTIVE_OUTPUTS
+    retry = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
+    assert retry.exit_code == EXIT_OK, retry.output
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+@pytest.mark.parametrize("remaining", [True, False])
+@pytest.mark.parametrize(
+    "damage", ["missing", "malformed", "job", "inventory", "unsafe", "relens", "cli"]
+)
+def test_resume_rejection_preserves_completed_artifacts(
+    tmp_path, monkeypatch, enabled, remaining, damage
+):
+    import superclaude.cli.swarm.commands as commands
+    import superclaude.cli.swarm.dispatch as dispatch
+    import superclaude.cli.swarm.reduce as reducer
+
+    out, job_id = _completed_stub_run(tmp_path, monkeypatch)
+    if remaining:
+        _retry_one(out)
+    _completion_policy(monkeypatch, enabled)
+    manifest = out / "manifest.json"
+    args = ["--resume", job_id, "--output", str(out)]
+    if damage == "missing":
+        manifest.unlink()
+    elif damage == "malformed":
+        manifest.write_text("not JSON")
+    elif damage == "job":
+        args[1] = "wrong-job"
+    elif damage == "inventory":
+        # Slot zero may be retryable; duplicate an actually succeeded slot.
+        _write_succeeded_sidecar(out, slot_index=1, model_slug="duplicate-slot")
+    elif damage == "unsafe":
+        data = json.loads(manifest.read_text())
+        data["output_filename_template"] = (
+            "../outside/{lens}-{index:02d}-{model_slug}.md"
+        )
+        manifest.write_text(json.dumps(data))
+    elif damage == "relens":
+        data = json.loads(manifest.read_text())
+        data["resolved_lens_entry"]["name"] = "not-a-registered-lens"
+        manifest.write_text(json.dumps(data))
+        args.append("--force-relens")
+    else:
+        args.append("--tui")
+    before = _artifact_bytes(out)
+    entered = []
+
+    def forbidden(*args, **kwargs):
+        entered.append(True)
+        pytest.fail("rejected invocation entered work")
+
+    monkeypatch.setattr(dispatch, "dispatch_wave1", forbidden)
+    monkeypatch.setattr(reducer, "reduce_wave3", forbidden)
+    result = CliRunner().invoke(run_cmd, args)
+    assert result.exit_code != EXIT_OK
+    assert entered == []
+    assert _artifact_bytes(out) == before
+    assert not commands._ACTIVE_OUTPUTS
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+@pytest.mark.parametrize(
+    "damage", ["accepted-input", "missing-target", "checksum", "transport"]
+)
+def test_resume_provider_rejection_preserves_completed_artifacts(
+    tmp_path, monkeypatch, enabled, damage
+):
+    import superclaude.cli.swarm.commands as commands
+    import superclaude.cli.swarm.dispatch as dispatch
+    import superclaude.cli.swarm.reduce as reducer
+
+    out, job_id = _completed_stub_run(tmp_path, monkeypatch)
+    _retry_one(out)
+    _completion_policy(monkeypatch, enabled)
+    manifest = out / "manifest.json"
+    data = json.loads(manifest.read_text())
+    if damage == "accepted-input":
+        data.pop("accepted_workers", None)
+        data.pop("accepted_prompt", None)
+        manifest.write_text(json.dumps(data))
+    elif damage == "missing-target":
+        Path(data["target"]["path"]).unlink()
+    elif damage == "checksum":
+        Path(data["target"]["path"]).write_text("Changed accepted target. " * 12)
+    before = _artifact_bytes(out)
+    entered = []
+    constructed = []
+
+    def factory(*args, **kwargs):
+        constructed.append(True)
+        raise RuntimeError("injected transport construction failure")
+
+    def forbidden(*args, **kwargs):
+        entered.append(True)
+        pytest.fail("provider rejection entered work")
+
+    monkeypatch.setattr(commands, "_resolve_run_transport_factory", factory)
+    monkeypatch.setattr(dispatch, "dispatch_wave1", forbidden)
+    monkeypatch.setattr(reducer, "reduce_wave3", forbidden)
+    result = CliRunner().invoke(
+        run_cmd,
+        ["--resume", job_id, "--output", str(out), "--transport", "openai_compat"],
+    )
+    assert result.exit_code != EXIT_OK
+    assert constructed == ([True] if damage == "transport" else [])
+    assert entered == []
+    assert _artifact_bytes(out) == before
+    assert not commands._ACTIVE_OUTPUTS
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+def test_resume_completed_legacy_provider_needs_no_worker_inputs(
+    tmp_path, monkeypatch, enabled
+):
+    """Provider-only checks do not apply when no provider will execute."""
+    import superclaude.cli.swarm.commands as commands
+    import superclaude.cli.swarm.dispatch as dispatch
+
+    out, job_id = _completed_stub_run(tmp_path, monkeypatch)
+    _completion_policy(monkeypatch, enabled)
+    manifest = out / "manifest.json"
+    data = json.loads(manifest.read_text())
+    data.pop("accepted_workers", None)
+    data.pop("accepted_prompt", None)
+    data["preflight"]["transport_kind"] = "openai_compat"
+    manifest.write_text(json.dumps(data))
+    Path(data["target"]["path"]).unlink()
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("reduction-only resume must not construct or run provider workers")
+
+    monkeypatch.setattr(commands, "_resolve_run_transport_factory", forbidden)
+    monkeypatch.setattr(dispatch, "dispatch_wave1", forbidden)
+    result = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
+    assert result.exit_code == EXIT_OK, result.output
+    assert (out / "done.json").exists() is enabled
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+@pytest.mark.parametrize("remaining", [True, False])
+@pytest.mark.parametrize(
+    "failure", ["unlink", "dispatch", "normalize", "reduce", "contract", "terminal"]
+)
+def test_resume_old_marker_failure_matrix(
+    tmp_path, monkeypatch, enabled, remaining, failure
+):
+    import superclaude.cli.swarm.commands as commands
+    import superclaude.cli.swarm.dispatch as dispatch
+    import superclaude.cli.swarm.normalize as normalize
+    import superclaude.cli.swarm.reduce as reducer
+
+    if not remaining and failure in ("dispatch", "normalize"):
+        pytest.skip("reduction-only resume has no dispatch or normalize stage")
+    out, job_id = _completed_stub_run(tmp_path, monkeypatch)
+    if remaining:
+        _retry_one(out)
+    _completion_policy(monkeypatch, enabled)
+    before = _artifact_bytes(out)
+    real_unlink = Path.unlink
+    real_state = commands._write_swarm_state
+    entries = []
+    real_dispatch, real_reduce = dispatch.dispatch_wave1, reducer.reduce_wave3
+
+    def observe_dispatch(*args, **kwargs):
+        entries.append("dispatch")
+        return real_dispatch(*args, **kwargs)
+
+    def observe_reduce(*args, **kwargs):
+        entries.append("reduce")
+        return real_reduce(*args, **kwargs)
+
+    def fail(*args, **kwargs):
+        assert not (out / "done.json").exists()
+        raise OSError("injected accepted-stage failure")
+
+    def unlink(path, *args, **kwargs):
+        if path == out / "done.json":
+            raise PermissionError("injected retirement failure")
+        return real_unlink(path, *args, **kwargs)
+
+    def terminal(root, state, identity):
+        if state == "terminal":
+            return fail()
+        return real_state(root, state, identity)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(dispatch, "dispatch_wave1", observe_dispatch)
+        patch.setattr(reducer, "reduce_wave3", observe_reduce)
+        if failure == "unlink":
+            patch.setattr(Path, "unlink", unlink)
+        elif failure == "dispatch":
+            patch.setattr(dispatch, "dispatch_wave1", fail)
+        elif failure == "normalize":
+            patch.setattr(normalize, "normalize_wave2", fail)
+        elif failure == "reduce":
+            patch.setattr(reducer, "reduce_wave3", fail)
+        elif failure == "contract":
+            patch.setattr(reducer, "emit_contract", fail)
+        else:
+            patch.setattr(commands, "_write_swarm_state", terminal)
+        result = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
+        assert result.exit_code != EXIT_OK
+        assert not commands._ACTIVE_OUTPUTS
+        if failure == "unlink":
+            assert entries == []
+            assert _artifact_bytes(out) == before
+        else:
+            assert not (out / "done.json").exists()
+    retry = CliRunner().invoke(run_cmd, ["--resume", job_id, "--output", str(out)])
+    assert retry.exit_code == EXIT_OK, retry.output
+    assert (out / "done.json").exists() is enabled
+
+
+def test_resume_output_claim_is_thread_safe(tmp_path, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+
+    import click
+
+    import superclaude.cli.swarm.commands as commands
+
+    out, _ = _completed_stub_run(tmp_path, monkeypatch)
+    before = _artifact_bytes(out)
+    owned, release = Event(), Event()
+
+    def owner():
+        with commands._claim_active_output(out):
+            owned.set()
+            assert release.wait(5)
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(owner)
+        try:
+            assert owned.wait(5)
+            with pytest.raises(click.exceptions.Exit):
+                with commands._claim_active_output(out / ".." / out.name):
+                    pytest.fail("concurrent canonical alias acquired owned root")
+            with commands._claim_active_output(tmp_path / "independent"):
+                assert _artifact_bytes(out) == before
+        finally:
+            release.set()
+        future.result(timeout=5)
+    assert not commands._ACTIVE_OUTPUTS
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+@pytest.mark.parametrize("mode", ["fresh", "redispatch", "reduction"])
+def test_resume_overlap_preservation_at_each_boundary(
+    tmp_path, monkeypatch, enabled, mode
+):
+    import superclaude.cli.swarm.commands as commands
+    import superclaude.cli.swarm.dispatch as dispatch
+    import superclaude.cli.swarm.reduce as reducer
+
+    out, job_id = _completed_stub_run(tmp_path, monkeypatch)
+    if mode == "redispatch":
+        _retry_one(out)
+    _completion_policy(monkeypatch, enabled)
+    real = reducer.reduce_wave3 if mode == "reduction" else dispatch.dispatch_wave1
+    observed = []
+
+    def observe(*args, **kwargs):
+        active_id = json.loads((out / "manifest.json").read_text())["job_id"]
+        before = _artifact_bytes(out)
+        inner = CliRunner().invoke(
+            run_cmd, ["--resume", active_id, "--output", str(out / ".." / out.name)]
+        )
+        assert inner.exit_code != EXIT_OK
+        assert _artifact_bytes(out) == before
+        observed.append((out / "done.json").exists())
+        return real(*args, **kwargs)
+
+    if mode == "reduction":
+        monkeypatch.setattr(reducer, "reduce_wave3", observe)
+    else:
+        monkeypatch.setattr(dispatch, "dispatch_wave1", observe)
+    args = ["--resume", job_id, "--output", str(out)]
+    if mode == "fresh":
+        args = [
+            "--lens",
+            "bare-review",
+            "--transport",
+            "stub",
+            "--target",
+            str(tmp_path / "target.md"),
+            "--output",
+            str(out),
+        ]
+    result = CliRunner().invoke(run_cmd, args)
+    assert result.exit_code == EXIT_OK, result.output
+    assert observed == [mode == "fresh"]
+    assert not commands._ACTIVE_OUTPUTS

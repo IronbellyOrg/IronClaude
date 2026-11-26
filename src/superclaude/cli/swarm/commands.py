@@ -36,8 +36,10 @@ import re
 import sys
 import time
 import uuid
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
+from threading import Lock
 from typing import TYPE_CHECKING, Any, Callable, Mapping, Optional
 
 import click
@@ -89,6 +91,32 @@ __all__ = [
 SWARM_STATE_FILENAME: str = ".swarm-state.json"
 RESULT_CONTRACT_FILENAME: str = "return-contract.yaml"
 TERMINAL_STATE_VALUE: str = "terminal"
+
+# Live ownership only: a persisted dispatching snapshot may instead be a crash.
+# These claims deliberately do not provide cross-process exclusion.
+_ACTIVE_OUTPUTS: set[Path] = set()
+_ACTIVE_OUTPUTS_LOCK = Lock()
+
+
+@contextmanager
+def _claim_active_output(output_dir):
+    if not output_dir:
+        yield
+        return
+    root = Path(output_dir).resolve()
+    with _ACTIVE_OUTPUTS_LOCK:
+        if root in _ACTIVE_OUTPUTS:
+            click.echo(
+                "swarm run: output directory already active in this process", err=True
+            )
+            raise click.exceptions.Exit(EXIT_INVALID)
+        _ACTIVE_OUTPUTS.add(root)
+    try:
+        yield
+    finally:
+        with _ACTIVE_OUTPUTS_LOCK:
+            _ACTIVE_OUTPUTS.remove(root)
+
 
 # T07.05 / FR-003 -- ``swarm logs`` subcommand log-file constants.
 #
@@ -1685,6 +1713,7 @@ def run_cmd(
                 err=True,
             )
             raise click.exceptions.Exit(EXIT_USAGE)
+        click.get_current_context().with_resource(_claim_active_output(output_dir))
         _run_resume_branch(
             job_id=resume_job_id,
             output_dir=output_dir,
@@ -1834,6 +1863,13 @@ def run_cmd(
             "caller_label"
         ] = label
 
+    # Acquire before preflight can create a manifest or failure contract. Click's
+    # resource stack releases on every exit, after the TUI worker is joined.
+    output_section = spec_dict.get("output", {}) or {}
+    claim_output = output_dir or (
+        output_section.get("dir") if isinstance(output_section, dict) else None
+    )
+    click.get_current_context().with_resource(_claim_active_output(claim_output))
     try:
         preflight_result = run_preflight(
             spec_dict,
@@ -2083,9 +2119,11 @@ def run_cmd(
             # the terminal is restored on the clean / exception / SIGINT paths.
             # Then join() the non-daemon worker so execution-log.jsonl is fully
             # flushed before the process can exit (FR-5 anti-truncation).
-            if tui_obj is not None:
-                tui_obj.stop()
-            dispatch_thread.join()
+            try:
+                if tui_obj is not None:
+                    tui_obj.stop()
+            finally:
+                dispatch_thread.join()
         # FR-5: re-raise any captured worker exception AFTER tui.stop(), so the
         # ORIGINAL exception/traceback reaches Click (unmasked) with the
         # terminal already restored. This dominates a concurrent SIGINT.
@@ -2795,10 +2833,32 @@ def _run_resume_branch(
         # synthetic position back to its ORIGINAL slot index before the factory
         # picks the model, so the resumed worker re-runs on the same model it
         # was first assigned (INV-016 verbatim-rehydration spirit).
-        def _resume_slot_transport(new_pos: int) -> Any:
-            original_index = remaining_indices[new_pos]
-            return resume_transport_factory(original_index)
+        # The factory may defer actual construction until a slot is requested.
+        # Materialize every needed slot now: constructor failure is rejection,
+        # not an accepted worker failure after the prior marker was retired.
+        prepared_transports = {
+            index: resume_transport_factory(index) for index in remaining_indices
+        }
 
+        def _resume_slot_transport(new_pos: int) -> Any:
+            return prepared_transports[remaining_indices[new_pos]]
+
+    # Accepted-attempt boundary shared by redispatch and reduction-only resume.
+    # All applicable input checks and redispatch preparation above are read-only.
+    # Retirement precedes even the nonterminal state write, so an unlink error
+    # preserves the old attempt byte-for-byte. Never restore it after acceptance.
+    try:
+        (output_path / DONE_SENTINEL_FILENAME).unlink()
+    except FileNotFoundError:
+        pass
+    except OSError as exc:
+        click.echo(
+            "swarm run --resume: cannot retire previous completion marker", err=True
+        )
+        raise click.exceptions.Exit(EXIT_INVALID) from exc
+    _write_swarm_state(output_path, "dispatching", manifest_obj.job_id)
+
+    if remaining_indices:
         raw_redispatched = dispatch_wave1(
             synthetic_preflight,
             transport_for_slot=_resume_slot_transport,

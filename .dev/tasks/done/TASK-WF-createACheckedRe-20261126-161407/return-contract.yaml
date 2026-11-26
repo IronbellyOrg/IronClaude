@@ -1,0 +1,21 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-createACheckedRe-20261126-161407
+plan_path: ./TASK-WF-createACheckedRe-20261126-161407.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker/.dev/issues/540/workflow-20261126-1612/nested/reflect-1/REPORT.md
+unresolved:
+  - 'Authoring-process qualification: the plan was initially drafted in one Write after template Read rather than mandatory stub-first section population, and the initial worker-contract Read exceeded 80 lines; these deviations are preserved, not retroactively disguised. Structural plan gate passed, but this run does not claim fully compliant authoring completion.'
+  - 'Builtin pre-review actually completed once: merged verdict PASS with 0 Blocking, 3 Medium and 5 Notes; nested worker status partial, not an unconditional ready-to-implement signoff. Independent citation validation PASS 20/20, zero drops; suggested final review status partial because G-001 stays open.'
+  - 'Task4 registered review/closure template referents remain unresolved (QA540-N02, G-001); the actual merge preserves an open Blocking(Missing) branch. Do not invent a template or claim this branch resolved.'
+  - 'F1 remains a Medium ordering refinement with a conditional Blocking(Decision) branch if a later test adaptation drops required marker-absence checks; no weakening or implementation is authorized.'
+  - 'Medium follow-up R3-M1: proposed fresh-side duplicate-root rejection has no separately named fresh->fresh/resume->fresh coverage. Medium/Note findings were not repaired; actual remediation script returned route none, forced false, 0 fix cycles.'
+  - 'Original diagnostic and hardening verdict remains blocked: no product repair, fix-applied real-boundary positive/paired negative proof, or independent corrected-boundary review was performed. Task1 red regression and Task4 witness are planned future outputs, not observed repaired passes.'
+  - 'Same-process ownership is the bounded proposed design; cross-process safety remains unchanged and unproven. Original marker emitter, detached-output fix, kill behavior and issue555 remain untouched.'
+  - 'Implementation requires a separate coordinator decision after reading this partial checked package and its review; old native plan and paused ordinary agent remain untouched. Coordinator owns .dev/tasks staging; worker made no index, commit, remote, install, paid-service or shared-memory write.'
