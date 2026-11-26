@@ -40,7 +40,7 @@ def _guardrails() -> str:
         "git fetch origin <default-branch> --tags",
         "git merge-base --is-ancestor <tag> refs/remotes/origin/<default-branch>",
         "unverified",
-        "git fetch origin --tags",
+        "git fetch origin '+refs/heads/*:refs/remotes/origin/*' --tags",
         "git branch -r --contains <tag>",
     ],
 )
