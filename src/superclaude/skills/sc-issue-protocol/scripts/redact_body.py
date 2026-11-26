@@ -239,8 +239,9 @@ _XML_TAG = re.compile(r"<(/?)([A-Za-z0-9_.:-]+)(?:\s[^<>]*)?>")
 _XML_OPAQUE_START = re.compile(r"<!--|<!\[CDATA\[")
 
 
+# A ``value`` attribute: the other kind of quote may appear inside it (``"can't"``).
 _XML_VALUE_ATTR = re.compile(
-    r"""\bvalue\s*=\s*(["'])(?P<v>[^"'<>]*)\1""", re.IGNORECASE
+    r"""\bvalue\s*=\s*(?:"(?P<d>[^"<>]*)"|'(?P<s>[^'<>]*)')""", re.IGNORECASE
 )
 
 
@@ -287,7 +288,10 @@ def _redact_xml_elements(text: str) -> tuple[str, int]:
         attribute = _XML_VALUE_ATTR.search(found["attrs"])
         if attribute:  # <add key="DbPassword" value="..."/>
             offset = found.start("attrs")
-            spans.append((offset + attribute.start("v"), offset + attribute.end("v")))
+            group = "d" if attribute.group("d") is not None else "s"
+            spans.append(
+                (offset + attribute.start(group), offset + attribute.end(group))
+            )
     if not credential:
         return text, 0
     # One pass over every tag pairs each opening tag with its own closing tag using a
