@@ -1,0 +1,17 @@
+== pytest tests/docs/test_release_procedure.py -v (after ruff format, page restored by copy)
+tests/docs/test_release_procedure.py::test_removed_text_is_gone[--base master --head <branch>] PASSED [ 91%]
+tests/docs/test_release_procedure.py::test_removed_text_is_gone[--limit 3] PASSED [ 94%]
+tests/docs/test_release_procedure.py::test_removed_text_is_gone[Every merge to `master` therefore reaches] PASSED [ 97%]
+tests/docs/test_release_procedure.py::test_contents_links_resolve PASSED [100%]
+
+============================== 34 passed in 0.07s ==============================
+== pytest tests/docs/test_branch_protection_rulesets.py -v
+tests/docs/test_branch_protection_rulesets.py::test_guide_has_apply_and_check_commands PASSED [100%]
+
+============================== 5 passed in 0.03s ===============================
+== ruff
+All checks passed!
+1 file already formatted
+== page identical to saved copy
+cmp exit 0
+/home/coder/workspaces/worktrees/IronClaude/issue-826/docs/developer-guide/release-procedure.md: OK

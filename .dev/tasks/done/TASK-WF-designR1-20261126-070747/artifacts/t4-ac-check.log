@@ -1,0 +1,11 @@
+== AC1: release-procedure.md in the Git Workflow section; old line gone
+297:4. Merge to `integration` → validate. Release: a person opens a PR from `integration` to `master`, merges it as a 
+grep exit 1 (1 expected)
+== AC2: one hunk, no other section changed
+1
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+== extras: the three tests that read CLAUDE.md
+tests/core/test_how_we_work_routing_table.py ........................... [ 46%]
+...................................                                      [100%]
+
+============================== 66 passed in 1.44s ==============================

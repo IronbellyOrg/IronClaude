@@ -1,0 +1,84 @@
+# Commands of Steps 2 to 6 of docs/developer-guide/release-procedure.md, written for a scratch repository.
+# A TEXT FILE, NOT AN EXECUTABLE. Only two substitutions were made: the repository name is <scratch-owner>/<scratch-repo>
+# and the tag is rehearsal-0.0.0 (it does not start with v, so the v* tag ruleset of the real repository does not apply).
+# Placeholders such as <n>, <m>, <merge-sha>, <reviewed-head-sha>, <master-tip> and <body-file> are filled in by the run.
+# Before any command runs: a grep of this file for the real repository's owner and name must print nothing (a missed substitution is rejected).
+# Every git command of a run starts with `git -C <absolute scratch clone>` or runs in one shell call that begins with a cd into it;
+# `git remote -v` and `git rev-parse --show-toplevel` are logged in the same shell call as the `git tag` and `git push`.
+# Notes: the scratch repository needs a Makefile with sync-dev, a docs/releases/rehearsal-0.0.0.md notes file and, for the
+# retire-data block, scripts/gen_retired_install_data.py; where it has none, that block is recorded as not exercised.
+# The /sc:post-release and /sc:pr-submit lines are Claude Code commands, not shell commands.
+# Each step lists its fenced commands first, then the commands the page writes in prose or in table cells (gate checks G1 to G9, the
+# pr-submit line, the gh run watch fallback and gh pr checks of Step 5); a few of those are descriptions of a check, not commands to type.
+
+# ===== Step 2: Open the release PR =====
+git fetch origin master integration --tags
+git merge-base --is-ancestor origin/master origin/integration
+git fetch --tags
+uv run python scripts/gen_retired_install_data.py --tag rehearsal-previous   # add --tag for every older release still worth retiring from
+uv run python scripts/gen_retired_install_data.py --tag rehearsal-previous --check
+gh pr create --repo <scratch-owner>/<scratch-repo> --base integration --head <branch> --title "chore(release): prepare X.Y.Z" --body-file <body-file>
+git fetch origin master integration --tags
+gh pr create --repo <scratch-owner>/<scratch-repo> --base master --head integration --title "chore(release): X.Y.Z" --body-file <body-file>
+gh pr view <n> --repo <scratch-owner>/<scratch-repo> --json headRefOid --jq .headRefOid
+git rev-parse origin/master
+gh pr checks <n> --repo <scratch-owner>/<scratch-repo> --watch
+git switch --detach <reviewed-head-sha>
+make sync-dev
+gh api repos/<scratch-owner>/<scratch-repo> --jq '{merge: .allow_merge_commit, squash: .allow_squash_merge, rebase: .allow_rebase_merge, auto: .allow_auto_merge}'
+gh pr merge <n> --repo <scratch-owner>/<scratch-repo> --merge --match-head-commit <reviewed-head-sha>
+# --- Step 2: commands the page writes in prose or in table cells ---
+/sc:pr-submit --monitor 3 --head <branch> --base integration --title "chore(release): prepare X.Y.Z"
+
+# ===== Step 3: Run the go/no-go gate (G1-G9) =====
+gh pr view <n> --repo <scratch-owner>/<scratch-repo> --json state,baseRefName,headRefName,headRefOid,mergeCommit
+git fetch origin master integration --tags
+git rev-parse --verify -q <merge-sha>^2
+git rev-parse --verify -q <merge-sha>^3
+git rev-parse <merge-sha>^1 <merge-sha>^2
+git rev-parse <merge-sha>^{tree} <reviewed-head-sha>^{tree}
+# --- Step 3: commands the page writes in prose or in table cells ---
+git remote -v
+gh run list --repo <scratch-owner>/<scratch-repo> --workflow Tests --event push --branch master --commit <merge-sha> --json databaseId,status,conclusion
+gh run watch <databaseId> --repo <scratch-owner>/<scratch-repo> --exit-status
+grep -n '^version' pyproject.toml
+grep -n '__version__ =' src/superclaude/__init__.py
+uv run superclaude --version
+grep -n '^## ' CHANGELOG.md
+make test
+make lint
+make verify-sync
+make verify-deps
+make lint-architecture
+make sync-dev
+uv build
+./update.sh
+superclaude doctor
+superclaude install --list
+/sc:graph status
+gh pr list --repo <scratch-owner>/<scratch-repo> --state open
+
+# ===== Step 4: Tag and publish =====
+git tag --list rehearsal-0.0.0
+git ls-remote --tags origin rehearsal-0.0.0
+git tag -a rehearsal-0.0.0 <merge-sha> -m "Release rehearsal-0.0.0 - <short description>" && git push origin rehearsal-0.0.0
+git ls-remote origin 'refs/tags/rehearsal-0.0.0^{}'
+git rev-parse rehearsal-0.0.0^{commit}
+gh release create rehearsal-0.0.0 --verify-tag --repo <scratch-owner>/<scratch-repo> --title "rehearsal-0.0.0 - <short description>" --notes-file docs/releases/rehearsal-0.0.0.md
+git cat-file -t rehearsal-0.0.0
+gh release view rehearsal-0.0.0 --repo <scratch-owner>/<scratch-repo>
+
+# ===== Step 5: Merge master back into integration =====
+git fetch origin master integration --tags
+git merge-base --is-ancestor <merge-sha> origin/integration
+gh pr create --repo <scratch-owner>/<scratch-repo> --base integration --head master --title "chore(release): merge master into integration after X.Y.Z" --body-file <body-file>
+gh pr merge <m> --repo <scratch-owner>/<scratch-repo> --merge
+# --- Step 5: commands the page writes in prose or in table cells ---
+gh pr checks <m> --repo <scratch-owner>/<scratch-repo> --watch
+git merge-base --is-ancestor origin/master origin/integration
+
+# ===== Step 6: Post-release follow-through =====
+git fetch origin
+git switch -c post-release-rehearsal-0.0.0 origin/integration
+/sc:post-release rehearsal-0.0.0
+

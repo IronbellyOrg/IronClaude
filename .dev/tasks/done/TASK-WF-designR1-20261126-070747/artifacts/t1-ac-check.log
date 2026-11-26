@@ -1,0 +1,37 @@
+== AC1: old sentence gone, @vX.Y.Z present
+grep exit 1 (1 = no match, expected)
+23:- An unpinned `pipx install git+https://github.com/IronbellyOrg/IronClaude` follows the default branch (`integration`); a tagged install uses `@vX.Y.Z`. A release is a version number, a changelog section, a release-notes file, an annotated tag and a GitHub release on the fork, followed by `/sc:post-release`.
+== AC2: stale sentences gone
+grep exit 1 (1 expected)
+grep exit 1 (1 expected)
+== AC3: --base master --head <branch> gone
+grep exit 1 (1 expected)
+== AC3: each command block present verbatim (stripped lines)
+PASS precondition: git fetch origin master integration --tags
+PASS precondition: git merge-base --is-ancestor origin/master origin/integration
+PASS release PR: git fetch origin master integration --tags
+PASS release PR: gh pr create --repo IronbellyOrg/IronClaude --base master --head integration --title "chor
+PASS release PR: gh pr view <n> --repo IronbellyOrg/IronClaude --json headRefOid --jq .headRefOid
+PASS release PR: git rev-parse origin/master
+PASS release PR: gh pr checks <n> --repo IronbellyOrg/IronClaude --watch
+PASS detached checkout: git switch --detach <reviewed-head-sha>
+PASS detached checkout: make sync-dev
+PASS merge: gh api repos/IronbellyOrg/IronClaude --jq '{merge: .allow_merge_commit, squash: .allow_squ
+PASS merge: gh pr merge <n> --repo IronbellyOrg/IronClaude --merge --match-head-commit <reviewed-head-
+PASS prep PR fallback: gh pr create --repo IronbellyOrg/IronClaude --base integration --head <branch> --title "ch
+PASS pr-submit prep line
+PASS Never + banned options on one line
+AC4 fenced gh lines without the fork form: none
+contents entries: 8
+   What a release is here -> what-a-release-is-here
+   Step 1: Choose the version -> step-1-choose-the-version
+   Step 2: Open the release PR -> step-2-open-the-release-pr
+   Step 3: Run the go/no-go gate (G1-G9) -> step-3-run-the-gono-go-gate-g1-g9
+   Step 4: Tag and publish -> step-4-tag-and-publish
+   Step 5: Merge master back into integration -> step-5-merge-master-back-into-integration
+   Step 6: Post-release follow-through -> step-6-post-release-follow-through
+   Sources -> sources
+H2 headings: ['Contents', 'What a release is here', 'Step 1: Choose the version', 'Step 2: Open the release PR', 'Step 3: Run the go/no-go gate (G1-G9)', 'Step 4: Tag and publish', 'Step 5: Post-release follow-through', 'Sources']
+PASS anchor resolves: step-2-open-the-release-pr
+PASS anchor resolves: step-3-run-the-gono-go-gate-g1-g9
+PASS anchor resolves: step-4-tag-and-publish
