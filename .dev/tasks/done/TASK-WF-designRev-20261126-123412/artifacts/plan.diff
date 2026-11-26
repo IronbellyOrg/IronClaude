@@ -1,0 +1,34 @@
+--- old-plan
++++ new-plan
+@@ -3,7 +3,7 @@
+ source: ./source.md
+ strategy: systematic
+ depth: standard
+-slug: TASK-WF-designRev-20261126-045943
++slug: TASK-WF-designRev-20261126-123412
+ version: "1"
+ priority: Medium
+ created_date: "2026-11-26"
+@@ -183,7 +183,7 @@
+ Acceptance criteria:
+ - The second card block of slide `s12` equals the HTML above byte for byte, and contains "not available yet" and "section 4".
+ - The new card contains no "being worked out"; the worktree card block is byte-identical to its text in `git show <base>:docs/onboarding/ironclaude-onboarding.html` (`<base>` is the SHA in ./artifacts/base-sha.txt); `git diff -U0` hunks touch only the eyebrow, heading, intro and second card of slide `s12`.
+-- Commands and flags appear inside `<code>` only as `/sc:help`, `/sc:recommend` and `--plugin`, and `uv run pytest tests/docs/test_onboarding_deck.py -q` passes.
++- In the new card, commands and flags appear inside `<code>` only as `/sc:help`, `/sc:recommend` and `--plugin`, and `uv run pytest tests/docs/test_onboarding_deck.py -q` passes.
+ - ./artifacts/deck-slide-review.md lists every slide id of the deck with "consistent" or a one-line mismatch against the guide as edited by Task 1; a mismatch on a slide other than `s12` is recorded there for a follow-up issue and is not edited here.
+ - This task did not edit the footer line, and the footer still matches the pattern "Built from HOW-WE-WORK.md at commit" followed by 7 to 40 hex digits.
+ 
+@@ -204,11 +204,11 @@
+   - Start only after `/sc:implement` reports the package archived.
+   - Commit 1: the guide and its plugin copy.
+   - Commit 2: `docs/developer-guide/contributing-code.md`, `CONTRIBUTING.md`, both issue forms and the pull request template. Check zero deletions on all of them except `.github/ISSUE_TEMPLATE/feature_request.yml`, which replaces exactly one line (the `proposal` description); run `yaml.safe_load` and the schema check on both forms.
+-  - Rebase onto `origin/integration` if it moved. If the rebase changed the guide, copy it over the plugin twin again and re-run `cmp` and the 16 test files. Check scope with `git diff --name-only origin/integration...HEAD -- . ':(exclude).dev/tasks'`.
++  - Run `git fetch origin`. If `git merge-base --is-ancestor origin/integration HEAD` exits non-zero, run `git rebase --autostash origin/integration`; it sets aside the uncommitted deck edit and any staged files and re-applies them. If git prints 'Applying autostash resulted in conflicts', resolve the markers so the second `s12` card equals Task 7's HTML, then find the kept 'autostash' entry by the SHA git printed at 'Created autostash:' (`git stash list --format='%h %gd'`) and drop only that entry; never run `git stash pop`. After the rebase, copy the guide over the plugin twin if `cmp` reports a difference (commit the twin on its own), then re-run `cmp` and the 16 test files. Check scope with `git diff --name-only origin/integration...HEAD -- . ':(exclude).dev/tasks'`: it lists the files committed so far (seven before commit 3, eight after it).
+   - Redo the slide review in ./artifacts/deck-slide-review.md against the guide at commit 1.
+   - Move the footer only when that review is all "consistent" after the rebase: set it to the output of `git rev-parse --short=8` for commit 1. Otherwise leave the footer unchanged, mark the footer requirement in the pull request notes "pending, blocked by recorded mismatches", and name the follow-up issue to file.
+   - Commit 3: the deck.
+-  - Run the two guide-equality checks `git diff --quiet <sha> HEAD -- src/superclaude/core/HOW-WE-WORK.md` and `git diff --quiet <sha> -- src/superclaude/core/HOW-WE-WORK.md`, where `<sha>` is commit 1; both must exit 0. Repeat them after any rebase or review-fix commit that touches the guide.
++  - Run the two guide-equality checks `git diff --quiet <sha> HEAD -- src/superclaude/core/HOW-WE-WORK.md` and `git diff --quiet <sha> -- src/superclaude/core/HOW-WE-WORK.md`, where `<sha>` is commit 1 as it stands after any rebase; both must exit 0, and the footer must equal `<sha>` unless it is marked pending. After any later rebase (done as the rebase step above) or review-fix commit, set `<sha>` to `git rev-parse --short=8 $(git log -1 --format=%H origin/integration..HEAD -- src/superclaude/core/HOW-WE-WORK.md)`, the newest branch commit that changed the guide; if it prints nothing, stop and report. If the footer differs from `<sha>` and is not marked pending, redo the slide review against the guide at `<sha>` and apply the footer step above with `<sha>` in place of commit 1: move the footer and commit the deck only when the review is all 'consistent', otherwise leave it and mark it pending. Then run the two checks once more.
+   - Stage only the eight files listed in the scope check below and `.dev/tasks`; never `.claude/` or `.dev/issues/`.
+   - Re-publishing the deck to the same link is an operator step to verify after merge.
+ - Manual checks, all marked "operator, after push, not run by the executor", each with the result "pending": the five scenarios of ./source.md section 5 (a missing-skill request, a broken-skill report answering "solution unknown", a non-primitive request, a primitive pull request, a non-primitive pull request showing "Not applicable"), and slide `s12` at narrow, wide and print widths. The width check exists because the new card is longer than its neighbour in a two-column grid.

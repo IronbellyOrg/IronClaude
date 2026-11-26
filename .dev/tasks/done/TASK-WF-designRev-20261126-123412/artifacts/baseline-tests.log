@@ -1,0 +1,36 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-290
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collected 647 items
+
+tests/unit/test_cli_install.py ......................................... [  6%]
+.....................................................                    [ 14%]
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 17%]
+......                                                                   [ 18%]
+tests/skills/test_spec_panel_review_loop.py ............................ [ 23%]
+................                                                         [ 25%]
+tests/skills/test_issue_protocol.py .................................... [ 31%]
+........................................................................ [ 42%]
+........................................................................ [ 53%]
+.....                                                                    [ 54%]
+tests/skills/test_review_brief_placement.py .....                        [ 54%]
+tests/skills/test_review_prompt_overrides.py ........................... [ 59%]
+...                                                                      [ 59%]
+tests/recommend/test_routing_refresh.py ................................ [ 64%]
+........................................................................ [ 75%]
+.......................................                                  [ 81%]
+tests/recommend/test_cache.py ...............                            [ 83%]
+tests/docs/test_onboarding_deck.py ...                                   [ 84%]
+tests/commands/test_routing_plugin_parity.py .....                       [ 85%]
+tests/commands/test_worktrees_command.py ............                    [ 87%]
+tests/core/test_claude_md_routing_block.py ......                        [ 87%]
+tests/core/test_default_branch_agreement.py .                            [ 88%]
+tests/core/test_how_we_work_routing_table.py ........................... [ 92%]
+...................................                                      [ 97%]
+tests/commands/test_help_command.py ......                               [ 98%]
+tests/cli/test_how_we_work_install.py .........                          [100%]
+
+============================= 647 passed in 4.82s ==============================
