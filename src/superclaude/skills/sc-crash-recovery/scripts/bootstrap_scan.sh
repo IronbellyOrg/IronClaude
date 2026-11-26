@@ -36,7 +36,7 @@ mtime_of() {
   local dir="$1"
   [[ -d "$dir" ]] || { echo ""; return; }
   find "$dir" -type f -printf '%T@ %p\n' 2>/dev/null \
-    | sort -n -r | head -1 \
+    | sort -n -r | sed -n '1p' \
     | awk '{print $1}' \
     | xargs -I{} date -u -d "@{}" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo ""
 }
@@ -58,14 +58,14 @@ count_md_in() {
 recent_files() {
   local pattern="$1"
   find . -type f -name "$pattern" -mmin "-$(( SINCE_HOURS * 60 ))" 2>/dev/null \
-    | head -20 | sed 's|^\./||'
+    | sed -n '1,20p' | sed 's|^\./||'
 }
 
 # Recent claude session logs for this cwd, last 3 by mtime.
 recent_sessions() {
-  [[ -d "$SESSION_DIR" ]] || return
+  [[ -d "$SESSION_DIR" ]] || return 0
   find "$SESSION_DIR" -maxdepth 1 -type f -name "*.jsonl" -printf '%T@ %p\n' 2>/dev/null \
-    | sort -n -r | head -3 | awk '{print $2}'
+    | sort -n -r | sed -n '1,3p' | awk '{print $2}'
 }
 
 # Git state, if repo.
