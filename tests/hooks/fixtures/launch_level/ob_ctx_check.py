@@ -1,4 +1,4 @@
-"""OB-CTX coverage checker: counts per row R1-R10 and violations of P1-P6, P8.
+"""OB-CTX coverage checker: counts per row R1-R10 and violations of P1-P8.
 
 Rows and predicates are those of .dev/launch-level-observations/obs-ctx-plan.md
 (sections 4 and 7). Input is probe lines: JSONL, or TSV where column 4 is the
@@ -6,9 +6,14 @@ JSON payload and column 5 is the store stat or "absent".
 
 P1 session_id present but not a valid id; P4 session_id absent (identity loss).
 P2 event or tool shape; P3 agent fields and foreign session ids.
-P5 selector verdicts; P6 human shell beside a governed child; P8 row completeness.
-P7 (resume, fork) is not a separate predicate: run P1-P4 on the resumed run with
-the original --session, and on the fork with its own.
+P5 selector verdicts; P6 human shell beside a governed child, in the same cwd;
+P8 row completeness (R1-R8; R9 is recorded as not observed in the notes).
+P7 (resume, fork): run P1-P4 on the resumed run with the original --session and on
+the fork with its own, and pass bash_bound to check(): True when every Bash
+PostToolUse command must carry the launch-job-identity.sh rewrite for a run
+session (resume), False when none may (fork). The in-session selector verdict of
+the plan cannot be captured (the guard refuses Bash that names the hook), so the
+rewrite is the proof that a call was bound as governed.
 """
 
 import argparse
@@ -47,9 +52,12 @@ REQUIRED = [("R1", "main")] + [
         ("R5", ("main", "sub")),
         ("R6", ("main", "sub")),
         ("R7", ("main", "sub")),
+        ("R8", ("main",)),
     )
     for a in actors
 ]
+CWD = re.compile(r"\(cwd ([^)]*)\)")
+REWRITE = re.compile(r"^/bin/bash \S*launch-job-identity\.sh execute (\S+) ")
 MAX_ORDINARY = (
     2  # LIM-1 (Monitor) and LIM-2 (setsid child) are expected to read ordinary
 )
@@ -150,7 +158,7 @@ def check_event(n, event, governed, add):
 
 
 def check_human(text, governed, add):
-    seen = {}
+    seen, cwds = {}, {}
     for line in text.splitlines():
         for key, label in (
             ("human shell", "human"),
@@ -163,8 +171,17 @@ def check_human(text, governed, add):
                         line[line.index("{") :]
                     )[0]
                 except ValueError:
-                    pass
+                    continue
+                found = CWD.search(line[: line.index("{")])
+                cwds[label] = found.group(1) if found else None
     human, child = seen.get("human"), seen.get("child")
+    if cwds.get("human") is None or cwds.get("human") != cwds.get("child"):
+        add(
+            "P6",
+            0,
+            "human shell and governed job child are not in the same cwd: "
+            f"{cwds.get('human')!r} vs {cwds.get('child')!r}",
+        )
     if not isinstance(human, dict) or human.get("status") != "ordinary":
         add("P6", 0, f"human shell verdict is not ordinary: {human!r}")
     if (
@@ -179,6 +196,33 @@ def check_human(text, governed, add):
         )
 
 
+def check_rewrites(events, governed, bound, add):
+    """P7: the Bash PostToolUse commands carry (bound) or lack (not bound) the rewrite."""
+    posts = [
+        (n, e)
+        for n, e in events
+        if e.get("hook_event_name") == "PostToolUse" and e.get("tool_name") == "Bash"
+    ]
+    if not posts:
+        add("P7", 0, "no Bash PostToolUse line to read the rewrite from")
+    for n, event in posts:
+        command = (event.get("tool_input") or {}).get("command")
+        command = command if isinstance(command, str) else ""
+        match = REWRITE.match(command)
+        if bound and not (match and match.group(1) in governed):
+            add(
+                "P7",
+                n,
+                f"Bash command is not rewritten for a run session: {command[:80]!r}",
+            )
+        elif not bound and "launch-job-identity.sh execute" in command:
+            add(
+                "P7",
+                n,
+                f"Bash command is rewritten in a run that must be ordinary: {command[:80]!r}",
+            )
+
+
 def check(
     records,
     sessions=(),
@@ -186,6 +230,7 @@ def check(
     verdict_text=None,
     human_text=None,
     complete=False,
+    bash_bound=None,
 ):
     """Return {counts, violations, scoped, verdicts, governed}; a void run is a VOID violation."""
     violations, counts, events = [], Counter(), []
@@ -237,6 +282,8 @@ def check(
             )
     if human_text is not None:
         check_human(human_text, governed, add)
+    if bash_bound is not None:
+        check_rewrites(events, governed, bash_bound, add)
     if complete:
         for row, actor in REQUIRED:
             key = "ups" if row == "R1" else f"pret_{actor}"

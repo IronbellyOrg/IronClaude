@@ -387,16 +387,41 @@ def test_ob_ctx_runs_a_b_and_c_pass_the_checker_with_no_violations():
     fixtures/launch_level/ob_ctx_check.py (obs-ctx-plan section 7, P1 to P8): zero
     violations on each run, resume keeps run A's session id, the fork has its own, the
     human shell reads ordinary beside a governed job child, and LIM-1 and LIM-2 read
-    ordinary."""
+    ordinary.
+
+    P5 and P7 use the proof the evidence holds, not the plan's wording: the guard
+    refuses a Bash call that names the identity hook, so no verdict was printed inside
+    a governed call (ob-ctx-notes.md). P5 reads the three child-process verdicts of the
+    human file (the human shell line is left out, it is ordinary by design); P7 reads
+    the launch-job-identity.sh rewrite of every Bash PostToolUse command: bound in
+    runs A and B, absent in the fork C."""
     oc = _checker()
     human = _text("ob-ctx-human-concurrent.txt")
-    run_a = oc.check(
-        oc.jsonl_records(_text("ob-ctx-run-a-probe.jsonl")), [_CTX_A], human_text=human
+    children = "\n".join(
+        x[x.index("{") :]
+        for x in human.splitlines()
+        if x.startswith(("background job child", "setsid child", "monitor child"))
     )
-    run_b = oc.check(oc.jsonl_records(_text("ob-ctx-run-b-probe.jsonl")), [_CTX_A])
-    run_c = oc.check(oc.jsonl_records(_text("ob-ctx-run-c-probe.jsonl")), [_CTX_C])
+    run_a = oc.check(
+        oc.jsonl_records(_text("ob-ctx-run-a-probe.jsonl")),
+        [_CTX_A],
+        human_text=human,
+        verdict_text=children,
+        bash_bound=True,
+    )
+    run_b = oc.check(
+        oc.jsonl_records(_text("ob-ctx-run-b-probe.jsonl")), [_CTX_A], bash_bound=True
+    )
+    run_c = oc.check(
+        oc.jsonl_records(_text("ob-ctx-run-c-probe.jsonl")), [_CTX_C], bash_bound=False
+    )
     for result in (run_a, run_b, run_c):
         assert result["violations"] == [] and result["scoped"] > 0
+    assert [v["status"] for v in run_a["verdicts"]] == [
+        "governed",
+        "ordinary",
+        "ordinary",
+    ]
     assert run_a["governed"] == run_b["governed"] == {_CTX_A}
     assert run_c["governed"] == {_CTX_C} != run_a["governed"]
     combined = _text("ob-ctx-run-a-probe.jsonl") + _text(
@@ -408,7 +433,7 @@ def test_ob_ctx_runs_a_b_and_c_pass_the_checker_with_no_violations():
         human_text=human,
         complete=True,
     )
-    assert complete["violations"] == [] and complete["scoped"] == 506  # P8: rows R1-R7
+    assert complete["violations"] == [] and complete["scoped"] == 506  # P8: rows R1-R8
     assert "setsid child sleep 9 pid" in human and "monitor child sleep 4 pid" in human
     for label in ("setsid child", "monitor child", "human shell"):
         line = next(x for x in human.splitlines() if x.startswith(label))
@@ -420,6 +445,7 @@ def test_ob_ctx_runs_a_b_and_c_pass_the_checker_with_no_violations():
     notes = _text("ob-ctx-notes.md")
     assert "Run A alone: `OB-CTX-CHECK violations=0`" in notes
     assert "/clear" in notes and "Still not observed" in notes
+    assert "Recorded as not observed" in notes  # P8: R9 is not producible here
 
 
 @pytest.mark.parametrize("item", _PENDING)

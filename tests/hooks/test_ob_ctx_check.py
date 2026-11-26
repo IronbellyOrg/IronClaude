@@ -121,8 +121,73 @@ def test_human_file_p6():
     assert "P6" in preds(run([line()], human_text="no job found\n"))
 
 
+def test_human_file_p6_needs_the_same_cwd():
+    def text(human_cwd, child_cwd):
+        return (
+            f'human shell{human_cwd}: {{"status": "ordinary"}}\n'
+            f'governed job child 42{child_cwd}: {{"status": "governed", "session_id": "{SID}"}}\n'
+        )
+
+    assert run([line()], human_text=text(" (cwd /w)", " (cwd /w)"))["violations"] == []
+    for bad in (
+        text(" (cwd /w)", " (cwd /other)"),
+        text(" (cwd /w)", " (cwd /w/)"),
+        text(" (cwd /w)", ""),
+        text("", " (cwd /w)"),
+        text("", ""),
+    ):
+        assert "P6" in preds(run([line()], human_text=bad))
+
+
 def test_complete_p8_needs_every_required_row():
     assert "P8" in preds(run([line()], complete=True))
+
+
+def test_complete_p8_needs_the_r8_row_for_the_main_actor():
+    prompt = {"session_id": SID, "hook_event_name": "UserPromptSubmit", "prompt": "hi"}
+
+    ids = iter(range(1000))
+
+    def tool(name, **over):
+        return line(tool_name=name, tool_use_id=f"t{next(ids)}", **over)
+
+    def sub(name):
+        return tool(name, agent_id="a1", agent_type="x")
+
+    base = [prompt, tool("Bash"), sub("Bash")]
+    base += [tool("Bash", tool_input={"run_in_background": True})]
+    base += [tool("Monitor"), tool("Agent"), sub("Agent")]
+    base += [tool("Edit"), sub("Edit"), tool("SendMessage"), sub("SendMessage")]
+    assert [m for _, _, m in run(base, complete=True)["violations"] if "R8" in m] != []
+    assert run(base + [tool("CronCreate")], complete=True)["violations"] == []
+    assert any(
+        "R8" in m
+        for _, _, m in run(base + [sub("CronCreate")], complete=True)["violations"]
+    )
+
+
+def test_bash_rewrite_p7():
+    def post(command, **over):
+        return line(
+            hook_event_name="PostToolUse", tool_input={"command": command}, **over
+        )
+
+    rewritten = f"/bin/bash /h/launch-job-identity.sh execute {SID} call_1 'echo 1'"
+    assert run([line(), post(rewritten)], bash_bound=True)["violations"] == []
+    for bad in (
+        [post("echo 1")],  # not rewritten
+        [post(rewritten), post("echo 2")],  # one of two not rewritten
+        [post(rewritten.replace(SID, "other-sid"))],  # a foreign session
+        [
+            post(f"echo '/bin/bash /h/launch-job-identity.sh execute {SID} c x'")
+        ],  # quoted
+        [line()],  # no PostToolUse line at all
+        [post("echo 1", tool_name="Read")],  # not a Bash line
+    ):
+        assert "P7" in preds(run(bad, bash_bound=True))
+    assert run([line(), post("echo C1")], bash_bound=False)["violations"] == []
+    for bad in ([post(rewritten)], [line()]):
+        assert "P7" in preds(run(bad, bash_bound=False))
 
 
 def test_cli_exit_code_and_final_line(tmp_path, capsys):
