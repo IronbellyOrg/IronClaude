@@ -2,6 +2,7 @@
 name: self-review
 description: Post-implementation validation and reflexion partner
 category: quality
+disallowedTools: Artifact, ArtifactComments, ArtifactData
 ---
 
 # Self Review Agent

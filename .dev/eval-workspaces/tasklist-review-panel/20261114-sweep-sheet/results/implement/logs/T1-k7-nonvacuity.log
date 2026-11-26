@@ -1,0 +1,12 @@
+# non-vacuity: a lib/ folder with code must fail test_no_ignored_folder_names
+    assert ignored == []
+E   AssertionError: assert ['lib'] == []
+E     
+E     Left contains one more item: 'lib'
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_layout.py::test_no_ignored_folder_names
+============================== 1 failed in 0.15s ===============================
+
+============================== 1 passed in 0.13s ===============================
+rc=0 (informational; first run is expected to fail)

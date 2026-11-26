@@ -1,0 +1,65 @@
+#777 [FEATURE] Too many manual pieces to track per issue: map the whole watcher and coordinator chain and decide what to automate [OPEN ] closed=-
+<!-- /sc:issue feature template (simple). Filled from the owner's description and a light codebase pass. -->
+
+## Feature Summary
+
+Thank you, Ryan, for the issue watcher and the standing coordinator now on master in pull request 707 (https://github.com/IronbellyOrg/IronClaude/pull/707). Could we write one short map of what a person has to remember for each issue, then use it to decide which steps to automate first?
+
+This asks for a written map and a decision, not a replacement for the merged design.
+
+## Problem Statement
+
+Clay expects to handle 20 or more pull requests a day. The owner describes the merged watcher and coordinator as working, but not fully automated yet. A person has to remember and perform many separate pieces for every issue:
+
+- The watcher: the cron job that finds approved issues and claims them.
+- The claim tab: the Claude tab the watcher starts for each claim.
+- The standing coordinator: the one long-running agent per project.
+- The worker: the agent that does the stage.
+- Two stores: the watcher's claim store, `dispatch.json`, and the coordinator's adoption rows.
+- Two human approvals: the claim approval and the plan approval.
+- The per-issue grant: the owner's chat yes that lets the coordinator write to one issue.
+- The ship gate: the switch that keeps full end-to-end runs closed.
+- On the GitHub board: the Status, the Pipeline, the assignment and the trigger label.
+
+Each piece is careful on its own. Together, a person must hold the whole list in their head for every issue. At 20 or more pull requests a day, a missed step means an issue that silently waits.
+
+The research run for issue 761, the list of 18 possible gaps (https://github.com/IronbellyOrg/IronClaude/issues/761), looked at this as gap 7. It found no issue, pull request or plan file that reviews the whole chain. **UNVERIFIED as an absence:** the check that settles it is a cross-search of all issues, pull requests and plan files for a review that covers the whole chain, not one route.
+
+The existing records say:
+
+- Owner ruling R38, dated 2026-11-21 in `.dev/releases/backlog/issue-watcher-zero-setup/requirements.md`, keeps the merged design. It keeps cron and one dispatcher, one coordinator per project, and a person's typed go for every push and merge.
+- Issue 733 (https://github.com/IronbellyOrg/IronClaude/issues/733) removes the human plan approval on the unattended `/sc:implement` route only.
+- Issue 716 (https://github.com/IronbellyOrg/IronClaude/issues/716), coordinator features, keeps the existing claim and store path as the baseline.
+
+## User Story
+
+As a person handling many issues, I want one short map of the steps and moving pieces from filing to merge, so that I do not have to remember them all and can help decide which gaps to close first.
+
+## Proposed Solution
+
+Could we work through these three questions?
+
+1. Could we write one short map of the per-issue life cycle, from filing to merge? It would list every step a person must do or remember today, and every piece that moves.
+2. Could each step be marked as one of three kinds: automatic, manual by design, or manual by gap? Manual by design includes the two human approvals and the person's typed go to push and merge. Manual by gap means a person does it only because nothing does it yet.
+3. Could that map then be used to decide which gaps to close first?
+
+Several suggestions are already filed to shrink the manual list. Could the map show what remains after them, without treating proposed work as already built?
+
+- Issue 773 (https://github.com/IronbellyOrg/IronClaude/issues/773): `/sc:issue` sets up everything except the approval. It has a short "Moving pieces" section on this topic. This issue would replace that section as the home of the topic, not replace the merged watcher design.
+- Issue 
+--- comments=1; last 3:
+[ironbelly 2026-11-24T22:04:25Z] ## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Simple / S
+- **Priority:** P2
+
+#### Concrete next steps
+
+The issue is not started; these are the steps, in order, matching the issue's Fix approach:
+
+1. Get the owner of the map and its location from Ryan and Clay (open questions 1 and 2). Suggested home: `docs/designs/`. Do not choose for them.
+2. Finish the cross-search for gap 7 (PR and issue bodies, review comments, plan files) and record the result; keep the absence claim UNVERIFIED until it is done.
+3. Read the six sources in the issue and write the filing-to-merge map in the agreed file. Include every piece listed in the issue's Problem Statement (watcher, claim tab, standing coordinator, worker, the two stores, two approvals, per-issue grant, ship gate, board fields Status, Pipeline, assignment, trigger label). Label each step automatic, manual by design, or manual by gap. Keep today's behaviour apar

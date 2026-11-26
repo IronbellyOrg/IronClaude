@@ -1,0 +1,24 @@
+row pkg model | runA runB | union overlap | wb(A,B)
+b4-muse-ember-luna2    AL luna   | ['2'] ['2'] | union=1 overlap=1 | wb 1,1
+b4-muse-ember-luna2    DS luna   | [] [] | union=0 overlap=0 | wb 0,1
+b4-sonnet-luna2        AL luna   | [] [] | union=0 overlap=0 | wb 1,1
+b4-sonnet-luna2        DS luna   | [] [] | union=0 overlap=0 | wb 0,1
+e2-ember-luna2-rep     AL luna   | [] [] | union=0 overlap=0 | wb 1,2
+e2-ember-luna2-rep     DS luna   | [] ['7'] | union=1 overlap=0 | wb 1,0
+e3-ember2-luna         AL ember  | [] [] | union=0 overlap=0 | wb 1,1
+e3-ember2-luna         DS ember  | [] ['3'] | union=1 overlap=0 | wb 0,0
+e6-haiku-ember2        AL ember  | [] [] | union=0 overlap=0 | wb 3,2
+e6-haiku-ember2        DS ember  | [] ['7'] | union=1 overlap=0 | wb 0,0
+r1-haiku-luna2-src     AL luna   | [] [] | union=0 overlap=0 | wb 2,1
+r1-haiku-luna2-src     DS luna   | ['4'] [] | union=1 overlap=0 | wb 0,0
+r2-sonnet-ember        AL haiku  | [] [] | union=0 overlap=0 | wb 2,2
+r2-sonnet-ember        DS haiku  | ['3', '7'] ['3', '7'] | union=2 overlap=2 | wb 0,0
+r2-sonnet-src          AL haiku  | ['1', '4'] ['1', '4'] | union=2 overlap=2 | wb 1,0
+r2-sonnet-src          DS haiku  | ['3', '4', '5', '7'] ['3', '4', '5', '7'] | union=4 overlap=4 | wb 0,0
+r3-luna2-grok-src      AL luna   | [] [] | union=0 overlap=0 | wb 1,1
+r3-luna2-grok-src      DS luna   | [] ['7'] | union=1 overlap=0 | wb 1,0
+
+model | doubled panel-pkgs | avg GT per single run | avg union | gain of 2nd run over best single (total) | overlap total | wrong blockers total
+luna: panels=10 avg_single=0.25 avg_union=0.40 gain_total=0 (per panel 0.00) overlap=1 wb=16
+ember: panels=4 avg_single=0.25 avg_union=0.50 gain_total=0 (per panel 0.00) overlap=0 wb=7
+haiku: panels=4 avg_single=2.00 avg_union=2.00 gain_total=0 (per panel 0.00) overlap=8 wb=5

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# usage: run-reviewer.sh <EVAL abs> <pkg id> <reviewer_id> <model>
+# Runs one first-review reviewer in a fresh `claude -p` session on the raw gateway model id.
+set -u -o pipefail
+EVAL=$1; PKG=$2; RID=$3; MODEL=$4
+OUT=$EVAL/$PKG/reviews${5:+/$5}; mkdir -p "$OUT"
+CAND_SB=/tmp/evalsb/cand/$PKG/candidate.md
+mkdir -p "$(dirname "$CAND_SB")"; cp "$EVAL/$PKG/candidate.md" "$CAND_SB"
+SHA=$(sha256sum "$CAND_SB" | cut -d' ' -f1)
+BRIEF="/sc:spec-panel @$CAND_SB --mode critique
+
+Review the candidate $CAND_SB (sha256 of the file: $SHA) against the requirements it states, review 1 of 3. Inspect behavior and the dependencies it touches. Report concrete wrong outcomes, not a minimum number of findings. Minor findings are notes and never fail the review; list Medium and minor findings under follow-up candidates. If an input is missing or unreadable, return incomplete. Do not edit the candidate and do not start another review. State what you covered.
+
+First-review rules (from ~/.claude/rules/prompts/document_review_loop_prompts.md, read it first): write 'review: 1 of 3' once as the first line of the report. Grading check, for each finding before you mark it blocking: write the sentence 'An implementer who follows the stated text as written builds X, and X is wrong because Y.' Blocking needs a sentence that holds with no further assumption: two stated texts that contradict each other, a stated text that causes data loss or breaks a security or safety boundary, or a stated text that an acceptance criterion cannot pass. Grade it Medium when the sentence needs a guess that the implementer picks the worse of two readings the text allows, or when the finding is a requirement the document never states rather than a stated text that does harm. End the report with the '## Findings block' (one fenced code block with info string findings-v1, one JSON object per line: id, severity CRITICAL|MAJOR|MINOR, blocking, category contradiction|unpassable-ac|data-loss|safety|missing-requirement|other, anchor = 12 to 200 chars copied exactly from the candidate, optional anchor2, refs, claim) and a final 'verdict: PASS' or 'verdict: FAIL' line. Your final reply must be the complete report text."
+attempt=0
+while [ $attempt -lt 2 ]; do
+  attempt=$((attempt+1))
+  S=$(date +%s)
+  ( cd /tmp/evalsb/repo && timeout 3000 claude -p --model "$MODEL" --output-format json --no-session-persistence --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit "$BRIEF" ) >"$OUT/$RID.attempt$attempt.json" 2>"$OUT/$RID.attempt$attempt.err"
+  RC=$?; W=$(( $(date +%s)-S ))
+  jq -r '[.[]|select(.type=="result")|.result]|.[0] // ""' "$OUT/$RID.attempt$attempt.json" > "$OUT/$RID.attempt$attempt.md" 2>/dev/null
+  OBS=$(jq -r '[.[]|select(.type=="assistant" and (.parent_tool_use_id==null))|.message.model]|unique|join(",")' "$OUT/$RID.attempt$attempt.json" 2>/dev/null)
+  TOK=$(jq '[.[]|select(.type=="result")|.usage.output_tokens]|.[0] // 0' "$OUT/$RID.attempt$attempt.json" 2>/dev/null)
+  TOKALL=$(jq '[.[]|select(.type=="result")|.modelUsage|to_entries[]|.value.outputTokens]|add // 0' "$OUT/$RID.attempt$attempt.json" 2>/dev/null)
+  LOWOBS=$(echo "$OBS" | tr 'A-Z' 'a-z'); LOWEXP=$(echo "$MODEL" | tr 'A-Z' 'a-z')
+  MODEL_OK=false; [ -n "$OBS" ] && [ "$LOWOBS" = "$LOWEXP" -o "$LOWOBS" = "$LOWEXP-build" ] && MODEL_OK=true
+  BLOCK_OK=false; grep -q '^```findings-v1' "$OUT/$RID.attempt$attempt.md" && BLOCK_OK=true
+  jq -n --arg rid "$RID" --arg exp "$MODEL" --arg obs "$OBS" --argjson mok $MODEL_OK --argjson bok $BLOCK_OK --argjson att $attempt --argjson w $W --argjson tok "${TOK:-0}" --argjson tokall "${TOKALL:-0}" --argjson rc $RC '{reviewer_id:$rid,expected_model:$exp,observed_model:$obs,model_ok:$mok,findings_block:$bok,attempt:$att,wall_s:$w,output_tokens_main:$tok,output_tokens_all:$tokall,exit:$rc}' > "$OUT/$RID.attempt$attempt.meta.json"
+  if $MODEL_OK && $BLOCK_OK; then break; fi
+done
+# final = last attempt
+cp "$OUT/$RID.attempt$attempt.md" "$OUT/$RID.md"; cp "$OUT/$RID.attempt$attempt.meta.json" "$OUT/$RID.meta.json"
+# total cost across attempts (both attempts count toward tokens/wall)
+jq -s '{attempts:length,total_wall_s:(map(.wall_s)|add),total_output_tokens_all:(map(.output_tokens_all)|add)}' "$OUT/$RID".attempt*.meta.json > "$OUT/$RID.cost.json"

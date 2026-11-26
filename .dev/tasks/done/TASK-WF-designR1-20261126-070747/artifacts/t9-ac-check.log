@@ -1,0 +1,18 @@
+== AC1: no origin/master in src/superclaude; no 'against master' in evals.json
+grep exit 1 (1 expected)
+grep exit 1 (1 expected)
+== AC2: evals.json is valid JSON
+json ok
+python exit 0
+== AC3: command tests
+tests/commands/test_auggie_review_remediation_chain.py ............      [100%]
+
+============================= 105 passed in 0.23s ==============================
+== extra: install list tests
+
+============================== 94 passed in 1.22s ==============================
+== diff stat
+ src/superclaude/commands/auggie-review.md                         | 4 ++--
+ src/superclaude/commands/impact.md                                | 2 +-
+ src/superclaude/skills/sc-auggie-review-protocol/evals/evals.json | 4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)

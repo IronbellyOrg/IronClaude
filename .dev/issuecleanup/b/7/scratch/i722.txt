@@ -1,0 +1,42 @@
+#722 [OPEN] [FEATURE] The owner and the AI helpers share one GitHub login: decide how to tell who approved (a separate agent account is one proposed solution)
+## What was tried
+
+**The problem.** Today the owner and every AI helper that works for the owner (the Orca coordinator and worker sessions, scripts, the pull-request helper) sign in to GitHub as the same user, `ironbelly`, which is also the repository admin. GitHub cannot tell who did something: the person clicking "Approve" or a script running on the same machine. Our own checks cannot tell either.
+
+**Why it matters.** The plan says things like "a worker cannot merge", "an approval means the owner approved", "a typed go means the owner typed it". On a shared login these rules can be written down but not proven. The plan already records this as open risks (requirement SEC-09, risk RK-3, invariant INV-025 in the unification plan). The plan's current default is: the typed-answer check cannot pass, so every merge is typed by hand.
+
+**What was tried.** On 2026-11-22 two agents proposed and debated (three rounds) and a reconciler unified one proposal. The owner shelved it for further human debate and asked that the problem be filed with that proposal as one of the proposed solutions. Nothing below is decided or built.
+
+**Proposed solutions (not decided).**
+
+1. **Two tiers plus a separate agent GitHub account (the debated proposal).** "The owner" means the person behind `ironbelly`, by numeric id.
+   - Tier 1, chat-only answers (a grant, a cleanup approval, a design go): counts only when the owner types it in a session the owner opened by hand; never from workers, script-started sessions, relays, or issue or PR text. Free, and can be done now. It narrows the risk but cannot prove who typed.
+   - Tier 2, a merge or the `Approved` label: the chat go plus an approving GitHub review by the `ironbelly` account on that exact commit, clicked by the owner in the browser. The checks refuse if the login in use is the owner's own, or if no such review exists.
+   - A second GitHub account for the agents (Write role, outside collaborator, 2FA), with `ironbelly` signed out of agent hosts. It must exist before merge automation, coordinator autostart, switching the watcher on for real repos, and flipping the worker-binding switch.
+   - Needs the master protection rules (the ruleset of the plan's item OA-5) to make "a worker cannot merge" true.
+2. **Chat-only rule, no new account.** Do only Tier 1. Cheap, but a script on the host can still type as the owner.
+3. **Status quo.** Every merge is typed by hand by the owner; merge automation, coordinator autostart, real-repo watcher switch-on and the worker-binding flip stay off.
+4. **Not evaluated yet:** a GitHub App (a bot identity) instead of a second user account.
+
+**Costs (estimates, not measured).** Tier 1: about 15 minutes of the owner's time and about 1 agent hour. Second account: about 1 to 1.5 owner hours once, about 15 minutes per extra host, about 1 to 2 minutes per gated merge, plus about 3 to 4 agent hours of code and tests. Ruleset time belongs to OA-5.
+
+**Risks of solution 1.** An `ironbelly` credential left on a host; the owner logging back in under pressure; review bots (Augment, Codex) staying silent on a new account, which reads as clean; credential expiry stopping all agents (fails safe); at 0 required approvals a worker could merge a path the rules do not gate.
+
+**Unknowns.** Whether a Write-role account can do the claim's writes (assignee, issue type, Complexity field, `Approved` field); whether Augment and Codex review pull requests from a new account; how many hosts exist.
+
+**Open choices from the debate.** (1) Required approvals on master: 1 (recommended by the debate, no agent self-merge on any path) or 0. (2) Should the agent account join the Coder organisation: no to start. (3) Reuse the existing `IB-AIReviewer` account: no, create a new one.
+
+## Relevant files and links
+
+- Plan items: OA-6 (who counts as "the owner"), OA-5 (master protection), OA-18, OA-19, OA-20 (all wait on this), SEC-09, RK-3, INV-025, decision D16 (review rule), `SPEC.md` lines 577 and 578. Local plan files, not pushed: `.dev/brainstorms/20261120-pr686-unify/`.
+- The debate (local, not pushed): `.dev/brainstorms/20261122-owner-actions-debate/X05/` (`FINAL.md`, rounds A-0 to B-3).
+- Related: issue 717 (watcher: real-repo switch-on and the worker-binding flip wait on this), issue 716 (coordinator).
+
+## Done when
+
+The owner records in chat which solution is chosen (or a new one). Then either the dependent items (merge automation, coordinator autostart, real-repo watcher switch-on, the worker-binding flip) are unblocked with the chosen mechanism built and tested, or they are confirmed to stay off. If solution 1 is chosen: the agent account exists and is cut over on one host, the throwaway tests in the debate file pass (the login prints the agent account in a fresh shell and in an Orca session; an unapproved agent PR cannot merge; `gh pr merge --admin` and a push to master are refused; both review bots review an agent-authored PR; the claim writes work).
+
+## Pick-up note
+
+Parked for human debate. Do not build anything yet. The owner decides whether any of this is wanted; there is no deadline. Read `X05/FINAL.md` for the full order of steps, the owner's one-sentence approval, and what an agent would do after it.
+

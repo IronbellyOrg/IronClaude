@@ -1,0 +1,12 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:design "Implementation and test design for Redesign 2: Idle-Shift Sweeper (F4) ..." --type component --format spec --unattended --report-dir .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r2-idle-shift-sweeper/design-report --output .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r2-idle-shift-sweeper/DESIGN.md'
+report_path: .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r2-idle-shift-sweeper/DESIGN.md
+artifacts:
+  - .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r2-idle-shift-sweeper/design-report/review-1.md
+  - .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r2-idle-shift-sweeper/design-report/review-2.md
+  - .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r2-idle-shift-sweeper/design-report/review-3.md
+grounding: "index_state: fresh, checked_at 2026-11-13T19:30:46Z (codegraph_status, codegraph_node symbolsOnly)"
+review: "3 independent reviews: review 1 FAIL (8 blocking), review 2 FAIL (2 new blocking), review 3 PASS (0 blocking, 4 notes)"
+open_questions: "Q-1 sweeper model on sonnet and haiku panels (default ember helper); Q-2 finish signal to receivers only (default); Q-3 Spike 4 run count (default 4)"
+built: none (design only; no implementation code generated)

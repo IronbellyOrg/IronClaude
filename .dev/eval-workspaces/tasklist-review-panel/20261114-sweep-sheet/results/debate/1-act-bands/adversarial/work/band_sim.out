@@ -1,0 +1,57 @@
+A. P(observed k/n inside the point band) when the TRUE rate is the band midpoint
+class band        n=5     n=10    n=18    n=30    
+C1    0.10-0.40 mid=0.250 0.66    0.87    0.90    0.97    
+C2    0.20-0.45 mid=0.325 0.66    0.69    0.79    0.88    
+C3    0.03-0.15 mid=0.090 0.00    0.39    0.60    0.81    
+C4    0.50-0.75 mid=0.625 0.34    0.66    0.77    0.87    
+C5    0.35-0.60 mid=0.475 0.62    0.65    0.65    0.86    
+C6    0.05-0.30 mid=0.175 0.41    0.77    0.89    0.95    
+C7    0.15-0.35 mid=0.250 0.40    0.53    0.73    0.80    
+C8    0.40-0.65 mid=0.525 0.62    0.65    0.65    0.86    
+P(all 8 classes inside band, each true rate = midpoint, independent): n=5: 0.0000, n=10: 0.0264, n=18: 0.0915, n=30: 0.3340
+
+B. same, TRUE rate exactly at the band edge (lo) -> a correct prediction at its edge
+C1 n=5:0.40 n=10:0.65 n=18:0.55 n=30:0.59 | at hi: n=5:0.60 n=10:0.63 n=18:0.56 n=30:0.58
+C2 n=5:0.61 n=10:0.59 n=18:0.49 n=30:0.57 | at hi: n=5:0.54 n=10:0.48 n=18:0.57 n=30:0.50
+C3 n=5:0.00 n=10:0.23 n=18:0.41 n=30:0.60 | at hi: n=5:0.00 n=10:0.35 n=18:0.43 n=30:0.52
+C4 n=5:0.31 n=10:0.57 n=18:0.58 n=30:0.57 | at hi: n=5:0.26 n=10:0.45 n=18:0.48 n=30:0.48
+C5 n=5:0.52 n=10:0.46 n=18:0.43 n=30:0.49 | at hi: n=5:0.58 n=10:0.56 n=18:0.42 n=30:0.57
+C6 n=5:0.20 n=10:0.40 n=18:0.60 n=30:0.45 | at hi: n=5:0.36 n=10:0.62 n=18:0.53 n=30:0.59
+C7 n=5:0.39 n=10:0.41 n=18:0.51 n=30:0.47 | at hi: n=5:0.31 n=10:0.43 n=18:0.53 n=30:0.50
+C8 n=5:0.58 n=10:0.56 n=18:0.42 n=30:0.57 | at hi: n=5:0.52 n=10:0.46 n=18:0.43 n=30:0.49
+
+C. P(90% Wilson interval overlaps the band) when TRUE rate = band midpoint; and when TRUE rate = 0.15 below lo / above hi (clearly wrong)
+C1 n=10: mid 1.00 / wrong-low 1.00 / wrong-high 0.35 n=18: mid 1.00 / wrong-low 1.00 / wrong-high 0.14
+C2 n=10: mid 1.00 / wrong-low 1.00 / wrong-high 0.62 n=18: mid 1.00 / wrong-low 0.09 / wrong-high 0.28
+C3 n=10: mid 0.99 / wrong-low 1.00 / wrong-high 0.73 n=18: mid 1.00 / wrong-low 1.00 / wrong-high 0.65
+C4 n=10: mid 0.98 / wrong-low 0.47 / wrong-high 0.05 n=18: mid 0.99 / wrong-low 0.28 / wrong-high 0.00
+C5 n=10: mid 0.98 / wrong-low 0.26 / wrong-high 0.46 n=18: mid 1.00 / wrong-low 0.27 / wrong-high 0.28
+C6 n=10: mid 1.00 / wrong-low 1.00 / wrong-high 0.50 n=18: mid 1.00 / wrong-low 1.00 / wrong-high 0.25
+C7 n=10: mid 0.98 / wrong-low 1.00 / wrong-high 0.50 n=18: mid 0.99 / wrong-low 0.09 / wrong-high 0.42
+C8 n=10: mid 0.98 / wrong-low 0.46 / wrong-high 0.26 n=18: mid 1.00 / wrong-low 0.28 / wrong-high 0.27
+
+D. Quantisation: observed rates available at n=5 and which fall inside each band
+C1 n=5 allowed k: [1, 2] of 0..5
+C2 n=5 allowed k: [1, 2] of 0..5
+C3 n=5 allowed k: [] of 0..5
+C4 n=5 allowed k: [3] of 0..5
+C5 n=5 allowed k: [2, 3] of 0..5
+C6 n=5 allowed k: [1] of 0..5
+C7 n=5 allowed k: [1] of 0..5
+C8 n=5 allowed k: [2, 3] of 0..5
+
+E. Band widths vs one-sided binomial sd at midpoint, n=18 (planted: 6 plans x 3 runs)
+C1 width=0.30 sd(n=18)=0.102 sd(n=10)=0.137
+C2 width=0.25 sd(n=18)=0.110 sd(n=10)=0.148
+C3 width=0.12 sd(n=18)=0.067 sd(n=10)=0.090
+C4 width=0.25 sd(n=18)=0.114 sd(n=10)=0.153
+C5 width=0.25 sd(n=18)=0.118 sd(n=10)=0.158
+C6 width=0.25 sd(n=18)=0.090 sd(n=10)=0.120
+C7 width=0.20 sd(n=18)=0.102 sd(n=10)=0.137
+C8 width=0.25 sd(n=18)=0.118 sd(n=10)=0.158
+
+F. Pooled band: classes weighted equally, mean of lows / highs
+pooled band 0.223-0.456; pooled mid 0.339
+ n=40: P(in pooled band | true=mid)=0.91; P(in band | true=0.10 (planning model badly wrong))=0.02; true=0.60: 0.04
+ n=80: P(in pooled band | true=mid)=0.98; P(in band | true=0.10 (planning model badly wrong))=0.00; true=0.60: 0.00
+ n=160: P(in pooled band | true=mid)=1.00; P(in band | true=0.10 (planning model badly wrong))=0.00; true=0.60: 0.00

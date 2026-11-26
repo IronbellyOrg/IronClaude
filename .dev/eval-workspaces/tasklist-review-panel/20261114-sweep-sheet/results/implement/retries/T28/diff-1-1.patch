@@ -1,0 +1,997 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/anon.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/anon.sh
+new file mode 100644
+index 000000000..a1ceafec4
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/anon.sh
+@@ -0,0 +1,58 @@
++#!/usr/bin/env bash
++# anon.sh SRC OUTROOT   (DESIGN 11.3, REQ-43)
++# Anonymises one merged report for the blind judge. SRC is RUN/merged/merged-1.md. The copy is written to
++# OUTROOT/<label>/merged-anon.md; the random label (j plus six hex digits, never a folder that already exists in OUTROOT)
++# is the only line printed on stdout. The caller keeps the label-to-run key; this script writes none.
++# The rules are those of EVAL/tools/tmp-scripts/anon-b11.sh (results/anon-rules.md):
++#   1. every root path (the run folder, SB, EVAL, SW, REPO) becomes <RUN>, <SB>, <EVAL>, <SW>, <REPO>
++#   2. the line `candidate: <path> sha256 ...` loses its path: `candidate: <candidate file> sha256 ...`
++#   3. `report <path>` (the reviewers list of the merged report) becomes `report <redacted>`
++#   4. every reviewer id (t1b-1, t2b-1, t3-1 ...) becomes R1 ... Rn, numbered in sorted order of the ids
++# The judge therefore sees no arm, run, reviewer or model name that the report itself does not carry.
++set -u -o pipefail
++source "$(dirname "$0")/common.sh"
++SRC=${1:?usage: anon.sh SRC OUTROOT}
++OUT=${2:?usage: anon.sh SRC OUTROOT}
++[ -f "$SRC" ] || { echo "E_ARG: $SRC is not a file" >&2; exit 2; }
++sw_assert_writable "$OUT" || exit 2
++RUN=$(dirname "$(dirname "$(realpath -m -- "$SRC")")")
++
++esc() { printf '%s' "$1" | sed 's/[][\.*^$|/]/\\&/g'; }
++TMPD=$(mktemp -d /tmp/sw-anon.XXXXXXXX) || exit 2
++trap 'rm -rf "$TMPD"' EXIT
++
++PATHS=(-e "s|$(esc "$RUN")|<RUN>|g")
++names=(SB EVAL SW REPO)
++roots=("$SB" "$EVAL" "$SW" "$REPO")
++for i in "${!roots[@]}"; do
++  PATHS+=(-e "s|$(esc "${roots[$i]}")|<${names[$i]}>|g")
++done
++PATHS+=(
++  -e 's|^candidate: .* sha256|candidate: <candidate file> sha256|'
++  -e 's|report <[A-Z]*>[^ ,]*|report <redacted>|g'
++  -e 's|report /[^ ,]*|report <redacted>|g'
++)
++sed "${PATHS[@]}" "$SRC" >"$TMPD/p.md" || exit 2
++
++# Reviewer ids: the pattern of the panel ids, plus every id named in the reviewers list.
++IDS=$({
++  grep -oE '\bt[0-9]+[a-z]*-[0-9]+\b' "$TMPD/p.md"
++  sed -nE 's/^- ([^ :]+): report .*/\1/p' "$TMPD/p.md"
++} | sort -u)
++IDX=()
++i=1
++for id in $IDS; do
++  IDX+=(-e "s/\\b$(esc "$id")\\b/R$i/g")
++  i=$((i + 1))
++done
++mkdir -p "$OUT" || exit 2
++while :; do
++  L=$(printf 'j%06x' "$(shuf -n1 -i 0-16777215)")
++  mkdir "$OUT/$L" 2>/dev/null && break
++done
++if [ ${#IDX[@]} -gt 0 ]; then
++  sed "${IDX[@]}" "$TMPD/p.md" >"$OUT/$L/merged-anon.md" || exit 2
++else
++  cp "$TMPD/p.md" "$OUT/$L/merged-anon.md" || exit 2
++fi
++printf '%s\n' "$L"
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/judge-batch.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/judge-batch.sh
+new file mode 100644
+index 000000000..233f30ca3
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/judge-batch.sh
+@@ -0,0 +1,129 @@
++#!/usr/bin/env bash
++# judge-batch.sh STAGE --gt-dir DIR [--runs DIR] [--scoring DIR] [--cand-root DIR] [--seed N] [--jobs N]   (DESIGN 11.3, 14.3, REQ-43)
++# One blind judge per finished run of a stage, an audit of every judge output, and a second judge on a seeded 15% sample.
++#   --runs DIR       the run folders of the stage; default SW/runs/STAGE. A run is judged when it holds run.json and merged/merged-1.md
++#   --scoring DIR    where the judge folders are made; default SW/scoring/STAGE. A judge folder is named by its random label, so
++#                    the path the judge reads in its brief carries no run, arm or reviewer name
++#   --gt-dir DIR     holds one ground-truth file per document, DIR/<doc>.json (required; the batch only passes the path on)
++#   --cand-root DIR  holds <doc>/candidate.md; default SB/cand (DESIGN 2.2, step S0)
++#   --seed N         seeds the second-judge sample (default 20261115); the sample holds round(0.15 n) of the n judged runs
++#   --jobs N         judges running at once (default 3)
++# Steps: 1 anonymise each merged report (bin/anon.sh) and write RUN/scoring/label-key.json; 2 run bin/judge-one.sh for every
++# run that has no score file yet; 3 judge the sample again under a new label (key field `second`); 4 audit every judge folder
++# (scaffold/judge.py). A score file that fails the audit is renamed score.json.invalid-<problem> (DESIGN 10 row 20) and the
++# batch exits 1: run it again to re-judge those runs. Every step is idempotent. Output under the scoring folder:
++#   judge-batch.log (one line per judge), judge-audit.json, judge-batch.json (the summary)
++# The judge model is named only in bin/judge-one.sh. Tests run this against the fake claude only.
++set -u -o pipefail
++source "$(dirname "$0")/common.sh"
++
++usage() {
++  sed -n '2,2p' "$0" | sed 's/^# \{0,1\}//' >&2
++  exit 2
++}
++STAGE=${1:-}
++[ -n "$STAGE" ] || usage
++shift
++[[ $STAGE =~ ^[A-Za-z0-9._-]+$ ]] || { echo "E_ARG: bad stage name $STAGE" >&2; exit 2; }
++RUNS=$SW/runs/$STAGE SCORING=$SW/scoring/$STAGE CANDROOT=$SB/cand GTDIR= SEED=20261115 JOBS=3
++while [ $# -gt 0 ]; do
++  [ $# -ge 2 ] || usage
++  case "$1" in
++    --runs) RUNS=$2 ;;
++    --scoring) SCORING=$2 ;;
++    --cand-root) CANDROOT=$2 ;;
++    --gt-dir) GTDIR=$2 ;;
++    --seed) SEED=$2 ;;
++    --jobs) JOBS=$2 ;;
++    *) usage ;;
++  esac
++  shift 2
++done
++[ -d "$GTDIR" ] || { echo "E_ARG: --gt-dir is required and must be a folder" >&2; exit 2; }
++[ -d "$RUNS" ] || { echo "E_ARG: no run folder $RUNS" >&2; exit 2; }
++[[ $SEED =~ ^[0-9]+$ ]] || { echo "E_ARG: --seed is not a number" >&2; exit 2; }
++[[ $JOBS =~ ^[1-9][0-9]*$ ]] || { echo "E_ARG: --jobs is not a positive number" >&2; exit 2; }
++sw_assert_writable "$SCORING" || exit 2
++mkdir -p "$SCORING" || exit 2
++LOG=$SCORING/judge-batch.log
++
++# Finished runs, and a check of every input before any judge starts.
++ELIG=() UNMERGED=()
++for R in "$RUNS"/*/; do
++  R=${R%/}
++  [ -f "$R/run.json" ] || continue
++  if [ -f "$R/merged/merged-1.md" ]; then ELIG+=("$R"); else UNMERGED+=("$(basename "$R")"); fi
++done
++[ ${#ELIG[@]} -gt 0 ] || { echo "E_ARG: no run with merged/merged-1.md under $RUNS" >&2; exit 2; }
++doc_of() { jq -r '.doc // empty' "$1/run.json"; }
++for R in "${ELIG[@]}"; do
++  doc=$(doc_of "$R")
++  [ -n "$doc" ] || { echo "E_ARG: $R/run.json has no doc" >&2; exit 2; }
++  [ -f "$GTDIR/$doc.json" ] || { echo "E_ARG: no ground-truth file for $doc under $GTDIR" >&2; exit 2; }
++  [ -f "$CANDROOT/$doc/candidate.md" ] || { echo "E_ARG: no candidate for $doc under $CANDROOT" >&2; exit 2; }
++done
++
++# 1. Anonymise. The key keeps the label, the judge folder and, later, the second judge's.
++key_of() { echo "$1/scoring/label-key.json"; }
++for R in "${ELIG[@]}"; do
++  K=$(key_of "$R")
++  [ -f "$K" ] && continue
++  sw_assert_writable "$R/scoring" || exit 2
++  mkdir -p "$R/scoring" || exit 2
++  L=$(bash "$SW/bin/anon.sh" "$R/merged/merged-1.md" "$SCORING") || { echo "E_ANON: $R" >&2; exit 2; }
++  jq -n --arg l "$L" --arg d "$SCORING/$L" --arg r "$(basename "$R")" --arg doc "$(doc_of "$R")" \
++    '{label:$l, dir:$d, run:$r, doc:$doc, second:null}' >"$K"
++done
++
++# 2. Judge. Judges run $JOBS at a time; a failure is left to the audit.
++judge_dir() { # judge_dir DIR DOC
++  bash "$SW/bin/judge-one.sh" "$1" "$GTDIR/$2.json" "$CANDROOT/$2/candidate.md" "$2" blind >>"$LOG" 2>&1
++}
++pool_wait() { while [ "$(jobs -rp | wc -l)" -ge "$JOBS" ]; do wait -n || true; done; }
++for R in "${ELIG[@]}"; do
++  pool_wait
++  judge_dir "$(jq -r .dir "$(key_of "$R")")" "$(doc_of "$R")" &
++done
++wait
++
++# 3. Second judge on a seeded sample of round(0.15 n) runs: a new label, so it never sees the first judge's score.
++IDS=()
++for R in "${ELIG[@]}"; do IDS+=("$(basename "$R")"); done
++mapfile -t SAMPLE < <(sw_py "$SW/scaffold/judge.py" sample "$SEED" "${IDS[@]}")
++for id in ${SAMPLE[@]+"${SAMPLE[@]}"}; do
++  R=$RUNS/$id
++  K=$(key_of "$R")
++  if [ "$(jq -r '.second // empty' "$K")" = "" ]; then
++    L2=$(bash "$SW/bin/anon.sh" "$R/merged/merged-1.md" "$SCORING") || { echo "E_ANON: $R" >&2; exit 2; }
++    jq --arg l "$L2" --arg d "$SCORING/$L2" '.second={label:$l, dir:$d}' "$K" >"$K.tmp" && mv "$K.tmp" "$K"
++  fi
++  pool_wait
++  judge_dir "$(jq -r .second.dir "$K")" "$(doc_of "$R")" &
++done
++wait
++
++# 4. Audit every judge folder; invalidate a bad score file.
++DIRS=()
++for R in "${ELIG[@]}"; do
++  K=$(key_of "$R")
++  DIRS+=("$(jq -r .dir "$K")")
++  [ "$(jq -r '.second // empty' "$K")" = "" ] || DIRS+=("$(jq -r .second.dir "$K")")
++done
++sw_py "$SW/scaffold/judge.py" audit "${DIRS[@]}" >"$SCORING/judge-audit.json"
++BAD=$(jq -r .bad "$SCORING/judge-audit.json")
++while IFS=$'\t' read -r dir problem; do
++  [ -f "$dir/score.json" ] || continue
++  mv -n "$dir/score.json" "$dir/score.json.invalid-$problem"
++  echo "INVALIDATED $dir/score.json ($problem)" >>"$LOG"
++done < <(jq -r '.items[] | [.dir, .problems[0]] | @tsv' "$SCORING/judge-audit.json")
++
++jq -n --arg stage "$STAGE" --argjson seed "$SEED" --argjson n "${#ELIG[@]}" --argjson bad "$BAD" \
++  --argjson second "$(printf '%s\n' ${SAMPLE[@]+"${SAMPLE[@]}"} | jq -R 'select(length>0)' | jq -sc .)" \
++  --argjson unmerged "$(printf '%s\n' ${UNMERGED[@]+"${UNMERGED[@]}"} | jq -R 'select(length>0)' | jq -sc .)" \
++  '{stage:$stage, seed:$seed, runs_judged:$n, second_sample:$second, unmerged_runs:$unmerged, audit_bad:$bad}' \
++  >"$SCORING/judge-batch.json"
++echo "BATCH stage=$STAGE runs=${#ELIG[@]} second=${#SAMPLE[@]} bad=$BAD"
++if [ "$BAD" -ne 0 ]; then
++  echo "BATCH_BAD: see $SCORING/judge-audit.json; run this command again to re-judge the invalidated runs" >&2
++  exit 1
++fi
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/judge-one.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/judge-one.sh
+new file mode 100755
+index 000000000..534616b50
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/judge-one.sh
+@@ -0,0 +1,50 @@
++#!/bin/bash
++# Worker for one blind judge run (DESIGN 11.3, REQ-43): a copy of JJ (EVAL/tools/tmp-scripts/judge-one.sh) with the paths turned
++# into variables. Usage: judge-one.sh D GT CAND [P [C]]
++#   D     the judge folder, named by its random label; it holds merged-anon.md (bin/anon.sh) and receives score.json,
++#         judge.json, judge.err and judge.started (the audit compares score.json with it)
++#   GT    the ground-truth file of the document (a path given by the caller; this script never builds one)
++#   CAND  the candidate plan under review
++#   P     the document id written into score.json ("package"); default "document"
++#   C     the opaque value written into score.json ("combo"); default "blind". It must never name the arm: the judge
++#         reads it in the brief below.
++# The BRIEF text is byte-identical to JJ lines 12-23 (a test compares the sha256). The judge model is named here and
++# nowhere else in bin/, sweep/ and scaffold/ (K2).
++set -u
++source "$(dirname "$0")/common.sh"
++D=${1:?usage: judge-one.sh D GT CAND [P [C]]}
++GT=${2:?usage: judge-one.sh D GT CAND [P [C]]}
++CAND=${3:?usage: judge-one.sh D GT CAND [P [C]]}
++P=${4:-document}
++C=${5:-blind}
++L=$(basename "$D")
++sw_assert_writable "$D" || exit 2
++# EVAL (the study folder) is read only: a judge folder inside it is refused.
++case "$(realpath -m -- "$D")/" in "$EVAL"/*) echo "E_NOT_WRITABLE: $D is inside the study folder" >&2; exit 2 ;; esac
++F="$D/merged-anon.md"
++[ -f "$F" ] || { echo "FAIL $C/$P/$L: $F is missing" >&2; exit 2; }
++[ -f "$GT" ] || { echo "FAIL $C/$P/$L: the ground-truth file is missing" >&2; exit 2; }
++[ -f "$CAND" ] || { echo "FAIL $C/$P/$L: the candidate is missing" >&2; exit 2; }
++[ -f "$D/score.json" ] && { echo "SKIP $C/$P/$L"; exit 0; }
++GTN=$(jq -r '.items|length' "$GT")
++BRIEF="You are a blind scoring judge for an evaluation of review panels. Score ONE merged review report against ground truth. Do not read anything outside the files named here.
++Files:
++- Ground truth: $GT (items GT1..GT$GTN, each with id, class, blocking_in_implement, description, plan_quote)
++- Candidate plan under review: $CAND
++- Merged review report (anonymized): $F
++Task:
++1. Read all three files fully.
++2. For each ground truth item GTn: does ANY finding in the merged report (Ledger rows / Blocking findings / Other findings) describe the same underlying defect? Covered only if the claim is substantively about the same wrong outcome (match anchors/quotes against candidate.md; wording differences fine, different defects not). Record covered at any severity and covered by a BLOCKING ledger row (blocking yes).
++3. For each blocking ledger row: does it correspond to at least one ground truth item? A blocking row with no GT correspondence is a wrong blocker. Count them.
++4. Write JSON to $D/score.json with schema: {\"label\":\"$L\",\"combo\":\"$C\",\"package\":\"$P\",\"gt_total\":$GTN,\"gt_covered_any\":[...],\"gt_covered_blocking\":[...],\"ledger_rows_total\":N,\"ledger_rows_blocking\":N,\"blocking_rows_gt_matched\":N,\"wrong_blockers\":N,\"notes\":\"2-3 sentences citing lids and GT ids\"}
++5. Reply one line: score.json written, gt_covered_any count, wrong_blockers count.
++Rules: never invent ground truth; be strict about same defect; if the report is unreadable write score.json with zeros and say why."
++RC=0
++: > "$D/judge.started"
++timeout 900 claude -p --model claude-opus-5-5 --output-format json --no-session-persistence \
++  --permission-mode bypassPermissions \
++  < <(printf '%s' "$BRIEF") > "$D/judge.json" 2> "$D/judge.err" || RC=$?
++if [ $RC -ne 0 ] || ! jq -e . "$D/judge.json" >/dev/null 2>&1; then
++  echo "FAIL $C/$P/$L rc=$RC"; exit 1
++fi
++echo "OK $C/$P/$L"
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/anon-rules.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/anon-rules.md
+new file mode 100644
+index 000000000..a306cc998
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/anon-rules.md
+@@ -0,0 +1,31 @@
++# Redaction rules of the blind-judge anonymiser (step 0.6)
++
++Source read: `.dev/eval-workspaces/tasklist-review-panel/20261111-a1/tools/tmp-scripts/anon-b11.sh` (the script that made the
++`merged-anon.md` files of the earlier study). No ground-truth or score file was opened.
++
++## What anon-b11.sh does, in order
++
++1. Picks a random one-letter label from `Q R S T U V` that is not yet a folder under the combo, writes
++   `label-key.json` (`label`, `combo`) next to it and the report to `<label>/merged-anon.md`.
++2. Replaces the whole study root (`$EVAL`) with `<EVAL>` (`sed "s|$EVAL|<EVAL>|g"`).
++3. Finds reviewer ids with `\bt[0-9a-z]+-[0-9]+\b`, sorts them (`sort -u`) and replaces the k-th with `R<k>` with
++   `sed -i "s/\bID\b/R<k>/g"`.
++4. Blanks the path of the candidate line: `candidate: <EVAL>/.../candidate.md sha256` becomes
++   `candidate: <candidate file> sha256`.
++5. Blanks every report path of the reviewers list: `report <EVAL>/...` becomes `report <redacted>`.
++
++## What bin/anon.sh keeps, changes and adds
++
++| Rule | anon-b11.sh | bin/anon.sh |
++|---|---|---|
++| random label | one letter, six values | `j` plus six hex digits (16.7 million values), never an existing folder of the output root |
++| root paths | `$EVAL` only | the run folder, `SB`, `EVAL`, `SW` and `REPO`, each to `<RUN>`, `<SB>`, `<EVAL>`, `<SW>`, `<REPO>` (the run folder first, because it sits under `SW` or `/tmp`) |
++| candidate line | `candidate: <EVAL>/... sha256` only | any `candidate: ... sha256` line |
++| report paths | `report <EVAL>/...` | `report <RUN>...` (a path tagged by an earlier rule) and `report /...` |
++| reviewer ids | `t[0-9a-z]+-[0-9]+`, sorted, `R1..Rn` | `t[0-9]+[a-z]*-[0-9]+` plus every id named in the reviewers list, sorted, `R1..Rn`; word boundaries, so `test-1` is not an id |
++| key file | written in the combo folder (names the combo) | none: the caller (`bin/judge-batch.sh`) keeps the label-to-run key in the run folder, never in the scoring folder |
++
++## Why
++
++The judge reads `merged-anon.md` by a path that contains the label only, so the path names no arm, run, reviewer or model
++(REQ-43). Both the file name and the text must carry nothing the report itself does not already carry.
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/judge.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/judge.py
+new file mode 100644
+index 000000000..9e6511f63
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/judge.py
+@@ -0,0 +1,127 @@
++"""Judge-batch helpers (REQ-43, DESIGN 11.3, 14.3): the seeded second-judge sample and the audit of judge outputs.
++
++Standard library only. bin/judge-batch.sh runs it as a script:
++    judge.py sample SEED ID...    prints the ids of the second-judge sample, one per line
++    judge.py audit DIR...         prints the audit as JSON; exit 1 when any folder is bad
++A judge folder holds merged-anon.md (the report the judge saw), judge.json, judge.err, judge.started and score.json.
++"""
++
++import json
++import random
++import re
++import sys
++from pathlib import Path
++
++FRACTION = 0.15
++# The text of an Opus API error: the `result` of a failed call, or a line of its stderr.
++API_ERROR = re.compile(r"^\s*API Error\b", re.M)
++
++
++def sample(ids, seed, fraction=FRACTION):
++    """round(fraction * n) of the n distinct ids, drawn with a generator seeded by `seed`; sorted."""
++    ids = sorted(set(ids))
++    return sorted(random.Random(seed).sample(ids, round(fraction * len(ids))))
++
++
++def ledger_counts(text):
++    """(rows, blocking rows) of the `## Ledger` table of a merged report (columns: lid, status, blocking, ...)."""
++    rows = blocking = 0
++    inside = False
++    for line in text.splitlines():
++        if line.strip() == "## Ledger":
++            inside = True
++        elif inside and line.startswith("## "):
++            break
++        elif inside and line.startswith("|"):
++            cells = [c.strip() for c in line.strip().strip("|").split("|")]
++            if cells[0] == "lid" or not cells[0].strip("-: "):
++                continue  # the header and the separator row
++            rows += 1
++            blocking += len(cells) > 2 and cells[2] == "yes"
++    return rows, blocking
++
++
++def _is_api_error(node):
++    """True when a parsed judge.json carries `is_error: true` or a string that starts with `API Error`."""
++    if isinstance(node, dict):
++        return node.get("is_error") is True or any(
++            _is_api_error(v) for v in node.values()
++        )
++    if isinstance(node, list):
++        return any(_is_api_error(v) for v in node)
++    return isinstance(node, str) and API_ERROR.search(node) is not None
++
++
++def _load(path):
++    try:
++        return json.loads(path.read_text(encoding="utf-8")), True
++    except (OSError, ValueError):
++        return None, False
++
++
++def audit_one(folder):
++    """The problems of one judge folder (an empty list means clean)."""
++    d = Path(folder)
++    bad = []
++    jj = d / "judge.json"
++    if not jj.is_file():
++        bad.append("judge_missing")
++    else:
++        data, ok = _load(jj)
++        if not ok:
++            bad.append("judge_unparseable")
++        elif _is_api_error(data):
++            bad.append("api_error")
++    err = d / "judge.err"
++    if "api_error" not in bad and err.is_file():
++        if API_ERROR.search(err.read_text(encoding="utf-8", errors="replace")):
++            bad.append("api_error")
++    sc = d / "score.json"
++    if not sc.is_file():
++        bad.append("no_score")
++        return bad
++    score, ok = _load(sc)
++    if not ok or not isinstance(score, dict):
++        bad.append("score_unparseable")
++    else:
++        report = d / "merged-anon.md"
++        if not report.is_file():
++            bad.append("no_merged_report")
++        else:
++            rows = ledger_counts(report.read_text(encoding="utf-8"))
++            if (
++                score.get("ledger_rows_total"),
++                score.get("ledger_rows_blocking"),
++            ) != rows:
++                bad.append("rows_mismatch")
++    # A score file older than the start of this judge run is left over from an earlier run (the defect CR line 147 describes).
++    started = d / "judge.started"
++    if started.is_file() and sc.stat().st_mtime < started.stat().st_mtime:
++        bad.append("score_stale")
++    return bad
++
++
++def audit(folders):
++    items = []
++    for f in folders:
++        problems = audit_one(f)
++        if problems:
++            items.append({"dir": str(f), "problems": problems})
++    return {"checked": len(folders), "bad": len(items), "items": items}
++
++
++def main(argv):
++    if len(argv) >= 3 and argv[1] == "sample":
++        for i in sample(argv[3:], int(argv[2])):
++            print(i)
++        return 0
++    if len(argv) >= 2 and argv[1] == "audit":
++        result = audit(argv[2:])
++        print(json.dumps(result, indent=1))
++        return 1 if result["bad"] else 0
++    print("usage: judge.py sample SEED ID... | judge.py audit DIR...", file=sys.stderr)
++    return 2
++
++
++if __name__ == "__main__":
++    sys.exit(main(sys.argv))
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/fakes/claude b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/fakes/claude
+index 1ef9803b7..9dcec9dce 100755
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/fakes/claude
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/fakes/claude
+@@ -11,6 +11,9 @@
+ #   FAKE_WRITE      a file name; the call creates it in the current directory (a reviewer that dirties the sandbox)
+ #   FAKE_PROBE      an item id, or `first` for the first sheet item of the brief; the finding line carries "probe": <id>
+ #                   (the telemetry key a real SS reviewer writes)
++# Option added by Task 28 (the judge scripts are tested against this fake only):
++#   FAKE_JUDGE_SCORE  when set and the brief is the blind judge brief of bin/judge-one.sh, the call writes score.json next to
++#                     the merged-anon.md named in the brief, with the ledger row counts read from that report
+ set -u
+ SCEN=${FAKE_SCENARIO:-ok}
+ MODEL=claude-sonnet-5-5
+@@ -29,6 +32,13 @@ case "$SCEN" in
+ esac
+ [ -z "${FAKE_CALL_LOG:-}" ] || printf '%s\t%s\t%s\n' "$(date +%s.%3N)" "$SCEN" "$MODEL" >>"$FAKE_CALL_LOG"
+ [ -z "${FAKE_WRITE:-}" ] || printf 'written by the fake reviewer\n' >"$FAKE_WRITE"
++if [ -n "${FAKE_JUDGE_SCORE:-}" ] && printf '%s' "$BRIEF" | grep -q 'blind scoring judge'; then
++  JF=$(printf '%s\n' "$BRIEF" | sed -n 's/^- Merged review report (anonymized): //p')
++  JD=$(dirname "$JF")
++  read -r JROWS JBLK < <(awk -F'|' '/^\| L[0-9]+ /{r++; gsub(/ /,"",$4); if($4=="yes")b++} END{print r+0, b+0}' "$JF")
++  jq -n --arg l "$(basename "$JD")" --argjson r "$JROWS" --argjson b "$JBLK" \
++    '{label:$l,combo:"blind",package:"p1",gt_total:1,gt_covered_any:[],gt_covered_blocking:[],ledger_rows_total:$r,ledger_rows_blocking:$b,blocking_rows_gt_matched:0,wrong_blockers:$b,notes:"fake judge"}' >"$JD/score.json"
++fi
+ 
+ if [ "$SCEN" = exit127 ]; then
+   echo "claude: command not found" >&2
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/judge_support.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/judge_support.py
+new file mode 100644
+index 000000000..9a64d5da9
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/judge_support.py
+@@ -0,0 +1,161 @@
++"""Synthetic merged reports, run folders and judge folders for test_anon.py and test_judge.py. Everything is invented here;
++no ground-truth file and no real score file is read or written (the GT and score files below are made up in tmp_path)."""
++
++import json
++import os
++import time
++from pathlib import Path
++
++from helpers import REPO
++
++RIDS = ("t2b-1", "t3-1", "t4-1")
++SHA = "ab" * 32
++# The judge worker of the earlier study (JJ): its BRIEF is lines 12 to 23. Read as a script text; it is not run.
++JJ = (
++    REPO
++    / ".dev/eval-workspaces/tasklist-review-panel/20261111-a1/tools/tmp-scripts/judge-one.sh"
++)
++
++
++def jj_brief():
++    """Lines 12 to 23 of JJ, the BRIEF text, joined with newlines."""
++    return "\n".join(JJ.read_text(encoding="utf-8").splitlines()[11:23])
++
++
++def brief_of(script):
++    """The BRIEF assignment of a script: from the line that starts `BRIEF="` through the line that ends `say why."`."""
++    lines = Path(script).read_text(encoding="utf-8").splitlines()
++    start = next(i for i, ln in enumerate(lines) if ln.startswith('BRIEF="'))
++    end = next(i for i in range(start, len(lines)) if lines[i].endswith('say why."'))
++    return "\n".join(lines[start : end + 1])
++
++
++# (lid, status, blocking): 4 ledger rows, 1 of them blocking
++ROWS = (
++    ("L1", "open", "yes"),
++    ("L2", "open", "no"),
++    ("L3", "open", "no"),
++    ("L4", "open", "no"),
++)
++
++
++def merged_report(run, sb, doc="p1", rids=RIDS, rows=ROWS):
++    """A merged report in the shape of ledger.render_merged_report, with invented findings."""
++    out = [
++        "review: 1 of 3",
++        f"# Merged review 1 (coordinator script; panel of {len(rids)} reviewers)",
++        f"candidate: {sb}/cand/{doc}/candidate.md sha256 {SHA}",
++        "reviewers:",
++    ]
++    out += [f"- {r}: report {run}/normalised/{r}.md, block ok true" for r in rids]
++    out += [
++        "",
++        "## Ledger",
++        "",
++        "| lid | status | blocking | confidence | severity | refs | reviewers |",
++        "|---|---|---|---|---|---|---|",
++    ]
++    out += [
++        f"| {lid} | {st} | {bl} | medium | MAJOR | - | {rids[0]}, {rids[1]} |"
++        for lid, st, bl in rows
++    ]
++    out += ["", "## Blocking findings", ""]
++    for lid, _, bl in rows:
++        if bl == "yes":
++            out += [
++                f"### {lid}",
++                "",
++                f"#### {lid}.{rids[0]} (F1)",
++                "",
++                "- claim: The step names a file that the report cannot reach.",
++                '- anchor: "the stated text of the first acceptance criterion"',
++                "",
++            ]
++    out += ["## Other findings", ""]
++    out += [
++        f"- {lid} (MINOR, open, low): The wording leaves one reading open."
++        for lid, _, bl in rows
++        if bl != "yes"
++    ]
++    out += ["", "verdict: FAIL", ""]
++    return "\n".join(out)
++
++
++def make_run(runs, name, sb, doc="p1", **kw):
++    """RUNS/<name>/{run.json, merged/merged-1.md}; returns the run folder."""
++    run = Path(runs) / name
++    (run / "merged").mkdir(parents=True)
++    (run / "run.json").write_text(json.dumps({"doc": doc, "arm": "SS"}))
++    (run / "merged" / "merged-1.md").write_text(merged_report(run, sb, doc, **kw))
++    return run
++
++
++def make_inputs(root, docs=("p1",)):
++    """Candidates under root/sb/cand and invented ground-truth files under root/gt; returns (cand_root, gt_dir)."""
++    cand, gt = Path(root) / "sb" / "cand", Path(root) / "gt"
++    gt.mkdir(parents=True, exist_ok=True)
++    for d in docs:
++        (cand / d).mkdir(parents=True, exist_ok=True)
++        (cand / d / "candidate.md").write_text("# An invented plan\n\nTask 1: do it.\n")
++        items = [{"id": "GT1", "class": "C4", "blocking_in_implement": True}]
++        (gt / f"{d}.json").write_text(json.dumps({"items": items}))
++    return cand, gt
++
++
++def judge_json(kind="ok"):
++    """The JSON array a `claude -p --output-format json` call prints (the shape of tests/fakes/claude)."""
++    err = kind == "api_error"
++    text = "API Error: 529 overloaded_error" if err else "score.json written, 2, 0"
++    return json.dumps(
++        [
++            {"type": "system", "subtype": "init", "session_id": "s"},
++            {
++                "type": "assistant",
++                "message": {"content": [{"type": "text", "text": text}]},
++            },
++            {"type": "result", "is_error": err, "result": text, "session_id": "s"},
++        ]
++    )
++
++
++def make_judge_dir(
++    root, name, *, judge="ok", score=None, rows=ROWS, err="", started_age=None
++):
++    """A judge folder: merged-anon.md, judge.json (kind `judge`, or None for none, or a string for raw text),
++    judge.err, an optional score.json (a dict) and a judge.started marker `started_age` seconds before the score."""
++    d = Path(root) / name
++    d.mkdir(parents=True)
++    (d / "merged-anon.md").write_text(merged_report("<RUN>", "<SB>", rows=rows))
++    if judge in ("ok", "api_error"):
++        (d / "judge.json").write_text(judge_json(judge))
++    elif judge is not None:
++        (d / "judge.json").write_text(judge)
++    (d / "judge.err").write_text(err)
++    if score is not None:
++        (d / "score.json").write_text(json.dumps(score))
++    if started_age is not None:
++        now = time.time()
++        (d / "judge.started").write_text("")
++        os.utime(d / "judge.started", (now, now))
++        if score is not None:
++            os.utime(d / "score.json", (now - started_age, now - started_age))
++    return d
++
++
++def score_for(rows=ROWS, **kw):
++    """A score.json whose row counts match `rows` (a judge that read the report right)."""
++    s = {
++        "label": "x",
++        "combo": "blind",
++        "package": "p1",
++        "gt_total": 1,
++        "gt_covered_any": ["GT1"],
++        "gt_covered_blocking": [],
++        "ledger_rows_total": len(rows),
++        "ledger_rows_blocking": sum(r[2] == "yes" for r in rows),
++        "blocking_rows_gt_matched": 0,
++        "wrong_blockers": 1,
++        "notes": "invented",
++    }
++    s.update(kw)
++    return s
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_anon.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_anon.py
+new file mode 100644
+index 000000000..60c928e68
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_anon.py
+@@ -0,0 +1,108 @@
++"""bin/anon.sh (DESIGN 11.3, REQ-43): random label, reviewer ids R1..Rn, paths redacted. Invented reports only."""
++
++import re
++import subprocess
++from pathlib import Path
++
++import pytest
++from helpers import REPO, SW
++from judge_support import RIDS, merged_report
++
++ANON = SW / "bin" / "anon.sh"
++RUN_NAME = "ss-p1-r3"  # an arm name inside the run path: the judge must never see it
++
++
++def run_anon(roots, src, out, **kw):
++    return subprocess.run(
++        ["bash", str(ANON), str(src), str(out)],
++        capture_output=True,
++        text=True,
++        env=roots.with_env(**kw),
++    )
++
++
++@pytest.fixture
++def report(tmp_roots):
++    run = tmp_roots.root / "runs" / "stage1" / RUN_NAME
++    (run / "merged").mkdir(parents=True)
++    src = run / "merged" / "merged-1.md"
++    text = merged_report(run, tmp_roots.sb)
++    # one claim names the run folder and a study path, as a reviewer quoting a path could
++    text += f"\nnote: see {run}/briefs/t3-1.txt and {SW}/cards/C4.json\n"
++    src.write_text(text)
++    return src, text
++
++
++def test_ids_replaced_by_r1_to_rn_in_sorted_order(tmp_roots, report):
++    src, text = report
++    r = run_anon(tmp_roots, src, tmp_roots.root / "out")
++    assert r.returncode == 0, r.stderr
++    out = (tmp_roots.root / "out" / r.stdout.strip() / "merged-anon.md").read_text()
++    # t2b-1, t3-1, t4-1 sort in that order -> R1, R2, R3, in every place they occurred
++    assert sorted(RIDS) == list(RIDS)
++    for rid in RIDS:
++        assert rid not in out
++    assert "- R1: report <redacted>, block ok true" in out
++    assert "- R3: report <redacted>, block ok true" in out
++    assert "| L1 | open | yes | medium | MAJOR | - | R1, R2 |" in out
++    assert "#### L1.R1 (F1)" in out
++    assert not re.search(r"\bt[0-9]+[a-z]*-[0-9]+\b", out)
++    # the text that is not an id or a path is untouched: same number of lines, same ledger
++    assert len(out.splitlines()) == len(text.splitlines())
++    assert out.count("\n| L") == text.count("\n| L")
++
++
++def test_a_word_like_test_1_is_not_a_reviewer_id(tmp_roots, report):
++    src, text = report
++    src.write_text(text + "claim: rerun test-1 and text-2 first.\n")
++    r = run_anon(tmp_roots, src, tmp_roots.root / "out")
++    out = (tmp_roots.root / "out" / r.stdout.strip() / "merged-anon.md").read_text()
++    assert "rerun test-1 and text-2 first." in out
++
++
++def test_paths_redacted(tmp_roots, report):
++    src, _ = report
++    r = run_anon(tmp_roots, src, tmp_roots.root / "out")
++    out = (tmp_roots.root / "out" / r.stdout.strip() / "merged-anon.md").read_text()
++    assert "candidate: <candidate file> sha256" in out
++    assert "report <redacted>" in out
++    assert "note: see <RUN>/briefs/R2.txt and <SW>/cards/C4.json" in out
++    # no arm, run, sandbox or study path is left
++    for leak in (RUN_NAME, "/tmp/", str(SW), str(REPO), "cand/p1"):
++        assert leak not in out, leak
++    # the word "report" in prose is not touched
++    assert "The step names a file that the report cannot reach." in out
++
++
++def test_label_random_and_new_each_time(tmp_roots, report):
++    src, _ = report
++    out = tmp_roots.root / "out"
++    labels = []
++    for _ in range(12):
++        r = run_anon(tmp_roots, src, out)
++        assert r.returncode == 0, r.stderr
++        labels.append(r.stdout.strip())
++    assert all(re.fullmatch(r"j[0-9a-f]{6}", x) for x in labels)
++    assert len(set(labels)) == 12  # a label is never reused
++    assert sorted(p.name for p in out.iterdir()) == sorted(labels)
++    for x in labels:
++        assert [p.name for p in (out / x).iterdir()] == ["merged-anon.md"]
++
++
++def test_arm_not_in_any_output_name(tmp_roots, report):
++    src, _ = report
++    r = run_anon(tmp_roots, src, tmp_roots.root / "out")
++    folder = tmp_roots.root / "out" / r.stdout.strip()
++    assert RUN_NAME not in str(folder) and RUN_NAME not in r.stdout + r.stderr
++
++
++def test_refuses_output_outside_write_scope(tmp_roots, report):
++    src, _ = report
++    r = run_anon(tmp_roots, src, "/var/tmp/sw-anon-refused")
++    assert r.returncode == 2 and "E_NOT_WRITABLE" in r.stderr
++    assert not Path("/var/tmp/sw-anon-refused").exists()
++
++
++def test_missing_source_refused(tmp_roots):
++    r = run_anon(tmp_roots, tmp_roots.root / "nope.md", tmp_roots.root / "out")
++    assert r.returncode == 2 and "E_ARG" in r.stderr
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_briefs.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_briefs.py
+index 82e781e76..d05e5cc95 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_briefs.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_briefs.py
+@@ -5,6 +5,7 @@ import re
+ 
+ import pytest
+ from helpers import REPO, SW
++from judge_support import brief_of, jj_brief
+ 
+ from scaffold import briefs, cards, fnd
+ 
+@@ -215,3 +216,13 @@ def test_sha256_of_every_part_and_brief():
+     # a brief is stable: the same inputs give the same hash
+     assert render("SS")["sha256"] == render("SS")["sha256"]
+     assert render("SS")["sha256"] != render("K")["sha256"]
++
++
++def test_judge_brief_sha_equals_jj():
++    """REQ-43: the BRIEF of bin/judge-one.sh is byte-identical to lines 12 to 23 of the earlier study's judge worker."""
++    mine = brief_of(SW / "bin" / "judge-one.sh")
++    assert (
++        hashlib.sha256(mine.encode()).hexdigest()
++        == hashlib.sha256(jj_brief().encode()).hexdigest()
++    )
++    assert len(jj_brief().splitlines()) == 12
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_judge.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_judge.py
+new file mode 100644
+index 000000000..3abd9d1a9
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_judge.py
+@@ -0,0 +1,231 @@
++"""REQ-43, DESIGN 11.3: the judge copy, the batch, the audit and the second-judge sample.
++Every judge call goes to tests/fakes/claude; every ground-truth and score file is invented in tmp_path."""
++
++import hashlib
++import json
++import subprocess
++import sys
++
++from helpers import REPO, SW
++from judge_support import (
++    ROWS,
++    brief_of,
++    jj_brief,
++    make_inputs,
++    make_judge_dir,
++    make_run,
++    score_for,
++)
++
++from scaffold import judge
++
++BATCH = SW / "bin" / "judge-batch.sh"
++ONE = SW / "bin" / "judge-one.sh"
++OPUS = "claude-opus-5-5"
++EVAL = REPO / ".dev/eval-workspaces/tasklist-review-panel/20261111-a1"
++
++
++def sha(text):
++    return hashlib.sha256(text.encode("utf-8")).hexdigest()
++
++
++# --- the brief and the model ---------------------------------------------------------------------------------------
++
++
++def test_judge_brief_sha():
++    mine, jj = brief_of(ONE), jj_brief()
++    assert mine.startswith('BRIEF="You are a blind scoring judge') and len(
++        mine.splitlines()
++    ) == len(jj.splitlines())
++    assert sha(mine) == sha(jj)
++    # the only difference between the two scripts is where the paths come from, not what the judge is told
++    assert 'unreadable write score.json with zeros and say why."' in mine
++
++
++def test_model_is_opus_only_in_judge():
++    hits = {}
++    for sub in ("bin", "sweep", "scaffold"):
++        for p in (SW / sub).rglob("*"):
++            if p.is_file() and "__pycache__" not in p.parts:
++                n = p.read_text(encoding="utf-8", errors="replace").count(OPUS)
++                if n:
++                    hits[str(p.relative_to(SW))] = n
++    assert hits == {"bin/judge-one.sh": 1}, hits
++
++
++def test_judge_one_calls_opus_through_the_fake(tmp_roots):
++    cand, gt = make_inputs(tmp_roots.root)
++    d = tmp_roots.root / "scoring" / "j0abc12"
++    d.mkdir(parents=True)
++    (d / "merged-anon.md").write_text("# a merged report\n")
++    r = subprocess_run(
++        tmp_roots,
++        [ONE, d, gt / "p1.json", cand / "p1" / "candidate.md", "p1"],
++        FAKE_JUDGE_SCORE="1",
++    )
++    assert r.returncode == 0 and r.stdout.startswith("OK blind/p1/j0abc12"), r.stderr
++    calls = tmp_roots.call_log.read_text().splitlines()
++    assert [c.split("\t")[2] for c in calls] == [OPUS]
++    assert (d / "judge.started").is_file() and (d / "judge.json").is_file()
++    # a finished folder is skipped, not judged again
++    r = subprocess_run(
++        tmp_roots, [ONE, d, gt / "p1.json", cand / "p1" / "candidate.md"]
++    )
++    assert (
++        r.stdout.startswith("SKIP")
++        and len(tmp_roots.call_log.read_text().splitlines()) == 1
++    )
++
++
++def test_judge_one_refuses_a_folder_in_the_study(tmp_roots):
++    cand, gt = make_inputs(tmp_roots.root)
++    d = EVAL / "arms" / "scoring" / "zz-refused"
++    r = subprocess_run(
++        tmp_roots, [ONE, d, gt / "p1.json", cand / "p1" / "candidate.md"]
++    )
++    assert r.returncode == 2 and "E_NOT_WRITABLE" in r.stderr
++    assert not d.exists() and not tmp_roots.call_log.exists()
++
++
++def subprocess_run(roots, argv, **env):
++    return subprocess.run(
++        ["bash", *map(str, argv)],
++        capture_output=True,
++        text=True,
++        env=roots.with_env(**env),
++    )
++
++
++# --- the audit ----------------------------------------------------------------------------------------------------
++
++
++def test_audit_flags_error_with_score_file(tmp_path):
++    # a score file exists beside an API error: it is still a problem (DESIGN 10 row 20)
++    d = make_judge_dir(tmp_path, "j1", judge="api_error", score=score_for())
++    assert "api_error" in judge.audit_one(d)
++    # the same error told only by stderr
++    d = make_judge_dir(
++        tmp_path, "j2", score=score_for(), err="API Error: 529 overloaded_error\n"
++    )
++    assert "api_error" in judge.audit_one(d)
++    # controls: a clean folder passes, and a stale or missing score is flagged on its own
++    assert judge.audit_one(make_judge_dir(tmp_path, "j3", score=score_for())) == []
++    assert judge.audit_one(make_judge_dir(tmp_path, "j4")) == ["no_score"]
++    stale = make_judge_dir(tmp_path, "j5", score=score_for(), started_age=60)
++    assert "score_stale" in judge.audit_one(stale)
++    fresh = make_judge_dir(tmp_path, "j5b", score=score_for(), started_age=-60)
++    assert judge.audit_one(fresh) == []
++    assert judge.audit_one(make_judge_dir(tmp_path, "j6", judge="not json")) == [
++        "judge_unparseable",
++        "no_score",
++    ]
++    out = judge.audit([tmp_path / n for n in ("j1", "j2", "j3")])
++    assert (out["checked"], out["bad"]) == (3, 2)
++
++
++def test_audit_counts_match_merged_rows(tmp_path):
++    assert judge.ledger_counts("no table in this text\n") == (0, 0)
++    d = make_judge_dir(tmp_path, "ok", score=score_for())
++    assert judge.ledger_counts((d / "merged-anon.md").read_text()) == (4, 1)
++    assert judge.audit_one(d) == []
++    for name, kw in (
++        ("bad_total", {"ledger_rows_total": 5}),
++        ("bad_blocking", {"ledger_rows_blocking": 2}),
++    ):
++        bad = make_judge_dir(tmp_path, name, score=score_for(**kw))
++        assert judge.audit_one(bad) == ["rows_mismatch"], kw
++    # a report with another number of rows is judged against its own rows
++    rows = ROWS + (("L5", "open", "yes"),)
++    d5 = make_judge_dir(tmp_path, "five", rows=rows, score=score_for(rows=rows))
++    assert judge.ledger_counts((d5 / "merged-anon.md").read_text()) == (5, 2)
++    assert judge.audit_one(d5) == []
++
++
++# --- the second-judge sample --------------------------------------------------------------------------------------
++
++
++def test_second_judge_sample_15_percent_seeded():
++    ids = [f"r{i:02d}" for i in range(60)]
++    s = judge.sample(ids, 7)
++    assert len(s) == round(0.15 * 60) == 9 and set(s) <= set(ids)
++    assert (
++        s == judge.sample(ids, 7) == judge.sample(ids[::-1], 7)
++    )  # repeatable, order free
++    assert (
++        len({tuple(judge.sample(ids, k)) for k in range(1, 11)}) > 1
++    )  # the seed matters
++    for n, want in ((7, 1), (20, 3), (40, 6), (75, 11), (3, 0)):
++        assert len(judge.sample([f"x{i}" for i in range(n)], 1)) == want, n
++    # the script form that bin/judge-batch.sh calls gives the same ids
++    r = subprocess.run(
++        [sys.executable, "-I", str(SW / "scaffold" / "judge.py"), "sample", "7", *ids],
++        capture_output=True,
++        text=True,
++    )
++    assert r.stdout.split() == s
++
++
++# --- the batch, against the fake ----------------------------------------------------------------------------------
++
++
++def batch_world(roots, n=7):
++    runs = roots.root / "runs" / "stage1"
++    names = [f"ss-p1-r{i}" for i in range(1, n + 1)]
++    for name in names:
++        make_run(runs, name, roots.sb)
++    cand, gt = make_inputs(roots.root)
++    scoring = roots.root / "scoring" / "stage1"
++    argv = [BATCH, "stage1", "--runs", runs, "--scoring", scoring, "--gt-dir", gt]
++    argv += ["--cand-root", cand, "--seed", "7", "--jobs", "2"]
++    return runs, names, scoring, argv
++
++
++def test_batch_judges_every_run_and_a_seeded_sample_again(tmp_roots):
++    runs, names, scoring, argv = batch_world(tmp_roots)
++    r = subprocess_run(tmp_roots, argv, FAKE_JUDGE_SCORE="1")
++    assert r.returncode == 0, r.stdout + r.stderr
++    assert "BATCH stage=stage1 runs=7 second=1 bad=0" in r.stdout
++    calls = [c.split("\t")[2] for c in tmp_roots.call_log.read_text().splitlines()]
++    assert calls == [OPUS] * 8  # 7 judges plus round(0.15 * 7) = 1 second judge
++    summary = json.loads((scoring / "judge-batch.json").read_text())
++    assert summary["runs_judged"] == 7 and summary["audit_bad"] == 0
++    assert summary["second_sample"] == judge.sample(names, 7)
++    labels = sorted(p.name for p in scoring.iterdir() if p.is_dir())
++    assert len(labels) == 8 and all(len(x) == 7 and x[0] == "j" for x in labels)
++    for lab in labels:
++        assert (scoring / lab / "score.json").is_file()
++        text = (scoring / lab / "merged-anon.md").read_text()
++        assert not any(n in text or n in str(scoring / lab) for n in names)
++    # the key sits in the run folder, never in the scoring folder
++    key = json.loads((runs / names[0] / "scoring" / "label-key.json").read_text())
++    assert key["run"] == names[0] and key["label"] in labels
++    assert not list(scoring.rglob("label-key.json"))
++
++
++def test_batch_invalidates_a_score_beside_an_api_error_and_reruns(tmp_roots):
++    runs, names, scoring, argv = batch_world(tmp_roots, n=3)
++    r = subprocess_run(tmp_roots, argv, FAKE_JUDGE_SCORE="1", FAKE_SCENARIO="api_error")
++    assert r.returncode == 1 and "BATCH_BAD" in r.stderr, r.stdout + r.stderr
++    dirs = [p for p in scoring.iterdir() if p.is_dir()]
++    assert dirs and all(not (d / "score.json").exists() for d in dirs)
++    assert all(list(d.glob("score.json.invalid-api_error")) for d in dirs)
++    audit = json.loads((scoring / "judge-audit.json").read_text())
++    assert audit["bad"] == len(dirs)
++    # run it again with a working judge: the invalidated runs are judged again, the labels are kept
++    r = subprocess_run(tmp_roots, argv, FAKE_JUDGE_SCORE="1")
++    assert r.returncode == 0, r.stdout + r.stderr
++    assert sorted(p.name for p in scoring.iterdir() if p.is_dir()) == sorted(
++        d.name for d in dirs
++    )
++    assert all((d / "score.json").is_file() for d in dirs)
++
++
++def test_batch_refuses_what_it_cannot_judge(tmp_roots):
++    runs, names, scoring, argv = batch_world(tmp_roots, n=2)
++    i = argv.index("--gt-dir")
++    no_gt_option = argv[:i] + argv[i + 2 :]
++    missing_gt_folder = argv[: i + 1] + [tmp_roots.root / "nope"] + argv[i + 2 :]
++    for bad in (no_gt_option, missing_gt_folder):
++        r = subprocess_run(tmp_roots, bad)
++        assert r.returncode == 2 and "E_ARG" in r.stderr, r.stderr
++    assert not tmp_roots.call_log.exists()  # nothing was judged

@@ -1,0 +1,17 @@
+{
+  "model": "gpt-6-luna",
+  "session_id": "e061ae21-6cc9-4f44-b7f2-22faeca377ee",
+  "rc_first": 0,
+  "rc_resume": 0,
+  "transcript_file": "/home/coder/.claude/projects/-tmp-evalsb-collab-r4-sb-TASK-WF-designSpec-20261107-075614-repo/e061ae21-6cc9-4f44-b7f2-22faeca377ee.jsonl",
+  "transcript_written": true,
+  "first_reply": "ALPHA",
+  "resume_reply": "BETA ALPHA",
+  "observed_first": "gpt-6-luna",
+  "observed_resume": "gpt-6-luna",
+  "resume_session_id": "e061ae21-6cc9-4f44-b7f2-22faeca377ee",
+  "work_dir": "/tmp/collab-r4/s2-gpt-6-luna-1794603862",
+  "both_words": true,
+  "model_ok": true,
+  "pass": true
+}

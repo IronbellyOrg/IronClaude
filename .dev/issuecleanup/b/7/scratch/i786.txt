@@ -1,0 +1,32 @@
+#786 [OPEN] [FEATURE] Coordinator C5: Orca Run lifecycle: create once, rebind after a restart
+## What was tried
+This is item C5 of the coordinator issue #716 (next release: the features of issue 655 that the current plan does not cover), split out so it can be built and tracked on its own. Issue 655 was split into its 14 sections and one analyst per section classified every design feature against the unification spec and its decision record; this item is one of the features that were found missing. Nothing in this item is built yet. #716 stays the umbrella issue: its closing review holds the build order, the phases and the open owner decisions.
+
+## Relevant files and links
+- Parent issue: #716 (this item is a sub-issue of it). Sister issues of the split: watcher #717, TUI dashboard #718. Source design: #655.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+The item below is built, tested and checked against its own lines, or the owner records in chat that it is dropped. The text is copied unchanged from #716.
+
+### C5. Orca Run lifecycle: create once, rebind after a restart (655 section 2, 6; rows S02-F5, S06-F1)
+  - What to build: The coordinator creates an Orca Run on first start, stores its id in its per-issue/state records, and on `--resume` runs `run-current` and `run-use --id <run>` before any mutation.
+  - Also in this item:
+    - S06-F1: The coordinator creates or reuses one Orca Run for its repo at start and, after any restart or resume, checks `run-current` and rebinds with `run-use` before it starts a worker.
+  - Done when: a kill-and-restart test of the coordinator ends with `orca orchestration run-current` showing the same Run and a following `worker-start` not failing with `consumer_fenced`.
+    - also: A restart test kills the coordinator mid-issue, resumes it, and shows `run-current` names the same Run and the next `worker-start` is not refused with `consumer_fenced` (no second claim, no second worker).
+  - Related items (read together; the order is in the review at the end): C4
+  - Research and debate results from our documents:
+    - S02-F5: .dev/brainstorms/20261120-pr686-unify/spec/SPEC.md:668 `U5 mailbox from outside a Run` listed UNVERIFIED; owner memory note orca-coordinator-rebind-after-resume.md:10 `every orchestration mutation (worker-start etc.) fails with consumer_fenced until orca orchestration run-use --id <run_id> rebinds the Run`.
+    - S06-F1: owner memory note orca-coordinator-rebind-after-resume.md:11 "every orchestration mutation (worker-start etc.) fails with `consumer_fenced` until `orca orchestration run-use --id <run_id>` rebinds the Run". ~/.claude/skills/sc-closeout-protocol/refs/settle.md:56 "No Orca Run is bound to this session, so the worker's task was not looked at" (closeout needs a bound Run). SPEC.md:668 lists "U5 mailbox from outside a Run" as an ...
+  - Watch out:
+    - S02-F5: UNVERIFIED in the plan whether a mailbox send reaches a worker from outside a Run (U5).
+    - S06-F1: Without this, FR-34's restart would leave a resumed coordinator unable to start or settle anything (known defect, memory dated 2026-11-04, 16 days old, UNVERIFIED against today's Orca). The observer and sweep must stay read-only and never call `run-use` or `run-create` (TRO:972, "forbidden (run-use, run-create)"); only the ...
+
+
+## Pick-up note
+- Read the review at the end of #716 first: it holds the build order, the three phases and the owner decisions that gate this item. The related-item ids above (C numbers) refer to the sibling sub-issues of #716.
+- The plan files named above are local files, not pushed; read them from a checkout that has them, or ask the owner.
+

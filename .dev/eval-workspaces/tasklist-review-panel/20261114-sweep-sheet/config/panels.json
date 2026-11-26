@@ -1,0 +1,23 @@
+{
+ "schema": "sweep-panels/1",
+ "panels": {
+  "primary": {
+   "label": "ember + 2x luna",
+   "S": {"rid": "t2b-1", "model": "muse-ember-1.0", "cap": 8, "classes": "any"},
+   "L1": {"rid": "t4-1", "model": "gpt-6-luna", "cap": 8},
+   "L2": {"rid": "t3-1", "model": "gpt-6-luna", "cap": 8}
+  },
+  "haiku": {
+   "label": "haiku + 2x luna",
+   "S": {"rid": "t2-1", "model": "claude-haiku-5-5", "cap": 6, "classes": ["C4", "C5", "C8"]},
+   "L1": {"rid": "t4-1", "model": "gpt-6-luna", "cap": 9},
+   "L2": {"rid": "t3-1", "model": "gpt-6-luna", "cap": 9}
+  },
+  "sonnet": {
+   "label": "sonnet + 2x luna",
+   "S": {"rid": "t1b-1", "model": "claude-sonnet-5-5", "cap": 6, "classes": "any"},
+   "L1": {"rid": "t4-1", "model": "gpt-6-luna", "cap": 9},
+   "L2": {"rid": "t3-1", "model": "gpt-6-luna", "cap": 9}
+  }
+ }
+}

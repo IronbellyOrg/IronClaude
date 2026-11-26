@@ -1,0 +1,35 @@
+$ pytest test_assign.py -q -v
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 23 items
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_caps_sum_24_all_panels PASSED [  4%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_primary_12_items_fills_caps[sssssssrrrrr] PASSED [  8%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_primary_12_items_fills_caps[rrrrrsssssss] PASSED [ 13%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_primary_12_items_fills_caps[srsrsrsrsrss] PASSED [ 17%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_primary_12_items_fills_caps[rsrsrsrsrsss] PASSED [ 21%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_primary_12_items_fills_caps[ssrrssrrssrs] PASSED [ 26%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_primary_12_items_fills_caps[srrsssrssrsr] PASSED [ 30%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_primary_every_search_read_arrangement_fills_caps PASSED [ 34%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_haiku_only_evidence_items PASSED [ 39%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_no_evidence_replica_1 PASSED [ 43%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_no_duplicate_reviewer_per_item[0-primary] PASSED [ 47%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_no_duplicate_reviewer_per_item[0-haiku] PASSED [ 52%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_no_duplicate_reviewer_per_item[0-sonnet] PASSED [ 56%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_no_duplicate_reviewer_per_item[1-primary] PASSED [ 60%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_no_duplicate_reviewer_per_item[1-haiku] PASSED [ 65%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_no_duplicate_reviewer_per_item[1-sonnet] PASSED [ 69%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_no_duplicate_reviewer_per_item[2-primary] PASSED [ 73%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_no_duplicate_reviewer_per_item[2-haiku] PASSED [ 78%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_no_duplicate_reviewer_per_item[2-sonnet] PASSED [ 82%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_replica_dropped_lowest_priority_first_and_cap_slots PASSED [ 86%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_failure_never_raises_survivor_load PASSED [ 91%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_two_reviewers_replica_1 PASSED [ 95%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_assign.py::test_order_shuffled_per_reviewer_deterministic PASSED [100%]
+
+============================== 23 passed in 0.18s ==============================
+rc=0

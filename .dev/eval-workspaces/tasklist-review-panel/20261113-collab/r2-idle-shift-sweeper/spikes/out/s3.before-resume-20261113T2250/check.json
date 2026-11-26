@@ -1,0 +1,68 @@
+{
+ "rows": [
+  "smoke-sl2-collab",
+  "smoke-sl2-iso"
+ ],
+ "acs": {
+  "AC-2": {
+   "pass": true,
+   "newer_files": [],
+   "read_path_references": [
+    "bin/lib/common.sh:5:EVAL=${R2_EVAL:-$REPO/.dev/eval-workspaces/tasklist-review-panel/20261111-a1}",
+    "py/audits.py:80:    rules = [(r\"ground-truth[^/\\s'\\\"]*\\.json\", \"ground_truth\"), (r\"20261111-a1\", \"eval_dir\"),",
+    "py/audits.py:169:        ev = Path(os.environ.get(\"R2_EVAL\") or R2.parents[1] / \"20261111-a1\")",
+    "py/results_row.py:20:EVAL = Path(os.environ.get(\"R2_EVAL\") or R2.parents[1] / \"20261111-a1\")",
+    "py/_lib.py:11:FINDINGS_PY = Path(os.environ.get(\"R2_FINDINGS_PY\") or REAL_REPO / \"src/superclaude/cli/review/findings.py\")"
+   ]
+  },
+  "AC-2b": {
+   "pass": true,
+   "dropped": [],
+   "reask_problems": []
+  },
+  "AC-8": {
+   "pass": false,
+   "rows": {
+    "smoke-sl2-collab": {
+     "exit": 1,
+     "model_ok": [
+      true,
+      true,
+      true,
+      true
+     ],
+     "sweeper_model": "muse-ember-1.0",
+     "k": 2
+    },
+    "smoke-sl2-iso": {
+     "exit": 0,
+     "model_ok": [
+      true,
+      true,
+      true
+     ],
+     "sweeper_model": "muse-ember-1.0",
+     "k": 2
+    }
+   }
+  },
+  "AC-9": {
+   "pass": true,
+   "mismatches": [],
+   "fallback_files": []
+  },
+  "AC-10": {
+   "pass": true,
+   "elapsed": {
+    "smoke-sl2-collab": 184.372,
+    "smoke-sl2-iso": 220.371
+   },
+   "slo_breach": {
+    "smoke-sl2-collab": false,
+    "smoke-sl2-iso": false
+   },
+   "over_without_breach": []
+  }
+ },
+ "all_pass": false
+}

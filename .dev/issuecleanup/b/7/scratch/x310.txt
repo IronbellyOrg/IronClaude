@@ -1,0 +1,80 @@
+#310 [MERGED] feat(ccsession): per-user start tier and tier list (CCSESSION_ACCESS)
+# Pull Request
+
+## Summary
+
+Per-user ccsession tiers for Coder workspaces. `CCSESSION_ACCESS` in the central workspace env file (`defaults.sh`) sets, per Coder username, the tier ccsession starts on and the tiers it offers: space-separated `<username>=<start tier>[:<tier>,<tier>,...]` entries, where no tier list means every tier. The owner comes from `CODER_WORKSPACE_OWNER_NAME` (set by the Coder agent). A user who is not listed, or an unknown owner, keeps today's behaviour: `CCSESSION_DEFAULT_TIER` with every tier.
+
+The Coder side, a separate <private-repo> PR after this merges, ships the first entry (`clay=tier1`), forwards the owner name to Orca terminals, and moves the IronClaude pin to this merge.
+
+## Changes
+
+- `models.py`:
+  - reads `CCSESSION_ACCESS` and the owner, and resolves the start tier and allowed tiers;
+  - applies them to `--help`, `--tier`, `--model`, `--models-status` and the shim's `/model` list and routing;
+  - a broken or repeated entry for the current user stops the launch with the reason. A piece of the value that isn't a `name=...` entry, a `${...}` value, or the name on any other line of the file stops every launch that has an owner name. This fails closed rather than opening every tier.
+- Env file reader: drops a trailing ` # comment`, splits lines at newlines only, and keeps the file when a byte isn't UTF-8, as bash does.
+- `local-gateway-alias-proxy.py`: serves and routes only the owner's tiers. Each owner name gets its own shim.
+- `ccsession`: header comment only.
+- `tests/unit/test_ccsession_tiers.py`: new tests for parsing, refusals, the shim list and routing, and the reader changes.
+- README, MODEL-TIERS.md, CHANGELOG.
+
+The limit is advisory, and documented as such: the owner can undo it from their own environment or call a model directly with their gateway key. Only a gateway key limited to those models enforces it.
+
+## Related Issues
+
+Follows IronbellyOrg/IronClaude#309 (rebased onto it; no overlap in behaviour).
+
+## Checklist
+
+### Git Workflow
+
+- [x] Opened with `/sc:pr-submit --monitor 3` on `IronbellyOrg/IronClaude`.
+- [x] For collaborators: Used a topic branch (not directly committed to main).
+- [x] Branch rebased onto `origin/master` (no conflicts).
+- [x] Commit messages conform to Conventional Commits (`feat:`, `fix:`, `docs:`, etc.).
+
+### Code Quality
+
+- [ ] Changes are limited to a single purpose (not a large PR, guideline: ~200 lines of difference). About 600 lines, mostly tests (315) and the access resolver.
+- [x] Follows existing code conventions and patterns.
+- [x] Add appropriate tests for new features/fixes.
+- [x] Lint/Format/Typecheck all pass.
+- [ ] CI/CD pipeline successful (green status). See Notes: master currently fails the tests/audit fixture tests.
+
+### Security
+
+- [x] Secrets and authentication information not committed (gitleaks clean on the branch diff and changed files).
+- [x] Necessary files excluded with `.gitignore`.
+- [x] No breaking changes, or if there are, commit with `!` and include in MIGRATION.md.
+
+### Documentation
+
+- [x] Update documentation as needed (README, CLAUDE.md, docs/, etc.).
+- [x] Add comments to complex logic.
+- [x] Properly document API changes.
+
+## Testing Methods
+
+- **ccsession test files** (`test_ccsession_tag.py`, `test_ccsession_tiers.py`, `test_install_ccsession.py`): 195 passed on this branch.
+- **Full `pytest` on this branch vs clean master e44acb61:** 14,107 vs 14,090 passed, with the same 75 failing test IDs on both in this environment (no new failures).
+- **ruff check, ruff format --check, `bash -n ccsession`:** clean.
+- **Live checks with the real gateway** (local evidence, `.dev/evals/ccsession-user-access-e2e-20261026/`):
+  - status and help per user;
+  - real launches per tier;
+  - the `/model` picker list per shim;
+  - a live edit of the access line picked up without restarting;
+  - New Terminal autostart;
+  - re-runs after each rebase, including on e44acb61.
+- **Independent reviews:** eight rounds; the final round passes and every earlier finding is fixed.
+
+## Notes
+
+- **Known CI failure, not from this PR:** IronClaude master currently fails "Test on Python 3.10" with 35 tests in `tests/audit/`, because cleanups #306 and #308 deleted their fixtures under `.dev/releases/complete/task-builder-merge/`. This PR is merged only if its failing test IDs match master's exactly.
+- **Known gaps (documented, not changed here):**
+  - a setting name assembled from pieces across lines isn't detected;
+  - models typed by hand with `/model` still route;
+  - when Orca passes its own `--model`, Claude receives two `--model` flags and Orca's isn't checked against the user's tiers. That already happens today with `ccsession-orca`.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+

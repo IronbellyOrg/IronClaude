@@ -1,0 +1,59 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Owner ruling recorded 2026-11-22 (given in chat): the dashboard's read-only rule is relaxed. The dashboard is meant to become a two-way platform, as set out in issue #727 (roadmap to version 2.0).
+
+What this changes for this issue: the open decision in "Proposed Solution" (may the dashboard write at all) is answered yes in direction. What it does not change: the vote still waits for the architecture and storage evaluation that #727 puts first, so the local-file storage named here is an assumption to re-check there, not a decision. Nothing is built from this issue yet.
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P2
+
+#### Concrete next steps
+The question display and selected-question foundation are built; the voting extension itself is not. Proposed work after the prerequisite evaluation, not authorization to start implementation:
+1. Complete #727's preliminary architecture/state/storage evaluation and obtain the owner's scheduling/go. Record the chosen persistence destination; do not assume the issue's local-file suggestion is final.
+2. Resolve the specific question/decision-text retention policy, size limits and redaction, preserving current export exclusions unless explicitly changed. The read-only direction decision is already answered, so do not reopen it as an unanswered permission gate.
+3. Specify how the actual decision is captured (for example a user-entered decision note, if approved). Existing parsed questions contain no answer, and source-window disappearance is not closure evidence (`parse.py:416-436`, `questions.py:3-11`).
+4. Add yes/no input tied to selected `(Run id, message id)`, display saved judgement, save question and decision for a negative judgement, and implement persistent readback on restart. Keep selection/retention semantics and existing exports unchanged unless the approved design says otherwise. Reuse the current pure-state/loop split and, only if files are selected, `export.py:236-274`'s directory and atomic-write helper.
+5. Add tests for selection identity across Runs, negative-judgement completeness, persistence/restart, write failure, privacy limits and absence of any new Orca write. Test homes already exist in `tests/observe/test_questions.py`, `test_view.py`, `test_export.py` and `test_commands.py`; no tests were executed in this review.
+
+#### Dependencies
+- **Needs #727**, the open two-way dashboard roadmap's preliminary architecture/storage evaluation, explicitly required by the owner's comment on #726. The roadmap says not to build before the owner's go and puts that evaluation ahead of the release list.
+- #409's question display/Decision Desk foundations already exist in source and merged PR #592; the broader parent remaining open is not by itself a new blocker.
+- **Blocks:** no specific downstream issue was verified as blocked on #726. Later learning/training is a stated motivation but explicitly out of scope, not an identified implementation dependency. Whether the future #727 storage decision requires a project database for this feature is UNVERIFIED.
+
+#### Related issues
+All six issues named by #726 or its owner comment were checked live on 2026-11-24 and remain OPEN:
+- [#727](https://github.com/IronbellyOrg/IronClaude/issues/727): two-way dashboard roadmap and prerequisite architecture/storage evaluation.
+- [#409](https://github.com/IronbellyOrg/IronClaude/issues/409): parent terminal dashboard feature.
+- [#706](https://github.com/IronbellyOrg/IronClaude/issues/706): observer follow-up on session summaries, links, steps, opening sessions, sweep source and scale testing; related, not an established voting prerequisite.
+- [#604](https://github.com/IronbellyOrg/IronClaude/issues/604): remote fleet grouped by host; separate scope, not an established voting prerequisite.
+- [#718](https://github.com/IronbellyOrg/IronClaude/issues/718): dashboard/report feature gaps from #655; related backlog, not an established prerequisite.
+- [#716](https://github.com/IronbellyOrg/IronClaude/issues/716): coordinator next-release feature gaps from #655; related coordination work, not an established prerequisite.
+
+A supplementary issue-title/body search for vote also returned #731, the release-planning pipeline backlog. Its substantive relationship to this feature was not investigated and is UNVERIFIED; it is not used to determine the verdict, dependency or priority.
+
+#### Related PRs
+The issue and its one comment name no PR directly. Read-only PR searches for `726` and `observe`, plus current observer source history, identified these relevant foundations:
+- [#592](https://github.com/IronbellyOrg/IronClaude/pull/592), MERGED 2026-11-17, commit `3206bdb9cb6b0fe3c81e6cdbeadcc1455aeeffda`: question text, dispatch link and Decision Desk, with text on screen only and no vote implementation. Body and current source were read.
+- [#598](https://github.com/IronbellyOrg/IronClaude/pull/598), MERGED 2026-11-17, commit `10f6ec670bf55f0fe768be8e0ef2067d5c5d879e`: owner's screen-only question-text decision; body and comment were read. This is a privacy constraint to reconcile, not completion of voting.
+- [#730](https://github.com/IronbellyOrg/IronClaude/pull/730), MERGED 2026-11-23, commit `98879e631e6d7986d14c0dc94720007cbb2fde0b`: retained dashboard research/spec/review records only; its body explicitly says no code, so it does not implement this feature.
+- #673, source-history commit `b68d5eeaf`, is the latest observer-source change in this checkout and covers visual parity; the `gh pr list` result reports it MERGED. Its full diff was not inspected and is UNVERIFIED beyond the title/history result; no voting completion claim relies on it.
+
+The search for `726` returned closed, unmerged #686, a watcher-routing PR. Its body was read and no implementation of this observer-voting feature was found there; a search hit is not a linked or completing PR. No implementing PR for #726 was verified. Search completeness for unmentioned work is UNVERIFIED.
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+--

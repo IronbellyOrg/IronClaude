@@ -1,0 +1,35 @@
+#655 [FEATURE] Issue-polling orchestrator: poll assigned issues, claim them and launch the worker (replaces #450) [CLOSED NOT_PLANNED] closed=2026-11-23T01:49:03Z
+## Feature Summary
+
+One issue that replaces #450 and the open parts of #331 and of the coordinator handoff. The orchestrator, a skill named `orchestrator` with the command `/sc:orchestrator` built in IronClaude, polls GitHub for issues assigned to the user and makes sure each has a plan (Priority, Fix approach and Test plan, the format of #651; an issue without one is held, and a plan is created through `/sc:issue --plan`). It claims the issue, hands the work to a supervised worker in the issue's own repo and worktree, watches the worker and its pull request, merges when every condition holds, runs the closeout and an audit (an issue the pull request did not finish goes back for another round), and keeps the work report current. Planning is done once; cheaper models then execute. When nothing is new, no agent starts and no tokens are spent.
+
+The history of #331, #450 and the coordinator handoff, and the full list of what was carried over and dropped, is in a separate comment: [History and carried-over detail](https://github.com/IronbellyOrg/IronClaude/issues/655#issuecomment-6991418475). This body holds the current design and the workflow.
+
+**Body synced with the approved spec (2026-11-19).** The design is the spec `docs/designs/orchestrator.md` on branch `clayphi/issue-655-spec`, approved by Clay together with additions A to E (ruling 37); where this body and the spec differ, the spec wins. **A** the hold and acceptance check (`hold:plan`, `hold:backlog`) and plan creation through `/sc:issue --plan`; **B** what reaches Clay (one nine-row table, on from the start); **C** what the orchestrator may do and may never do; **D** the closeout, its own issue #668 (`/sc:closeout`), and the hand-back of a not-done issue; **E** the audit after a pull request lands, the never-merge rule for `changes_requested` and the merge-safety hold. Rulings 23 to 39 are in section 10.
+
+**Models (Clay, 2026-11-19):** stronger models plan and cheaper models build. The agents the orchestrator starts run on ccsession tiers named in `repos.yaml`, never on model ids, with a per-repo override: `plan_tier` (the plan call, default `tier1b`; it sets the depth of `/sc:issue --plan`), `worker_tier` (default `tier2`) and `orchestrator_tier` (default `tier1b`). A tier the user cannot use falls once to the next allowed tier and is recorded; a tier the gateway refuses is row 9. Spec 5.8.
+
+## Problem Statement
+
+The work to pick up assigned issues automatically is spread over #331 (closed; the built `superclaude issue-watch` poller, never run live), #450 (open, blocked: live test, shadow run, cron) and the coordinator handoff (a plan-approval step after the claim). All of it is built around layers that Clay's 2026-11-18 rulings remove: a trigger label, an approval label and approver list, a Project in the Backlog column, a plan-approval gate after the claim, a separate watcher session, and cron. The watcher also works on one repository only (`REPO` at `src/superclaude/cli/issue_watch/github.py:37`, `ORIGIN_REPO` at `launch.py:50`), and `/sc:issue --claim` resolves its repository from `origin` only. Nothing today holds an issue that has no plan, decides whether a merged pull request finished its issue, or audits how a pull request landed.
+
+## User Story
+
+As an owner who is assigned issues in several repositories, I want one orchestrator that polls on a schedule, holds an issue until it has a plan, claims what is assigned to me, starts the right worker in the right repo and worktree, and carries the work through merge, closeout and, if needed, another round, so that I never start the work by hand and nothing is spent when nothing is new.
+
+## Proposed Solution
+
+### 1. How it works, end to end
+
+1. An Orca automation runs a poll script every 5 minutes (configurable). The schedu
+--- comments=19; last 3:
+[clayphi 2026-11-20T20:43:42Z] ## For comparing designs: our orchestrator skill (not finished, and it may not line up with your version)
+
+@ironbelly this is so you can read our version before we compare it with yours. Please treat it as unfinished: the skill is only partly built, and parts of it may be misaligned with your coordinator design, because we wrote it without your requirements file (it is not on GitHub). Nothing here is merged and nothing is switched on.
+
+**How it works in our design.** The polling watcher (your issue watcher, reshaped) does not hand the issue to the session. When it finds a new assigned issue, it starts the orchestrator/coordinator session for that repo if none is running, or wakes the one that is. It then types one fixed line into it: `/sc:orchestrator --wake <wake id>`. The wake id is only a timestamp plus random characters, so no text from GitHub ever reaches a typed line. The issue details are written to a separate wake file (JSON), with a matching Orca mailbox message, and the skill reads that file to learn which issue to work on. With nothing new, nothing starts and no model runs
+~~
+[ironbelly 2026-11-23T01:42:35Z] Decision, 2026-11-21, owner: the merged watcher (PR 707) is the design for the issue watcher and the coordinator. Nothing in the orchestrator design on branch clayphi/archive-orchestrator-655-20261120 is adopted as is. Coder issues 515 (cron) and 516 (coordinator worktree) go ahead as filed; the answer for 515 is on that issue. Features of this issue that the merged plan does not cover are tracked in IronClaude issues 716, 717 and 718. The hold on this issue ends with this note.
+
+~~
+[ironbelly 2026-11-23T01:49:02Z] Closing as not planned on the owner's decision (2026-11-23): the merged watcher (PR 707) is the design, Clay's branches are kept, and the features of this design that the merged plan does not cover are tracked in issues 716, 717 and 718.

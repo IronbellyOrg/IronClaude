@@ -1,0 +1,110 @@
+{
+ "schema": "r2-results/1",
+ "row": "smoke-sl2-collab",
+ "arm": "F4",
+ "panel": "SL2",
+ "panel_collab": 1,
+ "models": {
+  "t1b-1": "claude-sonnet-5-5",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "sweeper_model": "muse-ember-1.0",
+ "planning": true,
+ "values_sha256": {
+  "TASK-WF-design-20261108-041415": "f5bc2cea1003e8c92276c1f11aef89eac36477f60109bf926f231b00cda81d7f"
+ },
+ "opaque": "5308cbcfad9f",
+ "started_at": "2026-11-13T21:47:47Z",
+ "finished_at": "2026-11-13T23:01:59Z",
+ "found_14": null,
+ "real_blocking_8": null,
+ "judge_blocking": null,
+ "wrong_blockers": null,
+ "control_found_2": 1,
+ "control_wrong_blockers": 1,
+ "output_tokens": {
+  "total": 32508,
+  "reviewers": 28712,
+  "sweeper": 3796,
+  "reask": 0
+ },
+ "elapsed_s": {
+  "TASK-WF-design-20261108-041415": 184.372
+ },
+ "overhead_pct": {
+  "TASK-WF-design-20261108-041415": -32.64
+ },
+ "per_package": {
+  "TASK-WF-design-20261108-041415": {
+   "gt_covered_any": [
+    "GT1"
+   ],
+   "gt_covered_blocking": [
+    "GT1"
+   ],
+   "wrong_blockers": 1,
+   "ledger_rows": 5,
+   "label": "R",
+   "score_ok": true,
+   "judge_api_error": false,
+   "valid": true,
+   "audit_ok": true,
+   "slo_breach": false,
+   "elapsed_s": 184.372,
+   "k": 2,
+   "facts_posted": 4,
+   "facts_harvested": 0,
+   "facts_delivered": {
+    "t4-1": 2,
+    "t3-1": 2
+   },
+   "snapshot_missing": 0,
+   "receivers": 2
+  }
+ },
+ "collab": {
+  "k": {
+   "TASK-WF-design-20261108-041415": 2
+  },
+  "facts_posted": 4,
+  "facts_harvested": 0,
+  "facts_rejected": 2,
+  "over_cap": 0,
+  "witness_facts": 0,
+  "facts_delivered": {
+   "t4-1": 2,
+   "t3-1": 2
+  },
+  "late": 0,
+  "not_delivered_cap": 0,
+  "isolated_for": {
+   "TASK-WF-design-20261108-041415": []
+  },
+  "snapshot_missing": 0,
+  "finish_signal_fired": 0,
+  "finish_would_fire": 0,
+  "hook_error": 0,
+  "hook_ms_p95": 184,
+  "peer_lines": 1,
+  "peer_lines_first_hand": 1,
+  "reruns": 0,
+  "rerun_mismatches": 0,
+  "cmd_unrun": 4,
+  "echo_rate": {
+   "TASK-WF-design-20261108-041415": 0.0
+  },
+  "own_line_jaccard": {
+   "TASK-WF-design-20261108-041415": 0.0
+  },
+  "sweeper_start_t_s": {
+   "TASK-WF-design-20261108-041415": 0.086
+  },
+  "hang_kill": 0,
+  "slo_breach": 0,
+  "retry_isolated": 0,
+  "reask_count": 0,
+  "dropped_lines": 0
+ },
+ "invalid": []
+}

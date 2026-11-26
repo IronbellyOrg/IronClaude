@@ -1,0 +1,7 @@
+2aab5a6c5929cd103f6e1043773364232a5bf8a5
+A1 r1-1 F1.5 minor tests/skills/test_implement_launch_alias.py:78 ac=scope n,n,n,n The worked-table check requires every cell to be `N× alias`; the allowed second branch (a non-launchable pick named with family-fallback and no alias) is never accepted. No effect on the four rows pinned by Task 2.
+A1 r1-1 F1.6 minor tests/skills/test_implement_launch_alias.py:423 ac=scope n,n,n,n The header check skips records with no id, rung other, or a family that is neither claude nor gpt, so it does not build a header "for each role"; all five roles are still covered in the observed environment.
+A2 r2-1 F2.1 minor tests/skills/test_implement_launch_alias.py:423 ac=scope n,n,n,n The header check is self-referential (the family it compares comes from the same _family call), so its narrower coverage changes no outcome; GPT picks launched on opus are checked.
+A2 r2-1 F2.2 note ./artifacts/t6-lint.log:8 ac=T6.AC5 n,n,n,n mypy ran as `uv run --with mypy mypy` because it is only in the dev extra; same file, same config.
+A2 r2-1 F2.3 note tests/skills/test_implement_launch_alias.py:78 ac=scope n,n,n,n The table check is stricter than the allowed cell forms; the live table passes it.
+A2 r2-1 F2.4 note tests/skills/test_implement_launch_alias.py:303 ac=scope n,n,n,n When the top rung is not a claude id (swapped environment) claude_top picks the highest Claude rung below it; no sweep check depends on which id is picked.

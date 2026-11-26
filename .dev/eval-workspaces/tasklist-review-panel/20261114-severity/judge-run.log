@@ -1,0 +1,14 @@
+SKIP batch-01
+SKIP batch-02
+END batch-03 rc=0 ok observed=claude-opus-5-5 wall=126s items_in=25 items_out=25
+END batch-04 rc=0 ok observed=claude-opus-5-5 wall=79s items_in=25 items_out=25
+END batch-05 rc=0 ok observed=claude-opus-5-5 wall=82s items_in=25 items_out=25
+END batch-06 rc=0 ok observed=claude-opus-5-5 wall=117s items_in=25 items_out=24
+END batch-07 rc=0 ok observed=claude-opus-5-5 wall=97s items_in=25 items_out=25
+END batch-08 rc=0 ok observed=claude-opus-5-5 wall=78s items_in=19 items_out=19
+END batch-09 rc=0 ok observed=claude-opus-5-5 wall=177s items_in=25 items_out=25
+END batch-10 rc=0 ok observed=claude-opus-5-5 wall=102s items_in=21 items_out=21
+END batch-11 rc=0 ok observed=claude-opus-5-5 wall=127s items_in=25 items_out=25
+END batch-12 rc=0 ok observed=claude-opus-5-5 wall=113s items_in=25 items_out=25
+END batch-13 rc=0 ok observed=claude-opus-5-5 wall=112s items_in=25 items_out=25
+ALLDONE

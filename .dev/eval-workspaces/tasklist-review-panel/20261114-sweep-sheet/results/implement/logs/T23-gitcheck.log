@@ -1,0 +1,1 @@
+cmd: gitcheck bin; rc=1

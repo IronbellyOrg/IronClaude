@@ -1,0 +1,105 @@
+{
+ "row": "smoke-a1-sl2-1",
+ "arm": "A1-sl2",
+ "panel": "sl2",
+ "models": {
+  "t1b-1": "claude-sonnet-5-5",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "switches": {
+  "PANEL_COLLAB": 0,
+  "PANEL_KIT": 0,
+  "NOFALLBACK": 1,
+  "SPIKE4": false
+ },
+ "values_sha256": {
+  "TASK-WF-design-20261108-041415": "0eb3f0aca0bf208e5f5d3ec45b554f63a3a104827e90a433b923da75ac13e261"
+ },
+ "found_14": 0,
+ "real_blocking_8": 0,
+ "judge_blocking": 0,
+ "wrong_blockers": 0,
+ "control_found_2": 1,
+ "control_wrong_blockers": 1,
+ "issues": {
+  "credited_any": [
+   "I7"
+  ],
+  "credited_blocking": [
+   "I7"
+  ],
+  "target_reach": true,
+  "hard_credits": 1
+ },
+ "output_tokens": {
+  "total": 33507,
+  "per_pkg": {
+   "TASK-WF-design-20261108-041415": 33507
+  },
+  "per_reviewer": {
+   "TASK-WF-design-20261108-041415": {
+    "t1b-1": 23780,
+    "t3-1": 5327,
+    "t4-1": 4400
+   }
+  }
+ },
+ "elapsed_s": {
+  "TASK-WF-design-20261108-041415": 180.318
+ },
+ "overhead_pct": {
+  "TASK-WF-design-20261108-041415": 1.9220823265081233
+ },
+ "collab": {
+  "TASK-WF-design-20261108-041415": {
+   "k": 0,
+   "finish_would_fire": true,
+   "k0_isolated": false,
+   "deflection_overlap": 0.3333333333333333,
+   "union_anchored_tasks": 8,
+   "own_line_jaccard": 0.16666666666666666,
+   "ledger_rows": 5,
+   "slo": "ok",
+   "cards_posted": 0,
+   "cards_delivered": 0,
+   "requests_delivered": null,
+   "requests_acted": null,
+   "superseded": 0,
+   "dup_card": 0,
+   "late": 0,
+   "snapshot_missing": 0,
+   "hook_calls": 0,
+   "hook_error": 0,
+   "hang_kill": 0,
+   "retry_isolated": 0,
+   "reask_s": 0,
+   "dropped_lines": 0,
+   "hook_ms_p95": null,
+   "finish_signal_t": null
+  }
+ },
+ "alarms": {
+  "TASK-WF-design-20261108-041415": {
+   "CONVERGENCE": null,
+   "DEFLECTION": false,
+   "SLO": "ok"
+  }
+ },
+ "audit": {
+  "TASK-WF-design-20261108-041415": "pass"
+ },
+ "invalid": [],
+ "pkg_status": {
+  "TASK-WF-design-20261108-041415": {
+   "merge": "ok",
+   "merge_rc": 0,
+   "invalid": [],
+   "anon": "ok",
+   "anon_postcheck": 0,
+   "judge": "ok",
+   "judge_api_error": false
+  }
+ },
+ "status": "complete"
+}

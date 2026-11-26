@@ -1,0 +1,34 @@
+{
+  "id": "C3",
+  "name": "Value read and never written",
+  "version": 1,
+  "definition": "A value, field or state is read, mapped or required by one component and no row, task or step writes it for that case.",
+  "question_template": "This text reads or returns on the value «value». Does any row or task write that value? Quote it. PROBLEM if none does.",
+  "extractor": "E6",
+  "route": "read",
+  "replicas": 2,
+  "applies_to": [
+    "plan",
+    "spec",
+    "doc"
+  ],
+  "instances": [
+    {
+      "cite": "research/346-review-loop-experiments/p17/findings.jsonl:20",
+      "target": "spec",
+      "kind": "P"
+    },
+    {
+      "cite": "reflect/pre-task-rf-194013-20260609103200/REPORT.md:57",
+      "target": "plan",
+      "kind": "P"
+    }
+  ],
+  "severity_guidance": "Blocking when a reader keys on a value that nothing sets; minor when a stated default covers the case.",
+  "known_weakness": "High false-positive rate and low trust; class support is weak, so it is plausible only.",
+  "promote_category": "missing-requirement",
+  "swap_test": {
+    "reviewer": "second-author-session claude-sonnet-5-5",
+    "date": "2026-11-15"
+  }
+}

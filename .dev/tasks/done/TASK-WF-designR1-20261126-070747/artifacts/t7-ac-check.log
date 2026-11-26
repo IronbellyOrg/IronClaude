@@ -1,0 +1,21 @@
+paragraph lines found: 1
+PASS paragraph contains: git ls-remote --symref origin HEAD
+PASS paragraph contains: git fetch origin <default-branch> --tags
+PASS paragraph contains: git merge-base --is-ancestor <tag> refs/remotes/origin/<default-branch>
+PASS paragraph contains: unverified
+PASS paragraph contains: git branch -r --contains <tag>
+PASS old command gone from the file
+PASS no whole word main/master/integration in the paragraph (mainline allowed)
+PASS word mainline kept in the paragraph
+PASS first half kept up to 'after the scan.'
+PASS line 74 WARN line unchanged, ends with the full stop
+PASS Output line
+PASS Exit criteria line
+PASS Branch discipline
+PASS PR target
+PASS argument-hint (line 5) unchanged
+== src/superclaude paths: new hits vs HEAD
+now: 0 old: 0
+(nothing above = no new hit)
+== post-release.md diff
+(nothing above = unchanged)

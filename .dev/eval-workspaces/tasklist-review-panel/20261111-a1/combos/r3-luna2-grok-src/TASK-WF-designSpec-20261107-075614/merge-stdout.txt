@@ -1,0 +1,82 @@
+{
+ "block_ok": {
+  "t3-1": true,
+  "t4-1": true,
+  "t4-2": true
+ },
+ "brief_ids": [
+  "L1",
+  "L2",
+  "L3"
+ ],
+ "cleared": [],
+ "clusters": [
+  {
+   "event": "opened",
+   "lid": "L1",
+   "members": [
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L2",
+   "members": [
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t3-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L3",
+   "members": [
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t4-2"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L4",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t4-2"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L5",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t4-2"
+    }
+   ]
+  }
+ ],
+ "decision": "REVISE",
+ "new": [
+  "L1",
+  "L2",
+  "L3",
+  "L4",
+  "L5"
+ ],
+ "refound": [],
+ "regressed": [],
+ "verdict": "FAIL",
+ "warnings": []
+}

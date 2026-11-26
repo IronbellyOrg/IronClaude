@@ -1,0 +1,21 @@
+{
+  "model": "claude-haiku-5-5",
+  "fresh_session": "70380c7c-8e75-43e7-8dd6-4037711e07a3",
+  "fresh_model_ok": true,
+  "fresh_s": 14.197,
+  "resume_rc": 0,
+  "resume_session": "70380c7c-8e75-43e7-8dd6-4037711e07a3",
+  "same_session": true,
+  "resume_model_ok": true,
+  "resume_s": 6.299,
+  "resume_assistant_events": 2,
+  "killed_rc": 0,
+  "killed_assistant_events": 4,
+  "killed_text_events": 1,
+  "transcript_timestamps": true,
+  "pass": true,
+  "killed_mid_answer": false,
+  "kill_text_ok": false,
+  "resume_pass": true,
+  "pass_rule": "recomputed 21:2x with the 15.4 kill condition (luna required)"
+}

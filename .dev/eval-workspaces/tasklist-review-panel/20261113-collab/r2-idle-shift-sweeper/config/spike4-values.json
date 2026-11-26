@@ -1,0 +1,17 @@
+{
+  "panel": "*",
+  "pkg": "*",
+  "B_f": 2000,
+  "turn_p90_crit": 6.4,
+  "T_report_p90_crit": 6.4,
+  "E_recv": 2000,
+  "turn_p90_recv": 6.4,
+  "T_report_p90_recv": 6.4,
+  "hooks_s": 2,
+  "panel_finish_at_s": 3000,
+  "k": 0,
+  "sweeper_kill_s": 3000,
+  "hang_s": 3000,
+  "source": "spike4-bootstrap",
+  "n_runs": 0
+}

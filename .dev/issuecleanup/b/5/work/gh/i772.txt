@@ -1,0 +1,39 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P2
+
+#### Concrete next steps
+
+1. Owner answers (a) to (d) in #772 in chat; the agent records them (owner never writes a file). Without the answers nothing below should change behaviour.
+2. After answer (d): fix the four relaunch passages (worker-brief.txt:17, WORKER-CONTRACT.md:297, design :65 and :79) and update `tests/issue_pipeline/test_brief.py:242` and `tests/skills/test_worker_contract.py::test_the_duties_name_the_status_to_command_table_and_the_brief_at_level_none_only` to pin the new wording. Edit `src/superclaude/core/WORKER-CONTRACT.md` at its source, then run `make sync-dev`.
+3. Remove the Worktree-with-Plan conflict in `launch-prompt.md:25` versus `:45` without allowing implement in a Plan stage; add a rendered-prompt test for that case.
+4. Pick one meaning of Full and align `commands/issue.md:16`, `refs/claim.md`, `templates/launch-prompt.md` and the design table.
+5. If (c) is yes, add a `next-steps.md` check at the claim output boundary with a failing-case test; keep the Spec brainstorm-then-design route allowed.
+6. Settle the two UNVERIFIED Problem 2 items only through the owner's real-issue check, within the existing gate.
+7. Run `uv run pytest`, `make lint`, `make verify-sync` (not run here; this task forbids uv).
+
+#### Dependencies
+
+- Needs: the owner's answers to (a) to (d) in #772. The ship gate (out of scope) depends on #442, #678 and #722, all OPEN.
+- Blocks: nothing hard. Any plan to chain stages or add a build step through the watcher depends on these answers; #733 (unattended `/sc:implement`, OPEN) lists an implement row in the issue pipeline brief as out of scope.
+
+#### Related issues
+
+#761 (OPEN, list of potential gaps this issue comes from), #733 (OPEN), #734 (OPEN), #442 (OPEN), #678 (OPEN), #722 (OPEN), #689 (CLOSED, not planned per the issue body; state CLOSED confirmed, reason not re-read), #450 (CLOSED).
+
+#### Related PRs
+
+#707 (MERGED, the watcher and standing coordinator), #729 (MERGED, records R38: the merged watcher is the design), #591 (MERGED, coordinator handoff, Plan B), #584 (MERGED, approval core). No open PR addresses #772.
+
+_Limits: items marked UNVERIFIED in the text could not be checked in this read-only review. Nothing was changed on this issue other than this comment and its field values._
+
+--

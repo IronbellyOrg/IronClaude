@@ -1,0 +1,14 @@
+usage: sweep prepass [-h] --candidate CANDIDATE [--source SOURCE] --repo REPO
+                     --seed SEED --out OUT [--panel {haiku,primary,sonnet}]
+
+options:
+  -h, --help            show this help message and exit
+  --candidate CANDIDATE
+                        the candidate plan
+  --source SOURCE       the source document, when there is one
+  --repo REPO           the repository snapshot (a git checkout)
+  --seed SEED
+  --out OUT             the run folder; prepass/ is made inside it
+  --panel {haiku,primary,sonnet}
+uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel python /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py prepass --help
+rc=0

@@ -1,0 +1,38 @@
+#782 [OPEN] [FEATURE] Coordinator C1: Skill layout: Activation section, numbered waves with lazy refs, stub-first files, file-table test
+## What was tried
+This is item C1 of the coordinator issue #716 (next release: the features of issue 655 that the current plan does not cover), split out so it can be built and tracked on its own. Issue 655 was split into its 14 sections and one analyst per section classified every design feature against the unification spec and its decision record; this item is one of the features that were found missing. Nothing in this item is built yet. #716 stays the umbrella issue: its closing review holds the build order, the phases and the open owner decisions.
+
+## Relevant files and links
+- Parent issue: #716 (this item is a sub-issue of it). Sister issues of the split: watcher #717, TUI dashboard #718. Source design: #655.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+The item below is built, tested and checked against its own lines, or the owner records in chat that it is dropped. The text is copied unchanged from #716.
+
+### C1. Skill layout: Activation section, numbered waves with lazy refs, stub-first files, file-table test (655 section 2, 4; rows S02-F1, S04-F4, S04-F5, S04-F8, S04-F10, S04-F12)
+  - What to build: Lay out `sc-coordinator-protocol/SKILL.md` as numbered waves, each with a `refs/<name>.md` loaded only at that wave, naming its commands, template and ending check.
+  - Also in this item:
+    - S04-F4: The coordinator skill opens with an Activation section that makes the model load the skill before any other output when `/sc:coordinator` is typed.
+    - S04-F5: The coordinator skill describes its runtime workflow as numbered waves, each with a ref file, its Orca and SC commands, its template and the check that ends it, and loads Orca's own `orchestration` skill first.
+    - S04-F8: The coordinator skill keeps its per-wave instructions in separate ref files that the session reads only when it reaches that wave.
+    - S04-F10: The coordinator writes each output file (entry, escalation, handoff) as a stub with all headers, then fills sections one by one, so a kill leaves a readable partial file.
+    - S04-F12: A test fails when a file in `sc-coordinator-protocol/` is missing from the skill's file table or a listed file does not exist.
+  - Done when: `SKILL.md` lists every wave with ref, commands, template and ending check, and a test fails if a ref named in the table is missing.
+    - also: A test reads `SKILL.md` and finds an Activation section, as the existing protocol skills pass today.
+    - also: A test parses the skill's wave table and finds, for every wave, a ref file that exists, a template (or "none") and a stated ending check.
+  - Related items (read together; the order is in the review at the end): C10, C25
+  - Research and debate results from our documents:
+    - S02-F1: .dev/brainstorms/20261120-pr686-unify/debates/D15/VERDICT.md:134 `| G6 | The design text (PR 681) | Adopt with change | Source of verb and wave detail; not shown to be owner-approved on GitHub |`. The wave detail lives in Clay's design text, which PR 700 removed from master (SPEC.md:758, Appendix B).
+    - S04-F5: W/techref/ISSUE-TO-WORK-PIPELINE-TECHNICAL-REFERENCE.md:343 "18 Binding of coordinator-started workers | NOT BUILT" shows the wave that starts workers is itself unbuilt; SPEC:62 "NOT BUILT anywhere | Coordinator command and skill".
+    - S04-F10: SPEC:239 quote above; no further evidence found in our documents.
+  - Watch out:
+    - S02-F1: the plan treats the 681 design text as unapproved source material, so each wave row must be re-checked against the verdicts below before it is built. The design doc is on the archive branch only (SPEC.md:759).
+    - S04-F4: none; the repo rule makes this cheap and not optional.
+
+
+## Pick-up note
+- Read the review at the end of #716 first: it holds the build order, the three phases and the owner decisions that gate this item. The related-item ids above (C numbers) refer to the sibling sub-issues of #716.
+- The plan files named above are local files, not pushed; read them from a checkout that has them, or ask the owner.
+

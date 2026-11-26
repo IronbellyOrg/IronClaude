@@ -1,0 +1,8 @@
+{
+  "base": "119622e3a78284f83377f920e3858f864ac7e6c6",
+  "candidate": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md",
+  "source": ".dev/tasks/done/TASK-WF-fixTheScIssueWor-20261104-162205/source.md",
+  "kind": "plan",
+  "set": "holdout",
+  "masked_paths": []
+}

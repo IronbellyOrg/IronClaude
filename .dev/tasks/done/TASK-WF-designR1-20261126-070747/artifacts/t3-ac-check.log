@@ -1,0 +1,14 @@
+PASS block present, consecutive: Step 4 six lines
+PASS block present, consecutive: Step 5 four lines
+PASS block present, consecutive: Step 6 two lines
+PASS block present, consecutive: Step 4 check block kept
+PASS --verify-tag present
+PASS upstream sentence kept
+PASS Step 4 first sentence kept
+PASS headings in order: [5, 6, 7]
+fenced gh lines without the fork form: none
+banned merge options in fenced lines: none
+PASS Sources row
+grep exit 1 (1 expected)
+grep exit 1 (1 expected)
+grep exit 1 (1 expected: no pull request number on the page)

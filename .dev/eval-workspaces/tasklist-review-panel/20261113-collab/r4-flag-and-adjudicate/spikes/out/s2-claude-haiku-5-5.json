@@ -1,0 +1,17 @@
+{
+  "model": "claude-haiku-5-5",
+  "session_id": "185b6032-a78b-4c6c-ac88-7b415d8e88b5",
+  "rc_first": 0,
+  "rc_resume": 0,
+  "transcript_file": "/home/coder/.claude/projects/-tmp-evalsb-collab-r4-sb-TASK-WF-designSpec-20261107-075614-repo/185b6032-a78b-4c6c-ac88-7b415d8e88b5.jsonl",
+  "transcript_written": true,
+  "first_reply": "ALPHA",
+  "resume_reply": "ALPHA",
+  "observed_first": "claude-haiku-5-5",
+  "observed_resume": "claude-haiku-5-5",
+  "resume_session_id": "185b6032-a78b-4c6c-ac88-7b415d8e88b5",
+  "work_dir": "/tmp/collab-r4/s2-claude-haiku-5-5-1794604249",
+  "both_words": false,
+  "model_ok": true,
+  "pass": false
+}

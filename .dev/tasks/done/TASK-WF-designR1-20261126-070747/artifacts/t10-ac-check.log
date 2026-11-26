@@ -1,0 +1,18 @@
+== AC1: no origin/master in src/superclaude or docs/user-guide
+grep exit 1 (1 expected)
+== AC2: CHANGELOG.md and docs/testing untouched
+(empty above = untouched)
+== diff stat
+ docs/user-guide/codegraph.md | 2 +-
+ docs/user-guide/commands.md  | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+== the --base option takes any ref (cited source)
+@click.option(
+    "--base",
+    "base_override",
+    default=None,
+    help=(
+        "Explicit audit base ref (single ref vs working tree). Highest precedence "
+        "over frontmatter start_commit + merge-base."
+    ),
+)

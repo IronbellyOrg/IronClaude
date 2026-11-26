@@ -1,0 +1,18 @@
+{
+  "schema": "rl-lenses/1",
+  "version": 1,
+  "panels": {
+    "primary": {"label": "ember + 2x luna", "roles": {
+      "S":  {"rid": "t2b-1", "model": "muse-ember-1.0", "lens": ["C4", "C5", "C6", "C8"], "table_cap": 14, "search_form": true,  "reask": true},
+      "L1": {"rid": "t4-1",  "model": "gpt-6-luna",     "lens": ["C1", "C2", "C3"],       "table_cap": 14, "search_form": false, "reask": false},
+      "L2": {"rid": "t3-1",  "model": "gpt-6-luna",     "lens": ["C2", "C4", "C7"],       "table_cap": 14, "search_form": false, "reask": false}}},
+    "haiku": {"label": "haiku + 2x luna", "roles": {
+      "S":  {"rid": "t2-1",  "model": "claude-haiku-5-5", "lens": ["C5", "C6", "C8"],     "table_cap": 6,  "search_form": true,  "reask": false},
+      "L1": {"rid": "t4-1",  "model": "gpt-6-luna",       "lens": ["C1", "C2", "C3"],     "table_cap": 14, "search_form": false, "reask": false},
+      "L2": {"rid": "t3-1",  "model": "gpt-6-luna",       "lens": ["C1", "C4", "C7"],     "table_cap": 12, "search_form": false, "reask": false}}},
+    "sonnet": {"label": "sonnet + 2x luna", "roles": {
+      "S":  {"rid": "t1b-1", "model": "claude-sonnet-5-5", "lens": ["C5", "C6", "C8", "C2"], "table_cap": 8, "search_form": true,  "reask": false},
+      "L1": {"rid": "t4-1",  "model": "gpt-6-luna",        "lens": ["C1", "C3", "C7"],       "table_cap": 12, "search_form": false, "reask": false},
+      "L2": {"rid": "t3-1",  "model": "gpt-6-luna",        "lens": ["C4", "C7", "C1"],       "table_cap": 12, "search_form": false, "reask": false}}}
+  }
+}

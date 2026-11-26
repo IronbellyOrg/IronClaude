@@ -1,0 +1,1 @@
+{"created_contract": false, "made_artifacts": false, "ops": [["ins", 6, "unresolved:"], ["ins", 7, "  - \"SUPERSEDED by TASK-WF-designR1-20261126-070747: do not run /sc:implement on this package.\""], ["ins", 8, "superseded_by: TASK-WF-designR1-20261126-070747"]]}

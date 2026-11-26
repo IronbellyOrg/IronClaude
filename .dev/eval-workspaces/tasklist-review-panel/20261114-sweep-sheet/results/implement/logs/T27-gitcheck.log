@@ -1,0 +1,8 @@
+$ gitcheck $SW/bin   (the output follows; empty means clean)
+gitcheck_bin_lines=0
+$ gitcheck <tmp dir with a file holding: git add -A>   (the probe: must print that line)
+/tmp/gitcheck-probe.6lq9gO0v/probe.sh:2:git add -A
+probe_lines=1
+$ grep -rn "claude-opus-5-5" $SW/bin $SW/sweep $SW/scaffold
+grep_rc=1
+rc=0

@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "t3-1",
+  "expected_model": "Qwen3.8-max",
+  "observed_model": "",
+  "model_ok": false,
+  "findings_block": false,
+  "attempt": 2,
+  "wall_s": 2,
+  "output_tokens_main": 0,
+  "output_tokens_all": 0,
+  "exit": 1
+}

@@ -1,0 +1,157 @@
+{
+ "package": "TASK-WF-designSpec-20261107-075614",
+ "candidate": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "source": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/tasks/done/TASK-WF-designSpec-20261107-075614/source.md",
+ "items": [
+  {
+   "anchor": "asserts every `gh` line carries `--repo` or a `repos/` path (the existing `test_t105_runtime_repo_pin` covers only the poll script and is not the proof)",
+   "anchor2": "the script passes the `_RESOLUTION_SCRIPTS` origin-URL resolution tests",
+   "claim": "The every-gh-line scan cannot pass on a script that must contain the gh repo view resolution line, which has neither --repo nor a repos/ path.",
+   "id": "X0108"
+  },
+  {
+   "anchor": "Edit canonical files under `src/superclaude/` only, then run `make sync-dev`; do not stage `.claude/` mirror files.",
+   "anchor2": "Edit `docs/user-guide/commands.md`: add `[--merge-guard {draft,off}]` to the `/sc:pr-submit` usage line and a paragraph after the \"Merge conflicts\" paragraph",
+   "claim": "The plan forbids edits outside `src/superclaude/` while requiring edits to tests and user-guide files outside that directory, so its instructions cannot all be followed.",
+   "id": "X0016"
+  },
+  {
+   "anchor": "mode `OFF` and ordinal below 3 with no record (`off`), and no record at ordinal 3 (`released`)",
+   "anchor2": "implementing the first-match mapping of section 4.1",
+   "claim": "The acceptance text limits the mode OFF rule to ordinal below 3, so mode OFF at ordinal 3 with no record reports released where section 4.1 says off.",
+   "id": "X0307"
+  },
+  {
+   "anchor": "Edit canonical files under `src/superclaude/` only, then run `make sync-dev`;",
+   "anchor2": "Create `./artifacts/pre-build-gate.md` in this package from ./source.md sections 6, 8 and 10.",
+   "claim": "The source-only constraint conflicts with required edits and file creation under artifacts, tests, and docs, so the plan cannot be followed as written.",
+   "id": "X0208"
+  },
+  {
+   "anchor": "`grep -n \"merge-guard\" src/superclaude/commands/pr-submit.md` shows the argument-hint entry, the Options row and the section heading",
+   "anchor2": null,
+   "claim": "Task 12 asks for a section named \"Merge guard\" but its AC checks the heading with a case-sensitive grep for `merge-guard`, which that heading cannot match; executor guidance flagged it and the executor added `(--merge-guard)` to the heading so the grep passed.",
+   "id": "X0312"
+  },
+  {
+   "anchor": "Edit canonical files under `src/superclaude/` only",
+   "anchor2": "Update `tests/pr_submit/test_run_log.py`",
+   "claim": "The source-only edit restriction contradicts tasks that require changes to tests and user-guide files, so an implementation following both cannot satisfy the plan.",
+   "id": "X0120"
+  },
+  {
+   "anchor": "Edit canonical files under `src/superclaude/` only, then run `make sync-dev`",
+   "anchor2": "Edit `docs/user-guide/commands.md`: add `[--merge-guard {draft,off}]`",
+   "claim": "The source-only edit constraint conflicts with required test and documentation edits, so an implementer cannot satisfy both the constraint and the stated acceptance criteria.",
+   "id": "X0031"
+  },
+  {
+   "anchor": "mode `OFF` at ordinal 3 with phase `HELD` returns `REPORT_HELD`",
+   "anchor2": "the `merge_guard` field mapping of `guard_status`",
+   "claim": "A resume with mode off can report a held guard while guard_status maps the output field to off.",
+   "id": "X0100"
+  },
+  {
+   "anchor": "`settled(draft, skipped, already_draft)` gives `DISABLED` with `disabled_cause == \"already_draft\"`",
+   "anchor2": null,
+   "claim": "Task 3 requires guard_status to return `user_override` for a DISABLED phase with cause user_override, but the fold rows it implements set `disabled_cause` only for already_draft, so the advisory plan review raised blocking finding R1-1 and the owner had to accept building with executor guidance inst",
+   "id": "X0309"
+  },
+  {
+   "anchor": "Edit canonical files under `src/superclaude/` only, then run `make sync-dev`; do not stage `.claude/` mirror files.",
+   "anchor2": null,
+   "claim": "The source-only editing constraint prevents required artifact, test, and documentation edits, so the plan cannot satisfy its own acceptance criteria.",
+   "id": "X0110"
+  },
+  {
+   "anchor": "Edit canonical files under `src/superclaude/` only, then run `make sync-dev`; do not stage `.claude/` mirror files.",
+   "anchor2": "Edit `docs/user-guide/commands.md`: add `[--merge-guard {draft,off}]` to the `/sc:pr-submit` usage line",
+   "claim": "The source-only constraint forbids the user-guide and test edits required by later tasks, so an implementer cannot satisfy the plan as written.",
+   "id": "X0115"
+  },
+  {
+   "anchor": "when it names an L3 or `draft` condition, or when the literal `off` line is missing",
+   "anchor2": "carries no L3 or `draft` condition",
+   "claim": "The Wave 0 bullet must both name L3 for the off line and fail its test when it names an L3 condition, so the required text cannot pass the required test.",
+   "id": "X0036"
+  },
+  {
+   "anchor": "The ref states that engage failure and an unreadable timeline at engage halt with `terminal_halted` reason `draft_guard_unavailable` before any edit",
+   "anchor2": null,
+   "claim": "Task 8 says any unreadable timeline halts at engage while Task 4 defines unreadable to include a short timeline and has engage_decision halt only on a failed or incomplete read, so the ref followed the plan wording, contradicted the code, and Task 8 failed review 2 and needed a repair.",
+   "id": "X0308"
+  },
+  {
+   "anchor": "carries no L3 or `draft` condition",
+   "anchor2": "and that at L3 with `--merge-guard off` the line",
+   "claim": "The Wave 0 bullet must state that the off line prints at L3, but the same text forbids an L3 condition and the acceptance test rejects any bullet that names one.",
+   "id": "X0126"
+  },
+  {
+   "anchor": "once per cycle id, and mints the cycle id",
+   "anchor2": null,
+   "claim": "Task 10 says the SKILL.md Wave 3 bullet mints the cycle id while Task 8 (and Task 1 O1) require one single minting place in the Engage section of refs/merge-guard.md; a review note caught it and executor guidance resolved it with no extra attempt.",
+   "id": "X0311"
+  },
+  {
+   "anchor": "carries no L3 or `draft` condition; it states that on `--resume`",
+   "anchor2": "and that at L3 with `--merge-guard off` the line",
+   "claim": "The Wave 0 bullet must name an L3 condition for the off line, but its acceptance test fails any Wave 0 bullet that names an L3 condition.",
+   "id": "X0282"
+  },
+  {
+   "anchor": "Engage at the end of Wave 3 (L3, only when at least one verified finding of Medium severity or higher is routed to a fix, once per cycle id; review-fix cycles and CI-fix cycles;",
+   "anchor2": "the Wave 8 bullet states that a CI-fix cycle engages with kind `ci`",
+   "claim": "The plan assigns CI-fix engagement to both Wave 3 and Wave 8, although the CI-fix cycle is identified at Wave 8.",
+   "id": "X0223"
+  },
+  {
+   "anchor": "one new bullet under Wave 0, written as a flat line before the Wave 1 bullet, that applies at every ordinal and in both modes",
+   "anchor2": "The Wave 0 test fails when the bullet is placed after the Wave 1 bullet, when it names an L3 or `draft` condition",
+   "claim": "The Wave 0 bullet must state the L3/off behavior, while its acceptance criterion requires failure whenever the bullet names an L3 condition, so the required implementation cannot pass that test.",
+   "id": "X0097"
+  },
+  {
+   "anchor": "The Wave 3 bullet states that engage happens at the end of Wave 3 only when at least one verified finding of Medium severity or higher is routed to a fix, once per cycle id, and mints the cycle id;",
+   "anchor2": "The Wave 8 bullet states that a CI-fix cycle engages with kind `ci` and releases after `push_completed` before the CI re-poll.",
+   "claim": "The instructions mint cycle identity at Wave 3 but provide no minting point when a later Wave 8 CI-fix cycle begins, leaving distinct CI cycles without their required cycle identity.",
+   "id": "X0002"
+  },
+  {
+   "anchor": "a PR is turned into a draft as soon as a verified Medium-or-higher finding is routed to a fix",
+   "anchor2": "Engage at the end of Wave 3 (L3, only when at least one verified finding of Medium severity or higher is routed to a fix, once per cycle id",
+   "claim": "The Goal says engage as soon as a finding is routed, but the owner decisions and Tasks 8 and 10 fix engage at the end of Wave 3, so no build satisfies both.",
+   "id": "X0075"
+  },
+  {
+   "anchor": "that applies at every ordinal and in both modes and carries no L3 or `draft` condition",
+   "anchor2": "and that at L3 with `--merge-guard off` the line \"Remediation is unprotected: --merge-guard off.\" is printed once",
+   "claim": "Task 9 requires the Wave 0 bullet to carry no L3 condition while also requiring it to state the at-L3 off behaviour, so its own acceptance test cannot pass on the specified bullet.",
+   "id": "X0181"
+  },
+  {
+   "anchor": "Edit canonical files under `src/superclaude/` only, then run `make sync-dev`;",
+   "anchor2": "Update `tests/pr_submit/test_run_log.py`",
+   "claim": "The source-only edit constraint prohibits required edits to tests, documentation, and artifacts, so an implementer cannot satisfy the plan as written.",
+   "id": "X0300"
+  },
+  {
+   "anchor": "Edit canonical files under `src/superclaude/` only, then run `make sync-dev`;",
+   "anchor2": "Edit `docs/user-guide/commands.md`",
+   "claim": "The source-only constraint forbids the test and documentation edits explicitly required by later tasks.",
+   "id": "X0207"
+  },
+  {
+   "anchor": "Edit canonical files under `src/superclaude/` only, then run `make sync-dev`; do not stage `.claude/` mirror files.",
+   "anchor2": "Create `./artifacts/pre-build-gate.md` in this package from ./source.md sections 6, 8 and 10.",
+   "claim": "The plan both restricts edits to `src/superclaude/` and requires edits or new files under tests, docs, and the task package, so it cannot be followed as written.",
+   "id": "X0104"
+  },
+  {
+   "anchor": "`resume_decision(*, mode, ordinal, guard, read, pending, dangling_branch, published)` (all 9 rows, with the row 2 precedence, the three `RECONCILE` reasons",
+   "anchor2": "`release_decision(*, mode, ordinal, cycle_id, guard, read, applied_edits, target_sha, push_completed)` (all 9 rows; `applied_edits` is the count of edits applied in THIS cycle, not the run-wide output field)",
+   "claim": "Resume cannot perform the required head proof or release a published cycle because the stated resume signature carries no target_sha or applied_edits.",
+   "id": "X0049"
+  }
+ ]
+}

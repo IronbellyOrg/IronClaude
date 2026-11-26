@@ -1,0 +1,357 @@
+[
+ {
+  "sid": "S03",
+  "set": "2x ember + haiku",
+  "era": "source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "per_run": {
+   "e6-haiku-ember2": {
+    "found": [
+     "B3",
+     "I2"
+    ],
+    "blocking_credit": [
+     "I2"
+    ]
+   }
+  },
+  "check": "1 run; read all 3 notes; arrays agree (designSpec GT3,GT7 any / GT7 blocking; alias and control none; blocking rows all wrong blockers). No unreadable-report remarks."
+ },
+ {
+  "sid": "S13",
+  "set": "ember + luna",
+  "era": "source.md",
+  "n_runs": 4,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 4,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 4,
+   "I3": 1,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 2,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "per_run": {
+   "g9-ember-luna-r1": {
+    "found": [
+     "B3",
+     "I2",
+     "I3"
+    ],
+    "blocking_credit": []
+   },
+   "g9-ember-luna-r2": {
+    "found": [
+     "B3",
+     "I2"
+    ],
+    "blocking_credit": [
+     "B3"
+    ]
+   },
+   "g9-ember-luna-r3": {
+    "found": [
+     "B3",
+     "I2"
+    ],
+    "blocking_credit": [
+     "B3"
+    ]
+   },
+   "g9-ember-luna-r4": {
+    "found": [
+     "B3",
+     "I2"
+    ],
+    "blocking_credit": []
+   }
+  },
+  "check": "4 runs; read all 12 notes; arrays agree with notes. Note: r1 designSpec lists GT8 in any (non-blocking L3) and r4 notes L6 as a borderline wrong blocker on GT8 (not credited, consistent with arrays). No unreadable-report remarks."
+ },
+ {
+  "sid": "S23",
+  "set": "grok + luna + wonder",
+  "era": "source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 1
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "per_run": {
+   "n3-muse-luna-grok-src": {
+    "found": [
+     "B3",
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": []
+   }
+  },
+  "check": "1 run; read all 3 notes; arrays agree (designSpec GT3,GT7 non-blocking; control GT2 non-blocking). No unreadable-report remarks."
+ },
+ {
+  "sid": "S33",
+  "set": "glm + 2x haiku",
+  "era": "pre-source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 1
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 1
+  },
+  "per_run": {
+   "r5-glm-haiku2": {
+    "found": [
+     "B3",
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": [
+     "B3",
+     "I8"
+    ]
+   }
+  },
+  "check": "1 run; read all 3 notes; arrays agree (designSpec GT3 blocking, GT7 non-blocking; control GT2 blocking). No unreadable-report remarks."
+ },
+ {
+  "sid": "S43",
+  "set": "glm + luna + wonder",
+  "era": "pre-source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 1,
+   "I1": 0,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 1,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 1
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 1,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 1
+  },
+  "per_run": {
+   "n5-muse-glm-luna": {
+    "found": [
+     "B3",
+     "B5",
+     "I2",
+     "B7",
+     "I8"
+    ],
+    "blocking_credit": [
+     "B7",
+     "I8"
+    ]
+   }
+  },
+  "check": "1 run; read all 3 notes; arrays agree (designSpec GT3,GT5,GT7 non-blocking; alias GT2 blocking; control GT2 blocking). No unreadable-report remarks."
+ },
+ {
+  "sid": "S53",
+  "set": "grok + haiku + sol + wonder",
+  "era": "pre-source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 1
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 1
+  },
+  "per_run": {
+   "n2-sol": {
+    "found": [
+     "B3",
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": [
+     "B3",
+     "I8"
+    ]
+   }
+  },
+  "check": "1 run; read all 3 notes; arrays agree (designSpec GT3 blocking, GT7 non-blocking; control GT2 blocking). No unreadable-report remarks."
+ }
+]

@@ -1,0 +1,32 @@
+{
+ "format_errors": 0,
+ "ledger_missing": {
+  "count": 0,
+  "limit": 0.1,
+  "pass": true,
+  "rate": 0.0
+ },
+ "none_found": {},
+ "over_budget": {
+  "lens": 0,
+  "recipe": 0
+ },
+ "quote_plan": {
+  "ok": 158,
+  "rows_with_quote": 186,
+  "share": 0.8494623655913979
+ },
+ "reask": {
+  "accepted": 0,
+  "asked": 0
+ },
+ "recipe_missing": {},
+ "reviewer_runs": 15,
+ "reviewers_without_ledger_file": 0,
+ "rows_per_reviewer": {
+  "t2b-1": 10.8,
+  "t3-1": 13.2,
+  "t4-1": 13.2
+ },
+ "runs_checked": 5
+}

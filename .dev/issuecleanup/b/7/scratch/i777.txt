@@ -1,0 +1,136 @@
+#777 [OPEN] [FEATURE] Too many manual pieces to track per issue: map the whole watcher and coordinator chain and decide what to automate
+<!-- /sc:issue feature template (simple). Filled from the owner's description and a light codebase pass. -->
+
+## Feature Summary
+
+Thank you, Ryan, for the issue watcher and the standing coordinator now on master in pull request 707 (https://github.com/IronbellyOrg/IronClaude/pull/707). Could we write one short map of what a person has to remember for each issue, then use it to decide which steps to automate first?
+
+This asks for a written map and a decision, not a replacement for the merged design.
+
+## Problem Statement
+
+Clay expects to handle 20 or more pull requests a day. The owner describes the merged watcher and coordinator as working, but not fully automated yet. A person has to remember and perform many separate pieces for every issue:
+
+- The watcher: the cron job that finds approved issues and claims them.
+- The claim tab: the Claude tab the watcher starts for each claim.
+- The standing coordinator: the one long-running agent per project.
+- The worker: the agent that does the stage.
+- Two stores: the watcher's claim store, `dispatch.json`, and the coordinator's adoption rows.
+- Two human approvals: the claim approval and the plan approval.
+- The per-issue grant: the owner's chat yes that lets the coordinator write to one issue.
+- The ship gate: the switch that keeps full end-to-end runs closed.
+- On the GitHub board: the Status, the Pipeline, the assignment and the trigger label.
+
+Each piece is careful on its own. Together, a person must hold the whole list in their head for every issue. At 20 or more pull requests a day, a missed step means an issue that silently waits.
+
+The research run for issue 761, the list of 18 possible gaps (https://github.com/IronbellyOrg/IronClaude/issues/761), looked at this as gap 7. It found no issue, pull request or plan file that reviews the whole chain. **UNVERIFIED as an absence:** the check that settles it is a cross-search of all issues, pull requests and plan files for a review that covers the whole chain, not one route.
+
+The existing records say:
+
+- Owner ruling R38, dated 2026-11-21 in `.dev/releases/backlog/issue-watcher-zero-setup/requirements.md`, keeps the merged design. It keeps cron and one dispatcher, one coordinator per project, and a person's typed go for every push and merge.
+- Issue 733 (https://github.com/IronbellyOrg/IronClaude/issues/733) removes the human plan approval on the unattended `/sc:implement` route only.
+- Issue 716 (https://github.com/IronbellyOrg/IronClaude/issues/716), coordinator features, keeps the existing claim and store path as the baseline.
+
+## User Story
+
+As a person handling many issues, I want one short map of the steps and moving pieces from filing to merge, so that I do not have to remember them all and can help decide which gaps to close first.
+
+## Proposed Solution
+
+Could we work through these three questions?
+
+1. Could we write one short map of the per-issue life cycle, from filing to merge? It would list every step a person must do or remember today, and every piece that moves.
+2. Could each step be marked as one of three kinds: automatic, manual by design, or manual by gap? Manual by design includes the two human approvals and the person's typed go to push and merge. Manual by gap means a person does it only because nothing does it yet.
+3. Could that map then be used to decide which gaps to close first?
+
+Several suggestions are already filed to shrink the manual list. Could the map show what remains after them, without treating proposed work as already built?
+
+- Issue 773 (https://github.com/IronbellyOrg/IronClaude/issues/773): `/sc:issue` sets up everything except the approval. It has a short "Moving pieces" section on this topic. This issue would replace that section as the home of the topic, not replace the merged watcher design.
+- Issue 776 (https://github.com/IronbellyOrg/IronClaude/issues/776): a skill for the two approvals.
+- Issue 770 (https://github.com/IronbellyOrg/IronClaude/issues/770): the watcher hands each claim to the coordinator.
+- Issue 775 (https://github.com/IronbellyOrg/IronClaude/issues/775): a comment must not silently cancel an approval, and re-approval is one step.
+- Issue 772 (https://github.com/IronbellyOrg/IronClaude/issues/772): the stage flow and what Pipeline Full means.
+- Issue 771 (https://github.com/IronbellyOrg/IronClaude/issues/771): closeout and worktree cleanup in the coordinator's finish.
+
+The merged design stays under R38. This is about what a person must remember, not about replacing the watcher or the coordinator. It does not propose adopting the rolled-back issue 655 design. Clay is happy to help write the map.
+
+Open questions:
+
+1. Who owns the map: Ryan or Clay?
+2. Where does it live? One option is a design file under `docs/designs/`.
+3. Should the map be reviewed again once 773, 776, 770 and 775 are built, to see what manual steps are left?
+
+## Acceptance Criteria
+
+- [ ] One short written map covers the per-issue life cycle from filing to merge and every piece listed in the Problem Statement.
+- [ ] Every step is marked automatic, manual by design, or manual by gap.
+- [ ] The map keeps the merged R38 design and the approval gates. It distinguishes today's steps from filed proposals, including the limited route covered by issue 733.
+- [ ] Each filed suggestion is linked. The map shows which manual steps it would remove and what would remain.
+- [ ] The map supports a decision on which gaps to close first, without implementing any of them here.
+- [ ] The gap 7 absence claim stays UNVERIFIED unless the cross-search of issues, pull requests and plan files settles it.
+- [ ] The three open questions are presented for Ryan and Clay to answer. No answer is assumed.
+
+## Out of Scope
+
+- Changing any behaviour.
+- Changing the approval gates.
+- Replacing the merged watcher or coordinator design, or adopting the rolled-back issue 655 design.
+- The dashboard, issue 727 (https://github.com/IronbellyOrg/IronClaude/issues/727), and contact agents.
+
+## Components Affected (from `/sc:analyze`)
+
+The deliverable is documentation. These are reading sources, not proposed code changes:
+
+- `docs/designs/issue-watcher.md`: watcher design and claim history.
+- `docs/designs/issue-watcher-status-pipelines.md`: Status, Pipeline, claim handoff, approvals and completion.
+- `src/superclaude/core/WORKER-CONTRACT.md`: worker and coordinator duties, adoption, approval and outward-action rules.
+- `src/superclaude/cli/issue_watch/dispatch.py` and `launch.py`: the dispatcher, claim prompt and ship gate.
+- `src/superclaude/cli/issue_pipeline/cli.py`: adoption and plan-approval commands.
+- `.dev/releases/backlog/issue-watcher-zero-setup/requirements.md`: the existing owner ruling R38.
+
+The name and location of the map remain open for Ryan and Clay to choose.
+
+## Related Issues/PRs
+
+- #761, the gap list: https://github.com/IronbellyOrg/IronClaude/issues/761
+- #773, issue setup except approval: https://github.com/IronbellyOrg/IronClaude/issues/773
+- #776, a skill for the two approvals: https://github.com/IronbellyOrg/IronClaude/issues/776
+- #770, claim handoff to the coordinator: https://github.com/IronbellyOrg/IronClaude/issues/770
+- #775, comments and one-step re-approval: https://github.com/IronbellyOrg/IronClaude/issues/775
+- #772, stage flow and Pipeline Full: https://github.com/IronbellyOrg/IronClaude/issues/772
+- #771, closeout and worktree cleanup: https://github.com/IronbellyOrg/IronClaude/issues/771
+- #716, coordinator features and the claim/store baseline: https://github.com/IronbellyOrg/IronClaude/issues/716
+- #733, plan approval on the unattended implement route only: https://github.com/IronbellyOrg/IronClaude/issues/733
+- #722, the owner and AI helpers share one GitHub login: https://github.com/IronbellyOrg/IronClaude/issues/722
+- #698, the approver rule and text-matching checks: https://github.com/IronbellyOrg/IronClaude/issues/698
+- #727, dashboard, out of scope here: https://github.com/IronbellyOrg/IronClaude/issues/727
+- PR #707, the merged watcher and coordinator: https://github.com/IronbellyOrg/IronClaude/pull/707
+
+## Priority
+
+High: Set by Clay (the owner's stated priority), because Clay expects 20 or more pull requests a day and a missed manual step stalls an issue.
+
+## Fix approach
+
+Repo: IronbellyOrg/IronClaude. Base branch: master.
+
+Commands, in order: `/sc:analyze` on the reading sources above, then write and review the map. Assumption: this is a small documentation-only change that needs no implementation plan. If it exceeds the direct-change limit, use `/sc:workflow` with this issue as its source before writing the map. No behaviour change is included.
+
+Steps, in order:
+
+1. Ask Ryan and Clay to settle who owns the map and where it lives. Keep R38 in `.dev/releases/backlog/issue-watcher-zero-setup/requirements.md` as the baseline.
+2. Read the watcher designs, `WORKER-CONTRACT.md`, `issue_watch/dispatch.py`, `issue_watch/launch.py` and `issue_pipeline/cli.py`. Cross-search issues, pull requests and plan files for the whole-chain review described in gap 7. Reuse any existing review found. Otherwise keep the absence claim UNVERIFIED until that search settles it.
+3. Write the filing-to-merge map in the agreed file under `docs/designs/`. Include every listed moving piece. Mark every step automatic, manual by design, or manual by gap. Show current behaviour separately from proposed changes. Do not change source files or gates.
+4. Link issues 773, 776, 770, 775, 772 and 771 beside the steps they address. Keep issues 733 and 716 as existing records with their stated scope. Ask which remaining gaps should come first.
+5. Offer the map for review with Ryan and Clay. Ask whether to review it again after 773, 776, 770 and 775 are built. Keep any unanswered question open rather than choosing for them.
+
+## Test plan
+
+- Tests to add or change: manual document review only. Assumption: no automated test needs changing because this issue adds a written map and changes no behaviour.
+- How a reviewer verifies: read the map from filing to merge. Check every moving piece against the reading sources. Every step must have exactly one of the three labels: automatic, manual by design, or manual by gap. Check that every filed suggestion is linked beside the right step and that all issue and pull request links resolve in IronbellyOrg/IronClaude. Confirm that proposals are not presented as built and that the three open questions remain visible until answered.
+- Check unverified claims: keep gap 7 marked UNVERIFIED unless the recorded cross-search of issues, pull requests and plan files covers the whole chain and settles it.
+- Scope check: review the diff. It must change documentation only, with no change to behaviour, approval gates, the ship gate, or the merged R38 design.
+- Regression gate: `uv run pytest`, `make lint` and `make verify-sync` stay green. Record their actual results during the map change. This draft does not claim that they have run.
+
+<!-- sc:issue:create template=issue-feature-simple -->
+

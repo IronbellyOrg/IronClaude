@@ -1,0 +1,28 @@
+{
+ "panel": "hl2",
+ "pkg": "TASK-WF-designSpec-20261107-075614",
+ "B_f_s": 220.9375,
+ "turn_p90_s": 94.58400011062622,
+ "T_report_p90_s": 247.70000004768372,
+ "hooks_s": 2,
+ "k": 0,
+ "finish_offset_s": -44.01837515830994,
+ "hang_offset_s": 331.40625,
+ "slowdown_s": 0.5804988662131518,
+ "slowdown_limit": 0.34094766619519096,
+ "budget_ok": false,
+ "runs": [
+  "s4-a1-hl2-r1",
+  "s4-a1-hl2-r2",
+  "s4-a1-hl2-r3",
+  "s4-a1-hl2-r4"
+ ],
+ "kit_runs": [
+  "s4-a2-hl2-r1",
+  "s4-a2-hl2-r2"
+ ],
+ "n_turns": 25,
+ "n_reports": 4,
+ "p90_method": "nearest rank; with 4 runs p90 is close to the maximum",
+ "measured_at": "2026-11-14T07:27:57Z"
+}

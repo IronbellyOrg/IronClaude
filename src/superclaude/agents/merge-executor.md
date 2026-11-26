@@ -2,6 +2,7 @@
 name: merge-executor
 description: Execute refactoring plans to produce unified merged artifacts with provenance annotations
 category: quality
+disallowedTools: Artifact, ArtifactComments, ArtifactData
 ---
 
 # Merge Executor

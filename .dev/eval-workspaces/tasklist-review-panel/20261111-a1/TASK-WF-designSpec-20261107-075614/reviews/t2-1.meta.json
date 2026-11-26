@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "t2-1",
+  "expected_model": "muse-spark-1.3",
+  "observed_model": "muse-spark-1.3",
+  "model_ok": true,
+  "findings_block": true,
+  "attempt": 1,
+  "wall_s": 132,
+  "output_tokens_main": 10097,
+  "output_tokens_all": 10097,
+  "exit": 0
+}

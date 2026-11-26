@@ -166,23 +166,27 @@ A repair is a local, in-place fix of confirmed blockers that runs after a failed
 **Escalation rule.** Escalation 1 always spawns two advisers in one message, never one, from different model families. The family is read from the model id with any trailing `[...]` suffix stripped: a `claude-` prefix is Claude, a `gpt-` prefix is GPT.
 - `advice-3-a.md`: the executor's own model family, one rung up the active ladder; the top rung when the executor is already on the top rung or its tier is unknown.
 - `advice-3-b.md`: the other model family. Executor is Claude: adviser B is a GPT model on T1, meaning the id of `T1Model01`, else `T1Model02`, that starts with `gpt-`. Executor is GPT: adviser B is the Claude top rung (`opus` when it resolves to a `claude-` id). Executor is neither family or unknown: adviser A uses the top rung, and adviser B uses whichever of the Claude top rung and the GPT T1 model is not adviser A's family.
-- Every GPT adviser at any escalation is a T1 model. When the executor is GPT, adviser A is the GPT T1 model (`T1Model01` when the executor is not already on it, else `T1Model02`, else the same T1 model).
+- Every GPT adviser at any escalation is a T1 model. When the executor is GPT, adviser A is the GPT T1 model: the first T1 id (the id of `T1Model01`, else `T1Model02`) that starts with `gpt-` and is not the executor's own id, else the same T1 model.
 - The pick uses the two-answer rule of procedure step 4 (a tie goes to `-a`); the critique adviser uses adviser A's model.
 
-Escalation 2 = 2 advisers on the top rung, always. Primary-ladder example (Claude executor): an executor on `T2Model02` or `T2Model01` gets adviser A on `T1Model02` and adviser B on the GPT T1 model, then 2 on `T1Model01`; on `T1Model02`, adviser A on `T1Model01`. A GPT executor on `T2bModel01` (rung 0) gets adviser A on the GPT T1 model (`T1Model01`) and adviser B on the Claude top rung, then 2 on `T1Model01`. Worked example with the fallback ladder:
+Escalation 2 = 2 advisers on the top rung, always. Primary-ladder example, described by the family of each id and by rung position: an executor whose id starts with neither `claude-` nor `gpt-` gets adviser A on the top rung and adviser B on whichever of the Claude top rung and the GPT T1 model is not adviser A's family; a Claude executor below the top rung gets adviser A one Claude rung up and adviser B on the GPT T1 model; a GPT executor gets adviser A on the GPT T1 model and adviser B on the Claude top rung; escalation 2 is then 2 on the top rung in each case. Every adviser on the primary ladder is launched on `opus`, and a pick whose id does not start with `claude-` carries `family-fallback`. Worked example with the fallback ladder:
 
 | Executor tier | Escalation 1 (A3), adviser A | Escalation 1 (A3), adviser B | Escalation 2 (A4) |
 |---|---|---|---|
-| `haiku` | 1× `sonnet` | 1× GPT T1 | 2× `opus` |
-| `sonnet` | 1× `opus` | 1× GPT T1 | 2× `opus` |
-| `opus` (known) | 1× `opus` (top rung) | 1× GPT T1 | 2× `opus` |
-| unknown | 1× `opus` (top rung, so the two escalations still differ) | 1× GPT T1 | 2× `opus` |
+| `haiku` | 1× `sonnet` | 1× `opus` (GPT T1 not launchable, family-fallback) | 2× `opus` |
+| `sonnet` | 1× `opus` | 1× `opus` (GPT T1 not launchable, family-fallback) | 2× `opus` |
+| `opus` (known) | 1× `opus` (top rung) | 1× `opus` (GPT T1 not launchable, family-fallback) | 2× `opus` |
+| unknown | 1× `opus` (top rung, so the two escalations still differ) | 1× `opus` (GPT T1 not launchable, family-fallback) | 2× `opus` |
 
-**Resolving adviser B.** Before spawning, the parent resolves adviser B's model id and writes it on line 1 of `advice-3-b.md`: `model: <id> family: <claude|gpt> rung: <T1|top>`. When no model of the other family can be reached, the parent spawns adviser B on the strongest reachable model and writes `family-fallback: <reason>` on that header line; the final summary lists every such fallback. This never STOPs and never prompts the user: a missing model is configuration, not a finding. The verified spawn path for a GPT T1 model on this install:
+**Resolving adviser B.** Before spawning, the parent resolves adviser B's model id and writes it on line 1 of `advice-3-b.md` in the header form given under Launch alias below. When no model of the other family can be reached, the parent spawns adviser B on `opus` and writes `family-fallback: <reason>` on that header line; the final summary lists every such fallback. This never STOPs and never prompts the user: a missing model is configuration, not a finding. The verified spawn path for a GPT T1 model on this install:
 
 GPT spawn path: none verified; family-fallback applies
 
-The adviser's effort is pinned by `effort:` in its agent file; do not rely on any per-call effort setting. The model tier comes from the Agent call's `model` parameter.
+The adviser's effort is pinned by `effort:` in its agent file; do not rely on any per-call effort setting.
+
+**Launch alias.** The Agent call's `model` takes only `opus`, `sonnet`, `haiku` or `fable`, never a full model id or the value of a rung variable, so the rung id decides which adviser is picked and is not passed to the call. On the fallback ladder the call's `model` is the rung's own alias. On the primary ladder the call's `model` is `opus` for every adviser: adviser A, adviser B, the critique adviser and both escalation-2 advisers. An adviser whose picked id does not start with `claude-` (a GPT T1 model, any other family, or no reachable model) is still launched on `opus`, and the parent writes `family-fallback: <reason>` on that adviser's line 1. This never STOPs and never prompts the user.
+
+The parent writes line 1 of every `advice-<n>-<x>.md` as `model: <id> family: <claude|gpt> rung: <T1|top> launch: <alias>`. The fields `model`, `family` and `rung` describe the pick the ladder chose, `launch` is the Agent `model` value actually passed, and no header states which family served the call. The id prefix decides `family-fallback` only for primary-ladder rung ids; the fallback ladder passes the rung's own alias, and the family reading of the ids above is unchanged.
 
 ### Cost and caps
 

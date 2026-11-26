@@ -1,0 +1,57 @@
+{
+ "kind": "srun",
+ "packages": {
+  "TASK-WF-design-20261108-041415": {
+   "B_A1": 114.121,
+   "T_report_p90": 52.195,
+   "cp_role": "adjudicator",
+   "deliver": false,
+   "finish_offset_s": 58.038,
+   "hang_s": 171.181,
+   "k": 0,
+   "n_runs": 4,
+   "source_rows": [
+    "s4-a1-el2-1",
+    "s4-a1-el2-2",
+    "s4-a1-el2-3",
+    "s4-a1-el2-4"
+   ],
+   "turn_p90": 43.83
+  },
+  "TASK-WF-designSpec-20261107-075614": {
+   "B_A1": 102.512,
+   "T_report_p90": 71.266,
+   "cp_role": "adjudicator",
+   "deliver": false,
+   "finish_offset_s": 18.289,
+   "hang_s": 153.768,
+   "k": 0,
+   "n_runs": 4,
+   "source_rows": [
+    "s4-a1-el2-1",
+    "s4-a1-el2-2",
+    "s4-a1-el2-3",
+    "s4-a1-el2-4"
+   ],
+   "turn_p90": 48.836
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "B_A1": 131.79,
+   "T_report_p90": 49.191,
+   "cp_role": "adjudicator",
+   "deliver": false,
+   "finish_offset_s": 93.342,
+   "hang_s": 197.685,
+   "k": 0,
+   "n_runs": 4,
+   "source_rows": [
+    "s4-a1-el2-1",
+    "s4-a1-el2-2",
+    "s4-a1-el2-3",
+    "s4-a1-el2-4"
+   ],
+   "turn_p90": 35.383
+  }
+ },
+ "panel": "EL2"
+}

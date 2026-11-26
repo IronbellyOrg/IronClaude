@@ -1,0 +1,387 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/docs/doc1.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/docs/doc1.md
+new file mode 100644
+index 000000000..6530d9c99
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/docs/doc1.md
+@@ -0,0 +1,17 @@
++# How to export a report
++
++The exporter writes 3 report formats, and the guide lists each of them.
++
++Only the `report.py` module renders a report, so no other module needs a format switch.
++
++Export one report with this command:
++
++```bash
++exporter run --format csv --out reports/
++```
++
++The command prints `report_exporter done` when it ends.
++
++## Retention window
++
++The retention job removes an expired report. It never touches a report under legal hold.
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/gen_setwords.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/gen_setwords.py
+new file mode 100644
+index 000000000..6b62a1ef7
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/gen_setwords.py
+@@ -0,0 +1,129 @@
++"""F-PLAN-3 (TESTING section 2): write a plan with N set-word criterion sentences, spread over the tasks of one plan.
++
++    uv run ... python gen_setwords.py [--n 200] [--tasks 12] [--out PATH]
++
++The plan is in the `plan` format of sweep/formats.py. Each of the N acceptance bullets is one sentence with exactly one
++kind of set word: about two in three hold a completeness word (every, all, each, complete, found, covers, no
++remaining), the rest a universal word (only, never, no other). Every fourth sentence names no file, every fourth names a
++glob, every fourth names two files and every fourth holds a count, so the bound types of DESIGN 4.2 all occur. The
++output depends on the arguments only (no clock, no random numbers). Everything is invented. Standard library only.
++"""
++
++import argparse
++import sys
++from pathlib import Path
++
++NOUNS = (
++    "parcel",
++    "ticket",
++    "badge",
++    "voucher",
++    "manifest",
++    "receipt",
++    "coupon",
++    "label",
++    "permit",
++    "token",
++)
++FIELDS = ("owner", "stamp", "colour", "weight", "origin", "batch", "zone", "grade")
++VERBS = ("scan", "sort", "pack", "match", "audit", "route")
++
++# sentence frames: {n} noun, {f} field, {fn} a unique backticked function name
++COMPLETENESS = (
++    "Every {n} record returned by `{fn}` carries the {f} value",
++    "All {n} records that `{fn}` reads are checked before the step ends",
++    "Each {n} listed in the `{fn}` output has its {f} entry",
++    "The {n} list built by `{fn}` is complete",
++    "`{fn}` covers the {n} cases of the step",
++    "No remaining {n} rows are found by `{fn}`",
++)
++UNIVERSAL = (
++    "Only `{fn}` writes the {n} {f} file",
++    "The {n} step never calls `{fn}` twice",
++    "No other {n} helper changes the {f} state kept by `{fn}`",
++)
++# bound clause appended to a sentence, by i % 4
++BOUNDS = (
++    "",
++    " under `src/svc{t:02d}/*.py`",
++    " in `src/svc{t:02d}/a_{i:03d}.py` and `src/svc{t:02d}/b_{i:03d}.py`",
++    " for the first {c} {n} files",
++)
++
++
++def sentence(i: int, t: int) -> str:
++    """The i-th criterion sentence (0-based), written for task t (1-based)."""
++    n, f = NOUNS[i % len(NOUNS)], FIELDS[(i // len(NOUNS)) % len(FIELDS)]
++    fn = f"{VERBS[i % len(VERBS)]}_{n}_{i:03d}"
++    pool = UNIVERSAL if i % 3 == 2 else COMPLETENESS
++    frame = pool[(i // 3) % len(pool)]
++    bound = BOUNDS[i % 4].format(t=t, i=i, n=n, c=3 + i % 5)
++    return frame.format(n=n, f=f, fn=fn) + bound + "."
++
++
++def generate(n: int = 200, tasks: int = 12) -> str:
++    """The plan text. `tasks` is cut to `n` so that no task is empty."""
++    if n < 1 or tasks < 1:
++        raise ValueError("n and tasks must be at least 1")
++    tasks = min(tasks, n)
++    out = [
++        "---",
++        "schema: workflow-plan/1.2",
++        "strategy: systematic",
++        "depth: standard",
++        "slug: TASK-WF-setwords-20261114-000003",
++        'version: "1"',
++        "priority: Medium",
++        'created_date: "2026-11-14"',
++        "---",
++        "",
++        "# Tighten the parcel handling steps",
++        "",
++        f"Goal: `make test` exits 0 after the {tasks} tasks below are done.",
++        "",
++        "## Constraints",
++        "",
++        "- Code lives under `src/` and tests under `tests/`.",
++        "",
++    ]
++    base, extra = divmod(n, tasks)
++    i = 0
++    for t in range(1, tasks + 1):
++        if t == 1 or t == tasks // 2 + 1:
++            out += [f"## Phase {1 if t == 1 else 2}: Steps {t} onward", ""]
++        out += [
++            f"## Task {t}: Tighten step {t}",
++            "",
++            f"Edit `src/svc{t:02d}/module.py` so that step {t} handles the {NOUNS[t % len(NOUNS)]} records of its zone.",
++            "",
++            "Acceptance criteria:",
++        ]
++        for _ in range(base + (t <= extra)):
++            out.append(f"- {sentence(i, t)}")
++            i += 1
++        out.append("")
++    return "\n".join(out)
++
++
++def main(argv=None) -> int:
++    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
++    ap.add_argument(
++        "--n", type=int, default=200, help="criterion sentences (default 200)"
++    )
++    ap.add_argument("--tasks", type=int, default=12, help="tasks (default 12)")
++    ap.add_argument("--out", help="file to write (default: standard output)")
++    a = ap.parse_args(argv)
++    try:
++        text = generate(a.n, a.tasks)
++    except ValueError as e:
++        print(f"gen_setwords: {e}", file=sys.stderr)
++        return 2
++    if a.out:
++        Path(a.out).write_text(text, encoding="utf-8")
++    else:
++        sys.stdout.write(text)
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/specs/parent1.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/specs/parent1.md
+new file mode 100644
+index 000000000..2e27e41cf
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/specs/parent1.md
+@@ -0,0 +1,17 @@
++# Locker hall requirements (an invented parent requirement document for the specification fixture)
++
++## 4.1 Door timing
++
++The door must open within `door_open_ms` of a valid code and must halt with `DoorTimeout` when it does not.
++
++## 4.2 Pickup codes
++
++A pickup code must expire after `code_ttl_min` minutes. The controller must never accept a code twice.
++
++## 4.3 Alarm
++
++The alarm shall sound only when `open_limit_s` is exceeded. The controller must write `alarm_events` to the log.
++
++## Decisions
++
++Q2: the open limit is one setting, read once at the start of a day.
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/specs/spec1.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/specs/spec1.md
+new file mode 100644
+index 000000000..c40a7fcae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/specs/spec1.md
+@@ -0,0 +1,43 @@
++# Locker door controller specification
++
++Parent: ./parent1.md
++
++## 1. Purpose
++
++The controller opens one locker door when a valid pickup code is entered. It shall serve one hall of lockers.
++
++## 2. Door behaviour
++
++Source sections: 4.1, 4.2
++
++The controller shall open the door within 3 seconds of a valid code.
++The controller shall log each open event with the locker number.
++The controller must refuse a code that has expired.
++The controller shall never open two doors for one code.
++This section applies to every locker model in the hall.
++Add the heading "Locker hours" to `docs/locker-guide.md`, and the check `grep -c 'locker-hours' docs/locker-guide.md` shall print at least 1.
++
++### Message format
++
++```text
++LOCKER 14 OPEN 2027-01-01T10:00:00
++```
++
++## 3. Alarm
++
++Source sections: 4.3, Q2
++
++A door that stays open longer than 60 seconds should raise an alarm.
++The alarm tone shall be silenced when the door closes, and the controller must write `alarm_events` for each alarm.
++
++## 4. Affects
++
++- `src/locker/door.py`
++- `src/locker/log.py`
++- `docs/locker-guide.md`
++- `src/locker/alarm.py`
++
++## 5. Verification
++
++- `make test` exits 0.
++- `pytest tests/test_door.py` exits 0.
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T10/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T10/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T10/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py
+index aa20211ec..d717e2fb1 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py
+@@ -5,6 +5,8 @@ so a fixture that loses a trigger shape fails here first.
+ """
+ 
+ import re
++import subprocess
++import sys
+ 
+ import pytest
+ from helpers import SW
+@@ -466,3 +468,127 @@ def test_p_clean_has_no_trigger_shape(clean):
+         if len(clauses(k["text"])) > 2
+     ]
+     assert clean.of("task") and clean.of("gate") and clean.of("constraint")
++
++
++# ---------------------------------------------------------------- F-PLAN-3, F-SPEC and F-DOC (Task 10)
++
++GEN = PLANS / "gen_setwords.py"
++FIXTURES = SW / "fixtures"
++
++
++def gen(n, tmp_path, *extra):
++    out = tmp_path / f"gen{n}.md"
++    cmd = [sys.executable, "-I", str(GEN), "--n", str(n), "--out", str(out), *extra]
++    r = subprocess.run(cmd, capture_output=True, text=True)
++    assert r.returncode == 0, r.stderr
++    return out
++
++
++def set_word_classes(text):
++    """The set of classes ('C1' completeness, 'C6' universal) whose words the sentence holds."""
++
++    def hit(ws):
++        rx = r"(?<![\w-])(?:%s)(?![\w-])" % "|".join(
++            re.escape(w).replace(r"\ ", r"\s+") for w in ws
++        )
++        return re.search(rx, text, re.I)
++
++    return {
++        c
++        for c, ws in (("C1", words.SET_COMPLETENESS), ("C6", words.SET_UNIVERSAL))
++        if hit(ws)
++    }
++
++
++def test_setword_generator_makes_200_sentences_over_12_tasks(tmp_path):
++    out = gen(200, tmp_path)
++    doc = plan.read(out)
++    assert doc.format == "plan"
++    assert [b["id"] for b in doc.of("task")] == [f"T{i}" for i in range(1, 13)]
++    crit = [b for b in doc.of("criterion") if b["id"] != "goal"]
++    hits = [b for b in crit if set_word_classes(b["text"])]
++    assert len(hits) >= 200 and len(hits) == len(crit) == 200
++    per_task = {}
++    for b in hits:
++        per_task.setdefault(b["task"], []).append(set_word_classes(b["text"]))
++        assert len(b["text"]) >= 12 and len(plan.sentences(b["text"])) == 1
++    assert set(per_task) == {f"T{i}" for i in range(1, 13)}
++    for classes in per_task.values():
++        assert 16 <= len(classes) <= 17
++        assert {"C1"} in classes and {
++            "C6"
++        } in classes  # each task has both kinds, never both in one sentence
++    assert all(len(c) == 1 for cs in per_task.values() for c in cs)
++    assert len({b["text"] for b in hits}) == 200
++    # the Goal line holds no set word, so the count above is the generator's own
++    assert not set_word_classes(by_id(doc, "goal")["text"])
++    assert len(doc.of("edit_target")) == 12
++
++
++def test_setword_generator_n_is_a_parameter_and_output_is_repeatable(tmp_path):
++    small = plan.read(gen(30, tmp_path))
++    assert len([b for b in small.of("criterion") if b["id"] != "goal"]) == 30
++    assert len(small.of("task")) == 12
++    few = plan.read(gen(5, tmp_path))  # no empty task: the task count is cut to n
++    assert len(few.of("task")) == 5
++    again = gen(200, tmp_path, "--tasks", "12")
++    r = subprocess.run(
++        [sys.executable, "-I", str(GEN), "--n", "200"], capture_output=True, text=True
++    )
++    assert r.returncode == 0 and r.stdout == again.read_text(encoding="utf-8")
++    bad = subprocess.run(
++        [sys.executable, "-I", str(GEN), "--n", "0"], capture_output=True, text=True
++    )
++    assert bad.returncode == 2 and "at least 1" in bad.stderr
++
++
++def test_spec1_reads_with_the_spec_dictionary():
++    doc = plan.read(FIXTURES / "specs" / "spec1.md", "spec")
++    assert doc.format == "spec"
++    crit = doc.of("criterion")
++    assert len(crit) >= 6 and all(
++        re.search(r"\b(?:shall|must|should)\b", b["text"]) for b in crit
++    )
++    assert [b["text"] for b in doc.of("constraint")] == [
++        "This section applies to every locker model in the hall."
++    ]
++    assert [b["path"] for b in doc.of("edit_target")] == [
++        "src/locker/door.py",
++        "src/locker/log.py",
++        "docs/locker-guide.md",
++        "src/locker/alarm.py",
++    ]
++    assert "LOCKER 14 OPEN 2027-01-01T10:00:00" in [
++        b["text"] for b in doc.of("dictated_text")
++    ]
++    assert len(doc.of("gate")) == 2
++    # the numbered sections cite the parent's sections
++    assert doc.tasks["T2"]["citations"] == ["4.1", "4.2"]
++    assert doc.tasks["T3"]["citations"] == ["4.3", "Q2"]
++    # the parent holds the cited sections and rules whose identifiers the citing sections leave out
++    parent = (FIXTURES / "specs" / "parent1.md").read_text(encoding="utf-8")
++    for sec in ("## 4.1 ", "## 4.2 ", "## 4.3 ", "Q2:"):
++        assert sec in parent
++    for ident in ("door_open_ms", "DoorTimeout", "code_ttl_min", "open_limit_s"):
++        assert f"`{ident}`" in parent and ident not in doc.text
++    assert "alarm_events" in doc.text
++
++
++def test_doc1_reads_with_the_doc_dictionary():
++    doc = plan.read(FIXTURES / "docs" / "doc1.md", "doc")
++    assert doc.format == "doc"
++    crit = doc.of("criterion")
++    texts = [b["text"] for b in crit]
++    # a count, a universal claim and a completeness word, each in a sentence of its own task section
++    assert any(re.search(r"\b3 report formats\b", t) for t in texts)
++    assert any("C6" in set_word_classes(t) for t in texts)
++    assert any("C1" in set_word_classes(t) for t in texts)
++    # the fenced command is a criterion block of its own, cut without the fence lines
++    (cmd,) = [t for t in texts if t.startswith("exporter run")]
++    assert "```" not in cmd and cmd == "exporter run --format csv --out reports/"
++    fence = next(i for i, ln in enumerate(doc.lines, 1) if ln.startswith("```bash"))
++    assert by_id(doc, [b["id"] for b in crit if b["text"] == cmd][0])["line_start"] == (
++        fence + 1
++    )
++    assert doc.of("constraint") == [] and doc.of("edit_target") == []
++    assert doc.of("gate") == []
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index 2a04ba3b6..acbe2ccf4 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -18,3 +18,4 @@ T8: start sha=c02b9d74804102ca44e8f15e3d695443ad55570d
+ T8: complete verdict=compliant ac=T8.AC1,T8.AC2,T8.AC3,T8.AC4 evidence=T8.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T8-pytest.log:12,T8.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py:211,T8.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/build-sandbox.sh:162,T8.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/build-sandbox.sh:57 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/build-sandbox.sh,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/repos/build_repo.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py
+ T9: start sha=16f640f38002b983c85adb7352c4a5ac5476d530
+ T9: complete verdict=compliant ac=T9.AC1,T9.AC2,T9.AC3,T9.AC4 evidence=T9.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T9-plan-formats.log:15,T9.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py:68,T9.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py:157,T9.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/plan.py:72 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/p_basic.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/p_clean.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/source.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/formats.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/plan.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/words.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py
++T10: start sha=774207e4ad8c19d42db51ba0e6a78ffc3599e02f

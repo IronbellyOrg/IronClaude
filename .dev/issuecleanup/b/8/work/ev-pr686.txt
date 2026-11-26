@@ -1,0 +1,25 @@
+PR #686 feat(issue-watch): the poll wakes the repo's orchestrator (issue 655, PR A) [CLOSED] merged=-
+files: CHANGELOG.md, src/superclaude/cli/issue_watch/audit.py, src/superclaude/cli/issue_watch/cli.py, src/superclaude/cli/issue_watch/cycle.py, src/superclaude/cli/issue_watch/github.py, src/superclaude/cli/issue_watch/hold.py, src/superclaude/cli/issue_watch/launch.py, src/superclaude/cli/issue_watch/predicates.py, src/superclaude/cli/issue_watch/record.py, src/superclaude/cli/issue_watch/repos.py, src/superclaude/cli/issue_watch/route.py, src/superclaude/cli/issue_watch/wake.py, tests/issue_watch/conftest.py, tests/issue_watch/fixtures/_assumed_shape/ccsession_help_tiers.txt, tests/issue_watch/fixtures/_assumed_shape/gh_branch_date.json, tests/issue_watch/fixtures/_assumed_shape/gh_graphql_insufficient_scopes.json, tests/issue_watch/fixtures/_assumed_shape/gh_graphql_rate_limited.json, tests/issue_watch/fixtures/_assumed_shape/gh_issue_develop_list.json, tests/issue_watch/fixtures/_assumed_shape/gh_issue_reread.json, tests/issue_watch/fixtures/_assumed_shape/gh_issue_view_labels.json, tests/issue_watch/fixtures/_assumed_shape/gh_issue_view_updated.json, tests/issue_watch/fixtures/_assumed_shape/gh_search_assigned.json, tests/issue_watch/fixtures/_assumed_shape/gh_search_info.json, tests/issue_watch/fixtures/_assumed_shape/gh_stderr_http_404.json, tests/issue_watch/fixtures/_assumed_shape/gh_timeline_evidence.json
+## What changed
+
+The issue-watch poll no longer launches a claim session for an assigned issue. It now keeps a registry of the repo's orchestrators, decides what each assigned issue needs, and wakes the right orchestrator. Everything below lives in `src/superclaude/cli/issue_watch/` and its tests.
+
+- **Registry and routing.** `.orchestrator/orchestrators.json` is written only by the poll, under a lock. It counts the issues in flight per orchestrator, never reuses an orchestrator id, and sends a new issue to an orchestrator of that repo with room (at most 3 in flight), or records that one must be started.
+- **Hold label.** An assigned issue that lacks the three plan sections (Priority, Fix approach, Test plan as the plan check reads them) gets the label `hold:plan` and is not sent to an orchestrator. A label removed by hand stays removed. After 60 quiet minutes with no sign of plan work (edits, comments, a linked branch or session) the poll sends ONE plan request to the orchestrator; the issue stays held and unclaimed.
+- **Wake files.** The poll writes a wake file (`orchestrator-wake/1`, at most 64 KiB, mode 0600, written to a temp file then renamed) and tells the orchestrator through a mailbox message, a typed line only when its session is idle, or a new session start. Up to 3 delivery tries. The golden wake file that PR B shares is `tests/issue_watch/fixtures/orchestrator_wake_golden.json`.
+- **Audit table.** `audit.py` holds the closed table of exactly 62 reasons from spec section 4.7 (reason, kind, exit code), checked by `test_audit.py`.
+- **Config.** `repos.py` reads `repos.yaml` with `yaml.safe_load` only, with the tier settings (`plan_tier`, `worker_tier`, `orchestrator_tier`; defaults tier1b, tier2, tier1b) and a one-step fallback for a tier the user cannot use. `check-config` validates it and prints the routing preview; `once --dry-run` prints what it would wake, hold, release and request, and writes nothing.
+- **Only writes to GitHub:** create, add and remove of the label `hold:plan`. No comment call exists in the code.
+
+## What was removed
+
+The claim-session launch, the approval comment and marker code, the `issue-watch:trigger` and approver-file settings, the project-board reads, and six test fixtures that pinned that code. `src/superclaude/cli/issue_pipeline` was already deleted by PR D (#682), which is merged.
+
+## Nothing runs this live yet
+
+The poll stays `enabled: false`. No Orca automation exists for it. The live test is a later piece (PR E).
+
+## Evidence
+
+- `tests/issue_watch`: 1399 passed, 0 failed, 0 skipped
+- Regression gate on the fi

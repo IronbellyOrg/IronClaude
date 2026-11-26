@@ -1,0 +1,360 @@
+{
+ "b4-muse-ember-luna2": {
+  "runs": 9,
+  "unrec_warn_lines": 9,
+  "no_resolution_row": 3,
+  "E8": 1
+ },
+ "b4-muse-luna2": {
+  "runs": 9,
+  "no_resolution": 9,
+  "unrec_warn_lines": 11,
+  "name_ok": 7,
+  "c5retry": 2,
+  "E1": 2,
+  "E2": 2,
+  "E4": 2,
+  "E5": 2
+ },
+ "b4-sonnet-luna2": {
+  "runs": 9,
+  "unrec_warn_lines": 6
+ },
+ "b4-sonnet-terra": {
+  "runs": 6,
+  "unrec_warn_lines": 3
+ },
+ "b4-terra-luna-muse": {
+  "runs": 9,
+  "unrec_warn_lines": 9
+ },
+ "b4-terra-muse-haiku": {
+  "runs": 9,
+  "unrec_warn_lines": 7,
+  "no_resolution_row": 3,
+  "E2": 1
+ },
+ "c1-haiku-luna": {
+  "runs": 3,
+  "no_resolution": 3,
+  "name_ok": 3
+ },
+ "c2-haiku-grok": {
+  "runs": 6,
+  "unrec_warn_lines": 4,
+  "no_resolution_row": 3,
+  "E2": 1
+ },
+ "c3-luna-grok": {
+  "runs": 3,
+  "no_resolution": 3,
+  "unrec_warn_lines": 3,
+  "name_ok": 3
+ },
+ "c3-luna-grok-src": {
+  "runs": 6,
+  "unrec_warn_lines": 6,
+  "no_resolution_row": 3
+ },
+ "c4-haiku-luna-grok": {
+  "runs": 6,
+  "no_resolution": 6,
+  "name_ok": 6,
+  "unrec_warn_lines": 4,
+  "E2": 1
+ },
+ "c5-glm-haiku": {
+  "runs": 6,
+  "c5retry": 1,
+  "unrec_warn_lines": 5,
+  "E2": 1
+ },
+ "e1-grok-ember-luna": {
+  "runs": 9,
+  "unrec_warn_lines": 9,
+  "E8": 1
+ },
+ "e2-ember-luna2-rep": {
+  "runs": 9,
+  "unrec_warn_lines": 9
+ },
+ "e3-ember2-luna": {
+  "runs": 9,
+  "unrec_warn_lines": 9,
+  "no_resolution_row": 2
+ },
+ "e4-haiku2-ember": {
+  "runs": 2,
+  "no_resolution": 2,
+  "unrec_warn_lines": 2,
+  "name_ok": 2
+ },
+ "e5-haiku-ember-luna": {
+  "runs": 9,
+  "unrec_warn_lines": 7,
+  "E2": 1
+ },
+ "e6-haiku-ember2": {
+  "runs": 9,
+  "unrec_warn_lines": 6
+ },
+ "g1-ember-luna2": {
+  "runs": 36,
+  "unrec_warn_lines": 36
+ },
+ "g2-sonnet-ember": {
+  "runs": 24,
+  "unrec_warn_lines": 12
+ },
+ "g3-sonnet-luna-ember": {
+  "runs": 36,
+  "unrec_warn_lines": 27,
+  "E2": 3
+ },
+ "g4-haiku-ember-terra": {
+  "runs": 36,
+  "unrec_warn_lines": 28,
+  "E2": 4
+ },
+ "g5-ember2-luna": {
+  "runs": 36,
+  "unrec_warn_lines": 36
+ },
+ "g6-luna2-ember2": {
+  "runs": 48,
+  "unrec_warn_lines": 48
+ },
+ "g7-haiku-luna2": {
+  "runs": 36,
+  "unrec_warn_lines": 28,
+  "E8": 1,
+  "E2": 4
+ },
+ "g8-ember-terra": {
+  "runs": 24,
+  "unrec_warn_lines": 24
+ },
+ "g9-ember-luna": {
+  "runs": 24,
+  "unrec_warn_lines": 25,
+  "c5retry": 1
+ },
+ "h1-haiku-luna2-ember2": {
+  "runs": 60,
+  "unrec_warn_lines": 52,
+  "E8": 1,
+  "E2": 4
+ },
+ "h2-sonnet-luna2-ember2": {
+  "runs": 60,
+  "unrec_warn_lines": 51,
+  "no_resolution_row": 3,
+  "E2": 3
+ },
+ "n1-muse-haiku-luna": {
+  "runs": 6,
+  "no_resolution": 6,
+  "unrec_warn_lines": 4,
+  "name_ok": 6,
+  "E2": 1
+ },
+ "n2-muse-haiku-grok": {
+  "runs": 9,
+  "unrec_warn_lines": 7,
+  "E2": 1
+ },
+ "n2-muse-haiku-grok-src": {
+  "runs": 9,
+  "unrec_warn_lines": 7,
+  "E8": 1,
+  "E2": 1
+ },
+ "n2-sol": {
+  "runs": 12,
+  "unrec_warn_lines": 9
+ },
+ "n2-sonnet": {
+  "runs": 12,
+  "unrec_warn_lines": 8,
+  "E2": 2
+ },
+ "n2-sonnet-src": {
+  "runs": 12,
+  "unrec_warn_lines": 8,
+  "E2": 2
+ },
+ "n2-terra": {
+  "runs": 12,
+  "c6": 1,
+  "unrec_warn_lines": 9,
+  "no_resolution_row": 3
+ },
+ "n3-muse-luna-grok": {
+  "runs": 6,
+  "no_resolution": 6,
+  "unrec_warn_lines": 6,
+  "name_ok": 6
+ },
+ "n3-muse-luna-grok-src": {
+  "runs": 9,
+  "unrec_warn_lines": 9
+ },
+ "n4-muse-glm-haiku": {
+  "runs": 9,
+  "unrec_warn_lines": 9,
+  "c5retry": 2,
+  "E5": 2,
+  "E2": 1
+ },
+ "n4-sol": {
+  "runs": 12,
+  "unrec_warn_lines": 11,
+  "stale": 2,
+  "E2": 1
+ },
+ "n4-sonnet": {
+  "runs": 12,
+  "unrec_warn_lines": 8,
+  "E2": 2
+ },
+ "n4-sonnet-ember": {
+  "runs": 9,
+  "unrec_warn_lines": 4,
+  "E2": 1
+ },
+ "n4-sonnet-src": {
+  "runs": 9,
+  "unrec_warn_lines": 4,
+  "E8": 1,
+  "E2": 1
+ },
+ "n4-terra": {
+  "runs": 12,
+  "unrec_warn_lines": 9,
+  "no_resolution_row": 3
+ },
+ "n5-muse-glm-luna": {
+  "runs": 6,
+  "no_resolution": 6,
+  "unrec_warn_lines": 8,
+  "name_ok": 6,
+  "c5retry": 2,
+  "E5": 2
+ },
+ "n5-muse-luna-src": {
+  "runs": 6,
+  "unrec_warn_lines": 6
+ },
+ "n5-sol": {
+  "runs": 9,
+  "unrec_warn_lines": 10,
+  "stale": 1,
+  "no_resolution_row": 3
+ },
+ "n5-sonnet": {
+  "runs": 9,
+  "no_resolution": 9,
+  "name_ok": 3,
+  "unrec_warn_lines": 6
+ },
+ "n5-sonnet-ember": {
+  "runs": 9,
+  "unrec_warn_lines": 6
+ },
+ "n5-sonnet-src": {
+  "runs": 9,
+  "unrec_warn_lines": 6
+ },
+ "n5-terra": {
+  "runs": 9,
+  "unrec_warn_lines": 10,
+  "no_resolution_row": 3,
+  "c6": 2,
+  "stale": 1
+ },
+ "r1-haiku-luna2": {
+  "runs": 3,
+  "no_resolution": 3,
+  "name_ok": 3,
+  "unrec_warn_lines": 1,
+  "E2": 1
+ },
+ "r1-haiku-luna2-src": {
+  "runs": 9,
+  "unrec_warn_lines": 6
+ },
+ "r2-haiku2-grok": {
+  "runs": 9,
+  "unrec_warn_lines": 5,
+  "E2": 2
+ },
+ "r2-sol": {
+  "runs": 12,
+  "unrec_warn_lines": 8,
+  "E2": 3
+ },
+ "r2-sonnet": {
+  "runs": 12,
+  "unrec_warn_lines": 4,
+  "E2": 1
+ },
+ "r2-sonnet-ember": {
+  "runs": 15,
+  "unrec_warn_lines": 8,
+  "E2": 2
+ },
+ "r2-sonnet-src": {
+  "runs": 12,
+  "unrec_warn_lines": 4,
+  "E2": 1
+ },
+ "r2-terra": {
+  "runs": 12,
+  "unrec_warn_lines": 9,
+  "no_resolution_row": 3,
+  "stale": 1,
+  "E2": 2
+ },
+ "r3-luna2-grok": {
+  "runs": 3,
+  "no_resolution": 3,
+  "unrec_warn_lines": 3,
+  "name_ok": 3
+ },
+ "r3-luna2-grok-src": {
+  "runs": 9,
+  "unrec_warn_lines": 9,
+  "no_resolution_row": 3
+ },
+ "r4-haiku-luna2-grok": {
+  "runs": 6,
+  "no_resolution": 6,
+  "name_ok": 6,
+  "unrec_warn_lines": 4,
+  "E2": 1
+ },
+ "r5-glm-haiku2": {
+  "runs": 9,
+  "c5retry": 2,
+  "unrec_warn_lines": 7,
+  "E5": 2,
+  "E2": 2
+ },
+ "sol-alone-src": {
+  "runs": 3,
+  "unrec_warn_lines": 3
+ },
+ "terra-alone-src": {
+  "runs": 3,
+  "unrec_warn_lines": 3
+ },
+ "terra-luna-muse-ember": {
+  "runs": 9,
+  "unrec_warn_lines": 9
+ },
+ "terra-muse-haiku-ember": {
+  "runs": 9,
+  "unrec_warn_lines": 7,
+  "E2": 1
+ }
+}

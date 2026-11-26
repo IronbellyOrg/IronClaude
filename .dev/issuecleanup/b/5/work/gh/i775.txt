@@ -1,0 +1,38 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P2
+
+#### Concrete next steps
+
+1. Owner records the choice in chat: which of (a), (b), (c), (d), their order, whether the own-login exemption stays, and who is told where (the three open questions). The agent in that session records it; the owner writes no file.
+2. If (a): add the plain wording of what cancels an approval and how to approve again to the issue template text (`.github/ISSUE_TEMPLATE/feature_request.yml` and `other.yml` at minimum, UNVERIFIED which templates the owner wants) and keep the runbook lines 182, 566 and 645 in step. No behaviour change, no tests beyond a docs check.
+3. If (b): decide the place (status line, issue comment, alert). A status line needs `status_report` to read the audit log. An issue comment is a new GitHub write and needs the owner's agreement. Add tests in `tests/issue_watch/test_cycle.py`, `test_cli.py` or `test_audit.py`.
+4. If (c) or (d): resolve #722 (shared login) and #753 (approver rule) first; then change `unchanged_since` in place and extend `tests/issue_watch/test_predicates.py` and `test_cycle.py`.
+5. Run `uv run pytest tests/issue_watch/ tests/issue_pipeline/`, `make lint`, `make verify-sync`; submit through `/sc:pr-submit --monitor 3`.
+
+#### Dependencies
+
+- Needs: the owner's decision recorded (this issue's first acceptance criterion). For option (d): #722 (shared login, who approved) and #698 (who counts as an approver in plan approval); #753 (maintainers and admins as approvers) must be checked for overlap first.
+- Option (b) shares an alert destination with #717 (W8).
+- Blocks: nothing found.
+
+#### Related issues
+
+#707 (merged watcher; source of the rule), #761 (gap check that found this), #717 (W2 and W8; the W8 alert does not cover exit-0 skips), #716 (C8 note: keep one "unchanged" test), #722 (shared login), #698 (approver check by text and assignee), #753 (admins and maintainers as approvers; open, not a duplicate as far as read: its scope is who may approve, not what cancels approval).
+
+#### Related PRs
+
+#707 (merged; introduced `unchanged_since`, R17, R19, R37), #759 (merged; later watcher fix, unrelated to the rule), #729 (merged; records that the merged watcher is the design). No open PR addresses this issue.
+
+_Limits: items marked UNVERIFIED in the text could not be checked in this read-only review. Nothing was changed on this issue other than this comment and its field values._
+
+--

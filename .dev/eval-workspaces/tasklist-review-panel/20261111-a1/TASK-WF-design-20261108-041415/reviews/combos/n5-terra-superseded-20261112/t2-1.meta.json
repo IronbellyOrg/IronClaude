@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "t2-1",
+  "expected_model": "gpt-6.1-terra",
+  "observed_model": "gpt-6.1-terra",
+  "model_ok": true,
+  "findings_block": true,
+  "attempt": 1,
+  "wall_s": 19,
+  "output_tokens_main": 545,
+  "output_tokens_all": 545,
+  "exit": 0
+}

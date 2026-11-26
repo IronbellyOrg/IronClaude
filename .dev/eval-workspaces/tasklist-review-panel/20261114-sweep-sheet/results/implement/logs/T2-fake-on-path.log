@@ -1,0 +1,41 @@
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_first_claude_on_path_is_the_fake PASSED [  5%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_override_guard_refuses_bad_values PASSED [ 10%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[ok] PASSED [ 15%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[ledger_missing] PASSED [ 21%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[long_anchor] PASSED [ 26%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[api_error] PASSED [ 31%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[wrong_model] PASSED [ 36%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[sleep] PASSED [ 42%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[bad_block] PASSED [ 47%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[exit127] PASSED [ 52%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_ok_has_a_valid_ledger_and_findings_block PASSED [ 57%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_ledger_missing_has_findings_but_no_ledger PASSED [ 63%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_long_anchor_breaks_the_anchor_limit PASSED [ 68%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_api_error_is_a_synthetic_error_result PASSED [ 73%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_wrong_model_reports_another_model[claude-sonnet-5-5] PASSED [ 78%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_wrong_model_reports_another_model[claude-haiku-5-5] PASSED [ 84%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_sleep_waits_then_answers_and_dies_on_term PASSED [ 89%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_bad_block_has_a_line_that_is_not_json PASSED [ 94%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_unknown_scenario_is_refused PASSED [100%]
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_first_claude_on_path_is_the_fake
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_override_guard_refuses_bad_values
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[ok]
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[ledger_missing]
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[long_anchor]
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[api_error]
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[wrong_model]
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[sleep]
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[bad_block]
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_each_scenario_prints_json_and_logs_one_line[exit127]
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_ok_has_a_valid_ledger_and_findings_block
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_ledger_missing_has_findings_but_no_ledger
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_long_anchor_breaks_the_anchor_limit
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_api_error_is_a_synthetic_error_result
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_wrong_model_reports_another_model[claude-sonnet-5-5]
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_wrong_model_reports_another_model[claude-haiku-5-5]
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_sleep_waits_then_answers_and_dies_on_term
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_bad_block_has_a_line_that_is_not_json
+PASSED .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py::test_unknown_scenario_is_refused
+============================== 19 passed in 2.44s ==============================
+command: uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py -q -v -rA
+rc=0

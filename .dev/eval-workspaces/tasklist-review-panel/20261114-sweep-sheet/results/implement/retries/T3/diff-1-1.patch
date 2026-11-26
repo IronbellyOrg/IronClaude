@@ -1,0 +1,246 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T3/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T3/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T3/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/fnd.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/fnd.py
+new file mode 100644
+index 000000000..1deb371db
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/fnd.py
+@@ -0,0 +1,30 @@
++"""The one import point for superclaude.cli.review.findings (DESIGN 2.3).
++
++Everything in scaffold/ and sweep/ gets the real parser from here. `_check_finding` and `_blocks_after` are
++private in the source; tests/test_fnd_contract.py pins their names and signatures, so a rename or change shows
++up in that one test and this file is the only one to edit.
++"""
++
++from __future__ import annotations
++
++from superclaude.cli.review.findings import (  # noqa: F401  (re-exports)
++    _HEAD_FINDINGS,
++    _blocks_after,
++    _check_finding,
++    flat,
++    locate,
++    parse_block,
++    same_defect,
++)
++
++
++def lenient_lines(report: str) -> list[str]:
++    """The raw lines of the findings block (the last findings-v1 fence, like parse_block), blank lines dropped.
++
++    Lines are returned as written, valid JSON or not, so a caller can repair or count the bad ones.
++    No heading or no findings-v1 fence gives []. An unclosed fence still gives the lines read before the end.
++    """
++    _, blocks = _blocks_after(report, _HEAD_FINDINGS, "findings-v1")
++    if not blocks:
++        return []
++    return [raw for _, raw in blocks[-1][1] if raw.strip()]
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py
+new file mode 100644
+index 000000000..8ce1f6bad
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py
+@@ -0,0 +1,188 @@
++"""Contract of scaffold/fnd.py with the real findings code (DESIGN 2.3; REQ-11)."""
++
++import inspect
++import json
++import os
++import subprocess
++
++from click.testing import CliRunner
++from helpers import REPO
++from superclaude.cli.review import findings as real
++from superclaude.cli.review import merge_cmd
++
++from scaffold import fnd
++
++ANCHOR = "The worker retries a failed delivery up to 8 times with exponential backoff"
++DOC = f"# Spec\n\n{ANCHOR}, and then gives up.\n"
++
++
++def pin(fn):
++    """What the adapter relies on: parameter names, kinds, defaults and the return annotation."""
++    sig = inspect.signature(fn)
++    params = [
++        (p.name, p.kind.name, p.default is p.empty) for p in sig.parameters.values()
++    ]
++    return fn.__name__, params, sig.return_annotation
++
++
++def report(*lines):
++    return (
++        "review: 1 of 3\n\n## Findings block\n\n```findings-v1\n"
++        + "\n".join(lines)
++        + "\n```\n"
++    )
++
++
++def finding(fid, **extra):
++    d = {
++        "id": fid,
++        "severity": "CRITICAL",
++        "blocking": True,
++        "category": "contradiction",
++        "anchor": ANCHOR,
++        "refs": [],
++        "claim": "the retry count disagrees with the limit",
++    }
++    d.update(extra)
++    return json.dumps(d)
++
++
++def test_check_finding_signature_pin():
++    assert pin(real._check_finding) == (
++        "_check_finding",
++        [
++            ("obj", "POSITIONAL_OR_KEYWORD", True),
++            ("seen", "POSITIONAL_OR_KEYWORD", True),
++        ],
++        "str | None",
++    )
++
++
++def test_blocks_after_signature_pin():
++    assert pin(real._blocks_after) == (
++        "_blocks_after",
++        [
++            ("text", "POSITIONAL_OR_KEYWORD", True),
++            ("heading", "POSITIONAL_OR_KEYWORD", True),
++            ("info", "POSITIONAL_OR_KEYWORD", True),
++        ],
++        "tuple[bool, list[tuple[int, list[tuple[int, str]], bool]]]",
++    )
++
++
++def test_public_helper_signatures_pinned():
++    assert list(inspect.signature(real.parse_block).parameters) == ["report_text"]
++    assert list(inspect.signature(real.flat).parameters) == ["s"]
++    assert list(inspect.signature(real.locate).parameters) == ["text", "quote"]
++    assert list(inspect.signature(real.same_defect).parameters) == ["a", "b"]
++
++
++def test_pin_detects_a_signature_change():
++    def _check_finding(obj, seen, extra) -> str | None: ...
++
++    def _blocks_after(text, heading) -> tuple: ...
++
++    assert pin(_check_finding) != pin(real._check_finding)
++    assert pin(_blocks_after) != pin(real._blocks_after)
++
++
++def test_adapter_reexports_the_real_objects():
++    for name in (
++        "parse_block",
++        "flat",
++        "locate",
++        "same_defect",
++        "_check_finding",
++        "_blocks_after",
++    ):
++        assert getattr(fnd, name) is getattr(real, name), name
++
++
++def test_lenient_lines_keeps_invalid_lines():
++    good, bad = finding("F1"), "{not json"
++    text = report(good, "", bad)
++    assert fnd.lenient_lines(text) == [good, bad]
++    assert fnd.parse_block(text)["ok"] is False
++
++
++def test_lenient_lines_uses_the_last_block_and_unclosed_block():
++    first = "## Findings block\n\n```findings-v1\n" + finding("A1") + "\n```\n\n"
++    last = report(finding("B1"))
++    assert fnd.lenient_lines(first + last) == [finding("B1")]
++    assert fnd.lenient_lines(
++        "## Findings block\n\n```findings-v1\n" + finding("C1")
++    ) == [finding("C1")]
++
++
++def test_lenient_lines_without_block_is_empty():
++    assert fnd.lenient_lines("no heading here") == []
++    assert fnd.lenient_lines("## Findings block\n\nnothing") == []
++
++
++def keys_in(obj):
++    if isinstance(obj, dict):
++        for k, v in obj.items():
++            yield k
++            yield from keys_in(v)
++    elif isinstance(obj, list):
++        for v in obj:
++            yield from keys_in(v)
++
++
++def test_merge_accepts_class_probe_src_keys(tmp_path):
++    doc = tmp_path / "doc.md"
++    doc.write_text(DOC)
++    rep = tmp_path / "r1.md"
++    rep.write_text(
++        report(finding("F1", **{"class": "C1", "probe": "P1", "src": "sheet"}))
++    )
++    parsed = real.parse_block(rep.read_text())
++    assert parsed["ok"] and parsed["findings"][0]["class"] == "C1"
++    out, ledger = tmp_path / "merged-1.md", tmp_path / "ledger.json"
++    res = CliRunner().invoke(
++        merge_cmd.command,
++        [
++            "--ledger",
++            str(ledger),
++            "--doc",
++            str(doc),
++            "--round",
++            "1",
++            "--report",
++            f"r1={rep}",
++            "--out",
++            str(out),
++        ],
++    )
++    assert res.exit_code == 0, res.output
++    assert json.loads(res.output)["block_ok"] == {"r1": True}
++    assert json.loads(ledger.read_text())["rows"], (
++        "the finding was merged into the ledger"
++    )
++    merged = out.read_text()
++    assert "F1" in merged or "L1" in merged
++    for path in (out, ledger):
++        for key in ("class", "probe", "src"):
++            assert f'"{key}"' not in path.read_text(), (path.name, key)
++    assert not {"class", "probe", "src"} & set(keys_in(json.loads(ledger.read_text())))
++
++
++def test_existing_review_suite_passes():
++    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
++    cmd = [
++        "uv",
++        "run",
++        "--frozen",
++        "--project",
++        str(REPO),
++        "pytest",
++        "-p",
++        "no:cacheprovider",
++        str(REPO / "tests" / "review"),
++        "-q",
++    ]
++    r = subprocess.run(
++        cmd, capture_output=True, text=True, env=env, cwd=REPO, timeout=300
++    )
++    assert r.returncode == 0, r.stdout[-2000:] + r.stderr[-1000:]
++    assert " passed" in r.stdout.splitlines()[-1]
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index f678f84d9..4fc812be7 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -4,3 +4,4 @@ T1: start sha=7d543ee1a424e2fe77cf4bfa5e271152369edbdf
+ T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3,T1.AC4,T1.AC5,T1.AC6 evidence=T1.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T1-pytest.log:17,T1.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_paths.py:15,T1.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_model_allowlist.py:8,T1.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_layout.py:29,T1.AC5@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_layout.py:108,T1.AC6@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T1-ruff-check.log:2 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/analysis/__init__.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/common.sh,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/packages.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/panels.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/values.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/ruff.toml,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/__init__.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/__init__.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/helpers.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_layout.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_model_allowlist.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_paths.py
+ T2: start sha=d92473ff662d7c0c17d98863ff3818bebaa4e7be
+ T2: complete verdict=compliant ac=T2.AC1,T2.AC2,T2.AC3 evidence=T2.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py:47,T2.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py:71,T2.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T2-all-tests.log:5 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/conftest.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/fakes/claude,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py
++T3: start sha=21c1e64a6b8365f5669ce71917041998098874b9

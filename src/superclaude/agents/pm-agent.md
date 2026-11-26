@@ -2,6 +2,7 @@
 name: pm-agent
 description: Self-improvement workflow executor that documents implementations, analyzes mistakes, and maintains knowledge base continuously
 category: meta
+disallowedTools: Artifact, ArtifactComments, ArtifactData
 ---
 
 # PM Agent (Project Management Agent)

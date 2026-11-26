@@ -1,0 +1,40 @@
+#546 [CLOSED] Enforce the requested model: a pre-event hook that rejects any launch whose model breaks the defined rules (v1), after an Opus misuse incident
+## What was tried
+**The incident (2026-11-13 to 11-14).** During a long multi-stage evaluation run, a standing owner rule said that the most expensive model tier (Opus) is reserved for blind scoring and judging only. The assistant launched several stages on that tier anyway, for work that was not scoring:
+
+| Stage | How the model was chosen | What ran on Opus |
+|---|---|---|
+| Brainstorm, proposal generation | The agent-spec was composed by hand from the brainstorm skill's default rotation (opus, sonnet, haiku; "prefer opus for the first personas in deep mode") | 3 of 5 headless proposal sessions, 204,911 output tokens |
+| Brainstorm, debate and merge | `claude -p --model claude-opus-5-5` hard-coded in a launcher script | 2 sessions: one killed at its 5,400 s timeout (tokens not recorded), one resumed run of 3,262 s, 266,551 output tokens |
+| `/sc:design` for five designs | `claude-opus-5-5` hard-coded in a launcher script, chosen as "the strongest model for a long design job" | 5 sessions, 35 to 55 minutes each, 1,141,496 output tokens |
+| First `/sc:implement` attempt for the five designs | `claude-opus-5-5` hard-coded in a launcher script | 5 sessions; the two that finished account for 2,602,482 output tokens; three were killed mid-run (not recorded, about 1.5 hours each) |
+| Re-run of a hand-off report | After the session model was switched to Opus, four subagents were pinned to Opus | about 933,000 subagent tokens in total (the user had asked for a re-run, not for Opus subagents, so this one is a judgement call) |
+
+Measured total: about 4.2 million Opus output tokens, plus the unrecorded runs above.
+
+**Why it happened.**
+1. The rule existed only as a sentence in the conversation and, later, in a compaction summary. No file, setting or hook held it, so nothing could check a launch against it.
+2. The brainstorm skill has its own default model rotation that prefers Opus. The assistant followed the skill's default and did not reconcile it with the standing rule.
+3. The launcher scripts were copied from earlier harness scripts where Opus was the judge model, and the model flag was set by hand each time. No step in the pattern compared the flag with the rule.
+4. For the design and implementation stages the assistant picked Opus on its own judgement and did not re-read the rule.
+5. It was noticed only when writing the restart script for the implementation stage ("standing rule: Opus is for scoring only"). Later stages used Sonnet and Haiku. The earlier stages were not unwound, and the disclosure to the owner covered the design and first implementation sessions but not the brainstorm proposal and debate sessions.
+
+**What the owner wants (version 1).** Not a smarter model choice. Only this: **the model that was requested or defined is always the model used, and any attempt to use a different model is rejected.** Choosing the best, fastest, cheapest model for a job is a possible version 2, for skills, agents or commands that are explicitly configured for dynamic model selection. That version may use a small judgment model (Jev) to route.
+
+## Relevant files and links
+- Existing hooks live under `~/.claude/hooks/` (installed) and `src/superclaude/hooks/` (source): none validates a model. `src/superclaude/hooks/hooks.json` registers them.
+- Places a model gets chosen today, all of which a hook would have to see: `claude -p --model <id>` inside a command or inside a script that a command runs; the `model` parameter of the Agent tool; `model:` frontmatter of an agent, skill or command; model aliases and environment variables; the session model switched with `/model`.
+- Prior work on using Jev as a judgment step in hooks and routing: `.dev/research/346-review-loop-experiments/p22/JEV-OUTSIDE-USES-AND-PROPOSALS.md` (item 1: a PreToolUse hook; item 7: tier choice). It states the principle that policy stays in code and the judgment model answers narrow questions.
+- A brainstorm for the version 1 design has been started and will be linked here when it finishes.
+
+## Done when
+1. A machine-readable model policy exists (which roles or stages may use which models, for example "tier X: scoring only") and is loaded by a hook.
+2. A hook that fires before the events that choose a model (at least: Bash commands that start `claude`, Agent tool calls, skill and command launches with a model setting) compares the model that would be used with the policy and **blocks the call with a clear reason** on a mismatch. It does not pick or change the model.
+3. It also covers indirection: a command that runs a script containing a `--model` flag, aliases, and environment-variable overrides, or it states plainly which cases it cannot see.
+4. A decision is recorded on where a judgment model (Jev) is useful in version 1 (for example, only for cases the code checks cannot decide) and where it is not, keeping the decision itself in code.
+5. Tests show: a forbidden model is rejected in each event type; an allowed model passes; a missing or malformed policy fails safe in a documented way.
+6. A version 2 issue is opened for dynamic routing to the best, fastest, cheapest model, limited to places configured for it.
+
+## Who it is for
+The IronClaude maintainers and the agent that implements the hook. The design comes first: a brainstorm, then a design document, then implementation under the normal plan-and-implement process.
+

@@ -1,0 +1,9 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Closing as no longer relevant (owner decision in chat, 2026-11-24, after a reviewed analysis of this sub-issue).
+
+Why: the per-repo overview belonged to the rejected registry repository (D15 VERDICT:77, SPEC.md:201); the coordinator is project-local and reads its own repo, and the name `repos` is already taken by the guarded config writer (SPEC.md:228, :299). If a purpose line per repo is still wanted, a single optional `description` key in the per-repo config, added with its loader change, is the smaller form.
+--

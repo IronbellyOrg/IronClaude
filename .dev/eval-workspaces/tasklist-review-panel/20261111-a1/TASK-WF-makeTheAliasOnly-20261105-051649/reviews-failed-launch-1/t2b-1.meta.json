@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "t2b-1",
+  "expected_model": "muse-wonder-1.0",
+  "observed_model": "",
+  "model_ok": false,
+  "findings_block": false,
+  "attempt": 2,
+  "wall_s": 2,
+  "output_tokens_main": 0,
+  "output_tokens_all": 0,
+  "exit": 1
+}

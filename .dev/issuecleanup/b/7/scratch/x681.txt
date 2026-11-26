@@ -1,0 +1,32 @@
+#681 [MERGED] docs(design): approved orchestrator design for issue 655 (docs only)
+## What this is
+
+The owner-approved design for the issue 655 orchestrator, added as one new file: `docs/designs/orchestrator.md` (1412 lines). Docs only, no code, no tests, no config. The status banners and the later build pull requests for issue 655 point at this file, so it needs to be on master first.
+
+Refs IronbellyOrg/IronClaude#655 (this pull request does not finish the issue; the build pieces come later).
+
+## Approval
+
+The design was approved by Clay on 2026-11-19, including the five additions A to E (plans and holds, what reaches the owner, what the control plane may never do, closeout, audit after a pull request lands). The closeout skill itself is tracked separately in issue 668 and is not part of this file's pull request.
+
+## What changed
+
+- Adds `docs/designs/orchestrator.md`, copied byte for byte from the approved revision `8bd180ba7` of the branch `clayphi/issue-655-spec`.
+- No other file is touched.
+- The eight `{{...}}` lines in section 5.4 are template placeholders on purpose.
+
+## Test evidence
+
+- `cmp` against `git show 8bd180ba7:docs/designs/orchestrator.md`: byte identical.
+- Em dash and en dash count in the file: 0.
+- The file did not exist on `origin/master` before this change.
+- `uv run pytest tests/docs -q`: 11 passed.
+- `make lint`: ruff check passed; the architecture policy check passed (0 errors, 4 existing warnings).
+- `git diff --check`: clean.
+- No Python was touched, so there is nothing for `ruff format` to check.
+
+## Review notes
+
+- Per the owner's rule for this build, this pull request is not merged by the session that opened it. It stops when CI is green, the Augment and Codex reviews have finished on the final head and no review thread is open; the owner reviews and merges.
+- This run uses the default merge guard (`--merge-guard draft`). How the Augment and Codex reviews and the CI workflows behave on a draft or on a ready transition is still unverified; for a docs-only change no fix cycle is expected.
+

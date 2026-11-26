@@ -1,0 +1,171 @@
+[
+ {
+  "panel": "ember + sonnet",
+  "models": [
+   "ember",
+   "sonnet"
+  ],
+  "rows": [
+   "g2-sonnet-ember-r1",
+   "g2-sonnet-ember-r2",
+   "g2-sonnet-ember-r3",
+   "g2-sonnet-ember-r4"
+  ],
+  "n": 4,
+  "mean_found": 2.5
+ },
+ {
+  "panel": "ember + luna",
+  "models": [
+   "ember",
+   "luna"
+  ],
+  "rows": [
+   "g9-ember-luna-r1",
+   "g9-ember-luna-r2",
+   "g9-ember-luna-r3",
+   "g9-ember-luna-r4"
+  ],
+  "n": 4,
+  "mean_found": 2.25
+ },
+ {
+  "panel": "ember + ember + haiku + luna + luna",
+  "models": [
+   "ember",
+   "ember",
+   "haiku",
+   "luna",
+   "luna"
+  ],
+  "rows": [
+   "h1-haiku-luna2-ember2-r1",
+   "h1-haiku-luna2-ember2-r2",
+   "h1-haiku-luna2-ember2-r3",
+   "h1-haiku-luna2-ember2-r4"
+  ],
+  "n": 4,
+  "mean_found": 2.25
+ },
+ {
+  "panel": "ember + ember + luna + luna + sonnet",
+  "models": [
+   "ember",
+   "ember",
+   "luna",
+   "luna",
+   "sonnet"
+  ],
+  "rows": [
+   "h2-sonnet-luna2-ember2-r1",
+   "h2-sonnet-luna2-ember2-r2",
+   "h2-sonnet-luna2-ember2-r3",
+   "h2-sonnet-luna2-ember2-r4"
+  ],
+  "n": 4,
+  "mean_found": 2.25
+ },
+ {
+  "panel": "ember + luna + sonnet",
+  "models": [
+   "ember",
+   "luna",
+   "sonnet"
+  ],
+  "rows": [
+   "g3-sonnet-luna-ember-r1",
+   "g3-sonnet-luna-ember-r2",
+   "g3-sonnet-luna-ember-r3",
+   "g3-sonnet-luna-ember-r4",
+   "n5-sonnet-ember"
+  ],
+  "n": 5,
+  "mean_found": 2.2
+ },
+ {
+  "panel": "haiku + luna + luna",
+  "models": [
+   "haiku",
+   "luna",
+   "luna"
+  ],
+  "rows": [
+   "g7-haiku-luna2-r1",
+   "g7-haiku-luna2-r2",
+   "g7-haiku-luna2-r3",
+   "g7-haiku-luna2-r4",
+   "r1-haiku-luna2-src"
+  ],
+  "n": 5,
+  "mean_found": 2.2
+ },
+ {
+  "panel": "ember + haiku + terra",
+  "models": [
+   "ember",
+   "haiku",
+   "terra"
+  ],
+  "rows": [
+   "g4-haiku-ember-terra-r1",
+   "g4-haiku-ember-terra-r2",
+   "g4-haiku-ember-terra-r3",
+   "g4-haiku-ember-terra-r4",
+   "terra-muse-haiku-ember"
+  ],
+  "n": 5,
+  "mean_found": 2
+ },
+ {
+  "panel": "ember + luna + luna",
+  "models": [
+   "ember",
+   "luna",
+   "luna"
+  ],
+  "rows": [
+   "b4-muse-ember-luna2",
+   "e2-ember-luna2-rep",
+   "g1-ember-luna2-r1",
+   "g1-ember-luna2-r2",
+   "g1-ember-luna2-r3",
+   "g1-ember-luna2-r4"
+  ],
+  "n": 6,
+  "mean_found": 1.83
+ },
+ {
+  "panel": "ember + ember + luna + luna",
+  "models": [
+   "ember",
+   "ember",
+   "luna",
+   "luna"
+  ],
+  "rows": [
+   "g6-luna2-ember2-r1",
+   "g6-luna2-ember2-r2",
+   "g6-luna2-ember2-r3",
+   "g6-luna2-ember2-r4"
+  ],
+  "n": 4,
+  "mean_found": 1.75
+ },
+ {
+  "panel": "ember + ember + luna",
+  "models": [
+   "ember",
+   "ember",
+   "luna"
+  ],
+  "rows": [
+   "e3-ember2-luna",
+   "g5-ember2-luna-r1",
+   "g5-ember2-luna-r2",
+   "g5-ember2-luna-r3",
+   "g5-ember2-luna-r4"
+  ],
+  "n": 5,
+  "mean_found": 1.6
+ }
+]

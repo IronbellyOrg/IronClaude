@@ -1,0 +1,105 @@
+{
+ "row": "smoke-f6diag-sl2-1",
+ "arm": "F6-sl2",
+ "panel": "sl2",
+ "models": {
+  "t1b-1": "claude-sonnet-5-5",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "switches": {
+  "PANEL_COLLAB": 1,
+  "PANEL_KIT": 1,
+  "NOFALLBACK": 1,
+  "SPIKE4": false
+ },
+ "values_sha256": {
+  "TASK-WF-design-20261108-041415": "5e02e24a3970c1ccd23157d033b23ef98ffc0606ad06b66417948ecb19960250"
+ },
+ "found_14": 0,
+ "real_blocking_8": 0,
+ "judge_blocking": 0,
+ "wrong_blockers": 0,
+ "control_found_2": 0,
+ "control_wrong_blockers": 2,
+ "issues": {
+  "credited_any": [],
+  "credited_blocking": [],
+  "target_reach": false,
+  "hard_credits": 0
+ },
+ "output_tokens": {
+  "total": 12798,
+  "per_pkg": {
+   "TASK-WF-design-20261108-041415": 12798
+  },
+  "per_reviewer": {
+   "TASK-WF-design-20261108-041415": {
+    "t1b-1": 0,
+    "t3-1": 6748,
+    "t4-1": 6050
+   }
+  }
+ },
+ "elapsed_s": {
+  "TASK-WF-design-20261108-041415": 266.372
+ },
+ "overhead_pct": {
+  "TASK-WF-design-20261108-041415": 50.56283295886499
+ },
+ "collab": {
+  "TASK-WF-design-20261108-041415": {
+   "k": 1,
+   "finish_would_fire": true,
+   "k0_isolated": false,
+   "deflection_overlap": 0.0,
+   "union_anchored_tasks": 4,
+   "own_line_jaccard": 0.16666666666666666,
+   "ledger_rows": 3,
+   "slo": "SLO_BREACH",
+   "cards_posted": 1,
+   "cards_delivered": 1,
+   "requests_delivered": 1,
+   "requests_acted": 0,
+   "superseded": 0,
+   "dup_card": 1,
+   "late": 0,
+   "snapshot_missing": 0,
+   "hook_calls": 21,
+   "hook_error": 0,
+   "hang_kill": 1,
+   "retry_isolated": 0,
+   "reask_s": 0,
+   "dropped_lines": 1,
+   "hook_ms_p95": 27,
+   "finish_signal_t": 1794613451233
+  }
+ },
+ "alarms": {
+  "TASK-WF-design-20261108-041415": {
+   "CONVERGENCE": null,
+   "DEFLECTION": false,
+   "SLO": "SLO_BREACH"
+  }
+ },
+ "audit": {
+  "TASK-WF-design-20261108-041415": "quarantined"
+ },
+ "invalid": [
+  "TASK-WF-design-20261108-041415:t1b-1"
+ ],
+ "pkg_status": {
+  "TASK-WF-design-20261108-041415": {
+   "merge": "ok",
+   "merge_rc": 0,
+   "invalid": [
+    "t1b-1"
+   ],
+   "anon": "ok",
+   "anon_postcheck": 0,
+   "judge": "ok",
+   "judge_api_error": false
+  }
+ },
+ "status": "quarantined"
+}

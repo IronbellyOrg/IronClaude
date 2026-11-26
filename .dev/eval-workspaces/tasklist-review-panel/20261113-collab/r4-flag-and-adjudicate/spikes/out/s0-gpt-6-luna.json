@@ -1,0 +1,142 @@
+{
+  "model": "gpt-6-luna",
+  "work_dir": "/tmp/collab-r4/s0-gpt-6-luna-1794604506",
+  "sandbox_project_hook_events": [
+    "PreToolUse"
+  ],
+  "sessions": [
+    {
+      "session": 1,
+      "rc": 0,
+      "observed_model": "gpt-6-luna",
+      "hook_inputs": 6,
+      "main_calls": 6,
+      "transcript_path_readable": true,
+      "snapshot_at_call2": "ok",
+      "hook_ms_p95": 26,
+      "failing_call_fired": false,
+      "subagent_calls": 0,
+      "session_count_during_run": "6 0",
+      "real_process_argv": "1580214 timeout 600 claude -p --model gpt-6-luna --output-format json --session-id 1b829193-106b-453e-b912-5d489312405c --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit --settings /tmp/collab-r4/s0-gpt-6-luna-1794604506/sess1/settings.json\n1580215 /opt/nvm/versions/node/v24.22.2/bin/claude -p --model gpt-6-luna --output-format json --session-id 1b829193-106b-453e-b912-5d489312405c --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit --settings /tmp/collab-r4/s0-gpt-6-luna-1794604506/sess1/settings.json",
+      "settings_flags_in_argv": 2,
+      "act": false,
+      "finish_act": true,
+      "transcript_entries_with_timestamp": 81,
+      "assistant_messages_split": 8,
+      "tool_result_inside_split_message": false,
+      "hook_related_entries": [
+        "api-request-blob",
+        "api-request-shape",
+        "attachment",
+        "system"
+      ]
+    },
+    {
+      "session": 2,
+      "rc": 0,
+      "observed_model": "gpt-6-luna",
+      "hook_inputs": 7,
+      "main_calls": 7,
+      "transcript_path_readable": true,
+      "snapshot_at_call2": "ok",
+      "hook_ms_p95": 22,
+      "failing_call_fired": false,
+      "subagent_calls": 0,
+      "session_count_during_run": "6 0",
+      "real_process_argv": "1596496 timeout 600 claude -p --model gpt-6-luna --output-format json --session-id 1da83683-47f7-4089-bffe-cd919677eb92 --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit --settings /tmp/collab-r4/s0-gpt-6-luna-1794604506/sess2/settings.json\n1596497 /opt/nvm/versions/node/v24.22.2/bin/claude -p --model gpt-6-luna --output-format json --session-id 1da83683-47f7-4089-bffe-cd919677eb92 --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit --settings /tmp/collab-r4/s0-gpt-6-luna-1794604506/sess2/settings.json",
+      "settings_flags_in_argv": 2,
+      "act": false,
+      "finish_act": true,
+      "transcript_entries_with_timestamp": 81,
+      "assistant_messages_split": 2,
+      "tool_result_inside_split_message": false,
+      "hook_related_entries": [
+        "api-request-blob",
+        "api-request-shape",
+        "attachment",
+        "system"
+      ]
+    },
+    {
+      "session": 3,
+      "rc": 0,
+      "observed_model": "gpt-6-luna",
+      "hook_inputs": 7,
+      "main_calls": 7,
+      "transcript_path_readable": true,
+      "snapshot_at_call2": "ok",
+      "hook_ms_p95": 24,
+      "failing_call_fired": false,
+      "subagent_calls": 0,
+      "session_count_during_run": "6 0",
+      "real_process_argv": "1603206 timeout 600 claude -p --model gpt-6-luna --output-format json --session-id dd221905-e575-4e60-9c70-7c29f11dffc3 --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit --settings /tmp/collab-r4/s0-gpt-6-luna-1794604506/sess3/settings.json\n1603207 /opt/nvm/versions/node/v24.22.2/bin/claude -p --model gpt-6-luna --output-format json --session-id dd221905-e575-4e60-9c70-7c29f11dffc3 --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit --settings /tmp/collab-r4/s0-gpt-6-luna-1794604506/sess3/settings.json",
+      "settings_flags_in_argv": 2,
+      "act": false,
+      "finish_act": true,
+      "transcript_entries_with_timestamp": 88,
+      "assistant_messages_split": 9,
+      "tool_result_inside_split_message": false,
+      "hook_related_entries": [
+        "api-request-blob",
+        "api-request-shape",
+        "attachment",
+        "system"
+      ]
+    },
+    {
+      "session": 4,
+      "rc": 0,
+      "observed_model": "gpt-6-luna",
+      "hook_inputs": 7,
+      "main_calls": 7,
+      "transcript_path_readable": true,
+      "snapshot_at_call2": "ok",
+      "hook_ms_p95": 25,
+      "failing_call_fired": false,
+      "subagent_calls": 0,
+      "session_count_during_run": "6 0",
+      "real_process_argv": "1608928 timeout 600 claude -p --model gpt-6-luna --output-format json --session-id 84d0fa8b-e198-43a2-a820-be16f20ba44c --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit --settings /tmp/collab-r4/s0-gpt-6-luna-1794604506/sess4/settings.json\n1608929 /opt/nvm/versions/node/v24.22.2/bin/claude -p --model gpt-6-luna --output-format json --session-id 84d0fa8b-e198-43a2-a820-be16f20ba44c --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit --settings /tmp/collab-r4/s0-gpt-6-luna-1794604506/sess4/settings.json",
+      "settings_flags_in_argv": 2,
+      "act": false,
+      "finish_act": true,
+      "transcript_entries_with_timestamp": 83,
+      "assistant_messages_split": 4,
+      "tool_result_inside_split_message": false,
+      "hook_related_entries": [
+        "api-request-blob",
+        "api-request-shape",
+        "attachment",
+        "system"
+      ]
+    },
+    {
+      "session": 5,
+      "rc": 0,
+      "observed_model": "gpt-6-luna",
+      "hook_inputs": 6,
+      "main_calls": 6,
+      "transcript_path_readable": true,
+      "snapshot_at_call2": "ok",
+      "hook_ms_p95": 27,
+      "failing_call_fired": false,
+      "subagent_calls": 0,
+      "session_count_during_run": "6 0",
+      "real_process_argv": "1616314 timeout 600 claude -p --model gpt-6-luna --output-format json --session-id 93959f67-cc06-49a2-915e-bc2f8dee56c7 --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit --settings /tmp/collab-r4/s0-gpt-6-luna-1794604506/sess5/settings.json\n1616315 /opt/nvm/versions/node/v24.22.2/bin/claude -p --model gpt-6-luna --output-format json --session-id 93959f67-cc06-49a2-915e-bc2f8dee56c7 --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit --settings /tmp/collab-r4/s0-gpt-6-luna-1794604506/sess5/settings.json",
+      "settings_flags_in_argv": 2,
+      "act": false,
+      "finish_act": true,
+      "transcript_entries_with_timestamp": 80,
+      "assistant_messages_split": 7,
+      "tool_result_inside_split_message": false,
+      "hook_related_entries": [
+        "api-request-blob",
+        "api-request-shape",
+        "attachment",
+        "system"
+      ]
+    }
+  ],
+  "pass": true,
+  "act_rate": 0,
+  "finish_act_rate": 1
+}

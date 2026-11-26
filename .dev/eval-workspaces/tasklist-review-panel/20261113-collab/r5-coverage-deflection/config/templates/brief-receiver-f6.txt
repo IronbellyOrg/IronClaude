@@ -1,0 +1,1 @@
+Peer coverage is not clearance: a Task a peer looked at is not cleared.

@@ -1,0 +1,27 @@
+{
+ "ok": true,
+ "violations": [],
+ "gt_checked": true,
+ "notes": [
+  {
+   "rule": "anchor_gt_overlap",
+   "id": "f-1",
+   "hit": " tests/skill"
+  },
+  {
+   "rule": "anchor_gt_overlap",
+   "id": "f-2",
+   "hit": " claude-gw-t"
+  },
+  {
+   "rule": "anchor_gt_overlap",
+   "id": "f-3",
+   "hit": " to claude-g"
+  },
+  {
+   "rule": "cmd_identifier_overlap",
+   "where": "board.cmd",
+   "hit": " claude-gw-t"
+  }
+ ]
+}

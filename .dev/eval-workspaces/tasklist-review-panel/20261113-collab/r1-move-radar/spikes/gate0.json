@@ -1,0 +1,19 @@
+{
+  "G-BASE": "pass",
+  "G-PINS": "pass",
+  "S0": "pass",
+  "S2": "pass",
+  "REQ-S3": "recorded",
+  "S3": "pass",
+  "Spike 4": "pass",
+  "reasons": {
+    "G-BASE": "",
+    "G-PINS": "",
+    "S0": "",
+    "S2": "",
+    "REQ-S3": "",
+    "S3": "",
+    "Spike 4": ""
+  },
+  "checked_utc": "2026-11-14T12:29:00Z"
+}

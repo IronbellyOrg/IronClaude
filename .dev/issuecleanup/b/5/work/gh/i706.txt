@@ -1,0 +1,74 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Docs fixes left open by pull request #708 (the observer and orchestrator-mode user guides, merged 2026-11-20). The reviewers' findings were verified as real and not fixed before the merge. Add them to this issue's work:
+
+- [ ] **Medium, `docs/user-guide/orchestrator-mode.md` (bullet "Workers that edit project files need their own worktree"):** the bullet says report-only workers may share the feature worktree. Rule WC-11 in `src/superclaude/core/WORKER-CONTRACT.md` also requires a child worktree when a worker is a parallel experiment to compare or discard, even if it writes only its own report. Add that case. Source: Augment review comment https://github.com/IronbellyOrg/IronClaude/pull/708#discussion_r4647750948 (comment id 4647750948).
+- [ ] **Low, `docs/user-guide/observer.md` (status cell description, ledger section):** the guide says a frozen worker carries the frozen marker. The code emits `FROZEN` only for synthetic fixture rows; live Orca rows have no frozen field, so users will not see it on real workers. Say so. Source: Augment review comment id 4647688842.
+- [ ] **Low, `docs/user-guide/observer.md` (key `e` row and Files table):** the guide implies every `e` press creates a distinct file. `record_path()` timestamps to the second and `write_atomic()` replaces an existing path, so two exports in the same second overwrite the earlier one. Say so. Source: Augment review comment id 4647725488.
+
+Done when the three guide edits are merged and each is checked against the code or contract line it cites.
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Complex / L
+- **Priority:** P2
+
+#### Concrete next steps
+1. **Reconcile the backlog before feature coding.** The coordinator should bring #706's unresolved source/scope choices into #727's owner-directed preliminary evaluation: sweep JSON versus explicit documented differences, ownership of summaries/links/step data, navigation support versus disclosure, recommendations and watcher-state visibility. Do not treat either issue's proposal as an already selected API or storage design. Record the owner's resulting decisions in chat and then in the issue/spec through the coordinator after the owner's go.
+2. **Apply the three already identified guide corrections as a separate bounded documentation change.** Add the parallel-experiment child-worktree case; identify FROZEN as fixture-only; disclose same-second export replacement rather than promising a distinct file per press. Check the first against the worker contract and the other two against model/view/export code. No observer behavior change is needed merely to correct those guide sentences.
+3. **Map scale acceptance to existing tests first.** Reuse the 27 rendering size/width combinations and the separate edge-case fixtures. Identify which required size-by-ownership/history/ordering/staleness/missing-field cases lack coverage; add only those and any explicitly agreed live capacity checks. Do not call synthetic Run counts actual orchestrator capacity.
+4. **After the source/scope decisions, implement the approved missing fields in one authoritative path.** Extend the selected model, parser/collector, view/render and record/snapshot contracts only as agreed. Display missing data as unknown, not invented summaries or ownership. Existing raw stage/activity detail is not a substitute for named workflow steps with state.
+5. **Verify navigation before promising session-open links.** Use only a documented supported mechanism or explicitly disclose inability to open sessions. No deep-link scheme or terminal identifier was verified in this review. Keep #706's no-approve/no-dispatch/no-retry/no-merge/no-message boundary unless the owner explicitly replaces that contract in the later roadmap; keep payload question text out of existing exports (`src/superclaude/cli/observe/export.py:158-180`, `tests/observe/test_export.py:312-337`).
+6. Validate the resulting implementation at the existing widths and colour/ASCII modes and review every #706 item, including its November 22 comment. Close #706 and then parent #409 only after their acceptance is met or the owner explicitly drops/moves remaining scope. This task performed no GitHub edits or closures.
+
+#### Dependencies
+- **Blocks #409 closure:** the parent explicitly delegates the unfinished local criteria to #706 and stays open until they are resolved.
+- **Needs owner decisions, not wholesale completion of another issue:** shared-source shape and scope, navigation support/disclosure, recommendations and watcher-state visibility. #727 now supplies an overarching preliminary evaluation and two-way direction; reconcile the overlapping choices there, but do not make all documentation/test progress wait for completion of the entire roadmap.
+- **Related source work #339 and #534:** sweep and its follow-ups matter if sweep data is selected. No evidence here makes closure of either whole issue a prerequisite to all #706 work.
+- **#606 is satisfied:** visual parity is CLOSED and its implementation PR #673 is MERGED. It is not a remaining blocker.
+- **#604 is separate:** remote fleet is OPEN and explicitly deferred; it is not a prerequisite to the local follow-up in #706.
+- **#718 is not a required predecessor:** its report-entry-link work overlaps conceptually, but the 2026-11-22 owner comment parks the work-report tool and holds its first two items. Do not make #706 depend on restoring that separate tool.
+- Structured GitHub dependency edges were not queried under the brief's read-only verb restriction; they are **UNVERIFIED**. The relationships above come from live issue text/comments, not an inferred GitHub dependency graph.
+
+#### Related issues
+- #409, OPEN: parent TUI dashboard and original acceptance/owner direction. Its older body has stale implementation statements; current source and later comments take precedence.
+- #339: agent-facing orchestration and sweep. Referenced by #706 and parent #409; current full body/implementation not re-audited here, so its complete present status is **UNVERIFIED**.
+- #534, OPEN: sweep Phase 1 follow-ups, relevant to shared-source design rather than an automatic dependency on every item.
+- #604, OPEN: separate remote fleet backlog, with a cross-host ownership gate.
+- #606, CLOSED: completed visual-parity work.
+- #718, OPEN: report/dashboard-view gaps from the issue 655 split; owner has parked the report-tool-dependent work. This is not a duplicate of the local observer capabilities here.
+- #726, OPEN: intervention votes and local decision records, adjacent future work, not already implemented by this issue.
+- #727, OPEN: later owner-directed roadmap for a two-way dashboard; preliminary architecture and storage evaluation takes precedence over its release list. Reconcile boundaries rather than silently treating #706's read-only constraint as permanent for all future work.
+
+Live issue bodies/comments for #706, #409, #534, #604, #718, #726 and #727 were read; #606 state was read directly. Other repositories were not accessed. PR-search results and issue-list hits were treated as leads, not proof of implementation.
+
+#### Related PRs
+Each row below was read directly using `gh pr view` against IronbellyOrg/IronClaude. All are MERGED; merge dates and commits are GitHub's returned values, not inferred from issue prose.
+
+| PR | Contribution and remaining boundary | Merge date | Merge commit |
+|---|---|---|---|
+| #503 | Release 1 worker ledger and observer pipeline, not session summaries/links | 2026-11-11 | `9e2608b03857c78ab89fc9439c85256d3bd5d989` |
+| #514 | Release 2 one-Run coordinator questions, initially live-disabled | 2026-11-12 | `cd873619957b3fd4235c54f00363664fca28a193` |
+| #592 | Release 3 question text, verified dispatch join and Decision Desk | 2026-11-17 | `3206bdb9cb6b0fe3c81e6cdbeadcc1455aeeffda` |
+| #673 | Visual parity at 160/116/80 columns for #606 | 2026-11-19 | `b68d5eeaf618a8e33cde55cb660acfdd8f321f67` |
+| #708 | User guides only; its three unresolved guide findings were added to #706 in the owner's November 22 comment | 2026-11-20 | `52d371e2c20a32a4c17613108daa7f0a295baa36` |
+| #730 | Preserved existing research, specs and review records, not observer code | 2026-11-23 | `98879e631e6d7986d14c0dc94720007cbb2fde0b` |
+| #539 | Agent-facing read-only sweep, not integration into observe | 2026-11-14 | `4d3c0b126151789bd0cb5b481b10f572a0c4e6b7` |
+
+PR #708's body, reviews and ordinary comments were read. The original inline threads named by #706 could not be fetched through the brief's allowed `gh pr view` JSON fields; their exact thread state is **UNVERIFIED**. The three substantive claims were instead checked against current guides, source and worker contract. No pull request or issue was edited, linked, commented on, labeled or closed. No local commit was made.
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+--

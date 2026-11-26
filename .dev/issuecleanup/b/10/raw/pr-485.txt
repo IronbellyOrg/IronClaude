@@ -1,0 +1,89 @@
+author:	chatgpt-codex-connector
+association:	none
+edited:	true
+status:	none
+--
+<!-- codex-pull-request-review-summary -->
+<!-- codex-review-state:v1 {"code_review":{"commit_sha":"9edf85fc85874cd1e36e35646e797be3ab16544c","has_any_findings":true,"has_unresolved_findings":true,"status":"failed"},"security_review":{"commit_sha":"908142dc219ebcd6f3b440d6b922d8401c750d57","has_any_findings":true,"has_unresolved_findings":true,"status":"failed"}} -->
+
+<details>
+<summary><strong>Codex Review Summary</strong>: ❌ Failed</summary>
+
+This comment shows the latest Codex review activity on this pull request.
+
+| Review | Status | Commit | Review trigger |
+| --- | --- | --- | --- |
+| 📝 **Code Review** | ❌ **Failed** <relative-time datetime="2026-11-10T03:27:33.698676Z">2026-11-10T03:27:33.698676Z</relative-time><br/>We couldn’t complete this review. Comment `@codex review` to try again. | `9edf85f` | Manual request |
+| 🔒 **Security Review** | ❌ **Failed** <relative-time datetime="2026-11-10T03:19:17.570081Z">2026-11-10T03:19:17.570081Z</relative-time><br/>We couldn’t complete this review. Comment `@codex security review` to try again. | `908142d` | PR opened |
+
+
+
+<details> <summary>ℹ️ About Codex in GitHub</summary>
+<br/>
+
+[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you
+- Open a pull request for review
+- Mark a draft as ready
+- Comment "@codex review" or "@codex security review".
+
+Codex reacts with 👀 while any review is running, comments if it has suggestions, and reacts with 👍 once all reviews finish with no findings.
+
+</details>
+
+</details>
+--
+author:	chatgpt-codex-connector
+association:	none
+edited:	false
+status:	none
+--
+The account paying for this security review has reached its Codex usage limits. The payer can check the [Codex usage dashboard](https://chatgpt.com/codex/cloud/settings/usage). For personal accounts, using credits requires enabling “Use credits for security reviews” in [Code review settings](https://chatgpt.com/settings/code-review). If you do not manage the paying account, contact this repository's admins.
+--
+author:	augmentcode
+association:	none
+edited:	false
+status:	commented
+--
+<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=01M71QF6YJN89CPW49FSHVSJM8)🐛</sup>
+
+Review completed with 3 suggestions.
+
+<sub>Reviewed commit: `908142d`</sub>
+
+<!-- cosmos-review-status:v1 {"specialist":"deep","status":"reviewed","baseline":"77e0a702988e41e0219648587b75549899c020a3","head":"908142dc219ebcd6f3b440d6b922d8401c750d57","unresolved_count":3,"session_url":"https://cosmos.augmentcode.com/session?agentId=01M71QF6YJN89CPW49FSHVSJM8"} -->
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+augment review
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+@codex review
+--
+author:	chatgpt-codex-connector
+association:	none
+edited:	false
+status:	none
+--
+You have reached your Codex usage limits for code reviews. You can see your limits in the [Codex usage dashboard](https://chatgpt.com/codex/cloud/settings/usage).
+To continue using code reviews, you can upgrade your account or add credits to your account and enable them for code reviews in your [settings](https://chatgpt.com/settings/code-review).
+--
+author:	augmentcode
+association:	none
+edited:	false
+status:	commented
+--
+<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=01M71QY44Z6D6PAYSFHPEYS1SX)🐛</sup>
+
+Review completed with 0 suggestions.
+
+<sub>Reviewed commit: `9edf85f`</sub>
+
+<!-- cosmos-review-status:v1 {"specialist":"deep","status":"reviewed","baseline":"908142dc219ebcd6f3b440d6b922d8401c750d57","head":"9edf85fc85874cd1e36e35646e797be3ab16544c","unresolved_count":0,"session_url":"https://cosmos.augmentcode.com/session?agentId=01M71QY44Z6D6PAYSFHPEYS1SX"} -->
+--

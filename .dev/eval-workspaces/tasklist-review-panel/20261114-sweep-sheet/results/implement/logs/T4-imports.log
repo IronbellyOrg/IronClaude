@@ -1,0 +1,8 @@
+$ bash -c cd /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel && grep -nE '^(from|import) ' /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/normalise.py; echo ---; grep -n 'superclaude' /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/normalise.py || echo 'no direct superclaude import'
+10:from __future__ import annotations
+12:import json
+13:from pathlib import Path
+15:from scaffold import fnd
+---
+no direct superclaude import
+rc=0

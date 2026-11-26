@@ -1,0 +1,21 @@
+#253 [MERGED] feat(ccsession): tier models with automatic failover (Coder)
+## ccsession tier models with automatic failover (Coder workspaces)
+
+In a Coder workspace whose env defines tier windows (`T<N>_WINDOW`), ccsession now works in tiers instead of profiles.
+
+**What changes**
+- `ccsession <topic>` starts on the default tier (`CCSESSION_DEFAULT_TIER`); `--tier tierN` picks a tier; `--model <name>` picks one model with no failover.
+- The picker shows the tiers (and every tier model with `CCSESSION_SHOW_ALL_MODELS=1`).
+- The shim fails over to the tier's next model when one is out of usage (rate limits, cooling down, provider busy, auth unavailable, outdated provider login), cools that model down for an hour (or the gateway's Retry-After), and skips backups whose context window is smaller than the tier's.
+- A streamed tier request that gets no first byte in 300 s moves to the next model. Once a reply starts there is no time limit of any kind.
+- Settings are read from the workspace env file (`/etc/aidev02/aienv.d/defaults.sh`) on every request, so Orca terminals work and env updates take effect without restarting the shim.
+- A shim is never stopped by a new session; sessions with other settings or newer code get their own shim on another port.
+
+**Mac**: unchanged except the approved picker list (`ccsession-models.json` schema 2).
+
+**Tested**: 146 unit tests (stand-in gateway, all switch rules, TLS first-byte timer, cut-off and malformed gateway replies). Live in a Coder workspace on the real gateway: every tier, `--model`, forced failover, a real Muse "provider busy" failover, Claude to GPT mid-conversation with tool calls, tiers-off and upgraded shims side by side, show-all, and a real Orca terminal.
+
+Needs Coder's tier env change (separate Coder PR) to switch on; without it nothing changes.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+

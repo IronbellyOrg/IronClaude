@@ -1,0 +1,17 @@
+{
+  "model": "muse-ember-1.0",
+  "session_id": "92b1fcf9-f954-4d3f-a23d-155361725e12",
+  "rc_first": 0,
+  "rc_resume": 0,
+  "transcript_file": "/home/coder/.claude/projects/-tmp-evalsb-collab-r4-sb-TASK-WF-designSpec-20261107-075614-repo/92b1fcf9-f954-4d3f-a23d-155361725e12.jsonl",
+  "transcript_written": true,
+  "first_reply": "ALPHA",
+  "resume_reply": "BETA ALPHA",
+  "observed_first": "muse-ember-1.0",
+  "observed_resume": "muse-ember-1.0",
+  "resume_session_id": "92b1fcf9-f954-4d3f-a23d-155361725e12",
+  "work_dir": "/tmp/collab-r4/s2-muse-ember-1.0-1794603995",
+  "both_words": true,
+  "model_ok": true,
+  "pass": true
+}

@@ -1,0 +1,13 @@
+{"ev":"t","n":1,"ms":28}
+{"ev":"t","n":2,"ms":28}
+{"ev":"t","n":3,"ms":24}
+{"ev":"t","n":4,"ms":29}
+{"ev":"t","n":5,"ms":41}
+{"ev":"seal","t":1794611690863,"sha256":"ad716e37efa52d215c18d06fea09f24ab45314e98b0877d5794418849073d6ee"}
+{"ev":"inject","id":"m-t2b-1-06","t":1794611690863,"n":6,"move":"M2","slot_type":"search","task_hint":[],"text":"For each sentence that says all, only, every or none, list what it quantifies over and count the exceptions. No panel member has done this yet.","text_sha256":"cdc57288a06ca478c2cc752b89512a2b4a1f0101e7a5f791297858bbc3f53576"}
+{"ev":"t","n":6,"ms":127}
+{"ev":"t","n":7,"ms":139}
+{"ev":"t","n":8,"ms":30}
+{"ev":"t","n":9,"ms":41}
+{"ev":"inject","id":"m-t2b-1-10","t":1794611692888,"n":10,"move":"M7","slot_type":"search","task_hint":[],"text":"When you checked a claim is not too broad, check the other direction: where else in the repository (root files included) is the same claim stated? No panel member has done this yet.","text_sha256":"84495baf65846ae4aa2abbfb7b2575b5cdb554322303606d99f73221de7ac2a3"}
+{"ev":"t","n":10,"ms":108}

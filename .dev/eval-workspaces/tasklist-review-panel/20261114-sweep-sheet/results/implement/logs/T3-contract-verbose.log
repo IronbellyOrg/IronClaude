@@ -1,0 +1,22 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 10 items
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py::test_check_finding_signature_pin PASSED [ 10%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py::test_blocks_after_signature_pin PASSED [ 20%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py::test_public_helper_signatures_pinned PASSED [ 30%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py::test_pin_detects_a_signature_change PASSED [ 40%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py::test_adapter_reexports_the_real_objects PASSED [ 50%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py::test_lenient_lines_keeps_invalid_lines PASSED [ 60%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py::test_lenient_lines_uses_the_last_block_and_unclosed_block PASSED [ 70%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py::test_lenient_lines_without_block_is_empty PASSED [ 80%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py::test_merge_accepts_class_probe_src_keys PASSED [ 90%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py::test_existing_review_suite_passes PASSED [100%]
+
+============================== 10 passed in 1.35s ==============================
+cmd: uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py -v
+rc=0

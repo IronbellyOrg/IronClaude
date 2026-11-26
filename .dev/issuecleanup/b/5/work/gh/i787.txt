@@ -1,0 +1,29 @@
+# [FEATURE] Coordinator C6: Each step names the Orca verbs it may call, checked against the refusal list [OPEN]
+## What was tried
+This is item C6 of the coordinator issue #716 (next release: the features of issue 655 that the current plan does not cover), split out so it can be built and tracked on its own. Issue 655 was split into its 14 sections and one analyst per section classified every design feature against the unification spec and its decision record; this item is one of the features that were found missing. Nothing in this item is built yet. #716 stays the umbrella issue: its closing review holds the build order, the phases and the open owner decisions.
+
+## Relevant files and links
+- Parent issue: #716 (this item is a sub-issue of it). Sister issues of the split: watcher #717, TUI dashboard #718. Source design: #655.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+The item below is built, tested and checked against its own lines, or the owner records in chat that it is dropped. The text is copied unchanged from #716.
+
+### C6. Each step names the Orca verbs it may call, checked against the refusal list (655 section 6; rows S06-F16)
+  - What to build: Each step of the `/sc:coordinator` skill states the exact Orca verbs it may call, and the closed `refuse(argv)` list is checked against that set.
+  - Done when: A test reads the skill text, extracts the Orca verbs per step, and fails if a step calls a verb that is not listed or one that `refuse(argv)` blocks.
+  - Related items (read together; the order is in the review at the end): C5
+  - Research and debate results from our documents:
+    - S06-F16: SPEC.md:498 (S14) "skill-text scan" is the closest existing check. TRO:971-980 shows how many verb forms the design uses (about 30) and that none beyond four match a sweep template, which is why a per-step list matters.
+  - Watch out:
+    - S06-F16: The plan has stages S0-S17, not waves 0-9 Keep the per-step list short enough to review; the list is also the surface the `refuse(argv)` tests must cover.
+
+
+## Pick-up note
+- Read the review at the end of #716 first: it holds the build order, the three phases and the owner decisions that gate this item. The related-item ids above (C numbers) refer to the sibling sub-issues of #716.
+- The plan files named above are local files, not pushed; read them from a checkout that has them, or ask the owner.
+
+--- COMMENTS:
+

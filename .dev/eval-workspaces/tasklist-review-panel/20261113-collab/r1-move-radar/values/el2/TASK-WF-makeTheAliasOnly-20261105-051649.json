@@ -1,0 +1,31 @@
+{
+ "critical_role": "reader",
+ "finish_offset_s": 103.22029995994569,
+ "guard_offset_s": 103.22029995994569,
+ "hang_offset_s": 217.587,
+ "k": {
+  "reader": 0,
+  "searcher": 0
+ },
+ "panel": "el2",
+ "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+ "B_f": 145.058,
+ "turn_p90": {
+  "searcher": 5.863999843597412,
+  "reader": 36.1029999256134
+ },
+ "T_report_p90": {
+  "searcher": 6.2799999713897705,
+  "reader": 56.50500011444092
+ },
+ "E_p90": {
+  "searcher": 41.969,
+  "reader": 153.035
+ },
+ "source_runs": [
+  "el2-c0-r1",
+  "el2-c0-r2",
+  "el2-c0-r3"
+ ],
+ "computed_utc": "2026-11-14T05:02:26Z"
+}

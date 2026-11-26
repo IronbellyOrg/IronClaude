@@ -1,0 +1,38 @@
+#801 [OPEN] [FEATURE] Coordinator C20: Limits and escalation rules: file deletion, skill and agent deletion, scope questions, transcript cap, credentials
+## What was tried
+This is item C20 of the coordinator issue #716 (next release: the features of issue 655 that the current plan does not cover), split out so it can be built and tracked on its own. Issue 655 was split into its 14 sections and one analyst per section classified every design feature against the unification spec and its decision record; this item is one of the features that were found missing. Nothing in this item is built yet. #716 stays the umbrella issue: its closing review holds the build order, the phases and the open owner decisions.
+
+## Relevant files and links
+- Parent issue: #716 (this item is a sub-issue of it). Sister issues of the split: watcher #717, TUI dashboard #718. Source design: #655.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+The item below is built, tested and checked against its own lines, or the owner records in chat that it is dropped. The text is copied unchanged from #716.
+
+### C20. Limits and escalation rules: file deletion, skill and agent deletion, scope questions, transcript cap, credentials (655 section 9, 10; rows S09-F10, S09-F14, S09-F16, S09-F27, S09-F34, S10-F47)
+  - What to build: The refuse(argv) list states which delete commands the coordinator's own verbs may run on ordinary files inside its own work area, and refuses all others.
+  - Also in this item:
+    - S09-F14: The coordinator escalates, naming the row, before it lets a worker's change delete a skill or agent file that the issue text does not name.
+    - S09-F16: The coordinator has a written, ordered procedure that a worker's question must fail (issue text, code, docs, then web search) before it is escalated as row 8, and a rule that a scope change escalates only when it adds peripheral features.
+    - S09-F27: The coordinator's session-read call never asks for more than 200 transcript messages and refuses a larger request.
+    - S09-F34: The coordinator's refuse list refuses commands that change credentials or secrets, or control the machine (`coder`, `systemctl`, `orca automations create|edit|remove|run`), each with its own test.
+    - S10-F47: The coordinator's `refuse(argv)` allows deleting ordinary files inside the worktree of its own work, refuses deleting a skill or an agent file unless the issue names it, and refuses any deletion of a shared branch, another person's data, or a worktree or ...
+  - Done when: a test passes an `rm` of an ordinary file inside the declared work area and is allowed, and `rm` of a path outside it, of a worktree or of a shared branch is refused.
+    - also: a fixture PR that deletes `src/superclaude/skills/x/` with an issue that does not name it produces a held entry naming row 5; the same PR with the issue naming it does not.
+    - also: a test fixture with a question the issue answers produces no escalation; a fixture the issue, code, docs and a search leave open produces an entry naming row 8.
+  - Related items (read together; the order is in the review at the end): C12
+  - Research and debate results from our documents:
+    - S09-F10: SPEC:241 "(never `-D`, `--force`, `rm`, `prune`, remote delete)"; WC:237 "It never removes a worktree or branch that holds unmerged commits ... without the user's instruction".
+    - S09-F14: V(D16):71 "Reversing or deleting someone else's merged work needs their written yes and a merger other than the author" (the nearest existing rule, a human-process rule).
+    - S09-F34: V(QG3):61 "`refuse(argv)` sees only commands the verbs run (D:769), so a tag run in the coordinator's own shell stays unseen"; FOLLOW-UPS.md:22 "Rotating the exposed Orca token has no stage and is not a precondition of S17".
+  - Watch out:
+    - S09-F10: "ordinary files" is not defined in 655 or the plan; `rm` is exactly what FR-39 forbids for cleanup. Ruling 25 is Clay's ruling, not shown to be an owner ruling (V(QG2):63 says rulings 15, 27, 28 and 39 are Clay's; ruling 25 is "one of Clay's rulings 23 to 35" per V(QG4):14).
+    - S09-F14: PR 682 deleted recent work with a single contract edit and passed because no gated path rule saw a pure deletion (V(D16):99 point 3); a path-based CODEOWNERS gate does not catch skill deletions outside the named paths.
+
+
+## Pick-up note
+- Read the review at the end of #716 first: it holds the build order, the three phases and the owner decisions that gate this item. The related-item ids above (C numbers) refer to the sibling sub-issues of #716.
+- The plan files named above are local files, not pushed; read them from a checkout that has them, or ask the owner.
+

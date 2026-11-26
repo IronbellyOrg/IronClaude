@@ -1,0 +1,14 @@
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel python -c 
+import sys; sys.path.insert(0, '/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet'); sys.path.insert(0, '/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests')
+import pytest, test_recall
+try: test_recall.plan_dirs()
+except BaseException as e: print(type(e).__name__, str(e))
+
+Failed fixtures/recall missing
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel python -c 
+import sys; sys.path.insert(0, '/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet'); sys.path.insert(0, '/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests')
+import pytest, test_recall
+try: test_recall.plan_dirs()
+except BaseException as e: print(type(e).__name__, str(e))
+
+rc=0

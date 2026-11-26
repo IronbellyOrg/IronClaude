@@ -1,0 +1,21 @@
+#735 [MERGED] docs(worker-contract): one coordinator per project, not per host
+## What changed
+
+- `src/superclaude/core/WORKER-CONTRACT.md` (issue-pipeline duties paragraph, line 294): the sentence "One person-opened coordinator owns every watcher-claimed issue on the host; nothing starts while it is down." now reads "Each project (repository) has one coordinator, and that coordinator owns every watcher-claimed issue of its project; nothing starts for a project while its coordinator is down." The word "person-opened" is dropped from this sentence.
+- `docs/designs/issue-pipeline-fu1.md` (line 84): the quoted words now read "nothing starts for a project while its coordinator is down".
+- `tests/skills/test_worker_contract.py`: one new test pins the new sentence ("Each project (repository) has one coordinator") and checks that "issue on the host" is gone.
+
+## Why
+
+Owner decision of 2026-11-23 ("yes to one coordinator per project"), relayed through the Coder coordinator and confirmed by the owner in the IronClaude coordinator session. The contract said one coordinator per host; the decision is one per project. The owner then said in chat the same day: "yes, drop that word, there should be no requirement for person opened", which is why line 294 no longer says person-opened.
+
+## Known inconsistency, not fixed here
+
+Line 294 no longer says "person-opened", but other sites still do: WORKER-CONTRACT line 71, HOW-WE-WORK line 356, CLAUDE.md, core/CLAUDE.md, the ccsession README, the hook message and two tests. The contract therefore now has an inconsistency that the owner is still deciding; those sites are out of scope for this PR and need a separate owner decision. A similar sentence in `docs/designs/issue-watcher.md` line 43 ("Nothing starts while the coordinator is down") is also left as is.
+
+## Scope
+
+No code changed: contract text, design text and one test only.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+

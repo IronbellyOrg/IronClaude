@@ -1,0 +1,14 @@
+# T31 ground-truth in g0.py
+8:sweep.select, no assignment and no rendering). A ground-truth item is covered by a candidate or an item when the flattened
+12:  extraction recall   covered ground-truth items over all items, by any candidate (before selection)
+24:(the owner decides it). A ground-truth file is opened only for a path that the command line gives (--gt-dir or --manifest).
+63:    """Does a candidate or selected item ({anchor_text, location}) cover a ground-truth item ({plan_quote, ...})?"""
+74:    """For each entry, the set of ground-truth item ids that it covers."""
+90:    """{covered: ids, recall, per_class: {class: {covered, total, recall}}} of the ground-truth items by the entries."""
+92:        raise G0Error("no ground-truth items")
+118:    """The inputs of one document. `gt` is a ground-truth file named by the caller; `source` may be None."""
+300:        "ground_truth_items": sum(len(d["gt"]) for d in docs),
+409:                "--gt-dir is required (a folder with <doc>.json or <doc>/ground-truth.json)"
+418:                        Path(args.gt_dir) / doc / "ground-truth.json",
+447:            raise G0Error(f"document {d}: no entry or no ground-truth path")
+511:        "--gt-dir", help="a folder with <doc>.json or <doc>/ground-truth.json"

@@ -1,0 +1,26 @@
+--- old-plan
++++ new-plan
+@@ -3,7 +3,7 @@
+ source: ./source.md
+ strategy: systematic
+ depth: standard
+-slug: TASK-WF-designR1-20261126-060136
++slug: TASK-WF-designR1-20261126-070747
+ version: "1"
+ priority: Medium
+ created_date: "2026-11-26"
+@@ -240,12 +240,12 @@
+ - Assert the line that starts with `**Output:** resolved tag` contains `default branch (resolved live, with its source)` and the line that starts with `**Exit criteria:** tag anchored` contains `default branch resolved and its source recorded`.
+ - Assert the WARN line (the line that contains `then continue, anchored to the tag`) still ends with that phrase, allowing the full stop that ends the line: `line.rstrip().rstrip(".").endswith("then continue, anchored to the tag")`. Assert the Guardrails section names the offline fallback and "ask the user".
+ - Assert `src/superclaude/commands/post-release.md` does not contain `--base`.
+-- Mutation check, done once by hand and recorded in `./artifacts/t8-mutation-check.md` (commands that touch `./artifacts/` run with the package folder as the working directory and reach the skill file through `"$(git rev-parse --show-toplevel)"`): before the first mutation record the `sha256sum` of the skill file in `./artifacts/t8-skill.sha256` and save a copy as `./artifacts/t8-skill.pre-mutation`; both are written once and never overwritten on a rerun. For each assertion group (the paragraph, the old command, the regular expression, the Output and Exit criteria lines, the WARN line and Guardrails text, the `--base` check), revert the matching Task 7 edit in place, confirm the matching assertion fails and that `cmp` against the saved copy exits 1, then restore the skill file by copying the saved file back and confirm `cmp` exits 0. At the end `sha256sum -c` passes and the Task 8 tests pass on the restored file. Never use a command that discards uncommitted changes on the skill file (`git checkout`, `git restore`, `git reset --hard`, `git stash`): the Task 7 edits are not committed.
++- Mutation check, done once by hand and recorded in `./artifacts/t8-mutation-check.md` (commands that touch `./artifacts/` run with the package folder as the working directory and reach the skill file through `"$(git rev-parse --show-toplevel)"`): before the first mutation record the `sha256sum` of the skill file in `./artifacts/t8-skill.sha256` and save a copy as `./artifacts/t8-skill.pre-mutation`; both are written once and never overwritten on a rerun. For each assertion group (the paragraph, the old command, the regular expression, the Output and Exit criteria lines, the WARN line and Guardrails text), revert the matching Task 7 edit in place, confirm the matching assertion fails and that `cmp` against the saved copy exits 1, then restore the skill file by copying the saved file back and confirm `cmp` exits 0. At the end `sha256sum -c` passes and the Task 8 tests pass on the restored file. Never use a command that discards uncommitted changes on the skill file (`git checkout`, `git restore`, `git reset --hard`, `git stash`): the Task 7 edits are not committed. The assertion that `src/superclaude/commands/post-release.md` does not contain `--base` is a static guard on a file this plan never edits: it runs with the other assertions, must pass on the unedited file, and gets no mutation.
+ - No temporary-history fixture: it would test git, not the skill text.
+ 
+ Acceptance criteria:
+ - `uv run pytest tests/skills/test_post_release_base_branch.py -v` passes.
+-- `./artifacts/t8-mutation-check.md` lists a failing mutation for each assertion group, the checksum before and after, and states that the skill file was restored by copy.
++- `./artifacts/t8-mutation-check.md` lists a failing mutation for each of the five assertion groups that read `SKILL.md`, the checksum before and after, and states that the skill file was restored by copy and that the `--base` assertion is a static guard with no mutation.
+ - `uv run pytest tests/skills/test_worker_contract.py tests/unit/test_cli_install.py -q` still passes (they reference the skill path and file list).
+ 
+ ## Phase 5: Example commands

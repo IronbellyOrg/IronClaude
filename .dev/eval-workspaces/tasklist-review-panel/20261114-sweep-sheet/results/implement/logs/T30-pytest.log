@@ -1,0 +1,22 @@
+# T30 AC1: report, stages, prereg, verifier and analyze tests
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 41 items
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_report.py . [  2%]
+...............                                                          [ 39%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_stages.py . [ 41%]
+....                                                                     [ 51%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prereg.py . [ 53%]
+...                                                                      [ 60%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_verifier_off_path.py . [ 63%]
+..                                                                       [ 68%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_analyze.py . [ 70%]
+............                                                             [100%]
+
+============================== 41 passed in 2.61s ==============================
+rc=0

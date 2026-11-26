@@ -1,0 +1,39 @@
+# [FEATURE] Coordinator C12: Playbook for unsticking a worker and answering its questions [OPEN]
+## What was tried
+This is item C12 of the coordinator issue #716 (next release: the features of issue 655 that the current plan does not cover), split out so it can be built and tracked on its own. Issue 655 was split into its 14 sections and one analyst per section classified every design feature against the unification spec and its decision record; this item is one of the features that were found missing. Nothing in this item is built yet. #716 stays the umbrella issue: its closing review holds the build order, the phases and the open owner decisions.
+
+## Relevant files and links
+- Parent issue: #716 (this item is a sub-issue of it). Sister issues of the split: watcher #717, TUI dashboard #718. Source design: #655.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+The item below is built, tested and checked against its own lines, or the owner records in chat that it is dropped. The text is copied unchanged from #716.
+
+### C12. Playbook for unsticking a worker and answering its questions (655 section 2, 4, 7, 9, 14; rows S02-F35, S04-F9, S09-F4, S07-F4, S14-F14)
+  - What to build: Provide a coordinator playbook file that maps each stuck-worker state (stalled, asking, errored, idle) to one allowed response, with no permission-prompt approvals.
+  - Also in this item:
+    - S04-F9: The coordinator skill has a playbook ref that says how to answer a worker's question and when to escalate, and it never tells the coordinator to approve a permission prompt.
+    - S09-F4: The coordinator skill carries one playbook reference file that lists, per worker state, the allowed unsticking steps (nudge, probe, typed copy) and the steps that are never allowed.
+    - S07-F4: Ship a check-in template and a worker-watching playbook with the coordinator skill, with a test that each check-in uses the template.
+    - S14-F14: The coordinator detects a worker that has exited, gone silent or stopped without `worker_done`, records a named state for it in the issue's entry, and applies a written playbook (nudge, restart under the cap, or escalate to the person).
+  - Done when: the file exists in the skill's refs, each stuck state maps to an action that is on the "may do" list, and a test fails if the file contains a permission-approval step.
+    - also: The playbook file exists, the file-table test lists it, and a scan finds no instruction in it to approve a prompt or send "always allow".
+    - also: the file exists under the skill's refs, a test checks that every state of WC S0-S11 has a row and that no row approves a permission prompt or interrupts a worker.
+  - Related items (read together; the order is in the review at the end): C1
+  - Research and debate results from our documents:
+    - S02-F35: .dev/brainstorms/20261120-pr686-unify/debates/D08/VERDICT.md:63 `Fix agent-work-report/SKILL.md:12 ("The orchestrator (/sc:orchestrator) does every check-in itself") | PR KEEP-ADAPT`; D15 VERDICT.md:98 (approval rules dropped).
+    - S04-F9: D15:98 "Reject approving permission prompts (WC:122, WC:137); drop approval rules and test cases". SPEC:242 FR-40 "Type into worker terminals only under the four typing rules (never approve a permission prompt)".
+    - S09-F4: V(D15) debate file .../debates/D15/adversarial/adversarial/rounds/round2-rebuttal-1-ours.md:198 "the playbook ref (D:507) loses its 'approval' rows" (the playbook is assumed to exist but no verdict adopts or rejects the file itself).
+  - Watch out:
+    - S02-F35: the playbook's text is not in the files read (it is in Clay's IronFlow spec FR-23); UNVERIFIED which of its entries approve prompts and must be cut.
+    - S04-F9: 655 acceptance line 222 says the orchestrator does "typing and approvals included"; that part conflicts with FR-40 and D15 D14 and must not enter the playbook. Mark
+
+
+## Pick-up note
+- Read the review at the end of #716 first: it holds the build order, the three phases and the owner decisions that gate this item. The related-item ids above (C numbers) refer to the sibling sub-issues of #716.
+- The plan files named above are local files, not pushed; read them from a checkout that has them, or ask the owner.
+
+--- COMMENTS:
+

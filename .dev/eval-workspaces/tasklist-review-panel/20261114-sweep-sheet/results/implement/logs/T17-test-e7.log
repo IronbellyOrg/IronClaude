@@ -1,0 +1,37 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 25 items
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_basic_plan_gives_the_omitted_appeal_clause_for_the_task_4_text PASSED [  4%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_candidates_pass_the_core_checks_and_take_the_class_route PASSED [  8%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_a_second_dictated_block_and_a_second_constraint_each_make_a_pair PASSED [ 12%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_p_clean_gives_nothing PASSED [ 16%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_a_plan_without_dictated_text_or_without_a_constraint_gives_nothing PASSED [ 20%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_a_text_that_carries_every_clause_gives_nothing PASSED [ 24%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_one_shared_token_is_not_enough PASSED [ 28%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_no_clause_with_zero_overlap_gives_nothing PASSED [ 32%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_a_token_found_in_two_clauses_is_not_distinctive PASSED [ 36%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_a_clause_of_three_words_is_dropped PASSED [ 40%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_a_zero_overlap_clause_needs_a_distinctive_token PASSED [ 44%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_words_of_three_characters_and_stop_words_are_not_tokens PASSED [ 48%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_splits_at_semicolon_comma_and_and_keeps_longer_clauses_whole PASSED [ 52%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_a_nested_bullet_is_its_own_clause_group_and_lines_are_numbered PASSED [ 56%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_pre_priority_is_30_plus_15_per_zero_overlap_clause_plus_10[-1-55] PASSED [ 60%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_pre_priority_is_30_plus_15_per_zero_overlap_clause_plus_10[, and offer the refund channel-2-70] PASSED [ 64%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_pre_priority_is_30_plus_15_per_zero_overlap_clause_plus_10[, and offer the refund channel, and show the policy number-3-70] PASSED [ 68%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_every_emitted_candidate_is_ranked_55_to_70 PASSED [ 72%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_with_more_than_five_clauses_the_evidence_keeps_the_sharing_and_the_zero_overlap_clauses PASSED [ 76%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_the_anchor_is_the_first_sentence_of_twelve_characters_cut_to_200_and_an_exact_quote PASSED [ 80%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_a_fenced_dictated_block_is_read_too PASSED [ 84%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_evidence_texts_are_cut_to_160_characters_and_hold_no_claim_severity_or_defect PASSED [ 88%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_attach_needs_no_snapshot_and_sets_priority_to_pre_priority PASSED [ 92%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_a_candidate_with_only_its_features_can_be_attached_again PASSED [ 96%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py::test_the_output_is_the_same_on_every_run PASSED [100%]
+
+============================== 25 passed in 0.36s ==============================
+cmd: $T $SW/tests/test_e7.py -q
+rc=0

@@ -1,0 +1,12 @@
+run compliance-1: arm=RL panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=156.063
+run compliance-2: arm=RL panel=primary fallback=0 check_skipped=0 merged=2 merge_exit=0 elapsed_s=192.583
+run compliance-3: arm=RL panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=156.286
+run compliance-4: arm=RL panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=157.201
+run compliance-5: arm=RL panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=128.446
+reviewer runs 14 in 5 runs; without a ledger file 1
+ledger_missing: 2 of 14 (0.143), limit 0.1: FAIL
+recipe_missing per class: {'C2': 2, 'C4': 7, 'C5': 5, 'C6': 5, 'C7': 2, 'C8': 5}
+quote validity (quote_plan_ok): 127 of 150 (0.847)
+format errors: 0
+none_found per class: {}
+over_budget: {'recipe': 0, 'lens': 0}; re-ask: {'asked': 0, 'accepted': 0}; rows per reviewer: {'t2b-1': 12.4, 't3-1': 12.2, 't4-1': 14.0}

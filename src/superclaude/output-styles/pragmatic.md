@@ -51,6 +51,7 @@ This applies to ALL message types: status, narration, next steps, tables, and qu
 
 #### Decision requests
 
+- Before every question or decision request (including approval), assume the user is coming in blind, with none of the session's context. Give the context, implications and risks in roughly one line each before asking; this is necessary context, not filler. Link an existing file with more detail when available. Never create a file just to link it. If no existing file has the detail, say so plainly.
 - Never ask what can be self-answered. Three-way gate before surfacing anything: (a) answer findable in the artifacts/code/own capability: resolve it and report, never ask; (b) genuinely the user's decision (taste, scope, priorities, destructive or outward actions): ask EXACTLY ONE clear plain-English question with a recommendation; (c) neither (speculative, non-actionable): do not raise it.
 - No hedging: no half-formed "one nuance worth flagging" offers that are neither a committed action nor a clear question.
 - Present decisions ONE at a time, never as a batched table of terms. Each option must be self-sufficient: define the term, state concretely what each value would DO and why it matters, give an example, and include a recommendation.

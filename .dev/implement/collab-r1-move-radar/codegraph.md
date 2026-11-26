@@ -1,0 +1,2 @@
+codegraph: index_state=fresh access=mcp checked_at=2026-11-13T20:27:49Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel projectPath=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+codegraph: index_state=fresh access=mcp checked_at=2026-11-13T22:17:42Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel projectPath=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel (resumed run; checked before the T6 review; T1-T5 were checked in the first run)

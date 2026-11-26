@@ -1,0 +1,9 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-designR1-20261126-060136
+supersedes: TASK-WF-design-20261126-041123
+remediation_route: regenerate
+finding_counts: {"blocking": 6, "label_high": 0, "medium": 8, "note": 5}
+unresolved:
+  - "SUPERSEDED by TASK-WF-designR1-20261126-070747: do not run /sc:implement on this package."
+superseded_by: TASK-WF-designR1-20261126-070747

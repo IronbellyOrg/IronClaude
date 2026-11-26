@@ -1,6 +1,6 @@
 # Iteration 3 work map: epics, features and stories in work order
 
-Built Wed 25 Nov 20:09 Central from the reviewed iteration proposal (`plan/min50/EXPANDED-PROPOSAL.md`, independent review PASS) and the planning run's maps of dependencies (`plan/DEPENDENCIES.md`) and overlaps (`overlap/OVERLAP-REPORT.md`). Machine-readable copy: `work-map.json`. Epics and features exist only in this file; no GitHub issue is created for them.
+Built Thu 26 Nov 07:10 Central from the reviewed iteration proposal (`plan/min50/EXPANDED-PROPOSAL.md`, independent review PASS) and the planning run's maps of dependencies (`plan/DEPENDENCIES.md`) and overlaps (`overlap/OVERLAP-REPORT.md`). Machine-readable copy: `work-map.json`. Epics and features exist only in this file; no GitHub issue is created for them.
 
 ## How an agent uses this map
 1. Find your epic (one per person). Work its features in the order listed, and the stories inside a feature in the order listed.
@@ -205,7 +205,7 @@ Priority is the proposed level from the planning cards; the level set on GitHub 
 - Unblocks: -
 - Overlaps: -
 - Open question (answered in the work, not waited on): Also run the OB-H1, OB-H2 and OB-CTX live observations, as OB-H3 already runs? Recommended: Yes, with the same coordinator and disposable test issues
-- Note: the OB-H3 runs are already under way, by the coordinator that works under the ironbelly login (test issues #841 and #842, opened and claimed 10:44 to 10:48 AM; that this is Ryan's coordinator is inferred from the login); the other observation sets (OB-H1, OB-H2, OB-CTX) follow on the same disposable test issues; the ship gate needs four items to pass: OB-H1 item 1, OB-H1 item 5, OB-H2 and OB-H3 (`_GATE_ITEMS` in `tests/hooks/test_launch_level_observations.py`); record each observation's result next to its test (un-skip it, or give a checked reason) and deliver that change through the normal pull request; never change `GOVERNED_LEVELS_ALLOWED` in `src/superclaude/cli/issue_watch/launch.py` and never say on the issue that the gate is lifted: turning it on is a separate reviewed change the owner decides on once all four pass
+- Note: the OB-H3 runs are already under way, by the coordinator that works under the ironbelly login (test issues #841 and #842, opened and claimed 10:44 to 10:48 AM; that this is Ryan's coordinator is inferred from the login); the other observation sets (OB-H1, OB-H2, OB-CTX) follow on the same disposable test issues; the observations passed on 25 Nov and pull request 851 opened the launch gate (merged to master in 856): confirm each result is recorded next to its test, then close #442
 
 ### E1-F7: Watcher and coordinator chain: stage flow, gap list and docs (subject 6)
 

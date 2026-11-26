@@ -71,6 +71,7 @@ def test_output_style_installs(tmp_path: Path) -> None:
     assert ok, message
     style = tmp_path / ".claude" / "output-styles" / "pragmatic.md"
     assert style.read_text().startswith("---\nname: Pragmatic")
+    assert style.read_bytes() == (PKG / "output-styles" / "pragmatic.md").read_bytes()
 
 
 def test_settings_defaults_fill_only_missing_values(tmp_path: Path) -> None:

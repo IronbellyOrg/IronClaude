@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Owner order 2026-11-14 ("start the sweep sheet"): one /sc:design session for Redesign 1, Sweep Sheet, of the process-redesign brainstorm
+# (.dev/brainstorms/20261113-223124-panel-process-redesign/merged-requirements.md). Design only: no code, no model runs for scoring.
+# Model: claude-sonnet-5-5 (Opus is reserved for blind scoring and judging; see IronClaude#546). One session; the owner limit is 2.
+set -u -o pipefail
+REPO=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+D=$REPO/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet
+MR=$REPO/.dev/brainstorms/20261113-223124-panel-process-redesign/merged-requirements.md
+EVAL=$REPO/.dev/eval-workspaces/tasklist-review-panel/20261111-a1
+mkdir -p "$D/design-report"
+PROMPT="/sc:design \"Implementation and test design for Redesign 1: Sweep Sheet of the tasklist review panel (a non-model script pre-pass extracts at most 12 typed items from a plan, and cheap reviewers judge one item at a time). Source of truth: $MR. Read its sections 1 (theories), 2 (defect classes and generality), 3.0 (shared scaffolding), 3.1 (Redesign 1: Sweep Sheet), 4 (comparison), 5 (validation experiment, all subsections) and 6.1, 6.3, 6.5, 6.6, 6.7, 6.8 (numbered requirements), plus its 'Not checked and unverified' list. Also read the harness it extends: $EVAL/tools/run-reviewer.sh (reviewer launcher), $EVAL/tools/tmp-scripts/judge-one.sh (blind judge), $EVAL/combos/SPEC.md (procedure and hard limits), $EVAL/COMBO-REPORT.md, and the superclaude review merge code under src/superclaude/cli/ (findings-v1 format). Deliver, inside $D only: DESIGN.md (architecture, the extractor scripts E1 to E7 with their inputs and outputs, the sheet format, the item-to-reviewer assignment, the brief change, the ledger, failure and fallback behaviour, the time budget against the +35% rule with numbers, and how it generalises beyond the three study packages), TESTING.md (every REQ in 6.1, 6.3, 6.5 to 6.8 mapped to a runnable test or a labelled manual check, fixtures, and the validation experiment commands), and IMPLEMENTATION.md (ordered steps with files, test commands using uv, and what to run first). Constraints: design only. Write no production code, run no reviewer or judge session, and do not run the validation experiment. Create or edit files only under $D (plus scratch under /tmp). Do not edit src/, tests/, .claude/, .dev/tasks/ or any other folder. Do not stage, commit or push. Do not open any ground-truth*.json: the design must not use the answers of the study packages. Models you may start: none. Use uv for Python.\""
+S=$(date +%s)
+( cd "$REPO" && timeout 5400 claude -p --model claude-sonnet-5-5 --output-format json --no-session-persistence --permission-mode bypassPermissions <<<"$PROMPT" ) >"$D/design-report/session.json" 2>"$D/design-report/session.err"
+RC=$?
+jq -r '[.[]|select(.type=="result")|.result]|.[0] // ""' "$D/design-report/session.json" > "$D/design-report/session-reply.md" 2>/dev/null
+echo "END design rc=$RC wall=$(( $(date +%s)-S ))s DESIGN=$(wc -l <"$D/DESIGN.md" 2>/dev/null || echo 0) TESTING=$(wc -l <"$D/TESTING.md" 2>/dev/null || echo 0) IMPL=$(wc -l <"$D/IMPLEMENTATION.md" 2>/dev/null || echo 0) $(date -u +%T)"

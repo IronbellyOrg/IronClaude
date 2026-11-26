@@ -1,0 +1,126 @@
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Accuracy check for #765
+
+**Verdict:** current
+
+Checked against `origin/master` at afb3ccf290d4c68ec007a93f6b887a4bd1b796a5 (the checked-out HEAD equals `origin/master` after `git fetch origin`), and the pull requests merged since the issue was opened (0, list truncated: no). `scout.md` lists no merged pull request and no default-branch commit since 2026-11-24T17:09:51Z, so no changed file needs a relevance check.
+
+The issue was filed on the same day as this check. Every repo claim and line range in it matches today's code. Claims about Claude Code itself were checked against the installed program (version 2.1.331, `claude --version`) by reading text strings out of `/opt/nvm/versions/node/v24.22.2/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe` (read-only `grep -a`). One wording difference and several gaps are listed after the table; none of them makes the issue out of date.
+
+| # | Claim in the issue (quoted) | Status today (still true / changed / gone) | Evidence (path:line, PR #number or commit) |
+|---|---|---|---|
+| 1 | "`src/superclaude/skills/ccsession-tag/ccsession`: sources the user environment before launch (`origin/master`, lines 1080-1086)" | still true | `ccsession:1080-1086` (comment, `CCSESSION_ENV_FILE`, `. "$CCSESSION_ENV_FILE"`). |
+| 2 | "exports launch identity at 2412-2438" | still true | `ccsession:2412-2438` (`CCSESSION_LAUNCH_ID`, `CCSESSION_LAUNCH_CWD`, `CCSESSION_ORIGIN` exports). |
+| 3 | "executes Claude through untagged, resumed and new-session branches at 2440-2451 and 2498-2519" | still true | Untagged `exec "$CLAUDE_BIN"` at `ccsession:2447-2451`; resume at `2508-2512`; new session at `2515-2519`. The file is 2520 lines. |
+| 4 | "Put shared launch protection before these branches, after environment/profile setup" | still true (placement is available) | The block at `ccsession:2412-2438` sits after the env-file source (1080-1086) and before the first `exec` (2447). `ccsession` has no existing memory-pressure variable; `grep -rn DISABLE_BG_SHELL_PRESSURE_REAP` over the checkout finds no hit outside `.dev/issues/765/`. |
+| 5 | "`src/superclaude/cli/user_settings_defaults.json:10-14` on `origin/master`: the defaults `env` block does not contain the switch" | still true | `user_settings_defaults.json:10-14` holds only `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`, `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION` and `PONYTAIL_DEFAULT_MODE`. The file is read by `src/superclaude/cli/install_user_setup.py:206` and `:376`. |
+| 6 | "Whether Claude applies settings `env` before this rule is **unverified**" | still UNVERIFIED | The installed program reads the switch as `s.CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP` where the reap hook is armed (`!s.CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP`). What `s` holds (the process environment alone, or settings `env` merged in) could not be read from the extracted text, so the settings route stays unproven. |
+| 7 | "`src/superclaude/hooks/scripts/codegraph-session-start.sh:21-31`: checks this checkout's database then starts a detached first index; it has no cross-checkout concurrency limit" | still true | `codegraph-session-start.sh:21-22` (top-level lookup), `:25` (`[ -e "$top/.codegraph/codegraph.db" ] && exit 0`), `:31` (`nohup "$cg" init --yes "$top" ... &`). The only gate is `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` (`:11`); no lock or counter across checkouts. Registered at `src/superclaude/hooks/hooks.json:28`. |
+| 8 | "Existing test surfaces include `tests/unit/test_ccsession_tag.py`, `tests/unit/test_ccsession_tiers.py` and `tests/unit/test_install_ccsession.py`" | still true | All three files exist. The fake-Claude harness the plan extends is in them: `CLAUDE_BIN` set to a fake at `test_ccsession_tag.py:132,219,378` and `test_ccsession_tiers.py:440,1474,1824`. |
+| 9 | "Assumption to validate: ccsession is the coordinator's launch entry point" | partly true; the assumption is not yet proven | When Orca's Claude command is set to `ccsession-orca`, every Orca-started Claude, including supervised workers, goes through ccsession: `ccsession-orca:2-17` (header), `:40-41` (supervised workers use this command), `:261` and `:263` (`exec "$CCSESSION" ... --shim --claude-args`). Not covered: `src/superclaude/scripts/ic:128` and `:130` run `exec claude ...` directly, so `ic` launches bypass ccsession. A coordinator "may be opened by a person or started by a script" (`src/superclaude/core/CLAUDE.md`, `ccsession-tag/README.md:423`), and the technical reference says "no IronClaude code runs them" (`docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md:213`). |
+| 10 | "use coordinator-only protection if a reliable role signal is verified ... Do not infer roles from session labels" | still true (no role signal exists in ccsession today) | The only launch-origin signal is `CCSESSION_ORIGIN` = `human` or `agent` (`ccsession:2428-2438`); it records who chose the name, not the coordinator role. Workers start through the same command (`ccsession-orca:40-41`). |
+| 11 | "The watch is `orca orchestration check --wait --types status,dispatch,worker_done,merge_ready,escalation,handoff,decision_gate,question,heartbeat --timeout-ms 300000 --json`. It ends and is started again every five minutes." | changed (wording only: `--json`) | `src/superclaude/core/WORKER-CONTRACT.md:100-102` gives the same nine types and `--timeout-ms 300000` but no `--json`. It is pinned by `tests/skills/test_worker_contract.py:206` without `--json`. `docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md:918,1426` agree. The 300000 ms timeout is consistent with a five-minute renewal. The `--json` flag is not in the contract text; the issue's observation of it in a live command is UNVERIFIED here and does not change the plan. |
+| 12 | "`--types` only decides ..." / contract unchanged | still true | `WORKER-CONTRACT.md:104` ("`--types` only decides when a waiter wakes"). |
+| 13 | "Claude Code 2.1.331 applies this rule only when ... `/proc/meminfo` has `MemAvailable` below both 10% of `MemTotal` and 4 GiB" | still true (confirmed in the installed program) | `claude --version` prints `2.1.331 (Claude Code)`. The program's function reads `/proc/meminfo` on Linux/WSL and returns scarce when `g/o<0.1 && g<4*1024*1024` kB, with the detail text "scarce is under 10% and under 4 GiB". |
+| 14 | "The log is `LocalShellTask <id>: reaped under critical memory pressure after <n>m idle`" | still true (confirmed) | The program logs `` `LocalShellTask ${e}: reaped under critical memory pressure after ${Math.floor(tt/60000)}m idle (...)` ``; it also logs `memory-pressure reap skipped: <reason>` for the non-critical and not-scarce cases. |
+| 15 | "Its notice says to start Claude with `CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1`; setting it inside an already running Claude does not work" | still true (confirmed) | The notice text in the program: "Do not start it again on your own ... The user can turn this behavior off by starting Claude Code with CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1 in its environment; setting it from a shell command has no effect." The name appears 5 times in the program file. |
+| 16 | "runtime pressure is `critical`" | still true (confirmed) | The reap handler returns early when its pressure argument is not `"critical"` (`Ge!=="critical"`). |
+| 17 | "no session input for 30 minutes; no turn or helper agents running; no earlier pressure stop in 30 minutes unless terminal input occurred since" | UNVERIFIED in this check | The program has a `lastPressureReapAt` field and idle-time arithmetic (`Date.now()-Bg()`), which fits the claim, but the 30-minute constants and the turn/helper-agent conditions were not extracted. Treat as the issue author's finding, to be re-proved by the research part if needed. |
+| 18 | "The switch protects every background command in that session, not just the watch" | still true by construction | The check is a per-session gate on the whole reap handler (`if(!_e()&&!s.CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP){...}`), applied to every backgrounded local shell task. |
+| 19 | "The workspace had no memory cap (`memory.max=max`, no limit in the Coder template)" | partly confirmed | `/sys/fs/cgroup/memory.max` reads `max` for this workspace today. The Coder template is not in this repo, so the template half is UNVERIFIED here. |
+| 20 | "Measured real memory (PSS) about 33 MB per watch versus 110 MB RSS; four plain Orca calls each peaked at 109 MB; 12 sessions held 0.44-0.62 GB each; Claude 250-400 MB; Playwright plugin server about 107 MB; codegraph servers 50-190 MB; 77-80 GB host, 4.5 of 5.3 GB swap" | UNVERIFIED | Runtime measurements from the issue author's 2026-11-24 investigation. Nothing in this repo records them and they were not re-measured: a shared machine, and the job forbids memory-heavy experiments. |
+| 21 | "Issue #648 measured codegraph first-index peaks of 3.6-4.0 GiB per new checkout: ten concurrent builds reduced available memory by about 34 GiB and doubled build time" | UNVERIFIED here | The numbers live in closed issue #648, which this check did not re-read; the repo hook (row 7) shows the mechanism (one detached `codegraph init` per checkout, no limit). The research part re-measures them anyway. |
+| 22 | "the Playwright plugin server" is enabled per session | still true | `user_settings_defaults.json:31` enables `playwright@claude-plugins-official`; `src/superclaude/mcp/configs/playwright.json` holds the standalone `@playwright/mcp@latest` config. Per-session size is an issue-author measurement (row 20). |
+| 23 | "Related: #648, #716, #717, #354" | not re-read | Referenced issues were not re-opened; no merged pull request touches the area since the issue was filed. |
+
+### Notes
+
+- Part 1 can only change launches that go through `ccsession` or an equivalent pre-exec environment. `ic` (`src/superclaude/scripts/ic:128-130`) and a Claude started by hand do not pass through it, so the plan's scope decision has to name them.
+- Nothing in the repo today sets, mentions or tests the switch, so Part 1 is not done by anything already merged.
+
+### Merged pull requests that touch this issue
+
+| PR | Title | Relevant files | Effect on the issue |
+|---|---|---|---|
+| None | None merged since 2026-11-24T17:09:51Z (per `scout.md`) | Not known yet | No effect: the issue's claims were checked against current `origin/master` directly. |
+
+<!-- sc:issue:accuracy-check -->
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Claimed by @clayphi
+
+- **ClickUp:** skipped (no_workspace)
+- **Accuracy check:** current (see the accuracy-check comment on this issue)
+
+### Summary
+
+Part 1 puts `CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1` into the environment of the coordinator's Claude process at launch, so Claude Code's low-memory cleanup no longer stops the coordinator's Orca message watch, and records whether that covers only coordinator launches or every ccsession launch. Part 2 measures what should be stopped or limited instead when a workspace runs low on memory (idle or finished sessions, open Playwright browsers, concurrent codegraph first-index builds, a per-workspace memory cap) and ends with a ranked recommendation and follow-up issues, without building that policy.
+
+- **Effort estimate:** 32 hours
+- **Complexity:** complex
+- **Type:** feature
+- **First next step:** `/sc:design coordinator-watch-reap-protection --type architecture --format spec --output .dev/issues/765/spec-765.md`
+
+### Files
+
+- Summary: `.dev/issues/765/issue-summary.md`
+- Next steps: `.dev/issues/765/next-steps.md`
+- Analysis: `.dev/issues/765/analysis/`
+
+These links are paths in the repository; they open on GitHub only after someone commits and pushes the files.
+
+<!-- sc:issue:claim -->
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Complex / L
+- **Priority:** P1
+
+#### Concrete next steps
+
+1. Decide scope as "all ccsession launches" (no role signal exists) and record that and the explicit-override rule in the plan: respect an existing value from `~/.claude/ccsession.env` (sourced at `ccsession:1083-1085`) or force `1`.
+2. In `src/superclaude/skills/ccsession-tag/ccsession`, add one `export CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=...` after the identity block (`:2438`) and before `:2440`; document it in `src/superclaude/skills/ccsession-tag/README.md` (session-wide effect, new Claude process needed, `ic` and hand-started Claude not covered).
+3. Add launch tests to `tests/unit/test_ccsession_tag.py` and `tests/unit/test_ccsession_tiers.py` using the fake-Claude harness (fresh, resumed, tagged, untagged, tier variants). Run those two files plus `tests/unit/test_install_ccsession.py`, then `make sync-dev` and `make verify-sync`.
+4. Live proof on a fresh coordinator: exact-name read of that one variable in `/proc/<pid>/environ`, and a message received over at least two five-minute watch cycles. Do not force critical pressure on the shared host.
+5. Part 2 after Part 1 is merged: refresh the candidate list for the Playwright default change (PR #778), run the controlled measurements in an isolated workspace, write the ranked recommendation, and file one follow-up issue per implementation recommendation.
+6. Consider a small separate issue for `ic:128-130` if coordinators are ever launched that way (coordinator decision).
+
+#### Dependencies
+
+Needs: none. Part 1 has no prerequisite issue; Part 2 uses closed issue 648 only as a baseline. Blocks: nothing hard; the follow-up issues Part 2 creates (session reaper, browser cleanup, index scheduler, workspace memory cap) depend on its recommendation.
+
+#### Related issues
+
+- 648 (closed, completed): codegraph first-index memory measured with concurrent builds; baseline for Part 2.
+- 716 (open): coordinator next-release features; 717 (open): issue watcher features; both are coordinator work this fix protects. Related, not duplicates.
+- 354 (open): v5.0.0 impact runbook, cited by the issue.
+- 764: Playwright plugin default (the cause of PRs #768 and #778); I did not re-read 764 itself (UNVERIFIED state).
+
+#### Related PRs
+
+- #778 (f2894fc44) fix(install): turn the Playwright plugin off by default; changes a Part 2 candidate.
+- #768 (f03ca87e2) fix(install): point the Playwright plugin at Playwright's Chromium on Linux.
+- #301 feat(ccsession): route Orca's Claude launches through ccsession (merged); the path Part 1 relies on.
+- No PR targets issue 765 itself.
+
+_Limits: items marked UNVERIFIED in the text could not be checked in this read-only review. Nothing was changed on this issue other than this comment and its field values._
+
+--

@@ -1,0 +1,15 @@
+status=ok
+1	true	t2b-1:muse-ember-1.0:model_ok=true t3-1:gpt-6-luna:model_ok=true t4-1:gpt-6-luna:model_ok=true 
+2	true	 t2b-1:dropped=0,reask=null t3-1:dropped=0,reask=null t4-1:dropped=0,reask=null
+3	true	{"t2b-1":{"hook_calls":10,"inj":1,"k":1,"seal_t":1794659369102,"first":1794659369102},"t4-1":{"hook_calls":5,"inj":0,"k":1,"seal_t":null,"first":null},"t3-1":{"hook_calls":14,"inj":1,"k":1,"seal_t":1794659387710,"first":1794659387710}} leak_violations=0
+4	true	merge_stdout_tail=  ]   }  ],  "decision": "REVISE",  "new": [   "L1",   "L2",   "L3",   "L4",   "L5"  ],  "refound": [],  "regressed": [],  "verdict": "FAIL",  "warnings": [] } 
+5	true	anon_leak=0 score={"gt_covered_any":[],"wrong_blockers":3} a1_newer_than_manifest=none
+6	true	status=incomplete found_14=null output_tokens=null
+7	true	git_clean=yes cand_sha_unchanged=true sessions=3 deleted=3 absent=0
+O1	true	row=el2-c1x-r0 stamps: runs/<row>/run.json, <pkg>/run.json, collab.json, results row
+O2	true	measured={"reader":0,"searcher":0} used={"reader":1,"searcher":1} forced_roles=["reader","searcher"]
+O3	true	hang_s=290.928 finish_s=185.642 guard_s=185.642 old_hang_s=145.464 old_finish_s=40.17760022888186 B_A1=96.976
+O4	true	{"B_A1":96.976,"elapsed_s":106.014,"elapsed_over_baseline":1.0931983171093878,"forced_k":1,"delivered":{"t2b-1":1,"t4-1":0,"t3-1":1}}
+O5	true	delivered={"t2b-1":1,"t4-1":0,"t3-1":1} k={"reader":1,"searcher":1}
+O6	true	fallback_logs=0
+INFO	-	finish_signals={"t2b-1":null,"t4-1":null,"t3-1":null} hang_kill={"t2b-1":false,"t4-1":false,"t3-1":false} slo_breach=false

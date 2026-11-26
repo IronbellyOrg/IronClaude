@@ -1,0 +1,9 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Merged into #782 (owner decision in chat, 2026-11-24, after a reviewed analysis of this sub-issue). Closing this one; continue in #782.
+
+Why: #782 (C1) already owns the skill's file-table test and sits in the same first step. Carry into #782's done-when: every template file is named by a wave or step, and every writing step names a template. C9 and C10 keep their own per-template tests.
+--

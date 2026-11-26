@@ -1,0 +1,56 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 102 items
+
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_anon.py . [  0%]
+..                                                                       [  2%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_combine.py . [  3%]
+...                                                                      [  6%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_command_diff.py . [  7%]
+..                                                                       [  9%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_config.py . [ 10%]
+..                                                                       [ 12%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_deal.py . [ 13%]
+.                                                                        [ 14%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_faults.py . [ 15%]
+.......................                                                  [ 38%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_gap.py . [ 39%]
+....                                                                     [ 43%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_guards.py . [ 44%]
+.....                                                                    [ 49%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_h2.py . [ 50%]
+.....                                                                    [ 54%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_judge_path.py . [ 55%]
+.                                                                        [ 56%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_metrics.py . [ 57%]
+...                                                                      [ 60%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_model_allowlist.py . [ 61%]
+..                                                                       [ 63%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_msg.py . [ 64%]
+..                                                                       [ 66%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_n.py . [ 67%]
+.                                                                        [ 68%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_phase1_brief.py . [ 69%]
+.                                                                        [ 70%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_result.py . [ 71%]
+..                                                                       [ 73%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_router.py . [ 74%]
+                                                                         [ 74%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_salvage.py . [ 75%]
+..                                                                       [ 77%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_sandbox.py . [ 78%]
+.                                                                        [ 79%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_select.py . [ 80%]
+                                                                         [ 80%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_slack.py . [ 81%]
+............                                                             [ 93%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_summary.py . [ 94%]
+..                                                                       [ 96%]
+.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r3-axis-flip-challenge/tests/test_values.py . [ 97%]
+...                                                                      [100%]
+
+======================= 102 passed in 231.05s (0:03:51) ========================

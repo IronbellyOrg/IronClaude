@@ -1,0 +1,3 @@
+$ bash -c cd /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel && git diff --stat -- src tests; echo '(empty above = no change)'
+(empty above = no change)
+rc=0

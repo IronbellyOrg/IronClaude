@@ -1,0 +1,6 @@
+{
+  "challenge": "[panel card {id}] Candidate sentence: \"{anchor}\" Required finite check: {move_text}",
+  "finding": "[panel card {id}] A peer reviewer flagged this candidate sentence as category {category}, severity {severity}: \"{anchor}\"",
+  "finish": "[panel] finish now with what you have",
+  "reask": "Your findings block has lines the merge parser rejects:\n{errors}\nReply with the complete report again, changed only so that every listed line passes: anchor and anchor2 12-200 characters copied exactly from the candidate, at most 8 refs, an id of at most 16 characters (letters, digits, dot, underscore, hyphen), severity CRITICAL, MAJOR or MINOR, a MINOR finding never blocking, category one of contradiction, unpassable-check, data-loss, safety, missing-requirement, other."
+}

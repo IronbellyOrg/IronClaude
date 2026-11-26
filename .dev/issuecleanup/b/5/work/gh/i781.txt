@@ -1,0 +1,35 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P2
+
+#### Concrete next steps
+
+1. Run `/sc:brainstorm` with Ryan on routing, relay, skill-or-agent, grouping and ownership; also decide whether to fold this into 727.
+2. Read the 727 routing design once written, and check whether the 757/770 wake path can carry a person's message.
+3. Specify the feed from `src/superclaude/cli/observe/adapter.py`, `collector.py`, `export.py` with the relay kept outside the observer.
+4. Only after approval: `/sc:workflow` for a small trial plan, then `/sc:implement`, then a one-project comparison.
+
+#### Dependencies
+
+Needs: 727 (routing design), 757 and 770 (message-carrying wake path), and a decision from Ryan. Blocks: nothing found. No formal GitHub dependency links exist.
+
+#### Related issues
+
+727, 409, 604, 606 (closed per the issue body; UNVERIFIED here), 706, 726, 725 (separate scope), 777, 770, 757, 761, and <private-repo>#515 (UNVERIFIED: not opened from this worker).
+
+#### Related PRs
+
+PR 707 (merged issue watcher and standing coordinator, per the issue body; UNVERIFIED here). No open or merged PR addresses 781 itself.
+
+_Limits: items marked UNVERIFIED in the text could not be checked in this read-only review. Nothing was changed on this issue other than this comment and its field values._
+
+--

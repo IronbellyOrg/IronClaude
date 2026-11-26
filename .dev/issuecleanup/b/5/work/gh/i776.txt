@@ -1,0 +1,37 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P2
+
+#### Concrete next steps
+
+1. Owners (Ryan, Clay) answer: which approvals a skill may set (claim, plan, neither), and whether claim approval waits for #722.
+2. Run the cheapest evidence step: read the transcript of an earlier level-none Research worker, or do one live run, to settle the UNVERIFIED question.
+3. Decide for report stages: move the `Plan approval:` line from `[head]` into the plan row only (small change to `worker-brief.txt` and the test at `test_brief.py:279`), or add a stage argument to `stage_predicates.py` / `plan_hash`.
+4. Make the brief, contract (`WORKER-CONTRACT.md:59`), design note and tests agree with that choice.
+5. If a skill is chosen: write it under `src/superclaude/skills/` with installed paths only (CLAUDE.md rule on `src/superclaude/` paths), reuse `claim.md` summary, route plan approval through `check-approval`, and keep the own-session go.
+
+#### Dependencies
+
+Needs: owner answers on this issue; #722 for the claim-approval half. Blocks: nothing found.
+Soft links: #698 (approver rule, out of scope), #727 and #716 item C13 (how a decision reaches the person), #571 (future "stage other than plan" test).
+
+#### Related issues
+
+#761 (source list of gaps), #698, #722, #727, #716, #733 (out of scope), #571, #707 (the merged watcher's PR). Lookup matches listed in the issue, not confirmed duplicates: #379, #699, #723, #725, #753, #409, #665, #655, #446, #717.
+
+#### Related PRs
+
+#707 (merged: zero-setup watcher and coordinator, the code this issue builds on). No open PR targets #776 (gh pr list search "776" returned none).
+
+_Limits: items marked UNVERIFIED in the text could not be checked in this read-only review. Nothing was changed on this issue other than this comment and its field values._
+
+--

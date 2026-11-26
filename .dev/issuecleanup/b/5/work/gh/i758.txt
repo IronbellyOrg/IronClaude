@@ -1,0 +1,36 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Simple / S
+- **Priority:** P2
+
+#### Concrete next steps
+1. Add one concise rule under Decision requests in `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/output-styles/pragmatic.md:52-57`: assume no prior user context; give brief context, implications and risk; link existing details when available; never create a file solely to link it; say when no such file exists. Apply to questions as well as decisions and retain the existing one-question, self-sufficient-option and answer-lines rules.
+2. Extend `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests/commands/test_pragmatic_plain_english.py:18-26,50-74` with content assertions for the new rule, its section/uniqueness, fallback and preserved older guidance. Review sample questions both with and without an existing detail file. These are future checks, not tests run here.
+3. Correct the issue's delivery assumption before implementation: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/Makefile:109-163` does not sync output styles, and there is no output-style reference anywhere in that Makefile. `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/install_user_setup.py:186-201` installs styles to home configuration and can keep existing files. A passing verify-sync is not proof that an installed style changed. Validate delivery in an isolated test home rather than modifying live user configuration. Keep core rules and worker communication out of scope; `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/core/RULES.md:54-66` is about verification before recommendations, not the missing question-format rule.
+4. In a separately authorized implementation run, run the related regression tests and the issue's sync check and record actual results. Test outcomes, sync results and real-session effectiveness are UNVERIFIED here: this brief forbids uv, installs and writes outside the report directory.
+
+#### Dependencies
+No numbered prerequisite or blocked issue was established by the issue, source or bounded searches. Issues #733 and #734 concern unattended execution and review-worker routing, not prerequisites for this style-only change; #552 shares the style file but its review-classification programme is independent. Any dependency outside the inspected material is UNVERIFIED.
+
+#### Related issues
+- #733, OPEN, unattended /sc:implement: https://github.com/IronbellyOrg/IronClaude/issues/733. Mentioned in #758 as loosely related; its execution gate is separate from user-facing clarity. The initial full response exceeded the tool's display limit, so the complete #733 comment history was not reviewed and remains UNVERIFIED; its title/state and displayed body establish only the limited relationship used here.
+- #734, OPEN, unattended spec-panel-stoprule review worker: https://github.com/IronbellyOrg/IronClaude/issues/734. Body and comment read; not a duplicate or prerequisite.
+- #552, OPEN, over-classification of review findings as blockers: https://github.com/IronbellyOrg/IronClaude/issues/552. Body and comments read; shares the style file but addresses review severity, not blind-context questions.
+- The all-state issue search for the exact phrase "coming in blind" returned only #758. This is bounded search evidence, not proof that no differently worded duplicate exists.
+
+#### Related PRs
+- #758's body mentions no PR, and there were no comments. All-state PR searches for "758", "pragmatic" and "coming in blind", plus an open-PR search for "decision", found no verified implementation of this feature. The numeric search returned unrelated #508 (worker-contract documentation), which was excluded after reading its returned body. Unpublished branches and the complete event timeline are UNVERIFIED.
+- #608, MERGED, plain-English and fixed wrap-up guidance: https://github.com/IronbellyOrg/IronClaude/pull/608. Body, comments and file list read. Merge commit a04ed5273129dcb785cd2755eac3e15171ca0716 matches the local style/test history; it supplies the existing reader-familiarity check and answer lines, not the missing existing-file/risk rule.
+- #284, MERGED, multi-question response rules: https://github.com/IronbellyOrg/IronClaude/pull/284. Body and comments read (none); merge commit 3b10f800357cca3518bd11bee9f9f47fd2809360. Its stated four edit locations concern multi-point formatting, not the #758 question-specific requirement.
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+--

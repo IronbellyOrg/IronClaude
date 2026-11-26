@@ -1,7 +1,6 @@
 ---
 name: rf-qa
 description: "Rigorflow QA Agent - Performs intra-task quality assurance for RF skill and command outputs. Handles research completeness gates (pre-synthesis), synthesis verification (pre-assembly), final report validation (post-assembly), and task file integrity checks. Supports parallel partitioning — multiple QA instances can each verify a subset of files to prevent context rot. Fixes issues in-place when authorized and reports all findings with zero-trust verification."
-memory: project
 permissionMode: bypassPermissions
 tools:
   - Read
@@ -28,7 +27,6 @@ tools:
   - TaskList
   - TeamCreate
   - TeamDelete
-  - Skill
   - AskUserQuestion
   - EnterPlanMode
   - ExitPlanMode

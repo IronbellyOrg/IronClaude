@@ -1,0 +1,57 @@
+#757 [FEATURE] Run the coordinator sweep outside the session and wake it only on change [OPEN ] closed=-
+## Feature Summary
+
+A scheduled task that runs outside the coordinator session, with no model in the loop, performs the coordinator's periodic read-only checks, compares them with the last recorded state, and wakes or pings the coordinator session only when something actually changed or a decision is outstanding for the first time.
+
+## Problem Statement
+
+The standing coordinator session keeps a recurring cron prompt that fires every 10 minutes; each firing runs the session's sweep and report pass even when nothing changed, printing "Nothing has changed, and nothing new needs you..." into the channel every tick. This fills the channel with noise and spends model tokens on every tick for zero information. WC-16 makes the coordinator run the sweep itself at most once every 5 minutes on every wake or wait timeout (src/superclaude/core/WORKER-CONTRACT.md:290) and states "Phase 1 adds this duty, not a scheduler", so today there is no scheduler outside the session to suppress the empty ticks.
+
+## User Story
+
+As the project owner, I want the periodic checks to run in a model-free scheduled task that wakes the coordinator session only when there is something to act on, so that the channel stays quiet and tokens are not spent on unchanged ticks.
+
+## Proposed Solution
+
+The goal: move the read-only observation duty (the collection and classification that `superclaude sweep run` already performs read-only, src/superclaude/cli/sweep/commands.py:242-288) into a scheduled task outside the coordinator session. That task compares each run's result with the last persisted state and, only on a real change or a first-time outstanding decision, wakes the coordinator session through an existing wake channel (Orca messages, `orca terminal send` as used at src/superclaude/core/WORKER-CONTRACT.md:136, or a cross-session SendMessage). Constraints:
+
+- The scheduled task must remain read-only in effect apart from its own state file and report output (the sweep package already keeps exactly one writing function, `_publish`, src/superclaude/cli/sweep/commands.py:153-208).
+- WC-16's rules stay authoritative: only Orca's stall proofs make a worker stalled; the sweep recommends nothing (src/superclaude/core/WORKER-CONTRACT.md:290).
+- The coordinator's wait (`orca orchestration check --wait ... --timeout-ms 300000`, src/superclaude/core/WORKER-CONTRACT.md:102) and its re-arm behaviour must stay compatible with being woken by the outside task.
+- The cron entry pattern already exists in the issue watcher (`src/superclaude/cli/issue_watch/dispatch.py`, one cron entry running a sweep with absolute paths) and can be the model for a cron-driven coordinator wake path.
+
+The concrete design (scheduler choice, state comparison format, wake channel, and the WC-16 wording change) is to be produced by a `/sc:brainstorm --depth deep` session; this issue does not fix it.
+
+## Acceptance Criteria
+
+- [ ] With no changes between two consecutive scheduled checks, the coordinator session produces no per-tick report output (no "Nothing has changed..." message) and no model tokens are spent on the tick.
+- [ ] When a real change occurs (worker result, new message, first-time outstanding decision), the outside task wakes the coordinator session and the coordinator handles it under the existing WC-6/WC-16 rules.
+- [ ] The scheduled task itself performs only read-only checks apart from its own state and report files.
+- [ ] WC-16 and "Liveness supervision" in src/superclaude/core/WORKER-CONTRACT.md are updated to describe the new division of duty.
+
+## Out of Scope
+
+- Changing what the sweep classifies or probes (the sweep package's read model stays as is).
+- Removing the coordinator's in-session re-arm of its Orca wait (src/superclaude/core/WORKER-CONTRACT.md:290, "When a wait on Orca expires
+--- comments=3; last 3:
+[ironbelly 2026-11-24T16:12:25Z] ## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** in-progress
+- **Complexity / size:** Complex / L
+- **Priority:** P2
+
+#### Concrete next steps
+1. Preserve the completed research rather than restart the brainstorm. Reconcile the live issue and initial risk plan with the latest recorded answers before commissioning an implementation plan. The earlier eleven-minute watcher and uniformly three-minute wait are superseded: `/home/coder/workspaces/worktrees/IronClaude/Coordinator/.dev/issues/757/worker-brainstorm/risk-tests/DECISIONS-2.md:7-23` records a stamp-gated 25-minute watcher, a three-minute wait while busy, and a 45-minute wait while idle. Managed Coder installation and a narrowed recurring prompt were recorded earlier in `/home/coder/workspaces/worktrees/IronClaude/Coordinator/.dev/issues/757/worker-brainstorm/risk-tests/PLAN.md:9-13`. Original chat authority for both rounds remains **UNVERIFIED** here; this audit does not grant approval. The
+~~
+[clayphi 2026-11-24T18:14:40Z] @ironbelly this looks like a good fit for something else we found while reading the code. Please correct us if we have misread.
+
+Nothing today tells the standing coordinator that a watcher claim has finished. The claim runs in its own short-lived session, and the coordinator's duties name the files to read, but not when to look. Also, the contract says a finished agent's `result.md` is noticed through `/sc:sweep`, but the sweep code does not read that file.
+
+Could the model-free scheduled task in this issue also (a) list claims the coordinator has not adopted yet, and (b) notice new `result.md` files, and wake the coordinator for those? If you would rather keep this issue as it is, we can file a separate one and link it here.
+
+~~
+[ironbelly 2026-11-24T21:05:01Z] If we scanned the session logs for any file updated in the last x minutes, mapped session logs to session ID or whatever other metadata the coordinator needed, when the scan found files changed, it sent the coordinator a ping to follow up on those session.
+
+

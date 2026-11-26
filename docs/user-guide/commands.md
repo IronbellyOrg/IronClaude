@@ -281,7 +281,7 @@ It never rebuilds an existing index, never runs `init` while another init or ind
 
 ```bash
 /sc:impact parse_config                      # dependents of one symbol
-/sc:impact --diff origin/master --tests      # symbols a branch changed, plus advisory tests
+/sc:impact --diff origin/integration --tests      # symbols a branch changed, plus advisory tests
 ```
 
 When codegraph, the index or its lookup tools are not usable, it falls back to Grep, keeps going and reports `status: partial`. See the [codegraph guide](codegraph.md).
@@ -354,7 +354,7 @@ No level merges anything: people review and merge. The agent starts behind the c
 /sc:issue --create @notes/new-command.md --depth deep
 ```
 
-It posts directly to GitHub, without showing the comment or the issue body for approval first. It never creates labels, issue types or issue fields: a mode label that the repository does not have, and an issue type or Complexity field it cannot set, are skipped and listed in the final output. On claim it also assigns the matching ClickUp task, only when `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` are set; `--create` never touches ClickUp. The claim itself never runs a step of `.dev/issues/<N>/next-steps.md`: the launched agent does, at the level you chose (with `--pipeline none` there is no worktree and you run them yourself from this checkout). A re-claim reuses the existing worktree and does not launch a second agent, also when you re-claim from inside the worktree; the claim output names the two files that hold the launch (`.dev/issues/<N>/worktree.json` and a file in the worktree's git directory), and removing the `launch` entry from both launches again. Worktree or launch problems are warnings: the issue stays assigned and the comments stay posted.
+It posts directly to GitHub, without showing the comment or the issue body for approval first. The one exception is `--create`: it asks one question only when the drafted issue contradicts what you said (your description, an instruction or a flag you passed), and it keeps and lists everything else it added. It never creates labels, issue types or issue fields: a mode label that the repository does not have, and an issue type or Complexity field it cannot set, are skipped and listed in the final output. On claim it also assigns the matching ClickUp task, only when `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` are set; `--create` never touches ClickUp. The claim itself never runs a step of `.dev/issues/<N>/next-steps.md`: the launched agent does, at the level you chose (with `--pipeline none` there is no worktree and you run them yourself from this checkout). A re-claim reuses the existing worktree and does not launch a second agent, also when you re-claim from inside the worktree; the claim output names the two files that hold the launch (`.dev/issues/<N>/worktree.json` and a file in the worktree's git directory), and removing the `launch` entry from both launches again. Worktree or launch problems are warnings: the issue stays assigned and the comments stay posted.
 
 **ClickUp settings (claim only, environment variables):**
 
@@ -1332,7 +1332,7 @@ superclaude reflect run <tasklist> [--fix/--no-fix] [--max-fix-iterations N] [--
 ```bash
 superclaude reflect run path/to/TASK.md                                  # audit-only gate, fail-closed exit code
 superclaude reflect run path/to/TASK.md --fix --max-fix-iterations 3     # bounded auto-fix loop
-superclaude reflect run path/to/TASK.md --base origin/master --no-promote
+superclaude reflect run path/to/TASK.md --base origin/integration --no-promote
 superclaude reflect run path/to/TASK.md --tmux --depth deep              # watch live in a detached window
 ```
 

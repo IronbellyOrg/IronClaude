@@ -1,0 +1,33 @@
+{
+  "id": "C8",
+  "name": "Edited file pinned by an untouched test",
+  "version": 1,
+  "definition": "A plan edits files or behavior that a test elsewhere pins, with no task that updates or runs that test.",
+  "question_template": "Open the referencing file the plan never names. Does it pin the text or behavior being changed? Does any task update or run it?",
+  "extractor": "E3",
+  "route": "search",
+  "replicas": 2,
+  "applies_to": [
+    "plan",
+    "spec"
+  ],
+  "instances": [
+    {
+      "cite": "reflect/pre-phase3CodegraphA-20261029205359/adversarial/merged-reviewer-findings.md:22",
+      "target": "plan",
+      "kind": "P"
+    },
+    {
+      "cite": "reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/REPORT.md:44-46",
+      "target": "plan",
+      "kind": "P"
+    }
+  ],
+  "severity_guidance": "Blocking when the pinned test fails after the planned change and no task updates or runs it; minor when it pins only a comment.",
+  "known_weakness": "Dependents that refer to the file only by an indirect name.",
+  "promote_category": "missing-requirement",
+  "swap_test": {
+    "reviewer": "second-author-session claude-sonnet-5-5",
+    "date": "2026-11-15"
+  }
+}

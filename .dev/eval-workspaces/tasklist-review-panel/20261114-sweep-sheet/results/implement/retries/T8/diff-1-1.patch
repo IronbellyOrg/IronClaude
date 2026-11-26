@@ -1,0 +1,664 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/build-sandbox.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/build-sandbox.sh
+new file mode 100644
+index 000000000..69cd215a5
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/build-sandbox.sh
+@@ -0,0 +1,184 @@
++#!/usr/bin/env bash
++# build-sandbox.sh [--raw] [--packages FILE] <doc>   (DESIGN 11.2 H3 and H4, DD-15, section 10 row 7)
++# Builds SB/<doc>/repo (the document's base snapshot) and SB/cand/<doc>/{candidate.md,source.md}.
++#   --raw       arm Z0-raw: SB/<doc>/repo-raw, repository HEAD minus ground-truth files and .dev/eval-workspaces.
++#   --packages  test hook: another packages file; accepted only under /tmp/.
++# Exit 0: built, or already valid. Exit 2: invalid (E_SANDBOX_DIRTY, E_LEAK, E_BASE or a failed step).
++# Git is read on SRC_REPO (archive, cat-file, show, rev-parse) and written only inside the throwaway
++# sandbox directory SBT, always as "git -C $SBT ..." (K5; the check of Task 8 greps bin/ for any other form).
++# Test overrides (SW_SB_ROOT, SW_SRC_REPO) are refused by bin/common.sh unless they point under /tmp/.
++set -u -o pipefail
++source "$(dirname "$0")/common.sh"
++
++usage() {
++  echo "usage: build-sandbox.sh [--raw] [--packages FILE] <doc>" >&2
++  exit 2
++}
++RAW=0
++PKFILE=$SW/config/packages.json
++DOC=
++while [ $# -gt 0 ]; do
++  case "$1" in
++    --raw) RAW=1 ;;
++    --packages)
++      shift
++      [ $# -gt 0 ] || usage
++      PKFILE=$1
++      ;;
++    -*) usage ;;
++    *)
++      [ -z "$DOC" ] || usage
++      DOC=$1
++      ;;
++  esac
++  shift
++done
++[ -n "$DOC" ] || usage
++[[ $DOC =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || { echo "E_DOC: bad document id: $DOC" >&2; exit 2; }
++if [ "$PKFILE" != "$SW/config/packages.json" ]; then
++  case "$(realpath -m -- "$PKFILE")/" in
++    /tmp/?*) ;;
++    *) echo "E_OVERRIDE: --packages $PKFILE is outside /tmp/" >&2; exit 2 ;;
++  esac
++fi
++[ -f "$PKFILE" ] || { echo "E_PACKAGES: $PKFILE not found" >&2; exit 2; }
++jq -e --arg p "$DOC" '.packages[$p]' "$PKFILE" >/dev/null 2>&1 || { echo "unknown package $DOC" >&2; exit 2; }
++
++BASE=$(jq -r --arg p "$DOC" '.packages[$p].base // empty' "$PKFILE")
++CAND_REL=$(jq -r --arg p "$DOC" '.packages[$p].candidate // empty' "$PKFILE")
++SRC_REL=$(jq -r --arg p "$DOC" '.packages[$p].source // empty' "$PKFILE")
++mapfile -t MASKED < <(jq -r --arg p "$DOC" '.packages[$p].masked_paths // [] | .[]' "$PKFILE")
++mapfile -t IDS < <(jq -r '.packages | keys[]' "$PKFILE")
++
++D=$SB/$DOC
++if [ "$RAW" = 1 ]; then SUB=repo-raw META=sandbox-raw.json; else SUB=repo META=sandbox.json; fi
++TARGET=$D/$SUB
++SBT=$D/$SUB.tmp # the temporary sandbox directory; the only place a git write may happen
++sw_assert_writable "$D" || exit 2
++sw_assert_writable "$SB/cand/$DOC" || exit 2
++
++# KIND: commit (a base commit, read with git archive), tree (a recorded working tree), raw (HEAD, DD-15)
++TREEDIR=
++if [ "$RAW" = 1 ]; then
++  KIND=raw
++  BASE=$(git -C "$SRC_REPO" rev-parse --verify -q 'HEAD^0') || { echo "E_BASE: no HEAD in $SRC_REPO" >&2; exit 2; }
++elif [ -z "$BASE" ]; then
++  echo "E_BASE: package $DOC has no base" >&2
++  exit 2
++elif [ "${BASE#tree:}" != "$BASE" ]; then
++  KIND=tree
++  TREEDIR=${BASE#tree:}
++  case "$TREEDIR" in /*) ;; *) TREEDIR=$SRC_REPO/$TREEDIR ;; esac
++  [ -d "$TREEDIR" ] || { echo "E_BASE: tree directory missing: $TREEDIR" >&2; exit 2; }
++else
++  KIND=commit
++  git -C "$SRC_REPO" rev-parse --verify -q "$BASE^0" >/dev/null 2>&1 || { echo "E_BASE: $BASE is not a commit in $SRC_REPO" >&2; exit 2; }
++fi
++
++base_has() { # does the base hold path $1
++  if [ "$KIND" = tree ]; then [ -e "$TREEDIR/$1" ]; else git -C "$SRC_REPO" cat-file -e "$BASE:$1" 2>/dev/null; fi
++}
++base_same() { # is file $2 the base version of path $1
++  if [ "$KIND" = tree ]; then
++    cmp -s -- "$TREEDIR/$1" "$2"
++  else
++    cmp -s <(git -C "$SRC_REPO" show "$BASE:$1" 2>/dev/null) "$2"
++  fi
++}
++masked_ok() { # $1 = sandbox directory: each masked path is the base version, or absent where the base has none (REQ-03)
++  local f
++  [ "$RAW" = 1 ] && return 0
++  for f in "${MASKED[@]}"; do
++    if base_has "$f"; then
++      base_same "$f" "$1/$f" || { echo "masked path differs from base: $f" >&2; return 1; }
++    else
++      [ ! -e "$1/$f" ] || { echo "masked path present but absent at base: $f" >&2; return 1; }
++    fi
++  done
++}
++leak_check() { # $1 = sandbox directory; any finding makes the sandbox invalid (REQ-04, REQ-34)
++  local d=$1 bad=0 out id p
++  out=$(cd "$d" && find . -path ./.git -prune -o -name 'ground-truth*' -print -quit)
++  [ -z "$out" ] || { echo "E_LEAK: ground-truth file remains: $out" >&2; bad=1; }
++  [ ! -e "$d/.dev/eval-workspaces" ] || { echo "E_LEAK: .dev/eval-workspaces remains" >&2; bad=1; }
++  if [ "$RAW" != 1 ]; then
++    for p in .dev/reflect .dev/tasks/done .dev/research; do
++      [ ! -e "$d/$p" ] || { echo "E_LEAK: $p remains" >&2; bad=1; }
++    done
++    out=$(cd "$d" && find . -path ./.git -prune -o \( \( -name artifacts -type d \) -o -name progress.md \) -print -quit)
++    [ -z "$out" ] || { echo "E_LEAK: artifacts or progress.md remains: $out" >&2; bad=1; }
++    for id in "${IDS[@]}"; do
++      out=$(cd "$d" && find . -path ./.git -prune -o -path "*$id*" -print -quit)
++      [ -z "$out" ] || { echo "E_LEAK: path with document id remains: $out" >&2; bad=1; }
++    done
++    out=$(cd "$d" && grep -rIl --exclude-dir=.git -F -- "$DOC" . | head -n 3)
++    [ -z "$out" ] || { echo "E_LEAK: document id $DOC in contents of: $out" >&2; bad=1; }
++  fi
++  return $bad
++}
++fail() { # a failed build leaves no half-built sandbox
++  echo "$1" >&2
++  rm -rf "$SBT"
++  exit 2
++}
++resolve_rel() { # a package path: absolute, else under SRC_REPO when present there, else under REPO
++  case "$1" in
++    /*) echo "$1" ;;
++    *) if [ -e "$SRC_REPO/$1" ]; then echo "$SRC_REPO/$1"; else echo "$REPO/$1"; fi ;;
++  esac
++}
++
++mkdir -p "$D" "$SB/cand/$DOC"
++if [ -d "$TARGET" ]; then
++  if masked_ok "$TARGET" && [ -z "$(git -C "$TARGET" status --porcelain 2>&1)" ] && leak_check "$TARGET"; then
++    echo "sandbox valid: $TARGET"
++  else
++    echo "E_SANDBOX_DIRTY: $TARGET" >&2
++    exit 2
++  fi
++else
++  rm -rf "$SBT"
++  mkdir -p "$SBT"
++  if [ "$KIND" = tree ]; then
++    tar -C "$TREEDIR" --exclude=./.git -cf - . | tar -x -C "$SBT" || fail "copy of $TREEDIR failed"
++  else
++    git -C "$SRC_REPO" archive "$BASE" | tar -x -C "$SBT" || fail "archive of $BASE failed"
++  fi
++  # H4. Raw mode (DD-15) removes only the eval-workspace folders and the ground-truth files.
++  if [ "$RAW" = 1 ]; then
++    (cd "$SBT" && rm -rf .dev/eval-workspaces) || fail "removal failed"
++  else
++    (cd "$SBT" && rm -rf .dev/reflect .dev/tasks/done .dev/eval-workspaces .dev/research) || fail "removal failed"
++    (cd "$SBT" && find . -name artifacts -type d -prune -exec rm -rf -- {} +) || fail "removal failed"
++    (cd "$SBT" && find . -name progress.md -type f -exec rm -f -- {} +) || fail "removal failed"
++    for id in "${IDS[@]}"; do
++      (cd "$SBT" && find . -path "*$id*" -prune -exec rm -rf -- {} +) || fail "removal failed"
++    done
++  fi
++  (cd "$SBT" && find . -name 'ground-truth*' -prune -exec rm -rf -- {} +) || fail "removal failed"
++  masked_ok "$SBT" || fail "E_SANDBOX_DIRTY: masked path check failed"
++  leak_check "$SBT" || fail "E_LEAK: the sandbox was refused"
++  # The snapshot keeps files that the base ignore rules match, so every arm sees the same tree.
++  git -C "$SBT" init -q || fail "snapshot failed (init)"
++  git -C "$SBT" add -A -f || fail "snapshot failed (stage)"
++  git -C "$SBT" -c user.name=sw -c user.email=sw@localhost -c core.hooksPath=/dev/null -c commit.gpgsign=false commit -q -m snap || fail "snapshot failed (snapshot)"
++  [ -z "$(git -C "$SBT" status --porcelain)" ] || fail "E_SANDBOX_DIRTY: dirty after the snapshot"
++  mv "$SBT" "$TARGET" || fail "move failed"
++  TREE=$(git -C "$TARGET" rev-parse 'HEAD^{tree}')
++  jq -n --arg doc "$DOC" --arg kind "$KIND" --arg base "$BASE" --arg tree "$TREE" --arg t "$(date -u +%FT%TZ)" \
++    '{schema: "sweep-sandbox/1", doc: $doc, kind: $kind, base: $base, tree: $tree, built_at: $t}' >"$D/$META"
++  echo "sandbox built: $TARGET"
++fi
++
++# SB/cand/<doc>: the candidate plan and its source, the only inputs a reviewer reads besides the sandbox.
++CS=$(resolve_rel "$CAND_REL")
++{ [ -n "$CAND_REL" ] && [ -f "$CS" ]; } || { echo "candidate.md missing: ${CS:-<not set>}" >&2; exit 2; }
++cmp -s "$CS" "$SB/cand/$DOC/candidate.md" || cp -- "$CS" "$SB/cand/$DOC/candidate.md"
++if [ -n "$SRC_REL" ]; then
++  SS=$(resolve_rel "$SRC_REL")
++  [ -f "$SS" ] || { echo "source.md missing: $SS" >&2; exit 2; }
++  cmp -s "$SS" "$SB/cand/$DOC/source.md" || cp -- "$SS" "$SB/cand/$DOC/source.md"
++else
++  rm -f "$SB/cand/$DOC/source.md" # no source: CB-1 is not rendered, E5 returns nothing (section 10 row 5)
++fi
++exit 0
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/repos/build_repo.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/repos/build_repo.py
+new file mode 100644
+index 000000000..c99d8dd2a
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/repos/build_repo.py
+@@ -0,0 +1,164 @@
++"""F-REPO (TESTING section 2): build a small invented git repository under /tmp and return its base and head commits.
++
++The repository holds every shape the sandbox, the extractors' repository search and the scope tests need:
++tests/, scripts/, docs/, root files, CHANGELOG.md, a mirror copy of a plan-named file, `.dev/` and
++`node_modules/` noise that repeats every search string, files the sandbox builder must remove (H4), a
++trap file named ground-truth.json that holds invented text only, and one "implementation" commit that
++adds a file and edits another. Git runs inside the new repository only.
++"""
++
++import os
++import subprocess
++from pathlib import Path
++from types import SimpleNamespace
++
++DOC_ID = "TASK-WF-fixture-20261114-000001"
++OTHER_DOC_ID = "TASK-WF-fixture-20261114-000002"
++TRAP_MARKER = "TRAP-INVENTED-TEXT-7f3a"
++# strings that a plan sentence would make the search helper look for; the noise files repeat all of them
++SEARCH_STRINGS = (
++    "report_exporter",
++    "retention_policy",
++    "3 report formats",
++    "report.py",
++)
++
++ADDED = "src/exporter/retention.py"
++EDITED = "src/exporter/report.py"
++MIRROR = "plugins/exporter-mirror/src/exporter/report.py"
++
++REPORT_BASE = '''"""Render a report in one of three formats."""
++
++FORMATS = ("csv", "json", "html")
++
++
++def render(rows, fmt="csv"):
++    if fmt not in FORMATS:
++        raise ValueError(fmt)
++    return "\\n".join(",".join(str(c) for c in r) for r in rows)
++'''
++REPORT_HEAD = REPORT_BASE.replace(
++    "    return", "    # retention is applied by the caller\n    return"
++)
++RETENTION = '''"""Retention policy: keep a report for 30 days."""
++
++KEEP_DAYS = 30
++
++
++def expired(age_days):
++    return age_days > KEEP_DAYS
++'''
++
++
++def _noise():
++    s = "\n".join(f"- {x}" for x in SEARCH_STRINGS)
++    return f"Invented search noise. Every search string appears here:\n{s}\n"
++
++
++def _files(doc_id):
++    noise = _noise()
++    return {
++        # root files and documents
++        "README.md": f"# Fixture exporter\n\n{noise}",
++        "Makefile": "test:\n\tpytest\n",
++        ".gitignore": "node_modules/\n*.log\n",
++        "CHANGELOG.md": "# Changelog\n\n- 0.1.0: first release (3 report formats)\n",
++        "docs/guide.md": (
++            "# Exporter guide\n\n## Retention policy\n\n"
++            "The exporter writes 3 report formats: csv, json and html.\n"
++        ),
++        "docs/progress.md": "invented progress note outside any task folder\n",
++        # code, tests, scripts, the mirror copy
++        EDITED: REPORT_BASE,
++        MIRROR: REPORT_BASE,
++        "src/exporter/__init__.py": "",
++        "tests/test_report.py": (
++            "from exporter.report import render\n\n\n"
++            "def test_render():\n    assert render([[1, 2]]) == '1,2'\n"
++        ),
++        "scripts/export.sh": "#!/usr/bin/env bash\necho report_exporter\n",
++        # noise that must not reach any evidence
++        ".dev/notes/search-noise.md": noise,
++        "node_modules/pkg/index.js": f"// {noise}",
++        # files the sandbox builder removes (H4)
++        ".dev/reflect/REFLECT-REPORT.md": "invented reflect report\n",
++        f".dev/tasks/done/{doc_id}/source.md": f"# Source of {doc_id}\n\n{noise}",
++        f".dev/tasks/done/{doc_id}/progress.md": "invented ledger\n",
++        f".dev/tasks/done/{OTHER_DOC_ID}/notes.md": "invented notes\n",
++        ".dev/tasks/to-do/other/artifacts/out.txt": "invented artifact\n",
++        ".dev/tasks/to-do/other/progress.md": "invented ledger\n",
++        ".dev/eval-workspaces/ws/candidate.md": "invented candidate\n",
++        ".dev/research/r1.md": "invented research note\n",
++        f".dev/misc/{doc_id}-notes.md": "invented note with the document id in its path\n",
++        "artifacts/build.log": "invented build output\n",
++        # traps: invented text only
++        "ground-truth.json": f'{{"note": "{TRAP_MARKER}"}}\n',
++        ".dev/gt/ground-truth.json": f'{{"note": "{TRAP_MARKER}"}}\n',
++    }
++
++
++def _git(repo, *args):
++    """Run git in repo only, with no user, system or hook configuration."""
++    env = {
++        k: v
++        for k, v in os.environ.items()
++        if not k.startswith(("GIT_", "SW_", "FAKE_"))
++    }
++    env.update(
++        GIT_CONFIG_GLOBAL="/dev/null",
++        GIT_CONFIG_NOSYSTEM="1",
++        GIT_AUTHOR_NAME="fixture",
++        GIT_AUTHOR_EMAIL="fixture@localhost",
++        GIT_COMMITTER_NAME="fixture",
++        GIT_COMMITTER_EMAIL="fixture@localhost",
++    )
++    r = subprocess.run(
++        ["git", "-C", str(repo), *args],
++        capture_output=True,
++        text=True,
++        env=env,
++        check=True,
++    )
++    return r.stdout.strip()
++
++
++def _put(repo, rel, text):
++    p = repo / rel
++    p.parent.mkdir(parents=True, exist_ok=True)
++    p.write_text(text, encoding="utf-8")
++
++
++def build_repo(root, doc_id=DOC_ID, extra=None):
++    """Create root/repo (root must be under /tmp) and return a namespace of facts.
++
++    extra: {path: text} committed in the base commit as well (a test plants a leak with it).
++    Fields: repo, base, head, doc_id, added, edited, mirror, source_rel, trap_marker, search_strings.
++    """
++    repo = Path(root).resolve() / "repo"
++    if not str(repo).startswith("/tmp/"):
++        raise ValueError(f"build_repo writes only under /tmp: {repo}")
++    repo.mkdir(parents=True)
++    _git(repo, "init", "-q", "-b", "main")
++    for rel, text in {**_files(doc_id), **(extra or {})}.items():
++        _put(repo, rel, text)
++    _git(repo, "add", "-A", "-f")
++    _git(repo, "commit", "-q", "-m", "base")
++    base = _git(repo, "rev-parse", "HEAD")
++    # the implementation commit: one file added, one file edited
++    _put(repo, ADDED, RETENTION)
++    _put(repo, EDITED, REPORT_HEAD)
++    _git(repo, "add", "-A", "-f")
++    _git(repo, "commit", "-q", "-m", "implementation")
++    head = _git(repo, "rev-parse", "HEAD")
++    return SimpleNamespace(
++        repo=repo,
++        base=base,
++        head=head,
++        doc_id=doc_id,
++        added=ADDED,
++        edited=EDITED,
++        mirror=MIRROR,
++        source_rel=f".dev/tasks/done/{doc_id}/source.md",
++        trap_marker=TRAP_MARKER,
++        search_strings=SEARCH_STRINGS,
++    )
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T8/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T8/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T8/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py
+new file mode 100644
+index 000000000..7762b4946
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py
+@@ -0,0 +1,282 @@
++"""REQ-03, REQ-04, REQ-34 and DD-15: bin/build-sandbox.sh over the F-REPO fixture (TESTING section 3)."""
++
++import json
++import subprocess
++from types import SimpleNamespace
++
++import pytest
++from helpers import SW
++
++from fixtures.repos.build_repo import OTHER_DOC_ID, build_repo
++
++SCRIPT = SW / "bin" / "build-sandbox.sh"
++
++
++def run(fx, *args, **env):
++    return subprocess.run(
++        ["bash", str(SCRIPT), "--packages", str(fx.packages), *args, fx.doc],
++        capture_output=True,
++        text=True,
++        env=fx.roots.with_env(SW_SRC_REPO=str(fx.repo), **env),
++    )
++
++
++def package_entry(fx, base, **over):
++    e = {
++        "kind": "plan",
++        "set": "control",
++        "base": base,
++        "candidate": ".dev/eval-workspaces/cand/candidate.md",
++        "source": fx.source_rel,
++        "masked_paths": [fx.added, fx.edited],
++    }
++    e.update(over)
++    return e
++
++
++def write_packages(fx, entry):
++    docs = {fx.doc: entry, OTHER_DOC_ID: dict(entry, set="other")}
++    fx.packages.write_text(json.dumps({"schema": "sweep-packages/1", "packages": docs}))
++
++
++@pytest.fixture
++def fx(tmp_roots):
++    built = build_repo(tmp_roots.root)
++    # the candidate is a working-tree file of the source repository, as in a real run
++    cand = built.repo / ".dev/eval-workspaces/cand/candidate.md"
++    cand.parent.mkdir(parents=True)
++    cand.write_text("# Candidate plan\n", encoding="utf-8")
++    fx = SimpleNamespace(
++        **vars(built),
++        roots=tmp_roots,
++        packages=tmp_roots.root / "packages.json",
++        doc=built.doc_id,
++        sandbox=tmp_roots.sb / built.doc_id / "repo",
++        raw=tmp_roots.sb / built.doc_id / "repo-raw",
++        cand=tmp_roots.sb / "cand" / built.doc_id,
++    )
++    write_packages(fx, package_entry(fx, built.base))
++    return fx
++
++
++@pytest.fixture
++def built(fx):
++    r = run(fx)
++    assert r.returncode == 0, r.stderr
++    return fx
++
++
++def git_out(repo, *args):
++    return subprocess.run(
++        ["git", "-C", str(repo), *args], capture_output=True, text=True, check=True
++    ).stdout
++
++
++def test_file_created_by_implementation_absent(built):
++    assert built.added.endswith("retention.py")
++    assert (built.repo / built.added).is_file()  # the head commit has it
++    assert not (built.sandbox / built.added).exists()
++    assert (built.sandbox / "src/exporter/__init__.py").is_file()
++
++
++def test_masked_path_equals_base(built):
++    base_text = git_out(built.repo, "show", f"{built.base}:{built.edited}")
++    head_text = git_out(built.repo, "show", f"{built.head}:{built.edited}")
++    assert base_text != head_text
++    assert (built.sandbox / built.edited).read_text() == base_text
++    # a clean sandbox: git status --porcelain is empty
++    assert git_out(built.sandbox, "status", "--porcelain") == ""
++    meta = json.loads((built.sandbox.parent / "sandbox.json").read_text())
++    assert (meta["kind"], meta["base"]) == ("commit", built.base)
++    assert meta["tree"] == git_out(built.sandbox, "rev-parse", "HEAD^{tree}").strip()
++    # the candidate and its source are copied beside the sandbox
++    assert (built.cand / "candidate.md").read_text() == "# Candidate plan\n"
++    assert "Source of" in (built.cand / "source.md").read_text()
++    # a second run finds the sandbox valid and changes nothing
++    again = run(built)
++    assert again.returncode == 0 and "sandbox valid" in again.stdout
++
++
++def test_tree_snapshot_kind(fx):
++    tree = fx.roots.root / "recorded-tree"
++    (tree / "docs").mkdir(parents=True)
++    (tree / "docs/spec.md").write_text("# Spec\n\nThe exporter writes 2 formats.\n")
++    (tree / "keep.txt").write_text("kept\n")
++    write_packages(fx, package_entry(fx, f"tree:{tree}", masked_paths=["docs/spec.md"]))
++    r = run(fx)
++    assert r.returncode == 0, r.stderr
++    diff = subprocess.run(
++        ["diff", "-r", "--exclude=.git", str(tree), str(fx.sandbox)],
++        capture_output=True,
++        text=True,
++    )
++    assert diff.returncode == 0, diff.stdout
++    meta = json.loads((fx.sandbox.parent / "sandbox.json").read_text())
++    assert meta["kind"] == "tree" and meta["base"] == f"tree:{tree}"
++    assert meta["tree"] == git_out(fx.sandbox, "rev-parse", "HEAD^{tree}").strip()
++    assert git_out(fx.sandbox, "status", "--porcelain") == ""
++
++
++def test_dirty_sandbox_refused(built):
++    f = built.sandbox / "README.md"
++    original = f.read_text()
++    extra = built.sandbox / "src/exporter/new_file.py"
++    masked = built.sandbox / built.edited
++    masked_original = masked.read_text()
++    try:
++        f.write_text(original + "edited by a reviewer\n")  # a tracked file modified
++        r = run(built)
++        assert r.returncode == 2 and "E_SANDBOX_DIRTY" in r.stderr
++        f.write_text(original)
++        extra.write_text("x = 1\n")  # an untracked file
++        r = run(built)
++        assert r.returncode == 2 and "E_SANDBOX_DIRTY" in r.stderr
++        extra.unlink()
++        # the masked path replaced by the head version
++        masked.write_text((built.repo / built.edited).read_text())
++        r = run(built)
++        assert r.returncode == 2 and "masked path differs from base" in r.stderr
++        assert "E_SANDBOX_DIRTY" in r.stderr
++    finally:
++        f.write_text(original)
++        masked.write_text(masked_original)
++        extra.unlink(missing_ok=True)
++    assert run(built).returncode == 0
++
++
++def test_no_reflect_artifacts_progress(built):
++    gone = [
++        ".dev/reflect",
++        ".dev/tasks/done",
++        ".dev/research",
++        ".dev/eval-workspaces",
++        ".dev/tasks/to-do/other/artifacts",
++        "artifacts",
++        "docs/progress.md",
++        ".dev/tasks/to-do/other/progress.md",
++    ]
++    for rel in gone:
++        assert not (built.sandbox / rel).exists(), rel
++    names = {p.name for p in built.sandbox.rglob("*") if ".git" not in p.parts}
++    assert "artifacts" not in names and "progress.md" not in names
++    assert "reflect" not in names
++    # everything else stays: code, tests, the mirror, root documents and the other noise
++    for rel in (
++        "tests/test_report.py",
++        "scripts/export.sh",
++        "docs/guide.md",
++        "CHANGELOG.md",
++        built.mirror,
++        ".dev/notes/search-noise.md",
++        "node_modules/pkg/index.js",
++    ):
++        assert (built.sandbox / rel).is_file(), rel
++
++
++def test_no_doc_id_in_paths_or_contents(built, tmp_roots):
++    for doc in (built.doc, OTHER_DOC_ID):
++        paths = subprocess.run(
++            ["find", ".", "-path", f"*{doc}*"],
++            cwd=built.sandbox,
++            capture_output=True,
++            text=True,
++        )
++        assert paths.stdout == "", paths.stdout
++    grep = subprocess.run(
++        ["grep", "-rIl", "--exclude-dir=.git", "-F", built.doc, "."],
++        cwd=built.sandbox,
++        capture_output=True,
++        text=True,
++    )
++    assert grep.returncode == 1 and grep.stdout == ""
++    # a document id in the contents of a kept file refuses the build; nothing is left behind
++    leaky_root = tmp_roots.root / "leaky"
++    leaky_root.mkdir()
++    leaky = build_repo(leaky_root, extra={"docs/leak.md": f"see {built.doc}\n"})
++    fx2 = SimpleNamespace(
++        **vars(leaky),
++        roots=tmp_roots,
++        packages=built.packages,
++        doc=leaky.doc_id,
++    )
++    (leaky.repo / ".dev/eval-workspaces/cand").mkdir(parents=True)
++    (leaky.repo / ".dev/eval-workspaces/cand/candidate.md").write_text("# C\n")
++    write_packages(fx2, package_entry(fx2, leaky.base))
++    r = run(fx2, SW_SB_ROOT=str(tmp_roots.root / "sb2"))
++    assert r.returncode == 2 and "E_LEAK" in r.stderr and "docs/leak.md" in r.stderr
++    assert not (tmp_roots.root / "sb2" / built.doc / "repo").exists()
++    assert not (tmp_roots.root / "sb2" / built.doc / "repo.tmp").exists()
++
++
++def test_no_ground_truth_file(built):
++    found = [p for p in built.sandbox.rglob("ground-truth*") if ".git" not in p.parts]
++    assert found == []
++    assert (
++        built.repo / "ground-truth.json"
++    ).exists()  # the trap is in the source repository
++    grep = subprocess.run(
++        ["grep", "-rIl", "--exclude-dir=.git", built.trap_marker, str(built.sandbox)],
++        capture_output=True,
++        text=True,
++    )
++    assert grep.returncode == 1 and grep.stdout == ""
++    # the trap is also absent from the committed snapshot
++    assert "ground-truth" not in git_out(built.sandbox, "ls-files")
++
++
++def test_raw_mode_removes_only_gt(fx):
++    r = run(fx, "--raw")
++    assert r.returncode == 0, r.stderr
++    tracked = set(git_out(fx.repo, "ls-tree", "-r", "--name-only", fx.head).split())
++    expected = {
++        t
++        for t in tracked
++        if not t.startswith(".dev/eval-workspaces/") and "ground-truth" not in t
++    }
++    here = {
++        str(p.relative_to(fx.raw))
++        for p in fx.raw.rglob("*")
++        if p.is_file() and ".git" not in p.relative_to(fx.raw).parts
++    }
++    assert here == expected
++    assert (fx.raw / ".dev/reflect/REFLECT-REPORT.md").is_file()
++    assert (fx.raw / "artifacts/build.log").is_file()
++    assert (fx.raw / "docs/progress.md").is_file()
++    assert (fx.raw / fx.added).is_file()  # raw mode is HEAD, not the base
++    assert not (fx.raw / "ground-truth.json").exists()
++    assert not (fx.raw / ".dev/gt/ground-truth.json").exists()
++    assert git_out(fx.raw, "status", "--porcelain") == ""
++    meta = json.loads((fx.raw.parent / "sandbox-raw.json").read_text())
++    assert (meta["kind"], meta["base"]) == ("raw", fx.head)
++    # the raw sandbox is separate from the base sandbox, and it is reused when valid
++    assert not fx.sandbox.exists()
++    assert "sandbox valid" in run(fx, "--raw").stdout
++
++
++def test_refusals(fx):
++    r = subprocess.run(
++        ["bash", str(SCRIPT), "--packages", str(fx.packages), "TASK-WF-unknown-0"],
++        capture_output=True,
++        text=True,
++        env=fx.roots.with_env(SW_SRC_REPO=str(fx.repo)),
++    )
++    assert r.returncode == 2 and "unknown package" in r.stderr
++    r = subprocess.run(
++        ["bash", str(SCRIPT), "--packages", "/home/x/packages.json", fx.doc],
++        capture_output=True,
++        text=True,
++        env=fx.roots.with_env(SW_SRC_REPO=str(fx.repo)),
++    )
++    assert r.returncode == 2 and "E_OVERRIDE" in r.stderr
++    # SW_SRC_REPO outside /tmp/ stops the script before it reads anything
++    r = subprocess.run(
++        ["bash", str(SCRIPT), "--packages", str(fx.packages), fx.doc],
++        capture_output=True,
++        text=True,
++        env={**fx.roots.with_env(), "SW_SRC_REPO": "/home/coder"},
++    )
++    assert r.returncode != 0 and "E_OVERRIDE" in r.stderr
++    assert not fx.sandbox.exists()
++    write_packages(fx, package_entry(fx, "0" * 40))
++    r = run(fx)
++    assert r.returncode == 2 and "E_BASE" in r.stderr
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index 26fb460b9..8e025ffa7 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -14,3 +14,4 @@ T6: start sha=aab9cc6fac7ea758afce8d30d4712d9585547373
+ T6: complete verdict=compliant ac=T6.AC1,T6.AC2,T6.AC3,T6.AC4,T6.AC5 evidence=T6.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T6-pytest.log:16,T6.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_cards.py:117,T6.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_cards.py:137,T6.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/cards.py:112,T6.AC5@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/README.md:30 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C1.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C2.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C3.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C4.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C5.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C6.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C7.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C8.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/README.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/schema.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/cards.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/fnd.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_cards.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_readme.py
+ T7: start sha=28525045077dd0602a27f05febd08da12ad4ab15
+ T7: complete verdict=compliant ac=T7.AC1,T7.AC2,T7.AC3 evidence=T7.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T7-pytest.log:12,T7.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_briefs.py:88,T7.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/briefs.py:124 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/base.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb1.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb2.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb3.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb4.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb5.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/k-lead.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/ledger-rule.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/sheet-block.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/copy-briefs.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/briefs.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_briefs.py
++T8: start sha=c02b9d74804102ca44e8f15e3d695443ad55570d

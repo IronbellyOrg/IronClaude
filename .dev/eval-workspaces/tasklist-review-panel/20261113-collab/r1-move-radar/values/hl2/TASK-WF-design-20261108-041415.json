@@ -1,0 +1,31 @@
+{
+ "critical_role": "searcher",
+ "finish_offset_s": 49.078199723434466,
+ "guard_offset_s": -67.85617610656021,
+ "hang_offset_s": 305.598,
+ "k": {
+  "searcher": 0,
+  "reader": 0
+ },
+ "panel": "hl2",
+ "pkg": "TASK-WF-design-20261108-041415",
+ "B_f": 203.732,
+ "turn_p90": {
+  "searcher": 46.69200015068054,
+  "reader": 14.263999938964844
+ },
+ "T_report_p90": {
+  "searcher": 179.268000125885,
+  "reader": 65.86899995803833
+ },
+ "E_p90": {
+  "searcher": 215.245,
+  "reader": 101.93
+ },
+ "source_runs": [
+  "hl2-c0-r1",
+  "hl2-c0-r2",
+  "hl2-c0-r3"
+ ],
+ "computed_utc": "2026-11-14T06:19:35Z"
+}

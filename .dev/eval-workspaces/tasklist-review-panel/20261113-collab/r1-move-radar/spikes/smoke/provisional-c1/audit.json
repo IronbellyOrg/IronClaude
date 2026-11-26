@@ -1,0 +1,14 @@
+{
+ "schema": "r1-audit/1",
+ "row": "el2-c1-r0",
+ "pkg": "TASK-WF-designSpec-20261107-075614",
+ "hard_failures": [],
+ "sandbox_clean": true,
+ "candidate_sha_unchanged": true,
+ "gt_substrings_in_board": 0,
+ "tele_naming_ground_truth": 0,
+ "validator_rejects": [],
+ "spot_check": [],
+ "leak_violations": 0,
+ "anon_leak": 0
+}

@@ -1,0 +1,50 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review; the findings were corrected once after a first review failed and passed the second).
+
+- **State:** still-relevant
+- **Complexity / size:** Complex / L
+- **Priority:** P1
+
+#### Concrete next steps
+1. No implementation is authorized. The coordinator should recover the missing debate and plan, check for a later owner decision, and present the choice to the owner in chat if it remains undecided. Do not infer not-planned from a parked proposal.
+2. If the owner chooses to keep the privileged automation off, record that explicit choice and which dependent capabilities remain disabled. Verify their actual state before claiming the issue's completion condition is met.
+3. Only if the owner chooses an automation-enabling solution, plan its minimum implementation and authorized one-host trial. For the separate-account proposal, #722 requires identity cutover, protection against an unapproved merge and direct master push, both reviewer bots on an agent-authored PR, and working claim writes. A GitHub App remains an unevaluated alternative, not an approved substitution. Do not run credential changes, denial probes, writes or activation from this review.
+4. Re-run the independent review gate against this revision and its successful live reads before using this report to close or change any issue. The previous QA remains FAIL until that separate review occurs. There is no authorization to perform a GitHub write here.
+
+#### Dependencies
+- **Needs:** the owner's explicit solution decision. If an automation-enabling route is chosen, it also needs the master-protection work called OA-5 in #722 (repository protection rules); a distinct prerequisite issue number was not verified.
+- **Blocks parts of [#716](https://github.com/IronbellyOrg/IronClaude/issues/716), the coordinator feature backlog:** privileged merge automation and coordinator autostart as identified by #722, not every coordinator feature.
+- **Blocks parts of [#717](https://github.com/IronbellyOrg/IronClaude/issues/717), the watcher feature backlog:** real-repository switch-on and the worker-binding flip as identified by #722, not all watcher implementation. Neither whole backlog must close before the owner can choose a solution.
+- The mapping from the local plan's stage labels to separately filed issues is **UNVERIFIED**, because the cited local plan is absent.
+
+#### Related issues
+- #716, coordinator feature backlog: directly mentioned by #722. Its live issue read was saved by the tool as a large result; full content was not needed to infer a whole-issue dependency and no such dependency is asserted.
+- #717, watcher feature backlog: directly mentioned by #722. Its live body includes narrower-token work and session-permission checks, which are adjacent to this decision, not substitutes for it.
+- Other numbered issues are not claimed as prerequisites or duplicates. No evidence read establishes that #722 duplicates a completed fix.
+
+#### Related PRs
+- [PR #686](https://github.com/IronbellyOrg/IronClaude/pull/686), the original orchestrator-wake watcher proposal: referenced indirectly by the issue's plan-folder name. Live read returned CLOSED, `mergedAt: null`, `mergeCommit: null`; its 2026-11-23 closing comment says PR #707 is the merged watcher design. Its body and returned discussion were read. Closing #686 did not complete the separate identity decision in #722.
+- [PR #707](https://github.com/IronbellyOrg/IronClaude/pull/707), the zero-setup watcher and approval-field work: the revision's independent live read returned MERGED at 2026-11-20T22:09:24Z, with merge commit 2ea524514154bde03258a7d7d8a0265c371609af and no closing issue references. Its body describes watcher/approval-field work, not a chosen human-identity mechanism; returned comments and review summaries do not record a solution choice for #722. This supports #686's closing note, not completion of #722. Direct source and regression-test reads still show host-login approval acceptance. Inline review-thread contents were not returned by these reads and remain **UNVERIFIED**.
+- No dedicated resolving PR for #722 was established. Bounded all-state PR searches (100-result limit each) for `722 in:title,body`, `"agent account" in:title,body` and `"host login" in:title,body` returned only unrelated PR #585 for the first query (its body mentions a document's line 722), and zero results for the other two. Neither #686 nor #707 has closing issue references. This is negative evidence from those searches only; PRs using other wording or linking #722 only in comments remain **UNVERIFIED**.
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+@ironbelly thank you for writing this up. A read-through of the approval flow found the same shared-login point, and we would like to add a view. Please correct anything we have misread.
+
+We read the shared login as a lower priority than the other watcher and coordinator work for now. The approval still needs a person to decide, and in practice the person tells an agent in chat and the agent sets the field. What would help is a recorded decision, even if it is "accepted for now, revisit when more people use one workspace", so the code's warning-only check (and the assignee rule in #698) stops being an open question. Would you be willing to record that, or does the owner prefer one of the four options in this issue first?
+
+Happy to help with either.
+
+--

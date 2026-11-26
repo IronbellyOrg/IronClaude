@@ -1,0 +1,23 @@
+{
+ "el2": {"critical_role": "reader", "planning_B": 116, "planning_T_report": 6.4, "planning_reader_end": 102, "G_s": 47,
+   "roles": {
+     "searcher": {"rid": "t2b-1", "model": "muse-ember-1.0", "checkpoints": [6, 10], "planning_turn": 3.2},
+     "reader": {"rids": ["t4-1", "t3-1"], "model": "gpt-6-luna", "checkpoints": [8, 12], "planning_turn": 6.4}},
+   "resolution": {"t2b-1": {"tier": "tier2b", "alias": "claude-gw-tier2b[1m]"},
+                  "t4-1": {"tier": "tier4", "alias": "claude-gw-tier4[1m]"},
+                  "t3-1": {"tier": "tier3", "alias": "claude-gw-tier3[1m]"}}},
+ "sl2": {"critical_role": "searcher", "planning_B": 273.7, "planning_T_report": 14, "planning_reader_end": 102, "G_s": null,
+   "roles": {
+     "searcher": {"rid": "t1b-1", "model": "claude-sonnet-5-5", "checkpoints": [6, 10], "planning_turn": 14},
+     "reader": {"rids": ["t4-1", "t3-1"], "model": "gpt-6-luna", "checkpoints": [8, 12], "planning_turn": 6.4}},
+   "resolution": {"t1b-1": {"tier": "tier1b", "alias": "claude-gw-tier1b[1m]"},
+                  "t4-1": {"tier": "tier4", "alias": "claude-gw-tier4[1m]"},
+                  "t3-1": {"tier": "tier3", "alias": "claude-gw-tier3[1m]"}}},
+ "hl2": {"critical_role": "searcher", "planning_B": 238, "planning_T_report": 23, "planning_reader_end": 102, "G_s": null,
+   "roles": {
+     "searcher": {"rid": "t2-1", "model": "claude-haiku-5-5", "checkpoints": [6, 10], "planning_turn": 23},
+     "reader": {"rids": ["t4-1", "t3-1"], "model": "gpt-6-luna", "checkpoints": [8, 12], "planning_turn": 6.4}},
+   "resolution": {"t2-1": {"tier": "tier2", "alias": "claude-gw-tier2[1m]"},
+                  "t4-1": {"tier": "tier4", "alias": "claude-gw-tier4[1m]"},
+                  "t3-1": {"tier": "tier3", "alias": "claude-gw-tier3[1m]"}}}
+}

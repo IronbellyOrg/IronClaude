@@ -1,0 +1,50 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Complex / L
+- **Priority:** P2
+
+#### Concrete next steps
+1. Complete the issue's ordered 18-point coverage document at a named current-master revision, comparing that revision with the issue's `0dd726d18` baseline. Preserve the original groups and wording as questions. For each point record fully/partly/not-at-all coverage, implemented versus planned status, evidence links and the remaining question; document the search scope when nothing is found.
+2. Incorporate known partial progress: coordinator wording in #752/#754 and the newly merged first-run retry PR #759 for #751. Reconcile each roadmap proposal with the existing R38 decision before calling it approved coverage. R38 is recorded at /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/releases/backlog/issue-watcher-zero-setup/requirements.md:64; this discussion does not override it.
+3. Obtain owner decisions in chat for the still-open points and record them through the coordinator. Only then update an existing issue or create a follow-up for the chosen remaining work. Do not change approval gates, auto-restart workers, reset watcher claims, push, merge or close anything as a consequence of this review.
+
+This cleanup review is not the complete coverage document and is not evidence that any of those owner decisions has been given.
+
+#### Dependencies
+No hard prerequisite issue is established for starting this research. Issues #716/#717, #698/#722, #733 and #725 are coverage inputs, not verified blocking dependencies. The owner-decision step depends on the completed coverage document; chosen follow-ups depend on the owner's decisions. Which implementation issues it will block is UNVERIFIED until those choices are recorded. The Coder restart-check question needs external-source verification, not a guessed local-code answer.
+
+#### Related issues
+Live issue-list state on 2026-11-24, with meaning limited to the discussion's stated related work:
+
+- [#716](https://github.com/IronbellyOrg/IronClaude/issues/716), OPEN: coordinator future-feature list; its body refers to the earlier unification plan. Reconcile with R38 rather than assume adoption.
+- [#717](https://github.com/IronbellyOrg/IronClaude/issues/717), OPEN: watcher future-feature list, explicitly says its items are not built. It is not implementation proof.
+- [#339](https://github.com/IronbellyOrg/IronClaude/issues/339), OPEN: orchestration across sessions within a worktree.
+- [#733](https://github.com/IronbellyOrg/IronClaude/issues/733), OPEN: unattended implementation mode.
+- [#655](https://github.com/IronbellyOrg/IronClaude/issues/655), CLOSED: older issue-polling orchestrator design, not automatically adopted by this issue.
+- [#698](https://github.com/IronbellyOrg/IronClaude/issues/698), OPEN: text-based release-worker/plan-approval checks and assignee shortcut.
+- [#722](https://github.com/IronbellyOrg/IronClaude/issues/722), OPEN: distinguishing owner approval from AI helpers sharing the login.
+- [#725](https://github.com/IronbellyOrg/IronClaude/issues/725), OPEN: peer coordinator read-only consultation before asking a person.
+- [#751](https://github.com/IronbellyOrg/IronClaude/issues/751), CLOSED: failed-first-run watcher retry, now linked by PR search to merged #759. Do not duplicate it as unimplemented solely from this older checkout.
+- [#409](https://github.com/IronbellyOrg/IronClaude/issues/409), OPEN: orchestration dashboard.
+
+Bodies were read for #716/#717/#751 and the target issue. Other entries were checked for live title/state only; their detailed acceptance coverage is UNVERIFIED. The broad related-issue query returned these entries; it was not an exhaustive duplicate search.
+
+#### Related PRs
+- [#707](https://github.com/IronbellyOrg/IronClaude/pull/707), MERGED, `2ea524514154bde03258a7d7d8a0265c371609af`: zero-setup watcher, stage-specific launch levels, Approved field and guard version 2. Read its body and comments. This implements the baseline, not the 18-point research and owner decisions.
+- [#752](https://github.com/IronbellyOrg/IronClaude/pull/752), MERGED, `5bae2f9c35b544c8a76e0e323ff852b5f8b97d72`: current coordinator glossary wording correction; read its body and merge state.
+- [#754](https://github.com/IronbellyOrg/IronClaude/pull/754), MERGED, `a7ae3dd30fcf88aaab655c37e94e58e121c2d863`: remaining current coordinator descriptions corrected while dated history was retained; read its body and merge state.
+- [#759](https://github.com/IronbellyOrg/IronClaude/pull/759), MERGED, `f75cf81e3bf9ad61e22bb2e8b81052aba233fc5b`: first-run retry for #751, discovered through an all-state PR search for `751`. Only list metadata verified; full body, diff, detailed behavior and deployed state are UNVERIFIED because related reads reached a shared API-rate-limit warning.
+
+An all-state PR search for `761` returned no results. This does not exclude unlinked or unpushed work. Detailed review of other PRs indirectly named by related issue bodies is outside this cleanup triage.
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+--

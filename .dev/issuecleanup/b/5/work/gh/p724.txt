@@ -1,0 +1,47 @@
+author:	chatgpt-codex-connector
+association:	none
+edited:	true
+status:	none
+--
+<!-- codex-pull-request-review-summary -->
+<!-- codex-review-state:v1 {"code_review":{"commit_sha":"f67e3dd16de68240b0fa56c07ed84ea8357b939c","has_any_findings":false,"has_unresolved_findings":false,"status":"completed"},"security_review":{"commit_sha":"f67e3dd16de68240b0fa56c07ed84ea8357b939c","has_any_findings":null,"has_unresolved_findings":null,"status":"completed"}} -->
+<!-- codex-security-review:v1 {"blockingSeverityThreshold":"P0","headSha":"f67e3dd16de68240b0fa56c07ed84ea8357b939c","mergeGateEnabled":false,"pullRequestNumber":724,"repository":"IronbellyOrg/IronClaude","status":"completed"} -->
+<details>
+<summary><strong>Codex Review Summary</strong>: ✅ Completed</summary>
+
+This comment shows the latest Codex review activity on this pull request.
+
+| Review | Status | Commit | Review trigger |
+| --- | --- | --- | --- |
+| 📝 **Code Review** | ✅ **Completed** <relative-time datetime="2026-11-22T11:27:18.774565Z">2026-11-22T11:27:18.774565Z</relative-time> | `f67e3dd` | PR opened |
+| 🔒 **Security Review** | ✅ **Completed** <relative-time datetime="2026-11-22T11:28:57.453451Z">2026-11-22T11:28:57.453451Z</relative-time> | `f67e3dd` | PR opened |
+
+
+
+<details> <summary>ℹ️ About Codex in GitHub</summary>
+<br/>
+
+[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you
+- Open a pull request for review
+- Mark a draft as ready
+- Comment "@codex review" or "@codex security review".
+
+Codex reacts with 👀 while any review is running, comments if it has suggestions, and reacts with 👍 once all reviews finish with no findings.
+
+</details>
+
+</details>
+--
+author:	augmentcode
+association:	none
+edited:	false
+status:	commented
+--
+<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=01M81G22K539731ZBSP2RXFX1R)🐛</sup>
+
+Review completed with 0 suggestions.
+
+<sub>Reviewed commit: `f67e3dd`</sub>
+
+<!-- cosmos-review-status:v1 {"specialist":"deep","status":"reviewed","baseline":"6b17a7449f9400a9acc4140d6ce48dec93a9de8e","head":"f67e3dd16de68240b0fa56c07ed84ea8357b939c","unresolved_count":0,"session_url":"https://cosmos.augmentcode.com/session?agentId=01M81G22K539731ZBSP2RXFX1R"} -->
+--

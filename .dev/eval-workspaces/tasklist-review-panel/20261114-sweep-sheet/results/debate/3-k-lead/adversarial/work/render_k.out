@@ -1,0 +1,16 @@
+K PARAGRAPH (1224 chars, 226 words):
+Eight kinds of defect to look for in your own review of the plan. Each one says what to look for. A plan may have none of them, one of them or several. (1) A criterion asks for a complete or exhaustive result over a set with no bounded method or stopping rule, or the criterion's scope differs from the scope of the instruction it checks. (2) A rule stated in the driving document is not carried into the plan's task text or criterion. (3) A value, field or state is read, mapped or required by one component and no row, task or step writes it for that case. (4) A criterion embeds a command, pattern or test selector whose literal form cannot match or cannot pass against the text or state the same plan orders. (5) After a change, a count, claim or copy in a second location is left stale because no task enumerates that location. (6) A sentence says "all", "only", "never" or "outside X nothing", and an inventory, the plan's other tasks or the scope of the enforcing test contradict it. (7) Verbatim text the plan dictates omits a clause of a constraint stated elsewhere, or contradicts the plan's own criterion. (8) A plan edits files or behavior that a test elsewhere pins, with no task that updates or runs that test.
+
+LEAD-IN (151 chars, 33 words): Eight kinds of defect to look for in your own review of the plan. Each one says what to look for. A plan may have none of them, one of them or several.
+Z0 chars 2921 words 470 parts ['base', 'cb1', 'cb2', 'cb3', 'cb4', 'cb5']
+K chars 4147 words 696 parts ['base', 'cb1', 'cb2', 'cb3', 'cb4', 'cb5', 'k']
+SS chars 4633 words 781 parts ['base', 'cb1', 'cb2', 'cb3', 'cb4', 'cb5', 'ledger-rule', 'sheet-block']
+K minus Z0 chars: 1226
+ledger-rule chars: 473  sheet-block chars: 1015
+
+FULL K BRIEF TAIL (last 1500 chars):
+ claim is at most 300 characters. Refs are at most 8. Write one findings-v1 block only. Copy the shortest part of the text that identifies the problem.
+
+The checks you were given do not replace your own review. Keep at least half of your time for your own review of the plan.
+
+Eight kinds of defect to look for in your own review of the plan. Each one says what to look for. A plan may have none of them, one of them or several. (1) A criterion asks for a complete or exhaustive result over a set with no bounded method or stopping rule, or the criterion's scope differs from the scope of the instruction it checks. (2) A rule stated in the driving document is not carried into the plan's task text or criterion. (3) A value, field or state is read, mapped or required by one component and no row, task or step writes it for that case. (4) A criterion embeds a command, pattern or test selector whose literal form cannot match or cannot pass against the text or state the same plan orders. (5) After a change, a count, claim or copy in a second location is left stale because no task enumerates that location. (6) A sentence says "all", "only", "never" or "outside X nothing", and an inventory, the plan's other tasks or the scope of the enforcing test contradict it. (7) Verbatim text the plan dictates omits a clause of a constraint stated elsewhere, or contradicts the plan's own criterion. (8) A plan edits files or behavior that a test elsewhere pins, with no task that updates or runs that test.

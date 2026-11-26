@@ -16,8 +16,8 @@
     {
       "id": 2,
       "name": "local-diff-vs-master",
-      "prompt": "Run /sc:auggie-review --diff origin/master...HEAD --no-post-pr --depth quick --output-dir /tmp/eval-diff/. This will review the uncommitted/branch changes against master. Use --focus quality,anti-patterns,architecture. At the end, print the report path and a one-line summary.",
-      "expected_output": "A REVIEW.md at /tmp/eval-diff/ scoped to the diff against master. Findings (if any) must cite files actually in the diff. Diff statistics should match `git diff --stat origin/master...HEAD`.",
+      "prompt": "Run /sc:auggie-review --diff origin/integration...HEAD --no-post-pr --depth quick --output-dir /tmp/eval-diff/. This will review the uncommitted/branch changes against integration. Use --focus quality,anti-patterns,architecture. At the end, print the report path and a one-line summary.",
+      "expected_output": "A REVIEW.md at /tmp/eval-diff/ scoped to the diff against integration. Findings (if any) must cite files actually in the diff. Diff statistics should match `git diff --stat origin/integration...HEAD`.",
       "files": [],
       "assertions": [
         { "text": "Output file /tmp/eval-diff/REVIEW.md exists after the eval completes", "type": "file_exists", "path": "/tmp/eval-diff/REVIEW.md" },

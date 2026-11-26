@@ -1,0 +1,90 @@
+#718 [OPEN] [FEATURE] TUI dashboard and report views: the features of issue 655 that our current plan does not cover
+## What was tried
+Issue 655 (Clay's design for an issue-polling orchestrator) was split into its 14 sections of the Proposed Solution, and one analyst per section classified every design feature against our current plan (the unification spec and its decision record). Result over all sections: 488 features, 248 already covered by the current plan, 124 in direct conflict (the current plan wins and that part of 655 is rejected), 116 not covered. The not-covered features were sorted into three groups: the coordinator, the watcher and the TUI dashboard. This issue holds the group for what the owner sees: the report entries, the observer and the dashboard: 7 classified rows, merged into 4 items below. Of the 116 not-covered rows, 115 appear in the three issues; one row (S10-F60, the ordering step 'wait for additions A to E', already done in Clay's own spec work) was left out because its analyst judged it not a product feature. Rows that said the same thing in several sections of 655 were merged into one item and keep their row ids. Wherever the current plan decided otherwise, the plan was kept and nothing from 655 is requested here. Dashes inside quotes were replaced with hyphens. The classification was done by agents; every `UNVERIFIED` mark in an item is theirs and still open.
+
+## Relevant files and links
+- Source design being mined: issue 655 `#655` (IronbellyOrg/IronClaude). Related existing issues: `#409` (TUI dashboard), `#706` (observer follow-up, sub-issue of 409), `#444` (coordinator or sub-orchestrator evaluation), `#450` (watcher rollout), `#665` (21 Medium findings in the 655 plan).
+- Sister issues of this split: coordinator #716, watcher #717, TUI dashboard #718.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+Every item below is built, tested and checked against its own line, or the owner records in chat that it is dropped. Item ids (D1 to D4) are used by the review at the end. The lines called related items are cross-references found in the analysis; they show what to read together, not a strict build order. The build order is in the review.
+
+- [ ] **D1. Each issue appears in one report only: the daily run skips issues that have an entry** (655 section 1, 7, 8; rows S01-F28, S07-F11, S08-F13)
+  - What to build: The daily report run leaves out every issue that has a living-report entry, so each issue appears in one report only, and the daily run is retired once the living report covers its content.
+  - Also in this item:
+    - S07-F11: Make the daily report skip every issue that has an entry file, and cover only the non-issue sources listed.
+    - S08-F13: Change the report so the daily run skips issue entries that `report-entry` owns and adds only ClickUp, direct messages, mentions and items with no issue.
+  - Done when: A test with one entry file and a matching issue shows the daily run's output has no block for that issue (the entry's url, `pr_url` and session links are excluded) and the entry file is byte-identical after the daily run.
+    - also: a test with one entry file and one daily item shows the issue absent from the daily output and the non-issue items present.
+    - also: a test of the daily run over a folder holding coordinator-written entry files leaves those files byte-identical and still produces the non-issue sections.
+  - Related items (read together; the order is in the review at the end): C14, C24
+  - Research and debate results from our documents:
+    - S01-F28: techref/OBSERVER-SWEEP-DASHBOARD-TECHNICAL-REFERENCE.md:809 "`exclude.py`: ... removes the issue url, the entry's `pr_url` and each `orca://session/<id>`; ... With no entry files it excludes nothing." - techref/OBSERVER-SWEEP-DASHBOARD-TECHNICAL-REFERENCE.md:823 "Daily report phased out for the living report (owner ruling 1) | designed; code still runs the daily pipeline" - DECISIONS.md:462 "Every action that builds on PR ...
+    - S07-F11: VERD(OAG1) `adversarial/adversarial/base-selection.md:76` "The daily report as the existing re-listing surface for an unanswered entry (`agent-work-report/SKILL.md:22,30`), with the caveat that it is configured for one named person today."; VERD(D11):107 "Whether Clay uses the daily report ... not checked."; TECHREF:809 `exclude.py` removes an entry's issue url, pr_url and `orca://session/<id>` from the daily items (an ...
+    - S08-F13: techref/OBSERVER-SWEEP-DASHBOARD-TECHNICAL-REFERENCE.md:823 "Daily report phased out for the living report (owner ruling 1) | designed; code still runs the daily pipeline". Line 810: `run.py refresh` "without `--run` it does nothing while a daily run holds the lock".
+  - Watch out:
+    - S01-F28: Moot on master today: the daily pipeline and `exclude.py` live in the removed skill (SPEC.md:758). The label "owner ruling 1" in the tech reference is UNVERIFIED as to who ruled (DECISIONS.md:456 says Clay's ruling 39 is "Clay's, not the owner's"); do not treat the phase-out as an owner decision. Builder should only build this ...
+    - S07-F11: Phasing the daily report out would remove the surface the plan uses for OA-25a (a waiting go is re-listed). Ask the owner before adopting "phased out".
+
+- [ ] **D2. Entry shows the human assignee, the coordinator session and the worker session as links** (655 section 7; rows S07-F7)
+  - What to build: Show, in each report entry, the human assignee and links to the holding coordinator session and the worker session that open in Orca, or "no live session" with a reason.
+  - Done when: a test renders an entry for a live and a dead worker; the live one carries an `orca://` link, the dead one reads "no live session" and a reason.
+  - Research and debate results from our documents:
+    - S07-F7: TECHREF:891 "6 deep links (no click-to-open) open"; TECHREF:841 "links must be `http(s)://` or `orca://`"; TECHREF:1235 "`prefs.py answer ... <session url>` cannot answer a 'Needs you' entry (C8-8, DEFECT-CANDIDATE)".
+  - Watch out:
+    - S07-F7: Click-to-open does not exist today (TECHREF:891). The observer's allowlist rule (FR-80) may forbid free text but allows links. Defect candidate C8-8 touches `orca://session` urls.
+
+- [ ] **D3. Where the report session and its state files live** (655 section 3; rows S03-F30)
+  - What to build: The owner records where the report session and its state and daily-run records live (a configured per-user path or a named repo), and the report reads and writes only that path.
+  - Done when: the report's `config.json` state path points to the chosen location on a fresh host with no hand edit, and a test shows no `"person"` or ClickUp ids in shipped config.
+  - Research and debate results from our documents:
+    - S03-F30: `.dev/brainstorms/20261120-pr686-unify/techref/OBSERVER-SWEEP-DASHBOARD-TECHNICAL-REFERENCE.md:799` the daily run starts "a detached `python -m http.server 8765 --bind 127.0.0.1 --directory <.dev/coordinator>`, which serves the whole folder (`settings.json` with ClickUp user and DM channel ids, `action-log.jsonl`, run folders)".
+  - Watch out:
+    - S03-F30: SECURITY: that same line shows the report serves its whole state folder; moving state into a shared private repo would put it under a git commit by the model (Step 14, same line 799) and a local web server. FR-46 (SPEC:257) already requires removing person-specific config (`"person": "clayphi"`) from the shipped report.
+
+- [ ] **D4. Keep the daily report running and the IronFlow copy of the report skill in step while the skill is absent** (655 section 12, 13; rows S12-F14, S13-F17)
+  - What to build: When the work-report skill changes in IronClaude, the copy in the IronFlow repo is updated to match, or the owner records that it is no longer kept.
+  - Also in this item:
+    - S13-F17: Say how the existing daily work report keeps running, and how the IronFlow copy of the report skill is kept in step, between PR 700 and any later restore of the skill.
+  - Done when: The owner records in chat which copy of the report skill runs the daily report and who updates the IronFlow copy until the report skill is restored; after the restore, a diff of the IronClaude skill files against the IronFlow copy shows no difference, or the owner drops the copy.
+  - Research and debate results from our documents:
+    - S12-F14: debates/D11/VERDICT.md:108 "The IronFlow coordinator spec was not read."
+    - S13-F17: DEC.md:24 "SUPERSEDED BY PR 700 for every action that builds on the skill." D11 VERDICT.md:108 "The IronFlow coordinator spec was not read."
+  - Watch out:
+    - S12-F14: UNVERIFIED which repo and which files "IronFlow copy" means; our documents never read it. Also touches an external repo; owner go needed, and nothing may touch SuperClaude-Org.
+    - S13-F17: UNVERIFIED whether the IronFlow copy still runs (not read here).
+
+## Pick-up note
+Nothing here is built. Do not start an item before the stage of the current plan that it extends has landed (see the review below). Every GitHub call for this work passes `--repo IronbellyOrg/IronClaude`. Where an item says UNVERIFIED, check it first. The plan and analysis files named above are local and not pushed to GitHub; the quotes in each item are what a reader of this issue has.
+
+### Review of the three issues together
+
+The split gives three issues: coordinator #716 (items C1 to C27), watcher #717 (items W1 to W15) and TUI dashboard #718 (items D1 to D4). The dashboard group is small on purpose: issue 655 is mostly about the poll and the coordinator, and only the work-report entries reach what the owner sees. Assumption: "the observer" in the request was read as the watcher, because the request listed dashboard, watcher and coordinator as the three groups. If the third issue was meant to be the observer screen, retitle #717 and move its items into the dashboard group; issues #409 and #706 already hold the observer work. One more reading: "with all features from our list" was taken as all not-covered features of that group.
+
+**How the items relate**
+
+1. The plan request crosses two issues. W2 (the poll sends one id-only plan request after one quiet hour) writes a wake item, and C15 (the coordinator saves its own record, acknowledges, then runs `/sc:issue --plan`) reads it. They share the wake item format and the closed table of reasons, and the hold-lifecycle test (T11) needs both. Fix the item format in the watcher change first, then build the consumer.
+2. The coordinator issue has three phases. Phase 1 is the skeleton: C1, C2, C4 and C6 (skill layout, STOP codes, loading Orca's own skill, verb list). Phase 2 is one cluster that must be built together, because its items refer to each other: C5 (Run binding, whose check needs the coordinator's own worker start), C7 to C15 (worker start, issue-body hash, handoff template, check-ins, worker_done, playbook, decision gates, report entry, plan request), C19 (settling a worker), C3 (the return contract that reports what C19 settles), C25 (template tests) and C27 (the capped notice after an escalation entry). Phase 3 is C16 to C18 and C20 to C24 (merge gate and safety files, hand-back, limits, text hygiene, tiers, repo overview, spec home). C26 (build process) applies to every pull request. The lines called related items in each item are cross-references, not a strict order; the order is this one.
+3. D2 (entry shows links and "no live session") repeats part of C14 (report entry content). Build the entry content once in C14; D2 then only adds the display.
+4. One owner decision gates the report items: restore the report skill from the archive branch or not (SPEC Appendix B.3, action 1). D1 and D2 cannot be built until the skill is restored. C14 and the entry line of C8 write into the same report entry, so they need the same decision before they are built. D3 starts with an owner decision (where the report session and its state live), and its config change and test wait for the restore like D1 and D2. D4 has two parts: the owner's answer on which copy runs the daily report can be given now, and its diff check waits for the restore.
+5. In the watcher issue, W14 (refuse a state folder that is not on a local disk) lands before W5 (lock and restart tests), because the restart test relies on a local, persistent state folder. W5 and W6 (shadow-run check) are gates before the first live enable. W3 and W8 are independent early items. W1 is independent for its baseline part; its hand-over check with `--take` waits for the coordinator command (plan stage S14). W4 (backoff) and W9 (conditional reads) wait for real GitHub replies captured in the live test and the shadow run, because their constants and savings are guesses until then. W7 (narrower token) waits for its trigger, the owner moving the poll off the CLI login, and W13 (store size bound) waits for its trigger, the store passing 1 MiB. W10 and W11 need output captured in the live test. W12 starts seven days after the first live enable. W15 comes after the live test.
+6. Every item extends a stage of the current plan: watcher items extend S11 and S12 (PR 686 adapted), coordinator items extend S13 to S15 (substrate, merge path, transport, hand-back, report entry), dashboard items extend S16 (observability), and the gates W5 and W6 belong to S17 (live tests). No item starts before its stage has landed.
+
+**Order to complete the issues**
+
+1. Watcher, first part: W1 (baseline part), W2, W3, W8 and W14, with W2 defining the plan-request wake item.
+2. Coordinator phase 1, then phase 2, then phase 3, as in point 2.
+3. TUI dashboard: the owner decisions of D3 and the first part of D4 any time; D1, D2, the config change and test of D3 and the diff part of D4 after C14 and the report-skill restore.
+4. Watcher, second part: W5 and W6 as the gates before enabling, then W4, W9, W10, W11 and W15 after the live test and shadow run, then W12 seven days after the first enable; W7 and W13 only when their triggers occur.
+
+So the watcher issue is opened first and closed last, the coordinator issue sits in the middle, and the dashboard issue is finished after the coordinator's report entry exists.
+
+**Decisions and risks that block items**
+
+- The owner decides whether to restore the report skill (blocks D1, D2, the config change of D3, the diff part of D4 and the report-entry items C14 and C8) and where the report session and its state live (D3).
+- The home of the coordinator spec (C24) needs one owner-named place.
+- The classification was made by agents. A separate reviewer agent spot-checked about 30 not-covered rows against the plan in two passes and found none already covered (one, the quiet clock inside W2, is partly covered by the plan's hold decision); treat any item whose evidence says UNVERIFIED as open until read against the code.
+

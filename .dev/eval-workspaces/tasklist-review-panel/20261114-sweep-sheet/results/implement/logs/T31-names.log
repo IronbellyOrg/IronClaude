@@ -1,0 +1,11 @@
+# T31 collect names
+Uninstalled 1 package in 15ms
+Installed 1 package in 20ms
+              <Function test_recall_definitions>
+              <Function test_covers_by_span_within_3>
+              <Function test_random_baseline_deterministic>
+              <Function test_beats_needs_a_margin_and_a_small_tail>
+              <Function test_gate_pass_and_fail>
+              <Function test_ablation_report_synthetic>
+              <Function test_command_line>
+              <Function test_help_and_no_ground_truth_path_in_the_script>

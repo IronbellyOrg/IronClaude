@@ -1,0 +1,34 @@
+{
+ "block_ok": {
+  "t3-1": true,
+  "t4-1": false,
+  "t4-2": true
+ },
+ "brief_ids": [
+  "L1"
+ ],
+ "cleared": [],
+ "clusters": [
+  {
+   "event": "opened",
+   "lid": "L1",
+   "members": [
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t4-2"
+    }
+   ]
+  }
+ ],
+ "decision": "REVISE",
+ "new": [
+  "L1"
+ ],
+ "refound": [],
+ "regressed": [],
+ "verdict": "FAIL",
+ "warnings": [
+  "t4-1: findings block problem (1 error(s)), first: heading '## Findings block' is missing"
+ ]
+}

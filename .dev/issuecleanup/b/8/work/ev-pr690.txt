@@ -1,0 +1,17 @@
+PR #690 feat(issue): /sc:issue --plan and --remaining (issue 655, PR P) [CLOSED] merged=-
+files: CHANGELOG.md, docs/user-guide/commands.md, docs/user-guide/flags.md, src/superclaude/agents/issue-worker-t1.md, src/superclaude/agents/issue-worker-t2.md, src/superclaude/agents/issue-worker-t3.md, src/superclaude/commands/issue.md, src/superclaude/skills/sc-issue-protocol/SKILL.md, src/superclaude/skills/sc-issue-protocol/refs/plan.md, src/superclaude/skills/sc-issue-protocol/refs/tiers.md, src/superclaude/skills/sc-issue-protocol/scripts/plan_body.py, tests/commands/test_issue_command.py, tests/skills/test_issue_protocol.py
+## What this changes
+
+`/sc:issue` gets a third mode. `/sc:issue --plan <number|url>` takes an issue that already exists and adds the plan sections it lacks (`## Priority`, `## Fix approach`, `## Test plan`) with one edit of the issue body and nothing else: no comment, label, assignment, ClickUp call, worktree or launch. `--remaining <file>` re-plans an issue that already has a plan: it rewrites `## Fix approach` and `## Test plan` to the scope that is left (a "Done so far" list and a "Remaining" list). This is the mode the orchestrator's plan step and its hand-back step call (spec issue 655, piece P).
+
+- Command: `src/superclaude/commands/issue.md` (flags, stops, examples). Skill: `sc-issue-protocol` `SKILL.md` and the new `refs/plan.md`. The three tier workers get a "plan sections" job. `refs/tiers.md` now names three modes (it said "either mode").
+- `scripts/plan_body.py` (standard library only, no network, no `gh`) was added on the owner's decision: it builds the new body and checks it (`check`, `splice`, `verify`), so the body write is deterministic and does not depend on a model copying the body byte for byte. The spec and plan did not list this file.
+- The re-plan marker carries a short hash: `<!-- sc:issue:replan round=<n> sha=<8 hex> -->` (first 8 hex digits of the SHA-256 of the remaining file). This differs from the spec text (`round=<n>` only); the owner agreed. It lets a second life of the same issue reach the same round with a different list and still be re-planned, while the same file twice writes nothing.
+- `docs/user-guide/commands.md` and `CHANGELOG.md` are shared with issue 668's pull request (#683, `/sc:closeout`). It merged first; `origin/master` was merged into this branch and both sides of the two conflicts were kept (the `/sc:closeout` row and the updated `/sc:issue` row, both changelog blocks).
+- A re-plan `splice` needs `--replaced-sha` (printed by `check --remaining`): when `## Fix approach` or `## Test plan` changed after the draft was written from them, it stops with `E-PLAN-RACE` and writes nothing, so a correction made meanwhile is never overwritten by an old draft. PR B's hand-back should pass it when it calls the re-plan.
+- CHANGELOG: one entry under `## [Unreleased]`, after PR D's block.
+
+Known limits:
+
+- The session still follows `refs/plan.md` as prose (reads the issue, compares the two body hashes, runs `gh issue edit`, retries a worker). Only the body building, the usability check of the drafted file and the read-back checks are code.
+- Issue text reaches the drafting worker only as fenced data, and the worker has the

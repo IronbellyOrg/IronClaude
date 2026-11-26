@@ -1,0 +1,102 @@
+{
+  "doc_id": "HO-3",
+  "plan": "TASK-WF-scIssueClaimPipe-20261107-063237",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "unassigned",
+      "blocking_in_implement": true,
+      "description": "The plan never mentions the write-verb audit in tests/skills/test_worker_contract.py, which scans skills, commands and agents for `git commit`, `git push`, `git add`, `gh pr` and similar and requires each hit to be classified by its exact line text. Task 5's template and Tasks 1-4 and 7 add such lines, so the suite fails from Task 5 on and no task says how to fix it. Each task that adds or edits such a line must name that test file, add an exact-text classification entry in one of the five categories, and update the key when a classified line is edited.",
+      "plan_quote": "do not run `/sc:implement`, `/task`, `git commit`, `git push` or `/sc:pr-submit`; print the plan path and `Waiting for approval`",
+      "evidence": ".dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md B-1 (:97-120); plan:64, plan:105-107, plan:130-133"
+    },
+    {
+      "id": "GT2",
+      "class": "unassigned",
+      "blocking_in_implement": true,
+      "description": "The `worktree` subcommand output has no tracked-files field, yet Task 4's claim.md step must print 'untracked, do not stage' only when no file under the worktree's .dev/issues/<N>/ is tracked, and the script owns every git call. Also, when `git ls-files` fails, run() returns a failed result without raising, the tracked set reads as empty, and a differing tracked file would be renamed to .prev and overwritten. The output needs a machine-readable tracked-files field that tells 'none tracked' from 'unknown', and the copy must fail without overwriting when ls-files fails.",
+      "plan_quote": "printing `{status, path, branch, match_key, warning, detail}` with `status` one of `created`, `reused`, `failed`.",
+      "evidence": ".dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md B-2 (:124-138); plan:49, plan:57, plan:84"
+    },
+    {
+      "id": "GT3",
+      "class": "unassigned",
+      "blocking_in_implement": true,
+      "description": "The submit block of the launch template tells the agent to check for an open PR, which can be written as `gh pr list --head <branch>` with no `--repo`, and templates are outside the fork-safety scan (`_FORK_FILES`). A launched agent could reach the upstream repository while every test passes. Every gh call in the submit block must name `--repo IronbellyOrg/IronClaude`, and a test must scan the template.",
+      "plan_quote": "check that no PR is already open or merged for the branch; commit with a conventional-commit message",
+      "evidence": ".dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md B-3 (:142-155); plan:101"
+    },
+    {
+      "id": "GT4",
+      "class": "unassigned",
+      "blocking_in_implement": true,
+      "description": "Task 7 tells the implementer to replace the claim-mode return contract with the ten new fields, but SKILL.md:101-115 is one contract shared by both modes and carries `status`, `issue_number` and `next_steps_path`, which the claim still needs. A literal replacement drops them or changes create mode, and ST-10 (only checks the ten fields exist) would still pass. The correct change extends the shared contract and ST-10 also checks the kept fields.",
+      "plan_quote": "replace the claim-mode return contract with the ten fields of design section 10",
+      "evidence": ".dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md B-4 (:159-171); plan:130"
+    },
+    {
+      "id": "GT5",
+      "class": "unassigned",
+      "blocking_in_implement": true,
+      "description": "ST-4 bans the Orca link flags in the skill, refs, command and script but gives no matching rule. A substring scan fails on existing text (`--pr` is a prefix of `--prompt`; `--issue-url` already appears in claim.md and clickup_claim.py; the prose '--model flag' in tiers.md), and a line scan misses a wrapped argv list. The rule must match whole tokens on orca command lines only, exclude the launch call, and find the argv in orca_worktree.py by parsing it with ast.",
+      "plan_quote": "ST-4 (no forbidden Orca flag in skill, refs, command or script outside the launch call)",
+      "evidence": ".dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md B-5 (:175-189); plan:130, plan:162"
+    },
+    {
+      "id": "GT6",
+      "class": "unassigned",
+      "blocking_in_implement": true,
+      "description": "Several required tests and safeguards have no owning task: LA-7 is not among LA-1 to LA-6, ARG-1 (bad or missing arguments exit 2) is tested only on `preflight`, ST-5's template row and ST-6's Wave 8 half are unpinned, and Task 6 drops the detail telling the user to check Orca before re-running after a timeout, the note that a hand-started agent is not governed by the hook, and the rule that the pending record stays. An implementer builds none of them. Task 6 must add LA-7 and assertions for the dropped safeguards, and Tasks 2, 5 and 6 one ARG-1 case each.",
+      "plan_quote": "LA-5 (shim pass on `[ccsession]` and on the question text; fail on neither, unreadable terminal, no handle)",
+      "evidence": ".dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md B-6 (:193-210); plan:41-43, plan:116, plan:119, plan:130"
+    },
+    {
+      "id": "GT7",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The two-way inventory test needs a files-table row for every file under refs, templates and scripts, but the row for scripts/orca_worktree.py arrives in Task 4 and the template row in Task 7, long after Tasks 1 and 5 create those files. The acceptance runs of Tasks 1, 2, 3, 5 and 6 use -k filters and never run the whole file, so the gap only closes late. The rows should be added in the tasks that create the files.",
+      "plan_quote": "add the `scripts/orca_worktree.py` row to the files table; update the claim-mode paragraph",
+      "evidence": ".dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md M-1 (:216-227); plan:30, plan:86, plan:95, plan:130"
+    },
+    {
+      "id": "GT8",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The launch and worktree outputs have a single `warning` field holding only the code that set the status, but two codes can apply at once (W-ENFORCEMENT-ABSENT with W-LAUNCH-NOT-CCSESSION; W-ORIGIN-BASE-STALE with the .prev W-WORKTREE-COPY-FAILED). The remedy for the dropped code is lost, and `enforcement_hook` has no value on `already_launched`. The design must state precedence or carry every code, and define the hook value.",
+      "plan_quote": "The warning field holds the one code that set the status; any other problem goes in `detail`.",
+      "evidence": ".dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md M-2 (:231-245); plan:56-59, plan:116, plan:119"
+    },
+    {
+      "id": "GT9",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The SKILL.md edits cover claim step 1 and step 7 only, and the SKILL.md and issue.md description lines that still say a claim stops after writing the next steps are not updated. SKILL.md steps 6 and 7 would still tell the reader to stop before the launch, and Task 3 leaves issue.md:3, :68, :71 and :100 stale. Tasks 3, 4 and 7 must rewrite those lines.",
+      "plan_quote": "update the claim-mode paragraph and claim step 1 (Wave 0 check) and step 7 (Wave 6 now continues to the worktree step)",
+      "evidence": ".dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md M-3 (:249-262); plan:70-72, plan:86, plan:130"
+    },
+    {
+      "id": "GT10",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Tasks 7 and 9 consume Task 3's flags, STOP codes and command text (Task 7 requires its text to match the command file) but neither lists Task 3 as a dependency. An executor that orders by the dependency lines can run them before Task 3. Task 3 must be added to the dependencies of Tasks 7 and 9.",
+      "plan_quote": "Task 7: Add Wave 5 additions, Wave 8, the Plan boundary line and the claim return contract",
+      "evidence": ".dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md M-4 (:266-275); plan:124, plan:153"
+    },
+    {
+      "id": "GT11",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "On a re-claim at a new level, Wave 5 rewrites launch-prompt.md and Wave 7 copies it into the worktree before Wave 8 returns `already_launched`, so the running agent's prompt file no longer matches the level in its launch record. The plan must not replace the prompt file when a launch record already exists.",
+      "plan_quote": "before Wave 7 so the copy carries it. Add Wave 8: runs only when `--pipeline` is not `none` and Wave 7 status is `created` or `reused`",
+      "evidence": ".dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md M-5 (:279-288); plan:128"
+    },
+    {
+      "id": "GT12",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 1's run() helper returns a failed result for a timeout, a nonzero exit or a missing binary without marking the timeout apart. Task 2 must treat a create that times out differently (list again) from a nonzero create exit (fail at once). An implementer builds a run() that cannot tell them apart, so a worktree created during a timeout is reported failed with no record. run() must mark timeouts and Task 2 needs an FO case for it.",
+      "plan_quote": "returns a failed result (never raises) on timeout, nonzero exit or missing binary.",
+      "evidence": ".dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md M-6 (:292-307); plan:34, plan:56, plan:62"
+    }
+  ]
+}

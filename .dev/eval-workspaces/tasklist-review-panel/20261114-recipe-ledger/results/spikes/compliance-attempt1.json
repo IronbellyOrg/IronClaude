@@ -1,0 +1,40 @@
+{
+ "format_errors": 0,
+ "ledger_missing": {
+  "count": 2,
+  "limit": 0.1,
+  "pass": false,
+  "rate": 0.14285714285714285
+ },
+ "none_found": {},
+ "over_budget": {
+  "lens": 0,
+  "recipe": 0
+ },
+ "quote_plan": {
+  "ok": 127,
+  "rows_with_quote": 150,
+  "share": 0.8466666666666667
+ },
+ "reask": {
+  "accepted": 0,
+  "asked": 0
+ },
+ "recipe_missing": {
+  "C2": 2,
+  "C4": 7,
+  "C5": 5,
+  "C6": 5,
+  "C7": 2,
+  "C8": 5
+ },
+ "reviewer_runs": 14,
+ "reviewers_without_ledger_file": 1,
+ "rows_per_reviewer": {
+  "t2b-1": 12.4,
+  "t3-1": 12.2,
+  "t4-1": 14.0
+ },
+ "runs_checked": 5,
+ "notes_by_rl_session": "2026-11-15 13:50 UTC. Gate FAILED (2 of 14 = 14.3% > 10%). Detail: c3 t4-1 (luna 2) wrote no ledger block; c4 t4-1 (luna 2) wrote a ledger block but put a '## Follow-up candidates' section between it and the findings block (the check requires 'directly above'); c2 t4-1 (luna 2) was killed at 192 s with no output (exit 124; not counted in the 14). recipe_missing for ember (C4,C5,C6,C8) in all 5 runs is an id-format issue: ember wrote row ids as 'R-C4.1' (the brief heading style) instead of 'C4.1', so the check lists them as unknown items; the rows hold real work. Not a pass by itself."
+}

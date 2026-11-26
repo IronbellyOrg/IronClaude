@@ -1,0 +1,1595 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/bad_json_line.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/bad_json_line.md
+new file mode 100644
+index 000000000..f401a99d4
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/bad_json_line.md
+@@ -0,0 +1,21 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++{"item": "S2", "verdict": "PROBLEM", "quote_plan": "Every module under `src/exporter/` returns an empty result for an empty report.", "quote_other": "The exporter package has no network access.", "problem": "broken line below", "ran": "compared the two texts"
++{"item": "S3", "verdict": "PROBLEM", "quote_plan": "No remaining `3 report formats` text exists in `docs/guide.md`.", "quote_other": "docs/guide.md:14: The exporter writes 3 report formats to disk.", "problem": "The grep still finds the old count text.", "ran": "ran git grep on the guide"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.", "probe": "S1"}
++{"id": "F2", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "Every module under `src/exporter/` returns an empty result for an empty report.", "refs": [], "claim": "An implementer who follows the stated text as written builds a module that returns an empty result, and that is wrong because no criterion tests it.", "probe": "S2"}
++{"id": "F3", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "No remaining `3 report formats` text exists in `docs/guide.md`.", "refs": [], "claim": "An implementer who follows the stated text as written builds a guide that still shows the old count, and that is wrong because no criterion tests it.", "probe": "S3"}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/blocking_no_cb3.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/blocking_no_cb3.md
+new file mode 100644
+index 000000000..55437c853
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/blocking_no_cb3.md
+@@ -0,0 +1,17 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "The purge task and the source disagree about held reports.", "probe": "S1"}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/blocking_with_cb3_near_id.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/blocking_with_cb3_near_id.md
+new file mode 100644
+index 000000000..47c7170f6
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/blocking_with_cb3_near_id.md
+@@ -0,0 +1,36 @@
++review: 1 of 3
++
++Notes on F1:
++An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.
++Filler line 1 about the exporter.
++Filler line 2 about the exporter.
++Filler line 3 about the exporter.
++Filler line 4 about the exporter.
++Filler line 5 about the exporter.
++Filler line 6 about the exporter.
++Filler line 7 about the exporter.
++Filler line 8 about the exporter.
++Filler line 9 about the exporter.
++Filler line 10 about the exporter.
++Filler line 11 about the exporter.
++Filler line 12 about the exporter.
++Filler line 13 about the exporter.
++Filler line 14 about the exporter.
++Filler line 15 about the exporter.
++Notes on F2: the empty-report rule is unclear.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++{"item": "S2", "verdict": "PROBLEM", "quote_plan": "Every module under `src/exporter/` returns an empty result for an empty report.", "quote_other": "The exporter package has no network access.", "problem": "A module may need the network to be empty-safe.", "ran": "compared two plan lines"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "The purge task and the source disagree about held reports.", "probe": "S1"}
++{"id": "F2", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "Every module under `src/exporter/` returns an empty result for an empty report.", "refs": [], "claim": "The empty-report rule may need the network.", "probe": "S2"}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/dup_line.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/dup_line.md
+new file mode 100644
+index 000000000..bf9862fb6
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/dup_line.md
+@@ -0,0 +1,19 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++{"item": "S1", "verdict": "OK", "quote_plan": "", "quote_other": "", "problem": "", "ran": "second line"}
++{"item": "S2", "verdict": "OK", "quote_plan": "", "quote_other": "", "problem": "", "ran": "compared both scopes"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.", "probe": "S1"}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/findings_twice.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/findings_twice.md
+new file mode 100644
+index 000000000..6b95b0d2c
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/findings_twice.md
+@@ -0,0 +1,21 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.", "probe": "S1"}
++```
++
++```findings-v1
++{"id": "F3", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "No remaining `3 report formats` text exists in `docs/guide.md`.", "refs": [], "claim": "An implementer who follows the stated text as written builds a guide that still shows the old count, and that is wrong because no criterion tests it.", "probe": "S3"}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/findings_unclosed.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/findings_unclosed.md
+new file mode 100644
+index 000000000..352696e3c
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/findings_unclosed.md
+@@ -0,0 +1,14 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.", "probe": "S1"}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/good.attempt1.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/good.attempt1.json
+new file mode 100644
+index 000000000..3d26fc151
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/good.attempt1.json
+@@ -0,0 +1,56 @@
++[
++ {
++  "type": "system",
++  "subtype": "init",
++  "model": "gpt-6-luna",
++  "session_id": "s0"
++ },
++ {
++  "type": "assistant",
++  "message": {
++   "model": "gpt-6-luna",
++   "content": [
++    {
++     "type": "text",
++     "text": "I will search the guide."
++    },
++    {
++     "type": "tool_use",
++     "id": "t1",
++     "name": "Bash",
++     "input": {
++      "command": "git grep -n 'report formats' -- docs/guide.md"
++     }
++    }
++   ]
++  }
++ },
++ {
++  "type": "user",
++  "message": {
++   "role": "user",
++   "content": [
++    {
++     "type": "tool_result",
++     "tool_use_id": "t1",
++     "content": "docs/guide.md:14: The exporter writes 3 report formats to disk.\ndocs/guide.md:20: See also the retention window."
++    }
++   ]
++  }
++ },
++ {
++  "type": "result",
++  "subtype": "success",
++  "result": "(final message, see good.md)",
++  "usage": {
++   "input_tokens": 100,
++   "output_tokens": 50
++  },
++  "modelUsage": {
++   "gpt-6-luna": {
++    "inputTokens": 100,
++    "outputTokens": 50
++   }
++  }
++ }
++]
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/good.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/good.md
+new file mode 100644
+index 000000000..3373859e7
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/good.md
+@@ -0,0 +1,21 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++{"item": "S2", "verdict": "OK", "quote_plan": "", "quote_other": "", "problem": "", "ran": "compared both scopes"}
++{"item": "S3", "verdict": "PROBLEM", "quote_plan": "No remaining `3 report formats` text exists in `docs/guide.md`.", "quote_other": "docs/guide.md:14: The exporter writes 3 report formats to disk.", "problem": "The grep still finds the old count text.", "ran": "ran git grep on the guide"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.", "probe": "S1"}
++{"id": "F2", "severity": "CRITICAL", "blocking": true, "category": "other", "anchor": "The exporter package has no network access.", "refs": [], "claim": "No task checks the network rule."}
++{"id": "F3", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "No remaining `3 report formats` text exists in `docs/guide.md`.", "refs": [], "claim": "An implementer who follows the stated text as written builds a guide that still shows the old count, and that is wrong because no criterion tests it.", "probe": "S3"}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ledger_after_findings.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ledger_after_findings.md
+new file mode 100644
+index 000000000..43dc9b248
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ledger_after_findings.md
+@@ -0,0 +1,18 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.", "probe": "S1"}
++```
++
++verdict: FAIL
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++{"item": "S2", "verdict": "OK", "quote_plan": "", "quote_other": "", "problem": "", "ran": "compared both scopes"}
++```
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ledger_missing.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ledger_missing.md
+new file mode 100644
+index 000000000..c71a993d8
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ledger_missing.md
+@@ -0,0 +1,11 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.", "probe": "S1"}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ledger_twice.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ledger_twice.md
+new file mode 100644
+index 000000000..25a2634c2
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ledger_twice.md
+@@ -0,0 +1,21 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++```
++
++```ledger-v1
++{"item": "S2", "verdict": "OK", "quote_plan": "", "quote_other": "", "problem": "", "ran": "compared both scopes"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.", "probe": "S1"}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ledger_unclosed.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ledger_unclosed.md
+new file mode 100644
+index 000000000..ebb6d7d11
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ledger_unclosed.md
+@@ -0,0 +1,17 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++{"item": "S2", "verdict": "OK", "quote_plan": "", "quote_other": "", "problem": "", "ran": "compared both scopes"}
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.", "probe": "S1"}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ok_but_finding.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ok_but_finding.md
+new file mode 100644
+index 000000000..f4671ce22
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/ok_but_finding.md
+@@ -0,0 +1,17 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "OK", "quote_plan": "", "quote_other": "", "problem": "", "ran": "compared both scopes"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.", "probe": "S1"}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/quote_wraps_line.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/quote_wraps_line.md
+new file mode 100644
+index 000000000..408aa89cd
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/quote_wraps_line.md
+@@ -0,0 +1,19 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "Create `src/exporter/notice.py`. Write the notice body\nexactly as the quote below, with the report id filled in.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The notice text is dictated and also constrained.", "ran": "compared the two texts"}
++{"item": "S2", "verdict": "PROBLEM", "quote_plan": "Source sections: 2.1 Acceptance criteria:", "quote_other": "The exporter package has no network access.", "problem": "The criteria block does not follow the source sections line.", "ran": "compared the two texts"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "Write the notice body exactly as the quote below", "refs": [], "claim": "An implementer who follows the stated text as written builds a notice with a fixed text, and that is wrong because no criterion tests it.", "probe": "S1"}
++{"id": "F2", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "Source sections: 2.1\nAcceptance criteria:", "refs": [], "claim": "An implementer who follows the stated text as written builds a task with no source, and that is wrong because no criterion tests it."}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/unknown_item.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/unknown_item.md
+new file mode 100644
+index 000000000..4a0c5e3f9
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/unknown_item.md
+@@ -0,0 +1,18 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++{"item": "S9", "verdict": "PROBLEM", "quote_plan": "No remaining `3 report formats` text exists in `docs/guide.md`.", "quote_other": "The exporter package has no network access.", "problem": "no such item", "ran": "compared the two texts"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.", "probe": "S1"}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/unsure_with_blocking.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/unsure_with_blocking.md
+new file mode 100644
+index 000000000..0327c6885
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/unsure_with_blocking.md
+@@ -0,0 +1,17 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "UNSURE", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "not sure the clause binds", "ran": "compared task and source"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.", "probe": "S1"}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/verdict_lowercase.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/verdict_lowercase.md
+new file mode 100644
+index 000000000..6c5af5522
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/verdict_lowercase.md
+@@ -0,0 +1,20 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "problem", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++{"item": "S2", "verdict": " ok ", "quote_plan": "", "quote_other": "", "problem": "", "ran": "compared both scopes"}
++{"item": "S3", "verdict": "Problem", "quote_plan": "No remaining `3 report formats` text exists in `docs/guide.md`.", "quote_other": "docs/guide.md:14: The exporter writes 3 report formats to disk.", "problem": "The grep still finds the old count text.", "ran": "ran git grep on the guide"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "The purge step keys on `legal_hold` and leaves such reports in place.", "refs": [], "claim": "An implementer who follows the stated text as written builds a purge that keeps held reports, and that is wrong because no criterion tests it.", "probe": "S1"}
++{"id": "F3", "severity": "CRITICAL", "blocking": true, "category": "missing-requirement", "anchor": "No remaining `3 report formats` text exists in `docs/guide.md`.", "refs": [], "claim": "An implementer who follows the stated text as written builds a guide that still shows the old count, and that is wrong because no criterion tests it.", "probe": "S3"}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/transcript-shapes.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/transcript-shapes.md
+new file mode 100644
+index 000000000..a4bca2926
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/transcript-shapes.md
+@@ -0,0 +1,53 @@
++# Transcript shapes (step 0.4, run by Task 24)
++
++Method: `jq` over one finished `*.attempt1.json` per reviewer model, under
++`.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/reviews/combos/`.
++The model of each file was taken from its own `assistant` events (`message.model`) and from `result.modelUsage` keys.
++Only `*.attempt1.json` files were opened. No ground-truth, score, judge or verdict file was opened.
++All four models had a finished run on disk.
++
++| model | file (under `reviews/combos/`) | events |
++|---|---|---|
++| `muse-ember-1.0` (ember) | `e2-ember-luna2-rep/t2b-1.attempt1.json` | 59: system/init 1, system/thinking_tokens 4, assistant 36, user 17, result/success 1 |
++| `gpt-6-luna` (luna) | `e2-ember-luna2-rep/t4-1.attempt1.json` | 31: system/init 1, assistant 18, user 11, result/success 1 |
++| `claude-haiku-5-5` (haiku) | `c1-haiku-luna/t4-1.attempt1.json` | 152: system/init 1, system/thinking_tokens 129, assistant 14, user 7, result/success 1 |
++| `claude-sonnet-5-5` (sonnet) | `b4-sonnet-luna2/t1b-1.attempt1.json` | 174: system/init 1, system/thinking_tokens 129, assistant 28, user 15, result/success 1 |
++
++## File shape (same for all four)
++
++The file is one JSON array of event objects. Event `type` values seen: `system` (subtype `init`, and `thinking_tokens`
++for ember, haiku and sonnet), `assistant`, `user`, `result` (subtype `success`).
++
++- `assistant`: keys `message, parent_tool_use_id, session_id, thinking_duration_ms, timestamp, type, uuid, wire_tool_inputs`.
++  `message.content` is an array of blocks of type `thinking`, `text` and `tool_use`. The model name is `message.model`.
++- `user`: keys `message, parent_tool_use_id, session_id, timestamp, tool_result_meta, tool_use_result, type, uuid`.
++  `message.content` is an array. Luna also has two `user` events with `isSynthetic` and a `text` block (no `tool_result`,
++  `tool_use_result` is null).
++- `result`: `result` is a string (the final message), plus `usage` (keys include `input_tokens`, `output_tokens`,
++  `cache_read_input_tokens`) and `modelUsage` (an object keyed by model name).
++
++## The `tool_result` shape (same for all four)
++
++A `tool_result` is a block inside the array `user.message.content`:
++
++```
++{"type": "tool_result", "tool_use_id": "<id>", "content": "<string>", "is_error": false | absent}
++```
++
++- `content` is always a JSON **string** in all four runs (no model had an array-of-blocks `content`; the count of array
++  `content` values was 0 for each).
++- `is_error` is present as `false` on some blocks and absent on others (ember 9 present / 8 absent; luna 0 / 9; haiku 5 / 2;
++  sonnet 13 / 2). No `true` value was seen.
++- The block types inside `user.message.content` are `tool_result` only (ember, haiku, sonnet) and `tool_result` plus `text`
++  (luna, the two synthetic events).
++- The sibling field `tool_use_result` on the event is an object whose keys depend on the tool: `Read` gives `file, type`;
++  `Bash` gives `interrupted, isImage, noOutputExpected, stderr, stdout`; `Skill` gives `commandName, success`. Sonnet's Bash
++  results can also carry `persistedOutputPath, persistedOutputSize`: a long result is stored in a file and the block
++  `content` holds only a preview. A flattened-substring test over `content` therefore sees only the preview of such a result.
++- Tools used: ember `Bash` 9, `Read` 8; luna `Read` 8, `Skill` 1; haiku `Bash` 5, `Read` 2; sonnet `Bash` 13, `Read` 2.
++
++## What the `transcript` corpus (DESIGN DD-2) reads
++
++For each `user` event, each `message.content` block with `type == "tool_result"` and a string `content`. A reader must also accept
++an array `content` of `{"type": "text", "text": ...}` blocks (not seen in these four files, but part of the stream format), and must
++skip `user` events whose `message.content` is a plain string.
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/ledgerv1.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/ledgerv1.py
+new file mode 100644
+index 000000000..b41467c87
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/ledgerv1.py
+@@ -0,0 +1,578 @@
++"""ledger-v1 reader, the four row checks, linking and demotion (DESIGN 9.1 to 9.3, DD-2, DD-3, DD-12 reading side).
++
++    read_ledger(report, assigned)   the `## Ledger` block of a reviewer's final message as rows, with every format
++                                    problem counted (DESIGN 9.1)
++    Corpora / transcript_results    the four places a `quote_other` may come from (DD-2)
++    check_report(report, ...)       reader + checks 1 to 4 (9.2) + linking + demotion (9.3) for one reviewer; returns
++                                    the checked text (the raw report is never edited) and every count
++    carries_cb3(...)                the CB-3 sentence rule
++
++Not here: promotion of a PROBLEM row that has no findings line, the telemetry keys (`class`, `src`) and the aggregate
++`check.json` (Task 25). The demotion step changes only `"blocking": true` to `false` on a linked line and keeps every
++other key, so what Task 25 adds sits on top of this text. Findings parsing comes only from scaffold/fnd.py.
++
++Gaps in DESIGN 9 resolved here (each is a choice the design leaves open; every one is covered by a test):
++  G1  `corpus` is the FIRST match in the order of DD-2: source, candidate, sheet, transcript. A quote that is also in
++      the transcript only because the reviewer read the candidate (nearly every run) is therefore `candidate`, not
++      `transcript`, so a row whose two quotes are the same plan text cannot pass as a "search result". Consequence:
++      a `sheet` or `transcript` match is never in the candidate, so it always differs from the plan quote and
++      `search_supported` implies `quotes_supported`; the flag is kept because 9.2 check 4 defines it.
++  G2  Sheet corpus (9.2 check 3, "a printed tool line of this item"): the evidence `text` of the row's item, and the
++      same entry in its printed form (`plan line 85: <text>`, `<path>:12: <text>`; render.py's form).
++  G3  Transcript corpus: the string `content` of every `tool_result` block of every `user` event (a list of `text`
++      parts is joined per part). One block is one corpus entry: a quote cannot span two tool results. Nothing
++      from `assistant` events is read here. Real files: results/transcript-shapes.md.
++  G4  Where the ledger is looked for (9.1 items 1 and 2). `findings_heading_missing` (no `## Findings block`, so no
++      span), `ledger_heading_missing`, `ledger_after_findings` (every `## Ledger` heading is below the findings
++      heading), `heading_between` (another heading, outside code fences, sits between the two), `no_block`,
++      `two_blocks` (counted over the whole report, so a stray block before the heading also counts), `unclosed`
++      (the fence never closes, or it swallows the findings heading) and `block_outside_span`. Each is
++      `ledger_missing` and leaves no rows. The last `## Ledger` heading above the findings heading is the one used.
++  G5  A line that is a format error but names an assigned item (`"item": "S2"` is read from the object, or from the
++      text by a regular expression when the JSON is broken) makes that item `broken`, unless a good row for it
++      exists. A finding linked to a broken row gets the cause `row_missing`. An item with no line at all is in
++      `missing_line` and is NOT a broken row; a finding whose probe names it is not linked to anything (there is no
++      row) unless its anchor contains another row's `quote_plan`.
++  G6  Quote linking needs a `quote_plan` of at least 12 flattened characters (the schema floor), so a three-letter
++      quote cannot link every finding.
++  G7  A finding that would be demoted for more than one cause counts every cause that holds in `demoted`, and once
++      in `demoted_findings`. `format_induced` is true only when every cause is format-induced: `row_missing`, or
++      `row_unsupported` where `problem` and both quotes are present and a quote test failed.
++  G8  A linked finding whose row is `OK` is left alone whatever its blocking flag (DESIGN 9.3, "left alone"); it is
++      counted as `ok_but_finding` whether or not it is blocking.
++  G9  `CHECK_SCOPE=all` (never used in an arm): an unlinked blocking finding is held to the same rule with its own
++      `anchor` and `anchor2` as the two quotes: `anchor` must be in the candidate, `anchor2` must be in one of the
++      four corpora (the sheet corpus is then every item's tool lines), and the two must differ, or `anchor2` is a
++      sheet or transcript match. Causes are `row_unsupported` and `no_cb3`.
++  G10 When the findings block is unusable (missing, unclosed or duplicated; DESIGN 9.3 "Block repair is out of scope")
++      the text comes back unchanged and `block_unusable` names the reason; rows are still read and checked.
++  G11 `CB-3` window: the sentence counts when it lies within 12 lines above or below a line that holds the finding
++      id as a whole word, in the report text above the `## Findings block` heading. Lines are joined and flattened
++      first, so a sentence wrapped over two lines still counts.
++  Not resolved (the design gives no number): `quote_other` has no minimum length, so a very short second quote
++  passes check 3 if it occurs anywhere in a corpus.
++"""
++
++from __future__ import annotations
++
++import json
++import os
++import re
++from collections.abc import Iterable, Sequence
++from pathlib import Path
++
++from scaffold import fnd
++
++HEAD_LEDGER = re.compile(r"^#{1,6}\s+Ledger\s*$", re.M | re.I)
++_HEADING_LINE = re.compile(r"^#{1,6}\s+\S")
++_FENCE_LINE = re.compile(r"^\s{0,3}(`{3,}|~{3,})\s*([^`\s]*)\s*$")
++_ITEM_TEXT = re.compile(r'"item"\s*:\s*"([^"]+)"')
++
++CB3_SENTENCE = "An implementer who follows the stated text as written builds"
++VERDICTS = ("OK", "PROBLEM", "UNSURE")
++CAUSES = ("row_unsupported", "row_unsure", "no_cb3", "row_missing")
++SCOPES = ("linked", "all")
++CORPORA = ("source", "candidate", "sheet", "transcript")
++QUOTE_PLAN_MIN = 12
++QUOTE_PLAN_MAX = 200
++PROBLEM_MAX = 300
++RAN_MAX_WORDS = 15
++CB3_WINDOW = 12
++_TEXT_KEYS = ("quote_plan", "quote_other", "problem", "ran")
++_CB3_FLAT = fnd.flat(CB3_SENTENCE).lower()
++
++
++# ---------------------------------------------------------------- positions and fences
++
++
++def _line_of(text: str, pos: int) -> int:
++    """1-based line number of character offset pos."""
++    return text.count("\n", 0, pos) + 1
++
++
++def _fenced(report: str, info: str) -> list[tuple[int, list[tuple[int, str]], bool]]:
++    """Every fenced block of the whole report with this info string, like fnd._blocks_after but not tied to a heading.
++
++    A one-line heading is put in front of the text so the scan starts at the first real line; the numbers it returns
++    are shifted back, so they are lines of `report`.
++    """
++    _, blocks = fnd._blocks_after("#\n" + report, re.compile(r"^#\n", re.M), info)
++    return [
++        (s - 1, [(n - 1, t) for n, t in body], closed) for s, body, closed in blocks
++    ]
++
++
++def _heading_between(lines: list[str], first: int, last: int) -> bool:
++    """True when a heading line outside a code fence sits on a line strictly between `first` and `last` (1-based)."""
++    marker: str | None = None
++    for n in range(first + 1, last):
++        line = lines[n - 1]
++        fm = _FENCE_LINE.match(line)
++        if marker is None:
++            if fm:
++                marker = fm.group(1)
++            elif _HEADING_LINE.match(line):
++                return True
++        elif (
++            fm
++            and not fm.group(2)
++            and fm.group(1)[0] == marker[0]
++            and len(fm.group(1)) >= len(marker)
++        ):
++            marker = None
++    return False
++
++
++# ---------------------------------------------------------------- 9.1 the reader
++
++
++def _recover_item(raw: str, obj: object) -> str | None:
++    if isinstance(obj, dict) and isinstance(obj.get("item"), str):
++        return obj["item"].strip() or None
++    m = _ITEM_TEXT.search(raw)
++    return m.group(1).strip() if m else None
++
++
++def read_ledger(report: str, assigned: Sequence[str]) -> dict:
++    """The ledger of a final message (DESIGN 9.1) as a dict.
++
++    {"ledger_missing": bool, "reason": str | None, "rows": [row], "format_errors": [{line, msg}],
++     "normalised_verdict": n, "dup_line": [{line, item}], "unknown_item": [{line, item}],
++     "broken_items": [item], "missing_line": [item]}
++
++    A row is {item, verdict, quote_plan, quote_other, problem, ran, line, limits_violated: [name]}. The verdict is
++    upper-cased and trimmed. Rows come back in the order of the lines. When `ledger_missing` is true `rows` is empty and
++    `missing_line` holds every assigned item.
++    """
++    assigned = list(assigned)
++    res: dict = {
++        "ledger_missing": True,
++        "reason": None,
++        "rows": [],
++        "format_errors": [],
++        "normalised_verdict": 0,
++        "dup_line": [],
++        "unknown_item": [],
++        "broken_items": [],
++        "missing_line": list(assigned),
++    }
++    fm = fnd._HEAD_FINDINGS.search(report)
++    if not fm:
++        res["reason"] = "findings_heading_missing"
++        return res
++    f_line = _line_of(report, fm.start())
++    heads = [_line_of(report, m.start()) for m in HEAD_LEDGER.finditer(report)]
++    above = [h for h in heads if h < f_line]
++    if not above:
++        res["reason"] = "ledger_after_findings" if heads else "ledger_heading_missing"
++        return res
++    l_line = above[-1]
++    if _heading_between(report.splitlines(), l_line, f_line):
++        res["reason"] = "heading_between"
++        return res
++    blocks = _fenced(report, "ledger-v1")
++    if not blocks:
++        res["reason"] = "no_block"
++        return res
++    if len(blocks) > 1:
++        res["reason"] = "two_blocks"
++        return res
++    start, body, closed = blocks[0]
++    if not l_line < start < f_line:
++        res["reason"] = "block_outside_span"
++        return res
++    if not closed or (body and body[-1][0] >= f_line):
++        res["reason"] = "unclosed"
++        return res
++    res["ledger_missing"] = False
++
++    by_item: dict[str, dict] = {}
++    broken: dict[str, int] = {}
++
++    def error(lineno: int, msg: str, item: str | None) -> None:
++        res["format_errors"].append({"line": lineno, "msg": msg})
++        if item and item in assigned:
++            broken.setdefault(item, lineno)
++
++    for lineno, raw in body:
++        if not raw.strip():
++            continue
++        try:
++            obj = json.loads(raw)
++        except json.JSONDecodeError as exc:
++            error(lineno, f"not valid JSON: {exc.msg}", _recover_item(raw, None))
++            continue
++        if not isinstance(obj, dict):
++            error(lineno, "a line must be a JSON object", None)
++            continue
++        item, verdict = obj.get("item"), obj.get("verdict")
++        known = _recover_item(raw, obj)
++        if not isinstance(item, str) or not item.strip():
++            error(lineno, "item is missing or not a string", known)
++            continue
++        if not isinstance(verdict, str):
++            error(lineno, "verdict is missing or not a string", known)
++            continue
++        canon = verdict.strip().upper()
++        if canon not in VERDICTS:
++            error(lineno, "verdict must be OK, PROBLEM or UNSURE", known)
++            continue
++        values = {k: ("" if obj.get(k) is None else obj[k]) for k in _TEXT_KEYS}
++        bad = [k for k, v in values.items() if not isinstance(v, str)]
++        if bad:
++            error(lineno, f"{', '.join(bad)} must be a string", known)
++            continue
++        if canon != verdict:
++            res["normalised_verdict"] += 1
++        item = item.strip()
++        if item not in assigned:
++            res["unknown_item"].append({"line": lineno, "item": item})
++            continue
++        if item in by_item:
++            res["dup_line"].append({"line": lineno, "item": item})
++            continue
++        limits = []
++        qp = fnd.flat(values["quote_plan"])
++        if qp and not QUOTE_PLAN_MIN <= len(qp) <= QUOTE_PLAN_MAX:
++            limits.append("quote_plan")
++        if len(fnd.flat(values["problem"])) > PROBLEM_MAX:
++            limits.append("problem")
++        if len(values["ran"].split()) > RAN_MAX_WORDS:
++            limits.append("ran")
++        by_item[item] = {
++            "item": item,
++            "verdict": canon,
++            **values,
++            "line": lineno,
++            "limits_violated": limits,
++        }
++        res["rows"].append(by_item[item])
++    res["broken_items"] = [i for i in assigned if i in broken and i not in by_item]
++    res["missing_line"] = [
++        i for i in assigned if i not in by_item and i not in res["broken_items"]
++    ]
++    return res
++
++
++# ---------------------------------------------------------------- 9.2 corpora and the four checks
++
++
++def transcript_results(events: object) -> list[str]:
++    """The tool results of a run transcript (the parsed `*.attempt1.json`): one string per `tool_result` block (G3)."""
++    out: list[str] = []
++    if not isinstance(events, list):
++        return out
++    for ev in events:
++        if not isinstance(ev, dict) or ev.get("type") != "user":
++            continue
++        message = ev.get("message")
++        content = message.get("content") if isinstance(message, dict) else None
++        if not isinstance(content, list):
++            continue
++        for block in content:
++            if not isinstance(block, dict) or block.get("type") != "tool_result":
++                continue
++            c = block.get("content")
++            if isinstance(c, str):
++                out.append(c)
++            elif isinstance(c, list):
++                out += [
++                    p["text"]
++                    for p in c
++                    if isinstance(p, dict)
++                    and p.get("type") == "text"
++                    and isinstance(p.get("text"), str)
++                ]
++    return out
++
++
++def read_transcript(path: str | Path) -> list[str]:
++    """transcript_results of the JSON file at path."""
++    return transcript_results(json.loads(Path(path).read_text(encoding="utf-8")))
++
++
++def _printed_lines(item: dict) -> list[str]:
++    """The tool lines of an item as the reader of the sheet sees them (G2): the entry text, and its printed form."""
++    out = []
++    for e in item.get("evidence") or []:
++        text = e.get("text", "")
++        out.append(text)
++        path, line = e.get("path"), e.get("line")
++        if line and path in ("plan", "source"):
++            out.append(f"{path} line {line}: {text}")
++        elif line and path:
++            out.append(f"{path}:{line}: {text}")
++    return out
++
++
++class Corpora:
++    """The four places a `quote_other` may come from (DD-2): `source`, `candidate`, `sheet`, `transcript`.
++
++    `items` are the item dicts of items.json (`item_id`, `evidence`); `transcript` is a list of tool-result strings.
++    """
++
++    def __init__(
++        self,
++        candidate: str,
++        source: str | None = None,
++        items: Iterable[dict] = (),
++        transcript: Iterable[str] = (),
++    ):
++        self.candidate = candidate
++        self.source = source
++        self._sheet = {
++            it["item_id"]: [fnd.flat(t) for t in _printed_lines(it)] for it in items
++        }
++        self._transcript = [fnd.flat(t) for t in transcript]
++
++    def in_candidate(self, quote: str) -> bool:
++        return bool(fnd.locate(self.candidate, quote))
++
++    def find(self, quote: str, item: str | None = None) -> str | None:
++        """The first corpus, in the order of DD-2, that holds the flattened quote (G1); None when none does.
++
++        The sheet corpus is the tool lines of `item`, or of every item when `item` is None.
++        """
++        q = fnd.flat(quote)
++        if not q:
++            return None
++        if self.source is not None and fnd.locate(self.source, q):
++            return "source"
++        if fnd.locate(self.candidate, q):
++            return "candidate"
++        pools = (
++            self._sheet.get(item, [])
++            if item is not None
++            else [t for v in self._sheet.values() for t in v]
++        )
++        if any(q in t for t in pools):
++            return "sheet"
++        if any(q in t for t in self._transcript):
++            return "transcript"
++        return None
++
++
++def _support(plan_ok: bool, other_ok: bool, corpus: str | None, same: bool) -> dict:
++    quotes = plan_ok and other_ok and not same
++    search = plan_ok and other_ok and corpus in ("sheet", "transcript")
++    return {
++        "quotes_supported": quotes,
++        "search_supported": search,
++        "supported": quotes or search,
++    }
++
++
++def check_row(row: dict, corpora: Corpora) -> dict:
++    """Checks 2 to 4 of DESIGN 9.2 for one row: the row plus quote_plan_ok, quote_other_ok, corpus and the support flags."""
++    plan_ok = bool(row["quote_plan"].strip()) and corpora.in_candidate(
++        row["quote_plan"]
++    )
++    corpus = corpora.find(row["quote_other"], row["item"])
++    same = fnd.flat(row["quote_plan"]) == fnd.flat(row["quote_other"])
++    return {
++        **row,
++        "quote_plan_ok": plan_ok,
++        "quote_other_ok": corpus is not None,
++        "corpus": corpus,
++        **_support(plan_ok, corpus is not None, corpus, same),
++    }
++
++
++# ---------------------------------------------------------------- 9.3 the CB-3 sentence, linking, demotion
++
++
++def carries_cb3(finding: dict, lines_above: Sequence[str]) -> bool:
++    """True when the finding carries the CB-3 sentence (DESIGN 9.3, G11).
++
++    `lines_above` are the report lines above the `## Findings block` heading. The comparison is flattened and
++    case-insensitive.
++    """
++    claim = finding.get("claim")
++    if isinstance(claim, str) and _CB3_FLAT in fnd.flat(claim).lower():
++        return True
++    fid = finding.get("id")
++    if not isinstance(fid, str):
++        return False
++    mention = re.compile(
++        rf"(?<![A-Za-z0-9._-]){re.escape(fid)}(?![A-Za-z0-9_-]|\.[A-Za-z0-9])"
++    )
++    for i, line in enumerate(lines_above):
++        if mention.search(line):
++            window = " ".join(lines_above[max(0, i - CB3_WINDOW) : i + CB3_WINDOW + 1])
++            if _CB3_FLAT in fnd.flat(window).lower():
++                return True
++    return False
++
++
++def findings_block_status(report: str) -> tuple[str | None, tuple | None]:
++    """(reason the block is unusable or None, the block). The block is (fence line, [(line, text)], closed)."""
++    found, blocks = fnd._blocks_after(report, fnd._HEAD_FINDINGS, "findings-v1")
++    if not found:
++        return "findings_heading_missing", None
++    if not blocks:
++        return "no_findings_block", None
++    if len(blocks) > 1:
++        return "findings_block_duplicated", None
++    if not blocks[0][2]:
++        return "findings_block_unclosed", None
++    return None, blocks[0]
++
++
++def scope_from(scope: str | None = None) -> str:
++    """`scope`, else the environment variable CHECK_SCOPE, else `linked` (DD-3)."""
++    value = scope if scope is not None else (os.environ.get("CHECK_SCOPE") or "linked")
++    if value not in SCOPES:
++        raise ValueError(f"CHECK_SCOPE must be one of {SCOPES}, not {value!r}")
++    return value
++
++
++def _link(finding: dict, assigned: list[str], rows: dict, broken: list[str], ordered):
++    """(row or None, how, probe_unknown). `how` is "probe", "quote" or None; a broken row is {"item", "broken": True}."""
++    probe = finding.get("probe")
++    unknown = False
++    if isinstance(probe, str) and probe.strip():
++        p = probe.strip()
++        if p not in assigned:
++            unknown = True
++        elif p in rows:
++            return rows[p], "probe", False
++        elif p in broken:
++            return {"item": p, "broken": True}, "probe", False
++    anchor = (
++        fnd.flat(finding["anchor"]) if isinstance(finding.get("anchor"), str) else ""
++    )
++    for row in ordered:
++        qp = fnd.flat(row["quote_plan"])
++        if len(qp) >= QUOTE_PLAN_MIN and qp in anchor:
++            return row, "quote", unknown
++    return None, None, unknown
++
++
++def _own_quotes(finding: dict, corpora: Corpora) -> dict:
++    """Support of an unlinked finding under CHECK_SCOPE=all (G9): its anchor and anchor2 are the two quotes."""
++    anchor, anchor2 = finding.get("anchor"), finding.get("anchor2")
++    plan_ok = isinstance(anchor, str) and corpora.in_candidate(anchor)
++    corpus = corpora.find(anchor2) if isinstance(anchor2, str) else None
++    same = fnd.flat(anchor or "") == fnd.flat(anchor2 or "")
++    return _support(plan_ok, corpus is not None, corpus, same)
++
++
++def _row_causes(row: dict) -> tuple[list[str], bool]:
++    """(causes, format_induced) for a linked, blocking finding, apart from no_cb3."""
++    if row.get("broken"):
++        return ["row_missing"], True
++    if row["verdict"] == "UNSURE":
++        return ["row_unsure"], False
++    if row["verdict"] == "PROBLEM" and not row["supported"]:
++        fmt = bool(
++            row["problem"].strip()
++            and row["quote_plan"].strip()
++            and row["quote_other"].strip()
++            and not (row["quote_plan_ok"] and row["quote_other_ok"])
++        )
++        return ["row_unsupported"], fmt
++    return [], False
++
++
++def check_report(
++    report: str,
++    *,
++    assigned: Sequence[str],
++    candidate: str,
++    source: str | None = None,
++    items: Iterable[dict] = (),
++    transcript: Iterable[str] = (),
++    scope: str | None = None,
++) -> dict:
++    """One reviewer's report through the reader, checks 1 to 4, linking and demotion.
++
++    Returns {"scope", "ledger": <read_ledger result, rows checked>, "block_unusable": reason | None,
++    "findings": [per finding], "probe_unknown": n, "ok_but_finding": n, "demoted": {cause: n},
++    "demoted_findings": n, "format_induced_demotions": n, "text": the checked report}.
++    `text` is `report` with `"blocking": false` written on each demoted line; it is `report` itself when the block
++    is unusable or nothing is demoted. The raw report is never edited.
++    """
++    scope = scope_from(scope)
++    assigned = list(assigned)
++    corpora = Corpora(candidate, source, list(items), list(transcript))
++    ledger = read_ledger(report, assigned)
++    ledger["rows"] = [check_row(r, corpora) for r in ledger["rows"]]
++    rows = {r["item"]: r for r in ledger["rows"]}
++    out = {
++        "scope": scope,
++        "ledger": ledger,
++        "block_unusable": None,
++        "findings": [],
++        "probe_unknown": 0,
++        "ok_but_finding": 0,
++        "demoted": dict.fromkeys(CAUSES, 0),
++        "demoted_findings": 0,
++        "format_induced_demotions": 0,
++        "text": report,
++    }
++    reason, block = findings_block_status(report)
++    if reason:
++        out["block_unusable"] = reason
++        return out
++    lines = report.splitlines(keepends=True)
++    f_line = _line_of(report, fnd._HEAD_FINDINGS.search(report).start())
++    above = [ln.rstrip("\r\n") for ln in lines[: f_line - 1]]
++    changed = False
++    for lineno, raw in block[1]:
++        try:
++            obj = json.loads(raw)
++        except json.JSONDecodeError:
++            continue
++        if (
++            not isinstance(obj, dict)
++            or "prior" in obj
++            or not isinstance(obj.get("id"), str)
++        ):
++            continue
++        row, how, unknown = _link(
++            obj, assigned, rows, ledger["broken_items"], ledger["rows"]
++        )
++        out["probe_unknown"] += unknown
++        rec = {
++            "id": obj["id"],
++            "line": lineno,
++            "probe": obj.get("probe"),
++            "row_item": row["item"] if row else None,
++            "link": how,
++            "blocking": obj.get("blocking") is True,
++            "demoted": False,
++            "causes": [],
++            "format_induced": False,
++        }
++        out["findings"].append(rec)
++        if row is not None and not row.get("broken") and row["verdict"] == "OK":
++            out["ok_but_finding"] += 1
++            continue
++        if not rec["blocking"] or (row is None and scope != "all"):
++            continue
++        if row is not None:
++            causes, fmt = _row_causes(row)
++        else:
++            causes, fmt = (
++                ([] if _own_quotes(obj, corpora)["supported"] else ["row_unsupported"]),
++                False,
++            )
++        if not carries_cb3(obj, above):
++            causes.append("no_cb3")
++        if not causes:
++            continue
++        rec.update(
++            demoted=True, causes=causes, format_induced=fmt and "no_cb3" not in causes
++        )
++        for c in causes:
++            out["demoted"][c] += 1
++        out["demoted_findings"] += 1
++        out["format_induced_demotions"] += rec["format_induced"]
++        obj["blocking"] = False
++        lines[lineno - 1] = (
++            json.dumps(obj, ensure_ascii=False) + lines[lineno - 1][len(raw) :]
++        )
++        changed = True
++    if changed:
++        out["text"] = "".join(lines)
++    return out
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py
+new file mode 100644
+index 000000000..83d88a87f
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py
+@@ -0,0 +1,481 @@
++"""ledger-v1 reader, the four checks, linking and demotion (REQ-13, REQ-14, REQ-16, DD-2, DD-3; DESIGN 9.1 to 9.3).
++
++Every report under fixtures/reports and the plan and source under fixtures/plans are invented. The reports quote
++fixtures/plans/p_basic.md (the candidate) and fixtures/plans/source.md (the source); good.attempt1.json is the
++transcript of the reviewer behind good.md.
++"""
++
++import json
++import re
++
++import pytest
++from helpers import SW
++
++from scaffold import fnd, ledgerv1
++
++REPORTS = SW / "fixtures" / "reports"
++PLANS = SW / "fixtures" / "plans"
++CAND = (PLANS / "p_basic.md").read_text()
++SRC = (PLANS / "source.md").read_text()
++ASSIGNED = ["S1", "S2", "S3"]
++PRINTED = "pattern 'retention-window' against 'Retention window': NO MATCH"
++ITEMS = [
++    {"item_id": "S1", "evidence": []},
++    {
++        "item_id": "S2",
++        "evidence": [{"path": "plan", "line": 50, "text": PRINTED}],
++    },
++    {"item_id": "S3", "evidence": []},
++]
++TRANSCRIPT = ledgerv1.read_transcript(REPORTS / "good.attempt1.json")
++QO_TRANSCRIPT = "docs/guide.md:14: The exporter writes 3 report formats to disk."
++
++
++def load(name):
++    return (REPORTS / f"{name}.md").read_text()
++
++
++def run(report, **kw):
++    kw.setdefault("transcript", TRANSCRIPT)
++    return ledgerv1.check_report(
++        report, assigned=ASSIGNED, candidate=CAND, source=SRC, items=ITEMS, **kw
++    )
++
++
++def blocking(text):
++    """{finding id: blocking flag} of the findings block of text, which must parse with the real parser."""
++    parsed = fnd.parse_block(text)
++    assert parsed["ok"], parsed["errors"]
++    return {f["id"]: f["blocking"] for f in parsed["findings"]}
++
++
++def by_id(res):
++    return {f["id"]: f for f in res["findings"]}
++
++
++def test_misplaced_duplicated_truncated_blocks():
++    good = run(load("good"))
++    assert not good["ledger"]["ledger_missing"] and good["ledger"]["reason"] is None
++    assert [r["item"] for r in good["ledger"]["rows"]] == ASSIGNED
++    assert good["ledger"]["format_errors"] == [] and good["block_unusable"] is None
++
++    # every ledger problem of DESIGN 9.1 items 1 and 2 is `ledger_missing`: no rows, nothing demoted
++    for name, reason in {
++        "ledger_missing": "ledger_heading_missing",
++        "ledger_after_findings": "ledger_after_findings",
++        "ledger_twice": "two_blocks",
++        "ledger_unclosed": "unclosed",
++    }.items():
++        report = load(name)
++        res = run(report)
++        led = res["ledger"]
++        assert led["ledger_missing"] and led["reason"] == reason, name
++        assert led["rows"] == [] and led["missing_line"] == ASSIGNED, name
++        assert res["text"] == report and res["demoted_findings"] == 0, name
++
++    # a heading between the ledger heading and the findings heading ("directly above", REQ-13)
++    between = load("good").replace(
++        "## Findings block", "## Notes\n\nmore text\n\n## Findings block"
++    )
++    assert ledgerv1.read_ledger(between, ASSIGNED)["reason"] == "heading_between"
++    # no findings heading at all: there is no span to look in
++    no_head = load("good").replace("## Findings block", "Findings")
++    assert (
++        ledgerv1.read_ledger(no_head, ASSIGNED)["reason"] == "findings_heading_missing"
++    )
++    # a stray second block placed before the heading counts as two blocks
++    stray = "```ledger-v1\n" + '{"item":"S1","verdict":"OK"}\n```\n\n' + load("good")
++    assert ledgerv1.read_ledger(stray, ASSIGNED)["reason"] == "two_blocks"
++
++    # a truncated or doubled findings block: the check changes nothing and names the reason (DESIGN 9.3)
++    for name, reason in {
++        "findings_unclosed": "findings_block_unclosed",
++        "findings_twice": "findings_block_duplicated",
++    }.items():
++        report = load(name)
++        res = run(report)
++        assert res["block_unusable"] == reason, name
++        assert res["text"] == report and res["findings"] == [], name
++        assert [r["item"] for r in res["ledger"]["rows"]] == ["S1"], (
++            name
++        )  # the ledger is still read
++
++
++def test_fence_opener_grep_is_not_used():
++    """RR greps for a line that starts with the fence opener; the reader scans fences, so an opener inside a longer fence is not a block."""
++    ledger_example = (
++        "An example of the format, shown in a longer fence:\n\n"
++        "````text\n```ledger-v1\n"
++        '{"item":"S1","verdict":"OK","quote_plan":"","quote_other":"","problem":"","ran":"x"}\n'
++        "```\n````\n\n"
++    )
++    report = load("good").replace("## Ledger", ledger_example + "## Ledger", 1)
++    grep_count = len(re.findall(r"^```ledger-v1", report, re.M))
++    assert grep_count == 2  # what a grep would count
++    led = run(report)["ledger"]
++    assert not led["ledger_missing"] and len(led["rows"]) == 3
++
++    # the findings opener exists only inside a longer fence: a grep is satisfied, the block is not there
++    only_example = (
++        "review: 1 of 3\n\n## Ledger\n\n```ledger-v1\n"
++        '{"item":"S1","verdict":"OK"}\n```\n\n## Findings block\n\n'
++        "````text\n```findings-v1\n"
++        '{"id":"F1"}\n```\n````\n\nverdict: FAIL\n'
++    )
++    assert re.search(r"^```findings-v1", only_example, re.M)
++    assert run(only_example)["block_unusable"] == "no_findings_block"
++
++
++def test_quote_wrapping_a_plan_line_matches():
++    res = run(load("quote_wraps_line"))
++    rows = {r["item"]: r for r in res["ledger"]["rows"]}
++    # S1: the quote has a line break in the middle of a single plan line
++    assert "\n" in rows["S1"]["quote_plan"]
++    assert fnd.locate(CAND, rows["S1"]["quote_plan"])
++    assert rows["S1"]["quote_plan_ok"] and rows["S1"]["supported"]
++    # S2: the quote runs over two plan lines that a blank line separates
++    assert "\n" not in rows["S2"]["quote_plan"] and fnd.locate(
++        CAND, "Source sections: 2.1\nAcceptance criteria:"
++    )
++    assert rows["S2"]["quote_plan_ok"] and rows["S2"]["supported"]
++    # F2 has no probe; its wrapped anchor contains the flattened quote_plan of S2, so it links by quote
++    f = by_id(res)
++    assert (f["F2"]["link"], f["F2"]["row_item"]) == ("quote", "S2")
++    assert (f["F1"]["link"], f["F1"]["row_item"]) == ("probe", "S1")
++    assert res["demoted_findings"] == 0 and res["text"] == load("quote_wraps_line")
++
++
++def test_unsupported_row_demotes_linked_finding():
++    report = load("good")
++    bogus = report.replace(QO_TRANSCRIPT, "docs/guide.md:99: a line nobody printed")
++    assert bogus != report
++    res = run(bogus)
++    row = {r["item"]: r for r in res["ledger"]["rows"]}["S3"]
++    assert row["quote_plan_ok"] and not row["quote_other_ok"] and not row["supported"]
++    assert row["corpus"] is None
++    assert by_id(res)["F3"]["demoted"] and by_id(res)["F3"]["causes"] == [
++        "row_unsupported"
++    ]
++    assert res["demoted"] == {
++        "row_unsupported": 1,
++        "row_unsure": 0,
++        "no_cb3": 0,
++        "row_missing": 0,
++    }
++    # a quote test failed on a row that has a problem and both quotes: format-induced
++    assert res["format_induced_demotions"] == 1
++    assert blocking(res["text"]) == {"F1": True, "F2": True, "F3": False}
++    # severity stays, the line is valid, and the raw text we passed in was not edited
++    f3 = next(f for f in fnd.parse_block(res["text"])["findings"] if f["id"] == "F3")
++    assert f3["severity"] == "CRITICAL" and f3["probe"] == "S3"
++    assert res["text"] != bogus and '"blocking": true' in bogus.split('"id": "F3"')[-1]
++
++    # a row that fails to parse: a finding that names it is demoted with row_missing; the error has its line number
++    broken = load("bad_json_line")
++    res = run(broken)
++    lineno = next(
++        i
++        for i, ln in enumerate(broken.splitlines(), 1)
++        if ln.startswith('{"item": "S2"')
++    )
++    assert [e["line"] for e in res["ledger"]["format_errors"]] == [lineno]
++    assert (
++        res["ledger"]["broken_items"] == ["S2"] and res["ledger"]["missing_line"] == []
++    )
++    assert (
++        by_id(res)["F2"]["causes"] == ["row_missing"]
++        and by_id(res)["F2"]["format_induced"]
++    )
++    assert res["demoted"]["row_missing"] == 1 and res["format_induced_demotions"] == 1
++    assert blocking(res["text"]) == {"F1": True, "F2": False, "F3": True}
++
++
++def test_unsure_never_blocks():
++    report = load("unsure_with_blocking")
++    res = run(report)
++    f = by_id(res)["F1"]
++    assert f["blocking"] and f["demoted"]
++    # the finding carries the CB-3 sentence and the row has two supported quotes, yet an UNSURE row never blocks
++    assert ledgerv1.carries_cb3(
++        next(x for x in fnd.parse_block(report)["findings"] if x["id"] == "F1"), []
++    )
++    assert f["causes"] == ["row_unsure"] and not f["format_induced"]
++    assert res["demoted"]["row_unsure"] == 1 and res["format_induced_demotions"] == 0
++    assert blocking(res["text"]) == {"F1": False}
++
++
++def test_blocking_needs_cb3_and_two_quotes_or_search():
++    # CB-3 in the claim, two different supported quotes (good: F1 via the source, F3 via a tool result)
++    res = run(load("good"))
++    assert (
++        blocking(res["text"])["F1"]
++        and blocking(res["text"])["F3"]
++        and res["demoted_findings"] == 0
++    )
++    rows = {r["item"]: r for r in res["ledger"]["rows"]}
++    assert rows["S1"]["corpus"] == "source" and rows["S1"]["quotes_supported"]
++    assert rows["S3"]["corpus"] == "transcript" and rows["S3"]["search_supported"]
++    assert rows["S3"]["supported"]
++
++    # supported row, no CB-3 sentence anywhere: demoted by no_cb3 alone
++    res = run(load("blocking_no_cb3"))
++    assert (
++        by_id(res)["F1"]["causes"] == ["no_cb3"]
++        and not by_id(res)["F1"]["format_induced"]
++    )
++    assert blocking(res["text"]) == {"F1": False}
++
++    # the sentence in the report text within 12 lines of a line that names the id carries F1; F2 is 16 lines away
++    res = run(load("blocking_with_cb3_near_id"))
++    assert by_id(res)["F1"]["causes"] == [] and by_id(res)["F2"]["causes"] == ["no_cb3"]
++    assert blocking(res["text"]) == {"F1": True, "F2": False}
++
++    # two quotes that are the same text are one quote: not supported, even though the transcript holds that text
++    twin = load("good").replace(
++        QO_TRANSCRIPT, "No remaining `3 report formats` text exists in `docs/guide.md`."
++    )
++    events = TRANSCRIPT + [
++        "The criteria list says: No remaining `3 report formats` text exists in `docs/guide.md`."
++    ]
++    res = run(twin, transcript=events)
++    row = {r["item"]: r for r in res["ledger"]["rows"]}["S3"]
++    assert (
++        row["corpus"] == "candidate"
++        and not row["quotes_supported"]
++        and not row["supported"]
++    )
++    assert by_id(res)["F3"]["causes"] == ["row_unsupported"]
++    assert not by_id(res)["F3"][
++        "format_induced"
++    ]  # a content failure, not a quote-match failure
++
++    # the CB-3 test is flattened and case-insensitive; the id is matched as a whole word
++    f1 = {
++        "id": "F1",
++        "claim": "an  IMPLEMENTER who follows the stated\ntext as written BUILDS a thing",
++    }
++    assert ledgerv1.carries_cb3(f1, [])
++    sentence = ledgerv1.CB3_SENTENCE
++    assert not ledgerv1.carries_cb3(
++        {"id": "F1", "claim": "x"}, ["Notes on F10", sentence]
++    )
++    assert ledgerv1.carries_cb3({"id": "F1", "claim": "x"}, ["See F1.", sentence])
++    assert not ledgerv1.carries_cb3({"id": "F1", "claim": "x"}, ["See F1.2", sentence])
++    wrapped = [
++        "F1 is the problem.",
++        "An implementer who follows the stated",
++        "text as written builds a thing",
++    ]
++    assert ledgerv1.carries_cb3({"id": "F1", "claim": "x"}, wrapped)
++
++
++def test_unlinked_finding_untouched():
++    report = load("good")
++    res = run(report)
++    f2 = by_id(res)["F2"]
++    assert f2["link"] is None and f2["row_item"] is None
++    # F2 is blocking, has no CB-3 sentence and no row: in the default scope it is exactly as written (DD-3)
++    assert f2["blocking"] and not f2["demoted"]
++    assert res["scope"] == "linked" and res["text"] == report
++    assert blocking(res["text"])["F2"] is True
++
++    # a probe that names an item this reviewer does not have is probe_unknown and does not link
++    unknown = report.replace(
++        '"claim": "No task checks the network rule."}',
++        '"claim": "No task checks the network rule.", "probe": "S7"}',
++    )
++    assert unknown != report
++    res = run(unknown)
++    assert res["probe_unknown"] == 1 and by_id(res)["F2"]["link"] is None
++    assert res["text"] == unknown and blocking(res["text"])["F2"] is True
++
++    # an item with no ledger line has no row to link to; the probe finds nothing
++    no_s3 = report.replace('{"item": "S3"', '{"item": "S9"')
++    res = run(no_s3)
++    assert res["ledger"]["missing_line"] == ["S3"] and res["ledger"]["unknown_item"]
++    assert by_id(res)["F3"]["link"] is None and blocking(res["text"])["F3"] is True
++
++
++def test_check_scope_all_switch_off_by_default(monkeypatch):
++    report = load("good")
++    monkeypatch.delenv("CHECK_SCOPE", raising=False)
++    assert ledgerv1.scope_from() == "linked"
++    assert run(report)["demoted_findings"] == 0
++
++    monkeypatch.setenv("CHECK_SCOPE", "")
++    assert ledgerv1.scope_from() == "linked"
++
++    # the same report under `all`: the unlinked blocking F2 has no CB-3 sentence and no second quote
++    monkeypatch.setenv("CHECK_SCOPE", "all")
++    res = run(report)
++    assert res["scope"] == "all"
++    assert by_id(res)["F2"]["demoted"]
++    assert by_id(res)["F2"]["causes"] == ["row_unsupported", "no_cb3"]
++    assert blocking(res["text"]) == {"F1": True, "F2": False, "F3": True}
++    # the argument beats the environment variable, and a wrong value is refused
++    assert run(report, scope="linked")["demoted_findings"] == 0
++    monkeypatch.setenv("CHECK_SCOPE", "everything")
++    with pytest.raises(ValueError):
++        run(report)
++    monkeypatch.delenv("CHECK_SCOPE")
++    with pytest.raises(ValueError):
++        run(report, scope="none")
++
++
++def test_quote_other_corpora():
++    """DD-2: source, candidate, sheet, transcript; the first match is recorded, and a quote in none of them fails."""
++    corpora = ledgerv1.Corpora(CAND, SRC, ITEMS, TRANSCRIPT)
++    assert (
++        corpora.find("The job must write `deleted_count` to the run log", "S1")
++        == "source"
++    )
++    assert (
++        corpora.find("The retention job gets its age limit from one setting.", "S1")
++        == "candidate"
++    )
++    assert corpora.find(PRINTED, "S2") == "sheet"
++    assert (
++        corpora.find(f"plan line 50: {PRINTED}", "S2") == "sheet"
++    )  # the printed form of the tool line
++    assert (
++        corpora.find(PRINTED, "S1") is None
++    )  # another item's tool line is not this item's
++    assert corpora.find(PRINTED) == "sheet"  # no item given: every item's tool lines
++    assert corpora.find(QO_TRANSCRIPT, "S3") == "transcript"
++    assert (
++        corpora.find("docs/guide.md:14:   The exporter writes\n3 report formats", "S3")
++        == "transcript"
++    )
++    assert corpora.find("a sentence that no corpus has ever held", "S1") is None
++    assert corpora.find("", "S1") is None
++
++    # a plan-versus-plan row whose second quote is from the candidate passes (DD-2)
++    base = {
++        "item": "S2",
++        "verdict": "PROBLEM",
++        "quote_plan": "Every module under `src/exporter/` returns an empty result for an empty report.",
++        "quote_other": "The exporter package has no network access.",
++        "problem": "p",
++        "ran": "r",
++    }
++    row = ledgerv1.check_row(base, corpora)
++    assert row["corpus"] == "candidate" and row["quote_other_ok"] and row["supported"]
++    # a plan-versus-tool-line row: a search result, and one search result is enough
++    row = ledgerv1.check_row({**base, "quote_other": PRINTED}, corpora)
++    assert row["corpus"] == "sheet" and row["search_supported"] and row["supported"]
++    # a quote in none of the four corpora fails check 3 and so check 4
++    row = ledgerv1.check_row(
++        {**base, "quote_other": "nobody printed this sentence"}, corpora
++    )
++    assert row["corpus"] is None and not row["quote_other_ok"] and not row["supported"]
++    # a plan quote that is not in the candidate fails check 2 and so check 4
++    row = ledgerv1.check_row(
++        {**base, "quote_plan": "this is not in the plan text"}, corpora
++    )
++    assert not row["quote_plan_ok"] and not row["supported"]
++    # an empty quote_other is no quote
++    row = ledgerv1.check_row({**base, "quote_other": ""}, corpora)
++    assert not row["quote_other_ok"] and not row["supported"]
++
++    # the transcript reader: tool results only, a list of text parts is read per part, other events are ignored
++    events = [
++        {
++            "type": "assistant",
++            "message": {"content": [{"type": "text", "text": "assistant text"}]},
++        },
++        {"type": "user", "message": {"content": "a plain string, not a list"}},
++        {
++            "type": "user",
++            "message": {"content": [{"type": "text", "text": "synthetic text block"}]},
++        },
++        {
++            "type": "user",
++            "message": {
++                "content": [
++                    {
++                        "type": "tool_result",
++                        "tool_use_id": "a",
++                        "content": "result one",
++                    },
++                    {
++                        "type": "tool_result",
++                        "tool_use_id": "b",
++                        "content": [
++                            {"type": "text", "text": "part one"},
++                            {"type": "image"},
++                        ],
++                    },
++                ]
++            },
++        },
++    ]
++    assert ledgerv1.transcript_results(events) == ["result one", "part one"]
++    assert ledgerv1.transcript_results({"not": "a list"}) == []
++    assert TRANSCRIPT and QO_TRANSCRIPT in TRANSCRIPT[0]
++    assert (
++        json.loads((REPORTS / "good.attempt1.json").read_text())[0]["type"] == "system"
++    )
++
++
++def test_reader_counts_format_errors_dup_unknown_and_verdicts():
++    res = ledgerv1.read_ledger(load("unknown_item"), ASSIGNED)
++    assert res["unknown_item"][0]["item"] == "S9" and [
++        r["item"] for r in res["rows"]
++    ] == ["S1"]
++    assert res["missing_line"] == ["S2", "S3"]
++
++    res = ledgerv1.read_ledger(load("dup_line"), ASSIGNED)
++    assert len(res["dup_line"]) == 1 and res["dup_line"][0]["item"] == "S1"
++    assert {r["item"]: r["verdict"] for r in res["rows"]}[
++        "S1"
++    ] == "PROBLEM"  # the first line wins
++
++    res = ledgerv1.read_ledger(load("verdict_lowercase"), ASSIGNED)
++    assert [r["verdict"] for r in res["rows"]] == ["PROBLEM", "OK", "PROBLEM"]
++    assert res["normalised_verdict"] == 3 and res["format_errors"] == []
++
++    # format errors: not JSON, not an object, no verdict, a verdict outside the three, a non-string quote
++    text = load("good").replace(
++        '{"item": "S2", "verdict": "OK"',
++        'not json\n[1]\n{"item": "S2"}\n{"item": "S2", "verdict": "MAYBE"}\n{"item": "S2", "verdict": "OK", "ran": 5}\n{"item": "S2", "verdict": "OK"',
++    )
++    res = ledgerv1.read_ledger(text, ASSIGNED)
++    assert len(res["format_errors"]) == 5
++    assert [e["line"] for e in res["format_errors"]] == sorted(
++        e["line"] for e in res["format_errors"]
++    )
++    assert [r["item"] for r in res["rows"]] == [
++        "S1",
++        "S2",
++        "S3",
++    ]  # the good S2 line after them still counts
++
++    # limits: a short or long quote_plan, a long problem and a long ran flag the row, which is still kept
++    long_ran = " ".join(["w"] * 16)
++    row_text = (
++        "```ledger-v1\n"
++        + json.dumps(
++            {
++                "item": "S1",
++                "verdict": "PROBLEM",
++                "quote_plan": "short",
++                "problem": "p" * 301,
++                "ran": long_ran,
++            }
++        )
++        + "\n"
++        + json.dumps({"item": "S2", "verdict": "OK", "quote_plan": "q" * 201})
++        + "\n```\n"
++    )
++    text = "## Ledger\n\n" + row_text + "\n## Findings block\n\n```findings-v1\n```\n"
++    rows = {r["item"]: r for r in ledgerv1.read_ledger(text, ASSIGNED)["rows"]}
++    assert rows["S1"]["limits_violated"] == ["quote_plan", "problem", "ran"]
++    assert rows["S2"]["limits_violated"] == ["quote_plan"]
++
++
++def test_ok_row_with_finding_is_left_alone():
++    report = load("ok_but_finding")
++    res = run(report)
++    assert res["ok_but_finding"] == 1 and by_id(res)["F1"]["link"] == "probe"
++    assert not by_id(res)["F1"]["demoted"] and res["text"] == report
++    assert blocking(res["text"]) == {"F1": True}

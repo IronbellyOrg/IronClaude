@@ -1,0 +1,9 @@
+$ uv run ruff check tests/skills/test_implement_launch_alias.py
+All checks passed!
+rc=0
+$ uv run ruff format --check tests/skills/test_implement_launch_alias.py
+1 file already formatted
+rc=0
+$ uv run mypy tests/skills/test_implement_launch_alias.py   (mypy is not in the project env; run as: uv run --with mypy mypy --cache-dir=/dev/null tests/skills/test_implement_launch_alias.py)
+Success: no issues found in 1 source file
+rc=0

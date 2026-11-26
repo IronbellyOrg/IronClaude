@@ -1,0 +1,20 @@
+{
+  "doc_id": "quillfern-dock-4",
+  "title": "Saltmarsh Pontoon Retrofit",
+  "items": [
+    {
+      "id": "L1",
+      "class": "C3",
+      "blocking_in_implement": true,
+      "description": "Gasket sleeves must be requalified before every dockside inspection cycle",
+      "plan_quote": "Run `tidepool/valves/flow_gate.py` once the pontoon sleeves are sealed"
+    },
+    {
+      "id": "L2",
+      "class": "C5",
+      "blocking_in_implement": false,
+      "description": "The mooring table still lists nine bollards after the retrofit",
+      "plan_quote": "Replace the bollard count in the harbour notes"
+    }
+  ]
+}

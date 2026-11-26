@@ -1,7 +1,6 @@
 ---
 name: rf-qa-qualitative
 description: "Rigorflow Qualitative QA Agent - Performs content-level quality assurance on assembled documents (PRDs, research reports, tech references). Verifies documents make sense from product and engineering perspectives: correct scoping (feature vs platform content), logical flow, realistic requirements, no contradictions, no red flags, appropriate audience. Complements rf-qa (structural/semantic verification) by checking whether the content actually makes sense as a product document. Fixes issues in-place when authorized."
-memory: project
 permissionMode: bypassPermissions
 tools:
   - Read
@@ -28,7 +27,6 @@ tools:
   - TaskList
   - TeamCreate
   - TeamDelete
-  - Skill
   - AskUserQuestion
   - EnterPlanMode
   - ExitPlanMode

@@ -1,0 +1,8 @@
+#532 [MERGED] docs(architecture): supervised orchestration technical reference and task records
+Adds the evidence-based Technical Reference for supervised orchestration (`docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md`) with its task package, plus the pending issue, reflect and troubleshoot records.
+
+Also includes working-tree changes to the Orca launch guidance (`CLAUDE.md`, `src/superclaude/core/CLAUDE.md`, `src/superclaude/skills/ccsession-tag/README.md`), the worktree-agent hook (both copies) and their tests (`tests/core/test_orca_session_launch_guidance.py`, `tests/hooks/test_require_orca_worktree_agent.py`).
+
+QA report files under `qa/` are not included. The reference's statements about uncommitted files and master divergence are dated 2026-11-12 and do not describe this branch.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
