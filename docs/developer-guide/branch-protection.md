@@ -8,11 +8,11 @@
 |---|---|---|---|
 | `protect-master` | `.github/rulesets/protect-master.json` | `refs/heads/master` | `deletion`, `non_fast_forward`, `pull_request` (0 approvals) |
 | `protect-integration` | `.github/rulesets/protect-integration.json` | `refs/heads/integration` | the same three rules |
-| `protect-release-tags` | `.github/rulesets/protect-release-tags.json` | `refs/tags/v*` | `deletion`, `non_fast_forward` |
+| `protect-release-tags` | `.github/rulesets/protect-release-tags.json` | `refs/tags/v*` | `deletion`, `non_fast_forward`, `update` |
 
 - Nobody can push straight to `master` or `integration`, force push over them or delete them. Every change arrives through a pull request, which a person or an automation may merge (zero approvals are required).
 - Merging `master` into `integration` is a pull request too.
-- Release tags can be created (`git push origin vX.Y.Z` still works) but never deleted or rewritten (`non_fast_forward`). The ruleset has no `update` rule, so a fast-forward move of an existing lightweight tag to a descendant commit is not blocked by it; adding an `update` rule is an open owner decision.
+- Release tags can be created (`git push origin vX.Y.Z` still works) but never deleted, rewritten (`non_fast_forward`) or moved to another commit, forward or backward (`update`). There is deliberately no creation rule. The admin cannot bypass these rules either: the tag ruleset has no bypass actor.
 - `protect-master` names `refs/heads/master` explicitly. Do not use `~DEFAULT_BRANCH`: the default branch is `integration`, so the token would protect the wrong branch.
 - The two branch rulesets have one bypass actor: the Repository admin role (`actor_id` 5) in `pull_request` mode. It lets an admin merge a pull request that is blocked by a rule, and a direct push stays refused. Anything that runs under the admin login can use it, so a person uses it and records it (see Break glass). The tag ruleset has no bypass.
 
