@@ -2789,12 +2789,31 @@ def test_the_prompt_sent_names_the_stage_of_the_issues_status__r23(
     ]
 
 
+@pytest.mark.parametrize(
+    ("pipeline", "arg"),
+    [("Worktree", "worktree"), ("Full", "full"), ("Full Submit", "full --submit")],
+)
+def test_a_governed_level_launches_while_the_gate_is_open__r33(
+    tmp_path, tmp_state, gh_world, pipeline, arg
+):
+    """The ship gate is open (the constant as committed): every level launches."""
+    assert cycle.launch.GOVERNED_LEVELS_ALLOWED is True
+    world = gh_world()
+    world.issue(9, items=[{"pipeline": pipeline}])
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "launched")]
+    assert [c[2] for c in deps.launcher.calls] == [
+        f"/sc:issue --claim 9 --pipeline {arg} --stage research"
+    ]
+
+
 @pytest.mark.parametrize("pipeline", ["Worktree", "Full", "Full Submit"])
 def test_a_governed_level_ends_level_gated_with_no_launch_and_no_store_write__r33(
-    tmp_path, tmp_state, gh_world, pipeline
+    tmp_path, tmp_state, gh_world, pipeline, monkeypatch
 ):
-    """The ship gate is closed: nothing but Pipeline None launches."""
-    assert cycle.launch.GOVERNED_LEVELS_ALLOWED is False
+    """With the ship gate closed (the constant set back to False) nothing but
+    Pipeline None launches."""
+    monkeypatch.setattr(cycle.launch, "GOVERNED_LEVELS_ALLOWED", False)
     world = gh_world()
     world.issue(9, items=[{"pipeline": pipeline}])
     res, deps = _run(tmp_path, tmp_state, world)
@@ -2808,8 +2827,9 @@ def test_a_governed_level_ends_level_gated_with_no_launch_and_no_store_write__r3
 
 @pytest.mark.parametrize("pipeline", [None, "None"])
 def test_pipeline_none_still_launches_while_the_gate_is_closed__r33(
-    tmp_path, tmp_state, gh_world, pipeline
+    tmp_path, tmp_state, gh_world, pipeline, monkeypatch
 ):
+    monkeypatch.setattr(cycle.launch, "GOVERNED_LEVELS_ALLOWED", False)
     world = gh_world()
     world.issue(9, items=[{"pipeline": pipeline}])
     res, deps = _run(tmp_path, tmp_state, world)
@@ -2818,8 +2838,9 @@ def test_pipeline_none_still_launches_while_the_gate_is_closed__r33(
 
 
 def test_a_dry_run_reports_no_would_launch_for_a_gated_level__r33(
-    tmp_path, tmp_state, gh_world
+    tmp_path, tmp_state, gh_world, monkeypatch
 ):
+    monkeypatch.setattr(cycle.launch, "GOVERNED_LEVELS_ALLOWED", False)
     world = gh_world()
     world.issue(9, items=[{"pipeline": "Full Submit"}])
     res, deps = _run(tmp_path, tmp_state, world, dry_run=True)

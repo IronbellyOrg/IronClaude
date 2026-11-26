@@ -296,14 +296,14 @@ def test_a_state_that_already_exists_is_kept_and_not_re_initialised(tmp_path) ->
     assert store is not None
 
 
-def test_the_report_shows_the_closed_gate_and_the_launch_account_warning(
+def test_the_report_shows_the_open_gate_and_the_launch_account_warning(
     tmp_path,
 ) -> None:
     h = Harness(tmp_path, approvers=(11, LAUNCH_ID))
     out = h.run()
     lines = h.report.read_text().splitlines()
-    assert launch.GOVERNED_LEVELS_ALLOWED is False
-    assert "ship_gate: closed (only Pipeline None launches)" in lines
+    assert launch.GOVERNED_LEVELS_ALLOWED is True
+    assert "ship_gate: open (all pipeline levels may launch)" in lines
     assert "warning: approver_is_launch_account" in lines
     assert "approved_field: approved_field_present" in lines
     assert "trigger_label: created" in lines
@@ -322,11 +322,11 @@ def test_no_warning_when_the_launch_account_is_not_an_approver(tmp_path) -> None
     assert "approver_is_launch_account" not in h.report.read_text()
 
 
-def test_an_open_gate_is_reported_open(tmp_path, monkeypatch) -> None:
-    monkeypatch.setattr(launch, "GOVERNED_LEVELS_ALLOWED", True)
+def test_a_closed_gate_is_reported_closed(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(launch, "GOVERNED_LEVELS_ALLOWED", False)
     h = Harness(tmp_path)
     h.run()
-    assert "ship_gate: open (all pipeline levels may launch)" in h.report.read_text()
+    assert "ship_gate: closed (only Pipeline None launches)" in h.report.read_text()
 
 
 def test_a_missing_approved_field_is_reported_but_does_not_block(tmp_path) -> None:

@@ -1,0 +1,48 @@
+## /home/coder/workspaces/worktrees/IronClaude/obs-plan/.dev/launch-level-observations/evidence/ob-h3-F-issue-841-probe.tsv
+row	what	ups	pret_main	post_main	pret_sub	post_sub
+R1	UserPromptSubmit	5	0	0	0	0
+R2	Bash foreground	0	16	14	2	3
+R3	Bash background	0	0	0	0	0
+R4	Monitor	0	0	0	0	0
+R5	Agent	0	3	3	0	0
+R6	Skill/Edit/Write	0	26	24	0	0
+R7	SendMessage	0	0	0	0	0
+R8	NotebookEdit/Cron*/Schedule*	0	0	0	0	0
+R9	Task/Workflow/RemoteTrigger/MCP push-class	0	0	0	0	0
+R10	Read/Grep/Glob	0	17	17	13	13
+other	any other tool	0	1	1	0	0
+# governed lines in scope: 158; sessions: 3852709b-a75d-4700-b122-1bad0f82d54c, dc89127a-e029-4467-ac38-05a18a5f5b8c
+OB-CTX-CHECK violations=0
+exit=0
+## /home/coder/workspaces/worktrees/IronClaude/obs-plan/.dev/launch-level-observations/evidence/ob-h3-W-issue-829-probe.tsv
+row	what	ups	pret_main	post_main	pret_sub	post_sub
+R1	UserPromptSubmit	7	0	0	0	0
+R2	Bash foreground	0	5	3	0	0
+R3	Bash background	0	0	0	0	0
+R4	Monitor	0	0	0	0	0
+R5	Agent	0	0	0	0	0
+R6	Skill/Edit/Write	0	7	5	0	0
+R7	SendMessage	0	0	0	0	0
+R8	NotebookEdit/Cron*/Schedule*	0	0	0	0	0
+R9	Task/Workflow/RemoteTrigger/MCP push-class	0	0	0	0	0
+R10	Read/Grep/Glob	0	6	6	0	0
+other	any other tool	0	0	0	0	0
+# governed lines in scope: 39; sessions: dc89127a-e029-4467-ac38-05a18a5f5b8c
+OB-CTX-CHECK violations=0
+exit=0
+## /home/coder/workspaces/worktrees/IronClaude/obs-plan/.dev/launch-level-observations/evidence/ob-h2-real-claim-827-probe.tsv
+row	what	ups	pret_main	post_main	pret_sub	post_sub
+R1	UserPromptSubmit	1	0	0	0	0
+R2	Bash foreground	0	2	0	0	0
+R3	Bash background	0	0	0	0	0
+R4	Monitor	0	0	0	0	0
+R5	Agent	0	0	0	0	0
+R6	Skill/Edit/Write	0	2	2	0	0
+R7	SendMessage	0	0	0	0	0
+R8	NotebookEdit/Cron*/Schedule*	0	0	0	0	0
+R9	Task/Workflow/RemoteTrigger/MCP push-class	0	0	0	0	0
+R10	Read/Grep/Glob	0	3	3	0	0
+other	any other tool	0	0	0	0	0
+# governed lines in scope: 13; sessions: 2af36456-5c21-4e57-812f-ead421204a71
+OB-CTX-CHECK violations=0
+exit=0

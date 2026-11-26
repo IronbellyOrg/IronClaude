@@ -45,12 +45,20 @@ STAGE_OF_STATUS = {
 }
 """The stage word the claim runs for each allowed Project Status (R23)."""
 
-GOVERNED_LEVELS_ALLOWED = False
+GOVERNED_LEVELS_ALLOWED = True
 """The ship gate (R33): while False only Pipeline None launches and every other
 level ends ``level_gated``. No config key or environment variable is the switch,
-because the config directory is not tamper-protected. Flipped only by a reviewed
-commit that also un-skips the launch-level observations of
-``tests/hooks/test_launch_level_observations.py`` (a coupling test enforces it)."""
+because the config directory is not tamper-protected. One boolean for all levels.
+Flipped only by a reviewed commit that also un-skips the launch-level observations of
+``tests/hooks/test_launch_level_observations.py`` (a coupling test enforces it).
+
+Opened by the reviewed commit for issues 394 and 441. The observations that ran and
+passed, with their evidence under ``.dev/launch-level-observations/evidence/``: OB-H1
+item 1 (parent ``session_id`` in subagent and nested payloads) and item 5 (self-started
+turns wrapped), OB-H2 (a real claim of issue 827), OB-H3 runs W, F and FS (issues 829,
+841 and 842) and OB-CTX (runs A, B and C). Not observed, and still listed as such in
+``docs/designs/sc-issue-launch-level-hook.md`` section 19.8: OB-H1 items 2, 3, 4, 6, 7,
+8 and 9, and the limits LIM-1 to LIM-3. Set it back to False to close the gate."""
 
 PIPELINE_ARGS = {
     None: "none",

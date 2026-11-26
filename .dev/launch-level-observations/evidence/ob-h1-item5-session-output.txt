@@ -1,0 +1,23 @@
+[ccsession] tier1b (Tier 1b: claude-sonnet-5-5, gpt-6.1-sol, muse-wonder-full-1.0): model claude-gw-tier1b[1m], context 850000, auto-compact window 850000
+[ccsession] Shim already running on 127.0.0.1:4013 (reusing)
+[ccsession] Cached 21 curated gateway models before launch
+[ccsession] Starting untagged session
+[claude-code:unrecognized_model] {"model":"claude-gw-tier1b[1m]","query_source":"sdk"}
+Waiting for the background command to report back.
+
+Waiting for the monitor to report.
+
+Waiting for the subagent to report.
+
+| Status | Result |
+|---|---|
+| DONE | Ran all three steps in order, each after the previous one reported back. |
+| NEXT | None. |
+
+**All three reported back on their own.**
+1. The background Bash command (`sleep 15; echo bgdone`) sent a completion notice with exit code 0.
+2. The Monitor (`sleep 10; echo approved`) sent an event with the text "approved", then a notice that its stream ended. That text came from my own echo command, not from you.
+3. The general-purpose subagent sent a completion notice with the output "subdone".
+
+I wasn't polling in any of the three. Each notice arrived by itself.
+exit=0

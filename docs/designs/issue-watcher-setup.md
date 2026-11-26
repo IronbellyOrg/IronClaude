@@ -159,7 +159,7 @@ Do not edit the issue after you re-approve it (section 6).
 
 ## 6. Setup order for each issue
 
-**First, a coordinator.** The watcher's claim runs at the issue's Pipeline level (while the ship gate is closed only `--pipeline none` launches): it assigns the issue, posts its comments and stops, and a coordinator starts the plan-writing worker. Nothing starts for a claimed issue while the coordinator is down, so a coordinator must be running before the cron entry of section 8.7 is installed and before you approve any issue. The coordinator's rules are in `src/superclaude/core/WORKER-CONTRACT.md` (section 4, "Issue pipeline duties"); the first live test and its record are in `docs/designs/issue-pipeline-fu1.md`.
+**First, a coordinator.** The watcher's claim runs at the issue's Pipeline level (the ship gate is open, so every level launches; if `GOVERNED_LEVELS_ALLOWED` is set back to `False`, only `--pipeline none` launches): it assigns the issue, posts its comments and stops, and a coordinator starts the plan-writing worker. Nothing starts for a claimed issue while the coordinator is down, so a coordinator must be running before the cron entry of section 8.7 is installed and before you approve any issue. The coordinator's rules are in `src/superclaude/core/WORKER-CONTRACT.md` (section 4, "Issue pipeline duties"); the first live test and its record are in `docs/designs/issue-pipeline-fu1.md`.
 
 For each open issue you want the watcher to pick up, do these three steps in this order. The order matters because the approval has to be later than the trigger.
 
@@ -180,7 +180,7 @@ Two more conditions are checked on every cycle, so prepare them before step 3:
 
 - The issue must be on the Project of `project_id`, in one of the allowed statuses (Research, Spec, Plan or Debug; Backlog, Ready, In progress, In review and Done never act, and a new status is blocked until it is added), and not archived. Otherwise it is skipped as `project_mismatch` (or `project_unreadable` when the Project cannot be read).
 - Nothing may change after the approval. An edit to the issue body or title, or a comment by anyone other than the watcher's own login, made at or after the approval time makes the issue `edited_after_approval`. Finish all edits first, then approve.
-- A later change of the Status or the Pipeline does not void the approval (R36), and no re-approval is needed after a Pipeline change (R37). While the ship gate is closed, a Pipeline above None ends `level_gated`.
+- A later change of the Status or the Pipeline does not void the approval (R36), and no re-approval is needed after a Pipeline change (R37). With the ship gate open (as committed) a Pipeline above None launches; with the gate set back to closed it ends `level_gated`.
 
 ## 7. Shadow rollout
 
@@ -706,7 +706,7 @@ On a host with the Coder template, nothing in sections 2 to 5 is done by hand. T
 2. Runs the first-run check (config, trigger label, state, dry run, lock test, restart test). The trigger label is created here and nowhere else. A passing check sets `enabled` to `true`; a failing one leaves it `false` and the reason is in `<state dir>/first-run.txt`.
 3. Before each child it checks the repository's `Coordinator` worktree (path `/home/coder/workspaces/worktrees/<repo>/Coordinator`, `origin` equal to the repository), the trigger label, the `Approved` field and the Project (the repository has one Project, or several with the defaults map naming the configured one; otherwise the reasons are `no_project`, `project_ambiguous` or `project_mismatch`). A repository that fails is skipped with a reason and nothing is created.
 
-To approve an issue, a person in the approvers file sets the issue field `Approved` to `Yes` (not a label) after the owner has set the Status (Research, Spec, Plan or Debug) and the Pipeline. While the ship gate is closed only Pipeline None launches; other levels end with `level_gated`. The coordinator moves the Status to `In review` when a run succeeds. A coordinator must be running for each repository (session `COORD-<RepoName>`).
+To approve an issue, a person in the approvers file sets the issue field `Approved` to `Yes` (not a label) after the owner has set the Status (Research, Spec, Plan or Debug) and the Pipeline. The ship gate is open, so every Pipeline level launches; with the gate set back to closed only Pipeline None launches and other levels end with `level_gated`. The observations that were not run are listed in `docs/designs/sc-issue-launch-level-hook.md` section 19.8. The coordinator moves the Status to `In review` when a run succeeds. A coordinator must be running for each repository (session `COORD-<RepoName>`).
 
 Check a host without changing anything: `superclaude issue-watch run-all --dry-run`. A real sweep (without `--dry-run`) exits 75 when another sweep is running; a dry run takes no lock and never does.
 

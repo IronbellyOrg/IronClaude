@@ -1,0 +1,4 @@
+Launch-level guard: this session was started by /sc:issue --claim at level full --submit.
+Blocked: a gh api call that is not one plain read command (it sets a method, a field or an input, calls graphql or a merge endpoint, or uses variables, quotes, pipes or other commands around it), or a gh command whose text mentions api, or a direct call to the GitHub API.
+Why: In a launched session gh api may only read, and only in a form the guard can check: a gh api write can merge, comment or change the main branch.
+You can: Run the read as one plain command with every value written out, for example gh api repos/o/r/pulls
