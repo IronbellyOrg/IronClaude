@@ -184,3 +184,13 @@ def test_guide_has_other_repos_section():
     assert ".github/rulesets/other-repos/protect-aidev02.json" in text
     for token in ("$REPO", "$BRANCH", "admin:org", "ahead_by", "zz-selftest-"):
         assert token in text, token
+    # Break glass (disable, push, re-enable) and roll back (delete) are separate blocks: a delete in the
+    # same code block as the re-enable would remove the protection at the end of an emergency fix.
+    section = text.split("\n## Other IronbellyOrg repos\n", 1)[1].split(
+        "\n## Tests\n", 1
+    )[0]
+    blocks = section.split("```")[1::2]
+    assert any("enforcement=disabled" in b for b in blocks)
+    for block in blocks:
+        if "enforcement=active" in block:
+            assert "--method DELETE" not in block
