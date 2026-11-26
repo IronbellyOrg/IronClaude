@@ -1149,6 +1149,61 @@ def test_text_only_model_plus_models_out_of_usage_is_a_wait_not_a_refusal(shim) 
     assert "accepts an image" not in message
 
 
+EFFORT_400 = (  # an always-thinking model (GLM 5.3) answering the default medium effort
+    400,
+    b'{"type":"error","error":{"type":"invalid_request_error","message":"This model always engages in thinking and cannot be disabled; please use low, high, or max"}}',
+)
+MEDIUM = {"thinking": {"type": "adaptive"}, "output_config": {"effort": "medium"}}
+HIGH = {"thinking": {"type": "adaptive"}, "output_config": {"effort": "high"}}
+
+
+@pytest.mark.parametrize("stream", [True, False])
+def test_effort_rejection_moves_on_without_parking(shim, stream) -> None:
+    gateway, start, log = shim
+    base = start()
+    # Rejects once (the list's last entry repeats), so the second request can
+    # only reach it if the first rejection did not park it.
+    gateway.script["muse-spark-1.3"] = [EFFORT_400, None]
+    status, body = _ask(base, "claude-gw-tier2", {**MEDIUM, "stream": stream})
+    assert status == 200 and b"grok-4.7" in body
+    # Not parked: a following high-effort request is answered by the first model.
+    status, body = _ask(base, "claude-gw-tier2", {**HIGH, "stream": stream})
+    assert status == 200 and b"muse-spark-1.3" in body
+    assert gateway.models_called() == ["muse-spark-1.3", "grok-4.7", "muse-spark-1.3"]
+    assert "rejects this thinking effort" in log.read_text()
+
+
+def test_every_model_rejecting_effort_says_so_not_out_of_usage(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    for m in (
+        "muse-spark-1.3",
+        "grok-4.7",
+        "Qwen3.8-max",
+        "glm-5.3",
+        "muse-wonder-1.0",
+        "gpt-6.1-sol",
+    ):
+        gateway.script[m] = [EFFORT_400]
+    status, body = _ask(base, "claude-gw-tier2", MEDIUM)
+    assert status == 400
+    message = json.loads(body)["error"]["message"]
+    assert "always engages in thinking" in message
+    assert "accepts this thinking effort" in message
+    assert "out of usage" not in message and "image" not in message
+
+
+def test_effort_rejection_plus_models_out_of_usage_is_a_wait(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [EFFORT_400]
+    for m in ("grok-4.7", "Qwen3.8-max", "glm-5.3", "muse-wonder-1.0", "gpt-6.1-sol"):
+        gateway.script[m] = [COOLING]
+    status, body = _ask(base, "claude-gw-tier2", MEDIUM)
+    assert status == 429
+    assert "out of usage; next retry at" in json.loads(body)["error"]["message"]
+
+
 def test_all_models_out_returns_last_error_with_note(shim) -> None:
     gateway, start, _ = shim
     base = start()
