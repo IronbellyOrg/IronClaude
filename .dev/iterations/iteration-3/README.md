@@ -1,6 +1,6 @@
 # Iteration 3 (IronClaude): the work files
 
-Generated Wed 25 Nov 2026 19:56 Central from the reviewed iteration plan. The planning run lives in the IronFlow repository at `.dev/research/release-planning-20261124/`; paths such as `plan/...` and `scripts/...` named in these files' header lines are in that folder, not in IronClaude. Iteration 3 ends Sunday 6 December; milestone `rel-7.0.0`.
+Generated Wed 25 Nov 2026 20:05 Central from the reviewed iteration plan. The planning run lives in the IronFlow repository at `.dev/research/release-planning-20261124/`; paths such as `plan/...` and `scripts/...` named in these files' header lines are in that folder, not in IronClaude. Iteration 3 ends Sunday 6 December; milestone `rel-7.0.0`.
 
 ## How each owner starts
 
