@@ -496,6 +496,11 @@ def blocks(rec: dict) -> list[dict]:
     return [b for b in content if isinstance(b, dict)] if isinstance(content, list) else []
 
 
+def count_plain_questions(texts: list[str]) -> int:
+    """Plain-text questions that offer the answer choices: every sentence ending in a question mark that names one of them."""
+    return sum(1 for t in texts for part in t.split("?")[:-1] if re.search(r"keep my wording|keep the draft", part, re.I))
+
+
 def analyse_transcripts(records: list[dict]) -> dict:
     uses, results = [], {}
     base_dirs = []
@@ -739,7 +744,7 @@ def finish(args: argparse.Namespace, run_dir: Path, clone: Path, records: list[d
     questions = analysis["questions"]
     entries = analysis["question_entries"]
     # a plain-text question next to a tool call is counted too (questions_as_plain_text below keeps its old tool-call-free meaning)
-    plain_any = sum(1 for t in analysis["all_main_texts"] if "?" in t and re.search(r"keep my wording|keep the draft", t, re.I))
+    plain_any = count_plain_questions(analysis["all_main_texts"])
     summary = {
         "name": name,
         "depth": args.depth,
@@ -989,9 +994,13 @@ def _self_test_checks() -> int:
     plain_text = {"type": "assistant", "_file": "synthetic", "_line": 2, "message": {"content": [
         {"type": "text", "text": "Do you want to keep my wording or keep the draft?"}]}}
     counted = analyse_transcripts([two_entries, plain_text])
-    plain_seen = sum(1 for t in counted["all_main_texts"] if "?" in t and re.search(r"keep my wording|keep the draft", t, re.I))
+    two_in_one = {"type": "assistant", "_file": "synthetic", "_line": 3, "message": {"content": [
+        {"type": "text", "text": "Keep my wording? Or should I keep the draft? Tell me which."}]}}
+    plain_seen = count_plain_questions(counted["all_main_texts"])
+    plain_two = count_plain_questions(analyse_transcripts([two_in_one])["all_main_texts"])
     check("question counting: one call with two entries counts as two entries and one call", counted["questions"] == 1 and counted["question_entries"] == 2, f"calls {counted['questions']}, entries {counted['question_entries']}")
     check("question counting: a plain-text question next to a tool call is counted", plain_seen == 1)
+    check("question counting: two plain-text questions in one message are two questions", plain_two == 2, f"counted {plain_two}")
 
     # the stop file
     write_stop("self-test stop", "self-test")
