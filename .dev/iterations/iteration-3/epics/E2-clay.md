@@ -1,6 +1,6 @@
 # Iteration 3 work file: Clay, epic E2
 
-Generated Wed 25 Nov 2026 20:09 Central by `scripts/epic-files.sh` from the reviewed work map (`work-map.json`). Do not edit by hand: change the map's inputs and rebuild. Repository: `IronbellyOrg/IronClaude`, base branch `integration`. Iteration 3 ends Sunday 6 December.
+Generated Wed 25 Nov 2026 20:14 Central by `scripts/epic-files.sh` from the reviewed work map (`work-map.json`). Do not edit by hand: change the map's inputs and rebuild. Repository: `IronbellyOrg/IronClaude`, base branch `integration`. Iteration 3 ends Sunday 6 December.
 
 ## 1. Kickoff prompt
 
