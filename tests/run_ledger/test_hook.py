@@ -35,12 +35,13 @@ def make_path(tmp_path: Path, with_superclaude: bool) -> tuple[Path, Path]:
     return bin_dir, record
 
 
-def run_hook(tmp_path, payload, with_superclaude=True, raw=None):
+def run_hook(tmp_path, payload, with_superclaude=True, raw=None, extra_env=None):
     bin_dir, record = make_path(tmp_path, with_superclaude)
     env = {
         "PATH": str(bin_dir),
         "HOME": str(tmp_path / "home"),
         "XDG_STATE_HOME": str(tmp_path / "state"),
+        **(extra_env or {}),
     }
     stdin = raw if raw is not None else json.dumps(payload)
     proc = subprocess.run(
@@ -142,3 +143,35 @@ def test_hook_fails_open_when_superclaude_missing(tmp_path):
     bad.mkdir()
     proc, _, _ = run_hook(bad, None, raw="{not json")
     assert (proc.returncode, proc.stdout) == (0, "")
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    ("command", "extra_env", "recorded"),
+    [
+        ("orca-ide orchestration run-create --json", None, True),
+        ("/home/u/.local/bin/orca-ide orchestration run-create --json", None, True),
+        ("/usr/bin/orca orchestration worker-start --run run_aaaaaaaaaaaa", None, True),
+        ("cd /x && orca-ide orchestration run-create --json", None, True),
+        (
+            "my-orca orchestration run-create --json",
+            {"ORCA_CLI_COMMAND": "/opt/bin/my-orca"},
+            True,
+        ),
+        ("my-orca orchestration run-create --json", None, False),  # not a known name
+        (
+            "neworca orchestration run-create --json",
+            None,
+            False,
+        ),  # the name must be the whole word
+        ("orca-ide orchestration run-list --json", None, False),
+    ],
+)
+def test_hook_recognises_the_supported_orca_command_names(
+    tmp_path, command, extra_env, recorded
+):
+    payload = bash_payload(command, stdout="made run_dddddddddddd")
+    proc, calls, _ = run_hook(tmp_path, payload, extra_env=extra_env)
+    assert (proc.returncode, proc.stdout, proc.stderr) == (0, "", "")
+    expected = "run_aaaaaaaaaaaa" if "worker-start" in command else "run_dddddddddddd"
+    assert calls == ([f"sweep ledger --add {expected}"] if recorded else [])

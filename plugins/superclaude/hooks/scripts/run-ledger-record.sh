@@ -2,7 +2,8 @@
 # PostToolUse(Bash) Run-ledger appender: records a new Orca Run in the Run ledger at once.
 #
 # When a Bash tool call ran `orca orchestration run-create` or `orca orchestration
-# worker-start`, this takes the Run id and calls `superclaude sweep ledger --add <id>`,
+# worker-start` (also as `orca-ide`, the command named by ORCA_CLI_COMMAND, or an absolute
+# path to one of them), this takes the Run id and calls `superclaude sweep ledger --add <id>`,
 # so the coordinator's `/sc:sweep` sees the Run before the next scheduled rebuild.
 # Id sources: `run-create` prints the new Run in its result (`result.run.id`); the first
 # `run_[0-9a-f]{12}` in the Bash result text is used. `worker-start` takes the value of
@@ -31,9 +32,15 @@ input=$(cat) || exit 0
 command_text=$(printf '%s' "$input" | jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
 [ -n "$command_text" ] || exit 0
 
-verb_pattern='(^|[^[:alnum:]_./-])orca[[:space:]]+orchestration[[:space:]]+(run-create|worker-start)([[:space:]]|$)'
+# The Orca CLI is `orca-ide` by default in the sweep, `orca` on some hosts, or the command named
+# by ORCA_CLI_COMMAND; it may also be called by an absolute path.
+orca_names='orca|orca-ide'
+cli_name=${ORCA_CLI_COMMAND:-}
+cli_name=${cli_name##*/}
+[[ $cli_name =~ ^[A-Za-z0-9._-]+$ ]] && orca_names="$orca_names|${cli_name//./\\.}"
+verb_pattern="(^|[[:space:];&|(])([^[:space:];&|()]*/)?($orca_names)[[:space:]]+orchestration[[:space:]]+(run-create|worker-start)([[:space:]]|\$)"
 [[ $command_text =~ $verb_pattern ]] || exit 0
-verb=${BASH_REMATCH[2]}
+verb=${BASH_REMATCH[4]}
 
 id_pattern='run_[0-9a-f]{12}'
 id=""
