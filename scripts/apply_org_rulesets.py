@@ -115,16 +115,45 @@ def _set_diff(key: str, want: object, got: object) -> list[str]:
     return out
 
 
+# The parameters GitHub adds to a rule we render without them, with the value it gives
+# them by default (seen on a repo ruleset). Only these keys, with only these values,
+# may be extra on a remote rule; any other extra key, or another value, is a
+# difference, so a ruleset someone tuned (merge methods, required reviewers, a
+# dismissal restriction) is never taken for the listed one.
+GITHUB_RULE_DEFAULTS = {
+    "pull_request": {
+        "allowed_merge_methods": ["merge", "rebase", "squash"],
+        "dismissal_restriction": {"allowed_actors": [], "enabled": False},
+        "require_extra_approval_for_unattributed_changes": True,
+        "required_reviewers": [],
+    }
+}
+
+
+def _is_default(rule_type: object, key: str, value: object) -> bool:
+    table = GITHUB_RULE_DEFAULTS.get(rule_type, {})
+    if key not in table:
+        return False
+    if isinstance(value, list) and all(isinstance(v, str) for v in value):
+        value = sorted(value)
+    return _canon(value) == _canon(table[key])
+
+
 def _covers(want: dict, have: dict) -> bool:
     """``have`` is ``want`` plus, inside its parameters, keys GitHub fills in by
-    default (a pull_request rule comes back with ``allowed_merge_methods`` and more).
-    Every key we render must be there with the same value; the type must be equal."""
+    default (``GITHUB_RULE_DEFAULTS``). Every key we render must be there with the
+    same value, every other key must be a known default with its default value, and
+    the rest of the rule (its type) must be equal."""
     keep_want = {k: v for k, v in want.items() if k != "parameters"}
     keep_have = {k: v for k, v in have.items() if k != "parameters"}
     if keep_want != keep_have:
         return False
     wanted, got = want.get("parameters") or {}, have.get("parameters") or {}
-    return all(k in got and got[k] == v for k, v in wanted.items())
+    if not all(k in got and got[k] == v for k, v in wanted.items()):
+        return False
+    return all(
+        _is_default(want.get("type"), k, v) for k, v in got.items() if k not in wanted
+    )
 
 
 def _rules_diff(want: object, got: object) -> list[str]:

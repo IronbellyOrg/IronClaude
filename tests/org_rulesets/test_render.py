@@ -187,6 +187,38 @@ def test_compare_accepts_parameters_github_adds_by_default(orr, name):
     assert orr.compare_bodies(body, remote) == []
 
 
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        ("allowed_merge_methods", ["squash"]),
+        ("required_reviewers", [{"reviewer": {"id": 1, "type": "Team"}}]),
+        ("dismissal_restriction", {"allowed_actors": [1], "enabled": True}),
+        ("require_extra_approval_for_unattributed_changes", False),
+        ("some_new_parameter", True),
+    ],
+)
+def test_compare_reports_an_omitted_parameter_that_is_not_its_github_default(
+    orr, key, value
+):
+    """A ruleset someone tuned is not the listed one: an extra parameter must be a
+    known default with its default value, not just any value."""
+
+    def mutate(remote):
+        _with_defaults(remote)
+        remote["rules"][2]["parameters"][key] = value
+
+    text = _diff(orr, mutate)
+    assert "rules: missing" in text and "rules: extra" in text and key in text
+
+
+def test_compare_ignores_the_order_of_the_default_merge_methods(orr):
+    def mutate(remote):
+        _with_defaults(remote)
+        remote["rules"][2]["parameters"]["allowed_merge_methods"].reverse()
+
+    assert _diff(orr, mutate) == ""
+
+
 def test_compare_still_reports_a_changed_value_next_to_added_defaults(orr):
     def mutate(remote):
         _with_defaults(remote)
