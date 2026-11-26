@@ -88,7 +88,7 @@ Three design choices make this reliable rather than theatrical:
 
 **Entry criteria:** the raw `<version>` argument has been validated in Wave 0.
 
-**Anchor the scan to the tagged commit.** Once the tag is resolved, read the release's code surface **at that tag** — e.g. `git show <tag>:<path>`, `git ls-tree <tag>`, or a `git worktree add` / `git archive` checkout of the tag — rather than the current working tree. Such a checkout is made in a temporary directory and removed with `git worktree remove` after the scan. Confirm the tag actually belongs to the release lineage (`git merge-base --is-ancestor <tag> <default-branch>`); if it is **not** an ancestor of the mainline, or the tree's version metadata disagrees with the tag, treat that as a release-integrity finding and report it before proceeding. **Auto-detect the default branch** (e.g. `git symbolic-ref refs/remotes/origin/HEAD`) — do not assume `main`/`master`.
+**Anchor the scan to the tagged commit.** Once the tag is resolved, read the release's code surface **at that tag** — e.g. `git show <tag>:<path>`, `git ls-tree <tag>`, or a `git worktree add` / `git archive` checkout of the tag — rather than the current working tree. Such a checkout is made in a temporary directory and removed with `git worktree remove` after the scan. Confirm the tag actually belongs to the release lineage. Resolve the default branch `<default-branch>` live with `git ls-remote --symref origin HEAD` (the `ref: refs/heads/<name>` line gives `<name>`); only when that call cannot reach the remote, fall back to `git symbolic-ref refs/remotes/origin/HEAD`, which can be stale. Record the value and which source gave it. Then run `git fetch origin <default-branch> --tags` and `git merge-base --is-ancestor <tag> refs/remotes/origin/<default-branch>`; never compare against a bare local branch name, which can be far behind its remote. If the fetch fails or the value came from the fallback, report the ancestry check as **unverified**, never as passed. If the tag is **not** an ancestor of the mainline, or the tree's version metadata disagrees with the tag, treat that as a release-integrity finding and report it before proceeding; with the finding, list the remote branches that contain the tag (`git branch -r --contains <tag>`, without the `origin/HEAD ->` alias line, at most 10, say when the list is cut off; when none: "no remote branch contains `<tag>`") and say that the release branch may not yet have been merged back into the default branch and should be merged back by pull request. Never hard-code a branch name.
 
 ### Two run modes (auto-detect — do not ask)
 
@@ -100,9 +100,9 @@ Detect the mode from whether a prior manifest exists for this repo. Search these
 
 State the detected mode and the evidence for it (found manifest path, or "none found → ground-up") in the report's header. When in genuine doubt, prefer ground-up for a workstream (a full pass is safe; a skipped delta is a silent gap).
 
-**Output:** resolved tag + auto-detected default branch + chosen run-mode (ground-up vs additive) + located release artifacts.
+**Output:** resolved tag + default branch (resolved live, with its source) + chosen run-mode (ground-up vs additive) + located release artifacts.
 
-**Exit criteria:** tag anchored, default branch auto-detected, run-mode ground-up vs additive chosen with stated evidence, release artifacts located.
+**Exit criteria:** tag anchored, default branch resolved and its source recorded, run-mode ground-up vs additive chosen with stated evidence, release artifacts located.
 
 ---
 
@@ -344,8 +344,8 @@ On completion, report these fields (and emit the RESULT header above) for a call
 
 ## Guardrails
 
-- **Branch discipline** — work on a feature branch off the repo's **auto-detected default branch**; never commit directly to that branch. Commit/push only when the user asks.
-- **PR target** — open PRs against the repo's own `origin`, with `--base <default-branch>` and its contribution conventions. **Never retarget a PR at anything other than `origin`** (a fork's upstream, or any other repo) without explicit user authorization in the same session. A wrong PR target is a high-cost mistake — especially when a plausible sibling repo exists in the same org, which is exactly when a hardcoded owner/name would misfire. Resolve the target from `git remote -v` at runtime, never from memory.
+- **Branch discipline** — work on a feature branch off the default branch resolved in Wave 1; never commit directly to that branch. Commit/push only when the user asks.
+- **PR target** — open PRs against the repo's own `origin`, with `--base <default-branch>` (the Wave 1 value; a value that came from the offline fallback is never used as a PR base: ask the user) and its contribution conventions. **Never retarget a PR at anything other than `origin`** (a fork's upstream, or any other repo) without explicit user authorization in the same session. A wrong PR target is a high-cost mistake — especially when a plausible sibling repo exists in the same org, which is exactly when a hardcoded owner/name would misfire. Resolve the target from `git remote -v` at runtime, never from memory.
 - **Never stage machine-generated / sync-output dirs** — respect whatever the host repo marks as generated or vendored (check its `.gitignore` and docs) and don't `git add` those paths. Note the convention varies: some repos gitignore such dirs, others commit them — follow the host repo's actual practice, don't assume.
 - **No secrets, ever** — deploy creds/tokens live only on the target host. Never write them into docs, scripts, transcripts, or the manifest. Scrub any that appear in an e2e transcript before saving it.
 - **Confirm outward-facing / hard-to-reverse actions** — provisioning a VM, running install scripts against a real target, committing, and opening a PR all get confirmed first unless the user pre-authorized them this session.
