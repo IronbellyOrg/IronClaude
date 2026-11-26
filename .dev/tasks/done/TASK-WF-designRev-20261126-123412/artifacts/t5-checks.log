@@ -1,0 +1,24 @@
+# T5 checks
+
+## diff against base (added, deleted):
+2	0	.github/ISSUE_TEMPLATE/bug_report.yml
+## removed lines (must print nothing):
+## added lines:
++        If a skill, command or agent is missing or misbehaves, use the "Feature request" form ("Suggest an improvement") instead; it asks the reuse and caller questions.
++
+## yaml and schema:
+- form: `.github/ISSUE_TEMPLATE/bug_report.yml`
+- yaml.safe_load: ok (4 body elements)
+- body ids in order: ['os', 'orca_version', 'details']
+- required flags: {'os': True, 'orca_version': False, 'details': True}
+- unique ids: True
+- ids equal expected ['os', 'orca_version', 'details']: True
+- type: 'Bug'; labels: ['bug']; name: 'Bug report'
+- JSON Schema errors: 0
+exit 0
+## intro value read back (paragraphs):
+0 'Use this form for bugs. Include enough detail for someone else to reproduce the issue.'
+1 'If a skill, command or agent is missing or misbehaves, use the "Feature request" form ("Suggest an improvement") instead; it asks the reuse and caller questions.'
+2 'Please write your issue in English.\n'
+## base ids and required:
+{'os': True, 'orca_version': False, 'details': True}

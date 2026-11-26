@@ -10,6 +10,8 @@ body:
       value: |
         Use this form for new features or workflow improvements.
 
+        You can also use this form to propose a skill, command or agent, or to report one that is missing or misbehaves.
+
         Please write your issue in English.
 
   - type: textarea
@@ -25,7 +27,7 @@ body:
     id: proposal
     attributes:
       label: Proposed solution
-      description: Describe the change you want to see
+      description: 'Describe the change you want to see. If you do not know the solution, write "solution unknown" and describe the outcome you need; that is a valid answer for missing or broken behavior.'
       placeholder: Add a pinned repositories section to the home screen.
     validations:
       required: true
@@ -35,5 +37,29 @@ body:
     attributes:
       label: Alternatives or additional context
       description: Workarounds, related tools, mockups, or anything else that helps
+    validations:
+      required: false
+
+  - type: input
+    id: primitive
+    attributes:
+      label: Skill, command or agent (if any)
+      description: 'Kind and name, for example: command /sc:recommend. Write "new" if it does not exist yet. A proposal about a skill, command or agent must answer this; leave it blank only for other requests.'
+    validations:
+      required: false
+
+  - type: textarea
+    id: reuse_search
+    attributes:
+      label: What the reuse search returned
+      description: 'What /sc:help, /sc:recommend "<goal>" and /sc:recommend "<goal>" --plugin returned, or "search not available because ...". A proposal about a skill, command or agent must answer this; leave it blank only for other requests.'
+    validations:
+      required: false
+
+  - type: textarea
+    id: affected_callers
+    attributes:
+      label: Skills, commands or agents that use it
+      description: 'The ones you know of, or "not known". No complete list exists yet, so "not known" does not mean none. A proposal about a skill, command or agent must answer this; leave it blank only for other requests.'
     validations:
       required: false

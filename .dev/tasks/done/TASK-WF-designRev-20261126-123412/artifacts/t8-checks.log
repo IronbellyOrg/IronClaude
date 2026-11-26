@@ -1,0 +1,32 @@
+# T8 checks
+
+## final log summary line:
+============================= 647 passed in 4.76s ==============================
+## baseline log summary line:
+============================= 647 passed in 4.82s ==============================
+## git diff --name-only <base> -- . ':(exclude).dev/tasks' (must be exactly the eight files):
+.github/ISSUE_TEMPLATE/bug_report.yml
+.github/ISSUE_TEMPLATE/feature_request.yml
+.github/PULL_REQUEST_TEMPLATE.md
+CONTRIBUTING.md
+docs/developer-guide/contributing-code.md
+docs/onboarding/ironclaude-onboarding.html
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+src/superclaude/core/HOW-WE-WORK.md
+SCOPE EQUALS THE EIGHT FILES
+## any path under .claude/ in the diff (must print nothing):
+## git ls-files --others --exclude-standard -- . ':(exclude).dev' (must print nothing):
+## notes file items present (count of matching lines):
+## Decisions table: 1
+## Test and schema results: 1
+## Pull request template note: 1
+## Merge request: 1
+## Commit-time steps: 1
+## Manual checks: 1
+## Owner inputs still missing: 1
+## Owner follow-ups not done here: 1
+## Additions beyond the files the issue names: 1
+not that the future gate works: 1
+deferred, no follow-up issue established; recorded here only: 1
+## notes mention of percent or ROI number (must print nothing):
+## end

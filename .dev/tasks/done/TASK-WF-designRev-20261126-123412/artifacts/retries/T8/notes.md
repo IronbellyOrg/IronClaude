@@ -1,0 +1,2 @@
+060e9d10b1836239af7eb329ee26273157a85595
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-WF-designRev-20261126-123412/artifacts/pr-body-notes.md:62 ac=T8.AC2 chk=n,y,n,n the reviewer read "footer line 580" as the "Built from" line (deck line 579); the notes mean the source-of-truth paragraph under the footer commit line, which is on deck line 580, so the claim is true and the anchor does not contradict it (anchor Read-back failed: note)

@@ -10,6 +10,8 @@ body:
       value: |
         Use this form for bugs. Include enough detail for someone else to reproduce the issue.
 
+        If a skill, command or agent is missing or misbehaves, use the "Feature request" form ("Suggest an improvement") instead; it asks the reuse and caller questions.
+
         Please write your issue in English.
 
   - type: dropdown

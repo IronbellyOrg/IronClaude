@@ -4,6 +4,8 @@ Welcome to SuperClaude Framework development! This guide provides everything you
 
 **Project Purpose**: SuperClaude provides Claude Code with structured context files and behavioral instructions. We're building the next generation of AI-assisted development through intelligent prompt engineering.
 
+> **New team members: file an issue; do not open a pull request that changes a skill, command or agent yet.** The rule, the searches to run first, and what a future change will need are in [HOW-WE-WORK, section 4](../../src/superclaude/core/HOW-WE-WORK.md#4-rules-everyone-follows). The rest of this page is maintainer reference.
+
 ## Table of Contents
 
 1. [Development Setup](#development-setup) - Prerequisites and environment
@@ -98,6 +100,8 @@ User Input → Claude Code → Reads SuperClaude Context → Modified Behavior �
 
 ## Context File Guidelines
 
+> Maintainer reference. New team members file an issue first; see [HOW-WE-WORK, section 4](../../src/superclaude/core/HOW-WE-WORK.md#4-rules-everyone-follows).
+
 ### File Organization
 
 **Context Files (`.md`):**
@@ -159,6 +163,8 @@ Core philosophy and approach
 
 ## Development Workflow
 
+> Maintainer reference. New team members file an issue first; see [HOW-WE-WORK, section 4](../../src/superclaude/core/HOW-WE-WORK.md#4-rules-everyone-follows).
+
 ### Git Workflow
 
 1. **Fork and Clone:**
@@ -202,6 +208,8 @@ Core philosophy and approach
 
 ### Pull Request Template
 
+> The template GitHub shows on new pull requests is [.github/PULL_REQUEST_TEMPLATE.md](../../.github/PULL_REQUEST_TEMPLATE.md); the example below is an illustration only.
+
 ```markdown
 ## Description
 Brief description of context file changes
@@ -235,6 +243,8 @@ Brief description of context file changes
 - Claude Code behavioral testing results
 
 ## Contributing to Components
+
+> Maintainer reference. New team members file an issue first; see [HOW-WE-WORK, section 4](../../src/superclaude/core/HOW-WE-WORK.md#4-rules-everyone-follows).
 
 ### Adding New Agents
 
@@ -375,6 +385,8 @@ grep '^@' ~/.claude/CLAUDE.md
 - Respect contributor efforts and learning
 
 ### Issue Reporting
+
+> Maintainer reference. New team members file an issue first; see [HOW-WE-WORK, section 4](../../src/superclaude/core/HOW-WE-WORK.md#4-rules-everyone-follows).
 
 **Bug Reports:**
 

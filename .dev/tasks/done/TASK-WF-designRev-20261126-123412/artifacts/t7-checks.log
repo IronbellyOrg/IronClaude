@@ -1,0 +1,26 @@
+# T7 checks
+
+cards in s12: 2
+second card equals plan HTML byte for byte: True
+contains 'not available yet': True ; contains 'section 4': True
+'being worked out' in new card: False ; in whole s12: True
+code tokens in new card: ['/sc:help', '/sc:recommend', '/sc:recommend --plugin']
+worktree card (first) byte-identical to base: True
+
+## diff hunks (git diff -U0 <base>):
+@@ -516,3 +516,3 @@
+@@ -527 +527 @@
+## s12 line range now:
+515:<section class="slide" id="s12" aria-labelledby="s12-h">
+532:<section class="slide" id="s13" aria-labelledby="s13-h">
+## footer line still matches pattern:
+579:  <p>Built from HOW-WE-WORK.md at commit f3c1ef06.</p>
+## removed lines:
+-  <p class="eyebrow"><b>12</b> · Open topics · GitHub issues #289 and #290</p>
+-  <h2 id="s12-h">Being worked out</h2>
+-  <p>Two topics came up in the onboarding meeting that the guide does not cover yet. Each has its own issue. Until they
+-      <p>How team members propose or change skills, commands and agents, and what evidence a change needs, is being wor
+## pytest:
+tests/docs/test_onboarding_deck.py ...                                   [100%]
+
+============================== 3 passed in 0.13s ===============================
