@@ -255,8 +255,10 @@ def test_no_stand_in_value_of_these_tests_is_in_the_committed_rule_file():
 
 @pytest.fixture
 def exp(exp, monkeypatch):
-    """The command line builds ``Paths`` from a root alone, so point its default jevlib folder at the fixture's stand-in."""
+    """The command line builds ``Paths`` from a root alone, so point its default jevlib folder at the fixture's stand-in, and treat
+    the fixture's root as the experiment folder this code was loaded from."""
     monkeypatch.setattr(loader, "JEVLIB_DIR", exp.jevlib_dir)
+    monkeypatch.setattr(loader, "EXPERIMENT", exp.root)
     return exp
 
 
@@ -330,6 +332,14 @@ def test_the_code_check_uses_the_test_record_made_before_the_first_request(exp, 
     assert "code" in build_run_meta(exp, "r1")["frozen_changed"]
     assert score_cmd(exp) == 0
     assert capsys.readouterr().out.strip() == "RUN_INVALID: frozen_file_changed"
+
+
+def test_score_refuses_a_root_other_than_the_experiment_folder(exp, tmp_path, monkeypatch, capsys):
+    prepare(exp)
+    monkeypatch.setattr(loader, "EXPERIMENT", tmp_path / "the-folder-the-code-came-from")
+    assert score_cmd(exp) == 1
+    assert "not the experiment folder" in capsys.readouterr().err
+    assert not exp.report.exists() and events.latest(exp, "verdict") is None
 
 
 def test_a_log_with_no_first_request_uses_the_latest_test_record(exp):

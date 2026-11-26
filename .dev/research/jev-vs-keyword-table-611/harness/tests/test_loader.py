@@ -175,24 +175,42 @@ def _answers(tmp_path, rows):
     return p
 
 
+def _row_for(pid, answer=None, **kw):
+    """A complete table answer row: the answer and the evidence the table procedure records for it."""
+    return dict({"prompt_id": pid, "answer": answer, "cues": [], "rows": [], "method": "skill execution"}, **kw)
+
+
 def test_table_answers_pass_when_every_corpus_id_has_one_explicit_answer(tmp_path):
-    p = _answers(tmp_path, [{"prompt_id": "a", "answer": "bug"}, {"prompt_id": "b", "answer": None}, {"prompt_id": "c", "answer": "test"}])
+    p = _answers(tmp_path, [_row_for("a", "bug", cues=["stack trace"], rows=["bug"]), _row_for("b"), _row_for("c", "test")])
     assert len(loader.load_table_answers(p, IDS)) == 3
 
 
+def _without(row, key):
+    return {k: v for k, v in row.items() if k != key}
+
+
 @pytest.mark.parametrize("rows,match", [
-    ([{"prompt_id": "a", "answer": "bug"}, {"prompt_id": "b"}, {"prompt_id": "c", "answer": None}], "b has no answer field"),
-    ([{"prompt_id": "a", "answer": "bug"}, {"prompt_id": "a", "answer": None}, {"prompt_id": "b", "answer": None},
-      {"prompt_id": "c", "answer": None}], "prompt a more than once"),
-    ([{"prompt_id": "a", "answer": "urgent"}, {"prompt_id": "b", "answer": None}, {"prompt_id": "c", "answer": None}],
-     "a has an answer that is neither null nor one of the six"),
-    ([{"prompt_id": "a", "answer": None}, {"prompt_id": "b", "answer": None}, {"prompt_id": "c", "answer": None},
-      {"prompt_id": "z", "answer": None}], "not in the corpus: z"),
-    ([{"prompt_id": "a", "answer": None}, {"prompt_id": "b", "answer": None}], "lack a row for corpus prompt: c"),
+    ([_row_for("a", "bug"), _without(_row_for("b"), "answer"), _row_for("c")], "b has no answer field"),
+    ([_row_for("a", "bug"), _row_for("a"), _row_for("b"), _row_for("c")], "prompt a more than once"),
+    ([_row_for("a", "urgent"), _row_for("b"), _row_for("c")], "a has an answer that is neither null nor one of the six"),
+    ([_row_for("a"), _row_for("b"), _row_for("c"), _row_for("z")], "not in the corpus: z"),
+    ([_row_for("a"), _row_for("b")], "lack a row for corpus prompt: c"),
+    ([_without(_row_for("a"), "cues"), _row_for("b"), _row_for("c")], "a needs cues"),
+    ([_row_for("a", cues="stack trace"), _row_for("b"), _row_for("c")], "a needs cues"),
+    ([_without(_row_for("a"), "rows"), _row_for("b"), _row_for("c")], "a needs rows"),
+    ([_row_for("a", rows=["urgent"]), _row_for("b"), _row_for("c")], "a needs rows"),
+    ([_without(_row_for("a"), "method"), _row_for("b"), _row_for("c")], "a needs a method"),
+    ([_row_for("a", method="guessing"), _row_for("b"), _row_for("c")], "a needs a method"),
 ])
 def test_table_answers_are_refused_against_the_corpus(tmp_path, rows, match):
     with pytest.raises(LoadError, match=match):
         loader.load_table_answers(_answers(tmp_path, rows), IDS)
+
+
+def test_a_root_other_than_the_experiment_folder_is_refused_for_a_run_or_a_decisional_score(tmp_path):
+    loader.require_own_root(Paths(loader.EXPERIMENT))
+    with pytest.raises(LoadError, match="not the experiment folder"):
+        loader.require_own_root(Paths(tmp_path))
 
 
 @pytest.mark.parametrize("value,ok", [("r1", True), ("run-2.a_b", True), ("..", False), (".", False), ("../x", False), ("/etc", False),

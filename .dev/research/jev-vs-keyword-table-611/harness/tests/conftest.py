@@ -98,7 +98,8 @@ def exp(tmp_path):
     p.selection_criteria.write_text("selection criteria\n")
     p.labelling_record.write_text("labelling record\n")
     p.table_answers.parent.mkdir(parents=True)
-    p.table_answers.write_text("\n".join(json.dumps({"prompt_id": f"p{i}", "answer": None}) for i in range(8)) + "\n")
+    p.table_answers.write_text("\n".join(json.dumps({"prompt_id": f"p{i}", "answer": None, "cues": [], "rows": [],
+                                                     "method": "person reading the prose"}) for i in range(8)) + "\n")
     p.table_provenance.write_text("table provenance\n")
     p.tests_dir.mkdir(parents=True, exist_ok=True)
     p.rule.write_text(normalised_rule_text(), encoding="utf-8")

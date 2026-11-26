@@ -50,7 +50,7 @@ takes `--root` (the experiment folder by default).
 3. **Corpus and labels frozen** (a named human labeller has filled `corpus/corpus.jsonl`, `corpus/selection-criteria.md` and
    `corpus/labelling-record.md`): `gate.py freeze-corpus`. It runs the privacy screen and refuses on any failure.
 4. **Gate 1:** `gate.py gate1`. It accepts `UNSET` rule values and hashes files only.
-5. **Table answers** are applied as `table/table-procedure.md` says (prompts only, after Gate 1), then frozen: `gate.py freeze-table`. It refuses a table that does not have exactly one row for every corpus prompt, each with an explicit `answer` (null or one of the six types).
+5. **Table answers** are applied as `table/table-procedure.md` says (prompts only, after Gate 1), then frozen: `gate.py freeze-table`. It refuses a table that does not have exactly one row for every corpus prompt, each with an explicit `answer` (null or one of the six types) and the `cues`, `rows` and `method` the table procedure records.
 6. **The owner's answers to the open rule fields** are written into `decision-rule.md` and recorded:
    `events.py owner-input --evidence .dev/research/jev-vs-keyword-table-611/decision-rule.md --note "<who answered, and the three values>"`
 7. **Freeze the rule:** `gate.py freeze-rule`. It refuses any `UNSET` value.
@@ -59,7 +59,7 @@ takes `--root` (the experiment folder by default).
 10. **The lead's go**, naming the rule file's hash: `events.py go --words "<the lead's words>"`.
 11. **Gate 2:** `gate.py gate2`. It fails on any missing step, any changed frozen file, a spend bound that does not fit, or a run already started.
 12. **Rehearse** (posts nothing, needs no gate and no key): `runner.py rehearse --out <a folder outside ledger/ and runs/>`.
-13. **The coordinator's live run:** `runner.py run --run-id <ID> --live`. It checks both gates itself and reads no environment variable before
+13. **The coordinator's live run:** `runner.py run --run-id <ID> --live`. It refuses a `--root` other than the experiment folder the code was loaded from (the files it hashes must be the code that runs), checks both gates itself and reads no environment variable before
     they pass. The key is mapped from `TYPESAFE_API_KEY` to `JEV_API_KEY` inside one subshell command only (rule J2), never printed, never put on a
     command line and never written to a file. The key scan sets `JEV_API_KEY` from `TYPESAFE_API_KEY` inside the same single subshell command and
     names its paths explicitly:

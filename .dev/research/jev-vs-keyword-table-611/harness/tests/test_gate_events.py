@@ -209,7 +209,8 @@ def test_freeze_table_refuses_until_gate1_passes_and_when_a_file_is_missing(exp)
     (lambda rows: rows + [rows[0]], "more than once"),
     (lambda rows: [dict(rows[0], answer="urgent")] + rows[1:], "neither null nor one of the six"),
     (lambda rows: rows[:-1], "lack a row for corpus prompt"),
-    (lambda rows: rows + [{"prompt_id": "zz", "answer": None}], "not in the corpus"),
+    (lambda rows: rows + [dict(rows[0], prompt_id="zz")], "not in the corpus"),
+    (lambda rows: [{k: v for k, v in r.items() if k != "method"} for r in rows], "needs a method"),
 ])
 def test_freeze_table_refuses_a_table_that_does_not_match_the_corpus_and_freezes_nothing(exp, rewrite, match):
     gate.freeze_corpus(exp)

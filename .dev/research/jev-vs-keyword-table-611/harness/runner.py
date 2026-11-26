@@ -201,6 +201,7 @@ def _run_command(paths, args, transport):
     if not loader.is_plain_name(args.run_id):
         print("REFUSED: the run id may hold only letters, digits, dot, underscore and hyphen", file=sys.stderr)
         return 2
+    loader.require_own_root(paths)
     if (paths.runs / args.run_id).exists():
         print(f"REFUSED: runs/{args.run_id} already exists", file=sys.stderr)
         return 2

@@ -33,8 +33,19 @@ def is_plain_name(value):
     return isinstance(value, str) and bool(_PLAIN_NAME.fullmatch(value)) and value not in (".", "..")
 
 
+TABLE_METHODS = ("person reading the prose", "skill execution")
+
+
 class LoadError(ValueError):
     """A frozen file is missing, malformed or breaks a rule; the message names the cause, never the matched text."""
+
+
+def require_own_root(paths):
+    """The code and the questions that run are imported from the experiment folder this module was loaded from, so a run or a
+    decisional score on any other ``--root`` would hash one set of files and execute another."""
+    if pathlib.Path(paths.root).resolve() != EXPERIMENT.resolve():
+        raise LoadError("--root is not the experiment folder this code was loaded from: the files it hashes would not be the code "
+                        "that runs")
 
 
 class Paths:
@@ -214,7 +225,8 @@ def load_table_answers(path, corpus_ids=None):
     """The table answers, one JSON object per line (prompt_id, answer or null, cues, rows, method).
 
     With ``corpus_ids`` the file is also checked against the corpus: exactly one row for every id, an explicit ``answer`` that is
-    null or one of the six types, no duplicate and no unknown id.  A refusal names the prompt id, never prompt text."""
+    null or one of the six types, the ``cues``, ``rows`` and ``method`` the table procedure records, no duplicate and no unknown id.
+    A refusal names the prompt id, never prompt text."""
     rows = _jsonl(path, "table answers")
     for r in rows:
         if "prompt_id" not in r:
@@ -231,6 +243,13 @@ def load_table_answers(path, corpus_ids=None):
             raise LoadError(f"table answer row {pid} has no answer field (an unset answer is an explicit null)")
         if r["answer"] is not None and r["answer"] not in TYPES:
             raise LoadError(f"table answer row {pid} has an answer that is neither null nor one of the six types")
+        # the evidence the table procedure records for every answer
+        if not isinstance(r.get("cues"), list) or not all(isinstance(c, str) for c in r["cues"]):
+            raise LoadError(f"table answer row {pid} needs cues: a list of the cue phrases found (empty when none)")
+        if not isinstance(r.get("rows"), list) or not set(r["rows"]) <= set(TYPES):
+            raise LoadError(f"table answer row {pid} needs rows: a list of the matched row names (empty when none), each one of the six types")
+        if r.get("method") not in TABLE_METHODS:
+            raise LoadError(f"table answer row {pid} needs a method: one of {', '.join(TABLE_METHODS)}")
     wanted = set(corpus_ids)
     if seen - wanted:
         raise LoadError("table answers name a prompt id that is not in the corpus: " + ", ".join(sorted(map(str, seen - wanted))))

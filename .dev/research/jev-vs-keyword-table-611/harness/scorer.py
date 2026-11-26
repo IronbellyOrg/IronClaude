@@ -373,6 +373,7 @@ def _score_command(paths, args):
     for label, value in (("run id", args.run_id), ("rescore name", args.rescore)):
         if value is not None and not loader.is_plain_name(value):
             raise ScoreRefused(f"the {label} may hold only letters, digits, dot, underscore and hyphen")
+    loader.require_own_root(paths)
     if args.rescore:
         rule = loader.load_rule(args.rule, for_scoring=True)
         out = paths.rescores / args.rescore / "report.md"

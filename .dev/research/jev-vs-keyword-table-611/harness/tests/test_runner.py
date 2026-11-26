@@ -35,8 +35,10 @@ def mock(plan=None):
 
 @pytest.fixture
 def exp(exp, monkeypatch):
-    """The command line builds ``Paths`` from a root alone, so point its default jevlib folder at the fixture's stand-in."""
+    """The command line builds ``Paths`` from a root alone, so point its default jevlib folder at the fixture's stand-in, and treat
+    the fixture's root as the experiment folder this code was loaded from."""
     monkeypatch.setattr(loader, "JEVLIB_DIR", exp.jevlib_dir)
+    monkeypatch.setattr(loader, "EXPERIMENT", exp.root)
     return exp
 
 
@@ -270,6 +272,13 @@ def test_a_run_id_that_is_not_a_plain_name_is_refused_before_any_effect(exp, bad
     with pytest.raises(ValueError, match="run id may hold only"):
         go(exp, mock(), run_id=bad)
     assert not exp.runs.exists() and not (exp.root.parent / "escape").exists() and not pathlib.Path("/tmp/jev611-abs-run-id").exists()
+
+
+def test_run_refuses_a_root_other_than_the_experiment_folder_before_any_gate(exp, tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(loader, "EXPERIMENT", tmp_path / "the-folder-the-code-came-from")
+    assert runner.main(["run", "--run-id", "r1", "--live", "--root", str(exp.root)]) == 2
+    assert "not the experiment folder" in capsys.readouterr().err
+    assert not exp.events.exists() and not exp.runs.exists()
 
 
 class Boom:
