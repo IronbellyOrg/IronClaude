@@ -246,7 +246,7 @@ def load_table_answers(path, corpus_ids=None):
         # the evidence the table procedure records for every answer
         if not isinstance(r.get("cues"), list) or not all(isinstance(c, str) for c in r["cues"]):
             raise LoadError(f"table answer row {pid} needs cues: a list of the cue phrases found (empty when none)")
-        if not isinstance(r.get("rows"), list) or not set(r["rows"]) <= set(TYPES):
+        if not isinstance(r.get("rows"), list) or not all(isinstance(x, str) and x in TYPES for x in r["rows"]):
             raise LoadError(f"table answer row {pid} needs rows: a list of the matched row names (empty when none), each one of the six types")
         if r.get("method") not in TABLE_METHODS:
             raise LoadError(f"table answer row {pid} needs a method: one of {', '.join(TABLE_METHODS)}")

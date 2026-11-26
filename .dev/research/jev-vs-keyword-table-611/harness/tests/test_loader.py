@@ -199,6 +199,8 @@ def _without(row, key):
     ([_row_for("a", cues="stack trace"), _row_for("b"), _row_for("c")], "a needs cues"),
     ([_without(_row_for("a"), "rows"), _row_for("b"), _row_for("c")], "a needs rows"),
     ([_row_for("a", rows=["urgent"]), _row_for("b"), _row_for("c")], "a needs rows"),
+    ([_row_for("a", rows=[{"bug": 1}]), _row_for("b"), _row_for("c")], "a needs rows"),       # unhashable element: a refusal, not a crash
+    ([_row_for("a", rows=[["bug"]]), _row_for("b"), _row_for("c")], "a needs rows"),
     ([_without(_row_for("a"), "method"), _row_for("b"), _row_for("c")], "a needs a method"),
     ([_row_for("a", method="guessing"), _row_for("b"), _row_for("c")], "a needs a method"),
 ])
