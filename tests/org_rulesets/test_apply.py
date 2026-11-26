@@ -260,6 +260,46 @@ def test_a_read_back_mismatch_stops_after_the_first_ruleset(
     assert got["comment"] is None
 
 
+def with_github_defaults(remote):
+    """The pull_request rule as GitHub returns it: our parameters plus defaults."""
+    for rule in remote["rules"]:
+        if rule["type"] == "pull_request":
+            rule["parameters"]["allowed_merge_methods"] = ["merge", "squash", "rebase"]
+            rule["parameters"]["required_reviewers"] = []
+    return remote
+
+
+def test_defaults_github_adds_to_a_rule_pass_the_read_back_and_the_same_name_check(
+    world, orr, fake_runner_cls, tmp_path
+):
+    ok = fake_runner_cls.ok
+
+    def readback(number):
+        def reply(argv, stdin):
+            remote = {**runner.store[number], "id": number, **SERVER}
+            return ok(with_github_defaults(remote))
+
+        return reply
+
+    runner = world(gets={f"{REPO}/rulesets/{n}": readback(n) for n in (102, 103)})
+    got = apply(orr, runner, tmp_path)
+    assert got["ok"] is True and len(got["ids"]) == 3
+    # a second run over what the first one created skips every ruleset
+    created = {
+        n: with_github_defaults({**runner.store[i], "id": i, **SERVER})
+        for n, i in got["ids"].items()
+    }
+    listed = ok([{"id": i, "name": n} for n, i in got["ids"].items()])
+    gets = {LIST: listed}
+    gets.update({f"{REPO}/rulesets/{i}": ok(created[n]) for n, i in got["ids"].items()})
+    again = world(gets=gets)
+    done = orr.apply_repo(
+        again, "acme", "acme-one", tmp_path / "out2", digest_of(orr), NOW
+    )
+    assert done["ok"] is True and sorted(done["skipped"]) == sorted(got["ids"])
+    assert posts(again, fake_runner_cls) == []
+
+
 def test_a_failed_read_back_stops_the_run(world, orr, fake_runner_cls, tmp_path):
     runner = world(gets={f"{REPO}/rulesets/101": fake_runner_cls.http(500)})
     got = apply(orr, runner, tmp_path)

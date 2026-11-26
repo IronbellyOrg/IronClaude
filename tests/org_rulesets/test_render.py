@@ -163,6 +163,91 @@ def test_compare_reports_a_missing_rule(orr):
     assert "deletion" in _diff(orr, lambda r: r["rules"].pop(0))
 
 
+# What GitHub returned for the pull_request rule of a repo ruleset (seen on a real
+# repo of an organization): the rendered parameters plus defaults it fills in.
+GITHUB_DEFAULTS = {
+    "allowed_merge_methods": ["merge", "squash", "rebase"],
+    "dismissal_restriction": {"allowed_actors": [], "enabled": False},
+    "require_extra_approval_for_unattributed_changes": True,
+    "required_reviewers": [],
+}
+
+
+def _with_defaults(remote):
+    for rule in remote["rules"]:
+        if rule["type"] == "pull_request":
+            rule["parameters"].update(copy.deepcopy(GITHUB_DEFAULTS))
+
+
+@pytest.mark.parametrize("name", ["master", "integration"])
+def test_compare_accepts_parameters_github_adds_by_default(orr, name):
+    body = orr.render_branch(name)
+    remote = copy.deepcopy(body)
+    _with_defaults(remote)
+    assert orr.compare_bodies(body, remote) == []
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        ("allowed_merge_methods", ["squash"]),
+        ("required_reviewers", [{"reviewer": {"id": 1, "type": "Team"}}]),
+        ("dismissal_restriction", {"allowed_actors": [1], "enabled": True}),
+        ("require_extra_approval_for_unattributed_changes", False),
+        ("some_new_parameter", True),
+    ],
+)
+def test_compare_reports_an_omitted_parameter_that_is_not_its_github_default(
+    orr, key, value
+):
+    """A ruleset someone tuned is not the listed one: an extra parameter must be a
+    known default with its default value, not just any value."""
+
+    def mutate(remote):
+        _with_defaults(remote)
+        remote["rules"][2]["parameters"][key] = value
+
+    text = _diff(orr, mutate)
+    assert "rules: missing" in text and "rules: extra" in text and key in text
+
+
+def test_compare_ignores_the_order_of_the_default_merge_methods(orr):
+    def mutate(remote):
+        _with_defaults(remote)
+        remote["rules"][2]["parameters"]["allowed_merge_methods"].reverse()
+
+    assert _diff(orr, mutate) == ""
+
+
+def test_compare_still_reports_a_changed_value_next_to_added_defaults(orr):
+    def mutate(remote):
+        _with_defaults(remote)
+        remote["rules"][2]["parameters"]["required_approving_review_count"] = 2
+
+    text = _diff(orr, mutate)
+    assert "required_approving_review_count" in text
+    assert "rules: missing" in text and "rules: extra" in text
+
+
+def test_compare_reports_a_missing_parameter_and_an_extra_rule_with_defaults(orr):
+    def mutate(remote):
+        _with_defaults(remote)
+        del remote["rules"][2]["parameters"]["require_last_push_approval"]
+        remote["rules"].append({"type": "required_signatures"})
+
+    text = _diff(orr, mutate)
+    assert "require_last_push_approval" in text and "required_signatures" in text
+
+
+def test_compare_does_not_match_one_remote_rule_to_two_rendered_rules(orr):
+    body = orr.render_branch("master")
+    body["rules"].append(copy.deepcopy(body["rules"][2]))
+    remote = copy.deepcopy(body)
+    remote["rules"].pop()
+    _with_defaults(remote)
+    assert "rules: missing" in "\n".join(orr.compare_bodies(body, remote))
+
+
 def test_rendering_does_not_depend_on_the_working_folder(orr, tmp_path, monkeypatch):
     before = (orr.render_branch("integration"), orr.render_tags())
     monkeypatch.chdir(tmp_path)
