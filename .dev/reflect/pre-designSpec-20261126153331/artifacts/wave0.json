@@ -1,0 +1,10 @@
+{
+ "out": ".dev/reflect/pre-designSpec-20261126153331",
+ "aliases": {
+  "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-gw-tier1a[1m]",
+  "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-gw-tier1b[1m]",
+  "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-gw-tier2[1m]"
+ },
+ "files": 8,
+ "tree_sha": "94819d32711d967d643ec34428b4182d907ce0c68226a62abe8f4987d47b6189"
+}

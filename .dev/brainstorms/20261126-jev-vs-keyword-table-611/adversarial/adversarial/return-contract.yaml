@@ -1,0 +1,18 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/20261126-jev-vs-keyword-table-611/adversarial/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/brainstorms/20261126-jev-vs-keyword-table-611/adversarial/adversarial/"
+  status: "partial"
+  base_variant: "A"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-001, category: state_variables, assumption: "Only owner words can set the gate to AGREED", severity: HIGH}
+    - {id: INV-002, category: state_variables, assumption: "Stored table answers are frozen", severity: HIGH}
+    - {id: INV-003, category: state_variables, assumption: "The scorer that runs the sign test is pinned and tested", severity: HIGH}
+    - {id: INV-013, category: interaction_effects, assumption: "Labeller and table applier can be one agent", severity: HIGH}
+    - {id: INV-014, category: interaction_effects, assumption: "An ambiguous label fits the label basis", severity: HIGH}
+    - {id: INV-017, category: sufficiency_challenge, assumption: "A systemic failure is not a Jev loss", severity: HIGH}
+  notes: "Convergence BLOCKED_BY_INVARIANTS at depth standard (no Round 3). All six HIGH items were added as requirements in the merge (refactor-plan changes 19 to 24), not debated. The quantitative scoring layer was saturated (1.00 for all variants); base A won by exactly 0.05, which does not trigger the tiebreaker (strictly below 0.05)."

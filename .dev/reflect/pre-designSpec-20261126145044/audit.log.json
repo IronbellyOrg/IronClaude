@@ -1,0 +1,184 @@
+[
+ {
+  "wave": 0,
+  "step": "0.1",
+  "timestamp": "2026-11-26T14:50:44+00:00",
+  "outcome": "ok",
+  "evidence_ref": null
+ },
+ {
+  "wave": 0,
+  "step": "0.2",
+  "timestamp": "2026-11-26T14:50:44+00:00",
+  "outcome": "ok",
+  "evidence_ref": null
+ },
+ {
+  "wave": 0,
+  "step": "0.4",
+  "timestamp": "2026-11-26T14:50:44+00:00",
+  "outcome": "ok",
+  "evidence_ref": ".dev/reflect/pre-designSpec-20261126145044/artifacts/input-snapshot.yaml"
+ },
+ {
+  "wave": 1,
+  "step": "1B.0",
+  "timestamp": "2026-11-26T14:50:44+00:00",
+  "outcome": "ok",
+  "evidence_ref": ".dev/reflect/pre-designSpec-20261126145044/artifacts/coverage-matrix.yaml"
+ },
+ {
+  "wave": 0,
+  "step": "0.3",
+  "timestamp": "2026-11-26T14:54:18+00:00",
+  "outcome": "ok",
+  "evidence_ref": null
+ },
+ {
+  "wave": 0,
+  "step": "0.5",
+  "timestamp": "2026-11-26T14:54:18+00:00",
+  "outcome": "ok",
+  "evidence_ref": "aliases: claude-gw-tier1a, claude-gw-tier1b, claude-gw-tier2 (3 distinct); t2_model_class_diversity: full"
+ },
+ {
+  "wave": 0,
+  "step": "0.6",
+  "timestamp": "2026-11-26T14:54:18+00:00",
+  "outcome": "ok",
+  "evidence_ref": "t2_vendor_diversity: single (all Anthropic-family aliases): WARN, warn-only"
+ },
+ {
+  "wave": 0,
+  "step": "0.7",
+  "timestamp": "2026-11-26T14:54:18+00:00",
+  "outcome": "ok",
+  "evidence_ref": "memory: no last-pass or deviation-pattern file for this slug: memory_misses 2"
+ },
+ {
+  "wave": 0,
+  "step": "0.8",
+  "timestamp": "2026-11-26T14:54:18+00:00",
+  "outcome": "ok",
+  "evidence_ref": "audit log opened"
+ },
+ {
+  "wave": 1,
+  "step": "1A",
+  "timestamp": "2026-11-26T14:54:18+00:00",
+  "outcome": "ok",
+  "evidence_ref": "grounding by Read of jevlib files and the plan; codegraph index fresh at 2026-11-26T14:45:48Z"
+ },
+ {
+  "wave": 1,
+  "step": "1B.2b",
+  "timestamp": "2026-11-26T14:54:18+00:00",
+  "outcome": "warn",
+  "evidence_ref": "coverage_degraded: parsed-sparse (23 inferred > 14 parsed)"
+ },
+ {
+  "wave": 1,
+  "step": "1C",
+  "timestamp": "2026-11-26T14:54:18+00:00",
+  "outcome": "ok",
+  "evidence_ref": "reflection-card.yaml"
+ },
+ {
+  "wave": 1,
+  "step": "1D",
+  "timestamp": "2026-11-26T14:54:18+00:00",
+  "outcome": "ok",
+  "evidence_ref": "artifacts/calibration-t1.yaml C=0.75 calibrator_diversity=degraded"
+ },
+ {
+  "wave": 2,
+  "step": "2",
+  "timestamp": "2026-11-26T14:54:18+00:00",
+  "outcome": "ok",
+  "evidence_ref": "artifacts/tier_decision.yaml rule 4 -> T2"
+ },
+ {
+  "wave": 3,
+  "step": "3A",
+  "timestamp": "2026-11-26T14:54:18+00:00",
+  "outcome": "ok",
+  "evidence_ref": "reviewers: sonnet:analyzer, haiku:qa, opus:refactorer; executor_class_resolved false"
+ },
+ {
+  "wave": 3,
+  "step": "3B.0",
+  "timestamp": "2026-11-26T14:54:18+00:00",
+  "outcome": "ok",
+  "evidence_ref": "reviewer-briefs/reviewer-1..3.md"
+ },
+ {
+  "wave": 3,
+  "step": "3B",
+  "timestamp": "2026-11-26T14:59:33+00:00",
+  "outcome": "ok",
+  "evidence_ref": "reviewer-cards/reviewer-1..3-card.yaml (reviewers spawned in parallel as reflect-reviewer)"
+ },
+ {
+  "wave": 3,
+  "step": "3C",
+  "timestamp": "2026-11-26T14:59:33+00:00",
+  "outcome": "ok",
+  "evidence_ref": "reviewer-cards/reviewer-1..3-calibration.yaml C=0.77,0.79,0.82; calibrator_diversity degraded"
+ },
+ {
+  "wave": 3,
+  "step": "3D",
+  "timestamp": "2026-11-26T14:59:33+00:00",
+  "outcome": "ok",
+  "evidence_ref": "3 candidate verdicts distilled"
+ },
+ {
+  "wave": 5,
+  "step": "5.0",
+  "timestamp": "2026-11-26T14:59:33+00:00",
+  "outcome": "ok",
+  "evidence_ref": "sc-adversarial-protocol present (Skill loaded); no F1-F3 fallback"
+ },
+ {
+  "wave": 4,
+  "step": "4",
+  "timestamp": "2026-11-26T15:23:40+00:00",
+  "outcome": "ok",
+  "evidence_ref": "adversarial/merged-verdict.yaml merge_method adversarial; reviewer-cards present: 3 (EV-1 satisfied)"
+ },
+ {
+  "wave": 5,
+  "step": "5.x",
+  "timestamp": "2026-11-26T15:23:40+00:00",
+  "outcome": "ok",
+  "evidence_ref": "input_tree_sha256 unchanged (no input_drift)"
+ },
+ {
+  "wave": 5,
+  "step": "5.ev",
+  "timestamp": "2026-11-26T15:23:40+00:00",
+  "outcome": "warn",
+  "evidence_ref": "evidence-validator: 113 citations, 110 verified, 1 unfounded dropped, 2 uncheckable; M-15 partial -> Note"
+ },
+ {
+  "wave": 5,
+  "step": "5.report",
+  "timestamp": "2026-11-26T15:23:40+00:00",
+  "outcome": "ok",
+  "evidence_ref": "REPORT.md, return-contract.yaml, metrics.json"
+ },
+ {
+  "wave": 6,
+  "step": "6",
+  "timestamp": "2026-11-26T15:23:40+00:00",
+  "outcome": "skip",
+  "evidence_ref": "--remediate not set"
+ },
+ {
+  "wave": 7,
+  "step": "7",
+  "timestamp": "2026-11-26T15:23:40+00:00",
+  "outcome": "skip",
+  "evidence_ref": "UC-2 only"
+ }
+]

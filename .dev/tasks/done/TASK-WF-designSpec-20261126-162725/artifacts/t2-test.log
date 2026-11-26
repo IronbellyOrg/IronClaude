@@ -1,0 +1,14 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-611
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collected 25 items
+
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_loader.py .... [ 16%]
+.....................                                                    [100%]
+
+============================== 25 passed in 0.09s ==============================
+--- ruff
+All checks passed!

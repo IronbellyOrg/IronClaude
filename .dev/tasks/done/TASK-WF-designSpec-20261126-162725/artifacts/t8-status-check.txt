@@ -1,0 +1,15 @@
+# Task 8 status check (run by the implementer after the final test run)
+
+## git status --short with every entry under .dev/research/jev-vs-keyword-table-611/ removed, compared with ./artifacts/baseline-status.txt (diff of baseline against current; lines starting > are new)
+24a25,31
+> ?? .dev/tasks/to-do/TASK-WF-designSpec-20261126-162725/artifacts/t1-test.log
+> ?? .dev/tasks/to-do/TASK-WF-designSpec-20261126-162725/artifacts/t2-test.log
+> ?? .dev/tasks/to-do/TASK-WF-designSpec-20261126-162725/artifacts/t3-test.log
+> ?? .dev/tasks/to-do/TASK-WF-designSpec-20261126-162725/artifacts/t4-test.log
+> ?? .dev/tasks/to-do/TASK-WF-designSpec-20261126-162725/artifacts/t5-test.log
+> ?? .dev/tasks/to-do/TASK-WF-designSpec-20261126-162725/artifacts/t6-test.log
+> ?? .dev/tasks/to-do/TASK-WF-designSpec-20261126-162725/artifacts/t8-test.log
+## the same comparison with every .dev/tasks/ entry also removed from both sides (the plan's own package files and logs change by design)
+IDENTICAL
+## entries under src/, tests/, .claude/ or .dev/research/346-review-loop-experiments/ in git status --short
+none

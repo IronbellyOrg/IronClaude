@@ -1,0 +1,107 @@
+contract_version: 1.9.0
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-611/.dev/reflect/pre-designSpec-20261126153331/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-611/.dev/reflect/pre-designSpec-20261126153331/audit.log
+confidence_calibrated: 0.85
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: 1.0
+coverage_pct_union: 0.8448
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union:
+- INF-001
+- INF-002
+- INF-003
+- INF-005
+- INF-006
+- INF-014
+- INF-018
+- INF-021
+- INF-027
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: cac5150528c4f8a7f3911dda2f543df6a8068c597a11f4f5cb4123a806c35b28
+  spec: ed81b6d47c7f5321171bbb98eaf29382f669fdb6aa7a7d2ce3b75460ffd0bc28
+input_tree_sha256: 94819d32711d967d643ec34428b4182d907ce0c68226a62abe8f4987d47b6189
+input_tree_file_count: 8
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-611/.dev/reflect/pre-designSpec-20261126153331/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 87
+citations_revalidated: 87
+citations_dropped: 2
+citations_dropped_extrapolated: 2
+citations_inferred: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+- /home/coder/workspaces/worktrees/IronClaude/issue-611/.dev/reflect/pre-designSpec-20261126153331/reviewer-cards/reviewer-1-card.yaml
+- /home/coder/workspaces/worktrees/IronClaude/issue-611/.dev/reflect/pre-designSpec-20261126153331/reviewer-cards/reviewer-2-card.yaml
+- /home/coder/workspaces/worktrees/IronClaude/issue-611/.dev/reflect/pre-designSpec-20261126153331/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/issue-611/.dev/reflect/pre-designSpec-20261126153331/adversarial/adversarial/
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+finding_counts:
+  blocking: 3
+  label_high: 0
+  medium: 11
+  note: 7
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+telemetry:
+  reviewer_models:
+  - sonnet
+  - haiku
+  - opus
+  reviewer_personas:
+  - analyzer
+  - qa
+  - refactorer
+  degraded_components:
+  - calibrator-diversity
+  - base-selection-lighter-method
+  - merge-by-script
+  executor_class_resolved: false
+  executor_class_source: unknown
+  memory_hits: 1
+  memory_misses: 1
+  citation_notes: 2 unfounded citations dropped (M-17 client.py:189, M-21 plan:66); 5 findings partly supported, missing citations added from the validator's note; 1 inferred consequence tagged (M-21)
+  invariant_gate: 'blocked: INV-001, INV-002 carried as findings M-11, M-12'

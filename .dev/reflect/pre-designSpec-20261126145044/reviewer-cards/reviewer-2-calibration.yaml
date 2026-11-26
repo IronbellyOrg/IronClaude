@@ -1,0 +1,18 @@
+{
+ "model_class": "haiku",
+ "C": 0.79,
+ "per_dimension": {
+  "citation_grounding": 0.9,
+  "coverage_completeness": 0.8,
+  "classification_clarity": 0.7,
+  "risk_surface": 0.75,
+  "actionability": 0.8
+ },
+ "citations_checked": 10,
+ "citations_unfounded": [],
+ "overgraded": [
+  "F-1"
+ ],
+ "calibrator_model_class": "opus",
+ "calibrator_diversity": "degraded"
+}

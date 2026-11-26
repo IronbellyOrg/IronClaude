@@ -1,0 +1,60 @@
+# Tier 1 reflection card (UC-1, pre-execution). Hypothesis source: orchestrator inline pass (requirements-analyst mandate).
+mode: pre
+spec: .dev/tasks/to-do/TASK-WF-designSpec-20261126-152817/source.md
+tasklist: .dev/tasks/to-do/TASK-WF-designSpec-20261126-152817/TASK-WF-designSpec-20261126-152817.md
+subject: "A rebuilt plan of 8 tasks in 4 phases that builds an offline measurement harness (loader, spend estimates, events, gates, scorer, runner) plus templates and a README, for comparing an AI classifier with a keyword table. It replaces a first plan whose review found 2 blocking and 12 medium defects."
+
+coverage:
+  method: "Pass 1 regex over the spec (fenced code skipped) plus Pass 2 quote-pinned inference; matching is exact for ids and 0.6 content-word containment for inferred rows."
+  parsed_requirements: 14        # T-01, T-03 to T-15 as cited in source.md line 92
+  parsed_matched: 14
+  coverage_pct: 1.0000
+  inferred_requirements: 44      # 23 from the design text, 21 from the new Revision 1 section
+  inferred_matched: 35
+  coverage_pct_union: 0.8448     # 49 of 58
+  unmapped_union: [INF-001, INF-002, INF-003, INF-005, INF-006, INF-014, INF-018, INF-021, INF-027]
+  unmapped_notes:
+    - "INF-001, INF-002, INF-003 (source.md:11, :11, :17: nothing under src changes, nothing sends a prompt, reuse jevlib by import) are stated in the plan's Constraints (plan lines 19 to 23) and checked by Task 6's last acceptance bullet and Task 8's last bullet; no task body repeats the words, so containment is below 0.6."
+    - "INF-005 and INF-006 (source.md:19 and :20, the runner sets MAX_RETRIES and the timeout, and copies the key in its own process) are carried by Task 6's `limits(rule)` and its `run` subcommand (plan lines 149 and 159); the wording differs."
+    - "INF-014 (source.md:77, jev_answer) is carried by Task 3's jev_answer description with the band mapping added by Revision 1."
+    - "INF-018 (source.md:82, a twice-failed prompt is an error) is carried by Task 6 (plan line 154) and Task 5 (plan line 138)."
+    - "INF-021 (source.md:88, re-confirm the price before Gate 2) is carried by the new `price_confirmed` event and Gate 2's `price_not_confirmed` check (plan lines 98 and 106)."
+    - "INF-027 (source.md:126 area, Gate 1 does not check UNSET) is carried by Task 4's gate1 text (plan line 102)."
+  parse_density_guard: "inferred_count 44 > parsed_count 14, so coverage_degraded: parsed-sparse (Tier 1 stop forbidden)."
+signals:
+  S_scope: 8                    # tasks
+  S_domains: 3                  # code, tests, docs (planned paths under .dev/research/jev-vs-keyword-table-611/)
+  S_dev_density: 0.1552         # 9 unmapped of 58, union denominator
+
+findings:
+  - id: F-1
+    severity: Medium
+    claim: "Gate 2's `spend_bound` check needs the text of every frozen prompt to estimate the whole-run tokens, but the plan also says `gate1` and `gate2` hash files only and never call the corpus loader. The plan does not say how the gate gets the prompts."
+    evidence: "plan:106 (spend_bound) and plan:108 (gates never call the corpus loader); loader.load_corpus runs jevlib.manifest.privacy_violation, which reads os.environ at jevlib/manifest.py:35"
+    consequence: "An implementer either calls `load_corpus` inside Gate 2, which reads the key variable before the gates have passed and breaks the no-environment-read claim of the runner test at plan:168, or invents an unscreened second parser of corpus.jsonl."
+  - id: F-2
+    severity: Medium
+    claim: "The row format of `runs/<run-id>/jev-rows.jsonl` is defined only in Task 6, but Task 5 consumes it (`score(corpus, table_answers, jev_rows, ...)`, hand-built rows in its tests, `run_meta` from the rows), and Task 5 comes first and does not depend on Task 6."
+    evidence: "plan:123 (Task 5 depends on Tasks 3 and 4), plan:125 and plan:129 and plan:138 (Task 5 uses rows), plan:155 (the only place the row fields are listed)"
+    consequence: "The implementer of Task 5 has no stated row schema, so the hand-built rows in its tests can differ from what the runner writes, and the scorer is only shown to work on rows the runner never produces."
+  - id: F-3
+    severity: Medium
+    claim: "Gate 2 refuses when any `run_end` event exists, and `execute` writes `run_end` also when the whole-run reservation is refused before any post. So a run that sent nothing blocks every later Gate 2."
+    evidence: "plan:106 (prior_run), plan:152 (spend_bound ends the run before any post), plan:156 (run_end appended at the end, also after a stop)"
+    consequence: "If the ledger or the price needs a fix after a zero-post refusal, the coordinator cannot retry in this folder, although the agreed rule forbids only a rerun of a whole run that was posted."
+  - id: F-4
+    severity: Note
+    claim: "The Task 4 acceptance bullet says either gate refuses on a hash mismatch for the rule, the table answers or any `jevlib` or code file, but Gate 1 checks only the corpus-side hashes; the others are Gate 2 checks."
+    evidence: "plan:102 (Gate 1 checks) and plan:106 (Gate 2 checks) against plan:112"
+    consequence: "Wording only; a test written to the bullet would try to make Gate 1 fail on a code hash it never reads."
+  - id: F-5
+    severity: Note
+    claim: "The `run` subcommand does not say what happens when `TYPESAFE_API_KEY` is unset after both gates pass: the exit code, and whether a `run_end` event is written."
+    evidence: "plan:159"
+    consequence: "Small gap; an unset key would end in an uncaught error or a `KeyMissing` at the first ask, with F-3's consequence if a `run_end` is written."
+
+recommendations:
+  - file: .dev/tasks/to-do/TASK-WF-designSpec-20261126-152817/TASK-WF-designSpec-20261126-152817.md
+    change: "State in Task 4 that Gate 2 reads the prompt texts straight from corpus.jsonl as JSON lines, and move the jev-rows row fields into Task 5 (or a shared sentence both tasks name)."
+    verifier: "Task 4 names the parse and Task 5's row fields equal Task 6's."
+confidence_self_reported: 0.75

@@ -1,0 +1,26 @@
+{
+ "calibrator_model_class": "opus",
+ "calibrator_diversity": "degraded",
+ "note": "disjoint set empty: reviewers are sonnet, haiku, opus; the highest-capability class was used",
+ "per_dimension": {
+  "citation_grounding": 0.8,
+  "coverage_completeness": 0.8,
+  "classification_clarity": 0.75,
+  "risk_surface": 0.65,
+  "actionability": 0.75
+ },
+ "C": 0.75,
+ "citations_checked": 21,
+ "citations_unfounded": [
+  "source.md:20 (F-1: line is about the API key variable, not the no-copy rule)",
+  "source.md:36 (describes questions.py job; the no-copy rule appears at plan:39)",
+  "'grounding file' for 31 importers (no path given)"
+ ],
+ "escalation_recommendation": "escalate",
+ "extra_risks_found": [
+  "plan:119 says the runner refuses to start without --live and also runs a dry run without it",
+  "plan:119 reruns on any status other than ok, which would rerun refused results (privacy, oversize, budget_exhausted, dry_run)",
+  "source.md:44 puts report.md at the experiment root; plan Task 4 writes runs/<run-id>/report.md",
+  "R-1 as written would fail on the type names themselves ('build', 'deployment' contain the cue words 'build' and 'deploy')"
+ ]
+}

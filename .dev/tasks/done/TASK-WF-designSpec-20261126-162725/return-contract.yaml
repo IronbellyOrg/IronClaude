@@ -1,0 +1,20 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-designSpec-20261126-162725
+plan_path: ./TASK-WF-designSpec-20261126-162725.md
+source_path: ./source.md
+source_origin: .dev/brainstorms/20261126-jev-vs-keyword-table-611/design-spec.md (with Revision 1 and a surgical-repair revision appended)
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-611/.dev/reflect/pre-designSpec-20261126153331/re-review-1.md
+unresolved:
+  - "Reflect status records the re-review (review 2 of 3, scope: changed lines plus prior blockers): PASS, M-1, M-2 and M-3 resolved. The full review of the plan this one replaced is .dev/reflect/pre-designSpec-20261126153331/REPORT.md (status partial: 3 Blocking, 11 Medium, 7 Note)."
+  - "Follow-up candidates, never repaired by the workflow: the 11 Medium and 7 Note findings of that report (M-4 to M-21 except M-11 and M-12, which the owner asked to have repaired), plus two Medium from the re-review: F1 (the import-path sentence says the jevlib folder where the folder that contains jevlib, p15/jev, must be on sys.path) and F2 (nothing compares the six-definitions reading event's hash of questions.py with the hash freeze-corpus freezes)."
+  - "M-11 and M-12 are not blocking findings. They were repaired on the owner's explicit instruction of 2026-11-26 (relayed by the IronFlow session)."
+fix_cycles: 1
+supersedes: TASK-WF-designSpec-20261126-152817
+remediation_route: surgical
+finding_counts: {"blocking": 3, "label_high": 0, "medium": 11, "note": 7}

@@ -1,0 +1,2 @@
+d6d39a5a21f486256e8fb4a481adf7410a06bcfc
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-WF-designSpec-20261126-162725/artifacts/t8-status-check.txt:4-11 ac=T8.AC6 n,n,n,n the plan's literal git-status comparison (only entries under the experiment folder removed) differs from the baseline by the package's own new log files; the same comparison with .dev/tasks entries removed from both sides is identical (plan defect, recorded).

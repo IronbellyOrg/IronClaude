@@ -1,0 +1,2 @@
+223bda41860ac06ef72c4795b2dbcd2f457b9e3e
+A1 r1-1 F1.3 minor .dev/research/jev-vs-keyword-table-611/harness/gate.py:92 ac=scope amiss:n,false:n,harm:n,constraint:n _spend_bound_reason can raise TypeError (spend_cap_usd UNSET read without for_scoring), KeyError (corpus row without text) or ZeroDivisionError (price 0) instead of naming a failed check; Gate 2 still refuses, with a traceback and no gate2 event.

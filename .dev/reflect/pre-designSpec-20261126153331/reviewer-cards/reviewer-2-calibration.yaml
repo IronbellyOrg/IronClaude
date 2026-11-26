@@ -1,0 +1,10 @@
+{
+ "model_class": "haiku",
+ "C": 0.82,
+ "per_dimension": {"citation_grounding": 0.90, "coverage_completeness": 0.80, "classification_clarity": 0.75, "risk_surface": 0.80, "actionability": 0.85},
+ "citations_checked": 9,
+ "citations_unfounded": [],
+ "overgraded": ["F-3: the snapshot fixture is a backup safeguard; M-13's main protection is Paths(root) on temporary roots (source.md:150); Medium", "F-4: real omission but the source itself rates M-5 Medium, it is done once by hand and one README line fixes it; Medium"],
+ "calibrator_model_class": "opus",
+ "calibrator_diversity": "degraded"
+}

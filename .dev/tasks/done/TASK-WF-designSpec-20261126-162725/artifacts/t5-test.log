@@ -1,0 +1,55 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-611/.venv/bin/python
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-611
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 43 items
+
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_jev_beats_the_table_when_margin_and_latency_hold PASSED [  2%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_margin_boundary_five_nil_passes_and_four_nil_fails PASSED [  4%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_median_limit_boundary[1.5-JEV_BEATS_TABLE] PASSED [  6%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_median_limit_boundary[1.6-NOT_CLEARLY] PASSED [  9%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_slowest_limit_boundary_counts_every_attempt[4.5-JEV_BEATS_TABLE] PASSED [ 11%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_slowest_limit_boundary_counts_every_attempt[4.6-NOT_CLEARLY] PASSED [ 13%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_a_timeout_counts_at_its_cap_in_the_slowest PASSED [ 16%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_not_clearly_names_every_failed_test PASSED [ 18%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_each_meta_reason_makes_the_run_invalid[change0-gate_result_missing] PASSED [ 20%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_each_meta_reason_makes_the_run_invalid[change1-gate_result_missing] PASSED [ 23%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_each_meta_reason_makes_the_run_invalid[change2-second_live_run] PASSED [ 25%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_each_meta_reason_makes_the_run_invalid[change3-table_answers_changed] PASSED [ 27%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_each_meta_reason_makes_the_run_invalid[change4-frozen_file_changed] PASSED [ 30%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_each_meta_reason_makes_the_run_invalid[change5-frozen_file_changed] PASSED [ 32%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_each_meta_reason_makes_the_run_invalid[change6-table_provenance_missing] PASSED [ 34%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_each_meta_reason_makes_the_run_invalid[change7-key_rejected] PASSED [ 37%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_each_meta_reason_makes_the_run_invalid[change8-model_mismatch] PASSED [ 39%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_each_meta_reason_makes_the_run_invalid[change9-stopped_before_all_prompts] PASSED [ 41%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_each_meta_reason_makes_the_run_invalid[change10-stopped_before_all_prompts] PASSED [ 44%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_a_returned_model_other_than_the_pin_is_a_model_mismatch PASSED [ 46%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_fewer_rows_than_prompts_is_stopped_before_all_prompts PASSED [ 48%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_a_run_with_no_answered_prompt_is_invalid PASSED [ 51%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_unresolved_failures_at_the_limit_make_the_run_invalid PASSED [ 53%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_the_first_failed_check_wins_and_every_reason_is_reachable PASSED [ 55%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_paired_breakdown_and_disagreements_match_a_hand_count PASSED [ 58%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_typed_and_unset_label_split PASSED [ 60%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_a_pass_resting_only_on_the_unset_label_prompts_is_flagged PASSED [ 62%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_accuracy_with_and_without_the_prompts_the_table_saw PASSED [ 65%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_a_twice_failed_prompt_is_not_right_and_stays_in_the_denominator PASSED [ 67%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_a_rerun_that_answers_is_counted_as_recovered PASSED [ 69%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_an_unset_operator_is_refused_by_the_scorer PASSED [ 72%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_render_report_is_deterministic_and_names_the_verdict PASSED [ 74%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_the_decision_record_names_the_issues_the_rule_hash_and_the_612_statement_for_each_verdict PASSED [ 76%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_no_stand_in_value_of_these_tests_is_in_the_committed_rule_file PASSED [ 79%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_score_writes_the_report_and_the_decision_record_and_the_two_events PASSED [ 81%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_a_second_score_run_refuses_to_overwrite_the_root_report PASSED [ 83%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_score_refuses_and_writes_no_verdict_while_a_rule_value_is_unset PASSED [ 86%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_a_run_that_cannot_be_scored_is_refused_without_a_report PASSED [ 88%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_a_changed_table_answers_file_gives_a_report_with_run_invalid PASSED [ 90%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_run_meta_reads_the_events_and_the_manifest PASSED [ 93%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_a_rescore_writes_only_under_rescores_and_changes_nothing_else PASSED [ 95%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_rescore_needs_both_flags_and_a_plain_name PASSED [ 97%]
+.dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py::test_the_report_text_for_the_real_paths_is_free_of_a_key_or_prompt_text PASSED [100%]
+
+============================== 43 passed in 0.29s ==============================
+--- ruff
+All checks passed!

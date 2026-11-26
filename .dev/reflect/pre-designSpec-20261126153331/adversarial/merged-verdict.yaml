@@ -1,0 +1,262 @@
+merge_method: adversarial
+base_variant: '1'
+convergence_score: 1.0
+status: partial
+status_reason: The invariant gate is blocked because INV-001 and INV-002 (graded HIGH by the probe) were not addressed by the debate; with no Round 3 at standard depth they are carried into this verdict as findings M-11 and M-12, graded Medium
+  by the grade rule. One citation each in M-17 and M-21 was dropped by the evidence validator.
+verdict: 'Pre-execution review of the rebuilt plan: it is not ready to implement as written, because 3 Blocking findings (M-1, an acceptance check in Task 6 that cannot pass with the unchanged client; M-2, the required human reading of the six
+  question definitions has no step; M-3, the write-once refusal is stated for one of three freeze commands) must be repaired first; it also carries 11 Medium and 7 Note findings.'
+finding_counts:
+  blocking: 3
+  label_high: 0
+  medium: 11
+  note: 7
+findings:
+- id: M-1
+  source_ids:
+  - C-001
+  grade: Blocking
+  blocking_reason: Decision
+  claim: Task 6's acceptance bullet requires exactly one post for every systemic stop, including a missing key and a spent ledger, but `KeyMissing` is raised before the transport (zero posts) and `refused`/`budget_exhausted` is returned before
+    the transport, and after the whole-run reservation a draw cannot run short, so `budget_exhausted` cannot occur inside `execute`.
+  evidence: plan:165; plan:152; client.py:113-137; budget.py:72-78.
+  consequence: the stated acceptance check cannot pass with the unchanged `jevlib`, so an implementer cannot satisfy Task 6 as written.
+  fix: in Task 6 state zero posts for a missing key, and one post for HTTP 401 and for a returned model other than the pin; replace the spent-ledger case by the `spend_bound` refusal (zero posts) or by a ledger the test changes during the run.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-2
+  source_ids:
+  - C-005
+  grade: Blocking
+  blocking_reason: Missing
+  claim: the spec requires that a person reads the six question definitions once before the freeze (source.md:142), and no task, README step or procedure carries it; the automated cue test is not the human reading, and `freeze-corpus` hashes
+    `questions.py` and cannot be redone.
+  evidence: source.md:142; plan:39-47; plan:201 (README order of work); plan:181-183 (Task 7). plan:101.
+  consequence: the question wording can be frozen with no human review, which the spec forbids.
+  fix: add the human reading as a README step before `gate.py freeze-corpus` and as a Task 8 criterion, and name it in Task 7's procedure.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-3
+  source_ids:
+  - C-006
+  grade: Blocking
+  blocking_reason: Missing
+  claim: the spec requires every `freeze-*` command to write only its own keys and never an existing key, but the plan states the refusal only for `freeze-corpus`; `freeze-table` and `freeze-rule` have none and the only test is a second `freeze-corpus`.
+  evidence: source.md:144; plan:101-104; plan:115.
+  consequence: a re-run of `freeze-table` or `freeze-rule` replaces a frozen hash and hides `table_answers_changed`.
+  fix: 'state the write-once refusal for all three freeze commands and add a test for `freeze-table` and `freeze-rule`.
+
+
+    Group B: Medium.'
+  raised_by: see source_ids and refactor-plan.md
+- id: M-4
+  source_ids:
+  - C-002
+  grade: Medium
+  blocking_reason: null
+  claim: the row format of `jev-rows.jsonl` and the `run-record.md` format are defined only in Task 6 but consumed by Task 5, which does not depend on Task 6 and is tested only on hand-built rows; no test scores rows written by `execute`.
+  evidence: plan:123; plan:125; plan:129; plan:138; plan:155-156.
+  consequence: the scorer can pass every check while unable to read the runner's real rows.
+  fix: 'move the row and run-record format into Task 5 (or add `Depends on: Task 6`) and add a Task 6 or Task 5 test that scores rows written by `execute` with `MockTransport`.'
+  raised_by: see source_ids and refactor-plan.md
+- id: M-5
+  source_ids:
+  - C-003
+  grade: Medium
+  blocking_reason: null
+  claim: Gate 2's `spend_bound` needs the frozen prompts to build the whole-run estimate, but the plan says the gates never call the corpus loader and gives no source for the prompts; it also does not say how the ledger's remaining allowance
+    is read, though `Budget.__init__` rewrites the ledger.
+  evidence: plan:106; plan:108; plan:115; budget.py:20-28.
+  consequence: an implementer either calls the loader inside Gate 2 (breaking plan:115 and the no-environment-read claim) or leaves `spend_bound` unimplemented.
+  fix: state that Gate 2 reads corpus.jsonl as JSON lines, builds the requests and calls `spend.estimate_run_tokens` (or reads an estimate stored by `freeze-corpus`), and reads the ledger file as plain JSON without `Budget`.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-6
+  source_ids:
+  - C-004
+  - INV-003
+  grade: Medium
+  blocking_reason: null
+  claim: '`execute` writes `run_end` also for a refusal before any post, and Gate 2''s `prior_run` refuses forever once any `run_end` exists, so a run that posted nothing burns the go; an unset `TYPESAFE_API_KEY` is unspecified (assigning `None`
+    into `os.environ` raises, and a key that is not copied raises `KeyMissing` after `first_request`); an unlisted exception such as a bad `JEV_API_URL` after the draw is also unspecified.'
+  evidence: plan:106; plan:152; plan:156; plan:159; client.py:133-135; client.py:150; source.md:149.
+  consequence: a fixable zero-post failure uses up the single allowed run.
+  fix: make `run` exit non-zero before any event or run folder when the key is absent, and state whether a zero-post `run_end` counts for `prior_run` and what `run_end` records on an unlisted exception.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-7
+  source_ids:
+  - C-007
+  - INV-008
+  grade: Medium
+  blocking_reason: null
+  claim: the real-state fixture records only existence, size and modification time of `runs/` itself, so an edit of an existing nested file need not be seen, and `Paths(root=None)` defaults to the real folder so a test that omits the root writes
+    to it; the fixture detects only after the fact.
+  evidence: plan:41-46; plan:59; plan:117; source.md:150. plan:106.
+  consequence: A stray append to the real, append-only event log stays on disk after the test run (the fixture fails the test but cannot remove the line) and, for first_request, makes prior_run unpassable.
+  fix: make the snapshot cover existing descendant files by hash or size, and have `Paths` refuse the real folder inside tests (for example an environment-free guard in conftest).
+  raised_by: see source_ids and refactor-plan.md
+- id: M-8
+  source_ids:
+  - C-008
+  grade: Medium
+  blocking_reason: null
+  claim: the T-06 check for a twice-failed prompt does not say the label is `ambiguous` or `none-fit`, where an unset answer would count as right, so an implementation that turns an `error` into an unset answer passes with a typed label.
+  evidence: plan:77-78; plan:127; plan:138. plan:25; source.md:75.
+  consequence: a wrong scoring path can pass the check and change b and c.
+  fix: require a twice-failed prompt with an `ambiguous` or `none-fit` label to be scored not right and say `score()` bypasses `right` for `error` rows.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-9
+  source_ids:
+  - C-009
+  grade: Medium
+  blocking_reason: null
+  claim: '`sign_test_passes(b, c)` is described as reading the factor 20 from the rule''s `alpha_inverse` but has no rule parameter, and a reference-loop check cannot fail if it is the same formula.'
+  evidence: plan:79; plan:85; plan:137; source.md:113.
+  consequence: an implementer hard-codes 20 and a rescore under another `alpha_inverse` silently uses 20.
+  fix: give the function an `alpha_inverse` (or rule) parameter and pass stand-in values in the boundary tests.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-10
+  source_ids:
+  - C-010
+  grade: Medium
+  blocking_reason: null
+  claim: '"answered" is not defined: the Constraints say the median is over each prompt''s final answered attempt, Task 3 says the population `median_population` says, and neither says whether an `invalid` 200 response counts or whether an earlier
+    answered attempt of a prompt counts.'
+  evidence: plan:26; plan:81; source.md:78.
+  consequence: the T-08 test and the median cannot be pinned.
+  fix: define an answered attempt (for example status `ok`) and whether the population is all answered attempts or the last per prompt.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-11
+  source_ids:
+  - INV-001
+  grade: Medium
+  blocking_reason: null
+  claim: '`keyscan.py` reads the key only from `JEV_API_KEY` and prints SKIP with exit 2 when it is unset, while the plan''s live key is `TYPESAFE_API_KEY`, copied into `JEV_API_KEY` only inside the runner process; the README keyscan step names
+    no mapping and plan:171 tests only with `--fake`.'
+  evidence: keyscan.py:80-83; plan:22; plan:159; plan:171; plan:201; SHARED-CONTRACT.md:147-148.
+  consequence: with only `TYPESAFE_API_KEY` sourced, the required post-run leak check cannot return OK.
+  fix: in the README step, source `TYPESAFE_API_KEY` and export it as `JEV_API_KEY` inside the same one subshell command for `keyscan.py`.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-12
+  source_ids:
+  - INV-002
+  grade: Medium
+  blocking_reason: null
+  claim: 'no task makes `gate.py`, `events.py`, `runner.py` and `scorer.py` importable when run as scripts: only `conftest.py` inserts `sys.path` (plan:41), existing scripts insert it themselves, and no acceptance check runs a CLI as a script
+    or checks that the imported `jevlib` is the hashed one.'
+  evidence: plan:41; plan:59; plan:94; plan:105; plan:147; plan:201; probe.py:17.
+  consequence: the documented commands fail with an import error at first use.
+  fix: have each CLI module insert the `jevlib` folder and the experiment folder into `sys.path` as `probe.py` does, and add a test that runs each CLI with `--help` as a script.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-13
+  source_ids:
+  - INV-009
+  grade: Medium
+  blocking_reason: null
+  claim: '`load_corpus` has refusals but `load_table_answers` has none and `freeze-table` only hashes, so a missing, duplicate or misspelled table row skews b and c.'
+  evidence: plan:62; plan:103.
+  consequence: wrong counts feed the sign test.
+  fix: have `freeze-table` (through `load_table_answers`) refuse ids that are not in the corpus, a corpus id with no row, duplicate rows and an answer outside the six types or null.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-14
+  source_ids:
+  - INV-010
+  grade: Medium
+  blocking_reason: null
+  claim: the procedure says the applier receives prompts only, but corpus.jsonl rows carry `label` and `label_basis` and no task produces a labels-free file.
+  evidence: plan:62; plan:183.
+  consequence: the applier is likely handed the full corpus and sees the labels.
+  fix: 'add a command or procedure step that writes a prompts-only file (ids and texts) for the applier.
+
+
+    Group C: Notes.'
+  raised_by: see source_ids and refactor-plan.md
+- id: M-15
+  source_ids:
+  - C-011
+  grade: Note
+  blocking_reason: null
+  claim: the `exp` fixture is described as holding synthetic frozen files and a rule copy but not the code files and `jevlib` folder that `hash_code` and `record-tests` need.
+  evidence: plan:59; plan:94; plan:105; plan:112.
+  consequence: found at the first test run.
+  fix: say the fixture supplies them.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-16
+  source_ids:
+  - C-012
+  grade: Note
+  blocking_reason: null
+  claim: 'three small points: the "31 importers" count at plan:173 does not match a grep (22 files with an import statement, 26 mention `jevlib`); the model check over the models returned by `ok` rows cannot fail because `validate_response` already
+    rejects another model; `load_rule` does not say it converts numeric values, and `attempt_timeout_s` left as a string would break `min(C.ATTEMPT_TIMEOUT_S, ...)`.'
+  evidence: plan:129; plan:173; validate.py:32-33; client.py:158. plan:61; plan:149.
+  consequence: wording or a small implementation slip.
+  fix: correct or drop the count, drop the `ok`-rows check, state the number types.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-17
+  source_ids:
+  - INV-004
+  - INV-005
+  grade: Note
+  blocking_reason: null
+  claim: Failed attempts that end `unavailable` (timeouts, 5xx) or as a non-200 `invalid` result are settled at 0 tokens, so 'both attempts counted against the cap' is true only of the drawn estimates; an `invalid` result from a 200 response
+    is settled at its usage; with `MAX_RETRIES = 0` the rerun runs at once with no backoff, so transient 429 or 5xx failures become `error` rows.
+  evidence: client.py:202; client.py:204; client.py:191-201; plan:27; plan:149; plan:164.
+  consequence: small; the whole-run reservation still bounds spend.
+  fix: state that the ledger records failed attempts at 0 and consider a short pause before the rerun.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-18
+  source_ids:
+  - INV-006
+  - INV-007
+  grade: Note
+  blocking_reason: null
+  claim: '`go` records only the rule hash and Gate 2 checks that events exist, not their order; the event log and manifest are not hashed and a person can edit them.'
+  evidence: plan:98; plan:106.
+  consequence: a later price or table event is not bound to the go; the audit trail is advisory.
+  fix: record the price and table hashes in the go event, or accept and state the limit.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-19
+  source_ids:
+  - INV-011
+  grade: Note
+  blocking_reason: null
+  claim: replacing prompts the privacy screen refuses (paths, GitHub URLs, emails) can thin out the stack-trace cues the table keys on.
+  evidence: manifest.py:13-22; plan:62; plan:183.
+  consequence: a possible bias in which prompts survive.
+  fix: have selection-criteria.md record how many prompts were replaced and why.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-20
+  source_ids:
+  - INV-012
+  grade: Note
+  blocking_reason: null
+  claim: the unresolved-failure limit says "above" but no boundary test fixes `>` against `>=`.
+  evidence: plan:29; plan:131; plan:137.
+  consequence: a verdict flip at the boundary.
+  fix: add a boundary test once the owner sets the count.
+  raised_by: see source_ids and refactor-plan.md
+- id: M-21
+  source_ids:
+  - INV-013
+  - INV-014
+  - INV-015
+  grade: Note
+  blocking_reason: null
+  claim: Gate 1 does not freeze the rule hash and the go names a hash, not the values; output tokens are assumed free; the 10 s timeout applies per socket operation so a slow response can run longer.
+  evidence: plan:29; plan:102; config.py:10; transport.py:29-34; plan:26. plan:98.
+  consequence: '[INFERRED] small. (The per-socket-operation behaviour of urlopen''s timeout is known from how urllib works; the cited lines show only that the timeout is passed on.)'
+  fix: none needed beyond a note in the README.
+  raised_by: see source_ids and refactor-plan.md
+provenance:
+  plan_under_review: .dev/tasks/to-do/TASK-WF-designSpec-20261126-152817/TASK-WF-designSpec-20261126-152817.md (cited as plan), against source.md in the same folder
+  base: card 1 (adversarial/variant-1-original.md)
+  cards_merged:
+  - card 2 (adversarial/variant-2-original.md)
+  - card 3 (adversarial/variant-3-original.md)
+  debate:
+  - adversarial/r1-advocate-1.md
+  - adversarial/r1-advocate-2.md
+  - adversarial/r1-advocate-3.md
+  - adversarial/r2-advocate-1.md
+  - adversarial/r2-advocate-2.md
+  - adversarial/r2-advocate-3.md
+  probe: adversarial/invariant-probe.md
+  plan_applied: adversarial/refactor-plan.md (21 merged findings; log in adversarial/merge-log.md)
+  diff_ids: adversarial/diff-analysis.md (C-001 to C-012)
