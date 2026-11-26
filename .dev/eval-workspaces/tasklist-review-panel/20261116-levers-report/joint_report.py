@@ -110,8 +110,23 @@ for spec in a.source:
     allruns += collect(name, scoring, rdirs, inv)
 
 
+def moved_aside():
+    """(source, run name) of every run whose first attempt was moved aside as invalid; that original is never judged."""
+    out_ = set()
+    for spec in a.source:
+        name, rest = spec.split("=", 1)
+        parts = rest.split(":")
+        if len(parts) > 2 and Path(parts[2]).is_dir():
+            out_ |= {(name, d.name.split(".original")[0]) for d in Path(parts[2]).iterdir() if d.is_dir()}
+    return out_
+
+
 def cells(runs, substituted):
-    """One run per (source, arm, doc, rep): as-run prefers the moved-aside original, substituted prefers the rerun."""
+    """One run per (source, arm, doc, rep): as-run prefers the moved-aside original, substituted prefers the rerun.
+    A cell whose original was moved aside and never judged has no as-run score, so the as-run view drops it instead of reusing the rerun."""
+    moved = moved_aside()
+    if not substituted:
+        runs = [r for r in runs if r["original"] or (r["source"], r["run"]) not in moved]
     best = {}
     for r in runs:
         k = (r["source"], r["arm"], r["doc"], r["rep"])

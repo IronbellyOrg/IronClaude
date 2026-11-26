@@ -22,7 +22,7 @@ M2's lead is above +0.10, but its bound is below 0, so it fails the rule. M1 mis
 | Measure | B | W |
 |---|---|---|
 | Wrong blockers per run | 0.52 | 0.20 |
-| Blocking findings that matched a known defect, per run | 0.44 | 0.72 |
+| Known defects covered by blocking findings, per run | 0.44 | 0.72 |
 | Median panel seconds | 85 | 132 (1.56 times B) |
 | Distinct defects found at least once, of 33 | 17 | 18 |
 
@@ -31,7 +31,7 @@ Per plan, found fraction (B, W): NP-1 0.15, 0.33; NP-2 0.18, 0.33; NP-3 0.04, 0.
 ## What this means
 
 - **The earlier claim is not reproduced at its size.** On new plans the lead is about +0.10 (earlier +0.243), and its lower bound is about 0 (earlier +0.032). The earlier lead rested on a plan with 2 known defects; this set has no such plan, and a lead of +0.07 to +0.14 remains in every leave-one-plan-out cut.
-- **The direction holds, and accuracy looks better, not worse.** W found more on 3 of 5 plans, tied on 1, and was lower on 1 (NP-4, by 0.04). It raised fewer wrong blockers (0.20 against 0.52 per run) and more of its blocking findings matched a known defect (0.72 against 0.44 per run; the key itself marks only 1 defect blocking, so this counts findings the panel graded blocking, not the key's blocking class). Neither figure had a registered test.
+- **The direction holds, and accuracy looks better, not worse.** W found more on 3 of 5 plans, tied on 1, and was lower on 1 (NP-4, by 0.04). It raised fewer wrong blockers (0.20 against 0.52 per run) and its blocking findings covered more known defects (0.72 against 0.44 defects per run; one finding can cover several defects, and the key itself marks only 1 defect blocking, so this counts defects covered by findings the panel graded blocking, not the key's blocking class). Neither figure had a registered test.
 - **Reach did not widen.** Both arms found about half of the 33 defects at least once (17 and 18), so the gain is more consistent finding of the same defects, not new ones.
 - **Cost:** 1.56 times the control's median panel time (earlier test: 1.8 times).
 

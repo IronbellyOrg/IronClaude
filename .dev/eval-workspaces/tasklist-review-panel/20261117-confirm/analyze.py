@@ -4,7 +4,7 @@ Bootstrap: resample plans, then runs within plans, 2000 draws, seed 20261120; lo
 show diff >= +0.10 and lower bound > 0. Usage: uv run python -I analyze.py > RESULTS-raw.txt"""
 import collections, json, os, random, statistics
 
-RL = "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger"
+RL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "20261114-recipe-ledger")
 SC, RUNS = f"{RL}/scoring-confirm", f"{RL}/runs-confirm"
 runs = {"B": [], "W": []}   # (doc, found, total, wrong, blkfound, panel_s, kills, run, covered)
 second = {}
@@ -15,14 +15,15 @@ for l, run, doc, role in (x.rstrip("\n").split("\t") for x in open(f"{SC}/labels
         continue
     j = json.load(open(p))
     if role == "first":
-        if not os.path.isdir(f"{RUNS}/{run}"):
-            continue
-        t = json.load(open(f"{RUNS}/{run}/timing.json"))
-        rj = json.load(open(f"{RUNS}/{run}/run.json"))
-        kills = sum(1 for v in rj["reviewers"].values() if v.get("killed"))
+        # The raw run directories are not committed; the decision metrics need only the scores, so timing and kills become None.
+        t, kills = None, None
+        if os.path.isdir(f"{RUNS}/{run}"):
+            t = json.load(open(f"{RUNS}/{run}/timing.json"))
+            rj = json.load(open(f"{RUNS}/{run}/run.json"))
+            kills = sum(1 for v in rj["reviewers"].values() if v.get("killed"))
         arm = "W" if "-sonnet-" in run else "B"
         runs[arm].append((doc, len(j["gt_covered_any"]) / j["gt_total"], j["gt_total"], j["wrong_blockers"], len(j["gt_covered_blocking"]),
-                          t["panel_elapsed_s"], kills, run, set(j["gt_covered_any"])))
+                          t["panel_elapsed_s"] if t else None, kills, run, set(j["gt_covered_any"])))
         first[run] = set(j["gt_covered_any"])
     else:
         second[run] = set(j["gt_covered_any"])
@@ -66,10 +67,15 @@ for name, mode in (("M1 mean per-run fraction", "run"), ("M2 every defect equal"
 print("\nVERDICT:", "CONFIRMED" if all(verdict.values()) else ("NOT CONFIRMED, split by weighting" if any(verdict.values()) else "NOT CONFIRMED"))
 
 print("\n## Descriptive\nmeasure\tB\tW")
-for name, i in (("wrong blockers/run", 3), ("blocking found/run", 4), ("kills/run", 6)):
-    print(f"{name}\t{statistics.mean(r[i] for r in runs['B']):.2f}\t{statistics.mean(r[i] for r in runs['W']):.2f}")
-mb, mw = statistics.median(r[5] for r in runs["B"]), statistics.median(r[5] for r in runs["W"])
-print(f"median panel s\t{mb:.0f}\t{mw:.0f}\tratio {mw/mb:.2f}")
+for name, i in (("wrong blockers/run", 3), ("known defects covered by blocking findings/run", 4), ("kills/run", 6)):
+    vals = {a: [r[i] for r in runs[a] if r[i] is not None] for a in "BW"}
+    print(f"{name}\t" + "\t".join(f"{statistics.mean(vals[a]):.2f}" if vals[a] else "n/a (run directories not committed)" for a in "BW"))
+ts = {a: [r[5] for r in runs[a] if r[5] is not None] for a in "BW"}
+if ts["B"] and ts["W"]:
+    mb, mw = statistics.median(ts["B"]), statistics.median(ts["W"])
+    print(f"median panel s\t{mb:.0f}\t{mw:.0f}\tratio {mw/mb:.2f}")
+else:
+    print("median panel s\tn/a (run directories not committed)")
 print("\n## Per plan (found fraction mean; B, W)")
 for d in docs:
     print(f"{d} (items {GT[d]})\t{statistics.mean(r[1] for r in runs['B'] if r[0]==d):.2f}\t{statistics.mean(r[1] for r in runs['W'] if r[0]==d):.2f}")
