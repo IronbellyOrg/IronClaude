@@ -1,0 +1,6 @@
+== remaining record words near none/forced
+== tests
+FAILED tests/commands/test_workflow_command.py::test_plugin_mirror_matches_src
+======================== 1 failed, 108 passed in 1.95s =========================
+== after copying the two skill mirrors and the command mirror (test_plugin_mirror_matches_src compares them)
+============================= 109 passed in 1.93s ==============================

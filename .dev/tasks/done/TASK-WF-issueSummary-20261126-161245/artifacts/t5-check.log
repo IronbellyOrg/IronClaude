@@ -1,0 +1,23 @@
+63:- **Surgical route.** The route comes from thre
+64:- **Regenerate route.** When B is at least 1 an
+== route() rows
+71:    if forced is not None and forced not in ROUTES:
+73:    if forced is not None:
+81:    if result == "regenerate" and regenerated_already:
+91:    if v < 0:
+114:    if not isinstance(value, str) or not ID_RE.match(value):
+121:    if not os.path.lexists(root / ".git"):
+141:    if not HELPER_PATH.is_file():
+154:    if not hasattr(mod, "rename_noreplace"):
+209:    if (
+268:    if len(hits) > 1:
+271:    if hits:
+283:    if len(hits) > 1:
+285:    if not hits:
+292:    if rest in ("", "~", "null", "[]"):
+== route cli
+{"route": "none", "forced": false}
+{"route": "surgical", "forced": false}
+{"route": "regenerate", "forced": false}
+{"route": "regenerate", "forced": false}
+{"route": "regenerate", "forced": false}

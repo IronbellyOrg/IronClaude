@@ -41,7 +41,7 @@ Exactly one source: an existing file path (`@path` ok) **or** leftover `$ARGUMEN
 | `--strategy` | `systematic` | `systematic` \| `agile` \| `enterprise`. Enterprise + omitted depth → `deep` |
 | `--depth` | `standard` | `quick` \| `standard` \| `deep` |
 | `--handoff` | `none` | `none` / `design` = text; `implement` = Skill invoke |
-| `--remediate` | route of the routing rule, run after Wave 4 | `none` \| `surgical` \| `regenerate`. `none` records the finding counts and the chosen route and changes nothing; `surgical` and `regenerate` force that route and are recorded as forced |
+| `--remediate` | route of the routing rule, run after Wave 4 | `none` \| `surgical` \| `regenerate`. `none` prints the finding counts and the chosen route and changes nothing; `surgical` and `regenerate` force that route, which is printed as forced and not stored in any contract field |
 | `--revise <package-dir>` + `--review <REPORT.md>` | off | Given together: run the route for a package that was reviewed outside workflow, using that review report. No source is needed: Waves 0 to 4 are skipped and the run enters Wave 4R directly with the given package (an existing package under `.dev/tasks/to-do/` with a plan, `source.md` and contract; else `E-BAD-FLAG`) |
 | `--unattended` | off | Worker mode: no step waits for a person; see Unattended mode |
 | `--report-dir` | none | With `--unattended`, the directory that holds the worker contract |
@@ -97,7 +97,7 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
 
 ## Boundaries
 
-**Will:** create one new package `.dev/tasks/to-do/<id>/` holding `<id>.md` (schema `workflow-plan/1.2`), `source.md` snapshot and `return-contract.yaml` (1.1). Never overwrites an existing package. Run `/sc:reflect --mode pre` (advisory, read-only on the plan) as the last plan-generation step, before any `--handoff`. Ground the plan in the real code through codegraph when the index is fresh. Run the bounded remediation after Wave 4: repair only blocking findings (surgical route, at most 2 fix cycles) or build one replacement package (regenerate route), and record the route and finding counts in the package contract.
+**Will:** create one new package `.dev/tasks/to-do/<id>/` holding `<id>.md` (schema `workflow-plan/1.2`), `source.md` snapshot and `return-contract.yaml` (1.1). Never overwrites an existing package. Run `/sc:reflect --mode pre` (advisory, read-only on the plan) as the last plan-generation step, before any `--handoff`. Ground the plan in the real code through codegraph when the index is fresh. Run the bounded remediation after Wave 4: repair only blocking findings (surgical route, at most 2 fix cycles) or build one replacement package (regenerate route); `place` (surgical) or `mark` (regenerate) writes the route and finding counts into the new package contract.
 
 **Will Not:** mutate product code; edit a plan for a Medium or Note finding; edit a plan outside the surgical route or beyond 2 fix cycles; regenerate more than once per run.
 

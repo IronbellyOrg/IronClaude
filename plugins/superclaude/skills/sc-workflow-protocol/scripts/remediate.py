@@ -401,6 +401,35 @@ def _contract_edit(text, key_values, item=None):
     return "\n".join(lines), ops
 
 
+def _has_superseded_warning(text):
+    """True when an item of the top-level `unresolved` list starts with SUPERSEDED.
+
+    A mention elsewhere (another item's prose, the `superseded_by` key) is not a
+    warning about this package. Reads the same list shapes `_add_unresolved` edits.
+    """
+    lines = text.split("\n")
+    hits = _key_idx(lines, "unresolved")
+    if not hits:
+        return False
+    i = hits[0]
+    rest = lines[i].split(":", 1)[1].strip()
+    if rest.startswith("["):
+        # quote-aware: a comma inside one quoted item does not start a new item
+        inner = rest[1 : rest.rfind("]")] if "]" in rest else rest[1:]
+        items = re.findall(
+            r"""\s*("(?:[^"\\]|\\.)*"|'(?:[^']|'')*'|[^,"']+)\s*(?:,|$)""", inner
+        )
+    else:
+        items = []
+        for ln in lines[i + 1 : _block_end(lines, i)]:
+            m = re.match(r"^\s*-\s+(.*)$", ln)
+            if m:
+                items.append(m.group(1))
+    return any(
+        re.match(r"superseded\b", it.strip().lstrip("\"'"), re.I) for it in items
+    )
+
+
 def archive(root, package, superseded_by):
     root, tasks = _tasks(root)
     _check_tree(root, tasks)
@@ -431,7 +460,7 @@ def archive(root, package, superseded_by):
         if os.path.islink(contract) or not contract.is_file():
             _fail("E-REMEDIATE-CONTRACT", f"{contract} must be a regular file")
         text = contract.read_text(encoding="utf-8")
-    had_marker = re.search("superseded", text, re.I) is not None
+    had_marker = _has_superseded_warning(text)
     item = None
     if not had_marker:
         item = (

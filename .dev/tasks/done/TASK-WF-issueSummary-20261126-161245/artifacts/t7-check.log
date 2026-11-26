@@ -1,0 +1,40 @@
+== cmp four pairs
+same skills/sc-workflow-protocol/scripts/remediate.py
+same skills/sc-workflow-protocol/SKILL.md
+same skills/sc-workflow-protocol/refs/remediation.md
+same commands/workflow.md
+== uv sync --extra dev
+ + ruff==0.15.20
+ + scipy==1.17.1
+== make sync-dev
+   Hooks:     17 files
+   Templates: 52 files
+== make verify-sync
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+== make lint
+Running linter...
+uv run ruff check .
+All checks passed!
+== ruff format check
+2 files already formatted
+== pytest tests/skills
+tests/skills/test_workflow_remediation.py .............................. [ 97%]
+......................................................                   [100%]
+
+================= 2431 passed, 2 skipped in 199.89s (0:03:19) ==================
+== git status
+ M .dev/README.md
+ M plugins/superclaude/commands/workflow.md
+ M plugins/superclaude/skills/sc-workflow-protocol/SKILL.md
+ M plugins/superclaude/skills/sc-workflow-protocol/refs/remediation.md
+ M plugins/superclaude/skills/sc-workflow-protocol/scripts/remediate.py
+ M src/superclaude/commands/workflow.md
+ M src/superclaude/skills/sc-reflect-protocol/refs/remediation-handoff.md
+ M src/superclaude/skills/sc-workflow-protocol/SKILL.md
+ M src/superclaude/skills/sc-workflow-protocol/refs/remediation.md
+ M src/superclaude/skills/sc-workflow-protocol/scripts/remediate.py
+ M tests/skills/test_workflow_remediation.py
+?? .dev/issues/703/
+?? .dev/tasks/to-do/TASK-WF-issueSummary-20261126-161245/
