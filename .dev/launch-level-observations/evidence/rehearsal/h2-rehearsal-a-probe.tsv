@@ -1,0 +1,2 @@
+1795578868771382197	UserPromptSubmit/-	unset	absent	{"sid":"942ff9a5-11f9-41f2-9e12-eca195cb59bd","cwd":"/tmp/ll-rehearse.jVxnzl2T/work","prompt":"[sc-launch:v1:73695d67809f239822f86772dad1544d] Run Bash 'ls' and tell me what it printed."}
+1795578871978263068	PreToolUse/Bash	unset	1795578862 1795578862	{"sid":"942ff9a5-11f9-41f2-9e12-eca195cb59bd","cwd":"/tmp/ll-rehearse.jVxnzl2T/work","prompt":null}

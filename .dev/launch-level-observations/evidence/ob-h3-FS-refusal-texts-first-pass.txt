@@ -1,0 +1,15 @@
+Launch-level guard: this session was started by /sc:issue --claim at level full --submit.
+Blocked: starting or messaging another agent or session (claude, ccsession, orca, SendMessage, /sc:issue, a remote subagent, a workflow, a remote trigger) or typing into a terminal (tmux, screen, xdotool).
+Why: That work would run outside this session's launch level.
+You can: Do the work here (local subagents are allowed), or ask the person to start it.
+
+Launch-level guard: this session was started by /sc:issue --claim at level full --submit.
+Blocked: touching the launch-level state, the Claude Code settings or hooks, a git configuration file or the git pre-push hook, or reinstalling the hooks.
+Why: The session must not change its own limits.
+You can: Ask the person. To release this session they run, in their own terminal: rm "/home/coder/.claude/state/launch-level/sessions/937bb62b-a218-4168-96c1-f46b8552000f" "/home/coder/.claude/state/launch-level/sessions/937bb62b-a218-4168-96c1-f46b8552000f.ok"
+Note: the guard does not tell quoted text from commands. Any command that names git together with the word commit, push, merge or pull, or gh together with the word api, counts as that action, even if the words are only in a message, a title, a PR body or a search pattern. If that is the case here, write the text to a file with the Write tool
+Launch-level guard: this session was started by /sc:issue --claim at level full --submit.
+Blocked: a push that is not one plain git push command, or a command that names git and push together.
+Why: The guard can check a push only when the whole command is git push [-u] origin <branch> (or <source>:<branch>), with nothing before or after it; other forms (force, --all, another remote, variables, backticks, line continuations, chained or piped commands) can reach another remote or the main branch.
+You can: Run the push as its own command, exactly: git push origin <branch> or git push -u origin <branch>, with the branch name written out.
+Note: the guard does not tell quoted text from commands. Any command that names git together with the word commit, push, merge or pull, or gh together with the word api, counts as that action, even if the words are only in a message, a title, a PR body or a 

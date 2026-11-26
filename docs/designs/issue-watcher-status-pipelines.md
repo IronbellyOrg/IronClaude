@@ -8,7 +8,7 @@ Terms: the **Status** is the Project 2 single-select field `Status`; the **Pipel
 
 Only an issue whose one live Project item has Status `Research`, `Spec`, `Plan` or `Debug` acts (`predicates.ALLOWED_STATUSES`). `Backlog`, `Ready`, `In progress`, `In review`, `Done`, an empty Status and any status added to the board later never act. **Ready triggers nothing**: no command, no launch.
 
-The Pipeline picks the level: `None` or empty is level `none`, `Worktree` is `worktree`, `Full` is `full`, `Full Submit` is `full submit`. Until the ship gate of Task 8 is opened by a reviewed commit, only level `none` launches; every other level ends `level_gated`.
+The Pipeline picks the level: `None` or empty is level `none`, `Worktree` is `worktree`, `Full` is `full`, `Full Submit` is `full submit`. The ship gate of Task 8 was opened by a reviewed commit (2026-11-25), so every level launches; if `GOVERNED_LEVELS_ALLOWED` is set back to `False`, only level `none` launches and every other level ends `level_gated`.
 
 ## 2. The decision table
 
@@ -101,4 +101,4 @@ Governed means a session with a record in the launch-level store: the agents lau
 
 ## 13. Ship-gate note (Task 8)
 
-`docs/designs/sc-issue-launch-level-hook.md` line 201 limits observation item 1 to `full` and `--submit`, while `refs/claim.md` line 133 asks for an observation of item 1 before any governed claim. One boolean, `GOVERNED_LEVELS_ALLOWED`, follows the stricter text (no governed level launches until the observations pass). A per-level split stays an owner option.
+`docs/designs/sc-issue-launch-level-hook.md` line 201 limits observation item 1 to `full` and `--submit`, while `refs/claim.md` line 133 asks for an observation of item 1 before any governed claim. One boolean, `GOVERNED_LEVELS_ALLOWED`, follows the stricter text (no governed level launches until the observations pass). Owner decision 2026-11-24 and 25: one boolean for all levels, and the gate also waits for OB-CTX. The gate was opened on 2026-11-25 after OB-H1 items 1 and 5, OB-H2, OB-H3 and OB-CTX passed; what was not observed is listed in `docs/designs/sc-issue-launch-level-hook.md` section 19.8. A per-level split is not built.

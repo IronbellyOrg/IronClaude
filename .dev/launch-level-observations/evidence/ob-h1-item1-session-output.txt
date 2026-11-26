@@ -1,0 +1,16 @@
+[ccsession] tier1b (Tier 1b: claude-sonnet-5-5, gpt-6.1-sol, muse-wonder-full-1.0): model claude-gw-tier1b[1m], context 850000, auto-compact window 850000
+[ccsession] Shim already running on 127.0.0.1:4013 (reusing)
+[ccsession] Cached 21 curated gateway models before launch
+[ccsession] Starting untagged session
+[claude-code:unrecognized_model] {"model":"claude-gw-tier1b[1m]","query_source":"sdk"}
+| Status | Result |
+|---|---|
+| DONE | All three echoes ran: MAIN, SUB and NESTED. |
+| NEXT | None. |
+
+**WHAT:** `echo MAIN` ran here. The subagent ran `echo SUB`, then started its own subagent, which ran `echo NESTED`. The subagent did have an Agent tool.
+
+**WHY:** The subagent's report is the only evidence for SUB and NESTED. It said it did not check the nested agent's output independently. The report listed Agent and Bash as the tools it used.
+
+**RECOMMENDED ACTION:** None needed.
+exit=0
