@@ -193,16 +193,28 @@ def _secret_shaped(value: str) -> bool:
     )
 
 
-def _auth_shaped(value: str) -> bool:
-    """A short base64-looking value: 8 or more characters with a digit, ``=`` or mixed case."""
-    return (
-        len(value) >= 8
-        and re.fullmatch(r"[A-Za-z0-9+/_-]+={0,2}", value) is not None
-        and (
-            any(ch.isdigit() for ch in value)
-            or value.endswith("=")
-            or (any(ch.isupper() for ch in value) and any(ch.islower() for ch in value))
-        )
+# Ordinary words that can follow ``auth`` in a quoted config value or in prose.
+_AUTH_WORDS = frozenset(
+    "none required optional true false null basic bearer token oauth enabled disabled "
+    "off on yes no ok failed success denied".split()
+)
+
+
+def _auth_shaped(value: str, quoted: bool = False) -> bool:
+    """Whether the value of an ``auth`` field looks like base64.
+
+    A quoted value (JSON or YAML, the Docker ``config.json`` case) is any base64-looking
+    string of two or more characters that is not an ordinary word. An unquoted value, which
+    may be prose, needs 8 or more characters with a digit, ``=`` or mixed case.
+    """
+    if re.fullmatch(r"[A-Za-z0-9+/_-]+={0,2}", value) is None:
+        return False
+    if quoted:
+        return len(value) >= 2 and value.lower() not in _AUTH_WORDS
+    return len(value) >= 8 and (
+        any(ch.isdigit() for ch in value)
+        or value.endswith("=")
+        or (any(ch.isupper() for ch in value) and any(ch.islower() for ch in value))
     )
 
 
@@ -289,7 +301,16 @@ def redact(text: str) -> tuple[str, int]:
     text = COOKIE_LINE.sub(lambda m: replace(m, False), text)
     text = STRONG_PAIR.sub(lambda m: replace(m, False), text)
     text = WEAK_PAIR.sub(lambda m: replace(m, True), text)
-    text = AUTH_PAIR.sub(lambda m: replace(m, True, _auth_shaped), text)
+    text = AUTH_PAIR.sub(
+        lambda m: replace(
+            m,
+            True,
+            lambda inner, quoted=bool(_unquote(m["value"])[0]): _auth_shaped(
+                inner, quoted
+            ),
+        ),
+        text,
+    )
     return text, total
 
 
