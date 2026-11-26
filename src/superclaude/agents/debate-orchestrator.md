@@ -2,6 +2,7 @@
 name: debate-orchestrator
 description: Coordinate adversarial debate pipeline without participating in debates — process manager for sc:adversarial
 category: analysis
+disallowedTools: Artifact, ArtifactComments, ArtifactData
 ---
 
 # Debate Orchestrator

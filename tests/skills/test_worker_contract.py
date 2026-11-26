@@ -1970,6 +1970,54 @@ _CLOSEOUT_REASON = (
 # (repo-relative path, verb(s), stripped line) -> (category, one-line reason)
 WRITE_VERB_CLASSIFICATION = {
     (
+        "src/superclaude/agents/audit-comparator.md",
+        "gh pr",
+        "2. **Pull requests go to the fork only.** `gh pr create` must carry `--repo IronbellyOrg/IronClaude`. A bare `gh pr create`, or any push, PR or link aimed at SuperClaude-Org/SuperClaude_Framework, is a violation.",
+    ): (
+        "read-only",
+        "prose that forbids the verb (Repo Rules block in a read-only reviewer agent)",
+    ),
+    (
+        "src/superclaude/agents/audit-comparator.md",
+        "git add",
+        "1. **Never stage `.claude/` contents.** `.claude/{skills,commands,agents,hooks,templates}/*` is gitignored sync output; only `.claude/settings.json` is tracked. Any `git add` of those paths, or `git add -f` on any `.claude/` path, is a violation.",
+    ): (
+        "read-only",
+        "prose that forbids the verb (Repo Rules block in a read-only reviewer agent)",
+    ),
+    (
+        "src/superclaude/agents/audit-validator.md",
+        "gh pr",
+        "2. **Pull requests go to the fork only.** `gh pr create` must carry `--repo IronbellyOrg/IronClaude`. A bare `gh pr create`, or any push, PR or link aimed at SuperClaude-Org/SuperClaude_Framework, is a violation.",
+    ): (
+        "read-only",
+        "prose that forbids the verb (Repo Rules block in a read-only reviewer agent)",
+    ),
+    (
+        "src/superclaude/agents/audit-validator.md",
+        "git add",
+        "1. **Never stage `.claude/` contents.** `.claude/{skills,commands,agents,hooks,templates}/*` is gitignored sync output; only `.claude/settings.json` is tracked. Any `git add` of those paths, or `git add -f` on any `.claude/` path, is a violation.",
+    ): (
+        "read-only",
+        "prose that forbids the verb (Repo Rules block in a read-only reviewer agent)",
+    ),
+    (
+        "src/superclaude/agents/evidence-validator.md",
+        "gh pr",
+        "2. **Pull requests go to the fork only.** `gh pr create` must carry `--repo IronbellyOrg/IronClaude`. A bare `gh pr create`, or any push, PR or link aimed at SuperClaude-Org/SuperClaude_Framework, is a violation.",
+    ): (
+        "read-only",
+        "prose that forbids the verb (Repo Rules block in a read-only reviewer agent)",
+    ),
+    (
+        "src/superclaude/agents/evidence-validator.md",
+        "git add",
+        "1. **Never stage `.claude/` contents.** `.claude/{skills,commands,agents,hooks,templates}/*` is gitignored sync output; only `.claude/settings.json` is tracked. Any `git add` of those paths, or `git add -f` on any `.claude/` path, is a violation.",
+    ): (
+        "read-only",
+        "prose that forbids the verb (Repo Rules block in a read-only reviewer agent)",
+    ),
+    (
         "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md",
         "gh pr",
         '- **Wave 0 (all ordinals):** resolve the target repo once from the origin remote (`REPO="$(git remote get-url origin | sed -E \'s#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\\.git$##\')"`; only if origin has no URL, fall back to `gh repo view --json nameWithOwner -q .nameWithOwner` — never prefer it, because gh picks an `upstream` remote over `origin`) and the base branch (`gh repo view "$REPO" --json defaultBranchRef -q .defaultBranchRef.name`, overridable via `--base`). BEFORE creating anything: confirm `git remote -v` shows origin = `$REPO` and rebase if behind `origin/<base>` only at L0 (at L1+ the create path does not rebase and does not halt: the branch is already published when `gh pr create` runs, so report how many commits it is behind, a Tier 0 result; with `--pr <N>`, at any level, do not rebase: the PR head is already published, so report how many commits it is behind instead). At L1+, also before creating or attaching, run `scripts/probe-merge.sh --ops-only --repo "$REPO"`: a non-null `foreign_op` (a merge, rebase, cherry-pick, revert or sequencer operation in progress) → HALT before Wave 1 with status `terminal_halted`, reason `foreign_op_in_progress`, nothing created (on `--resume`, `conflict_resume_plan` in `refs/conflict-mechanical.md` decides first). Then open the PR with `gh pr create --repo "$REPO" --base <base> --head <head> --title "..." --body "..."` and verify the returned URL\'s `owner/repo` equals `$REPO` (a misroute → HALT). With `--pr <N>`, skip `gh pr create` and attach to that PR instead, checking the URL from `gh pr view <N> --repo "$REPO" --json url`. Pass `--repo "$REPO"` to every poll/reply/retrigger script too. At **L0 (`--monitor 0`)** the FSM never leaves `S0_IDLE` — open the PR and return, byte-for-byte identical to today (AC-1).',

@@ -1,7 +1,6 @@
 ---
 name: rf-analyst
 description: "Rigorflow Analyst - Performs data extraction, cross-validation, and synthesis across research and output files. Used for completeness verification, synthesis quality review, gap analysis, and coverage audits. Supports parallel partitioning — multiple analyst instances can each handle a subset of files to prevent context rot. Each spawn handles one specific analysis task."
-memory: project
 permissionMode: bypassPermissions
 tools:
   - Read
@@ -25,7 +24,6 @@ tools:
   - TaskGet
   - TaskUpdate
   - TaskList
-  - Skill
   - AskUserQuestion
 ---
 

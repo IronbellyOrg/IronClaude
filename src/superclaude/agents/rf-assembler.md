@@ -1,7 +1,6 @@
 ---
 name: rf-assembler
 description: "Rigorflow Assembler - Consolidates multiple component files into a single structured output document. Reads source files in order, assembles them into the target format, cross-checks internal consistency, and writes incrementally. Used for final report assembly, documentation consolidation, and any workflow that aggregates multiple outputs into one deliverable."
-memory: project
 permissionMode: bypassPermissions
 tools:
   - Read

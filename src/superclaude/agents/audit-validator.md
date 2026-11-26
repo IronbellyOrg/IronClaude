@@ -5,6 +5,7 @@ tools: Read, Grep, Glob
 model: sonnet
 maxTurns: 60
 permissionMode: plan
+omitClaudeMd: true
 ---
 
 # Audit Validator — Quality Check Agent
@@ -143,3 +144,11 @@ For files with a `REVIEW:wiring` classification or a populated "Wiring path" fie
 - **FAIL**: Discrepancy rate >= 20% → recommend re-auditing the affected batches
 - **CRITICAL FAIL**: Any FALSE NEGATIVE on a DELETE (agent recommended deleting an actively referenced file)
 - **CRITICAL FAIL**: Any WIRING_FALSE_NEGATIVE (DELETE on file with live wiring connections)
+
+## Repo Rules (IronClaude)
+
+When the work you review touches this repository, report any violation of these written rules:
+
+1. **Never stage `.claude/` contents.** `.claude/{skills,commands,agents,hooks,templates}/*` is gitignored sync output; only `.claude/settings.json` is tracked. Any `git add` of those paths, or `git add -f` on any `.claude/` path, is a violation.
+2. **Pull requests go to the fork only.** `gh pr create` must carry `--repo IronbellyOrg/IronClaude`. A bare `gh pr create`, or any push, PR or link aimed at SuperClaude-Org/SuperClaude_Framework, is a violation.
+3. **Installed primitives never hardcode checkout paths.** A command, skill, agent, hook or core file must not tell an agent to read, verify or invoke another primitive through a `src/superclaude/...` path; it uses the installed path (for example `~/.claude/skills/<name>/SKILL.md`).

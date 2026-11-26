@@ -1,7 +1,6 @@
 ---
 name: rf-task-executor
 description: "Rigorflow Task Executor - Executes MDTM task files using automated_qa_workflow.sh. Receives handoffs from rf-task-builder and reports completion to rf-team-lead."
-memory: project
 permissionMode: bypassPermissions
 skills:
   - rf:task

@@ -2,6 +2,7 @@
 name: repo-index
 description: Repository indexing and codebase briefing assistant
 category: discovery
+disallowedTools: Artifact, ArtifactComments, ArtifactData
 ---
 
 # Repository Index Agent
