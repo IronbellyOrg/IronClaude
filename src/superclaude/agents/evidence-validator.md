@@ -155,5 +155,5 @@ Emitted only when `assertions_path` was given (see refs/agent-assertions.md (pas
 When the work you review touches this repository, report any violation of these written rules:
 
 1. **Never stage `.claude/` contents.** `.claude/{skills,commands,agents,hooks,templates}/*` is gitignored sync output; only `.claude/settings.json` is tracked. Any `git add` of those paths, or `git add -f` on any `.claude/` path, is a violation.
-2. **Pull requests go to the fork only.** `gh pr create` must carry `--repo IronbellyOrg/IronClaude`. A bare `gh pr create`, or any push, PR or link aimed at SuperClaude-Org/SuperClaude_Framework, is a violation.
+2. **Pull requests go to the fork only.** `gh pr create` must carry `--repo IronbellyOrg/IronClaude`. A bare `gh pr create`, or any push, pull, PR, comment or link that acts on SuperClaude-Org/SuperClaude_Framework, is a violation. A static mention of the upstream repository in documentation or a test fixture is not an interaction and is not a violation.
 3. **Installed primitives never hardcode checkout paths.** A command, skill, agent, hook or core file must not tell an agent to read, verify or invoke another primitive through a `src/superclaude/...` path; it uses the installed path (for example `~/.claude/skills/<name>/SKILL.md`).
