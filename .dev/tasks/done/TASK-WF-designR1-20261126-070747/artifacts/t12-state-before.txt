@@ -1,0 +1,197 @@
+## git status --short --untracked-files=all  (exit 0)
+ M CLAUDE.md
+ M CONTRIBUTING.md
+ M docs/developer-guide/release-procedure.md
+ M docs/memory/reflect/deviation-patterns-IronClaude.md
+ M docs/user-guide/codegraph.md
+ M docs/user-guide/commands.md
+ M src/superclaude/commands/auggie-review.md
+ M src/superclaude/commands/impact.md
+ M src/superclaude/skills/sc-auggie-review-protocol/evals/evals.json
+ M src/superclaude/skills/sc-post-release-protocol/SKILL.md
+ M tests/skills/test_worker_contract.py
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/base-selection.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/debate-transcript.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/diff-analysis.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/invariant-probe.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/merge-log.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/refactor-plan.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/return-contract.yaml
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/rounds/consensus-after-round-2.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/rounds/round-1-advocate-A.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/rounds/round-1-advocate-B.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/rounds/round-1-advocate-C.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/rounds/round-2-6-invariant-response-A.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/rounds/round-2-6-invariant-response-B.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/rounds/round-2-6-invariant-response-C.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/rounds/round-2-rebuttal-A.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/rounds/round-2-rebuttal-B.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/rounds/round-2-rebuttal-C.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/rounds/scoring-qual-pass1.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/rounds/scoring-qual-pass2.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/rounds/scoring-quant.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/variant-1-opus-architect.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/variant-2-sonnet-refactorer.md
+?? .dev/brainstorms/826-release-path/adversarial/adversarial/variant-3-haiku-qa.md
+?? .dev/brainstorms/826-release-path/adversarial/merged-output.md
+?? .dev/brainstorms/826-release-path/enrichment/codebase-context.md
+?? .dev/brainstorms/826-release-path/merged-requirements.md
+?? .dev/brainstorms/826-release-path/return-contract.yaml
+?? .dev/brainstorms/826-release-path/seed-brief.md
+?? .dev/issues/826/accuracy-check.md
+?? .dev/issues/826/analysis/analyze-release-procedure.md
+?? .dev/issues/826/claim-comment.md
+?? .dev/issues/826/clickup.json
+?? .dev/issues/826/design-r1.md
+?? .dev/issues/826/design.md
+?? .dev/issues/826/issue-summary.md
+?? .dev/issues/826/next-steps.md
+?? .dev/issues/826/recommend.md
+?? .dev/issues/826/run-state.md
+?? .dev/issues/826/scout.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/REPORT.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/base-selection.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/debate-transcript.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/diff-analysis.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/invariant-probe.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/merge-log.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/refactor-plan.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/return-contract.yaml
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/rounds/judge-pass-1.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/rounds/judge-pass-2.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/rounds/round-1-variant-1.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/rounds/round-1-variant-2.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/rounds/round-1-variant-3.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/rounds/round-2-variant-1.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/rounds/round-2-variant-2.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/rounds/round-2-variant-3.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/rounds/round-2.6-variant-1.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/rounds/round-2.6-variant-2.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/rounds/round-2.6-variant-3.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/variant-1-original.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/variant-2-original.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/adversarial/variant-3-original.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/merged-output.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/adversarial/merged-verdict.yaml
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/artifacts/coverage-matrix.yaml
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/artifacts/inf-precheck.json
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/artifacts/inf-rows.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/artifacts/input-snapshot.yaml
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/artifacts/tier_decision.yaml
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/metrics.json
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/return-contract.yaml
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/reviewer-briefs/reviewer-1.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/reviewer-briefs/reviewer-2.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/reviewer-briefs/reviewer-3.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/reviewer-cards/reviewer-1-card.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/reviewer-cards/reviewer-2-card.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/reviewer-cards/reviewer-3-card.md
+?? .dev/reflect/pre-TASK-WF-design-20261126-041123-20261126041625/t1-card.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/REPORT.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/base-selection.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/debate-transcript.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/diff-analysis.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/invariant-probe.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/merge-log.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/refactor-plan.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/return-contract.yaml
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/rounds/judge-pass-1.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/rounds/judge-pass-2.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/rounds/round-1-advocate-1.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/rounds/round-1-advocate-2.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/rounds/round-1-advocate-3.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/rounds/round-2-advocate-1.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/rounds/round-2-advocate-2.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/rounds/round-2-advocate-3.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/variant-1-original.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/variant-2-original.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/adversarial/variant-3-original.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/merged-output.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/adversarial/merged-verdict.yaml
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/artifacts/coverage-matrix.yaml
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/artifacts/inf-precheck.json
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/artifacts/inf-rows.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/artifacts/input-snapshot.yaml
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/artifacts/tier_decision.yaml
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/metrics.json
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/re-review-1-card.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/return-contract.yaml
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/reviewer-briefs/reviewer-1.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/reviewer-briefs/reviewer-2.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/reviewer-briefs/reviewer-3.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/reviewer-cards/reviewer-1-card.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/reviewer-cards/reviewer-2-card.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/reviewer-cards/reviewer-3-card.md
+?? .dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/t1-card.md
+?? .dev/tasks/archive/TASK-WF-design-20261126-041123/TASK-WF-design-20261126-041123.md
+?? .dev/tasks/archive/TASK-WF-design-20261126-041123/artifacts/archive-undo.txt
+?? .dev/tasks/archive/TASK-WF-design-20261126-041123/artifacts/codegraph-grounding.md
+?? .dev/tasks/archive/TASK-WF-design-20261126-041123/return-contract.yaml
+?? .dev/tasks/archive/TASK-WF-design-20261126-041123/source.md
+?? .dev/tasks/archive/TASK-WF-designR1-20261126-060136/TASK-WF-designR1-20261126-060136.md
+?? .dev/tasks/archive/TASK-WF-designR1-20261126-060136/artifacts/archive-undo.txt
+?? .dev/tasks/archive/TASK-WF-designR1-20261126-060136/artifacts/codegraph-grounding.md
+?? .dev/tasks/archive/TASK-WF-designR1-20261126-060136/return-contract.yaml
+?? .dev/tasks/archive/TASK-WF-designR1-20261126-060136/source.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/TASK-WF-designR1-20261126-070747.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/codegraph.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/old-plan.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/plan.diff
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/prior-findings.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T1/prompt-1-1.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T1/q0-head
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T10/prompt-1-1.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T10/q0-head
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T11/prompt-1-1.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T11/q0-head
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T12/q0-head
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T2/prompt-1-1.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T2/q0-head
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T3/prompt-1-1.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T3/q0-head
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T4/prompt-1-1.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T4/q0-head
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T5/prompt-1-1.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T5/q0-head
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T6/prompt-1-1.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T6/q0-head
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T7/prompt-1-1.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T7/q0-head
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T8/notes.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T8/prompt-1-1.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T8/q0-head
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T9/notes.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T9/prompt-1-1.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/retries/T9/q0-head
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/revision-log.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t1-ac-check.log
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t10-ac-check.log
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t11-sync.log
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t12-state-before.txt
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t2-ac-check.log
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t3-ac-check.log
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t4-ac-check.log
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t5-ac-check.log
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t6-mutation-check.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t6-page.pre-mutation
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t6-page.sha256
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t6-test.log
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t7-ac-check.log
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t8-mutation-check.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t8-skill.pre-mutation
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t8-skill.sha256
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t8-test.log
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/artifacts/t9-ac-check.log
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/progress.md
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/return-contract.yaml
+?? .dev/tasks/to-do/TASK-WF-designR1-20261126-070747/source.md
+?? tests/docs/test_release_procedure.py
+?? tests/skills/test_post_release_base_branch.py
+
+## git rev-parse HEAD  (exit 0)
+3cf7e22597a0aa8e35860a5860542dcc1bd82c82
+
+## git symbolic-ref -q refs/remotes/origin/HEAD  (exit 0)
+refs/remotes/origin/master
+
+## git tag --list 'rehearsal-*'  (exit 0)

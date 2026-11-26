@@ -1,0 +1,30 @@
+== AC1: --limit 3 gone; G2 command verbatim
+grep exit 1 (1 expected)
+122:| G2 | CI on the exact commit | after merge | `gh run list --repo IronbellyOrg/IronClaude --workflow Tests
+== AC2: G2 rules found
+122:| G2 | CI on the exact commit | after merge | `gh run list --repo IronbellyO
+122:| G2 | CI on the exact commit | after merge | `gh run list --repo IronbellyO
+122:| G2 | CI on the exact commit | after merge | `gh run list --repo IronbellyO
+== AC3, AC4, AC5
+PASS capture line: gh pr view <n> --repo IronbellyOrg/IronClaude --json state,baseRefName,headRefNa
+PASS capture line: git fetch origin master integration --tags
+PASS capture line: git rev-parse --verify -q <merge-sha>^2
+PASS capture line: git rev-parse --verify -q <merge-sha>^3
+PASS capture line: git rev-parse <merge-sha>^1 <merge-sha>^2
+PASS capture line: git rev-parse <merge-sha>^{tree} <reviewed-head-sha>^{tree}
+PASS six capture lines are consecutive in one block
+table header: | # | Check | When | Command | Pass condition |
+rows: 9 ['G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9']
+PASS G1 When = before merge
+PASS G2 When = after merge
+PASS G3 When = before merge
+PASS G4 When = before merge
+PASS G5 When = before merge
+PASS G6 When = before merge
+PASS G7 When = before merge
+PASS G8 When = before merge, unless the owner names a check that needs the merge commit or GitHub state
+PASS G9 When = after merge
+PASS heading unchanged
+PASS G1 row names the gh api form
+AC5 fenced gh lines without the fork form: none
+grep exit 1 (1 expected)

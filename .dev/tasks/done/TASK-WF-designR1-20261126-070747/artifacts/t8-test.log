@@ -1,0 +1,30 @@
+== pytest tests/skills/test_post_release_base_branch.py -v
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 11 items
+
+tests/skills/test_post_release_base_branch.py::test_paragraph_names_live_resolution_and_remote_check[git ls-remote --symref origin HEAD] PASSED [  9%]
+tests/skills/test_post_release_base_branch.py::test_paragraph_names_live_resolution_and_remote_check[git fetch origin <default-branch> --tags] PASSED [ 18%]
+tests/skills/test_post_release_base_branch.py::test_paragraph_names_live_resolution_and_remote_check[git merge-base --is-ancestor <tag> refs/remotes/origin/<default-branch>] PASSED [ 27%]
+tests/skills/test_post_release_base_branch.py::test_paragraph_names_live_resolution_and_remote_check[unverified] PASSED [ 36%]
+tests/skills/test_post_release_base_branch.py::test_paragraph_names_live_resolution_and_remote_check[git branch -r --contains <tag>] PASSED [ 45%]
+tests/skills/test_post_release_base_branch.py::test_old_local_branch_comparison_is_gone PASSED [ 54%]
+tests/skills/test_post_release_base_branch.py::test_paragraph_names_no_branch PASSED [ 63%]
+tests/skills/test_post_release_base_branch.py::test_output_and_exit_lines_say_resolved_with_source PASSED [ 72%]
+tests/skills/test_post_release_base_branch.py::test_warn_line_still_ends_with_the_tag PASSED [ 81%]
+tests/skills/test_post_release_base_branch.py::test_guardrails_name_the_offline_fallback_and_ask_the_user PASSED [ 90%]
+tests/skills/test_post_release_base_branch.py::test_post_release_command_has_no_base_flag PASSED [100%]
+
+============================== 11 passed in 0.04s ==============================
+== pytest tests/skills/test_worker_contract.py tests/unit/test_cli_install.py -q (after updating the pinned line in test_worker_contract.py)
+tests/unit/test_cli_install.py ......................................... [ 93%]
+.....................................................                    [100%]
+
+============================= 781 passed in 2.84s ==============================
+== ruff
+All checks passed!
+2 files already formatted
+== skill file identical to saved copy
+cmp exit 0
+/home/coder/workspaces/worktrees/IronClaude/issue-826/src/superclaude/skills/sc-post-release-protocol/SKILL.md: OK
+(post-release.md diff above: empty = unchanged)
+== note: the first run of the two worker contract tests failed (2 failed, 779 passed) because tests/skills/test_worker_contract.py:2373 pins the old text of the SKILL.md paragraph that Task 7 rewrote; the pinned key was updated to the new paragraph with the same classification (deferred:P4).

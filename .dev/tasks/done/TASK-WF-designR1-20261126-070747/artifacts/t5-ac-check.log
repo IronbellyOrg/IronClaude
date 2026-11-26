@@ -1,0 +1,23 @@
+== AC1: no --base master, no .dev/worktrees
+grep exit 1 (1 expected)
+grep exit 1 (1 expected)
+== AC2: remaining master lines
+70:`master` and `integration` take pull requests only. The server refuses direct pushes (including edits in the GitHub web editor), force pushes and deletion, so open a p
+72:Release PRs are the one exception: a maintainer promotes `integration` to `master` as described in [Release Procedure](docs/developer-guide/release-procedure.md).
+== AC3: link and target
+72:Release PRs are the one exception: a maintainer promotes `integration` to `master` as described in [Release Procedure](docs/developer-guide/release-procedure.md).
+target exists
+== other CONTRIBUTING.md lines now say integration
+9:**No PR may introduce a *new* lint or test failure.** Pre-existing failures on `integration` are a
+18:A "new failure" is any lint or test failure that is **NOT present in the most recent CI run on `i
+22:1. Look at the latest CI run on `integration` (the merge commit your branch was cut from).
+23:2. If the same test ID or lint rule + file:line is failing on `integration`, it is **inherited** 
+24:3. If the failure appears on your branch but NOT on the `integration` baseline, it is **new** (mu
+26:When in doubt, run the same check locally on `integration` in a second, clean checkout (not the o
+29:git fetch origin integration
+30:git switch --detach origin/integration
+63:gh pr create --repo IronbellyOrg/IronClaude --base integration --head <branch> --title "..." --bo
+70:`master` and `integration` take pull requests only. The server refuses direct pushes (including e
+72:Release PRs are the one exception: a maintainer promotes `integration` to `master` as described i
+80:This rot-budget rule is a **social convention** agreed by maintainers, **NOT** a CI-enforced gate
+82:If you find a PR that violates the rule (a new failure that wasn't present on integration), call 

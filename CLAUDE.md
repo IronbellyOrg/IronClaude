@@ -294,7 +294,7 @@ def test_with_budget(token_budget):
 1. Create branch from `integration` (pull requests are opened against it): `git checkout -b feature/your-feature`
 2. Develop with tests: `uv run pytest`
 3. Commit: `git commit -m "feat: description"` (conventional commits)
-4. Merge to `integration` → validate → merge to `master`
+4. Merge to `integration` → validate. Release: a person opens a PR from `integration` to `master`, merges it as a merge commit, tags that commit, then merges `master` back into `integration` by PR (exact commands: `docs/developer-guide/release-procedure.md`)
 
 **Current branch**: See git status in session start output
 

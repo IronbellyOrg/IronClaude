@@ -20,7 +20,7 @@ Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without 
 /sc:impact parse_config                         # dependents of one symbol
 /sc:impact load_spec write_report --depth 3     # several symbols, three hops
 /sc:impact --diff                               # symbols changed in the working tree vs HEAD
-/sc:impact --diff origin/master --tests         # symbols a branch changed, plus advisory tests
+/sc:impact --diff origin/integration --tests         # symbols a branch changed, plus advisory tests
 /sc:impact parse_config --caller sc-implement-protocol --output-dir .dev/impact/t3
 /sc:impact parse_config --unattended --report-dir .dev/impact/run1   # worker mode: contract written there
 ```

@@ -281,7 +281,7 @@ It never rebuilds an existing index, never runs `init` while another init or ind
 
 ```bash
 /sc:impact parse_config                      # dependents of one symbol
-/sc:impact --diff origin/master --tests      # symbols a branch changed, plus advisory tests
+/sc:impact --diff origin/integration --tests      # symbols a branch changed, plus advisory tests
 ```
 
 When codegraph, the index or its lookup tools are not usable, it falls back to Grep, keeps going and reports `status: partial`. See the [codegraph guide](codegraph.md).
@@ -1332,7 +1332,7 @@ superclaude reflect run <tasklist> [--fix/--no-fix] [--max-fix-iterations N] [--
 ```bash
 superclaude reflect run path/to/TASK.md                                  # audit-only gate, fail-closed exit code
 superclaude reflect run path/to/TASK.md --fix --max-fix-iterations 3     # bounded auto-fix loop
-superclaude reflect run path/to/TASK.md --base origin/master --no-promote
+superclaude reflect run path/to/TASK.md --base origin/integration --no-promote
 superclaude reflect run path/to/TASK.md --tmux --depth deep              # watch live in a detached window
 ```
 

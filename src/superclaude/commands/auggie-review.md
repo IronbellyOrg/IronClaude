@@ -34,7 +34,7 @@ The trigger discipline exists because deep reviews are expensive (Auggie indexin
 ```bash
 /sc:auggie-review 62                                    # Review PR #62 (auto-detect repo)
 /sc:auggie-review https://github.com/org/repo/pull/62   # Review PR by URL
-/sc:auggie-review --diff origin/master...HEAD           # Review local branch changes
+/sc:auggie-review --diff origin/integration...HEAD      # Review local branch changes
 /sc:auggie-review --snapshot src/superclaude/cli/       # Review a subtree (no diff)
 /sc:auggie-review 62 --focus security,architecture      # Focus areas only
 /sc:auggie-review 62 --depth deep --no-post-pr          # Deep review, do not post to PR
@@ -110,7 +110,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 ### Review uncommitted local changes
 
 ```text
-/sc:auggie-review --diff origin/master...HEAD --no-post-pr
+/sc:auggie-review --diff origin/integration...HEAD --no-post-pr
 # - Same protocol, but target is git diff, no PR posting
 # - Useful pre-commit / pre-push self-review
 ```

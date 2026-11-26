@@ -1,0 +1,18 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-designR1-20261126-070747
+plan_path: ./TASK-WF-designR1-20261126-070747.md
+source_path: ./source.md
+source_origin: .dev/issues/826/design-r1.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success   # re-review of the changed lines plus the prior blocker B-01: PASS, B-01 resolved (scope: changed lines plus prior blockers); the full review of the replaced plan is the report below (FAIL: 1 blocking, 7 medium, 9 note)
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-826/.dev/reflect/pre-TASK-WF-designR1-20261126-060136-20261126060731/REPORT.md
+unresolved:
+  - "Follow-up candidates, not repaired by the workflow: 7 Medium findings (W-01 to W-07) and 9 Notes (N-01 to N-09) in the Gap registry and the Notes of the report named in reflect_report_path; the re-review card is re-review-1-card.md in the same folder."
+supersedes: TASK-WF-designR1-20261126-060136
+remediation_route: surgical
+finding_counts: {"blocking": 1, "label_high": 0, "medium": 7, "note": 9}
+fix_cycles: 1
