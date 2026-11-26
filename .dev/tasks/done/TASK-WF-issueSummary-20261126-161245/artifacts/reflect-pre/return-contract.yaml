@@ -1,0 +1,10 @@
+contract_version: "1.9.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-703/.dev/tasks/to-do/TASK-WF-issueSummary-20261126-161245/artifacts/reflect-pre/REPORT.md
+coverage_pct: 1.0
+coverage_undefined: false
+finding_counts: {blocking: 0, label_high: 0, medium: 1, note: 1}
+evidence_validator_ran: false
+degraded_components: [calibrator, evidence-validator, tier2]

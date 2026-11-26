@@ -16,7 +16,7 @@ Rows are tried in order; the first match wins:
 
 | Order | Condition | Route |
 |---|---|---|
-| 1 | `B == 0` | `none`: the plan stands, whatever `H` and `M` are. Medium and Note findings are written to the contract as follow-up candidates and never start a fix pass. |
+| 1 | `B == 0` | `none`: the plan stands, whatever `H` and `M` are. Medium and Note findings stay in the review report as follow-up candidates (no step writes them to the contract) and never start a fix pass. |
 | 2 | `B <= 3` and `H <= 5` and `M <= 9` | `surgical` |
 | 3 | otherwise (any of `B >= 4`, `H >= 6`, `M >= 10`) | `regenerate` |
 
@@ -28,7 +28,7 @@ Run the rule with the script, never by hand:
 REM route --blocking <B> --label-high <H> --medium <M> [--regenerated-already] [--forced none|surgical|regenerate]
 ```
 
-It prints `{"route": ..., "forced": ...}`. `--forced` (from `--remediate none|surgical|regenerate`) overrides the rows and is recorded as forced, except that a forced `regenerate` with `--regenerated-already` still gives `escalate`.
+It only prints `{"route": ..., "forced": ...}`; it writes nothing, so a `none` route and the forced flag are never stored in a contract (`place` and `mark` write the route and counts of a repair, sections 2 and 6). `--forced` (from `--remediate none|surgical|regenerate`) overrides the rows and is printed as forced, except that a forced `regenerate` with `--regenerated-already` still gives `escalate`.
 
 Where the counts for a cycle come from:
 
