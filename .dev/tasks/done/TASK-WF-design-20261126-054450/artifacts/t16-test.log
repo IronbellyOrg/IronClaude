@@ -1,0 +1,9 @@
+== AC1 646 has skill folders and hook scripts; no cp CLAUDE.md ==
+Skill folders (deleted and re-copied) and hook scripts get no copy
+0
+== AC2 link and heading ==
+(upgrading.md#saved-copies-of-changed-files)
+335:### Saved copies of changed files
+== AC3 changed lines (expect 644 and 646 only) ==
+@@ -644 +644 @@ then delete the owned paths `superclaude install --list` printed; see [Removing
+@@ -646 +646 @@ A plain `superclaude install` keeps framework files you already have and names e

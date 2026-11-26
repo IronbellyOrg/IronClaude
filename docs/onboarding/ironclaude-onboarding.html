@@ -507,7 +507,7 @@
   <h2 id="s11-h">Where things live</h2>
   <div class="grid2">
     <div class="card"><h3>Work is written to files</h3><p>Plans, research and findings are saved to files, most under <code>.dev/</code>, not only into the chat. If a session dies, the files are what survives.</p></div>
-    <div class="card"><h3><code>superclaude update</code> overwrites</h3><p>It overwrites every file it ships, including an edited <code>~/.claude/CLAUDE.md</code>, keeps no backup, and deletes and re-copies each shipped skill folder, so any file you added inside one is lost. Copy any file you changed or added before you run it.</p></div>
+    <div class="card"><h3><code>superclaude update</code> overwrites</h3><p>It overwrites every file it ships. When a command, rule, output-style, core (such as <code>~/.claude/CLAUDE.md</code>), agent or template file differs from the shipped one, it first saves a copy next to it as <code>&lt;name&gt;.bak.&lt;UTC time&gt;</code>. Skill folders are deleted and re-copied, so any file you added inside one is lost, and hook scripts are overwritten; neither gets a copy. Copy any skill file or hook script you changed or added to a place outside <code>~/.claude/skills/</code> before you run it.</p></div>
     <div class="card"><h3>Resume after a crash</h3><p>Before you need it, name the conversation with <code>/rename &lt;name&gt;</code> and send one more message (or quit) so ccsession records it; later, from a terminal in the same folder, run <code>ccsession &lt;name&gt;</code>.</p><p>This always works: run the same command again on the work's own files, <code>/sc:implement</code> on the plan.</p></div>
   </div>
 </section>

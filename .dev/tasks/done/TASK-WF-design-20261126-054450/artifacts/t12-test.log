@@ -1,0 +1,23 @@
+$ diff src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+(prints nothing: identical)
+
+$ git diff --stat -- src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+ plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md | 2 +-
+ src/superclaude/core/HOW-WE-WORK.md                         | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+changed line numbers in the source guide: @@ -3 +3 @@ 
+non-ASCII characters on the changed line: 0
+
+$ grep -c "keep no backup" (both files)
+src/superclaude/core/HOW-WE-WORK.md:0
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:0
+
+$ uv run pytest -p no:cacheprovider tests/commands/test_routing_plugin_parity.py tests/docs/test_onboarding_deck.py tests/cli/test_how_we_work_install.py tests/commands/test_worktrees_command.py tests/core/test_how_we_work_routing_table.py tests/skills/test_review_prompt_overrides.py -q
+...                                                                      [100%]
+
+============================= 121 passed in 1.65s ==============================
+
+$ uv run pytest -p no:cacheprovider tests/core tests/recommend tests/skills/test_sc_recommend_routing_contract.py -q   (other readers of the guide, extra)
+......                                                                   [100%]
+
+============================= 333 passed in 4.34s ==============================

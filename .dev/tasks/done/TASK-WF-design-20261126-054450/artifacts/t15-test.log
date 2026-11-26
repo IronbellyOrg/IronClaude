@@ -1,0 +1,17 @@
+== AC1: lines with 'no copy' ==
+163:Skill folders (deleted and re-copied) and hook scripts get no copy.
+== AC1: core/agents + no copy (expect none) ==
+== AC2: exact message and exit 1 ==
+171:`could not save a copy first, left untouched`: the installer could not write
+175:`superclaude install --force` or `superclaude update` exits 1. Make the folder
+== AC3: ls -t | head -1 (expect none) ==
+132:ls -t ~/.claude/settings.json.bak.* | head -1 | xargs -I{} cp {} ~/.claude/settings.json
+== diff stat ==
+ docs/reference/troubleshooting.md | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
+== longest line ==
+172
+== AC3 note ==
+The one hit (line 132) is the pre-existing "Restore settings.json after a bad merge" command. It restores ~/.claude/settings.json.bak.* (written by the hook installer), not a .bak. copy of a command, rule, output-style, core, agent or template file. It is outside the paragraph this task changes and is left as it was (the task says the rest of the file stays unchanged).
+== pytest (no test reads this file by name; docs tests run) ==
+No test in tests/ names troubleshooting.md (grep -rln found none); no test run for this task.

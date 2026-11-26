@@ -1,0 +1,26 @@
+$ MUTATION CHECK: main.py:180 changed from install_core_files(force=force) to install_core_files(force=False) (temporary, restored afterwards)
+$ uv run pytest -p no:cacheprovider tests/cli/test_update_command.py -q -k force_reaches
+E   AssertionError: assert {'install_cor...plates': True} == {'install_cor...plates': True}
+E     
+(the test then fails on: install_core_files False != True for install --force)
+main.py restored byte-identical (cmp against the saved copy; git diff --stat -- src/superclaude/cli/main.py is empty)
+
+$ uv run pytest -p no:cacheprovider tests/cli/test_update_command.py -q
+tests/cli/test_update_command.py ...............................         [100%]
+
+============================== 31 passed in 2.57s ==============================
+
+$ uv run pytest -p no:cacheprovider tests/cli/test_update_command.py -v -k "force_reaches or failed_core_agent"
+test_failed_core_agent_or_template_install_exits_nonzero[install_core_files-command0] PASSED [ 11%]
+test_failed_core_agent_or_template_install_exits_nonzero[install_core_files-command1] PASSED [ 22%]
+test_failed_core_agent_or_template_install_exits_nonzero[install_agents-command0] PASSED [ 33%]
+test_failed_core_agent_or_template_install_exits_nonzero[install_agents-command1] PASSED [ 44%]
+test_failed_core_agent_or_template_install_exits_nonzero[install_templates-command0] PASSED [ 55%]
+test_failed_core_agent_or_template_install_exits_nonzero[install_templates-command1] PASSED [ 66%]
+test_force_reaches_the_core_agent_and_template_installers[command0-False] PASSED [ 77%]
+test_force_reaches_the_core_agent_and_template_installers[command1-True] PASSED [ 88%]
+test_force_reaches_the_core_agent_and_template_installers[command2-True] PASSED [100%]
+======================= 9 passed, 22 deselected in 0.99s =======================
+
+removed lines in the diff of the test file: 0
+_stub_installers definition unchanged: 0

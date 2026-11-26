@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 from pathlib import Path
 from types import SimpleNamespace
@@ -11,6 +12,7 @@ from types import SimpleNamespace
 import pytest
 from click.testing import CliRunner
 
+from superclaude.cli.install_templates import install_templates
 from superclaude.cli.main import main
 
 _INSTALLERS = (
@@ -275,6 +277,138 @@ def test_install_force_target_do_not_redirect(monkeypatch, isolated_home_guard):
         "commands": (target, True),
         "setup": True,
     }
+
+
+_FORCED_INSTALLERS = (
+    "superclaude.cli.install_core.install_core_files",
+    "superclaude.cli.install_agents.install_agents",
+    "superclaude.cli.install_templates.install_templates",
+)
+
+
+def _stub_installers_recording_force(monkeypatch, *, failing: str | None = None):
+    """Like ``_stub_installers``, but the core, agent and template fakes also record the
+    ``force`` keyword they receive (the plain fake ignores keyword arguments)."""
+    _stub_installers(monkeypatch, failing=failing)
+    forced: dict[str, object] = {}
+    for path in _FORCED_INSTALLERS:
+        name = path.rsplit(".", 1)[-1]
+
+        def fake(*args, _name=name, **kwargs):
+            forced[_name] = kwargs.get("force")
+            return (_name != failing, f"{_name} result")
+
+        monkeypatch.setattr(path, fake)
+    return forced
+
+
+@pytest.mark.parametrize("command", [["install", "--force"], ["update"]])
+@pytest.mark.parametrize(
+    "failing", [path.rsplit(".", 1)[-1] for path in _FORCED_INSTALLERS]
+)
+def test_failed_core_agent_or_template_install_exits_nonzero(
+    monkeypatch, command, failing
+):
+    _stub_installers_recording_force(monkeypatch, failing=failing)
+    result = CliRunner().invoke(main, command)
+    assert result.exit_code == 1, result.output
+    assert f"{failing} result" in result.output
+
+
+@pytest.mark.parametrize(
+    ("command", "expected"),
+    [(["install"], False), (["install", "--force"], True), (["update"], True)],
+)
+def test_force_reaches_the_core_agent_and_template_installers(
+    monkeypatch, command, expected
+):
+    forced = _stub_installers_recording_force(monkeypatch)
+    result = CliRunner().invoke(main, command)
+    assert result.exit_code == 0, result.output
+    assert forced == {
+        "install_core_files": expected,
+        "install_agents": expected,
+        "install_templates": expected,
+    }
+
+
+def _victim_baks(victim: Path) -> list[Path]:
+    """Saved copies of this one file. Never count ``~/.claude`` as a whole: the hook
+    installer writes ``settings.json.bak.<stamp>`` there on every run."""
+    return sorted(victim.parent.glob(victim.name + ".bak.*"))
+
+
+def test_install_list_does_not_count_saved_template_copies(native_install):
+    home, _ = native_install
+    victim = sorted((home / ".claude/templates/workflow").glob("*"))[0]
+    victim.write_bytes(b"my own edit\n")
+    ok, message = install_templates(force=True)
+    assert ok, message
+    assert [b.read_bytes() for b in _victim_baks(victim)] == [b"my own edit\n"]
+    before = sorted(str(p) for p in home.rglob("*"))
+
+    result = CliRunner().invoke(main, ["install", "--list"])
+
+    assert result.exit_code == 0, result.output
+    line = next(
+        text for text in result.output.splitlines() if text.startswith("Templates:")
+    )
+    available, installed = (
+        int(w) for w in line.replace(",", "").split() if w.isdigit()
+    )
+    assert available == installed
+    assert (
+        sorted(str(p) for p in home.rglob("*")) == before
+    )  # the listing writes no file
+
+
+def test_install_keeps_edits_and_update_saves_them_first(native_install):
+    home, target = native_install
+    claude = home / ".claude"
+    victims = [
+        claude / "RULES.md",
+        sorted((claude / "agents").glob("*.md"))[0],
+        sorted((claude / "templates/workflow").glob("*"))[0],
+    ]
+    for victim in victims:
+        victim.write_bytes(b"my own edit\n")
+
+    result = CliRunner().invoke(main, ["install"])
+    assert result.exit_code == 0, result.output
+    for victim in victims:
+        assert victim.read_bytes() == b"my own edit\n"
+        assert not _victim_baks(victim)
+
+    result = CliRunner().invoke(main, ["update", "--target", str(target)])
+    assert result.exit_code == 0, result.output
+    for victim in victims:
+        assert victim.read_bytes() != b"my own edit\n"
+        assert [b.read_bytes() for b in _victim_baks(victim)] == [b"my own edit\n"]
+
+
+def test_update_exits_one_when_the_core_file_copy_cannot_be_saved(
+    native_install, monkeypatch
+):
+    home, target = native_install
+    victim = home / ".claude/RULES.md"
+    victim.write_bytes(b"my own edit\n")
+    real_copy2 = shutil.copy2
+
+    def copy2(src, dst, *args, **kwargs):
+        if Path(dst).name.startswith("RULES.md.bak."):
+            raise OSError("No space left on device")
+        return real_copy2(src, dst, *args, **kwargs)
+
+    monkeypatch.setattr(shutil, "copy2", copy2)
+
+    result = CliRunner().invoke(main, ["update", "--target", str(target)])
+
+    # Only the victim's saved copy fails: the hooks phase still writes its own
+    # settings.json.bak.<stamp>, so exit code 1 can come only from the new guard.
+    assert result.exit_code == 1, result.output
+    assert "RULES.md: could not save a copy first, left untouched" in result.output
+    assert result.output.count("❌ Failed") == 1
+    assert victim.read_bytes() == b"my own edit\n"
 
 
 def test_install_runs_codegraph_phase_after_user_setup_before_retire(monkeypatch):

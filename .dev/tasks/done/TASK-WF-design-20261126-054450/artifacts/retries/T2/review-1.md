@@ -1,0 +1,3 @@
+e94872ee0ce7ba5d7715e716e1094ebac6844616 tree=6d8504d2d4278cf93607476bf052d406c633ae8a
+T2.AC1 met tests/cli/test_install_keep.py:220-437,T2.AC1@./artifacts/t2-test.log:5; T2.AC2 met tests/cli/test_install_keep.py:376-382; T2.AC3 met tests/cli/test_install_keep.py:235-253
+F1.1 sev=blocking trigger=B4 ac=scope at=tests/cli/test_install_keep.py:397 anchor="its path is in the saved block, and the victim is listed under `❌ Failed`" chk=n,n,n,y family=test-assert-scope fix=split the message at "💾 Saved" and "❌ Failed"; assert the backup path appears in the saved-block slice and the failure line in the slice after "❌ Failed" first=A1 origin=new: TR-007 checks the backup path and the failure line against the whole message and only the order of the two blocks.

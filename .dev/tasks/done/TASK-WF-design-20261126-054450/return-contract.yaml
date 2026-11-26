@@ -1,0 +1,20 @@
+contract_version: "1.1"
+supersedes: TASK-WF-design-20261126-042509
+remediation_route: surgical
+finding_counts: {"blocking": 2, "label_high": 0, "medium": 8, "note": 11}
+fix_cycles: 1
+status: success
+slug: TASK-WF-design-20261126-054450
+plan_path: ./TASK-WF-design-20261126-054450.md
+source_path: ./source.md
+source_origin: .dev/brainstorms/20261126-031739-installer-backups/design.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-676/.dev/reflect/pre-TASK-WF-design-20261126-042509-20261126043230/REPORT.md
+unresolved:
+  - "Wave 4 reviewed the first plan (TASK-WF-design-20261126-042509, now archived): 2 Blocking, 8 Medium, 11 Note. The surgical repair fixed M1 and M2 and the re-review (scope: changed lines plus prior blockers) found both resolved, with one new Medium (N1: AC-4 in the requirements document has no W-3 exemption; the plan carries it) and one Note (N2, wording, fixed afterwards)."
+  - "After Wave 4R the coordinating session applied the Medium and Note fixes M3 to M14, M16 to M21 and the Tier 1 finding D-2 to this plan by hand (the workflow repairs blocking findings only); those edits were format-checked (no numbered or checkbox lines, no absolute paths, Depends on names lower tasks) but not re-reviewed."
+  - "M15 and N1 need no plan change. The codegraph grounding note of the first plan stays with the archived package."

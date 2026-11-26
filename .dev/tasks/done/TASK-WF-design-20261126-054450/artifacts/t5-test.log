@@ -1,0 +1,13 @@
+$ uv run pytest -p no:cacheprovider tests/cli/test_install_failures.py tests/unit/test_cli_install.py tests/cli/test_update_command.py tests/cli/test_install_retired_files.py -q
+tests/cli/test_install_retired_files.py ................................ [100%]
+
+============================= 150 passed in 5.34s ==============================
+
+$ ad hoc behaviour check of install_templates (script /tmp/impl676/t5_check.py, not committed)
+AC1 ok: True | replaced: True | one backup in the same subfolder with old bytes: True | Saved line: True | path in message: True
+AC2 matching files, no new backup: True
+AC2 empty target, no Saved: True
+AC2 force=False keeps the edit, no backup added: True
+AC2 agent-memory kept: True | no x.md backup: True | y.md replaced and saved: True
+AC3 ok: False | untouched: True | failure line: True | under Failed block: True
+AC3 other templates still installed: True | returns False: True

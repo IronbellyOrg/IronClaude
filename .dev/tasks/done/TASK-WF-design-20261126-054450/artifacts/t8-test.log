@@ -1,0 +1,15 @@
+$ uv run pytest -p no:cacheprovider tests/cli/test_update_command.py -q
+
+tests/cli/test_update_command.py ......................                  [100%]
+
+============================== 22 passed in 2.60s ==============================
+
+$ uv run pytest -p no:cacheprovider tests/cli/test_update_command.py -v -k "saved_template_copies or update_saves_them"
+test_install_list_does_not_count_saved_template_copies PASSED [ 50%]
+test_install_keeps_edits_and_update_saves_them_first PASSED [100%]
+======================= 2 passed, 20 deselected in 1.44s =======================
+
+$ git diff --stat -- tests/cli/test_update_command.py (only additions, existing tests unchanged)
+ tests/cli/test_update_command.py | 55 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 55 insertions(+)
+removed lines in the diff: 0
