@@ -1,0 +1,70 @@
+{
+  "doc_id": "NP-1",
+  "plan": "TASK-WF-implementTheDesi-20261031-182028",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "unassigned",
+      "blocking_in_implement": true,
+      "description": "Task 2's acceptance criterion says an override YAML without Codex fields leaves the Codex identities empty and so disables Codex. An implementer who follows it writes a test that pins that behaviour, which would silently switch Codex off for every operator whose override file came from contract setup (it writes only the Augment keys). The design amendment A0 says an absent Codex key falls back to the shipped value and only an explicit empty or null value disables Codex.",
+      "plan_quote": "A local override YAML without Codex fields still loads (Codex identities empty, so Codex is disabled for that override)",
+      "evidence": "M-001: .dev/reflect/pre-TASK-WF-implementTheDesi-20261031-182028-shadow11/adversarial/adversarial/merged-verdict.yaml:8-16 (plan:44 vs design lines 434-437); REPORT.md:50. Graded blocking at implementation: .dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/artifacts/retries/T2/review-1.md:4 (F1.1 sev=blocking, ac=T2.AC2) and progress.md T2 'blocked' plus 'Ruling: accept T2 F1.1'."
+    },
+    {
+      "id": "GT2",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 7 defines the Codex completion time as the summary comment's updated_at alone, and Task 4 gives _thread_findings no completed_at keyword. The design amendment A1 makes the completion time the later of that updated_at and the submitted_at of the newest head-matching Codex formal review, passed in through an explicit completed_at keyword. An implementer who follows the plan builds the older rule, so a Codex root created after the marker edit but before the review submission is not selected.",
+      "plan_quote": "completion time = `updated_at`, no later than `observed_at`, strictly newer than the watermark when given",
+      "evidence": "M-002: .dev/reflect/pre-TASK-WF-implementTheDesi-20261031-182028-shadow11/adversarial/adversarial/merged-verdict.yaml:17-26 (plan:91 and plan:61 vs design lines 438-443); REPORT.md:51."
+    },
+    {
+      "id": "GT3",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 7's acceptance criteria require two Codex summary comments to classify as polling. The design amendment A3 says the marker with the latest updated_at is used, and only two distinct markers with the same latest time stay polling. An implementer who writes the test the plan asks for rejects the correct latest-marker behaviour; the correct outcome is to classify by the latest marker and poll only on a tie.",
+      "plan_quote": "Running status, wrong head, two summary comments, malformed or duplicate-key JSON, `updated_at` after `observed_at`",
+      "evidence": "M-003: .dev/reflect/pre-TASK-WF-implementTheDesi-20261031-182028-shadow11/adversarial/adversarial/merged-verdict.yaml:27-35 (plan:95 vs design lines 450-452); REPORT.md:52."
+    },
+    {
+      "id": "GT4",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "No task carries the design amendment A6, which sets root selection to the later of the completion time and the createdAt of the reviewer's own completing-review roots in the shared _thread_findings. Task 7 passes only the marker time to _thread_findings. An implementer who follows the plan reproduces the PR 337 failure, where a root stamped one second after the review makes the run poll until terminal_timeout; the plan needs a task and tests for the later-of rule.",
+      "plan_quote": "unresolved Codex-rooted threads through `_thread_findings` with the Codex identities and the marker time",
+      "evidence": "M-004: .dev/reflect/pre-TASK-WF-implementTheDesi-20261031-182028-shadow11/adversarial/adversarial/merged-verdict.yaml:36-45 (plan:91 vs design lines 469-479); REPORT.md:53."
+    },
+    {
+      "id": "GT5",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 8's wait-outcome signatures take no set of already-absent reviewers, and its acceptance criterion keeps an inactive Codex pending until Augment settles or the silence deadline passes. The design amendment A2 says a reviewer in the absent set, or with an empty identity set, is absent at once and never pending. An implementer who follows the plan builds the wrong state machine, so a run with no Codex activity waits for a deadline, and Augment's silence outcome does not continue into the merge with Codex.",
+      "plan_quote": "An inactive Codex is `absent` as soon as Augment is settled, and before that only at the silence deadline.",
+      "evidence": "M-005: .dev/reflect/pre-TASK-WF-implementTheDesi-20261031-182028-shadow11/adversarial/adversarial/merged-verdict.yaml:46-55 (plan:102-106 vs design lines 444-449); REPORT.md:54."
+    },
+    {
+      "id": "GT6",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 12 says only 'a per-reviewer watermark' for the Wave 6 re-trigger. It omits the design amendment A4 resume rules: the rereview_requested timestamp field, the resume watermark taken from it, reuse of the dangling push's cycle_id, and calling pending_retriggers first on every S5a or S5 resume. An implementer who follows the plan writes a skill text that can post a re-trigger twice, or start a new cycle, on resume.",
+      "plan_quote": "Wave 6 re-triggers each present reviewer via `pending_retriggers` and `retrigger_phrase` with a per-reviewer watermark",
+      "evidence": "M-006: .dev/reflect/pre-TASK-WF-implementTheDesi-20261031-182028-shadow11/adversarial/adversarial/merged-verdict.yaml:56-64 (plan:147 vs design lines 453-458); REPORT.md:55."
+    },
+    {
+      "id": "GT7",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 12's acceptance criteria check only an installed-safe grep, verify-sync and the skill-parse test. They set no check for the A5 dedup and re-review rules: routing a group at its highest member tier, one fix per group with fix_applied for each member, replies and resolution for every member, the flagged-by line, the S5 wait covering only re-triggered reviewers, and reviewer_incomplete with phase rereview. An implementer can finish the task with those rules missing or wrong and still pass every stated check.",
+      "plan_quote": "make verify-sync passes and tests/pr_submit/test_skill_parse.py passes.",
+      "evidence": "M-007: .dev/reflect/pre-TASK-WF-implementTheDesi-20261031-182028-shadow11/adversarial/adversarial/merged-verdict.yaml:65-73 (plan:147-151 vs design lines 459-466); REPORT.md:56."
+    },
+    {
+      "id": "GT8",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 12's check that SKILL.md has no src/superclaude path says only 'no new hit', with no recorded baseline, so it cannot show whether a hit is new. The Constraint that bans src/superclaude paths applies to every installed primitive that Tasks 13 and 14 edit, yet those tasks have no equivalent check. An implementer can ship such a path in a ref or in the command file without any criterion failing.",
+      "plan_quote": "`grep -n 'src/superclaude' src/superclaude/skills/sc-pr-submit-protocol/SKILL.md` finds no new hit",
+      "evidence": "M-010: .dev/reflect/pre-TASK-WF-implementTheDesi-20261031-182028-shadow11/adversarial/adversarial/merged-verdict.yaml:92-100 (plan:150 and plan:22 vs design lines 378-379); REPORT.md:59."
+    }
+  ]
+}

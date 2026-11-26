@@ -1,0 +1,34 @@
+runs: B 25, W 25; plans ['NP-1', 'NP-2', 'NP-3', 'NP-4', 'NP-5']; items {'NP-1': 8, 'NP-2': 9, 'NP-3': 5, 'NP-4': 6, 'NP-5': 5}
+
+## Decision rule (frozen)
+measure	B	W	diff	lower5	upper95	passes (diff>=+0.10 and lower5>0)
+M1 mean per-run fraction	0.183	0.282	+0.099	-0.004	+0.205	no
+M2 every defect equal	0.182	0.291	+0.109	-0.006	+0.218	no
+
+VERDICT: NOT CONFIRMED
+
+## Descriptive
+measure	B	W
+wrong blockers/run	0.52	0.20
+blocking found/run	0.44	0.72
+kills/run	0.00	0.00
+median panel s	85	132	ratio 1.56
+
+## Per plan (found fraction mean; B, W)
+NP-1 (items 8)	0.15	0.33
+NP-2 (items 9)	0.18	0.33
+NP-3 (items 5)	0.04	0.24
+NP-4 (items 6)	0.27	0.23
+NP-5 (items 5)	0.28	0.28
+
+## Leave one plan out (descriptive; diff M1, M2 with lower5)
+without NP-1	+0.081 (lb -0.014)	+0.088 (lb -0.009)
+without NP-2	+0.085 (lb -0.034)	+0.092 (lb -0.040)
+without NP-3	+0.074 (lb -0.037)	+0.093 (lb -0.037)
+without NP-4	+0.133 (lb +0.025)	+0.141 (lb +0.023)
+without NP-5	+0.124 (lb +0.008)	+0.129 (lb +0.007)
+
+B: distinct defects found at least once: 17 of 33
+W: distinct defects found at least once: 18 of 33
+
+second judge: 8 runs, identical found sets in 8

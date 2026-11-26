@@ -1,0 +1,24 @@
+{
+ "arm": "Z0",
+ "b": 100,
+ "check_s": 0,
+ "concurrent_panels_at_start": 2,
+ "doc": "HX-1",
+ "hang_s": 150.0,
+ "panel": "primary",
+ "panel_elapsed_s": 63.395,
+ "reask_s": 0,
+ "render_s": 0,
+ "rev_end": {
+  "t2b-1": 1794872451.863,
+  "t3-1": 1794872481.229,
+  "t4-1": 1794872454.455
+ },
+ "rev_start": {
+  "t2b-1": 1794872418.16,
+  "t3-1": 1794872418.16,
+  "t4-1": 1794872418.16
+ },
+ "slowest_reviewer_s": 63.069,
+ "t0": 1794872417.834
+}

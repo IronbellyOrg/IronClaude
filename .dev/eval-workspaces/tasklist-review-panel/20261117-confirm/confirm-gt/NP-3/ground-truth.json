@@ -1,0 +1,46 @@
+{
+  "doc_id": "NP-3",
+  "plan": "TASK-WF-authorizedNarrow-20261106-214325",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 3's steps name only install_hooks.py, the fake-source fixture, src hooks.json and `make sync-dev`, but `make sync-dev` writes only the gitignored .claude/hooks copies. The plugin mirrors (plugins/superclaude/hooks/scripts/launch-job-identity.sh and plugins/superclaude/hooks/hooks.json) are hand-maintained and must be byte-identical, and Task 3's own acceptance criterion requires them. An implementer who follows the steps produces a tree the acceptance criterion rejects; the steps must name both plugin files.",
+      "plan_quote": "Add the new shell script to src/superclaude/cli/install_hooks.py _FRESHNESS_SCRIPTS and the fake-source fixture in tests/cli/test_install_hooks.py.",
+      "evidence": ".dev/reflect/pre-TASK-WF-authorizedNarrow-20261106-214325-shadow06/REPORT.md:40 (M-001, MAJOR in findings vocabulary, blocking=false); .dev/reflect/pre-TASK-WF-authorizedNarrow-20261106-214325-shadow06/adversarial/merged-verdict.md M-001; Makefile sync-dev at base 7065667a; tests/cli/test_install_hooks.py:726-728"
+    },
+    {
+      "id": "GT2",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The constraint 'stdlib Python body, UV, no new dependency' has no acceptance criterion. Task 1 only says the entry point 'may execute' an embedded stdlib Python program, so an executor could import a third-party module and still pass every check. The plan should add a check that the shipped script imports only the standard library.",
+      "plan_quote": "The shell entry point may execute an embedded stdlib Python program through UV.",
+      "evidence": ".dev/reflect/pre-TASK-WF-authorizedNarrow-20261106-214325-shadow06/REPORT.md:41 (M-002); plan:21,31; source.md:5"
+    },
+    {
+      "id": "GT3",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 3 says 'do not stage mirrors', which is broader than the Constraint 'Never stage generated .claude mirrors'. The plugin mirror under plugins/superclaude/ is a tracked file that must be committed, yet nothing affirmatively tells the implementer to stage it. The instruction should say 'never stage generated .claude mirrors' and name the tracked plugin copy as stageable.",
+      "plan_quote": "Run make sync-dev and make verify-sync; do not stage mirrors.",
+      "evidence": ".dev/reflect/pre-TASK-WF-authorizedNarrow-20261106-214325-shadow06/REPORT.md:42 (M-003); plan:25,61,66"
+    },
+    {
+      "id": "GT4",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 2 AC5 requires recording 'the official updatedInput contract' but names no reference (document, URL or captured harness output). The implementer must decide which contract counts, and the check cannot tell a correct record from an arbitrary one. The criterion should name the contract source or the exact observation to record.",
+      "plan_quote": "Record the official updatedInput contract and actual tests in ./artifacts/tool-adapter-tests.log.",
+      "evidence": ".dev/reflect/pre-TASK-WF-authorizedNarrow-20261106-214325-shadow06/REPORT.md:44 (M-005); plan:53"
+    },
+    {
+      "id": "GT5",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 1's acceptance criteria use pass conditions that are never defined: 'defined tested outcomes' for stale PID, corrupt registry, root exit and release, and 'documented completion semantics'. An independent verifier cannot decide pass or fail on those clauses. Each case should list its expected outcome (for example exit status, diagnostic, record state).",
+      "plan_quote": "Reused PID/start/boot mismatch, corrupt registry, root exit and explicit release have defined tested outcomes, not silent false human claims.",
+      "evidence": ".dev/reflect/pre-TASK-WF-authorizedNarrow-20261106-214325-shadow06/REPORT.md:45 (M-006); plan:35,37"
+    }
+  ]
+}

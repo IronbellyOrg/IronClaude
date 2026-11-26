@@ -9,7 +9,7 @@ SRC_REPO=${SW_SRC_REPO:-$REPO}
 export PYTHONDONTWRITEBYTECODE=1
 export SUPERCLAUDE_CODEGRAPH_AUTOINIT=0
 # The four reviewer models (K2). The judge model is named only in bin/judge-one.sh.
-ALLOWED_MODELS="muse-ember-1.0 gpt-6-luna claude-haiku-5-5 claude-sonnet-5-5"
+ALLOWED_MODELS="muse-ember-1.0 gpt-6-luna claude-haiku-5-5 claude-sonnet-5-5 gpt-6.1-sol muse-wonder-1.0"
 
 sw_now() { date +%s.%3N; }
 

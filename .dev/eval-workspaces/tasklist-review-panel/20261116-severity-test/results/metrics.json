@@ -1,0 +1,149 @@
+{
+ "arms": {
+  "S": {
+   "runs": 20,
+   "found_fraction": 0.24916666666666668,
+   "blocking_fraction": 0.11666666666666665,
+   "wrong_per_run": 1.0,
+   "blocking_rows_per_run": 1.3,
+   "matched_total": 6,
+   "blocking_rows_total": 26,
+   "precision": 0.23076923076923078,
+   "rows_per_run": 4.95,
+   "median_elapsed": 81.4665
+  },
+  "Z0": {
+   "runs": 20,
+   "found_fraction": 0.325,
+   "blocking_fraction": 0.075,
+   "wrong_per_run": 1.5,
+   "blocking_rows_per_run": 1.7,
+   "matched_total": 4,
+   "blocking_rows_total": 34,
+   "precision": 0.11764705882352941,
+   "rows_per_run": 5.95,
+   "median_elapsed": 88.22749999999999
+  }
+ },
+ "per_doc": {
+  "S HO-2": {
+   "runs": 5,
+   "found_fraction": 0.18,
+   "blocking_fraction": 0.1,
+   "wrong_per_run": 1.2,
+   "blocking_rows_per_run": 1.6,
+   "matched_total": 2,
+   "blocking_rows_total": 8,
+   "precision": 0.25,
+   "rows_per_run": 4.8,
+   "median_elapsed": 104.701
+  },
+  "S HO-3": {
+   "runs": 5,
+   "found_fraction": 0.16666666666666666,
+   "blocking_fraction": 0.13333333333333333,
+   "wrong_per_run": 1.2,
+   "blocking_rows_per_run": 2.0,
+   "matched_total": 4,
+   "blocking_rows_total": 10,
+   "precision": 0.4,
+   "rows_per_run": 7.0,
+   "median_elapsed": 130.394
+  },
+  "S HX-1": {
+   "runs": 5,
+   "found_fraction": 0.6,
+   "blocking_fraction": null,
+   "wrong_per_run": 0.2,
+   "blocking_rows_per_run": 0.2,
+   "matched_total": 0,
+   "blocking_rows_total": 1,
+   "precision": 0.0,
+   "rows_per_run": 3.8,
+   "median_elapsed": 43.169
+  },
+  "S HX-3": {
+   "runs": 5,
+   "found_fraction": 0.05,
+   "blocking_fraction": null,
+   "wrong_per_run": 1.4,
+   "blocking_rows_per_run": 1.4,
+   "matched_total": 0,
+   "blocking_rows_total": 7,
+   "precision": 0.0,
+   "rows_per_run": 4.2,
+   "median_elapsed": 79.106
+  },
+  "Z0 HO-2": {
+   "runs": 5,
+   "found_fraction": 0.1,
+   "blocking_fraction": 0.15,
+   "wrong_per_run": 1.2,
+   "blocking_rows_per_run": 1.8,
+   "matched_total": 3,
+   "blocking_rows_total": 9,
+   "precision": 0.3333333333333333,
+   "rows_per_run": 4.4,
+   "median_elapsed": 98.955
+  },
+  "Z0 HO-3": {
+   "runs": 5,
+   "found_fraction": 0.13333333333333333,
+   "blocking_fraction": 0.0,
+   "wrong_per_run": 2.8,
+   "blocking_rows_per_run": 2.8,
+   "matched_total": 0,
+   "blocking_rows_total": 14,
+   "precision": 0.0,
+   "rows_per_run": 9.6,
+   "median_elapsed": 115.836
+  },
+  "Z0 HX-1": {
+   "runs": 5,
+   "found_fraction": 1.0,
+   "blocking_fraction": null,
+   "wrong_per_run": 0.6,
+   "blocking_rows_per_run": 0.6,
+   "matched_total": 0,
+   "blocking_rows_total": 3,
+   "precision": 0.0,
+   "rows_per_run": 5.0,
+   "median_elapsed": 63.395
+  },
+  "Z0 HX-3": {
+   "runs": 5,
+   "found_fraction": 0.06666666666666667,
+   "blocking_fraction": null,
+   "wrong_per_run": 1.4,
+   "blocking_rows_per_run": 1.6,
+   "matched_total": 1,
+   "blocking_rows_total": 8,
+   "precision": 0.125,
+   "rows_per_run": 4.8,
+   "median_elapsed": 84.006
+  }
+ },
+ "wrong_blockers_diff_S_minus_Z0_90pct_interval": [
+  -1.3000000000000003,
+  0.04999999999999993
+ ],
+ "gates": {
+  "G1 wrong blockers per run: S at most 0.70 x Z0": {
+   "pass": true,
+   "detail": "Z0 1.50, S 1.00, ratio 0.67"
+  },
+  "G2 real blocking matched (total over runs): S at least Z0": {
+   "pass": true,
+   "detail": "Z0 4, S 6"
+  },
+  "G3 found fraction: S at least Z0 - 0.02": {
+   "pass": false,
+   "detail": "Z0 0.325, S 0.249"
+  },
+  "G4 pooled median time: S at most 1.10 x Z0": {
+   "pass": true,
+   "detail": "ratio 0.92 (Z0 88.2 s, S 81.5 s)"
+  }
+ },
+ "decision": "DO NOT ADOPT: failed G3 found fraction"
+}

@@ -1,0 +1,34 @@
+{
+  "id": "C1",
+  "name": "Unbounded completeness criterion",
+  "version": 1,
+  "definition": "A criterion asks for a complete or exhaustive result over a set with no bounded method or stopping rule, or the criterion's scope differs from the scope of the instruction it checks.",
+  "question_template": "What finite check would let a reviewer say yes to this criterion, and when does it stop? Do the instruction line and the criterion cover the same set?",
+  "extractor": "E1",
+  "route": "read",
+  "replicas": 2,
+  "applies_to": [
+    "plan",
+    "spec",
+    "doc"
+  ],
+  "instances": [
+    {
+      "cite": "experiments/346-validation/phase1/REPORT.md:124-132",
+      "target": "plan",
+      "kind": "P"
+    },
+    {
+      "cite": "experiments/346-validation/phase1/REPORT.md:172-178",
+      "target": "plan",
+      "kind": "P"
+    }
+  ],
+  "severity_guidance": "Blocking when the criterion can never be shown true, so every review round can add one more item; minor when only the wording is loose.",
+  "known_weakness": "A set word with no bound that the model must judge as bounded elsewhere; contradicting tasks are not scripted; the evidence is symptom-level.",
+  "promote_category": "unpassable-check",
+  "swap_test": {
+    "reviewer": "second-author-session claude-sonnet-5-5",
+    "date": "2026-11-15"
+  }
+}

@@ -1,0 +1,6 @@
+2026-11-16T22:43:49Z 2.1.326 (Claude Code)
+2026-11-16T22:49:49Z /usr/local/bin/claude: 6: exec: /opt/nvm/versions/node/v24.22.2/bin/claude: not found
+2026-11-16T22:50:49Z 2.1.326 (Claude Code)
+2026-11-16T23:19:50Z /usr/local/bin/claude: 6: exec: /opt/nvm/versions/node/v24.22.2/bin/claude: not found
+2026-11-16T23:20:50Z 2.1.326 (Claude Code)
+2026-11-16T23:54:51Z logger ended

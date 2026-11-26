@@ -65,6 +65,46 @@
       "kind": "plan",
       "set": "holdout",
       "masked_paths": []
+    },
+    "NP-1": {
+      "base": "75d0d1e2c23d3abfa60a075ec0c85b4f9b1e047a",
+      "candidate": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md",
+      "source": ".dev/tasks/done/TASK-WF-implementTheDesi-20261031-182028/source.md",
+      "kind": "plan",
+      "set": "confirm",
+      "masked_paths": []
+    },
+    "NP-2": {
+      "base": "f90877be1db0fc68c40205a763bd6b7d874aa0db",
+      "candidate": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md",
+      "source": ".dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/source.md",
+      "kind": "plan",
+      "set": "confirm",
+      "masked_paths": []
+    },
+    "NP-3": {
+      "base": "7065667af204d4e58613e61e4f1e93616b757033",
+      "candidate": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/TASK-WF-authorizedNarrow-20261106-214325.md",
+      "source": ".dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325/source.md",
+      "kind": "plan",
+      "set": "confirm",
+      "masked_paths": []
+    },
+    "NP-4": {
+      "base": "ec259f1b718ccdb9f08bba0237bfa47b2b7601a2",
+      "candidate": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/TASK-WF-designOutput-20261111-193642.md",
+      "source": ".dev/tasks/done/TASK-WF-designOutput-20261111-193642/source.md",
+      "kind": "plan",
+      "set": "confirm",
+      "masked_paths": []
+    },
+    "NP-5": {
+      "base": "ec259f1b718ccdb9f08bba0237bfa47b2b7601a2",
+      "candidate": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/TASK-WF-analyzeCodegraph-20261111-193557.md",
+      "source": ".dev/tasks/done/TASK-WF-analyzeCodegraph-20261111-193557/source.md",
+      "kind": "plan",
+      "set": "confirm",
+      "masked_paths": []
     }
   },
   "order": [
