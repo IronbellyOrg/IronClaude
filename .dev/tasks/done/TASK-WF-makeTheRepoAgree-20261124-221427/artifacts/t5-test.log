@@ -1,0 +1,20 @@
+== clean tree
+============================== 1 passed in 1.29s ===============================
+== mutated CLAUDE.md (--base integration -> --base master)
+============================== 1 failed in 0.71s ===============================
+== mutated .github/PULL_REQUEST_TEMPLATE.md (origin/integration -> origin/master)
+============================== 1 passed in 1.26s ===============================
+== mutated src/superclaude/cli/reflect/config.py (_DEFAULT_BASE_BRANCH = "integration" -> _DEFAULT_BASE_BRANCH = "master")
+============================== 1 failed in 0.73s ===============================
+sed: -e expression #1, char 10: extra characters after command
+== mutated src/superclaude/hooks/scripts/launch-level-pre-push.sh (refs/heads/master refs/heads/integration -> refs/heads/master)
+============================== 1 passed in 0.73s ===============================
+== restored
+============================== 1 passed in 0.69s ===============================
+== redo (fixed sed) ==
+== mutated .github/PULL_REQUEST_TEMPLATE.md
+============================== 1 failed in 0.69s ===============================
+== mutated src/superclaude/hooks/scripts/launch-level-pre-push.sh
+============================== 1 failed in 0.68s ===============================
+== restored
+============================== 1 passed in 0.67s ===============================

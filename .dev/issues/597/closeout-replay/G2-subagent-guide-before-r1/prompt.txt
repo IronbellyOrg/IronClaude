@@ -1,0 +1,1 @@
+Use a subagent to do the research if you can. Question: how do I hide thinking and tool-call details in the Claude Code terminal output?

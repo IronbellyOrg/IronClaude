@@ -1097,8 +1097,8 @@ def test_launch_level_guard_script_is_packaged_listed_executable_and_mirrored():
 
 # T-23 / NFR-008: a byte change to the packaged L2 hook without a version bump
 # fails here. Bump L2_VERSION_LINE in the hook and here, then re-pin the sha256.
-L2_VERSION_LINE = "# launch-level-pre-push-version: 1"
-L2_HOOK_SHA256 = "d8a12f0302ceb78f2ced14e3c3dec72984e9fe1c7c911374ebff0de3ec88645b"
+L2_VERSION_LINE = "# launch-level-pre-push-version: 2"
+L2_HOOK_SHA256 = "c2b559e5c62720944a97190da724ee74caa7487234d9a401ce4a20f9586cc26c"
 
 
 def test_launch_level_pre_push_script_is_packaged_listed_executable_and_mirrored():

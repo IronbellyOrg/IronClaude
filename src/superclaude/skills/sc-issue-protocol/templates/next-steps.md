@@ -12,4 +12,4 @@ Run these in order, after the `/model` line. `/sc:issue` itself does not run the
 2. `<command with its flags, using the path printed by step 1>`
 
 - Effort estimate: <hours> hours
-- <Only when `/sc:recommend` chose a different route: "Default row not used: <type, complexity> (<reason>).">
+- <Only without --stage, and only when `/sc:recommend` chose a different route: "Default row not used: <type, complexity> (<reason>).">

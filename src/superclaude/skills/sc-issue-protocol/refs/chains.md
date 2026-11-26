@@ -26,7 +26,7 @@ No brainstorm step carries a handoff flag: the design handoff only prints a sugg
 
 ## Goal sent to `/sc:recommend` (claim Wave 5 step 1)
 
-Invoke `Skill sc-recommend` with this goal, filled from `issue-summary.md`:
+Without `--stage`, invoke `Skill sc-recommend` with this goal, filled from `issue-summary.md`. With `--stage` this section is not used: the claim does not invoke `Skill sc-recommend` and `recommend.md` holds only the skip line (`refs/claim.md` Wave 5).
 
 ```text
 Pick the next-step chain for GitHub issue <issue url>.

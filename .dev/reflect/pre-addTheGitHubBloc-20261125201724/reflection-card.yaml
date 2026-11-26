@@ -1,0 +1,71 @@
+card_id: t1-pre-addTheGitHubBloc
+mode: pre
+tier: 1
+hypothesis_source: inline-orchestrator (requirements-analyst not spawned: the coverage map is mechanical and was produced by a deterministic script)
+subject: >-
+  Pre-execution audit of a 6-task implementation plan against its one-paragraph source request.
+  Source request (spec): .dev/tasks/to-do/TASK-WF-addTheGitHubBloc-20261125-201412/source.md:1.
+  Plan (tasklist): .dev/tasks/to-do/TASK-WF-addTheGitHubBloc-20261125-201412/TASK-WF-addTheGitHubBloc-20261125-201412.md.
+structural_signals:
+  S_scope: 6          # tasklist items
+  S_domains: 2        # docs (skill, command and guide Markdown) and tests
+  S_dev_density: 0.0  # 0 unmapped of 5 union requirements
+  coverage_pct: null  # no labeled requirement IDs in the spec
+  coverage_pct_union: 1.0
+  coverage_degraded: parsed-sparse   # 0 parsed IDs, 5 inferred rows
+coverage_matrix:   # from artifacts/coverage-matrix.json (deterministic containment matcher, threshold 0.6)
+  - {id: INF-001, quote: "Add the GitHub blocked-by check to /sc:issue --claim", citation: "source.md:1", matched_task: 1, ratio: 1.0}
+  - {id: INF-002, quote: "read repos/<R>/issues/<N>/dependencies/blocked_by in Wave 2 before Wave 3", citation: "source.md:1", matched_task: 1, ratio: 1.0}
+  - {id: INF-003, quote: "stop with E-BLOCKED naming each open blocker", citation: "source.md:1", matched_task: 1, ratio: 1.0}
+  - {id: INF-004, quote: "continue as today when none or all closed", citation: "source.md:1", matched_task: 1, ratio: 1.0}
+  - {id: INF-005, quote: "continue and say so in the final output when the list cannot be read", citation: "source.md:1", matched_task: 2, ratio: 0.8571}
+findings:
+  - id: F1
+    class: gap
+    blocking: true
+    claim: >-
+      The plan never edits tests/skills/test_worker_contract.py, but Task 1 adds a new line to
+      src/superclaude/skills/sc-issue-protocol/refs/claim.md that contains `gh api`. That test file scans every
+      line under src/superclaude/skills, commands and agents for the pattern `gh pr` or `gh api` and fails
+      `test_every_write_verb_hit_is_classified` for any line that has no entry in its WRITE_VERB_CLASSIFICATION
+      table (keyed by path, verb and the exact stripped line). So after Task 1 that test fails, and Task 6's own
+      acceptance criterion (the other readers still pass, including tests/skills/test_worker_contract.py) cannot be
+      met without an edit that no task owns.
+    evidence:
+      - "tests/skills/test_worker_contract.py:1886-1890 (AUDIT_ROOTS = src/superclaude/skills, commands, agents)"
+      - "tests/skills/test_worker_contract.py:1894-1897 (WRITE_VERB_RE matches `gh pr` and `gh api`)"
+      - "tests/skills/test_worker_contract.py:1951-1958 (_check_all_classified fails on any unclassified hit)"
+      - "tests/skills/test_worker_contract.py:3167-3168 (test_every_write_verb_hit_is_classified)"
+      - "tests/skills/test_worker_contract.py:2953-2960 (an existing read-only entry for the claim.md line `runs gh issue view ... and gh api user`)"
+      - "plan line 30 (Task 1 introduces the `gh api --paginate repos/<R>/issues/<N>/dependencies/blocked_by` line)"
+      - "plan line 91 (Task 6 acceptance names tests/skills/test_worker_contract.py as a reader that must still pass)"
+    recommendation: >-
+      Add to Task 6 (or a new task after Task 1) the edit of tests/skills/test_worker_contract.py: one new
+      WRITE_VERB_CLASSIFICATION entry for the new claim.md line, category `read-only`, one-line reason that it is a
+      GET of the issue's blocked-by list. Keep `gh api` out of the SKILL.md, command and guide wording so no other
+      line needs an entry.
+  - id: F2
+    class: note
+    blocking: false
+    claim: >-
+      The sources of the five inferred requirements (INF-001 to INF-005) all sit on one line of source.md, and the
+      requirements about updating the protocol, command description, guide and tests come from the issue summary the
+      source names (.dev/issues/848/issue-summary.md), not from source.md itself. The plan covers them (Tasks 2 to 6),
+      so coverage is not a gap, but the coverage matrix proves only the five source.md rows.
+    evidence:
+      - "source.md:1"
+      - "plan lines 39, 52, 62, 70, 82 (Tasks 2 to 6 headings)"
+  - id: F3
+    class: note
+    blocking: false
+    claim: >-
+      Task 1 renumbers item 5 of Wave 2 to 6. A search of tests/ for the old item text ("Earlier claim or accuracy",
+      "Already assigned to the current login") found no test that pins it, so the renumbering is low risk.
+    evidence:
+      - "src/superclaude/skills/sc-issue-protocol/refs/claim.md:36-44 (Wave 2 items 1 to 5)"
+risk_register:
+  - "A new `gh api` line without a classification entry fails test_worker_contract.py (F1)."
+  - "Wave 2 now carries a network read before the first write; a blocker read failure is a continue, not a stop, per the source."
+recommendations:
+  - {id: R1, file: tests/skills/test_worker_contract.py, change: "add one read-only WRITE_VERB_CLASSIFICATION entry for the new claim.md Wave 2 line", verifier: "uv run pytest tests/skills/test_worker_contract.py -q passes after Task 1"}
+self_reported_confidence: 0.90

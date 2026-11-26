@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-addTheGitHubBloc-20261125201724/adversarial/merged-reviewer-card.md"
+  convergence_score: 0.91
+  artifacts_dir: ".dev/reflect/pre-addTheGitHubBloc-20261125201724/adversarial/adversarial"
+  status: "success"
+  base_variant: "opus:analyzer"
+  unresolved_conflicts: 0          # one grade disagreement (A8) settled by orchestrator ruling, recorded in debate-transcript.md
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []       # invariant probe found 0 HIGH-severity UNADDRESSED items (3 MEDIUM warnings logged and folded in)

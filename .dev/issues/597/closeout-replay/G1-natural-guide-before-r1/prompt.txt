@@ -1,0 +1,1 @@
+How do I configure a PreToolUse hook in Claude Code's settings.json so it blocks a specific Bash command?

@@ -1,5 +1,8 @@
 {
   "ironbelly/fix-flaky-parallel-thread-test": {
     "orca-orchestrator-spawn-session-surface": 1
+  },
+  "ironbelly/issue-597": {
+    "conversational-research-routing": 1
   }
 }

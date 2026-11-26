@@ -2969,6 +2969,14 @@ WRITE_VERB_CLASSIFICATION = {
     (
         "src/superclaude/skills/sc-issue-protocol/refs/claim.md",
         "gh api",
+        '5. Blocker check (read only; it runs before the first write of Wave 3): run `gh api --paginate repos/<R>/issues/<N>/dependencies/blocked_by --jq \'.[] | select(.state == "open") | "#\\(.number) \\(.html_url)"\'`. Apply the outcomes in this order. First, any output line that matches `^#[0-9]+ https://` is an open blocker, whatever the exit status: STOP `E-BLOCKED`: "Issue #N is blocked by open issue(s): <each #number and link>; not claimed." Second, otherwise a non-zero exit (for example no access or an endpoint that is not served) or any output that does not match means the check could not run: continue, and hold the line `Blocker check: could not run (<reason>); the claim went ahead without it.` for the final output; when a later step STOPs the claim, print that line before the STOP message, so the skipped check is never hidden. Third, otherwise there are no open blockers (no output, or only closed ones): continue as today. The check applies to a re-claim and to every `--pipeline` value.',
+    ): (
+        "read-only",
+        "a read: the Wave 2 blocker check is a GET of the issue's blocked-by list, run by the orchestrator before the first write",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/refs/claim.md",
+        "gh api",
         "Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or starts with `repos/<R>/`, never a brace placeholder. Only the orchestrator writes to GitHub or ClickUp.",
     ): (
         "read-only",

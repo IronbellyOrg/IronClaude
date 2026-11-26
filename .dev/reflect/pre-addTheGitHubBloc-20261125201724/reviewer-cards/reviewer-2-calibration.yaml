@@ -1,0 +1,16 @@
+# confidence-calibrator (sonnet class) output for reviewer-2-card.md, persisted verbatim by the orchestrator.
+calibrated_confidence: 0.79
+dimensions:
+  citation_grounding: 0.95
+  coverage_completeness: 0.70
+  deviation_classification_clarity: 0.65
+  risk_surface_coverage: 0.72
+  recommendation_actionability: 0.92
+per_finding:
+  Q1: 0.88
+  Q2: 0.92
+  Q3: 0.75
+citations_checked: 9
+citations_failed: []
+calibrator_model_class: sonnet
+reviewer_model_class: haiku
