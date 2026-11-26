@@ -4138,7 +4138,7 @@ CORPUS16 = [
     # B1 of the PR 851 review: the fork's integration branch is protected too.
     ("REG-prot-integration", "git push origin integration", PROTECTED),
     ("REG-prot-integration-ref", "git push origin x:refs/heads/integration", PROTECTED),
-    ("REG-prot-twice","git push origin x:refs/heads/refs/heads/main", PUSH_OK),
+    ("REG-prot-twice", "git push origin x:refs/heads/refs/heads/main", PUSH_OK),
     ("REG-prot-head", "git push origin x:HEAD", PUSHFORM),
 ]
 assert len({row[0] for row in CORPUS16}) == len(CORPUS16), "duplicate corpus id"
