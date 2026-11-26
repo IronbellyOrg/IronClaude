@@ -497,8 +497,16 @@ def blocks(rec: dict) -> list[dict]:
 
 
 def count_plain_questions(texts: list[str]) -> int:
-    """Plain-text questions that offer the answer choices: every sentence ending in a question mark that names one of them."""
-    return sum(1 for t in texts for part in t.split("?")[:-1] if re.search(r"keep my wording|keep the draft", part, re.I))
+    """Plain-text questions that offer the answer choices: every question (the sentence ending in a question mark) that names one of them.
+
+    Only the question's own sentence counts: the text before the last sentence end (a full stop, an exclamation mark or a blank line) is not part of it.
+    """
+    return sum(
+        1
+        for t in texts
+        for part in t.split("?")[:-1]
+        if re.search(r"keep my wording|keep the draft", re.split(r"[.!]|\n\s*\n", part)[-1], re.I)
+    )
 
 
 def analyse_transcripts(records: list[dict]) -> dict:
@@ -1001,6 +1009,37 @@ def _self_test_checks() -> int:
     check("question counting: one call with two entries counts as two entries and one call", counted["questions"] == 1 and counted["question_entries"] == 2, f"calls {counted['questions']}, entries {counted['question_entries']}")
     check("question counting: a plain-text question next to a tool call is counted", plain_seen == 1)
     check("question counting: two plain-text questions in one message are two questions", plain_two == 2, f"counted {plain_two}")
+    other_question = "I can keep the draft in this state. Is the issue ready to post?"
+    list_question = "Options:\n- Keep my wording\n- Keep the draft\nWhich do you want?"
+    check(
+        "question counting: an unrelated question in a text block that mentions an answer choice earlier is not a choice question",
+        count_plain_questions([other_question]) == 0 and count_plain_questions([list_question]) == 1,
+        f"unrelated {count_plain_questions([other_question])}, list {count_plain_questions([list_question])}",
+    )
+
+    # redaction keeps a transcript record valid JSON: a key-anchored match replaces the value, never the key or the separators
+    scan_json = root / "scan-json"
+    scan_json.mkdir()
+    long_value = "A1b2C3d4" * 5
+    records = [
+        {"type": "user", "token": long_value, "keep": "plain"},
+        {"type": "assistant", "nested": {"api_key": long_value, "list": ["x", "ghp_" + "a1B2c3D4e5F6g7H8i9J0k1L2m3N4o5P6q7R8"]}},
+        {"type": "assistant", "thinking": "token " + long_value},
+    ]
+    (scan_json / "t.jsonl").write_text("".join(json.dumps(r) + "\n" for r in records), encoding="utf-8")
+    redacted = run([sys.executable, str(scan), str(scan_json), "--redact"])
+    lines = (scan_json / "t.jsonl").read_text(encoding="utf-8").splitlines()
+    try:
+        parsed = [json.loads(line) for line in lines]
+    except ValueError:
+        parsed = []
+    check(
+        "redaction keeps every transcript record valid JSON and replaces the value, not the key",
+        redacted.returncode == 0 and len(parsed) == 3 and parsed[0]["token"] == "[REDACTED:long-key-string]" and parsed[0]["keep"] == "plain"
+        and parsed[1]["nested"]["api_key"] == "[REDACTED:long-key-string]" and "[REDACTED:github-token]" in parsed[1]["nested"]["list"][1]
+        and parsed[2]["thinking"] == "token " + long_value and long_value not in "".join(lines[:2]),
+        f"exit {redacted.returncode}, {len(parsed)} of {len(lines)} lines parse",
+    )
 
     # the stop file
     write_stop("self-test stop", "self-test")

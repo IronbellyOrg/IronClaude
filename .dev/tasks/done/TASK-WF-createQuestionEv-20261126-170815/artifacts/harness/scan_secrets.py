@@ -6,7 +6,10 @@ Reads every file under the folder and reports token-like material as
 1 when anything was found. For .jsonl files the values of the keys "signature"
 and "thinking" are skipped (opaque model blobs, not credentials). With
 --redact each finding is replaced in place by `[REDACTED:<pattern name>]` and
-the scan runs again; the exit status is that of the second scan.
+the scan runs again; the exit status is that of the second scan. A line of a
+.jsonl file that parses as JSON is redacted value by value and written back as
+JSON, so the record stays valid (a key-anchored match replaces the whole value,
+never the key or the separators).
 """
 
 from __future__ import annotations
@@ -72,6 +75,35 @@ def scan(folder: Path) -> list[tuple[Path, int, str]]:
     return found
 
 
+def _redact_json(value, key=None):
+    """Redact the string values of a parsed JSON record, so that the record stays valid JSON.
+
+    A key-anchored match (`"token": "<40 characters>"`) replaces the whole value, never the key or the separators.
+    """
+    if isinstance(value, dict):
+        return {k: (v if k in SKIP_KEYS else _redact_json(v, k)) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_redact_json(v, key) for v in value]
+    if isinstance(value, str):
+        if key is not None and PATTERNS["long-key-string"].search(f'{key}": "{value}'):
+            return "[REDACTED:long-key-string]"
+        for name, pattern in PATTERNS.items():
+            value = pattern.sub(f"[REDACTED:{name}]", value)
+    return value
+
+
+def _redact_line(path: Path, line: str) -> str:
+    ending = "\n" if line.endswith("\n") else ""
+    if path.suffix == ".jsonl":
+        try:
+            return json.dumps(_redact_json(json.loads(line)), ensure_ascii=False) + ending
+        except ValueError:
+            pass  # not a JSON record: fall back to the plain text substitution below
+    for name, pattern in PATTERNS.items():
+        line = pattern.sub(f"[REDACTED:{name}]", line)
+    return line
+
+
 def redact(findings: list[tuple[Path, int, str]]) -> None:
     by_file: dict[Path, set[int]] = {}
     for path, number, _name in findings:
@@ -79,8 +111,7 @@ def redact(findings: list[tuple[Path, int, str]]) -> None:
     for path, numbers in by_file.items():
         lines = (_text_of(path) or "").splitlines(keepends=True)
         for number in numbers:
-            for name, pattern in PATTERNS.items():
-                lines[number - 1] = pattern.sub(f"[REDACTED:{name}]", lines[number - 1])
+            lines[number - 1] = _redact_line(path, lines[number - 1])
         path.write_text("".join(lines), encoding="utf-8")
 
 
