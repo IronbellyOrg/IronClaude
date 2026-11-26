@@ -1,0 +1,38 @@
+# L2 pre-push refusal observation, run 2026-11-26 (scratch /tmp/l2-refusal-test, HOME=/tmp/l2-refusal-test/home)
+=== T1-governed-push-master
+2026-11-26T14:06:10Z
+launch record: sessions/l2test-governed-1 = worktree
+command: cd /tmp/l2-refusal-test/work && git push origin master
+wrapped command (from identity hook): /bin/bash /tmp/l2-refusal-test/home/.claude/hooks/launch-job-identity.sh execute l2test-governed-1 toolu_l2test 'cd /tmp/l2-refusal-test/work && git push origin master'
+exit code: 1
+--- stdout
+--- stderr (git push output, after the hook's own text)
+launch-level pre-push: L2-PROTECTED: a governed launch session may not push to refs/heads/master; the whole push was refused. A person releases the session as the claim's launch result describes.
+error: failed to push some refs to '/tmp/l2-refusal-test/remote.git'
+--- remote refs now:
+  (end)
+=== T2-governed-push-integration
+2026-11-26T14:06:10Z
+launch record: sessions/l2test-governed-1 = worktree
+command: cd /tmp/l2-refusal-test/work && git push origin integration
+wrapped command (from identity hook): /bin/bash /tmp/l2-refusal-test/home/.claude/hooks/launch-job-identity.sh execute l2test-governed-1 toolu_l2test 'cd /tmp/l2-refusal-test/work && git push origin integration'
+exit code: 1
+--- stdout
+--- stderr (git push output, after the hook's own text)
+launch-level pre-push: L2-PROTECTED: a governed launch session may not push to refs/heads/integration; the whole push was refused. A person releases the session as the claim's launch result describes.
+error: failed to push some refs to '/tmp/l2-refusal-test/remote.git'
+--- remote refs now:
+  (end)
+=== T3-governed-push-feature-branch
+2026-11-26T14:06:10Z
+launch record: sessions/l2test-governed-1 = worktree
+command: cd /tmp/l2-refusal-test/work && git push origin feat-l2
+wrapped command (from identity hook): /bin/bash /tmp/l2-refusal-test/home/.claude/hooks/launch-job-identity.sh execute l2test-governed-1 toolu_l2test 'cd /tmp/l2-refusal-test/work && git push origin feat-l2'
+exit code: 0
+--- stdout
+--- stderr (git push output, after the hook's own text)
+To /tmp/l2-refusal-test/remote.git
+ * [new branch]      feat-l2 -> feat-l2
+--- remote refs now:
+  refs/heads/feat-l2
+  (end)

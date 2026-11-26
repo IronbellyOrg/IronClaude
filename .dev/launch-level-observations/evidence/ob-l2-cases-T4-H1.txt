@@ -1,0 +1,43 @@
+# T4 and healthy case, run 2026-11-26 (scratch /tmp/l2-refusal-test, HOME=/tmp/l2-refusal-test/home)
+=== T4 setup: tamper with the hook's data file (chmod 666, group/other writable)
+-rw-rw-rw- 1 coder coder 41 Nov 26 14:05 /tmp/l2-refusal-test/work/.git/hooks/pre-push.launch-level
+--- real l2_status after tamper:
+IR7_REFUSE = False
+l2_status: ('conflict', 'data-file-differs: remove both files with `rm /tmp/l2-refusal-test/work/.git/hooks/pre-push /tmp/l2-refusal-test/work/.git/hooks/pre-push.launch-level` and claim again; the claim never deletes them')
+=== T4-tampered-data-file-governed-push-master
+2026-11-26T14:06:20Z
+launch record: sessions/l2test-governed-1 = worktree
+command: cd /tmp/l2-refusal-test/work && git push origin master
+wrapped command (from identity hook): /bin/bash /tmp/l2-refusal-test/home/.claude/hooks/launch-job-identity.sh execute l2test-governed-1 toolu_l2test 'cd /tmp/l2-refusal-test/work && git push origin master'
+exit code: 1
+--- stdout
+--- stderr (git push output, after the hook's own text)
+launch-level pre-push: L2-UNKNOWN: could not classify this push (no valid data file) and it targets refs/heads/master; the whole push was refused, and pushes to other refs are allowed.
+launch-level pre-push: to push there, a person fixes the cause (check .git/hooks/pre-push.launch-level and ~/.claude/hooks/launch-job-identity.sh) or releases the session by deleting its level record.
+error: failed to push some refs to '/tmp/l2-refusal-test/remote.git'
+--- remote refs now:
+  refs/heads/feat-l2
+  (end)
+=== T4 restore: chmod 644
+-rw-r--r-- 1 coder coder 41 Nov 26 14:05 /tmp/l2-refusal-test/work/.git/hooks/pre-push.launch-level
+=== H1 healthy claim case: L2 in effect
+IR7_REFUSE = False
+l2_status before: ('owned', '')
+install_l2: ('owned', '')
+l2_status: ('owned', '')
+l2_status: ('owned', '')
+l2_notes: []
+IR7_REFUSE: False
+launch refused at the L2 gate: False -> proceeds to publish_pending and the agent launch
+--- after the healthy check, a governed push to master is still refused:
+=== H1b-governed-push-master-after-restore
+2026-11-26T14:06:20Z
+wrapped command (from identity hook): /bin/bash /tmp/l2-refusal-test/home/.claude/hooks/launch-job-identity.sh execute l2test-governed-1 toolu_l2test 'cd /tmp/l2-refusal-test/work && git push origin master'
+exit code: 1
+--- stdout
+--- stderr (git push output, after the hook's own text)
+launch-level pre-push: L2-PROTECTED: a governed launch session may not push to refs/heads/master; the whole push was refused. A person releases the session as the claim's launch result describes.
+error: failed to push some refs to '/tmp/l2-refusal-test/remote.git'
+--- remote refs now:
+  refs/heads/feat-l2
+  (end)
