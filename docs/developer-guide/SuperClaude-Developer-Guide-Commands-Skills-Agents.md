@@ -382,7 +382,7 @@ Some commands declare `wave-enabled: true` in their frontmatter, and many protoc
 
 After creating a command file, register it in `src/superclaude/core/HOW-WE-WORK.md`. Routing-table rows are per job, not per command: if a workflow should use the new command, add it to that job's row in the routing table (its steps and mandatory flags), or add a new job row; if no workflow uses it, add one row to the "Other commands" table instead. Then copy the guide byte-for-byte to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (and, if you edited the level table, re-copy it into `src/superclaude/core/CLAUDE.md`), run `make sync-dev` and `make verify-sync`, and run `uv run pytest tests/core tests/commands` (these tests check the routing table and the plugin copy). No other framework file needs registering: `/sc:help` lists installed commands live.
 
-A command that accepts `--unattended` needs no entry in any worker list, because the coordinator decides from whether the command file has an `## Unattended mode` section (the "Orca coordination" section of `~/.claude/HOW-WE-WORK.md`). The one registration step it does need is in a test file: the maintainer adds its name to `UNATTENDED_COMMANDS` in `tests/skills/test_worker_contract.py`, as section 8.4 describes. The never-as-worker list changes only through the maintainer edit that [section 7.7](#77-orca-orchestration-commands-as-workers) describes.
+A command that accepts `--unattended` needs no entry in any worker list, because the coordinator decides from whether the command file has an `## Unattended mode` section (the "Orca coordination" section of `~/.claude/HOW-WE-WORK.md`). The one registration step it does need is in a test file: the maintainer adds an entry for it to the `UNATTENDED_EXPECT` dict in `tests/skills/test_worker_contract.py` (`UNATTENDED_COMMANDS` is derived from that dict's keys), as section 8.4 describes. The never-as-worker list changes only through the maintainer edit that [section 7.7](#77-orca-orchestration-commands-as-workers) describes.
 
 ---
 
@@ -973,8 +973,8 @@ Orca can run IronClaude commands as workers under an Orca coordinator (the `/orc
 
 #### Rollout state
 
-- All 28 converted commands have an `## Unattended mode` section (15 from phase 1, 13 from phase 2), and `UNATTENDED_EXPECT` in `tests/skills/test_worker_contract.py` holds exactly those 28 entries.
-- A coordinator puts `--unattended` and one report directory on the 15 phase 1 commands by default; the phase 2 commands join that default after a phase 2 live check passes. It decides by the two-copy test in `~/.claude/WORKER-CONTRACT.md` ("Before the first task-create for a command"), not by a list in this guide. A command gains `--unattended` and its section in the phase that converts its gates, so no command accepts the flag while it can still stop for a human.
+- All 23 converted commands have an `## Unattended mode` section (13 in `P1_COMMANDS`, 10 in `P2_COMMANDS`), and `UNATTENDED_EXPECT` in `tests/skills/test_worker_contract.py` holds exactly those 23 entries.
+- A coordinator puts `--unattended` and one report directory on the 13 phase 1 commands by default; the phase 2 commands join that default after a phase 2 live check passes. It decides by the two-copy test in `~/.claude/WORKER-CONTRACT.md` ("Before the first task-create for a command"), not by a list in this guide. A command gains `--unattended` and its section in the phase that converts its gates, so no command accepts the flag while it can still stop for a human.
 - Per the rollout plan (SA-1), without `--unattended` every command behaves exactly as it does today: the same prompts, approval gates, default values, output paths and outward defaults.
 
 #### Deciding whether a new command can be a worker
@@ -1088,7 +1088,8 @@ touch src/superclaude/skills/sc-my-skill/refs/scoring.md
 
 # 2a. Decide worker eligibility (WC-2, section 7.7)
 #    If the command will accept --unattended, write its ## Unattended mode section
-#    and add its name to UNATTENDED_COMMANDS in tests/skills/test_worker_contract.py
+#    and add an entry for it to the UNATTENDED_EXPECT dict in tests/skills/test_worker_contract.py
+#    (UNATTENDED_COMMANDS is derived from that dict's keys)
 
 # 3. Sync to .claude/ for testing
 make sync-dev
@@ -1135,7 +1136,7 @@ git commit -m "feat: add /sc:my-command with agent and skill"
 - Run `uv run pytest tests/skills/test_worker_contract.py`.
 - Its write-verb audit scans the skills, commands and agents under `src/superclaude/` (`AUDIT_ROOTS`) for `git add`, `git commit`, `git push`, `git merge`, `git stash`, `git update-ref`, `git worktree add` and `git worktree remove` (also written as `git -C <path> <verb>`), and for every `gh pr` and `gh api` line, reads included.
 - Each matching line needs an entry in `WRITE_VERB_CLASSIFICATION` with a category and a reason. An entry whose line was edited or removed fails `test_classification_table_has_no_stale_entries`.
-- A command given an `## Unattended mode` section must be added to `UNATTENDED_COMMANDS`, or `test_no_command_has_unattended_mode_section_after_p0` fails.
+- A command given an `## Unattended mode` section must get an entry in the `UNATTENDED_EXPECT` dict (`UNATTENDED_COMMANDS` is derived from its keys), or `test_unattended_sections_match_the_listed_commands` fails.
 - Someone runs the command once without `--unattended` to confirm that its prompts, outputs and outward defaults are unchanged.
 
 ### 8.5 Plugin Build Workflow (Future)
