@@ -1,0 +1,9 @@
+256f8cf05c9304e648363a0a43b19b5cca8fda4d
+A1 r1-1 F1.3 minor .dev/issues/837/apply-runbook.md:114 ac=scope amiss:n,false:n,harm:n,constraint:n R0 re-runs identity, compare, tip and activity only; the counts, the existing-rulesets list and the tag-ref check of the audit are not repeated, so G3, G6 and G7 are not fully re-evaluated from R0.
+A1 r1-1 F1.4 minor .dev/issues/837/apply-runbook.md:235 ac=scope amiss:n,false:n,harm:n,constraint:n R3 for IronOrca names aidev02 in prose but the command block has no POST or read-back for it.
+A1 r1-1 F1.5 minor .dev/issues/837/apply-runbook.md:171 ac=scope amiss:n,false:n,harm:n,constraint:n R5 posts a comment and edits the pull request body without the guard grep that step 6 of part one runs.
+A1 r1-1 F1.6 minor .dev/issues/837/apply-runbook.md:26 ac=scope amiss:n,false:n,harm:n,constraint:n Part one has no explicit git add command between the staging list and the post-stage guard, and staging .dev/tasks as a whole would stage the archived first plan folder.
+A1 r1-1 F1.7 note .dev/issues/837/apply-runbook.md:50 ac=scope amiss:n,false:n,harm:n,constraint:n Form points: git commit has no -m, one ID serves R4 and R6, the R6 PUT path assumes other-repos/FILE which is wrong for the tag file, the force push in R1 is a no-op for the full role.
+A2 r1-2 F2.1 note .dev/issues/837/apply-runbook.md:11 ac=T13.AC1 amiss:n,false:n,harm:n,constraint:n Step 1 does not state beside the commands that git diff --stat must list only the staging-list paths.
+A2 r1-2 F2.2 note .dev/issues/837/apply-runbook.md:320 ac=T13.AC1 amiss:n,false:n,harm:n,constraint:n coder_orca R3 mentions an optional tag ruleset although it is skipped by G6; the command block is correct.
+A2 r1-2 F2.3 note .dev/issues/837/apply-runbook.md:124 ac=T13.AC1 amiss:n,false:n,harm:n,constraint:n The CPA R1 sentence leaves out release.yml, whose push trigger is tag-filtered; no step changes.

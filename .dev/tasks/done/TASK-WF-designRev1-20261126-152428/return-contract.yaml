@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-designRev1-20261126-152428
+plan_path: ./TASK-WF-designRev1-20261126-152428.md
+source_path: ./source.md
+source_origin: .dev/brainstorms/20261126-115959-apply-branch-protection-rulesets-other-repos/design-rev1.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-837/.dev/reflect/pre-TASK-WF-designRev1-20261126-141220-20261126141617/re-review-2.md
+unresolved: ["reflect_status records the third review (changed lines plus prior blockers): PASS with notes after 2 fix cycles; the full first review of the regenerated plan is .dev/reflect/pre-TASK-WF-designRev1-20261126-141220-20261126141617/REPORT.md", "Follow-up candidates, never repaired by workflow: Medium findings G-05 to G-16 of that REPORT.md (not G-01 to G-04, fixed) and N1, N2 of re-review-2.md; Notes G-17 to G-19 and N3", "Open items for the lead: the archived first plan names a private repository tooling path (the runbook STOPs before staging until the lead decides); the brainstorm folder describes the same tooling and is not staged"]
+supersedes: TASK-WF-designRev1-20261126-151358
+remediation_route: surgical
+finding_counts: {"blocking": 2, "label_high": 0, "medium": 2, "note": 2}
+fix_cycles: 2

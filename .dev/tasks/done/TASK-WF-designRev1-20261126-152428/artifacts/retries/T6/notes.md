@@ -1,0 +1,3 @@
+c0c4c531706e593c1bf70f6fd5e66a05631eb518
+A1 r1-1 F1.1 minor .dev/issues/837/audit/CPA-Manager-Plus.md:95 ac=T6.AC2 amiss:n,false:n,harm:n,constraint:n The code-search row says 4 hits in private IronbellyOrg repositories and none holds a release token, but identifies no hit and no evidence file backs it; the CLEAR verdict for the tag producer search rests partly on it (the tag ruleset stays blocked by the installations read).
+A1 r1-1 F1.2 note .dev/issues/837/audit/CPA-Manager-Plus.md:93 ac=T6.AC2 amiss:n,false:n,harm:n,constraint:n Two workflow files share one row and 11 scripts share one row; each resolution is still stated.
