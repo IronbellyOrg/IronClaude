@@ -1,0 +1,18 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/611/analyze'
+report_path: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g4/611/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g4/611/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g4/611/report-templates.md
+  - .dev/issuecleanup/g4/611/findings.md
+  - .dev/issuecleanup/g4/611/qa.md
+issue_verdict: still-relevant
+complexity: medium
+size: M
+priority: P2
+qa_verdict: PASS
+index_state: stale
+checked_at: '2026-11-24T13:32:33Z'
+degraded:
+  - graph:stale

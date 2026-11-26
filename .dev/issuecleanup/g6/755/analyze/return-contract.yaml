@@ -1,0 +1,10 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze src/superclaude/core/WORKER-CONTRACT.md --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g6/755/analyze"
+report_path: .dev/issuecleanup/g6/755/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g6/755/findings.md
+  - .dev/issuecleanup/g6/755/qa.md
+  - .dev/issuecleanup/g6/755/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g6/755/orca-orchestration-guide.md
+  - .dev/issuecleanup/g6/755/issue-755.json

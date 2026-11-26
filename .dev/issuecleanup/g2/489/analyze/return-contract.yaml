@@ -1,0 +1,13 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze .dev/research/346-review-loop-experiments/p18/ab5 --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g2/489/analyze"
+report_path: .dev/issuecleanup/g2/489/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g2/489/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g2/489/findings.md
+  - .dev/issuecleanup/g2/489/issue-489.json
+  - .dev/issuecleanup/g2/489/pr-493.json
+  - .dev/issuecleanup/g2/489/pr-518.json
+  - .dev/issuecleanup/g2/489/pr-500.json
+  - .dev/issuecleanup/g2/489/review.md
+  - .dev/issuecleanup/g2/489/issue-links.json

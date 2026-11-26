@@ -1,0 +1,17 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/skills/sc-troubleshoot-protocol --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/601/analyze'
+report_path: .dev/issuecleanup/g3/601/findings.md
+artifacts:
+  - .dev/issuecleanup/g3/601/analyze/analyze-report.md
+  - .dev/issuecleanup/g3/601/analyze/return-contract.yaml
+  - .dev/issuecleanup/g3/601/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g3/601/qa.md
+issue: 601
+issue_verdict: in-progress
+complexity: simple
+size: S
+priority: P3
+qa_verdict: PASS
+validation_limit: 'Static and live read-only review only; targeted tests, full sync and installed runtime were not run.'
+review_recovery: 'First named helper stayed idle without an artifact and was stopped; a fresh unnamed general-purpose reviewer completed independent QA.'

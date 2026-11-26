@@ -1,0 +1,8 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: /sc:analyze src/superclaude/output-styles/pragmatic.md --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g2/552/analyze
+report_path: .dev/issuecleanup/g2/552/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g2/552/analyze/handoff/1-analyze.md
+reason: null
+blocked_question: null

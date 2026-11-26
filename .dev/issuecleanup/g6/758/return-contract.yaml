@@ -1,0 +1,15 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/output-styles/pragmatic.md --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g6/758/analyze'
+report_path: .dev/issuecleanup/g6/758/findings.md
+artifacts:
+  - .dev/issuecleanup/g6/758/analyze/analyze-report.md
+  - .dev/issuecleanup/g6/758/analyze/return-contract.yaml
+  - .dev/issuecleanup/g6/758/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g6/758/qa.md
+review_status: PASS
+issue_verdict: still-relevant
+complexity: simple
+size: S
+priority: P2
+limits: Static review only; no tests, installs, sync, staging, commits or GitHub mutations.

@@ -1,0 +1,17 @@
+# Independent evidence review
+## Verdict
+PASS — no blocking defects found within the local evidence-review scope.
+## Scope checked
+- Read both requested reports in full, in chunks of no more than 80 lines, and compared their sections with the findings and analyze skeletons in /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g2/468/report-template.md. Both cover all listed fields.
+- Checked the decisive on-disk lens definition, registry import, foreground substitutions, recommendation renderer, validator and rendering test. Repeated the packaged/installed command-file availability searches and the swarm-test search for `code-review`.
+- Checked the proposed comparison-command candidate against its packaged definition and the neighboring edge-case lens, plus all three cited current user guides. Checked the installed analyze command's documented focus/depth/output options.
+- Local static review only. No source changes, GitHub/network requests, Orca calls, lifecycle messages, tests or live command executions.
+## Blocking findings
+None. No verified factual defect changes the reports' still-relevant verdict, simple/S estimate, impact-based P2 rationale, or proposed next-step correctness. No required report section is missing.
+## Follow-up candidates and notes
+- The central defect is independently confirmed at /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/lenses/refactor_find.py:53. The configured namespaced follow-up is still present; packaged and installed command-file searches returned no matching definition. This supports keeping the issue open without relying on assignment history or an issue's open state.
+- The caution about a rename-only fix is sound: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/commands.py:2134-2163 preserves caller overrides and otherwise prepends `<existing-review>` to comparison inputs, while /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/reduce.py:448-467 only formats the string. The reports correctly distinguish a manual recommendation from automatic execution.
+- The suggested comparison command is a conditional candidate, not a falsely certified fix. Its contract requires 2-10 existing files at /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/commands/adversarial.md:13-39. The reports explicitly require validating the workflow and real inputs and dropping the stale option; no unsupported replacement command is prescribed as ready to run.
+- Regression and documentation work is proportionate to simple/S. The validator does not resolve recommendation commands, the cited renderer test checks substitution only, and the three current user guides repeat the stale handoff. P2 is explicitly an impact assessment, not a claim that the recorded High scheduling direction never existed.
+- Historical GitHub states, comments, PR searches, merge dates and remote-master freshness were not independently revalidated: network access was prohibited. The reports disclose their retrieval limits and do not claim an exhaustive proof that no remote fix exists. Graph readiness/impact counts were also not replayed; they are presented as review leads, not decisive proof.
+- No extra implementation, test execution or runtime-success claim was added. The missing command and literal-input hazard remain product defects to address in a separately authorized fix, not defects in these reports.

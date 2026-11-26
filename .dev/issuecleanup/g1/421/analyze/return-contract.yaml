@@ -1,0 +1,24 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: /sc:analyze src/superclaude/pr_submit --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g1/421/analyze
+report_path: .dev/issuecleanup/g1/421/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g1/421/findings.md
+  - .dev/issuecleanup/g1/421/analyze/review.md
+  - .dev/issuecleanup/g1/421/analyze/handoff/1-analyze.md
+verification_state: independent static evidence review PASS
+issue: 421
+issue_verdict: still-relevant
+priority: P1
+complexity: medium
+size: M
+codegraph:
+  index_state: stale
+  access: mcp
+  checked_at: "2026-11-23T23:08:48Z"
+  degraded:
+    - graph:stale
+limitations:
+  - Full GitHub timeline and historical marker edits UNVERIFIED under allowed view/list commands.
+  - Historical monitor logs and latest remote master not independently verified.
+  - Static analysis only; no tests, source edits, staging, commits or outward changes.

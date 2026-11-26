@@ -1,0 +1,10 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze src/superclaude/commands/design.md --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/603/analyze"
+report_path: .dev/issuecleanup/g3/603/findings.md
+artifacts:
+  - .dev/issuecleanup/g3/603/qa.md
+  - .dev/issuecleanup/g3/603/issue-comments.md
+  - .dev/issuecleanup/g3/603/analyze/analyze-report.md
+  - .dev/issuecleanup/g3/603/analyze/return-contract.yaml
+  - .dev/issuecleanup/g3/603/analyze/handoff/1-analyze.md

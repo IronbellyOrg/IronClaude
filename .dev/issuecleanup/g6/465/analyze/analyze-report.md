@@ -1,0 +1,21 @@
+# Issue 465 architecture analysis
+
+## Scope and method
+Command: `/sc:analyze src/superclaude/agents/rf-qa-qualitative.md --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g6/465/analyze`.
+
+The narrow target is the retained qualitative verifier definition. Supporting reads trace its report boundary into the implementation review and retry contracts, reflect's current consumer, and the original task package. Static inspection only; no runtime, tests, source edits, installs or GitHub writes.
+
+Codegraph: index_state=fresh, checked_at=2026-11-24T15:54:45Z; degraded: graph:empty.
+
+The graph returned no indexed Markdown definition. Glob, Grep and bounded Read supplied the evidence. Two later Grep requests failed with `EACCES: permission denied, posix_spawn 'rg'`; direct Reads of the known task and report ranges supplied the needed evidence instead. Exact historical runtime instructions and raw transcript timings remain UNVERIFIED.
+
+## Findings
+1. **High, retained authority ambiguity.** `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/agents/rf-qa-qualitative.md:826-829` forbids all file modification under false fix authorization, but `:909-924` requires a report and readback and `:987` requires incremental writes. A reviewer can read this as forbidding its mandatory deliverable. The effective historical instruction origin remains UNVERIFIED; this is not evidence that tools or permissive execution mode confer authority.
+2. **Medium, existing machinery is not the missing nested-delivery contract.** `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-implement-protocol/refs/qa.md:132-146` already makes the parent persist failing implementation reviews. `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-implement-protocol/refs/retry.md:5-16,71-77` already bounds implementation retries and validates returned adviser answers. Neither inspected passage defines recovery of the nested qualitative verifier report's full finding/check-ID set after policy refusal. Search of that protocol for delivery, transport, missing-report and policy-block terms did not identify such a rule. This is bounded negative evidence, not proof of repository-wide absence.
+3. **Current-state correction.** The original task's items 6.17 and 6.18 are checked (`/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/TASK-RF-sweep-phase1-20261108-072653.md:1095-1107`). Its qualitative report now records parent transport and 128 PASS plus seven FAIL (`/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/qa/r5/verify-cycle1-rf-qa-qualitative.md:1-9,218-234`). The old missing-file incident is not an indefinitely blocked current task. The task's written regression-first rule remains distinct from zero blocking findings; no historical waiver is inferred.
+4. **Retained consumer.** `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-reflect-protocol/SKILL.md:620-621` still names the qualitative agent for document review. `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/releases/v6.1.0.md:135-146` says all eight rf agents stay; removal of the old task skills does not remove this ambiguity.
+
+## Recommendations and limits
+Keep #465 open and refresh its scope for the retained agent. Clarify report-only write authority without overriding policy; reuse the existing parent-persistence and implementation retry patterns rather than building a second retry system. Add complete current-cycle evidence validation, bounded delivery-specific escalation, no-clobber persistence and synthetic regression checks where the nested review is consumed. Coordinate the destination with #572, not with retired task skills.
+
+No changes were made outside this task's report directory. No tests, native-agent incident reproduction, raw transcript audit, installation or source modification were performed. No dedicated report-delivery fix was identified in bounded searches; repository-wide absence and runtime enforcement are UNVERIFIED. The issue triage is still-relevant, complex/L, P2, pending independent review.

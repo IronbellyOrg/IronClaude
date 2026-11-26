@@ -1,0 +1,8 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: "Direct revision task for issue #618; no Command line in brief"
+report_path: .dev/issuecleanup/g3/618-revise/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g3/618-revise/handoff/1-revise.md
+blocked_question: "Can the coordinator provide a corrected brief naming the actual issue #618 input and edit destinations, or restore the specified g3/618 inputs, in a new task?"
+reason: "Required .dev/issuecleanup/g3/618/qa.md and .dev/issuecleanup/g3/618/findings.md do not exist; corresponding files were found under g4/618 but were not substituted or modified."

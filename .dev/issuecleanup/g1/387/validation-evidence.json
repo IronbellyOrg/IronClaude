@@ -1,0 +1,22 @@
+{
+  "record_type": "transcription of observed tool output",
+  "checkout_head": "a7ae3dd30fcf88aaab655c37e94e58e121c2d863",
+  "test_command": "uv run pytest tests/hooks/test_block_bare_python.py tests/cli/test_install_hooks.py -k block_bare_python -q",
+  "test_exit": 0,
+  "pytest_summary": "134 passed, 45 deselected in 2.62s",
+  "probe_method": "UV-launched Python passed JSON text to subprocess.run(['bash', hook]); no command payload was executed",
+  "probe_exit": 0,
+  "asserted_exit_sequence": [2, 0, 0, 0, 0, 2],
+  "probes": [
+    {"case": "plain_bare", "command_as_data": "python3 -c 1", "exit": 2},
+    {"case": "allowed", "command_as_data": "uv run python -c 1", "exit": 0},
+    {"case": "unquoted_shell_heredoc", "command_as_data": "bash <<EOF\necho '$(python3 -c 1)'\nEOF", "exit": 0},
+    {"case": "unquoted_shell_backticks", "command_as_data": "bash <<EOF\necho '`python3 -c 1`'\nEOF", "exit": 0},
+    {"case": "named_coproc", "command_as_data": "coproc worker { python3 -c 1; }", "exit": 0},
+    {"case": "unnamed_coproc", "command_as_data": "coproc { python3 -c 1; }", "exit": 2}
+  ],
+  "mirror_cmp_exit": 0,
+  "last_hook_and_test_commit": "605da2ffb83b93302ca51d654e9c2075e85217a7",
+  "timeline_attempt": {"command": "gh issue view 387 --repo IronbellyOrg/IronClaude --json timelineItems", "exit": 1, "error": "Unknown JSON field: timelineItems"},
+  "codegraph": {"index_state": "fresh", "access": "mcp", "checked_at": "2026-11-23T23:06:37Z", "degraded": ["graph:empty"], "reason": "shell file not indexed"}
+}

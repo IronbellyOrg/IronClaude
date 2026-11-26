@@ -1,0 +1,12 @@
+# Command handoff
+- Command: /sc:analyze src/superclaude/hooks/scripts/codegraph-session-start.sh --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/648/analyze
+- Task ID: task_6021680aa2b0
+- Dispatch ID: ctx_73ef2a7fde4f
+- worker_status: succeeded
+- Deliverable: .dev/issuecleanup/g4/648/analyze/analyze-report.md
+- Contract: .dev/issuecleanup/g4/648/analyze/return-contract.yaml
+- Decisions: static analysis only; no source, GitHub, benchmark or environment changes.
+- Evidence: requested measurement matrix already posted on #648 and linked on #354; hook remains uncapped and memory documentation remains inaccurate for the tested snapshot.
+- Applied coordinator message IDs: none; both mailbox checks returned count 0.
+- Next Command line: none.
+- Remaining brief work: populate findings.md, obtain independent Agent-tool review in qa.md, then report completion once.

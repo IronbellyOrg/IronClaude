@@ -1,0 +1,25 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/skills/sc-troubleshoot-protocol --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/612/analyze'
+report_path: .dev/issuecleanup/g4/612/findings.md
+artifacts:
+  - .dev/issuecleanup/g4/612/qa.md
+  - .dev/issuecleanup/g4/612/analyze/analyze-report.md
+  - .dev/issuecleanup/g4/612/analyze/return-contract.yaml
+  - .dev/issuecleanup/g4/612/handoff/1-analyze.md
+  - .dev/issuecleanup/g4/612/report-templates.md
+task_id: task_34a01197eb49
+dispatch_id: ctx_00afd0834d1b
+issue: 612
+verdict: still-relevant
+complexity: medium
+size: M
+priority_recommendation: P3
+qa_verdict: PASS
+implementation_precondition: 'Issue 611 must record an affirmative comparison against the improved issue 610 baseline; missing measurement is not a negative result.'
+source_snapshot: a7ae3dd30fcf88aaab655c37e94e58e121c2d863
+source_changes: false
+runtime_tests_executed: false
+live_jev_calls: false
+github_writes: false
+committed: false

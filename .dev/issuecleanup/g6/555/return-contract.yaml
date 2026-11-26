@@ -1,0 +1,19 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/cli/swarm/commands.py --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g6/555/analyze'
+report_path: .dev/issuecleanup/g6/555/findings.md
+artifacts:
+  - .dev/issuecleanup/g6/555/qa.md
+  - .dev/issuecleanup/g6/555/analyze/analyze-report.md
+  - .dev/issuecleanup/g6/555/analyze/return-contract.yaml
+  - .dev/issuecleanup/g6/555/analyze/handoff/1-analyze.md
+issue: 555
+verdict: in-progress
+complexity: medium
+size: S
+priority: P1
+qa_verdict: PASS
+limits:
+  - Static analysis only; tests and tmux lifecycle were not run.
+  - PR 762 patch and author-reported runtime results remain unverified.
+  - No source changes, staging, commits or GitHub mutations.

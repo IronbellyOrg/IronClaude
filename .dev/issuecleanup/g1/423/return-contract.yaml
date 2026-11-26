@@ -1,0 +1,17 @@
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:analyze src/superclaude/skills/sc-sweep-protocol --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g1/423/analyze"
+report_path: .dev/issuecleanup/g1/423/findings.md
+artifacts:
+  - .dev/issuecleanup/g1/423/analyze/analyze-report.md
+  - .dev/issuecleanup/g1/423/analyze/return-contract.yaml
+  - .dev/issuecleanup/g1/423/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g1/423/review.md
+verdict: still-relevant
+complexity: complex
+size: XL
+priority: P2
+verification_limit: "Full GitHub event timeline is UNVERIFIED within the authorized issue/PR view/list surface; current body, both comments, issue state and related PR metadata were read."
+source_changes: false
+github_writes: false
+local_commit: not_authorized

@@ -1,0 +1,13 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze src/superclaude/cli/observe/ --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/706/analyze"
+report_path: .dev/issuecleanup/g4/706/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g4/706/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g4/706/findings.md
+  - .dev/issuecleanup/g4/706/qa.md
+issue_verdict: still-relevant
+complexity: complex
+size: L
+recommended_priority: P2
+independent_qa_verdict: PASS

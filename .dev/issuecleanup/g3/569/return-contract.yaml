@@ -1,0 +1,16 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/cli/swarm/tui.py --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/569/analyze'
+report_path: .dev/issuecleanup/g3/569/findings.md
+artifacts:
+  - .dev/issuecleanup/g3/569/qa.md
+  - .dev/issuecleanup/g3/569/analyze/analyze-report.md
+  - .dev/issuecleanup/g3/569/analyze/return-contract.yaml
+  - .dev/issuecleanup/g3/569/analyze/handoff/1-analyze.md
+issue_number: 569
+verdict: close
+qa_verdict: PASS
+source_modified: false
+github_modified: false
+local_commit: not_authorized
+tests_executed: false

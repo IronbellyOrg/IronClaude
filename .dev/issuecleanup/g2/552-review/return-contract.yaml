@@ -1,0 +1,9 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "Independent review of issue 552 findings and analysis per dispatch brief"
+report_path: .dev/issuecleanup/g2/552-review/qa.md
+verdict: PASS
+artifacts:
+  - .dev/issuecleanup/g2/552-review/handoff/1-review.md
+blocked_question: null
+reason: null

@@ -1,0 +1,13 @@
+worker_contract_version: "1"
+worker_status: failed
+command: "Review issue #722 and run /sc:analyze src/superclaude/cli/issue_pipeline --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g5/722/analyze"
+report_path: .dev/issuecleanup/g5/722/findings.md
+reason: "Final independent QA: FAIL. Required independent live issue/PR verification is blocked by the shared GitHub rate limit. The nested static analysis succeeded; the overall task is not accepted. No text-only fix can satisfy the missing live-source check, so no fix/re-review cycle ran."
+qa_verdict: FAIL
+artifacts:
+  - .dev/issuecleanup/g5/722/qa.md
+  - .dev/issuecleanup/g5/722/analyze/analyze-report.md
+  - .dev/issuecleanup/g5/722/analyze/return-contract.yaml
+  - .dev/issuecleanup/g5/722/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g5/722/qa-template.md
+  - .dev/issuecleanup/g5/722/issue-read-extract.md

@@ -1,0 +1,88 @@
+VERDICT: FAIL
+# QA Source Fidelity: watcher follow-up findings, independent review 2
+
+- Topic: IronbellyOrg/IronClaude issue 717, watcher follow-up bundle.
+- Date: 2026-11-24.
+- Phase: source-fidelity.
+- Fix cycle: 1 / 2.
+- Governing structure: /home/coder/.claude/templates/modularization-template-review/qa-source-fidelity_template.md; first-line verdict and blocking/minor grading follow this dispatch's explicit requirements.
+
+## Sources Reviewed
+| Source Doc | Assigned Section Range | Line Count |
+|---|---|---|
+| /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/717/findings.md | Entire findings, all seven headings and W1-W15 | 54 substantive lines plus trailing blank |
+| /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/717/analyze/analyze-report.md | Entire architecture analysis | 27 substantive lines plus trailing blank |
+| https://github.com/IronbellyOrg/IronClaude/issues/717 | Live body, current state and comments, read directly with the permitted explicit-repository issue view | API JSON, not line-numbered |
+| /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/717/qa.md | Earlier gate's required evidence and unresolved acceptance, read only after independently checking source | 64 |
+| /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/717/return-contract.yaml | Original task status and missing-evidence declaration | 17 |
+| /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/717/analyze/return-contract.yaml | Static-analysis output declaration | 7 |
+| /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/717/analyze/handoff/1-analyze.md | Original analysis scope and limits | 16 |
+
+Independent source excerpts read directly are cited in the table below. The reviser's revision notes were not used. No source, test, findings or earlier contract was changed.
+
+The new live issue read returned OPEN, 15 unchecked acceptance items, no comments, and updatedAt 2026-11-21T15:01:02Z. This independently verifies the revised issue-read statement. Immediately after returning that JSON, the tool reported the shared 5,000/hour API limit exceeded. No further GitHub calls, alternate-service reads or prohibited reset probe were attempted. This is negative evidence for completing the remaining live review, not evidence that any referenced PR is absent or unmerged.
+
+## Per-Source Fidelity
+| Source | Semantic Coverage | Detail Preservation | Phantom-Coverage Check | Operational Completeness | Verdict |
+|---|---|---|---|---|---|
+| Findings | All 15 issue items are addressed; existing ingredients are separated from acceptance | Conditional triggers, shared consumer, stage order and real-host gates retained | Static implementation statements supported; live issue response independently confirmed | Linked-PR review and current-plan input remain missing, explicitly disclosed | FAIL |
+| Architecture analysis | Six findings cover the relevant watcher boundaries without claiming a full runtime audit | Fifteen package Python files confirmed by Glob; production entry and delegation confirmed | Source-backed findings supported; historical graph timestamp/caller sample remain UNVERIFIED telemetry, not fresh reviewer evidence | Static review exists, but larger issue-review gate is incomplete | FAIL for larger review, static content supported |
+
+### Item-by-item source checks
+
+| Item or claim | Independent evidence and result |
+|---|---|
+| W1, switch-on baseline | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/cycle.py:976-1037 reaches launch after candidate checks; /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/first_run.py:207-254 initializes/reuses the store and compares bytes, not assigned-issue history. Source search found no would_baseline. The distinct older-approval floor in /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/predicates.py:266-269 rejects approval_before_init; that is not a permanent seen baseline because later reapproval can pass it. The narrowly stated baseline gap is supported; coordinator hand-over is UNVERIFIED. |
+| W2, quiet-hour plan request | Repeated source-wide searches for plan_requests, plan_stuck, quiet_since and would_baseline: no matches. Watcher-specific held_incomplete was also absent. /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/record.py:91-129 lacks those lifecycle fields; /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/audit.py:35-104 lacks plan_stuck. This supports the explicit narrow search claim, not an exhaustive exclusion of all alternative spellings. |
+| W3, poll interval | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/cycle.py:59-72 and /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/defaults.py:32-41 omit an interval setting; /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/cycle.py:1464-1473 omits a status interval. Host scheduler remains UNVERIFIED. |
+| W4, throttle backoff | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/github.py:511-524 uses bounded Retry-After/reset or the fixed clamp, not successive-throttle growth. Ordinary per-entry backoff is not evidence of the requested API-throttle progression. |
+| W5, lock and restart | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/first_run.py:227-253 tests lock contention by a same-process cycle and simulates restart through reload/dry run. /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests/issue_watch/test_concurrency.py:146-187 really starts two processes and asserts exit 75, no second external calls and audit outcomes. /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/designs/issue-watcher-setup.md:235-257 requires real-host lock/restart evidence. Fixture existence is verified; execution and live acceptance are UNVERIFIED. |
+| W6, shadow-run acceptance | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/designs/issue-watcher-setup.md:223-231 explicitly asks to inspect all 24-hour cycle audit lines and named reasons. No completed shadow record was provided. A procedure is not a result. |
+| W7, token scope | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/designs/issue-watcher-setup.md:670 retains the off-CLI-login trigger. No credentials inspected; actual scopes and migration state are UNVERIFIED. |
+| W8, failure alerts | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/cycle.py:1416-1418 explicitly ignores audit; lines 1464-1466 calculate health from age. /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/cli.py:182-197 exits on that field. Three-failure streak logic is absent from this status path. |
+| W9, conditional reads | Repeated search for ETag/If-None-Match under the CLI tree: no matches. /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/designs/issue-watcher-setup.md:672 retains the budget-pressure trigger. Source-wide search does find conditional reads in the separate ccsession-tag models helper, so the findings correctly restrict this absence claim to CLI/watcher code. Actual pressure remains UNVERIFIED. |
+| W10, launched permissions | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/launch.py:136-157 adds no permission override. /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/designs/issue-watcher-setup.md:627-628 requires observing mode and forbids a second approver before the permission follow-up. Findings correctly do not infer effective permission mode from argv. |
+| W11, retry | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/launch.py:160-173 builds validated operation-id retry argv; /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/cycle.py:1446-1462 returns it for display. CLI-tree search finds only this call and the definition. Live lost-reply deduplication and owner retry choice remain UNVERIFIED. |
+| W12, service review | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/cycle.py:1497-1544 defines the four-number reducer; CLI-tree search finds no invocation. /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/designs/issue-watcher-setup.md:677 retains seven live days. No dated review or first-enable evidence provided. |
+| W13, store bound | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/record.py:693-696 prunes consumed times, not finished issue entries. /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/designs/issue-watcher-setup.md:678 retains the 1-MiB trigger. Actual store size is UNVERIFIED. |
+| W14, safe filesystem | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/cycle.py:49-52 lists seven network types; lines 293-295 apply the deny-list only when mount information exists. /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/designs/issue-watcher-setup.md:679 explicitly defers a local-filesystem allow-list. The stronger persistence gap is accurately stated. |
+| W15, runbook | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/designs/issue-watcher-setup.md:685-699 still lists live/shadow/lock/restart gates; lines 701-713 document automatic setup. Neither establishes a post-S17 captured rewrite or merged-PR acceptance. Direct Read of the issue's local spec failed because it does not exist here. |
+| Automatic setup, analysis finding 1 | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/first_run.py:149-157 enables after passing synthetic checks; /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/dispatch.py:425-436 then checks enabled state. The identified mismatch is against the later issue's stronger acceptance, not proof of an active deployment or a violation of the original setup requirements. |
+| Architecture entry and package scope | Glob returned 15 package Python files. /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/cli.py:129 calls the cycle; /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/issue_watch/cycle.py:1318 delegates to _Cycle. Historical graph metadata cannot be independently reproduced from these source reads and remains UNVERIFIED. |
+
+### Verdict, estimates, priority, dependencies and recommendations
+
+The provisional still-relevant classification is supported by concrete unimplemented acceptance behavior, independently of unchecked issue boxes. Complex / XL is a defensible whole-bundle estimate, not a measured effort or a claim that every sub-item is large: it spans persistent state, a coordinator interface, scheduling, retries, permissions, host tests and timed operational acceptance. P2 is a defensible provisional planning priority; no source or live issue evidence reviewed here demonstrates an active outage, and that is not proof that none exists.
+
+The live issue independently confirms the W2 producer/coordinator-consumer interface, W14 before W5, W5/W6 before enable, W1 hand-over after coordinator availability, W4/W9 after captured replies, W7/W13 conditional triggers, W12 seven live days later and W15 after live tests. The findings' instructions to verify stage completion first, reuse the watcher, agree the request format before implementing its consumer, reconcile automatic enabling with rollout gates, and require observed permissions/retry evidence are appropriately bounded. Exact current stage completion, related-issue states and any newer implementation remain UNVERIFIED, so these classifications cannot become final current-project decisions yet.
+
+Read-only local git history confirmed every cited association: 2ea524514 (#707), 4c93b6c73 (#447), ce6608258 (#448), 91375feb1 (#485), d4d1662a8 (#548), 6af80d6c0 (#591), 471f10511 (#700), 0a4664457 (#701), and 01e7a9e23 (#682). The rollback subject explicitly names #681/#682/#684 and retention of closeout. This proves local provenance only, not current PR records, discussions or a complete rollback-diff audit. The issue body supplies its statement about #697 being closed unmerged; its independent live PR verification is still missing.
+
+## Overall Verdict: FAIL
+The static findings are supported and the revised live issue-read claim now has independent confirmation. One blocking missing-evidence finding remains: the required linked-PR/current-work review was not completed. The revised documents explicitly preserve that blocker rather than falsely claiming acceptance. Therefore this review is complete, but the underlying findings package does not pass its complete live-evidence gate. This is not a new demand to build the feature or perform live acceptance tests during a read-only review.
+
+## Issues Found
+### B1: Blocking, Missing and Decision: required live PR verification still incomplete
+
+- **Affected action:** accepting the issue triage as current and complete, then using its verdict, complexity/size, priority, dependencies and next steps to plan work.
+- **Evidence:** /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/717/findings.md:2,33,49-54 explicitly leaves every live PR record/discussion and newer implementation PR unverified and retains B1. /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/717/analyze/analyze-report.md:27 repeats the incomplete gate. /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/717/qa.md:5-9 records the required linked/mentioned-PR review as the earlier failed acceptance check, not an optional suggestion. The new independent issue read succeeds, but its tool result immediately reports the shared API limit exceeded; no further permitted reads were attempted.
+- **What is resolved:** the issue body, unchecked items, OPEN state, timestamp and absence of comments are independently verified in this fresh reviewer session. The earlier claim that the independent issue read is missing no longer applies. This does not resolve the remaining PR evidence.
+- **Concrete consequence:** a PR discussion may contain a superseding decision, or newer work may already implement part of the bundle. Without those reads, final size, priority, dependencies and implementation destination cannot receive current-project approval. Honest disclosure is correct but does not replace a mandatory evidence step.
+- **Required completion:** when permitted GitHub reads are available, inspect referenced PR records and discussion, follow newly discovered relevant links, check newer implementation work, and reconcile the triage. The starting PR set is #707, #447, #448, #485, #548, #591, #700, #701, #686, #697, #682, #681 and #684, not an independently verified exhaustive set. Related issue states also remain UNVERIFIED. Do not substitute local commit subjects for live discussion, bypass the read-only allow-list or make GitHub writes.
+
+### Other uncertainty, not newly invented blockers
+
+- Direct Read of /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md failed: absent in this checkout. Current-plan stage completion and its authoritative ordering remain UNVERIFIED beyond the issue's own quoted requirements. The revised findings correctly require recovering this input before implementation; the absence is not proof that any stage failed.
+- Host scheduler, mount persistence, live lock/restart result, full shadow logs, effective permissions, actual retry deduplication, owner retry choice, first-enable date, seven-day review, store size and token scopes remain UNVERIFIED. This review does not require performing those operations; it checks that the findings do not falsely call them complete.
+- Historical graph freshness, its checked-at timestamp and the 5-of-17 caller sample are UNVERIFIED as historical telemetry. Package size and the named production call were checked directly. No absence conclusion relies on a partial graph sample.
+
+### Follow-up candidates and form notes
+
+No additional substantive source-content defect, Medium follow-up candidate or form-only correction was confirmed. The original seven findings headings remain present, correctly ordered and complete in substance. High/Medium/Low impact labels in the architecture analysis describe prospective impact, not proof of a current outage or emergency priority.
+
+## QA Complete
+Independent review completed with one surviving blocking finding, B1, narrowed to the remaining live PR/current-work evidence. No new blocking source-content defect was found. All 15 acceptance-item classifications, all six architecture findings, provisional estimate/priority, dependencies, next steps, local-history references and supplied static-analysis output files were checked as described above.
+
+Only this dispatch's report files were written. No test, watcher cycle, package operation, environment creation, source modification, credential inspection, host operation, staging, commit or GitHub write was performed. No report was externally published. The QA execution succeeds even though the reviewed package fails its acceptance gate.
+
+VERDICT: FAIL

@@ -1,0 +1,13 @@
+# Command 1 handoff
+- Command: `/sc:analyze src/superclaude/skills/ccsession-tag --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g1/352/analyze`
+- Task ID: task_cc863f3371b9
+- Dispatch ID: ctx_a06bd19d0ab7
+- worker_status: succeeded
+- Deliverable: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/352/analyze/analyze-report.md
+- Contract: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/352/analyze/return-contract.yaml
+- Decision: static evidence supports keeping issue #352 open; root cause and current failure rate remain UNVERIFIED.
+- Applied message IDs: none received.
+- Issue findings: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/352/findings.md
+- Independent gate: PASS, /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/352/review.md
+- Limitation: complete GitHub event timeline unavailable through permitted view commands; current load reproduction not performed.
+- Next Command: none; coordinator reads findings and decides the issue's disposition. No GitHub write authorized.

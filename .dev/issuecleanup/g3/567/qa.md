@@ -1,0 +1,34 @@
+VERDICT: PASS
+
+## Scope
+Independent read-only review on 2026-11-24. Checked the assessment and analysis artifacts; local fresh, normalization, result-emission and resume paths; live issue #567 with all comments; related issue states and dependency statements; and all eight PRs returned by the all-state search for `567`.
+
+Live GitHub evidence checked:
+- https://github.com/IronbellyOrg/IronClaude/issues/567 is OPEN and assigned. The November 18 High assignment supersedes the earlier backlog instruction; the assignee recommends retaining files without weakening the promise. Later comments explicitly limit their evidence to local/model-free work. The issue's original post-resume inventory does not establish deletion.
+- https://github.com/IronbellyOrg/IronClaude/pull/756 is OPEN/DRAFT, targets master, and has head `f00a19912232a993d7537b82c3dd43925b74b485`. Its description identifies the feature-only merge chain, reports 3,049 passes and 19 skips, and expressly preserves the owner-controlled draft hold. Its ten-file list includes raw-retention and resume regressions. The visible review reports two suggestions, not clean approval.
+- Read bodies and merge metadata for PRs #741, #744, #745, #746, #747, #748 and #750; also comments/review summaries for #741 and #756. All seven earlier PRs are MERGED into feature branches, with the exact bases and merge hashes recorded by the assessment. None of those merge states alone proves delivery to master.
+- Read #557 and its comments: it remains OPEN until all four children #566–#569 are closed. Checked live OPEN states and subjects of #566, #568 and #569. Their sibling/shared-delivery relationships do not establish a new prerequisite for raw retention.
+- Checked #571's OPEN state and updated body explicitly retaining swarm and dropping its removal step. Checked #354's identity as the original testing/measurement assignment; did not independently reproduce its historical observations.
+
+Local source evidence checked:
+- `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/commands.py:1042-1081` stamps a raw filename, preserves the in-memory body and performs no raw-file write. The inspected production call feeds those records into normalization. Package-wide searches and inspection of dispatch/transports corroborate that the body is available in memory, not retained by this lifecycle.
+- `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/normalize.py:344-358,455-471` writes metadata without the raw body and writes normalized text to the final path. This supports the advertised-but-unwritten defect without requiring a new runtime reproduction.
+- `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/commands.py:2273-2316,2594-2610` discovers only top-level canonical sidecars, advertises a raw sibling only if it exists, and normalizes redispatched original slots without fresh path preparation. Thus the wider fresh/resume/naming acceptance scope is justified; empty resumed raw fields are not proof of deletion.
+
+- `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/reduce.py:677-702` copies worker records into the emitted result contract; it does not repair their raw paths.
+- Documentation mismatch confirmed: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/swarm/models.py:408-417` defaults retention to true but describes raw output on the metadata sidecar; `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-swarm-wizard-protocol/refs/cli-contract.md:91-95` names separate raw files. `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/testing/v5.0.0/user/D14-swarm.md:32` records the unwritten advertised raw path. This justifies documentation alignment in the next steps.
+
+Assessment and invocation-output checks:
+- `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/567/findings.md` contains all seven required headings, in order: Verdict; Complexity and size; Priority; Concrete next steps; Dependencies; Related issues; Related PRs.
+- Confirmed the analysis output set exists and is mutually consistent: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/567/analyze/analyze-report.md`, `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/567/analyze/return-contract.yaml` and `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/567/handoff/1-analyze.md`. They record the same architecture/quick/unattended invocation and report destination; contract and handoff record succeeded. The handoff supplies task/dispatch IDs and the same evidence revision as the report. This verifies the saved invocation outputs, not a replay of the analysis or independent attestation of its tool history.
+- Read-only git confirmed checkout HEAD `a7ae3dd30fcf88aaab655c37e94e58e121c2d863` matches the reports. Source excerpts above were read in chunks of at most 80 lines.
+
+## Blocking defects
+None. No verified defect changes the assessment's verdict, complexity/size, priority, next step, dependency or safety claims.
+
+The in-progress verdict is supported by an extant local defect and an open delivery PR, not by outdated comments denying publication. Medium/M reasonably describes the bounded artifact lifecycle work, rather than the whole reconciliation PR or all remaining effort. P1 preserves the explicit High assignment without inventing an outage or deletion. Continuing the existing draft, verifying fresh/completed/partial-resume inventories and naming/retention behavior, and awaiting authorized delivery before proposing closure follow the evidence. The assessment correctly treats tracker closure and sibling delivery as different dependencies and does not grant permission for outward actions.
+
+## Notes
+- PASS is for this cleanup assessment, not product correctness, PR approval, merge readiness or issue closure. The PR review marker reports two unresolved suggestions at review time; their inline contents and current thread resolution were not adjudicated. The assessment explicitly leaves those and overall merge readiness unverified and makes examining them a next step.
+- Package/test searches corroborated the raw-path lifecycle and absence of a dedicated raw-retention test module in this checkout. Related assertions do exist elsewhere; a filename search is not a test-coverage audit. The analysis already preserves this distinction.
+- Did not run tests, create an environment, invoke providers, re-audit private historical captures or inspect the unmerged PR implementation. Reported pass counts remain author-reported. No source or findings changes, git staging/commit/fetch/push, paid-service calls, Orca activity, upstream interaction, sub-delegation or outward writes occurred. Only this QA file was written.

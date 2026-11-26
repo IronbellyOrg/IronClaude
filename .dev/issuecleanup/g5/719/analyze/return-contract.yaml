@@ -1,0 +1,24 @@
+worker_contract_version: "1"
+worker_status: succeeded
+issue_verdict: still-relevant
+complexity: medium
+size: M
+priority: P2
+qa_verdict: PASS
+command: "/sc:analyze .dev/issuecleanup/g5/719/source/agent-work-report --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g5/719/analyze"
+report_path: .dev/issuecleanup/g5/719/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g5/719/findings.md
+  - .dev/issuecleanup/g5/719/qa.md
+  - .dev/issuecleanup/g5/719/handoff/1-analyze.md
+  - .dev/issuecleanup/g5/719/source/agent-work-report/scripts/page.py
+  - .dev/issuecleanup/g5/719/source/agent-work-report/scripts/common.py
+  - .dev/issuecleanup/g5/719/source/agent-work-report/templates/report-template.html
+  - .dev/issuecleanup/g5/719/source/agent-work-report/SKILL.md
+  - .dev/issuecleanup/g5/719/source/tests/test_agent_work_report.py
+  - .dev/issuecleanup/g5/719/pr-684.json
+  - .dev/issuecleanup/g5/719/pr-700.json
+  - .dev/issuecleanup/g5/719/issue-719.json
+  - .dev/issuecleanup/g5/719/issue-720.json
+  - .dev/issuecleanup/g5/719/issue-716.json
+  - .dev/issuecleanup/g5/719/issue-718.json

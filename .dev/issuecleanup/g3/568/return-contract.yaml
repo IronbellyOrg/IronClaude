@@ -1,0 +1,21 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze src/superclaude/cli/swarm/commands.py --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/568/analyze"
+report_path: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/568/findings.md
+artifacts:
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/568/qa.md
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/568/issue-568.json
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/568/analyze/analyze-report.md
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/568/analyze/return-contract.yaml
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/568/analyze/handoff/1-analyze.md
+issue: 568
+issue_verdict: still-relevant
+complexity: simple
+size: XS
+priority_recommendation: P2
+qa_verdict: PASS
+source_head: a7ae3dd30fcf88aaab655c37e94e58e121c2d863
+limits:
+  - Static review only; runtime help and parser rejection were not rerun.
+  - No tests, source changes, environment installation, staging, commits or GitHub writes.
+  - Existing High scheduling instruction is recorded and not changed by the P2 impact recommendation.

@@ -1,0 +1,11 @@
+# Command handoff
+- Command: independent review of issue 487 findings and analyze report (no Command: line in brief)
+- Task ID: task_28363b408fb9
+- Dispatch ID: ctx_ba777af0ed03
+- worker_status: succeeded
+- Deliverables: .dev/issuecleanup/g2/487-review/qa.md; .dev/issuecleanup/g2/487-review/return-contract.yaml; this handoff
+- Decisions: verdict FAIL, three blocking findings: wrong process-adapter reuse; missing prerequisite schema/policy phase; missed dependency on the framework from issue 489.
+- Evidence: issue 487 and both comments, specification Parts B/E, current eval source, PR 500, local refs/history and related issues were read; detailed evidence and limits are in qa.md.
+- Applied message IDs: none; coordinator checks returned no messages.
+- Next command: none in this brief; coordinator reads the return contract and review before arranging any correction.
+- Limits: no source edits, staging, commits, GitHub writes, tests, model calls, installs or environment creation; unknown branch work and detailed event timelines remain UNVERIFIED.

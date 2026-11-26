@@ -1,0 +1,9 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: "Direct independent review of issue 618 findings and analysis (review 3)"
+report_path: .dev/issuecleanup/g3/618-review3/qa.md
+verdict: FAIL
+artifacts:
+  - .dev/issuecleanup/g3/618-review3/handoff/1-review3.md
+blocked_question: "The required group 3 findings and analysis do not exist; the coordinator must resolve the input paths or restore the required files."
+reason: "Required review inputs are missing; substantive third review could not be performed."

@@ -1,0 +1,23 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/core/HOW-WE-WORK.md --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g1/290/analyze'
+report_path: .dev/issuecleanup/g1/290/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g1/290/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g1/290/findings.md
+  - .dev/issuecleanup/g1/290/review.md
+issue_verdict: still-relevant
+complexity: medium
+size: M
+priority: P2
+independent_local_review: PASS
+coverage_limits:
+  - 'Full GitHub event timeline UNVERIFIED: allowed gh issue view fields do not expose timeline events.'
+  - 'Reviewed local HEAD, without fetching remotes or auditing unlinked branches.'
+  - 'Static review only; no tests, builds, runtime evaluations or browser render.'
+codegraph:
+  index_state: fresh
+  access: mcp
+  checked_at: '2026-11-23T22:44:40Z'
+  worktree_root: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup
+  degraded: [graph:empty]

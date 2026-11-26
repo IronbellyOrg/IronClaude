@@ -1,0 +1,11 @@
+# Command handoff
+- Template: ../../../450/report-template.md, Handoff skeleton.
+- Command: /sc:analyze src/superclaude/skills/ccsession-tag --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g2/523/analyze
+- Task ID: task_a3ffafae00f5
+- Dispatch ID: ctx_e9dcc0a26e93
+- worker_status: succeeded
+- Deliverables: .dev/issuecleanup/g2/523/analyze/analyze-report.md; .dev/issuecleanup/g2/523/analyze/return-contract.yaml; .dev/issuecleanup/g2/523/findings.md
+- Decisions: still-relevant, simple/S, P2; Ember exists in separate review seats but not ccsession Tier 4.
+- Applied message IDs: none (mailbox empty at checkpoints).
+- Next command: none; independent evidence review, final mailbox check, worker_done.
+- Verification limits: complete issue timeline unavailable in permitted gh view surface; Coder rollout and live gateway serving UNVERIFIED; static review, no tests or source changes.

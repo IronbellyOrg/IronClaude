@@ -1,0 +1,20 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/cli/sweep --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g3/590/analyze'
+report_path: .dev/issuecleanup/g3/590/findings.md
+artifacts:
+  - .dev/issuecleanup/g3/590/qa.md
+  - .dev/issuecleanup/g3/590/analyze/analyze-report.md
+  - .dev/issuecleanup/g3/590/analyze/return-contract.yaml
+  - .dev/issuecleanup/g3/590/analyze/handoff/1-analyze.md
+verdict: still-relevant
+complexity: medium
+size: M
+priority: P2
+qa_verdict: PASS
+outward_actions: none
+local_commit: not-authorized
+limitations:
+  - No tests or live sweep were run under the brief's restrictions.
+  - Historical distinct-session cause split remains unverified and is a concrete next step.
+  - Formal dependency edges and a complete GitHub event timeline remain unverified.

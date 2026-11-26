@@ -1,0 +1,10 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: "Brief Task: independently recheck live PR evidence and revise issue 717 findings"
+report_path: .dev/issuecleanup/g5/717-revise3/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g5/717/findings.md
+  - .dev/issuecleanup/g5/717/analyze/analyze-report.md
+  - .dev/issuecleanup/g5/717-revise3/handoff/1-revise.md
+blocked_question: "How should the required independent rechecks of the remaining evidence-file PRs and related issues proceed after the renewed shared GitHub API-limit warning, without a fourth review or a reset probe?"
+reason: "PR 759 and issue 717 were independently retrieved, then the tool reported the shared 5,000/hour API limit exceeded; remaining required records could not be rechecked. Full revision incomplete and B1 open."

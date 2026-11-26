@@ -1,0 +1,19 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/skills/sc-issue-protocol --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g5/721/analyze'
+report_path: .dev/issuecleanup/g5/721/findings.md
+artifacts:
+  - .dev/issuecleanup/g5/721/qa.md
+  - .dev/issuecleanup/g5/721/analyze/analyze-report.md
+  - .dev/issuecleanup/g5/721/analyze/return-contract.yaml
+  - .dev/issuecleanup/g5/721/analyze/handoff/1-analyze.md
+issue: 721
+verdict: still-relevant
+complexity: complex
+size: L
+priority: P2
+qa_verdict: PASS
+reviewed_commit: a7ae3dd30fcf88aaab655c37e94e58e121c2d863
+source_changes: false
+github_writes: false
+tests_run: false

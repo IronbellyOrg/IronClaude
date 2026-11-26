@@ -1,0 +1,39 @@
+VERDICT: PASS
+
+## Scope checked
+- Read all 45 lines of `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/601/findings.md` in one <=80-line chunk and the complete accompanying `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g3/601/analyze/analyze-report.md`. I did not author either report.
+- Live issue #601 is OPEN with no comments. Its acceptance criteria explicitly require replacing the deep remediation chain, preserving both hardening fields and the no-override rule, updating every listed route description, targeted tests, full sync, and the routing-guide mirror.
+- Live PR #653 is MERGED. Its body explicitly includes troubleshoot's single plan route, keeps old output fields for compatibility, and deliberately excludes historical records. That deliberate exclusion explains the documentation gap; it does not amend #601's broader acceptance criteria.
+- Direct source reads confirm the one-route instruction, explicit acceptance, blocked unattended behavior, workflow planning without automatic implement handoff, user-run execution boundary, post-review, both hardening fields carried to source and tasklist, and the downstream no-override rule. These are written contracts, not a runtime demonstration.
+- Direct historical-document reads confirm both the old deep route and the 5.0.0 installation precondition. The findings correctly distinguish historical accuracy from literal acceptance-criteria completion.
+
+### Route and safety evidence
+- `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:582-594` directly specifies explicit user acceptance, one plan route at every permitted depth, quick-plus-fix rejection, unattended blocking, standard-depth workflow with no execution handoff, consumption of its pre-review, literal user-run implement command, and post-execution review. This supports the report's recommendation not to rebuild the route.
+- `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-troubleshoot-protocol/refs/remediation-handoff.md:93-113` explicitly carries both hardening fields into the source snapshot and checks/appends them in the plan. It prohibits automatic implement handoff and stops on a pre-review blocker.
+- `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-troubleshoot-protocol/refs/hardening-output-contract.md:52-56` names workflow and implement among consumers forbidden to turn a blocked/advisory result into clean success; it separately preserves an authorization blocker. The findings appropriately call these instructions, not demonstrated enforcement.
+- `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests/troubleshoot/test_hardening_verdict.py:84-126` has the described replacement-consumer and latch assertions, prohibits task-builder/BUILD_REQUEST in the route documents, and checks the no-auto-handoff wording. The separately read diagnostic-worker test selects only the plan branch. Neither test was executed.
+
+### Delivery and dependency evidence
+- Local HEAD matches the findings. The read-only ancestry check for PR #653's merge commit returned status 0. Live PR #658 is MERGED and explicitly includes #653 in the 6.1.0 release; its merge commit matches the findings. This supports delivered implementation rather than a proposed future rewrite.
+- Live #647 is CLOSED and covers route replacement. Live #599 is OPEN and explicitly calls #601 a separate sibling; live #571 is OPEN and remains the proposed broader parent; live #572 is OPEN and concerns agent evaluation. Live #263 is CLOSED, and merged #296 explicitly left troubleshoot outside its scope. No prerequisite requiring route work to wait on those open issues is established. The report correctly limits its reverse-dependency and formal-parent claims.
+- The routing-guide mirror comparison returned status 0. It establishes equality only, not a full sync pass.
+- Complexity simple / size S and priority P3 are reasonable for the bounded remaining wording, documentation-scope decision and validation work. They are not an estimate of reimplementing the already-merged chain or a claim that validation will necessarily pass.
+
+### Historical scope and closure decision
+- `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/testing/v5.0.0/user/D06-plan-implement-review-cap.md:1-20,167-177` explicitly targets 5.0.0, requires that installation, and expects task-builder, the old route offer and user-run task execution for the deep case. `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/releases/v5.0.0.md:100` likewise records the old deep chain. These are historical evidence, not evidence that today's protocol still invokes that chain.
+- Nevertheless, live #601 expressly lists both documents and requires no listed file to describe that old deep route. No comment supplies an exception. Thus the issue is not literally ready to close. The findings state this clearly rather than silently treating PR #653's historical-record exclusion as an amendment to #601.
+- The proposed order is sound: correct living-source wording without deleting compatibility aliases, obtain the owner's documentation-scope decision and record it through the coordinator, obtain authorized test/sync evidence, and only then recommend closure. Preserving historical tests while explicitly narrowing the issue criteria is a recommendation awaiting approval, not a decision this review or the findings can make.
+
+## Blocking defects
+None found in the findings' decision-driving claims. PASS means the qualified in-progress assessment and bounded next steps are supported; it does not mean #601 meets every acceptance criterion or may be closed now.
+
+## Follow-up candidates
+- Confirmed the two wording fixes already proposed: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/commands/reflect.md:46` still attributes the legacy grammar to troubleshoot Wave 6, and `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:102` describes the retired field without its historical qualifier. Neither revives the old execution route.
+- Additional minor wording residue: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/docs/user-guide/commands.md:1296-1300` repeats the legacy-grammar attribution. Include it when reconciling living documentation. This adds one wording location, not a different verdict, complexity, size, priority or dependency.
+- Existing plugin drift merits a separate surface check: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/plugins/superclaude/commands/troubleshoot.md:64-69` still advertises automatic safe fixes. The live issue already identifies this copy as divergent and asks whether regeneration is needed. This does not establish an active task-builder/deep route or invalidate the canonical skill evidence; it does mean safety conclusions must remain limited to that skill, as the findings' runtime/installed limitation requires. Do not read this PASS as certification of plugin behavior.
+
+## Notes and limits
+- Independent replacement review performed on 2026-11-24. Only this QA file was written; the findings and source were not modified.
+- No tests, UV, pip, builds, installs, sync execution, Git writes, GitHub writes or Orca calls were performed. Read-only Git checks and file comparison supplemented source reads and authorized live GitHub views.
+- Current targeted-test success, full sync, installed/runtime behavior, exhaustive reverse dependencies and formal parent links remain unverified. PR #653's historical results are not a fresh all-green test run.
+- Recommendation: retain the findings' in-progress disposition and bounded reconciliation/validation next steps. No source rewrite or issue closure is authorized by this QA result.

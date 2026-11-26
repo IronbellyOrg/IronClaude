@@ -1,0 +1,16 @@
+# Analyze handoff
+- Command: /sc:analyze src/superclaude/skills/sc-troubleshoot-protocol --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/609/analyze
+- Task ID: task_f82444a2e8b1
+- Dispatch ID: ctx_9bdc8385656c
+- worker_status: succeeded
+- Deliverable: .dev/issuecleanup/g4/609/analyze/analyze-report.md
+- Contract: .dev/issuecleanup/g4/609/analyze/return-contract.yaml
+- Decisions: static analysis only; no source, GitHub or paid-service writes.
+- Findings: keyword baseline unchanged; no integrated Jev classifier; type also affects the diagnosability gate.
+- Applied message IDs: none, mailbox empty at both checkpoints.
+- Next Command: none.
+- Remaining brief work: none; findings.md completed, independent qa.md read with VERDICT: PASS and zero blocking defects.
+- Final issue assessment: still-relevant, medium complexity, size M, priority P2.
+- Findings: .dev/issuecleanup/g4/609/findings.md
+- QA: .dev/issuecleanup/g4/609/qa.md
+- Runtime classification and live comparison remain UNVERIFIED; no source or outward action was authorized or performed.

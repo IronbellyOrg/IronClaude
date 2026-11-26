@@ -1,0 +1,15 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/cli/sweep/ --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g6/757/analyze'
+report_path: .dev/issuecleanup/g6/757/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g6/757/analyze/handoff/1-sc-analyze.md
+  - .dev/issuecleanup/g6/757/findings.md
+  - .dev/issuecleanup/g6/757/qa.md
+  - .dev/issuecleanup/g6/757/qa-r1.md
+issue_verdict: in-progress
+complexity: complex
+size: L
+priority: P2
+qa_verdict: PASS
+qa_fix_cycles: 1

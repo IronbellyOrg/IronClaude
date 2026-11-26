@@ -1,0 +1,9 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/skills --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g5/718/analyze'
+report_path: .dev/issuecleanup/g5/718/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g5/718/report-template.md
+  - .dev/issuecleanup/g5/718/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g5/718/findings.md
+  - .dev/issuecleanup/g5/718/qa.md

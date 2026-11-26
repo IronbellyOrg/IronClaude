@@ -1,0 +1,16 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "Direct revision brief for issue 717 (no Command line)"
+report_path: .dev/issuecleanup/g5/717-revise5/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g5/717/findings.md
+  - .dev/issuecleanup/g5/717/analyze/analyze-report.md
+  - .dev/issuecleanup/g5/717-revise5/handoff/1-revise.md
+task_id: task_3e81ad2c18ef
+dispatch_id: ctx_6b0867a3a7ec
+gh_calls: 39
+issue_verdict: "still-relevant; scope/build order partly outdated"
+complexity: complex
+size: XL
+priority: P2
+independent_review: "Historical review-3 FAIL retained; no fourth review or new independent PASS; coordinator disposition pending"

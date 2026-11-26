@@ -1,0 +1,42 @@
+# Cross-Validation Report
+
+- **Date:** 2026-11-23
+- **Claims verified:** 9 VERIFIED; 2 UNVERIFIED; 0 CONTRADICTED (11 rows).
+- **Scope:** Independent correctness gate for the two issue-review reports. All Read requests were at most 80 lines. Read the registered template in two pieces and wrote its report skeleton before populating results.
+- **Method:** Checked required fields, current source citations, scoring arithmetic, downstream dependency, bounded test-search evidence and limitations. No delegation, Orca, GitHub contact, source changes, tests, live debate or publication. This review is the only file written.
+
+## Validation Results
+
+| # | Claim | Source | Code Path Checked | Verdict | Notes |
+|---|-------|--------|-------------------|---------|-------|
+| 1 | Both reports retain the required cross-validation structure. | /home/coder/.claude/templates/modularization-template-review/analyst-cross-validation_report_template.md:92-104 | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/376/findings.md:3-5,61-68; /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/376/analyze/analyze-report.md:3-16 | VERIFIED | Date, Claims verified and all six validation columns are present; each row uses the closed verdict vocabulary. Findings uses a table pointer instead of a numeric claims count, a minor presentation deviation, not missing substantive validation. |
+| 2 | The issue review supplies the decision fields. | Review scope and findings headings | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/376/findings.md:9-76 | VERIFIED | Evidence-backed verdict, current state, next steps, complexity/size, priority, needs/blocks, related issues, related PRs and limitations are present. The original full dispatch brief is not retained in these two reports; this verifies the named field set, not unseen requirements. |
+| 3 | The analysis contains the required assessment sections. | /home/coder/.claude/commands/sc/analyze.md:131-137 | /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g1/376/analyze/analyze-report.md:18-53 | VERIFIED | Severity-rated findings, code quality metrics, security vulnerabilities, performance issues and recommendations are present. Security/performance sections honestly state that no vulnerability or measured performance result was established, not that a comprehensive audit passed. |
+| 4 | The intended design is six dimensions, 30 binary criteria, /30, an invariant minimum and all-zero suspension. | Both reports' canonical scoring claims | Source evidence A below | VERIFIED | Checked actual dimension lists, invariant criteria, formula, eligibility and warning policy. |
+| 5 | Two pass prompts and the debate summary retain three stale 25-criterion instructions. | Both reports' mismatch findings | Source evidence B below | VERIFIED | Both pass instructions explicitly say 25 while the adjacent formula says 30; the summary repeats 25. This is a present source contradiction. |
+| 6 | The base-selection template omits the sixth dimension/floor record and uses two /25 cells. | Both reports' template claim | Source evidence C below | VERIFIED | Five dimension sections and summary rows lead directly to disagreement, combined score and selection. No invariant subtotal, eligibility or suspension section is supplied. |
+| 7 | The arithmetic and still-relevant conclusion are supported without a claimed live failure. | Findings verdict/current state and analysis severity findings | Sources A-C below | VERIFIED | 25/30 is approximately 0.833333; 25/25 is 1.0. A zero-invariant candidate is ineligible when an eligible competitor exists; the all-zero exception is preserved. This supports potential selection error, not demonstrated live mis-selection. Medium/M and P2 are defensible estimates, not measurements. |
+| 8 | Reflection is a downstream protocol consumer. | Findings validation row 2 | Source evidence D below | VERIFIED | T2 reviewer-card merging delegates to adversarial debate/scoring. The reports correctly call this a protocol dependency, not a reproduced runtime failure. |
+| 9 | The inspected evaluation does not prove arithmetic/floor correctness; absence of all possible validators remains unproven. | Findings validation row 3 and analysis validation row 4 | Source evidence E below | VERIFIED | Checked the named expectations and repeated the specified term search. Reports distinguish a contradicted arithmetic-coverage assertion from unverified absence of differently named tests. |
+| 10 | Remote state, PR history, issue relationships and search completeness are independently confirmed by this QA gate. | Findings state/dependency/related-item sections | No retained GitHub snapshot in the target report directory; no GitHub contact authorized | UNVERIFIED | Cannot independently recheck OPEN state, comment count, PR bodies/merge commits, last-touch history or remote searches using permitted tools. Those remain attributed observations of the original reviewer. Current-source proof independently supports the keep-open recommendation. |
+| 11 | Live selection behavior, full timeline, latest remote source and absence of unpushed work are established. | Both reports' limitations | No runtime or remote verification authorized | UNVERIFIED | Both reports explicitly withhold these claims. No full timeline or live debate is required for this analysis-only gate. These are honest limits, not blockers. |
+
+## Source evidence checked
+
+- **A, canonical design:** /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-adversarial-protocol/SKILL.md:237-258 lists all six five-criterion dimensions, /30, the 1/5 floor, all-zero warning and disagreement policy.
+- **B, stale instructions:** /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-adversarial-protocol/SKILL.md:1743-1776 contains the /30 formula followed by 25-criterion pass instructions at 1756 and 1759; /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-adversarial-protocol/refs/debate-protocol.md:185-198 repeats 25 at 192.
+- **C, incomplete output record:** /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-adversarial-protocol/refs/artifact-templates.md:167-234 contains five dimensions, two /25 cells at 201 and no floor record before selection.
+
+- **A, detailed output contract:** /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-adversarial-protocol/refs/scoring-protocol.md:148-156 spells out the five invariant criteria and suspension; 221-233 requires six dimensions, 30 criteria, per-dimension summaries and per-variant floor checks.
+- **D, downstream integration:** /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/sc-reflect-protocol/SKILL.md:664-680 explicitly delegates the T2 merge to adversarial debate/scoring and shows its invocation.
+- **E, evaluation coverage:** /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/eval/suites/frontier_vs_cheap_combo.yaml:84-107 asks for score comparison but asserts only file existence, score-name substrings and zero exit code. Repeated Grep over /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests for `qual_score|total_criteria_met|scoring-protocol|25-criterion|edge.case.floor` returned one installer packaging match, not a numeric validator. This search is intentionally bounded and cannot exclude differently named tests.
+
+## Overall PASS/FAIL
+
+**PASS.** No decision-changing, missing-required-content or safety defect was found in the two requested reports. The keep-open recommendation rests on current contradictory instructions, not merely historical issue text or an unverified absence of corrective PRs. Actual model behavior remains unverified.
+
+## Follow-up candidates
+
+- Minor presentation: replace the Claims verified pointer with an explicit count when normalizing headers. The four-row validation table already exists, so this does not block.
+- Preserve the static-evidence/runtime-proof distinction in later work. This gate grants no implementation or paid-run authorization.
+- Remote metadata/history were not independently rechecked. Retaining permitted issue/PR view/list snapshots in a later authorized review would improve repeatability; no API, full timeline or live debate is demanded here.

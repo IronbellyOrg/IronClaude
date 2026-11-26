@@ -1,0 +1,9 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: "Revise only blocking findings of issue 717 QA"
+report_path: .dev/issuecleanup/g5/717-revise/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g5/717/findings.md
+  - .dev/issuecleanup/g5/717/analyze/analyze-report.md
+  - .dev/issuecleanup/g5/717-revise/handoff/1-revise.md
+blocked_question: "When is there actual evidence that the shared GitHub API rate limit has reset, allowing the required related-issue and PR reads?"

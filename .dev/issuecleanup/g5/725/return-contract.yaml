@@ -1,0 +1,15 @@
+worker_contract_version: "1"
+worker_status: succeeded
+issue_verdict: still-relevant
+complexity: medium
+size: M
+priority: P2
+qa_verdict: PASS
+limits: Static review only; no tests or source changes. External Coder launch builders remain unverified.
+command: '/sc:analyze src/superclaude/core --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g5/725/analyze'
+report_path: .dev/issuecleanup/g5/725/findings.md
+artifacts:
+  - .dev/issuecleanup/g5/725/qa.md
+  - .dev/issuecleanup/g5/725/analyze/analyze-report.md
+  - .dev/issuecleanup/g5/725/analyze/return-contract.yaml
+  - .dev/issuecleanup/g5/725/analyze/handoff/1-analyze.md

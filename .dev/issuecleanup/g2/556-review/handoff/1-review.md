@@ -1,0 +1,11 @@
+# Independent issue-review handoff
+- Template: /home/coder/.claude/WORKER-CONTRACT.md, WC-15; dispatch-defined review handoff.
+- Command: none; direct independent review task.
+- Task ID: task_342d3f81950a
+- Dispatch ID: ctx_a8b5ca65370b
+- worker_status: succeeded
+- Deliverables: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g2/556-review/qa.md; /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g2/556-review/return-contract.yaml
+- Decisions: FAIL, one blocking omission: both recommendations omit the issue's explicit prohibition on synthetic scores certifying real-model convergence. Core defect relevance and the owner hold are supported. Complexity/L sizing lacks a reproducible estimate (non-blocking follow-up).
+- Applied message IDs: none; all coordinator checks returned empty.
+- Limits: source/document review only; no tests or model calls, no GitHub writes, no staging or commit. Original probe captures and historical graph metrics remain UNVERIFIED.
+- Next Command: none; coordinator reads the return contract and review report. No product fix is authorized.

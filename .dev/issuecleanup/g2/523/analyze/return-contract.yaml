@@ -1,0 +1,13 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze src/superclaude/skills/ccsession-tag --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g2/523/analyze"
+report_path: .dev/issuecleanup/g2/523/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g2/523/analyze/handoff/1-analyze.md
+  - .dev/issuecleanup/g2/523/findings.md
+  - .dev/issuecleanup/g2/523/evidence-review.md
+verdict: still-relevant
+verification_limits:
+  - Complete GitHub event timeline unavailable through permitted gh issue view/list and pr view/list commands.
+  - Coder release distribution and current gateway serving unverified; no external completion call authorized.
+  - Static review only; no tests run and no product source changed.

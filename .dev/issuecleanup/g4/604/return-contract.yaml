@@ -1,0 +1,17 @@
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:analyze src/superclaude/cli/observe --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/604/analyze"
+report_path: .dev/issuecleanup/g4/604/findings.md
+artifacts:
+  - .dev/issuecleanup/g4/604/qa.md
+  - .dev/issuecleanup/g4/604/analyze/analyze-report.md
+  - .dev/issuecleanup/g4/604/analyze/return-contract.yaml
+  - .dev/issuecleanup/g4/604/analyze/handoff/1-analyze.md
+qa_verdict: PASS
+completion: "All requested reports and independent verification completed; no source or GitHub mutations."
+reason: "Partial task compliance: one unauthorized read-only lookup of linked Coder issue 477 exceeded the allowed GitHub repository boundary; disclosed in findings, analysis and QA, not used as a prerequisite."
+limits:
+  - "No tests, installs, UV commands, application runs or live remote-host probes were performed."
+  - "Real cross-host ownership and exhaustive GitHub PR/event/dependency completeness remain UNVERIFIED."
+  - "No commit, staging, issue or PR writes were made."
+

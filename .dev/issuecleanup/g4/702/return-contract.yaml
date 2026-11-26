@@ -1,0 +1,21 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze .github --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/702/analyze"
+report_path: .dev/issuecleanup/g4/702/findings.md
+artifacts:
+  - .dev/issuecleanup/g4/702/qa.md
+  - .dev/issuecleanup/g4/702/analyze/analyze-report.md
+  - .dev/issuecleanup/g4/702/analyze/return-contract.yaml
+  - .dev/issuecleanup/g4/702/analyze/handoff/1-analyze.md
+verdict: still-relevant
+complexity: complex
+size: M
+priority: P2
+qa_verdict: PASS
+source_commit: a7ae3dd30fcf88aaab655c37e94e58e121c2d863
+local_commit: not_authorized
+outward_actions: none
+limits:
+  - Live GitHub enforcement and current admin permissions are UNVERIFIED; only issue and PR reads were authorized.
+  - No tests, builds, environment creation, production probes or Git mutations were run.
+  - Owner reconciliation with parked issue 723 is required before implementation.

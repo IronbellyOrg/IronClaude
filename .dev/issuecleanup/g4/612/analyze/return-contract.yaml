@@ -1,0 +1,14 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude/skills/sc-troubleshoot-protocol --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/612/analyze'
+report_path: .dev/issuecleanup/g4/612/analyze/analyze-report.md
+artifacts:
+  - .dev/issuecleanup/g4/612/handoff/1-analyze.md
+  - .dev/issuecleanup/g4/612/report-templates.md
+codegraph:
+  index_state: fresh
+  access: mcp
+  checked_at: '2026-11-24T13:34:32Z'
+  worktree_root: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup
+  degraded:
+    - graph:empty

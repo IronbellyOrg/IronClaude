@@ -1,0 +1,8 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: "Task: revise blocking findings for issue 618 (no Command line)"
+report_path: .dev/issuecleanup/g4/618-revise-g4/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g4/618-revise-g4/handoff/1-revise-g4.md
+blocked_question: "How will the coordinator supply the required independent reviewer-written report through a compatible authorized output route?"
+reason: "The only blocking finding is a missing reviewer-written artifact; editing findings or analysis cannot resolve it within this revision-only scope."

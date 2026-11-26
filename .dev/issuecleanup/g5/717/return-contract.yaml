@@ -1,0 +1,16 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: "Review IronbellyOrg/IronClaude issue #717, analyze its watcher source, and independently verify findings"
+report_path: .dev/issuecleanup/g5/717/findings.md
+artifacts:
+  - .dev/issuecleanup/g5/717/qa.md
+  - .dev/issuecleanup/g5/717/analyze/analyze-report.md
+  - .dev/issuecleanup/g5/717/analyze/return-contract.yaml
+  - .dev/issuecleanup/g5/717/analyze/handoff/1-analyze.md
+blocked_question: "When shared GitHub API access is available again, can a new task complete the required live issue and linked-PR reads and rerun independent QA?"
+reason: "Static analysis succeeded and source-backed triage was written, but required live PR inspection and independent live issue verification remain blocked by the reported shared API limit; final qa.md is VERDICT: FAIL for this missing required evidence, with no additional blocking source-content defect. No correction/review loop can supply the unavailable live source under the task's read-only command allow-list."
+qa_verdict: FAIL
+provisional_issue_verdict: still-relevant
+complexity: complex
+size: XL
+priority: P2

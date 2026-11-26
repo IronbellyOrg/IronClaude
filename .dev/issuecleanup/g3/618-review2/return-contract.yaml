@@ -1,0 +1,9 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: "Task: independent second review of issue 618 findings"
+report_path: .dev/issuecleanup/g3/618-review2/qa.md
+verdict: FAIL
+reason: "Both required review inputs under .dev/issuecleanup/g3/618 are missing; source-level claim verification cannot proceed."
+blocked_question: "Will the coordinator restore the two specified group 3 inputs or issue a new task naming the actual input paths?"
+artifacts:
+  - .dev/issuecleanup/g3/618-review2/handoff/1-review2.md

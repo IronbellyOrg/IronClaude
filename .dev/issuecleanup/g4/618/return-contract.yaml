@@ -1,0 +1,11 @@
+worker_contract_version: "1"
+worker_status: blocked
+command: '/sc:analyze pyproject.toml --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/618/analyze'
+report_path: .dev/issuecleanup/g4/618/findings.md
+artifacts:
+  - .dev/issuecleanup/g4/618/qa.md
+  - .dev/issuecleanup/g4/618/analyze/analyze-report.md
+  - .dev/issuecleanup/g4/618/analyze/return-contract.yaml
+  - .dev/issuecleanup/g4/618/analyze/handoff/1-analyze.md
+blocked_question: 'How can the required reviewer-written qa.md be obtained through an authorized output route when the general-purpose reviewer reports that its developer instructions prohibit writing report Markdown files?'
+reason: 'Analysis succeeded and findings are complete, but the required independent reviewer-written file was not produced. The reviewer returned inline PASS and refused file output; qa.md is a clearly labeled worker-authored FAIL blocker record, not a substituted independent report.'

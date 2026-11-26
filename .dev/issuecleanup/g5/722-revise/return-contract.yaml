@@ -1,0 +1,8 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "Direct blocking-finding revision from dispatch brief (no Command: line)"
+report_path: .dev/issuecleanup/g5/722-revise/revision-notes.md
+artifacts:
+  - .dev/issuecleanup/g5/722/findings.md
+  - .dev/issuecleanup/g5/722/analyze/analyze-report.md
+  - .dev/issuecleanup/g5/722-revise/handoff/1-revise.md

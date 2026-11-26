@@ -1,0 +1,27 @@
+# Tier 4 Ember architecture analysis
+
+Template: ../../450/report-template.md, Analyze skeleton.
+
+## Scope and grounding
+Command: `/sc:analyze src/superclaude/skills/ccsession-tag --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g2/523/analyze`.
+
+Analyzed checkout: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup`, commit `a7ae3dd30fcf88aaab655c37e94e58e121c2d863`, 2026-11-24. This is the narrowest package containing the ccsession tier resolver, picker, proxy, data and model documentation. Dependent review data and membership tests were inspected only to determine the necessary update boundary.
+
+Codegraph: index_state=fresh, checked_at=2026-11-24T02:44:23Z; degraded: none
+
+Access: mcp. Discovery found six indexed Python files; JSON, shell and Markdown are outside that indexed-file count. Used package layout, main-file outlines, _all_tiers body, callers, callees and one-hop impact, then live Read/Grep confirmation. Augment's initial default-main query failed (BRANCH_NOT_FOUND); repeating against master succeeded, but its historical task excerpts were treated only as search leads.
+## Architecture and metrics
+- Data flow: JSON models_env order -> models.py _all_tiers -> tier_access / resolve_tiers -> proxy curation -> picker and ordered request failover. The verified call site is `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/ccsession-tag/models.py:631` (resolution: call-site-verified); the graph's one-hop impact is only _all_tiers and tier_access, not a complete runtime impact count.
+- Current ccsession Tier 4: three slots (01, 02, 03), no Ember. Target: four slots in order 01, 04, 02, 03. Tier 3 stays at two slots. Evidence: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/ccsession-tag/ccsession-models.json:113-178`.
+- Existing model/window handling is sufficient: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/ccsession-tag/models.py:663-677` preserves slot order and loads each slot's window; `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:839-841` accepts a model with a window at least as large as its tier's. An owner-recorded 1,000,000-token Ember window can therefore coexist with the unchanged 500,000-token tier window, provided Coder supplies it.
+- A second configuration owns review-tier membership: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/review/data/review-tiers.default.json:10-19`. Ember's tier5c seat is separate from its missing Tier 4 membership. `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests/review/test_review_panel_live7.py:94-108` ties review tier lengths to ccsession slot counts.
+## Severity-rated findings
+1. **Medium, functional gap:** Ember is missing from the Tier 4 slot list and picker metadata. Evidence: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/ccsession-tag/ccsession-models.json:120-178`; `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests/unit/test_ccsession_tiers.py:85-91,219-222`. The requested fourth model cannot participate in Tier 4 routing through these data.
+2. **High impact if rollout order is violated, not a current outage:** a referenced but unset T4Model04 raises during construction of all tiers before access filtering. Evidence: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/skills/ccsession-tag/models.py:628-632,663-669`. Verify Coder rollout before changing live-fetched data; no missing-slot failure was triggered in this review.
+3. **Medium, change coupling:** adding only a ccsession slot breaks the review tier-length consistency assertion. Evidence: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/tests/review/test_review_panel_live7.py:94-108`; `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/review/data/review-tiers.default.json:10-13`. Update both Tier 4 lists atomically. The independent Ember review seat already exists and is not the missing ccsession feature.
+
+No security or performance defect is claimed from this quick architecture-only pass. No dynamic measurements were collected.
+## Recommendations and roadmap
+Keep #523 open as still-relevant, P2, simple/S. Verify Coder slot/window rollout and actual gateway serving before release, then make a single small data/docs/test change: Tier 4 order 01,04,02,03; picker visibility, name and 1M metadata; matching review-tier membership; updated slot fixtures and assertions; README, MODEL-TIERS and CHANGELOG. Preserve Tier 3, existing slot meanings and both tiers' windows. Do not add a routing abstraction or a new alias/profile that the acceptance criteria do not require. Run focused and full regression tests during implementation, not as a substitute for external rollout verification.
+## Verification limits
+Static, architecture-focused, quick-depth review only. No tests, paid calls, installs, gateway requests or source changes. Coder#503 closure/deployment and current model serving are UNVERIFIED; only issue 523's comment reports that rollout. Complete GitHub timeline is UNVERIFIED because gh issue view rejects timelineItems and the brief forbids API/browser alternatives. Current files demonstrate the missing Tier 4 registration independently of that historical uncertainty. No assertion that all current workspaces are safe for rollout is made.

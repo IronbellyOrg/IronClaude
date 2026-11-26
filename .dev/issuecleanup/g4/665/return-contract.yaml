@@ -1,0 +1,20 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:analyze src/superclaude --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/g4/665/analyze'
+report_path: /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g4/665/findings.md
+artifacts:
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g4/665/analyze/analyze-report.md
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g4/665/analyze/return-contract.yaml
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g4/665/analyze/handoff/1-analyze.md
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g4/665/qa.md
+  - /home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g4/665/qa-round1.md
+review_state: PASS
+review_rounds: 2
+fix_cycles: 1
+verdict: not-planned
+complexity: medium
+size: M
+priority: P2
+limits:
+  - No tests or runtime/deployment inspection, per task scope.
+  - No GitHub writes, staging or commits.
