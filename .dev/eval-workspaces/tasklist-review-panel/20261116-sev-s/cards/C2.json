@@ -1,0 +1,34 @@
+{
+  "id": "C2",
+  "name": "Driving-document rule not carried over",
+  "version": 1,
+  "definition": "A rule stated in the driving document is not carried into the plan's task text or criterion.",
+  "question_template": "Does the candidate carry this rule, including each condition and failure path? Quote the carrying sentence, or answer PROBLEM.",
+  "extractor": "E5",
+  "route": "read",
+  "replicas": 2,
+  "applies_to": [
+    "plan",
+    "spec",
+    "doc"
+  ],
+  "instances": [
+    {
+      "cite": "reflect/pre-phase3CodegraphA-20261029205359/REPORT.md:110",
+      "target": "plan",
+      "kind": "P"
+    },
+    {
+      "cite": "reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md:203-204",
+      "target": "plan",
+      "kind": "P"
+    }
+  ],
+  "severity_guidance": "Blocking when the dropped rule changes what the built artefact does; minor when the rule only affects wording.",
+  "known_weakness": "Rules carried in words and not in identifiers; high identifier overlap hides a missing rule.",
+  "promote_category": "missing-requirement",
+  "swap_test": {
+    "reviewer": "second-author-session claude-sonnet-5-5",
+    "date": "2026-11-15"
+  }
+}

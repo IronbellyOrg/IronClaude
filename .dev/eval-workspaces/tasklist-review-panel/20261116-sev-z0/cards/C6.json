@@ -1,0 +1,34 @@
+{
+  "id": "C6",
+  "name": "Overbroad universal claim",
+  "version": 1,
+  "definition": "A sentence says \"all\", \"only\", \"never\" or \"outside X nothing\", and an inventory, the plan's other tasks or the scope of the enforcing test contradict it.",
+  "question_template": "Name the set this sentence covers. Find one member it leaves out or contradicts: look at the plan's other tasks, at what the enforcing test skips, and run one count or listing command over the tree.",
+  "extractor": "E1",
+  "route": "search",
+  "replicas": 2,
+  "applies_to": [
+    "plan",
+    "spec",
+    "doc"
+  ],
+  "instances": [
+    {
+      "cite": "reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/REPORT.md:28",
+      "target": "plan",
+      "kind": "P"
+    },
+    {
+      "cite": "reflect/pre-TASK-WF-brainstormFixBri-20261106-021737/reviewer-cards/reviewer-1-card.yaml:44",
+      "target": "plan",
+      "kind": "P"
+    }
+  ],
+  "severity_guidance": "Blocking when one counter-example that the document itself shows falsifies the claim; minor when the claim is only loosely worded.",
+  "known_weakness": "Contradictions that sit in other tasks are not scripted; most recorded instances are delivered documents, not plan text.",
+  "promote_category": "contradiction",
+  "swap_test": {
+    "reviewer": "second-author-session claude-sonnet-5-5",
+    "date": "2026-11-15"
+  }
+}

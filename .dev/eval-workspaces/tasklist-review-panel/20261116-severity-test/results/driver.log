@@ -1,0 +1,176 @@
+sandbox built: /tmp/evalsb-sev/HO-2/repo
+START sev1-z0-HO-2-r1 22:40:55
+run sev1-z0-HO-2-r1: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=85.63
+END sev1-z0-HO-2-r1 rc=0 22:42:22
+sandbox built: /tmp/evalsb-sev/HO-3/repo
+START sev1-z0-HO-3-r1 22:42:28
+run sev1-z0-HO-3-r1: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=90.472
+END sev1-z0-HO-3-r1 rc=0 22:44:00
+START sev1-s-HO-2-r1 22:44:00
+run sev1-s-HO-2-r1: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=104.701
+END sev1-s-HO-2-r1 rc=0 22:45:46
+sandbox built: /tmp/evalsb-sev/HX-1/repo
+START sev1-s-HX-1-r1 22:45:52
+run sev1-s-HX-1-r1: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=2 merge_exit=0 elapsed_s=82.563
+END sev1-s-HX-1-r1 rc=0 22:47:16
+START sev1-s-HO-3-r1 22:47:16
+run sev1-s-HO-3-r1: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=2 merge_exit=0 elapsed_s=150.232
+END sev1-s-HO-3-r1 rc=0 22:49:48
+sandbox built: /tmp/evalsb-sev/HX-3/repo
+START sev1-s-HX-3-r1 22:49:53
+run sev1-s-HX-3-r1: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=79.106
+END sev1-s-HX-3-r1 rc=0 22:51:13
+START sev1-z0-HX-1-r1 22:51:13
+run sev1-z0-HX-1-r1: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=85.983
+END sev1-z0-HX-1-r1 rc=0 22:52:41
+START sev1-z0-HX-3-r1 22:52:41
+run sev1-z0-HX-3-r1: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=68.266
+END sev1-z0-HX-3-r1 rc=0 22:53:50
+START sev1-z0-HO-2-r2 22:53:50
+run sev1-z0-HO-2-r2: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=149.371
+END sev1-z0-HO-2-r2 rc=0 22:56:21
+START sev1-z0-HX-3-r2 22:56:21
+run sev1-z0-HX-3-r2: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=2 merge_exit=0 elapsed_s=84.006
+END sev1-z0-HX-3-r2 rc=0 22:57:46
+START sev1-z0-HX-1-r2 22:57:46
+run sev1-z0-HX-1-r2: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=54.185
+END sev1-z0-HX-1-r2 rc=0 22:58:42
+START sev1-z0-HO-3-r2 22:58:42
+run sev1-z0-HO-3-r2: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=120.073
+END sev1-z0-HO-3-r2 rc=0 23:00:44
+START sev1-s-HO-3-r2 23:00:44
+run sev1-s-HO-3-r2: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=123.9
+END sev1-s-HO-3-r2 rc=0 23:02:49
+START sev1-s-HO-2-r2 23:02:49
+run sev1-s-HO-2-r2: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=72.6
+END sev1-s-HO-2-r2 rc=0 23:04:03
+START sev1-s-HX-1-r2 23:04:03
+run sev1-s-HX-1-r2: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=42.079
+END sev1-s-HX-1-r2 rc=0 23:04:47
+START sev1-s-HX-3-r2 23:04:47
+run sev1-s-HX-3-r2: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=76.622
+END sev1-s-HX-3-r2 rc=0 23:06:05
+START sev1-z0-HO-3-r3 23:06:05
+run sev1-z0-HO-3-r3: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=98.012
+END sev1-z0-HO-3-r3 rc=0 23:07:44
+START sev1-s-HX-3-r3 23:07:44
+run sev1-s-HX-3-r3: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=80.37
+END sev1-s-HX-3-r3 rc=0 23:09:06
+START sev1-s-HO-2-r3 23:09:06
+run sev1-s-HO-2-r3: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=122.175
+END sev1-s-HO-2-r3 rc=0 23:11:10
+START sev1-s-HO-3-r3 23:11:10
+run sev1-s-HO-3-r3: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=2 merge_exit=0 elapsed_s=150.234
+END sev1-s-HO-3-r3 rc=0 23:13:41
+START sev1-z0-HX-3-r3 23:13:41
+run sev1-z0-HX-3-r3: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=127.668
+END sev1-z0-HX-3-r3 rc=0 23:15:50
+START sev1-s-HX-1-r3 23:15:50
+run sev1-s-HX-1-r3: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=43.169
+END sev1-s-HX-1-r3 rc=0 23:16:35
+START sev1-z0-HX-1-r3 23:16:35
+run sev1-z0-HX-1-r3: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=62.53
+END sev1-z0-HX-1-r3 rc=0 23:17:39
+START sev1-z0-HO-2-r3 23:17:39
+run sev1-z0-HO-2-r3: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=114.345
+END sev1-z0-HO-2-r3 rc=0 23:19:35
+START sev1-s-HO-3-r4 23:19:35
+run sev1-s-HO-3-r4: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=2 merge_exit=0 elapsed_s=150.299
+END sev1-s-HO-3-r4 rc=0 23:22:06
+START sev1-s-HO-2-r4 23:22:06
+run sev1-s-HO-2-r4: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=75.538
+END sev1-s-HO-2-r4 rc=0 23:23:23
+START sev1-s-HX-3-r4 23:23:23
+run sev1-s-HX-3-r4: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=52.476
+END sev1-s-HX-3-r4 rc=0 23:24:17
+START sev1-z0-HX-3-r4 23:24:17
+run sev1-z0-HX-3-r4: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=73.735
+END sev1-z0-HX-3-r4 rc=0 23:25:32
+START sev1-z0-HX-1-r4 23:25:33
+run sev1-z0-HX-1-r4: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=80.605
+END sev1-z0-HX-1-r4 rc=0 23:26:55
+START sev1-s-HX-1-r4 23:26:55
+run sev1-s-HX-1-r4: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=0 merge_exit=1 elapsed_s=0.409
+END sev1-s-HX-1-r4 rc=0 23:26:56
+START sev1-z0-HO-3-r4 23:26:56
+run sev1-z0-HO-3-r4: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=115.836
+END sev1-z0-HO-3-r4 rc=0 23:28:54
+START sev1-z0-HO-2-r4 23:28:54
+run sev1-z0-HO-2-r4: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=79.804
+END sev1-z0-HO-2-r4 rc=0 23:30:15
+START sev1-z0-HO-2-r5 23:30:15
+run sev1-z0-HO-2-r5: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=98.955
+END sev1-z0-HO-2-r5 rc=0 23:31:55
+START sev1-s-HO-2-r5 23:31:55
+run sev1-s-HO-2-r5: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=110.521
+END sev1-s-HO-2-r5 rc=0 23:33:47
+START sev1-s-HX-3-r5 23:33:47
+run sev1-s-HX-3-r5: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=95.818
+END sev1-s-HX-3-r5 rc=0 23:35:24
+START sev1-z0-HO-3-r5 23:35:24
+run sev1-z0-HO-3-r5: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=149.677
+END sev1-z0-HO-3-r5 rc=0 23:37:55
+START sev1-z0-HX-3-r5 23:37:55
+run sev1-z0-HX-3-r5: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=101.084
+END sev1-z0-HX-3-r5 rc=0 23:39:38
+START sev1-s-HX-1-r5 23:39:38
+run sev1-s-HX-1-r5: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=2 merge_exit=0 elapsed_s=37.502
+END sev1-s-HX-1-r5 rc=0 23:40:17
+START sev1-z0-HX-1-r5 23:40:17
+run sev1-z0-HX-1-r5: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=63.395
+END sev1-z0-HX-1-r5 rc=0 23:41:22
+START sev1-s-HO-3-r5 23:41:22
+run sev1-s-HO-3-r5: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=2 merge_exit=0 elapsed_s=150.243
+END sev1-s-HO-3-r5 rc=0 23:43:54
+DRIVER DONE 23:43:54
+SKIP sev1-z0-HO-2-r1
+SKIP sev1-z0-HO-3-r1
+SKIP sev1-s-HO-2-r1
+SKIP sev1-s-HX-1-r1
+START sev1-s-HO-3-r1 23:44:09
+run sev1-s-HO-3-r1: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=2 merge_exit=0 elapsed_s=150.278
+END sev1-s-HO-3-r1 rc=0 23:46:41
+SKIP sev1-s-HX-3-r1
+SKIP sev1-z0-HX-1-r1
+SKIP sev1-z0-HX-3-r1
+SKIP sev1-z0-HO-2-r2
+SKIP sev1-z0-HX-3-r2
+SKIP sev1-z0-HX-1-r2
+SKIP sev1-z0-HO-3-r2
+SKIP sev1-s-HO-3-r2
+SKIP sev1-s-HO-2-r2
+SKIP sev1-s-HX-1-r2
+SKIP sev1-s-HX-3-r2
+SKIP sev1-z0-HO-3-r3
+SKIP sev1-s-HX-3-r3
+SKIP sev1-s-HO-2-r3
+START sev1-s-HO-3-r3 23:46:41
+run sev1-s-HO-3-r3: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=2 merge_exit=0 elapsed_s=150.244
+END sev1-s-HO-3-r3 rc=0 23:49:12
+SKIP sev1-z0-HX-3-r3
+SKIP sev1-s-HX-1-r3
+SKIP sev1-z0-HX-1-r3
+SKIP sev1-z0-HO-2-r3
+START sev1-s-HO-3-r4 23:49:12
+run sev1-s-HO-3-r4: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=101.054
+END sev1-s-HO-3-r4 rc=0 23:50:55
+SKIP sev1-s-HO-2-r4
+SKIP sev1-s-HX-3-r4
+SKIP sev1-z0-HX-3-r4
+SKIP sev1-z0-HX-1-r4
+START sev1-s-HX-1-r4 23:50:55
+run sev1-s-HX-1-r4: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=43.627
+END sev1-s-HX-1-r4 rc=0 23:51:40
+SKIP sev1-z0-HO-3-r4
+SKIP sev1-z0-HO-2-r4
+SKIP sev1-z0-HO-2-r5
+SKIP sev1-s-HO-2-r5
+SKIP sev1-s-HX-3-r5
+SKIP sev1-z0-HO-3-r5
+SKIP sev1-z0-HX-3-r5
+SKIP sev1-s-HX-1-r5
+SKIP sev1-z0-HX-1-r5
+START sev1-s-HO-3-r5 23:51:40
+run sev1-s-HO-3-r5: arm=Z0 panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=130.394
+END sev1-s-HO-3-r5 rc=0 23:53:52
+DRIVER DONE 23:53:52

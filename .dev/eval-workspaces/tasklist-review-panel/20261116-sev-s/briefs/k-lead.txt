@@ -1,0 +1,2 @@
+# DRAFT, awaiting owner approval (DD-14). Lines that start with "# " are comments: they are not sent to the reviewer.
+Eight kinds of defect to look for in your own review of the plan. Each one says what to look for. A plan may have none of them, one of them or several.

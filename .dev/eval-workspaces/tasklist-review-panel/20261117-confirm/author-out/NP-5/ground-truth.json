@@ -1,0 +1,46 @@
+{
+  "doc_id": "NP-5",
+  "plan": "TASK-WF-analyzeCodegraph-20261111-193557",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Source requirement R7 bans `codegraph_node` file mode without `symbolsOnly:true` and any wildcard allowlist, besides the read-only verbs. The plan's acceptance criterion checks only the ban on init, index, sync, explore and context. A later edit that adds node file mode or a wildcard allowlist passes every check.",
+      "plan_quote": "the read-only ban on `codegraph init`, `index`, `sync`, `explore` and `context`.",
+      "evidence": ".dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/REPORT.md:21 (F1); .dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/adversarial/merged-output.md F1; source.md:17; plan:33-34"
+    },
+    {
+      "id": "GT2",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Source requirement R2 gates codegraph use on `index_state: fresh` and `access: mcp`. Tasks 1 and 2 and every acceptance criterion name only `index_state: fresh`, so the `access: mcp` half of the gate is never required or checked. An implementer can leave it out and pass.",
+      "plan_quote": "the Discover, Scan and Evaluate steps each name the codegraph tools they use and state they apply only when `index_state: fresh`.",
+      "evidence": ".dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/REPORT.md:22 (F2); .dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/adversarial/merged-output.md F2; source.md:12; plan:29,43"
+    },
+    {
+      "id": "GT3",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Source section 2.4 items 3 and 6 (graph rows are leads not citations; subagent briefs carry index_state, checked_at and worktree_root) and the 'under about 25 lines' cap are only in Task 1's body text. No acceptance criterion covers them, so an implementer can omit them or exceed the cap and still pass.",
+      "plan_quote": "Add a `## Codegraph (optional)` section between `## Key Patterns` and `## Examples` (source section 2.4), under about 25 lines",
+      "evidence": ".dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/REPORT.md:23 (F3); .dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/adversarial/merged-output.md F3; source.md:43-46,63"
+    },
+    {
+      "id": "GT4",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 3's acceptance criteria contain escape clauses: `verify-sync` output may name only files owned by other sessions, and a pytest failure 'not caused by' analyze.md is reported and left unfixed. Neither criterion can fail mechanically, because the executor decides who owns a failure. They should require exit 0, or name the exact files that may be ignored.",
+      "plan_quote": "any failure not caused by `src/superclaude/commands/analyze.md` is reported as such and left unfixed",
+      "evidence": ".dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/REPORT.md:24 (F4); .dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/adversarial/merged-output.md F4; plan:56-57"
+    },
+    {
+      "id": "GT5",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 2 AC2 requires the five step names, flags, Unattended mode and Boundaries to be byte-identical to HEAD 'apart from the intended additions', without bounding the additions. The executor defines the exception set after the fact, so the check cannot fail. It should name the lines or sections that may change.",
+      "plan_quote": "are byte-identical to `git show HEAD:src/superclaude/commands/analyze.md` apart from the intended additions",
+      "evidence": ".dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/REPORT.md:25 (F5); .dev/reflect/pre-TASK-WF-analyzeCodegraph-20261111-193557-shadow15/adversarial/merged-output.md F5; plan:44"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "C5",
+  "name": "Stale count, claim or copy in a second location",
+  "version": 1,
+  "definition": "After a change, a count, claim or copy in a second location is left stale because no task enumerates that location.",
+  "question_template": "Is each plan-unnamed hit false after the change? Does any task edit or check it?",
+  "extractor": "E4",
+  "route": "search",
+  "replicas": 2,
+  "applies_to": [
+    "plan",
+    "doc"
+  ],
+  "instances": [
+    {
+      "cite": "reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md:249",
+      "target": "plan",
+      "kind": "P"
+    },
+    {
+      "cite": "reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/REPORT.md:30,39",
+      "target": "plan",
+      "kind": "P"
+    }
+  ],
+  "severity_guidance": "Blocking when the stale count, claim or copy sits where a reader relies on it; minor in a code comment.",
+  "known_weakness": "Stale claims that use different wording than the plan; the search scope is fixed and can miss a location.",
+  "promote_category": "missing-requirement",
+  "swap_test": {
+    "reviewer": "second-author-session claude-sonnet-5-5",
+    "date": "2026-11-15"
+  }
+}
