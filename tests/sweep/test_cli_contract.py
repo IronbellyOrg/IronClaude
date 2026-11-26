@@ -383,7 +383,8 @@ def test_binding_1_no_run_and_first_call_failure_exits_2_with_one_argv(env):
         result,
         2,
         "Orca unavailable (binary not found: orca-ide); "
-        "no Run binding could be established: pass --run <id>\n",
+        "no Run binding could be established: pass --run <id> "
+        'run "superclaude sweep ledger" first\n',
     )
     assert _orca_calls(env) == [RUN_CURRENT]  # one _orca argv
     _nothing_written(env)  # no report
@@ -487,7 +488,11 @@ def test_binding_4_captured_no_binding_shape_exits_2_and_reads_nothing_else(env,
 
     result = _run(env)
 
-    _failed(result, 2, "no Run bound: pass --run <id>\n")
+    _failed(
+        result,
+        2,
+        'no Run bound: pass --run <id> run "superclaude sweep ledger" first\n',
+    )
     assert proc.argv() == [RUN_CURRENT]  # no worker-list, no worker-show, nothing else
     _nothing_written(env)
 

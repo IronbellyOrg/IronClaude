@@ -1,0 +1,14 @@
+return_contract:
+  merged_output_path: "adversarial/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: "adversarial/adversarial"
+  status: "partial"
+  base_variant: "sonnet:qa"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-001, category: sufficiency_challenge, assumption: "exact-text sweep tests still pass after the hint is appended", severity: HIGH}
+    - {id: INV-002, category: sufficiency_challenge, assumption: "install tests pass after the new hook script is listed", severity: HIGH}
+    - {id: INV-006, category: guard_conditions, assumption: "timestamps compare as plain values", severity: HIGH}

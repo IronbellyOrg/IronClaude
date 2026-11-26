@@ -1,0 +1,22 @@
+{
+  "id": "e449c536-df6b-4724-9de2-ab80f4d3ddeb",
+  "ok": true,
+  "result": {
+    "run": {
+      "id": "run_e97be8837462",
+      "objective": "scratch Run for the run-ledger hook payload test, safe to ignore",
+      "coordinator_handle": "term_679043ab-1b83-4c8a-b54d-065db3199e42",
+      "consumer_generation": 1,
+      "legacy": 0,
+      "created_at": "2026-11-26T18:38:33Z",
+      "updated_at": "2026-11-26T18:38:33Z"
+    },
+    "mutation": {
+      "requestId": "461adb9f-36e5-41d7-9e61-8a7634e0c62e",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "9ec0b385-81e9-4065-9a5d-ed93e22b689b"
+  }
+}

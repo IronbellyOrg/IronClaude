@@ -19,7 +19,7 @@ from pathlib import Path
 
 import click
 
-from . import probes
+from . import ledger, probes
 from .classify import classify_all
 from .models import SweepContext
 from .report import render, sanitize, to_json
@@ -216,6 +216,9 @@ def sweep_group() -> None:
     """Read-only sweep of Orca Runs, worktrees and sessions."""
 
 
+sweep_group.add_command(ledger.ledger_command)
+
+
 @sweep_group.command("run")
 @click.option(
     "--run",
@@ -261,10 +264,21 @@ def run(
             ),
         )
         budget = probes.Budget()
+        run_source = None
         if not runs:
             stage = "bind"
-            runs = (probes.bind_run(budget),)
-        ctx = SweepContext(now, span, now - span, checkout, runs)
+            try:
+                runs = (probes.bind_run(budget),)
+            except probes.BindingError as exc:
+                # No --run and no bound Run: take the Run ids from the Run ledger (no Orca call).
+                data = ledger.read_ledger(ledger.ledger_path(None))
+                if data is None:
+                    raise probes.BindingError(
+                        f'{exc} run "superclaude sweep ledger" first'
+                    ) from None
+                runs = tuple(entry["id"] for entry in data["runs"])
+                run_source = ledger.source_line(data, now)
+        ctx = SweepContext(now, span, now - span, checkout, runs, run_source)
         stage = "collect"
         collected = probes.collect(ctx, runs, checkout, budget)
         stage = "classify"

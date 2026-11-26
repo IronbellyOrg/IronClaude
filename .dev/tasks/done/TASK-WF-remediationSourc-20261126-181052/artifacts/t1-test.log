@@ -1,0 +1,29 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/run-ledger/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/run-ledger
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 18 items
+
+tests/run_ledger/test_rules.py::test_live_worktree_run_in PASSED         [  5%]
+tests/run_ledger/test_rules.py::test_deleted_worktrees_only_run_out PASSED [ 11%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[ready-True] PASSED [ 16%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[blocked-True] PASSED [ 22%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[in_progress-True] PASSED [ 27%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[some_unknown_status-True] PASSED [ 33%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[completed-False] PASSED [ 38%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[failed-False] PASSED [ 44%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[cancelled-False] PASSED [ 50%]
+tests/run_ledger/test_rules.py::test_new_run_in PASSED                   [ 55%]
+tests/run_ledger/test_rules.py::test_new_fallback_24h_when_no_previous_ledger PASSED [ 61%]
+tests/run_ledger/test_rules.py::test_legacy_run_out PASSED               [ 66%]
+tests/run_ledger/test_rules.py::test_worktree_id_exact_match_only PASSED [ 72%]
+tests/run_ledger/test_rules.py::test_null_worktree_id_no_match PASSED    [ 77%]
+tests/run_ledger/test_rules.py::test_time_forms_compare_correctly PASSED [ 83%]
+tests/run_ledger/test_rules.py::test_main_checkout_only_requires_only_reason_and_a_match PASSED [ 88%]
+tests/run_ledger/test_rules.py::test_stale_flag_is_null_without_task_timestamp PASSED [ 94%]
+tests/run_ledger/test_rules.py::test_stale_flag_true_for_old_ready_or_blocked_and_blocked_only_counted PASSED [100%]
+
+============================== 18 passed in 0.32s ==============================

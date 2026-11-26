@@ -1,0 +1,7 @@
+run ledger dry run, nothing written: /tmp/runledger-acceptance/envi.json
+generated_at: 2026-11-26T18:46:03Z  Runs kept: 12 of 65 listed (24 worktrees)
+reasons: live_worktree=1 unfinished_task=9 new=2 hook_added=0
+admitted only through the main checkout: 0
+admitted only by ready or blocked Tasks older than 7 days: 7
+held in only by blocked Tasks: 1
+Runs: run_e97be8837462 run_34f08f297142 run_3c5063203944 run_cd30f9d8ae6c run_90eb069b5ba0 run_58af03dbfa92 run_93bfa00cae2b run_f0e2c5772f56 run_7dbfc0fe4b11 run_0410650d5bef run_79fd90ac96f7 run_f9799a282ac4

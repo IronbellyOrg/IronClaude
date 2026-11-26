@@ -1,0 +1,17 @@
+selected_tier: 2
+fired_rule_number: 4   # table-wide pre-filter coverage_degraded first; row 4 (S_domains >= 3) also fires
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6.0
+per_signal_breakdown:
+  scope_size: 1        # 2 input files, but 11 tasks over ~14 repo files
+  task_count: 2
+  blast_radius: 1
+  spec_density: 2      # 55 inferred requirement rows, 0 labeled
+  ambiguity_signals: 0
+escalation_reason: "Step 1B.2b parse-density guard: inferred_count 55 > parsed_count 0, so no Tier 1 stop may fire; S_domains >= 3 (code, tests, docs, hook) also escalates (rule 4)."
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null
+reviewers_requested_default: 3
+reviewers_run: 2    # reduced from the default 3: the default rotation's third class is opus, and the owner's rule is never to select Opus automatically

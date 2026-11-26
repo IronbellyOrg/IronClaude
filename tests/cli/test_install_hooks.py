@@ -104,6 +104,7 @@ def fake_source_hooks(tmp_path, monkeypatch):
         "launch-job-identity.sh",
         "launch-level-guard.sh",
         "launch-level-pre-push.sh",
+        "run-ledger-record.sh",
     ]:
         (scripts_pkg / name).write_text("#!/usr/bin/env bash\nexit 0\n")
     (legacy_scripts_pkg / "session-init.sh").write_text("#!/usr/bin/env bash\nexit 0\n")
@@ -856,6 +857,22 @@ def test_require_orca_worktree_agent_script_is_packaged_listed_and_mirrored():
     assert "require-orca-worktree-agent.sh" in install_hooks._FRESHNESS_SCRIPTS
     assert os.access(source, os.X_OK) and os.access(mirror, os.X_OK)
     assert source.read_bytes() == mirror.read_bytes()
+
+
+def test_run_ledger_record_script_is_packaged_listed_and_mirrored():
+    from superclaude.cli import install_hooks
+
+    root = Path(__file__).resolve().parents[2]
+    source = root / "src/superclaude/hooks/scripts/run-ledger-record.sh"
+    mirror = root / "plugins/superclaude/hooks/scripts/run-ledger-record.sh"
+    assert "run-ledger-record.sh" in install_hooks._FRESHNESS_SCRIPTS
+    assert os.access(source, os.X_OK) and os.access(mirror, os.X_OK)
+    assert source.read_bytes() == mirror.read_bytes()
+    # Coder#545 registers the hook; this change must not.
+    assert (
+        "run-ledger-record"
+        not in (root / "src/superclaude/hooks/hooks.json").read_text()
+    )
 
 
 def _assert_require_orca_worktree_agent_installed(claude_dir: Path) -> None:

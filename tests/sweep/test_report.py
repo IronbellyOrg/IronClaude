@@ -594,6 +594,28 @@ def test_header_has_the_seven_exact_lines_of_design_7_5(ctx):
     ]
 
 
+def test_header_has_no_run_source_line_by_default(ctx):
+    assert ctx.run_source is None
+    text = report.render(result_of(ctx, sources=base_sources()), ctx)
+    assert "Run ledger" not in text
+    assert len(header_block(text).rstrip("\n").splitlines()) == 7
+
+
+def test_header_prints_run_source_line_when_set(ctx):
+    line = "Run ids from the Run ledger built 2026-11-08T11:30:00Z"
+    with_source = replace(ctx, run_source=line)
+    lines = (
+        header_block(
+            report.render(result_of(with_source, sources=base_sources()), with_source)
+        )
+        .rstrip("\n")
+        .splitlines()
+    )
+    assert lines.count(line) == 1
+    assert lines[2] == line  # right after the Scope line
+    assert len(lines) == 8
+
+
 def test_header_sources_line_says_none_when_there_are_no_sources(ctx):
     lines = header_block(report.render(empty_result(ctx), ctx)).splitlines()
 

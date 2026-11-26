@@ -1,0 +1,201 @@
+{
+ "version": 1,
+ "generated_at": "2026-11-26T18:44:50Z",
+ "orca": {
+  "runs_listed": 65,
+  "worktrees_listed": 24
+ },
+ "counts": {
+  "live_worktree": 1,
+  "unfinished_task": 9,
+  "new": 2,
+  "hook_added": 0,
+  "main_checkout_only": 0,
+  "open_task_stale_7d_only": 7,
+  "blocked_only": 1
+ },
+ "runs": [
+  {
+   "id": "run_e97be8837462",
+   "created_at": "2026-11-26T18:38:33Z",
+   "objective": "scratch Run for the run-ledger hook payload test, safe to ignore",
+   "reasons": [
+    "new"
+   ],
+   "source": "build",
+   "added_at": "2026-11-26T18:44:50Z",
+   "live_worktree_ids": [],
+   "unfinished_task_count": 0,
+   "main_checkout_only": false,
+   "stale_open_tasks_only": false,
+   "blocked_only": false
+  },
+  {
+   "id": "run_34f08f297142",
+   "created_at": "2026-11-26T18:12:41Z",
+   "objective": "Issue 545 (Coder): plan-stage tasklist for the ledger schedule on the coordinator sweep (claimed with --pipeline none --",
+   "reasons": [
+    "new"
+   ],
+   "source": "build",
+   "added_at": "2026-11-26T18:44:50Z",
+   "live_worktree_ids": [],
+   "unfinished_task_count": 0,
+   "main_checkout_only": false,
+   "stale_open_tasks_only": false,
+   "blocked_only": false
+  },
+  {
+   "id": "run_3c5063203944",
+   "created_at": "2026-11-23T22:42:07Z",
+   "objective": "Issue cleanup: review all 97 open IronClaude issues in groups of 20 (read-only findings; GitHub updates only on owner go",
+   "reasons": [
+    "unfinished_task"
+   ],
+   "source": "build",
+   "added_at": "2026-11-26T18:44:50Z",
+   "live_worktree_ids": [],
+   "unfinished_task_count": 4,
+   "main_checkout_only": false,
+   "stale_open_tasks_only": false,
+   "blocked_only": false
+  },
+  {
+   "id": "run_cd30f9d8ae6c",
+   "created_at": "2026-11-23T12:53:20Z",
+   "objective": "Build Coder issue 516: every Orca project gets a Coordinator branch, worktree and running COORD-<repo> session",
+   "reasons": [
+    "live_worktree"
+   ],
+   "source": "build",
+   "added_at": "2026-11-26T18:44:50Z",
+   "live_worktree_ids": [
+    "e1ca5238-cca0-4dce-80d7-2512a554fa93::/home/coder/workspaces/worktrees/Coder/issue-516"
+   ],
+   "unfinished_task_count": 0,
+   "main_checkout_only": false,
+   "stale_open_tasks_only": false,
+   "blocked_only": false
+  },
+  {
+   "id": "run_90eb069b5ba0",
+   "created_at": "2026-11-11T22:40:04Z",
+   "objective": "MCP audit of skills and commands with empty or missing mcp-servers, then file an issue",
+   "reasons": [
+    "unfinished_task"
+   ],
+   "source": "build",
+   "added_at": "2026-11-26T18:44:50Z",
+   "live_worktree_ids": [],
+   "unfinished_task_count": 2,
+   "main_checkout_only": false,
+   "stale_open_tasks_only": true,
+   "blocked_only": true
+  },
+  {
+   "id": "run_58af03dbfa92",
+   "created_at": "2026-11-08T01:51:10Z",
+   "objective": "Validate PR 427 (spec-panel Review Loop contract) against real non-convergence incidents: phase 1 incident discovery (lo",
+   "reasons": [
+    "unfinished_task"
+   ],
+   "source": "build",
+   "added_at": "2026-11-26T18:44:50Z",
+   "live_worktree_ids": [],
+   "unfinished_task_count": 2,
+   "main_checkout_only": false,
+   "stale_open_tasks_only": true,
+   "blocked_only": false
+  },
+  {
+   "id": "run_93bfa00cae2b",
+   "created_at": "2026-11-07T06:15:41Z",
+   "objective": "Claim issue 375 (pr-submit status change feature) in a new worktree, then follow through with the claim's next steps in ",
+   "reasons": [
+    "unfinished_task"
+   ],
+   "source": "build",
+   "added_at": "2026-11-26T18:44:50Z",
+   "live_worktree_ids": [],
+   "unfinished_task_count": 17,
+   "main_checkout_only": false,
+   "stale_open_tasks_only": false,
+   "blocked_only": false
+  },
+  {
+   "id": "run_f0e2c5772f56",
+   "created_at": "2026-11-05T02:20:40Z",
+   "objective": "Claim GitHub issues 404, 450 and 425 with /sc:issue --claim, each in its own new worktree and session",
+   "reasons": [
+    "unfinished_task"
+   ],
+   "source": "build",
+   "added_at": "2026-11-26T18:44:50Z",
+   "live_worktree_ids": [],
+   "unfinished_task_count": 1,
+   "main_checkout_only": false,
+   "stale_open_tasks_only": true,
+   "blocked_only": false
+  },
+  {
+   "id": "run_7dbfc0fe4b11",
+   "created_at": "2026-11-04T20:09:46Z",
+   "objective": "Resume PR #368 review monitor (sc:pr-submit --monitor 3 --resume) from the scratch checkout",
+   "reasons": [
+    "unfinished_task"
+   ],
+   "source": "build",
+   "added_at": "2026-11-26T18:44:50Z",
+   "live_worktree_ids": [],
+   "unfinished_task_count": 1,
+   "main_checkout_only": false,
+   "stale_open_tasks_only": true,
+   "blocked_only": false
+  },
+  {
+   "id": "run_0410650d5bef",
+   "created_at": "2026-11-04T12:40:27Z",
+   "objective": "Close IronClaude issue #330 (restart after API outage)",
+   "reasons": [
+    "unfinished_task"
+   ],
+   "source": "build",
+   "added_at": "2026-11-26T18:44:50Z",
+   "live_worktree_ids": [],
+   "unfinished_task_count": 1,
+   "main_checkout_only": false,
+   "stale_open_tasks_only": true,
+   "blocked_only": false
+  },
+  {
+   "id": "run_79fd90ac96f7",
+   "created_at": "2026-11-04T12:37:18Z",
+   "objective": "Diagnose and fix intermittent ECONNREFUSED API errors in Claude Code sessions (IronbellyOrg/Coder#444); decide owning re",
+   "reasons": [
+    "unfinished_task"
+   ],
+   "source": "build",
+   "added_at": "2026-11-26T18:44:50Z",
+   "live_worktree_ids": [],
+   "unfinished_task_count": 1,
+   "main_checkout_only": false,
+   "stale_open_tasks_only": true,
+   "blocked_only": false
+  },
+  {
+   "id": "run_f9799a282ac4",
+   "created_at": "2026-11-04T06:33:36Z",
+   "objective": "Close IronClaude issue #330: install the Ponytail plugin on every workspace",
+   "reasons": [
+    "unfinished_task"
+   ],
+   "source": "build",
+   "added_at": "2026-11-26T18:44:50Z",
+   "live_worktree_ids": [],
+   "unfinished_task_count": 1,
+   "main_checkout_only": false,
+   "stale_open_tasks_only": true,
+   "blocked_only": false
+  }
+ ]
+}

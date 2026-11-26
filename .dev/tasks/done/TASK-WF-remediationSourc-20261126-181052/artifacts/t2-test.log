@@ -1,0 +1,44 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/run-ledger/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/run-ledger
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 33 items
+
+tests/run_ledger/test_build.py::test_worker_list_pagination PASSED       [  3%]
+tests/run_ledger/test_build.py::test_repeated_cursor_fails PASSED        [  6%]
+tests/run_ledger/test_build.py::test_page_cap_fails PASSED               [  9%]
+tests/run_ledger/test_build.py::test_orca_failure_raises[exit] PASSED    [ 12%]
+tests/run_ledger/test_build.py::test_orca_failure_raises[timeout] PASSED [ 15%]
+tests/run_ledger/test_build.py::test_orca_failure_raises[not_ok] PASSED  [ 18%]
+tests/run_ledger/test_build.py::test_missing_binary_message PASSED       [ 21%]
+tests/run_ledger/test_build.py::test_empty_worktree_list_implausible PASSED [ 24%]
+tests/run_ledger/test_build.py::test_empty_run_list_with_previous_implausible PASSED [ 27%]
+tests/run_ledger/test_build.py::test_zero_included_implausible_needs_recent_run PASSED [ 30%]
+tests/run_ledger/test_build.py::test_accept_empty_overrides_only_the_zero_included_guard PASSED [ 33%]
+tests/run_ledger/test_build.py::test_generated_at_taken_before_first_call PASSED [ 36%]
+tests/run_ledger/test_build.py::test_workers_not_fetched_for_runs_already_in PASSED [ 39%]
+tests/run_ledger/test_imports.py::test_checker_sees_every_import_form PASSED [ 42%]
+tests/run_ledger/test_imports.py::test_ledger_imports_only_allowed_probes_names PASSED [ 45%]
+tests/run_ledger/test_rules.py::test_live_worktree_run_in PASSED         [ 48%]
+tests/run_ledger/test_rules.py::test_deleted_worktrees_only_run_out PASSED [ 51%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[ready-True] PASSED [ 54%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[blocked-True] PASSED [ 57%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[in_progress-True] PASSED [ 60%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[some_unknown_status-True] PASSED [ 63%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[completed-False] PASSED [ 66%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[failed-False] PASSED [ 69%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[cancelled-False] PASSED [ 72%]
+tests/run_ledger/test_rules.py::test_new_run_in PASSED                   [ 75%]
+tests/run_ledger/test_rules.py::test_new_fallback_24h_when_no_previous_ledger PASSED [ 78%]
+tests/run_ledger/test_rules.py::test_legacy_run_out PASSED               [ 81%]
+tests/run_ledger/test_rules.py::test_worktree_id_exact_match_only PASSED [ 84%]
+tests/run_ledger/test_rules.py::test_null_worktree_id_no_match PASSED    [ 87%]
+tests/run_ledger/test_rules.py::test_time_forms_compare_correctly PASSED [ 90%]
+tests/run_ledger/test_rules.py::test_main_checkout_only_requires_only_reason_and_a_match PASSED [ 93%]
+tests/run_ledger/test_rules.py::test_stale_flag_is_null_without_task_timestamp PASSED [ 96%]
+tests/run_ledger/test_rules.py::test_stale_flag_true_for_old_ready_or_blocked_and_blocked_only_counted PASSED [100%]
+
+============================== 33 passed in 0.37s ==============================

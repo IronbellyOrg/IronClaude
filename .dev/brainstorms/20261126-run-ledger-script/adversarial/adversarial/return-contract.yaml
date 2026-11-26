@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/20261126-run-ledger-script/adversarial/merged-output.md"
+  convergence_score: 0.75
+  artifacts_dir: ".dev/brainstorms/20261126-run-ledger-script/adversarial/adversarial"
+  status: "success"
+  base_variant: "sonnet:refactorer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

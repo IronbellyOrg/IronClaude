@@ -1,0 +1,35 @@
+contract_version: "1.9.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/run-ledger/.dev/reflect/pre-TASK-WF-remediationSourc-20261126181355/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/run-ledger/.dev/reflect/pre-TASK-WF-remediationSourc-20261126181355/audit.log
+confidence_calibrated: 0.84
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.8696
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+input_tree_sha256: ec611d11b252458c961f6c98cd1c2455f950ccadc62c614e7143038ce8e7c6fb
+input_drift_detected: false
+citations_total: 32
+citations_revalidated: 31
+citations_dropped: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+reviewer_cards: [reviewer-cards/reviewer-1-card.md, reviewer-cards/reviewer-2-card.md]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/run-ledger/.dev/reflect/pre-TASK-WF-remediationSourc-20261126181355/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+calibrator_diversity: degraded
+remediation_offered: false
+finding_counts: {blocking: 0, label_high: 0, medium: 2, note: 6}
+regression_present: false
+needs_human_decision: false
+telemetry:
+  degraded_components: [reviewer-count-2-not-3, calibrator-disjoint-set-unavailable, executor-class-unknown, adversarial-depth-quick-circuit-breaker]
+  merge: orchestrator-written (one short table)

@@ -24,7 +24,7 @@ Explicit only: the coordinator runs `/sc:sweep` inside its liveness sweep pass, 
 ## Usage
 
 ```text
-/sc:sweep                                  # the Run bound to this terminal, window 6h
+/sc:sweep                                  # the bound Run, else the Run ledger, window 6h
 /sc:sweep --run run_0123456789ab           # one named Run
 /sc:sweep --run run_0123456789ab --run run_fedcba987654 --window 2d
 /sc:sweep --root /path/to/checkout --output /path/to/checkout/.dev/sweeps/archive
@@ -34,7 +34,7 @@ Explicit only: the coordinator runs `/sc:sweep` inside its liveness sweep pass, 
 
 | Flag | Default | Meaning |
 |---|---|---|
-| `--run <id>` | the Run bound to this terminal | An Orca Run id (`run_` plus 12 lowercase hex digits). Repeat the flag to read several Runs; duplicates are read once. When no Run is bound and none is named, the command exits with a message that asks for `--run <id>`. |
+| `--run <id>` | the Run bound to this terminal, else the Runs of the Run ledger | An Orca Run id (`run_` plus 12 lowercase hex digits). Repeat the flag to read several Runs; duplicates are read once. When no Run is bound and none is named, the Run ids come from the Run ledger that `superclaude sweep ledger` builds (the report header says so, and adds the ledger's age when it is over 90 minutes old). If there is no usable ledger, the command exits 2 with a message that asks for `--run <id>` and says to run `superclaude sweep ledger` first. |
 | `--window <N>h\|<N>d` | `6h` | How far back a session counts as active. `<N>` is 1 to 9999, at most `720h` or `30d`. |
 | `--root <dir>` | the checkout found by walking up from the current folder | The checkout root; it must hold `.git`. |
 | `--output <dir>` | `<root>/.dev/sweeps/` | The report folder. It must be `<root>/.dev/sweeps/` or a folder below it, and must not overlap the folders the sweep reads. |
