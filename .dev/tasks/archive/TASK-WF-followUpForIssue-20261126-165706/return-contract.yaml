@@ -1,0 +1,8 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-followUpForIssue-20261126-165706
+plan_path: ./TASK-WF-followUpForIssue-20261126-165706.md
+source_path: ./source.md
+unresolved:
+  - "SUPERSEDED by TASK-WF-followUpForIssue-20261126-173307: do not run /sc:implement on this package."
+superseded_by: TASK-WF-followUpForIssue-20261126-173307

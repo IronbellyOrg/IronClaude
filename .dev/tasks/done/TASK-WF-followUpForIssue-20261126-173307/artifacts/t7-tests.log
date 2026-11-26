@@ -1,0 +1,13 @@
+$ uv run pytest tests/core/test_claude_md_worktree_rule.py -q
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-289
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collected 5 items
+
+tests/core/test_claude_md_worktree_rule.py .....                         [100%]
+
+============================== 5 passed in 0.04s ===============================
+rc=0
