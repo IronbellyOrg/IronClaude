@@ -80,6 +80,16 @@ def test_contract_names_the_owner_rule_and_the_recording_rule():
     assert "the answer row id (dashboard)" in text
 
 
+def test_a_dashboard_response_counts_everywhere_the_person_confirms():
+    text = _contract()
+    assert "**Scope (everywhere the person confirms):**" in text
+    assert "a dashboard response counts as much as a chat message" in text
+    # the issue plan approval (WC-17 and the issue-pipeline bullet) takes the dashboard
+    # response too, and never the coordinator's own word
+    assert "the person's dashboard response as WC-3 defines it" in text
+    assert "never the coordinator's own word" in text
+
+
 def test_the_checker_fails_when_a_required_piece_is_removed():
     # throwaway copies of the text; the repository file is never touched
     text = _contract()
