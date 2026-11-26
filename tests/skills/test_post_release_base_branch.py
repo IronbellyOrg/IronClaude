@@ -37,15 +37,20 @@ def _guardrails() -> str:
     "required",
     [
         "git ls-remote --symref origin HEAD",
-        "git fetch origin <default-branch> --tags",
+        "git fetch origin '+refs/heads/<default-branch>:refs/remotes/origin/<default-branch>' --tags",
         "git merge-base --is-ancestor <tag> refs/remotes/origin/<default-branch>",
         "unverified",
-        "git fetch origin '+refs/heads/*:refs/remotes/origin/*' --tags",
+        "git fetch origin --prune '+refs/heads/*:refs/remotes/origin/*'",
         "git branch -r --contains <tag>",
     ],
 )
 def test_paragraph_names_live_resolution_and_remote_check(required):
     assert required in _paragraph()
+
+
+def test_inventory_fetch_prunes_but_never_with_tags():
+    # `git fetch --prune --tags` would delete local tags the remote lacks.
+    assert "--prune '+refs/heads/*:refs/remotes/origin/*' --tags" not in _paragraph()
 
 
 def test_old_local_branch_comparison_is_gone():
