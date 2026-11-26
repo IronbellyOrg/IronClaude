@@ -6,7 +6,7 @@ This document captures lightweight contributor conventions for the IronClaude fo
 
 ### The rot-budget rule
 
-**No PR may introduce a *new* lint or test failure.** Pre-existing failures on `master` are allowed to remain — they will be addressed in dedicated rot-cleanup PRs — but a PR that *adds* a failure must fix it before it merges.
+**No PR may introduce a *new* lint or test failure.** Pre-existing failures on `integration` are allowed to remain — they will be addressed in dedicated rot-cleanup PRs — but a PR that *adds* a failure must fix it before it merges.
 
 This rule keeps two things separate:
 
@@ -15,23 +15,20 @@ This rule keeps two things separate:
 
 ### What counts as a "new failure"
 
-A "new failure" is any lint or test failure that is **NOT present in the most recent CI run on `master`** at the time the PR branch was created.
+A "new failure" is any lint or test failure that is **NOT present in the most recent CI run on `integration`** at the time the PR branch was created.
 
 To check whether a failure in your PR is new or inherited:
 
-1. Look at the latest CI run on `master` (the merge commit your branch was cut from).
-2. If the same test ID or lint rule + file:line is failing on `master`, it is **inherited** (acceptable for your PR).
-3. If the failure appears on your branch but NOT on the `master` baseline, it is **new** (must be fixed before merge).
+1. Look at the latest CI run on `integration` (the merge commit your branch was cut from).
+2. If the same test ID or lint rule + file:line is failing on `integration`, it is **inherited** (acceptable for your PR).
+3. If the failure appears on your branch but NOT on the `integration` baseline, it is **new** (must be fixed before merge).
 
-When in doubt, run the same check locally on master in a separate worktree and compare. Do not use `git stash` for this: the stash stack is shared by every worktree and session of the repository, so another session can pop your changes.
+When in doubt, run the same check locally on `integration` in a second, clean checkout (not the one that holds your PR branch) and compare. Do not use `git stash` for this: the stash stack is shared by every worktree and session of the repository, so another session can pop your changes.
 
 ```bash
-# --detach: master is usually checked out in another worktree, and git refuses a second checkout of the same branch
-git worktree add --detach .dev/worktrees/master-check master
-cd .dev/worktrees/master-check
+git fetch origin integration
+git switch --detach origin/integration
 <run check>
-cd -
-git worktree remove .dev/worktrees/master-check
 ```
 
 ### Pre-PR local checks
@@ -63,7 +60,7 @@ Open PRs from Claude Code with the `/sc:pr-submit` slash command, which opens th
 When `/sc:pr-submit` cannot run, pass the fork explicitly:
 
 ```bash
-gh pr create --repo IronbellyOrg/IronClaude --base master --head <branch> --title "..." --body "..."
+gh pr create --repo IronbellyOrg/IronClaude --base integration --head <branch> --title "..." --body "..."
 ```
 
 Check that the returned URL starts with `https://github.com/IronbellyOrg/IronClaude/pull/`.
@@ -72,12 +69,14 @@ Check that the returned URL starts with `https://github.com/IronbellyOrg/IronCla
 
 `master` and `integration` take pull requests only. The server refuses direct pushes (including edits in the GitHub web editor), force pushes and deletion, so open a pull request from a branch. Merging `master` into `integration` is a pull request too. Release tags (`v*`) can be created but never deleted, rewritten or moved. See [Branch Protection](docs/developer-guide/branch-protection.md).
 
+Release PRs are the one exception: a maintainer promotes `integration` to `master` as described in [Release Procedure](docs/developer-guide/release-procedure.md).
+
 ### Claiming and filing issues
 
 Take an issue with `/sc:issue --claim <number>`: it assigns the issue to you on the fork (and its ClickUp task when your `CLICKUP_*` variables are set), checks whether the issue text still matches the code, and writes a summary and a next-step prompt to `.dev/issues/<N>/` before it stops. File a new issue with `/sc:issue --create "<description>"`; it uses the command's own feature and bug templates and labels. Both modes read the repository from `origin` only, so they always act on `IronbellyOrg/IronClaude` here. The command never commits `.dev/issues/`. See [`/sc:issue`](docs/user-guide/commands.md#scissue---github-issue-claim-and-create) for the flags.
 
 ### Disclaimer: social convention, not a CI-enforced gate
 
-This rot-budget rule is a **social convention** agreed by maintainers, **NOT** a CI-enforced gate. CI will still pass PRs that violate the rot-budget if the underlying job is green (or if the underlying job has been failing on master and continues to fail at the same level). Enforcement relies on PR reviewers checking the rule during code review.
+This rot-budget rule is a **social convention** agreed by maintainers, **NOT** a CI-enforced gate. CI will still pass PRs that violate the rot-budget if the underlying job is green (or if the underlying job has been failing on integration and continues to fail at the same level). Enforcement relies on PR reviewers checking the rule during code review.
 
-If you find a PR that violates the rule (a new failure that wasn't present on master), call it out in the review and ask the author to either fix the regression or document why it's acceptable.
+If you find a PR that violates the rule (a new failure that wasn't present on integration), call it out in the review and ask the author to either fix the regression or document why it's acceptable.
