@@ -1,0 +1,512 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/analysis/__init__.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/analysis/__init__.py
+new file mode 100644
+index 000000000..e69de29bb
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/common.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/common.sh
+new file mode 100644
+index 000000000..ab6303e90
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/common.sh
+@@ -0,0 +1,92 @@
++#!/usr/bin/env bash
++# Sourced by every shell file of the Sweep Sheet harness (DESIGN 1.2 K1, K2; 2.3).
++# SW is the folder of this build; REPO is four levels above it.
++SW=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
++REPO=$(cd "$SW/../../../.." && pwd -P)
++EVAL=$REPO/.dev/eval-workspaces/tasklist-review-panel/20261111-a1
++SB=${SW_SB_ROOT:-/tmp/evalsb-sweep}
++SRC_REPO=${SW_SRC_REPO:-$REPO}
++export PYTHONDONTWRITEBYTECODE=1
++export SUPERCLAUDE_CODEGRAPH_AUTOINIT=0
++# The four reviewer models (K2). The judge model is named only in bin/judge-one.sh.
++ALLOWED_MODELS="muse-ember-1.0 gpt-6-luna claude-haiku-5-5 claude-sonnet-5-5"
++
++sw_now() { date +%s.%3N; }
++
++# Refuse any output path outside SW, SB or /tmp (K1). Resolves symlinks and "..".
++sw_assert_writable() {
++  local p rp root
++  p=$1
++  rp=$(realpath -m -- "$p") || return 1
++  for root in "$(realpath -m -- "$SW")" "$(realpath -m -- "$SB")"; do
++    case "$rp/" in "$root"/*) return 0 ;; esac
++  done
++  case "$rp/" in /tmp/?*) return 0 ;; esac
++  echo "E_NOT_WRITABLE: $p (resolves to $rp)" >&2
++  return 1
++}
++
++# sw_assert_override NAME [VALUE]: VALUE defaults to the environment value of NAME.
++# Each override is judged by its kind. Unknown names are refused.
++sw_assert_override() {
++  local name=$1 val rp
++  if [ $# -ge 2 ]; then val=$2; else val=${!name:-}; fi
++  case "$name" in
++    SW_SB_ROOT | SW_SRC_REPO)
++      rp=$(realpath -m -- "$val") || return 1
++      case "$rp/" in
++        /tmp/?*) return 0 ;;
++      esac
++      echo "E_OVERRIDE: $name=$val is outside /tmp/" >&2
++      return 1
++      ;;
++    SW_KILL_S)
++      if [[ $val =~ ^[0-9]+(\.[0-9]+)?$ ]] && awk -v v="$val" 'BEGIN{exit !(v >= 0.1 && v <= 15)}'; then
++        return 0
++      fi
++      echo "E_OVERRIDE: $name=$val is not a number from 0.1 to 15" >&2
++      return 1
++      ;;
++    SW_PREPASS_CMD)
++      # Stubs of the kill test only: "sleep <n>" or "false", plain words, no shell syntax.
++      if [[ $val =~ ^(sleep|false)([[:space:]]+[A-Za-z0-9._-]+)*$ ]]; then
++        return 0
++      fi
++      echo "E_OVERRIDE: $name=$val is not a sleep or false stub" >&2
++      return 1
++      ;;
++  esac
++  echo "E_OVERRIDE: $name is not a known override" >&2
++  return 1
++}
++
++# Check every override that is set in the environment.
++sw_assert_overrides() {
++  local v rc=0
++  for v in SW_SB_ROOT SW_SRC_REPO SW_KILL_S SW_PREPASS_CMD; do
++    [ -n "${!v:-}" ] || continue
++    sw_assert_override "$v" || rc=1
++  done
++  return $rc
++}
++
++# Reviewer model allowlist: exact match, nothing else (K2).
++sw_assert_model() {
++  local m=${1:-} a
++  [ -n "$m" ] || { echo "E_MODEL: empty model id" >&2; return 1; }
++  for a in $ALLOWED_MODELS; do
++    [ "$m" = "$a" ] && return 0
++  done
++  echo "E_MODEL: $m is not an allowed reviewer model" >&2
++  return 1
++}
++
++# Counted runs use one attempt (DD-8).
++sw_assert_nofallback() {
++  [ "${NOFALLBACK:-}" = "1" ] || { echo "E_NOFALLBACK: NOFALLBACK=1 is required" >&2; return 1; }
++}
++
++sw_py() { uv run --frozen --project "$REPO" python "$@"; }
++
++# A bad override stops the sourcing shell: nothing runs on an unchecked override.
++sw_assert_overrides || exit 1
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/packages.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/packages.json
+new file mode 100644
+index 000000000..f481ddbb7
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/packages.json
+@@ -0,0 +1,27 @@
++{
++ "schema": "sweep-packages/1",
++ "packages": {
++  "TASK-WF-designSpec-20261107-075614": {
++   "kind": "plan", "set": "defect-rich",
++   "base": "0e486ab8d0eb24c6f2738ce1f895cc16755b26c1",
++   "candidate": ".dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
++   "source": ".dev/tasks/done/TASK-WF-designSpec-20261107-075614/source.md",
++   "masked_paths": ["src/superclaude/pr_submit/merge_guard.py", "src/superclaude/skills/sc-pr-submit-protocol/refs/merge-guard.md", "src/superclaude/commands/pr-submit.md"]
++  },
++  "TASK-WF-makeTheAliasOnly-20261105-051649": {
++   "kind": "plan", "set": "defect-rich",
++   "base": "38eb3c58afe6988b51060ae14117172869ea4c1e",
++   "candidate": ".dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md",
++   "source": ".dev/tasks/done/TASK-WF-makeTheAliasOnly-20261105-051649/source.md",
++   "masked_paths": ["src/superclaude/skills/sc-issue-protocol/refs/tiers.md", "src/superclaude/skills/sc-issue-protocol/refs/chains.md"]
++  },
++  "TASK-WF-design-20261108-041415": {
++   "kind": "plan", "set": "control",
++   "base": "5fa680778718af9087ccbe7a823e3909f1bcceb6",
++   "candidate": ".dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/candidate.md",
++   "source": ".dev/tasks/done/TASK-WF-design-20261108-041415/source.md",
++   "masked_paths": ["tests/skills/test_worker_contract.py"]
++  }
++ },
++ "order": ["TASK-WF-designSpec-20261107-075614", "TASK-WF-makeTheAliasOnly-20261105-051649", "TASK-WF-design-20261108-041415"]
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/panels.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/panels.json
+new file mode 100644
+index 000000000..7890a8697
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/panels.json
+@@ -0,0 +1,23 @@
++{
++ "schema": "sweep-panels/1",
++ "panels": {
++  "primary": {
++   "label": "ember + 2x luna",
++   "S": {"rid": "t2b-1", "model": "muse-ember-1.0", "cap": 8, "classes": "any"},
++   "L1": {"rid": "t4-1", "model": "gpt-6-luna", "cap": 8},
++   "L2": {"rid": "t3-1", "model": "gpt-6-luna", "cap": 8}
++  },
++  "haiku": {
++   "label": "haiku + 2x luna",
++   "S": {"rid": "t2-1", "model": "claude-haiku-5-5", "cap": 6, "classes": ["C4", "C5", "C8"]},
++   "L1": {"rid": "t4-1", "model": "gpt-6-luna", "cap": 9},
++   "L2": {"rid": "t3-1", "model": "gpt-6-luna", "cap": 9}
++  },
++  "sonnet": {
++   "label": "sonnet + 2x luna",
++   "S": {"rid": "t1b-1", "model": "claude-sonnet-5-5", "cap": 6, "classes": "any"},
++   "L1": {"rid": "t4-1", "model": "gpt-6-luna", "cap": 9},
++   "L2": {"rid": "t3-1", "model": "gpt-6-luna", "cap": 9}
++  }
++ }
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/values.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/values.json
+new file mode 100644
+index 000000000..2d9187e6e
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/values.json
+@@ -0,0 +1,20 @@
++{
++ "schema": "sweep-values/1",
++ "status": "planning",
++ "note": "Planning values from DESIGN 12 (UNVERIFIED). Each is replaced by a measured value; the measured one is recorded next to it, never over it.",
++ "b": {
++  "primary": {"TASK-WF-designSpec-20261107-075614": 100, "TASK-WF-makeTheAliasOnly-20261105-051649": 120, "TASK-WF-design-20261108-041415": 122},
++  "haiku": {"TASK-WF-designSpec-20261107-075614": 220, "TASK-WF-makeTheAliasOnly-20261105-051649": 238, "TASK-WF-design-20261108-041415": 226},
++  "sonnet": {"TASK-WF-designSpec-20261107-075614": 259, "TASK-WF-makeTheAliasOnly-20261105-051649": 302, "TASK-WF-design-20261108-041415": 269}
++ },
++ "c": {"muse-ember-1.0": 0.4, "gpt-6-luna": 2, "claude-haiku-5-5": 4, "claude-sonnet-5-5": 3},
++ "sheet_read_s": 3,
++ "prepass_s": 8,
++ "select_render_s": 1,
++ "check_s": 1,
++ "kill_s": {"cap_s": 15, "frac_of_b": 0.10},
++ "hang_s": {"factor": 1.5, "expected_overhead_s": {"primary": 29, "haiku": 37, "sonnet": 31, "other_arms": 0}},
++ "K": 8,
++ "K_single": 12,
++ "cap": 12
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T1/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T1/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T1/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/ruff.toml b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/ruff.toml
+new file mode 100644
+index 000000000..724b52f3d
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/ruff.toml
+@@ -0,0 +1 @@
++extend = "../../../../pyproject.toml"
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/__init__.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/__init__.py
+new file mode 100644
+index 000000000..e69de29bb
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/__init__.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/__init__.py
+new file mode 100644
+index 000000000..e69de29bb
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/helpers.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/helpers.py
+new file mode 100644
+index 000000000..ab0d227ce
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/helpers.py
+@@ -0,0 +1,21 @@
++"""Minimal helpers shared by the Task 1 tests: locate SW and run a snippet with bin/common.sh sourced."""
++
++import os
++import subprocess
++from pathlib import Path
++
++SW = Path(__file__).resolve().parents[1]
++REPO = SW.parents[3]
++REVIEWERS = ("muse-ember-1.0", "gpt-6-luna", "claude-haiku-5-5", "claude-sonnet-5-5")
++
++
++def sh(cmd, env=None):
++    """Run `source bin/common.sh; <cmd>` in bash; SW_* variables of the caller are dropped first."""
++    e = {k: v for k, v in os.environ.items() if not k.startswith("SW_")}
++    e.update(env or {})
++    return subprocess.run(
++        ["bash", "-c", f"source {SW}/bin/common.sh; {cmd}"],
++        capture_output=True,
++        text=True,
++        env=e,
++    )
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_layout.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_layout.py
+new file mode 100644
+index 000000000..ead3f7208
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_layout.py
+@@ -0,0 +1,110 @@
++"""K7 and the Task 1 skeleton: no ignored code folder, readable config files (TESTING section 4)."""
++
++import json
++import subprocess
++
++from helpers import REPO, REVIEWERS, SW
++
++GENERATED = {
++    "results",
++    "runs",
++    "scoring",
++    "__pycache__",
++    ".pytest_cache",
++    ".ruff_cache",
++}
++CODE_SUFFIXES = {".py", ".sh"}
++
++
++def code_folders():
++    out = []
++    for d in [SW, *SW.rglob("*")]:
++        if not d.is_dir() or GENERATED & set(d.relative_to(SW).parts):
++            continue
++        if any(f.suffix in CODE_SUFFIXES for f in d.iterdir() if f.is_file()):
++            out.append(d)
++    return out
++
++
++def test_no_ignored_folder_names():
++    folders = code_folders()
++    assert {d.name for d in folders} >= {
++        "bin",
++        "tests",
++        "scaffold",
++        "sweep",
++        "analysis",
++    }
++    ignored = []
++    for d in folders:
++        r = subprocess.run(
++            ["git", "-C", str(REPO), "check-ignore", "-q", "--", str(d)],
++            capture_output=True,
++        )
++        if r.returncode == 0:
++            ignored.append(str(d.relative_to(SW)))
++    assert ignored == []
++    assert not [d for d in SW.rglob("lib") if d.is_dir()]
++
++
++def test_package_files_are_empty_and_present():
++    for p in ("scaffold", "sweep", "analysis"):
++        f = SW / p / "__init__.py"
++        assert f.is_file() and f.stat().st_size == 0, p
++
++
++def test_ruff_toml_extends_repo_config():
++    assert (
++        SW / "ruff.toml"
++    ).read_text().strip() == 'extend = "../../../../pyproject.toml"'
++    assert (SW / "ruff.toml").parent.joinpath(
++        "../../../../pyproject.toml"
++    ).resolve() == REPO / "pyproject.toml"
++    assert (REPO / "pyproject.toml").is_file()
++
++
++def load(name):
++    return json.loads((SW / "config" / name).read_text(encoding="utf-8"))
++
++
++def test_panel_caps():
++    panels = load("panels.json")["panels"]
++    caps = {k: tuple(v[r]["cap"] for r in ("S", "L1", "L2")) for k, v in panels.items()}
++    assert caps == {"primary": (8, 8, 8), "haiku": (6, 9, 9), "sonnet": (6, 9, 9)}
++    for name, c in caps.items():
++        assert sum(c) == 24, name
++    assert panels["haiku"]["S"]["classes"] == ["C4", "C5", "C8"]
++    assert (
++        panels["primary"]["S"]["classes"] == panels["sonnet"]["S"]["classes"] == "any"
++    )
++
++
++def test_panel_models_are_reviewer_models():
++    for p in load("panels.json")["panels"].values():
++        for role in ("S", "L1", "L2"):
++            assert p[role]["model"] in REVIEWERS
++
++
++def test_packages_point_at_real_files():
++    pk = load("packages.json")
++    assert list(pk["packages"]) == pk["order"] and len(pk["order"]) == 3
++    for doc, v in pk["packages"].items():
++        assert (REPO / v["candidate"]).is_file(), doc
++        assert (REPO / v["source"]).is_file(), doc
++        assert len(v["base"]) == 40 and v["masked_paths"], doc
++
++
++def test_values_per_panel_document_and_model():
++    v = load("values.json")
++    docs = set(load("packages.json")["packages"])
++    for panel in load("panels.json")["panels"]:
++        assert set(v["b"][panel]) == docs
++        assert all(x > 0 for x in v["b"][panel].values())
++    assert set(v["c"]) == set(REVIEWERS)
++    assert v["kill_s"] == {"cap_s": 15, "frac_of_b": 0.10}
++    assert v["hang_s"]["factor"] == 1.5
++
++
++def test_values_selection_constants():
++    v = load("values.json")
++    assert (v["K"], v["K_single"], v["cap"]) == (8, 12, 12)
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_model_allowlist.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_model_allowlist.py
+new file mode 100644
+index 000000000..5be6c6f1e
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_model_allowlist.py
+@@ -0,0 +1,53 @@
++"""K2: reviewer models are exactly four; the judge model appears only in bin/judge-one.sh."""
++
++from helpers import REVIEWERS, SW, sh
++
++JUDGE = "claude-opus-5-5"
++
++
++def test_reviewer_models():
++    for m in REVIEWERS:
++        assert sh(f"sw_assert_model {m}").returncode == 0, m
++    # exact match only
++    for m in (
++        "claude-sonnet-5-5-x",
++        "claude-sonnet-5",
++        "GPT-6-LUNA",
++        "muse-ember-1.0 gpt-6-luna",
++        "gpt-6-luna ",
++        "",
++    ):
++        assert sh(f"sw_assert_model '{m}'").returncode == 1, m
++
++
++def test_opus_only_in_judge():
++    r = sh(f"sw_assert_model {JUDGE}")
++    assert r.returncode == 1 and "E_MODEL" in r.stderr
++    hits = set()
++    for sub in ("bin", "sweep", "scaffold"):
++        for p in (SW / sub).rglob("*"):
++            if p.is_file() and "__pycache__" not in p.parts:
++                if JUDGE in p.read_text(encoding="utf-8", errors="replace"):
++                    hits.add(str(p.relative_to(SW)))
++    assert hits <= {"bin/judge-one.sh"}, hits
++
++
++def test_fable_and_tier0_refused():
++    for m in (
++        "claude-fable-1",
++        "fable",
++        "Qwen3.8-max",
++        "qwen3-coder",
++        "glm-5.3",
++        "gpt-6.1-sol",
++        "grok-4.7",
++    ):
++        r = sh(f"sw_assert_model '{m}'")
++        assert r.returncode == 1 and "E_MODEL" in r.stderr, m
++
++
++def test_nofallback_guard():
++    assert sh("NOFALLBACK=1 sw_assert_nofallback").returncode == 0
++    r = sh("sw_assert_nofallback")
++    assert r.returncode == 1 and "NOFALLBACK" in r.stderr
++    assert sh("NOFALLBACK=0 sw_assert_nofallback").returncode == 1
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_paths.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_paths.py
+new file mode 100644
+index 000000000..20df0098e
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_paths.py
+@@ -0,0 +1,87 @@
++"""K1: writes stay under SW, SB or /tmp; overrides are judged by kind (TESTING section 4)."""
++
++import os
++
++import pytest
++from helpers import REPO, SW, sh
++
++
++def test_accepts_sw_sb_and_tmp(tmp_path):
++    assert sh(f"sw_assert_writable {SW}/runs/x").returncode == 0
++    assert sh("sw_assert_writable /tmp/evalsb-sweep/TASK-WF-x/repo").returncode == 0
++    assert sh(f"sw_assert_writable {tmp_path}/out").returncode == 0
++
++
++def test_refuses_output_outside_sw(tmp_path):
++    for p in (
++        REPO / "src/superclaude/x.py",
++        REPO / "tests/x.py",
++        REPO / ".claude/skills/x",
++        REPO / ".dev/tasks/to-do/x",
++        SW / ".." / "20261113-collab/x",
++        "/home/coder/not-here",
++    ):
++        r = sh(f"sw_assert_writable '{p}'")
++        assert r.returncode == 1, p
++        assert "E_NOT_WRITABLE" in r.stderr, p
++    # a dot-dot path that starts under SW but leaves it
++    assert sh(f"sw_assert_writable '{SW}/../../../../src/x'").returncode == 1
++    # a symlink under /tmp that points into src is judged by where it leads
++    link = tmp_path / "to-src"
++    os.symlink(REPO / "src", link)
++    r = sh(f"sw_assert_writable '{link}/x'")
++    assert r.returncode == 1 and "E_NOT_WRITABLE" in r.stderr
++
++
++def test_override_must_be_under_tmp(tmp_path):
++    for name in ("SW_SB_ROOT", "SW_SRC_REPO"):
++        assert sh(f"sw_assert_override {name} {tmp_path}/sb").returncode == 0, name
++        for bad in ("/home/x", str(REPO), "/tmp", "/tmp/../home/x"):
++            r = sh(f"sw_assert_override {name} '{bad}'")
++            assert r.returncode == 1 and "E_OVERRIDE" in r.stderr, (name, bad)
++    # set in the environment, the check runs when common.sh is sourced and stops the shell
++    r = sh("echo reached", {"SW_SB_ROOT": "/home/x"})
++    assert r.returncode == 1 and "E_OVERRIDE" in r.stderr and "reached" not in r.stdout
++    r = sh("echo $SB", {"SW_SB_ROOT": str(tmp_path / "sb")})
++    assert r.returncode == 0 and r.stdout.strip() == str(tmp_path / "sb")
++
++
++def test_kill_s_is_numeric_only():
++    for ok in ("1", "0.1", "15", "7.5"):
++        assert sh(f"sw_assert_override SW_KILL_S '{ok}'").returncode == 0, ok
++    for bad in ("9999", "abc", "", "0", "0.05", "15.1", "-1", "1;rm", "1 2"):
++        assert sh(f"sw_assert_override SW_KILL_S '{bad}'").returncode == 1, bad
++    assert sh("echo reached", {"SW_KILL_S": "1"}).returncode == 0
++    for bad in ("9999", "abc"):
++        r = sh("echo reached", {"SW_KILL_S": bad})
++        assert r.returncode == 1 and "reached" not in r.stdout, bad
++
++
++def test_prepass_cmd_stub_only():
++    for ok in ("sleep 5", "sleep 0.5", "false"):
++        assert sh(f"sw_assert_override SW_PREPASS_CMD '{ok}'").returncode == 0, ok
++    for bad in (
++        "rm -rf x",
++        "",
++        "sleeper 5",
++        "sleep 5; rm -rf x",
++        "sleep 5 && true",
++        "false | cat",
++        "sleep $(id)",
++        "true",
++    ):
++        r = sh(f"sw_assert_override SW_PREPASS_CMD '{bad}'")
++        assert r.returncode == 1, bad
++    assert sh("echo reached", {"SW_PREPASS_CMD": "sleep 5"}).returncode == 0
++    r = sh("echo reached", {"SW_PREPASS_CMD": "rm -rf x"})
++    assert r.returncode == 1 and "reached" not in r.stdout
++
++
++def test_unknown_override_refused():
++    assert sh("sw_assert_override SW_OTHER x").returncode == 1
++
++
++@pytest.mark.parametrize("var", ["SW", "REPO"])
++def test_path_variables(var):
++    r = sh(f"echo ${var}")
++    assert r.stdout.strip() == str({"SW": SW, "REPO": REPO}[var])
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index fb3ea339a..d2c31eb7e 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -1,2 +1,3 @@
+ # implement ledger — source: ./TASK-WF-implementHomeCod-20261114-200449.md — created: 2026-11-14T20:52:11Z
+ PLAN: sha256=1145414c8f6927a2a335d98f47ad59b4579596320366ad4b61975e283cade9c8 source_sha256=9d671083ec0ae471c56e4d78a92cb59a2c4979e1721346c51674e866cab8865e
++T1: start sha=7d543ee1a424e2fe77cf4bfa5e271152369edbdf

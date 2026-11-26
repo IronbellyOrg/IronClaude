@@ -1,0 +1,352 @@
+[
+  {
+    "sid": "S08",
+    "set": "ember + grok + 2x haiku + sonnet",
+    "era": "source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 1,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 1,
+      "I8": 1
+    },
+    "per_run": {
+      "r2-sonnet-ember": {
+        "found": [
+          "B3",
+          "I2",
+          "I7",
+          "I8"
+        ],
+        "blocking_credit": [
+          "I2",
+          "I7",
+          "I8"
+        ]
+      }
+    },
+    "check": "Read all score.json notes (1 run per set, 3 packages each); arrays agree with notes, no disagreements. No run noted unreadable/empty/incomplete report."
+  },
+  {
+    "sid": "S18",
+    "set": "grok + 2x haiku + sonnet",
+    "era": "source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 1,
+      "B5": 1,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 1,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 1,
+      "B5": 1,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 1,
+      "I8": 1
+    },
+    "per_run": {
+      "r2-sonnet-src": {
+        "found": [
+          "B3",
+          "B4",
+          "B5",
+          "I2",
+          "I7",
+          "I8"
+        ],
+        "blocking_credit": [
+          "B3",
+          "B4",
+          "B5",
+          "I2",
+          "I7",
+          "I8"
+        ]
+      }
+    },
+    "check": "Read all score.json notes (1 run per set, 3 packages each); arrays agree with notes, no disagreements. No run noted unreadable/empty/incomplete report. Note: GT5 (B5) is credited in the array though notes say it matches only loosely (L4.R3 F9, no engage-halt unavailable rule): judge-credited, borderline."
+  },
+  {
+    "sid": "S28",
+    "set": "luna + terra + wonder",
+    "era": "source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 1,
+      "B7": 1,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 1,
+      "B7": 1,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "per_run": {
+      "b4-terra-luna-muse": {
+        "found": [
+          "B3",
+          "B6",
+          "B7",
+          "I8"
+        ],
+        "blocking_credit": [
+          "B6",
+          "B7",
+          "I8"
+        ]
+      }
+    },
+    "check": "Read all score.json notes (1 run per set, 3 packages each); arrays agree with notes, no disagreements. No run noted unreadable/empty/incomplete report."
+  },
+  {
+    "sid": "S38",
+    "set": "glm + haiku + terra + wonder",
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "per_run": {
+      "n4-terra": {
+        "found": [
+          "B3",
+          "I8"
+        ],
+        "blocking_credit": [
+          "B3",
+          "I8"
+        ]
+      }
+    },
+    "check": "Read all score.json notes (1 run per set, 3 packages each); arrays agree with notes, no disagreements. No run noted unreadable/empty/incomplete report."
+  },
+  {
+    "sid": "S48",
+    "set": "grok + 2x haiku + terra",
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 1,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 1,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 1,
+      "I2": 0,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 1,
+      "I8": 1
+    },
+    "per_run": {
+      "r2-terra": {
+        "found": [
+          "B3",
+          "I1",
+          "I2",
+          "I7",
+          "I8"
+        ],
+        "blocking_credit": [
+          "B3",
+          "I1",
+          "I7",
+          "I8"
+        ]
+      }
+    },
+    "check": "Read all score.json notes (1 run per set, 3 packages each); arrays agree with notes, no disagreements. No run noted unreadable/empty/incomplete report."
+  },
+  {
+    "sid": "S58",
+    "set": "grok + luna + wonder",
+    "era": "pre-source.md",
+    "n_runs": 1,
+    "found": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 1,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "blocking_credit": {
+      "B1": 0,
+      "B2": 0,
+      "B3": 0,
+      "B4": 0,
+      "B5": 0,
+      "I1": 0,
+      "I2": 1,
+      "I3": 0,
+      "I4": 0,
+      "I5": 0,
+      "B6": 0,
+      "B7": 0,
+      "B8": 0,
+      "I6": 0,
+      "I7": 0,
+      "I8": 1
+    },
+    "per_run": {
+      "n3-muse-luna-grok": {
+        "found": [
+          "B3",
+          "I2",
+          "I8"
+        ],
+        "blocking_credit": [
+          "I2",
+          "I8"
+        ]
+      }
+    },
+    "check": "Read all score.json notes (1 run per set, 3 packages each); arrays agree with notes, no disagreements. No run noted unreadable/empty/incomplete report."
+  }
+]

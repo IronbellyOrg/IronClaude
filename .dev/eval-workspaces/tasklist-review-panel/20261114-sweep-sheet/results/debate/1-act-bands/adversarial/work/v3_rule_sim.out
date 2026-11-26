@@ -1,0 +1,34 @@
+1. Rule 'wholly outside' flag rate, truth at band midpoint (false alarm), n = 10 / 15 / 18 / 30
+C1 n=10:0.000 n=15:0.001 n=18:0.000 n=30:0.000
+C2 n=10:0.003 n=15:0.001 n=18:0.001 n=30:0.001
+C3 n=10:0.009 n=15:0.008 n=18:0.004 n=30:0.001
+C4 n=10:0.001 n=15:0.002 n=18:0.001 n=30:0.000
+C5 n=10:0.002 n=15:0.003 n=18:0.003 n=30:0.001
+C6 n=10:0.003 n=15:0.002 n=18:0.000 n=30:0.000
+C7 n=10:0.004 n=15:0.004 n=18:0.001 n=30:0.001
+C8 n=10:0.002 n=15:0.003 n=18:0.003 n=30:0.001
+P(no class flagged | all truths at midpoint): {10: 0.976, 15: 0.976, 18: 0.986, 30: 0.995}
+
+2. Same rule, truth one full band-width below lo / above hi (clamped to [0.01,0.99])
+C1 low-truth 0.01: n=10:0.00 n=18:0.00 n=30:0.00 | high-truth 0.70: n=10:0.38 n=18:0.72 n=30:0.92
+C2 low-truth 0.01: n=10:0.00 n=18:0.83 n=30:0.96 | high-truth 0.70: n=10:0.38 n=18:0.53 n=30:0.84
+C3 low-truth 0.01: n=10:0.00 n=18:0.00 n=30:0.00 | high-truth 0.27: n=10:0.27 n=18:0.35 n=30:0.42
+C4 low-truth 0.25: n=10:0.24 n=18:0.52 n=30:0.80 | high-truth 0.99: n=10:0.00 n=18:0.83 n=30:1.00
+C5 low-truth 0.10: n=10:0.35 n=18:0.73 n=30:0.93 | high-truth 0.85: n=10:0.20 n=18:0.72 n=30:0.85
+C6 low-truth 0.01: n=10:0.00 n=18:0.00 n=30:0.00 | high-truth 0.55: n=10:0.50 n=18:0.58 n=30:0.86
+C7 low-truth 0.01: n=10:0.00 n=18:0.00 n=30:0.74 | high-truth 0.55: n=10:0.27 n=18:0.39 n=30:0.64
+C8 low-truth 0.15: n=10:0.20 n=18:0.72 n=30:0.85 | high-truth 0.90: n=10:0.35 n=18:0.73 n=30:0.93
+
+3. Default band, literal unconditional act (stage_rows: not-selected = no act) when the planning model is exactly right
+   expected unconditional rate = act_mid x s_mid; P(point inside band) and P(wholly below) at n=10 / 18
+C1 band 0.10-0.40 act_mid 0.250 s_mid 0.525 -> expected 0.131 inside:0.75/0.70 wholly-below:0.00/0.00
+C2 band 0.20-0.45 act_mid 0.325 s_mid 0.550 -> expected 0.179 inside:0.54/0.40 wholly-below:0.00/0.03
+C3 band 0.03-0.15 act_mid 0.090 s_mid 0.375 -> expected 0.034 inside:0.25/0.44 wholly-below:0.00/0.00
+C4 band 0.50-0.75 act_mid 0.625 s_mid 0.875 -> expected 0.547 inside:0.64/0.70 wholly-below:0.00/0.01
+C5 band 0.35-0.60 act_mid 0.475 s_mid 0.775 -> expected 0.368 inside:0.50/0.48 wholly-below:0.01/0.02
+C6 band 0.05-0.30 act_mid 0.175 s_mid 0.525 -> expected 0.092 inside:0.61/0.82 wholly-below:0.00/0.00
+C7 band 0.15-0.35 act_mid 0.250 s_mid 0.525 -> expected 0.131 inside:0.35/0.42 wholly-below:0.00/0.00
+C8 band 0.40-0.65 act_mid 0.525 s_mid 0.900 -> expected 0.472 inside:0.65/0.60 wholly-below:0.00/0.01
+
+4. Pooled band 0.223-0.456 (equal class weights) with an unregistered class mix: expected pooled rate if the mix is all-C4 / all-C3 / even
+even mix 0.339 | C4-heavy (50% C4, rest even) 0.462 | C3,C6,C1 only (even) 0.172

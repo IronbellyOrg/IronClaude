@@ -1,0 +1,12 @@
+test extraction of RR: lines 13-17 (script uses 13-17)
+briefs/base.txt: 1764 chars, diff lines 0
+briefs/cb1.txt: 147 chars, diff lines 0
+briefs/cb2.txt: 293 chars, diff lines 0
+briefs/cb3.txt: 225 chars, diff lines 0
+briefs/cb4.txt: 280 chars, diff lines 0
+briefs/cb5.txt: 122 chars, diff lines 0
+briefs/ledger-rule.txt: 473 chars, diff lines 0
+briefs/sheet-block.txt: 1015 chars, diff lines 0
+AGREE: every file equals the test extraction
+uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel python /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/copy-briefs.py
+rc=0

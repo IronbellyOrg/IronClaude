@@ -1,0 +1,13 @@
+pick: advice-3-a.md; runner-up: advice-3-b.md; reason: tie, -a
+T4 (DESIGN.md 1.2 run-reviewer.sh, h2_normalize.py, values.py; 2.6, 2.7, 4 R-05)
+Acceptance criteria:
+T4.AC1: the three tools implement the behaviour of DESIGN.md sections 2.6 and 2.7 and the R-05 allowed-difference set of section 4.
+T4.AC2: T-10 (cmd part), T-11, T-12, T-13, F-8 (runner part), F-9, F-10 (runner part) and F-13 exist as tests that check what DESIGN.md 6.1/6.2 lists for them and pass: `uv run pytest .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tests -q`.
+Steps:
+1. In `.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tools/h2_normalize.py` `main` (attempt-2.diff:611 and :618), change the read to `open(src, encoding="utf-8", newline="")` and the `out.md` write to `open(out, "w", encoding="utf-8", newline="")`, both in `with` blocks. Leave `normalize`, `dropped_lines` and the error path unchanged.
+2. Add one line to the comment at attempt-2.diff:567-568: the report is read and written raw (`newline=""`), as `merge_cmd._read` does, so the original terminators reach this code and the parse matches the merge's.
+3. In `.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tests/test_h2.py`, add a bytes helper next to `h2()`; keep `h2()` itself for the existing tests. It writes `src.write_bytes(text.encode())`, runs the tool and returns `out.read_bytes().decode()` plus the `h2.json` contents. Add `test_crlf_only_block_line_changes`: build `report(finding(claim="y"*400)).replace("\n", "\r\n")` and check that the outputs of `splitlines(keepends=True)` have equal length, that exactly one index differs (the block line), and that every element ends with `"\r\n"`.
+4. Add `test_cr_only_report_left_byte_identical`: build `report(finding(claim="y"*400)).replace("\n", "\r")` and check that the output bytes equal the input bytes, `e["truncated"] == 0`, and `e["ok"] == fnd.parse_block(text)["ok"]`, where `text` is the raw input.
+5. In `test_other_line_separators_before_block` (attempt-2.diff:339-345), add a ` ` to the replaced prose so the comment is true.
+6. Run `uv run pytest .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tests -q` and `uv run ruff check .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar` (the earlier run's lint output is extras-2.log:4).
+differs-by: fix the file read and write instead of the in-memory line splitting. Both reads and writes are raw (`newline=""`), as in `merge_cmd._read`, so line endings are never converted and the normaliser's parse matches the merge's parse exactly.

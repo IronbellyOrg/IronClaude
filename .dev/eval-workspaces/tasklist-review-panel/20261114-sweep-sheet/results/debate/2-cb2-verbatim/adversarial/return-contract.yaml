@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/debate/2-cb2-verbatim/VERDICT.md"
+  convergence_score: 1.0            # 18 of 18 diff points; treated with care (one advocate changed sides after corrections)
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/debate/2-cb2-verbatim/adversarial"
+  status: "partial"                 # completed; scoring condensed; no Round 3 at standard depth; orchestrated and merged by the main Sonnet session
+  base_variant: "sonnet:architect"  # V3
+  unresolved_conflicts: 0
+  fallback_mode: true               # no debate-orchestrator or merge-executor agent (they prefer Opus); the main Sonnet session did both
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []        # no HIGH UNADDRESSED item; 8 UNADDRESSED (MEDIUM and LOW) are in debate/invariant-probe.md
+  verdict: "PASS"                   # extra field for this study: no blocking defect survived

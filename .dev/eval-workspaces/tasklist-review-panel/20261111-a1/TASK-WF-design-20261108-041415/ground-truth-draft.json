@@ -1,0 +1,51 @@
+{
+  "package": "TASK-WF-design-20261108-041415",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "missing-task",
+      "plan_quote": "`make verify-sync` and `make lint` exit 0 and the whole `tests/skills/test_issue_protocol.py` file passes; the outputs are saved to `./artifacts/t12-checks.log`.",
+      "description": "The plan rewrote and added `gh api` lines in refs/create.md, refs/labels.md, SKILL.md and issue-worker-t3.md (Tasks 2, 3, 5) but had no task to update the exact-line classification table in tests/skills/test_worker_contract.py and only gated on test_issue_protocol.py, so two worker-contract tests stayed red through FINAL pass and the parent session had to fix the table after implement.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/t2-extra-worker-contract.log:9-32",
+        ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/t12-extra-suite.log:121-125",
+        ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/retries/T12/notes.md:2",
+        ".dev/tasks/done/TASK-WF-design-20261108-041415/progress.md:26",
+        ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/owner-manual-check.md:60-62",
+        ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/owner-manual-check.md:14"
+      ],
+      "cost": "human_acceptance",
+      "blocking_in_implement": false
+    },
+    {
+      "id": "GT2",
+      "class": "ambiguity",
+      "plan_quote": "read-back with `gh api repos/<R>/issues/<N>/issue-field-values`",
+      "description": "The plan named the Complexity read-back call but not how to match its result; the built rule only said to flag the value when 'absent', while the real GET returns a numeric option id in `value` and the name in `single_select_option.name`, so refs/labels.md had to be clarified (match by issue_field_id, compare single_select_option.name) during submission preparation, after implement.",
+      "evidence": [
+        ".dev/tasks/done/TASK-WF-design-20261108-041415/source.md:38",
+        ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/owner-manual-check.md:9",
+        ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/owner-manual-check.md:15",
+        "src/superclaude/skills/sc-issue-protocol/refs/labels.md:46-48"
+      ],
+      "cost": "human_acceptance",
+      "blocking_in_implement": false
+    }
+  ],
+  "files_read": [
+    ".dev/tasks/done/TASK-WF-design-20261108-041415/TASK-WF-design-20261108-041415.md",
+    ".dev/tasks/done/TASK-WF-design-20261108-041415/progress.md",
+    ".dev/tasks/done/TASK-WF-design-20261108-041415/return-contract.yaml",
+    ".dev/tasks/done/TASK-WF-design-20261108-041415/source.md (grep)",
+    ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/owner-manual-check.md",
+    ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/retries/T3/notes.md",
+    ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/retries/T10/notes.md",
+    ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/retries/T12/notes.md",
+    ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/retries/*/q0-head (all 12)",
+    ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/t2-extra-worker-contract.log",
+    ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/t12-extra-suite.log (lines 100-125)",
+    ".dev/tasks/done/TASK-WF-design-20261108-041415/artifacts/t2-test.log, t3-test.log, t5-test.log, t2-checks.log, t3-checks.log, t5-checks.log, t12-checks.log (grep for results)",
+    "src/superclaude/skills/sc-issue-protocol/refs/labels.md (grep; plus git show of the T1-era version at aebe40dc)"
+  ],
+  "notes": "Every task T1-T12 finished compliant on its first attempt (only prompt-1-1 per task, no adviser files, no second attempt) and FINAL is pass, so no item was blocking in implement. The three retry notes files are reviewer notes, not failures: T3 (test_st10 red until Task 7, which is the plan's intended order, excluded), T10 (claim-mode user path unchanged by design, excluded) and T12 (worker-contract table, became GT1). The per-task 'test:fail' extras for T2, T3 and T5 come from the expected test_st10 ordering and the worker-contract table, not from a separate plan defect. GT1 is well supported. GT2 is weaker: the plan flagged the field write and read-back as UNVERIFIED and routed it to an owner check, which worked as intended; the evidence that the built read-back rule was actually wrong is the later 'clarified' entry plus the observed response shape, not a recorded failing run. No other plan-caused problem was found; the owner-check timing failures (shim port, guard timeout) are unrelated to this plan."
+}

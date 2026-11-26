@@ -1,0 +1,9 @@
+start=eeb3226713ddfe56ec1b0ab41b1b3b0439d77286 tree=dba47600af735125a360ddd594338d9601d82bef
+## Acceptance criteria
+
+T8.AC1: **unmet** (F1.1). S0 met for 4 models (R1/spikes/s0/*.json, raw files /tmp/evalsb-collab-r1/s0/<m>/stdin.*.json, snap.sha); S2 met for 4 models (R1/spikes/s2/*.json); gate0.json is written by .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/spikes/gate0-check.sh:55-65; REQ-S3 recorded for 4 models except the ember act rate defect.
+
+F1.1 sev=blocking trigger=B2 ac=T8.AC1 at=.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/spikes/reqs3-actrate.sh:38 anchor=/tmp/evalsb-collab-r1/reqs3/muse-ember-1.0/s3/tele.jsonl:4 chk=n,y,n,n family=reqs3-act-regex fix=widen the act test at reqs3-actrate.sh:38-39 from the literal "ls /tmp/panel-probe" to any ls whose arguments include /tmp/panel-probe, then rebuild the four records and reqs3.json from the saved tele.jsonl first=A1 origin=new covers="act rate (next tool call runs the probe) ... per model, in spikes/reqs3.json": muse-ember-1.0 session s3 ran "ls -la /tmp/panel-probe" as call 4; the regex misses it, so the record says item_act_rate 0.667 where the raw data gives 1.0.
+F1.2 sev=minor trigger=none ac=T8.AC1 at=.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/spikes/s0-hooks.sh:53 anchor=DESIGN.md:418 chk=n,n,n,n family=s0-pass-expr first=A1 origin=new fix=add [ "$OTHER_CTX" = 0 ] to PASS: the "none is a PostToolUse additionalContext producer" half rests on other_hook_additional_context_entries, which is not part of pass.
+F1.3 sev=minor trigger=none ac=T8.AC1 at=.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/spikes/reqs3-actrate.sh:88 anchor=DESIGN.md:420 chk=n,n,n,n family=finish-act-vacuous first=A1 origin=new fix=record that a session which ends at exactly call 8 counts as finish_acted (all 6 sonnet and haiku sessions ended at call 8).
+F1.1 resolved

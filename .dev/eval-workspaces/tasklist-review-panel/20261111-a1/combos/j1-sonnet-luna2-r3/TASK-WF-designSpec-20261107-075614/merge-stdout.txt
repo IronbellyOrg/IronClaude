@@ -1,0 +1,97 @@
+{
+ "block_ok": {
+  "t1b-1": true,
+  "t3-1": true,
+  "t4-1": false
+ },
+ "brief_ids": [],
+ "cleared": [],
+ "clusters": [
+  {
+   "event": "opened",
+   "lid": "L1",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F1",
+     "reviewer_id": "t1b-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L2",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t1b-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L3",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t1b-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L4",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t1b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F5",
+     "reviewer_id": "t1b-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L5",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F6",
+     "reviewer_id": "t1b-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L6",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F1",
+     "reviewer_id": "t3-1"
+    }
+   ]
+  }
+ ],
+ "decision": "PASS",
+ "new": [
+  "L1",
+  "L2",
+  "L3",
+  "L4",
+  "L5",
+  "L6"
+ ],
+ "refound": [],
+ "regressed": [],
+ "verdict": "PASS",
+ "warnings": [
+  "t4-1: findings block problem (1 error(s)), first: anchor must have at most 200 characters"
+ ]
+}

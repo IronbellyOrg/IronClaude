@@ -1,0 +1,35 @@
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_check_flow.py -v
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 22 items
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_misplaced_duplicated_truncated_blocks PASSED [  4%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_fence_opener_grep_is_not_used PASSED [  9%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_quote_wrapping_a_plan_line_matches PASSED [ 13%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_unsupported_row_demotes_linked_finding PASSED [ 18%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_unsure_never_blocks PASSED [ 22%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_blocking_needs_cb3_and_two_quotes_or_search PASSED [ 27%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_unlinked_finding_untouched PASSED [ 31%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_check_scope_all_switch_off_by_default PASSED [ 36%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_quote_other_corpora PASSED [ 40%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_reader_counts_format_errors_dup_unknown_and_verdicts PASSED [ 45%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_ok_row_with_finding_is_left_alone PASSED [ 50%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_promotion_copies_problem_and_anchor PASSED [ 54%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_promotion_validates_with_check_finding PASSED [ 59%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_promotion_inside_single_block PASSED [ 63%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_promotion_failure_logged_and_skipped PASSED [ 68%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py::test_class_key_added_from_item PASSED [ 72%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_check_flow.py::test_check_writes_outputs_and_leaves_raw_reports_alone PASSED [ 77%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_check_flow.py::test_check_json_counts_every_field PASSED [ 81%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_check_flow.py::test_format_induced_demotions_reported PASSED [ 86%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_check_flow.py::test_h2_leaves_a_promoted_line_unchanged PASSED [ 90%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_check_flow.py::test_check_help_and_cli_run PASSED [ 95%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_check_flow.py::test_check_exception_exits_1_and_writes_nothing PASSED [100%]
+
+============================== 22 passed in 2.37s ==============================
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_check_flow.py -v
+rc=0

@@ -1,0 +1,14 @@
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel python /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py check --help
+usage: sweep check [-h] --run RUN_DIR --candidate CANDIDATE [--source SOURCE]
+                   [--out-dir OUT_DIR]
+
+options:
+  -h, --help            show this help message and exit
+  --run RUN_DIR         the run folder: prepass/items.json,
+                        prepass/assignment.json and reviews/<rid>.md are read
+  --candidate CANDIDATE
+                        the candidate plan (the sandbox copy)
+  --source SOURCE       the source document, when there is one
+  --out-dir OUT_DIR     default RUN/check
+$ uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel python /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py check --help
+rc=0

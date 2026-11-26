@@ -1,0 +1,91 @@
+{
+ "row": "smoke-el2-exc-collab",
+ "acs": {
+  "AC-2": {
+   "pass": true,
+   "newer_files": []
+  },
+  "AC-2b": {
+   "pass": true,
+   "dropped": [],
+   "reask_problems": []
+  },
+  "AC-4": {
+   "pass": false,
+   "exit": 0,
+   "schema_error": null,
+   "facts_posted": 2,
+   "facts_harvested": 0,
+   "delivered": {
+    "t4-1": 0,
+    "t3-1": 0
+   },
+   "k": 1,
+   "seal_before_delivery": []
+  },
+  "AC-5": {
+   "pass": true,
+   "reviewers_in_merge": 3,
+   "anon": [
+    "scoring/42e0bb98d068/TASK-WF-design-20261108-041415/Q/merged-anon.md"
+   ],
+   "scores": [
+    "scoring/42e0bb98d068/TASK-WF-design-20261108-041415/Q/score.json"
+   ],
+   "new_under_eval_arms": [],
+   "missing_row_keys": []
+  },
+  "AC-6": {
+   "pass": true,
+   "violations": []
+  },
+  "AC-9": {
+   "pass": true,
+   "mismatches": [],
+   "fallback_files": [],
+   "sweeper_model_ok": true
+  },
+  "AC-10": {
+   "pass": true,
+   "elapsed_s": 86.407,
+   "hang_s": 308.456,
+   "slo_breach": false
+  },
+  "OV-1": {
+   "pass": true,
+   "row_stamp": true,
+   "values_k": 1,
+   "values_stamp": {
+    "B_A1": 102.8185,
+    "k_measured": 0,
+    "k_forced": 1,
+    "applied": true,
+    "hang_s_measured": 154.228,
+    "panel_finish_at_s_measured": 110.723,
+    "sweeper_kill_s_measured": 85.685
+   }
+  },
+  "OV-2": {
+   "pass": true,
+   "columns": {
+    "B_A1": 102.8185,
+    "elapsed_s": 86.407,
+    "elapsed_over_baseline": 0.8404,
+    "k": 1,
+    "k_measured": 0,
+    "messages_delivered": {
+     "t2b-1": 0,
+     "t4-1": 0,
+     "t3-1": 0
+    }
+   }
+  },
+  "OV-3": {
+   "pass": true,
+   "sweeper_started": true,
+   "skipped_k0": false,
+   "skipped_late": false
+  }
+ },
+ "all_pass": false
+}

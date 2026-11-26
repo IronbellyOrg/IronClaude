@@ -1,0 +1,157 @@
+{
+ "package": "TASK-WF-design-20261108-041415",
+ "candidate": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-design-20261108-041415/candidate.md",
+ "source": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/tasks/done/TASK-WF-design-20261108-041415/source.md",
+ "items": [
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "An implementer who follows the stated text as written writes `./artifacts/owner-manual-check.md` in the candidate package, and that is wrong because the constraints permit edits only under four other directory trees.",
+   "id": "X0048"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself: the issue type (through `gh issue create --type`) and the Complexity field value (through one POST).",
+   "anchor2": "applies only the mode label (`bug` or `enhancement`)",
+   "claim": "Following the two-write constraint can omit the required mode label, contradicting the goal.",
+   "id": "X0007"
+  },
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "The required package artifacts cannot be written within the plan's permitted edit locations.",
+   "id": "X0297"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself: the issue type (through `gh issue create --type`) and the Complexity field value (through one POST).",
+   "anchor2": "applies only the mode label (`bug` or `enhancement`)",
+   "claim": "The stated two-write limit omits the mode label that the goal requires applying.",
+   "id": "X0286"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself: the issue type (through `gh issue create --type`) and the Complexity field value (through one POST).",
+   "anchor2": "applies only the mode label (`bug` or `enhancement`)",
+   "claim": "The exactly-two-writes rule omits the mode label the rest of the plan requires.",
+   "id": "X0056"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself",
+   "anchor2": "pushback comment; final output with every `not applied` and `not set` line",
+   "claim": "Constraint 23 allows exactly two writes to a created issue, but Task 2 Wave 5 also posts the pushback comment, a third write.",
+   "id": "X0035"
+  },
+  {
+   "anchor": "the `--mode` row (line 41) to \"Picks the feature or bug template, the Feature or Bug issue type and the `enhancement` / `bug` label\"",
+   "anchor2": "the `--type` row (line 42) to say the area of the change, which selects issue type Test for a feature in `tests`",
+   "claim": "The required `--mode` wording assigns Feature to feature mode, while the required `--type` wording assigns Test to a feature in the `tests` area.",
+   "id": "X0176"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself: the issue type (through `gh issue create --type`) and the Complexity field value (through one POST).",
+   "anchor2": "field POST and read-back; pushback comment; final output with every `not applied` and `not set` line",
+   "claim": "The skill is told to write exactly two things to the created issue, yet Wave 5 also posts a pushback comment and the mode label is a further write.",
+   "id": "X0074"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself: the issue type (through `gh issue create --type`) and the Complexity field value (through one POST).",
+   "anchor2": "sets the issue type (Feature, Bug or Test) and the org's Complexity issue field on the new issue, applies only the mode label (`bug` or `enhancement`)",
+   "claim": "Constraint 23 limits issue writes to two items, contradicting the required mode-label write.",
+   "id": "X0006"
+  },
+  {
+   "anchor": "the `--mode` row (line 41) to \"Picks the feature or bug template, the Feature or Bug issue type and the `enhancement` / `bug` label\"",
+   "anchor2": "the issue type rule (mode `bug` gives Bug; mode `feature` with area `tests` gives Test; every other feature gives Feature; Task is never chosen)",
+   "claim": "Task 6 mandates mode wording that contradicts Task 1 by implying feature mode always selects Feature, even when the area selects Test.",
+   "id": "X0188"
+  },
+  {
+   "anchor": "Never edit or stage anything under `.claude/` except `.claude/settings.json`; run `make sync-dev` after the `src/superclaude/` edits.",
+   "anchor2": "Run `make sync-dev`, then `make verify-sync`, `make lint` and `uv run pytest tests/skills/test_issue_protocol.py -v;",
+   "claim": "An implementer who follows the stated text as written runs `make sync-dev`, and that is wrong because the same plan forbids editing `.claude/`, where the sync writes generated copies.",
+   "id": "X0047"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself: the issue type (through `gh issue create --type`) and the Complexity field value (through one POST).",
+   "anchor2": "pushback comment; final output with every `not applied` and `not set` line",
+   "claim": "The exactly-two-writes constraint forbids the pushback comment that Task 2 Wave 5 and the create-review-comment template require posting to the created issue, so honouring the constraint drops the comment and its E-POST-FAILED behaviour.",
+   "id": "X0264"
+  },
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "Task 12 requires writing an artifact outside the candidate\u2019s expressly allowed edit locations.",
+   "id": "X0042"
+  },
+  {
+   "anchor": "mode `feature` with area `tests` gives Test; every other feature gives Feature",
+   "anchor2": "Picks the feature or bug template, the Feature or Bug issue type and the `enhancement` / `bug` label",
+   "claim": "The required command description says feature mode selects Feature even when the protocol selects Test.",
+   "id": "X0153"
+  },
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "The scope forbids the package artifacts that Task 12 and its acceptance criteria require.",
+   "id": "X0241"
+  },
+  {
+   "anchor": "It writes exactly two things to a created issue besides the issue itself",
+   "anchor2": "pushback comment; final output with every `not applied` and `not set` line",
+   "claim": "The Wave 5 sequence posts a pushback comment, a third write, which the constraint forbids.",
+   "id": "X0177"
+  },
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "The required package artifact is outside every permitted edit location.",
+   "id": "X0012"
+  },
+  {
+   "anchor": "Never edit or stage anything under `.claude/` except `.claude/settings.json`; run `make sync-dev` after the `src/superclaude/` edits.",
+   "anchor2": "Run `make sync-dev`, then `make verify-sync`, `make lint` and `uv run pytest tests/skills/test_issue_protocol.py -v`",
+   "claim": "The never-edit-.claude rule and the required make sync-dev step contradict each other, so either verify-sync cannot pass or the no-edit rule is broken.",
+   "id": "X0194"
+  },
+  {
+   "anchor": "The skill never creates a label, an issue type or an issue field. It writes exactly two things to a created issue besides the issue itself: the issue type (through `gh issue create --type`) and the Complexity field value (through one POST).",
+   "anchor2": "applies only the mode label (`bug` or `enhancement`)",
+   "claim": "The plan both requires applying a mode label and says exactly two writes occur besides the issue, naming only the issue type and field value.",
+   "id": "X0168"
+  },
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "Task 12 requires writing an artifact outside the plan\u2019s expressly permitted edit locations.",
+   "id": "X0167"
+  },
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "The plan requires writing the manual-check document and check log under `./artifacts/`, outside its permitted edit paths.",
+   "id": "X0211"
+  },
+  {
+   "anchor": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "anchor2": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`",
+   "claim": "Task 12 artefact write violates the edit-only constraint or fails its own existence check.",
+   "id": "X0148"
+  },
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "The required package artifacts are outside the directories where the plan permits edits.",
+   "id": "X0303"
+  },
+  {
+   "anchor": "Never edit or stage anything under `.claude/` except `.claude/settings.json`; run `make sync-dev` after the `src/superclaude/` edits.",
+   "anchor2": null,
+   "claim": "The plan forbids editing `.claude/` while requiring a sync command that copies source edits into `.claude/`.",
+   "id": "X0212"
+  },
+  {
+   "anchor": "Edit only under `src/superclaude/`, `tests/`, `docs/` and `plugins/superclaude/skills/sc-recommend/refs/`.",
+   "anchor2": "Then write `./artifacts/owner-manual-check.md` in this package.",
+   "claim": "Task 12 requires an artifact outside the allowed edit paths, so an implementer cannot satisfy both stated requirements.",
+   "id": "X0238"
+  }
+ ]
+}

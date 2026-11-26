@@ -1,0 +1,8 @@
+{
+  "base": "2b3ae7e7516917c981cf1134528cf92b3de65e01",
+  "candidate": ".dev/tasks/done/TASK-WF-applyTheV1Worker-20261107-211837/TASK-WF-applyTheV1Worker-20261107-211837.md",
+  "source": ".dev/tasks/done/TASK-WF-applyTheV1Worker-20261107-211837/source.md",
+  "kind": "plan",
+  "set": "holdout",
+  "masked_paths": []
+}

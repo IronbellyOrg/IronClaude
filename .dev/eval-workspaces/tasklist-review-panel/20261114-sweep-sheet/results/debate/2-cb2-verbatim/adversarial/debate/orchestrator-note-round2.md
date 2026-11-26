@@ -1,0 +1,20 @@
+# Orchestrator note for Round 2 (written after reading all three Round 1 statements)
+
+## Where Round 1 ended
+All three advocates answer NO to "is the default blocking". V2 (prosecutor) changed its stance after CORR-1 (no `config/freeze.json`; no re-run cost before the freeze) and CORR-3 (no gate reads the heading count). Unanimity this early is a risk, not a result: a prosecutor who flips after one corrected fact may have been persuaded by the corrections, not by the whole problem. Round 2 must try to break the PASS with routes that nobody has examined.
+
+## CORR-4 revised (the orchestrator's own error, found by V1 and V3 and confirmed on disk)
+- `SW/IMPLEMENTATION.md` lines 154-167: step 14 (decide CB-2 at 14.3, `freeze.sh` at 14.5) comes BEFORE step 15 "Run the experiment: Spikes (C), Stage 1 (D) ...". So the timing spike is after the freeze and before Stage 1. It is planned, needs the owner's go-ahead, and none is run yet (`DESIGN.md` 770).
+- V3 read `run-spike.sh:79` (5 Z0 panel runs, about 15 reports, UNVERIFIED how many are kept) and `run-panel.sh:138` (accepts a null freeze tag, so the owner could run the spike first). 15 reports with zero headings bound the rate only at 18.1%. The spike cannot show K, finding counts or found fraction.
+- Consequence: the earliest real-model Z0 look comes after the owner has already decided row 3. A CB-2 change found at that look is a re-freeze (RL `DESIGN.md` line 255 names a wording change after the compliance spike as a re-freeze; AO-5), which costs edits and the RL copy, not decision runs, as long as it is made before Stage 1.
+
+## Routes nobody has examined yet (every advocate must rule on each, in Round 2)
+- R-A. Time baseline. D1 caps SS at 1.35 x Z0's per-package median of the slowest reviewer (`MR` line 492 and the D1 row at line 1085). If the dangling clause makes some Z0 reviewers write a phantom ledger, Z0's median rises and the cap becomes looser for SS. Is that bias real, can the heading count see it, and is it blocking?
+- R-B. K versus Z0. K's paragraph is a numbered checklist of eight checks (`SW/scaffold/briefs.py` `k_paragraph`). Together with "every ledger row you marked PROBLEM", a checklist may make a verdict list more natural in K than in Z0. Then the prompting share (K minus Z0) contains a clause interaction. Direction: if K is inflated the D7 test is conservative for SS; if K is deflated it is not. Is anything provable?
+- R-C. Order inside the SS brief: the word "ledger" first appears in CB-2, before the ledger rule (`SW/DESIGN.md` 8.1, `scaffold/briefs.py` `part_names`). Does that matter, and is it blocking?
+- R-D. Is the printed report misleading as written? Read `SW/analysis/analyze.py` `render_report` lines 1144-1195: the DD-7 section prints "n of N reports" only. Could a reader take "0 of N" as proof that the clause is harmless, with no bound and no caveat? Is that blocking, or is it a note?
+- R-E. Post-hoc discretion. `TESTING.md` 187 says "an owner decision if it is above 0" and names no action and no limit. Debate 1 (`SW/results/debate/1-act-bands/VERDICT.md`, BD-2) failed a registration because the owner could pick the reading after seeing the data. Here no gate reads the count, but "owner decision" could include discarding or re-running Z0 and K, or discounting D2 and D7. Does that open door make the default misleading, or is it ordinary owner authority over the whole experiment? What exactly would a consequence rule have to say to close it, and can it be said inside the files this task may edit?
+- R-F. What PASS leaves behind. A PASS changes no file. The hardening text that V2 and V3 recommend (option d) would then exist only as a non-blocking note in `VERDICT.md`. Does that leave any stated requirement unmet?
+
+## Allowed edits if the verdict is FAIL (so that proposals are feasible)
+SW `briefs/cb2.txt`, SW `DESIGN.md` (DD-7 and 15.1), SW `results/owner-decisions.md`, tests or config that pin cb2's hash (`tests/test_briefs.py::test_cb_verbatim_against_mr` compares bytes with MR; nothing stores a hash). Not allowed: RL, MR, `TESTING.md`, analysis code.

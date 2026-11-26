@@ -1,0 +1,11 @@
+{
+ "ok": false,
+ "violations": [
+  {
+   "rule": "ground_truth_text",
+   "where": "brief_a1",
+   "hit": ", or when th"
+  }
+ ],
+ "gt_checked": true
+}

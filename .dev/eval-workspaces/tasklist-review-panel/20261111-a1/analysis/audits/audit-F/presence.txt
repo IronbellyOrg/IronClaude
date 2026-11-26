@@ -1,0 +1,13 @@
+valid-era complete rows: 71, distinct multisets 32; DR any distribution [(0, 3), (1, 9), (2, 43), (3, 12), (4, 4)]
+sonnet: with n=21 any=2.43 blk=0.71 wb=1.95 | without n=50 any=1.92 blk=1.00 wb=2.68
+haiku: with n=23 any=2.26 blk=1.30 wb=2.52 | without n=48 any=1.98 blk=0.73 wb=2.44
+grok: with n=8 any=2.62 blk=1.50 wb=2.38 | without n=63 any=2.00 blk=0.84 wb=2.48
+luna: with n=47 any=2.15 blk=0.98 wb=2.64 | without n=24 any=1.92 blk=0.79 wb=2.12
+terra: with n=14 any=1.64 blk=0.71 wb=2.86 | without n=57 any=2.18 blk=0.96 wb=2.37
+sol: with n=1 any=1.00 blk=1.00 wb=3.00 | without n=70 any=2.09 blk=0.91 wb=2.46
+ember: with n=51 any=1.88 blk=0.75 wb=2.47 | without n=20 any=2.55 blk=1.35 wb=2.45
+wonder: with n=8 any=2.75 blk=1.25 wb=1.75 | without n=63 any=1.98 blk=0.87 wb=2.56
+GT catch counts by package: [(('design', 'GT3'), 63), (('design', 'GT4'), 3), (('design', 'GT5'), 3), (('design', 'GT6'), 3), (('design', 'GT7'), 50), (('design', 'GT8'), 2), (('design', 'GT9'), 3), (('makeTh', 'GT1'), 1), (('makeTh', 'GT2'), 18), (('makeTh', 'GT3'), 1)]
+sum over valid complete rows: judge gt_covered_blocking = 65; of which GT truly blocking_in_implement = 38; true-blocking GTs caught by ANY ledger row = 89
+rows where judge blocking count > true-blocking-GT count: [('b4-terra-muse-haiku', 2, 1), ('c3-luna-grok-src', 3, 1), ('e1-grok-ember-luna', 1, 0), ('e2-ember-luna2-rep', 1, 0), ('e6-haiku-ember2', 1, 0), ('g1-ember-luna2-r1', 1, 0), ('g1-ember-luna2-r2', 1, 0), ('g1-ember-luna2-r3', 1, 0), ('g1-ember-luna2-r4', 1, 0), ('g3-sonnet-luna-ember-r1', 1, 0), ('g3-sonnet-luna-ember-r4', 1, 0), ('g5-ember2-luna-r1', 1, 0), ('g5-ember2-luna-r2', 1, 0), ('g5-ember2-luna-r4', 1, 0), ('g6-luna2-ember2-r2', 1, 0), ('g7-haiku-luna2-r3', 1, 0), ('h1-haiku-luna2-ember2-r1', 3, 2), ('h1-haiku-luna2-ember2-r3', 1, 0), ('h1-haiku-luna2-ember2-r4', 1, 0), ('h2-sonnet-luna2-ember2-r1', 1, 0), ('h2-sonnet-luna2-ember2-r4', 1, 0), ('n2-muse-haiku-grok-src', 2, 1), ('n5-muse-luna-src', 1, 0), ('r2-sonnet-ember', 1, 0), ('r2-sonnet-src', 4, 3), ('r3-luna2-grok-src', 1, 0)]
+max DR blk judge: 4 ; max DR blk_true: 3

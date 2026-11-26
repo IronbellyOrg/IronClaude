@@ -1,0 +1,86 @@
+{
+  "doc_id": "HO-2",
+  "plan": "TASK-WF-implementIronbel-20261104-130647",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "unassigned",
+      "blocking_in_implement": true,
+      "description": "Task 3 adds a second PreToolUse registration with matcher `Bash`, but tests/hooks/test_freshness_subagent_start_policy.py:102-105 asserts that no PreToolUse registration has matcher `Bash`. Task 4 runs only tests/cli and tests/unit, so an implementer who follows the plan ships a red test that no task runs or fixes. The plan must replace that assertion with an allowlist (Bash-matcher commands equal block-bare-python.sh) and run tests/hooks in Task 4.",
+      "plan_quote": "`uv run pytest tests/cli/test_install_hooks.py tests/cli/test_verify_sync_hooks.py tests/unit/test_cli_install.py -v` passes",
+      "evidence": "REPORT.md B-1 (:44-46); adversarial/merged-verdict.yaml R1-F1 (:18-39); plan:73, plan:95"
+    },
+    {
+      "id": "GT2",
+      "class": "unassigned",
+      "blocking_in_implement": true,
+      "description": "Task 2's acceptance criterion requires the chained forms `&&`, `;` and `|` each in both a blocked and an allowed case, but the allowed-case list has no unquoted `;` chain (its only `;` characters sit inside a quoted python -c string). An implementer who follows the case list cannot meet the criterion. The plan must add allowed cases such as `ls; uv run python x.py` and `echo a; echo python3`.",
+      "plan_quote": "Chained forms `&&`, `;` and `|` each appear in both a blocked and an allowed case.",
+      "evidence": "REPORT.md B-2 (:48-50); adversarial/merged-verdict.yaml R1-F2 (:41-55); plan:58, plan:64"
+    },
+    {
+      "id": "GT3",
+      "class": "unassigned",
+      "blocking_in_implement": true,
+      "description": "The split rule makes text inside double quotes never a command word, so `x=\"$(python3 -c 1)\"`, which runs bare python, passes the hook. That violates the issue's Done-when at plan:19. The scanner must open a nested command context for `$(` and backticks inside double quotes.",
+      "plan_quote": "Text inside single quotes, and text inside double quotes, is never a command word",
+      "evidence": "REPORT.md B-3 (:52-54); adversarial/merged-verdict.yaml R1-F5 (:92-111); plan:37"
+    },
+    {
+      "id": "GT4",
+      "class": "unassigned",
+      "blocking_in_implement": true,
+      "description": "The plan prescribes scanning heredoc bodies as ordinary lines with a regex or per-line split. That is not a shell lexer: apostrophes in heredoc bodies or comments desync quote state and hide later python3 calls, and the standard multi-line `git commit -m \"$(cat <<'EOF' ...)\"` form is wrongly blocked. The correct outcome is one stateful awk scanner reading the command on stdin, with quote, comment, continuation, nested-context and heredoc states.",
+      "plan_quote": "Lines of a heredoc body are scanned like ordinary lines (a heredoc fed to `bash` with a `python3` line would run it).",
+      "evidence": "REPORT.md B-4 (:56-58); adversarial/merged-verdict.yaml M-SCANNER (:208-256); plan:40-41"
+    },
+    {
+      "id": "GT5",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The plan says backslash escapes are honoured but never specifies backslash-newline continuation, so `uv run --no-project \\<newline> python x.py` is read as one command with word `uv`. Continuation must be handled per lexer state inside the scanner (a comment ending in a backslash does not continue; a body line ending in a backslash does not stop a quoted heredoc), with one allowed and one blocked continuation test. Option-taking wrappers are a documented ceiling.",
+      "plan_quote": "Backslash escapes outside single quotes are honoured when tracking quotes.",
+      "evidence": "REPORT.md minor findings, R1-F4 (:61); adversarial/merged-verdict.yaml R1-F4 (:72-90); plan:37"
+    },
+    {
+      "id": "GT6",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The plan mandates fail-open when jq is missing, but its fail-open case table has no jq-missing case, and it never states that jq is an install precondition. The hook must exit 2 only on a positive scanner block, and a test with a PATH shim that provides bash but no jq must assert exit 0 and a jq-branch-only stderr marker. The jq precondition must be visible in docs or the CHANGELOG.",
+      "plan_quote": "Fail-open cases (exit 0): non-JSON stdin; empty stdin; `tool_name` `Read` with a `python3` string in its input;",
+      "evidence": "REPORT.md minor findings, R1-F6 (:61); adversarial/merged-verdict.yaml R1-F6 (:113-133); plan:21, plan:60"
+    },
+    {
+      "id": "GT7",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 5 has no `Depends on:` line although Task 2's allowed case forward-references Task 5's replacement line and Task 5 edits a file the Task 1 script must already classify. Task 6 cites Task 5's change without depending on it. An executor that reorders tasks can run Task 5 before the hook exists. Task 1 must run before Task 5, and Task 5 before Task 6.",
+      "plan_quote": "Task 5: Replace the bare `python3` call in the troubleshoot read/parse probe pack",
+      "evidence": "REPORT.md minor findings, R1-F7 (:61); adversarial/merged-verdict.yaml R1-F7 (:135-146); plan:100-107"
+    },
+    {
+      "id": "GT8",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The Goal claims there is only one bare `python3 -c` in the installed skills, which is false: ccsession scripts use python3 and src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:965 tells agents to run `python -m pytest` through Bash. The Goal should name the issue's call (read-parse.md:8) and record the template line as an out-of-scope follow-up.",
+      "plan_quote": "and the one bare `python3 -c` in the installed skills is replaced.",
+      "evidence": "REPORT.md minor findings, R1-F8 (:61); adversarial/merged-verdict.yaml R1-F8 (:148-165); plan:15"
+    },
+    {
+      "id": "GT9",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Constraints line 20 says the live fresh-session check is in Task 6, but Task 6 is the CHANGELOG entry and the live check is Task 7. An implementer who follows the constraint looks for the live check in the wrong task.",
+      "plan_quote": "The live fresh-session check in Task 6 registers the hook through a temporary `--settings` file",
+      "evidence": "REPORT.md minor findings, M-CONSTRAINTS (:61); adversarial/merged-verdict.yaml M-CONSTRAINTS (:294-305); plan:20, plan:120"
+    },
+    {
+      "id": "GT10",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 4's third test passes `target_path` explicitly, so asserting that the live home settings file is not the target is vacuous: install_hooks derives hooks_dir from target_path. The test should also run with HOME monkeypatched to tmp_path and no target argument, which proves nothing is written to the real home.",
+      "plan_quote": "Assert that the live `Path.home()/.claude/settings.json` is not the target (no write outside `tmp_path`).",
+      "evidence": "REPORT.md minor findings, R1-F10 (:61); adversarial/merged-verdict.yaml R1-F10 (:179-188); plan:92"
+    }
+  ]
+}

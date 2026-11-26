@@ -1,0 +1,133 @@
+{
+ "package": "TASK-WF-designSpec-20261107-075614",
+ "candidate": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/candidate.md",
+ "source": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/tasks/done/TASK-WF-designSpec-20261107-075614/source.md",
+ "items": [
+  {
+   "anchor": "Engage at the end of Wave 3 (L3, only when at least one verified finding of Medium severity or higher is routed to a fix, once per cycle id; review-fix cycles and CI-fix cycles;",
+   "anchor2": "the Wave 8 bullet states that a CI-fix cycle engages with kind `ci` and releases after `push_completed` before the CI re-poll.",
+   "claim": "The reference's Engage section puts CI-fix engagement at the end of Wave 3, while the Wave 8 bullet engages it in Wave 8, so a CI-fix push can go out on a ready PR.",
+   "id": "X0084"
+  },
+  {
+   "anchor": "Edit canonical files under `src/superclaude/` only, then run `make sync-dev`;",
+   "anchor2": "Create `./artifacts/pre-build-gate.md` in this package from ./source.md sections 6, 8 and 10.",
+   "claim": "The plan both restricts edits to `src/superclaude/` and requires edits outside that directory, so an implementer cannot satisfy all stated instructions.",
+   "id": "X0288"
+  },
+  {
+   "anchor": "Edit canonical files under `src/superclaude/` only, then run `make sync-dev`; do not stage `.claude/` mirror files.",
+   "anchor2": "Edit `docs/user-guide/commands.md`: add `[--merge-guard {draft,off}]` to the `/sc:pr-submit` usage line",
+   "claim": "The plan forbids edits outside `src/superclaude/` while requiring user-guide edits, so an implementer cannot satisfy both the constraint and Task 13.",
+   "id": "X0182"
+  },
+  {
+   "anchor": "Engage at the end of Wave 3 (L3, only when at least one verified finding of Medium severity or higher is routed to a fix, once per cycle id; review-fix cycles and CI-fix cycles",
+   "anchor2": "the Wave 8 bullet states that a CI-fix cycle engages with kind `ci` and releases after `push_completed` before the CI re-poll",
+   "claim": "Task 8 engages CI-fix cycles at the end of Wave 3, where no CI-fix cycle exists yet, while Task 10 engages them in Wave 8, so the Wave 8 CI-fix push can reach a ready PR.",
+   "id": "X0180"
+  },
+  {
+   "anchor": "at L3 with `--merge-guard off` the line \"Remediation is unprotected: --merge-guard off.\" is printed once",
+   "anchor2": "when it names an L3 or `draft` condition",
+   "claim": "The required Wave 0 bullet must state an L3 condition that its acceptance test is required to reject.",
+   "id": "X0294"
+  },
+  {
+   "anchor": "Engage at the end of Wave 3 (L3, only when at least one verified finding of Medium severity or higher is routed to a fix, once per cycle id; review-fix cycles and CI-fix cycles;",
+   "anchor2": "the Wave 8 bullet states that a CI-fix cycle engages with kind `ci` and releases after `push_completed` before the CI re-poll.",
+   "claim": "Task 8 places CI-fix engagement at Wave 3, but Task 10 places it at Wave 8, so an implementer cannot follow both instructions without engaging at the wrong point.",
+   "id": "X0239"
+  },
+  {
+   "anchor": "and carries no L3 or `draft` condition;",
+   "anchor2": "and that at L3 with `--merge-guard off` the line",
+   "claim": "The Wave 0 bullet must name the L3 off condition, but its acceptance test fails any bullet that names an L3 or draft condition, so the required text cannot pass.",
+   "id": "X0257"
+  },
+  {
+   "anchor": "guard_status(guard, mode, ordinal) implementing the first-match mapping of section 4.1",
+   "anchor2": "applies at every ordinal and in both modes",
+   "claim": "With an existing held guard and mode off, the specified first-match status mapping reports off even though resume must report the held guard.",
+   "id": "X0132"
+  },
+  {
+   "anchor": "`resume_decision(*, mode, ordinal, guard, read, pending, dangling_branch, published)`",
+   "anchor2": null,
+   "claim": "The planned resume_decision signature has no `target_sha` or `applied_edits`, yet row 4 must re-enter release_decision, which needs both to release, so with the plan's signature row 4 always holds with head_mismatch; the executor added three keyword parameters and executor guidance had to tell Tasks",
+   "id": "X0310"
+  },
+  {
+   "anchor": "at L3 with `--merge-guard off` the line",
+   "anchor2": "when it names an L3 or `draft` condition",
+   "claim": "The required Wave 0 bullet must contain an L3 condition, but its acceptance test must reject a bullet that names one.",
+   "id": "X0083"
+  },
+  {
+   "anchor": "Edit `src/superclaude/pr_submit/models.py`: add `DRAFT_GUARD_REQUESTED = \"draft_guard_requested\"`",
+   "anchor2": "Create `src/superclaude/pr_submit/merge_guard.py` following ./source.md sections 4.1, 4.2 and 4.6",
+   "claim": "At base the enum already defines both guard members and merge_guard.py already exists, so following Tasks 2 and 3 as written re-adds the members (Python rejects the repeated names) and overwrites a tracked module.",
+   "id": "X0201"
+  },
+  {
+   "anchor": "and that at L3 with `--merge-guard off` the line \"Remediation is unprotected: --merge-guard off.\" is printed once and no draft call is made.",
+   "anchor2": "The Wave 0 test fails when the bullet is placed after the Wave 1 bullet, when it names an L3 or `draft` condition, or when the literal `off` line is missing, and passes on the real file.",
+   "claim": "The Wave 0 bullet must name an L3 condition to carry the off clause, and its own acceptance test must fail any bullet that names an L3 condition, so the required bullet cannot pass the required test.",
+   "id": "X0266"
+  },
+  {
+   "anchor": "`resume_decision(*, mode, ordinal, guard, read, pending, dangling_branch, published)` (all 9 rows",
+   "anchor2": "`release_decision(*, mode, ordinal, cycle_id, guard, read, applied_edits, target_sha, push_completed)` (all 9 rows",
+   "claim": "Resume row 4 must re-enter release_decision, whose head confirmation needs target_sha and applied_edits that no resume input or folded guard field supplies, so a published cycle either releases without head confirmation or never releases.",
+   "id": "X0246"
+  },
+  {
+   "anchor": "`unreadable` for a failed, incomplete or short timeline",
+   "anchor2": "The ref states that engage failure and an unreadable timeline at engage halt with `terminal_halted` reason `draft_guard_unavailable` before any edit",
+   "claim": "Engage proceeds on a short timeline although the candidate says an unreadable timeline at engage halts before any edit.",
+   "id": "X0281"
+  },
+  {
+   "anchor": "The Wave 3 bullet states that engage happens at the end of Wave 3 only when at least one verified finding of Medium severity or higher is routed to a fix, once per cycle id, and mints the cycle id;",
+   "anchor2": "the Wave 8 bullet states that a CI-fix cycle engages with kind `ci` and releases after `push_completed` before the CI re-poll.",
+   "claim": "The plan requires a single cycle-ID minting place at Wave 3 while also requiring a CI cycle ID for a cycle that begins in Wave 8, so implementing both requirements as written requires separate minting points.",
+   "id": "X0172"
+  },
+  {
+   "anchor": "a PR is turned into a draft as soon as a verified Medium-or-higher finding is routed to a fix",
+   "anchor2": "engage at the end of Wave 3",
+   "claim": "The Goal says draft as soon as a finding is routed, while the owner decision fixes engage at the end of Wave 3, so the two timings cannot both be built.",
+   "id": "X0270"
+  },
+  {
+   "anchor": "| 8 | `not read.complete` or `read.transitions is None` | `HALT_UNAVAILABLE(timeline_unreadable)` |",
+   "anchor2": "- `classify_toggles` returns `unreadable` for `complete=False`, `transitions=None` and for observed below `run_toggles`, `foreign` for one extra transition and for a `HELD` phase with a ready PR, and `ok` when observed equals `run_toggles + failed_mutations`.",
+   "claim": "With a successful, complete read whose observed transition count is below run_toggles after a released cycle, the classifier reports unreadable but engage_decision falls through to ENGAGE instead of halting.",
+   "id": "X0183"
+  },
+  {
+   "anchor": "(`published` true) releases before the re-trigger",
+   "anchor2": "releases after `push_completed` before the CI re-poll",
+   "claim": "Resume after a confirmed CI-fix push runs the review re-trigger instead of the CI re-poll.",
+   "id": "X0247"
+  },
+  {
+   "anchor": "the `merge_guard` field mapping of `guard_status`",
+   "anchor2": "Resume, loaded from Wave 0 at every ordinal and in both modes (`resume_decision` rows, the three `RECONCILE` reasons",
+   "claim": "The plan requires the exit report to map its status through guard_status while also reporting a held guard when mode is off, but the specified mapping returns off in that mode.",
+   "id": "X0109"
+  },
+  {
+   "anchor": "build now with no GitHub calls, release gate for G4 and G5.",
+   "anchor2": "gates G1 (live part), G2 (live part), G4, G5 and G6 are a release gate",
+   "claim": "Constraints limit the release gate to G4 and G5 while Task 1 requires G1, G2, G4, G5 and G6, so following Constraints ships draft behaviour before its live verification.",
+   "id": "X0067"
+  },
+  {
+   "anchor": "classify_toggles(guard, read) (the exact rule of ./source.md section 4.1: `unreadable` for a failed, incomplete or short timeline",
+   "anchor2": null,
+   "claim": "When an existing guard has fewer observed timeline transitions than run_toggles, engage_decision can fall through to ENGAGE rather than halt for an unreadable timeline.",
+   "id": "X0033"
+  }
+ ]
+}

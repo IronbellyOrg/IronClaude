@@ -1,0 +1,842 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T15/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T15/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T15/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+index 47edc8f1f..70bbca912 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+@@ -10,6 +10,7 @@
+     find_e2, attach_e2  extractor E2 (class C4, DESIGN 4.3): a literal pattern against the text the plan orders
+     find_e3, attach_e3  extractor E3 (class C8, DESIGN 4.4): files that refer to a file the plan edits
+     find_e4, attach_e4  extractor E4 (class C5, DESIGN 4.5): a count or "no remaining" claim and the places that carry it
++    find_e1, attach_e1  extractor E1 (classes C1 and C6, DESIGN 4.2): set words and the scope they name
+ 
+ Candidate.status values set here: `found` (as made by `find`), `attached` (evidence computed, not yet decided) and
+ `dropped:pre_rank` (below the top K of its class; no evidence). select.py sets the rest: `selected`,
+@@ -1545,3 +1546,328 @@ def attach_e4(cands: list[Candidate], ctx: Ctx) -> None:
+ 
+ 
+ EXTRACTORS["E4"] = (find_e4, attach_e4)
++
++
++# ---------------------------------------------------------------- E1 (classes C1 and C6): set words and their scope
++#
++# DESIGN 4.2. Every place where this code narrows, widens or interprets 4.2 (each is also in the report of Task 15):
++#  1. Evidence limit. 4.1 allows 5 evidence entries; 4.2 asks `universal` for up to 3 plan limiter lines, the enforcing
++#     test, up to 3 limiter lines of its file and the `def test_` count, which is 8. The order is: plan limiter lines,
++#     the enforcing-test line, the `def test_` count (only when the file is in the snapshot), then limiter lines of the
++#     file. The enforcing-test line and the count are kept; the other 3 (or more) slots go to plan lines first, but a
++#     file with limiter lines always gets at least 1 of them (so 2 plan lines and 1 file line when both have 3).
++#     `limiter_lines` (the count of ALL plan limiter lines) drives `priority`, not the number shown.
++#  2. Sentences. A block is split at blank lines and at list bullets (a line that starts with `-`, `*`, `+` or `1.`),
++#     then by `plan.sentences`; the bullet marker is not part of the sentence. A sentence needs 12 characters after
++#     `fnd.flat` (the anchor); the anchor is its first 200 characters. `goal` is a criterion block.
++#  3. Set words are matched in the sentence as written, backticked spans included. `set_word_count` counts matches
++#     (a word twice is 2). The pair `outside ... nothing` counts once when `outside` comes before `nothing`. A sentence
++#     with both kinds of word gives one candidate of each kind (same anchor, two classes).
++#  4. Tokens. A path token is `formats.PATH_TOKEN` without `*`; a glob token has a `*` (with a `/`, or a bare name with
++#     an extension such as `*.py`); a test token is a bare `test_*.py` file name (no `*`). `instr_scope` and
++#     `sent_scope` hold path and glob tokens only, as sorted sets. Bound type is tested in the order the table lists
++#     them: `closed_list` (2 or more distinct path tokens and no glob), `glob` (any glob), `count` (a number and a noun
++#     of E4, backticked text left out), else `none`. `names_path` is true for any path, glob or test token.
++#  5. Scopes. `instr_scope` is the union over the whole `task` block (the text before `Acceptance criteria:`) of the
++#     task the sentence is in; a sentence in no task (the goal) has an empty `instr_scope`. The plan line shown for it
++#     is the first line of the first sentence of that body that names a token (the task heading line when none does).
++#  6. `universal` limiter lines are whole plan lines that contain a token of the sentence (as a plain substring, a glob
++#     included) and a limiter word; the lines of the sentence itself are left out. A line longer than 160 characters
++#     is shown as the sentence of that line that holds the first limiter word (the text limit would cut the limiter).
++#  7. The enforcing test is the FIRST test file named in the criteria of the sentence's task (the sentence's own
++#     criterion included) and then in the gate blocks: a path token whose base name is `test_*.py` or whose path
++#     starts with `tests/` or holds `/tests/` (a folder token does not count), or a bare `test_*.py` name. A glob is not a file. "Enforcing
++#     test file found" in `priority` means the PLAN names one; whether the file is in the snapshot only decides the
++#     evidence of the file. A bare name is looked up in the snapshot's tracked files and is used when exactly one
++#     tracked file has that base name. Without a snapshot there is no file evidence.
++# The facts `attach_e1` needs travel in `Candidate.features`, so a candidate read back from candidates.json can still
++# be attached; the plan's own lines come from `ctx.doc`. `route` is copied from the class card here (C1 read, C6 search).
++
++E1_BASE, E1_BOUND_NONE, E1_SCOPE_DIFFERS = 30, 25, 25
++E1_EXTRA_WORD, E1_EXTRA_CAP = 5, 2
++E1_NAMES_PATH = 20
++E1_LIMITER, E1_TEST = 20, 20
++E1_LIMITER_LINES = 3
++E1_NONE = "NONE"
++
++
++def _words_re(spec) -> re.Pattern:
++    alts = sorted({w.lower() for w in spec}, key=lambda w: (-len(w), w))
++    body = "|".join(re.escape(w).replace(r"\ ", r"[ \t]+") for w in alts)
++    return re.compile(rf"(?<![\w-])(?:{body})(?![\w-])", re.IGNORECASE)
++
++
++_SET_COMPLETE = _words_re(words.SET_COMPLETENESS)
++_SET_UNIVERSAL = _words_re(words.SET_UNIVERSAL)
++_SET_PAIRS = tuple(
++    (_words_re((a,)), _words_re((b,))) for a, b in words.SET_UNIVERSAL_PAIRS
++)
++_LIMITER_RE = _words_re(words.LIMITERS)
++_GLOB_BARE = re.compile(r"(?<![\w/.\-*])[\w\-]*\*[\w\-]*\.[A-Za-z0-9*]+(?![\w/])")
++_TEST_BARE = re.compile(r"(?<![\w/.\-*])test_[\w\-]*\.py(?![\w/])")
++_BULLET_LINE = re.compile(r"[ \t]*(?:[-*+]|\d+[.)])[ \t]+")
++
++
++def _e1_sentences(text: str) -> list[tuple[int, str]]:
++    """[(offset in text, sentence)]: the block split at blank lines and list bullets, then at sentence ends."""
++    out: list[tuple[int, str]] = []
++    seg: int | None = None
++    pos = 0
++
++    def close(end: int) -> None:
++        if seg is not None:
++            out.extend((seg + s, sent) for s, _, sent in plan.sentences(text[seg:end]))
++
++    for raw in text.split("\n"):
++        if not raw.strip():
++            close(pos)
++            seg = None
++        elif m := _BULLET_LINE.match(raw):
++            close(pos)
++            seg = pos + m.end()
++        elif seg is None:
++            seg = pos + len(raw) - len(raw.lstrip())
++        pos += len(raw) + 1
++    close(len(text))
++    return out
++
++
++def _e1_tokens(text: str) -> list[tuple[int, str, str]]:
++    """[(offset, kind, token)] in text order; kind is `path`, `glob` or `test` (a bare test_*.py file name)."""
++    found = [
++        (m.start(), "glob" if "*" in m.group(0) else "path", m.group(0))
++        for m in _PATH_TOKEN.finditer(text)
++    ]
++    found += [(m.start(), "glob", m.group(0)) for m in _GLOB_BARE.finditer(text)]
++    found += [(m.start(), "test", m.group(0)) for m in _TEST_BARE.finditer(text)]
++    return sorted(found)
++
++
++def _scope_of(tokens) -> list[str]:
++    return sorted({t for _, k, t in tokens if k in ("path", "glob")})
++
++
++def _bound_type(sent: str, tokens) -> str:
++    paths = {t for _, k, t in tokens if k == "path"}
++    if any(k == "glob" for _, k, _ in tokens):
++        return "glob"
++    if len(paths) >= 2:
++        return "closed_list"
++    masked = _BACKTICKED.sub(lambda m: " " * len(m.group(0)), sent)
++    if any(_noun(m["w"]) for m in _COUNT_NOUN.finditer(masked)):
++        return "count"
++    return "none"
++
++
++def _is_test_file(kind: str, tok: str) -> bool:
++    if kind == "test":
++        return True
++    base = tok.rpartition("/")[2]
++    return (
++        kind == "path"
++        and not tok.endswith("/")
++        and (
++            bool(re.fullmatch(r"test_.*\.py", base))
++            or tok.startswith("tests/")
++            or "/tests/" in tok
++        )
++    )
++
++
++def _enforcing_test(doc: plan.Doc, task: str) -> tuple[str | None, int | None]:
++    """(path or name, plan line) of the first test file named in the task's criteria, then in the gate."""
++    blocks = [b for b in doc.of("criterion") if b["task"] == task] + doc.of("gate")
++    for b in blocks:
++        for at, kind, tok in _e1_tokens(b["text"]):
++            name = _clean_named(tok) if _is_test_file(kind, tok) else None
++            if name:
++                return name, b["line_start"] + b["text"].count("\n", 0, at)
++    return None, None
++
++
++def _task_scopes(doc: plan.Doc) -> dict[str, tuple[list[str], int]]:
++    """{task: (instr_scope, plan line of the first sentence of the task body that names a token)}."""
++    out: dict[str, tuple[list[str], int]] = {}
++    for b in doc.of("task"):
++        text = b["text"]
++        scope = _scope_of(_e1_tokens(text))
++        line = next(
++            (
++                b["line_start"] + text.count("\n", 0, s)
++                for s, _, sent in plan.sentences(text)
++                if _scope_of(_e1_tokens(sent))
++            ),
++            doc.tasks.get(b["task"], {}).get("line") or b["line_start"],
++        )
++        out[b["task"]] = (scope, line)
++    return out
++
++
++def find_e1(doc: plan.Doc, ctx: Ctx) -> list[Candidate]:
++    """DESIGN 4.2 `find`: a candidate of kind `completeness` (C1) or `universal` (C6) per sentence with a set word."""
++    routes = cards.routes()
++    scopes = _task_scopes(doc)
++    found: dict[tuple[int, str, str], Candidate] = {}
++    for b in doc.of("criterion", "dictated_text"):
++        text = b["text"]
++        for at, sent in _e1_sentences(text):
++            anchor = fnd.flat(sent)[:ANCHOR_MAX].rstrip()
++            if len(anchor) < ANCHOR_MIN:
++                continue
++            line = b["line_start"] + text.count("\n", 0, at)
++            loc = {
++                "task": b["task"],
++                "line_start": line,
++                "line_end": line + sent.count("\n"),
++            }
++            tokens = _e1_tokens(sent)
++            n_complete = len(_SET_COMPLETE.findall(sent))
++            n_universal = len(_SET_UNIVERSAL.findall(sent))
++            for first, second in _SET_PAIRS:
++                m = first.search(sent)
++                n_universal += bool(m and second.search(sent, m.end()))
++            if n_complete and (line, "completeness", anchor) not in found:
++                instr, instr_line = scopes.get(b["task"], ([], None))
++                sent_scope = _scope_of(tokens)
++                bound = _bound_type(sent, tokens)
++                bound_none = int(bound in ("none", "glob"))
++                differs = int(bool(instr) and bool(sent_scope) and instr != sent_scope)
++                found[(line, "completeness", anchor)] = Candidate(
++                    "E1", "C1", "completeness", anchor, dict(loc),
++                    features={
++                        "bound_none": bound_none, "scope_differs": differs, "set_word_count": n_complete,
++                        "bound": bound, "instr_scope": instr, "sent_scope": sent_scope, "instr_line": instr_line,
++                    },
++                    pre_priority=E1_BASE
++                    + E1_BOUND_NONE * bound_none
++                    + E1_SCOPE_DIFFERS * differs
++                    + E1_EXTRA_WORD * min(n_complete - 1, E1_EXTRA_CAP),
++                    route=routes["C1"],
++                )  # fmt: skip
++            if n_universal and (line, "universal", anchor) not in found:
++                names = [t for _, _, t in tokens]
++                test, test_line = _enforcing_test(doc, b["task"])
++                found[(line, "universal", anchor)] = Candidate(
++                    "E1", "C6", "universal", anchor, dict(loc),
++                    features={
++                        "names_path": int(bool(names)), "set_word_count": n_universal,
++                        "tokens": list(dict.fromkeys(names)), "enforcing_test": test, "enforcing_test_line": test_line,
++                    },
++                    pre_priority=E1_BASE
++                    + E1_NAMES_PATH * int(bool(names))
++                    + E1_EXTRA_WORD * min(n_universal - 1, E1_EXTRA_CAP),
++                    route=routes["C6"],
++                )  # fmt: skip
++    return sorted(
++        found.values(), key=lambda c: (c.location["line_start"], c.kind, c.anchor_text)
++    )
++
++
++def _scope_text(prefix: str, tokens: list[str], suffix: str = "") -> str:
++    """`<prefix>[a, b]<suffix>` (`[NONE]` when empty), with whole tokens dropped (`and N more`) to fit the limit."""
++    shown = list(tokens)
++    while True:
++        more = len(tokens) - len(shown)
++        inner = ", ".join(shown + ([f"and {more} more"] if more else [])) or E1_NONE
++        text = f"{prefix}[{inner}]{suffix}"
++        if len(text) <= EVIDENCE_TEXT_MAX or not shown:
++            return text
++        shown.pop()
++
++
++def _quote_line(line: str) -> str:
++    """The line, stripped; a line over the text limit is shown as its sentence that holds the first limiter word."""
++    line = line.strip()
++    if len(line) <= EVIDENCE_TEXT_MAX:
++        return line
++    m = _LIMITER_RE.search(line)
++    for s, e, sent in plan.sentences(line):
++        if m and s <= m.start() < e:
++            return sent
++    return line
++
++
++def _limiter_lines(
++    lines: list[str], tokens: list[str], skip: tuple[int, int]
++) -> list[tuple[int, str]]:
++    """[(line number, text)] of the lines (outside `skip`) that hold a token and a limiter word, in order."""
++    return [
++        (i, _quote_line(line))
++        for i, line in enumerate(lines, 1)
++        if not skip[0] <= i <= skip[1]
++        and _LIMITER_RE.search(line)
++        and any(t in line for t in tokens)
++    ]
++
++
++def _snapshot_file(
++    ctx: Ctx, root: Path, name: str
++) -> tuple[str, str] | tuple[None, None]:
++    """(repo-relative path, text) of the named test file in the snapshot, or (None, None)."""
++    text = _read_in_snapshot(root, name)
++    if text is not None:
++        return name, text
++    if "/" not in name:
++        same = [f for f in ctx.scope.tracked if f.endswith("/" + name)]
++        text = _read_in_snapshot(root, same[0]) if len(same) == 1 else None
++        if text is not None:
++            return same[0], text
++    return None, None
++
++
++def attach_e1(cands: list[Candidate], ctx: Ctx) -> None:
++    """DESIGN 4.2 `attach`: both scopes side by side (`completeness`), or limiter lines and the enforcing test."""
++    root = git_root(ctx.snapshot) if ctx.snapshot is not None else None
++    for c in cands:
++        f, loc = c.features, c.location
++        if c.kind == "completeness":
++            c.evidence = [
++                _ev("plan", f["instr_line"] or loc["line_start"], _scope_text("instruction scope: ", f["instr_scope"])),
++                _ev("plan", loc["line_start"], _scope_text("criterion scope: ", f["sent_scope"], f", bound: {f['bound']}")),
++            ]  # fmt: skip
++            c.priority = c.pre_priority
++            continue
++        plan_ev = [
++            _ev("plan", n, t)
++            for n, t in _limiter_lines(
++                ctx.doc.lines, f["tokens"], (loc["line_start"], loc["line_end"])
++            )
++        ]
++        fixed: list[dict] = []
++        file_ev: list[dict] = []
++        test, defs = f["enforcing_test"], None
++        if test:
++            note = ""
++            rel = src = None
++            if root is not None:
++                rel, src = _snapshot_file(ctx, root, test)
++                note = "" if src is not None else " (not in the snapshot)"
++            fixed.append(
++                _ev(
++                    "plan",
++                    f["enforcing_test_line"],
++                    f"enforcing test named by the plan: {test}{note}",
++                )
++            )
++            if src is not None:
++                defs = len(re.findall(r"\bdef\s+test_", src))
++                fixed.append(_ev(rel, 0, f"{defs} def test_ functions in {rel}"))
++                file_ev = [
++                    _ev(rel, n, _quote_line(line))
++                    for n, line in enumerate(src.split("\n"), 1)
++                    if _LIMITER_RE.search(line)
++                ][:E1_LIMITER_LINES]  # fmt: skip
++        free = EVIDENCE_MAX - len(fixed)
++        take_plan = min(len(plan_ev), E1_LIMITER_LINES, free - (1 if file_ev else 0))
++        take_file = min(len(file_ev), free - take_plan)
++        c.evidence = plan_ev[:take_plan] + fixed + file_ev[:take_file]
++        c.features.update(limiter_lines=len(plan_ev), test_defs=defs)
++        c.priority = max(
++            0,
++            min(
++                100, c.pre_priority + E1_LIMITER * bool(plan_ev) + E1_TEST * bool(test)
++            ),
++        )
++
++
++EXTRACTORS["E1"] = (find_e1, attach_e1)
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e1.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e1.py
+new file mode 100644
+index 000000000..4e226f40b
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e1.py
+@@ -0,0 +1,479 @@
++"""Extractor E1 (classes C1 and C6, DESIGN 4.2): set words and the scope they name.
++
++Each extractor test has a positive case, a negative case, a near-miss or boundary case and a determinism case.
++`find_e1` is lexical; `attach_e1` reads the plan's own lines and, for a universal sentence, the enforcing test file of
++the snapshot built by fixtures/repos/build_repo.py (git runs there only).
++"""
++
++import json
++from pathlib import Path
++
++import pytest
++
++from fixtures.repos.build_repo import build_repo
++from scaffold import cards
++from sweep import extractors, plan
++from sweep.extractors import Candidate, Ctx
++
++PLANS = Path(__file__).resolve().parents[1] / "fixtures" / "plans"
++BASIC_TEXT = (PLANS / "p_basic.md").read_text(encoding="utf-8")
++EVERY = (
++    "Every module under `src/exporter/` returns an empty result for an empty report."
++)
++NO_REMAINING = "No remaining `3 report formats` text exists in `docs/guide.md`."
++ONLY = (
++    "`tests/test_retention.py` shows that only the retention job removes a report file."
++)
++LIMITER_SENTENCE = "Leave `tests/test_retention.py` as it is; it skips any report whose hold flag is set."
++FORBIDDEN = ("claim", "severity", "defect")
++
++
++def basic_line(fragment):
++    """The 1-based line of p_basic.md that holds fragment (the plan's own line numbers)."""
++    return next(i for i, t in enumerate(BASIC_TEXT.split("\n"), 1) if fragment in t)
++
++
++def mkplan(
++    criterion="`make test` exits 0.", body="Edit `src/exporter/report.py` for it."
++):
++    """A one-task plan: line 3 holds the body and line 6 the criterion bullet."""
++    return plan.parse(
++        f"## Task 1: Change the report\n\n{body}\n\nAcceptance criteria:\n- {criterion}\n"
++    )
++
++
++def find(doc, snapshot=None, **kw):
++    return extractors.find_e1(doc, Ctx(doc, snapshot=snapshot, **kw))
++
++
++def run(doc, snapshot=None, **kw):
++    ctx = Ctx(doc, snapshot=snapshot, **kw)
++    cands = extractors.find_e1(doc, ctx)
++    extractors.attach_e1(cands, ctx)
++    return cands
++
++
++def basic(snapshot=None, **kw):
++    return run(plan.parse(BASIC_TEXT), snapshot, **kw)
++
++
++def by_kind(cands, kind):
++    return [c for c in cands if c.kind == kind]
++
++
++def dump(cands):
++    return json.dumps([c.to_dict() for c in cands], sort_keys=True)
++
++
++def texts(c):
++    return [e["text"] for e in c.evidence]
++
++
++def held_repo(tmp_path, test_text):
++    return build_repo(tmp_path, extra={"tests/test_retention.py": test_text}).repo
++
++
++# ---------------------------------------------------------------- positive: the two case kinds on p_basic.md
++
++
++def test_registered_in_the_extractor_table():
++    assert extractors.EXTRACTORS["E1"] == (extractors.find_e1, extractors.attach_e1)
++
++
++def test_positive_unbounded_set_word_beside_a_narrower_instruction_scope():
++    (c,) = [c for c in basic() if c.anchor_text == EVERY]
++    assert (c.extractor, c.cls, c.kind, c.route) == ("E1", "C1", "completeness", "read")
++    line = basic_line(EVERY)
++    assert c.location == {"task": "T1", "line_start": line, "line_end": line}
++    f = c.features
++    assert (f["bound_none"], f["scope_differs"], f["set_word_count"]) == (1, 1, 1)
++    assert (f["bound"], f["instr_scope"], f["sent_scope"]) == (
++        "none",
++        ["src/exporter/report.py"],
++        ["src/exporter/"],
++    )
++    assert c.pre_priority == 30 + 25 + 25 + 0 and c.priority == c.pre_priority
++    # both scopes side by side, each with its plan line
++    assert c.evidence == [
++        {
++            "path": "plan",
++            "line": basic_line("Edit `src/exporter/report.py` so that"),
++            "text": "instruction scope: [src/exporter/report.py]",
++        },
++        {
++            "path": "plan",
++            "line": line,
++            "text": "criterion scope: [src/exporter/], bound: none",
++        },
++    ]
++
++
++def test_positive_no_remaining_with_equal_scopes_is_ranked_lower():
++    (c,) = [c for c in basic() if c.anchor_text == NO_REMAINING]
++    assert c.cls == "C1" and (
++        c.features["bound_none"],
++        c.features["scope_differs"],
++    ) == (1, 0)
++    assert c.pre_priority == 30 + 25
++    assert texts(c) == [
++        "instruction scope: [docs/guide.md]",
++        "criterion scope: [docs/guide.md], bound: none",
++    ]
++
++
++def test_positive_universal_sentence_beside_a_skip_rule():
++    (c,) = by_kind(basic(), "universal")
++    assert (c.extractor, c.cls, c.anchor_text, c.route) == ("E1", "C6", ONLY, "search")
++    line = basic_line(ONLY)
++    assert c.location == {"task": "T3", "line_start": line, "line_end": line}
++    assert (c.features["names_path"], c.features["set_word_count"]) == (1, 1)
++    assert c.pre_priority == 30 + 20
++    # no snapshot: the skip rule of task 4 (shown as its own sentence) and the test file the plan names
++    assert c.evidence == [
++        {
++            "path": "plan",
++            "line": basic_line("skips any report"),
++            "text": LIMITER_SENTENCE,
++        },
++        {
++            "path": "plan",
++            "line": line,
++            "text": "enforcing test named by the plan: tests/test_retention.py",
++        },
++    ]
++    assert c.features["limiter_lines"] == 1 and c.features["test_defs"] is None
++    assert c.priority == 50 + 20 + 20
++
++
++def test_positive_the_enforcing_test_file_in_the_snapshot_adds_its_count_and_limiter_lines(
++    tmp_path,
++):
++    src = (
++        "def test_a():\n    pass\n\n# skip a report on legal hold\n"
++        "def test_purge_keeps_held():\n    pass\n\n# only the job may purge\n"
++    )
++    (c,) = by_kind(basic(held_repo(tmp_path, src)), "universal")
++    rel = "tests/test_retention.py"
++    assert c.evidence == [
++        {
++            "path": "plan",
++            "line": basic_line("skips any report"),
++            "text": LIMITER_SENTENCE,
++        },
++        {
++            "path": "plan",
++            "line": basic_line(ONLY),
++            "text": f"enforcing test named by the plan: {rel}",
++        },
++        {"path": rel, "line": 0, "text": f"2 def test_ functions in {rel}"},
++        {"path": rel, "line": 4, "text": "# skip a report on legal hold"},
++        {"path": rel, "line": 8, "text": "# only the job may purge"},
++    ]
++    assert c.features["test_defs"] == 2
++    assert c.priority == 90
++
++
++def test_positive_a_planned_test_file_that_is_not_in_the_snapshot_says_so(tmp_path):
++    (c,) = by_kind(basic(build_repo(tmp_path).repo), "universal")
++    assert (
++        texts(c)[-1]
++        == "enforcing test named by the plan: tests/test_retention.py (not in the snapshot)"
++    )
++    assert c.priority == 90 and c.features["test_defs"] is None
++
++
++def test_positive_evidence_is_capped_at_five_and_a_file_with_limiter_lines_keeps_a_slot(
++    tmp_path,
++):
++    body = "\n".join(
++        f"Keep `tests/test_hold.py` out of reach; skip {n}." for n in range(3)
++    )
++    doc = mkplan("`tests/test_hold.py` shows that only the job runs.", body)
++    src = "# skip one\n# skip two\n# skip three\n# skip four\ndef test_x():\n    pass\n"
++    (c,) = run(doc, build_repo(tmp_path, extra={"tests/test_hold.py": src}).repo)
++    assert len(c.evidence) == 5
++    paths = [e["path"] for e in c.evidence]
++    # 2 plan limiter lines, the enforcing-test line, the count, and 1 limiter line of the file
++    assert paths == ["plan", "plan", "plan", "tests/test_hold.py", "tests/test_hold.py"]
++    assert texts(c)[2].startswith("enforcing test named by the plan")
++    assert c.evidence[4]["text"] == "# skip one"
++    assert c.features["limiter_lines"] == 3
++    c.validate(Ctx(doc))
++
++
++def test_positive_both_kinds_from_one_sentence():
++    cs = find(mkplan("Only the job removes every report."))
++    assert [(c.kind, c.cls) for c in cs] == [
++        ("completeness", "C1"),
++        ("universal", "C6"),
++    ]
++    assert cs[0].anchor_text == cs[1].anchor_text
++
++
++def test_positive_a_set_word_in_dictated_text_is_read():
++    doc = plan.parse(
++        "## Task 1: Notice\n\nWrite the notice as the quote below.\n\n> All notices end with the appeal address.\n"
++        "\nAcceptance criteria:\n- `make test` exits 0.\n"
++    )
++    (c,) = find(doc)
++    assert c.anchor_text == "All notices end with the appeal address."
++    assert c.location["line_start"] == 5
++
++
++def test_positive_a_goal_sentence_has_no_instruction_scope():
++    doc = plan.parse(
++        "Goal: Every report in `src/exporter/` is written.\n\n## Task 1: A task\n\nEdit `a/b.py`.\n"
++    )
++    (c,) = run(doc)
++    assert c.features["instr_scope"] == [] and c.features["scope_differs"] == 0
++    assert texts(c)[0] == "instruction scope: [NONE]"
++    assert texts(c)[1] == "criterion scope: [src/exporter/], bound: none"
++
++
++# ---------------------------------------------------------------- negative
++
++
++def test_negative_nothing_on_the_clean_plan():
++    doc = plan.parse((PLANS / "p_clean.md").read_text(encoding="utf-8"))
++    assert find(doc) == [] and run(doc) == []
++
++
++def test_negative_a_task_body_is_not_an_input_block():
++    assert find(mkplan(body="Every module under `src/` needs the change.")) == []
++
++
++def test_negative_a_set_word_inside_a_longer_word_is_not_one():
++    for text in (
++        "The overall result is shown here.",
++        "Allowed values are listed in it.",
++        "It is an all-in-one report.",
++    ):
++        assert find(mkplan(text)) == [], text
++
++
++# ---------------------------------------------------------------- the 12-character floor and bullets
++
++
++def test_boundary_a_sentence_of_11_characters_is_ignored_and_one_of_12_is_read():
++    assert len("All rows ok.") == 12 and len("All rows o.") == 11
++    assert [c.anchor_text for c in find(mkplan("All rows ok."))] == ["All rows ok."]
++    assert find(mkplan("All rows o.")) == []
++    assert find(mkplan("Every row.")) == []
++
++
++def test_boundary_a_long_sentence_gives_its_first_200_characters():
++    sent = "Every row " + "x" * 300 + "."
++    (c,) = find(mkplan(sent))
++    assert c.anchor_text == sent[:200] and len(c.anchor_text) == 200
++
++
++def test_boundary_a_block_is_split_at_bullets_and_sentence_ends():
++    cs = find(
++        mkplan(
++            "Every row is written. The rest is plain\n  - All cells are written too\n  - Nothing else here."
++        )
++    )
++    assert [c.anchor_text for c in cs] == [
++        "Every row is written.",
++        "All cells are written too",
++    ]
++    assert [c.location["line_start"] for c in cs] == [6, 7]
++
++
++# ---------------------------------------------------------------- bound types, scope sets and the formulas
++
++
++@pytest.mark.parametrize(
++    "sentence, bound, bound_none",
++    [
++        ("Every file in `a/x.py` and `b/y.py` is listed.", "closed_list", 0),
++        ("Every file matching `src/*.py` is checked.", "glob", 1),
++        ("Every file matching `*.py` is checked.", "glob", 1),
++        ("Every file matching `a/x.py` and `*.py` is checked.", "glob", 1),
++        ("All 3 reports are written.", "count", 0),
++        ("Every file in `a/x.py` is checked.", "none", 1),
++        ("Every file on the list is checked.", "none", 1),
++        ("All `2 reports` are written.", "none", 1),
++    ],
++)
++def test_bound_types(sentence, bound, bound_none):
++    (c,) = find(mkplan(sentence))
++    assert (c.features["bound"], c.features["bound_none"]) == (bound, bound_none)
++
++
++def test_scope_sets_are_sorted_and_compared_as_sets():
++    body = "Edit `b/two.py`, `a/one.py` and `src/*.py`."
++    (c,) = find(
++        mkplan("Every file in `a/one.py`, `src/*.py` and `b/two.py` is checked.", body)
++    )
++    assert (
++        c.features["instr_scope"]
++        == c.features["sent_scope"]
++        == ["a/one.py", "b/two.py", "src/*.py"]
++    )
++    assert c.features["scope_differs"] == 0
++    (d,) = find(mkplan("Every file in `a/one.py` is checked.", body))
++    assert d.features["scope_differs"] == 1
++    (e,) = find(
++        mkplan("Every file is checked.", body)
++    )  # an empty sentence scope never differs
++    assert (e.features["sent_scope"], e.features["scope_differs"]) == ([], 0)
++
++
++def test_the_instruction_scope_is_the_task_body_before_the_label_only():
++    doc = plan.parse(
++        "## Task 1: A\n\nEdit `a/one.py`.\n\nAcceptance criteria:\n- Every file in `b/two.py` is checked.\n"
++        "- It reads `c/three.py`.\n\n## Task 2: B\n\nEdit `d/four.py`.\n\nAcceptance criteria:\n- Each file is read.\n"
++    )
++    c1, c2 = find(doc)
++    assert c1.features["instr_scope"] == ["a/one.py"]
++    assert c2.features["instr_scope"] == ["d/four.py"]
++
++
++@pytest.mark.parametrize(
++    "sentence, extra",
++    [
++        ("Every row is written.", 0),
++        ("Every row and each column is written.", 5),
++        ("Every row, each column and all cells are written.", 10),
++        ("Every row, each column, all cells and every cover are written.", 10),
++    ],
++)
++def test_pre_priority_completeness_formula(sentence, extra):
++    (c,) = find(mkplan(sentence))
++    assert c.pre_priority == 30 + 25 + extra  # bound none, no scope on the sentence
++
++
++@pytest.mark.parametrize(
++    "sentence, names, count, pre",
++    [
++        ("Only the job removes a report.", 0, 1, 30),
++        ("Only the job in `src/job.py` removes a report.", 1, 1, 50),
++        ("Only `test_job.py` removes a report, never another.", 1, 2, 55),
++        ("Only the job removes a report, never a copy, and no other file.", 0, 3, 40),
++        ("Only the job, never a copy, no other file and never twice.", 0, 4, 40),
++        ("Files outside `src/` hold nothing of ours.", 1, 1, 50),
++    ],
++)
++def test_pre_priority_universal_formula(sentence, names, count, pre):
++    (c,) = by_kind(find(mkplan(sentence)), "universal")
++    assert (c.features["names_path"], c.features["set_word_count"], c.pre_priority) == (
++        names,
++        count,
++        pre,
++    )
++
++
++def test_the_pair_outside_nothing_needs_that_order():
++    assert find(mkplan("Nothing is written outside the folder.")) == []
++    assert len(find(mkplan("Files outside the folder hold nothing."))) == 1
++
++
++def test_a_universal_priority_adds_the_limiter_and_the_test_terms(tmp_path):
++    # no limiter line, no test file named
++    (c,) = run(mkplan("Only the job in `src/job.py` removes a report."))
++    assert (c.pre_priority, c.priority, c.evidence) == (50, 50, [])
++    # a limiter line only
++    doc = mkplan(
++        "Only the job in `src/job.py` removes a report.",
++        "Edit `src/job.py`; it ignores held reports.",
++    )
++    (c,) = run(doc)
++    assert c.priority == 70 and len(c.evidence) == 1 and c.evidence[0]["line"] == 3
++    # the test file only
++    (c,) = run(mkplan("Only the job removes a report; `tests/test_job.py` passes."))
++    assert (c.pre_priority, c.priority) == (50, 70)
++    assert texts(c) == ["enforcing test named by the plan: tests/test_job.py"]
++
++
++def test_the_enforcing_test_comes_from_the_same_task_or_the_gate():
++    doc = plan.parse(
++        "## Task 1: A\n\nEdit `a/b.py`.\n\nAcceptance criteria:\n- `tests/test_one.py` is run.\n\n"
++        "## Task 2: B\n\nEdit `c/d.py`.\n\nAcceptance criteria:\n- Only the job changes `c/d.py`.\n"
++        "- `tests/test_two.py` is run.\n"
++    )
++    (c,) = find(doc)
++    assert c.features["enforcing_test"] == "tests/test_two.py"
++    solo = plan.parse(
++        "## Task 1: A\n\nEdit `a/b.py`.\n\nAcceptance criteria:\n- Only the job changes `a/b.py`.\n"
++    )
++    assert find(solo)[0].features["enforcing_test"] is None
++    for tok, ok in (
++        ("`test_x.py`", True),
++        ("`pkg/tests/x.py`", True),
++        ("`tests/`", False),
++        ("`src/x.py`", False),
++    ):
++        (d,) = find(mkplan(f"Only the job changes it; {tok} is run."))
++        assert (d.features["enforcing_test"] is not None) == ok, tok
++
++
++def test_the_sentence_itself_is_not_its_own_limiter_line():
++    (c,) = run(mkplan("Only the job in `src/job.py` removes a report."))
++    assert c.features["limiter_lines"] == 0
++
++
++# ---------------------------------------------------------------- evidence text limits and wording
++
++
++def test_a_long_scope_is_cut_at_whole_tokens_and_the_bound_stays():
++    toks = [f"src/pkg{n:02d}/module_{n:02d}.py" for n in range(12)]
++    (c,) = run(
++        mkplan(
++            "Every file in `src/x/` is read.",
++            "Edit " + ", ".join(f"`{t}`" for t in toks) + ".",
++        )
++    )
++    first = c.evidence[0]["text"]
++    assert (
++        len(first) <= 160
++        and first.startswith("instruction scope: [src/pkg00/")
++        and "more]" in first
++    )
++    assert first.endswith("more]")
++    assert c.evidence[1]["text"].endswith(", bound: none")
++
++
++def test_a_long_plan_line_is_shown_as_the_sentence_with_the_limiter_word():
++    body = (
++        "Edit `src/job.py`. "
++        + "Filler words. " * 20
++        + "It skips held reports in `src/job.py`."
++    )
++    (c,) = run(mkplan("Only the job removes a report in `src/job.py`.", body))
++    assert c.evidence[0]["text"] == "It skips held reports in `src/job.py`."
++
++
++def test_no_evidence_entry_holds_a_claim_a_severity_or_the_word_defect(tmp_path):
++    for repo in (None, held_repo(tmp_path, "# skip held\ndef test_a():\n    pass\n")):
++        for c in basic(repo):
++            for e in c.evidence:
++                assert not any(w in e["text"].lower() for w in FORBIDDEN), e
++
++
++def test_the_candidates_survive_the_core_checks_and_the_core_flow():
++    doc = plan.parse(BASIC_TEXT)
++    ctx = Ctx(doc)
++    out = extractors.run_extractors(ctx, {"E1": extractors.EXTRACTORS["E1"]})
++    assert len(out) == 3 and all(
++        c.status == "attached" and c.evidence_computed for c in out
++    )
++    routes = cards.routes()
++    assert {(c.cls, c.route) for c in out} == {
++        ("C1", routes["C1"]),
++        ("C6", routes["C6"]),
++    }
++    assert all(isinstance(c, Candidate) and 0 <= c.priority <= 100 for c in out)
++
++
++# ---------------------------------------------------------------- determinism
++
++
++def test_determinism_two_runs_give_the_same_candidates(tmp_path):
++    repo = held_repo(tmp_path, "# skip held\ndef test_a():\n    pass\n")
++    assert dump(basic()) == dump(basic())
++    assert dump(basic(repo)) == dump(basic(repo))
++    doc = plan.parse(BASIC_TEXT)
++    a = extractors.run_extractors(Ctx(doc, seed=7), {"E1": extractors.EXTRACTORS["E1"]})
++    b = extractors.run_extractors(Ctx(doc, seed=7), {"E1": extractors.EXTRACTORS["E1"]})
++    assert dump(a) == dump(b)
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index cf39c4387..697977588 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -28,3 +28,4 @@ T13: start sha=c6e157c121dcba5e0f7c0647efc3f70839305ce0
+ T13: complete verdict=compliant ac=T13.AC1,T13.AC2,T13.AC3 evidence=T13.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T13-e3-tests.log:12,T13.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:1308,T13.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:1313 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e3.py
+ T14: start sha=06e702069738d0dd9f8e769f2db25157d96c7850
+ T14: complete verdict=compliant ac=T14.AC1,T14.AC2,T14.AC3 evidence=T14.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T14-e4-tests.log:14,T14.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e4.py:281,T14.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:1547 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/words.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e4.py
++T15: start sha=45d6d73934f594793622eb4ab18fe56bd1774b57

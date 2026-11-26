@@ -1,0 +1,55 @@
+{
+ "block_ok": {
+  "t2b-1": false,
+  "t4-1": true
+ },
+ "brief_ids": [
+  "L2"
+ ],
+ "cleared": [],
+ "clusters": [
+  {
+   "event": "opened",
+   "lid": "L1",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F2",
+     "reviewer_id": "t2b-1"
+    },
+    {
+     "blocking": false,
+     "fid": "F4",
+     "reviewer_id": "t2b-1"
+    }
+   ]
+  },
+  {
+   "event": "opened",
+   "lid": "L2",
+   "members": [
+    {
+     "blocking": false,
+     "fid": "F3",
+     "reviewer_id": "t2b-1"
+    },
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t4-1"
+    }
+   ]
+  }
+ ],
+ "decision": "REVISE",
+ "new": [
+  "L1",
+  "L2"
+ ],
+ "refound": [],
+ "regressed": [],
+ "verdict": "FAIL",
+ "warnings": [
+  "t2b-1: findings block problem (1 error(s)), first: claim must have at most 300 characters"
+ ]
+}

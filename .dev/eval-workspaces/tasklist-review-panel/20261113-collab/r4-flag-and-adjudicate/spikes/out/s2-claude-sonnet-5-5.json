@@ -1,0 +1,17 @@
+{
+  "model": "claude-sonnet-5-5",
+  "session_id": "49078264-10f0-4765-9597-9782d7b04efc",
+  "rc_first": 0,
+  "rc_resume": 0,
+  "transcript_file": "/home/coder/.claude/projects/-tmp-evalsb-collab-r4-sb-TASK-WF-designSpec-20261107-075614-repo/49078264-10f0-4765-9597-9782d7b04efc.jsonl",
+  "transcript_written": true,
+  "first_reply": "ALPHA",
+  "resume_reply": "BETA ALPHA",
+  "observed_first": "claude-sonnet-5-5",
+  "observed_resume": "claude-sonnet-5-5",
+  "resume_session_id": "49078264-10f0-4765-9597-9782d7b04efc",
+  "work_dir": "/tmp/collab-r4/s2-claude-sonnet-5-5-1794604167",
+  "both_words": true,
+  "model_ok": true,
+  "pass": true
+}

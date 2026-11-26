@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# Stand-in for `claude -p --output-format json` (TESTING F-FAKE). No model is started.
+# Reads the brief on stdin, picks a scenario from FAKE_SCENARIO (default ok), prints the JSON array
+# of a real run (system init, one assistant message, result) and appends one line per call to FAKE_CALL_LOG:
+#   <epoch seconds> <TAB> <scenario> <TAB> <requested model>
+# Scenarios: ok, ledger_missing, long_anchor, api_error, wrong_model, sleep (FAKE_SLEEP_S, default 5),
+# bad_block, exit127. FAKE_ANCHOR is the findings anchor (12 to 200 chars; default below).
+# Ledger rows cover every item id of the form S<n> found in the brief, else S1.
+# Options added by Task 27 (the launcher tests need one failing reviewer among three, a sandbox write and a telemetry key):
+#   FAKE_SCENARIOS  space-separated model=scenario pairs; a call for that model uses the scenario instead of FAKE_SCENARIO
+#   FAKE_WRITE      a file name; the call creates it in the current directory (a reviewer that dirties the sandbox)
+#   FAKE_PROBE      an item id, or `first` for the first sheet item of the brief; the finding line carries "probe": <id>
+#                   (the telemetry key a real SS reviewer writes)
+# Option added by Task 28 (the judge scripts are tested against this fake only):
+#   FAKE_JUDGE_SCORE  when set and the brief is the blind judge brief of bin/judge-one.sh, the call writes score.json next to
+#                     the merged-anon.md named in the brief, with the ledger row counts read from that report
+set -u
+SCEN=${FAKE_SCENARIO:-ok}
+MODEL=claude-sonnet-5-5
+while [ $# -gt 0 ]; do
+  [ "$1" = "--model" ] && [ $# -ge 2 ] && MODEL=$2
+  shift
+done
+for kv in ${FAKE_SCENARIOS:-}; do
+  [ "${kv%%=*}" = "$MODEL" ] && SCEN=${kv#*=}
+done
+BRIEF=$(cat)
+
+case "$SCEN" in
+  ok | ledger_missing | long_anchor | api_error | wrong_model | sleep | bad_block | exit127) ;;
+  *) echo "fake claude: unknown FAKE_SCENARIO=$SCEN" >&2; exit 2 ;;
+esac
+[ -z "${FAKE_CALL_LOG:-}" ] || printf '%s\t%s\t%s\n' "$(date +%s.%3N)" "$SCEN" "$MODEL" >>"$FAKE_CALL_LOG"
+[ -z "${FAKE_WRITE:-}" ] || printf 'written by the fake reviewer\n' >"$FAKE_WRITE"
+if [ -n "${FAKE_JUDGE_SCORE:-}" ] && printf '%s' "$BRIEF" | grep -q 'blind scoring judge'; then
+  JF=$(printf '%s\n' "$BRIEF" | sed -n 's/^- Merged review report (anonymized): //p')
+  JD=$(dirname "$JF")
+  read -r JROWS JBLK < <(awk -F'|' '/^\| L[0-9]+ /{r++; gsub(/ /,"",$4); if($4=="yes")b++} END{print r+0, b+0}' "$JF")
+  jq -n --arg l "$(basename "$JD")" --argjson r "$JROWS" --argjson b "$JBLK" \
+    '{label:$l,combo:"blind",package:"p1",gt_total:1,gt_covered_any:[],gt_covered_blocking:[],ledger_rows_total:$r,ledger_rows_blocking:$b,blocking_rows_gt_matched:0,wrong_blockers:$b,notes:"fake judge"}' >"$JD/score.json"
+fi
+
+if [ "$SCEN" = exit127 ]; then
+  echo "claude: command not found" >&2
+  exit 127
+fi
+if [ "$SCEN" = sleep ]; then
+  sleep "${FAKE_SLEEP_S:-5}" &
+  trap 'kill $! 2>/dev/null; exit 143' TERM INT
+  wait $!
+fi
+
+ANCHOR=${FAKE_ANCHOR:-the stated text of the first acceptance criterion}
+[ "$SCEN" != long_anchor ] || ANCHOR=$(printf 'x%.0s' $(seq 1 250))
+ITEMS=$(printf '%s' "$BRIEF" | grep -oE '\bS[0-9]+\b' | awk '!s[$1]++')
+[ -n "$ITEMS" ] || ITEMS=S1
+PROBE=${FAKE_PROBE:-}
+[ "$PROBE" != first ] || PROBE=$(printf '%s\n' $ITEMS | head -n 1)
+
+LEDGER=""
+for it in $ITEMS; do
+  LEDGER+=$(jq -nc --arg i "$it" '{item:$i,verdict:"OK",quote_plan:"",quote_other:"",problem:"",ran:"compared both scopes"}')$'\n'
+done
+FINDING=$(jq -nc --arg a "$ANCHOR" --arg p "$PROBE" '{id:"F1",severity:"MINOR",blocking:false,category:"other",anchor:$a,refs:[],claim:"The wording leaves one reading open."} + (if $p != "" then {probe:$p} else {} end)')
+[ "$SCEN" != bad_block ] || FINDING="{not json"
+
+BT='```'
+REPORT="review: 1 of 3"$'\n\n'"Covered: the candidate and the source."$'\n\n'
+if [ "$SCEN" != ledger_missing ]; then
+  REPORT+="## Ledger"$'\n\n'"${BT}ledger-v1"$'\n'"${LEDGER}${BT}"$'\n\n'
+fi
+REPORT+="## Findings block"$'\n\n'"${BT}findings-v1"$'\n'"${FINDING}"$'\n'"${BT}"$'\n\n'"verdict: PASS"
+
+OBS=$MODEL
+ISERR=false
+if [ "$SCEN" = wrong_model ]; then
+  OBS=claude-haiku-5-5
+  [ "$MODEL" != claude-haiku-5-5 ] || OBS=gpt-6-luna
+fi
+if [ "$SCEN" = api_error ]; then
+  OBS="<synthetic>"
+  ISERR=true
+  REPORT="API Error: 529 overloaded_error"
+fi
+
+jq -nc --arg m "$MODEL" --arg o "$OBS" --arg r "$REPORT" --argjson e "$ISERR" '
+  ($r | length / 4 | floor) as $n
+  | [ {type:"system", subtype:"init", session_id:"fake-session", model:$m},
+      {type:"assistant", parent_tool_use_id:null, session_id:"fake-session",
+       message:{model:$o, content:[{type:"text", text:$r}]}},
+      {type:"result", subtype:(if $e then "error_during_execution" else "success" end),
+       is_error:$e, result:$r, session_id:"fake-session",
+       usage:{output_tokens:$n}, modelUsage:{($o):{outputTokens:$n}}} ]'

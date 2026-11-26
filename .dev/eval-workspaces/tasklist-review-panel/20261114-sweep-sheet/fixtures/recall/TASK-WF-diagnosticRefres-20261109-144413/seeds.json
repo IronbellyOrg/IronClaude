@@ -1,0 +1,44 @@
+[
+  {
+    "id": "s01",
+    "class": "C1",
+    "quote": "Nothing reachable from the home directory or the project other than those three files has changed in any way",
+    "description": "The criterion asks for a result over everything under the home directory and the project with no bounded list or method, and the task itself writes new files under ./artifacts, so it can never be shown true."
+  },
+  {
+    "id": "s02",
+    "class": "C2",
+    "quote": "retaining R-001/R-002/R-003/R-006/R-007 as prerequisites.",
+    "description": "The source rule that source, target, backup and baselines are rechecked immediately before the installer runs is no longer in the task, so a changed target between Task 1 and Task 2 goes unnoticed."
+  },
+  {
+    "id": "s03",
+    "class": "C2",
+    "quote": "Capture exact command, stdout/stderr and exit in ./artifacts/selective-install.json.",
+    "description": "The source rule for a failed copy (report blocked with the real target state, no hand-copy or false unchanged claim) is gone, so a builder may hand-copy the skill after the installer fails."
+  },
+  {
+    "id": "s04",
+    "class": "C7",
+    "quote": "Run only `uv run superclaude install-skill sc-troubleshoot-protocol --target ~/.claude/skills`",
+    "description": "The dictated command leaves out the force flag, so the installer refuses to replace the existing skill and the plan's own criterion that the guarded install succeeds with exact parity cannot be met."
+  },
+  {
+    "id": "s05",
+    "class": "C4",
+    "quote": "`stat -c %a ./artifacts/installed-skill-before.tar.gz` prints 0600",
+    "description": "The stat format %a prints the mode without the leading zero (600), so the literal expectation 0600 can never match the archive the task orders."
+  },
+  {
+    "id": "s06",
+    "class": "C5",
+    "quote": "the four expected stale files (SKILL.md, refs/doc-discovery.md, refs/diagnosability-audit.md, refs/triage-checklist.md)",
+    "description": "Task 1 now lists four expected stale files while its own acceptance line, Task 2 and the source still say three, so the after-state check rejects the extra file or the baseline misses it."
+  },
+  {
+    "id": "s07",
+    "class": "C6",
+    "quote": "no file outside ./artifacts is created, changed or removed by any task",
+    "description": "Task 2 replaces the installed skill under ~/.claude/skills (delete before copy), which is a file outside ./artifacts, so the universal sentence contradicts the plan's own main step."
+  }
+]

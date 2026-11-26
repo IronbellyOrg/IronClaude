@@ -1,0 +1,325 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/anchor_250.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/anchor_250.md
+new file mode 100644
+index 000000000..ff7a8d202
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/anchor_250.md
+@@ -0,0 +1,10 @@
++review: 1 of 3
++
++Two defects in the archive section. Both quotes are copied whole from the candidate, so they run past 200 characters.
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "CRITICAL", "blocking": true, "category": "contradiction", "anchor": "The nightly archive job copies every closed ticket older than ninety days into cold storage, verifies every copy against the stored checksum, and only then removes the original row from the live table, so a failed copy leaves the ticket where it was.", "refs": [], "claim": "the removal rule contradicts the retention limit stated in the summary section"}
++{"id": "F2", "severity": "MAJOR", "blocking": false, "category": "other", "anchor": "Each archive run writes one summary file per night.", "anchor2": "A ticket stays visible in the live table until its copy has passed the checksum test, and the job never deletes a row whose copy failed, whatever the age of the ticket is, and it writes the failure into the nightly summary that the support lead reads at nine.", "refs": [], "claim": "the summary rule and the failure rule name different readers"}
++```
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/claim_301.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/claim_301.md
+new file mode 100644
+index 000000000..2cebbee5f
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/claim_301.md
+@@ -0,0 +1,9 @@
++review: 2 of 3
++
++One defect in the thumbnail cleanup section. The claim text below is 301 characters long.
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "MAJOR", "blocking": true, "category": "missing-requirement", "anchor": "The cleanup task deletes a thumbnail when no gallery page refers to it.", "refs": [], "claim": "The cleanup task deletes a thumbnail when no gallery page refers to it, and the report prints one line per deleted thumbnail with its path, its size in bytes, and the page count it had at the time of the last scan, which can be higher than the number of pages that exist now, and it lists nothing else"}
++```
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T4/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T4/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T4/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/normalise.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/normalise.py
+new file mode 100644
+index 000000000..cb21c6574
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/normalise.py
+@@ -0,0 +1,78 @@
++"""H2 normaliser (DESIGN 11.2 row H2, REQ-02): make a reviewer report fit the merge limits.
++
++For each line of the findings-v1 block that parse_block reads (the last one), `anchor` and `anchor2` are cut to
++their first 200 whitespace-flattened characters and `claim` to 300. A prefix of an exact quote is an exact quote,
++so a cut anchor is still found by fnd.locate. A line already inside the limits is left byte for byte as written,
++which makes the function idempotent. The result is validated with fnd.parse_block; every error it still reports
++is kept under `unrepaired` and never dropped. Findings logic comes only from scaffold/fnd.py.
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++from scaffold import fnd
++
++LIMITS = {"anchor": 200, "anchor2": 200, "claim": 300}
++
++
++def _cut_line(raw: str) -> tuple[str, list[str]]:
++    """(line to write, names of the fields that were cut). Lines that are not finding objects come back unchanged."""
++    try:
++        obj = json.loads(raw)
++    except json.JSONDecodeError:
++        return raw, []
++    if not isinstance(obj, dict) or "prior" in obj:
++        return raw, []
++    cut = []
++    for name, limit in LIMITS.items():
++        value = obj.get(name)
++        if isinstance(value, str) and len(fnd.flat(value)) > limit:
++            obj[name] = fnd.flat(value)[:limit].rstrip()
++            cut.append(name)
++    return (json.dumps(obj, ensure_ascii=False), cut) if cut else (raw, [])
++
++
++def normalise_report(text: str) -> tuple[str, dict]:
++    """(normalised report text, info) with info = {"ok", "changed": [{line, id, fields}], "unrepaired": [{line, msg, text}]}."""
++    lines = text.splitlines(keepends=True)
++    _, blocks = fnd._blocks_after(text, fnd._HEAD_FINDINGS, "findings-v1")
++    changed = []
++    if blocks:
++        for lineno, raw in blocks[-1][1]:
++            new, cut = _cut_line(raw)
++            if cut:
++                lines[lineno - 1] = new + lines[lineno - 1][len(raw) :]
++                changed.append(
++                    {"line": lineno, "id": json.loads(raw).get("id"), "fields": cut}
++                )
++    out = "".join(lines)
++    parsed = fnd.parse_block(out)
++    unrepaired = [
++        {
++            "line": e["line"],
++            "msg": e["msg"],
++            "text": lines[e["line"] - 1].strip()
++            if 1 <= e["line"] <= len(lines)
++            else "",
++        }
++        for e in parsed["errors"]
++    ]
++    return out, {"ok": parsed["ok"], "changed": changed, "unrepaired": unrepaired}
++
++
++def normalise_file(src: Path, out_dir: Path, rid: str) -> dict:
++    """Write out_dir/<rid>.md and record the result under `rid` in out_dir/h2.json. Returns that report's info."""
++    out_dir = Path(out_dir)
++    out_dir.mkdir(parents=True, exist_ok=True)
++    out, info = normalise_report(Path(src).read_text())
++    (out_dir / f"{rid}.md").write_text(out)
++    h2_path = out_dir / "h2.json"
++    h2 = json.loads(h2_path.read_text()) if h2_path.exists() else {"reports": {}}
++    h2["reports"][rid] = {"ok": info["ok"], "changed": info["changed"]}
++    h2["unrepaired"] = [u for u in h2.get("unrepaired", []) if u["rid"] != rid] + [
++        {"rid": rid, **u} for u in info["unrepaired"]
++    ]
++    h2_path.write_text(json.dumps(h2, indent=2, sort_keys=True) + "\n")
++    return info
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_normalise.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_normalise.py
+new file mode 100644
+index 000000000..284d34c30
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_normalise.py
+@@ -0,0 +1,188 @@
++"""H2 normaliser (REQ-02; DESIGN 11.2 row H2)."""
++
++import json
++import textwrap
++
++from helpers import SW
++
++from scaffold import fnd
++from scaffold.normalise import normalise_file, normalise_report
++
++REPORTS = SW / "fixtures" / "reports"
++
++
++def load(name):
++    return (REPORTS / f"{name}.md").read_text()
++
++
++def findings(text):
++    """Finding objects by id, read from the raw lines so a report that fails parse_block can still be read."""
++    objs = []
++    for line in fnd.lenient_lines(text):
++        try:
++            objs.append(json.loads(line))
++        except json.JSONDecodeError:
++            pass
++    return {f["id"]: f for f in objs if "prior" not in f}
++
++
++def candidate_for(text):
++    """A candidate document that holds every quote of the report, wrapped at 60 columns."""
++    quotes = []
++    for f in findings(text).values():
++        quotes += [f["anchor"]] + ([f["anchor2"]] if f.get("anchor2") else [])
++    return "# Spec\n\n" + textwrap.fill("  ".join(quotes), 60) + "\n"
++
++
++def test_fixtures_have_the_stated_lengths():
++    f = findings(load("anchor_250"))
++    assert len(fnd.flat(f["F1"]["anchor"])) == 250
++    assert len(fnd.flat(f["F2"]["anchor2"])) > 200
++    assert len(fnd.flat(findings(load("claim_301"))["F1"]["claim"])) == 301
++
++
++def test_anchor_250_survives():
++    text = load("anchor_250")
++    before = findings(text)["F1"]["anchor"]
++    out, info = normalise_report(text)
++    after = findings(out)["F1"]["anchor"]
++    assert len(fnd.flat(after)) == 200
++    assert before.startswith(after)
++    assert fnd.locate(candidate_for(text), after)
++    assert fnd.parse_block(out)["ok"] is True
++    assert info["ok"] is True and info["unrepaired"] == []
++
++
++def test_prefix_is_exact_quote():
++    text = load("anchor_250")
++    cand = candidate_for(text)
++    out, _ = normalise_report(text)
++    for fid, key in (("F1", "anchor"), ("F2", "anchor2")):
++        before, after = findings(text)[fid][key], findings(out)[fid][key]
++        assert fnd.flat(before).startswith(after)
++        assert fnd.locate(cand, after)
++        # the cut quote starts where the full quote starts
++        assert fnd.locate(cand, after)[0][0] == fnd.locate(cand, before)[0][0]
++
++
++def test_claim_301_cut():
++    text = load("claim_301")
++    before = findings(text)["F1"]["claim"]
++    out, info = normalise_report(text)
++    after = findings(out)["F1"]["claim"]
++    assert len(fnd.flat(after)) == 300
++    assert fnd.flat(before).startswith(after)
++    assert info["changed"] == [{"line": 8, "id": "F1", "fields": ["claim"]}]
++    # the anchor was inside its limit, so its text is not touched
++    assert findings(out)["F1"]["anchor"] == findings(text)["F1"]["anchor"]
++
++
++def test_anchor2_cut():
++    text = load("anchor_250")
++    out, info = normalise_report(text)
++    f2 = findings(out)["F2"]
++    assert len(fnd.flat(f2["anchor2"])) == 200
++    assert fnd.flat(findings(text)["F2"]["anchor2"]).startswith(f2["anchor2"])
++    # F2's short anchor and its claim are untouched; only anchor2 is named
++    assert f2["anchor"] == findings(text)["F2"]["anchor"]
++    assert [c["fields"] for c in info["changed"] if c["id"] == "F2"] == [["anchor2"]]
++
++
++def test_result_parses_ok():
++    for name in ("anchor_250", "claim_301"):
++        text = load(name)
++        assert fnd.parse_block(text)["ok"] is False  # over the limits before H2
++        out, info = normalise_report(text)
++        assert fnd.parse_block(out)["ok"] is True
++        assert info["ok"] is True
++
++
++def test_idempotent(tmp_path):
++    for name in ("anchor_250", "claim_301"):
++        once, info1 = normalise_report(load(name))
++        twice, info2 = normalise_report(once)
++        assert twice == once
++        assert info2["changed"] == [] and info2["ok"] is True
++        assert info1["changed"]
++    src = tmp_path / "r.md"
++    src.write_text(load("anchor_250"))
++    out_dir = tmp_path / "normalised"
++    normalise_file(src, out_dir, "r1")
++    first = {p.name: p.read_bytes() for p in out_dir.iterdir()}
++    src.write_text((out_dir / "r1.md").read_text())
++    normalise_file(src, out_dir, "r1")
++    second = {p.name: p.read_bytes() for p in out_dir.iterdir()}
++    assert first.keys() == {"r1.md", "h2.json"}
++    assert second["r1.md"] == first["r1.md"]
++
++
++def test_lines_still_failing_are_kept_not_dropped(tmp_path):
++    good = load("claim_301")
++    head, _, rest = good.partition("```findings-v1\n")
++    bad_json = "{not json"
++    short = json.dumps(
++        {
++            "id": "F9",
++            "severity": "MAJOR",
++            "blocking": False,
++            "category": "other",
++            "anchor": "too short",
++            "claim": "x",
++        }
++    )
++    text = head + "```findings-v1\n" + bad_json + "\n" + short + "\n" + rest
++    out, info = normalise_report(text)
++    assert bad_json in out and short in out  # the lines are still in the text
++    assert info["ok"] is False
++    assert [(u["line"], u["text"]) for u in info["unrepaired"]] == [
++        (8, bad_json),
++        (9, short),
++    ]
++    assert "valid JSON" in info["unrepaired"][0]["msg"]
++    assert "anchor" in info["unrepaired"][1]["msg"]
++    # the long claim on the third line is still cut
++    assert findings(out)["F1"]["claim"] and len(findings(out)["F1"]["claim"]) == 300
++
++    src = tmp_path / "bad.md"
++    src.write_text(text)
++    normalise_file(src, tmp_path / "n", "r2")
++    h2 = json.loads((tmp_path / "n" / "h2.json").read_text())
++    assert [u["rid"] for u in h2["unrepaired"]] == ["r2", "r2"]
++    assert h2["reports"]["r2"]["ok"] is False
++
++
++def test_report_without_block_is_unchanged_and_reported():
++    text = "review: 1 of 3\n\nno findings block here\n"
++    out, info = normalise_report(text)
++    assert out == text
++    assert info["ok"] is False and info["unrepaired"][0]["line"] == 0
++
++
++def test_line_ending_and_other_lines_are_preserved():
++    text = load("claim_301")
++    out, _ = normalise_report(text)
++    a, b = text.splitlines(keepends=True), out.splitlines(keepends=True)
++    assert len(a) == len(b)
++    assert [i for i in range(len(a)) if a[i] != b[i]] == [7]
++    assert out.endswith("```\n")
++
++
++def test_cut_does_not_leave_a_trailing_space():
++    # 199 letters then a space then more: the cut at 200 ends on the space, which flat() would strip
++    anchor = "a" * 199 + " bbbbbbbbbbbb"
++    line = json.dumps(
++        {
++            "id": "F1",
++            "severity": "MAJOR",
++            "blocking": False,
++            "category": "other",
++            "anchor": anchor,
++            "refs": [],
++            "claim": "c",
++        }
++    )
++    text = f"## Findings block\n\n```findings-v1\n{line}\n```\n"
++    out, _ = normalise_report(text)
++    got = findings(out)["F1"]["anchor"]
++    assert got == "a" * 199
++    assert normalise_report(out)[0] == out
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index 511bbdd70..ac21bf154 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -6,3 +6,4 @@ T2: start sha=d92473ff662d7c0c17d98863ff3818bebaa4e7be
+ T2: complete verdict=compliant ac=T2.AC1,T2.AC2,T2.AC3 evidence=T2.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py:47,T2.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py:71,T2.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T2-all-tests.log:5 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/conftest.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/fakes/claude,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fake_on_path.py
+ T3: start sha=21c1e64a6b8365f5669ce71917041998098874b9
+ T3: complete verdict=compliant ac=T3.AC1,T3.AC2,T3.AC3,T3.AC4 evidence=T3.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T3-contract.log:12,T3.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py:80,T3.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py:132,T3.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T3-review-suite.log:18 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/fnd.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_fnd_contract.py
++T4: start sha=b1af94369a1c4e5ef03c53ba2c65d3b8b57b6947

@@ -1,0 +1,11 @@
+{
+  "model": "gpt-6-luna",
+  "session_id": "e5ae74b5-b651-4bd2-8223-fc9131dcebeb",
+  "first_model": "gpt-6-luna",
+  "resume_model": "gpt-6-luna",
+  "resume_result": "beta",
+  "stream_lines": 15,
+  "resume_first_line_ms": 997,
+  "resume_wall_ms": 3564,
+  "verdict": "PASS"
+}

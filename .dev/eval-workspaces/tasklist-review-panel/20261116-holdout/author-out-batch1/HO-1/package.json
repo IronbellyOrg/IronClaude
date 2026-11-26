@@ -1,0 +1,8 @@
+{
+  "base": "cb8f2f81ab7d99c51bcfe81fec8e200b52cf2c86",
+  "candidate": ".dev/tasks/done/TASK-WF-workerContractFo-20261106-214402/TASK-WF-workerContractFo-20261106-214402.md",
+  "source": ".dev/tasks/done/TASK-WF-workerContractFo-20261106-214402/source.md",
+  "kind": "plan",
+  "set": "holdout",
+  "masked_paths": []
+}

@@ -1,0 +1,25 @@
+{
+ "critical_role": "reader",
+ "finish_offset_s": 143.8,
+ "guard_offset_s": 109.60000000000002,
+ "hang_offset_s": 174.0,
+ "k": {
+  "reader": 2,
+  "searcher": 2
+ },
+ "panel": "el2",
+ "B_f": 116,
+ "turn_p90": {
+  "searcher": 3.2,
+  "reader": 6.4
+ },
+ "T_report_p90": {
+  "searcher": 3.2,
+  "reader": 6.4
+ },
+ "E_p90": {
+  "reader": 102,
+  "searcher": null
+ },
+ "values": "planning"
+}

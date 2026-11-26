@@ -1,0 +1,133 @@
+review: 1 of 3
+# Merged review 1 (coordinator script; panel of 5 reviewers)
+candidate: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/candidate.md sha256 cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4
+reviewers:
+- t1b-1: report /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/h2-sonnet-luna2-ember2-r1/t1b-1.md, block ok true
+- t4-1: report /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/h2-sonnet-luna2-ember2-r1/t4-1.md, block ok true
+- t4-2: report /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/h2-sonnet-luna2-ember2-r1/t4-2.md, block ok true
+- t2b-1: report /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/h2-sonnet-luna2-ember2-r1/t2b-1.md, block ok true
+- t3-1: report /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/h2-sonnet-luna2-ember2-r1/t3-1.md, block ok true
+
+## Ledger
+
+| lid | status | blocking | confidence | severity | refs | reviewers |
+|---|---|---|---|---|---|---|
+| L1 | open | yes | overlap | MAJOR | - | t1b-1, t2b-1, t4-1, t4-2 |
+| L2 | open | yes | overlap | MAJOR | - | t1b-1, t2b-1, t3-1 |
+| L3 | open | yes | overlap | MAJOR | - | t1b-1, t2b-1, t3-1, t4-1 |
+| L4 | open | yes | single | MAJOR | - | t4-1 |
+| L5 | open | no | single | MINOR | - | t4-2 |
+| L6 | open | no | single | MINOR | - | t4-2 |
+| L7 | open | no | single | MINOR | - | t2b-1 |
+
+## Blocking findings
+
+### L1
+
+#### L1.t1b-1 (F1)
+
+- claim: The launcher spec exports all three variables for every tier-mode owner and never says what a limited owner gets, though the launcher already restricts tiers per owner.
+- anchor: "they run only when tier mode is on, so a launch that is not in tier mode leaves the inherited environment untouched"
+
+#### L1.t1b-1 (F2)
+
+- claim: A verbatim copy keeps REPO_ROOT as parents[2], which points at the package folder under artifacts, so `import models` fails at collection and the red log would show an import error.
+- anchor: "copy the harness and the test into a scratch module under ./artifacts/t9-scratch/ with the harness addition applied"
+
+#### L1.t4-1 (F3)
+
+- claim: An implementer who follows the stated text as written anchors the follow-up spec to profile-option parsing rather than tier-mode detection, and that is wrong because the cited lines do not contain the specified tier-mode block on this checkout.
+- anchor: "the tier-mode block at lines 776-785, where the launcher also tests that CCSESSION_EXT_PROFILE is not 1 at line 777, and the custom-option exports at lines 1099-1103"
+
+#### L1.t4-2 (F1)
+
+- claim: The required launcher anchors point to profile-option parsing and Python request code, so the launcher-follow-up acceptance criterion cannot pass as written.
+- anchor: "the tier-mode block at lines 776-785, where the launcher also tests that CCSESSION_EXT_PROFILE is not 1 at line 777, and the custom-option exports at lines 1099-1103"
+
+#### L1.t2b-1 (F3)
+
+- claim: The quoted launcher line numbers belong to the base commit and drifted in the current tree, so a follow-up reader must re-verify the anchor before editing.
+- anchor: "(the tier-mode block at lines 776-785, where the launcher also tests that CCSESSION_EXT_PROFILE is not 1 at line 777"
+
+### L2
+
+#### L2.t1b-1 (F3)
+
+- claim: The scanned file types are not stated, and cli/review/data JSON files in the inspected tree contain claude-gw-tier outside the allow-list, so the test could fail on the tree it is said to pass on.
+- anchor: "The text claude-gw-tier appears under src/superclaude/agents, commands, skills, cli, hooks and core only in TIER_TEXT_ALLOWED paths."
+- anchor2: "the remaining tests pass"
+
+#### L2.t1b-1 (F4)
+
+- claim: The value order is the reverse of the t1, t2, t3 file order, so pairing them in order pins t1 to tier3 and the first run fails.
+- anchor: "whose pinned values must equal claude-gw-tier3, claude-gw-tier2 and claude-gw-tier1a"
+
+#### L2.t2b-1 (F1)
+
+- claim: The pin order as written can be paired in file order to assert tier3 for t1, tier2 for t2, tier1a for t3, the reverse of the pins on disk, so the test would fail on correct pins.
+- anchor: "ISSUE_WORKER_PINS (the three issue-worker agent files, whose pinned values must equal claude-gw-tier3, claude-gw-tier2 and claude-gw-tier1a"
+
+#### L2.t3-1 (F1)
+
+- claim: The tier-text test as specified fails on cli/review/data/*.json with no task to fix or allow-list it, so Task 1 cannot show exactly seven failures and the final policy run cannot go green.
+- anchor: "- The text claude-gw-tier appears under src/superclaude/agents, commands, skills, cli, hooks and core only in TIER_TEXT_ALLOWED paths."
+- anchor2: "and TIER_TEXT_ALLOWED (those three files, everything under src/superclaude/skills/sc-issue-protocol/, and src/superclaude/skills/ccsession-tag/ which is read-only here)."
+
+#### L2.t3-1 (F3)
+
+- claim: The pin values are listed without a per-file mapping, so the t1 to tier1a, t2 to tier2, t3 to tier3 pairing must be confirmed from the agent files.
+- anchor: "whose pinned values must equal claude-gw-tier3, claude-gw-tier2 and claude-gw-tier1a"
+
+### L3
+
+#### L3.t1b-1 (F5)
+
+- claim: Read literally, the rule forbids the docs, tests and plugins edits that several tasks require; the same sentence shows it means only that .claude/ is not edited.
+- anchor: "Edit under src/ only; the .claude/ copies are gitignored sync output regenerated by make sync-dev."
+
+#### L3.t1b-1 (F6)
+
+- claim: The longer comment shifts the line numbers cited in the D12 source note, and no instruction updates that citation.
+- anchor: "reword line 243 if it describes the old default"
+
+#### L3.t1b-1 (F7)
+
+- claim: Installed skill refs point at a docs page that exists only in a checkout, so the pointer dangles in other projects.
+- anchor: "see the model-alias reference page in docs/reference"
+
+#### L3.t4-1 (F1)
+
+- claim: An implementer who follows the stated text as written edits only under src/ while also making required edits under docs/, tests/, plugins/ and .dev/, and that is wrong because these requirements directly contradict each other.
+- anchor: "Edit under src/ only; the .claude/ copies are gitignored sync output regenerated by make sync-dev."
+- anchor2: "In docs/testing/v5.0.0/user/D12-reflect.md change the expected command at line 235 from `--model claude-opus-4-8` to `--model opus`, and reword line 243 if it describes the old default."
+
+#### L3.t2b-1 (F2)
+
+- claim: Read literally, the scope line forbids the docs and tests edits that later tasks and their acceptance checks require, so a src-only build fails the docs checks.
+- anchor: "- Edit under src/ only; the .claude/ copies are gitignored sync output regenerated by make sync-dev."
+
+#### L3.t3-1 (F2)
+
+- claim: Read literally, the constraint forbids the test, docs, and .dev files that later tasks create; the scope of the src-only rule needs one clarifying clause.
+- anchor: "- Edit under src/ only; the .claude/ copies are gitignored sync output regenerated by make sync-dev."
+
+### L4
+
+#### L4.t4-1 (F2)
+
+- claim: An implementer who follows the stated text as written runs the policy test on the unchanged checkout and gets 13 passing tests rather than exactly seven failures, and that is wrong because the acceptance criterion cannot pass.
+- anchor: "tests/skills/test_model_alias_policy.py run on the unchanged tree fails exactly these seven tests"
+
+## Other findings
+
+- L5 (MINOR, open, single): The current workspace defaults file does not export the three ANTHROPIC_DEFAULT_*_MODEL variables, so the specified documentation would describe exports that are absent.
+- L6 (MINOR, open, single): The current workspace defaults set T3Model01 to glm-5.3, not gpt-6.1-terra, so the required notes would report the wrong rung model.
+- L7 (MINOR, open, single): The extra-search instruction has no acceptance check, so an extra mention outside the two named paths would not fail the task.
+
+## Reviser brief
+
+Blocking finding ids: L1, L2, L3, L4.
+
+Rules for the reviser (restating the Review Loop's Reviser contract): revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, with the bytes added and deleted per finding id.
+
+verdict: FAIL

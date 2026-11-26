@@ -1,0 +1,50 @@
+{
+  "reviewer_id": "t2b-1",
+  "expected_model": "muse-ember-1.0",
+  "observed_model": "muse-ember-1.0",
+  "model_ok": true,
+  "findings_block": true,
+  "attempt": 1,
+  "wall_s": 27,
+  "wall_ms": 27284,
+  "output_tokens_main": 6330,
+  "output_tokens_all": 6330,
+  "exit": 0,
+  "api_error": false,
+  "session_id": "bd09446e-cec7-478d-9c8c-29914b831979",
+  "session_ids": [
+    "bd09446e-cec7-478d-9c8c-29914b831979"
+  ],
+  "start_ms": 1794611676490,
+  "end_ms": 1794611704119,
+  "attempts": 1,
+  "retry_s": null,
+  "retry_isolated": false,
+  "reask_s": null,
+  "dropped_lines": 0,
+  "hang_kill": false,
+  "valid": true,
+  "role": "searcher",
+  "collab": 1,
+  "argv": [
+    [
+      "timeout",
+      "--kill-after=5",
+      "173",
+      "claude",
+      "-p",
+      "--model",
+      "muse-ember-1.0",
+      "--output-format",
+      "json",
+      "--permission-mode",
+      "bypassPermissions",
+      "--disallowedTools",
+      "Edit",
+      "Write",
+      "NotebookEdit",
+      "--settings",
+      "{\"hooks\":{\"PostToolUse\":[{\"matcher\":\"*\",\"hooks\":[{\"type\":\"command\",\"command\":\"bash /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tools/radar-hook.sh '/tmp/collab-r1/r1scratch/runs/el2-c1-r0/TASK-WF-designSpec-20261107-075614/board' 'el2-c1-r0/TASK-WF-designSpec-20261107-075614' 't2b-1' 'searcher' '1794611676320' '1794611820120' '1794611785920' '2' '6' '10' 'M2,M7,M4,M1' 'TASK-WF-designSpec-20261107-075614' ''\",\"timeout\":5}]}]}}"
+    ]
+  ]
+}

@@ -1,0 +1,2012 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/p_basic.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/p_basic.md
+new file mode 100644
+index 000000000..e19e27c9f
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/p_basic.md
+@@ -0,0 +1,85 @@
++---
++schema: workflow-plan/1.2
++source: ./source.md
++strategy: systematic
++depth: standard
++slug: TASK-WF-exporterRetention-20261114-000001
++version: "1"
++priority: Medium
++created_date: "2026-11-14"
++---
++
++# Add an ndjson report format and a retention policy to the exporter
++
++Source: ./source.md
++Goal: The exporter writes a fourth report format, one retention job removes expired reports, and `make test` exits 0.
++
++## Constraints
++
++- Code lives under `src/exporter/` and tests under `tests/`; `docs/guide.md` is the only document that changes.
++  - The exporter package has no network access.
++- A deletion notice must name the report id, state the expiry date, and give the appeal address.
++- The retention job gets its age limit from one setting.
++
++## Phase 1: Report formats
++
++## Task 1: Add the ndjson writer to the report module
++
++Edit `src/exporter/report.py` so that `render` accepts the format name `ndjson` and writes one JSON object per row.
++
++Source sections: 2.1
++
++Acceptance criteria:
++- `render(rows, fmt="ndjson")` returns one JSON object per row, one object per line.
++- Every module under `src/exporter/` returns an empty result for an empty report.
++
++## Task 2: Update the guide and the format count
++
++Depends on: Task 1
++
++Edit `docs/guide.md`: add the heading "Retention window" to it and update the count from 3 report formats to 4 report formats.
++
++Source sections: 2.2
++
++Acceptance criteria:
++- `grep -c 'retention-window' docs/guide.md` prints at least 1.
++- No remaining `3 report formats` text exists in `docs/guide.md`.
++
++## Phase 2: Retention
++
++## Task 3: Create the retention job and its test
++
++Depends on: Task 1
++
++Create `src/exporter/retention.py` and `tests/test_retention.py`. The purge step keys on `legal_hold` and leaves such reports in place.
++
++Source sections: 2.3, Q4
++
++Acceptance criteria:
++- `tests/test_retention.py` shows that only the retention job removes a report file.
++- `pytest tests/test_retention.py -k purge_keeps_held` exits 0.
++
++## Task 4: Write the deletion notice
++
++Depends on: Task 3
++
++Create `src/exporter/notice.py`. Write the notice body exactly as the quote below, with the report id filled in. Leave `tests/test_retention.py` as it is; it skips any report whose hold flag is set.
++
++> Report id 41 has expired. The expiry date is 2027-01-01.
++
++Source sections: 2.4
++
++Acceptance criteria:
++- `src/exporter/notice.py` returns the quoted text for the report id 41.
++
++## Phase 3: Final check
++
++## Task 5: Run the final check and sync the docs
++
++Depends on: Task 2, Task 4
++
++Run the full test suite and sync `docs/guide.md` with the code.
++
++Acceptance criteria:
++- `make test` exits 0.
++- `pytest tests/test_retention.py -q` exits 0.
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/p_clean.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/p_clean.md
+new file mode 100644
+index 000000000..99437eca8
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/p_clean.md
+@@ -0,0 +1,48 @@
++---
++schema: workflow-plan/1.2
++source: ./source.md
++strategy: systematic
++depth: standard
++slug: TASK-WF-exporterNotice-20261114-000002
++version: "1"
++priority: Medium
++created_date: "2026-11-14"
++---
++
++# Add a notice builder and a retention helper to the exporter
++
++Source: ./source.md
++Goal: `make test` exits 0 with the notice builder and the retention helper in place.
++
++## Constraints
++
++- New code lives under `src/exporter/` and its tests under `tests/`.
++- The helper takes its age limit as a function argument.
++
++## Phase 1: Notice builder
++
++## Task 1: Create the notice builder
++
++Create `src/exporter/notice.py` with a function `build_notice` that takes a report id and an expiry date and returns one text line. Create `tests/test_notice.py` for it.
++
++Acceptance criteria:
++- `build_notice` called with the report id `alpha` and the expiry date `2027-01-01` returns the text `Report alpha expires on 2027-01-01`.
++- `tests/test_notice.py` holds the test `test_notice_text` and that test passes.
++
++## Phase 2: Retention helper
++
++## Task 2: Create the retention helper
++
++Create `src/exporter/retention.py` with a function `is_expired` that takes the age of a report in days and the age limit in days and returns a boolean. Create `tests/test_retention.py` for it.
++
++Acceptance criteria:
++- `is_expired(31, 30)` returns `True` and `is_expired(30, 30)` returns `False`.
++- `tests/test_retention.py` holds the test `test_expiry_edge` and that test passes.
++
++## Task 3: Run the final check
++
++Run the test suite for the new files.
++
++Acceptance criteria:
++- `make test` exits 0.
++- The new test files are `tests/test_notice.py` and `tests/test_retention.py`.
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/source.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/source.md
+new file mode 100644
+index 000000000..6d7e605ba
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/plans/source.md
+@@ -0,0 +1,21 @@
++# Exporter retention rules (invented source for the plan fixtures)
++
++## 2.1 Output formats
++
++The exporter must support the formats csv, json, html and ndjson.
++
++## 2.2 Guide
++
++The guide must list the four formats and carry a section named Retention window.
++
++## 2.3 Retention job
++
++The job must write `deleted_count` to the run log and must halt with `RetentionError` when `age_limit_days` is unset. The purge step must skip a report whose `legal_hold` flag is set.
++
++## 2.4 Notice
++
++The notice must name the report id, state the expiry date, and give the appeal address.
++
++## Decisions
++
++Q4: the age limit is one setting, read once at the start of a run.
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T9/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T9/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T9/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/formats.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/formats.py
+new file mode 100644
+index 000000000..d8c333120
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/formats.py
+@@ -0,0 +1,185 @@
++"""Format dictionaries of the plan reader (DESIGN section 3, REQ-37, REQ-38). Data only: no function, no import.
++
++One dictionary per document format (`plan`, `spec`, `doc`) says how each of the six block kinds is recognised.
++Adding a format is adding one dictionary to FORMATS (or passing one to `plan.parse`); sweep/plan.py has no
++format-specific text and does not change.
++
++A dictionary has these keys (all optional except `kinds`):
++
++  front_matter   True when a leading `---` block is front matter and is skipped
++  heads          {class: regex}. Heading lines are tried in this order, the first match wins. Classes:
++                 `task` (its groups `id` and `title` name the task; no `id` group numbers tasks 1, 2, ...),
++                 `phase` (group `id`), and any other name a rule refers to with `under`
++  label          regex of the line inside a task that ends its body and starts its criteria
++  citation       {label: regex with group `cites`, tokens: regex with group `ref`}: the citation sentence of a task
++  kinds          {kind: [rule, ...]} for the kinds task, criterion, constraint, dictated_text, edit_target, gate
++
++A rule is a dictionary with a `mode` (the names in plan.MODES) and the options of that mode:
++
++  task_body            the body of every task section, up to its label
++  after_label          the bullets after a label line (option `label`, default the format's label)
++  bullets              the top-level bullets of every section of class `under`; `fallback: "section"` takes the
++                       whole section as one block when it holds no bullet
++  section              the whole body of every section of class `under`
++  line                 every line that matches `pattern`; a group `text` is the block text; `id` fixes the id
++  sentences            every sentence of the prose, kept when it holds a word of `words`
++  quoted_span          the double-quoted spans of at least `min` characters in sentences that hold a word of `words`
++  blockquote           runs of lines that start with `>`
++  fence                fenced blocks, filtered by `info` (allowed info words) and `skip_info`
++  last_task_criteria   the criteria of the last task when its title or body holds a word of `words`
++  matching             blocks of kind `of` whose text matches `pattern` (ids in `skip` are left out)
++
++Common options: `in: "task"` keeps rules inside task sections, `part: "body"` or `"criteria"` keeps them in one
++half of a task, `explode_paths: true` makes one block per path token (with `path` and `creates`).
++`words` is the name of a list in sweep/words.py (or a list of names and words).
++"""
++
++DEFAULT = "plan"
++
++# Path-like token: at least one `/`, then a file name with an extension, or a trailing `/`
++PATH_TOKEN = (
++    r"(?<![\w/.\-*])(?:[\w.\-*]+/)+(?:[\w\-*][\w.\-*]*\.[A-Za-z0-9*]+)?(?![\w/])"
++)
++
++# End of a sentence: a full stop, `!` or `?` (and closing marks) before whitespace and the start of a new sentence
++SENTENCE_END = r"[.!?][\"')\]`”]*(?=\s+[\"'(\[`“A-Z])"
++
++# Quoted spans: straight and curly double quotes (group `q` is the text between the quotes)
++QUOTED_SPANS = (
++    r"\"(?P<q>[^\"]+)\"",
++    r"“(?P<q>[^”]+)”",
++)
++
++SHELL_INFO = ("bash", "sh", "shell", "console", "zsh")
++TEXT_INFO = ("", "text", "txt", "md", "markdown")
++
++CITATION = {
++    "label": r"^\s*Source sections?\s*:\s*(?P<cites>.*)$",
++    "tokens": r"(?:§\s*|\bsections?\s+)?(?P<ref>[A-Z]{1,3}-?\d+(?:\.\d+)*|\d+(?:\.\d+)*)",
++}
++
++_NUMBER = r"(?:\d+(?:\.\d+)*\.?\s+)?"
++
++FORMATS = {
++    # the workflow-plan format of this repository
++    "plan": {
++        "front_matter": True,
++        "heads": {
++            "phase": r"^#{2,3}\s+Phase\s+(?P<id>\w+)\s*[:.\-]?\s*(?P<title>.*)$",
++            "task": r"^#{2,3}\s+Task\s+(?P<id>\d+(?:\.\d+)*)\s*[:.\-]?\s*(?P<title>.*)$",
++            "constraint": r"^#{2,3}\s+Constraints?\b",
++            "gate": r"^#{2,3}\s+(?:Gate|Final checks?)\b",
++        },
++        "label": r"^Acceptance criteria\s*:\s*$",
++        "citation": CITATION,
++        "kinds": {
++            "task": [{"mode": "task_body"}],
++            "criterion": [
++                {"mode": "after_label", "in": "task"},
++                {
++                    "mode": "line",
++                    "pattern": r"^Goal\s*:\s*(?P<text>\S.*)$",
++                    "id": "goal",
++                },
++            ],
++            "constraint": [{"mode": "bullets", "under": "constraint"}],
++            "dictated_text": [
++                {"mode": "blockquote", "in": "task", "part": "body"},
++                {"mode": "fence", "in": "task", "part": "body"},
++                {
++                    "mode": "quoted_span",
++                    "in": "task",
++                    "part": "body",
++                    "words": "dictation_verbs",
++                    "min": 25,
++                },
++            ],
++            "edit_target": [
++                {
++                    "mode": "sentences",
++                    "in": "task",
++                    "part": "body",
++                    "words": ["edit_verbs", "create_verbs"],
++                    "explode_paths": True,
++                }
++            ],
++            "gate": [
++                {
++                    "mode": "last_task_criteria",
++                    "words": [
++                        "run",
++                        "runs",
++                        "running",
++                        "check",
++                        "checks",
++                        "checking",
++                        "verify",
++                        "verifies",
++                        "verifying",
++                        "sync",
++                        "syncs",
++                        "syncing",
++                    ],
++                },
++                {"mode": "bullets", "under": "gate", "fallback": "section"},
++                {
++                    "mode": "matching",
++                    "of": "criterion",
++                    "pattern": r"`[^`\n]*\b(?:pytest|make)\b[^`\n]*`",
++                    "skip": ["goal"],
++                },
++            ],
++        },
++    },
++    # a numbered specification (draft until real specification fixtures exist, IMPLEMENTATION step 6)
++    "spec": {
++        "front_matter": True,
++        "heads": {
++            "gate": rf"^#{{1,4}}\s+{_NUMBER}Verification\b",
++            "affects": rf"^#{{1,4}}\s+{_NUMBER}Affect(?:s|ed)\b",
++            "example": rf"^#{{1,4}}\s+{_NUMBER}(?:Examples?|Message format)\b",
++            "task": r"^#{1,4}\s+(?P<id>\d+(?:\.\d+)*)\.?\s+(?P<title>\S.*)$",
++        },
++        "citation": CITATION,
++        "kinds": {
++            "task": [{"mode": "task_body"}],
++            "criterion": [{"mode": "line", "pattern": r"\b(?:shall|must|should)\b"}],
++            "constraint": [
++                {
++                    "mode": "line",
++                    "pattern": r"\b(?:applies to|apply to|governs|binds|holds for)\s+(?:every|all|each)\b",
++                }
++            ],
++            "dictated_text": [
++                {"mode": "fence", "skip_info": SHELL_INFO},
++                {"mode": "section", "under": "example"},
++            ],
++            "edit_target": [
++                {"mode": "bullets", "under": "affects", "explode_paths": True},
++                {
++                    "mode": "after_label",
++                    "label": r"^\s*(?:\*\*)?Affect(?:s|ed)(?:\*\*)?\s*:\s*(?:\*\*)?\s*$",
++                    "explode_paths": True,
++                },
++            ],
++            "gate": [{"mode": "bullets", "under": "gate", "fallback": "section"}],
++        },
++    },
++    # a how-to or other documentation (draft until real documentation fixtures exist, IMPLEMENTATION step 6)
++    "doc": {
++        "front_matter": True,
++        "heads": {"task": r"^#{1,4}\s+(?P<title>\S.*)$"},
++        "kinds": {
++            "task": [{"mode": "task_body"}],
++            "criterion": [
++                {
++                    "mode": "sentences",
++                    "in": "task",
++                    "words": ["set_completeness", "set_universal"],
++                },
++                {"mode": "fence", "in": "task", "info": SHELL_INFO},
++            ],
++            "dictated_text": [{"mode": "fence", "in": "task", "info": TEXT_INFO}],
++        },
++    },
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/plan.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/plan.py
+new file mode 100644
+index 000000000..39667c6f2
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/plan.py
+@@ -0,0 +1,636 @@
++"""Plan reader (DESIGN section 3): a document becomes typed blocks.
++
++    parse(data, fmt=None) -> Doc        data is bytes or str; fmt is a name in formats.FORMATS or a dictionary
++    read(path, fmt=None) -> Doc         the same for a file
++
++A block is a dict {kind, id, text, line_start, line_end, task, phase}. kind is one of KINDS. Lines are 1-based lines
++of the document (CR before LF is ignored). `text` is cut from the document and never rebuilt: it is a contiguous
++slice of the document's own lines (a list bullet loses only its marker), so `fnd.locate(doc.text, text)` finds it
++and an anchor cut from it is an exact quote. `task` is the id of the enclosing task (`T1`) and `phase` the id of
++the latest phase (`P1`), or None. An `edit_target` block also holds `path` (one block per path token of the
++sentence) and `creates`.
++
++The reader holds no format-specific text. Everything that tells one format from another is in formats.py, and a
++new format needs a new dictionary there and no change here (REQ-37). It never fails on a document it does not
++understand: unknown structure gives fewer blocks, down to none. It raises ReadError (a ValueError) on bytes that
++are not text.
++"""
++
++from __future__ import annotations
++
++import re
++from dataclasses import dataclass
++from functools import lru_cache
++from pathlib import Path
++
++from sweep import formats, words
++
++KINDS = ("task", "criterion", "constraint", "dictated_text", "edit_target", "gate")
++_PREFIX = {
++    "criterion": "C",
++    "constraint": "K",
++    "dictated_text": "D",
++    "edit_target": "E",
++    "gate": "G",
++}
++_BULLET = re.compile(r"^ ?(?:[-*+]|\d+[.)])[ \t]+")
++_FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
++_HEADING = re.compile(r"^(#{1,6})[ \t]+(\S.*?)[ \t]*$")
++
++
++class ReadError(ValueError):
++    """The bytes are not a text document."""
++
++
++@dataclass
++class Doc:
++    text: str
++    format: str
++    lines: list[str]
++    blocks: list[dict]
++    tasks: dict[str, dict]
++
++    def of(self, *kinds: str) -> list[dict]:
++        return [b for b in self.blocks if b["kind"] in kinds]
++
++
++def decode(raw: bytes) -> str:
++    """UTF-8 text (a leading byte order mark is dropped); anything else raises ReadError."""
++    if b"\x00" in raw:
++        raise ReadError("unreadable bytes: a NUL byte")
++    try:
++        return raw.decode("utf-8-sig")
++    except UnicodeDecodeError as e:
++        raise ReadError(f"unreadable bytes: not UTF-8 ({e.reason})") from e
++
++
++def read(path, fmt=None) -> Doc:
++    """Read a file. A missing or unreadable file raises OSError; bytes that are not text raise ReadError."""
++    return parse(Path(path).read_bytes(), fmt)
++
++
++def parse(data, fmt=None) -> Doc:
++    text = decode(data) if isinstance(data, bytes) else data
++    if "\x00" in text:
++        raise ReadError("unreadable bytes: a NUL byte")
++    name, spec = _format(fmt)
++    ctx = _Ctx(text, spec)
++    _build_blocks(ctx)
++    tasks = {
++        t["id"]: {k: t[k] for k in ("id", "title", "line", "citations")}
++        for t in ctx.task_list
++    }
++    return Doc(text, name, ctx.lines, ctx.blocks, tasks)
++
++
++def _format(fmt):
++    if isinstance(fmt, dict):
++        return fmt.get("name", ""), fmt
++    name = formats.DEFAULT if fmt is None else fmt
++    try:
++        return name, formats.FORMATS[name]
++    except KeyError:
++        raise ValueError(
++            f"unknown format {name!r}; known: {sorted(formats.FORMATS)}"
++        ) from None
++
++
++# ---------------------------------------------------------------- word lists
++
++
++def _wordlist(spec) -> tuple[str, ...]:
++    """Words of a list name, a literal word, or a list of those."""
++    if isinstance(spec, str):
++        return tuple(words.LISTS[spec]) if spec in words.LISTS else (spec,)
++    out: list[str] = []
++    for item in spec:
++        out.extend(_wordlist(item))
++    return tuple(out)
++
++
++@lru_cache(maxsize=None)
++def _word_re(spec_key: tuple[str, ...]) -> re.Pattern:
++    alts = sorted({w.lower() for w in spec_key}, key=lambda w: (-len(w), w))
++    body = "|".join(re.escape(w).replace(r"\ ", r"\s+") for w in alts)
++    return re.compile(rf"(?<![\w-])(?:{body})(?![\w-])", re.I)
++
++
++def _wre(spec) -> re.Pattern:
++    return _word_re(_wordlist(spec))
++
++
++# ---------------------------------------------------------------- text helpers
++
++
++def sentences(text: str) -> list[tuple[int, int, str]]:
++    """(start, end, sentence) for each sentence of text; offsets index text and the sentence is text[start:end]."""
++    cuts = [0] + [m.end() for m in re.finditer(formats.SENTENCE_END, text)]
++    cuts.append(len(text))
++    out = []
++    for a, b in zip(cuts, cuts[1:]):
++        seg = text[a:b]
++        s = a + len(seg) - len(seg.lstrip())
++        e = a + len(seg.rstrip())
++        if e > s:
++            out.append((s, e, text[s:e]))
++    return out
++
++
++# ---------------------------------------------------------------- document scan
++
++
++class _Ctx:
++    """The scanned document: lines, fences, headings, tasks and, per line, its task, phase and part."""
++
++    def __init__(self, text: str, spec: dict):
++        self.spec = spec
++        self.text = text
++        self.lines = [x.rstrip("\r") for x in text.split("\n")]
++        self.n = len(self.lines)
++        self.front = [False] * (self.n + 2)
++        self.fence = [False] * (self.n + 2)
++        self.head: list[dict | None] = [None] * (self.n + 2)
++        self.fences: list[tuple[int, int, str]] = []
++        self.out: dict[str, list[dict]] = {}
++        self.blocks: list[dict] = []
++        self.tasks: dict[str, dict] = {}
++        self._scan()
++        self._sections()
++        self._contexts()
++
++    def _scan(self) -> None:
++        lines, n = self.lines, self.n
++        if self.spec.get("front_matter") and n and lines[0].strip() == "---":
++            for j in range(1, n):
++                if lines[j].strip() == "---":
++                    for k in range(1, j + 2):
++                        self.front[k] = True
++                    break
++        opened = None  # (char, length, line, info)
++        for i in range(1, n + 1):
++            if self.front[i]:
++                continue
++            m = _FENCE.match(lines[i - 1])
++            if opened is None:
++                if m and not (m.group(1)[0] == "`" and "`" in m.group(2)):
++                    opened = (m.group(1)[0], len(m.group(1)), i, m.group(2).strip())
++                    self.fence[i] = True
++            else:
++                self.fence[i] = True
++                if (
++                    m
++                    and m.group(1)[0] == opened[0]
++                    and len(m.group(1)) >= opened[1]
++                    and not m.group(2).strip()
++                ):
++                    self.fences.append((opened[2], i, opened[3]))
++                    opened = None
++        if opened is not None:
++            self.fences.append((opened[2], n + 1, opened[3]))
++        for i in range(1, n + 1):
++            if self.front[i] or self.fence[i]:
++                continue
++            m = _HEADING.match(lines[i - 1])
++            if m:
++                self.head[i] = {
++                    "line": i,
++                    "level": len(m.group(1)),
++                    "title": m.group(2),
++                    "cls": None,
++                    "groups": {},
++                }
++
++    def _sections(self) -> None:
++        """Classify the headings, find where each section ends, and build the task list."""
++        self.heads = [h for h in self.head if h]
++        for h in self.heads:
++            for cls, rx in self.spec.get("heads", {}).items():
++                m = re.match(rx, self.lines[h["line"] - 1].rstrip(), re.I)
++                if m:
++                    h["cls"], h["groups"] = cls, m.groupdict()
++                    break
++        for k, h in enumerate(self.heads):
++            h["end"] = self.n
++            for g in self.heads[k + 1 :]:
++                if g["level"] <= h["level"] or g["cls"]:
++                    h["end"] = g["line"] - 1
++                    break
++        label = self.spec.get("label")
++        self.task_list: list[dict] = []
++        self.phases: list[tuple[int, str]] = []
++        for k, h in enumerate(self.heads):
++            if h["cls"] == "phase":
++                self.phases.append(
++                    (
++                        h["line"],
++                        _ident("P", h["groups"].get("id"), len(self.phases) + 1),
++                    )
++                )
++            elif h["cls"] == "task":
++                tid = _ident("T", h["groups"].get("id"), len(self.task_list) + 1)
++                while tid in self.tasks:
++                    tid += "_2"
++                end = h["line"]
++                for g in self.heads[k + 1 :]:
++                    if g["level"] <= h["level"] or g["cls"] in ("task", "phase"):
++                        end = g["line"] - 1
++                        break
++                else:
++                    end = self.n
++                t = {
++                    "id": tid,
++                    "title": (h["groups"].get("title") or h["title"]).strip(),
++                    "line": h["line"],
++                    "end": end,
++                    "label": None,
++                    "citations": [],
++                }
++                if label:
++                    for i in range(h["line"] + 1, end + 1):
++                        if not (self.front[i] or self.fence[i]) and re.match(
++                            label, self.lines[i - 1].strip(), re.I
++                        ):
++                            t["label"] = i
++                            break
++                self.task_list.append(t)
++                self.tasks[tid] = t
++
++    def _contexts(self) -> None:
++        n = self.n
++        self.task_of: list[str | None] = [None] * (n + 2)
++        self.part_of: list[str | None] = [None] * (n + 2)
++        self.phase_of: list[str | None] = [None] * (n + 2)
++        for t in self.task_list:
++            for i in range(t["line"], t["end"] + 1):
++                self.task_of[i] = t["id"]
++                late = t["label"] is not None and i >= t["label"]
++                self.part_of[i] = "criteria" if late else "body"
++        cur = None
++        marks = dict(self.phases)
++        for i in range(1, n + 1):
++            cur = marks.get(i, cur)
++            self.phase_of[i] = cur
++        for t in self.task_list:
++            t["citations"] = _citations(self, t)
++
++
++def _ident(prefix: str, value, seq: int) -> str:
++    return f"{prefix}{value if value else seq}"
++
++
++def _citations(ctx: _Ctx, t: dict) -> list[str]:
++    spec = ctx.spec.get("citation")
++    if not spec:
++        return []
++    stop = t["label"] or t["end"] + 1
++    out: list[str] = []
++    for i in range(t["line"] + 1, stop):
++        if ctx.front[i] or ctx.fence[i]:
++            continue
++        m = re.match(spec["label"], ctx.lines[i - 1], re.I)
++        if not m:
++            continue
++        cites = [m.group("cites")]
++        for j in range(i + 1, stop):
++            raw = ctx.lines[j - 1]
++            if (
++                not raw.strip()
++                or ctx.head[j]
++                or _BULLET.match(raw)
++                or re.match(spec["label"], raw, re.I)
++            ):
++                break
++            cites.append(raw)
++        for c in re.finditer(spec["tokens"], " ".join(cites), re.I):
++            if c.group("ref") not in out:
++                out.append(c.group("ref"))
++    return out
++
++
++# ---------------------------------------------------------------- scope and shared pieces
++
++
++def _in_scope(ctx: _Ctx, line: int, rule: dict) -> bool:
++    if rule.get("in") == "task" and ctx.task_of[line] is None:
++        return False
++    return not (rule.get("part") and ctx.part_of[line] != rule["part"])
++
++
++def _prose_ok(ctx: _Ctx, line: int, rule: dict) -> bool:
++    return not (ctx.front[line] or ctx.fence[line] or ctx.head[line]) and _in_scope(
++        ctx, line, rule
++    )
++
++
++def _trim(ctx: _Ctx, lo: int, hi: int):
++    """(lo, hi) without blank lines at either end, or None when nothing is left."""
++    while lo <= hi and not ctx.lines[lo - 1].strip():
++        lo += 1
++    while hi >= lo and not ctx.lines[hi - 1].strip():
++        hi -= 1
++    return (lo, hi) if lo <= hi else None
++
++
++def _span_hit(ctx: _Ctx, lo: int, hi: int, **extra):
++    t = _trim(ctx, lo, hi)
++    if not t:
++        return None
++    return {
++        "ls": t[0],
++        "le": t[1],
++        "text": "\n".join(ctx.lines[t[0] - 1 : t[1]]),
++        **extra,
++    }
++
++
++def _bullets(ctx: _Ctx, lo: int, hi: int) -> list[dict]:
++    """The top-level bullets of lines lo..hi; the lines that belong to a bullet are part of it."""
++    out: list[dict] = []
++    cur = None
++    for i in range(lo, hi + 1):
++        raw = ctx.lines[i - 1]
++        if ctx.head[i]:
++            break
++        if ctx.fence[i]:
++            if cur and raw[:1] in (" ", "\t"):
++                cur["le"] = i
++            else:
++                cur = None
++            continue
++        if not raw.strip():
++            continue
++        m = _BULLET.match(raw)
++        if m:
++            cur = {"ls": i, "le": i, "cut": m.end()}
++            out.append(cur)
++        elif cur and (raw[:1] in (" ", "\t") or ctx.lines[i - 2].strip()):
++            cur["le"] = i
++        else:
++            cur = None
++    hits = []
++    for b in out:
++        rows = ctx.lines[b["ls"] - 1 : b["le"]]
++        rows[0] = rows[0][b["cut"] :]
++        hits.append({"ls": b["ls"], "le": b["le"], "text": "\n".join(rows).rstrip()})
++    return hits
++
++
++def _chunks(ctx: _Ctx, rule: dict) -> list[tuple[int, str]]:
++    """(first line, raw text) of each run of prose lines: a blank line, a heading, a fence or a quote ends a run,
++    a list bullet starts one (and loses its marker)."""
++    chunks: list[list] = []
++    cur = None
++    for i in range(1, ctx.n + 1):
++        raw = ctx.lines[i - 1]
++        if (
++            not _prose_ok(ctx, i, rule)
++            or not raw.strip()
++            or raw.lstrip().startswith(">")
++        ):
++            cur = None
++            continue
++        m = _BULLET.match(raw)
++        if m or cur is None:
++            cur = [i, [raw[m.end() :] if m else raw.lstrip()]]
++            chunks.append(cur)
++        else:
++            cur[1].append(raw)
++    return [(c[0], "\n".join(c[1])) for c in chunks]
++
++
++def _sentence_hits(ctx: _Ctx, rule: dict):
++    for first, raw in _chunks(ctx, rule):
++        for s, e, sent in sentences(raw):
++            yield {
++                "ls": first + raw.count("\n", 0, s),
++                "le": first + raw.count("\n", 0, e - 1),
++                "text": sent,
++                "_at": (first, raw, s),
++            }
++
++
++# ---------------------------------------------------------------- modes: each takes (ctx, rule) and gives hits
++
++
++def _m_task_body(ctx, rule):
++    for t in ctx.task_list:
++        stop = t["label"] or t["end"] + 1
++        h = _span_hit(ctx, t["line"] + 1, stop - 1, id=t["id"])
++        if h:
++            yield h
++
++
++def _m_after_label(ctx, rule):
++    label = rule.get("label") or ctx.spec.get("label")
++    if not label:
++        return
++    for i in range(1, ctx.n + 1):
++        if (
++            ctx.front[i]
++            or ctx.fence[i]
++            or ctx.head[i]
++            or not _in_scope(ctx, i, {"in": rule.get("in")})
++            or not re.match(label, ctx.lines[i - 1].strip(), re.I)
++        ):
++            continue
++        yield from _bullets(ctx, i + 1, ctx.n)
++
++
++def _m_bullets(ctx, rule):
++    for h in ctx.heads:
++        if h["cls"] != rule["under"]:
++            continue
++        found = _bullets(ctx, h["line"] + 1, h["end"])
++        if found:
++            yield from found
++        elif rule.get("fallback") == "section":
++            yield from _m_section(ctx, {"under": h["cls"]}, only=h)
++
++
++def _m_section(ctx, rule, only=None):
++    for h in ctx.heads:
++        if h["cls"] == rule["under"] and (only is None or h is only):
++            hit = _span_hit(ctx, h["line"] + 1, h["end"])
++            if hit:
++                yield hit
++
++
++def _m_line(ctx, rule):
++    rx = re.compile(rule["pattern"], re.I)
++    for i in range(1, ctx.n + 1):
++        if not _prose_ok(ctx, i, rule):
++            continue
++        raw = ctx.lines[i - 1]
++        m = rx.search(raw)
++        if not m:
++            continue
++        if "text" in rx.groupindex:
++            text = m.group("text").strip()
++        else:
++            b = _BULLET.match(raw)
++            text = raw[b.end() :].strip() if b else raw.strip()
++        if text:
++            hit = {"ls": i, "le": i, "text": text}
++            if rule.get("id"):
++                hit["id"] = rule["id"]
++            yield hit
++
++
++def _m_sentences(ctx, rule):
++    need = _wre(rule["words"]) if rule.get("words") else None
++    for h in _sentence_hits(ctx, rule):
++        if need is None or need.search(h["text"]):
++            yield h
++
++
++def _m_quoted_span(ctx, rule):
++    need = _wre(rule["words"])
++    for first, raw in _chunks(ctx, rule):
++        for s, e, sent in sentences(raw):
++            if not need.search(sent):
++                continue
++            for pat in formats.QUOTED_SPANS:
++                for m in re.finditer(pat, sent):
++                    a, b = m.span("q")
++                    if b - a >= rule.get("min", 1):
++                        yield {
++                            "ls": first + raw.count("\n", 0, s + a),
++                            "le": first + raw.count("\n", 0, s + b - 1),
++                            "text": m.group("q"),
++                        }
++
++
++def _m_blockquote(ctx, rule):
++    run: list[int] = []
++    for i in range(1, ctx.n + 2):
++        ok = (
++            i <= ctx.n
++            and not (ctx.front[i] or ctx.fence[i])
++            and ctx.lines[i - 1].lstrip().startswith(">")
++            and _in_scope(ctx, i, rule)
++        )
++        if ok:
++            run.append(i)
++        elif run:
++            rows = ctx.lines[run[0] - 1 : run[-1]]
++            first = rows[0].lstrip()[1:]
++            rows[0] = first[1:] if first.startswith(" ") else first
++            text = "\n".join(rows).strip()
++            if text:
++                yield {"ls": run[0], "le": run[-1], "text": text}
++            run = []
++
++
++def _m_fence(ctx, rule):
++    allow = None if "info" not in rule else {x.lower() for x in rule["info"]}
++    skip = {x.lower() for x in rule.get("skip_info", ())}
++    for open_, close, info in ctx.fences:
++        word = (info.split() or [""])[0].lower()
++        if (allow is not None and word not in allow) or word in skip:
++            continue
++        if not _in_scope(ctx, open_, rule):
++            continue
++        hit = _span_hit(ctx, open_ + 1, min(close, ctx.n + 1) - 1)
++        if hit:
++            yield hit
++
++
++def _m_last_task_criteria(ctx, rule):
++    if not ctx.task_list:
++        return
++    t = ctx.task_list[-1]
++    stop = t["label"] if t["label"] else t["end"] + 1
++    body = "\n".join(ctx.lines[t["line"] : stop - 1])
++    if not _wre(rule["words"]).search(t["title"] + "\n" + body):
++        return
++    for b in ctx.out.get("criterion", ()):
++        if b["task"] == t["id"] and b["id"] != "goal":
++            yield {"ls": b["line_start"], "le": b["line_end"], "text": b["text"]}
++
++
++def _m_matching(ctx, rule):
++    rx = re.compile(rule["pattern"], re.I)
++    for b in ctx.out.get(rule["of"], ()):
++        if b["id"] not in rule.get("skip", ()) and rx.search(b["text"]):
++            yield {"ls": b["line_start"], "le": b["line_end"], "text": b["text"]}
++
++
++MODES = {
++    "task_body": _m_task_body,
++    "after_label": _m_after_label,
++    "bullets": _m_bullets,
++    "section": _m_section,
++    "line": _m_line,
++    "sentences": _m_sentences,
++    "quoted_span": _m_quoted_span,
++    "blockquote": _m_blockquote,
++    "fence": _m_fence,
++    "last_task_criteria": _m_last_task_criteria,
++    "matching": _m_matching,
++}
++
++
++# ---------------------------------------------------------------- blocks
++
++
++def _explode(hits: list[dict], rule: dict) -> list[dict]:
++    """One hit per path token of each hit, with `path` and `creates` (the nearest verb before the token decides)."""
++    verbs = _wre(rule.get("verbs", ["edit_verbs", "create_verbs"]))
++    creating = {w.lower() for w in _wordlist(rule.get("create_words", "create_verbs"))}
++    out = []
++    for h in hits:
++        verb_at = [
++            (m.start(), re.sub(r"\s+", " ", m.group(0).lower()))
++            for m in verbs.finditer(h["text"])
++        ]
++        seen = set()
++        for m in re.finditer(formats.PATH_TOKEN, h["text"]):
++            if m.group(0) in seen:
++                continue
++            seen.add(m.group(0))
++            before = [v for at, v in verb_at if at < m.start()]
++            creates = (
++                (before[-1] in creating)
++                if before
++                else any(v in creating for _, v in verb_at)
++            )
++            out.append({**h, "path": m.group(0), "creates": creates})
++    return out
++
++
++def _build_blocks(ctx: _Ctx) -> None:
++    for kind in KINDS:
++        hits: list[dict] = []
++        for rule in ctx.spec.get("kinds", {}).get(kind, ()):
++            found = list(MODES[rule["mode"]](ctx, rule))
++            hits.extend(_explode(found, rule) if rule.get("explode_paths") else found)
++        seen, ordered = set(), []
++        for h in sorted(hits, key=lambda h: (h["ls"], h["le"], h.get("path", ""))):
++            key = (h["ls"], h["le"], h["text"], h.get("path"))
++            if key not in seen:
++                seen.add(key)
++                ordered.append(h)
++        count: dict = {}
++        for h in ordered:
++            task = ctx.task_of[h["ls"]]
++            if kind == "task":
++                bid = h["id"]
++            elif h.get("id"):
++                bid = h["id"]
++            else:
++                count[task] = count.get(task, 0) + 1
++                tag = f"{_PREFIX[kind]}{count[task]}"
++                bid = f"{task}.{tag}" if task else tag
++            block = {
++                "kind": kind,
++                "id": bid,
++                "text": h["text"],
++                "line_start": h["ls"],
++                "line_end": h["le"],
++                "task": task,
++                "phase": ctx.phase_of[h["ls"]],
++            }
++            if "path" in h:
++                block["path"], block["creates"] = h["path"], h["creates"]
++            ctx.out.setdefault(kind, []).append(block)
++            ctx.blocks.append(block)
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/words.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/words.py
+new file mode 100644
+index 000000000..c5da36950
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/words.py
+@@ -0,0 +1,308 @@
++"""Word lists of the plan reader and the extractors (DESIGN section 4; names only there, the lists are written here).
++
++Data only. Every entry is lower-case. A word is matched case-insensitively on word boundaries; an entry with a
++space or a hyphen is a phrase. Inflected forms are listed one by one, so no matcher has to guess a stem.
++The lists are frozen with the extractors (AO-5): a change is a change of the sweep version.
++"""
++
++# E1 completeness set words (class C1)
++SET_COMPLETENESS = (
++    "every",
++    "all",
++    "each",
++    "complete",
++    "completely",
++    "exhaustive",
++    "exhaustively",
++    "found",
++    "covers",
++    "cover",
++    "no remaining",
++)
++
++# E1 universal set words (class C6). `outside ... nothing` is a pair, tested by E1 as two words in one sentence.
++SET_UNIVERSAL = (
++    "only",
++    "never",
++    "no other",
++)
++SET_UNIVERSAL_PAIRS = (("outside", "nothing"),)
++
++# E1 and E6 limiter words: a line that holds one narrows a universal claim
++LIMITERS = (
++    "skip",
++    "skips",
++    "skipped",
++    "skipping",
++    "ignore",
++    "ignores",
++    "ignored",
++    "ignoring",
++    "exempt",
++    "exempts",
++    "exempted",
++    "allow-list",
++    "allowlist",
++    "only",
++    "except",
++    "unless",
++    "excluding",
++    "exclude",
++    "excludes",
++    "excluded",
++)
++
++# Verbs that make a path in a task sentence an edit target (create is one of them)
++EDIT_VERBS = (
++    "edit",
++    "edits",
++    "edited",
++    "editing",
++    "update",
++    "updates",
++    "updated",
++    "updating",
++    "modify",
++    "modifies",
++    "modified",
++    "modifying",
++    "change",
++    "changes",
++    "changed",
++    "changing",
++    "rewrite",
++    "rewrites",
++    "rewrote",
++    "rewritten",
++    "rewriting",
++    "rename",
++    "renames",
++    "renamed",
++    "renaming",
++    "delete",
++    "deletes",
++    "deleted",
++    "deleting",
++    "remove",
++    "removes",
++    "removed",
++    "removing",
++    "replace",
++    "replaces",
++    "replaced",
++    "replacing",
++    "extend",
++    "extends",
++    "extended",
++    "extending",
++    "create",
++    "creates",
++    "created",
++    "creating",
++)
++
++# Verbs and phrases that say a path does not exist yet (`creates: true`)
++CREATE_VERBS = (
++    "create",
++    "creates",
++    "created",
++    "creating",
++    "add a new",
++    "adds a new",
++    "added a new",
++    "adding a new",
++    "add new",
++    "adds new",
++    "added new",
++    "adding new",
++)
++
++# A sentence with one of these says what text must be written word for word
++DICTATION_VERBS = (
++    "write",
++    "writes",
++    "wrote",
++    "written",
++    "writing",
++    "state",
++    "states",
++    "stated",
++    "stating",
++    "say",
++    "says",
++    "said",
++    "saying",
++    "wording",
++    "verbatim",
++    "exact",
++    "exactly",
++    "must contain",
++    "must say",
++    "must state",
++)
++
++# A sentence with one of these orders a string (a heading, a name, a label) into existence (E2)
++ORDERING_VERBS = (
++    "add",
++    "adds",
++    "added",
++    "adding",
++    "write",
++    "writes",
++    "wrote",
++    "written",
++    "writing",
++    "create",
++    "creates",
++    "created",
++    "creating",
++    "insert",
++    "inserts",
++    "inserted",
++    "inserting",
++    "rename",
++    "renames",
++    "renamed",
++    "renaming",
++    "name",
++    "names",
++    "named",
++    "naming",
++    "heading",
++    "headings",
++    "title",
++    "titles",
++    "titled",
++    "section",
++    "sections",
++    "label",
++    "labels",
++    "labelled",
++    "labeled",
++)
++
++# E7 stop list: words of four or more characters that carry no meaning of their own in a clause
++STOP = (
++    "about",
++    "above",
++    "after",
++    "again",
++    "also",
++    "always",
++    "among",
++    "another",
++    "because",
++    "been",
++    "before",
++    "being",
++    "below",
++    "between",
++    "both",
++    "cannot",
++    "could",
++    "does",
++    "done",
++    "during",
++    "each",
++    "either",
++    "else",
++    "ever",
++    "every",
++    "from",
++    "further",
++    "give",
++    "gives",
++    "have",
++    "having",
++    "here",
++    "into",
++    "itself",
++    "just",
++    "keep",
++    "keeps",
++    "kept",
++    "like",
++    "made",
++    "make",
++    "makes",
++    "many",
++    "might",
++    "more",
++    "most",
++    "much",
++    "must",
++    "never",
++    "none",
++    "once",
++    "only",
++    "onto",
++    "other",
++    "others",
++    "otherwise",
++    "ought",
++    "over",
++    "same",
++    "shall",
++    "should",
++    "since",
++    "some",
++    "such",
++    "than",
++    "that",
++    "their",
++    "them",
++    "then",
++    "there",
++    "these",
++    "they",
++    "this",
++    "those",
++    "through",
++    "under",
++    "until",
++    "upon",
++    "used",
++    "uses",
++    "using",
++    "very",
++    "were",
++    "what",
++    "when",
++    "where",
++    "whether",
++    "which",
++    "while",
++    "will",
++    "with",
++    "within",
++    "without",
++    "would",
++    "your",
++    # plan boilerplate
++    "criteria",
++    "criterion",
++    "line",
++    "lines",
++    "phase",
++    "plan",
++    "section",
++    "sections",
++    "source",
++    "step",
++    "steps",
++    "task",
++    "tasks",
++    "text",
++)
++
++# The lists a format dictionary names (formats.py refers to these keys)
++LISTS = {
++    "set_completeness": SET_COMPLETENESS,
++    "set_universal": SET_UNIVERSAL,
++    "limiters": LIMITERS,
++    "edit_verbs": EDIT_VERBS,
++    "create_verbs": CREATE_VERBS,
++    "dictation_verbs": DICTATION_VERBS,
++    "ordering_verbs": ORDERING_VERBS,
++    "stop": STOP,
++}
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py
+new file mode 100644
+index 000000000..fc6af6d45
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py
+@@ -0,0 +1,197 @@
++"""Format dictionaries and word lists (DESIGN sections 3 and 4, REQ-37).
++
++The spec and documentation fixture tests (`test_spec_fixture_e1_e2_e5`, `test_doc_fixture_e4_e1`) are added with
++those fixtures; this file holds the checks that need no extractor.
++"""
++
++import ast
++import hashlib
++import inspect
++import re
++
++import pytest
++from helpers import SW
++
++from sweep import formats, plan, words
++
++TICKET = {
++    "heads": {
++        "task": r"^###\s+Story\s+(?P<id>S-\d+)\s*:\s*(?P<title>.*)$",
++        "constraint": r"^##\s+Rules\b",
++        "gate": r"^##\s+Release gate\b",
++    },
++    "label": r"^Done when\s*:\s*$",
++    "kinds": {
++        "task": [{"mode": "task_body"}],
++        "criterion": [{"mode": "after_label", "in": "task"}],
++        "constraint": [{"mode": "bullets", "under": "constraint"}],
++        "dictated_text": [{"mode": "blockquote", "in": "task", "part": "body"}],
++        "edit_target": [
++            {
++                "mode": "sentences",
++                "in": "task",
++                "part": "body",
++                "words": ["touch"],
++                "verbs": ["touch"],
++                "explode_paths": True,
++            }
++        ],
++        "gate": [{"mode": "bullets", "under": "gate"}],
++    },
++}
++TICKET_TEXT = """# Tickets
++
++## Rules
++
++- Every ticket names an owner.
++
++### Story S-1: Export button
++
++Touch `ui/export.js` and the button label.
++
++> Export as CSV
++
++Done when:
++- the button shows the label
++- the file downloads
++
++## Release gate
++
++- the smoke run is green
++"""
++
++
++def source_hash():
++    return hashlib.sha256(inspect.getsource(plan).encode()).hexdigest()
++
++
++def test_new_format_is_data_only(monkeypatch):
++    """A dictionary added in a test is all a new format needs: no function of sweep/plan.py changes."""
++    before = source_hash()
++    assert "ticket" not in formats.FORMATS
++    monkeypatch.setitem(formats.FORMATS, "ticket", TICKET)
++    d = plan.parse(TICKET_TEXT, "ticket")
++    assert d.format == "ticket"
++    got = {k: [(b["id"], b["text"]) for b in d.of(k)] for k in plan.KINDS}
++    assert got["task"] == [
++        ("TS-1", "Touch `ui/export.js` and the button label.\n\n> Export as CSV")
++    ]
++    assert got["criterion"] == [
++        ("TS-1.C1", "the button shows the label"),
++        ("TS-1.C2", "the file downloads"),
++    ]
++    assert got["constraint"] == [("K1", "Every ticket names an owner.")]
++    assert got["dictated_text"] == [("TS-1.D1", "Export as CSV")]
++    assert got["edit_target"] == [
++        ("TS-1.E1", "Touch `ui/export.js` and the button label.")
++    ]
++    assert got["gate"] == [("G1", "the smoke run is green")]
++    assert d.of("edit_target")[0]["path"] == "ui/export.js"
++    # the same dictionary passed directly reads the same, and the plan format still reads as before
++    assert plan.parse(TICKET_TEXT, TICKET).blocks == d.blocks
++    assert plan.parse((SW / "fixtures/plans/p_basic.md").read_bytes()).of("task")
++    assert source_hash() == before
++    # sweep/plan.py holds no format-specific text, and formats.py holds no code
++    literals = {
++        n.value
++        for n in ast.walk(ast.parse(inspect.getsource(plan)))
++        if isinstance(n, ast.Constant) and isinstance(n.value, str)
++    }
++    assert not literals & {"plan", "spec", "doc"}
++    vocab = (
++        "Acceptance criteria",
++        "Task",
++        "Phase",
++        "Constraints",
++        "Source sections",
++        "Goal",
++    )
++    assert not [s for s in literals if any(v in s for v in vocab)]
++    tree = ast.parse(inspect.getsource(formats))
++    assert not [
++        n
++        for n in ast.walk(tree)
++        if isinstance(
++            n, ast.FunctionDef | ast.ClassDef | ast.Lambda | ast.Import | ast.ImportFrom
++        )
++    ]
++
++
++def test_every_format_names_known_kinds_and_modes():
++    assert set(formats.FORMATS) >= {"plan", "spec", "doc"}
++    assert formats.DEFAULT in formats.FORMATS
++    for name, spec in formats.FORMATS.items():
++        assert set(spec["kinds"]) <= set(plan.KINDS), name
++        assert "task" in spec["heads"], name
++        for rx in spec["heads"].values():
++            re.compile(rx)
++        for rules in spec["kinds"].values():
++            for rule in rules:
++                assert rule["mode"] in plan.MODES, (name, rule)
++                for key in ("pattern", "label"):
++                    if key in rule:
++                        re.compile(rule[key])
++                if rule["mode"] in ("bullets", "section"):
++                    assert rule["under"] in spec["heads"], (name, rule)
++    for rx in (formats.PATH_TOKEN, formats.SENTENCE_END, *formats.QUOTED_SPANS):
++        re.compile(rx)
++
++
++def test_the_plan_dictionary_names_every_part_of_the_workflow_plan_format():
++    spec = formats.FORMATS["plan"]
++    for cls in ("phase", "task", "constraint", "gate"):
++        assert cls in spec["heads"]
++    assert (
++        "Acceptance criteria" in spec["label"]
++        and "Source sections" in spec["citation"]["label"]
++    )
++    assert set(spec["kinds"]) == set(plan.KINDS)
++
++
++def test_word_lists_are_lower_case_tuples_without_repeats():
++    assert set(words.LISTS) == {
++        "set_completeness",
++        "set_universal",
++        "limiters",
++        "edit_verbs",
++        "create_verbs",
++        "dictation_verbs",
++        "ordering_verbs",
++        "stop",
++    }
++    for name, lst in words.LISTS.items():
++        assert isinstance(lst, tuple) and lst, name
++        assert list(lst) == [w.lower().strip() for w in lst], name
++        assert len(set(lst)) == len(lst), name
++
++
++def test_word_lists_hold_the_design_words():
++    need = {
++        "set_completeness": "every all each complete completely exhaustive exhaustively found covers cover".split()
++        + ["no remaining"],
++        "set_universal": ["only", "never", "no other"],
++        "limiters": "skip ignore exempt allow-list only except unless excluding".split(),
++        "edit_verbs": "edit update modify change rewrite rename delete remove replace extend create".split(),
++        "dictation_verbs": "write state say wording verbatim exact".split()
++        + ["must contain"],
++        "ordering_verbs": "add write create insert rename name heading title section label".split(),
++    }
++    for name, want in need.items():
++        assert set(want) <= set(words.LISTS[name]), name
++    assert ("outside", "nothing") in words.SET_UNIVERSAL_PAIRS
++    assert set(words.CREATE_VERBS) & set(words.EDIT_VERBS) >= {"create", "created"}
++    assert "add a new" in words.CREATE_VERBS
++    assert all(len(w) >= 4 for w in words.STOP)
++
++
++@pytest.mark.parametrize(
++    "sentence,found",
++    [
++        ("Edit the file.", True),
++        ("The edited file.", True),
++        ("Unchanged text.", False),
++        ("Add a new test.", False),
++    ],
++)
++def test_word_matching_is_on_word_boundaries(sentence, found):
++    assert bool(plan._wre("edit_verbs").search(sentence)) is found
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py
+new file mode 100644
+index 000000000..aa20211ec
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_plan.py
+@@ -0,0 +1,468 @@
++"""Plan reader (DESIGN section 3, IMPLEMENTATION step 6, REQ-37) and the two plan fixtures F-PLAN-1 and F-PLAN-2.
++
++The trigger checks of p_basic.md use plain regular expressions on the blocks, not the extractors (those come later),
++so a fixture that loses a trigger shape fails here first.
++"""
++
++import re
++
++import pytest
++from helpers import SW
++
++from scaffold import fnd
++from sweep import formats, plan, words
++
++PLANS = SW / "fixtures" / "plans"
++KEYS = {"kind", "id", "text", "line_start", "line_end", "task", "phase"}
++
++
++@pytest.fixture(scope="module")
++def basic():
++    return plan.read(PLANS / "p_basic.md")
++
++
++@pytest.fixture(scope="module")
++def clean():
++    return plan.read(PLANS / "p_clean.md")
++
++
++def by_id(doc, bid):
++    (b,) = [b for b in doc.blocks if b["id"] == bid]
++    return b
++
++
++def line_of(doc, needle, after=0):
++    return next(i for i, ln in enumerate(doc.lines, 1) if i > after and needle in ln)
++
++
++# ---------------------------------------------------------------- the plan format
++
++
++def test_each_block_kind_is_recognised(basic):
++    got = {k: [b["id"] for b in basic.of(k)] for k in plan.KINDS}
++    assert got["task"] == ["T1", "T2", "T3", "T4", "T5"]
++    assert got["criterion"] == [
++        "goal",
++        "T1.C1",
++        "T1.C2",
++        "T2.C1",
++        "T2.C2",
++        "T3.C1",
++        "T3.C2",
++        "T4.C1",
++        "T5.C1",
++        "T5.C2",
++    ]
++    # the nested bullet under the first constraint is part of it, not a constraint of its own
++    assert got["constraint"] == ["K1", "K2", "K3"]
++    assert got["dictated_text"] == ["T4.D1"]
++    assert got["edit_target"] == ["T1.E1", "T2.E1", "T3.E1", "T3.E2", "T4.E1"]
++    assert got["gate"] == ["T3.G1", "T5.G1", "T5.G2"]
++    assert "no network access" in by_id(basic, "K1")["text"]
++
++
++def test_block_fields_and_ranges(basic, clean):
++    for doc in (basic, clean):
++        assert doc.format == "plan"
++        n = len(doc.lines)
++        for b in doc.blocks:
++            assert KEYS <= set(b) <= KEYS | {"path", "creates"}
++            assert (b["kind"] == "edit_target") == ("path" in b)
++            assert 1 <= b["line_start"] <= b["line_end"] <= n
++            assert b["kind"] in plan.KINDS and b["text"].strip()
++        ids = [b["id"] for b in doc.blocks]
++        assert len(ids) == len(set(ids))
++
++
++def test_task_and_phase_fields(basic):
++    assert [(b["id"], b["phase"]) for b in basic.of("task")] == [
++        ("T1", "P1"),
++        ("T2", "P1"),
++        ("T3", "P2"),
++        ("T4", "P2"),
++        ("T5", "P3"),
++    ]
++    assert (
++        by_id(basic, "goal")["task"] is None and by_id(basic, "goal")["phase"] is None
++    )
++    assert by_id(basic, "K2")["task"] is None
++    assert by_id(basic, "T4.D1")["task"] == "T4"
++    assert by_id(basic, "T3.G1")["task"] == "T3"
++    for b in basic.blocks:
++        if b["task"]:
++            assert b["id"] == b["task"] or b["id"].startswith(b["task"] + ".")
++
++
++def test_line_numbers_are_right(basic):
++    lines = basic.lines
++    assert by_id(basic, "goal")["line_start"] == line_of(basic, "Goal:")
++    assert by_id(basic, "K2")["line_start"] == line_of(basic, "A deletion notice must")
++    k1 = by_id(basic, "K1")
++    assert (k1["line_start"], k1["line_end"]) == (
++        line_of(basic, "- Code lives under"),
++        line_of(basic, "has no network access"),
++    )
++    assert by_id(basic, "T4.D1")["line_start"] == line_of(basic, "> Report id 41")
++    assert by_id(basic, "T4.D1")["line_end"] == line_of(basic, "> Report id 41")
++    # a task body runs from the line after its heading to the line before its label
++    for tid, title in (
++        ("T1", "## Task 1:"),
++        ("T3", "## Task 3:"),
++        ("T5", "## Task 5:"),
++    ):
++        head = line_of(basic, title)
++        label = line_of(basic, "Acceptance criteria:", head)
++        b = by_id(basic, tid)
++        assert lines[b["line_start"] - 1].strip() and lines[b["line_end"] - 1].strip()
++        assert b["line_start"] == head + 2 and b["line_end"] == label - 2
++    # every block's text is what its lines say
++    for b in basic.blocks:
++        raw = "\n".join(lines[b["line_start"] - 1 : b["line_end"]])
++        assert fnd.flat(b["text"]) in fnd.flat(raw)
++        assert fnd.flat(b["text"]).split()[0] in lines[b["line_start"] - 1]
++
++
++@pytest.mark.parametrize("name", ["p_basic.md", "p_clean.md"])
++def test_anchor_cut_from_the_candidate_is_found_by_locate(name):
++    doc = plan.read(PLANS / name)
++    assert doc.blocks
++    for b in doc.blocks:
++        whole = fnd.locate(doc.text, b["text"])
++        assert (b["line_start"] - 1, b["line_end"]) in whole, b["id"]
++        t = fnd.flat(b["text"])
++        # a prefix of at most 200 characters (the anchor limit) and a slice from the middle
++        for anchor in (t[:200], t[len(t) // 3 : len(t) // 3 + 40].strip()):
++            hits = fnd.locate(doc.text, anchor)
++            assert hits, (b["id"], anchor)
++            assert any(
++                b["line_start"] - 1 <= lo and hi <= b["line_end"] for lo, hi in hits
++            ), (b["id"], anchor)
++
++
++def test_tasks_and_citations(basic, clean):
++    assert {t: v["citations"] for t, v in basic.tasks.items()} == {
++        "T1": ["2.1"],
++        "T2": ["2.2"],
++        "T3": ["2.3", "Q4"],
++        "T4": ["2.4"],
++        "T5": [],
++    }
++    assert basic.tasks["T3"]["title"] == "Create the retention job and its test"
++    assert basic.tasks["T3"]["line"] == line_of(basic, "## Task 3:")
++    assert all(v["citations"] == [] for v in clean.tasks.values())
++
++
++def test_edit_targets_carry_path_and_creates(basic):
++    got = [(b["path"], b["creates"]) for b in basic.of("edit_target")]
++    assert got == [
++        ("src/exporter/report.py", False),
++        ("docs/guide.md", False),
++        ("src/exporter/retention.py", True),
++        ("tests/test_retention.py", True),
++        ("src/exporter/notice.py", True),
++    ]
++    # a sentence that names no edit verb makes no edit target, and a criterion is not a task sentence
++    assert not [b for b in basic.of("edit_target") if "Leave" in b["text"]]
++
++
++def test_gate_blocks(basic):
++    gates = basic.of("gate")
++    # the last task is a run/sync task: all its criteria; plus any bullet that holds a pytest or make command
++    assert {b["text"] for b in gates} == {
++        "`pytest tests/test_retention.py -k purge_keeps_held` exits 0.",
++        "`make test` exits 0.",
++        "`pytest tests/test_retention.py -q` exits 0.",
++    }
++    assert by_id(basic, "goal") not in gates
++
++
++def test_a_gate_section_is_a_gate():
++    text = (
++        "## Task 1: Do it\n\nCreate `a/b.py`.\n\nAcceptance criteria:\n- it works\n\n"
++        "## Final checks\n\n- `make test` exits 0.\n- the log is clean\n"
++    )
++    d = plan.parse(text)
++    assert [(b["id"], b["text"]) for b in d.of("gate")] == [
++        ("G1", "`make test` exits 0."),
++        ("G2", "the log is clean"),
++    ]
++    assert d.of("task")[0]["id"] == "T1"
++
++
++def test_fence_hides_headings_and_bullets():
++    text = (
++        "## Task 1: A\n\nCreate `a/x.py`.\n\n```text\n## Task 2: not a task\nAcceptance criteria:\n- not a bullet\n```\n\n"
++        "Acceptance criteria:\n- real one\n"
++    )
++    d = plan.parse(text)
++    assert [b["id"] for b in d.of("task")] == ["T1"]
++    assert [b["text"] for b in d.of("criterion")] == ["real one"]
++    assert d.of("dictated_text")[0]["text"].startswith("## Task 2: not a task")
++
++
++def test_crlf_and_bom_read_like_lf(basic):
++    raw = (PLANS / "p_basic.md").read_bytes()
++    crlf = plan.parse(raw.replace(b"\n", b"\r\n"))
++    bom = plan.parse(b"\xef\xbb\xbf" + raw)
++    assert crlf.blocks == basic.blocks and bom.blocks == basic.blocks
++    assert all("\r" not in b["text"] for b in crlf.blocks)
++
++
++def test_sentences_split_without_breaking_paths_or_numbers():
++    s = [
++        x[2]
++        for x in plan.sentences(
++            "Edit `docs/guide.md`. Then run it, v1.2 stays. See 2.3 for more."
++        )
++    ]
++    assert s == [
++        "Edit `docs/guide.md`.",
++        "Then run it, v1.2 stays.",
++        "See 2.3 for more.",
++    ]
++    assert plan.sentences("  \n ") == []
++    text = "a b. C d"
++    (a, b, sent), _ = plan.sentences(text)
++    assert text[a:b] == sent == "a b."
++
++
++def test_quoted_span_needs_a_dictation_verb_and_25_characters():
++    d = plan.parse(
++        '## Task 1: A\n\nWrite the title "This heading is long enough to count" now. '
++        'Add the label "Short label" next. The doc has "Another long quoted span of text here".\n\n'
++        "Acceptance criteria:\n- it passes\n"
++    )
++    assert [b["text"] for b in d.of("dictated_text")] == [
++        "This heading is long enough to count"
++    ]
++
++
++# ---------------------------------------------------------------- failure and unknown structure
++
++
++@pytest.mark.parametrize(
++    "text",
++    [
++        "",
++        "\n\n  \n",
++        "just some words\n\nand some more words\n",
++        '# A title\n\nProse with `code` and "a quoted span of more than twenty five characters".\n\n'
++        "> a quote\n\n```\nfence\n```\n\n- a bullet\n",
++        "Acceptance criteria:\n- a bullet outside any task\n",
++        "## Task: no number\n\nbody\n",
++        "---\nschema: x\n---\n",
++        "\x0c\x1b[0m]\t\t:: ?? !! ## ###\n",
++    ],
++)
++def test_unknown_structure_yields_zero_blocks_and_no_exception(text):
++    d = plan.parse(text)
++    assert d.blocks == [] and d.tasks == {}
++
++
++@pytest.mark.parametrize(
++    "raw", [b"\xff\xfe\x00\x01", b"abc\xc3(def", b"a\x00b", b"\x80\x81\x82"]
++)
++def test_unreadable_bytes_raise(raw, tmp_path):
++    with pytest.raises(plan.ReadError):
++        plan.parse(raw)
++    p = tmp_path / "bad.md"
++    p.write_bytes(raw)
++    with pytest.raises(ValueError):
++        plan.read(p)
++
++
++def test_missing_file_and_unknown_format_raise(tmp_path):
++    with pytest.raises(OSError):
++        plan.read(tmp_path / "nope.md")
++    with pytest.raises(ValueError):
++        plan.parse("text", "no-such-format")
++    with pytest.raises(plan.ReadError):
++        plan.parse("a\x00b")
++
++
++# ---------------------------------------------------------------- the other two format dictionaries (drafts)
++
++
++def test_spec_and_doc_dictionaries_read_inline_text():
++    spec = (
++        "# Spec\n\n## 1. Intro\n\nThe tool shall export reports.\n"
++        "This note applies to every report.\n\nThe tool must write a log line.\n\n"
++        "### Message format\n\n```text\nreport done\n```\n\n"
++        "## 2. Affects\n\n- `src/a/b.py` (new)\n- `docs/c.md`\n\n## 3. Verification\n\n- `make test` exits 0.\n"
++    )
++    d = plan.parse(spec, "spec")
++    assert d.format == "spec"
++    assert [b["text"] for b in d.of("criterion")] == [
++        "The tool shall export reports.",
++        "The tool must write a log line.",
++    ]
++    assert [b["text"] for b in d.of("constraint")] == [
++        "This note applies to every report."
++    ]
++    assert {b["text"] for b in d.of("dictated_text")} >= {"report done"}
++    assert [(b["path"], b["task"]) for b in d.of("edit_target")] == [
++        ("src/a/b.py", None),
++        ("docs/c.md", None),
++    ]
++    assert [b["text"] for b in d.of("gate")] == ["`make test` exits 0."]
++    assert [b["id"] for b in d.of("task")] == ["T1"]
++    doc = (
++        "# How to export\n\nExport every report with one command.\n\n```bash\nexporter run\n```\n\n"
++        "```text\nDone\n```\n"
++    )
++    e = plan.parse(doc, "doc")
++    assert [b["text"] for b in e.of("criterion")] == [
++        "Export every report with one command.",
++        "exporter run",
++    ]
++    assert [b["text"] for b in e.of("dictated_text")] == ["Done"]
++    assert e.of("constraint") == [] and e.of("edit_target") == [] and e.of("gate") == []
++
++
++# ---------------------------------------------------------------- F-PLAN-1: a trigger for each of E1 to E7
++
++
++def clauses(text):
++    parts = re.split(r";|, and | and |,", text)
++    return [p.strip() for p in parts if len(p.split()) >= 4]
++
++
++def tokens(text):
++    stop = set(words.STOP)
++    return {w for w in re.findall(r"[a-z]{4,}", text.lower()) if w not in stop}
++
++
++def path_tokens(text):
++    return set(re.findall(formats.PATH_TOKEN, text))
++
++
++def test_p_basic_has_an_e1_completeness_trigger(basic):
++    b = by_id(basic, "T1.C2")
++    assert re.search(r"\bevery\b", b["text"], re.I)
++    task = by_id(basic, "T1")
++    instr, sent = path_tokens(task["text"]), path_tokens(b["text"])
++    assert instr and sent and instr != sent  # a narrower instruction scope
++    assert (
++        not any("*" in t for t in sent) and len(sent) < 2
++    )  # no bound on the criterion
++
++
++def test_p_basic_has_an_e1_universal_trigger_next_to_a_limiter(basic):
++    b = by_id(basic, "T3.C1")
++    assert re.search(r"\bonly\b", b["text"], re.I)
++    (test_file,) = path_tokens(b["text"])
++    assert test_file.startswith("tests/")
++    limiter = re.compile(r"\b(?:%s)\b" % "|".join(words.LIMITERS), re.I)
++    others = [
++        ln
++        for i, ln in enumerate(basic.lines, 1)
++        if test_file in ln and not b["line_start"] <= i <= b["line_end"]
++    ]
++    assert any(limiter.search(ln) and "skips" in ln for ln in others)
++
++
++def test_p_basic_has_an_e2_literal_that_misses_the_ordered_heading(basic):
++    crit = by_id(basic, "T2.C1")
++    (pattern,) = re.findall(r"grep -c '([^']+)'", crit["text"])
++    ordered = re.findall(r'heading "([^"]+)"', by_id(basic, "T2")["text"])
++    assert ordered
++    assert pattern not in ordered[0] and pattern.lower() not in ordered[0].lower()
++    norm = lambda s: re.sub(r"[-_\s]+", " ", s.lower())  # noqa: E731
++    assert norm(pattern) == norm(ordered[0])
++    assert re.search(r"pytest\b.* -k \w+", by_id(basic, "T3.C2")["text"])
++
++
++def test_p_basic_has_an_e3_edit_target_that_no_named_test_covers(basic):
++    (target,) = [b for b in basic.of("edit_target") if b["path"].endswith("report.py")]
++    assert target["creates"] is False
++    assert (
++        "test_report" not in basic.text
++    )  # the repository's own test for it stays unnamed
++    assert not [b for b in basic.of("gate") if "report" in b["text"]]
++
++
++def test_p_basic_has_an_e4_count_claim(basic):
++    assert re.search(
++        r"from 3 report formats to 4 report formats", by_id(basic, "T2")["text"]
++    )
++    assert "No remaining `3 report formats`" in by_id(basic, "T2.C2")["text"]
++
++
++def test_p_basic_has_an_e5_cited_rule_whose_identifiers_the_task_lacks(basic):
++    assert basic.tasks["T3"]["citations"][0] == "2.3"
++    source = (PLANS / "source.md").read_text(encoding="utf-8")
++    section = re.search(r"^## 2\.3 .*?(?=^## )", source, re.M | re.S).group(0)
++    ids = re.findall(r"`(\w+)`", section)
++    task_text = " ".join(b["text"] for b in basic.blocks if b["task"] == "T3")
++    missing = [i for i in ids if i not in task_text]
++    assert len(missing) >= 2 and "legal_hold" not in missing
++    assert basic.text.count("./source.md") >= 2
++
++
++def test_p_basic_has_an_e6_value_that_is_read_and_never_written(basic):
++    spots = [i for i, ln in enumerate(basic.lines, 1) if "`legal_hold`" in ln]
++    assert len(spots) == 1
++    line = basic.lines[spots[0] - 1]
++    assert "keys on" in line
++    for verb in ("sets", "=", "gives", "writes", "assigns", "produces", "returns"):
++        assert verb not in line
++
++
++def test_p_basic_has_an_e7_constraint_clause_the_dictated_text_omits(basic):
++    cl = clauses(by_id(basic, "K2")["text"])
++    assert len(cl) == 3
++    dictated = tokens(by_id(basic, "T4.D1")["text"])
++    distinct = []
++    for i, c in enumerate(cl):
++        rest = set().union(*(tokens(o) for j, o in enumerate(cl) if j != i))
++        distinct.append(tokens(c) - rest)
++    shared = [len(d & dictated) for d in distinct]
++    assert max(shared) >= 2 and 0 in shared
++    assert distinct[shared.index(0)] & {"appeal", "address"}
++
++
++# ---------------------------------------------------------------- F-PLAN-2: every criterion bounded, no trigger shape
++
++
++def test_p_clean_has_no_trigger_shape(clean):
++    set_words = re.compile(
++        r"(?<![\w-])(?:%s)(?![\w-])"
++        % "|".join(
++            re.escape(w).replace(r"\ ", r"\s+")
++            for w in (
++                *words.SET_COMPLETENESS,
++                *words.SET_UNIVERSAL,
++                "outside",
++                "nothing",
++            )
++        ),
++        re.I,
++    )
++    for b in clean.blocks:
++        assert not set_words.search(b["text"]), b["id"]
++    crit = clean.of("criterion")
++    assert len(crit) == 7
++    for b in crit:
++        assert "*" not in b["text"] and not re.search(
++            r"\b(?:none|zero|no matches)\b", b["text"], re.I
++        )
++        assert not re.search(r"`(?:grep|egrep|rg|pytest|git grep|test)\b", b["text"])
++        assert " -k " not in b["text"] and " -m " not in b["text"]
++    assert clean.of("dictated_text") == []
++    assert [b for b in clean.of("edit_target") if not b["creates"]] == []
++    assert "Source sections" not in clean.text
++    assert not re.search(
++        r"\bkeys on\b|\bwhen\b|==|\bis read\b|\bdepends on\b|\breturns for\b",
++        clean.text,
++        re.I,
++    )
++    assert not re.search(r"\b\d+\s+[a-z]+s\b", " ".join(b["text"] for b in crit)), (
++        "no count claim"
++    )
++    assert not [
++        c
++        for k in clean.of("constraint")
++        for c in clauses(k["text"])
++        if len(clauses(k["text"])) > 2
++    ]
++    assert clean.of("task") and clean.of("gate") and clean.of("constraint")
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index ce0cec250..86d3bb04d 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -16,3 +16,4 @@ T7: start sha=28525045077dd0602a27f05febd08da12ad4ab15
+ T7: complete verdict=compliant ac=T7.AC1,T7.AC2,T7.AC3 evidence=T7.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T7-pytest.log:12,T7.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_briefs.py:88,T7.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/briefs.py:124 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/base.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb1.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb2.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb3.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb4.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb5.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/k-lead.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/ledger-rule.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/sheet-block.txt,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/copy-briefs.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/briefs.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_briefs.py
+ T8: start sha=c02b9d74804102ca44e8f15e3d695443ad55570d
+ T8: complete verdict=compliant ac=T8.AC1,T8.AC2,T8.AC3,T8.AC4 evidence=T8.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T8-pytest.log:12,T8.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py:211,T8.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/build-sandbox.sh:162,T8.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/build-sandbox.sh:57 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/build-sandbox.sh,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/repos/build_repo.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_sandbox.py
++T9: start sha=16f640f38002b983c85adb7352c4a5ac5476d530

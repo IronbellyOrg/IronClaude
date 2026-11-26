@@ -1,0 +1,35 @@
+{
+ "block_ok": {
+  "t2-1": true
+ },
+ "brief_ids": [
+  "L1"
+ ],
+ "cleared": [],
+ "clusters": [
+  {
+   "event": "opened",
+   "lid": "L1",
+   "members": [
+    {
+     "blocking": true,
+     "fid": "F1",
+     "reviewer_id": "t2-1"
+    },
+    {
+     "blocking": true,
+     "fid": "F2",
+     "reviewer_id": "t2-1"
+    }
+   ]
+  }
+ ],
+ "decision": "REVISE",
+ "new": [
+  "L1"
+ ],
+ "refound": [],
+ "regressed": [],
+ "verdict": "FAIL",
+ "warnings": []
+}

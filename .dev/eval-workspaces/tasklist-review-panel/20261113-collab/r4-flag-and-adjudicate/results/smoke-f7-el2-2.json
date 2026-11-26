@@ -1,0 +1,135 @@
+{
+ "schema": "r4-results/1",
+ "row": "smoke-f7-el2-2",
+ "panel": "EL2",
+ "arm": "F7",
+ "panel_collab": 1,
+ "models": {
+  "t2b-1": "muse-ember-1.0",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "values_sha256": "173c5b2baa1fa21ff7b300e8b21866d56fac38652a04619ebf3cfcd45b37c982",
+ "pins_ok": true,
+ "seed": 1312701104,
+ "started": "2026-11-13T23:29:23Z",
+ "finished": null,
+ "valid": false,
+ "found_14": null,
+ "real_blocking_8": null,
+ "judge_blocking": null,
+ "wrong_blockers": null,
+ "control_found_2": null,
+ "control_wrong_blockers": null,
+ "output_tokens": 17419,
+ "elapsed_s": {
+  "DE": 107.423
+ },
+ "overhead_pct": {
+  "DE": -7.39
+ },
+ "reach": null,
+ "reach_ids": [],
+ "credited_method": "row anchor overlaps a covered plan_quote",
+ "packages": {
+  "TASK-WF-design-20261108-041415": {
+   "status": "ok",
+   "label": "VKOU",
+   "gt_covered_any": [],
+   "gt_covered_blocking": [],
+   "real_blocking": [],
+   "wrong_blockers": 1,
+   "ledger_rows_total": 4,
+   "ledger_rows_blocking": 1,
+   "output_tokens": 17419,
+   "slo_breach": false,
+   "dropped_lines": 0,
+   "reask_count": 0
+  }
+ },
+ "collab": {
+  "TASK-WF-design-20261108-041415": {
+   "k": 2,
+   "k0_isolated": false,
+   "deal_r": 0,
+   "deal_c": 0,
+   "cards_sent": 4,
+   "cards_rejected": {
+    "too_early": 0,
+    "over_cap": 0,
+    "after_finish": 0,
+    "bad_args": 0,
+    "bad_move": 0,
+    "bad_category": 0,
+    "bad_severity": 0,
+    "bad_anchor_length": 0,
+    "anchor_not_in_candidate": 0,
+    "invalid": 0
+   },
+   "cards_delivered": 2,
+   "late": 0,
+   "no_snapshot": 2,
+   "receiving_lunas": 2,
+   "snapshot_missing": 2,
+   "baseline_elapsed_s": 116,
+   "conversions": {
+    "challenge": {
+     "delivered": 1,
+     "converted": 0,
+     "credited": 0,
+     "uncredited": 0
+    },
+    "finding": {
+     "delivered": 1,
+     "converted": 0,
+     "credited": 0,
+     "uncredited": 0
+    }
+   },
+   "passed_lines": 2,
+   "card_tasks": [
+    "T1",
+    "T1",
+    null,
+    "T8"
+   ],
+   "early_tasks_only": null,
+   "flag_finding_overlap": 0.0,
+   "adjudication_agreement": 0.0,
+   "finish_signal_fired": false,
+   "finish_would_fire": false,
+   "hang_kill": false,
+   "retry_isolated": false,
+   "hook_error": 0,
+   "hook_ms_p95": 74,
+   "own_line_jaccard": 0.0,
+   "pairwise_task_jaccard": 0.0,
+   "ledger_rows": 4
+  }
+ },
+ "audit": {
+  "audit_ok": true,
+  "violations": [],
+  "sandbox_clean": true,
+  "candidate_sha_ok": true,
+  "board_lines_invalid": 0,
+  "harness_text_gt_overlap": 0,
+  "a1_brief_gt_overlap": 0,
+  "anchor_gt_overlap": 1,
+  "first_hand_suspect": 0,
+  "ignored_only": [
+   "TASK-WF-design-20261108-041415:.codegraph/",
+   "TASK-WF-design-20261108-041415:.pytest_cache/",
+   "TASK-WF-design-20261108-041415:.venv/",
+   "TASK-WF-design-20261108-041415:src/superclaude/__pycache__/",
+   "TASK-WF-design-20261108-041415:src/superclaude/pm_agent/__pycache__/",
+   "TASK-WF-design-20261108-041415:tests/__pycache__/",
+   "TASK-WF-design-20261108-041415:tests/skills/__pycache__/",
+   "TASK-WF-design-20261108-041415:uv.lock"
+  ],
+  "tmp_other": [],
+  "home_other": [
+   "/home/coder/.claude/rules/prompts/document_review_loop_prompts.md"
+  ]
+ }
+}

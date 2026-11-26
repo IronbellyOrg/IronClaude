@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Test stub for `claude` (never the gateway). Call k follows line k of $STUB_DIR/plan (the last line repeats):
+#   replay <file>        print <file> with @@MODEL@@ replaced by the --model argument
+#   misroute <file>      print <file> with @@MODEL@@ replaced by "gpt-6.1-sol" (a different model)
+#   sleep <s>            sleep, then print nothing
+#   exit <code>          exit with <code> (127 = binary missing)
+#   hooks <n> <file>     run the --settings PostToolUse command n times (exit status ignored, as Claude does), then replay
+#   judge <file>         copy <file> to the score.json path named in the judge brief on stdin
+# argv is saved to $STUB_DIR/argv.<k> (one token per line) and stdin to $STUB_DIR/stdin.<k>.
+D=${STUB_DIR:?STUB_DIR not set}
+k=$(( $(cat "$D/count" 2>/dev/null || echo 0) + 1 )); echo "$k" > "$D/count"
+printf '%s\n' "$@" > "$D/argv.$k"; cat > "$D/stdin.$k"
+ARGS=("$@"); MODEL=""; SETTINGS=""
+for ((i = 0; i < ${#ARGS[@]}; i++)); do
+  case ${ARGS[i]} in --model) MODEL=${ARGS[i+1]};; --settings) SETTINGS=${ARGS[i+1]};; esac
+done
+line=$(sed -n "${k}p" "$D/plan"); [ -n "$line" ] || line=$(tail -n 1 "$D/plan")
+read -r mode a b <<< "$line"
+replay() { sed "s/@@MODEL@@/$2/g" "$1"; }
+case $mode in
+  replay) replay "$a" "$MODEL";;
+  misroute) replay "$a" "gpt-6.1-sol";;
+  sleep) sleep "$a";;
+  exit) exit "$a";;
+  hooks)
+    cmd=$(printf '%s' "$SETTINGS" | jq -r '.hooks.PostToolUse[0].hooks[0].command')
+    printf '{"type":"user"}\n' > "$D/transcript.jsonl"
+    for ((j = 1; j <= a; j++)); do
+      printf '{"session_id":"stub","transcript_path":"%s","hook_event_name":"PostToolUse","tool_name":"Bash","tool_input":{"command":"ls %s"},"tool_response":{}}' \
+        "$D/transcript.jsonl" "$j" | bash -c "$cmd" >> "$D/hook-out.$k" 2>/dev/null
+      echo "rc=$?" >> "$D/hook-rc.$k"
+    done
+    replay "$b" "$MODEL";;
+  judge)  # the blind judge: write <a> (a score.json body) to the score.json path named in the brief, then reply
+    p=$(grep -o 'Write JSON to [^ ]*score.json' "$D/stdin.$k" | head -1 | sed 's/^Write JSON to //')
+    [ -n "$p" ] && cp "$a" "$p"
+    printf '[{"type":"result","subtype":"success","result":"score.json written","session_id":"judge"}]\n';;
+esac

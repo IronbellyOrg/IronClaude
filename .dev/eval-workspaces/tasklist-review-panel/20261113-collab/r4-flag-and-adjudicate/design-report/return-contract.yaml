@@ -1,0 +1,9 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:design \"Implementation and test design for Redesign 4: Flag-and-Adjudicate (F7) ...\" --type component --format spec --unattended --report-dir .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r4-flag-and-adjudicate/design-report --output .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r4-flag-and-adjudicate/DESIGN.md"
+report_path: .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r4-flag-and-adjudicate/DESIGN.md
+artifacts:
+  - .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r4-flag-and-adjudicate/design-report/review-1.md
+  - .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r4-flag-and-adjudicate/design-report/review-2.md
+  - .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r4-flag-and-adjudicate/design-report/review-3.md
+review_status: "3 independent reviews (the loop cap). The blocking findings of reviews 1 and 2 (6 and 2) were fixed and confirmed by the next review. Review 3 ended FAIL with 3 blocking findings; their fixes are in DESIGN.md but were not re-reviewed, because no fourth review is allowed. See the Review status line at the top of DESIGN.md."

@@ -1,0 +1,109 @@
+{
+  "panel": "ember + 2x luna",
+  "slug": "issue-08",
+  "n_runs": 6,
+  "denominators": {
+    "designSpec": 6,
+    "alias": 6,
+    "control": 6
+  },
+  "found": {
+    "B1": 0,
+    "B2": 0,
+    "B3": 4,
+    "B4": 0,
+    "B5": 0,
+    "B6": 0,
+    "B7": 1,
+    "B8": 0,
+    "I1": 0,
+    "I2": 6,
+    "I3": 0,
+    "I4": 0,
+    "I5": 0,
+    "I6": 0,
+    "I7": 0,
+    "I8": 5
+  },
+  "blocking_credit": {
+    "B1": 0,
+    "B2": 0,
+    "B3": 0,
+    "B4": 0,
+    "B5": 0,
+    "B6": 0,
+    "B7": 1,
+    "B8": 0,
+    "I1": 0,
+    "I2": 5,
+    "I3": 0,
+    "I4": 0,
+    "I5": 0,
+    "I6": 0,
+    "I7": 0,
+    "I8": 1
+  },
+  "per_row": {
+    "g1-ember-luna2-r1": {
+      "found": [
+        "B3",
+        "I2"
+      ],
+      "blocking_credit": [
+        "I2"
+      ]
+    },
+    "g1-ember-luna2-r2": {
+      "found": [
+        "B3",
+        "I2",
+        "I8"
+      ],
+      "blocking_credit": [
+        "I2"
+      ]
+    },
+    "g1-ember-luna2-r3": {
+      "found": [
+        "B3",
+        "I2",
+        "I8"
+      ],
+      "blocking_credit": [
+        "I2"
+      ]
+    },
+    "g1-ember-luna2-r4": {
+      "found": [
+        "I2",
+        "I8"
+      ],
+      "blocking_credit": [
+        "I2"
+      ]
+    },
+    "b4-muse-ember-luna2": {
+      "found": [
+        "I2",
+        "B7",
+        "I8"
+      ],
+      "blocking_credit": [
+        "B7"
+      ]
+    },
+    "e2-ember-luna2-rep": {
+      "found": [
+        "B3",
+        "I2",
+        "I8"
+      ],
+      "blocking_credit": [
+        "I2",
+        "I8"
+      ]
+    }
+  },
+  "cross_check": "Read judge notes for all 18 score.json files (6 rows x 3 packages); arrays agree with notes in every case (e.g. r1/r2/r3/e2 designSpec: GT3 any, GT7 blocking; b4 alias GT2 blocking via L1.R3; control GT2 blocking only in e2, non-blocking in r2/r3/r4/b4). Legend-to-GT mapping verified: ground-truth.json files hold GT1..GT10 (designSpec), GT1..GT4 (alias), GT1..GT2 (control) matching the legend; items lack a blocking field in those files, so the blocking flag is taken from the legend only (UNVERIFIED against ground-truth.json). No disagreement found.",
+  "issues": "Each package/row had exactly one score.json; no invalid-apierror files seen. Judge notes call GT7 blocking-credited in 4 rows although I2 is a non-blocking legend issue; counted as stated by arrays. b4 designSpec GT7 was non-blocking only (blocking_credit empty for that row)."
+}

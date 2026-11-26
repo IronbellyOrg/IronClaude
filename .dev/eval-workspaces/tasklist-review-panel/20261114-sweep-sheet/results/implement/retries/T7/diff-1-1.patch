@@ -1,0 +1,595 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/base.txt b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/base.txt
+new file mode 100644
+index 000000000..b24f688fe
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/base.txt
+@@ -0,0 +1,5 @@
++/sc:spec-panel @$CAND_SB --mode critique
++
++Review the candidate $CAND_SB (sha256 of the file: $SHA) against the requirements it states, review 1 of 3. Inspect behavior and the dependencies it touches. Report concrete wrong outcomes, not a minimum number of findings. Minor findings are notes and never fail the review; list Medium and minor findings under follow-up candidates. If an input is missing or unreadable, return incomplete. Do not edit the candidate and do not start another review. State what you covered.
++
++First-review rules (from ~/.claude/rules/prompts/document_review_loop_prompts.md, read it first): write 'review: 1 of 3' once as the first line of the report. Grading check, for each finding before you mark it blocking: write the sentence 'An implementer who follows the stated text as written builds X, and X is wrong because Y.' Blocking needs a sentence that holds with no further assumption: two stated texts that contradict each other, a stated text that causes data loss or breaks a security or safety boundary, or a stated text that an acceptance criterion cannot pass. Grade it Medium when the sentence needs a guess that the implementer picks the worse of two readings the text allows, or when the finding is a requirement the document never states rather than a stated text that does harm. End the report with the '## Findings block' (one fenced code block with info string findings-v1, one JSON object per line: id, severity CRITICAL|MAJOR|MINOR, blocking, category contradiction|unpassable-check|data-loss|safety|missing-requirement|other, anchor = 12 to 200 chars copied exactly from the candidate, optional anchor2, refs, claim) and a final 'verdict: PASS' or 'verdict: FAIL' line. Your final reply must be the complete report text.
+\ No newline at end of file
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb1.txt b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb1.txt
+new file mode 100644
+index 000000000..20121ae33
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb1.txt
+@@ -0,0 +1 @@
++Driving document: {{SOURCE_ABS}}. Read it in full before you review the candidate. A rule it states that the candidate does not carry is a finding.
+\ No newline at end of file
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb2.txt b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb2.txt
+new file mode 100644
+index 000000000..38226e33c
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb2.txt
+@@ -0,0 +1 @@
++Every defect you confirm must appear as a line in the findings block, including every ledger row you marked PROBLEM. Set its severity with the grading check. A defect that is not blocking is still listed, as MAJOR or MINOR with blocking false. Do not leave a defect out because it looks small.
+\ No newline at end of file
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb3.txt b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb3.txt
+new file mode 100644
+index 000000000..d261d73e3
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb3.txt
+@@ -0,0 +1 @@
++A tool line or a recipe step is a fact or a question about the text. It becomes a blocking finding only if you can write the sentence 'An implementer who follows the stated text as written builds X, and X is wrong because Y.'
+\ No newline at end of file
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb4.txt b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb4.txt
+new file mode 100644
+index 000000000..8ae5be91d
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb4.txt
+@@ -0,0 +1 @@
++The merge enforces these limits. Each finding id is unique and has at most 16 characters. The anchor is 12 to 200 characters. The claim is at most 300 characters. Refs are at most 8. Write one findings-v1 block only. Copy the shortest part of the text that identifies the problem.
+\ No newline at end of file
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb5.txt b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb5.txt
+new file mode 100644
+index 000000000..90dc89226
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/cb5.txt
+@@ -0,0 +1 @@
++The checks you were given do not replace your own review. Keep at least half of your time for your own review of the plan.
+\ No newline at end of file
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/k-lead.txt b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/k-lead.txt
+new file mode 100644
+index 000000000..cbe190846
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/k-lead.txt
+@@ -0,0 +1,2 @@
++# DRAFT, awaiting owner approval (DD-14). Lines that start with "# " are comments: they are not sent to the reviewer.
++Eight kinds of defect to look for in your own review of the plan. Each one says what to look for. A plan may have none of them, one of them or several.
+\ No newline at end of file
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/ledger-rule.txt b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/ledger-rule.txt
+new file mode 100644
+index 000000000..25a68b769
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/ledger-rule.txt
+@@ -0,0 +1 @@
++Only your FINAL message is kept, so put everything in it. Write the heading `## Ledger`, then one fenced block with info string `ledger-v1`. Write one JSON object per line, one line for each item assigned to you, with the keys item, verdict, quote_plan, quote_other, problem and ran. The verdict is OK, PROBLEM or UNSURE. Copy each quote exactly. Then write the heading `## Findings block` and the single `findings-v1` block. A ledger written in an earlier message is lost.
+\ No newline at end of file
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/sheet-block.txt b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/sheet-block.txt
+new file mode 100644
+index 000000000..61d6a5e89
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/briefs/sheet-block.txt
+@@ -0,0 +1 @@
++SWEEP SHEET. A script, not a model, built {{SHEET_PATH}} from the candidate and the repository. Each item has an id, a location, the literal text, a question and tool output. The tool output is a fact about text. Your job is to judge it. Read the candidate and the driving document first, then the sheet. For each item assigned to you, in the order shown, write one line in the `ledger-v1` block: set `item` to the item id, set `verdict` to OK, PROBLEM or UNSURE, and copy each quote exactly. For OK, say in `ran` what you looked at. Do not skip an item. A sheet item is a question, not a finding. Most items are fine. Answer PROBLEM only when you can quote the two texts, or the search result, that prove it. When you write a findings line for a PROBLEM or UNSURE item, set the findings key `probe` to the item id. Keep at least half of your time for your own review of the plan. The sheet does not replace it. Put the ledger under the heading `## Ledger`, directly above the findings block, in your final message.
+\ No newline at end of file
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/copy-briefs.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/copy-briefs.py
+new file mode 100644
+index 000000000..fa07c14ab
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/copy-briefs.py
+@@ -0,0 +1,87 @@
++"""One-time copy of the quoted blocks of MR and the RR brief into briefs/ (IMPLEMENTATION step 4, DESIGN 8.1).
++
++Run once:  uv run --frozen --project REPO python SW/results/copy-briefs.py
++
++The files are written from the LINE NUMBERS DESIGN 8.1 names (RR 13-17; MR 205, 209, 213, 217, 221, 291, 465). Each
++written file is then compared with the extraction the test uses (scaffold.briefs: found by opening words, not by line
++number), and the unified diff is printed. An empty diff for every file means the script and the test agree. Exit 1
++when any diff is not empty. briefs/k-lead.txt is a hand-written draft and is not touched here.
++"""
++
++import difflib
++import sys
++from pathlib import Path
++
++SW = Path(__file__).resolve().parents[1]
++REPO = SW.parents[3]
++sys.path.insert(0, str(SW))
++
++from scaffold import briefs  # noqa: E402
++
++MR = (
++    REPO
++    / ".dev/brainstorms/20261113-223124-panel-process-redesign/merged-requirements.md"
++)
++RR = (
++    REPO
++    / ".dev/eval-workspaces/tasklist-review-panel/20261111-a1/tools/run-reviewer.sh"
++)
++MR_LINES = {
++    "cb1": 205,
++    "cb2": 209,
++    "cb3": 213,
++    "cb4": 217,
++    "cb5": 221,
++    "ledger-rule": 291,
++    "sheet-block": 465,
++}
++RR_FIRST, RR_LAST = 13, 17
++
++
++def by_line_number() -> dict[str, str]:
++    """{part: text}: MR lines `> "<text>"` and the RR BRIEF string, taken by line number."""
++    mr = MR.read_text(encoding="utf-8").split("\n")
++    out = {}
++    for name, n in MR_LINES.items():
++        line = mr[n - 1]
++        assert line.startswith('> "') and line.endswith('"'), (name, n)
++        out[name] = line[3:-1]
++    rr = RR.read_text(encoding="utf-8").split("\n")[RR_FIRST - 1 : RR_LAST]
++    assert rr[0].startswith('BRIEF="') and rr[-1].endswith('"')
++    out["base"] = "\n".join(rr)[len('BRIEF="') : -1]
++    return out
++
++
++def main() -> int:
++    copied = by_line_number()
++    mr_text = MR.read_text(encoding="utf-8")
++    first, last, base = briefs.rr_brief(RR.read_text(encoding="utf-8"))
++    expected = {n: briefs.mr_quote(mr_text, o) for n, o in briefs.MR_OPENINGS.items()}
++    expected["base"] = base
++    print(
++        f"test extraction of RR: lines {first}-{last} (script uses {RR_FIRST}-{RR_LAST})"
++    )
++    briefs.BRIEFS_DIR.mkdir(exist_ok=True)
++    bad = 0
++    for name in ("base", *MR_LINES):
++        path = briefs.BRIEFS_DIR / briefs.FILES[name]
++        path.write_text(copied[name], encoding="utf-8")
++        diff = list(
++            difflib.unified_diff(
++                expected[name].splitlines(keepends=True),
++                path.read_text(encoding="utf-8").splitlines(keepends=True),
++                "test-extraction",
++                str(path.relative_to(SW)),
++            )
++        )
++        bad += bool(diff)
++        print(
++            f"{path.relative_to(SW)}: {len(copied[name])} chars, diff lines {len(diff)}"
++        )
++        sys.stdout.writelines(diff)
++    print("DIFF" if bad else "AGREE: every file equals the test extraction")
++    return 1 if bad else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T7/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T7/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T7/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/briefs.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/briefs.py
+new file mode 100644
+index 000000000..06b24b916
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/briefs.py
+@@ -0,0 +1,180 @@
++"""Brief renderer (DESIGN 8.1, MR 3.0.2, 3.0.4, 3.1(a), DD-6, DD-7, DD-14).
++
++A brief is a join of text parts in a fixed order. Parts are files under briefs/ (no part is written in code, so the
++sha256 of each one can be frozen, AO-5); the K paragraph is generated from briefs/k-lead.txt and the eight card
++`definition` fields. Parts are joined with one blank line. Part files are stored without a trailing newline; any
++trailing newline is dropped when a part is read.
++
++    arm     parts, in order
++    Z0-raw  base
++    Z0      base, CB-1 (only with a source), CB-2, CB-3, CB-4, CB-5
++    K       the Z0 parts, K paragraph
++    SS      the Z0 parts, ledger rule, sheet block + the heading + the sheet text
++            (an empty sheet, or fallback=True, gives the Z0 parts and nothing else)
++
++The one non-file text is the heading that DESIGN 8.1 puts between the sheet block and the sheet text.
++"""
++
++from __future__ import annotations
++
++import hashlib
++from pathlib import Path
++
++from scaffold import cards as cards_mod
++
++BRIEFS_DIR = Path(__file__).resolve().parents[1] / "briefs"
++ARMS = ("Z0-raw", "Z0", "K", "SS")
++SHEET_HEADING = "## SWEEP SHEET ITEMS"
++SEPARATOR = "\n\n"
++# part name -> file under briefs/ (the K paragraph is generated from k-lead.txt, so it has no file of its own)
++FILES = {
++    "base": "base.txt",
++    "cb1": "cb1.txt",
++    "cb2": "cb2.txt",
++    "cb3": "cb3.txt",
++    "cb4": "cb4.txt",
++    "cb5": "cb5.txt",
++    "k": "k-lead.txt",
++    "ledger-rule": "ledger-rule.txt",
++    "sheet-block": "sheet-block.txt",
++}
++# the opening words that find each quoted block of MR (the extraction used by the test and by the copy script)
++MR_OPENINGS = {
++    "cb1": "Driving document:",
++    "cb2": "Every defect you confirm",
++    "cb3": "A tool line or a recipe step",
++    "cb4": "The merge enforces these limits",
++    "cb5": "The checks you were given",
++    "ledger-rule": "Only your FINAL message is kept",
++    "sheet-block": "SWEEP SHEET. A script",
++}
++
++
++def sha256_text(text: str) -> str:
++    return hashlib.sha256(text.encode("utf-8")).hexdigest()
++
++
++def mr_quote(mr_text: str, opening: str) -> str:
++    """The text of the one-line quoted block `> "<opening>..."` of MR, without the `> "` and the closing quote."""
++    hits = [ln for ln in mr_text.splitlines() if ln.startswith('> "' + opening)]
++    if len(hits) != 1:
++        raise ValueError(f"{len(hits)} quoted blocks start with {opening!r}, need 1")
++    if not hits[0].endswith('"'):
++        raise ValueError(f"the quoted block {opening!r} does not end with a quote")
++    return hits[0][3:-1]
++
++
++def rr_brief(rr_text: str) -> tuple[int, int, str]:
++    """(first line, last line, text) of the `BRIEF="..."` string of RR; lines are 1-based, the text has no quotes."""
++    lines = rr_text.split("\n")
++    first = next(i for i, ln in enumerate(lines) if ln.startswith('BRIEF="'))
++    last = next(i for i in range(first + 1, len(lines)) if lines[i].endswith('"'))
++    body = "\n".join(lines[first : last + 1])
++    return first + 1, last + 1, body[len('BRIEF="') : -1]
++
++
++def _read(name: str, directory: Path) -> str:
++    return (directory / FILES[name]).read_text(encoding="utf-8").rstrip("\n")
++
++
++def part_hashes(directory: Path | str | None = None) -> dict[str, str]:
++    """{part name: sha256 of the part file's bytes} for every part file that exists (the values AO-5 freezes)."""
++    root = Path(directory or BRIEFS_DIR)
++    return {
++        n: hashlib.sha256((root / f).read_bytes()).hexdigest()
++        for n, f in FILES.items()
++        if (root / f).is_file()
++    }
++
++
++def k_paragraph(
++    cards: dict[str, dict] | None = None, directory: Path | str | None = None
++) -> str:
++    """The K paragraph: the lead-in, then the eight card definitions numbered in class order, all on one paragraph.
++
++    Lines of k-lead.txt that start with `# ` are comments (the draft marker, DD-14) and are not sent.
++    """
++    root = Path(directory or BRIEFS_DIR)
++    lead = " ".join(
++        ln.strip()
++        for ln in _read("k", root).splitlines()
++        if ln.strip() and not ln.startswith("# ")
++    )
++    cs = cards if cards is not None else cards_mod.load()
++    checks = " ".join(
++        f"({n}) {cards_mod.definition(i, cs)}" for n, i in enumerate(cs, 1)
++    )
++    return f"{lead} {checks}"
++
++
++def part_names(arm: str, has_source: bool, has_sheet: bool) -> list[str]:
++    """The part names of one arm, in brief order (DESIGN 8.1)."""
++    if arm not in ARMS:
++        raise ValueError(f"unknown arm {arm!r}, expected one of {ARMS}")
++    if arm == "Z0-raw":
++        return ["base"]
++    z0 = ["base", *(["cb1"] if has_source else []), "cb2", "cb3", "cb4", "cb5"]
++    if arm == "K":
++        return [*z0, "k"]
++    if arm == "SS" and has_sheet:
++        return [*z0, "ledger-rule", "sheet-block"]
++    return z0
++
++
++def render(
++    arm: str,
++    doc: dict,
++    items: dict | None,
++    source: str | None,
++    *,
++    fallback: bool = False,
++    cards: dict[str, dict] | None = None,
++    directory: Path | str | None = None,
++) -> dict:
++    """Build one reviewer's brief.
++
++    doc     {"cand_sb": absolute path of the candidate in the sandbox, "sha": sha256 of that file}; they fill
++            `$CAND_SB` and `$SHA` of the base part.
++    items   this reviewer's sheet, {"path": absolute path of sheets/<rid>.md, "text": the sheet text}; None, or an
++            empty text, is an empty sheet. Used by arm SS only.
++    source  absolute path of the driving document, or None/"" when there is none (CB-1 is then left out).
++    fallback  the pre-pass or render failed: arm SS gets the Z0 parts (DESIGN 10 row 1).
++
++    Returns {"text", "sha256", "parts": [names in order], "part_sha256": {name: sha256 of the text the part
++    contributed}, "no_source", "no_trigger", "fallback"}. `no_source` is a fact about the document; `no_trigger`
++    is true for an SS run with an empty sheet and no fallback.
++    """
++    root = Path(directory or BRIEFS_DIR)
++    sheet = items if items and str(items.get("text", "")).strip() else None
++    if sheet is not None and not sheet.get("path"):
++        raise ValueError("items needs the absolute `path` of the sheet file")
++    names = part_names(arm, bool(source), sheet is not None and not fallback)
++    texts: dict[str, str] = {}
++    for n in names:
++        if n == "k":
++            texts[n] = k_paragraph(cards, root)
++        else:
++            texts[n] = _read(n, root)
++    texts["base"] = (
++        texts["base"].replace("$CAND_SB", doc["cand_sb"]).replace("$SHA", doc["sha"])
++    )
++    if "cb1" in texts:
++        texts["cb1"] = texts["cb1"].replace("{{SOURCE_ABS}}", str(source))
++    if "sheet-block" in texts and sheet is not None:
++        texts["sheet-block"] = (
++            texts["sheet-block"].replace("{{SHEET_PATH}}", sheet["path"])
++            + SEPARATOR
++            + SHEET_HEADING
++            + SEPARATOR
++            + str(sheet["text"]).rstrip("\n")
++        )
++    brief = SEPARATOR.join(texts[n] for n in names)
++    return {
++        "text": brief,
++        "sha256": sha256_text(brief),
++        "parts": names,
++        "part_sha256": {n: sha256_text(t) for n, t in texts.items()},
++        "no_source": not source,
++        "no_trigger": arm == "SS" and not fallback and sheet is None,
++        "fallback": bool(fallback and arm == "SS"),
++    }
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_briefs.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_briefs.py
+new file mode 100644
+index 000000000..82e781e76
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_briefs.py
+@@ -0,0 +1,217 @@
++"""Briefs (REQ-01, REQ-05, REQ-09, REQ-23): parts, arms, hashes. MR and RR are read as files; nothing else is."""
++
++import hashlib
++import re
++
++import pytest
++from helpers import REPO, SW
++
++from scaffold import briefs, cards, fnd
++
++BRIEFS = SW / "briefs"
++MR = (
++    REPO
++    / ".dev/brainstorms/20261113-223124-panel-process-redesign/merged-requirements.md"
++)
++RR = (
++    REPO
++    / ".dev/eval-workspaces/tasklist-review-panel/20261111-a1/tools/run-reviewer.sh"
++)
++CAND = "/tmp/evalsb-sweep/cand/p1/candidate.md"
++SHA = "ab" * 32
++SOURCE = "/tmp/evalsb-sweep/cand/p1/source.md"
++SHEET_PATH = "/tmp/evalsb-sweep/run1/sheets/r1.md"
++SHEET_TEXT = "Items assigned to you: S1, S2\n\n### S1   (class C4)\nWhere: Task 1\n"
++DOC = {"cand_sb": CAND, "sha": SHA}
++ITEMS = {"path": SHEET_PATH, "text": SHEET_TEXT}
++FIRST_LINE = f"/sc:spec-panel @{CAND} --mode critique"
++# DESIGN 8.1, written out here so the code cannot grade itself
++Z0 = ["base", "cb1", "cb2", "cb3", "cb4", "cb5"]
++EXPECTED = {
++    "Z0-raw": ["base"],
++    "Z0": Z0,
++    "K": [*Z0, "k"],
++    "SS": [*Z0, "ledger-rule", "sheet-block"],
++}
++
++
++def part(name):
++    return (BRIEFS / briefs.FILES[name]).read_text(encoding="utf-8")
++
++
++def render(arm, source=SOURCE, items=ITEMS, **kw):
++    return briefs.render(arm, DOC, items, source, **kw)
++
++
++def test_cb1_rendered_with_source():
++    r = render("Z0")
++    assert f"Driving document: {SOURCE}. Read it in full before you review" in r["text"]
++    assert "{{SOURCE_ABS}}" not in r["text"] and r["parts"][1] == "cb1"
++    assert r["no_source"] is False
++
++
++@pytest.mark.parametrize("arm", ["Z0", "K", "SS"])
++@pytest.mark.parametrize("source", [None, ""])
++def test_cb1_absent_without_source(arm, source):
++    r = render(arm, source=source)
++    assert "Driving document:" not in r["text"] and "cb1" not in r["parts"]
++    assert r["no_source"] is True
++    for cb in ("cb2", "cb3", "cb4", "cb5"):
++        assert cb in r["parts"]
++
++
++def test_cb_verbatim_against_mr():
++    mr = MR.read_text(encoding="utf-8")
++    assert set(briefs.MR_OPENINGS) == {
++        "cb1",
++        "cb2",
++        "cb3",
++        "cb4",
++        "cb5",
++        "ledger-rule",
++        "sheet-block",
++    }
++    for name, opening in briefs.MR_OPENINGS.items():
++        quoted = briefs.mr_quote(mr, opening)
++        assert (BRIEFS / briefs.FILES[name]).read_bytes() == quoted.encode("utf-8"), (
++            name
++        )
++    assert "{{SOURCE_ABS}}" in part("cb1")
++    assert "{{SHEET_PATH}}" in part("sheet-block")
++    # the rule behind the extraction: a missing or doubled block is an error, not a guess
++    with pytest.raises(ValueError):
++        briefs.mr_quote(mr, "No such opening words")
++    with pytest.raises(ValueError):
++        briefs.mr_quote('> "One block"\n> "One block again"\n', "One block")
++
++
++def test_arm_part_sets():
++    for arm, names in EXPECTED.items():
++        assert set(render(arm)["parts"]) == set(names), arm
++        assert render(arm)["parts"] == names, arm  # and the order
++    # the optional parts: CB-1 needs a source; the SS parts need a sheet
++    assert set(briefs.part_names("Z0", False, False)) == set(Z0) - {"cb1"}
++    assert set(briefs.part_names("SS", True, False)) == set(Z0)
++    assert set(briefs.part_names("SS", True, True)) == set(EXPECTED["SS"])
++    assert set(briefs.part_names("K", True, True)) == set(EXPECTED["K"])
++    assert set(briefs.part_names("Z0-raw", True, True)) == {"base"}
++    assert set(briefs.ARMS) == set(EXPECTED)
++    with pytest.raises(ValueError):
++        briefs.part_names("RL", True, True)  # reserved, not built here
++    # every part of every arm exists as a file (the K paragraph's lead-in is a file too)
++    assert {briefs.FILES[n] for n in briefs.FILES} == {p.name for p in BRIEFS.iterdir()}
++
++
++def test_base_equals_rr_lines_13_17():
++    first, last, text = briefs.rr_brief(RR.read_text(encoding="utf-8"))
++    assert (first, last) == (13, 17)
++    assert (BRIEFS / "base.txt").read_bytes() == text.encode("utf-8")
++    base = part("base")
++    assert base.startswith("/sc:spec-panel @$CAND_SB --mode critique\n")
++    assert "$SHA" in base
++    for arm in briefs.ARMS:
++        assert render(arm)["text"].startswith(FIRST_LINE + "\n"), arm
++    # what bash makes of the string: the two variables expanded, nothing else
++    raw = render("Z0-raw")["text"]
++    assert raw == text.replace("$CAND_SB", CAND).replace("$SHA", SHA)
++    assert f"(sha256 of the file: {SHA})" in raw and "$" not in raw
++
++
++def test_six_categories_unchanged():
++    base = part("base")
++    m = re.search(r"category ((?:[a-z-]+\|)+[a-z-]+),", base)
++    assert m
++    assert m.group(1).split("|") == list(fnd.CATEGORIES) and len(fnd.CATEGORIES) == 6
++    assert "Grade it Medium when the sentence needs a guess" in base
++    assert "'An implementer who follows the stated text as written builds X" in base
++    for arm in briefs.ARMS:
++        assert render(arm)["text"].startswith(
++            part("base").replace("$CAND_SB", CAND).replace("$SHA", SHA)
++        )
++
++
++def test_empty_sheet_brief_equals_z0_by_hash():
++    for source in (SOURCE, None):
++        z0 = render("Z0", source=source)
++        for empty in (
++            None,
++            {},
++            {"path": SHEET_PATH, "text": ""},
++            {"path": "", "text": " \n"},
++        ):
++            ss = render("SS", source=source, items=empty)
++            assert ss["sha256"] == z0["sha256"]
++            assert hashlib.sha256(ss["text"].encode()).hexdigest() == z0["sha256"]
++            assert ss["no_trigger"] is True and ss["fallback"] is False
++    assert render("SS")["sha256"] != render("Z0")["sha256"]
++    assert render("SS")["no_trigger"] is False
++
++
++def test_fallback_brief_equals_z0_by_hash():
++    z0 = render("Z0")
++    ss = render(
++        "SS", fallback=True
++    )  # a sheet exists, but the pre-pass or the render failed
++    assert ss["sha256"] == z0["sha256"] and ss["parts"] == z0["parts"]
++    assert ss["fallback"] is True and ss["no_trigger"] is False
++    # fallback is a fact about arm SS only
++    assert render("Z0", fallback=True)["fallback"] is False
++    assert render("Z0", fallback=True)["sha256"] == z0["sha256"]
++
++
++def test_no_src_path_in_any_brief():
++    for f in BRIEFS.iterdir():
++        assert "src/superclaude/" not in f.read_text(encoding="utf-8"), f.name
++    for arm in briefs.ARMS:
++        for source in (SOURCE, None):
++            r = render(arm, source=source)
++            assert "src/superclaude/" not in r["text"], arm
++    assert "src/superclaude/" not in briefs.k_paragraph()
++
++
++def test_sheet_block_filled_and_followed_by_items():
++    r = render("SS")
++    t = r["text"]
++    assert f"built {SHEET_PATH} from the candidate" in t and "{{SHEET_PATH}}" not in t
++    block = part("sheet-block").replace("{{SHEET_PATH}}", SHEET_PATH)
++    assert t.endswith(f"{block}\n\n## SWEEP SHEET ITEMS\n\n{SHEET_TEXT.rstrip()}")
++    assert (
++        t.index(part("ledger-rule")) < t.index(block) < t.index("## SWEEP SHEET ITEMS")
++    )
++    assert t.index(part("cb5")) < t.index(part("ledger-rule"))
++    with pytest.raises(ValueError):
++        render("SS", items={"text": "x"})  # a sheet without its file path
++
++
++def test_k_paragraph_from_the_eight_cards():
++    cs = cards.load()
++    p = briefs.k_paragraph(cs)
++    assert "\n" not in p and len(cs) == 8
++    for n, cid in enumerate(cs, 1):
++        assert f"({n}) {cards.definition(cid, cs)}" in p
++    positions = [p.index(cards.definition(c, cs)) for c in cs]
++    assert positions == sorted(positions)
++    assert render("K")["text"].endswith("\n\n" + p)
++    # the draft marker is a comment: first line of k-lead.txt, never sent
++    lead = part("k").splitlines()
++    assert lead[0].startswith("# DRAFT") and "owner approval (DD-14)" in lead[0]
++    assert "DRAFT" not in p and "owner approval" not in p
++    # one governing source: changing a card changes the paragraph (REQ-10)
++    changed = {k: dict(v) for k, v in cs.items()}
++    changed["C3"]["definition"] = "An invented replacement definition."
++    assert "An invented replacement definition." in briefs.k_paragraph(changed)
++    assert render("K", cards=changed)["sha256"] != render("K")["sha256"]
++
++
++def test_sha256_of_every_part_and_brief():
++    ph = briefs.part_hashes()
++    assert set(ph) == set(briefs.FILES)
++    for name, f in briefs.FILES.items():
++        assert ph[name] == hashlib.sha256((BRIEFS / f).read_bytes()).hexdigest()
++    for arm in briefs.ARMS:
++        r = render(arm)
++        assert r["sha256"] == hashlib.sha256(r["text"].encode("utf-8")).hexdigest()
++        assert set(r["part_sha256"]) == set(r["parts"])
++    # a brief is stable: the same inputs give the same hash
++    assert render("SS")["sha256"] == render("SS")["sha256"]
++    assert render("SS")["sha256"] != render("K")["sha256"]
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index 4ff581dfd..480f84cf7 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -12,3 +12,4 @@ T5: start sha=4e7d389641f4a71c247771ce123062e9c9907721
+ T5: complete verdict=compliant ac=T5.AC1,T5.AC2,T5.AC3,T5.AC4 evidence=T5.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T5-lint.log:13,T5.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py:44,T5.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/lint.py:166,T5.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py:157 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/lint.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py
+ T6: start sha=aab9cc6fac7ea758afce8d30d4712d9585547373
+ T6: complete verdict=compliant ac=T6.AC1,T6.AC2,T6.AC3,T6.AC4,T6.AC5 evidence=T6.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T6-pytest.log:16,T6.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_cards.py:117,T6.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_cards.py:137,T6.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/cards.py:112,T6.AC5@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/README.md:30 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C1.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C2.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C3.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C4.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C5.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C6.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C7.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/C8.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/README.md,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/cards/schema.json,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/cards.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/fnd.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_cards.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_lint.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_readme.py
++T7: start sha=28525045077dd0602a27f05febd08da12ad4ab15

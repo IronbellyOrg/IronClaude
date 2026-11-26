@@ -1,0 +1,7 @@
+9166c23cce094921f5b1d325c7ebb588998125b4
+A1 r1-1 F1.3 minor .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tools/results.py:114 ac=T5.AC1 n,n,n,n hook_ms_p95 is the worst package p95, not a sum (DESIGN 5.4 says counters are summed except own_line_jaccard)
+A1 r1-1 F1.4 minor .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tests/test_faults.py:113 ac=T5.AC2 n,n,n,n F-3 checks observable_moves_executed by recomputing from collab.json slots, not via results.py
+A1 r1-1 F1.5 minor .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tests/test_faults.py:142 ac=T5.AC2 n,n,n,n F-8 slo_breach asserted for collab 1 only
+A1 r1-1 F1.6 minor .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tools/collab_summary.py:220 ac=T5.AC1 n,n,n,n the ground-truth window audit is skipped silently when <a1>/<pkg>/ground-truth.json is absent
+A2 r2-1 F2.1 minor .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tools/alarms.py:60 ac=T5.AC1 n,n,n,n b_c is the median over all collab-0 rows of the panel while baseline_drift uses the same-rep collab-0 row; DESIGN allows either reading
+A2 r2-1 F2.2 minor .dev/eval-workspaces/tasklist-review-panel/20261113-collab/r1-move-radar/tests/test_faults.py:107 ac=T5.AC2 n,n,n,n F-3 asserts observable_moves_executed = 0 from collab.json slots, not through the results.py counter

@@ -1,0 +1,29 @@
+
+[
+{"id":"X0140","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"Loose constraint wording conflicts with the pushback comment, but Task 2 and the source explicitly keep the comment as today; no deliverable carries the two-write sentence."},
+{"id":"X0043","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The mode label is a third write in literal terms, but the Goal, Task 1 and Task 2 explicitly require it, so the constraint's wording changes nothing that ships."},
+{"id":"X0085","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The same sentence orders make sync-dev, so 'edit' means hand edits; Task 12 confirms: fix at the source, never by editing .claude/."},
+{"id":"X0034","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The constraint forbids hand edits and staging under .claude/ and in the same sentence requires sync-dev; generated copies are expected and consistent."},
+{"id":"X0103","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"Literal tension with the mode label, but explicit task text requires the label; the constraint text reaches no deliverable."},
+{"id":"X0162","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The pushback comment is a write beyond the two, but Task 2 explicitly keeps it as today; the loose constraint does not decide shipped behavior."},
+{"id":"X0160","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"Sync-generated .claude copies are what the constraint itself mandates; the ban covers manual edits and staging only."},
+{"id":"X0231","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The constraint explicitly pairs the .claude edit ban with running sync-dev; there is no conflict in intent or outcome."},
+{"id":"X0205","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"Running sync-dev is required by the same constraint; the ban targets hand edits and staging of .claude/."},
+{"id":"X0088","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"Literal conflict with the pushback comment, but the explicit Task 2 sequence governs; the two-write sentence appears in no deliverable."},
+{"id":"X0199","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The label and comment exceed the literal two writes, but both are explicitly required elsewhere; shipped behavior is unaffected."},
+{"id":"X0138","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The constraint itself orders sync-dev; copying into .claude/ by sync is not the forbidden hand edit."},
+{"id":"X0087","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The comment is an extra write in literal terms, but the explicit Wave 5 order keeps it; the constraint wording does not change the deliverable."},
+{"id":"X0220","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"./artifacts/ is outside the listed paths, but Task 12 and its acceptance criteria explicitly require the file; an implementer writes it regardless."},
+{"id":"X0161","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"Package artifacts fall outside the edit list literally, but the explicit task and acceptance criteria decide the outcome; nothing shipped changes."},
+{"id":"X0242","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"Task 12 itself clarifies: sync, then fix at the source, never by editing .claude/. The texts are consistent."},
+{"id":"X0166","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The constraint mandates sync-dev in the same sentence; the generated writes are intended, not forbidden edits."},
+{"id":"X0119","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"Literal tension with the mode label, but the Goal and tasks explicitly require it; the constraint wording does not alter shipped behavior."},
+{"id":"X0106","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"Path-list tension is real, but the 'unstaged' claim is wrong (.dev/tasks is always staged) and the explicit acceptance criteria ensure the file is written."},
+{"id":"X0263","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The artifacts path is outside the edit list, but package artifacts are staged and explicitly required; the outcome does not change."},
+{"id":"X0175","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"The pushback comment exceeds the literal two writes, but the source and Task 2 explicitly keep it; no deliverable is affected."},
+{"id":"X0299","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"Literal path conflict, but the specific task and acceptance criteria take precedence and an implementer writes the artifact; nothing shipped changes."},
+{"id":"X0251","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"Writing the package artifact is outside the edit list literally, but it is explicitly required, so the plan's outcome is unaffected."},
+{"id":"X0200","verdict":"MEDIUM","deliverable":null,"real_contradiction":false,"reason":"The ban is on hand edits and staging; the same constraint requires sync-dev, so the two texts agree."},
+{"id":"X0082","verdict":"MEDIUM","deliverable":null,"real_contradiction":true,"reason":"Literal third write, but Wave 5 explicitly keeps the comment 'as today'; the constraint text reaches no deliverable."}
+]
+

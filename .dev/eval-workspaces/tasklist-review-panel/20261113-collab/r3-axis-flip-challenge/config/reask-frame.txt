@@ -1,0 +1,3 @@
+Your report's findings block has these problems, reported by the findings parser:
+{ERRORS}
+Reply with your complete report again, with the same findings, each line fixed so it passes: id at most 16 characters, severity CRITICAL, MAJOR or MINOR, a MINOR finding never blocking, anchor and anchor2 12 to 200 characters copied exactly from the candidate, at most 8 refs, claim at most 300 characters. Keep the '## Findings block' heading, exactly one findings-v1 block and the final verdict line.

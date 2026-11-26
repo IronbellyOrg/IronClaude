@@ -1,0 +1,1139 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/problem_no_finding.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/problem_no_finding.md
+new file mode 100644
+index 000000000..09ade6e0d
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/problem_no_finding.md
+@@ -0,0 +1,19 @@
++review: 1 of 3
++
++Two plan texts disagree about held reports, and one item stays open. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++{"item": "S2", "verdict": "OK", "quote_plan": "", "quote_other": "", "problem": "", "ran": "compared both scopes"}
++{"item": "S3", "verdict": "UNSURE", "quote_plan": "No remaining `3 report formats` text exists in `docs/guide.md`.", "quote_other": "", "problem": "The count may be spelled out elsewhere.", "ran": "read the guide task"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "MAJOR", "blocking": false, "category": "other", "anchor": "A deletion notice must name the report id, state the expiry date, and give the appeal address.", "refs": [], "claim": "The notice task never names the appeal address."}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/promote_dup_id.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/promote_dup_id.md
+new file mode 100644
+index 000000000..75d0ce0d8
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/promote_dup_id.md
+@@ -0,0 +1,18 @@
++review: 1 of 3
++
++The reviewer already used both ids that a promoted line could get. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "PS1", "severity": "MAJOR", "blocking": false, "category": "other", "anchor": "A deletion notice must name the report id, state the expiry date, and give the appeal address.", "refs": [], "claim": "The notice task never names the appeal address."}
++{"id": "PS1-2", "severity": "MINOR", "blocking": false, "category": "other", "anchor": "The retention job gets its age limit from one setting.", "refs": [], "claim": "The setting is not named."}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/promote_long_id.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/promote_long_id.md
+new file mode 100644
+index 000000000..4f8ea68e4
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/promote_long_id.md
+@@ -0,0 +1,17 @@
++review: 1 of 3
++
++One item has an unusually long id. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S123456789012345", "verdict": "PROBLEM", "quote_plan": "The purge step keys on `legal_hold` and leaves such reports in place.", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "MAJOR", "blocking": false, "category": "other", "anchor": "A deletion notice must name the report id, state the expiry date, and give the appeal address.", "refs": [], "claim": "The notice task never names the appeal address."}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/promote_short_anchor.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/promote_short_anchor.md
+new file mode 100644
+index 000000000..fed48afaa
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/fixtures/reports/promote_short_anchor.md
+@@ -0,0 +1,17 @@
++review: 1 of 3
++
++The row quotes only a few characters of the plan. Notes follow.
++
++## Ledger
++
++```ledger-v1
++{"item": "S1", "verdict": "PROBLEM", "quote_plan": "legal_hold", "quote_other": "The purge step must skip a report whose `legal_hold` flag is set.", "problem": "The task keeps held reports but no criterion tests it.", "ran": "compared task and source 2.3"}
++```
++
++## Findings block
++
++```findings-v1
++{"id": "F1", "severity": "MAJOR", "blocking": false, "category": "other", "anchor": "A deletion notice must name the report id, state the expiry date, and give the appeal address.", "refs": [], "claim": "The notice task never names the appeal address."}
++```
++
++verdict: FAIL
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/ledgerv1.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/ledgerv1.py
+index b41467c87..6540833e9 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/ledgerv1.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/ledgerv1.py
+@@ -1,15 +1,44 @@
+-"""ledger-v1 reader, the four row checks, linking and demotion (DESIGN 9.1 to 9.3, DD-2, DD-3, DD-12 reading side).
++"""ledger-v1 reader, the four row checks, linking, demotion, telemetry and promotion (DESIGN 9.1 to 9.4, DD-2, DD-3,
++DD-9, DD-11, DD-12).
+ 
+     read_ledger(report, assigned)   the `## Ledger` block of a reviewer's final message as rows, with every format
+                                     problem counted (DESIGN 9.1)
+     Corpora / transcript_results    the four places a `quote_other` may come from (DD-2)
+-    check_report(report, ...)       reader + checks 1 to 4 (9.2) + linking + demotion (9.3) for one reviewer; returns
+-                                    the checked text (the raw report is never edited) and every count
++    check_report(report, ...)       reader + checks 1 to 4 (9.2) + linking + demotion + `class` telemetry + promotion
++                                    (9.3) for one reviewer; returns the checked text (the raw report is never edited)
++                                    and every count
++    summarise(results)              the per-run check.json of DESIGN 9.4 from the per-reviewer results
+     carries_cb3(...)                the CB-3 sentence rule
+ 
+-Not here: promotion of a PROBLEM row that has no findings line, the telemetry keys (`class`, `src`) and the aggregate
+-`check.json` (Task 25). The demotion step changes only `"blocking": true` to `false` on a linked line and keeps every
+-other key, so what Task 25 adds sits on top of this text. Findings parsing comes only from scaffold/fnd.py.
++Findings parsing comes only from scaffold/fnd.py; the telemetry keys and the per-class tables are in scaffold/telemetry.py.
++
++Gaps in DESIGN 9.3 and 9.4 resolved by Task 25 (each is a choice the design leaves open; every one is covered by a test):
++  P1  Promotion id. `P<item>`; when that id is already in the block the one suffix `-2` is tried (`PS3-2`; a plain
++      digit would make `PS3` + `2` collide with the promoted line of an item `S32`), and a second collision is a
++      duplicate id, so `_check_finding` rejects it and the row is a promotion failure. A reviewer has at most one
++      row per item (`dup_line`), so a second collision means the reviewer used both ids itself.
++  P2  A promoted line is checked with `fnd._check_finding` first and its message is the logged reason. Then two
++      conditions the design states elsewhere are added to the same list of failures: the row broke a ledger limit
++      (9.1 item 5: "cannot be promoted") and the `problem` is empty (the check never writes a claim of its own, so an
++      empty claim is not promoted). An empty `quote_plan` is refused by `_check_finding` itself (anchor minimum).
++      A row of an item with no `class` in items.json, or of a class with no card, is also a failure (no category).
++      Every failure is logged `{item, id, reason}`; none is silent.
++  P3  Promotion asks for no support: the design (9.3) gives the PROBLEM verdict and "no linked findings line" as the
++      only conditions. A promoted anchor is the row's `quote_plan` as written, found in the candidate or not.
++  P4  "Linked" for promotion means the finding links to the row by probe or by quote, whether or not the row is
++      OK, and whether or not the finding line itself is a valid findings line. A broken row (a format error line) is
++      not in `rows`, so it is never promoted.
++  P5  Telemetry: `class` is written on every linked line whose item has a class in items.json (added when missing,
++      corrected when different), also on an OK-row line and on a line that stays blocking. The reviewer's `probe` is
++      kept as written and none is added to a quote-linked line. A line is rewritten (`json.dumps`, the line ending
++      kept) only when `blocking` or `class` changes; an untouched line keeps its bytes. Corrections are counted in
++      `class_corrected`, additions in `class_added` (DESIGN 9.4 has no field for them; they are extra keys of check.json).
++  P6  The unusable block: nothing is promoted and no line is touched (G10); `block_unusable` carries the reason in the
++      per-reviewer result and the reviewer id in check.json.
++  P7  check.json extras beyond the DESIGN 9.4 fields: `reviewer_findings` (the findings lines read, so promoted ones are
++      counted apart), `demoted_findings`, `class_added`, `class_corrected`, `per_class` and `no_report` (a reviewer
++      with no report file). `missing_line` lists only reviewers whose ledger was read; a `ledger_missing` reviewer is
++      under `ledger_missing` alone.
+ 
+ Gaps in DESIGN 9 resolved here (each is a choice the design leaves open; every one is covered by a test):
+   G1  `corpus` is the FIRST match in the order of DD-2: source, candidate, sheet, transcript. A quote that is also in
+@@ -61,7 +90,8 @@ import re
+ from collections.abc import Iterable, Sequence
+ from pathlib import Path
+ 
+-from scaffold import fnd
++from scaffold import cards as cards_mod
++from scaffold import fnd, telemetry
+ 
+ HEAD_LEDGER = re.compile(r"^#{1,6}\s+Ledger\s*$", re.M | re.I)
+ _HEADING_LINE = re.compile(r"^#{1,6}\s+\S")
+@@ -483,18 +513,26 @@ def check_report(
+     items: Iterable[dict] = (),
+     transcript: Iterable[str] = (),
+     scope: str | None = None,
++    cards: dict[str, dict] | None = None,
+ ) -> dict:
+-    """One reviewer's report through the reader, checks 1 to 4, linking and demotion.
++    """One reviewer's report through the reader, checks 1 to 4, linking, demotion, telemetry and promotion.
++
++    `items` are the item dicts of items.json (`item_id`, `class`, `evidence`); the class of an item is where the
++    `class` key and the promotion category come from (the card of the class, `cards`, default cards/).
+ 
+     Returns {"scope", "ledger": <read_ledger result, rows checked>, "block_unusable": reason | None,
+-    "findings": [per finding], "probe_unknown": n, "ok_but_finding": n, "demoted": {cause: n},
+-    "demoted_findings": n, "format_induced_demotions": n, "text": the checked report}.
+-    `text` is `report` with `"blocking": false` written on each demoted line; it is `report` itself when the block
+-    is unusable or nothing is demoted. The raw report is never edited.
++    "findings": [per finding: id, line, probe, row_item, link, class, class_change, blocking, demoted, causes,
++    format_induced, ok_but_finding], "probe_unknown": n, "ok_but_finding": n, "demoted": {cause: n},
++    "demoted_findings": n, "format_induced_demotions": n, "class_added": n, "class_corrected": n,
++    "promoted": [{id, item, class, line}], "promotion_failures": [{item, id, reason}], "text": the checked report}.
++    `text` is `report` with the demotions, the `class` keys and the promoted lines written; it is `report` itself
++    when the block is unusable or nothing changes. The raw report is never edited.
+     """
+     scope = scope_from(scope)
+     assigned = list(assigned)
+-    corpora = Corpora(candidate, source, list(items), list(transcript))
++    items = list(items)
++    classes = {it["item_id"]: it["class"] for it in items if it.get("class")}
++    corpora = Corpora(candidate, source, items, list(transcript))
+     ledger = read_ledger(report, assigned)
+     ledger["rows"] = [check_row(r, corpora) for r in ledger["rows"]]
+     rows = {r["item"]: r for r in ledger["rows"]}
+@@ -508,6 +546,10 @@ def check_report(
+         "demoted": dict.fromkeys(CAUSES, 0),
+         "demoted_findings": 0,
+         "format_induced_demotions": 0,
++        "class_added": 0,
++        "class_corrected": 0,
++        "promoted": [],
++        "promotion_failures": [],
+         "text": report,
+     }
+     reason, block = findings_block_status(report)
+@@ -533,46 +575,225 @@ def check_report(
+             obj, assigned, rows, ledger["broken_items"], ledger["rows"]
+         )
+         out["probe_unknown"] += unknown
++        item_class = classes.get(row["item"]) if row else None
+         rec = {
+             "id": obj["id"],
+             "line": lineno,
+             "probe": obj.get("probe"),
+             "row_item": row["item"] if row else None,
+             "link": how,
++            "class": item_class,
++            "class_change": None,
+             "blocking": obj.get("blocking") is True,
+             "demoted": False,
+             "causes": [],
+             "format_induced": False,
++            "ok_but_finding": False,
+         }
+         out["findings"].append(rec)
++        rewrite = False
++        state = telemetry.fill_class(obj, item_class)  # DD-12 (P5)
++        if state:
++            rec["class_change"] = state
++            out[f"class_{state}"] += 1
++            rewrite = True
+         if row is not None and not row.get("broken") and row["verdict"] == "OK":
+             out["ok_but_finding"] += 1
++            rec["ok_but_finding"] = True
++        elif rec["blocking"] and (row is not None or scope == "all"):
++            if row is not None:
++                causes, fmt = _row_causes(row)
++            else:
++                causes, fmt = (
++                    (
++                        []
++                        if _own_quotes(obj, corpora)["supported"]
++                        else ["row_unsupported"]
++                    ),
++                    False,
++                )
++            if not carries_cb3(obj, above):
++                causes.append("no_cb3")
++            if causes:
++                rec.update(
++                    demoted=True,
++                    causes=causes,
++                    format_induced=fmt and "no_cb3" not in causes,
++                )
++                for c in causes:
++                    out["demoted"][c] += 1
++                out["demoted_findings"] += 1
++                out["format_induced_demotions"] += rec["format_induced"]
++                obj["blocking"] = False
++                rewrite = True
++        if rewrite:
++            lines[lineno - 1] = (
++                json.dumps(obj, ensure_ascii=False) + lines[lineno - 1][len(raw) :]
++            )
++            changed = True
++    linked = {rec["row_item"] for rec in out["findings"] if rec["link"]}
++    todo = [
++        r
++        for r in ledger["rows"]
++        if r["verdict"] == "PROBLEM" and r["item"] not in linked
++    ]
++    if todo:
++        changed |= _promote(todo, block, lines, classes, cards, out)
++    if changed:
++        out["text"] = "".join(lines)
++    return out
++
++
++def _promotion_line(
++    row: dict, item_class: str | None, cards: dict | None, seen: set[str]
++) -> tuple[dict | None, str, str | None]:
++    """(the promoted line or None, its id, the reason it was refused or None) for one PROBLEM row (DESIGN 9.3, P1, P2)."""
++    base = f"P{row['item']}"
++    pid = base if base not in seen else f"{base}-2"
++    if not item_class:
++        return (
++            None,
++            pid,
++            "the item has no class in items.json: no category to promote under",
++        )
++    try:
++        category = cards_mod.promote_category(item_class, cards)
++    except KeyError:
++        return None, pid, f"no card for class {item_class}"
++    line = {
++        "id": pid,
++        "severity": "MINOR",
++        "blocking": False,
++        "category": category,
++        "anchor": row["quote_plan"],
++        "refs": [],
++        "claim": row["problem"],
++        **telemetry.promoted_keys(row["item"], item_class),
++    }
++    err = fnd._check_finding(line, seen)
++    if err is None and not row["problem"].strip():
++        err = "problem is empty: the check writes no claim of its own"
++    if err is None and row["limits_violated"]:
++        err = "the row breaks a ledger limit: " + ", ".join(row["limits_violated"])
++    return (None if err else line), pid, err
++
++
++def _promote(
++    todo: list[dict],
++    block: tuple,
++    lines: list[str],
++    classes: dict[str, str],
++    cards: dict | None,
++    out: dict,
++) -> bool:
++    """Insert one MINOR, non-blocking line per row of `todo` as the last lines inside the one findings block (9.3).
++
++    `lines` (the report with line endings) is edited in place. A refused row goes to out["promotion_failures"] and is
++    skipped; an inserted one to out["promoted"]. True when a line was inserted.
++    """
++    seen: set[str] = set()
++    for _, raw in block[1]:
++        try:
++            obj = json.loads(raw)
++        except json.JSONDecodeError:
+             continue
+-        if not rec["blocking"] or (row is None and scope != "all"):
+-            continue
+-        if row is not None:
+-            causes, fmt = _row_causes(row)
+-        else:
+-            causes, fmt = (
+-                ([] if _own_quotes(obj, corpora)["supported"] else ["row_unsupported"]),
+-                False,
++        if (
++            isinstance(obj, dict)
++            and "prior" not in obj
++            and isinstance(obj.get("id"), str)
++        ):
++            seen.add(obj["id"])
++    close = block[0] + len(
++        block[1]
++    )  # 0-based index of the closing fence: opener line n is index n-1
++    eol = "\r\n" if lines[close - 1].endswith("\r\n") else "\n"
++    new: list[str] = []
++    for row in todo:
++        item_class = classes.get(row["item"])
++        line, pid, err = _promotion_line(row, item_class, cards, seen)
++        if err:
++            out["promotion_failures"].append(
++                {"item": row["item"], "id": pid, "reason": err}
+             )
+-        if not carries_cb3(obj, above):
+-            causes.append("no_cb3")
+-        if not causes:
+             continue
+-        rec.update(
+-            demoted=True, causes=causes, format_induced=fmt and "no_cb3" not in causes
+-        )
+-        for c in causes:
+-            out["demoted"][c] += 1
+-        out["demoted_findings"] += 1
+-        out["format_induced_demotions"] += rec["format_induced"]
+-        obj["blocking"] = False
+-        lines[lineno - 1] = (
+-            json.dumps(obj, ensure_ascii=False) + lines[lineno - 1][len(raw) :]
++        seen.add(pid)
++        new.append(json.dumps(line, ensure_ascii=False) + eol)
++        out["promoted"].append(
++            {
++                "id": pid,
++                "item": row["item"],
++                "class": item_class,
++                "line": close + 1 + len(new) - 1,
++            }
+         )
+-        changed = True
+-    if changed:
+-        out["text"] = "".join(lines)
++    lines[close:close] = new
++    return bool(new)
++
++
++# ---------------------------------------------------------------- 9.4 the per-run check.json
++
++
++def summarise(
++    results: dict[str, dict],
++    classes: dict[str, str] | None = None,
++    no_report: Sequence[str] = (),
++) -> dict:
++    """check.json of DESIGN 9.4 from {reviewer id: check_report result}, with the extras of P7.
++
++    Reviewer findings and promoted findings are counted apart: `reviewer_findings` is the findings lines the
++    reviewers wrote, `promoted` the lines the check inserted. `classes` is {item id: class} for the per-class tables.
++    """
++    out: dict = {
++        "ledger_missing": [],
++        "format_errors": 0,
++        "normalised_verdict": 0,
++        "dup_line": 0,
++        "unknown_item": 0,
++        "probe_unknown": 0,
++        "missing_line": {},
++        "rows": dict.fromkeys(VERDICTS, 0),
++        "demoted": dict.fromkeys(CAUSES, 0),
++        "format_induced_demotions": 0,
++        "promoted": 0,
++        "promotion_failures": [],
++        "ok_but_finding": 0,
++        "block_unusable": [],
++        "reviewer_findings": 0,
++        "demoted_findings": 0,
++        "class_added": 0,
++        "class_corrected": 0,
++        "per_class": {},
++        "no_report": list(no_report),
++    }
++    for rid, res in results.items():
++        led = res["ledger"]
++        if led["ledger_missing"]:
++            out["ledger_missing"].append(rid)
++        elif led["missing_line"]:
++            out["missing_line"][rid] = list(led["missing_line"])
++        out["format_errors"] += len(led["format_errors"])
++        out["normalised_verdict"] += led["normalised_verdict"]
++        out["dup_line"] += len(led["dup_line"])
++        out["unknown_item"] += len(led["unknown_item"])
++        for r in led["rows"]:
++            out["rows"][r["verdict"]] += 1
++        for c in CAUSES:
++            out["demoted"][c] += res["demoted"][c]
++        for k in (
++            "probe_unknown",
++            "format_induced_demotions",
++            "ok_but_finding",
++            "demoted_findings",
++            "class_added",
++            "class_corrected",
++        ):
++            out[k] += res[k]
++        out["promoted"] += len(res["promoted"])
++        out["promotion_failures"] += [
++            {"rid": rid, **f} for f in res["promotion_failures"]
++        ]
++        out["reviewer_findings"] += len(res["findings"])
++        if res["block_unusable"]:
++            out["block_unusable"].append(rid)
++    out["per_class"] = telemetry.per_class(results.values(), classes or {})
+     return out
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/telemetry.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/telemetry.py
+new file mode 100644
+index 000000000..3e0b6b8ce
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/telemetry.py
+@@ -0,0 +1,77 @@
++"""Telemetry keys of a findings line and the per-class tables (DESIGN 9.3 "Telemetry on reviewer lines", DD-12).
++
++Reviewers set only `probe`. The check fills `class` from the item a line links to (`fill_class`: added when missing,
++corrected when it differs) and writes `class`, `probe` and `src: "ledger"` on every line it promotes
++(`promoted_keys`). `FND._check_finding` has no key whitelist and the merge copies only fixed fields (REQ-11), so the
++keys stay in `check/<rid>.checked.md` and never reach `merged-1.md`. Analysis counts a line with `probe` set or with
++`src: ledger` apart from the reviewers' free findings (REQ-42).
++
++`per_class` turns the per-reviewer results of `ledgerv1.check_report` into one table per class (rows by verdict,
++linked findings, demotions, `ok_but_finding`, promotions and refused promotions), for the extras of check.json.
++"""
++
++from __future__ import annotations
++
++from collections.abc import Iterable, Mapping
++
++CLASS_KEY = "class"
++PROBE_KEY = "probe"
++SRC_KEY = "src"
++SRC_LEDGER = "ledger"
++VERDICT_KEYS = ("OK", "PROBLEM", "UNSURE")
++
++
++def promoted_keys(item: str, item_class: str) -> dict:
++    """The three telemetry keys of a promoted line."""
++    return {CLASS_KEY: item_class, PROBE_KEY: item, SRC_KEY: SRC_LEDGER}
++
++
++def fill_class(obj: dict, item_class: str | None) -> str | None:
++    """Set obj["class"] to the class of the item. Returns "added", "corrected" or None (already right, or no class)."""
++    if not item_class:
++        return None
++    if CLASS_KEY not in obj:
++        state = "added"
++    elif obj[CLASS_KEY] != item_class:
++        state = "corrected"
++    else:
++        return None
++    obj[CLASS_KEY] = item_class
++    return state
++
++
++def _blank() -> dict:
++    return {
++        "rows": dict.fromkeys(VERDICT_KEYS, 0),
++        "linked": 0,
++        "demoted": 0,
++        "ok_but_finding": 0,
++        "promoted": 0,
++        "promotion_failures": 0,
++    }
++
++
++def per_class(results: Iterable[dict], classes: Mapping[str, str]) -> dict:
++    """{class: counts} over the per-reviewer check results; `classes` is {item id: class}. Items of no class are left out."""
++    table: dict[str, dict] = {}
++
++    def of(item: str | None) -> dict | None:
++        cls = classes.get(item) if item else None
++        return table.setdefault(cls, _blank()) if cls else None
++
++    for res in results:
++        for r in res["ledger"]["rows"]:
++            if (t := of(r["item"])) is not None:
++                t["rows"][r["verdict"]] += 1
++        for f in res["findings"]:
++            if f["link"] and (t := of(f["row_item"])) is not None:
++                t["linked"] += 1
++                t["demoted"] += f["demoted"]
++                t["ok_but_finding"] += f["ok_but_finding"]
++        for p in res["promoted"]:
++            if (t := of(p["item"])) is not None:
++                t["promoted"] += 1
++        for p in res["promotion_failures"]:
++            if (t := of(p["item"])) is not None:
++                t["promotion_failures"] += 1
++    return dict(sorted(table.items()))
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py
+index 86b68dcca..f13acfa14 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py
+@@ -1,4 +1,4 @@
+-"""The sweep command line (DESIGN 2.2, 2.3): `prepass`, `lint`, `brief` and `normalise`. (`check` is added by Task 25.)
++"""The sweep command line (DESIGN 2.2, 2.3): `prepass`, `lint`, `brief`, `normalise` and `check`.
+ 
+ Run it as a script: `uv run --frozen --project REPO python SW/sweep/cli.py <subcommand> ...`.
+ 
+@@ -6,9 +6,12 @@ Run it as a script: `uv run --frozen --project REPO python SW/sweep/cli.py <subc
+     lint       scaffold/lint.py: every argument after `lint` is lint's own (--all, --gt-glob, --forbid, files)
+     brief      scaffold/briefs.py render: one reviewer's brief, written to --out with `<stem>.sha256` beside it
+     normalise  scaffold/normalise.py normalise_file: H2 on one report, written to --out-dir/<rid>.md and h2.json
++    check      S5 (scaffold/ledgerv1.py): the raw reviews/<rid>.md of every reviewer of the run in; check/<rid>.checked.md,
++               check/<rid>.ledger.json and check/check.json out. The raw reports are only read.
+ 
+-Exit codes: 0 success; 1 the pre-pass raised (prepass.error.json is written, DESIGN 10 row 1); 2 a usage error or an
+-unreadable input of `brief` and `normalise`; `lint` keeps its own codes (0 clean, 1 leak, 2 usage).
++Exit codes: 0 success; 1 the pre-pass raised (prepass.error.json is written, DESIGN 10 row 1) or `check` raised
++(DESIGN 10 row 11: nothing is written, the caller sets check_skipped); 2 a usage error or an unreadable input of `brief`
++and `normalise`; `lint` keeps its own codes (0 clean, 1 leak, 2 usage).
+ 
+ Gaps in the design resolved here (the design names the delegation, not the arguments):
+   C1  `brief` takes the arm, the absolute path of the candidate in the sandbox (the sha256 is computed from that file),
+@@ -18,6 +21,13 @@ Gaps in the design resolved here (the design names the delegation, not the argum
+       h2.json (DESIGN 11.2: not silently dropped, not an error).
+   C3  Importing: the folder of this file is taken off sys.path before anything else is imported, because
+       sweep/select.py would otherwise shadow the standard `select` module that `subprocess` imports.
++  C4  `check` (DESIGN 9.4 names the outputs, not the arguments). One call checks the whole run: `--run RUN`, with
++      `--candidate` and `--source` (as the sandbox holds them). It reads RUN/prepass/items.json and
++      RUN/prepass/assignment.json (`reviewers`: the items of each reviewer id), RUN/reviews/<rid>.md and, for the
++      `transcript` corpus, RUN/reviews/<rid>.attempt1.json when it exists. A reviewer with no report file is listed in
++      check.json `no_report` and skipped. Everything is computed before anything is written, so an exception leaves
++      no `check/` files behind; it propagates as exit 1 with the message on stderr (no `check/error.log` is written
++      here; the caller keeps stderr). The scope is the environment variable CHECK_SCOPE (DD-3), default `linked`.
+ """
+ 
+ import os
+@@ -33,7 +43,7 @@ import hashlib  # noqa: E402
+ import json  # noqa: E402
+ from pathlib import Path  # noqa: E402
+ 
+-from scaffold import briefs, lint, normalise  # noqa: E402
++from scaffold import briefs, ledgerv1, lint, normalise  # noqa: E402
+ from sweep import assign, prepass  # noqa: E402
+ 
+ DELEGATED = {"lint": lint.main}
+@@ -95,10 +105,78 @@ def _normalise(args) -> int:
+     return 0
+ 
+ 
++def run_check(
++    run: Path,
++    candidate: Path,
++    source: Path | None = None,
++    out_dir: Path | None = None,
++) -> dict:
++    """S5 for one run folder (C4): writes check/<rid>.checked.md, check/<rid>.ledger.json and check/check.json.
++
++    Returns check.json. Raises on any error; nothing is written before every reviewer has been checked.
++    """
++    out_dir = Path(out_dir) if out_dir else run / "check"
++    items = json.loads((run / "prepass" / "items.json").read_text(encoding="utf-8"))[
++        "items"
++    ]
++    reviewers = json.loads(
++        (run / "prepass" / "assignment.json").read_text(encoding="utf-8")
++    )["reviewers"]
++    cand = candidate.read_text(encoding="utf-8")
++    src = source.read_text(encoding="utf-8") if source else None
++    results, texts, no_report = {}, {}, []
++    for rid, assigned in reviewers.items():
++        report_path = run / "reviews" / f"{rid}.md"
++        if not report_path.is_file():
++            no_report.append(rid)
++            continue
++        transcript_path = run / "reviews" / f"{rid}.attempt1.json"
++        results[rid] = ledgerv1.check_report(
++            report_path.read_text(encoding="utf-8"),
++            assigned=assigned,
++            candidate=cand,
++            source=src,
++            items=items,
++            transcript=ledgerv1.read_transcript(transcript_path)
++            if transcript_path.is_file()
++            else (),
++        )
++        texts[rid] = results[rid].pop("text")
++    summary = ledgerv1.summarise(
++        results, {i["item_id"]: i["class"] for i in items if i.get("class")}, no_report
++    )
++    out_dir.mkdir(parents=True, exist_ok=True)
++    for rid, res in results.items():
++        (out_dir / f"{rid}.checked.md").write_text(texts[rid], encoding="utf-8")
++        (out_dir / f"{rid}.ledger.json").write_text(
++            json.dumps({"rid": rid, **res}, indent=1, sort_keys=True) + "\n",
++            encoding="utf-8",
++        )
++    (out_dir / "check.json").write_text(
++        json.dumps(summary, indent=1, sort_keys=True) + "\n", encoding="utf-8"
++    )
++    return summary
++
++
++def _check(args) -> int:
++    try:
++        summary = run_check(
++            Path(args.run_dir),
++            Path(args.candidate),
++            Path(args.source) if args.source else None,
++            Path(args.out_dir) if args.out_dir else None,
++        )
++    except Exception as e:  # the caller sets check_skipped (DESIGN 10 row 11)
++        print(f"check failed: {type(e).__name__}: {e}", file=sys.stderr)
++        return 1
++    print(json.dumps(summary, sort_keys=True))
++    return 0
++
++
+ def build_parser() -> argparse.ArgumentParser:
+     ap = argparse.ArgumentParser(prog="sweep", description="The sweep sheet tools.")
+     sub = ap.add_subparsers(
+-        dest="cmd", required=True, metavar="{prepass,lint,brief,normalise}"
++        dest="cmd", required=True, metavar="{prepass,lint,brief,normalise,check}"
+     )
+ 
+     p = sub.add_parser(
+@@ -153,6 +231,23 @@ def build_parser() -> argparse.ArgumentParser:
+     n.add_argument("--out-dir", required=True, help="writes <rid>.md and h2.json here")
+     n.add_argument("--rid", required=True)
+     n.set_defaults(run=_normalise)
++
++    c = sub.add_parser(
++        "check",
++        help="S5: parse the ledgers, demote, promote; writes check/ (raw reports are only read)",
++    )
++    c.add_argument(
++        "--run",
++        dest="run_dir",
++        required=True,
++        help="the run folder: prepass/items.json, prepass/assignment.json and reviews/<rid>.md are read",
++    )
++    c.add_argument(
++        "--candidate", required=True, help="the candidate plan (the sandbox copy)"
++    )
++    c.add_argument("--source", help="the source document, when there is one")
++    c.add_argument("--out-dir", help="default RUN/check")
++    c.set_defaults(run=_check)
+     return ap
+ 
+ 
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_check_flow.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_check_flow.py
+new file mode 100644
+index 000000000..52e15bf04
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_check_flow.py
+@@ -0,0 +1,209 @@
++"""S5 as a whole: `sweep check` over a run folder (DESIGN 9.4, 10 rows 10 to 12; DD-9, DD-12; REQ-15).
++
++The run folders are built in tmp_path from the invented fixtures of fixtures/reports and fixtures/plans. No model runs.
++"""
++
++import hashlib
++import json
++import os
++import shutil
++import subprocess
++import sys
++
++from helpers import SW
++
++from scaffold import fnd, normalise
++from sweep import cli
++
++CLI = SW / "sweep" / "cli.py"
++REPORTS = SW / "fixtures" / "reports"
++PLANS = SW / "fixtures" / "plans"
++ITEM_CLASS = {"S1": "C1", "S2": "C4", "S3": "C5"}
++FIELDS_9_4 = {
++    "ledger_missing", "format_errors", "normalised_verdict", "dup_line", "unknown_item", "probe_unknown",
++    "missing_line", "rows", "demoted", "format_induced_demotions", "promoted", "promotion_failures",
++    "ok_but_finding", "block_unusable",
++}  # fmt: skip
++
++
++def make_run(tmp_path, reports, *, no_report=()):
++    """RUN/{prepass/items.json, prepass/assignment.json, reviews/<rid>.md and .attempt1.json}; {rid: fixture name}."""
++    run = tmp_path / "run"
++    (run / "prepass").mkdir(parents=True)
++    (run / "reviews").mkdir()
++    items = [{"item_id": i, "class": c, "evidence": []} for i, c in ITEM_CLASS.items()]
++    (run / "prepass" / "items.json").write_text(json.dumps({"items": items}))
++    rids = [*reports, *no_report]
++    (run / "prepass" / "assignment.json").write_text(
++        json.dumps({"reviewers": {rid: list(ITEM_CLASS) for rid in rids}})
++    )
++    for rid, name in reports.items():
++        shutil.copy(REPORTS / f"{name}.md", run / "reviews" / f"{rid}.md")
++        shutil.copy(
++            REPORTS / "good.attempt1.json", run / "reviews" / f"{rid}.attempt1.json"
++        )
++    return run
++
++
++def check(run, **kw):
++    return cli.run_check(run, PLANS / "p_basic.md", PLANS / "source.md", **kw)
++
++
++def sha(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def test_check_writes_outputs_and_leaves_raw_reports_alone(tmp_path):
++    run = make_run(
++        tmp_path, {"ra": "good", "rb": "problem_no_finding"}, no_report=["rc"]
++    )
++    before = {p.name: sha(p) for p in (run / "reviews").iterdir()}
++    summary = check(run)
++    assert {
++        p.name: sha(p) for p in (run / "reviews").iterdir()
++    } == before  # raw reviews are never edited
++    out = run / "check"
++    assert sorted(p.name for p in out.iterdir()) == [
++        "check.json", "ra.checked.md", "ra.ledger.json", "rb.checked.md", "rb.ledger.json",
++    ]  # fmt: skip
++    assert json.loads((out / "check.json").read_text()) == summary
++    assert FIELDS_9_4 <= set(summary)
++    assert summary["no_report"] == ["rc"]
++    # promoted findings are counted apart from the reviewers' own: 3 + 1 lines written, 1 line inserted
++    assert (summary["reviewer_findings"], summary["promoted"]) == (4, 1)
++    checked = fnd.parse_block((out / "rb.checked.md").read_text())
++    assert checked["ok"] and [f["id"] for f in checked["findings"]] == ["F1", "PS1"]
++    assert (out / "rb.checked.md").read_text() != (
++        run / "reviews" / "rb.md"
++    ).read_text()
++    led = json.loads((out / "rb.ledger.json").read_text())
++    assert (
++        led["rid"] == "rb" and led["promoted"][0]["id"] == "PS1" and "text" not in led
++    )
++    assert {r["item"]: r["corpus"] for r in led["ledger"]["rows"]}["S1"] == "source"
++    # telemetry: the two linked lines of `good` got their class, PS1 carries class, probe and src
++    assert summary["class_added"] == 2
++    assert summary["per_class"]["C1"] == {
++        "rows": {"OK": 0, "PROBLEM": 2, "UNSURE": 0},
++        "linked": 1, "demoted": 0, "ok_but_finding": 0, "promoted": 1, "promotion_failures": 0,
++    }  # fmt: skip
++
++
++def test_check_json_counts_every_field(tmp_path):
++    reports = {
++        "ra": "good", "rb": "problem_no_finding", "rc": "ledger_missing", "rd": "findings_unclosed",
++        "re": "unknown_item", "rf": "dup_line", "rg": "verdict_lowercase", "rh": "bad_json_line",
++        "ri": "ok_but_finding",
++    }  # fmt: skip
++    run = make_run(tmp_path, reports)
++    s = check(run)
++    assert s["ledger_missing"] == ["rc"] and s["block_unusable"] == ["rd"]
++    assert (
++        s["unknown_item"] == 1 and s["dup_line"] == 1 and s["normalised_verdict"] == 3
++    )
++    assert s["format_errors"] == 1 and s["ok_but_finding"] == 1
++    assert s["missing_line"] == {  # P7: a ledger_missing reviewer is under `ledger_missing` alone
++        "rd": ["S2", "S3"], "re": ["S2", "S3"], "rf": ["S3"], "ri": ["S2", "S3"],
++    }  # fmt: skip
++    assert s["rows"] == {"OK": 5, "PROBLEM": 10, "UNSURE": 1}
++    assert s["demoted"] == {
++        "row_unsupported": 0,
++        "row_unsure": 0,
++        "no_cb3": 0,
++        "row_missing": 1,
++    }
++    assert s["format_induced_demotions"] == 1 and s["probe_unknown"] == 0
++    assert s["promoted"] == 1 and s["promotion_failures"] == []
++    # rc has no ledger: nothing demoted, nothing promoted, nothing rewritten (DESIGN 10 row 10)
++    assert (run / "check" / "rc.checked.md").read_text() == (
++        run / "reviews" / "rc.md"
++    ).read_text()
++    # rd has a truncated findings block: the report is written back unchanged
++    assert (run / "check" / "rd.checked.md").read_text() == (
++        run / "reviews" / "rd.md"
++    ).read_text()
++
++
++def test_format_induced_demotions_reported(tmp_path):
++    run = make_run(tmp_path, {"ra": "good"})
++    report = run / "reviews" / "ra.md"
++    report.write_text(
++        report.read_text().replace(
++            "docs/guide.md:14: The exporter writes 3 report formats to disk.",
++            "docs/guide.md:99: a line nobody printed",
++        )
++    )
++    s = check(run)
++    assert s["demoted"]["row_unsupported"] == 1 and s["format_induced_demotions"] == 1
++
++
++def test_h2_leaves_a_promoted_line_unchanged(tmp_path):
++    """DD-9: S5 runs first and H2 second; a promoted line is built inside the limits, so H2 does not change it."""
++    run = make_run(tmp_path, {"rb": "problem_no_finding"})
++    check(run)
++    checked = run / "check" / "rb.checked.md"
++    normalise.normalise_file(checked, tmp_path / "normalised", "rb")
++    before = fnd.parse_block(checked.read_text())
++    after = fnd.parse_block((tmp_path / "normalised" / "rb.md").read_text())
++    assert after["ok"] and before["findings"] == after["findings"]
++
++
++def cli_run(*args, env=None):
++    return subprocess.run(
++        [sys.executable, str(CLI), *map(str, args)],
++        capture_output=True,
++        text=True,
++        env=env,
++    )
++
++
++def test_check_help_and_cli_run(tmp_path):
++    r = cli_run("check", "--help")
++    assert r.returncode == 0 and "--run" in r.stdout and "--candidate" in r.stdout
++    run = make_run(tmp_path, {"rb": "problem_no_finding"})
++    r = cli_run(
++        "check",
++        "--run",
++        run,
++        "--candidate",
++        PLANS / "p_basic.md",
++        "--source",
++        PLANS / "source.md",
++    )
++    assert r.returncode == 0, r.stderr
++    assert (
++        json.loads(r.stdout)["promoted"] == 1
++        and (run / "check" / "check.json").is_file()
++    )
++    # the output folder can be named
++    r = cli_run(
++        "check",
++        "--run",
++        run,
++        "--candidate",
++        PLANS / "p_basic.md",
++        "--out-dir",
++        tmp_path / "elsewhere",
++    )
++    assert r.returncode == 0 and (tmp_path / "elsewhere" / "rb.checked.md").is_file()
++
++
++def test_check_exception_exits_1_and_writes_nothing(tmp_path):
++    """DESIGN 10 row 11: any exception is for the caller to catch; no half-written check/ is left behind."""
++    run = make_run(tmp_path, {"ra": "good", "rb": "problem_no_finding"})
++    (run / "prepass" / "items.json").write_text("{not json")
++    r = cli_run("check", "--run", run, "--candidate", PLANS / "p_basic.md")
++    assert r.returncode == 1 and "check failed: JSONDecodeError" in r.stderr
++    assert not (run / "check").exists()
++    # a failure on the second reviewer, after the first was checked, still leaves no file
++    run = make_run(tmp_path / "two", {"ra": "good", "rb": "problem_no_finding"})
++    (run / "reviews" / "rb.attempt1.json").write_text("{not json")
++    r = cli_run("check", "--run", run, "--candidate", PLANS / "p_basic.md")
++    assert r.returncode == 1 and not (run / "check").exists()
++    # a bad CHECK_SCOPE is an exception too
++    run = make_run(tmp_path / "three", {"ra": "good"})
++    env = {**os.environ, "CHECK_SCOPE": "everything"}
++    r = cli_run("check", "--run", run, "--candidate", PLANS / "p_basic.md", env=env)
++    assert (
++        r.returncode == 1 and "CHECK_SCOPE" in r.stderr and not (run / "check").exists()
++    )
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py
+index 83d88a87f..e2a6d480f 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_ledgerv1.py
+@@ -11,7 +11,7 @@ import re
+ import pytest
+ from helpers import SW
+ 
+-from scaffold import fnd, ledgerv1
++from scaffold import cards, fnd, ledgerv1
+ 
+ REPORTS = SW / "fixtures" / "reports"
+ PLANS = SW / "fixtures" / "plans"
+@@ -479,3 +479,200 @@ def test_ok_row_with_finding_is_left_alone():
+     assert res["ok_but_finding"] == 1 and by_id(res)["F1"]["link"] == "probe"
+     assert not by_id(res)["F1"]["demoted"] and res["text"] == report
+     assert blocking(res["text"]) == {"F1": True}
++
++
++# ---------------------------------------------------------------- promotion and telemetry (Task 25: DESIGN 9.3, DD-9, DD-11, DD-12)
++
++CLASSES = {"S1": "C1", "S2": "C4", "S3": "C5"}
++CLASSED = [{**it, "class": CLASSES[it["item_id"]]} for it in ITEMS]
++S2_PROBLEM = (
++    '{"item": "S2", "verdict": "PROBLEM", "quote_plan": "The exporter package has no network access.", '
++    '"quote_other": "Every module under `src/exporter/` returns an empty result for an empty report.", '
++    '"problem": "A module may need the network to be empty-safe.", "ran": "compared two plan lines"}'
++)
++
++
++def run_c(report, assigned=None, items=CLASSED, **kw):
++    kw.setdefault("transcript", TRANSCRIPT)
++    return ledgerv1.check_report(
++        report,
++        assigned=assigned or ASSIGNED,
++        candidate=CAND,
++        source=SRC,
++        items=items,
++        **kw,
++    )
++
++
++def findings_of(text):
++    parsed = fnd.parse_block(text)
++    assert parsed["ok"], parsed["errors"]
++    return {f["id"]: f for f in parsed["findings"]}
++
++
++def with_s2_problem(report):
++    """problem_no_finding.md with its OK row for S2 turned into a second PROBLEM row without a findings line."""
++    ok = next(ln for ln in report.splitlines() if ln.startswith('{"item": "S2"'))
++    return report.replace(ok, S2_PROBLEM)
++
++
++def test_promotion_copies_problem_and_anchor():
++    report = load("problem_no_finding")
++    res = run_c(report)
++    assert res["promotion_failures"] == [] and res["block_unusable"] is None
++    # only the PROBLEM row without a findings line is promoted: OK and UNSURE rows never are
++    assert res["promoted"] == [{"id": "PS1", "item": "S1", "class": "C1", "line": 17}]
++    found = findings_of(res["text"])
++    assert set(found) == {"F1", "PS1"}
++    row = next(r for r in res["ledger"]["rows"] if r["item"] == "S1")
++    p = found["PS1"]
++    assert (
++        p["claim"]
++        == row["problem"]
++        == "The task keeps held reports but no criterion tests it."
++    )
++    assert p["anchor"] == row["quote_plan"] and fnd.locate(CAND, p["anchor"])
++    assert (p["severity"], p["blocking"], p["refs"]) == ("MINOR", False, [])
++    assert p["category"] == cards.promote_category("C1")
++    assert (p["class"], p["probe"], p["src"]) == ("C1", "S1", "ledger")
++    assert (
++        res["text"].splitlines()[16].startswith('{"id": "PS1"')
++    )  # `line` is a line of the checked text
++    # the reviewer's own line is untouched, and the report we passed in is not edited
++    assert res["text"] != report and report == load("problem_no_finding")
++    assert found["F1"] == fnd.parse_block(report)["findings"][0]
++
++
++def test_promotion_validates_with_check_finding():
++    # a long id: P + a 16 character item id is 17 characters
++    long_item = "S123456789012345"
++    report = load("promote_long_id")
++    items = [{"item_id": long_item, "class": "C1", "evidence": []}]
++    res = run_c(report, assigned=[long_item], items=items)
++    assert res["promoted"] == [] and res["text"] == report
++    (failure,) = res["promotion_failures"]
++    assert failure["item"] == long_item and failure["id"] == "P" + long_item
++    assert "id must match" in failure["reason"]
++
++    # a short anchor: the row's quote_plan has 10 characters, the schema floor is 12
++    report = load("promote_short_anchor")
++    res = run_c(report)
++    assert res["promoted"] == [] and res["text"] == report
++    (failure,) = res["promotion_failures"]
++    assert (
++        failure["item"] == "S1" and "anchor must have at least 12" in failure["reason"]
++    )
++    assert "quote_plan" in res["ledger"]["rows"][0]["limits_violated"]
++
++    # a duplicate id: the reviewer used both PS1 and the one retry PS1-2
++    report = load("promote_dup_id")
++    res = run_c(report)
++    assert res["promoted"] == [] and res["text"] == report
++    (failure,) = res["promotion_failures"]
++    assert failure["id"] == "PS1-2" and failure["reason"] == "duplicate id 'PS1-2'"
++    # with only PS1 taken the suffix is used and the line is valid (P1)
++    one_taken = (
++        "\n".join(
++            ln for ln in report.splitlines() if not ln.startswith('{"id": "PS1-2"')
++        )
++        + "\n"
++    )
++    res = run_c(one_taken)
++    assert [p["id"] for p in res["promoted"]] == ["PS1-2"]
++    assert set(findings_of(res["text"])) == {"PS1", "PS1-2"}
++    assert findings_of(res["text"])["PS1-2"]["src"] == "ledger"
++
++
++def test_promotion_inside_single_block():
++    report = with_s2_problem(load("problem_no_finding"))
++    res = run_c(report)
++    assert [p["id"] for p in res["promoted"]] == ["PS1", "PS2"]
++    text = res["text"]
++    assert text.count("```findings-v1") == 1 and text.count("```ledger-v1") == 1
++    lines = text.splitlines()
++    opener = lines.index("```findings-v1")
++    close = lines.index("```", opener)
++    # the promoted lines are the last two lines inside the block, directly above the closing fence
++    assert [json.loads(ln)["id"] for ln in lines[opener + 1 : close]] == [
++        "F1",
++        "PS1",
++        "PS2",
++    ]
++    assert [p["line"] for p in res["promoted"]] == [close - 1, close]  # 1-based
++    # everything outside the block is as the reviewer wrote it
++    head, tail = report.split("```findings-v1")
++    assert text.startswith(head + "```findings-v1")
++    assert text.endswith("```\n\nverdict: FAIL\n")
++    assert fnd.parse_block(text)["ok"]
++    # a report with CRLF line endings keeps them
++    crlf = run_c(report.replace("\n", "\r\n"))["text"]
++    assert crlf.count("\r\n") == crlf.count("\n") and "PS2" in crlf
++
++
++def test_promotion_failure_logged_and_skipped():
++    # one row fails (a 10 character quote), the other is promoted: the failure does not stop the run
++    report = with_s2_problem(load("problem_no_finding")).replace(
++        "The exporter package has no network access.", "no network"
++    )
++    res = run_c(report)
++    assert [p["item"] for p in res["promoted"]] == ["S1"]
++    assert [(f["item"], f["id"]) for f in res["promotion_failures"]] == [("S2", "PS2")]
++    assert set(findings_of(res["text"])) == {"F1", "PS1"}  # PS2 is not in the block
++
++    def reason_for(report, **kw):
++        res = run_c(report, **kw)
++        assert res["promoted"] == [], res["promoted"]
++        assert res["text"] == report
++        (f,) = res["promotion_failures"]
++        return f["reason"]
++
++    base = load("promote_long_id").replace("S123456789012345", "S1")
++    assert "a ledger limit: ran" in reason_for(
++        base.replace('"compared task and source 2.3"', json.dumps(" ".join(["w"] * 16)))
++    )
++    assert "problem is empty" in reason_for(
++        base.replace('"The task keeps held reports but no criterion tests it."', '""')
++    )
++    # an item with no class in items.json has no category to promote under
++    assert "no class" in reason_for(base, items=ITEMS)
++    # a class with no card
++    assert "no card for class C9" in reason_for(
++        base, items=[{"item_id": "S1", "class": "C9", "evidence": []}]
++    )
++
++    # the failure reaches check.json's list with the reviewer id
++    summary = ledgerv1.summarise({"r1": run_c(load("promote_short_anchor"))})
++    assert summary["promoted"] == 0
++    assert [(f["rid"], f["item"]) for f in summary["promotion_failures"]] == [
++        ("r1", "S1")
++    ]
++
++
++def test_class_key_added_from_item():
++    report = load("good")
++    res = run_c(report)
++    found = findings_of(res["text"])
++    # F1 and F3 link to a row (by probe) and get the class of the item; F2 links to nothing and gets none
++    assert found["F1"]["class"] == "C1" and found["F3"]["class"] == "C5"
++    assert "class" not in found["F2"] and found["F1"]["probe"] == "S1"
++    assert res["class_added"] == 2 and res["class_corrected"] == 0
++    assert [f["class_change"] for f in res["findings"]] == ["added", None, "added"]
++    assert res["text"] != report and report == load("good")
++
++    # a wrong class is corrected and counted; a right one is left alone and not counted
++    wrong = report.replace('"probe": "S1"}', '"probe": "S1", "class": "C9"}').replace(
++        '"probe": "S3"}', '"probe": "S3", "class": "C5"}'
++    )
++    res = run_c(wrong)
++    found = findings_of(res["text"])
++    assert found["F1"]["class"] == "C1" and found["F3"]["class"] == "C5"
++    assert (res["class_added"], res["class_corrected"]) == (0, 1)
++    assert [f["class_change"] for f in res["findings"]] == ["corrected", None, None]
++
++    # a quote-linked line without a probe gets the class and still has no probe (the reviewer sets only `probe`)
++    no_probe = report.replace(', "probe": "S1"}', "}")
++    found = findings_of(run_c(no_probe)["text"])
++    assert found["F1"]["class"] == "C1" and "probe" not in found["F1"]
++
++    # nothing in items.json carries a class: the text is not touched
++    assert run_c(report, items=ITEMS)["text"] == report
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py
+index fec8e159d..84c32cee3 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass.py
+@@ -188,12 +188,12 @@ def test_cli_prepass_help_runs_as_a_script():
+     assert "--candidate" in r.stdout and "--seed" in r.stdout
+ 
+ 
+-def test_cli_has_no_check_subcommand():
+-    """`check` is added by Task 25: it is not in the parser now, not even as a stub."""
++def test_cli_has_check_subcommand():
++    """`check` was added by Task 25 (this test asserted it absent before): it is in the parser and `check --help` exits 0."""
+     choices = cli.build_parser()._subparsers._group_actions[0].choices
+-    assert set(choices) == {"prepass", "lint", "brief", "normalise"}
++    assert set(choices) == {"prepass", "lint", "brief", "normalise", "check"}
+     r = cli_run("check", "--help")
+-    assert r.returncode == 2 and "invalid choice" in r.stderr
++    assert r.returncode == 0 and "--run" in r.stdout
+ 
+ 
+ def test_cli_prepass_and_delegates(tmp_path):

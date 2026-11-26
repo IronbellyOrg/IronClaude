@@ -1,0 +1,1188 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/DESIGN.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/DESIGN.md
+index 528060f9c..4f3805075 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/DESIGN.md
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/DESIGN.md
+@@ -36,35 +36,560 @@ Status: design only. Nothing in this document is built, run or measured. No revi
+ 
+ ## 1. Scope, constraints and decisions taken
+ 
+-<!-- RL_PLACEHOLDER:S1 -->
++### 1.1 What is built
++
++Recipe Ledger answers the seed's open question from the instruction side: no script finds the places to check; each reviewer gets a lens of two to four written class recipes, runs them step by step and writes one ledger row per step; the model runs the sweep and the model judges (`MR` 3.2). The parts specific to it:
++
++1. **Recipes file** (`recipes/recipes.json`): the eight class recipes of `MR` 3.2(a), the search-form line and the per-recipe row budgets, as data in one file (REQ-25, REQ-06).
++2. **Lens table** (`config/lenses.json`) and the **lens render** (`rl/lens.py`, `rl/render.py`): per panel, per reviewer, which recipes, in which order, under which row cap; the rendered brief for one reviewer.
++3. **Row check** (`rl/rowcheck.py`): the post-run check of `MR` 3.2(a) R3, built on the shared ledger rules of `MR` 3.0.4 and 3.0.5. It adds the row-id grammar, recipe coverage, the row budgets and the `NONE FOUND` rule.
++4. **Ember re-ask** (`rl/reask.py`): the one repair call `MR` allows, with its clock condition (REQ-27).
++5. **Launcher arm RL** (`bin/run-panel.sh`): arms Z0-raw, Z0, K and RL on the same sandbox, judge and clock, with the fallback decision taken before any reviewer starts.
++6. **Analysis additions**: the `ran` cross-check (REQ-28), per-recipe stage rows, and the gate bookkeeping for RL (`analysis/`).
++
++Everything that `MR` 3.0 calls shared scaffolding (class cards, briefs with CB-1 to CB-5, the ledger carrier `ledger-v1`, the H2 normaliser, the sandbox, the Z0 and K arms) is copied from the sibling build when it exists (section 3), never invented twice.
++
++Not built here: Redesign 1 (pre-pass, extractors, sheet, assignment, REQ-18 to REQ-24), the optional verifier of 3.0.9 (only the seam test of REQ-46), any production change under `src/`.
++
++### 1.2 Hard constraints (from the task, `SPEC` and `SWD` 1.2)
++
++K1 to K7 are those of `SWD` 1.2 and are enforced by the copied `bin/common.sh` and tests. K8 and K9 are new here.
++
++| Id | Constraint | Enforced by |
++|---|---|---|
++| K1 | Code, fixtures and run output live under `RL`. Sandboxes live under `SBR`. Nothing is written under `src/`, `tests/`, `.claude/` or `.dev/tasks/`. | `bin/common.sh: sw_assert_writable` (copied; `SW` inside that file resolves to its own folder, which is `RL` after the copy); `test_paths.py` (copied) |
++| K2 | Reviewer models: `muse-ember-1.0`, `gpt-6-luna`, `claude-haiku-5-5`, `claude-sonnet-5-5`. The judge is `claude-opus-5-5` and only the judge. Never Fable, Tier 0, Qwen or glm. | `sw_assert_model`; `test_model_allowlist.py` (copied) |
++| K3 | The recipes read nothing themselves. No script of this design reads a ground-truth file or a review output except the analysis and judge scripts, after the freeze (AO-6). | `test_ground_truth_not_read.py`: a read hook on `open` while the lens render, brief render and row check run on fixtures that contain a trap file named like a ground-truth file |
++| K4 | Reviewers are read-only (`--disallowedTools Edit Write NotebookEdit`, as `RR` line 48). Bash stays open, so the harness checks the sandbox with `git status --porcelain` before and after every run. | `bin/run-panel.sh`; `test_sandbox_clean.py` |
++| K5 | No git write by this design's tools. The freeze tag (REQ-33) is created by a person; `bin/freeze.sh` prints the command and never runs it. | `test_freeze.py` |
++| K6 | Python only through `uv run` (`uv run --frozen --project REPO python <file>`), never `python -m`. Tests: `uv run --frozen --project REPO pytest`. | every command in `TESTING.md` and `IMPLEMENTATION.md` |
++| K7 | No code folder named `lib/` (`.gitignore` line 13 ignores it). | `test_layout_rl.py` runs `git check-ignore` on every code folder |
++| K8 | The sibling folder `SW` is read only. The copy script opens it for reading, never writes into it, and never runs a test or script from inside it. | `bin/copy-shared.sh` uses only `sha256sum` and `cp` with `SW` as the source; `test_sibling_readonly.py` greps every script of `RL` for a write target under `SW` and checks the mtime of a canary file in a fake sibling folder |
++| K9 | The sandbox root is `SBR` (`SW_SB_ROOT=/tmp/evalsb-recipe`, an override the copied `common.sh` accepts under `/tmp/`). The Recipe Ledger launcher sets it itself, so a run of one build can never reuse or clean the other build's sandbox. | `bin/rl-env.sh` (sourced before `common.sh`); `test_sandbox_root.py` |
++
++### 1.3 Decisions taken where `MR` is silent, ambiguous or pulls two ways
++
++Rows marked **owner** are repeated in section 13.
++
++| Id | Where | The gap | Decision and reason |
++|---|---|---|---|
++| DR-1 | 3.0.3, REQ-25, REQ-06 | `MR` 3.0.3 puts `recipe_text` on the class card, while REQ-25 says the eight recipes live in one file. The sibling's card schema has `additionalProperties: false` and no `recipe_text`, and its eight cards are shared with Redesign 1. Adding a field would fork them. | The cards are copied unchanged. The recipe text lives in one file, `recipes/recipes.json`, keyed by card id. A test makes the two key sets equal. A new class is one card plus one recipe entry plus a lens placement, with no dispatcher or code change (REQ-10, tested with a fixture class C9). |
++| DR-2 | 3.2(a) R2 | "Each gets Z0's brief, its recipe block and the ledger rule." No part order is given. | The RL brief is the Z0 brief text, produced by the copied renderer (`scaffold.briefs.render("Z0", ...)`), followed by the shared ledger rule, the RL block, the reviewer's recipes and, for search reviewers, the search-form line. So every RL brief starts with exactly the Z0 brief of the same document (a prefix test, section 6.2), and the Z0 parts are never re-implemented. |
++| DR-3 | 3.2(a) ledger rule | The quoted RL block says "you never write more than 14 rows", but the lens table gives 6 rows to haiku and 8 to sonnet. | The block file holds the placeholder `{{LENS_ROW_CAP}}`. With the value 14 the rendered text equals the `MR` quote byte for byte (tested against `MR`). |
++| DR-4 | 3.2(c) fallback, REQ-32 | `MR` fixes the fallback at "12 rows" when the luna cost per row is over 2 s. A measured cost of 2.5 s makes 12 rows cost 30 s against a budget of 29 s at b = 100, so the fixed fallback would still break the cap. | The lens cap is a function: `lens_row_cap(b, c, table_cap) = min(table_cap, floor((0.35 b - 6) / c))`, where 6 is the 1 s render, the 4 s reading and the 1 s check of 3.2(c). It gives 14 for c at most 2.07 and 12 for c up to 2.41 at b = 100, so `MR`'s 12-row fallback is one case of it. The rule is applied per stage with the smallest same-block b of the panel. If the cap falls below the number of recipes in a lens, the harness records `no_budget` and does not run RL on that panel. **owner**: confirm the generalisation. |
++| DR-5 | 3.0.4, 3.2(a) | The row id is "the recipe id and a row number". Nothing says how the check knows which ids are legal. | A row id is `C<n>.<k>`. For one reviewer the legal ids are `C<n>.1` to `C<n>.<budget>` for each recipe `C<n>` in its lens. The check feeds that set to the shared reader as the assigned items. `probe` on a findings line is a row id. |
++| DR-6 | 3.2(a) R3, REQ-26 | "The check script enforces the budget." Nothing says what happens to a row over budget. | Rows beyond a recipe's budget, or beyond the lens cap, in the order written, are flagged `over_budget`. They stay in the report and in coverage counts, but cannot be promoted and cannot support a blocker. The count is reported per reviewer. Nothing is deleted. |
++| DR-7 | 3.0.1 H1, 3.0.7 guard rows, 3.2(e) | With no source file, recipe C2 has nothing to compare with. For documentation targets, 3.2(e) says C2 compares the document to the code, which is not a file a brief can name. | When `packages.json` has `source: null`, the renderer drops recipe C2 from every lens, CB-1 is absent (copied renderer) and `run.json` records `no_source` and `c2_not_applicable`. A lens never becomes empty: every lens of 5.1 keeps at least two recipes after C2 is dropped. For a documentation target the C2 recipe is therefore not applicable until a source path exists. **owner** (low): whether a documentation target may name a code file as its source. |
++| DR-8 | 3.2(a) R3, REQ-27, REQ-30 | The ember re-ask has a clock condition but no mechanism. `claude -p` runs with `--no-session-persistence`, so a session cannot be resumed. | A re-ask is one fresh `claude -p` call to the same model with a repair prompt and the reviewer's own final message. It runs only for the ember reviewer, only when `ledger_missing` is the finding, and only if `now + 30 <= 1.35 b`, where `now` is the panel clock. A repaired message replaces the original only if its ledger parses and its findings block equals the original's. Rows of a repaired ledger cannot be promoted. A re-ask is counted as `reask`, never as a retry (REQ-30), and its seconds are inside the panel clock. Haiku and sonnet are not re-asked either (they are on the critical path and `MR` is silent). Section 7.6. |
++| DR-9 | 3.0.5 check 2, REQ-16 | `MR` says `quote_other` must be in the source or a printed tool line. RL has no printed tool lines (no sheet), and most defects of C1, C6 and C7 are two plan texts that disagree. | Same decision as `SWD` DD-2 with the corpora of this redesign: `quote_other` is accepted when it is a flattened substring of the source, of the candidate, or of a tool result in the reviewer's own run transcript (`user` events, `tool_result` blocks). The corpus is recorded per row (`source`, `candidate`, `transcript`). "One search result" in REQ-16 means a `transcript` match. Assistant text never counts as a corpus. |
++| DR-10 | REQ-28 | "The `ran` field is cross-checked against transcript tool calls in the analysis." The test for it is not defined. | Section 7.7: each row gets `ran_status` of `verified`, `unverified` or `not_a_tool_claim`. It is an analysis metric per class and per reviewer, not a gate and not part of the 1-second post-run check. |
++| DR-11 | the task, 3.0 | The sibling is still being built: its cards, briefs, scaffold and sandbox script exist, but its ledger code, clock, launcher, judge copy and analysis do not (checked 2026-11-14 22:50 UTC: all twelve of them absent). | Section 3. Files that exist are copied byte for byte with their sha256 recorded. A file that does not exist when the copy script runs is written locally to the sibling's written contract, in the same file name, and marked `built-local`. Nothing is replaced silently later. |
++| DR-12 | 5.3, 5.4 | Z0, K and Z0-raw are common to both redesigns, but the two builds have separate launchers, so each would run its own Z0 and K blocks (75 panel runs for Stage 1 in each build, 150 in total, where `MR` counts 95 runs for both redesigns together). | Each build runs its own same-block Z0 and K (this is what D1 requires: same day, same block). RL writes `run.json` and `timing.json` with the sibling's field names (`SWD` 2.2, 11.4), and the copied brief parts make the Z0 and K briefs byte-identical in both builds. A combined schedule can therefore pool the control arms later. **owner**: run one combined schedule (saves about 90 panel runs) or two separate ones (simpler). |
++| DR-13 | 6.6 REQ-35 | The leave-one-class-out ablation changes "reach", which needs model runs, and the run table of 5.4 has no ablation runs. | Runnable here: the brief-level ablation (removing one recipe leaves every other recipe text and every lens position byte for byte unchanged) and the analysis-level report on the real runs. The model-stage ablation (8 extra arms x 4 documents x 3 runs = 96 panel runs) is a labelled manual item for the owner (same as `SWD` DD-13). |
++| DR-14 | 3.2(h) | `MR` estimates Redesign 2 at about 310 specific lines and about 760 with the shared scaffolding. That list has no row checks, launcher, re-ask, judge copy or analysis. | `IMPLEMENTATION.md` gives its own list, which is larger (section 2 there). The `MR` figures are not used as a limit. |
++| DR-15 | 3.0.2 CB-2 | CB-2 says "including every ledger row you marked PROBLEM". Z0 and K have no ledger. | Adopted from `SWD` DD-7: CB-2 stays verbatim in every non-raw arm (REQ-05), the dangling clause is measured as the number of Z0 and K reports with a `## Ledger` heading. |
++| DR-16 | 5.3 arm K | The K paragraph needs a lead-in. | Adopted from `SWD` DD-14: `briefs/k-lead.txt` is copied. Its first line says it is a draft awaiting the owner. It is one shared decision of both builds. |
++
++### 1.4 Decisions adopted from the sibling without change
++
++`SWD` DD-3 (the demotion and CB-3 rule applies to findings linked to a ledger row; unlinked findings pass through unchanged; switch `CHECK_SCOPE=linked|all`, `all` unused), DD-8 (counted runs use one attempt and `NOFALLBACK=1`; a failed reviewer is scored zero findings), DD-9 (order: check on the raw report with a lenient line reader, then H2, then merge), DD-11 (cards carry `promote_category`; a promoted line takes the card's category), DD-12 (reviewers set only `probe`; the check fills `class` and `src`), DD-15 (Z0-raw sandbox is repository HEAD at launch minus ground-truth files and eval-workspace folders; fidelity UNVERIFIED), and the sibling's timing definitions (`SWD` 11.4, 11.5). Where this document says "as `SWD` n.n", the rule is taken over and not restated.
+ 
+ ## 2. Architecture and run order
+ 
+-<!-- RL_PLACEHOLDER:S2 -->
++### 2.1 Data flow
++
++```
++ R0  harness (no model)        bin/build-sandbox.sh (copied) -> SBR/<doc>/repo   (base commit, no reflect, no reports: H3, H4)
++                               candidate.md, source.md copied next to it
++                                      |
++ R1  lens render (serial, no model, under 1 s)     rl/lens.py + rl/render.py
++        config/lenses.json + recipes/recipes.json + packages.json (source or not) + values.json (b, c)
++        -> per reviewer: lens (ordered recipes, row cap), briefs/<rid>.txt, lens/<rid>.json
++          |  any exception, invalid lens table, no_budget  ->  Z0 briefs, run.json: fallback=true (decided BEFORE any reviewer starts)
++                                      |
++ R2  three reviewers in parallel, blind, one attempt each (claude -p, NOFALLBACK=1, hang guard)
++        final message = ... ## Ledger / ```ledger-v1 ... ``` / ## Findings block / ```findings-v1 ... ```
++                                      |
++ R3  ledger check (no model, under 1 s; skipped with check_skipped=true on any exception)
++        read ledger-v1, id grammar, recipe coverage, budgets, quote tests, demote, promote
++        ember only, if ledger_missing and now + 30 <= 1.35 b: one re-ask (rl/reask.py) before the check is rerun
++        -> check/<rid>.ledger.json, check/<rid>.checked.md, check/check.json
++                                      |
++ H2  scaffold/normalise.py (copied)  truncate anchor, anchor2 (200) and claim (300), validate with FND.parse_block
++                                      |
++ R4  superclaude review merge   (unchanged: MRG)  ->  merged-1.md, ledger.json
++                                      |
++ JJ  blind Opus judge (brief byte-identical to JJ)  ->  score.json
++                                      |
++     analysis/analyze.py  (metrics, gates, stage rates, ran cross-check; REQ-28, REQ-39 to REQ-43)
++```
++
++Z0, K and Z0-raw run the same R0, R2, H2, R4 and JJ. They skip R1 and R3. Z0-raw also skips H1 to H4 and uses the original brief.
++
++### 2.2 Run order, who runs it, what it writes
++
++| Step | Actor | Reads | Writes (under `RUN/`) | On the critical path |
++|---|---|---|---|---|
++| R0 | `bin/build-sandbox.sh` | git object store of `REPO`, `config/packages.json` | `SBR/<doc>/repo`, `SBR/<doc>/sandbox.json`, `SBR/cand/<doc>/{candidate.md,source.md}` | no (built once, reused) |
++| R1 | `rl/cli.py lens` | `config/lenses.json`, `recipes/recipes.json`, `config/values.json`, `config/packages.json` | `lens/<rid>.json`, `briefs/<rid>.txt`, `briefs/<rid>.sha256` | yes (about 1 s) |
++| R2 | `bin/run-reviewer.sh` (one per reviewer) | brief, sandbox | `reviews/<rid>.attempt1.{json,err,md,meta.json}`, `reviews/<rid>.{md,meta.json,cost.json}` | yes |
++| R3 | `rl/cli.py check`, and `rl/cli.py reask` for ember | reviews, `lens/<rid>.json`, candidate, source, transcripts | `check/<rid>.ledger.json`, `check/<rid>.checked.md`, `check/check.json`, `reviews/<rid>.reask.{json,md}` | yes (about 1 s; plus up to 30 s for an ember re-ask) |
++| H2 | `scaffold/normalise.py` | `check/<rid>.checked.md` (RL) or `reviews/<rid>.md` (other arms) | `normalised/<rid>.md`, `normalised/h2.json` | no (outside the clock in every arm) |
++| R4 | `superclaude review merge` | `normalised/*.md`, `resolution.json` | `merged/merged-1.md`, `merged/ledger.json` | no |
++| JJ | `bin/judge-one.sh` | anonymised merged report | `scoring/<label>/{merged-anon.md,score.json,judge.json}` | no |
++
++`run.json` (written first, updated at each step) holds: `arm`, `panel`, `doc`, `replicate`, `seed`, `block`, `rl_version`, `recipes_sha256`, `lenses_sha256`, `registry_version`, `freeze_tag`, the sha256 of candidate, source, every brief and the Z0 brief of the same document, the flags `fallback`, `no_source`, `c2_not_applicable`, `no_budget`, `check_skipped`, `reask` (list of reviewer ids), `time_cap_exception` (always false), the lens row cap used per reviewer and the value of `b` and `c` it came from, and `concurrent_panels_at_start`. `timing.json` is as `SWD` 11.4 with the fields of section 9.3.
++
++### 2.3 Folder layout under `RL`
++
++```
++RL/
++  DESIGN.md  TESTING.md  IMPLEMENTATION.md  SHARED-MANIFEST-DESIGN-TIME.tsv
++  ruff.toml                      extends the repo's ruff settings
++  scaffold/                      COPIED from SW (Tier A) or built-local (Tier B), section 3
++    fnd.py  cards.py  lint.py  normalise.py  briefs.py          (Tier A, copied)
++    ledgerv1.py  telemetry.py  clock.py                         (Tier B)
++  rl/                            Redesign 2 specific
++    recipes.py  lens.py  render.py  rowcheck.py  reask.py  cli.py  ledger_api.py
++  recipes/                       recipes.json, rl-block.txt, search-form.txt, README.md (REQ-38), REVIEWS.md (REQ-08 records)
++  analysis/                      analyze.py  ran_check.py  g0.py (ledger and time part only)      (analyze: Tier B)
++  cards/                         C1.json .. C8.json, schema.json, README.md     (copied, never edited here)
++  briefs/                        base.txt, cb1.txt .. cb5.txt, ledger-rule.txt, k-lead.txt, sheet-block.txt   (copied; sheet-block.txt is carried but unused)
++  config/                        packages.json, panels.json, lenses.json, values.json, shared-manifest.json,
++                                 prereg.json (written at freeze), freeze.json
++  bin/                           common.sh  build-sandbox.sh                           (copied)
++                                 rl-env.sh  copy-shared.sh  run-panel.sh  run-reviewer.sh  judge-one.sh  anon.sh  judge-batch.sh
++                                 make-schedule.py  run-schedule.sh  run-spike.sh  freeze.sh  check-order.sh
++                                 check-sandbox-gt.sh  check-z0-parity.sh  open-manual-checks.sh
++  holdout-gt/                    hold-out ground truth, written by its author after the freeze; never read by the harness before the judge
++  fixtures/                      plans/ specs/ docs/ repos/ reports/ transcripts/ lens/ gt/ runs/   (TESTING.md section 2)
++  tests/                         conftest.py, helpers.py, fakes/claude, test_*.py
++  runs/  scoring/  results/      generated; not committed
++```
++
++`scaffold/` and `rl/` are plain packages put on `sys.path` by `tests/conftest.py` (copied) and by `rl/cli.py`. `rl/` imports `scaffold.fnd` for the real parser (`parse_block`, `flat`, `locate`, `_check_finding`, `_blocks_after`); the coupling to the private helpers is pinned by the copied `test_fnd_contract.py`.
++
++### 2.4 Determinism rule
++
++Lens render and brief render are pure functions of (`lenses.json`, `recipes.json`, the panel, `has_source`, the candidate path and sha256, the source path, the `b` and `c` values, `rl_version`). There is no clock, no network, no randomness (a lens has no item order to shuffle: recipe order is the lens table order). Every list is sorted or in table order, JSON is written with `sort_keys=True`, `ensure_ascii=False` and a trailing newline. The same input gives byte-identical briefs (tested). Time enters only as the hang guard, the re-ask condition and the `lens_row_cap` inputs, all of which are recorded in `run.json`.
+ 
+ ## 3. What is reused from the Sweep Sheet build, and how it is copied
+ 
+-<!-- RL_PLACEHOLDER:S3 -->
++The task says to reuse the shared pieces of `MR` 3.0 by copying them from the sibling build at build time, with their sha256 recorded. The sibling is being built at the same time (its plan runs in another session), so what exists changes. This section fixes the rule and the list. `SHARED-MANIFEST-DESIGN-TIME.tsv` in this folder records what was there when this design was written (59 rows: 27 Tier A, 11 tests, 9 fixtures and 12 Tier B rows that were all `ABSENT`; the first three lines of the file are comments).
++
++### 3.1 The three tiers
++
++| Tier | What | Rule at copy time |
++|---|---|---|
++| A (exists, shared by definition) | `cards/` (C1 to C8, schema, README), `briefs/` (nine parts), `scaffold/{__init__,briefs,cards,fnd,lint,normalise}.py`, `bin/common.sh`, `bin/build-sandbox.sh` | Copy byte for byte with `cp`. Never edit the copy. If a Tier A file is missing in the sibling, the copy script stops: nothing in `RL` may then be rebuilt by hand. |
++| T (shared tests) | the sibling tests that import nothing from `sweep/`: `conftest.py`, `helpers.py`, `test_briefs.py`, `test_cards.py`, `test_fnd_contract.py`, `test_lint.py`, `test_model_allowlist.py`, `test_normalise.py`, `test_paths.py`, `test_readme.py`, `test_sandbox.py`; fixtures they need: `fixtures/repos/build_repo.py`, `fixtures/reports/{anchor_250,claim_301}.md`, `fixtures/plans/{p_basic,p_clean,source}.md`, `fixtures/specs/{spec1,parent1}.md`, `fixtures/docs/doc1.md` | Copy byte for byte. A copied test that fails in `RL` is a finding about the copy, not a reason to edit the test. |
++| B (not built yet at design time) | `scaffold/ledgerv1.py`, `scaffold/telemetry.py`, `scaffold/clock.py`, `bin/run-reviewer.sh`, `bin/judge-one.sh`, `bin/anon.sh`, `bin/judge-batch.sh`, `bin/run-panel.sh`, `bin/make-schedule.py`, `bin/run-schedule.sh`, `analysis/analyze.py`, `analysis/g0.py` | If the sibling file exists when `copy-shared.sh` runs and its content is the same on two reads 60 seconds apart, copy it with its matching sibling tests (when they import nothing from `sweep/`). Otherwise write the file in `RL` under the same name, to the sibling's written contract (the `SWD` section named in 3.3), and record `built-local`. A `built-local` file is never replaced by a later copy without a person reading the diff (`bin/copy-shared.sh --diff`). |
++
++Not copied, and why:
++- `sweep/*`, `analysis/__init__.py` of the sibling, and the tests that import `sweep` (`test_e1` to `test_e5`, `test_formats`, `test_extractors_common`, `test_plan`, `test_scope`): extractor code and tests, Redesign 1 only.
++- `tests/fakes/claude` and `tests/test_fake_on_path.py`: the sibling's fake writes `S<n>` item rows. RL needs a fake that writes `C<n>.<k>` rows and a repair call (section 3.4), so `RL` has its own `tests/fakes/claude`. The copied `conftest.py` only requires that the first `claude` on `PATH` is `tests/fakes/claude`, so it works with either.
++- `tests/test_layout.py`: it asserts the folders `sweep` and `analysis` exist. `RL` has `test_layout_rl.py` with the same K7 check and its own folder set.
++
++`briefs/sheet-block.txt` is carried in the copy because the copied `scaffold/briefs.py` and `test_briefs.py` read it. No RL code renders it.
++
++### 3.2 What `bin/copy-shared.sh` does
++
++| Step | Behaviour |
++|---|---|
++| 1 | Reads the list of Tier A, T and B paths from `config/shared-list.json` (written at implementation from the three lists above). |
++| 2 | For each path: `sha256sum` the sibling file twice, 60 seconds apart for Tier B only (the sibling is writing), and stop on a difference. |
++| 3 | `cp` the file into `RL` at the same relative path, then `sha256sum` the copy and compare. |
++| 4 | Writes `config/shared-manifest.json`: for every path `{tier, source: "SW/<rel>", sha256, bytes, copied_at, kind: "copied"\|"built-local"}`. A `built-local` entry names the `SWD` section it was written to. |
++| 5 | `--check` re-hashes every copy against the manifest (a failure means someone edited a copy) and compares with the sibling's current file (a difference is reported as `drift`, a warning). |
++| 6 | `--diff <path>` prints a unified diff between a `built-local` file and the sibling's file of the same name, for a person to read. |
++
++It opens `SW` for reading only (K8). It never runs a script from `SW`. It never writes under `SW`.
++
++### 3.3 What RL needs from each Tier B piece (the contract when it is built locally)
++
++These are the minimum interfaces. They are copied from the sibling's written design, so a later swap of a local file for the sibling's is a drop-in.
++
++| File | Contract (source) | What `rl/` calls |
++|---|---|---|
++| `scaffold/ledgerv1.py` | the reader of `SWD` 9.1 (heading regexes, fenced block with info string `ledger-v1`, per-line JSON, format errors counted, `dup_line`, `unknown_item`, limits), the checks of 9.2 with the corpora of DR-9, linking and demotion of 9.3, promotion of 9.3 validated by `FND._check_finding` | `rl/ledger_api.py` is the one adapter (at most 40 lines): `read(report, assigned_ids)`, `check(rows, corpora)`, `link_demote(findings, rows)`, `promote(rows, block, cards)`. If the sibling's signatures differ, only this file changes. |
++| `scaffold/telemetry.py` | `class`, `probe`, `src` keys and the per-class table of `MR` 3.0.6 | `rl/rowcheck.py` |
++| `scaffold/clock.py` | the clock of `SWD` 11.4 and the arithmetic helpers (`kill_s`, `hang_s`, `breakeven`) | `bin/run-panel.sh` through `rl/cli.py` |
++| `bin/run-reviewer.sh` | `SWD` 11.1 table (one attempt, `NOFALLBACK=1`, brief from a file on stdin, `cd SBR/<doc>/repo`, hang-guard `timeout`, model-identity check, `BLOCK_OK` by `FND.parse_block` after H2 on a temporary copy, `hang_s`, `killed`, `prompt_sha256` in `meta.json`) | `bin/run-panel.sh` |
++| `bin/judge-one.sh`, `bin/anon.sh`, `bin/judge-batch.sh` | `SWD` 11.3: the `BRIEF` text of `JJ` lines 12-23 byte for byte with the paths as variables; anonymisation by random label with reviewer ids replaced and paths redacted; model `claude-opus-5-5` only here | the experiment commands |
++| `bin/run-panel.sh` | local by necessity: its arms differ (RL has no sheet). It follows `SWD` 11.4 to 11.7 for clock, hang guard, concurrency and merge, and section 9 below | the experiment commands |
++| `bin/make-schedule.py`, `bin/run-schedule.sh` | `SWD` 11.6 and `SW/TESTING.md` section 5: block-randomised schedule with a recorded seed, at most 3 panels at once, refusal without a spike record | the experiment commands |
++| `analysis/analyze.py` | `SWD` 14.3 outputs (metrics, consistency, gates D1 to D7, shares, `stages.jsonl`, judge audit) with the arm list `z0raw, z0, k, rl, rlh, rls` and the stage definitions of section 12.2 here | the experiment commands |
++| `analysis/g0.py` | only the ledger-and-time half of G0 (`ledger_missing` rate, luna cost per row against its break-even). The selection half belongs to Redesign 1 and is not built. | the experiment commands |
++
++### 3.4 What RL builds even when the sibling has everything
++
++- `tests/fakes/claude`: reads the brief on stdin; finds the recipe ids (`R-C<n>.` headings) in it; writes `C<n>.1 ... C<n>.<budget>` rows for them; scenarios `ok`, `none_found`, `ledger_missing`, `ledger_after_findings`, `over_budget`, `recipe_missing`, `long_anchor`, `bad_block`, `api_error`, `wrong_model`, `sleep`, `exit127` and `repair` (the second call, whose brief starts with the repair sentence of section 7.6, returns the message with a ledger). It appends one line per call to `FAKE_CALL_LOG`. It is a test double; no model is started.
++- `rl/*`, `recipes/*`, `config/lenses.json`, `bin/rl-env.sh`, `bin/copy-shared.sh`, `bin/check-z0-parity.sh` and the RL tests.
++
++### 3.5 Z0 and K parity with the sibling
++
++The Z0 and K briefs of the two builds are produced by byte-identical copies of `scaffold/briefs.py` and `briefs/` for byte-identical inputs. `bin/check-z0-parity.sh <doc>` renders the Z0 brief of one document with the copied code and prints its sha256; a person compares it with the `run.json` of any sibling Z0 run of the same document. The unit test (`test_shared_manifest.py::test_briefs_parts_match_manifest`) makes the same claim in code: each copied part equals its recorded hash.
+ 
+ ## 4. Recipes (`recipes/recipes.json`)
+ 
+-<!-- RL_PLACEHOLDER:S4 -->
++### 4.1 Format
++
++One file, `recipes/recipes.json`, holds all eight recipes (REQ-25). It has one governing source for each fact: the text is written once; the row budget is read out of the text, never stored a second time.
++
++```json
++{
++  "schema": "rl-recipes/1",
++  "version": 1,
++  "recipes": {
++    "C1": {"version": 1, "text": "For each acceptance criterion or requirement that says ... Write at most 4 rows."},
++    "C2": {"version": 1, "text": "..."}
++  }
++}
++```
++
++Rules, each a test (`test_recipes.py`):
++- The key set equals the id set of the cards in `cards/` (DR-1). A card with no recipe, or a recipe with no card, fails.
++- Each `text` is at most 120 words (`MR` 3.0.3) and ends with exactly one sentence `Write at most N rows.` where N is an integer from 1 to 14. `recipes.row_budget(id)` parses N from that sentence. Eight budgets as in `MR` 3.2(a): C2 6, every other class 4.
++- No `text` contains a path, a task number, a package name or a file name of the study, no `src/superclaude/` path, and no sentence that states an expected outcome (AO-1, AO-8, REQ-09). The lint of `scaffold/lint.py` checks the first part; the second is a word-list test (`expected`, `should find`, `will find`, `you will see`).
++- The text equals the `MR` 3.2(a) draft wording byte for byte while `recipes.json` carries no `override` entry. A wording change after the compliance spike is a re-freeze (AO-5), recorded as `"override": {"C4": "<reason, owner approval>"}` and listed in the report.
++
++The printed form of a recipe in a brief is `R-C<n>. <text>` (heading `R-C4.`, then the text without quotes), one paragraph per recipe.
++
++### 4.2 The eight recipes (draft wording of `MR` 3.2(a), taken over unchanged)
++
++Each is a detection procedure, not a "watch for" list. None has been run on any model (`MR`, "Not checked and unverified").
++
++> **R-C1.** For each acceptance criterion or requirement that says every, all, each, complete, exhaustive, found, covers or no remaining: (1) write the finite check that would let a reviewer say yes, with its stopping rule; (2) copy the instruction sentence the criterion checks and write what set each of the two covers; (3) if you cannot write a finite check, or the two sets differ, mark PROBLEM. Write at most 4 rows.
++>
++> **R-C2.** Split the driving document into rules: one per sentence that contains must, shall, never, only, halts, reports or returns, or per table row. Take up to 10 rules, preferring those that govern a failure, an exit or a special case. For each, quote the candidate sentence that carries it. For the three with the most conditions, trace each failure path through the candidate's tasks to the output the rule governs. No carrying sentence, or a path that ends in a different output, is PROBLEM. Write at most 6 rows.
++>
++> **R-C3.** List every value, field or state that a task reads, maps or requires as the input to a decision (lookup tables, status mappings, conditions). For each, find the row, task or step that writes it, for every case the reader handles. A value with no writer in some case is PROBLEM. Write at most 4 rows.
++>
++> **R-C4.** For each criterion that embeds a command, pattern, selector or test name: write the exact text the same task tells the implementer to write or create. Apply the literal pattern to that text, case included (you may run it on a scratch string with Bash). Then ask what the command selects or matches on the current tree. A pattern that cannot match the ordered text, or a selector that picks fewer or other checks than the criterion needs, is PROBLEM. Do not use the current file as proof; it may already contain finished work. Write at most 4 rows.
++>
++> **R-C5.** For each change that alters a number, name, count, behavior or default that the repository may also state elsewhere: (1) write the old literal; (2) run one search of the whole tree for it, including root-level documents (changelogs, readmes, guides), mirrored copies and comments, not only the files the plan names; (3) list every hit the plan neither edits nor checks. A hit that would be false after the change is PROBLEM. Grade it with the grading check; never drop it. Write at most 4 rows.
++>
++> **R-C6.** For each sentence the plan states or dictates that says all, only, never, every, no other, or outside X nothing: (1) name the set it covers; (2) run one count or listing command for that set over the tree; (3) compare with the plan's other tasks and with the scope of the test or check said to enforce it (what does that test skip or not read?). A member outside the claim, a task that does the opposite, or a test scope narrower than the claim is PROBLEM. Write at most 4 rows.
++>
++> **R-C7.** List every constraint, one clause per line (split at semicolons and 'and'). List every piece of text the plan dictates word for word. For each text and each constraint on its topic, tick each clause. A text that omits or contradicts a clause is PROBLEM. Write at most 4 rows.
++>
++> **R-C8.** For each file the plan edits or creates, search the tests, scripts and docs for its path and distinctive strings: `git grep -l -F '<string>' -- tests scripts docs`. For each referencing file the plan never names, open it and decide whether it pins the text or behavior being changed. If it does and no task updates or runs it, mark PROBLEM. Write at most 4 rows.
++
++Word counts, computed from the `MR` text: C1 71, C2 89, C3 56, C4 99, C5 86, C6 93, C7 50, C8 67 (all at most 120). All eight together are 611 words, which is the "about 800 tokens" of `MR` 3.2(a) at 1.33 tokens per word. The largest lens (ember on the primary panel: C4, C5, C6, C8) is 345 words, about 460 tokens, more than the "about 300 tokens per lens" of `MR`; luna 1 (C1, C2, C3) is 216 words, about 290 tokens.
++
++### 4.3 What each recipe asks for, written for the maintainer (not shown to a reviewer)
++
++This table is the swap-test and review aid (AO-2, REQ-08). It uses only target-neutral words; its examples are invented.
++
++| Class (card route) | Reads (block kinds of `MR` 3.0.3) | A PROBLEM row quotes | `quote_other` expected from | Where it can go wrong (`MR` 3.2(d), 3.2(i)) |
++|---|---|---|---|---|
++| C1 (read) | `criterion`, `task` | `quote_plan`: the criterion sentence. `quote_other`: the instruction sentence it checks. | `candidate` | Writing a stopping rule is a new move; a model may accept a vague rule. |
++| C2 (read) | `task`, `criterion`; the driving document | `quote_plan`: the task sentence nearest the rule, or the sentence that was expected to carry it. `quote_other`: the rule sentence of the driving document. | `source` | Up to 10 rules but 6 rows: a terse model may leave rules unrecorded (known ambiguity, row discipline below). Needs a source file (DR-7). |
++| C3 (read) | `task`, `criterion`, `constraint` | `quote_plan`: the sentence that reads the value. `quote_other`: the nearest text that lists the cases or writers the reader handles. | `candidate` | Weak class: no reliable trigger shape; a reader must notice a missing write unaided. |
++| C4 (search) | `criterion`, `task`, `dictated_text` | `quote_plan`: the criterion with the command. `quote_other`: the text the task orders, or the line a scratch `printf` test printed. | `candidate` or `transcript` | The model must choose which criteria to take. Must not use the current file as proof. |
++| C5 (search) | `task`, `criterion`, `goal` | `quote_plan`: the sentence that changes the literal. `quote_other`: the hit line of the whole-tree search that the plan neither edits nor checks. | `transcript` | The weak step is choosing which changed claim to search for; root-level documents must be in scope. |
++| C6 (search) | `criterion`, `dictated_text`, `constraint` | `quote_plan`: the universal sentence. `quote_other`: a member found by the count or listing command, another task's sentence, or a line showing the enforcing check's scope. | `transcript` or `candidate` | The counting search form is the model's to invent; the contradicting task sits elsewhere in the plan. |
++| C7 (read) | `constraint`, `dictated_text` | `quote_plan`: the dictated text. `quote_other`: the constraint clause it omits or contradicts. | `candidate` | A clause-by-text matrix over many blocks is hard for a terse model. Only the broad form is claimed (`MR` section 2). |
++| C8 (search) | `edit_target`, `gate` | `quote_plan`: the sentence that edits or creates the file. `quote_other`: the first hit line of the search that names a referencing file the plan never names. | `transcript` | Opening an unnamed test file is the step that luna and haiku skip. |
++
++The class definition and the severity guidance of each class are in its card (`cards/C<n>.json`), the single source for them. A PROBLEM row whose class card says blocking only when a builder cannot satisfy the text is graded by the reviewer with the grading check, as in every arm.
++
++### 4.4 Rows, ids and discipline
++
++- **Row id.** `C<n>.<k>`, with `k` counted from 1 within one recipe (`C4.1`, `C4.2`), as the ledger rule of `MR` says. The row id is the ledger `item` and the findings `probe` (DR-5).
++- **One row per recipe step that the model ran.** The recipes ask for more steps than their budgets (C2: up to 10 rules, 6 rows). The brief does not say which steps get rows. This design does not change that: which sentences a model ledgers is the self-selection factor `s` of `MR` 3.2(d), and it is measured (section 12.2). The compliance spike reports which rows models write first. If the spike shows that rows go only to the easy steps, a wording change is the owner's decision, recorded as an `override` entry (4.1) and followed by a re-freeze (4.6).
++- **`NONE FOUND`.** A recipe that finds nothing to check in the document writes one row: verdict `OK`, empty `quote_plan`, and in `ran` the words `NONE FOUND` and what was searched, at most 15 words in all. The check counts it as coverage of that recipe (section 7.3). A recipe with a `NONE FOUND` row and other rows is flagged `none_found_with_rows`.
++- **A recipe row is a question about the text, not a finding.** A finding is written only for a `PROBLEM` or `UNSURE` row, with `probe` set to the row id (ledger rule of `MR` 3.2(a)).
++
++### 4.5 The search-form line
++
++Stored in `recipes/search-form.txt`, added by the renderer to the lens of every search reviewer (ember on the primary panel, haiku and sonnet on the others). Generic placeholders only (AO-8):
++
++> Search forms you may adapt: `grep -rlF '<path>' <test dirs>`; `grep -rlF '<name without extension>' .`; `grep -rnF '<old value>' . --include='*.md'` (include root files); `printf '%s' '<ordered text>' | grep -c '<pattern>'`.
++
++### 4.6 Changing a recipe
++
++A recipe is data in one file plus its card. Editing a recipe before the freeze is a normal commit. After the freeze tag (REQ-33) it is a re-freeze: new tag, new `freeze.json`, and every arm that used the old text is re-run or reported as run under the old tag. The version in `run.json` (`recipes_sha256`) says which text a run saw.
+ 
+ ## 5. Lens table and lens render (`config/lenses.json`, `rl/lens.py`)
+ 
+-<!-- RL_PLACEHOLDER:S5 -->
++The lens table is the "small lens table in the launcher" of `MR` 3.2(a). It is data, not code: adding a panel, a model or a class placement is an edit of one JSON file, with no change to the renderer.
++
++### 5.1 The table (`config/lenses.json`)
++
++```json
++{
++  "schema": "rl-lenses/1",
++  "version": 1,
++  "panels": {
++    "primary": {"label": "ember + 2x luna", "roles": {
++      "S":  {"rid": "t2b-1", "model": "muse-ember-1.0", "lens": ["C4", "C5", "C6", "C8"], "table_cap": 14, "search_form": true,  "reask": true},
++      "L1": {"rid": "t4-1",  "model": "gpt-6-luna",     "lens": ["C1", "C2", "C3"],       "table_cap": 14, "search_form": false, "reask": false},
++      "L2": {"rid": "t3-1",  "model": "gpt-6-luna",     "lens": ["C2", "C4", "C7"],       "table_cap": 14, "search_form": false, "reask": false}}},
++    "haiku": {"label": "haiku + 2x luna", "roles": {
++      "S":  {"rid": "t2-1",  "model": "claude-haiku-5-5", "lens": ["C5", "C6", "C8"],     "table_cap": 6,  "search_form": true,  "reask": false},
++      "L1": {"rid": "t4-1",  "model": "gpt-6-luna",       "lens": ["C1", "C2", "C3"],     "table_cap": 14, "search_form": false, "reask": false},
++      "L2": {"rid": "t3-1",  "model": "gpt-6-luna",       "lens": ["C1", "C4", "C7"],     "table_cap": 12, "search_form": false, "reask": false}}},
++    "sonnet": {"label": "sonnet + 2x luna", "roles": {
++      "S":  {"rid": "t1b-1", "model": "claude-sonnet-5-5", "lens": ["C5", "C6", "C8", "C2"], "table_cap": 8, "search_form": true,  "reask": false},
++      "L1": {"rid": "t4-1",  "model": "gpt-6-luna",        "lens": ["C1", "C3", "C7"],       "table_cap": 12, "search_form": false, "reask": false},
++      "L2": {"rid": "t3-1",  "model": "gpt-6-luna",        "lens": ["C4", "C7", "C1"],       "table_cap": 12, "search_form": false, "reask": false}}}
++  }
++}
++```
++
++The reviewer ids are those of the sibling's `panels.json` (labels only; the model per id is explicit) so a later combined analysis reads both builds with one id map. Recipe order inside a lens is the order of the list: it is the order the reviewer is told to run them.
++
++Values checked against `MR` 3.2(a) with a scratch script (2026-11-14): each class is in at least one lens of every panel; duplicated classes are C2 and C4 (primary), C1 (haiku), C1 and C7 (sonnet), exactly the REQ-25 sets; the recipe budgets add up to 16, 14 and 14 for the primary lenses (the ember lens is cut to 14), 12, 14 and 12 for the haiku panel (the haiku lens is cut to 6) and 18, 12 and 12 for the sonnet panel (the sonnet lens is cut to 8).
++
++| Panel | Reviewer | Lens (run order) | Budgets sum | Table cap | Reason (`MR` 3.2(b)) |
++|---|---|---|---|---|---|
++| primary | ember (S) | C4, C5, C6, C8 | 16 | 14 | Search lens. Ember runs greps (78% of runs search recursively) and idles 60-90 s after its 41 s. |
++| primary | luna 1 (L1) | C1, C2, C3 | 14 | 14 | Reading lens. Luna reads whole files and rarely searches. |
++| primary | luna 2 (L2) | C2, C4, C7 | 14 | 14 | Reading lens. C2 and C4 duplicated for redundancy. |
++| haiku | haiku (S) | C5, C6, C8 | 12 | 6 | Search lens; haiku sets the critical path (220-238 s), so its load is capped. |
++| haiku | luna 1 | C1, C2, C3 | 14 | 14 | As the primary panel. |
++| haiku | luna 2 | C1, C4, C7 | 12 | 12 | Reading lens; C1 duplicated. |
++| sonnet | sonnet (S) | C5, C6, C8, C2 | 18 | 8 | Sonnet already opens unnamed files (35% of runs), so it takes the sweeps. |
++| sonnet | luna 1 | C1, C3, C7 | 12 | 12 | Reading lens. |
++| sonnet | luna 2 | C4, C7, C1 | 12 | 12 | Reading lens; C1 and C7 duplicated. |
++
++Single point of failure per class on the primary panel (`MR` 3.2(i)): C5, C6 and C8 live only in ember; C1 and C3 only in luna 1; C7 only in luna 2; C2 and C4 are in two reviewers. A reviewer that is killed or invalid loses its classes for that run; `check.json` lists `classes_lost`.
++
++### 5.2 Validation of the table (run at every render and in `test_lens.py`)
++
++1. Every class id of `cards/` is in at least one lens of every panel.
++2. Every lens holds 2 to 4 recipes, no repeats, every id has a recipe in `recipes.json` (REQ-25: at most 4 per reviewer).
++3. `table_cap` is an integer from the number of recipes in the lens up to 14.
++4. Every `model` passes `sw_assert_model` (K2). `rid` is unique inside a panel. Exactly one role has `search_form: true` per panel, and exactly one role has `reask: true` on the primary panel and none elsewhere (DR-8).
++5. The duplicated-class sets of the three panels equal the REQ-25 sets (constants in the test, taken from `MR`).
++6. After dropping C2 (`no_source`, DR-7) every lens keeps at least 2 recipes.
++
++A table that fails any rule is a configuration error: the renderer raises `E_LENS_INVALID`, and the launcher falls back to the Z0 brief with `fallback=true, reason=lens_invalid` and prints the error loudly (section 8, row 3). The test suite fails on the same table, so a bad table never reaches an experiment.
++
++### 5.3 Lens render (R1)
++
++`rl.lens.render(panel, has_source, b_min, c_by_model)` returns, for each role:
++
++| Field | Value |
++|---|---|
++| `rid`, `model` | from the table |
++| `recipes` | the lens list with `C2` removed when `has_source` is false; the printed text of each is `R-C<n>. <text>` |
++| `budgets` | `{class: N}` read from each recipe text (4.1) |
++| `assigned_ids` | `C<n>.1 ... C<n>.<N>` for every recipe: the set the row check accepts (DR-5) |
++| `row_cap` | `min(lens_row_cap(b_min, c_model, table_cap), sum(budgets))` (5.4); the number printed in the ledger rule |
++| `search_form` | true for the search role |
++| `reask` | true for the primary panel's ember |
++| `no_budget` | true when `row_cap` is below the number of recipes (one row per recipe is the least that makes the ledger mean anything) |
++
++The render is under 1 s: it reads three small files and does string joins. The output goes to `lens/<rid>.json`.
++
++### 5.4 The row cap as a function of cost (DR-4)
++
++`lens_row_cap(b, c, table_cap) = min(table_cap, floor((0.35 b - 6) / c))`, with b the smallest same-block Z0 median (seconds) of the panel in the stage, c the cost of one ledger row for the reviewer's model in seconds, and 6 the fixed seconds of 3.2(c) (1 render, 4 reading, 1 check). The cap is the 35% of b that the rule allows less the fixed part, divided by the cost of a row. The values of c are planning stand-ins (`MR` 3.1(c)): luna 2, haiku 4, sonnet 3, ember 0.4 (all UNVERIFIED); the 5-run timing spike replaces luna's (REQ-32).
++
++| b (s) | c (s per row) | `floor((0.35 b - 6) / c)` | Cap used with `table_cap` 14 | Where it comes from |
++|---|---|---|---|---|
++| 100 | 2.00 | 14 | 14 | planning value; budget exactly used up (29 s, worst case below) |
++| 100 | 2.07 | 14 | 14 | break-even at 14 rows |
++| 100 | 2.41 | 12 | 12 | the 12-row fallback of `MR` 3.2(c) (break-even 2.42 s) |
++| 100 | 2.50 | 11 | 11 | not in `MR`: 12 rows would cost 30 s against 29 s |
++| 100 | 3.00 | 9 | 9 | |
++| 122 | 2.00 | 18 | 14 | table cap binds |
++| 122 | 3.00 | 12 | 12 | |
++| 60 | 2.00 | 7 | 7 | below b = 35 not even 3 rows fit (0.35 x 34.3 - 6 = 6 s) |
++
++For the critical-path reviewers of the other panels the table cap always binds at planning costs: haiku (0.35 x 220 - 6) / 4 = 17.75 against a table cap of 6; sonnet (0.35 x 259 - 6) / 3 = 28.2 against 8.
+ 
+ ## 6. The brief change (`rl/render.py`, `recipes/`)
+ 
+-<!-- RL_PLACEHOLDER:S6 -->
++### 6.1 Parts and arms
++
++A brief is a join of text parts in a fixed order, as in `SWD` 8.1. The Z0, K and Z0-raw parts are the sibling's, reached through the copied `scaffold/briefs.py`. The RL parts are files under `recipes/`, so the sha256 of each can be frozen (AO-5).
++
++| Part | File | Source |
++|---|---|---|
++| Base, CB-1 (only with a source), CB-2 to CB-5, K paragraph, ledger rule | `briefs/*` (copied) | `RR` lines 13-17 and `MR` 3.0.2, 3.0.4 (see `SWD` 8.1) |
++| RL block | `recipes/rl-block.txt` | `MR` 3.2(a) quoted ledger rule, with `{{LENS_ROW_CAP}}` in place of the number 14 (DR-3) |
++| Recipes heading | one line in `rl/render.py`: `## RECIPES ASSIGNED TO YOU` (the only text not in a file; the counterpart of the sibling's `## SWEEP SHEET ITEMS`) | this design |
++| Recipes | `recipes/recipes.json` | section 4.2, printed as `R-C<n>. <text>`, one paragraph each, in lens order |
++| Search-form line (search role only) | `recipes/search-form.txt` | section 4.5 |
++
++| Arm | Parts, in order |
++|---|---|
++| Z0-raw | base |
++| Z0 | base, CB-1 (if source), CB-2, CB-3, CB-4, CB-5 |
++| K | the Z0 parts, K paragraph |
++| RL | the Z0 parts, ledger rule, RL block, recipes heading, the reviewer's recipes, search-form line (search role only). On `fallback=true`: the Z0 parts only. |
++
++RL is built as `Z0 text + SEPARATOR + ledger-rule + SEPARATOR + RL block + SEPARATOR + heading + SEPARATOR + recipes (+ SEPARATOR + search-form)`, where the Z0 text comes from `scaffold.briefs.render("Z0", doc, None, source)` and the separator is the copied module's `SEPARATOR` (two newlines). Nothing in `rl/render.py` rebuilds a Z0 part.
++
++### 6.2 Properties of the RL brief (each is a test)
++
++1. **Z0 prefix.** The RL brief of a reviewer starts with exactly the Z0 brief text of the same document and source state, and the next part is the copied ledger rule (REQ-05, DR-2). A `fallback` brief equals the Z0 brief by sha256.
++2. **CB-1 only with a source** (REQ-01): the Z0 prefix has it, or not, as the copied renderer decides. With no source the recipe C2 is absent from every reviewer (DR-7), `run.json` has `no_source` and `c2_not_applicable`, and no brief contains the string `Driving document:`.
++3. **Recipes verbatim and bounded** (REQ-25): the recipe paragraphs in each reviewer's brief are the `recipes.json` texts, in lens order, at most 4, and the duplicated classes seen across the three briefs of a panel equal the lens table's. Parsing is by the heading `R-C<n>.`.
++4. **Row cap rendered**: with `row_cap` 14 the RL block equals the `MR` quote byte for byte; with another value only that number differs.
++5. **Search-form line** appears in exactly the search role's brief of each panel (REQ-25 lens text).
++6. **No `src/superclaude/` path** in any rendered brief (REQ-09).
++7. **No ground truth, package name, task number or file name of the study** in any part (AO-1, K3).
++8. **Determinism**: the same inputs give the same bytes (section 2.4).
++
++### 6.3 The RL block (`recipes/rl-block.txt`)
++
++Draft wording of `MR` 3.2(a), taken over with one placeholder. It has not been run on any model. It holds no ground-truth text, no task number and no package name.
++
++> RECIPES AND LEDGER. Before you review freely, run the recipes below that are assigned to you, in order. For each recipe step, write one row in the `ledger-v1` block. The row id is the recipe id and a row number, for example `C4.1`, then `C4.2`. Set `item` to the row id, `verdict` to OK, PROBLEM or UNSURE, and copy each quote exactly. In `ran`, say in at most 15 words what you ran or read. If a recipe finds nothing to check in this document, write one row for it with verdict OK, an empty `quote_plan`, and the words NONE FOUND and what you searched in `ran`. Each recipe has a row limit, and you never write more than {{LENS_ROW_CAP}} rows. A recipe row is a question about the text, not a finding. When you write a findings line for a PROBLEM or UNSURE row, set the findings key `probe` to the row id. Keep at least half of your time for your own review of the plan. The recipes do not replace it. Put the ledger under the heading `## Ledger`, directly above the findings block, in your final message.
++
++The ledger rule that comes before it is the shared one (`briefs/ledger-rule.txt`, `MR` 3.0.4): the final message holds `## Ledger`, one `ledger-v1` block, `## Findings block` and one `findings-v1` block.
++
++### 6.4 What the reviewer's final message looks like
++
++The headings and info strings are exactly those of `MR` 3.0.4. Everything before `## Ledger` is free text. The rows are invented.
++
++````
++<report text, including the grading sentences>
++
++## Ledger
++
++```ledger-v1
++{"item":"C4.1","verdict":"PROBLEM","quote_plan":"`grep -c 'export-format' docs/usage.md` prints at least 1","quote_other":"add the heading \"Export format\" to docs/usage.md","problem":"The pattern has a hyphen and lower case but the ordered heading has a space and a capital, so grep -c prints 0.","ran":"printf of the ordered heading into grep -c: 0"}
++{"item":"C4.2","verdict":"OK","quote_plan":"","quote_other":"","problem":"","ran":"literal pattern matches the ordered text"}
++{"item":"C8.1","verdict":"OK","quote_plan":"","quote_other":"","problem":"","ran":"NONE FOUND: git grep of edited paths over tests, scripts, docs"}
++```
++
++## Findings block
++
++```findings-v1
++{"id":"F1","severity":"MAJOR","blocking":false,"category":"unpassable-check","anchor":"`grep -c 'export-format' docs/usage.md` prints at least 1","refs":[],"claim":"The criterion's pattern cannot match the heading the task orders.","probe":"C4.1"}
++```
++
++verdict: FAIL
++````
++
++### 6.5 The K arm and the empty case
++
++The K paragraph, the Z0 and K arms and CB-2's dangling clause are the sibling's (DR-15, DR-16). There is no "empty sheet" case in RL: every lens holds at least two recipes after C2 is dropped (5.2 rule 6), so the RL brief always differs from Z0's. `no_trigger` does not exist as an RL flag.
+ 
+ ## 7. Ledger format, checks, promotion and the ember re-ask (`rl/rowcheck.py`, `rl/reask.py`)
+ 
+-<!-- RL_PLACEHOLDER:S7 -->
++The ledger carrier, the reader, the quote tests, linking, demotion and promotion are the shared rules of `MR` 3.0.4 and 3.0.5, written out in `SWD` 9.1 to 9.4. They are not restated here. This section gives what Recipe Ledger adds or changes: the row-id grammar, recipe coverage, budgets, the corpora, the re-ask and the `ran` cross-check.
++
++### 7.1 Reading the final message
++
++`RR` keeps only the final result message as the report (`RR` line 50, read) and checks only that a line starts with the `findings-v1` fence opener (`RR` line 57, read). `rl/rowcheck.py` therefore reads `reviews/<rid>.md` with the real parser as `SWD` 9.1 describes: the heading `## Ledger` first, no other heading before `## Findings block`, exactly one `ledger-v1` fenced block between them, every non-empty line parsed as JSON, format errors counted and never skipped, verdict read case-insensitively and counted as `normalised_verdict`. Zero or two blocks, an unclosed block, or a block outside that span is `ledger_missing` for that reviewer. Earlier assistant messages never feed the check (`MR` 3.0.4).
++
++### 7.2 What the check does, in order (R3)
++
++Per reviewer, on the raw report, in under 1 second (no model; the transcript is read only for the corpus of DR-9).
++
++| # | Check | Result recorded |
++|---|---|---|
++| 1 | Read the ledger (7.1). | `ledger_missing`, `format_errors`, `dup_line`, `normalised_verdict` |
++| 2 | **Row-id grammar.** `item` must match `^C[0-9]+\.[0-9]+$` and its class must be in this reviewer's lens. | `unknown_item: [row, ...]`; the row is kept for counting and cannot be linked or promoted |
++| 3 | **Recipe coverage.** Every recipe of the lens has at least one accepted row. A `NONE FOUND` row counts (7.3). | `recipe_missing: [C5, ...]`; no re-ask for it |
++| 4 | **Budgets.** Per recipe, rows beyond that recipe's budget (the id number is above the budget, or the recipe has more rows than its budget) and rows beyond the lens `row_cap` in the order written are `over_budget`. | `over_budget: [{row, reason: recipe\|lens}]` (DR-6) |
++| 5 | `quote_plan` is empty or 12 to 200 flattened characters, and when present is a flattened substring of the candidate (`FND.locate` is non-empty). | `quote_plan_ok` |
++| 6 | `quote_other` is a flattened substring of the source, the candidate, or a tool result of the reviewer's own transcript (DR-9). | `quote_other_ok`, `corpus` |
++| 7 | Support: `quotes_supported` (both quotes ok and different), `search_supported` (both ok and the corpus is `transcript`), `supported = quotes_supported or search_supported`. | per row |
++| 8 | Link each findings line to a row (by `probe`, or when the row's flattened `quote_plan` lies inside the line's flattened `anchor`). | `probe_unknown`, `ok_but_finding` |
++| 9 | Demote a linked blocking finding to non-blocking when its row is an unsupported PROBLEM (`row_unsupported`), an UNSURE row (`row_unsure`), has no CB-3 sentence (`no_cb3`), or failed to parse (`row_missing`) (as `SWD` 9.3). A finding that is not linked is left alone (DR-12 adopts `SWD` DD-3). Each cause is counted apart (INV-007). | `demoted.*`, `format_induced_demotions` |
++| 10 | Promote a PROBLEM row that has no linked findings line, as `SWD` 9.3, with these RL limits: the row is not `unknown_item`, not `over_budget`, has a `quote_plan` that is present and `quote_plan_ok`, and its ledger was not repaired by a re-ask. The line is validated with `FND._check_finding` and inserted inside the one findings block; on any failure it is logged in `promotion_failures` and skipped. | `promoted`, `promotion_failures` |
++| 11 | Fill `class` from the row id prefix and keep the reviewer's `probe` on linked lines; `src: ledger` on promoted lines (DR-12 of `SWD`, `MR` 3.0.6). | telemetry on `check/<rid>.checked.md` |
++
++Check 10 is stricter than `SWD` 9.3 on one point: it requires `quote_plan_ok`, so a promoted line can never anchor to text that is not in the candidate. The sibling's text says only that a row with an empty `quote_plan` is not promoted. If the sibling's implementation promotes a row whose quote is not in the candidate, the two builds differ on that case; `bin/copy-shared.sh --diff` shows it at reconcile time.
++
++### 7.3 `NONE FOUND`
++
++A row counts as `none_found` when its verdict is `OK`, its `quote_plan` is empty, and its `ran` contains `NONE FOUND` (case-insensitive). It covers its recipe (check 3). A recipe with a `none_found` row and other rows is flagged `none_found_with_rows`. A `none_found` row for a search recipe (C5, C6, C8) whose reviewer made no search tool call is reported by the `ran` cross-check as `unverified` (7.7). The rate of `none_found` rows per class is reported, because a model that writes `NONE FOUND` for every recipe is a rubber stamp.
++
++### 7.4 Output of the check
++
++`check/<rid>.ledger.json`: the parsed rows with every result above. `check/<rid>.checked.md`: the report with demotions and promotions applied (the raw `reviews/<rid>.md` is never edited). `check/check.json`:
++
++```
++{ "ledger_missing": [rid], "recipe_missing": {rid: [class]}, "unknown_item": n, "over_budget": {rid: n},
++  "format_errors": n, "normalised_verdict": n, "dup_line": n, "probe_unknown": n, "none_found": {class: n}, "none_found_with_rows": n,
++  "rows": {"OK": n, "PROBLEM": n, "UNSURE": n}, "rows_per_reviewer": {rid: n}, "rows_per_recipe": {class: n},
++  "demoted": {"row_unsupported": n, "row_unsure": n, "no_cb3": n, "row_missing": n}, "format_induced_demotions": n,
++  "promoted": n, "promotion_failures": [...], "ok_but_finding": n, "block_unusable": [rid],
++  "classes_lost": {rid: [class]}, "reask": {rid: {"allowed": bool, "reason": str, "accepted": bool, "seconds": n}} }
++```
++
++`format_induced_demotions` counts demotions where the row's `problem` is non-empty, both quotes are present, and a quote test failed or a line did not parse. It is the number that tells whether the 0.914 squared figure of `MR` 3.0.5 shows up in practice (luna's anchors are verbatim 91.4% of the time, `CR` line 294; `MR` 3.2(i) repeats it).
++
++### 7.5 Flags
++
++| Flag | Meaning | Written to |
++|---|---|---|
++| `fallback=true` | the Z0 brief was run because the lens render failed (invalid table, exception) | `run.json` |
++| `no_source=true`, `c2_not_applicable=true` | no source file; CB-1 and recipe C2 not applied (DR-7) | `run.json` |
++| `no_budget` | `row_cap` below the number of recipes for some lens: RL is refused on that panel | `run.json`, exit code 3 of `run-panel.sh` |
++| `check_skipped=true` | the post-run check raised; demotion and promotion skipped for the whole run and the findings block merged as written | `run.json`, `check/error.log` |
++| `ledger_missing`, `recipe_missing`, `reask` | per reviewer, as above | `check.json`, `run.json` |
++
++### 7.6 The ember re-ask (REQ-27)
++
++**Condition.** `reask_allowed(role_reask, ledger_missing, already_asked, now_s, b_s)` is true only when all of these hold: the role has `reask: true` in the lens table (the primary panel's ember only, DR-8); the check found `ledger_missing` for that reviewer; no re-ask has run for it; and `now_s + 30 <= 1.35 * b_s`, where `now_s` is the panel clock (seconds since `t0`, section 9.3) at the moment the reviewer's report was read and `b_s` is the same-block Z0 median of the slowest reviewer for this panel and document (the planning stand-in until measured). The constants 30 and 1.35 live in `config/values.json`. There is no re-ask for luna, whatever the clock says: a luna report ends at about b + 22 s, and b + 22 + 30 = b + 52 is above 1.35 b for every b below 148.6 s (52 / 0.35), which covers the whole planning range of the primary panel (INV-010). Haiku and sonnet are not re-asked (DR-8).
++
++**Mechanism.** One fresh call: `claude -p --model <the ember model> --output-format json --no-session-persistence --permission-mode bypassPermissions --disallowedTools Edit Write NotebookEdit`, in the same sandbox, under `timeout 30`, with the repair prompt below on stdin. The model-identity check of `run-reviewer.sh` applies, and `NOFALLBACK=1` holds. Draft wording, not run on any model:
++
++> Your final message was kept as your review, but it has no valid `ledger-v1` block directly above the `## Findings block` heading, so the checks cannot read it. Your message follows between the lines marked BEGIN and END. Reply with the same message again, with one section added: the heading `## Ledger`, then one fenced block with info string `ledger-v1`, one JSON object per line with the keys item, verdict, quote_plan, quote_other, problem and ran, one line for each recipe row you actually ran. Do not add a row for a step you did not run. Do not change the findings block. Do not run any command.
++> BEGIN
++> {the original final message}
++> END
++
++**Acceptance.** The repaired message replaces the original only if its `ledger-v1` block parses and sits directly above the findings block, and its findings block, parsed as JSON lines in order, equals the original's. Otherwise it is discarded and the run records `ledger_missing`. A repaired ledger is marked `via_reask`: its rows may demote findings but are never promoted (7.2 check 10), because they are written from the model's memory of a run that is over.
++
++**Accounting.** The call is recorded as `reask` in `run.json` and `check.json`, never as a retry (REQ-30 counts retries; a re-asked ember produced a report and is not scored as zero findings). Its seconds are inside the panel clock (`reask_s` in `timing.json`) and its tokens in `cost.json`. The decision function is pure and takes the clock as an argument, so the test uses a fake clock (TESTING REQ-27).
++
++### 7.7 The `ran` cross-check (REQ-28, analysis only)
++
++Run by `analysis/ran_check.py` over a run folder. It reads `reviews/<rid>.attempt1.json`, whose shape was read from one finished ember run: events `system`, `assistant`, `user`, `result`; assistant `message.content` blocks of type `thinking`, `text` and `tool_use` (`name` `Bash` or `Read`, `input.command` or `input.file_path`); `user` events with `tool_result` blocks (`content` a string, `tool_use_id`). Other models' transcripts may differ and are checked at the compliance spike (section 13).
++
++For each ledger row:
++
++| `ran_status` | Rule |
++|---|---|
++| `not_a_tool_claim` | `ran` names no command word (`grep`, `egrep`, `rg`, `git`, `printf`, `find`, `ls`, `cat`, `sed`, `awk`, `wc`, `head`, `tail`, `pytest`, `jq`) and the recipe is not C5, C6 or C8. Reading the candidate cannot be verified: `claude -p` may attach the `@file` text without a `Read` call. |
++| `verified` | `ran` names a command word, and the transcript has a `Bash` call whose command contains that word and (shares a distinctive token of four or more letters with `ran` or `quote_other`, or the call's result contains `quote_other`). |
++| `unverified` | `ran` names a command word and no such call exists; or the recipe is C5, C6 or C8 and the transcript has no `Bash` search call at all, whatever `ran` says. A `NONE FOUND` row for a search recipe follows the same rule. |
++
++Reported per reviewer and per class: counts of each status, and the share of search-recipe rows that are `unverified` (the "OK row written without doing the step" signal of `MR` 3.2(i)). It is not a gate. The rule is a heuristic; its agreement with a person's reading is a manual check (TESTING REQ-28, row M), because a heuristic that nobody audited is not evidence.
+ 
+ ## 8. Failure and fallback behaviour
+ 
+-<!-- RL_PLACEHOLDER:S8 -->
++The rule behind every row: the decision to fall back is taken before any reviewer starts, so a running reviewer's brief is never changed (INV-012 of `MR`). A failure after the reviewers have finished never discards a reviewer's own findings. The guard rows of `MR` 3.0.7 that concern reviewers (gateway down, judge error, missing source, two reviewers left) apply and are rows 6, 22, 3 and 7 below, in that order.
++
++| # | Condition | Detected by | Action | Recorded | Counted |
++|---|---|---|---|---|---|
++| 1 | The lens render raises (unreadable `recipes.json`, a recipe with no budget sentence, an exception in `render.py`) | `rl/cli.py lens` exits non-zero | Z0 briefs for all three reviewers; the run continues (REQ-12 a) | `fallback=true, reason=error` and the exception class in `lens/error.json` | the run stays in arm RL (intention to treat); fallback count per arm |
++| 2 | The lens table is invalid (section 5.2) | `E_LENS_INVALID` from the renderer | as row 1; the error is printed to stderr and `run.log` | `fallback=true, reason=lens_invalid` | same; the test suite fails on the same table, so this is a configuration bug found early |
++| 3 | No source file | `packages.json: source: null` | CB-1 not rendered; recipe C2 dropped from every lens (DR-7) | `no_source`, `c2_not_applicable` | class C2 reported as not applicable for that document; the lens caps are recomputed |
++| 4 | `row_cap` below the number of recipes for a lens (`no_budget`) | `rl.lens.render` | the run is refused (`run-panel.sh` exit 3); the schedule excludes RL on that panel | `no_budget` in the stage record | not counted; reported |
++| 5 | The sandbox is missing, dirty or contains a masked path | `build-sandbox.sh` exit 2 (copied), `git status --porcelain` before the run | the run is refused, not run in a fallback: the sandbox is the experiment's floor | log line | not counted; must be rebuilt |
++| 6 | A reviewer hits the hang guard, fails the model-identity check, returns an API error, or has no usable findings block after H2 | `bin/run-reviewer.sh` (single attempt, `SWD` DD-8 adopted) | the reviewer is dropped from the merge and scored zero findings; survivors keep their lenses | `killed`, `invalid` or `error` in `reviews/<rid>.meta.json`; `classes_lost` in `check.json` | per arm (REQ-30); the classes that lived only in that reviewer (5.1) are listed |
++| 7 | Only two reviewers available before launch (a model probe fails) | probe in `run-panel.sh` | the run starts with the reviewers that answered; lenses are not re-assigned in version 1 (a re-assignment would be a different arm) | `reviewers: 2`, `classes_lost` | flagged and counted (intention to treat) |
++| 8 | A reviewer wrote no parseable `ledger-v1` block directly above the findings block | `rl/rowcheck.py` | luna: no repair, no demotion, no promotion for that reviewer, findings block merged as written. Ember: the re-ask of 7.6 if `now + 30 <= 1.35 b`, else the same as luna | `ledger_missing`, `reask` | rate per arm; at most 10% in the compliance spike before any arm (REQ-17) |
++| 9 | A lens recipe has no row (`recipe_missing`), a row id is unknown, or rows exceed a budget | `rl/rowcheck.py` | recorded; rows kept for counting; over-budget and unknown rows cannot be promoted | `recipe_missing`, `unknown_item`, `over_budget` | per arm and per class |
++| 10 | `rl/cli.py check` raises | exception caught in `run-panel.sh` | the whole post-run check is skipped; raw reports go to H2 and the merge (REQ-12 b) | `check_skipped=true`, `check/error.log` | per arm; different from `fallback` |
++| 11 | A promoted line fails `FND._check_finding` (long id, short anchor, duplicate id) | `rl/rowcheck.py` | the line is not inserted | `check.json: promotion_failures` | counted apart from reviewer findings |
++| 12 | A quote copied inexactly (luna: 91.4% verbatim) | checks 5 and 6 fail on a row whose text is otherwise complete | the linked finding is demoted to non-blocking, never deleted | `format_induced_demotions` | reported with every result (INV-007) |
++| 13 | Compliance: a terse luna writes OK rows without doing the steps | the `ran` cross-check (7.7); `ledger_missing` and quote validity in the spike | none at run time | `ran_status` per row | the compliance spike must show `ledger_missing` at most 10% before any arm; if it fails, RL does not run |
++| 14 | Prompt length hurts small models | lens validation (at most 4 recipes per reviewer) | none at run time | `recipes` per brief | arm K (plain words) shows whether the recipe wording adds anything (D7) |
++| 15 | The row budget forces a choice by salience: the model ledgers the sentences that stand out and skips the true one (T2 again, inside a smaller space) | none at run time | `NONE FOUND` lets a reviewer say a recipe found nothing; budgets sized per class | selection stage rows (section 12.2) | `s` per class is measured, never assumed |
++| 16 | Ember's own sweeps give false hits | CB-3; `UNSURE` is non-blocking; a blocker needs `supported` | the demotion rules of 7.2 | `demoted.*` | gate D4 |
++| 17 | Wrong blockers grow (earlier 2x ember panels added 2.75 to 3.25) | as row 16 | as row 16 | wrong blockers per run | gate D4: at most Z0 + 1.0 per run; clean twins at most Z0 + 0.7 |
++| 18 | Item attention displaces free review | CB-5 (half of the time for free review) | none at run time | non-probe findings per run | gate D6 (blocking) |
++| 19 | Time at b = 100, worst case of 14 rows: 134 s against a cap of 135.0 s | `lens_row_cap` (5.4); the 5-run timing spike (REQ-32) | the lens cap falls with the measured cost per row; `no_budget` below the number of recipes | `row_cap`, `b`, `c` per reviewer in `run.json` | the median, not one run, is judged (REQ-29) |
++| 20 | A reviewer is killed at the hang guard or the re-ask times out | `timeout` | as row 6; a timed-out re-ask keeps the original report | `killed`, `reask.accepted=false` | per arm |
++| 21 | Gateway model identity bleed (a model served as another) | `observed_model` against `expected_model` (copied logic of `RR` lines 51-56) | row 6 | `model_ok=false` | per arm |
++| 22 | The judge returns an API error but leaves a score file | `analysis/analyze.py audit-judges` (`CR` line 147 describes one such file) | the score is invalidated and the judge re-run | audit log | REQ-43 |
++| 23 | A re-asked ledger holds rows for steps the model did not run | `ran` cross-check; no promotion from a repaired ledger | demotion rules still apply | `via_reask` on every such row | `reask` count per arm; the analysis reports yield with and without re-asked reviewers |
++| 24 | A copied shared file is edited, or the sibling's file drifts from the copy | `bin/copy-shared.sh --check`; `test_shared_manifest.py` | an edited copy fails the test; drift is a warning that a person reads | `config/shared-manifest.json` | reported at every freeze |
++| 25 | Both builds run on one host and share a sandbox or `/tmp` path | K9 (`SW_SB_ROOT=/tmp/evalsb-recipe`); `test_sandbox_root.py` | the launcher sets the root itself and refuses a root that is the sibling's | log line | never counted |
++| 26 | The ledger heading order is wrong (ledger after the findings block, or another heading between) | `rl/rowcheck.py` reading rule 7.1 | `ledger_missing` | per reviewer | rate per arm |
++| 27 | A recipe cannot apply to the target (a spec with no tests, a document with no gate) | the model writes `NONE FOUND` | none | `none_found` per class | rate reported; a high rate on one class is a signal to re-derive that recipe for the target (11.3) |
+ 
+ ## 9. Harness (`bin/`): arms, clock, hang guard, merge
+ 
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T18/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T18/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T18/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+index 5dd0d1cdd..e6a77af09 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+@@ -13,6 +13,7 @@
+     find_e1, attach_e1  extractor E1 (classes C1 and C6, DESIGN 4.2): set words and the scope they name
+     find_e5, attach_e5  extractor E5 (class C2, DESIGN 4.6): source rules whose identifiers no citing task carries
+     find_e7, attach_e7  extractor E7 (class C7, DESIGN 4.8): constraint clauses that dictated text leaves out
++    find_e6, attach_e6  extractor E6 (class C3, experimental, DESIGN 4.7): a value that is read and never written
+ 
+ Candidate.status values set here: `found` (as made by `find`), `attached` (evidence computed, not yet decided) and
+ `dropped:pre_rank` (below the top K of its class; no evidence). select.py sets the rest: `selected`,
+@@ -2274,3 +2275,152 @@ def attach_e7(cands: list[Candidate], ctx: Ctx) -> None:
+ 
+ 
+ EXTRACTORS["E7"] = (find_e7, attach_e7)
++
++
++# ---------------------------------------------------------------- E6 (class C3, experimental): read and never written
++#
++# DESIGN 4.7. Lexical only: `find_e6` keeps the read quotes in `features`; `attach_e6` writes the evidence. Every item
++# carries `features["experimental"] = True` (the lowest-trust extractor; the item JSON and the sheet label come from it).
++
++E6_BASE_PRIORITY, E6_PER_READ, E6_READ_CAP = 20, 5, 3
++E6_LITERAL_MAX = 80
++# words are looked for in the prose of a sentence (backticked spans blanked out); the signs in the whole sentence
++_E6_READ_WORD = re.compile(
++    r"(?<![\w-])(?:keys on|when|is read|returns for|depends on)(?![\w-])", re.I
++)
++_E6_WRITE_WORD = re.compile(
++    r"(?<![\w-])(?:sets|gives|writes|assigns|produces|returns(?! for(?![\w-])))(?![\w-])",
++    re.I,
++)
++_E6_READ_SIGN = re.compile(r"==")
++_E6_WRITE_SIGN = re.compile(r"(?<![=!<>])=(?![=>])")
++
++
++def _e6_position(flat: str, word: re.Pattern, sign: re.Pattern) -> bool:
++    prose = _E5_TICKED.sub(lambda m: " " * len(m.group(0)), flat)
++    return word.search(prose) is not None or sign.search(flat) is not None
++
++
++def _e6_literal_ok(span: str) -> bool:
++    """A backticked span that is a value: not a command (more than one word, the first one a command word of E2), not
++    a path or a glob, 80 characters or fewer."""
++    return (
++        bool(span)
++        and len(span) <= E6_LITERAL_MAX
++        and not (" " in span and span.split(None, 1)[0] in E2_FIRST_WORDS)
++        and re.fullmatch(formats.PATH_TOKEN, span) is None
++    )
++
++
++def _e6_has(sentence: str, literal: str) -> bool:
++    """The literal occurs in the sentence (backticked or bare), not as part of a longer word."""
++    pre = r"(?<![\w])" if literal[0].isalnum() or literal[0] == "_" else ""
++    post = r"(?![\w])" if literal[-1].isalnum() or literal[-1] == "_" else ""
++    return re.search(pre + re.escape(literal) + post, sentence) is not None
++
++
++def _e6_sentences(doc: plan.Doc):
++    """(plan line, last line, flattened sentence, first line of it) of every sentence of the task, criterion and
++    constraint blocks. A bullet or a paragraph is read apart (a `Depends on:` line is not a sentence)."""
++    for b in doc.of("task", "criterion", "constraint"):
++        items: list[list] = []
++        for n, raw in enumerate(b["text"].split("\n"), b["line_start"]):
++            if not raw.strip():
++                items.append([n, ""])
++            elif items and items[-1][1] and not _E5_BULLET.match(raw):
++                items[-1][1] += "\n" + raw
++            else:
++                items.append([n, _E5_BULLET.sub("", raw, count=1)])
++        for first, text in items:
++            if _E5_DEPENDS.match(text):
++                continue
++            for start, _, sent in plan.sentences(text):
++                line = first + text.count("\n", 0, start)
++                yield (
++                    line,
++                    line + sent.count("\n"),
++                    b["task"],
++                    fnd.flat(sent),
++                    fnd.flat(sent.split("\n")[0]),
++                )
++
++
++# Where I narrowed or interpreted DESIGN 4.7 (each is also in the Task 18 report):
++#  1. "Anywhere in the candidate" is the three input blocks (task, criterion, constraint), which together hold every
++#     line of the plan body except titles and front matter; a write sentence in a heading is not seen.
++#  2. A read or write WORD is looked for in the sentence with its backticked spans blanked out (a word inside a span,
++#     such as `sets`, is a value and not a position); the SIGNS "==" and "=" are looked for in the whole sentence,
++#     because they live inside code spans (`legal_hold = false` is a write of legal_hold). "=" is a write only when it
++#     stands alone (not "==", "!=", "<=", ">=", "=>"). "keys on", "is read", "returns for" and "depends on" are exact
++#     phrases; no other inflection is read.
++#  3. A "literal" is a backticked span of 80 characters or fewer that is not a command (more than one word, the first
++#     one a command word of E2: grep, egrep, rg, git, pytest, test) and not a path or glob token (E4 makes a similar
++#     cut), compared exactly (case-sensitive, trimmed).
++#  4. A write occurrence is the literal anywhere in a write sentence, backticked or bare, as a whole word; so
++#     "sets legal_hold" without backticks also clears it, and a sentence that both reads and writes it clears it.
++#  5. Each read sentence counts once per literal (read_count); the candidate sits on the first read sentence, whose
++#     first 200 characters (or its first line, when the wrapped sentence is not a quote of the plan) are the anchor.
++#  6. The evidence is up to 3 read quotes (the cap of read_count) and the zero line, not the single quote.
++def find_e6(doc: plan.Doc, ctx: Ctx) -> list[Candidate]:
++    """DESIGN 4.7 `find`: one candidate per literal that is read at least once and written nowhere."""
++    sents = list(_e6_sentences(doc))
++    written = [
++        flat
++        for _, _, _, flat, _ in sents
++        if _e6_position(flat, _E6_WRITE_WORD, _E6_WRITE_SIGN)
++    ]
++    reads: dict[str, list[tuple]] = {}
++    for line, end, task, flat, first in sents:
++        if not _e6_position(flat, _E6_READ_WORD, _E6_READ_SIGN):
++            continue
++        for lit in dict.fromkeys(m.group(1).strip() for m in _E5_TICKED.finditer(flat)):
++            if _e6_literal_ok(lit):
++                reads.setdefault(lit, []).append((line, end, task, flat, first))
++    out: list[Candidate] = []
++    for lit, occ in reads.items():
++        if any(_e6_has(w, lit) for w in written):
++            continue
++        for line, end, task, flat, first in occ:
++            anchor = next(
++                (
++                    a
++                    for a in (flat[:ANCHOR_MAX].rstrip(), first[:ANCHOR_MAX].rstrip())
++                    if len(a) >= ANCHOR_MIN and a in ctx.flat_text
++                ),
++                None,
++            )
++            if anchor:
++                break
++        else:
++            continue
++        n = min(len({o[0] for o in occ}), E6_READ_CAP)
++        out.append(
++            Candidate(
++                "E6", "C3", "unwritten", anchor,
++                {"task": task, "line_start": line, "line_end": end},
++                features={
++                    "literal": lit, "experimental": True,
++                    "read_count": len({o[0] for o in occ}), "write_count": 0,
++                    "reads": [{"line": o[0], "text": o[3][:EVIDENCE_TEXT_MAX]} for o in occ[:E6_READ_CAP]],
++                },
++                pre_priority=E6_BASE_PRIORITY + E6_PER_READ * n,
++            )
++        )  # fmt: skip
++    return sorted(out, key=lambda c: (c.location["line_start"], c.features["literal"]))
++
++
++def attach_e6(cands: list[Candidate], ctx: Ctx) -> None:
++    """DESIGN 4.7 `attach`: the read quotes and `write-position occurrences of '<literal>': 0`; `priority = pre_priority`."""
++    for c in cands:
++        f = c.features
++        c.evidence = [_ev("plan", r["line"], r["text"]) for r in f["reads"]] + [
++            _ev(
++                "plan",
++                c.location["line_start"],
++                f"write-position occurrences of '{f['literal']}': {f['write_count']}",
++            )
++        ]
++        c.priority = c.pre_priority
++
++
++EXTRACTORS["E6"] = (find_e6, attach_e6)
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e6.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e6.py
+new file mode 100644
+index 000000000..bd472ba7b
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e6.py
+@@ -0,0 +1,309 @@
++"""Extractor E6 (class C3, experimental, DESIGN 4.7): a backticked value that is read and never written.
++
++Each extractor test has a positive case, a negative case, a near-miss or boundary case and a determinism case.
++E6 is lexical (no repository, no source). On fixtures/plans/p_basic.md Task 3 says "The purge step keys on `legal_hold`
++and leaves such reports in place." and no other sentence writes `legal_hold`, so it is the one E6 item of that plan.
++Every E6 item carries `experimental: true` (REQ-21).
++"""
++
++import json
++from pathlib import Path
++
++import pytest
++
++from sweep import extractors, plan
++from sweep.extractors import Candidate, Ctx
++
++PLANS = Path(__file__).resolve().parents[1] / "fixtures" / "plans"
++BASIC_TEXT = (PLANS / "p_basic.md").read_text(encoding="utf-8")
++CLEAN_TEXT = (PLANS / "p_clean.md").read_text(encoding="utf-8")
++T3_SENTENCE = "The purge step keys on `legal_hold` and leaves such reports in place."
++
++
++def mkplan(body, criterion="`make test` exits 0.", constraint=None):
++    """A one-task plan: the body is line 3, the criterion bullet line 6; a constraint is a bullet at line 3 and moves
++    the task down by four lines."""
++    head = f"## Constraints\n\n- {constraint}\n\n" if constraint else ""
++    return plan.parse(
++        f"{head}## Task 1: Change it\n\n{body}\n\nAcceptance criteria:\n- {criterion}\n"
++    )
++
++
++def find(doc, **kw):
++    return extractors.find_e6(doc, Ctx(doc, **kw))
++
++
++def run(doc, **kw):
++    ctx = Ctx(doc, **kw)
++    cands = extractors.find_e6(doc, ctx)
++    extractors.attach_e6(cands, ctx)
++    return cands
++
++
++def basic(**kw):
++    return run(plan.parse(BASIC_TEXT), **kw)
++
++
++def dump(cands):
++    return json.dumps([c.to_dict() for c in cands], sort_keys=True)
++
++
++def literals(cands):
++    return [c.features["literal"] for c in cands]
++
++
++# ---------------------------------------------------------------- registration
++
++
++def test_e6_is_registered_and_all_seven_extractors_are_in_the_table():
++    assert extractors.EXTRACTORS["E6"] == (extractors.find_e6, extractors.attach_e6)
++    assert set(extractors.EXTRACTORS) == set(extractors.EXTRACTOR_IDS)
++    assert tuple(sorted(extractors.EXTRACTORS)) == tuple(f"E{i}" for i in range(1, 8))
++    for eid, (find_fn, attach_fn) in extractors.EXTRACTORS.items():
++        assert callable(find_fn) and callable(attach_fn), eid
++        assert find_fn.__name__ == f"find_{eid.lower()}"
++        assert attach_fn.__name__ == f"attach_{eid.lower()}"
++
++
++# ---------------------------------------------------------------- positive
++
++
++def test_basic_plan_gives_the_one_unwritten_literal_of_task_3():
++    (c,) = basic()
++    assert (c.extractor, c.cls, c.kind) == ("E6", "C3", "unwritten")
++    assert c.anchor_text == T3_SENTENCE
++    assert c.location["task"] == "T3"
++    assert BASIC_TEXT.split("\n")[c.location["line_start"] - 1] == (
++        "Create `src/exporter/retention.py` and `tests/test_retention.py`. "
++        + T3_SENTENCE
++    )
++    f = c.features
++    assert (
++        f["literal"] == "legal_hold" and f["read_count"] == 1 and f["write_count"] == 0
++    )
++    assert c.pre_priority == 25 and c.priority == 25
++
++
++def test_every_item_is_marked_experimental():
++    items = basic() + run(mkplan("The job runs when `a_flag` is on."))
++    assert len(items) == 2
++    for c in items:
++        assert c.features["experimental"] is True
++        assert c.to_dict()["features"]["experimental"] is True
++
++
++def test_evidence_is_the_read_quote_and_the_zero_write_count():
++    (c,) = basic()
++    assert c.evidence == [
++        {"path": "plan", "line": c.location["line_start"], "text": T3_SENTENCE},
++        {
++            "path": "plan",
++            "line": c.location["line_start"],
++            "text": "write-position occurrences of 'legal_hold': 0",
++        },
++    ]
++    c.validate(Ctx(plan.parse(BASIC_TEXT)))
++
++
++@pytest.mark.parametrize(
++    "phrase",
++    ["keys on", "when", "is read", "returns for", "depends on", "KEYS ON"],
++)
++def test_each_read_phrase_makes_a_candidate(phrase):
++    got = find(mkplan(f"The purge step {phrase} `legal_hold` here."))
++    assert literals(got) == ["legal_hold"]
++
++
++def test_the_double_equals_sign_is_a_read_position():
++    got = find(mkplan("The purge step skips a row where `legal_hold` == true here."))
++    assert literals(got) == ["legal_hold"]
++
++
++def test_read_in_a_criterion_and_in_a_constraint_is_found():
++    d = mkplan(
++        "Edit the retention job as the plan says.",
++        criterion="The job keys on `held_flag` for each report.",
++        constraint="The notice is built when `locale_code` is known.",
++    )
++    got = find(d)
++    assert sorted(literals(got)) == ["held_flag", "locale_code"]
++    by = {c.features["literal"]: c for c in got}
++    assert by["held_flag"].location["task"] == "T1"
++    assert by["locale_code"].location["task"] is None
++
++
++@pytest.mark.parametrize(
++    "reads, want",
++    [(1, 25), (2, 30), (3, 35), (4, 35), (6, 35)],
++)
++def test_pre_priority_is_20_plus_5_per_read_capped_at_3(reads, want):
++    body = "\n\n".join(
++        f"The step reads when `legal_hold` is {i}." for i in range(reads)
++    )
++    (c,) = find(mkplan(body))
++    assert c.pre_priority == want
++    assert c.features["read_count"] == reads
++    assert c.location["line_start"] == 3
++    assert len(run(mkplan(body))[0].evidence) == min(reads, 3) + 1
++
++
++def test_two_literals_in_one_read_sentence_make_two_candidates():
++    got = find(mkplan("The job keys on `alpha_one` and `beta_two` together."))
++    assert literals(got) == ["alpha_one", "beta_two"]
++    assert got[0].anchor_text == got[1].anchor_text
++
++
++# ---------------------------------------------------------------- negative
++
++
++def test_clean_plan_gives_nothing():
++    assert run(plan.parse(CLEAN_TEXT)) == []
++
++
++@pytest.mark.parametrize(
++    "write",
++    [
++        "The setup sets `legal_hold` to false.",
++        "The setup gives `legal_hold` a default.",
++        "The setup writes `legal_hold` to the log.",
++        "The setup assigns `legal_hold` a value.",
++        "The setup produces `legal_hold` per report.",
++        "The setup returns `legal_hold` to the caller.",
++        "Set `legal_hold = false` at load.",
++        "The load step does legal_hold = 1 once.",
++    ],
++)
++def test_a_write_position_occurrence_anywhere_clears_the_literal(write):
++    body = f"The purge step keys on `legal_hold` here.\n\n{write}"
++    assert find(mkplan(body)) == []
++    # the same write in a criterion or in a constraint clears it as well
++    assert (
++        find(mkplan("The purge step keys on `legal_hold` here.", criterion=write)) == []
++    )
++    assert (
++        find(
++            mkplan(
++                "The purge step keys on `legal_hold` here.", constraint=write.strip()
++            )
++        )
++        == []
++    )
++
++
++def test_a_sentence_that_reads_and_writes_the_literal_clears_it():
++    assert (
++        find(mkplan("The step keys on `legal_hold` and sets `legal_hold` back.")) == []
++    )
++
++
++def test_no_read_position_makes_no_candidate():
++    assert find(mkplan("The purge step uses `legal_hold` for each report.")) == []
++
++
++def test_a_literal_without_backticks_is_not_a_candidate():
++    assert find(mkplan("The purge step keys on legal_hold here.")) == []
++
++
++def test_a_depends_on_line_is_not_a_read():
++    d = plan.parse(
++        "## Task 1: A\n\nWrite it.\n\n## Task 2: B\n\nDepends on: `Task_1`\n\nWrite it too.\n"
++    )
++    assert find(d) == []
++
++
++# ---------------------------------------------------------------- near-miss and boundary
++
++
++def test_returns_for_is_a_read_not_a_write():
++    d = mkplan("The cache returns for `legal_hold` the stored row.")
++    assert literals(find(d)) == ["legal_hold"]
++
++
++@pytest.mark.parametrize("op", ["!=", "<=", ">=", "=>"])
++def test_a_comparison_sign_is_not_a_write(op):
++    got = find(mkplan(f"The purge step keys on `legal_hold` here, and x {op} y."))
++    assert literals(got) == ["legal_hold"]
++
++
++def test_a_sign_or_word_inside_backticks_is_not_a_position():
++    # the sign "=" is read inside a span (a sentence with an assignment writes what it names), a word is not
++    assert find(mkplan("The step keys on `legal_hold` with `mode = x` here.")) == []
++    got = find(mkplan("The step keys on `legal_hold` and `sets` here."))
++    assert "legal_hold" in literals(got)
++    # a read word inside backticks is not a read position
++    assert find(mkplan("The step uses `legal_hold` and `when` here.")) == []
++
++
++def test_a_bare_write_of_the_literal_clears_it_but_a_longer_word_does_not():
++    base = "The purge step keys on `legal_hold` here.\n\n"
++    assert find(mkplan(base + "The loader sets legal_hold on load.")) == []
++    got = find(mkplan(base + "The loader sets legal_hold_flag on load."))
++    assert literals(got) == ["legal_hold"]
++
++
++def test_a_command_a_path_and_a_long_span_are_not_literals():
++    for span in (
++        "grep -c 'x' docs/guide.md",
++        "pytest tests/test_x.py -q",
++        "src/exporter/retention.py",
++        "tests/*.py",
++        "x" * 81,
++    ):
++        assert find(mkplan(f"The purge step keys on `{span}` here.")) == [], span
++
++
++def test_literals_are_compared_exactly():
++    body = (
++        "The step keys on `Legal_Hold` here.\n\nThe loader sets `legal_hold` on load."
++    )
++    assert literals(find(mkplan(body))) == ["Legal_Hold"]
++
++
++def test_a_wrapped_read_sentence_keeps_a_quote_of_the_plan_as_its_anchor():
++    body = "The purge step keys on `legal_hold`\nand leaves such reports\nin place."
++    (c,) = find(mkplan(body))
++    assert (
++        c.anchor_text
++        == "The purge step keys on `legal_hold` and leaves such reports in place."
++    )
++    assert (c.location["line_start"], c.location["line_end"]) == (3, 5)
++
++
++def test_a_long_sentence_is_cut_to_200_characters():
++    body = "The purge step keys on `legal_hold` " + "and more words " * 20 + "here."
++    (c,) = find(mkplan(body))
++    assert len(c.anchor_text) <= 200 and c.anchor_text.startswith(
++        "The purge step keys on `legal_hold` and more"
++    )
++    c.validate(Ctx(mkplan(body)))
++
++
++# ---------------------------------------------------------------- determinism and the core run
++
++
++def test_same_input_same_output():
++    doc = plan.parse(BASIC_TEXT)
++    assert dump(run(doc)) == dump(run(doc)) == dump(run(plan.parse(BASIC_TEXT)))
++
++
++def test_attach_works_on_a_candidate_read_back_from_json():
++    doc = plan.parse(BASIC_TEXT)
++    ctx = Ctx(doc)
++    (c,) = extractors.find_e6(doc, ctx)
++    d = c.to_dict()
++    back = Candidate(
++        d["extractor"], d["class"], d["kind"], d["anchor_text"], d["location"],
++        features=d["features"], pre_priority=d["pre_priority"],
++    )  # fmt: skip
++    extractors.attach_e6([back], ctx)
++    assert back.evidence[1]["text"] == "write-position occurrences of 'legal_hold': 0"
++    assert back.priority == back.pre_priority
++
++
++def test_core_run_keeps_the_experimental_label_and_the_class_route():
++    doc = plan.parse(BASIC_TEXT)
++    out = extractors.run_extractors(Ctx(doc), {"E6": extractors.EXTRACTORS["E6"]})
++    (c,) = out
++    assert c.status == "attached" and c.evidence_computed and c.priority == 25
++    assert c.route == "read"  # card C3
++    assert c.to_dict()["features"]["experimental"] is True
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_recall.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_recall.py
+new file mode 100644
+index 000000000..b35132f8f
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_recall.py
+@@ -0,0 +1,113 @@
++"""REQ-21 (marker `freeze`): extractor recall and precision on plans with defects seeded by a second author.
++
++Written, not run by the build: `fixtures/recall/` is a step 14 deliverable (TESTING F-RECALL; it cannot be written by the
++author of the extractors, AO-4). While it is absent every test here FAILS with "fixtures/recall missing"; none skips, so
++the freeze script cannot pass without the fixtures.
++
++Layout this file reads (the contract for the step 14 author), one folder per plan under `fixtures/recall/`:
++
++    <plan-id>/seeded.md      the plan with the seeded defects
++    <plan-id>/seeds.json     a JSON list of {"class": "C1".."C8", "quote": "<exact quote of seeded.md>"}
++    <plan-id>/source.md      optional, the plan's source document (E5 runs only with it)
++    <plan-id>/snapshot/      optional, a git checkout the repository-search extractors (E2 to E4) search; no folder, no search
++    AUTHORS.md               who seeded, and that they had not read the extractors
++
++A seed is found by an extractor when one of its candidates (the `find` output, before selection) has the class of the
++seed and an anchor that holds the quote or is held in it (whitespace flattened). Recall is pooled over all plans;
++precision of an extractor is its candidates that hit a seed over all its candidates, and is printed, not gated.
++"""
++
++import json
++from pathlib import Path
++
++import pytest
++
++from scaffold import fnd
++from sweep import extractors, plan
++from sweep.extractors import Ctx
++
++pytestmark = pytest.mark.freeze
++
++RECALL = Path(__file__).resolve().parents[1] / "fixtures" / "recall"
++MIN_PLANS = 3
++RECALL_FLOOR = 0.8
++GATED = ("E1", "E2", "E3", "E4", "E7")
++CLASS_EXTRACTOR = {
++    "C1": "E1", "C6": "E1", "C4": "E2", "C8": "E3", "C5": "E4", "C2": "E5", "C7": "E7", "C3": "E6",
++}  # fmt: skip
++
++
++def plan_dirs() -> list[Path]:
++    if not RECALL.is_dir():
++        pytest.fail("fixtures/recall missing")
++    dirs = sorted(p for p in RECALL.iterdir() if (p / "seeds.json").is_file())
++    if len(dirs) < MIN_PLANS:
++        pytest.fail(
++            f"fixtures/recall missing: {len(dirs)} plans with a seeds.json, at least {MIN_PLANS} needed"
++        )
++    return dirs
++
++
++def run_all() -> list[tuple[Path, list[dict], dict[str, list]]]:
++    """(plan dir, seeds, {extractor id: its candidates}) for every plan; only `find` runs."""
++    out = []
++    for d in plan_dirs():
++        doc = plan.read(d / "seeded.md")
++        src = d / "source.md"
++        snap = d / "snapshot"
++        ctx = Ctx(
++            doc,
++            source=plan.read(src) if src.is_file() else None,
++            snapshot=snap if snap.is_dir() else None,
++        )
++        seeds = json.loads((d / "seeds.json").read_text(encoding="utf-8"))
++        found = {
++            eid: find(doc, ctx) for eid, (find, _) in extractors.EXTRACTORS.items()
++        }
++        out.append((d, seeds, found))
++    return out
++
++
++def hits(cand, seed) -> bool:
++    a, q = fnd.flat(cand.anchor_text), fnd.flat(seed["quote"])
++    return cand.cls == seed["class"] and (a in q or q in a)
++
++
++def tally():
++    """Per extractor: seeds of its classes, seeds found, candidates, candidates that hit a seed (pooled over plans)."""
++    t = {eid: dict(seeds=0, found=0, cands=0, true=0) for eid in extractors.EXTRACTORS}
++    for _, seeds, found in run_all():
++        for eid, cands in found.items():
++            mine = [s for s in seeds if CLASS_EXTRACTOR.get(s["class"]) == eid]
++            t[eid]["seeds"] += len(mine)
++            t[eid]["found"] += sum(any(hits(c, s) for c in cands) for s in mine)
++            t[eid]["cands"] += len(cands)
++            t[eid]["true"] += sum(any(hits(c, s) for s in seeds) for c in cands)
++    return t
++
++
++def test_recall_per_extractor():
++    t = tally()
++    low = []
++    for eid in GATED:
++        n, k = t[eid]["seeds"], t[eid]["found"]
++        recall = k / n if n else 0.0
++        print(f"{eid}: recall {k}/{n} = {recall:.2f}")
++        if n == 0 or recall < RECALL_FLOOR:
++            low.append(f"{eid} {k}/{n}")
++    assert not low, f"recall under {RECALL_FLOOR} (or no seeds) for: {', '.join(low)}"
++
++
++def test_precision_reported():
++    t = tally()
++    for eid in sorted(t):
++        c, k = t[eid]["cands"], t[eid]["true"]
++        print(f"{eid}: precision {k}/{c}" + (f" = {k / c:.2f}" if c else " = n/a"))
++    assert set(t) == set(extractors.EXTRACTOR_IDS)
++
++
++def test_e6_marked_experimental():
++    items = [c for _, _, found in run_all() for c in found["E6"]]
++    for c in items:
++        assert c.features.get("experimental") is True, c.anchor_text
++        assert c.to_dict()["features"]["experimental"] is True
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index 6b5658d4e..091f16479 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -34,3 +34,4 @@ T16: start sha=d7a2f4858e276d94cad7119505d48e3eadc1d49c
+ T16: complete verdict=compliant ac=T16.AC1,T16.AC2,T16.AC3,T16.AC4 evidence=T16.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T16-e5-formats.log:12,T16.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e5.py:74,T16.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py:69,T16.AC4@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:2141 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e5.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py
+ T17: start sha=915f5186f13b5b292abb136918284b9acb728532
+ T17: complete verdict=compliant ac=T17.AC1,T17.AC2,T17.AC3 evidence=T17.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T17-test-e7.log:35,T17.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py:253,T17.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:2276 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e7.py
++T18: start sha=daeefc85386b5fb920881a013c5761a17f6644b4

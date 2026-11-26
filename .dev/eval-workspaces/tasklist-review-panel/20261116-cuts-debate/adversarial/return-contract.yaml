@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/eval-workspaces/tasklist-review-panel/20261116-cuts-debate/adversarial/final-cuts.md"
+  convergence_score: 1.0   # 12 of 12 after concessions; condensed scoring, same-direction agreement is weak evidence
+  artifacts_dir: ".dev/eval-workspaces/tasklist-review-panel/20261116-cuts-debate/adversarial"
+  status: "partial"        # quick depth, two variants only, condensed scoring, no rebuttal round, no invariant probe
+  base_variant: "haiku:architect"
+  unresolved_conflicts: 0
+  fallback_mode: true      # two variants and sequential advocates because of the two-session limit
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

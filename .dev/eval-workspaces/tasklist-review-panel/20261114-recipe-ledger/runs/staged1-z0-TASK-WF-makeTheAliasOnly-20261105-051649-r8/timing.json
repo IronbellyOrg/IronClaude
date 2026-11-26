@@ -1,0 +1,24 @@
+{
+ "arm": "Z0",
+ "b": 120,
+ "check_s": 0,
+ "concurrent_panels_at_start": 0,
+ "doc": "TASK-WF-makeTheAliasOnly-20261105-051649",
+ "hang_s": 180.0,
+ "panel": "primary",
+ "panel_elapsed_s": 152.438,
+ "reask_s": 0,
+ "render_s": 0,
+ "rev_end": {
+  "t2b-1": 1794842327.732,
+  "t3-1": 1794842419.614,
+  "t4-1": 1794842429.195
+ },
+ "rev_start": {
+  "t2b-1": 1794842277.087,
+  "t3-1": 1794842277.088,
+  "t4-1": 1794842277.087
+ },
+ "slowest_reviewer_s": 152.108,
+ "t0": 1794842276.757
+}

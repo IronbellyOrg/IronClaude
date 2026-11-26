@@ -1,0 +1,139 @@
+{
+ "schema": "r1-results/1",
+ "design": "r1-move-radar",
+ "row": "sl2-c0-r4",
+ "panel": "sl2",
+ "models": {
+  "t1b-1": "claude-sonnet-5-5",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "collab": 0,
+ "rep": 4,
+ "started_utc": "2026-11-14T15:19:38Z",
+ "values": {
+  "TASK-WF-designSpec-20261107-075614": "ea2cb7046b8d93cde0beb712b8f002d0daa29453eea1a92ed263173546248db0",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": "327076dc5cf6c8822a10cc12f95818d27f0d8ebc4049a09d0066b940029ea3f1",
+  "TASK-WF-design-20261108-041415": "9f4a2b9ecb9fbaa1b257f58af28f6c4a47428801fd5fab178d471ce14e823aa9"
+ },
+ "status": "incomplete",
+ "found_14": null,
+ "real_blocking_8": null,
+ "judge_blocking": null,
+ "wrong_blockers": null,
+ "control_found_2": 1,
+ "control_wrong_blockers": 1,
+ "output_tokens": null,
+ "elapsed_s": {
+  "TASK-WF-designSpec-20261107-075614": 248.476,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": 266.606,
+  "TASK-WF-design-20261108-041415": 274.59
+ },
+ "packages": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "status": "invalid",
+   "label": null,
+   "ledger_rows": null,
+   "output_tokens": 7006,
+   "elapsed_s": 248.476,
+   "B_f": 165.823,
+   "overhead_pct": 49.84411088932175,
+   "slo_breach": true,
+   "k": {
+    "searcher": 0,
+    "reader": 0
+   },
+   "values": "ea2cb7046b8d93cde0beb712b8f002d0daa29453eea1a92ed263173546248db0",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 1,
+   "gt_covered_any": null,
+   "real_blocking": null,
+   "judge_blocking": null,
+   "wrong_blockers": null
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "status": "ok",
+   "label": "T",
+   "ledger_rows": 8,
+   "output_tokens": 48917,
+   "elapsed_s": 266.606,
+   "B_f": 302.295,
+   "overhead_pct": -11.80601730098083,
+   "slo_breach": false,
+   "k": {
+    "searcher": 0,
+    "reader": 2
+   },
+   "values": "327076dc5cf6c8822a10cc12f95818d27f0d8ebc4049a09d0066b940029ea3f1",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [],
+   "real_blocking": [],
+   "judge_blocking": [],
+   "wrong_blockers": 3
+  },
+  "TASK-WF-design-20261108-041415": {
+   "status": "ok",
+   "label": "T",
+   "ledger_rows": 5,
+   "output_tokens": 43948,
+   "elapsed_s": 274.59,
+   "B_f": 197.644,
+   "overhead_pct": 38.93161441784216,
+   "slo_breach": false,
+   "k": {
+    "searcher": 0,
+    "reader": 1
+   },
+   "values": "9f4a2b9ecb9fbaa1b257f58af28f6c4a47428801fd5fab178d471ce14e823aa9",
+   "dropped_lines": 0,
+   "reask": 0,
+   "retry_isolated": 0,
+   "hang_kill": 0,
+   "gt_covered_any": [
+    "GT1"
+   ],
+   "real_blocking": [],
+   "judge_blocking": [
+    "GT1"
+   ],
+   "wrong_blockers": 1
+  }
+ },
+ "collab_counters": {
+  "injections": 0,
+  "injections_by_move": {},
+  "src_checks": 0,
+  "search_injections": 0,
+  "static_injections": 0,
+  "observable_moves_executed": 0,
+  "skips_no_gap": 0,
+  "skips_guard": 0,
+  "finish_signals": 0,
+  "finish_would_fire": 2,
+  "hook_calls": 0,
+  "hook_errors": 0,
+  "hook_ms_p95": null,
+  "snapshot_missing": 0,
+  "late": 0,
+  "receivers": 0,
+  "leak_violations": 0,
+  "moves_covered_panel": {
+   "M1": 5,
+   "M2": 3,
+   "M4": 4,
+   "M7": 2,
+   "SRC_OPENED": 8,
+   "UNNAMED_TEST": 0
+  },
+  "own_line_jaccard": {
+   "TASK-WF-designSpec-20261107-075614": 0.0,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 0.1111111111111111,
+   "TASK-WF-design-20261108-041415": 0.0
+  }
+ }
+}

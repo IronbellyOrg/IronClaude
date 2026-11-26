@@ -1,0 +1,1307 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/common.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/common.sh
+index abc02f251..adf37c9a6 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/common.sh
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/common.sh
+@@ -63,6 +63,16 @@ sw_assert_override() {
+       echo "E_OVERRIDE: $name=$val is not the false stub" >&2
+       return 1
+       ;;
++    SW_PANELS)
++      # The panel file of one schedule run (Task 32): bin/run-schedule.sh writes the spike fallback caps into a copy of
++      # config/panels.json under SW/runs/ and points the runs at it; tests keep theirs under /tmp/.
++      rp=$(realpath -m -- "$val") || return 1
++      case "$rp/" in
++        /tmp/?* | "$SW"/runs/?*) return 0 ;;
++      esac
++      echo "E_OVERRIDE: $name=$val is outside /tmp/ and $SW/runs/" >&2
++      return 1
++      ;;
+   esac
+   echo "E_OVERRIDE: $name is not a known override" >&2
+   return 1
+@@ -71,7 +81,7 @@ sw_assert_override() {
+ # Check every override that is set in the environment.
+ sw_assert_overrides() {
+   local v rc=0
+-  for v in SW_SB_ROOT SW_SRC_REPO SW_KILL_S SW_PREPASS_CMD SW_RENDER_CMD; do
++  for v in SW_SB_ROOT SW_SRC_REPO SW_KILL_S SW_PREPASS_CMD SW_RENDER_CMD SW_PANELS; do
+     [ -n "${!v:-}" ] || continue
+     sw_assert_override "$v" || rc=1
+   done
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/make-schedule.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/make-schedule.py
+new file mode 100755
+index 000000000..e0569ecf0
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/make-schedule.py
+@@ -0,0 +1,209 @@
++#!/usr/bin/env python3
++"""make-schedule.py: the block-randomised run schedule (DESIGN 11.6, REQ-29, REQ-32).
++
++    make-schedule.py --stage 1 --arms z0,k,ss --docs HO-1,HO-2,HO-3,HO-4 --reps 5 --seed 20261115 --out FILE
++    make-schedule.py --stage 1 --arms z0raw --docs HO-1,HO-2,HO-3 --reps 5 --seed 20261115 --append FILE
++    options: --set NAME (default holdout; planted, twins, spec, docs, derivation ...), --panel primary|haiku|sonnet
++
++One line per (stage, block, arm, document, replicate). There is one block per replicate, so the arms of a block are run
++together and compared with each other and never with a run from another day (REQ-29). The order inside a block is shuffled
++with a generator seeded from the recorded seed, the stage and the block, so the same arguments give the same file.
++`--append` adds rows to an existing schedule: the new rows join the blocks of the same numbers and each block is shuffled
++again from the seed, so that Z0-raw runs on the day of the Z0 runs that they are compared with. The file is a tab separated
++table whose first line is a comment with the seed:
++
++    # make-schedule seed=20261115
++    stage  block  arm  panel  doc  replicate  seed  set  run
++
++`run` is the folder name of the run under runs/stage<stage>/ (bin/run-schedule.sh). The `seed` column is the pre-pass seed
++that run-panel.sh records (the same recorded seed for every row). Output goes only under the sweep-sheet folder or /tmp.
++"""
++
++import argparse
++import random
++import re
++import sys
++from pathlib import Path
++
++SW = Path(__file__).resolve().parents[1]
++ARMS = {"z0raw": "Z0-raw", "z0": "Z0", "k": "K", "ss": "SS"}
++PANELS = ("primary", "haiku", "sonnet")
++COLUMNS = ("stage", "block", "arm", "panel", "doc", "replicate", "seed", "set", "run")
++DOC = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
++STAGE = re.compile(r"^[0-9a-z]+$")
++ARM_ORDER = tuple(ARMS.values())
++
++
++class ScheduleError(Exception):
++    pass
++
++
++def run_id(stage, arm, panel, doc, rep):
++    """The run folder name: stage, arm without hyphen, panel when it is not the primary one, document, replicate."""
++    p = "" if panel == "primary" else f"{panel}-"
++    return f"s{stage}-{arm.lower().replace('-', '')}-{p}{doc}-r{rep}"
++
++
++def rows_for(stage, arms, docs, reps, seed, panel, set_name):
++    out = []
++    for block in range(1, reps + 1):
++        for arm in arms:
++            for doc in docs:
++                out.append(
++                    {
++                        "stage": stage,
++                        "block": block,
++                        "arm": arm,
++                        "panel": panel,
++                        "doc": doc,
++                        "replicate": block,
++                        "seed": seed,
++                        "set": set_name,
++                        "run": run_id(stage, arm, panel, doc, block),
++                    }
++                )
++    return out
++
++
++def shuffle_blocks(rows, seed):
++    """Group rows by (stage, block) in ascending order and shuffle each group with a generator seeded from the seed, the
++    stage and the block. The rows are sorted first, so the result does not depend on the order they arrived in."""
++    groups = {}
++    for r in rows:
++        groups.setdefault((r["stage"], r["block"]), []).append(r)
++    out = []
++    for (stage, block), g in sorted(groups.items()):
++        g.sort(key=lambda r: (ARM_ORDER.index(r["arm"]), r["panel"], r["doc"]))
++        random.Random(f"{seed}:{stage}:{block}").shuffle(g)
++        out += g
++    return out
++
++
++def render(rows, seed) -> str:
++    lines = [f"# make-schedule seed={seed}", "\t".join(COLUMNS)]
++    lines += ["\t".join(str(r[c]) for c in COLUMNS) for r in rows]
++    return "\n".join(lines) + "\n"
++
++
++def read(path):
++    """(seed, rows) of a schedule file."""
++    lines = Path(path).read_text(encoding="utf-8").splitlines()
++    m = re.match(r"# make-schedule seed=(\d+)$", lines[0]) if lines else None
++    if not m or len(lines) < 2 or lines[1].split("\t") != list(COLUMNS):
++        raise ScheduleError(f"{path} is not a schedule file")
++    rows = []
++    for ln in lines[2:]:
++        f = ln.split("\t")
++        if len(f) != len(COLUMNS):
++            raise ScheduleError(
++                f"{path}: a row has {len(f)} columns, not {len(COLUMNS)}"
++            )
++        r = dict(zip(COLUMNS, f))
++        r["block"], r["replicate"], r["seed"] = (
++            int(r["block"]),
++            int(r["replicate"]),
++            int(r["seed"]),
++        )
++        rows.append(r)
++    return int(m.group(1)), rows
++
++
++def writable(path) -> Path:
++    """K1: output only under SW or /tmp."""
++    p = Path(path).resolve()
++    if SW in p.parents or Path("/tmp") in p.parents:
++        return p
++    raise ScheduleError(f"E_NOT_WRITABLE: {path} resolves to {p}")
++
++
++def build(args) -> tuple[int, list]:
++    arms = []
++    for a in (x for x in args.arms.split(",") if x):
++        if a.lower() not in ARMS:
++            raise ScheduleError(f"unknown arm {a}: use {', '.join(ARMS)}")
++        arms.append(ARMS[a.lower()])
++    docs = [d for d in args.docs.split(",") if d]
++    if not arms or not docs:
++        raise ScheduleError("--arms and --docs each need at least one name")
++    for d in docs:
++        if not DOC.match(d):
++            raise ScheduleError(f"bad document id {d}")
++    if not STAGE.match(args.stage):
++        raise ScheduleError(f"bad stage {args.stage}")
++    if args.panel not in PANELS or args.reps < 1:
++        raise ScheduleError(
++            "--panel must be primary, haiku or sonnet and --reps at least 1"
++        )
++    new = rows_for(
++        args.stage,
++        dict.fromkeys(arms),
++        dict.fromkeys(docs),
++        args.reps,
++        args.seed,
++        args.panel,
++        args.set,
++    )
++    return args.seed, new
++
++
++def main(argv=None) -> int:
++    ap = argparse.ArgumentParser(
++        prog="make-schedule.py", description=__doc__.split("\n")[0]
++    )
++    ap.add_argument("--stage", required=True, help="1, 2 or d (derivation)")
++    ap.add_argument("--arms", required=True, help="comma separated: z0raw, z0, k, ss")
++    ap.add_argument("--docs", required=True, help="comma separated document ids")
++    ap.add_argument("--reps", type=int, required=True, help="replicates = blocks")
++    ap.add_argument("--seed", type=int, required=True)
++    ap.add_argument(
++        "--panel", default="primary", help="primary (ember + 2x luna), haiku or sonnet"
++    )
++    ap.add_argument(
++        "--set", default="holdout", help="the document set, recorded in each row"
++    )
++    out = ap.add_mutually_exclusive_group(required=True)
++    out.add_argument("--out", help="write a new schedule (refuses to replace a file)")
++    out.add_argument(
++        "--append", help="add the rows to this schedule and shuffle each block again"
++    )
++    args = ap.parse_args(argv)
++    try:
++        seed, new = build(args)
++        if args.append:
++            dest = writable(args.append)
++            old_seed, old = read(dest)
++            if old_seed != seed:
++                raise ScheduleError(
++                    f"the file has seed {old_seed}, not {seed}: one schedule has one seed"
++                )
++            have = {
++                (r["stage"], r["arm"], r["panel"], r["doc"], r["replicate"])
++                for r in old
++            }
++            dup = [
++                r["run"]
++                for r in new
++                if (r["stage"], r["arm"], r["panel"], r["doc"], r["replicate"]) in have
++            ]
++            if dup:
++                raise ScheduleError(f"already in the schedule: {', '.join(dup[:3])}")
++            rows = shuffle_blocks(old + new, seed)
++        else:
++            dest = writable(args.out)
++            rows = shuffle_blocks(new, seed)
++            # the same arguments give the same file, so a repeat is a no-op; a different schedule never replaces one
++            if dest.exists() and dest.read_text(encoding="utf-8") != render(rows, seed):
++                raise ScheduleError(
++                    f"{dest} exists with other content: a schedule is never replaced"
++                )
++        dest.parent.mkdir(parents=True, exist_ok=True)
++        dest.write_text(render(rows, seed), encoding="utf-8")
++    except (ScheduleError, OSError) as e:
++        print(f"make-schedule: {e}", file=sys.stderr)
++        return 2
++    print(f"{dest}: {len(rows)} rows")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-panel.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-panel.sh
+index 45635386e..75839372f 100755
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-panel.sh
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-panel.sh
+@@ -86,12 +86,13 @@ sw_assert_writable "$RUN" || exit 2
+ [ ! -e "$RUN/run.json" ] || { echo "E_RUN_EXISTS: $RUN/run.json exists; a counted run is never repeated" >&2; exit 2; }
+ 
+ # Reviewers of the panel (S, L1, L2), minus the unavailable ones; every model must be on the allowlist (K2).
+-jq -e --arg p "$PANEL" '.panels[$p]' "$SW/config/panels.json" >/dev/null 2>&1 || { echo "E_PANEL: unknown panel $PANEL" >&2; exit 2; }
++PANELS_FILE=${SW_PANELS:-$SW/config/panels.json} # SW_PANELS: the panel file of a schedule run with the spike fallback caps (Task 32)
++jq -e --arg p "$PANEL" '.panels[$p]' "$PANELS_FILE" >/dev/null 2>&1 || { echo "E_PANEL: unknown panel $PANEL" >&2; exit 2; }
+ RIDS=()
+ declare -A MODEL_OF
+ for role in S L1 L2; do
+-  rid=$(jq -r --arg p "$PANEL" --arg r "$role" '.panels[$p][$r].rid' "$SW/config/panels.json")
+-  model=$(jq -r --arg p "$PANEL" --arg r "$role" '.panels[$p][$r].model' "$SW/config/panels.json")
++  rid=$(jq -r --arg p "$PANEL" --arg r "$role" '.panels[$p][$r].rid' "$PANELS_FILE")
++  model=$(jq -r --arg p "$PANEL" --arg r "$role" '.panels[$p][$r].model' "$PANELS_FILE")
+   sw_assert_model "$model" || exit 2
+   MODEL_OF[$rid]=$model
+   skip=0
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-schedule.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-schedule.sh
+new file mode 100755
+index 000000000..82e1a8ed0
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-schedule.sh
+@@ -0,0 +1,117 @@
++#!/usr/bin/env bash
++# run-schedule.sh SCHEDULE.tsv [--runs-root DIR] [--values FILE] [--packages FILE] [--jobs N]   (DESIGN 11.6, REQ-32, REQ-29)
++# Runs the rows of a schedule written by bin/make-schedule.py through bin/run-panel.sh, at most 3 panels at once (so at most
++# 9 reviewer sessions and 3 ember sessions), block by block in file order. Each run is `bin/run-panel.sh --arm A --panel P
++# --doc D --run <root>/<run> --seed S --replicate R --block B --concurrent N`, where N is the number of panels running when
++# that one started (`concurrent_panels_at_start` in its run.json). A run folder that already holds a run.json is skipped: a
++# counted run is never repeated, so a stopped schedule is resumed by running it again.
++#   --runs-root DIR   the run folders go here (default SW/runs/stage<stage> of each row); under SW or /tmp (K1)
++#   --values FILE     a values file instead of config/values.json (a test hook, accepted only under /tmp/)
++#   --packages FILE   passed to run-panel.sh (a test hook, accepted only under /tmp/)
++#   --jobs N          panels at once, 1 to 3 (default 3)
++# The spike record: the script refuses to start (exit 2, E_NO_SPIKE) unless the values file holds `spike.runs` of at least 5
++# and a numeric `spike.c_luna` (REQ-32). When c_luna is above the break-even seconds per item at b = 100 (2.75 s) every run
++# uses the fallback caps: each luna takes 6 items, the search reviewer 12. The caps are written to a copy of config/panels.json
++# (<root>/panels-in-use.json) that the runs read through SW_PANELS; config/panels.json itself is never changed.
++# Environment: NOFALLBACK=1 is required (DD-8). Written files: <root>/schedule-run.json (the summary) and
++# <root>/schedule-run.log (the output of every run-panel.sh call), where <root> is --runs-root or SW/runs.
++# Exit: 0 every row ran or was skipped; 1 some run-panel.sh call exited non-zero (the rest still ran); 2 refused before any
++# run started (no spike record, bad argument, unreadable schedule).
++set -u -o pipefail
++source "$(dirname "$0")/common.sh"
++
++usage() {
++  sed -n '2,2p' "$0" | sed 's/^# \{0,1\}//' >&2
++  exit 2
++}
++SCHED=${1:-}
++[ -n "$SCHED" ] && [ "${SCHED#--}" = "$SCHED" ] || usage
++shift
++ROOT= VALUES= PKFILE= JOBS=3
++while [ $# -gt 0 ]; do
++  [ $# -ge 2 ] || usage
++  case "$1" in
++    --runs-root) ROOT=$2 ;;
++    --values) VALUES=$2 ;;
++    --packages) PKFILE=$2 ;;
++    --jobs) JOBS=$2 ;;
++    *) usage ;;
++  esac
++  shift 2
++done
++[ -f "$SCHED" ] || { echo "E_ARG: no schedule file $SCHED" >&2; exit 2; }
++[[ $JOBS =~ ^[1-3]$ ]] || { echo "E_JOBS: --jobs is 1, 2 or 3 (at most 3 panels at once)" >&2; exit 2; }
++for f in "$VALUES" "$PKFILE"; do
++  [ -z "$f" ] && continue
++  case "$(realpath -m -- "$f")/" in /tmp/?*) ;; *) echo "E_OVERRIDE: $f is outside /tmp/" >&2; exit 2 ;; esac
++done
++sw_assert_nofallback || exit 2
++if [ "$(sed -n '2p' "$SCHED")" != $'stage\tblock\tarm\tpanel\tdoc\treplicate\tseed\tset\trun' ]; then
++  echo "E_ARG: $SCHED is not a schedule file of bin/make-schedule.py" >&2
++  exit 2
++fi
++BASE=${ROOT:-$SW/runs}
++sw_assert_writable "$BASE" || exit 2
++
++# The spike record comes first: nothing starts without it (REQ-32).
++VALS=${VALUES:-$SW/config/values.json}
++SPIKE=$(sw_py "$SW/sweep/cli.py" clock spike --values "$VALS") || { echo "E_ARG: cannot read the values file $VALS" >&2; exit 2; }
++if [ "$(jq -r .ok <<<"$SPIKE")" != true ]; then
++  echo "E_NO_SPIKE: $VALS has no spike record of 5 runs with a c_luna (bin/run-spike.sh timing); no arm starts without it (REQ-32)" >&2
++  exit 2
++fi
++FALLBACK=$(jq -r .fallback <<<"$SPIKE")
++mkdir -p "$BASE" || exit 2
++PANELS_IN_USE=$BASE/panels-in-use.json
++sw_py "$SW/sweep/cli.py" clock spike --values "$VALS" --panels-out "$PANELS_IN_USE" >/dev/null || exit 2
++export SW_PANELS=$PANELS_IN_USE
++sw_assert_override SW_PANELS || exit 2
++
++LOG=$BASE/schedule-run.log
++RCDIR=$(mktemp -d /tmp/run-schedule.XXXXXXXX) || exit 2
++trap 'rm -rf -- "$RCDIR"' EXIT
++STARTED=() SKIPPED=() MAXC=0
++
++launch() { # launch ROW-FIELDS...: one run-panel.sh call in the background; its exit code goes to $RCDIR/<run>
++  local stage=$1 block=$2 arm=$3 panel=$4 doc=$5 rep=$6 seed=$7 run=$8 conc=$9 dir
++  dir=${ROOT:-$SW/runs/stage$stage}/$run
++  local args=(--arm "$arm" --panel "$panel" --doc "$doc" --run "$dir" --seed "$seed" --replicate "$rep" --block "$block" --concurrent "$conc")
++  [ -n "$VALUES" ] && args+=(--values "$VALUES")
++  [ -n "$PKFILE" ] && args+=(--packages "$PKFILE")
++  (
++    bash "$SW/bin/run-panel.sh" "${args[@]}" >>"$LOG" 2>&1
++    echo $? >"$RCDIR/$run"
++  ) &
++}
++
++while IFS=$'\t' read -r stage block arm panel doc rep seed _set run; do
++  [ -n "$run" ] || continue
++  dir=${ROOT:-$SW/runs/stage$stage}/$run
++  if [ -e "$dir/run.json" ]; then
++    SKIPPED+=("$run")
++    echo "SKIP $run (run.json exists)" >>"$LOG"
++    continue
++  fi
++  while [ "$(jobs -rp | wc -l)" -ge "$JOBS" ]; do wait -n || true; done
++  conc=$(($(jobs -rp | wc -l) + 1))
++  [ "$conc" -le "$MAXC" ] || MAXC=$conc
++  echo "START $run concurrent=$conc" >>"$LOG"
++  launch "$stage" "$block" "$arm" "$panel" "$doc" "$rep" "$seed" "$run" "$conc"
++  STARTED+=("$run")
++done < <(tail -n +3 "$SCHED")
++wait
++
++FAILED=()
++for run in ${STARTED[@]+"${STARTED[@]}"}; do
++  rc=$(cat "$RCDIR/$run" 2>/dev/null || echo missing)
++  [ "$rc" = 0 ] || FAILED+=("$run:$rc")
++done
++tojson() { printf '%s\n' "$@" | jq -R 'select(length>0)' | jq -sc .; }
++jq -n --arg sched "$SCHED" --argjson started "$(tojson ${STARTED[@]+"${STARTED[@]}"})" \
++  --argjson skipped "$(tojson ${SKIPPED[@]+"${SKIPPED[@]}"})" --argjson failed "$(tojson ${FAILED[@]+"${FAILED[@]}"})" \
++  --argjson fb "$FALLBACK" --argjson maxc "$MAXC" --argjson jobs "$JOBS" --argjson spike "$SPIKE" \
++  '{schedule:$sched, started:$started, skipped:$skipped, failed:$failed, max_concurrent:$maxc, jobs:$jobs,
++    spike_fallback:$fb, spike:$spike}' >"$BASE/schedule-run.json"
++echo "SCHEDULE started=${#STARTED[@]} skipped=${#SKIPPED[@]} failed=${#FAILED[@]} max_concurrent=$MAXC fallback=$FALLBACK"
++[ ${#FAILED[@]} -eq 0 ] || exit 1
++exit 0
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-spike.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-spike.sh
+new file mode 100755
+index 000000000..76615f499
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/run-spike.sh
+@@ -0,0 +1,108 @@
++#!/usr/bin/env bash
++# run-spike.sh {timing|compliance} --panel {ember|haiku|sonnet} --doc DOC [--runs N] [--baseline-runs N] [--item-count N]
++#                                   [--runs-root DIR] [--values FILE] [--packages FILE]   (DESIGN 14.2, REQ-17, REQ-32)
++# The two spikes that come before every arm. They start models, so in real use they need the owner's go-ahead; the tests run
++# them against the fake claude only. Runs go one after the other through bin/run-panel.sh (one panel at a time).
++#   timing      N SS runs (--runs, default 5) and N Z0 runs (--baseline-runs, default 5) of the panel on one document, block k
++#               holding SS run k and Z0 run k (the same day). From the luna reviewers' wall seconds it computes
++#                 c_luna = (median(luna seconds in the SS runs) - median(luna seconds in the Z0 runs) - 3) / item_count
++#               (item_count default 8) and writes the record `spike` = {runs, baseline_runs, item_count, c_luna, median_ss_s,
++#               median_z0_s, doc, panel, date} into the values file (config/values.json, or --values). Output: <root>/spike-timing/.
++#   compliance  N SS runs (default 5) and then `analysis/analyze.py compliance` over them: the ledger_missing rate, the quote
++#               validity and the format errors. Exit 0 when ledger_missing is at most 10% (go), 1 when it is not.
++#               Output: <root>/spike-compliance/ (compliance.json beside the run folders).
++# Options: --runs-root DIR (default SW/runs; under SW or /tmp), --values FILE and --packages FILE (test hooks, /tmp only).
++# Environment: NOFALLBACK=1 is required (DD-8). Exit: 0 done (and go); 1 compliance no-go or a run failed; 2 refused.
++set -u -o pipefail
++source "$(dirname "$0")/common.sh"
++
++usage() {
++  sed -n '2,2p' "$0" | sed 's/^# \{0,1\}//' >&2
++  exit 2
++}
++MODE=${1:-}
++case "$MODE" in timing | compliance) shift ;; *) usage ;; esac
++PANEL= DOC= RUNS=5 BASE_RUNS=5 ITEMS=8 ROOT= VALUES= PKFILE=
++while [ $# -gt 0 ]; do
++  [ $# -ge 2 ] || usage
++  case "$1" in
++    --panel) PANEL=$2 ;;
++    --doc) DOC=$2 ;;
++    --runs) RUNS=$2 ;;
++    --baseline-runs) BASE_RUNS=$2 ;;
++    --item-count) ITEMS=$2 ;;
++    --runs-root) ROOT=$2 ;;
++    --values) VALUES=$2 ;;
++    --packages) PKFILE=$2 ;;
++    *) usage ;;
++  esac
++  shift 2
++done
++case "$PANEL" in ember) PANEL=primary ;; primary | haiku | sonnet) ;; *) echo "E_ARG: --panel is ember, haiku or sonnet" >&2; exit 2 ;; esac
++[[ $DOC =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || { echo "E_DOC: bad document id: $DOC" >&2; exit 2; }
++for v in RUNS BASE_RUNS ITEMS; do [[ ${!v} =~ ^[1-9][0-9]*$ ]] || { echo "E_ARG: $v is not a positive number" >&2; exit 2; }; done
++for f in "$VALUES" "$PKFILE"; do
++  [ -z "$f" ] && continue
++  case "$(realpath -m -- "$f")/" in /tmp/?*) ;; *) echo "E_OVERRIDE: $f is outside /tmp/" >&2; exit 2 ;; esac
++done
++sw_assert_nofallback || exit 2
++BASE=${ROOT:-$SW/runs}
++sw_assert_writable "$BASE" || exit 2
++VALS=${VALUES:-$SW/config/values.json}
++[ -f "$VALS" ] || { echo "E_ARG: no values file $VALS" >&2; exit 2; }
++
++panel_run() { # panel_run ARM DIR K: one run of the spike, block K
++  local args=(--arm "$1" --panel "$PANEL" --doc "$DOC" --run "$2" --seed 1 --replicate "$3" --block "$3" --concurrent 1)
++  [ -n "$VALUES" ] && args+=(--values "$VALUES")
++  [ -n "$PKFILE" ] && args+=(--packages "$PKFILE")
++  bash "$SW/bin/run-panel.sh" "${args[@]}"
++}
++median() { jq -s 'sort | if length == 0 then null elif length % 2 == 1 then .[length / 2 | floor] else (.[length / 2 - 1] + .[length / 2]) / 2 end'; }
++luna_seconds() { # luna_seconds RUNDIR...: the wall seconds of every luna reviewer of the runs
++  local d
++  for d in "$@"; do
++    for f in "$d"/reviews/*.meta.json; do
++      [ -f "$f" ] || continue
++      case $f in *.attempt*.meta.json) continue ;; esac # <rid>.meta.json is the copy of <rid>.attempt1.meta.json: count once
++      jq -r 'select(.expected_model == "gpt-6-luna") | .wall_s' "$f"
++    done
++  done
++}
++
++FAILED=0
++if [ "$MODE" = timing ]; then
++  OUT=$BASE/spike-timing
++  mkdir -p "$OUT" || exit 2
++  N=$((RUNS > BASE_RUNS ? RUNS : BASE_RUNS))
++  for k in $(seq 1 "$N"); do
++    [ "$k" -gt "$RUNS" ] || panel_run SS "$OUT/ss-$k" "$k" || FAILED=1
++    [ "$k" -gt "$BASE_RUNS" ] || panel_run Z0 "$OUT/z0-$k" "$k" || FAILED=1
++  done
++  SS_DIRS=() Z0_DIRS=()
++  for k in $(seq 1 "$RUNS"); do [ -f "$OUT/ss-$k/run.json" ] && SS_DIRS+=("$OUT/ss-$k"); done
++  for k in $(seq 1 "$BASE_RUNS"); do [ -f "$OUT/z0-$k/run.json" ] && Z0_DIRS+=("$OUT/z0-$k"); done
++  MS=$(luna_seconds ${SS_DIRS[@]+"${SS_DIRS[@]}"} | median)
++  MZ=$(luna_seconds ${Z0_DIRS[@]+"${Z0_DIRS[@]}"} | median)
++  if [ "$MS" = null ] || [ "$MZ" = null ] || [ -z "$MS" ] || [ -z "$MZ" ]; then
++    echo "E_SPIKE_DATA: no luna reviewer finished in the SS runs or in the Z0 runs; no record written" >&2
++    exit 1
++  fi
++  REC=$(jq -n --argjson runs "${#SS_DIRS[@]}" --argjson base "${#Z0_DIRS[@]}" --argjson n "$ITEMS" --argjson ms "$MS" --argjson mz "$MZ" \
++    --arg doc "$DOC" --arg panel "$PANEL" --arg date "$(date -u +%Y-%m-%d)" \
++    '{runs:$runs, baseline_runs:$base, item_count:$n, c_luna:((($ms - $mz - 3) / $n) * 1000 | round / 1000),
++      median_ss_s:$ms, median_z0_s:$mz, doc:$doc, panel:$panel, date:$date}')
++  jq --argjson rec "$REC" '.spike = $rec' "$VALS" >"$VALS.tmp.$$" && mv -- "$VALS.tmp.$$" "$VALS" || { rm -f -- "$VALS.tmp.$$"; exit 1; }
++  echo "SPIKE timing: $REC"
++  [ "$FAILED" = 0 ] || exit 1
++  exit 0
++fi
++
++# compliance
++OUT=$BASE/spike-compliance
++mkdir -p "$OUT" || exit 2
++for k in $(seq 1 "$RUNS"); do
++  panel_run SS "$OUT/ss-$k" "$k" || FAILED=1
++done
++sw_py "$SW/analysis/analyze.py" compliance --runs "$OUT" --out "$OUT/compliance.json" || exit 1
++[ "$FAILED" = 0 ] || exit 1
++exit 0
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/clock.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/clock.py
+index aa85c17b7..800b6c3a8 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/clock.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/scaffold/clock.py
+@@ -99,6 +99,48 @@ def no_budget(b: float, values: dict | None = None) -> bool:
+     return budget_s(b, values) < _v(values)["no_budget"]["min_budget_s"]
+ 
+ 
++SPIKE_RUNS = 5  # REQ-32: five luna runs with an SS brief
++LUNA_FALLBACK_ITEMS = 6  # DESIGN 12.3: each luna's share when c is above the break-even
++
++
++def spike_plan(values: dict | None = None) -> dict:
++    """REQ-32: the spike record (`spike.runs` of at least 5 and a numeric `spike.c_luna`) and the fallback it sets.
++
++    `ok` is False without such a record: no arm may start. `fallback` is True when c_luna is above the break-even seconds
++    per item at b = 100 (2.75 s for n = 8): each luna then takes 6 items and the search reviewer the rest (`fallback_panels`).
++    """
++    v = _v(values)
++    s = v.get("spike") or {}
++    runs, c = s.get("runs"), s.get("c_luna")
++    ok = (
++        isinstance(runs, int)
++        and not isinstance(runs, bool)
++        and runs >= SPIKE_RUNS
++        and isinstance(c, (int, float))
++        and not isinstance(c, bool)
++    )
++    limit = breakeven(100, values=v).per_item_s
++    return {
++        "ok": ok,
++        "runs": runs,
++        "c_luna": c,
++        "limit_s": limit,
++        "fallback": bool(ok and c > limit),
++        "luna_items": LUNA_FALLBACK_ITEMS,
++    }
++
++
++def fallback_panels(panels: dict) -> dict:
++    """A copy of a panel file with the spike fallback: L1 and L2 (the lunas) capped at 6 items, S at the rest of the
++    panel's total (12 when the caps sum to 24, as they do for every panel of config/panels.json)."""
++    out = json.loads(json.dumps(panels))
++    for p in out["panels"].values():
++        total = sum(p[r]["cap"] for r in ("S", "L1", "L2"))
++        p["L1"]["cap"] = p["L2"]["cap"] = LUNA_FALLBACK_ITEMS
++        p["S"]["cap"] = total - 2 * LUNA_FALLBACK_ITEMS
++    return out
++
++
+ class ClockError(RuntimeError):
+     pass
+ 
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/assign.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/assign.py
+index aa69c7cab..b92d6762f 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/assign.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/assign.py
+@@ -42,6 +42,7 @@ from __future__ import annotations
+ 
+ import copy
+ import json
++import os
+ import random
+ from dataclasses import dataclass, field
+ from pathlib import Path
+@@ -52,8 +53,12 @@ STATUS_CAP_SLOTS = "dropped:cap_slots"
+ 
+ 
+ def load_panels(path=None) -> dict:
+-    """The `panels` mapping of config/panels.json: {panel: {label, S, L1, L2}}."""
+-    p = Path(path) if path else PANELS_PATH
++    """The `panels` mapping of config/panels.json: {panel: {label, S, L1, L2}}.
++
++    SW_PANELS names another panel file for one schedule run (bin/run-schedule.sh writes the spike fallback caps into a copy;
++    bin/common.sh accepts it only under /tmp/ or SW/runs/). Without it the file is config/panels.json.
++    """
++    p = Path(path) if path else Path(os.environ.get("SW_PANELS") or PANELS_PATH)
+     return json.loads(p.read_text(encoding="utf-8"))["panels"]
+ 
+ 
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py
+index 1129d5ed9..5d70f39df 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/cli.py
+@@ -9,7 +9,9 @@ Run it as a script: `uv run --frozen --project REPO python SW/sweep/cli.py <subc
+     check      S5 (scaffold/ledgerv1.py): the raw reviews/<rid>.md of every reviewer of the run in; check/<rid>.checked.md,
+                check/<rid>.ledger.json and check/check.json out. The raw reports are only read.
+     clock      `plan` prints b, the kill limit, the hang guard and no_budget as JSON; `timing` writes timing.json from the
+-               event times of bin/run-panel.sh (scaffold/clock.py does the arithmetic; Task 27, DESIGN 11.4, 11.5)
++               event times of bin/run-panel.sh (scaffold/clock.py does the arithmetic; Task 27, DESIGN 11.4, 11.5);
++               `spike` prints whether config/values.json holds the spike record and whether its fallback applies, and with
++               --panels-out writes the panel file of a schedule run (bin/run-schedule.sh, Task 32, REQ-32)
+ 
+ `prepass --available RID,RID` re-runs the assignment with the reviewers that can still be launched (DESIGN 7.3, Task 27).
+ 
+@@ -240,6 +242,34 @@ def _clock_timing(args) -> int:
+     return 0
+ 
+ 
++def _clock_spike(args) -> int:
++    """Print the spike plan as JSON (`ok`, `fallback`, ...); --panels-out writes the panel file a schedule run uses."""
++    try:
++        values = (
++            clock.load_values(Path(args.values)) if args.values else clock.load_values()
++        )
++        plan = clock.spike_plan(values)
++        if args.panels_out:
++            src = (
++                Path(args.panels)
++                if args.panels
++                else Path(_SW) / "config" / "panels.json"
++            )
++            panels = json.loads(src.read_text(encoding="utf-8"))
++            if plan["fallback"]:
++                panels = clock.fallback_panels(panels)
++            dest = Path(args.panels_out)
++            dest.parent.mkdir(parents=True, exist_ok=True)
++            dest.write_text(
++                json.dumps(panels, indent=1, sort_keys=True) + "\n", encoding="utf-8"
++            )
++    except (OSError, KeyError, ValueError) as e:
++        print(f"clock spike failed: {type(e).__name__}: {e}", file=sys.stderr)
++        return 2
++    print(json.dumps(plan, sort_keys=True))
++    return 0
++
++
+ def build_parser() -> argparse.ArgumentParser:
+     ap = argparse.ArgumentParser(prog="sweep", description="The sweep sheet tools.")
+     sub = ap.add_subparsers(
+@@ -324,7 +354,22 @@ def build_parser() -> argparse.ArgumentParser:
+         "clock",
+         help="the numbers and the timing.json of bin/run-panel.sh (DESIGN 11.4, 11.5)",
+     )
+-    ks = k.add_subparsers(dest="clock_cmd", required=True, metavar="{plan,timing}")
++    ks = k.add_subparsers(
++        dest="clock_cmd", required=True, metavar="{plan,timing,spike}"
++    )
++    ksp = ks.add_parser(
++        "spike",
++        help="the spike record and its fallback (REQ-32); with --panels-out writes the panel file of the run",
++    )
++    ksp.add_argument("--values", help="a values file (default config/values.json)")
++    ksp.add_argument(
++        "--panels", help="the panel file to copy (default config/panels.json)"
++    )
++    ksp.add_argument(
++        "--panels-out",
++        help="write the panel file here: the fallback caps when the fallback applies",
++    )
++    ksp.set_defaults(run=_clock_spike)
+     kp = ks.add_parser(
+         "plan", help="print b, kill_s, hang_s, no_budget and the values as JSON"
+     )
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_schedule.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_schedule.py
+new file mode 100644
+index 000000000..730a8f2ca
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_run_schedule.py
+@@ -0,0 +1,644 @@
++"""REQ-29, REQ-32, REQ-17, DESIGN 11.6: the schedule maker, the schedule runner and the spike script.
++Every panel run goes to the fake claude (tmp_roots puts tests/fakes first on PATH and the scripts refuse to run otherwise)."""
++
++import importlib.util
++import json
++import subprocess
++import sys
++
++import pytest
++from helpers import REPO, SW, sh
++from panel_support import DOC_ID, call_log, make_world
++
++from scaffold import clock
++
++MAKE = SW / "bin" / "make-schedule.py"
++RUN_SCHEDULE = SW / "bin" / "run-schedule.sh"
++RUN_SPIKE = SW / "bin" / "run-spike.sh"
++HO = "HO-1,HO-2,HO-3,HO-4"
++
++
++def make(*args):
++    return subprocess.run(
++        [sys.executable, "-I", "-B", str(MAKE), *map(str, args)],
++        capture_output=True,
++        text=True,
++    )
++
++
++def rows_of(path):
++    lines = path.read_text().splitlines()
++    assert lines[0].startswith("# make-schedule seed=")
++    cols = lines[1].split("\t")
++    return [dict(zip(cols, ln.split("\t"))) for ln in lines[2:]]
++
++
++def module():
++    spec = importlib.util.spec_from_file_location("make_schedule", MAKE)
++    m = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(m)
++    return m
++
++
++# --- make-schedule.py ------------------------------------------------------------------------------------------------------
++
++
++def test_stage_1_has_60_rows_and_the_z0_raw_append_adds_15(tmp_path):
++    out = tmp_path / "schedule.tsv"
++    r = make(
++        "--stage",
++        1,
++        "--arms",
++        "z0,k,ss",
++        "--docs",
++        HO,
++        "--reps",
++        5,
++        "--seed",
++        20261115,
++        "--out",
++        out,
++    )
++    assert r.returncode == 0 and "60 rows" in r.stdout, r.stderr
++    assert len(rows_of(out)) == 60
++    r = make(
++        "--stage",
++        1,
++        "--arms",
++        "z0raw",
++        "--docs",
++        "HO-1,HO-2,HO-3",
++        "--reps",
++        5,
++        "--seed",
++        20261115,
++        "--append",
++        out,
++    )
++    assert r.returncode == 0 and "75 rows" in r.stdout, r.stderr
++    rows = rows_of(out)
++    assert len(rows) == 75
++    assert sum(r["arm"] == "Z0-raw" for r in rows) == 15
++    # one block per replicate: 5 blocks of 12 + 3 rows; the Z0-raw rows are in the blocks of the Z0 rows they compare with
++    for block in range(1, 6):
++        in_block = [r for r in rows if r["block"] == str(block)]
++        assert len(in_block) == 15 and {r["replicate"] for r in in_block} == {
++            str(block)
++        }
++        assert {(r["arm"], r["doc"]) for r in in_block} >= {
++            (a, d) for a in ("Z0", "K", "SS") for d in HO.split(",")
++        }
++    blocks = [int(r["block"]) for r in rows]
++    assert blocks == sorted(
++        blocks
++    )  # a block is finished in the file before the next starts
++    assert len({r["run"] for r in rows}) == 75 and rows[0]["seed"] == "20261115"
++    assert {r["set"] for r in rows} == {"holdout"} and {r["panel"] for r in rows} == {
++        "primary"
++    }
++
++
++def test_same_seed_same_file_and_other_seed_other_order(tmp_path):
++    a, b, c = (tmp_path / n for n in ("a.tsv", "b.tsv", "c.tsv"))
++    args = ["--stage", 1, "--arms", "z0,k,ss", "--docs", HO, "--reps", 5]
++    assert make(*args, "--seed", 7, "--out", a).returncode == 0
++    assert make(*args, "--seed", 7, "--out", b).returncode == 0
++    assert make(*args, "--seed", 8, "--out", c).returncode == 0
++    assert a.read_text() == b.read_text() != c.read_text()
++    assert sorted(r["run"] for r in rows_of(a)) == sorted(
++        r["run"] for r in rows_of(c)
++    )  # the same runs, in another order
++    # the seed is recorded in the file, and in every row (the pre-pass seed that run-panel.sh records)
++    assert a.read_text().startswith("# make-schedule seed=7\n") and {
++        r["seed"] for r in rows_of(a)
++    } == {"7"}
++    # the order inside a block is shuffled: not the same arm order in every block
++    orders = {
++        tuple(r["arm"] for r in rows_of(a) if r["block"] == str(k)) for k in range(1, 6)
++    }
++    assert len(orders) > 1
++    # repeating the same command is a no-op; a different schedule never replaces a file
++    assert make(*args, "--seed", 7, "--out", a).returncode == 0
++    r = make(*args, "--seed", 9, "--out", a)
++    assert r.returncode == 2 and "never replaced" in r.stderr
++
++
++def test_append_and_arguments_are_checked(tmp_path):
++    out = tmp_path / "s.tsv"
++    base = ["--stage", 1, "--docs", "HO-1", "--reps", 2, "--seed", 5]
++    assert make(*base, "--arms", "z0", "--out", out).returncode == 0
++    for args, text in (
++        ([*base, "--arms", "z0", "--append", out], "already in the schedule"),
++        (
++            [
++                "--stage",
++                1,
++                "--docs",
++                "HO-1",
++                "--reps",
++                2,
++                "--seed",
++                6,
++                "--arms",
++                "k",
++                "--append",
++                out,
++            ],
++            "one seed",
++        ),
++        ([*base, "--arms", "x9", "--out", tmp_path / "t.tsv"], "unknown arm"),
++        (
++            [*base, "--arms", "z0", "--out", "/var/tmp/sw-schedule-refused.tsv"],
++            "E_NOT_WRITABLE",
++        ),
++        (
++            [
++                "--stage",
++                1,
++                "--docs",
++                "bad/doc",
++                "--reps",
++                2,
++                "--seed",
++                5,
++                "--arms",
++                "z0",
++                "--out",
++                tmp_path / "u.tsv",
++            ],
++            "bad document",
++        ),
++    ):
++        r = make(*args)
++        assert r.returncode == 2 and text in r.stderr, (args, r.stderr)
++    assert (
++        make(*base, "--arms", "k", "--append", out).returncode == 0
++        and len(rows_of(out)) == 4
++    )
++    not_a_schedule = tmp_path / "plain.txt"
++    not_a_schedule.write_text("hello\n")
++    r = make(*base, "--arms", "k", "--append", not_a_schedule)
++    assert r.returncode == 2 and "not a schedule" in r.stderr
++
++
++def test_run_ids_name_arm_panel_document_and_replicate():
++    m = module()
++    assert m.run_id("1", "Z0-raw", "primary", "HO-1", 3) == "s1-z0raw-HO-1-r3"
++    assert m.run_id("2", "SS", "haiku", "HO-2", 1) == "s2-ss-haiku-HO-2-r1"
++
++
++# --- run-schedule.sh and run-spike.sh against the fake claude ----------------------------------------------------------------
++
++
++def with_spike(world, tmp_path, spike, name="values-spike.json"):
++    """A copy of the world's values file with (or without) a `spike` record."""
++    v = json.loads(world.values.read_text())
++    v.pop("spike", None)
++    if spike is not None:
++        v["spike"] = spike
++    p = tmp_path / name
++    p.write_text(json.dumps(v))
++    return p
++
++
++def schedule(tmp_path, arms="z0,ss", reps=2, doc=DOC_ID, name="schedule.tsv"):
++    out = tmp_path / name
++    r = make(
++        "--stage",
++        1,
++        "--arms",
++        arms,
++        "--docs",
++        doc,
++        "--reps",
++        reps,
++        "--seed",
++        11,
++        "--out",
++        out,
++    )
++    assert r.returncode == 0, r.stderr
++    return out
++
++
++def run_schedule(world, tmp_path, values, sched, *extra, env=None):
++    cmd = [
++        "bash",
++        str(RUN_SCHEDULE),
++        str(sched),
++        "--runs-root",
++        str(tmp_path / "runs-s"),
++        "--values",
++        str(values),
++    ]
++    cmd += ["--packages", str(world.packages), *map(str, extra)]
++    e = world.roots.with_env(SW_SRC_REPO=str(world.repo), **(env or {}))
++    return subprocess.run(cmd, capture_output=True, text=True, env=e, timeout=600)
++
++
++def test_refuses_without_spike_record(tmp_roots):
++    w = make_world(tmp_roots)
++    t = tmp_roots.root
++    sched = schedule(t)
++    for bad in (
++        None,
++        {"runs": 4, "c_luna": 2.0},
++        {"runs": 5},
++        {"runs": 5, "c_luna": "fast"},
++        {"runs": True, "c_luna": 2.0},
++    ):
++        r = run_schedule(w, t, with_spike(w, t, bad), sched)
++        assert r.returncode == 2 and "E_NO_SPIKE" in r.stderr, (bad, r.stderr)
++        assert (
++            not (t / "runs-s").exists() and call_log(tmp_roots) == []
++        )  # nothing was started or written
++    # with a record of 5 runs and a c_luna it starts: 4 runs of 3 reviewers each
++    ok = with_spike(w, t, {"runs": 5, "c_luna": 2.0})
++    r = run_schedule(w, t, ok, sched)
++    assert r.returncode == 0, r.stdout + r.stderr
++    summary = json.loads((t / "runs-s" / "schedule-run.json").read_text())
++    assert (
++        len(summary["started"]) == 4
++        and summary["failed"] == []
++        and summary["spike_fallback"] is False
++    )
++    assert len(call_log(tmp_roots)) == 12
++    for name in summary["started"]:
++        assert (t / "runs-s" / name / "run.json").is_file()
++    # no fallback: the panel file in use holds the caps of config/panels.json (8, 8, 8)
++    panels = json.loads((t / "runs-s" / "panels-in-use.json").read_text())["panels"][
++        "primary"
++    ]
++    assert (panels["S"]["cap"], panels["L1"]["cap"], panels["L2"]["cap"]) == (8, 8, 8)
++    ss = next(n for n in summary["started"] if "-ss-" in n)
++    assert json.loads((t / "runs-s" / ss / "prepass" / "assignment.json").read_text())[
++        "caps"
++    ] == {"t2b-1": 8, "t4-1": 8, "t3-1": 8}
++
++
++def test_six_item_fallback_when_c_luna_is_above_the_break_even(tmp_roots):
++    w = make_world(tmp_roots)
++    t = tmp_roots.root
++    base = (SW / "config" / "panels.json").read_bytes()
++    sched = schedule(t, arms="ss", reps=1)
++    # 2.75 s is the break-even at b = 100 (n = 8): exactly 2.75 is not above it, 2.8 is
++    r = run_schedule(w, t, with_spike(w, t, {"runs": 5, "c_luna": 2.75}), sched)
++    assert (
++        r.returncode == 0
++        and json.loads((t / "runs-s" / "schedule-run.json").read_text())[
++            "spike_fallback"
++        ]
++        is False
++    )
++    caps = json.loads((t / "runs-s" / "panels-in-use.json").read_text())["panels"][
++        "primary"
++    ]
++    assert (caps["S"]["cap"], caps["L1"]["cap"]) == (8, 8)
++    r = run_schedule(
++        w, t, with_spike(w, t, {"runs": 5, "c_luna": 2.8}, "v2.json"), sched
++    )
++    assert (
++        r.returncode == 0
++    )  # the run folder exists: skipped, but the panel file is rewritten with the fallback caps
++    panels = json.loads((t / "runs-s" / "panels-in-use.json").read_text())["panels"]
++    for (
++        name,
++        p,
++    ) in (
++        panels.items()
++    ):  # every panel: each luna 6, the search reviewer takes the rest of the 24
++        assert (p["S"]["cap"], p["L1"]["cap"], p["L2"]["cap"]) == (12, 6, 6), name
++    assert (
++        json.loads((t / "runs-s" / "schedule-run.json").read_text())["spike_fallback"]
++        is True
++    )
++    assert (
++        SW / "config" / "panels.json"
++    ).read_bytes() == base  # config/panels.json itself is never changed
++
++
++def test_fallback_caps_reach_the_assignment(tmp_roots):
++    w = make_world(tmp_roots)
++    t = tmp_roots.root
++    r = run_schedule(
++        w,
++        t,
++        with_spike(w, t, {"runs": 5, "c_luna": 3.4}),
++        schedule(t, arms="ss", reps=1),
++    )
++    assert r.returncode == 0, r.stdout + r.stderr
++    name = json.loads((t / "runs-s" / "schedule-run.json").read_text())["started"][0]
++    asg = json.loads((t / "runs-s" / name / "prepass" / "assignment.json").read_text())
++    assert asg["caps"] == {"t2b-1": 12, "t4-1": 6, "t3-1": 6}
++    assert all(load <= asg["caps"][rid] for rid, load in asg["loads"].items())
++    assert asg["loads"]["t4-1"] <= 6 and asg["loads"]["t3-1"] <= 6
++
++
++def test_at_most_3_panels_at_once_and_a_started_run_is_not_repeated(tmp_roots):
++    w = make_world(tmp_roots)
++    t = tmp_roots.root
++    ok = with_spike(w, t, {"runs": 5, "c_luna": 2.0})
++    sched = schedule(t, arms="z0", reps=6)
++    r = run_schedule(w, t, ok, sched, "--jobs", 4)
++    assert r.returncode == 2 and "E_JOBS" in r.stderr and not (t / "runs-s").exists()
++    r = run_schedule(w, t, ok, sched, "--jobs", 3)
++    assert r.returncode == 0, r.stdout + r.stderr
++    summary = json.loads((t / "runs-s" / "schedule-run.json").read_text())
++    assert len(summary["started"]) == 6 and 2 <= summary["max_concurrent"] <= 3
++    seen = [
++        json.loads((t / "runs-s" / n / "run.json").read_text())[
++            "concurrent_panels_at_start"
++        ]
++        for n in summary["started"]
++    ]
++    assert all(1 <= c <= 3 for c in seen) and max(seen) == summary["max_concurrent"]
++    assert [
++        json.loads((t / "runs-s" / n / "run.json").read_text())["block"]
++        for n in summary["started"]
++    ].count(None) == 0
++    calls = len(call_log(tmp_roots))
++    again = run_schedule(w, t, ok, sched)
++    assert again.returncode == 0 and "started=0 skipped=6" in again.stdout
++    assert len(call_log(tmp_roots)) == calls  # a counted run is never repeated
++    one = run_schedule(
++        w, t, ok, schedule(t, arms="k", reps=2, name="k.tsv"), "--jobs", 1
++    )
++    assert (
++        one.returncode == 0
++        and json.loads((t / "runs-s" / "schedule-run.json").read_text())[
++            "max_concurrent"
++        ]
++        == 1
++    )
++
++
++def test_a_failed_run_is_reported_and_the_rest_still_run(tmp_roots):
++    w = make_world(tmp_roots)
++    t = tmp_roots.root
++    out = t / "mixed.tsv"
++    assert (
++        make(
++            "--stage",
++            1,
++            "--arms",
++            "z0",
++            "--docs",
++            f"{DOC_ID},no-such-doc",
++            "--reps",
++            1,
++            "--seed",
++            3,
++            "--out",
++            out,
++        ).returncode
++        == 0
++    )
++    r = run_schedule(w, t, with_spike(w, t, {"runs": 5, "c_luna": 2.0}), out)
++    assert r.returncode == 1 and "failed=1" in r.stdout
++    summary = json.loads((t / "runs-s" / "schedule-run.json").read_text())
++    assert len(summary["started"]) == 2 and [
++        f.split(":")[0] for f in summary["failed"]
++    ] == ["s1-z0-no-such-doc-r1"]
++    assert (
++        t / "runs-s" / "s1-z0-TASK-WF-fixture-20261114-000001-r1" / "run.json"
++    ).is_file()
++
++
++def test_bad_schedule_and_missing_nofallback_are_refused(tmp_roots, tmp_path):
++    w = make_world(tmp_roots)
++    t = tmp_roots.root
++    ok = with_spike(w, t, {"runs": 5, "c_luna": 2.0})
++    plain = t / "plain.tsv"
++    plain.write_text("a\tb\n")
++    r = run_schedule(w, t, ok, plain)
++    assert r.returncode == 2 and "not a schedule" in r.stderr
++    r = run_schedule(w, t, ok, t / "missing.tsv")
++    assert r.returncode == 2 and "no schedule file" in r.stderr
++    env = {k: v for k, v in w.roots.with_env().items() if k != "NOFALLBACK"}
++    r = subprocess.run(
++        ["bash", str(RUN_SCHEDULE), str(schedule(t))],
++        capture_output=True,
++        text=True,
++        env=env,
++    )
++    assert r.returncode == 2 and "NOFALLBACK" in r.stderr
++
++
++def test_spike_timing_writes_the_record(tmp_roots):
++    w = make_world(tmp_roots)
++    t = tmp_roots.root
++    vals = with_spike(w, t, None)
++    root = t / "spike"
++    cmd = [
++        "bash",
++        str(RUN_SPIKE),
++        "timing",
++        "--panel",
++        "ember",
++        "--doc",
++        DOC_ID,
++        "--runs",
++        2,
++        "--baseline-runs",
++        2,
++    ]
++    cmd += [
++        "--item-count",
++        8,
++        "--runs-root",
++        str(root),
++        "--values",
++        str(vals),
++        "--packages",
++        str(w.packages),
++    ]
++    r = subprocess.run(
++        list(map(str, cmd)),
++        capture_output=True,
++        text=True,
++        env=w.roots.with_env(SW_SRC_REPO=str(w.repo)),
++        timeout=600,
++    )
++    assert r.returncode == 0, r.stdout + r.stderr
++    rec = json.loads(vals.read_text())["spike"]
++    assert (
++        rec["runs"],
++        rec["baseline_runs"],
++        rec["item_count"],
++        rec["panel"],
++        rec["doc"],
++    ) == (2, 2, 8, "primary", DOC_ID)
++
++    def luna(prefix):
++        out = []
++        for k in (1, 2):
++            reviews = root / "spike-timing" / f"{prefix}-{k}" / "reviews"
++            for f in sorted(reviews.glob("*.meta.json")):
++                if (
++                    ".attempt" in f.name
++                ):  # <rid>.meta.json is the copy of <rid>.attempt1.meta.json
++                    continue
++                m = json.loads(f.read_text())
++                if m["expected_model"] == "gpt-6-luna":
++                    out.append(m["wall_s"])
++        return sorted(out)
++
++    def med(xs):
++        n = len(xs)
++        return xs[n // 2] if n % 2 else (xs[n // 2 - 1] + xs[n // 2]) / 2
++
++    ss, z0 = luna("ss"), luna("z0")
++    assert len(ss) == len(z0) == 4  # two luna reviewers in each of two runs
++    assert rec["median_ss_s"] == pytest.approx(med(ss)) and rec[
++        "median_z0_s"
++    ] == pytest.approx(med(z0))
++    assert rec["c_luna"] == pytest.approx(
++        (med(ss) - med(z0) - 3) / 8, abs=1e-3
++    )  # the formula of DESIGN 14.2
++    # 2 runs are not the 5 that REQ-32 needs: the schedule refuses to start on this record
++    r = run_schedule(w, t, vals, schedule(t, arms="z0", reps=1))
++    assert r.returncode == 2 and "E_NO_SPIKE" in r.stderr
++    # a SS block and a Z0 block of the same number are the same day: block k holds ss-k and z0-k
++    assert (
++        json.loads((root / "spike-timing" / "ss-2" / "run.json").read_text())["block"]
++        == 2
++    )
++    assert (
++        json.loads((root / "spike-timing" / "z0-2" / "run.json").read_text())["block"]
++        == 2
++    )
++
++
++@pytest.mark.slow
++def test_spike_with_five_runs_lets_the_schedule_start(tmp_roots):
++    w = make_world(tmp_roots)
++    t = tmp_roots.root
++    vals = with_spike(w, t, None)
++    cmd = [
++        "bash",
++        str(RUN_SPIKE),
++        "timing",
++        "--panel",
++        "ember",
++        "--doc",
++        DOC_ID,
++        "--runs",
++        "5",
++        "--baseline-runs",
++        "5",
++    ]
++    cmd += [
++        "--runs-root",
++        str(t / "spike"),
++        "--values",
++        str(vals),
++        "--packages",
++        str(w.packages),
++    ]
++    r = subprocess.run(
++        cmd,
++        capture_output=True,
++        text=True,
++        env=w.roots.with_env(SW_SRC_REPO=str(w.repo)),
++        timeout=900,
++    )
++    assert r.returncode == 0, r.stdout + r.stderr
++    rec = json.loads(vals.read_text())["spike"]
++    assert (rec["runs"], rec["baseline_runs"]) == (5, 5) and isinstance(
++        rec["c_luna"], float
++    )
++    r = run_schedule(w, t, vals, schedule(t, arms="z0", reps=1))
++    assert r.returncode == 0, (
++        r.stdout + r.stderr
++    )  # the record is complete: the schedule starts
++
++
++def test_spike_compliance_go_and_no_go(tmp_roots):
++    w = make_world(tmp_roots)
++    t = tmp_roots.root
++
++    def run(scenario, root):
++        cmd = [
++            "bash",
++            str(RUN_SPIKE),
++            "compliance",
++            "--panel",
++            "ember",
++            "--doc",
++            DOC_ID,
++            "--runs",
++            "2",
++        ]
++        cmd += [
++            "--runs-root",
++            str(root),
++            "--values",
++            str(w.values),
++            "--packages",
++            str(w.packages),
++        ]
++        e = w.roots.with_env(SW_SRC_REPO=str(w.repo), FAKE_SCENARIO=scenario)
++        return subprocess.run(cmd, capture_output=True, text=True, env=e, timeout=600)
++
++    good = run("ok", t / "good")
++    assert good.returncode == 0, good.stdout + good.stderr
++    c = json.loads((t / "good" / "spike-compliance" / "compliance.json").read_text())
++    assert (c["runs"], c["reviewers_checked"], c["ledger_missing"], c["go"]) == (
++        2,
++        6,
++        0,
++        True,
++    )
++    bad = run(
++        "ledger_missing", t / "bad"
++    )  # no reviewer writes a ledger block: 6 of 6 are missing
++    assert bad.returncode == 1
++    c = json.loads((t / "bad" / "spike-compliance" / "compliance.json").read_text())
++    assert (c["ledger_missing"], c["ledger_missing_rate"], c["go"]) == (6, 1.0, False)
++
++
++# --- the spike plan and the panel override ---------------------------------------------------------------------------------
++
++
++def test_spike_plan_and_fallback_panels():
++    v = clock.load_values()
++    assert (
++        clock.spike_plan({**v, "spike": None})["ok"] is False
++        and clock.spike_plan(v)["ok"] is False
++    )  # no record yet
++    p = clock.spike_plan({**v, "spike": {"runs": 5, "c_luna": 2.75}})
++    assert (p["ok"], p["fallback"], p["limit_s"], p["luna_items"]) == (
++        True,
++        False,
++        2.75,
++        6,
++    )
++    assert (
++        clock.spike_plan({**v, "spike": {"runs": 5, "c_luna": 2.76}})["fallback"]
++        is True
++    )
++    assert clock.spike_plan({**v, "spike": {"runs": 4, "c_luna": 9.0}})["ok"] is False
++    panels = json.loads((SW / "config" / "panels.json").read_text())
++    fb = clock.fallback_panels(panels)
++    for name, p in fb["panels"].items():
++        assert (p["S"]["cap"], p["L1"]["cap"], p["L2"]["cap"]) == (12, 6, 6), name
++        assert (
++            p["S"]["rid"] == panels["panels"][name]["S"]["rid"]
++        )  # only the caps change
++    assert panels["panels"]["primary"]["S"]["cap"] == 8  # the input is not changed
++
++
++def test_panels_override_is_judged_by_its_path():
++    assert sh("sw_assert_override SW_PANELS /tmp/x/panels.json").returncode == 0
++    assert (
++        sh('sw_assert_override SW_PANELS "$SW/runs/panels-in-use.json"').returncode == 0
++    )
++    for bad in (
++        f"{REPO}/src/panels.json",
++        f"{SW}/config/panels.json",
++        "/var/tmp/panels.json",
++    ):
++        r = sh(f"sw_assert_override SW_PANELS '{bad}'")
++        assert r.returncode == 1 and "E_OVERRIDE" in r.stderr, bad
++    assert sh("echo reached", {"SW_PANELS": "/tmp/p.json"}).returncode == 0
++    assert sh("echo reached", {"SW_PANELS": "/etc/p.json"}).returncode == 1

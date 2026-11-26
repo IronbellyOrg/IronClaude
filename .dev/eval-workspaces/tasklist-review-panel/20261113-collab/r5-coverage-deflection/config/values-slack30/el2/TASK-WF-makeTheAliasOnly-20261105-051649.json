@@ -1,0 +1,29 @@
+{
+ "panel": "el2",
+ "pkg": "TASK-WF-makeTheAliasOnly-20261105-051649",
+ "B_f_s": 144.4515,
+ "turn_p90_s": 31.486999988555908,
+ "T_report_p90_s": 73.54299998283386,
+ "hooks_s": 2,
+ "slack_s": 30,
+ "k": 0,
+ "finish_offset_s": 119.97952502861025,
+ "hang_offset_s": 216.67725000000002,
+ "slowdown_s": 0.12252964426877466,
+ "slowdown_limit": 0.5438366856695845,
+ "budget_ok": true,
+ "runs": [
+  "s4-a1-el2-r1",
+  "s4-a1-el2-r2",
+  "s4-a1-el2-r3",
+  "s4-a1-el2-r4"
+ ],
+ "kit_runs": [
+  "s4-a2-el2-r1",
+  "s4-a2-el2-r2"
+ ],
+ "n_turns": 60,
+ "n_reports": 8,
+ "p90_method": "nearest rank; with 4 runs p90 is close to the maximum",
+ "measured_at": "2026-11-14T12:45:00Z"
+}

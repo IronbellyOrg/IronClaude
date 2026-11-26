@@ -1,0 +1,30 @@
+{
+  "environment": "gateway",
+  "review_kind": "first",
+  "reviewers": [
+    {
+      "alias": "claude-gw-tier1b[1m]",
+      "fallback_depth": 0,
+      "fallbacks": [
+        "gpt-6.1-sol",
+        "muse-wonder-full-1.0"
+      ],
+      "launch": null,
+      "model": "claude-sonnet-5-5",
+      "model_name": "Claude Sonnet 5.5",
+      "reviewer_id": "t1b-1",
+      "seed": null,
+      "slot_id": "t1b",
+      "stand_in": false,
+      "strategy": "fixed",
+      "tier": "tier1b"
+    }
+  ],
+  "run_id": "TASK-WF-designSpec-20261107-075614",
+  "schema": "review-panel-resolution/1",
+  "template_id": "default",
+  "template_sha256": "fd2ef963a5c5e6dab3f405ebe980523101bca51802fe372fc019927a787146ba",
+  "template_version": "1.0.0",
+  "tiers_sha256": "1a2a8ad2c1eabea93c4b4fbab8c3fe97bd20b4a187f0a559db8cedeca63f3a49",
+  "tiers_version": "1.0.0"
+}

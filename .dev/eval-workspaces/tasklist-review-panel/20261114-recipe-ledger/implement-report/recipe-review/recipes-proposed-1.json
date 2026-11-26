@@ -1,0 +1,38 @@
+{
+  "schema": "rl-recipes/1",
+  "version": 1,
+  "recipes": {
+    "C1": {
+      "version": 1,
+      "text": "For each acceptance criterion or requirement that says every, all, each, complete, exhaustive, found, covers or no remaining: (1) write the finite check that would let a reviewer say yes, with its stopping rule; (2) copy the instruction sentence the criterion checks and write what set each of the two covers; (3) if you cannot write a finite check, or the two sets differ, mark PROBLEM. Write at most 4 rows."
+    },
+    "C2": {
+      "version": 1,
+      "text": "Split the driving document into rules: one per sentence that contains must, shall, never, only, always, stops, fails or returns, or per table row. Take up to 6 rules, preferring those that govern a failure, an exit or a special case. For each, quote the plan sentence that carries it. For the three with the most conditions, trace each failure path through the plan's tasks to the output the rule governs. No carrying sentence, or a path that ends in a different output, is PROBLEM. Write at most 6 rows."
+    },
+    "C3": {
+      "version": 1,
+      "text": "List every value, field or state that a task reads, maps or requires as the input to a decision (lookup tables, status mappings, conditions). For each, find the row, task or step that writes it, for every case the reader handles. A value with no writer in some case is PROBLEM. Write at most 4 rows."
+    },
+    "C4": {
+      "version": 1,
+      "text": "For each criterion that embeds a command, pattern, selector or test name: write the exact text the same task tells the implementer to write or create. Apply the literal pattern to that text exactly as written (you may run it on a scratch string with Bash). Then ask what the command selects or matches on the current tree. A pattern that cannot match the ordered text, or a selector that selects something other than what the criterion needs, is PROBLEM. Do not use the current tree as proof of what the plan will produce. Write at most 4 rows."
+    },
+    "C5": {
+      "version": 1,
+      "text": "For each change that alters a number, name, count, behavior or default that the repository may also state elsewhere: (1) write the old literal; (2) run one search of the whole tree for it, including root-level documents, other prose files, copies kept elsewhere and comments, not only the files the plan names; (3) list every hit the plan neither edits nor checks. A hit that would be false after the change is PROBLEM. Report it even if you think it is minor. Write at most 4 rows."
+    },
+    "C6": {
+      "version": 1,
+      "text": "For each sentence the plan states or dictates that says all, only, never, every, no other, or nothing outside a named set: (1) name the set it covers; (2) run one count or listing command for that set over the tree; (3) compare with the plan's other tasks and with the scope of the test or check said to enforce it (what does that test skip or not read?). A member outside the claim, a task that does the opposite, or a test scope narrower than the claim is PROBLEM. Write at most 4 rows."
+    },
+    "C7": {
+      "version": 1,
+      "text": "List every constraint, one clause per line (split at semicolons and 'and'). List every piece of text the plan dictates word for word. For each text and each constraint on its topic, tick each clause. A text that omits or contradicts a clause is PROBLEM. Write at most 4 rows."
+    },
+    "C8": {
+      "version": 1,
+      "text": "For each file the plan edits or creates, search the places that hold tests, scripts and documentation for its path and distinctive strings, with a literal-string search that lists matching files (for example `git grep -l -F '<string>' -- <those places>`). For each referencing file the plan never names, open it and decide whether it pins the text or behavior being changed. If it does and no task updates or runs it, mark PROBLEM. Write at most 4 rows."
+    }
+  }
+}

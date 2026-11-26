@@ -1,0 +1,6 @@
+# T29 gitcheck + help
+usage: analyze.py [-h] {metrics,d1} ...
+
+Analysis of finished runs (DESIGN 14.3, REQ-39): the one place where every
+metric is defined.
+

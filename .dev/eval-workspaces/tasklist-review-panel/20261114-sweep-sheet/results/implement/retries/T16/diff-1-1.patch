@@ -1,0 +1,840 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/design-report/session.err b/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/design-report/session.err
+new file mode 100644
+index 000000000..e69de29bb
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/design-report/session.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/design-report/session.json
+new file mode 100644
+index 000000000..e69de29bb
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/launch-build.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/launch-build.sh
+new file mode 100644
+index 000000000..98e9e4e17
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-recipe-ledger/launch-build.sh
+@@ -0,0 +1,47 @@
++#!/usr/bin/env bash
++# Owner order 2026-11-14 ("build the 2 process redesigns and rerun 3 tests each"; answer "build in parallel now" for Redesign 2).
++# Redesign 2, Recipe Ledger, of the process-redesign brainstorm: design -> checked plan -> implement, three sonnet sessions in a row.
++# Redesign 1 (Sweep Sheet) is built by another session in ../20261114-sweep-sheet; this folder never edits it and only reads it.
++# Resumable: each stage skips when its output exists; stage C resumes via /sc:implement's own ledger. Sonnet only (Opus is for scoring).
++set -u -o pipefail
++REPO=/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
++W=$REPO/.dev/eval-workspaces/tasklist-review-panel
++D=$W/20261114-recipe-ledger
++SW=$W/20261114-sweep-sheet
++MR=$REPO/.dev/brainstorms/20261113-223124-panel-process-redesign/merged-requirements.md
++EVAL=$W/20261111-a1
++MODEL=claude-sonnet-5-5
++mkdir -p "$D/design-report" "$D/workflow-report" "$D/implement-report"
++CONSTR="Constraints: create or edit files only under $D (plus scratch under /tmp, and for stage B the new plan package that /sc:workflow creates). Do not edit src/, tests/, .claude/, any existing folder under .dev/tasks/, the sweep-sheet folder $SW (read it only), the 20261111-a1 or 20261113-collab folders, or any other folder. Do not stage, commit or push. Do not open any ground-truth*.json: the work must not use the answers of the study packages. Use uv for all Python. Models: do not start any reviewer or judge session unless the stage says so; if a model is needed use claude-sonnet-5-5 or claude-haiku-5-5 (Opus only as the blind judge). Never Qwen or glm."
++now() { date -u +%T; }
++
++# ---- A: design
++if [ ! -s "$D/DESIGN.md" ] || [ ! -s "$D/TESTING.md" ] || [ ! -s "$D/IMPLEMENTATION.md" ]; then
++PROMPT="/sc:design \"Implementation and test design for Redesign 2: Recipe Ledger of the tasklist review panel (written class recipes and a forced enumerate-then-judge ledger, no pre-pass script; the reviewing model runs the recipe). Source of truth: $MR. Read its sections 1 (theories), 2 (defect classes and generality), 3.0 (shared scaffolding), 3.2 (Redesign 2: Recipe Ledger), 4 (comparison), 5 (validation experiment, all subsections) and 6.1, 6.2, 6.4, 6.5, 6.6, 6.7, 6.8 (numbered requirements), plus its 'Not checked and unverified' list. Also read the harness it extends: $EVAL/tools/run-reviewer.sh, $EVAL/tools/tmp-scripts/judge-one.sh, $EVAL/combos/SPEC.md, $EVAL/COMBO-REPORT.md, and the superclaude review merge code under src/superclaude/cli/ (findings-v1 format). A sibling session is building Redesign 1 (Sweep Sheet) in $SW; the shared scaffolding of 3.0 (class cards, ledger-v1, briefs CB-1 to CB-5, harness fixes H1-H4, the Z0 control arm) is common to both. Read $SW/DESIGN.md, $SW/cards/, $SW/briefs/ and $SW/bin/ read-only and REUSE their shared pieces by copying them into $D at build time (record the sha256 of what you copied) instead of inventing a second version; design only the parts that are specific to Recipe Ledger (recipes per class, lens table in the launcher, the ledger enforcement, its checks and fallback, the time budget). Deliver, inside $D only: DESIGN.md (architecture, recipe format and the recipes per class C1-C8, the lens table, the ledger format and the checks that parse it, the brief change, failure and fallback behaviour, the time budget against the +35% rule with numbers, how it generalises beyond the three study packages), TESTING.md (every REQ in 6.1, 6.2, 6.4 to 6.8 mapped to a runnable test or a labelled manual check, fixtures, and the commands to run one panel of ember + 2x luna on one package for the RL arm and for the Z0 control arm), and IMPLEMENTATION.md (ordered steps with files, test commands using uv, what to run first). Design only: write no production code and run no reviewer or judge session. $CONSTR\""
++S=$(date +%s); echo "START A $(now)"
++( cd "$REPO" && timeout 5400 claude -p --model $MODEL --output-format json --no-session-persistence --permission-mode bypassPermissions <<<"$PROMPT" ) >"$D/design-report/session.json" 2>"$D/design-report/session.err"
++echo "END A rc=$? wall=$(( $(date +%s)-S ))s DESIGN=$(wc -l <"$D/DESIGN.md" 2>/dev/null || echo 0) TESTING=$(wc -l <"$D/TESTING.md" 2>/dev/null || echo 0) IMPL=$(wc -l <"$D/IMPLEMENTATION.md" 2>/dev/null || echo 0) $(now)"
++fi
++[ -s "$D/DESIGN.md" ] && [ -s "$D/TESTING.md" ] && [ -s "$D/IMPLEMENTATION.md" ] || { echo "STOP: design files missing"; exit 1; }
++
++# ---- B: checked plan (/sc:workflow writes a new package under .dev/tasks/to-do/)
++PLANF=$D/workflow-report/plan-path.txt
++if [ ! -s "$PLANF" ]; then
++PROMPT="/sc:workflow \"Implement Redesign 2: Recipe Ledger of the tasklist review panel exactly as specified by $D/DESIGN.md, $D/TESTING.md and $D/IMPLEMENTATION.md (requirements source: $MR sections 3.0, 3.2, 5 and 6). All code, fixtures and tests go under $D only. Tests use uv (uv run pytest) and a fake claude so no model runs are needed; the plan must include a step that runs every test and a final step that writes $D/IMPLEMENTATION-REPORT.md stating what was built, the exact commands to run one panel of ember + 2x luna on each of the three study packages for the RL arm and for the Z0 control arm, test counts, and every requirement not met with the reason.\" --depth standard --handoff none
++
++$CONSTR Print the path of the plan you create as its own line and also write that single path to $PLANF."
++S=$(date +%s); echo "START B $(now)"
++( cd "$REPO" && timeout 3600 claude -p --model $MODEL --output-format json --no-session-persistence --permission-mode bypassPermissions <<<"$PROMPT" ) >"$D/workflow-report/session.json" 2>"$D/workflow-report/session.err"
++echo "END B rc=$? wall=$(( $(date +%s)-S ))s plan=$(cat "$PLANF" 2>/dev/null) $(now)"
++fi
++PLAN=$(head -1 "$PLANF" 2>/dev/null)
++[ -s "$PLAN" ] || { echo "STOP: plan missing ($PLAN)"; exit 1; }
++
++# ---- C: implement
++PROMPT="/sc:implement $PLAN
++
++Owner constraints for this run: $CONSTR Start no reviewer or judge model (tests use the fake claude). If a QA step needs a model, use claude-sonnet-5-5 or claude-haiku-5-5 only. The orchestrator runs the three package tests afterwards; do not run any full panel."
++S=$(date +%s); echo "START C $(now)"
++( cd "$REPO" && timeout 14400 claude -p --model $MODEL --output-format json --no-session-persistence --permission-mode bypassPermissions <<<"$PROMPT" ) >"$D/implement-report/session.json" 2>"$D/implement-report/session.err"
++echo "END C rc=$? wall=$(( $(date +%s)-S ))s report=$( [ -s "$D/IMPLEMENTATION-REPORT.md" ] && echo yes || echo no ) $(now)"
++echo ALLDONE
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T16/q0-head b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T16/q0-head
+new file mode 100644
+index 000000000..290a67eae
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/retries/T16/q0-head
+@@ -0,0 +1 @@
++6225ac3fd4d810614dc39e44863158bbd603b87d
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+index 70bbca912..f6cfdb37d 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py
+@@ -11,6 +11,7 @@
+     find_e3, attach_e3  extractor E3 (class C8, DESIGN 4.4): files that refer to a file the plan edits
+     find_e4, attach_e4  extractor E4 (class C5, DESIGN 4.5): a count or "no remaining" claim and the places that carry it
+     find_e1, attach_e1  extractor E1 (classes C1 and C6, DESIGN 4.2): set words and the scope they name
++    find_e5, attach_e5  extractor E5 (class C2, DESIGN 4.6): source rules whose identifiers no citing task carries
+ 
+ Candidate.status values set here: `found` (as made by `find`), `attached` (evidence computed, not yet decided) and
+ `dropped:pre_rank` (below the top K of its class; no evidence). select.py sets the rest: `selected`,
+@@ -323,6 +324,9 @@ class Ctx:
+     snapshot: Path | None = None
+     seed: int | str = 0
+     constants: dict | None = None
++    # ids of the tasks that cite no source section; `find_e5` sets it on every call (Task 22 writes it into
++    # prepass.json as `tasks_without_citations`). It stays empty when there is no source, because E5 does not run.
++    tasks_without_citations: list[str] = field(default_factory=list, init=False)
+ 
+     def __post_init__(self):
+         if self.snapshot is not None:
+@@ -330,6 +334,16 @@ class Ctx:
+         if self.constants is None:
+             self.constants = load_constants()
+ 
++    @property
++    def no_source(self) -> bool:
++        """True when there is no source document: E5 returns nothing and the run records `no_source` (DESIGN 4.6)."""
++        return self.source is None
++
++    @property
++    def not_applicable(self) -> dict[str, str]:
++        """Classes that cannot be checked in this run, as {class: reason}; `{"C2": "no_source"}` without a source."""
++        return {"C2": "no_source"} if self.no_source else {}
++
+     @cached_property
+     def named_paths(self) -> tuple[str, ...]:
+         return named_paths(self.doc)
+@@ -1871,3 +1885,257 @@ def attach_e1(cands: list[Candidate], ctx: Ctx) -> None:
+ 
+ 
+ EXTRACTORS["E1"] = (find_e1, attach_e1)
++
++
++# ---------------------------------------------------------------- E5 (class C2): source rules a citing task leaves out
++#
++# DESIGN 4.6. Runs only when a source exists (`ctx.source`); without one `find_e5` returns nothing and `Ctx.no_source`
++# / `Ctx.not_applicable` say class C2 is not applicable. `find_e5` reads only the candidate and the source (no
++# repository access); `attach_e5` builds the three evidence entries from `Candidate.features`, so a candidate read
++# back from candidates.json can still be attached. Reading choices where DESIGN 4.6 is silent:
++#  1. The source is split at its markdown headings, whatever its format dictionary. A numeric citation (`2.3`) names
++#     the heading whose title starts with that number (`2.3` does not match `2.30` or `2.3.1`); its section runs to the
++#     next heading of the same or a higher level, so sub-sections belong to it. A citation that starts with a letter
++#     (`Q4`) names a heading that starts with it, or else a decision line that starts with it (`Q4: ...`, also as a
++#     bullet or in bold) and runs to the next blank line, bullet, heading or other decision line. `§` and `section` are
++#     dropped by the plan reader's citation pattern. A citation that matches nothing gives no rules.
++#  2. Prose only: heading lines and fenced lines of the source are no rule sentences. A new paragraph starts at a blank
++#     line, a bullet, a heading or a fence; sentences are cut by `plan.sentences`.
++#  3. "Next to" in the second rule clause is read as "in the same sentence": a sentence with a backticked span and one
++#     of the verbs report, return, halt, set, write (any inflection) is a rule sentence. The first clause is the words
++#     must, shall, never, always, only, every, each.
++#  4. `ids` are the backticked spans without a space (at most 80 characters) and, outside backticks, the snake_case
++#     tokens (a lower-case word with an underscore) and the CamelCase tokens (two humps, at least one lower-case
++#     letter; `DoorTimeout`, `doorTimeout`; an all-capital word is none). Duplicates are kept once, in order.
++#  5. The task text searched is the task block and its criterion blocks, whitespace-flattened; an id is found when it
++#     is a substring (case-sensitive). The citation line is part of the task block and holds no identifier.
++#  6. The task's first sentence is the first sentence of 12 or more characters in the task body, outside the citation
++#     line and a `Depends on:` line (each breaks a paragraph and is no sentence), cut to 200 characters like E4. A task
++#     without such a sentence gives no candidate. Its location is that sentence's.
++#  7. A task is counted in `ctx.tasks_without_citations` when the plan reader found no citation for it, whether or not
++#     the source has a rule for the others. Two rule sentences of one task are two candidates with the same anchor.
++#  8. Evidence is three entries (the limit is 5): the rule (`source`, its source line), `missing identifiers: <list>`
++#     (`source`, the same line) and the task's first sentence (`plan`, its plan line); each text is cut to 160.
++
++E5_BASE_PRIORITY, E5_PER_MISSING, E5_MISSING_CAP = 30, 15, 4
++E5_ID_MAX = 80
++_E5_MODAL = re.compile(
++    r"(?<![\w-])(?:must|shall|never|always|only|every|each)(?![\w-])", re.I
++)
++_E5_VERB = re.compile(
++    r"(?<![\w-])(?:reports?|reported|reporting|returns?|returned|returning|halts?|halted|halting|sets?|setting"
++    r"|writes?|wrote|written|writing)(?![\w-])",
++    re.I,
++)
++_E5_FENCE = re.compile(r"^ {0,3}(?:`{3,}|~{3,})")
++_E5_HEAD = re.compile(r"^(#{1,6})[ \t]+(\S.*?)[ \t]*#*[ \t]*$")
++_E5_BULLET = re.compile(r"^[ \t]*(?:[-*+]|\d+[.)])[ \t]+")
++_E5_DECISION_ANY = re.compile(
++    r"^[ \t]*(?:[-*+][ \t]+)?(?:\*\*)?[A-Z]{1,3}-?\d+(?:\.\d+)*(?:\*\*)?[ \t]*[:.)]"
++)
++_E5_SNAKE = re.compile(r"(?<![\w-])[a-z][a-z0-9]*(?:_[a-z0-9]+)+(?![\w-])")
++_E5_CAMEL = re.compile(r"(?<![\w-])[A-Z]?[a-z][a-z0-9]*(?:[A-Z][a-z0-9]+)+(?![\w-])")
++_E5_TICKED = re.compile(r"`([^`\n]+)`")
++_E5_DEPENDS = re.compile(r"^[ \t]*Depends on[ \t]*:", re.I)
++
++
++def _e5_prose(lines: list[str], lo: int, hi: int):
++    """(line number, text) for the prose lines lo..hi of a document (1-based): fenced lines and headings are left
++    out, and a None entry stands for a break (a fence or a heading). Blank lines are kept as ''."""
++    fenced = False
++    out: list[tuple[int, str] | None] = []
++    for i in range(1, hi + 1):
++        raw = lines[i - 1]
++        if _E5_FENCE.match(raw):
++            fenced = not fenced
++            if i >= lo:
++                out.append(None)
++            continue
++        if fenced or i < lo:
++            continue
++        out.append(None if _E5_HEAD.match(raw) else (i, raw))
++    return out
++
++
++def _e5_heads(lines: list[str]) -> list[dict]:
++    """The headings of a document outside fences: {line, level, title, end} with `end` the last line of the section."""
++    heads, fenced = [], False
++    for i, raw in enumerate(lines, 1):
++        if _E5_FENCE.match(raw):
++            fenced = not fenced
++            continue
++        m = None if fenced else _E5_HEAD.match(raw)
++        if m:
++            heads.append({"line": i, "level": len(m.group(1)), "title": m.group(2)})
++    for k, h in enumerate(heads):
++        h["end"] = len(lines)
++        for g in heads[k + 1 :]:
++            if g["level"] <= h["level"]:
++                h["end"] = g["line"] - 1
++                break
++    return heads
++
++
++def _e5_ranges(
++    lines: list[str], heads: list[dict], ref: str
++) -> list[tuple[int, int, str]]:
++    """The (first line, last line, kind) ranges of the source that the citation `ref` names (reading choice 1)."""
++    head_rx = re.compile(rf"(?:§\s*)?{re.escape(ref)}(?![\w])(?!\.\d)")
++    out = [
++        (h["line"] + 1, h["end"], "section") for h in heads if head_rx.match(h["title"])
++    ]
++    if out or not ref[0].isalpha():
++        return out
++    dec_rx = re.compile(
++        rf"^[ \t]*(?:[-*+][ \t]+)?(?:\*\*)?{re.escape(ref)}(?:\*\*)?[ \t]*[:.)]"
++    )
++    fenced = False
++    for i, raw in enumerate(lines, 1):
++        if _E5_FENCE.match(raw):
++            fenced = not fenced
++            continue
++        if fenced or _E5_HEAD.match(raw) or not dec_rx.match(raw):
++            continue
++        j = i
++        while j < len(lines):
++            nxt = lines[j]
++            if (
++                not nxt.strip()
++                or _E5_HEAD.match(nxt)
++                or _E5_BULLET.match(nxt)
++                or _E5_DECISION_ANY.match(nxt)
++            ):
++                break
++            j += 1
++        out.append((i, j, "decision"))
++    return out
++
++
++def _e5_paragraphs(lines: list[str], lo: int, hi: int):
++    """(first line, text) of each prose paragraph of lines lo..hi (reading choice 2)."""
++    para: list[tuple[int, str]] = []
++    for item in [*_e5_prose(lines, lo, hi), None]:
++        if item is not None and item[1].strip() and not _E5_BULLET.match(item[1]):
++            para.append(item)
++            continue
++        if para:
++            yield para[0][0], "\n".join(t for _, t in para)
++            para = []
++        if item is not None and item[1].strip():  # a bullet starts a new paragraph
++            para = [item]
++
++
++def _e5_is_rule(sentence: str) -> bool:
++    ticked = _E5_TICKED.search(sentence) is not None
++    return bool(_E5_MODAL.search(sentence) or (ticked and _E5_VERB.search(sentence)))
++
++
++def _e5_rules(lines: list[str], lo: int, hi: int) -> list[tuple[int, str]]:
++    """(source line, flattened sentence) of every rule sentence in lines lo..hi."""
++    out = []
++    for first, text in _e5_paragraphs(lines, lo, hi):
++        for start, _, sent in plan.sentences(text):
++            flat = fnd.flat(_E5_BULLET.sub("", sent, count=1))
++            if _e5_is_rule(flat):
++                out.append((first + text.count("\n", 0, start), flat))
++    return out
++
++
++def _e5_ids(sentence: str) -> list[str]:
++    """The identifiers of a rule sentence (reading choice 4), each once, in order of appearance."""
++    found = [(m.start(1), m.group(1).strip()) for m in _E5_TICKED.finditer(sentence)]
++    bare = _E5_TICKED.sub(lambda m: " " * len(m.group(0)), sentence)
++    for rx in (_E5_SNAKE, _E5_CAMEL):
++        found += [(m.start(), m.group(0)) for m in rx.finditer(bare)]
++    seen: list[str] = []
++    for _, tok in sorted(found):
++        if (
++            tok
++            and len(tok) <= E5_ID_MAX
++            and not any(c.isspace() for c in tok)
++            and tok not in seen
++        ):
++            seen.append(tok)
++    return seen
++
++
++def _e5_first_sentence(doc: plan.Doc, block: dict) -> tuple[int, str] | None:
++    """(plan line, text) of the first sentence of 12 or more characters in a task block (reading choice 6)."""
++    spec = formats.FORMATS.get(doc.format) or {}
++    label = re.compile((spec.get("citation") or formats.CITATION)["label"], re.I)
++    para: list[tuple[int, str]] = []
++    for n, raw in [*enumerate(block["text"].split("\n"), block["line_start"]), (0, "")]:
++        if raw.strip() and not label.match(raw) and not _E5_DEPENDS.match(raw):
++            para.append((n, raw))
++            continue
++        if para:
++            text = "\n".join(t for _, t in para)
++            for start, _, sent in plan.sentences(text):
++                if len(fnd.flat(sent)) >= ANCHOR_MIN:
++                    return para[0][0] + text.count("\n", 0, start), sent
++            para = []
++    return None
++
++
++def find_e5(doc: plan.Doc, ctx: Ctx) -> list[Candidate]:
++    """DESIGN 4.6 `find`: one candidate per (task, rule sentence of a cited section) with identifiers the task lacks."""
++    ctx.tasks_without_citations = []
++    source = ctx.source
++    if source is None:
++        return []
++    heads = _e5_heads(source.lines)
++    out: list[Candidate] = []
++    for tid, task in doc.tasks.items():
++        refs = task["citations"]
++        if not refs:
++            ctx.tasks_without_citations.append(tid)
++            continue
++        block = next((b for b in doc.of("task") if b["task"] == tid), None)
++        first = _e5_first_sentence(doc, block) if block else None
++        if first is None:
++            continue
++        line, sent = first
++        haystack = fnd.flat(
++            "\n".join(
++                b["text"] for b in doc.of("task", "criterion") if b["task"] == tid
++            )
++        )
++        anchor = fnd.flat(sent)[:ANCHOR_MAX].rstrip()
++        done: set[tuple[int, str]] = set()
++        for ref in refs:
++            for lo, hi, kind in _e5_ranges(source.lines, heads, ref):
++                for rule_line, rule in _e5_rules(source.lines, lo, hi):
++                    ids = _e5_ids(rule)
++                    missing = [i for i in ids if i not in haystack]
++                    if not missing or (rule_line, rule) in done:
++                        continue
++                    done.add((rule_line, rule))
++                    out.append(
++                        Candidate(
++                            "E5", "C2", kind, anchor,
++                            {"task": tid, "line_start": line, "line_end": line + sent.count("\n")},
++                            features={"ref": ref, "rule": rule, "rule_line": rule_line, "ids": ids,
++                                      "missing": missing, "task_sentence": fnd.flat(sent)},
++                            pre_priority=E5_BASE_PRIORITY + E5_PER_MISSING * min(len(missing), E5_MISSING_CAP),
++                        )
++                    )  # fmt: skip
++    return out
++
++
++def attach_e5(cands: list[Candidate], ctx: Ctx) -> None:
++    """DESIGN 4.6 `attach`: the rule, the missing identifiers and the task's first sentence; `priority = pre_priority`."""
++    for c in cands:
++        f = c.features
++        c.evidence = [
++            _ev("source", f["rule_line"], f["rule"]),
++            _ev(
++                "source",
++                f["rule_line"],
++                "missing identifiers: " + ", ".join(f["missing"]),
++            ),
++            _ev("plan", c.location["line_start"], f["task_sentence"]),
++        ]
++        c.priority = c.pre_priority
++
++
++EXTRACTORS["E5"] = (find_e5, attach_e5)
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e5.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e5.py
+new file mode 100644
+index 000000000..2dc4b8132
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e5.py
+@@ -0,0 +1,386 @@
++"""Extractor E5 (class C2, DESIGN 4.6): source rules whose identifiers no citing task carries.
++
++Each extractor test has a positive case, a negative case, a near-miss or boundary case and a determinism case.
++E5 reads only the candidate and the source (no repository), so no snapshot is built. The plan fixtures are
++fixtures/plans/p_basic.md with fixtures/plans/source.md: Task 3 cites sections 2.3 and Q4, and the source rule of 2.3
++names `deleted_count`, `RetentionError` and `age_limit_days`, none of which Task 3 carries.
++"""
++
++import json
++from pathlib import Path
++
++import pytest
++
++from sweep import extractors, plan
++from sweep.extractors import Candidate, Ctx
++
++PLANS = Path(__file__).resolve().parents[1] / "fixtures" / "plans"
++BASIC_TEXT = (PLANS / "p_basic.md").read_text(encoding="utf-8")
++SOURCE_TEXT = (PLANS / "source.md").read_text(encoding="utf-8")
++RULE_23 = "The job must write `deleted_count` to the run log and must halt with `RetentionError` when `age_limit_days` is unset."
++FIRST_T3 = "Create `src/exporter/retention.py` and `tests/test_retention.py`."
++
++
++def mkplan(
++    body="Edit `src/exporter/report.py` for it.",
++    cites="2.3",
++    criterion="`make test` exits 0.",
++):
++    """A one-task plan: the body is line 3, the citation line 5, the criterion bullet line 8."""
++    cite = f"Source sections: {cites}\n\n" if cites else ""
++    return plan.parse(
++        f"## Task 1: Change the report\n\n{body}\n\n{cite}Acceptance criteria:\n- {criterion}\n"
++    )
++
++
++def mksource(*sections):
++    """A source with one `## <number> Title` section per (number, text) pair, in a blank-line separated layout."""
++    return plan.parse(
++        "# Source\n\n" + "".join(f"## {n} Title {n}\n\n{t}\n\n" for n, t in sections)
++    )
++
++
++def src23():
++    """A source whose section 2.3 holds only the retention rule (the fixture's own 2.3 holds a second rule)."""
++    return mksource(("2.3", RULE_23))
++
++
++def find(doc, source, **kw):
++    return extractors.find_e5(doc, Ctx(doc, source=source, **kw))
++
++
++def run(doc, source, **kw):
++    ctx = Ctx(doc, source=source, **kw)
++    cands = extractors.find_e5(doc, ctx)
++    extractors.attach_e5(cands, ctx)
++    return cands
++
++
++def basic(**kw):
++    return run(plan.parse(BASIC_TEXT), plan.parse(SOURCE_TEXT), **kw)
++
++
++def dump(cands):
++    return json.dumps([c.to_dict() for c in cands], sort_keys=True)
++
++
++def source_line(fragment):
++    return next(i for i, t in enumerate(SOURCE_TEXT.split("\n"), 1) if fragment in t)
++
++
++# ---------------------------------------------------------------- no source (REQ-01 part)
++
++
++def test_no_source_returns_nothing():
++    """E5 runs only when a source exists; without one it returns nothing and Ctx reports C2 as not applicable."""
++    doc = plan.parse(BASIC_TEXT)
++    ctx = Ctx(doc)
++    assert extractors.find_e5(doc, ctx) == []
++    assert ctx.no_source is True
++    assert ctx.not_applicable == {"C2": "no_source"}
++    assert ctx.tasks_without_citations == []  # E5 did not run, so it counted nothing
++    # through the two-phase run, with the real registry entry
++    assert extractors.EXTRACTORS["E5"] == (extractors.find_e5, extractors.attach_e5)
++    assert extractors.run_extractors(ctx, {"E5": extractors.EXTRACTORS["E5"]}) == []
++
++
++def test_with_a_source_class_c2_applies():
++    doc = plan.parse(BASIC_TEXT)
++    ctx = Ctx(doc, source=plan.parse(SOURCE_TEXT))
++    assert ctx.no_source is False
++    assert ctx.not_applicable == {}
++
++
++def test_an_empty_source_gives_nothing_but_still_counts_tasks_without_citations():
++    doc = plan.parse(BASIC_TEXT)
++    ctx = Ctx(doc, source=plan.parse(""))
++    assert extractors.find_e5(doc, ctx) == []
++    assert ctx.tasks_without_citations == ["T5"]
++
++
++# ---------------------------------------------------------------- positive
++
++
++def test_basic_plan_gives_the_retention_rule_for_task_3():
++    (c,) = basic()
++    assert (c.extractor, c.cls, c.kind) == ("E5", "C2", "section")
++    assert c.anchor_text == FIRST_T3  # the `Depends on: Task 1` line is no sentence
++    assert c.location["task"] == "T3"
++    assert BASIC_TEXT.split("\n")[c.location["line_start"] - 1].startswith(FIRST_T3)
++    f = c.features
++    assert f["ref"] == "2.3" and f["rule"] == RULE_23
++    assert f["rule_line"] == source_line("The job must write")
++    assert f["ids"] == ["deleted_count", "RetentionError", "age_limit_days"]
++    assert (
++        f["missing"] == f["ids"]
++    )  # `legal_hold` is the other rule's, and Task 3 carries it
++    assert c.pre_priority == 30 + 15 * 3 == 75 and c.priority == 75
++    assert c.evidence == [
++        {"path": "source", "line": f["rule_line"], "text": RULE_23},
++        {
++            "path": "source",
++            "line": f["rule_line"],
++            "text": "missing identifiers: deleted_count, RetentionError, age_limit_days",
++        },
++        {"path": "plan", "line": c.location["line_start"], "text": FIRST_T3},
++    ]
++
++
++def test_candidates_pass_the_core_checks_and_take_the_class_route():
++    doc = plan.parse(BASIC_TEXT)
++    ctx = Ctx(doc, source=plan.parse(SOURCE_TEXT))
++    got = extractors.run_extractors(ctx, {"E5": extractors.EXTRACTORS["E5"]})
++    assert [(c.cls, c.route, c.status) for c in got] == [("C2", "read", "attached")]
++    assert got[0].evidence_computed and got[0].priority == 75
++
++
++def test_a_decision_line_is_a_cited_section():
++    src = plan.parse(
++        "# S\n\n## Decisions\n\nQ4: the job must write `run_total` once.\n"
++        "It never reads `other_total` again.\n\nQ5: the step must write `skipped_total`.\n"
++    )
++    got = find(
++        mkplan(cites="Q4"), src
++    )  # the decision runs to the blank line, so Q5 is not part of it
++    assert [(c.kind, c.features["ref"], c.features["missing"]) for c in got] == [
++        ("decision", "Q4", ["run_total"]),
++        ("decision", "Q4", ["other_total"]),
++    ]
++    assert [c.features["rule_line"] for c in got] == [5, 6]
++    assert [c.features["missing"] for c in find(mkplan(cites="Q5"), src)] == [
++        ["skipped_total"]
++    ]
++
++
++def test_a_decision_bullet_and_its_continuation_line():
++    src = plan.parse(
++        "# S\n\n- **Q4**: the job must write\n  `run_total` once.\n- Q5: the step must write `skipped_total`.\n"
++    )
++    (c,) = find(mkplan(cites="Q4"), src)
++    assert c.features["missing"] == ["run_total"]
++    assert c.features["rule"].endswith("the job must write `run_total` once.")
++
++
++def test_sub_sections_belong_to_the_cited_section():
++    src = plan.parse(
++        "## 2.3 Job\n\nIntro text.\n\n### 2.3.1 Detail\n\nThe job shall report `job_total`.\n\n## 2.4 Next\n\nIt must set `next_flag`.\n"
++    )
++    (c,) = find(mkplan(cites="2.3"), src)
++    assert c.features["missing"] == ["job_total"] and c.features["rule_line"] == 7
++
++
++# ---------------------------------------------------------------- negative
++
++
++def test_task_that_carries_every_identifier_gives_no_candidate():
++    body = "Write `deleted_count`, raise `RetentionError` and read `age_limit_days`."
++    assert find(mkplan(body=body), src23()) == []
++    # the fixture's 2.3 also holds the `legal_hold` rule, which this task does not carry
++    (c,) = find(mkplan(body=body), plan.parse(SOURCE_TEXT))
++    assert c.features["missing"] == ["legal_hold"]
++
++
++def test_an_identifier_in_the_criteria_counts_as_carried():
++    ids = "`deleted_count`, `RetentionError`, `age_limit_days`"
++    assert find(mkplan(criterion=f"The log holds {ids}."), src23()) == []
++    (c,) = find(mkplan(criterion="The log holds `deleted_count`."), src23())
++    assert c.features["missing"] == ["RetentionError", "age_limit_days"]
++
++
++def test_a_rule_without_identifiers_gives_no_candidate():
++    assert (
++        find(mkplan(cites="2.1"), plan.parse(SOURCE_TEXT)) == []
++    )  # "must support the formats csv, json, ..."
++
++
++def test_a_task_that_cites_nothing_is_counted_and_gives_no_candidate():
++    doc = mkplan(cites=None)
++    ctx = Ctx(doc, source=plan.parse(SOURCE_TEXT))
++    assert extractors.find_e5(doc, ctx) == []
++    assert ctx.tasks_without_citations == ["T1"]
++
++
++def test_tasks_without_citations_are_listed_for_the_basic_plan_and_reset_on_each_call():
++    doc = plan.parse(BASIC_TEXT)
++    ctx = Ctx(doc, source=plan.parse(SOURCE_TEXT))
++    extractors.find_e5(doc, ctx)
++    extractors.find_e5(doc, ctx)
++    assert ctx.tasks_without_citations == ["T5"]
++    clean = plan.parse((PLANS / "p_clean.md").read_text(encoding="utf-8"))
++    ctx = Ctx(clean, source=plan.parse(SOURCE_TEXT))
++    assert extractors.find_e5(clean, ctx) == []
++    assert ctx.tasks_without_citations == ["T1", "T2", "T3"]
++
++
++def test_a_citation_that_matches_no_source_section_gives_nothing_and_is_not_counted():
++    doc = mkplan(cites="9.9, Q77")
++    ctx = Ctx(doc, source=plan.parse(SOURCE_TEXT))
++    assert extractors.find_e5(doc, ctx) == []
++    assert ctx.tasks_without_citations == []
++
++
++# ---------------------------------------------------------------- near misses and boundaries
++
++
++@pytest.mark.parametrize(
++    "sentence,is_rule",
++    [
++        ("The job must write `deleted_count`.", True),
++        (
++            "The job returns `result_code` at the end.",
++            True,
++        ),  # a backticked identifier and a return verb
++        ("The job halts on `RetentionError`.", True),
++        (
++            "The job likes `deleted_count` very much.",
++            False,
++        ),  # a backticked identifier, no rule verb
++        (
++            "The job writes results to the log.",
++            False,
++        ),  # a verb, no backticked identifier
++        (
++            "Mustard is a plant and `deleted_count` is a name.",
++            False,
++        ),  # "must" is not a word here
++        ("Each run of `job_total` counts.", True),
++    ],
++)
++def test_rule_sentence_selection(sentence, is_rule):
++    src = mksource(("2.3", sentence))
++    got = find(mkplan(), src)
++    assert bool(got) is is_rule
++
++
++def test_section_numbers_match_whole_numbers_only():
++    src = plan.parse(
++        "## 2.30 Other\n\nIt must set `other_flag`.\n\n## 2.3 Job\n\nIt must set `job_flag`.\n"
++    )
++    (c,) = find(mkplan(cites="2.3"), src)
++    assert c.features["missing"] == ["job_flag"]
++    (c,) = find(mkplan(cites="2.30"), src)
++    assert c.features["missing"] == ["other_flag"]
++
++
++def test_fenced_lines_and_headings_are_no_rule_sentences():
++    src = plan.parse(
++        "## 2.3 Job\n\n```text\nIt must set `fenced_flag`.\n```\n\n### It must set `heading_flag`\n\nPlain words only.\n"
++    )
++    assert find(mkplan(cites="2.3"), src) == []
++
++
++def test_a_numbered_heading_inside_a_fence_does_not_end_or_start_a_section():
++    src = plan.parse("## 2.3 Job\n\n```\n## 2.4 Fake\n```\n\nIt must set `job_flag`.\n")
++    (c,) = find(mkplan(cites="2.3"), src)
++    assert c.features["missing"] == ["job_flag"]
++    assert find(mkplan(cites="2.4"), src) == []
++
++
++def test_identifiers_are_case_sensitive():
++    body = "Write `deleted_count` and `retentionerror` and `AGE_LIMIT_DAYS`."
++    (c,) = find(mkplan(body=body), src23())
++    assert c.features["missing"] == ["RetentionError", "age_limit_days"]
++
++
++@pytest.mark.parametrize(
++    "sentence,ids",
++    [
++        ("It must set `a_b` and `Name`.", ["a_b", "Name"]),
++        ("It must set door_open_ms and DoorTimeout.", ["door_open_ms", "DoorTimeout"]),
++        ("It must set doorTimeout.", ["doorTimeout"]),
++        (
++            "It must set JSON and Door and door.",
++            [],
++        ),  # an all-capital word and a plain word are no identifier
++        (
++            "It must set `src/a_b/c.py`.",
++            ["src/a_b/c.py"],
++        ),  # a backticked path is one id; its snake_case is no second
++        ("It must run `make test`.", []),  # a backticked span with a space is a command
++        ("It must set `a_b` and a_b.", ["a_b"]),  # each once
++        ("It must set `" + "x" * 81 + "`.", []),
++    ],
++)
++def test_identifier_extraction(sentence, ids):
++    assert extractors._e5_ids(sentence) == ids
++
++
++@pytest.mark.parametrize(
++    "n,expected", [(1, 45), (2, 60), (3, 75), (4, 90), (5, 90), (6, 90)]
++)
++def test_pre_priority_is_30_plus_15_per_missing_identifier_up_to_four(n, expected):
++    ids = [f"id_{i}" for i in range(n)]
++    src = mksource(("2.3", "It must set " + ", ".join(f"`{i}`" for i in ids) + "."))
++    (c,) = find(mkplan(), src)
++    assert len(c.features["missing"]) == n and c.pre_priority == expected
++
++
++def test_two_rule_sentences_are_two_candidates_with_one_anchor_in_source_order():
++    src = mksource(("2.3", "It must set `a_one`. It shall report `b_two`."))
++    got = find(mkplan(), src)
++    assert [c.features["missing"] for c in got] == [["a_one"], ["b_two"]]
++    assert len({c.anchor_text for c in got}) == 1
++    assert [c.features["rule_line"] for c in got] == [5, 5]  # both on one source line
++
++
++def test_a_section_cited_twice_through_two_citations_makes_one_candidate():
++    (c,) = find(mkplan(cites="2.3, 2.3"), src23())
++    assert c.features["ref"] == "2.3"
++    src = plan.parse("## 2.3 Job\n\n### 2.3.1 Part\n\nIt must set `job_flag`.\n")
++    assert len(find(mkplan(cites="2.3, 2.3.1"), src)) == 1
++
++
++def test_a_task_without_a_sentence_of_twelve_characters_gives_no_candidate():
++    assert find(mkplan(body="Do it."), plan.parse(SOURCE_TEXT)) == []
++
++
++def test_a_long_first_sentence_is_cut_to_200_characters_and_stays_an_exact_quote():
++    body = "Edit the report writer " + "and keep going " * 20 + "now."
++    (c,) = find(mkplan(body=body), src23())
++    assert len(c.anchor_text) <= 200 and c.anchor_text in " ".join(body.split())
++    ctx = Ctx(mkplan(body=body), source=src23())
++    c.validate(ctx)  # an exact quote of the candidate, 12 to 200 characters
++
++
++def test_evidence_texts_are_cut_to_160_characters_and_there_are_three_entries():
++    long_rule = (
++        "It must set `long_id` " + "with a very long explanation " * 12 + "today."
++    )
++    (c,) = run(mkplan(), mksource(("2.3", long_rule)))
++    assert len(c.evidence) == 3 <= extractors.EVIDENCE_MAX
++    assert all(len(e["text"]) <= 160 for e in c.evidence)
++    assert c.features["rule"].endswith("today.")  # the whole rule stays in features
++
++
++def test_attach_needs_no_snapshot_and_sets_priority_to_pre_priority():
++    (c,) = run(mkplan(), src23())
++    assert c.priority == c.pre_priority == 75
++    c.priority = None
++    extractors.attach_e5([c], Ctx(mkplan(), source=src23()))
++    assert c.priority == 75
++
++
++def test_a_candidate_with_only_its_features_can_be_attached_again():
++    (c,) = find(mkplan(), src23())
++    twin = Candidate(
++        c.extractor, c.cls, c.kind, c.anchor_text, dict(c.location),
++        features=dict(c.features), pre_priority=c.pre_priority,
++    )  # fmt: skip
++    extractors.attach_e5([c, twin], Ctx(mkplan(), source=src23()))
++    assert twin.evidence == c.evidence and twin.priority == c.priority
++
++
++# ---------------------------------------------------------------- determinism
++
++
++def test_the_output_is_the_same_on_every_run():
++    assert dump(basic()) == dump(basic()) == dump(basic(seed=5))
++    doc = plan.parse(BASIC_TEXT)
++    src = plan.parse(SOURCE_TEXT)
++    a = extractors.run_extractors(
++        Ctx(doc, source=src), {"E5": extractors.EXTRACTORS["E5"]}
++    )
++    b = extractors.run_extractors(
++        Ctx(doc, source=src), {"E5": extractors.EXTRACTORS["E5"]}
++    )
++    assert dump(a) == dump(b)
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py
+index fc6af6d45..d1d7e9fd2 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_formats.py
+@@ -1,7 +1,7 @@
+ """Format dictionaries and word lists (DESIGN sections 3 and 4, REQ-37).
+ 
+-The spec and documentation fixture tests (`test_spec_fixture_e1_e2_e5`, `test_doc_fixture_e4_e1`) are added with
+-those fixtures; this file holds the checks that need no extractor.
++The first tests need no extractor. The last two (`test_spec_fixture_e1_e2_e5`, `test_doc_fixture_e4_e1`, REQ-37) run
++the extractors over fixtures/specs/spec1.md with its parent parent1.md and over fixtures/docs/doc1.md.
+ """
+ 
+ import ast
+@@ -12,7 +12,8 @@ import re
+ import pytest
+ from helpers import SW
+ 
+-from sweep import formats, plan, words
++from sweep import extractors, formats, plan, words
++from sweep.extractors import Ctx
+ 
+ TICKET = {
+     "heads": {
+@@ -195,3 +196,51 @@ def test_word_lists_hold_the_design_words():
+ )
+ def test_word_matching_is_on_word_boundaries(sentence, found):
+     assert bool(plan._wre("edit_verbs").search(sentence)) is found
++
++
++# ---------------------------------------------------------------- spec and documentation fixtures (REQ-37)
++
++SPEC = SW / "fixtures" / "specs" / "spec1.md"
++PARENT = SW / "fixtures" / "specs" / "parent1.md"
++DOC = SW / "fixtures" / "docs" / "doc1.md"
++
++
++def items(eid, doc, ctx):
++    """The candidates of one extractor, with the evidence of its `attach` and the core limits checked."""
++    find, attach = extractors.EXTRACTORS[eid]
++    cands = find(doc, ctx)
++    attach(cands, ctx)
++    for c in cands:
++        assert c.extractor == eid
++        c.validate(ctx)
++    return cands
++
++
++def test_spec_fixture_e1_e2_e5():
++    spec = plan.read(SPEC, "spec")
++    parent = plan.read(PARENT, "spec")
++    assert spec.format == "spec" and [t for t in spec.tasks] == ["T1", "T2", "T3"]
++    assert spec.tasks["T2"]["citations"] == ["4.1", "4.2"]
++    ctx = Ctx(spec, source=parent)
++    got = {eid: items(eid, spec, ctx) for eid in ("E1", "E2", "E5")}
++    assert all(got.values()), {k: len(v) for k, v in got.items()}
++    # E5 reads the parent: the door rule names `door_open_ms` and `DoorTimeout`, which task 2 does not carry
++    assert any(
++        {"door_open_ms", "DoorTimeout"} <= set(c.features["missing"]) for c in got["E5"]
++    )
++    assert ctx.tasks_without_citations == ["T1"]
++    # no parent, no E5 item; the other two still read the spec alone
++    alone = Ctx(spec)
++    assert items("E5", spec, alone) == []
++    assert alone.not_applicable == {"C2": "no_source"}
++    assert items("E1", spec, alone) and items("E2", spec, alone)
++
++
++def test_doc_fixture_e4_e1():
++    doc = plan.read(DOC, "doc")
++    assert doc.format == "doc"
++    ctx = Ctx(doc)
++    got = {eid: items(eid, doc, ctx) for eid in ("E4", "E1")}
++    assert all(got.values()), {k: len(v) for k, v in got.items()}
++    assert any("3 report formats" in c.features["needle"] for c in got["E4"])
++    assert {c.kind for c in got["E1"]} >= {"universal"}
+diff --git a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+index 67f887562..ef83edf3c 100644
+--- a/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
++++ b/.dev/tasks/to-do/TASK-WF-implementHomeCod-20261114-200449/progress.md
+@@ -30,3 +30,4 @@ T14: start sha=06e702069738d0dd9f8e769f2db25157d96c7850
+ T14: complete verdict=compliant ac=T14.AC1,T14.AC2,T14.AC3 evidence=T14.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T14-e4-tests.log:14,T14.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e4.py:281,T14.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:1547 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/words.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e4.py
+ T15: start sha=45d6d73934f594793622eb4ab18fe56bd1774b57
+ T15: complete verdict=compliant ac=T15.AC1,T15.AC2,T15.AC3 evidence=T15.AC1@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/implement/logs/T15-test-e1.log:12,T15.AC2@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:1825,T15.AC3@.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py:1873 extras=lint:pass,typecheck:skip,test:pass files=.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/sweep/extractors.py,.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e1.py
++T16: start sha=d7a2f4858e276d94cad7119505d48e3eadc1d49c

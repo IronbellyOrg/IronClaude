@@ -1,0 +1,401 @@
+[
+ {
+  "sid": "S07",
+  "set": "ember + 2x luna",
+  "era": "source.md",
+  "n_runs": 6,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 4,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 6,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 1,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 5
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 5,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 1,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 1
+  },
+  "per_run": {
+   "b4-muse-ember-luna2": {
+    "found": [
+     "B7",
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": [
+     "B7"
+    ]
+   },
+   "e2-ember-luna2-rep": {
+    "found": [
+     "B3",
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": [
+     "I2",
+     "I8"
+    ]
+   },
+   "g1-ember-luna2-r1": {
+    "found": [
+     "B3",
+     "I2"
+    ],
+    "blocking_credit": [
+     "I2"
+    ]
+   },
+   "g1-ember-luna2-r2": {
+    "found": [
+     "B3",
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": [
+     "I2"
+    ]
+   },
+   "g1-ember-luna2-r3": {
+    "found": [
+     "B3",
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": [
+     "I2"
+    ]
+   },
+   "g1-ember-luna2-r4": {
+    "found": [
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": [
+     "I2"
+    ]
+   }
+  },
+  "check": "Counts computed from score.json gt_covered_any/gt_covered_blocking. Read notes of 2 of 6 runs (all 3 packages each); arrays agreed with notes, no disagreements. No notes said report unreadable/empty/incomplete in the runs read; remaining runs' notes not read."
+ },
+ {
+  "sid": "S17",
+  "set": "ember + terra",
+  "era": "source.md",
+  "n_runs": 4,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 1,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 2
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 1,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 2
+  },
+  "per_run": {
+   "g8-ember-terra-r1": {
+    "found": [],
+    "blocking_credit": []
+   },
+   "g8-ember-terra-r2": {
+    "found": [],
+    "blocking_credit": []
+   },
+   "g8-ember-terra-r3": {
+    "found": [
+     "B7",
+     "I8"
+    ],
+    "blocking_credit": [
+     "B7",
+     "I8"
+    ]
+   },
+   "g8-ember-terra-r4": {
+    "found": [
+     "B3",
+     "I8"
+    ],
+    "blocking_credit": [
+     "I8"
+    ]
+   }
+  },
+  "check": "Counts computed from score.json gt_covered_any/gt_covered_blocking. Read notes of 2 of 4 runs (all 3 packages each); arrays agreed with notes, no disagreements. No notes said report unreadable/empty/incomplete in the runs read; remaining runs' notes not read."
+ },
+ {
+  "sid": "S27",
+  "set": "luna + sonnet + wonder",
+  "era": "source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 1,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 1
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "per_run": {
+   "n5-sonnet-src": {
+    "found": [
+     "B3",
+     "B7",
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": [
+     "B3"
+    ]
+   }
+  },
+  "check": "Counts computed from score.json gt_covered_any/gt_covered_blocking. Read notes of 1 of 1 runs (all 3 packages each); arrays agreed with notes, no disagreements. No notes said report unreadable/empty/incomplete in the runs read; remaining runs' notes not read."
+ },
+ {
+  "sid": "S37",
+  "set": "glm + haiku + sonnet + wonder",
+  "era": "pre-source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 1,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 1
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 0,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 1,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "per_run": {
+   "n4-sonnet": {
+    "found": [
+     "B3",
+     "B7",
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": [
+     "B7"
+    ]
+   }
+  },
+  "check": "Counts computed from score.json gt_covered_any/gt_covered_blocking. Read notes of 1 of 1 runs (all 3 packages each); arrays agreed with notes, no disagreements. No notes said report unreadable/empty/incomplete in the runs read; remaining runs' notes not read."
+ },
+ {
+  "sid": "S47",
+  "set": "grok + 2x haiku + sonnet",
+  "era": "pre-source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 1,
+   "I8": 0
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 1,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 1,
+   "I8": 0
+  },
+  "per_run": {
+   "r2-sonnet": {
+    "found": [
+     "B3",
+     "I2",
+     "I7"
+    ],
+    "blocking_credit": [
+     "B3",
+     "I2",
+     "I7"
+    ]
+   }
+  },
+  "check": "Counts computed from score.json gt_covered_any/gt_covered_blocking. Read notes of 1 of 1 runs (all 3 packages each); arrays agreed with notes, no disagreements. No notes said report unreadable/empty/incomplete in the runs read; remaining runs' notes not read. Run r2-sonnet carries chunk note: 'stale scores (merge redone after judging, audit E)' (UNVERIFIED beyond the note; counts reported as-is from score.json)."
+ },
+ {
+  "sid": "S57",
+  "set": "grok + luna",
+  "era": "pre-source.md",
+  "n_runs": 1,
+  "found": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 1
+  },
+  "blocking_credit": {
+   "B1": 0,
+   "B2": 0,
+   "B3": 0,
+   "B4": 0,
+   "B5": 0,
+   "I1": 0,
+   "I2": 1,
+   "I3": 0,
+   "I4": 0,
+   "I5": 0,
+   "B6": 0,
+   "B7": 0,
+   "B8": 0,
+   "I6": 0,
+   "I7": 0,
+   "I8": 0
+  },
+  "per_run": {
+   "c3-luna-grok": {
+    "found": [
+     "I2",
+     "I8"
+    ],
+    "blocking_credit": [
+     "I2"
+    ]
+   }
+  },
+  "check": "Counts computed from score.json gt_covered_any/gt_covered_blocking. Read notes of 1 of 1 runs (all 3 packages each); arrays agreed with notes, no disagreements. No notes said report unreadable/empty/incomplete in the runs read; remaining runs' notes not read. Run c3-luna-grok carries chunk note: 'merged report only in quarantine-pre-src-luna' (UNVERIFIED beyond the note; counts reported as-is from score.json)."
+ }
+]

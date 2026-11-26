@@ -1,0 +1,3 @@
+# Built by build-snapshots.sh; each holds a nested .git and is rebuilt on demand. Never commit (see AUTHORS.md).
+*/snapshot/
+*/snapshot.tmp/

@@ -1,0 +1,215 @@
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/time-prepass.sh b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/time-prepass.sh
+new file mode 100755
+index 000000000..8a86c52a1
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/bin/time-prepass.sh
+@@ -0,0 +1,92 @@
++#!/usr/bin/env bash
++# time-prepass.sh [options] <snapshot>   (DESIGN 12.1, 12.5, DD-5, DD-10; IMPLEMENTATION step 9 checkpoint)
++# Runs `sweep prepass` once on a repository snapshot and prints and records the wall-clock seconds (S1).
++# The seconds cover the whole command, Python start-up included, as the launcher's `timeout` sees it.
++#   --candidate FILE   the candidate plan   (default: fixtures/plans/p_basic.md)
++#   --source FILE      the source document  (default: fixtures/plans/source.md; "none" runs without one)
++#   --seed N           the seed             (default: 1)
++#   --panel NAME       the panel            (default: primary)
++#   --record FILE      TSV file that gets one appended line (default: SW/results/prepass-timing.tsv)
++#   --doc DOC          the snapshot is SB/DOC/repo, the candidate SB/cand/DOC/candidate.md and the source
++#                      SB/cand/DOC/source.md (what bin/build-sandbox.sh built); no <snapshot> argument
++# The snapshot is only read (git ls-files, git grep). The pre-pass output goes to a private folder under /tmp that is
++# removed on exit; the record file must resolve under SW, SB or /tmp (K1).
++# Exit 0: the pre-pass succeeded. Exit 1: it failed or was cut off after 300 s (the seconds are still printed and
++# recorded). Exit 2: a usage error. Output: `prepass_s=<seconds> rc=<n> snapshot=<path>` then `scope: <string>`.
++set -u -o pipefail
++source "$(dirname "$0")/common.sh"
++
++usage() {
++  sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//' >&2
++  exit 2
++}
++CAND=$SW/fixtures/plans/p_basic.md
++SRC=$SW/fixtures/plans/source.md
++SEED=1
++PANEL=primary
++RECORD=$SW/results/prepass-timing.tsv
++DOC=
++SNAP=
++while [ $# -gt 0 ]; do
++  case "$1" in
++    -h | --help) sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
++    --candidate | --source | --seed | --panel | --record | --doc)
++      [ $# -ge 2 ] || usage
++      case "$1" in
++        --candidate) CAND=$2 ;;
++        --source) SRC=$2 ;;
++        --seed) SEED=$2 ;;
++        --panel) PANEL=$2 ;;
++        --record) RECORD=$2 ;;
++        --doc) DOC=$2 ;;
++      esac
++      shift
++      ;;
++    -*) usage ;;
++    *)
++      [ -z "$SNAP" ] || usage
++      SNAP=$1
++      ;;
++  esac
++  shift
++done
++if [ -n "$DOC" ]; then
++  [ -z "$SNAP" ] || usage
++  [[ $DOC =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || { echo "E_DOC: bad document id: $DOC" >&2; exit 2; }
++  SNAP=$SB/$DOC/repo
++  CAND=$SB/cand/$DOC/candidate.md
++  SRC=$SB/cand/$DOC/source.md
++fi
++[ -n "$SNAP" ] || usage
++[[ $SEED =~ ^[0-9]+$ ]] || { echo "E_SEED: not a number: $SEED" >&2; exit 2; }
++[ -d "$SNAP" ] || { echo "E_SNAPSHOT: not a directory: $SNAP" >&2; exit 2; }
++[ -f "$CAND" ] || { echo "E_CANDIDATE: not a file: $CAND" >&2; exit 2; }
++SRC_ARGS=()
++if [ "$SRC" != none ]; then
++  [ -f "$SRC" ] || { echo "E_SOURCE: not a file: $SRC" >&2; exit 2; }
++  SRC_ARGS=(--source "$SRC")
++fi
++sw_assert_writable "$RECORD" || exit 2
++mkdir -p "$(dirname "$RECORD")"
++
++umask 077
++OUT=$(mktemp -d /tmp/time-prepass.XXXXXXXX) || exit 2
++trap 'rm -rf -- "$OUT"' EXIT
++
++T0=$(sw_now)
++timeout 300 uv run --frozen --project "$REPO" python "$SW/sweep/cli.py" prepass \
++  --candidate "$CAND" ${SRC_ARGS[@]+"${SRC_ARGS[@]}"} --repo "$SNAP" --seed "$SEED" --panel "$PANEL" --out "$OUT" \
++  >"$OUT/stdout.txt" 2>"$OUT/stderr.txt"
++RC=$?
++T1=$(sw_now)
++SECS=$(awk -v a="$T0" -v b="$T1" 'BEGIN{printf "%.2f", b - a}')
++
++SCOPE=$(jq -r '.scope // empty' "$OUT/prepass/prepass.json" 2>/dev/null)
++[ -n "$SCOPE" ] || SCOPE="(no prepass.json)"
++[ "$RC" -eq 0 ] || cat "$OUT/stderr.txt" >&2
++
++printf 'prepass_s=%s rc=%s snapshot=%s\n' "$SECS" "$RC" "$SNAP"
++printf 'scope: %s\n' "$SCOPE"
++printf '%s\t%s\t%s\t%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$SNAP" "$SECS" "$RC" "$SCOPE" >>"$RECORD"
++[ "$RC" -eq 0 ] || exit 1
++exit 0
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/values.json b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/values.json
+index 2d9187e6e..310bf6c18 100644
+--- a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/values.json
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/config/values.json
+@@ -9,7 +9,9 @@
+  },
+  "c": {"muse-ember-1.0": 0.4, "gpt-6-luna": 2, "claude-haiku-5-5": 4, "claude-sonnet-5-5": 3},
+  "sheet_read_s": 3,
+- "prepass_s": 8,
++ "prepass_s": 0.59,
++ "prepass_s_planning": 8,
++ "prepass_measured": {"date": "2026-11-14", "unit": "s", "what": "median of 3 runs of bin/time-prepass.sh, whole command, p_basic.md plan with its source, DD-5 scope", "repository_root": 0.59, "medium_snapshot": 0.43, "small_snapshot": 0.40, "repository_root_with_real_plan": 0.95, "see": "results/prepass-timing.md"},
+  "select_render_s": 1,
+  "check_s": 1,
+  "kill_s": {"cap_s": 15, "frac_of_b": 0.10},
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/prepass-timing.md b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/prepass-timing.md
+new file mode 100644
+index 000000000..1243513c4
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/prepass-timing.md
+@@ -0,0 +1,27 @@
++# Pre-pass timing, IMPLEMENTATION step 9 checkpoint (2026-11-14)
++
++No model was started. Each number is the wall-clock seconds of one whole `sweep prepass` command (Python start-up and `uv run` included), measured by `bin/time-prepass.sh`, three runs per snapshot, median shown. Raw lines: `results/prepass-timing.tsv`; the console output is `results/implement/logs/T23-checkpoint.log`. The repository root was only read (the output of `git status --porcelain` hashed the same before and after).
++
++Candidate for the three S1 figures: `fixtures/plans/p_basic.md` with `fixtures/plans/source.md`, seed 1, panel `primary`.
++
++## S1 (three snapshots)
++
++| Snapshot | Tracked files in scope (DD-5) | Runs (s) | S1 (median, s) |
++|---|---|---|---|
++| Repository root (`REPO`, 38,062 tracked files) | 1,464 | 0.51, 0.63, 0.59 | **0.59** |
++| Medium: `git archive HEAD` of `src tests docs scripts` and five root files, committed in `/tmp/prepass-timing-snaps/medium` (2,319 tracked files) | 1,444 | 0.44, 0.43, 0.42 | **0.43** |
++| Small: the F-REPO fixture (26 tracked files) | 12 | 0.40, 0.41, 0.39 | **0.40** |
++
++Kill limit: `min(15 s, 0.10 b)` is 10 s at the smallest `b` (100 s). S1 on the repository root is 0.59 s, so the checkpoint passes by a wide margin (the planning figure was 8 s). Nothing to revisit in DD-5 or DD-10.
++
++## Scope string used (DD-5), as `prepass.json` records it for the repository root
++
++`tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, releases); directories of plan-named paths: docs, src/exporter, tests, workflow-plan; same-basename mirrors of plan-named files: 1.2, guide.md, notice.py, report.py, retention.py, source.md, test_retention.py; excluded: .dev/, dependency folders (node_modules, vendor, bower_components, jspm_packages, .venv, venv, site-packages, .tox, .eggs, __pycache__) and ground-truth files; files in scope: 1464`
++
++## Limits of these numbers
++
++- `p_basic.md` names a few paths and produces few search patterns, and its named directory `src/exporter` does not exist in this repository, so the DD-5 scope here is the fixed part only (the same 1,464 files as step 0.3, which matches).
++- One supplementary run, not one of the three S1 figures: a real 483-line plan (this build's own plan file, read only, no source) as the candidate on the repository root, three runs: 0.97, 0.95, 0.95 s (median 0.95 s). Its path tokens name about 50 directories, so the scope is wider than the fixture's. S1 for a real plan is therefore about 1 s on this host, still about a tenth of the kill limit.
++- The 12-lookup one-class attach of DD-10 was not isolated; the plans used did not force a one-class sheet. The sheet-selection constants are unchanged.
++- One host, warm file cache. A cold cache or a slower disk will cost more; the 10 s limit leaves a factor of about 10 over the 0.95 s figure.
++- `config/values.json`: `prepass_s` is now 0.59 (repository root, `p_basic.md`); the planning 8 is kept as `prepass_s_planning`; all three figures are in `prepass_measured`.
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/prepass-timing.tsv b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/prepass-timing.tsv
+new file mode 100644
+index 000000000..ce6c577be
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/results/prepass-timing.tsv
+@@ -0,0 +1,9 @@
++2026-11-14T23:34:12Z	/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel	0.51	0	tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, releases); directories of plan-named paths: docs, src/exporter, tests, workflow-plan; same-basename mirrors of plan-named files: 1.2, guide.md, notice.py, report.py, retention.py, source.md, test_retention.py; excluded: .dev/, dependency folders (node_modules, vendor, bower_components, jspm_packages, .venv, venv, site-packages, .tox, .eggs, __pycache__) and ground-truth files; files in scope: 1464
++2026-11-14T23:34:12Z	/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel	0.63	0	tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, releases); directories of plan-named paths: docs, src/exporter, tests, workflow-plan; same-basename mirrors of plan-named files: 1.2, guide.md, notice.py, report.py, retention.py, source.md, test_retention.py; excluded: .dev/, dependency folders (node_modules, vendor, bower_components, jspm_packages, .venv, venv, site-packages, .tox, .eggs, __pycache__) and ground-truth files; files in scope: 1464
++2026-11-14T23:34:13Z	/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel	0.59	0	tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, releases); directories of plan-named paths: docs, src/exporter, tests, workflow-plan; same-basename mirrors of plan-named files: 1.2, guide.md, notice.py, report.py, retention.py, source.md, test_retention.py; excluded: .dev/, dependency folders (node_modules, vendor, bower_components, jspm_packages, .venv, venv, site-packages, .tox, .eggs, __pycache__) and ground-truth files; files in scope: 1464
++2026-11-14T23:34:14Z	/tmp/prepass-timing-snaps/medium	0.44	0	tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, releases); directories of plan-named paths: docs, src/exporter, tests, workflow-plan; same-basename mirrors of plan-named files: 1.2, guide.md, notice.py, report.py, retention.py, source.md, test_retention.py; excluded: .dev/, dependency folders (node_modules, vendor, bower_components, jspm_packages, .venv, venv, site-packages, .tox, .eggs, __pycache__) and ground-truth files; files in scope: 1444
++2026-11-14T23:34:14Z	/tmp/prepass-timing-snaps/medium	0.43	0	tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, releases); directories of plan-named paths: docs, src/exporter, tests, workflow-plan; same-basename mirrors of plan-named files: 1.2, guide.md, notice.py, report.py, retention.py, source.md, test_retention.py; excluded: .dev/, dependency folders (node_modules, vendor, bower_components, jspm_packages, .venv, venv, site-packages, .tox, .eggs, __pycache__) and ground-truth files; files in scope: 1444
++2026-11-14T23:34:14Z	/tmp/prepass-timing-snaps/medium	0.42	0	tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, releases); directories of plan-named paths: docs, src/exporter, tests, workflow-plan; same-basename mirrors of plan-named files: 1.2, guide.md, notice.py, report.py, retention.py, source.md, test_retention.py; excluded: .dev/, dependency folders (node_modules, vendor, bower_components, jspm_packages, .venv, venv, site-packages, .tox, .eggs, __pycache__) and ground-truth files; files in scope: 1444
++2026-11-14T23:34:15Z	/tmp/prepass-timing-snaps/small/repo	0.40	0	tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, releases); directories of plan-named paths: docs, src/exporter, tests, workflow-plan; same-basename mirrors of plan-named files: 1.2, guide.md, notice.py, report.py, retention.py, source.md, test_retention.py; excluded: .dev/, dependency folders (node_modules, vendor, bower_components, jspm_packages, .venv, venv, site-packages, .tox, .eggs, __pycache__) and ground-truth files; files in scope: 12
++2026-11-14T23:34:15Z	/tmp/prepass-timing-snaps/small/repo	0.41	0	tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, releases); directories of plan-named paths: docs, src/exporter, tests, workflow-plan; same-basename mirrors of plan-named files: 1.2, guide.md, notice.py, report.py, retention.py, source.md, test_retention.py; excluded: .dev/, dependency folders (node_modules, vendor, bower_components, jspm_packages, .venv, venv, site-packages, .tox, .eggs, __pycache__) and ground-truth files; files in scope: 12
++2026-11-14T23:34:16Z	/tmp/prepass-timing-snaps/small/repo	0.39	0	tracked files under tests/, scripts/, docs/; root-level files; change-log style files anywhere (names: changelog, changes, history, news, release-notes, releases); directories of plan-named paths: docs, src/exporter, tests, workflow-plan; same-basename mirrors of plan-named files: 1.2, guide.md, notice.py, report.py, retention.py, source.md, test_retention.py; excluded: .dev/, dependency folders (node_modules, vendor, bower_components, jspm_packages, .venv, venv, site-packages, .tox, .eggs, __pycache__) and ground-truth files; files in scope: 12
+diff --git a/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass_timing.py b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass_timing.py
+new file mode 100644
+index 000000000..71f9465a0
+--- /dev/null
++++ b/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_prepass_timing.py
+@@ -0,0 +1,48 @@
++"""REQ-24, DESIGN 12.1 and 12.5: S1 on the largest tree (the repository itself) stays under the kill limit.
++
++The kill limit is `min(cap_s, frac_of_b * b)` (DESIGN 12.2, config/values.json `kill_s`). The tightest limit of the
++study is the smallest `b` in the config (100 s, so 10 s). The test runs bin/time-prepass.sh, which times the whole
++`sweep prepass` command, on the repository root with the F-PLAN-1 plan and its source, and fails if the measured
++seconds reach that limit. The measured seconds are written to a record file under pytest's tmp_path, never into SW.
++"""
++
++import json
++import re
++import subprocess
++
++import pytest
++from helpers import REPO, SW
++
++
++def kill_limit_s() -> float:
++    """The strictest kill limit of config/values.json: min(cap_s, frac_of_b * smallest b of any panel and document)."""
++    values = json.loads((SW / "config" / "values.json").read_text(encoding="utf-8"))
++    smallest_b = min(b for panel in values["b"].values() for b in panel.values())
++    return min(values["kill_s"]["cap_s"], values["kill_s"]["frac_of_b"] * smallest_b)
++
++
++@pytest.mark.slow
++def test_largest_tree_under_kill_limit(tmp_path):
++    record = tmp_path / "timing.tsv"
++    r = subprocess.run(
++        [
++            "bash",
++            str(SW / "bin" / "time-prepass.sh"),
++            "--record",
++            str(record),
++            str(REPO),
++        ],
++        capture_output=True,
++        text=True,
++    )
++    assert r.returncode == 0, r.stdout + r.stderr
++    m = re.search(r"^prepass_s=([0-9.]+) rc=0 ", r.stdout, re.M)
++    assert m, r.stdout
++    seconds = float(m.group(1))
++    limit = kill_limit_s()
++    assert seconds < limit, (
++        f"S1 on the repository root took {seconds} s, the kill limit is {limit} s: "
++        "revisit DD-5 (scope) and DD-10 (attach bound), IMPLEMENTATION step 9 checkpoint"
++    )
++    line = record.read_text(encoding="utf-8").splitlines()
++    assert len(line) == 1 and line[0].split("\t")[1] == str(REPO)

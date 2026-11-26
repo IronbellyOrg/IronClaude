@@ -1,0 +1,98 @@
+{
+ "panel": "sonnet + luna + ember",
+ "slug": "issue-05",
+ "n_runs": 5,
+ "denominators": {
+  "designSpec": 5,
+  "alias": 5,
+  "control": 5
+ },
+ "found": {
+  "B1": 0,
+  "B2": 0,
+  "B3": 5,
+  "B4": 0,
+  "B5": 1,
+  "I1": 0,
+  "I2": 5,
+  "I3": 0,
+  "I4": 0,
+  "I5": 0,
+  "B6": 0,
+  "B7": 0,
+  "B8": 0,
+  "I6": 0,
+  "I7": 0,
+  "I8": 4
+ },
+ "blocking_credit": {
+  "B1": 0,
+  "B2": 0,
+  "B3": 1,
+  "B4": 0,
+  "B5": 0,
+  "I1": 0,
+  "I2": 2,
+  "I3": 0,
+  "I4": 0,
+  "I5": 0,
+  "B6": 0,
+  "B7": 0,
+  "B8": 0,
+  "I6": 0,
+  "I7": 0,
+  "I8": 1
+ },
+ "per_row": {
+  "g3-sonnet-luna-ember-r1": {
+   "found": [
+    "B3",
+    "I2",
+    "I8"
+   ],
+   "blocking_credit": [
+    "I2"
+   ]
+  },
+  "g3-sonnet-luna-ember-r2": {
+   "found": [
+    "B3",
+    "I2",
+    "I8"
+   ],
+   "blocking_credit": []
+  },
+  "g3-sonnet-luna-ember-r3": {
+   "found": [
+    "B3",
+    "I2",
+    "I8"
+   ],
+   "blocking_credit": [
+    "I8"
+   ]
+  },
+  "g3-sonnet-luna-ember-r4": {
+   "found": [
+    "B3",
+    "I2",
+    "I8"
+   ],
+   "blocking_credit": [
+    "I2"
+   ]
+  },
+  "n5-sonnet-ember": {
+   "found": [
+    "B3",
+    "B5",
+    "I2"
+   ],
+   "blocking_credit": [
+    "B3"
+   ]
+  }
+ },
+ "cross_check": "Read judge notes in 5 of 15 score.json (r1 designSpec, r2 designSpec, r3 alias, r3 control, n5 designSpec, n5 control); arrays agree with notes in all (e.g. r2 designSpec: GT3+GT7 non-blocking, no blocking credit; r3 control: GT2 blocking via L3; n5 designSpec: GT3 blocking, GT7 and GT5 non-blocking). Mapping verified: ground-truth.json files contain GT ids used by legend (designSpec GT1-10, alias GT1-4 plus 2 other entries not in legend, control GT1-2).",
+ "issues": "Score dir label differs per row/package (R,S,T,U,V,W,X); exactly one score.json each, no *.invalid-apierror seen. Alias package: no label found in any run. n5-sonnet-ember is a 2-model row (no luna). Ground-truth.json files list ids twice in a recursive jq (nested structure); not a problem for counts."
+}

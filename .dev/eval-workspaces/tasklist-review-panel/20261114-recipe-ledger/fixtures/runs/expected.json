@@ -1,0 +1,581 @@
+{
+ "ablation": {
+  "C1": 0.0,
+  "C2": 0.0,
+  "C3": 0.0,
+  "C4": 1.7543859649122806,
+  "C5": 1.3888888888888888,
+  "C6": 1.2345679012345678,
+  "C7": 0.0,
+  "C8": 0.0
+ },
+ "arms": {
+  "K": {
+   "check_skipped": 0,
+   "class_reach": {
+    "C1": [
+     1,
+     5
+    ],
+    "C2": [
+     2,
+     5
+    ],
+    "C4": [
+     10,
+     10
+    ],
+    "C5": [
+     1,
+     5
+    ],
+    "C7": [
+     1,
+     5
+    ],
+    "C8": [
+     0,
+     5
+    ]
+   },
+   "consistent_items": 2,
+   "consistent_share": 0.2857142857142857,
+   "elapsed_mean": 115.2,
+   "elapsed_median": 115.0,
+   "elapsed_p90": 127.4,
+   "fallbacks": 0,
+   "found_blocking_mean": 0.35,
+   "found_fraction_mean": 0.4333333333333334,
+   "half_found_share": 0.5,
+   "invalid": 0,
+   "jaccard_mean": 0.6,
+   "jaccard_pairs": 20,
+   "kills": 0,
+   "nonprobe_findings_per_run": 9.0,
+   "reasks": 0,
+   "retries": 1,
+   "reviewer_runs": 30,
+   "runs": 10,
+   "stable_hit_rate": 0.3333333333333333,
+   "tokens_per_run": 3300.0,
+   "wrong_blockers_per_run": 0.3
+  },
+  "RL": {
+   "check_skipped": 1,
+   "class_reach": {
+    "C1": [
+     3,
+     5
+    ],
+    "C2": [
+     4,
+     5
+    ],
+    "C4": [
+     10,
+     10
+    ],
+    "C5": [
+     3,
+     5
+    ],
+    "C7": [
+     2,
+     5
+    ],
+    "C8": [
+     0,
+     5
+    ]
+   },
+   "consistent_items": 5,
+   "consistent_share": 0.7142857142857143,
+   "elapsed_mean": 138.2,
+   "elapsed_median": 138.0,
+   "elapsed_p90": 153.0,
+   "fallbacks": 1,
+   "found_blocking_mean": 0.4333333333333334,
+   "found_fraction_mean": 0.6333333333333334,
+   "half_found_share": 0.9,
+   "invalid": 0,
+   "jaccard_mean": 0.6083333333333334,
+   "jaccard_pairs": 20,
+   "kills": 1,
+   "nonprobe_findings_per_run": 3.2,
+   "reasks": 1,
+   "retries": 1,
+   "reviewer_runs": 30,
+   "runs": 10,
+   "stable_hit_rate": 0.8333333333333334,
+   "tokens_per_run": 4200.0,
+   "wrong_blockers_per_run": 0.6
+  },
+  "Z0": {
+   "check_skipped": 0,
+   "class_reach": {
+    "C1": [
+     1,
+     5
+    ],
+    "C2": [
+     2,
+     5
+    ],
+    "C4": [
+     8,
+     10
+    ],
+    "C5": [
+     1,
+     5
+    ],
+    "C7": [
+     0,
+     5
+    ],
+    "C8": [
+     0,
+     5
+    ]
+   },
+   "consistent_items": 2,
+   "consistent_share": 0.2857142857142857,
+   "elapsed_mean": 114.2,
+   "elapsed_median": 114.0,
+   "elapsed_p90": 126.4,
+   "fallbacks": 0,
+   "found_blocking_mean": 0.2583333333333333,
+   "found_fraction_mean": 0.3416666666666667,
+   "half_found_share": 0.3,
+   "invalid": 0,
+   "jaccard_mean": 0.4166666666666667,
+   "jaccard_pairs": 20,
+   "kills": 1,
+   "nonprobe_findings_per_run": 5.8,
+   "reasks": 0,
+   "retries": 0,
+   "reviewer_runs": 30,
+   "runs": 10,
+   "stable_hit_rate": 0.4,
+   "tokens_per_run": 2900.0,
+   "wrong_blockers_per_run": 0.4
+  },
+  "Z0-raw": {
+   "check_skipped": 0,
+   "class_reach": {
+    "C1": [
+     0,
+     5
+    ],
+    "C2": [
+     1,
+     5
+    ],
+    "C4": [
+     7,
+     10
+    ],
+    "C5": [
+     0,
+     5
+    ],
+    "C7": [
+     0,
+     5
+    ],
+    "C8": [
+     0,
+     5
+    ]
+   },
+   "consistent_items": 2,
+   "consistent_share": 0.2857142857142857,
+   "elapsed_mean": 109.4,
+   "elapsed_median": 109.0,
+   "elapsed_p90": 121.6,
+   "fallbacks": 0,
+   "found_blocking_mean": 0.2,
+   "found_fraction_mean": 0.225,
+   "half_found_share": 0.1,
+   "invalid": 1,
+   "jaccard_mean": 0.39473684210526316,
+   "jaccard_pairs": 19,
+   "kills": 0,
+   "nonprobe_findings_per_run": 5.8,
+   "reasks": 0,
+   "retries": 2,
+   "reviewer_runs": 30,
+   "runs": 10,
+   "stable_hit_rate": 0.6666666666666666,
+   "tokens_per_run": 2900.0,
+   "wrong_blockers_per_run": 0.8
+  }
+ },
+ "compliance": {
+  "format_errors": 1,
+  "ledger_missing_count": 2,
+  "none_found": {
+   "C3": 6
+  },
+  "over_budget": {
+   "lens": 1,
+   "recipe": 0
+  },
+  "quote_ok": 22,
+  "quote_rows": 23,
+  "reask": {
+   "accepted": 1,
+   "asked": 1
+  },
+  "recipe_missing": {
+   "C3": 1,
+   "C7": 1
+  },
+  "reviewer_runs": 23,
+  "reviewers_without_ledger_file": 1,
+  "rows_per_reviewer": {
+   "t2b-1": 5.5,
+   "t3-1": 4.0,
+   "t4-1": 3.2857142857142856
+  },
+  "runs_checked": 8
+ },
+ "d1": {
+  "doc-a": {
+   "ratio_mean": 1.2230769230769232,
+   "ratio_median": 1.2115384615384615,
+   "ratio_p90": 1.2462686567164178
+  },
+  "doc-b": {
+   "ratio_mean": 1.1993569131832795,
+   "ratio_median": 1.1935483870967742,
+   "ratio_p90": 1.2305295950155763
+  },
+  "kill_rate": 0.03333333333333333,
+  "kills": 1
+ },
+ "documents": {
+  "RL": {
+   "doc-a": {
+    "elapsed_mean": 127.2,
+    "elapsed_median": 126,
+    "elapsed_p90": 133.6,
+    "found_fraction_mean": 0.6
+   },
+   "doc-b": {
+    "elapsed_mean": 149.2,
+    "elapsed_median": 148,
+    "elapsed_p90": 158.0,
+    "found_fraction_mean": 0.6666666666666667
+   }
+  },
+  "Z0": {
+   "doc-a": {
+    "elapsed_mean": 104.0,
+    "elapsed_median": 104,
+    "elapsed_p90": 107.2,
+    "found_fraction_mean": 0.35
+   },
+   "doc-b": {
+    "elapsed_mean": 124.4,
+    "elapsed_median": 124,
+    "elapsed_p90": 128.4,
+    "found_fraction_mean": 0.33333333333333337
+   }
+  }
+ },
+ "gates": {
+  "D2_diff": 0.29166666666666674,
+  "D3": [
+   5,
+   2
+  ],
+  "D7_gain": 0.2
+ },
+ "ledger_metrics": {
+  "K": {
+   "reask_yield": {
+    "with": [
+     0,
+     null
+    ],
+    "without": [
+     10,
+     0.4333333333333334
+    ]
+   }
+  },
+  "RL": {
+   "classes_lost": {
+    "C1": 1,
+    "C3": 1
+   },
+   "none_found_share": {
+    "C1": [
+     0,
+     7
+    ],
+    "C2": [
+     0,
+     14
+    ],
+    "C3": [
+     6,
+     6
+    ],
+    "C4": [
+     0,
+     15
+    ],
+    "C5": [
+     0,
+     8
+    ],
+    "C6": [
+     0,
+     8
+    ],
+    "C7": [
+     0,
+     6
+    ],
+    "C8": [
+     0,
+     8
+    ]
+   },
+   "over_budget": {
+    "lens": 1,
+    "recipe": 0
+   },
+   "reask_accepted": 1,
+   "reask_asked": 1,
+   "reask_yield": {
+    "with": [
+     1,
+     0.6666666666666666
+    ],
+    "without": [
+     9,
+     0.6296296296296295
+    ]
+   },
+   "recipe_missing": {
+    "C3": 1,
+    "C7": 1
+   },
+   "rows_per_lens": {
+    "t2b-1": 5.5,
+    "t3-1": 4.0,
+    "t4-1": 3.2857142857142856
+   },
+   "unknown_item": 0
+  },
+  "Z0": {
+   "reask_yield": {
+    "with": [
+     0,
+     null
+    ],
+    "without": [
+     10,
+     0.3416666666666667
+    ]
+   }
+  },
+  "Z0-raw": {
+   "reask_yield": {
+    "with": [
+     0,
+     null
+    ],
+    "without": [
+     10,
+     0.225
+    ]
+   }
+  }
+ },
+ "shares": {
+  "H share": 0.11666666666666667,
+  "prompting share": 0.09166666666666673,
+  "redesign share": 0.29166666666666674
+ },
+ "stage_cells": [
+  [
+   "stage1-rl-doc-a-r4",
+   "A1",
+   "t2b-1",
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  [
+   "stage1-rl-doc-a-r4",
+   "A4",
+   "t2b-1",
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  [
+   "stage1-rl-doc-a-r1",
+   "A4",
+   "t2b-1",
+   true,
+   true,
+   false,
+   false,
+   false
+  ],
+  [
+   "stage1-rl-doc-b-r1",
+   "B3",
+   "t3-1",
+   true,
+   true,
+   false,
+   false,
+   false
+  ],
+  [
+   "stage1-rl-doc-b-r3",
+   "B1",
+   "t3-1",
+   true,
+   false,
+   false,
+   true,
+   true
+  ],
+  [
+   "stage1-rl-doc-b-r3",
+   "B1",
+   "t2b-1",
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  [
+   "stage1-rl-doc-b-r3",
+   "B2",
+   "t4-1",
+   true,
+   true,
+   true,
+   true,
+   false
+  ],
+  [
+   "stage1-rl-doc-b-r5",
+   "B3",
+   "t3-1",
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  [
+   "stage1-rl-doc-b-r4",
+   "B1",
+   "t3-1",
+   false,
+   false,
+   false,
+   true,
+   true
+  ],
+  [
+   "stage1-rl-doc-a-r3",
+   "A1",
+   "t4-1",
+   false,
+   false,
+   false,
+   true,
+   true
+  ],
+  [
+   "stage1-rl-doc-a-r2",
+   "A1",
+   "t2b-1",
+   null,
+   null,
+   true,
+   true,
+   true
+  ],
+  [
+   "stage1-z0-doc-a-r3",
+   "A1",
+   "t2b-1",
+   null,
+   null,
+   true,
+   true,
+   true
+  ],
+  [
+   "stage1-rl-doc-a-r5",
+   "A2",
+   "t3-1",
+   null,
+   null,
+   true,
+   true,
+   false
+  ]
+ ],
+ "stage_rates_rl_c4": {
+  "items": 10,
+  "judge_credit_any": 10,
+  "judge_credit_blocking": 10,
+  "t2b-1": {
+   "act": 7,
+   "ledger_rows": 8,
+   "merge_survival": 9,
+   "rows": 10,
+   "selection": 7
+  },
+  "t3-1": {
+   "act": 1,
+   "ledger_rows": 8,
+   "merge_survival": 1,
+   "rows": 10,
+   "selection": 2
+  }
+ },
+ "stages": {
+  "act": 20,
+  "merge_survival_by_anchor": 4,
+  "merge_survival_checked": 18,
+  "rl_rows": 105,
+  "rl_rows_selection_null": 24,
+  "selection": 21
+ },
+ "time": {
+  "b": [
+   100,
+   103
+  ],
+  "breakeven": [
+   2.07,
+   2.15
+  ],
+  "c": [
+   2.0,
+   3.2941176470588234
+  ],
+  "cap": [
+   14,
+   9
+  ]
+ }
+}

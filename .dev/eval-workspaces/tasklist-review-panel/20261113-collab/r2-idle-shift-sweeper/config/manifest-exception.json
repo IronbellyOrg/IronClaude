@@ -1,0 +1,24 @@
+{
+ "base_sha": {
+  "TASK-WF-designSpec-20261107-075614": "0e486ab8d0eb24c6f2738ce1f895cc16755b26c1",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": "38eb3c58afe6988b51060ae14117172869ea4c1e",
+  "TASK-WF-design-20261108-041415": "5fa680778718af9087ccbe7a823e3909f1bcceb6"
+ },
+ "base_rule": "first parent of the squash commit that first added the package folder",
+ "sha256": {
+  "judge-one.sh": "a01bd70d370d73cb32b55a7368aa28e2c12d93403237211c3a71f339ae82cfcc",
+  "catalogue.json": "769ea988983ca48c0de413d1b468e2e70c2d71000ea647cd92d1086d63f7508e",
+  "brief_a1": "3e052fee106511948422aff61eaef858871e088abde84934fc0007814e8012a0",
+  "sweeper_brief": "1cefe0ba8ea5fcffcb2b00c2664202d423a674a7b97734d1d7f1e3329d2e8f6c",
+  "values-exception/EL2/TASK-WF-design-20261108-041415.json": "0d2a00be58fee07bc1a89f4a72a5157130123e0959f084d925576d8734bc6638",
+  "values-exception/EL2/TASK-WF-designSpec-20261107-075614.json": "aaa8e7db5f985c84c7e65797c1f29ab9172192433520369d0e4e3b83ab09a201",
+  "values-exception/EL2/TASK-WF-makeTheAliasOnly-20261105-051649.json": "f27cb1decfd039b1bd85aed59b9ec9084add56d0fe51a8982b6a8bdb749645fc",
+  "values-exception/HL2/TASK-WF-design-20261108-041415.json": "0f2af15977919ddcee33fc510343e3490ebe5128a911dac8a97f3344913f4264",
+  "values-exception/HL2/TASK-WF-designSpec-20261107-075614.json": "cd38833daac5d2ea7c38acad327c91a80aede8a73b188c283acb6495396cd9c2",
+  "values-exception/HL2/TASK-WF-makeTheAliasOnly-20261105-051649.json": "955a6bc0d303da369904f55e2f42d912e6f7955c1e2a06922c9dd96fc35e2638",
+  "values-exception/SL2/TASK-WF-design-20261108-041415.json": "79a3718bc8f90fac4a0642cb9f8c17e9c7b4214b45253b1b10b5f747d34b1b0e",
+  "values-exception/SL2/TASK-WF-designSpec-20261107-075614.json": "4ca9aca2dfe3b022bd59c04a68809b3ec7e5d75fb81d47ee907dca88f1128a85",
+  "values-exception/SL2/TASK-WF-makeTheAliasOnly-20261105-051649.json": "99f9496f18b58859b4fced438487aea6e10fbbcbdf46ec9d8bafc40fd751f366"
+ },
+ "committed_at": "2026-11-14T12:43:48Z"
+}

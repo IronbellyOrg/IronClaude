@@ -1,0 +1,439 @@
+check	row	package	reviewer	severity	reason
+2-blockok	b4-sonnet-luna2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	b4-sonnet-luna2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	b4-terra-luna-muse	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	block ok false; raw findings=3, ledger members=2
+3-conserve	b4-terra-luna-muse	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	raw 3 vs ledger members 2 (dropped 1)
+2-blockok	b4-terra-luna-muse	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	block ok false; raw findings=4, ledger members=3
+3-conserve	b4-terra-luna-muse	TASK-WF-design-20261108-041415	t4-1	WARN	raw 4 vs ledger members 3 (dropped 1)
+2-blockok	b4-terra-muse-haiku	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=6, ledger members=4
+3-conserve	b4-terra-muse-haiku	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 6 vs ledger members 4 (dropped 2)
+2-blockok	b4-terra-muse-haiku	TASK-WF-design-20261108-041415	t2b-1	EXCLUDE	block ok false; raw findings=6, ledger members=5
+3-conserve	b4-terra-muse-haiku	TASK-WF-design-20261108-041415	t2b-1	WARN	raw 6 vs ledger members 5 (dropped 1)
+6-model	c2-haiku-grok	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+1-path	c2-haiku-grok	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	report path /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/c2-haiku-grok/t4-1.md.catfix.md != current /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/c2-haiku-grok/t4-1.md
+1-path	c2-haiku-grok	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	EXCLUDE	report path /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/c2-haiku-grok/t4-2.md.catfix.md != current /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/c2-haiku-grok/t4-2.md
+6-model	c2-haiku-grok	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	c2-haiku-grok	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	c3-luna-grok-src	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	c3-luna-grok-src	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	c3-luna-grok-src	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+1-path	c5-glm-haiku	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	report path /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/c5-glm-haiku/t4-1.md.catfix.md != current /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-designSpec-20261107-075614/reviews/combos/c5-glm-haiku/t4-1.md
+2-blockok	c5-glm-haiku	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	block ok false; raw findings=14, ledger members=13
+3-conserve	c5-glm-haiku	TASK-WF-designSpec-20261107-075614	t4-1	WARN	raw 14 vs ledger members 13 (dropped 1)
+1-path	c5-glm-haiku	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	report path /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/c5-glm-haiku/t4-1.md.catfix.md != current /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261111-a1/TASK-WF-makeTheAliasOnly-20261105-051649/reviews/combos/c5-glm-haiku/t4-1.md
+6-model	e1-grok-ember-luna	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	e1-grok-ember-luna	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	e1-grok-ember-luna	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+2-blockok	e6-haiku-ember2	TASK-WF-designSpec-20261107-075614	t3-1	EXCLUDE	block ok false; raw findings=3, ledger members=1
+3-conserve	e6-haiku-ember2	TASK-WF-designSpec-20261107-075614	t3-1	EXCLUDE	raw 3 vs ledger members 1 (dropped 2)
+2-blockok	g1-ember-luna2-r2	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	block ok false; raw findings=3, ledger members=2
+3-conserve	g1-ember-luna2-r2	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	raw 3 vs ledger members 2 (dropped 1)
+2-blockok	g1-ember-luna2-r2	TASK-WF-design-20261108-041415	t3-1	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	g1-ember-luna2-r2	TASK-WF-design-20261108-041415	t3-1	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	g1-ember-luna2-r3	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	g1-ember-luna2-r3	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	g1-ember-luna2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	g1-ember-luna2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	g1-ember-luna2-r4	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	EXCLUDE	block ok false; raw findings=1, ledger members=0
+3-conserve	g1-ember-luna2-r4	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	EXCLUDE	raw 1 vs ledger members 0 (dropped 1)
+2-blockok	g1-ember-luna2-r4	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	g1-ember-luna2-r4	TASK-WF-design-20261108-041415	t4-1	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	g2-sonnet-ember-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=5, ledger members=4
+3-conserve	g2-sonnet-ember-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 5 vs ledger members 4 (dropped 1)
+2-blockok	g2-sonnet-ember-r4	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	block ok false; raw findings=3, ledger members=2
+3-conserve	g2-sonnet-ember-r4	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	raw 3 vs ledger members 2 (dropped 1)
+2-blockok	g3-sonnet-luna-ember-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	block ok false; raw findings=1, ledger members=0
+3-conserve	g3-sonnet-luna-ember-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	raw 1 vs ledger members 0 (dropped 1)
+2-blockok	g3-sonnet-luna-ember-r4	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	block ok false; raw findings=4, ledger members=3
+3-conserve	g3-sonnet-luna-ember-r4	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	raw 4 vs ledger members 3 (dropped 1)
+2-blockok	g3-sonnet-luna-ember-r4	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=5, ledger members=4
+3-conserve	g3-sonnet-luna-ember-r4	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 5 vs ledger members 4 (dropped 1)
+2-blockok	g4-haiku-ember-terra-r1	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=4, ledger members=3
+3-conserve	g4-haiku-ember-terra-r1	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 4 vs ledger members 3 (dropped 1)
+2-blockok	g4-haiku-ember-terra-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	block ok false; raw findings=10, ledger members=7
+3-conserve	g4-haiku-ember-terra-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	raw 10 vs ledger members 7 (dropped 3)
+2-blockok	g5-ember2-luna-r1	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	g5-ember2-luna-r1	TASK-WF-design-20261108-041415	t4-1	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	g5-ember2-luna-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	EXCLUDE	block ok false; raw findings=5, ledger members=4
+3-conserve	g5-ember2-luna-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	raw 5 vs ledger members 4 (dropped 1)
+2-blockok	g5-ember2-luna-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	block ok false; raw findings=1, ledger members=0
+3-conserve	g5-ember2-luna-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	raw 1 vs ledger members 0 (dropped 1)
+2-blockok	g5-ember2-luna-r4	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	block ok false; raw findings=3, ledger members=2
+3-conserve	g5-ember2-luna-r4	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	raw 3 vs ledger members 2 (dropped 1)
+2-blockok	g5-ember2-luna-r4	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=8, ledger members=7
+3-conserve	g5-ember2-luna-r4	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 8 vs ledger members 7 (dropped 1)
+2-blockok	g5-ember2-luna-r4	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	block ok false; raw findings=4, ledger members=2
+3-conserve	g5-ember2-luna-r4	TASK-WF-design-20261108-041415	t4-1	WARN	raw 4 vs ledger members 2 (dropped 2)
+2-blockok	g6-luna2-ember2-r1	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	g6-luna2-ember2-r1	TASK-WF-design-20261108-041415	t4-1	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	g6-luna2-ember2-r1	TASK-WF-design-20261108-041415	t2b-1	EXCLUDE	block ok false; raw findings=5, ledger members=3
+3-conserve	g6-luna2-ember2-r1	TASK-WF-design-20261108-041415	t2b-1	WARN	raw 5 vs ledger members 3 (dropped 2)
+2-blockok	g6-luna2-ember2-r2	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	block ok false; raw findings=6, ledger members=4
+3-conserve	g6-luna2-ember2-r2	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	raw 6 vs ledger members 4 (dropped 2)
+2-blockok	g6-luna2-ember2-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	g6-luna2-ember2-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	g6-luna2-ember2-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	g6-luna2-ember2-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	g6-luna2-ember2-r3	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	g6-luna2-ember2-r3	TASK-WF-design-20261108-041415	t4-1	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	g7-haiku-luna2-r1	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	g7-haiku-luna2-r1	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	g7-haiku-luna2-r1	TASK-WF-design-20261108-041415	t3-1	EXCLUDE	block ok false; raw findings=3, ledger members=2
+3-conserve	g7-haiku-luna2-r1	TASK-WF-design-20261108-041415	t3-1	WARN	raw 3 vs ledger members 2 (dropped 1)
+2-blockok	g7-haiku-luna2-r3	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	block ok false; raw findings=5, ledger members=4
+3-conserve	g7-haiku-luna2-r3	TASK-WF-designSpec-20261107-075614	t4-1	WARN	raw 5 vs ledger members 4 (dropped 1)
+2-blockok	g7-haiku-luna2-r4	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	block ok false; raw findings=6, ledger members=0
+3-conserve	g7-haiku-luna2-r4	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	raw 6 vs ledger members 0 (dropped 6)
+2-blockok	g7-haiku-luna2-r4	TASK-WF-design-20261108-041415	t3-1	EXCLUDE	block ok false; raw findings=4, ledger members=3
+3-conserve	g7-haiku-luna2-r4	TASK-WF-design-20261108-041415	t3-1	WARN	raw 4 vs ledger members 3 (dropped 1)
+2-blockok	g8-ember-terra-r2	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	block ok false; raw findings=4, ledger members=3
+3-conserve	g8-ember-terra-r2	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	raw 4 vs ledger members 3 (dropped 1)
+2-blockok	g8-ember-terra-r4	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	block ok false; raw findings=4, ledger members=3
+3-conserve	g8-ember-terra-r4	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	raw 4 vs ledger members 3 (dropped 1)
+2-blockok	g9-ember-luna-r1	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	g9-ember-luna-r1	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	g9-ember-luna-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=4, ledger members=3
+3-conserve	g9-ember-luna-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 4 vs ledger members 3 (dropped 1)
+2-blockok	g9-ember-luna-r2	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	g9-ember-luna-r2	TASK-WF-design-20261108-041415	t4-1	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	h1-haiku-luna2-ember2-r1	TASK-WF-designSpec-20261107-075614	t3-1	EXCLUDE	block ok false; raw findings=4, ledger members=3
+3-conserve	h1-haiku-luna2-ember2-r1	TASK-WF-designSpec-20261107-075614	t3-1	WARN	raw 4 vs ledger members 3 (dropped 1)
+2-blockok	h1-haiku-luna2-ember2-r1	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	block ok false; raw findings=5, ledger members=4
+3-conserve	h1-haiku-luna2-ember2-r1	TASK-WF-design-20261108-041415	t4-1	WARN	raw 5 vs ledger members 4 (dropped 1)
+2-blockok	h1-haiku-luna2-ember2-r1	TASK-WF-design-20261108-041415	t2b-1	EXCLUDE	block ok false; raw findings=5, ledger members=4
+3-conserve	h1-haiku-luna2-ember2-r1	TASK-WF-design-20261108-041415	t2b-1	WARN	raw 5 vs ledger members 4 (dropped 1)
+2-blockok	h1-haiku-luna2-ember2-r2	TASK-WF-designSpec-20261107-075614	t4-2	EXCLUDE	block ok false; raw findings=1, ledger members=0
+3-conserve	h1-haiku-luna2-ember2-r2	TASK-WF-designSpec-20261107-075614	t4-2	EXCLUDE	raw 1 vs ledger members 0 (dropped 1)
+2-blockok	h1-haiku-luna2-ember2-r2	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	block ok false; raw findings=5, ledger members=3
+3-conserve	h1-haiku-luna2-ember2-r2	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	raw 5 vs ledger members 3 (dropped 2)
+2-blockok	h1-haiku-luna2-ember2-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=5, ledger members=4
+3-conserve	h1-haiku-luna2-ember2-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 5 vs ledger members 4 (dropped 1)
+2-blockok	h1-haiku-luna2-ember2-r3	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	block ok false; raw findings=1, ledger members=0
+3-conserve	h1-haiku-luna2-ember2-r3	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	raw 1 vs ledger members 0 (dropped 1)
+2-blockok	h1-haiku-luna2-ember2-r3	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	block ok false; raw findings=4, ledger members=3
+3-conserve	h1-haiku-luna2-ember2-r3	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	raw 4 vs ledger members 3 (dropped 1)
+2-blockok	h1-haiku-luna2-ember2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	h1-haiku-luna2-ember2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	h1-haiku-luna2-ember2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	EXCLUDE	block ok false; raw findings=6, ledger members=5
+3-conserve	h1-haiku-luna2-ember2-r3	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	raw 6 vs ledger members 5 (dropped 1)
+2-blockok	h2-sonnet-luna2-ember2-r1	TASK-WF-design-20261108-041415	t4-2	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	h2-sonnet-luna2-ember2-r1	TASK-WF-design-20261108-041415	t4-2	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	h2-sonnet-luna2-ember2-r2	TASK-WF-designSpec-20261107-075614	t3-1	EXCLUDE	block ok false; raw findings=4, ledger members=3
+3-conserve	h2-sonnet-luna2-ember2-r2	TASK-WF-designSpec-20261107-075614	t3-1	WARN	raw 4 vs ledger members 3 (dropped 1)
+2-blockok	h2-sonnet-luna2-ember2-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	block ok false; raw findings=3, ledger members=2
+3-conserve	h2-sonnet-luna2-ember2-r2	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	raw 3 vs ledger members 2 (dropped 1)
+2-blockok	h2-sonnet-luna2-ember2-r2	TASK-WF-design-20261108-041415	t4-2	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	h2-sonnet-luna2-ember2-r2	TASK-WF-design-20261108-041415	t4-2	WARN	raw 2 vs ledger members 1 (dropped 1)
+2-blockok	h2-sonnet-luna2-ember2-r3	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	block ok false; raw findings=3, ledger members=1
+3-conserve	h2-sonnet-luna2-ember2-r3	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	raw 3 vs ledger members 1 (dropped 2)
+2-blockok	h2-sonnet-luna2-ember2-r4	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=3, ledger members=2
+3-conserve	h2-sonnet-luna2-ember2-r4	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 3 vs ledger members 2 (dropped 1)
+6-model	n2-muse-haiku-grok	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+2-blockok	n2-muse-haiku-grok	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=8, ledger members=7
+3-conserve	n2-muse-haiku-grok	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 8 vs ledger members 7 (dropped 1)
+6-model	n2-muse-haiku-grok	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	n2-muse-haiku-grok	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	n2-muse-haiku-grok-src	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	n2-muse-haiku-grok-src	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+2-blockok	n2-muse-haiku-grok-src	TASK-WF-design-20261108-041415	t4-2	EXCLUDE	block ok false; raw findings=5, ledger members=4
+3-conserve	n2-muse-haiku-grok-src	TASK-WF-design-20261108-041415	t4-2	WARN	raw 5 vs ledger members 4 (dropped 1)
+6-model	n2-muse-haiku-grok-src	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	n2-sol	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+2-blockok	n2-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=4, ledger members=3
+3-conserve	n2-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 4 vs ledger members 3 (dropped 1)
+6-model	n2-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	n2-sol	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	n2-sonnet	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+2-blockok	n2-sonnet	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=5, ledger members=4
+3-conserve	n2-sonnet	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 5 vs ledger members 4 (dropped 1)
+6-model	n2-sonnet	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	n2-sonnet	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	n2-sonnet-src	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	n2-sonnet-src	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	n2-sonnet-src	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+5-stale	n2-terra	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	report newer than merged-1.md by 683s
+5-stale	n2-terra	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	report sha256 differs from ledger report_sha256 (report changed after merge)
+3-conserve	n2-terra	TASK-WF-designSpec-20261107-075614	t4-1	WARN	raw 11 vs ledger members 10 (dropped 1)
+3-conserve	n2-terra	TASK-WF-designSpec-20261107-075614	t4-1	WARN	fid mismatch raw-only=['F11'] ledger-only=[]
+4-blocking	n2-terra	TASK-WF-designSpec-20261107-075614	t4-1	WARN	raw blocking 1 vs ledger blocking members 2
+4-blocking	n2-terra	TASK-WF-designSpec-20261107-075614	t4-1	WARN	F2 blocking flag changed raw=False ledger=True
+6-model	n2-terra	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+5-stale	n2-terra	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	report newer than merged-1.md by 2549s
+5-stale	n2-terra	TASK-WF-designSpec-20261107-075614	t2-1	EXCLUDE	report sha256 differs from ledger report_sha256 (report changed after merge)
+2-blockok	n2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=7, ledger members=6
+3-conserve	n2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 7 vs ledger members 6 (dropped 1)
+5-stale	n2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	report newer than merged-1.md by 895s
+5-stale	n2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	report sha256 differs from ledger report_sha256 (report changed after merge)
+3-conserve	n2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	raw 8 vs ledger members 5 (dropped 3)
+3-conserve	n2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	fid mismatch raw-only=['F6', 'F7', 'F8'] ledger-only=[]
+4-blocking	n2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	raw blocking 1 vs ledger blocking members 2
+4-blocking	n2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	F2 blocking flag changed raw=False ledger=True
+6-model	n2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+5-stale	n2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	EXCLUDE	report newer than merged-1.md by 2570s
+5-stale	n2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2-1	EXCLUDE	report sha256 differs from ledger report_sha256 (report changed after merge)
+5-stale	n2-terra	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	report newer than merged-1.md by 1033s
+5-stale	n2-terra	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	report sha256 differs from ledger report_sha256 (report changed after merge)
+3-conserve	n2-terra	TASK-WF-design-20261108-041415	t4-1	WARN	ledger members 10 > raw 8
+3-conserve	n2-terra	TASK-WF-design-20261108-041415	t4-1	WARN	fid mismatch raw-only=[] ledger-only=['F10', 'F9']
+6-model	n2-terra	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+5-stale	n2-terra	TASK-WF-design-20261108-041415	t2-1	EXCLUDE	report newer than merged-1.md by 2589s
+5-stale	n2-terra	TASK-WF-design-20261108-041415	t2-1	EXCLUDE	report sha256 differs from ledger report_sha256 (report changed after merge)
+6-model	n3-muse-luna-grok-src	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+2-blockok	n3-muse-luna-grok-src	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=6, ledger members=5
+3-conserve	n3-muse-luna-grok-src	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 6 vs ledger members 5 (dropped 1)
+6-model	n3-muse-luna-grok-src	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	n3-muse-luna-grok-src	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+2-blockok	n4-muse-glm-haiku	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	EXCLUDE	block ok false; raw findings=5, ledger members=4
+3-conserve	n4-muse-glm-haiku	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	raw 5 vs ledger members 4 (dropped 1)
+2-blockok	n4-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=4, ledger members=2
+3-conserve	n4-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 4 vs ledger members 2 (dropped 2)
+2-blockok	n4-sol	TASK-WF-design-20261108-041415	t3-1	EXCLUDE	block ok false; raw findings=5, ledger members=4
+3-conserve	n4-sol	TASK-WF-design-20261108-041415	t3-1	WARN	raw 5 vs ledger members 4 (dropped 1)
+2-blockok	n4-sonnet-ember	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	block ok false; raw findings=8, ledger members=0
+3-conserve	n4-sonnet-ember	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	raw 8 vs ledger members 0 (dropped 8)
+2-blockok	n5-muse-luna-src	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=5, ledger members=3
+3-conserve	n5-muse-luna-src	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 5 vs ledger members 3 (dropped 2)
+1-panel	n5-sol	TASK-WF-designSpec-20261107-075614	t4-1	WARN	reports present ['t2-1', 't2b-1', 't3-1'] vs panel ['t2b-1', 't3-1', 't4-1', 't2-1']
+1-path	n5-sol	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	listed report missing
+5-stale	n5-sol	TASK-WF-designSpec-20261107-075614	-	WARN	stale-r1 present (re-merge happened); verified current merged-1 sha vs reports above
+1-panel	n5-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	reports present ['t2-1', 't2b-1', 't3-1'] vs panel ['t2b-1', 't3-1', 't4-1', 't2-1']
+2-blockok	n5-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	EXCLUDE	block ok false; raw findings=6, ledger members=4
+3-conserve	n5-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	raw 6 vs ledger members 4 (dropped 2)
+1-path	n5-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	listed report missing
+5-stale	n5-sol	TASK-WF-makeTheAliasOnly-20261105-051649	-	WARN	stale-r1 present (re-merge happened); verified current merged-1 sha vs reports above
+1-panel	n5-sol	TASK-WF-design-20261108-041415	t4-1	WARN	reports present ['t2-1', 't2b-1', 't3-1'] vs panel ['t2b-1', 't3-1', 't4-1', 't2-1']
+2-blockok	n5-sol	TASK-WF-design-20261108-041415	t3-1	EXCLUDE	block ok false; raw findings=4, ledger members=3
+3-conserve	n5-sol	TASK-WF-design-20261108-041415	t3-1	WARN	raw 4 vs ledger members 3 (dropped 1)
+1-path	n5-sol	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	listed report missing
+2-blockok	n5-sonnet-ember	TASK-WF-designSpec-20261107-075614	t2b-1	EXCLUDE	block ok false; raw findings=5, ledger members=4
+3-conserve	n5-sonnet-ember	TASK-WF-designSpec-20261107-075614	t2b-1	WARN	raw 5 vs ledger members 4 (dropped 1)
+2-blockok	n5-sonnet-ember	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	block ok false; raw findings=3, ledger members=1
+3-conserve	n5-sonnet-ember	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	raw 3 vs ledger members 1 (dropped 2)
+1-panel	n5-terra	TASK-WF-designSpec-20261107-075614	t4-1	WARN	reports present ['t2-1', 't2b-1', 't3-1'] vs panel ['t2b-1', 't3-1', 't4-1', 't2-1']
+1-path	n5-terra	TASK-WF-designSpec-20261107-075614	t4-1	EXCLUDE	listed report missing
+5-stale	n5-terra	TASK-WF-designSpec-20261107-075614	-	WARN	stale-r1 present (re-merge happened); verified current merged-1 sha vs reports above
+1-panel	n5-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	reports present ['t2-1', 't2b-1', 't3-1'] vs panel ['t2b-1', 't3-1', 't4-1', 't2-1']
+2-blockok	n5-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=8, ledger members=7
+3-conserve	n5-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 8 vs ledger members 7 (dropped 1)
+1-path	n5-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	listed report missing
+5-stale	n5-terra	TASK-WF-makeTheAliasOnly-20261105-051649	-	WARN	stale-r1 present (re-merge happened); verified current merged-1 sha vs reports above
+1-panel	n5-terra	TASK-WF-design-20261108-041415	t4-1	WARN	reports present ['t2-1', 't2b-1', 't3-1'] vs panel ['t2b-1', 't3-1', 't4-1', 't2-1']
+1-path	n5-terra	TASK-WF-design-20261108-041415	t4-1	EXCLUDE	listed report missing
+2-blockok	r1-haiku-luna2-src	TASK-WF-design-20261108-041415	t3-1	EXCLUDE	block ok false; raw findings=2, ledger members=1
+3-conserve	r1-haiku-luna2-src	TASK-WF-design-20261108-041415	t3-1	WARN	raw 2 vs ledger members 1 (dropped 1)
+6-model	r2-haiku2-grok	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+2-blockok	r2-haiku2-grok	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	block ok false; raw findings=7, ledger members=6
+3-conserve	r2-haiku2-grok	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	raw 7 vs ledger members 6 (dropped 1)
+6-model	r2-haiku2-grok	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r2-haiku2-grok	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r2-sol	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+2-blockok	r2-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	EXCLUDE	block ok false; raw findings=10, ledger members=9
+3-conserve	r2-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	raw 10 vs ledger members 9 (dropped 1)
+6-model	r2-sol	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+5-stale	r2-sol	TASK-WF-design-20261108-041415	t4-2	EXCLUDE	report newer than merged-1.md by 60s
+5-stale	r2-sol	TASK-WF-design-20261108-041415	t4-2	EXCLUDE	report sha256 differs from ledger report_sha256 (report changed after merge)
+3-conserve	r2-sol	TASK-WF-design-20261108-041415	t4-2	WARN	raw 3 vs ledger members 2 (dropped 1)
+3-conserve	r2-sol	TASK-WF-design-20261108-041415	t4-2	WARN	fid mismatch raw-only=['F3'] ledger-only=[]
+4-blocking	r2-sol	TASK-WF-design-20261108-041415	t4-2	WARN	raw blocking 0 vs ledger blocking members 1
+4-blocking	r2-sol	TASK-WF-design-20261108-041415	t4-2	WARN	F1 blocking flag changed raw=False ledger=True
+6-model	r2-sol	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+5-stale	r2-sol	TASK-WF-design-20261108-041415	t2-1	EXCLUDE	report newer than merged-1.md by 89s
+5-stale	r2-sol	TASK-WF-design-20261108-041415	t2-1	EXCLUDE	report sha256 differs from ledger report_sha256 (report changed after merge)
+6-model	r2-sonnet	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r2-sonnet	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r2-sonnet	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r2-sonnet-ember	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r2-sonnet-ember	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+2-blockok	r2-sonnet-ember	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	EXCLUDE	block ok false; raw findings=6, ledger members=5
+3-conserve	r2-sonnet-ember	TASK-WF-makeTheAliasOnly-20261105-051649	t2b-1	WARN	raw 6 vs ledger members 5 (dropped 1)
+6-model	r2-sonnet-ember	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r2-sonnet-src	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r2-sonnet-src	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r2-sonnet-src	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r2-terra	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r2-terra	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r2-terra	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r3-luna2-grok-src	TASK-WF-designSpec-20261107-075614	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r3-luna2-grok-src	TASK-WF-makeTheAliasOnly-20261105-051649	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+6-model	r3-luna2-grok-src	TASK-WF-design-20261108-041415	t4-2	WARN	observed grok-4.7-build != expected grok-4.7
+2-blockok	r5-glm-haiku2	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	EXCLUDE	block ok false; raw findings=4, ledger members=2
+3-conserve	r5-glm-haiku2	TASK-WF-makeTheAliasOnly-20261105-051649	t3-1	WARN	raw 4 vs ledger members 2 (dropped 2)
+2-blockok	terra-luna-muse-ember	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	EXCLUDE	block ok false; raw findings=3, ledger members=2
+3-conserve	terra-luna-muse-ember	TASK-WF-makeTheAliasOnly-20261105-051649	t4-1	WARN	raw 3 vs ledger members 2 (dropped 1)
+3-dropped-blocking	b4-sonnet-luna2	makeTheAlias	t4-1	WARN	blocking finding F1 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	b4-terra-luna-muse	design-20261	t4-1	WARN	blocking finding F3 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	b4-terra-muse-haiku	makeTheAlias	t2b-1	WARN	blocking finding F1 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	b4-terra-muse-haiku	makeTheAlias	t2b-1	WARN	blocking finding F2 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	c5-glm-haiku	designSpec-2	t4-1	WARN	blocking finding F2 dropped by merge (claim>300); ledger still FAIL via other rows
+3-dropped-blocking	g1-ember-luna2-r2	design-20261	t3-1	WARN	blocking finding F1 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	g1-ember-luna2-r3	designSpec-2	t2b-1	WARN	blocking finding F1 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	g1-ember-luna2-r3	makeTheAlias	t3-1	WARN	blocking finding F1 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	g1-ember-luna2-r4	makeTheAlias	t3-1	WARN	blocking finding F1 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	g1-ember-luna2-r4	design-20261	t4-1	WARN	blocking finding F1 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	g3-sonnet-luna-ember-r3	makeTheAlias	t4-1	EXCLUDE	blocking finding F1 dropped by merge (anchor>200); ledger then has NO blocking row, so verdict PASS can be wrong
+3-dropped-blocking	g3-sonnet-luna-ember-r4	makeTheAlias	t2b-1	WARN	blocking finding F1 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	g5-ember2-luna-r2	makeTheAlias	t4-1	EXCLUDE	blocking finding F1 dropped by merge (anchor>200); ledger then has NO blocking row, so verdict PASS can be wrong
+3-dropped-blocking	g5-ember2-luna-r4	design-20261	t4-1	WARN	blocking finding F1 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	g5-ember2-luna-r4	design-20261	t4-1	WARN	blocking finding F2 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	g6-luna2-ember2-r2	makeTheAlias	t4-2	WARN	blocking finding F1 dropped by merge (claim>300); ledger still FAIL via other rows
+3-dropped-blocking	g6-luna2-ember2-r2	makeTheAlias	t2b-1	WARN	blocking finding F1 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	g7-haiku-luna2-r1	makeTheAlias	t3-1	WARN	blocking finding F2 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	g7-haiku-luna2-r1	design-20261	t3-1	WARN	blocking finding F1 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	g9-ember-luna-r1	makeTheAlias	t4-1	WARN	blocking finding F2 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	g9-ember-luna-r2	makeTheAlias	t2b-1	WARN	blocking finding F1 dropped by merge (claim>300); ledger still FAIL via other rows
+3-dropped-blocking	g9-ember-luna-r2	design-20261	t4-1	WARN	blocking finding F2 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	h1-haiku-luna2-ember2-r2	designSpec-2	t4-2	WARN	blocking finding F1 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	h1-haiku-luna2-ember2-r3	makeTheAlias	t4-2	WARN	blocking finding F2 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	h1-haiku-luna2-ember2-r3	makeTheAlias	t3-1	WARN	blocking finding F1 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	h2-sonnet-luna2-ember2-r1	design-20261	t4-2	WARN	blocking finding F1 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	h2-sonnet-luna2-ember2-r2	makeTheAlias	t4-1	WARN	blocking finding F2 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	h2-sonnet-luna2-ember2-r2	design-20261	t4-2	WARN	blocking finding F2 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	n2-muse-haiku-grok	makeTheAlias	t2b-1	WARN	blocking finding F2 dropped by merge (claim>300); ledger still FAIL via other rows
+3-dropped-blocking	n2-sol	makeTheAlias	t2b-1	WARN	blocking finding F1 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	n2-sonnet	makeTheAlias	t2b-1	WARN	blocking finding F1 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	n2-terra	makeTheAlias	t2b-1	WARN	blocking finding F1 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	n4-muse-glm-haiku	makeTheAlias	t3-1	WARN	blocking finding F1 dropped by merge (claim>300); ledger still FAIL via other rows
+3-dropped-blocking	n4-sol	makeTheAlias	t2b-1	WARN	blocking finding F1 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	n4-sol	makeTheAlias	t2b-1	WARN	blocking finding F2 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	n4-sol	design-20261	t3-1	WARN	blocking finding F1 dropped by merge (claim>300); ledger still FAIL via other rows
+3-dropped-blocking	n5-muse-luna-src	makeTheAlias	t2b-1	WARN	blocking finding F1 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	n5-muse-luna-src	makeTheAlias	t2b-1	WARN	blocking finding F2 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	n5-sol	makeTheAlias	t3-1	WARN	blocking finding F1 dropped by merge (claim>300); ledger still FAIL via other rows
+3-dropped-blocking	n5-sol	design-20261	t3-1	WARN	blocking finding F1 dropped by merge (claim>300); ledger still FAIL via other rows
+3-dropped-blocking	n5-sonnet-ember	design-20261	t4-1	EXCLUDE	blocking finding F1 dropped by merge (anchor>200); ledger then has NO blocking row, so verdict PASS can be wrong
+3-dropped-blocking	n5-sonnet-ember	design-20261	t4-1	EXCLUDE	blocking finding F2 dropped by merge (anchor>200); ledger then has NO blocking row, so verdict PASS can be wrong
+3-dropped-blocking	n5-terra	makeTheAlias	t2b-1	WARN	blocking finding F1 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	r1-haiku-luna2-src	design-20261	t3-1	WARN	blocking finding F2 dropped by merge (anchor>200); ledger still FAIL via other rows
+3-dropped-blocking	r2-haiku2-grok	makeTheAlias	t4-1	WARN	blocking finding F2 dropped by merge (claim>300); ledger still FAIL via other rows
+3-dropped-blocking	r2-sol	makeTheAlias	t3-1	WARN	blocking finding F1 dropped by merge (refs-bad); ledger still FAIL via other rows
+3-dropped-blocking	r2-sonnet-ember	makeTheAlias	t2b-1	WARN	blocking finding B1 dropped by merge (anchor2>200); ledger still FAIL via other rows
+3-dropped-blocking	r5-glm-haiku2	makeTheAlias	t3-1	WARN	blocking finding F1 dropped by merge (claim>300); ledger still FAIL via other rows
+3-dropped-blocking	terra-luna-muse-ember	makeTheAlias	t4-1	WARN	blocking finding F2 dropped by merge (anchor>200); ledger still FAIL via other rows
+7-megacluster	b4-sonnet-terra	design-20261	-	WARN	row L2 merges 7 findings across 4 sections, 6/21 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	b4-terra-muse-haiku	makeTheAlias	-	WARN	row L1 merges 15 findings across 6 sections, 76/105 pairs not directly same, width 109 lines, blocking=True
+7-megacluster	b4-terra-muse-haiku	design-20261	-	WARN	row L1 merges 13 findings across 4 sections, 44/78 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	c2-haiku-grok	design-20261	-	WARN	row L1 merges 12 findings across 5 sections, 33/66 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	c5-glm-haiku	designSpec-2	-	WARN	row L4 merges 8 findings across 4 sections, 18/28 pairs not directly same, width 185 lines, blocking=True
+7-megacluster	c5-glm-haiku	design-20261	-	WARN	row L1 merges 13 findings across 8 sections, 54/78 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	e1-grok-ember-luna	design-20261	-	WARN	row L1 merges 8 findings across 4 sections, 15/28 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	e2-ember-luna2-rep	design-20261	-	WARN	row L1 merges 8 findings across 3 sections, 11/28 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	e5-haiku-ember-luna	design-20261	-	WARN	row L1 merges 15 findings across 6 sections, 60/105 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	e6-haiku-ember2	makeTheAlias	-	WARN	row L1 merges 11 findings across 4 sections, 39/55 pairs not directly same, width 83 lines, blocking=True
+7-megacluster	e6-haiku-ember2	design-20261	-	WARN	row L1 merges 10 findings across 6 sections, 19/45 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	g2-sonnet-ember-r3	makeTheAlias	-	WARN	row L1 merges 8 findings across 5 sections, 15/28 pairs not directly same, width 110 lines, blocking=True
+7-megacluster	g2-sonnet-ember-r4	design-20261	-	WARN	row L2 merges 7 findings across 4 sections, 8/21 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	g3-sonnet-luna-ember-r3	design-20261	-	WARN	row L3 merges 8 findings across 4 sections, 16/28 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	g4-haiku-ember-terra-r1	design-20261	-	WARN	row L1 merges 14 findings across 4 sections, 43/91 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	g4-haiku-ember-terra-r2	makeTheAlias	-	WARN	row L3 merges 8 findings across 2 sections, 10/28 pairs not directly same, width 31 lines, blocking=True
+7-megacluster	g4-haiku-ember-terra-r3	design-20261	-	WARN	row L1 merges 11 findings across 5 sections, 27/55 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	g6-luna2-ember2-r4	design-20261	-	WARN	row L2 merges 10 findings across 4 sections, 15/45 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	g7-haiku-luna2-r2	design-20261	-	WARN	row L1 merges 12 findings across 4 sections, 36/66 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	g7-haiku-luna2-r3	design-20261	-	WARN	row L1 merges 8 findings across 2 sections, 8/28 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	g7-haiku-luna2-r4	design-20261	-	WARN	row L1 merges 10 findings across 4 sections, 14/45 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	h1-haiku-luna2-ember2-r1	design-20261	-	WARN	row L1 merges 13 findings across 4 sections, 37/78 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	h1-haiku-luna2-ember2-r2	makeTheAlias	-	WARN	row L1 merges 16 findings across 5 sections, 88/120 pairs not directly same, width 66 lines, blocking=True
+7-megacluster	h1-haiku-luna2-ember2-r2	design-20261	-	WARN	row L2 merges 19 findings across 5 sections, 103/171 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	h1-haiku-luna2-ember2-r3	designSpec-2	-	WARN	row L3 merges 4 findings across 4 sections, 2/6 pairs not directly same, width 130 lines, blocking=False
+7-megacluster	h1-haiku-luna2-ember2-r3	makeTheAlias	-	WARN	row L1 merges 11 findings across 3 sections, 29/55 pairs not directly same, width 36 lines, blocking=True
+7-megacluster	h1-haiku-luna2-ember2-r3	design-20261	-	WARN	row L1 merges 9 findings across 4 sections, 16/36 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	h1-haiku-luna2-ember2-r4	design-20261	-	WARN	row L1 merges 13 findings across 3 sections, 6/78 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	h2-sonnet-luna2-ember2-r1	design-20261	-	WARN	row L1 merges 15 findings across 5 sections, 63/105 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	h2-sonnet-luna2-ember2-r2	design-20261	-	WARN	row L1 merges 16 findings across 5 sections, 76/120 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	h2-sonnet-luna2-ember2-r3	design-20261	-	WARN	row L1 merges 11 findings across 6 sections, 30/55 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	h2-sonnet-luna2-ember2-r4	makeTheAlias	-	WARN	row L1 merges 8 findings across 2 sections, 6/28 pairs not directly same, width 36 lines, blocking=True
+7-megacluster	h2-sonnet-luna2-ember2-r4	design-20261	-	WARN	row L1 merges 17 findings across 5 sections, 86/136 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	n2-muse-haiku-grok	designSpec-2	-	WARN	row L1 merges 8 findings across 3 sections, 17/28 pairs not directly same, width 114 lines, blocking=False
+7-megacluster	n2-muse-haiku-grok	design-20261	-	WARN	row L1 merges 11 findings across 4 sections, 22/55 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	n2-muse-haiku-grok-src	makeTheAlias	-	WARN	row L2 merges 12 findings across 4 sections, 45/66 pairs not directly same, width 83 lines, blocking=True
+7-megacluster	n2-muse-haiku-grok-src	design-20261	-	WARN	row L2 merges 9 findings across 3 sections, 15/36 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	n2-sol	design-20261	-	WARN	row L1 merges 14 findings across 9 sections, 54/91 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	n2-sonnet	designSpec-2	-	WARN	row L2 merges 4 findings across 4 sections, 2/6 pairs not directly same, width 127 lines, blocking=False
+7-megacluster	n2-sonnet	makeTheAlias	-	WARN	row L2 merges 13 findings across 4 sections, 52/78 pairs not directly same, width 83 lines, blocking=True
+7-megacluster	n2-sonnet	design-20261	-	WARN	row L1 merges 12 findings across 4 sections, 35/66 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	n2-sonnet-src	designSpec-2	-	WARN	row L2 merges 10 findings across 4 sections, 29/45 pairs not directly same, width 131 lines, blocking=False
+7-megacluster	n2-sonnet-src	makeTheAlias	-	WARN	row L1 merges 15 findings across 4 sections, 59/105 pairs not directly same, width 119 lines, blocking=True
+7-megacluster	n2-sonnet-src	design-20261	-	WARN	row L1 merges 16 findings across 5 sections, 76/120 pairs not directly same, width 133 lines, blocking=True
+7-megacluster	n2-terra	designSpec-2	-	WARN	row L2 merges 11 findings across 6 sections, 41/55 pairs not directly same, width 181 lines, blocking=True
+7-megacluster	n2-terra	design-20261	-	WARN	row L1 merges 14 findings across 5 sections, 61/91 pairs not directly same, width 155 lines, blocking=True
+7-megacluster	n3-muse-luna-grok-src	design-20261	-	WARN	row L1 merges 8 findings across 4 sections, 15/28 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	n4-muse-glm-haiku	makeTheAlias	-	WARN	row L1 merges 12 findings across 4 sections, 43/66 pairs not directly same, width 83 lines, blocking=True
+7-megacluster	n4-muse-glm-haiku	design-20261	-	WARN	row L1 merges 9 findings across 4 sections, 20/36 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	n4-sol	design-20261	-	WARN	row L1 merges 14 findings across 6 sections, 64/91 pairs not directly same, width 153 lines, blocking=True
+7-megacluster	n4-sonnet	designSpec-2	-	WARN	row L1 merges 6 findings across 4 sections, 7/15 pairs not directly same, width 103 lines, blocking=False
+7-megacluster	n4-sonnet	makeTheAlias	-	WARN	row L1 merges 16 findings across 4 sections, 84/120 pairs not directly same, width 82 lines, blocking=True
+7-megacluster	n4-sonnet	design-20261	-	WARN	row L1 merges 18 findings across 7 sections, 97/153 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	n4-sonnet-ember	designSpec-2	-	WARN	row L6 merges 6 findings across 4 sections, 4/15 pairs not directly same, width 145 lines, blocking=False
+7-megacluster	n4-sonnet-ember	design-20261	-	WARN	row L1 merges 9 findings across 4 sections, 24/36 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	n4-sonnet-src	makeTheAlias	-	WARN	row L1 merges 11 findings across 2 sections, 25/55 pairs not directly same, width 84 lines, blocking=True
+7-megacluster	n4-sonnet-src	design-20261	-	WARN	row L1 merges 13 findings across 4 sections, 39/78 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	n4-terra	design-20261	-	WARN	row L1 merges 13 findings across 6 sections, 51/78 pairs not directly same, width 155 lines, blocking=True
+7-megacluster	n5-muse-luna-src	design-20261	-	WARN	row L1 merges 7 findings across 4 sections, 5/21 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	n5-sol	design-20261	-	WARN	row L1 merges 7 findings across 5 sections, 14/21 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	n5-sonnet-src	makeTheAlias	-	WARN	row L3 merges 4 findings across 4 sections, 2/6 pairs not directly same, width 89 lines, blocking=False
+7-megacluster	r1-haiku-luna2-src	design-20261	-	WARN	row L1 merges 7 findings across 4 sections, 10/21 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	r2-haiku2-grok	makeTheAlias	-	WARN	row L1 merges 12 findings across 4 sections, 37/66 pairs not directly same, width 79 lines, blocking=True
+7-megacluster	r2-haiku2-grok	design-20261	-	WARN	row L1 merges 12 findings across 4 sections, 40/66 pairs not directly same, width 153 lines, blocking=True
+7-megacluster	r2-sol	designSpec-2	-	WARN	row L5 merges 6 findings across 4 sections, 7/15 pairs not directly same, width 171 lines, blocking=False
+7-megacluster	r2-sol	makeTheAlias	-	WARN	row L1 merges 11 findings across 1 sections, 30/55 pairs not directly same, width 41 lines, blocking=True
+7-megacluster	r2-sol	design-20261	-	WARN	row L1 merges 9 findings across 4 sections, 18/36 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	r2-sol	design-20261	-	WARN	row L2 merges 7 findings across 4 sections, 14/21 pairs not directly same, width 143 lines, blocking=False
+7-megacluster	r2-sonnet	designSpec-2	-	WARN	row L3 merges 8 findings across 3 sections, 17/28 pairs not directly same, width 117 lines, blocking=True
+7-megacluster	r2-sonnet	makeTheAlias	-	WARN	row L4 merges 11 findings across 3 sections, 33/55 pairs not directly same, width 84 lines, blocking=True
+7-megacluster	r2-sonnet	design-20261	-	WARN	row L1 merges 16 findings across 5 sections, 68/120 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	r2-sonnet-ember	designSpec-2	-	WARN	row L1 merges 19 findings across 9 sections, 142/171 pairs not directly same, width 182 lines, blocking=True
+7-megacluster	r2-sonnet-ember	makeTheAlias	-	WARN	row L1 merges 26 findings across 5 sections, 216/325 pairs not directly same, width 110 lines, blocking=True
+7-megacluster	r2-sonnet-ember	design-20261	-	WARN	row L1 merges 30 findings across 7 sections, 306/435 pairs not directly same, width 153 lines, blocking=True
+7-megacluster	r2-sonnet-src	designSpec-2	-	WARN	row L3 merges 9 findings across 3 sections, 17/36 pairs not directly same, width 136 lines, blocking=False
+7-megacluster	r2-sonnet-src	designSpec-2	-	WARN	row L4 merges 9 findings across 4 sections, 22/36 pairs not directly same, width 115 lines, blocking=True
+7-megacluster	r2-sonnet-src	makeTheAlias	-	WARN	row L1 merges 19 findings across 4 sections, 111/171 pairs not directly same, width 110 lines, blocking=True
+7-megacluster	r2-sonnet-src	design-20261	-	WARN	row L1 merges 22 findings across 8 sections, 152/231 pairs not directly same, width 154 lines, blocking=True
+7-megacluster	r2-terra	designSpec-2	-	WARN	row L1 merges 9 findings across 3 sections, 19/36 pairs not directly same, width 123 lines, blocking=True
+7-megacluster	r2-terra	design-20261	-	WARN	row L2 merges 19 findings across 7 sections, 130/171 pairs not directly same, width 155 lines, blocking=True
+7-megacluster	r5-glm-haiku2	design-20261	-	WARN	row L1 merges 16 findings across 6 sections, 74/120 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	terra-luna-muse-ember	design-20261	-	WARN	row L1 merges 9 findings across 3 sections, 10/36 pairs not directly same, width 150 lines, blocking=True
+7-megacluster	terra-muse-haiku-ember	design-20261	-	WARN	row L1 merges 12 findings across 4 sections, 37/66 pairs not directly same, width 150 lines, blocking=True
+8-nostdout	c2-haiku-grok	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	c2-haiku-grok	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	c2-haiku-grok	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	c5-glm-haiku	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	c5-glm-haiku	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	c5-glm-haiku	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n2-muse-haiku-grok	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n2-muse-haiku-grok	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n2-muse-haiku-grok	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n2-sol	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n2-sol	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n2-sol	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n2-sonnet	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n2-sonnet	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n2-sonnet	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n2-terra	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n2-terra	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n2-terra	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n4-muse-glm-haiku	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n4-muse-glm-haiku	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n4-muse-glm-haiku	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n4-sol	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n4-sol	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n4-sol	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n4-sonnet	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n4-sonnet	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n4-sonnet	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n4-terra	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n4-terra	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	n4-terra	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r2-haiku2-grok	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r2-haiku2-grok	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r2-haiku2-grok	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r2-sol	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r2-sol	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r2-sol	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r2-sonnet	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r2-sonnet	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r2-sonnet	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r2-terra	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r2-terra	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r2-terra	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r5-glm-haiku2	designSpec-2	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r5-glm-haiku2	makeTheAlias	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)
+8-nostdout	r5-glm-haiku2	design-20261	-	WARN	merge-stdout.txt missing; merge warnings/drop reasons UNVERIFIED (audit recomputed them)

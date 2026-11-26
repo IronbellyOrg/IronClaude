@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# panel-post: the flagger's only way to post a card (design 2.2). Baked arguments come from the
+# wrapper SBR/board/<row>/<pkg>/bin/card; model arguments are --anchor --move --category --severity.
+# Prints "card c<n> posted" (exit 0) or "refused: <reason>" on stderr (exit 1). Reads no environment.
+set -u -o pipefail
+export LC_ALL=C.UTF-8
+HERE=$(cd "$(dirname "$0")" && pwd)
+CARDJQ="$HERE/../lib/card.jq"
+
+BOARD="" RID="" RUN="" CFLAT="" CAP="" T0="" FIN="" R="" PEERS=""
+ANCHOR="" MOVE="" CAT="" SEV="" bad_args=0
+declare -A seen
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --board) BOARD=${2-}; shift 2 ;;
+    --rid) RID=${2-}; shift 2 ;;
+    --run) RUN=${2-}; shift 2 ;;
+    --cand-flat) CFLAT=${2-}; shift 2 ;;
+    --cap) CAP=${2-}; shift 2 ;;
+    --t0-ms) T0=${2-}; shift 2 ;;
+    --finish-ms) FIN=${2-}; shift 2 ;;
+    --r) R=${2-}; shift 2 ;;
+    --peers) PEERS=${2-}; shift 2 ;;
+    --anchor|--move|--category|--severity)
+      k=${1#--}
+      if [ $# -lt 2 ] || [ -n "${seen[$k]:-}" ]; then bad_args=1; shift $(( $# < 2 ? $# : 2 )); continue; fi
+      seen[$k]=1
+      case "$k" in anchor) ANCHOR=$2 ;; move) MOVE=$2 ;; category) CAT=$2 ;; severity) SEV=$2 ;; esac
+      shift 2 ;;
+    *) bad_args=1; shift ;;
+  esac
+done
+
+now_ms() { date +%s%3N; }
+logev() { printf '%s\n' "$1" >> "$BOARD/metrics/$RID.jsonl" 2>/dev/null || true; }
+refuse() {
+  logev "$(jq -nc --arg r "$1" --argjson t "$(now_ms)" '{ev:"post_rejected",reason:$r,t:$t}')"
+  echo "refused: $1" >&2
+  exit 1
+}
+
+NOW=$(now_ms)
+# 1. after the finish time (R-41)
+[ "$NOW" -ge "$FIN" ] && refuse after_finish
+# 2. before the flagger's 3rd tool call (R-34): the hook has counted fewer than 2 finished calls
+calls=$(cat "$BOARD/state/$RID.calls" 2>/dev/null || echo 0)
+[[ "$calls" =~ ^[0-9]+$ ]] || calls=0
+[ "$calls" -lt 2 ] && refuse too_early
+# 3. model arguments
+{ [ "$bad_args" = 1 ] || [ -z "${seen[anchor]:-}" ] || [ -z "${seen[move]:-}" ] || [ -z "${seen[category]:-}" ] || [ -z "${seen[severity]:-}" ]; } && refuse bad_args
+# 4. enums
+case "$MOVE" in M3|M4|M5|M6|M9) ;; *) refuse bad_move ;; esac
+case "$CAT" in contradiction|unpassable-check|data-loss|safety|missing-requirement|other) ;; *) refuse bad_category ;; esac
+case "$SEV" in CRITICAL|MAJOR|MINOR) ;; *) refuse bad_severity ;; esac
+# 5. anchor length after whitespace flattening
+A=$(printf '%s' "$ANCHOR" | tr -s '[:space:]' ' ')
+A=${A# }; A=${A% }
+{ [ ${#A} -lt 12 ] || [ ${#A} -gt 200 ]; } && refuse bad_anchor_length
+# 6. anchor must be a substring of the flattened candidate
+grep -qF -- "$A" "$CFLAT" || refuse anchor_not_in_candidate
+# 7-8. under the board lock: cap, deal, validate, append
+MSG="$BOARD/msgs/$RID.jsonl"
+exec 9>"$MSG.lock"
+flock 9
+n=0; [ -f "$MSG" ] && n=$(wc -l < "$MSG")
+[ "$n" -ge "$CAP" ] && refuse over_cap
+IFS=, read -r -a P <<<"$PEERS"
+TO=${P[$(( (n + R) % 2 ))]}
+LINE=$(jq -nc --arg id "c$n" --arg run "$RUN" --arg from "$RID" --arg to "$TO" --argjson t "$(now_ms)" \
+  --arg move "$MOVE" --arg anchor "$A" --arg cat "$CAT" --arg sev "$SEV" \
+  '{v:"panel-msg/1",id:$id,run:$run,from:$from,to:$to,t:$t,kind:"card",move:$move,anchor:$anchor,category:$cat,severity:$sev}')
+[ "$(LC_ALL=C; printf '%s' "$LINE" | wc -c)" -le 600 ] || refuse invalid
+[ "$(printf '%s\n' "$LINE" | jq -R -r --arg flagger "$RID" -f "$CARDJQ")" = "$LINE" ] || refuse invalid
+printf '%s\n' "$LINE" >> "$MSG"
+SHA=$(printf '%s' "$LINE" | sha256sum | cut -d' ' -f1)
+logev "$(jq -nc --arg id "c$n" --arg s "$SHA" --argjson t "$(now_ms)" '{ev:"post_accepted",id:$id,sha256:$s,t:$t}')"
+echo "card c$n posted"
+exit 0

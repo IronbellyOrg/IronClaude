@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "t2b-1",
+  "expected_model": "muse-wonder-1.0",
+  "observed_model": "gpt-6.1-terra",
+  "model_ok": false,
+  "findings_block": true,
+  "attempt": 2,
+  "wall_s": 20,
+  "output_tokens_main": 301,
+  "output_tokens_all": 301,
+  "exit": 0
+}

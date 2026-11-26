@@ -1,0 +1,10 @@
+{"ev":"t","n":1,"ms":25}
+{"ev":"t","n":2,"ms":26}
+{"ev":"t","n":3,"ms":30}
+{"ev":"t","n":4,"ms":38}
+{"ev":"t","n":5,"ms":33}
+{"ev":"t","n":6,"ms":47}
+{"ev":"t","n":7,"ms":47}
+{"ev":"seal","t":1794611732535,"sha256":"c7008b92784934fc52789c4a21747cc3ade61cb123158403ca8efaae520cab41"}
+{"ev":"inject","id":"m-t3-1-08","t":1794611732535,"n":8,"move":"M8","slot_type":"static","task_hint":["T1","T10","T9"],"text":"When a check fails for one task, apply the same check, clause by clause, to every other task.","text_sha256":"0626351c24f0c8526c6b710fa9d9a6e1c08210a7b465ac20f8a847655a8c4068"}
+{"ev":"t","n":8,"ms":105}

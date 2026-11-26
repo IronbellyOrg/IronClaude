@@ -1,0 +1,139 @@
+# tests-final.log: Task 19 build checkpoint (IMPLEMENTATION.md step 8, TESTING.md section 6 items 1 to 7)
+
+Run on 2026-11-15 from the repository root. No model was started and no network call was made; every test used the fake `claude` at `RL/tests/fakes/claude`.
+Environment of every command below: `PYTHONDONTWRITEBYTECODE=1 NOFALLBACK=1 SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` (the plan's exports), `T="uv run --frozen --project $REPO pytest -p no:cacheprovider"`.
+Raw outputs: `/tmp/rl-t19/fast.out`, `/tmp/rl-t19/all.out`, `/tmp/rl-t19/fast-nofallback-unset.out`, `/tmp/rl-t19/kinds/` (scratch, not committed).
+
+## 1. Fast suite: `$T $RL/tests -q -m "not slow and not freeze"`
+
+    ================ 1 failed, 490 passed, 59 deselected in 30.55s =================
+    exit code 1
+
+Counts: 490 passed, 1 failed, 0 skipped, 59 deselected (56 `slow` plus 3 `freeze`); 491 selected of 550 collected.
+The one failure is a copied test, recorded with its cause (no copied file was edited):
+
+    FAILED tests/test_model_allowlist.py::test_nofallback_guard   (copied from the sibling, unchanged)
+    cause: the test's `sh()` helper (copied `helpers.py`) removes only `SW_*` variables from the environment, so the exported
+           `NOFALLBACK=1` that every command of this plan sets reaches the check "NOFALLBACK unset must fail" and
+           `sw_assert_nofallback` returns 0 where the test expects 1. It is a test that assumes `NOFALLBACK` is not exported,
+           not a defect in the copy (the same cause is recorded in `RL/results/step0.md`, "Step 1 copied-test findings").
+
+Same suite with `NOFALLBACK` unset (`env -u NOFALLBACK ...`, the one variable the copied test needs absent):
+
+    ===================== 491 passed, 59 deselected in 29.80s ======================
+    exit code 0
+
+and the copied test file alone with `NOFALLBACK` unset: `4 passed in 0.14s`, exit code 0.
+
+## 2. Slow suite: `$T $RL/tests -q -m slow`
+
+    ================ 56 passed, 494 deselected in 132.80s (0:02:12) ================
+    exit code 0
+
+Counts: 56 passed, 0 failed, 0 skipped, 494 deselected. These are the integration tests that run `bin/run-panel.sh` on the fake claude.
+
+## 3. Freeze tests: `$T $RL/tests -q --collect-only -m freeze` (collected only, NOT run)
+
+    =============== 3/550 tests collected (547 deselected) in 1.43s ================
+    exit code 0
+
+    tests/test_lint.py::test_real_files_against_real_gt          (copied; needs the real ground-truth glob from a maintainer)
+    tests/test_lint_rl.py::test_real_recipes_against_real_gt     (reads the real ground truth)
+    tests/test_recipes_reviews.py::test_review_record_complete   (needs the second author's REVIEWS.md rows, REQ-08)
+
+Not run on purpose: the first two read the real ground truth, which this build never opens, and the third needs records only a person who has not seen the ground truth can write.
+They are run at the freeze (IMPLEMENTATION.md step 11), not by this build.
+
+## 4. Ruff
+
+    uv run --frozen --project $REPO ruff check $RL            -> All checks passed!          exit code 0
+    uv run --frozen --project $REPO ruff format --check $RL   -> 166 files already formatted exit code 0
+
+Re-run after the rehearsal of section 7 added its run folder (`RL/runs/rehearsal-rl-final/`): `ruff check` -> All checks passed! (exit code 0); `ruff format --check` -> 179 files already formatted (exit code 0). The count rose from 166 to 179 only because of the new run-folder files.
+
+## 5. Baseline of step 0: `$T $REPO/tests/review -q`
+
+    ============================= 126 passed in 0.97s ==============================
+    exit code 0
+
+Same count as `RL/results/step0.md` check 1 (126 passed): the code this design imports is still healthy.
+
+## 6. Shared-copy check and lens table
+
+    bash $RL/bin/copy-shared.sh --check
+    check: 59 checked, 15 drift (warning), 0 failed      exit code 0
+
+The 15 drift lines are warnings, not failures (DESIGN 3.2): the sibling build (Redesign 1) has kept writing files since the copy.
+`bin/common.sh`, `tests/test_briefs.py` and `tests/test_paths.py` are copied files whose sibling version changed after the copy (our copies are unchanged: 0 hash failures).
+Twelve files are `built-local` and the sibling now has a file of that name; they are NOT reconciled with the sibling's versions:
+`analysis/analyze.py`, `analysis/g0.py`, `bin/anon.sh`, `bin/judge-batch.sh`, `bin/judge-one.sh`, `bin/make-schedule.py`, `bin/run-panel.sh`, `bin/run-reviewer.sh`, `bin/run-schedule.sh`, `scaffold/clock.py`, `scaffold/ledgerv1.py`, `scaffold/telemetry.py`
+(12 built-local plus the 3 copied-and-changed files above make the 15 drift lines). Use `copy-shared.sh --diff <path>` to compare each one.
+
+    $PYRUN $RL/rl/cli.py lens --validate    exit code 0
+    primary: t2b-1 (lens C4,C5,C6,C8, cap 14), t4-1 (C1,C2,C3, cap 14), t3-1 (C2,C4,C7, cap 14)
+    haiku:   t2-1  (C5,C6,C8, cap 6),          t4-1 (C1,C2,C3, cap 14), t3-1 (C1,C4,C7, cap 12)
+    sonnet:  t1b-1 (C5,C6,C8,C2, cap 8),       t4-1 (C1,C3,C7, cap 12), t3-1 (C4,C7,C1, cap 12)
+
+## 7. Rehearsal A7 on the fake claude (a new run id, because `run-panel.sh` refuses an existing run folder; the Task 13 rehearsal folders are kept)
+
+    export SW_SB_ROOT=/tmp/evalsb-recipe-rehearsal      (sandbox of TASK-WF-designSpec-20261107-075614 already built; not rebuilt)
+    PATH=$RL/tests/fakes:$PATH FAKE_SCENARIO=ok FAKE_CALL_LOG=/tmp/rl-rehearsal-calls-t19.log \
+      bash $RL/bin/run-panel.sh --arm RL --panel primary --doc TASK-WF-designSpec-20261107-075614 --replicate 1 --block 1 --seed 1 --run-id rehearsal-rl-final
+    run rehearsal-rl-final: arm=RL panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=1.45     exit code 0
+
+Call log (`/tmp/rl-rehearsal-calls-t19.log`): exactly 3 lines, all `review` calls, scenario `ok`, models `gpt-6-luna`, `gpt-6-luna`, `muse-ember-1.0`; no `repair` line; no model was started (the `claude` on `PATH` was the fake).
+Run folder `RL/runs/rehearsal-rl-final/` holds `run.json`, `timing.json`, `check/check.json`, `merged/merged-1.md`; the merged report holds 0 occurrences of each of `probe`, `src`, `class`, `ledger-v1`; `run.json`: `fallback: false`, `check_skipped: false`, `reask: []`.
+
+Addendum, written during Task 20 (a defect of this build's process, found and corrected): `RL/runs/rehearsal-rl-final/run.json` holds `freeze_tag: "rl-freeze-094c1a314886"`.
+Cause: during the Task 18 review a reviewer sub-session ran `bin/freeze.sh` without `--no-write` and left `RL/config/freeze.json` (modified 03:29:52); `run-panel.sh` reads `freeze_tag` from that file and the Task 19 rehearsal ran with it present. The tag was never created (`git tag -l` is identical to the list taken before Task 18).
+`bin/freeze.sh` states that no `config/freeze.json` may exist before the real freeze, so the stray file was removed (a copy is in `/tmp/rl-t19/stray-freeze.json`), and the rehearsal was run again on the clean tree with a new run id:
+`bash $RL/bin/run-panel.sh --arm RL --panel primary --doc TASK-WF-designSpec-20261107-075614 --replicate 1 --block 1 --seed 1 --run-id rehearsal-rl-clean` (fake claude first on `PATH`, `FAKE_SCENARIO=ok`, `FAKE_CALL_LOG=/tmp/rl-rehearsal-calls-clean.log`)
+-> `run rehearsal-rl-clean: arm=RL panel=primary fallback=0 check_skipped=0 merged=3 merge_exit=0 elapsed_s=1.438`, exit code 0; call log: 3 lines, all `review` (`muse-ember-1.0`, `gpt-6-luna`, `gpt-6-luna`); `run.json` has `freeze_tag: null`, `fallback: false`, `check_skipped: false`, `reask: []`; the merged report holds 0 occurrences of `probe`, `src`, `class`, `ledger-v1`.
+The folder `runs/rehearsal-rl-final/` is kept as it was written and is not the clean evidence for the missing freeze; `runs/rehearsal-rl-clean/` is.
+
+## 8. Per-kind test counts (from the test files and markers: `kinds.sh` over `pytest --collect-only -qq`)
+
+    total 550 = U 412 + I 56 + C 79 + F 3
+
+- U (unit tests written by this build, not marked `slow` or `freeze`): 412
+- I (integration tests, marker `slow`, run `bin/run-panel.sh` on the fake claude): 56
+- C (tests of the nine copied files `test_paths`, `test_model_allowlist`, `test_cards`, `test_briefs`, `test_fnd_contract`, `test_lint`, `test_normalise`, `test_readme`, `test_sandbox`, excluding their freeze test): 79
+- F (marker `freeze`, collected and not run): 3
+
+## 9. Protected paths (`git status --porcelain`)
+
+Literal output (taken after every command above had run; `SW` and `EVAL` are the folders named in the plan's Constraints):
+
+    $ git status --porcelain -- src tests .claude
+    (no output; exit 0)
+    $ git diff --stat -- src tests .claude        (no output, 0 lines)
+    $ git diff --cached --stat -- src tests .claude   (no output, 0 lines)
+    $ git status --porcelain -- .dev/tasks | grep -v TASK-WF-implementRedesig-20261114-231318
+    A  .dev/tasks/done/TASK-WF-implementHomeCod-20261114-200449/TASK-WF-implementHomeCod-20261114-200449.md
+    A  .dev/tasks/done/TASK-WF-implementHomeCod-20261114-200449/artifacts/codegraph-grounding.md
+    A  .dev/tasks/done/TASK-WF-implementHomeCod-20261114-200449/progress.md
+    A  .dev/tasks/done/TASK-WF-implementHomeCod-20261114-200449/return-contract.yaml
+    A  .dev/tasks/done/TASK-WF-implementHomeCod-20261114-200449/source.md
+    $ git status --porcelain -- .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet
+    ?? .dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/
+    $ git status --porcelain -- .dev/eval-workspaces/tasklist-review-panel/20261111-a1 | wc -l
+    3065
+    $ find .dev/eval-workspaces/tasklist-review-panel/20261111-a1 .dev/eval-workspaces/tasklist-review-panel/20261113-collab -type f -newermt "2026-11-14 23:19:00" | wc -l
+    0
+
+What these lines show: the five `A` lines for `TASK-WF-implementHomeCod-20261114-200449` were staged before this build began (they are in the session-start `git status`) and are another package, not changed by it.
+The 3065 `EVAL` lines are untracked files that all existed before this build began (no file under `EVAL` or the collab folder is newer than the start of the build: 0).
+
+    src/ tests/ .claude/ : 0 changed paths.
+    .dev/tasks/          : only this plan package's own files (ledger, retry artifacts and the codegraph note); the other entries
+                           (`A .dev/tasks/done/TASK-WF-implementHomeCod-20261114-200449/...`) were staged before this run began.
+    EVAL (.dev/eval-workspaces/tasklist-review-panel/20261111-a1) and the collab folder (20261113-collab): no file is newer than the start of this build
+                           (`find -newermt '2026-11-14 23:19:00'` prints nothing); the untracked and modified entries there existed at the start of the session.
+    SW (.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet): the whole folder is untracked, so `git status` cannot show a per-file change.
+                           This build never wrote there: `copy-shared.sh` only reads it (K8, `tests/test_sibling_readonly.py` canary test passes);
+                           the files in it newer than this build's start belong to the sibling's own session (`launch-debate.sh`, `launch-debate.log`, `results/owner-decisions.md`).
+
+## 10. Ground truth
+
+No file named `ground-truth*.json`, no score file and no judge output of a study package was opened, read, grepped or copied by this build; every test used the invented files under `RL/fixtures/gt/`.
+`bin/check-sandbox-gt.sh` (a path-only check) printed nothing and exited 0 on the sandboxes and run folders present.

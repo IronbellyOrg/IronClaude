@@ -1,0 +1,290 @@
+{
+ "ember,luna,luna": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 3,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 4,
+   "TASK-WF-design-20261108-041415": 6
+  },
+  "any": 1.9166666666666667,
+  "rb": 0.25,
+  "jb": 0.9166666666666666,
+  "wb": 2.1666666666666665,
+  "ctl": 0.8333333333333334,
+  "cwb": 0.8333333333333334,
+  "tok": 64645.75,
+  "rs": 768.6666666666667,
+  "el": 350.08333333333337
+ },
+ "grok,luna": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 1,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 1,
+   "TASK-WF-design-20261108-041415": 1
+  },
+  "any": 3,
+  "rb": 1,
+  "jb": 3,
+  "wb": 1,
+  "ctl": 1,
+  "cwb": 2,
+  "tok": 180601,
+  "rs": 2784,
+  "el": 2478
+ },
+ "ember,ember,luna": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 2,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 3,
+   "TASK-WF-design-20261108-041415": 4
+  },
+  "any": 1.5,
+  "rb": 1,
+  "jb": 1,
+  "wb": 2.3333333333333335,
+  "ctl": 0.75,
+  "cwb": 1,
+  "tok": 78652.41666666666,
+  "rs": 588.3333333333334,
+  "el": 324.8333333333333
+ },
+ "ember,haiku,luna": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 1,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 1,
+   "TASK-WF-design-20261108-041415": 1
+  },
+  "any": 2,
+  "rb": 1,
+  "jb": 1,
+  "wb": 2,
+  "ctl": 0,
+  "cwb": 1,
+  "tok": 264641,
+  "rs": 1412,
+  "el": 910
+ },
+ "ember,sonnet": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 3,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 3,
+   "TASK-WF-design-20261108-041415": 4
+  },
+  "any": 2.3333333333333335,
+  "rb": 0,
+  "jb": 0,
+  "wb": 0.3333333333333333,
+  "ctl": 0.75,
+  "cwb": 1.25,
+  "tok": 148721.3333333333,
+  "rs": 947.4166666666667,
+  "el": 811.75
+ },
+ "ember,luna,sonnet": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 2,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 2,
+   "TASK-WF-design-20261108-041415": 3
+  },
+  "any": 2,
+  "rb": 0,
+  "jb": 0.5,
+  "wb": 2.5,
+  "ctl": 1,
+  "cwb": 1.3333333333333333,
+  "tok": 136876.0,
+  "rs": 1130.6666666666667,
+  "el": 641.6666666666666
+ },
+ "ember,ember,luna,luna": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 1,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 3,
+   "TASK-WF-design-20261108-041415": 4
+  },
+  "any": 1,
+  "rb": 0,
+  "jb": 0,
+  "wb": 4.666666666666666,
+  "ctl": 0.25,
+  "cwb": 1.5,
+  "tok": 89192.16666666667,
+  "rs": 820.0833333333333,
+  "el": 325.8333333333333
+ },
+ "haiku,luna,luna": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 1,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 4,
+   "TASK-WF-design-20261108-041415": 5
+  },
+  "any": 2.5,
+  "rb": 1.5,
+  "jb": 1.5,
+  "wb": 2.75,
+  "ctl": 0.8,
+  "cwb": 1.6,
+  "tok": 204211.55,
+  "rs": 1428.75,
+  "el": 782.95
+ },
+ "ember,luna": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 3,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 2,
+   "TASK-WF-design-20261108-041415": 4
+  },
+  "any": 2.3333333333333335,
+  "rb": 0.3333333333333333,
+  "jb": 0.3333333333333333,
+  "wb": 2.6666666666666665,
+  "ctl": 0,
+  "cwb": 1.5,
+  "tok": 50791.25,
+  "rs": 434.5,
+  "el": 307.25
+ },
+ "ember,ember,haiku,luna,luna": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 1,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 2,
+   "TASK-WF-design-20261108-041415": 4
+  },
+  "any": 2.5,
+  "rb": 0.5,
+  "jb": 1.5,
+  "wb": 2.5,
+  "ctl": 1,
+  "cwb": 1.75,
+  "tok": 251029.75,
+  "rs": 1516.25,
+  "el": 681.0
+ },
+ "ember,ember,luna,luna,sonnet": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 1,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 2,
+   "TASK-WF-design-20261108-041415": 4
+  },
+  "any": 2,
+  "rb": 0,
+  "jb": 1,
+  "wb": 4.5,
+  "ctl": 1.5,
+  "cwb": 0.25,
+  "tok": 181211.75,
+  "rs": 1574.5,
+  "el": 701.75
+ },
+ "grok,haiku,sonnet,wonder": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 1,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 1,
+   "TASK-WF-design-20261108-041415": 1
+  },
+  "any": 2,
+  "rb": 0,
+  "jb": 0,
+  "wb": 1,
+  "ctl": 1,
+  "cwb": 1,
+  "tok": 471626,
+  "rs": 4237,
+  "el": 2378
+ },
+ "haiku,sonnet,wonder": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 1,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 1,
+   "TASK-WF-design-20261108-041415": 1
+  },
+  "any": 4,
+  "rb": 2,
+  "jb": 2,
+  "wb": 1,
+  "ctl": 1,
+  "cwb": 1,
+  "tok": 311505,
+  "rs": 2145,
+  "el": 1154
+ },
+ "luna,sonnet,wonder": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 1,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 1,
+   "TASK-WF-design-20261108-041415": 1
+  },
+  "any": 3,
+  "rb": 1,
+  "jb": 1,
+  "wb": 2,
+  "ctl": 1,
+  "cwb": 1,
+  "tok": 134398,
+  "rs": 1574,
+  "el": 886
+ },
+ "grok,haiku,haiku,sonnet": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 1,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 1,
+   "TASK-WF-design-20261108-041415": 1
+  },
+  "any": 4,
+  "rb": 3,
+  "jb": 4,
+  "wb": 2,
+  "ctl": 2,
+  "cwb": 1,
+  "tok": 594072,
+  "rs": 5624,
+  "el": 2793
+ },
+ "grok,luna,luna": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 1,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 1,
+   "TASK-WF-design-20261108-041415": 1
+  },
+  "any": 3,
+  "rb": 0,
+  "jb": 1,
+  "wb": 4,
+  "ctl": 2,
+  "cwb": 1,
+  "tok": 169602,
+  "rs": 2662,
+  "el": 2109
+ },
+ "sol": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 1,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 1,
+   "TASK-WF-design-20261108-041415": 1
+  },
+  "any": 1,
+  "rb": 1,
+  "jb": 1,
+  "wb": 3,
+  "ctl": 0,
+  "cwb": 1,
+  "tok": 11588,
+  "rs": 410,
+  "el": 410
+ },
+ "terra": {
+  "n": {
+   "TASK-WF-designSpec-20261107-075614": 1,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 1,
+   "TASK-WF-design-20261108-041415": 1
+  },
+  "any": 1,
+  "rb": 1,
+  "jb": 1,
+  "wb": 4,
+  "ctl": 0,
+  "cwb": 1,
+  "tok": 7241,
+  "rs": 182,
+  "el": 182
+ }
+}

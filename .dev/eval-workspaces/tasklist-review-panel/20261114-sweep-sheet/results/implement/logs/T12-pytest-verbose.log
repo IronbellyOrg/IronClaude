@@ -1,0 +1,59 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 47 items
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_positive_literal_match_is_a_low_priority_pair PASSED [  2%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_no_match_without_a_near_miss_ranks_70 PASSED [  4%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_near_miss_heading_matches_only_after_collapsing PASSED [  6%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_near_miss_collapsing_rule[retry_policy-Retry policy] PASSED [  8%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_near_miss_collapsing_rule[RETRY-POLICY-Retry policy] PASSED [ 10%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_near_miss_collapsing_rule[retry  policy-Retry-Policy] PASSED [ 12%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_near_miss_collapsing_rule[retry-policy-retry_policy] PASSED [ 14%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_a_literal_hit_is_not_a_near_miss PASSED [ 17%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_negative_nothing_extracted[`make test` exits 0.] PASSED [ 19%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_negative_nothing_extracted[`test_notice_text` passes and `src/exporter/notice.py` exists.] PASSED [ 21%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_negative_nothing_extracted[`pytest tests/test_retention.py -q` exits 0.] PASSED [ 23%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_negative_nothing_extracted[`pytest tests/` exits 0.] PASSED [ 25%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_negative_nothing_extracted[`test -f docs/ops.md` exits 0.] PASSED [ 27%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_negative_nothing_extracted[`grep -c 'unrelated words' docs/ops.md` prints 1.] PASSED [ 29%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_negative_nothing_extracted[`grep -f patterns.txt docs/ops.md` prints 1.] PASSED [ 31%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_negative_nothing_extracted[`grep -c "$PATTERN" docs/ops.md` prints 1.] PASSED [ 34%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_negative_nothing_extracted[`grep -c 'retry-policy` docs/ops.md prints 1.] PASSED [ 36%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_negative_nothing_extracted[`rg --files docs` lists the file.] PASSED [ 38%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_negative_nothing_extracted[The heading is `Retry policy` and the file is `docs/ops.md`.] PASSED [ 40%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_negative_strings_that_are_not_ordered PASSED [ 42%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_negative_short_anchor_is_skipped PASSED [ 44%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_earlier_task_strings_are_used_and_the_goal_sees_every_task PASSED [ 46%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_flags_fixed_ignore_case_whole_word PASSED [ 48%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_basic_and_extended_syntax PASSED [ 51%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_unparsable_regex_has_no_match_line PASSED [ 53%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_command_families[grep -c 'retry policy' docs/ops.md] PASSED [ 55%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_command_families[egrep -c 'retry policy' docs/ops.md] PASSED [ 57%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_command_families[rg -c 'retry policy' docs/ops.md] PASSED [ 59%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_command_families[git grep -c 'retry policy' -- docs/ops.md] PASSED [ 61%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_command_families[grep -c 'retry policy' docs/ops.md | wc -l] PASSED [ 63%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_command_families[grep -c 'retry policy' docs/ops.md > /dev/null] PASSED [ 65%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_command_families[test "$(grep -c 'retry policy' docs/ops.md)" -ge 1] PASSED [ 68%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_paths_are_repo_relative_only PASSED [ 70%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_base_checkout_count_skips_dev_and_dependency_noise PASSED [ 72%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_attach_without_a_snapshot_or_a_file_never_raises PASSED [ 74%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_non_git_snapshot_raises PASSED [ 76%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_selector_k_counts_test_names PASSED [ 78%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_selector_m_and_id PASSED [ 80%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_selector_with_zero_matches_adds_5 PASSED [ 82%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_selector_file_that_does_not_parse_gives_no_count PASSED [ 85%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_selector_in_a_file_that_is_not_python_uses_the_def_regex PASSED [ 87%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_selector_is_never_read_outside_the_snapshot PASSED [ 89%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_p_basic_emits_the_pattern_and_the_selector PASSED [ 91%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_p_clean_emits_nothing PASSED [ 93%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_determinism_on_p_basic_and_p_clean PASSED [ 95%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_evidence_holds_no_claim_no_severity_no_defect PASSED [ 97%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py::test_registered_and_driven_by_run_extractors PASSED [100%]
+
+============================== 47 passed in 1.21s ==============================
+uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_e2.py -v
+rc=0

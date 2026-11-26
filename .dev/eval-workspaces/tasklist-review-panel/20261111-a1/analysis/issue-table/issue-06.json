@@ -1,0 +1,104 @@
+{
+  "panel": "haiku + 2x luna",
+  "slug": "issue-06",
+  "n_runs": 5,
+  "denominators": {
+    "designSpec": 5,
+    "alias": 5,
+    "control": 5
+  },
+  "found": {
+    "B1": 0,
+    "B2": 0,
+    "B3": 5,
+    "B4": 1,
+    "B5": 0,
+    "I1": 0,
+    "I2": 3,
+    "I3": 0,
+    "I4": 0,
+    "I5": 0,
+    "B6": 0,
+    "B7": 2,
+    "B8": 0,
+    "I6": 0,
+    "I7": 0,
+    "I8": 4
+  },
+  "blocking_credit": {
+    "B1": 0,
+    "B2": 0,
+    "B3": 3,
+    "B4": 1,
+    "B5": 0,
+    "I1": 0,
+    "I2": 1,
+    "I3": 0,
+    "I4": 0,
+    "I5": 0,
+    "B6": 0,
+    "B7": 2,
+    "B8": 0,
+    "I6": 0,
+    "I7": 0,
+    "I8": 2
+  },
+  "per_row": {
+    "g7-haiku-luna2-r1": {
+      "found": [
+        "B3",
+        "I2"
+      ],
+      "blocking_credit": [
+        "B3"
+      ]
+    },
+    "g7-haiku-luna2-r2": {
+      "found": [
+        "B3",
+        "I2",
+        "B7",
+        "I8"
+      ],
+      "blocking_credit": [
+        "B3",
+        "B7",
+        "I8"
+      ]
+    },
+    "g7-haiku-luna2-r3": {
+      "found": [
+        "B3",
+        "I2",
+        "I8"
+      ],
+      "blocking_credit": [
+        "I2"
+      ]
+    },
+    "g7-haiku-luna2-r4": {
+      "found": [
+        "B3",
+        "B7",
+        "I8"
+      ],
+      "blocking_credit": [
+        "B3",
+        "B7",
+        "I8"
+      ]
+    },
+    "r1-haiku-luna2-src": {
+      "found": [
+        "B3",
+        "B4",
+        "I8"
+      ],
+      "blocking_credit": [
+        "B4"
+      ]
+    }
+  },
+  "cross_check": "Read judge notes in 8 score.json (r1 x3 packages, r3 x3, src x3, r2 alias, r4 alias); arrays match notes. Legend mapping to ground-truth.json confirmed for alias GT1-GT4 (text matches B6,B7,B8,I6); other packages inherited from legend, not re-opened. No disagreements.",
+  "issues": "Note: in r3 designSpec, GT3 is non-blocking-found and GT7 blocking credit; r3 I2 has blocking credit but B3 only found. gt_covered_blocking can include GT ids the judge notes call non-blocking only if arrays say so; none observed. No invalid-apierror files in listing. 15 score files, one label dir each."
+}

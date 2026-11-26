@@ -1,0 +1,19 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 7 items
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_render.py::test_sheet_text_in_brief_and_file_equal PASSED [ 14%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_render.py::test_sheet_cap_16000_trims_lowest_priority PASSED [ 28%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_render.py::test_class_label_only_no_hint PASSED [ 42%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_render.py::test_e2_evidence_prints_the_design_example PASSED [ 57%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_render.py::test_no_evidence_experimental_and_c3_question PASSED [ 71%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_render.py::test_item_json_fields_limits_and_conventions PASSED [ 85%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_render.py::test_location_names_goal_constraint_and_criterion_with_doc PASSED [100%]
+
+============================== 7 passed in 0.40s ===============================
+command: uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_render.py -q -v
+rc=0

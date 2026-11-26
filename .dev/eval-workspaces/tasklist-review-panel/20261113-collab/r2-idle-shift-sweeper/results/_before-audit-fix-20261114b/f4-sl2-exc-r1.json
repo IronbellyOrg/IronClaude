@@ -1,0 +1,207 @@
+{
+ "schema": "r2-results/1",
+ "row": "f4-sl2-exc-r1",
+ "arm": "F4",
+ "panel": "SL2",
+ "panel_collab": 1,
+ "models": {
+  "t1b-1": "claude-sonnet-5-5",
+  "t4-1": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "sweeper_model": "muse-ember-1.0",
+ "planning": false,
+ "time_cap_exception": true,
+ "values_sha256": {
+  "TASK-WF-designSpec-20261107-075614": "4ca9aca2dfe3b022bd59c04a68809b3ec7e5d75fb81d47ee907dca88f1128a85",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": "99f9496f18b58859b4fced438487aea6e10fbbcbdf46ec9d8bafc40fd751f366",
+  "TASK-WF-design-20261108-041415": "79a3718bc8f90fac4a0642cb9f8c17e9c7b4214b45253b1b10b5f747d34b1b0e"
+ },
+ "opaque": "6d21faf3984b",
+ "started_at": "2026-11-14T15:34:25Z",
+ "finished_at": "2026-11-14T15:48:20Z",
+ "found_14": 1,
+ "real_blocking_8": 0,
+ "judge_blocking": 0,
+ "wrong_blockers": 4,
+ "control_found_2": 1,
+ "control_wrong_blockers": 0,
+ "output_tokens": {
+  "total": 148318,
+  "reviewers": 133175,
+  "sweeper": 15143,
+  "reask": 0
+ },
+ "elapsed_s": {
+  "TASK-WF-designSpec-20261107-075614": 233.765,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": 227.996,
+  "TASK-WF-design-20261108-041415": 297.283
+ },
+ "overhead_pct": {
+  "TASK-WF-designSpec-20261107-075614": 4.36,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": -10.43,
+  "TASK-WF-design-20261108-041415": 0.91
+ },
+ "per_package": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "gt_covered_any": [
+    "GT3"
+   ],
+   "gt_covered_blocking": [],
+   "wrong_blockers": 2,
+   "ledger_rows": 5,
+   "label": "S",
+   "score_ok": true,
+   "judge_api_error": false,
+   "valid": true,
+   "audit_ok": true,
+   "slo_breach": false,
+   "elapsed_s": 233.765,
+   "k": 2,
+   "facts_posted": 4,
+   "facts_harvested": 0,
+   "facts_delivered": {
+    "t4-1": 1,
+    "t3-1": 2
+   },
+   "snapshot_missing": 0,
+   "receivers": 2,
+   "time_cap_exception": true,
+   "time_cap_exception_applied": false,
+   "B_A1": 224.00900000000001,
+   "elapsed_over_baseline": 1.0436,
+   "k_measured": 2,
+   "messages_delivered": {
+    "t1b-1": 0,
+    "t4-1": 1,
+    "t3-1": 2
+   }
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "gt_covered_any": [],
+   "gt_covered_blocking": [],
+   "wrong_blockers": 2,
+   "ledger_rows": 5,
+   "label": "R",
+   "score_ok": true,
+   "judge_api_error": false,
+   "valid": true,
+   "audit_ok": false,
+   "slo_breach": false,
+   "elapsed_s": 227.996,
+   "k": 2,
+   "facts_posted": 4,
+   "facts_harvested": 0,
+   "facts_delivered": {
+    "t4-1": 2,
+    "t3-1": 2
+   },
+   "snapshot_missing": 0,
+   "receivers": 2,
+   "time_cap_exception": true,
+   "time_cap_exception_applied": false,
+   "B_A1": 254.5455,
+   "elapsed_over_baseline": 0.8957,
+   "k_measured": 2,
+   "messages_delivered": {
+    "t1b-1": 0,
+    "t4-1": 2,
+    "t3-1": 2
+   }
+  },
+  "TASK-WF-design-20261108-041415": {
+   "gt_covered_any": [
+    "GT1"
+   ],
+   "gt_covered_blocking": [
+    "GT1"
+   ],
+   "wrong_blockers": 0,
+   "ledger_rows": 4,
+   "label": "Q",
+   "score_ok": true,
+   "judge_api_error": false,
+   "valid": true,
+   "audit_ok": true,
+   "slo_breach": false,
+   "elapsed_s": 297.283,
+   "k": 2,
+   "facts_posted": 4,
+   "facts_harvested": 0,
+   "facts_delivered": {
+    "t4-1": 2,
+    "t3-1": 0
+   },
+   "snapshot_missing": 0,
+   "receivers": 2,
+   "time_cap_exception": true,
+   "time_cap_exception_applied": false,
+   "B_A1": 294.58799999999997,
+   "elapsed_over_baseline": 1.0091,
+   "k_measured": 2,
+   "messages_delivered": {
+    "t1b-1": 0,
+    "t4-1": 2,
+    "t3-1": 0
+   }
+  }
+ },
+ "collab": {
+  "k": {
+   "TASK-WF-designSpec-20261107-075614": 2,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 2,
+   "TASK-WF-design-20261108-041415": 2
+  },
+  "facts_posted": 12,
+  "facts_harvested": 0,
+  "facts_rejected": 4,
+  "over_cap": 0,
+  "witness_facts": 0,
+  "facts_delivered": {
+   "t4-1": 5,
+   "t3-1": 4
+  },
+  "late": 3,
+  "not_delivered_cap": 0,
+  "isolated_for": {
+   "TASK-WF-designSpec-20261107-075614": [],
+   "TASK-WF-makeTheAliasOnly-20261105-051649": [],
+   "TASK-WF-design-20261108-041415": [
+    "t3-1"
+   ]
+  },
+  "snapshot_missing": 0,
+  "finish_signal_fired": 0,
+  "finish_would_fire": 0,
+  "hook_error": 0,
+  "hook_ms_p95": 216,
+  "peer_lines": 4,
+  "peer_lines_first_hand": 4,
+  "reruns": 0,
+  "rerun_mismatches": 0,
+  "cmd_unrun": 8,
+  "echo_rate": {
+   "TASK-WF-designSpec-20261107-075614": 1.0,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": null,
+   "TASK-WF-design-20261108-041415": 0.0
+  },
+  "own_line_jaccard": {
+   "TASK-WF-designSpec-20261107-075614": 0.0833,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 0.0,
+   "TASK-WF-design-20261108-041415": 0.0
+  },
+  "sweeper_start_t_s": {
+   "TASK-WF-designSpec-20261107-075614": 0.084,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 0.076,
+   "TASK-WF-design-20261108-041415": 0.083
+  },
+  "hang_kill": 0,
+  "slo_breach": 0,
+  "retry_isolated": 0,
+  "reask_count": 0,
+  "dropped_lines": 0
+ },
+ "invalid": [
+  "TASK-WF-makeTheAliasOnly-20261105-051649: audit not ok"
+ ]
+}

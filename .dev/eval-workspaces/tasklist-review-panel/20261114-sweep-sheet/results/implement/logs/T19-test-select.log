@@ -1,0 +1,33 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 21 items
+
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_200_setword_sentences PASSED [  4%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_single_class_fills_12[C1-12] PASSED [  9%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_single_class_fills_12[C4-12] PASSED [ 14%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_single_class_fills_12[C3-1] PASSED [ 19%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_fair_share_ceiling[2] PASSED [ 23%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_fair_share_ceiling[3] PASSED [ 28%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_fair_share_ceiling[4] PASSED [ 33%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_fair_share_ceiling[5] PASSED [ 38%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_fair_share_ceiling[6] PASSED [ 42%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_fair_share_ceiling[7] PASSED [ 47%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_fair_share_ceiling[8] PASSED [ 52%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_fair_share_with_c3_among_three_classes PASSED [ 57%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_class_order_and_ties PASSED [ 61%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_ties_earlier_line_then_seeded_hash_and_item_numbers PASSED [ 66%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_candidate_log_complete PASSED [ 71%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_no_candidate_gives_an_empty_selection PASSED [ 76%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_e4_item_with_zero_unnamed_hits_is_dropped_under_a_full_selection PASSED [ 80%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_rank_table_holds_the_design_numbers PASSED [ 85%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_rank_table_sha256_is_published_and_moves_with_a_weight PASSED [ 90%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_rank_table_follows_the_extractor_constants PASSED [ 95%]
+.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py::test_rank_table_agrees_with_the_priorities_the_extractors_give PASSED [100%]
+
+============================== 21 passed in 0.71s ==============================
+cmd: uv run --frozen --project /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel pytest -p no:cacheprovider /home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261114-sweep-sheet/tests/test_select.py -q -v
+rc=0

@@ -1,0 +1,54 @@
+{
+  "doc_id": "HX-2",
+  "plan": "TASK-WF-fixTheScIssueWor-20261104-162205",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "unassigned",
+      "blocking_in_implement": true,
+      "description": "Three acceptance criteria (no existing test changed, `git diff` shows only the added lines, SKILL.md gains exactly one line) are proven with `git diff`, but all five target files (three agent files, SKILL.md, the test file) were untracked when the plan was written, so `git diff` prints nothing. An implementer following the plan can change more than planned, or nothing, and still satisfy these criteria on empty output. The plan should copy the five files to ./artifacts/pre/ before the first edit and prove each change with `git diff --no-index` against that snapshot, saving the output.",
+      "plan_quote": "Each agent file carries the early section and the Rules bullet exactly once, byte-identical across the three files; `git diff` on each file shows only those additions.",
+      "evidence": "Deviation D-M13 (merged M-13, blocking), REPORT.md:37-45; plan:53,65,75"
+    },
+    {
+      "id": "GT2",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "source.md asks for a rule in each agent's Rules section that says the files are tool inputs, that the general harness note does not apply, and that returning the content as text is a failure (E-WORKER-NO-OUTPUT). The plan's Rules bullet only points back to the early section and omits E-WORKER-NO-OUTPUT, the 'failure' wording and the harness-note clause. An implementer building exactly that bullet delivers a Rules rule that cannot stand alone; it should carry those three elements.",
+      "plan_quote": "Every file your job names is a tool input, not a report (see \"Your files are tool inputs, not reports\" above): write it with the Write tool and never return its content as text.",
+      "evidence": "Deviation D-M03 (merged M-03), REPORT.md:51; plan:27-29; source.md:1"
+    },
+    {
+      "id": "GT3",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The early paragraph that is meant to defeat the harness note against writing report/summary files lists \"the reports under `analysis/`\", repeating the harness note's own trigger word \"report\". The unchanged job text in issue-worker-t1.md:17 and issue-worker-t2.md:17 also says \"save its report under `<D>/analysis/`\", which clashes with the new 'not a report' rule for the same files. An implementer following the plan ships text that re-triggers the harness exemption; the paragraph should say \"the files under `analysis/`\".",
+      "plan_quote": "(`scout.md`, `accuracy-check.md`, `summary.md`, the reports under `analysis/`, `flags.md`, `flags-t1.md`",
+      "evidence": "Deviation D-M09 (merged M-09), REPORT.md:54, Recommendation R-003 REPORT.md:85-91; plan:26"
+    },
+    {
+      "id": "GT4",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The SKILL.md line requires every spawn prompt to name \"each exact path\" the job must write, but the analysis/ files have names chosen by /sc:analyze and are written only when the accuracy verdict is out_of_date (refs/claim.md Wave 4), so the set of exact paths can be empty or unknown. An implementer following the plan states a requirement the orchestrator cannot meet for analysis/. The line should name the analysis/ directory for jobs that may write there.",
+      "plan_quote": "Every spawn prompt names each exact path the job must write under `.dev/issues/` and states that these are input files for the orchestrator's next tool calls, not report files",
+      "evidence": "Deviation D-M11 (merged M-11), REPORT.md:55; plan:32; refs/claim.md Wave 4"
+    },
+    {
+      "id": "GT5",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "plan:27 requires the Rules bullet to sit directly after the \"Writing only under `.dev/issues/`\" bullet, but the Task 1 helper only checks that the bullet appears exactly once somewhere inside `## Rules`, and Task 2's criterion does not check position either. An implementer can place the bullet anywhere in Rules and every test and criterion passes. The helper should also check that the line before the bullet is the Writing-only bullet.",
+      "plan_quote": "or the Rules bullet not appearing exactly once inside the `## Rules` section",
+      "evidence": "Deviation D-M12 (merged M-12), REPORT.md:56; plan:27,45,65"
+    },
+    {
+      "id": "GT6",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The plan keeps the spawn steps in refs/claim.md and refs/create.md unchanged, yet those refs are where the orchestrator builds spawn prompts (job, <R>, <N>, <D> only). The plan's own reasoning that the spawn prompt is the instruction nearest the worker's action means the new SKILL.md line may not govern the real spawn prompts. An implementer following the plan adds the line only to SKILL.md; the line should explicitly cover the Wave spawns in both refs, or the plan should record that the refs stay unchanged on purpose.",
+      "plan_quote": "one added line in the \"Workers and the spawn rule\" section of `src/superclaude/skills/sc-issue-protocol/SKILL.md` (judged needed: the spawn prompt is the instruction nearest the worker's action",
+      "evidence": "Deviation D-M15 (merged M-15), REPORT.md:58; plan:20,32; refs/claim.md:53-54, refs/create.md:20"
+    }
+  ]
+}

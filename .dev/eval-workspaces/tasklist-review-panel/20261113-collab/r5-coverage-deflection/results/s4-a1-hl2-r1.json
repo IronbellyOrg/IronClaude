@@ -1,0 +1,204 @@
+{
+ "row": "s4-a1-hl2-r1",
+ "arm": "A1-hl2",
+ "panel": "hl2",
+ "models": {
+  "t4-1": "claude-haiku-5-5",
+  "t4-2": "gpt-6-luna",
+  "t3-1": "gpt-6-luna"
+ },
+ "switches": {
+  "PANEL_COLLAB": 0,
+  "PANEL_KIT": 0,
+  "NOFALLBACK": 1,
+  "SPIKE4": true
+ },
+ "values_sha256": {
+  "TASK-WF-designSpec-20261107-075614": null,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": null,
+  "TASK-WF-design-20261108-041415": null
+ },
+ "found_14": 2,
+ "real_blocking_8": 0,
+ "judge_blocking": 0,
+ "wrong_blockers": 3,
+ "control_found_2": 0,
+ "control_wrong_blockers": 2,
+ "issues": {
+  "credited_any": [
+   "B3",
+   "B5"
+  ],
+  "credited_blocking": [],
+  "target_reach": true,
+  "hard_credits": 1
+ },
+ "output_tokens": {
+  "total": 221483,
+  "per_pkg": {
+   "TASK-WF-designSpec-20261107-075614": 69790,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 94614,
+   "TASK-WF-design-20261108-041415": 57079
+  },
+  "per_reviewer": {
+   "TASK-WF-designSpec-20261107-075614": {
+    "t3-1": 4031,
+    "t4-1": 59389,
+    "t4-2": 6370
+   },
+   "TASK-WF-makeTheAliasOnly-20261105-051649": {
+    "t3-1": 5042,
+    "t4-1": 85253,
+    "t4-2": 4319
+   },
+   "TASK-WF-design-20261108-041415": {
+    "t3-1": 3401,
+    "t4-1": 49009,
+    "t4-2": 4669
+   }
+  }
+ },
+ "elapsed_s": {
+  "TASK-WF-designSpec-20261107-075614": 261.035,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": 354.246,
+  "TASK-WF-design-20261108-041415": 231.421
+ },
+ "overhead_pct": {
+  "TASK-WF-designSpec-20261107-075614": 18.652272727272745,
+  "TASK-WF-makeTheAliasOnly-20261105-051649": 48.84285714285714,
+  "TASK-WF-design-20261108-041415": 2.3986725663716735
+ },
+ "collab": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "k": 0,
+   "finish_would_fire": true,
+   "k0_isolated": false,
+   "deflection_overlap": 0.125,
+   "union_anchored_tasks": 8,
+   "own_line_jaccard": 0.4166666666666667,
+   "ledger_rows": 10,
+   "slo": "ok",
+   "cards_posted": 0,
+   "cards_delivered": 0,
+   "requests_delivered": null,
+   "requests_acted": null,
+   "superseded": 0,
+   "dup_card": 0,
+   "late": 0,
+   "snapshot_missing": 0,
+   "hook_calls": 0,
+   "hook_error": 0,
+   "hang_kill": 0,
+   "retry_isolated": 0,
+   "reask_s": 0,
+   "dropped_lines": 0,
+   "hook_ms_p95": null,
+   "finish_signal_t": null
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "k": 0,
+   "finish_would_fire": true,
+   "k0_isolated": false,
+   "deflection_overlap": 0.4,
+   "union_anchored_tasks": 6,
+   "own_line_jaccard": 0.12222222222222223,
+   "ledger_rows": 4,
+   "slo": "over_cap",
+   "cards_posted": 0,
+   "cards_delivered": 0,
+   "requests_delivered": null,
+   "requests_acted": null,
+   "superseded": 0,
+   "dup_card": 0,
+   "late": 0,
+   "snapshot_missing": 0,
+   "hook_calls": 0,
+   "hook_error": 0,
+   "hang_kill": 0,
+   "retry_isolated": 0,
+   "reask_s": 0,
+   "dropped_lines": 0,
+   "hook_ms_p95": null,
+   "finish_signal_t": null
+  },
+  "TASK-WF-design-20261108-041415": {
+   "k": 0,
+   "finish_would_fire": false,
+   "k0_isolated": false,
+   "deflection_overlap": 0.0,
+   "union_anchored_tasks": 10,
+   "own_line_jaccard": 0.23703703703703705,
+   "ledger_rows": 8,
+   "slo": "ok",
+   "cards_posted": 0,
+   "cards_delivered": 0,
+   "requests_delivered": null,
+   "requests_acted": null,
+   "superseded": 0,
+   "dup_card": 0,
+   "late": 0,
+   "snapshot_missing": 0,
+   "hook_calls": 0,
+   "hook_error": 0,
+   "hang_kill": 0,
+   "retry_isolated": 0,
+   "reask_s": 0,
+   "dropped_lines": 0,
+   "hook_ms_p95": null,
+   "finish_signal_t": null
+  }
+ },
+ "alarms": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "CONVERGENCE": null,
+   "DEFLECTION": false,
+   "SLO": "ok"
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "CONVERGENCE": null,
+   "DEFLECTION": false,
+   "SLO": "over_cap"
+  },
+  "TASK-WF-design-20261108-041415": {
+   "CONVERGENCE": null,
+   "DEFLECTION": false,
+   "SLO": "ok"
+  }
+ },
+ "audit": {
+  "TASK-WF-designSpec-20261107-075614": "pass",
+  "TASK-WF-makeTheAliasOnly-20261105-051649": "pass",
+  "TASK-WF-design-20261108-041415": "pass"
+ },
+ "invalid": [],
+ "pkg_status": {
+  "TASK-WF-designSpec-20261107-075614": {
+   "merge": "ok",
+   "merge_rc": 0,
+   "invalid": [],
+   "anon": "ok",
+   "anon_postcheck": 0,
+   "judge": "ok",
+   "judge_api_error": false
+  },
+  "TASK-WF-makeTheAliasOnly-20261105-051649": {
+   "merge": "ok",
+   "merge_rc": 0,
+   "invalid": [],
+   "anon": "ok",
+   "anon_postcheck": 0,
+   "judge": "ok",
+   "judge_api_error": false
+  },
+  "TASK-WF-design-20261108-041415": {
+   "merge": "ok",
+   "merge_rc": 0,
+   "invalid": [],
+   "anon": "ok",
+   "anon_postcheck": 0,
+   "judge": "ok",
+   "judge_api_error": false
+  }
+ },
+ "status": "complete"
+}

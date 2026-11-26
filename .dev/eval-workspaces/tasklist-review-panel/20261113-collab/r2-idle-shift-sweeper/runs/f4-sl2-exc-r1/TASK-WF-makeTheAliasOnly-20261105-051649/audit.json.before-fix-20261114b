@@ -1,0 +1,38 @@
+{
+ "ok": false,
+ "violations": [
+  {
+   "rule": "sweeper_read:collab_dir",
+   "tool": "Read",
+   "value": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r2-idle-shift-sweeper/bin/lib/common.sh"
+  },
+  {
+   "rule": "sweeper_read:collab_dir",
+   "tool": "Read",
+   "value": "/home/coder/workspaces/worktrees/IronClaude/eval-tasklist-review-panel/.dev/eval-workspaces/tasklist-review-panel/20261113-collab/r2-idle-shift-sweeper/bin/lib/validate-msg.sh"
+  },
+  {
+   "rule": "ground_truth_text",
+   "where": "board.cmd",
+   "hit": " claude-gw-t"
+  }
+ ],
+ "gt_checked": true,
+ "notes": [
+  {
+   "rule": "anchor_gt_overlap",
+   "id": "f-1",
+   "hit": " tests/skill"
+  },
+  {
+   "rule": "anchor_gt_overlap",
+   "id": "f-2",
+   "hit": " claude-gw-t"
+  },
+  {
+   "rule": "anchor_gt_overlap",
+   "id": "f-3",
+   "hit": " to claude-g"
+  }
+ ]
+}

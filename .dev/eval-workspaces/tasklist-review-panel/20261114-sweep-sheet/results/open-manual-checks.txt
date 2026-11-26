@@ -1,0 +1,20 @@
+OPEN swap:C1: swap_test has no reviewer or no date: a second author must replace the domain nouns by placeholders and sign
+OPEN swap:C2: swap_test has no reviewer or no date: a second author must replace the domain nouns by placeholders and sign
+OPEN swap:C3: swap_test has no reviewer or no date: a second author must replace the domain nouns by placeholders and sign
+OPEN swap:C4: swap_test has no reviewer or no date: a second author must replace the domain nouns by placeholders and sign
+OPEN swap:C5: swap_test has no reviewer or no date: a second author must replace the domain nouns by placeholders and sign
+OPEN swap:C6: swap_test has no reviewer or no date: a second author must replace the domain nouns by placeholders and sign
+OPEN swap:C7: swap_test has no reviewer or no date: a second author must replace the domain nouns by placeholders and sign
+OPEN swap:C8: swap_test has no reviewer or no date: a second author must replace the domain nouns by placeholders and sign
+OPEN recall-authors: fixtures/recall/AUTHORS.md is missing: who seeded the recall plans, and that they had not read the extractors
+OPEN readme-second-reader: cards/README.md still says the second reader's record is OPEN
+OPEN owner-values: config/prereg.json is missing or not confirmed by the owner (analysis/analyze.py prereg --write --owner-values FILE)
+OPEN spike: config/values.json has no spike record of 5 runs (bin/run-spike.sh timing; needs the owner's go-ahead)
+OPEN gt-attestation: config/attestation.md is missing: the ground-truth author, the date, 'has not seen the recipes, cards or extractors', the hashes
+OPEN attest:freeze-order: results/attestations.md has no ATTEST freeze-order line
+OPEN attest:prereg-order: results/attestations.md has no ATTEST prereg-order line
+OPEN attest:report-measured-values: results/attestations.md has no ATTEST report-measured-values line
+OPEN attest:report-headline: results/attestations.md has no ATTEST report-headline line
+OPEN attest:report-claims: results/attestations.md has no ATTEST report-claims line
+OPEN model-stage-ablation: not run: 8 extra arms and 96 panel runs outside the run budget; an owner decision (DD-13)
+open: 19
