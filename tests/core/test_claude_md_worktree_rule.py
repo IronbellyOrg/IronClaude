@@ -56,6 +56,10 @@ def test_names_follow_the_guide_pattern() -> None:
         "at most 24 characters",
         "no spaces",
         "--name issue-<N>-<words>",
+        # The two exceptions of the guide, so the summary never overstates the rule.
+        "keep `<login>/issue-<N>`, even if that is over 24",
+        "never stop on it",
+        "a run of 2 to 4 digits is left out",
     ):
         assert phrase in section, phrase
 

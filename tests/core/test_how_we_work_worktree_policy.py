@@ -100,6 +100,7 @@ def test_checker_accepts(branch):
         "issue-289-py312",  # a 3 digit run in the words, no login
         "issue-0289",  # leading zero, no login
         "averylonglogin1/issue-289-x",  # 27; the words do not fit
+        "issue-289-more-words-here",  # 25; no login, ordinary words over the limit
     ],
 )
 def test_checker_rejects(branch):
