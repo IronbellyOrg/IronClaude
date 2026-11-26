@@ -1,0 +1,4 @@
+$ uv run ruff check tests/unit/test_ccsession_tiers.py
+All checks passed!
+$ uv run ruff format --check tests/unit/test_ccsession_tiers.py
+1 file already formatted

@@ -1,0 +1,8 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-remediationSourc-20261126-041454
+plan_path: ./TASK-WF-remediationSourc-20261126-041454.md
+source_path: ./source.md
+unresolved:
+  - "SUPERSEDED by TASK-WF-remediationSourc-20261126-115917: do not run /sc:implement on this package."
+superseded_by: TASK-WF-remediationSourc-20261126-115917

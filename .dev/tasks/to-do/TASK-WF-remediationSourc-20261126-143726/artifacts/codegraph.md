@@ -1,0 +1,2 @@
+codegraph run state: index_state=absent access=none checked_at=2026-11-26T16:34:20Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/issue-352 projectPath=/home/coder/workspaces/worktrees/IronClaude/issue-352 token=graph:absent (MCP server disconnected, no binary); Grep/Glob/Read floor used for this run
+correction: the codegraph binary is on PATH but the MCP server is disconnected and no CLI lookup is used this run; token graph:absent stands for lookups
