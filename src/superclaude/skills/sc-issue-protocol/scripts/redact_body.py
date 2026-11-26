@@ -227,22 +227,51 @@ def _auth_shaped(value: str, quoted: bool = False) -> bool:
     )
 
 
+_XML_TAG = re.compile(r"<(/?)([A-Za-z0-9_.:-]+)(?:\s[^<>]*)?>")
+_XML_OPAQUE_START = re.compile(r"<!--|<!\[CDATA\[")
+
+
+def _mask_opaque_xml(text: str) -> str:
+    """Blank out CDATA sections and comments, keeping the length (linear time)."""
+    parts: list[str] = []
+    pos = 0
+    while True:
+        start = _XML_OPAQUE_START.search(text, pos)
+        if start is None:
+            break
+        close = "-->" if start.group(0) == "<!--" else "]]>"
+        end = text.find(close, start.end())
+        if end == -1:  # unterminated: no later one can terminate either
+            break
+        end += len(close)
+        parts.append(text[pos : start.start()])
+        parts.append(" " * (end - start.start()))
+        pos = end
+    parts.append(text[pos:])
+    return "".join(parts)
+
+
 def _redact_xml_elements(text: str) -> tuple[str, int]:
     """Redact the content of credential-named XML elements, nested same-name tags included."""
-    tags = {opening["tag"].lower() for opening in XML_OPEN.finditer(text)}
+    # Tags inside CDATA sections and comments are text, not markup: blank them (same
+    # length, so every offset still points into ``text``).
+    masked = _mask_opaque_xml(text)
+    tags = {opening["tag"].lower() for opening in XML_OPEN.finditer(masked)}
     if not tags:
         return text, 0
-    # One pass per tag name pairs every opening tag with its own closing tag (a stack,
-    # so same-name nesting works and an unclosed tag costs nothing extra).
+    # One pass over every tag pairs each opening tag with its own closing tag using a
+    # stack per tag name: same-name nesting works, a self-closing tag is neither, and an
+    # unclosed tag costs nothing extra.
+    stacks: dict[str, list[int]] = {tag: [] for tag in tags}
     spans: list[tuple[int, int]] = []
-    for tag in tags:
-        pattern = re.compile(rf"<(/?){re.escape(tag)}(?:\s[^<>]*)?>", re.IGNORECASE)
-        stack: list[int] = []
-        for found in pattern.finditer(text):
-            if not found.group(1):
-                stack.append(found.end())
-            elif stack:
-                spans.append((stack.pop(), found.start()))
+    for found in _XML_TAG.finditer(masked):
+        stack = stacks.get(found.group(2).lower())
+        if stack is None or found.group(0).endswith("/>"):
+            continue
+        if not found.group(1):
+            stack.append(found.end())
+        elif stack:
+            spans.append((stack.pop(), found.start()))
     out: list[str] = []
     pos = 0
     count = 0

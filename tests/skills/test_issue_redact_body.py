@@ -115,6 +115,10 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "<password><![CDATA[remaining-secret123]]><!-- note --></password>",
         "<password>remaining-secret123<b>x</b></password>",
         "<password>prefix<password>inner</password>trailing-secret</password>",
+        "<password><![CDATA[prefix </password> remaining-secret123]]></password>",
+        "<password>x<!-- </password> -->remaining-secret123</password>",
+        "<password>remaining-secret123<password /></password>",
+        "<password>remaining-secret123<password/>tail</password>",
         "<password>" + "x" * 1500 + "remaining-secret123</password>",
         "- password: |\n    remaining-secret123",
         "<password>\n  <![CDATA[first\nremaining-secret123]]>\n</password>",
@@ -237,6 +241,9 @@ def test_a_quoted_netrc_password_never_swallows_later_prose():
         "<password",
         "<password>",
         "<password>x</password",
+        "<!--",
+        "<![CDATA[",
+        "<x><![CDATA[",
     ],
 )
 def test_a_long_uninterrupted_string_is_scanned_in_linear_time(unit):
@@ -259,6 +266,15 @@ def test_nested_same_name_xml_is_redacted_to_the_outer_close():
     out, count = rb.redact(text)
     assert out == "<a><password><REDACTED></password></a>"
     assert count == 1
+
+
+def test_many_distinct_credential_tags_are_handled_in_one_pass():
+    text = "".join(f"<password{i}>v{i}</password{i}>" for i in range(20_000))
+    started = time.monotonic()
+    out, count = rb.redact(text)
+    assert time.monotonic() - started < 5
+    assert count == 20_000
+    assert "v19999" not in out
 
 
 def test_one_value_per_line_counts_once_each():
