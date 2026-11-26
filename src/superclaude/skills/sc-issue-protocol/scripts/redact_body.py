@@ -150,16 +150,20 @@ WEAK_PAIR = re.compile(
 # The opening tag of an XML element whose name holds a credential word:
 # ``<password>hunter2</password>`` (Maven ``settings.xml``). ``_redact_xml_elements``
 # redacts everything up to that element's own closing tag.
+# The attributes of a tag: a quoted value is consumed whole, so ``>`` may appear inside
+# it (valid XML) and a credential word inside another attribute's text is not a name.
+_XML_ATTRS = r"""(?:[^<>"']|"[^"<]*"|'[^'<]*')*"""
 XML_OPEN = re.compile(
-    rf"""<(?P<tag>[A-Za-z0-9_.:-]*{_STRONG_NAMES}[A-Za-z0-9_.:-]{{0,64}})(?:\s[^<>]*)?>""",
+    rf"""<(?P<tag>[A-Za-z0-9_.:-]*{_STRONG_NAMES}[A-Za-z0-9_.:-]{{0,64}})(?:\s{_XML_ATTRS})?>""",
     re.VERBOSE | re.IGNORECASE,
 )
 # The opening tag of an element whose ``name``, ``key`` or ``id`` attribute holds a
 # credential word (``<setting name="Password">``, ``<add key="DbPassword" value="x"/>``).
 XML_OPEN_ATTR = re.compile(
     rf"""<(?P<tag>[A-Za-z0-9_.:-]+)
-         (?P<attrs>\s[^<>]*?\b(?:name|key|id|var|variable|property|setting|param)\s*=\s*
-            (?P<q>["'])[^"'<>]*{_STRONG_NAMES}[^"'<>]*(?P=q)[^<>]*)>""",
+         (?P<attrs>\s(?:[^<>"']|"[^"<]*"|'[^'<]*')*?\b
+            (?:name|key|id|var|variable|property|setting|param)\s*=\s*
+            (?P<q>["'])[^"'<]*{_STRONG_NAMES}[^"'<]*(?P=q){_XML_ATTRS})>""",
     re.VERBOSE | re.IGNORECASE,
 )
 
@@ -235,13 +239,13 @@ def _auth_shaped(value: str, quoted: bool = False) -> bool:
     )
 
 
-_XML_TAG = re.compile(r"<(/?)([A-Za-z0-9_.:-]+)(?:\s[^<>]*)?>")
+_XML_TAG = re.compile(rf"<(/?)([A-Za-z0-9_.:-]+)(?:\s{_XML_ATTRS})?>")
 _XML_OPAQUE_START = re.compile(r"<!--|<!\[CDATA\[")
 
 
 # A ``value`` attribute: the other kind of quote may appear inside it (``"can't"``).
 _XML_VALUE_ATTR = re.compile(
-    r"""\bvalue\s*=\s*(?:"(?P<d>[^"<>]*)"|'(?P<s>[^'<>]*)')""", re.IGNORECASE
+    r"""\bvalue\s*=\s*(?:"(?P<d>[^"<]*)"|'(?P<s>[^'<]*)')""", re.IGNORECASE
 )
 
 
