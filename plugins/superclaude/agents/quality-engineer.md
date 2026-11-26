@@ -2,6 +2,7 @@
 name: quality-engineer
 description: Ensure software quality through comprehensive testing strategies and systematic edge case detection
 category: quality
+disallowedTools: Artifact, ArtifactComments, ArtifactData
 ---
 
 # Quality Engineer

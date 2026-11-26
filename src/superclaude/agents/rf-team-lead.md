@@ -1,7 +1,6 @@
 ---
 name: rf-team-lead
 description: "Rigorflow Team Lead - Orchestrates the RF agent team for automated task building and execution. Spawns and coordinates rf-task-builder, rf-task-researcher, and rf-task-executor teammates. Use when a request should be handled via the full Rigorflow pipeline."
-memory: project
 permissionMode: bypassPermissions
 tools:
   - Read
