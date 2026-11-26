@@ -1,0 +1,62 @@
+#781 [FEATURE] Contact agents as the single place to ask any coordinator, alongside the dashboard [OPEN ] closed=-
+Thank you, Ryan, for the issue watcher and the standing coordinator ([pull request 707](https://github.com/IronbellyOrg/IronClaude/pull/707), merged). Thank you also for the written reasons on [Coder issue 515](https://github.com/<private-repo>/issues/515#issuecomment-7062617492), in the comment of 2026-11-21. This builds on that work. It is a question and an offer, not a decision.
+
+## Feature Summary
+
+Could a small set of contact agents sit beside the dashboard, giving a person one place to ask about a bounded set of coordinators and to send a message to the right one? Could we try both routes at small scale before choosing, while keeping Ryan's watcher and standing coordinator design?
+
+## Problem Statement
+
+Clay expects 20 or more pull requests a day across several projects. Each project has its own standing coordinator, the agent that supervises that project's workers. A person has no single place to ask "where does this stand?" or send one message to one coordinator. Jumping between coordinator sessions will not scale.
+
+The planned answer today is dashboard first. Issue 727 plans voting, responding and routing messages from the dashboard. Its newest review lists "routing to the correct coordinator" as something still to specify. A dashboard alone gets harder to navigate as the number of coordinators and pull requests grows. Clay's own work already runs through agents rather than screens. Many people are also moving away from human screens toward agents.
+
+What exists today, checked against `origin/master` at `f2894fc44`:
+
+- `superclaude observe` is a read-only terminal view. Its guide says it "never approves, retries, terminates, dispatches, merges or messages" (`docs/user-guide/observer.md:156`). Every count covers the local host only (`docs/user-guide/observer.md:154`).
+- Issue 727 plans the two-way part. The [contact-agent comment already posted there](https://github.com/IronbellyOrg/IronClaude/issues/727#issuecomment-7140363834) is the starting point, not a separate dashboard proposal.
+- Sending a message to one individual coordinator is only partly planned. It is a review item in 727, with no design yet.
+- Issue 409, the terminal dashboard parent, lists an "orchestrator of orchestrators" and relaying to a management server in plan item 3. Those later phases are recorded, not scheduled.
+- Issue 604, the observer's cross-host view, is backlog and not built.
+- Nearby work includes 606, visual parity, closed; 706, observer summaries, links, named steps and scale tests; and 726, a vote on each question.
+
+## User Story
+
+As a person supervising many coordinators, I want one place to ask "where does this stand?" and to send a message to one coordinator, so that I do not jump between coordinator sessions.
+
+## Proposed Solution
+
+Ryan's decision in the Coder 515 comment is one coordinator per project, no agent above the coordinators, and a central dashboard run by code with one feed or one pane per coordinator. His reason is that research and debate on one agent for everything "all came back with a series of scaling issues" with 5 projects of 10 to 15 worktrees each. The agent cannot keep up, and things get lost in the flood of updates. The contract also says one coordinator per project (`src/superclaude/core/WORKER-CONTRACT.md:294`). We respect that.
+
+Could two or three contact agents sit beside that dashboard? Each would follow a bounded set of coordinators, for example three or four projects, not all of them. Each would do only two jobs:
+
+1. Answer "where does this stand?" for the coordinators it follows.
+2. Pass a person's message to the right coordinator.
+
+How this could fit Ryan's decision:
+
+- A contact agent does not run work, direct a coordinator or approve anything. It reports and relays.
+- A person's typed go for a push
+--- comments=1; last 3:
+[ironbelly 2026-11-24T22:04:47Z] ## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P2
+
+#### Concrete next steps
+
+1. Run `/sc:brainstorm` with Ryan on routing, relay, skill-or-agent, grouping and ownership; also decide whether to fold this into 727.
+2. Read the 727 routing design once written, and check whether the 757/770 wake path can carry a person's message.
+3. Specify the feed from `src/superclaude/cli/observe/adapter.py`, `collector.py`, `export.py` with the relay kept outside the observer.
+4. Only after approval: `/sc:workflow` for a small trial plan, then `/sc:implement`, then a one-project comparison.
+
+#### Dependencies
+
+Needs: 727 (routing design), 757 and 770 (message-carrying wake path), and a decision from Ryan. Blocks: nothing found. No formal GitHub dependency links exist.
+
+#### Related issues
+
+727, 409, 604, 606 (closed per the issue body; UNVERIFIED here), 706, 726, 725 (separate scope), 777, 770,

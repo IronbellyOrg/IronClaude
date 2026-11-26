@@ -1,0 +1,30 @@
+#794 [FEATURE] Coordinator C13: Orca decision gates as a way to reach the person, with answer-check [OPEN ] closed=-
+## What was tried
+This is item C13 of the coordinator issue #716 (next release: the features of issue 655 that the current plan does not cover), split out so it can be built and tracked on its own. Issue 655 was split into its 14 sections and one analyst per section classified every design feature against the unification spec and its decision record; this item is one of the features that were found missing. Nothing in this item is built yet. #716 stays the umbrella issue: its closing review holds the build order, the phases and the open owner decisions.
+
+## Relevant files and links
+- Parent issue: #716 (this item is a sub-issue of it). Sister issues of the split: watcher #717, TUI dashboard #718. Source design: #655.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+The item below is built, tested and checked against its own lines, or the owner records in chat that it is dropped. The text is copied unchanged from #716.
+
+### C13. Orca decision gates as a way to reach the person, with answer-check (655 section 2, 4, 6; rows S02-F36, S04-F36, S06-F5)
+  - What to build: The coordinator may open an Orca decision gate to park a task while it waits for a person, but a gate can never itself carry an approval.
+  - Also in this item:
+    - S04-F36: An escalation can open an Orca decision gate for the person, and the coordinator treats the gate's resolution as an answer only after `answer-check`.
+    - S06-F5: When the coordinator writes an escalation, it also opens an Orca gate for it so the pending question is visible to Orca and the sweep, and closes the gate when the recorded answer arrives.
+  - Done when: a test shows `gate-resolve` alone does not satisfy `answer-check` or a merge go; only a recorded chat go does.
+    - also: A throwaway escalation opens a gate; resolving it in Orca is accepted as an answer only if `answer-check` confirms a person typed it for the right question and head.
+    - also: A test escalation produces one open gate that `orca orchestration` lists, the sweep report shows a pending question for it, and the gate is closed after the typed answer passes `answer-check`.
+  - Research and debate results from our documents:
+    - S02-F36: .dev/brainstorms/20261120-pr686-unify/spec/SPEC.md:297 `Accept a recorded go only with the owner's quoted words ... typed by a person in their own session, never relayed`; RK-3 `answer-check cannot tell a person from a script` (SPEC.md:647).
+    - S04-F36: SPEC:297 (SEC-08) "typed by a person in their own session, never relayed"; D15:104 (D20) "An answer is always typed".
+    - S06-F5: TRO:1225 "Sweep coverage gaps: ... `Messages coverage: partial` ... pending questions cannot be read" (the sweep cannot see questions today). TRO:972-976 shows the sweep and observer allowlists contain no gate verb.
+  - Watch out:
+    - S02-F36: owner rule: every approval is given in chat and never in a file or another channel (SPEC.md:303). Resolving a gate in Orca could be script-typed and would not meet SEC-08 as a go.
+    - S04-F36: a gate resolved in the Orca interface may not satisfy SEC-08 (typed in live chat, never relayed); UNVERIFIED how Orca records who resolved a g
+--- comments=0; last 3:
+

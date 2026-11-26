@@ -1,0 +1,47 @@
+#770 [FEATURE] The watcher hands each claim to the coordinator, and results come back to it [OPEN ] closed=-
+## Feature Summary
+
+Thank you, Ryan, for the issue watcher and the standing coordinator that are now on master (pull request 707). This asks for one small link between them, so the coordinator learns when the watcher claims an issue and when a result comes back, without a person in between.
+
+## Problem Statement
+
+Nothing tells the standing coordinator that the watcher claimed an issue, or that a claim finished. The code facts below were re-checked on master afb3ccf29 on 2026-11-24.
+
+- When the watcher claims an issue, it starts the claim as a new Claude tab with `orca agent launch ... --surface terminal` (`src/superclaude/cli/issue_watch/launch.py:136-157`). It sends the coordinator no message.
+- The worker contract (`src/superclaude/core/WORKER-CONTRACT.md`) says which sources the coordinator reads once it adopts a claim: the `claimed` entry in `dispatch.json` and the files under `.dev/issues/<N>/` (line 296). It gives no trigger for when to look, no command that lists claims, and no wake-time step. The `issue-pipeline` command group has `adopt-create` and `adopt-mark` (adopt one issue) and `stage-status` (one issue), and no verb that lists claims (`src/superclaude/cli/issue_pipeline/cli.py:109-134` and line 409).
+- The contract (`WORKER-CONTRACT.md:302`) and the design note `docs/designs/issue-watcher-status-pipelines.md:75` both say a finished agent's result file `.dev/issues/<N>/result.md` is "noticed through the `/sc:sweep` report". We searched `src/superclaude/cli/sweep/`, `src/superclaude/skills/sc-sweep-protocol/` and `src/superclaude/commands/sweep.md` for `result.md`, `dispatch.json` and `claimed`, and found nothing. So the sweep does not read that file today.
+- The launch prompt in the Coder image tells the coordinator to "adopt each issue the issue watcher claimed in {repo}, start one worker per issue" (<private-repo>, `templates/VSCode-AIDev02/image/bin/coordinator-ensure`, line 37, main at cce24743). That is an instruction. It is not a trigger and it is not a list.
+
+With 20 or more pull requests a day, a person cannot be the link between a claim and the coordinator. Today the claim waits until the coordinator happens to look, and a finished result waits until someone reads the file.
+
+## User Story
+
+As the project owner or person directing agent work, I want watcher claims and finished results to reach the coordinator automatically, so that the work does not wait for a person to pass them on.
+
+## Proposed Solution
+
+This is a question and some options for Ryan, not a verdict. Please correct us where we misread the code. It comes out of the read-through in IronbellyOrg/IronClaude#761, the list of 18 possible gaps in the watcher and coordinator design.
+
+We do not suggest replacing the merged watcher. Three ways to close the link, which can also be mixed:
+
+- (a) The model-free scheduled wake task of issue 757 (IronbellyOrg/IronClaude#757, run the coordinator sweep outside the session and wake it only on change) also lists claims the coordinator has not adopted yet, and new `result.md` files, and wakes the coordinator for them. We already left a short comment on 757 asking this, so it is not repeated here.
+- (b) The watcher starts the work through the standing coordinator instead of a separate short-lived claim session, or the claim session is cut down to a hand-off message.
+- (c) A new list verb in `issue-pipeline` (unadopted claims and new results) plus a wake-time step in the contract that says to run it.
+
+We also ask for one recorded live run of the whole chain: cron tick, claim, coordinator adopts, worker runs, `issue-pipeline complete`. UNVERIFIED: whether any issue has gone through all of those stages on the live host. The check that would settle it is to read that host's `audit.jsonl` and `dispatch.json` entrie
+--- comments=1; last 3:
+[ironbelly 2026-11-24T22:03:39Z] ## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P1
+
+#### Concrete next steps
+
+1. Owner or Ryan chooses (a), (b), (c) or a mix. Recommendation: (a) via 757 for the wake, plus the small list verb from (c) so the wake has something to call.
+2. Store claim listing on the existing `dispatch.json` (`record.py`); no second store.
+3. Add the list verb to `issue_pipeline/cli.py` (unadopted claims, new `result.md`), tests in `tests/issue_pipeline/` and `tests/cli/test_issue_pipeline_registered.py`.
+4. Add the wake-time step to `WORKER-CONTRACT.md` near lines 290-302; either make the sweep read `result.md` (`cli/sweep/probes.py`, `models.py`, `report.py`, skill and command text, `tests/sweep/`) or correct line 302 and `issue-watcher-status-pipelines.md:75` to name the new path.
+5. Record one live run (cron tick, claim, adopt, worker, `issue-pipeline complete`) in `docs/designs/issue-watche

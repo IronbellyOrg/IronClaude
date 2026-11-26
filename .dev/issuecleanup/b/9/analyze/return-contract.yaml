@@ -1,0 +1,9 @@
+command: /sc:analyze
+worker_status: succeeded
+report_path: .dev/issuecleanup/b/9/analyze/analyze-report.md
+target: src/superclaude/cli/issue_watch
+focus: architecture
+depth: quick
+codegraph: "index_state=fresh, checked_at=2026-11-24T22:22:19Z; degraded: none"
+artifacts: []
+reason: null

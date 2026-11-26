@@ -1,0 +1,68 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** in-progress
+- **Complexity / size:** Complex / L
+- **Priority:** P2
+
+#### Concrete next steps
+
+1. Coordinator retrieves and checks #731's named release-planning artifacts against #727's acceptance criteria, including which owner decisions remain open. Reuse verified work; the signed consensus and unfiled drafts reported there do not prove the deep storage brainstorm or owner release scheduling is done.
+2. Complete current-version use/evaluation and requirements/comparable-project research before implementing write/respond. Then complete the explicitly requested `/sc:brainstorm --depth deep` architecture work; retain the requirement to evaluate per-project Postgres and shared session/decision history. Decide what belongs in structured history before assuming vector storage or adopting #726's local-file proposal. This issue review did not run that separate brainstorm.
+3. Specify selected-question identity, response authorization and routing to the correct coordinator, stale/duplicate handling, recorded outcomes, multi-developer access, retention and privacy. Preserve the current text-free snapshot contract unless an approved design explicitly changes it. A two-way direction is not a blanket authorization to issue Orca actions or persist private conversation text.
+4. Finish the written release breakdown, reconcile release numbers and locate the unknown HTML references, obtain the owner's scheduling choices in chat, and let the coordinator create only the scheduled release issues. #731 says its 88 drafts are unfiled; do not equate those drafts with the required live issues. Close #727 only after its written-review/brainstorm/evaluation criteria are met and scheduled releases have issues, or the owner explicitly drops the remaining scope.
+5. Keep implementation under the issue's explicit owner-go gate. Coordinate future dashboard, watcher and coordinator changes when the approved architecture needs them; do not invent a prerequisite to finish every related backlog issue first.
+
+No GitHub changes, implementation, tests, installs, commits or database provisioning were performed. Current runtime/test health and other-branch acceptance artifacts are **UNVERIFIED**.
+
+#### Dependencies
+
+- **Blocks #726** (intervention voting): its live owner-ruling comment explicitly requires #727's architecture/storage evaluation first. This is the verified issue-number dependency, not an inferred implementation order.
+- **Feeds #731** (reusable release pipeline): #731 requires learning from the first dashboard release before finalizing the reusable pipeline. It is a planning coordination relationship, not a hard prerequisite for beginning #727's research.
+- **Needs owner scheduling/go**, as stated in #727; that decision is not another issue number. The read-only directional decision has already been recorded under #726.
+- **No other hard issue-number prerequisite verified.** #409, #706, #604, #716 and #718 are related context, not proved blockers of the architecture evaluation. In particular, #718's November 22 comment parks report-tool-dependent items and does not gate the whole two-way dashboard roadmap.
+
+#### Related issues
+
+Live states checked on 2026-11-24:
+
+- [#726](https://github.com/IronbellyOrg/IronClaude/issues/726), OPEN: intervention voting; the direct downstream feature and the recorded two-way ruling.
+- [#731](https://github.com/IronbellyOrg/IronClaude/issues/731), OPEN: reusable release-planning pipeline; records the initial #727 planning work and where its drafts live.
+- [#409](https://github.com/IronbellyOrg/IronClaude/issues/409), OPEN: parent terminal dashboard.
+- [#706](https://github.com/IronbellyOrg/IronClaude/issues/706), OPEN: observer summaries, links, named steps, sweep alignment and scale tests. Its older 'must stay read-only' text is not the latest owner direction; consult #726's ruling and #727 before treating it as a permanent product restriction.
+- [#604](https://github.com/IronbellyOrg/IronClaude/issues/604), OPEN: observer remote fleet.
+- [#606](https://github.com/IronbellyOrg/IronClaude/issues/606), CLOSED: shipped visual parity. #727 also points here for the Zellij decision context; the exact current go/no-go is **UNVERIFIED** in this review, not presumed decided by closure.
+- [#718](https://github.com/IronbellyOrg/IronClaude/issues/718), OPEN: dashboard/report items from the #655 split. Its latest comment parks report-dependent items and declines the other two report items; it is not evidence to drop #727.
+- [#716](https://github.com/IronbellyOrg/IronClaude/issues/716), OPEN: coordinator next-release work; coordinate when required by the two-way design.
+
+#### Related PRs
+
+The live #727 issue mentions no PR. These verified merged PRs provide its current observer baseline; they do not implement its two-way roadmap:
+
+- [#503](https://github.com/IronbellyOrg/IronClaude/pull/503): read-only observer release 1, merge `9e2608b03857c78ab89fc9439c85256d3bd5d989`.
+- [#673](https://github.com/IronbellyOrg/IronClaude/pull/673): visual parity at 160/116/80 columns for #606, merge `b68d5eeaf618a8e33cde55cb660acfdd8f321f67`.
+- [#708](https://github.com/IronbellyOrg/IronClaude/pull/708): observer/orchestrator user guides, docs only, merge `52d371e2c20a32a4c17613108daa7f0a295baa36`.
+
+Local source history also names #514, #577 and #592 for question collection and Decision Desk evolution. Their live PR bodies were not inspected here, so their detailed scope is **UNVERIFIED** beyond the local commit subjects. No verified open implementation PR for #727 was found by the stated bounded searches. PR #740, the recently merged swarm dashboard fix, is a different dashboard and is not counted as #727 progress.
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+@ironbelly thank you for the roadmap. One thought from how we expect to work with many coordinators at once. For one person to handle 20 or more pull requests a day, there needs to be one place to ask "where does this stand?" and to send a message to any coordinator. Jumping between coordinator sessions will not scale. The review item "routing to the correct coordinator" looks like the key part either way.
+
+We would like to offer one idea for how that place could work. Much of our own work already happens through agents rather than screens, so the single place could be a small set of contact agents (two or three), each following several coordinators, that can answer "where does this stand?" and pass a message on. The dashboard would stay as one view of the same data. We know the earlier research found that one agent for everything does not keep up with 5 projects of 10 to 15 worktrees each. A few agents, each with a bounded set of coordinators and all reading the same code-generated feed, might avoid that flood. Would it be worth trying both ways on a small scale? The same question applies to the "orchestrator of orchestrators" line in plan item 3 of #409 and to the cross-host view in #604.
+
+Happy to help write it up.
+
+--

@@ -1,0 +1,135 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Accuracy check for #450
+
+**Verdict:** current
+
+Checked against `origin/master` at 933cf3a4f, and the pull requests merged since the issue was opened (7, list truncated: no). No commit since #449 (24d79b7fa, the first merge after the issue was opened) changes `src/superclaude/cli/issue_watch/`, `tests/issue_watch/`, `docs/designs/issue-watcher.md` or `docs/designs/issue-watcher-setup.md` (`git log 24d79b7fa^..origin/master` on those paths is empty). Checked with `git grep` / `git show` on `origin/master`; codegraph and auggie were not used (the local checkout is on another branch, so the index would not match `origin/master`).
+
+| # | Claim in the issue (quoted) | Status today (still true / changed / gone) | Evidence (path:line, PR #number or commit) |
+|---|---|---|---|
+| 1 | "`superclaude issue-watch` (check-config, init-state, once, reset, status)" | still true | `src/superclaude/cli/main.py:565` registers `issue-watch`; commands at `src/superclaude/cli/issue_watch/cli.py:111` (once), `:164` (status), `:185` (check-config), `:201` (init-state), `:282` (reset) |
+| 2 | "2655 tests in `tests/issue_watch`" | not checked | Counting needs a pytest collection run, which writes caches; out of scope for a read-only check. `git grep -c "def test_"` shows about 600 test functions before parametrization |
+| 3 | "the config ships with `enabled: false`" | still true | `docs/designs/issue-watcher-setup.md:74` (`"enabled": false`); code default `raw.get("enabled", False)` at `src/superclaude/cli/issue_watch/cycle.py:228`; refusal `not_enabled` at `cycle.py:685-686` |
+| 4 | "Design: `docs/designs/issue-watcher.md` (follow-up list FU-1 to FU-12 is in section 16)" | still true | `docs/designs/issue-watcher.md:849` `## 16. Follow-up and owner questions`, rows FU-1 to FU-12 |
+| 5 | "Owner runbook: `docs/designs/issue-watcher-setup.md`" | still true | File present on `origin/master` |
+| 6 | "Code: `src/superclaude/cli/issue_watch/`, tests: `tests/issue_watch/` (fixtures under `fixtures/_assumed_shape/`)" | still true | 9 modules in `src/superclaude/cli/issue_watch/`; `tests/issue_watch/fixtures/_assumed_shape/` holds gh fixtures such as `gh_issue_list.json` |
+| 7 | "the live-test record `docs/designs/issue-watcher-live-test.md` is written" (not yet done) | still true (not written) | `git ls-tree origin/master docs/designs/issue-watcher-live-test.md` returns nothing; the design says the owner writes it (`issue-watcher.md:33`) |
+| 8 | "the cron entry (`0 */5 * * * *`, six fields)" | still true | `docs/designs/issue-watcher-setup.md:282`, `:637`; `docs/designs/issue-watcher.md:854` |
+| 9 | "stale status line ... still says 'Design only, nothing implemented'" | still true (still stale) | `docs/designs/issue-watcher.md:3` |
+| 10 | "59 reason names in code ... the new names are `cycle_complete` and `cycle_crashed`" | still true | `REASON_TABLE` in `src/superclaude/cli/issue_watch/audit.py:26-103` has 59 entries, including `cycle_crashed` (`:57`) and `cycle_complete` (`:64`); neither name appears in `docs/designs/issue-watcher.md` |
+| 11 | "57 in design and spec" | not checked | The design does not list a count; it says `audit.REASONS` equals "the spec's reason table" (`issue-watcher.md:718`). The spec's own count was not checked: Not known yet |
+| 12 | "full record is in `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reports/worker-final-report.md`" | still true | File present on `origin/master` (added in #451) |
+| 13 | Launch path (implied by "starts `/sc:issue --claim <N>` in a new session") | still true; consistent with the new rules | `src/superclaude/cli/issue_watch/launch.py:95-117` builds `orca agent launch --agent claude --worktree path:<wt> --surface terminal --prompt ... --json` in an existing worktree; it never runs `orca worktree create`, so the #449 hook (Claude Bash calls only) does not apply |
+
+### Merged pull requests that touch this issue
+
+| PR | Title | Relevant files | Effect on the issue |
+|---|---|---|---|
+| #449 | feat(orca): require an agent on every worktree create | `src/superclaude/hooks/scripts/require-orca-worktree-agent.sh`, `src/superclaude/hooks/hooks.json`, `CLAUDE.md` | No change needed. The hook blocks only Claude Bash calls that run `orca worktree create` without `--agent`; the watcher runs from cron and uses `orca agent launch` in an existing worktree, which matches the new rule |
+| #451 | docs(dev): record the issue-watcher brainstorm, task outcome and reflect patterns (#331) | `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/...`, `docs/memory/reflect/deviation-patterns-issue-331-github-issue-watcher.md` | Adds the worker-final-report the pick-up note cites; no code change |
+| #455 | fix(issue): accept the ccsession session name in the tab title as the shim check | `src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py`, `tests/skills/test_issue_orca_worktree.py` | Indirect: the claim session the watcher launches runs `/sc:issue --claim`, whose shim check now also accepts the ccsession session name. Worth noting in the FU-1 live test; no watcher change |
+| #459 | docs(designs): describe the tab-title shim check in the claim pipeline design | `docs/designs/sc-issue-claim-pipeline-flag.md` | Docs for #455 only; no effect on the watcher |
+| #458 | fix(mcp): accept the LiteLLM proxy tool names alongside the direct names (#454) | MCP proxy names and task files | No effect found |
+| #457 | test(hooks): assert the launch-level guard speed limit on every run, including xdist workers (#440) | `tests/hooks/...` | No effect found |
+| #453 | fix(tests): pick ccsession shim ports clear of the stand-in gateway's shim window (#443) | `tests/unit/...` | No effect found |
+
+<!-- sc:issue:accuracy-check -->
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Claimed by @ironbelly
+
+- **ClickUp:** skipped (no_token)
+- **Accuracy check:** current (see the accuracy-check comment on this issue)
+
+### Summary
+
+The issue watcher (`superclaude issue-watch`) is merged but has never run live, has no schedule and ships with `enabled: false`. This issue asks to turn it on safely: an owner-run live test that replaces the guessed fixtures with captured gh and Orca output, a reviewed 24-hour shadow run with the lock and restart tests, then the cron entry, plus two doc fixes (the stale status line and the 59-name reason table).
+
+- **Effort estimate:** 20 hours
+- **Complexity:** complex
+- **Type:** feature
+- **First next step:** `/sc:workflow "Roll out the issue watcher (issue #450, follow-up to #331): replace the _assumed_shape fixtures with captured real gh and Orca output after the owner-run live test (FU-1), fix the stale status line and the 59-name reason table in docs/designs/issue-watcher.md, prepare the shadow-run, lock, restart and cron steps (FU-2) as owner-run checklist items, keep enabled false until the owner flips it. Spec and runbook: docs/designs/issue-watcher.md, docs/designs/issue-watcher-setup.md. Code: src/superclaude/cli/issue_watch/, tests/issue_watch/" --depth standard --handoff none`
+
+### Files
+
+- Summary: `.dev/issues/450/issue-summary.md`
+- Next steps: `.dev/issues/450/next-steps.md`
+- Analysis: `.dev/issues/450/analysis/`
+
+These links are paths in the repository; they open on GitHub only after someone commits and pushes the files.
+
+<!-- sc:issue:claim -->
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Status review 2026-11-17
+**Status:** BLOCKED. The watcher is unchanged and still waits for the owner-run live test (FU-1), the 24-hour shadow run and the cron step.
+**Findings:**
+- PR #485 (merged 2026-11-10) did the two doc fixes this issue asked for and added the capture sheet and rollout checklist. `docs/designs/issue-watcher.md` line 3 now has a current status line.
+- PR #548 (merged 2026-11-14) recorded the owner's option 3: the watcher's claim now runs at the default `worktree` level, so each approval starts two sessions.
+- PR #584 (merged 2026-11-17) added the approval core and a live-test record, `docs/designs/issue-pipeline-fu1.md`, run on throwaway issue 452. That is the claim handoff test, not the watcher's FU-1. `docs/designs/issue-watcher-live-test.md` does not exist on origin/master and `_assumed_shape` fixtures are still in use (UNVERIFIED that none were replaced; no commit touched `src/superclaude/cli/issue_watch/` or `tests/issue_watch/` since #548).
+- `enabled` still ships `false` in the runbook; no cron entry is recorded.
+- Because of option 3, the claim session now launches a governed agent, and the design says no governed claim on a real issue until #442's checks pass.
+**Experiments / evidence:** FU-1 for the claim handoff on issue 452 (#584); none for the watcher itself.
+**Next steps:**
+1. Owner: run the watcher FU-1 (real gh and Orca replies), swap the `_assumed_shape` fixtures, write `issue-watcher-live-test.md`.
+2. Owner: 24-hour dry-run shadow, lock and restart tests, then flip `enabled` and install the cron entry.
+3. Do not enable real claims until #442 gates pass.
+**Related:** #331 (watcher, closed); #485 (docs fixes); #548 (option 3); #584 (approval core, FU-1 for handoff); #442 (guard live checks); #394 (guard).
+
+Posted by Claude Code during the 2026-11-17 open-issue review.
+
+--
+author:	clayphi
+association:	member
+edited:	true
+status:	none
+--
+@ironbelly my thoughts on the watcher and orchestrator design (this issue and #331), all in one place:
+
+1. **Front-load the planning into the issue when it is created.** Every `/sc:issue --create` template should carry Priority, Fix approach and Test plan, whatever the type and complexity. Then the polling orchestrator or the worker that picks the issue up does not have to do this work: beyond that point it is just execution. That lets us use cheaper models for execution and better models for the planning up front. I filed that as its own issue: #651.
+2. **The only required trigger should be an assigned person or bot.** Whoever picks it up first marks it as picked up (the claim's "Claimed by" comment already works as that mark). The extra trigger label, the second approval label from an approver list and the Backlog column add another layer that a person then has to go and set, or another agent has to handle. That becomes the new burden we are trying to remove. Planning and review happen in the issue as it is created; once created and assigned, it should trigger and run through the pipeline.
+3. **The claim assigning the issue does not fit this.** `/sc:issue --claim` assigns the issue to whoever runs it as its first step, but under these rules an issue only triggers once it is already assigned, so that step does nothing here. Its only useful part for this flow is the picked-up mark.
+4. **The orchestrator should do the polling and the claiming itself.** Otherwise we have another agent to manage (an issue watcher plus the orchestrator), the watcher and the orchestrator have to talk to each other, and then the orchestrator also has to talk to the workers.
+5. **Use an Orca automation, not cron,** for the schedule (every 5 minutes, or whatever we choose).
+6. **When the orchestrator picks up an issue that has no plan, it runs an issue agent to write the plan into the issue first.**
+7. **When it launches the agent in the right repo and worktree, the orchestrator writes a handoff prompt from a template** about that issue, so the agent starts with everything it needs.
+8. **Consolidate this work into one issue, maybe two:** the templates issue above, and one issue for the polling orchestrator that replaces the open pieces spread across #331, #450 and the coordinator handoff.
+
+What do you think?
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Closing: the rollout this tracker covers is done (backlog review, 2026-11-24)
+
+Owner asked for this issue to be closed. Evidence from the review:
+
+- The issue watcher is live on this host: enabled, polling every minute, with 284 real cycles on IronClaude since 2026-11-23 (280 exit 0, 2 `lock_missing`, 2 `launch_unknown`). The cron entry is installed (managed, rewritten on every boot).
+- The reviewed shadow run, lock test and restart test were replaced by the automatic first-run check (`src/superclaude/cli/issue_watch/first_run.py`).
+- The ship gate is closed (`GOVERNED_LEVELS_ALLOWED = False`, `launch.py:48`), so only Pipeline None launches.
+
+Leftovers that are not part of the rollout (documentation and fixture hygiene), per the review:
+1. The status line at `docs/designs/issue-watcher.md:3` still says the watcher has never run live.
+2. `docs/designs/issue-watcher-setup.md` contradicts itself: section 14.1 forbids enabling before the live test, section 17 enables on a passing first-run check.
+3. The live-test record was never written and the 20 assumed fixtures under `tests/issue_watch/fixtures/_assumed_shape/` were not replaced. The review says issue #717 already carries this (its items W4, W10, W11, W15); I did not re-check that claim.
+
+Items 1 and 2 have no issue that I have verified. UNVERIFIED: the order of the first-run `worktree_invalid` result against the watcher being enabled.
+
+--

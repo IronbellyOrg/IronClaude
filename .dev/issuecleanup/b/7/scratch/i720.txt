@@ -1,0 +1,60 @@
+#720 [OPEN] [FEATURE] Restore the agent-work-report skill, trimmed and fixed (parked until a trigger; archive tag archive/pr-684-agent-work-report)
+## What was tried
+
+Clay's PR 684 moved the work-report skill `agent-work-report` (a daily report page, plus a "living report" of one entry file per held issue) into IronClaude. It merged 2026-11-20 about 2.5 hours after opening, with no review by the owner on GitHub. Clay's own PR 700 then rolled it off master the same day (also self-merged, no owner review). The code was kept on the branch `clayphi/archive-orchestrator-655-20261120`.
+
+On 2026-11-21 the owner asked for a structured debate on whether to restore it: one advocate for restoring, one against, a rebuttal from each, then an independent judge who checked the key claims against the files. Result, and the owner's decision in chat the same day: **do not restore now; tag the archive commit (done: tag `archive/pr-684-agent-work-report`, commit `d7d645ddd`) and file this issue with the instructions to trim, fix and bring it back later.** The local web server in the skill has an unfixed security finding that is filed separately: #719.
+
+Facts both sides agreed on:
+- The skill must not come back as it stands: the page server serves the whole state folder, the config names Clay (`"person": "clayphi"`, `"person_name": "Clay"`, two organisations, a Chicago time zone; about 106 lines in 17 files mention Clay or clayphi), and it has side effects on by default (a ClickUp DM, a waker, and a git commit run by the model).
+- The living half (entry files, `exclude.py`, `run.py refresh`) has no writer: `superclaude orchestrator report-entry` does not exist, and `/sc:closeout` prints `ENTRY escalated ... why=surface_absent`. So a restore does not make the closeout entry step work.
+- Restoring now would pin an entry format (`common.py:133-151`: a session-status map, session links, and model-written `recommend`, `how`, `suggested`) that the plan means to change (FR-46: entries store only `session_id`; FR-80: the observer never shows `recommend` or `suggested`).
+- The silent-loss gate (`check.py` plus `run.py gate`, tied to the sha256 of `overview.md`) is welded to the report's own files, so it comes back only with the report.
+
+Estimated cost of the restore, from the judge (an estimate from line counts and the PR 684 review load, not a trial): 12 to 20 hours of builder and review-loop time plus 2 to 3 hours of owner time for the full two-commit restore; about 10 to 18 hours for a trimmed "daily core". Not run: the 4,005-line test file on today's master.
+
+## Relevant files and links
+
+- Tag: `archive/pr-684-agent-work-report` (commit `d7d645ddd`); older tag `archive/pr-682-issue-pipeline-removal`. Branch with the same code: `clayphi/archive-orchestrator-655-20261120`.
+- Skill files on the tag: `src/superclaude/skills/agent-work-report/` (`SKILL.md`, `config.json`, 15 scripts, 5 templates), tests `tests/skills/test_agent_work_report.py` (4,005 lines), an 8-line row in `tests/skills/test_worker_contract.py`, and a line in `CHANGELOG.md`.
+- Security issue that gates this restore: #719.
+- Issues that wait on this decision: issue 716 items C8 (entry line) and C14 (entry content), issue 718 items D1, D2, D3 and D4. Source of those issues: issue 655.
+- Plan: `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (FR-44 to FR-50, section 7 rows E1 to E5, Appendix B.3 action 1), `DECISIONS.md` (D11, D08, section G). Local files, not pushed.
+- Debate (local files, not pushed): `.dev/brainstorms/20261121-report-skill-restore-debate/` with `position-RESTORE.md`, `position-NOT-RESTORE.md`, both rebuttals and `VERDICT.md`.
+- PR 684, PR 700, PR 701 (the small replacement PR for two contract gaps).
+
+## Done when
+
+The restore pull request is merged with the owner's approval (not by its author) and all of these hold:
+1. The skill is on master, and `git diff archive/pr-684-agent-work-report -- src/superclaude/skills/agent-work-report tests/skills/test_agent_work_report.py` shows only the amendments of commit 2 listed below.
+2. The three server tests of #719 pass and its other points are observed.
+3. No file in the skill names Clay or clayphi, and the shipped `config.json` holds no person, ClickUp id or time zone of one user; state lives in a per-user path.
+4. A fresh run with default config sends no ClickUp DM, starts no waker and makes no git commit; each is behind a config switch that is off.
+5. `uv run pytest tests/skills/test_agent_work_report.py tests/skills/test_worker_contract.py` passes on the branch; `make lint`, `make verify-sync` and `make sync-dev` pass; no `.claude/` path is staged.
+6. The pull request body says plainly that the living half has no writer until stage S15c.
+
+## Pick-up note
+
+**Trigger. Do not start before one of these:** (a) the owner says in chat that a daily per-issue page is wanted, or (b) stage S15c (the build of `superclaude orchestrator report-entry`, issue 716 items C14 and C8) is about to start. Whichever comes first.
+
+**Ask first (nothing here needs code):**
+1. Ask Clay why the skill was in the PR 700 rollback (PR 700's body says only "at Clay's request"), and whether Clay's daily report still runs from the IronFlow copy and which two Orca automations point at it. Neither was verifiable from this checkout.
+2. Get the owner's chat answers for issue 718 D3 (where the report session and its state live; the suggested default is the per-user config folder) and the first part of D4 (which copy runs the daily report, and who updates the IronFlow copy). The agent records the answers; the owner writes no file.
+3. Check how far master has moved (8 commits and a 116-line change to `test_worker_contract.py` at the time of the debate), and run the restored tests once before changing anything.
+
+**How to do it.**
+1. Create an Orca worktree with an agent from `origin/master` (`orca worktree create --name <name> --base-branch origin/master --agent claude --prompt "<task>"`; pass no Orca `--issue` or `--pr` flag for this repository). Open the pull request only with `/sc:pr-submit --monitor 3 --head <branch>`; every `gh` call passes `--repo IronbellyOrg/IronClaude`. The author never merges.
+2. **Commit 1, verbatim restore.** `git checkout archive/pr-684-agent-work-report -- src/superclaude/skills/agent-work-report tests/skills/test_agent_work_report.py`, plus the 8-line row in `tests/skills/test_worker_contract.py` and the changelog line; then `make sync-dev` and `make verify-sync`. Never stage `.claude/`. Proof for the reviewer: the diff command in "Done when" 1 prints nothing after this commit. Squash merge hides the split in history, so the reviewer reads commit 2 in the pull request view.
+3. **Commit 2, trim and fix.**
+   - Server fix and three tests: see #719 (merge gate).
+   - Person-neutral: remove Clay and clayphi from `config.json`, `SKILL.md`, the scripts and the templates; neutral description; per-user state path (first half of FR-46).
+   - Side effects off by default: the ClickUp DM step, the waker, and the model-run git commit step become config switches that default to off; update the tests that mention them (about 73 test lines for the waker, 14 for the DM).
+   - Remove the coupling to `orchestrator_repo` (master's poll config rejects that key, `cycle.py:59`) and set the report root with `$AWR_ROOT` or the per-user path.
+   - Keep the report session names of decision D08 (tag `coordinator`, prefix `coordinator-`, folder `.dev/coordinator/`) and fix the wording at `SKILL.md:12`.
+   - Replace bare `python3` in `SKILL.md` and the scripts' instructions (for example `python3 page.py --open`, `SKILL.md:155`) with `uv run python`, as this project requires.
+   - Living half: leave it out if the trigger is (a); if the trigger is (b), restore it only together with the writer, with entries storing only `session_id` and links derived at render (second half of FR-46), and no `recommend` or `suggested` text shown (FR-80). Copy the field names from `common.py:133-151` on the tag; do not restore the old format as the contract.
+4. **Not in this restore:** the session-map swap (FR-45), the `report-entry` writer (FR-48), the nine-row table and notice cap (FR-47), the push notice (FR-49), any Orca automation, any change to the sweep or the observer, and the design document `docs/designs/orchestrator.md` (a separate owner decision).
+5. After merge: tell each host to run `superclaude update` (a plain `superclaude install` skips existing files), after the per-host diff of installed guard and contract that the plan requires before any install (FR-66).
+
+**What stays blocked even after this restore:** the `report-entry` writer and any `superclaude orchestrator` command group (S15c), the FR-45 swap (needs the sweep to carry `session_id` first, stage S5, and a live run), the closeout entry step (still `surface_absent`), the coordinator phase-2 items of issue 716, and the watcher's live enable.
+

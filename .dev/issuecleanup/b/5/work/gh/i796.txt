@@ -1,0 +1,9 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Closing as no longer relevant (owner decision in chat, 2026-11-24, after a reviewed analysis of this sub-issue).
+
+Why: the owner decision R38 (requirements.md:64) rejects the plan check and the wake file this item is built on, pull request 690 was closed unmerged, and the sibling item W2 (#810) has the same base. If plan-less issues should still be filled automatically, a new, smaller item against the merged claim and plan-approval flow (WC-17) is the way, decided together with #810.
+--

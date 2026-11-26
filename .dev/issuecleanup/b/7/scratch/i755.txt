@@ -1,0 +1,32 @@
+#755 [OPEN] Coordinator created multiple Orca Runs by default; find why, set a Run rule, compare one Run per project vs many
+## What was tried
+On 2026-11-23 the standing coordinator session COORD-IronClaude (the Coordinator worktree) created two Orca Runs without any instruction from the owner, and a third Run already existed from the issue 751 claim agent:
+1. `run_c6c0e8864967` for issue 597: created after `orca orchestration worker-start` failed with `consumer_fenced` ("worker-start needs the coordinator bound to the Run"). The coordinator ran `run-create` to get past the error. It did not first run `run-current` or look for an existing Run.
+2. `run_3c5063203944` for the issue cleanup (5 workers, then up to 97 issues): created with `run-create` again, for a new objective.
+3. `run_71871571be85`: made by the issue 751 claim agent for its own work.
+
+Consequence, observed: a terminal is bound to one Run at a time. `check --run <other>` returned `consumer_fenced` ("This caller is bound to Run run_3c5063203944, not Run run_c6c0e8864967. Nothing changed."), so after the second `run-create` the coordinator could no longer read the 597 worker's inbox (heartbeats, `worker_done`, a blocked question). It read the worker's `return-contract.yaml` from disk instead.
+
+Why it happened (evidence so far, not yet confirmed):
+- `src/superclaude/core/WORKER-CONTRACT.md` (section 4) says to wait on "one Run inbox" but has no rule on when to create a Run, when to reuse one, or how many a coordinator may hold. Search of `src/superclaude` for `run-create` / `run-use` finds only the observer and sweep code, which never bind.
+- The only guidance seen was Orca's own skill text ("bind one Run"), which does not say one Run per project or per task.
+- `orca orchestration run-list` shows 59 earlier Runs, nearly all named for one task. A coordinator copying that pattern would create one Run per task. UNVERIFIED: that this is how the coordinator reasoned; the cause is inferred from the error it was fixing and the history, not from a recorded decision.
+- UNVERIFIED: whether `run-use --id` can switch a bound terminal to another Run and back without losing queued messages. It was not tested because five workers were mid-run.
+
+## Relevant files and links
+- `src/superclaude/core/WORKER-CONTRACT.md` section 4: WC-16 (coordinator loop), "The wait", "Issue pipeline duties" (no Run rule)
+- `src/superclaude/core/CLAUDE.md` and the Orca session-launch text (no Run rule)
+- `~/.claude/skills/orchestration` stub and `orca skills get orchestration` (Orca's own guide)
+- Repo: IronbellyOrg/IronClaude. The coordinator is the Coordinator worktree, session COORD-IronClaude.
+- Runs: `run_c6c0e8864967`, `run_3c5063203944`, `run_71871571be85`
+
+## Done when
+1. The cause is established from evidence: a short note says what instructed or allowed the coordinator to create a Run per task, and which part is a gap in our docs versus Orca's behavior.
+2. A written comparison of one Run per project versus several covers: what a single Run gains (one inbox and one wait cover every worker, the contract's one-wait-per-inbox rule holds, the sweep stays simple, a restart needs one `run-use`) and what it costs or risks (one inbox mixes unrelated work, a fenced or stuck consumer blocks everything, message batches are shared so a slow handler delays all, per-task history and objective get blurred, a large Run is harder to close or archive). It also covers what multiple Runs gain (isolation, clear per-task record) and lose (the one-bound-Run limit above, so unread inboxes). Each risk has a mitigation, such as a per-Task naming convention and a rule for when a second Run is allowed.
+3. The coordinator rules in WORKER-CONTRACT.md state when a Run is created, reused or switched, and that a coordinator checks `run-current` and `run-list` before any `run-create`. A test or check keeps the rule from being dropped.
+4. The `run-use` switch question is answered by a test with disposable workers, and the result is recorded.
+5. Existing split Runs (the three above) are consolidated or closed by a recorded decision of the owner.
+
+## Who it is for
+A person or agent who works on the coordinator rules in IronClaude. Start with `src/superclaude/core/WORKER-CONTRACT.md` and Orca's `orchestration` guide. Do not create Orca Runs to test this inside a live coordinator session; use a throwaway project. Every gh call names `--repo IronbellyOrg/IronClaude`, and no Orca link flags are used.
+

@@ -1,0 +1,387 @@
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Body updated with Clay's corrections (2026-11-18)
+
+1. **Repo list and map.** The list of repos and the map from each repo to its local checkout do not live in IronClaude (it is installed at user level, so every repo has it). They live in a separate orchestrator repo, to be created, which also holds a short overview of what each repo is and does and changes as repos are added, removed or updated. The orchestrator reads its map from there. Every wording that put the map in IronClaude configuration is gone.
+2. **Handoff prompt.** The claim that it conflicts with the integer-only rule is removed. That rule now covers only the poll script's own launch prompt (the one that starts a session). The handoff is the orchestrator agent writing a template-based prompt to the worker agent it launches in the repo's worktree. The one safety note: issue text inside the handoff is quoted as data, not instructions.
+3. **The orchestrator is in scope.** Added as an explicit deliverable (new "Deliverables" section, an acceptance criterion, the PR split, the components list and the tests): a skill and a command for the orchestrator (names settled in the spec) that run the poll result, claim, write missing plans through an issue agent, write the handoff prompt from a template, and launch and watch the workers. The "Out of Scope" line about the general orchestrator of #339 was reworded to match, and the effort estimate went from about 60 to about 70 hours.
+
+Also: Q2 (check for the session and retry once on its own) is marked as confirmed by Clay.
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Body updated: the handoff prompt is a real template file (Clay, 2026-11-18)
+
+The orchestrator skill ships a template file in its own folder (for example `templates/handoff-prompt.md`) with fixed sections and placeholders. Its steps require the agent to fill that file for every handoff and send the filled copy, never a prompt written from scratch. A test fails if the skill or a handoff departs from the template. Stated in the Deliverables section, the acceptance criteria, the components list and the test plan (a template-exists test, a skill-steps test, and a departure test with a mutation case).
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Body updated: tracking every issue's lifecycle (Clay, 2026-11-18)
+
+Added a section "Tracking every issue's lifecycle" and reflected it in Deliverables, the acceptance criteria, the test plan, the components list, Dependencies, Related, Risks and the effort estimate (about 70 to about 80 hours).
+
+1. One design with Clay's coordinator spec in the IronFlow repo (FR-1, FR-7, FR-9, FR-19, FR-20, FR-21, cited not copied): this orchestrator is the spec's `/agent-coordinator`, the handoff template is its work package, and `/agent-session-manager` checks in with each worker. Where the coordinator is built (IronClaude or IronFlow) is listed as an open question for the spec.
+2. The work report stays current between daily runs: on each check the orchestrator asks each worker where it stands and updates that issue's entry from the report's item template, with its FR-9 follow-up state.
+3. Each entry shows the human assignee and the assigned agent session (a link that opens it in Orca), from the ownership map (FR-21).
+4. The AI-Fleet-Coordinator activity page is named as a reference for agent attribution and a published digest, with no dependency.
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Body updated: five gaps (Clay, 2026-11-18)
+
+1. **Claiming** now says the orchestrator runs the existing `/sc:issue --claim` workflow (`SKILL.md`, `refs/claim.md`). The spec decides whether the worker is launched through the claim's own launch level or by `worker-start` after a `--pipeline none` claim; the launch levels stay held by the #442 ship gate.
+2. **Skill, not a list.** The orchestrator is a skill with `SKILL.md` numbered steps, a ref per phase and four templates (handoff prompt, report entry update, escalation to the human, worker check-in), with a test that each step uses its template.
+3. **Orca orchestration** is now used and cited: Run, Task, `worker-start`, dispatch, the mailbox, gates, worker inspect and settle commands, `orca reference add/find`, `orca worktree ps`, `orca skills get orchestration`, and spec FR-8 and FR-9.
+4. **Every check defined** in a table: the 5-minute poll, event-driven mailbox messages, an hourly worker status check (FR-2, configurable) and the 07:00 Monday to Friday daily run (FR-2).
+5. **Handled itself versus passed to the human**, citing FR-10, FR-13, FR-23 and FR-24.
+
+Also reflected in Deliverables, acceptance criteria (5 new), test plan (3 new), components, Dependencies and Risks. The effort estimate went from about 80 to about 90 hours.
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Body updated: Clay's decisions (2026-11-18, 20:40 UTC)
+
+1. **Name and home.** The skill is `orchestrator` and the command is `/sc:orchestrator`, built in IronClaude. It is a thin command file plus a protocol skill folder (`sc-orchestrator-protocol/`: `SKILL.md` with numbered waves, refs per phase, templates, scripts), modelled on `sc-issue-protocol`, `sc-pr-submit-protocol` and `sc-troubleshoot-protocol`; the issue lists the conventions it copies. Workers start in the issue's own repo and a worktree there (an IronOrca issue gets an IronOrca worktree). "Where it is built" is removed from the open questions.
+2. **Worker start.** The orchestrator claims at `--pipeline none` and starts the worker with `orca orchestration worker-start`, so it is supervised and reports through the Run mailbox. Removed from the open questions.
+3. **Mailbox.** The "not known" inference is replaced by the reported test: `orca orchestration send --to <terminal handle>` reached an agent launched with `orca worktree create --agent`, enqueued as msg_9e6d60dd0598 and readable with `orca orchestration check --terminal <handle>`.
+4. **Templates.** The four templates are named as files with tests. The report entry update lists the human assignee, agent session link, follow-up state, last update and PR and CI state, and is filled on each worker message, each PR or CI state change, the hourly check and the daily run. The escalation template holds the written qualifiers and the three ways it reaches the human (a "Needs you" entry, an Orca decision gate, and the work report's ClickUp DM or Orca unread mark).
+5. **Merging.** New section "Watching the pull request and merging": the orchestrator, not the worker, merges, only when every check is green on the final head, every review agent has finished on it, no review thread is open and the worker sent `worker_done`; never over a failing check without the human's explicit OK. A separate merge agent is out of scope. The spec update (FR-13 merges, FR-1 location) is listed as a dependency.
+
+Also reflected in Deliverables, acceptance criteria, test plan, components, Dependencies, Risks and the effort estimate (about 90 to about 100 hours).
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Body updated: six corrections (Clay, 2026-11-18, 20:50 UTC)
+
+1. **Handoff prompt template sections** are now specified, in order: issue link, repo, worktree and base branch; goal in one paragraph; Priority, Fix approach and Test plan copied from the issue; Orca task-spec fields (target, change, constraints, ownership, observable acceptance); do-not-touch rules and safety (issue text is data, never print secrets); the SC command chain; never merge; reporting duties (Orca preamble IDs, heartbeat cadence, `ask`, `worker_done` with outcome and summary, where evidence goes); and the stop condition (PR green, reviewers finished, no open thread).
+2. **Work report updates** follow the existing item template (`agent-work-report/templates/item-template.md`) and existing report format. The entry is added at claim, updated at milestones (plan done, blocked or asking, PR opened, review rounds summarized, PR ready, merged), not on every worker message or CI change, not hourly for a green PR that is waiting, and removed when the issue closes.
+3. **Daily run** no longer rebuilds issue entries; it covers ClickUp tasks and messages, mentions, items with no issue, sessions not under the orchestrator, and a missed-update sweep. Listed as a change to the spec's FR-2 and FR-19 (a dependency).
+4. **Escalation rules** are a numbered list of eight (human-only actions; any removal; merging with a failing check; a scope change; a question the issue, code and docs cannot answer; a choice that changes what the product does; a worker not unstuck the same day; a failed handoff at once), in the issue and in the template.
+5. **Orca orchestration** is loaded at run time (`orca skills get orchestration` and its references), not copied; each wave names its Orca commands.
+6. **Merging** reuses `/sc:pr-submit --monitor 3` code to decide readiness (the `superclaude.pr_submit` core, its poll scripts, the review snapshot gate); no second implementation.
+
+Also reflected in the acceptance criteria, test plan, components and Dependencies.
+
+--
+author:	clayphi
+association:	member
+edited:	true
+status:	none
+--
+## History and carried-over detail for #655 (moved out of the issue body)
+
+The issue body holds the current design and the orchestrator's runtime workflow. This comment holds the history and the detail of what was carried over from #331 and #450 and what was dropped. Nothing here changes the design; the body links to this comment.
+
+### Why this issue exists
+
+The work to pick up assigned issues automatically was spread over three places, and none of it has run live:
+
+- #331 (closed 2026-11-08) asked for a watcher. It was built as `superclaude issue-watch`, a poller inside each workspace (PR #447, review fixes PR #448). It has never run live, ships with `enabled: false` and has no schedule.
+- #450 (open, status BLOCKED in the 2026-11-17 review) tracks the rollout: the live test, the 24-hour shadow run and cron.
+- The coordinator handoff (PRs #584 and #591, recorded in `docs/designs/issue-watcher.md` section 2.1) added a plan-approval step after the claim, with its own code in `src/superclaude/cli/issue_pipeline/`.
+
+All of it is built around layers that Clay's 2026-11-18 comment on #450 and later rulings remove: a trigger label, a second approval label from an approver list, a GitHub Project in the Backlog column, a plan-approval gate after the claim, a separate watcher session that must talk to the orchestrator, and cron. Each layer is one more thing a person or an agent has to set or handle. Today the watcher also works on one repository only (`REPO = "IronbellyOrg/IronClaude"` at `src/superclaude/cli/issue_watch/github.py:37`, `ORIGIN_REPO` at `launch.py:50`), and `/sc:issue --claim` resolves its repository from `origin` only.
+
+### Carried over from #450 and the design (each one lands in the spec with a disposition)
+
+- Reuse of the built `issue-watch` code as the orchestrator's poll step: `runner.py`, `record.py` (the dispatch record and its lock), `audit.py` (the audit log and its closed reason table), `launch.py` (Orca lookup, origin check, launch argv and outcome mapping), and the call-budget, error classification and rate-limit code in `github.py`. `cycle.py` is reshaped, not reused as is.
+- Its safety features, all kept: at most one launch per issue (a durable dispatch record is written before the launch), a lock against two runs at once, a GitHub call budget, an audit log, a dry-run mode, only a validated integer reaches the poll script's launch prompt (the prompt the automation's script uses to start a session; the rule does not cover the orchestrator's handoff prompt to its workers), and an origin check.
+- The live test against real `gh` and Orca, on throwaway assigned issues, replacing every guessed fixture under `tests/issue_watch/fixtures/_assumed_shape/` with captured real output (design `docs/designs/issue-watcher.md` section 15 lists what is UNVERIFIED), and a written live-test record.
+- The 24-hour shadow run (a dry run that decides but launches nothing), the two-process lock test and the restart test (`docs/designs/issue-watcher-setup.md` sections 7, 8.2 and 8.3), before switching on.
+- Follow-ups: FU-3 (narrower GitHub token), FU-4 (alert after three bad cycles), FU-5 (cheaper GitHub reads, for example conditional requests), FU-6 (permissions of launched sessions), FU-8 (automatic launch retry; now the orchestrator's own single retry), FU-10 (service-level review after 7 days live), FU-11 (size bound for the dispatch store), FU-12 (check that the state folder is on a local disk).
+- Issue #442's launch checks (OB-H1, OB-H2, OB-H3, OB-CTX of the launch-level guard) before any agent launch. No governed worker is launched for a real issue until OB-H1 item 1, OB-H2 and OB-H3 pass.
+- Owner questions Q1 to Q4 of the design: Q1 (one launch per run) is replaced by the new-since-last-poll rule; Q2 is answered by the orchestrator's own check and single retry (confirmed by Clay); Q3 is answered by exponential backoff; Q4 is accepted as written.
+
+### Dropped on purpose
+
+- The trigger label (`issue-watch:trigger`): assignment is the only trigger, and a label is one more thing a person must set.
+- The approval label and the approver list, with FU-9 (approver role check): there is no approval step, so no approver to check; the plan is reviewed when the issue is created.
+- The Project and Backlog requirement (`project_id`, the project-items read): nothing may depend on the board.
+- The plan-approval gate after the claim (WORKER-CONTRACT WC-17, the `issue-pipeline` approval rows and `stage-status`, and the approval part of guard G2): the plan is reviewed at creation, so the worker does not wait for a label or an `approved` comment.
+- Cron (FU-2 and its six-field entry): an Orca automation replaces it.
+- FU-7 (revisit D1 and D2): it becomes this redesign.
+
+### Alternatives considered
+
+- Keep a separate watcher session plus the orchestrator: rejected by Clay (two agents to manage, they must talk to each other, and the orchestrator must also talk to the workers).
+- Cron or a hosted listener instead of an Orca automation: rejected (Clay's ruling; the listener is the design's rejected options B and C).
+- Keep the approval label and Backlog column as optional extras: rejected, because nothing may depend on them and each is one more thing to set.
+- Two issues (one for templates, one for the orchestrator): this is the second; #651 is the first.
+
+### Reference to study (no dependency)
+
+The AI-Fleet-Coordinator activity page (https://simple-with-us.github.io/AI-Fleet-Coordinator/) is a published daily digest kept by another team's agents. In its repo (Simple-With-Us/AI-Fleet-Coordinator) `scripts/build-fleet-daily-digest.py` and `scripts/build-agent-calendar.py` are run on a GitHub Actions schedule by `.github/workflows/fleet-activity-site.yml`, each entry carries repo and agent badges and a PR link, and a `fleet-coordination` skill sits under `.claude/skills/`. Useful as a reference for agent attribution and a published digest. Verified 2026-11-18: the page, both scripts, the workflow (with its cron schedule) and the skill folder exist; their contents were not studied.
+
+### Related PRs
+
+#447, #448 (the watcher), #485 (rollout checklist), #548 (claim level), #584 and #591 (the coordinator handoff and its approval core).
+
+### Effort estimate history
+
+About 60 hours at filing, then 70 when the orchestrator skill and command came into scope, 80 for the lifecycle tracking and report integration, 90 for the written skill workflow, the templates and the use of Orca orchestration, 100 for the SC-skill structure and the PR watching and merging, and 115 for the skill moves, the one-PR orchestrator skill and its local end-to-end tests. The current figure is in the body. These are estimates, not measurements.
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Body updated: escalation rulings and the full runtime workflow (Clay, 2026-11-18, 20:55 UTC)
+
+**Escalation rules (applied in the body, the escalation template, the acceptance criteria and the tests):**
+1. "Closing issues" is removed from the human-only list. Agents may close issues; closing is now an orchestrator step: after a PR merges, it closes the issue if the merge did not already, and updates the report entry. The rest of rule 1 stands.
+2. "Any removal" is replaced: deleting a skill or an agent needs approval as part of an issue (the issue must name it); agents may delete ordinary files as their work needs.
+3. Merging with a failing check: stands.
+4. Scope change: only when the scope creeps into peripheral features beyond the issue's plan.
+5. Unanswerable question: only after the agent has exhausted the issue, code, docs and a web search.
+6, 7, 8: stand.
+
+**Runtime workflow:** section 2 of the body is now one numbered list of ten waves (0 to 9): intake of the poll result, claim, plan check and missing-plan agent, report entry added, handoff and worker start, watching (mailbox, milestones, check-ins, playbook), pull request watch modelled on monitor 3, merge, close the issue and drop the report entry, completion accounting (`worker-release`). Each wave gives what it does, the Orca and SC commands, the template it fills and the check that ends it; the skill's `SKILL.md`, a test and the acceptance criteria require the same list.
+
+**Body size:** the history, the full carried-over and dropped lists, the alternatives, the reference to study, the related PRs and the effort history moved to a separate comment, [History and carried-over detail](https://github.com/IronbellyOrg/IronClaude/issues/655#issuecomment-6991418475) (it cannot be the first comment because change comments already exist). The body went from about 57,000 to about 48,500 characters and now holds the current design and the workflow; every decision made today is in it.
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Body updated: homes, one skill PR, concurrency, testing (Clay, 2026-11-18, 21:14 UTC)
+
+1. **Where things live.** All skills live in IronClaude: the orchestrator, and the work report and session-manager skills the coordinator spec describes. Everything the orchestrator keeps while it runs lives in the new orchestrator repo, where the orchestrator session runs: the coordinator spec, the work report and its state files, the daily run's records, the repo list, the map and the overviews. The IronFlow copy of the spec is kept in sync, not the home. "An update of Clay's coordinator spec in IronFlow" is replaced everywhere (Deliverables, section 7, Components, Dependencies, Documentation, Architecture, Risks, acceptance criteria) with: move the spec and the work report state to the orchestrator repo, move the `agent-work-report` skill into IronClaude, and keep the IronFlow spec copy updated.
+2. **One PR.** The orchestrator skill (`SKILL.md`, all ten waves, refs, the four templates and the playbook) is one pull request, not split, and needs heavy local testing before it. The PR split is now A poll script, B orchestrator skill (one PR), C move of the `agent-work-report` skill, D retire the approval gate, E real fixtures, live-test record and runbook.
+3. **New section 13, "What runs in parallel"**, a table with each piece, when it starts and what it waits for: A and B start together; #651 and creating the orchestrator repo run in parallel with both; C runs in parallel with A and B; D waits for A and B; the live test, PR E, the shadow run and the switch-on come last, in that order.
+4. **New section 14, "Testing and design questions for the orchestrator skill"**: nine local end-to-end tests with what each proves (issues in two repos across IronbellyOrg and <private-org>, which user it polls for, a repo with no checkout, two orchestrators or users, a restart in each wave, a worker that dies, stalls or asks, the missing-plan agent, PR watch and merge on a throwaway PR, the report entry from claim to close), and thirteen design questions for the spec.
+
+Also: the acceptance criteria, test plan and risks now cover the one-PR skill and the local tests; the effort estimate went from about 100 to about 115 hours (history comment updated). The body is about 56,500 characters, under the 65,536 limit.
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+Body updated (Clay, 2026-11-18, 21:20 UTC): there is no separate session-manager skill; the orchestrator does the check-ins itself, and the check-in template and the playbook are part of its one PR (FR-10 and FR-23 stay cited as the source of the rules). The session-manager design question and every mention of a session-manager skill are removed.
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Accuracy check for #655
+
+**Verdict:** current
+
+Checked against `origin/master` at 89dc403d4e813211390a081615db4612ff337f3a, and the pull requests merged since the issue was opened (2, list truncated: no).
+
+Note on the two merged pull requests: PR #641 is on `master` (it is the head commit above). PR #650 was merged into the `integration` branch (merge commit 430eaa87f), not into `master`: `git merge-base --is-ancestor 430eaa87f origin/master` fails and `origin/integration` (0f92aa687) contains it. The worktree HEAD and `origin/master` are the same commit after `git fetch origin`, so there is no one-commit gap on `master`. Claims were checked on `origin/master` and, for the files #650 changed, also on `origin/integration`. Neither pull request changes any claim in the issue.
+
+| # | Claim in the issue (quoted) | Status today (still true / changed / gone) | Evidence (path:line, PR #number or commit) |
+|---|---|---|---|
+| 1 | "`REPO = "IronbellyOrg/IronClaude"` at `src/superclaude/cli/issue_watch/github.py:37`" | still true | `github.py:37` is `REPO = "IronbellyOrg/IronClaude"` (also used at lines 187, 208, 259) |
+| 2 | "`ORIGIN_REPO` at `launch.py:50`" and "`build_claim_prompt` at line 84" | still true | `launch.py:50` is `ORIGIN_REPO = "ironbellyorg/ironclaude"`; `launch.py:84` is `def build_claim_prompt(n: object)` |
+| 3 | "`cli.py` (registered at `src/superclaude/cli/main.py:579`)" and "`issue_pipeline` ... registered at `main.py:583`" | still true | `main.py:579` is `main.add_command(issue_watch_group, name="issue-watch")`; `main.py:583` is `main.add_command(issue_pipeline_group, name="issue-pipeline")` |
+| 4 | "`src/superclaude/cli/issue_watch/` (8 modules, about 4,800 lines)" | still true | 8 modules plus an empty `__init__.py`: audit 404, cli 348, cycle 1406, github 960, launch 370, predicates 312, record 865, runner 130 = 4,795 lines |
+| 5 | "`src/superclaude/cli/issue_pipeline/` (8 modules ...): `approval_record.py`, `approval_line.py`, `stage_predicates.py`, `plan_hash.py`, `reads.py`, `release.py`, `brief.py`, `cli.py`" | still true | All eight files exist under `src/superclaude/cli/issue_pipeline/` (plus `__init__.py` and `templates/worker-brief.txt`) |
+| 6 | "`audit.py` (59 reason names)" | still true | `REASON_TABLE` in `audit.py` has 59 entries |
+| 7 | "`cycle.py` (config keys for the trigger label, approvers file and Project id)" | still true | `cycle.py:55` `DEFAULT_TRIGGER_LABEL = "issue-watch:trigger"`, `:63` `project_id`, `:66` `approvers_file`; 23 matches of the three names under `src/superclaude/cli` |
+| 8 | "`predicates.py` (`approval_of`, `unchanged_since`, `project_check` go; `is_intended_owner` stays or is reshaped)" | still true | `predicates.py:162` `is_intended_owner`, `:185` `approval_of`, `:237` `unchanged_since`, `:262` `project_check` |
+| 9 | "`github.py` (`argv_discover(trigger, login)`, `argv_events`, `argv_edits`, `argv_project_items`)" | still true | `github.py:180`, `:218`, `:242`, `:247` |
+| 10 | "WORKER-CONTRACT ... WC-17 (line 59) and 'Issue pipeline duties' (about lines 293 to 300)" | still true | `WORKER-CONTRACT.md:59` is WC-17; the heading `### Issue pipeline duties` is at line 291 with its bullets at 293-299. Same lines on `origin/integration` (#650 only edits the worked example from line 301 and later) |
+| 11 | "`launch-level-guard.sh`: guard G2 rules (about lines 441 to 444 and 500)" | still true | `src/superclaude/hooks/scripts/launch-level-guard.sh:441-444` (G2 comment and the `issue-pipeline` case) and `:500` (G2, no `--to`) |
+| 12 | "`docs/designs/issue-watcher.md`, `issue-watcher-setup.md`, `issue-pipeline-fu1.md`, `issue-pipeline-guard-g2.md`, `issue-pipeline-guard-g2-no-to.md`, `sc-issue-claim-pipeline-flag.md`" | still true | All six exist under `docs/designs/`. `issue-watcher.md` has sections 2.1 and 15 (UNVERIFIED list); `issue-watcher-setup.md` has sections 7, 8.2 and 8.3 |
+| 13 | "`tests/issue_watch/` (including `fixtures/_assumed_shape/`), `tests/issue_pipeline/`, and the launch-level guard tests under `tests/hooks/`" | still true | `tests/issue_watch/` has 19 files under `fixtures/_assumed_shape/`; `tests/issue_pipeline/` and `tests/hooks/test_launch_level_guard*.py` exist. Module-boundary, no-shell and security-invariant tests exist as named in the test plan |
+| 14 | "`sc-issue-protocol`, `sc-pr-submit-protocol` and `sc-troubleshoot-protocol` (all read for this issue)" | still true | All three folders exist under `src/superclaude/skills/` with `SKILL.md`, `refs/` (and `scripts/`, `templates/` for the first two) |
+| 15 | "A thin command file (117, 126 and 229 lines in those three)" | still true | `src/superclaude/commands/issue.md` 117 lines, `pr-submit.md` 126, `troubleshoot.md` 229; `issue.md:109` has "Do NOT proceed with protocol execution using only this command file" |
+| 16 | "named STOP codes (such as `E-NO-ORIGIN` in `sc-issue-protocol`)" | still true | `sc-issue-protocol/SKILL.md:84` and `:157` |
+| 17 | "`sc-pr-submit-protocol` states that its refs are lazy-loaded per wave" | still true | `sc-pr-submit-protocol/SKILL.md:279` "refs are LAZY-loaded per wave, never pre-loaded" |
+| 18 | "`sc-troubleshoot-protocol`'s `return-contract.yaml`" and `sc-issue-protocol`'s "Return contract" | still true | `sc-troubleshoot-protocol/SKILL.md:566` writes `<output-dir>/return-contract.yaml`; `sc-issue-protocol/SKILL.md:105` is `## Return contract` |
+| 19 | "`tests/skills/test_issue_protocol.py`: 'the two-way inventory of refs/templates/scripts'" and `test_marker_check_fails_when_marker_is_removed` | still true | `tests/skills/test_issue_protocol.py:4` and `:611` |
+| 20 | "the installed-path rule of the repo CLAUDE.md" | still true | `CLAUDE.md:80` "ABSOLUTE RULE: Never Hardcode `src/superclaude/` Paths in Installed Primitives" |
+| 21 | "the claim's own templates (`claim-comment.md`, `accuracy-check-comment.md`, `issue-summary.md`, `next-steps.md`)", `scripts/orca_worktree.py`, `templates/launch-prompt.md`, marker `<!-- sc:issue:claim -->` | still true | All exist in `sc-issue-protocol/templates/` and `scripts/`; `claim-comment.md:23` carries the marker |
+| 22 | "`--pipeline none` ... assigns, accuracy check, summary, next steps ... creates no worktree, launches no agent"; "the claim flow says nothing ever merges (`sc-issue-protocol` 'Will Not')"; "`templates/launch-prompt.md` says 'Never merge anything'" | still true | `sc-issue-protocol/SKILL.md:17` (`--pipeline none` ends after the comments; "Nothing ever merges"), `:187` `## Will Not`, `:190` "Merge anything"; `launch-prompt.md:18` "Never merge anything" |
+| 23 | "the `superclaude.pr_submit` core (`ci.py` with `classify_checks`; `reviewers.py`, `classifier.py` and `detection.py`)" | still true | `src/superclaude/pr_submit/ci.py:25` `def classify_checks`; `reviewers.py`, `classifier.py`, `detection.py` exist (Augment and Codex logic in the first two) |
+| 24 | "the review snapshot gate in `sc-pr-submit-protocol/SKILL.md`, and its poll scripts" (`scripts/poll-ci-checks.sh`, `scripts/poll-augment-review.sh`) | still true | `SKILL.md:27` and `:59-60` describe the review snapshot gate; both scripts exist under `src/superclaude/skills/sc-pr-submit-protocol/scripts/` |
+| 25 | "`/sc:pr-submit` makes no merge decision (its merge guard only switches a PR between draft and ready)" | still true | `refs/merge-guard.md:1-8` "hold the PR as a draft while a fix cycle runs" |
+| 26 | "`orca orchestration` commands: `run-create`, `run-use`, `task-create`, `task-update`, `worker-start --spec` ..., mailbox, `gate-create`, `gate-resolve`, `worker-show`, `worker-read`, `worker-stop`, `worker-abandon`, `worker-release`, `worker-list --terminal-state`; `orca reference add` and `find`; `orca worktree ps`; `orca skills get orchestration`; `orca project setup-clone`; `orca automations create`, `list`, `edit`, `run`, `runs`" | still true | `orca orchestration --help`, `worker-start --help` (`--spec`, `--repo`, `--worktree`), `check --help` (`--wait`, `--types`), `orca reference --help`, `orca worktree ps --help`, `orca skills get orchestration` (prints the skill), `orca project --help` (`setup-clone`), `orca automations --help` and `create --help` (`--precheck`) all show them. `coordinator-start` and `coordinator-stop` are marked "Retired: load the current orchestration skill", which agrees with the issue loading the skill at run time |
+| 27 | "the work-report waker pattern from the IronFlow repo (`.claude/skills/agent-work-report/SKILL.md`, Input section; `scripts/waker.py`): the automation runs the script as its precheck and the script exits non-zero, so Orca starts no agent and leaves no terminal" | still true | IronFlow `.claude/skills/agent-work-report/SKILL.md:26` (Input section; "Each runs the script as its precheck command ... exits non-zero so Orca starts no agent and leaves no terminal"); `scripts/waker.py`, `templates/item-template.md` and `config.json` exist. IronClaude has no `agent-work-report` yet, so the move is still to do |
+| 28 | "Clay's coordinator spec (`.dev/specs/SPEC-AGENT-WORK-COORDINATOR-20261027.md`, today in the IronFlow repo ...; FR-1, FR-7, FR-9, FR-19, FR-20, FR-21 ...); FR-13 lists merges (and closing issues) as human-only; FR-2, FR-8, FR-10, FR-23, FR-24, FR-25" | still true | The spec exists in IronFlow `.dev/specs/`; headings FR-1, 2, 7, 8, 9, 10, 13, 19, 20, 21, 23, 24 and 25 exist. FR-13 (line 190): "The human-only list: merges, closing issues, deleting branches, force pushes, ..." |
+| 29 | "`/sc:design`, `/sc:spec-panel`, `/sc:workflow`, `/sc:implement`, `/sc:analyze`, `/sc:recommend`" and the regression gate (`make test`, `make lint`, `make verify-deps`, `make sync-dev`, `make verify-sync`) | still true | `src/superclaude/commands/{design,spec-panel,workflow,implement,analyze,recommend}.md` exist; `Makefile` targets `test:13`, `lint:48`, `sync-dev:109`, `verify-sync:166`, `verify-deps:356` |
+| 30 | "`/sc:orchestrator` ... new: `src/superclaude/commands/orchestrator.md` and `src/superclaude/skills/sc-orchestrator-protocol/`" | still true (not built yet) | No `orchestrator.md` command and no `sc-orchestrator-protocol` folder on `origin/master` or `origin/integration` |
+| 31 | "#450 (open, blocked ...)", "#331 (closed 2026-11-08)", "#442", "#651", "#339", "#423", "#444" | still true | `gh issue view`: #450, #442, #651, #339, #423, #444 are OPEN; #331 is CLOSED at 2026-11-08T07:03:52Z |
+| 32 | "The handoff must also satisfy the brief layout of `src/superclaude/core/WORKER-CONTRACT.md`" | still true | `WORKER-CONTRACT.md` section "5. Coordinator brief template" (line 310) and the brief layout in section 4 |
+| 33 | Comment 8: "thirteen design questions for the spec" | changed (count only) | The body's section 14 lists 12 numbered design questions, not 13. The body is the source of truth; the comment's count is off by one. The body is 56,403 characters, matching comment 8's "about 56,500" |
+| 34 | Comment 4: the report entry is "filled on each worker message, each PR or CI state change, the hourly check and the daily run" | changed (superseded in the issue's own history) | Comment 5 (item 2) and the body (section 7, acceptance criteria) replace it with milestone-only updates. Not a code claim and not stale: the body already carries the later rule |
+| 35 | "The watcher also works on one repository only" and "`/sc:issue --claim` resolves its repository from `origin` only" | still true | `github.py:37` and `launch.py:50` hard-code one repo; `sc-issue-protocol/SKILL.md:84` resolves `<R>` with `origin_repo.py --claim`, STOP `E-NO-ORIGIN` / `E-FOREIGN-REPO` |
+
+### Merged pull requests that touch this issue
+
+| PR | Title | Relevant files | Effect on the issue |
+|---|---|---|---|
+| #650 | refactor(skills): remove the prd, tdd, tech-research, tech-reference, operational-guide and readme skills and /sc:tdd (6.1.0) | `src/superclaude/core/WORKER-CONTRACT.md`, `tests/skills/test_worker_contract.py`, `src/superclaude/core/HOW-WE-WORK.md`, `src/superclaude/skills/sc-recommend/`, `src/superclaude/skills/sc-implement-protocol/SKILL.md` | Merged into `integration`, not `master`. Only touches WORKER-CONTRACT's worked example and the `--unattended` command table (line 301 onward), so WC-17 at line 59 and "Issue pipeline duties" at line 291 keep their lines. It changes none of the `issue_watch`, `issue_pipeline`, `sc-issue-protocol`, `sc-pr-submit-protocol`, `sc-troubleshoot-protocol`, `pr_submit` or `docs/designs` files the issue names, and the issue never mentions the removed skills or `/sc:tdd`. The retirement work (PR D) edits the same WORKER-CONTRACT file, so it will need a rebase onto `integration` when it is built |
+| #641 | feat(ccsession): tell human-saved sessions from agent-saved ones and keep them for different times | `src/superclaude/cli/install_ccsession.py`, `src/superclaude/skills/ccsession-tag/` (SKILL.md, README.md, ccsession, ccsession-orca, retention.py, session_keep.py, hooks/session-name.sh), `CHANGELOG.md`, `tests/unit/test_ccsession_tag.py`, `test_install_ccsession.py`, `test_session_keep.py` | None. It concerns saved-session retention in `ccsession-tag`, which the issue does not name. The only link is that claim launches go "behind the ccsession shim" (`sc-issue-protocol/SKILL.md:92`), which this issue bypasses by using `worker-start` |
+
+<!-- sc:issue:accuracy-check -->
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Claimed by @clayphi
+
+- **ClickUp:** skipped (no ClickUp workspace is configured in this environment)
+- **Accuracy check:** current (see the accuracy-check comment on this issue)
+
+### Summary
+
+Build the issue-polling orchestrator: the skill `orchestrator` and command `/sc:orchestrator` in IronClaude, a multi-repo poll script run by an Orca automation, the move of the `agent-work-report` skill into IronClaude, retirement of the old approval gate, and the new orchestrator repo. This claim is run by a hand-run orchestrator session that will split the work into pieces and start one supervised worker per piece. No pull request from it is merged by the orchestrator or a worker; each stops when checks are green, both reviewers have finished and no thread is open.
+
+- **Effort estimate:** 110 hours
+- **Complexity:** complex
+- **Type:** feature
+- **First next step:** `/sc:design "orchestrator for issue 655 @.dev/issues/655/issue-summary.md" --type architecture --format spec`
+
+### Files
+
+- Summary: `.dev/issues/655/issue-summary.md`
+- Next steps: `.dev/issues/655/next-steps.md`
+- Analysis: `.dev/issues/655/analysis/`
+
+These links are paths in the repository; they open on GitHub only after someone commits and pushes the files.
+
+<!-- sc:issue:claim -->
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Body updated: Clay's rulings of 2026-11-19, applied by the orchestrator session
+
+The body now says what Clay ruled on 2026-11-19, so the issue and the design spec say the same thing. The body went from about 56,400 to about 62,600 characters (limit 65,536). The spec is `docs/designs/orchestrator.md` on branch `clayphi/issue-655-spec` (not merged, with Clay for approval).
+
+1. **Report.** The orchestrator keeps the work report current all day as a living document (entry at claim, updates at milestones, removed at close). The daily run no longer touches issue entries; it only adds what the orchestrator does not cover (ClickUp, direct messages, mentions and the like), and the daily report is being phased out in favour of the living report.
+2. **No session manager**, now or later. The orchestrator does every check-in itself, including typing into a worker's terminal and approving its permission prompts under the FR-23 and FR-24 rules.
+3. **Workers** push their own branch and open their pull request. They never merge and never force-push. Only the orchestrator merges.
+4. **The poll starts an orchestrator** when it finds new work and none is running.
+5. **Merge method** is the repo's normal practice, kept per repo in `repos.yaml` (IronClaude: squash, and a merge commit for a release pull request from `integration` to `master`).
+6. **Review agents.** If Augment or Codex does not run or finish, the pull request is held and escalated to the human (escalation rule 7).
+7. **Worker check**: hourly by default for each running worker, Monday to Friday, 24 hours a day (only the interval is configurable), and it stops for a worker when that worker sends `worker_done`.
+8. **Several orchestrators.** One orchestrator per repo, at most 3 issues in flight each (in flight starts when the poll routes the issue). The poll alone routes each issue, starts another orchestrator when a repo has more, and the report shows the orchestrator and the worker of each issue. The one coordinator (daily report) stays separate. Effort estimate 115 to 124 hours.
+9. **Agreed as recommended:** issues already assigned at switch-on are counted as seen; a wake is tried up to 3 times (the old promise "at most one launch per issue" becomes "at most one claim and one worker start per issue, up to 3 delivery tries of a wake"); the old approval code is retired first (PR D first, PR A merges after D, PR B after A); the orchestrator repo is `<private-repo>`.
+10. **Bots dropped.** Only the user's own GitHub login counts as "the user"; there is no bot list and no field for one.
+
+The history comment ([History and carried-over detail](https://github.com/IronbellyOrg/IronClaude/issues/655#issuecomment-6991418475)) still says "at most one launch per issue" in its safety-features line; the new form above replaces it. The smaller review findings of the design spec are tracked in #665.
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+Body updated (2026-11-19, Clay): stronger models plan, cheaper models build. The plan agent, the building worker and the orchestrator session each run on a ccsession tier named in repos.yaml (never a model id; a per-repo override is allowed): plan_tier default tier1b, worker_tier default tier2, orchestrator_tier default tier1b. A tier the user cannot use falls once to the next allowed tier; a tier the gateway refuses is escalation rule 8. Spec section 5.8.
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Body updated: additions A to E and Clay's rulings of 2026-11-19, applied by the orchestrator session
+
+The body now says what the approved design spec says. The spec is `docs/designs/orchestrator.md` on branch `clayphi/issue-655-spec` (approved by Clay on 2026-11-19 with his approval of additions A to E; not merged yet). The body went from 63,144 to 64,486 characters (limit 65,536), so detail is compressed and points to the spec; no decision, ruling, acceptance criterion or test of the old body was dropped except where the spec removed it.
+
+What changed in the body:
+
+1. **Plan before the claim.** An assigned issue without the three plan sections is held: the poll puts the label `hold:plan` (label only, no comment). After one hour with no plan and no sign of plan work, the poll sends ONE plan request to the repo's orchestrator, which creates the plan through `/sc:issue --plan <N>` (a new pull request, PR P, built before PR B). `hold:backlog` makes the system do nothing at all with an issue. A hold removed by hand stays removed.
+2. **What reaches Clay.** One table of nine rows (the old eight rules keep their numbers in a column), rules on from the start, no warn phase, an unanswered question waits, publishing or tagging a release always needs a human OK, notices and escalations are lines of the issue's own entry in the living report, at most 5 notices per repo per 24 hours.
+3. **What the orchestrator may and may never do.** A closed list, checked by a function in the code. It may interrupt a worker once, after writing the escalation, when a major issue must reach Clay, and it may delete ordinary files its work needs. It never tags or publishes a release without a human OK or directive, and it never names the agent in anything user facing.
+4. **Closeout.** After a merge, wave 8 calls `/sc:closeout <PR>` (issue 668, a dependency). The closeout decides whether the issue is DONE by reading the issue's own criteria against what the pull request and its linked pull requests delivered; it does not decide by the words Fixes, Closes or Refs. A worker pull request says `Fixes <repo>#<number>` only when it fully addresses the issue, otherwise `Refs <repo>#<number>` (ruling 38, a clarification by GeneralIronFlow of ruling 26).
+5. **Hand-back (ruling 36).** If the closeout finds the issue not done, the result goes back to the orchestrator: it records what remains, updates the plan with `/sc:issue --plan <N> --remaining <file>`, and starts a new worker through the same waves on a new branch, after the old worker is final. At most 3 hand-backs, and a round that makes no progress stops at once; every stop is an escalation under row 9.
+6. **Audit and merge safety.** After a pull request lands, an audit (AU1 to AU8) checks the merge; only three audit findings reach Clay. A pull request with an open "changes requested" review is never merged. A pull request that changes CI or another merge-safety file (the per-repo list `merge_safety_files` in `repos.yaml`) waits for Clay's explicit OK for that pull request and that head, even when green and reviewed; an unreadable file list is a hold.
+7. **Pull request split.** D (retire the old approval gate), A (the poll), P (`/sc:issue --plan`), B (the orchestrator skill and verbs), C (move `agent-work-report`), E (fixtures, live test, runbook), in that order where section 8.2 allows; issue 668 is its own issue. Twelve `superclaude orchestrator` verbs, 62 poll reasons, 13 gate reasons, tests T1 to T13, risks K1 to K28, UNVERIFIED items U1 to U60.
+8. **Dropped from the body because the spec replaced it:** the plan agent started by wave 2, the orchestrator's own `gh issue close`, the eight numbered escalation rules (now the nine rows), the "Needs you" entry as a way to reach Clay, and the spec-review build step.
+
+For this build, no pull request is merged by the orchestrator session or any worker; each stops at CI green, Augment and Codex finished on the final head and no open thread, and Clay does the QA and the merge.
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## On hold: build rolled back until one design is agreed
+
+@ironbelly Clay rolled back the orchestrator build so master is back where your issue-watcher work left off. Nothing more of this issue gets built or merged until you and Clay agree on one design.
+
+- **Rolled back in #700** (merged 2026-11-20 15:07 UTC): #681 (the design `docs/designs/orchestrator.md`), #682 (it had removed the `issue-pipeline` command group, WC-17 and the guard's TAMPER rule; all restored byte for byte) and #684 (the report skill move).
+- **Kept:** `/sc:closeout` (#683). It does not touch your code; its tests and yours pass together. Its only addition to `WORKER-CONTRACT.md` is `/sc:closeout` on the never-as-worker list.
+- **Your later PRs #688 and #694 are untouched.**
+- **Our work is saved:** branch `clayphi/archive-orchestrator-655-20261120` (master with #681 to #684), draft PRs #686 (poll) and #690 (`/sc:issue --plan`), and branches `clayphi/issue-655-pr-b-*`, `clayphi/issue-655-spec`, `clayphi/orchestrator-655-hub`.
+
+Please read the design on the archive branch before building Coder #515 or #516, so the two plans can be merged into one.
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## For comparing designs: our orchestrator skill (not finished, and it may not line up with your version)
+
+@ironbelly this is so you can read our version before we compare it with yours. Please treat it as unfinished: the skill is only partly built, and parts of it may be misaligned with your coordinator design, because we wrote it without your requirements file (it is not on GitHub). Nothing here is merged and nothing is switched on.
+
+**How it works in our design.** The polling watcher (your issue watcher, reshaped) does not hand the issue to the session. When it finds a new assigned issue, it starts the orchestrator/coordinator session for that repo if none is running, or wakes the one that is. It then types one fixed line into it: `/sc:orchestrator --wake <wake id>`. The wake id is only a timestamp plus random characters, so no text from GitHub ever reaches a typed line. The issue details are written to a separate wake file (JSON), with a matching Orca mailbox message, and the skill reads that file to learn which issue to work on. With nothing new, nothing starts and no model runs.
+
+**Where to read it:**
+- The design (sections 3 and 5.7 cover the wake and how the session is started): [docs/designs/orchestrator.md](https://github.com/IronbellyOrg/IronClaude/blob/clayphi/archive-orchestrator-655-20261120/docs/designs/orchestrator.md) on the archive branch `clayphi/archive-orchestrator-655-20261120`. It was merged and then rolled back in #700.
+- The poll side (a reshaped issue watcher, draft): [PR 686](https://github.com/IronbellyOrg/IronClaude/pull/686).
+- The skill side, saved as work in progress, each on its own branch: the helper commands `superclaude orchestrator ...` in [`src/superclaude/cli/orchestrator/`](https://github.com/IronbellyOrg/IronClaude/tree/clayphi/issue-655-pr-b-b3a/src/superclaude/cli/orchestrator) (state, lease, questions, the merge gate), and the four handoff and report templates in [`sc-orchestrator-protocol/templates/`](https://github.com/IronbellyOrg/IronClaude/tree/clayphi/issue-655-pr-b-b5/src/superclaude/skills/sc-orchestrator-protocol/templates).
+
+**Not built yet:** the skill's main file (`SKILL.md`), the `/sc:orchestrator` command file, the escalation step, and the end-to-end tests. Those branches were cut before #700, so they still show the old plan-approval code as removed; ignore that.
+
+Where yours and ours differ most (the approval label and plan-approval step, cron against an Orca automation, an always-on coordinator in every project against one started on demand) is the part to settle together. Build is on hold until then (see the note above).
+
+Related issues replaced by this design, so nobody builds them twice: https://github.com/<private-repo>/issues/515 and https://github.com/<private-repo>/issues/516.
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Decision, 2026-11-21, owner: the merged watcher (PR 707) is the design for the issue watcher and the coordinator. Nothing in the orchestrator design on branch clayphi/archive-orchestrator-655-20261120 is adopted as is. Coder issues 515 (cron) and 516 (coordinator worktree) go ahead as filed; the answer for 515 is on that issue. Features of this issue that the merged plan does not cover are tracked in IronClaude issues 716, 717 and 718. The hold on this issue ends with this note.
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Closing as not planned on the owner's decision (2026-11-23): the merged watcher (PR 707) is the design, Clay's branches are kept, and the features of this design that the merged plan does not cover are tracked in issues 716, 717 and 718.
+--

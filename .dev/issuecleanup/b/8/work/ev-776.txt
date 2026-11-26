@@ -1,0 +1,48 @@
+#776 [FEATURE] A skill for the two human approvals (claim and plan), and what Research, Spec and Debug workers do at plan approval [OPEN ] closed=-
+<!-- /sc:issue feature template (simple). Copy to <D>/issue-body.md and fill every placeholder in place. Keep every heading. Write "Not known yet" under a heading when the description and the codebase pass give nothing; never invent a fact. The exception is ## Priority, ## Fix approach and ## Test plan: fill them at every depth from the codebase pass, never write "Not known yet" there, and state any assumption in the section (rules in refs/create.md). -->
+
+## Feature Summary
+
+Would a small skill help people give the two human approvals used by the issue watcher and its coordinator? What should Research, Spec and Debug workers do when their shared brief tells them to follow the plan-approval rule?
+
+Thank you, Ryan, for the issue watcher and the standing coordinator that are now on master ([PR #707](https://github.com/IronbellyOrg/IronClaude/pull/707)). While checking the design for [issue #761](https://github.com/IronbellyOrg/IronClaude/issues/761), the list of 18 possible gaps in the watcher and coordinator, these two related points came up. This issue asks both as questions. It does not propose to replace the merged watcher.
+
+## Problem Statement
+
+### Problem 1: nobody owns the routine for the two human approvals
+
+There are two human approvals. The claim approval lets the watcher start work on an issue. The plan approval happens after a worker has written a plan.
+
+In practice a person talks to an agent in chat. The agent reads the issue or the plan and explains it. The person answers. The agent then sets or records the approval. Today every agent does this by hand and in its own way. No skill describes the routine.
+
+Some pieces already exist:
+
+- `/sc:issue --claim`, the command that takes an issue into work, already writes a plain-English summary and next steps. It posts two marked comments. The summary is covered in `src/superclaude/skills/sc-issue-protocol/refs/claim.md`, lines 55 to 61. Next steps are covered on line 80. The two marked comments are covered on lines 88 to 92.
+- The worker contract already has the pattern "the owner says it in chat, the agent records it" in `src/superclaude/core/WORKER-CONTRACT.md`, line 57. Rule WC-17 on line 59 is the plan-approval rule: the plan approval is the reply to the worker's own question.
+- The `issue-pipeline` command has verbs to hash a plan, check an approval line and keep records in `src/superclaude/cli/issue_pipeline/cli.py`. A hash identifies the exact version of the files. It has no `approve` verb, and nothing in the code sets the claim approval on the issue.
+
+Why it matters: the approval is the main safety gate of the watcher. If each agent does it differently, people will get different questions. A go may be recorded without a clear summary of what was approved.
+
+### Problem 2: what do Research, Spec and Debug workers do at plan approval?
+
+The sentence "Plan approval: after writing the plan, follow rule WC-17 ... before any further step" is in the shared head of every worker brief. It is in `src/superclaude/cli/issue_pipeline/templates/worker-brief.txt`, line 12. A test pins it for every stage in `tests/issue_pipeline/test_brief.py`, lines 279 to 288.
+
+But the approval code only knows plans: `STAGE = "plan"` in `src/superclaude/cli/issue_pipeline/stage_predicates.py`, line 45. A Research, Spec or Debug worker writes a report, not a plan. So what it should do at step 1 of WC-17 (`plan-hash <report-dir> <plan file names>`) is not defined. Neither the contract nor the design file `docs/designs/issue-watcher-status-pipelines.md` says, and no test covers it. The existing brief test checks that the instruction appears. It does not establish what a report-writing worker does with it.
+
+UNVERIFIED: what actually happens in a live Research run at level none. One live run, or a read of 
+--- comments=1; last 3:
+[ironbelly 2026-11-24T22:04:18Z] ## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P2
+
+#### Concrete next steps
+
+1. Owners (Ryan, Clay) answer: which approvals a skill may set (claim, plan, neither), and whether claim approval waits for #722.
+2. Run the cheapest evidence step: read the transcript of an earlier level-none Research worker, or do one live run, to settle the UNVERIFIED question.
+3. Decide for report stages: move the `Plan approval:` line from `[head]` into the plan row only (small change to `worker-brief.txt` and the test at `test_brief.py:279`), or add a stage argument to `stage_predicates.py` / `plan_hash`.
+4. Make the brief, contract (`WORKER-CONTRACT.md:59`), design note and tests agree with that choice.
+5. If a skill is chosen: write it under `src/superclaude/skills/` with installed paths only (CLAUDE.md rule on `src/superclaude/` paths), reuse `claim.md` summary, route plan approval through `ch

@@ -1,0 +1,59 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Status note (owner decision, 2026-11-22): the work-report tool is parked and is not being restored now. Items D1 and D2 depend on it and are on hold with it. Items D3 (where the report keeps its files) and D4 (who keeps Clay's own copy up to date) are not being pursued. How to bring the tool back later is in issue #720, and the page-server fix it needs first is in issue #719. Nothing in this issue is closed.
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P3
+
+#### Concrete next steps
+1. Keep this issue open and held. Do not begin restoration or revive D3/D4. #720 defines the restart triggers: the owner asks for a daily per-issue page, or the report-entry writer work is about to start. Its older request to obtain D3/D4 answers conflicts with the later November 22 #718 owner comment; the later explicit decision wins for this issue.
+2. When a trigger occurs, confirm the remaining D1/D2 scope under the current merged design, and complete #720's approved restore with #719's server safety acceptance before shipping the report. No archive checkout or restore was performed by this review.
+3. Reuse #716 C14's report-entry content and C8's integration once available. D2 should display that single record, not create another writer or entry format; show the human assignee, coordinator and worker links, or no live session with a reason. Recheck which Orca link is supported before claiming click-to-open works.
+4. After restoration, map existing tests before adding any. D1 needs matching issue, PR and session URLs absent from daily output, non-issue items retained, and coordinator-written entry files byte-identical. D2 needs live and dead worker render cases. Do not silently retire the daily report: the original issue warns that this would remove the surface for waiting owner decisions, so retirement needs a separate owner decision.
+5. Keep broader observer summaries/navigation and scale work in #706/#409. D3/D4 remain not pursued unless the owner explicitly changes scope; #720 should be reconciled at restart rather than treated as approval to reopen them.
+
+#### Dependencies
+- **Needs #720, parked report restoration**, for D1/D2. It is OPEN and its owner trigger is not established by this review.
+- **Needs #719, report-server safety fix**, as a merge gate of that restoration, not a standalone active-server fix in the current checkout. #719 is OPEN; its archived security claims were not reproduced here and remain UNVERIFIED by this pass.
+- **Needs the report-entry portion of #716**, specifically C14 and the C8 entry integration for D2. Its November 22 owner comment holds those portions as well. This is an item-level shared-contract dependency, not a claim that all 27 coordinator items must finish first.
+- #717 is related watcher work, not a verified whole-issue prerequisite. #409/#706 cover the separate observer and are not verified hard blockers for D1/D2. No issue was verified to require completion of #718 as a hard predecessor. Structured dependency fields and the full GitHub timeline were not read under this brief; additional formal dependencies are UNVERIFIED.
+
+#### Related issues
+- #716, coordinator follow-ups (OPEN), and #717, watcher follow-ups (OPEN): sister issues; only #716's report-entry subset is a verified dependency here.
+- #720, parked report restoration (OPEN), and #719, the archive report server safety prerequisite (OPEN): immediate restart and safety tracking.
+- #409, orchestration dashboard (OPEN), and #706, remaining observer summaries, links, navigation and scale tests (OPEN): related display work, not a substitute for the parked work report. Their wider acceptance was not re-audited.
+- #655, original orchestrator proposal (CLOSED as not planned): its November 23 closure explicitly keeps uncovered features in #716/#717/#718, so parent closure does not close this child.
+- Original issue context also names #444 (coordinator evaluation), #450 (watcher rollout), #665 (design review findings) and #698/#699 (approval-contract follow-ups). Their current states and any hard dependency on them are UNVERIFIED; they were not promoted to blockers.
+
+#### Related PRs
+Read directly using gh pr view against IronbellyOrg/IronClaude:
+
+| PR | Verified state | Relevance |
+|---|---|---|
+| #684 | MERGED, d7d645dddd42e49a72a734f9c8b6952bcbcb4527 | Introduced the report skill, exclusion and living-report display; later removed, not present completion of #718. |
+| #700 | MERGED, 471f10511c8e2e8176c0e2088720ece03beca317 | Removed report skill and tests, reverted #681/#682, retained closeout; deletion list was read. |
+| #682 | MERGED, 01e7a9e23519fd54bc438bb1a1a0e03dcdae5baf | Historical approval-gate retirement, subsequently reverted; not report completion. |
+| #697 | CLOSED, unmerged | Superseded rollback of #682, not a pending implementation or landed report change. |
+| #701 | MERGED, 0a46644576a31f0f62b9629b0f095b213027cdf6 | Repaired worker-contract gaps after #700; no report restoration. |
+| #686 | CLOSED, unmerged | Old watcher rewrite named by the issue's local-plan context; not a pending prerequisite to adapt or merge. |
+| #729 | MERGED, 56574824844f18d872ead6e30dc89e54973406e0 | Records that the merged watcher design wins and #655's uncovered features remain tracked by #716-#718. |
+
+A PR-list search for 718 returned #729. A bounded search for agent-work-report returned the original #684 and rollback #700 but no matching open restore PR; text-search completeness and unseen timeline links are UNVERIFIED. No PR was opened, edited, linked or commented on.
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+--

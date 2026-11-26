@@ -1,0 +1,119 @@
+#774 [OPEN] [FEATURE] Docs refresh for the issue watcher and coordinator: stale statements and one contradiction in the worker contract
+## Feature Summary
+
+Thank you, Ryan (ironbelly), for the watcher and standing coordinator now on master through PR #707, the zero-setup issue watcher. Could we refresh the docs to match that merged design, with no behaviour change, after you confirm the restart rule below?
+
+## Problem Statement
+
+This comes from checking #761 (https://github.com/IronbellyOrg/IronClaude/issues/761) against master at commit `afb3ccf29` on 2026-11-24. Please correct anything we have misread.
+
+### A. Statements to correct or confirm
+
+1. **"Approval label".** Approval now uses the `Approved` field, not an approval label. The description calls it a field on the GitHub Project, but the code calls it an organization issue field. Could we use that more precise name? The description also says the loader rejects a `labels.approval` key. The code rejects a value different from its default pseudo label, rather than every occurrence of that key. The old words remain in `docs/designs/issue-watcher.md` (lines 21, 43, 997), `docs/designs/issue-pipeline-fu1.md` (lines 32, 94), rows R19 and R25 and the section "Gates that stay manual" of `.dev/releases/backlog/issue-watcher-zero-setup/requirements.md` (lines 45, 51, 105, 106), and the docstrings at `src/superclaude/cli/issue_pipeline/cli.py:267` and `src/superclaude/cli/issue_pipeline/stage_predicates.py:1`. Line 997 already says the proposed level-specific approval label was not built. Could that historical explanation stay, rather than be treated as an active approval rule?
+2. **"Person-opened coordinator".** PRs #735, #736, #752 and #754, all merged on 2026-11-23, fixed this in the worker contract, `HOW-WE-WORK.md`, `CLAUDE.md` and three docs. Still present: `docs/designs/issue-watcher.md:43` ("A person-opened coordinator ..."), `docs/user-guide/orchestrator-mode.md:11` ("You open it") and `docs/user-guide/orchestrator-mode.md:19` ("The coordinator is a session you opened"). The description treats lines 699 to 709 of `docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md` as historical and suggests leaving them. However, lines 699 and 708 label the old role wording NORMATIVE. Could we confirm whether those lines should be explicitly historical or corrected too?
+3. **"Full implements".** The pipeline level Full is described as "also implements" in `src/superclaude/commands/issue.md:16`, `src/superclaude/skills/sc-issue-protocol/SKILL.md:17`, `src/superclaude/skills/sc-issue-protocol/refs/claim.md:145`, `docs/designs/sc-issue-command.md:44` and `docs/designs/sc-issue-claim-pipeline-flag.md:162`. Some of these say "stops after implementation". This is right for a manual claim, but wrong for a watcher claim, which runs only the stage command (`src/superclaude/skills/sc-issue-protocol/refs/claim.md:80`). A test pins the old sentence at `tests/skills/test_issue_protocol.py:878-880`, so correcting the text means changing that test too.
+4. **"The coordinator does every push and merge".** This appears in `docs/user-guide/orchestrator-mode.md:11` ("does every push, PR, merge and comment"), `src/superclaude/core/HOW-WE-WORK.md:362` and `docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md:318`. The worker contract adds that the coordinator pushes only on the person's typed go (`src/superclaude/core/WORKER-CONTRACT.md:242, 246`). The short sentences leave that out.
+5. **"Nothing manual".** Row R17 (line 43) and row R9 (line 40) of `.dev/releases/backlog/issue-watcher-zero-setup/requirements.md`, and `docs/designs/issue-watcher-zero-setup-coder-handoff.md:13`, use this wording. Line 105 of the same requirements file says each issue still needs a grant row and approval, so some steps are still done by a person.
+6. **"Never run live".** The status line at `docs/designs/issue-watcher.md:3` says the watcher was never run live, `enabled` ships as false and no schedule is installed. Issue #450, the rollout tracker closed on 2026-11-24, says the watcher is live and the cron entry is installed. Its closing comment also identifies a contradiction in `docs/designs/issue-watcher-setup.md`: section 14.1 (line 579, with the rule just below it) says no cron entry is enabled and `enabled` stays false until a live test is done, while section 17 (line 701) enables the watcher after a passing automatic first-run check. Issue #450 says it found no issue tracking these two leftovers. The runbook rewrite itself is proposed for #717, item W15, as noted under Out of Scope.
+7. **"One local commit".** `docs/designs/issue-watcher-status-pipelines.md:19`, Research row and Full column, says the agent makes one local commit of the report. The launch prompt at `src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md:28` says "Make no commit, push no branch and open no pull request".
+8. **Poll cadence.** `docs/designs/issue-watcher-zero-setup-coder-handoff.md:23`, with cron line `*/5 * * * *`, and `docs/designs/issue-watcher.md:15` say every 5 minutes. Coder PR #526, merged on 2026-11-23 with title "run the issue-watcher cron entry every minute", changed the managed entry to every minute. Issue #450's closing comment also says every minute. **UNVERIFIED by us on a live host:** the check that settles this is `crontab -l` on the workspace, which should show `* * * * *`.
+
+### B. One contradiction in the worker contract
+
+`src/superclaude/core/WORKER-CONTRACT.md:155` and `src/superclaude/core/WORKER-CONTRACT.md:158` let the coordinator restart a worker at rung L4 of the liveness ladder when Orca gives positive stall proof, such as `exited`. Line 303 says the coordinator never relaunches a dead worker by itself, and that WC-6, the rule for settling a crashed attempt, and the person decide.
+
+The contract does not say which rule governs a worker started for a watcher-claimed issue. L4 is capped at 1 restart per rolling 60 minutes and 2 per lineage. We did not find a measurement behind those numbers. Which rule and budget, if any, should apply?
+
+These statements can send a new reader or an agent to the wrong steps. The restart contradiction also lets two agents read the same contract and act differently on a dead worker.
+
+## User Story
+
+As a reader or agent using these docs, I want one current account of approval, stage commands, coordinator permissions and worker restarts, so that I follow the merged design without guessing which sentence wins.
+
+## Proposed Solution
+
+Ryan, could you confirm these points?
+
+1. Is it right that your merged watcher and coordinator design stays as it is under owner ruling R38, and this issue only brings the text in line with it? We do not propose a behaviour change.
+2. Which contract line should govern a worker started for a watcher-claimed issue? Our suggestion, for you to accept or change, is to allow a restart of an exited worker on Orca's positive stall proof, with a small budget such as the existing 1 per 60 minutes and 2 per lineage, and reword line 303 to match. A stalled but live worker would still wait for the person. Would that fit? This is a question, not an agreed rule.
+3. Could part A go in as one docs-only change set after you confirm part B? `src/superclaude/core/HOW-WE-WORK.md`, its copy `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md`, and the level-table copy in `src/superclaude/core/CLAUDE.md` must be kept together. The test at `tests/skills/test_issue_protocol.py:878-880` must change with the Full wording.
+4. Would you like the documents under `.dev/releases/backlog/issue-watcher-zero-setup/` updated, or kept as the record of decisions made on the day? If kept, would a one-line note that later changes replaced rows R9, R17, R19 and R25 be enough?
+
+## Acceptance Criteria
+
+- [ ] Each statement listed in A.1 to A.8 is corrected or explicitly confirmed current, with historical statements clearly distinguished from current instructions.
+- [ ] Approval wording names the right field and describes the loader accurately. Historical rejected proposals are not presented as active rules.
+- [ ] Coordinator wording covers sessions started by a person or a script, and does not imply permission to push or merge without the person's go.
+- [ ] Full wording distinguishes manual claims from watcher stage claims. The Research row and launch prompt agree about local commits.
+- [ ] The live-status header reflects the rollout evidence. The cadence is checked against `crontab -l` on the workspace before being stated as live-host fact, or remains explicitly UNVERIFIED.
+- [ ] The owner confirms one restart rule and any budget for watcher-claimed workers. `src/superclaude/core/WORKER-CONTRACT.md:155, 158, 303` then state that rule consistently, without changing behaviour in this change set.
+- [ ] The owner chooses whether the backlog requirements are updated or given a historical note, and that choice is applied.
+- [ ] `src/superclaude/core/HOW-WE-WORK.md`, `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` and the level-table copy in `src/superclaude/core/CLAUDE.md` are kept in sync in the same change set.
+- [ ] The pinned assertion at `tests/skills/test_issue_protocol.py:878-880` is updated with the Full text.
+- [ ] The focused tests, full suite and lint pass, and `make verify-sync` passes.
+- [ ] The setup-guide contradiction is linked to #717, item W15, without taking over its runbook rewrite.
+
+## Out of Scope
+
+- Any behaviour change in the watcher, the coordinator or `/sc:issue`.
+- Changing or replacing the merged watcher design.
+- The runbook rewrite after the live test, already planned in #717, item W15. The overlap is the contradiction between sections 14.1 and 17 of `docs/designs/issue-watcher-setup.md`. We suggest W15 owns that rewrite and this issue owns the other lines.
+- Replacing the 20 assumed test fixtures under `tests/issue_watch/fixtures/_assumed_shape/`, which #450 says #717 carries.
+
+## Components Affected (from `/sc:analyze`)
+
+- `docs/designs/issue-watcher.md`: status, approval, coordinator and cadence text.
+- `docs/designs/issue-pipeline-fu1.md`: approval wording.
+- `.dev/releases/backlog/issue-watcher-zero-setup/requirements.md`: rows R9, R17, R19 and R25 and manual gates, subject to the owner's historical-record choice. R38 remains the design boundary.
+- `src/superclaude/cli/issue_pipeline/cli.py` and `src/superclaude/cli/issue_pipeline/stage_predicates.py`: docstrings only.
+- `docs/user-guide/orchestrator-mode.md`: coordinator origin and permission wording.
+- `docs/architecture/SUPERVISED-ORCHESTRATION-TECHNICAL-REFERENCE.md`: outward-action wording and confirmation of how to label the old role statements.
+- `src/superclaude/commands/issue.md`, `src/superclaude/skills/sc-issue-protocol/SKILL.md` and `src/superclaude/skills/sc-issue-protocol/refs/claim.md`: manual versus watcher Full descriptions.
+- `docs/designs/sc-issue-command.md` and `docs/designs/sc-issue-claim-pipeline-flag.md`: matching Full descriptions.
+- `src/superclaude/core/HOW-WE-WORK.md`, `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` and `src/superclaude/core/CLAUDE.md`: routing-guide copies kept together.
+- `src/superclaude/core/WORKER-CONTRACT.md`: owner-confirmed restart clarification and source of the push permission rule.
+- `docs/designs/issue-watcher-zero-setup-coder-handoff.md`: manual gates and cadence.
+- `docs/designs/issue-watcher-status-pipelines.md`: Research row, Full column.
+- `src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md`: reference for the no-commit wording, not a request to change that rule.
+- `tests/skills/test_issue_protocol.py`: pinned Full sentence.
+- `docs/designs/issue-watcher-setup.md`: overlap reference for #717 W15, not a runbook rewrite here.
+- `tests/issue_watch/fixtures/_assumed_shape/`: referenced only to identify excluded work.
+
+## Related Issues/PRs
+
+- [#761](https://github.com/IronbellyOrg/IronClaude/issues/761): potential gaps in the watcher and coordinator. This issue comes from gap 18 and parts of gaps 12 and 13.
+- [#717](https://github.com/IronbellyOrg/IronClaude/issues/717): watcher follow-ups. Item W15 owns the proposed runbook update after the live test.
+- [#450](https://github.com/IronbellyOrg/IronClaude/issues/450): rollout tracker, closed on 2026-11-24. Its closing comment lists the "never run live" header and setup-guide contradiction as leftovers.
+- [PR #707](https://github.com/IronbellyOrg/IronClaude/pull/707): merged zero-setup watcher design, retained under R38.
+- [PR #735](https://github.com/IronbellyOrg/IronClaude/pull/735), [PR #736](https://github.com/IronbellyOrg/IronClaude/pull/736), [PR #752](https://github.com/IronbellyOrg/IronClaude/pull/752) and [PR #754](https://github.com/IronbellyOrg/IronClaude/pull/754): merged on 2026-11-23 and already fixed most "person-opened" wording.
+- Coder PR #526: "run the issue-watcher cron entry every minute", merged on 2026-11-23. Live-host cadence remains UNVERIFIED here.
+
+## Priority
+
+Low: "Cosmetic, wording, or docs only" applies, including the one contract contradiction; this issue requests documentation clarification, not a behaviour change.
+
+## Fix approach
+
+Repo: `IronbellyOrg/IronClaude`. Base branch: `master`.
+
+Commands, in order: `/sc:workflow <this issue's saved body> --depth standard --handoff none`, then `/sc:implement <plan path printed by workflow>`, then `/sc:pr-submit --monitor 3` in the permitted top-level session with the person's required go.
+
+Steps, in order:
+
+- Step 1: Ask the owner to confirm part B and the backlog-record choice. Check the rollout evidence from #450 and leave the live cadence UNVERIFIED until `crontab -l` is checked on the workspace. Do not turn the restart suggestion into a new rule without confirmation.
+- Step 2: Use `/sc:workflow` to plan one docs-only change set from `master`. Include every part A path, the confirmed clarification in `src/superclaude/core/WORKER-CONTRACT.md`, and the #717 W15 boundary for `docs/designs/issue-watcher-setup.md`.
+- Step 3: Use `/sc:implement` on that plan. Update the prose and two Python docstrings without changing executable behaviour. Qualify manual versus watcher Full claims and update `tests/skills/test_issue_protocol.py:878-880` with the wording.
+- Step 4: Keep `src/superclaude/core/HOW-WE-WORK.md`, its plugin copy and the level-table copy in `src/superclaude/core/CLAUDE.md` aligned. Sync distributable source changes to development copies with `make sync-dev`, then run the checks below. Do not stage generated `.claude/` mirrors.
+- Step 5: Review the diff for docs-only scope and the owner's confirmed restart rule. Submit to `IronbellyOrg/IronClaude` through `/sc:pr-submit --monitor 3`, without merging as part of this issue.
+
+## Test plan
+
+- Tests to add or change: update `test_default_level_is_full_and_only_worktree_waits_for_a_person` at `tests/skills/test_issue_protocol.py:878-880` so the pinned text distinguishes manual claims from watcher stage claims. Preserve the existing level and boundary checks.
+- Focused check: run `uv run pytest tests/skills/test_issue_protocol.py`. A pass means the revised text and existing protocol assertions agree.
+- Regression gate: run `uv run pytest`, then `make lint`, then `make verify-sync`. Run these after syncing development copies. All must pass; this draft does not claim they have run.
+- How a reviewer verifies: compare every A.1 to A.8 entry and the three contract lines with the final diff and the owner's answer. Check that the guide, plugin copy and level-table copy stay aligned, and that no executable watcher or coordinator behaviour changes.
+- Search each old phrase in the affected files with `rg -n -i`: `approval label`, `person-opened`, `You open it`, `session you opened`, `also implements`, `stops after implementation`, `does every push`, `Every push, PR`, `Nothing manual`, `Nothing in the setup is manual`, `never run live`, `enabled` shipping as `false`, `no schedule is installed`, `one local commit`, `Every 5 minutes` and the literal `*/5 * * * *` (use `rg -n -F` for that cron expression). Each remaining hit must be current and qualified, explicitly historical, or deferred to #717 W15 with a clear link.
+- On the workspace, have the owner check `crontab -l` for `* * * * *`. Record the evidence without changing the schedule; until that check is available, keep the cadence claim marked UNVERIFIED.
+
+<!-- sc:issue:create template=issue-feature-simple -->
+

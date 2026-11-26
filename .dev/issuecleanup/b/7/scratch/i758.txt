@@ -1,0 +1,69 @@
+#758 [OPEN] [FEATURE] Assume the user is coming in blind when asking a decision or question
+<!-- /sc:issue feature template (simple). Copy to <D>/issue-body.md and fill every placeholder in place. Keep every heading. Write "Not known yet" under a heading when the description and the codebase pass give nothing; never invent a fact. The exception is ## Priority, ## Fix approach and ## Test plan: fill them at every depth from the codebase pass, never write "Not known yet" there, and state any assumption in the section (rules in refs/create.md). -->
+
+## Feature Summary
+
+Add a standing rule that whenever an agent asks the user a decision or question, it assumes the user is coming in blind: the agent presents the context, implications and risks very concisely, and links an existing file with more information (never creates a file just to link it).
+
+## Problem Statement
+
+The Pragmatic output style already requires decision requests to be one question at a time, each option self-sufficient, and followed by answer lines (src/superclaude/output-styles/pragmatic.md:54-56, :43). But nothing tells the agent to assume the user has none of the session's accumulated context at the moment they read the question. In practice, questions can arrive that rely on context the user never saw, and there is no rule requiring a concise context/implications/risks preamble plus a link to an existing file with the details, nor a prohibition on creating a file merely to have something to link.
+
+## User Story
+
+As a user, I want every question or decision request an agent sends me to include enough concise context, implications and risks that I can answer it without having followed the session, with a link to an existing file for the full detail, so that I can decide correctly and quickly.
+
+## Proposed Solution
+
+Extend the decision-request guidance in the Pragmatic output style (src/superclaude/output-styles/pragmatic.md, "Decision requests" section, lines 52-57) with a rule that the agent always assumes the user is coming in blind: present the decision's context, implications and risks in a very concise, verbally efficient form (one or two lines each), and link an existing file that has more information. The agent must link an already-existing file; it must not create a file just to have something to link. If no existing file holds the detail, say so rather than creating one. Optionally mirror a one-line pointer in the relevant core rule (src/superclaude/core/RULES.md "Verification Before Recommendation" area, lines 54-66) only if needed for non-Pragmatic contexts; otherwise keep the change confined to pragmatic.md.
+
+## Acceptance Criteria
+
+- [ ] A decision request in the Pragmatic output style's rules carries one-line context, one-line implications, and one-line (or similar very concise) risk, readable by someone who has not followed the session.
+- [ ] The decision request links an existing file with more information (for example an on-disk artifact or report path).
+- [ ] The rule explicitly forbids creating a file for the purpose of linking it; if no existing file has the detail, the agent says so instead of creating one.
+- [ ] The one-question-at-a-time, self-sufficient-option and answer-lines rules (pragmatic.md:43, :54-56) still hold unchanged.
+- [ ] `make verify-sync` still passes (the `.claude/` mirror stays in sync with `src/`).
+
+## Out of Scope
+
+- Any change to the AskUserQuestion tooling or UI.
+- Any change to worker/orchestrator internal communication rules (src/superclaude/core/WORKER-CONTRACT.md), which govern agent-to-agent messages, not user-facing questions.
+- Generating or curating the "more information" files themselves; only existing files may be linked.
+
+## Components Affected (from `/sc:analyze`)
+
+- src/superclaude/output-styles/pragmatic.md: "Decision requests" section, lines 52-57 (primary edit target); related plain-English/self-sufficiency bullets at lines 40 and 43.
+- src/superclaude/core/RULES.md: "Verification Before Recommendation" section (lines 54-66) - only if a mirror line is judged necessary.
+- tests/commands/test_pragmatic_plain_english.py: existing drift-guard tests on pragmatic.md content.
+- .claude/output-styles/pragmatic.md mirror, kept in sync via `make sync-dev` / `make verify-sync`.
+
+## Related Issues/PRs
+
+None verified: scout searches found no close duplicate, and the loosely related issues (#733, #734, #552) address unattended execution and blocker classification, not the blind-user assumption for questions.
+
+## Priority
+
+Medium: a planned feature improving degraded decision-request behaviour that has a workaround (the user can ask for the context); trigger "planned feature" in the Priority rule set (refs/create.md).
+
+## Fix approach
+
+Repo: IronbellyOrg/IronClaude. Base branch: master.
+
+Commands, in order: /sc:workflow, then /sc:implement, then /sc:pr-submit --monitor 3.
+
+Steps, in order:
+
+- Step 1: Edit src/superclaude/output-styles/pragmatic.md, "Decision requests" section (lines 52-57): add one bullet (or extend the EXACTLY ONE question bullet) stating: always assume the user is coming in blind; before the question, give very concise context, implications and risks (roughly one line each); link an existing file that has more information; never create a file for the purpose of linking it, and say so plainly when no existing file carries the detail.
+- Step 2: Decide whether src/superclaude/core/RULES.md needs a one-line mirror; if the change stays confined to the Pragmatic style (the likely case, per Assumption below), skip this step and record that decision.
+- Step 3: Run `make sync-dev` so the `.claude/` dev mirror matches, then `make verify-sync`.
+- Step 4: Extend tests/commands/test_pragmatic_plain_english.py (or add a sibling test module) with file-content assertions for the new rule wording in the Decision requests section, following the existing `_PLAIN_ENGLISH_BULLETS` pattern (tests/commands/test_pragmatic_plain_english.py:18-26).
+
+## Test plan
+
+- Tests to add or change: add file-content assertions in tests/commands/test_pragmatic_plain_english.py that (a) the new assume-blind bullet appears exactly once in src/superclaude/output-styles/pragmatic.md inside the Decision requests section, (b) it forbids creating a file just to link it, and (c) the existing decision-request bullets (pragmatic.md:54-56) remain present and in order.
+- Regression gate: `uv run pytest tests/commands/test_pragmatic_plain_english.py -v`, then the full suite `uv run pytest`, `make lint`, and `make verify-sync`.
+- How a reviewer verifies: run the commands above and confirm all pass; then read the Decision requests section of src/superclaude/output-styles/pragmatic.md and check a sample decision request would show one-line context, one-line risk, a link to an existing file, and create no new file to link.
+
+<!-- sc:issue:create template=issue-feature-simple -->
+

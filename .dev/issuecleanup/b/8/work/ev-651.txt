@@ -1,0 +1,65 @@
+#651 [FEATURE] Require Priority, Fix approach and Test plan sections in every /sc:issue --create template [CLOSED COMPLETED] closed=2026-11-19T01:29:59Z
+## Feature Summary
+
+Make Priority, Fix approach and Test plan required sections in all four `/sc:issue --create` templates, and make the drafting workers fill them from the `/sc:analyze` pass at every depth, so an issue arrives with its plan already written and whoever picks it up only executes.
+
+## Problem Statement
+
+Today the four templates in `src/superclaude/skills/sc-issue-protocol/templates/` carry no priority at all, and the plan is thin or missing:
+
+- `issue-bug-complex.md` is the only template with a fix approach and a verification plan (`## For Development Team (Root Cause Analysis, Fix Approach, Verification Plan)`, line 77).
+- `issue-feature-complex.md` has `## Testing Strategy` (line 47) but no ordered step plan.
+- `issue-feature-simple.md` has neither a step plan nor a test section; `issue-bug-simple.md` has only a short `## Testing Notes` (line 43).
+- The workers write "Not known yet" wherever the codebase pass gives nothing (`refs/create.md` Wave 4, and the Wave 4 body job of `issue-worker-t1.md`, `issue-worker-t2.md` and `issue-worker-t3.md`), so a filed issue can leave the planning to whoever picks it up.
+
+Clay's goal: front-load planning into the issue at filing time, so a polling orchestrator or a worker only executes. That lets cheaper models do the execution and stronger models do the planning.
+
+## User Story
+
+As the owner who files issues for a polling orchestrator or a worker to pick up, I want every issue to carry a priority, an ordered fix approach and a test plan, so that the picking-up agent can execute without planning first.
+
+## Proposed Solution
+
+Add three `##` sections, named exactly `Priority`, `Fix approach` and `Test plan`, to all four templates, in the same position in each (after the existing content, before the closing marker line). Their required content:
+
+1. **Priority**: exactly one of Urgent, High, Medium, Low, plus a one-line reason that cites a rule from a fixed rule set written in the skill (`refs/create.md`). Never blank. The rule set is defined once in `refs/create.md`; the workers and the templates point at it.
+2. **Fix approach**: the ordered steps to do the work; for each step the files or components it touches (taken from the `/sc:analyze` pass); the SC commands or skills to run in order (for example `/sc:workflow`, then `/sc:implement`, then `/sc:pr-submit --monitor 3`); and the repo and base branch.
+3. **Test plan**: the tests to add or change; the regression gate (full suite, lint, sync checks); and how a reviewer verifies the result.
+
+Remove the overlap instead of keeping two places for the same thing: `## Testing Notes` (both bug templates), `## Testing Strategy` (feature complex) and the Fix Approach and Verification Plan bullets of `## For Development Team` in `issue-bug-complex.md` are replaced by or folded into the new sections (the Root Cause Analysis bullet stays).
+
+Change the worker rule for these three sections only: at every depth the drafting worker fills Priority, Fix approach and Test plan from its `/sc:analyze` pass, and "Not known yet" is not allowed for them. Where the codebase pass leaves a gap, the worker states its assumption in the section and lists it in `draft-notes.md`. Every other section keeps the "Not known yet" rule.
+
+Add the tests listed in the Test plan below so a template that lacks one of the three sections fails CI.
+
+## Acceptance Criteria
+
+- [ ] All four templates contain `## Priority`, `## Fix approach` and `## Test plan`, in the same order and position in each.
+- [ ] `refs/create.md` holds the fixed Priority rule set (Urgent, High, Medium, Low, each with its trigger) and the rule that the three sections are required at every depth with no "Not known yet".
+- [ ] `issue-worker-t1.md`, `issue-worker-t2.md` and `issue-worker-t3.md` state the same
+--- comments=2; last 3:
+[clayphi 2026-11-18T21:33:10Z] ## Accuracy check for #651
+
+**Verdict:** current
+
+Checked against `origin/master` at `89dc403d4e813211390a081615db4612ff337f3a`, and the pull requests merged since the issue was opened (3, list truncated: no). The issue had no comments when read. All three pull requests' full changed-file lists were inspected, including files abbreviated in `scout.md`.
+
+After `git fetch origin`, local HEAD and `origin/master` were identical; GitHub's `repos/IronbellyOrg/IronClaude/commits/master` returned the same SHA. The inspected issue files had no working-tree differences from that reference. The supplied checkout note needs correction: #649 and #650 merged into `integration`, not `master`; #641 merged into `master`. Neither integration-only pull request changes the accuracy verdict against the requested branch.
+
+| # | Claim in the issue (quoted) | Status today (still true / changed / gone) | Evidence (path:line, PR #number or commit) |
+|---|---|---|---|
+| 1 | "the four templates ... carry no priority at all" | still true | Full reads of `src/superclaude/skills/sc-issue-protocol/templates/issue-b
+~~
+[clayphi 2026-11-18T21:33:11Z] ## Claimed by @clayphi
+
+- **ClickUp:** skipped (no ClickUp workspace is configured in this environment)
+- **Accuracy check:** current (see the accuracy-check comment on this issue)
+
+### Summary
+
+Add `## Priority`, `## Fix approach` and `## Test plan` as required sections to all four `/sc:issue --create` templates, put the fixed Priority rule set in `refs/create.md`, make the three drafting workers fill these sections at every depth (no "Not known yet" for them), update the docs that list the template sections, and add tests that fail when a template lacks one. This claim is run by a hand-run orchestrator session that will start one supervised worker on it; the pull request will stop at green checks and finished reviews, and is not merged by the worker.
+
+- **Effort estimate:** 8 hours
+- **Complexity:** medium
+- **Type:** feature
+- **First next step:** `/sc:workflow "Implement issue 651: add the Priority, Fix approach and Test plan sections to the four sc-issue-protocol templates, the Priority rule set in refs/create.md, the worker rule in issue-worker-t1/t2/t3, the docs and the tests;

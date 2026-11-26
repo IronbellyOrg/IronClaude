@@ -1,0 +1,77 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source, its pull requests and its history (automated analysis, then an independent evidence review that passed on the fourth try, after the live pull-request records were read and added).
+
+- **State:** still-relevant
+- **Complexity / size:** Complex / XL
+- **Priority:** P2
+
+#### Concrete next steps
+1. Coordinator: admit or reject this live-record recovery under the existing review-3 escalation; do not reset the review cap or start a fourth independent review. Refresh #717 against the later owner baseline recorded by PR #729 (2026-11-23T01:51:59Z), the closed-unmerged #686/#690 proposals and #450's completed rollout. Explicitly retain, amend or drop W1/W2's old baseline/transport assumptions and W5/W6's stronger manual gates; unchecked boxes are not a fresh implementation go.
+2. Use the existing watcher and preserve per-item acceptance. No checked PR fully completes a literal W1-W15 item, but tests, setup checks, status helpers and runbook work already exist. Do not rebuild those or equate their existence with real-host acceptance. Treat PR #759 (2026-11-24T14:14:21Z) as failed-setup recovery, not W11 recovery.
+3. If the extra real-host acceptance is retained, gather W14's persistence facts before W5's restart test, then record the lock/restart, W6 shadow scan and W10 permission evidence. Do not assert that #450 must be reopened or the live watcher disabled: its closure explicitly substituted automatic checks. Host operations require separate authorization; this report grants none.
+4. For any retained W1 hand-over or W2 planning feature, settle the interface with open coordinator issue #716 first. Do not call the unmerged issue-plan mode or require the withdrawn PR #686 to land. The absent private spec's stage completion remains UNVERIFIED; obtain the relevant authoritative requirements before implementing any surviving stage-specific behavior.
+5. W3 and W8 remain bounded candidates after scope reconciliation; choose the alert destination with the failure-streak behavior. W4/W9 still need captured throttle/call-budget evidence, W7 token migration, and W13 a measured size trigger. W11 requires confirmed operation-id deduplication and the current owner's recorded retry choice, not the alternative design's historical answer.
+6. Tie any retained W15 rewrite to actual captured steps, reconcile the runbook's conflicting old/new enable instructions reported on #450, and account for #442's still-open guard observations. Schedule W12 from a verified first-enable date; cycles reported since November 23 are not a seven-day review. No code, tests, commits, live cycles or GitHub changes were performed by this revision.
+
+#### Dependencies
+- **#716, coordinator follow-ups, OPEN:** potential item-level dependency for retained W1 hand-over/W2 consumer work, not an unconditional adoption of the old wake format or plan mode. Its November 24 review comment also calls for scope reconciliation. That comment is a review report, not an independent implementation proof; no merged coordinator consumer was established by this inventory.
+- **#450, watcher rollout, CLOSED COMPLETED:** historical overlap, not an open prerequisite. Its November 24 closure reports live operation and substitutes automatic first-run checks for the older rollout gates. This does not automatically close #717's literal W5/W6 requirements, but changes the earlier recommendation that they block this rollout.
+- **Current-plan prerequisite:** S11/S12/S17 are references in #717's older text, not verified current build gates after PR #729 (2026-11-23T01:51:59Z). The private spec is absent and its stage completion remains UNVERIFIED; #686/#690 are closed unmerged, not pending predecessors to merge.
+- **Internal order, only for retained requirements:** W14 before real restart acceptance; shared W2 contract before any new consumer; W4/W9 after measured evidence; W12 after seven verified live days; W7/W13 at their triggers. Open #442 concerns governed-session observations and W10/W15's evidence boundary, not authority to enable governed launches. Dashboard #718 and parked report restoration #720 do not block all watcher work. #655 is CLOSED NOT_PLANNED provenance, not a restoration instruction.
+
+#### Related issues
+Independently checked current issue states: **#655**, source orchestrator proposal, CLOSED NOT_PLANNED; **#716**, coordinator follow-ups, OPEN; **#718**, dashboard/report split, OPEN; **#409**, orchestration dashboard, OPEN; **#706**, observer follow-ups, OPEN; **#444**, coordinator evaluation, CLOSED NOT_PLANNED; **#450**, watcher rollout, CLOSED COMPLETED; **#665**, older design review findings, CLOSED NOT_PLANNED; **#698**, approval/release protection, OPEN; **#699**, claim-worktree ownership, OPEN; **#442**, guard live observations, OPEN; **#331**, original watcher, CLOSED COMPLETED; **#720**, parked report restoration, OPEN. Bodies/comments were read where needed for scope: #717, #450, #331, #655's decision/closure comments, #716/#718/#720 comments, and #442. Other related issues were checked for identity/state only; their detailed acceptance, event histories and formal dependency edges remain UNVERIFIED. Parent/provenance closure does not close this follow-up bundle, and parked report work is not a blanket watcher prerequisite.
+
+#### Related PRs
+All states and merge times below were independently read with `gh pr view` against IronbellyOrg/IronClaude on 2026-11-24; a null merge time is reported as unmerged, not inferred from a title.
+
+| PR | Live state and merge time (UTC) | Relevance to this issue |
+|---|---|---|
+| #447 | MERGED 2026-11-08T06:27:42Z | Original poller, state/status/retry/SLO ingredients and tests; explicitly no live deployment at that time. |
+| #448 | MERGED 2026-11-08T07:01:27Z | Approvers-file race/FIFO and probe-deadline repair; not throttle backoff or live acceptance. #447's discussion points here. |
+| #485 | MERGED 2026-11-10T06:10:27Z | Docs fixes, capture sheet and rollout checklist; explicitly leaves live/shadow/lock/restart/enabling/cron work out. |
+| #548 | MERGED 2026-11-14T17:42:32Z | Claim-level decision and first-session acceptance only; no confirmed second-session coverage. |
+| #584 | MERGED 2026-11-17T04:00:59Z | Discussion-discovered approval-core and throwaway handoff observation, not watcher FU-1 or W10 acceptance. |
+| #591 | MERGED 2026-11-17T17:28:21Z | Coordinator handoff/contract/guard and runbook changes; not the quiet-hour consumer. |
+| #681 | MERGED 2026-11-20T00:02:33Z | Alternative design document only; rolled back by #700. |
+| #682 | MERGED 2026-11-20T00:02:36Z | Removed approval package/contract; rolled back by #700, not a current prerequisite. |
+| #684 | MERGED 2026-11-20T02:01:07Z | Report-skill import, rolled back by #700; restoration is parked in #720, not watcher delivery. |
+| #700 | MERGED 2026-11-20T15:07:32Z | Reverts #681/#682/#684, restores issue pipeline and keeps closeout. Its historical statement that #686/#690 stay drafts is superseded by their live CLOSED state. |
+| #701 | MERGED 2026-11-20T16:53:33Z | Restores no-to worker duty and issue-bound approval wording; carries corrections from unmerged #697. |
+| #707 | MERGED 2026-11-20T22:09:24Z | Actual zero-setup watcher, automatic first-run checks, dispatcher, Approved-field/status levels and closed ship gate; partial W5/W15 ingredients, no full W1-W15 acceptance. |
+| #686 | CLOSED, unmerged (mergedAt null) | Alternative watcher/quiet-hour/wake proposal. Closure comment says #707 is the design and uncovered features remain in #716-#718; do not count its proposed behavior as shipped. |
+| #697 | CLOSED, unmerged (mergedAt null) | Attempted revert superseded by #700 and #701; discussion identifies #698/#699 follow-ups. |
+| #690 | CLOSED, unmerged (mergedAt null) | Discussion-discovered issue-plan/remaining mode; closure follows the owner baseline, not a delivered W2 consumer. |
+| #729 | MERGED 2026-11-23T01:51:59Z | Owner baseline: #707 wins, none of #655's architecture adopted as is, uncovered features remain tracked. Changes scope/dependencies, not implementation completion. |
+| #732 | MERGED 2026-11-23T02:13:23Z | Corrects comparison from draft to closed #686/#690; not feature delivery. |
+| #735 | MERGED 2026-11-23T18:06:37Z | One coordinator per project, not per host; text/test clarification, no watcher acceptance delivery. |
+| #736 | MERGED 2026-11-23T19:06:27Z | Coordinator may be started by a person or script; text/test clarification, no watcher lifecycle build. |
+| #752 | MERGED 2026-11-23T22:14:48Z | Architecture glossary correction only. |
+| #754 | MERGED 2026-11-23T22:41:49Z | Remaining coordinator wording, including setup runbook, not a captured post-live rewrite. |
+| #759 | MERGED 2026-11-24T14:14:21Z | Disabled-config failed-first-run retry: config step each sweep, later steps after one hour; no dry-run retry or retry without failed report. Missing/unwritable reports remain a stated limit. Not W4 throttle growth or W11 unknown-launch retry; no complete W1-W15 acceptance. |
+
+The 25-record merged-PR list since 2026-11-23 includes all seven newer inventory PRs; other returned titles concern swarm, session handling, observer records or worker-contract records, not an identified completion of this bundle. Those other bodies were not audited, and unseen/unmentioned branches, complete inline threads and a full historical PR inventory remain UNVERIFIED. Retrieved review summaries are not a claim that all review findings were fixed, nor are author-reported test totals tests run by this reviser. No GitHub object was changed.
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+@ironbelly thank you for this list. A read-through of how the watcher behaves when it runs for a long time left three small questions. Please correct anything we have misread.
+
+1. **Skips and the 100-issue stop (W8).** W8 plans an alert after three bad cycles. Could it also cover (a) a way to see which issues were skipped and why without reading audit.jsonl, and (b) the stop at 100 labelled issues ("truncated")? Claimed issues keep the trigger label, and the runbook says to remove it by hand, so the count only falls when an issue closes. Would removing the label when a claim finishes be acceptable, or is the label kept on purpose?
+2. **Repos of other orgs.** By default only IronbellyOrg repos are watched. Is adding <private-org> planned, and where should the owners list live?
+3. **Pace.** One launch per sweep and six per repo per day look right for a first live run. We would suggest revisiting both once the first runs show where work queues.
+
+Happy to help with any of these.
+
+--

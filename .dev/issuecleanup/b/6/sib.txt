@@ -1,0 +1,204 @@
+########## 788
+# #788 [FEATURE] Coordinator C7: Worker start: Task, worker-start, issue link, Dispatch id, worktree check, unknown-outcome handling [OPEN]
+### C7. Worker start: Task, worker-start, issue link, Dispatch id, worktree check, unknown-outcome handling (655 section 2, 6; rows S02-F24, S02-F25, S06-F9, S06-F10)
+  - What to build: After the guard binding, the coordinator creates the Orca Task from the filled handoff, starts the worker with `worker-start --task`, attaches the issue with `orca reference add`, checks `worker-show`, and stores the Dispatch id in its state file.
+  - Also in this item:
+    - S02-F25: When `worker-start` returns an unknown outcome, the coordinator asks Orca whether that request took effect (`request-show`) once, retries only with the same request id, and escalates on the second failure.
+    - S06-F9: The coordinator records, with `orca reference add`, the link between an issue, its worktree and its worker, and finds it again with `orca reference find` after a restart.
+    - S06-F10: Before `worker-start`, the coordinator runs `orca worktree ps` and refuses to start a worker in a worktree where another agent is live.
+  - Done when: a fixture start shows a Task, a Dispatch in `ready`, the issue attached to the worktree (`orca reference list`) and the Dispatch id in `issues/<repo-key>__<N>.json`.
+    - also: a fault-injected unknown `worker-start` never produces two Dispatches for one issue and the second failure writes an escalation entry.
+    - also: After a restart the coordinator finds the issue's worktree and worker through `orca reference find` and no second worktree or worker is created.
+  - Related items (read together; the order is in the review at the end): C5
+  - Research and debate results from our documents:
+    - S02-F24: .dev/brainstorms/20261120-pr686-unify/techref/ISSUE-TO-WORK-PIPELINE-TECHNICAL-REFERENCE.md:1360 `no Python in src/ calls worker-start or task-create. Status: NOT BUILT`; same file line 1342 (WC-8, WC-13: a command or worker never calls `worker-start`, `dispatch`, `task-create`).
+    - S02-F25: .dev/brainstorms/20261120-pr686-unify/spec/SPEC.md:211 `an unknown launch receipt never relaunches` (FR-21); local check: `orca orchestration request-show` and `worker-start --retry-request` exist (help output).
+    - S06-F9: SPEC.md:231 (FR-29) already keeps ONE adoption record per issue, an exclusive-create file; a second record in Orca would be a second store. CLAUDE.md (project instructions, fork rule): Orca link flags (`--issue`, `--pr`) are never passed for this repo until the Orca project id is the fork's; whether `reference add` carries such a link is UNVERIFIED (not found in ~/.claude/skills/orca-cli).
+  - Watch out:
+    - S02-F24: the worker contract bars commands and workers from `worker-start`, `dispatch` and `task-create` (WC-8, WC-13); FR-27 repeats "never `worker-start`" for a script-started coordinator. Only a person-opened or authorized coordinator session may run these.
+    - S02-F25: a blind retry could start two workers in one worktree; keep the plan's no-double-start principle (FR-21, FR-29).
+## COMMENTS
+
+########## 790
+# #790 [FEATURE] Coordinator C9: Handoff prompt template: fixed nine-section order, Fixes or Refs rule, no secrets, hand-back round block, regression gate [OPEN]
+### C9. Handoff prompt template: fixed nine-section order, Fixes or Refs rule, no secrets, hand-back round block, regression gate (655 section 2, 3, 4, 7, 10, 14; rows S03-F20, S04-F22, S04-F24, S04-F26, S04-F28, S02-F27, S07-F25, S14-F27, S10-F53)
+  - What to build: The coordinator's handoff template tells the worker to write `Fixes <repo>#<N>` in its PR only when the PR fully delivers the issue's own criteria and `Refs <repo>#<N>` otherwise, in a fixed section order that a test pins.
+  - Also in this item:
+    - S04-F22: The worker's first prompt is built from one template with fixed, ordered sections (identity of the issue and worktree, goal, the Orca task fields, rules, chain, reporting and stop condition), and a test pins the order.
+    - S04-F24: In a hand-back round the worker's prompt states which round this is, the pull requests of the earlier rounds and the remaining items.
+    - S04-F26: The handoff template tells the worker never to print or commit secrets, tokens or credentials.
+    - S04-F28: The text that opens the pull request uses `Fixes` only for a pull request that fully addresses its issue and `Refs` otherwise, so a partial pull request cannot close the issue at merge.
+    - S02-F27: The handoff prompt names the repo's regression gate command and the worker must run it and report its result in `worker_done`.
+    - S07-F25: Put the `Fixes`/`Refs` rule into the worker brief template and state in the skill that no script checks it.
+    - S14-F27: The coordinator's handoff template tells the worker to write `Refs #N` in the PR when the issue may not be finished and `Fixes #N` only when the plan says the PR completes it, and closeout reports `already_closed` when GitHub closed the issue at merge.
+    - S10-F53: The handoff prompt tells every worker to write `Fixes <repo>#<n>` in the PR body only when the PR fully addresses the issue and `Refs <repo>#<n>` otherwise, and the audit after the merge flags a `Fixes` line on a PR whose issue still has remaining items.
+  - Done when: a test renders the template for a part-done round and asserts `Refs`, renders it for a full-scope issue and asserts `Fixes`, and checks the section headings appear in the stated order.
+    - also: A golden test builds a prompt for a sample issue and compares section headings and order with the template.
+    - also: A golden test of a round-2 prompt shows the round number, the earlier pull request numbers and the remaining list; a round-1 prompt has no such block.
+  - Related items (read together; the order is in the review at the end): C11
+  - Research and debate results from our documents:
+    - S03-F20: `.dev/brainstorms/20261120-pr686-unify/brainstorm/run/merged-requirements.md:835` "RK-25 | Closeout or a `Fixes` line closes an issue whose work is unfinished | ... `Fixes` closing is GitHub behaviour outside the gate | Close only under the go (K12); keep `left_open`; state the limit".
+    - S04-F22: W/techref/ISSUE-TO-WORK-PIPELINE-TECHNICAL-REFERENCE.md:2292 "`brief.py` | 74 | Builds the fixed worker brief from a template and a validated issue number" (the old owner-side builder carried a number only).
+    - S04-F24: D15:32 (R-6) "Round 2 passes the start gate again; either re-approve after the re-plan (default) ... (OD-2)". The cap number 3 is labelled "not measured" (SPEC:237).
+  - Watch out:
+    - S03-F20: 655 itself admits a wrongly written `Fixes` still closes the issue and no script checks it (K28, line 100); the plan's answer is a go before closing (SEC-12), which 655 does not have (see S03-F34).
+    - S04-F22: UNVERIFIED that Orca's task-spec field names (target, change, constraints, ownership, observable acceptance) match Orca's own current skill; 655 gives them without a source and no document of ours checks them. Section (9) "reviewers finished, no open thread" assumes the worker watches reviewers (see S04-F29).
+## COMMENTS
+
+########## 793
+# #793 [FEATURE] Coordinator C12: Playbook for unsticking a worker and answering its questions [OPEN]
+### C12. Playbook for unsticking a worker and answering its questions (655 section 2, 4, 7, 9, 14; rows S02-F35, S04-F9, S09-F4, S07-F4, S14-F14)
+  - What to build: Provide a coordinator playbook file that maps each stuck-worker state (stalled, asking, errored, idle) to one allowed response, with no permission-prompt approvals.
+  - Also in this item:
+    - S04-F9: The coordinator skill has a playbook ref that says how to answer a worker's question and when to escalate, and it never tells the coordinator to approve a permission prompt.
+    - S09-F4: The coordinator skill carries one playbook reference file that lists, per worker state, the allowed unsticking steps (nudge, probe, typed copy) and the steps that are never allowed.
+    - S07-F4: Ship a check-in template and a worker-watching playbook with the coordinator skill, with a test that each check-in uses the template.
+    - S14-F14: The coordinator detects a worker that has exited, gone silent or stopped without `worker_done`, records a named state for it in the issue's entry, and applies a written playbook (nudge, restart under the cap, or escalate to the person).
+  - Done when: the file exists in the skill's refs, each stuck state maps to an action that is on the "may do" list, and a test fails if the file contains a permission-approval step.
+    - also: The playbook file exists, the file-table test lists it, and a scan finds no instruction in it to approve a prompt or send "always allow".
+    - also: the file exists under the skill's refs, a test checks that every state of WC S0-S11 has a row and that no row approves a permission prompt or interrupts a worker.
+  - Related items (read together; the order is in the review at the end): C1
+  - Research and debate results from our documents:
+    - S02-F35: .dev/brainstorms/20261120-pr686-unify/debates/D08/VERDICT.md:63 `Fix agent-work-report/SKILL.md:12 ("The orchestrator (/sc:orchestrator) does every check-in itself") | PR KEEP-ADAPT`; D15 VERDICT.md:98 (approval rules dropped).
+    - S04-F9: D15:98 "Reject approving permission prompts (WC:122, WC:137); drop approval rules and test cases". SPEC:242 FR-40 "Type into worker terminals only under the four typing rules (never approve a permission prompt)".
+    - S09-F4: V(D15) debate file .../debates/D15/adversarial/adversarial/rounds/round2-rebuttal-1-ours.md:198 "the playbook ref (D:507) loses its 'approval' rows" (the playbook is assumed to exist but no verdict adopts or rejects the file itself).
+  - Watch out:
+    - S02-F35: the playbook's text is not in the files read (it is in Clay's IronFlow spec FR-23); UNVERIFIED which of its entries approve prompts and must be cut.
+    - S04-F9: 655 acceptance line 222 says the orchestrator does "typing and approvals included"; that part conflicts with FR-40 and D15 D14 and must not enter the playbook. Mark
+## COMMENTS
+
+########## 787
+# #787 [FEATURE] Coordinator C6: Each step names the Orca verbs it may call, checked against the refusal list [OPEN]
+### C6. Each step names the Orca verbs it may call, checked against the refusal list (655 section 6; rows S06-F16)
+  - What to build: Each step of the `/sc:coordinator` skill states the exact Orca verbs it may call, and the closed `refuse(argv)` list is checked against that set.
+  - Done when: A test reads the skill text, extracts the Orca verbs per step, and fails if a step calls a verb that is not listed or one that `refuse(argv)` blocks.
+  - Related items (read together; the order is in the review at the end): C5
+  - Research and debate results from our documents:
+    - S06-F16: SPEC.md:498 (S14) "skill-text scan" is the closest existing check. TRO:971-980 shows how many verb forms the design uses (about 30) and that none beyond four match a sweep template, which is why a per-step list matters.
+  - Watch out:
+    - S06-F16: The plan has stages S0-S17, not waves 0-9 Keep the per-step list short enough to review; the list is also the surface the `refuse(argv)` tests must cover.
+## COMMENTS
+
+########## 786
+# #786 [FEATURE] Coordinator C5: Orca Run lifecycle: create once, rebind after a restart [OPEN]
+### C5. Orca Run lifecycle: create once, rebind after a restart (655 section 2, 6; rows S02-F5, S06-F1)
+  - What to build: The coordinator creates an Orca Run on first start, stores its id in its per-issue/state records, and on `--resume` runs `run-current` and `run-use --id <run>` before any mutation.
+  - Also in this item:
+    - S06-F1: The coordinator creates or reuses one Orca Run for its repo at start and, after any restart or resume, checks `run-current` and rebinds with `run-use` before it starts a worker.
+  - Done when: a kill-and-restart test of the coordinator ends with `orca orchestration run-current` showing the same Run and a following `worker-start` not failing with `consumer_fenced`.
+    - also: A restart test kills the coordinator mid-issue, resumes it, and shows `run-current` names the same Run and the next `worker-start` is not refused with `consumer_fenced` (no second claim, no second worker).
+  - Related items (read together; the order is in the review at the end): C4
+  - Research and debate results from our documents:
+    - S02-F5: .dev/brainstorms/20261120-pr686-unify/spec/SPEC.md:668 `U5 mailbox from outside a Run` listed UNVERIFIED; owner memory note orca-coordinator-rebind-after-resume.md:10 `every orchestration mutation (worker-start etc.) fails with consumer_fenced until orca orchestration run-use --id <run_id> rebinds the Run`.
+    - S06-F1: owner memory note orca-coordinator-rebind-after-resume.md:11 "every orchestration mutation (worker-start etc.) fails with `consumer_fenced` until `orca orchestration run-use --id <run_id>` rebinds the Run". ~/.claude/skills/sc-closeout-protocol/refs/settle.md:56 "No Orca Run is bound to this session, so the worker's task was not looked at" (closeout needs a bound Run). SPEC.md:668 lists "U5 mailbox from
+  - Watch out:
+    - S02-F5: UNVERIFIED in the plan whether a mailbox send reaches a worker from outside a Run (U5).
+    - S06-F1: Without this, FR-34's restart would leave a resumed coordinator unable to start or settle anything (known defect, memory dated 2026-11-04, 16 days old, UNVERIFIED against today's Orca). The observer and sweep must stay read-only and never call `run-use` or `run-create` (TRO:972, "forbidden (run-use, run-create)"); only the ...
+## COMMENTS
+
+########## 792
+# #792 [FEATURE] Coordinator C11: Define and validate a valid worker_done message [OPEN]
+### C11. Define and validate a valid worker_done message (655 section 2; rows S02-F38)
+  - What to build: Define and check the fields of a valid `worker_done` (outcome word, paths, PR number or branch, regression-gate result) before wave 5 ends and before any merge-gate or closeout step relies on it.
+  - Done when: a table-driven test accepts a well-formed fixture `worker_done` and rejects a missing outcome, a missing result or a message sent twice.
+  - Related items (read together; the order is in the review at the end): C9
+  - Research and debate results from our documents:
+    - S02-F38: .dev/brainstorms/20261120-pr686-unify/spec/SPEC.md:243 FR-83 `after it reads a succeeded worker_done or a launched agent's result.md`; SPEC.md:677 UNVERIFIED `PR 693's result file path and shape`.
+  - Watch out:
+    - S02-F38: UNVERIFIED shape of both `worker_done` and the launched agent's `result.md`.
+## COMMENTS
+
+########## 784
+# #784 [FEATURE] Coordinator C3: Return contract printed last [OPEN]
+### C3. Return contract printed last (655 section 2, 4; rows S04-F11, S02-F55)
+  - What to build: At the end of a run, the coordinator prints one machine-readable return contract that says what was done, what is left and what waits on a person.
+  - Also in this item:
+    - S02-F55: The coordinator skill prints a fixed return contract (issue, PR, outcome, round, escalations, Run id) when an issue's workflow ends.
+  - Done when: A run on a throwaway issue ends with a contract whose fields a test parses; a run that stops early still prints one.
+    - also: a fixture run ends with a return contract that a test parses with every required field present.
+  - Related items (read together; the order is in the review at the end): C1, C19
+  - Research and debate results from our documents:
+    - S02-F55: .dev/brainstorms/20261120-pr686-unify/techref/ISSUE-TO-WORK-PIPELINE-TECHNICAL-REFERENCE.md:1016 (the claim skill `SKILL.md` carries a return contract at `:105-150`, the pattern 655 follows).
+  - Watch out:
+    - S04-F11: SPEC:228 (FR-26) already sets "one JSON contract" for the verbs; a builder should decide whether the return contract is the same schema (UNVERIFIED; the plan does not say).
+## COMMENTS
+
+########## 785
+# #785 [FEATURE] Coordinator C4: Load Orca's own orchestration skill at run time [OPEN]
+### C4. Load Orca's own orchestration skill at run time (655 section 2, 6; rows S02-F4, S06-F12)
+  - What to build: At wave 0 the coordinator skill loads the version-matched Orca `orchestration` guide with `orca skills get orchestration` and follows its supervised loop and completion accounting.
+  - Also in this item:
+    - S06-F12: The `sc-coordinator-protocol` skill runs `orca skills get orchestration` at start and follows its supervised loop and task-spec rules, without keeping a copy of that text in IronClaude.
+  - Done when: the coordinator's wave 0 ref names that command and a test or run shows the guide loaded before the first `worker-start`.
+    - also: The skill text has a start step that runs the command, a test checks that no copy of Orca's skill text exists under `src/superclaude/skills/sc-coordinator-protocol/`, and the step fails closed with an escalation when the command returns nothing.
+  - Related items (read together; the order is in the review at the end): C1, C5
+  - Research and debate results from our documents:
+    - S02-F4: .dev/brainstorms/20261120-pr686-unify/debates/D08/VERDICT.md:33 (Orca's `orchestration` skill has Coordinator and Handoff owner roles and no Orchestrator role). Local check: `orca skills get` exists (help output).
+    - S06-F12: D08 diff-analysis.md:8 and :65 say the skill was read through `orca skills get orchestration` and has "Coordinator" and "Handoff owner" roles; TRI:2005 (U-8) records "location of the Orca `orchestration` skill ... no `orchestration*` path under `src/`". WC:3 and WC:38-60 are IronClaude's own copy of the rules, so a run-time load adds a second source of rules.
+  - Watch out:
+    - S02-F4: none beyond keeping the skill name "coordinator" (FR-62).
+    - S06-F12: If Orca's skill and WORKER-CONTRACT disagree (for example on stopping or interrupting a worker), the contract and the plan must win (FR-40, FR-26); the skill step must say so. Orca can change its skill text between versions, so a loaded text can silently widen the allowed verbs: the closed `refuse(argv)` list (FR-26) must not ...
+## COMMENTS
+
+########## 791
+# #791 [FEATURE] Coordinator C10: Worker check-in template and the hourly status pass [OPEN]
+### C10. Worker check-in template and the hourly status pass (655 section 2, 3, 4, 8, 10; rows S03-F21, S04-F37, S02-F32, S08-F7, S10-F25)
+  - What to build: The coordinator skill carries one check-in template used at each `--hourly` pass, id-only for GitHub data and written under the four typing rules.
+  - Also in this item:
+    - S04-F37: The coordinator sends each running worker an hourly status request from one template and reads the worker's answer from fixed fields.
+    - S02-F32: `/sc:coordinator --hourly` runs a status check per running worker (Orca state, optional check-in, issue re-read) at a configurable interval, default hourly, Monday to Friday, and stops for a worker once its `worker_done` arrives.
+    - S08-F7: Define the `/sc:coordinator --hourly` pass as a once-an-hour check of each running worker, Monday to Friday, with a configurable interval, that ends for a worker when its `worker_done` arrives.
+    - S10-F25: For each running worker the coordinator runs one status check an hour (interval configurable), reading Orca state and the issue, Monday to Friday around the clock, and stops the check for a worker when that worker sends `worker_done`.
+  - Done when: a test fills the template and the filled text contains no GitHub-sourced free text and is refused by `refuse(argv)` if the target terminal has unsent typing or output under 60 seconds old.
+    - also: A test of the template shows the request carries only ids and fixed text (no GitHub text), and a worker answer missing a field is treated as no answer.
+    - also: a fake clock test shows one check per running worker per interval on weekdays, none on Saturday or Sunday, and no check after `worker_done`.
+  - Related items (read together; the order is in the review at the end): C8, C11, C12, C14, C25
+  - Research and debate results from our documents:
+    - S03-F21: `.dev/brainstorms/20261120-pr686-unify/debates/D15/VERDICT.md:96` "D12 | One supervised `worker-start` route: mailbox, one message handled once per id, check-ins, restart ... | Adopt with change" (the check-in itself is adopted; the template is not specified).
+    - S04-F37: D15:98 "Reject approving permission prompts (WC:122, WC:137)"; SPEC:242 FR-40 "never interrupt a worker".
+    - S02-F32: .dev/brainstorms/20261120-pr686-unify/spec/SPEC.md:229-242 (FR-27 to FR-40 name no worker check cadence); WC-16 allows one coordinator sweep per 5 minutes (D11 VERDICT.md:43).
+  - Watch out:
+    - S03-F21: the plan's rule against approving permission prompts (S03-F8) removes part of what 655's check-in does.
+    - S04-F37: the status message is typed or sent into a worker's session, so it falls under FR-40's four typing rules and SEC-16 (no GitHub text in a typed line). 655 acceptance line 222 says the check-in includes "approvals"; that part is REJECTED (D15 D14). The "Monday to Friday, 24 hours" schedule in line 222 has no source in the plan ...
+## COMMENTS
+
+########## 797
+# #797 [FEATURE] Coordinator C16: merge-gate reads PR readiness through the existing pr_submit core [OPEN]
+### C16. merge-gate reads PR readiness through the existing pr_submit core (655 section 2, 7; rows S02-F41, S07-F24)
+  - What to build: `merge-gate` gets its check, review and thread state from the existing `superclaude.pr_submit` helpers and poll scripts, read-only, without running `/sc:pr-submit` itself.
+  - Also in this item:
+    - S07-F24: Make `merge-gate` read PR readiness through the existing `superclaude.pr_submit` core instead of new GitHub-reading code.
+  - Done when: a fixture PR state produces the same reason list from `merge-gate` as from the pr_submit helpers, and a test shows the gate never calls a push, comment or fix command.
+    - also: `merge-gate` imports from `superclaude.pr_submit` for the check, thread and review reads, and a test shows one shared function answers both.
+  - Research and debate results from our documents:
+    - S02-F41: .dev/brainstorms/20261120-pr686-unify/spec/SPEC.md:674 `merge-gate, answer-check, E-NO-GRANT exist nowhere (searched src/ of three exports)`. Local check: `src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh`, `poll-augment-review.sh` and `src/superclaude/pr_submit/ci.py`, `reviewers.py` exist in this checkout.
+    - S07-F24: VERD(D06):39 "Read-only merge gate ... Why: the owner's rules are prose; no hook binds the coordinator."; DEC:311 "UNVERIFIED: ... `merge-gate` and `answer-check` exist nowhere."
+  - Watch out:
+    - S02-F41: SEC-04 says keep `/sc:pr-submit`'s silent-reviewer skip in its loop and add the merge-time hold separately; reusing the skip rule inside the gate would defeat the hold (D15 row D3: the skip rule loses a late reviewer).
+    - S07-F24: Whether the pr_submit core exposes what the 13 reasons need is UNVERIFIED (not read). The owner rule SEC-05 forbids running `/sc:pr-submit` as a worker; reusing its library is a different thing.
+## COMMENTS
+--- 2026-11-24T22:10:01Z ironbelly
+Sub-issue #798 was merged into this issue by the owner (decision in chat, 2026-11-24, after a reviewed analysis). Its text stays in #798 (closed); the changes to carry over are in the comment there.
+
+########## 802
+# #802 [FEATURE] Coordinator C21: Text hygiene: no em or en dashes and no secrets in what the coordinator writes [OPEN]
+### C21. Text hygiene: no em or en dashes and no secrets in what the coordinator writes (655 section 10; rows S10-F18)
+  - What to build: Every text the coordinator writes for a person (report entries, escalations, handoff prompts, PR and issue text) is checked for em dashes, en dashes and for secret-like strings, and a failing text is fixed or masked before it is sent.
+  - Done when: a test feeds `report-entry` and `escalate` a text with an em dash, an en dash and a token-shaped string and each is rejected or masked with a visible marker, while a normal sentence passes.
+  - Research and debate results from our documents:
+    - S10-F18: DEC:198 "A debate subagent printed the local Orca auth token into its own transcript" (a real secret leak in this very work); QG2:18 "A style failure is logged, never a block" (OD-4 fail open for naming).
+  - Watch out:
+    - S10-F18: a secret scan must not itself print the secret into a log; per OD-4 a fail-open mask keeps "the original match ... in the action log", which would store the secret, so secrets need fail-closed with no logging of the match (opposite to the naming rule). False positives on dash scans are low, on secret scans high (the U54 ...
+## COMMENTS
+
+########## 808
+# #808 [FEATURE] Coordinator C27: One capped notice after an escalation entry is written (Orca unread mark or ClickUp message) [OPEN]
+### C27. One capped notice after an escalation entry is written (Orca unread mark or ClickUp message) (655 section 10; rows S10-F45)
+  - What to build: After an escalation entry is written, `escalate` may send one capped notice (an Orca unread mark, optionally a ClickUp message) to the person for the rows the owner allows, and never instead of writing the entry.
+  - Done when: with a recorded cap number and an enabled sender, an AU4a finding writes the entry and sends one notice, the sixth in 24 hours writes the entry and sends none, and with no cap number recorded no notice is sent.
+  - Research and debate results from our documents:
+    - S10-F45: QG2:70 "Whether any notice sender (ClickUp message, Orca unread mark) exists or works; none seen in master, pr-a or pr-p."; DEC:1021 "no escalation notice sender exists in master, PR 686's head or branch `issue-655-pr-p`". The Orca unread mark already exists as the poll's last-resort wake step (FR-13, SPEC:203), so that helper is reusable.
+  - Watch out:
+    - S10-F45: a ClickUp DM needs a ClickUp credential and path; none is described in the plan and the ruling-17 secret rule (S10-F18) applies. The owner must say a push is wanted (DEC:829).
+## COMMENTS
+

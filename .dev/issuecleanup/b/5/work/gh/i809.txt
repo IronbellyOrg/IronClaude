@@ -1,0 +1,9 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Merged into #716 (owner decision in chat, 2026-11-24, after a reviewed analysis of this sub-issue). Closing this one; continue in #716.
+
+Why: the part of W1 that is still unmet is the `--take` flag of `/sc:coordinator`. The baseline half is already covered by `approval_before_init` (`predicates.py:268`), and W1's dry-run acceptance (`would_baseline`) is dropped unless the owner wants the word.
+--

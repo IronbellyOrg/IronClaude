@@ -1,0 +1,40 @@
+#534 [OPEN] Follow-ups from #339 Phase 1 (read-only sweep): open items, owner-ruled limitations and minor findings
+## What was tried
+Phase 1 of the orchestrator mode (#339) was built and checked: the read-only `superclaude sweep run` command, the `/sc:sweep` command and `sc-sweep-protocol` skill, the WC-16 coordinator rule, the routing rows and the design fixes. Nothing is committed or pushed yet. The work passed 14 QA gates, a fidelity gate and an independent post-execution reflection (Tier 2, deep). The items below were found along the way and were NOT fixed, either because they need an owner decision or an edit of the design or output style, or because the owner ruled them acceptable for Phase 1.
+
+Open items, by kind:
+
+1. Owner-ruled limitations of Phase 1
+   - FIN-F7: the exempt `/sc:sweep` chat reply (counts and report path alone) does not relay an Orca outage on an exit 0 run. The report at the printed path states it. Fix list if it is ever wanted: the sweep exception in `src/superclaude/output-styles/pragmatic.md` (7 sites), the revision addendum (lines 29 and 37), DESIGN 7.6 step 3 (take `orca_available`), the skill steps 3 and 4 and their pins. Not part of Phase 2.
+   - D-01: the seams use `subprocess.run` with an after-the-fact 8 MiB check; the SPEC asks for `Popen`, chunked reads and a kill. Accepted. Ceiling: one call's output is held in memory until the child exits or the 10 s timeout kills it (about 100,000 `git status` paths is 8 MiB). No DESIGN section 13 row was added.
+2. Needs a live read-only Orca capture or a design decision
+   - Rule 5 (`working`) is inert and Rule 4(a) (agent-wait) cannot match on live data, because the `worker-show` names for `agentWait`, `live` and `in_progress` were never captured (DESIGN open item 6). Capture one live worker's `worker-show` and `worktree ps --agent-wait` output read-only into `readonly-probe.md`, then restore Rule 5 and the lookup. The report caveat names only stalled and fenced, so `working: 0` reads as none working.
+   - A worker-list row without a valid Dispatch id is dropped and invisible to the FR-010 origin guard (D-04); whether real Orca emits such rows is unverified.
+3. Design and doc text gaps
+   - DESIGN 7.1 import list lacks `yaml`; DESIGN 7.2 `:511` and NFR-007 `:808` describe the re-read budget gate that the code now meets through an optional budget argument; DESIGN 7.4 `:346` says `total_is_lower_bound` is conditional but it is always true; a section 13 row for D-01 and for the Rule 5 change was not added.
+   - WC-16 wording weaknesses that need owner approval to change: CON-F8, F10, F11, F12, F14, F15, F16, F20. HOW-WE-WORK R2 and DESIGN row R2 still say "on every wake" while WC-16 says "on every coordinator wake or wait timeout".
+   - Open items 17 and 18 (`make sync-dev` removal; `uv run --frozen --no-sync`) and open item 19 (rationale for the 1 MiB, 256 KiB and 8 MiB limits) were not closed.
+4. Code and test gaps (all minor)
+   - A contract with an unquoted colon and space in a value (`blocked_question: Decision needed: A or B?`) now reads as an empty record while Source coverage says "read", so rule 1 misses a blocked worker (`probes.py:684`). `yaml.safe_load` on a 1 MiB contract took 5.2 s and is not under the time budget.
+   - impl-cli minors: unsanitized exit-2 and `_PublishError` stderr and no `[sweep <stage>]` prefix (CLI-F3, F28), exit-1 handler hides the exception class (F33), relative or empty `--root`/`--output` mean the current folder (F7), `makedirs` runs before the escape check (F12), a deleted current folder exits 1 not 2 (F25), Ctrl-C leaves the temp file (F35).
+   - Reflect minor drift D-05 to D-12: ledger tail-only read and its test name, `_git` over-limit reason in bytes, third per-Run source row, skill says "the standard error line", duplicated XDG state path and test-only wrappers, `git status` can run a worktree's `core.fsmonitor` command, non-regular files (FIFO) in contract and ledger readers, JSON paths pass the Markdown sanitizer.
+   - Missing pins: the skill step 5 sentence and the stale-style paragraph have no regression pin; the conjunction pins stop at conditions 1 and 3; the command frontmatter, heading order and the 5-minute cap sentence are not pinned; the exempt-reply mark "(not observed in Phase 1)" is not named in `pragmatic.md`.
+5. Minor findings of the gates, with their consolidated files: 71 final gate, 20 fidelity, 32 CMD, 18 CON, 30 DOC, 57 impl-core, 35 impl-cli, and the tests gate minors.
+6. Pre-existing or environment: 12 Markdown files fail `ruff format --check` at the base commit; two `tests/cli/eval/test_claude_process_adapter.py` ruff tests fail (ruff not importable in the venv); `test_speed_large_commands[1MB-big]` fails under load; the installed `~/.claude/output-styles/pragmatic.md` is not refreshed by `make sync-dev`, so activation of the new exception there is unverified.
+
+## Relevant files and links
+- Branch `ironbelly/issue-339-orchestrator-mode` (worktree `issue-339-orchestrator-mode`). No commit and no PR yet; the PR is opened later only with `/sc:pr-submit --monitor 3`.
+- Task package (local, staged with `git add .dev/tasks`, not committed): `.dev/tasks/to-do/TASK-RF-sweep-phase1-20261108-072653/`. The full list is its `### Follow-Up Items Identified` and `### Phase N Findings` sections. Gate evidence is under `qa/`, owner decisions under `phase-outputs/plans/`, the reflection under `reflect/post/audit/REPORT.md`, the task summary at `phase-outputs/reports/task-summary.md`.
+- Design (untracked): `docs/designs/orchestrator-mode.md`. Requirements: `.dev/brainstorms/20261108-024258-orchestrator-mode-phase1/merged-requirements.md`.
+- Code: `src/superclaude/cli/sweep/`, `src/superclaude/commands/sweep.md`, `src/superclaude/skills/sc-sweep-protocol/SKILL.md`, `src/superclaude/core/WORKER-CONTRACT.md` (WC-16). Tests: `tests/sweep/`, `tests/commands/test_sweep_command.py`.
+- Related: WC-9 lock retry is tracked separately in IronbellyOrg/IronClaude#446 and is not part of this issue.
+
+## Done when
+Each item above is either fixed with a test, or recorded as accepted in the design (section 13 or an owner decision), or closed as not needed. The Rule 5 / Rule 4(a) capture is done or explicitly deferred with an owner decision. The Phase 1 PR is merged.
+
+## Pick-up note
+- Read the owner rulings first: `phase-outputs/plans/FINAL-GATE-*.md` and `FINAL-REFLECT-D01-D12-ruling.md`. FIN-F7 and D-01 are accepted limitations, not open defects; do not re-open them without the owner.
+- Changes to the design, the output style, the revision addendum and the WC-16 text need the owner's decision; the QA fix agents were not allowed to edit them.
+- Phase 2 (sub-orchestrator mode) starts with a preflight phase that ingests the owner's reading list in `phase-outputs/plans/PHASE2-preflight-input.md`. FIN-F7 is not part of Phase 2 scope.
+- The paths above are local to this worktree until the package is committed.
+

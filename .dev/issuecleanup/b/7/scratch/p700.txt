@@ -1,0 +1,30 @@
+PR #700 [MERGED 2026-11-20T15:07:32Z] revert: roll back the issue 655 orchestrator build (PRs 681, 682, 684), keep /sc:closeout
+## What this changes
+
+Rolls back three pull requests of the issue 655 orchestrator build that are on master, at Clay's request (2026-11-20), so master is back where Ryan's issue-watcher work left off. `/sc:closeout` (#683) is kept. Reverted, newest first:
+
+- #684 move the agent-work-report skill into IronClaude (d7d645ddd)
+- #682 retire the old plan-approval gate (01e7a9e23). This restores the `issue-pipeline` command group and its tests (Ryan's Plan A #584 and Plan B #591), `WORKER-CONTRACT.md` rule WC-17 and its "Issue pipeline duties" section, and the first G2 rule of `launch-level-guard.sh` (source and plugin copy).
+- #681 the orchestrator design `docs/designs/orchestrator.md` (c2a139552)
+
+The branch reverts all four and then re-applies #683 in a second commit.
+
+## What does not change
+
+- `/sc:closeout` (#683) stays. Its files are unchanged from master except `WORKER-CONTRACT.md` and `tests/skills/test_worker_contract.py`, which now hold both the restored WC-17 rules and the closeout never-as-worker entries, and `CHANGELOG.md`, which keeps only the closeout entry.
+- Otherwise only files #681, #682 and #684 touched change, each back to its state before #681.
+- #688 and #694, merged after them, are untouched (their files are identical to master). Nothing merged before #681 is affected.
+
+## Where the rolled-back work is kept
+
+- `clayphi/archive-orchestrator-655-20261120`: master at d7d645ddd, with #681 to #684.
+- Open PRs #686 and #690 stay as drafts; every unfinished build branch (`clayphi/issue-655-pr-b-*`, `clayphi/issue-655-spec`, `clayphi/orchestrator-655-hub`, `clayphi/issue-668*`) is pushed.
+
+## Tests
+
+`pytest tests/skills/test_closeout_protocol.py tests/skills/test_worker_contract.py tests/recommend/test_routing_refresh.py tests/issue_pipeline tests/cli/test_issue_pipeline_registered.py tests/hooks/test_launch_level_guard_worker.py tests/issue_watch`: 4063 passed.
+
+Refs #655
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+

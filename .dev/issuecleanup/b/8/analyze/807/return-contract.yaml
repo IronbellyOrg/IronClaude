@@ -1,0 +1,5 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze .github/workflows --focus architecture --depth quick --unattended --report-dir .dev/issuecleanup/b/8/analyze/807"
+report_path: .dev/issuecleanup/b/8/analyze/807/analyze-report.md
+artifacts: []

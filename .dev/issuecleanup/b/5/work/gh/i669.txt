@@ -1,0 +1,83 @@
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Flag review for this issue
+
+This issue was filed with the flags the user gave. A check at `standard` depth chose differently; the reasons are below. The issue was not reclassified.
+
+| Flag | User's flag | Worker's choice | Reason for the difference |
+|---|---|---|---|
+| `--mode` | feature | feature | same |
+| `--type` | skill | other | `superclaude install` copies every directory under `src/superclaude/skills/` to every user (`src/superclaude/cli/install_skills.py:88-115`), and the issue's hard rule 2 says this log must be opt-in. The planned deliverable is one script under repo-root `scripts/` plus tests, which no install step reads, so it is not a skill. The issue type stays Feature either way. |
+
+<!-- sc:issue:create-review -->
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Accuracy check for #669
+
+**Verdict:** current
+
+Checked against `origin/master` at 64dfc0e86, and the pull requests merged since the issue was opened (0, list truncated: no). The issue was filed about two minutes before this check from the same code, so the checked claims were re-read against the files, not assumed.
+
+| # | Claim in the issue (quoted) | Status today (still true / changed / gone) | Evidence (path:line, PR #number or commit) |
+|---|---|---|---|
+| 1 | "`superclaude install` copies every valid directory under `src/superclaude/skills/` ... with no opt-in switch" | still true | `src/superclaude/cli/install_skills.py:88-115` (loop over `list_available_skills()`, skipped only when a matching command serves the skill) |
+| 2 | "commands, agents, hooks and templates [are installed] the same way" | still true | `src/superclaude/cli/main.py:197-251` (steps 2 to 7 of the install command) |
+| 3 | "No `install_*.py` module reads the repo-root `scripts/` folder" | still true | grep of `src/superclaude/cli/install*.py` for `scripts`: only package-relative `hooks/scripts` and `src/superclaude/scripts` |
+| 4 | "`tools/merged_pr_log/credit.py`, `aggregate.py` and the tests in that worktree" exist as reference | still true | `/home/coder/workspaces/worktrees/IronFlow/issue-5/tools/merged_pr_log/` holds `credit.py`, `aggregate.py`, `config.py`, `digest.py` and `orca-automation.md` |
+| 5 | The two research files exist at `/home/coder/workspaces/worktrees/IronFlow/issue-5/.dev/research/` | still true | both files read on 2026-11-19 |
+| 6 | "no automation definitions exist in this repo today" | still true | no match for Orca automation in `src`, `scripts` or `docs` (grep, 2026-11-19) |
+
+### Merged pull requests that touch this issue
+
+| PR | Title | Relevant files | Effect on the issue |
+|---|---|---|---|
+| none | | | No pull request has merged since the issue was opened at 2026-11-19T13:34:20Z. |
+
+<!-- sc:issue:accuracy-check -->
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+## Claimed by @clayphi
+
+- **ClickUp:** skipped (no_workspace)
+- **Accuracy check:** current (see the accuracy-check comment on this issue)
+
+### Summary
+
+Adapt Jay Wedgeworth's merged-PR digest generator into one opt-in script plus tests that logs merged pull requests per day and per person across IronbellyOrg and <private-org>. The result goes to a ClickUp Doc, and an Orca automation definition is written but not switched on.
+
+- **Effort estimate:** 12 hours
+- **Complexity:** medium
+- **Type:** feature
+- **First next step:** `/sc:workflow "Implement GitHub issue #669 (adapt Jay's merged-PR daily digest generator into one opt-in script plus tests, with an Orca automation definition that is not switched on), using @.dev/issues/669/issue-body.md and @.dev/issues/669/issue-summary.md" --depth quick`
+
+### Files
+
+- Summary: `.dev/issues/669/issue-summary.md`
+- Next steps: `.dev/issues/669/next-steps.md`
+- Analysis: `.dev/issues/669/analysis/`
+
+These links are paths in the repository; they open on GitHub only after someone commits and pushes the files.
+
+<!-- sc:issue:claim -->
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+Done in PR #670 (merged 2026-11-19). Remaining human steps (ClickUp Doc, token, Orca automation) are tracked outside this issue.
+--

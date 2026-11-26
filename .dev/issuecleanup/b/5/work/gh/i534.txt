@@ -1,0 +1,112 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Follow-up from the first live sweep after a workspace restart (2026-11-17)
+
+Observed on `superclaude sweep run --run <coordinator Run>` (report: `.dev/sweeps/20261117-054100-sweep.md`, local file, not posted). The workspace had just restarted, so almost every session and worktree was asleep. The sweep exited 0 and counted 314 sessions: 1 waiting on a person, 313 "could not determine", 0 in every other class.
+
+Why 313 fell into "could not determine" (counted from the report's rows):
+
+| Rows | Count | Reason the report gives |
+|---|---|---|
+| Orca workers never read | 50 | the per-pass cap of 50 `worker-show` reads was reached ("unscanned: show cap reached (50)"); no state at all |
+| Orca workers read | 50 | Orca says settled (33 succeeded, 17 failed; 18 exited, 32 liveness unverifiable), but "finished" needs a parsed worker contract and none was read |
+| Claude Code transcripts with no Orca worker | 213 | 170 could not be joined to an Orca terminal ("tab map empty or stale"); 43 have no observable start (tail-only read) |
+
+This is the report working as designed: the label means "not enough read", not "broken". But it makes the report thin as a status view right after a restart. The sweep has no class for "asleep or restarted".
+
+Two follow-ups for owner decision (neither is built, nothing here changes code):
+
+1. **Read all workers, or page the worker reads.** Today only the first 50 of the worker list get a `worker-show`; the rest are `unscanned`, and the Orca row total is a lower bound (worker list page filled). Decide whether the cap should rise, be paged, or stay as a stated limit.
+2. **A class or note for sessions that settled or went quiet across a restart.** Decide whether "settled, result not read" and "terminal released or retained, session not running" deserve their own wording instead of the catch-all fallback, and whether the report should say so when the terminal-to-transcript map is empty (which a restart explains).
+
+Related, already above: the Rule 5 (`working`) capture in item 2; both follow-ups depend on real `worker-show` output being captured read-only, the same evidence that item needs.
+
+Not authorized by this comment: any code change, any change to the worker contract rule that limits the sweep to once every 5 minutes, or running the sweep more often.
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Status review 2026-11-17
+**Status:** NEEDS-OWNER-DECISION. Some items closed this week; two restart-case follow-ups wait on one owner choice.
+
+**Findings:**
+- The Phase 1 PR is merged (#539), so the "Done when" line about the PR is met. The body's "nothing is committed or pushed yet" is stale.
+- Item 2 (Rule 5, `working` class): the read-only capture was made on 2026-11-16 and #579 restored the class (a running worker is `dispatched` plus outcome `in_progress` plus liveness `live`). What a non-null `agentWait` looks like was never seen, so Rule 4(a) is still UNVERIFIED.
+- The per-pass cap of 50 `worker-show` reads still exists on master (`src/superclaude/cli/sweep/probes.py:129`, default `shows: int = 50`).
+- Items in groups 3 and 4 (design text gaps, WC-16 wording, code and test minors) were not checked against master this week; UNVERIFIED.
+
+**Next steps:**
+1. Owner answers the question below.
+2. Capture one non-null `agentWait` when a real worker waits, then close Rule 4(a).
+3. Triage the group 3 and 4 minors into fix, accept, or drop.
+
+**Owner question:** After a restart, should the sweep get one change that raises or pages the 50-read cap and adds wording for settled or asleep sessions, or stay as is with both recorded as stated limits?
+
+**Related:** #339, #539, #579, #446, #409.
+
+Posted by Claude Code during the 2026-11-17 open-issue review.
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Owner decision 2026-11-17: page. After a restart the sweep should page past its 50-read cap instead of stopping at it. Wording for settled or asleep sessions is still to be decided. Next step: a worker plans and implements the paging change.
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Owner approved (chat, 2026-11-17): #590 (sweep show cap of 50 and finished workers with no read contract) is the first wave 3 follow-up for the sweep. Measure the cause split on the 2026-11-17T06:56:33Z report before choosing between a higher cap, paging, or newest-first lookup.
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review; the findings were corrected once after a first review and passed the second).
+
+- **State:** in-progress
+- **Complexity / size:** Complex / L
+- **Priority:** P2
+
+#### Concrete next steps
+1. Keep #534 open as the umbrella and record the already merged #539/#579 work separately from unresolved items. Do not reopen accepted limitations without the owner.
+2. For child #590, first measure the skipped/settled/transcript cause split on the 2026-11-17T06:56:33Z report. Then have the coordinator obtain the owner's reconciliation of the two conflicting records above before choosing or implementing a higher cap, paging, or newest-first lookup; this review does not infer that the earlier paging decision was revoked. If paging is confirmed, capture current cursor responses read-only, update the fixed allowlist and budget/coverage logic together, and add tests for more than 50 workers and more than one list page. For the chosen approach, record before/after live counts without changing the five-minute cadence. Settled/asleep wording remains a separate owner decision.
+3. Capture one genuine non-null wait signal and validate Rule 4(a) against it; until then keep its real-runtime behavior explicitly UNVERIFIED.
+4. Reconcile each remaining design/doc/test minor against current source and the saved owner rulings. For the remaining malformed-contract gap, preserve a parse failure diagnostic and pin its coverage/classification behavior rather than silently treating invalid YAML as read successfully. Route any policy/output-style change for owner approval.
+5. Mark every umbrella item fixed, accepted or not needed with its own evidence before closing #534. Finishing #590 alone does not meet the umbrella's acceptance condition.
+
+#### Dependencies
+- **Needs #590 for the paging/restart-visibility slice:** GitHub exposes #590 as the OPEN sub-issue of #534. Its completion criteria include >50-worker coverage, settled-worker handling, regression checks and a before/after live run.
+- **Other closure gates:** real non-null wait capture and owner disposition of remaining policy/design choices. These are evidence/decision dependencies, not invented GitHub dependency edges.
+- **Supports #339 and #409:** the orchestration program and dashboard need a useful sweep view at scale; #590 explicitly says the first live result was too thin for Phase 2. No formal blocked-by/blocking edge is recorded for #534 (both returned counts are zero). Whether all Phase 2 work is blocked by #534 is UNVERIFIED; do not treat this umbrella as a hard blocker for unrelated work.
+
+#### Related issues
+- [#339](https://github.com/IronbellyOrg/IronClaude/issues/339), OPEN: orchestration program whose Phase 1 produced this follow-up tracker.
+- [#590](https://github.com/IronbellyOrg/IronClaude/issues/590), OPEN: child tracking detailed-read cap, paging and finished workers without read contracts.
+- [#547](https://github.com/IronbellyOrg/IronClaude/issues/547), CLOSED: Git-configured program execution and malformed full-page truncation, with corrections visible in current source.
+- [#409](https://github.com/IronbellyOrg/IronClaude/issues/409), OPEN: orchestration dashboard; related visibility consumer, not an asserted formal blocker.
+- [#706](https://github.com/IronbellyOrg/IronClaude/issues/706), OPEN: observer follow-up including sweep source and scale tests, overlapping future visibility concerns.
+- [#446](https://github.com/IronbellyOrg/IronClaude/issues/446), OPEN: index-lock retry, explicitly separate/out of scope in #534.
+
+#### Related PRs
+- [#539](https://github.com/IronbellyOrg/IronClaude/pull/539), MERGED 2026-11-14: original read-only sweep, command/skill and coordinator rule. Merge commit `4d3c0b126151789bd0cb5b481b10f572a0c4e6b7`. PR body/comments were read; source contains the later-in-that-PR Git safety corrections for #547.
+- [#579](https://github.com/IronbellyOrg/IronClaude/pull/579), MERGED 2026-11-17: restored working-session classification from real captured field names. Merge commit `b46ecc1bd47ad817f8cd6181fde0b968dd3f24a0`. PR body/comments explicitly preserve the non-null wait uncertainty.
+- [#708](https://github.com/IronbellyOrg/IronClaude/pull/708), MERGED 2026-11-20: observer/dashboard user-guide work for #409, adjacent documentation, not evidence of sweep paging completion.
+- Searches through permitted `gh pr list` for sweep, 534 and 590 found no relevant OPEN paging implementation PR. The sweep package's local history contains #539 and #579 only. No complete full-timeline/commit-to-issue linkage claim is made.
+
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+--

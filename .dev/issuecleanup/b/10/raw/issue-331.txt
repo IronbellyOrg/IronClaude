@@ -1,0 +1,87 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Accuracy check for #331
+
+**Verdict:** out_of_date
+
+Checked against `origin/master` at e8db2fe660d9104cbe8cdbcdc6f2c967f4994f4b, and the pull requests merged since the issue was opened (55, list truncated: no).
+
+The issue is a feature request, so most of it describes things that do not exist yet; nothing in the repo implements a watcher, a trigger label, an approval gate or a workspace listener. It is out of date because the command it wants the watcher to start, `/sc:issue --claim`, was merged after the issue was opened (PR #373) and does less than the issue expects: it stops after writing a next-step prompt, and the command is barred from Orca workers.
+
+| # | Claim in the issue (quoted) | Status today (still true / changed / gone) | Evidence (path:line, PR #number or commit) |
+|---|---|---|---|
+| 1 | "The issues need to be brought into orca/claude code manually, and a pipeline run" | still true | `src/superclaude/commands/issue.md:24` ("Explicit only: the user types `/sc:issue --claim ...`"); no workflow reacts to issues: `.github/workflows/test.yml:4,6,8` (push, pull_request, workflow_dispatch), `.github/workflows/boundary-guard.yml:26` and `.github/workflows/contract3-generator-constraint-lint.yml:23` (pull_request only) |
+| 2 | "/sc:issue --claim \"396\" should be all that is required in a new session to kick off the full validation, categorization and orchestration path" | changed | The command now exists (PR #373, commit 6542ca72, merged 2026-11-04) and accepts a bare number (`src/superclaude/commands/issue.md:37`). It does validation (accuracy check) and categorization (type, complexity, effort), but it does not orchestrate: it stops after writing `next-steps.md` and never runs the next-step commands (`src/superclaude/commands/issue.md:15`, `:83`; `src/superclaude/skills/sc-issue-protocol/refs/claim.md:80`; `docs/user-guide/commands.md:378`). A claim that launches a governed agent (`/sc:issue --claim --pipeline <level>`, via `orca agent launch`) is only a proposal: `docs/designs/sc-issue-launch-level-hook.md:23`, `:34` ("current claim code does not implement this proposed pipeline interface"), `:349` (IR-1) |
+| 3 | "prompt the Projects Orchestrator with instructions for it to issue /sc:issue --claim <###>" | changed | `/sc:issue` is on the never-as-worker list, so it cannot be dispatched as an Orca worker and has no `--unattended` mode; it must run in a top-level (coordinator) session (`src/superclaude/core/WORKER-CONTRACT.md:23`, PR #383, PR #411). Claim mode asks the user no question (`src/superclaude/skills/sc-issue-protocol/SKILL.md:74`), so a typed or injected prompt can drive it to the end |
+| 4 | "Issues need to be flagged/tagged specifically to trigger anything" | still true (not built) | No trigger label exists: the repo has only the nine GitHub default labels (`gh label list --repo IronbellyOrg/IronClaude`, 2026-11-07). `/sc:issue` never creates labels and `--claim` changes none (`src/superclaude/skills/sc-issue-protocol/refs/labels.md:7`). The feature template only adds `enhancement` (`.github/ISSUE_TEMPLATE/feature_request.yml:5-6`) |
+| 5 | "Issue's need to be approved by a human before they can trigger anything" | still true (not built) | No issue-approval mechanism exists. The only "approved" concept in the repo is a typed `approved` prompt inside a launched session in the launch-level hook design (`docs/designs/sc-issue-launch-level-hook.md:186-195`), which is a different gate and is not implemented |
+| 6 | "Issues must be in a Github project ... must be in Backlog status" | Not known yet | No code or doc reads GitHub Projects (no hits for `projectV2`, `projects_v2` or `gh project` outside `.dev/`). Whether the org has a Project with a Backlog status was not checked: the read-only rule for this job allows only `--repo`-scoped calls and `gh project` is owner-scoped |
+| 7 | "Watcher must be able to communicate with an API or MCP layer on the Coder workspace" | still true (not built) | No HTTP or MCP listener exists in the repo. The nearest existing entry points are local Orca CLI calls: `agent launch` for a new Claude session (`src/superclaude/skills/ccsession-tag/README.md:231`, PR #415) and `orchestration send`, whose delivery is durable but pull-only (`.dev/orca-command-refactor/inventory/orca-capabilities.md:66`) |
+| 8 | "Everyone's workspace IP's / Ports being securely associated with their github account" | still true (not built), with a new constraint | Claim assigns the issue to the `gh` login of the workspace that runs it (`refs/claim.md:47`, `--add-assignee @me`) and stops if the issue is assigned to anyone else (`refs/claim.md:41`). The mapping must therefore route an issue to the workspace whose `gh` login is meant to own it |
+| 9 | "Etiher as a microservice or a github action that sits on teh project" | still true (not decided) | No scheduled or issue-triggered workflow exists (row 1 evidence). Not decided anywhere in the repo |
+| 10 | "There will need to be a listener on teh Coder side to pick up the incoming request and send it to the orchestrator" | still true (not built), with a new constraint | Claim reads the repo only from the `origin` remote and refuses an issue URL on another repo (`src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py:9`, `refs/claim.md:15`, `E-FOREIGN-REPO`). The listener must start the session in a checkout whose `origin` is the issue's repo |
+
+### Merged pull requests that touch this issue
+
+| PR | Title | Relevant files | Effect on the issue |
+|---|---|---|---|
+| #373 | feat(issue): /sc:issue command to claim and create GitHub issues (#302) | commit 6542ca72: `src/superclaude/commands/issue.md`, `src/superclaude/skills/sc-issue-protocol/SKILL.md`, `refs/*.md`, `scripts/{clickup_claim,origin_repo}.py`, templates | Adds the `/sc:issue --claim` flow the watcher would start; it stops at `next-steps.md` and does not orchestrate |
+| #388 | docs(issue): document /sc:issue flags, ClickUp settings and contributor use (#302) | `docs/user-guide/commands.md`, `docs/user-guide/flags.md` | Documents the ClickUp environment variables a claim reads (`docs/user-guide/commands.md:380-386`); a listener-launched session needs them for the ClickUp step, otherwise that step is skipped |
+| #380 | fix(issue): limit the create-mode slug to a-z, 0-9 and - (#302) | `src/superclaude/skills/sc-issue-protocol/refs/create.md`, `src/superclaude/core/WORKER-CONTRACT.md` | Create mode only; no effect on the claim flow |
+| #383 | fix(orca): drop the IronClaude-origin exemption; classify /sc:issue hits so master Tests pass | `src/superclaude/core/WORKER-CONTRACT.md` | Places `/sc:issue` on the never-as-worker list: the watcher must reach a top-level session, not an Orca worker |
+| #391 | feat(models): ccsession maps opus, sonnet and haiku to its tiers in tier mode (#384) | `src/superclaude/skills/sc-issue-protocol/refs/chains.md`, `refs/tiers.md` | Changes the worker tiers a claim uses; no effect on triggering |
+| #411 | feat(orca): P1 unattended worker contract for 16 commands, plus the brainstorm nested-analyze fix | `.dev/orca-command-refactor/specs/orca-worker-contract-spec.md` | Unattended mode exists for 16 commands but not for `/sc:issue` |
+| #414 | feat(hooks): retain originating session identity for governed Bash jobs | `src/superclaude/hooks/scripts/launch-job-identity.sh`, `docs/designs/sc-issue-launch-level-hook.md` | Groundwork for governing sessions that a future `--claim --pipeline` launches; a watcher-started claim is not governed by it today |
+| #415 | fix(orca): launch Claude CLI sessions and refresh stale guides | `src/superclaude/core/CLAUDE.md`, `src/superclaude/skills/ccsession-tag/README.md`, `src/superclaude/cli/install_user_setup.py` | States how to start a new Claude session from Orca (`agent launch`, `--surface terminal`); this is the likely local entry point for a listener |
+| #417 | docs(orca): record the P1 closeout and keep the review evidence plans cite | `.dev/orca-command-refactor/decisions/APPROVED.md` | Background on Orca worker rules; no direct effect |
+
+<!-- sc:issue:accuracy-check -->
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Claimed by @ironbelly
+
+- **ClickUp:** skipped (no_token)
+- **Accuracy check:** out_of_date (see the accuracy-check comment on this issue)
+
+### Summary
+
+Build a service that checks GitHub every 5 minutes for issues that are tagged, human-approved, in a GitHub Project and in Backlog status, then tells the right person's Coder workspace to start a new session running `/sc:issue --claim <N>`. It is out of date because `/sc:issue --claim` now exists but stops after writing a summary and next steps, and it cannot run as an Orca worker. Open design choices: microservice versus GitHub Action, how each workspace is securely tied to its owner's GitHub account, and where the Coder-side listener lives.
+
+- **Effort estimate:** 48 hours
+- **Complexity:** complex
+- **Type:** feature
+- **First next step:** `/sc:brainstorm "GitHub issue watcher and routing service @.dev/issues/331/issue-summary.md" --depth deep --research deep --codebase --blind`
+
+### Files
+
+- Summary: `.dev/issues/331/issue-summary.md`
+- Next steps: `.dev/issues/331/next-steps.md`
+- Analysis: `.dev/issues/331/analysis/`
+
+These links are paths in the repository; they open on GitHub only after someone commits and pushes the files.
+
+<!-- sc:issue:claim -->
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+Code delivered and merged; rollout tracked in #450.
+
+- PR #447 added `superclaude issue-watch` (check-config, init-state, once, reset, status): one timed cycle finds issues with a trigger label and an approval label from a listed approver (and Project status Backlog), re-checks them against GitHub, writes a durable record, then starts one Orca claim session (`/sc:issue --claim N`). It never writes to GitHub.
+- PR #448 fixed the review findings: the approvers-file race and a hang if the file is swapped for a FIFO (Augment), and the Orca probe timeout (Codex).
+- Design: `docs/designs/issue-watcher.md`. Owner runbook: `docs/designs/issue-watcher-setup.md`.
+
+Not done, and why this issue is closed anyway: the watcher has not been run against real `gh` and Orca, it is not scheduled, and it ships with `enabled: false`. The live test, shadow run, enabling and cron entry are the remaining work, tracked in #450. Do not enable it before the live test.
+
+--

@@ -1,0 +1,23 @@
+#352 [OPEN] Flaky ccsession shim tests in tests/unit/test_ccsession_tiers.py under load
+## What was tried
+During the v5.0.0 release gate (check G5, `make test` on master `d953b983`, 2026-11-02), `tests/unit/test_ccsession_tiers.py` failed intermittently on a loaded Coder workspace (load average 9.4), while CI passed the same commit.
+- Full `make test` run 1: 4 failures in this file (`test_tiers_off_launch_never_takes_over_a_tier_shim`, `test_upgraded_code_starts_a_new_shim_and_keeps_the_old`, `test_relative_defaults_path_keeps_each_directory_on_its_own_shim`, `test_a_busy_shim_is_never_stopped_by_a_new_launch`). Each failed with `[ccsession] ERROR: shim failed to start` (for example at tests/unit/test_ccsession_tiers.py:1399).
+- Whole-file rerun, with the workspace's CCSESSION_* and CODER_WORKSPACE_OWNER_* variables unset: 2 failures, a different pair (`test_non_streamed_tier_request_waits_without_limit`, `test_a_busy_shim_is_never_stopped_by_a_new_launch`).
+- The 5 tests that ever failed, run on their own: all passed, twice.
+- Fresh-environment full `make test` (gate rerun): 14610 passed, 0 failed.
+Probable cause (UNVERIFIED): these tests start real shim processes and wait for the port within a fixed window (`setup_shim` in src/superclaude/skills/ccsession-tag/ccsession waits 10 checks for the port), which is too short under heavy load. Not proven; no reproduction under controlled load yet.
+
+## Relevant files and links
+- tests/unit/test_ccsession_tiers.py (`_real_launch` near :1345, the tests named above)
+- src/superclaude/skills/ccsession-tag/ccsession (`setup_shim`, the port wait loop)
+- src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py
+- Release gate logs (local, not committed): /tmp/release-gate2/make-test.log, /tmp/release-gate3/g5.log
+- Release: https://github.com/IronbellyOrg/IronClaude/releases/tag/v5.0.0
+- Related: #341, #342 (shim detach), #347, #350 (worktree session list)
+
+## Done when
+The listed tests pass reliably under load: for example 20 consecutive whole-file runs while the machine is busy (a parallel `make test` or a CPU stress process) with no `shim failed to start`, and CI stays green. Any wait-time increase or readiness signal is covered by a test.
+
+## Pick-up note
+Reproduce under load before changing anything: run `uv run pytest tests/unit/test_ccsession_tiers.py -q` while a second full `make test` runs. Check whether the failure is the shim's port wait timing out, versus the shim crashing (the copied `shim-under-test.py` imports `models` via `CCSESSION_DIR` or its own folder, local-gateway-alias-proxy.py:163-166). Do not loosen what the tests assert; prefer a readiness wait or a longer bounded timeout in the test harness.
+

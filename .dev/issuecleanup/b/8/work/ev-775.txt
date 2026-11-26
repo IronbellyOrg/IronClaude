@@ -1,0 +1,53 @@
+#775 [FEATURE] A comment on an approved issue should not silently cancel the approval [OPEN ] closed=-
+## Feature Summary
+
+Thank you to Ryan for the issue watcher and the standing coordinator, merged in #707. Could we make it clearer when a comment cancels an issue's approval, make that skip visible, or soften the rule now that the watcher is live?
+
+## Problem Statement
+
+This came out of checking the design for gaps in #761: https://github.com/IronbellyOrg/IronClaude/issues/761.
+
+After an issue is approved, the watcher stops accepting that approval for any of these changes made at or after the approval time:
+
+- An edit to the issue body.
+- A rename of the issue.
+- A comment created or edited by a login other than the watcher's own login.
+
+The watcher then skips the issue with the reason `edited_after_approval`. The test is `unchanged_since` in `src/superclaude/cli/issue_watch/predicates.py:275-297`. The exemption for the watcher's own login is `comment.author_login != own_login` at `src/superclaude/cli/issue_watch/predicates.py:292`. The coordinator and claim session use the same login as the watcher, so their comments do not cancel an approval.
+
+The plan-approval code describes the repository as public in `src/superclaude/cli/issue_pipeline/stage_predicates.py:20-21`. Any other person, a bot, or a deleted account can therefore leave a comment that stalls an approved issue.
+
+The skip is silent to the approver. `src/superclaude/cli/issue_watch/audit.py:71` classifies `edited_after_approval` as a skip with exit code 0. The local audit entry itself has kind `decision`, not kind `skip` (`src/superclaude/cli/issue_watch/cycle.py:650-673,675-690`). Nothing is written to GitHub for this skip, and nothing tells the approver. The alert proposed in #717 W8 counts only cycles that exit with codes 3 to 7, so it would not cover this exit-0 skip.
+
+To recover, someone has to clear the `Approved` field, wait a few seconds, and set it to `Yes` again as an approver (`docs/designs/issue-watcher-setup.md:566`).
+
+This is a recorded choice, not a bug. The owner chose the rule. The design records accepted risk R17 in `docs/designs/issue-watcher-setup.md:566`, "anyone who can comment can cause that (risk R17)", and `docs/designs/issue-watcher-setup.md:645`, "Any commenter can stall an approved issue until it is approved again". The requirements file `.dev/releases/backlog/issue-watcher-zero-setup/requirements.md` records it in R19, where an issue edited after approval is refused and stays so, and R37, where an edit to the body, a comment or the title after approval still voids it.
+
+We are not saying this was a mistake. Could the rule be softened now that the watcher is live? An approver can approve an issue, walk away, and return to find it never started, with no message anywhere they can see. A harmless "thanks", "+1", or bot notice is enough. The people best placed to notice cannot see the local audit log, so the cost lands on the approver and is invisible.
+
+The file and line references were checked against `origin/master` on 2026-11-24. Line numbers can move as master moves.
+
+## User Story
+
+As an approver, I want to know when an approved issue has stopped and how to continue it, so that a harmless comment does not leave work waiting without my knowledge.
+
+## Proposed Solution
+
+Could the owner choose from these options and their order? None is decided.
+
+- (a) Say it plainly. State in the issue template text and the runbook (`docs/designs/issue-watcher-setup.md`) exactly what cancels an approval. This is the cheapest option and changes no behavior.
+- (b) Make the skip visible outside a local log. For example, add a line in watcher status output, a short issue comment such as "approval cancelled by a comment from X at time T, set Approved again to continue", or an alert. An issue comment would be a new GitHub write. Today the watcher does not make such wr
+--- comments=1; last 3:
+[ironbelly 2026-11-24T22:04:11Z] ## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P2
+
+#### Concrete next steps
+
+1. Owner records the choice in chat: which of (a), (b), (c), (d), their order, whether the own-login exemption stays, and who is told where (the three open questions). The agent in that session records it; the owner writes no file.
+2. If (a): add the plain wording of what cancels an approval and how to approve again to the issue template text (`.github/ISSUE_TEMPLATE/feature_request.yml` and `other.yml` at minimum, UNVERIFIED which templates the owner wants) and keep the runbook lines 182, 566 and 645 in step. No behaviour change, no tests beyond a docs check.
+3. If (b): decide the place (status line, issue comment, alert). A status line needs `status_report` to read the audit log. An issue comment is a new GitHub write and needs the owner's agreement. Add tests in `tests/issue_watch/test_cycle.py`, `t

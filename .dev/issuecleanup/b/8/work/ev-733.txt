@@ -1,0 +1,41 @@
+#733 [FEATURE] Unattended mode for /sc:implement [OPEN ] closed=-
+**How to use this issue:** take this spec straight to `/sc:workflow` (give it this issue's number or the spec text), then `/sc:implement`. Owner decision O3 is answered (2026-11-23): no human plan approval; a review-panel verdict with no blockers gates the build (UI-24 to UI-26). One question (OD-1) is still open and does not block the build.
+
+## Feature Summary
+
+Add an `## Unattended mode` section to `/sc:implement` so an Orca coordinator can start a worker that runs it with no person present and read the result from one file, `<report-dir>/return-contract.yaml`. The mode adds four flags (`--unattended`, `--report-dir`, a required `--plan-review <panel report>`, and a `--plan-only` preflight), one new stop code (`E-PLAN-NOT-REVIEWED`), and one small stdlib helper script that validates the report directory and the panel verdict and writes the contract from the ledger. The build refuses to start unless the plan carries a verifiable panel verdict `PASS` with no blocking finding. Every point where the protocol asks a person becomes a returned status and a written record. The mode never commits, pushes, merges, opens a PR, stages anything or writes a Ruling.
+
+Owner decisions: O5 (build it) approved; O3 answered 2026-11-23 in chat: no human approval of the workflow plan, the plan must pass the review panel with no blockers before implement starts, at most 3 reviews then escalate to the owner.
+
+Evidence base: origin/master at 565748248 (2026-11-22) and the installed `~/.claude` copies (byte-equal to master for the implement files). The checkout used is 150 commits behind master: build from a fresh origin/master. Anything not read is marked UNVERIFIED.
+
+## Problem Statement
+
+- `/sc:implement` has no `## Unattended mode` section (command file and skill: no match for "unattended", on origin/master and installed). A worker running it writes no `return-contract.yaml`; under WC-5 of `~/.claude/WORKER-CONTRACT.md` a worker with no contract sends `worker_done --outcome failed`, so a good run is recorded as failed.
+- The worker contract already assumes the conversion: WC-4 names implement's blocked contract with the STOP code; WC-9 says the implement skills defer `.dev/tasks` staging under `--unattended`; the contract test classifies three implement staging lines as `deferred:P4`; `/sc:workflow --unattended` skips `--handoff implement`.
+- The protocol asks a person where a worker cannot answer: the Ruling question after a halt (`refs/qa.md`, Halt table); the "operator review" that resume rows P and H start (`refs/ledger.md`; `refs/qa.md` Closed list item 4 says automation never starts one); the archive-marker recovery (`refs/managed-workspace.md`); and the `.dev/tasks` staging sentences in the skill and two refs.
+- The release pipeline (`.dev/brainstorms/20261122-release-pipeline-bmad-ironclaude/shared/CONSENSUS.md` topic d; `agent2/IRONCLAUDE-SIDE.md` G1, B4) runs IronClaude work in Mode C: a person-opened coordinator writes each Task's brief. Until implement has this mode, execution is person-run.
+## User Story
+
+As a release coordinator (an Orca session the owner opened, running a Mode C story chain), I want to start a worker with `Command: /sc:implement --unattended --report-dir <D> <plan path>` and read one contract file that says succeeded, partial, blocked or failed, so that I can dispatch the next story, freeze a halted plan for the owner, or retry a crashed run, without anyone at the worker's terminal and without the worker ever guessing an approval. The caller is a coordinator-started worker in a worktree; the command never detects Orca, the flag alone selects the mode (D1).
+
+## Proposed Solution
+
+Design in one sentence: one `## Unattended mode` section shaped like the ones in `analyze.md`, `task.md`, `troubleshoot.md` and `workflow.md`
+--- comments=2; last 3:
+[ironbelly 2026-11-23T12:52:08Z] Owner decision recorded 2026-11-23 (given in chat): OD-1 is answered with option (c), a follow-up issue that gives /sc:spec-panel-stoprule its own unattended mode: #734. Until that lands, the plan-review loop has to be run in a session that is not a worker (a person-opened or coordinator session; the build gate here only checks the report, not who produced it). The review worker will be a separate task from the planning and the implement workers (rule added in #734).
+
+~~
+[ironbelly 2026-11-24T14:32:49Z] ## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Complex / L
+- **Priority:** P1
+
+#### Concrete next steps
+The unattended feature itself is not verified partly built; the attended executor and earlier worker framework are reusable foundations. Remaining work, for a later authorized implementation:
+
+1. Refresh the issue's stale decision/status notes without changing the agreed feature: no human plan approval, a verified review-panel PASS gates execution, and #734 is the separate review-worker follow-up. This worker made no GitHub changes.
+2. Resolve the verifier distribution prerequisite before promising a portable gate. No stoprule-named file was found under this checkout's `src/` or `plugins/`; the source command path cited in #734 does not exist here. The installed `/home/coder/.claude/commands/sc/spec-panel-stoprule.md:16-18` and `/home/coder/.claude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprul

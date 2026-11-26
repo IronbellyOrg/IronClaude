@@ -1,0 +1,44 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P2
+
+#### Concrete next steps
+No partial implementation or active fixing PR was verified. These steps are for the later authorized restore, not authorization to start it now:
+
+1. Respect #720's recorded trigger: owner asks for the daily per-issue page, or the report-entry writer stage is about to start. Follow its owner questions and decisions before restoring code. This review supplies no such approval.
+2. In the restore branch's security amendment, serve a scratch folder containing only a copy of report.html. Explicitly reject other files and folder paths, disable listing, and allow only the exact Host `127.0.0.1:8765`. Keep the copy current on generation and living-report refresh so isolation does not freeze the displayed report. Test rejected state-file and folder requests with 403 or 404, including settings.json and action-log.jsonl.
+3. Check the report's own identity marker before reusing a listener. A foreign success response must fail safely, not become the report. The existing overview-sha256 marker is a possible starting point, not authentication by itself.
+4. Remove remote fonts or package them locally, then observe a page load with no third-party requests. State whether the server stops at run end; otherwise document that it persists and how to stop it.
+5. Add at least the three required rejection tests (state file, folder, wrong Host), run them in the normal suite on restored code and provide evidence for the identity, asset and lifetime checks too. No successful run is claimed by this review.
+6. Record in the restore PR whether an unguessable URL token is included, based on the local-account/browser threat model and tab reuse. A Host restriction or a public page marker alone must not be described as authenticating another local account. The token decision remains open in #719.
+7. Only close #719 after all eight of its acceptance points have evidence on the restored code and an independent reviewer or owner accepts them. Removing code in #700 or resolving a GitHub thread does not satisfy those checks.
+
+#### Dependencies
+- **#720, restore the report skill:** needs an authorized restoration branch to implement and observe the fix. #719 blocks approval of that restored server; it does not require #720 to merge first. Implementing both in the same restore PR avoids a circular dependency.
+- **#718, dashboard/report views:** its state-location and copy-ownership choices are restoration prerequisites recorded by #720, not evidence that the security code depends on the entire dashboard being built.
+- **#716, coordinator features:** report-entry display work is indirectly affected through restoration. It is not a prerequisite for fixing the isolated daily-page server, and this security issue does not block all coordinator or watcher work.
+
+#### Related issues
+- [#720, parked report-skill restoration](https://github.com/IronbellyOrg/IronClaude/issues/720): explicit direct relationship and security merge gate; live OPEN, no comments at inspection.
+- [#718, report and dashboard features](https://github.com/IronbellyOrg/IronClaude/issues/718): report-state location and copy ownership; its state-location section repeats the unsafe whole-state-folder serving concern.
+- [#716, coordinator feature follow-up](https://github.com/IronbellyOrg/IronClaude/issues/716): report-entry content and issue-body-change entries wait on restoration; indirect relationship only. These relationships are recorded in the live issues, not inferred as whole-issue dependencies.
+
+Live issue responses are preserved under `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/719/` as evidence. The local debate/spec documents named by the issues were not available in the targeted snapshot and were not relied on as independently verified sources.
+
+#### Related PRs
+- [#684, original report-skill import](https://github.com/IronbellyOrg/IronClaude/pull/684): MERGED on 2026-11-20, commit `d7d645dddd42e49a72a734f9c8b6952bcbcb4527`; the vulnerable startup is present in the matching local archive. Review summaries confirm security review activity; exact linked inline thread contents/resolution remain UNVERIFIED independently of #719.
+- [#700, rollback that removed the skill](https://github.com/IronbellyOrg/IronClaude/pull/700): MERGED on 2026-11-20, commit `471f10511c8e2e8176c0e2088720ece03beca317`; its changed-file listing deletes the skill and 4,005-line test file, consistent with the current tree and local history.
+- No fixing/restoration PR was identified in the targeted all-state searches. This is a bounded search result, not a guarantee about every branch or unlinked PR.
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+--

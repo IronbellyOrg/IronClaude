@@ -1,0 +1,66 @@
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** in-progress
+- **Complexity / size:** Complex / L
+- **Priority:** P2
+
+#### Concrete next steps
+1. Preserve the completed research rather than restart the brainstorm. Reconcile the live issue and initial risk plan with the latest recorded answers before commissioning an implementation plan. The earlier eleven-minute watcher and uniformly three-minute wait are superseded: `/home/coder/workspaces/worktrees/IronClaude/Coordinator/.dev/issues/757/worker-brainstorm/risk-tests/DECISIONS-2.md:7-23` records a stamp-gated 25-minute watcher, a three-minute wait while busy, and a 45-minute wait while idle. Managed Coder installation and a narrowed recurring prompt were recorded earlier in `/home/coder/workspaces/worktrees/IronClaude/Coordinator/.dev/issues/757/worker-brainstorm/risk-tests/PLAN.md:9-13`. Original chat authority for both rounds remains **UNVERIFIED** here; this audit does not grant approval. The later record still leaves the narrowed prompt interval open at lines 37-41.
+2. Revise the existing design before implementation: include cron sender identity, receive `status` messages, account for incomplete worker coverage, and carry forward the corrected fingerprint. For the latest cadence, the later research derives a 55-minute health limit, not the earlier 25-minute limit; that is a derived recommendation, not a separately verified owner choice. Its saved three-seed simulation gives worst detection delays of 58 minutes busy and 100 minutes idle: `/home/coder/workspaces/worktrees/IronClaude/Coordinator/.dev/issues/757/worker-brainstorm/risk-tests/DECISIONS-2.md:15-23` and `/home/coder/workspaces/worktrees/IronClaude/Coordinator/.dev/issues/757/worker-brainstorm/risk-tests/raw/t3b-runs.jsonl:1-3`. The coordinator must reconcile these latency bounds with the intended supervision requirements before planning rollout. Do not declare every prior risk test passed: the spaced fingerprint acceptance check failed and its correction was checked offline only, per `/home/coder/workspaces/worktrees/IronClaude/Coordinator/.dev/issues/757/worker-brainstorm/risk-tests/results.md:43-51,108-113`.
+3. Make a checked implementation plan from the revised requirements, keeping the read-only sweep separate from the write that wakes the coordinator. Cover saved-state recovery, duplicate wake handling, retries, Run changes, quiet unchanged ticks, fallback when the watcher fails, and deferred wakes within the existing observation cap. Preserve coordinator re-arm and existing stall-proof rules. Source boundaries: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/cli/sweep/probes.py:49-60` and `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/src/superclaude/core/WORKER-CONTRACT.md:104-115,288-290`.
+4. Implement and validate only after the coordinator establishes the needed grants. Tests must cover unchanged silence/no model call from the scheduled checker, one first-time decision wake, retries and corrupted state, incomplete observations and delivery into the coordinator's actual wait. Update the contract and its matching design text, and arrange managed installation outside this repository. No install, live experiment or source change is authorized by this review.
+5. Keep acceptance criterion 1 scoped explicitly: a model-free checker does not make the retained in-session wait or narrowed model prompt token-free. Require measured savings and a real coordinator-handling check; both remain **UNVERIFIED** by this audit. Prior findings already distinguish delivery from model behaviour: `/home/coder/workspaces/worktrees/IronClaude/Coordinator/.dev/issues/757/worker-brainstorm/risk-tests/results.md:82-113`.
+
+#### Dependencies
+- No hard issue-number prerequisite or downstream blocked issue is established by the live issue; do not invent a dependency edge from a related-issues list.
+- #755 (OPEN, coordinator Run creation and switching rules) is an integration dependency to settle or explicitly account for before deployment, not proof that all work must wait for its closure: a watcher bound to the wrong Run can miss work. `/home/coder/workspaces/worktrees/IronClaude/Coordinator/.dev/issues/757/worker-brainstorm/merged-requirements.md:250` explicitly leaves older Runs unwatched after a rebind.
+- Managed scheduler installation belongs to the Coder template according to `/home/coder/workspaces/worktrees/IronClaude/Coordinator/.dev/issues/757/worker-brainstorm/risk-tests/PLAN.md:9`. A concrete Coder issue number and its completion are **UNVERIFIED** here; this review is restricted to IronClaude GitHub reads.
+- #450 (CLOSED, issue watcher rollout) and #751 (CLOSED, failed-first-run retry) are existing cron/reliability precedent, not open blockers. #716, #717, #706 and #725 overlap the coordinator ecosystem but no strict requires/blocks relationship was verified.
+
+#### Related issues
+Live titles and states were checked on IronbellyOrg/IronClaude:
+- #716, OPEN: coordinator next-release features from issue 655; wider coordinator scope, not a duplicate of change-only scheduling.
+- #717, OPEN: issue watcher features from issue 655; separate watcher.
+- #755, OPEN: coordinator creates multiple Runs; directly relevant to watcher Run binding.
+- #751, CLOSED: issue watcher never retries a failed first run; retry precedent, not this feature.
+- #450, CLOSED: issue watcher rollout, live test, shadow run and cron; scheduling precedent.
+- #706, OPEN: observer follow-up including sweep source and scale tests; relevant to observation coverage.
+- #725, OPEN: coordinators ask peer coordinators before humans; decision-routing overlap.
+These are related by the live issue's explicit list and their verified titles/states; this report does not assert all their acceptance criteria have been satisfied.
+
+#### Related PRs
+No implementation PR is linked or numbered in issue #757's current body or comments. Read-only PR searches across all states for `757`, `coord-watch` and `coordinator sweep` found no relevant implementation PR. The `757` search returned merged PR #508 (commit `146be6fc34276c99d4bff89e682472274f71ce8e`), but its body says 757 tests passed; it is a numeric false match and does not implement this issue. No relevant PR number can be supplied without inventing one. Differently named or unpushed work elsewhere is **UNVERIFIED**.
+
+The required architecture command completed; report: `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g6/757/analyze/analyze-report.md`. This audit ran no tests, no Python/UV command, no cron change, no live wake and no GitHub write; prior experiment results above are read from disk only.
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+--
+author:	clayphi
+association:	member
+edited:	false
+status:	none
+--
+@ironbelly this looks like a good fit for something else we found while reading the code. Please correct us if we have misread.
+
+Nothing today tells the standing coordinator that a watcher claim has finished. The claim runs in its own short-lived session, and the coordinator's duties name the files to read, but not when to look. Also, the contract says a finished agent's `result.md` is noticed through `/sc:sweep`, but the sweep code does not read that file.
+
+Could the model-free scheduled task in this issue also (a) list claims the coordinator has not adopted yet, and (b) notice new `result.md` files, and wake the coordinator for those? If you would rather keep this issue as it is, we can file a separate one and link it here.
+
+--
+author:	ironbelly
+association:	member
+edited:	false
+status:	none
+--
+If we scanned the session logs for any file updated in the last x minutes, mapped session logs to session ID or whatever other metadata the coordinator needed, when the scan found files changed, it sent the coordinator a ping to follow up on those session.
+
+
+--

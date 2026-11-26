@@ -1,0 +1,74 @@
+=== ironbelly 2026-11-22T11:06:41Z
+Status note (owner decision, 2026-11-22): the work-report tool is parked and is not being restored now. Items C8 (the report-entry line) and C14 (report entry content) depend on it, so they are on hold until the owner asks for a daily report page or the report-entry writer stage (S15c) starts. How to bring the tool back later is in issue #720, and the page-server fix it needs first is in issue #719. Nothing in this issue is closed or changed.
+
+
+=== ironbelly 2026-11-24T14:23:00Z
+## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Complex / XL
+- **Priority:** P2
+
+#### Concrete next steps
+1. Have the coordinator refresh the issue's item-by-item scope against the merged watcher and current worker contract before commissioning implementation. Specifically reconcile C15's plan-request mode (PR #690 is closed, unmerged and documented as not planned), C16-C17's merge gate, C22's tier keys, C23's separate overview/registry assumption, and the old wake/flag/build-order assumptions; these are not authorized merely by appearing in #716. Keep retained engineering requirements distinct from rejected architecture.
+2. Start with the retained coordinator skill skeleton and its file/template tests (C1-C2, C4, C6 and C25), reusing the existing brief, approval and completion helpers. Then integrate only approved lifecycle items with one Run, reservation before worker launch, explicit uncertain-launch handling, fresh plan approval, and terminal settlement. Keep the existing claim/store path as the baseline rather than adding a competing state store.
+3. Keep C14 and the report-entry line of C8 parked. Revisit them only when #720's recorded trigger is met, with #719's page-server safeguards as the restoration merge gate; no report server or daily page is needed for this triage.
+4. Plan regression and throwaway end-to-end checks for retained lifecycle behavior, including duplicate launch, restart, wrong approval, completion and no permission-prompt approval. Resolve the known #698 and #699 decisions in the matching integration work, without silently claiming the current guard is complete isolation.
+5. Refresh stale text: C7 must not bar script-started coordinators; the owner’s #655 closure is not a closure of this issue; PR #693 adds `launch-result.json`, not a universal `worker_done` validator. No listed next step was executed in this read-only review.
+
+#### Dependencies
+- #720 (parked report skill restoration) is required only for C14 and the report-entry part of C8, after its owner-defined trigger. #719 (local page-server safety) gates that restoration, not the entire coordinator skeleton. Both live issues were read and remain open.
+- #717 (sibling watcher improvements) is the issue's original producer-side dependency for C15 plan-request transport, and its handover work refers back to a coordinator command. Because the owner's later baseline rejects that transport as adopted design, do not treat #717's old W2-before-C15 order as an unconditional current dependency. Its scope must first be reconciled; #717 is open.
+- #718 (dashboard/report views) depends on shared report-entry content if that feature is reactivated. Its 2026-11-22 comment parks D1-D2 and says D3-D4 are not being pursued; this does not block the basic coordinator skeleton. #718 is open.
+- #698 (release-marker/approval protection) and #699 (claim worktree creation before its worker) are open design/safety follow-ups relevant to safe lifecycle integration, not evidence that all coordinator work must wait. Their live issue descriptions were read; no exploit or worktree experiment was run.
+- The issue's named S13-S17 stage prerequisites cannot be confirmed from the absent local spec: UNVERIFIED. Coder #516 supplies the standing coordinator/worktree and Coder #515 supplies cron according to the current merged policy; their live status is UNVERIFIED because this brief permits GitHub reads only on IronbellyOrg/IronClaude.
+
+#### Related issues
+- #655: source orchestrator proposal, closed as not planned; the owner's last two comments explicitly preserve uncovered features in #716-#718.
+- #717 and #718: sibling watcher and report/dashboard feature lists, with the partial dependencies above.
+- #719 and #720: report server safety and deferred restoration, not approval to restore now.
+- #698 and #699: existing approval/release and worktree ownership risks.
+- #444 (coordinator/sub-orchestrator evaluation), #450 (watcher rollout), #665 (older plan review findings), #409 (TUI dashboard) and #706 (observer follow-up) are related pointers named in #716. Their current contents, status and completion are UNVERIFIED in this narrow review; no hard dependency is inferred from those pointers.
+
+#### Related PRs
+Live PR metadata and bodies were read for all PRs mentioned in #716 (#681, #682, #684, #686, #693, #697, #700 and #701), plus the directly relevant later #690, #707, #729 and #754:
+- #681, design document, merged as `c2a1395522239429dd21f19cadd206fd643fec03`; #682, plan-approval package removal, merged as `01e7a9e23519fd54bc438bb1a1a0e03dcdae5baf`; #684, report skill import, merged as `d7d645dddd42e49a72a734f9c8b6952bcbcb4527`. All three were subsequently rolled back by #700, so their original merge is not delivery evidence for #716.
+- #697, attempted approval-package restore, closed unmerged; #700, actual rollback preserving closeout and restoring the package, merged as `471f10511c8e2e8176c0e2088720ece03beca317`; #701, retained contract corrections, merged as `0a46644576a31f0f62b9629b0f095b213027cdf6`.
+- #686, alternative watcher rewrite, and #690, issue-plan/remaining mode, are closed unmerged. Neither supplies #716's missing runtime features.
+- #693, claim-launch JSON file, merged as `dd7bdf2f7fa99ec3a0dc56c4ba8c1fbdaea67873`; this is useful launch evidence, not proof of the C11 completion validator.
+- #707, actual zero-setup watcher and completion baseline, merged as `2ea524514154bde03258a7d7d8a0265c371609af`.
+- #729, current watcher policy and comparison, merged as `56574824844f18d872ead6e30dc89e54973406e0`; its body explicitly says uncovered features remain tracked in #716-#718.
+- #754, latest coordinator wording cleanup and this checkout's HEAD, merged as `a7ae3dd30fcf88aaab655c37e94e58e121c2d863`.
+
+A live `gh pr list` search for `716` found #729 and an unrelated older #95; it found no dedicated implementation PR for this feature list. Search is not exhaustive proof that no other work exists: active branches or unmentioned PRs are UNVERIFIED. The required static command's durable report is `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/716/analyze/analyze-report.md`; its contract is `/home/coder/workspaces/worktrees/IronClaude/Issuecleanup/.dev/issuecleanup/g5/716/analyze/return-contract.yaml`. No historical test totals are represented as tests run by this review.
+
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+
+
+=== clayphi 2026-11-24T18:14:23Z
+@ironbelly thank you for gathering these. We did a read-through of how the issue watcher and the coordinator fit together on master (f75cf81e3, 2026-11-24), and three things touch this issue. Please correct anything we have misread.
+
+1. **The coordinator skill (C1, C4).** Today the coordinator runs on the rules in WORKER-CONTRACT.md plus the launch prompt in the Coder image, and nothing tells it to load Orca's orchestration guide. We would suggest C1 and C4 come first, since most other items assume the skill exists. Is it right that R38 keeps the name `/sc:coordinator` and drops only the rows adopted from the 655 design? A line here saying which items still stand would help whoever builds it.
+2. **Finishing the work (C16 to C19).** `/sc:closeout` and `/sc:worktrees` are on master, but the coordinator's duties do not call them after a merge, and a "not done" result from closeout has nobody to hand back to. Could a post-merge duty (closeout, then worktree cleanup, with the hand-back going to the coordinator) be added here?
+3. **Restarting a dead worker (C12).** WORKER-CONTRACT.md lines 155 and 158 allow a restart in one case, while line 303 says the coordinator never relaunches a dead worker by itself. We would suggest the coordinator may restart a dead worker with a small budget, and that the C12 playbook states that as one rule. Would that fit?
+
+Happy to help with any of these.
+
+
+=== ironbelly 2026-11-24T20:53:53Z
+Determine the current full handoff process before anything else is adopted
+ - Watcher should be purely on the programmatic side
+ -- throws information coordinator needs at the coordinator
+  --- Question: Does that trigger a skill call, or is the coordinator an agent.
+
+
+This issue is being split up to separate sub-issues.. Spawn 9 parallel agents, assigned to 3 sub-issues each, to run /sc:analyze and determine the relevancy, value and of any contradictions against architectural decisions and directions or conflicts with other open isuses
+
+
+
+=== ironbelly 2026-11-24T22:10:04Z
+Sub-issue #809 was merged into this issue by the owner (decision in chat, 2026-11-24, after a reviewed analysis). Its text stays in #809 (closed); the changes to carry over are in the comment there.
+
+

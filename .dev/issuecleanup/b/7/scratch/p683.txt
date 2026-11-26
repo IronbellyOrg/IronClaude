@@ -1,0 +1,39 @@
+PR #683 [MERGED 2026-11-20T01:16:58Z] feat(closeout): add /sc:closeout and the sc-closeout-protocol skill (issue 668)
+## What this adds
+
+`/sc:closeout <PR>` and the `sc-closeout-protocol` skill, for a pull request that has merged on the `origin` repository. It settles three things and prints one fixed-shape result block:
+
+- **The issue.** A script reads the pull request state first and goes on only for a merged pull request. The skill then judges whether the issue is done by reading the issue's own criteria against what the pull request and its linked pull requests delivered. A done issue is closed once, with a note that says why and who merged. An issue that is not done stays open with one marked note of what remains, and the unmet criteria go back to the caller in the result. A case it still cannot tell is escalated with one question. The words `Fixes`, `Closes` and `Refs` decide nothing.
+- **The work report entry**, settled through the orchestrator's report command, or escalated when that command is absent.
+- **The worker's Orca task**, set to completed, or escalated when Orca or its Run is not there.
+
+Every item ends with a stated final status or an escalation that says why. "Completed" means merged; the word "deployed" is never written. The command is for a person or the orchestrator, never a worker (it is on the never-as-worker list in four places).
+
+Contents: the command, the skill (`SKILL.md`, three refs, four templates), two scripts (`branch-landed.sh`, `settle.sh`) with a names deny list, the routing row in `HOW-WE-WORK.md` and its plugin copy, the user guide entry, the CHANGELOG entry, the never-as-worker pin, the write-verb audit rows, and the tests. The design spec `docs/designs/sc-closeout.md` (owner approved) rides in this pull request.
+
+## Adopted work and licence
+
+The skill adopts Jay Wedgeworth's closeout skill (`skills/closeout/SKILL.md`) and `scripts/branch-landed.sh` from https://github.com/Simple-With-Us/AI-Fleet-Coordinator under the Apache License, Version 2.0, with the owner's approval. Both files carry the notice. `src/superclaude/skills/sc-closeout-protocol/PROVENANCE.md` records the source commits, blob hashes and a row for every changed, kept or dropped part; `LICENSE` in the skill folder is the upstream licence byte for byte; the root `NOTICE` has entry 2.
+
+## Tests and gate evidence
+
+- `tests/skills/test_closeout_protocol.py` (scripts run for real in a scratch git repository with a fake `gh`, `orca` and `superclaude`; static, words, names, hygiene, notice, fork-safety and Will Not Do tests) and `tests/commands/test_closeout_command.py`: the full suite under four workers gave 22864 passed and 2 failed; both failures were `ruff` tests that needed `ruff` in the venv (an environment gap), and that test file passes (13 passed) once `ruff` is installed. After the merge of `origin/master` the two closeout files, the routing tests, the contract tests, the alias policy test and `tests/docs` and `tests/audit` all pass (2325 passed).
+- Write-verb audit (`tests/skills/test_worker_contract.py`): 13 new rows for the `gh pr` and `gh api` lines of the two scripts, all plain reads; the whole file passes.
+- `make sync-dev`, `make verify-sync` clean; `make lint` clean; `git diff --check` clean; `shellcheck` and `detect-secrets` pre-commit hooks pass on the new files.
+- Install check in a throwaway home (never the real `~/.claude`): `superclaude install` installs the skill folder (13 files, both `.sh` files executable) and `commands/sc/closeout.md`, and `superclaude doctor` reports healthy.
+- The hand checks that the static tests bite (a listed name, a dash, a missing file-table row, a `gh` line without `--repo`) each turned the suite red once.
+
+## Known points
+
+- `/sc:issue --plan <N>` is named in the command's Related Commands table and in the hand-back sentence. That flag lands in a separate pull request of the 655 split, not this one. Nothing here tests it.
+- The JSON field names of an Orca task that `settle.sh task` reads are UNVERIFIED against a real Run (U3). The fake `orca` in the tests pins guesses; a lookup that does not fit is `escalated why=task_lookup_failed`. The manual runbook says how to check them on a real Run.
+- A verdict for a stop in wave 0 is written `UNKNOWN` in `refs/result.md`. This is the plan's finding F11, an owner decision; the owner may prefer `null`.
+- **Spec mismatch for the follow-up issue:** spec 3.2 gives `settle.sh task [--dispatch ID | --title T] [--match M]`, but section 5.4 needs the pull request number (result text `merged <R>#<PR>`) and the issue number (default title `<R>#<N>`). The built form is `settle.sh task <PR> [--issue N] [--dispatch ID | --title T] [--match M]` (decided by the orchestrator). The skill and `refs/result.md` use it. The spec file is not changed here.
+- `ruff format --check src/ tests/` fails on 6 untouched Markdown files. The same files fail on `origin/master` (checked on the `origin/master` content of those files; this pull request does not touch them): `src/superclaude/examples/release-spec-template.md`, `src/superclaude/templates/documents/release-spec-template.md`, `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md`, `src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md`, `src/superclaude/skills/sc-validate-tests-protocol/SKILL.md` and `src/superclaude/skills/sc-cleanup-audit-protocol/rules/dynamic-use-checklist.md`. Not fixed here (out of scope).
+- The build follows the approved spec. Findings F1 to F70 of issue 674 are not part of this build, except the notes that the plan names for tasks that touch the same text.
+- The manual check (a read-mostly run on pull request 661 and a write run in a scratch repository) is open and is run by the owner; the runbook is `.dev/orchestrator-668/build/manual-check-runbook.md` in the build worktree (not committed).
+
+Fixes IronbellyOrg/IronClaude#668
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+

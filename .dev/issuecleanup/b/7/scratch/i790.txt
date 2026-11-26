@@ -1,0 +1,41 @@
+#790 [OPEN] [FEATURE] Coordinator C9: Handoff prompt template: fixed nine-section order, Fixes or Refs rule, no secrets, hand-back round block, regression gate
+## What was tried
+This is item C9 of the coordinator issue #716 (next release: the features of issue 655 that the current plan does not cover), split out so it can be built and tracked on its own. Issue 655 was split into its 14 sections and one analyst per section classified every design feature against the unification spec and its decision record; this item is one of the features that were found missing. Nothing in this item is built yet. #716 stays the umbrella issue: its closing review holds the build order, the phases and the open owner decisions.
+
+## Relevant files and links
+- Parent issue: #716 (this item is a sub-issue of it). Sister issues of the split: watcher #717, TUI dashboard #718. Source design: #655.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+The item below is built, tested and checked against its own lines, or the owner records in chat that it is dropped. The text is copied unchanged from #716.
+
+### C9. Handoff prompt template: fixed nine-section order, Fixes or Refs rule, no secrets, hand-back round block, regression gate (655 section 2, 3, 4, 7, 10, 14; rows S03-F20, S04-F22, S04-F24, S04-F26, S04-F28, S02-F27, S07-F25, S14-F27, S10-F53)
+  - What to build: The coordinator's handoff template tells the worker to write `Fixes <repo>#<N>` in its PR only when the PR fully delivers the issue's own criteria and `Refs <repo>#<N>` otherwise, in a fixed section order that a test pins.
+  - Also in this item:
+    - S04-F22: The worker's first prompt is built from one template with fixed, ordered sections (identity of the issue and worktree, goal, the Orca task fields, rules, chain, reporting and stop condition), and a test pins the order.
+    - S04-F24: In a hand-back round the worker's prompt states which round this is, the pull requests of the earlier rounds and the remaining items.
+    - S04-F26: The handoff template tells the worker never to print or commit secrets, tokens or credentials.
+    - S04-F28: The text that opens the pull request uses `Fixes` only for a pull request that fully addresses its issue and `Refs` otherwise, so a partial pull request cannot close the issue at merge.
+    - S02-F27: The handoff prompt names the repo's regression gate command and the worker must run it and report its result in `worker_done`.
+    - S07-F25: Put the `Fixes`/`Refs` rule into the worker brief template and state in the skill that no script checks it.
+    - S14-F27: The coordinator's handoff template tells the worker to write `Refs #N` in the PR when the issue may not be finished and `Fixes #N` only when the plan says the PR completes it, and closeout reports `already_closed` when GitHub closed the issue at merge.
+    - S10-F53: The handoff prompt tells every worker to write `Fixes <repo>#<n>` in the PR body only when the PR fully addresses the issue and `Refs <repo>#<n>` otherwise, and the audit after the merge flags a `Fixes` line on a PR whose issue still has remaining items.
+  - Done when: a test renders the template for a part-done round and asserts `Refs`, renders it for a full-scope issue and asserts `Fixes`, and checks the section headings appear in the stated order.
+    - also: A golden test builds a prompt for a sample issue and compares section headings and order with the template.
+    - also: A golden test of a round-2 prompt shows the round number, the earlier pull request numbers and the remaining list; a round-1 prompt has no such block.
+  - Related items (read together; the order is in the review at the end): C11
+  - Research and debate results from our documents:
+    - S03-F20: `.dev/brainstorms/20261120-pr686-unify/brainstorm/run/merged-requirements.md:835` "RK-25 | Closeout or a `Fixes` line closes an issue whose work is unfinished | ... `Fixes` closing is GitHub behaviour outside the gate | Close only under the go (K12); keep `left_open`; state the limit".
+    - S04-F22: W/techref/ISSUE-TO-WORK-PIPELINE-TECHNICAL-REFERENCE.md:2292 "`brief.py` | 74 | Builds the fixed worker brief from a template and a validated issue number" (the old owner-side builder carried a number only).
+    - S04-F24: D15:32 (R-6) "Round 2 passes the start gate again; either re-approve after the re-plan (default) ... (OD-2)". The cap number 3 is labelled "not measured" (SPEC:237).
+  - Watch out:
+    - S03-F20: 655 itself admits a wrongly written `Fixes` still closes the issue and no script checks it (K28, line 100); the plan's answer is a go before closing (SEC-12), which 655 does not have (see S03-F34).
+    - S04-F22: UNVERIFIED that Orca's task-spec field names (target, change, constraints, ownership, observable acceptance) match Orca's own current skill; 655 gives them without a source and no document of ours checks them. Section (9) "reviewers finished, no open thread" assumes the worker watches reviewers (see S04-F29).
+
+
+## Pick-up note
+- Read the review at the end of #716 first: it holds the build order, the three phases and the owner decisions that gate this item. The related-item ids above (C numbers) refer to the sibling sub-issues of #716.
+- The plan files named above are local files, not pushed; read them from a checkout that has them, or ask the owner.
+

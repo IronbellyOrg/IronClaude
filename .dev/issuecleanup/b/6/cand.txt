@@ -1,0 +1,310 @@
+########## 770
+# #770 [FEATURE] The watcher hands each claim to the coordinator, and results come back to it [OPEN]
+## Feature Summary
+Thank you, Ryan, for the issue watcher and the standing coordinator that are now on master (pull request 707). This asks for one small link between them, so the coordinator learns when the watcher claims an issue and when a result comes back, without a person in between.
+## Problem Statement
+Nothing tells the standing coordinator that the watcher claimed an issue, or that a claim finished. The code facts below were re-checked on master afb3ccf29 on 2026-11-24.
+- When the watcher claims an issue, it starts the claim as a new Claude tab with `orca agent launch ... --surface terminal` (`src/superclaude/cli/issue_watch/launch.py:136-157`). It sends the coordinator no message.
+- The worker contract (`src/superclaude/core/WORKER-CONTRACT.md`) says which sources the coordinator reads once it adopts a claim: the `claimed` entry in `dispatch.json` and the files under `.dev/issues/<N>/` (line 296). It gives no trigger for when to look, no command that lists claims, and no wake-time step. The `issue-pipeline` command group has `adopt-create` and `adopt-mark` (adopt one issue) and `stage-status` (one issue), and no verb that lists claims (`src/superclaude/cli/issue_pipeline/
+- The contract (`WORKER-CONTRACT.md:302`) and the design note `docs/designs/issue-watcher-status-pipelines.md:75` both say a finished agent's result file `.dev/issues/<N>/result.md` is "noticed through the `/sc:sweep` report". We searched `src/superclaude/cli/sweep/`, `src/superclaude/skills/sc-sweep-protocol/` and `src/superclaude/commands/sweep.md` for `result.md`, `dispatch.json` and `claimed`, and found nothing. So the sweep does not read that file today.
+- The launch prompt in the Coder image tells the coordinator to "adopt each issue the issue watcher claimed in {repo}, start one worker per issue" (<private-repo>, `templates/VSCode-AIDev02/image/bin/coordinator-ensure`, line 37, main at cce24743). That is an instruction. It is not a trigger and it is not a list.
+With 20 or more pull requests a day, a person cannot be the link between a claim and the coordinator. Today the claim waits until the coordinator happens to look, and a finished result waits until someone reads the file.
+## User Story
+As the project owner or person directing agent work, I want watcher claims and finished results to reach the coordinator automatically, so that the work does not wait for a person to pass them on.
+## Proposed Solution
+This is a question and some options for Ryan, not a verdict. Please correct us where we misread the code. It comes out of the read-through in IronbellyOrg/IronClaude#761, the list of 18 possible gaps in the watcher and coordinator design.
+We do not suggest replacing the merged watcher. Three ways to close the link, which can also be mixed:
+- (a) The model-free scheduled wake task of issue 757 (IronbellyOrg/IronClaude#757, run the coordinator sweep outside the session and wake it only on change) also lists claims the coordinator has not adopted yet, and new `result.md` files, and wakes the coordinator for them. We already left a short comment on 757 asking this, so it is not repeated here.
+- (b) The watcher starts the work through the standing coordinator instead of a separate short-lived claim session, or the claim session is cut down to a hand-off message.
+- (c) A new list verb in `issue-pipeline` (unadopted claims and new results) plus a wake-time step in the contract that says to run it.
+We also ask for one recorded live run of the whole chain: cron tick, claim, coordinator adopts, worker runs, `issue-pipeline complete`. UNVERIFIED: whether any issue has gone through all of those stages on the live host. The check that would settle it is to read that host's `audit.jsonl` and `dispatch.json` entries against the workers of the coordinator's Orca Run. The record `docs/designs/issue-watcher-live-test.md` does not exist on master (the closing comment on issue 450, IronbellyOrg/IronCl
+Open questions:
+1. Which of (a), (b) or (c), or which mix?
+2. Where does the claim list live? We would use the existing `dispatch.json` store and not add a second one, as the 2026-11-24 backlog review on issue 716 asks.
+## Acceptance Criteria
+- [ ] With the chosen option, a watcher claim reaches the standing coordinator and is adopted without a person passing it on.
+- [ ] A new `.dev/issues/<N>/result.md` is noticed by the coordinator through the chosen option, without a person reading it first.
+- [ ] One recorded live run shows the whole chain: cron tick, claim, coordinator adopts, worker runs, `issue-pipeline complete`. The record ties the host's `audit.jsonl` and `dispatch.json` entries to the workers of the coordinator's Orca Run.
+## Out of Scope
+- The coordinator skill itself, items C1 and C4 of issue 716.
+- Restarting a worker that died.
+## Components Affected (from `/sc:analyze`)
+The chosen option decides which components need changes:
+- `src/superclaude/cli/issue_watch/launch.py`: the separate claim launch, relevant to option (b).
+- `src/superclaude/cli/issue_pipeline/cli.py`: the existing adoption, status and completion verbs, and a possible list verb for option (c).
+- `src/superclaude/cli/issue_watch/record.py`: the existing `dispatch.json` store, not a competing claim store.
+- `src/superclaude/core/WORKER-CONTRACT.md:290-302`: the coordinator's wake pass, adoption sources and completion duties.
+- `src/superclaude/cli/sweep/`, including `probes.py`, `models.py` and `report.py`: the current reads and report, if the chosen option uses the sweep to notice results.
+- `src/superclaude/skills/sc-sweep-protocol/` and `src/superclaude/commands/sweep.md`: the sweep instructions, if its reads change.
+- `docs/designs/issue-watcher-status-pipelines.md:75`: the statement about noticing results through the sweep, to align with the chosen option.
+- `tests/issue_pipeline/`, `tests/cli/test_issue_pipeline_registered.py`, `tests/issue_watch/test_launch.py` and `tests/sweep/`: existing test locations for the affected commands and reads.
+########## 755
+# #755 Coordinator created multiple Orca Runs by default; find why, set a Run rule, compare one Run per project vs many [OPEN]
+## What was tried
+On 2026-11-23 the standing coordinator session COORD-IronClaude (the Coordinator worktree) created two Orca Runs without any instruction from the owner, and a third Run already existed from the issue 751 claim agent:
+1. `run_c6c0e8864967` for issue 597: created after `orca orchestration worker-start` failed with `consumer_fenced` ("worker-start needs the coordinator bound to the Run"). The coordinator ran `run-create` to get past the error. It did not first run `run-current` or look for an existing Run.
+2. `run_3c5063203944` for the issue cleanup (5 workers, then up to 97 issues): created with `run-create` again, for a new objective.
+3. `run_71871571be85`: made by the issue 751 claim agent for its own work.
+Consequence, observed: a terminal is bound to one Run at a time. `check --run <other>` returned `consumer_fenced` ("This caller is bound to Run run_3c5063203944, not Run run_c6c0e8864967. Nothing changed."), so after the second `run-create` the coordinator could no longer read the 597 worker's inbox (heartbeats, `worker_done`, a blocked question). It read the worker's `return-contract.yaml` from disk instead.
+Why it happened (evidence so far, not yet confirmed):
+- `src/superclaude/core/WORKER-CONTRACT.md` (section 4) says to wait on "one Run inbox" but has no rule on when to create a Run, when to reuse one, or how many a coordinator may hold. Search of `src/superclaude` for `run-create` / `run-use` finds only the observer and sweep code, which never bind.
+- The only guidance seen was Orca's own skill text ("bind one Run"), which does not say one Run per project or per task.
+- `orca orchestration run-list` shows 59 earlier Runs, nearly all named for one task. A coordinator copying that pattern would create one Run per task. UNVERIFIED: that this is how the coordinator reasoned; the cause is inferred from the error it was fixing and the history, not from a recorded decision.
+- UNVERIFIED: whether `run-use --id` can switch a bound terminal to another Run and back without losing queued messages. It was not tested because five workers were mid-run.
+## Relevant files and links
+- `src/superclaude/core/WORKER-CONTRACT.md` section 4: WC-16 (coordinator loop), "The wait", "Issue pipeline duties" (no Run rule)
+- `src/superclaude/core/CLAUDE.md` and the Orca session-launch text (no Run rule)
+- `~/.claude/skills/orchestration` stub and `orca skills get orchestration` (Orca's own guide)
+- Repo: IronbellyOrg/IronClaude. The coordinator is the Coordinator worktree, session COORD-IronClaude.
+- Runs: `run_c6c0e8864967`, `run_3c5063203944`, `run_71871571be85`
+## Done when
+1. The cause is established from evidence: a short note says what instructed or allowed the coordinator to create a Run per task, and which part is a gap in our docs versus Orca's behavior.
+2. A written comparison of one Run per project versus several covers: what a single Run gains (one inbox and one wait cover every worker, the contract's one-wait-per-inbox rule holds, the sweep stays simple, a restart needs one `run-use`) and what it costs or risks (one inbox mixes unrelated work, a fenced or stuck consumer blocks everything, message batches are shared so a slow handler delays all, per-task history and objective get blurred, a large Run is harder to close or archive). It also co
+3. The coordinator rules in WORKER-CONTRACT.md state when a Run is created, reused or switched, and that a coordinator checks `run-current` and `run-list` before any `run-create`. A test or check keeps the rule from being dropped.
+4. The `run-use` switch question is answered by a test with disposable workers, and the result is recorded.
+5. Existing split Runs (the three above) are consolidated or closed by a recorded decision of the owner.
+## Who it is for
+A person or agent who works on the coordinator rules in IronClaude. Start with `src/superclaude/core/WORKER-CONTRACT.md` and Orca's `orchestration` guide. Do not create Orca Runs to test this inside a live coordinator session; use a throwaway project. Every gh call names `--repo IronbellyOrg/IronClaude`, and no Orca link flags are used.
+## COMMENTS
+--- 2026-11-24T13:13:09Z ironbelly
+## Findings so far: one inbox vs many Runs (coordinator observations, 2026-11-24; not the research this issue asks for)
+**What was observed**
+- A session can read one Run's inbox at a time. Even a read-only peek at another Run is refused: "This caller is bound to Run run_3c5063203944, not Run run_c6c0e8864967. Nothing changed."
+- A session can still list another Run's workers and read their files on disk.
+- Cost seen: the issue 751 agent asked "open the pull request?" at about 02:48 and the question sat unseen for about 10 hours, because that agent reports into its own Run, `run_71871571be85`, and the coordinator was bound to another. Issue 597's blocked question reached the coordinator only through a file.
+**One Run per project**
+- Rewards: one inbox and one wait cover every worker; a restart needs one command; the sweep and observer code, built around one Run, work as they are.
+- Risks: unrelated work mixes in one inbox; one stuck or fenced session blocks everything; messages are one shared queue, so a slow handler delays all; the Run is harder to close or archive; launched agents appear to create their own Run (751's did; not verified), so a single-Run rule may not be enforceable for them.
+**Many Runs**
+- Rewards: isolation and a clean per-task record.
+- Cost: every Run the session is not bound to is invisible for questions and decisions (confirmed above).
+**What would have to change to sweep every inbox**
+- `src/superclaude/cli/sweep/probes.py:49-60`: the allowlist is 10 read-only Orca commands. It reads workers and tasks of one Run and does not read messages. It needs a list-all-Runs command added and its tests updated.
+- The real blocker is not our code: reading another Run's messages is refused for an unbound session. Options: an Orca change (a read-only cross-Run peek), a rule of one Run per project, or sweeps that take turns binding.
+- `src/superclaude/cli/observe/commands.py:75,491`: the observer's question list reads one named Run only; it would have to loop over Runs.
+- `WORKER-CONTRACT.md` needs a rule for when a Run is created, reused or switched.
+- Interim workaround in the coordinator's own sweep: read every project Run's workers plus each launched agent's `result.md` and terminal tail. It misses messages that were sent but never acted on.
+**Not known:** whether switching the bound Run (`run-use`) loses queued messages (not tested). The coordinator's lean, unproven: one Run per project plus an Orca request for a read-only cross-Run peek.
+########## 699
+# #699 The claim script creates the issue worktree without an agent, against the every-worktree-gets-an-agent rule [OPEN]
+## What was tried
+Review of PR 697 (the revert of PR 682) flagged the restored "Worktree, then worker" step in `WORKER-CONTRACT.md` (line 298; Codex P1 and Augment): it creates a worktree with no agent before the worker starts, which conflicts with the repository rule that every Orca worktree gets an agent (the Orca hook blocks `orca worktree create` without `--agent`). The cause is the claim script, not the revert: `orca_worktree.py` (docstring lines 23 to 40) runs `orca worktree create` with no `--agent` on pur
+## Relevant files and links
+- `src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py` (docstring lines 23 to 40)
+- `src/superclaude/core/WORKER-CONTRACT.md` around line 298 (restored by PR 697, reworded in `fd23c01a9`)
+- The repository Orca rule in the global `~/.claude/CLAUDE.md` ("Every Orca worktree gets an agent"), and the project `CLAUDE.md`
+- PR 697: https://github.com/IronbellyOrg/IronClaude/pull/697 (threads on line 298); PR 682 (the deletion); PRs 584 and 591
+- /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/VERDICT.md (claim agents launch into the shared Coordinator worktree) and spec/SPEC.md
+## Done when
+The owner chooses one of two, and it is tested. (1) Keep the script as a documented exception: the rule text names it, and a test pins that the claim worktree has no agent of its own until `worker-start`. (2) Change the claim so the worktree is created with the worker's one agent and the issue folder is read by absolute path (no copy), with a live check on a throwaway issue that exactly one agent exists in the claim worktree afterwards.
+## Pick-up note
+- Do not add `--agent` to the create call alone; it starts a second agent and races the copy.
+- Check first whether the Orca hook can see a script's inner `orca` call. If it cannot, the exception is silent, and option (1) means saying so in the rule.
+- Related to debate D07 (one live agent per worktree) and the Coordinator worktree design in the unification spec. Decide the two together.
+- The owner's default for now is the documented exception that the contract wording already states.
+## COMMENTS
+--- 2026-11-24T14:05:11Z ironbelly
+## Backlog review, 2026-11-24
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+- **State:** still-relevant
+- **Complexity / size:** Simple / S
+- **Priority:** P2
+#### Concrete next steps
+1. Have the owner confirm completion on the recorded documented-exception path, rather than treating the issue's historical note as new authorization. Name the claim helper's copy-before-launch exception in both the repository worktree policy and the installed global policy source, preserving the existing worker-contract sequence.
+2. Keep the existing no-agent and copy-order tests, and verify or add focused sequence coverage for create, copy and exactly one later launch on the relevant coordinator/direct-claim routes. Include failure handling: a failed copy or launch must not be presented as a successful agent-backed worktree. Existing tests have been inspected, not run here.
+3. Retain the hook's explicit subprocess coverage limitation. Do not add `--agent` to the create argument list by itself; a redesign must remove or replace the later launch and address access to the issue files before starting the one agent.
+4. Before closure, record the chosen policy and observed focused test results. If the owner chooses the alternative create-with-agent design instead, also perform the issue's requested throwaway-issue live count in an independently authorized run. Live counts and hook behavior on an actual claim remain UNVERIFIED here.
+5. Coordinate terminology and claim-worktree separation with the topology debate cited by the issue. `/home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/debates/D07/VERDICT.md:22,67` recommends separating claim agents from the standing Coordinator worktree or limiting concurrency. This is design context, not evidence that issue 699's fix is implemented or approved.
+#### Dependencies
+No verified hard dependency on another numbered issue, and no verified numbered issue blocked by 699. It needs the owner's policy choice and verification evidence, not completion of the separate security work in issue 698. Issue 289 is broader worktree-policy coordination; issue 655 is the historical orchestration umbrella, not a proven prerequisite.
+#### Related issues
+- [698](https://github.com/IronbellyOrg/IronClaude/issues/698), OPEN: sibling follow-up from PR 697 covering release-worker protection and the assignee shortcut, not this worktree policy mismatch. Read live body.
+- [289](https://github.com/IronbellyOrg/IronClaude/issues/289), OPEN: broader decision about parallel-session branches and worktrees. Read live body; its old placement examples are not treated as current instructions.
+- [655](https://github.com/IronbellyOrg/IronClaude/issues/655): historical orchestrator umbrella referenced by PRs 682, 686 and 700. Its full present scope and state were not inspected, so UNVERIFIED beyond that documented relationship.
+#### Related PRs
+Read live metadata/body and available comments for the issue's named PRs and subsequent disposition:
+- [584](https://github.com/IronbellyOrg/IronClaude/pull/584), MERGED, `b6d038a30c15ebeab5797c7b039500ee5dc6bb63`: original approval core.
+- [591](https://github.com/IronbellyOrg/IronClaude/pull/591), MERGED, `6af80d6c04f74d7c1db196f467e09c1d937d5503`: original coordinator handoff.
+- [682](https://github.com/IronbellyOrg/IronClaude/pull/682), MERGED, `01e7a9e23519fd54bc438bb1a1a0e03dcdae5baf`: removed approval machinery, not the claim helper.
+- [697](https://github.com/IronbellyOrg/IronClaude/pull/697), CLOSED without merge: proposed revert and clarification `fd23c01a9ca1f5aee44522f8107a07104f780c4f`; comments explicitly track remaining work in 699. Do not attribute that commit as a merged fix.
+- [700](https://github.com/IronbellyOrg/IronClaude/pull/700), MERGED, `471f10511c8e2e8176c0e2088720ece03beca317`: restored approval flow and superseded 697.
+- [701](https://github.com/IronbellyOrg/IronClaude/pull/701), MERGED, `0a46644576a31f0f62b9629b0f095b213027cdf6`: brought the contract clarification to master; body explicitly says it does not fix issues 698/699.
+- [686](https://github.com/IronbellyOrg/IronClaude/pull/686), CLOSED without merge: related watcher rewrite and topology context; not a current fix for 699. Body/state were read; its full review discussion and downstream implementation are UNVERIFIED.
+PR review-thread resolution state was not fetched through an API because the brief allows only issue/pr view and list. Historical reviewer comments are context, not substitutes for the current source and test definitions.
+_Limits: the full GitHub event timeline could not be read in this review and is unverified. Nothing was changed on this issue other than this comment and its field values._
+########## 698
+# #698 Release-worker and plan-approval checks rest on text matching and an assignee shortcut [OPEN]
+## What was tried
+Review of PR 697 (the revert of PR 682, which had deleted the plan-approval package `issue_pipeline`) raised two findings on code that the revert restores byte for byte (`git diff 01e7a9e23^ HEAD -- src/superclaude/cli/issue_pipeline` is empty). The code comes from the owner's PRs 584 and 591 of 2026-11-17. Neither finding is caused by PR 682 or by the revert, so neither was fixed in PR 697: a guard change needs its own independent review (the G2 design note), and the approval rule is a design c
+1. Launch-guard bypass (Augment, high). The guard blocks a bound worker by reading the command text for `release-worker`, `issue-pipeline ... adopt-` and similar words (`launch-level-guard.sh` lines 441 to 444). A worker can build the call from pieces, for example `"re" + "lease-worker"`, or import the Click group and call `issue_pipeline_group.main([...])`, so the text never appears. The `release-worker` command creates `sessions/<session_id>.ok` (`release.py` lines 38 to 66). That file lifts t
+2. Approver rule (Codex security, P2). `_is_allowed_actor` (`stage_predicates.py` lines 130 to 137) accepts a comment author whose login is in the issue's current assignee list OR whose account id is in the owner-managed approvers file. A previously posted, unedited "approved" comment from someone who was not an approver becomes valid later if that person becomes an assignee. `assignee_is_host_login` (line 300) is only reported (`cli.py` line 322), never enforced.
+## Relevant files and links
+- `src/superclaude/hooks/scripts/launch-level-guard.sh` lines 441 to 444 and its mirror `plugins/superclaude/hooks/scripts/launch-level-guard.sh`
+- `src/superclaude/cli/issue_pipeline/release.py`, `cli.py` (`release-worker`, line 200), `stage_predicates.py` (lines 130 to 137, call sites at lines 180 and 208, line 300)
+- `docs/designs/issue-pipeline-fu1.md` (same-login limit, line 32), `docs/designs/issue-pipeline-guard-g2.md` and `issue-pipeline-guard-g2-no-to.md`
+- PR 697 (the revert) review threads: https://github.com/IronbellyOrg/IronClaude/pull/697; PR 682 (the deletion, commit `01e7a9e23`) saved under the tag `archive/pr-682-issue-pipeline-removal`; PRs 584 and 591 (the original work)
+- Unification work: /home/coder/workspaces/IronClaude/.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md (INV-025: the guard only narrows honest mistakes; SEC-08 and FR-84: approval comes from the owner's chat, recorded by the agent), debates D03 and D05
+## Done when
+1. The owner chooses how release is protected, and the choice is tested. One of: (a) the guard also catches the Python and Click-group routes, with an independent review of the guard change; (b) `release-worker` itself refuses unless an approval record exists; (c) the store is not writable by the worker's account; or (d) the owner records that the guard is only a seatbelt against honest mistakes and the docs say so. A test proves whichever behaviour is chosen.
+2. The approver rule is decided and tested: either approval counts only from an account id in the approvers file and is bound to the assignee set at approval time (compare the `assigned` event time with the approval comment time), or the owner records that the assignee branch is accepted. The result is stated in `issue-pipeline-fu1.md`.
+## Pick-up note
+- Do not change either piece inside a revert or a refactor of another area. A guard change needs its own independent review.
+- A text-matching guard cannot be fully closed. Options (b) and (c) are stronger, but the approval rows are written by commands that the same guard protects, so only (c) or a different account closes it.
+- Decide the approver rule together with the spec's approval-in-chat design (SEC-08, FR-84), which makes the comment path secondary.
+- The owner's accepted login limit L-1 (one GitHub login for the owner and the agents) applies to both pieces. Whether the owner accepted the assignee branch itself is UNVERIFIED.
+## COMMENTS
+--- 2026-11-24T14:05:06Z ironbelly
+## Backlog review, 2026-11-24
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+- **State:** still-relevant
+- **Complexity / size:** Complex / M
+- **Priority:** P2
+#### Concrete next steps
+1. Have the coordinator obtain the owner's chat decision on both existing acceptance criteria: the release trust boundary and whether current-assignee approvals remain accepted. Check the referenced unification decision record first; do not invent approval or treat another agent's summary as the owner's ruling.
+2. For release, implement and test the chosen behavior, or explicitly record acceptance of the same-user, honest-mistake guardrail. An approval-row check is useful defense in depth, but worker-writable rows cannot prove independent authorization. Do not claim extra text matching fully closes constructed or imported calls.
+3. For approvers, either document and test retention of the assignee branch, or require the chosen explicit-account/historical-assignment policy. Cover both label and comment channels, an old comment whose author becomes an assignee later, edited comments, wrong plan hashes and same-host-login cases. Clarify whether historical assignment is required in addition to account-id allowlisting.
+4. Keep a separate independent review for any guard edit and verify both distributed hook copies. Update the runbook to the actual selected rule; do not broaden this issue into the watcher redesign or the worktree lifecycle issue.
+5. Replace historical issue/PR status claims with the verified state above. Current watcher deployment state and any previous owner acceptance still need verification by the coordinator before a safety claim or switch-on decision.
+#### Dependencies
+No strict prerequisite issue number was established. The direct prerequisite is the owner's two recorded policy decisions, plus separate guard review if the hook changes. Issues #716 (coordinator roadmap) and #717 (watcher roadmap) are coordination touchpoints for approval and rollout; neither live issue establishes that all its work must wait for #698. Do not invent a global rollout blocker from this relationship. Issue #699 is a parallel worktree-lifecycle question, not a prerequisite to fixin
+#### Related issues
+- [#699](https://github.com/IronbellyOrg/IronClaude/issues/699), OPEN: claim worktree created without its agent; companion finding from the same review, a distinct decision.
+- [#716](https://github.com/IronbellyOrg/IronClaude/issues/716), OPEN: next-release coordinator features; references #698 and distinguishes Orca terminal release from guard release.
+- [#717](https://github.com/IronbellyOrg/IronClaude/issues/717), OPEN: next-release watcher features; references the same review and separate future token-scope work.
+- #655: historical orchestrator work underlying removal PR #682 and rollback PR #700. Its current live issue state was not fetched and is UNVERIFIED. It is context, not evidence of completion.
+#### Related PRs
+Live metadata and bodies were read for every PR named in #698, plus the restoration follow-ups discovered in #697:
+- [#584](https://github.com/IronbellyOrg/IronClaude/pull/584), MERGED: original approval core, `b6d038a30c15ebeab5797c7b039500ee5dc6bb63`.
+- [#591](https://github.com/IronbellyOrg/IronClaude/pull/591), MERGED: coordinator handoff and guard design, `6af80d6c04f74d7c1db196f467e09c1d937d5503`.
+- [#682](https://github.com/IronbellyOrg/IronClaude/pull/682), MERGED then rolled back by #700: removed approval package, `01e7a9e23519fd54bc438bb1a1a0e03dcdae5baf`.
+- [#697](https://github.com/IronbellyOrg/IronClaude/pull/697), CLOSED, unmerged: source of the findings; comments explicitly leave guard bypass and approver policy for #698. Its final comment identifies #700 as the actual restoration. Inline review-thread contents were not independently fetched because the allowed GitHub commands do not expose that full surface; the issue, PR comments and live source substantiate the findings.
+- [#700](https://github.com/IronbellyOrg/IronClaude/pull/700), MERGED: actual restoration, `471f10511c8e2e8176c0e2088720ece03beca317`.
+########## 818
+# #818 [FEATURE] Issue watcher W10: Permissions of launched sessions (FU-6) [OPEN]
+## What was tried
+This is item W10 of the watcher issue #717 (the features of issue 655 that the current plan does not cover), split out so it can be built and tracked on its own. Issue 655 was split into its 14 sections and one analyst per section classified every design feature against the unification spec and its decision record; this item is one of the features that were found missing. Nothing in this item is built yet. #717 stays the umbrella issue: its closing review holds the build order, the phases and th
+## Relevant files and links
+- Parent issue: #717 (this item is a sub-issue of it). Sister issues of the split: coordinator #716, TUI dashboard #718. Source design: #655.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+## Done when
+The item below is built, tested and checked against its own lines, or the owner records in chat that it is dropped. The text is copied unchanged from #717.
+### W10. Permissions of launched sessions (FU-6) (655 section 11; rows S11-F17)
+  - What to build: read the permission mode of the session the poll launches during the live test, state it in the go/no-go record, and block a second approver until per-actor permission checks exist.
+  - Done when: the S17 record names the observed permission mode of the launched session, and adding a second approver is refused or flagged until a check exists.
+  - Research and debate results from our documents:
+    - S11-F17: SETUP section 14.2 (`origin/master`): "Do not add a second approver before FU-6. Per-actor permission checks inside the launched session are not built."
+  - Watch out:
+    - S11-F17: the plan keeps the approver list (S11-F28), so a second approver stays possible; D01 text says "an allowed approver" (`DECISIONS.md:152`).
+- [ ] **W11. One retry of an unknown launch outcome through Orca's operation id (FU-8, owner question Q2)** (655 section 11; rows S11-F18, S11-F24)
+  - What to build: when a launch outcome is `unknown`, retry once through Orca's operation-id retry (not a fresh launch) after the real argv is confirmed by the live test.
+  - Also in this item:
+    - S11-F24: record the owner's answer on the retry form and implement it together with S11-F18.
+  - Done when: in a live test with a lost reply, one retry with the same operation id produces exactly one session and the entry reaches `claimed` or `failed`.
+    - also: the retry form is chosen in chat and recorded, and the test of S11-F18 uses that form.
+  - Research and debate results from our documents:
+    - S11-F18: `TECHREF:1963` (D-12): "`retry_argv` ... is only printed by `status_report`", "Deferred 'after FU-1 confirms the C20 argv'"; DES line 103 (`origin/master`): the retry flag and unknown-outcome reply shapes "are UNVERIFIED".
+    - S11-F24: DES line 873 (`origin/master`): "Q2 accept the full-argv retry form (C20) in place of FR-015's short form."
+  - Watch out:
+    - S11-F18: FR-21's "never relaunches" must stay true; a retry is allowed only if it cannot make a second session. UNVERIFIED that Orca's retry has that property.
+    - S11-F24: I found no owner answer to Q2 in the brainstorm folder. UNVERIFIED whether it was answered elsewhere.
+- [ ] **W12. Seven-day service-level review after the first live enable (FU-10)** (655 section 11, 12; rows S11-F19, S12-F33)
+  - What to build: after 7 days live, run `slo_numbers` (p95 approval-to-launch, exit-0 share, claimed share, stale count) and review the result with the owner.
+  - Also in this item:
+    - S12-F33: Seven days after the first live enable, the owner (or a scheduled agent) reads the watcher's SLO numbers and decides whether to keep it on.
+  - Done when: a written review of the four numbers exists after the first 7 live days.
+    - also: a dated review entry exists in the ledger or a task, created at switch-on, that cites the four SLO numbers from `slo_numbers`.
+  - Research and debate results from our documents:
+    - S11-F19: `TECHREF:1954` (D-03): "`slo_numbers` ... have no caller; only `test_slo_helper.py` and an owner-run snippet".
+    - S12-F33: techref ISSUE-TO-WORK-PIPELINE-TECHNICAL-REFERENCE.md:1954 "D-03 SLO numbers ... `slo_numbers` (`P/cycle.py:1359`) and `SloNumbers` (`:1339`) have no caller; ... NOT BUILT"; :1990 "FU-10 SLO review ... 'None of these is built by this work' ... FU-10 'after 7 days live'".
+  - Watch out:
+    - S11-F19: the p95 "approval-to-launch" number assumes the approval step that the plan keeps, not 655's assignment trigger.
+    - S12-F33: `slo_numbers` has no caller today, so the review needs a reader first (maybe a status field); the review itself would need the owner's decision. FU-10 was in Clay's "carried over" list (line 160).
+- [ ] **W13. Size bound for the dispatch store (FU-11)** (655 section 11; rows S11-F20)
+  - What to build: bound finished tombstone entries in `dispatch.json` once the store passes 1 MiB.
+  - Done when: a store seeded above 1 MiB with finished entries is trimmed without losing any entry that blocks a second launch.
+  - Research and debate results from our documents:
+    - S11-F20: `TECHREF:1965` (D-14): "Only `reset_entry` removes `abandoned`/`unknown`", "Deferred 'when the store is above 1 MiB'".
+########## 322
+# #322 Design review: enforce a fixed worktree write boundary across tools and agents [OPEN]
+# Architecture Proposal: Worktree Write Boundary
+> Design for review, not an implementation or an implementation task file.
+> Structure: `~/.claude/templates/workflow/06_architecture_proposal_template.md`.
+**Version:** 1.0
+**Status:** Proposed for maintainer review; independent design review passed after fixes; not implemented
+**Date:** 2026-10-28
+## References
+### Repository evidence inspected
+- `src/superclaude/hooks/hooks.json`: the distributed edit hook covers Write, Edit, and four named Serena edits. It does not register a worktree write boundary.
+- `.claude/settings.json`: the project workspace guard matches only Write and Edit.
+- `src/superclaude/hooks/scripts/reject-workspace-writes.sh`: rejects two output-location patterns, extracts only `file_path`, and explicitly allows missing paths. It is not a worktree guard.
+- `src/superclaude/hooks/scripts/freshness-pre-edit.sh`: checks whether a file was read recently, not whether this session owns its location. Its state and telemetry writes also demonstrate why trusted framework writes must be separated from agent writes.
+- `src/superclaude/cli/install_hooks.py`, `_merge_settings`: existing installer preserves unrelated registrations and merges framework registrations by command ownership. Extend that mechanism rather than inventing another settings installer.
+- `tests/cli/test_install_hooks.py`, `tests/cli/test_verify_sync_hooks.py`: existing installer and mirror checks to extend.
+- `.dev/README.md`: design and research notes belong under `.dev/research/`.
+- Negative evidence: a source search for sandbox/worktree-write-boundary terms and inspection of the registrations above did not find a general boundary. Auggie retrieval is unavailable in this session; no semantic-search completeness claim is made.
+### Official platform documentation checked on 2026-10-28
+- [Hooks reference](https://code.claude.com/docs/en/hooks): common input, PreToolUse, all-tool matchers, MCP names, SessionStart/SubagentStart limits, and blocking errors.
+- [Block when a hook fails](https://code.claude.com/docs/en/hooks#block-the-action-when-a-hook-fails): synchronous command hook `onFailure: "block"` covers hook failure and timeout. Support must be proved in the deployed CLI, not inferred from current documentation.
+- [Hooks guide](https://code.claude.com/docs/en/hooks-guide): denial applies in bypass-permissions mode, but a mod-approval exception exists in unmanaged/non-Team-login sessions; multiple input rewrites are not deterministically merged.
+- [Mod event ordering](https://code.claude.com/docs/en/plugins/mods/events): managed hooks precede mod tool-call handlers; other PreToolUse hooks run within engine behavior after mod middleware. Mods can alter events or answer them without forwarding to normal hooks.
+- [Sandboxing](https://code.claude.com/docs/en/sandboxing): shell commands and descendants are covered, but built-in file tools, MCP servers, and hooks are outside the shell sandbox; default extra writable paths and Git common-directory access also matter.
+- [Settings reference](https://code.claude.com/docs/en/settings-reference): write allowances, denials, additional directories, and shell sandbox escape settings.
+**Evidence limit:** no containment mechanism or new hook has been run for this proposal. All new interfaces and file names below are proposed, not existing product capabilities. Official documentation is newer than some installed clients; the exact minimum supported client version remains unverified and is a release gate.
+## Executive Summary
+**An agent may read outside its assigned worktree, but may not create, change, delete, rename, or cause another process to modify files outside it.** This includes reaching a second checkout through an absolute path while the session itself remains in its original directory. A worktree is a checkout, not a filesystem permission boundary.
+Propose a synchronous, all-tool PreToolUse guard tied to a fixed session scope. It rejects out-of-scope paths, unknown write-capable tools, and unconfined execution. It never treats a prompt, `cd`, an environment variable, or an agent-written approval file as permission to change the boundary. Denials explain the scope and direct the agent to request a human-controlled scope change rather than retry through another tool.
+**A hook alone cannot make arbitrary shell code safe.** Therefore the enforceable design combines the hook with filesystem confinement: an outer boundary for the application and helpers, plus an inner executor boundary that keeps arbitrary agent code away from framework-only state. Without proven confinement, arbitrary shell/interpreter/browser execution and opaque mutators are denied, not guessed safe. A hook-only deployment can block direct editing mistakes, but must be labelled a limited guar
+## System Context
+### Existing System
+The inspected guards address output placement and stale reads. Neither binds the destination to the session's assigned checkout. An absolute Edit to another checkout can pass freshness checks once that file has been read. A shell command can also run a script in another checkout without changing the session's working directory. Both routes must be stopped before a write occurs.
+### Scope and trust assumptions
+- Protect against mistaken or instruction-driven agents, including attempts to work around a denial through another tool. Include subagents and child processes.
+- The human/administrator and the outer launcher are trusted. The model, repository contents, scripts it edits, tool descriptions, and new MCP tools are not policy authorities.
+- Reads outside the checkout remain permitted by this design, subject to existing read permissions. Confidentiality and network publication permissions are separate policies.
+- The agent cannot be given an unrestricted host shell, a privileged daemon socket, or writable enforcement code and simultaneously be promised confinement. Same-user host processes are not isolated merely by a mode-0700 directory.
+- Agent scratch/cache and framework-only state are different permission classes. Agent execution may write only the owned checkout and private agent scratch/cache. Transcripts, policy records and telemetry belong to the trusted framework service and are inaccessible for writes from agent-controlled executors. A session-private mount alone does not create this distinction. Sibling sessions' state is never included.
+- The original duplicate-decision problem also needs ownership coordination. This issue prevents out-of-worktree writes; it does not stop two sessions assigned the same worktree from duplicating reasoning, and does not implement a session-ownership registry.
+- No changes to existing application code, settings, or other checkouts are authorized by this design request. All examples use invented fixture paths.
+### Integration Points
+########## 722
+# #722 [FEATURE] The owner and the AI helpers share one GitHub login: decide how to tell who approved (a separate agent account is one proposed solution) [OPEN]
+## What was tried
+**The problem.** Today the owner and every AI helper that works for the owner (the Orca coordinator and worker sessions, scripts, the pull-request helper) sign in to GitHub as the same user, `ironbelly`, which is also the repository admin. GitHub cannot tell who did something: the person clicking "Approve" or a script running on the same machine. Our own checks cannot tell either.
+**Why it matters.** The plan says things like "a worker cannot merge", "an approval means the owner approved", "a typed go means the owner typed it". On a shared login these rules can be written down but not proven. The plan already records this as open risks (requirement SEC-09, risk RK-3, invariant INV-025 in the unification plan). The plan's current default is: the typed-answer check cannot pass, so every merge is typed by hand.
+**What was tried.** On 2026-11-22 two agents proposed and debated (three rounds) and a reconciler unified one proposal. The owner shelved it for further human debate and asked that the problem be filed with that proposal as one of the proposed solutions. Nothing below is decided or built.
+**Proposed solutions (not decided).**
+1. **Two tiers plus a separate agent GitHub account (the debated proposal).** "The owner" means the person behind `ironbelly`, by numeric id.
+   - Tier 1, chat-only answers (a grant, a cleanup approval, a design go): counts only when the owner types it in a session the owner opened by hand; never from workers, script-started sessions, relays, or issue or PR text. Free, and can be done now. It narrows the risk but cannot prove who typed.
+   - Tier 2, a merge or the `Approved` label: the chat go plus an approving GitHub review by the `ironbelly` account on that exact commit, clicked by the owner in the browser. The checks refuse if the login in use is the owner's own, or if no such review exists.
+   - A second GitHub account for the agents (Write role, outside collaborator, 2FA), with `ironbelly` signed out of agent hosts. It must exist before merge automation, coordinator autostart, switching the watcher on for real repos, and flipping the worker-binding switch.
+   - Needs the master protection rules (the ruleset of the plan's item OA-5) to make "a worker cannot merge" true.
+2. **Chat-only rule, no new account.** Do only Tier 1. Cheap, but a script on the host can still type as the owner.
+3. **Status quo.** Every merge is typed by hand by the owner; merge automation, coordinator autostart, real-repo watcher switch-on and the worker-binding flip stay off.
+4. **Not evaluated yet:** a GitHub App (a bot identity) instead of a second user account.
+**Costs (estimates, not measured).** Tier 1: about 15 minutes of the owner's time and about 1 agent hour. Second account: about 1 to 1.5 owner hours once, about 15 minutes per extra host, about 1 to 2 minutes per gated merge, plus about 3 to 4 agent hours of code and tests. Ruleset time belongs to OA-5.
+**Risks of solution 1.** An `ironbelly` credential left on a host; the owner logging back in under pressure; review bots (Augment, Codex) staying silent on a new account, which reads as clean; credential expiry stopping all agents (fails safe); at 0 required approvals a worker could merge a path the rules do not gate.
+**Unknowns.** Whether a Write-role account can do the claim's writes (assignee, issue type, Complexity field, `Approved` field); whether Augment and Codex review pull requests from a new account; how many hosts exist.
+**Open choices from the debate.** (1) Required approvals on master: 1 (recommended by the debate, no agent self-merge on any path) or 0. (2) Should the agent account join the Coder organisation: no to start. (3) Reuse the existing `IB-AIReviewer` account: no, create a new one.
+## Relevant files and links
+- Plan items: OA-6 (who counts as "the owner"), OA-5 (master protection), OA-18, OA-19, OA-20 (all wait on this), SEC-09, RK-3, INV-025, decision D16 (review rule), `SPEC.md` lines 577 and 578. Local plan files, not pushed: `.dev/brainstorms/20261120-pr686-unify/`.
+- The debate (local, not pushed): `.dev/brainstorms/20261122-owner-actions-debate/X05/` (`FINAL.md`, rounds A-0 to B-3).
+- Related: issue 717 (watcher: real-repo switch-on and the worker-binding flip wait on this), issue 716 (coordinator).
+## Done when
+The owner records in chat which solution is chosen (or a new one). Then either the dependent items (merge automation, coordinator autostart, real-repo watcher switch-on, the worker-binding flip) are unblocked with the chosen mechanism built and tested, or they are confirmed to stay off. If solution 1 is chosen: the agent account exists and is cut over on one host, the throwaway tests in the debate file pass (the login prints the agent account in a fresh shell and in an Orca session; an unapprove
+## Pick-up note
+Parked for human debate. Do not build anything yet. The owner decides whether any of this is wanted; there is no deadline. Read `X05/FINAL.md` for the full order of steps, the owner's one-sentence approval, and what an agent would do after it.
+## COMMENTS
+--- 2026-11-24T14:52:29Z ironbelly
+## Backlog review, 2026-11-24
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review; the findings were corrected once after a first review failed and passed the second).
+- **State:** still-relevant
+- **Complexity / size:** Complex / L
+- **Priority:** P1
+#### Concrete next steps
+1. No implementation is authorized. The coordinator should recover the missing debate and plan, check for a later owner decision, and present the choice to the owner in chat if it remains undecided. Do not infer not-planned from a parked proposal.
+2. If the owner chooses to keep the privileged automation off, record that explicit choice and which dependent capabilities remain disabled. Verify their actual state before claiming the issue's completion condition is met.
+3. Only if the owner chooses an automation-enabling solution, plan its minimum implementation and authorized one-host trial. For the separate-account proposal, #722 requires identity cutover, protection against an unapproved merge and direct master push, both reviewer bots on an agent-authored PR, and working claim writes. A GitHub App remains an unevaluated alternative, not an approved substitution. Do not run credential changes, denial probes, writes or activation from this review.
+4. Re-run the independent review gate against this revision and its successful live reads before using this report to close or change any issue. The previous QA remains FAIL until that separate review occurs. There is no authorization to perform a GitHub write here.
+#### Dependencies

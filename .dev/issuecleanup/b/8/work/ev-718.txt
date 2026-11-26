@@ -1,0 +1,38 @@
+#718 [FEATURE] TUI dashboard and report views: the features of issue 655 that our current plan does not cover [OPEN ] closed=-
+## What was tried
+Issue 655 (Clay's design for an issue-polling orchestrator) was split into its 14 sections of the Proposed Solution, and one analyst per section classified every design feature against our current plan (the unification spec and its decision record). Result over all sections: 488 features, 248 already covered by the current plan, 124 in direct conflict (the current plan wins and that part of 655 is rejected), 116 not covered. The not-covered features were sorted into three groups: the coordinator, the watcher and the TUI dashboard. This issue holds the group for what the owner sees: the report entries, the observer and the dashboard: 7 classified rows, merged into 4 items below. Of the 116 not-covered rows, 115 appear in the three issues; one row (S10-F60, the ordering step 'wait for additions A to E', already done in Clay's own spec work) was left out because its analyst judged it not a product feature. Rows that said the same thing in several sections of 655 were merged into one item and keep their row ids. Wherever the current plan decided otherwise, the plan was kept and nothing from 655 is requested here. Dashes inside quotes were replaced with hyphens. The classification was done by agents; every `UNVERIFIED` mark in an item is theirs and still open.
+
+## Relevant files and links
+- Source design being mined: issue 655 `#655` (IronbellyOrg/IronClaude). Related existing issues: `#409` (TUI dashboard), `#706` (observer follow-up, sub-issue of 409), `#444` (coordinator or sub-orchestrator evaluation), `#450` (watcher rollout), `#665` (21 Medium findings in the 655 plan).
+- Sister issues of this split: coordinator #716, watcher #717, TUI dashboard #718.
+- Current plan (local files, not pushed): `.dev/brainstorms/20261120-pr686-unify/spec/SPEC.md` (stages S0 to S17, Appendix B after PR 700), `.dev/brainstorms/20261120-pr686-unify/DECISIONS.md` (43 recorded decisions), `.dev/brainstorms/20261120-pr686-unify/debates/*/VERDICT.md`, `.dev/brainstorms/20261120-pr686-unify/spec/FOLLOW-UPS.md`.
+- Per-section analysis with every row, status and evidence (local files, not pushed): `.dev/implement/reference-our-research-a-3463b8ef/sections/section-01.md` to `section-14.md`.
+- Pull request 697 (closed unmerged revert of PR 682, replaced after PR 700 by PR 701) and the follow-up issues 698 and 699 come from the same review work.
+
+## Done when
+Every item below is built, tested and checked against its own line, or the owner records in chat that it is dropped. Item ids (D1 to D4) are used by the review at the end. The lines called related items are cross-references found in the analysis; they show what to read together, not a strict build order. The build order is in the review.
+
+- [ ] **D1. Each issue appears in one report only: the daily run skips issues that have an entry** (655 section 1, 7, 8; rows S01-F28, S07-F11, S08-F13)
+  - What to build: The daily report run leaves out every issue that has a living-report entry, so each issue appears in one report only, and the daily run is retired once the living report covers its content.
+  - Also in this item:
+    - S07-F11: Make the daily report skip every issue that has an entry file, and cover only the non-issue sources listed.
+    - S08-F13: Change the report so the daily run skips issue entries that `report-entry` owns and adds only ClickUp, direct messages, mentions and items with no issue.
+  - Done when: A test with one entry file and a matching issue shows the daily run's output has no block for that issue (the entry's url, `pr_url` and session links are excluded) and the entry file is byte-identical after the daily run.
+    - also: a test with one entry file and one daily item shows the issue absent from the daily output and the non-issue items present.
+    - also: a test o
+--- comments=2; last 3:
+[ironbelly 2026-11-22T11:06:42Z] Status note (owner decision, 2026-11-22): the work-report tool is parked and is not being restored now. Items D1 and D2 depend on it and are on hold with it. Items D3 (where the report keeps its files) and D4 (who keeps Clay's own copy up to date) are not being pursued. How to bring the tool back later is in issue #720, and the page-server fix it needs first is in issue #719. Nothing in this issue is closed.
+
+~~
+[ironbelly 2026-11-24T14:23:05Z] ## Backlog review, 2026-11-24
+
+Read-only review of this issue against the current source and its history (automated analysis, then an independent evidence review that passed).
+
+- **State:** still-relevant
+- **Complexity / size:** Medium / M
+- **Priority:** P3
+
+#### Concrete next steps
+1. Keep this issue open and held. Do not begin restoration or revive D3/D4. #720 defines the restart triggers: the owner asks for a daily per-issue page, or the report-entry writer work is about to start. Its older request to obtain D3/D4 answers conflicts with the later November 22 #718 owner comment; the later explicit decision wins for this issue.
+2. When a trigger occurs, confirm the remaining D1/D2 scope under the current merged design, and complete #720's approved restore with #719's server safety acceptance before shipping the report. No archive checkout or restore was performed by this review.
+3. Reuse #716 C14's report-entry content and C8's integration once available. D2 should display that single record, not create another writer or entry format; show the human assignee, coordinator and worke
