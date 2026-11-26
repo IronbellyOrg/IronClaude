@@ -1,0 +1,14 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-758/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-758
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 3 items
+
+tests/commands/test_pragmatic_plain_english.py::test_four_plain_english_bullets_are_present_in_order PASSED [ 33%]
+tests/commands/test_pragmatic_plain_english.py::test_plain_english_bullets_sit_in_the_writing_conventions_section PASSED [ 66%]
+tests/commands/test_pragmatic_plain_english.py::test_wrap_up_template_names_the_five_headings_in_order PASSED [100%]
+
+============================== 3 passed in 0.03s ===============================
