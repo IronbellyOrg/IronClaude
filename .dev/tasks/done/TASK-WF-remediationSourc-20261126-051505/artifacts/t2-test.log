@@ -1,0 +1,17 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-393
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collected 253 items
+
+tests/skills/test_task_workspace_lifecycle.py .......................... [ 10%]
+...............................................                          [ 28%]
+tests/skills/test_workflow_archive.py .................................. [ 42%]
+........................................................................ [ 70%]
+........................................................................ [ 99%]
+..                                                                       [100%]
+
+============================= 253 passed in 1.15s ==============================
+rc=0

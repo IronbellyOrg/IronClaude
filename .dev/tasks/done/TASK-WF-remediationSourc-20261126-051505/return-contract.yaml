@@ -1,0 +1,19 @@
+contract_version: "1.1"
+supersedes: TASK-WF-remediationSourc-20261126-040738
+remediation_route: surgical
+finding_counts: {"blocking": 3, "label_high": 0, "medium": 7, "note": 6}
+fix_cycles: 1
+status: success
+slug: TASK-WF-remediationSourc-20261126-051505
+plan_path: ./TASK-WF-remediationSourc-20261126-051505.md
+source_path: ./source.md
+source_origin: .dev/troubleshoot/bug-sc-implement-retry-ladder-picks-20261126031727/remediation-source.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+# reflect_status is the re-review verdict of cycle 1 (scope: changed lines plus prior blockers): PASS with notes, blocking 0; see ./artifacts/re-review-1.md. reflect_report_path is the full first review of the superseded plan.
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-393/.dev/reflect/pre-TASK-WF-remediationSourc-20261126-040738-20261126041149/REPORT.md
+unresolved:
+  - "follow-up candidates, not fixed (review rule: Medium and Note never start a fix pass): Medium M-4 to M-10 and re-review F1, F2; Note N-1 to N-6 and re-review F3, F4; texts in the reflect report and ./artifacts/re-review-1.md"

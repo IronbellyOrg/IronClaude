@@ -1,0 +1,26 @@
+== red check against HEAD ==
+pins on the pre-change retry.md (git show HEAD):
+  launch-rule: FAIL
+  takes-only: FAIL
+  never-full-id: FAIL
+  family-fallback-token: FAIL
+  launch-header: FAIL
+  no-spawn-line: FAIL
+  alias-count: FAIL
+  region-sentence: FAIL
+  no-model-ids: FAIL
+  line-181: FAIL
+  stale-absent: FAIL
+  table: FAIL
+pins failing on the changed retry.md: none
+every pin fails on HEAD: yes
+label moved mid-line -> failing pins: ['launch-rule', 'takes-only', 'never-full-id', 'family-fallback-token', 'launch-header', 'no-spawn-line', 'alias-count', 'no-model-ids']
+duplicate anchor -> failing pins: ['region-sentence', 'no-model-ids']
+rc=0
+
+== full test file on the changed tree ==
+collected 12 items
+
+tests/skills/test_implement_launch_alias.py ............                 [100%]
+
+============================== 12 passed in 0.08s ==============================
