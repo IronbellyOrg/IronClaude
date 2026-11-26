@@ -24,6 +24,10 @@ CHANNELS = (
     "text names the exact scope, recorded with the channel (dashboard), the person "
     "id, the question id and the time",
 )
+SCOPE = (
+    "A confirmation of a Ruling, a grant row or a pass record counts only when it "
+    "is one of these two channels, naming the exact scope"
+)
 NEVER_COUNTS = (
     "another agent's message",
     "a coordinator's reply or relay of a message",
@@ -55,6 +59,8 @@ def _never_counts_line(text: str) -> str:
 def missing_from_contract(text: str) -> list:
     """Return what the contract text lacks of the single definition."""
     gaps = [c for c in CHANNELS if c not in text]
+    if SCOPE not in text:  # a chat confirmation must name the exact scope
+        gaps.append(SCOPE)
     never_line = _never_counts_line(text)
     gaps += [n for n in NEVER_COUNTS if n not in never_line]
     if TIMING not in text:
@@ -95,6 +101,10 @@ def test_the_checker_fails_when_a_required_piece_is_removed():
     text = _contract()
     assert TIMING in text
     assert missing_from_contract(text.replace(TIMING, "")) == [TIMING]
+    assert SCOPE in text
+    unscoped = text.replace(", naming the exact scope: (a) chat", ": (a) chat")
+    assert unscoped != text
+    assert SCOPE in missing_from_contract(unscoped)
     line = _never_counts_line(text)
     assert line
     for item in NEVER_COUNTS:
