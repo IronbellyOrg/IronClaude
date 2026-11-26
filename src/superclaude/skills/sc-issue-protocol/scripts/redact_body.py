@@ -283,10 +283,19 @@ def _redact_xml_elements(text: str) -> tuple[str, int]:
     # Tags inside CDATA sections and comments are text, not markup: blank them (same
     # length, so every offset still points into ``text``).
     masked, unterminated = _mask_opaque_xml(text)
-    credential: dict[int, re.Match[str]] = {
-        found.start(): found for found in XML_OPEN.finditer(masked)
-    }
+    credential: dict[int, re.Match[str]] = {}
     spans: list[tuple[int, int]] = []
+    for found in XML_OPEN.finditer(masked):
+        credential[found.start()] = found
+        attribute = _XML_VALUE_ATTR.search(found.group(0))
+        if attribute:  # <password value="..."/>
+            group = "d" if attribute.group("d") is not None else "s"
+            spans.append(
+                (
+                    found.start() + attribute.start(group),
+                    found.start() + attribute.end(group),
+                )
+            )
     for found in XML_OPEN_ATTR.finditer(masked):
         credential.setdefault(found.start(), found)
         attribute = _XML_VALUE_ATTR.search(found["attrs"])

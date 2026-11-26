@@ -120,6 +120,8 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "<password>remaining-secret123<password /></password>",
         '<setting name="Password"><value>remaining-secret123</value></setting>',
         '<add key="DbPassword" value="remaining-secret123" />',
+        '<password value="remaining-secret123" />',
+        "<apiKey value='remaining-secret123'/>",
         '<add key="DbPassword" value="can\'tguess123" />',
         '<add key="DbPassword" value="guess>remaining-secret123" />',
         '<add key="DbPassword" value=\'opaque "text" remaining-secret123\'/>',
