@@ -107,6 +107,8 @@ After the before-state file is saved, a failed step prints `failed:` and one of 
 - `read-back of <name> (id <n>) failed`
 - `read-back of <name> (id <n>) differs: <differences>`
 
+The read-back and the same-name check accept the default parameters GitHub adds to a rule (for example the allowed merge methods of a `pull_request` rule). Every parameter the listed file names must be there with the same value, and any other difference is reported.
+
 After any `failed:` line, or any non-zero exit of an `--apply` run, first list the repo's rulesets by hand with the check command in step 6. Compare that list with the printed `created:` lines and the `rollback by hand` commands: a ruleset can exist that no printed line names. Only then decide on a rollback. A rerun into the same `OUT` refuses with `before-state file already exists: <path>`.
 
 ## Roll back by hand

@@ -55,7 +55,7 @@ SERVER_KEYS = frozenset(
 )
 
 # Keys whose list order does not matter.
-_SET_KEYS = frozenset({"rules", "bypass_actors"})
+_SET_KEYS = frozenset({"bypass_actors"})
 
 
 def _load(name: str) -> dict:
@@ -115,12 +115,48 @@ def _set_diff(key: str, want: object, got: object) -> list[str]:
     return out
 
 
+def _covers(want: dict, have: dict) -> bool:
+    """``have`` is ``want`` plus, inside its parameters, keys GitHub fills in by
+    default (a pull_request rule comes back with ``allowed_merge_methods`` and more).
+    Every key we render must be there with the same value; the type must be equal."""
+    keep_want = {k: v for k, v in want.items() if k != "parameters"}
+    keep_have = {k: v for k, v in have.items() if k != "parameters"}
+    if keep_want != keep_have:
+        return False
+    wanted, got = want.get("parameters") or {}, have.get("parameters") or {}
+    return all(k in got and got[k] == v for k, v in wanted.items())
+
+
+def _rules_diff(want: object, got: object) -> list[str]:
+    """Rules compare as a set. A rule matches when it is equal or, failing that, when
+    the remote rule only adds default parameters (``_covers``); a different value of
+    a rendered parameter, a missing rule and an extra rule are differences."""
+    rest = list(got or [])
+    pending = []
+    for rule in want or []:
+        if rule in rest:
+            rest.remove(rule)
+        else:
+            pending.append(rule)
+    missing = []
+    for rule in pending:
+        hit = next((r for r in rest if _covers(rule, r)), None)
+        if hit is None:
+            missing.append(rule)
+        else:
+            rest.remove(hit)
+    out = [f"rules: missing {_canon(r)}" for r in sorted(missing, key=_canon)]
+    out += [f"rules: extra {_canon(r)}" for r in sorted(rest, key=_canon)]
+    return out
+
+
 def compare_bodies(rendered: dict, remote: dict) -> list[str]:
     """Differences between a body we rendered and the ruleset GitHub returned.
 
-    ``rules`` and ``bypass_actors`` compare as sets (a rule is its type plus its
-    complete parameters); the server keys in ``SERVER_KEYS`` are ignored; any other
-    key on either side is a difference. An empty list means equal.
+    ``bypass_actors`` compare as a set; ``rules`` compare as a set in which a remote
+    rule may add default parameters that the rendered rule does not name (GitHub fills
+    them in); the server keys in ``SERVER_KEYS`` are ignored; any other key on either
+    side is a difference. An empty list means equal.
     """
     kept = {k: v for k, v in remote.items() if k not in SERVER_KEYS}
     diffs: list[str] = []
@@ -129,6 +165,8 @@ def compare_bodies(rendered: dict, remote: dict) -> list[str]:
             diffs.append(f"{key}: missing in the remote ruleset")
         elif key not in rendered:
             diffs.append(f"{key}: unexpected key in the remote ruleset")
+        elif key == "rules":
+            diffs.extend(_rules_diff(rendered[key], kept[key]))
         elif key in _SET_KEYS:
             diffs.extend(_set_diff(key, rendered[key], kept[key]))
         elif rendered[key] != kept[key]:
