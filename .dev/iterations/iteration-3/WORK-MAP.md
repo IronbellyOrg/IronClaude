@@ -1,6 +1,6 @@
 # Iteration 3 work map: epics, features and stories in work order
 
-Built Wed 25 Nov 19:56 Central from the reviewed iteration proposal (`plan/min50/EXPANDED-PROPOSAL.md`, independent review PASS) and the planning run's maps of dependencies (`plan/DEPENDENCIES.md`) and overlaps (`overlap/OVERLAP-REPORT.md`). Machine-readable copy: `work-map.json`. Epics and features exist only in this file; no GitHub issue is created for them.
+Built Wed 25 Nov 20:09 Central from the reviewed iteration proposal (`plan/min50/EXPANDED-PROPOSAL.md`, independent review PASS) and the planning run's maps of dependencies (`plan/DEPENDENCIES.md`) and overlaps (`overlap/OVERLAP-REPORT.md`). Machine-readable copy: `work-map.json`. Epics and features exist only in this file; no GitHub issue is created for them.
 
 ## How an agent uses this map
 1. Find your epic (one per person). Work its features in the order listed, and the stories inside a feature in the order listed.
@@ -308,7 +308,7 @@ Priority is the proposed level from the planning cards; the level set on GitHub 
 - Needs first: -
 - Unblocks: -
 - Overlaps: -
-- Note: its Fix approach says base branch master, but the default branch is integration: branch from integration; pull request 849 (clayphi/issue-834, opened 25 Nov) already carries this work: continue on it (step 1, open pull request check) instead of starting a second one
+- Note: its Fix approach says base branch master, but the default branch is integration: branch from integration; pull request 852 (it replaced the closed 849) already carries this work: continue on it (step 1, open pull request check) instead of starting a second one
 
 **E2-F1-S5** [#326](https://github.com/IronbellyOrg/IronClaude/issues/326): [Feature]: Embed more Git and PM related workflows into skills
 - Priority Medium; size L; complexity Complex; kind enhancement; architecture change moderate

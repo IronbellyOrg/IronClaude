@@ -1,6 +1,6 @@
 # Iteration 3 work file: Clay, epic E2
 
-Generated Wed 25 Nov 2026 20:05 Central by `scripts/epic-files.sh` from the reviewed work map (`work-map.json`). Do not edit by hand: change the map's inputs and rebuild. Repository: `IronbellyOrg/IronClaude`, base branch `integration`. Iteration 3 ends Sunday 6 December.
+Generated Wed 25 Nov 2026 20:09 Central by `scripts/epic-files.sh` from the reviewed work map (`work-map.json`). Do not edit by hand: change the map's inputs and rebuild. Repository: `IronbellyOrg/IronClaude`, base branch `integration`. Iteration 3 ends Sunday 6 December.
 
 ## 1. Kickoff prompt
 
@@ -145,7 +145,7 @@ Why the claim runs with `--pipeline none` for now: the claim skill forbids a lau
 - **Plan approval:** no: the agent runs through to the pull request.
 - **When it is done** (merged and closed out, or closed by its Route): it is the last story in its lane.
 - **Decided for this work:**
-  - **Scope:** its Fix approach says base branch master, but the default branch is integration: branch from integration; pull request 849 (clayphi/issue-834, opened 25 Nov) already carries this work: continue on it (step 1, open pull request check) instead of starting a second one.
+  - **Scope:** its Fix approach says base branch master, but the default branch is integration: branch from integration; pull request 852 (it replaced the closed 849) already carries this work: continue on it (step 1, open pull request check) instead of starting a second one.
 - **Expected route:** Feature, medium: `/sc:brainstorm --blind` on the summary, `/sc:design` from its merged requirements, `/sc:workflow --depth standard --handoff none` on the design, then `/sc:implement` the printed plan. Model line: `claude-gw-tier1b`. (The claim writes the real steps into `next-steps.md` from its chains, `src/superclaude/skills/sc-issue-protocol/refs/chains.md`; `/sc:recommend` may adjust them.)
 - **Story file:** `.dev/iterations/iteration-3/stories/834.md`
 

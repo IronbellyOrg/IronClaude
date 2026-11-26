@@ -1330,7 +1330,7 @@
     "overlaps": null,
     "conflict_in_iteration_with": [],
     "conflict_scope": null,
-    "note": "its Fix approach says base branch master, but the default branch is integration: branch from integration; pull request 849 (clayphi/issue-834, opened 25 Nov) already carries this work: continue on it (step 1, open pull request check) instead of starting a second one",
+    "note": "its Fix approach says base branch master, but the default branch is integration: branch from integration; pull request 852 (it replaced the closed 849) already carries this work: continue on it (step 1, open pull request check) instead of starting a second one",
     "open_question": null,
     "recommended_answer": null,
     "lane": "E2-L4",

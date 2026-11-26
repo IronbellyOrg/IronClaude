@@ -1,6 +1,6 @@
 # Iteration 3 work file: Leandro, epic E3
 
-Generated Wed 25 Nov 2026 20:05 Central by `scripts/epic-files.sh` from the reviewed work map (`work-map.json`). Do not edit by hand: change the map's inputs and rebuild. Repository: `IronbellyOrg/IronClaude`, base branch `integration`. Iteration 3 ends Sunday 6 December.
+Generated Wed 25 Nov 2026 20:09 Central by `scripts/epic-files.sh` from the reviewed work map (`work-map.json`). Do not edit by hand: change the map's inputs and rebuild. Repository: `IronbellyOrg/IronClaude`, base branch `integration`. Iteration 3 ends Sunday 6 December.
 
 ## 1. Kickoff prompt
 
@@ -57,7 +57,7 @@ Stories in the same lane run one after another, in the order shown. Different la
 ## 6. Between people
 
 - #442 (Ryan) observes the launch-level guard that #825 (Leandro) changes: agree which guard version the observations run against before either starts (card 825; not verified in #442's steps).
-- `WORKER-CONTRACT.md` is edited by #790, #771, #774, #755, #725 and #772 (Ryan) and by #446 and #699 (Leandro): each of those stories starts only when no open pull request changes that file (its **Shared files** line gives the check).
+- `WORKER-CONTRACT.md` is edited by #790, #771, #774, #755, #725 and #772 (Ryan) and by #446 and #699 (Leandro): each of those stories starts only when no open pull request changes that file and no other of them is already claimed in this iteration, in either epic (its **Shared files** line gives both checks).
 - #702 (Leandro) still has an update rule for the release-tag ruleset open, and #837 and #838 (Clay) copy the rulesets in `.github/rulesets/` to other repos: settle the release-tag rule in #702 first, or copy only the branch rulesets until it is settled.
 
 ## 7. The story workflow (every story, every step, in this order)
