@@ -1,0 +1,45 @@
+$ uv run pytest tests/core/test_how_we_work_worktree_policy.py tests/core/test_how_we_work_routing_table.py tests/core/test_claude_md_worktree_rule.py tests/core/test_orca_session_launch_guidance.py tests/core/test_claude_md_routing_block.py tests/docs/test_onboarding_deck.py tests/commands/test_worktrees_command.py tests/commands/test_help_command.py tests/commands/test_routing_plugin_parity.py tests/skills/test_review_prompt_overrides.py tests/skills/test_sc_recommend_routing_contract.py tests/skills/test_issue_protocol.py tests/skills/test_review_brief_placement.py tests/skills/test_spec_panel_review_loop.py tests/cli/test_how_we_work_install.py tests/recommend -q -p no:cacheprovider
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-289
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collected 688 items
+
+tests/core/test_how_we_work_worktree_policy.py ......................... [  3%]
+....................................                                     [  8%]
+tests/core/test_how_we_work_routing_table.py ........................... [ 12%]
+...................................                                      [ 17%]
+tests/core/test_claude_md_worktree_rule.py ...                           [ 18%]
+tests/core/test_orca_session_launch_guidance.py .....                    [ 19%]
+tests/core/test_claude_md_routing_block.py ......                        [ 19%]
+tests/docs/test_onboarding_deck.py ...                                   [ 20%]
+tests/commands/test_worktrees_command.py ............                    [ 22%]
+tests/commands/test_help_command.py ......                               [ 22%]
+tests/commands/test_routing_plugin_parity.py .....                       [ 23%]
+tests/skills/test_review_prompt_overrides.py ........................... [ 27%]
+...                                                                      [ 28%]
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 31%]
+......                                                                   [ 31%]
+tests/skills/test_issue_protocol.py .................................... [ 37%]
+........................................................................ [ 47%]
+........................................................................ [ 58%]
+.......................                                                  [ 61%]
+tests/skills/test_review_brief_placement.py .....                        [ 62%]
+tests/skills/test_spec_panel_review_loop.py ............................ [ 66%]
+................                                                         [ 68%]
+tests/cli/test_how_we_work_install.py .........                          [ 69%]
+tests/recommend/test_best_model.py ........                              [ 71%]
+tests/recommend/test_cache.py ...............                            [ 73%]
+tests/recommend/test_cli_registration.py ....                            [ 73%]
+tests/recommend/test_dispatch.py ...............                         [ 76%]
+tests/recommend/test_eval_pipeline.py .....                              [ 76%]
+tests/recommend/test_plugin_eval.py ........                             [ 77%]
+tests/recommend/test_routing_refresh.py ................................ [ 82%]
+........................................................................ [ 93%]
+.......................................                                  [ 98%]
+tests/recommend/test_telemetry.py .........                              [100%]
+
+============================= 688 passed in 6.32s ==============================
+rc=0
