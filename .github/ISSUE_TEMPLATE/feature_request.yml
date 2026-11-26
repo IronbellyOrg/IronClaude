@@ -52,7 +52,7 @@ body:
     id: reuse_search
     attributes:
       label: What the reuse search returned
-      description: 'What /sc:help, /sc:recommend and /sc:recommend --plugin returned, or "search not available because ...". A proposal about a skill, command or agent must answer this; leave it blank only for other requests.'
+      description: 'What /sc:help, /sc:recommend "<goal>" and /sc:recommend "<goal>" --plugin returned, or "search not available because ...". A proposal about a skill, command or agent must answer this; leave it blank only for other requests.'
     validations:
       required: false
 
