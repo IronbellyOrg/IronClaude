@@ -341,9 +341,10 @@ def test_session_confirmation_contract_and_documented_ruling(
 ):  # STATIC + CROSS
     qa, ledger, managed = _impl("refs/qa.md"), _impl("refs/ledger.md"), _managed()
     assert (
-        "clear user confirmation in the current conversation is sufficient"
+        "a chat message in the current conversation, or a dashboard response"
         in qa.lower()
     )
+    assert "a clear confirmation through either channel is sufficient" in qa.lower()
     assert "MUST automatically append" in qa and "MUST automatically append" in ledger
     assert "missing/ambiguous confirmation" in qa and "STOP `E-NO-RULING`" in qa
     assert "executor-invented approval" in qa and "unchanged" in qa

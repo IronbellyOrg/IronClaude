@@ -65,7 +65,7 @@ T<id>: <status> verdict=<verdict> ac=<ac-list> evidence=<ev-list> extras=lint:<l
 T<id>: Ruling: <what> — <why> — <cost-if-wrong>
 ```
 
-Em dashes as shown. Three non-empty fields. On clear user confirmation the executor MUST automatically append this line; the confirmation gate is the Halt table in `refs/qa.md`.
+Em dashes as shown. Three non-empty fields. On a clear confirmation by the user through a chat message or a dashboard response (the two channels `~/.claude/WORKER-CONTRACT.md` defines in WC-3; the dashboard channel applies only once the dashboard answer path is released) the executor MUST automatically append this line; the confirmation gate is the Halt table in `refs/qa.md`. The `<what>` field carries the provenance: the user's quoted chat words, or the dashboard answer row id. A coordinator's reply or relay is never the provenance.
 
 ```
 ^T([0-9A-Za-z.-]+): Ruling: .+ — .+ — .+$
@@ -194,6 +194,12 @@ Executor-recorded Ruling after the explained scope, reason and cost, followed by
 
 ```
 T2: Ruling: accept T2 missing pagination; user confirmed in current conversation "yes, accept T2 as explained" — AC-2 deferred to next spec — cost-if-wrong: list stays unpaginated
+```
+
+The same Ruling recorded from a dashboard response (the answer row and its question id are the provenance; applies once the dashboard answer path is released):
+
+```
+T2: Ruling: accept T2 missing pagination; user confirmed by dashboard answer row ans_0000042 (question q_0000017) — AC-2 deferred to next spec — cost-if-wrong: list stays unpaginated
 ```
 
 The earlier operator-written form (`T2: Ruling: drop pagination — AC-2 deferred to next spec — cost-if-wrong: list stays unpaginated`) remains valid.

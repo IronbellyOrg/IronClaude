@@ -1,0 +1,6 @@
+f14ee7e5f5ca569ee4b6955811865b80a8fefa81 tree=5d9bd1f0417552d17c39915d040cd4ddadeeefe4
+T3.AC1 met src/superclaude/skills/sc-implement-protocol/refs/qa.md:254,217,248,249,256
+T3.AC2 met src/superclaude/skills/sc-implement-protocol/refs/qa.md:254,249
+T3.AC3 met src/superclaude/skills/sc-implement-protocol/refs/qa.md (no src/superclaude path)
+F1.1 sev=blocking trigger=B4 ac=scope at=src/superclaude/skills/sc-implement-protocol/refs/qa.md:254 anchor="repeating only the two channel names" chk=n,n,n,y family=duplicated-definition fix=cut line 254 to the pointer, the two channel names, the timing sentence and the retained exclusion sentence; drop the restated definition and the extended never-list first=A1 origin=new: line 254 restates the full channel definition and the extended never-counts list of WC-3 instead of only naming the channels.
+F1.2 sev=minor trigger=none ac=scope at=src/superclaude/skills/sc-implement-protocol/refs/qa.md:254 anchor=qa.md:256 chk=n,n,n,n family=duplicated-definition fix=scope "a file" to a file offered as the confirmation first=A1 origin=new: "a file" in the never-list reads against the valid existing operator-written Rulings; the wording came with the copied text.
