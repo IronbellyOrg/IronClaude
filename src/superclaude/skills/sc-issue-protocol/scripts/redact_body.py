@@ -102,7 +102,7 @@ _STRONG_NAMES = r"""(?:api[_-]?key|secret|passw(?:or)?d|passwd|private[_-]?key
 # A credential line whose value may continue on the more indented lines below it:
 # ``password: |`` (a YAML block scalar) or ``password: first-line`` (a plain scalar).
 STRONG_LINE = re.compile(
-    rf"^[ \t]*(?:-[ \t]+)?[\"']?[A-Za-z0-9_.-]*(?:{_STRONG_NAMES}|(?:set-)?cookie)"
+    rf"^(?P<lead>[ \t]*(?:-[ \t]+)?)[\"']?[A-Za-z0-9_.-]*(?:{_STRONG_NAMES}|(?:set-)?cookie)"
     rf"{_NAME_CHARS}{_SEP}(?P<rest>.*)$",
     re.VERBOSE | re.IGNORECASE,
 )
@@ -147,14 +147,11 @@ WEAK_PAIR = re.compile(
     re.VERBOSE | re.IGNORECASE,
 )
 
-# An XML element whose name holds a credential word: ``<password>hunter2</password>``
-# (Maven ``settings.xml``). Everything up to that element's own closing tag is the
-# value (text, CDATA, comments, mixed content); it is capped at 1000 characters so an
-# unclosed tag cannot make the scan quadratic.
-XML_ELEMENT = re.compile(
-    rf"""(?P<head><(?P<tag>[A-Za-z0-9_.:-]*{_STRONG_NAMES}[A-Za-z0-9_.:-]{{0,64}})
-            (?:\s[^<>]*)?>)
-        (?P<value>[\s\S]{{1,1000}}?)(?=</(?P=tag)\s*>)""",
+# The opening tag of an XML element whose name holds a credential word:
+# ``<password>hunter2</password>`` (Maven ``settings.xml``). ``_redact_xml_elements``
+# redacts everything up to that element's own closing tag.
+XML_OPEN = re.compile(
+    rf"""<(?P<tag>[A-Za-z0-9_.:-]*{_STRONG_NAMES}[A-Za-z0-9_.:-]{{0,64}})(?:\s[^<>]*)?>""",
     re.VERBOSE | re.IGNORECASE,
 )
 
@@ -230,6 +227,39 @@ def _auth_shaped(value: str, quoted: bool = False) -> bool:
     )
 
 
+def _redact_xml_elements(text: str) -> tuple[str, int]:
+    """Redact the content of credential-named XML elements, nested same-name tags included."""
+    tags = {opening["tag"].lower() for opening in XML_OPEN.finditer(text)}
+    if not tags:
+        return text, 0
+    # One pass per tag name pairs every opening tag with its own closing tag (a stack,
+    # so same-name nesting works and an unclosed tag costs nothing extra).
+    spans: list[tuple[int, int]] = []
+    for tag in tags:
+        pattern = re.compile(rf"<(/?){re.escape(tag)}(?:\s[^<>]*)?>", re.IGNORECASE)
+        stack: list[int] = []
+        for found in pattern.finditer(text):
+            if not found.group(1):
+                stack.append(found.end())
+            elif stack:
+                spans.append((stack.pop(), found.start()))
+    out: list[str] = []
+    pos = 0
+    count = 0
+    for start, end in sorted(spans):
+        if start < pos:  # inside content that is already redacted
+            continue
+        value = text[start:end]
+        if not value.strip() or _is_placeholder(value):
+            continue
+        out.append(text[pos:start])
+        out.append(REDACTED)
+        pos = end
+        count += 1
+    out.append(text[pos:])
+    return "".join(out), count
+
+
 def _redact_block_scalars(text: str) -> tuple[str, int]:
     """Redact the indented lines under ``password: |`` (a YAML block scalar)."""
     lines = text.split("\n")
@@ -248,7 +278,7 @@ def _redact_block_scalars(text: str) -> tuple[str, int]:
             continue
         # Whatever the first line holds (a block marker, a value, a placeholder or
         # nothing), more indented lines under a credential name are part of the value.
-        base = len(line) - len(line.lstrip())
+        base = len(head["lead"])  # the key's own column (after a ``- `` list marker)
         redacted_any = False
         while i < len(lines) and (
             not lines[i].strip() or len(lines[i]) - len(lines[i].lstrip()) > base
@@ -311,7 +341,8 @@ def redact(text: str) -> tuple[str, int]:
     text = NETRC_LOGIN.sub(lambda m: replace(m, False), text)
     text = NETRC_LINE.sub(lambda m: replace(m, False), text)
     text = COOKIE_LINE.sub(lambda m: replace(m, False), text)
-    text = XML_ELEMENT.sub(lambda m: replace(m, False), text)
+    text, n = _redact_xml_elements(text)
+    total += n
     text = STRONG_PAIR.sub(lambda m: replace(m, False), text)
     text = WEAK_PAIR.sub(lambda m: replace(m, True), text)
     text = AUTH_PAIR.sub(

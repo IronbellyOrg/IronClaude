@@ -113,7 +113,10 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         "<password><![CDATA[remaining-secret123]]></password>",
         "<password><![CDATA[remaining-secret123]]>suffix</password>",
         "<password><![CDATA[remaining-secret123]]><!-- note --></password>",
-        "<password>remaining-<b>secret123</b></password>",
+        "<password>remaining-secret123<b>x</b></password>",
+        "<password>prefix<password>inner</password>trailing-secret</password>",
+        "<password>" + "x" * 1500 + "remaining-secret123</password>",
+        "- password: |\n    remaining-secret123",
         "<password>\n  <![CDATA[first\nremaining-secret123]]>\n</password>",
         PEM,
     ],
@@ -141,6 +144,7 @@ def test_credentials_are_redacted(line):
         "Secret1234567890",
         "tail-secret99",
         "correcthorsebatterystaple",
+        "trailing-secret",
         "dXNlcjpwYXNz",
         "dTph",
         "abcdefghijklmnop",
@@ -241,6 +245,20 @@ def test_a_long_uninterrupted_string_is_scanned_in_linear_time(unit):
     out, count = rb.redact(text)
     assert time.monotonic() - started < 5
     assert count <= 1  # a long base64-looking run may be redacted once
+
+
+def test_a_list_item_block_scalar_keeps_its_sibling_key():
+    text = "- password: |\n    remaining-secret123\n  user: bob\n"
+    out, _ = rb.redact(text)
+    assert "remaining-secret123" not in out
+    assert out.endswith("  user: bob\n")
+
+
+def test_nested_same_name_xml_is_redacted_to_the_outer_close():
+    text = "<a><password>x<password>y</password>trailing-secret</password></a>"
+    out, count = rb.redact(text)
+    assert out == "<a><password><REDACTED></password></a>"
+    assert count == 1
 
 
 def test_one_value_per_line_counts_once_each():
