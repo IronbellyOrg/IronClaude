@@ -121,6 +121,9 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         '<setting name="Password"><value>remaining-secret123</value></setting>',
         '<add key="DbPassword" value="remaining-secret123" />',
         '<password value="remaining-secret123" />',
+        '<password default-value="none" value="remaining-secret123" />',
+        '<add key="DbPassword" default-value="none" value="remaining-secret123" />',
+        '<password hint=\'see value="y"\' value="remaining-secret123" />',
         "<apiKey value='remaining-secret123'/>",
         '<password value="'
         + "ghp_"

@@ -243,10 +243,21 @@ _XML_TAG = re.compile(rf"<(/?)([A-Za-z0-9_.:-]+)(?:\s{_XML_ATTRS})?>")
 _XML_OPAQUE_START = re.compile(r"<!--|<!\[CDATA\[")
 
 
-# A ``value`` attribute: the other kind of quote may appear inside it (``"can't"``).
-_XML_VALUE_ATTR = re.compile(
-    r"""\bvalue\s*=\s*(?:"(?P<d>[^"<]*)"|'(?P<s>[^'<]*)')""", re.IGNORECASE
+# One complete ``name="value"`` attribute; the other kind of quote may appear inside the
+# value (``"can't"``). The lookbehind starts a name only at its first character, so a scan
+# stays linear and ``default-value="x"`` is one attribute named ``default-value``.
+_XML_ATTR_PAIR = re.compile(
+    r"""(?<![\w:.-])(?P<name>[A-Za-z_:][\w:.-]*)\s*=\s*(?:"(?P<d>[^"<]*)"|'(?P<s>[^'<]*)')"""
 )
+
+
+def _value_attr_span(attrs: str) -> tuple[int, int] | None:
+    """Span of the text of the attribute named ``value`` (complete attributes only)."""
+    for pair in _XML_ATTR_PAIR.finditer(attrs):
+        if pair["name"].lower() == "value":
+            group = "d" if pair["d"] is not None else "s"
+            return pair.start(group), pair.end(group)
+    return None
 
 
 def _mask_opaque_xml(text: str) -> tuple[str, int | None]:
@@ -287,24 +298,15 @@ def _redact_xml_elements(text: str) -> tuple[str, int]:
     spans: list[tuple[int, int]] = []
     for found in XML_OPEN.finditer(masked):
         credential[found.start()] = found
-        attribute = _XML_VALUE_ATTR.search(found.group(0))
+        attribute = _value_attr_span(found.group(0))
         if attribute:  # <password value="..."/>
-            group = "d" if attribute.group("d") is not None else "s"
-            spans.append(
-                (
-                    found.start() + attribute.start(group),
-                    found.start() + attribute.end(group),
-                )
-            )
+            spans.append((found.start() + attribute[0], found.start() + attribute[1]))
     for found in XML_OPEN_ATTR.finditer(masked):
         credential.setdefault(found.start(), found)
-        attribute = _XML_VALUE_ATTR.search(found["attrs"])
+        attribute = _value_attr_span(found["attrs"])
         if attribute:  # <add key="DbPassword" value="..."/>
             offset = found.start("attrs")
-            group = "d" if attribute.group("d") is not None else "s"
-            spans.append(
-                (offset + attribute.start(group), offset + attribute.end(group))
-            )
+            spans.append((offset + attribute[0], offset + attribute[1]))
     if not credential:
         return text, 0
     # One pass over every tag pairs each opening tag with its own closing tag using a
