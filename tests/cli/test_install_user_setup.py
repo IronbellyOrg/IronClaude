@@ -138,6 +138,28 @@ def test_defaults_ship_ponytail_pinned() -> None:
         assert defaults["extraKnownMarketplaces"][market]["source"]["repo"], plugin
 
 
+TYPESAFE_SHA = "302eea662c54bca6730873fe245bec1d69ebc23d"  # upstream tag v0.6.2
+
+
+def test_defaults_ship_typesafe_pinned() -> None:
+    defaults = _defaults()
+    catalog = defaults[setup._CATALOG_KEY]
+    assert defaults["enabledPlugins"]["typesafe@ironclaude"] is True
+    entry = next(e for e in catalog["plugins"] if e["name"] == "typesafe")
+    # Key order matters: the upstream monitor's regex reads repo, ref, sha in turn.
+    assert list(entry["source"].items()) == [
+        ("source", "github"),
+        ("repo", "typesafe-ai/skills"),
+        ("ref", "v0.6.2"),
+        ("sha", TYPESAFE_SHA),
+    ]
+    assert entry["description"].endswith(" v0.6.2, pinned by IronClaude")
+    # The rename map must not touch it, and it never reaches settings outside the catalog.
+    assert "typesafe@ironclaude" not in setup._RENAMED_PLUGINS
+    outside = {k: v for k, v in defaults.items() if k != setup._CATALOG_KEY}
+    assert "typesafe-ai" not in json.dumps(outside)
+
+
 def test_defaults_hold_no_unpinned_ponytail() -> None:
     defaults = _defaults()
     assert "ponytail@ponytail" not in defaults["enabledPlugins"]
@@ -150,8 +172,9 @@ def test_settings_defaults_add_ponytail_for_existing_users(tmp_path: Path) -> No
     claude = tmp_path / ".claude"
     claude.mkdir()
     defaults = _defaults()
+    catalog_plugins = ("ponytail@ironclaude", "typesafe@ironclaude")
     old_plugins = {
-        p: True for p in defaults["enabledPlugins"] if p != "ponytail@ironclaude"
+        p: True for p in defaults["enabledPlugins"] if p not in catalog_plugins
     }
     old_markets = dict(defaults["extraKnownMarketplaces"])
     (claude / "settings.json").write_text(
@@ -166,6 +189,7 @@ def test_settings_defaults_add_ponytail_for_existing_users(tmp_path: Path) -> No
     assert setup.apply_settings_defaults(home=tmp_path)[0]
     settings = _settings(tmp_path)
     assert settings["enabledPlugins"]["ponytail@ironclaude"] is True
+    assert settings["enabledPlugins"]["typesafe@ironclaude"] is True
     # The catalog stays in the package; Claude Code declares the marketplace
     # itself when install_plugins adds it.
     assert setup._CATALOG_KEY not in settings
@@ -254,6 +278,11 @@ def test_settings_defaults_carry_old_ponytail_opt_out(
     # install_plugins then leaves the opted-out plugin alone.
     calls = []
     opted_out = tmp_path / "0"
+    # The catalog is written only while some catalog plugin is on, so opt out of both.
+    settings_file = opted_out / ".claude" / "settings.json"
+    off = json.loads(settings_file.read_text())
+    off["enabledPlugins"]["typesafe@ironclaude"] = False
+    settings_file.write_text(json.dumps(off))
     monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
     monkeypatch.setattr(
         setup.subprocess,
@@ -549,6 +578,44 @@ def test_plugins_install_missing_enabled_defaults(tmp_path: Path, monkeypatch) -
     install = ["plugin", "install", "ponytail@ironclaude", "--scope", "user", "-y"]
     assert calls.index(add) < calls.index(install)
     assert not any("DietrichGebert" in " ".join(c) for c in calls)
+    # TypeSafe comes from the same catalog and installs after it is added.
+    install_ts = ["plugin", "install", "typesafe@ironclaude", "--scope", "user", "-y"]
+    assert calls.index(add) < calls.index(install_ts)
+    assert not any("typesafe-ai" in " ".join(c) for c in calls)
+    assert calls.count(add) == 1
+
+
+def test_plugins_move_typesafe_to_its_pin(tmp_path: Path, monkeypatch) -> None:
+    """A TypeSafe copy at another commit is updated to the pin; ponytail stays."""
+    home = _plugin_home(tmp_path, {"typesafe@ironclaude": True})
+    plugins = home / ".claude" / "plugins"
+    plugins.mkdir()
+    ours = {"source": "directory", "path": str(home / setup._CATALOG_DIR)}
+    (plugins / "known_marketplaces.json").write_text(
+        json.dumps({"ironclaude": {"source": ours}})
+    )
+    old = "65a39f393687675ce170e6094757de20370365b9"  # upstream tag v0.5.7
+    record = {"scope": "user", "gitCommitSha": old}
+    (plugins / "installed_plugins.json").write_text(
+        json.dumps({"plugins": {"typesafe@ironclaude": [record]}})
+    )
+    calls = []
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    monkeypatch.setattr(setup.subprocess, "run", _recording_run(calls))
+    ok, message = setup.install_plugins(home=home)
+    assert ok and message.startswith("✅ Plugins"), message
+    assert calls == [
+        ["plugin", "marketplace", "update", "ironclaude"],
+        ["plugin", "update", "typesafe@ironclaude", "--scope", "user"],
+    ]
+    # Installed at the pin, it is left alone.
+    record["gitCommitSha"] = TYPESAFE_SHA
+    (plugins / "installed_plugins.json").write_text(
+        json.dumps({"plugins": {"typesafe@ironclaude": [record]}})
+    )
+    calls.clear()
+    assert setup.install_plugins(home=home) == (True, "✅ Plugins: already installed")
+    assert calls == []
 
 
 def _pinned_home(tmp_path: Path, installed_sha: str, catalog_sha: str) -> Path:

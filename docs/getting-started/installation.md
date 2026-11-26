@@ -413,6 +413,14 @@ at once. When no Chromium is installed it first runs
 budget. A browser you set yourself in settings `env` is kept. macOS and other
 systems are left alone.
 
+**TypeSafe.** `typesafe@ironclaude` is the TypeSafe Jev agent skill v0.6.2 from
+`typesafe-ai/skills`, pinned to commit `302eea662c54bca6730873fe245bec1d69ebc23d`
+and installed through the same `ironclaude` marketplace as Ponytail (below). It
+is skill text only: no hooks and no code, and the installer ships no API key.
+The skill asks you before any live request to the TypeSafe API, and that request
+would use your own `TYPESAFE_API_KEY`. To opt out, set
+`"typesafe@ironclaude": false` under `enabledPlugins` in `~/.claude/settings.json`.
+
 **Ponytail.** `ponytail@ironclaude` is Ponytail v5.3.3 from
 `DietrichGebert/ponytail`, pinned to commit
 `7801d061243d7b753bad0e0b3c057cd250b11755`. It adds the `ponytail-*` skills and
