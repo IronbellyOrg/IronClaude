@@ -1,0 +1,21 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-393
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collected 297 items
+
+tests/skills/test_implement_adviser_family.py ...                        [  1%]
+tests/skills/test_model_alias_policy.py .............                    [  5%]
+tests/skills/test_implement_severity_static.py ......................... [ 13%]
+...                                                                      [ 14%]
+tests/skills/test_workflow_archive.py .................................. [ 26%]
+........................................................................ [ 50%]
+........................................................................ [ 74%]
+..                                                                       [ 75%]
+tests/skills/test_task_workspace_lifecycle.py .......................... [ 84%]
+...............................................                          [100%]
+
+============================= 297 passed in 3.29s ==============================
+rc=0

@@ -596,10 +596,10 @@ def test_retry_ref_rules_text():  # STATIC (wording pins only)
     assert "The two ladders are never mixed." in r
     assert "never used as an adviser" in r and "`T2Model01` is on par" in r
     for row in (
-        "| `haiku` | 1× `sonnet` | 1× GPT T1 | 2× `opus` |",
-        "| `sonnet` | 1× `opus` | 1× GPT T1 | 2× `opus` |",
-        "| `opus` (known) | 1× `opus` (top rung) | 1× GPT T1 | 2× `opus` |",
-        "| unknown | 1× `opus` (top rung, so the two escalations still differ) | 1× GPT T1 | 2× `opus` |",
+        "| `haiku` | 1× `sonnet` | 1× `opus` (GPT T1 not launchable, family-fallback) | 2× `opus` |",
+        "| `sonnet` | 1× `opus` | 1× `opus` (GPT T1 not launchable, family-fallback) | 2× `opus` |",
+        "| `opus` (known) | 1× `opus` (top rung) | 1× `opus` (GPT T1 not launchable, family-fallback) | 2× `opus` |",
+        "| unknown | 1× `opus` (top rung, so the two escalations still differ) | 1× `opus` (GPT T1 not launchable, family-fallback) | 2× `opus` |",
     ):
         assert row in r, row
     # Ruling eligibility rule (a)/(b)
