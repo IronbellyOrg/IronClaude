@@ -1,0 +1,20 @@
+contract_version: "1.1"
+supersedes: TASK-WF-design-20261126-134817
+remediation_route: surgical
+finding_counts: {"blocking": 3, "label_high": 0, "medium": 2, "note": 4}
+fix_cycles: 1
+status: success
+slug: TASK-WF-design-20261126-144053
+plan_path: ./TASK-WF-design-20261126-144053.md
+source_path: ./source.md
+source_origin: .dev/brainstorms/20261126-worktree-branch-protocol/design.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success   # first review FAIL (3 blocking), repaired by one surgical cycle; re-review PASS, scope changed lines plus prior blockers
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-289/.dev/reflect/pre-TASK-WF-design-20261126-134817-20261126135219/REPORT.md
+unresolved:
+  - "Medium findings not repaired (follow-up candidates): key phrases do not pin the reuse checks, the watcher sentence, the Orca location, supervised workers or the condition 'after the first session has stopped'; Task 6 acceptance omits the len(login)+digits >= 18 value; the cut 'in the Orca app' leaves no stated place to pin (re-review F2)."
+  - "Owner questions for the pull request body: should a handoff also skip the same-repository/issue/branch check; the login digit run is not checked by the planned name checker although cleanup reads the whole branch name; the hand-copied regex in the test is not tied to scripts/worktree_cleanup.py."
+  - "Reflect report paths in .dev/reflect/pre-TASK-WF-design-20261126-134817-20261126135219/ name the archived package TASK-WF-design-20261126-134817 (superseded by this one)."

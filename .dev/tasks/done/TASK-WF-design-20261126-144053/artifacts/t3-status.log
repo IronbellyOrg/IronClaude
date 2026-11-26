@@ -1,0 +1,9 @@
+$ git status --short
+ M plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+ M src/superclaude/core/HOW-WE-WORK.md
+?? .dev/brainstorms/20261126-worktree-branch-protocol/
+?? .dev/issues/289/
+?? .dev/reflect/pre-TASK-WF-design-20261126-134817-20261126135219/
+?? .dev/tasks/archive/TASK-WF-design-20261126-134817/
+?? .dev/tasks/to-do/TASK-WF-design-20261126-144053/
+rc=0

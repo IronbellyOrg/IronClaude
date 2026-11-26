@@ -520,7 +520,7 @@
     <div class="card">
       <h3>Worktree and branch protocol</h3>
       <div class="term"><b>Worktree:</b> a second checkout of the same repository in its own folder, on its own branch, so parallel sessions do not touch each other's files.</div>
-      <p>When a session should get its own worktree and branch, where they live and how they are named is being worked out in <a href="https://github.com/IronbellyOrg/IronClaude/issues/289">issue #289</a>.</p>
+      <p>New work gets a new worktree and branch, made by Orca with an agent. A fix to delivered work reuses the original worktree while it exists, after the checks in the guide. Name: <code>&lt;login&gt;/issue-&lt;N&gt;-&lt;words&gt;</code>, at most 24 characters, no spaces, for example <code>clayphi/issue-289-wtrule</code>. Before removal the owner writes the lessons on the issue, and a person pins the worktree until then. Details: HOW-WE-WORK, "Worktrees and branches".</p>
     </div>
     <div class="card">
       <h3>Contributing rules</h3>
@@ -576,7 +576,7 @@
 </main>
 
 <footer>
-  <p>Built from HOW-WE-WORK.md at commit f3c1ef06.</p>
+  <p>Built from HOW-WE-WORK.md at commit a98d7b42.</p>
   <p>Source of truth for every command and flag: <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md">HOW-WE-WORK.md</a>, except <code>--plugin</code>, which comes from the <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/commands/recommend.md"><code>/sc:recommend</code> command file</a>.</p>
 </footer>
 

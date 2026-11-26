@@ -1,0 +1,11 @@
+$ bash -c git status --short -- . ':(top,exclude).dev'; echo '--- staged under .claude or .dev/issues:'; git diff --cached --name-only | grep -E '^(\.claude/|\.dev/issues/)'; echo "grep rc=$?"; echo '--- .dev/tasks:'; git status --short -- .dev/tasks
+ M docs/onboarding/ironclaude-onboarding.html
+ M plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+ M src/superclaude/core/HOW-WE-WORK.md
+?? tests/core/test_how_we_work_worktree_policy.py
+--- staged under .claude or .dev/issues:
+grep rc=1
+--- .dev/tasks:
+?? .dev/tasks/archive/TASK-WF-design-20261126-134817/
+?? .dev/tasks/to-do/TASK-WF-design-20261126-144053/
+rc=0

@@ -1,0 +1,9 @@
+$ git diff -U0 HEAD -- docs/onboarding/ironclaude-onboarding.html
+diff --git a/docs/onboarding/ironclaude-onboarding.html b/docs/onboarding/ironclaude-onboarding.html
+index df0797f7b..5acf049f6 100644
+--- a/docs/onboarding/ironclaude-onboarding.html
++++ b/docs/onboarding/ironclaude-onboarding.html
+@@ -523 +523 @@
+-      <p>When a session should get its own worktree and branch, where they live and how they are named is being worked out in <a href="https://github.com/IronbellyOrg/IronClaude/issues/289">issue #289</a>.</p>
++      <p>New work gets a new worktree and branch, made by Orca with an agent. A fix to delivered work reuses the original worktree while it exists, after the checks in the guide. Name: <code>&lt;login&gt;/issue-&lt;N&gt;-&lt;words&gt;</code>, at most 24 characters, no spaces, for example <code>clayphi/issue-289-wtrule</code>. Before removal the owner writes the lessons on the issue, and a person pins the worktree until then. Details: HOW-WE-WORK, "Worktrees and branches".</p>
+rc=0
