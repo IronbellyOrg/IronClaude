@@ -76,3 +76,19 @@ def test_ledger_imports_only_allowed_probes_names():
     assert used <= ALLOWED, (
         f"ledger.py takes more than {sorted(ALLOWED)} from probes: {sorted(used - ALLOWED)}"
     )
+
+
+def test_fcntl_is_not_imported_at_module_level():
+    # main.py imports this module for every command, so a platform without fcntl must import it.
+    tree = ast.parse(Path(ledger_module.__file__).read_text(encoding="utf-8"))
+    top_level = {
+        alias.name.split(".")[0]
+        for node in tree.body
+        if isinstance(node, ast.Import)
+        for alias in node.names
+    } | {
+        node.module.split(".")[0]
+        for node in tree.body
+        if isinstance(node, ast.ImportFrom) and node.module
+    }
+    assert "fcntl" not in top_level

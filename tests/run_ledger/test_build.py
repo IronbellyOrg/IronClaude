@@ -234,3 +234,34 @@ def test_workers_not_fetched_for_runs_already_in():
     assert sorted(e["id"] for e in data["runs"]) == [rid(1), rid(2)]
     assert data["orca"] == {"runs_listed": 3, "worktrees_listed": 1}
     assert data["version"] == 1
+
+
+@pytest.mark.parametrize(
+    ("configured", "installed", "expected"),
+    [
+        (
+            None,
+            {"orca-ide", "orca"},
+            "/bin/orca-ide",
+        ),  # the sweep's default comes first
+        (None, {"orca"}, "/bin/orca"),  # ... and plain orca is the fallback
+        (None, {"orca-ide"}, "/bin/orca-ide"),
+        (
+            "my-orca",
+            {"my-orca", "orca-ide", "orca"},
+            "/bin/my-orca",
+        ),  # ORCA_CLI_COMMAND wins
+        ("my-orca", {"orca-ide", "orca"}, None),  # and is the only name tried
+        (None, set(), None),
+    ],
+)
+def test_orca_binary_resolved_like_the_sweep(
+    monkeypatch, configured, installed, expected
+):
+    monkeypatch.delenv("ORCA_CLI_COMMAND", raising=False)
+    if configured:
+        monkeypatch.setenv("ORCA_CLI_COMMAND", configured)
+    monkeypatch.setattr(
+        shutil, "which", lambda name: f"/bin/{name}" if name in installed else None
+    )
+    assert ledger.orca_binary_path() == expected

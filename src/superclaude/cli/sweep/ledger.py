@@ -9,7 +9,6 @@ guards, the file store, and the ``sweep ledger`` click command.
 from __future__ import annotations
 
 import contextlib
-import fcntl  # shortcut: fcntl is Linux and macOS only, add msvcrt locking if Windows is ever needed
 import json
 import os
 import re
@@ -191,14 +190,29 @@ class Implausible(Exception):
     """The result looks like a broken read; the message starts ``implausible:``."""
 
 
-def orca_runner(args: list[str]) -> tuple[int, str]:
-    """Run ``orca <args>`` with a fixed argv, no shell and a 30 s timeout.
+def orca_binary_path() -> str | None:
+    """Absolute path of the Orca CLI, resolved the way the sweep does, or None.
 
-    Resolved with ``shutil.which`` (an absolute path only). ``find_orca`` of
+    ``ORCA_CLI_COMMAND`` when set (that one only), else ``orca-ide`` (the sweep's default,
+    ``probes.orca_binary``), else ``orca``. Probes is not imported for this: ledger.py may take
+    only ``RUN_ID_RE`` and ``parse_time`` from it.
+    """
+    configured = os.environ.get("ORCA_CLI_COMMAND")
+    for name in (configured,) if configured else ("orca-ide", "orca"):
+        found = shutil.which(name)
+        if found:
+            return found
+    return None
+
+
+def orca_runner(args: list[str]) -> tuple[int, str]:
+    """Run the Orca CLI with a fixed argv, no shell and a 30 s timeout.
+
+    The executable comes from ``orca_binary_path`` (an absolute path only). ``find_orca`` of
     ``cli/issue_watch/launch.py`` is not reused: it needs that package's Runner object and
     an extra ``orca skills list --json`` probe.
     """
-    binary = shutil.which("orca")
+    binary = orca_binary_path()
     if binary is None:
         raise FileNotFoundError("orca")
     proc = subprocess.run(
@@ -422,6 +436,10 @@ def read_ledger(path: Path) -> dict | None:
 @contextlib.contextmanager
 def locked(path: Path, timeout: float = LOCK_TIMEOUT_SECONDS) -> Iterator[None]:
     """Exclusive ``flock`` on the sidecar ``run-ledger.lock``; ``LockTimeout`` after ``timeout`` s."""
+    # Imported here, not at module level: ``main`` imports this module for every command, so a
+    # platform without fcntl must still import the CLI.
+    import fcntl  # shortcut: fcntl is Linux and macOS only, add msvcrt locking if Windows is ever needed
+
     lock_file = Path(path).parent / LOCK_NAME
     lock_file.parent.mkdir(parents=True, exist_ok=True)
     with open(lock_file, "a") as handle:
