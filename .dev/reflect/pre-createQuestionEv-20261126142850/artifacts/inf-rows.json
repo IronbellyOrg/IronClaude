@@ -1,0 +1,16 @@
+[
+  {"id": "INF-001", "line": 11, "quote": "What remains is scenario regression coverage and recorded quick, standard and deep create runs demonstrating actual question/post counts, response application, addition retention and preserved user flags, followed by the required verification gates."},
+  {"id": "INF-002", "line": 11, "quote": "The merged secrets rule deliberately adds a question-triggering exception; #852's review reply calls it intended, so verification must state this qualification rather than silently remove that safeguard."},
+  {"id": "INF-003", "line": 11, "quote": "so the orchestrator must re-check that state and not treat these files as permission to reopen it or continue claim writes."},
+  {"id": "INF-004", "line": 23, "quote": "They do not execute notes-state scenarios or measure questions/posts. Keep them and add genuinely exercised cases."},
+  {"id": "INF-005", "line": 26, "quote": "Preserve claim's direct posting, staged-recommendation distinction and worktree-only plan approval boundary."},
+  {"id": "INF-006", "line": 27, "quote": "Controlled runs must load the revised skill, not a stale installed copy. No new production decision service is requested."},
+  {"id": "INF-007", "line": 35, "quote": "Assumption: an isolated runner can intercept question and GitHub-post tools without live test issues; if that is unavailable, the estimate must be revisited, not replaced with a second copy of the decision rule that only tests itself."},
+  {"id": "INF-008", "line": 43, "quote": "(1) regression tests for added-material-only, empty, contradiction-only and mixed notes, multiple contradictions sharing one question, all four categories, and a user flag preserved despite a worker's disagreement;"},
+  {"id": "INF-009", "line": 43, "quote": "(2) the controlled-run evidence of actual question and post counts across quick, standard and deep create runs, with GitHub writes intercepted or disposable issues explicitly authorized (no live test issues without asking the lead)."},
+  {"id": "INF-010", "line": 43, "quote": "If a criterion is already delivered, say so with the file and line."},
+  {"id": "INF-011", "line": 43, "quote": "Base branch is integration, not master."},
+  {"id": "INF-012", "line": 43, "quote": "The pull request is opened with `Refs #834` unless it delivers every criterion."},
+  {"id": "INF-013", "line": 45, "quote": "Reopening is the lead's decision."},
+  {"id": "INF-014", "line": 49, "quote": "The new plan covers each of them in a task and states the covering requirement ids in that task."}
+]

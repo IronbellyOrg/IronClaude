@@ -1,0 +1,50 @@
+       9 | Type | skill | given by the user as `--type skill`; quick depth takes it at face value |
+      10 | Issue type | Bug | derived from the mode and the area by the rule in `refs/labels.md` |
+     … +1 line (ctrl+o to expand)
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● Wave 1: spawning the T3 lookup worker.
+
+● issue-worker-t3(Create lookup scout.md)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● The lookup worker is running. Wave 2 is done: quick depth with both flags given, so flags.md records bug / skill / Bug / Simple as given. I'll continue once scout.md is written.
+
+✻ Waiting for 1 background agent to finish
+
+● Agent "Create lookup scout.md" finished · 12s
+
+  Read 1 file (ctrl+o to expand)
+
+● Wave 3: bug + quick → templates/issue-bug-simple.md. Wave 4: spawning the T3 drafting worker.
+
+● issue-worker-t3(Draft quick bug issue body)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● The lookup found the bug label, the Bug issue type, the Complexity field with a Simple option, and no duplicates. The worker drafting the body is running now. I'll continue when it finishes.
+
+● Agent "Draft quick bug issue body" finished · 59s
+
+  Read 2 files (ctrl+o to expand)
+
+● The draft has one supported contradiction, so the protocol asks exactly one question before posting.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ☐ File path
+
+│ Your description says the crash happens in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py`, but that file doesn't exist. The scripts folder holds only `clickup_claim.py`,
+│ `origin_repo.py` and `orca_worktree.py`. The draft keeps your report and adds that the file is absent here. The empty-description STOP rule is in `src/superclaude/commands/issue.md:56`. How should
+│ the issue treat this before it is posted?
+
+❯ 1. Keep the draft
+     Post as drafted: the summary names your reported path and says the file is absent in this checkout, and the issue points at the STOP rule in commands/issue.md.
+  2. Keep my wording
+     Post with your path stated as the crash location, without the note that the file is absent.
+  3. Edit
+     You give the corrected location or wording (use 'Other' to type it), and the draft is changed to match before posting.
+  4. Type something.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  5. Chat about this
+
+Enter to select · ↑/↓ to navigate · Esc to cancel
+

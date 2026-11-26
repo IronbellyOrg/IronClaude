@@ -1,0 +1,137 @@
+{
+  "name": "standard-additions-only",
+  "depth": "standard",
+  "flags": "--mode feature --type cli --depth standard",
+  "marker": "qev-standard-additions-only-181206",
+  "description": "Feature: make `superclaude install` print, as its last line, how many skills it copied.",
+  "clone_head": "862384852faebe3255c2876527103696cfd3cf3b",
+  "drive": {
+    "questions_screens": 0,
+    "answered": 0,
+    "unanswered": 0,
+    "permission_prompts": 0,
+    "status": "completed",
+    "seconds": 309
+  },
+  "expected": {
+    "questions": 0,
+    "issue_create": 1,
+    "issue_comment": null
+  },
+  "observed": {
+    "questions_as_tool_calls": 0,
+    "questions_answered": 0,
+    "questions_as_plain_text": 0,
+    "issue_create": 1,
+    "issue_comment": 0,
+    "issue_edit": 0,
+    "other_writes": 0,
+    "unknown_gh_calls": 0,
+    "start_up_gh_reads": 1
+  },
+  "matched": {
+    "questions": true,
+    "issue_create": true,
+    "issue_comment": null
+  },
+  "creates": [
+    {
+      "title": "[FEATURE] Make `superclaude install` print how many skills it copied as its last line [synthetic run marker: qev-standard-additions-only-181206]",
+      "labels": [
+        "enhancement"
+      ],
+      "type": "Feature"
+    }
+  ],
+  "worker_lines": [],
+  "agents_spawned": [
+    "issue-worker-t3",
+    "issue-worker-t2",
+    "issue-worker-t2"
+  ],
+  "skills_loaded": [
+    "sc-issue-protocol"
+  ],
+  "question_texts": [],
+  "question_answers": [],
+  "additions": [
+    "The skills phase already reports an installed count, but it is followed by session wiring, hooks, templates, user setup, codegraph and retirement; users must look back through the output for that count (`src/superclaude/cli/install_skills.py:112-122`; `src/superclaude/cli/main.py:202-279`).",
+    "Today's final line depends on retirement outcomes: no-retired-files text, kept/removed-item details, restart guidance or the CLI's retirement-exception warning; there is no fixed skills-count footer (`src/superclaude/cli/install_retired_files.py:269-306`; `src/superclaude/cli/main.py:280-296`).",
+    "The batch installer distinguishes installed, skipped, failed and command-served skills; the single-skill installer returns success after `shutil.copytree` completes (`src/superclaude/cli/install_skills.py:83-115`; `src/superclaude/cli/install_skill.py:39-55`).",
+    "Proposed structured count reporting, without message parsing or destination-directory totals, and final printing after retirement but before the existing exit-code check are implementation recommendations derived from those code paths (`src/superclaude/cli/install_skills.py:62-150`; `src/superclaude/cli/main.py:271-296`).",
+    "The component list adds the CLI entry point, batch and single-skill installers, retirement output producer, and existing CLI/batch/retirement regression test locations (`src/superclaude/cli/main.py:202-208,271-296`; `src/superclaude/cli/install_skills.py:62-150`; `src/superclaude/cli/install_skill.py:39-55`; `src/superclaude/cli/install_retired_files.py:269-306`; `tests/cli/test_update_command.py:128-143,169-183`; `tests/unit/test_cli_install.py:643-727`; `tests/cli/test_install_retired_files.py:699-712`).",
+    "Related issue links are not known; the scout's two duplicate searches found none (`scout.md:28-30`). This is not a claim that no related issue exists.",
+    "Medium priority applies the planned-feature trigger from `~/.claude/skills/sc-issue-protocol/refs/create.md:73-82`; the description and static pass do not establish a higher-priority trigger.",
+    "The ordered implementation workflow (`/sc:workflow`, `/sc:implement`, `/sc:pr-submit --monitor 3`), repo IronbellyOrg/IronClaude, base integration and required full-suite/lint/sync gates are handoff material supplied by the worker assignment and the required-plan rules (`~/.claude/skills/sc-issue-protocol/refs/create.md:61-71`), not statements from the feature description.",
+    "Assumption: the count covers packaged batch skills copied by `install_all_skills` during the invocation, including successful force replacements, not individual files, pre-existing skills or external Orca-managed installation. This resolves an unspecified count scope; Orca currently returns a message rather than a numeric copy count (`src/superclaude/cli/install_user_setup.py:323-371`).",
+    "Assumption: use the plain-text final line `Skills copied: N`; exact wording was not specified.",
+    "Assumption: emit the footer on completed install paths, including reported phase failures, but not list-only mode or unhandled exceptions that abort before completion. The acceptance criterion preserves existing diagnostics and exit codes rather than treating a count as overall success (`src/superclaude/cli/main.py:285-296`).",
+    "Assumption: preserve the batch installer's existing two-item `(success, message)` caller interface and do not extend the feature to `superclaude update` or `install-skill` (`src/superclaude/cli/install_skills.py:62-74`; the description names only `superclaude install`).",
+    "Added observable acceptance cases for zero copies, forced replacements, skipped/command-served/failed exclusions, list-only behavior, completed failure paths, and final-line ordering; these operationalize the count-scope and completion-path assumptions above rather than contradicting any stated user choice (`src/superclaude/cli/install_skills.py:78-115`; `tests/cli/test_update_command.py:169-183`).",
+    "Proposed new batch and CLI regression tests cover successful counts, empty availability, repeated non-force runs, force, exclusions, mixed copy outcomes, compatible callers, later-phase sentinel output, retirement warnings and unchanged exit/list behavior. The footer assertion is specifically against the last line, not a substring search (existing test seams: `tests/unit/test_cli_install.py:683-727`; `tests/cli/test_update_command.py:128-183`; `tests/cli/test_install_retired_files.py:699-712`).",
+    "Assumption: reviewers should verify with isolated HOME and stubbed external phases instead of installing into their own home; the existing CLI fixtures isolate HOME and stub plugin/browser/Orca/codegraph work (`tests/cli/test_update_command.py:33-59`).",
+    "Added the focused command `uv run pytest tests/unit/test_cli_install.py tests/cli/test_update_command.py tests/cli/test_install_retired_files.py`, followed by `uv run pytest`, `make lint` and `make verify-sync`, plus reviewer checks of captured output and unchanged failure/list behavior. These are future gates, not observed passes; no tests or real installer were run in this read-only drafting pass (worker assignment).",
+    "Analysis method: followed `~/.claude/commands/sc/analyze.md` without a depth flag, using static discovery, scan, evaluation and recommendations in the issue body. Codegraph and Auggie MCP tools are not available in the session tool list, so the pass continued with Glob, Grep and Read. Installed/project `CODEGRAPH.md` copies were absent; the in-checkout guide `src/superclaude/core/CODEGRAPH.md:9-24` supplied readiness rules. The guarded CLI readiness check returned Not initialized and version 1.6.2; no graph initialization or source modification was performed. For graph readiness follow-up, `/sc:graph status` reports the next action; this is not a prerequisite for this issue.",
+    "Codegraph: index_state=not_initialized, access=cli, checked_at=2026-11-26T18:14:02Z, worktree_root=/tmp/createQuestionEv-scratch/clones/standard-additions-only; degraded: graph:not_initialized. The pass used no graph lookup results as evidence."
+  ],
+  "contradictions": [],
+  "addition_presence": "see record.md (approximate best-matching-line rule)",
+  "kept_without_approval_lines": [
+    "- kept without approval: the skills step already prints a count, but more steps run after it, so the count scrolls out of view (`src/superclaude/cli/install_skills.py:112-122`, `src/superclaude/cli/main.py:202-279`)",
+    "- kept without approval: the last line today depends on how the retirement step ends; there is no fixed summary line (`src/superclaude/cli/install_retired_files.py:269-306`)",
+    "- kept without approval: the installer already tells installed, skipped, failed and command-served skills apart (`src/superclaude/cli/install_skills.py:83-115`)",
+    "- kept without approval: the approach passes the count as a number to the CLI and prints it after retirement, before the exit-code check, without parsing message text",
+    "- kept without approval: the list of affected components and the existing test files to extend",
+    "- kept without approval: Priority Medium, because it is a planned feature",
+    "- kept without approval: the ordered fix steps (`/sc:workflow` \u2192 `/sc:implement` \u2192 `/sc:pr-submit --monitor 3`, base `integration`) and the regression checks (`uv run pytest`, `make lint`, `make verify-sync`)",
+    "- kept without approval: test cases for zero copies, `--force`, excluded skills, `--list`, failure paths and the line order, with the tests checking the actual last line",
+    "- kept without approval: the worker had no code-graph or Auggie tools and used plain file search instead"
+  ],
+  "false_files_in_body_at_question": [],
+  "false_files_in_posted_body": [],
+  "read_files": {
+    "count": 36,
+    "not_equal_src": [],
+    "installed_copy": [],
+    "failed_reads": [
+      "/root/.claude/skills/sc-issue-protocol/templates/scout-report.md",
+      "/tmp/createQuestionEv-scratch/clones/standard-additions-only/.claude/CODEGRAPH.md",
+      "/tmp/createQuestionEv-scratch/clones/standard-additions-only/.claude/HOW-WE-WORK.md",
+      "/tmp/createQuestionEv-scratch/clones/standard-additions-only/.claude/skills/sc-issue-protocol/templates/scout-report.md",
+      "/tmp/createQuestionEv-scratch/home/.claude/CODEGRAPH.md",
+      "/tmp/createQuestionEv-scratch/home/.claude/HOW-WE-WORK.md"
+    ]
+  },
+  "seeded_hashes_equal_src": 30,
+  "fork_activity": {
+    "attributed": [],
+    "unattributed": [
+      {
+        "kind": "issue",
+        "number": 896,
+        "author": "clayphi",
+        "created_at": "2026-11-26T17:55:17Z",
+        "new": false,
+        "title": "docs: write the six owner answers of issue 289 into the worktree guide"
+      },
+      {
+        "kind": "issue",
+        "number": 892,
+        "author": "clayphi",
+        "created_at": "2026-11-26T17:09:59Z",
+        "new": false,
+        "title": "feat(rulesets): ruleset files, guide and pinning test for the other IronbellyOrg"
+      }
+    ],
+    "error": ""
+  },
+  "files_written_by_run": [
+    "/tmp/createQuestionEv-scratch/clones/standard-additions-only/.dev/issues/draft-20261126-181225-feature-make-superclaude-install-print-a/scout.md",
+    "/tmp/createQuestionEv-scratch/clones/standard-additions-only/.dev/issues/draft-20261126-181225-feature-make-superclaude-install-print-a/issue-body.md",
+    "/tmp/createQuestionEv-scratch/clones/standard-additions-only/.dev/issues/draft-20261126-181225-feature-make-superclaude-install-print-a/draft-notes.md",
+    "/tmp/createQuestionEv-scratch/clones/standard-additions-only/.dev/issues/draft-20261126-181225-feature-make-superclaude-install-print-a/flags.md",
+    "/tmp/createQuestionEv-scratch/clones/standard-additions-only/.dev/issues/draft-20261126-181225-feature-make-superclaude-install-print-a/description.md",
+    "/tmp/createQuestionEv-scratch/clones/standard-additions-only/.dev/issues/draft-20261126-181225-feature-make-superclaude-install-print-a/flags.md"
+  ],
+  "stop_conditions": []
+}

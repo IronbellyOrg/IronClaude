@@ -1,0 +1,113 @@
+--- old-plan
++++ new-plan
+@@ -3,7 +3,7 @@
+ source: ./source.md
+ strategy: systematic
+ depth: standard
+-slug: TASK-WF-createQuestionEv-20261126-142533
++slug: TASK-WF-createQuestionEv-20261126-170236
+ version: "1"
+ priority: Medium
+ created_date: "2026-11-26"
+@@ -25,6 +25,7 @@
+ - Base branch is `integration`. The pull request is opened with `Refs #834` unless every acceptance criterion is delivered with run evidence. The issue was closed on GitHub on 2026-11-26; reopening it and the closing-keyword decision belong to the lead (R-021).
+ - Paths written `./artifacts/...` mean the `artifacts` folder inside this plan's package directory, not a folder at the repository root. Commands that use them run from the package directory (the directory that holds this plan).
+ - Never stage or commit anything under `.claude/` or `.dev/issues/`.
++- Raw event logs, dry-run excerpts and any other raw run output are written to a scratch directory outside the repository (Task 4 names it), are scanned by Task 9, and only scanned files are copied into `./artifacts/` (B-4).
+ 
+ ## Phase 1: Notes-contract tests for the create question rule
+ 
+@@ -78,11 +79,11 @@
+ Add the scenarios:
+ - one test per category (reversed choice, dropped requirement, changed flag, user-stated fact contradicted by verified code), each a notes file with exactly one complete item, asserting exactly one question
+ - a contradiction line missing its quoted user words, one missing its evidence and one missing its category: each is treated as New material, so zero questions
+-- a preserved user flag: a worker's disagreement with a supplied `--mode` or `--type` is written as an ordinary New material line, or as a Contradictions line without the user's quoted words, so zero questions; also assert that the Wave 2 section of `src/superclaude/skills/sc-issue-protocol/refs/create.md` (the text between the `## Wave 2` and `## Wave 3` headings, where the sentence is at line 38) holds the sentence "The issue is filed with the user's flags when the user gave them", and that Wave 5 step 7 (the pushback comment, about line 98) still posts a disagreement after creation
++- the preserved user flag, two cases (B-3): a worker's disagreement with a supplied `--mode` or `--type` recorded under New material with the flag named, so zero questions; and a Contradictions item of category changed flag that states the flag as passed and that the drafted issue uses a different value, so exactly one question; also assert that the Wave 2 section of `src/superclaude/skills/sc-issue-protocol/refs/create.md` (the text between the `## Wave 2` and `## Wave 3` headings, where the sentence is at line 38) holds the sentence "The issue is filed with the user's flags when the user gave them", and that Wave 5 step 7 (the pushback comment, about line 98) still posts a disagreement after creation
+ - the secret-material exception: a Contradictions item that names a place and never a value counts as one question even though it quotes no user words, because `src/superclaude/skills/sc-issue-protocol/refs/create.md:59` and `src/superclaude/skills/sc-issue-protocol/templates/draft-notes.md:13` say so; the test reads both files and asserts that both carry the exception sentence
+ 
+ Acceptance criteria:
+-- The module has separate test ids for each of the four categories, the three incomplete-line cases, the preserved-flag case and the secret-material case.
++- The module has separate test ids for each of the four categories, the three incomplete-line cases, the two preserved-flag cases (B-3) and the secret-material case.
+ - The preserved-flag test fails when the cited sentence is removed from the Wave 2 section of a copy of `refs/create.md` (removing only the copy quoted inside the prompt rule at line 86 must not make it pass), and fails when the Wave 5 step 7 pushback is removed.
+ - The secret-material test fails when the exception sentence is removed from a copy of either file.
+ - `uv run pytest tests/skills/test_issue_protocol.py tests/skills/test_issue_create_question_scenarios.py -q` passes, and the 17 existing tests selected by `-k "contradiction or draft_notes or create_question or additions or evidence"` in `tests/skills/test_issue_protocol.py` still pass unchanged.
+@@ -100,6 +101,9 @@
+ - how each GitHub write path is blocked in a run: the fake `gh` first on `PATH`, an empty `GH_CONFIG_DIR`, `GH_TOKEN`, `GITHUB_TOKEN` and `SSH_AUTH_SOCK` unset, the global and system git configuration pointed at an empty file, no credential helper, a run clone whose push URL for `origin` is invalid and whose pre-push hook refuses, and an MCP configuration with no GitHub-capable server; and how the read-only after-run fork-activity check works (issues, comments and branches of the fork since the start of the run, read with GET calls made by the harness process only, never by the run's model)
+ - that `src/superclaude/skills/sc-issue-protocol/scripts/` holds no `create_issue.py` and no `issue_logger.py` (the false facts of Tasks 6 to 8 depend on it), by listing the folder
+ - the sha256 of each `src/` file that a run must load, so every run record can show which copy it used
++- the dry run itself (B-1): it happens before any write block of Task 5 exists, so run it in an isolated home and configuration directory outside the package, with `GH_TOKEN`, `GITHUB_TOKEN` and `SSH_AUTH_SOCK` unset, `gh` shadowed first on `PATH` by a stub that exits non-zero, an invalid push URL for `origin`, and a probe prompt that makes one question tool call and never invokes `/sc:issue`
++
++Raw output of the dry run and of every later run goes to a scratch directory outside the repository, named here as `createQuestionEv-scratch` under the system temporary directory; Task 9 scans it and copies only scanned files into `./artifacts/` (B-4).
+ 
+ End the file with a decision section: the chosen loading option, the observation method, whether an answer can be supplied, and the stop conditions. When a dry print-mode run shows no `AskUserQuestion` event (not offered, denied or erroring), or the answer cannot be supplied, or write interception or the fork-activity check cannot be shown, the decision section is a stop report: it states what is not available, a revised estimate, whether the notes-contract tests of Phase 1 could ship alone, and the question for the lead. Task 5 does not start until the lead's reply is written into this file.
+ 
+@@ -107,6 +111,7 @@
+ - `./artifacts/harness-feasibility.md` exists and answers each bullet above with a command and its real output, not a guess; a bullet the environment cannot answer is written as "not available here" with the reason.
+ - The decision section either says "proceed" with every control named, or is a stop report with the revised estimate; in the stop case no harness file exists under `./artifacts/harness/` until the lead's reply is recorded in the file.
+ - The file records the dry-run event log excerpt that shows how a question tool call appears (or that none appeared).
++- The file records the dry run's command line, its environment (isolated home and configuration directory, the three unset variables, the shadowed `gh`, the invalid push URL) and its probe prompt, which never invokes `/sc:issue` (B-1).
+ 
+ ## Task 5: Build the fake gh, the run script, the fork-activity check and the secret scan under artifacts, and prove the controls with a self-test
+ 
+@@ -122,6 +127,8 @@
+ The secret scan reads every file under a given folder and fails on token-like patterns (long key strings, `ghp_` and `sk-` style prefixes, private key headers, `password=` assignments); a synthetic planted token must be found.
+ 
+ Add a `--self-test` mode that makes no model call.
++
++The run script and the self-test write raw output to the scratch directory of Task 4; Task 9 scans it and copies only scanned files into `./artifacts/` (B-4).
+ 
+ Acceptance criteria:
+ - `uv run python ./artifacts/harness/run_create.py --self-test` exits 0 and its output, saved to `./artifacts/harness/self-test.txt`, shows that an `issue create`, an `issue comment`, an `api -X POST` and an `issue edit` call each landed in the log and were not forwarded, that an unknown call exits non-zero, and that the prepared run environment has no `GH_TOKEN`, `GITHUB_TOKEN`, `SSH_AUTH_SOCK` or credential helper.
+@@ -142,6 +149,8 @@
+ - `quick-additions-only`: description "Feature: make `superclaude install` print, as its last line, how many skills it copied." with `--mode feature --type cli --depth quick`. It states no choice, flag value or fact that the draft could contradict. Expected: 0 questions, 1 `issue create`, 0 `issue comment`; any assumption the worker adds is an addition that must appear in the body, the notes and the final output.
+ - `quick-contradiction`: description "Bug: `/sc:issue --create` crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` when the description is empty." with `--mode bug --type skill --depth quick`. That file does not exist (checked in Task 4), so a supported contradiction of a user-stated fact is expected. Expected: 1 question as a question tool call, 1 `issue create` after the answer "keep my wording", 0 `issue comment`; this is also a mixed-notes case, so record whether the additions reached the body, the notes and the final output.
+ 
++Raw run output goes to the scratch directory of Task 4; Task 9 scans it and copies only scanned files into `./artifacts/runs/` (B-4).
++
+ For each run record the observed numbers whatever they are. A run that makes no `issue create` call, or asks its question as plain text, is recorded as a finding. For the contradiction run compare the issue body with the draft body and record whether the body still names `create_issue.py` as the crash location after the answer "keep my wording". If a run differs from the expectation, keep the record and note it as a finding for the lead; do not edit the skill, the template or the tests to make a run come out as expected. If a run needs one repeat because of an infrastructure failure (not a model choice), repeat it once and record both.
+ 
+ Acceptance criteria:
+@@ -161,6 +170,8 @@
+ - `standard-multi-contradiction`: description "Bug: `/sc:issue --create` crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` when the description is empty, and the crash is written to the log by `src/superclaude/skills/sc-issue-protocol/scripts/issue_logger.py`." with `--mode bug --type skill --depth standard`. Both files do not exist (checked in Task 4). Expected: exactly 1 question that names both contradicted items (not two questions), 1 `issue create` after the answer.
+ - `standard-flag-preserved`: description "Make `superclaude install` print, as its last line, how many skills it copied." with `--mode bug --type cli --depth standard`, all three flags given and no mode word in the description, so the standard flag check can disagree with `--mode bug` without the description contradicting the flag. Expected: 0 questions, 1 `issue create` filed as a bug, 1 `issue comment` (the pushback comment).
+ 
++Raw run output goes to the scratch directory of Task 4; Task 9 scans it and copies only scanned files into `./artifacts/runs/` (B-4).
++
+ For each run record the observed numbers and the files of Task 6. For the preserved-flag run additionally record, from the fake `gh` log, whether the filed issue used the user's `--mode bug` choice (the Bug title prefix, the Bug type and the `bug` label), whether the question count is zero, and whether the pushback comment was posted as a separate call after the create call. The findings rule of Task 6 applies.
+ 
+ Acceptance criteria:
+@@ -174,7 +185,7 @@
+ Covers: R-003, R-004, R-005, R-006, R-008, R-010, R-012, R-014
+ Depends on: Task 5
+ 
+-Use `./artifacts/harness/run_create.py` for three runs with the same descriptions and expectations as the standard runs of Task 7 but `--depth deep`, with output directories `deep-additions-only`, `deep-contradiction` and `deep-flag-preserved` under `./artifacts/runs/`. Deep runs use `issue-worker-t1`, which falls back to `issue-worker-t2` when the tier is not served; record which worker handled each run, from the line the fallback writes into the notes or flags file, and from `read-files.txt`.
++Use `./artifacts/harness/run_create.py` for three runs with the same descriptions and expectations as the standard runs of Task 7 but `--depth deep`, with output directories `deep-additions-only`, `deep-contradiction` and `deep-flag-preserved` under `./artifacts/runs/`. Deep runs use `issue-worker-t1`, which falls back to `issue-worker-t2` when the tier is not served; record which worker handled each run, from the line the fallback writes into the notes or flags file, and from `read-files.txt`. Raw run output goes to the scratch directory of Task 4; Task 9 scans it and copies only scanned files into `./artifacts/runs/` (B-4).
+ 
+ Acceptance criteria:
+ - Three run directories exist under `./artifacts/runs/` with the same file set as Task 6, each with a `summary.json`, the worker that handled the run, and the expected and observed counts.
+@@ -188,7 +199,7 @@
+ Covers: R-009, R-013, R-015, R-016, R-017, R-018, R-019, R-022
+ Depends on: Task 3, Task 6, Task 7, Task 8
+ 
+-First run `./artifacts/harness/scan_secrets.py` over `./artifacts/runs/` and save the result to `./artifacts/secret-scan.txt`; a finding is removed from the raw logs (and recorded) before anything in `./artifacts/` is staged. Then read the live state of the issue with `gh issue view 834 --repo IronbellyOrg/IronClaude --json state,closedAt,stateReason` (a read-only call by the orchestrator, not by a run) and save its output and time to `./artifacts/issue-state.txt`.
++First run `./artifacts/harness/scan_secrets.py` over the scratch directory of Task 4 and save the result to `./artifacts/secret-scan.txt`; a finding is removed from the raw logs (and recorded) before anything in `./artifacts/` is staged, and only the scanned files are then copied into `./artifacts/` (B-4). Then read the live state of the issue with `gh issue view 834 --repo IronbellyOrg/IronClaude --json state,closedAt,stateReason` (a read-only call by the orchestrator, not by a run) and save its output and time to `./artifacts/issue-state.txt`.
+ 
+ Write `./artifacts/evidence-matrix.md` with three parts.
+ 
+@@ -202,14 +213,14 @@
+ - AC5: "Regression coverage exercises added-material-only, empty, contradiction-only and mixed notes, including multiple contradictions, all four categories, and a preserved user flag despite a worker's classification disagreement."
+ - AC6: "The focused tests, full suite, lint and sync check pass; the PR is opened and monitored through `/sc:pr-submit --monitor 3`."
+ 
+-For each, state one of "delivered by 852", "delivered by this work", "partly evidenced" or "not met" with file and line citations. The existing rule, template, command, docs and static tests are at `src/superclaude/skills/sc-issue-protocol/refs/create.md:84-86`, `src/superclaude/skills/sc-issue-protocol/templates/draft-notes.md:3-15`, `src/superclaude/commands/issue.md:19,85`, `docs/designs/sc-issue-command.md:223-225,460`, `docs/user-guide/commands.md:357` and `tests/skills/test_issue_protocol.py:1335-1526`. For AC4 read `src/superclaude/skills/sc-issue-protocol/SKILL.md:76,102-103`, `src/superclaude/skills/sc-issue-protocol/refs/claim.md:83,89-95` and `src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md:23-28`, and show that `git diff origin/integration -- ` those three files is empty, before grading it. Caps: AC2 and AC5 are "partly evidenced" for every scenario in the issue's list that no controlled run exercises (empty notes, and the categories reversed choice, dropped requirement and changed flag, are exercised by the notes-contract tests only; the Phase 1 tests are contract tests and never back a "delivered by this work" verdict for behavior); a criterion whose evidence rests on a run that could not supply an answer is "partly evidenced". The secret-material exception is a qualification of AC1 and AC3. AC6 is "pending, settled by the gates and `/sc:pr-submit --monitor 3`" and is refreshed by Task 11.
++For each, state one of "delivered by 852", "delivered by this work", "partly evidenced" or "not met" with file and line citations. The existing rule, template, command, docs and static tests are at `src/superclaude/skills/sc-issue-protocol/refs/create.md:84-86`, `src/superclaude/skills/sc-issue-protocol/templates/draft-notes.md:3-15`, `src/superclaude/commands/issue.md:19,85`, `docs/designs/sc-issue-command.md:223-225,460`, `docs/user-guide/commands.md:357` and `tests/skills/test_issue_protocol.py:1335-1526`. For AC4 read `src/superclaude/skills/sc-issue-protocol/SKILL.md:76,102-103`, `src/superclaude/skills/sc-issue-protocol/refs/claim.md:83,89-95` and `src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md:23-28`, and show that `git diff origin/integration...HEAD -- <the three files>` and `git diff HEAD -- <the three files>` are both empty (B-2; the check passes only when both are empty), before grading it. Caps: AC2 and AC5 are "partly evidenced" for every scenario in the issue's list that no controlled run exercises (empty notes, and the categories reversed choice, dropped requirement and changed flag, are exercised by the notes-contract tests only; the Phase 1 tests are contract tests and never back a "delivered by this work" verdict for behavior); a criterion whose evidence rests on a run that could not supply an answer is "partly evidenced". The secret-material exception is a qualification of AC1 and AC3. AC6 is "pending, settled by the gates and `/sc:pr-submit --monitor 3`" and is refreshed by Task 11.
+ 
+ Part three ends the document with a short list of findings for the lead (runs that differed from expectation, the live issue state from `./artifacts/issue-state.txt`, the secret-material qualification, the unverified items), each with its evidence path.
+ 
+ Acceptance criteria:
+ - `./artifacts/secret-scan.txt` records a clean result (or the findings removed), and `./artifacts/issue-state.txt` holds the live read of the issue with its time.
+ - `./artifacts/evidence-matrix.md` holds a matrix row for each executed run and the secret-material row, and each count in it can be recomputed from the cited raw file.
+-- Each of the six criteria is quoted in full, has a verdict and at least one `path:line` citation that was read in this work, AC4 shows the empty diff, AC6 reads "pending", and no criterion is marked delivered by this work on the strength of a Phase 1 test or a static wording test alone when it asks for behavior.
++- Each of the six criteria is quoted in full, has a verdict and at least one `path:line` citation that was read in this work, AC4 shows both diffs empty (B-2), AC6 reads "pending", and no criterion is marked delivered by this work on the strength of a Phase 1 test or a static wording test alone when it asks for behavior.
+ - The document ends with the findings list, and its closing-keyword consequence is stated: with AC2 and AC5 capped, the pull request uses `Refs #834`.
+ 
+ ## Phase 5: Gates and pull request notes

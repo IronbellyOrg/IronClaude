@@ -1,0 +1,32 @@
+6c6
+< slug: TASK-WF-createQuestionEv-20261126-170236
+---
+> slug: TASK-WF-createQuestionEv-20261126-170815
+148c148
+< Use `./artifacts/harness/run_create.py` for two runs at `--depth quick`, each with an output directory under `./artifacts/runs/`:
+---
+> Use `./artifacts/harness/run_create.py` for two runs at `--depth quick`, each with the output directory `runs/<run name>` of the scratch directory of Task 4 (NEW-1):
+157c157
+< - `./artifacts/runs/quick-additions-only/summary.json` and `./artifacts/runs/quick-contradiction/summary.json` exist with the question counts, the `issue create` and `issue comment` counts, the expected counts and the after-run fork-activity result.
+---
+> - `runs/quick-additions-only/summary.json` and `runs/quick-contradiction/summary.json` in the scratch directory of Task 4 exist (NEW-1) with the question counts, the `issue create` and `issue comment` counts, the expected counts and the after-run fork-activity result.
+167c167
+< Use `./artifacts/harness/run_create.py` for four runs, each with an output directory under `./artifacts/runs/`:
+---
+> Use `./artifacts/harness/run_create.py` for four runs, each with the output directory `runs/<run name>` of the scratch directory of Task 4 (NEW-1):
+178c178
+< - Four run directories exist under `./artifacts/runs/` with the same file set as Task 6, each with a `summary.json` carrying expected and observed counts.
+---
+> - Four run directories exist under `runs/` of the scratch directory of Task 4 (NEW-1) with the same file set as Task 6, each with a `summary.json` carrying expected and observed counts.
+188c188
+< Use `./artifacts/harness/run_create.py` for three runs with the same descriptions and expectations as the standard runs of Task 7 but `--depth deep`, with output directories `deep-additions-only`, `deep-contradiction` and `deep-flag-preserved` under `./artifacts/runs/`. Deep runs use `issue-worker-t1`, which falls back to `issue-worker-t2` when the tier is not served; record which worker handled each run, from the line the fallback writes into the notes or flags file, and from `read-files.txt`. Raw run output goes to the scratch directory of Task 4; Task 9 scans it and copies only scanned files into `./artifacts/runs/` (B-4).
+---
+> Use `./artifacts/harness/run_create.py` for three runs with the same descriptions and expectations as the standard runs of Task 7 but `--depth deep`, with output directories `deep-additions-only`, `deep-contradiction` and `deep-flag-preserved` under `runs/` of the scratch directory of Task 4 (NEW-1). Deep runs use `issue-worker-t1`, which falls back to `issue-worker-t2` when the tier is not served; record which worker handled each run, from the line the fallback writes into the notes or flags file, and from `read-files.txt`. Raw run output goes to the scratch directory of Task 4; Task 9 scans it and copies only scanned files into `./artifacts/runs/` (B-4).
+191c191
+< - Three run directories exist under `./artifacts/runs/` with the same file set as Task 6, each with a `summary.json`, the worker that handled the run, and the expected and observed counts.
+---
+> - Three run directories exist under `runs/` of the scratch directory of Task 4 (NEW-1) with the same file set as Task 6, each with a `summary.json`, the worker that handled the run, and the expected and observed counts.
+202c202
+< First run `./artifacts/harness/scan_secrets.py` over the scratch directory of Task 4 and save the result to `./artifacts/secret-scan.txt`; a finding is removed from the raw logs (and recorded) before anything in `./artifacts/` is staged, and only the scanned files are then copied into `./artifacts/` (B-4). Then read the live state of the issue with `gh issue view 834 --repo IronbellyOrg/IronClaude --json state,closedAt,stateReason` (a read-only call by the orchestrator, not by a run) and save its output and time to `./artifacts/issue-state.txt`.
+---
+> First run `./artifacts/harness/scan_secrets.py` over the scratch directory of Task 4 and save the result to `./artifacts/secret-scan.txt`; a finding is removed from the raw logs (and recorded) before anything in `./artifacts/` is staged, and only the scanned files are then copied into `./artifacts/` (B-4); the copies of the scanned run folders land at `./artifacts/runs/` and the evidence matrix cites those copies (NEW-1). Then read the live state of the issue with `gh issue view 834 --repo IronbellyOrg/IronClaude --json state,closedAt,stateReason` (a read-only call by the orchestrator, not by a run) and save its output and time to `./artifacts/issue-state.txt`.

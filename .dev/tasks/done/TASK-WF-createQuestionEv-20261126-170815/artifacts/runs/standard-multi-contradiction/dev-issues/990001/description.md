@@ -1,0 +1,5 @@
+# Description given to /sc:issue --create
+
+Bug: `/sc:issue --create` crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` when the description is empty, and the crash is written to the log by `src/superclaude/skills/sc-issue-protocol/scripts/issue_logger.py`. [synthetic run marker: qev-standard-multi-contradiction-182258]
+
+Flags as passed: `--mode bug --type skill --depth standard`

@@ -1,0 +1,34 @@
+2026-11-26T18:35:17Z pre-run review of pending items
+nothing pending
+2026-11-26T18:35:17Z start deep-additions-only
+run deep-additions-only: questions=0 (expected 0), issue create=1, issue comment=1, drive=completed
+exit=0
+issue 905 by ironbelly (2026-11-26T18:39:07Z): [FEATURE] Let /sc:workflow surgical remediation repair Medium findings
+issue 904 by clayphi (2026-11-26T18:35:32Z): feat(rulesets): apply the branch rulesets to one repo per run, with a 
+issue 903 by ironbelly (2026-11-26T18:22:46Z): fix(workflow): finish the five surgical-remediation follow-ups (issue 
+issue 826 by ironbelly (2026-11-24T23:26:23Z): [FEATURE] Define the release path from integration to master and updat
+issue 599 by ironbelly (2026-11-17T15:19:52Z): [FEATURE] Refactor sc:reflect to remove task-builder and task with --r
+comment 7200397384 by chatgpt-codex-connector[bot] (2026-11-26T18:22:55Z): <!-- codex-pull-request-review-summary -->
+comment 7200639759 by chatgpt-codex-connector[bot] (2026-11-26T18:35:44Z): <!-- codex-pull-request-review-summary -->
+comment 7200646098 by augmentcode[bot] (2026-11-26T18:36:03Z): <sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/sessi
+comment 7200701011 by clayphi (2026-11-26T18:39:03Z): Done as decided. The owner chose to keep deep reflect review-only (rec
+comment 7200701881 by clayphi (2026-11-26T18:39:06Z): Done. The release path from integration to master is defined and the t
+comment 7200713485 by chatgpt-codex-connector[bot] (2026-11-26T18:39:45Z): <!-- codex-review-receipt:v1 -->
+cleared
+2026-11-26T18:40:44Z pre-run review of pending items
+nothing pending
+2026-11-26T18:40:44Z start deep-contradiction
+run deep-contradiction: questions=0 (expected 1), issue create=0, issue comment=0, drive=completed
+exit=0
+issue 904 by clayphi (2026-11-26T18:35:32Z): feat(rulesets): apply the branch rulesets to one repo per run, with a 
+issue 837 by ironbelly (2026-11-25T16:31:51Z): [ruleset] Apply the branch protection rulesets to the other public Iro
+issue 825 by ironbelly (2026-11-24T23:26:19Z): [BUG] L1 launch-level guard does not protect integration (the new defa
+issue 702 by clayphi (2026-11-20T16:50:20Z): [FEATURE] Protect the default branch of IronClaude: no direct push, no  KEYWORD HIT ['superclaude install']
+issue 699 by ironbelly (2026-11-20T14:12:38Z): The claim script creates the issue worktree without an agent, against 
+issue 517 by ironbelly (2026-11-12T13:03:49Z): [BUG] ccsession proxy: a tier whose first model always thinks fails ev
+issue 446 by ironbelly (2026-11-08T05:47:11Z): WC-9: retry index.lock for about 10 s before a worker reports blocked
+issue 409 by ironbelly (2026-11-06T13:53:42Z): [FEATURE] TUI Dashboard to Manage Orchestration at Scale
+issue 326 by ironbelly (2026-10-29T16:31:02Z): [Feature]: Embed more Git and PM related workflows into skills
+comment 7200639759 by chatgpt-codex-connector[bot] (2026-11-26T18:35:44Z): <!-- codex-pull-request-review-summary -->
+HELD: an unattributed item matches the run; the orchestrator must read it
+2026-11-26T18:44:49Z HELD after deep-contradiction

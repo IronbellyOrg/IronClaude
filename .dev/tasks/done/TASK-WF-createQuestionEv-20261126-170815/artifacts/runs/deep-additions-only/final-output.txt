@@ -1,0 +1,37 @@
+I filed issue #990001 on `IronbellyOrg/IronClaude`: https://github.com/IronbellyOrg/IronClaude/issues/990001
+
+- **Title:** `[FEATURE] Make \`superclaude install\` print, as its last line, how many skills it copied`
+- **Type and fields:** the issue type is Feature and the Complexity field is Complex; reading both back confirmed them. Nothing came back `not set`.
+- **Label:** I passed `enhancement` when creating the issue, but the labels read-back returned the issue type instead of a label list, so the label is not confirmed.
+- **Flag-review comment:** I posted one (`#issuecomment-1`). The independent deep check chose area `install` where you gave `cli`. The comparison left that point unresolved: `install` is more specific, but `cli` also covers `superclaude update`, which uses the same skill-copy code (`main.py:401-403`). The issue is filed with your `cli`, and both areas give the same Feature type.
+- **Shortcut in the comparison:** because the inputs were two tiny flag tables, I argued both sides myself instead of spawning separate advocate agents, and ran a single scoring pass. Its result is `partial`, with 1 point unresolved.
+- **Questions asked:** none. The draft notes list no contradictions of your wording or flags.
+
+**Kept without approval.** The drafting worker added these on its own and they are in the issue body:
+- kept without approval: the printed line reads `Skills copied: <N>`.
+- kept without approval: "copied" means skills actually copied in this run. Skills skipped because they already exist, skills served by `/sc:` commands, Orca skills and the ccsession skill are not counted.
+- kept without approval: the line also prints when install exits 1, and prints `0` when nothing was copied.
+- kept without approval: `superclaude update` and `superclaude install --list` don't get the line.
+- kept without approval: the count reaches `install` through a new optional keyword argument (`counts`). `install_all_skills` still returns `(success, message)`, so existing callers and test stubs keep working.
+- kept without approval: effort is 3 hours. By that rubric the work is simple, but Complexity is Complex because you passed `--depth deep`.
+- kept without approval: Priority is Medium (a planned feature).
+- kept without approval: the reviewer check uses a throwaway `HOME`.
+- kept without approval: Problem Statement, User Story, Out of Scope, Success Metrics and Dependencies are left as "Not known yet".
+- kept without approval: the codebase pass used Grep, Glob and Read only, because codegraph and auggie were not available.
+
+All the files are in `.dev/issues/990001/`. Nothing was staged or committed, and no ClickUp call was made.
+
+```yaml
+status: success
+mode: create
+issue_number: 990001
+issue_url: https://github.com/IronbellyOrg/IronClaude/issues/990001
+dir: .dev/issues/990001/
+clickup_status: null
+labels_applied: [enhancement]
+labels_missing: []
+next_steps_path: null
+issue_type: Feature
+complexity_field: Complex
+classification_missing: []
+```

@@ -1,0 +1,14 @@
+371820fcc57abe51b6ee02a3b5c689784800de05 tree=299d4cd26b360178ace94995c112e19900a2a943
+T6.AC1 met (/tmp/createQuestionEv-scratch/runs/quick-additions-only/summary.json:16-36)
+T6.AC2 met (/tmp/createQuestionEv-scratch/runs/quick-additions-only/read-files.txt:4-19)
+T6.AC3 unmet (/tmp/createQuestionEv-scratch/runs/quick-contradiction/record.md:26; F4.1, F5.1, F7.1)
+T6.AC4 met (/tmp/createQuestionEv-scratch/runs/quick-contradiction/gh.log:1-10)
+F4.1 sev=blocking trigger=B1 ac=T6.AC3 at=/tmp/createQuestionEv-scratch/runs/quick-contradiction/record.md:26 anchor="the contradiction run records the question text (does it name the contradicted item), the answer supplied and the body comparison" chk=y,n,n,n family=record-overwrite fix=run addition_report then contradiction_report, or make addition_report keep the section; regenerate and confirm the record holds the full question, options, the named file, the answer and the body diff first=A2 origin=unknown: addition_report rewrites the whole record.md so the section contradiction_report appended was lost.
+F5.1 sev=blocking trigger=B4 ac=scope at=/tmp/createQuestionEv-scratch/runs/quick-additions-only-attempt1-infra-failure:1 anchor="repeat it once and record both" chk=n,n,n,y family=attempt1-unrecorded fix=run reanalyse or another saved-data record for attempt 1 so a summary.json and record.md give its counts and name the infrastructure cause first=A2 origin=unknown: attempt 1 has no summary, record or final output; the permission error is mentioned only in a shell log.
+F6.1 sev=blocking trigger=B3 ac=scope at=.dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/harness/run_create.py:785 anchor=/tmp/impl-review/T6-diff-2.txt:247 chk=n,n,y,n family=reanalyse-writes-control-files fix=in reanalyse do not write PENDING-REVIEW or STOP; print the stop reasons and pending items only first=A2 origin=unknown: reanalysis hands the old unattributed list to finish, which writes the matrix control files, so a reanalysis can overwrite a live pending note.
+F7.1 sev=blocking trigger=B2 ac=T6.AC3 at=/tmp/createQuestionEv-scratch/runs/quick-additions-only/summary.json:69 anchor=/tmp/createQuestionEv-scratch/runs/quick-additions-only/gh-posted/posted-issue-990001-1795716279087.md:29 chk=n,y,n,n family=summary-vs-record-conflict fix=rename the additions_in_posted_body field to say it is a verbatim first-40-characters match, or drop it and point to record.md first=A2 origin=unknown: the summary field marks an addition as in the posted body only on a verbatim first-40-characters match, so it disagrees with the record.
+F8.1 sev=note trigger=none ac=T6.AC3 at=/tmp/createQuestionEv-scratch/runs/quick-contradiction/record.md:15 anchor=n/a chk=n,n,n,n family=record-keyword-rule fix=print the label not found by the keyword rule instead of no first=A2 origin=unknown: residual no answers where the named line holds the fact.
+F1.1 resolved
+F1.2 resolved
+F2.1 resolved
+F3.1 resolved

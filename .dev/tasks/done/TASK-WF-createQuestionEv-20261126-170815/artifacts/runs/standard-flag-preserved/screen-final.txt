@@ -1,0 +1,146 @@
+ ▐▛███▛█   Claude Code v2.1.332
+▝▜██████▀  Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5 · API Usage Billing
+ ▝▝   ▝▝   /tmp/createQuestionEv-scratch/clones/standard-flag-preserved
+
+
+❯ /sc:issue --create "Make `superclaude install` print, as its last line, how many skills it copied. [synthetic run marker: qev-standard-flag-preserved-182850]" --mode bug --type cli --depth standard
+
+● Skill(sc-issue-protocol)
+  ⎿  Loaded skill · 9 tools allowed
+
+  Read 1 file (ctrl+o to expand)
+
+● Bash(uv run --no-project python "/tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/scripts/origin_repo.py"; echo "exit=$?"; gh auth status 2>&1 | h…)
+  ⎿  IronbellyOrg/IronClaude
+     exit=0
+     github.com
+     … +3 lines (ctrl+o to expand)
+
+  Read 3 files (ctrl+o to expand)
+
+● Bash(mkdir -p .dev/issues/draft-20261126-182906-make-superclaude-install-print-as-its-la && ls .dev/issues/ | head)
+  ⎿  315
+     339
+     381-382-456
+     … +7 lines (ctrl+o to expand)
+
+● Write(.dev/issues/draft-20261126-182906-make-superclaude-install-print-as-its-la/description.md)
+  ⎿  Wrote 3 lines to .dev/issues/draft-20261126-182906-make-superclaude-install-print-as-its-la/description.md
+      1 # Description given to /sc:issue --create
+      2
+      3 Make `superclaude install` print, as its last line, how many skills it copied. [synthetic run marker: qev-standard-flag-preserved-182850]
+
+● Wave 1: spawning the T3 lookup worker.
+
+● issue-worker-t3(Create lookup scout)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● While the lookup runs, I'll load the bug template and labels ref for later waves.
+
+  Read 2 files (ctrl+o to expand)
+
+● The scout lookup is still running; I'll continue with Wave 2 (T2 flag validation) once it returns scout.md.
+
+✻ Waiting for 1 background agent to finish
+
+● Agent "Create lookup scout" finished · 20s
+
+  Read 1 file (ctrl+o to expand)
+
+● Both labels and the Bug type are confirmed, and the Medium value in the Complexity field (id 7001) has no duplicates. I'm running Wave 2 and Wave 4 together next, since both are independent.
+  · summary
+
+● 2 background agents launched (↓ to manage)
+   ├ Validate user flags (standard)
+   └ Draft standard bug issue body
+
+● Two tier-2 workers are running: one checks your flags (flags.md) and one drafts the bug body (issue-body.md, draft-notes.md). I'll post the issue once both are back.
+
+✻ Waiting for 2 background agents to finish
+
+● Agent "Validate user flags (standard)" finished · 32s
+
+  Read 1 file (ctrl+o to expand)
+
+● Flag check done: the worker would have picked feature instead of bug (and agreed on cli). The issue still goes up as a Bug with your flags, and that difference will be posted as a flag-review
+  comment. Waiting on the body draft.
+
+✻ Waiting for 1 background agent to finish
+
+● Agent "Draft standard bug issue body" finished · 2m 0s
+
+  Read 2 files (ctrl+o to expand)
+
+● No contradictions in the draft notes, so no question is needed. Posting now (Wave 5).
+
+● Bash(gh issue create --repo IronbellyOrg/IronClaude --title "[BUG] Make superclaude install end with the number of skills copied" --body-file .dev/issues/draft-20261…)
+  ⎿  https://github.com/IronbellyOrg/IronClaude/issues/990001
+
+● Bash(mv .dev/issues/draft-20261126-182906-make-superclaude-install-print-as-its-la .dev/issues/990001 && printf '{"issue_field_values":[{"field_id":7001,"value":"Med…)
+  ⎿  type: Bug
+     {}
+     post_exit=0
+     … +10 lines (ctrl+o to expand)
+
+● Type and Complexity both read back correctly. Now the flag-review comment for the mode difference.
+
+● Write(.dev/issues/990001/create-review.md)
+  ⎿  Wrote 10 lines to .dev/issues/990001/create-review.md
+       1 ## Flag review for this issue
+       2
+       3 This issue was filed with the flags the user gave. A check at `standard` depth chose differently; the reasons are below. The issue was not reclassified.
+       4
+       5 | Flag | User's flag | Worker's choice | Reason for the difference |
+       6 |---|---|---|---|
+       7 | `--mode` | bug | feature | The description asks for a new final-line summary rather than reporting a broken existing contract; `install_all_skills()` already reports installed counts
+          during the skills phase (`src/superclaude/cli/install_skills.py:119-122`), while `install()` has no final count line (`src/superclaude/cli/main.py:271-296`). |
+       8 | `--type` | cli | cli | same |
+       9
+     … +1 line (ctrl+o to expand)
+
+● Bash(gh issue comment 990001 --repo IronbellyOrg/IronClaude --body-file .dev/issues/990001/create-review.md)
+  ⎿  https://github.com/IronbellyOrg/IronClaude/issues/990001#issuecomment-1
+
+● I filed the issue as a Bug with your flags: https://github.com/IronbellyOrg/IronClaude/issues/990001
+
+  - Title: [BUG] Make superclaude install end with the number of skills copied
+  - Classification: label bug, issue type Bug and Complexity Medium. I read the type and the field back from GitHub after creating the issue, and both are set.
+  - Your flags were kept, but the check disagreed on one. It would have filed this as a feature, because the installer already prints a count during the skills step and only the final summary line is
+    missing. The issue was not reclassified. I posted that reasoning as a flag-review comment: https://github.com/IronbellyOrg/IronClaude/issues/990001#issuecomment-1
+  - Duplicates: the search found none.
+  - No question was asked, because the draft didn't contradict anything you wrote.
+  - Files are in .dev/issues/990001/ (not staged).
+
+  Kept without asking you (all are in the issue body and draft-notes.md):
+  - Today's last line: the count line is followed by later install steps. The last thing printed comes from the cleanup of retired files, e.g. No retired commands, skills or agents present.
+    (src/superclaude/cli/install_retired_files.py:269-305). This comes from reading the code; I didn't run the installer.
+  - Where the count lives: install_all_skills already counts copied, skipped and failed skills, but only returns a success flag and a message (src/superclaude/cli/install_skills.py:62-150).
+  - Orca skills: another CLI installs them and gives no per-run count, so they're left out (src/superclaude/cli/install_user_setup.py:323-366).
+  - Assumption, what counts: "copied" means skill folders actually copied in this run, including forced replacements. Skipped, failed, command-served and Orca skills don't count.
+  - Assumption, the line itself: it reads Skills copied: N, also when N is 0. Exit codes stay the same, and the output of install --list and update doesn't change.
+  - Assumption, testing: tests use stubbed CLI runs in a throwaway home directory, so no network and no real home is touched.
+  - Priority is Low, because this is a missing summary line and nothing fails.
+  - Proposed fix: have install_skills.py return the counts, and print the summary in main.py after the cleanup step, just before the final exit check. Tests go in tests/unit/test_cli_install.py and
+    tests/cli/test_install_retired_mcp.py. Then run /sc:workflow, /sc:implement and /sc:pr-submit --monitor 3 against integration.
+  - Code index: the code-search index wasn't set up, so the worker searched the files directly.
+
+  status: success
+  mode: create
+  issue_number: 990001
+  issue_url: https://github.com/IronbellyOrg/IronClaude/issues/990001
+  dir: .dev/issues/990001/
+  clickup_status: null
+  labels_applied: [bug]
+  labels_missing: []
+  next_steps_path: null
+  issue_type: Bug
+  complexity_field: Medium
+  classification_missing: []
+
+✻ Sautéed for 3m 39s · done 6:32 PM
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⏸ manual mode on · ? for shortcuts
+

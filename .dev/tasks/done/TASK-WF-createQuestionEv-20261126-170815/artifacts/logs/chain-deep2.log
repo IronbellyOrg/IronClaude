@@ -1,0 +1,28 @@
+2026-11-26T18:54:32Z pre-run review of pending items
+nothing pending
+2026-11-26T18:54:32Z start deep-contradiction
+run deep-contradiction: questions=1 (expected 1), issue create=1, issue comment=0, drive=completed
+exit=0
+issue 906 by swill-ib (2026-11-26T18:52:29Z): fix(swarm): retire stale completion markers on accepted resume
+issue 904 by clayphi (2026-11-26T18:35:32Z): feat(rulesets): apply the branch rulesets to one repo per run, with a 
+issue 903 by ironbelly (2026-11-26T18:22:46Z): fix(workflow): finish the five surgical-remediation follow-ups (issue 
+comment 7200639759 by chatgpt-codex-connector[bot] (2026-11-26T18:35:44Z): <!-- codex-pull-request-review-summary -->
+comment 7200950351 by chatgpt-codex-connector[bot] (2026-11-26T18:52:41Z): <!-- codex-pull-request-review-summary -->
+comment 7201096332 by clayphi (2026-11-26T19:00:40Z): auggie review
+comment 7201096563 by clayphi (2026-11-26T19:00:41Z): @codex review
+comment 7201104561 by augmentcode[bot] (2026-11-26T19:01:08Z): <sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/sessi
+cleared
+2026-11-26T19:01:17Z pre-run review of pending items
+nothing pending
+2026-11-26T19:01:17Z start deep-flag-preserved
+run deep-flag-preserved: questions=0 (expected 0), issue create=1, issue comment=1, drive=completed
+exit=0
+issue 906 by swill-ib (2026-11-26T18:52:29Z): fix(swarm): retire stale completion markers on accepted resume
+issue 904 by clayphi (2026-11-26T18:35:32Z): feat(rulesets): apply the branch rulesets to one repo per run, with a 
+issue 703 by ironbelly (2026-11-20T17:02:15Z): Follow-ups from the issue 624 review: five small items in surgical rem
+comment 7200639759 by chatgpt-codex-connector[bot] (2026-11-26T18:35:44Z): <!-- codex-pull-request-review-summary -->
+comment 7201141088 by chatgpt-codex-connector[bot] (2026-11-26T19:03:02Z): <!-- codex-review-receipt:v1 -->
+comment 7201187938 by ironbelly (2026-11-26T19:05:39Z): Closed after pull request IronbellyOrg/IronClaude#903 merged on 2026-1
+comment 7201191763 by chatgpt-codex-connector[bot] (2026-11-26T19:05:52Z): <!-- codex-review-receipt:v1 -->
+cleared
+2026-11-26T19:10:16Z chain deep2 complete

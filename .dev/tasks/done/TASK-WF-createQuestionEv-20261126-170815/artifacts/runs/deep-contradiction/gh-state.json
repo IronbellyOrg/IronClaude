@@ -1,0 +1,1 @@
+{"next": 990002, "issues": {"990001": {"title": "[BUG] `/sc:issue --create` crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` when the description is empty", "labels": ["bug"], "type": "Bug", "fields": [{"field_id": 7001, "value": "Complex"}]}}, "comments": 0}

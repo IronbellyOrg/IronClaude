@@ -1,0 +1,180 @@
+{
+  "name": "deep-contradiction",
+  "depth": "deep",
+  "flags": "--mode bug --type skill --depth deep",
+  "marker": "qev-deep-contradiction-185432",
+  "description": "Bug: `/sc:issue --create` crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` when the description is empty.",
+  "clone_head": "862384852faebe3255c2876527103696cfd3cf3b",
+  "drive": {
+    "questions_screens": 1,
+    "answered": 1,
+    "unanswered": 0,
+    "permission_prompts": 0,
+    "status": "completed",
+    "seconds": 390
+  },
+  "expected": {
+    "questions": 1,
+    "issue_create": 1,
+    "issue_comment": null
+  },
+  "observed": {
+    "questions_as_tool_calls": 1,
+    "questions_answered": 1,
+    "questions_as_plain_text": 0,
+    "issue_create": 1,
+    "issue_comment": 0,
+    "issue_edit": 0,
+    "other_writes": 0,
+    "unknown_gh_calls": 0,
+    "start_up_gh_reads": 1
+  },
+  "matched": {
+    "questions": true,
+    "issue_create": true,
+    "issue_comment": null
+  },
+  "creates": [
+    {
+      "title": "[BUG] `/sc:issue --create` crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` when the description is empty",
+      "labels": [
+        "bug"
+      ],
+      "type": "Bug"
+    }
+  ],
+  "worker_lines": [],
+  "agents_spawned": [
+    "issue-worker-t3",
+    "issue-worker-t1",
+    "issue-worker-t1"
+  ],
+  "skills_loaded": [
+    "sc-issue-protocol",
+    "sc-adversarial-protocol"
+  ],
+  "question_texts": [
+    "{\"questions\": [{\"question\": \"The draft of the bug issue \\\"/sc:issue --create crashes when the description is empty\\\" contradicts two facts in your description, based on the code: (1) You wrote that it \\\"crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py`\\\", but that file does not exist and never did in git history; `scripts/` holds only clickup_claim.py, origin_repo.py an"
+  ],
+  "question_answers": [
+    "\"Your questions have been answered: \\\"The draft of the bug issue \\\"/sc:issue --create crashes when the description is empty\\\" contradicts two facts in your description, based on the code: (1) You wrote that it \\\"crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py`\\\", but tha"
+  ],
+  "additions": [
+    "Codebase pass: codegraph and auggie tools were not available to this worker (no MCP tools in its toolset, and `~/.claude/CODEGRAPH.md` is absent), so the `/sc:analyze --depth deep` pass used Grep, Glob and Read only (source: this run).",
+    "Environment line: the analysis host was Linux 6.8.0-149-generic, package version 6.1.0 (`pyproject.toml:7`), branch `qev-run`, commit `862384852` (source: `git rev-parse`, environment). The reporter's own environment is \"Not known yet\".",
+    "Documented behaviour for an empty description is a STOP \"--create needs a description\" (`src/superclaude/commands/issue.md:56`; `src/superclaude/skills/sc-issue-protocol/SKILL.md:156`). Added to Current Behavior and Expected Behavior.",
+    "Only test of the rule asserts a phrase, not behaviour (`tests/commands/test_issue_command.py:191`); an empty description slugs to `untitled` (`tests/skills/test_issue_protocol.py:186-190`, `src/superclaude/skills/sc-issue-protocol/refs/create.md:3`). Added to Codebase Context and Root Cause lead.",
+    "`refs/create.md` Wave 0 (lines 13-16) has no explicit empty-description check (source: Read of `refs/create.md`).",
+    "Related issues: none, from the scout's two searches (`scout.md`).",
+    "Priority Medium and the whole Fix approach and Test plan sections come from the pass (required plan sections).",
+    "Assumption: the report is meant as a bug in the `/sc:issue --create` flow even though the named script does not exist; the issue is filed as filed (flags `bug` and `skill`).",
+    "Assumption: Priority is Medium (degraded behaviour with a workaround) because the crash is unconfirmed; it becomes High if the crash is reproduced.",
+    "Assumption: the likely real gap is that the empty-description STOP lives only in prose and the whitespace-only case is not named; the proposed Wave 0 check and tests follow from that.",
+    "Assumption: the reproduction step `/sc:issue --create \"\"` is the literal reading of \"when the description is empty\"; the reporter's exact command is not known.",
+    "Assumption: the fix target branch is `integration`, per the job's stated base branch and the repo's Git Workflow.",
+    "The \"[synthetic run marker: qev-deep-contradiction-185432]\" text in `description.md` is not copied into the issue body."
+  ],
+  "contradictions": [
+    "Question outcome (orchestrator): one question asked naming both items below; answer \"keep my wording\". Applied to issue-body.md: Bug Summary, Current Behavior, Expected Behavior and Root Cause Analysis now state the crash in `scripts/create_issue.py` as the user wrote it; Priority moved from Medium (assumption: crash unconfirmed) to High (a documented command fails). Title uses the user's wording. Codebase Context, Fix approach, Test plan and every New material item are unchanged.",
+    "User-stated fact contradicted by verified code: \"crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py`\". Conflicting evidence: that file does not exist; `src/superclaude/skills/sc-issue-protocol/scripts/` holds only `clickup_claim.py`, `origin_repo.py` and `orca_worktree.py` (Glob of `src/superclaude/skills/sc-issue-protocol/**`), and `git log --all --diff-filter=D` finds no deleted `create_issue*` file; a repo-wide Grep for `create_issue` outside `.dev/` hits only `tests/hooks/test_launch_level_guard.py:3609`, an unrelated MCP tool name.",
+    "User-stated fact contradicted by verified code: \"`/sc:issue --create` crashes ... when the description is empty\". Conflicting evidence: `src/superclaude/commands/issue.md:56` makes an empty `--create` description a STOP (\"--create needs a description\") before Activation, and `src/superclaude/skills/sc-issue-protocol/SKILL.md:156` repeats it; no code path that crashes on it was found (static read only, the behaviour was not run)."
+  ],
+  "addition_presence": "see record.md (approximate best-matching-line rule)",
+  "kept_without_approval_lines": [],
+  "false_files_in_body_at_question": [
+    "create_issue.py"
+  ],
+  "false_files_in_posted_body": [
+    "create_issue.py"
+  ],
+  "read_files": {
+    "count": 34,
+    "not_equal_src": [],
+    "installed_copy": [],
+    "failed_reads": [
+      "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/draft-notes.md",
+      "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/flags-t1.md",
+      "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/flags.md",
+      "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/issue-body.md"
+    ]
+  },
+  "seeded_hashes_equal_src": 30,
+  "fork_activity": {
+    "attributed": [],
+    "unattributed": [
+      {
+        "kind": "issue",
+        "number": 906,
+        "author": "swill-ib",
+        "created_at": "2026-11-26T18:52:29Z",
+        "new": false,
+        "title": "fix(swarm): retire stale completion markers on accepted resume"
+      },
+      {
+        "kind": "issue",
+        "number": 904,
+        "author": "clayphi",
+        "created_at": "2026-11-26T18:35:32Z",
+        "new": false,
+        "title": "feat(rulesets): apply the branch rulesets to one repo per run, with a dry run (i"
+      },
+      {
+        "kind": "issue",
+        "number": 903,
+        "author": "ironbelly",
+        "created_at": "2026-11-26T18:22:46Z",
+        "new": false,
+        "title": "fix(workflow): finish the five surgical-remediation follow-ups (issue 703)"
+      },
+      {
+        "kind": "comment",
+        "id": 7200639759,
+        "author": "chatgpt-codex-connector[bot]",
+        "created_at": "2026-11-26T18:35:44Z",
+        "first_line": "<!-- codex-pull-request-review-summary -->"
+      },
+      {
+        "kind": "comment",
+        "id": 7200950351,
+        "author": "chatgpt-codex-connector[bot]",
+        "created_at": "2026-11-26T18:52:41Z",
+        "first_line": "<!-- codex-pull-request-review-summary -->"
+      },
+      {
+        "kind": "comment",
+        "id": 7201096332,
+        "author": "clayphi",
+        "created_at": "2026-11-26T19:00:40Z",
+        "first_line": "auggie review"
+      },
+      {
+        "kind": "comment",
+        "id": 7201096563,
+        "author": "clayphi",
+        "created_at": "2026-11-26T19:00:41Z",
+        "first_line": "@codex review"
+      },
+      {
+        "kind": "comment",
+        "id": 7201104561,
+        "author": "augmentcode[bot]",
+        "created_at": "2026-11-26T19:01:08Z",
+        "first_line": "<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId"
+      }
+    ],
+    "error": ""
+  },
+  "files_written_by_run": [
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/issue-body.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/draft-notes.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/flags-t1.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/scout.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/issue-body.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/issue-body.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/issue-body.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/issue-body.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/issue-body.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-185455-bug-sc-issue-create-crashes-in-src-super/draft-notes.md"
+  ],
+  "stop_conditions": []
+}

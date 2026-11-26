@@ -1,0 +1,9 @@
+.dev/tasks/to-do/TASK-WF-issueSummary-20261126-132314/TASK-WF-issueSummary-20261126-132314.md
+.dev/tasks/to-do/TASK-WF-issueSummary-20261126-132314/source.md
+docs/designs/sc-issue-command.md
+docs/user-guide/commands.md
+src/superclaude/commands/issue.md
+src/superclaude/skills/sc-issue-protocol/refs/create.md
+src/superclaude/skills/sc-issue-protocol/templates/draft-notes.md
+tests/commands/test_issue_command.py
+tests/skills/test_issue_protocol.py

@@ -1,0 +1,169 @@
+{
+  "name": "deep-flag-preserved",
+  "depth": "deep",
+  "flags": "--mode bug --type cli --depth deep",
+  "marker": "qev-deep-flag-preserved-190117",
+  "description": "Make `superclaude install` print, as its last line, how many skills it copied.",
+  "clone_head": "862384852faebe3255c2876527103696cfd3cf3b",
+  "drive": {
+    "questions_screens": 0,
+    "answered": 0,
+    "unanswered": 0,
+    "permission_prompts": 0,
+    "status": "completed",
+    "seconds": 527
+  },
+  "expected": {
+    "questions": 0,
+    "issue_create": 1,
+    "issue_comment": 1
+  },
+  "observed": {
+    "questions_as_tool_calls": 0,
+    "questions_answered": 0,
+    "questions_as_plain_text": 0,
+    "issue_create": 1,
+    "issue_comment": 1,
+    "issue_edit": 0,
+    "other_writes": 0,
+    "unknown_gh_calls": 0,
+    "start_up_gh_reads": 1
+  },
+  "matched": {
+    "questions": true,
+    "issue_create": true,
+    "issue_comment": true
+  },
+  "creates": [
+    {
+      "title": "[BUG] superclaude install does not print how many skills it copied as its last line",
+      "labels": [
+        "bug"
+      ],
+      "type": "Bug"
+    }
+  ],
+  "worker_lines": [],
+  "agents_spawned": [
+    "issue-worker-t3",
+    "issue-worker-t1",
+    "general-purpose",
+    "general-purpose",
+    "issue-worker-t1"
+  ],
+  "skills_loaded": [
+    "sc-issue-protocol",
+    "sc-adversarial-protocol"
+  ],
+  "question_texts": [],
+  "question_answers": [],
+  "additions": [
+    "Tooling: codegraph and auggie were not available to this worker; the `/sc:analyze --depth deep` pass ran on Grep, Glob and Read only (following `~/.claude/commands/sc/analyze.md`; no `--output` file was requested, so no analysis report was written).",
+    "A-001 (adversarial/merged-flags.md, agreed qualification): the count must be the last line on every path, after the Step 10 retire step and also on the `sys.exit(1)` path (src/superclaude/cli/main.py:271-296). Kept in Expected Behavior.",
+    "A-002 (adversarial/merged-flags.md, agreed qualification): \"copied\" = the installed bucket of `install_all_skills`; skipped, served-by-command and failed skills are not counted; the zero case still prints 0. Kept in Expected Behavior.",
+    "Citation correction to A-002: merged-flags.md cites the zero case as install_skills.py:142-143; in the checked-out code the early returns are at src/superclaude/cli/install_skills.py:80-81 (\"No skills available to install\") and :144-145 (\"No skills to install\"). The body uses the verified lines. Not a contradiction of the user's words.",
+    "Observation (out of scope, not filed as a fix): src/superclaude/cli/install_skills.py:144-145 returns `(True, \"No skills to install\")` when `installed`, `skipped` and `served_by_command` are all empty, even if `failed` is non-empty, which drops the failure messages built at :139-142 and reports success. Relevant only because the count line prints 0 on that path.",
+    "Observation: `superclaude update` calls the same `install_all_skills` (src/superclaude/cli/main.py:402), `install --list` returns early (main.py:174); the body scopes the change to `install` only.",
+    "Environment facts added to the body: package version 6.1.0 (pyproject.toml:7), branch `qev-run`, commit 862384852 (git rev-parse), OS Linux 6.8.0-149-generic (uname -sr). These describe the code checkout, not the reporter's machine.",
+    "Related issues: none (scout.md: no results for `superclaude install skills count`).",
+    "Test-landscape facts: tests stub `install_all_skills` with 2-tuples (tests/cli/test_update_command.py:16-25,74-96; tests/cli/test_install_retired_mcp.py:514-534); direct callers unpack `(bool, str)` (tests/unit/test_cli_doctor.py:78; tests/troubleshoot/test_diagnostic_worker_contract.py:419); no test asserts a skills total or the last line of `install` output (grep of tests/).",
+    "Proposed Solution and Fix approach design (optional `counts` out-parameter on `install_all_skills`, one echo in `install()` after Step 10 and before the exit check) comes from the codebase pass; it is a proposal for whoever implements, not text from the description.",
+    "Assumption: the exact wording of the line is `Skills copied: N` (the description gives no wording; \"how many skills it copied\" only).",
+    "Assumption: the count line applies to `superclaude install` runs that reach the install steps only; `install --list` (returns at main.py:174) and `superclaude update` (main.py:356-461) are unchanged.",
+    "Assumption: the return type `Tuple[bool, str]` of `install_all_skills` stays unchanged, because existing tests and callers unpack a 2-tuple and stub it with 2-tuples (see test-landscape fact above); a stub that does not fill the out-parameter yields a count of 0.",
+    "Assumption: severity in Impact Assessment is \"low\" (output only); the reporter gave no severity.",
+    "Assumption: Priority is Medium, because the information is obtainable another way (`install --list`, the `- <name>` lines of the Step 4 output), so the \"degraded behaviour with a workaround\" trigger applies and no High/Urgent trigger does.",
+    "Assumption: `docs/getting-started/installation.md` (\"What's Installed\", line 337) may or may not describe the install output; the doc step is marked conditional in Fix approach because the worker did not read that section in full.",
+    "Assumption: no `make sync-dev` is needed, because the fix touches only `src/superclaude/cli/` and `tests/`, not an installed primitive.",
+    "Pushback note (not a contradiction, for the Wave 5 comment, not the body): the debate (adversarial/merged-flags.md) judged the request a feature, since no documented behaviour promises a final count line; the issue is filed as a bug with the user's `--mode bug`."
+  ],
+  "contradictions": [],
+  "addition_presence": "see record.md (approximate best-matching-line rule)",
+  "kept_without_approval_lines": [],
+  "false_files_in_body_at_question": [],
+  "false_files_in_posted_body": [],
+  "read_files": {
+    "count": 33,
+    "not_equal_src": [],
+    "installed_copy": [],
+    "failed_reads": []
+  },
+  "seeded_hashes_equal_src": 30,
+  "fork_activity": {
+    "attributed": [],
+    "unattributed": [
+      {
+        "kind": "issue",
+        "number": 906,
+        "author": "swill-ib",
+        "created_at": "2026-11-26T18:52:29Z",
+        "new": false,
+        "title": "fix(swarm): retire stale completion markers on accepted resume"
+      },
+      {
+        "kind": "issue",
+        "number": 904,
+        "author": "clayphi",
+        "created_at": "2026-11-26T18:35:32Z",
+        "new": false,
+        "title": "feat(rulesets): apply the branch rulesets to one repo per run, with a dry run (i"
+      },
+      {
+        "kind": "issue",
+        "number": 703,
+        "author": "ironbelly",
+        "created_at": "2026-11-20T17:02:15Z",
+        "new": false,
+        "title": "Follow-ups from the issue 624 review: five small items in surgical remediation"
+      },
+      {
+        "kind": "comment",
+        "id": 7200639759,
+        "author": "chatgpt-codex-connector[bot]",
+        "created_at": "2026-11-26T18:35:44Z",
+        "first_line": "<!-- codex-pull-request-review-summary -->"
+      },
+      {
+        "kind": "comment",
+        "id": 7201141088,
+        "author": "chatgpt-codex-connector[bot]",
+        "created_at": "2026-11-26T19:03:02Z",
+        "first_line": "<!-- codex-review-receipt:v1 -->"
+      },
+      {
+        "kind": "comment",
+        "id": 7201187938,
+        "author": "ironbelly",
+        "created_at": "2026-11-26T19:05:39Z",
+        "first_line": "Closed after pull request IronbellyOrg/IronClaude#903 merged on 2026-11-26 by Ir"
+      },
+      {
+        "kind": "comment",
+        "id": 7201191763,
+        "author": "chatgpt-codex-connector[bot]",
+        "created_at": "2026-11-26T19:05:52Z",
+        "first_line": "<!-- codex-review-receipt:v1 -->"
+      }
+    ],
+    "error": ""
+  },
+  "files_written_by_run": [
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/issue-body.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/draft-notes.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/flags-t1.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/scout.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/description.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/flags-user.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/adversarial/diff-analysis.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/adversarial/debate-transcript.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/adversarial/base-selection.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/adversarial/refactor-plan.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/adversarial/merged-flags.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/adversarial/merge-log.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/adversarial/return-contract.yaml",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/flags.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/990001/complexity-field.json",
+    "/tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/990001/create-review.md"
+  ],
+  "stop_conditions": []
+}

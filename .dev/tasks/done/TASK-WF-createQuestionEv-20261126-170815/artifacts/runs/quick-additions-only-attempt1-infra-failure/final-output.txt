@@ -1,0 +1,34 @@
+I filed the issue at https://github.com/IronbellyOrg/IronClaude/issues/990001, with the issue type Feature, the label `enhancement` and the Complexity field set to Simple. I read all three back from GitHub after creating it.
+
+- **Draft folder:** moved to `.dev/issues/990001/`. Nothing there is staged or committed.
+- **Flags:** at quick depth I used your flags as given (`feature`, `cli`), so no worker checked them.
+- **Duplicates:** the search found no existing issues that look like this one.
+- **Question:** none was asked. The draft keeps your requirement as written and contradicts nothing you said.
+- **Priority:** the issue lists it as Medium, because it is a planned feature.
+- **Labels, type and field:** everything was set. Nothing is listed as not applied or not set.
+- **Code search:** the codebase tools (codegraph and Auggie) weren't available, so the drafting worker searched the code with plain search and file reads.
+
+The worker added these items beyond your description. They are in the issue body as written, without asking you first:
+- kept without approval: Assumption: "copied" means skills actually copied in this run, including forced reinstalls. Skills that were skipped, served by a command or failed don't count (`src/superclaude/cli/install_skills.py:88`).
+- kept without approval: Assumption: the count is still printed when a later install step fails, and the existing failure status stays the same (`src/superclaude/cli/main.py:285`).
+- kept without approval: Assumption: list-only mode stays a listing and copies nothing (`src/superclaude/cli/main.py:88`).
+- kept without approval: the code it found: the install command and its later steps in `src/superclaude/cli/main.py`, and the code that copies skills and keeps track of them in `src/superclaude/cli/install_skills.py`.
+- kept without approval: the tests to change, `tests/unit/test_cli_install.py` and `tests/cli/test_install_retired_files.py`.
+- kept without approval: the plan to run `/sc:implement` then `/sc:pr-submit --monitor 3`, with `uv run pytest`, `make lint` and `make verify-sync` as the checks that must pass.
+
+The first assumption decides what number gets printed; if you meant something else by "copied", correct it on the issue.
+
+```yaml
+status: success
+mode: create
+issue_number: 990001
+issue_url: https://github.com/IronbellyOrg/IronClaude/issues/990001
+dir: .dev/issues/990001/
+clickup_status: null
+labels_applied: [enhancement]
+labels_missing: []
+next_steps_path: null
+issue_type: Feature
+complexity_field: Simple
+classification_missing: []
+```

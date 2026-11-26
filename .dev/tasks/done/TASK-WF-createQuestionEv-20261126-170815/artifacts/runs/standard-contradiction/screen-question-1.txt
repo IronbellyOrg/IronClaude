@@ -1,0 +1,50 @@
+● Agent "Create lookup scout" finished · 15s
+
+  Read 1 file (ctrl+o to expand)
+
+● Waves 2 and 4 can run in parallel, and the issue gets filed with your flags either way. · summary
+
+● 2 background agents launched (↓ to manage)
+   ├ Validate user flags (standard)
+   └ Draft standard bug body
+
+● The lookup is done. scout.md shows the repo has the bug label, the Bug issue type and the Complexity field with the option Medium, and it found no duplicates. Two tier-2 workers are now running: one
+  checks your flags and one writes the issue body. I'll go on when both have finished.
+
+✻ Waiting for 2 background agents to finish
+
+● Agent "Validate user flags (standard)" finished · 24s
+
+  Read 1 file (ctrl+o to expand)
+
+● The flag check agrees with --mode bug. It disagrees with --type skill and would choose command, because the empty-description check is in issue.md. It also found that create_issue.py does not exist.
+  The issue is still filed with your flag, and this disagreement goes into the pushback comment in Wave 5. Next I need the body draft.
+
+✻ Waiting for 1 background agent to finish
+
+● Agent "Draft standard bug body" finished · 2m 20s
+
+  Read 2 files (ctrl+o to expand)
+
+● The draft notes list one contradiction, which I confirmed in Wave 0: scripts/ contains only three files. Per the protocol, I need to ask you one question before anything gets posted. · summary
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ☐ Crash file
+
+│ Your description says /sc:issue --create crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` on an empty description. That file does not exist: the skill's scripts/ folder
+│ holds only origin_repo.py, clickup_claim.py and orca_worktree.py, and issue creation is a `gh issue create` step run by the orchestrator. Also, commands/issue.md:56 already requires an empty
+│ description to STOP with "--create needs a description" before the skill runs. The draft therefore reports this as an empty-input validation bug that still needs a reproduction and does not name
+│ create_issue.py as where the crash happens. Which wording should the issue use?
+
+❯ 1. Keep the draft (Recommended)
+     File the issue as drafted: the empty-description crash is reported against the validation step before the skill runs, it notes that create_issue.py does not exist, and the cause is left to a
+     reproduction.
+  2. Keep my wording
+     Change the draft so the Bug Summary and Current Behavior name create_issue.py as the crash location, as you wrote it, even though the file is missing in this checkout.
+  3. Edit
+     You give the wording to use for the crash location (pick Other / add a note with the text).
+  4. Type something.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  5. Chat about this
+
+Enter to select · ↑/↓ to navigate · Esc to cancel
+

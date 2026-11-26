@@ -1,0 +1,168 @@
+{
+  "name": "deep-contradiction",
+  "depth": "deep",
+  "flags": "--mode bug --type skill --depth deep",
+  "marker": "qev-deep-contradiction-184044",
+  "description": "Bug: `/sc:issue --create` crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` when the description is empty.",
+  "clone_head": "862384852faebe3255c2876527103696cfd3cf3b",
+  "drive": {
+    "questions_screens": 0,
+    "answered": 0,
+    "unanswered": 0,
+    "permission_prompts": 0,
+    "status": "completed",
+    "seconds": 231
+  },
+  "expected": {
+    "questions": 1,
+    "issue_create": 1,
+    "issue_comment": null
+  },
+  "observed": {
+    "questions_as_tool_calls": 0,
+    "questions_answered": 0,
+    "questions_as_plain_text": 0,
+    "issue_create": 0,
+    "issue_comment": 0,
+    "issue_edit": 0,
+    "other_writes": 0,
+    "unknown_gh_calls": 0,
+    "start_up_gh_reads": 1
+  },
+  "matched": {
+    "questions": false,
+    "issue_create": false,
+    "issue_comment": null
+  },
+  "creates": [],
+  "worker_lines": [],
+  "agents_spawned": [
+    "issue-worker-t3",
+    "issue-worker-t1",
+    "issue-worker-t1"
+  ],
+  "skills_loaded": [
+    "sc-issue-protocol",
+    "sc-adversarial-protocol"
+  ],
+  "question_texts": [],
+  "question_answers": [],
+  "additions": [],
+  "contradictions": [],
+  "additions_in_posted_body": [],
+  "kept_without_approval_lines": [],
+  "false_files_in_body_at_question": [],
+  "false_files_in_posted_body": [],
+  "read_files": {
+    "count": 38,
+    "not_equal_src": [],
+    "installed_copy": [],
+    "failed_reads": [
+      "/root/.claude/skills/sc-issue-protocol/refs/create.md",
+      "/root/.claude/skills/sc-issue-protocol/templates/draft-notes.md",
+      "/root/.claude/skills/sc-issue-protocol/templates/issue-bug-complex.md",
+      "/root/.claude/skills/sc-issue-protocol/templates/scout-report.md",
+      "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.claude/skills/sc-issue-protocol/templates/scout-report.md",
+      "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-184105-bug-sc-issue-create-crashes-in-src-super/adversarial/diff-analysis.md",
+      "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-184105-bug-sc-issue-create-crashes-in-src-super/flags-t1.md"
+    ]
+  },
+  "seeded_hashes_equal_src": 30,
+  "fork_activity": {
+    "attributed": [],
+    "unattributed": [
+      {
+        "kind": "issue",
+        "number": 904,
+        "author": "clayphi",
+        "created_at": "2026-11-26T18:35:32Z",
+        "new": false,
+        "title": "feat(rulesets): apply the branch rulesets to one repo per run, with a dry run (i"
+      },
+      {
+        "kind": "issue",
+        "number": 837,
+        "author": "ironbelly",
+        "created_at": "2026-11-25T16:31:51Z",
+        "new": false,
+        "title": "[ruleset] Apply the branch protection rulesets to the other public IronbellyOrg "
+      },
+      {
+        "kind": "issue",
+        "number": 825,
+        "author": "ironbelly",
+        "created_at": "2026-11-24T23:26:19Z",
+        "new": false,
+        "title": "[BUG] L1 launch-level guard does not protect integration (the new default branch"
+      },
+      {
+        "kind": "issue",
+        "number": 702,
+        "author": "clayphi",
+        "created_at": "2026-11-20T16:50:20Z",
+        "new": false,
+        "title": "[FEATURE] Protect the default branch of IronClaude: no direct push, no force pus"
+      },
+      {
+        "kind": "issue",
+        "number": 699,
+        "author": "ironbelly",
+        "created_at": "2026-11-20T14:12:38Z",
+        "new": false,
+        "title": "The claim script creates the issue worktree without an agent, against the every-"
+      },
+      {
+        "kind": "issue",
+        "number": 517,
+        "author": "ironbelly",
+        "created_at": "2026-11-12T13:03:49Z",
+        "new": false,
+        "title": "[BUG] ccsession proxy: a tier whose first model always thinks fails every reques"
+      },
+      {
+        "kind": "issue",
+        "number": 446,
+        "author": "ironbelly",
+        "created_at": "2026-11-08T05:47:11Z",
+        "new": false,
+        "title": "WC-9: retry index.lock for about 10 s before a worker reports blocked"
+      },
+      {
+        "kind": "issue",
+        "number": 409,
+        "author": "ironbelly",
+        "created_at": "2026-11-06T13:53:42Z",
+        "new": false,
+        "title": "[FEATURE] TUI Dashboard to Manage Orchestration at Scale"
+      },
+      {
+        "kind": "issue",
+        "number": 326,
+        "author": "ironbelly",
+        "created_at": "2026-10-29T16:31:02Z",
+        "new": false,
+        "title": "[Feature]: Embed more Git and PM related workflows into skills"
+      },
+      {
+        "kind": "comment",
+        "id": 7200639759,
+        "author": "chatgpt-codex-connector[bot]",
+        "created_at": "2026-11-26T18:35:44Z",
+        "first_line": "<!-- codex-pull-request-review-summary -->"
+      }
+    ],
+    "error": ""
+  },
+  "files_written_by_run": [
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-184105-bug-sc-issue-create-crashes-in-src-super/flags-t1.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-184105-bug-sc-issue-create-crashes-in-src-super/scout.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-184105-bug-sc-issue-create-crashes-in-src-super/description.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-184105-bug-sc-issue-create-crashes-in-src-super/flags-user.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-184105-bug-sc-issue-create-crashes-in-src-super/adversarial/diff-analysis.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-184105-bug-sc-issue-create-crashes-in-src-super/adversarial/merge-log.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-184105-bug-sc-issue-create-crashes-in-src-super/adversarial/merged-flags.md",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-184105-bug-sc-issue-create-crashes-in-src-super/adversarial/return-contract.yaml",
+    "/tmp/createQuestionEv-scratch/clones/deep-contradiction/.dev/issues/draft-20261126-184105-bug-sc-issue-create-crashes-in-src-super/flags.md"
+  ],
+  "stop_conditions": []
+}

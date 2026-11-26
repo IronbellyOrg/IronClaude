@@ -1,0 +1,2 @@
+run standard-multi-contradiction: questions=1 (expected 1), issue create=1, issue comment=0, drive=completed
+exit=0

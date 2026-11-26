@@ -1,0 +1,29 @@
+input_tree_sha256: 1b78d13bd36dabd37c04affba149f6360a15912ffa12d6cab77235e56154f56b
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-142533/TASK-WF-createQuestionEv-20261126-142533.md
+    sha256: 80adb9e26e3b27b64b3fc138be1436c29ec49e222094d1bf059cb934698fec13
+  - path: .dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-142533/source.md
+    sha256: cb06834b1efc2fa0dba240dfdca6a99c7890babbc3845b00de325663be25f745
+  - path: .github/workflows/contract3-generator-constraint-lint.yml
+    sha256: b5f23c4d6950189f33cdbf2c8bcdc99c1918caeb487aeeef25f73741c5333d8c
+  - path: docs/designs/sc-issue-command.md
+    sha256: aade6a5ec3088ba18e9cbfcf4768e230adeec4f14b61cdfa61cf2615039d0b67
+  - path: docs/user-guide/commands.md
+    sha256: 23b42a77e025d0aa5db5ce95e4f49c46222240eafcc38548356f06f4c6a6b376
+  - path: src/superclaude/commands/issue.md
+    sha256: 8db89806dae11ca6fccba2a3fcd396211792c6356fe15e9df956ff9cc74feadb
+  - path: src/superclaude/skills/sc-issue-protocol/SKILL.md
+    sha256: 2999717d44ecbab240016cfab6fe1a90611490ddf85156bc599b2d0b9f47fbbc
+  - path: src/superclaude/skills/sc-issue-protocol/refs/claim.md
+    sha256: b07c5c867c16995a153fce8783f523c71fc29c7ed5f5d4243cbd6df44dc76a71
+  - path: src/superclaude/skills/sc-issue-protocol/refs/create.md
+    sha256: 56c889ba34542b0c1c5918d40b5c9f1954ab00b7dce0b5df2ff23a7daf30141b
+  - path: src/superclaude/skills/sc-issue-protocol/templates/draft-notes.md
+    sha256: 1abf40eeee2342401b85b042f858f6aaa88aaa5ebc97c80eb750e8912f9c5967
+  - path: src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md
+    sha256: 5960e7ceb61ddeda16d115a4f784d345342a5f16164f7c27d2077421e208c038
+  - path: tests/commands/test_issue_command.py
+    sha256: 03826bed0ae949ac08d1583fc0e22c0ef9c9b01630ba0c78edcdae6b1f57c8cd
+  - path: tests/skills/test_issue_protocol.py
+    sha256: 201f8b5b8d49cb8edca6728d4dbae214f45670bf9b33e0ced4787d667a6fb7c1
+file_count: 13

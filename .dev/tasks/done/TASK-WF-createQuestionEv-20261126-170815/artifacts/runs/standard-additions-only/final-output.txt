@@ -1,0 +1,39 @@
+I filed issue #990001 on the fork: https://github.com/IronbellyOrg/IronClaude/issues/990001. It's titled `[FEATURE] Make \`superclaude install\` print how many skills it copied as its last line [synthetic run marker: qev-standard-additions-only-181206]` and has the `enhancement` label.
+
+- **Type and Complexity:** I read both back from GitHub after creating the issue. The type is Feature and Complexity is Medium.
+- **Flag check:** the standard-depth check picked the same mode and area you gave (feature, cli), so no flag-review comment was posted.
+- **Question:** none was asked, because the draft didn't contradict anything you wrote.
+- **Duplicates:** two searches found no similar issues.
+- **Nothing left unset:** no "not applied" or "not set" lines.
+
+The files are in `.dev/issues/990001/`. They are not staged or committed.
+
+**What the drafting worker added beyond your description.** These are in the issue body, and the four assumptions (marked ⚠) are choices you may want to check:
+- kept without approval: the skills step already prints a count, but more steps run after it, so the count scrolls out of view (`src/superclaude/cli/install_skills.py:112-122`, `src/superclaude/cli/main.py:202-279`)
+- kept without approval: the last line today depends on how the retirement step ends; there is no fixed summary line (`src/superclaude/cli/install_retired_files.py:269-306`)
+- kept without approval: the installer already tells installed, skipped, failed and command-served skills apart (`src/superclaude/cli/install_skills.py:83-115`)
+- kept without approval: the approach passes the count as a number to the CLI and prints it after retirement, before the exit-code check, without parsing message text
+- kept without approval: the list of affected components and the existing test files to extend
+- kept without approval: Priority Medium, because it is a planned feature
+- kept without approval: the ordered fix steps (`/sc:workflow` → `/sc:implement` → `/sc:pr-submit --monitor 3`, base `integration`) and the regression checks (`uv run pytest`, `make lint`, `make verify-sync`)
+- kept without approval: test cases for zero copies, `--force`, excluded skills, `--list`, failure paths and the line order, with the tests checking the actual last line
+- kept without approval: the worker had no code-graph or Auggie tools and used plain file search instead
+- kept without approval ⚠: the count covers skills `install_all_skills` copied in this run, including forced reinstalls, but not individual files, skills already there, or skills installed through Orca
+- kept without approval ⚠: the wording is `Skills copied: N`
+- kept without approval ⚠: the line is printed whenever the install completes, even if a step reports a failure, but not for `--list` or when the command crashes
+- kept without approval ⚠: the installer's current return shape stays the same, and `superclaude update` and `install-skill` are out of scope
+
+```yaml
+status: success
+mode: create
+issue_number: 990001
+issue_url: https://github.com/IronbellyOrg/IronClaude/issues/990001
+dir: .dev/issues/990001/
+clickup_status: null
+labels_applied: [enhancement]
+labels_missing: []
+next_steps_path: null
+issue_type: Feature
+complexity_field: Medium
+classification_missing: []
+```
