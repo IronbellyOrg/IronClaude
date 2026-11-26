@@ -1,0 +1,69 @@
+t1-before.txt (Task 1: before state)
+timestamp: 2026-11-26T12:10:36Z
+
+## 1. environment variables (test with ${VAR+set}; values never printed)
+ORCA_PAIRING_CODE: unset
+ORCA_REMOTE_PAIRING: unset
+ORCA_ENVIRONMENT: unset
+
+## 2. before readings (commands run: orca worktree current --json; orca repo show --repo id:e8e07d51-c261-4936-815e-06aeceeb5bf8 --json; orca worktree list --repo id:e8e07d51-c261-4936-815e-06aeceeb5bf8 --json)
+projectId: github:superclaude-org/superclaude_framework
+{
+  "upstream": {
+    "owner": "SuperClaude-Org",
+    "repo": "SuperClaude_Framework",
+    "host": "github.com"
+  },
+  "gitRemoteIdentity": {
+    "canonicalKey": "github.com/IronbellyOrg/IronClaude",
+    "remoteName": "origin",
+    "remoteUrl": "https://github.com/IronbellyOrg/IronClaude"
+  },
+  "repoIcon": {
+    "type": "image",
+    "source": "github"
+  }
+}
+worktree list ok: true, totalCount: 32, truncated: false
+ids of this repository's worktrees (only ids beginning with e8e07d51-c261-4936-815e-06aeceeb5bf8::):
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/IronClaude
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/Coordinator
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/cicd-ref-ironclaude
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/gaps-761-new-j
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/gaps-761-research
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/ic6-orchestrator
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-289
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-290
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-326
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-352
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-379
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-393
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-517
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-571
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-572-agent-usage
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-599
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-610
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-655-spec
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-676
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-758
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-764
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-765
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-779
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-780
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-826
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-834
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-837
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-838
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-848
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/issue-templates-plan-fields
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/iteration-3-e2-lead
+e8e07d51-c261-4936-815e-06aeceeb5bf8::/home/coder/workspaces/worktrees/IronClaude/iteration-3-work-files
+count: 32
+
+## 3. rollback record
+rollback record: present (file /home/coder/.config/orca/profiles/local-default/orca-data.json.sqlite-export.1.json holds an upstream object for repo e8e07d51-c261-4936-815e-06aeceeb5bf8: {"owner":"SuperClaude-Org","repo":"SuperClaude_Framework","host":"github.com"})
+
+## 4. node
+node: v24.22.2 (available)
+
+pre-conditions: pass
