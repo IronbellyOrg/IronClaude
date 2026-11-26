@@ -122,6 +122,10 @@ B64_SLASH = "Qk9nVXN0cmluZ0RhdGEx" + "/" + "bmV3ZXJ0eXVpb3BhZGZnaGprbA9"  # one 
         '<add key="DbPassword" value="remaining-secret123" />',
         '<password value="remaining-secret123" />',
         "<apiKey value='remaining-secret123'/>",
+        '<password value="'
+        + "ghp_"
+        + "A1b2C3d4E5f6G7h8I9j0K1l2M3"
+        + '-remaining-secret123" />',
         '<add key="DbPassword" value="can\'tguess123" />',
         '<add key="DbPassword" value="guess>remaining-secret123" />',
         '<add key="DbPassword" value=\'opaque "text" remaining-secret123\'/>',

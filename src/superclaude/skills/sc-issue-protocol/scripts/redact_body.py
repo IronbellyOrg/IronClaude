@@ -384,6 +384,10 @@ def _redact_block_scalars(text: str) -> tuple[str, int]:
 def redact(text: str) -> tuple[str, int]:
     """Return ``text`` with credential values replaced and the replacement count."""
     total = 0
+    # XML first: the other passes insert ``<REDACTED>``, and the XML patterns reject a
+    # literal ``<`` inside an attribute, so a placeholder there would hide the rest of it.
+    text, n = _redact_xml_elements(text)
+    total += n
     text, n = PRIVATE_KEY_BLOCK.subn(REDACTED, text)
     total += n
     text, n = SHAPED_VALUES.subn(REDACTED, text)
@@ -428,8 +432,6 @@ def redact(text: str) -> tuple[str, int]:
     text = NETRC_LOGIN.sub(lambda m: replace(m, False), text)
     text = NETRC_LINE.sub(lambda m: replace(m, False), text)
     text = COOKIE_LINE.sub(lambda m: replace(m, False), text)
-    text, n = _redact_xml_elements(text)
-    total += n
     text = STRONG_PAIR.sub(lambda m: replace(m, False), text)
     text = WEAK_PAIR.sub(lambda m: replace(m, True), text)
     text = AUTH_PAIR.sub(
