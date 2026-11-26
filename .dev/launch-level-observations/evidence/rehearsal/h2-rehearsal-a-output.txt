@@ -1,0 +1,16 @@
+[ccsession] tier1b (Tier 1b: claude-sonnet-5-5, gpt-6.1-sol, muse-wonder-full-1.0): model claude-gw-tier1b[1m], context 850000, auto-compact window 850000
+[ccsession] Shim already running on 127.0.0.1:4013 (reusing)
+[ccsession] Cached 21 curated gateway models before launch
+[ccsession] Starting untagged session
+[claude-code:unrecognized_model] {"model":"claude-gw-tier1b[1m]","query_source":"sdk"}
+| Status | Result |
+|---|---|
+| DONE | Tried to run `ls` with Bash. |
+| NEXT | You decide whether I list the files another way. |
+
+**WHAT:** `ls` did not run, so it printed nothing. A pre-run hook (`~/.claude/hooks/launch-job-identity.sh`) blocked the call with "governed Bash call cannot be wrapped safely".
+
+**WHY:** The hook rejected the Bash call itself, not the `ls` command. Retrying the same call would fail the same way.
+
+**RECOMMENDED ACTION:** Let me list the directory with the file-search tool (Glob) instead. It shows the same files but is not "what Bash printed". Yes: I list the files with Glob and report them. No: nothing changes, and you can fix the hook first.
+exit=0

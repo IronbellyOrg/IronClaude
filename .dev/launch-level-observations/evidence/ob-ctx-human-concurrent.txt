@@ -1,0 +1,5 @@
+human shell (cwd /tmp/ll-obs-ctx.CUUi5pwB/work): {"status": "ordinary"}
+background job child sleep 61 pid 1241951 (cwd /tmp/ll-obs-ctx.CUUi5pwB/work): {"status": "governed", "session_id": "3b70b88c-4387-4c53-9b3e-9dc279e86cb0"}
+setsid child sleep 9 pid 1242544: {"status": "ordinary"}
+monitor child sleep 4 pid 1242928: {"status": "ordinary"}
+done seen61=1 seen9=1 seen4=1
