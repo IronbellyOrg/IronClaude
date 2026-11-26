@@ -1,0 +1,21 @@
+pick: refactor of advice-4-b.md; runner-up: none; reason: escalation 3
+## Task 6: Write the operator page and its test
+Acceptance criteria:
+- The page defines `OWNER` and `REPO` variables, and every `gh api` command in it uses `$OWNER` and `$REPO` or the placeholder `<org>`.
+- The page mentions `--apply`, `--confirm`, the dry run, `-before.json`, the 90-day push check, the tag warning and the canary rule, and `test_page.py` asserts that the page states the canary must show complete activity coverage before other repos rely on it.
+- The page names no real private repo. `test_page.py` reads the 17 names at test time from the untracked `.dev/issues/838/issue-summary.md` (the comma-separated names after "all with Clay admin:" in the paragraph that starts "Clay's answer for this story") and asserts none appears in the page, in `scripts/apply_org_rulesets.py` or in any file of `tests/org_rulesets/`; the test is skipped when that file does not exist, and the names are written in no tracked file.
+- `uv run pytest tests/org_rulesets/ tests/docs/test_branch_protection_rulesets.py` passes, `uv run ruff check scripts/apply_org_rulesets.py tests/org_rulesets` and `uv run ruff format --check scripts/apply_org_rulesets.py tests/org_rulesets` report nothing.
+ids: T6.AC1 T6.AC2 T6.AC3 T6.AC4 (the four bullets above, in order)
+
+Steps:
+1. Start from the pre-task snapshot: no page and no `tests/org_rulesets/test_page.py`. Do not change `scripts/apply_org_rulesets.py`.
+2. Recreate the page `docs/developer-guide/branch-protection-multi-repo.md` as it stands in attempt-4.diff:7-132. That page met all four criteria (review-4.md:3-6); its sections are What the script does, Variables, Order for each repo, The canary rule, The 90-day push check, Refusals and failures, Roll back by hand and Not in this version. Keep its shape from the runner-up advice: each message gets an action and no guessed cause, and one rule covers every `failed:` line.
+3. Change three sentences of that page and nothing else. (a) In Refusals and failures replace "A usage mistake prints one of these and exits 64: fix the command line." with "A usage mistake prints `usage error:` and a reason and exits 64: fix the command line. The reasons include these and the ones the argument parser gives (for example `the following arguments are required: --org` or `unrecognized arguments: ...`):" and keep the four bullets that follow (`--repo takes exactly one repo name`, `--org: <reason>`, `--confirm needs --apply`, `--apply needs --confirm DIGEST`); drop the bullet `usage error:` because the sentence now names it. (b) In Roll back by hand replace "for an id you found by listing the rulesets" with "for an id you found by listing the rulesets that is not in `<repo>-before.json`". (c) In What the script does replace "every `--apply` run is a live write to the repo you name" with "an `--apply` run that does not refuse is a live write to the repo you name".
+4. Recreate `tests/org_rulesets/test_page.py` as it stands in attempt-4.diff:134-284, unchanged. Its scan of the message lists reads table rows and bullets between the headings Refusals and failures and Roll back by hand, so a sentence span such as `usage error:` or an argparse example is not scanned.
+5. Claim pass before the review: read every sentence of the page that says "one of", "every", "any", "never", "always" or "only" and check it against the script; fix or delete a sentence that a script line contradicts.
+6. Run `uv run pytest tests/org_rulesets/ tests/docs/test_branch_protection_rulesets.py`, `uv run ruff check scripts/apply_org_rulesets.py tests/org_rulesets` and `uv run ruff format --check scripts/apply_org_rulesets.py tests/org_rulesets`; all three must be clean.
+
+lessons from A4:
+- review-4.md:7 (F6.1): a sentence that presents a list of messages as complete ("prints one of these") is false when the script has other messages of the same kind; say "the reasons include" and keep the list as examples.
+
+differs-by: brief 5 reproduces the page and test that attempt 4 produced, which met every criterion and had one blocking sentence, and changes three sentences; brief 4 had the executor write a new, shorter page from the list of script messages.

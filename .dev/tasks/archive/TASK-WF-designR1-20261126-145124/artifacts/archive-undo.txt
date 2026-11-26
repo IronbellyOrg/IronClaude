@@ -1,0 +1,1 @@
+{"created_contract": false, "made_artifacts": false, "ops": [["ins", 16, "  - \"SUPERSEDED by TASK-WF-scopeCut-20261126-165750: do not run /sc:implement on this package.\""], ["ins", 23, "superseded_by: TASK-WF-scopeCut-20261126-165750"]]}

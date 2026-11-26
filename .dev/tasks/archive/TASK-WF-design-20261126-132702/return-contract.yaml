@@ -1,0 +1,8 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-design-20261126-132702
+plan_path: ./TASK-WF-design-20261126-132702.md
+source_path: ./source.md
+unresolved:
+  - "SUPERSEDED by TASK-WF-designR1-20261126-145124: do not run /sc:implement on this package."
+superseded_by: TASK-WF-designR1-20261126-145124

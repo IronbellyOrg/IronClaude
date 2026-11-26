@@ -1,0 +1,24 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-designR1-20261126-145124
+plan_path: ./TASK-WF-designR1-20261126-145124.md
+source_path: ./source.md
+source_origin: .dev/brainstorms/20261126-120633-apply-branch-rulesets-ironbellygroup/designR1.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-838/.dev/reflect/pre-TASK-WF-designR1-20261126-145124-20261126145705/REPORT.md
+unresolved:
+  - "Review verdict FAIL: 9 Blocking findings are open (MF-1 to MF-9 of the reflect report). The regenerate route already ran once in this run, so the routing rule gives escalate; /sc:implement refuses this package."
+  - "Owner-open: seven points where the design contradicts itself or conflicts with how this run is carried out (reflect report, section Owner-open). The first, the owner's review before /sc:implement, cannot be met inside an autonomous run."
+  - "Reflect status partial: the evidence validator dropped 4 of 160 re-read citations (all quote rows attached to the wrong line); the adversarial merge ran at quick depth (one round)."
+  - "SUPERSEDED by TASK-WF-scopeCut-20261126-165750: do not run /sc:implement on this package."
+review_verdict: FAIL
+open_blockers: ["MF-1", "MF-2", "MF-3", "MF-4", "MF-5", "MF-6", "MF-7", "MF-8", "MF-9"]
+fix_cycles: 0
+supersedes: TASK-WF-design-20261126-132702
+remediation_route: regenerate
+finding_counts: {"blocking": 9, "label_high": 0, "medium": 19, "note": 2}
+superseded_by: TASK-WF-scopeCut-20261126-165750

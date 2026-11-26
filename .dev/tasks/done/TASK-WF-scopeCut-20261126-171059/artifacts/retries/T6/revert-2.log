@@ -1,0 +1,6 @@
+SWEEP refs/superclaude/implement/TASK-WF-scopeCut-20261126-171059/retry/T6/sweep-2-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+DELETED docs/developer-guide/branch-protection-multi-repo.md
+DELETED tests/org_rulesets/test_page.py
+DONE
+exit=0
