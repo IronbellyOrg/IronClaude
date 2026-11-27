@@ -522,6 +522,46 @@ def test_update_that_may_fetch_checks_the_remote_the_branch_tracks(
     assert refusal(row, "update") == "remote-mismatch"
 
 
+def test_the_first_of_several_module_urls_is_the_one_git_fetches_from(
+    facts, submodule_repo
+):
+    # git fetches from the first url of a remote; a later matching value must not hide it.
+    make_target_not_local(submodule_repo)
+    approved = sub_url(submodule_repo.sub_origin)
+    sub_git(submodule_repo, "config", "--unset-all", "remote.origin.url")
+    sub_git(submodule_repo, "config", "remote.origin.url", "file:///elsewhere/lib")
+    sub_git(submodule_repo, "config", "--add", "remote.origin.url", approved)
+    row = row_of(facts(submodule_repo))
+    assert row["fetch_mismatch"] is True
+    assert refusal(row, "update") == "remote-mismatch"
+    # approved first, an extra (push) url after it: the fetch url is the approved one
+    sub_git(submodule_repo, "config", "--unset-all", "remote.origin.url")
+    sub_git(submodule_repo, "config", "remote.origin.url", approved)
+    sub_git(
+        submodule_repo, "config", "--add", "remote.origin.url", "file:///elsewhere/lib"
+    )
+    row = row_of(facts(submodule_repo))
+    assert row["fetch_mismatch"] is False
+    assert row["update"]["ok"] is True
+
+
+def test_a_failed_read_of_the_configured_url_is_unknown_not_unset(mods, submodule_repo):
+    sm, plan, _ = mods
+    STATE_CASES["uninitialized"](submodule_repo)
+
+    class Unsure(plan.GitRunner):
+        def run(self, argv, **kw):
+            if argv[:3] == ["config", "--get", "submodule.lib.url"]:
+                return 2, ""
+            return super().run(argv, **kw)
+
+    row = row_of(
+        sm.collect_submodules(Unsure(submodule_repo.work, person_invoked=True))
+    )
+    assert row["url_configured"] is None and row["remote_mismatch"] is None
+    assert refusal(row, "update") == "remote-unverifiable"
+
+
 def test_a_relative_gitmodules_url_is_not_compared_and_blocks_update(
     facts, submodule_repo
 ):

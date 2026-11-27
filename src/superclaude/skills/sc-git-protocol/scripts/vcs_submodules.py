@@ -43,7 +43,7 @@ Derived columns (FR-040 to FR-044), added to every row after the facts:
     unknown or the two cannot be compared. A relative ``.gitmodules`` url is not compared
     (how git resolves it is not modelled; UNVERIFIED), so it is ``None``.
   * ``url_configured``: whether ``submodule.<name>.url`` is set in the superproject config
-    (``None`` when it could not be asked). With a relative ``.gitmodules`` url the two are
+    (``None`` when it could not be asked, which also refuses). With a relative ``.gitmodules`` url the two are
     not compared, so an uninitialized module that has one is refused as unverifiable.
   * ``fetch_mismatch``: for an initialized module, whether ``origin`` (or the remote its
     current branch tracks) has a url other than the ``.gitmodules`` url. ``submodule
@@ -303,7 +303,11 @@ def _ancestor(git: GitRunner, path: str, older: str, newer: str) -> Optional[boo
 
 
 def _remote_urls(git: GitRunner, path: str) -> Optional[Dict[str, str]]:
-    """Remote name to url for the module; ``{}`` when it has none, ``None`` if unreadable."""
+    """Remote name to url for the module; ``{}`` when it has none, ``None`` if unreadable.
+
+    A remote can hold several ``url`` values: git fetches from the first (the others are
+    extra push urls), so the first one listed is the one kept.
+    """
     rc, out = _read(git, ["config", "-z", "--get-regexp", r"^remote\..*\.url$"], path)
     if rc == 1:
         return {}
@@ -313,7 +317,7 @@ def _remote_urls(git: GitRunner, path: str) -> Optional[Dict[str, str]]:
     for record in out.split("\0"):
         key, _, value = record.partition("\n")
         if key.startswith("remote.") and key.endswith(".url"):
-            found[key[len("remote.") : -len(".url")]] = value
+            found.setdefault(key[len("remote.") : -len(".url")], value)
     return found
 
 
@@ -429,7 +433,7 @@ def _update_eligibility(row: Dict[str, Any]) -> Dict[str, Any]:
             return no("gitmodules-url-unknown")
         # A configured url the (relative) .gitmodules url cannot be compared with would
         # be the clone source: not provably the one the person is shown.
-        if row["url_configured"] and row["remote_mismatch"] is None:
+        if row["url_configured"] is not False and row["remote_mismatch"] is None:
             return no("remote-unverifiable")
         return {"ok": True, "reason": None, "needs_url": True}
     if row["remote_mismatch"] is None:
@@ -502,10 +506,11 @@ def _derive(
 
     mismatch = configured = None
     if row["initialized"] is not None and name is not None and url is not None:
-        local = _config(git, f"submodule.{name}.url")
-        configured = local is not None
-        if configured and not relative:
-            mismatch = local != url
+        # Exit 1 is "not set"; any other failure leaves it unknown, never "not set".
+        rc, out = _read(git, ["config", "--get", f"submodule.{name}.url"])
+        configured = True if rc == 0 else False if rc == 1 else None
+        if rc == 0 and not relative:
+            mismatch = out.rstrip("\n") != url
     row["remote_mismatch"] = mismatch
     row["url_configured"] = configured
     row["fetch_mismatch"] = None
