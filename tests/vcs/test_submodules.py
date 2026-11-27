@@ -568,6 +568,18 @@ def test_an_update_that_may_fetch_is_refused_for_a_nested_module(facts, submodul
     assert refusal(row, "update") == "nested-not-inspected"
 
 
+@pytest.mark.parametrize("name", ["evil'mod", "a\nb", "tab\there"])
+def test_a_path_that_could_end_the_shell_quoting_never_allows_a_write(
+    facts, submodule_repo, name
+):
+    # The protocol puts the path between single quotes in a Bash call.
+    sha = sub_git(submodule_repo, "rev-parse", "HEAD").strip()
+    submodule_repo.git("update-index", "--add", "--cacheinfo", f"160000,{sha},{name}")
+    row = row_of(facts(submodule_repo), name)
+    assert refusal(row, "update") == "path-unrepresentable"
+    assert refusal(row, "commit_pointer") == "path-unrepresentable"
+
+
 def test_a_failed_read_of_the_configured_url_is_unknown_not_unset(mods, submodule_repo):
     sm, plan, _ = mods
     STATE_CASES["uninitialized"](submodule_repo)

@@ -93,6 +93,9 @@ _RECURSE_WARNING = (
 )
 _USERINFO = re.compile(r"^(?P<scheme>[A-Za-z][A-Za-z0-9+.-]*)://(?P<user>[^/?#]*)@")
 _USERINFO_SCHEMES = ("http", "https", "ftp", "ftps")
+# The protocol quotes a path between single quotes in a Bash call, so a quote (or a control
+# character) in a path could end the quoting: such a row never allows a write.
+_UNSAFE_PATH = re.compile("['\\x00-\\x1f\\x7f]")
 # The refusal token of `update` for each state it never serves (FR-041).
 _UPDATE_REFUSALS = {
     "conflict": "conflict",
@@ -421,6 +424,8 @@ def _update_eligibility(row: Dict[str, Any]) -> Dict[str, Any]:
     def no(reason: str) -> Dict[str, Any]:
         return {"ok": False, "reason": reason, "needs_url": False}
 
+    if _UNSAFE_PATH.search(row["path"]):
+        return no("path-unrepresentable")
     state = row["state"]
     # FR-044: any module with a configured url, whatever its state. An uninitialized module
     # can hold one too (`submodule init` never overwrites it), and the clone uses it.
@@ -469,6 +474,8 @@ def _commit_pointer_eligibility(row: Dict[str, Any]) -> Dict[str, Any]:
     def no(reason: str) -> Dict[str, Any]:
         return {"ok": False, "reason": reason}
 
+    if _UNSAFE_PATH.search(row["path"]):
+        return no("path-unrepresentable")
     if (
         row["initialized"] is False
         or row["conflicted"]
