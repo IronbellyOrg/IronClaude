@@ -273,6 +273,14 @@ def test_submodule_update_forces_the_checkout_strategy():
     assert "git submodule update --init -- " not in text
 
 
+def test_the_pathspec_file_is_written_without_following_a_planted_link():
+    # `set -C` makes the redirection fail on any existing name, a symlink included; the
+    # helper adds a random token to the name so it cannot be guessed (see test_stage_plan).
+    text = _text(REFS_DIR / "commit.md")
+    assert "set -C; printf '%s\\0'" in text
+    assert "random token" in text
+
+
 # --- size limits (FR-018, NFR-012) -----------------------------------------------------
 
 

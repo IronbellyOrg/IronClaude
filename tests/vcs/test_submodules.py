@@ -477,6 +477,51 @@ def test_update_of_an_uninitialized_module_with_the_same_configured_url_needs_th
     assert row["update"] == {"ok": True, "reason": None, "needs_url": True}
 
 
+def test_an_uninitialized_module_with_a_relative_url_and_a_configured_url_is_unverifiable(
+    facts, submodule_repo
+):
+    STATE_CASES["uninitialized"](submodule_repo)
+    submodule_repo.git(
+        "config", "--file", ".gitmodules", "submodule.lib.url", "../lib-origin"
+    )
+    # nothing configured yet: git resolves the relative url itself, as before
+    row = row_of(facts(submodule_repo))
+    assert row["url_configured"] is False
+    assert row["update"]["ok"] is True
+    # a url already configured would be the clone source and cannot be compared
+    submodule_repo.git("config", "submodule.lib.url", "file:///elsewhere/lib")
+    row = row_of(facts(submodule_repo))
+    assert row["url_configured"] is True and row["remote_mismatch"] is None
+    assert refusal(row, "update") == "remote-unverifiable"
+
+
+def test_update_that_may_fetch_is_refused_when_the_module_origin_is_elsewhere(
+    facts, submodule_repo
+):
+    # The superproject url still equals .gitmodules, but git fetches inside the module,
+    # from the module's own remote.
+    make_target_not_local(submodule_repo)
+    row = row_of(facts(submodule_repo))
+    assert row["fetch_mismatch"] is False and row["update"]["ok"] is True
+    sub_git(submodule_repo, "remote", "set-url", "origin", "file:///elsewhere/lib")
+    row = row_of(facts(submodule_repo))
+    assert row["remote_mismatch"] is False
+    assert row["fetch_mismatch"] is True
+    assert refusal(row, "update") == "remote-mismatch"
+
+
+def test_update_that_may_fetch_checks_the_remote_the_branch_tracks(
+    facts, submodule_repo
+):
+    make_target_not_local(submodule_repo)
+    sub_git(submodule_repo, "remote", "add", "other", "file:///elsewhere/lib")
+    sub_git(submodule_repo, "config", "branch.main.remote", "other")
+    row = row_of(facts(submodule_repo))
+    assert row["branch"] == "main"
+    assert row["fetch_mismatch"] is True
+    assert refusal(row, "update") == "remote-mismatch"
+
+
 def test_a_relative_gitmodules_url_is_not_compared_and_blocks_update(
     facts, submodule_repo
 ):

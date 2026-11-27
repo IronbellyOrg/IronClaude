@@ -15,7 +15,7 @@ Loaded for `add` and `commit`, together with `safety.md`. The checks, the lists 
 
 A commit with no path has no `--only` and no pathspec file, so that exactly the index the person staged is committed and no unstaged edit of a partly staged file is pulled in. No argv carries a token of the forbidden list in `safety.md`.
 
-The pathspec file holds the paths of `pathspec_file.content`, each ended by a NUL. Write it to `pathspec_file.path` with a Bash call such as `printf '%s\0' '<path1>' '<path2>' > <pathspec_file.path>`, quoting every path literally, then check that `sha256sum` of the file equals `pathspec_file.sha256`. A different hash means the file is wrong: stop and make no git call. Print the complete path list before the call. The message file is `message_path`.
+The pathspec file holds the paths of `pathspec_file.content`, each ended by a NUL. Write it to `pathspec_file.path` with a Bash call such as `set -C; printf '%s\0' '<path1>' '<path2>' > <pathspec_file.path>`, quoting every path literally. `set -C` (noclobber) makes the write fail when anything, a link included, already exists at that name, and the name carries a random token that another user of a shared temporary folder cannot guess. A failed write is a stop: make no git call. Then check that `sha256sum` of the file equals `pathspec_file.sha256`. A different hash means the file is wrong: stop and make no git call. Print the complete path list before the call. The message file is `message_path`.
 
 ## add
 

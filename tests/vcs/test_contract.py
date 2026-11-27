@@ -218,10 +218,17 @@ def test_every_verb_prints_one_sorted_json_line_with_the_envelope(commands, repo
 
 
 def test_two_runs_on_the_same_inputs_give_the_same_bytes(commands, repo):
+    # The temporary file names of a plan carry a random token (so another user cannot guess
+    # them); the rest is byte-identical.
+    def masked(text):
+        return re.sub(
+            r"(vcs-(?:message|pathspec)-[0-9a-f]{16})-[0-9a-f]{16}", r"\1-TOKEN", text
+        )
+
     for name, argv in commands.items():
         first, _ = result_of(name, argv, repo.work)
         second, _ = result_of(name, argv, repo.work)
-        assert first == second, name
+        assert masked(first) == masked(second), name
 
 
 def test_every_verb_carries_the_fields_the_design_lists(commands, repo):

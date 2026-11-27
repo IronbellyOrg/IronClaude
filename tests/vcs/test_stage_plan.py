@@ -42,6 +42,17 @@ def skipped_map(result):
     return {item["path"]: item["why"] for item in result["skipped"]}
 
 
+def masked(text):
+    """``text`` with the random token of the temporary file names removed.
+
+    ``message_path`` and the default pathspec file carry a random token, so that another
+    user of a shared temporary folder cannot guess the names; everything else in a plan is
+    byte-identical on the same inputs."""
+    return re.sub(
+        r"(vcs-(?:message|pathspec)-[0-9a-f]{16})-[0-9a-f]{16}", r"\1-TOKEN", text
+    )
+
+
 def pathspec_entries(result):
     content = result["pathspec_file"]["content"]
     assert content.endswith("\0")
@@ -70,7 +81,7 @@ def test_the_plan_is_deterministic_and_order_independent(repo, plan, vcs):
         repo.write(name, "x\n")
     first = plan(repo, *LITERAL_NAMES)
     second = plan(repo, *reversed(LITERAL_NAMES))
-    assert vcs.emit_text(first) == vcs.emit_text(second)
+    assert masked(vcs.emit_text(first)) == masked(vcs.emit_text(second))
 
 
 def test_repeated_and_dotted_forms_of_one_path_count_once(repo, plan):
@@ -496,10 +507,11 @@ def test_pathless_refuses_a_staged_gitlink(submodule_repo, plan):
     assert result["commit_argv"] == []
 
 
-def test_the_message_file_differs_between_two_worktrees_of_one_repository(
+def test_the_temp_file_names_differ_between_two_worktrees_and_between_calls(
     repo, plan, vcs, tmp_path
 ):
-    # Same HEAD, same staged path: only the work tree tells the two plans apart.
+    # Same HEAD, same staged path: the work tree is part of the digest in the name, and a
+    # random token makes every call's names unguessable (a planted symlink cannot hit them).
     other = tmp_path / "second-worktree"
     repo.git("worktree", "add", "-q", "--detach", str(other))
     repo.write("same.txt", "1\n")
@@ -510,8 +522,14 @@ def test_the_message_file_differs_between_two_worktrees_of_one_repository(
     second = vcs.run_stage_plan(str(other), None)
     assert first["commit_paths"] == second["commit_paths"] == ["same.txt"]
     assert first["head_before"] == second["head_before"]
-    assert first["message_path"] != second["message_path"]
-    assert plan(repo)["message_path"] == first["message_path"]  # still deterministic
+    name = re.compile(r"vcs-message-([0-9a-f]{16})-([0-9a-f]{16})\.txt$")
+    one, two = (name.search(p["message_path"]) for p in (first, second))
+    assert (
+        one and two and one.group(1) != two.group(1)
+    )  # the digest tells worktrees apart
+    again = name.search(plan(repo)["message_path"])
+    assert again and again.group(1) == one.group(1)  # same inputs, same digest
+    assert again.group(2) != one.group(2)  # but never the same name twice
 
 
 def test_pathless_on_a_repository_with_no_commit_yet(tmp_path, plan, vcs):
@@ -1070,7 +1088,7 @@ def test_candidate_builds_the_tree_and_writes_no_ref_or_index_entry(
             "src/b.py",
         ]
     again = s.plan(candidate=True)  # byte-identical on the same inputs
-    assert s.vcs.emit_text(again) == s.vcs.emit_text(result)
+    assert masked(s.vcs.emit_text(again)) == masked(s.vcs.emit_text(result))
 
 
 @pytest.mark.parametrize("managed", [False, True], ids=["legacy", "managed"])
@@ -1164,7 +1182,7 @@ def test_ledger_plans_are_deterministic_and_write_nothing(scene, repo):
     first = s.plan()
     before = refs_and_index(repo)
     again = s.plan()
-    assert s.vcs.emit_text(first) == s.vcs.emit_text(again)
+    assert masked(s.vcs.emit_text(first)) == masked(s.vcs.emit_text(again))
     assert refs_and_index(repo) == before
     assert not os.path.exists(first["pathspec_file"]["path"])  # the agent writes it
 

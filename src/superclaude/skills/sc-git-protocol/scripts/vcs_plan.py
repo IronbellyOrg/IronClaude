@@ -77,6 +77,7 @@ import hashlib
 import json
 import os
 import re
+import secrets
 import shlex
 import shutil
 import subprocess
@@ -1238,7 +1239,8 @@ def plan_stage(
     commit also refuses ``legacy-run-folder`` and ``gitlink``, because it commits the whole
     index).
     ``add_argv`` and ``commit_argv`` are the words after ``git``. Every list is sorted,
-    so the same inputs give the same result.
+    so the same inputs give the same lists; only the temporary file names (``message_path``
+    and the default pathspec file) differ between calls, by a random token.
 
     Ledger mode passes more: ``refusing`` (adds the directory entry), ``extra_paths``
     (the literal package expansion: joined to S as given, only the gitlink rule applies)
@@ -1312,7 +1314,9 @@ def plan_stage(
     real_top = os.path.realpath(top)
     if _under(temp, real_top):
         raise LookupFailed("the temporary folder is inside the work tree")
-    tag = _digest(commit_paths, head, real_top)
+    # The random token makes the names unguessable: another user of a shared temporary
+    # folder cannot plant a symlink at a name the agent is about to write.
+    tag = f"{_digest(commit_paths, head, real_top)}-{secrets.token_hex(8)}"
     message_path = os.path.join(temp, f"vcs-message-{tag}.txt")
     pathspec = None
     if pathful:

@@ -42,6 +42,12 @@ Derived columns (FR-040 to FR-044), added to every row after the facts:
     ``submodule init``). ``None`` when no url is configured, the initialized state is
     unknown or the two cannot be compared. A relative ``.gitmodules`` url is not compared
     (how git resolves it is not modelled; UNVERIFIED), so it is ``None``.
+  * ``url_configured``: whether ``submodule.<name>.url`` is set in the superproject config
+    (``None`` when it could not be asked). With a relative ``.gitmodules`` url the two are
+    not compared, so an uninitialized module that has one is refused as unverifiable.
+  * ``fetch_mismatch``: for an initialized module, whether ``origin`` (or the remote its
+    current branch tracks) has a url other than the ``.gitmodules`` url. ``submodule
+    update`` fetches a missing commit from there. ``None`` when unreadable or not compared.
   * ``index_gitlink``: the commit the index records for the path (stage 0), the one
     ``submodule update`` checks out; ``None`` when unmerged or unreadable. ``update`` is
     refused with ``pointer-staged`` when it differs from ``gitlink`` (HEAD).
@@ -311,6 +317,28 @@ def _remote_urls(git: GitRunner, path: str) -> Optional[Dict[str, str]]:
     return found
 
 
+def _fetch_mismatch(
+    git: GitRunner, path: str, branch: Optional[str], url: str
+) -> Optional[bool]:
+    """Whether a remote the module fetches from by default (``origin``, and the remote its
+    current branch tracks) has a url other than ``url``; ``None`` if that is unreadable.
+
+    ``submodule update`` runs a plain ``git fetch`` inside the module, so the module's own
+    remote decides where a missing commit comes from, not the superproject's url setting.
+    """
+    remotes = _remote_urls(git, path)
+    if remotes is None:
+        return None
+    names = {"origin"}
+    if branch:
+        rc, out = _read(git, ["config", "--get", f"branch.{branch}.remote"], path)
+        if rc == 0 and out.strip():
+            names.add(out.strip())
+        elif rc != 1:
+            return None
+    return any(name in remotes and remotes[name] != url for name in names)
+
+
 def _published(
     git: GitRunner, path: str, head: str, url: Optional[str]
 ) -> Tuple[Optional[bool], Optional[bool]]:
@@ -399,11 +427,20 @@ def _update_eligibility(row: Dict[str, Any]) -> Dict[str, Any]:
     if state == "uninitialized":
         if row["gitmodules_url"] is None:
             return no("gitmodules-url-unknown")
+        # A configured url the (relative) .gitmodules url cannot be compared with would
+        # be the clone source: not provably the one the person is shown.
+        if row["url_configured"] and row["remote_mismatch"] is None:
+            return no("remote-unverifiable")
         return {"ok": True, "reason": None, "needs_url": True}
     if row["remote_mismatch"] is None:
         return no("remote-unverifiable")
     # The module is clean here; no commit may be orphaned.
     if state == "target-not-local":
+        # git fetches inside the module, from its own remote.
+        if row["fetch_mismatch"] is None:
+            return no("remote-unverifiable")
+        if row["fetch_mismatch"]:
+            return no("remote-mismatch")
         if row["contained"] is None:
             return no("containment-unknown")
         if not row["contained"]:
@@ -463,16 +500,17 @@ def _derive(
         reasons.append("gitmodules-url-relative")
     row["gitmodules_url"] = _display_url(url)
 
-    mismatch = None
-    if (
-        row["initialized"] is not None
-        and name is not None
-        and url is not None
-        and not relative
-    ):
+    mismatch = configured = None
+    if row["initialized"] is not None and name is not None and url is not None:
         local = _config(git, f"submodule.{name}.url")
-        mismatch = None if local is None else local != url
+        configured = local is not None
+        if configured and not relative:
+            mismatch = local != url
     row["remote_mismatch"] = mismatch
+    row["url_configured"] = configured
+    row["fetch_mismatch"] = None
+    if row["initialized"] and url is not None and not relative:
+        row["fetch_mismatch"] = _fetch_mismatch(git, row["path"], row["branch"], url)
 
     row["has_gitmodules_remote"] = row["published"] = None
     if (
