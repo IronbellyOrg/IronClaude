@@ -330,8 +330,9 @@ def _remote_urls(git: GitRunner, path: str) -> Optional[Dict[str, str]]:
 def _fetch_mismatch(
     git: GitRunner, path: str, branch: Optional[str], url: str
 ) -> Optional[bool]:
-    """Whether a remote the module fetches from by default (``origin``, and the remote its
-    current branch tracks) has a url other than ``url``; ``None`` if that is unreadable.
+    """Whether a remote the module fetches from by default (``origin``, the remote its
+    current branch tracks, and the sole remote of a module that has only one) has a url
+    other than ``url``; ``None`` if that is unreadable.
 
     ``submodule update`` runs a plain ``git fetch`` inside the module, so the module's own
     remote decides where a missing commit comes from, not the superproject's url setting.
@@ -351,6 +352,10 @@ def _fetch_mismatch(
             names.add(tracked)
         elif rc != 1:
             return None
+    # With no tracked remote, a plain fetch also falls back to the one remote the module
+    # has, whatever its name.
+    if len(remotes) == 1:
+        names.update(remotes)
     return any(name in remotes and remotes[name] != url for name in names)
 
 

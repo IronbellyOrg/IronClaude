@@ -568,6 +568,17 @@ def test_an_update_that_may_fetch_is_refused_for_a_nested_module(facts, submodul
     assert refusal(row, "update") == "nested-not-inspected"
 
 
+def test_the_sole_non_origin_remote_is_the_one_a_plain_fetch_falls_back_to(
+    facts, submodule_repo
+):
+    make_target_not_local(submodule_repo)
+    sub_git(submodule_repo, "remote", "remove", "origin")
+    sub_git(submodule_repo, "remote", "add", "alt", "file:///elsewhere/lib")
+    row = row_of(facts(submodule_repo))
+    assert row["fetch_mismatch"] is True
+    assert refusal(row, "update") == "remote-mismatch"
+
+
 @pytest.mark.parametrize("name", ["evil'mod", "a\nb", "tab\there"])
 def test_a_path_that_could_end_the_shell_quoting_never_allows_a_write(
     facts, submodule_repo, name

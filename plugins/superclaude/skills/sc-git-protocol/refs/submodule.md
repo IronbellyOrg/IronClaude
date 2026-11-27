@@ -41,7 +41,7 @@ Line: `submodule update <path>... [--url <path>=<url>]...`. One line authorizes 
 
 | `reason` | What to tell the person |
 |---|---|
-| `remote-mismatch` | `submodule.<name>.url` in the repository config differs from `.gitmodules`, also for a module that is not yet cloned (`submodule init` keeps a url already configured, and the clone uses it), or, when git would fetch a missing commit, the module's own `origin` (or the remote its branch tracks) has a url other than `.gitmodules` (`fetch_mismatch`). Print `git submodule sync -- <path>` as advice for the person to run. Remotes are never substituted. |
+| `remote-mismatch` | `submodule.<name>.url` in the repository config differs from `.gitmodules`, also for a module that is not yet cloned (`submodule init` keeps a url already configured, and the clone uses it), or, when git would fetch a missing commit, the module's own `origin` (or the remote its branch tracks, or its only remote) has a url other than `.gitmodules` (`fetch_mismatch`). Print `git submodule sync -- <path>` as advice for the person to run. Remotes are never substituted. |
 | `pointer-staged` | the index records a different commit for the module than HEAD does (`index_gitlink` differs from `gitlink`), and `submodule update` checks out the index commit. Print `git restore --staged -- <path>` as advice for the person to run, or to commit the pointer first. |
 | `submodule-dirty` | the module has uncommitted changes; deal with them from inside it |
 | `conflict` | the module has a conflict |
