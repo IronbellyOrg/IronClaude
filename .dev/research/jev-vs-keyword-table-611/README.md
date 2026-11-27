@@ -56,7 +56,7 @@ takes `--root` (the experiment folder by default).
 7. **Freeze the rule:** `gate.py freeze-rule`. It refuses any `UNSET` value.
 8. **Re-confirm the price** on the vendor page and record it: `events.py price --usd-per-mtok <value> --source "<where it was read>"`.
 9. **Record the offline test run:** `gate.py record-tests` (it runs the test command above and stores the hash of every code file). When a run is scored, the code is compared with the record made before the run's first request; a record made after the run began is not used.
-10. **The lead's go**, naming the rule file's hash: `events.py go --words "<the lead's words>"`.
+10. **The lead's go**, naming the rule file's hash: `events.py go --words "<the lead's words>"`. It also records the gateway route (`GATEWAY_URL` in `harness/loader.py`); Gate 2 fails with `go_route` on a go that does not name that route, so the go of 27 Nov 04:26 UTC, given before the route changed, does not open the live run and a new go is needed.
 11. **Gate 2:** `gate.py gate2`. It fails on any missing step, any changed frozen file, a spend bound that does not fit, or a run already started.
 12. **Rehearse** (posts nothing, needs no gate and no key): `runner.py rehearse --out <a folder outside ledger/ and runs/>`.
 13. **The coordinator's live run:** `runner.py run --run-id <ID> --live`. It refuses a `--root` other than the experiment folder the code was loaded from (the files it hashes must be the code that runs), checks both gates itself and reads no environment variable before

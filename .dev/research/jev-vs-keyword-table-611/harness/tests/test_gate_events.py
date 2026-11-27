@@ -31,7 +31,7 @@ def ready(p, skip=(), price=0.042):
     if "tests" not in skip:
         gate.record_tests(p, runner=PASSING)
     if "go" not in skip:
-        events.append_event(p, "lead_go", evidence=p.rule, rule_sha256=loader.sha256_file(p.rule), words="go")
+        events.append_event(p, "lead_go", evidence=p.rule, rule_sha256=loader.sha256_file(p.rule), route=loader.GATEWAY_URL, words="go")
 
 
 def append_text(path, text="# edited\n"):
@@ -106,6 +106,16 @@ def test_gate2_refuses_a_go_that_names_an_old_rule_hash(exp):
     ready(exp)
     events.append_event(exp, "lead_go", rule_sha256="0" * 64, words="old")
     assert gate.gate2(exp) == ["go_rule_hash"]
+
+
+@pytest.mark.parametrize("route", [{}, {"route": "http://192.168.133.101:4000/cli/typesafe/v1/systemone"}, {"route": "https://api.typesafe.ai"}])
+def test_gate2_refuses_a_go_that_does_not_name_the_gateway_route(exp, route):
+    # the go of 27 Nov 04:26 UTC (given before the route changed) has no route field: it must not open the live run
+    ready(exp, skip=("go",))
+    events.append_event(exp, "lead_go", evidence=exp.rule, rule_sha256=loader.sha256_file(exp.rule), words="old go", **route)
+    assert gate.gate2(exp) == ["go_route"]
+    events.append_event(exp, "lead_go", evidence=exp.rule, rule_sha256=loader.sha256_file(exp.rule), route=loader.GATEWAY_URL, words="new go")
+    assert gate.gate2(exp) == []
 
 
 def test_gate2_refuses_an_unset_value(exp):
@@ -313,6 +323,7 @@ def test_the_three_event_commands_write_their_events(exp, tmp_path):
     assert got["owner_input_received"]["evidence_sha256"] == loader.sha256_file(note)
     assert got["price_confirmed"]["usd_per_mtok"] == 0.05
     assert got["lead_go"]["rule_sha256"] == loader.sha256_file(exp.rule) and got["lead_go"]["words"] == "go ahead"
+    assert got["lead_go"]["route"] == loader.GATEWAY_URL
     assert all(e["evidence"] and re.fullmatch(r"[0-9a-f]{64}", e["evidence_sha256"]) for e in got.values())
 
 

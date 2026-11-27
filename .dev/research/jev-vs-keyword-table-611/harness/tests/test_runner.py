@@ -65,7 +65,7 @@ def gated(exp):
     gate.freeze_rule(exp)
     events.append_event(exp, "price_confirmed", usd_per_mtok=0.042, source="test")
     gate.record_tests(exp, runner=PASSING)
-    events.append_event(exp, "lead_go", rule_sha256=loader.sha256_file(exp.rule), words="go")
+    events.append_event(exp, "lead_go", rule_sha256=loader.sha256_file(exp.rule), route=loader.GATEWAY_URL, words="go")
 
 
 # ---- one rerun per failed prompt (T-06)
@@ -351,7 +351,10 @@ def test_an_unexpected_error_still_writes_the_run_record_and_the_run_end_event(e
 
 def test_runner_holds_no_url_literal_and_posts_only_through_the_client():
     src = pathlib.Path(runner.__file__).read_text(encoding="utf-8")
-    # the one URL literal is the company gateway route; no vendor host and no other route
-    assert "https://" not in src and "typesafe.ai" not in src
-    assert [line for line in src.splitlines() if "http://" in line and not line.lstrip().startswith("#")] == [
+    # the runner holds no URL literal: its route is the loader's, the one URL literal, the company gateway route (the lead's go names it)
+    assert "https://" not in src and "typesafe.ai" not in src and "http://" not in src
+    assert runner.GATEWAY_URL is loader.GATEWAY_URL
+    lsrc = pathlib.Path(loader.__file__).read_text(encoding="utf-8")
+    assert "https://" not in lsrc and "typesafe.ai" not in lsrc
+    assert [line for line in lsrc.splitlines() if "http://" in line and not line.lstrip().startswith("#")] == [
         'GATEWAY_URL = "http://192.168.133.101:4000/typesafe/v1/systemone"']

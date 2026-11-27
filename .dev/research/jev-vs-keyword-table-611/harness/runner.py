@@ -38,8 +38,8 @@ from harness import events, gate, loader, spend  # noqa: E402
 SYSTEMIC = {("refused", "budget_exhausted"): "budget_exhausted", ("invalid", "model_mismatch"): "model_mismatch",
             ("refused", "dry_run"): "dry_run"}
 KEY_ENV_SOURCE = "LITELLM_API_KEY"      # the workspace gateway key (a virtual key); the TypeSafe vendor key is held by the gateway only
-# the gateway's native TypeSafe route, no /cli prefix (the prefixed path answers 404); see docs/docs-product/ops/jev-litellm-gateway-operational-guide.md
-GATEWAY_URL = "http://192.168.133.101:4000/typesafe/v1/systemone"
+# the gateway's native TypeSafe route (``loader.GATEWAY_URL``, which the lead's go must name); see docs/docs-product/ops/jev-litellm-gateway-operational-guide.md
+GATEWAY_URL = loader.GATEWAY_URL
 
 
 @contextlib.contextmanager

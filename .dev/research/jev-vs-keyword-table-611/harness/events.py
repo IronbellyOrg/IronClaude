@@ -106,7 +106,8 @@ def main(argv=None):
     else:
         if not paths.rule.is_file():
             ap.error("no rule file to name in the go")
-        rec = append_event(paths, "lead_go", evidence=paths.rule, rule_sha256=loader.sha256_file(paths.rule), words=args.words)
+        rec = append_event(paths, "lead_go", evidence=paths.rule, rule_sha256=loader.sha256_file(paths.rule), route=loader.GATEWAY_URL,
+                           words=args.words)
     print(json.dumps(rec, sort_keys=True))
     return 0
 
