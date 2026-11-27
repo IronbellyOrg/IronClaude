@@ -1,0 +1,55 @@
+{
+ "schema": "rl-values/1",
+ "status": "planning",
+ "note": "Every value in this file is a planning value (UNVERIFIED), from DESIGN 5.4 and 10. A measured value is recorded next to its planning value, never over it.",
+ "b": {
+  "primary": {
+   "TASK-WF-designSpec-20261107-075614": 100,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 120,
+   "TASK-WF-design-20261108-041415": 122
+  },
+  "haiku": {
+   "TASK-WF-designSpec-20261107-075614": 220,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 238,
+   "TASK-WF-design-20261108-041415": 226
+  },
+  "sonnet": {
+   "TASK-WF-designSpec-20261107-075614": 259,
+   "TASK-WF-makeTheAliasOnly-20261105-051649": 302,
+   "TASK-WF-design-20261108-041415": 269
+  }
+ },
+ "c": {
+  "muse-ember-1.0": 0.4,
+  "gpt-6-luna": 2,
+  "claude-haiku-5-5": 4,
+  "claude-sonnet-5-5": 3
+ },
+ "row_cap": {
+  "fixed_s": 6,
+  "share": 0.35,
+  "hard_cap": 14
+ },
+ "overhead_s": {
+  "primary": 28,
+  "haiku": 30,
+  "sonnet": 30
+ },
+ "reask": {
+  "fixed_s": 30,
+  "factor": 1.35
+ },
+ "spike": {
+  "runs": 5,
+  "baseline_runs": 4,
+  "c_luna": 2.278,
+  "median_rl_s": 133.04,
+  "median_z0_s": 98.51650000000001,
+  "mean_rows": 13.4,
+  "reading_s": 4,
+  "rid": "t4-1",
+  "doc": "TASK-WF-designSpec-20261107-075614",
+  "panel": "primary",
+  "date": "2026-11-15"
+ }
+}

@@ -8,6 +8,8 @@ import shutil
 from pathlib import Path
 from typing import List, Tuple
 
+from .install_keep import backup_if_differs
+
 # Files to exclude from installation
 _EXCLUDE_FILES = {"README.md", "__init__.py"}
 
@@ -43,6 +45,7 @@ def install_agents(target_path: Path = None, force: bool = False) -> Tuple[bool,
     installed = []
     skipped = []
     failed = []
+    backed_up = []
 
     for agent_file in agent_files:
         target_file = target_path / agent_file.name
@@ -50,6 +53,18 @@ def install_agents(target_path: Path = None, force: bool = False) -> Tuple[bool,
 
         if target_file.exists() and not force:
             skipped.append(agent_name)
+            continue
+
+        # A forced overwrite first saves a differing file next to itself
+        try:
+            if target_file.exists():
+                backup = backup_if_differs(agent_file, target_file)
+                if backup is not None:
+                    backed_up.append(str(backup))
+        except OSError as e:
+            failed.append(
+                f"{agent_name}: could not save a copy first, left untouched ({e})"
+            )
             continue
 
         try:
@@ -71,6 +86,13 @@ def install_agents(target_path: Path = None, force: bool = False) -> Tuple[bool,
         )
         for name in skipped:
             messages.append(f"   - {name}")
+
+    if backed_up:
+        messages.append(
+            f"\n💾 Saved {len(backed_up)} changed agent(s) before overwriting:"
+        )
+        for path in backed_up:
+            messages.append(f"   - {path}")
 
     if failed:
         messages.append(f"\n❌ Failed to install {len(failed)} agents:")

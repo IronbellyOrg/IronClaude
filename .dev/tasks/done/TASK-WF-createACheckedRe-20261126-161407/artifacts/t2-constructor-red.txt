@@ -1,0 +1,31 @@
+================================================= test session starts ==================================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0 -- /opt/uv/tools/superclaude/bin/python
+cachedir: .pytest_cache
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 52 items / 50 deselected / 2 selected
+
+tests/swarm/test_resume_crash_recovery.py::test_resume_constructor_failure_preserves_prior_attempt[True] FAILED  [ 50%]
+tests/swarm/test_resume_crash_recovery.py::test_resume_constructor_failure_preserves_prior_attempt[False] FAILED [100%]
+
+======================================================= FAILURES =======================================================
+____________________________ test_resume_constructor_failure_preserves_prior_attempt[True] _____________________________
+tests/swarm/test_resume_crash_recovery.py:994: in test_resume_constructor_failure_preserves_prior_attempt
+    assert result.exit_code != EXIT_OK
+E   assert 0 != 0
+E    +  where 0 = <Result okay>.exit_code
+____________________________ test_resume_constructor_failure_preserves_prior_attempt[False] ____________________________
+tests/swarm/test_resume_crash_recovery.py:994: in test_resume_constructor_failure_preserves_prior_attempt
+    assert result.exit_code != EXIT_OK
+E   assert 0 != 0
+E    +  where 0 = <Result okay>.exit_code
+=============================================== short test summary info ================================================
+FAILED tests/swarm/test_resume_crash_recovery.py::test_resume_constructor_failure_preserves_prior_attempt[True] - assert 0 != 0
+ +  where 0 = <Result okay>.exit_code
+FAILED tests/swarm/test_resume_crash_recovery.py::test_resume_constructor_failure_preserves_prior_attempt[False] - assert 0 != 0
+ +  where 0 = <Result okay>.exit_code
+=========================================== 2 failed, 50 deselected in 0.62s ===========================================
+
+exit_code=1

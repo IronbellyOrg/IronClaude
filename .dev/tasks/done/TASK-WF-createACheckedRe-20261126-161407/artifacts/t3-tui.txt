@@ -1,0 +1,28 @@
+================================================= test session starts ==================================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0 -- /opt/uv/tools/superclaude/bin/python
+cachedir: .pytest_cache
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 14 items
+
+tests/swarm/test_run_tui_integration.py::test_fr3_tui_detached_rejected PASSED                                   [  7%]
+tests/swarm/test_run_tui_integration.py::test_fr3_resume_tui_rejected_without_entering_tui_loop PASSED           [ 14%]
+tests/swarm/test_run_tui_integration.py::test_fr1_tui_update_only_runs_on_main_thread PASSED                     [ 21%]
+tests/swarm/test_run_tui_integration.py::test_fr2_tui_is_noop_on_non_tty PASSED                                  [ 28%]
+tests/swarm/test_run_tui_integration.py::test_tui_real_pty_no_crash_under_concurrent_worker_stdout PASSED        [ 35%]
+tests/swarm/test_run_tui_integration.py::test_fr5_worker_exception_reraised_unmasked_after_stop PASSED           [ 42%]
+tests/swarm/test_run_tui_integration.py::test_drift3_reader_error_does_not_mask_worker_crash PASSED              [ 50%]
+tests/swarm/test_run_tui_integration.py::test_drift4_sigint_does_not_mask_worker_crash PASSED                    [ 57%]
+tests/swarm/test_run_tui_integration.py::test_tui_init_error_does_not_mask_worker_crash PASSED                   [ 64%]
+tests/swarm/test_run_tui_integration.py::test_tui_init_error_surfaces_when_no_worker_crash PASSED                [ 71%]
+tests/swarm/test_run_tui_integration.py::test_fr6_stop_runs_on_all_three_exit_paths PASSED                       [ 78%]
+tests/swarm/test_run_tui_integration.py::test_fr7_forced_tty_run_drives_dashboard_from_tailed_log PASSED         [ 85%]
+tests/swarm/test_run_tui_integration.py::test_fr4_render_ceiling_bounds_spin_without_truncating_worker PASSED    [ 92%]
+tests/swarm/test_run_tui_integration.py::test_frozen_signatures_unchanged PASSED                                 [100%]
+
+================================================== 14 passed in 2.69s ==================================================
+
+exit_code=0
+Command: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-project /opt/uv/tools/superclaude/bin/python -m pytest tests/swarm/test_run_tui_integration.py -vv

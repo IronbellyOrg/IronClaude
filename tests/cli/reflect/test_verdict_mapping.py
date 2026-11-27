@@ -657,3 +657,18 @@ def test_graph_tokens_do_not_halt() -> None:
     assert result.verdict.exit_code == baseline.verdict.exit_code == 0
     assert result.reason == baseline.reason
     assert not [t for t in _DEGRADED_COMPONENTS_HALT_SET if t.startswith("graph:")]
+
+
+def test_both_pointers_keep_the_plan_pointer_and_drop_the_retired_attribute() -> None:
+    """The plan pointer survives; the write-only task pointer attribute is gone.
+
+    ``autofixable_drift_both.yaml`` has ``status: partial`` and both pointer keys.
+    """
+    contract = _load("autofixable_drift_both.yaml")
+    result = derive_verdict(
+        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result.verdict is Verdict.HALTED
+    assert result.verdict.exit_code == 10
+    assert result.remediation_plan_path == contract["remediation_plan_path"]
+    assert not hasattr(result, "remediation_task_path")

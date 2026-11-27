@@ -1,0 +1,13 @@
+== keeps no backup ==
+0
+== literal angle brackets in card ==
+0
+== outside skills ==
+outside <code>~/.claude/skills/</code>
+== diff stat ==
+ docs/onboarding/ironclaude-onboarding.html | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+== pytest ==
+tests/docs/test_onboarding_deck.py ...                                   [100%]
+
+============================== 3 passed in 0.06s ===============================

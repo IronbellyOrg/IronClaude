@@ -1,0 +1,15 @@
+d3882935c4821173ac0f11327bd180eb9bb2e1bb
+--- t6-test.log
+tests/docs/test_branch_protection_rulesets.py::test_branch_rulesets[protect-master-refs/heads/master] PASSED [ 97%]
+tests/docs/test_branch_protection_rulesets.py::test_branch_rulesets[protect-integration-refs/heads/integration] PASSED [ 97%]
+tests/docs/test_branch_protection_rulesets.py::test_tag_ruleset PASSED   [ 98%]
+tests/docs/test_branch_protection_rulesets.py::test_no_default_branch_token_anywhere PASSED [ 99%]
+tests/docs/test_branch_protection_rulesets.py::test_guide_has_apply_and_check_commands PASSED [100%]
+
+============================= 141 passed in 0.50s ==============================
+rc=0
+--- t6-ruff.log
+All checks passed!
+rc=0
+9 files already formatted
+rc=0

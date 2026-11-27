@@ -1,0 +1,23 @@
+== AC1: remaining no copy/without a copy lines in 38-110 ==
+8:| Commands (`commands/sc/`), rules (`rules/`), output styles (`output-styles/`), core files (`CLAUDE.md`, `RULES.md` and the other core `.md` files), agents (`agents/`) and templates (`templates/`) | A copy is saved next to it as `<name>.bak.<UTC time>` (for example `analyze.md.bak.20261118T170151Z`) before the file is overwritten. See [Saved copies](#saved-copies-of-changed-files). Releases 6.1.0 and earlier overwrite core files, agents and templates with no copy. |
+9:| Skill folders (`skills/`) and hook scripts (`hooks/`) | Overwritten with no copy. Each shipped skill folder is deleted and copied again, so any file you added inside one is lost. |
+68:   overwrite core files, agents and templates with no copy.
+== AC1: 6.1.0 qualifier ==
+45:| Commands (`commands/sc/`), rules (`rules/`), output styles (`output-styles/`), core files (`CLAUDE.md`, `RULES.md` and the other core `.md` files), agents (`agents/`) and templates (`templates/`) | A copy is saved next to it as `<name>.bak.<UTC time>` (for example `analyze.md.bak.20261118T170151Z`) before the file is overwritten. See [Saved copies](#saved-copies-of-changed-files). Releases 6.1.0 and earlier overwrite core files, agents and templates with no copy. |
+104:   is saved as `<name>.bak.<UTC time>` first. Releases 6.1.0 and earlier
+== AC2: title and pin ==
+# Upgrading to IronClaude 6.0.0
+67:`git+https://github.com/IronbellyOrg/IronClaude@v6.0.0` in the first command.
+(no title/pin diff lines above = unchanged)
+== AC3: table cells per row ==
+2 cells
+2 cells
+2 cells
+2 cells
+2 cells
+| `settings.json` | Backed up as `settings.json.bak.<timesta
+== changed hunks ==
+@@ -45,2 +45,2 @@ your edited copy is saved first depends on the kind of file:
+@@ -49 +49,3 @@ your edited copy is saved first depends on the kind of file:
+@@ -52,2 +54 @@ Copy anything you changed in the second row first, for example:
+@@ -101,3 +102,4 @@ without `pipx` it stops at that first command (exit 127). Install pipx with

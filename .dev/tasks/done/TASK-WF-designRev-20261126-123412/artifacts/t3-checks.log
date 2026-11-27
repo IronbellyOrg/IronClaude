@@ -1,0 +1,11 @@
+# T3 checks (run 2026-11-26T12:47:53Z)
+## git diff --numstat <base> -- CONTRIBUTING.md (added, deleted):
+2	0	CONTRIBUTING.md
+## added non-blank lines:
++New team members: to propose or change a skill, command or agent, file an issue first and do not open a pull request that changes one yet. See [HOW-WE-WORK, section 4](src/superclaude/core/HOW-WE-WORK.md#4-rules-everyone-follows).
+## placement (heading, new paragraph, next heading):
+75:### Claiming and filing issues
+79:New team members: to propose or change a skill, command or agent, file an iss
+81:### Disclaimer: social convention, not a CI-enforced gate
+## link target exists:
+exists src/superclaude/core/HOW-WE-WORK.md

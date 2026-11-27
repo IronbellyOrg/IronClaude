@@ -1,0 +1,6 @@
+10ea9be71d8508604f2274c380e34f5901dbe417
+A1 r1-1 F1.1 minor .dev/research/jev-vs-keyword-table-611/harness/scorer.py:193 ac=scope n,n,n,n the disagreement list keeps only prompts whose Jev and table answers differ, so an errored Jev row on an ambiguous or none-fit prompt (both answers unset, table right) counts in c but is not listed.
+A1 r1-1 F1.2 minor .dev/research/jev-vs-keyword-table-611/harness/scorer.py:223 ac=scope n,n,n,n unresolved_failure_invalid_count is read as the count at which a run becomes invalid (>=); an owner value of 0 meaning no failures allowed would make every run invalid; the value is still UNSET and is reported to the lead.
+A1 r1-1 F1.3 minor .dev/research/jev-vs-keyword-table-611/harness/tests/test_scorer_report.py:248 ac=T5.AC6 n,n,n,n the stand-in test checks three exact key-value strings only; the operator stand-ins and prepare's count are not checked.
+A1 r1-1 F1.4 note .dev/research/jev-vs-keyword-table-611/harness/scorer.py:353 ac=scope n,n,n,n run_meta does not hold the returned models or the unresolved-failure count; the scorer derives both from the result.
+A1 r1-1 F1.5 note .dev/research/jev-vs-keyword-table-611/harness/scorer.py:359 ac=scope n,n,n,n runner.py is not written yet; Task 6 must write run_id, reason and spent_usd on run_end and the row keys named in the scorer docstring.

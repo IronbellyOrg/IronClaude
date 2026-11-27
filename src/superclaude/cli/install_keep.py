@@ -2,9 +2,11 @@
 
 ``install`` keeps an existing file, so a kept file that differs from this
 version's copy is stale or customized and should be named in the report.
-``install --force`` and ``update`` overwrite, so a differing file is saved
-next to itself first (``<name>.bak.<UTC stamp>``, which Claude Code does not
-load) and the overwrite is skipped when that save fails.
+``install --force`` and ``update`` overwrite, so the commands, rules,
+output-styles, core, agent and template installers first save a differing file
+next to itself (``<name>.bak.<UTC stamp>``, which Claude Code does not load) and
+skip the overwrite when that save fails. Skill folders and hook scripts do not
+use this helper: they are overwritten with no copy.
 """
 
 from __future__ import annotations

@@ -1,0 +1,4 @@
+standard-additions-only	standard	feature	cli	0	1	-	Feature: make `superclaude install` print, as its last line, how many skills it copied.
+standard-contradiction	standard	bug	skill	1	1	-	Bug: `/sc:issue --create` crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` when the description is empty.
+standard-multi-contradiction	standard	bug	skill	1	1	-	Bug: `/sc:issue --create` crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` when the description is empty, and the crash is written to the log by `src/superclaude/skills/sc-issue-protocol/scripts/issue_logger.py`.
+standard-flag-preserved	standard	bug	cli	0	1	1	Make `superclaude install` print, as its last line, how many skills it copied.

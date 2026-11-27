@@ -1,0 +1,1 @@
+Implement the design in .dev/pr-submit-codex/design/pr-submit-codex-design.md: make /sc:pr-submit handle Codex review threads like Augment. Code: src/superclaude/commands/pr-submit.md, src/superclaude/skills/sc-pr-submit-protocol/, plugins/superclaude mirrors, tests/pr_submit/

@@ -230,6 +230,60 @@ def test_existing_superseded_gets_no_second_item(repo, word):
     assert out == contract
 
 
+@pytest.mark.parametrize("superseded_by", ["none", NEW])
+@pytest.mark.parametrize(
+    "tail",
+    [
+        # another package's "superseded" mentioned mid-sentence in an unresolved item
+        'unresolved:\n  - "Written for X; another package is superseded."\nhandoff: none\n',
+        # only the superseded_by key, no warning item
+        "superseded_by: other-id\nhandoff: none\n",
+    ],
+)
+def test_unrelated_superseded_mention_still_gets_the_warning(repo, tail, superseded_by):
+    contract = BASE_CONTRACT + tail
+    pkg = make_pkg(repo, contract)
+    rm.archive(repo, pkg, superseded_by)
+    out = (repo / ".dev/tasks/archive" / OLD / "return-contract.yaml").read_text()
+    assert len(re.findall(r'^\s*- "SUPERSEDED', out, re.M)) == 1
+    keys = top_keys(out)
+    assert len(keys) == len(set(keys))
+    rm.restore(repo, OLD)
+    back = repo / ".dev/tasks/to-do" / OLD / "return-contract.yaml"
+    assert back.read_text() == contract
+
+
+def test_inline_list_warning_gets_no_second_item(repo):
+    contract = BASE_CONTRACT + 'unresolved: ["SUPERSEDED by hand", "x"]\n'
+    pkg = make_pkg(repo, contract)
+    rm.archive(repo, pkg, "none")
+    out = (repo / ".dev/tasks/archive" / OLD / "return-contract.yaml").read_text()
+    assert out == contract
+
+
+def test_single_quoted_inline_warning_with_doubled_quote_gets_no_second_item(repo):
+    # YAML escapes a quote inside a single-quoted item by doubling it
+    contract = BASE_CONTRACT + "unresolved: ['SUPERSEDED by an owner''s migration']\n"
+    pkg = make_pkg(repo, contract)
+    rm.archive(repo, pkg, "none")
+    out = (repo / ".dev/tasks/archive" / OLD / "return-contract.yaml").read_text()
+    assert out == contract
+
+
+def test_comma_inside_one_quoted_inline_item_is_not_a_warning(repo):
+    # one item whose text contains ", superseded": not a second item, not a warning
+    contract = (
+        BASE_CONTRACT + 'unresolved: ["unrelated, superseded by another package"]\n'
+    )
+    pkg = make_pkg(repo, contract)
+    rm.archive(repo, pkg, "none")
+    out = (repo / ".dev/tasks/archive" / OLD / "return-contract.yaml").read_text()
+    assert out.count("SUPERSEDED") == 1
+    rm.restore(repo, OLD)
+    back = repo / ".dev/tasks/to-do" / OLD / "return-contract.yaml"
+    assert back.read_text() == contract
+
+
 @pytest.mark.parametrize(
     "tail",
     [
@@ -348,6 +402,24 @@ def test_place_fails_when_leaf_missing_or_not_empty(repo, tmp_path):
     with pytest.raises(rm.RemediateError) as e:
         rm.place(repo, OLD, new, str(copy), COUNTS, rev)
     assert e.value.code == "E-REMEDIATE-LEAF"
+
+
+def test_place_refuses_while_old_package_is_still_in_to_do(repo, tmp_path):
+    pkg = make_pkg(repo)
+    tasks = repo / ".dev/tasks"
+    plan_sha, contract = (
+        sha(pkg / f"{OLD}.md"),
+        (pkg / "return-contract.yaml").read_text(),
+    )
+    new = rm.reserve(repo, OLD, now=STAMP)
+    _, copy = repaired_copy(repo, new=new)
+    with pytest.raises(rm.RemediateError) as e:  # no rm.archive call
+        rm.place(repo, OLD, new, str(copy), COUNTS, str(review_file(tmp_path)))
+    assert e.value.code == "E-REMEDIATE-SOURCE"
+    assert sha(pkg / f"{OLD}.md") == plan_sha
+    assert (pkg / "return-contract.yaml").read_text() == contract
+    assert not (tasks / "archive").exists() or not os.listdir(tasks / "archive")
+    assert os.listdir(tasks / "to-do" / new) == []
 
 
 def test_archive_never_overwrites_existing_destination(repo):

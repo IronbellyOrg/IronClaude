@@ -1,0 +1,6 @@
+== grep in place
+== sentence
+Wave 4R repairs blocking findings surgically on a copy and places the repaired plan as a new package that supersedes the old one, or regenerates the plan as a new package that supersedes the old one.
+== tests
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 361 passed, 5 warnings in 48.21s =======================

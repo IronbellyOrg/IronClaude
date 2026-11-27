@@ -1,0 +1,6 @@
+Observed parent command results after canonical edit:
+make sync-dev: exit_code=0
+make verify-sync: exit_code=0
+Parent tool output: sync-dev=0 verify-sync=0
+Canonical and development-mirror SKILL.md sha256 both f2447e0e1b11b2cad84c76a93cac92cde990cdadac3e1bad49b2a0ea453e1dd3
+Installed user-wide SKILL.md unchanged sha256 2ccfe203908fa4558f3883e8a536417c82f31b16b27cad486a4a405a1a410ab9

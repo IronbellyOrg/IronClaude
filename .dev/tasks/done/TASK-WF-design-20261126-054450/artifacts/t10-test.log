@@ -1,0 +1,41 @@
+$ make sync-dev   (gitignored .claude/ mirrors; never staged)
+   Commands:  36 files
+   Hooks:     17 files
+   Templates: 52 files
+git status --porcelain -- .claude: []
+
+$ uv run pytest -p no:cacheprovider tests/cli/test_update_command.py -q
+tests/cli/test_update_command.py ................................        [100%]
+
+============================== 32 passed in 2.54s ==============================
+
+$ uv run pytest -p no:cacheprovider tests/cli/test_install_keep.py tests/cli/test_update_command.py tests/cli/test_install_failures.py tests/cli/test_how_we_work_install.py tests/commands/test_routing_plugin_parity.py tests/docs/test_onboarding_deck.py tests/unit/test_cli_install.py -q
+.....................................................                    [100%]
+
+============================= 198 passed in 4.19s ==============================
+
+$ uv run pytest -p no:cacheprovider tests/cli tests/unit -q
+  /home/coder/workspaces/worktrees/IronClaude/issue-676/tests/cli/reflect/test_contract_status_cli.py:157: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_validate_output_redacts_raw_payload_body
+  /home/coder/workspaces/worktrees/IronClaude/issue-676/tests/cli/reflect/test_contract_status_cli.py:259: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem() as fs:
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_passes_on_real_adapter_module
+====== 2 failed, 3295 passed, 7 skipped, 5 warnings in 501.43s (0:08:21) =======
+
+NOTE: the two failures above are environmental (.venv/bin/python: No module named ruff, raised by tests/cli/eval/test_claude_process_adapter.py::test_ruff_*; neither file is touched by this change). Fix: uv pip install ruff (dev dependency of the project; no repo file changes).
+$ uv run pytest -p no:cacheprovider tests/cli/eval/test_claude_process_adapter.py -q
+
+============================== 13 passed in 1.11s ==============================
+
+== Re-record of T10.AC3 at the end state (appended 2026-11-26 after the FINAL review; the operator approved it in the conversation) ==
+Same command as T10.AC3, run in full after every file change of the run, as part of the Task 20 gate (output file /tmp/impl676/t20-cli-unit.log, also summarised in ./artifacts/t20-test.log:62-66).
+$ uv run pytest tests/cli tests/unit -q -p no:cacheprovider   (ruff was installed in the venv before this run)
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========== 3297 passed, 7 skipped, 5 warnings in 499.76s (0:08:19) ============
+exit=0

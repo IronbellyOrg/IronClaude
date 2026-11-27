@@ -1,0 +1,15 @@
+Manual classification acceptance
+Scope: namespaced checkout-skill, complete Wave0 only. Not default installed command resolution; not end-to-end diagnostic agents.
+
+Consumed copy and integrity
+Actual registration: issue610-check:sc-troubleshoot-protocol, observed in stream init and four Skill calls. Fixture classification-plugin/skills/sc-troubleshoot-protocol is byte-identical to canonical source; all file and tree manifests in consumed-hashes.json match. Canonical/mirror SKILL.md hash f2447e0e1b11b2cad84c76a93cac92cde990cdadac3e1bad49b2a0ea453e1dd3; global install stayed old. Launch prompt supplied no expected type and no --type override. classification-launch-2.json has actual argv/cwd; classification-stream-2.jsonl retains tool calls and loaded content. Runtime timestamps in audit were provided by caller. Registered id matches folder-based plan name, resolving re-review's uncertainty.
+
+Observed classification
+classification-exact/audit.log:2-3,16-24: exact ccsession issue, --type absent, type performance, emitted Wave 0 complete: type=performance depth=quick. classification-forever/audit.log:2-3,15-23 and classification-hangs/audit.log:2-3,15-23 also performance. classification-leak/audit.log:15-23 keeps type unset (header auto), both rows match and all specialties including security remain candidates.
+All four actual Skill calls and Write outputs occurred in fresh print session. Parent assertions checked4 calls, no --type args, identical source/copy bytes and all4 audits/completions. First launch exit1: invalid MCP config and variadic prompt parsing; stderr retained. Corrected launch created all four audits and emitted all results, then process returned exit1/error_max_budget_usd at configured $3 limit. It is NOT a clean CLI process pass; the acceptance evidence is the completed bounded Wave0 observations before termination. No permission denials, no diagnostic agents or later waves, no Jev/network tool call.
+
+Related tests and synchronization
+PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/troubleshoot/ -q: 404 passed in16.86s, exit0, pytest.log:59 and pytest-exit.txt:1. make sync-dev and make verify-sync exit0; logs and sync-exit.txt retained. No dedicated phrase-table test found by bounded inspection, so no new matcher/testing system added.
+
+Issue record
+Observed result, leak rationale, honest run limitations and successful synchronization posted to https://github.com/IronbellyOrg/IronClaude/issues/610#issuecomment-7191635950; URL also retained in issue-comment.url. No .dev/issues files staged.

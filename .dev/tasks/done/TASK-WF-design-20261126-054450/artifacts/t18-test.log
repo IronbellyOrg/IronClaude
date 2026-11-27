@@ -1,0 +1,30 @@
+== AC1: six categories line ==
+340:command, rule, output-style, core, agent and template file that differs from the
+== AC1: no copy lines in 337-380 (each must name skill folders/hook scripts) ==
+19:- **Not covered.** Skill folders and hook scripts get no copy (see Step 1).
+== AC1: ls -t head -1 (expect none) ==
+== AC2: find commands ==
+373:  find ~/.claude/commands/sc ~/.claude/rules ~/.claude/output-styles ~/.claude/agents ~/.claude/templates -name '*.bak.*'
+374:  find ~/.claude/commands/sc ~/.claude/rules ~/.claude/output-styles ~/.claude/agents ~/.claude/templates -name '*.bak.*' -delete
+375:  find ~/.claude -maxdepth 1 -name '*.md.bak.*'
+376:  find ~/.claude -maxdepth 1 -name '*.md.bak.*' -delete
+== AC2: any *.bak.* search of the root (expect none) ==
+== AC3: heading ==
+337:### Saved copies of changed files
+== changed hunks ==
+@@ -45,2 +45,2 @@ your edited copy is saved first depends on the kind of file:
+@@ -49 +49,3 @@ your edited copy is saved first depends on the kind of file:
+@@ -52,2 +54 @@ Copy anything you changed in the second row first, for example:
+@@ -101,3 +102,4 @@ without `pipx` it stops at that first command (exit 127). Install pipx with
+@@ -338,4 +340,5 @@ disappear from them.
+@@ -344,2 +347,5 @@ file(s)` and `output style(s)`).
+@@ -348,5 +354,5 @@ file(s)` and `output style(s)`).
+@@ -354 +360,7 @@ file(s)` and `output style(s)`).
+@@ -356 +368,3 @@ file(s)` and `output style(s)`).
+@@ -359,2 +373,4 @@ file(s)` and `output style(s)`).
+@@ -364 +380,2 @@ file(s)` and `output style(s)`).
+== installer nouns (source) ==
+92:            f"\n💾 Saved {len(backed_up)} changed agent(s) before overwriting:"
+110:            f"\n💾 Saved {len(backed_up)} changed command(s) before overwriting:"
+124:            f"\n💾 Saved {len(backed_up)} changed core file(s) before overwriting:"
+108:            f"\n💾 Saved {len(backed_up)} changed template(s) before overwriting:"

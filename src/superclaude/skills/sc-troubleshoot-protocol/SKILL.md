@@ -152,11 +152,11 @@ Each wave has explicit entry/exit criteria. Refs are loaded per-wave, never pre-
 2. Auto-detect `--type` if not provided. Use keyword + structural cues from the issue description:
    - Stack trace, exception name, `undefined`/`null`/`NameError` → `bug`
    - "tsc", "ts(", "compiled", "lint", "build", `make`, CI log fragments → `build`
-   - "slow", "latency", "p99", "memory", "leak", profiler output → `performance`
+   - "slow", "latency", "p99", "memory", "leak", "too long to load", "takes forever", "hangs", profiler output → `performance`
    - "production", "deploy", "container", "env var", "service won't start" → `deployment`
    - "auth", "token", "leak", "exposed", "CVE", "vulnerab" → `security`
    - "pytest", "jest", "flake", "intermittent", "passing locally" → `test`
-   - On ambiguity, leave `--type` unset and treat all agent specialties as candidates for Tier 2.
+   - On ambiguity, leave `--type` unset and treat all agent specialties as candidates for Tier 2. Keep "leak" in both rows: it can mean resource leakage or sensitive-data disclosure, so ambiguous leak reports must not discard security candidates.
 3. Resolve `--scope` to a concrete path/symbol. If given, narrow auggie/codegraph queries and Grep/Read lookups to that target.
 4. Compute output slug: `<type-or-untyped>-<first-5-words-of-issue-or-scope>-<YYYYMMDDHHMMSS>` and create `<output-dir>/`.
 5. Open audit log; emit machine-readable header:

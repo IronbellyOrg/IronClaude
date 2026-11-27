@@ -1,0 +1,11 @@
+merge_method: adversarial
+verdict: FAIL
+convergence_score: 1.0           # diff-point agreement after Round 2; convergence BLOCKED_BY_INVARIANTS (not declared)
+convergence_status: BLOCKED_BY_INVARIANTS
+base_variant: "sonnet:qa (reviewer 2 card)"
+source_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+merged_output_path: adversarial/merged-output.md
+finding_counts: {blocking: 6, label_high: 3, medium: 9, note: 12}
+unaddressed_invariants: [INV-001, INV-002, INV-006]

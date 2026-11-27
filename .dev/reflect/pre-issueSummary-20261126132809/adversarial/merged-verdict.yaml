@@ -1,0 +1,36 @@
+# Written by the reflect orchestrator from the adversarial return contract and the merged card.
+# Every value below is copied from those two files; nothing is invented.
+# Sources: adversarial/adversarial/return-contract.yaml and adversarial/merged-reviewer-card.md
+merge_method: adversarial
+adversarial_unavailable: false
+status: partial                      # return-contract.yaml: the invariant gate blocked convergence and four HIGH probe items stay open
+convergence_score: 0.94              # return-contract.yaml
+convergence_routing: PASS            # protocol routing: >= 0.75 PASS (status stays partial because of the invariant gate)
+base_variant: "opus:qa"              # return-contract.yaml (reviewer-2-card)
+merged_output_path: .dev/reflect/pre-issueSummary-20261126132809/adversarial/merged-reviewer-card.md
+artifacts_dir: .dev/reflect/pre-issueSummary-20261126132809/adversarial/adversarial
+unresolved_conflicts: 3              # return-contract.yaml: C-004, C-005, C-006 (grade dissent from the Round 2.5 fault-finder)
+unaddressed_invariants: [INV-001, INV-002, INV-008, INV-011]   # return-contract.yaml (HIGH, left open after Round 2.5)
+source_cards:
+  - .dev/reflect/pre-issueSummary-20261126132809/reviewer-cards/reviewer-1-card.md
+  - .dev/reflect/pre-issueSummary-20261126132809/reviewer-cards/reviewer-2-card.md
+finding_counts: {blocking: 3, medium: 10, note: 5}   # merged-reviewer-card.md last line
+merged_findings:                     # id, final grade, plan location (merged-reviewer-card.md table)
+  - {id: M-01, grade: "Blocking (Decision)", plan_location: "PLAN:47-62, 81, 122-123, 139-141, 154, 171, 175"}
+  - {id: M-02, grade: "Blocking (Missing), low margin", plan_location: "PLAN:87-104"}
+  - {id: M-03, grade: "Blocking (Safety), open: unverified", plan_location: "PLAN:22, 88-89, 91, 108, 132, 159"}
+  - {id: M-04, grade: Medium, plan_location: "PLAN:171"}
+  - {id: M-05, grade: Medium, plan_location: "PLAN:148"}
+  - {id: M-06, grade: Medium, plan_location: "PLAN:131"}
+  - {id: M-07, grade: Medium, plan_location: "PLAN:24"}
+  - {id: M-08, grade: Medium, plan_location: "PLAN:171"}
+  - {id: M-09, grade: Medium, plan_location: "PLAN:141"}
+  - {id: M-10, grade: Medium, plan_location: "PLAN:165"}
+  - {id: M-11, grade: Medium, plan_location: "PLAN:159"}
+  - {id: M-12, grade: Medium, plan_location: "PLAN:200"}
+  - {id: M-13, grade: Medium, plan_location: "PLAN:112"}
+  - {id: M-14, grade: Note, plan_location: "PLAN:92"}
+  - {id: M-15, grade: Note, plan_location: "PLAN:23"}
+  - {id: M-16, grade: Note, plan_location: "PLAN:33"}
+  - {id: M-17, grade: Note, plan_location: "PLAN:73"}
+  - {id: M-18, grade: Note, plan_location: "PLAN:68"}

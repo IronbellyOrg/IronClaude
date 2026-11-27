@@ -33,7 +33,8 @@
     "dropbox@claude-plugins-official": true,
     "google-cloud-storage@claude-plugins-official": true,
     "understand-anything@understand-anything": true,
-    "ponytail@ironclaude": true
+    "ponytail@ironclaude": true,
+    "typesafe@ironclaude": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
@@ -64,6 +65,16 @@
           "repo": "DietrichGebert/ponytail",
           "ref": "v5.3.3",
           "sha": "7801d061243d7b753bad0e0b3c057cd250b11755"
+        }
+      },
+      {
+        "name": "typesafe",
+        "description": "TypeSafe Jev agent skill v0.6.2, pinned by IronClaude",
+        "source": {
+          "source": "github",
+          "repo": "typesafe-ai/skills",
+          "ref": "v0.6.2",
+          "sha": "302eea662c54bca6730873fe245bec1d69ebc23d"
         }
       }
     ]

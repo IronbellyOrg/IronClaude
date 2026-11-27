@@ -1,0 +1,4 @@
+AC4 diff checks, 2026-11-26T19:22:59Z, after git fetch origin (HEAD 862384852faebe3255c2876527103696cfd3cf3b, origin/integration ad306da5c52ea3725b45448ae5576e950d4f620f)
+$ git diff origin/integration...HEAD -- <SKILL.md, refs/claim.md, templates/launch-prompt.md>  -> 0 lines
+$ git diff HEAD -- <the three files>  -> 0 lines
+$ git diff HEAD origin/integration -- <the three files>  -> 0 lines

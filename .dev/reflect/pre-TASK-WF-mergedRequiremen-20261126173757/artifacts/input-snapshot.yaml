@@ -1,0 +1,8 @@
+input_tree_sha256: 8227b91a386140cded0c333f55bc0a3ebb0f1f4e6ff3d0ff12917ba660e6ad21
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-mergedRequiremen-20261126-173239/TASK-WF-mergedRequiremen-20261126-173239.md
+    sha256: 2e6227cef00d637805096036fc00df5aefd42c313810e13d68e08f1fc45d2c8a
+  - path: .dev/tasks/to-do/TASK-WF-mergedRequiremen-20261126-173239/source.md
+    sha256: 86b9b1534f32bfda149f41297c67a13d47211905a7ab5ec8a549685ea59b2acc
+file_count: 2
+note: tree = tasklist + spec; the tasklist body links only ./source.md (repo paths named in code spans are grounding, not linked inputs); output root is outside the package so REFLECT_OUTPUT_ROOT exclusion is a no-op

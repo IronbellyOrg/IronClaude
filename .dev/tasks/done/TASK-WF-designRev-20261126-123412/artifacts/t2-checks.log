@@ -1,0 +1,61 @@
+# T2 checks (run 2026-11-26T12:47:07Z)
+## git diff --stat <base> -- docs/developer-guide/contributing-code.md
+ docs/developer-guide/contributing-code.md | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+## deleted lines (must be 0):
+0
+## headings missing vs base (must print nothing):
+## placement:
+7:> **New team members: file an issue; do not open a pull request that changes a skill, co
+9:## Table of Contents
+101:## Context File Guidelines
+103:> Maintainer reference. New team members file an issue first; see [HOW-WE-WORK, sectio
+164:## Development Workflow
+166:> Maintainer reference. New team members file an issue first; see [HOW-WE-WORK, sectio
+209:### Pull Request Template
+211:> The template GitHub shows on new pull requests is [.github/PULL_REQUEST_TEMPLATE.md]
+245:## Contributing to Components
+247:> Maintainer reference. New team members file an issue first; see [HOW-WE-WORK, sectio
+387:### Issue Reporting
+389:> Maintainer reference. New team members file an issue first; see [HOW-WE-WORK, sectio
+## link targets (from docs/developer-guide/):
+exists ../../src/superclaude/core/HOW-WE-WORK.md
+exists ../../.github/PULL_REQUEST_TEMPLATE.md
+## heading anchor in guide:
+251:## 4. Rules everyone follows
+## deep links to edited headings in other docs:
+docs/developer-guide/documentation-index.md:9:**For New Contributors**: Start with [Contributing Guide → Setup](contributing-code.md#devel
+docs/developer-guide/documentation-index.md:26:- [Development Setup](contributing-code.md#development-setup) - Environment configuration and
+docs/developer-guide/documentation-index.md:27:- [Context File Guidelines](contributing-code.md#context-file-guidelines) - Standards and str
+docs/developer-guide/documentation-index.md:28:- [Development Workflow](contributing-code.md#development-workflow) - Git workflow and submis
+docs/developer-guide/documentation-index.md:29:- [Contributing to Components](contributing-code.md#contributing-to-components) - Agent and c
+docs/developer-guide/documentation-index.md:30:- [File Validation](contributing-code.md#file-validation) - Context file verification methods
+docs/developer-guide/documentation-index.md:114:1. [Contributing Guide → Setup](contributing-code.md#development-setup) - Environment setu
+docs/developer-guide/documentation-index.md:120:- [Development Setup](contributing-code.md#development-setup) - Prerequisites and configurat
+docs/developer-guide/documentation-index.md:135:- [Contributing to Components](contributing-code.md#contributing-to-components) - Agent and 
+docs/developer-guide/documentation-index.md:136:- [Adding New Agents](contributing-code.md#adding-new-agents) - Domain specialist creation
+docs/developer-guide/documentation-index.md:137:- [Adding New Commands](contributing-code.md#adding-new-commands) - Workflow pattern develop
+docs/developer-guide/documentation-index.md:145:- [File Validation](contributing-code.md#file-validation) - Context file verification method
+docs/developer-guide/documentation-index.md:156:- [Development Workflow](contributing-code.md#development-workflow) - Git workflow
+docs/developer-guide/documentation-index.md:157:- [Context File Guidelines](contributing-code.md#context-file-guidelines) - Standards and pr
+docs/developer-guide/documentation-index.md:158:- [Pull Request Process](contributing-code.md#pull-request-template) - Submission process
+docs/developer-guide/documentation-index.md:162:- [Agent Development](contributing-code.md#adding-new-agents) - Domain specialist creation
+docs/developer-guide/documentation-index.md:163:- [Command Development](contributing-code.md#adding-new-commands) - Workflow pattern creatio
+docs/developer-guide/documentation-index.md:192:- [Getting Help](contributing-code.md#getting-help) - Support channels
+docs/developer-guide/documentation-index.md:193:- [Issue Reporting](contributing-code.md#issue-reporting) - Bug reports and features
+docs/developer-guide/documentation-index.md:211:3. [Context File Guidelines](contributing-code.md#context-file-guidelines) - File standards
+docs/developer-guide/documentation-index.md:217:1. [Development Setup](contributing-code.md#development-setup) - Environment preparation
+docs/developer-guide/documentation-index.md:223:1. [Adding New Agents](contributing-code.md#adding-new-agents) - Domain specialist developme
+docs/developer-guide/documentation-index.md:224:2. [Adding New Commands](contributing-code.md#adding-new-commands) - Workflow creation
+docs/developer-guide/documentation-index.md:225:3. [File Validation](contributing-code.md#file-validation) - Context verification
+docs/developer-guide/documentation-index.md:252:- [Context File Guidelines](contributing-code.md#context-file-guidelines) → [Context File 
+docs/developer-guide/documentation-index.md:253:- [Adding Components](contributing-code.md#contributing-to-components) → [Agent/Command St
+docs/developer-guide/documentation-index.md:257:- [Development Workflow](contributing-code.md#development-workflow) → [File Verification](
+docs/developer-guide/documentation-index.md:258:- [File Validation](contributing-code.md#file-validation) → [Installation Verification](te
+docs/developer-guide/documentation-index.md:293:1. **Start with**: [Development Setup](contributing-code.md#development-setup)
+docs/developer-guide/documentation-index.md:294:2. **Context Development**: Follow [Context File Guidelines](contributing-code.md#context-fi
+docs/developer-guide/documentation-index.md:295:3. **Validation**: Use [File Validation](contributing-code.md#file-validation)
+docs/developer-guide/documentation-index.md:296:4. **Support**: Reference [Getting Help](contributing-code.md#getting-help)
+docs/developer-guide/README.md:37:1. Start with [Contributing Code Guide](contributing-code.md#development-setup) for environment setup
+docs/developer-guide/README.md:44:2. Reference [Contributing Code Guide](contributing-code.md#architecture-overview) for component patterns
+docs/developer-guide/README.md:50:2. Reference [Contributing Code Guide](contributing-code.md#development-workflow) for development integrat

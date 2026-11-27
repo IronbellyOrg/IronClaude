@@ -1,0 +1,18 @@
+contract_version: "1.0"
+status: partial
+seed_brief_path: ".dev/brainstorms/20261126-jev-vs-keyword-table-611/seed-brief.md"
+merged_output_path: ".dev/brainstorms/20261126-jev-vs-keyword-table-611/merged-requirements.md"
+convergence_score: 1.0
+adversarial_artifacts_dir: ".dev/brainstorms/20261126-jev-vs-keyword-table-611/adversarial/adversarial/"
+domain: research
+proposal_count: 3
+enrichment_used:
+  - {source: codebase, quality_tier: skipped}
+  - {source: research-light, quality_tier: skipped}
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+adversarial_status: partial
+telemetry:
+  agent_spec: "opus:analyzer,sonnet:architect,haiku:scribe (instructions in the command line; double-quoted for the adversarial parser)"
+  wave_notes: "Wave 2A skipped (research domain; Jev already in project). Agent spec used single quotes in the brainstorm skill and double quotes in the adversarial skill; the two skills disagree, double quotes were used. Persona agent files analyzer, architect, scribe do not exist; they were used as labels."

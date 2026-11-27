@@ -1,0 +1,12 @@
+# implement ledger — source: ./TASK-WF-remediationSourc-20261126-115052.md — created: 2026-11-26T12:10:00Z
+PLAN: sha256=6f133763da75227f96424763f6e28ff04fb84a3190c79ae1482a43a3d4ca3ccd source_sha256=58110efed2f782bf5dffe8370a49d0aeea92f172d700743eab67ef388d3131e8
+T1: start sha=d7acdfea20800714058346ff5d57987fc01952fb
+T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3,T1.AC4 evidence=T1.AC1@.dev/troubleshoot/bug-orca-registers-this-repository-under-20261126031957/override-upstream-null.js:5,T1.AC2@./artifacts/t1-before.txt:69,T1.AC3@./artifacts/t1-before.txt:10,T1.AC4@./artifacts/t1-before.txt:9 extras=lint:skip,typecheck:skip,test:skip files=.dev/troubleshoot/bug-orca-registers-this-repository-under-20261126031957/override-upstream-null.js
+T2: start sha=7f9f65b5e32ef5e1d5a066a5c728ff8748128d5c
+T2: complete verdict=compliant ac=T2.AC1,T2.AC2,T2.AC3,T2.AC4,T2.AC5,T2.AC6,T2.AC7,T2.AC8 evidence=T2.AC1@./artifacts/t2-after.txt:3,T2.AC2@./artifacts/t2-after.txt:5-14,T2.AC3@./artifacts/t2-outcome.md:1,T2.AC4@./artifacts/t2-after.txt:3,T2.AC5@./artifacts/t2-after.txt:3,T2.AC6@./artifacts/t2-outcome.md:9,T2.AC7@./artifacts/t2-after.txt:24,T2.AC8@./artifacts/t2-outcome.md:15,notes@./artifacts/retries/T2/notes.md:1-4 extras=lint:skip,typecheck:skip,test:skip files=.dev/troubleshoot/bug-orca-registers-this-repository-under-20261126031957/override-upstream-null.called
+T3: start sha=3332d77ae727e776dcd0793dcba4d38486e5990a
+T3: complete verdict=compliant ac=T3.AC1,T3.AC2,T3.AC3,T3.AC4,T3.AC5,T3.AC6,T3.AC7 evidence=T3.AC1@CLAUDE.md:54,T3.AC2@CLAUDE.md:54,T3.AC3@CLAUDE.md:54,T3.AC4@./artifacts/t3-lint-after.txt:1,T3.AC5@./artifacts/t3-lint-after.txt:3,T3.AC6@./artifacts/t3-verify-sync-after.txt:203,T3.AC7@CLAUDE.md:313,notes@./artifacts/retries/T3/notes.md:1-2 extras=lint:pass,typecheck:skip,test:pass files=CLAUDE.md
+T4: start sha=c4746625edd447c9bd3b729e6a884dc6957f6809
+T4: complete verdict=compliant ac=T4.AC1,T4.AC2,T4.AC3,T4.AC4,T4.AC5,T4.AC6,T4.AC7 evidence=T4.AC1@./artifacts/t4-pr-note.md:71,T4.AC2@./artifacts/t4-pr-note.md:11,T4.AC3@./artifacts/t4-pr-note.md:17-49,T4.AC4@./artifacts/t2-after.txt:3,T4.AC5@./artifacts/t4-pr-note.md:97,T4.AC6@./artifacts/t4-pr-note.md:69,T4.AC7@./artifacts/t4-pr-note.md:3 extras=lint:skip,typecheck:skip,test:skip files=./artifacts/t4-pr-note.md
+FINAL: pass evidence=CLAUDE.md:54,./artifacts/t2-outcome.md:1,./artifacts/t4-pr-note.md:71 state=181804e1949920676bfafaf72929fec5c5210a9fbbbb84dae22af7e99833ee66
+ARCHIVE: start id=TASK-WF-remediationSourc-20261126-115052 token=0855e2880f89bd3b

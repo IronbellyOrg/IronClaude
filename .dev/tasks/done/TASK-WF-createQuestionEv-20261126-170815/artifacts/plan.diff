@@ -1,0 +1,69 @@
+--- old-plan
++++ new-plan
+@@ -3,7 +3,7 @@
+ source: ./source.md
+ strategy: systematic
+ depth: standard
+-slug: TASK-WF-createQuestionEv-20261126-170236
++slug: TASK-WF-createQuestionEv-20261126-170815
+ version: "1"
+ priority: Medium
+ created_date: "2026-11-26"
+@@ -145,7 +145,7 @@
+ Covers: R-003, R-004, R-005, R-006, R-010, R-012, R-014
+ Depends on: Task 5
+ 
+-Use `./artifacts/harness/run_create.py` for two runs at `--depth quick`, each with an output directory under `./artifacts/runs/`:
++Use `./artifacts/harness/run_create.py` for two runs at `--depth quick`, each with the output directory `runs/<run name>` of the scratch directory of Task 4 (NEW-1):
+ - `quick-additions-only`: description "Feature: make `superclaude install` print, as its last line, how many skills it copied." with `--mode feature --type cli --depth quick`. It states no choice, flag value or fact that the draft could contradict. Expected: 0 questions, 1 `issue create`, 0 `issue comment`; any assumption the worker adds is an addition that must appear in the body, the notes and the final output.
+ - `quick-contradiction`: description "Bug: `/sc:issue --create` crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` when the description is empty." with `--mode bug --type skill --depth quick`. That file does not exist (checked in Task 4), so a supported contradiction of a user-stated fact is expected. Expected: 1 question as a question tool call, 1 `issue create` after the answer "keep my wording", 0 `issue comment`; this is also a mixed-notes case, so record whether the additions reached the body, the notes and the final output.
+ 
+@@ -154,7 +154,7 @@
+ For each run record the observed numbers whatever they are. A run that makes no `issue create` call, or asks its question as plain text, is recorded as a finding. For the contradiction run compare the issue body with the draft body and record whether the body still names `create_issue.py` as the crash location after the answer "keep my wording". If a run differs from the expectation, keep the record and note it as a finding for the lead; do not edit the skill, the template or the tests to make a run come out as expected. If a run needs one repeat because of an infrastructure failure (not a model choice), repeat it once and record both.
+ 
+ Acceptance criteria:
+-- `./artifacts/runs/quick-additions-only/summary.json` and `./artifacts/runs/quick-contradiction/summary.json` exist with the question counts, the `issue create` and `issue comment` counts, the expected counts and the after-run fork-activity result.
++- `runs/quick-additions-only/summary.json` and `runs/quick-contradiction/summary.json` in the scratch directory of Task 4 exist (NEW-1) with the question counts, the `issue create` and `issue comment` counts, the expected counts and the after-run fork-activity result.
+ - Each run directory holds the event log, the fake `gh` call log, `issue-body.md`, `draft-notes.md`, the final output and `read-files.txt`; the `read-files.txt` hashes equal the `src/` list of Task 4 and no installed copy path appears in it.
+ - The additions run records, for each addition, whether it appears in the body, the notes and the final output, and whether the body was shown for approval; the contradiction run records the question text (does it name the contradicted item), the answer supplied and the body comparison, or an explicit "not evidenced" line when Task 4 found no way to supply an answer.
+ - No call in either fake `gh` log is an unknown call, and fork activity did not change.
+@@ -164,7 +164,7 @@
+ Covers: R-003, R-004, R-005, R-006, R-007, R-008, R-010, R-012, R-014
+ Depends on: Task 5
+ 
+-Use `./artifacts/harness/run_create.py` for four runs, each with an output directory under `./artifacts/runs/`:
++Use `./artifacts/harness/run_create.py` for four runs, each with the output directory `runs/<run name>` of the scratch directory of Task 4 (NEW-1):
+ - `standard-additions-only`: the quick additions description with `--mode feature --type cli --depth standard`. Expected: 0 questions, 1 `issue create`; the `issue comment` count is recorded as observed (a pushback comment appears only when the worker disagrees with a supplied flag).
+ - `standard-contradiction`: the quick contradiction description with `--mode bug --type skill --depth standard`. Expected: 1 question, 1 `issue create` after the answer "keep my wording".
+ - `standard-multi-contradiction`: description "Bug: `/sc:issue --create` crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` when the description is empty, and the crash is written to the log by `src/superclaude/skills/sc-issue-protocol/scripts/issue_logger.py`." with `--mode bug --type skill --depth standard`. Both files do not exist (checked in Task 4). Expected: exactly 1 question that names both contradicted items (not two questions), 1 `issue create` after the answer.
+@@ -175,7 +175,7 @@
+ For each run record the observed numbers and the files of Task 6. For the preserved-flag run additionally record, from the fake `gh` log, whether the filed issue used the user's `--mode bug` choice (the Bug title prefix, the Bug type and the `bug` label), whether the question count is zero, and whether the pushback comment was posted as a separate call after the create call. The findings rule of Task 6 applies.
+ 
+ Acceptance criteria:
+-- Four run directories exist under `./artifacts/runs/` with the same file set as Task 6, each with a `summary.json` carrying expected and observed counts.
++- Four run directories exist under `runs/` of the scratch directory of Task 4 (NEW-1) with the same file set as Task 6, each with a `summary.json` carrying expected and observed counts.
+ - The multi-contradiction record shows the number of questions and whether the single question names both items.
+ - The preserved-flag record states, from the fake `gh` log, the title prefix, type and labels the issue was created with and the number of `issue comment` calls.
+ - Any difference from the expected counts is recorded as a finding with the raw file that shows it, and each run's `read-files.txt` and fork-activity result are recorded.
+@@ -185,10 +185,10 @@
+ Covers: R-003, R-004, R-005, R-006, R-008, R-010, R-012, R-014
+ Depends on: Task 5
+ 
+-Use `./artifacts/harness/run_create.py` for three runs with the same descriptions and expectations as the standard runs of Task 7 but `--depth deep`, with output directories `deep-additions-only`, `deep-contradiction` and `deep-flag-preserved` under `./artifacts/runs/`. Deep runs use `issue-worker-t1`, which falls back to `issue-worker-t2` when the tier is not served; record which worker handled each run, from the line the fallback writes into the notes or flags file, and from `read-files.txt`. Raw run output goes to the scratch directory of Task 4; Task 9 scans it and copies only scanned files into `./artifacts/runs/` (B-4).
++Use `./artifacts/harness/run_create.py` for three runs with the same descriptions and expectations as the standard runs of Task 7 but `--depth deep`, with output directories `deep-additions-only`, `deep-contradiction` and `deep-flag-preserved` under `runs/` of the scratch directory of Task 4 (NEW-1). Deep runs use `issue-worker-t1`, which falls back to `issue-worker-t2` when the tier is not served; record which worker handled each run, from the line the fallback writes into the notes or flags file, and from `read-files.txt`. Raw run output goes to the scratch directory of Task 4; Task 9 scans it and copies only scanned files into `./artifacts/runs/` (B-4).
+ 
+ Acceptance criteria:
+-- Three run directories exist under `./artifacts/runs/` with the same file set as Task 6, each with a `summary.json`, the worker that handled the run, and the expected and observed counts.
++- Three run directories exist under `runs/` of the scratch directory of Task 4 (NEW-1) with the same file set as Task 6, each with a `summary.json`, the worker that handled the run, and the expected and observed counts.
+ - The same per-scenario facts as Tasks 6 and 7 are recorded, and the deep adversarial flag check (a flag file for the user variant and one for the independent variant when all flags are given) is noted for the preserved-flag run.
+ - The stop file and the matrix-wide stop were checked before each run, and a stop condition met in any run is reported to the lead before another run starts.
+ 
+@@ -199,7 +199,7 @@
+ Covers: R-009, R-013, R-015, R-016, R-017, R-018, R-019, R-022
+ Depends on: Task 3, Task 6, Task 7, Task 8
+ 
+-First run `./artifacts/harness/scan_secrets.py` over the scratch directory of Task 4 and save the result to `./artifacts/secret-scan.txt`; a finding is removed from the raw logs (and recorded) before anything in `./artifacts/` is staged, and only the scanned files are then copied into `./artifacts/` (B-4). Then read the live state of the issue with `gh issue view 834 --repo IronbellyOrg/IronClaude --json state,closedAt,stateReason` (a read-only call by the orchestrator, not by a run) and save its output and time to `./artifacts/issue-state.txt`.
++First run `./artifacts/harness/scan_secrets.py` over the scratch directory of Task 4 and save the result to `./artifacts/secret-scan.txt`; a finding is removed from the raw logs (and recorded) before anything in `./artifacts/` is staged, and only the scanned files are then copied into `./artifacts/` (B-4); the copies of the scanned run folders land at `./artifacts/runs/` and the evidence matrix cites those copies (NEW-1). Then read the live state of the issue with `gh issue view 834 --repo IronbellyOrg/IronClaude --json state,closedAt,stateReason` (a read-only call by the orchestrator, not by a run) and save its output and time to `./artifacts/issue-state.txt`.
+ 
+ Write `./artifacts/evidence-matrix.md` with three parts.
+ 

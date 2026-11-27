@@ -1,0 +1,382 @@
+{
+ "matrix": [
+  {
+   "requirement_id": "T-01",
+   "matched_task_ids": [
+    "Task 2",
+    "Task 5"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  },
+  {
+   "requirement_id": "T-03",
+   "matched_task_ids": [
+    "Task 5",
+    "Task 6"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  },
+  {
+   "requirement_id": "T-04",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  },
+  {
+   "requirement_id": "T-05",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  },
+  {
+   "requirement_id": "T-06",
+   "matched_task_ids": [
+    "Task 4",
+    "Task 6"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  },
+  {
+   "requirement_id": "T-07",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  },
+  {
+   "requirement_id": "T-08",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  },
+  {
+   "requirement_id": "T-09",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  },
+  {
+   "requirement_id": "T-10",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  },
+  {
+   "requirement_id": "T-11",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  },
+  {
+   "requirement_id": "T-12",
+   "matched_task_ids": [
+    "Task 3",
+    "Task 4"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  },
+  {
+   "requirement_id": "T-15",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  },
+  {
+   "requirement_id": "T-13",
+   "matched_task_ids": [
+    "Task 4",
+    "Task 6"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  },
+  {
+   "requirement_id": "T-14",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "exact",
+   "source": "parsed",
+   "spec_line": 92
+  }
+ ],
+ "inferred": [
+  {
+   "requirement_id": "INF-001",
+   "quote": "Nothing under `src/` changes.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:11",
+   "matched_task_ids": [],
+   "ratio": 0.5,
+   "match_method": "none",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-002",
+   "quote": "Nothing here sends a prompt anywhere;",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:11",
+   "matched_task_ids": [],
+   "ratio": 0.5,
+   "match_method": "none",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-003",
+   "quote": "Reuse by import. Write no new client.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:17",
+   "matched_task_ids": [],
+   "ratio": 0.4,
+   "match_method": "none",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-004",
+   "quote": "Build and test offline; the live run is a coordinator step.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:18",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 0.86,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-005",
+   "quote": "The runner sets `MAX_RETRIES = 0` and `ATTEMPT_TIMEOUT_S = 10.0` in its own process",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:19",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "ratio": 1.0,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-006",
+   "quote": "The runner copies it into `JEV_API_KEY` inside its own process only, never printed or written.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:20",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "ratio": 0.86,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-007",
+   "quote": "A prompt that would be refused is replaced before freezing, never edited.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:21",
+   "matched_task_ids": [
+    "Task 7"
+   ],
+   "ratio": 0.67,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-008",
+   "quote": "The gate records the explicit command and its passing result.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:24",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "ratio": 0.83,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-009",
+   "quote": "One cumulative spend ledger (the `Budget` file) across all run ids",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:41",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "ratio": 1.0,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-010",
+   "quote": "It refuses a corpus row without a public source, a duplicate id, or duplicate prompt text under two ids.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:68",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "ratio": 0.92,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-011",
+   "quote": "The scorer refuses a rule file with a missing field or a status other than `AGREED`.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:70",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "ratio": 0.75,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-012",
+   "quote": "The runner calls Gate 1 and Gate 2 before reading any environment variable.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:72",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "ratio": 1.0,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-013",
+   "quote": "a typed label is right when the answer equals it; an `ambiguous` or `none-fit` label is right when the answer is unset.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:75",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "ratio": 0.89,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-014",
+   "quote": "from the Noul probability and the band operators in the rule file gives a type, `unset:none-fit` or `unset:not-settled`.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:77",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "ratio": 0.67,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-015",
+   "quote": "slowest over all attempts with a timeout counted at its value; 90th percentile by nearest rank",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:78",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "ratio": 0.9,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-016",
+   "quote": "`RUN_INVALID` makes no build or close decision on issue 612.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:79",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 0.86,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-017",
+   "quote": "Deterministic: same rows, same bytes.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:80",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "ratio": 1.0,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-018",
+   "quote": "A twice-failed prompt is recorded as `error` and scored not right for Jev.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:82",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "ratio": 0.88,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-019",
+   "quote": "It runs prompts one at a time, so the per-request spend bound is checked before each request and the whole-run estimate before the first.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:82",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "ratio": 0.79,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-020",
+   "quote": "Append-only `events.jsonl` writer",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:84",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "ratio": 0.75,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-021",
+   "quote": "The price is the figure observed on the vendor models page on 2026-11-10 and must be re-confirmed by the coordinator before Gate 2.",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:88",
+   "matched_task_ids": [],
+   "ratio": 0.43,
+   "match_method": "none",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-022",
+   "quote": "it must say `Refs #611` and list B to E as left",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:104",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "ratio": 0.6,
+   "match_method": "containment",
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-023",
+   "quote": "What this is, how to run the offline tests, how the coordinator runs the live step, how to rescore",
+   "citation": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md:34",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "ratio": 0.6,
+   "match_method": "containment",
+   "source": "inferred"
+  }
+ ]
+}

@@ -1,0 +1,8 @@
+# tail of the full-suite run (the complete log is 25448 lines and is not kept in the package)
+# started 2026-11-26T14:34:37Z, ended 2026-11-26T15:02:00Z
+# command: PYTHONDONTWRITEBYTECODE=1 uv run pytest -p no:cacheprovider -rfE
+=========================== short test summary info ============================
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_passes_on_real_adapter_module
+===== 2 failed, 25308 passed, 64 skipped, 9 warnings in 1639.49s (0:27:19) =====
+pytest rc=1

@@ -1,0 +1,78 @@
+{
+  "doc_id": "NP-2",
+  "plan": "TASK-WF-detachTheCcsessi-20261102-034618",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 5 requires `make verify-sync` to pass but has no `make sync-dev` step. `verify-sync` diffs src/superclaude/skills against the gitignored .claude/ copies, so editing the skill (or starting in a fresh worktree with no copies) makes it exit 1 with drift. An implementer who follows the plan as written gets a failing check and has to improvise; the plan should run `make sync-dev` (which writes only gitignored copies) before `make verify-sync`.",
+      "plan_quote": "and `make lint` and `make verify-sync` pass, with commands and results in ./artifacts/t5-checks.log.",
+      "evidence": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/REPORT.md:51 (M1); Makefile verify-sync at base f90877be; artifacts/t5-checks.log:24-35"
+    },
+    {
+      "id": "GT2",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 4 AC4 asks that the live shims on ports 4013 and 4114 report the same pids 'before and after', but no earlier task records the 'before' pids. Task 1 runs the real ccsession and kills a shim by pid, so a break of the 'never signal the running shims' rule during Tasks 1 to 3 could not be shown. The plan should capture both pids to a named file before Task 1 and have Task 4 compare against it.",
+      "plan_quote": "The live shims on ports 4013 and 4114 report the same pids before and after (`curl -s http://127.0.0.1:<port>/__ccsession_shim`), recorded in ./artifacts/t4-tests.log.",
+      "evidence": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/REPORT.md:52 (M2); plan:20,29,70"
+    },
+    {
+      "id": "GT3",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 1 asserts the streamed reply 'contains' message_stop, while the remediation source requires the reply to end with message_stop. A stream that carries the marker mid-way but is cut off before it ends would pass the plan's check. The assertion should check that the reply ends with message_stop.",
+      "plan_quote": "the streamed reply returns status 200 and contains `b\"message_stop\"`",
+      "evidence": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/REPORT.md:55 (M5); remediation-source.md:14"
+    },
+    {
+      "id": "GT4",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 1 AC3 says no shim or sleep process may remain, checked with `pgrep -f` on the per-test copy path. The fake claude runs `exec sleep 60`, whose argv does not contain that path, so a leaked sleep process is never detected by the stated check. The check should look at the fake claude pid directly.",
+      "plan_quote": "No shim or sleep process from the test is left running after it finishes (checked with `pgrep -f <tmp copy path>` returning nothing).",
+      "evidence": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/REPORT.md:56 (M6); plan:29,34"
+    },
+    {
+      "id": "GT5",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 2 AC2 offers to 'assert in the test' that the shim is gone after the fixture's teardown, but teardown runs after the test body, so that assertion cannot be written. The `pgrep -f` alternative has no unique pattern because the shim fixture runs the shared script path SKILL_DIR/local-gateway-alias-proxy.py, so it also matches unrelated shims. The criterion needs a per-test copy path or a pid check outside the test body.",
+      "plan_quote": "After the fixture's teardown the shim process is gone (assert in the test or verify with `pgrep -f` that no shim from this test survives).",
+      "evidence": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/REPORT.md:57 (M7); plan:44; tests/unit/test_ccsession_tiers.py:575-614 at base"
+    },
+    {
+      "id": "GT6",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The Constraints require every throwaway process to be stopped by its exact pid, yet Task 1's cleanup tells the implementer to `pkill -f` the per-test copy path. A pattern-based kill can signal processes the test did not start, which is the very risk the exact-pid rule and the 'never signal the live shims' rule exist to prevent. Cleanup should use only the recorded pids.",
+      "plan_quote": "Clean up in `finally`: kill the shim by its pid, `pkill -f` the per-test copy path, close the gateway, and kill any remaining root process.",
+      "evidence": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/REPORT.md:58 (M8); plan:23,29"
+    },
+    {
+      "id": "GT7",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The dependency declarations do not match the real dependencies. Task 2 declares 'Depends on: Task 1' but uses nothing from it, while Task 3's acceptance criteria rely on Task 1's test (expected to fail until Task 4) and Task 3 declares only Task 2. An executor that honours the declared order or runs a task alone gets wrong preconditions.",
+      "plan_quote": "`uv run pytest tests/unit/test_ccsession_tiers.py -q` and `uv run pytest tests/unit/test_ccsession_tag.py -q` pass except `test_shim_outlives_the_terminal_that_started_it`",
+      "evidence": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/REPORT.md:58 (M8); plan:38,50,56"
+    },
+    {
+      "id": "GT8",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The Constraints say the scope is exactly the four named files, but Task 4 AC3 also writes .dev/troubleshoot/.../live-check/after.txt and several tasks write ./artifacts logs. The scope statement is therefore not true of the plan's own outputs, so an implementer cannot tell which writes outside the four files are allowed.",
+      "plan_quote": "Scope is exactly the four files named in the source: `src/superclaude/skills/ccsession-tag/ccsession`, `src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py`",
+      "evidence": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/REPORT.md:58 (M8); plan:19,69"
+    },
+    {
+      "id": "GT9",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "The goal says the shim must leave the terminal's session and process group, but session separation (getsid, getpgid) is asserted only for a directly started shim in Task 2. Task 1, which uses the real ccsession launch path, checks only descendant status, a 200 reply, message_stop and the pid. A launch-path change that leaves the shim in the terminal's session would pass Task 1.",
+      "plan_quote": "Read the shim pid from `/__ccsession_shim` and assert `os.getsid(pid) != os.getsid(0)` and `os.getpgid(pid) != os.getpgid(0)`.",
+      "evidence": ".dev/reflect/pre-TASK-WF-detachTheCcsessi-20261102-034618-shadow01/REPORT.md:61 (M11); plan:32,40"
+    }
+  ]
+}

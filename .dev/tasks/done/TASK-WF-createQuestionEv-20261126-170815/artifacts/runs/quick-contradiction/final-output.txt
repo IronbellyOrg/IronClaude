@@ -1,0 +1,37 @@
+I filed issue #990001 on `IronbellyOrg/IronClaude`: https://github.com/IronbellyOrg/IronClaude/issues/990001. Its title is "[BUG] Handle empty descriptions in issue creation" and it carries the `bug` label, the Bug issue type and Complexity = Simple. I read all three back from GitHub after creating the issue.
+
+**One contradiction, asked once.** The file your description names, `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py`, doesn't exist. That scripts folder holds only `clickup_claim.py`, `origin_repo.py` and `orca_worktree.py`. You chose "Keep my wording", so the issue gives your path as the crash location and I removed the two notes saying the file is absent.
+
+Also, the issue only records your report. The quick check didn't reproduce the crash. The command's own rule says an empty description should stop with `--create needs a description` before the skill starts (`src/superclaude/commands/issue.md:56`).
+
+**Added by the drafting worker and kept without approval:**
+- kept without approval: Title "Handle empty descriptions in issue creation"
+- kept without approval: the crash was not reproduced in this quick check; the exact error, environment and impact are unknown
+- kept without approval: the expected STOP message `--create needs a description` (`src/superclaude/commands/issue.md:56`)
+- kept without approval: a reproduction step, `/sc:issue --create ""`
+- kept without approval: the command validates the flags before the skill starts (`src/superclaude/commands/issue.md:51-56,108-114`; `SKILL.md:156`; `refs/create.md:11-16`)
+- kept without approval: the existing test only checks that the rule is written in the command file and doesn't run the command (`tests/commands/test_issue_command.py:183-191`)
+- kept without approval: Codegraph and Auggie were not available, so the check used Glob, Grep and Read
+- kept without approval: repo `IronbellyOrg/IronClaude`, base branch `integration`
+- kept without approval: the order of steps `/sc:troubleshoot` → `/sc:implement` → `/sc:pr-submit --monitor 3`
+- kept without approval: the checks to pass are `uv run pytest`, `make lint`, `make verify-sync`, plus a hand test with an empty description
+- kept without approval: Assumption: the crash can be reproduced, which is why Priority is High (a documented command fails)
+- kept without approval: Assumption: if the check does fail in practice, fix the part responsible so it follows the existing STOP rule, and add a test
+- kept without approval: Assumption: once the entry point is found, add a test that runs it and checks the STOP message and that no issue is created
+
+The files are in `.dev/issues/990001/`, not staged. There was no duplicate, and no pushback comment, because quick depth takes your flags as given.
+
+```yaml
+status: success
+mode: create
+issue_number: 990001
+issue_url: https://github.com/IronbellyOrg/IronClaude/issues/990001
+dir: .dev/issues/990001/
+clickup_status: null
+labels_applied: [bug]
+labels_missing: []
+next_steps_path: null
+issue_type: Bug
+complexity_field: Simple
+classification_missing: []
+```

@@ -1,0 +1,166 @@
+{
+  "source": "/home/coder/workspaces/worktrees/IronClaude/issue-610/src/superclaude/skills/sc-troubleshoot-protocol",
+  "consumed": "/home/coder/workspaces/worktrees/IronClaude/issue-610/.dev/tasks/to-do/TASK-WF-issueSummary-20261126-115114/artifacts/classification-plugin/skills/sc-troubleshoot-protocol",
+  "source_manifest": {
+    "files": [
+      {
+        "path": "SKILL.md",
+        "sha256": "f2447e0e1b11b2cad84c76a93cac92cde990cdadac3e1bad49b2a0ea453e1dd3"
+      },
+      {
+        "path": "refs/agent-assertions.md",
+        "sha256": "7bcd5b7c17957a903baee9933bcffb04adebfb093163576731a37cfecf8407fa"
+      },
+      {
+        "path": "refs/calibrator-eval-cases.md",
+        "sha256": "ef705ec12e75d8d91731013bb81416c7acca36744f8a433dc4dd9e3d9d16ffba"
+      },
+      {
+        "path": "refs/contract-enumeration.md",
+        "sha256": "8cf9c1e6fe6a086cbc2055f78ae07ee8fa2815eb1cce8e6918b4d68dd0433d5e"
+      },
+      {
+        "path": "refs/diagnosability-audit.md",
+        "sha256": "f99f828896d626be5539e308dbe20db65a5b9f6a823f61272a7d652295e8a760"
+      },
+      {
+        "path": "refs/doc-discovery.md",
+        "sha256": "0b9d5a38b1ac4fb0fc7c9e62846a486e3ba799990c1cb44e2ddee3daaa88d8cd"
+      },
+      {
+        "path": "refs/effective-input-proof.md",
+        "sha256": "634858cfb2767b5c5b2310efb4d8bd4ce01c546842aff90fd8d7605f34a86574"
+      },
+      {
+        "path": "refs/environment-deltas.md",
+        "sha256": "a868fd374ec2c84981e2b7bde02334f9b75cf9f64a6b7abee9e028e63205ecff"
+      },
+      {
+        "path": "refs/escalation-rubric.md",
+        "sha256": "c72b5afc2c6b85cc979e5c071399d2c5825aae08d06e659d36c9b105b1067037"
+      },
+      {
+        "path": "refs/hardening-output-contract.md",
+        "sha256": "29e3adc1eeda4544e82e583c4dbc0fc00ba8ff598caa235d0c2e1843c0d6825a"
+      },
+      {
+        "path": "refs/hypothesis-card-template.md",
+        "sha256": "cfad9e91ac7816b22d1d3d5bc1c7db70c544a7a0783e63cabe0d3d0d253ee8cb"
+      },
+      {
+        "path": "refs/pipeline-hardening-closure.md",
+        "sha256": "597db5c60bc2e28f11ddd9062eb59e3180307f4b6db5a950cb69c3f9004f5625"
+      },
+      {
+        "path": "refs/primitive-differential.md",
+        "sha256": "12d8a49e5ee2749b56b822028f6676940eb57655c9852fa85273444d0c5156ce"
+      },
+      {
+        "path": "refs/probe-packs/read-parse.md",
+        "sha256": "95f0397e7eb5f0620764ac77a475ce8b405018eb0841b42c25e19e569f993498"
+      },
+      {
+        "path": "refs/remediation-handoff.md",
+        "sha256": "89c795b4f0ec1bcc2878f16775c9e244561fb95f7fbbc4f424c326cd4ec42d4f"
+      },
+      {
+        "path": "refs/report-template.md",
+        "sha256": "f2fafbfebd29fa376731032f71bd5493ba8fe23c9a97f6126a55328a0ede34d2"
+      },
+      {
+        "path": "refs/runtime-entrypoint-verification.md",
+        "sha256": "5cf8a4bedd7e57fe8dc25b298084fa2b99dec54d31c7a12e26e8a03523829bf0"
+      },
+      {
+        "path": "refs/triage-checklist.md",
+        "sha256": "847c8a198ffff5818bbfedf4a7f6c21dae4b854ffcaa82223d31e6b8c4a5a19d"
+      },
+      {
+        "path": "refs/unmask-and-sweep.md",
+        "sha256": "460e1b8305242aeb085f6c426bfe2c50fbb8983050173b4d3cbde8437ebd2be8"
+      }
+    ],
+    "tree_sha256": "d7605edfc09806dd75a2a7d49e7f16d6edc9cba50682e717e373b1f3241a4074"
+  },
+  "copy_manifest": {
+    "files": [
+      {
+        "path": "SKILL.md",
+        "sha256": "f2447e0e1b11b2cad84c76a93cac92cde990cdadac3e1bad49b2a0ea453e1dd3"
+      },
+      {
+        "path": "refs/agent-assertions.md",
+        "sha256": "7bcd5b7c17957a903baee9933bcffb04adebfb093163576731a37cfecf8407fa"
+      },
+      {
+        "path": "refs/calibrator-eval-cases.md",
+        "sha256": "ef705ec12e75d8d91731013bb81416c7acca36744f8a433dc4dd9e3d9d16ffba"
+      },
+      {
+        "path": "refs/contract-enumeration.md",
+        "sha256": "8cf9c1e6fe6a086cbc2055f78ae07ee8fa2815eb1cce8e6918b4d68dd0433d5e"
+      },
+      {
+        "path": "refs/diagnosability-audit.md",
+        "sha256": "f99f828896d626be5539e308dbe20db65a5b9f6a823f61272a7d652295e8a760"
+      },
+      {
+        "path": "refs/doc-discovery.md",
+        "sha256": "0b9d5a38b1ac4fb0fc7c9e62846a486e3ba799990c1cb44e2ddee3daaa88d8cd"
+      },
+      {
+        "path": "refs/effective-input-proof.md",
+        "sha256": "634858cfb2767b5c5b2310efb4d8bd4ce01c546842aff90fd8d7605f34a86574"
+      },
+      {
+        "path": "refs/environment-deltas.md",
+        "sha256": "a868fd374ec2c84981e2b7bde02334f9b75cf9f64a6b7abee9e028e63205ecff"
+      },
+      {
+        "path": "refs/escalation-rubric.md",
+        "sha256": "c72b5afc2c6b85cc979e5c071399d2c5825aae08d06e659d36c9b105b1067037"
+      },
+      {
+        "path": "refs/hardening-output-contract.md",
+        "sha256": "29e3adc1eeda4544e82e583c4dbc0fc00ba8ff598caa235d0c2e1843c0d6825a"
+      },
+      {
+        "path": "refs/hypothesis-card-template.md",
+        "sha256": "cfad9e91ac7816b22d1d3d5bc1c7db70c544a7a0783e63cabe0d3d0d253ee8cb"
+      },
+      {
+        "path": "refs/pipeline-hardening-closure.md",
+        "sha256": "597db5c60bc2e28f11ddd9062eb59e3180307f4b6db5a950cb69c3f9004f5625"
+      },
+      {
+        "path": "refs/primitive-differential.md",
+        "sha256": "12d8a49e5ee2749b56b822028f6676940eb57655c9852fa85273444d0c5156ce"
+      },
+      {
+        "path": "refs/probe-packs/read-parse.md",
+        "sha256": "95f0397e7eb5f0620764ac77a475ce8b405018eb0841b42c25e19e569f993498"
+      },
+      {
+        "path": "refs/remediation-handoff.md",
+        "sha256": "89c795b4f0ec1bcc2878f16775c9e244561fb95f7fbbc4f424c326cd4ec42d4f"
+      },
+      {
+        "path": "refs/report-template.md",
+        "sha256": "f2fafbfebd29fa376731032f71bd5493ba8fe23c9a97f6126a55328a0ede34d2"
+      },
+      {
+        "path": "refs/runtime-entrypoint-verification.md",
+        "sha256": "5cf8a4bedd7e57fe8dc25b298084fa2b99dec54d31c7a12e26e8a03523829bf0"
+      },
+      {
+        "path": "refs/triage-checklist.md",
+        "sha256": "847c8a198ffff5818bbfedf4a7f6c21dae4b854ffcaa82223d31e6b8c4a5a19d"
+      },
+      {
+        "path": "refs/unmask-and-sweep.md",
+        "sha256": "460e1b8305242aeb085f6c426bfe2c50fbb8983050173b4d3cbde8437ebd2be8"
+      }
+    ],
+    "tree_sha256": "d7605edfc09806dd75a2a7d49e7f16d6edc9cba50682e717e373b1f3241a4074"
+  }
+}

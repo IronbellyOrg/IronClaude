@@ -1,0 +1,5 @@
+MOVED ./artifacts/harness-feasibility.md -> .dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/retries/T4/artifacts-2/harness-feasibility.md
+SWEEP refs/superclaude/implement/TASK-WF-createQuestionEv-20261126-170815/retry/T4/sweep-2-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+DONE
+exit=0

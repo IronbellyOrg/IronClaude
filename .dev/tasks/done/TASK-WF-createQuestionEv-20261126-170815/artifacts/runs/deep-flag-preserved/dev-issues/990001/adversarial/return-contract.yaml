@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/adversarial/merged-flags.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/adversarial/"
+  status: "success"
+  base_variant: "variant-2 (issue-worker-t1)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

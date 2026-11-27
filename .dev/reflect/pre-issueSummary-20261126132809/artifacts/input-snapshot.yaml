@@ -1,0 +1,21 @@
+input_tree_sha256: 5b963b9b447d166bdd33144080b4b41b9bf14754506c06228c182bc9ebbc6bf5
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-issueSummary-20261126-132314/TASK-WF-issueSummary-20261126-132314.md
+    sha256: 48d9958ed22c02025242d0f7d815e60da5143c8599a548afa53bae7457a7ac82
+  - path: .dev/tasks/to-do/TASK-WF-issueSummary-20261126-132314/source.md
+    sha256: 208b99a71442356e8b749f8679592914bb6ae089ee410efbe7e122ccf101b601
+  - path: docs/designs/sc-issue-command.md
+    sha256: aade6a5ec3088ba18e9cbfcf4768e230adeec4f14b61cdfa61cf2615039d0b67
+  - path: docs/user-guide/commands.md
+    sha256: 23b42a77e025d0aa5db5ce95e4f49c46222240eafcc38548356f06f4c6a6b376
+  - path: src/superclaude/commands/issue.md
+    sha256: 8db89806dae11ca6fccba2a3fcd396211792c6356fe15e9df956ff9cc74feadb
+  - path: src/superclaude/skills/sc-issue-protocol/refs/create.md
+    sha256: 56c889ba34542b0c1c5918d40b5c9f1954ab00b7dce0b5df2ff23a7daf30141b
+  - path: src/superclaude/skills/sc-issue-protocol/templates/draft-notes.md
+    sha256: 1abf40eeee2342401b85b042f858f6aaa88aaa5ebc97c80eb750e8912f9c5967
+  - path: tests/commands/test_issue_command.py
+    sha256: 03826bed0ae949ac08d1583fc0e22c0ef9c9b01630ba0c78edcdae6b1f57c8cd
+  - path: tests/skills/test_issue_protocol.py
+    sha256: 201f8b5b8d49cb8edca6728d4dbae214f45670bf9b33e0ced4787d667a6fb7c1
+file_count: 9

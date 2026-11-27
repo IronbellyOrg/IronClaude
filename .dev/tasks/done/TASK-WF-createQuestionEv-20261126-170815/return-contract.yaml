@@ -1,0 +1,19 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-createQuestionEv-20261126-170815
+plan_path: ./TASK-WF-createQuestionEv-20261126-170815.md
+source_path: ./source.md
+source_origin: .dev/reflect/pre-issueSummary-20261126132809/regenerate/createQuestionEvidence.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-834-rest/.dev/reflect/pre-createQuestionEv-20261126142850/REPORT.md
+unresolved:
+  - "reflect_status scope: changed lines plus prior blockers. Re-review 3 of 3 (.dev/reflect/pre-createQuestionEv-20261126142850/rereview/REREVIEW-2.md) passed; the second full review used the single-reviewer fallback (merge_method single-reviewer-fallback), not an adversarial merge."
+  - "Follow-up candidates, not repaired: Medium M-05..M-16 and NEW-2 (the Task 4 dry-run excerpt and Task 5 self-test output sit in ./artifacts/ before Task 9's secret scan), Notes N-17..N-22 and NEW-3."
+remediation_route: surgical
+supersedes: TASK-WF-createQuestionEv-20261126-170236
+finding_counts: {"blocking": 1, "label_high": 0, "medium": 1, "note": 1}
+fix_cycles: 2

@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-design-20261126-142413
+plan_path: ./TASK-WF-design-20261126-142413.md
+source_path: ./source.md
+source_origin: .dev/brainstorms/20261126-120549-reflect-remediate-depth-after-pr-653/design.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-599/.dev/reflect/pre-TASK-WF-design-20261126-131233-20261126131756/REPORT.md
+unresolved: []
+supersedes: TASK-WF-design-20261126-131233
+remediation_route: surgical
+finding_counts: {"blocking": 3, "label_high": 0, "medium": 3, "note": 1}
+fix_cycles: 1

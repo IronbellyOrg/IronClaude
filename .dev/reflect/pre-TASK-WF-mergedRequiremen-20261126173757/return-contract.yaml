@@ -1,0 +1,77 @@
+contract_version: "1.9.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/run-ledger/.dev/reflect/pre-TASK-WF-mergedRequiremen-20261126173757/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/run-ledger/.dev/reflect/pre-TASK-WF-mergedRequiremen-20261126173757/audit.log
+confidence_calibrated: 0.78
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.8182
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-006, INF-008, INF-010, INF-016, INF-027, INF-028, INF-032, INF-041, INF-053, INF-054]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256: {tasklist: 2e6227cef00d637805096036fc00df5aefd42c313810e13d68e08f1fc45d2c8a, spec: 86b9b1534f32bfda149f41297c67a13d47211905a7ab5ec8a549685ea59b2acc}
+input_tree_sha256: 8227b91a386140cded0c333f55bc0a3ebb0f1f4e6ff3d0ff12917ba660e6ad21
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/run-ledger/.dev/reflect/pre-TASK-WF-mergedRequiremen-20261126173757/artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_total: 166
+citations_revalidated: 166
+citations_dropped: 3
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [reviewer-cards/reviewer-1-card.md, reviewer-cards/reviewer-2-card.md]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/run-ledger/.dev/reflect/pre-TASK-WF-mergedRequiremen-20261126173757/adversarial/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+finding_counts: {blocking: 6, label_high: 3, medium: 9, note: 12}
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: true          # spec line 85 names a path that does not exist (the plan has the right one); a Note finding
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_check_skipped: true
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+forced_tier: null
+promotion_action: not-applicable
+promotion_gate_passed: null
+telemetry:
+  degraded_components: [env-aliases-reviewer-count-2-not-3, calibrator-disjoint-set-unavailable, executor-class-unknown]
+  executor_class_resolved: false
+  reviewer_models: [sonnet, haiku]
+  reviewer_personas: [analyzer, qa]
+  fallback_path: null
+  unaddressed_invariants: [INV-001, INV-002, INV-006]
+  convergence_status: BLOCKED_BY_INVARIANTS
+  memory_persist: skipped (the tracked docs/memory file is outside this run's scope; no repo file was written by reflect)
+  t1_card_calibration: skipped (Tier 2 forced by the pre-filter)
+  step_1b_and_1c: inline orchestrator (no requirements-analyst or root-cause-analyst agent)
+  reviewer_identity: requested-pinned (not verified; reviewer 1 reported the same model id as the orchestrator)

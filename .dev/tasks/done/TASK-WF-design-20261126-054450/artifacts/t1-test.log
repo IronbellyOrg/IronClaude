@@ -1,0 +1,6 @@
+$ uv run pytest -p no:cacheprovider tests/cli/test_how_we_work_install.py tests/cli/test_issue_body_templates.py tests/cli/test_bash_inspection_policy.py tests/cli/test_install_failures.py tests/unit/test_cli_install.py tests/cli/test_update_command.py tests/cli/test_install_retired_files.py -q
+tests/cli/test_update_command.py ....................                    [ 81%]
+tests/cli/test_install_retired_files.py ................................ [100%]
+
+============================= 169 passed in 5.39s ==============================
+rc=0 if the line above says passed

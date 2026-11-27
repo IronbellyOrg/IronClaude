@@ -1,0 +1,6 @@
+13d4ac5d1aca6c9692fc3c1ec643ec91dd7c2952 tree=409364a7c4f73ac872060651d127f495eb80ad0c
+T11.AC1 met (.dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/pr-notes.md:5-7)
+T11.AC2 met (.dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/pr-notes.md:18)
+T11.AC3 met (.dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/pr-notes.md:37)
+F1.1 sev=blocking trigger=B2 ac=T11.AC2 at=.dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/pr-notes.md:18 anchor=.dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/pr-notes.md:18 chk=n,y,n,n family=live-call-wording fix=reword the sentence that says the one live call is a read of issue 834: the live calls are reads only and also include the fork-activity snapshots of every run first=A1 origin=new: the sentence "The one live call of this work is a read of issue 834's state" is false against the fork_activity block of every summary.json.
+F1.2 sev=minor trigger=none ac=scope at=.dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/pr-notes.md:3 anchor=n/a chk=n,n,n,n family=staging-state-claim fix=say that .dev/tasks is to be staged first=A1 origin=new: line 3 said .dev/tasks is staged in the present tense.

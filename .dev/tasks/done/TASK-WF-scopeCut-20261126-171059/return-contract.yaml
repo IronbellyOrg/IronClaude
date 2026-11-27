@@ -1,0 +1,19 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-scopeCut-20261126-171059
+plan_path: ./TASK-WF-scopeCut-20261126-171059.md
+source_path: ./source.md
+source_origin: .dev/brainstorms/20261126-120633-apply-branch-rulesets-ironbellygroup/scopeCut.md
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-838/.dev/reflect/pre-TASK-WF-scopeCut-20261126-165750-20261126165932/REPORT.md
+unresolved:
+  - "Reflect ran at Tier 1 only (depth quick overrides the parsed-sparse pre-filter): no Tier 2 reviewers. Re-review of the repaired plan: scope changed lines plus the prior blocker; F-1 resolved, one new Medium (N-1: what a failed apply prints)."
+  - "Follow-up candidates (Medium, never repaired by the remediation route): F-2 to F-9 of the reflect report and N-1."
+supersedes: TASK-WF-scopeCut-20261126-165750
+remediation_route: surgical
+finding_counts: {"blocking": 1, "label_high": 0, "medium": 8, "note": 2}
+fix_cycles: 1

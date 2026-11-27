@@ -16,7 +16,7 @@ Backs `/sc:sweep` (`~/.claude/commands/sc/sweep.md`, or the project `.claude/com
 
 ## Inputs
 
-The flags the person or coordinator gave `/sc:sweep`, passed through unchanged as `<args>`: `--run <id>` (repeatable), `--window <N>h|<N>d`, `--root <dir>`, `--output <dir>`. The skill adds no flag, reads no environment variable and has no worker mode.
+The flags the person or coordinator gave `/sc:sweep`, passed through unchanged as `<args>`: `--run <id>` (repeatable), `--window <N>h|<N>d`, `--root <dir>`, `--output <dir>`. The skill adds no flag, reads no environment variable and has no worker mode. With no `--run` and no Run bound to the terminal, the command itself takes the Run ids from the Run ledger that `superclaude sweep ledger` builds; if there is no usable ledger it exits 2 with a hint, and this skill still runs only `superclaude sweep run`.
 
 ## Steps
 

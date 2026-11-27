@@ -1,0 +1,7 @@
+narrative False
+key-only False
+inline-genuine True
+block-genuine-lower True
+empty False
+archive narrative case: SUPERSEDED by count = 1
+============================== 78 passed in 0.81s ==============================

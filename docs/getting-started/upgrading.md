@@ -42,15 +42,16 @@ your edited copy is saved first depends on the kind of file:
 
 | In `~/.claude/` | If your copy differs from the shipped one |
 |-----------------|-------------------------------------------|
-| Commands (`commands/sc/`), rules (`rules/`) and output styles (`output-styles/`) | A copy is saved next to it as `<name>.bak.<UTC time>` (for example `analyze.md.bak.20261118T170151Z`) before the file is overwritten. See [Saved copies](#saved-copies-of-changed-files). |
-| Core files (`CLAUDE.md`, `RULES.md` and the other core `.md` files), agents (`agents/`) and skill folders (`skills/`) | Overwritten with no copy. Each shipped skill folder is deleted and copied again, so any file you added inside one is lost. |
+| Commands (`commands/sc/`), rules (`rules/`), output styles (`output-styles/`), core files (`CLAUDE.md`, `RULES.md` and the other core `.md` files), agents (`agents/`) and templates (`templates/`) | A copy is saved next to it as `<name>.bak.<UTC time>` (for example `analyze.md.bak.20261118T170151Z`) before the file is overwritten. See [Saved copies](#saved-copies-of-changed-files). Releases 6.1.0 and earlier overwrite core files, agents and templates with no copy. |
+| Skill folders (`skills/`) and hook scripts (`hooks/`) | Overwritten with no copy. Each shipped skill folder is deleted and copied again, so any file you added inside one is lost. |
 | `settings.json` | Backed up as `settings.json.bak.<timestamp>` before the installer merges its entries, on every run. |
 
-Copy anything you changed in the second row first, for example:
+Copy any file you changed or added inside a skill folder, and any hook script
+you changed, to a place outside `~/.claude/skills/` before you run either
+command (`superclaude install --force` or `superclaude update`), for example:
 
 ```bash
-cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.mine
-cp ~/.claude/RULES.md ~/.claude/RULES.md.mine
+cp ~/.claude/skills/<skill-name>/<file> ~/<file>.mine
 ```
 
 Re-apply your changes after the upgrade.
@@ -98,9 +99,10 @@ without `pipx` it stops at that first command (exit 127). Install pipx with
 
 1. Refreshes the framework files in `~/.claude/`: 12 core files, 35 commands,
    48 agents, 35 skills, hooks, templates, rules and output styles, and merges
-   its hook entries into `~/.claude/settings.json`. A command, rule or
-   output-style file that differs from the shipped one is saved as
-   `<name>.bak.<UTC time>` first.
+   its hook entries into `~/.claude/settings.json`. A command, rule,
+   output-style, core, agent or template file that differs from the shipped one
+   is saved as `<name>.bak.<UTC time>` first. Releases 6.1.0 and earlier
+   overwrite core files, agents and templates with no copy.
 2. Installs codegraph 1.6.2: downloads the release for your platform, checks its
    SHA-256, extracts it under `~/.codegraph/`, links `~/.local/bin/codegraph`
    and registers it as a user-scope MCP server.
@@ -335,33 +337,48 @@ disappear from them.
 ### Saved copies of changed files
 
 `superclaude install --force` and `superclaude update` save a copy of every
-command, rule and output-style file that differs from the shipped one before
-they overwrite it. The install output lists the copies, for example
-`Saved 27 changed command(s) before overwriting:` (and the same for `rule
-file(s)` and `output style(s)`).
+command, rule, output-style, core, agent and template file that differs from the
+shipped one before they overwrite it. The install output lists the copies, for
+example `Saved 27 changed command(s) before overwriting:` (and the same for
+`rule file(s)`, `output style(s)`, `core file(s)`, `agent(s)` and
+`template(s)`).
 
 - **Why so many.** A file from an older release and a file you edited look the
-  same to the installer, so both are saved. An upgrade from 5.0.0 leaves a copy
-  of every command that changed since then, whether you edited it or not.
+  same to the installer, so both are saved. Every forced upgrade saves each file
+  whose shipped bytes changed, edited or not, so an upgrade from 5.0.0 leaves a
+  copy of every file that changed since then. The newest copy may be an older
+  shipped version rather than your edit, so read the copies before you restore
+  one.
 - **Not loaded.** The copy is named `<name>.bak.<UTC time>` (for example
   `analyze.md.bak.20261118T170151Z`). It ends in a time stamp, not in `.md`, so
-  Claude Code does not load it as a command.
-- **Not covered.** Core files, agents and skill folders are overwritten without a
-  copy (see Step 1). A plain `superclaude install` overwrites nothing; it names
-  each kept file that differs from this version (`N kept command(s) differ from
-  this version and were NOT updated`).
+  Claude Code does not load it as a command, agent or core file.
+- **Not covered.** Skill folders and hook scripts get no copy (see Step 1).
+  A plain `superclaude install` overwrites nothing; it names each kept file that
+  differs from this version (`N kept command(s) differ from this version and
+  were NOT updated`).
 - **If a copy cannot be saved,** that one file is left as it is, and
-  `superclaude install` prints it as a failure and exits 1.
+  `superclaude install --force` or `superclaude update` prints it as a failure
+  (`could not save a copy first, left untouched`) and exits 1. The installer
+  could not write the `.bak.` copy next to the file, because the folder is not
+  writable, the disk is full, the file cannot be read, or a folder sits at the
+  file's path. Make the folder writable or free space and run the command
+  again, or move the file aside yourself. A `.bak.` file left behind by a failed
+  save may be incomplete.
 - **Nothing deletes them.** List the copies, then delete them when you no longer
-  need what is in them (look at the ones for files you edited first):
+  need what is in them (look at the ones for files you edited first). The first
+  pair covers the folders and the second pair the core files in `~/.claude`
+  itself:
 
   ```bash
-  find ~/.claude/commands/sc ~/.claude/rules ~/.claude/output-styles -name '*.bak.*'
-  find ~/.claude/commands/sc ~/.claude/rules ~/.claude/output-styles -name '*.bak.*' -delete
+  find ~/.claude/commands/sc ~/.claude/rules ~/.claude/output-styles ~/.claude/agents ~/.claude/templates -name '*.bak.*'
+  find ~/.claude/commands/sc ~/.claude/rules ~/.claude/output-styles ~/.claude/agents ~/.claude/templates -name '*.bak.*' -delete
+  find ~/.claude -maxdepth 1 -name '*.md.bak.*'
+  find ~/.claude -maxdepth 1 -name '*.md.bak.*' -delete
   ```
 
   The `settings.json.bak.<timestamp>` files in `~/.claude/` are separate: the
-  installer writes one on every run.
+  installer writes one on every run, and the root search above leaves them
+  alone.
 
 ## Step 5: Move your session memories
 

@@ -1,0 +1,42 @@
+881ad45bd1aa876c95c961cef78f1d66cd04540c
+Review one task for spec compliance.
+
+Task brief: Task T6 "Narrow the recording promises to what is actually written". Make one consistent statement in `src/superclaude/skills/sc-workflow-protocol/SKILL.md` (Wave 4R paragraph that says `--remediate none` records the counts and the chosen route), `src/superclaude/skills/sc-workflow-protocol/refs/remediation.md` (the paragraph after the `route` command that says a forced route is recorded as forced), and `src/superclaude/commands/workflow.md` (the `--remediate` option row, and the `Will` sentence that says the route and finding counts are recorded in the package contract). The true behavior, from `remediate.py`: `route` only prints `{"route": ..., "forced": ...}`; `place` writes `supersedes`, `remediation_route: surgical` and `finding_counts` for the surgical route; `mark` writes them for the regenerate route (its CLI route is restricted to regenerate); no helper writes a none route or a durable forced flag. So `none` prints the counts and route and changes nothing, a forced route is reported as forced in the printed result only, and the contract carries route and counts only for a placed or marked package. Also check the sentence in `refs/remediation.md` section 1 row 1 that says Medium and Note findings "are written to the contract as follow-up candidates": confirm by reading `SKILL.md` Wave 5 and `refs/return-contract.md` whether any step writes them on the none route, and narrow that sentence the same way if nothing does. Add no writer.
+AC ids:
+- T6.AC1: None of the three files says that the none route, or the forced flag, is recorded in the contract; each says what is printed and what `place` or `mark` writes.
+- T6.AC2: Wording agrees across `SKILL.md`, `refs/remediation.md` and `commands/workflow.md`, and the reflect-result lines (`reflect_status`, `reflect_report_path` recorded in the contract) are left as they are because they are written.
+- T6.AC3: `uv run pytest tests/skills/test_workflow_remediation.py tests/commands/test_workflow_command.py tests/agents/test_workflow_reviser_readonly.py -q` passes, including the check that the coordinator supplies the `diff -w` output.
+Global constraints:
+- Base every change on `integration`, not the issue's stale `master`. Edit canonical files under `src/superclaude/`, `tests/` and `.dev/README.md`, plus the four existing plugin mirrors named in Task 7. Never edit or stage anything under `.claude/` except through `make sync-dev`, and never stage generated `.claude/` content.
+- No new metadata writer, none or forced flag field, placement guard, dependency, contract version, agent or reflection mirror. `place` keeps its existing refusal (the `E-REMEDIATE-SOURCE` check before any write).
+- Keep the pull request 705 safeguards untouched: the read/edit-only `workflow-reviser`, the untrusted-report rule, the post-edit digest check, fail-closed behavior, and the coordinator-supplied `diff -w` rule in `src/superclaude/skills/sc-workflow-protocol/refs/remediation.md`.
+- Keep the already-resolved findings intact: the `archive-undo.txt` conflict refusal, non-overwriting moves and rollback tests in `tests/skills/test_workflow_remediation.py`.
+- Do not modify, move or archive any live task package to reproduce the defect, and leave `docs/designs/surgical-remediation.md` unchanged.
+- Make no commit, push or pull request as part of this plan.
+Start sha: 881ad45bd1aa876c95c961cef78f1d66cd04540c
+Diff against the start snapshot: Touched files: `src/superclaude/skills/sc-workflow-protocol/SKILL.md` (Wave 4R paragraph: `--remediate none` now "prints" the counts and route, a forced route is "printed as forced and no contract field stores"; one new sentence at the end of the paragraph says the contract carries `remediation_route`, `supersedes` and `finding_counts` only for a package `place` or `mark` wrote), `src/superclaude/skills/sc-workflow-protocol/refs/remediation.md` (section 1 row 1: Medium and Note findings "stay in the review report as follow-up candidates (no step writes them to the contract)"; the paragraph after the `route` command now says `route` only prints and writes nothing, and `--forced` is "printed as forced"), `src/superclaude/commands/workflow.md` (the `--remediate` option row and the `Will` sentence), and three plugin mirror copies made byte for byte from those three files so `test_plugin_mirror_matches_src` passes: `plugins/superclaude/skills/sc-workflow-protocol/SKILL.md`, `plugins/superclaude/skills/sc-workflow-protocol/refs/remediation.md`, `plugins/superclaude/commands/workflow.md` (Task 7 of the plan covers the mirrors in full; they were copied now because AC3 cannot pass without them). Evidence log (new): `.dev/tasks/to-do/TASK-WF-issueSummary-20261126-161245/artifacts/t6-check.log` (line 1 is a grep for leftover record-words near none/forced with no hit; line 3-4 the first test run with one failure `test_plugin_mirror_matches_src` before the mirrors were copied; line 6 the run after the copies: 109 passed). Run `git diff 881ad45bd1aa876c95c961cef78f1d66cd04540c -- src/superclaude/skills/sc-workflow-protocol/SKILL.md src/superclaude/skills/sc-workflow-protocol/refs/remediation.md src/superclaude/commands/workflow.md` to see the diff.
+Codegraph context: index_state: fresh; checked_at: 2026-11-26T17:51:38Z; worktree_root: /home/coder/workspaces/worktrees/IronClaude/issue-703; projectPath: /home/coder/workspaces/worktrees/IronClaude/issue-703. Call codegraph only when index_state: fresh, never to widen scope. Q2b: Markdown documentation only; no code symbol changed.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

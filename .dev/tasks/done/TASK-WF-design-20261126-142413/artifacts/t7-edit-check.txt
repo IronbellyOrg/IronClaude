@@ -1,0 +1,11 @@
+--- git diff --stat vs start
+ src/superclaude/skills/sc-reflect-protocol/SKILL.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--- git diff --stat HEAD
+ src/superclaude/skills/sc-reflect-protocol/SKILL.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--- wc -l before / after
+2007 src/superclaude/skills/sc-reflect-protocol/SKILL.md
+2007 src/superclaude/skills/sc-reflect-protocol/SKILL.md
+--- git grep 'manual planning or' (expect none)
+grep exit code: 1

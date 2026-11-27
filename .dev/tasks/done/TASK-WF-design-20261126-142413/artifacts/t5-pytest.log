@@ -1,0 +1,24 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-599/.venv/bin/python3
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-599
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 13 items
+
+tests/cli/reflect/test_fix_loop.py::test_convergence_exit0_three_launches PASSED [  7%]
+tests/cli/reflect/test_fix_loop.py::test_non_convergence_exit10_five_launches PASSED [ 15%]
+tests/cli/reflect/test_fix_loop.py::test_cannot_repair_absent_path_halts_no_apply PASSED [ 23%]
+tests/cli/reflect/test_fix_loop.py::test_human_required_halts_no_apply PASSED [ 30%]
+tests/cli/reflect/test_fix_loop.py::test_degraded_with_drift_never_autofixed PASSED [ 38%]
+tests/cli/reflect/test_fix_loop.py::test_blocked_with_drift_never_autofixed PASSED [ 46%]
+tests/cli/reflect/test_fix_loop.py::test_failed_apply_fails_closed_no_reaudit PASSED [ 53%]
+tests/cli/reflect/test_fix_loop.py::test_plan_route_applies_via_sc_implement PASSED [ 61%]
+tests/cli/reflect/test_fix_loop.py::test_stale_task_pointer_is_ignored_when_both_pointers_set PASSED [ 69%]
+tests/cli/reflect/test_fix_loop.py::test_task_pointer_alone_is_not_applied PASSED [ 76%]
+tests/cli/reflect/test_fix_loop.py::test_apply_prompt_is_sc_implement_at_every_depth[quick] PASSED [ 84%]
+tests/cli/reflect/test_fix_loop.py::test_apply_prompt_is_sc_implement_at_every_depth[standard] PASSED [ 92%]
+tests/cli/reflect/test_fix_loop.py::test_apply_prompt_is_sc_implement_at_every_depth[deep] PASSED [100%]
+
+============================== 13 passed in 1.10s ==============================
+pytest rc=0

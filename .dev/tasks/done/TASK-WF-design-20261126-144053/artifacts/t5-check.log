@@ -1,0 +1,5 @@
+$ bash -c git rev-parse --short=8 HEAD; grep -n 'Built from HOW-WE-WORK.md at commit' docs/onboarding/ironclaude-onboarding.html | tail -1; git diff -U0 f44b056a9e7996eeff8c498c492644c004e30332 -- docs/onboarding/ironclaude-onboarding.html | grep '^@@'
+86238485
+579:  <p>Built from HOW-WE-WORK.md at commit 86238485.</p>
+@@ -579 +579 @@
+rc=0

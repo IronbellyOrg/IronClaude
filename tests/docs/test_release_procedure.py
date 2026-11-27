@@ -114,6 +114,14 @@ def test_step2_has_its_own_commands():
     assert "git merge-base --is-ancestor origin/master origin/integration" in step2
 
 
+def test_step2_warns_that_checks_may_not_be_registered_yet():
+    # Seen in the scratch rehearsal: `gh pr checks --watch` seconds after the release PR was opened
+    # printed "no checks reported" and exited 1, and passed when repeated about 30 seconds later.
+    step2 = _section("Step 2")
+    assert "no checks reported" in step2
+    assert "until it lists at least one check" in step2
+
+
 def test_verify_tag_on_the_release_line():
     # The page also explains the flag in prose, so only the fenced release line counts.
     release_lines = [

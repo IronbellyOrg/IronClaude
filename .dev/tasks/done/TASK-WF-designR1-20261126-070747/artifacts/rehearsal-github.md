@@ -1,4 +1,4 @@
-Status: not exercised (needs the owner's approval to create a scratch repository)
+Status: exercised on 2026-11-26 in the private scratch repository https://github.com/clayphi/ironclaude-release-rehearsal-826 (owner clayphi), after the owner's go-ahead from the IronFlow session. The results are in the issue 826 comment https://github.com/IronbellyOrg/IronClaude/issues/826#issuecomment-7198583895. Everything below is the plan as it was written before that run and is kept unchanged; its "not exercised" and "partly met" lines are superseded by the comment.
 
 # GitHub-side rehearsal of the release procedure (issue 826, Task 13)
 

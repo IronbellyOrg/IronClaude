@@ -1,0 +1,20 @@
+$ uv run pytest tests/docs/test_branch_protection_rulesets.py -v
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 9 items
+
+tests/docs/test_branch_protection_rulesets.py::test_branch_rulesets[protect-master-refs/heads/master] PASSED [ 11%]
+tests/docs/test_branch_protection_rulesets.py::test_branch_rulesets[protect-integration-refs/heads/integration] PASSED [ 22%]
+tests/docs/test_branch_protection_rulesets.py::test_tag_ruleset PASSED   [ 33%]
+tests/docs/test_branch_protection_rulesets.py::test_no_default_branch_token_anywhere PASSED [ 44%]
+tests/docs/test_branch_protection_rulesets.py::test_guide_has_apply_and_check_commands PASSED [ 55%]
+tests/docs/test_branch_protection_rulesets.py::test_other_repos_full_role_derived PASSED [ 66%]
+tests/docs/test_branch_protection_rulesets.py::test_other_repos_mirror_derived PASSED [ 77%]
+tests/docs/test_branch_protection_rulesets.py::test_other_repos_files_match_targets PASSED [ 88%]
+tests/docs/test_branch_protection_rulesets.py::test_guide_has_other_repos_section PASSED [100%]
+
+============================== 9 passed in 0.05s ===============================
+$ uv run pytest tests/docs -q
+
+============================== 57 passed in 0.60s ==============================
+$ uv run ruff check tests/docs/test_branch_protection_rulesets.py
+All checks passed!

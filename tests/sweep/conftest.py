@@ -42,6 +42,13 @@ def no_subprocess(request, monkeypatch):
     monkeypatch.setattr(os, "system", _blocked)
 
 
+@pytest.fixture(autouse=True)
+def no_real_run_ledger(tmp_path_factory, monkeypatch):
+    """Point the Run ledger at a file that does not exist, so no test reads a real ledger."""
+    missing = tmp_path_factory.mktemp("no-run-ledger") / "run-ledger.json"
+    monkeypatch.setenv("SUPERCLAUDE_RUN_LEDGER", str(missing))
+
+
 @dataclass
 class GitFake:
     """Recording fake for ``probes._git``.

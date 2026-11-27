@@ -1,0 +1,50 @@
+$ uv run pytest tests/core tests/docs tests/commands/test_worktrees_command.py tests/worktree_cleanup -q
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-289
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collected 864 items
+
+tests/core/test_claude_md_routing_block.py ......                        [  0%]
+tests/core/test_claude_md_worktree_rule.py ...                           [  1%]
+tests/core/test_codegraph_guide.py ...............                       [  2%]
+tests/core/test_default_branch_agreement.py .                            [  2%]
+tests/core/test_how_we_work_routing_table.py ........................... [  6%]
+...................................                                      [ 10%]
+tests/core/test_how_we_work_worktree_policy.py ......................... [ 12%]
+........................................................................ [ 21%]
+........                                                                 [ 22%]
+tests/core/test_orca_session_launch_guidance.py .....                    [ 22%]
+tests/core/test_research_config.py ....                                  [ 23%]
+tests/core/test_research_routing_rule.py ...                             [ 23%]
+tests/docs/test_branch_protection_rulesets.py .....                      [ 24%]
+tests/docs/test_chrome_devtools_mcp_removed.py .                         [ 24%]
+tests/docs/test_onboarding_deck.py ...                                   [ 24%]
+tests/docs/test_release_procedure.py ................................... [ 28%]
+..                                                                       [ 28%]
+tests/docs/test_retired_docs_absent.py ..                                [ 29%]
+tests/docs/test_tavily_doc_alignment.py .....                            [ 29%]
+tests/commands/test_worktrees_command.py ............                    [ 31%]
+tests/worktree_cleanup/test_archive.py ................................. [ 34%]
+............                                                             [ 36%]
+tests/worktree_cleanup/test_automation_definition.py .........           [ 37%]
+tests/worktree_cleanup/test_facts.py ................................... [ 41%]
+............................................................             [ 48%]
+tests/worktree_cleanup/test_git_facts.py .................               [ 50%]
+tests/worktree_cleanup/test_pipeline.py .................                [ 52%]
+tests/worktree_cleanup/test_removal.py ................................. [ 56%]
+                                                                         [ 56%]
+tests/worktree_cleanup/test_rules.py ................................... [ 60%]
+........................................................................ [ 68%]
+.....................                                                    [ 70%]
+tests/worktree_cleanup/test_runner.py .................................. [ 74%]
+........................................................................ [ 83%]
+.......................                                                  [ 85%]
+tests/worktree_cleanup/test_safety.py .................................. [ 89%]
+........................................................                 [ 96%]
+tests/worktree_cleanup/test_verbs.py ................................    [100%]
+
+============================= 864 passed in 34.32s =============================
+rc=0

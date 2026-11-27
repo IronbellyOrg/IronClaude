@@ -1,0 +1,38 @@
+{
+ "input_tree_sha256": "94819d32711d967d643ec34428b4182d907ce0c68226a62abe8f4987d47b6189",
+ "file_list": [
+  {
+   "path": ".dev/research/346-review-loop-experiments/p15/plans/SHARED-CONTRACT.md",
+   "sha256": "51e86d9d2d84ab5c77ca8fc2b54615b5f9a561964378b41849225467f9456f27"
+  },
+  {
+   "path": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-152817/TASK-WF-designSpec-20261126-152817.md",
+   "sha256": "cac5150528c4f8a7f3911dda2f543df6a8068c597a11f4f5cb4123a806c35b28"
+  },
+  {
+   "path": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-152817/artifacts/codegraph-grounding.md",
+   "sha256": "e23fd5a5b27b3f5cfda04153f6c94c0f849f5516e3a88125f4f0a75595ba8b25"
+  },
+  {
+   "path": ".dev/tasks/to-do/TASK-WF-designSpec-20261126-152817/source.md",
+   "sha256": "ed81b6d47c7f5321171bbb98eaf29382f669fdb6aa7a7d2ce3b75460ffd0bc28"
+  },
+  {
+   "path": "README.md",
+   "sha256": "56e3655b7ec49431567d35aab11ac68b447ae0e5456781024f062a4a573a5f55"
+  },
+  {
+   "path": "docs/docs-product/ops/jev-litellm-gateway-operational-guide.md",
+   "sha256": "6c4a58d6750917c06799139738a48d9996293372b086b1ba2a17a7632f46d81a"
+  },
+  {
+   "path": "docs/memory/reflect/deviation-patterns-issue-610.md",
+   "sha256": "789b655f3be7cb7ef2dbcbab56765b06afc69ab521f0d6ea497d68d80307716b"
+  },
+  {
+   "path": "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+   "sha256": "f2447e0e1b11b2cad84c76a93cac92cde990cdadac3e1bad49b2a0ea453e1dd3"
+  }
+ ],
+ "file_count": 8
+}

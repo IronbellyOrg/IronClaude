@@ -1,0 +1,7 @@
+{"t": "2026-11-26T18:40:50Z", "argv": ["auth", "token"], "kind": "start-up-read"}
+{"t": "2026-11-26T18:40:59Z", "argv": ["auth", "status"], "kind": "protocol-read"}
+{"t": "2026-11-26T18:41:28Z", "argv": ["label", "list", "--repo", "IronbellyOrg/IronClaude", "--limit", "200", "--json", "name"], "kind": "protocol-read"}
+{"t": "2026-11-26T18:41:28Z", "argv": ["api", "repos/IronbellyOrg/IronClaude/issue-types"], "kind": "protocol-read"}
+{"t": "2026-11-26T18:41:28Z", "argv": ["api", "orgs/IronbellyOrg/issue-fields"], "kind": "protocol-read"}
+{"t": "2026-11-26T18:41:28Z", "argv": ["issue", "list", "--repo", "IronbellyOrg/IronClaude", "--state", "all", "--search", "\"create_issue.py\"", "--json", "number,title,state,url", "--limit", "10"], "kind": "protocol-read"}
+{"t": "2026-11-26T18:41:28Z", "argv": ["issue", "list", "--repo", "IronbellyOrg/IronClaude", "--state", "all", "--search", "\"sc:issue\" \"crash\"", "--json", "number,title,state,url", "--limit", "10"], "kind": "protocol-read"}

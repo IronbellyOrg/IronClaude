@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/home/coder/workspaces/worktrees/IronClaude/issue-834-rest/.dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/harness/run_create.py", line 942, in <module>
+    sys.exit(main(sys.argv[1:]))
+  File "/home/coder/workspaces/worktrees/IronClaude/issue-834-rest/.dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/harness/run_create.py", line 936, in main
+    return do_run(args)
+  File "/home/coder/workspaces/worktrees/IronClaude/issue-834-rest/.dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/harness/run_create.py", line 660, in do_run
+    read_lines, read_facts = read_files_report(analysis)
+  File "/home/coder/workspaces/worktrees/IronClaude/issue-834-rest/.dev/tasks/to-do/TASK-WF-createQuestionEv-20261126-170815/artifacts/harness/run_create.py", line 561, in read_files_report
+    digest = sha256(p) if p.is_file() else "-"
+  File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/pathlib.py", line 1322, in is_file
+    return S_ISREG(self.stat().st_mode)
+  File "/home/coder/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/pathlib.py", line 1097, in stat
+    return self._accessor.stat(self, follow_symlinks=follow_symlinks)
+PermissionError: [Errno 13] Permission denied: '/root/.claude/commands/sc/analyze.md'
+exit=1

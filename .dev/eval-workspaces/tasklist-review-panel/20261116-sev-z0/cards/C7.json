@@ -1,0 +1,34 @@
+{
+  "id": "C7",
+  "name": "Dictated text drops or contradicts a constraint",
+  "version": 1,
+  "definition": "Verbatim text the plan dictates omits a clause of a constraint stated elsewhere, or contradicts the plan's own criterion.",
+  "question_template": "Does each dictated text carry every clause of this constraint? Tick each clause.",
+  "extractor": "E7",
+  "route": "read",
+  "replicas": 2,
+  "applies_to": [
+    "plan",
+    "spec",
+    "doc"
+  ],
+  "instances": [
+    {
+      "cite": "reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/REPORT.md:48",
+      "target": "plan",
+      "kind": "P"
+    },
+    {
+      "cite": "reflect/pre-implementGitHubI-20261105171020/REPORT.md:67",
+      "target": "plan",
+      "kind": "P"
+    }
+  ],
+  "severity_guidance": "Blocking when the text, written as ordered, breaks the constraint; minor when only the wording differs.",
+  "known_weakness": "Clauses with no distinctive token; only the broad form is visible, the one-clause form is rarely seen.",
+  "promote_category": "contradiction",
+  "swap_test": {
+    "reviewer": "second-author-session claude-sonnet-5-5",
+    "date": "2026-11-15"
+  }
+}

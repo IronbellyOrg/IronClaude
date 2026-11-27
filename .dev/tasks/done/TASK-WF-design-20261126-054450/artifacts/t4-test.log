@@ -1,0 +1,21 @@
+$ uv run pytest -p no:cacheprovider tests/cli/test_install_keep.py -q
+tests/cli/test_install_keep.py .....................................     [100%]
+
+============================== 37 passed in 1.26s ==============================
+
+$ uv run pytest -p no:cacheprovider tests/cli/test_install_keep.py -v -k agents
+test_forced_install_saves_a_differing_file_then_replaces_it[agents] PASSED [ 10%]
+test_forced_install_of_a_matching_or_missing_file_makes_no_backup[agents] PASSED [ 20%]
+test_a_second_forced_run_makes_no_further_backup[agents] PASSED [ 30%]
+test_plain_install_keeps_the_edit_and_makes_no_backup[agents] PASSED [ 40%]
+test_failed_save_leaves_the_file_untouched[agents-permission] PASSED [ 50%]
+test_failed_save_leaves_the_file_untouched[agents-enospc] PASSED [ 60%]
+test_save_then_failed_replacement_keeps_the_backup[agents] PASSED [ 70%]
+test_backup_names_do_not_collide_on_one_instant[agents] PASSED [ 80%]
+test_same_size_same_mtime_edit_is_saved_when_forced[agents] PASSED [ 90%]
+test_directory_at_the_victim_path_fails_closed[agents] PASSED [100%]
+====================== 10 passed, 27 deselected in 1.10s =======================
+
+$ uv run pytest -p no:cacheprovider tests/cli/test_install_keep.py -q -k core
+
+====================== 12 passed, 25 deselected in 1.14s =======================

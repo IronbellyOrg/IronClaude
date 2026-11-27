@@ -1,0 +1,3 @@
+read at 2026-11-26T19:15:43Z by the orchestrator (read-only):
+gh issue view 834 --repo IronbellyOrg/IronClaude --json state,closedAt,stateReason
+{"closedAt":"2026-11-26T13:14:10Z","state":"CLOSED","stateReason":"COMPLETED"}

@@ -1,0 +1,54 @@
+{
+  "doc_id": "NP-4",
+  "plan": "TASK-WF-designOutput-20261111-193642",
+  "items": [
+    {
+      "id": "GT1",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 2 AC3 lets the test criterion pass when 'any failure is shown in the log and is not attributable to design.md'. Source acceptance criterion 6 says 'the related tests pass', so the plan's version can be satisfied while a named test file fails, and the executor decides what counts as attributable. The criterion should require all four named test files to pass.",
+      "plan_quote": "The four named test files pass with `uv run pytest`, or any failure is shown in `./artifacts/t2-checks.log` and is not attributable to `design.md`.",
+      "evidence": ".dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/REPORT.md:59 (MF-1); .dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/merged-output.md MF-1; plan:46; source.md:62"
+    },
+    {
+      "id": "GT2",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 1's acceptance criteria check only the readiness check, the fresh-only rule, the fallback and the tool-to-step map. Nothing checks the required Grounding line, the SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off to graph:disabled rule, or the leads-not-citations and empty-is-not-absence rules (source 3.2 items 5 to 7). Those requirements can be dropped without failing any check.",
+      "plan_quote": "states exactly one readiness check per run, the fresh-only rule, the Glob/Grep/Read fallback with a recorded `graph:*` token that never halts, and the tool-to-step map",
+      "evidence": ".dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/REPORT.md:61 (MF-4); .dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/merged-output.md MF-4; source.md:32-34"
+    },
+    {
+      "id": "GT3",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Source 3.2 item 5 ends with the rule that design is read-only against the index, so there is no re-check after writing the design document. Task 1 lists the other item-5 rules but omits this sentence, and no acceptance criterion covers it. An implementer following the plan can add a re-check after the document is written.",
+      "plan_quote": "The section ends with the fallback note rule: record the `graph:*` token, or `index_state: fresh` with the tools used, on a `Grounding` line of the design document",
+      "evidence": ".dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/REPORT.md:63 (MF-6); .dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/merged-output.md MF-6; source.md:32"
+    },
+    {
+      "id": "GT4",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 2's acceptance criterion only requires that Behavioral Flow and Tool Coordination 'refer to' the grounding rules. Source acceptance criterion 3 requires Tool Coordination to name the codegraph tools as reflect.md does, and no check looks for the added bullet or the seven tool names. A vague reference would pass while the bullet is missing.",
+      "plan_quote": "Behavioral Flow steps 1 and 4 and the Tool Coordination section each refer to the codegraph grounding rules",
+      "evidence": ".dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/REPORT.md:64 (MF-7); .dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/merged-output.md MF-7; plan:41,44; source.md:59-60"
+    },
+    {
+      "id": "GT5",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 1 copies the rule to add the degraded-list note 'only if that contract defines one' but gives no step to check whether the worker contract has that list. It also does not say where the Grounding line goes when the output format is code or diagram rather than a document. The implementer has to guess both.",
+      "plan_quote": "and under `--unattended` also in the worker contract's existing degraded list only if that contract defines one.",
+      "evidence": ".dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/REPORT.md:65 (MF-8); .dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/merged-output.md MF-8; source.md:33"
+    },
+    {
+      "id": "GT6",
+      "class": "unassigned",
+      "blocking_in_implement": false,
+      "description": "Task 2 AC4 proves that design.md is the only source file modified by running `git status --short`. The source's own risk section says other sessions edit the same checkout, so a status listing cannot attribute modifications to this plan. The check should compare against a recorded baseline or a scoped diff.",
+      "plan_quote": "`git status --short` shows no staged path under `.claude/`, and `src/superclaude/commands/design.md` is the only source file modified by this plan.",
+      "evidence": ".dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/REPORT.md:66 (MF-9); .dev/reflect/pre-TASK-WF-designOutput-20261111-193642-shadow14/merged-output.md MF-9; plan:47; source.md:66"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+make sync-dev exit: 0
+   Commands:  36 files
+   Hooks:     17 files
+   Templates: 52 files
+make verify-sync exit: 0
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.

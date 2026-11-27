@@ -1,0 +1,3 @@
+Expected-red acceptance verification
+Raw failures retained unchanged in t1-red.txt; expected test outcome is intentional failure before production repair.
+PASS: expected pre-repair red verified mechanically: 3 selected behavior assertions failed, both policies observed old marker, disabled completion retained old bytes, overlap accepted and mutated artifacts; production unchanged.

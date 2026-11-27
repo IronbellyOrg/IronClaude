@@ -507,24 +507,24 @@
   <h2 id="s11-h">Where things live</h2>
   <div class="grid2">
     <div class="card"><h3>Work is written to files</h3><p>Plans, research and findings are saved to files, most under <code>.dev/</code>, not only into the chat. If a session dies, the files are what survives.</p></div>
-    <div class="card"><h3><code>superclaude update</code> overwrites</h3><p>It overwrites every file it ships, including an edited <code>~/.claude/CLAUDE.md</code>, keeps no backup, and deletes and re-copies each shipped skill folder, so any file you added inside one is lost. Copy any file you changed or added before you run it.</p></div>
+    <div class="card"><h3><code>superclaude update</code> overwrites</h3><p>It overwrites every file it ships. When a command, rule, output-style, core (such as <code>~/.claude/CLAUDE.md</code>), agent or template file differs from the shipped one, it first saves a copy next to it as <code>&lt;name&gt;.bak.&lt;UTC time&gt;</code>. Skill folders are deleted and re-copied, so any file you added inside one is lost, and hook scripts are overwritten; neither gets a copy. Copy any skill file or hook script you changed or added to a place outside <code>~/.claude/skills/</code> before you run it.</p></div>
     <div class="card"><h3>Resume after a crash</h3><p>Before you need it, name the conversation with <code>/rename &lt;name&gt;</code> and send one more message (or quit) so ccsession records it; later, from a terminal in the same folder, run <code>ccsession &lt;name&gt;</code>.</p><p>This always works: run the same command again on the work's own files, <code>/sc:implement</code> on the plan.</p></div>
   </div>
 </section>
 
 <section class="slide" id="s12" aria-labelledby="s12-h">
-  <p class="eyebrow"><b>12</b> · Open topics · GitHub issues #289 and #290</p>
-  <h2 id="s12-h">Being worked out</h2>
-  <p>Two topics came up in the onboarding meeting that the guide does not cover yet. Each has its own issue. Until they are settled, ask your lead.</p>
+  <p class="eyebrow"><b>12</b> · Contributing and worktrees · HOW-WE-WORK "Worktrees and branches", GitHub issue #290</p>
+  <h2 id="s12-h">Contributing and worktrees</h2>
+  <p>Both rules are settled. The worktree rule is the left card and the guide section "Worktrees and branches"; the contributing rule is the right card, with its history in issue #290. If a case is not covered, ask your lead.</p>
   <div class="grid2">
     <div class="card">
       <h3>Worktree and branch protocol</h3>
       <div class="term"><b>Worktree:</b> a second checkout of the same repository in its own folder, on its own branch, so parallel sessions do not touch each other's files.</div>
-      <p>When a session should get its own worktree and branch, where they live and how they are named is being worked out in <a href="https://github.com/IronbellyOrg/IronClaude/issues/289">issue #289</a>.</p>
+      <p>New work gets a new worktree and branch, made by Orca with an agent. A fix to delivered work reuses the original worktree while it exists, after the checks in the guide. Name: <code>&lt;login&gt;/issue-&lt;N&gt;-&lt;words&gt;</code>, at most 24 characters, no spaces, for example <code>clayphi/issue-289-wtrule</code>. Before removal the owner writes the lessons on the issue, and a person pins the worktree until then. Details: HOW-WE-WORK, "Worktrees and branches".</p>
     </div>
     <div class="card">
       <h3>Contributing rules</h3>
-      <p>How team members propose or change skills, commands and agents, and what evidence a change needs, is being worked out in <a href="https://github.com/IronbellyOrg/IronClaude/issues/290">issue #290</a>.</p>
+      <p>For now, file an issue; do not open a pull request that changes a skill, command or agent. Before you file, look for an existing tool with <code>/sc:help</code> and <code>/sc:recommend</code>, and note what the outside-plugin search <code>/sc:recommend "&lt;goal&gt;" --plugin</code> returns. Say what is missing or broken, what the searches returned, and which skills you know use it. A future change will need before-and-after evidence, a reviewer's approval and a passing evaluation; that gate is not available yet. The full rule is in the guide, section 4. History: <a href="https://github.com/IronbellyOrg/IronClaude/issues/290">issue #290</a>.</p>
     </div>
   </div>
 </section>
@@ -576,7 +576,7 @@
 </main>
 
 <footer>
-  <p>Built from HOW-WE-WORK.md at commit f3c1ef06.</p>
+  <p>Built from HOW-WE-WORK.md at commit 4ce9f14b.</p>
   <p>Source of truth for every command and flag: <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md">HOW-WE-WORK.md</a>, except <code>--plugin</code>, which comes from the <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/commands/recommend.md"><code>/sc:recommend</code> command file</a>.</p>
 </footer>
 

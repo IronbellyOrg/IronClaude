@@ -1,0 +1,17 @@
+$ ad hoc behaviour check of list_installed_templates and install --list (script /tmp/impl676/t6_check.py, not committed)
+AC1 backups on disk: 2 | omitted from the listing: True | installed length == available length: True 53 53
+AC2 non-.md template still listed: True
+AC3 install --list exit: 0 | ['Templates: 53 available, 53 installed']
+AC3 equal counts: True | backups still on disk after the listing: 2
+
+$ grep -rnE 'rglob\("\*"\)|glob\("\*"\)|iterdir\(|os\.walk\(|scandir|listdir' src tests --include=*.py | wc -l
+335
+Reviewed list of the readers that touch the agents folder, the templates folder or the ~/.claude root (hits in src that name install/doctor/templates/agents paths):
+install_templates.py:172 list_installed_templates = the one unfiltered reader, now with the .bak. condition (src/superclaude/cli/install_templates.py:176)
+install_templates.py:61 and :158 walk the shipped SOURCE tree, not ~/.claude
+install_retired_files.py:109 and :256 walk a skill folder (skills are not backed up)
+install_skills.py:166, doctor.py:343, install_skill.py:109,137 walk ~/.claude/skills
+install_user_setup.py:103 walks the shipped source of rules/output styles
+sweep/probes.py:671 walks .dev/tasks; probes.py:1456 walks ~/.claude/projects/<key> (session logs)
+Readers that match *.md, known names or exact names: install_agents.py list_installed_agents, install_core.py list_installed_core_files, doctor.py:315, recommend/prompts.py:135, install_retired_files.py:201
+(a grep cannot see a pattern built at runtime or the host loader)

@@ -1,0 +1,20 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-designRev1-20261126-141220
+plan_path: ./TASK-WF-designRev1-20261126-141220.md
+source_path: ./source.md
+source_origin: .dev/brainstorms/20261126-115959-apply-branch-protection-rulesets-other-repos/design-rev1.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-837/.dev/reflect/pre-TASK-WF-designRev1-20261126-141220-20261126141617/REPORT.md
+unresolved: ["Re-review of the regenerated plan found 4 blocking findings (G-01 to G-04); a second regenerate is not allowed in one run, so the run escalated and the package is marked review_verdict FAIL; /sc:implement refuses it until a repair places a new package", "12 Medium and 3 Note findings are follow-up candidates only", "SUPERSEDED by TASK-WF-designRev1-20261126-151358: do not run /sc:implement on this package."]
+review_verdict: FAIL
+open_blockers: ["G-01", "G-02", "G-03", "G-04"]
+fix_cycles: 0
+supersedes: TASK-WF-design-20261126-130537
+remediation_route: regenerate
+finding_counts: {"blocking": 4, "label_high": 0, "medium": 12, "note": 3}
+superseded_by: TASK-WF-designRev1-20261126-151358

@@ -1,0 +1,35 @@
+# make sync-dev (started 2026-11-26T14:34:26Z)
+🔄 Syncing src/superclaude/ → .claude/ for local development...
+✅ Sync complete.
+   Skills:    27 directories
+   Agents:    49 files
+   Commands:  36 files
+   Hooks:     17 files
+   Templates: 52 files
+make sync-dev rc=0
+
+uv run ruff --version:
+ruff 0.17.3
+--- uv run ruff check src/ tests/
+exit code: 0
+All checks passed!
+--- uv run ruff format --check src/ tests/
+exit code: 1
+6 files would be reformatted, 1541 files already formatted
+would reformat: src/superclaude/examples/release-spec-template.md
+would reformat: src/superclaude/skills/sc-cleanup-audit-protocol/rules/dynamic-use-checklist.md
+would reformat: src/superclaude/skills/sc-pr-submit-protocol/SKILL.md
+would reformat: src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md
+would reformat: src/superclaude/skills/sc-validate-tests-protocol/SKILL.md
+would reformat: src/superclaude/templates/documents/release-spec-template.md
+--- uv run ruff format --check .
+exit code: 1
+8 files would be reformatted, 1705 files already formatted
+would reformat: CLAUDE.md
+would reformat: repro/boundary_fork_repro.py
+would reformat: src/superclaude/examples/release-spec-template.md
+would reformat: src/superclaude/skills/sc-cleanup-audit-protocol/rules/dynamic-use-checklist.md
+would reformat: src/superclaude/skills/sc-pr-submit-protocol/SKILL.md
+would reformat: src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md
+would reformat: src/superclaude/skills/sc-validate-tests-protocol/SKILL.md
+would reformat: src/superclaude/templates/documents/release-spec-template.md

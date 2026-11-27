@@ -1,0 +1,74 @@
+# Tier 1 reflection card (UC-1, pre-execution). Hypothesis source: orchestrator inline pass (requirements-analyst mandate).
+mode: pre
+spec: .dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/source.md
+tasklist: .dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md
+subject: "A plan of 8 tasks in 6 phases that builds an offline measurement harness (loader, scorer, gates, events, runner) plus templates, for comparing an AI classifier with a keyword table."
+
+coverage:
+  method: "Pass 1 regex over the spec (fenced code skipped) plus Pass 2 quote-pinned inference; matching is exact for ids and 0.6 content-word containment for inferred rows."
+  parsed_requirements: 14        # T-01, T-03 to T-15 as cited in source.md line 92
+  parsed_matched: 14
+  coverage_pct: 1.0000
+  inferred_requirements: 23
+  inferred_matched: 19
+  coverage_pct_union: 0.8919     # 33 of 37
+  unmapped_union: [INF-001, INF-002, INF-003, INF-021]
+  unmapped_notes:
+    - "INF-001 (source.md:11 'Nothing under `src/` changes.') and INF-002 (source.md:11 'Nothing here sends a prompt anywhere;') are stated in the plan's Constraints (plan lines 19 and 21) and checked by Task 8's last acceptance bullet; no task body repeats the words, so containment is below 0.6."
+    - "INF-003 (source.md:17 'Reuse by import. Write no new client.') is carried by Task 6 importing from `jevlib` and by the Constraints line saying `jevlib` is imported read-only."
+    - "INF-021 (source.md:88, the price must be re-confirmed by the coordinator before Gate 2) appears in Task 8's README list (plan line 153, 'the price to re-confirm before Gate 2'), not as a gate check in Task 5."
+  parse_density_guard: "inferred_count 23 > parsed_count 14, so coverage_degraded: parsed-sparse (Tier 1 stop forbidden)."
+signals:
+  S_scope: 8                    # tasks
+  S_domains: 3                  # code, tests, docs (planned paths under .dev/research/jev-vs-keyword-table-611/)
+  S_dev_density: 0.1081         # 4 unmapped of 37, union denominator
+
+findings:
+  - id: F-1
+    severity: Medium
+    claim: "Task 1's fourth acceptance bullet cannot fail for the reason it states. It runs `grep -n \"keyword\" .../questions.py` and says it finds no copy of the table's cue words, but it searches for the word 'keyword', not for the cue words it lists (slow, latency, stack trace, pytest)."
+    evidence: ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md:47"
+    consequence: "A questions.py that copies the table's cues would pass this check, so the design rule that the question wording must not copy the table (source.md:20 context, design section 5 questions.py job at source.md:36) is unchecked."
+  - id: F-2
+    severity: Medium
+    claim: "Task 6 says `BudgetExhausted` stops the run, but the client does not let that exception out of `ask`. It catches it and returns a result with status `refused` and error `budget_exhausted`."
+    evidence: "plan line 119 (Task 6 body) versus .dev/research/346-review-loop-experiments/p15/jev/jevlib/client.py:114-117"
+    consequence: "An implementer who writes `except BudgetExhausted` around `ask` gets dead code, and the spend stop never fires; the test that expects a systemic stop would fail or, worse, be written to pass against the wrong signal."
+  - id: F-3
+    severity: Medium
+    claim: "The design lists `runs/<run-id>/run-record.md` as a per-run file, but no task creates it or says what it holds. Task 6 writes only `jev-rows.jsonl` and `journal.jsonl` for a run."
+    evidence: "source.md:42 versus the plan (no occurrence of 'run-record' in the plan)"
+    consequence: "The run's recorded settings (timeout, retry policy, rule-file hash, price used) have no home, and Gate 2 and the scorer's RUN_INVALID reasons depend on such settings being recorded."
+  - id: F-4
+    severity: Medium
+    claim: "Task 5 requires Gate 2 to check 'a per-request spend bound that fits the cap' but does not say what is checked or how it is verified. The design says the price must be re-confirmed by the coordinator before Gate 2 (source.md:88), and nothing in Task 5 turns that into a checkable event or field."
+    evidence: "plan line 103 (Task 5) versus source.md:72 and source.md:88"
+    consequence: "Gate 2 can pass with a stale price; the cap guard would then rest on an unverified figure."
+  - id: F-5
+    severity: Note
+    claim: "The pull-request wording rule in the design ('it must say `Refs #611` and list B to E as left') belongs to the story's pull-request step and is not a task. It is outside the plan's scope but not named as outside."
+    evidence: "source.md:104"
+    consequence: "None for the build; a reader of the plan may not know where that obligation lives."
+
+risks:
+  - "Shared module state: the runner changes two `jevlib.config` attributes in its own process; Task 6 says tests restore them, and the 31 importers of `JevClient` are untouched (grounding file)."
+  - "Corpus, labels, table answers and the live run are explicitly left for a person or the coordinator (plan line 20), so a finished build does not deliver the experiment's result."
+  - "Three rule-file fields (the two Noul band operators and the unresolved-failure count) are written UNSET and Gate 1 refuses UNSET, so the live run stays closed until they are set."
+
+recommendations:
+  - id: R-1
+    file: ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md"
+    change: "In Task 1, replace the grep with a test that fails when `questions.py` contains any of the cue words from SKILL.md lines 153 to 158 (slow, latency, stack trace, pytest, deploy, token and the rest)."
+    verifier: "A test in test_questions.py asserts none of the cue words appear in the option and noul text."
+  - id: R-2
+    file: ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md"
+    change: "In Task 6, say the runner reads `Result.status == 'refused'` with `error == 'budget_exhausted'` (client.py:114-117) as the spend stop, instead of catching BudgetExhausted around ask."
+    verifier: "The Task 6 budget test drives a tiny ceiling and asserts the run stops with that result."
+  - id: R-3
+    file: ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md"
+    change: "In Task 6, write `runs/<run-id>/run-record.md` (timeout, retry policy, rule-file hash, price and its date, attempts, stop reason) and have Task 4's RUN_INVALID checks read it."
+    verifier: "A Task 6 test asserts the file exists with those fields after a mock run."
+  - id: R-4
+    file: ".dev/tasks/to-do/TASK-WF-designSpec-20261126-144507/TASK-WF-designSpec-20261126-144507.md"
+    change: "In Task 5, add a `price_confirmed` event carrying the price, its date and who confirmed it, and make Gate 2 refuse without it."
+    verifier: "A test in test_gate_events.py shows Gate 2 refuses with no `price_confirmed` event."

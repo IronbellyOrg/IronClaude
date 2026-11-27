@@ -1,0 +1,33 @@
+-  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.claude/commands/sc/analyze.md  (not a skill, worker or command file; Bash command text)
+-  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/adversarial/merged-flags.md  (not a skill, worker or command file; Read tool)
+-  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/description.md  (not a skill, worker or command file; Read tool)
+-  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/draft-notes.md  (not a skill, worker or command file; Read tool)
+-  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/flags-t1.md  (not a skill, worker or command file; Read tool)
+-  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/flags.md  (not a skill, worker or command file; Read tool)
+-  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/issue-body.md  (not a skill, worker or command file; Read tool)
+-  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/.dev/issues/draft-20261126-190134-make-superclaude-install-print-as-its-la/scout.md  (not a skill, worker or command file; Read tool)
+b34c9bfae98deea6a5a0d5b03c357b852e815aea9f368b9947a7dbb6729a5d2d  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/src/superclaude/cli/install_skills.py  src-equal=yes  (Read tool)
+0d1bdd6a9316cbd72d9ad6758cf36e3d26eca165e2a3e32d0e12b39a117a17ba  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/src/superclaude/cli/main.py  src-equal=yes  (Read tool)
+b9d925b79a5301563dd6aedfbab46b71dc6d13db6c00677c854c38be12533857  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/tests/cli/test_install_retired_files.py  (not a skill, worker or command file; Read tool)
+cf5333da23c759e81d634b6356a4ec68de488f7a71ad8ae68bfea6e1a431d2f2  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/tests/cli/test_install_retired_mcp.py  (not a skill, worker or command file; Read tool)
+460fd52f8fd4e943b1da587c69f87c3a5505da8d321dff0dc5696555f0139890  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/tests/cli/test_update_command.py  (not a skill, worker or command file; Read tool)
+16f50281421c3c89fdf76efd29542810fc5b1aec84c583f90698c68728711b98  /tmp/createQuestionEv-scratch/clones/deep-flag-preserved/tests/unit/test_cli_install.py  (not a skill, worker or command file; Read tool)
+1a10c2f0669fe240f2ccd6f5b2388b9bcf6fb66a9da776ce46f01aaaceeb4b15  /tmp/createQuestionEv-scratch/home/.claude/commands/sc/analyze.md  src-equal=yes  (Read tool)
+-  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-adversarial-protocol  (directory; skill base directory)
+-  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol  (directory; skill base directory)
+56c889ba34542b0c1c5918d40b5c9f1954ab00b7dce0b5df2ff23a7daf30141b  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/refs/create.md  src-equal=yes  (Read tool)
+21417aa57aedb2aed199adc44171727f5d39c1cf38a6b92a0f05383dddb7ed55  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/refs/labels.md  src-equal=yes  (Read tool)
+3ec58fa51e7646b655f0c8d1e20fbab0f8276b12d96f19358b081b38e4c06792  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/refs/tiers.md  src-equal=yes  (Read tool)
+47bd0d899aaa2a1b03b2fe2f297118c99850a3a15a292794270337475916cf0d  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/scripts/origin_repo.py  src-equal=yes  (Bash command text)
+-  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/templates  (directory; Bash command text)
+3ae8241bb81bfae9ebb3d88f5e80789f1ce6392da613d9416d7998bb586349b0  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/templates/create-review-comment.md  src-equal=yes  (Read tool)
+f4bbd36fbcf54fa5af776dcad2dcd0903559f4bffe860305719c6fe21b403738  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/templates/description.md  src-equal=yes  (Read tool)
+1abf40eeee2342401b85b042f858f6aaa88aaa5ebc97c80eb750e8912f9c5967  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/templates/draft-notes.md  src-equal=yes  (Read tool)
+61c89e9dd6065f69503c6998f6854f8acb640f9517d12e2cdc3656205f9094e1  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/templates/flags-decision.md  src-equal=yes  (Read tool)
+09e5ebe4299a5aa98698e672628a48d2bd2a0e59894b9f8f86deb87725e4fd06  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/templates/issue-bug-complex.md  src-equal=yes  (Read tool)
+3acca39b3370b27e088a6b399e0476447da87065c6f7224cf637ea7681c81a1e  /tmp/createQuestionEv-scratch/home/.claude/skills/sc-issue-protocol/templates/scout-report.md  src-equal=yes  (Read tool)
+-  /tmp/createQuestionEv-scratch/home/.claude/agents/general-purpose.md  agent spawned by name: general-purpose  src-equal=yes
+98ee1838e85d650af9d29d07fa3bc19e7a9931dfd20229745a42a279135e93f2  /tmp/createQuestionEv-scratch/home/.claude/agents/issue-worker-t1.md  agent spawned by name: issue-worker-t1  src-equal=yes
+910c9081e725f7fe94799e35274e2ae089443d72cfcc1c91a03103f28967c21a  /tmp/createQuestionEv-scratch/home/.claude/agents/issue-worker-t3.md  agent spawned by name: issue-worker-t3  src-equal=yes
+skill loaded by name: sc-adversarial-protocol
+skill loaded by name: sc-issue-protocol

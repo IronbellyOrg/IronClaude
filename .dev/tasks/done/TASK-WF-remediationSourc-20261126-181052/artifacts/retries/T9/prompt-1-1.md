@@ -1,0 +1,34 @@
+fcc46131bc9322c67a854bdf89d3c83f979a2479
+Review one task for spec compliance.
+
+Task brief: Task 9 of the plan /home/coder/workspaces/worktrees/IronClaude/run-ledger/.dev/tasks/to-do/TASK-WF-remediationSourc-20261126-181052/TASK-WF-remediationSourc-20261126-181052.md (read lines 108-116 of that plan for the full Task 9 text and AC; the decision file ./artifacts/hook-decision.md of the package folder ends "Decision: deliver"). Summary: create src/superclaude/hooks/scripts/run-ledger-record.sh (executable, set -u, fail open: always exit 0, never blocks): read stdin JSON with jq; act only when .tool_input.command runs `orca orchestration run-create` or `orca orchestration worker-start`; take the first run_[0-9a-f]{12} found in the Bash result text (.tool_response, string or object) and, for worker-start, also in the command's --run value; call `superclaude sweep ledger --add <id>` silently; when no id is found append one line to ${XDG_STATE_HOME:-$HOME/.local/state}/superclaude/run-ledger-hook.log; a missing jq or superclaude also exits 0. Header comment in the style of src/superclaude/hooks/scripts/require-orca-worktree-agent.sh and the comment `shortcut: the command is matched with a simple pattern, not a full shell tokenizer, a quoted mention can add a harmless extra id`. Add "run-ledger-record.sh" with a one-line comment to _FRESHNESS_SCRIPTS in src/superclaude/cli/install_hooks.py; add the name to the seed list in tests/cli/test_install_hooks.py; copy the script byte-for-byte, executable, to plugins/superclaude/hooks/scripts/run-ledger-record.sh; do not touch src/superclaude/hooks/hooks.json. Add tests/run_ledger/test_hook.py (runs the script with bash, a stubbed PATH and the Task 8 fixtures; tests marked integration) and add test_run_ledger_record_script_is_packaged_listed_and_mirrored to tests/cli/test_install_hooks.py following the pattern of the require-orca-worktree-agent test, plus an assertion that hooks.json contains no run-ledger-record.
+Acceptance criteria:
+T9.AC1: `uv run pytest tests/run_ledger/test_hook.py tests/cli/test_install_hooks.py -v` passes with test_hook_extracts_run_id_from_fixture (the stub superclaude receives `sweep ledger --add <id>`), test_hook_ignores_other_commands, test_hook_no_id_logs_and_exits_0, test_hook_fails_open_when_superclaude_missing, the new install test, and every existing install test (none fails for the seed list).
+T9.AC2: `make verify-sync` still passes (every script under src/superclaude/hooks/scripts/ is a member of _FRESHNESS_SCRIPTS and no member is stale) and source and mirror of the script are byte-equal.
+Global constraints: UV only. Edit under src/superclaude/ (plus tests/, docs/, and the one hook mirror under plugins/superclaude/hooks/scripts/), then run make sync-dev; never stage .claude/ contents. Not allowed: adding the hook to src/superclaude/hooks/hooks.json (Coder#545 registers it), editing ~/.claude/settings.json, installing a crontab, scheduling, orca orchestration reset, deleting a Run, committing, pushing, PRs, GitHub writes. No test starts Orca.
+Start sha: fcc46131bc9322c67a854bdf89d3c83f979a2479
+Diff against the start snapshot: new files, whole contents: /home/coder/workspaces/worktrees/IronClaude/run-ledger/src/superclaude/hooks/scripts/run-ledger-record.sh, /home/coder/workspaces/worktrees/IronClaude/run-ledger/plugins/superclaude/hooks/scripts/run-ledger-record.sh, /home/coder/workspaces/worktrees/IronClaude/run-ledger/tests/run_ledger/test_hook.py. Tracked files: run `git diff fcc46131bc9322c67a854bdf89d3c83f979a2479 -- src/superclaude/cli/install_hooks.py tests/cli/test_install_hooks.py src/superclaude/hooks/hooks.json` from /home/coder/workspaces/worktrees/IronClaude/run-ledger. Run `make verify-sync` yourself (do not run make sync-dev). Run state of the code graph: index_state: fresh, checked_at: 2026-11-26T18:23:53Z, worktree_root: /home/coder/workspaces/worktrees/IronClaude/run-ledger, projectPath: /home/coder/workspaces/worktrees/IronClaude/run-ledger. call codegraph only when index_state: fresh, never to widen scope.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

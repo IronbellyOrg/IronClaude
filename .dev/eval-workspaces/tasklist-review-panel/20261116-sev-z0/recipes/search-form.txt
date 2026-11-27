@@ -1,0 +1,1 @@
+Search forms you may adapt: `grep -rlF '<path>' <test dirs>`; `grep -rlF '<name without extension>' .`; `grep -rnF '<old value>' . --include='*.md'` (include root files); `printf '%s' '<ordered text>' | grep -c '<pattern>'`.

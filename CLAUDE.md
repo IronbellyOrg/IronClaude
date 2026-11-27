@@ -51,7 +51,7 @@ This repository is a **fork**. This clone has only one remote, `origin` = `Ironb
 
 **Allowed gh forms:** a command that accepts `--repo` passes `--repo IronbellyOrg/IronClaude`; a command that takes the repo as a positional argument (`gh repo view`) names `IronbellyOrg/IronClaude` explicitly; a `gh api` path spells `repos/IronbellyOrg/IronClaude/...`, never the `{owner}/{repo}` placeholder.
 
-**Orca:** Orca identified this project as `github:superclaude-org/superclaude_framework` in `orca worktree current --json` on 2026-11-02. The source of that id is unverified (possibly the upstream URLs in `pyproject.toml` or `package.json`). Until `orca worktree current --json` shows the fork's project id, `--issue`, `--pr` and other Orca link flags are never passed for this repo.
+**Orca:** Orca identified this project as `github:superclaude-org/superclaude_framework` in `orca worktree current --json` on 2026-11-02. Orca derives the project id from the `upstream` field stored in its repo record before it looks at the git remote, and the stored value was the fork's GitHub parent (`SuperClaude-Org/SuperClaude_Framework`) before the 2026-11-26 override and now reads null; `pyproject.toml` and `package.json` are not read. A one-time override on 2026-11-26 set the stored upstream to null, but `orca worktree current --json` still showed `github:superclaude-org/superclaude_framework` right after the call and again 27 seconds later, so the id still shows the upstream. Whether it changes after an Orca restart or after the repo's Settings panel is opened is unverified. `--issue`, `--pr` and other Orca link flags are never passed for this repo, and that ban holds until the owner agrees to lift it (a corrected id alone does not lift it).
 
 **Scope:** static references to the upstream repository in documentation and test fixtures (for example the negative fixtures in `tests/pr_submit/test_pre_pr_checks.py`) are not interaction and are out of scope.
 
@@ -313,10 +313,11 @@ worktree location, outside the main checkout; `orca worktree current --json` (fr
 - Never pass Orca link flags (`--issue`, `--pr`) for this repo; the fork rule above (`## ABSOLUTE RULE: PR Target = Fork`) governs them.
 - **Exception — internal temporary checkouts:** a CLI, script or test that creates and removes its own checkout keeps using `git worktree add` directly and must work without Orca. The four cases are: the reflect `--isolate-reviewers` review snapshot; the troubleshoot backtest replay; test fixtures in a pytest temporary directory; and the optional read-only release-tag checkout in `/sc:post-release`, removed after the scan.
 - **Existing checkouts under the retired `.dev/worktrees/` location** may stay until their branch is merged, then are removed with `git worktree remove <path>`; no new checkout may be created there.
+- **Names:** a worktree and its branch are named as in `src/superclaude/core/HOW-WE-WORK.md`, section "Worktrees and branches": branch `<login>/issue-<N>[-<words>]`, at most 24 characters, no spaces; create the worktree with `--name issue-<N>-<words>` and Orca adds the login. Two exceptions, as in the guide: when the words do not fit in 24 characters, drop them and keep `<login>/issue-<N>`, even if that is over 24, and never stop on it; a login with a run of 2 to 4 digits is left out of the branch name (use `issue-<N>-<words>`).
 
 ```bash
-# Create a worktree named pm-agent, based on origin/integration, with an agent in it
-orca worktree create --name pm-agent --base-branch origin/integration --agent claude --prompt "<task>"
+# Create a worktree for issue 289, based on origin/integration, with an agent in it (Orca adds the login: the branch is <login>/issue-289-wtrule)
+orca worktree create --name issue-289-wtrule --base-branch origin/integration --agent claude --prompt "<task>"
 
 # Show where Orca put it
 orca worktree list
@@ -332,13 +333,13 @@ orca worktree list
 **Usage**:
 
 - Session A: Open the main checkout (current branch); it is the orchestrator that creates the worktrees below
-- Worktree `integration`: created by session A with `--agent claude`; that agent works there (path from `orca worktree list`)
-- Worktree `pm-agent` (feature branch): created by session A with `--agent claude`; that agent works there
+- Worktree `issue-289-wtrule` (branch `<login>/issue-289-wtrule`): created by session A with `--agent claude`; that agent works there (path from `orca worktree list`)
+- Worktree `issue-301-hooks` (another issue): created by session A with `--agent claude`; that agent works there
 
 **Cleanup**:
 
 ```bash
-orca worktree rm --worktree name:integration
+orca worktree rm --worktree name:issue-289-wtrule
 ```
 
 ## 📝 Key Documentation Files

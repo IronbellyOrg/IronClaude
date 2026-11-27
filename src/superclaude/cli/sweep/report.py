@@ -194,6 +194,7 @@ def _header(result: SweepResult, ctx: SweepContext) -> str:
         f"Scope: Runs {sanitize(', '.join(ctx.runs)) or 'none'} . worktrees "
         f"{len(result.worktrees)} . sessions {shown}/{total} "
         f"(lower bound: remote hosts not scanned) . window {_window_text(ctx.window)}",
+        *([sanitize(ctx.run_source)] if ctx.run_source is not None else []),
         f"Orca binary: {sanitize(result.orca_binary)}",
         f"Sources: {sources or 'none'}",
         "Messages coverage: partial",

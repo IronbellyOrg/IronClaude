@@ -1,0 +1,52 @@
+--- old-plan
++++ new-plan
+@@ -3,7 +3,7 @@
+ source: ./source.md
+ strategy: systematic
+ depth: standard
+-slug: TASK-WF-design-20261126-042509
++slug: TASK-WF-design-20261126-054450
+ version: "1"
+ priority: Medium
+ created_date: "2026-11-26"
+@@ -18,7 +18,7 @@
+ 
+ - Scope: change only `src/superclaude/cli/install_core.py`, `install_agents.py`, `install_templates.py` (and the docstring of `install_keep.py`), tests under `tests/cli/`, the documentation files named in the tasks, `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (the routing-guide copy) and `CHANGELOG.md`. Do not change `src/superclaude/cli/main.py`. Do not change the logic of `backup_if_differs`, `same_content` or `_backup_target`. Add no shared helper function and no code that deletes backups.
+ - Non-goals: no stale-file notes for agents and templates on a plain `install` (recorded as a follow-up), no change to skill-folder or hook-script copying, no rollback of a failed replacement, no change to `README.md:68` (a 6.0.0 section pinned to `@v6.0.0`), no change to released CHANGELOG entries, `docs/testing/`, `docs/designs/` or `docs/docs-product/`.
+-- Never edit or stage a path under `.claude/` (those are mirrors made by `make sync-dev`); edit the file under `src/superclaude/` or `plugins/` instead.
++- Never hand-edit or stage a path under `.claude/`; regenerate the gitignored mirrors with `make sync-dev`, whose output is never staged. Edit the file under `src/superclaude/` or `plugins/` instead.
+ - Line numbers in the tasks are as at HEAD 3cf7e2259; locate by the quoted text if an earlier task shifted them.
+ - The helper contract (unchanged): `backup_if_differs(shipped: Path, target: Path) -> Path | None` in `src/superclaude/cli/install_keep.py` returns `None` when the bytes match, otherwise copies `target` to `<name>.bak.<YYYYmmddTHHMMSSZ>` beside it (a `-2`, `-3` suffix while that name exists) and returns that path; it raises `OSError` when the copy fails, and the caller must then leave `target` untouched.
+ - Exact strings every installer uses. Saved block, printed only when `backed_up` is non-empty, after the skipped and kept notes and before the failed block: the text `\n💾 Saved {n} changed {noun}(s) before overwriting:` and then one line `   - {backup path}` per saved copy; nouns are `core file`, `agent`, `template`. Failure line, added to `failed`: `<key>: could not save a copy first, left untouched (<error>)`.
+@@ -180,6 +180,8 @@
+ 
+ In `tests/cli/test_update_command.py` add the test for TR-017: after `native_install`, edit `<home>/.claude/RULES.md`; replace `shutil.copy2` with a wrapper around the real function that raises `OSError` only when the destination name starts with `RULES.md.bak.`; run `CliRunner().invoke(main, ["update", "--target", str(target)])`. Assert exit code 1; the output contains `RULES.md: could not save a copy first, left untouched`; the output contains exactly one `❌ Failed`; the victim's bytes are unchanged. Because only the victim's backup is failed, the hooks phase still writes its own `settings.json.bak.<stamp>`, so exit code 1 can come only from the new guard.
+ 
++Run `make sync-dev` before the gate commands below, so the gitignored `.claude/` mirrors exist for `tests/cli/test_verify_sync_hooks.py`.
++
+ Acceptance criteria:
+ - `uv run pytest tests/cli/test_update_command.py -q` passes with the test present.
+ - `uv run pytest tests/cli/test_install_keep.py tests/cli/test_update_command.py tests/cli/test_install_failures.py tests/cli/test_how_we_work_install.py tests/commands/test_routing_plugin_parity.py tests/docs/test_onboarding_deck.py tests/unit/test_cli_install.py -q` passes.
+@@ -292,7 +294,7 @@
+ - Do not edit lines 196 and 1321 (they say "no copy the worker reads", which is unrelated).
+ 
+ Acceptance criteria:
+-- `grep -rnE "no copy|no backup|keeps? no backup|without a copy" docs src/superclaude/core plugins`, ignoring paths under `docs/testing/`, `docs/designs/` and `docs/docs-product/`, leaves only these hits: lines that name skill folders, hook scripts or the marketplace catalog as written with no copy or backup; architecture reference lines 196 and 1321 and the catalog clause at line 1239; and `plugins/superclaude/skills/sc-implement-protocol/scripts/archive_workspace.py:5`. The grep reads one line at a time, so also read each documentation row of Tasks 13 to 18 for a phrase wrapped over two lines.
++- `grep -rnE "no copy|no backup|keeps? no backup|without a copy" docs src/superclaude/core plugins`, ignoring paths under `docs/testing/`, `docs/designs/` and `docs/docs-product/`, leaves only these hits: lines that name skill folders, hook scripts or the marketplace catalog as written with no copy or backup; the W-3 sentence in `docs/getting-started/upgrading.md` (row one of the Step 1 table and step 1 of "What the upgrade does"), located by its text and not by line number; architecture reference lines 196 and 1321 and the catalog clause at line 1239; and `plugins/superclaude/skills/sc-implement-protocol/scripts/archive_workspace.py:5`. The grep reads one line at a time, so also read each documentation row of Tasks 13 to 18 for a phrase wrapped over two lines.
+ - `git diff --stat` shows no change to `README.md` or to released CHANGELOG entries.
+ 
+ ## Task 20: Add the CHANGELOG entry and confirm the whole change is limited to its scope
+@@ -301,9 +303,12 @@
+ 
+ In `CHANGELOG.md`, under `## [Unreleased]` (line 5), add one entry above the existing first entry, in the file's style (a `###` heading naming the change and issue, then a bullet): heading "Installers: core files, agents and templates are saved before `--force` and `update` overwrite them (issue 676)"; bullet "`superclaude install --force` and `superclaude update` now save a core file, agent or template that differs from the shipped one as `<name>.bak.<UTC time>` next to it, as they already did for commands, rules and output styles. A save that fails leaves that file as it was, lists it as failed and makes the command exit 1. `install --list` no longer counts these copies as installed templates. Skill folders and hook scripts are still overwritten with no copy. Releases 6.1.0 and earlier overwrite core files, agents and templates with no copy."
+ 
++Run `make sync-dev` before the gate commands below, so the gitignored `.claude/` mirrors exist for `make verify-sync`.
++
+ Acceptance criteria:
+ - The `[Unreleased]` section has exactly this one new entry and no released entry changed.
+ - `grep -n "backup_if_differs(" src/superclaude/cli/*.py` shows exactly five call sites besides the definition: `install_commands.py`, `install_user_setup.py`, `install_core.py`, `install_agents.py` and `install_templates.py`.
+ - `git diff --stat` shows no change to `src/superclaude/cli/main.py`, and `git diff -- src/superclaude/cli/install_keep.py` shows only the docstring hunk.
+ - The changed files are only the three installers, `install_keep.py`, `tests/cli/test_install_keep.py`, `tests/cli/test_update_command.py`, `src/superclaude/core/HOW-WE-WORK.md`, `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md`, `CHANGELOG.md` and the documentation files named in Tasks 13 to 19; no path under `.claude/` is staged.
+-- `uv run pytest tests/cli/test_install_keep.py tests/cli/test_update_command.py tests/cli/test_install_failures.py tests/cli/test_how_we_work_install.py tests/commands/test_routing_plugin_parity.py tests/docs/test_onboarding_deck.py tests/unit/test_cli_install.py -q` and `uv run pytest tests/cli tests/unit -q` pass, `uv run pytest tests/pr_submit/test_conflict_sync_protocol.py tests/commands/test_worktrees_command.py -q` passes (both read `CHANGELOG.md` or the guide copies and pin text other than this entry), and `make verify-sync` passes.
++- `uv run pytest tests/cli/test_install_keep.py tests/cli/test_update_command.py tests/cli/test_install_failures.py tests/cli/test_how_we_work_install.py tests/commands/test_routing_plugin_parity.py tests/docs/test_onboarding_deck.py tests/unit/test_cli_install.py -q` and `uv run pytest tests/cli tests/unit -q` pass, `uv run pytest tests/pr_submit/test_conflict_sync_protocol.py tests/commands/test_worktrees_command.py -q` passes (both read `CHANGELOG.md` or the guide copies and pin text other than this entry).
++- After `make sync-dev`, `make verify-sync` exits 0 and `git diff --cached --name-only -- .claude` prints nothing.

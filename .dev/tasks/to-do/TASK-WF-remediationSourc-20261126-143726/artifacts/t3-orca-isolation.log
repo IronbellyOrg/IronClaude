@@ -1,0 +1,26 @@
+# Single-test isolation of test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier (written 2026-11-26T19:29:50Z; load average: 3.82 11.28 16.64)
+# tree-old test file equals HEAD's: yes
+# length of the harness's real basetemp path for this test: 223 characters
+
+== NEW plain: /home/coder/workspaces/worktrees/IronClaude/issue-352/.venv/bin/pytest tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier -q -p no:cacheprovider -o addopts= 
+1 passed in 0.86s
+
+== NEW --basetemp /tmp/sc352-bt-short: /home/coder/workspaces/worktrees/IronClaude/issue-352/.venv/bin/pytest tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier -q -p no:cacheprovider -o addopts= --basetemp /tmp/sc352-bt-short
+1 passed in 0.82s
+
+== NEW --basetemp (long, harness-like): /home/coder/workspaces/worktrees/IronClaude/issue-352/.venv/bin/pytest tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier -q -p no:cacheprovider -o addopts= --basetemp /home/coder/workspaces/worktrees/IronClaude/issue-352/.dev/troubleshoot/test-ccsession-shim-tests-in-tests-20261126031906/repro/fixed-whole/bt-wholefile-r5-p0-iso1
+E       AssertionError: assert ['--model', '...000000000000'] == ['--name', 'b...-permissions']
+E         
+E         At index 0 diff: '--model' != '--name'
+E         Use -v to get more diff
+1 failed in 0.85s
+
+== OLD (HEAD test file) plain (cwd tree-old): /home/coder/workspaces/worktrees/IronClaude/issue-352/.venv/bin/pytest tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier -q -p no:cacheprovider -o addopts= 
+1 passed in 1.55s
+
+== OLD (HEAD test file) --basetemp (long, harness-like) (cwd tree-old): /home/coder/workspaces/worktrees/IronClaude/issue-352/.venv/bin/pytest tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier -q -p no:cacheprovider -o addopts= --basetemp /home/coder/workspaces/worktrees/IronClaude/issue-352/.dev/troubleshoot/test-ccsession-shim-tests-in-tests-20261126031906/repro/fixed-whole/bt-wholefile-r5-p0-iso2
+E       AssertionError: assert ['--model', '...000000000000'] == ['--name', 'b...-permissions']
+E         
+E         At index 0 diff: '--model' != '--name'
+E         Use -v to get more diff
+1 failed in 1.29s

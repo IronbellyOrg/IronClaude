@@ -1,0 +1,20 @@
+contract_version: "1.1"
+supersedes: TASK-WF-designRev-20261126-045943
+remediation_route: surgical
+finding_counts: {"blocking": 3, "label_high": 0, "medium": 2, "note": 8}
+fix_cycles: 1
+status: success
+slug: TASK-WF-designRev-20261126-123412
+plan_path: ./TASK-WF-designRev-20261126-123412.md
+source_path: ./source.md
+source_origin: .dev/brainstorms/20261126-031900-primitive-contribution-rules/design.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-290/.dev/reflect/pre-designRevPlan-20261126115300/rereview/re-review-3-of-3.md
+unresolved:
+  - "reflect_status records the re-review verdict (PASS, scope: changed lines plus prior blockers); the full review of the plan before the repair is .dev/reflect/pre-designRevPlan-20261126115300/REPORT.md (status partial, 3 blocking now repaired)"
+  - "Medium findings left unrepaired by design: M1 plain git commit for commits 1 and 2 can sweep a staged .dev/tasks; M2 the staging bullet at PLAN:212 points to a scope check line the operator does not read; re-review F2 a stash drop by position can race with another session"
+  - "Notes N1 to N8 of the full review and re-review F1, F3, F4 are recorded in the two reports, not repaired"

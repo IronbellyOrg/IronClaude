@@ -1,0 +1,4 @@
+$ bash -c uv run ruff check tests/core/test_how_we_work_worktree_policy.py; uv run ruff format --check tests/core/test_how_we_work_worktree_policy.py
+All checks passed!
+1 file already formatted
+rc=0

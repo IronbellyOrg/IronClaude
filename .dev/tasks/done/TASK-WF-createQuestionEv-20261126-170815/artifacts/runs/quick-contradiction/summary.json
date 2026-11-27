@@ -1,0 +1,172 @@
+{
+  "name": "quick-contradiction",
+  "depth": "quick",
+  "flags": "--mode bug --type skill --depth quick",
+  "marker": "qev-quick-contradiction-180724",
+  "description": "Bug: `/sc:issue --create` crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py` when the description is empty.",
+  "clone_head": "862384852faebe3255c2876527103696cfd3cf3b",
+  "drive": {
+    "questions_screens": 1,
+    "answered": 1,
+    "unanswered": 0,
+    "permission_prompts": 0,
+    "status": "completed",
+    "seconds": 221
+  },
+  "expected": {
+    "questions": 1,
+    "issue_create": 1,
+    "issue_comment": 0
+  },
+  "observed": {
+    "questions_as_tool_calls": 1,
+    "questions_answered": 1,
+    "questions_as_plain_text": 0,
+    "issue_create": 1,
+    "issue_comment": 0,
+    "issue_edit": 0,
+    "other_writes": 0,
+    "unknown_gh_calls": 0,
+    "start_up_gh_reads": 1
+  },
+  "matched": {
+    "questions": true,
+    "issue_create": true,
+    "issue_comment": true
+  },
+  "creates": [
+    {
+      "title": "[BUG] Handle empty descriptions in issue creation",
+      "labels": [
+        "bug"
+      ],
+      "type": "Bug"
+    }
+  ],
+  "worker_lines": [],
+  "agents_spawned": [
+    "issue-worker-t3",
+    "issue-worker-t3"
+  ],
+  "skills_loaded": [
+    "sc-issue-protocol"
+  ],
+  "question_texts": [
+    "{\"questions\": [{\"question\": \"Your description says the crash happens in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py`, but that file doesn't exist. The scripts folder holds only `clickup_claim.py`, `origin_repo.py` and `orca_worktree.py`. The draft keeps your report and adds that the file is absent here. The empty-description STOP rule is in `src/superclaude/commands/issue.md:"
+  ],
+  "question_answers": [
+    "\"Your questions have been answered: \\\"Your description says the crash happens in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py`, but that file doesn't exist. The scripts folder holds only `clickup_claim.py`, `origin_repo.py` and `orca_worktree.py`. The draft keeps your report and"
+  ],
+  "additions": [
+    "Title: Handle empty descriptions in issue creation",
+    "The crash was not reproduced in this static quick pass; exact error, affected environment and impact remain unknown.",
+    "The specified expected STOP message is `--create needs a description` (src/superclaude/commands/issue.md:56).",
+    "Reproduction suggestion: `/sc:issue --create \"\"` (derived from the reported empty-description input).",
+    "The command defines validation before activation and then invokes the protocol skill (src/superclaude/commands/issue.md:51-56,108-114); the skill also specifies a pre-activation STOP (src/superclaude/skills/sc-issue-protocol/SKILL.md:156), and create prerequisites are in src/superclaude/skills/sc-issue-protocol/refs/create.md:11-16.",
+    "Existing test checks the rule's presence in command text rather than executing the command (tests/commands/test_issue_command.py:183-191).",
+    "Codegraph MCP and Auggie tools were unavailable; the quick pass used Glob, Grep and Read. The codegraph CLI exists but MCP access was unavailable.",
+    "Repo and base branch are IronbellyOrg/IronClaude and integration, supplied in the task.",
+    "Suggested workflow: `/sc:troubleshoot`, `/sc:implement`, `/sc:pr-submit --monitor 3`; first reproduce and locate the entry point, then implement and test the responsible component (src/superclaude/commands/issue.md:51-56; tests/commands/test_issue_command.py:183-191).",
+    "Regression gate and review: `uv run pytest`, `make lint`, `make verify-sync`, plus a controlled empty-input check (project CLAUDE.md testing and sync guidance).",
+    "Assumption: The reported crash is reproducible, so the High priority trigger is a documented command failing.",
+    "Assumption: If validation fails in practice, fix the responsible command or protocol component to honor the existing STOP rule and add coverage in the appropriate test.",
+    "Assumption: Add an execution regression once the entry point is identified, checking the STOP message and that no issue is created."
+  ],
+  "contradictions": [
+    "user-stated fact contradicted by verified code: \"crashes in `src/superclaude/skills/sc-issue-protocol/scripts/create_issue.py`\"; Glob listing of `src/superclaude/skills/sc-issue-protocol/scripts/*` shows only `clickup_claim.py`, `origin_repo.py`, and `orca_worktree.py`, with no `create_issue.py` in this checkout. The command specifies a STOP before skill activation at `src/superclaude/commands/issue.md:51-56,108-114`; this does not by itself disprove an observed crash elsewhere. | Answer (contradiction question, asked once): \"Keep my wording\". The body states the user's path as the crash location; the \"file is absent\" notes were removed from the body."
+  ],
+  "addition_presence": "see record.md (approximate best-matching-line rule)",
+  "kept_without_approval_lines": [
+    "- kept without approval: Title \"Handle empty descriptions in issue creation\"",
+    "- kept without approval: the crash was not reproduced in this quick check; the exact error, environment and impact are unknown",
+    "- kept without approval: the expected STOP message `--create needs a description` (`src/superclaude/commands/issue.md:56`)",
+    "- kept without approval: a reproduction step, `/sc:issue --create \"\"`",
+    "- kept without approval: the command validates the flags before the skill starts (`src/superclaude/commands/issue.md:51-56,108-114`; `SKILL.md:156`; `refs/create.md:11-16`)",
+    "- kept without approval: the existing test only checks that the rule is written in the command file and doesn't run the command (`tests/commands/test_issue_command.py:183-191`)",
+    "- kept without approval: Codegraph and Auggie were not available, so the check used Glob, Grep and Read",
+    "- kept without approval: repo `IronbellyOrg/IronClaude`, base branch `integration`",
+    "- kept without approval: the order of steps `/sc:troubleshoot` \u2192 `/sc:implement` \u2192 `/sc:pr-submit --monitor 3`",
+    "- kept without approval: the checks to pass are `uv run pytest`, `make lint`, `make verify-sync`, plus a hand test with an empty description",
+    "- kept without approval: Assumption: the crash can be reproduced, which is why Priority is High (a documented command fails)",
+    "- kept without approval: Assumption: if the check does fail in practice, fix the part responsible so it follows the existing STOP rule, and add a test",
+    "- kept without approval: Assumption: once the entry point is found, add a test that runs it and checks the STOP message and that no issue is created"
+  ],
+  "false_files_in_body_at_question": [
+    "create_issue.py"
+  ],
+  "false_files_in_posted_body": [
+    "create_issue.py"
+  ],
+  "read_files": {
+    "count": 16,
+    "not_equal_src": [],
+    "installed_copy": [],
+    "failed_reads": [
+      "/tmp/createQuestionEv-scratch/home/.claude/CODEGRAPH.md"
+    ]
+  },
+  "seeded_hashes_equal_src": 30,
+  "fork_activity": {
+    "attributed": [],
+    "unattributed": [
+      {
+        "kind": "issue",
+        "number": 901,
+        "author": "ironbelly",
+        "created_at": "2026-11-26T18:10:08Z",
+        "new": true,
+        "title": "[FEATURE] Coordinator pokes agents stuck or halted on API errors with a retry me"
+      },
+      {
+        "kind": "issue",
+        "number": 900,
+        "author": "ironbelly",
+        "created_at": "2026-11-26T18:09:18Z",
+        "new": true,
+        "title": "Issue watcher: read each project's approvers list from a protected file in the I"
+      },
+      {
+        "kind": "issue",
+        "number": 896,
+        "author": "clayphi",
+        "created_at": "2026-11-26T17:55:17Z",
+        "new": false,
+        "title": "docs: write the six owner answers of issue 289 into the worktree guide"
+      },
+      {
+        "kind": "issue",
+        "number": 894,
+        "author": "clayphi",
+        "created_at": "2026-11-26T17:25:48Z",
+        "new": false,
+        "title": "feat(jev-611): offline harness for the Jev versus keyword table comparison"
+      },
+      {
+        "kind": "comment",
+        "id": 7199851949,
+        "author": "chatgpt-codex-connector[bot]",
+        "created_at": "2026-11-26T17:55:32Z",
+        "first_line": "<!-- codex-pull-request-review-summary -->"
+      },
+      {
+        "kind": "comment",
+        "id": 7200105366,
+        "author": "chatgpt-codex-connector[bot]",
+        "created_at": "2026-11-26T18:08:48Z",
+        "first_line": "<!-- codex-review-receipt:v1 -->"
+      }
+    ],
+    "error": ""
+  },
+  "files_written_by_run": [
+    "/tmp/createQuestionEv-scratch/clones/quick-contradiction/.dev/issues/draft-20261126-180744-bug-sc-issue-create-crashes-in-src-super/issue-body.md",
+    "/tmp/createQuestionEv-scratch/clones/quick-contradiction/.dev/issues/draft-20261126-180744-bug-sc-issue-create-crashes-in-src-super/draft-notes.md",
+    "/tmp/createQuestionEv-scratch/clones/quick-contradiction/.dev/issues/draft-20261126-180744-bug-sc-issue-create-crashes-in-src-super/scout.md",
+    "/tmp/createQuestionEv-scratch/clones/quick-contradiction/.dev/issues/draft-20261126-180744-bug-sc-issue-create-crashes-in-src-super/description.md",
+    "/tmp/createQuestionEv-scratch/clones/quick-contradiction/.dev/issues/draft-20261126-180744-bug-sc-issue-create-crashes-in-src-super/flags.md",
+    "/tmp/createQuestionEv-scratch/clones/quick-contradiction/.dev/issues/draft-20261126-180744-bug-sc-issue-create-crashes-in-src-super/issue-body.md",
+    "/tmp/createQuestionEv-scratch/clones/quick-contradiction/.dev/issues/draft-20261126-180744-bug-sc-issue-create-crashes-in-src-super/issue-body.md",
+    "/tmp/createQuestionEv-scratch/clones/quick-contradiction/.dev/issues/draft-20261126-180744-bug-sc-issue-create-crashes-in-src-super/draft-notes.md"
+  ],
+  "stop_conditions": []
+}

@@ -1,0 +1,36 @@
+{
+ "metrics_schema_version": "1.0",
+ "skill": "sc-reflect",
+ "mode": "pre",
+ "tier_reached": 2,
+ "status": "partial",
+ "calibration": {
+  "calibrator_diversity": "degraded",
+  "calibrated_confidence_final": 0.79
+ },
+ "ensemble": {
+  "t2_model_class_diversity": "full",
+  "t2_vendor_diversity": "single",
+  "reviewer_count": 3,
+  "executor_class_resolved": false
+ },
+ "evidence_validator": {
+  "ran": true,
+  "citations_total": 113,
+  "citations_revalidated": 113,
+  "citations_dropped": 1,
+  "budget_policy": "full_reread"
+ },
+ "adversarial": {
+  "convergence_score": 1.0,
+  "merge_method": "adversarial",
+  "adversarial_unavailable": false
+ },
+ "finding_counts": {
+  "blocking": 2,
+  "label_high": 0,
+  "medium": 12,
+  "note": 6
+ },
+ "needs_human_decision": false
+}

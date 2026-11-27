@@ -413,6 +413,14 @@ at once. When no Chromium is installed it first runs
 budget. A browser you set yourself in settings `env` is kept. macOS and other
 systems are left alone.
 
+**TypeSafe.** `typesafe@ironclaude` is the TypeSafe Jev agent skill v0.6.2 from
+`typesafe-ai/skills`, pinned to commit `302eea662c54bca6730873fe245bec1d69ebc23d`
+and installed through the same `ironclaude` marketplace as Ponytail (below). It
+is skill text only: no hooks and no code, and the installer ships no API key.
+The skill asks you before any live request to the TypeSafe API, and that request
+would use your own `TYPESAFE_API_KEY`. To opt out, set
+`"typesafe@ironclaude": false` under `enabledPlugins` in `~/.claude/settings.json`.
+
 **Ponytail.** `ponytail@ironclaude` is Ponytail v5.3.3 from
 `DietrichGebert/ponytail`, pinned to commit
 `7801d061243d7b753bad0e0b3c057cd250b11755`. It adds the `ponytail-*` skills and
@@ -641,9 +649,9 @@ claude mcp remove codegraph --scope user
 
 then delete the owned paths `superclaude install --list` printed; see [Removing codegraph](../user-guide/mcp-installation.md#removing-codegraph).
 
-A plain `superclaude install` keeps framework files you already have and names each kept command, rule and output-style file that differs from this version (it still runs the codegraph phase and the cleanup steps); run `superclaude install --force` to refresh them, for example to get the new `~/.claude/CLAUDE.md` and the latest `~/.claude/HOW-WE-WORK.md`. Unlike `superclaude update`, it also installs codegraph and retires old MCP registrations.
+A plain `superclaude install` keeps framework files you already have and names each kept command, rule, output-style and core file that differs from this version (it still runs the codegraph phase and the cleanup steps); run `superclaude install --force` to refresh them, for example to get the new `~/.claude/CLAUDE.md` and the latest `~/.claude/HOW-WE-WORK.md`. Unlike `superclaude update`, it also installs codegraph and retires old MCP registrations.
 
-> **Warning:** `superclaude install --force` overwrites every file it ships, the same files `superclaude update` overwrites. For a command, rule or output-style file that differs from the shipped one it first saves a copy next to it as `<name>.bak.<UTC time>` (see [Saved copies](upgrading.md#saved-copies-of-changed-files)). Core files such as `~/.claude/CLAUDE.md` and `~/.claude/RULES.md`, agents and skills are overwritten with no copy, and each shipped skill folder in `~/.claude/skills/` is deleted and re-copied, so any file you added inside one is lost. If you edited or added any of those files, copy them first (for example `cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.mine`), then re-apply your changes after the upgrade. After refreshing the files it also runs the codegraph phase and the cleanup steps; if the codegraph phase fails, the command exits 1 even though the files were already refreshed. Fix the cause and run it again.
+> **Warning:** `superclaude install --force` overwrites every file it ships, the same files `superclaude update` overwrites. When a command, rule, output-style, core, agent or template file differs from the shipped one, the installer first saves a copy next to it as `<name>.bak.<UTC time>`. Skill folders (deleted and re-copied) and hook scripts get no copy (see [Saved copies](upgrading.md#saved-copies-of-changed-files)). Copy any file you changed or added inside a skill folder, and any hook script you changed, to a place outside `~/.claude/skills/` before you run either command (for example `cp ~/.claude/skills/<skill-name>/<file> ~/<file>.mine`), then re-apply your changes after the upgrade. After refreshing the files it also runs the codegraph phase and the cleanup steps; if the codegraph phase fails, the command exits 1 even though the files were already refreshed. Fix the cause and run it again.
 
 ---
 

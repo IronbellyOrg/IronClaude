@@ -94,6 +94,8 @@ _FRESHNESS_SCRIPTS = [
     # L2 git pre-push hook source; installed into a worktree's hooks/pre-push
     # by the Orca launcher, never registered in settings.json.
     "launch-level-pre-push.sh",
+    # PostToolUse(Bash) Run-ledger appender; not registered in hooks.json, Coder#545 registers it
+    "run-ledger-record.sh",
 ]
 _LEGACY_SCRIPTS = ["session-init.sh"]
 

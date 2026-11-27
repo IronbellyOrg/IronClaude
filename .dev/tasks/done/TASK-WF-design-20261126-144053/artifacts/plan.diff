@@ -1,0 +1,69 @@
+--- old-plan
++++ new-plan
+@@ -3,7 +3,7 @@
+ source: ./source.md
+ strategy: systematic
+ depth: standard
+-slug: TASK-WF-design-20261126-134817
++slug: TASK-WF-design-20261126-144053
+ version: "1"
+ priority: Medium
+ created_date: "2026-11-26"
+@@ -24,19 +24,20 @@
+ - Python and tests run through uv (`uv run pytest`, `uv run ruff`); never `python -m` or bare `pip`.
+ - The tasks run in a straight line and the new test file comes last (the design's section 6 puts it first) so that the acceptance criteria of every task can pass the moment that task is done.
+ - Stage the changed files and `.dev/tasks`; never stage anything under `.claude/` or `.dev/issues/`. Staging is not committing.
++- Where this plan and `./source.md` disagree this plan wins: it overrides source.md line 106 (page-wide absence of "is being worked out in") and lines 53 and 108 (the list of 13 key phrases, now 15), as stated in Tasks 1, 4 and 7 (D-1, D-3).
+ 
+ ## Phase 1: Guide policy text
+ 
+ ## Task 1: Add the "Worktrees and branches" section to the guide
+ 
+-In `src/superclaude/core/HOW-WE-WORK.md`, insert a new unnumbered heading `## Worktrees and branches` and its bullets between the closing routing-table marker comment (line 350) and the `## Orca coordination` heading (line 352), with one blank line before the heading and one blank line after the section. The content is the fenced text block of section 3 of `./source.md` (between the `guide-section:begin` and `guide-section:end` comments). Use it verbatim, or tighten the wording without dropping any rule, so that the section stays within 400 words. The section is bullets and short paragraphs only (no table), holds no HTML comment or marker, and does not contain the three phrases that `tests/commands/test_worktrees_command.py:124-137` bans: "Every verb is a dry run", "every verb is a dry run" and "Verbs (a dry run unless --apply is given)".
++In `src/superclaude/core/HOW-WE-WORK.md`, insert a new unnumbered heading `## Worktrees and branches` and its bullets between the closing routing-table marker comment (line 350) and the `## Orca coordination` heading (line 352), with one blank line before the heading and one blank line after the section. The content is the fenced text block of section 3 of `./source.md` (between the `guide-section:begin` and `guide-section:end` comments). Use it with exactly these four edits (D-3): (1) in the first paragraph change "a second checkout in its own folder, on its own branch" to "a second checkout on its own branch"; (2) in the fix bullet change "Then `git fetch origin`," to "`git fetch origin`,"; (3) in the lessons bullet change "pins the worktree in the Orca app when the PR opens" to "pins the worktree when the PR opens"; (4) in the claim bullet change "is exempt." to "is exempt, and so is a handoff of unfinished work after the first session has stopped."; the result is 394 words by `len(text.split())`; recount after editing, and if the count is above 400 tighten other wording without dropping a rule and without removing the example `clayphi/issue-289-wtrule` (the only backticked branch example; Task 7's test needs one). The section is bullets and short paragraphs only (no table), holds no HTML comment or marker, and does not contain the three phrases that `tests/commands/test_worktrees_command.py:124-137` bans: "Every verb is a dry run", "every verb is a dry run" and "Verbs (a dry run unless --apply is given)".
+ 
+ Dependents that read this file and must keep passing: `tests/core/test_how_we_work_routing_table.py` (each marker once and in order, numbered-heading reference check at `_HEADING_RE`, ASCII guard at lines 329-334), `tests/core/test_claude_md_routing_block.py` (the level table copy in `src/superclaude/core/CLAUDE.md` equals the guide's), `tests/commands/test_worktrees_command.py` (banned phrases), `tests/cli/test_how_we_work_install.py` (the installed copy equals the guide bytes), and `tests/commands/test_help_command.py`.
+ 
+ Acceptance criteria:
+ - `src/superclaude/core/HOW-WE-WORK.md` has exactly one line `## Worktrees and branches`, located after the closing routing-table marker comment line and before the `## Orca coordination` line, with no marker or HTML comment inside the section.
+ - The section, from its heading to the line before `## Orca coordination`, is at most 400 words by `len(text.split())` and is ASCII only (`text.isascii()` is true).
+-- The section contains each of these exact substrings: `new worktree and branch`, `One writer per worktree`, `original worktree while it still exists`, `--ff-only`, `stop and ask`, `/sc:issue --claim`, `at most 24 characters`, `no spaces`, `no run of 2 to 4 digits`, `create nothing and ask the owner`, `Lessons comment`, `pins the worktree`, `checks that comment first`.
++- The section contains each of these exact substrings: `new worktree and branch`, `One writer per worktree`, `original worktree while it still exists`, `--ff-only`, `stop and ask`, `/sc:issue --claim`, `at most 24 characters`, `no spaces`, `no run of 2 to 4 digits`, `create nothing and ask the owner`, `Lessons comment`, `pins the worktree`, `checks that comment first`, `is exempt`, `handoff of unfinished work` (D-3); each of the fifteen substrings occurs once in the section.
+ - `uv run pytest tests/core/test_how_we_work_routing_table.py tests/core/test_claude_md_routing_block.py tests/commands/test_worktrees_command.py tests/cli/test_how_we_work_install.py tests/commands/test_help_command.py -q` passes.
+ 
+ ## Task 2: Point the /sc:worktrees row at the new section
+@@ -56,7 +57,7 @@
+ 
+ Depends on: Task 2
+ 
+-Overwrite `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` with the final content of `src/superclaude/core/HOW-WE-WORK.md` by copying the file (never by editing the mirror). Do not touch anything under `.claude/`; the level table is unchanged, so `src/superclaude/core/CLAUDE.md` needs no recopy.
++Overwrite `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` with the final content of `src/superclaude/core/HOW-WE-WORK.md` by copying the file (never by editing the mirror). Do not touch anything under `.claude/`; the level table is unchanged, so `src/superclaude/core/CLAUDE.md` needs no recopy. Run the copy again after any later edit of the guide (the 400-word test is created in Task 7), so the mirror stays byte-identical (D-3).
+ 
+ Dependents that read the mirror or compare it with the guide: `tests/skills/test_review_prompt_overrides.py` (byte equality at lines 134-135), `tests/commands/test_routing_plugin_parity.py` (file comparison at line 38), `tests/commands/test_worktrees_command.py` (banned phrases in both files, lines 129-130), `tests/skills/test_review_brief_placement.py`, `tests/skills/test_spec_panel_review_loop.py` and `tests/skills/test_issue_protocol.py` (texts that must stay in the guide and the mirror).
+ 
+@@ -76,8 +77,8 @@
+ Dependents: `tests/docs/test_onboarding_deck.py`, whose test `test_every_deck_command_and_flag_is_in_the_guide` reads every `<code>` element of the page and requires each command and flag in it to be in the guide.
+ 
+ Acceptance criteria:
+-- The page holds the card text "Worktree and branch protocol" and the example `clayphi/issue-289-wtrule`, and no longer holds the phrase "is being worked out in".
+-- `git diff -U0 docs/onboarding/ironclaude-onboarding.html` shows one changed hunk, inside the former lines 520-524; the issue 290 card (heading "Contributing rules") and lines 516-518 are untouched.
++- The page holds the example `clayphi/issue-289-wtrule` and the card heading "Worktree and branch protocol"; the sentence "how they are named is being worked out" is gone; the phrase "is being worked out in" occurs exactly once on the page, in the issue 290 card (`issues/290` is still in that sentence and `issues/289` is gone) (D-1).
++- `git diff -U0 HEAD -- docs/onboarding/ironclaude-onboarding.html`, run after this task and before Task 5 (after Task 5 the file has a second hunk, the footer) (D-1), shows one changed hunk, inside the former lines 520-524; the issue 290 card (heading "Contributing rules") and lines 516-518 are untouched.
+ - `uv run pytest tests/docs/test_onboarding_deck.py -q` passes.
+ 
+ ## Task 5: Update the build footer of the onboarding page
+@@ -109,11 +110,11 @@
+ 
+ Depends on: Task 6
+ 
+-In `tests/core/test_how_we_work_worktree_policy.py` add the helper `_section()` (the text of the guide from the line `## Worktrees and branches` up to the next line that starts with `## `; it fails with a clear message when the heading is missing or appears more than once) and the tests of section 5 of `./source.md` that read the repository files: `test_section_exists_once_before_orca_coordination`, `test_section_is_at_most_400_words`, `test_section_is_pure_ascii_and_has_no_banned_phrase`, `test_section_states_each_rule` (parametrized over the thirteen key phrases listed in Task 1), `test_every_backticked_branch_example_in_the_section_passes` (at least one example exists), `test_deletion_is_detected` (removes one key phrase from a copy of the section and asserts the check reports it), `test_mirror_is_byte_identical`, `test_pointer_names_the_section` and `test_deck_card_is_replaced_and_neighbours_untouched`. These tests read `src/superclaude/core/HOW-WE-WORK.md`, the mirror and `docs/onboarding/ironclaude-onboarding.html` as changed by Tasks 1 to 5.
++In `tests/core/test_how_we_work_worktree_policy.py` add the helper `_section()` (the text of the guide from the line `## Worktrees and branches` up to the next line that starts with `## `; it fails with a clear message when the heading is missing or appears more than once) and the tests of section 5 of `./source.md` that read the repository files: `test_section_exists_once_before_orca_coordination`, `test_section_is_at_most_400_words`, `test_section_is_pure_ascii_and_has_no_banned_phrase`, `test_section_states_each_rule` (parametrized over the fifteen key phrases listed in Task 1), `test_every_backticked_branch_example_in_the_section_passes` (at least one example exists), `test_deletion_is_detected` (removes one key phrase from a copy of the section and asserts the check reports it), `test_mirror_is_byte_identical`, `test_pointer_names_the_section` and `test_deck_card_is_replaced_and_neighbours_untouched` (it asserts what Task 4's first acceptance bullet states, which overrides `./source.md` line 106, a page-wide absence check that cannot pass) (D-1). These tests read `src/superclaude/core/HOW-WE-WORK.md`, the mirror and `docs/onboarding/ironclaude-onboarding.html` as changed by Tasks 1 to 5.
+ 
+ Acceptance criteria:
+ - `uv run pytest tests/core/test_how_we_work_worktree_policy.py -v` passes and lists the thirteen tests of section 5 of `./source.md` (the four from Task 6 and the nine added here, the parametrized ones counted once each).
+-- Removing any one of the thirteen key phrases from a copy of the guide section makes `test_section_states_each_rule`'s check report it, and `test_deletion_is_detected` proves that.
++- Removing any one of the fifteen key phrases from a copy of the guide section makes `test_section_states_each_rule`'s check report it, and `test_deletion_is_detected` proves that.
+ - `uv run pytest tests/core/test_how_we_work_worktree_policy.py tests/core/test_how_we_work_routing_table.py tests/core/test_claude_md_worktree_rule.py tests/core/test_orca_session_launch_guidance.py tests/core/test_claude_md_routing_block.py tests/docs/test_onboarding_deck.py tests/commands/test_worktrees_command.py tests/commands/test_help_command.py tests/commands/test_routing_plugin_parity.py tests/skills/test_review_prompt_overrides.py tests/skills/test_sc_recommend_routing_contract.py tests/skills/test_issue_protocol.py tests/skills/test_review_brief_placement.py tests/skills/test_spec_panel_review_loop.py tests/cli/test_how_we_work_install.py tests/recommend -q` passes.
+ - `uv run ruff check tests/core/test_how_we_work_worktree_policy.py` and `uv run ruff format --check tests/core/test_how_we_work_worktree_policy.py` pass.
+-- `git status --short` lists only the guide, the mirror, the onboarding page, the new test file and files under `.dev/tasks`; nothing under `.claude/` or `.dev/issues/` is staged.
++- From the repository root, `git status --short -- . ':(top,exclude).dev'` lists only the guide, the mirror, the onboarding page and the new test file; `git diff --cached --name-only | grep -E '^(\.claude/|\.dev/issues/)'` prints nothing; `git status --short -- .dev/tasks` lists only paths under `.dev/tasks` (a plain `git status --short` is not used because the untracked `.dev/` folders are always listed) (D-2).

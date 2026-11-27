@@ -14,6 +14,18 @@
 <!-- Include related issue numbers, if any -->
 Closes #
 
+## Skill, command or agent changes (not available yet)
+
+New team members file an issue instead of opening a pull request that changes a skill, command or agent (see HOW-WE-WORK, section 4). The list shows what such a pull request will need once contribution opens; none of it can be met today.
+
+Not applicable: this PR does not change a skill, command or agent.
+
+- Linked proposal issue.
+- Before-and-after evidence that the change adds value, not bloat.
+- Known callers listed and rechecked, or "not known".
+- Reviewer approval, given before the evaluation.
+- CI evaluation passed at the ROI threshold: not available yet (metric, threshold and approving role not set).
+
 ## Checklist
 
 ### Git Workflow

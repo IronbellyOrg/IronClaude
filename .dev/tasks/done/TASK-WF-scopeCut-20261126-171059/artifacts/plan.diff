@@ -1,0 +1,27 @@
+--- old-plan
++++ new-plan
+@@ -3,7 +3,7 @@
+ source: ./source.md
+ strategy: systematic
+ depth: quick
+-slug: TASK-WF-scopeCut-20261126-165750
++slug: TASK-WF-scopeCut-20261126-171059
+ version: "1"
+ priority: Medium
+ created_date: "2026-11-26"
+@@ -103,13 +103,14 @@
+ 
+ Depends on: Task 4
+ 
+-Add `parse_args` and `main(argv=None, env=None, runner=None, now=None)` to `scripts/apply_org_rulesets.py` and the `if __name__ == "__main__"` guard, in the shape of `main` in `scripts/merged_pr_log.py` (line 622), as in source.md section 2. Options: `--org` (required, no default, through `check_org`), `--repo` (required, exactly one), `--out`, `--apply` and `--confirm`. Without `--apply` it builds a read-only runner and prints the dry-run report; with `--apply` it builds a runner that may POST and calls `apply_repo`. A runner passed in (tests) is used as given. Exit codes: `EXIT_OK`; `EXIT_USAGE` (64) for usage errors (a missing `--org` or `--repo`, the upstream org name, a list of repos, `--confirm` without `--apply`, `--apply` without `--confirm`); `EXIT_FAILED` (69) for a refusal or a failed step, with the failed check named on stderr.
++Add `parse_args` and `main(argv=None, env=None, runner=None, now=None)` to `scripts/apply_org_rulesets.py` and the `if __name__ == "__main__"` guard, in the shape of `main` in `scripts/merged_pr_log.py` (line 622), as in source.md section 2. Options: `--org` (required, no default, through `check_org`), `--repo` (required, exactly one), `--out`, `--apply` and `--confirm`. Without `--apply` it builds a read-only runner and prints the dry-run report; with `--apply` it builds a runner that may POST and calls `apply_repo`, then prints the ids, the comment line and one rollback DELETE command per created id (on a failure, what was written before the stop). A runner passed in (tests) is used as given. Exit codes: `EXIT_OK`; `EXIT_USAGE` (64) for usage errors (a missing `--org` or `--repo`, the upstream org name, a list of repos, `--confirm` without `--apply`, `--apply` without `--confirm`); `EXIT_FAILED` (69) for a refusal or a failed step, with the failed check named on stderr.
+ 
+ Create `tests/org_rulesets/test_cli.py`.
+ 
+ Acceptance criteria:
+ - A missing `--org`, an upstream org name in any letter case, a missing `--repo`, two `--repo` values, `--apply` without `--confirm` and `--confirm` without `--apply` exit with `EXIT_USAGE`.
+ - A refusal in `--apply` exits with `EXIT_FAILED` and the stderr text names the failed check.
++- A successful fake `--apply` prints the comment line and one DELETE command per created id; a read-back failure prints the one written id and exits `EXIT_FAILED`.
+ - A dry run of a synthetic repo through `main` exits `EXIT_OK`, prints the digest, and records no POST.
+ - A full fake run of a dry run and then `--apply --confirm <printed digest>` records, across all calls, only the allowed shapes: repo-scoped `gh api` calls name `<org>/<repo>` in full, none contains `SuperClaude-Org` in any letter case, and none writes to the ruleset ids 28081842, 28081844 or 28081845.
+ - `main` run with the working folder changed to an empty temporary folder finds the rule files and gives the same digest.

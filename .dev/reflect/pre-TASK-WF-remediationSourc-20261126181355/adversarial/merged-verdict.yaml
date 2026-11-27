@@ -1,0 +1,7 @@
+merge_method: adversarial
+verdict: PASS
+convergence_score: 1.0
+convergence_status: CONVERGED   # quick depth (circuit breaker), 11 of 11 diff points
+base_variant: "sonnet:qa (reviewer 2 card) with reviewer 1's Medium findings"
+source_cards: [reviewer-cards/reviewer-1-card.md, reviewer-cards/reviewer-2-card.md]
+finding_counts: {blocking: 0, label_high: 0, medium: 2, note: 6}

@@ -1,0 +1,26 @@
+{
+ "calibrator_model_class": "opus",
+ "calibrator_diversity": "degraded",
+ "note": "calibrated before the reviewers ran; reviewers are sonnet, haiku, opus, so the disjoint set is empty and the highest-capability class was used",
+ "per_dimension": {
+  "citation_grounding": 0.85,
+  "coverage_completeness": 0.80,
+  "classification_clarity": 0.35,
+  "risk_surface": 0.75,
+  "actionability": 0.65
+ },
+ "C": 0.68,
+ "citations_checked": 36,
+ "citations_unfounded": [
+  "F-3 consequence: premise that the agreed rule forbids only a rerun of a posted run has no citation; source.md:149 (M-12) requires Gate 2 to refuse on any run_end event, so the plan follows the spec and the defect, if any, is in the spec",
+  "INF-027 'source.md:126 area': line 126 is the Revision 1 heading; the Gate 1 UNSET statement is at source.md:134"
+ ],
+ "escalation_recommendation": "escalate",
+ "extra_risks_found": [
+  "plan:159 'copies it into JEV_API_KEY in memory' but client.py:133 reads os.environ.get(C.KEY_ENV); a local-variable copy would raise KeyMissing; tests use monkeypatch.setenv so none would catch it",
+  "plan:106 does not define the ledger's remaining allowance; Budget.__init__ rewrites stored ceilings (budget.py:25-28) and every _tx rewrites the file (budget.py:44-47), state() included; before the first run no ledger exists",
+  "plan:129 run_meta reads the run record and run_end reason, formats defined only in Task 6 (plan:156); same ordering gap as F-2",
+  "plan:105 record-tests runs pytest with -q but plan:31 records the command with -v; how the count is read is not stated",
+  "budget.py:16 usd() uses jevlib's built-in price, so ledger spent_usd and the run-record ledger state show dollars at the old price"
+ ]
+}

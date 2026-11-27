@@ -1,0 +1,95 @@
+{
+  "name": "quick-additions-only-attempt1-infra-failure",
+  "depth": "quick",
+  "flags": "--depth quick",
+  "marker": "qev-quick-additions-only-175745",
+  "description": "Feature: make `superclaude install` print, as its last line, how many skills it copied.",
+  "clone_head": "",
+  "drive": {
+    "status": "unknown"
+  },
+  "expected": {
+    "questions": 0,
+    "issue_create": 1,
+    "issue_comment": 0
+  },
+  "observed": {
+    "questions_as_tool_calls": 0,
+    "questions_answered": 0,
+    "questions_as_plain_text": 0,
+    "issue_create": 1,
+    "issue_comment": 0,
+    "issue_edit": 0,
+    "other_writes": 0,
+    "unknown_gh_calls": 0,
+    "start_up_gh_reads": 1
+  },
+  "matched": {
+    "questions": true,
+    "issue_create": true,
+    "issue_comment": true
+  },
+  "creates": [
+    {
+      "title": "[FEATURE] Make `superclaude install` print, as its last line, how many skills it copied",
+      "labels": [
+        "enhancement"
+      ],
+      "type": "Feature"
+    }
+  ],
+  "worker_lines": [],
+  "agents_spawned": [
+    "issue-worker-t3",
+    "issue-worker-t3"
+  ],
+  "skills_loaded": [
+    "sc-issue-protocol"
+  ],
+  "question_texts": [],
+  "question_answers": [],
+  "additions": [],
+  "contradictions": [],
+  "addition_presence": "see record.md (approximate best-matching-line rule)",
+  "kept_without_approval_lines": [
+    "- kept without approval: Assumption: \"copied\" means skills actually copied in this run, including forced reinstalls. Skills that were skipped, served by a command or failed don't count (`src/superclaude/cli/install_skills.py:88`).",
+    "- kept without approval: Assumption: the count is still printed when a later install step fails, and the existing failure status stays the same (`src/superclaude/cli/main.py:285`).",
+    "- kept without approval: Assumption: list-only mode stays a listing and copies nothing (`src/superclaude/cli/main.py:88`).",
+    "- kept without approval: the code it found: the install command and its later steps in `src/superclaude/cli/main.py`, and the code that copies skills and keeps track of them in `src/superclaude/cli/install_skills.py`.",
+    "- kept without approval: the tests to change, `tests/unit/test_cli_install.py` and `tests/cli/test_install_retired_files.py`.",
+    "- kept without approval: the plan to run `/sc:implement` then `/sc:pr-submit --monitor 3`, with `uv run pytest`, `make lint` and `make verify-sync` as the checks that must pass."
+  ],
+  "false_files_in_body_at_question": [],
+  "false_files_in_posted_body": [],
+  "read_files": {
+    "count": 31,
+    "not_equal_src": [],
+    "installed_copy": [],
+    "failed_reads": [
+      "/root/.claude/commands/sc/analyze.md",
+      "/root/.claude/skills/sc-issue-protocol/refs/create.md",
+      "/root/.claude/skills/sc-issue-protocol/templates/draft-notes.md",
+      "/root/.claude/skills/sc-issue-protocol/templates/issue-feature-simple.md",
+      "/root/.claude/skills/sc-issue-protocol/templates/scout-report.md",
+      "/tmp/createQuestionEv-scratch/clones/quick-additions-only/.claude/commands/sc/analyze.md",
+      "/tmp/createQuestionEv-scratch/clones/quick-additions-only/.claude/skills/sc-issue-protocol/refs/create.md",
+      "/tmp/createQuestionEv-scratch/clones/quick-additions-only/.claude/skills/sc-issue-protocol/templates/draft-notes.md",
+      "/tmp/createQuestionEv-scratch/clones/quick-additions-only/.claude/skills/sc-issue-protocol/templates/issue-feature-simple.md",
+      "/tmp/createQuestionEv-scratch/clones/quick-additions-only/.claude/skills/sc-issue-protocol/templates/scout-report.md"
+    ]
+  },
+  "seeded_hashes_equal_src": 30,
+  "fork_activity": {
+    "attributed": [],
+    "unattributed": [],
+    "error": ""
+  },
+  "files_written_by_run": [
+    "/tmp/createQuestionEv-scratch/clones/quick-additions-only/.dev/issues/draft-20261126-175809-feature-make-superclaude-install-print-a/scout.md",
+    "/tmp/createQuestionEv-scratch/clones/quick-additions-only/.dev/issues/draft-20261126-175809-feature-make-superclaude-install-print-a/issue-body.md",
+    "/tmp/createQuestionEv-scratch/clones/quick-additions-only/.dev/issues/draft-20261126-175809-feature-make-superclaude-install-print-a/draft-notes.md",
+    "/tmp/createQuestionEv-scratch/clones/quick-additions-only/.dev/issues/draft-20261126-175809-feature-make-superclaude-install-print-a/description.md",
+    "/tmp/createQuestionEv-scratch/clones/quick-additions-only/.dev/issues/draft-20261126-175809-feature-make-superclaude-install-print-a/flags.md"
+  ],
+  "stop_conditions": []
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Defect-class card (MR 3.0.3 plus promote_category, DD-11)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "version",
+    "definition",
+    "question_template",
+    "extractor",
+    "route",
+    "replicas",
+    "applies_to",
+    "instances",
+    "severity_guidance",
+    "known_weakness",
+    "promote_category",
+    "swap_test"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^C[0-9]+$" },
+    "name": { "type": "string", "minLength": 1 },
+    "version": { "type": "integer", "minimum": 1 },
+    "definition": { "type": "string", "minLength": 20 },
+    "question_template": { "type": "string", "minLength": 20 },
+    "extractor": { "type": ["string", "null"], "pattern": "^E[0-9]+$" },
+    "route": { "type": "string", "enum": ["search", "read"] },
+    "replicas": { "type": "integer", "enum": [1, 2] },
+    "applies_to": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "enum": ["plan", "spec", "doc"] }
+    },
+    "instances": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["cite", "target", "kind"],
+        "properties": {
+          "cite": { "type": "string", "minLength": 1 },
+          "target": { "type": "string", "enum": ["plan", "spec", "doc"] },
+          "kind": { "type": "string", "enum": ["P", "I"] }
+        }
+      }
+    },
+    "severity_guidance": { "type": "string", "minLength": 1 },
+    "known_weakness": { "type": "string", "minLength": 1 },
+    "promote_category": { "type": "string", "minLength": 1 },
+    "swap_test": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewer", "date"],
+      "properties": {
+        "reviewer": { "type": "string" },
+        "date": { "type": "string" }
+      }
+    }
+  }
+}

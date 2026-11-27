@@ -1,0 +1,19 @@
+# Task 5 checks (ruff 0.17.3)
+--- git diff -U0 -- tests/cli/reflect/test_fix_loop.py (against the start snapshot)
+diff --git a/tests/cli/reflect/test_fix_loop.py b/tests/cli/reflect/test_fix_loop.py
+index e697266e3..ca99df2a5 100644
+--- a/tests/cli/reflect/test_fix_loop.py
++++ b/tests/cli/reflect/test_fix_loop.py
+@@ -95 +95 @@ def test_cannot_repair_absent_path_halts_no_apply(
+-    """AUTO-FIXABLE verdict with remediation_task_path: null -> terminal HALT, no apply."""
++    """AUTO-FIXABLE verdict with no remediation_plan_path -> terminal HALT, no apply."""
+--- changed line count (lines starting + or - excluding headers)
+2
+--- new line length
+88
+--- uv run ruff format --check tests/cli/reflect/test_fix_loop.py
+1 file already formatted
+exit code: 0
+--- uv run ruff check tests/cli/reflect/test_fix_loop.py
+All checks passed!
+exit code: 0

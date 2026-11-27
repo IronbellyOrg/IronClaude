@@ -1,0 +1,70 @@
+Task 2 actual checks
+Commands: PYTHONDONTWRITEBYTECODE=1 uv run --no-project --offline ruff format src/superclaude/cli/swarm/commands.py tests/swarm/test_resume_crash_recovery.py
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-project /opt/uv/tools/superclaude/bin/python -m pytest tests/swarm/test_resume_crash_recovery.py -vv -s
+2 files reformatted
+================================================= test session starts ==================================================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0 -- /opt/uv/tools/superclaude/bin/python
+cachedir: .pytest_cache
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-540-resume-marker
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 50 items
+
+tests/swarm/test_resume_crash_recovery.py::test_discover_returns_empty_when_no_sidecars PASSED
+tests/swarm/test_resume_crash_recovery.py::test_discover_returns_empty_when_dir_missing PASSED
+tests/swarm/test_resume_crash_recovery.py::test_discover_returns_succeeded_slots PASSED
+tests/swarm/test_resume_crash_recovery.py::test_discover_ignores_failed_sidecars PASSED
+tests/swarm/test_resume_crash_recovery.py::test_discover_ignores_out_of_range_slots PASSED
+tests/swarm/test_resume_crash_recovery.py::test_discover_tolerates_corrupt_sidecar PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_requires_output_flag PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_mutually_exclusive_with_spec_path PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_mutually_exclusive_with_lens PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_missing_manifest_exits_usage PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_job_id_mismatch_exits_usage PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_advertised_in_help PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_skips_succeeded_workers_and_redispatches_remaining PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_all_workers_succeeded_skips_redispatch PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_regenerates_merged_md PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_does_not_call_live_lenses_for_lens_rehydration PASSED
+tests/swarm/test_resume_crash_recovery.py::test_discover_succeeded_slots_exported PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_discovery_rejects_unsafe_inventory[duplicate] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_discovery_rejects_unsafe_inventory[parent] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_discovery_rejects_unsafe_inventory[symlink] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_discovery_rejects_unsafe_inventory[raw-symlink] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_discovery_does_not_guess_unrelated_numeric_segment PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[False-0-False] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[False-0-True] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[False-2-False] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[False-2-True] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[False-3-False] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[False-3-True] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[True-0-False] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[True-0-True] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[True-2-False] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[True-2-True] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[True-3-False] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_completion_policy_status_and_order[True-3-True] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_no_marker_on_error[reduce] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_no_marker_on_error[contract] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_no_marker_on_error[terminal] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_no_marker_on_error[missing] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_no_marker_on_error[malformed] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_no_marker_on_error[mismatch] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_stale_marker_absent_at_accepted_dispatch[True] dispatch-entry enabled=True marker_exists=[False]; exit=0; final_marker=True; old_bytes_equal=True
+PASSED
+tests/swarm/test_resume_crash_recovery.py::test_stale_marker_absent_at_accepted_dispatch[False] dispatch-entry enabled=False marker_exists=[False]; exit=0; final_marker=False; old_bytes_equal=False
+PASSED
+tests/swarm/test_resume_crash_recovery.py::test_overlapping_resume_preserves_active_fresh_artifacts overlapping_resume result=[(1, True)]; fresh_exit=0
+PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_reduction_retires_old_marker_and_recovers_crash[True] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_reduction_retires_old_marker_and_recovers_crash[False] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_claim_released_after_failure[validation] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_claim_released_after_failure[unlink] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_claim_released_after_failure[dispatch] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_claim_released_after_failure[interrupt] PASSED
+tests/swarm/test_resume_crash_recovery.py::test_resume_nested_alias_rejected_and_distinct_output_works PASSED
+
+================================================== 50 passed in 1.29s ==================================================
+
+exit_code=0

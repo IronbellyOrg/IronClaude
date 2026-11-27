@@ -1,0 +1,9 @@
+$ uv run python -I /tmp/impl-289/t3n.py
+AC1 old strings found: 0
+AC2 exact intro paragraph present: True | old sentence gone: True
+AC3 heading+eyebrow: 2 | card 1: True | card 2: True | issue 290 link: True
+AC4 footer hash 4ce9f14b equals HEAD 4ce9f14b -> True
+'still open' inside s12: False
+changed hunks: ['@@ -516,3 +516,3 @@', '@@ -579 +579 @@']
+changed lines: ['-  <p class="eyebrow"><b>12</b> · Contributing and open topics · GitHu', '-  <h2 id="s12-h">Contributing, and one open topic</h2>', '-  <p>The contributing rules are settled for now; the worktree topic i', '+  <p class="eyebrow"><b>12</b> · Contributing and worktrees · HOW-WE-', '+  <h2 id="s12-h">Contributing and worktrees</h2>', '+  <p>Both rules are settled. The worktree rule is the left card and t', '-  <p>Built from HOW-WE-WORK.md at commit a98d7b42.</p>', '+  <p>Built from HOW-WE-WORK.md at commit 4ce9f14b.</p>']
+rc=0

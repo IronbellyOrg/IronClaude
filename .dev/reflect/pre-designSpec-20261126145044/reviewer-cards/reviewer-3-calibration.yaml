@@ -1,0 +1,18 @@
+{
+ "model_class": "opus",
+ "C": 0.82,
+ "per_dimension": {
+  "citation_grounding": 0.93,
+  "coverage_completeness": 0.85,
+  "classification_clarity": 0.7,
+  "risk_surface": 0.85,
+  "actionability": 0.78
+ },
+ "citations_checked": 43,
+ "citations_unfounded": [],
+ "overgraded": [
+  "F-5"
+ ],
+ "calibrator_model_class": "opus",
+ "calibrator_diversity": "degraded"
+}

@@ -1,0 +1,17 @@
+contract_version: "1.1"
+supersedes: TASK-WF-remediationSourc-20261126-115917
+remediation_route: surgical
+finding_counts: {"blocking": 2, "label_high": 2, "medium": 2, "note": 3}
+fix_cycles: 2
+status: success
+slug: TASK-WF-remediationSourc-20261126-143726
+plan_path: ./TASK-WF-remediationSourc-20261126-143726.md
+source_path: ./source.md
+source_origin: .dev/troubleshoot/test-ccsession-shim-tests-in-tests-20261126031906/remediation-source.md
+strategy: systematic
+depth: standard
+handoff_action: implement
+handoff_output_path: ./progress.md
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-352/.dev/reflect/pre-TASK-WF-remediationSourc-20261126-041454-20261126041915/REPORT.md
+unresolved: ["review-cap override: after review 3 of 3 the package was marked FAIL with open blockers N1 (cleanup patterns matched other checkouts' processes) and N2 (log redirect into a missing folder); on the instruction given in this session by the IronFlow session (helping Clay push E2), two edits were made to the placed plan after the cap (patterns tied to this checkout's resolved path, mkdir -p for the log folder) and the FAIL mark was cleared; a read-only check of those changed lines only (not a fourth full review) found N1 and N2 resolved and no new blocking finding", "not repaired, follow-up notes from that check: F2 a second session in this same checkout is not excluded by the third pattern; F3 shims left by plain pytest runs under /tmp/pytest-of-coder are not listed; F4 the patterns assume the working directory is the repo root; earlier N3 (leftover pytest or load_repro.py processes are not listed), N5 (symlinked checkout path, mitigated by pwd -P), N6 (a timeout in a detached run shows only after all rounds)", "re-review scope: changed lines plus prior blockers; full first review: reflect REPORT.md (status partial)", "story-ordered extras: medium and note findings were included in the repair passes beyond the usual blocking-only rule"]

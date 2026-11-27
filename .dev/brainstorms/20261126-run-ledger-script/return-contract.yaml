@@ -1,0 +1,20 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20261126-run-ledger-script/seed-brief.md
+merged_output_path: .dev/brainstorms/20261126-run-ledger-script/merged-requirements.md
+convergence_score: 0.75
+adversarial_artifacts_dir: .dev/brainstorms/20261126-run-ledger-script/adversarial/adversarial
+domain: code
+proposal_count: 2
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+telemetry:
+  agent_spec: "sonnet:architect,sonnet:refactorer (opus replaced by sonnet: owner rule never default to Opus)"
+  depth: quick
+  rounds: 1
+  invariant_probe: skipped
+  source_correction: "IronbellyOrg/IronClaude#895 replaced Coder#545 after Wave 3 started"

@@ -1,0 +1,26 @@
+{
+ "selected_tier": 2,
+ "fired_rule_number": 4,
+ "coverage_degraded": "parsed-sparse",
+ "surface_unreached": null,
+ "composite_score": 4.0,
+ "per_signal_breakdown": {
+  "scope_size": 1,
+  "task_count": 1,
+  "blast_radius": 0,
+  "spec_density": 1,
+  "ambiguity_signals": 1
+ },
+ "escalation_reason": "S_domains = 3 (code, tests, docs) so rule 4 escalates; the parse-density guard (23 inferred rows against 14 parsed) also forbids a Tier 1 stop as a table-wide pre-filter; calibrated C = 0.75 is below 0.85",
+ "t2_engine_requested": "legacy",
+ "t2_engine_effective": "legacy",
+ "panel_fallback_reason": null,
+ "inputs": {
+  "C": 0.75,
+  "S_scope": 8,
+  "S_domains": 3,
+  "S_dev_density": 0.1081,
+  "coverage_pct": 1.0,
+  "coverage_pct_union": 0.8919
+ }
+}

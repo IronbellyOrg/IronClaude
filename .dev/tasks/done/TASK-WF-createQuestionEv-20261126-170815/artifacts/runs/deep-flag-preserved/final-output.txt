@@ -1,0 +1,37 @@
+I filed issue #990001 as a bug, with the `bug` label, issue type Bug and Complexity set to Complex. I read the type and Complexity back from GitHub, and both match.
+
+- **Issue:** https://github.com/IronbellyOrg/IronClaude/issues/990001
+- **Working files:** `.dev/issues/990001/`
+
+**One disagreement with your flags.** At deep depth a second worker picked flags on its own, and the comparison came out on its side. It judged this a feature, not a bug. Nothing is broken today: `install` already prints `✅ Installed N skills:` partway through the run (`src/superclaude/cli/install_skills.py:119-121`), and no doc promises a count on the last line. I filed it with your flags anyway, as the skill requires, and posted the reasons as a comment on the issue: https://github.com/IronbellyOrg/IronClaude/issues/990001#issuecomment-1. If you agree it's a feature, switching it means changing the label to `enhancement` and the type to Feature by hand.
+
+**What the issue proposes:**
+- **Last line on every path:** the line prints after the final retire step, and also when a failed step ends the run with `sys.exit(1)` (`src/superclaude/cli/main.py:271-296`).
+- **What "copied" means:** only newly installed skills count. Skills skipped because they already exist (rerun without `--force`), skills handled by `/sc:` commands instead, and failed skills are left out. When nothing is installed the line prints 0.
+- **Proposed fix:** `install_all_skills` would report the count through a new optional argument, so callers that expect its current two-value return still work. `install` would print the count as its last line. `update` and `install --list` would stay unchanged.
+- **Priority:** Medium. The output is missing information, but `install --list` gives the same numbers.
+- The body also includes a fix plan and a test plan.
+
+**Draft notes:** none of the drafted material contradicts what you wrote, so I didn't ask you anything. The body kept these additions without your approval:
+- The line's wording, `Skills copied: N`, is my assumption; your description didn't give one.
+- `install_all_skills` can report success and drop its failure messages when every skill fails (`install_skills.py:144-145`). I noted this as out of scope, not as part of the fix.
+- Extra code, test and environment details from the pass over the code, plus a few smaller assumptions: low severity, the docs step only if the output is documented, and no `make sync-dev` needed.
+- No duplicate issues were found.
+- The code tools codegraph and auggie weren't available, so that pass used plain search and file reads.
+
+I didn't stage or commit `.dev/issues/`.
+
+```yaml
+status: success
+mode: create
+issue_number: 990001
+issue_url: https://github.com/IronbellyOrg/IronClaude/issues/990001
+dir: .dev/issues/990001/
+clickup_status: null
+labels_applied: [bug]
+labels_missing: []
+next_steps_path: null
+issue_type: Bug
+complexity_field: Complex
+classification_missing: []
+```

@@ -1,0 +1,54 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/run-ledger/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 6.1.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/run-ledger
+configfile: pyproject.toml
+plugins: anyio-4.16.0, superclaude-6.1.0
+collecting ... collected 43 items
+
+tests/run_ledger/test_build.py::test_worker_list_pagination PASSED       [  2%]
+tests/run_ledger/test_build.py::test_repeated_cursor_fails PASSED        [  4%]
+tests/run_ledger/test_build.py::test_page_cap_fails PASSED               [  6%]
+tests/run_ledger/test_build.py::test_orca_failure_raises[exit] PASSED    [  9%]
+tests/run_ledger/test_build.py::test_orca_failure_raises[timeout] PASSED [ 11%]
+tests/run_ledger/test_build.py::test_orca_failure_raises[not_ok] PASSED  [ 13%]
+tests/run_ledger/test_build.py::test_missing_binary_message PASSED       [ 16%]
+tests/run_ledger/test_build.py::test_empty_worktree_list_implausible PASSED [ 18%]
+tests/run_ledger/test_build.py::test_empty_run_list_with_previous_implausible PASSED [ 20%]
+tests/run_ledger/test_build.py::test_zero_included_implausible_needs_recent_run PASSED [ 23%]
+tests/run_ledger/test_build.py::test_accept_empty_overrides_only_the_zero_included_guard PASSED [ 25%]
+tests/run_ledger/test_build.py::test_generated_at_taken_before_first_call PASSED [ 27%]
+tests/run_ledger/test_build.py::test_workers_not_fetched_for_runs_already_in PASSED [ 30%]
+tests/run_ledger/test_imports.py::test_checker_sees_every_import_form PASSED [ 32%]
+tests/run_ledger/test_imports.py::test_ledger_imports_only_allowed_probes_names PASSED [ 34%]
+tests/run_ledger/test_rules.py::test_live_worktree_run_in PASSED         [ 37%]
+tests/run_ledger/test_rules.py::test_deleted_worktrees_only_run_out PASSED [ 39%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[ready-True] PASSED [ 41%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[blocked-True] PASSED [ 44%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[in_progress-True] PASSED [ 46%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[some_unknown_status-True] PASSED [ 48%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[completed-False] PASSED [ 51%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[failed-False] PASSED [ 53%]
+tests/run_ledger/test_rules.py::test_unfinished_task_run_in[cancelled-False] PASSED [ 55%]
+tests/run_ledger/test_rules.py::test_new_run_in PASSED                   [ 58%]
+tests/run_ledger/test_rules.py::test_new_fallback_24h_when_no_previous_ledger PASSED [ 60%]
+tests/run_ledger/test_rules.py::test_legacy_run_out PASSED               [ 62%]
+tests/run_ledger/test_rules.py::test_worktree_id_exact_match_only PASSED [ 65%]
+tests/run_ledger/test_rules.py::test_null_worktree_id_no_match PASSED    [ 67%]
+tests/run_ledger/test_rules.py::test_time_forms_compare_correctly PASSED [ 69%]
+tests/run_ledger/test_rules.py::test_main_checkout_only_requires_only_reason_and_a_match PASSED [ 72%]
+tests/run_ledger/test_rules.py::test_stale_flag_is_null_without_task_timestamp PASSED [ 74%]
+tests/run_ledger/test_rules.py::test_stale_flag_true_for_old_ready_or_blocked_and_blocked_only_counted PASSED [ 76%]
+tests/run_ledger/test_store.py::test_path_precedence_flag_env_xdg PASSED [ 79%]
+tests/run_ledger/test_store.py::test_atomic_write_leaves_old_file_and_no_tmp_on_failure PASSED [ 81%]
+tests/run_ledger/test_store.py::test_lock_timeout PASSED                 [ 83%]
+tests/run_ledger/test_store.py::test_corrupt_ledger_reads_as_none PASSED [ 86%]
+tests/run_ledger/test_store.py::test_read_ledger_rejects_trailing_junk_in_id_and_dedupes PASSED [ 88%]
+tests/run_ledger/test_store.py::test_add_idempotent_and_rejects_bad_id PASSED [ 90%]
+tests/run_ledger/test_store.py::test_add_on_missing_ledger_refuses PASSED [ 93%]
+tests/run_ledger/test_store.py::test_add_keeps_generated_at PASSED       [ 95%]
+tests/run_ledger/test_store.py::test_merge_replaces_same_id_unions_reasons_and_recomputes_counts PASSED [ 97%]
+tests/run_ledger/test_store.py::test_concurrent_add_and_build_no_lost_append PASSED [100%]
+
+============================== 43 passed in 1.22s ==============================

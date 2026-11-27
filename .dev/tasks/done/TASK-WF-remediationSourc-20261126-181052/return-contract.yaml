@@ -1,0 +1,19 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-remediationSourc-20261126-181052
+plan_path: ./TASK-WF-remediationSourc-20261126-181052.md
+source_path: ./source.md
+source_origin: "authored in place: the first plan's spec plus a Reflect Verdict State section (regenerate route)"
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/run-ledger/.dev/reflect/pre-TASK-WF-remediationSourc-20261126181355/REPORT.md
+unresolved:
+  - "Second review: 2 Medium findings not repaired by design: M-1 (parse_time required inside the rules function only; Tasks 2, 3 and 6 are silent) and M-2 (the import-allowlist test can pass without testing the allowlist). Executor should add one clause per task and handle both import forms."
+  - "The reflect reviews ran with 2 reviewers (Sonnet and Haiku), not 3, and blind calibration without a disjoint class, because Opus is not selected automatically (owner rule); the second review's debate ran at quick depth."
+fix_cycles: 0
+supersedes: TASK-WF-mergedRequiremen-20261126-173239
+remediation_route: regenerate
+finding_counts: {"blocking": 6, "label_high": 3, "medium": 9, "note": 12}

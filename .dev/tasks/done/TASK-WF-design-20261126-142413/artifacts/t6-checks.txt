@@ -1,0 +1,22 @@
+# Task 6 checks
+--- git diff -U0 (against the start snapshot)
+diff --git a/docs/developer-guide/session-memory.md b/docs/developer-guide/session-memory.md
+index d718ea73e..9cde34b79 100644
+--- a/docs/developer-guide/session-memory.md
++++ b/docs/developer-guide/session-memory.md
+@@ -33 +33 @@ There is no Python or shell code behind the store. It is a set of instructions i
+-- **Kept out of git.** On the first write, if `<project>/.superclaude/.gitignore` is absent, the writer creates it with the single line `*` (`pm-agent.md:21`). The whole `.superclaude/` folder, including the `.gitignore` itself, is then ignored. The skills that write their own subfolders repeat this rule before writing (`sc-task-protocol/SKILL.md:331`, `sc-reflect-protocol/SKILL.md:376`).
++- **Kept out of git.** On the first write, if `<project>/.superclaude/.gitignore` is absent, the writer creates it with the single line `*` (`pm-agent.md:21`). The whole `.superclaude/` folder, including the `.gitignore` itself, is then ignored. The skills that write their own subfolders repeat this rule before writing (`sc-task-protocol/SKILL.md:331`, `sc-reflect-protocol/SKILL.md:576`).
+@@ -59 +59 @@ The rules exist so that several sessions in one worktree can write without overw
+-Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `reflect/last-pass-{slug}.md` whole and writes `reflect/handoff-{slug}-{timestamp}.md` once (`sc-reflect-protocol/SKILL.md:592-594`).
++Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `reflect/last-pass-{slug}.md` whole (`sc-reflect-protocol/SKILL.md:581`). It no longer writes `reflect/handoff-*.md` files: they were retired in 6.1.0 (`sc-reflect-protocol/SKILL.md:588`, section 6.3 "Handoff files"), and existing ones are left in place.
+@@ -79 +79 @@ Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `ref
+-| `sc-reflect-protocol` | Reads and writes `reflect/` files (older versions also wrote a `reflect/handoff-*.md` file for a removed route) | `sc-reflect-protocol/SKILL.md:262,376-378,590-600` |
++| `sc-reflect-protocol` | Reads and writes `reflect/` files (older versions also wrote a `reflect/handoff-*.md` file for a removed route) | `sc-reflect-protocol/SKILL.md:262,576-598` |
+--- changed hunks:
+3
+--- git grep -n 'timestamp}.md` once' (expect no output)
+grep exit code: 1
+--- lines 600 and 599 of SKILL.md
+
+### 6.4 Scripted checkpoints (removed)
