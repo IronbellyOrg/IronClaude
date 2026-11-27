@@ -7,7 +7,7 @@ Command line (each takes ``--root``, the experiment folder by default):
   gate.py freeze-rule     freeze the rule file's hash (refuses any UNSET value)
   gate.py record-tests    run the harness tests and record the result with the hash of every code file
   gate.py gate2           everything Gate 1 checks, plus the rest; a pass is what the live run rests on (a lead_go that names the
-                          current rule hash must already be recorded, or it fails)
+                          current rule hash and the gateway route must already be recorded, or it fails)
 Only the three ``freeze-*`` commands write the manifest, each its own keys and never an existing key.  The gates only read it, and
 they hash files only: they never call the corpus loader (the freeze commands do the checking of the files they freeze).
 """
@@ -159,6 +159,8 @@ def _gate2_checks(paths):
         failed.append("go_missing")
     elif go.get("rule_sha256") != rule_sha:
         failed.append("go_rule_hash")
+    elif go.get("route") != loader.GATEWAY_URL:             # a go given for another route (or none) does not open this one
+        failed.append("go_route")
     if events.latest(paths, "first_request") or events.latest(paths, "run_end"):
         failed.append("prior_run")
     return failed

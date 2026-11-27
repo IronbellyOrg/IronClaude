@@ -1,0 +1,30 @@
+{"prompt_id": "p01", "answer": "deployment", "cues": ["production"], "rows": ["deployment"], "method": "person reading the prose"}
+{"prompt_id": "p02", "answer": "deployment", "cues": ["container"], "rows": ["deployment"], "method": "person reading the prose"}
+{"prompt_id": "p03", "answer": null, "cues": [], "rows": [], "method": "person reading the prose"}
+{"prompt_id": "p04", "answer": null, "cues": [], "rows": [], "method": "person reading the prose"}
+{"prompt_id": "p05", "answer": "build", "cues": ["build"], "rows": ["build"], "method": "person reading the prose"}
+{"prompt_id": "p06", "answer": "build", "cues": ["build"], "rows": ["build"], "method": "person reading the prose"}
+{"prompt_id": "p07", "answer": "build", "cues": ["build"], "rows": ["build"], "method": "person reading the prose"}
+{"prompt_id": "p08", "answer": null, "cues": [], "rows": [], "method": "person reading the prose"}
+{"prompt_id": "p09", "answer": null, "cues": [], "rows": [], "method": "person reading the prose"}
+{"prompt_id": "p10", "answer": null, "cues": [], "rows": [], "method": "person reading the prose"}
+{"prompt_id": "p11", "answer": null, "cues": [], "rows": [], "method": "person reading the prose"}
+{"prompt_id": "p12", "answer": null, "cues": [], "rows": [], "method": "person reading the prose"}
+{"prompt_id": "p13", "answer": "security", "cues": ["auth"], "rows": ["security"], "method": "person reading the prose"}
+{"prompt_id": "p14", "answer": null, "cues": [], "rows": [], "method": "person reading the prose"}
+{"prompt_id": "p15", "answer": null, "cues": ["build", "deploy"], "rows": ["build", "deployment"], "method": "person reading the prose"}
+{"prompt_id": "p16", "answer": "security", "cues": ["vulnerab"], "rows": ["security"], "method": "person reading the prose"}
+{"prompt_id": "p17", "answer": null, "cues": [], "rows": [], "method": "person reading the prose"}
+{"prompt_id": "p18", "answer": "security", "cues": ["vulnerab"], "rows": ["security"], "method": "person reading the prose"}
+{"prompt_id": "p19", "answer": "deployment", "cues": ["deploy"], "rows": ["deployment"], "method": "person reading the prose"}
+{"prompt_id": "p20", "answer": "build", "cues": ["CI log fragments"], "rows": ["build"], "method": "person reading the prose"}
+{"prompt_id": "p21", "answer": "build", "cues": ["build"], "rows": ["build"], "method": "person reading the prose"}
+{"prompt_id": "p22", "answer": null, "cues": [], "rows": [], "method": "person reading the prose"}
+{"prompt_id": "p23", "answer": null, "cues": ["memory", "build"], "rows": ["performance", "build"], "method": "person reading the prose"}
+{"prompt_id": "p24", "answer": null, "cues": [], "rows": [], "method": "person reading the prose"}
+{"prompt_id": "p25", "answer": null, "cues": [], "rows": [], "method": "person reading the prose"}
+{"prompt_id": "p26", "answer": "security", "cues": ["auth"], "rows": ["security"], "method": "person reading the prose"}
+{"prompt_id": "p27", "answer": null, "cues": ["build", "CVE"], "rows": ["build", "security"], "method": "person reading the prose"}
+{"prompt_id": "p28", "answer": null, "cues": [], "rows": [], "method": "person reading the prose"}
+{"prompt_id": "p29", "answer": "build", "cues": ["lint"], "rows": ["build"], "method": "person reading the prose"}
+{"prompt_id": "p30", "answer": "bug", "cues": ["ValueError"], "rows": ["bug"], "method": "person reading the prose"}

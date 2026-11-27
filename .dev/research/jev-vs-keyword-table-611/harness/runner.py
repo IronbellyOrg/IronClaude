@@ -1,12 +1,13 @@
 """The runner: one live run of the Jev comparison on ``JevClient``, and a rehearsal that never posts.
 
 Command line (each takes ``--root``, the experiment folder by default):
-  runner.py run --run-id ID --live     check Gate 1 and Gate 2, then read TYPESAFE_API_KEY and run; refuses without --live
+  runner.py run --run-id ID --live     check Gate 1 and Gate 2, then read LITELLM_API_KEY and run; refuses without --live
   runner.py rehearse --out DIR         build and budget every request against a throwaway ledger in DIR; no gate, no key, no post
 
-``run`` reads no environment variable before both gates pass.  Only then is ``TYPESAFE_API_KEY`` copied into ``JEV_API_KEY`` inside
-this process (``jevlib.config.KEY_ENV`` is ``JEV_API_KEY``); the key is never printed or written.  The live run is a coordinator
-action, not part of the build.
+``run`` reads no environment variable before both gates pass.  Only then is the workspace gateway key ``LITELLM_API_KEY`` copied
+into ``JEV_API_KEY`` inside this process (``jevlib.config.KEY_ENV`` is ``JEV_API_KEY``) and ``JEV_API_URL`` is set to the company
+gateway route ``GATEWAY_URL``, so the call never goes to the vendor host and no vendor key is used here; the key is never printed
+or written.  The live run is a coordinator action, not part of the build.
 """
 import argparse
 import contextlib
@@ -36,7 +37,9 @@ from harness import events, gate, loader, spend  # noqa: E402
 # (result status, result error) -> the systemic reason that ends the run with no rerun
 SYSTEMIC = {("refused", "budget_exhausted"): "budget_exhausted", ("invalid", "model_mismatch"): "model_mismatch",
             ("refused", "dry_run"): "dry_run"}
-KEY_ENV_SOURCE = "TYPESAFE_API_KEY"
+KEY_ENV_SOURCE = "LITELLM_API_KEY"      # the workspace gateway key (a virtual key); the TypeSafe vendor key is held by the gateway only
+# the gateway's native TypeSafe route (``loader.GATEWAY_URL``, which the lead's go must name); see docs/docs-product/ops/jev-litellm-gateway-operational-guide.md
+GATEWAY_URL = loader.GATEWAY_URL
 
 
 @contextlib.contextmanager
@@ -218,6 +221,8 @@ def _run_command(paths, args, transport):
         print(f"REFUSED: {KEY_ENV_SOURCE} is not set", file=sys.stderr)
         return 1
     os.environ[config.KEY_ENV] = key
+    os.environ[config.URL_ENV] = GATEWAY_URL                        # a fixed route: an ambient JEV_API_URL never decides where this goes
+    config.api_url()                                                # raises before any request if the route is not an allowed one
     rule = loader.load_rule(paths.rule, for_scoring=True)
     corpus = loader.load_corpus(paths.corpus)
     price = events.latest(paths, "price_confirmed")["usd_per_mtok"]

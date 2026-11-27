@@ -65,7 +65,7 @@ def gated(exp):
     gate.freeze_rule(exp)
     events.append_event(exp, "price_confirmed", usd_per_mtok=0.042, source="test")
     gate.record_tests(exp, runner=PASSING)
-    events.append_event(exp, "lead_go", rule_sha256=loader.sha256_file(exp.rule), words="go")
+    events.append_event(exp, "lead_go", rule_sha256=loader.sha256_file(exp.rule), route=loader.GATEWAY_URL, words="go")
 
 
 # ---- one rerun per failed prompt (T-06)
@@ -226,7 +226,7 @@ def test_a_failing_gate_leaves_the_key_and_url_variables_unread(exp, monkeypatch
         m.setattr(os, "environ", rec)
         rc = runner.main(["run", "--run-id", "r1", "--live", "--root", str(exp.root)], transport=mock())
     assert rc == 1 and "GATE 1 FAILED" in capsys.readouterr().err
-    assert not {"TYPESAFE_API_KEY", "JEV_API_KEY", "JEV_API_URL"} & set(rec.reads)
+    assert not {"LITELLM_API_KEY", "TYPESAFE_API_KEY", "JEV_API_KEY", "JEV_API_URL"} & set(rec.reads)
     assert not (exp.runs / "r1").exists()
 
 
@@ -245,11 +245,16 @@ def test_run_refuses_an_existing_run_folder(exp, capsys):
 def test_run_passes_the_gates_then_copies_the_key_and_never_prints_it(exp, monkeypatch, capsys):
     gated(exp)
     monkeypatch.setenv("JEV_API_KEY", "placeholder")               # so the test restores the variable afterwards
-    monkeypatch.setenv("TYPESAFE_API_KEY", FAKE_KEY)
+    monkeypatch.setenv("JEV_API_URL", "https://ambient.example/ignored")   # an ambient route is replaced by the gateway route, then restored
+    monkeypatch.setenv("TYPESAFE_API_KEY", "must-not-be-used")      # the vendor key is not the key this run uses
+    monkeypatch.setenv("LITELLM_API_KEY", FAKE_KEY)
     t = mock()
     assert runner.main(["run", "--run-id", "r1", "--live", "--root", str(exp.root)], transport=t) == 0
     shown = capsys.readouterr()
     assert FAKE_KEY not in shown.out + shown.err and os.environ["JEV_API_KEY"] == FAKE_KEY
+    assert os.environ["JEV_API_URL"] == runner.GATEWAY_URL == "http://192.168.133.101:4000/typesafe/v1/systemone"
+    assert config.api_url() == runner.GATEWAY_URL and "api.typesafe.ai" not in runner.GATEWAY_URL and "/cli" not in runner.GATEWAY_URL
+    assert {c[0] for c in t.calls} == {runner.GATEWAY_URL}
     assert [e["event"] for e in events.read_events(exp)][-4:] == ["gate1", "gate2", "first_request", "run_end"]
     assert len(t.calls) == 8 and events.latest(exp, "run_end")["reason"] == "completed"
     assert gate.gate2(exp) == ["prior_run"]                          # a second live run is refused
@@ -259,9 +264,10 @@ def test_run_passes_the_gates_then_copies_the_key_and_never_prints_it(exp, monke
 
 def test_run_without_a_key_refuses_after_the_gates(exp, monkeypatch, capsys):
     gated(exp)
-    monkeypatch.delenv("TYPESAFE_API_KEY", raising=False)
+    monkeypatch.delenv("LITELLM_API_KEY", raising=False)
+    monkeypatch.setenv("TYPESAFE_API_KEY", FAKE_KEY)                # a vendor key alone does not start a run
     assert runner.main(["run", "--run-id", "r1", "--live", "--root", str(exp.root)], transport=mock()) == 1
-    assert "TYPESAFE_API_KEY is not set" in capsys.readouterr().err and not (exp.runs / "r1").exists()
+    assert "LITELLM_API_KEY is not set" in capsys.readouterr().err and not (exp.runs / "r1").exists()
 
 
 @pytest.mark.parametrize("bad", ["../escape", "/tmp/jev611-abs-run-id", "a/b", ".."])
@@ -305,7 +311,7 @@ def test_rehearse_refuses_a_folder_under_the_ledger_or_runs(exp, capsys):
 
 def test_rehearse_through_the_command_line_needs_no_gate_and_no_key(exp, tmp_path, monkeypatch, capsys):
     monkeypatch.delenv("JEV_API_KEY", raising=False)
-    monkeypatch.delenv("TYPESAFE_API_KEY", raising=False)
+    monkeypatch.delenv("LITELLM_API_KEY", raising=False)
     assert runner.main(["rehearse", "--out", str(tmp_path / "rh"), "--root", str(exp.root)]) == 0
     assert json.loads(capsys.readouterr().out)["prompts"] == 8
 
@@ -345,4 +351,10 @@ def test_an_unexpected_error_still_writes_the_run_record_and_the_run_end_event(e
 
 def test_runner_holds_no_url_literal_and_posts_only_through_the_client():
     src = pathlib.Path(runner.__file__).read_text(encoding="utf-8")
-    assert "http://" not in src and "https://" not in src
+    # the runner holds no URL literal: its route is the loader's, the one URL literal, the company gateway route (the lead's go names it)
+    assert "https://" not in src and "typesafe.ai" not in src and "http://" not in src
+    assert runner.GATEWAY_URL is loader.GATEWAY_URL
+    lsrc = pathlib.Path(loader.__file__).read_text(encoding="utf-8")
+    assert "https://" not in lsrc and "typesafe.ai" not in lsrc
+    assert [line for line in lsrc.splitlines() if "http://" in line and not line.lstrip().startswith("#")] == [
+        'GATEWAY_URL = "http://192.168.133.101:4000/typesafe/v1/systemone"']

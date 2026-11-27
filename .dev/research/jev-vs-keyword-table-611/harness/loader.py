@@ -24,6 +24,9 @@ CORPUS_FIELDS = ("id", "text", "source", "retrieved_on", "selection_reason", "la
                  "seen_by_table")
 PROVENANCE_FIELDS = ("retrieved_on", "selection_reason", "label_basis", "labeller", "labelled_on")   # must be non-empty text
 UNSET = "UNSET"
+# the one live route: the company gateway's native TypeSafe route (no /cli prefix, which answers 404); the runner sends here and the
+# lead's go must name it (``events.py go`` records it, Gate 2 checks it), so a go given for another route never opens this one
+GATEWAY_URL = "http://192.168.133.101:4000/typesafe/v1/systemone"
 _PLAIN_NAME = re.compile(r"[A-Za-z0-9_.-]+")
 
 

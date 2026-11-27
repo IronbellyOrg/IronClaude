@@ -272,7 +272,7 @@ def prepare(exp, rows=None, table_right=(), run_id="r1"):
     gate.freeze_rule(exp)
     events.append_event(exp, "price_confirmed", usd_per_mtok=0.042, source="test")
     gate.record_tests(exp, runner=PASSING)
-    events.append_event(exp, "lead_go", rule_sha256=loader.sha256_file(exp.rule), words="go")
+    events.append_event(exp, "lead_go", rule_sha256=loader.sha256_file(exp.rule), route=loader.GATEWAY_URL, words="go")
     assert gate.gate1(exp) == [] and gate.gate2(exp) == []
     events.append_event(exp, "first_request")
     d = exp.runs / run_id

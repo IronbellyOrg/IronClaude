@@ -1,0 +1,10 @@
+{
+ "corpus": "f6ac2d01038baa3bbf868d4e2fd7362d2f2f6d97d19260e90e430892967b75ea",
+ "labelling_record": "c3f76de7524a30db09977fa63ef1dd971276b7dbef19c0c32206feca6b55a41c",
+ "model_pin": "jev-1.14.0",
+ "questions": "cf14c2aec0238b55ca3f1cb150317afe2b8de4c592303e93dbbd7d24ac98cb5f",
+ "rule": "ce2950e6b822ed5ab2baa75bf18dee7055202899b98b1df63f64d9aa3c93266e",
+ "selection_criteria": "59412b3188ae7df8687f7459f3337f2913942ca1ff58b4e0ce1c54e79c15eb11",
+ "table_answers": "bb1652c2e02545f3174ac599ed1a1eb0e8646cab9492e0722e14ff4db8d63238",
+ "table_provenance": "65e3de5ac86d1189c4e98515f7cfc2bacb704fa37ad06e43be6dba02901e4dd9"
+}
