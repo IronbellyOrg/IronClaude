@@ -60,16 +60,17 @@ takes `--root` (the experiment folder by default).
 11. **Gate 2:** `gate.py gate2`. It fails on any missing step, any changed frozen file, a spend bound that does not fit, or a run already started.
 12. **Rehearse** (posts nothing, needs no gate and no key): `runner.py rehearse --out <a folder outside ledger/ and runs/>`.
 13. **The coordinator's live run:** `runner.py run --run-id <ID> --live`. It refuses a `--root` other than the experiment folder the code was loaded from (the files it hashes must be the code that runs), checks both gates itself and reads no environment variable before
-    they pass. The key is mapped from `TYPESAFE_API_KEY` to `JEV_API_KEY` inside one subshell command only (rule J2), never printed, never put on a
-    command line and never written to a file. The key scan sets `JEV_API_KEY` from `TYPESAFE_API_KEY` inside the same single subshell command and
-    names its paths explicitly:
+    they pass. Then it sends every call to the company gateway route (`GATEWAY_URL` in `runner.py`, no `/cli` prefix) and uses the workspace gateway key
+    `LITELLM_API_KEY`, mapped to `JEV_API_KEY` inside the process (rule J2): never printed, never put on a command line and never written to a
+    file. No TypeSafe vendor key is used by this experiment; the gateway holds it. The key scan sets `JEV_API_KEY` from `LITELLM_API_KEY`
+    inside one single subshell command and names its paths explicitly:
 
     ```bash
-    bash -c 'export JEV_API_KEY="$TYPESAFE_API_KEY"; uv run python .dev/research/346-review-loop-experiments/p15/jev/keyscan.py .dev/research/jev-vs-keyword-table-611/runs/<ID> .dev/research/jev-vs-keyword-table-611/events.jsonl .dev/research/jev-vs-keyword-table-611/manifest.json .dev/research/jev-vs-keyword-table-611/ledger/spend.json'
+    bash -c 'export JEV_API_KEY="$LITELLM_API_KEY"; uv run python .dev/research/346-review-loop-experiments/p15/jev/keyscan.py .dev/research/jev-vs-keyword-table-611/runs/<ID> .dev/research/jev-vs-keyword-table-611/events.jsonl .dev/research/jev-vs-keyword-table-611/manifest.json .dev/research/jev-vs-keyword-table-611/ledger/spend.json'
     ```
 
     It must print `KEYSCAN OK`. The live run command has the same form: `bash -c 'cd <repo> && uv run python .../runner.py run --run-id <ID> --live'`
-    in a shell where `TYPESAFE_API_KEY` is available to that one command.
+    in a shell where `LITELLM_API_KEY` is available to that one command.
 14. **Score:** `scorer.py score --run-id <ID>`. It refuses while any rule value is `UNSET`, writes `report.md` and `decision-record.md` for every
     verdict, appends the `scoring` and `verdict` events, and never overwrites an existing report. Run the key scan again over the two new files.
 
@@ -86,9 +87,9 @@ name that already exists.
 | `noul_low_operator` (`lt` or `le`) | The owner, through the lead | `le`: it changes only the reason label of an unset answer, not the score. Set in `decision-rule.md`. |
 | `noul_high_operator` (`gt` or `ge`) | The owner, through the lead | `gt`: Jev answers only when its Noul value is above 0.7, so the band 0.3 to 0.7 is all abstention. Set in `decision-rule.md`. |
 | `unresolved_failure_invalid_count` | The owner, through the lead | `3` (about a tenth of 30 prompts). The scorer reads it as the count at which a run becomes invalid: a run with that many prompts that failed twice, or more, is `RUN_INVALID`. Set in `decision-rule.md`. |
-| Who labels the prompts | The lead names a human labeller | Clay, the issue owner, as the named human: the plan requires a named person, the labels are the ground truth both arms are scored against, so neither an AI session nor the table applier labels. If Clay hands it on, the person is named in `corpus/labelling-record.md`. |
+| Who labels the prompts | The lead names a human labeller | Decided 27 Nov 2026: the owner changed the labeller from Clay to the IronFlow session (Claude), in Clay's words "why dont you do it?". It did not write the keyword table or the Jev questions and has not seen either side's answers; the table applier is a separate session and never labels. The labels are therefore AI-made ground truth, a stated limit of the measurement. The record is `corpus/labelling-record.md`. |
 | Who applies the table | The lead names a session or person that sees prompts only and is not the labeller | A separate session given the prompts only (no label, no Jev answer), after Gate 1, as `table/table-procedure.md` says. |
-| The live route: the vendor URL, or the LiteLLM gateway through `JEV_API_URL` | The lead and the coordinator | The vendor URL directly (leave `JEV_API_URL` unset) with `TYPESAFE_API_KEY`: the lead's decision names that key and the runner maps exactly that variable. The gateway guide (`docs/docs-product/ops/jev-litellm-gateway-operational-guide.md`) keeps the vendor key on the gateway and issues workspaces a virtual key, so a gateway route would use a different key, put a second spend limit outside the 1 dollar ledger and add a hop to the measured latency. If `TYPESAFE_API_KEY` is not available to the coordinator's one command, the run refuses and the lead supplies it. |
+| The live route: the vendor URL, or the LiteLLM gateway through `JEV_API_URL` | The lead and the coordinator | Changed 27 Nov 2026 on the IronFlow session's instruction: the company gateway, `http://192.168.133.101:4000/typesafe/v1/systemone` (no `/cli` prefix: `/cli` returns 404), with the workspace gateway key `LITELLM_API_KEY` as the bearer key, as `docs/docs-product/ops/jev-litellm-gateway-operational-guide.md` describes. The runner sets `JEV_API_URL` itself, so an ambient value never decides the route, and no TypeSafe vendor key is used. This replaces the 26 Nov choice of the vendor URL with `TYPESAFE_API_KEY`. Costs of the change: the measured latency now includes the gateway hop, and the gateway's own spend limit sits outside the 1 dollar ledger. As of 27 Nov the gateway does not yet hold its vendor key (`GET /typesafe/v1/models` answers 401 "Cannot authenticate"), so no real prompt is sent until the IronFlow session says it is set. |
 | The price to re-confirm before Gate 2 | The coordinator | 0.042 USD per million input tokens, re-confirmed on 26 Nov 2026 on the vendor's models page (https://docs.typesafe.ai/models, Jev 1.14, output tokens free); it matches the `jevlib` constant read on 2026-11-10. Recorded before Gate 2 with `events.py price --usd-per-mtok 0.042 --source "docs.typesafe.ai/models, read 2026-11-26"`. |
 | Where the prompts come from (public sources only) | The person who selects them, listed in `corpus/selection-criteria.md` | Public issue trackers and forums, listed there before any arm runs; an AI session may collect candidates and run the privacy screen, the named human labels. |
 

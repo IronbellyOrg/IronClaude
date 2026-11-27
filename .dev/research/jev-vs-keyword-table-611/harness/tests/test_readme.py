@@ -64,7 +64,7 @@ def test_the_reading_step_comes_right_before_freeze_corpus_in_the_readme_and_the
 
 def test_the_keyscan_step_maps_the_key_inside_the_same_single_subshell_command():
     block = next(b for b in re.findall(r"```bash\n(.*?)```", README, re.S) if "keyscan.py" in b)
-    assert block.count("bash -c") == 1 and 'export JEV_API_KEY="$TYPESAFE_API_KEY"' in block
+    assert block.count("bash -c") == 1 and 'export JEV_API_KEY="$LITELLM_API_KEY"' in block
     assert block.index("bash -c") < block.index("export JEV_API_KEY") < block.index("keyscan.py")
     assert not re.search(r"JEV_API_KEY=[^\"$ ]", README)
 
@@ -98,7 +98,9 @@ def test_each_command_line_module_starts_as_a_script_from_an_unrelated_folder(sc
 
 
 def test_no_readme_or_template_holds_a_vendor_url_or_a_key_shaped_string():
-    for f in [EXP / "README.md", *sorted((EXP / "table").glob("*.md")), *sorted((EXP / "corpus").glob("*.md"))]:
+    # the labelling sheet and the corpus files hold the public prompt texts themselves (long identifiers included), so they are not scanned
+    records = [EXP / "corpus" / "selection-criteria.md", EXP / "corpus" / "labelling-record.md"]
+    for f in [EXP / "README.md", *sorted((EXP / "table").glob("*.md")), *records]:
         t = f.read_text(encoding="utf-8")
         assert "api.typesafe.ai" not in t and "sk-" not in t, f
         prose = re.sub(r"`[^`]*`", " ", re.sub(r"```.*?```", " ", t, flags=re.S))      # a long word outside code spans looks like a key
