@@ -26,7 +26,7 @@ An ancestry lookup that git could not answer is never shown as `submodule-diverg
 1. Run `vcs submodules`. When it refuses `not-a-repo`, say so and stop. When `rows` is empty, print "no submodules" with the superproject lines below.
 2. Print the superproject branch and the short HEAD sha (`superproject`).
 3. Print `config.submodule_recurse` and `config.push_recurse_submodules` as configured. A value of `null` is printed as "unset", and "unset" and "false" are never merged. Print `warnings` as they are; when `submodule.recurse` is true the text says a later plain push may push submodules too.
-4. Print one row per submodule, sorted by path, with: `path`, `state`, the short `gitlink` (recorded) and `head` (checked out), `branch` or "detached", the three dirty flags (`commit_changed`, `tracked_dirty`, `untracked_dirty`), `initialized`, `target_local`, `contained`, `remote_mismatch`, `gitmodules_url` (already without credentials), the `update` result and the `commit_pointer` result. Add `reason` whenever it is set. A `null` is shown as "unknown", with the reason.
+4. Print one row per submodule, sorted by path, with: `path`, `state`, the short `gitlink` (recorded in HEAD), `index_gitlink` (recorded in the index) and `head` (checked out), `branch` or "detached", the three dirty flags (`commit_changed`, `tracked_dirty`, `untracked_dirty`), `initialized`, `target_local`, `contained`, `remote_mismatch`, `gitmodules_url` (already without credentials), the `update` result and the `commit_pointer` result. Add `reason` whenever it is set. A `null` is shown as "unknown", with the reason.
 5. Advice, printed and never run, at most one line per row that is not `in-sync`: `pointer-moved`, `target-not-local` and `uninitialized` point to the `submodule update` operation; `submodule-ahead` points to `submodule commit-pointer`; `dirty-tracked`, `dirty-untracked` and `conflict` say to deal with the module first, from inside it; `detached-new-commits` says `git -C <path> switch -c <name>` keeps the commits (for the person to run); `submodule-diverged` says to decide by hand.
 
 ## update
@@ -41,7 +41,8 @@ Line: `submodule update <path>... [--url <path>=<url>]...`. One line authorizes 
 
 | `reason` | What to tell the person |
 |---|---|
-| `remote-mismatch` | `submodule.<name>.url` in the repository config differs from `.gitmodules`. Print `git submodule sync -- <path>` as advice for the person to run. Remotes are never substituted. |
+| `remote-mismatch` | `submodule.<name>.url` in the repository config differs from `.gitmodules`, also for a module that is not yet cloned (`submodule init` keeps a url already configured, and the clone uses it). Print `git submodule sync -- <path>` as advice for the person to run. Remotes are never substituted. |
+| `pointer-staged` | the index records a different commit for the module than HEAD does (`index_gitlink` differs from `gitlink`), and `submodule update` checks out the index commit. Print `git restore --staged -- <path>` as advice for the person to run, or to commit the pointer first. |
 | `submodule-dirty` | the module has uncommitted changes; deal with them from inside it |
 | `conflict` | the module has a conflict |
 | `detached-new-commits` | HEAD is detached and on no branch, so an update would orphan commits. Stop and ask. Print `git -C <path> switch -c <name>` as the way to keep them. |

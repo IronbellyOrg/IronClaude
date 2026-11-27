@@ -93,7 +93,7 @@ A refusal names one token. The helper and the refs use only these.
 | `blocked-by-host` | the launch or host guard denied the command; report it, never work around it |
 | `message` | `check-message` refused the text |
 | `hook-failed`, `hook-rewrite`, `hook-rewrite-evidence`, `hook-rewrite-committed`, `hook-rewrite-pinned`, `commit-error` | the hook and commit outcome classes of `vcs verify`; `safety.md` defines each |
-| `submodule-dirty`, `conflict`, `detached-new-commits`, `submodule-ahead`, `submodule-diverged`, `submodule-unpublished`, `remote-mismatch`, `target-not-local` | the submodule states of `submodule.md` |
+| `submodule-dirty`, `conflict`, `detached-new-commits`, `submodule-ahead`, `submodule-diverged`, `submodule-unpublished`, `remote-mismatch`, `pointer-staged`, `target-not-local` | the submodule states of `submodule.md` |
 
 The `E-*` codes belong to `/sc:implement` and its own protocol; this skill neither prints nor reads them.
 

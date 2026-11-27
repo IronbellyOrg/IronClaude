@@ -37,10 +37,14 @@ Derived columns (FR-040 to FR-044), added to every row after the facts:
   * ``gitmodules_url``: the url of the work tree ``.gitmodules`` (read with
     ``config --file``), shown without credentials (the whole user part of an http, https,
     ftp or ftps url; the password of any other ``scheme://`` url). ``None`` when unknown.
-  * ``remote_mismatch``: for an initialized module, whether ``submodule.<name>.url`` of
-    the superproject config differs from the ``.gitmodules`` url. ``None`` when the module
-    is not initialized or the two cannot be compared. A relative ``.gitmodules`` url is
-    not compared (how git resolves it is not modelled; UNVERIFIED), so it is ``None``.
+  * ``remote_mismatch``: whether ``submodule.<name>.url`` of the superproject config
+    differs from the ``.gitmodules`` url (an uninitialized module can hold one too, after
+    ``submodule init``). ``None`` when no url is configured, the initialized state is
+    unknown or the two cannot be compared. A relative ``.gitmodules`` url is not compared
+    (how git resolves it is not modelled; UNVERIFIED), so it is ``None``.
+  * ``index_gitlink``: the commit the index records for the path (stage 0), the one
+    ``submodule update`` checks out; ``None`` when unmerged or unreadable. ``update`` is
+    refused with ``pointer-staged`` when it differs from ``gitlink`` (HEAD).
   * ``has_gitmodules_remote`` and ``published``: whether the module has a remote whose
     ``remote.<r>.url`` equals the ``.gitmodules`` url, and whether the module HEAD is in a
     remote-tracking ref of such a remote (local refs only, so a local observation).
@@ -138,6 +142,25 @@ def _gitlink_sha(git: GitRunner, path: str) -> Optional[str]:
     return meta[2] if len(meta) == 3 and meta[0] == "160000" else None
 
 
+def _index_gitlink_sha(git: GitRunner, path: str) -> Optional[str]:
+    """The commit the index (stage 0) records for ``path``: the one ``submodule update``
+    checks out. ``None`` when it cannot be read or the entry is unmerged."""
+    rc, out = _read(git, ["ls-files", "-z", "--stage", "--", path])
+    if rc != 0:
+        return None
+    for record in out.split("\0"):
+        meta, _, name = record.partition("\t")
+        fields = meta.split()
+        if (
+            name == path
+            and len(fields) == 3
+            and fields[0] == "160000"
+            and fields[2] == "0"
+        ):
+            return fields[1]
+    return None
+
+
 def _status_fields(git: GitRunner) -> Optional[Dict[str, Tuple[bool, bool, bool]]]:
     """Path to ``(commit_changed, tracked_dirty, untracked_dirty)`` for each submodule line."""
     rc, out = _read(git, ["status", "--porcelain=v2", "-z", "--ignore-submodules=none"])
@@ -181,6 +204,7 @@ def _row(
     row: Dict[str, Any] = {
         "path": path,
         "gitlink": gitlink,
+        "index_gitlink": _index_gitlink_sha(git, path),
         "initialized": initialized,
         "conflicted": conflicted or prefix == "U",
         "head": None,
@@ -358,13 +382,20 @@ def _update_eligibility(row: Dict[str, Any]) -> Dict[str, Any]:
         return {"ok": False, "reason": reason, "needs_url": False}
 
     state = row["state"]
-    # FR-044: any initialized module, whatever its state.
-    if row["initialized"] and row["remote_mismatch"]:
+    # FR-044: any module with a configured url, whatever its state. An uninitialized module
+    # can hold one too (`submodule init` never overwrites it), and the clone uses it.
+    if row["remote_mismatch"]:
         return no("remote-mismatch")
     if state is None:
         return no("state-unknown")
     if state in _UPDATE_REFUSALS:
         return no(_UPDATE_REFUSALS[state])
+    # `submodule update` checks out the commit the index records, which `gitlink` (HEAD)
+    # does not show once a different pointer is staged.
+    if row["index_gitlink"] is None:
+        return no("state-unknown")
+    if row["index_gitlink"] != row["gitlink"]:
+        return no("pointer-staged")
     if state == "uninitialized":
         if row["gitmodules_url"] is None:
             return no("gitmodules-url-unknown")
@@ -433,7 +464,12 @@ def _derive(
     row["gitmodules_url"] = _display_url(url)
 
     mismatch = None
-    if row["initialized"] and name is not None and url is not None and not relative:
+    if (
+        row["initialized"] is not None
+        and name is not None
+        and url is not None
+        and not relative
+    ):
         local = _config(git, f"submodule.{name}.url")
         mismatch = None if local is None else local != url
     row["remote_mismatch"] = mismatch

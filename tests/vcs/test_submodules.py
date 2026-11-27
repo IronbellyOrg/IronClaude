@@ -429,6 +429,54 @@ def test_remote_mismatch_refuses_update_even_when_nothing_else_does(
     assert refusal(row_of(facts(submodule_repo)), "update") == "remote-mismatch"
 
 
+def test_update_is_refused_when_the_index_gitlink_differs_from_head(
+    facts, submodule_repo
+):
+    # `git submodule update` checks out the commit the INDEX records. HEAD records the newer
+    # commit, the index the older one the module already holds: the update would change
+    # nothing, yet the row would look like a plain "pointer-moved".
+    make_pointer_moved(submodule_repo)
+    older = sub_git(submodule_repo, "rev-parse", "HEAD").strip()
+    submodule_repo.git("update-index", "--cacheinfo", f"160000,{older},{SUB}")
+    row = row_of(facts(submodule_repo))
+    assert row["gitlink"] != older
+    assert row["index_gitlink"] == older
+    assert refusal(row, "update") == "pointer-staged"
+
+
+def test_update_is_allowed_when_the_index_gitlink_equals_head(facts, submodule_repo):
+    make_pointer_moved(submodule_repo)
+    row = row_of(facts(submodule_repo))
+    assert row["index_gitlink"] == row["gitlink"]
+    assert row["update"]["ok"] is True
+
+
+def test_update_of_an_uninitialized_module_with_another_configured_url_is_refused(
+    facts, submodule_repo
+):
+    # `submodule init` does not overwrite a url already in .git/config, so the clone would
+    # come from the configured url, not from the .gitmodules url the person authorizes.
+    STATE_CASES["uninitialized"](submodule_repo)
+    submodule_repo.git("config", "submodule.lib.url", "file:///elsewhere/lib")
+    row = row_of(facts(submodule_repo))
+    assert row["initialized"] is False
+    assert row["remote_mismatch"] is True
+    assert refusal(row, "update") == "remote-mismatch"
+
+
+def test_update_of_an_uninitialized_module_with_the_same_configured_url_needs_the_repeat(
+    facts, submodule_repo
+):
+    STATE_CASES["uninitialized"](submodule_repo)
+    submodule_repo.git(
+        "submodule", "init", "-q", "--", SUB
+    )  # copies the .gitmodules url
+    row = row_of(facts(submodule_repo))
+    assert row["initialized"] is False
+    assert row["remote_mismatch"] is False
+    assert row["update"] == {"ok": True, "reason": None, "needs_url": True}
+
+
 def test_a_relative_gitmodules_url_is_not_compared_and_blocks_update(
     facts, submodule_repo
 ):
