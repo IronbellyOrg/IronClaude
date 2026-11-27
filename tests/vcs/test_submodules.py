@@ -545,6 +545,29 @@ def test_the_first_of_several_module_urls_is_the_one_git_fetches_from(
     assert row["update"]["ok"] is True
 
 
+def test_a_branch_that_names_a_repository_directly_is_unverifiable(
+    facts, submodule_repo
+):
+    make_target_not_local(submodule_repo)
+    sub_git(submodule_repo, "config", "branch.main.remote", "file:///elsewhere/lib")
+    row = row_of(facts(submodule_repo))
+    assert row["fetch_mismatch"] is None
+    assert refusal(row, "update") == "remote-unverifiable"
+    sub_git(submodule_repo, "config", "branch.main.remote", ".")  # the local repository
+    assert row_of(facts(submodule_repo))["update"]["ok"] is True
+
+
+def test_an_update_that_may_fetch_is_refused_for_a_nested_module(facts, submodule_repo):
+    # The module's own .gitmodules can switch on recursive fetching of its nested modules.
+    make_target_not_local(submodule_repo)
+    (submodule_repo.work / SUB / ".gitmodules").write_text("", encoding="utf-8")
+    sub_git(submodule_repo, "add", "--", ".gitmodules")
+    sub_git(submodule_repo, "commit", "-q", "-m", "nested")
+    row = row_of(facts(submodule_repo))
+    assert row["state"] == "target-not-local" and row["nested"] is True
+    assert refusal(row, "update") == "nested-not-inspected"
+
+
 def test_a_failed_read_of_the_configured_url_is_unknown_not_unset(mods, submodule_repo):
     sm, plan, _ = mods
     STATE_CASES["uninitialized"](submodule_repo)

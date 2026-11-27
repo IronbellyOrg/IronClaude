@@ -47,7 +47,10 @@ Derived columns (FR-040 to FR-044), added to every row after the facts:
     not compared, so an uninitialized module that has one is refused as unverifiable.
   * ``fetch_mismatch``: for an initialized module, whether ``origin`` (or the remote its
     current branch tracks) has a url other than the ``.gitmodules`` url. ``submodule
-    update`` fetches a missing commit from there. ``None`` when unreadable or not compared.
+    update`` fetches a missing commit from there. ``None`` when unreadable or not compared
+    (a branch that names a repository directly, not a configured remote, is such a case).
+    An ``update`` that may fetch (``target-not-local``) is also refused for a ``nested``
+    module (``nested-not-inspected``), because its own settings can make the fetch recurse.
   * ``index_gitlink``: the commit the index records for the path (stage 0), the one
     ``submodule update`` checks out; ``None`` when unmerged or unreadable. ``update`` is
     refused with ``pointer-staged`` when it differs from ``gitlink`` (HEAD).
@@ -337,7 +340,12 @@ def _fetch_mismatch(
     if branch:
         rc, out = _read(git, ["config", "--get", f"branch.{branch}.remote"], path)
         if rc == 0 and out.strip():
-            names.add(out.strip())
+            tracked = out.strip()
+            # A branch can name a repository directly (a url or a path) instead of a
+            # configured remote; that destination is not compared, so it is unverifiable.
+            if tracked != "." and tracked not in remotes:
+                return None
+            names.add(tracked)
         elif rc != 1:
             return None
     return any(name in remotes and remotes[name] != url for name in names)
@@ -440,7 +448,10 @@ def _update_eligibility(row: Dict[str, Any]) -> Dict[str, Any]:
         return no("remote-unverifiable")
     # The module is clean here; no commit may be orphaned.
     if state == "target-not-local":
-        # git fetches inside the module, from its own remote.
+        # git fetches inside the module, from its own remote, and a nested module's own
+        # settings can make that fetch recurse into it: nothing inside one is inspected.
+        if row["nested"]:
+            return no("nested-not-inspected")
         if row["fetch_mismatch"] is None:
             return no("remote-unverifiable")
         if row["fetch_mismatch"]:
