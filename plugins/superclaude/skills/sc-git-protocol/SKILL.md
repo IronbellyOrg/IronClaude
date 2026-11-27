@@ -59,7 +59,7 @@ Every verb prints one JSON object that carries `vcs_contract`. Refuse with `help
 
 1. **Authorize.** Apply the rule above. Refuse with the exact text when the line does not match.
 2. **Preflight.** Run `vcs preflight`. Refuse on `detached-head`, `protected-branch`, `operation-in-progress`, `index-locked` and `git-too-old`. The refs name the checks and the notices (for example an unknown default branch) in full.
-3. **Plan.** Run `vcs stage-plan --path <p>...` (no `--path` for a commit of the index as staged). It returns `add_argv`, `commit_argv`, `commit_paths`, `skipped` and `message_path`; an `add` uses only `add_argv`. Refuse what the plan refuses (`dev-copy-path`, `outside-repo`, `directory-entry`, `path-unrepresentable`, `gitlink`, and for a commit with no path also `legacy-run-folder`).
+3. **Plan.** Run `vcs stage-plan --path <p>...` (no `--path` for a commit of the index as staged). It returns `add_argv`, `commit_argv`, `commit_paths`, `skipped` and `message_path`; an `add` uses only `add_argv`. Refuse what the plan refuses (`dev-copy-path`, `outside-repo`, `directory-entry`, `path-unrepresentable`, `gitlink`, and for a commit with no path also `legacy-run-folder` and `too-many-paths`).
 4. **Message** (commit and pointer commit). Take the person's `--message` text, or draft a Conventional Commits message from `git diff --cached` for `--smart-commit` and show it. Write it with Write to `message_path`, then run `vcs check-message --file <message_path>`; refuse with `message` when it refuses.
 5. **Protect work outside the commit set** (commit and pointer commit). Pin a snapshot of the other work-tree changes before the commit, as `refs/safety.md` describes, so a hook that rewrites files cannot lose them.
 6. **Write.** Run the planned git command with your own Bash call, exactly as planned. Never edit, add to or drop a flag from it, and never retry a refused commit in the same run.
@@ -89,7 +89,7 @@ A refusal names one token. The helper and the refs use only these.
 | `authorization` | the line is not a person-typed line with the operation's prefix |
 | `helper-missing` | no helper copy, no JSON, or `vcs_contract` is not `"1"` |
 | `detached-head`, `protected-branch`, `operation-in-progress`, `index-locked`, `git-too-old` | the preflight refusals |
-| `dev-copy-path`, `outside-repo`, `directory-entry`, `path-unrepresentable`, `gitlink`, `legacy-run-folder` | the path rules of the plan |
+| `dev-copy-path`, `outside-repo`, `directory-entry`, `path-unrepresentable`, `gitlink`, `legacy-run-folder`, `too-many-paths` | the path rules of the plan |
 | `blocked-by-host` | the launch or host guard denied the command; report it, never work around it |
 | `message` | `check-message` refused the text |
 | `hook-failed`, `hook-rewrite`, `hook-rewrite-evidence`, `hook-rewrite-committed`, `hook-rewrite-pinned`, `commit-error` | the hook and commit outcome classes of `vcs verify`; `safety.md` defines each |

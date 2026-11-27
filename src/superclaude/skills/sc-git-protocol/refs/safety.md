@@ -46,7 +46,8 @@ These apply to `add <path>...` and `commit <path>...`. `vcs stage-plan` applies 
 - **Agent-host copies.** A `.claude/` path other than those in `DEV_MIRROR_ALLOW` is refused `dev-copy-path`, also when git already tracks it. The refusal names the file and stops, and suggests no staging command. Tracking a file is not authority to stage it.
 - **Submodules.** A path equal to or under a submodule's recorded commit (mode 160000, in HEAD or the index) is refused `gitlink`, with a pointer to `/sc:git submodule commit-pointer`.
 - **Outside the repository.** An absolute path, a `..` traversal, and a path that resolves through a symlink to a place outside the repository are refused `outside-repo`.
-- **Names a record cannot carry.** A path with a comma, a newline or a control character is refused `path-unrepresentable`.
+- **Names a record cannot carry.** A path with a comma, a single quote, a newline or a control character is refused `path-unrepresentable`. The quote matters because the pathspec file is written by a shell call that quotes each path between single quotes.
+- **Too many paths.** A commit with no path names its commit set only in `commit_paths`, which the helper cuts at 200 entries; with more staged paths the plan is refused `too-many-paths`. The person names the paths to commit, or commits in parts.
 - **Quietly skipped, listed with the reason.** A gitignored path, a path under `.dev/implement/`, and a path missing from the work tree, the index and HEAD. A path missing from the work tree but still in the index or HEAD is a deletion and is staged.
 - **Transport.** Paths pass through a NUL-delimited temporary file outside the work tree, never on the command line. Print the complete path list before the call. The host guard still sees the call as a commit, and a host denial is final: report `blocked-by-host` and never look for another way.
 

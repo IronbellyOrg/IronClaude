@@ -314,8 +314,37 @@ def test_a_nested_claude_folder_is_not_the_dev_copy(repo, plan):
     assert plan(repo, "docs/.claude/notes.md")["status"] == "ok"
 
 
+def test_a_pathless_commit_of_more_than_the_list_cap_is_refused(repo, plan):
+    # commit_paths is the whole commit set S, but the printing place cuts lists at 200: a
+    # larger set could not be read back, so the plan refuses instead of printing a cut S.
+    for number in range(201):
+        repo.write(f"many/f{number:03}.txt", "x\n")
+    repo.git("add", "--", "many")
+    result = plan(repo)
+    assert result["status"] == "refused" and result["reason"] == "too-many-paths"
+    assert result["commit_argv"] == [] and result["commit_paths"] == []
+    assert "201" in result["detail"]
+
+
+def test_a_pathless_commit_of_exactly_the_list_cap_is_planned_in_full(repo, plan):
+    for number in range(200):
+        repo.write(f"many/f{number:03}.txt", "x\n")
+    repo.git("add", "--", "many")
+    result = plan(repo)
+    assert result["status"] == "ok" and result["s_count"] == 200
+    assert len(result["commit_paths"]) == 200
+
+
 @pytest.mark.parametrize(
-    "name", ["a,b.txt", "line\nbreak.txt", "bell\x07.txt", "tab\tx.txt"]
+    "name",
+    [
+        "a,b.txt",
+        "line\nbreak.txt",
+        "bell\x07.txt",
+        "tab\tx.txt",
+        "it's.txt",
+        "x';touch${IFS}P;#",
+    ],
 )
 def test_a_name_the_ledger_cannot_carry_is_refused(repo, plan, name):
     repo.write(name, "x\n")

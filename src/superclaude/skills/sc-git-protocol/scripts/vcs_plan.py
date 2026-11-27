@@ -1027,11 +1027,16 @@ _REFUSAL_TEXT = {
     "and are never staged here",
     OUTSIDE_REPO: "the path is absolute, climbs out with '..' or resolves through a "
     "symlink, so it is not inside the repository",
-    PATH_UNREPRESENTABLE: "a comma, newline or control character cannot be carried by "
-    "the ledger",
+    PATH_UNREPRESENTABLE: "a comma, single quote, newline or control character cannot be "
+    "carried by the ledger or quoted safely on a command line",
     DIRECTORY_ENTRY: "a files= entry names a folder; the ledger must list its files one by one",
 }
-_UNREPRESENTABLE = re.compile(f"[,{_CTRL}]")
+# A single quote is refused too: the protocol writes the pathspec file with `printf` and
+# quotes each path between single quotes, so a quote in a path could end the quoting.
+_UNREPRESENTABLE = re.compile(f"[,'{_CTRL}]")
+# A commit with no path lists its commit set S in ``commit_paths`` only, and the printing
+# place cuts every list at LIST_CAP, so a larger set cannot be carried: the plan refuses.
+TOO_MANY_PATHS = "too-many-paths"
 
 
 class LookupFailed(Exception):
@@ -1309,6 +1314,15 @@ def plan_stage(
         return _empty_plan("nothing", "empty", None, head, skipped_list)
     if pathful and not (set(commit_paths) & _changed_in_work_tree(git)):
         return _empty_plan("nothing", "no-change", None, head, skipped_list)
+    if not pathful and len(commit_paths) > LIST_CAP:
+        return _empty_plan(
+            "refused",
+            TOO_MANY_PATHS,
+            f"{len(commit_paths)} staged paths: a commit with no path can name at most "
+            f"{LIST_CAP}; name the paths to commit, or commit them in parts",
+            head,
+            skipped_list,
+        )
 
     temp = os.path.realpath(tempfile.gettempdir())
     real_top = os.path.realpath(top)
