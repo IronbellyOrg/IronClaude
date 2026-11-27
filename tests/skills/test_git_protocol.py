@@ -269,8 +269,16 @@ def test_submodule_update_forces_the_checkout_strategy():
     # Without --checkout a module's own submodule.<name>.update setting (none, merge,
     # rebase) decides what the update does, and the read-back of the recorded commit fails.
     text = _text(REFS_DIR / "submodule.md")
-    assert text.count("git submodule update --init --checkout -- '<path>'") == 2
-    assert "git submodule update --init -- " not in text
+    # --literal-pathspecs: without it a path such as lib[1] also selects lib1.
+    command = "git --literal-pathspecs submodule update --init --checkout -- '<path>'"
+    assert text.count(command) == 2
+    assert "git submodule update --init" not in text
+
+
+def test_commit_pointer_takes_the_message_the_person_typed():
+    text = _text(REFS_DIR / "submodule.md")
+    assert '(--message "<text>" | --smart-commit)' in text
+    assert "With `--message`, write the person's text unchanged." in text
 
 
 def test_the_pathspec_file_is_written_without_following_a_planted_link():

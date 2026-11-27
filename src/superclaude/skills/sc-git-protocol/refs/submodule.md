@@ -31,7 +31,7 @@ An ancestry lookup that git could not answer is never shown as `submodule-diverg
 
 ## update
 
-Line: `submodule update <path>... [--url <path>=<url>]...`. One line authorizes the named paths only. `update` runs `git submodule update --init --checkout -- '<path>'`, once per path. It never recurses and never carries `--recursive`, `--remote`, `--force`, `--merge` or `--rebase`. It does carry `--checkout`, so that a module's own `submodule.<name>.update` setting (`none`, `merge` or `rebase`) cannot skip the update or merge or rebase instead of checking out the recorded commit. Its one outward effect is that git may clone a missing module or fetch a missing commit from the URL recorded in `.gitmodules`. That is the single network exception of `/sc:git`, and it is made only on this typed line.
+Line: `submodule update <path>... [--url <path>=<url>]...`. One line authorizes the named paths only. `update` runs `git --literal-pathspecs submodule update --init --checkout -- '<path>'`, once per path. `--literal-pathspecs` makes git read the path literally, so a glob character in it (`lib[1]`) cannot select another module. It never recurses and never carries `--recursive`, `--remote`, `--force`, `--merge` or `--rebase`. It does carry `--checkout`, so that a module's own `submodule.<name>.update` setting (`none`, `merge` or `rebase`) cannot skip the update or merge or rebase instead of checking out the recorded commit. Its one outward effect is that git may clone a missing module or fetch a missing commit from the URL recorded in `.gitmodules`. Git's default recursive fetch may also contact the remotes of nested modules that are checked out, or that the fetched commit brings in, and the helper cannot see those. That is the single network exception of `/sc:git`, and it is made only on this typed line.
 
 ### Preflight, for every path before any write
 
@@ -53,7 +53,7 @@ Line: `submodule update <path>... [--url <path>=<url>]...`. One line authorizes 
 
    Other reasons (`state-unknown`, `remote-unverifiable`, `containment-unknown`, `gitmodules-url-unknown`, `nested-not-inspected` for an update that may fetch into a module that has its own `.gitmodules`; `remote-unverifiable` also covers a branch that names a repository directly instead of a configured remote) mean the helper could not prove the path safe: say which fact is unknown and refuse. A relative `.gitmodules` URL is not compared with the configured one, so an initialized module with such a URL, and an uninitialized one whose config already holds a url (`url_configured`), end here as unverifiable.
 4. For a row with `update.needs_url` true (an uninitialized module), print the `gitmodules_url` shown in the row and say that this update clones from it, over the network. The update runs only when the person's line repeats that displayed text, byte for byte, as the `--url` option for that path, in the form `<path>=<url>`. A missing, different or altered value is refused in words with the displayed URL printed; the call is not made. The comparison is always against the displayed text, which has any credentials removed. Never print a URL that carries credentials.
-5. For `target-not-local` (the helper has already shown the module is clean and its HEAD is on a branch), say before the write that git may fetch the missing commit from the `.gitmodules` URL. For `pointer-moved` the target is already local.
+5. For `target-not-local` (the helper has already shown the module is clean and its HEAD is on a branch), say before the write that git may fetch the missing commit from the `.gitmodules` URL, and that git's recursive fetch may also contact nested modules' remotes. For `pointer-moved` the target is already local.
 6. When any named path is refused, no path is written. Report every path as refused (with its token) or untouched, and stop. The person may type a new line.
 
 ### Write, one path at a time
@@ -61,7 +61,7 @@ Line: `submodule update <path>... [--url <path>=<url>]...`. One line authorizes 
 For each path, in the order typed:
 
 1. Run `vcs submodules` again and check that the row still has `update.ok` true and, for an uninitialized module, that its `gitmodules_url` still equals the text the person repeated. A change is a refusal for this path and every later path.
-2. Run `GIT_TERMINAL_PROMPT=0 git submodule update --init --checkout -- '<path>'` with the Bash timeout of 600000 ms. Do not retry. When git or the host would ask for a credential, stop and report it, as `safety.md` says. A timeout or an exit status above 128 leaves the path open: classify nothing, say a git process may still be running, kill nothing and remove no lock.
+2. Run `GIT_TERMINAL_PROMPT=0 git --literal-pathspecs submodule update --init --checkout -- '<path>'` with the Bash timeout of 600000 ms. Do not retry. When git or the host would ask for a credential, stop and report it, as `safety.md` says. A timeout or an exit status above 128 leaves the path open: classify nothing, say a git process may still be running, kill nothing and remove no lock.
 3. Read back with `git -C '<path>' rev-parse HEAD` and compare it with the row's `gitlink`. Equal: the path is `updated`. Different: the result is `uncertain`, reported with both shas, and the update is not repeated.
 4. A path whose call fails, or is `uncertain`, ends the run. The paths after it stay untouched. Earlier paths are not rolled back.
 
@@ -71,7 +71,7 @@ Follow `SKILL.md` and add a list with every path as one of three groups: complet
 
 ## commit-pointer
 
-Line: `submodule commit-pointer <path>`. It records the module's current commit as the new recorded commit of the superproject: a commit with the single changed path `<path>`. One path only. It is a local-history write and applies the full preflight.
+Line: `submodule commit-pointer <path> (--message "<text>" | --smart-commit)`, with exactly one of the two message flags. It records the module's current commit as the new recorded commit of the superproject: a commit with the single changed path `<path>`. One path only. It is a local-history write and applies the full preflight.
 
 ### Conditions
 
@@ -99,7 +99,7 @@ For `submodule-unpublished`, print this text with the values filled in and no co
 
 ### Message, protect, write
 
-1. Message. Make a temporary file outside the work tree with `mktemp` and write to it with the Write tool. Header: `chore(submodule): bump <path> to <short-sha>` (the first seven characters of the target). Body: a short text from `git diff --submodule=log -- '<path>'`, quoting no file contents. Run `vcs check-message --file <that file>` and refuse `message` when it refuses.
+1. Message. Make a temporary file outside the work tree with `mktemp` and write to it with the Write tool. With `--message`, write the person's text unchanged. With `--smart-commit`, draft it and show it: header `chore(submodule): bump <path> to <short-sha>` (the first seven characters of the target), body a short text from `git diff --submodule=log -- '<path>'`, quoting no file contents. Run `vcs check-message --file <that file>` and refuse `message` when it refuses.
 2. Write the pathspec file for the one path: `printf '%s\0' '<path>' > <temporary file>`, outside the work tree. Print the path before the call. The commit set S is `{<path>}`. No other path is staged, and `.gitmodules` and the config are not touched.
 3. Re-check the target just before the commit: run `vcs submodules` again. The row must still be eligible with the same full `head`; otherwise refuse in words, "the target changed", and make no commit.
 4. Take the before snapshot and pin it, as steps 2 and 3 of "Protecting work outside the commit set" in `safety.md` say. Remember HEAD as the parent.
