@@ -464,15 +464,54 @@ def test_pathless_refuses_a_staged_dev_copy_path(repo, plan):
     assert result["reason"] == "dev-copy-path"
 
 
-def test_pathless_leaves_the_legacy_run_folder_out_of_s(repo, plan):
+def test_pathless_refuses_a_staged_legacy_run_folder_path(repo, plan):
+    # A commit with no path takes the whole index, so leaving the path out of S would still
+    # commit it: the plan refuses and prints no argv.
     repo.write(".dev/implement/run-1/ledger.md", "x\n")
     repo.write("one.txt", "1\n")
     repo.git("add", "--", ".dev/implement/run-1/ledger.md", "one.txt")
     result = plan(repo)
-    assert result["commit_paths"] == ["one.txt"]
+    assert result["status"] == "refused"
+    assert result["reason"] == "legacy-run-folder"
+    assert ".dev/implement/run-1/ledger.md" in result["detail"]
+    assert result["commit_paths"] == []
+    assert result["commit_argv"] == []
     assert skipped_map(result) == {
         ".dev/implement/run-1/ledger.md": "legacy-run-folder"
     }
+
+
+def test_pathless_refuses_a_staged_gitlink(submodule_repo, plan):
+    repo = submodule_repo
+    sub = repo.work / repo.sub_path
+    git_in(sub, "config", "user.name", "t")
+    git_in(sub, "config", "user.email", "t@example.invalid")
+    (sub / "more.txt").write_text("more\n", encoding="utf-8")
+    git_in(sub, "add", "-A")
+    git_in(sub, "commit", "-q", "-m", "more")
+    repo.git("add", "--", repo.sub_path)  # the pointer change is now staged
+    result = plan(repo)
+    assert result["status"] == "refused"
+    assert result["reason"] == "gitlink"
+    assert result["commit_argv"] == []
+
+
+def test_the_message_file_differs_between_two_worktrees_of_one_repository(
+    repo, plan, vcs, tmp_path
+):
+    # Same HEAD, same staged path: only the work tree tells the two plans apart.
+    other = tmp_path / "second-worktree"
+    repo.git("worktree", "add", "-q", "--detach", str(other))
+    repo.write("same.txt", "1\n")
+    repo.git("add", "--", "same.txt")
+    (other / "same.txt").write_text("1\n", encoding="utf-8")
+    git_in(other, "add", "--", "same.txt")
+    first = plan(repo)
+    second = vcs.run_stage_plan(str(other), None)
+    assert first["commit_paths"] == second["commit_paths"] == ["same.txt"]
+    assert first["head_before"] == second["head_before"]
+    assert first["message_path"] != second["message_path"]
+    assert plan(repo)["message_path"] == first["message_path"]  # still deterministic
 
 
 def test_pathless_on_a_repository_with_no_commit_yet(tmp_path, plan, vcs):

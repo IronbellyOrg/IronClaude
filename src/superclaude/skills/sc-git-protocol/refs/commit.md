@@ -32,7 +32,7 @@ The pathspec file holds the paths of `pathspec_file.content`, each ended by a NU
 
 1. Authorize, run `vcs preflight`, and apply the refusals of `safety.md`. Remember HEAD as the parent, and keep `git status --porcelain=v2 --ignore-submodules=none` as the "before" state of the report.
 2. Run `vcs stage-plan --path <p>...` for a commit of paths, or `vcs stage-plan` with no `--path` for a commit of the index as staged. In both modes `commit_paths` is S, the commit set. For a commit with no path, S is frozen here: it is the index change set before any call, and nothing staged later widens it. When `status` is `nothing`, say so and stop.
-3. Refuse `dev-copy-path` when the plan says so, or when `git diff --cached --name-only -z` lists a `.claude/` path that is not in `DEV_MIRROR_ALLOW`. Refuse the other path tokens of the plan as `safety.md` lists them.
+3. Refuse `dev-copy-path` when the plan says so, or when `git diff --cached --name-only -z` lists a `.claude/` path that is not in `DEV_MIRROR_ALLOW`. Refuse the other path tokens of the plan as `safety.md` lists them. For a commit with no path, also refuse `legacy-run-folder` and `gitlink`: that commit takes the whole index, so a path the plan leaves out of S would still be committed. Name the path and say to unstage it with `git restore --staged -- <path>` or to name the paths to commit.
 4. If S holds a file named `commits.md`, warn in the report: that file belongs to a `/sc:implement` run and may hold a commit boundary that is not settled; committing it by hand settles nothing. Name its path. Do not edit it and do not try to settle it here. The warning does not block the commit.
 
 ### Message

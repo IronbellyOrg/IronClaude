@@ -1014,7 +1014,14 @@ ABSENT = "absent"
 # FR-031 and FR-062 d, e refuse (the whole plan prints no argv); the other whys only drop
 # the path from the commit set.
 REFUSING_WHYS = (DEV_COPY_PATH, OUTSIDE_REPO, PATH_UNREPRESENTABLE)
+# A commit with no path commits the whole index, so a staged path the plan drops from S
+# would still be committed: for that mode these two refuse too.
+PATHLESS_REFUSING_WHYS = (LEGACY_RUN_FOLDER, GITLINK)
 _REFUSAL_TEXT = {
+    LEGACY_RUN_FOLDER: "a commit with no path takes the whole index, and this path is under "
+    ".dev/implement/; unstage it or name the paths to commit",
+    GITLINK: "a commit with no path takes the whole index, and this is a submodule pointer; "
+    "use submodule commit-pointer, or unstage it, or name the paths to commit",
     DEV_COPY_PATH: "files under .claude/ other than settings.json are generated copies "
     "and are never staged here",
     OUTSIDE_REPO: "the path is absolute, climbs out with '..' or resolves through a "
@@ -1176,8 +1183,10 @@ def _late_why(rel: str, top: str, ignored: set, tracked: set) -> Optional[str]:
     return None
 
 
-def _digest(commit_paths: Sequence[str], head: Optional[str]) -> str:
-    raw = ("\0".join(commit_paths) + "\0" + (head or "")).encode(
+def _digest(commit_paths: Sequence[str], head: Optional[str], top: str) -> str:
+    # ``top`` keeps two worktrees of one repository (same HEAD, same paths) apart in the
+    # shared temporary folder.
+    raw = ("\0".join(commit_paths) + "\0" + (head or "") + "\0" + top).encode(
         "utf-8", "surrogateescape"
     )
     return hashlib.sha256(raw).hexdigest()[:16]
@@ -1225,7 +1234,9 @@ def plan_stage(
     no ``--only``. ``extra_gitlinks`` adds folders to the gitlink rule (the retained Q0
     tree of ledger mode). Returns the plan fields without the envelope; ``status`` is
     ``ok``, ``nothing`` (empty set, or no named path changed) or ``refused`` (a
-    ``refusing`` rule hit; the first path in sorted order names the ``reason``).
+    ``refusing`` rule hit; the first path in sorted order names the ``reason``; a pathless
+    commit also refuses ``legacy-run-folder`` and ``gitlink``, because it commits the whole
+    index).
     ``add_argv`` and ``commit_argv`` are the words after ``git``. Every list is sorted,
     so the same inputs give the same result.
 
@@ -1282,6 +1293,8 @@ def plan_stage(
                 skipped[rel] = why
 
     skipped_list = sorted(skipped.items())
+    if not pathful:
+        refusing = (*refusing, *PATHLESS_REFUSING_WHYS)
     hits = [(p, w) for p, w in skipped_list if w in refusing]
     if hits:
         path, why = hits[0]
@@ -1299,7 +1312,7 @@ def plan_stage(
     real_top = os.path.realpath(top)
     if _under(temp, real_top):
         raise LookupFailed("the temporary folder is inside the work tree")
-    tag = _digest(commit_paths, head)
+    tag = _digest(commit_paths, head, real_top)
     message_path = os.path.join(temp, f"vcs-message-{tag}.txt")
     pathspec = None
     if pathful:

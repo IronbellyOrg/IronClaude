@@ -31,7 +31,7 @@ An ancestry lookup that git could not answer is never shown as `submodule-diverg
 
 ## update
 
-Line: `submodule update <path>... [--url <path>=<url>]...`. One line authorizes the named paths only. `update` runs `git submodule update --init -- '<path>'`, once per path. It never recurses and never carries `--recursive`, `--remote`, `--force`, `--checkout`, `--merge` or `--rebase`. Its one outward effect is that git may clone a missing module or fetch a missing commit from the URL recorded in `.gitmodules`. That is the single network exception of `/sc:git`, and it is made only on this typed line.
+Line: `submodule update <path>... [--url <path>=<url>]...`. One line authorizes the named paths only. `update` runs `git submodule update --init --checkout -- '<path>'`, once per path. It never recurses and never carries `--recursive`, `--remote`, `--force`, `--merge` or `--rebase`. It does carry `--checkout`, so that a module's own `submodule.<name>.update` setting (`none`, `merge` or `rebase`) cannot skip the update or merge or rebase instead of checking out the recorded commit. Its one outward effect is that git may clone a missing module or fetch a missing commit from the URL recorded in `.gitmodules`. That is the single network exception of `/sc:git`, and it is made only on this typed line.
 
 ### Preflight, for every path before any write
 
@@ -59,7 +59,7 @@ Line: `submodule update <path>... [--url <path>=<url>]...`. One line authorizes 
 For each path, in the order typed:
 
 1. Run `vcs submodules` again and check that the row still has `update.ok` true and, for an uninitialized module, that its `gitmodules_url` still equals the text the person repeated. A change is a refusal for this path and every later path.
-2. Run `GIT_TERMINAL_PROMPT=0 git submodule update --init -- '<path>'` with the Bash timeout of 600000 ms. Do not retry. When git or the host would ask for a credential, stop and report it, as `safety.md` says. A timeout or an exit status above 128 leaves the path open: classify nothing, say a git process may still be running, kill nothing and remove no lock.
+2. Run `GIT_TERMINAL_PROMPT=0 git submodule update --init --checkout -- '<path>'` with the Bash timeout of 600000 ms. Do not retry. When git or the host would ask for a credential, stop and report it, as `safety.md` says. A timeout or an exit status above 128 leaves the path open: classify nothing, say a git process may still be running, kill nothing and remove no lock.
 3. Read back with `git -C '<path>' rev-parse HEAD` and compare it with the row's `gitlink`. Equal: the path is `updated`. Different: the result is `uncertain`, reported with both shas, and the update is not repeated.
 4. A path whose call fails, or is `uncertain`, ends the run. The paths after it stay untouched. Earlier paths are not rolled back.
 

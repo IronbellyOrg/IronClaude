@@ -262,6 +262,17 @@ def test_helper_scripts_build_no_deletion_argv():
             assert not _DELETE_ARGV.search(line), f"{path.name}:{number}: {line}"
 
 
+# --- submodule update argv ---------------------------------------------------------------
+
+
+def test_submodule_update_forces_the_checkout_strategy():
+    # Without --checkout a module's own submodule.<name>.update setting (none, merge,
+    # rebase) decides what the update does, and the read-back of the recorded commit fails.
+    text = _text(REFS_DIR / "submodule.md")
+    assert text.count("git submodule update --init --checkout -- '<path>'") == 2
+    assert "git submodule update --init -- " not in text
+
+
 # --- size limits (FR-018, NFR-012) -----------------------------------------------------
 
 
