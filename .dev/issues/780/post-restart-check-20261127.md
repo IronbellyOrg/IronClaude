@@ -6,7 +6,8 @@ Public record: https://github.com/IronbellyOrg/IronClaude/issues/780#issuecommen
 ## Verdict
 
 The one-time override of 2026-11-26 held, but `orca worktree current --json` still reports
-`github:superclaude-org/superclaude_framework` in every worktree created before the override.
+`github:superclaude-org/superclaude_framework` in the 25 worktrees whose stored row still holds
+that id (they predate the override; the 2 rows with no id are covered in Evidence item 4).
 Issue 780 stays open.
 
 ## Evidence (Orca 1.4.245-aidev02.5fa1a6608658, read 2026-11-27 15:40 to 15:45 UTC)
@@ -27,6 +28,11 @@ Issue 780 stays open.
      25 rows created before the override carry `github:superclaude-org/superclaude_framework`;
      4 rows created after it (issue-834-rest, issue-611, planning-protocol,
      reflect-issues-filing) carry `github:ironbellyorg/ironclaude`; 2 rows carry no id.
+     The 2 rows (orchestrator-655-hub, issue-834-clean) also have no creation date, so they
+     are not counted in the 25. Neither is a worktree Orca still manages: the path of
+     orchestrator-655-hub is missing, and `orca worktree current --json` run in
+     issue-834-clean answers `selector_not_found`. They report no project id at all, so they
+     neither support nor contradict the 25-row count (checked 2026-11-27 15:57 UTC).
 5. Installed CLI surface: `orca worktree set` has no project-id option; `orca repo` offers
    only list, add, show, set (worktree visibility), set-base-ref, search-refs. No command
    rewrites the project id on an existing worktree.
