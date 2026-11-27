@@ -1,0 +1,71 @@
+input_tree_sha256: f9cab798690d6d852c33f2e661599f4441fcc5897565f094f485d135ee73d743
+file_list:
+  - path: .claude/cache/sc-recommend-lookup.yaml
+    sha256: 753589f0083897aece2033a8ad9514ab431b11dbe94bc57b2d826916e190875d
+  - path: .dev/brainstorms/20261126-115614-git-pm-workflows-skills/adversarial/adversarial/merge-log.md
+    sha256: dfedf2608519fbd11082388fc5581f45ebe2fa58451c6629abe8192fdab90e90
+  - path: .dev/tasks/to-do/TASK-WF-design-20261126-162939/TASK-WF-design-20261126-162939.md
+    sha256: 9fedf12687239c1a0658d87df3baec18422bc785b03d8e366ed7871a81af585c
+  - path: .dev/tasks/to-do/TASK-WF-design-20261126-162939/artifacts/codegraph-grounding.md
+    sha256: b8ee2fc532b71131bbf403ebc09a64e2826d6e83720e610c695f57652b38e1ce
+  - path: .dev/tasks/to-do/TASK-WF-design-20261126-162939/source.md
+    sha256: c9e562bdf08a988d6b9bdb9ed93ee7d320697b1cd08c1f11ef0b308a515ad9d0
+  - path: commands/sc-git.md
+    sha256: 4e6d92aac61a930202cd293b2a8a9afac85da3690ae5431737ab384bc3afd14d
+  - path: docs/user-guide/commands.md
+    sha256: 23b42a77e025d0aa5db5ce95e4f49c46222240eafcc38548356f06f4c6a6b376
+  - path: docs/user-guide/flags.md
+    sha256: 9b9a7b06ad137bb1780ef7bf88e7119bc4571dea617039b1750fdf1fb25b8137
+  - path: plugins/superclaude/commands/git.md
+    sha256: 1d1dab269a0f2a0d5a6501685f2c2d3a469342b3fde8c5d19baa312eb0b3de02
+  - path: plugins/superclaude/commands/implement.md
+    sha256: 2520da1c70399095366297291042e0961848d81f42ca42fefae88abeeb518cdb
+  - path: plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+    sha256: 5437141e03329a00789071f2c1f7a2c560fd72f83ba81523b3f6fd33cb22ada8
+  - path: scripts/worktree_cleanup.py
+    sha256: 57675be5b979101d8a96a53487d85e1fe41f47838fa820077ec8269975ec0221
+  - path: src/superclaude/commands/README.md
+    sha256: bbd49fae455b06bb77c90f3a9a3e38ecd5ad05dfe4c61e6151a5f2c5d2c43bc4
+  - path: src/superclaude/commands/git.md
+    sha256: 1d1dab269a0f2a0d5a6501685f2c2d3a469342b3fde8c5d19baa312eb0b3de02
+  - path: src/superclaude/commands/implement.md
+    sha256: 2520da1c70399095366297291042e0961848d81f42ca42fefae88abeeb518cdb
+  - path: src/superclaude/commands/worktrees.md
+    sha256: a1b55adf1eb4f6c93c422319e6fe1d8204e9006815e8dc0eb1e9c868e6a21b09
+  - path: src/superclaude/core/CLAUDE.md
+    sha256: 7051db7688a61d82cfb77de19d7cd4065218d790bd0da6192336dba1c94015a4
+  - path: src/superclaude/core/HOW-WE-WORK.md
+    sha256: 5437141e03329a00789071f2c1f7a2c560fd72f83ba81523b3f6fd33cb22ada8
+  - path: src/superclaude/core/WORKER-CONTRACT.md
+    sha256: 02d3fd77df23d55f42b795ff84d65f8ee2acedff8296bb33c61b5a17dfa514e7
+  - path: src/superclaude/skills/sc-implement-protocol/SKILL.md
+    sha256: 021e33d48134b8ef56483cc81978c4014ddc33045675b0c073d944219d7328c5
+  - path: src/superclaude/skills/sc-implement-protocol/refs/ledger.md
+    sha256: ef3a8fdbc38d621cd573bc16bdbe7723be96ea565d0fdbdc8029830da9c9d86a
+  - path: src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
+    sha256: 1d77971b80e4df755c22b1e44e4ef3d18e78102f4de8878f34163a3bbb19c83e
+  - path: src/superclaude/skills/sc-implement-protocol/refs/qa.md
+    sha256: dbefe4cfd4db9a50e297cf6464fcdfc71def1e5636ae8bef3d0ebe0148bda207
+  - path: src/superclaude/skills/sc-implement-protocol/refs/retry.md
+    sha256: b25994bb2536bf52125f475000ac59a583b6b1b2f391fc032f7f69dc8470078e
+  - path: src/superclaude/skills/sc-implement-protocol/scripts/archive_workspace.py
+    sha256: 8ca4b91f5a07b7e05e241ae7535808d684f95f37a61acfaf487520211c58f4cd
+  - path: tests/commands/test_routing_plugin_parity.py
+    sha256: c362104ffdea66a1164d0903a251f3fb11e614c02c60258a3b476b7e16aaa123
+  - path: tests/commands/test_workflow_command.py
+    sha256: ddefe9da14d1924bba2e3181758c3444a05cbac0ebb413126536750e2b90ca10
+  - path: tests/docs/test_retired_docs_absent.py
+    sha256: 280b2197c9fe79b4bbdc591ea80167202b27c33f0358a349c4ff6a0102221732
+  - path: tests/recommend/fixtures/routing_refresh_cases.json
+    sha256: d0469f6d0545389e0f07b85e051f1f46bcf1f620bbc329e9d0e5e513ab736798
+  - path: tests/recommend/test_routing_refresh.py
+    sha256: 74683b90d0f7d0343ee12d531002cd4924d3b7889303ad7231d7ef8e26b41551
+  - path: tests/skills/test_task_workspace_lifecycle.py
+    sha256: 6cd41d9bd5e884915379a82b52ff69acb9955bd07a99dcff6dd11ef36c5a48e4
+  - path: tests/skills/test_worker_contract.py
+    sha256: ed30c264611dfa1ed4c98d6079129dd23e0962d5d1760480967aee546cf92f76
+  - path: tests/skills/test_workflow_archive.py
+    sha256: 1f8efd4beafd74de1c42cfaed508f5a892092d8062b0578739c09cfe0c2e9b21
+  - path: tests/worktree_cleanup/conftest.py
+    sha256: 0e0eedb14c83f1c6bb19b24df47e04d4d12bbbccd249641a66d0e89c02f3ac8d
+file_count: 34

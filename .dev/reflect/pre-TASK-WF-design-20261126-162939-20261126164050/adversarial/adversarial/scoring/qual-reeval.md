@@ -1,0 +1,17 @@
+# Qualitative re-evaluation of the 9 disputed (criterion, variant) pairs (final)
+
+Inputs: variant-1/2/3-original.md, scoring/qual-pass1.md, scoring/qual-pass2.md, debate/round1-advocate-1..3.md, debate/round2-advocate-1..3.md, diff-analysis.md. Binary: 1 = MET, 0 = NOT MET. MET needs quoted or referenced evidence in the card. Claims the debate showed false are not used as evidence. The K4 V3 pass 2 cell was read by hand from qual-pass2.md. The merge input holds `null` there because the escaped pipe in the V2 cell broke the parser. The cell scores 0.
+
+| criterion | variant | pass 1 | pass 2 | final | evidence (one line, quote or ref) |
+|---|---|---|---|---|---|
+| C3 | V2 | 1 | 0 | 1 | Notes: "F2 confirmed, not a blocker for this executor (source order)" (the incomplete `Depends on:` lines, also confirmed by V1 row 16 and V3 row 15); row 5 ties Task 24's check to files "Task 1 reserves unchanged". Missing C-004 is a gap in coverage; the card still analyses dependencies |
+| C4 | V1 | 1 | 0 | 1 | row 3 "Fix: check `test ! -e commands/sc-git.md` and the work-tree count" is a fix check (adopted as fix 5 in round2-advocate-3); "Blocking: 4 (rows 1-4)" names the gate set |
+| K4 | V3 | 0 | 0 (parser read null) | 0 | "Fully adherent: 20 (... 17, ... 27, ...)" but row 11 cites "213 (Task 17)" and row 9 "Task 27 AC2"; row 1 calls an early copy "a breach" but the recommended action says "copy each implement-side file into the plugin in the same task"; row 9 "Blocking (Decision)" is labelled MEDIUM (conceded in round1-advocate-3) |
+| K5 | V2 | 0 | 1 | 1 | every Deviations row has a file:line cell, e.g. row 5 `tests/worktree_cleanup/test_git_facts.py:217` (C-003, verified) and row 3 DESIGN:387-393, REQ:610 (T-21, verified in round 2); the refuted coverage claims (FR-109, NFR-014, T-14) and row 9's "no implementation instruction" are not used |
+| L1 | V3 | 0 | 1 | 0 | row 9 reads "Blocking (Decision)" with label MEDIUM (conceded); "Fully adherent: 20 (...; mostly checked for executability, not every detail)" hedges its own claim; row 1 "breach" against the recommended action leaves the early-copy guidance unclear |
+| L5 | V1 | 1 | 0 | 1 | explicit "Fix:" on rows 1-3, three of the four rows named in "Blocking: 4 (rows 1-4)", e.g. row 1 "move the fixture edit ... into Task 20, or have Task 19 create a stub skill" (all three adopted as fixes 1, 3 and 5 in round2-advocate-3); row 12 "A merge-base comparison avoids both" |
+| R3 | V2 | 0 | 1 | 1 | row 5 "Task 24's check cannot pass literally without editing files Task 1 reserves unchanged" (failure at execution, a B1 halt per round2-advocate-1), with recovery "Keep the check scoped to new production code"; row 2 "authorization text can be absent or weakened while the checks pass" |
+| R5 | V2 | 0 | 1 | 1 | row 3 names the checks that would prove the fix: "crashing after the resolution append, resuming twice, proving exactly one settlement" (T-21, verified in round 2); row 7 "appends exactly one `off` record when one exists" |
+| E4 | V2 | 0 | 1 | 1 | "The 199-id denominator of the brief includes 18 unused or deleted ids ...; not 199 active requirements" (199 against 181 active, consistent with "181 active id-defined units"); not refuted in the debate; the count is in the brief, not the plan, and the E4 definition does not exclude it |
+
+Finals equal to 1: 7 of 9 (C3 V2, C4 V1, K5 V2, L5 V1, R3 V2, R5 V2, E4 V2). The two 0s are K4 V3 and L1 V3.

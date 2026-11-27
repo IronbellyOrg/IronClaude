@@ -15,6 +15,7 @@ Middleweight executor. Source is a spec/PRD/tasklist path, an informal notes fil
 Codegraph usage rules (readiness check, closed `graph:*` token list, call-site procedure) are in `~/.claude/CODEGRAPH.md`; read it once per run.
 
 Load `refs/qa.md` for Q3–Q5. Load `refs/ledger.md` for ledger I/O and resume. Also load `refs/retry.md` when A2 (the Q5 fix pass) still fails review, or when resume finds a `retry` or `halt` record in the ledger. Do not load reflect-protocol. Do not invoke `/sc:task` or `sc:task-protocol`.
+Also load `refs/commit-step.md` when `--commit-tasks` is present or a `commits.md` exists in the ledger directory (legacy `<run-dir>/`, managed `<pkg-dir>/artifacts/`); otherwise never.
 
 **Managed packages.** If Wave 0 step 3 finds a `workflow-plan/1.2` plan (a workflow-owned `TASK-WF-*` package), also load `refs/managed-workspace.md`: it replaces the ledger location, resume dispatch, whole-list review and completion rules for that run only. Every other source runs the legacy rules below, unchanged.
 
@@ -47,14 +48,16 @@ STOP: need a source (file or prompt). Will not invent scope beyond that source.
 | `E-PLAN-CHANGED` | managed plan/source hash differs from the pin after the first `T<id>: start` | No | Unchanged |
 | `E-ARCHIVE-MARKER` | managed `.archiving` marker exists | No | Unchanged |
 | `E-ARCHIVE-BLOCKED` | managed FINAL/archive cannot complete (`issues`, `--skip-final-review`, helper refusal) | No | FINAL line only if a review ran |
+| `E-COMMIT-PRECONDITION` | Wave 0 step 5b check failed (`reason=<token>`, `--commit-tasks` only) | No | No |
+| `E-COMMIT-REFUSED` | a boundary refused, is unsettled or invalid (`reason=<token>`, `refs/commit-step.md`) | No next task | Unchanged; `commits.md` gets only the refused, uncertain or run line |
 
-No other `E-*` codes besides the rows above, `E-RESUME-NEEDED` being the only one the retry ladder adds (the managed rows apply only to managed plans; helper `E-ARCHIVE-*` codes pass through verbatim). Unreadable/binary with no text → `E-NO-TASKS`. Directory → `E-SOURCE-MISSING`. Informal prose is a valid 1-task source, not `E-NO-TASKS`.
+No other `E-*` codes besides the rows above, `E-RESUME-NEEDED` being the only one the retry ladder and the commit step's transient stops add (`E-COMMIT-PRECONDITION` and `E-COMMIT-REFUSED` apply only with the flag or a `commits.md`; the managed rows apply only to managed plans; helper `E-ARCHIVE-*` codes pass through verbatim). Unreadable/binary with no text → `E-NO-TASKS`. Directory → `E-SOURCE-MISSING`. Informal prose is a valid 1-task source, not `E-NO-TASKS`.
 
 E-LEGACY copy: `Removed flags: --type/--framework/--safe/--with-tests. Pass a spec path.`
 
 ## Wave 0 — parse and intake
 
-1. Tokenize `$ARGUMENTS` (whitespace). Known options: `--spec`, `--prd`, `--tasklist`, `--resume`, `--ledger`, `--skip-final-review`. Banned option tokens: `--type`, `--framework`, `--safe`, `--with-tests` (exact token or `--type=` / `--framework=` prefix). `--force` as an option token → STOP `E-NO-RULING`.
+1. Tokenize `$ARGUMENTS` (whitespace). Known options: `--spec`, `--prd`, `--tasklist`, `--resume`, `--ledger`, `--skip-final-review`, `--commit-tasks` (a standalone option-prefix token of a message the person typed that starts with `/sc:implement`; grant and revocation: `refs/commit-step.md`). Banned option tokens: `--type`, `--framework`, `--safe`, `--with-tests` (exact token or `--type=` / `--framework=` prefix). `--force` as an option token → STOP `E-NO-RULING`.
    Walk left to right. While tokens are options (start with `--`) or their values (`--spec PATH`, `--ledger PATH`): if a token is banned → STOP `E-LEGACY`. `--force` → STOP `E-NO-RULING`.
    The first non-option token starts the source (existing file path, or inline prompt). **After that, later `--type` / `--framework` / `--safe` / `--with-tests` are prompt text** (e.g. `document the --type migration`). `--spec file.md --type x` is still E-LEGACY (banned token in the option prefix).
 2. (reserved — `--force` handled in step 1)
@@ -69,7 +72,9 @@ E-LEGACY copy: `Removed flags: --type/--framework/--safe/--with-tests. Pass a sp
    - No path and no leftover text → STOP `E-NO-SOURCE`.
 4. Read the source file. Enumerate tasks (below). If zero enumerable items and the file has non-whitespace text → **T1 = the whole document** (informal spec / prompt). If the file is empty/whitespace → STOP `E-NO-TASKS`.
 5. Resolve ledger path. **Managed:** always `<package>/progress.md` (see ref; a differing `--ledger` → `E-LEDGER-PATH`). Otherwise (default `.dev/implement/<slug>/progress.md`). For an existing file, `<slug>` = `{prefix}-{hash8}` where `prefix` is the basename without extension (slug-chars, max 24) and `hash8` is SHA-256 of the **absolute** path, first 8 hex chars — not basename alone (two `notes.md` files must not collide). For an inline prompt, reuse the `<slug>` computed in step 3 (the parent directory of `source.md`) — **not** the basename `source`. `--ledger` override MUST be under `.dev/implement/` else `E-LEDGER-PATH`.
+5b. Flag only: `vcs preflight` (reads, writes nothing) and read any existing ledger and `commits.md`. STOP `E-COMMIT-PRECONDITION reason=<token>` for `not-person`, `unattended`, `helper-missing`, `not-a-repo`, `detached-head`, `protected-branch`, `operation-in-progress`, `index-locked`, `git-too-old`.
 6. Open or create ledger (header first, before any product edit). Resume per `refs/ledger.md`. Truncated last line → `E-LEDGER-CORRUPT`.
+6b. Flag present or `commits.md` exists: observe outside-S changes, append the `run` line, `vcs reconcile`, perform the actions it names (`refs/commit-step.md`). Steps 7 to 9 follow.
 7. If N≥20 print **once**: `N tasks; compaction likely; ledger is the source of resume.` Do not STOP. Do not split.
 8. Optional auggie before significant edits; unavailability is a warning, not a STOP.
 9. **Codegraph readiness: exactly one check per run**, after step 8 and before the first Q0. Run the `~/.claude/CODEGRAPH.md` section 2 check once and keep the result as the **run state**: `index_state`, `access`, `checked_at`, `worktree_root`, `projectPath`.
@@ -124,9 +129,9 @@ Q0 START   If AC QUALIFY fails → E-NO-AC (do not reach Q1).
              `idx=$(mktemp); GIT_INDEX_FILE="$idx" git read-tree HEAD && GIT_INDEX_FILE="$idx" git add -A && start=$(GIT_INDEX_FILE="$idx" git write-tree); rm -f "$idx"`
            Then **pin the tree** so `git gc` cannot prune it before resume:
              `git update-ref "refs/superclaude/implement/<slug>/T<id>" "$start"` (managed: `<slug>` is the package id)
-           Only when the snapshot is a tree: write `<retries>/T<id>/q0-head` (the 40-hex of `git rev-parse HEAD`; `refs/retry.md`) after the snapshot and **before** the start line is appended.
+           Only when the snapshot is a tree: write `<retries>/T<id>/q0-head` (the 40-hex of `git rev-parse HEAD`; `refs/retry.md`) after the snapshot and **before** the start line is appended. Flag on: also write `<retries>/T<id>/q0-branch` (one line, `git symbolic-ref HEAD`) the same way.
            If write-tree fails, `start=$(git rev-parse HEAD 2>/dev/null)` (HEAD is already a ref). If that fails, `nogit`. Write the start line once with that 40-hex (or `nogit`).
-           On task `complete`, delete the Q0 pin `git update-ref -d "refs/superclaude/implement/<slug>/T<id>"` and the task's checkpoint refs (`refs/retry.md`); keep its sweep refs. The final summary lists each kept sweep ref with one `git update-ref -d <ref>` line for the operator. The task's reviewed-tree refs `retry/T<rid>/r<k>-<j>` (`refs/qa.md`) are deleted at `complete` once `first=` and `origin=` are written; sweep refs are kept.
+           On task `complete`, delete the Q0 pin `git update-ref -d "refs/superclaude/implement/<slug>/T<id>"` and the task's checkpoint refs (`refs/retry.md`), except that a member of an unsettled commit boundary keeps its Q0 pin and checkpoint refs, and no `accepted/`, `boundary/`, `boundary-wt/` or `rewritten/` pin is deleted here, on any run, flagged or not (`refs/commit-step.md`, Pins and final summary); keep its sweep refs. The final summary lists each kept sweep ref with one `git update-ref -d <ref>` line for the operator. The task's reviewed-tree refs `retry/T<rid>/r<k>-<j>` (`refs/qa.md`) are deleted at `complete` once `first=` and `origin=` are written, and once the accepted pin holds their tree where one is required; sweep refs are kept.
            Read Ti text + AC ids + global constraints.
 Q1a CONTEXT Before the first edit, load context for up to 5 symbols the task names or touches. Run state `index_state: fresh` and `access: mcp` (Wave 0 step 9): `codegraph_search` to locate each, `codegraph_node {symbol, file, includeCode:true}` for its definition (`codegraph_node {file, symbolsOnly:true}` for a file outline), `codegraph_callers` and `codegraph_impact` at depth 1 for who depends on it; every call passes the run state's `projectPath`. Floor, always the fallback and always the Read before an Edit: Grep for the definition, Read the range, Grep `\b<symbol>\b` for references, Read each call site. Not fresh → floor only, and append the `graph:*` line to `codegraph.md`. Context only: it never widens the task, changes the AC, changes a verdict or interrupts the run.
 Q1 EXEC    Implement only that task. Touched files = paths this task created or modified via Write, Edit, or Bash (product paths, not the ledger).
@@ -147,6 +152,7 @@ Q5 FIX     If Q4 is not compliant: because `minor` and `note` findings never cha
 Q6 EXTRAS  Detect and run lint/typecheck/tests if present. Record extras. Never overwrite Q4.
            Advisory test list (optional extra): invoke `> Skill sc:impact-protocol` with `--diff HEAD --tests --output-dir <ledger dir>/impact/<task-id>-tests --caller sc-implement-protocol` and read only `status`, `degraded`, `tests[]` and `selection_source` from its `return-contract.yaml`; copy the `degraded` tokens into the task's notes. Its tests may be added to the extras run, never removed from it; `status: blocked|failed` counts as `graph:absent` and the extras run as before.
 Q7 GATE    Apply the Halt table in refs/qa.md and the ladder in refs/retry.md. User acceptance (Ruling): `refs/qa.md` Halt table. Write ledger line(s). Flush before the next task.
+Q8a COMMIT Flag on, no task open, a boundary due: `refs/commit-step.md`; settle it before Q8.
 Q8 NEXT    Only if complete (compliant, or non-compliant plus operator Ruling). Else STOP.
 ```
 
@@ -190,7 +196,7 @@ Extra `fail` does not change the spec verdict. A task MUST NOT be marked `compli
 
 ## Done
 
-Every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus operator Ruling). Print the ledger path. A `compliant` line may carry a `notes@` token (complete with notes, `refs/qa.md`). When no FINAL that can block ran (any legacy run, including N=1 and `--skip-final-review`), the final summary also prints lines 2 to m of each task's notes file with their checklist answers, informational only, asking the user nothing. The final summary also prints every `family-fallback:` header line of an `advice-<n>-<x>.md` (`refs/retry.md`, Model ladder). Suggest `/sc:test` and `/sc:git` only as optional next steps, not gates.
+Every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus operator Ruling). Print the ledger path. A `compliant` line may carry a `notes@` token (complete with notes, `refs/qa.md`). When no FINAL that can block ran (any legacy run, including N=1 and `--skip-final-review`), the final summary also prints lines 2 to m of each task's notes file with their checklist answers, informational only, asking the user nothing. The final summary also prints every `family-fallback:` header line of an `advice-<n>-<x>.md` (`refs/retry.md`, Model ladder). With a `commits.md`, it prints one line per `commit sha=` or `recovered` line: `<short sha> <tasks> <subject>`. Suggest `/sc:test` and `/sc:git` only as optional next steps, not gates.
 
 **Follow-up print (record and print only).** At the final review step the executor prints every non-superseded minor line of every task's `<retries>/T<id>/notes.md` (lines 2 to m, the lines counted above) and runs the safety scan over each notes file with this call:
 

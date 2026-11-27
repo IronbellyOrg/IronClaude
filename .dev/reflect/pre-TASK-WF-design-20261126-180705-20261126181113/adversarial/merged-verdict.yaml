@@ -1,0 +1,14 @@
+merge_method: adversarial
+mode: A
+depth: quick
+variants: 3
+base_variant: 3
+convergence: 0.96
+convergence_note: "25 of 26 diff points agreed in Round 1; only S-001 (layout) split. No Round 2, no invariant probe (quick depth)."
+reviewer_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+merged_output: adversarial/adversarial/merged-output.md
+finding_counts: {blocking: 2, label_high: 2, medium: 8, note: 6}
+unaddressed_invariants: []

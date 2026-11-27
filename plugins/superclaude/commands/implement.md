@@ -4,7 +4,7 @@ description: "Middleweight spec executor — walk a spec/PRD/tasklist, per-task 
 category: workflow
 complexity: standard
 mcp-servers: [codegraph]
-argument-hint: "<path-or-prompt> [--resume] [--ledger <path>] [--skip-final-review]"
+argument-hint: "<path-or-prompt> [--resume] [--ledger <path>] [--skip-final-review] [--commit-tasks]"
 ---
 
 # /sc:implement — Middleweight Spec Executor
@@ -58,6 +58,7 @@ STOP: need a source (file or prompt). Will not invent scope beyond that source.
 | `--resume` | implicit if a matching ledger exists | Continue from first non-complete task |
 | `--ledger <path>` | `.dev/implement/<slug>/progress.md` | Override; MUST live under `.dev/implement/`. Managed packages always use the sibling `progress.md`; any other value STOPs |
 | `--skip-final-review` | off | Skip the N>1 whole-list pass. On a managed package it also blocks archiving (FINAL is mandatory there) |
+| `--commit-tasks` | off | Commit each finished task or batch on the current branch, one commit per boundary, only when typed by the person in the option prefix of a `/sc:implement` message; rules in the protocol skill's `refs/commit-step.md` |
 
 Banned tokens (STOP `E-LEGACY`, even if a path is also present): the four removed flags named in the protocol skill STOP table. Pass a spec path instead.
 
@@ -97,7 +98,7 @@ The protocol skill runs exactly one codegraph readiness check per run (Wave 0; r
 - Treat lint or tests as the pass/fail
 - Invoke `/sc:task`
 - Import MDTM F1, 6-agent phase gates, or `/sc:reflect` as the per-task gate
-- Auto-commit, open PRs, or release (a managed archive is not any of these)
+- Commit without `--commit-tasks` on the invocation line, push, open PRs, or release (a managed archive is not any of these)
 - Move a package by any means other than the archive helper
 
 Examples, boundaries and related commands: see the protocol skill (`~/.claude/skills/sc-implement-protocol/SKILL.md`).

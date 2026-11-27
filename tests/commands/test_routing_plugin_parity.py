@@ -38,9 +38,9 @@ def test_sc_recommend_plugin_tree_mirrors_src_plus_guide():
     assert filecmp.cmp(_GUIDE, _PLUG_SKILL / "refs/HOW-WE-WORK.md", shallow=False)
 
 
-@pytest.mark.parametrize("name", ["help", "recommend", "workflow", "implement"])
+@pytest.mark.parametrize("name", ["help", "recommend", "workflow", "implement", "git"])
 def test_readme_listed_command_mirrors_match_src(name):
-    """T70: the four commands src/superclaude/commands/README.md says are mirrored."""
+    """T70: the five commands src/superclaude/commands/README.md says are mirrored."""
     src = _REPO / "src/superclaude/commands" / f"{name}.md"
     plug = _REPO / "plugins/superclaude/commands" / f"{name}.md"
     assert f"`{name}.md`" in (src.parent / "README.md").read_text(encoding="utf-8")

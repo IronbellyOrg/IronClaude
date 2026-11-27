@@ -1,0 +1,2 @@
+a2ca1a333fa0b9413bc833d9b2aebecc77f9dd2c
+A1 r1-1 F1.1 note tests/skills/test_git_protocol.py:244 ac=scope n,n,n,n (implementer-disclosed) the argv-form branch-deletion scan covers only the helper scripts, not tests/vcs/**, because test setup in tests/vcs/test_submodules.py and the refusal checks in test_rules.py and test_helper_readonly.py legitimately run branch -D on throwaway repositories; the text-form scan still covers tests/vcs/** and finds nothing.

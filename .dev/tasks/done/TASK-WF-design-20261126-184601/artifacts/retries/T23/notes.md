@@ -1,0 +1,4 @@
+ee36a1992502035258fdfb0031c76639dd44ae27
+A1 r1-1 F1.1 note src/superclaude/skills/sc-git-protocol/refs/submodule.md:26 ac=T23.AC2 n,n,n,n the ref names not-a-repo, which is not in the design 8.1 /sc:git token row (it is in 8.1 E-COMMIT-PRECONDITION and the vcs submodules refusal).
+A1 r1-1 F1.2 note src/superclaude/skills/sc-git-protocol/refs/submodule.md:38 ac=scope n,n,n,n the update preflight refuses only operation-in-progress, index-locked and git-too-old, while SKILL.md step 2 lists all five for any write; documented narrowing, same as branch.md (follow-up: align SKILL.md step 2).
+A1 r1-1 F1.3 note src/superclaude/skills/sc-git-protocol/refs/submodule.md:68 ac=T23.AC2 n,n,n,n the report asks for old and new heads only for completed paths; FR-045 is looser, and uncertain already carries both shas.

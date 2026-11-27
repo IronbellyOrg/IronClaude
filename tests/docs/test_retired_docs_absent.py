@@ -25,6 +25,7 @@ _RETIRED = [
     "docs/reference/comprehensive-features.md",
     "docs/guides/SuperClaude-Developer-Guide-Commands-Skills-Agents.md",
     "docs/generated/contributor-knowledge-base/commands-skills-cross-reference.md",
+    "commands/sc-git.md",
 ]
 _LINK_RE = re.compile(r"\]\(([^)\s#]+)")
 

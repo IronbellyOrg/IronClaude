@@ -131,12 +131,12 @@ for each id in T1..TN (source order):
   if latest status for id is not complete → resume here
   if latest status is complete → skip
 first such id wins
-if all complete → run FINAL unless --skip-final-review or FINAL already present or N=1
+if all complete and no boundary is unsettled → run FINAL unless --skip-final-review or FINAL already present or N=1
 ```
 
 The completion rules in this section are **legacy-ledger** rules; managed packages follow the Managed-package extension below.
 
-`--resume` is implicit when a matching ledger exists. If the ledger is missing, write the header before the first edit. If all tasks are `complete` **and** FINAL is already present (or N=1, or `--skip-final-review`): STOP `already complete: <ledger path>`. If all tasks are `complete` and FINAL is still due: run FINAL, then stop. Do not skip a pending N>1 whole-list review.
+`--resume` is implicit when a matching ledger exists. If the ledger is missing, write the header before the first edit. If all tasks are `complete` **and** FINAL is already present (or N=1, or `--skip-final-review`): STOP `already complete: <ledger path>`. If all tasks are `complete` and FINAL is still due: run FINAL, then stop. Do not skip a pending N>1 whole-list review. Settle before advance (`refs/commit-step.md`): while a commit boundary is unsettled, a run never reports "all complete" or `already complete` and never starts FINAL; it stops as that file says, on any run, flagged or not.
 
 Trust ledger + git history after compaction. Do not ask the user to paste prior chat.
 
@@ -154,7 +154,7 @@ First match wins; the row order is part of the rule:
 
 | Row | Condition | Action |
 |---|---|---|
-| 1 | Latest verdict is `complete` | Skip. Delete the Q0 pin and checkpoint refs if they still exist; keep sweep refs. Also delete the task's `r<k>-<j>` refs. |
+| 1 | Latest verdict is `complete` | Skip. Delete the Q0 pin and checkpoint refs if they still exist, except those of a member of an unsettled boundary; never delete the `accepted/`, `boundary/`, `boundary-wt/` or `rewritten/` pins here, on any run, flagged or not (`refs/commit-step.md`, Pins and final summary). Keep sweep refs. Also delete the task's `r<k>-<j>` refs. |
 | R | An eligible Ruling with no `complete` after it | Append the post-ruling `complete` with the latest `blocked` line's verdict unchanged (Post-ruling complete line), with no review, then row 1. |
 | P | Latest verdict is `blocked`, and the task has no `retry` and no `halt` record | One fresh operator review of the tree as it stands, nothing reverted. `compliant` → `complete`. Otherwise append `blocked` and `halt review=2 reason=operator-review` → STOP `E-HALT-QA`. |
 | H | A `halt` record exists | If the last record is a `blocked` after the latest `halt`, append `halt review=<k> reason=<r>` with r = `operator-review` → STOP. Otherwise one fresh operator review of the tree as it stands: `compliant` → `complete`; else `blocked`, then `halt review=<k> reason=<r>` with r = `operator-review` → STOP `E-HALT-QA`. |
@@ -237,7 +237,7 @@ Managed ledgers (`<package>/progress.md`) reuse every record above unchanged and
 - A log token cites the line that shows the outcome (a pytest summary such as `48 passed in 0.16s`, ruff's `All checks passed!`), not a banner and not the trailing `rc=` line; one token per outcome when a log covers several commands.
 - A managed `FINAL:` carries the helper's `state=` digest and must be the last record before the helper's own `ARCHIVE: start id=<id> token=<hex>` line. Any later `PLAN`/`T`/`ARCHIVE` record makes it stale: run a new FINAL on every archive attempt. `ARCHIVE: failed id=<id> token=<hex> reason=<code>` records a refused attempt.
 - Legacy `ARCHIVE: Ruling: <what naming T-ids> — <why> — <cost-if-wrong>` records remain readable but are optional. A matching task Ruling is sufficient for ordinary archiving of unchanged accepted work; never demand duplicate approval. Neither form waives FINAL or authorizes commit, PR, merge or release.
-- Resume dispatch for managed packages: location check → pin check → first non-complete task → the per-task resume table (Resume) → all complete = active all-complete → archive gate. "Already complete" is reported only after the helper answers `already-archived`.
+- Resume dispatch for managed packages: location check → pin check → first non-complete task → the per-task resume table (Resume) → all complete with no unsettled boundary (`refs/commit-step.md`) = active all-complete → archive gate. "Already complete" is reported only after the helper answers `already-archived`.
 - The re-review `complete` lines of the saved-prompt recovery ("Re-review complete line" above) and the later move of a defective saved prompt to `superseded-prompts/` (`refs/qa.md`, "Defective saved prompt (recovery)") come before the fresh FINAL of the next archive attempt.
 
 ```

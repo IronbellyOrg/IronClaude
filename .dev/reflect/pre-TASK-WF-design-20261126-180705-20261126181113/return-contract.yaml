@@ -1,0 +1,106 @@
+contract_version: "1.9.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-326/.dev/reflect/pre-TASK-WF-design-20261126-180705-20261126181113/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-326/.dev/reflect/pre-TASK-WF-design-20261126-180705-20261126181113/audit.log
+confidence_calibrated: 0.75
+escalation_rule_matched: 4
+onboarding_ran: false
+
+# UC-1
+coverage_pct: 0.9259                 # parsed-only (T-nn: 25 of 27)
+coverage_pct_union: 0.8693           # 173 of 199 ids named in the plan text, plan ranges expanded
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: [T-14, T-18]
+unmapped_requirements_union: [FR-015, FR-016, FR-024, FR-025, FR-026, FR-027, FR-028, FR-029, FR-037, FR-068, FR-069, FR-083, FR-084, FR-085, FR-086, FR-087, FR-088, FR-089, FR-119, NFR-004, NFR-011, NFR-013, NFR-015, NFR-016, T-14, T-18]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 only: not applicable
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 15, regression: 1}
+deviation_register_path: null
+grounding_gaps_path: null
+
+# Input integrity
+input_sha256: {tasklist: 1d9cda5d279374ad162454d1804f4706d5633788a4b9b3b2d88dc607af83d263, spec: c148fc1ac18cf7a57860327de938570a3cde4674cfc14264c4bdcadb6daef5ee}
+input_tree_sha256: 5f25ff6ba0cdc3fcbc54a4fc024cac2f3e001c0c8d80717ef25e104e539f4dfa
+input_tree_file_count: 36
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-326/.dev/reflect/pre-TASK-WF-design-20261126-180705-20261126181113/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 132
+citations_revalidated: 132
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: adversarial/adversarial/
+adversarial_convergence_score: 0.96
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+finding_counts: {blocking: 2, label_high: 2, medium: 8, note: 6}
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_gate_passed: null
+
+unaddressed_invariants: []
+
+telemetry:
+  wave_durations_ms: {note: "not measured"}
+  reviewer_models: [sonnet, haiku, opus]
+  reviewer_personas: [analyzer, qa, refactorer]
+  degraded_components: [calibrator-diversity, executor-class-unresolved, vendor-single, adversarial-quick-depth]
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  memory_hits: 1
+  memory_misses: 0
+  memory_persist_failed: false
+  t2_engine_requested: legacy
+  t2_engine_effective: legacy
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  references_extended_info_used: false

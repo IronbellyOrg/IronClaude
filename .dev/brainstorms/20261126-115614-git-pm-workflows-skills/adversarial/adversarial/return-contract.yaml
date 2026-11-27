@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/20261126-115614-git-pm-workflows-skills/adversarial/adversarial/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/brainstorms/20261126-115614-git-pm-workflows-skills/adversarial/adversarial"
+  status: "success"
+  base_variant: "opus:architect"   # Variant A; revealed after the blind debate (blind-map.txt)
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []        # 3 HIGH findings were resolved in Round 3; 16 MEDIUM and 3 LOW were ruled ACCEPT-FIX or ACCEPT-RISK

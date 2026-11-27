@@ -1,0 +1,1 @@
+codegraph run state: index_state=fresh access=mcp checked_at=2026-11-26T18:49:55Z worktree_root=/home/coder/workspaces/worktrees/IronClaude/issue-326 projectPath=/home/coder/workspaces/worktrees/IronClaude/issue-326

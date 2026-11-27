@@ -1,0 +1,21 @@
+tasks 38 created files tracked 13
+('NO-DEP-ON-CREATOR', 6, 'vcs_plan.py', 4)  | task line 88 | creator line 66
+('NO-DEP-ON-CREATOR', 6, 'vcs.py', 5)  | task line 88 | creator line 77
+('NO-DEP-ON-CREATOR', 8, 'vcs.py', 5)  | task line 110 | creator line 77
+('NO-DEP-ON-CREATOR', 9, 'vcs_plan.py', 4)  | task line 122 | creator line 66
+('NO-DEP-ON-CREATOR', 10, 'vcs_plan.py', 4)  | task line 132 | creator line 66
+('FORWARD', 10, 'commit-step.md', 27)  | task line 132 | creator line 310
+('NO-DEP-ON-CREATOR', 11, 'vcs_plan.py', 4)  | task line 142 | creator line 66
+('NO-DEP-ON-CREATOR', 12, 'vcs_plan.py', 4)  | task line 152 | creator line 66
+('FORWARD', 16, 'SKILL.md', 20)  | task line 196 | creator line 238
+('FORWARD', 19, 'SKILL.md', 20)  | task line 228 | creator line 238
+('NO-DEP-ON-CREATOR', 20, 'vcs.py', 5)  | task line 238 | creator line 77
+('FORWARD', 20, 'safety.md', 21)  | task line 238 | creator line 248
+('FORWARD', 20, 'commit.md', 21)  | task line 238 | creator line 248
+('FORWARD', 20, 'status.md', 22)  | task line 238 | creator line 258
+('FORWARD', 20, 'branch.md', 22)  | task line 238 | creator line 258
+('FORWARD', 20, 'submodule.md', 23)  | task line 238 | creator line 268
+('NO-DEP-ON-CREATOR', 26, 'SKILL.md', 20)  | task line 300 | creator line 238
+('FORWARD', 26, 'commit-step.md', 27)  | task line 300 | creator line 310
+('NO-DEP-ON-CREATOR', 30, 'SKILL.md', 20)  | task line 340 | creator line 238
+('NO-DEP-ON-CREATOR', 34, 'SKILL.md', 20)  | task line 380 | creator line 238

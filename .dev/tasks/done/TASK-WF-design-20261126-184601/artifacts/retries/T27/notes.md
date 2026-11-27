@@ -1,0 +1,3 @@
+a20ea33786e18a3bc49da0471c13eacd9b13eef6
+A1 r1-1 F1.1 minor src/superclaude/skills/sc-implement-protocol/refs/commit-step.md:35 ac=scope n,n,n,n step 2 puts the outside-S comparison before reconcile, but quiescence (FR-116) is proved later inside reconcile; follows the design table (source.md 5.2), so a wording gap (fix: say step 2 stops commit-interrupted or index-locked before comparing).
+A1 r1-1 F1.2 minor src/superclaude/skills/sc-implement-protocol/refs/commit-step.md:53 ac=scope n,n,n,n the states table row for a denied retry names only the refused line, while a denied retry can also carry index-locked or commit-interrupted (handled by step 5 and the transient section); fix: qualify the row.

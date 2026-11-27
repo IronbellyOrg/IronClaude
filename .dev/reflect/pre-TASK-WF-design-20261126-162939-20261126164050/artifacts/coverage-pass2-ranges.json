@@ -1,0 +1,1596 @@
+{
+ "rows": [
+  {
+   "id": "FR-001",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-002",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-003",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-004",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-005",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-006",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-007",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-008",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-009",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-010",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-011",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-012",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-013",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-014",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-015",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-016",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-017",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-018",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-019",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-020",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-021",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-022",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-023",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-024",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-025",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-026",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-027",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-028",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-029",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-030",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-031",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-032",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-033",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-034",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-035",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-036",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-037",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": false,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-038",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-039",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-040",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-041",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-042",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-043",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-044",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-045",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-046",
+   "family": "FR",
+   "spec_line": 15,
+   "in_plan": true,
+   "quote": "| C1 | `/sc:git` command + `sc-git-protocol` skill | A thin command file, a protocol skill with an operation registry and five refs loaded on demand | \u00a72 and \u00a73",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-060",
+   "family": "FR",
+   "spec_line": 16,
+   "in_plan": true,
+   "quote": "| C2 | `vcs` helper (skill script) | Read-only Python that computes facts and plans (seven verbs, JSON out). It never writes the repository | FR-010..FR-013, FR",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-061",
+   "family": "FR",
+   "spec_line": 16,
+   "in_plan": false,
+   "quote": "| C2 | `vcs` helper (skill script) | Read-only Python that computes facts and plans (seven verbs, JSON out). It never writes the repository | FR-010..FR-013, FR",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-062",
+   "family": "FR",
+   "spec_line": 16,
+   "in_plan": true,
+   "quote": "| C2 | `vcs` helper (skill script) | Read-only Python that computes facts and plans (seven verbs, JSON out). It never writes the repository | FR-010..FR-013, FR",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-063",
+   "family": "FR",
+   "spec_line": 16,
+   "in_plan": true,
+   "quote": "| C2 | `vcs` helper (skill script) | Read-only Python that computes facts and plans (seven verbs, JSON out). It never writes the repository | FR-010..FR-013, FR",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-106",
+   "family": "FR",
+   "spec_line": 16,
+   "in_plan": false,
+   "quote": "| C2 | `vcs` helper (skill script) | Read-only Python that computes facts and plans (seven verbs, JSON out). It never writes the repository | FR-010..FR-013, FR",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-123",
+   "family": "FR",
+   "spec_line": 16,
+   "in_plan": false,
+   "quote": "| C2 | `vcs` helper (skill script) | Read-only Python that computes facts and plans (seven verbs, JSON out). It never writes the repository | FR-010..FR-013, FR",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-130",
+   "family": "FR",
+   "spec_line": 16,
+   "in_plan": true,
+   "quote": "| C2 | `vcs` helper (skill script) | Read-only Python that computes facts and plans (seven verbs, JSON out). It never writes the repository | FR-010..FR-013, FR",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-006",
+   "family": "NFR",
+   "spec_line": 16,
+   "in_plan": true,
+   "quote": "| C2 | `vcs` helper (skill script) | Read-only Python that computes facts and plans (seven verbs, JSON out). It never writes the repository | FR-010..FR-013, FR",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-007",
+   "family": "NFR",
+   "spec_line": 16,
+   "in_plan": false,
+   "quote": "| C2 | `vcs` helper (skill script) | Read-only Python that computes facts and plans (seven verbs, JSON out). It never writes the repository | FR-010..FR-013, FR",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-008",
+   "family": "NFR",
+   "spec_line": 16,
+   "in_plan": true,
+   "quote": "| C2 | `vcs` helper (skill script) | Read-only Python that computes facts and plans (seven verbs, JSON out). It never writes the repository | FR-010..FR-013, FR",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-009",
+   "family": "NFR",
+   "spec_line": 16,
+   "in_plan": true,
+   "quote": "| C2 | `vcs` helper (skill script) | Read-only Python that computes facts and plans (seven verbs, JSON out). It never writes the repository | FR-010..FR-013, FR",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-050",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-051",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-052",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-053",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-054",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-055",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": false,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-056",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": false,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-057",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": false,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-058",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-059",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": false,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-064",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-065",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-066",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-067",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-068",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": false,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-069",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": false,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-070",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-071",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-072",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-073",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-074",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": false,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-075",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": false,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-076",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-077",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-078",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-079",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-100",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-101",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-102",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-103",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-104",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": false,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-105",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": false,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-107",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-108",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-109",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": false,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-131",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-132",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-133",
+   "family": "FR",
+   "spec_line": 17,
+   "in_plan": true,
+   "quote": "| C3 | Commit step in `sc-implement-protocol` | New flag `--commit-tasks`, a new ref `refs/commit-step.md`, three commit positions (Q8a, R0, L0), a sidecar `com",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-110",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": true,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-111",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": false,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-112",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": true,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-113",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": true,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-114",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": false,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-115",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": false,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-116",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": true,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-117",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": true,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-118",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": true,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-119",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": false,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-120",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": true,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-121",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": false,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-122",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": false,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-124",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": false,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-125",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": false,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-126",
+   "family": "FR",
+   "spec_line": 18,
+   "in_plan": true,
+   "quote": "| C4 | Worktree protection and owner resolution | Snapshot before and compare after every commit attempt; `abandon` / `adopt` answers that settle a boundary tha",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-080",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": true,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-081",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": true,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-082",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": true,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-083",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": false,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-084",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": false,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-085",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": false,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-086",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": false,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-087",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": false,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-088",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": false,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-089",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": false,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": false
+  },
+  {
+   "id": "FR-090",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": true,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-091",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": true,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-092",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": true,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-093",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": true,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": true
+  },
+  {
+   "id": "FR-094",
+   "family": "FR",
+   "spec_line": 19,
+   "in_plan": true,
+   "quote": "| C5 | Surrounding surfaces | Routing row, fixture S23, worker contract, plugin mirror, retired legacy copy, tests, sync steps | \u00a72.4, \u00a72.5, \u00a78, \u00a79, \u00a710 (FR-014",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-010",
+   "family": "NFR",
+   "spec_line": 40,
+   "in_plan": true,
+   "quote": "Rule that still holds for every installed primitive: no file under `src/superclaude/{commands,skills,agents,core,hooks,templates}` or its `plugins/superclaude/`",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-002",
+   "family": "NFR",
+   "spec_line": 81,
+   "in_plan": true,
+   "quote": "| I3 | The helper writes no ref, user index, work-tree file or config; the agent runs every write visibly | FR-011, NFR-002, T-03 |",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-03",
+   "family": "T",
+   "spec_line": 81,
+   "in_plan": true,
+   "quote": "| I3 | The helper writes no ref, user index, work-tree file or config; the agent runs every write visibly | FR-011, NFR-002, T-03 |",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-016",
+   "family": "NFR",
+   "spec_line": 84,
+   "in_plan": false,
+   "quote": "| I6 | Fail closed: a missing helper, pin, `q0-head`, or an unknown token refuses, never commits | NFR-016 |",
+   "in_plan_v2": false
+  },
+  {
+   "id": "T-22",
+   "family": "T",
+   "spec_line": 86,
+   "in_plan": true,
+   "quote": "| I8 | At most one commit per boundary key, across crashes and resumes | FR-108, FR-130, T-22 |",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-001",
+   "family": "NFR",
+   "spec_line": 87,
+   "in_plan": true,
+   "quote": "| I9 | `/sc:git` never pushes, merges, fetches on its own or opens a PR; the one clone/fetch exception is `submodule update` on a typed, disclosed line | FR-004",
+   "in_plan_v2": true
+  },
+  {
+   "id": "DD-1",
+   "family": "DD",
+   "spec_line": 95,
+   "in_plan": true,
+   "quote": "| DD-1 | The boundary key's \"ledger identity\" is the token `managed:<slug>` or `legacy:<slug>` (the pin-id slug), never a file path | A managed package moves fr",
+   "in_plan_v2": true
+  },
+  {
+   "id": "DD-2",
+   "family": "DD",
+   "spec_line": 96,
+   "in_plan": true,
+   "quote": "| DD-2 | The helper is one entry script plus three sibling modules, run as `uv run --no-project python <skill-dir>/scripts/vcs.py <verb>`. Tests load modules wi",
+   "in_plan_v2": true
+  },
+  {
+   "id": "DD-3",
+   "family": "DD",
+   "spec_line": 97,
+   "in_plan": true,
+   "quote": "| DD-3 | All helper JSON goes through one `emit(obj)` function that sorts keys, drops no field, caps lists at 200 with `truncated`, and refuses output above 64 ",
+   "in_plan_v2": true
+  },
+  {
+   "id": "DD-4",
+   "family": "DD",
+   "spec_line": 98,
+   "in_plan": true,
+   "quote": "| DD-4 | Commit message text is written by the agent to a temporary file outside the work tree (`message_path` from `stage-plan`); the helper validates it with ",
+   "in_plan_v2": true
+  },
+  {
+   "id": "DD-5",
+   "family": "DD",
+   "spec_line": 99,
+   "in_plan": true,
+   "quote": "| DD-5 | The reconcile result is a JSON list of boundaries with a fixed state vocabulary (`due`, `pending`, `refused`, `uncertain`, `settled`, `out-of-protocol`",
+   "in_plan_v2": true
+  },
+  {
+   "id": "DD-6",
+   "family": "DD",
+   "spec_line": 100,
+   "in_plan": true,
+   "quote": "| DD-6 | The `run` line field `args=` records the option prefix only, never source text, and `source=` is a path or `inline:<hash8>` (FR-101) | Keeps secrets in",
+   "in_plan_v2": true
+  },
+  {
+   "id": "DD-7",
+   "family": "DD",
+   "spec_line": 101,
+   "in_plan": true,
+   "quote": "| DD-7 | New tests live under `tests/vcs/` (helper and git behavior, real temporary repositories) and `tests/skills/`, `tests/commands/` (static text checks). R",
+   "in_plan_v2": true
+  },
+  {
+   "id": "DD-8",
+   "family": "DD",
+   "spec_line": 102,
+   "in_plan": true,
+   "quote": "| DD-8 | The helper's ledger reader reuses the exact line regexes of `archive_workspace.py` (`_START`, `_VERDICT`, `_RULING`, `_RETRY`, `_HALT`, `_PLAN`, `_FINA",
+   "in_plan_v2": true
+  },
+  {
+   "id": "DD-9",
+   "family": "DD",
+   "spec_line": 103,
+   "in_plan": true,
+   "quote": "| DD-9 | The runner allow-list is a table `verb -> permitted option tokens` in `vcs_rules.py`, not a list of verbs; an option outside the table is rejected befo",
+   "in_plan_v2": true
+  },
+  {
+   "id": "DD-10",
+   "family": "DD",
+   "spec_line": 104,
+   "in_plan": true,
+   "quote": "| DD-10 | Reading git config uses `config --get` and `config --get-regexp` only (same read-only family). `--get-regexp '^filter\\.'` is the lossless-snapshot che",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-13",
+   "family": "T",
+   "spec_line": 151,
+   "in_plan": true,
+   "quote": "At most two refs load per invocation: the operation's group ref plus `safety.md` for a write; a read loads only its group ref (FR-018, T-13).",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-17",
+   "family": "T",
+   "spec_line": 163,
+   "in_plan": true,
+   "quote": "Branch `create` runs `git switch -c <name>` and refuses a protected or existing name; `switch` runs `git switch <name>` and refuses a non-empty `git status --po",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-003",
+   "family": "NFR",
+   "spec_line": 167,
+   "in_plan": true,
+   "quote": "`refs/safety.md` repeats the lists that live as constants in `vcs_rules.py` (`PROTECTED_BRANCHES`, `FORBIDDEN_FLAGS`, `DEV_MIRROR_ALLOW`, `MIN_GIT`); a parity t",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-02",
+   "family": "T",
+   "spec_line": 232,
+   "in_plan": true,
+   "quote": "7. `add_argv` and `commit_argv` have exactly the FR-035 shape and never contain a token of FR-063 (T-02).",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-012",
+   "family": "NFR",
+   "spec_line": 248,
+   "in_plan": true,
+   "quote": "| `skills/sc-implement-protocol/SKILL.md` | Wave 0 step 1 known-options list (line 57) gains the flag; new step **5b** (commit preflight, flag only) after step ",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-11",
+   "family": "T",
+   "spec_line": 254,
+   "in_plan": true,
+   "quote": "| `scripts/archive_workspace.py` | **No change** (verified by a byte-equality assertion against the integration base in T-11) | I2, FR-070 |",
+   "in_plan_v2": true
+  },
+  {
+   "id": "DD-11",
+   "family": "DD",
+   "spec_line": 326,
+   "in_plan": true,
+   "quote": "| `prepared` appended, before pins exist | `prepared` line, HEAD = parent, a pin missing | DD-11: HEAD = parent, so nothing was committed: `pending`, new attemp",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-10",
+   "family": "T",
+   "spec_line": 350,
+   "in_plan": true,
+   "quote": "Location: legacy `.dev/implement/<slug>/commits.md` (never staged, like the legacy ledger); managed `<pkg-dir>/artifacts/commits.md` (staged with `.dev/tasks`).",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-018",
+   "family": "NFR",
+   "spec_line": 365,
+   "in_plan": true,
+   "quote": "A run without the flag and with no `commits.md` adds no Bash call and no file (NFR-018). With an existing `commits.md` it loads only the \"Reconcile and settle\" ",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-16",
+   "family": "T",
+   "spec_line": 365,
+   "in_plan": true,
+   "quote": "A run without the flag and with no `commits.md` adds no Bash call and no file (NFR-018). With an existing `commits.md` it loads only the \"Reconcile and settle\" ",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-04",
+   "family": "AC",
+   "spec_line": 403,
+   "in_plan": false,
+   "quote": "| `tests/commands/test_routing_plugin_parity.py` (line 41) | `@pytest.mark.parametrize(\"name\", [...])` gains `\"git\"` | FR-015, AC-04 |",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-13",
+   "family": "AC",
+   "spec_line": 405,
+   "in_plan": false,
+   "quote": "| `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` | Byte copy of the edited guide | FR-015, AC-13 |",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-14",
+   "family": "T",
+   "spec_line": 407,
+   "in_plan": false,
+   "quote": "| `tests/recommend/fixtures/routing_refresh_cases.json` (S23, lines 312-331) | `activation` becomes `{\"sc:git\": \"sc:git-protocol\"}`; top-level `mode_flags` stay",
+   "in_plan_v2": false
+  },
+  {
+   "id": "AC-11",
+   "family": "AC",
+   "spec_line": 413,
+   "in_plan": false,
+   "quote": "Unchanged and asserted unchanged: `scripts/worktree_cleanup.py` (`_remove_branch` at line 2636), `src/superclaude/commands/worktrees.md`, `src/superclaude/hooks",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-014",
+   "family": "NFR",
+   "spec_line": 431,
+   "in_plan": false,
+   "quote": "`vcs_contract: \"1\"`; both protocols refuse any other value (`helper-missing`). A breaking JSON change raises the number in one release together with both protoc",
+   "in_plan_v2": false
+  },
+  {
+   "id": "T-01",
+   "family": "T",
+   "spec_line": 440,
+   "in_plan": true,
+   "quote": "| `tests/vcs/test_stage_plan.py` | T-01, T-23 | path rules, deletions, gitlinks, literal names such as `:(glob)*`, `-n`, spaces, `d/how to merge.md` |",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-23",
+   "family": "T",
+   "spec_line": 440,
+   "in_plan": true,
+   "quote": "| `tests/vcs/test_stage_plan.py` | T-01, T-23 | path rules, deletions, gitlinks, literal names such as `:(glob)*`, `-n`, spaces, `d/how to merge.md` |",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-04",
+   "family": "T",
+   "spec_line": 443,
+   "in_plan": true,
+   "quote": "| `tests/vcs/test_hook_refusal.py` | T-04 | each FR-036 class and its `commits.md` line; no same-run retry; no `--no-verify` in any argv |",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-05",
+   "family": "T",
+   "spec_line": 444,
+   "in_plan": true,
+   "quote": "| `tests/vcs/test_only_semantics.py` | T-05 | `git commit --only` leaves other staged entries staged and out of the commit (checks the assumption rather than tr",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-06",
+   "family": "T",
+   "spec_line": 445,
+   "in_plan": true,
+   "quote": "| `tests/vcs/test_check_message.py` | T-06 | 72-code-point rule, trailers, type list; the `conventional-pre-commit` type list is UNVERIFIED until a test runs th",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-07",
+   "family": "T",
+   "spec_line": 446,
+   "in_plan": true,
+   "quote": "| `tests/vcs/test_submodules.py` | T-07 | local superproject with a `file://` submodule; sets `protocol.file.allow=always` only in its own repos (UNVERIFIED on ",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-08",
+   "family": "T",
+   "spec_line": 447,
+   "in_plan": true,
+   "quote": "| `tests/vcs/test_preflight.py` | T-08 | detached HEAD, protected names, merge in progress, `index.lock`, `origin/HEAD` notice, `git-too-old` (also checks the 2",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-011",
+   "family": "NFR",
+   "spec_line": 447,
+   "in_plan": false,
+   "quote": "| `tests/vcs/test_preflight.py` | T-08 | detached HEAD, protected names, merge in progress, `index.lock`, `origin/HEAD` notice, `git-too-old` (also checks the 2",
+   "in_plan_v2": false
+  },
+  {
+   "id": "T-19",
+   "family": "T",
+   "spec_line": 448,
+   "in_plan": true,
+   "quote": "| `tests/vcs/test_eligibility.py` | T-19, T-22 (pure part), T-10 | segments, anchors, keys, mixed batches, `derive_state` table, sidecar regex parity |",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-16",
+   "family": "AC",
+   "spec_line": 449,
+   "in_plan": true,
+   "quote": "| `tests/vcs/test_crash_points.py` | T-22, AC-16 | interrupt before `prepared`, after it, after staging, after the commit, after the terminal line; resume twice",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-20",
+   "family": "T",
+   "spec_line": 450,
+   "in_plan": true,
+   "quote": "| `tests/vcs/test_worktree_protection.py` | T-20, AC-17 | emulated SIGTERM to the process group, to git alone with an orphan hook, SIGKILL, timeout, stale lock;",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-17",
+   "family": "AC",
+   "spec_line": 450,
+   "in_plan": true,
+   "quote": "| `tests/vcs/test_worktree_protection.py` | T-20, AC-17 | emulated SIGTERM to the process group, to git alone with an orphan hook, SIGKILL, timeout, stale lock;",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-21",
+   "family": "T",
+   "spec_line": 451,
+   "in_plan": true,
+   "quote": "| `tests/vcs/test_resolution.py` | T-21, AC-18 | every unsettled state offers `abandon`; rejection cases; crash after the resolution append |",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-18",
+   "family": "AC",
+   "spec_line": 451,
+   "in_plan": true,
+   "quote": "| `tests/vcs/test_resolution.py` | T-21, AC-18 | every unsettled state offers `abandon`; rejection cases; crash after the resolution append |",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-09",
+   "family": "T",
+   "spec_line": 453,
+   "in_plan": true,
+   "quote": "| `tests/skills/test_implement_commit_rules.py` | T-09, T-15, T-16, T-24, T-25 | option row and Will Not text; STOP rows; the load rule; `--commit-tasks` string",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-15",
+   "family": "T",
+   "spec_line": 453,
+   "in_plan": true,
+   "quote": "| `tests/skills/test_implement_commit_rules.py` | T-09, T-15, T-16, T-24, T-25 | option row and Will Not text; STOP rows; the load rule; `--commit-tasks` string",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-24",
+   "family": "T",
+   "spec_line": 453,
+   "in_plan": true,
+   "quote": "| `tests/skills/test_implement_commit_rules.py` | T-09, T-15, T-16, T-24, T-25 | option row and Will Not text; STOP rows; the load rule; `--commit-tasks` string",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-25",
+   "family": "T",
+   "spec_line": 453,
+   "in_plan": true,
+   "quote": "| `tests/skills/test_implement_commit_rules.py` | T-09, T-15, T-16, T-24, T-25 | option row and Will Not text; STOP rows; the load rule; `--commit-tasks` string",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-12",
+   "family": "T",
+   "spec_line": 454,
+   "in_plan": true,
+   "quote": "| `tests/commands/test_git_command.py` | T-12 | front matter, usage forms, section order, one Activation line, no Unattended section, Will Not text |",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-18",
+   "family": "T",
+   "spec_line": 458,
+   "in_plan": false,
+   "quote": "Real-framework hook tests (FR-118) skip when `pre-commit` is not installed (DD-7). Test-first order inside each phase: write the failing test from the requireme",
+   "in_plan_v2": false
+  },
+  {
+   "id": "T-26",
+   "family": "T",
+   "spec_line": 471,
+   "in_plan": true,
+   "quote": "| P5 | `/sc:git` command and protocol skill (registry, five refs), delete `commands/sc-git.md`, plugin mirror, README, parity parametrization, `sync-dev` | P1, ",
+   "in_plan_v2": true
+  },
+  {
+   "id": "T-27",
+   "family": "T",
+   "spec_line": 471,
+   "in_plan": true,
+   "quote": "| P5 | `/sc:git` command and protocol skill (registry, five refs), delete `commands/sc-git.md`, plugin mirror, README, parity parametrization, `sync-dev` | P1, ",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-01",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": true,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-02",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": false,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-03",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": false,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-05",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": false,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-06",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": false,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-07",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": false,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-08",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": false,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-09",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": false,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-10",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": false,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-12",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": false,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-14",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": false,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-15",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": false,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-19",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": true,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-20",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": true,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "AC-21",
+   "family": "AC",
+   "spec_line": 473,
+   "in_plan": true,
+   "quote": "| P7 | Routing guide row, fixture S23, worker-contract scan, user docs, plugin copies, `make sync-dev` and `verify-sync` | P5, P6 | T-14, T-18, AC-01..AC-21 | M",
+   "in_plan_v2": true
+  },
+  {
+   "id": "NFR-004",
+   "family": "NFR",
+   "spec_line": 517,
+   "in_plan": false,
+   "quote": "| NFR-001..NFR-005, NFR-010, NFR-012..NFR-018 | all | \u00a72.2, \u00a78 | T-03, T-13, T-16, T-17 |",
+   "in_plan_v2": false
+  },
+  {
+   "id": "NFR-005",
+   "family": "NFR",
+   "spec_line": 517,
+   "in_plan": false,
+   "quote": "| NFR-001..NFR-005, NFR-010, NFR-012..NFR-018 | all | \u00a72.2, \u00a78 | T-03, T-13, T-16, T-17 |",
+   "in_plan_v2": false
+  },
+  {
+   "id": "NFR-013",
+   "family": "NFR",
+   "spec_line": 517,
+   "in_plan": false,
+   "quote": "| NFR-001..NFR-005, NFR-010, NFR-012..NFR-018 | all | \u00a72.2, \u00a78 | T-03, T-13, T-16, T-17 |",
+   "in_plan_v2": false
+  },
+  {
+   "id": "NFR-015",
+   "family": "NFR",
+   "spec_line": 517,
+   "in_plan": false,
+   "quote": "| NFR-001..NFR-005, NFR-010, NFR-012..NFR-018 | all | \u00a72.2, \u00a78 | T-03, T-13, T-16, T-17 |",
+   "in_plan_v2": false
+  },
+  {
+   "id": "NFR-017",
+   "family": "NFR",
+   "spec_line": 517,
+   "in_plan": true,
+   "quote": "| NFR-001..NFR-005, NFR-010, NFR-012..NFR-018 | all | \u00a72.2, \u00a78 | T-03, T-13, T-16, T-17 |",
+   "in_plan_v2": true
+  }
+ ]
+}

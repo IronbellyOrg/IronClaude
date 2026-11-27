@@ -1,0 +1,2 @@
+8e6d3d6bbd1f23ee9dcd2288c644fbbbb9ab2acd
+A1 r1-1 F1.1 note src/superclaude/skills/sc-git-protocol/refs/branch.md:14 ac=scope n,n,n,n branch.md says branch create and switch are not refused on a protected or detached HEAD, while SKILL.md step 2 (Task 20) sends every write through the generic preflight that refuses those states, so the two files disagree (inherited text of SKILL.md; fix: align SKILL.md step 2 and refs/safety.md with branch.md, FR-034 asks only for protected-name, existing-name and clean-tree checks).

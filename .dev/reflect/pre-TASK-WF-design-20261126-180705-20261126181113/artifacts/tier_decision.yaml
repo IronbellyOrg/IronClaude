@@ -1,0 +1,11 @@
+selected_tier: 2
+fired_rule_number: 4            # S_domains >= 3 (code, tests, docs, config); S_scope 38 tasks; rows 1 and 2 cannot fire
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 7.0
+per_signal_breakdown: {scope_size: 2, task_count: 2, blast_radius: 1, spec_density: 1, ambiguity_signals: 1}
+escalation_reason: "S_domains >= 3; 38 tasks; coverage_degraded pre-filter forbids a T1 stop; S_dev_density (union) 26/199 = 0.131"
+signals: {S_scope: 38, S_domains: 4, S_dev_density: 0.1307}
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null

@@ -1,0 +1,7 @@
+# Evidence validation (evidence-validator agent, sonnet class, read-only) of adversarial/adversarial/merged-output.md
+
+Total citations parsed: about 205 (each path and line group counted once). Sampling policy used: 100 percent of the Blocking rows M-01 to M-11 (about 105 citations); for M-12 to M-35 citations in 23 of 24 rows (about 96 percent of rows, above the 30 percent required), choosing the most specific factual claims. Verified about 201, dropped 0 outright, 2 line-number corrections, 3 weak citations kept with caveats. No commands were cited. assertions_path not supplied (A1 to A10 skipped).
+
+Line-number corrections (applied by the orchestrator in merged-output.md): M-25 cited DESIGN:134 (a front-matter paragraph; DD-11 is DESIGN:333 and open item O1 is DESIGN:523): removed. M-26 cited PLAN:196 for Task 15's Depends line: corrected to PLAN:188.
+Weak citations (kept, annotated in merged-output.md): M-03 tests/worktree_cleanup/test_git_facts.py:217 is a list-form deletion a text scan would not match; tests/hooks/test_launch_level_guard.py has only a push --delete string at :2664, not a branch deletion (annotated); M-11 .gitignore range cited for a negative claim (now says whole file); M-18 the upstream line 298 and merge count were not confirmable by Read alone (annotated UNVERIFIED), origin/integration = 4ce9f14 confirmed.
+Patterns: errors were in secondary citations next to a correct primary one; no finding lost its support. Suggested status: partial.

@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-326/.dev/reflect/pre-TASK-WF-design-20261126-180705-20261126181113/adversarial/adversarial/merged-output.md"
+  convergence_score: 0.96
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-326/.dev/reflect/pre-TASK-WF-design-20261126-180705-20261126181113/adversarial/adversarial/"
+  status: "success"
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  depth: quick
+  deviations:
+    - "quick depth: Round 1 only, no Round 2, no Round 2.5 invariant probe (re-review run of a regenerated plan)"
+    - "6 qualitative disagreements adjudicated by the orchestrator, not by a fresh evaluator agent (cannot change the base)"
+    - "no debate-transcript.md; the three Round 1 advocate files are in debate/"

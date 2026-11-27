@@ -1,0 +1,19 @@
+contract_version: "1.1"
+supersedes: TASK-WF-design-20261126-180705
+remediation_route: surgical
+finding_counts: {"blocking": 2, "label_high": 2, "medium": 8, "note": 6}
+fix_cycles: 1
+status: success
+slug: TASK-WF-design-20261126-184601
+plan_path: ./TASK-WF-design-20261126-184601.md
+source_path: ./source.md
+source_origin: .dev/brainstorms/20261126-115614-git-pm-workflows-skills/design.md
+strategy: systematic
+depth: deep
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-326/.dev/reflect/pre-TASK-WF-design-20261126-180705-20261126181113/REPORT.md
+unresolved:
+  - "Re-review scope: changed lines plus prior blockers (fix cycle 1: M-01 and M-02 resolved, verdict PASS, card .dev/reflect/pre-TASK-WF-design-20261126-180705-20261126181113/rereview-1-card.md). The full second review of the regenerated plan was status partial (coverage_degraded parsed-sparse, quick-depth debate)."
+  - "Follow-up candidates, not fixed: 8 Medium findings (M-03 to M-10 of REPORT.md) and 6 Notes; open item DD-11 reading awaits the owner."

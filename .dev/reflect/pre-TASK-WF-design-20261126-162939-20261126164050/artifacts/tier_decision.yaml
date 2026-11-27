@@ -1,0 +1,19 @@
+selected_tier: 2
+fired_rule_number: 4            # first matching row of the 5.3 table: rows 1 and 2 cannot fire (S_scope 38 > 10, S_domains >= 3); row 3 is UC-2 only; row 4 S_domains >= 3 fires
+coverage_degraded: parsed-sparse  # Step 1B.2b: inferred_count 172 > parsed_count 27; table-wide pre-filter, forbids any T1 stop on its own
+surface_unreached: null
+composite_score: 7.0            # recording only; V5 5-signal sum
+per_signal_breakdown:
+  scope_size: 2                 # 38 tasks
+  task_count: 2
+  blast_radius: 1               # many installed primitives and mirrors, all named in the plan
+  spec_density: 1               # 529-line design, 199 distinct ids
+  ambiguity_signals: 1          # open items O1 to O7, UNVERIFIED markers
+escalation_reason: "S_domains >= 3 (code, tests, docs, config paths); S_scope 38 tasks; S_dev_density (union, corrected) = 29/199 = 0.146, row 5 does not fire; coverage_degraded pre-filter forbids a T1 stop; the T1 calibrated confidence is recorded in the audit log and cannot lower the tier."
+signals:
+  S_scope: 38
+  S_domains: 4
+  S_dev_density: 0.1457          # corrected after calibration: unmapped union ids 29 of 199 once plan ranges ("FR-110 to FR-118") are expanded (first value 0.3367 did not expand plan ranges); parsed-only 2/27 = 0.0741
+t2_engine_requested: legacy
+t2_engine_effective: legacy
+panel_fallback_reason: null
